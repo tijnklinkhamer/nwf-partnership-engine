@@ -7,32 +7,74 @@ separate repository with its own database. This repository has no access to it, 
 its Supabase project, or to any learner, payment or payout data, and must never
 acquire any.
 
-## Current scope: Phase 1A
+## Current scope: Phase 1B
 
-Phase 1A ingests one authoritative dataset — the official Erasmus+ list of higher
-education institutions holding an Erasmus Charter for Higher Education (ECHE) —
-into a local PostgreSQL database, preserving full source provenance.
+The repository ingests **two** authoritative datasets into a local PostgreSQL
+database, preserving full source provenance for each:
+
+1. **ECHE** — the official Erasmus+ list of higher education institutions holding
+   an Erasmus Charter for Higher Education (Phase 1A).
+2. **The EWP Registry catalogue** — the Erasmus Without Paper service registry
+   (Phase 1B).
 
 ```
-official ECHE spreadsheet
-        ↓  runtime source resolution (fail closed)
-   deterministic parse + conservative normalisation
-        ↓
-   local PostgreSQL 16
-   organisations · organisation_sources · ingest_runs
-        ↓
-   read-only CLI inspection
+official ECHE spreadsheet          official EWP Registry catalogue
+        ↓                                      ↓
+  fail-closed source resolution      fail-closed source resolution
+        ↓                                      ↓
+  deterministic parse +              streaming SAX parse +
+  conservative normalisation         conservative normalisation
+        ↓                                      ↓
+  organisations                      ewp_snapshots · ewp_heis
+  organisation_sources               ewp_hei_other_ids · ewp_hosts
+  ingest_runs                        ewp_host_covered_heis
+                                     ewp_api_declarations
+        └──────────────┬───────────────────────┘
+                       ↓
+        artifact-to-artifact identifier MEASUREMENT
+        (pure; opens no database connection)
+                       ↓
+              read-only CLI inspection
 ```
+
+**The two sources are stored side by side and are never merged.** No EWP record
+is attached to an organisation, and EWP ingestion creates or modifies no
+`organisations` row. When the measurement says an ECHE row and an EWP HEI
+"match", it means _the same official identifier appears in both official
+datasets_ — not that they have been resolved into one verified entity.
 
 That is the entire system today.
 
+### What Phase 1B measured
+
+Full ECHE artifact (6,139 rows) against the live EWP catalogue (3,472
+institutions), measured artifact-to-artifact:
+
+|                                                           |                       |
+| --------------------------------------------------------- | --------------------- |
+| MATCH by PIC / Erasmus code / both                        | 3,291 / 3,319 / 3,289 |
+| MATCH by either                                           | **3,321 (54.1%)**     |
+| NO MATCH by neither                                       | 2,818                 |
+| **CONFLICT — PIC and code naming different institutions** | **0**                 |
+
+Where both official identifiers are present in both datasets, they agree
+unanimously. Full detail, including the exact artifact hashes, is in
+[`docs/adr/0001-ewp-registry-second-official-source.md`](docs/adr/0001-ewp-registry-second-official-source.md).
+
 ### What is explicitly NOT implemented
 
-There is no research pipeline, no Claude/Anthropic integration, no contact
-discovery or storage, no scoring, no compliance engine, no email templates, no
-Apollo integration, and **no outbound capability of any kind**. This repository
-cannot send email; it has no email dependency, no provider credential and no
-send code path. `src/test/firewall/phase1a.firewall.test.ts` enforces that in CI.
+There is **no entity resolution** — nothing merges, deduplicates, aliases, or
+marks anything verified across the two sources; duplicates and ambiguities are
+reported and left alone. There is no crawling or scraping, no research pipeline,
+no Claude/Anthropic integration, no contact discovery or storage, no scoring, no
+compliance engine, no email templates, no Apollo integration, and **no outbound
+capability of any kind**. This repository cannot send email; it has no email
+dependency, no provider credential and no send code path.
+
+Phase 1B records which EWP APIs each host **declares**. It never calls one.
+
+`src/test/firewall/phase1a.firewall.test.ts` and
+`src/test/firewall/phase1b.firewall.test.ts` enforce all of that in CI.
 
 Later phases each require separate founder approval before any work begins.
 
@@ -108,6 +150,55 @@ npm run cli -- orgs show "F PARIS001"     # organisation plus full provenance ch
 npm run cli -- orgs duplicates            # duplicate key analysis
 npm run cli -- ingest runs                # ingest history with source hashes
 ```
+
+## Ingesting the EWP Registry
+
+```bash
+# Fetch the official catalogue endpoint and store it as a snapshot
+npm run cli -- ewp ingest
+
+# Parse and report without touching the database
+npm run cli -- ewp ingest --file ./catalogue-v1.xml --dry-run
+
+# Operator-supplied source
+npm run cli -- ewp ingest --url https://registry.erasmuswithoutpaper.eu/catalogue-v1.xml
+npm run cli -- ewp ingest --file ./catalogue-v1.xml
+```
+
+A snapshot is identified by the SHA-256 of its exact bytes and by nothing else —
+the catalogue is refreshed continuously and publishes no version number.
+Re-ingesting identical bytes is a no-op; a changed catalogue becomes a new
+snapshot beside the old one, which is never modified.
+
+Inspection and measurement:
+
+```bash
+npm run cli -- ewp show                   # latest snapshot, identifier types, declared APIs
+npm run cli -- ewp coverage               # re-resolves BOTH official sources and measures
+npm run cli -- ewp coverage --eche-file ./eche.xlsx --ewp-file ./catalogue-v1.xml
+npm run cli -- ewp coverage --json        # the full report, machine-readable
+```
+
+`ewp coverage` opens no database connection at all. It compares the two
+artifacts directly, so the measurement can neither disturb an ingested dataset
+nor be skewed by one that is only partially loaded.
+
+Its output keeps `MATCH`, `NO MATCH`, `CONFLICT` and `UNKNOWN` as four distinct
+outcomes. `UNKNOWN` means the identifier was absent so no comparison was
+possible; `NO MATCH` means one was made and found nothing.
+
+### A SCHAC identifier is not a website
+
+An EWP `hei_id` is an institutional identifier that merely looks domain-shaped.
+The live catalogue publishes `0740047Z.educonnect.education.gouv.fr`, which is
+plainly a registry key rather than a site. It is never copied into
+`organisations.canonical_domain`, never used to infer a website, and never used
+as a crawl target.
+
+The measurement does report how often an ECHE `canonical_domain` is string-equal
+to a SCHAC id — clearly labelled as analytical only. In **64** cases they are
+equal while no official identifier corroborates the link, which is exactly why
+domain equality is not treated as identity.
 
 ## Validation
 
@@ -237,6 +328,22 @@ What follows from that, and what must not be assumed:
   a real-world organisation is exactly the question a later phase has to answer.
 - **No automatic merge exists**, and none may be added without an approved
   entity-resolution design.
+
+### And the same applies across sources
+
+Phase 1B added a second official dataset without weakening any of the above. An
+`ewp_heis` row is **source evidence**, not an organisation:
+
+- No `ewp_*` table carries a foreign key into `organisations`. That is
+  deliberate — a foreign key would assert the resolution that has not happened.
+- An EWP HEI whose PIC equals an ECHE row's PIC is a **measured identifier
+  match**, not a resolved entity. Nothing joins the two as though it were.
+- The EWP side has its own ambiguities, reported and left alone: `unisi.ch` and
+  `usi.ch` publish the same PIC _and_ the same Erasmus code; seven institutions
+  publish two PICs; two publish genuinely different Erasmus codes.
+- `nwf_ingest` holds `SELECT` and `INSERT` on the `ewp_*` tables and nothing
+  else — stricter than `organisations`, because a changed catalogue is a new
+  snapshot rather than an edit to an old one.
 
 ## Conventions
 

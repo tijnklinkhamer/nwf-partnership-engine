@@ -3,3 +3,6 @@ coverage/
 node_modules/
 package-lock.json
 src/test/fixtures/
+
+# Gitignored working directory for downloaded source artifacts.
+data/

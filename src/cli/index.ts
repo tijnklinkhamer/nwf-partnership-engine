@@ -11,26 +11,36 @@ import * as log from '../logging/log.js';
 import { runIngestEche } from './commands/ingestEche.js';
 import { runIngestRuns } from './commands/ingestRuns.js';
 import { runOrgsDuplicates, runOrgsList, runOrgsShow } from './commands/orgs.js';
+import { runEwpCoverage, runEwpIngest, runEwpShow } from './commands/ewp.js';
 
-const USAGE = `nwf-pe - NWF Partnership Engine (Phase 1A)
+const USAGE = `nwf-pe - NWF Partnership Engine (Phase 1B)
 
 Usage:
-  nwf-pe ingest eche [--country <CC>] [--file <path>] [--url <official-url>] [--dry-run]
-  nwf-pe ingest runs [--limit <N>]
-  nwf-pe orgs list   [--country <CC>] [--limit <N>]
-  nwf-pe orgs show   <erasmus-code | uuid>
+  nwf-pe ingest eche   [--country <CC>] [--file <path>] [--url <official-url>] [--dry-run]
+  nwf-pe ingest runs   [--limit <N>]
+  nwf-pe orgs list     [--country <CC>] [--limit <N>]
+  nwf-pe orgs show     <erasmus-code | uuid>
   nwf-pe orgs duplicates
+  nwf-pe ewp ingest    [--file <path>] [--url <official-url>] [--dry-run]
+  nwf-pe ewp show      [--limit <N>]
+  nwf-pe ewp coverage  [--eche-file <path> | --eche-url <url>]
+                       [--ewp-file <path>  | --ewp-url <url>] [--limit <N>] [--json]
 
 Options:
-  --country <CC>   Restrict to an ISO-3166-1 alpha-2 country code (e.g. FR).
-  --file <path>    Ingest an operator-supplied local .xlsx instead of discovering it.
-  --url <url>      Ingest an operator-supplied official ECHE URL.
-  --dry-run        Parse and report only. Performs no database mutation.
-  --limit <N>      Maximum rows to display.
-  -h, --help       Show this help.
+  --country <CC>    Restrict to an ISO-3166-1 alpha-2 country code (e.g. FR).
+  --file <path>     Use an operator-supplied local artifact instead of fetching one.
+  --url <url>       Use an operator-supplied official URL.
+  --eche-file/-url  ECHE artifact for \`ewp coverage\`. Defaults to official discovery.
+  --ewp-file/-url   EWP artifact for \`ewp coverage\`. Defaults to the official endpoint.
+  --dry-run         Parse and report only. Performs no database mutation.
+  --limit <N>       Maximum rows to display.
+  --json            Emit the full coverage report as JSON.
+  -h, --help        Show this help.
 
-Phase 1A ingests the official ECHE dataset only. There is no research,
-scoring, compliance, contact or outbound capability in this repository.
+Phase 1B ingests two official datasets: ECHE and the EWP Registry. It measures
+how their published identifiers relate and reports disagreements. It performs NO
+entity resolution and merges nothing. There is no crawling, research, scoring,
+compliance, contact or outbound capability in this repository.
 `;
 
 async function main(argv: string[]): Promise<number> {
@@ -42,7 +52,12 @@ async function main(argv: string[]): Promise<number> {
       country: { type: 'string' },
       file: { type: 'string' },
       url: { type: 'string' },
+      'eche-file': { type: 'string' },
+      'eche-url': { type: 'string' },
+      'ewp-file': { type: 'string' },
+      'ewp-url': { type: 'string' },
       'dry-run': { type: 'boolean', default: false },
+      json: { type: 'boolean', default: false },
       limit: { type: 'string' },
       help: { type: 'boolean', short: 'h', default: false },
     },
@@ -88,6 +103,29 @@ async function main(argv: string[]): Promise<number> {
 
   if (group === 'orgs' && sub === 'duplicates') {
     return runOrgsDuplicates();
+  }
+
+  if (group === 'ewp' && sub === 'ingest') {
+    return runEwpIngest({
+      file: values.file,
+      url: values.url,
+      dryRun: values['dry-run'] === true,
+    });
+  }
+
+  if (group === 'ewp' && sub === 'show') {
+    return runEwpShow({ limit });
+  }
+
+  if (group === 'ewp' && sub === 'coverage') {
+    return runEwpCoverage({
+      echeFile: values['eche-file'],
+      echeUrl: values['eche-url'],
+      ewpFile: values['ewp-file'],
+      ewpUrl: values['ewp-url'],
+      limit,
+      json: values.json === true,
+    });
   }
 
   log.error(`Unknown command: ${positionals.join(' ')}`);
