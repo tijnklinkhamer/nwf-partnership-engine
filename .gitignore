@@ -1,0 +1,18 @@
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
+.env
+.env.local
+.env.*.local
+
+# Downloaded source datasets are never committed: they are large, they change
+# upstream, and provenance is recorded in the database, not in git.
+data/
+*.xlsx
+!src/test/fixtures/*.xlsx
+
+.DS_Store
+Thumbs.db
+*.log

@@ -1,0 +1,56 @@
+{
+  "name": "nwf-partnership-engine",
+  "version": "0.1.0",
+  "private": true,
+  "description": "NWF Partnership Acquisition Engine - Phase 1A: ECHE organisation ingestion spine",
+  "type": "module",
+  "license": "UNLICENSED",
+  "packageManager": "npm@11.11.0",
+  "engines": {
+    "node": "24.x",
+    "npm": "^11.0.0"
+  },
+  "bin": {
+    "nwf-pe": "./dist/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "node --env-file-if-exists=.env node_modules/vitest/vitest.mjs run",
+    "test:watch": "node --env-file-if-exists=.env node_modules/vitest/vitest.mjs",
+    "test:unit": "node --env-file-if-exists=.env node_modules/vitest/vitest.mjs run src/test/unit",
+    "test:integration": "node --env-file-if-exists=.env node_modules/vitest/vitest.mjs run src/test/integration",
+    "test:firewall": "node --env-file-if-exists=.env node_modules/vitest/vitest.mjs run src/test/firewall",
+    "db:migrate": "node --env-file-if-exists=.env --import tsx src/db/migrate.ts",
+    "db:reset": "node --env-file-if-exists=.env --import tsx src/db/migrate.ts --reset",
+    "migrations:check": "node scripts/check-migration-versions.mjs",
+    "cli": "node --env-file-if-exists=.env --import tsx src/cli/index.ts",
+    "validate": "npm run migrations:check && npm run typecheck && npm run lint && npm run format:check && npm test && npm run build",
+    "fixture:build": "node --import tsx scripts/build-fixture.ts",
+    "db:migrate:test": "node --env-file-if-exists=.env --import tsx src/db/migrate.ts --test",
+    "db:setup": "npm run db:migrate && npm run db:migrate:test"
+  },
+  "dependencies": {
+    "pg": "^8.23.0",
+    "read-excel-file": "^9.3.10",
+    "tldts": "^7.4.10",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.13.3",
+    "@types/pg": "^8.23.1",
+    "eslint": "^10.9.0",
+    "globals": "^17.11.0",
+    "prettier": "^3.9.6",
+    "tsx": "^4.23.12",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.67.0",
+    "vitest": "^4.1.11",
+    "write-excel-file": "^2.3.10"
+  }
+}

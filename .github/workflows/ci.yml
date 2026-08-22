@@ -1,0 +1,125 @@
+name: CI
+
+# No remote exists yet. This workflow is written now so that the first push is
+# already gated, and so the validation steps are reproducible off a developer
+# machine.
+#
+# CI never contacts the live ECHE source, Anthropic, Apollo, or any email
+# provider, and never requires production credentials. Ingestion is exercised
+# against the committed fixture only.
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    # The service container creates the disposable integration-test database
+    # directly, so CI needs no psql step and never has a non-test database to
+    # point at by accident. The credentials are the same deterministic
+    # local-only values used by docker-compose.yml; they are not secrets.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: nwf_owner
+          POSTGRES_PASSWORD: local_dev_only
+          POSTGRES_DB: nwf_pe_test
+        ports:
+          - 55432:5432
+        options: >-
+          --health-cmd "pg_isready -U nwf_owner -d nwf_pe_test"
+          --health-interval 3s
+          --health-timeout 5s
+          --health-retries 20
+
+    # ONLY the *_TEST connection strings are defined. Nothing in CI can migrate
+    # or truncate a working database, because CI has no working database.
+    env:
+      DATABASE_URL_ADMIN_TEST: postgres://nwf_owner:local_dev_only@127.0.0.1:55432/nwf_pe_test
+      DATABASE_URL_INGEST_TEST: postgres://nwf_ingest:local_dev_only@127.0.0.1:55432/nwf_pe_test
+      DATABASE_URL_READONLY_TEST: postgres://nwf_readonly:local_dev_only@127.0.0.1:55432/nwf_pe_test
+
+    steps:
+      # SHAs verified against the live GitHub tag refs on 2026-08-21.
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install canonical npm
+        shell: bash
+        run: |
+          npm_version="$(node -p "require('./package.json').packageManager.split('@').pop()")"
+          npm install --global "npm@${npm_version}"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Check migration numbering
+        run: npm run migrations:check
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Apply migrations (integration-test database only)
+        run: npm run db:migrate:test
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      # gitleaks-action needs no licence for a personally-owned repository. An
+      # ORGANISATION-owned repository requires a GITLEAKS_LICENSE secret: the
+      # action looks the owner type up through the GitHub API and exits 1 when
+      # the owner is an organisation and no licence is present. If this repo ever
+      # moves to an org, add that secret or run the gitleaks binary directly.
+      #
+      # GITHUB_TOKEN is mandatory, not optional: the action's pull-request path
+      # exits 1 immediately when it is unset, and the owner-type lookup falls
+      # back to enforcing licence validation when it is unauthenticated. It is
+      # the automatic per-run token - no secret has to be created.
+      #
+      # Reads .gitleaks.toml automatically ((target path)/.gitleaks.toml is the
+      # documented discovery path). Comments and artefact upload are disabled so
+      # `contents: read` remains sufficient.
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: 'false'
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: 'false'
+          GITLEAKS_ENABLE_SUMMARY: 'true'

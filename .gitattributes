@@ -1,0 +1,11 @@
+# Line endings are normalised to LF in the repository AND in every working tree.
+#
+# Without this, a clone on a machine with core.autocrlf=true gets CRLF working
+# files, and `npm run format:check` fails immediately because .prettierrc.json
+# pins `endOfLine: "lf"`. Pinning it here makes `npm run validate` behave
+# identically on Windows, macOS, Linux and CI.
+* text=auto eol=lf
+
+# The committed ECHE fixture is a binary .xlsx (a zip container). Never
+# line-ending-convert it, never diff it as text.
+*.xlsx binary

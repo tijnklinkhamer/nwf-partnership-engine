@@ -1,0 +1,25 @@
+# gitleaks configuration for the NWF Partnership Engine.
+#
+# Discovered automatically: gitleaks reads `(target path)/.gitleaks.toml`.
+#
+# This repository holds no production credentials. The only credential-shaped
+# strings it contains are the deterministic LOCAL-ONLY Postgres passwords used by
+# docker-compose.yml, .env.example, migrations/0002_roles.sql and the CI
+# workflow. They are allowlisted below by exact value, so a genuine secret in any
+# other shape is still caught.
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Local-only development values and generated artefacts"
+paths = [
+  '''package-lock\.json''',
+  '''src/test/fixtures/.*''',
+  '''dist/.*''',
+]
+regexes = [
+  # The local Docker Postgres connection strings, in full.
+  '''postgres://nwf_(owner|ingest|readonly):local_dev_only@127\.0\.0\.1:55432/nwf_pe(_test)?''',
+  '''local_dev_only''',
+]

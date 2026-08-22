@@ -1,0 +1,31 @@
+# Local development database for the NWF Partnership Engine (Phase 1A).
+#
+# Bound to 127.0.0.1 only - never externally reachable.
+# Credentials are deterministic LOCAL-ONLY development values and are not
+# secrets. No managed database exists for this project.
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: nwf_pe_postgres
+    # Host port 55432 avoids colliding with any local default-port Postgres.
+    ports:
+      - '127.0.0.1:55432:5432'
+    environment:
+      POSTGRES_USER: nwf_owner
+      POSTGRES_PASSWORD: local_dev_only
+      POSTGRES_DB: nwf_pe
+      # Deterministic collation so ORDER BY is stable across machines.
+      POSTGRES_INITDB_ARGS: '--locale=C --encoding=UTF8'
+    volumes:
+      - nwf_pe_pgdata:/var/lib/postgresql/data
+      # Runs once on first initialisation of the volume.
+      - ./docker/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U nwf_owner -d nwf_pe']
+      interval: 3s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+volumes:
+  nwf_pe_pgdata:
