@@ -163,7 +163,18 @@ npm run cli -- ewp ingest --file ./catalogue-v1.xml --dry-run
 # Operator-supplied source
 npm run cli -- ewp ingest --url https://registry.erasmuswithoutpaper.eu/catalogue-v1.xml
 npm run cli -- ewp ingest --file ./catalogue-v1.xml
+
+# A local artifact PLUS where it was published. Use this whenever you downloaded
+# the catalogue, hashed it, and are now ingesting those exact bytes - otherwise
+# the database records only a local path and the official origin is lost.
+npm run cli -- ewp ingest --file ./catalogue-v1.xml     --origin-url https://registry.erasmuswithoutpaper.eu/catalogue-v1.xml     --origin-retrieved-at 2026-08-22T21:22:44Z
 ```
+
+`--origin-url` is an operator ASSERTION and is validated against the official
+host, so you can record a true origin but not invent an official-looking one. It
+is never inferred: a `--file` run without it stores `NULL`, which `ewp show`
+prints as `NOT RECORDED`. A run that fetched the bytes itself always records its
+own origin, and the database enforces that with a `CHECK`.
 
 A snapshot is identified by the SHA-256 of its exact bytes and by nothing else —
 the catalogue is refreshed continuously and publishes no version number.

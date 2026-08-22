@@ -31,7 +31,35 @@ export interface EwpResolvedSource {
   bytes: Buffer;
   sha256: string;
   contentType: string | null;
+  /**
+   * When THIS resolution read the bytes: the HTTP fetch for a URL kind, the
+   * local file read for `operator_file`. NOT necessarily when the artifact was
+   * retrieved from the Registry - see `originUrl`.
+   */
   fetchedAt: Date;
+  /**
+   * WHERE THE ARTIFACT WAS PUBLISHED, as distinct from where it was read.
+   *
+   * Known for free when this process did the fetch. For an operator file it is
+   * null unless the operator explicitly asserts it: bytes on disk carry no
+   * evidence of their own origin, and inferring one from a filename or a prior
+   * run would fabricate provenance. null means NOT RECORDED.
+   */
+  originUrl: string | null;
+  /** When the artifact was retrieved from `originUrl`. Null iff that is null. */
+  originRetrievedAt: Date | null;
+}
+
+/**
+ * An operator's explicit assertion about where a local artifact came from.
+ *
+ * This is the ONLY way an `operator_file` run acquires an origin. It is checked
+ * against the official-host allow-list like any other URL, so an operator can
+ * record a true origin but not invent an official-looking one.
+ */
+export interface EwpAssertedOrigin {
+  url: string;
+  retrievedAt: Date;
 }
 
 /**
@@ -133,12 +161,20 @@ async function download(url: string): Promise<{ bytes: Buffer; contentType: stri
   return { bytes, contentType: res.headers.get('content-type') };
 }
 
-/** Operator-supplied local artifact. Validated as XML, recorded as a local path. */
-export function resolveFromFile(path: string): EwpResolvedSource {
+/**
+ * Operator-supplied local artifact. Validated as XML, recorded as a local path.
+ *
+ * `origin` is optional and is never guessed. Supplying it is how the
+ * download-once-then-ingest-those-exact-bytes workflow keeps its publication
+ * origin: without it the database would record only a local path, and an
+ * official artifact would be indistinguishable from a hand-edited file.
+ */
+export function resolveFromFile(path: string, origin?: EwpAssertedOrigin): EwpResolvedSource {
   const bytes = readFileSync(path);
   if (!looksLikeXml(bytes)) {
     throw new EwpSourceResolutionError(`File does not begin an XML document: ${path}`);
   }
+  const originUrl = origin === undefined ? null : assertOfficialEwpUrl(origin.url).toString();
   return {
     kind: 'operator_file',
     fileUrl: null,
@@ -147,6 +183,8 @@ export function resolveFromFile(path: string): EwpResolvedSource {
     sha256: sha256(bytes),
     contentType: null,
     fetchedAt: new Date(),
+    originUrl,
+    originRetrievedAt: origin === undefined ? null : origin.retrievedAt,
   };
 }
 
@@ -154,6 +192,7 @@ export function resolveFromFile(path: string): EwpResolvedSource {
 export async function resolveFromUrl(candidate: string): Promise<EwpResolvedSource> {
   const url = assertOfficialEwpUrl(candidate);
   const { bytes, contentType } = await download(url.toString());
+  const fetchedAt = new Date();
   return {
     kind: 'operator_url',
     fileUrl: url.toString(),
@@ -161,7 +200,10 @@ export async function resolveFromUrl(candidate: string): Promise<EwpResolvedSour
     bytes,
     sha256: sha256(bytes),
     contentType,
-    fetchedAt: new Date(),
+    fetchedAt,
+    // This process performed the fetch, so the origin is known, not asserted.
+    originUrl: url.toString(),
+    originRetrievedAt: fetchedAt,
   };
 }
 
@@ -170,6 +212,7 @@ export async function resolveFromOfficialEndpoint(): Promise<EwpResolvedSource> 
   const url = assertOfficialEwpUrl(EWP_CATALOGUE_URL);
   log.debug(`Fetching the EWP Registry catalogue: ${url.toString()}`);
   const { bytes, contentType } = await download(url.toString());
+  const fetchedAt = new Date();
   return {
     kind: 'official_endpoint',
     fileUrl: url.toString(),
@@ -177,6 +220,8 @@ export async function resolveFromOfficialEndpoint(): Promise<EwpResolvedSource> 
     bytes,
     sha256: sha256(bytes),
     contentType,
-    fetchedAt: new Date(),
+    fetchedAt,
+    originUrl: url.toString(),
+    originRetrievedAt: fetchedAt,
   };
 }

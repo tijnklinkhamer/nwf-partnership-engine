@@ -22,6 +22,7 @@ Usage:
   nwf-pe orgs show     <erasmus-code | uuid>
   nwf-pe orgs duplicates
   nwf-pe ewp ingest    [--file <path>] [--url <official-url>] [--dry-run]
+                       [--origin-url <url> --origin-retrieved-at <iso-8601>]
   nwf-pe ewp show      [--limit <N>]
   nwf-pe ewp coverage  [--eche-file <path> | --eche-url <url>]
                        [--ewp-file <path>  | --ewp-url <url>] [--limit <N>] [--json]
@@ -32,6 +33,10 @@ Options:
   --url <url>       Use an operator-supplied official URL.
   --eche-file/-url  ECHE artifact for \`ewp coverage\`. Defaults to official discovery.
   --ewp-file/-url   EWP artifact for \`ewp coverage\`. Defaults to the official endpoint.
+  --origin-url      With --file only: the official URL the local artifact was
+                    downloaded from. Recorded as provenance, never inferred.
+  --origin-retrieved-at
+                    With --origin-url: when that download happened (ISO-8601).
   --dry-run         Parse and report only. Performs no database mutation.
   --limit <N>       Maximum rows to display.
   --json            Emit the full coverage report as JSON.
@@ -55,6 +60,8 @@ async function main(argv: string[]): Promise<number> {
       'eche-file': { type: 'string' },
       'eche-url': { type: 'string' },
       'ewp-file': { type: 'string' },
+      'origin-url': { type: 'string' },
+      'origin-retrieved-at': { type: 'string' },
       'ewp-url': { type: 'string' },
       'dry-run': { type: 'boolean', default: false },
       json: { type: 'boolean', default: false },
@@ -109,6 +116,8 @@ async function main(argv: string[]): Promise<number> {
     return runEwpIngest({
       file: values.file,
       url: values.url,
+      originUrl: values['origin-url'],
+      originRetrievedAt: values['origin-retrieved-at'],
       dryRun: values['dry-run'] === true,
     });
   }

@@ -216,16 +216,22 @@ export async function ingestEwpCatalogue(
       const snapshot = await client.query<{ id: string }>(
         `INSERT INTO ewp_snapshots
            (artifact_sha256, artifact_bytes, source_input_kind, source_location,
-            fetched_at, first_ingest_run_id, host_count, hei_count,
-            other_id_count, api_declaration_count)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+            fetched_at, origin_url, origin_retrieved_at, first_ingest_run_id,
+            host_count, hei_count, other_id_count, api_declaration_count)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
          RETURNING id`,
+        // origin_url/origin_retrieved_at record WHERE THE ARTIFACT WAS
+        // PUBLISHED, which is a different fact from source_location's WHERE
+        // THIS RUN READ IT. They are whatever the resolver established and are
+        // never derived here: null stays null.
         [
           source.sha256,
           source.bytes.byteLength,
           source.kind,
           sourceLocation(source),
           source.fetchedAt,
+          source.originUrl,
+          source.originRetrievedAt,
           runId,
           hostCount,
           heiCount,

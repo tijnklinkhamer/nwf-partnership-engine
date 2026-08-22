@@ -5,6 +5,7 @@ import {
   resolveFromFile,
   resolveFromOfficialEndpoint,
   resolveFromUrl,
+  type EwpAssertedOrigin,
   type EwpResolvedSource,
 } from '../../ingest/ewp/source.js';
 import {
@@ -39,16 +40,53 @@ function num(value: number, width = 7): string {
 export interface EwpIngestArgs {
   file?: string | undefined;
   url?: string | undefined;
+  /** Operator assertion: the official URL this local artifact was downloaded from. */
+  originUrl?: string | undefined;
+  /** Operator assertion: when that download happened, as ISO-8601. */
+  originRetrievedAt?: string | undefined;
   dryRun: boolean;
+}
+
+/**
+ * Builds the asserted origin for a --file run, or undefined when none was given.
+ *
+ * Both parts are required together. A URL without a time would leave the
+ * database unable to say when the artifact was that URL's content, and the
+ * catalogue is refreshed continuously, so "from the Registry" with no timestamp
+ * is close to meaningless.
+ */
+function assertedOrigin(args: EwpIngestArgs): EwpAssertedOrigin | undefined {
+  const { originUrl, originRetrievedAt } = args;
+  if (originUrl === undefined && originRetrievedAt === undefined) return undefined;
+  if (originUrl === undefined || originRetrievedAt === undefined) {
+    throw new EwpSourceResolutionError(
+      'Pass --origin-url and --origin-retrieved-at together, or neither. An ' +
+        'origin URL without a retrieval time does not identify what was published.',
+    );
+  }
+  const retrievedAt = new Date(originRetrievedAt);
+  if (Number.isNaN(retrievedAt.getTime())) {
+    throw new EwpSourceResolutionError(
+      `--origin-retrieved-at must be an ISO-8601 timestamp, got: ${originRetrievedAt}`,
+    );
+  }
+  return { url: originUrl, retrievedAt };
 }
 
 async function resolveEwp(args: EwpIngestArgs): Promise<EwpResolvedSource> {
   if (args.file !== undefined && args.url !== undefined) {
     throw new EwpSourceResolutionError('Pass either --file or --url, not both.');
   }
+  const origin = assertedOrigin(args);
+  if (origin !== undefined && args.file === undefined) {
+    throw new EwpSourceResolutionError(
+      '--origin-url applies only to --file. A fetched run records its own ' +
+        'origin, so asserting one would be redundant and could contradict it.',
+    );
+  }
   if (args.file !== undefined) {
     log.info(`Using operator-supplied file: ${args.file}`);
-    return resolveFromFile(args.file);
+    return resolveFromFile(args.file, origin);
   }
   if (args.url !== undefined) {
     log.info(`Using operator-supplied URL: ${args.url}`);
@@ -76,6 +114,13 @@ export async function runEwpIngest(args: EwpIngestArgs): Promise<number> {
   );
   if (source.fileUrl) log.info(`  url : ${source.fileUrl}`);
   if (source.filePath) log.info(`  path: ${source.filePath}  (LOCAL COPY - not a published URL)`);
+  if (source.originUrl) {
+    log.info(
+      `  origin: ${source.originUrl} retrieved ${source.originRetrievedAt?.toISOString() ?? '(unknown)'}`,
+    );
+  } else if (source.kind === 'operator_file') {
+    log.info('  origin: NOT RECORDED (no --origin-url given; nothing is inferred)');
+  }
 
   try {
     const result = await withPool('ingest', (pool) =>
@@ -134,13 +179,16 @@ export async function runEwpShow(args: { limit?: number | undefined }): Promise<
       source_input_kind: string;
       source_location: string;
       fetched_at: Date;
+      origin_url: string | null;
+      origin_retrieved_at: Date | null;
       host_count: number;
       hei_count: number;
       other_id_count: number;
       api_declaration_count: number;
     }>(
       `SELECT id, artifact_sha256, artifact_bytes, source_input_kind, source_location,
-              fetched_at, host_count, hei_count, other_id_count, api_declaration_count
+              fetched_at, origin_url, origin_retrieved_at,
+              host_count, hei_count, other_id_count, api_declaration_count
          FROM ewp_snapshots
         ORDER BY fetched_at DESC
         LIMIT 1`,
@@ -165,7 +213,16 @@ export async function runEwpShow(args: { limit?: number | undefined }): Promise<
       localFile
         ? `local file      : ${snapshot.source_location}  (LOCAL COPY - not a published URL)`
         : `source url      : ${snapshot.source_location}`,
-      `fetched at      : ${snapshot.fetched_at.toISOString()}`,
+      `read at         : ${snapshot.fetched_at.toISOString()}  (when this run read the bytes)`,
+      // WHERE IT WAS PUBLISHED is a different fact from WHERE IT WAS READ. A
+      // local artifact keeps a NULL origin unless an operator asserted one, and
+      // NULL is shown as "not recorded" rather than quietly omitted.
+      snapshot.origin_url === null
+        ? `origin          : NOT RECORDED${localFile ? ' (local artifact ingested without --origin-url)' : ''}`
+        : `origin          : ${snapshot.origin_url}`,
+      snapshot.origin_retrieved_at === null
+        ? `origin retrieved: NOT RECORDED`
+        : `origin retrieved: ${snapshot.origin_retrieved_at.toISOString()}`,
       `hosts / HEIs    : ${snapshot.host_count} / ${snapshot.hei_count}`,
       `identifiers     : ${snapshot.other_id_count}`,
       `API declarations: ${snapshot.api_declaration_count}`,

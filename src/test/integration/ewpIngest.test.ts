@@ -34,7 +34,10 @@ const EWP_FIXTURE_PATH = resolve(process.cwd(), 'src/test/fixtures/ewp-catalogue
 /** Postgres insufficient_privilege. */
 const INSUFFICIENT_PRIVILEGE = '42501';
 
-function ewpFixtureSource(bytes?: Buffer): EwpResolvedSource {
+function ewpFixtureSource(
+  bytes?: Buffer,
+  origin?: { url: string; retrievedAt: Date },
+): EwpResolvedSource {
   const data = bytes ?? readFileSync(EWP_FIXTURE_PATH);
   return {
     kind: 'operator_file',
@@ -44,6 +47,9 @@ function ewpFixtureSource(bytes?: Buffer): EwpResolvedSource {
     sha256: createHash('sha256').update(data).digest('hex'),
     contentType: null,
     fetchedAt: new Date('2026-08-22T00:00:00.000Z'),
+    // A local artifact has NO origin unless one is explicitly asserted.
+    originUrl: origin?.url ?? null,
+    originRetrievedAt: origin?.retrievedAt ?? null,
   };
 }
 
@@ -431,6 +437,101 @@ describeDb('EWP ingestion (integration)', () => {
             [kind],
           ),
         ).resolves.toBeDefined();
+      }
+    });
+  });
+
+  describe('artifact origin provenance', () => {
+    it('persists NULL origin for a local artifact with no asserted origin', async () => {
+      const result = await ingestEwpCatalogue(ingest, ewpFixtureSource());
+      const { rows } = await readonly.query<{
+        source_input_kind: string;
+        source_location: string;
+        origin_url: string | null;
+        origin_retrieved_at: Date | null;
+      }>(
+        `SELECT source_input_kind, source_location, origin_url, origin_retrieved_at
+           FROM ewp_snapshots WHERE id = $1`,
+        [result.snapshotId],
+      );
+      // The read mechanism is recorded truthfully and the origin is simply
+      // absent. NOT RECORDED must never be dressed up as an official URL.
+      expect(rows[0]?.source_input_kind).toBe('operator_file');
+      expect(rows[0]?.origin_url).toBeNull();
+      expect(rows[0]?.origin_retrieved_at).toBeNull();
+    });
+
+    it('persists an asserted origin alongside the local read location', async () => {
+      const retrievedAt = new Date('2026-08-22T21:22:44.000Z');
+      const source = ewpFixtureSource(undefined, {
+        url: 'https://registry.erasmuswithoutpaper.eu/catalogue-v1.xml',
+        retrievedAt,
+      });
+      const result = await ingestEwpCatalogue(ingest, source);
+      const { rows } = await readonly.query<{
+        source_input_kind: string;
+        source_location: string;
+        fetched_at: Date;
+        origin_url: string | null;
+        origin_retrieved_at: Date | null;
+      }>(
+        `SELECT source_input_kind, source_location, fetched_at, origin_url, origin_retrieved_at
+           FROM ewp_snapshots WHERE id = $1`,
+        [result.snapshotId],
+      );
+      const row = rows[0];
+      // BOTH facts survive: how the bytes were read AND where they came from.
+      expect(row?.source_input_kind).toBe('operator_file');
+      expect(row?.source_location).toContain('ewp-catalogue-sample.xml');
+      expect(row?.origin_url).toBe('https://registry.erasmuswithoutpaper.eu/catalogue-v1.xml');
+      expect(row?.origin_retrieved_at?.toISOString()).toBe(retrievedAt.toISOString());
+    });
+
+    it('rejects an origin URL that is not the official registry', async () => {
+      await ingestEwpCatalogue(ingest, ewpFixtureSource());
+      await expect(
+        ingest.query(
+          `INSERT INTO ewp_snapshots
+             (artifact_sha256, artifact_bytes, source_input_kind, source_location,
+              fetched_at, origin_url, first_ingest_run_id, host_count, hei_count,
+              other_id_count, api_declaration_count)
+           SELECT repeat('b', 64), 1, 'operator_file', 'x', now(),
+                  'https://evil.example/catalogue-v1.xml', id, 0, 0, 0, 0
+             FROM ingest_runs LIMIT 1`,
+        ),
+      ).rejects.toMatchObject({ code: '23514' });
+    });
+
+    it('rejects a retrieval time with no origin URL', async () => {
+      await ingestEwpCatalogue(ingest, ewpFixtureSource());
+      await expect(
+        ingest.query(
+          `INSERT INTO ewp_snapshots
+             (artifact_sha256, artifact_bytes, source_input_kind, source_location,
+              fetched_at, origin_retrieved_at, first_ingest_run_id, host_count,
+              hei_count, other_id_count, api_declaration_count)
+           SELECT repeat('c', 64), 1, 'operator_file', 'x', now(), now(), id, 0, 0, 0, 0
+             FROM ingest_runs LIMIT 1`,
+        ),
+      ).rejects.toMatchObject({ code: '23514' });
+    });
+
+    it('requires an origin for a snapshot that claims it was fetched', async () => {
+      await ingestEwpCatalogue(ingest, ewpFixtureSource());
+      // A run that fetched the bytes itself always knows its own origin, so a
+      // NULL here would mean the record contradicts its own input kind.
+      for (const kind of ['official_endpoint', 'operator_url']) {
+        await expect(
+          ingest.query(
+            `INSERT INTO ewp_snapshots
+               (artifact_sha256, artifact_bytes, source_input_kind, source_location,
+                fetched_at, first_ingest_run_id, host_count, hei_count,
+                other_id_count, api_declaration_count)
+             SELECT repeat('d', 64), 1, $1, 'x', now(), id, 0, 0, 0, 0
+               FROM ingest_runs LIMIT 1`,
+            [kind],
+          ),
+        ).rejects.toMatchObject({ code: '23514' });
       }
     });
   });

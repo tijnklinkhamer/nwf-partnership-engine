@@ -179,11 +179,24 @@ EWP catalogue (sha256 `3f1977d0...2b9c7e74`, 45,815,947 bytes, fetched
 | MATCH by either                                 | **3,321 (54.1%)**                       |
 | NO MATCH by neither                             | 2,818                                   |
 | **CONFLICT (PIC and code name different HEIs)** | **0**                                   |
+| **AMBIGUOUS (an identifier named >1 EWP HEI)**  | **0**                                   |
 | EWP HEIs reached by no ECHE row                 | 152                                     |
 
 **The disagreement set is empty.** Where both official identifiers are present
 in both datasets they agree unanimously. That is a statement about the
 intersection only — it says nothing about the 2,818 rows that matched nothing.
+
+**Every one of the 3,321 matched rows is a UNIQUE match**, and that is measured,
+not assumed. An identifier CAN name more than one EWP HEI — `unisi.ch` and
+`usi.ch` publish the same PIC (`999585874`) _and_ the same Erasmus code
+(`CH LUGANO01`) — so the comparison returns a SET of HEIs per identifier and
+grades it: `MATCH` for exactly one, `MATCH_MULTI` for several. A row whose two
+identifiers overlap but where either side named several is
+`MATCH_BOTH_AMBIGUOUS`, never `MATCH_BOTH_AGREE`, which requires
+`picHeiIds.length === 1 && erasmusHeiIds.length === 1`. The count is 0 here only
+because no ECHE row carries either shared value — Switzerland is not an ECHE
+country. The ambiguous path is exercised by unit tests, not left as dead code,
+and `bothAgree + bothConflict + bothAmbiguous === matchedByBoth` is asserted.
 
 Reproduce with:
 
@@ -257,6 +270,8 @@ npm run cli -- ingest runs
 # EWP Registry (Phase 1B)
 npm run cli -- ewp ingest                      # fetch the official catalogue endpoint
 npm run cli -- ewp ingest --file <catalogue.xml> --dry-run
+# Ingest previously-downloaded bytes AND keep where they were published:
+npm run cli -- ewp ingest --file <catalogue.xml>     --origin-url https://registry.erasmuswithoutpaper.eu/catalogue-v1.xml     --origin-retrieved-at 2026-08-22T21:22:44Z
 npm run cli -- ewp show                        # latest snapshot, id types, declared APIs
 npm run cli -- ewp coverage --eche-file <x.xlsx> --ewp-file <c.xml>
 npm run cli -- ewp coverage --json             # full report, both sources re-resolved
@@ -331,6 +346,19 @@ without re-measuring first.
   share `madrid.org`, 47 share `jcyl.es`; seven domains span more than one
   country because they are generic hosts (`google.com`, `wixsite.com`). It is
   enrichment data, never identity.
+- **An EWP snapshot records TWO different provenance facts, and they must not
+  be confused.** `source_input_kind` + `source_location` + `fetched_at` say HOW
+  AND WHEN THIS RUN READ THE BYTES — for `operator_file` that is a local path
+  and a local read time, which can be long after the download. `origin_url` +
+  `origin_retrieved_at` say WHERE THE ARTIFACT WAS PUBLISHED and when it was
+  retrieved. The second pair is set automatically when the run did the fetch,
+  and otherwise ONLY from an explicit `--origin-url` / `--origin-retrieved-at`
+  assertion; it is never inferred from a filename, a prior run or a previously
+  seen URL. `NULL` means NOT RECORDED — never "unofficial". The authoritative
+  snapshot ingested on 2026-08-22 predates these columns and keeps `NULL`: it is
+  known to have come from the official catalogue, but back-filling it would be
+  an `UPDATE` of append-only source evidence, which the grants forbid and which
+  migration 0004 deliberately does not do.
 - **`source_url` is not always a URL.** When a run's `source_input_kind` is
   `operator_file`, `ingest_runs.resolved_file_url` and
   `organisation_sources.source_url` hold a LOCAL FILESYSTEM PATH. Only

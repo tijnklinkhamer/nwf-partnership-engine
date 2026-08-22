@@ -122,3 +122,54 @@ describe('no hidden fallback artifact', () => {
     expect(urls).toEqual([]);
   });
 });
+
+describe('artifact origin is recorded, never inferred', () => {
+  it('a local artifact with no asserted origin records NO origin', () => {
+    const path = tempFile('no-origin.xml', '<catalogue/>');
+    const resolved = resolveFromFile(path);
+    // The bytes on disk carry no evidence of where they came from. Guessing an
+    // origin here is exactly the fabricated provenance this must not produce.
+    expect(resolved.originUrl).toBeNull();
+    expect(resolved.originRetrievedAt).toBeNull();
+  });
+
+  it('records an operator-asserted origin verbatim', () => {
+    const path = tempFile('with-origin.xml', '<catalogue/>');
+    const retrievedAt = new Date('2026-08-22T21:22:44.000Z');
+    const resolved = resolveFromFile(path, {
+      url: 'https://registry.erasmuswithoutpaper.eu/catalogue-v1.xml',
+      retrievedAt,
+    });
+    expect(resolved.originUrl).toBe('https://registry.erasmuswithoutpaper.eu/catalogue-v1.xml');
+    expect(resolved.originRetrievedAt).toEqual(retrievedAt);
+    // The read mechanism is still the truth about how THIS run got the bytes.
+    expect(resolved.kind).toBe('operator_file');
+    expect(resolved.filePath).toBe(path);
+    expect(resolved.fileUrl).toBeNull();
+  });
+
+  it('an asserted origin must still pass official-origin validation', () => {
+    const path = tempFile('bad-origin.xml', '<catalogue/>');
+    for (const url of [
+      'https://registry.erasmuswithoutpaper.eu.evil.example/catalogue-v1.xml',
+      'http://registry.erasmuswithoutpaper.eu/catalogue-v1.xml',
+      'https://example.com/catalogue-v1.xml',
+    ]) {
+      expect(() => resolveFromFile(path, { url, retrievedAt: new Date() })).toThrow(
+        EwpSourceResolutionError,
+      );
+    }
+  });
+
+  it('an origin retrieval time may predate the local read', () => {
+    const path = tempFile('earlier-origin.xml', '<catalogue/>');
+    const retrievedAt = new Date('2026-08-22T21:22:44.000Z');
+    const resolved = resolveFromFile(path, {
+      url: 'https://registry.erasmuswithoutpaper.eu/catalogue-v1.xml',
+      retrievedAt,
+    });
+    // This is the normal download-once-then-ingest case, and it is precisely
+    // why the two timestamps are separate columns.
+    expect(resolved.originRetrievedAt?.getTime() ?? 0).toBeLessThan(resolved.fetchedAt.getTime());
+  });
+});
