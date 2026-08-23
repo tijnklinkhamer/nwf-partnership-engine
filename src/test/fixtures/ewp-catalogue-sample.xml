@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Deterministic EWP Registry catalogue fixture.
+
+  Hand-written, NOT a slice of the live catalogue, and deliberately constructed
+  so that every branch of the parser and of the ECHE<->EWP comparison has a
+  known expected outcome against the committed eche-sample.xlsx fixture.
+
+  The live catalogue's own quirks are reproduced on purpose:
+    - Erasmus codes padded with TWO spaces, as EWP publishes them
+    - a self-closing <other-id/> carrying no value
+    - PIC values that are not digits (scientific notation, an OID in a pic slot)
+    - both "oid" and "OID" as type spellings
+    - a SCHAC id with upper case, and one that is plainly not a website
+    - the same API local name under two different namespaces
+    - a host covering no institutions, and a host covering two
+    - a covered hei-id that does not appear in <institutions>
+    - <ewp:admin-email>, which must never be persisted
+
+  CI never fetches the live registry; this file is what the tests parse.
+-->
+<catalogue
+    xmlns="https://github.com/erasmus-without-paper/ewp-specs-api-registry/tree/stable-v1"
+    xmlns:ewp="https://github.com/erasmus-without-paper/ewp-specs-architecture/blob/stable-v1/common-types.xsd"
+    xmlns:d6="https://github.com/erasmus-without-paper/ewp-specs-api-discovery/blob/stable-v6/manifest-entry.xsd"
+    xmlns:in2="https://github.com/erasmus-without-paper/ewp-specs-api-institutions/blob/stable-v2/manifest-entry.xsd"
+    xmlns:ou2="https://github.com/erasmus-without-paper/ewp-specs-api-ounits/blob/stable-v2/manifest-entry.xsd"
+    xmlns:ia7="https://github.com/erasmus-without-paper/ewp-specs-api-iias/blob/stable-v7/manifest-entry.xsd"
+    xmlns:im1="https://github.com/erasmus-without-paper/ewp-specs-api-imobilities/blob/stable-v1/manifest-entry.xsd"
+    xmlns:im2="https://github.com/erasmus-without-paper/ewp-specs-api-imobilities/blob/stable-v2/manifest-entry.xsd"
+    xmlns:sec="https://github.com/erasmus-without-paper/ewp-specs-sec-intro/tree/stable-v2"
+    xmlns:sec-A2="https://github.com/erasmus-without-paper/ewp-specs-sec-cliauth-httpsig/tree/stable-v1"
+>
+    <!-- host 0: one covered HEI, three declared APIs, an admin email that must
+         never be persisted, and endpoints of the plain <url> shape. -->
+    <host>
+        <ewp:admin-email>never-store-me@example.invalid</ewp:admin-email>
+        <ewp:admin-provider>Test Provider A</ewp:admin-provider>
+        <ewp:admin-notes>Fixture host zero.</ewp:admin-notes>
+        <apis-implemented>
+            <d6:discovery version="6.0.0">
+                <d6:url>https://ewp.rma.example/manifest</d6:url>
+            </d6:discovery>
+            <in2:institutions version="2.2.0">
+                <in2:http-security>
+                    <sec:client-auth-methods>
+                        <sec-A2:httpsig/>
+                    </sec:client-auth-methods>
+                </in2:http-security>
+                <in2:url>https://ewp.rma.example/institutions</in2:url>
+                <in2:max-hei-ids>1</in2:max-hei-ids>
+            </in2:institutions>
+            <ou2:organizational-units version="2.1.1">
+                <ou2:url>https://ewp.rma.example/ounits</ou2:url>
+                <ou2:max-ounit-ids>100</ou2:max-ounit-ids>
+            </ou2:organizational-units>
+        </apis-implemented>
+        <institutions-covered>
+            <hei-id>rma.ac.be</hei-id>
+        </institutions-covered>
+    </host>
+
+    <!-- host 1: covers TWO institutions. The live snapshot happens to contain
+         no such host, but the format permits it and the schema must not assume
+         otherwise. Endpoints use the get-/index-/stats- shapes. -->
+    <host>
+        <ewp:admin-provider>Test Provider B</ewp:admin-provider>
+        <apis-implemented>
+            <ia7:iias version="7.0.0">
+                <ia7:get-url>https://ewp.b.example/iia/get</ia7:get-url>
+                <ia7:index-url>https://ewp.b.example/iia/index</ia7:index-url>
+                <ia7:stats-url>https://ewp.b.example/iia/stats</ia7:stats-url>
+                <ia7:max-iia-ids>100</ia7:max-iia-ids>
+            </ia7:iias>
+        </apis-implemented>
+        <institutions-covered>
+            <hei-id>fu-berlin.de</hei-id>
+            <hei-id>tul.edu</hei-id>
+        </institutions-covered>
+    </host>
+
+    <!-- host 2: no admin-provider, no declared APIs, and covers NOTHING. -->
+    <host>
+        <apis-implemented/>
+        <institutions-covered/>
+    </host>
+
+    <!-- host 3: covers a hei-id that is NOT in <institutions>. A dangling
+         reference is a finding to report, never a reason to reject. -->
+    <host>
+        <ewp:admin-provider>Test Provider D</ewp:admin-provider>
+        <apis-implemented>
+            <d6:discovery version="6.0.0">
+                <d6:url>https://ewp.d.example/manifest</d6:url>
+            </d6:discovery>
+        </apis-implemented>
+        <institutions-covered>
+            <hei-id>not-in-institutions.example</hei-id>
+        </institutions-covered>
+    </host>
+
+    <!-- host 4: the SAME api local name under TWO namespaces. The API type is
+         (namespace, local name) together, never the local name alone. -->
+    <host>
+        <ewp:admin-provider>Test Provider E</ewp:admin-provider>
+        <apis-implemented>
+            <im1:imobilities version="1.0.0">
+                <im1:get-url>https://ewp.e.example/imobilities/v1</im1:get-url>
+            </im1:imobilities>
+            <im2:imobilities version="2.0.0">
+                <im2:get-url>https://ewp.e.example/imobilities/v2</im2:get-url>
+            </im2:imobilities>
+        </apis-implemented>
+        <institutions-covered>
+            <hei-id>upper.Example.ORG</hei-id>
+        </institutions-covered>
+    </host>
+
+    <institutions>
+        <!-- Matches ECHE row "B BRUXEL01" on BOTH identifiers, and its SCHAC id
+             also happens to equal that row's canonical_domain. -->
+        <hei id="rma.ac.be">
+            <other-id type="erasmus">B  BRUXEL01</other-id>
+            <other-id type="pic">999831575</other-id>
+            <other-id type="erasmus-charter">100001</other-id>
+            <name>PATRIMOINE DE L&amp;#39;ECOLE ROYALE MILITAIRE</name>
+            <name xml:lang="en">Royal Military Academy</name>
+        </hei>
+
+        <!-- Matches ECHE row "D BERLIN01" on both. -->
+        <hei id="fu-berlin.de">
+            <other-id type="erasmus">D  BERLIN01</other-id>
+            <other-id type="pic">999994826</other-id>
+            <name xml:lang="de">Freie Universitaet Berlin</name>
+            <name xml:lang="en">Freie Universitaet Berlin</name>
+            <name>FREIE UNIVERSITAET BERLIN</name>
+        </hei>
+
+        <!-- Matches ECHE row "B DIEPENB07" on both. -->
+        <hei id="tul.edu">
+            <other-id type="erasmus">B  DIEPENB07</other-id>
+            <other-id type="pic">949555117</other-id>
+            <name>Transnationale Universiteit Limburg</name>
+        </hei>
+
+        <!-- THE CONFLICT PAIR. ECHE row "F PARIS001" carries PIC 999859123 and
+             Erasmus code F PARIS001. Here the PIC belongs to one HEI and the
+             Erasmus code to a DIFFERENT one, so that row's two official
+             identifiers point at two different institutions. Not resolved. -->
+        <hei id="conflict-by-pic.example">
+            <other-id type="pic">999859123</other-id>
+            <name>Conflict Target Reached By PIC</name>
+        </hei>
+        <hei id="conflict-by-erasmus.example">
+            <other-id type="erasmus">F  PARIS001</other-id>
+            <name>Conflict Target Reached By Erasmus Code</name>
+        </hei>
+
+        <!-- PIC only: matches ECHE "NL AMSTERD01" by PIC, publishes no code. -->
+        <hei id="pic-only.example">
+            <other-id type="pic">999985708</other-id>
+            <name>PIC Only Institution</name>
+        </hei>
+
+        <!-- Erasmus only: matches ECHE "X NOWEB01" by code, publishes no PIC. -->
+        <hei id="erasmus-only.example">
+            <other-id type="erasmus">X  NOWEB01</other-id>
+            <name>Erasmus Only Institution</name>
+        </hei>
+
+        <!-- Two Erasmus codes that COLLAPSE to one under normalisation (they
+             differ only in whitespace) plus a third that genuinely does not.
+             Distinct normalised codes: X WHITESPACE01 and ZZ OTHER01. -->
+        <hei id="multi-code.example">
+            <other-id type="erasmus">X  WHITESPACE01</other-id>
+            <other-id type="erasmus">X WHITESPACE01</other-id>
+            <other-id type="erasmus">ZZ OTHER01</other-id>
+            <other-id type="pic">111111111</other-id>
+            <name>Multiple Code Institution</name>
+        </hei>
+
+        <!-- TWO HEIs publishing the SAME PIC and the SAME Erasmus code. Both
+             identifiers of ECHE row "X BADURL01" therefore reach two
+             institutions each: ambiguous, and never resolved to one. -->
+        <hei id="dup-a.example">
+            <other-id type="erasmus">X  BADURL01</other-id>
+            <other-id type="pic">333333333</other-id>
+            <name>Duplicate Identifier Institution A</name>
+        </hei>
+        <hei id="dup-b.example">
+            <other-id type="erasmus">X  BADURL01</other-id>
+            <other-id type="pic">333333333</other-id>
+            <name>Duplicate Identifier Institution B</name>
+        </hei>
+
+        <!-- Upper case in the SCHAC id, so folding is exercised. -->
+        <hei id="upper.Example.ORG">
+            <other-id type="erasmus">X  NOOID01</other-id>
+            <other-id type="pic">444444444</other-id>
+            <name>Upper Case Identifier University</name>
+        </hei>
+
+        <!-- A SCHAC id that is plainly NOT a website. Modelled on the live
+             catalogue's "0740047Z.educonnect.education.gouv.fr". -->
+        <hei id="0123456A.registry.example.gouv.fr">
+            <other-id type="erasmus">X  BADCC01</other-id>
+            <other-id type="pic">555555555</other-id>
+            <name>Identifier Is Not A Website Institute</name>
+        </hei>
+
+        <!-- PIC values that are NOT digits. Neither is repaired, so neither
+             gets a comparison value and neither can match anything. -->
+        <hei id="nonconforming-pic.example">
+            <other-id type="pic">9.9958762E8</other-id>
+            <other-id type="pic">E10208905</other-id>
+            <other-id type="erasmus">ZZ NOMATCH01</other-id>
+            <name>Non Conforming PIC Institution</name>
+        </hei>
+
+        <!-- A PIC whose only defect is surrounding whitespace. Trimming is
+             deterministic, so this one DOES get a comparison value. -->
+        <hei id="padded-pic.example">
+            <other-id type="pic"> 888888888 </other-id>
+            <other-id type="erasmus">ZZ PADDED01</other-id>
+            <name>Padded PIC Institution</name>
+        </hei>
+
+        <!-- An identifier published with NO VALUE AT ALL. Reported as an
+             anomaly, never stored, and never fatal. -->
+        <hei id="empty-id.example">
+            <other-id type="euc"/>
+            <other-id type="erasmus">ZZ EMPTY01</other-id>
+            <name>Empty Identifier Institution</name>
+        </hei>
+
+        <!-- Both "oid" and "OID" spellings. Case is preserved as published. -->
+        <hei id="case-variant-type.example">
+            <other-id type="oid">E10000101</other-id>
+            <other-id type="OID">E10000102</other-id>
+            <other-id type="local">LOCAL-1</other-id>
+            <other-id type="brand-new-type-not-seen-before">whatever</other-id>
+            <other-id type="erasmus">ZZ CASEVAR01</other-id>
+            <name>Case Variant Type Institution</name>
+        </hei>
+
+        <!-- Reached by NO ECHE row at all. -->
+        <hei id="unmatched.example">
+            <other-id type="erasmus">ZZ UNMATCHED01</other-id>
+            <other-id type="pic">999000111</other-id>
+            <name>Unmatched Institution</name>
+        </hei>
+
+        <!-- The SCHAC id equals ECHE row "X SUBDOM01"'s canonical_domain, but
+             its identifiers match nothing on that row. String equality between
+             a domain-shaped identifier and a domain is NOT identity evidence,
+             and this entry is what proves the measurement keeps them apart. -->
+        <hei id="subdomain-test.co.uk">
+            <other-id type="erasmus">ZZ SUBDOM99</other-id>
+            <other-id type="pic">123123123</other-id>
+            <name>Domain Looks Equal But Identifiers Do Not Match</name>
+        </hei>
+    </institutions>
+</catalogue>

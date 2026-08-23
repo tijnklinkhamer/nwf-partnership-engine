@@ -41,7 +41,14 @@ export function fixtureSource(bytes?: Buffer): ResolvedSource {
  */
 export async function truncateAll(target: pg.Pool): Promise<void> {
   await assertTestDatabaseConnection(target);
-  await target.query('TRUNCATE organisation_sources, organisations, ingest_runs CASCADE');
+  // Every table any ingest writes. ewp_* rows reference ingest_runs, so they
+  // must be listed here too - otherwise a later run would fail on a dangling
+  // foreign key and the failure would look like an ingest bug.
+  await target.query(
+    `TRUNCATE ewp_api_declarations, ewp_host_covered_heis, ewp_hosts,
+              ewp_hei_other_ids, ewp_heis, ewp_snapshots,
+              organisation_sources, organisations, ingest_runs CASCADE`,
+  );
 }
 
 export function adminPool(): pg.Pool {
