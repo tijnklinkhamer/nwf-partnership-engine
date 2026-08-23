@@ -96,6 +96,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      pull-requests: read
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -114,8 +115,16 @@ jobs:
       # the automatic per-run token - no secret has to be created.
       #
       # Reads .gitleaks.toml automatically ((target path)/.gitleaks.toml is the
-      # documented discovery path). Comments and artefact upload are disabled so
-      # `contents: read` remains sufficient.
+      # documented discovery path).
+      #
+      # Both read scopes are required. `contents: read` covers the repository
+      # contents. `pull-requests: read` is required because the action's
+      # pull_request path calls the GitHub Pull Requests API to enumerate the
+      # PR's commits: with `contents: read` alone that request returns 403
+      # "Resource not accessible by integration" and the action exits before
+      # scanning anything. A push-triggered run does not take that path, so the
+      # gap only appears on pull_request events. No WRITE permission is needed,
+      # because comments and artefact upload are disabled below.
       - name: gitleaks
         uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
         env:
