@@ -60,7 +60,13 @@ it, or depend on it, and must never touch learner, payment, or payout data.
    discovered unambiguously, ingestion stops and asks for an explicit `--url` or
    `--file`. If the EWP catalogue fetch fails, the run fails. Never add an
    automatic fallback to a previously-seen URL or to a cached artifact, for
-   either source.
+   either source. **The EWP catalogue fetch does not follow redirects**: it uses
+   `redirect: 'manual'` and treats any 3xx as an error naming the refused
+   target, so no request to a redirect target is ever issued — not to an
+   unapproved host, and not to another path on the approved one. Never change it
+   to `redirect: 'follow'`: that hands the hop to the runtime, which requests
+   the target before any check here can run, and validating `Response.url`
+   afterwards is too late.
 7. **Never weaken a firewall test** to make CI green. If
    `src/test/firewall/phase1a.firewall.test.ts` or
    `src/test/firewall/phase1b.firewall.test.ts` fails, the code is wrong.
@@ -166,9 +172,25 @@ Full ECHE artifact (sha256 `32e1de18...932fdee9`, 6,139 rows) against the live
 EWP catalogue (sha256 `3f1977d0...2b9c7e74`, 45,815,947 bytes, fetched
 2026-08-22). Measured artifact-to-artifact, NOT against the working database.
 
+**The denominator is every ECHE source row**, and the row-level classification
+partitions it exhaustively:
+
+| bucket                                      | count     |
+| ------------------------------------------- | --------- |
+| UNIQUE — reached exactly one EWP HEI        | **3,321** |
+| AMBIGUOUS — an identifier named >1 EWP HEI  | **0**     |
+| CONFLICT — PIC and code name different HEIs | **0**     |
+| NO MATCH — compared, nothing found          | 2,818     |
+| UNUSABLE — could not be compared at all     | 0         |
+| **TOTAL ECHE source rows**                  | **6,139** |
+
+A row that could not be compared is `UNUSABLE`, never `NO MATCH`, and it stays
+inside `totalSourceRows`. `totalSourceRows = comparableRows + unusableRows`;
+the identifier-level counters below range over `comparableRows`.
+
 |                                                 |                                         |
 | ----------------------------------------------- | --------------------------------------- |
-| ECHE data rows                                  | 6,139                                   |
+| ECHE data rows (all source rows)                | 6,139                                   |
 | EWP HEIs / hosts                                | 3,472 / 3,894                           |
 | EWP identifiers persisted                       | 7,457 (of 7,461 published; 4 are empty) |
 | EWP API declarations                            | 52,254                                  |
@@ -190,13 +212,27 @@ intersection only — it says nothing about the 2,818 rows that matched nothing.
 not assumed. An identifier CAN name more than one EWP HEI — `unisi.ch` and
 `usi.ch` publish the same PIC (`999585874`) _and_ the same Erasmus code
 (`CH LUGANO01`) — so the comparison returns a SET of HEIs per identifier and
-grades it: `MATCH` for exactly one, `MATCH_MULTI` for several. A row whose two
-identifiers overlap but where either side named several is
+grades it: `MATCH` for exactly one, `MATCH_MULTI` for several.
+
+**This applies on the one-sided path too, and that is the whole point.** A row
+whose two identifiers overlap but where either side named several is
 `MATCH_BOTH_AMBIGUOUS`, never `MATCH_BOTH_AGREE`, which requires
-`picHeiIds.length === 1 && erasmusHeiIds.length === 1`. The count is 0 here only
-because no ECHE row carries either shared value — Switzerland is not an ECHE
-country. The ambiguous path is exercised by unit tests, not left as dead code,
-and `bothAgree + bothConflict + bothAmbiguous === matchedByBoth` is asserted.
+`picHeiIds.length === 1 && erasmusHeiIds.length === 1`. A row where only ONE
+identifier matched is split the same way: `MATCH_PIC_ONLY` when the PIC named
+exactly one HEI, `MATCH_PIC_ONLY_AMBIGUOUS` when it named several, and likewise
+for the Erasmus code. A single matching identifier is not automatically a
+single institution, so a row-level grade is never stronger than the
+identifier-level verdicts it was built from — `gradeOf` maps each verdict onto
+`UNIQUE`/`AMBIGUOUS`/`CONFLICT`/`NO_MATCH`, and no row graded `UNIQUE` may
+carry a `MATCH_MULTI` verdict.
+
+The count is 0 here only because no ECHE row carries either shared value —
+Switzerland is not an ECHE country. Every ambiguous path is exercised by unit
+tests, not left as dead code, and
+`bothAgree + bothConflict + bothAmbiguous === matchedByBoth`,
+`picOnlyUnique + picOnlyAmbiguous === matchedByPicOnly` and
+`unique + ambiguous + conflict + noMatch + unusable === totalSourceRows` are all
+asserted.
 
 Reproduce with:
 
@@ -204,9 +240,10 @@ Reproduce with:
 npm run cli -- ewp coverage --eche-file <eche.xlsx> --ewp-file <catalogue-v1.xml>
 ```
 
-The CLI reports `MATCH`, `NO MATCH`, `CONFLICT` and `UNKNOWN` as distinct
-outcomes and never collapses them. `UNKNOWN` means the identifier was absent so
-no comparison was possible; `NO MATCH` means one was made and found nothing.
+The CLI reports `MATCH`, `AMBIGUOUS`, `NO MATCH`, `CONFLICT`, `UNUSABLE` and
+`UNKNOWN` as distinct outcomes and never collapses them. `UNKNOWN` means the
+identifier was absent so no comparison was possible; `NO MATCH` means one was
+made and found nothing; `UNUSABLE` means the row could not be compared at all.
 
 ## What an `ewp_heis` row means
 
@@ -222,6 +259,12 @@ an organisation, and it is NOT a verified match to any `organisations` row.**
   can be reached through is only answerable via `ewp_host_covered_heis`.
 - `nwf_ingest` has `SELECT` and `INSERT` on the `ewp_*` tables and nothing else.
   A changed catalogue is a NEW snapshot, never an edit to an old one.
+- **Ingesting the same artifact twice AT ONCE stores it once.** The pre-`SELECT`
+  on `artifact_sha256` is a fast path, not the guarantee; the guarantee is the
+  unique index plus `ON CONFLICT (artifact_sha256) DO NOTHING RETURNING id` on
+  the snapshot `INSERT`. The loser rolls back before any evidence row exists and
+  reports the winner's snapshot as already present. No lock, queue, worker or
+  orchestration exists for this and none should be added.
 
 ## Commands
 

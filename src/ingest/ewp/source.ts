@@ -125,13 +125,40 @@ export function assertOfficialEwpUrl(candidate: string): URL {
   return url;
 }
 
+/** The HTTP statuses that ask a client to issue its request somewhere else. */
+const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
+
 /**
- * Wraps a network failure with actionable context. Node's bare "fetch failed"
- * says nothing about what was being fetched or what to do next.
+ * Fetches one URL and REFUSES TO FOLLOW A REDIRECT.
+ *
+ * WHY `manual` AND NOT `follow`.
+ *
+ * `redirect: 'follow'` hands redirect handling to the runtime, which issues the
+ * request to the target BEFORE any code here can look at it. An official URL
+ * that answered `302 Location: https://elsewhere.example/catalogue-v1.xml`
+ * would therefore have already been fetched from `elsewhere.example` by the
+ * time this function returned - outside the allow-list, and with the
+ * provenance record still naming the official URL that was asked for. Checking
+ * `Response.url` afterwards is too late: the request has happened.
+ *
+ * `redirect: 'manual'` hands the 3xx back unfollowed. No request is ever made
+ * to the target, so the trust boundary cannot be escaped through a redirect at
+ * all - not to an unapproved host and not to a different path on the approved
+ * one. This is the same fail-closed rule the rest of this module follows: the
+ * bytes come from the URL that was validated, or the run stops.
+ *
+ * The observed official endpoint answers 200 directly, so this costs nothing
+ * today. If the Registry ever starts redirecting, the correct response is an
+ * operator passing the new URL explicitly - which is validated in its own
+ * right - not this process silently following a hop it never checked.
+ *
+ * The catch wraps a network failure with actionable context: Node's bare
+ * "fetch failed" says nothing about what was being fetched or what to do next.
  */
 async function fetchOrExplain(url: string): Promise<Response> {
+  let res: Response;
   try {
-    return await fetch(url, { redirect: 'follow' });
+    res = await fetch(url, { redirect: 'manual' });
   } catch (err) {
     const cause =
       err instanceof Error && err.cause instanceof Error ? `: ${err.cause.message}` : '';
@@ -141,6 +168,18 @@ async function fetchOrExplain(url: string): Promise<Response> {
         `Retry, or supply an artifact explicitly with --file.`,
     );
   }
+  if (REDIRECT_STATUSES.has(res.status)) {
+    const location = res.headers.get('location');
+    throw new EwpSourceResolutionError(
+      `${url} answered HTTP ${res.status} redirecting to ` +
+        `${location ?? '(no Location header)'}. The redirect was NOT followed and ` +
+        `that target was NOT requested: Phase 1B fetches the catalogue only from a ` +
+        `URL it has validated itself. Nothing was ingested. If the Registry has ` +
+        `genuinely moved, pass the new official URL with --url so it is validated, ` +
+        `or supply the artifact with --file.`,
+    );
+  }
+  return res;
 }
 
 async function download(url: string): Promise<{ bytes: Buffer; contentType: string | null }> {

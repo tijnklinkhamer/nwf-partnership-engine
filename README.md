@@ -48,17 +48,24 @@ That is the entire system today.
 ### What Phase 1B measured
 
 Full ECHE artifact (6,139 rows) against the live EWP catalogue (3,472
-institutions), measured artifact-to-artifact:
+institutions), measured artifact-to-artifact. Every ECHE source row lands in
+exactly one of five buckets, and they sum to the whole artifact:
 
-|                                                           |                       |
-| --------------------------------------------------------- | --------------------- |
-| MATCH by PIC / Erasmus code / both                        | 3,291 / 3,319 / 3,289 |
-| MATCH by either                                           | **3,321 (54.1%)**     |
-| NO MATCH by neither                                       | 2,818                 |
-| **CONFLICT — PIC and code naming different institutions** | **0**                 |
+|                                                   |                   |
+| ------------------------------------------------- | ----------------- |
+| **UNIQUE** — reached exactly one EWP institution  | **3,321 (54.1%)** |
+| **AMBIGUOUS** — an identifier named more than one | **0**             |
+| **CONFLICT** — PIC and code naming different HEIs | **0**             |
+| **NO MATCH** — compared, nothing found            | 2,818             |
+| **UNUSABLE** — could not be compared at all       | 0                 |
+| TOTAL ECHE source rows                            | **6,139**         |
+
+By identifier: MATCH by PIC / Erasmus code / both = 3,291 / 3,319 / 3,289.
 
 Where both official identifiers are present in both datasets, they agree
-unanimously. Full detail, including the exact artifact hashes, is in
+unanimously. An identifier that names several institutions is reported as
+AMBIGUOUS and never as a match, and a row that could not be compared is never
+counted as a miss. Full detail, including the exact artifact hashes, is in
 [`docs/adr/0001-ewp-registry-second-official-source.md`](docs/adr/0001-ewp-registry-second-official-source.md).
 
 ### What is explicitly NOT implemented
@@ -194,9 +201,14 @@ npm run cli -- ewp coverage --json        # the full report, machine-readable
 artifacts directly, so the measurement can neither disturb an ingested dataset
 nor be skewed by one that is only partially loaded.
 
-Its output keeps `MATCH`, `NO MATCH`, `CONFLICT` and `UNKNOWN` as four distinct
-outcomes. `UNKNOWN` means the identifier was absent so no comparison was
-possible; `NO MATCH` means one was made and found nothing.
+Its output keeps `MATCH`, `AMBIGUOUS`, `NO MATCH`, `CONFLICT`, `UNUSABLE` and
+`UNKNOWN` as distinct outcomes and never collapses them. `UNKNOWN` means the
+identifier was absent so no comparison was possible; `NO MATCH` means one was
+made and found nothing; `UNUSABLE` means the source row could not be compared at
+all, and it stays inside the denominator rather than being counted as a miss.
+`AMBIGUOUS` means an identifier matched but named more than one institution —
+that is evidence, not a match, whether or not the other identifier found
+anything to disagree with.
 
 ### A SCHAC identifier is not a website
 

@@ -345,6 +345,7 @@ function formatConflictRow(row: RowComparison): string {
 
 function renderReport(report: EcheEwpCoverageReport, limit: number): string {
   const c = report.coverage;
+  const k = report.classification;
   const lines: string[] = [
     '',
     '='.repeat(96),
@@ -357,8 +358,9 @@ function renderReport(report: EcheEwpCoverageReport, limit: number): string {
     '',
     'SOURCE SIZES',
     '-'.repeat(96),
-    `ECHE data rows                       ${num(report.eche.totalRows)}`,
-    `  unusable rows (reported, not fixed)${num(report.eche.invalidRows)}`,
+    `ECHE data rows (ALL source rows)     ${num(report.eche.totalSourceRows)}`,
+    `  of those, comparable rows          ${num(report.eche.comparableRows)}`,
+    `  of those, UNUSABLE rows            ${num(report.eche.unusableRows)}   <- could not be compared; NOT a miss`,
     `  rows with a usable PIC             ${num(report.eche.rowsWithPic)}`,
     `  rows with a usable Erasmus code    ${num(report.eche.rowsWithErasmusCode)}`,
     `  distinct PICs / Erasmus codes      ${num(report.eche.distinctPics)} / ${report.eche.distinctErasmusCodes}`,
@@ -370,21 +372,39 @@ function renderReport(report: EcheEwpCoverageReport, limit: number): string {
     `  identifiers published empty        ${num(report.ewp.emptyOtherIds)}`,
     `  PICs with no comparison value      ${num(report.ewp.nonComparablePics)}`,
     '',
-    'COVERAGE OF ECHE ROWS AGAINST EWP',
+    'EVERY ECHE SOURCE ROW, PARTITIONED',
+    '-'.repeat(96),
+    'Exhaustive and disjoint. AMBIGUOUS is never reported as a match, and an',
+    'UNUSABLE row is never reported as NO MATCH: "we could not compare this row"',
+    'is a different finding from "we compared it and EWP published nothing".',
+    '',
+    `UNIQUE   reached exactly one EWP HEI ${num(k.unique)}`,
+    `AMBIGUOUS reached >1 EWP HEI         ${num(k.ambiguous)}`,
+    `CONFLICT PIC and code disagree       ${num(k.conflict)}`,
+    `NO MATCH compared, nothing found     ${num(k.noMatch)}`,
+    `UNUSABLE could not be compared       ${num(k.unusable)}`,
+    '-'.repeat(44),
+    `TOTAL    ECHE source rows            ${num(k.totalSourceRows)}`,
+    '',
+    'BY IDENTIFIER (over the comparable rows)',
     '-'.repeat(96),
     `MATCH    by PIC                      ${num(c.matchedByPic)}`,
     `MATCH    by Erasmus code             ${num(c.matchedByErasmus)}`,
     `MATCH    by both                     ${num(c.matchedByBoth)}`,
     `MATCH    by PIC only                 ${num(c.matchedByPicOnly)}`,
+    `           of those, UNIQUE          ${num(c.picOnlyUnique)}`,
+    `           of those, AMBIGUOUS       ${num(c.picOnlyAmbiguous)}`,
     `MATCH    by Erasmus code only        ${num(c.matchedByErasmusOnly)}`,
+    `           of those, UNIQUE          ${num(c.erasmusOnlyUnique)}`,
+    `           of those, AMBIGUOUS       ${num(c.erasmusOnlyAmbiguous)}`,
     `MATCH    by either                   ${num(c.matchedByEither)}`,
     `NO MATCH by neither                  ${num(c.matchedByNeither)}`,
     '',
     `  of the "both" rows, AGREE          ${num(c.bothAgree)}`,
     `  of the "both" rows, CONFLICT       ${num(c.bothConflict)}`,
     `  of the "both" rows, AMBIGUOUS      ${num(c.bothAmbiguous)}`,
-    `UNKNOWN  PIC named >1 EWP HEI        ${num(c.picAmbiguous)}`,
-    `UNKNOWN  code named >1 EWP HEI       ${num(c.erasmusAmbiguous)}`,
+    `AMBIGUOUS PIC named >1 EWP HEI       ${num(c.picAmbiguous)}`,
+    `AMBIGUOUS code named >1 EWP HEI      ${num(c.erasmusAmbiguous)}`,
     '',
     'REVERSE DIRECTION',
     '-'.repeat(96),
@@ -434,6 +454,21 @@ function renderReport(report: EcheEwpCoverageReport, limit: number): string {
     'CONFLICTS: one ECHE row whose PIC and Erasmus code name DIFFERENT EWP HEIs',
     '-'.repeat(96),
   );
+
+  if (report.ambiguousRows.length > 0) {
+    lines.push(
+      '',
+      'AMBIGUOUS ROWS: an identifier matched, but named MORE THAN ONE EWP HEI',
+      '-'.repeat(96),
+      `${report.ambiguousRows.length} row(s). Evidence, not a match. NOT resolved.`,
+      `${pad('CC', 4)}${pad('ERASMUS', 16)}${pad('PIC', 12)}TARGETS / NAME`,
+    );
+    for (const row of report.ambiguousRows.slice(0, limit)) lines.push(formatConflictRow(row));
+    if (report.ambiguousRows.length > limit) {
+      lines.push(`... ${report.ambiguousRows.length - limit} more not shown (raise --limit).`);
+    }
+    lines.push('', 'CONFLICTS', '-'.repeat(96));
+  }
 
   if (report.conflicts.length === 0) {
     lines.push('None. No ECHE row reached two disjoint sets of EWP HEIs.');

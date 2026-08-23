@@ -237,6 +237,34 @@ describeDb('EWP ingestion (integration)', () => {
       expect(await count(readonly, 'ingest_runs')).toBe(2);
     });
 
+    it('two simultaneous first ingests of one artifact store it exactly once', async () => {
+      // Both runs pass the "is it already stored?" SELECT before either has
+      // inserted anything, so this exercises the window the SELECT alone
+      // cannot close. ON CONFLICT DO NOTHING makes one of them the winner and
+      // turns the other into a no-op instead of a unique_violation.
+      const source = ewpFixtureSource();
+      const [first, second] = await Promise.all([
+        ingestEwpCatalogue(ingest, source),
+        ingestEwpCatalogue(ingest, source),
+      ]);
+
+      expect(first.snapshotId).toBe(second.snapshotId);
+      // Exactly one of the two inserted; the other reported it as present.
+      expect([first.alreadyPresent, second.alreadyPresent].filter(Boolean)).toHaveLength(1);
+
+      // One snapshot's worth of evidence, and no half-written loser.
+      expect(await count(readonly, 'ewp_snapshots')).toBe(1);
+      expect(await count(readonly, 'ewp_heis')).toBe(18);
+      expect(await count(readonly, 'ewp_hosts')).toBe(5);
+      expect(await count(readonly, 'ewp_api_declarations')).toBe(7);
+      // Both runs are recorded, and neither is recorded as failed.
+      expect(await count(readonly, 'ingest_runs')).toBe(2);
+      const { rows } = await readonly.query<{ status: string }>(
+        'SELECT status FROM ingest_runs ORDER BY started_at',
+      );
+      expect(rows.map((row) => row.status)).toEqual(['succeeded', 'succeeded']);
+    });
+
     it('a changed artifact becomes a NEW snapshot beside the old one', async () => {
       const original = readFileSync(EWP_FIXTURE_PATH);
       const first = await ingestEwpCatalogue(ingest, ewpFixtureSource(original));

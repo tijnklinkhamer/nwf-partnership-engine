@@ -45,18 +45,64 @@ export type IdentifierVerdict =
   /** Not comparable at all: absent from the ECHE row, or not normalisable. */
   | 'UNKNOWN';
 
-/** The combined verdict for one ECHE row across both identifiers. */
+/**
+ * The combined verdict for one ECHE row across both identifiers.
+ *
+ * AMBIGUITY IS NEVER COLLAPSED INTO A UNIQUE MATCH, on either side.
+ *
+ * A single matching identifier is not automatically a single institution: an
+ * identifier CAN name several EWP HEIs (unisi.ch and usi.ch publish the same
+ * PIC and the same Erasmus code). A row whose PIC reached two HEIs while its
+ * Erasmus code reached nothing has NOT identified an institution, and calling
+ * that MATCH_PIC_ONLY alongside rows that reached exactly one would report
+ * ambiguous evidence as a unique match. The one-sided verdicts are therefore
+ * split by cardinality, exactly as the two-sided ones already were.
+ */
 export type RowVerdict =
-  /** Both identifiers matched and they agree on at least one EWP HEI. */
+  /** Both matched, each named exactly one EWP HEI, and it is the same one. */
   | 'MATCH_BOTH_AGREE'
   /** Both matched, but they name DISJOINT sets of EWP HEIs. The conflict set. */
   | 'MATCH_BOTH_CONFLICT'
-  /** Both matched and overlap, but at least one side is ambiguous. */
+  /** Both matched and overlap, but at least one side named several HEIs. */
   | 'MATCH_BOTH_AMBIGUOUS'
+  /** Only the PIC matched, and it named exactly one EWP HEI. */
   | 'MATCH_PIC_ONLY'
+  /** Only the PIC matched, and it named SEVERAL EWP HEIs. Not a unique match. */
+  | 'MATCH_PIC_ONLY_AMBIGUOUS'
+  /** Only the Erasmus code matched, and it named exactly one EWP HEI. */
   | 'MATCH_ERASMUS_ONLY'
+  /** Only the Erasmus code matched, and it named SEVERAL. Not a unique match. */
+  | 'MATCH_ERASMUS_ONLY_AMBIGUOUS'
   /** Neither identifier reached an EWP HEI. */
   | 'NO_MATCH';
+
+/**
+ * The coarse grade of a row-level verdict, and the partition the headline
+ * numbers are built from.
+ *
+ * UNUSABLE is deliberately NOT a RowVerdict: an unusable row never reached the
+ * comparison at all, so it has no per-identifier evidence to report. It is
+ * counted, and it stays inside the denominator - see EcheEwpCoverageReport.
+ */
+export type MatchGrade = 'UNIQUE' | 'AMBIGUOUS' | 'CONFLICT' | 'NO_MATCH';
+
+/** Maps a row verdict onto its grade. Total over RowVerdict, by construction. */
+export function gradeOf(verdict: RowVerdict): MatchGrade {
+  switch (verdict) {
+    case 'MATCH_BOTH_AGREE':
+    case 'MATCH_PIC_ONLY':
+    case 'MATCH_ERASMUS_ONLY':
+      return 'UNIQUE';
+    case 'MATCH_BOTH_AMBIGUOUS':
+    case 'MATCH_PIC_ONLY_AMBIGUOUS':
+    case 'MATCH_ERASMUS_ONLY_AMBIGUOUS':
+      return 'AMBIGUOUS';
+    case 'MATCH_BOTH_CONFLICT':
+      return 'CONFLICT';
+    case 'NO_MATCH':
+      return 'NO_MATCH';
+  }
+}
 
 export interface EcheComparableRow {
   echeRowKey: string;
@@ -89,6 +135,8 @@ export interface RowComparison {
   picVerdict: IdentifierVerdict;
   erasmusVerdict: IdentifierVerdict;
   verdict: RowVerdict;
+  /** The coarse grade of `verdict`. UNIQUE never covers ambiguous evidence. */
+  grade: MatchGrade;
   /** EWP HEI ids reached via PIC. */
   picHeiIds: string[];
   /** EWP HEI ids reached via Erasmus code. */
@@ -109,10 +157,20 @@ export interface MultiIdentifierHei {
 
 export interface EcheEwpCoverageReport {
   eche: {
-    /** A. Every data row in the ECHE artifact. */
-    totalRows: number;
-    /** Rows rejected by the Phase 1A row validator. Reported, not repaired. */
-    invalidRows: number;
+    /**
+     * A. EVERY data row in the ECHE artifact - the denominator, full stop.
+     * Equal to `comparableRows + unusableRows`.
+     */
+    totalSourceRows: number;
+    /** Rows that yielded an Erasmus code and a name, so could be compared. */
+    comparableRows: number;
+    /**
+     * Rows that could not be compared at all: no Erasmus code, or no legal
+     * name. Reported, never repaired, and NEVER counted as NO MATCH - "we
+     * could not compare this row" is a different finding from "we compared it
+     * and EWP published no matching identifier".
+     */
+    unusableRows: number;
     /** C. Rows carrying a usable PIC. */
     rowsWithPic: number;
     /** D. Rows carrying a usable Erasmus code. */
@@ -138,20 +196,51 @@ export interface EcheEwpCoverageReport {
     /** E. */ matchedByPic: number;
     /** F. */ matchedByErasmus: number;
     /** G. */ matchedByBoth: number;
-    /** H. */ matchedByPicOnly: number;
-    /** I. */ matchedByErasmusOnly: number;
+    /** H. Only the PIC matched, at any cardinality. */
+    matchedByPicOnly: number;
+    /** I. Only the Erasmus code matched, at any cardinality. */
+    matchedByErasmusOnly: number;
     /** J. */ matchedByEither: number;
     /** K. */ matchedByNeither: number;
-    /** Rows where both matched and both agree. */
+    /** Both matched, each named exactly one HEI, and it is the same one. */
     bothAgree: number;
     /** L. Rows where both matched and they DISAGREE. */
     bothConflict: number;
-    /** Rows where both matched, overlap, but at least one side is ambiguous. */
+    /** Rows where both matched, overlap, but at least one side named several. */
     bothAmbiguous: number;
-    /** Rows whose PIC named more than one EWP HEI. */
+    /** Of H: the PIC named exactly one EWP HEI. A unique match. */
+    picOnlyUnique: number;
+    /** Of H: the PIC named SEVERAL. Ambiguous, never a unique match. */
+    picOnlyAmbiguous: number;
+    /** Of I: the Erasmus code named exactly one EWP HEI. A unique match. */
+    erasmusOnlyUnique: number;
+    /** Of I: the Erasmus code named SEVERAL. Ambiguous, never a unique match. */
+    erasmusOnlyAmbiguous: number;
+    /** Rows whose PIC named more than one EWP HEI, whatever the other side did. */
     picAmbiguous: number;
     /** Rows whose Erasmus code named more than one EWP HEI. */
     erasmusAmbiguous: number;
+  };
+  /**
+   * THE HEADLINE PARTITION OF EVERY ECHE SOURCE ROW. Exhaustive and disjoint:
+   *
+   *   unique + ambiguous + conflict + noMatch + unusable === totalSourceRows
+   *
+   * `unusable` is inside the denominator because the denominator is the
+   * artifact, not the subset of it this comparison happened to be able to read.
+   */
+  classification: {
+    totalSourceRows: number;
+    /** Reached exactly one EWP HEI, with no disagreement. */
+    unique: number;
+    /** Reached EWP evidence, but not a single institution. */
+    ambiguous: number;
+    /** The two identifiers named disjoint sets of EWP HEIs. */
+    conflict: number;
+    /** Compared, and no EWP HEI published either identifier. */
+    noMatch: number;
+    /** Not comparable at all. NOT a miss. */
+    unusable: number;
   };
   reverse: {
     /** EWP HEIs reached by at least one ECHE row, via either identifier. */
@@ -188,6 +277,8 @@ export interface EcheEwpCoverageReport {
   };
   /** The full disagreement set. Reported, never resolved. */
   conflicts: RowComparison[];
+  /** The full ambiguity set: rows that reached evidence but not one institution. */
+  ambiguousRows: RowComparison[];
   /** Every row's classification, in ECHE document order. */
   rows: RowComparison[];
 }
@@ -255,10 +346,13 @@ export function toComparableHeis(ewpXmlBytes: Buffer): {
  * Converts one raw ECHE row into its comparable identifiers.
  *
  * Deliberately more permissive than Phase 1A's `normaliseRow`, which throws on
- * a row that could not become an organisation. The denominator for this
- * measurement is EVERY data row in the artifact, so a row missing a country
- * code still counts as a row; it simply contributes null identifiers. Rows that
- * cannot yield an Erasmus code at all are counted separately as invalid.
+ * a row that could not become an organisation. A row missing a country code
+ * still counts as a row; it simply contributes null identifiers.
+ *
+ * Returns null for a row that cannot be compared at all - no Erasmus code, or
+ * no legal name. Such a row is NOT dropped from the measurement: the caller
+ * counts it as `unusableRows`, it stays inside `totalSourceRows`, and it is
+ * never folded into NO MATCH.
  */
 export function toComparableRow(row: RawEcheRow): EcheComparableRow | null {
   const rawCode = blankToNull(row['Erasmus code'] ?? null);
@@ -352,7 +446,15 @@ function measureDomainShapeOverlap(
   };
 }
 
-/** Compares already-extracted rows and HEIs. Pure; the unit tests drive this. */
+/**
+ * Compares already-extracted rows and HEIs. Pure; the unit tests drive this.
+ *
+ * `echeUnusableRows` is the count of source rows that could not be turned into
+ * an `EcheComparableRow` at all. They are not in `echeRows` - there is nothing
+ * to compare - but they ARE part of the reported denominator, so passing the
+ * real count is what keeps `totalSourceRows` the size of the artifact rather
+ * than the size of the readable subset of it.
+ */
 export function compareEcheToEwp(
   echeRows: readonly EcheComparableRow[],
   ewp: {
@@ -361,7 +463,7 @@ export function compareEcheToEwp(
     emptyOtherIds: number;
     nonComparablePics: number;
   },
-  echeInvalidRows = 0,
+  echeUnusableRows = 0,
 ): EcheEwpCoverageReport {
   const picIndex = indexBy(ewp.heis, (h) => h.pics);
   const erasmusIndex = indexBy(ewp.heis, (h) => h.erasmusCodes);
@@ -383,8 +485,15 @@ export function compareEcheToEwp(
   let bothAgree = 0;
   let bothConflict = 0;
   let bothAmbiguous = 0;
+  let picOnlyUnique = 0;
+  let picOnlyAmbiguous = 0;
+  let erasmusOnlyUnique = 0;
+  let erasmusOnlyAmbiguous = 0;
   let picAmbiguous = 0;
   let erasmusAmbiguous = 0;
+  let gradeUnique = 0;
+  let gradeAmbiguous = 0;
+  let gradeConflict = 0;
 
   for (const row of echeRows) {
     const picHeiIds = row.pic === null ? [] : (picIndex.get(row.pic) ?? []);
@@ -422,15 +531,35 @@ export function compareEcheToEwp(
         bothAmbiguous += 1;
       }
     } else if (picHit) {
-      verdict = 'MATCH_PIC_ONLY';
+      // ONE MATCHING IDENTIFIER IS NOT AUTOMATICALLY ONE INSTITUTION. A PIC
+      // that names two EWP HEIs is ambiguous evidence even when the other
+      // identifier found nothing to disagree with, so it never grades UNIQUE.
       matchedByPicOnly += 1;
+      if (picHeiIds.length === 1) {
+        verdict = 'MATCH_PIC_ONLY';
+        picOnlyUnique += 1;
+      } else {
+        verdict = 'MATCH_PIC_ONLY_AMBIGUOUS';
+        picOnlyAmbiguous += 1;
+      }
     } else if (erasmusHit) {
-      verdict = 'MATCH_ERASMUS_ONLY';
       matchedByErasmusOnly += 1;
+      if (erasmusHeiIds.length === 1) {
+        verdict = 'MATCH_ERASMUS_ONLY';
+        erasmusOnlyUnique += 1;
+      } else {
+        verdict = 'MATCH_ERASMUS_ONLY_AMBIGUOUS';
+        erasmusOnlyAmbiguous += 1;
+      }
     } else {
       verdict = 'NO_MATCH';
       matchedByNeither += 1;
     }
+
+    const grade = gradeOf(verdict);
+    if (grade === 'UNIQUE') gradeUnique += 1;
+    else if (grade === 'AMBIGUOUS') gradeAmbiguous += 1;
+    else if (grade === 'CONFLICT') gradeConflict += 1;
 
     rows.push({
       echeRowKey: row.echeRowKey,
@@ -441,6 +570,7 @@ export function compareEcheToEwp(
       picVerdict,
       erasmusVerdict,
       verdict,
+      grade,
       picHeiIds,
       erasmusHeiIds,
     });
@@ -451,8 +581,9 @@ export function compareEcheToEwp(
 
   return {
     eche: {
-      totalRows: echeRows.length,
-      invalidRows: echeInvalidRows,
+      totalSourceRows: echeRows.length + echeUnusableRows,
+      comparableRows: echeRows.length,
+      unusableRows: echeUnusableRows,
       rowsWithPic: echeRows.filter((r) => r.pic !== null).length,
       rowsWithErasmusCode: echeRows.filter((r) => r.erasmusCode !== null).length,
       distinctPics: countDistinct(echeRows.map((r) => r.pic)),
@@ -479,8 +610,20 @@ export function compareEcheToEwp(
       bothAgree,
       bothConflict,
       bothAmbiguous,
+      picOnlyUnique,
+      picOnlyAmbiguous,
+      erasmusOnlyUnique,
+      erasmusOnlyAmbiguous,
       picAmbiguous,
       erasmusAmbiguous,
+    },
+    classification: {
+      totalSourceRows: echeRows.length + echeUnusableRows,
+      unique: gradeUnique,
+      ambiguous: gradeAmbiguous,
+      conflict: gradeConflict,
+      noMatch: matchedByNeither,
+      unusable: echeUnusableRows,
     },
     reverse: {
       heisMatchedByAnyEcheRow: reachedHeis.size,
@@ -499,7 +642,8 @@ export function compareEcheToEwp(
       echeErasmusSharedByMultipleRows: duplicateEcheValues(echeRows, (r) => r.erasmusCode),
     },
     domainShapeAnalysis: measureDomainShapeOverlap(echeRows, rows, foldedHeiIds),
-    conflicts: rows.filter((r) => r.verdict === 'MATCH_BOTH_CONFLICT'),
+    conflicts: rows.filter((r) => r.grade === 'CONFLICT'),
+    ambiguousRows: rows.filter((r) => r.grade === 'AMBIGUOUS'),
     rows,
   };
 }
@@ -514,13 +658,16 @@ export async function measureEcheEwpCoverage(
 ): Promise<EcheEwpCoverageReport> {
   const workbook = await parseEcheWorkbook(echeXlsxBytes);
 
+  // Rows that cannot be compared are COUNTED, not discarded: the denominator
+  // this measurement reports is the artifact's row count, and a row we could
+  // not read is not the same finding as a row EWP did not publish.
   const rows: EcheComparableRow[] = [];
-  let invalid = 0;
+  let unusable = 0;
   for (const raw of workbook.rows) {
     const comparable = toComparableRow(raw);
-    if (comparable === null) invalid += 1;
+    if (comparable === null) unusable += 1;
     else rows.push(comparable);
   }
 
-  return compareEcheToEwp(rows, toComparableHeis(ewpXmlBytes), invalid);
+  return compareEcheToEwp(rows, toComparableHeis(ewpXmlBytes), unusable);
 }

@@ -11,6 +11,7 @@ import { resolve } from 'node:path';
 import { beforeAll, describe, expect, it } from 'vitest';
 import {
   compareEcheToEwp,
+  gradeOf,
   measureEcheEwpCoverage,
   toComparableHeis,
   toComparableRow,
@@ -105,14 +106,97 @@ describe('per-row verdicts', () => {
     expect(report.coverage.erasmusAmbiguous).toBe(1);
   });
 
-  it('MATCH_PIC_ONLY and MATCH_ERASMUS_ONLY are kept apart', () => {
+  it('MATCH_PIC_ONLY and MATCH_ERASMUS_ONLY are kept apart, and are UNIQUE', () => {
     const picOnly = compareEcheToEwp([echeRow()], ewpSide([ewpHei({ pics: ['1'] })]));
     expect(picOnly.rows[0]?.verdict).toBe('MATCH_PIC_ONLY');
+    expect(picOnly.rows[0]?.grade).toBe('UNIQUE');
     expect(picOnly.rows[0]?.erasmusVerdict).toBe('NO_MATCH');
+    expect(picOnly.coverage.picOnlyUnique).toBe(1);
+    expect(picOnly.coverage.picOnlyAmbiguous).toBe(0);
 
     const codeOnly = compareEcheToEwp([echeRow()], ewpSide([ewpHei({ erasmusCodes: ['X A01'] })]));
     expect(codeOnly.rows[0]?.verdict).toBe('MATCH_ERASMUS_ONLY');
+    expect(codeOnly.rows[0]?.grade).toBe('UNIQUE');
     expect(codeOnly.rows[0]?.picVerdict).toBe('NO_MATCH');
+    expect(codeOnly.coverage.erasmusOnlyUnique).toBe(1);
+    expect(codeOnly.coverage.erasmusOnlyAmbiguous).toBe(0);
+  });
+
+  it('a PIC naming TWO HEIs with no other evidence is AMBIGUOUS, not a match', () => {
+    // The regression this guards: one matching identifier used to become
+    // MATCH_PIC_ONLY whatever its cardinality, so ambiguous evidence was
+    // reported as a unique match at row level while the identifier-level
+    // verdict still said MATCH_MULTI. The two must agree.
+    const report = compareEcheToEwp(
+      [echeRow()],
+      ewpSide([
+        ewpHei({ heiId: 'a.example', pics: ['1'] }),
+        ewpHei({ heiId: 'b.example', pics: ['1'] }),
+      ]),
+    );
+    const row = report.rows[0];
+    expect(row?.verdict).toBe('MATCH_PIC_ONLY_AMBIGUOUS');
+    expect(row?.grade).toBe('AMBIGUOUS');
+    expect(row?.picVerdict).toBe('MATCH_MULTI');
+    expect(row?.erasmusVerdict).toBe('NO_MATCH');
+    expect(row?.picHeiIds).toEqual(['a.example', 'b.example']);
+    // It counts as "matched by PIC only" - and as AMBIGUOUS, never UNIQUE.
+    expect(report.coverage.matchedByPicOnly).toBe(1);
+    expect(report.coverage.picOnlyUnique).toBe(0);
+    expect(report.coverage.picOnlyAmbiguous).toBe(1);
+    expect(report.classification).toMatchObject({ unique: 0, ambiguous: 1, noMatch: 0 });
+    expect(report.ambiguousRows).toHaveLength(1);
+  });
+
+  it('an Erasmus code naming TWO HEIs with no other evidence is AMBIGUOUS', () => {
+    const report = compareEcheToEwp(
+      [echeRow({ pic: null })],
+      ewpSide([
+        ewpHei({ heiId: 'a.example', erasmusCodes: ['X A01'] }),
+        ewpHei({ heiId: 'b.example', erasmusCodes: ['X A01'] }),
+      ]),
+    );
+    const row = report.rows[0];
+    expect(row?.verdict).toBe('MATCH_ERASMUS_ONLY_AMBIGUOUS');
+    expect(row?.grade).toBe('AMBIGUOUS');
+    expect(row?.erasmusVerdict).toBe('MATCH_MULTI');
+    // The PIC was absent, so it was never compared. UNKNOWN, not NO_MATCH.
+    expect(row?.picVerdict).toBe('UNKNOWN');
+    expect(report.coverage.erasmusOnlyUnique).toBe(0);
+    expect(report.coverage.erasmusOnlyAmbiguous).toBe(1);
+    expect(report.classification).toMatchObject({ unique: 0, ambiguous: 1 });
+  });
+
+  it('two ambiguous sides that are disjoint are still a CONFLICT', () => {
+    const report = compareEcheToEwp(
+      [echeRow()],
+      ewpSide([
+        ewpHei({ heiId: 'a.example', pics: ['1'] }),
+        ewpHei({ heiId: 'b.example', pics: ['1'] }),
+        ewpHei({ heiId: 'c.example', erasmusCodes: ['X A01'] }),
+        ewpHei({ heiId: 'd.example', erasmusCodes: ['X A01'] }),
+      ]),
+    );
+    const row = report.rows[0];
+    expect(row?.verdict).toBe('MATCH_BOTH_CONFLICT');
+    expect(row?.grade).toBe('CONFLICT');
+    // The ambiguity is still visible at identifier level, where it belongs.
+    expect(row?.picVerdict).toBe('MATCH_MULTI');
+    expect(row?.erasmusVerdict).toBe('MATCH_MULTI');
+    expect(report.classification).toMatchObject({ unique: 0, ambiguous: 0, conflict: 1 });
+  });
+
+  it('both sides ambiguous and overlapping is AMBIGUOUS, never AGREE', () => {
+    const report = compareEcheToEwp(
+      [echeRow()],
+      ewpSide([
+        ewpHei({ heiId: 'a.example', pics: ['1'], erasmusCodes: ['X A01'] }),
+        ewpHei({ heiId: 'b.example', pics: ['1'], erasmusCodes: ['X A01'] }),
+      ]),
+    );
+    expect(report.rows[0]?.verdict).toBe('MATCH_BOTH_AMBIGUOUS');
+    expect(report.rows[0]?.grade).toBe('AMBIGUOUS');
+    expect(report.classification).toMatchObject({ unique: 0, ambiguous: 1 });
   });
 
   it('NO_MATCH when neither identifier reaches anything', () => {
@@ -238,16 +322,81 @@ describe('domain-shape analysis', () => {
 // Counting
 // ---------------------------------------------------------------------------
 
+describe('an unusable row stays in the denominator and is never a miss', () => {
+  it('unusable rows are counted, not dropped, and are not NO MATCH', () => {
+    // The row is not comparable, so it produces no RowComparison - but the
+    // denominator this measurement reports is the ARTIFACT, not the subset of
+    // it that could be read. Folding it into NO MATCH would claim EWP was
+    // searched for it, which never happened.
+    const report = compareEcheToEwp([echeRow()], ewpSide([ewpHei({ pics: ['1'] })]), 4);
+    expect(report.eche.totalSourceRows).toBe(5);
+    expect(report.eche.comparableRows).toBe(1);
+    expect(report.eche.unusableRows).toBe(4);
+    expect(report.rows).toHaveLength(1);
+    expect(report.coverage.matchedByNeither).toBe(0);
+    expect(report.classification).toEqual({
+      totalSourceRows: 5,
+      unique: 1,
+      ambiguous: 0,
+      conflict: 0,
+      noMatch: 0,
+      unusable: 4,
+    });
+  });
+});
+
 describe('coverage arithmetic', () => {
-  it('either = pic + erasmus - both, and either + neither = total', () => {
+  it('either = pic + erasmus - both, and either + neither = COMPARABLE rows', () => {
     const c = fixtureReport.coverage;
     expect(c.matchedByEither).toBe(c.matchedByPic + c.matchedByErasmus - c.matchedByBoth);
-    expect(c.matchedByEither + c.matchedByNeither).toBe(fixtureReport.eche.totalRows);
+    // Note the denominator: the identifier counters range over the rows that
+    // could be compared. The full-artifact denominator is `classification`.
+    expect(c.matchedByEither + c.matchedByNeither).toBe(fixtureReport.eche.comparableRows);
+  });
+
+  it('the classification partitions EVERY ECHE source row', () => {
+    const k = fixtureReport.classification;
+    expect(k.unique + k.ambiguous + k.conflict + k.noMatch + k.unusable).toBe(k.totalSourceRows);
+    expect(k.totalSourceRows).toBe(fixtureReport.eche.totalSourceRows);
+    expect(fixtureReport.eche.comparableRows + fixtureReport.eche.unusableRows).toBe(
+      fixtureReport.eche.totalSourceRows,
+    );
+    // The fixture carries an intentionally unusable row; it must be visible.
+    expect(k.unusable).toBeGreaterThan(0);
+    expect(k.noMatch).toBe(fixtureReport.coverage.matchedByNeither);
   });
 
   it('pic-only + erasmus-only + both = either', () => {
     const c = fixtureReport.coverage;
     expect(c.matchedByPicOnly + c.matchedByErasmusOnly + c.matchedByBoth).toBe(c.matchedByEither);
+  });
+
+  it('the one-sided counters split cleanly into unique and ambiguous', () => {
+    const c = fixtureReport.coverage;
+    expect(c.picOnlyUnique + c.picOnlyAmbiguous).toBe(c.matchedByPicOnly);
+    expect(c.erasmusOnlyUnique + c.erasmusOnlyAmbiguous).toBe(c.matchedByErasmusOnly);
+  });
+
+  it('unique is exactly the agreeing and singular rows, and nothing else', () => {
+    const c = fixtureReport.coverage;
+    expect(fixtureReport.classification.unique).toBe(
+      c.bothAgree + c.picOnlyUnique + c.erasmusOnlyUnique,
+    );
+    expect(fixtureReport.classification.ambiguous).toBe(
+      c.bothAmbiguous + c.picOnlyAmbiguous + c.erasmusOnlyAmbiguous,
+    );
+    expect(fixtureReport.classification.conflict).toBe(c.bothConflict);
+  });
+
+  it('every row grades consistently with its verdict', () => {
+    for (const row of fixtureReport.rows) {
+      expect(row.grade).toBe(gradeOf(row.verdict));
+      // A row graded UNIQUE can never carry an ambiguous identifier verdict.
+      if (row.grade === 'UNIQUE') {
+        expect(row.picVerdict).not.toBe('MATCH_MULTI');
+        expect(row.erasmusVerdict).not.toBe('MATCH_MULTI');
+      }
+    }
   });
 
   it('agree + conflict + ambiguous = both', () => {
@@ -267,9 +416,12 @@ describe('the committed fixtures end to end', () => {
   it('produces the expected classification of every row', () => {
     const report = fixtureReport;
 
-    expect(report.eche.totalRows).toBe(13);
+    // ALL data rows in the fixture workbook, including the one that cannot be
+    // compared. This is the denominator, and it does not shrink.
+    expect(report.eche.totalSourceRows).toBe(14);
+    expect(report.eche.comparableRows).toBe(13);
     // One fixture row has no Legal Name and cannot become a comparable row.
-    expect(report.eche.invalidRows).toBe(1);
+    expect(report.eche.unusableRows).toBe(1);
     expect(report.ewp.totalHeis).toBe(18);
     expect(report.ewp.totalHosts).toBe(5);
 

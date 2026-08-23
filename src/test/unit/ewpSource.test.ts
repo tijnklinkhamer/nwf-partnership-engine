@@ -1,16 +1,26 @@
 /**
  * EWP source resolution.
  *
- * Origin validation and artifact identity only. Nothing here touches the
- * network: the two functions that fetch are deliberately not exercised, because
- * CI must never depend on the live registry being up.
+ * Origin validation, artifact identity, and the redirect trust boundary.
+ *
+ * NOTHING HERE TOUCHES THE NETWORK. The fetching paths are exercised against a
+ * stubbed `fetch`, never the live registry, so these tests are deterministic
+ * and CI never depends on the Registry being up. The stub also lets the
+ * redirect tests assert the thing that actually matters: that the request to a
+ * redirect target is NEVER ISSUED, which a live test could not prove.
  */
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
-import { describe, expect, it } from 'vitest';
-import { assertOfficialEwpUrl, resolveFromFile, sourceLocation } from '../../ingest/ewp/source.js';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import {
+  assertOfficialEwpUrl,
+  resolveFromFile,
+  resolveFromOfficialEndpoint,
+  resolveFromUrl,
+  sourceLocation,
+} from '../../ingest/ewp/source.js';
 import {
   EWP_CATALOGUE_URL,
   EWP_SOURCE_REUSE_BASIS,
@@ -171,5 +181,138 @@ describe('artifact origin is recorded, never inferred', () => {
     // This is the normal download-once-then-ingest case, and it is precisely
     // why the two timestamps are separate columns.
     expect(resolved.originRetrievedAt?.getTime() ?? 0).toBeLessThan(resolved.fetchedAt.getTime());
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The redirect trust boundary
+// ---------------------------------------------------------------------------
+
+const OFFICIAL = 'https://registry.erasmuswithoutpaper.eu/catalogue-v1.xml';
+const CATALOGUE = '<?xml version="1.0"?><catalogue/>';
+
+/**
+ * Installs a fetch stub and returns the list of URLs it was asked for.
+ *
+ * The recorded list is the proof: a redirect that is refused must leave
+ * EXACTLY ONE entry in it, because the target was never requested.
+ */
+function stubFetch(handler: (url: string) => Response): { requested: string[] } {
+  const requested: string[] = [];
+  vi.stubGlobal('fetch', (input: unknown, init?: RequestInit) => {
+    const url = String(input);
+    requested.push(url);
+    // Every fetch this module performs must refuse to follow redirects itself.
+    // 'follow' would hand the hop to the runtime, past every check here.
+    expect(init?.redirect).toBe('manual');
+    return Promise.resolve(handler(url));
+  });
+  return { requested };
+}
+
+function ok(): Response {
+  return new Response(CATALOGUE, {
+    status: 200,
+    headers: { 'content-type': 'application/xml' },
+  });
+}
+
+function redirectTo(location: string, status = 302): Response {
+  return new Response(null, { status, headers: { location } });
+}
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
+describe('redirects are never followed', () => {
+  it('a normal 200 from the official endpoint succeeds', async () => {
+    const { requested } = stubFetch(() => ok());
+    const resolved = await resolveFromOfficialEndpoint();
+
+    expect(requested).toEqual([OFFICIAL]);
+    expect(resolved.kind).toBe('official_endpoint');
+    expect(resolved.fileUrl).toBe(OFFICIAL);
+    expect(resolved.originUrl).toBe(OFFICIAL);
+    expect(resolved.sha256).toBe(createHash('sha256').update(CATALOGUE).digest('hex'));
+  });
+
+  it('a redirect to an unapproved host fails WITHOUT requesting the target', async () => {
+    const { requested } = stubFetch(() => redirectTo('https://evil.example/catalogue-v1.xml'));
+
+    await expect(resolveFromUrl(OFFICIAL)).rejects.toThrow(EwpSourceResolutionError);
+    // THE WHOLE POINT: one request, to the validated URL. The external host was
+    // never contacted, so no bytes from outside the trust boundary can exist.
+    expect(requested).toEqual([OFFICIAL]);
+    expect(requested.some((url) => url.includes('evil.example'))).toBe(false);
+  });
+
+  it('names the refused target and says nothing was ingested', async () => {
+    stubFetch(() => redirectTo('https://evil.example/catalogue-v1.xml'));
+    await expect(resolveFromUrl(OFFICIAL)).rejects.toThrow(
+      /HTTP 302 redirecting to https:\/\/evil\.example\/catalogue-v1\.xml/,
+    );
+    stubFetch(() => redirectTo('https://evil.example/catalogue-v1.xml'));
+    await expect(resolveFromUrl(OFFICIAL)).rejects.toThrow(/Nothing was ingested/);
+  });
+
+  it('refuses every redirect status, not just 302', async () => {
+    for (const status of [301, 302, 303, 307, 308]) {
+      const { requested } = stubFetch(() =>
+        redirectTo('https://evil.example/catalogue-v1.xml', status),
+      );
+      await expect(resolveFromUrl(OFFICIAL)).rejects.toThrow(
+        new RegExp(`HTTP ${status} redirecting`),
+      );
+      expect(requested).toEqual([OFFICIAL]);
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('refuses a redirect even to the approved host', async () => {
+    // Fail closed means the bytes come from the URL that was validated, full
+    // stop. A same-host hop would still make the provenance record name a URL
+    // that did not serve these bytes.
+    const { requested } = stubFetch(() =>
+      redirectTo('https://registry.erasmuswithoutpaper.eu/catalogue-v2.xml'),
+    );
+    await expect(resolveFromUrl(OFFICIAL)).rejects.toThrow(/redirecting to/);
+    expect(requested).toEqual([OFFICIAL]);
+  });
+
+  it('refuses a redirect with no Location header rather than guessing one', async () => {
+    const { requested } = stubFetch(() => new Response(null, { status: 302 }));
+    await expect(resolveFromUrl(OFFICIAL)).rejects.toThrow(/no Location header/);
+    expect(requested).toEqual([OFFICIAL]);
+  });
+
+  it('the official endpoint is protected by the same rule', async () => {
+    const { requested } = stubFetch(() => redirectTo('https://evil.example/catalogue-v1.xml'));
+    await expect(resolveFromOfficialEndpoint()).rejects.toThrow(EwpSourceResolutionError);
+    expect(requested).toEqual([OFFICIAL]);
+  });
+
+  it('an unapproved host is refused before any request is made at all', async () => {
+    const { requested } = stubFetch(() => ok());
+    await expect(resolveFromUrl('https://evil.example/catalogue-v1.xml')).rejects.toThrow(
+      EwpSourceResolutionError,
+    );
+    expect(requested).toEqual([]);
+  });
+
+  it('the module never asks the runtime to follow a redirect', async () => {
+    const { readFileSync } = await import('node:fs');
+    // Comments are stripped first: this asserts a real capability, not prose.
+    // A check that tripped on the word "follow" inside an explanation would
+    // only train people to delete the explanation.
+    const code = readFileSync('src/ingest/ewp/source.ts', 'utf8')
+      .replace(/\/\*[\s\S]*?\*\//g, '')
+      .replace(/\/\/[^\n]*/g, '');
+    // redirect:'follow' - or omitting the option, whose default is 'follow' -
+    // would let the runtime issue the next request before any check here.
+    expect(code).not.toMatch(/redirect\s*:\s*['"]follow['"]/);
+    const fetchCalls = code.match(/\bfetch\s*\(/g) ?? [];
+    expect(fetchCalls).toHaveLength(1);
+    expect(code).toMatch(/redirect:\s*'manual'/);
   });
 });

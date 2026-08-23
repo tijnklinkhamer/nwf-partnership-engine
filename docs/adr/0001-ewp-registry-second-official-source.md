@@ -202,15 +202,45 @@ first:
 
 **MEASUREMENT.** Denominator: **all 6,139 ECHE data rows**.
 
+**The denominator is the artifact, not the readable part of it.** A row that
+cannot be compared at all — no Erasmus code, or no legal name — is counted as
+`UNUSABLE` and stays inside the total. It is never folded into `NO MATCH`:
+"we could not compare this row" and "we compared it and EWP published neither
+identifier" are different findings, and merging them would report a parsing
+limit as a coverage gap. The report therefore carries
+`totalSourceRows = comparableRows + unusableRows` explicitly, and the headline
+partition below sums to `totalSourceRows`, not to the comparable subset.
+
 ### ECHE side
 
-|                                    |               |
-| ---------------------------------- | ------------- |
-| A. Total data rows                 | **6,139**     |
-| Rows unusable for comparison       | 0             |
-| C. Rows with a usable PIC          | 6,139         |
-| D. Rows with a usable Erasmus code | 6,139         |
-| Distinct PICs / Erasmus codes      | 6,139 / 6,138 |
+|                                        |               |
+| -------------------------------------- | ------------- |
+| A. Total data rows (`totalSourceRows`) | **6,139**     |
+| Comparable rows                        | 6,139         |
+| Rows UNUSABLE for comparison           | 0             |
+| C. Rows with a usable PIC              | 6,139         |
+| D. Rows with a usable Erasmus code     | 6,139         |
+| Distinct PICs / Erasmus codes          | 6,139 / 6,138 |
+
+### The headline partition — every source row, exhaustive and disjoint
+
+|                                             | count     | of 6,139  |
+| ------------------------------------------- | --------- | --------- |
+| **UNIQUE** — reached exactly one EWP HEI    | **3,321** | **54.1%** |
+| **AMBIGUOUS** — reached more than one       | **0**     | 0%        |
+| **CONFLICT** — the two identifiers disagree | **0**     | 0%        |
+| **NO MATCH** — compared, nothing found      | **2,818** | 45.9%     |
+| **UNUSABLE** — could not be compared        | **0**     | 0%        |
+| TOTAL                                       | **6,139** | 100%      |
+
+**A single matching identifier is not automatically a single institution.** An
+identifier can name several EWP HEIs — `unisi.ch` and `usi.ch` publish the same
+PIC _and_ the same Erasmus code — so a row whose PIC reached two HEIs while its
+Erasmus code reached nothing grades `AMBIGUOUS`, never `UNIQUE`. This holds on
+both the one-sided and two-sided paths; the row-level grade can never be
+stronger than the identifier-level verdicts it was built from, and the unit
+tests assert exactly that. The count is 0 here only because no ECHE row carries
+either shared value — Switzerland is not an ECHE country.
 
 ### Coverage
 
@@ -221,11 +251,14 @@ first:
 | F. **MATCH** by Erasmus code      | **3,319** | 54.1%     |
 | G. **MATCH** by both              | **3,289** | 53.6%     |
 | H. **MATCH** by PIC only          | **2**     | 0.03%     |
+| — of those, UNIQUE / AMBIGUOUS    | 2 / 0     | —         |
 | I. **MATCH** by Erasmus code only | **30**    | 0.5%      |
+| — of those, UNIQUE / AMBIGUOUS    | 30 / 0    | —         |
 | J. **MATCH** by either            | **3,321** | **54.1%** |
 | K. **NO MATCH** by neither        | **2,818** | 45.9%     |
 
-Arithmetic checks: `3291 + 3319 − 3289 = 3321` and `3321 + 2818 = 6139`.
+Arithmetic checks: `3291 + 3319 − 3289 = 3321`, `3321 + 2818 = 6139`
+(comparable rows), and `3321 + 0 + 0 + 2818 + 0 = 6139` (all source rows).
 
 ### L. The disagreement set
 
@@ -419,11 +452,65 @@ sources; the numbers will then reflect whatever the catalogue holds at that
 moment, since it is refreshed continuously. To reproduce **this ADR's** figures
 exactly, use artifacts whose sha256 match §2.
 
-Note that the CLI reports `MATCH`, `NO MATCH`, `CONFLICT` and `UNKNOWN` as
-distinct outcomes and never collapses them — in particular `UNKNOWN` ("the
-identifier is absent, so we could not look") is kept separate from `NO MATCH`
-("we looked and found nothing"), because merging them would overstate the miss
-rate.
+Note that the CLI reports `MATCH`, `AMBIGUOUS`, `NO MATCH`, `CONFLICT`,
+`UNUSABLE` and `UNKNOWN` as distinct outcomes and never collapses them. Three
+distinctions carry the weight:
+
+- `UNKNOWN` ("the identifier is absent, so we could not look") is kept separate
+  from `NO MATCH` ("we looked and found nothing"), because merging them would
+  overstate the miss rate.
+- `UNUSABLE` ("the row could not be compared at all") is likewise never folded
+  into `NO MATCH`, and stays inside the denominator.
+- `AMBIGUOUS` ("an identifier matched, but named more than one EWP HEI") is
+  never reported as a match, on either the one-sided or the two-sided path.
+
+---
+
+## 11a. The redirect trust boundary
+
+**DECISION — the catalogue fetch does not follow redirects at all.**
+
+`assertOfficialEwpUrl` validates the URL that is about to be requested, but
+`fetch(url, { redirect: 'follow' })` would hand every subsequent hop to the
+runtime, which issues the request to the target before any code here can look at
+it. An official URL answering `302 Location: https://elsewhere.example/…` would
+therefore already have been fetched from outside the allow-list, while the
+provenance record still named the official URL that was asked for. Checking
+`Response.url` afterwards is too late — the request has happened.
+
+The fetch is therefore issued with `redirect: 'manual'`, and any 3xx is a
+fail-closed error naming the refused target. No request to a redirect target is
+ever made: not to an unapproved host, and not to a different path on the
+approved one, because a same-host hop would still make the provenance record
+name a URL that did not serve the bytes. The observed official endpoint answers
+`200` directly (see §2), so this costs nothing today; if the Registry ever moves,
+the correct response is an operator passing the new URL explicitly — which is
+validated in its own right — not this process silently following a hop it never
+checked.
+
+`src/test/unit/ewpSource.test.ts` proves the boundary against a stubbed `fetch`,
+with no live network: a normal 200 succeeds, every redirect status is refused,
+and the recorded request list is asserted to contain **only** the validated URL.
+
+---
+
+## 11b. Concurrent ingestion of one artifact
+
+**DECISION — made genuinely idempotent, rather than qualified away.**
+
+`ingestEwpCatalogue` answers the common re-ingest with one `SELECT` on
+`artifact_sha256`. That `SELECT` alone leaves a window: two first ingests of the
+same bytes could both pass it and one would then hit `unique_violation` on the
+index. The snapshot `INSERT` is therefore `ON CONFLICT (artifact_sha256) DO
+NOTHING RETURNING id`. The loser blocks on the index, comes back with no row,
+rolls back having written nothing — this is the transaction's first statement,
+so no evidence rows exist yet — and reports the winner's snapshot as already
+present. Both runs are still recorded in `ingest_runs`, and both succeed.
+
+No lock, queue, worker or orchestration was introduced for this, and none is
+warranted: Phase 1B is a small number of operator-invoked commands. An
+integration test runs two ingests of the same artifact concurrently and asserts
+one snapshot, one winner, one no-op and no half-written evidence.
 
 ---
 

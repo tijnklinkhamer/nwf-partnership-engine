@@ -7,6 +7,11 @@
  *                                the run is recorded as unchanged
  *   - a CHANGED catalogue     -> a NEW snapshot beside the old one; no row of
  *                                the previous snapshot is touched
+ *   - the SAME artifact TWICE AT ONCE -> one snapshot, one winner, and the
+ *                                other run reports it as already present. The
+ *                                unique index on artifact_sha256 combined with
+ *                                ON CONFLICT DO NOTHING is what makes that a
+ *                                guarantee rather than a race.
  *
  * The idempotency anchor is the SHA-256 of the artifact bytes and nothing else.
  * The live catalogue is refreshed continuously and publishes no edition or
@@ -52,6 +57,18 @@ export interface EwpIngestResult {
 
 /** How many rows are sent per multi-row INSERT. */
 const INSERT_BATCH = 500;
+
+/**
+ * Raised inside the ingest transaction when the snapshot INSERT found the
+ * artifact already stored by someone else. Rolls the transaction back and
+ * hands control to the already-present path; never escapes this module.
+ */
+class ArtifactAlreadyStored extends Error {
+  constructor(sha256: string) {
+    super(`Artifact ${sha256} was stored concurrently by another ingest.`);
+    this.name = 'ArtifactAlreadyStored';
+  }
+}
 
 function countOtherIds(parsed: ParsedEwpCatalogue): number {
   return parsed.heis.reduce((total, hei) => total + hei.otherIds.length, 0);
@@ -190,35 +207,43 @@ export async function ingestEwpCatalogue(
   const runId = await startRun(pool, source, dryRun);
 
   try {
-    // Is this exact artifact already stored? The unique index on
-    // artifact_sha256 is what makes this a real guarantee rather than a race.
+    // A no-op run still ends up recorded, which is what makes it auditable.
+    const asAlreadyPresent = async (snapshotId: string): Promise<EwpIngestResult> => {
+      log.info(
+        `Artifact ${source.sha256.slice(0, 16)}... is already stored as snapshot ` +
+          `${snapshotId}. Nothing was inserted.`,
+      );
+      await finishRun(pool, runId, heiCount, 0, heiCount, 'succeeded', null);
+      return { ...base, ingestRunId: runId, snapshotId, alreadyPresent: true, dryRun: false };
+    };
+
+    // Cheap fast path: almost every re-ingest is a plain repeat, and answering
+    // it with one SELECT avoids opening a transaction at all. It is NOT the
+    // guarantee - see the INSERT below, which is.
     const existing = await pool.query<{ id: string }>(
       'SELECT id FROM ewp_snapshots WHERE artifact_sha256 = $1',
       [source.sha256],
     );
     const existingId = existing.rows[0]?.id;
-    if (existingId !== undefined) {
-      log.info(
-        `Artifact ${source.sha256.slice(0, 16)}... is already stored as snapshot ` +
-          `${existingId}. Nothing was inserted.`,
-      );
-      await finishRun(pool, runId, heiCount, 0, heiCount, 'succeeded', null);
-      return {
-        ...base,
-        ingestRunId: runId,
-        snapshotId: existingId,
-        alreadyPresent: true,
-        dryRun: false,
-      };
-    }
+    if (existingId !== undefined) return asAlreadyPresent(existingId);
 
-    const snapshotId = await withTransaction(pool, async (client) => {
+    const inserted = await withTransaction(pool, async (client) => {
       const snapshot = await client.query<{ id: string }>(
+        // ON CONFLICT DO NOTHING is what closes the window between the SELECT
+        // above and this INSERT. Two first ingests of the same artifact can
+        // both pass the SELECT; the unique index on artifact_sha256 then makes
+        // one of them block here and come back with no row rather than raising
+        // unique_violation. That loser rolls back having written nothing - this
+        // is the transaction's first statement, so no evidence rows exist yet -
+        // and reports the winner's snapshot as already present. Concurrent
+        // ingestion of identical bytes is therefore genuinely idempotent, not
+        // idempotent-if-nobody-else-is-running.
         `INSERT INTO ewp_snapshots
            (artifact_sha256, artifact_bytes, source_input_kind, source_location,
             fetched_at, origin_url, origin_retrieved_at, first_ingest_run_id,
             host_count, hei_count, other_id_count, api_declaration_count)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+         ON CONFLICT (artifact_sha256) DO NOTHING
          RETURNING id`,
         // origin_url/origin_retrieved_at record WHERE THE ARTIFACT WAS
         // PUBLISHED, which is a different fact from source_location's WHERE
@@ -240,7 +265,7 @@ export async function ingestEwpCatalogue(
         ],
       );
       const id = snapshot.rows[0]?.id;
-      if (!id) throw new Error('INSERT ewp_snapshots returned no id');
+      if (!id) throw new ArtifactAlreadyStored(source.sha256);
 
       // --- institutions -----------------------------------------------------
       const normalisedHeis = parsed.heis.map(normaliseHei);
@@ -363,14 +388,32 @@ export async function ingestEwpCatalogue(
       );
 
       return id;
+    }).catch(async (err: unknown) => {
+      if (!(err instanceof ArtifactAlreadyStored)) throw err;
+      // The other transaction has committed by the time DO NOTHING returned
+      // empty, so its snapshot is visible now.
+      const winner = await pool.query<{ id: string }>(
+        'SELECT id FROM ewp_snapshots WHERE artifact_sha256 = $1',
+        [source.sha256],
+      );
+      const winnerId = winner.rows[0]?.id;
+      if (winnerId === undefined) {
+        throw new Error(
+          `INSERT ewp_snapshots for ${source.sha256} conflicted, but no snapshot ` +
+            `with that artifact hash is present. Nothing was ingested.`,
+        );
+      }
+      return { concurrentWinner: winnerId };
     });
+
+    if (typeof inserted !== 'string') return asAlreadyPresent(inserted.concurrentWinner);
 
     await finishRun(pool, runId, heiCount, heiCount, 0, 'succeeded', null);
 
     return {
       ...base,
       ingestRunId: runId,
-      snapshotId,
+      snapshotId: inserted,
       alreadyPresent: false,
       dryRun: false,
     };
