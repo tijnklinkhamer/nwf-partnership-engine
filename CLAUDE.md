@@ -532,6 +532,18 @@ without re-measuring first.
   named `readSheet()` export and repurposed the default. There is no `sheet`
   option on the default export. Reading all sheets is deliberate here — it is
   what makes the ambiguity check possible.
+- **The official ECHE document page MOVED, and the resolver caught it.**
+  Measured 2026-08-24: the old
+  `/document/higher-education-institutions-holding-an-eche-2021-2027` answers
+  **301** to
+  `/resources-and-tools/documents-and-guidelines/higher-education-institutions-holding-an-eche-2021-2027`,
+  which answers **200**. The hardened resolver refused the hop, exactly as rule
+  6 requires. `ECHE_DOCUMENT_PAGE` was updated by hand to the new page — the
+  sanctioned recovery path — and the redirect policy was NOT weakened to
+  compensate. The new page yields the same single candidate,
+  `.../sites/default/files/2026-08/accredited-HEIs-Erasmus-2021-2027_17082026_1.xlsx`.
+  The constant is pinned by a unit test so the next move is a reviewed edit.
+  See `docs/adr/0003-eche-source-redirect-trust-boundary.md` s7.
 - **The Erasmus-code country prefix is not the country.** `B<NBSP> DIEPENB07` is
   Transnationale Universiteit Limburg with `Country Cd = NL`. Country comes only
   from `Country Cd`.

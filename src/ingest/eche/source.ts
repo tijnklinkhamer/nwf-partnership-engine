@@ -17,8 +17,21 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import * as log from '../../logging/log.js';
 
+/**
+ * The official Erasmus+ document page the spreadsheet is discovered from.
+ *
+ * THIS IS A TRUSTED ORIGIN, AND IT IS MAINTAINED BY HAND ON PURPOSE. The
+ * Commission moved this page under `/resources-and-tools/documents-and-guidelines/`;
+ * the previous `/document/...` URL now answers `301` to the value below and the
+ * resolver correctly REFUSED it, because `fetchOrExplain` treats a 3xx as an
+ * error rather than an instruction — see its comment. Updating this constant is
+ * the sanctioned recovery path: the new location lands in a diff a reviewer
+ * sees, and the new value passes `assertOfficialPageUrl` in its own right with
+ * no special case. Never make the redirect followable to spare this edit; that
+ * would hand the choice of origin to the response instead of to a reviewer.
+ */
 export const ECHE_DOCUMENT_PAGE =
-  'https://erasmus-plus.ec.europa.eu/document/higher-education-institutions-holding-an-eche-2021-2027';
+  'https://erasmus-plus.ec.europa.eu/resources-and-tools/documents-and-guidelines/higher-education-institutions-holding-an-eche-2021-2027';
 
 /** Only these hosts may serve an ECHE spreadsheet. */
 const ALLOWED_HOSTS = new Set(['erasmus-plus.ec.europa.eu', 'ec.europa.eu']);
