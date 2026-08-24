@@ -3,15 +3,13 @@
  *
  * WHY THIS FILE EXISTS.
  *
- * `src/ingest/eche/source.ts` fetches with `redirect: 'follow'`, which lets the
- * runtime issue a request to a redirect target before any allow-list check can
- * run. That is a pre-existing Phase 1A weakness, and repairing it is not Phase
- * 1D's business - but DEPENDING on it would have made it Phase 1D's problem.
- *
  * An earlier revision of the website CLI fell back to official-page discovery
  * when `--eche-file` was absent, so `nwf-pe website ingest eche` with no
- * arguments performed a redirect-following fetch on Phase 1D's behalf. It no
- * longer does, and these tests keep it that way.
+ * arguments performed a network fetch on Phase 1D's behalf - at the time,
+ * through a resolver that still followed redirects. It no longer does either,
+ * and these tests keep it that way. (The ECHE resolver's redirect weakness was
+ * itself repaired after Phase 1D landed: see ADR 0003. The contract asserted
+ * here never depended on that repair, and does not change with it.)
  *
  * The second reason is correctness, not only trust: every claim is keyed by
  * `source_artifact_sha256`, so a run is only meaningful against a known set of

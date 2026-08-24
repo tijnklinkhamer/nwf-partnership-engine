@@ -12,8 +12,8 @@ import { withPool } from '../../db/client.js';
 import * as log from '../../logging/log.js';
 import { normaliseErasmusCode } from '../../ingest/eche/normalise.js';
 // Only the LOCAL-FILE resolver is imported. resolveFromOfficialPage and
-// resolveFromUrl are deliberately NOT imported: they fetch with
-// redirect: 'follow', and Phase 1D performs no ECHE network fetch at all.
+// resolveFromUrl are deliberately NOT imported: they reach the network, and
+// Phase 1D performs no ECHE network fetch at all.
 import {
   resolveFromFile as resolveEcheFile,
   SourceResolutionError,
@@ -130,15 +130,14 @@ export interface WebsiteIngestEcheArgs {
  * would silently classify a DIFFERENT artifact from the one being reasoned
  * about, and the operator would not necessarily notice.
  *
- * It also keeps Phase 1D clear of a trust boundary it does not own. The ECHE
- * network resolver (`resolveFromOfficialPage` / `resolveFromUrl`) fetches with
- * `redirect: 'follow'`, which hands redirect handling to the runtime and so
- * issues a request to a redirect target BEFORE any allow-list check can run.
- * That is a pre-existing Phase 1A weakness and fixing it is NOT Phase 1D's
- * business - but neither is depending on it. This function therefore never
- * imports or reaches those code paths at all, and
- * `phase1d.firewall.test.ts` asserts that as a capability rather than trusting
- * this comment.
+ * It also keeps Phase 1D clear of a network path it does not need. The ECHE
+ * network resolver (`resolveFromOfficialPage` / `resolveFromUrl`) is a trust
+ * boundary owned by Phase 1A. It fails closed on redirects since the
+ * post-Phase-1D hardening (ADR 0003), so this is no longer a repair Phase 1D
+ * is dodging - but the fewer processes that can reach the network at all, the
+ * smaller the surface. This function therefore never imports or reaches those
+ * code paths, and `phase1d.firewall.test.ts` asserts that as a capability
+ * rather than trusting this comment.
  *
  * The result: no Phase 1D command can perform an ECHE network fetch.
  */
