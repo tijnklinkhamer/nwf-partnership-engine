@@ -120,4 +120,70 @@ describeDb('database grants (integration)', () => {
       await expectDenied(() => readonly.query('CREATE TABLE illegal_table (id int)'));
     });
   });
+
+  // Migration 0006. PostgreSQL grants CONNECT *and* TEMPORARY to PUBLIC when a
+  // database is created; migration 0002 revoked only CONNECT, so both roles
+  // inherited TEMPORARY and could run CREATE TEMP TABLE despite holding no
+  // schema CREATE and no write grant anywhere.
+  //
+  // These assertions inspect the privilege rather than attempting a
+  // CREATE TEMP TABLE. A failed attempt would prove the same thing, but a
+  // SUCCEEDING one would leave a real temporary table in the test session, and
+  // the point of the migration is that the privilege is absent - so the
+  // privilege is what gets asserted.
+  describe('database-level TEMPORARY privilege', () => {
+    async function hasTemporary(pool: pg.Pool, role: string): Promise<boolean> {
+      const { rows } = await pool.query<{ granted: boolean }>(
+        'SELECT has_database_privilege($1, current_database(), $2) AS granted',
+        [role, 'TEMPORARY'],
+      );
+      return rows[0]!.granted;
+    }
+
+    it('is not held by PUBLIC', async () => {
+      // Checked against the ACL directly: has_database_privilege() resolves a
+      // NAMED role, and PUBLIC is not one. An empty grantee (oid 0) in datacl
+      // IS PUBLIC, which is exactly the `=T/nwf_owner` entry this migration
+      // removes.
+      const { rows } = await admin.query<{ public_has_temp: boolean }>(
+        `SELECT EXISTS (
+           SELECT 1
+           FROM pg_database d, aclexplode(d.datacl) a
+           WHERE d.datname = current_database()
+             AND a.grantee = 0
+             AND a.privilege_type = 'TEMPORARY'
+         ) AS public_has_temp`,
+      );
+      expect(rows[0]!.public_has_temp).toBe(false);
+    });
+
+    it('is not held by nwf_readonly', async () => {
+      expect(await hasTemporary(admin, 'nwf_readonly')).toBe(false);
+    });
+
+    it('is not held by nwf_ingest', async () => {
+      expect(await hasTemporary(admin, 'nwf_ingest')).toBe(false);
+    });
+
+    it('is still held by the owner, through its own explicit grant', async () => {
+      // Revoking from PUBLIC must not disturb the owner's `nwf_owner=CTc`
+      // entry. If this ever fails, the revoke hit the wrong grantee.
+      expect(await hasTemporary(admin, 'nwf_owner')).toBe(true);
+    });
+
+    it('leaves CONNECT and schema USAGE intact for both roles', async () => {
+      // The revoke targets one privilege on one object. Everything the roles
+      // legitimately need to reach this database must survive it - otherwise
+      // every other test in this file would be passing for the wrong reason.
+      for (const role of ['nwf_ingest', 'nwf_readonly']) {
+        const { rows } = await admin.query<{ connect: boolean; usage: boolean }>(
+          `SELECT has_database_privilege($1, current_database(), 'CONNECT') AS connect,
+                  has_schema_privilege($1, 'public', 'USAGE')                AS usage`,
+          [role],
+        );
+        expect(rows[0]!.connect, `${role} lost CONNECT`).toBe(true);
+        expect(rows[0]!.usage, `${role} lost schema USAGE`).toBe(true);
+      }
+    });
+  });
 });
