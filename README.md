@@ -234,6 +234,9 @@ anything to disagree with.
 
 ## Website evidence (Phase 1D)
 
+`--eche-file` is **required**. Phase 1D classifies an artifact you already hold,
+identified by its SHA-256, and performs no ECHE network fetch of its own.
+
 ```bash
 # Classify and store what ECHE publishes in its "Website Url" column
 npm run cli -- website ingest eche --eche-file <eche.xlsx>

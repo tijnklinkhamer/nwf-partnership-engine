@@ -77,9 +77,20 @@ function code(relativePath: string): string {
     .replace(/(^|[^:])\/\/.*$/gm, '$1 ');
 }
 
-/** Everything Phase 1D added: the website evidence layer and the FR adapter. */
+/**
+ * Everything Phase 1D added: the website evidence layer, the FR adapter, AND
+ * the CLI command module.
+ *
+ * The CLI file belongs here for the same reason the others do - it is Phase 1D
+ * code that reaches the database and the network, so every boundary asserted
+ * below has to hold for it too. Leaving it out would have exempted the one
+ * file that chooses which source resolvers get called.
+ */
 const PHASE_1D_FILES = SOURCE_FILES.filter(
-  (file) => file.startsWith('src/website/') || file.startsWith('src/ingest/fresr/'),
+  (file) =>
+    file.startsWith('src/website/') ||
+    file.startsWith('src/ingest/fresr/') ||
+    file === 'src/cli/commands/website.ts',
 );
 
 const PACKAGE_JSON = JSON.parse(read('package.json')) as {
@@ -192,6 +203,29 @@ describe('PHASE-1D-FIREWALL: no institution website is ever fetched', () => {
     }
   });
 
+  it('never reaches the ECHE network resolver, which follows redirects', () => {
+    // THE ONE PLACE PHASE 1D COULD HAVE INHERITED SOMEONE ELSE'S TRUST
+    // BOUNDARY. src/ingest/eche/source.ts fetches with redirect: 'follow',
+    // which lets the runtime request a redirect target before any allow-list
+    // check can run. That is a pre-existing Phase 1A weakness, and fixing it
+    // is not Phase 1D's business - but DEPENDING on it would make it Phase
+    // 1D's problem, because `website ingest eche` with no --eche-file would
+    // then perform a redirect-following fetch on Phase 1D's behalf.
+    //
+    // So Phase 1D reads the ECHE artifact from disk and never fetches it.
+    for (const file of PHASE_1D_FILES) {
+      const source = code(file);
+      expect(source, `${file} imports the ECHE official-page discovery resolver`).not.toMatch(
+        /resolveFromOfficialPage/,
+      );
+      expect(source, `${file} imports the ECHE URL resolver`).not.toMatch(
+        /resolveFromUrl\s+as\s+resolveEche/,
+      );
+    }
+    // Positive: the local-file resolver IS what the CLI uses.
+    expect(code('src/cli/commands/website.ts')).toMatch(/resolveFromFile\s+as\s+resolveEcheFile/);
+  });
+
   it('the new Phase 1D source refuses to follow a redirect', () => {
     // Handing the hop to the runtime means the target is requested BEFORE any
     // allow-list check can run, so validating Response.url afterwards is too
@@ -204,8 +238,11 @@ describe('PHASE-1D-FIREWALL: no institution website is ever fetched', () => {
       /redirect\s*:\s*['"](follow|error)['"]\s*[,}]/,
     );
 
+    // Comment-stripped: this is a check on CODE. The CLI's own documentation
+    // has to be able to NAME `redirect: 'follow'` in order to explain why it
+    // refuses to reach the resolver that uses it.
     for (const file of PHASE_1D_FILES) {
-      expect(read(file), `${file} delegates redirects to the runtime`).not.toMatch(
+      expect(code(file), `${file} delegates redirects to the runtime`).not.toMatch(
         /redirect\s*:\s*['"](follow|error)['"]\s*[,}]/,
       );
     }

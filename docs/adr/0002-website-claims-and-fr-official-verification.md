@@ -243,15 +243,38 @@ same rule version inserts nothing.
 
 ---
 
-## 11. A pre-existing observation, deliberately not changed
+## 11. The ECHE resolver's redirect behaviour, and what Phase 1D does about it
 
-`src/ingest/eche/source.ts` fetches with `redirect: 'follow'`, unlike the EWP
-resolver (which uses `redirect: 'manual'` by explicit rule) and the Phase 1D FR
-resolver (which follows the same pattern). This means an ECHE download would
-follow a redirect to another host before any allow-list check could run.
+**FACT.** `src/ingest/eche/source.ts` fetches with `redirect: 'follow'`, unlike
+the EWP resolver (`manual`, by explicit repository rule) and the Phase 1D FR
+resolver. Handing the hop to the runtime means a redirect target is requested
+BEFORE any allow-list check can run, so validating `Response.url` afterwards is
+too late.
 
-This is **Phase 1A behaviour and is out of Phase 1D's approved scope**, so it
-is recorded here rather than silently changed. The Phase 1D firewall asserts
-manual redirect handling for the sources Phase 1D governs, and does not claim a
-repository-wide property that is not true. Whether to align the ECHE resolver
-is a decision for the founder, not a side effect of this phase.
+**This is a pre-existing Phase 1A weakness and Phase 1D does not repair it.**
+Changing Phase 1A source resolution is out of this phase's approved scope.
+
+**DESIGN DECISION — but Phase 1D does not depend on it either.** The first
+revision of the website CLI fell back to official-page discovery when
+`--eche-file` was absent, so `nwf-pe website ingest eche` with no arguments
+performed a redirect-following fetch on Phase 1D's behalf. That made someone
+else's trust boundary into Phase 1D's problem. It was corrected before landing:
+
+- `--eche-file` is now REQUIRED by every `website` command.
+- `--eche-url` is refused with an explanation rather than downloaded.
+- `src/cli/commands/website.ts` does not import `resolveFromOfficialPage` or
+  the ECHE URL resolver at all, so no ECHE fetch path exists to take.
+- `phase1d.firewall.test.ts` asserts those imports are absent, and
+  `websiteCliSource.test.ts` stubs `fetch` to throw and proves the refusal
+  paths issue no request.
+
+There is a second, independent reason this is the right contract. Every claim
+is keyed by `source_artifact_sha256`, so a run is only meaningful against a
+known set of bytes. Silently downloading a fresh spreadsheet would classify a
+DIFFERENT artifact from the one the operator is reasoning about, and the counts
+would change with no visible cause.
+
+**POST-PHASE-1D SECURITY HARDENING REQUIRED.** Aligning
+`src/ingest/eche/source.ts` with the `redirect: 'manual'` pattern remains
+outstanding and should be a separate, small, reviewed change. Phase 1D neither
+performs nor blocks it.

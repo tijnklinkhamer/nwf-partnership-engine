@@ -33,10 +33,10 @@ Usage:
   nwf-pe ewp show      [--limit <N>]
   nwf-pe ewp coverage  [--eche-file <path> | --eche-url <url>]
                        [--ewp-file <path>  | --ewp-url <url>] [--limit <N>] [--json]
-  nwf-pe website ingest eche  [--eche-file <path> | --eche-url <url>] [--dry-run]
-  nwf-pe website ingest fr    [--file <path> | --url <url>] [--dry-run]
+  nwf-pe website ingest eche  --eche-file <path> [--dry-run]
+  nwf-pe website ingest fr    --eche-file <path> [--file <path> | --url <url>]
+                              [--dry-run]
                               [--origin-url <url> --origin-retrieved-at <iso-8601>]
-                              [--eche-file <path> | --eche-url <url>]
   nwf-pe website report
   nwf-pe website conflicts    [--limit <N>]
   nwf-pe website show         <erasmus-code>
@@ -46,6 +46,8 @@ Options:
   --file <path>     Use an operator-supplied local artifact instead of fetching one.
   --url <url>       Use an operator-supplied official URL.
   --eche-file/-url  ECHE artifact for \`ewp coverage\`. Defaults to official discovery.
+                    REQUIRED as --eche-file for every \`website\` command: Phase 1D
+                    classifies an artifact you already hold and never fetches one.
   --ewp-file/-url   EWP artifact for \`ewp coverage\`. Defaults to the official endpoint.
   --origin-url      With --file only: the official URL the local artifact was
                     downloaded from. Recorded as provenance, never inferred.

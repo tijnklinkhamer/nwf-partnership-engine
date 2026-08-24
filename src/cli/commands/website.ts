@@ -11,10 +11,11 @@ import type pg from 'pg';
 import { withPool } from '../../db/client.js';
 import * as log from '../../logging/log.js';
 import { normaliseErasmusCode } from '../../ingest/eche/normalise.js';
+// Only the LOCAL-FILE resolver is imported. resolveFromOfficialPage and
+// resolveFromUrl are deliberately NOT imported: they fetch with
+// redirect: 'follow', and Phase 1D performs no ECHE network fetch at all.
 import {
   resolveFromFile as resolveEcheFile,
-  resolveFromOfficialPage as resolveEchePage,
-  resolveFromUrl as resolveEcheUrl,
   SourceResolutionError,
   type ResolvedSource as EcheResolvedSource,
 } from '../../ingest/eche/source.js';
@@ -118,29 +119,58 @@ export interface WebsiteIngestEcheArgs {
   dryRun: boolean;
 }
 
-async function resolveEche(args: {
+/**
+ * Resolves the ECHE artifact for a Phase 1D run. LOCAL FILE ONLY, deliberately.
+ *
+ * WHY THIS REFUSES TO FETCH.
+ *
+ * Phase 1D classifies an artifact that has ALREADY been obtained: every claim
+ * is keyed by `source_artifact_sha256`, so the run is only meaningful against
+ * a known set of bytes. Discovering or downloading a fresh spreadsheet here
+ * would silently classify a DIFFERENT artifact from the one being reasoned
+ * about, and the operator would not necessarily notice.
+ *
+ * It also keeps Phase 1D clear of a trust boundary it does not own. The ECHE
+ * network resolver (`resolveFromOfficialPage` / `resolveFromUrl`) fetches with
+ * `redirect: 'follow'`, which hands redirect handling to the runtime and so
+ * issues a request to a redirect target BEFORE any allow-list check can run.
+ * That is a pre-existing Phase 1A weakness and fixing it is NOT Phase 1D's
+ * business - but neither is depending on it. This function therefore never
+ * imports or reaches those code paths at all, and
+ * `phase1d.firewall.test.ts` asserts that as a capability rather than trusting
+ * this comment.
+ *
+ * The result: no Phase 1D command can perform an ECHE network fetch.
+ */
+function resolveEche(args: {
   echeFile?: string | undefined;
   echeUrl?: string | undefined;
-}): Promise<EcheResolvedSource> {
-  if (args.echeFile !== undefined && args.echeUrl !== undefined) {
-    throw new SourceResolutionError('Pass either --eche-file or --eche-url, not both.');
-  }
-  if (args.echeFile !== undefined) {
-    log.info(`Using operator-supplied ECHE file: ${args.echeFile}`);
-    return resolveEcheFile(args.echeFile);
-  }
+}): EcheResolvedSource {
   if (args.echeUrl !== undefined) {
-    log.info(`Using operator-supplied ECHE URL: ${args.echeUrl}`);
-    return resolveEcheUrl(args.echeUrl);
+    throw new SourceResolutionError(
+      '--eche-url is not accepted by `website` commands. Phase 1D classifies an ' +
+        'artifact you already hold, identified by its SHA-256, and never downloads ' +
+        'one: fetching here could classify different bytes than the ones you are ' +
+        'reasoning about. Download the spreadsheet with `ingest eche`, then pass ' +
+        'those exact bytes with --eche-file.',
+    );
   }
-  log.info('Discovering the current ECHE spreadsheet from the official page...');
-  return resolveEchePage();
+  if (args.echeFile === undefined) {
+    throw new SourceResolutionError(
+      '--eche-file is required. Phase 1D reads the ECHE artifact from disk and ' +
+        'performs no ECHE network fetch, so the artifact must be named explicitly ' +
+        'rather than discovered. Example: ' +
+        '`nwf-pe website ingest eche --eche-file data/eche.xlsx`.',
+    );
+  }
+  log.info(`Using operator-supplied ECHE file: ${args.echeFile}`);
+  return resolveEcheFile(args.echeFile);
 }
 
 export async function runWebsiteIngestEche(args: WebsiteIngestEcheArgs): Promise<number> {
   let source: EcheResolvedSource;
   try {
-    source = await resolveEche(args);
+    source = resolveEche(args);
   } catch (err) {
     if (err instanceof SourceResolutionError) {
       log.error(err.message);
@@ -256,11 +286,15 @@ export async function runWebsiteIngestFr(args: WebsiteIngestFrArgs): Promise<num
   let source: FresrResolvedSource;
   let echeSource: EcheResolvedSource;
   try {
+    // The ECHE artifact is resolved FIRST, and deliberately so: it is a local
+    // read that can fail on a bad argument, and doing it before the register
+    // fetch means a misinvoked command performs no network request at all.
+    //
+    // It supplies the PIC-to-row-key map, taken from the ARTIFACT rather than
+    // the database, so the join never depends on which subset happens to be
+    // loaded.
+    echeSource = resolveEche(args);
     source = await resolveFresr(args);
-    // The ECHE artifact supplies the PIC-to-row-key map. It is the artifact,
-    // not the database, so the join never depends on which subset happens to
-    // be loaded.
-    echeSource = await resolveEche(args);
   } catch (err) {
     if (err instanceof FresrSourceResolutionError || err instanceof SourceResolutionError) {
       log.error(err.message);

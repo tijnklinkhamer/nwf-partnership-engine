@@ -97,7 +97,11 @@ it, or depend on it, and must never touch learner, payment, or payout data.
     website. It never requests one. No `GET`, no `HEAD`, no redirect check, no
     `robots.txt`, no HTML parsing, no DNS resolution. The only three files that
     may call `fetch()` are the three official source resolvers, and
-    `phase1d.firewall.test.ts` asserts exactly that list.
+    `phase1d.firewall.test.ts` asserts exactly that list. **Phase 1D also
+    performs no ECHE fetch of its own**: `--eche-file` is required by every
+    `website` command, and the CLI does not import the ECHE network resolvers,
+    because those fetch with `redirect: 'follow'` and Phase 1D will not depend
+    on a trust boundary it does not own.
 12. **A website claim is EVIDENCE, never a conclusion.** `website_claims` rows
     say "this source published this value for this ECHE source row". They never
     say "this is the official website". `AGREE` / `DISAGREE` /
@@ -456,6 +460,8 @@ npm run cli -- ewp coverage --eche-file <x.xlsx> --ewp-file <c.xml>
 npm run cli -- ewp coverage --json             # full report, both sources re-resolved
 
 # Website evidence (Phase 1D)
+# --eche-file is REQUIRED: Phase 1D classifies an artifact you already hold and
+# performs NO ECHE network fetch (see rule 11 and ADR 0002 s11).
 npm run cli -- website ingest eche --eche-file <eche.xlsx>   # ECHE website claims
 npm run cli -- website ingest fr   --eche-file <eche.xlsx>   # fetch the official FR register
 npm run cli -- website ingest fr --file <register.json> --eche-file <eche.xlsx>
