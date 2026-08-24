@@ -12,8 +12,15 @@ import { runIngestEche } from './commands/ingestEche.js';
 import { runIngestRuns } from './commands/ingestRuns.js';
 import { runOrgsDuplicates, runOrgsList, runOrgsShow } from './commands/orgs.js';
 import { runEwpCoverage, runEwpIngest, runEwpShow } from './commands/ewp.js';
+import {
+  runWebsiteConflicts,
+  runWebsiteIngestEche,
+  runWebsiteIngestFr,
+  runWebsiteReport,
+  runWebsiteShow,
+} from './commands/website.js';
 
-const USAGE = `nwf-pe - NWF Partnership Engine (Phase 1B)
+const USAGE = `nwf-pe - NWF Partnership Engine (Phase 1D)
 
 Usage:
   nwf-pe ingest eche   [--country <CC>] [--file <path>] [--url <official-url>] [--dry-run]
@@ -26,12 +33,21 @@ Usage:
   nwf-pe ewp show      [--limit <N>]
   nwf-pe ewp coverage  [--eche-file <path> | --eche-url <url>]
                        [--ewp-file <path>  | --ewp-url <url>] [--limit <N>] [--json]
+  nwf-pe website ingest eche  --eche-file <path> [--dry-run]
+  nwf-pe website ingest fr    --eche-file <path> [--file <path> | --url <url>]
+                              [--dry-run]
+                              [--origin-url <url> --origin-retrieved-at <iso-8601>]
+  nwf-pe website report
+  nwf-pe website conflicts    [--limit <N>]
+  nwf-pe website show         <erasmus-code>
 
 Options:
   --country <CC>    Restrict to an ISO-3166-1 alpha-2 country code (e.g. FR).
   --file <path>     Use an operator-supplied local artifact instead of fetching one.
   --url <url>       Use an operator-supplied official URL.
   --eche-file/-url  ECHE artifact for \`ewp coverage\`. Defaults to official discovery.
+                    REQUIRED as --eche-file for every \`website\` command: Phase 1D
+                    classifies an artifact you already hold and never fetches one.
   --ewp-file/-url   EWP artifact for \`ewp coverage\`. Defaults to the official endpoint.
   --origin-url      With --file only: the official URL the local artifact was
                     downloaded from. Recorded as provenance, never inferred.
@@ -43,9 +59,15 @@ Options:
   -h, --help        Show this help.
 
 Phase 1B ingests two official datasets: ECHE and the EWP Registry. It measures
-how their published identifiers relate and reports disagreements. It performs NO
-entity resolution and merges nothing. There is no crawling, research, scoring,
-compliance, contact or outbound capability in this repository.
+how their published identifiers relate and reports disagreements. Phase 1D adds
+a THIRD official source - the French Ministry register of higher-education
+institutions - and stores what each source PUBLISHES about an institution's
+website as immutable claims. Agreement and disagreement are DERIVED at read
+time and never stored; neither source is preferred and nothing is overwritten.
+
+No institution website is ever fetched. This repository performs NO entity
+resolution and merges nothing, and there is no crawling, research, scoring,
+compliance, contact or outbound capability in it.
 `;
 
 async function main(argv: string[]): Promise<number> {
@@ -124,6 +146,43 @@ async function main(argv: string[]): Promise<number> {
 
   if (group === 'ewp' && sub === 'show') {
     return runEwpShow({ limit });
+  }
+
+  if (group === 'website' && sub === 'ingest' && rest[0] === 'eche') {
+    return runWebsiteIngestEche({
+      echeFile: values['eche-file'] ?? values.file,
+      echeUrl: values['eche-url'] ?? values.url,
+      dryRun: values['dry-run'] === true,
+    });
+  }
+
+  if (group === 'website' && sub === 'ingest' && rest[0] === 'fr') {
+    return runWebsiteIngestFr({
+      file: values.file,
+      url: values.url,
+      originUrl: values['origin-url'],
+      originRetrievedAt: values['origin-retrieved-at'],
+      echeFile: values['eche-file'],
+      echeUrl: values['eche-url'],
+      dryRun: values['dry-run'] === true,
+    });
+  }
+
+  if (group === 'website' && sub === 'report') {
+    return runWebsiteReport();
+  }
+
+  if (group === 'website' && sub === 'conflicts') {
+    return runWebsiteConflicts({ limit });
+  }
+
+  if (group === 'website' && sub === 'show') {
+    const identifier = rest[0];
+    if (!identifier) {
+      log.error('website show requires an Erasmus code.');
+      return 1;
+    }
+    return runWebsiteShow(identifier);
   }
 
   if (group === 'ewp' && sub === 'coverage') {

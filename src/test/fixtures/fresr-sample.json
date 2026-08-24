@@ -1,0 +1,86 @@
+[
+  {
+    "etablissement_id_paysage": "AAA01",
+    "uo_lib": "Universite Paris I Pantheon-Sorbonne",
+    "uai": "0751717J",
+    "identifiant_pic": "999859123",
+    "url": "https://www.pantheonsorbonne.fr/"
+  },
+  {
+    "etablissement_id_paysage": "BBB02",
+    "uo_lib": "Universite de Test Accord",
+    "uai": "0753607N;0942340H",
+    "identifiant_pic": "111111111",
+    "url": "https://www.whitespace-test.fr/"
+  },
+  {
+    "etablissement_id_paysage": "CCC03",
+    "uo_lib": "Etablissement Sans PIC",
+    "uai": "0000000A",
+    "identifiant_pic": null,
+    "url": "https://sans-pic-test.fr/"
+  },
+  {
+    "etablissement_id_paysage": "DDD04",
+    "uo_lib": "Etablissement Sans Site",
+    "uai": "0000001B",
+    "identifiant_pic": "222222222",
+    "url": null
+  },
+  {
+    "etablissement_id_paysage": "EEE05",
+    "uo_lib": "Institut URL Cassee",
+    "uai": "0000002C",
+    "identifiant_pic": "333333333",
+    "url": "http//www.url-cassee-test.fr"
+  },
+  {
+    "etablissement_id_paysage": "FFF06",
+    "uo_lib": "Institut Deux PIC",
+    "uai": "0000003D",
+    "identifiant_pic": "900456724;999489941",
+    "url": "https://deux-pic-test.fr/"
+  },
+  {
+    "etablissement_id_paysage": "GGG07",
+    "uo_lib": "Etablissement Hors ECHE",
+    "uai": "0000004E",
+    "identifiant_pic": "999999999",
+    "url": "https://hors-eche-test.fr/"
+  },
+  {
+    "etablissement_id_paysage": "HHH08",
+    "uo_lib": "Universite Sous-Domaine",
+    "uai": "0000005F",
+    "identifiant_pic": "777777777",
+    "url": "https://www.subdomain-test.co.uk/"
+  },
+  {
+    "etablissement_id_paysage": "III09",
+    "uo_lib": "Ecole Publiant Une Adresse De Courriel",
+    "uai": "0000006G",
+    "identifiant_pic": "444444444",
+    "url": "secretariat@ecole-courriel-test.invalid"
+  },
+  {
+    "etablissement_id_paysage": "JJJ10",
+    "uo_lib": "Universiteit van Amsterdam",
+    "uai": "0000007H",
+    "identifiant_pic": "999985708",
+    "url": "https://www.uva.nl/en"
+  },
+  {
+    "etablissement_id_paysage": "KKK11",
+    "uo_lib": "Ecole Royale Militaire",
+    "uai": "0000008J",
+    "identifiant_pic": "  999831575  ",
+    "url": "https://www.rma.ac.be/"
+  },
+  {
+    "etablissement_id_paysage": "LLL12",
+    "uo_lib": "IES Audiovisual de Vigo",
+    "uai": "0000009K",
+    "identifiant_pic": "947711147",
+    "url": "https://www.audiovisual-vigo-test.es/"
+  }
+]

@@ -9,20 +9,29 @@ goal is to research and qualify organisations — universities, International /
 Erasmus / Mobility offices, language centres, and student associations — that
 could distribute NWF to language learners.
 
-**Current state: Phase 1B. This repository ingests TWO official datasets into a
-local PostgreSQL database — the ECHE list and the EWP Registry catalogue — lets
-you inspect them, and measures how their published identifiers relate. That is
-all it does.**
+**Current state: Phase 1D. This repository ingests THREE official datasets into
+a local PostgreSQL database — the ECHE list, the EWP Registry catalogue and the
+French Ministry register of higher-education institutions — lets you inspect
+them, and measures how their published identifiers and website values relate.
+That is all it does.**
 
-The two sources are stored SIDE BY SIDE, never merged. No EWP record is attached
-to an organisation, and no `organisations` row is created or modified by EWP
-ingestion. Identifier matching is a MEASUREMENT, not a resolution: see "What
-Phase 1B measured" below.
+The sources are stored SIDE BY SIDE, never merged. No EWP record is attached to
+an organisation, and no `organisations` row is created or modified by EWP or by
+website-evidence ingestion. Identifier matching is a MEASUREMENT, not a
+resolution: see "What Phase 1B measured" below. Website agreement is likewise a
+DERIVED comparison over immutable claims, never a stored conclusion: see "What
+Phase 1D measured".
 
 There is no entity resolution, no crawling or scraping, no research pipeline, no
 Claude/Anthropic integration, no contact discovery or storage, no scoring, no
 compliance engine, no email templates, no Apollo integration and no outbound
 capability. Do not add any of them without an approved phase.
+
+**No institution website is ever fetched.** Phase 1D reasons about websites
+using only what official registers PUBLISH about them. It issues no request to
+an institution's site — no GET, no HEAD, no redirect check, no robots.txt, no
+HTML parsing, no DNS resolution. A website column is exactly the thing that
+tempts a repository into becoming a crawler; do not let it.
 
 **NWF production is isolated.** The NWF application lives in a separate repository
 with its own Supabase project. This repository must never read from it, write to
@@ -83,7 +92,31 @@ it, or depend on it, and must never touch learner, payment, or payout data.
     advertised an endpoint. It does not fetch it. That includes the OUnits API,
     which would expose faculties and language centres — the reason it is
     interesting is the reason it needs its own approved phase.
-11. **Later phases require founder approval.** Do not build ahead of the approved
+11. **No institution website is ever fetched, and a stored website is never a
+    crawl target.** Phase 1D records what official registers PUBLISH about a
+    website. It never requests one. No `GET`, no `HEAD`, no redirect check, no
+    `robots.txt`, no HTML parsing, no DNS resolution. The only three files that
+    may call `fetch()` are the three official source resolvers, and
+    `phase1d.firewall.test.ts` asserts exactly that list. **Phase 1D also
+    performs no ECHE fetch of its own**: `--eche-file` is required by every
+    `website` command, and the CLI does not import the ECHE network resolvers,
+    because those fetch with `redirect: 'follow'` and Phase 1D will not depend
+    on a trust boundary it does not own.
+12. **A website claim is EVIDENCE, never a conclusion.** `website_claims` rows
+    say "this source published this value for this ECHE source row". They never
+    say "this is the official website". `AGREE` / `DISAGREE` /
+    `ONE_SIDE_MISSING` are DERIVED at read time from immutable claims and are
+    never stored — because two official sources genuinely disagree about 10
+    French institutions, and a stored verdict would have to pick a winner on
+    every one of them silently. There is no `verified` column, no
+    `preferred_website` column and no winner anywhere in the schema.
+13. **`organisations.website_url` and `organisations.canonical_domain` are
+    LEGACY and are never rewritten.** They keep exactly the bytes Phase 1A
+    derived, including the 55 rows where an EMAIL ADDRESS became a website.
+    Rewriting them would destroy the record of the defect Phase 1D exists to
+    document, and back-filling a claim FROM them would preserve the damage and
+    lose the evidence. Website claims are read from the ARTIFACT.
+14. **Later phases require founder approval.** Do not build ahead of the approved
     phase, and do not create placeholder modules for future work.
 
 ## Decisions vs. hypotheses vs. unknowns
@@ -98,9 +131,15 @@ Keep these apart. Do not promote one to another without evidence.
   managed database.** Standard Postgres interfaces are used throughout so a managed
   deployment later is a connection-string change.
 - Plain SQL forward-only migrations; append-only provenance; no automatic merging.
-- ECHE and the EWP Registry are the two ingested sources. Their evidence is kept
-  in separate tables and is never merged (Phase 1B,
+- ECHE and the EWP Registry are the first two ingested sources. Their evidence
+  is kept in separate tables and is never merged (Phase 1B,
   `docs/adr/0001-ewp-registry-second-official-source.md`).
+- The official French Ministry register is the third, and the ONLY approved
+  website-verification source. Website evidence is stored as immutable
+  per-source CLAIMS and cross-source verdicts are DERIVED, never stored
+  (Phase 1D, `docs/adr/0002-website-claims-and-fr-official-verification.md`).
+  Migration 0005 constrains `source_key` to `fr_esr`, so a second national
+  register cannot be stored without a deliberate schema change.
 - No generic `SourceAdapter` abstraction. Two concrete implementations differ in
   resolution, format, row identity and re-ingest semantics; an interface over
   them would either add nothing or force one source to pretend to be the other.
@@ -245,6 +284,107 @@ The CLI reports `MATCH`, `AMBIGUOUS`, `NO MATCH`, `CONFLICT`, `UNUSABLE` and
 identifier was absent so no comparison was possible; `NO MATCH` means one was
 made and found nothing; `UNUSABLE` means the row could not be compared at all.
 
+## What Phase 1D measured
+
+Full ECHE artifact (sha256 `32e1de18...932fdee9`, 6,139 rows) classified with
+the STRICT website parser, and joined on PIC to the official French Ministry
+register `fr-esr-principaux-etablissements-enseignement-superieur` (sha256
+`cbb82d82...a3bd0996`, 44,286 bytes, 245 records, fetched 2026-08-24). Measured
+artifact-to-artifact.
+
+**Every ECHE source row is classified, and the partition is exhaustive:**
+
+| structural status  | count     |
+| ------------------ | --------- |
+| STRUCTURALLY_VALID | **5,832** |
+| NOT_A_WEBSITE      | 59        |
+| MALFORMED          | 9         |
+| ABSENT             | 239       |
+| **TOTAL**          | **6,139** |
+
+The 59 NOT_A_WEBSITE values are **55 EMAIL ADDRESSES** plus 4 further values
+whose host is outside the ICANN public suffix set. A fifth value fails the
+suffix test too (`iesstaluciadeltrampal@edu.gobex.ex`) but is also an email and
+is caught a gate earlier — the two defect sets overlap by one, which is why
+they sum to 59 and not 60.
+
+**The email case is why this phase exists.** `normaliseWebsiteUrl` prefixes
+`https://` to a scheme-less value, so `03014851@edu.gva.es` became
+`https://03014851@edu.gva.es/` with registrable domain `gva.es`. The legacy
+path derived an institution's website from an education authority's MAIL
+domain, 55 times. The strict parser rejects userinfo outright.
+
+**Sharing is normal and is not identity.** On the legacy path 374 rows share a
+hostname and 1,021 share a registrable domain. Under the strict parser those
+are 345 and 981 — the difference is exactly the 68 rejected values, which had
+been contributing hosts and domains they had no business contributing.
+
+**The FR cross-check, joined deterministically on PIC:**
+
+|                                     |        |
+| ----------------------------------- | ------ |
+| register records                    | 245    |
+| with a usable PIC                   | 93     |
+| with a PIC that is not plain digits | 2      |
+| PIC naming no ECHE source row       | 5      |
+| **claim pairs compared**            | **88** |
+| DOMAIN_AGREE                        | 65     |
+| of which full hostnames also match  | 64     |
+| DOMAIN_DISAGREE                     | **10** |
+| ONE_SIDE_MISSING                    | 13     |
+| NOT_COMPARABLE                      | 0      |
+
+**The disagreement set is NOT empty, and that is the finding.** Both sources
+are official. ECHE publishes `univ-paris1.fr` for Universite Paris I; the
+French Ministry publishes `pantheonsorbonne.fr`. NEITHER MAY OVERWRITE THE
+OTHER, which is precisely why claims are immutable and verdicts are derived.
+The full list is in `docs/adr/0002-website-claims-and-fr-official-verification.md`.
+
+Of the 13 one-sided rows, 12 are rows where ECHE publishes NO website and the
+register publishes one; the 13th is ECHE's broken `http//www.univ-perp.fr`
+against the register's correct URL.
+
+**The check is narrow, and its narrowness is a finding.** 88 of 6,139 rows
+(1.4%) have a second official website source at all. Nothing is known about the
+website quality of the rest.
+
+Reproduce with:
+
+```bash
+npm run cli -- website ingest eche --eche-file <eche.xlsx>
+npm run cli -- website ingest fr   --eche-file <eche.xlsx>
+npm run cli -- website report
+npm run cli -- website conflicts
+```
+
+## What a `website_claims` row means
+
+**A `website_claims` row is ONE SOURCE'S ASSERTION about ONE ECHE SOURCE ROW.
+It is NOT a verified website, and it is NOT a conclusion.**
+
+- `raw_value` is the value AS PUBLISHED, read from the artifact itself and
+  NEVER from `organisations.website_url` or `organisations.canonical_domain`.
+  Only surrounding whitespace is removed, by the shared ECHE cell reader.
+- `structural_status` is a property of the STRING, never of the institution.
+  `STRUCTURALLY_VALID` means it parses as an http(s) URL under a real ICANN
+  public suffix with no userinfo — not that the site exists, resolves, or
+  belongs to this organisation.
+- **An `ABSENT` claim is a stored row, on purpose.** "The source published
+  nothing" and "we never looked at this row" are different findings. Storing
+  the first makes the ECHE claim count equal the artifact's row count exactly
+  (6,139), so completeness is verifiable with one `COUNT`.
+- `organisation_id` is NULLABLE and is a convenience link only. The evidence
+  layer covers the whole artifact regardless of which subset a working database
+  holds; join on `eche_row_key` when you want completeness.
+- `hostname` and `registrable_domain` are kept SEPARATE and neither is
+  identity. One institution may use several domains; one domain may serve many
+  institutions.
+- `nwf_ingest` has `SELECT` and `INSERT` on `website_claims` and
+  `website_source_snapshots` and nothing else. A changed register is a NEW
+  snapshot with NEW claims, never an edit to an old one.
+- Re-ingesting the same artifact under the same `rule_version` inserts nothing:
+  the unique index plus `ON CONFLICT DO NOTHING` makes that a guarantee.
+
 ## What an `ewp_heis` row means
 
 **An `ewp_heis` row is SOURCE EVIDENCE from a second official dataset. It is NOT
@@ -319,6 +459,16 @@ npm run cli -- ewp show                        # latest snapshot, id types, decl
 npm run cli -- ewp coverage --eche-file <x.xlsx> --ewp-file <c.xml>
 npm run cli -- ewp coverage --json             # full report, both sources re-resolved
 
+# Website evidence (Phase 1D)
+# --eche-file is REQUIRED: Phase 1D classifies an artifact you already hold and
+# performs NO ECHE network fetch (see rule 11 and ADR 0002 s11).
+npm run cli -- website ingest eche --eche-file <eche.xlsx>   # ECHE website claims
+npm run cli -- website ingest fr   --eche-file <eche.xlsx>   # fetch the official FR register
+npm run cli -- website ingest fr --file <register.json> --eche-file <eche.xlsx>
+npm run cli -- website report                  # structural counts + derived comparison
+npm run cli -- website conflicts               # the ECHE <-> FR domain disagreements
+npm run cli -- website show "F PARIS001"       # every claim about one ECHE row
+
 # Regenerate the committed test fixture from a real ECHE spreadsheet
 npm run fixture:build -- <path-to-real-eche.xlsx>
 ```
@@ -336,6 +486,12 @@ src/ingest/ewp/      the same arc for the EWP Registry: fail-closed resolution,
                      streaming SAX parsing, normalisation, snapshot ingestion
 src/compare/         PURE artifact-to-artifact ECHE<->EWP identifier measurement.
                      Opens no database connection, by design.
+src/ingest/fresr/    the official French Ministry register: fail-closed
+                     resolution (one host, one dataset, manual redirects), a
+                     narrow strict schema that refuses contact fields, and
+                     snapshot + claim ingestion
+src/website/         the strict website candidate parser, the append-only claim
+                     layer, and the PURE claim comparison. Fetches nothing.
 src/cli/             CLI entry point and commands
 src/test/            unit, integration, firewall tests and the fixtures
 docs/adr/            architecture decision records
@@ -450,6 +606,37 @@ All verified against the live catalogue on 2026-08-22.
 - **The catalogue has no edition or version number** and is refreshed
   continuously. Artifact identity is the SHA-256 of the exact bytes, full stop.
 
+### Things the official French register will surprise you with
+
+All verified against the live register on 2026-08-24.
+
+- **It is small and mostly PIC-less.** 245 records, only 95 with a non-blank
+  PIC. Most records therefore produce no claim at all, which is why the
+  snapshot stores `record_count` — a reader who counted only claims would think
+  the artifact was smaller than it is.
+- **Two records publish TWO `;`-separated PIC values in one field**
+  (`900456724;999489941`). They join nothing. Splitting on the separator would
+  be a guess: the record publishes ONE website, and nothing says which of the
+  two identifiers it belongs to.
+- **19 records publish several `;`-separated UAI codes** the same way
+  (`0753607N;0942340H`). Phase 1D does not join on UAI, so they are counted and
+  left alone.
+- **The dataset's landing page redirects.** `/explore/dataset/<id>/information/`
+  answers `302` to `/explore/assets/<id>/`. This is exactly why the resolver
+  uses `redirect: 'manual'` — on this host a followed hop is not hypothetical.
+- **The export endpoint is byte-stable ONLY with an explicit order.** The URL
+  carries `order_by=etablissement_id_paysage` so unchanged upstream data yields
+  identical bytes; without it a reshuffle would produce a new SHA-256 for the
+  same content and the artifact hash would stop being an identity.
+- **The dataset publishes a telephone number** (`numero_telephone_uai`) and
+  100+ other columns. The request asks for FIVE fields, so the rest are never
+  transmitted to this process at all — a stronger guarantee than filtering
+  after download. The zod schema is `.strict()`, so an unexpected field stops
+  the run instead of being ignored.
+- **`identifiant_pic` is the ONLY join key.** Not the name, not the UAI, and
+  above all not the domain — the domain is what is being measured, so joining
+  on it would assume the answer.
+
 ## Testing
 
 Vitest. `npm run validate` is the gate. Three categories:
@@ -460,11 +647,15 @@ Vitest. `npm run validate` is the gate. Three categories:
   are unset, so `npm test` still passes without Docker. They cover idempotency,
   the update path, provenance preservation, dry-run purity, the grant boundaries,
   and the destructive-target guard.
-- **firewall** — executable scope boundaries, in two files. `phase1a` covers
+- **firewall** — executable scope boundaries, in three files. `phase1a` covers
   AI/Apollo/email/NWF-production; `phase1b` adds no-crawler, no-job-queue,
   no-entity-resolution, no-contact-storage, "a SCHAC id never becomes
   `canonical_domain`", "declared APIs are never called", and an exact list of
-  permitted runtime dependencies. These assert real capabilities (dependencies,
+  permitted runtime dependencies. `phase1d` adds "no institution website is
+  ever fetched" (proved by pinning the exact list of files allowed to call
+  `fetch()`), one allow-listed FR host restricted to one dataset, no contact
+  field in the request or the schema, and "a claim never becomes a
+  conclusion". These assert real capabilities (dependencies,
   API hosts, SQL verbs, credential identifiers, forbidden directories), **not**
   ordinary English words, so documentation prose never trips them.
 

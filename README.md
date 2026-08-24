@@ -7,15 +7,18 @@ separate repository with its own database. This repository has no access to it, 
 its Supabase project, or to any learner, payment or payout data, and must never
 acquire any.
 
-## Current scope: Phase 1B
+## Current scope: Phase 1D
 
-The repository ingests **two** authoritative datasets into a local PostgreSQL
+The repository ingests **three** authoritative datasets into a local PostgreSQL
 database, preserving full source provenance for each:
 
 1. **ECHE** — the official Erasmus+ list of higher education institutions holding
    an Erasmus Charter for Higher Education (Phase 1A).
 2. **The EWP Registry catalogue** — the Erasmus Without Paper service registry
    (Phase 1B).
+3. **The French Ministry register of higher-education institutions** —
+   `fr-esr-principaux-etablissements-enseignement-superieur`, used as an
+   independent official check on published website values (Phase 1D).
 
 ```
 official ECHE spreadsheet          official EWP Registry catalogue
@@ -37,11 +40,23 @@ official ECHE spreadsheet          official EWP Registry catalogue
               read-only CLI inspection
 ```
 
-**The two sources are stored side by side and are never merged.** No EWP record
-is attached to an organisation, and EWP ingestion creates or modifies no
-`organisations` row. When the measurement says an ECHE row and an EWP HEI
-"match", it means _the same official identifier appears in both official
-datasets_ — not that they have been resolved into one verified entity.
+**The sources are stored side by side and are never merged.** No EWP record is
+attached to an organisation, and neither EWP nor website-evidence ingestion
+creates or modifies an `organisations` row. When the measurement says an ECHE
+row and an EWP HEI "match", it means _the same official identifier appears in
+both official datasets_ — not that they have been resolved into one verified
+entity.
+
+Phase 1D adds a second, separate measurement over **websites**. Each source's
+published website value is stored as an immutable **claim**; agreement and
+disagreement between claims are **derived at read time and never stored**. That
+matters because the two official sources genuinely disagree: on the 88 rows
+where a deterministic PIC join is possible, 65 agree on a registrable domain
+and **10 disagree**. Neither source may overwrite the other.
+
+**No institution website is ever fetched.** Phase 1D reasons about websites
+using only what official registers publish about them — no GET, no HEAD, no
+redirect check, no `robots.txt`, no HTML, no DNS.
 
 That is the entire system today.
 
@@ -79,9 +94,16 @@ capability of any kind**. This repository cannot send email; it has no email
 dependency, no provider credential and no send code path.
 
 Phase 1B records which EWP APIs each host **declares**. It never calls one.
+Phase 1D records what official registers **publish** about a website. It never
+requests one, and it stores no verified, canonical or preferred website: there
+is no winner anywhere in the schema.
 
-`src/test/firewall/phase1a.firewall.test.ts` and
-`src/test/firewall/phase1b.firewall.test.ts` enforce all of that in CI.
+`src/test/firewall/phase1a.firewall.test.ts`,
+`src/test/firewall/phase1b.firewall.test.ts` and
+`src/test/firewall/phase1d.firewall.test.ts` enforce all of that in CI. The
+last of these proves the no-fetching rule as a capability, by pinning the exact
+list of files permitted to call `fetch()` to the three official source
+resolvers.
 
 Later phases each require separate founder approval before any work begins.
 
@@ -209,6 +231,82 @@ all, and it stays inside the denominator rather than being counted as a miss.
 `AMBIGUOUS` means an identifier matched but named more than one institution —
 that is evidence, not a match, whether or not the other identifier found
 anything to disagree with.
+
+## Website evidence (Phase 1D)
+
+`--eche-file` is **required**. Phase 1D classifies an artifact you already hold,
+identified by its SHA-256, and performs no ECHE network fetch of its own.
+
+```bash
+# Classify and store what ECHE publishes in its "Website Url" column
+npm run cli -- website ingest eche --eche-file <eche.xlsx>
+
+# Fetch the official French register and store the claims its PIC join supports
+npm run cli -- website ingest fr --eche-file <eche.xlsx>
+
+# Previously-downloaded bytes, keeping where they were published
+npm run cli -- website ingest fr --file <register.json>   --origin-url "https://data.enseignementsup-recherche.gouv.fr/api/explore/v2.1/catalog/datasets/fr-esr-principaux-etablissements-enseignement-superieur/exports/json?select=etablissement_id_paysage%2Cuo_lib%2Cuai%2Cidentifiant_pic%2Curl&order_by=etablissement_id_paysage"   --origin-retrieved-at 2026-08-24T08:49:32Z   --eche-file <eche.xlsx>
+
+npm run cli -- website report                  # structural counts + derived comparison
+npm run cli -- website conflicts               # the ECHE <-> FR domain disagreements
+npm run cli -- website show "F PARIS001"       # every claim about one ECHE row
+```
+
+### What Phase 1D measured
+
+Over all 6,139 ECHE rows, with the strict parser:
+
+| structural status  | count     |
+| ------------------ | --------- |
+| STRUCTURALLY_VALID | **5,832** |
+| NOT_A_WEBSITE      | 59        |
+| MALFORMED          | 9         |
+| ABSENT             | 239       |
+| **TOTAL**          | **6,139** |
+
+The 59 rejected values are **55 email addresses** plus 4 more whose host is
+outside the ICANN public suffix set (a fifth such host is itself one of the 55).
+
+**Why the email case matters.** The legacy Phase 1A path prefixes `https://` to
+a scheme-less value, so the published cell `03014851@edu.gva.es` became
+`https://03014851@edu.gva.es/` — registrable domain `gva.es`. That derived an
+institution's website from an education authority's **mail** domain, 55 times,
+with nothing recording that it had happened. The strict parser rejects userinfo
+outright, and `website_claims` keeps the published value verbatim alongside the
+reason it was rejected.
+
+The French register cross-check, joined deterministically on PIC:
+
+|                          |        |
+| ------------------------ | ------ |
+| register records         | 245    |
+| with a usable PIC        | 93     |
+| **claim pairs compared** | **88** |
+| DOMAIN_AGREE             | 65     |
+| DOMAIN_DISAGREE          | **10** |
+| ONE_SIDE_MISSING         | 13     |
+| NOT_COMPARABLE           | 0      |
+
+The 10 disagreements are listed in full in
+`docs/adr/0002-website-claims-and-fr-official-verification.md`. They are an
+output, not a defect: both sources are official, and Phase 1D chooses no winner.
+
+**The check is narrow, and that is a finding.** 88 of 6,139 rows — 1.4% — have a
+second official website source at all.
+
+### `canonical_domain` is legacy, and is not verified truth
+
+`organisations.canonical_domain` is a registrable-domain-like value mechanically
+derived by the legacy Phase 1A normalisation path. It is **not** a verified
+official domain. It is strongly non-unique (5,891 non-null values over 5,028
+distinct domains; 52 rows share `gva.es`), 55 of the values it came from are
+email addresses, and 64 rows carry a value string-equal to an EWP SCHAC id with
+no identifier evidence.
+
+Phase 1D **does not rewrite it**. The column keeps exactly the bytes Phase 1A
+wrote, because rewriting it would destroy the record of the defect this phase
+exists to document. Migration 0005 updates its `COMMENT` so `\d+ organisations`
+says so too. `website_claims` supersedes it as evidence.
 
 ### A SCHAC identifier is not a website
 
