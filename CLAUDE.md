@@ -9,11 +9,18 @@ goal is to research and qualify organisations — universities, International /
 Erasmus / Mobility offices, language centres, and student associations — that
 could distribute NWF to language learners.
 
-**Current state: Phase 1D. This repository ingests THREE official datasets into
-a local PostgreSQL database — the ECHE list, the EWP Registry catalogue and the
-French Ministry register of higher-education institutions — lets you inspect
-them, and measures how their published identifiers and website values relate.
-That is all it does.**
+**Current state: Phase 1D, plus the Phase 2B-1a trust foundation. This
+repository ingests THREE official datasets into a local PostgreSQL database —
+the ECHE list, the EWP Registry catalogue and the French Ministry register of
+higher-education institutions — lets you inspect them, and measures how their
+published identifiers and website values relate. That is all it DOES.**
+
+**Migration 0007 additionally creates seven empty `orgunit_*` tables and the
+`nwf_research` role for a future phase of bounded first-party web acquisition.
+NOTHING USES THEM.** There is no `src/orgunits/` directory, no acquisition
+gateway, no crawler, no ranking code and no CLI command; every one of those
+tables holds zero rows and cannot acquire any. See "What Phase 2B-1a
+established" below and `docs/adr/0004-bounded-first-party-web-acquisition.md`.
 
 The sources are stored SIDE BY SIDE, never merged. No EWP record is attached to
 an organisation, and no `organisations` row is created or modified by EWP or by
@@ -122,6 +129,27 @@ it, or depend on it, and must never touch learner, payment, or payout data.
     lose the evidence. Website claims are read from the ARTIFACT.
 14. **Later phases require founder approval.** Do not build ahead of the approved
     phase, and do not create placeholder modules for future work.
+15. **Phase 2B research evidence is append-only, and `nwf_research` can never
+    mutate anything.** The role holds `SELECT` and `INSERT` and nothing else -
+    no `UPDATE`, no `DELETE`, no `TRUNCATE`, no `TEMPORARY` - and it can read
+    only `website_claims` and `organisations`. That is why a run's outcome is a
+    row in `orgunit_research_run_completions` rather than a status column, and
+    why a promotion is withdrawn by appending a `REVOKE`. Never grant it a
+    mutating privilege, and never give it access to a Phase 1 truth table.
+16. **A cross-domain redirect target cannot become a research root without an
+    explicit stored operator decision.** Not by inference, not by matching some
+    other stored value, not by being observed twice. The only path is a row in
+    `orgunit_root_promotion_events`, and the root XOR on
+    `orgunit_fetch_observations` enforces it. Promotion never edits a website
+    claim and never elects a winner.
+17. **No response body is ever stored, and `src/orgunits/` is the only research
+    namespace.** The bytes are a SHA-256 and a length; extracted text is capped
+    by a `CHECK`. There is no `raw_html`, `page_html` or `response_body` column
+    and there must never be one. The ONE permitted future Phase 2B network
+    location is `src/orgunits/web/gateway.ts`, which **does not exist yet** -
+    building it is slice 2B-1b, and it requires deliberately widening Phase 1D's
+    `fetch()` allow-list. `src/research/`, `src/crawl/`, `src/scrape/` and
+    `src/enrich/` stay forbidden.
 
 ## Decisions vs. hypotheses vs. unknowns
 
@@ -361,6 +389,69 @@ npm run cli -- website report
 npm run cli -- website conflicts
 ```
 
+## What Phase 2B-1a established
+
+Schema, a role, a firewall and ADR 0004. **No behaviour.** Migration 0007
+creates seven tables that will hold research evidence when a later slice writes
+the code that produces it; today all seven are empty and the repository still
+has ZERO institution-website network call sites.
+
+| table                              | one row means                                                  |
+| ---------------------------------- | -------------------------------------------------------------- |
+| `orgunit_research_runs`            | one immutable execution identity and its configuration         |
+| `orgunit_research_run_completions` | the append-only terminal event; at most one per run            |
+| `orgunit_fetch_observations`       | one outbound request and what came back                        |
+| `orgunit_redirect_observations`    | one observed 3xx edge, as separate facts                       |
+| `orgunit_root_promotion_events`    | one operator decision to promote (or revoke) a redirect target |
+| `orgunit_page_evidence`            | one parsed page, reduced to capped derived text                |
+| `orgunit_page_candidates`          | one deterministic RANK over page evidence                      |
+
+Seven rather than the five originally sketched, and the two extra ones are the
+whole point:
+
+- **A run's terminal state is its own table** because `nwf_research` has no
+  `UPDATE` grant, so `INSERT run; ... UPDATE run SET status` is not a thing it
+  can do. Status is DERIVED from whether a completion row exists.
+- **Promotion is its own table** because the original sketch had no way to
+  record the transition from "a cross-domain redirect was observed" to "an
+  operator approved fetching there", and without it that transition would have
+  had to be inferred - which is exactly what rule 16 forbids.
+
+Things that are DELIBERATELY ABSENT, and must stay absent:
+
+- No `status`, `relevant`, `confirmed`, `verified`, `preferred` or
+  `classification_status` column on candidates. A rank is not a verdict. The
+  measured reason: "MSc International Marketing", "MBA International Business
+  Law" and "International Office" are lexically indistinguishable, so the
+  deterministic layer cannot separate a UNIT from a DEGREE PROGRAMME. That is
+  the whole justification for Phase 2B-2 being separate, and it is why
+  `type_hint` admits `DEGREE_PROGRAMME` and `UNCLEAR` as first-class values.
+- No `frontier_score`. A frontier score ranks a URL BEFORE it is fetched and may
+  inherit from its URL tree; `candidate_score` ranks a page AFTER it was read.
+  Letting inheritance reach the second would turn "worth trying" into "worth
+  reporting". Keep them separate whenever the frontier becomes durable.
+- No `raw_html` / `page_html` / `response_body`, in this or any migration.
+- No `target_language`, `partner_country`, `country_code`, `locale` or `market`.
+  Both research samples so far were French; that is a property of the SAMPLE.
+  `orgunit_page_evidence.declared_lang` is the DOCUMENT's own declaration and
+  nothing else - never a learner language and never a country signal.
+- No contact column anywhere. `orgunit_root_promotion_events.decided_by` is an
+  operator LABEL and carries a `CHECK` refusing an at-sign, so the one audit
+  field with a name in it cannot become the first stored mailbox.
+
+Every Phase 2B table is anchored on `eche_row_key`, and the two that also carry
+an `organisation_id` — `orgunit_fetch_observations` and
+`orgunit_page_candidates` — keep it NULLABLE, exactly as `website_claims` does
+and for the same reason: a web page must never be read as proof that two
+provisional organisation records are one entity. Join on `eche_row_key` for
+completeness.
+
+**Historical numbers cited in ADR 0004 are AUDIT FINDINGS, not benchmarks.**
+The Phase 2A audit's `93.0% / 97.6%` and the 2026-08-24 holdout's totals both
+come from scratch tooling that was deleted; neither sample nor ruleset survives.
+Do not quote them as a target, a baseline, or evidence that a later ruleset
+performs comparably.
+
 ## What a `website_claims` row means
 
 **A `website_claims` row is ONE SOURCE'S ASSERTION about ONE ECHE SOURCE ROW.
@@ -499,6 +590,12 @@ src/website/         the strict website candidate parser, the append-only claim
 src/cli/             CLI entry point and commands
 src/test/            unit, integration, firewall tests and the fixtures
 docs/adr/            architecture decision records
+
+src/orgunits/        DOES NOT EXIST, deliberately. The approved namespace for
+                     Phase 2B web acquisition, reserved by migration 0007 and by
+                     phase2b.firewall.test.ts. Its only permitted network
+                     location is src/orgunits/web/gateway.ts, which belongs to
+                     slice 2B-1b. Do not create a placeholder here.
 ```
 
 ## Things the real data will surprise you with
@@ -663,7 +760,7 @@ Vitest. `npm run validate` is the gate. Three categories:
   are unset, so `npm test` still passes without Docker. They cover idempotency,
   the update path, provenance preservation, dry-run purity, the grant boundaries,
   and the destructive-target guard.
-- **firewall** — executable scope boundaries, in three files. `phase1a` covers
+- **firewall** — executable scope boundaries, in four files. `phase1a` covers
   AI/Apollo/email/NWF-production; `phase1b` adds no-crawler, no-job-queue,
   no-entity-resolution, no-contact-storage, "a SCHAC id never becomes
   `canonical_domain`", "declared APIs are never called", and an exact list of
@@ -671,9 +768,16 @@ Vitest. `npm run validate` is the gate. Three categories:
   ever fetched" (proved by pinning the exact list of files allowed to call
   `fetch()`), one allow-listed FR host restricted to one dataset, no contact
   field in the request or the schema, and "a claim never becomes a
-  conclusion". These assert real capabilities (dependencies,
+  conclusion". `phase2b` adds the Phase 2B boundaries: no raw-body column in any
+  migration, no contact or relevance or outreach column, no mutating grant to
+  `nwf_research`, the forbidden research namespaces, and ONE permitted future
+  network location (`src/orgunits/web/gateway.ts`) which it also asserts does
+  not exist yet. These assert real capabilities (dependencies,
   API hosts, SQL verbs, credential identifiers, forbidden directories), **not**
-  ordinary English words, so documentation prose never trips them.
+  ordinary English words, so documentation prose never trips them. `phase2b`
+  parses `GRANT` statements rather than scanning for verbs, because the first
+  draft of its TEMPORARY check failed on the migration COMMENT explaining why
+  the role has none.
 
 The committed fixture is machine- and locale-independent: `scripts/build-fixture.ts`
 reuses the production parser, so date cells are written as ISO-8601 rather than as

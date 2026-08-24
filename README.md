@@ -99,13 +99,46 @@ requests one, and it stores no verified, canonical or preferred website: there
 is no winner anywhere in the schema.
 
 `src/test/firewall/phase1a.firewall.test.ts`,
-`src/test/firewall/phase1b.firewall.test.ts` and
-`src/test/firewall/phase1d.firewall.test.ts` enforce all of that in CI. The
-last of these proves the no-fetching rule as a capability, by pinning the exact
-list of files permitted to call `fetch()` to the three official source
-resolvers.
+`src/test/firewall/phase1b.firewall.test.ts`,
+`src/test/firewall/phase1d.firewall.test.ts` and
+`src/test/firewall/phase2b.firewall.test.ts` enforce all of that in CI. The
+third proves the no-fetching rule as a capability, by pinning the exact list of
+files permitted to call `fetch()` to the three official source resolvers; the
+fourth restates that pin as a Phase 2B tripwire.
 
 Later phases each require separate founder approval before any work begins.
+
+### Phase 2B-1a: a trust foundation, and no new capability
+
+Migration 0007 adds seven `orgunit_*` tables and the `nwf_research` role for a
+future phase of **bounded first-party web acquisition** — reading a small,
+ranked set of pages from an institution's own site to find its International
+Office, language centre or student associations, which no official register
+publishes.
+
+**Nothing uses them.** This slice is schema, a role, a firewall and
+`docs/adr/0004-bounded-first-party-web-acquisition.md`. There is no
+`src/orgunits/` directory, no acquisition gateway, no robots or sitemap reader,
+no HTML extraction, no ranking code and no CLI command. No dependency was added.
+Every one of the seven tables holds zero rows and cannot acquire any, because
+the code that would write them does not exist.
+
+What the schema settles in advance:
+
+- `nwf_research` holds `SELECT` and `INSERT` and nothing else — no `UPDATE`, no
+  `DELETE`, no `TRUNCATE`, no `TEMPORARY` — so a run's outcome and a promotion's
+  withdrawal are **new rows**, never edits.
+- A fetch must name the root authority that permitted it: either an official
+  `website_claims` row, or an explicit operator promotion. A `CHECK` enforces
+  exactly one, so a request with no root authority cannot be recorded.
+- **A cross-domain redirect target never becomes a research root by
+  observation.** Only a stored operator decision promotes one.
+- No response body is ever stored. The bytes are a SHA-256 and a length;
+  extracted text is capped by a `CHECK`.
+- A ranked page is a **rank**, not a relevance fact. There is no status,
+  relevant, confirmed, verified or preferred column, and none may be added.
+
+Phase 2B-2 — semantic classification of those pages — is **not authorised**.
 
 ## Prerequisites
 
@@ -330,6 +363,11 @@ npm run test:unit
 npm run test:integration     # requires the local database to be running
 npm run test:firewall        # scope-boundary assertions
 ```
+
+Integration tests need `DATABASE_URL_RESEARCH_TEST` as well as the three older
+role URLs; see `.env.example`. The Phase 2B grant tests skip without it rather
+than failing with a connection error that would look like a defect in the
+grants themselves.
 
 Integration tests run against a **separate** `nwf_pe_test` database and truncate
 it freely. Two guards in `src/db/safety.ts` make that safe: the pool factory
