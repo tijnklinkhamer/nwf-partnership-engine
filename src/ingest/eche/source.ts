@@ -6,6 +6,12 @@
  * ambiguous, the run stops and asks the operator for an explicit --url or --file.
  * A previously-seen URL is recorded in documentation for diagnosis only, and is
  * never executed automatically.
+ *
+ * FAIL CLOSED ACROSS REDIRECTS TOO. Every request this module issues goes to a
+ * URL it validated first, and a 3xx answer is an error rather than an
+ * instruction: see `fetchOrExplain`. That is the same rule the EWP and French
+ * register resolvers follow, so all three official sources share one boundary
+ * instead of two.
  */
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
@@ -21,6 +27,9 @@ const ALLOWED_HOSTS = new Set(['erasmus-plus.ec.europa.eu', 'ec.europa.eu']);
 const ALLOWED_PATH_PREFIX = '/sites/default/files/';
 
 const SPREADSHEET_EXT = /\.xlsx$/i;
+
+/** The HTTP statuses that ask a client to issue its request somewhere else. */
+const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
 
 export type SourceInputKind = 'discovered' | 'operator_url' | 'operator_file';
 
@@ -54,10 +63,22 @@ function looksLikeZipContainer(bytes: Buffer): boolean {
 }
 
 /**
- * Validates that a candidate URL is an official Erasmus+/EC spreadsheet URL.
- * Rejects anything else, including look-alike hosts.
+ * The origin gate every ECHE request passes, whatever it is asking for.
+ *
+ * Host allow-listing is what closes SSRF here: `localhost`, a loopback or
+ * private IP literal, and any look-alike host all fail it, so no separate
+ * address classifier is needed or wanted. Two further gates cover what an
+ * allow-list alone does not:
+ *
+ *   - USERINFO. `https://user:pw@erasmus-plus.ec.europa.eu/...` passes a
+ *     hostname check and still sends credentials this repository has no
+ *     business holding. It is also the classic disguise for a look-alike host.
+ *   - AN EXPLICIT PORT. The official source contract is default https. A port
+ *     on an allow-listed host reaches a service that was never approved.
+ *
+ * The password is never echoed back into the error message.
  */
-export function assertOfficialUrl(candidate: string): URL {
+function assertOfficialOrigin(candidate: string, label: string): URL {
   let url: URL;
   try {
     url = new URL(candidate);
@@ -65,8 +86,12 @@ export function assertOfficialUrl(candidate: string): URL {
     throw new SourceResolutionError(`Not a valid URL: ${candidate}`);
   }
   if (url.protocol !== 'https:') {
+    throw new SourceResolutionError(`${label} must be https, got ${url.protocol} (${candidate})`);
+  }
+  if (url.username !== '' || url.password !== '') {
     throw new SourceResolutionError(
-      `ECHE source must be https, got ${url.protocol} (${candidate})`,
+      `${label} must not carry userinfo (credentials before @): refusing ` +
+        `${url.protocol}//${url.hostname}${url.pathname}`,
     );
   }
   if (!ALLOWED_HOSTS.has(url.hostname)) {
@@ -75,6 +100,21 @@ export function assertOfficialUrl(candidate: string): URL {
         `(allowed: ${[...ALLOWED_HOSTS].join(', ')})`,
     );
   }
+  if (url.port !== '') {
+    throw new SourceResolutionError(
+      `${label} must use the default https port; ${url.hostname}:${url.port} is not ` +
+        `part of the approved source contract`,
+    );
+  }
+  return url;
+}
+
+/**
+ * Validates that a candidate URL is an official Erasmus+/EC spreadsheet URL.
+ * Rejects anything else, including look-alike hosts.
+ */
+export function assertOfficialUrl(candidate: string): URL {
+  const url = assertOfficialOrigin(candidate, 'ECHE source');
   if (!url.pathname.startsWith(ALLOWED_PATH_PREFIX)) {
     throw new SourceResolutionError(
       `Path ${url.pathname} is not under the approved official path ${ALLOWED_PATH_PREFIX}`,
@@ -84,6 +124,18 @@ export function assertOfficialUrl(candidate: string): URL {
     throw new SourceResolutionError(`Resolved file is not an .xlsx spreadsheet: ${url.pathname}`);
   }
   return url;
+}
+
+/**
+ * Validates the document page URL before it is requested.
+ *
+ * The page lives outside `ALLOWED_PATH_PREFIX` - it is a document page, not an
+ * upload - so it passes the origin gate only. Checking a module constant is
+ * deliberate: this check is what keeps it one if somebody later makes the page
+ * an argument.
+ */
+export function assertOfficialPageUrl(candidate: string): URL {
+  return assertOfficialOrigin(candidate, 'The ECHE document page');
 }
 
 /**
@@ -129,12 +181,38 @@ export function extractCandidates(html: string, baseUrl: string): string[] {
 }
 
 /**
- * Wraps a network failure with actionable context. Node's bare "fetch failed"
- * says nothing about what was being fetched or what to do next.
+ * Fetches one already-validated URL and REFUSES TO FOLLOW A REDIRECT.
+ *
+ * WHY MANUAL AND NOT FOLLOW.
+ *
+ * This module used to pass `redirect: 'follow'`, which hands redirect handling
+ * to the runtime. The runtime issues the request to the target BEFORE any code
+ * here can look at it, so an official URL answering
+ * `302 Location: https://elsewhere.example/list.xlsx` would already have been
+ * fetched from `elsewhere.example` by the time this function returned - outside
+ * the allow-list, with the provenance record still naming the official URL that
+ * was asked for. Inspecting `Response.url` afterwards cannot un-issue a request
+ * that has already happened. That is the weakness this function closes.
+ *
+ * Manual handling hands the 3xx back unfollowed, so no request is ever made to
+ * the target: not to another host, and not to another path on an approved one.
+ * The bytes come from the URL that was validated, or the run stops.
+ *
+ * SAME-HOST HOPS ARE REFUSED TOO, and that is a decision rather than an
+ * oversight. A hop to a second path on `erasmus-plus.ec.europa.eu` would still
+ * leave `ingest_runs.resolved_file_url` naming a URL that did not serve these
+ * bytes, so the artifact hash would belong to a location nothing recorded. The
+ * recovery path already exists and is safe: the operator passes the new URL
+ * with --url, where it is validated in its own right, or supplies the artifact
+ * with --file.
+ *
+ * The catch wraps a network failure with actionable context: Node's bare
+ * "fetch failed" says nothing about what was being fetched or what to do next.
  */
 async function fetchOrExplain(url: string, what: string): Promise<Response> {
+  let res: Response;
   try {
-    return await fetch(url, { redirect: 'follow' });
+    res = await fetch(url, { redirect: 'manual' });
   } catch (err) {
     const cause =
       err instanceof Error && err.cause instanceof Error ? `: ${err.cause.message}` : '';
@@ -143,6 +221,18 @@ async function fetchOrExplain(url: string, what: string): Promise<Response> {
         `Nothing was ingested. Retry, or supply the file explicitly with --file.`,
     );
   }
+  if (REDIRECT_STATUSES.has(res.status)) {
+    const location = res.headers.get('location');
+    throw new SourceResolutionError(
+      `${url} answered HTTP ${res.status} redirecting to ` +
+        `${location ?? '(no Location header)'} while fetching ${what}. The redirect ` +
+        `was NOT followed and that target was NOT requested: this resolver reads only ` +
+        `from a URL it has validated itself. Nothing was ingested. If the official ` +
+        `source has genuinely moved, pass the new URL with --url so it is validated, ` +
+        `or supply the file with --file.`,
+    );
+  }
+  return res;
 }
 
 async function download(url: string): Promise<{ bytes: Buffer; contentType: string | null }> {
@@ -202,8 +292,9 @@ export async function resolveFromUrl(candidate: string): Promise<ResolvedSource>
 
 /** Discovers the current spreadsheet from the official document page. */
 export async function resolveFromOfficialPage(): Promise<ResolvedSource> {
-  log.debug(`Fetching official ECHE page: ${ECHE_DOCUMENT_PAGE}`);
-  const res = await fetchOrExplain(ECHE_DOCUMENT_PAGE, 'the official ECHE document page');
+  const page = assertOfficialPageUrl(ECHE_DOCUMENT_PAGE);
+  log.debug(`Fetching official ECHE page: ${page.toString()}`);
+  const res = await fetchOrExplain(page.toString(), 'the official ECHE document page');
   if (!res.ok) {
     throw new SourceResolutionError(
       `Could not fetch the official ECHE page (HTTP ${res.status}). ` +

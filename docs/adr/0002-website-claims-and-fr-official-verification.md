@@ -245,9 +245,17 @@ same rule version inserts nothing.
 
 ## 11. The ECHE resolver's redirect behaviour, and what Phase 1D does about it
 
-**FACT.** `src/ingest/eche/source.ts` fetches with `redirect: 'follow'`, unlike
-the EWP resolver (`manual`, by explicit repository rule) and the Phase 1D FR
-resolver. Handing the hop to the runtime means a redirect target is requested
+> **SUPERSEDED IN PART, 2026-08-24.** The weakness described below was
+> repaired after Phase 1D landed — see
+> `docs/adr/0003-eche-source-redirect-trust-boundary.md`. The section is kept
+> as written because it records why Phase 1D's contract is what it is; the
+> paragraph marked **STATUS** at the end says what changed. Phase 1D's own
+> behaviour is unaffected: it still performs no ECHE fetch, for a reason that
+> never depended on this.
+
+**FACT (as of Phase 1D).** `src/ingest/eche/source.ts` fetched with
+`redirect: 'follow'`, unlike the EWP resolver (`manual`, by explicit repository
+rule) and the Phase 1D FR resolver. Handing the hop to the runtime means a redirect target is requested
 BEFORE any allow-list check can run, so validating `Response.url` afterwards is
 too late.
 
@@ -274,7 +282,9 @@ known set of bytes. Silently downloading a fresh spreadsheet would classify a
 DIFFERENT artifact from the one the operator is reasoning about, and the counts
 would change with no visible cause.
 
-**POST-PHASE-1D SECURITY HARDENING REQUIRED.** Aligning
-`src/ingest/eche/source.ts` with the `redirect: 'manual'` pattern remains
-outstanding and should be a separate, small, reviewed change. Phase 1D neither
-performs nor blocks it.
+**STATUS — DONE.** Aligning `src/ingest/eche/source.ts` with the
+`redirect: 'manual'` pattern was carried out as the separate, small, reviewed
+change this section asked for: ADR 0003. Phase 1D's contract is unchanged by
+it. `--eche-file` is still required, the website CLI still imports no ECHE
+network resolver, and the second reason above — a claim is only meaningful
+against a known artifact hash — is now the whole of the justification.

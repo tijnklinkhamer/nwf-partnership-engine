@@ -69,13 +69,17 @@ it, or depend on it, and must never touch learner, payment, or payout data.
    discovered unambiguously, ingestion stops and asks for an explicit `--url` or
    `--file`. If the EWP catalogue fetch fails, the run fails. Never add an
    automatic fallback to a previously-seen URL or to a cached artifact, for
-   either source. **The EWP catalogue fetch does not follow redirects**: it uses
-   `redirect: 'manual'` and treats any 3xx as an error naming the refused
-   target, so no request to a redirect target is ever issued — not to an
-   unapproved host, and not to another path on the approved one. Never change it
-   to `redirect: 'follow'`: that hands the hop to the runtime, which requests
-   the target before any check here can run, and validating `Response.url`
-   afterwards is too late.
+   either source. **No official-source fetch follows redirects — ECHE, EWP and
+   the French register alike.** All three use `redirect: 'manual'` and treat any
+   3xx as an error naming the refused target, so no request to a redirect target
+   is ever issued — not to an unapproved host, and not to another path on the
+   approved one. A same-host hop is refused too: the recovery path is an
+   operator passing the new URL with `--url`, where it is validated in its own
+   right. Never change any of them to `redirect: 'follow'`: that hands the hop
+   to the runtime, which requests the target before any check here can run, and
+   validating `Response.url` afterwards is too late. ECHE was the last resolver
+   to follow redirects; it was aligned after Phase 1D landed
+   (`docs/adr/0003-eche-source-redirect-trust-boundary.md`).
 7. **Never weaken a firewall test** to make CI green. If
    `src/test/firewall/phase1a.firewall.test.ts` or
    `src/test/firewall/phase1b.firewall.test.ts` fails, the code is wrong.
@@ -99,9 +103,9 @@ it, or depend on it, and must never touch learner, payment, or payout data.
     may call `fetch()` are the three official source resolvers, and
     `phase1d.firewall.test.ts` asserts exactly that list. **Phase 1D also
     performs no ECHE fetch of its own**: `--eche-file` is required by every
-    `website` command, and the CLI does not import the ECHE network resolvers,
-    because those fetch with `redirect: 'follow'` and Phase 1D will not depend
-    on a trust boundary it does not own.
+    `website` command, and the CLI does not import the ECHE network resolvers
+    at all, because a claim is keyed by the artifact's SHA-256 and a silent
+    download would classify DIFFERENT bytes from the ones being reasoned about.
 12. **A website claim is EVIDENCE, never a conclusion.** `website_claims` rows
     say "this source published this value for this ECHE source row". They never
     say "this is the official website". `AGREE` / `DISAGREE` /

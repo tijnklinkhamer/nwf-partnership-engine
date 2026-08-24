@@ -203,16 +203,18 @@ describe('PHASE-1D-FIREWALL: no institution website is ever fetched', () => {
     }
   });
 
-  it('never reaches the ECHE network resolver, which follows redirects', () => {
+  it('never reaches the ECHE network resolver at all', () => {
     // THE ONE PLACE PHASE 1D COULD HAVE INHERITED SOMEONE ELSE'S TRUST
-    // BOUNDARY. src/ingest/eche/source.ts fetches with redirect: 'follow',
-    // which lets the runtime request a redirect target before any allow-list
-    // check can run. That is a pre-existing Phase 1A weakness, and fixing it
-    // is not Phase 1D's business - but DEPENDING on it would make it Phase
-    // 1D's problem, because `website ingest eche` with no --eche-file would
-    // then perform a redirect-following fetch on Phase 1D's behalf.
+    // BOUNDARY. `website ingest eche` with no --eche-file would have performed
+    // an ECHE network fetch on Phase 1D's behalf, through a resolver Phase 1D
+    // does not own. (When Phase 1D landed that resolver still followed
+    // redirects; it fails closed on them now - see ADR 0003 - which removes a
+    // weakness but not the reason for this boundary.)
     //
-    // So Phase 1D reads the ECHE artifact from disk and never fetches it.
+    // The reason survives the repair: every claim is keyed by
+    // source_artifact_sha256, so a run is only meaningful against a known set
+    // of bytes. Phase 1D reads the ECHE artifact from disk and never fetches
+    // it.
     for (const file of PHASE_1D_FILES) {
       const source = code(file);
       expect(source, `${file} imports the ECHE official-page discovery resolver`).not.toMatch(
@@ -245,6 +247,35 @@ describe('PHASE-1D-FIREWALL: no institution website is ever fetched', () => {
       expect(code(file), `${file} delegates redirects to the runtime`).not.toMatch(
         /redirect\s*:\s*['"](follow|error)['"]\s*[,}]/,
       );
+    }
+  });
+
+  it('every official-source resolver fails closed on a redirect', () => {
+    // TRUE OF ALL THREE, which is the only reason it is worth asserting
+    // repository-wide. ECHE was the odd one out until the post-Phase-1D
+    // hardening (ADR 0003); EWP and the French register were manual from the
+    // start. A per-file exception would make this guarantee cosmetic.
+    //
+    // A capability check on comment-stripped code: every fetch call site in a
+    // resolver passes redirect: 'manual', and every resolver treats a 3xx as
+    // an error rather than an instruction.
+    const RESOLVERS = [
+      'src/ingest/eche/source.ts',
+      'src/ingest/ewp/source.ts',
+      'src/ingest/fresr/source.ts',
+    ];
+    for (const file of RESOLVERS) {
+      const source = code(file);
+      expect(source, `${file} delegates redirects to the runtime`).not.toMatch(
+        /redirect\s*:\s*['"](follow|error)['"]/,
+      );
+      const fetchCalls = source.match(/\bfetch\s*\(/g) ?? [];
+      const manual = source.match(/redirect:\s*'manual'/g) ?? [];
+      expect(fetchCalls.length, `${file} has no fetch call site`).toBeGreaterThan(0);
+      expect(manual.length, `${file} has a fetch call site that is not manual`).toBe(
+        fetchCalls.length,
+      );
+      expect(source, `${file} does not refuse 3xx explicitly`).toMatch(/REDIRECT_STATUSES/);
     }
   });
 
