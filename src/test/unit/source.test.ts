@@ -21,9 +21,17 @@ import {
   SourceResolutionError,
 } from '../../ingest/eche/source.js';
 
-const PAGE =
-  'https://erasmus-plus.ec.europa.eu/document/higher-education-institutions-holding-an-eche-2021-2027';
+/**
+ * The page candidates are resolved against is THE CONFIGURED ONE, not a copy.
+ * A second literal here would keep passing after the constant moved, which is
+ * exactly the failure this file exists to catch.
+ */
+const PAGE = ECHE_DOCUMENT_PAGE;
 const REAL_PATH = '/sites/default/files/2026-08/accredited-HEIs-Erasmus-2021-2027_17082026_1.xlsx';
+
+/** The `/document/...` URL the Commission superseded; it now answers 301. */
+const SUPERSEDED_PAGE =
+  'https://erasmus-plus.ec.europa.eu/document/higher-education-institutions-holding-an-eche-2021-2027';
 
 describe('assertOfficialUrl', () => {
   it('accepts the real official file url', () => {
@@ -87,6 +95,32 @@ describe('assertOfficialUrl', () => {
     expect(() => assertOfficialUrl(`https://erasmus-plus.ec.europa.eu:8443${REAL_PATH}`)).toThrow(
       /default https port/,
     );
+  });
+});
+
+describe('ECHE_DOCUMENT_PAGE', () => {
+  it('is the current official Erasmus+ document page', () => {
+    // Pinned deliberately. The trusted discovery origin is a security-relevant
+    // constant, so moving it must be a reviewed edit rather than a silent one.
+    expect(ECHE_DOCUMENT_PAGE).toBe(
+      'https://erasmus-plus.ec.europa.eu/resources-and-tools/documents-and-guidelines/' +
+        'higher-education-institutions-holding-an-eche-2021-2027',
+    );
+  });
+
+  it('is no longer the superseded /document/ url', () => {
+    // That URL answers 301 to the value above. The resolver refuses a redirect,
+    // so the recovery path is this constant - never a followable hop.
+    expect(ECHE_DOCUMENT_PAGE).not.toBe(SUPERSEDED_PAGE);
+  });
+
+  it('earns trust through the ordinary origin gate, with no special case', () => {
+    const url = assertOfficialPageUrl(ECHE_DOCUMENT_PAGE);
+    expect(url.protocol).toBe('https:');
+    expect(url.hostname).toBe('erasmus-plus.ec.europa.eu');
+    expect(url.port).toBe('');
+    expect(url.username).toBe('');
+    expect(url.password).toBe('');
   });
 });
 
@@ -319,6 +353,19 @@ describe('eche source: redirects are never followed', () => {
   it('a redirecting document page stops discovery before any file is requested', async () => {
     const { requested } = stubFetch(() => redirectTo('https://evil.example/document/eche'));
     await expect(resolveFromOfficialPage()).rejects.toThrow(/redirecting to/);
+    expect(requested).toEqual([ECHE_DOCUMENT_PAGE]);
+  });
+
+  it('a 301 from the document page fails closed, exactly as the superseded url did', async () => {
+    // This is the live scenario that produced this constant's current value.
+    // The old page answered `301 Location: /resources-and-tools/...` and the
+    // resolver refused it. THE FIX WAS A REVIEWED EDIT TO THE CONSTANT, not a
+    // followed hop - so when this page moves again, the same refusal must
+    // happen, including for a same-host relative Location.
+    const { requested } = stubFetch(() =>
+      redirectTo('/resources-and-tools/documents-and-guidelines/moved-again', 301),
+    );
+    await expect(resolveFromOfficialPage()).rejects.toThrow(/HTTP 301 redirecting to/);
     expect(requested).toEqual([ECHE_DOCUMENT_PAGE]);
   });
 

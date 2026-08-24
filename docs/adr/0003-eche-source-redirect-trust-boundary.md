@@ -172,3 +172,44 @@ module has a single `fetch` call site and never names `redirect: 'follow'`.
 official-source resolver passes `redirect: 'manual'` at every fetch call site
 and refuses 3xx explicitly. It is only there because it is now true of all
 three.
+
+## 7. Addendum, 2026-08-24 — the UNKNOWN in §3 is now measured
+
+§3 recorded as UNKNOWN whether the live ECHE endpoints redirect at all, because
+the host was unreachable from the environment that change was made in. It is now
+measured, and the answer is **yes, the document page does**.
+
+A bounded read-only probe with `redirect: 'manual'` and no ingest:
+
+| URL                                                                                                                                      | result                                                                                                                 |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `https://erasmus-plus.ec.europa.eu/document/higher-education-institutions-holding-an-eche-2021-2027`                                     | **HTTP 301** → `/resources-and-tools/documents-and-guidelines/higher-education-institutions-holding-an-eche-2021-2027` |
+| `https://erasmus-plus.ec.europa.eu/resources-and-tools/documents-and-guidelines/higher-education-institutions-holding-an-eche-2021-2027` | **HTTP 200**, `text/html`                                                                                              |
+
+So §3's second branch is the one that happened: the hardened resolver refused
+the superseded page and stopped with an actionable error naming the target,
+instead of silently downloading from wherever the hop pointed. **The hardening
+was load-bearing within days of landing.**
+
+**The response was NOT to weaken the policy.** `redirect: 'manual'` is
+unchanged, all 3xx statuses are still refused, same-host hops are still refused,
+and `ALLOWED_HOSTS`, `ALLOWED_PATH_PREFIX` and the origin gates are byte-for-byte
+what they were. The fix was the sanctioned recovery path this ADR already
+prescribed: **the new location was read out of the refusal and written into
+`ECHE_DOCUMENT_PAGE` as a reviewed source edit**, where a reviewer sees it in a
+diff. The new value earns its trust by passing `assertOfficialPageUrl` in its own
+right — https, an allow-listed host, no userinfo, no explicit port — with no
+special case anywhere.
+
+**The new page yields the same artifact.** Run through the existing
+`extractCandidates` + `assertOfficialUrl` logic, the 200 response produced
+exactly one candidate,
+`https://erasmus-plus.ec.europa.eu/sites/default/files/2026-08/accredited-HEIs-Erasmus-2021-2027_17082026_1.xlsx`
+— the same file URL Phase 1A and Phase 1B discovered from the old page. The
+spreadsheet bytes were **not** requested: this was a discovery check, not an
+ingest, and nothing was written to any database.
+
+`ECHE_DOCUMENT_PAGE` is now pinned by a unit test, so a future move is a
+reviewed edit rather than a silent one, and a further test asserts that a `301`
+from the document page — a relative same-host `Location`, exactly the shape
+observed here — still fails closed without requesting the target.

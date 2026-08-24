@@ -355,7 +355,7 @@ through an access control, and no field is ever inferred, guessed or invented â€
 an unknown value is stored as `NULL`.
 
 **Source.** The ECHE list is published by the European Commission at
-[erasmus-plus.ec.europa.eu](https://erasmus-plus.ec.europa.eu/document/higher-education-institutions-holding-an-eche-2021-2027).
+[erasmus-plus.ec.europa.eu](https://erasmus-plus.ec.europa.eu/resources-and-tools/documents-and-guidelines/higher-education-institutions-holding-an-eche-2021-2027).
 Reuse is governed by the
 [European Commission legal notice](https://commission.europa.eu/legal-notice_en):
 content owned by the EU is licensed under **CC BY 4.0** under Commission Decision
