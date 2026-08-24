@@ -5,8 +5,10 @@ import pg from 'pg';
 import { testDatabaseUrl, type Role } from '../../config/env.js';
 import { assertTestDatabaseConnection, assertTestDatabaseUrl } from '../../db/safety.js';
 import type { ResolvedSource } from '../../ingest/eche/source.js';
+import type { FresrResolvedSource } from '../../ingest/fresr/source.js';
 
 export const FIXTURE_PATH = resolve(process.cwd(), 'src/test/fixtures/eche-sample.xlsx');
+export const FRESR_FIXTURE_PATH = resolve(process.cwd(), 'src/test/fixtures/fresr-sample.json');
 
 /** True when the separate integration-test database is configured. */
 export function databaseConfigured(): boolean {
@@ -34,6 +36,27 @@ export function fixtureSource(bytes?: Buffer): ResolvedSource {
 }
 
 /**
+ * The committed French-register fixture as a resolved source.
+ *
+ * Recorded as `operator_file` with NO asserted origin, which is the honest
+ * description of a hand-written fixture: it was never published anywhere, so
+ * its publication columns stay NULL.
+ */
+export function fresrFixtureSource(bytes?: Buffer): FresrResolvedSource {
+  const data = bytes ?? readFileSync(FRESR_FIXTURE_PATH);
+  return {
+    kind: 'operator_file',
+    readUrl: null,
+    filePath: FRESR_FIXTURE_PATH,
+    bytes: data,
+    sha256: createHash('sha256').update(data).digest('hex'),
+    fetchedAt: new Date('2026-08-24T00:00:00.000Z'),
+    publicationUrl: null,
+    originRetrievedAt: null,
+  };
+}
+
+/**
  * Removes all ingested data while leaving the schema and grants in place.
  *
  * Asks the server which database it is connected to before truncating, so the
@@ -45,7 +68,8 @@ export async function truncateAll(target: pg.Pool): Promise<void> {
   // must be listed here too - otherwise a later run would fail on a dangling
   // foreign key and the failure would look like an ingest bug.
   await target.query(
-    `TRUNCATE ewp_api_declarations, ewp_host_covered_heis, ewp_hosts,
+    `TRUNCATE website_claims, website_source_snapshots,
+              ewp_api_declarations, ewp_host_covered_heis, ewp_hosts,
               ewp_hei_other_ids, ewp_heis, ewp_snapshots,
               organisation_sources, organisations, ingest_runs CASCADE`,
   );
