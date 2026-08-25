@@ -230,6 +230,10 @@ describe('PHASE-2B-FIREWALL: this slice added no capability at all', () => {
       'parse5',
       'htmlparser2',
       'domhandler',
+      '@mozilla/readability',
+      'readability',
+      'defuddle',
+      'turndown',
       'robots-parser',
       'sitemapper',
       'metascraper',
@@ -317,26 +321,34 @@ describe('PHASE-2B-FIREWALL: exactly one institution-website network call site',
     ]);
   });
 
-  it('built the gateway and NOTHING ELSE under it', () => {
-    // 2B-1b is the bounded network primitive. The policy readers, the frontier,
-    // the extractor, the charset handler, the signals, the candidates and the
-    // classifier all belong to later slices, and creating any of them now -
-    // even empty, even as a placeholder - would be building ahead of approval.
-    // A placeholder is exactly how an unreviewed capability gets its first
-    // import.
+  it('built the gateway, and 2B-1c added exactly the approved policy/evidence modules', () => {
+    // 2B-1b is the bounded network primitive. 2B-1c added robots evaluation,
+    // charset resolution, HTML extraction, PII redaction and page-evidence
+    // persistence - all named in ADR 0006 BEFORE they existed, the same
+    // discipline ADR 0004 s5 used for the gateway itself. The frontier, the
+    // sitemap reader, the signals, the candidates and the classifier remain
+    // later slices, and creating any of them now - even empty, even as a
+    // placeholder - would be building ahead of approval. A placeholder is
+    // exactly how an unreviewed capability gets its first import.
     expect(exists(PHASE_2B_NETWORK_MODULE), 'the approved gateway is missing').toBe(true);
-    // hostPolicy.ts and robotsAuthority.ts are PURE boundary modules added by
-    // the trust-contract correction. Neither reads a network resource: one is a
-    // label list, the other is a capability type. The forbidden list below is
-    // unchanged, and every reader named in it is still absent.
-    expect(exists('src/orgunits/web/hostPolicy.ts')).toBe(true);
-    expect(exists('src/orgunits/web/robotsAuthority.ts')).toBe(true);
     for (const path of [
+      // Trust-contract-correction boundary modules (2B-1b). Neither reads a
+      // network resource: one is a label list, the other is a capability type.
+      'src/orgunits/web/hostPolicy.ts',
+      'src/orgunits/web/robotsAuthority.ts',
+      // 2B-1c: robots evaluation, network-free page-evidence derivation.
       'src/orgunits/web/robots.ts',
+      'src/orgunits/web/robotsPolicy.ts',
+      'src/orgunits/web/charset.ts',
+      'src/orgunits/web/extract.ts',
+      'src/orgunits/web/redact.ts',
+      'src/orgunits/web/pageEvidence.ts',
+    ]) {
+      expect(exists(path), `${path} is an approved module but is missing`).toBe(true);
+    }
+    for (const path of [
       'src/orgunits/web/sitemap.ts',
       'src/orgunits/web/frontier.ts',
-      'src/orgunits/web/extract.ts',
-      'src/orgunits/web/charset.ts',
       'src/orgunits/signals',
       'src/orgunits/candidates',
       'src/orgunits/classify',
@@ -443,16 +455,34 @@ describe('PHASE-2B-FIREWALL: exactly one institution-website network call site',
     }
   });
 
-  it('reads no HTML and consults no site policy file', () => {
-    // 2B-1b is the network primitive. Extraction, charset handling and any
-    // reader of a site's own policy files belong to later slices.
+  it('parses no HTML with a DOM API, and reads no sitemap', () => {
+    // ADR 0004 s15/s22: extract.ts reads HTML with regular expressions over
+    // decoded text, deliberately never a DOM. No Phase 2B file may import one,
+    // and no file may consult a sitemap - that reader stays absent (asserted
+    // above) and unreferenced.
     for (const file of PHASE_2B_FILES) {
       const source = read(file);
-      expect(source, `${file} parses HTML`).not.toMatch(
+      expect(source, `${file} parses HTML with a DOM API`).not.toMatch(
         /\b(parseHTML|innerHTML|querySelectorAll|JSDOM|DOMParser)\b/,
       );
-      expect(source, `${file} requests a policy file`).not.toContain('robots.txt');
       expect(source, `${file} requests a sitemap`).not.toContain('sitemap.xml');
+    }
+  });
+
+  it('confines "robots.txt" to the files ADR 0006 approved to name it', () => {
+    // Every OTHER Phase 2B file - the gateway's request-scope machinery,
+    // charset resolution, extraction, redaction, page-evidence persistence -
+    // has no business naming the policy resource at all: doing so would mean
+    // it was reaching for a bypass rather than going through robots.ts.
+    const approved = new Set([
+      'src/orgunits/web/robots.ts',
+      'src/orgunits/web/robotsPolicy.ts',
+      'src/orgunits/web/robotsAuthority.ts',
+      PHASE_2B_NETWORK_MODULE, // gateway.ts's own docs explain the scoping mechanism
+    ]);
+    for (const file of PHASE_2B_FILES) {
+      if (approved.has(file)) continue;
+      expect(read(file), `${file} names robots.txt`).not.toContain('robots.txt');
     }
   });
 
@@ -537,19 +567,114 @@ describe('PHASE-2B-FIREWALL: exactly one institution-website network call site',
     }
   });
 
-  it('has NO production caller of the gateway before the 2B-1c reader exists', () => {
-    // NETWORK PRIMITIVE EXISTS, NO LIVE ORCHESTRATION EXISTS. Stated as an
-    // assertion so the transition is a reviewed edit: 2B-1c will deliberately
-    // widen this when a real site-policy-derived authority can be constructed.
+  it('names EXACTLY ONE production caller of the gateway: robots.ts', () => {
+    // 2B-1b's posture was NETWORK PRIMITIVE EXISTS, NO LIVE ORCHESTRATION
+    // EXISTS, stated as an assertion so this transition would be a reviewed
+    // edit rather than a discovery. This is that edit: `robots.ts` is the
+    // ONE production module that calls `executeWebAttempt`, because it is the
+    // one module that can construct a robots verdict from an ACTUAL policy
+    // evaluation rather than from caller-supplied data. A second production
+    // caller would mean a second place authorising live requests outside the
+    // reviewed robots-then-page composition.
     const callers = PRODUCTION_FILES.filter(
       (file) => file !== PHASE_2B_NETWORK_MODULE && /\bexecuteWebAttempt\s*\(/.test(code(file)),
     );
-    expect(callers, 'a production module already drives the gateway').toEqual([]);
+    expect(callers.sort()).toEqual(['src/orgunits/web/robots.ts']);
 
-    // And no CLI command reaches it either, by any route.
+    // And it constructs its authorities ONLY via the production factories -
+    // never the test-only seam, which is separately asserted absent from
+    // every production file above.
+    const robots = code('src/orgunits/web/robots.ts');
+    expect(robots, 'robots.ts does not construct a bootstrap authority').toMatch(
+      /RobotsAuthorisation\.forRobotsTxtBootstrap\s*\(/,
+    );
+    expect(robots, 'robots.ts does not construct an evaluated-policy authority').toMatch(
+      /RobotsAuthorisation\.forEvaluatedPolicy\s*\(/,
+    );
+
+    // No CLI command reaches the gateway, by any route - there is still no
+    // CLI entry point for research acquisition in this repository.
     for (const file of PRODUCTION_FILES.filter((f) => f.startsWith('src/cli/'))) {
       expect(code(file), `${file} imports the orgunit gateway`).not.toContain('orgunits/web');
     }
+  });
+
+  it('the robots.txt bootstrap authority is exact-path scoped, structurally', () => {
+    // s7: the ONLY production bypass of ordinary robots evaluation authorises
+    // the exact robots.txt request for the exact host being evaluated, and
+    // nothing else. Checked here as CODE (the validation exists and rejects a
+    // mismatch) rather than trusted from the unit tests alone, because this is
+    // exactly the kind of check a firewall exists to keep from regressing.
+    const authority = code('src/orgunits/web/robotsAuthority.ts');
+    expect(authority, 'forRobotsTxtBootstrap does not exist').toMatch(
+      /static forRobotsTxtBootstrap\s*\(/,
+    );
+    expect(authority, 'the bootstrap does not check the path is exactly /robots.txt').toMatch(
+      /pathname\s*!==\s*['"]\/robots\.txt['"]/,
+    );
+  });
+
+  it('declares NO generic robots-bypass flag anywhere in Phase 2B code', () => {
+    // The bootstrap above is the one, exact-path-scoped exception. Nothing
+    // else may exist that skips, ignores or force-authorises a request.
+    const banned = [
+      'skipRobots',
+      'ignoreRobots',
+      'forceAllowed',
+      'systemAuthorisation',
+      'bypassRobots',
+    ];
+    for (const file of PHASE_2B_FILES) {
+      const source = code(file);
+      for (const name of banned) {
+        expect(source, `${file} declares ${name}`).not.toContain(name);
+      }
+    }
+  });
+
+  it('keeps charset.ts, extract.ts, redact.ts, robotsPolicy.ts and pageEvidence.ts network-free', () => {
+    // Only gateway.ts may own a socket (asserted elsewhere); this restates it
+    // for exactly the five modules 2B-1c added, so the assertion names them
+    // and does not rely solely on the whole-namespace sweep to catch a
+    // regression in any one of them.
+    for (const file of [
+      'src/orgunits/web/charset.ts',
+      'src/orgunits/web/extract.ts',
+      'src/orgunits/web/redact.ts',
+      'src/orgunits/web/robotsPolicy.ts',
+      'src/orgunits/web/pageEvidence.ts',
+    ]) {
+      const source = code(file);
+      expect(source, `${file} calls fetch`).not.toMatch(/\bfetch\s*\(/);
+      expect(source, `${file} imports a network module`).not.toMatch(
+        /from\s+['"]node:(net|tls|http|https|dns)['"]/,
+      );
+    }
+  });
+
+  it('never persists a mailto: or tel: TARGET anywhere in Phase 2B code', () => {
+    // redact.ts is the ONE file allowed to name these schemes - it exists
+    // specifically to turn a mailto/tel target into [EMAIL]/[PHONE] rather
+    // than storing it. Any other Phase 2B file naming one is either about to
+    // persist a contact target or has grown an anchor/link feature this slice
+    // does not build.
+    for (const file of PHASE_2B_FILES) {
+      if (file === 'src/orgunits/web/redact.ts') continue;
+      const source = code(file);
+      expect(source, `${file} names the mailto: scheme`).not.toMatch(/mailto:/i);
+      expect(source, `${file} names the tel: scheme`).not.toMatch(/['"]tel:/i);
+    }
+  });
+
+  it('every fetch observation an ordinary page attempt WOULD generate goes through this one gateway call', () => {
+    // robots.ts issues at most one page-fetch call per authorised page, and it
+    // is always executeWebAttempt - never a second, home-grown HTTP path.
+    const robots = code('src/orgunits/web/robots.ts');
+    const calls = robots.match(/executeWebAttempt\s*\(/g) ?? [];
+    // Two call SITES are expected in source (the robots.txt bootstrap fetch,
+    // and the ordinary-page fetch) - not two REQUESTS per invocation, which
+    // the request-count integration tests prove separately.
+    expect(calls.length).toBe(2);
   });
 
   it('persists no credential from a redirect Location', () => {

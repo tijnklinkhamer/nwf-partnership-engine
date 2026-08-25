@@ -320,10 +320,18 @@ describe('PHASE-1D-FIREWALL: no PHASE 1D code fetches an institution website', (
 
   it('reads no HTML: no parser and no robots handling', () => {
     for (const file of PRODUCTION_FILES) {
-      const source = read(file);
-      expect(source, `${file} parses HTML`).not.toMatch(
+      expect(read(file), `${file} parses HTML`).not.toMatch(
         /\b(parseHTML|innerHTML|querySelectorAll|JSDOM|load\s*\(\s*html)\b/,
       );
+    }
+    // "requests robots.txt" / "requests a sitemap" are checked against PHASE
+    // 1D'S OWN FILES specifically, not every production file: Phase 2B-1c
+    // deliberately builds robots handling (ADR 0006), so `orgunits/web/*`
+    // legitimately names robots.txt - in code AND in the doc comments
+    // explaining the scoping mechanism. Phase 1D itself must still never
+    // mention either, because it fetches nothing from an institution at all.
+    for (const file of PHASE_1D_FILES) {
+      const source = read(file);
       expect(source, `${file} requests robots.txt`).not.toContain('robots.txt');
       expect(source, `${file} requests a sitemap`).not.toContain('sitemap.xml');
     }
