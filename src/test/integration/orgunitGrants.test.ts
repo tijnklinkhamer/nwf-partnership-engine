@@ -1,10 +1,15 @@
 /**
  * Proves the Phase 2B trust boundary is a DATABASE guarantee, not a convention.
  *
- * The whole append-only contract in ADR 0004 reduces to a claim about
- * privileges: the role that executes research can add evidence and can change
- * nothing - not its own past rows, and not one byte of Phase 1 source truth.
- * These tests are what make that claim checkable.
+ * Two claims reduce to privileges, and these tests are what make them checkable:
+ *
+ *   1. APPEND-ONLY. The role that executes research can add evidence and can
+ *      change nothing - not its own past rows, and not one byte of Phase 1
+ *      source truth.
+ *   2. SEPARATION OF POWERS. The role that OBSERVES a cross-domain redirect
+ *      cannot APPROVE it. nwf_research holds SELECT and no INSERT on the root
+ *      promotion and revocation tables, so the automated process is
+ *      structurally incapable of granting itself a new crawl root.
  *
  * They run against nwf_pe_test, never the working database.
  */
@@ -35,21 +40,28 @@ async function expectDenied(fn: () => Promise<unknown>): Promise<void> {
   throw new Error('Expected the statement to be denied, but it succeeded.');
 }
 
-const ORGUNIT_TABLES = [
+/** Tables nwf_research both reads and appends to. */
+const RESEARCH_EVIDENCE_TABLES = [
   'orgunit_research_runs',
   'orgunit_research_run_completions',
   'orgunit_fetch_observations',
   'orgunit_redirect_observations',
-  'orgunit_root_promotion_events',
   'orgunit_page_evidence',
   'orgunit_page_candidates',
 ];
+
+/** Tables nwf_research may only READ: root authority is the operator's. */
+const ROOT_AUTHORITY_TABLES = ['orgunit_root_promotions', 'orgunit_root_promotion_revocations'];
+
+const ALL_ORGUNIT_TABLES = [...RESEARCH_EVIDENCE_TABLES, ...ROOT_AUTHORITY_TABLES];
 
 describeDb('Phase 2B research grants (integration)', () => {
   let admin: pg.Pool;
   let research: pg.Pool;
   let readonly: pg.Pool;
   let root: OrgunitRootFixture;
+  /** A redirect observation the operator could legitimately promote. */
+  let promotableRedirectId: string;
 
   beforeAll(async () => {
     admin = adminPool();
@@ -57,6 +69,33 @@ describeDb('Phase 2B research grants (integration)', () => {
     readonly = readonlyPool();
     await truncateAll(admin);
     root = await seedOrgunitRoot(admin);
+
+    const run = await admin.query<{ id: string }>(
+      `INSERT INTO orgunit_research_runs
+         (started_at, network_vantage, fetch_policy_version, rule_version)
+       VALUES (now(), 'local-dev', 'fetch-1', 'rules-1') RETURNING id`,
+    );
+    const fetch = await admin.query<{ id: string }>(
+      `INSERT INTO orgunit_fetch_observations
+         (run_id, root_website_claim_id, eche_row_key, requested_url,
+          requested_host, requested_registrable_domain, discovery_method,
+          http_status, robots_decision, fetch_policy_version, observed_at)
+       VALUES ($1, $2, $3, 'https://www.example.ac.uk/seed', 'www.example.ac.uk',
+               'example.ac.uk', 'ROOT', 301, 'ALLOWED', 'fetch-1', now())
+       RETURNING id`,
+      [run.rows[0]!.id, root.websiteClaimId, root.echeRowKey],
+    );
+    const redirect = await admin.query<{ id: string }>(
+      `INSERT INTO orgunit_redirect_observations
+         (fetch_observation_id, http_status, to_url_raw, to_url_resolved,
+          target_malformed, scheme_downgraded, host_changed,
+          registrable_domain_changed, observed_at)
+       VALUES ($1, 301, 'https://www.example.edu/', 'https://www.example.edu/',
+               false, false, true, true, now())
+       RETURNING id`,
+      [fetch.rows[0]!.id],
+    );
+    promotableRedirectId = redirect.rows[0]!.id;
   });
 
   afterAll(async () => {
@@ -125,11 +164,130 @@ describeDb('Phase 2B research grants (integration)', () => {
     });
   });
 
+  describe('SEPARATION OF POWERS: research observes, the operator approves', () => {
+    it.each(ROOT_AUTHORITY_TABLES)(
+      'may READ %s, so a run can see what is authorised',
+      async (table) => {
+        // A run has to know which roots are approved and which of those were
+        // revoked, or it cannot decide what it may fetch. Reading is the whole
+        // of its interest here.
+        await expect(research.query(`SELECT count(*) FROM ${table}`)).resolves.toBeDefined();
+      },
+    );
+
+    it('may NOT approve a root', async () => {
+      // THE CENTRAL ASSERTION OF THIS FILE. The process that discovers a
+      // cross-domain redirect must not hold the privilege to approve itself.
+      await expectDenied(() =>
+        research.query(
+          `INSERT INTO orgunit_root_promotions
+             (redirect_observation_id, redirect_target_malformed,
+              redirect_scheme_downgraded, redirect_domain_changed,
+              actor_key, approved_at)
+           VALUES ($1, false, false, true, 'rogue-run', now())`,
+          [promotableRedirectId],
+        ),
+      );
+    });
+
+    it('may NOT revoke a root either', async () => {
+      // Withdrawal is operator authority too. A run that could revoke could
+      // strip a competing root, which is the same power in the other direction.
+      const promotion = await admin.query<{ id: string }>(
+        `INSERT INTO orgunit_root_promotions
+           (redirect_observation_id, redirect_target_malformed,
+            redirect_scheme_downgraded, redirect_domain_changed,
+            actor_key, approved_at)
+         VALUES ($1, false, false, true, 'owner-cli', now()) RETURNING id`,
+        [promotableRedirectId],
+      );
+      await expectDenied(() =>
+        research.query(
+          `INSERT INTO orgunit_root_promotion_revocations
+             (promotion_id, actor_key, revoked_at)
+           VALUES ($1, 'rogue-run', now())`,
+          [promotion.rows[0]!.id],
+        ),
+      );
+    });
+
+    it('the trusted owner path CAN approve and revoke', async () => {
+      // The counterpart assertion: a boundary that also blocks the legitimate
+      // path is not a boundary, it is a bug. Approval travels the existing
+      // owner credential - no new role, API or UI was introduced.
+      const fetch = await admin.query<{ id: string }>(
+        `INSERT INTO orgunit_fetch_observations
+           (run_id, root_website_claim_id, eche_row_key, requested_url,
+            requested_host, requested_registrable_domain, discovery_method,
+            http_status, robots_decision, fetch_policy_version, observed_at)
+         SELECT run_id, root_website_claim_id, eche_row_key,
+                'https://www.example.ac.uk/owner-path', requested_host,
+                requested_registrable_domain, 'ROOT', 301, 'ALLOWED',
+                fetch_policy_version, now()
+           FROM orgunit_fetch_observations
+          WHERE root_website_claim_id IS NOT NULL
+          LIMIT 1
+         RETURNING id`,
+      );
+      const redirect = await admin.query<{ id: string }>(
+        `INSERT INTO orgunit_redirect_observations
+           (fetch_observation_id, http_status, to_url_raw, to_url_resolved,
+            target_malformed, scheme_downgraded, host_changed,
+            registrable_domain_changed, observed_at)
+         VALUES ($1, 301, 'https://www.owner-path.edu/', 'https://www.owner-path.edu/',
+                 false, false, true, true, now())
+         RETURNING id`,
+        [fetch.rows[0]!.id],
+      );
+      const promotion = await admin.query<{ id: string }>(
+        `INSERT INTO orgunit_root_promotions
+           (redirect_observation_id, redirect_target_malformed,
+            redirect_scheme_downgraded, redirect_domain_changed,
+            actor_key, approved_at, reason)
+         VALUES ($1, false, false, true, 'owner-cli', now(),
+                 'observed 301 onto the register value')
+         RETURNING id`,
+        [redirect.rows[0]!.id],
+      );
+      expect(promotion.rows[0]!.id).toBeTruthy();
+
+      const revocation = await admin.query<{ id: string }>(
+        `INSERT INTO orgunit_root_promotion_revocations
+           (promotion_id, actor_key, revoked_at, reason)
+         VALUES ($1, 'owner-cli', now(), 'target went dark') RETURNING id`,
+        [promotion.rows[0]!.id],
+      );
+      expect(revocation.rows[0]!.id).toBeTruthy();
+    });
+
+    it('lets research CONSUME an approved root it could not have created', async () => {
+      // The third leg of the model: observe, (operator) decide, consume.
+      const promotion = await admin.query<{ id: string }>(
+        `SELECT id FROM orgunit_root_promotions ORDER BY approved_at LIMIT 1`,
+      );
+      const run = await research.query<{ id: string }>(
+        `INSERT INTO orgunit_research_runs
+           (started_at, network_vantage, fetch_policy_version, rule_version)
+         VALUES (now(), 'local-dev', 'fetch-1', 'rules-1') RETURNING id`,
+      );
+      const { rows } = await research.query<{ id: string }>(
+        `INSERT INTO orgunit_fetch_observations
+           (run_id, root_promotion_id, eche_row_key, requested_url,
+            requested_host, requested_registrable_domain, discovery_method,
+            http_status, robots_decision, fetch_policy_version, observed_at)
+         VALUES ($1, $2, $3, 'https://www.example.edu/consumed', 'www.example.edu',
+                 'example.edu', 'ROOT', 200, 'ALLOWED', 'fetch-1', now())
+         RETURNING id`,
+        [run.rows[0]!.id, promotion.rows[0]!.id, root.echeRowKey],
+      );
+      expect(rows[0]!.id).toBeTruthy();
+    });
+  });
+
   describe('nwf_research may INSERT its own evidence', () => {
-    it('writes a full chain: run, fetch, redirect, promotion, page, candidate', async () => {
-      // One end-to-end insert as the research role. It doubles as proof that
-      // the grants are sufficient - an append-only contract that blocks the
-      // legitimate write path is just a broken one.
+    it('writes a full chain: run, fetch, redirect, page, candidate, completion', async () => {
+      // An append-only contract that blocks the legitimate write path is just
+      // a broken one, so the whole research-owned chain is exercised here.
       const run = await research.query<{ id: string }>(
         `INSERT INTO orgunit_research_runs
            (started_at, network_vantage, fetch_policy_version, rule_version)
@@ -148,7 +306,6 @@ describeDb('Phase 2B research grants (integration)', () => {
          RETURNING id`,
         [runId, root.websiteClaimId, root.echeRowKey, root.organisationId],
       );
-      const fetchId = fetch.rows[0]!.id;
 
       const redirect = await research.query<{ id: string }>(
         `INSERT INTO orgunit_redirect_observations
@@ -158,21 +315,11 @@ describeDb('Phase 2B research grants (integration)', () => {
          VALUES ($1, 301, 'https://www.example.edu/', 'https://www.example.edu/',
                  false, false, true, true, now())
          RETURNING id`,
-        [fetchId],
+        [fetch.rows[0]!.id],
       );
+      expect(redirect.rows[0]!.id).toBeTruthy();
 
-      const promotion = await research.query<{ id: string }>(
-        `INSERT INTO orgunit_root_promotion_events
-           (redirect_observation_id, target_url, decision, decided_by, decided_at, reason)
-         VALUES ($1, 'https://www.example.edu/', 'APPROVE', 'operator-a', now(),
-                 'observed 301 onto the register value')
-         RETURNING id`,
-        [redirect.rows[0]!.id],
-      );
-      expect(promotion.rows[0]!.id).toBeTruthy();
-
-      // A page needs a fetch that actually returned a body.
-      const pageFetch = await research.query<{ id: string }>(
+      const pageFetch = await research.query<{ id: string; root_key: string }>(
         `INSERT INTO orgunit_fetch_observations
            (run_id, root_website_claim_id, eche_row_key, requested_url,
             requested_host, requested_registrable_domain, discovery_method,
@@ -184,29 +331,28 @@ describeDb('Phase 2B research grants (integration)', () => {
                  'https://www.example.ac.uk/', 200, 'text/html', 'utf-8',
                  'HTTP_HEADER', 'DECLARED', repeat('b', 64), 4096,
                  'ALLOWED', 'fetch-1', now())
-         RETURNING id`,
+         RETURNING id, root_key`,
         [runId, root.websiteClaimId, root.echeRowKey],
       );
 
       const page = await research.query<{ id: string }>(
         `INSERT INTO orgunit_page_evidence
-           (fetch_observation_id, title, declared_lang, headings, main_text,
-            main_text_chars, extraction_method, rule_version, observed_at)
-         VALUES ($1, 'International', 'en', '[]'::jsonb, 'text', 4,
+           (fetch_observation_id, root_key, title, declared_lang, headings,
+            main_text, main_text_chars, extraction_method, rule_version, observed_at)
+         VALUES ($1, $2, 'International', 'en', '[]'::jsonb, 'text', 4,
                  'MAIN_ELEMENT', 'rules-1', now())
          RETURNING id`,
-        [pageFetch.rows[0]!.id],
+        [pageFetch.rows[0]!.id, pageFetch.rows[0]!.root_key],
       );
 
       const candidate = await research.query<{ id: string }>(
         `INSERT INTO orgunit_page_candidates
-           (page_evidence_id, run_id, eche_row_key, organisation_id,
-            root_website_claim_id, track, type_hint, candidate_score, signals,
-            rank_within_root, rule_version)
-         VALUES ($1, $2, $3, $4, $5, 'INTERNATIONAL_OFFICE', 'UNCLEAR', 8.5,
+           (page_evidence_id, run_id, root_key, track, type_hint,
+            candidate_score, signals, rank_within_root, rule_version)
+         VALUES ($1, $2, $3, 'INTERNATIONAL_OFFICE', 'UNCLEAR', 8.5,
                  '[]'::jsonb, 1, 'rules-1')
          RETURNING id`,
-        [page.rows[0]!.id, runId, root.echeRowKey, root.organisationId, root.websiteClaimId],
+        [page.rows[0]!.id, runId, pageFetch.rows[0]!.root_key],
       );
       expect(candidate.rows[0]!.id).toBeTruthy();
 
@@ -220,11 +366,11 @@ describeDb('Phase 2B research grants (integration)', () => {
   });
 
   describe('nwf_research can change NOTHING', () => {
-    it.each(ORGUNIT_TABLES)('may NOT UPDATE %s', async (table) => {
+    it.each(ALL_ORGUNIT_TABLES)('may NOT UPDATE %s', async (table) => {
       await expectDenied(() => research.query(`UPDATE ${table} SET created_at = now()`));
     });
 
-    it.each(ORGUNIT_TABLES)('may NOT DELETE from %s', async (table) => {
+    it.each(ALL_ORGUNIT_TABLES)('may NOT DELETE from %s', async (table) => {
       await expectDenied(() => research.query(`DELETE FROM ${table}`));
     });
 
@@ -232,6 +378,10 @@ describeDb('Phase 2B research grants (integration)', () => {
       // Chosen because nothing references it, so the only possible refusal is
       // the privilege one this test is about.
       await expectDenied(() => research.query('TRUNCATE orgunit_page_candidates'));
+    });
+
+    it('may NOT TRUNCATE root authority', async () => {
+      await expectDenied(() => research.query('TRUNCATE orgunit_root_promotion_revocations'));
     });
   });
 
@@ -270,7 +420,7 @@ describeDb('Phase 2B research grants (integration)', () => {
   });
 
   describe('nwf_readonly can audit Phase 2B evidence and change none of it', () => {
-    it.each(ORGUNIT_TABLES)('may SELECT %s', async (table) => {
+    it.each(ALL_ORGUNIT_TABLES)('may SELECT %s', async (table) => {
       await expect(readonly.query(`SELECT count(*) FROM ${table}`)).resolves.toBeDefined();
     });
 
@@ -280,6 +430,19 @@ describeDb('Phase 2B research grants (integration)', () => {
           `INSERT INTO orgunit_research_runs
              (started_at, network_vantage, fetch_policy_version, rule_version)
            VALUES (now(), 'x', 'x', 'x')`,
+        ),
+      );
+    });
+
+    it('may NOT approve a root either', async () => {
+      await expectDenied(() =>
+        readonly.query(
+          `INSERT INTO orgunit_root_promotions
+             (redirect_observation_id, redirect_target_malformed,
+              redirect_scheme_downgraded, redirect_domain_changed,
+              actor_key, approved_at)
+           VALUES ($1, false, false, true, 'auditor', now())`,
+          [promotableRedirectId],
         ),
       );
     });
@@ -336,7 +499,7 @@ describeDb('Phase 2B research grants (integration)', () => {
       expect(rows[0]!.granted).toBe(true);
     });
 
-    it('grants nwf_research no privilege beyond SELECT and INSERT on any table', async () => {
+    it('grants nwf_research SELECT everywhere and INSERT only on evidence', async () => {
       // Read from the catalogue rather than from the migration text: this is
       // the state that actually exists, whatever the SQL appears to say.
       const { rows } = await admin.query<{ table_name: string; privilege_type: string }>(
@@ -357,7 +520,14 @@ describeDb('Phase 2B research grants (integration)', () => {
         .filter((row) => row.privilege_type === 'INSERT')
         .map((row) => row.table_name)
         .sort();
-      expect(writable).toEqual([...ORGUNIT_TABLES].sort());
+      // Exactly the evidence tables. Neither root-authority table appears.
+      expect(writable).toEqual([...RESEARCH_EVIDENCE_TABLES].sort());
+
+      const readable = rows
+        .filter((row) => row.privilege_type === 'SELECT')
+        .map((row) => row.table_name)
+        .sort();
+      expect(readable).toEqual([...ALL_ORGUNIT_TABLES, 'organisations', 'website_claims'].sort());
     });
   });
 });

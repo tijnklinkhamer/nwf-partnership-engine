@@ -15,7 +15,7 @@ the ECHE list, the EWP Registry catalogue and the French Ministry register of
 higher-education institutions — lets you inspect them, and measures how their
 published identifiers and website values relate. That is all it DOES.**
 
-**Migration 0007 additionally creates seven empty `orgunit_*` tables and the
+**Migration 0007 additionally creates eight empty `orgunit_*` tables and the
 `nwf_research` role for a future phase of bounded first-party web acquisition.
 NOTHING USES THEM.** There is no `src/orgunits/` directory, no acquisition
 gateway, no crawler, no ranking code and no CLI command; every one of those
@@ -137,11 +137,16 @@ it, or depend on it, and must never touch learner, payment, or payout data.
     why a promotion is withdrawn by appending a `REVOKE`. Never grant it a
     mutating privilege, and never give it access to a Phase 1 truth table.
 16. **A cross-domain redirect target cannot become a research root without an
-    explicit stored operator decision.** Not by inference, not by matching some
-    other stored value, not by being observed twice. The only path is a row in
-    `orgunit_root_promotion_events`, and the root XOR on
-    `orgunit_fetch_observations` enforces it. Promotion never edits a website
-    claim and never elects a winner.
+    explicit stored operator decision, and `nwf_research` cannot make that
+    decision.** The role that runs acquisition is the role that observes the
+    redirect, so it holds `SELECT` and **no `INSERT`** on
+    `orgunit_root_promotions` and `orgunit_root_promotion_revocations` -
+    approval travels the trusted owner path. An approval stores no URL of its
+    own (the target IS the referenced observation's `to_url_resolved`), and
+    foreign-key structure refuses a malformed target, an HTTPS->HTTP downgrade
+    and a same-registrable-domain hop. Approval and revocation are SEPARATE
+    tables so that a revocation is structurally incapable of authorising a
+    fetch. Promotion never edits a website claim and never elects a winner.
 17. **No response body is ever stored, and `src/orgunits/` is the only research
     namespace.** The bytes are a SHA-256 and a length; extracted text is capped
     by a `CHECK`. There is no `raw_html`, `page_html` or `response_body` column
@@ -392,30 +397,53 @@ npm run cli -- website conflicts
 ## What Phase 2B-1a established
 
 Schema, a role, a firewall and ADR 0004. **No behaviour.** Migration 0007
-creates seven tables that will hold research evidence when a later slice writes
-the code that produces it; today all seven are empty and the repository still
+creates eight tables that will hold research evidence when a later slice writes
+the code that produces it; today all eight are empty and the repository still
 has ZERO institution-website network call sites.
 
-| table                              | one row means                                                  |
-| ---------------------------------- | -------------------------------------------------------------- |
-| `orgunit_research_runs`            | one immutable execution identity and its configuration         |
-| `orgunit_research_run_completions` | the append-only terminal event; at most one per run            |
-| `orgunit_fetch_observations`       | one outbound request and what came back                        |
-| `orgunit_redirect_observations`    | one observed 3xx edge, as separate facts                       |
-| `orgunit_root_promotion_events`    | one operator decision to promote (or revoke) a redirect target |
-| `orgunit_page_evidence`            | one parsed page, reduced to capped derived text                |
-| `orgunit_page_candidates`          | one deterministic RANK over page evidence                      |
+| table                                | one row means                                             |
+| ------------------------------------ | --------------------------------------------------------- |
+| `orgunit_research_runs`              | one immutable execution identity and its configuration    |
+| `orgunit_research_run_completions`   | the append-only terminal event; at most one per run       |
+| `orgunit_fetch_observations`         | one HTTP ATTEMPT and what came back                       |
+| `orgunit_redirect_observations`      | one observed 3xx edge, as separate facts                  |
+| `orgunit_root_promotions`            | one operator APPROVAL of one observed cross-domain target |
+| `orgunit_root_promotion_revocations` | one append-only withdrawal of an approval                 |
+| `orgunit_page_evidence`              | one parsed page, reduced to capped derived text           |
+| `orgunit_page_candidates`            | one deterministic RANK over page evidence                 |
 
-Seven rather than the five originally sketched, and the two extra ones are the
-whole point:
+Eight rather than the five originally sketched, and the three extra ones are
+the whole point:
 
 - **A run's terminal state is its own table** because `nwf_research` has no
   `UPDATE` grant, so `INSERT run; ... UPDATE run SET status` is not a thing it
   can do. Status is DERIVED from whether a completion row exists.
-- **Promotion is its own table** because the original sketch had no way to
+- **Root approval is its own table** because the original sketch had no way to
   record the transition from "a cross-domain redirect was observed" to "an
   operator approved fetching there", and without it that transition would have
   had to be inferred - which is exactly what rule 16 forbids.
+- **Revocation is a THIRD table, not a `decision` column on the second.** With
+  one event table carrying `APPROVE`/`REVOKE`, a fetch's root reference could
+  point at a REVOKE row and only application convention would stop it. Split,
+  `root_promotion_id` targets the APPROVAL table and no foreign key anywhere
+  points at revocations, so "a revocation cannot authorise a fetch" is provable
+  from `pg_constraint` rather than remembered.
+
+**The fetch grain is ONE HTTP ATTEMPT, not one URL.** `attempt_no` is part of
+the identity index, because the acquisition policy permits retries and a retry
+is evidence - the holdout burned twelve 30-second connect timeouts on one
+university's internal service estate, and a URL-keyed index would have let the
+successful retry conflict the failure away.
+
+**Downstream tables carry NO duplicated provenance.** `eche_row_key`,
+`organisation_id` and the root columns live on the fetch observation ONCE and
+are reached by join. The one value carried downstream is `root_key`, which is
+`GENERATED ALWAYS` on the fetch (`claim:<uuid>` / `promotion:<uuid>`) and pinned
+by composite foreign keys candidate -> page -> fetch. A candidate claiming a
+root its own page's fetch does not have is rejected BY THE DATABASE. A single
+generated key rather than the nullable root pair, because a composite foreign
+key over nullable columns is not enforced at all when any of them is NULL - and
+exactly one root column is always NULL.
 
 Things that are DELIBERATELY ABSENT, and must stay absent:
 
@@ -431,13 +459,22 @@ Things that are DELIBERATELY ABSENT, and must stay absent:
   Letting inheritance reach the second would turn "worth trying" into "worth
   reporting". Keep them separate whenever the frontier becomes durable.
 - No `raw_html` / `page_html` / `response_body`, in this or any migration.
+  `main_text` is capped at 40,000 characters by a `CHECK`, with longer pages
+  recorded as `main_text_truncated` rather than rejected. The number is a design
+  bound - roughly an order of magnitude above a long unit page after extraction,
+  and an order of magnitude below a raw response - not a measurement. Changing
+  it is a new migration.
 - No `target_language`, `partner_country`, `country_code`, `locale` or `market`.
   Both research samples so far were French; that is a property of the SAMPLE.
   `orgunit_page_evidence.declared_lang` is the DOCUMENT's own declaration and
   nothing else - never a learner language and never a country signal.
-- No contact column anywhere. `orgunit_root_promotion_events.decided_by` is an
-  operator LABEL and carries a `CHECK` refusing an at-sign, so the one audit
-  field with a name in it cannot become the first stored mailbox.
+- No contact column anywhere. The audit field on a root decision is
+  `actor_key`, an OPAQUE KEY constrained to a lower-case slug
+  (`^[a-z0-9][a-z0-9_-]{2,63}$`) - not a mailbox, not a domain handle, not a
+  natural-language name. It names WHICH TRUSTED PATH acted (`owner-cli`), never
+  who. The constraint bounds the FORM only; a name typed as a slug would still
+  pass, so the prohibition is stated in the column comment and enforced by
+  review rather than pretended to be airtight.
 
 Every Phase 2B table is anchored on `eche_row_key`, and the two that also carry
 an `organisation_id` — `orgunit_fetch_observations` and

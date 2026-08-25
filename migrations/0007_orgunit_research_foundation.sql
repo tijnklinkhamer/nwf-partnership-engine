@@ -31,8 +31,9 @@
 --
 -- THE APPEND-ONLY CONTRACT, AND WHY IT SHAPES THE TABLE LIST
 --
---   nwf_research receives SELECT and INSERT and NOTHING ELSE. No UPDATE, no
---   DELETE, no TRUNCATE, no TEMPORARY. That is not decoration: it is the reason
+--   nwf_research receives SELECT and INSERT and NOTHING ELSE - and on the two
+--   ROOT-AUTHORITY tables it receives SELECT ONLY. No UPDATE, no DELETE, no
+--   TRUNCATE, no TEMPORARY anywhere. That is not decoration: it is the reason
 --   several tables here look different from the obvious design.
 --
 --   A run cannot be INSERTed as 'running' and later UPDATEd to 'succeeded',
@@ -46,6 +47,18 @@
 --
 --   This mirrors what migrations 0003 and 0005 already do for source evidence,
 --   and for the same reason: evidence that can be edited is not evidence.
+--
+-- SEPARATION OF POWERS, WHICH IS THE POINT OF THIS SLICE
+--
+--   The automated research process OBSERVES a cross-domain redirect. An
+--   OPERATOR decides whether that exact observed target may become a research
+--   root. The automated process may then CONSUME an approved root.
+--
+--   The process that discovers a redirect must never hold the privilege needed
+--   to approve itself, so nwf_research has SELECT and NO INSERT on
+--   orgunit_root_promotions and orgunit_root_promotion_revocations. Approval
+--   travels the existing trusted owner path - the same credential that applies
+--   migrations - and no new role, credential, API or UI is introduced for it.
 
 -- ---------------------------------------------------------------------------
 -- A. orgunit_research_runs - one immutable execution identity.
@@ -90,10 +103,10 @@ COMMENT ON COLUMN orgunit_research_runs.network_vantage IS
 
 COMMENT ON COLUMN orgunit_research_runs.fetch_policy_version IS
     'Which version of the bounded acquisition policy - timeouts, byte caps, '
-    'concurrency, subdomain deny list, redirect handling - governed this run. '
-    'Stored so an observation always says what rules produced it, and carried '
-    'onto every fetch observation so a policy change yields NEW evidence rather '
-    'than a rewrite of old evidence.';
+    'concurrency, retry budget, subdomain deny list, redirect handling - '
+    'governed this run. Stored so an observation always says what rules '
+    'produced it, and carried onto every fetch observation so a policy change '
+    'yields NEW evidence rather than a rewrite of old evidence.';
 
 COMMENT ON COLUMN orgunit_research_runs.rule_version IS
     'Which version of the DETERMINISTIC ranking rules governed this run. '
@@ -155,13 +168,20 @@ COMMENT ON TABLE orgunit_research_run_completions IS
     'than as an UPDATE the executing role is not permitted to perform.';
 
 -- ---------------------------------------------------------------------------
--- C. orgunit_fetch_observations - one outbound request, one row.
+-- C. orgunit_fetch_observations - one HTTP ATTEMPT, one row.
 -- ---------------------------------------------------------------------------
 --
 -- NO ROW IS WRITTEN HERE BY THIS SLICE. Nothing in this repository fetches an
 -- institution website yet, and this migration does not change that. The table
 -- exists so that the trust boundaries a fetch must satisfy are settled and
 -- reviewed BEFORE the code that fetches is written.
+--
+-- THE GRAIN IS ONE ATTEMPT, NOT ONE URL. Phase 2B's acquisition policy allows
+-- conservative retries, and a retry is EVIDENCE: "the first attempt hit a
+-- connect timeout and the second returned 200" is precisely the transient
+-- network fact this layer exists to preserve. Keying identity on the URL alone
+-- would make the second attempt collide with the first and silently discard
+-- one of them, so attempt_no is part of the identity.
 --
 -- NO RESPONSE BODY IS EVER STORED. There is no raw_html, no response_body and
 -- no page_html column here or anywhere in this migration, and there must never
@@ -170,9 +190,9 @@ COMMENT ON TABLE orgunit_research_run_completions IS
 -- lives in orgunit_page_evidence and nowhere else.
 --
 -- The root-provenance columns are declared here but the foreign key to
--- orgunit_root_promotion_events is added further down: promotion events
--- reference redirect observations, which reference this table, so the three
--- tables form a cycle that CREATE TABLE alone cannot express.
+-- orgunit_root_promotions is added further down: promotions reference redirect
+-- observations, which reference this table, so the three tables form a cycle
+-- that CREATE TABLE alone cannot express.
 
 CREATE TABLE orgunit_fetch_observations (
     id                           uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -180,7 +200,7 @@ CREATE TABLE orgunit_fetch_observations (
 
     -- ROOT PROVENANCE. Exactly one of these is set; see the CHECK below.
     root_website_claim_id        uuid        REFERENCES website_claims (id),
-    root_promotion_event_id      uuid,
+    root_promotion_id            uuid,
 
     -- IDENTITY BOUNDARY. eche_row_key is the anchor, exactly as in
     -- website_claims; organisation_id is a nullable convenience link.
@@ -190,6 +210,8 @@ CREATE TABLE orgunit_fetch_observations (
     requested_url                text        NOT NULL,
     requested_host               text        NOT NULL,
     requested_registrable_domain text        NOT NULL,
+
+    attempt_no                   integer     NOT NULL DEFAULT 1,
 
     discovery_method             text        NOT NULL,
     discovery_parent_url         text,
@@ -217,14 +239,33 @@ CREATE TABLE orgunit_fetch_observations (
     observed_at                  timestamptz NOT NULL,
     created_at                   timestamptz NOT NULL DEFAULT now(),
 
+    -- THE ROOT, AS ONE NON-NULL VALUE THAT CANNOT DISAGREE WITH ITS SOURCE.
+    --
+    -- GENERATED ALWAYS, so no writer can set it independently of the two
+    -- columns it summarises. Downstream tables carry a copy of THIS value and
+    -- pin it with a composite foreign key, which is what makes it structurally
+    -- impossible for a page or a candidate to claim a root its own fetch does
+    -- not have. A plain nullable pair could not do that job: a composite
+    -- foreign key over nullable columns is not enforced at all when any of them
+    -- is NULL, and exactly one root column is always NULL here.
+    root_key                     text
+        GENERATED ALWAYS AS (
+            CASE
+                WHEN root_website_claim_id IS NOT NULL
+                    THEN 'claim:' || root_website_claim_id::text
+                WHEN root_promotion_id IS NOT NULL
+                    THEN 'promotion:' || root_promotion_id::text
+            END
+        ) STORED NOT NULL,
+
     -- EXACTLY ONE ROOT AUTHORITY. A fetch is either authorised by an official
-    -- website CLAIM, or by an explicit operator PROMOTION of an observed
+    -- website CLAIM, or by an explicit operator APPROVAL of an observed
     -- cross-domain redirect target. There is no third way to acquire a root,
     -- and in particular there is no "canonical website" anywhere to inherit one
     -- from.
     CONSTRAINT orgunit_fetch_observations_root_xor_chk
         CHECK ((root_website_claim_id IS NOT NULL)::int
-               + (root_promotion_event_id IS NOT NULL)::int = 1),
+               + (root_promotion_id IS NOT NULL)::int = 1),
 
     CONSTRAINT orgunit_fetch_observations_eche_row_key_chk
         CHECK (eche_row_key <> ''),
@@ -232,6 +273,8 @@ CREATE TABLE orgunit_fetch_observations (
         CHECK (requested_url ~ '^https?://'),
     CONSTRAINT orgunit_fetch_observations_host_chk
         CHECK (requested_host <> '' AND requested_registrable_domain <> ''),
+    CONSTRAINT orgunit_fetch_observations_attempt_no_chk
+        CHECK (attempt_no >= 1),
 
     CONSTRAINT orgunit_fetch_observations_discovery_method_chk
         CHECK (discovery_method IN
@@ -297,19 +340,25 @@ CREATE TABLE orgunit_fetch_observations (
         CHECK (fetch_policy_version <> '' AND length(fetch_policy_version) <= 64)
 );
 
--- IDEMPOTENCY, at the grain of "this run asked this root for this URL under
--- this policy". NULLS NOT DISTINCT is load-bearing: exactly one of the two root
--- columns is always NULL, and under the default NULL semantics every row would
--- be trivially distinct and the index would guarantee nothing.
+-- IDEMPOTENCY, at the grain of "this run's Nth attempt at this URL from this
+-- root under this policy".
 --
--- Deliberately NOT unique across runs. Re-observing the same URL in a later run
--- is the entire point of a research run, and collapsing that would destroy the
--- ability to see a site change.
+-- Every column is NOT NULL, because root_key replaced the nullable root pair -
+-- so this index needs no NULLS NOT DISTINCT and means exactly what it says.
+--
+-- Re-inserting the SAME attempt is a no-op under ON CONFLICT DO NOTHING. A
+-- RETRY is attempt_no + 1 and is a different row, so a failed first attempt is
+-- never conflicted away by the successful second. Re-observing the same URL in
+-- a LATER RUN is unconstrained, because seeing a site change over time is the
+-- entire point of a research run.
 CREATE UNIQUE INDEX orgunit_fetch_observations_dedupe_uidx
-    ON orgunit_fetch_observations (run_id, root_website_claim_id,
-                                   root_promotion_event_id, requested_url,
-                                   fetch_policy_version)
-    NULLS NOT DISTINCT;
+    ON orgunit_fetch_observations (run_id, root_key, requested_url,
+                                   fetch_policy_version, attempt_no);
+
+-- The target of the composite foreign key that pins a page's root to its own
+-- fetch's root. See orgunit_page_evidence.
+CREATE UNIQUE INDEX orgunit_fetch_observations_id_root_key_uidx
+    ON orgunit_fetch_observations (id, root_key);
 
 CREATE INDEX orgunit_fetch_observations_run_idx ON orgunit_fetch_observations (run_id);
 CREATE INDEX orgunit_fetch_observations_eche_row_key_idx
@@ -320,13 +369,33 @@ CREATE INDEX orgunit_fetch_observations_organisation_idx
     ON orgunit_fetch_observations (organisation_id) WHERE organisation_id IS NOT NULL;
 
 COMMENT ON TABLE orgunit_fetch_observations IS
-    'ONE OUTBOUND REQUEST, recorded immutably. It states what was requested and '
+    'ONE HTTP ATTEMPT, recorded immutably. It states what was requested and '
     'what came back - never what the response MEANT. NO RESPONSE BODY IS '
     'STORED: the bytes are represented by response_sha256 and byte_count only, '
     'and there is no raw_html, response_body or page_html column in this schema '
     'by deliberate design. Every row names the root authority that permitted '
     'the request, and the CHECK on those two columns means a request with no '
     'root authority cannot be recorded at all.';
+
+COMMENT ON COLUMN orgunit_fetch_observations.attempt_no IS
+    'WHICH ATTEMPT AT THIS URL THIS ROW IS, within this run and root, starting '
+    'at 1. It exists because the acquisition policy permits conservative '
+    'retries and a retry is EVIDENCE: without it the second attempt would '
+    'collide with the first on the identity index and one of them would be '
+    'silently discarded - which is exactly the transient network fact this '
+    'append-only layer exists to preserve. Attempts are separate immutable '
+    'rows; nothing is ever rewritten in place.';
+
+COMMENT ON COLUMN orgunit_fetch_observations.root_key IS
+    'GENERATED ALWAYS from the two root columns: ''claim:<uuid>'' or '
+    '''promotion:<uuid>''. It is the single NOT NULL handle on this fetch''s '
+    'root authority, and downstream tables carry a copy pinned by a composite '
+    'foreign key so a page or a candidate CANNOT claim a root its own fetch '
+    'does not have. Generated rather than written, so it can never disagree '
+    'with the columns it summarises; and a single non-null key rather than the '
+    'nullable pair, because a composite foreign key over nullable columns is '
+    'not enforced at all when any of them is NULL - and one root column is '
+    'always NULL here.';
 
 COMMENT ON COLUMN orgunit_fetch_observations.root_website_claim_id IS
     'ROOT TYPE 1: this fetch descends from an OFFICIAL SOURCE CLAIM about a '
@@ -336,10 +405,13 @@ COMMENT ON COLUMN orgunit_fetch_observations.root_website_claim_id IS
     'run that followed one of them says exactly which one. Nothing here elects '
     'a winner, and no preferred or canonical website exists to elect.';
 
-COMMENT ON COLUMN orgunit_fetch_observations.root_promotion_event_id IS
+COMMENT ON COLUMN orgunit_fetch_observations.root_promotion_id IS
     'ROOT TYPE 2: this fetch descends from a cross-domain redirect target that '
-    'an OPERATOR EXPLICITLY PROMOTED to a research root. A redirect target is '
-    'never a root by observation alone - see orgunit_root_promotion_events.';
+    'an OPERATOR EXPLICITLY APPROVED as a research root. It references '
+    'orgunit_root_promotions - the APPROVAL table - and there is no foreign key '
+    'from here to orgunit_root_promotion_revocations, so a revocation is '
+    'structurally incapable of authorising a fetch. A redirect target is never '
+    'a root by observation alone.';
 
 COMMENT ON COLUMN orgunit_fetch_observations.eche_row_key IS
     'THE ANCHOR: normalised(erasmus_code) || ''|'' || pic, identifying one ECHE '
@@ -353,7 +425,9 @@ COMMENT ON COLUMN orgunit_fetch_observations.organisation_id IS
     'website_claims made and for the same reason. Web evidence about a page '
     'must never be read as proof that two provisional organisation records are '
     'one entity, and a NOT NULL foreign key here would quietly imply exactly '
-    'that. Join on eche_row_key when you want completeness.';
+    'that. Join on eche_row_key when you want completeness. It is recorded ONCE, '
+    'here, and never copied onto page evidence or candidates - a duplicate is a '
+    'second place that can disagree.';
 
 COMMENT ON COLUMN orgunit_fetch_observations.response_sha256 IS
     'SHA-256 of the response bytes actually read, capped by the fetch policy. '
@@ -449,6 +523,23 @@ CREATE TABLE orgunit_redirect_observations (
 CREATE UNIQUE INDEX orgunit_redirect_observations_fetch_uidx
     ON orgunit_redirect_observations (fetch_observation_id);
 
+-- THE PROMOTION GATE, EXPRESSED AS A FOREIGN-KEY TARGET.
+--
+-- orgunit_root_promotions references (id, target_malformed, scheme_downgraded,
+-- registrable_domain_changed) and CHECKs the three facts to (false, false,
+-- true). The database therefore refuses, with no application code involved:
+--
+--   * approving a redirect whose target could not even be parsed;
+--   * approving an HTTPS -> HTTP downgrade;
+--   * "promoting" a hop that never left the registrable domain, which would be
+--     a root the run already had.
+--
+-- A malformed redirect stores NULL in the two boolean facts, and NULL never
+-- equals false, so such a row simply has no matching key here.
+CREATE UNIQUE INDEX orgunit_redirect_observations_promotable_uidx
+    ON orgunit_redirect_observations (id, target_malformed, scheme_downgraded,
+                                      registrable_domain_changed);
+
 COMMENT ON TABLE orgunit_redirect_observations IS
     'ONE OBSERVED 3xx EDGE, stored as independent FACTS rather than as one '
     'lossy verdict. A cross-registrable-domain hop is RECORDED AND STOPPED: it '
@@ -463,6 +554,13 @@ COMMENT ON COLUMN orgunit_redirect_observations.to_url_raw IS
     'the request URL. Kept verbatim because a malformed or relative target is '
     'itself a finding, and repairing it in place would erase it.';
 
+COMMENT ON COLUMN orgunit_redirect_observations.to_url_resolved IS
+    'The target resolved against the request URL, or NULL when it could not be. '
+    'THIS COLUMN IS THE ONLY DEFINITION OF A PROMOTED ROOT''S URL: '
+    'orgunit_root_promotions deliberately stores no URL of its own, so an '
+    'approval cannot name a target different from the redirect it claims to be '
+    'approving.';
+
 COMMENT ON COLUMN orgunit_redirect_observations.host_changed IS
     'Whether the hop leaves the requested HOST. Deliberately separate from '
     'registrable_domain_changed: a hop from www.example.ac.uk to '
@@ -471,7 +569,7 @@ COMMENT ON COLUMN orgunit_redirect_observations.host_changed IS
     'could not be resolved, because then the question has no answer.';
 
 -- ---------------------------------------------------------------------------
--- G. orgunit_root_promotion_events - the explicit operator decision.
+-- G1. orgunit_root_promotions - the explicit operator APPROVAL.
 -- ---------------------------------------------------------------------------
 --
 -- THE INVARIANT THIS TABLE EXISTS TO ENFORCE:
@@ -483,93 +581,172 @@ COMMENT ON COLUMN orgunit_redirect_observations.host_changed IS
 --   not by the redirect being observed twice. The only path from "a site
 --   redirected somewhere else" to "we may fetch there" runs through a row in
 --   this table, and orgunit_fetch_observations enforces that with its root XOR:
---   a fetch whose root is a promotion must name the promotion event.
+--   a fetch whose root is a promotion must name the approval.
 --
--- WHY EVENTS RATHER THAN AN APPROVAL FLAG
+-- SEPARATION OF POWERS. nwf_research - the role that runs acquisition and
+-- therefore the role that OBSERVES redirects - holds SELECT on this table and
+-- NO INSERT. The process that discovers a cross-domain hop cannot approve
+-- itself. Approval travels the trusted owner path.
 --
---   An approval that can be withdrawn is a lifecycle, and a lifecycle stored as
---   a mutable flag needs UPDATE - which nwf_research does not have and must not
---   get. So a withdrawal is a NEW ROW with decision = 'REVOKE', the approval it
---   withdraws is left intact, and the CURRENT state is derived as the latest
---   applicable event. The history of who decided what, when, and why survives
---   in full, which is the only version of this that is auditable.
+-- THE APPROVAL CARRIES NO URL OF ITS OWN, DELIBERATELY. The promoted target is
+-- the referenced observation's to_url_resolved and nothing else, so an approval
+-- physically cannot say "observed example-a.edu, approved example-b.edu". The
+-- three mirrored redirect facts below are not data: they exist solely so the
+-- composite foreign key can refuse a malformed target, a scheme downgrade, and
+-- a hop that never left the registrable domain.
 --
---   Every promotion names the REDIRECT OBSERVATION that motivated it. A
---   promotion with no observed evidence behind it cannot be recorded.
+-- APPROVAL AND REVOCATION ARE SEPARATE TABLES, not one event stream with a
+-- decision column. In an event model a fetch's root_promotion_id could point at
+-- a REVOKE row and only application convention would stop it. Here a revocation
+-- lives in a different table that nothing may reference as authority, so
+-- "a revocation cannot authorise a fetch" is a property of the schema.
 
-CREATE TABLE orgunit_root_promotion_events (
-    id                      uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
-    redirect_observation_id uuid        NOT NULL
-                                        REFERENCES orgunit_redirect_observations (id),
-    target_url              text        NOT NULL,
-    decision                text        NOT NULL,
-    decided_by              text        NOT NULL,
-    decided_at              timestamptz NOT NULL,
-    reason                  text,
-    created_at              timestamptz NOT NULL DEFAULT now(),
+CREATE TABLE orgunit_root_promotions (
+    id                         uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    redirect_observation_id    uuid        NOT NULL,
+    -- Mirrored ONLY to be constrained; see the composite foreign key below.
+    redirect_target_malformed  boolean     NOT NULL,
+    redirect_scheme_downgraded boolean     NOT NULL,
+    redirect_domain_changed    boolean     NOT NULL,
+    actor_key                  text        NOT NULL,
+    approved_at                timestamptz NOT NULL,
+    reason                     text,
+    created_at                 timestamptz NOT NULL DEFAULT now(),
 
-    CONSTRAINT orgunit_root_promotion_events_decision_chk
-        CHECK (decision IN ('APPROVE', 'REVOKE')),
-    CONSTRAINT orgunit_root_promotion_events_target_url_chk
-        CHECK (target_url ~ '^https?://'),
-    -- An OPERATOR LABEL, not a contact record. The pattern check is the point:
-    -- this repository stores no addressable identifier for any person, and an
-    -- audit field is exactly where one would first appear by accident.
-    CONSTRAINT orgunit_root_promotion_events_decided_by_chk
-        CHECK (decided_by <> '' AND length(decided_by) <= 64
-               AND decided_by !~ '@'),
-    CONSTRAINT orgunit_root_promotion_events_reason_chk
+    -- Default REFUSE on all three. Widening any of them is a new migration and
+    -- a separately justified decision, not a runtime option.
+    CONSTRAINT orgunit_root_promotions_not_malformed_chk
+        CHECK (redirect_target_malformed = false),
+    CONSTRAINT orgunit_root_promotions_no_scheme_downgrade_chk
+        CHECK (redirect_scheme_downgraded = false),
+    CONSTRAINT orgunit_root_promotions_is_cross_domain_chk
+        CHECK (redirect_domain_changed = true),
+
+    -- AN OPAQUE ACTOR KEY, not a person. See the column comment.
+    CONSTRAINT orgunit_root_promotions_actor_key_chk
+        CHECK (actor_key ~ '^[a-z0-9][a-z0-9_-]{2,63}$'),
+    CONSTRAINT orgunit_root_promotions_reason_chk
+        CHECK (reason IS NULL OR length(reason) <= 1000),
+
+    CONSTRAINT orgunit_root_promotions_redirect_fk
+        FOREIGN KEY (redirect_observation_id, redirect_target_malformed,
+                     redirect_scheme_downgraded, redirect_domain_changed)
+        REFERENCES orgunit_redirect_observations
+            (id, target_malformed, scheme_downgraded, registrable_domain_changed)
+);
+
+-- IDEMPOTENCY WITHOUT LOSING HISTORY. Re-submitting the IDENTICAL approval -
+-- same observation, same actor, same instant - is a duplicate and collapses. A
+-- later re-approval of a revoked promotion differs by instant and is a new,
+-- separately auditable authority.
+CREATE UNIQUE INDEX orgunit_root_promotions_dedupe_uidx
+    ON orgunit_root_promotions (redirect_observation_id, actor_key, approved_at);
+
+CREATE INDEX orgunit_root_promotions_observation_idx
+    ON orgunit_root_promotions (redirect_observation_id, approved_at DESC);
+
+COMMENT ON TABLE orgunit_root_promotions IS
+    'ONE EXPLICIT OPERATOR APPROVAL of one observed cross-domain redirect '
+    'target as a research root. A redirect target is NEVER a root by '
+    'observation: the only way one becomes fetchable is a row here, and '
+    'orgunit_fetch_observations enforces that through its root XOR constraint. '
+    'nwf_research - the role that observes redirects - has SELECT and NO INSERT '
+    'here, so the automated process cannot approve itself. The approval stores '
+    'no URL: the promoted target IS the referenced observation''s '
+    'to_url_resolved, so it cannot name a different one. Approval changes '
+    'NOTHING about website_claims: no claim is edited, no winner is elected, '
+    'and no preferred or canonical website column comes into existence.';
+
+COMMENT ON COLUMN orgunit_root_promotions.redirect_target_malformed IS
+    'NOT DATA - a foreign-key discriminator. Pinned to false and carried into '
+    'the composite foreign key so the database itself refuses to approve a '
+    'redirect whose target could not be parsed. Read the referenced observation '
+    'for the fact; this column exists to make the refusal structural.';
+
+COMMENT ON COLUMN orgunit_root_promotions.redirect_scheme_downgraded IS
+    'NOT DATA - a foreign-key discriminator pinned to false, so an HTTPS -> '
+    'HTTP hop cannot become root authority. Allowing one would need a new '
+    'migration and its own justification, which is the point: it is a reviewed '
+    'schema change rather than an operator''s judgement call at 2am.';
+
+COMMENT ON COLUMN orgunit_root_promotions.redirect_domain_changed IS
+    'NOT DATA - a foreign-key discriminator pinned to true. Promotion exists '
+    'for hops that LEAVE the registrable domain; a same-domain hop is already '
+    'inside the root the run holds, so approving one would be a meaningless '
+    'grant of authority the run already had.';
+
+COMMENT ON COLUMN orgunit_root_promotions.actor_key IS
+    'AN OPAQUE KEY NAMING THE TRUSTED PATH THAT MADE THIS DECISION, for example '
+    '''owner-cli''. Lower-case, 3-64 characters, [a-z0-9_-] only - a form that '
+    'is not an address, not a domain and not a natural-language name. IT IS NOT '
+    'PERSON DATA AND MUST NEVER BE SET TO A PERSON''S NAME, an account handle '
+    'or a mailbox: this repository stores no addressable identifier for any '
+    'human, and an audit field is exactly where the first one would appear by '
+    'accident. The constraint bounds the FORM only - it cannot detect a name '
+    'typed as a slug - so the rule is stated here and enforced by review. What '
+    'the value must distinguish is WHICH TRUSTED PATH acted, not who.';
+
+-- ---------------------------------------------------------------------------
+-- G2. orgunit_root_promotion_revocations - withdrawal, append-only.
+-- ---------------------------------------------------------------------------
+--
+-- Withdrawing an approval is a NEW ROW here. The approval it withdraws is left
+-- byte-for-byte intact, because it is the historical record that a root WAS
+-- once authorised and that fetches were made under it - deleting or editing it
+-- would orphan that evidence.
+--
+-- A promoted root is ACTIVE when an approval exists and no revocation
+-- references it. That is a DERIVED question, answered by a join, and it is
+-- deliberately not a column anywhere.
+--
+-- Re-approval after revocation is a NEW APPROVAL row, not an edit here.
+
+CREATE TABLE orgunit_root_promotion_revocations (
+    id           uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+    promotion_id uuid        NOT NULL REFERENCES orgunit_root_promotions (id),
+    actor_key    text        NOT NULL,
+    revoked_at   timestamptz NOT NULL,
+    reason       text,
+    created_at   timestamptz NOT NULL DEFAULT now(),
+
+    CONSTRAINT orgunit_root_promotion_revocations_actor_key_chk
+        CHECK (actor_key ~ '^[a-z0-9][a-z0-9_-]{2,63}$'),
+    CONSTRAINT orgunit_root_promotion_revocations_reason_chk
         CHECK (reason IS NULL OR length(reason) <= 1000)
 );
 
--- IDEMPOTENCY WITHOUT LOSING HISTORY.
---
--- Re-submitting the IDENTICAL decision - same observation, same verdict, same
--- operator, same instant - is a duplicate and is collapsed. Anything else is a
--- genuinely different decision and is preserved: a REVOKE differs by verdict, a
--- later re-APPROVE differs by instant, another operator differs by label.
---
--- Deliberately NOT unique on target_url. Two different redirect observations
--- can name the same target, and each deserves its own reviewed decision;
--- deduping on the URL would let one approval silently authorise a root someone
--- never looked at.
-CREATE UNIQUE INDEX orgunit_root_promotion_events_dedupe_uidx
-    ON orgunit_root_promotion_events (redirect_observation_id, decision,
-                                      decided_by, decided_at);
+-- ONE REVOCATION PER APPROVAL. A second revocation of the same approval would
+-- say nothing new, and re-approval is a new approval row rather than an edit
+-- here, so this is a total statement about the approval's fate.
+CREATE UNIQUE INDEX orgunit_root_promotion_revocations_promotion_uidx
+    ON orgunit_root_promotion_revocations (promotion_id);
 
-CREATE INDEX orgunit_root_promotion_events_observation_idx
-    ON orgunit_root_promotion_events (redirect_observation_id, decided_at DESC);
+COMMENT ON TABLE orgunit_root_promotion_revocations IS
+    'APPEND-ONLY WITHDRAWAL of a root approval. The approval row is never '
+    'edited or deleted: it remains the record that a root was authorised and '
+    'that fetches were made under it. NOTHING REFERENCES THIS TABLE AS '
+    'AUTHORITY - orgunit_fetch_observations.root_promotion_id can only point at '
+    'an APPROVAL - so a revocation is structurally incapable of authorising a '
+    'fetch, rather than being prevented from doing so by convention. Whether a '
+    'root is currently active is DERIVED: an approval exists and no revocation '
+    'references it.';
 
-COMMENT ON TABLE orgunit_root_promotion_events IS
-    'APPEND-ONLY OPERATOR DECISIONS about promoting an observed cross-domain '
-    'redirect target to a research root. A redirect target is NEVER a root by '
-    'observation: the only way one becomes fetchable is a row here, and '
-    'orgunit_fetch_observations enforces that through its root XOR constraint. '
-    'A promotion is withdrawn by APPENDING a REVOKE, never by editing the '
-    'APPROVE, so the current state is derived from the latest applicable event '
-    'and the decision history is never lost. Promotion changes NOTHING about '
-    'website_claims: no claim is edited, no winner is elected, and no preferred '
-    'or canonical website column comes into existence.';
-
-COMMENT ON COLUMN orgunit_root_promotion_events.decided_by IS
-    'A SHORT OPERATOR LABEL identifying who made this call, for audit. It is '
-    'NOT contact data and must never become any: the CHECK constraint refuses a '
-    'value containing an at-sign precisely so this field cannot quietly turn '
-    'into the first stored mailbox in a repository that has none.';
-
-COMMENT ON COLUMN orgunit_root_promotion_events.target_url IS
-    'The EXACT target being considered, recorded on the decision itself rather '
-    'than only reached through the redirect observation. An operator approves a '
-    'specific URL, and the thing they approved must be readable without '
-    'depending on a join staying correct.';
+COMMENT ON COLUMN orgunit_root_promotion_revocations.actor_key IS
+    'AN OPAQUE KEY NAMING THE TRUSTED PATH THAT REVOKED, with exactly the '
+    'semantics and prohibitions described on orgunit_root_promotions.actor_key. '
+    'It is not person data and must never be set to a person''s name.';
 
 -- The cycle-closing foreign key. orgunit_fetch_observations is created first
--- because redirect observations point at it and promotion events point at
--- those; only now does the target of this reference exist.
+-- because redirect observations point at it and approvals point at those; only
+-- now does the target of this reference exist.
+--
+-- IT REFERENCES THE APPROVAL TABLE, AND THERE IS NO EQUIVALENT REFERENCE TO
+-- REVOCATIONS. That asymmetry is the guarantee that a withdrawn decision can
+-- never be cited as permission.
 ALTER TABLE orgunit_fetch_observations
     ADD CONSTRAINT orgunit_fetch_observations_root_promotion_fk
-    FOREIGN KEY (root_promotion_event_id)
-    REFERENCES orgunit_root_promotion_events (id);
+    FOREIGN KEY (root_promotion_id)
+    REFERENCES orgunit_root_promotions (id);
 
 -- ---------------------------------------------------------------------------
 -- E. orgunit_page_evidence - one successfully parsed page.
@@ -590,6 +767,9 @@ CREATE TABLE orgunit_page_evidence (
     id                   uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
     fetch_observation_id uuid        NOT NULL
                                      REFERENCES orgunit_fetch_observations (id),
+    -- Carried so it can be PINNED, not for convenience; see the composite
+    -- foreign key below.
+    root_key             text        NOT NULL,
     title                text,
     declared_lang        text,
     headings             jsonb       NOT NULL,
@@ -605,9 +785,10 @@ CREATE TABLE orgunit_page_evidence (
         CHECK (jsonb_typeof(headings) = 'array'),
     -- THE HARD CAP. It is a CHECK rather than a convention because the whole
     -- raw-body prohibition rests on it: without a ceiling, main_text is a
-    -- response body wearing a different name.
+    -- response body wearing a different name. See the column comment for why
+    -- the number is 40,000 and not something roomier.
     CONSTRAINT orgunit_page_evidence_main_text_cap_chk
-        CHECK (length(main_text) <= 200000),
+        CHECK (length(main_text) <= 40000),
     CONSTRAINT orgunit_page_evidence_main_text_chars_chk
         CHECK (main_text_chars = length(main_text)),
     CONSTRAINT orgunit_page_evidence_title_chk
@@ -621,7 +802,15 @@ CREATE TABLE orgunit_page_evidence (
             ('MAIN_ELEMENT', 'BOILERPLATE_DIFFERENCED',
              'MAIN_ELEMENT_AND_DIFFERENCED', 'FULL_BODY')),
     CONSTRAINT orgunit_page_evidence_rule_version_chk
-        CHECK (rule_version <> '' AND length(rule_version) <= 64)
+        CHECK (rule_version <> '' AND length(rule_version) <= 64),
+
+    -- THE PAGE'S ROOT IS ITS FETCH'S ROOT, ENFORCED. Both columns are NOT NULL,
+    -- so this composite foreign key is fully checked - unlike one over the
+    -- nullable root pair, which MATCH SIMPLE would not enforce at all whenever
+    -- either column was NULL.
+    CONSTRAINT orgunit_page_evidence_root_fk
+        FOREIGN KEY (fetch_observation_id, root_key)
+        REFERENCES orgunit_fetch_observations (id, root_key)
 );
 
 -- ONE EXTRACTION PER FETCH PER RULE VERSION. A rule change produces a NEW row
@@ -629,6 +818,11 @@ CREATE TABLE orgunit_page_evidence (
 -- bytes stays recoverable.
 CREATE UNIQUE INDEX orgunit_page_evidence_dedupe_uidx
     ON orgunit_page_evidence (fetch_observation_id, rule_version);
+
+-- The target of the composite foreign key that pins a candidate's root to its
+-- page's root. See orgunit_page_candidates.
+CREATE UNIQUE INDEX orgunit_page_evidence_id_root_key_uidx
+    ON orgunit_page_evidence (id, root_key);
 
 COMMENT ON TABLE orgunit_page_evidence IS
     'ONE SUCCESSFULLY PARSED PAGE, reduced to bounded derived text. NO RAW '
@@ -639,12 +833,24 @@ COMMENT ON TABLE orgunit_page_evidence IS
     'describes a DOCUMENT. It says nothing about whether the page is relevant '
     'to anything.';
 
+COMMENT ON COLUMN orgunit_page_evidence.root_key IS
+    'A COPY OF THE FETCH''S GENERATED root_key, PINNED to it by a composite '
+    'foreign key. It is not convenience denormalisation: it is the middle link '
+    'in the chain that makes it impossible for a candidate to claim a root its '
+    'own page''s fetch does not have.';
+
 COMMENT ON COLUMN orgunit_page_evidence.main_text IS
     'BOUNDED, EXTRACTED, CLEANED text derived from the page - never the markup, '
-    'and never the response body. Hard-capped at 200,000 characters by a CHECK '
-    'constraint. A later slice performs the extraction and its redaction; the '
-    'cap exists from the first migration so no implementation can quietly opt '
-    'out of it.';
+    'and never the response body. Hard-capped at 40,000 characters by a CHECK, '
+    'with anything longer recorded as main_text_truncated rather than rejected. '
+    'The number is a DESIGN BOUND, not a measurement: it is roughly an order of '
+    'magnitude above a long organisational-unit page after main-element '
+    'extraction and boilerplate differencing, and roughly an order of magnitude '
+    'below a typical raw response - which is the gap content minimisation has '
+    'to sit in. It is also comfortably larger than the small remainder a later '
+    'classifier is permitted to read. If 2B-1b measures real extractions and '
+    'finds this wrong, changing it is a new migration and a reviewed decision, '
+    'never a runtime option.';
 
 COMMENT ON COLUMN orgunit_page_evidence.extraction_method IS
     'Which bounded extraction produced main_text. MAIN_ELEMENT_AND_DIFFERENCED '
@@ -689,44 +895,44 @@ COMMENT ON COLUMN orgunit_page_evidence.declared_lang IS
 --   edited. When Phase 2B-2 is approved it will APPEND classifier rows that
 --   reference these candidates; it will not reach back and stamp them.
 --
+-- IT ALSO CARRIES NO DUPLICATED PROVENANCE.
+--
+--   eche_row_key, organisation_id and the two root columns live on the FETCH
+--   OBSERVATION and are reached from here by join. Copying them would create a
+--   row that could claim one root while its own page belonged to another, and
+--   "the writer will copy them correctly" is not a guarantee - it is a hope
+--   about code that has not been written yet. The single exception is root_key,
+--   which is carried precisely so a composite foreign key can PIN it.
+--
 -- FRONTIER SCORE AND CANDIDATE SCORE ARE DIFFERENT THINGS.
 --
 --   A frontier score ranks a URL BEFORE it is fetched, and URL-tree
 --   inheritance may legitimately raise it. A candidate score ranks a PAGE
 --   AFTER it has been read. Letting inheritance flow into candidate_score would
 --   turn "this URL was worth trying" into "this page is a find", which is a
---   different claim entirely. No frontier_score column exists in this
+--   different claim entirely. No frontier score column exists in this
 --   migration - the frontier is transient working state, not evidence - and the
 --   separation must survive whatever slice makes it durable.
 
 CREATE TABLE orgunit_page_candidates (
-    id                      uuid         PRIMARY KEY DEFAULT gen_random_uuid(),
-    page_evidence_id        uuid         NOT NULL REFERENCES orgunit_page_evidence (id),
-    run_id                  uuid         NOT NULL REFERENCES orgunit_research_runs (id),
+    id               uuid         PRIMARY KEY DEFAULT gen_random_uuid(),
+    page_evidence_id uuid         NOT NULL REFERENCES orgunit_page_evidence (id),
+    run_id           uuid         NOT NULL REFERENCES orgunit_research_runs (id),
 
-    eche_row_key            text         NOT NULL,
-    organisation_id         uuid         REFERENCES organisations (id),
+    -- Carried so it can be PINNED to the page's root, and so a rank can be
+    -- unique WITHIN a root. Not convenience denormalisation; see the composite
+    -- foreign key below.
+    root_key         text         NOT NULL,
 
-    root_website_claim_id   uuid         REFERENCES website_claims (id),
-    root_promotion_event_id uuid         REFERENCES orgunit_root_promotion_events (id),
+    track            text         NOT NULL,
+    type_hint        text,
+    candidate_score  numeric(8,4) NOT NULL,
+    signals          jsonb        NOT NULL,
+    url_tree_parent  text,
+    rank_within_root integer      NOT NULL,
+    rule_version     text         NOT NULL,
+    created_at       timestamptz  NOT NULL DEFAULT now(),
 
-    track                   text         NOT NULL,
-    type_hint               text,
-    candidate_score         numeric(8,4) NOT NULL,
-    signals                 jsonb        NOT NULL,
-    url_tree_parent         text,
-    rank_within_root        integer      NOT NULL,
-    rule_version            text         NOT NULL,
-    created_at              timestamptz  NOT NULL DEFAULT now(),
-
-    -- The same root XOR the fetch observations carry. A ranked candidate must
-    -- be traceable to the exact root authority that permitted reaching it.
-    CONSTRAINT orgunit_page_candidates_root_xor_chk
-        CHECK ((root_website_claim_id IS NOT NULL)::int
-               + (root_promotion_event_id IS NOT NULL)::int = 1),
-
-    CONSTRAINT orgunit_page_candidates_eche_row_key_chk
-        CHECK (eche_row_key <> ''),
     -- Which deterministic ranking family produced this row. Country-blind by
     -- construction: these name kinds of organisational unit, never a country,
     -- a language or a market.
@@ -747,7 +953,15 @@ CREATE TABLE orgunit_page_candidates (
     CONSTRAINT orgunit_page_candidates_rank_chk
         CHECK (rank_within_root >= 1),
     CONSTRAINT orgunit_page_candidates_rule_version_chk
-        CHECK (rule_version <> '' AND length(rule_version) <= 64)
+        CHECK (rule_version <> '' AND length(rule_version) <= 64),
+
+    -- THE CANDIDATE'S ROOT IS ITS PAGE'S ROOT, ENFORCED. Combined with the
+    -- identical constraint on orgunit_page_evidence, this closes the chain
+    -- candidate -> page -> fetch -> generated root_key, so a candidate claiming
+    -- root B over a page fetched from root A is rejected by the database.
+    CONSTRAINT orgunit_page_candidates_root_fk
+        FOREIGN KEY (page_evidence_id, root_key)
+        REFERENCES orgunit_page_evidence (id, root_key)
 );
 
 -- ONE RESULT PER PAGE PER RULE VERSION PER TRACK. A rule change appends; it
@@ -757,18 +971,15 @@ CREATE UNIQUE INDEX orgunit_page_candidates_dedupe_uidx
 
 -- A RANK IS A POSITION, so it must be unique within the thing it ranks.
 -- Without this, "rank 1" could be claimed twice and the ordering would be
--- decorative. NULLS NOT DISTINCT again, for the XOR root columns.
+-- decorative. Every column is NOT NULL, so this needs no NULL trickery and
+-- states exactly what it means.
 CREATE UNIQUE INDEX orgunit_page_candidates_rank_uidx
-    ON orgunit_page_candidates (run_id, root_website_claim_id,
-                                root_promotion_event_id, track, rule_version,
-                                rank_within_root)
-    NULLS NOT DISTINCT;
+    ON orgunit_page_candidates (run_id, root_key, track, rule_version,
+                                rank_within_root);
 
-CREATE INDEX orgunit_page_candidates_eche_row_key_idx
-    ON orgunit_page_candidates (eche_row_key);
-CREATE INDEX orgunit_page_candidates_run_idx ON orgunit_page_candidates (run_id);
-CREATE INDEX orgunit_page_candidates_organisation_idx
-    ON orgunit_page_candidates (organisation_id) WHERE organisation_id IS NOT NULL;
+CREATE INDEX orgunit_page_candidates_run_idx  ON orgunit_page_candidates (run_id);
+CREATE INDEX orgunit_page_candidates_page_idx ON orgunit_page_candidates (page_evidence_id);
+CREATE INDEX orgunit_page_candidates_root_idx ON orgunit_page_candidates (root_key);
 
 COMMENT ON TABLE orgunit_page_candidates IS
     'A DETERMINISTIC RANK over page evidence: "under this rule version, on this '
@@ -777,7 +988,17 @@ COMMENT ON TABLE orgunit_page_candidates IS
     'confirmed, verified, preferred or classification column, in this table - '
     'and there must never be one: those are conclusions, and the deterministic '
     'layer is not entitled to them. Phase 2B-2 will APPEND classifier rows '
-    'referencing these candidates rather than stamping them.';
+    'referencing these candidates rather than stamping them. It also carries no '
+    'duplicated provenance: eche_row_key, organisation_id and the root columns '
+    'live on the fetch observation and are reached by join, so a candidate '
+    'cannot contradict the page it ranks.';
+
+COMMENT ON COLUMN orgunit_page_candidates.root_key IS
+    'A COPY OF THE PAGE''S root_key, PINNED to it by a composite foreign key, '
+    'which in turn is pinned to the fetch''s GENERATED value. That chain is '
+    'what makes "this candidate''s root is its page''s fetch''s root" a '
+    'database guarantee rather than a convention. It is also what a rank is '
+    'unique within.';
 
 COMMENT ON COLUMN orgunit_page_candidates.candidate_score IS
     'The deterministic score of a page that has been READ. Deliberately NOT a '
@@ -822,13 +1043,24 @@ COMMENT ON COLUMN orgunit_page_candidates.url_tree_parent IS
 --
 --   The privilege list below is deliberately shorter than nwf_ingest's:
 --
---     website_claims, organisations : SELECT              (research roots)
---     orgunit_*                     : SELECT, INSERT      (its own evidence)
+--     website_claims, organisations : SELECT           (research roots)
+--     orgunit_* observation tables  : SELECT, INSERT   (its own evidence)
+--     root promotion + revocation   : SELECT           (READ ONLY - see below)
 --     everything else               : nothing
 --
 --   No UPDATE anywhere. No DELETE anywhere. No TRUNCATE anywhere. No TEMPORARY
 --   on the database - migration 0006 removed the inherited PUBLIC grant, and
 --   this migration never issues a new one.
+--
+-- SEPARATION OF POWERS, RESTATED AS GRANTS
+--
+--   The automated process OBSERVES a cross-domain redirect; an OPERATOR
+--   DECIDES; the automated process may then CONSUME the approved root. So
+--   nwf_research can read root authority and can never create or withdraw it.
+--   Approval and revocation travel the existing trusted OWNER path - the same
+--   credential that applies migrations - because inventing a fourth role, a
+--   credential, an API or a UI to hold a privilege the owner already has would
+--   add attack surface without adding a boundary.
 --
 --   Password is a deterministic LOCAL-DEVELOPMENT-ONLY value, matching the
 --   convention 0002 established. It is not a secret and is not reused anywhere.
@@ -865,29 +1097,36 @@ GRANT USAGE ON SCHEMA public TO nwf_research;
 GRANT SELECT ON website_claims TO nwf_research;
 GRANT SELECT ON organisations  TO nwf_research;
 
--- WRITE side: append-only, on its own tables only.
-GRANT SELECT, INSERT ON orgunit_research_runs             TO nwf_research;
-GRANT SELECT, INSERT ON orgunit_research_run_completions  TO nwf_research;
-GRANT SELECT, INSERT ON orgunit_fetch_observations        TO nwf_research;
-GRANT SELECT, INSERT ON orgunit_redirect_observations     TO nwf_research;
-GRANT SELECT, INSERT ON orgunit_root_promotion_events     TO nwf_research;
-GRANT SELECT, INSERT ON orgunit_page_evidence             TO nwf_research;
-GRANT SELECT, INSERT ON orgunit_page_candidates           TO nwf_research;
+-- WRITE side: append-only, and ONLY on the tables research itself observes.
+GRANT SELECT, INSERT ON orgunit_research_runs            TO nwf_research;
+GRANT SELECT, INSERT ON orgunit_research_run_completions TO nwf_research;
+GRANT SELECT, INSERT ON orgunit_fetch_observations       TO nwf_research;
+GRANT SELECT, INSERT ON orgunit_redirect_observations    TO nwf_research;
+GRANT SELECT, INSERT ON orgunit_page_evidence            TO nwf_research;
+GRANT SELECT, INSERT ON orgunit_page_candidates          TO nwf_research;
+
+-- ROOT AUTHORITY: READ ONLY. A run must be able to see which roots are approved
+-- and which of those have been revoked, so it can decide what it may fetch. It
+-- must never be able to create or withdraw that authority - the process that
+-- discovers a cross-domain redirect cannot be the process that approves it.
+GRANT SELECT ON orgunit_root_promotions            TO nwf_research;
+GRANT SELECT ON orgunit_root_promotion_revocations TO nwf_research;
 
 -- The audit role can inspect Phase 2B evidence, exactly as it can inspect every
 -- other evidence table in this schema (0002, 0003, 0005). It remains unable to
 -- write anything.
 GRANT SELECT ON orgunit_research_runs, orgunit_research_run_completions,
                 orgunit_fetch_observations, orgunit_redirect_observations,
-                orgunit_root_promotion_events, orgunit_page_evidence,
-                orgunit_page_candidates
+                orgunit_root_promotions, orgunit_root_promotion_revocations,
+                orgunit_page_evidence, orgunit_page_candidates
     TO nwf_readonly;
 
 -- Defensive: make the append-only intent explicit for any future role too.
-REVOKE UPDATE, DELETE ON orgunit_research_runs            FROM PUBLIC;
-REVOKE UPDATE, DELETE ON orgunit_research_run_completions FROM PUBLIC;
-REVOKE UPDATE, DELETE ON orgunit_fetch_observations       FROM PUBLIC;
-REVOKE UPDATE, DELETE ON orgunit_redirect_observations    FROM PUBLIC;
-REVOKE UPDATE, DELETE ON orgunit_root_promotion_events    FROM PUBLIC;
-REVOKE UPDATE, DELETE ON orgunit_page_evidence            FROM PUBLIC;
-REVOKE UPDATE, DELETE ON orgunit_page_candidates          FROM PUBLIC;
+REVOKE UPDATE, DELETE ON orgunit_research_runs               FROM PUBLIC;
+REVOKE UPDATE, DELETE ON orgunit_research_run_completions    FROM PUBLIC;
+REVOKE UPDATE, DELETE ON orgunit_fetch_observations          FROM PUBLIC;
+REVOKE UPDATE, DELETE ON orgunit_redirect_observations       FROM PUBLIC;
+REVOKE UPDATE, DELETE ON orgunit_root_promotions             FROM PUBLIC;
+REVOKE UPDATE, DELETE ON orgunit_root_promotion_revocations  FROM PUBLIC;
+REVOKE UPDATE, DELETE ON orgunit_page_evidence               FROM PUBLIC;
+REVOKE UPDATE, DELETE ON orgunit_page_candidates             FROM PUBLIC;

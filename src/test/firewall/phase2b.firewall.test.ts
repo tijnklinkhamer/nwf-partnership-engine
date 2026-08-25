@@ -158,6 +158,24 @@ const RESEARCH_GRANTS = MIGRATIONS.flatMap(({ file, sql }) =>
     .map((grant) => ({ file, grant })),
 );
 
+/** Phase 2B tables the research role both reads and appends to. */
+const RESEARCH_EVIDENCE_TABLES = [
+  'orgunit_research_runs',
+  'orgunit_research_run_completions',
+  'orgunit_fetch_observations',
+  'orgunit_redirect_observations',
+  'orgunit_page_evidence',
+  'orgunit_page_candidates',
+];
+
+/**
+ * Phase 2B tables that carry ROOT AUTHORITY.
+ *
+ * The automated process may READ these and must never write them: the run that
+ * observes a cross-domain redirect cannot be the one that approves it.
+ */
+const ROOT_AUTHORITY_TABLES = ['orgunit_root_promotions', 'orgunit_root_promotion_revocations'];
+
 describe('PHASE-2B-FIREWALL: this slice added no capability at all', () => {
   it('keeps the runtime dependency list exactly as it was', () => {
     // A schema slice needs nothing. Anything new here would be a crawler, a
@@ -445,13 +463,25 @@ describe('PHASE-2B-FIREWALL: no contact data, in schema or in code', () => {
     }
   });
 
-  it('refuses an addressable identifier in the one audit field that has a name in it', () => {
-    // decided_by records WHO promoted a root. It is the single field in this
-    // schema where a mailbox would plausibly be typed by a well-meaning
-    // operator, so the database refuses one.
+  it('names the operator by an opaque key, never by a free-form identity field', () => {
+    // The audit field on a root decision is the single place in this schema
+    // where person data would plausibly be typed by a well-meaning operator.
+    // It is an OPAQUE KEY constrained to a slug - no at-sign, no dot, no space
+    // - so it cannot be a mailbox, a domain handle or a natural-language name.
+    // A free-form `decided_by`/`approved_by` column would have invited all of
+    // those, which is why those names are refused outright.
     const sql = MIGRATION_0007?.sql ?? '';
-    expect(sql).toMatch(/orgunit_root_promotion_events_decided_by_chk/);
-    expect(sql).toMatch(/decided_by\s*!~/);
+    const columns = declaredColumns(sql);
+    expect(columns).toContain('actor_key');
+    for (const freeForm of ['decided_by', 'approved_by', 'revoked_by', 'operator_name']) {
+      expect(columns, `0007 declares the free-form identity column ${freeForm}`).not.toContain(
+        freeForm,
+      );
+    }
+    expect(sql).toMatch(/orgunit_root_promotions_actor_key_chk/);
+    expect(sql).toMatch(/orgunit_root_promotion_revocations_actor_key_chk/);
+    // The slug pattern itself, so relaxing it is a visible edit.
+    expect(sql).toMatch(/actor_key ~ '\^\[a-z0-9\]\[a-z0-9_-\]\{2,63\}\$'/);
   });
 
   it('defines no contact-shaped property in Phase 2B code', () => {
@@ -550,22 +580,53 @@ describe('PHASE-2B-FIREWALL: a rank never becomes a relevance or outreach fact',
 });
 
 describe('PHASE-2B-FIREWALL: research evidence is append-only and owns nothing else', () => {
-  it('grants nwf_research SELECT and INSERT on its own tables and nothing more', () => {
+  it('grants nwf_research SELECT and INSERT on the tables it observes', () => {
     const sql = MIGRATION_0007?.sql ?? '';
-    const orgunitTables = [
-      'orgunit_research_runs',
-      'orgunit_research_run_completions',
-      'orgunit_fetch_observations',
-      'orgunit_redirect_observations',
-      'orgunit_root_promotion_events',
-      'orgunit_page_evidence',
-      'orgunit_page_candidates',
-    ];
-    for (const table of orgunitTables) {
+    for (const table of RESEARCH_EVIDENCE_TABLES) {
       expect(sql, `${table} has no append-only grant`).toMatch(
         new RegExp(`GRANT SELECT, INSERT ON ${table}\\s+TO nwf_research`),
       );
     }
+  });
+
+  it('SEPARATION OF POWERS: never grants nwf_research INSERT on root authority', () => {
+    // THE ASSERTION THAT KEEPS THE AUTOMATED PROCESS FROM APPROVING ITSELF.
+    // Research OBSERVES a cross-domain redirect; an OPERATOR decides. A run
+    // that could insert an approval could grant itself any crawl root it liked
+    // by first arranging to observe a redirect to it.
+    for (const { file, grant } of RESEARCH_GRANTS) {
+      if (!/\bINSERT\b/i.test(grant.privileges)) continue;
+      for (const table of ROOT_AUTHORITY_TABLES) {
+        expect(
+          grant.target,
+          `${file} grants nwf_research INSERT on root authority (${table})`,
+        ).not.toMatch(new RegExp(`\\b${table}\\b`));
+      }
+    }
+    // And the read grant it DOES need is present, so a run can still see which
+    // roots are approved and which of those were revoked.
+    const sql = MIGRATION_0007?.sql ?? '';
+    for (const table of ROOT_AUTHORITY_TABLES) {
+      expect(sql, `${table} is not readable by nwf_research`).toMatch(
+        new RegExp(`GRANT SELECT ON ${table}\\s+TO nwf_research`),
+      );
+    }
+  });
+
+  it('lets no table cite a revocation as authority', () => {
+    // Approval and revocation are separate tables precisely so this is a
+    // schema property rather than a convention: a fetch's root_promotion_id
+    // references the APPROVAL table, and nothing references revocations at all.
+    const sql = MIGRATION_0007?.sql ?? '';
+    expect(sql).toMatch(/REFERENCES orgunit_root_promotions \(id\)/);
+    expect(sql, 'something references the revocation table as a foreign key').not.toMatch(
+      /REFERENCES\s+orgunit_root_promotion_revocations/,
+    );
+    // A single event table with a decision column would have made this
+    // impossible to state, so that shape is refused by name.
+    expect(declaredColumns(sql), '0007 reintroduced a promotion decision enum').not.toContain(
+      'decision',
+    );
   });
 
   it('grants nwf_research no UPDATE, DELETE or TRUNCATE in any migration', () => {
@@ -666,23 +727,62 @@ describe('PHASE-2B-FIREWALL: research evidence is append-only and owns nothing e
     expect(sql).not.toMatch(/^\s*INSERT\s+INTO\s+\w+/im);
     expect(sql).not.toMatch(/DROP\s+(TABLE|COLUMN)/i);
   });
+
+  it('keeps a retry a separate observation rather than a collision', () => {
+    // A fetch identity that omits attempt_no would make the second attempt at a
+    // URL conflict with the first, silently discarding the transient network
+    // failure this append-only layer exists to preserve.
+    const sql = MIGRATION_0007?.sql ?? '';
+    expect(declaredColumns(sql)).toContain('attempt_no');
+    const identity = /CREATE UNIQUE INDEX orgunit_fetch_observations_dedupe_uidx[\s\S]*?;/.exec(
+      sql,
+    );
+    expect(identity?.[0], 'the fetch identity index was not found').toBeDefined();
+    expect(identity?.[0], 'fetch identity does not include attempt_no').toContain('attempt_no');
+    expect(sql).toMatch(/orgunit_fetch_observations_attempt_no_chk[\s\S]*?attempt_no >= 1/);
+  });
+
+  it('lets no downstream table carry provenance it could contradict', () => {
+    // eche_row_key, organisation_id and the root columns live on the fetch
+    // observation ONCE. A copy on page evidence or on a candidate would be a
+    // second place that can disagree, and "the writer will copy it correctly"
+    // is a hope about code that has not been written yet.
+    const sql = MIGRATION_0007?.sql ?? '';
+    for (const table of ['orgunit_page_evidence', 'orgunit_page_candidates']) {
+      const block = new RegExp(`CREATE TABLE ${table} \\(([\\s\\S]*?)\\n\\);`).exec(sql);
+      expect(block?.[1], `${table} was not found`).toBeDefined();
+      const columns = declaredColumns(block?.[1] ?? '');
+      expect(columns.length).toBeGreaterThan(0);
+      for (const duplicated of [
+        'eche_row_key',
+        'organisation_id',
+        'root_website_claim_id',
+        'root_promotion_id',
+      ]) {
+        expect(columns, `${table} duplicates ${duplicated}`).not.toContain(duplicated);
+      }
+      // What it DOES carry is pinned to its parent by a composite foreign key.
+      expect(columns).toContain('root_key');
+      expect(sql, `${table} does not pin root_key`).toMatch(new RegExp(`${table}_root_fk`));
+    }
+    // And the value those keys pin is generated, so it cannot be forged.
+    expect(sql).toMatch(/root_key\s+text\s*\n?\s*GENERATED ALWAYS AS/);
+  });
 });
 
 describe('PHASE-2B-FIREWALL: identity and locale boundaries hold', () => {
-  it('keeps organisation_id nullable on every Phase 2B table', () => {
+  it('declares organisation_id exactly once, and keeps it nullable', () => {
     // A NOT NULL foreign key would quietly assert that a web page proves two
     // provisional organisation records are one entity. They are not resolved.
+    // Exactly one declaration, because a second copy is a second place that can
+    // disagree with the first.
     const sql = MIGRATION_0007?.sql ?? '';
     const declarations = [...sql.matchAll(/^\s+organisation_id\s+uuid([^,\n]*)/gim)].map(
       (m) => m[1] ?? '',
     );
-    expect(declarations.length).toBeGreaterThan(0);
-    for (const declaration of declarations) {
-      expect(declaration, 'organisation_id is NOT NULL somewhere in 0007').not.toMatch(
-        /NOT\s+NULL/i,
-      );
-      expect(declaration).toMatch(/REFERENCES\s+organisations/i);
-    }
+    expect(declarations).toHaveLength(1);
+    expect(declarations[0], 'organisation_id is NOT NULL in 0007').not.toMatch(/NOT\s+NULL/i);
+    expect(declarations[0]).toMatch(/REFERENCES\s+organisations/i);
   });
 
   it('anchors Phase 2B evidence on eche_row_key, exactly as website_claims does', () => {

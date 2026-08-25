@@ -110,7 +110,7 @@ Later phases each require separate founder approval before any work begins.
 
 ### Phase 2B-1a: a trust foundation, and no new capability
 
-Migration 0007 adds seven `orgunit_*` tables and the `nwf_research` role for a
+Migration 0007 adds eight `orgunit_*` tables and the `nwf_research` role for a
 future phase of **bounded first-party web acquisition** — reading a small,
 ranked set of pages from an institution's own site to find its International
 Office, language centre or student associations, which no official register
@@ -120,7 +120,7 @@ publishes.
 `docs/adr/0004-bounded-first-party-web-acquisition.md`. There is no
 `src/orgunits/` directory, no acquisition gateway, no robots or sitemap reader,
 no HTML extraction, no ranking code and no CLI command. No dependency was added.
-Every one of the seven tables holds zero rows and cannot acquire any, because
+Every one of the eight tables holds zero rows and cannot acquire any, because
 the code that would write them does not exist.
 
 What the schema settles in advance:
@@ -128,15 +128,25 @@ What the schema settles in advance:
 - `nwf_research` holds `SELECT` and `INSERT` and nothing else — no `UPDATE`, no
   `DELETE`, no `TRUNCATE`, no `TEMPORARY` — so a run's outcome and a promotion's
   withdrawal are **new rows**, never edits.
+- **The process that observes a cross-domain redirect cannot approve it.**
+  `nwf_research` has `SELECT` and no `INSERT` on the two root-authority tables;
+  approval travels the trusted owner path. An approval stores no URL of its own
+  (the target is the observed one), and foreign-key structure refuses a
+  malformed target, an HTTPS→HTTP downgrade and a same-domain hop.
+- Approval and revocation are **separate tables**, so a revocation is
+  structurally incapable of authorising a fetch.
 - A fetch must name the root authority that permitted it: either an official
-  `website_claims` row, or an explicit operator promotion. A `CHECK` enforces
+  `website_claims` row, or an explicit operator approval. A `CHECK` enforces
   exactly one, so a request with no root authority cannot be recorded.
-- **A cross-domain redirect target never becomes a research root by
-  observation.** Only a stored operator decision promotes one.
+- A fetch observation is **one HTTP attempt**, so a retry is stored beside the
+  failure it retried instead of conflicting it away.
 - No response body is ever stored. The bytes are a SHA-256 and a length;
-  extracted text is capped by a `CHECK`.
+  extracted text is capped at 40,000 characters by a `CHECK`.
 - A ranked page is a **rank**, not a relevance fact. There is no status,
   relevant, confirmed, verified or preferred column, and none may be added.
+- Page evidence and candidates carry **no duplicated provenance** — a composite
+  foreign-key chain onto a generated `root_key` makes it impossible for a
+  candidate to claim a root its own page's fetch does not have.
 
 Phase 2B-2 — semantic classification of those pages — is **not authorised**.
 

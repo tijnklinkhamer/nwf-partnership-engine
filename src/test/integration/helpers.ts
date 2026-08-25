@@ -85,9 +85,9 @@ export async function truncateAll(target: pg.Pool): Promise<void> {
   // create - a silently cascaded table is one nobody remembers exists.
   await target.query(
     `TRUNCATE orgunit_page_candidates, orgunit_page_evidence,
-              orgunit_root_promotion_events, orgunit_redirect_observations,
-              orgunit_fetch_observations, orgunit_research_run_completions,
-              orgunit_research_runs,
+              orgunit_root_promotion_revocations, orgunit_root_promotions,
+              orgunit_redirect_observations, orgunit_fetch_observations,
+              orgunit_research_run_completions, orgunit_research_runs,
               website_claims, website_source_snapshots,
               ewp_api_declarations, ewp_host_covered_heis, ewp_hosts,
               ewp_hei_other_ids, ewp_heis, ewp_snapshots,

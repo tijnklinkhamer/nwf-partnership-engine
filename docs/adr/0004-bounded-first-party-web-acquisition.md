@@ -77,22 +77,37 @@ semantic unit classification              [2B-2 — NOT AUTHORISED]
 
 ## 3. What Phase 2A and the holdout established, and what they did not
 
-**FACT — the Phase 2A audit's implementation does not exist.** A France
-unit-discovery audit (25 organisations, 639 requests, 486 HTML pages) reported
-`v3 = 93.0% precision / 97.6% recall`. It was run as scratch tooling and
-deleted on completion. Neither the identity of the 25 organisations nor the
-exact v1/v2/v3 rule definitions survive anywhere recoverable.
+**FACT — the Phase 2A report exists; its executable implementation does not.**
+A France unit-discovery audit (25 organisations, 639 requests, 486 HTML pages)
+reported `v3 = 93.0% precision / 97.6% recall`. **The audit report itself
+remains available externally, in the founder-supplied conversation artifact**,
+and it preserves substantial methodology, sample-selection rules, measurements,
+disagreement cases, examples and conclusions. What was deleted on completion was
+the **scratch tooling**: the exact executable v1/v2/v3 rule definitions are not
+recoverable, and nothing in this repository can re-run them.
+
+So the accurate statement is neither "the audit is lost" nor "the numbers are a
+benchmark", but:
+
+> The Phase 2A audit report remains available externally, but its deleted
+> scratch implementation is not reproducible from the repository. Its historical
+> v3 figures are therefore retained as audit findings, not executable
+> benchmarks.
 
 **DESIGN DECISION — those numbers are cited as an audit finding and never as a
 reproducible benchmark.** Two consequences follow and both are binding:
 
 1. `93.0% / 97.6%` must not be quoted as a production target, a regression
    baseline, or evidence that any later ruleset performs comparably. The rules
-   were fitted to their own sample, and the sample is gone.
-2. No later sample can be proven disjoint from Phase 2A's, so no later
-   measurement is a true holdout with respect to it.
+   were fitted to their own sample and cannot be re-executed.
+2. Because the sample's membership is not held in this repository, no later
+   sample can be shown here to be disjoint from Phase 2A's, so no later
+   measurement is a true holdout with respect to it without going back to the
+   external report.
 
 Whatever 2B-1b implements is a **reconstruction**, and its numbers are its own.
+The report is not copied into this repository: doing so to settle a wording
+question would import an external artifact nobody asked for.
 
 **MEASUREMENT — the 2026-08-24 holdout, with the same caveat.** A 15-organisation
 / 18-root French crawl was run during the Phase 2B design audit under a ruleset
@@ -215,17 +230,50 @@ because it is the one a future slice will be tempted to relax:
 > EXPLICIT STORED OPERATOR DECISION.
 
 Not by inference, not by the target matching some other stored value, not by
-being observed twice. `orgunit_root_promotion_events` is the only path, and
+being observed twice. `orgunit_root_promotions` is the only path, and
 `orgunit_fetch_observations` enforces it structurally: its root columns are a
-CHECKed exclusive-or, so a fetch rooted in a promotion must name the promotion
-event, and a fetch with no root authority at all cannot be recorded.
+CHECKed exclusive-or, so a fetch rooted in a promotion must name the approval,
+and a fetch with no root authority at all cannot be recorded.
 
-**Promotion is an event stream, not a flag.** An approval that can be withdrawn
-is a lifecycle, and a lifecycle stored as a mutable flag needs `UPDATE` — which
-`nwf_research` does not have and must not get. A withdrawal is a new row with
-`decision = 'REVOKE'`; the approval it withdraws is left intact; the current
-state is derived as the latest applicable event. Who decided what, when, and
-why survives in full.
+**The process that observes a redirect cannot approve it.** `nwf_research` runs
+acquisition, and therefore `nwf_research` is what discovers a cross-domain hop.
+It holds `SELECT` and **no `INSERT`** on `orgunit_root_promotions` and
+`orgunit_root_promotion_revocations`, so it can see which roots are authorised
+and can never authorise one. Approval travels the existing trusted **owner**
+path — the same credential that applies migrations. No fourth role, no new
+credential, no API and no admin UI was introduced to hold a privilege the owner
+already has; each of those would have added attack surface without adding a
+boundary.
+
+**An approval stores no URL of its own.** The promoted target IS the referenced
+observation's `to_url_resolved`. That removes a whole class of forgery: an
+approval physically cannot say "observed `example-a.edu`, approved
+`example-b.edu`", because there is nowhere to write the second value.
+
+**Three refusals are foreign-key structure, not policy.** The approval mirrors
+three of the redirect's facts and pins them, so the database itself rejects:
+
+| refused                                   | mechanism                                                                                                                                                       |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| approving an unparseable target           | `redirect_target_malformed` pinned `false`; a malformed row stores `NULL` in the other facts, and `NULL` never equals `false`, so it has no matching parent key |
+| approving an HTTPS to HTTP downgrade      | `redirect_scheme_downgraded` pinned `false` — **default refuse**, and widening it is a new migration with its own justification                                 |
+| "promoting" a same-registrable-domain hop | `redirect_domain_changed` pinned `true` — that target is already inside the root the run holds                                                                  |
+
+**Approval and revocation are SEPARATE TABLES, not one event stream.** This is
+the correction that matters most. In an event model with an `APPROVE`/`REVOKE`
+column, a fetch's `root_promotion_event_id` could point at a `REVOKE` row and
+only application convention would stop it. Here a revocation lives in a table
+that **nothing references as authority**: `root_promotion_id` targets the
+approval table, and no foreign key anywhere points at
+`orgunit_root_promotion_revocations`. "A revocation cannot authorise a fetch" is
+therefore a property of the schema, provable by reading `pg_constraint`, rather
+than a rule someone has to remember.
+
+A withdrawal is a new row; the approval it withdraws is left byte-for-byte
+intact, because it is the record that a root WAS authorised and that fetches
+were made under it. Whether a root is currently active is DERIVED — an approval
+exists and no revocation references it — and is deliberately not a column
+anywhere. Re-approval after revocation is a new approval, not an edit.
 
 ---
 
@@ -243,9 +291,20 @@ Three reasons, in order of weight:
 2. **Scope.** An unbounded copy of other people's websites is the thing
    "bounded first-party acquisition" exists not to be.
 3. **Honesty about what was kept.** `main_text` is text this repository
-   _derived_, not text it _received_, and a hard `CHECK` caps it at 200,000
-   characters so it cannot become a body under another name. The cap is in the
+   _derived_, not text it _received_, and a hard `CHECK` caps it at **40,000
+   characters** so it cannot become a body under another name. The cap is in the
    first migration precisely so no implementation can quietly opt out of it.
+
+**Why 40,000 and not something roomier.** The number is a DESIGN BOUND, not a
+measurement. It sits roughly an order of magnitude above a long
+organisational-unit page after main-element extraction and boilerplate
+differencing, and roughly an order of magnitude below a typical raw response —
+which is the gap content minimisation has to live in. It is also comfortably
+larger than the small remainder a later classifier is permitted to read, so it
+does not constrain the approved 2B-2 boundary. Anything longer is recorded as
+`main_text_truncated` rather than rejected, so the cap costs no evidence about
+_which_ pages exist. If 2B-1b measures real extractions and finds this wrong,
+raising it is a new migration and a reviewed decision, never a runtime option.
 
 `phase2b.firewall.test.ts` refuses a column named for the body — `raw_html`,
 `page_html`, `response_body`, `raw_markup` and a dozen further spellings — in
@@ -311,6 +370,44 @@ A dedicated role rather than reusing `nwf_ingest` is the point of the slice.
 web research those privileges is exactly the capability that must not exist
 here.
 
+**Append-only forces the fetch grain to be an ATTEMPT, not a URL.** The
+acquisition policy permits conservative retries, and a retry is evidence: "the
+first attempt hit a connect timeout and the second returned 200" is precisely
+the transient network fact this layer exists to preserve — the holdout burned
+twelve 30-second connect timeouts on one university's internal service estate,
+and losing that would have hidden the finding that produced the deny list. A
+fetch identity keyed on `(run, root, url, policy)` alone would make the second
+attempt collide with the first on the uniqueness index, and under
+`ON CONFLICT DO NOTHING` one of them would vanish silently. So `attempt_no` is
+part of the identity: attempts are separate immutable rows, an exact duplicate
+of the same attempt still collapses, and re-observation in a later run stays
+unconstrained.
+
+**Append-only also means denormalised provenance must be impossible to
+contradict.** A candidate that stored its own `eche_row_key`, `organisation_id`
+and root columns could claim one root while the page it ranks belonged to
+another, and nothing could ever correct it — the row cannot be updated. "The
+writer will copy them correctly" is a hope about code that has not been written
+yet, not a guarantee.
+
+So those columns live on the **fetch observation only** and are reached by join.
+The single value that is carried downstream, `root_key`, is
+`GENERATED ALWAYS AS` `'claim:<uuid>'` or `'promotion:<uuid>'` on the fetch — no
+writer can set it — and each downstream table pins its copy with a composite
+foreign key:
+
+```
+orgunit_page_candidates (page_evidence_id, root_key)
+  -> orgunit_page_evidence (id, root_key)
+      -> orgunit_fetch_observations (id, root_key)   [root_key is GENERATED]
+```
+
+A generated single key rather than the nullable root pair, because a composite
+foreign key over nullable columns is **not enforced at all** under `MATCH
+SIMPLE` when any referencing column is `NULL` — and exactly one root column is
+always `NULL`. `root_key` is `NOT NULL` everywhere, so the chain is fully
+checked, and it doubles as the thing `rank_within_root` is unique within.
+
 ---
 
 ## 11. DESIGN DECISION — same-domain crawling later requires SSRF controls
@@ -370,12 +467,19 @@ No table introduced here has a column meaning `contactable`, `sendable`,
 `leads` table exists. No column stores a person, a mailbox or a telephone
 number.
 
-The one field in this schema where a mailbox would plausibly be typed by a
-well-meaning operator is `orgunit_root_promotion_events.decided_by`, which
-records **who** approved a root. The database refuses a value containing an
-at-sign. That constraint is small and it is deliberate: an audit field is
-exactly where the first stored contact would appear by accident in a repository
-that has none.
+The one field where person data would plausibly be typed by a well-meaning
+operator is the audit field on a root decision. It is therefore **an opaque
+actor key**, not a name: `actor_key` is constrained to a lower-case slug
+(`^[a-z0-9][a-z0-9_-]{2,63}$`), which cannot be a mailbox, a domain handle or a
+natural-language name. What it must distinguish is WHICH TRUSTED PATH acted —
+for example `owner-cli` — never who.
+
+An earlier draft used a free-form `decided_by` with an at-sign check. That was
+not a real boundary: a person's name contains no at-sign and is still person
+data. The constraint now bounds the FORM, and the column comment states the rule
+the form cannot enforce — a name typed as a slug would still pass, so that is
+caught by review, and this ADR says so rather than pretending otherwise. No user
+identity infrastructure was built, and none is needed.
 
 This repository remains structurally incapable of sending anything.
 
@@ -431,7 +535,7 @@ directory at all. No CLI command. No dependency added — the runtime dependency
 list is still exactly `pg`, `read-excel-file`, `saxes`, `tldts`, `zod`. No AI
 integration. No contact storage. No Apollo. No outbound capability.
 
-What is built: migration 0007 (seven tables, the `nwf_research` role, the
+What is built: migration 0007 (eight tables, the `nwf_research` role, the
 grants), `phase2b.firewall.test.ts`, the integration tests that prove the grants
 and the schema contract, and this ADR.
 
