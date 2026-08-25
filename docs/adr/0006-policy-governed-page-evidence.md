@@ -115,6 +115,25 @@ truthful, ALREADY-LANDED value for "this gateway could not read the file", and
 a redirect is one more reason it could not be read, alongside a 5xx, a
 timeout and an unparseable body. See §7 for why this needed no migration.
 
+**THIS FORMALLY SUPERSEDES THE OLDER PHASE 2B DESIGN-AUDIT POSTURE.** An
+earlier scratch design (the deleted Phase 2A/holdout tooling ADR 0004 §3
+describes) followed a redirected robots.txt and proceeded on the target's
+policy. That posture is EXPLICITLY REJECTED here, not merely left unadopted:
+RFC 9309 §2.3.1.4 recommends a crawler MAY follow a limited number of HTTP
+redirects to retrieve robots.txt. This repository's OWN gateway never follows
+a redirect for any request, robots.txt included (ADR 0004 §4, ADR 0005 §2) -
+a deliberate, load-bearing restriction of its own request-trust boundary that
+sits BELOW what the RFC would permit. Given that deviation, treating a
+redirected robots.txt as "fail closed" (`ROBOTS_UNREADABLE`, ordinary requests
+blocked) is the SAFER of the two RFC-compatible readings, not merely a
+convenient one: the RFC never requires following the redirect, and refusing to
+expand the request-trust boundary automatically - the same principle ADR 0004
+§16 applies to a promoted cross-domain root - is more conservative than
+proceeding on an unread policy would be. There is exactly ONE canonical policy
+for a redirected robots.txt in this repository: fail closed. Nothing elsewhere
+in this codebase, in ADR 0004, or in ADR 0005 states or implies the older
+follow-and-proceed posture; none of it is in force.
+
 **Both a Disallow match AND an unreadable policy stop the ordinary request.**
 `§12/§17`'s "conservative" posture for a 5xx, a timeout or an unparseable body
 means the page is not attempted — exactly as if a rule had matched. The two
@@ -129,12 +148,12 @@ the two are identical.
 **Request-count invariants**, proved directly against a recording scripted
 transport in the integration suite:
 
-| host state (this run) | target      | robots requests | page requests |
-| ---------------------- | ----------- | ---------------- | -------------- |
-| uncached                | allowed     | 1                 | 1               |
-| uncached                | blocked     | 1                 | 0               |
-| cached                  | allowed     | 0                 | 1               |
-| cached                  | blocked     | 0                 | 0               |
+| host state (this run) | target  | robots requests | page requests |
+| --------------------- | ------- | --------------- | ------------- |
+| uncached              | allowed | 1               | 1             |
+| uncached              | blocked | 1               | 0             |
+| cached                | allowed | 0               | 1             |
+| cached                | blocked | 0               | 0             |
 
 ---
 
@@ -393,3 +412,80 @@ the full request-count invariants, against `nwf_pe_test`.
 - **How real-world Crawl-delay values distribute**, and whether the `[1.2, 5]`
   clamp is well-chosen for that distribution. Unmeasured; carried forward
   unchanged from the design brief's approved values.
+
+---
+
+## 16. CORRECTION (pre-landing) — RFC 9309 standards-correctness pass
+
+**Status:** applied before this feature ever landed on `main`. Three genuine
+defects were found by auditing the matcher against RFC 9309 directly rather
+than against this ADR's own prose, and fixed narrowly in `robotsPolicy.ts`
+and `robots.ts`. No architectural surface changed: the opaque authority
+model, the URL-scoping fix, the per-run/per-host cache, the redirect posture
+(§16 above formalises it further, it does not change it), the charset
+pipeline, extraction, redaction, page-evidence persistence and the
+single-page seam are all UNCHANGED.
+
+**1. Multiple matching user-agent groups are now COMBINED, per RFC 9309
+§2.2.1.** The first implementation's `selectGroup` returned only the FIRST
+group naming the crawler's product token, silently discarding any later
+group with the same token - a real bug for any hand-edited robots.txt that
+declares the same product token twice (common when a file is assembled by
+concatenation or edited by more than one person over time). `selectGroup`
+became `selectMatchingGroups`, returning every group naming the token (or,
+only when none do, every `*` group), and `matchGroup` became `matchGroups`,
+running the longest-match algorithm over the COMBINED rule set of every
+returned group. `crawlDelaySecondsFor` combines the same way, taking the
+MAXIMUM declared value across matching groups - the RFC does not define a
+combination rule for `Crawl-delay`, and the maximum is the conservative
+(slowest-pacing) choice, consistent with combining Allow/Disallow rules as a
+union of restrictions rather than picking a single group's view.
+
+**2. The product token is now RFC 9309-grammar-valid.** `ROBOTS_USER_AGENT_TOKEN`
+previously stripped only the `(+https://newwavefluent.com/)` comment,
+leaving `NWFPartnershipEngine-Research/1.0` - which still contains a `/` and
+digits, neither permitted by RFC 9309 §2.2.1's product-token ABNF
+(`1*(%x2D / %x5F / %x41-5A / %x61-7A)`: hyphen, underscore, ASCII letters
+only). The version suffix is now stripped too, leaving
+`NWFPartnershipEngine-Research` - grammar-valid, and still a literal
+substring of `RESEARCH_USER_AGENT`. `isRfc9309ProductToken` (exported,
+pure) pins the grammar so this cannot silently regress a second time; a test
+asserts the repository's own token satisfies it.
+
+**3. URI matching is now performed on RFC 3986/9309's canonical OCTET
+representation, not on whichever spelling WHATWG happened to expose.**
+`canonicaliseUriComponent` (pure) is applied identically to every rule value
+and every matched path before comparison: a `%XX` triple that decodes to an
+UNRESERVED byte (letters, digits, `-._~`) is replaced by its literal
+character (`%62%61%7A` and `baz` now compare equal, as RFC 3986 §2.3
+requires); a `%XX` triple that decodes to a RESERVED byte (`%2F` for `/`) is
+NEVER decoded to its literal form, because doing so would silently merge
+what the URI treats as two path segments into one; hex digits are
+normalised to uppercase; a literal non-ASCII character and its
+percent-encoded UTF-8 spelling compare equal; the robots-only wildcard
+metacharacters `*`/`$` survive canonicalisation as literal characters only
+when UNENCODED in the source, so an escaped `%2A`/`%24` correctly means a
+literal character rather than wildcard syntax. Rule specificity
+(longest-match-wins) is now measured on this canonical form too, so
+`%62%61%7A` and `baz` are recognised as equally specific rather than the
+percent-encoded spelling of an identical pattern outranking its plain
+spelling by raw character count.
+
+**A fourth, independent bug was found while writing the test for #3, not
+predicted by the RFC audit itself:** the rule-value-to-regex compiler escaped
+only a hand-picked subset of JavaScript's regex metacharacters, and `?` was
+missing from that set. A literal `?` in a rule value - an entirely ordinary
+character, e.g. a query-string prefix like `/search?q=` - was silently
+interpreted as a regex quantifier (making the preceding character optional)
+rather than a literal question mark, breaking every rule that targeted a
+path containing one. Fixed by escaping the complete JavaScript regex
+special-character set rather than a curated subset - the class of bug ("which
+character did we forget") is closed by construction, not merely patched for
+`?` specifically.
+
+**No migration.** All four fixes are pure-function corrections inside
+`robotsPolicy.ts`/`robots.ts`; the stored `robots_decision`/`robots_rule`
+values these functions produce were already within the landed taxonomy and
+the 512-character rule cap before and after the fix - only WHICH value gets
+computed for a previously-mishandled input changed, not the shape of what
+can be stored.

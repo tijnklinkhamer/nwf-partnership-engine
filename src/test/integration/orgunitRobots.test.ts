@@ -532,7 +532,9 @@ describeIf('robots.ts orchestration (integration)', () => {
     });
 
     it('the user-agent token evaluated is the SAME identity the gateway sends on the wire', async () => {
-      expect(ROBOTS_USER_AGENT_TOKEN).toBe('NWFPartnershipEngine-Research/1.0');
+      // A valid RFC 9309 product-token: letters and one hyphen only, and
+      // still a literal substring of the full wire identity.
+      expect(ROBOTS_USER_AGENT_TOKEN).toBe('NWFPartnershipEngine-Research');
       const transport = transportWithRobots(
         textResponse(200, `User-agent: ${ROBOTS_USER_AGENT_TOKEN}\nDisallow: /`),
       );

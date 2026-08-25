@@ -36,6 +36,121 @@
  */
 import type { RobotsDecision } from './observations.js';
 
+/**
+ * RFC 9309 s2.2.1's product-token grammar: `1*(%x2D / %x5F / %x41-5A / %x61-7A)`
+ * - hyphen, underscore, and ASCII letters ONLY. No digits, no slash, no dot.
+ *
+ * This is deliberately NARROWER than the full HTTP User-Agent string this
+ * repository sends on the wire (`RESEARCH_USER_AGENT` in policy.ts, which
+ * legitimately carries a version number and a URL comment per ordinary HTTP
+ * convention) - the two live at different layers and are checked against
+ * different grammars. `robots.ts`'s `ROBOTS_USER_AGENT_TOKEN` is a NARROWER
+ * VIEW of that string, stripped down to satisfy exactly this grammar.
+ */
+const PRODUCT_TOKEN_PATTERN = /^[A-Za-z_-]+$/;
+
+/** True only for a string that is itself a valid RFC 9309 product-token. */
+export function isRfc9309ProductToken(token: string): boolean {
+  return PRODUCT_TOKEN_PATTERN.test(token);
+}
+
+const UNRESERVED_BYTE = /^[A-Za-z0-9\-._~]$/;
+
+/**
+ * Canonicalises a URI COMPONENT (a robots.txt rule value, or a request path)
+ * to the octet-level form RFC 9309 s2.2.2 requires comparisons to happen on.
+ *
+ * TWO DIRECTIONS, NEVER CONFUSED:
+ *
+ *   - A `%XX` triple that decodes to an UNRESERVED byte (ALPHA / DIGIT / "-"
+ *     / "." / "_" / "~") is REPLACED by its literal character. RFC 3986 s2.3:
+ *     these are equivalent representations of the same content, so
+ *     `%62%61%7A` and `baz` MUST compare equal.
+ *   - A `%XX` triple that decodes to anything else - a RESERVED character
+ *     (e.g. `%2F` for `/`), or a non-ASCII UTF-8 octet - is NEVER decoded to
+ *     its literal form, only re-encoded with UPPERCASE hex digits for a
+ *     stable comparison. Decoding a reserved octet would change what the URI
+ *     MEANS: `%2F` inside a path segment is not the same thing as a literal
+ *     `/` acting as a segment delimiter, and collapsing that distinction is
+ *     exactly the class of path-matching bug this function exists to avoid.
+ *
+ * A LITERAL (never-percent-encoded) character in the input is handled the
+ * same way, one Unicode code point at a time:
+ *
+ *   - unreserved ASCII: emitted literally (already canonical);
+ *   - a structural/reserved ASCII delimiter, OR one of this module's own
+ *     wildcard metacharacters `*` `$`: emitted literally, so path-segment
+ *     boundaries and wildcard syntax both survive canonicalisation intact -
+ *     re-encoding a literal `/` into `%2F` would destroy prefix matching for
+ *     every ordinary rule in existence;
+ *   - anything else ASCII (space, control characters, `"<>{}|\^`` - bytes a
+ *     well-formed URI should never carry unencoded): percent-encoded, so a
+ *     careless literal and its correctly-escaped equivalent still compare
+ *     equal;
+ *   - non-ASCII: encoded as its UTF-8 byte sequence, percent-encoded
+ *     uppercase - RFC 9309 s2.2.2's requirement that non-ASCII content be
+ *     compared via its percent-encoded UTF-8 octets, so a literal `café` in
+ *     one spelling and `caf%C3%A9` in the other compare equal.
+ *
+ * The two robots.txt-only metacharacters `*` and `$` are preserved literally
+ * ONLY when they appear UNENCODED in the input - `%2A` and `%24` decode to
+ * reserved/sub-delim bytes, so under the rule above they stay percent-encoded
+ * rather than becoming literal `*`/`$`, which correctly keeps them from being
+ * reinterpreted as wildcard syntax. An unencoded `*` or `$` in a rule value is
+ * the ONLY way to write a wildcard; an escaped one means a literal character.
+ */
+export function canonicaliseUriComponent(raw: string): string {
+  const STRUCTURAL_LITERAL = new Set([
+    ':',
+    '/',
+    '?',
+    '#',
+    '[',
+    ']',
+    '@', // gen-delims
+    '!',
+    '$',
+    '&',
+    "'",
+    '(',
+    ')',
+    '*',
+    '+',
+    ',',
+    ';',
+    '=', // sub-delims (includes our * and $)
+  ]);
+  let out = '';
+  let i = 0;
+  while (i < raw.length) {
+    const char = raw[i]!;
+    if (char === '%' && /^[0-9a-fA-F]{2}$/.test(raw.slice(i + 1, i + 3))) {
+      const byte = Number.parseInt(raw.slice(i + 1, i + 3), 16);
+      const asChar = String.fromCharCode(byte);
+      out += UNRESERVED_BYTE.test(asChar)
+        ? asChar
+        : `%${byte.toString(16).toUpperCase().padStart(2, '0')}`;
+      i += 3;
+      continue;
+    }
+    const codePoint = raw.codePointAt(i)!;
+    const unit = String.fromCodePoint(codePoint);
+    if (codePoint < 128) {
+      if (UNRESERVED_BYTE.test(unit) || STRUCTURAL_LITERAL.has(unit)) {
+        out += unit;
+      } else {
+        out += `%${codePoint.toString(16).toUpperCase().padStart(2, '0')}`;
+      }
+    } else {
+      for (const byte of Buffer.from(unit, 'utf-8')) {
+        out += `%${byte.toString(16).toUpperCase().padStart(2, '0')}`;
+      }
+    }
+    i += unit.length;
+  }
+  return out;
+}
+
 export interface RobotsMatchResult {
   decision: RobotsDecision;
   /** The exact matched rule line, capped to the schema's 512-character limit. */
@@ -76,19 +191,37 @@ interface RuleGroup {
  * which this treats as a rule that never matches - not as an ALLOW override
  * needing special-case precedence.
  */
-function compilePathPattern(value: string): { pattern: RegExp; specificity: number } {
-  if (value === '') {
+function compilePathPattern(rawValue: string): { pattern: RegExp; specificity: number } {
+  if (rawValue === '') {
     // Matches nothing. Kept as a real (never-matching) rule rather than
     // filtered out, so an empty Disallow still occupies its declared position
     // for anyone reading the parsed group - it is a rule that says nothing,
     // not an absent one.
     return { pattern: /(?!)/, specificity: 0 };
   }
+  // CANONICALISED FIRST, so `%62%61%7A` and `baz` compile to the identical
+  // pattern and specificity, and a rule's specificity is measured in RFC
+  // 9309's octets rather than in whichever spelling the site happened to
+  // write. `*` and `$` survive canonicalisation as literal characters
+  // (canonicaliseUriComponent's STRUCTURAL_LITERAL set), so the wildcard/
+  // end-anchor logic below still finds them - UNLESS the site itself
+  // percent-encoded them (`%2A`, `%24`), which correctly stops them being
+  // read as wildcard syntax at all: they stay `%2A`/`%24` and match nothing
+  // wildcard-like, exactly the literal-character intent an escaped form
+  // signals.
+  const value = canonicaliseUriComponent(rawValue);
   const endAnchored = value.endsWith('$');
   const body = endAnchored ? value.slice(0, -1) : value;
   const segments = body.split('*');
   const literalLength = segments.join('').length;
-  const escaped = segments.map((segment) => segment.replace(/[.+^${}()|[\]\\]/g, '\\$&'));
+  // ALL regex metacharacters, not a hand-picked subset: an unescaped literal
+  // `?` (a common, legitimate rule character - e.g. a query-string prefix
+  // like `/search?q=`) is a regex QUANTIFIER, not a literal question mark,
+  // and silently made the preceding character optional instead of requiring
+  // it - found by writing exactly the query-string test this correction pass
+  // asked for. Escaping the complete JS regex special-character set here
+  // once removes that whole class of "which character did we forget" bug.
+  const escaped = segments.map((segment) => segment.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
   const source = `^${escaped.join('.*')}${endAnchored ? '$' : ''}`;
   return { pattern: new RegExp(source), specificity: literalLength + (endAnchored ? 1 : 0) };
 }
@@ -170,41 +303,56 @@ export function clampCrawlDelay(seconds: number): number {
 }
 
 /**
- * Picks the applicable group for one user-agent token.
+ * Picks EVERY group applicable to one user-agent token.
  *
- * A group naming the exact product token wins over `*`, which is the
- * standard's specific-beats-wildcard rule applied to exactly the two tokens
- * this repository ever presents. `*` is the fallback. No group matching means
- * unrestricted access - the standard's own default, not a guess.
+ * RFC 9309 s2.2.1: "If there is more than one group matching the User-Agent,
+ * the matching groups' rules MUST be combined into one group." A robots.txt
+ * with two separate `User-agent: NWFPartnershipEngine-Research` records - not
+ * merged into one because something else (a comment, a blank-line-free but
+ * unrelated directive) sits between them - is common in hand-edited files,
+ * and reading only the FIRST such group would silently discard the second
+ * one's rules. This returns ALL groups naming the exact product token, or,
+ * only when NONE do, all `*` groups - specific-beats-wildcard applied to the
+ * SET of matching groups, not to a single winner picked out of it. No group
+ * matching at all means unrestricted access - the standard's own default.
  */
-function selectGroup(groups: readonly RuleGroup[], userAgentToken: string): RuleGroup | null {
+function selectMatchingGroups(
+  groups: readonly RuleGroup[],
+  userAgentToken: string,
+): readonly RuleGroup[] {
   const wanted = normaliseAgentToken(userAgentToken);
-  const specific = groups.find((group) => group.agents.includes(wanted));
-  if (specific !== undefined) return specific;
-  return groups.find((group) => group.agents.includes('*')) ?? null;
+  const specific = groups.filter((group) => group.agents.includes(wanted));
+  if (specific.length > 0) return specific;
+  return groups.filter((group) => group.agents.includes('*'));
 }
 
 /**
- * Matches one path against one group's rules.
+ * Matches one path against the COMBINED rules of every applicable group.
  *
- * LONGEST MATCH WINS, measured in literal (non-wildcard) characters - the
- * standard's own tie-breaker, because a more specific rule is presumed to
- * express the site's actual intent more precisely than a broad one. On an
- * EXACT specificity tie, `Allow` wins over `Disallow`: the standard leaves
- * this case implementation-defined, and allowing on a tie is the documented
- * choice of the two major real-world implementations (Google, Bing), pinned
- * here by test rather than left to accident.
+ * LONGEST MATCH WINS, measured in literal (non-wildcard) characters of the
+ * CANONICALISED rule text - the standard's own tie-breaker, because a more
+ * specific rule is presumed to express the site's actual intent more
+ * precisely than a broad one. On an EXACT specificity tie, `Allow` wins over
+ * `Disallow`: the standard leaves this case implementation-defined, and
+ * allowing on a tie is the documented choice of the two major real-world
+ * implementations (Google, Bing), pinned here by test rather than left to
+ * accident. `path` is canonicalised identically to every rule value, so
+ * `%62%61%7A` in a Disallow line matches a literal `baz` in the request path
+ * and vice versa.
  */
-function matchGroup(group: RuleGroup, path: string): RobotsMatchResult {
+function matchGroups(groups: readonly RuleGroup[], rawPath: string): RobotsMatchResult {
+  const path = canonicaliseUriComponent(rawPath);
   let best: PathRule | null = null;
-  for (const rule of group.rules) {
-    if (!rule.pattern.test(path)) continue;
-    if (
-      best === null ||
-      rule.specificity > best.specificity ||
-      (rule.specificity === best.specificity && rule.kind === 'allow' && best.kind === 'disallow')
-    ) {
-      best = rule;
+  for (const group of groups) {
+    for (const rule of group.rules) {
+      if (!rule.pattern.test(path)) continue;
+      if (
+        best === null ||
+        rule.specificity > best.specificity ||
+        (rule.specificity === best.specificity && rule.kind === 'allow' && best.kind === 'disallow')
+      ) {
+        best = rule;
+      }
     }
   }
   if (best === null) return { decision: 'ALLOWED', rule: null };
@@ -250,13 +398,21 @@ export class EvaluatedRobotsPolicy {
   }
 
   /**
-   * No robots.txt exists, or the site said so unambiguously.
+   * A definite 404 (the file was confirmed absent), OR a response this run
+   * is ENTITLED TO TREAT AS IF no file existed, OR a 2xx response with an
+   * empty/whitespace-only body.
    *
-   * Covers a 404, every other 4xx (RFC 9309 s2.3.1.3: a client MAY treat any
-   * 4xx as "no robots.txt file is present" - the entire fetched-4xx family is
-   * folded into this one honest outcome rather than inventing per-status
-   * nuance the standard does not require), and a 2xx response with an empty
-   * or whitespace-only body.
+   * `NO_ROBOTS_FILE` therefore does NOT literally assert "this site has no
+   * robots.txt" for every case it covers - it is RFC 9309 s2.3.1.3's own
+   * "unavailable" class for the 4xx family: "if the robots.txt file is
+   * unavailable due to server error [4xx]... crawlers MAY access any
+   * resources on the server", i.e. the standard licenses treating any 4xx
+   * (401, 403, ... - not only 404) as equivalent to no restrictions, without
+   * requiring the crawler to have proven the file's actual non-existence.
+   * The landed schema's `robots_decision` column comment does not define this
+   * value's meaning beyond its name (checked against migration 0007 directly,
+   * s7 of ADR 0006), so recording the whole 4xx family here is a stored fact
+   * consistent with - not a reinterpretation of - what the schema commits to.
    */
   static noRestrictions(): EvaluatedRobotsPolicy {
     return new EvaluatedRobotsPolicy([], null);
@@ -293,13 +449,27 @@ export class EvaluatedRobotsPolicy {
 
   /**
    * The clamped Crawl-delay this policy declared for the given agent, or
-   * `null` when none was declared. Informational only - see robots.ts and
-   * ADR 0006: nothing in this slice sleeps because of it.
+   * `null` when none of the applicable (combined) groups declared one.
+   * Informational only - see robots.ts and ADR 0006: nothing in this slice
+   * sleeps because of it.
+   *
+   * When SEVERAL matching groups each declare a Crawl-delay, the MAXIMUM of
+   * them is used. RFC 9309 does not define a combination rule for this
+   * directive; taking the largest (slowest) value is the conservative choice
+   * consistent with combining Allow/Disallow rules by union - the combined
+   * group's overall posture is "obey the most restrictive applicable
+   * instruction", and a slower pace is the restrictive direction for pacing.
    */
   crawlDelaySecondsFor(userAgentToken: string): number | null {
     if (this.#groups === null) return null;
-    const group = selectGroup(this.#groups, userAgentToken);
-    return group?.crawlDelaySeconds ?? null;
+    const applicable = selectMatchingGroups(this.#groups, userAgentToken);
+    let max: number | null = null;
+    for (const group of applicable) {
+      if (group.crawlDelaySeconds !== null && (max === null || group.crawlDelaySeconds > max)) {
+        max = group.crawlDelaySeconds;
+      }
+    }
+    return max;
   }
 
   /**
@@ -317,8 +487,8 @@ export class EvaluatedRobotsPolicy {
   evaluate(userAgentToken: string, path: string): RobotsMatchResult {
     if (this.#groups === null) return { decision: 'ROBOTS_UNREADABLE', rule: null };
     if (this.#groups.length === 0) return { decision: 'NO_ROBOTS_FILE', rule: null };
-    const group = selectGroup(this.#groups, userAgentToken);
-    if (group === null) return { decision: 'ALLOWED', rule: null };
-    return matchGroup(group, path);
+    const applicable = selectMatchingGroups(this.#groups, userAgentToken);
+    if (applicable.length === 0) return { decision: 'ALLOWED', rule: null };
+    return matchGroups(applicable, path);
   }
 }

@@ -69,14 +69,29 @@ import { EvaluatedRobotsPolicy } from './robotsPolicy.js';
  * the wire, centralised in `policy.ts` - rather than declared as a second
  * literal: there is exactly one string this repository calls its own
  * identity, and this is a computed VIEW of it, not a second copy that could
- * drift. The parenthetical `(+https://newwavefluent.com/)` comment is
- * stripped because a site's robots.txt names a product token
- * (`NWFPartnershipEngine-Research/1.0`), never the full User-Agent header
- * text with its trailing comment - matching against the unstripped string
- * would silently fail to match a group any real site would have intended to
- * cover.
+ * drift.
+ *
+ * TWO THINGS ARE STRIPPED, NOT ONE, and both are load-bearing:
+ *
+ *   1. The parenthetical `(+https://newwavefluent.com/)` comment - a site's
+ *      robots.txt names a product token, never the full User-Agent header
+ *      text with its trailing comment.
+ *   2. The `/1.0` version suffix - RFC 9309 s2.2.1's product-token grammar is
+ *      `1*(%x2D / %x5F / %x41-5A / %x61-7A)`: hyphen, underscore and ASCII
+ *      letters ONLY. No digits, no slash. `NWFPartnershipEngine-Research/1.0`
+ *      is NOT a valid product-token under that grammar - it took stripping
+ *      only the comment, in an earlier draft of this file, to notice the
+ *      remaining `/1.0` was still wrong; `isRfc9309ProductToken` now pins the
+ *      full contract by direct test so that regression cannot recur silently.
+ *
+ * The result, `NWFPartnershipEngine-Research`, is grammar-valid AND remains a
+ * literal substring of `RESEARCH_USER_AGENT` - the two identities agree on
+ * what this worker is called, just at two different specificities.
  */
-export const ROBOTS_USER_AGENT_TOKEN = RESEARCH_USER_AGENT.replace(/\s*\([^)]*\)\s*$/, '');
+export const ROBOTS_USER_AGENT_TOKEN = RESEARCH_USER_AGENT.replace(/\s*\([^)]*\)\s*$/, '').replace(
+  /\/[0-9][0-9A-Za-z.-]*$/,
+  '',
+);
 
 /**
  * An explicit, RUN-SCOPED cache of evaluated robots policies.
