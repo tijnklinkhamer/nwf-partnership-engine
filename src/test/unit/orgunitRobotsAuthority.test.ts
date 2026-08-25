@@ -12,6 +12,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { RobotsAuthorisation } from '../../orgunits/web/robotsAuthority.js';
+import { EvaluatedRobotsPolicy } from '../../orgunits/web/robotsPolicy.js';
 
 describe('RobotsAuthorisation: cannot be forged', () => {
   it('refuses a structurally identical plain object', () => {
@@ -88,14 +89,128 @@ describe('RobotsAuthorisation: the constructor does not exist in production', ()
     }
   });
 
-  it('names 2B-1c as where a real authority comes from', () => {
+  it('names the real production factories as where a real authority comes from', () => {
     const original = process.env['VITEST'];
     try {
       delete process.env['VITEST'];
-      expect(() => RobotsAuthorisation.forTestsOnly('ALLOWED')).toThrow(/2B-1c/);
+      expect(() => RobotsAuthorisation.forTestsOnly('ALLOWED')).toThrow(
+        /forEvaluatedPolicy|forRobotsTxtBootstrap/,
+      );
     } finally {
       if (original === undefined) delete process.env['VITEST'];
       else process.env['VITEST'] = original;
     }
+  });
+});
+
+describe('RobotsAuthorisation.forRobotsTxtBootstrap: exact-path scoping', () => {
+  it('authorises exactly the robots.txt request, decision NOT_APPLICABLE', () => {
+    const auth = RobotsAuthorisation.forRobotsTxtBootstrap('https://example.edu/robots.txt');
+    expect(RobotsAuthorisation.isAuthorisation(auth)).toBe(true);
+    expect(auth.decision).toBe('NOT_APPLICABLE');
+    expect(auth.rule).toBeNull();
+    expect(auth.scopedToUrl).toBe('https://example.edu/robots.txt');
+  });
+
+  it('refuses a URL that is not exactly /robots.txt', () => {
+    expect(() => RobotsAuthorisation.forRobotsTxtBootstrap('https://example.edu/')).toThrow();
+    expect(() =>
+      RobotsAuthorisation.forRobotsTxtBootstrap('https://example.edu/international/robots.txt'),
+    ).toThrow();
+    expect(() =>
+      RobotsAuthorisation.forRobotsTxtBootstrap('https://example.edu/robots.txt?x=1'),
+    ).toThrow();
+    expect(() =>
+      RobotsAuthorisation.forRobotsTxtBootstrap('https://example.edu/robots.txt#frag'),
+    ).toThrow();
+  });
+
+  it('refuses an unparsable URL', () => {
+    expect(() => RobotsAuthorisation.forRobotsTxtBootstrap('not a url')).toThrow();
+  });
+
+  it('preserves scheme and host exactly, for both http and https', () => {
+    expect(
+      RobotsAuthorisation.forRobotsTxtBootstrap('http://example.edu/robots.txt').scopedToUrl,
+    ).toBe('http://example.edu/robots.txt');
+    expect(
+      RobotsAuthorisation.forRobotsTxtBootstrap('https://intl.example.edu/robots.txt').scopedToUrl,
+    ).toBe('https://intl.example.edu/robots.txt');
+  });
+});
+
+describe('RobotsAuthorisation.forEvaluatedPolicy: derived from a real policy, scoped to one page', () => {
+  const UA = 'NWFPartnershipEngine-Research/1.0';
+
+  it('derives ALLOWED from a real parsed policy', () => {
+    const policy = EvaluatedRobotsPolicy.fromBody('User-agent: *\nAllow: /');
+    const auth = RobotsAuthorisation.forEvaluatedPolicy(policy, 'https://example.edu/office', UA);
+    expect(RobotsAuthorisation.isAuthorisation(auth)).toBe(true);
+    expect(auth.decision).toBe('ALLOWED');
+    expect(auth.scopedToUrl).toBe('https://example.edu/office');
+  });
+
+  it('derives DISALLOWED and carries the matched rule', () => {
+    const policy = EvaluatedRobotsPolicy.fromBody('User-agent: *\nDisallow: /admin');
+    const auth = RobotsAuthorisation.forEvaluatedPolicy(
+      policy,
+      'https://example.edu/admin/panel',
+      UA,
+    );
+    expect(auth.decision).toBe('DISALLOWED');
+    expect(auth.rule).toBe('Disallow: /admin');
+  });
+
+  it('derives NO_ROBOTS_FILE from noRestrictions()', () => {
+    const policy = EvaluatedRobotsPolicy.noRestrictions();
+    const auth = RobotsAuthorisation.forEvaluatedPolicy(policy, 'https://example.edu/x', UA);
+    expect(auth.decision).toBe('NO_ROBOTS_FILE');
+  });
+
+  it('derives ROBOTS_UNREADABLE from unavailable()', () => {
+    const policy = EvaluatedRobotsPolicy.unavailable('SERVER_ERROR');
+    const auth = RobotsAuthorisation.forEvaluatedPolicy(policy, 'https://example.edu/x', UA);
+    expect(auth.decision).toBe('ROBOTS_UNREADABLE');
+  });
+
+  it('scopes to the exact page URL, path and query included', () => {
+    const policy = EvaluatedRobotsPolicy.fromBody('User-agent: *\nAllow: /');
+    const auth = RobotsAuthorisation.forEvaluatedPolicy(
+      policy,
+      'https://example.edu/office?tab=1',
+      UA,
+    );
+    expect(auth.scopedToUrl).toBe('https://example.edu/office?tab=1');
+  });
+
+  it('REFUSES a hand-built object pretending to be an EvaluatedRobotsPolicy', () => {
+    const forged = {
+      evaluate: () => ({ decision: 'ALLOWED', rule: null }),
+    };
+    expect(() =>
+      RobotsAuthorisation.forEvaluatedPolicy(forged as never, 'https://example.edu/x', UA),
+    ).toThrow(/EvaluatedRobotsPolicy/);
+  });
+
+  it('refuses an unparsable target URL', () => {
+    const policy = EvaluatedRobotsPolicy.fromBody('User-agent: *\nAllow: /');
+    expect(() => RobotsAuthorisation.forEvaluatedPolicy(policy, 'not a url', UA)).toThrow();
+  });
+});
+
+describe('THE SCOPING PROBLEM: an authority cannot be reused for a different URL', () => {
+  it('a bootstrap authority is scoped ONLY to its own robots.txt URL', () => {
+    const bootstrap = RobotsAuthorisation.forRobotsTxtBootstrap('https://example.edu/robots.txt');
+    expect(bootstrap.scopedToUrl).not.toBe('https://example.edu/international/');
+  });
+
+  it('an ordinary-page authority is scoped ONLY to the page it was evaluated for', () => {
+    const policy = EvaluatedRobotsPolicy.fromBody('User-agent: *\nAllow: /');
+    const auth = RobotsAuthorisation.forEvaluatedPolicy(policy, 'https://example.edu/a', 'UA');
+    expect(auth.scopedToUrl).not.toBe('https://example.edu/b');
+  });
+
+  it('only the unscoped test seam has scopedToUrl null, and it is unreachable in production', () => {
+    expect(RobotsAuthorisation.forTestsOnly('ALLOWED').scopedToUrl).toBeNull();
   });
 });

@@ -9,23 +9,33 @@ goal is to research and qualify organisations — universities, International /
 Erasmus / Mobility offices, language centres, and student associations — that
 could distribute NWF to language learners.
 
-**Current state: Phase 1D, plus the Phase 2B-1a trust foundation and the
-Phase 2B-1b web gateway. This repository ingests THREE official datasets into a
-local PostgreSQL database — the ECHE list, the EWP Registry catalogue and the
-French Ministry register of higher-education institutions — lets you inspect
-them, and measures how their published identifiers and website values relate.
-It also holds ONE bounded network primitive that can perform ONE authorised GET
-against ONE institution URL and record what came back. That is all it DOES.**
+**Current state: Phase 1D, plus the Phase 2B-1a trust foundation, the
+Phase 2B-1b web gateway, and the Phase 2B-1c policy-governed page evidence
+capability. This repository ingests THREE official datasets into a local
+PostgreSQL database — the ECHE list, the EWP Registry catalogue and the French
+Ministry register of higher-education institutions — lets you inspect them,
+and measures how their published identifiers and website values relate. It
+also holds a SINGLE-PAGE acquisition capability: given one authorised root, it
+can evaluate that host's robots.txt, perform ONE policy-governed GET against
+ONE target page, and turn a successful HTML response into bounded, redacted
+page evidence. That is all it DOES.**
 
 **Migration 0007 creates eight `orgunit_*` tables and the `nwf_research` role.
-Phase 2B-1b built `src/orgunits/web/gateway.ts` against them and NOTHING ELSE:
-no crawler, no frontier, no queue, no retry policy, no site-policy reader, no
-sitemap reader, no HTML parsing, no charset detection, no extraction, no
-ranking code and no CLI command.** Every one of the eight tables holds zero
-rows in the working database, because no run has been executed against a live
-institution. See "What Phase 2B-1a established" and "What Phase 2B-1b built"
-below, `docs/adr/0004-bounded-first-party-web-acquisition.md` and
-`docs/adr/0005-bounded-web-gateway-and-fetch-policy-v1.md`.
+Phase 2B-1b built `src/orgunits/web/gateway.ts` against them; Phase 2B-1c added
+robots evaluation, charset resolution, HTML extraction, PII redaction and
+page-evidence persistence (`robots.ts`, `robotsPolicy.ts`, `charset.ts`,
+`extract.ts`, `redact.ts`, `pageEvidence.ts`) — and NOTHING ELSE: no frontier,
+no sitemap reader, no discovered-link following, no recursion, no
+concurrency, no retry, no circuit breaker, no CLI command, no classifier.**
+Every one of the eight tables still holds zero rows in the working database,
+because no run has been executed against a live institution — Phase 2B-1c
+built a capability that COULD authorise a live request but never issues one
+(no frontier exists yet to decide which pages are worth visiting). See "What
+Phase 2B-1a established", "What Phase 2B-1b built" and
+"What Phase 2B-1c built" below, and
+`docs/adr/0004-bounded-first-party-web-acquisition.md`,
+`docs/adr/0005-bounded-web-gateway-and-fetch-policy-v1.md` and
+`docs/adr/0006-policy-governed-page-evidence.md`.
 
 The sources are stored SIDE BY SIDE, never merged. No EWP record is attached to
 an organisation, and no `organisations` row is created or modified by EWP or by
@@ -229,6 +239,33 @@ it, or depend on it, and must never touch learner, payment, or payout data.
     `https://user:secret@evil.fr/` into the requestable `https://evil.fr/`.
     `orgunit_redirect_observations` is append-only under a role with no
     `DELETE`, so anything written there could never afterwards be removed.
+22. **A robots verdict is derived, never asserted, and every production
+    authority is scoped to the one URL it covers.** `RobotsAuthorisation`'s
+    production factories — `forRobotsTxtBootstrap`, exact-path-scoped to one
+    host's `/robots.txt`, and `forEvaluatedPolicy`, derived from a real,
+    brand-checked `EvaluatedRobotsPolicy` — are the only ways production code
+    can construct one; there is no `createRobotsAuthorisation('ALLOWED')`
+    shape anywhere. `scopedToUrl` names that exact URL, and
+    `executeWebAttempt` refuses byte-for-byte mismatches
+    (`ROBOTS_AUTHORISATION_SCOPE_MISMATCH`) before any DNS lookup — otherwise
+    a bootstrap authority minted for robots.txt could authorise an unrelated
+    ordinary page. `src/orgunits/web/robots.ts` is the ONE production caller
+    of `executeWebAttempt`, owns no socket itself, and fetches robots.txt at
+    most once per host per run via an explicit, run-scoped `RobotsCache` —
+    never a module-level singleton. Robots.txt redirects are never followed
+    and map onto the already-landed `ROBOTS_UNREADABLE` value; no migration
+    was needed (ADR 0006 s7).
+23. **Page evidence is extracted with no DOM, and every returned field is
+    redacted before it is returned.** `extract.ts` reads charset-decoded text
+    with regular expressions — `jsdom`, `cheerio`, `parse5`,
+    `@mozilla/readability`, `defuddle` and `turndown` were measured and
+    rejected. `redact.ts` replaces email/phone-shaped text with
+    `[EMAIL]`/`[PHONE]` as part of what extraction MEANS, not as a step a
+    caller can skip. A fetch observation is not automatically page evidence:
+    `pageEvidence.ts` persists a row only for a genuine 2xx HTML response with
+    a resolvable charset, never for a redirect or an error page however
+    HTML-shaped its body. `main_text` stays capped at exactly 40,000
+    characters, truncated deterministically, never raised.
 
 ## Decisions vs. hypotheses vs. unknowns
 
@@ -271,6 +308,12 @@ Keep these apart. Do not promote one to another without evidence.
   measured is paid by the service-subdomain refusal (rule 20) and, later, by the
   frontier's per-host circuit breaker — never by weakening evidence quality.
   Changing these numbers now requires NEW measurement and an ADR.
+- Robots evaluation, charset resolution, HTML extraction and PII redaction
+  (Phase 2B-1c, `docs/adr/0006-policy-governed-page-evidence.md`), added
+  against the same gateway with zero new runtime dependencies. Extraction uses
+  regular expressions over decoded text rather than a DOM; charset resolution
+  scans a real 64 KiB `<head>` rather than the 1024-byte prescan window that
+  missed the ADR 0004 s3 holdout's own late-meta case.
 
 **Working hypotheses — not settled**
 
@@ -652,6 +695,72 @@ Things that are DELIBERATELY the way they are:
 **Working-database row counts are unchanged: all eight `orgunit_*` tables still
 hold zero rows.** Every test writes to `nwf_pe_test` only.
 
+## What Phase 2B-1c built
+
+**Robots evaluation, charset resolution, HTML extraction, PII redaction and
+page-evidence persistence — a SINGLE-PAGE acquisition capability, still no
+frontier.** `authoriseAndFetchPage` (`src/orgunits/web/robots.ts`) evaluates
+one host's robots.txt, then fetches ONE target page if the policy allows it,
+then (via `persistPageEvidence`) turns a successful HTML response into one
+`orgunit_page_evidence` row. See
+`docs/adr/0006-policy-governed-page-evidence.md` for the full design.
+
+- **`RobotsAuthorisation` gained its first production constructors.**
+  `forRobotsTxtBootstrap(url)` authorises fetching exactly one robots.txt URL
+  (validated to be exactly `/robots.txt`, no query, no fragment) and produces
+  `NOT_APPLICABLE`. `forEvaluatedPolicy(policy, url, userAgentToken)`
+  authorises fetching one ordinary page by evaluating a real, brand-checked
+  `EvaluatedRobotsPolicy` against that page's exact path. Neither accepts a
+  bare decision string.
+- **Every production authority is URL-scoped.** `scopedToUrl` names the exact
+  URL an authority covers, and `executeWebAttempt` refuses
+  (`ROBOTS_AUTHORISATION_SCOPE_MISMATCH`) when the requested URL does not
+  match it byte-for-byte — closing the gap a naive robots-verdict-as-capability
+  design would otherwise have: a bootstrap authority minted for robots.txt
+  cannot be replayed against an ordinary page.
+- **`src/orgunits/web/robots.ts` is the ONE production caller of
+  `executeWebAttempt`**, pinned by exact path in `phase2b.firewall.test.ts`.
+  It owns no socket itself.
+- **Robots.txt is fetched at most once per host per run.** `RobotsCache` is an
+  explicit value the caller creates (`createRobotsCache()`) and threads
+  through one run — never a module-level singleton. Identity is
+  `(runId, scheme, hostname)`: sibling hosts under the same registrable domain
+  evaluate independently, because robots.txt is a per-origin policy.
+- **A robots.txt redirect needed no migration.** The gateway never follows a
+  redirect, robots.txt fetches included, so a 3xx response there leaves the
+  policy genuinely unread. The already-landed `ROBOTS_UNREADABLE` value
+  carries no CHECK narrower than "this gateway could not read the policy", so
+  it is the truthful, existing answer — verified against migration 0007's
+  exact constraints and column comment before any code was written.
+- **Charset resolution reads a real 64 KiB `<head>`, not the 1024-byte
+  prescan window** that missed the ADR 0004 s3 holdout's own late-meta case.
+  An unsupported EXPLICIT declaration (HTTP header or meta) is a refusal
+  (`CHARSET_UNRESOLVED`), never a silent fallback to windows-1252 over an
+  author's stated intent.
+- **Extraction uses no DOM.** `extract.ts` reads decoded text with regular
+  expressions; `jsdom`, `cheerio`, `parse5`, `@mozilla/readability`, `defuddle`
+  and `turndown` were all measured and rejected in the design audit. The
+  cross-page boilerplate-differencing PRIMITIVE
+  (`computeChromeLines`/`removeChromeLines`) exists and is tested, but is
+  **not called by `extractPage`**: one page cannot supply a valid site-level
+  boilerplate profile, and applying it to one page would remove all of that
+  page's content. Real application waits for a later multi-page slice.
+- **Every textual field extraction returns is redacted before it is
+  returned**, not as a separate step a caller might skip. `redact.ts` replaces
+  email- and phone-shaped text with `[EMAIL]`/`[PHONE]`, conservatively enough
+  that ordinary years, page numbers and room numbers survive untouched.
+- **Page evidence is a separate grain from fetch evidence.** A 3xx or 4xx/5xx
+  response, however HTML-shaped its body, produces no page evidence — only a
+  genuine 2xx HTML response with a resolvable charset does. `main_text` is
+  capped at exactly the landed 40,000 characters, truncated deterministically,
+  never raised.
+- **No live institution request was made.** A production-capable path exists,
+  but no bounded frontier, request-pacing enforcement or CLI exists yet to
+  decide which pages are worth visiting, so none were.
+
+**Working-database row counts are unchanged: all eight `orgunit_*` tables still
+hold zero rows.** Every test writes to `nwf_pe_test` only.
+
 ## What a `website_claims` row means
 
 **A `website_claims` row is ONE SOURCE'S ASSERTION about ONE ECHE SOURCE ROW.
@@ -791,21 +900,39 @@ src/cli/             CLI entry point and commands
 src/test/            unit, integration, firewall tests and the fixtures
 docs/adr/            architecture decision records
 
-src/orgunits/web/    the Phase 2B bounded acquisition primitive:
+src/orgunits/web/    the Phase 2B bounded acquisition + page-evidence primitive:
                        policy.ts       versioned timeouts, caps, headers. PURE.
                        address.ts      numeric IP classification. PURE.
                        url.ts          request-URL validation + root scope. PURE.
                        hostPolicy.ts   service-subdomain refusal, by LABEL. PURE.
-                       robotsAuthority.ts  the site-policy CAPABILITY. No
-                                       production constructor exists. PURE.
+                       robotsAuthority.ts  the site-policy CAPABILITY: URL-scoped
+                                       production factories (2B-1c) + the
+                                       unscoped test-only seam. PURE.
+                       robotsPolicy.ts robots.txt parsing + matching; the sealed
+                                       EvaluatedRobotsPolicy. PURE.
                        redirect.ts     redirect FACTS, never followed. PURE.
                        authority.ts    run + root authority, read from the DB.
                        observations.ts append-only evidence INSERTs.
                        gateway.ts      THE ONLY SOCKET IN src/orgunits/.
+                       robots.ts       ORCHESTRATION: fetches robots.txt +
+                                       ONE page, both THROUGH the gateway. The
+                                       one production caller of
+                                       executeWebAttempt. Owns no socket.
+                       charset.ts      BOM/HTTP/meta/UTF-8-probe/windows-1252
+                                       precedence, to a real 64 KiB head scan.
+                                       PURE.
+                       extract.ts      regex-based extraction, no DOM; the
+                                       unwired boilerplate-differencing
+                                       primitive. PURE.
+                       redact.ts       email/phone -> [EMAIL]/[PHONE]. PURE.
+                       pageEvidence.ts derives + persists ONE
+                                       orgunit_page_evidence row per eligible
+                                       fetch. Opens no socket.
                      Nothing else under src/orgunits/ may import node:dns,
                      node:net, node:tls, node:http or node:https, or call
-                     fetch(). src/orgunits/signals/, /candidates/ and /classify/
-                     do not exist and belong to later slices.
+                     fetch(). src/orgunits/web/sitemap.ts, frontier.ts and
+                     src/orgunits/signals/, /candidates/ and /classify/ do not
+                     exist and belong to later slices.
 ```
 
 ## Things the real data will surprise you with
@@ -981,18 +1108,25 @@ Vitest. `npm run validate` is the gate. Three categories:
   conclusion". `phase2b` adds the Phase 2B boundaries: no raw-body column in any
   migration, no contact or relevance or outreach column, no mutating grant to
   `nwf_research`, the forbidden research namespaces, ONE permitted network
-  location (`src/orgunits/web/gateway.ts`, now asserted to EXIST while the
-  robots reader, sitemap reader, frontier, extractor, charset handler, signals,
-  candidates and classifier are asserted absent), TLS verification never
+  location (`src/orgunits/web/gateway.ts`), TLS verification never
   disabled, no proxy indirection, no redirect followed, no retry inside the
   primitive, and no body written to a file or a column. The trust-contract
-  correction added five more: the explicit-port rule is read from the RAW input
+  correction added: the explicit-port rule is read from the RAW input
   (`non_default_port` may not reappear), the service-subdomain gate exists and
   runs BEFORE the DNS call (proved by ORDER in the file, and asserted
-  country-blind and label-based), no production file constructs a site-policy
-  verdict, **no production file calls `executeWebAttempt` at all**, no credential
-  survives a redirect, and the connect timeout may not fall below 30 s nor equal
-  the total. Phase 1D's socket
+  country-blind and label-based), no credential survives a redirect, and the
+  connect timeout may not fall below 30 s nor equal the total. Phase 2B-1c then
+  deliberately widened two things it had previously pinned closed, both by
+  exact name: `robots.ts`, `robotsPolicy.ts`, `charset.ts`, `extract.ts`,
+  `redact.ts` and `pageEvidence.ts` are now asserted to EXIST (while
+  `sitemap.ts`, `frontier.ts`, `signals/`, `candidates/` and `classify/` stay
+  asserted absent), and `robots.ts` is asserted as the EXACTLY-ONE production
+  caller of `executeWebAttempt` — a caller that must construct its authority
+  only via the two URL-scoped production factories, never the test-only seam.
+  New checks also confine the string `robots.txt` to the files approved to
+  name it, forbid any generic robots-bypass flag, keep the five new modules
+  network-free, and forbid `mailto:`/`tel:` anywhere outside `redact.ts`.
+  Phase 1D's socket
   allow-list was widened ONCE, by exact path, for the gateway — the deliberate
   visible edit ADR 0004 s18 predicted — and Phase 1D's own files are asserted
   socket-free, resolver-free and forbidden from importing it. These assert real capabilities (dependencies,

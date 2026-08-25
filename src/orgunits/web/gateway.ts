@@ -24,24 +24,32 @@
  *
  *   1. The RUN must be open, non-dry, and governed by a fetch policy this build
  *      implements.
- *   2. The ROOT must be an official website claim or a live operator promotion,
+ *   2. The ROBOTS AUTHORISATION must be a real `RobotsAuthorisation` (brand
+ *      check, not a type annotation) and must name THIS EXACT URL - so an
+ *      authority minted for robots.txt itself, or for a different page,
+ *      cannot be reused here (robotsAuthority.ts "THE SCOPING PROBLEM").
+ *   3. The ROOT must be an official website claim or a live operator promotion,
  *      read from the database. The caller supplies an ID, never a URL.
- *   3. The requested URL must parse, be http(s), carry no credentials, name no
+ *   4. The requested URL must parse, be http(s), carry no credentials, name no
  *      IP literal, carry NO EXPLICIT PORT AT ALL, and sit under a real ICANN
  *      suffix.
- *   4. It must fall inside the root's REGISTRABLE DOMAIN, without a scheme
+ *   5. It must fall inside the root's REGISTRABLE DOMAIN, without a scheme
  *      downgrade, AND its host must carry no known service label - same
  *      registrable domain is necessary but not sufficient (`hostPolicy.ts`).
- *   5. The hostname is RESOLVED, EVERY returned address is VALIDATED, and the
+ *   6. The hostname is RESOLVED, EVERY returned address is VALIDATED, and the
  *      connection is PINNED to one validated address - so a re-resolution
  *      between check and connect cannot substitute another (ADR 0004 s11).
- *   6. TLS certificate validation stays on, against the ORIGINAL hostname.
- *   7. The response is read under a byte cap that also bounds decompression.
- *   8. Whatever happened is appended as immutable evidence.
+ *   7. TLS certificate validation stays on, against the ORIGINAL hostname.
+ *   8. The response is read under a byte cap that also bounds decompression.
+ *   9. Whatever happened is appended as immutable evidence.
  *
  * WHAT IT IS NOT: a crawler, a frontier, a queue, a retry policy, an extractor,
  * a charset detector, a ranker, or anything that decides what a page MEANS. It
  * decides only whether a request is permitted, and records what came back.
+ * Charset resolution, HTML extraction and PII redaction live in `charset.ts`,
+ * `extract.ts` and `redact.ts`, all pure and all network-free; `robots.ts`
+ * orchestrates a robots.txt fetch and an ordinary-page fetch, both THROUGH
+ * this gateway, and owns no socket of its own.
  */
 import { createHash } from 'node:crypto';
 import { promises as dnsPromises } from 'node:dns';
@@ -184,9 +192,14 @@ export interface WebAttemptInput {
    * It is a `RobotsAuthorisation` and not a string because an earlier draft
    * took the verdict as an ordinary field, which let any caller write ALLOWED
    * without anything ever having read the site's rules. `RobotsAuthorisation`
-   * has no production constructor in this build, so no production caller can
-   * reach this function at all - which is deliberately safer than storing a
-   * provenance nobody derived. See `robotsAuthority.ts` and ADR 0005 s8.
+   * has a production construction path since 2B-1c (`robots.ts`,
+   * `robotsAuthority.ts`), reachable only by actually evaluating a site's real
+   * robots.txt. See `robotsAuthority.ts` and ADR 0006.
+   *
+   * MUST NAME THIS EXACT REQUEST. `input.robots.scopedToUrl`, when non-null,
+   * is checked against the validated request URL byte-for-byte; a mismatch is
+   * refused before any DNS lookup. See `robotsAuthority.ts` "THE SCOPING
+   * PROBLEM".
    *
    * `DISALLOWED` is still ENFORCED here: it produces a BLOCKED_BY_POLICY
    * observation and zero socket activity.
@@ -671,6 +684,24 @@ export async function executeWebAttempt(
     );
   }
   const requested = validated.value;
+
+  // THE ROBOTS AUTHORISATION MUST NAME THIS EXACT URL.
+  //
+  // Every production authority - the robots.txt bootstrap and the
+  // ordinary-page one alike - is minted for one exact URL (robotsAuthority.ts
+  // "THE SCOPING PROBLEM"). A mismatch here means the caller is trying to
+  // reuse an authority for a request it was never evaluated against - most
+  // dangerously, presenting the robots.txt bootstrap's NOT_APPLICABLE verdict
+  // for an ordinary page, which nothing else in this function would catch.
+  // The one exception is the unscoped test seam (`scopedToUrl: null`), which
+  // is itself unreachable in production.
+  if (input.robots.scopedToUrl !== null && input.robots.scopedToUrl !== requested.url) {
+    throw new WebGatewayRefusal(
+      'ROBOTS_AUTHORISATION_SCOPE_MISMATCH',
+      `the robots authorisation names ${input.robots.scopedToUrl}, but this attempt requests ` +
+        `${requested.url}. An authority evaluated for one URL cannot authorise another.`,
+    );
+  }
 
   const scope = checkRootScope(root.rootUrl, requested);
   if (!scope.ok) {
