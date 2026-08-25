@@ -9,18 +9,23 @@ goal is to research and qualify organisations — universities, International /
 Erasmus / Mobility offices, language centres, and student associations — that
 could distribute NWF to language learners.
 
-**Current state: Phase 1D, plus the Phase 2B-1a trust foundation. This
-repository ingests THREE official datasets into a local PostgreSQL database —
-the ECHE list, the EWP Registry catalogue and the French Ministry register of
-higher-education institutions — lets you inspect them, and measures how their
-published identifiers and website values relate. That is all it DOES.**
+**Current state: Phase 1D, plus the Phase 2B-1a trust foundation and the
+Phase 2B-1b web gateway. This repository ingests THREE official datasets into a
+local PostgreSQL database — the ECHE list, the EWP Registry catalogue and the
+French Ministry register of higher-education institutions — lets you inspect
+them, and measures how their published identifiers and website values relate.
+It also holds ONE bounded network primitive that can perform ONE authorised GET
+against ONE institution URL and record what came back. That is all it DOES.**
 
-**Migration 0007 additionally creates eight empty `orgunit_*` tables and the
-`nwf_research` role for a future phase of bounded first-party web acquisition.
-NOTHING USES THEM.** There is no `src/orgunits/` directory, no acquisition
-gateway, no crawler, no ranking code and no CLI command; every one of those
-tables holds zero rows and cannot acquire any. See "What Phase 2B-1a
-established" below and `docs/adr/0004-bounded-first-party-web-acquisition.md`.
+**Migration 0007 creates eight `orgunit_*` tables and the `nwf_research` role.
+Phase 2B-1b built `src/orgunits/web/gateway.ts` against them and NOTHING ELSE:
+no crawler, no frontier, no queue, no retry policy, no site-policy reader, no
+sitemap reader, no HTML parsing, no charset detection, no extraction, no
+ranking code and no CLI command.** Every one of the eight tables holds zero
+rows in the working database, because no run has been executed against a live
+institution. See "What Phase 2B-1a established" and "What Phase 2B-1b built"
+below, `docs/adr/0004-bounded-first-party-web-acquisition.md` and
+`docs/adr/0005-bounded-web-gateway-and-fetch-policy-v1.md`.
 
 The sources are stored SIDE BY SIDE, never merged. No EWP record is attached to
 an organisation, and no `organisations` row is created or modified by EWP or by
@@ -34,11 +39,18 @@ Claude/Anthropic integration, no contact discovery or storage, no scoring, no
 compliance engine, no email templates, no Apollo integration and no outbound
 capability. Do not add any of them without an approved phase.
 
-**No institution website is ever fetched.** Phase 1D reasons about websites
+**Phase 1D never fetches an institution website.** It reasons about websites
 using only what official registers PUBLISH about them. It issues no request to
-an institution's site — no GET, no HEAD, no redirect check, no robots.txt, no
-HTML parsing, no DNS resolution. A website column is exactly the thing that
+an institution's site — no GET, no HEAD, no redirect check, no site-policy read,
+no HTML parsing, no DNS resolution. A website column is exactly the thing that
 tempts a repository into becoming a crawler; do not let it.
+
+**Exactly ONE module may reach an institution: `src/orgunits/web/gateway.ts`.**
+It performs one GET per invocation under the checks in rule 18 below, and
+nothing else in this repository — Phase 1D emphatically included — may open a
+socket, resolve a hostname, or import that gateway. That allow-list is pinned by
+`phase1d.firewall.test.ts` and `phase2b.firewall.test.ts` at four production
+modules total; a fifth fails CI.
 
 **NWF production is isolated.** The NWF application lives in a separate repository
 with its own Supabase project. This repository must never read from it, write to
@@ -103,16 +115,19 @@ it, or depend on it, and must never touch learner, payment, or payout data.
     advertised an endpoint. It does not fetch it. That includes the OUnits API,
     which would expose faculties and language centres — the reason it is
     interesting is the reason it needs its own approved phase.
-11. **No institution website is ever fetched, and a stored website is never a
-    crawl target.** Phase 1D records what official registers PUBLISH about a
-    website. It never requests one. No `GET`, no `HEAD`, no redirect check, no
-    `robots.txt`, no HTML parsing, no DNS resolution. The only three files that
-    may call `fetch()` are the three official source resolvers, and
-    `phase1d.firewall.test.ts` asserts exactly that list. **Phase 1D also
-    performs no ECHE fetch of its own**: `--eche-file` is required by every
-    `website` command, and the CLI does not import the ECHE network resolvers
-    at all, because a claim is keyed by the artifact's SHA-256 and a silent
-    download would classify DIFFERENT bytes from the ones being reasoned about.
+11. **Phase 1D never requests an institution website, and a stored website is a
+    crawl target for NOTHING outside the one approved gateway.** Phase 1D
+    records what official registers PUBLISH. It issues no `GET`, no `HEAD`, no
+    redirect check, no site-policy read, no HTML parsing and no DNS resolution,
+    and `phase1d.firewall.test.ts` asserts that its own files import no socket
+    module and never import the gateway. The only three files that may call
+    `fetch()` are still the three official source resolvers — the orgunit
+    gateway uses Node's core HTTP client instead, because only that lets a
+    connection be pinned to a pre-validated address. **Phase 1D also performs no
+    ECHE fetch of its own**: `--eche-file` is required by every `website`
+    command, and the CLI does not import the ECHE network resolvers at all,
+    because a claim is keyed by the artifact's SHA-256 and a silent download
+    would classify DIFFERENT bytes from the ones being reasoned about.
 12. **A website claim is EVIDENCE, never a conclusion.** `website_claims` rows
     say "this source published this value for this ECHE source row". They never
     say "this is the official website". `AGREE` / `DISAGREE` /
@@ -150,11 +165,30 @@ it, or depend on it, and must never touch learner, payment, or payout data.
 17. **No response body is ever stored, and `src/orgunits/` is the only research
     namespace.** The bytes are a SHA-256 and a length; extracted text is capped
     by a `CHECK`. There is no `raw_html`, `page_html` or `response_body` column
-    and there must never be one. The ONE permitted future Phase 2B network
-    location is `src/orgunits/web/gateway.ts`, which **does not exist yet** -
-    building it is slice 2B-1b, and it requires deliberately widening Phase 1D's
-    `fetch()` allow-list. `src/research/`, `src/crawl/`, `src/scrape/` and
-    `src/enrich/` stay forbidden.
+    and there must never be one — nor a temporary file, nor a cache directory.
+    The gateway returns bounded bytes IN MEMORY because a later extractor needs
+    them; when the caller drops that value the bytes are gone.
+    `src/research/`, `src/crawl/`, `src/scrape/` and `src/enrich/` stay
+    forbidden, as do `src/orgunits/web/robots.ts`, `sitemap.ts`, `frontier.ts`,
+    `extract.ts`, `charset.ts`, `src/orgunits/signals/`,
+    `src/orgunits/candidates/` and `src/orgunits/classify/` — all asserted
+    absent, all belonging to later slices.
+
+18. **ONE invocation of the gateway is ONE HTTP ATTEMPT, and every authority
+    comes from the database.** `executeWebAttempt` performs at most one GET. It
+    never follows a redirect, never retries, never reads a second URL and never
+    recurses — a retry is the caller passing `attemptNo + 1`, and a redirect
+    target is a separate invocation that passes every check again. The caller
+    supplies a run id and a ROOT ID, never a root URL: a caller that could pair
+    a real claim with a URL of its own choosing would make every scope check
+    below it measure the caller's answer. A revoked promotion fails BEFORE any
+    DNS lookup. Scope is the same REGISTRABLE DOMAIN, computed by the single
+    `tldts` implementation exported from `src/website/parse.ts` — never a second
+    one. Resolve, validate EVERY returned address, refuse the whole host if any
+    is forbidden, then PIN the connection to one validated address; the original
+    hostname stays the Host header, the TLS SNI and the certificate subject, and
+    `rejectUnauthorized` is never anything but `true`. Never add proxy support:
+    `node:http`/`node:https` read no proxy variables, and that is load-bearing.
 
 ## Decisions vs. hypotheses vs. unknowns
 
@@ -183,6 +217,14 @@ Keep these apart. Do not promote one to another without evidence.
   Revisit at a third source.
 - A streaming SAX parser (`saxes`) for the 46 MB EWP catalogue, not a DOM and not
   a crawler framework. One GET, no auth, one schema-validated document.
+- Bounded first-party web acquisition begins with ONE network primitive at
+  `src/orgunits/web/gateway.ts`, using Node's core HTTP client rather than
+  `fetch()` so the connection can be pinned to a validated address, and no proxy
+  indirection can put a resolver back in between (Phase 2B-1b,
+  `docs/adr/0005-bounded-web-gateway-and-fetch-policy-v1.md`). Fetch policy
+  `orgunit-fetch-policy-v1`: 10 s connect, 30 s total, 5 MiB body cap over both
+  the wire and the decoded stream. A run whose recorded policy version this
+  build does not implement is REFUSED.
 
 **Working hypotheses — not settled**
 
@@ -489,6 +531,69 @@ come from scratch tooling that was deleted; neither sample nor ruleset survives.
 Do not quote them as a target, a baseline, or evidence that a later ruleset
 performs comparably.
 
+## What Phase 2B-1b built
+
+**ONE network primitive, `src/orgunits/web/gateway.ts`, and nothing else.**
+`executeWebAttempt(pool, input, transport?)` performs at most ONE GET against
+ONE authorised URL and appends what happened. It is not a crawler: there is no
+frontier, no queue, no concurrency, no retry policy, no redirect following, no
+site-policy reader, no sitemap reader, no HTML parsing, no charset detection, no
+extraction, no ranking and no CLI command. See
+`docs/adr/0005-bounded-web-gateway-and-fetch-policy-v1.md`.
+
+The order of the checks is the design, and it is the order in the file:
+
+| step      | refusal or evidence                                                                                                                   |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| run       | open, non-dry, policy version implemented by this build — else `WebGatewayRefusal`, no row, no socket                                 |
+| root      | a `STRUCTURALLY_VALID` claim, or a live promotion joined to its redirect's `to_url_resolved` — never a URL from the caller            |
+| URL       | http(s), no userinfo, no IP literal, default port only, no fragment, real ICANN suffix                                                |
+| scope     | same REGISTRABLE DOMAIN as the root, no HTTPS -> HTTP downgrade                                                                       |
+| identity  | not already recorded for (run, root, url, policy, attempt) — the pre-check saves a request, the unique index is the guarantee         |
+| robots    | a caller-supplied `DISALLOWED` records `BLOCKED_BY_POLICY` and opens no socket                                                        |
+| DNS       | failure or empty answer -> `DNS_FAILURE`, recorded                                                                                    |
+| addresses | EVERY returned address classified; ANY forbidden one refuses the HOST -> `BLOCKED_BY_POLICY`, recorded                                |
+| pin       | connect to one validated address; Host, SNI and certificate stay the ORIGINAL hostname                                                |
+| read      | one GET, bounded body, bounded decompression                                                                                          |
+| write     | one `orgunit_fetch_observations` row, plus one `orgunit_redirect_observations` row for a 301/302/303/307/308 with a usable `Location` |
+
+Things that are DELIBERATELY the way they are:
+
+- **A refusal writes no row.** `orgunit_fetch_observations` records HTTP
+  ATTEMPTS, and its CHECKs agree: a row needs a root authority and an
+  `https?://` URL, so a request refused for lacking either is not merely
+  undesirable to record, it is unrecordable. Everything from the DNS lookup
+  onward DOES produce a row, including the refusal to connect to a forbidden
+  address.
+- **`robots_decision` is supplied by the caller and NEVER invented here.** The
+  gateway holds no reader that could produce one, and admission policy - which
+  URLs are worth attempting - belongs to the later bounded frontier. What the
+  gateway enforces is that `DISALLOWED` means zero socket activity. This is also
+  why **no live institutional request has been made**: without a reader, a live
+  request could not record an honest verdict. ADR 0005 s8 and s10.
+- **`response_sha256` hashes the DECODED bytes**, and `byte_count` is that same
+  representation's length. Hashing the wire would make one page hash differently
+  depending on whether the server chose gzip that day, destroying the dedupe the
+  column exists for.
+- **Over-cap is a TRUNCATION, not an error**, and a body of exactly the cap is
+  NOT truncated. `truncated` is what tells a later reader whether the stored
+  hash is the hash of a whole document. A `Content-Length` declaring more than
+  the cap is refused before the body is read, as `RESPONSE_TOO_LARGE`.
+- **`INVALID_CONTENT_ENCODING` is stored as `OTHER`.** Migration 0007's
+  `error_kind` taxonomy has no coding-failure member, and a migration for that
+  would be a migration for a naming preference. The precise reason lives in the
+  in-memory result only.
+- **The charset columns stay NULL.** No charset detection happens in this slice,
+  and a stored charset nobody derived would be a guess.
+- **Error text says "from vantage X"**, never that a site is down. A fetch
+  result is a function of the vantage as much as of the site.
+- **No migration was needed.** `ON CONFLICT` inference over the
+  `GENERATED ALWAYS` `root_key` column was verified against a real PostgreSQL 16
+  rather than assumed.
+
+**Working-database row counts are unchanged: all eight `orgunit_*` tables still
+hold zero rows.** Every test writes to `nwf_pe_test` only.
+
 ## What a `website_claims` row means
 
 **A `website_claims` row is ONE SOURCE'S ASSERTION about ONE ECHE SOURCE ROW.
@@ -628,11 +733,18 @@ src/cli/             CLI entry point and commands
 src/test/            unit, integration, firewall tests and the fixtures
 docs/adr/            architecture decision records
 
-src/orgunits/        DOES NOT EXIST, deliberately. The approved namespace for
-                     Phase 2B web acquisition, reserved by migration 0007 and by
-                     phase2b.firewall.test.ts. Its only permitted network
-                     location is src/orgunits/web/gateway.ts, which belongs to
-                     slice 2B-1b. Do not create a placeholder here.
+src/orgunits/web/    the Phase 2B bounded acquisition primitive:
+                       policy.ts       versioned timeouts, caps, headers. PURE.
+                       address.ts      numeric IP classification. PURE.
+                       url.ts          request-URL validation + root scope. PURE.
+                       redirect.ts     redirect FACTS, never followed. PURE.
+                       authority.ts    run + root authority, read from the DB.
+                       observations.ts append-only evidence INSERTs.
+                       gateway.ts      THE ONLY SOCKET IN src/orgunits/.
+                     Nothing else under src/orgunits/ may import node:dns,
+                     node:net, node:tls, node:http or node:https, or call
+                     fetch(). src/orgunits/signals/, /candidates/ and /classify/
+                     do not exist and belong to later slices.
 ```
 
 ## Things the real data will surprise you with
@@ -807,9 +919,15 @@ Vitest. `npm run validate` is the gate. Three categories:
   field in the request or the schema, and "a claim never becomes a
   conclusion". `phase2b` adds the Phase 2B boundaries: no raw-body column in any
   migration, no contact or relevance or outreach column, no mutating grant to
-  `nwf_research`, the forbidden research namespaces, and ONE permitted future
-  network location (`src/orgunits/web/gateway.ts`) which it also asserts does
-  not exist yet. These assert real capabilities (dependencies,
+  `nwf_research`, the forbidden research namespaces, ONE permitted network
+  location (`src/orgunits/web/gateway.ts`, now asserted to EXIST while the
+  robots reader, sitemap reader, frontier, extractor, charset handler, signals,
+  candidates and classifier are asserted absent), TLS verification never
+  disabled, no proxy indirection, no redirect followed, no retry inside the
+  primitive, and no body written to a file or a column. Phase 1D's socket
+  allow-list was widened ONCE, by exact path, for the gateway — the deliberate
+  visible edit ADR 0004 s18 predicted — and Phase 1D's own files are asserted
+  socket-free, resolver-free and forbidden from importing it. These assert real capabilities (dependencies,
   API hosts, SQL verbs, credential identifiers, forbidden directories), **not**
   ordinary English words, so documentation prose never trips them. `phase2b`
   parses `GRANT` statements rather than scanning for verbs, because the first

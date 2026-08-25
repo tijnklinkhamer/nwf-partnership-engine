@@ -6,20 +6,27 @@
  * slice adds. This file asserts the boundaries that only became reachable once
  * a schema for FIRST-PARTY WEB ACQUISITION existed.
  *
- * THE MOST IMPORTANT ASSERTION IN THIS FILE IS THAT NOTHING CHANGED YET.
+ * PHASE 2B-1b MADE THESE CHECKS LOAD-BEARING.
  *
- *   Phase 2B-1a is schema, a role, and this firewall. It adds no network code,
- *   and at the end of it this repository still has ZERO institution-website
- *   network call sites. Every check below is written so that it is TRUE TODAY
- *   and BECOMES LOAD-BEARING the moment someone writes the acquisition code -
- *   which is the only kind of firewall worth having for a boundary that does
- *   not exist yet.
+ *   2B-1a was schema, a role and this firewall, written so that every check was
+ *   TRUE TODAY and BECAME BINDING the moment someone wrote the acquisition
+ *   code - which is the only kind of firewall worth having for a boundary that
+ *   does not exist yet. 2B-1b wrote that code, so the checks below are now
+ *   about a module that exists rather than one that might.
+ *
+ *   ONE thing was deliberately widened, exactly once, and it is named
+ *   throughout: src/orgunits/web/gateway.ts may open a socket. ADR 0004 s18
+ *   said this would be "a deliberate, visible act in 2B-1b - the test fails
+ *   until someone edits it on purpose". Everything else here got STRICTER.
  *
  * What this file pins:
  *
- *   - ONE future network location, and only one: src/orgunits/web/gateway.ts.
- *     Any other Phase 2B file that opens a socket is a second, unreviewed
- *     network capability.
+ *   - ONE network location, and only one: src/orgunits/web/gateway.ts. Any
+ *     other Phase 2B file that opens a socket is a second, unreviewed network
+ *     capability.
+ *   - GET ONLY, no proxy indirection, TLS verification never disabled, no
+ *     redirect followed and no retry hidden inside the primitive. Each of
+ *     those would undo a control the gateway exists to provide.
  *   - NO RAW BODY, ever, in any migration. A response body under any name
  *     (raw_html, page_html, response_body, ...) is refused.
  *   - NO CONTACT DATA. No person, no mailbox, no telephone number, no contact
@@ -47,6 +54,20 @@ const SELF = 'src/test/firewall/phase2b.firewall.test.ts';
 
 function read(relativePath: string): string {
   return readFileSync(resolve(ROOT, relativePath), 'utf8');
+}
+
+/**
+ * Source with comments removed.
+ *
+ * Used where the check is about CODE rather than prose. A firewall that fails
+ * because a doc comment NAMES the thing it is explaining why it refuses would
+ * punish exactly the documentation that makes the boundary understandable, and
+ * a firewall people learn to work around is worse than none.
+ */
+function code(relativePath: string): string {
+  return read(relativePath)
+    .replace(/\/\*[\s\S]*?\*\//g, ' ')
+    .replace(/(^|[^:])\/\/.*$/gm, '$1 ');
 }
 
 function exists(relativePath: string): boolean {
@@ -87,21 +108,20 @@ const PRODUCTION_FILES = SOURCE_FILES.filter((file) => !file.startsWith('src/tes
 /**
  * Everything under the approved Phase 2B namespace.
  *
- * EMPTY TODAY, DELIBERATELY. 2B-1a creates no runtime module: the schema and
- * the trust contract are reviewed before the code that depends on them is
- * written. Every check that iterates this list is therefore vacuous now and
- * binding the moment the namespace appears, which is exactly when it matters.
+ * Empty through 2B-1a, deliberately: the schema and the trust contract were
+ * reviewed before the code that depends on them was written. 2B-1b populated
+ * it, so every check that iterates this list is now binding rather than
+ * vacuous - which is exactly when it matters.
  */
 const PHASE_2B_FILES = SOURCE_FILES.filter((file) => file.startsWith('src/orgunits/'));
 
 /**
  * THE SINGLE PERMITTED PHASE 2B NETWORK LOCATION.
  *
- * Declared here, in a test, BEFORE the file exists. Phase 1D pins the exact set
- * of files allowed to call fetch() at the three official-source resolvers; when
- * 2B-1b adds the gateway it must widen that list DELIBERATELY, in that slice,
- * with review. Naming the destination now does not pre-authorise it - it means
- * a second network location cannot be introduced quietly alongside the first.
+ * Declared here, in a test, BEFORE the file existed - which is what made the
+ * 2B-1b widening a reviewed edit rather than a discovery. It exists now, and
+ * the checks below say so: exactly one module under src/orgunits may reach a
+ * socket, and a second cannot be introduced quietly alongside it.
  */
 const PHASE_2B_NETWORK_MODULE = 'src/orgunits/web/gateway.ts';
 
@@ -263,12 +283,13 @@ describe('PHASE-2B-FIREWALL: this slice added no capability at all', () => {
   });
 });
 
-describe('PHASE-2B-FIREWALL: zero institution-website network call sites remain', () => {
-  it('opens no socket and resolves no hostname anywhere in source', () => {
-    // Restated at the Phase 2B boundary because this is the guarantee the next
-    // slice will be under pressure to relax. It must be relaxed deliberately,
-    // in 2B-1b, for exactly one file - not drift.
+describe('PHASE-2B-FIREWALL: exactly one institution-website network call site', () => {
+  it('opens no socket and resolves no hostname outside the ONE declared gateway', () => {
+    // Relaxed deliberately, in 2B-1b, for exactly ONE file - by exact path, so
+    // it is an exemption rather than a drift. Everything else in the repository
+    // still opens nothing.
     for (const file of SOURCE_FILES) {
+      if (file === PHASE_2B_NETWORK_MODULE) continue;
       const source = read(file);
       expect(source, `${file} performs DNS resolution`).not.toMatch(
         /from\s+['"]node:dns['"]|require\(['"]node:?dns['"]\)/,
@@ -283,7 +304,12 @@ describe('PHASE-2B-FIREWALL: zero institution-website network call sites remain'
     // Phase 1D pinned this list. Restated here as a Phase 2B tripwire: a schema
     // slice that quietly grew a fourth fetcher would have smuggled in the
     // capability this whole phase exists to gate.
-    const fetchers = PRODUCTION_FILES.filter((file) => /\bfetch\s*\(/.test(read(file)));
+    //
+    // STILL EXACTLY THREE AFTER 2B-1b: the orgunit gateway uses Node's own HTTP
+    // client rather than fetch(), because only the core client lets a
+    // connection be PINNED to an address that was validated first. The complete
+    // socket allow-list lives in the Phase 1D firewall and names four modules.
+    const fetchers = PRODUCTION_FILES.filter((file) => /\bfetch\s*\(/.test(code(file)));
     expect(fetchers.sort()).toEqual([
       'src/ingest/eche/source.ts',
       'src/ingest/ewp/source.ts',
@@ -291,13 +317,15 @@ describe('PHASE-2B-FIREWALL: zero institution-website network call sites remain'
     ]);
   });
 
-  it('has not built the acquisition gateway, the robots reader or the extractor', () => {
-    // 2B-1a is schema, role, firewall and ADR. Creating any of these now -
-    // even empty, even as a placeholder - would be building ahead of approval,
-    // and a placeholder is exactly how an unreviewed capability gets its first
+  it('built the gateway and NOTHING ELSE under it', () => {
+    // 2B-1b is the bounded network primitive. The policy readers, the frontier,
+    // the extractor, the charset handler, the signals, the candidates and the
+    // classifier all belong to later slices, and creating any of them now -
+    // even empty, even as a placeholder - would be building ahead of approval.
+    // A placeholder is exactly how an unreviewed capability gets its first
     // import.
+    expect(exists(PHASE_2B_NETWORK_MODULE), 'the approved gateway is missing').toBe(true);
     for (const path of [
-      PHASE_2B_NETWORK_MODULE,
       'src/orgunits/web/robots.ts',
       'src/orgunits/web/sitemap.ts',
       'src/orgunits/web/frontier.ts',
@@ -312,10 +340,10 @@ describe('PHASE-2B-FIREWALL: zero institution-website network call sites remain'
   });
 
   it('permits at most ONE Phase 2B network module, at the declared path', () => {
-    // Vacuous today (src/orgunits is empty) and binding from the moment it is
-    // not. Whatever 2B-1b writes, only the declared gateway may reach a socket
-    // or a fetch; a second network location under src/orgunits is refused here
-    // rather than discovered later.
+    // Binding now that src/orgunits exists. Only the declared gateway may reach
+    // a socket or a fetch; a second network location under src/orgunits is
+    // refused here rather than discovered later.
+    expect(PHASE_2B_FILES.length, 'the Phase 2B namespace is empty').toBeGreaterThan(1);
     for (const file of PHASE_2B_FILES) {
       if (file === PHASE_2B_NETWORK_MODULE) continue;
       const source = read(file);
@@ -336,6 +364,89 @@ describe('PHASE-2B-FIREWALL: zero institution-website network call sites remain'
       expect(source, `${file} issues a non-GET HTTP method`).not.toMatch(
         /method\s*:\s*['"](POST|PUT|PATCH|DELETE)['"]/i,
       );
+    }
+  });
+
+  it('never disables TLS verification, per request or globally', () => {
+    // A certificate check turned off for one awkward host is a certificate
+    // check turned off. The gateway states the option EXPLICITLY as true, so
+    // relaxing it would be a visible edit rather than a missing line.
+    for (const file of SOURCE_FILES) {
+      const source = read(file);
+      expect(source, `${file} disables certificate validation`).not.toMatch(
+        /rejectUnauthorized\s*:\s*false/,
+      );
+      expect(source, `${file} disables TLS globally`).not.toContain('NODE_TLS_REJECT_UNAUTHORIZED');
+      expect(source, `${file} overrides certificate identity checking`).not.toMatch(
+        /checkServerIdentity\s*:/,
+      );
+    }
+    expect(read(PHASE_2B_NETWORK_MODULE), 'the gateway does not assert TLS verification').toMatch(
+      /rejectUnauthorized:\s*(true|plan\.rejectUnauthorized)/,
+    );
+  });
+
+  it('adds no proxy indirection that could resolve the hostname again', () => {
+    // node:http and node:https read no proxy configuration, which is a large
+    // part of why the gateway uses the core client: the pinned address IS the
+    // address the socket connects to. Reading a proxy variable, or installing
+    // an agent that does, would put a resolver back between the check and the
+    // connection.
+    for (const file of PHASE_2B_FILES) {
+      const source = code(file);
+      for (const variable of ['HTTP_PROXY', 'HTTPS_PROXY', 'ALL_PROXY', 'NO_PROXY']) {
+        expect(source, `${file} reads ${variable}`).not.toContain(variable);
+      }
+      expect(source, `${file} installs a proxy agent`).not.toMatch(/ProxyAgent/);
+      expect(source, `${file} overrides the global dispatcher`).not.toMatch(
+        /setGlobalDispatcher|globalAgent\s*=/,
+      );
+    }
+  });
+
+  it('follows no redirect and retries nothing inside the gateway', () => {
+    // One invocation is one HTTP attempt. A redirect followed here is a request
+    // to a host no check in the file ever saw, and a hidden retry makes every
+    // count in the evidence wrong.
+    const gateway = code(PHASE_2B_NETWORK_MODULE);
+    expect(gateway, 'the gateway delegates redirects to the runtime').not.toMatch(
+      /redirect\s*:\s*['"](follow|error)['"]/,
+    );
+    expect(gateway, 'the gateway retries internally').not.toMatch(
+      /\b(retry|retries|backoff|pRetry)\b/i,
+    );
+    for (const file of PHASE_2B_FILES) {
+      expect(code(file), `${file} walks a frontier`).not.toMatch(
+        /\b(crawl|walkLinks|followRedirect|enqueueUrl)\s*\(/i,
+      );
+    }
+  });
+
+  it('persists no response body anywhere in Phase 2B code', () => {
+    // The bytes are a SHA-256 and a length. A body written to a column, a
+    // temporary file or a cache directory would be the schema's one refusal
+    // undone in application code.
+    for (const file of PHASE_2B_FILES) {
+      const source = code(file);
+      expect(source, `${file} writes a body to disk`).not.toMatch(
+        /writeFile|createWriteStream|mkdtemp|tmpdir/,
+      );
+      expect(source, `${file} inserts a body column`).not.toMatch(
+        /INSERT[^;]*\b(raw_html|page_html|response_body|raw_body)\b/i,
+      );
+    }
+  });
+
+  it('reads no HTML and consults no site policy file', () => {
+    // 2B-1b is the network primitive. Extraction, charset handling and any
+    // reader of a site's own policy files belong to later slices.
+    for (const file of PHASE_2B_FILES) {
+      const source = read(file);
+      expect(source, `${file} parses HTML`).not.toMatch(
+        /\b(parseHTML|innerHTML|querySelectorAll|JSDOM|DOMParser)\b/,
+      );
+      expect(source, `${file} requests a policy file`).not.toContain('robots.txt');
+      expect(source, `${file} requests a sitemap`).not.toContain('sitemap.xml');
     }
   });
 

@@ -46,6 +46,10 @@ jobs:
       DATABASE_URL_ADMIN_TEST: postgres://nwf_owner:local_dev_only@127.0.0.1:55432/nwf_pe_test
       DATABASE_URL_INGEST_TEST: postgres://nwf_ingest:local_dev_only@127.0.0.1:55432/nwf_pe_test
       DATABASE_URL_READONLY_TEST: postgres://nwf_readonly:local_dev_only@127.0.0.1:55432/nwf_pe_test
+      # Phase 2B research role (migration 0007). Without it the orgunit grant,
+      # schema and gateway integration tests SKIP rather than fail, which is
+      # exactly the silence a trust-boundary suite must not be allowed.
+      DATABASE_URL_RESEARCH_TEST: postgres://nwf_research:local_dev_only@127.0.0.1:55432/nwf_pe_test
 
     steps:
       # SHAs verified against the live GitHub tag refs on 2026-08-21.

@@ -102,13 +102,14 @@ is no winner anywhere in the schema.
 `src/test/firewall/phase1b.firewall.test.ts`,
 `src/test/firewall/phase1d.firewall.test.ts` and
 `src/test/firewall/phase2b.firewall.test.ts` enforce all of that in CI. The
-third proves the no-fetching rule as a capability, by pinning the exact list of
-files permitted to call `fetch()` to the three official source resolvers; the
-fourth restates that pin as a Phase 2B tripwire.
+third pins the exact list of production modules that own a socket — the three
+official-source resolvers plus the one approved orgunit gateway described below,
+and a **fifth fails CI**. `fetch()` itself is still confined to the three
+resolvers, because the gateway uses Node's core HTTP client instead.
 
 Later phases each require separate founder approval before any work begins.
 
-### Phase 2B-1a: a trust foundation, and no new capability
+### Phase 2B-1a: a trust foundation
 
 Migration 0007 adds eight `orgunit_*` tables and the `nwf_research` role for a
 future phase of **bounded first-party web acquisition** — reading a small,
@@ -116,12 +117,10 @@ ranked set of pages from an institution's own site to find its International
 Office, language centre or student associations, which no official register
 publishes.
 
-**Nothing uses them.** This slice is schema, a role, a firewall and
-`docs/adr/0004-bounded-first-party-web-acquisition.md`. There is no
-`src/orgunits/` directory, no acquisition gateway, no robots or sitemap reader,
-no HTML extraction, no ranking code and no CLI command. No dependency was added.
-Every one of the eight tables holds zero rows and cannot acquire any, because
-the code that would write them does not exist.
+That slice was schema, a role, a firewall and
+`docs/adr/0004-bounded-first-party-web-acquisition.md` — no code at all, so the
+trust contract was reviewed before anything depended on it. No dependency was
+added, then or since.
 
 What the schema settles in advance:
 
@@ -147,6 +146,54 @@ What the schema settles in advance:
 - Page evidence and candidates carry **no duplicated provenance** — a composite
   foreign-key chain onto a generated `root_key` makes it impossible for a
   candidate to claim a root its own page's fetch does not have.
+
+### Phase 2B-1b: one bounded network primitive, and nothing else
+
+`src/orgunits/web/gateway.ts` now exists. It is **the only place in this
+repository that may open a socket to an institution**, it was named in a
+firewall test before it was written, and widening the allow-list for it was a
+deliberate reviewed edit — exactly as ADR 0004 §18 said it would have to be.
+See [`docs/adr/0005-bounded-web-gateway-and-fetch-policy-v1.md`](docs/adr/0005-bounded-web-gateway-and-fetch-policy-v1.md).
+
+**One invocation is ONE HTTP attempt.** One GET, one authorised URL. It never
+follows a redirect, never retries, never reads a second URL and never recurses.
+A retry is the caller passing `attemptNo + 1`, which is a separate immutable
+row; a redirect target is a separate invocation that passes every check again
+from the start.
+
+Before anything reaches the wire:
+
+- the **run** must be open, non-dry, and governed by a fetch policy this build
+  implements — a run recording a policy version this build does not implement is
+  refused rather than executed under different rules than it claims;
+- the **root** must be a `STRUCTURALLY_VALID` official website claim or a live
+  operator promotion, **read from the database**. The caller supplies an ID,
+  never a URL, and a **revoked** promotion fails before any DNS lookup;
+- the **URL** must be http(s), carry no credentials, name no IP literal, use a
+  default port, carry no fragment and sit under a real ICANN suffix;
+- it must fall inside the root's **registrable domain** (not merely its host —
+  the units this looks for live on `international.`, `langues.`, `en.`, `www2.`),
+  with no HTTPS→HTTP downgrade;
+- the hostname is **resolved, EVERY returned address is validated, and the
+  connection is pinned** to one validated address. A mixed public/private answer
+  refuses the whole host. The original hostname stays the `Host` header, the TLS
+  SNI and the certificate subject; certificate validation is never disabled.
+
+Then exactly one GET, with a fixed header set — no cookies, no credentials, no
+referer, no caller-injected headers — under a 10 s connect timeout, a 30 s total
+timeout and a 5 MiB body cap that bounds decompression as well as the wire.
+
+What comes back is appended as immutable evidence through `nwf_research`: a
+status or an error kind, a SHA-256 of the **decoded** bytes and their length, and
+— for a 3xx — the redirect edge as separate facts. A cross-domain hop is
+**recorded and stopped**; it never becomes a root.
+
+Still absent, deliberately: no crawler, no frontier, no queue, no concurrency,
+no retry policy, no site-policy reader, no sitemap reader, no HTML parsing, no
+charset detection, no extraction, no ranking, no CLI command, no AI, no contact
+discovery, no outbound. **No institution was contacted during this slice** — the
+gateway was validated entirely through deterministic tests, and CI stays
+network-independent. The reason is recorded in ADR 0005 §10.
 
 Phase 2B-2 — semantic classification of those pages — is **not authorised**.
 
@@ -375,9 +422,10 @@ npm run test:firewall        # scope-boundary assertions
 ```
 
 Integration tests need `DATABASE_URL_RESEARCH_TEST` as well as the three older
-role URLs; see `.env.example`. The Phase 2B grant tests skip without it rather
-than failing with a connection error that would look like a defect in the
-grants themselves.
+role URLs; see `.env.example`. The Phase 2B grant, schema and gateway tests skip
+without it rather than failing with a connection error that would look like a
+defect in the grants themselves. CI sets it, so those suites always run there —
+a trust-boundary suite that silently skips is worse than one that fails.
 
 Integration tests run against a **separate** `nwf_pe_test` database and truncate
 it freely. Two guards in `src/db/safety.ts` make that safe: the pool factory
