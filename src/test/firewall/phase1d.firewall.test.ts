@@ -6,12 +6,19 @@
  * This file asserts the boundaries that only became reachable once this
  * repository started reasoning about WEBSITES:
  *
- *   - NO INSTITUTION WEBSITE IS EVER FETCHED. Not a GET, not a HEAD, not a
- *     redirect check, not a robots.txt read, not a DNS lookup. The whole point
- *     of verifying against an official register is that it makes fetching
- *     institution sites unnecessary. This is the single most important
- *     boundary in the file: a website column is exactly the thing that tempts
- *     a repository into becoming a crawler.
+ *   - NO PHASE 1D CODE EVER FETCHES AN INSTITUTION WEBSITE. Not a GET, not a
+ *     HEAD, not a redirect check, not a DNS lookup. The whole point of
+ *     verifying against an official register is that it makes fetching
+ *     institution sites unnecessary here.
+ *
+ *     THIS ASSERTION WAS DELIBERATELY WIDENED IN PHASE 2B-1b, ONCE, AND THE
+ *     WIDENING IS NAMED. Until then it held repository-wide. ADR 0004 s5 and
+ *     s18 declared in advance that ONE file - src/orgunits/web/gateway.ts -
+ *     would eventually be allowed a socket, and that widening this list would
+ *     be "a deliberate, visible act in 2B-1b: the test fails until someone
+ *     edits it on purpose". This is that edit, and it is one exact path.
+ *     Everything else in this repository, Phase 1D emphatically included,
+ *     still opens nothing.
  *   - EXACTLY ONE new network source, on ONE allow-listed official host, and
  *     restricted to ONE dataset on that host.
  *   - NO CONTACT FIELD reaches this process. The French register publishes a
@@ -86,6 +93,15 @@ function code(relativePath: string): string {
  * below has to hold for it too. Leaving it out would have exempted the one
  * file that chooses which source resolvers get called.
  */
+/**
+ * THE SINGLE PERMITTED PHASE 2B NETWORK LOCATION, restated here.
+ *
+ * Declared by `phase2b.firewall.test.ts` and by ADR 0004 s5 before the file
+ * existed. Phase 1D names it too, because Phase 1D is where the socket
+ * allow-list lives, and an exemption is only safe when it is one exact path.
+ */
+const PHASE_2B_NETWORK_MODULE = 'src/orgunits/web/gateway.ts';
+
 const PHASE_1D_FILES = SOURCE_FILES.filter(
   (file) =>
     file.startsWith('src/website/') ||
@@ -165,9 +181,13 @@ describe('PHASE-1D-FIREWALL: Phase 1D added no dependency at all', () => {
   });
 });
 
-describe('PHASE-1D-FIREWALL: no institution website is ever fetched', () => {
-  it('resolves no hostname and opens no socket', () => {
+describe('PHASE-1D-FIREWALL: no PHASE 1D code fetches an institution website', () => {
+  it('resolves no hostname and opens no socket, outside the ONE approved gateway', () => {
+    // The exemption is a single exact path, not a prefix and not a pattern, so
+    // a second network module cannot appear beside it - which is the property
+    // ADR 0004 s5 bought by declaring the destination before the file existed.
     for (const file of SOURCE_FILES) {
+      if (file === PHASE_2B_NETWORK_MODULE) continue;
       const source = read(file);
       expect(source, `${file} performs DNS resolution`).not.toMatch(
         /from\s+['"]node:dns['"]|require\(['"]node:?dns['"]\)/,
@@ -178,8 +198,27 @@ describe('PHASE-1D-FIREWALL: no institution website is ever fetched', () => {
     }
   });
 
-  it('never fetches a value derived from a website claim', () => {
+  it('keeps PHASE 1D itself socket-free and resolver-free', () => {
+    // The widening above is repository-wide by construction. Restating the
+    // boundary for Phase 1D's own files means the exemption cannot quietly
+    // become a licence for the website evidence layer to grow a fetcher of its
+    // own by importing the one module that has a socket.
+    for (const file of PHASE_1D_FILES) {
+      const source = read(file);
+      expect(source, `${file} performs DNS resolution`).not.toMatch(/from\s+['"]node:dns['"]/);
+      expect(source, `${file} opens a raw socket`).not.toMatch(
+        /from\s+['"]node:(net|tls|http|https)['"]/,
+      );
+      expect(source, `${file} imports the Phase 2B gateway`).not.toContain('orgunits/web/gateway');
+    }
+  });
+
+  it('turns a stored website value into a request nowhere but the approved gateway', () => {
+    // Phase 2B's gateway does exactly this, under an operator-authorised root
+    // and every control ADR 0004 s11 requires. Anywhere ELSE it would be a
+    // crawler of every institution in the dataset, arriving without review.
     for (const file of PRODUCTION_FILES) {
+      if (file === PHASE_2B_NETWORK_MODULE) continue;
       const source = read(file);
       // A stored website, hostname or domain is EVIDENCE. Passing one to
       // fetch() would turn this repository into a crawler of every
@@ -293,11 +332,35 @@ describe('PHASE-1D-FIREWALL: no institution website is ever fetched', () => {
   it('every fetch() in production code targets an allow-listed official source', () => {
     // Three official sources exist, each with its own validated allow-list.
     // A fetch outside these modules would be an unreviewed network capability.
-    const fetchers = PRODUCTION_FILES.filter((file) => /\bfetch\s*\(/.test(read(file)));
+    //
+    // STILL EXACTLY THREE AFTER 2B-1b, and not by accident: the orgunit gateway
+    // uses Node's own HTTP client rather than fetch(), because only the core
+    // client lets a connection be PINNED to an address that was validated
+    // first. fetch() therefore remains what it always was here - the
+    // official-source path - and the socket allow-list below covers the rest.
+    const fetchers = PRODUCTION_FILES.filter((file) => /\bfetch\s*\(/.test(code(file)));
     expect(fetchers.sort()).toEqual([
       'src/ingest/eche/source.ts',
       'src/ingest/ewp/source.ts',
       'src/ingest/fresr/source.ts',
+    ]);
+  });
+
+  it('pins the COMPLETE list of production modules that own a socket', () => {
+    // fetch() alone stopped being the whole network surface in 2B-1b. Four
+    // modules, named exactly: three official-source resolvers and one bounded
+    // orgunit gateway. A fifth fails here.
+    const networked = PRODUCTION_FILES.filter((file) => {
+      const source = code(file);
+      return (
+        /\bfetch\s*\(/.test(source) || /from\s+['"]node:(net|tls|http|https|dns)['"]/.test(source)
+      );
+    });
+    expect(networked.sort()).toEqual([
+      'src/ingest/eche/source.ts',
+      'src/ingest/ewp/source.ts',
+      'src/ingest/fresr/source.ts',
+      PHASE_2B_NETWORK_MODULE,
     ]);
   });
 });

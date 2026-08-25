@@ -101,6 +101,28 @@ const KNOWN_SCHEME_WORD = /^(https?|ftps?)(?![a-z0-9+.-])/i;
 const WELL_FORMED_SCHEME = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//;
 const ANY_SCHEME_PREFIX = /^[a-zA-Z][a-zA-Z0-9+.-]*:/;
 
+/**
+ * The registrable domain (eTLD+1) of a hostname, under the ICANN section only.
+ *
+ * THE SINGLE REGISTRABLE-DOMAIN IMPLEMENTATION IN THIS REPOSITORY. It is
+ * exported rather than inlined into gate 7 because Phase 2B's acquisition
+ * gateway has to answer exactly the same question about a REQUEST url that
+ * Phase 1D answers about a PUBLISHED value, and two implementations of
+ * "same registrable domain" is two trust boundaries that can disagree - the
+ * one place a second, subtly different answer would be a security defect
+ * rather than a cosmetic one.
+ *
+ * `allowPrivateDomains` stays false so the answer is eTLD+1 under the ICANN
+ * section only - the same basis Phase 1A's canonical_domain already used.
+ * Returns null when the host names no registrable domain at all: an IP
+ * literal, a bare token, or a suffix that is not in the ICANN list.
+ */
+export function icannRegistrableDomain(hostname: string): string | null {
+  const host = parseHost(hostname.toLowerCase(), { allowPrivateDomains: false });
+  if (host.isIcann !== true || host.domain === null) return null;
+  return host.domain.toLowerCase();
+}
+
 function reject(
   rawValue: string | null,
   status: WebsiteStructuralStatus,
@@ -178,11 +200,9 @@ export function parseWebsiteCandidate(rawValue: string | null | undefined): Webs
 
   // Gate 7. The host must sit under a real ICANN public suffix. This is what
   // rejects "www.fpvalencia" and "gobex.ex": both are address-SHAPED, and
-  // neither names a registrable domain that could exist. `allowPrivateDomains`
-  // stays false so the registrable domain is eTLD+1 under the ICANN section
-  // only - the same basis Phase 1A's canonical_domain already used.
-  const host = parseHost(hostname, { allowPrivateDomains: false });
-  if (host.isIcann !== true || host.domain === null) {
+  // neither names a registrable domain that could exist.
+  const registrableDomain = icannRegistrableDomain(hostname);
+  if (registrableDomain === null) {
     return reject(rawValue, 'NOT_A_WEBSITE', 'no_icann_public_suffix');
   }
 
@@ -191,7 +211,7 @@ export function parseWebsiteCandidate(rawValue: string | null | undefined): Webs
     status: 'STRUCTURALLY_VALID',
     normalisedUrl: url.toString(),
     hostname,
-    registrableDomain: host.domain.toLowerCase(),
+    registrableDomain,
     reason: null,
   };
 }
