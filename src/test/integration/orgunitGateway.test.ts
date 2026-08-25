@@ -25,6 +25,7 @@ import {
   type WebTransport,
 } from '../../orgunits/web/gateway.js';
 import { FETCH_POLICY_VERSION } from '../../orgunits/web/policy.js';
+import { RobotsAuthorisation } from '../../orgunits/web/robotsAuthority.js';
 import {
   adminPool,
   count,
@@ -108,8 +109,11 @@ describeIf('PHASE 2B web gateway (integration)', () => {
     attemptNo: 1,
     discoveryMethod: 'ROOT',
     discoveryParentUrl: null,
-    robotsDecision: 'NOT_APPLICABLE',
-    robotsRule: null,
+    // A TEST SEAM, and the only construction path that exists in this build.
+    // Production cannot reach it: `forTestsOnly` throws outside vitest, and the
+    // firewall asserts no production file names it - so no production caller
+    // can perform an institution-content request before the 2B-1c reader lands.
+    robots: RobotsAuthorisation.forTestsOnly('NOT_APPLICABLE'),
     ...overrides,
   });
 
@@ -538,6 +542,159 @@ describeIf('PHASE 2B web gateway (integration)', () => {
 
   // ------------------------------------------------------------------- SSRF
 
+  // ------------------------------------------- the service-subdomain boundary
+
+  describe('same registrable domain is NECESSARY but not SUFFICIENT', () => {
+    // ADR 0004 s3: the 2026-08-24 holdout burned 12 connect timeouts - roughly
+    // six minutes on ONE university - inside the internal service estate,
+    // reached entirely through same-domain hops. This gateway is the SECOND
+    // independent trust gate and refuses them itself, so a frontier that emits
+    // one by accident still opens no socket.
+    const DENIED = [
+      'https://moodle.example.ac.uk/',
+      'https://glpi.example.ac.uk/',
+      'https://grr.example.ac.uk/',
+      'https://mail.etudiant.example.ac.uk/',
+      'https://workflow.example.ac.uk/',
+      'https://mondossierweb.example.ac.uk/',
+      'https://espace-voyage.example.ac.uk/',
+      'https://espace-achat.example.ac.uk/',
+      'https://webmail.example.ac.uk/',
+      'https://vpn.example.ac.uk/',
+      'https://sso.example.ac.uk/',
+      'https://gitlab.example.ac.uk/',
+    ];
+
+    for (const url of DENIED) {
+      it(`refuses ${new URL(url).hostname} with ZERO DNS and ZERO transport`, async () => {
+        const transport = publicTransport();
+        await expect(
+          executeWebAttempt(
+            research,
+            input({ requestedUrl: url, discoveryMethod: 'LINK', discoveryParentUrl: ROOT_URL }),
+            transport,
+          ),
+        ).rejects.toMatchObject({ reason: 'HOST_IS_SERVICE_SUBDOMAIN' });
+
+        // The three things that must all be true, together:
+        expect(transport.resolvedHostnames, 'a hostname was resolved').toEqual([]);
+        expect(transport.plans, 'a request was planned or executed').toEqual([]);
+        // A pre-DNS refusal is not an ATTEMPT, so it writes no row - the same
+        // contract every other refusal in this gateway follows.
+        expect(await count(research, 'orgunit_fetch_observations')).toBe(0);
+      });
+    }
+
+    it('still admits legitimate institutional unit hosts under the same root', async () => {
+      for (const [index, url] of [
+        'https://international.example.ac.uk/',
+        'https://langues.example.ac.uk/',
+        'https://www2.example.ac.uk/',
+        // Contains "mail" as a SUBSTRING and is not a mail host. A substring
+        // rule would silently refuse a real unit page.
+        'https://international-mail.example.ac.uk/',
+      ].entries()) {
+        const transport = publicTransport();
+        const result = await executeWebAttempt(
+          research,
+          input({
+            requestedUrl: url,
+            attemptNo: index + 1,
+            discoveryMethod: 'LINK',
+            discoveryParentUrl: ROOT_URL,
+          }),
+          transport,
+        );
+        expect(result.httpStatus, url).toBe(200);
+        expect(transport.resolvedHostnames, url).toEqual([new URL(url).hostname]);
+      }
+    });
+
+    it('refuses a service host reached through a PROMOTED root too', async () => {
+      // The gate is on the requested host, so it holds under either kind of
+      // root authority. A promotion widens WHERE a run may look, never WHAT
+      // kind of host it may open a socket to.
+      const transport = publicTransport();
+      await expect(
+        executeWebAttempt(
+          research,
+          input({
+            requestedUrl: 'https://intranet.example.ac.uk/',
+            discoveryMethod: 'LINK',
+            discoveryParentUrl: ROOT_URL,
+          }),
+          transport,
+        ),
+      ).rejects.toMatchObject({ reason: 'HOST_IS_SERVICE_SUBDOMAIN' });
+      expect(transport.resolvedHostnames).toEqual([]);
+    });
+  });
+
+  // ------------------------------------------------- the robots capability
+
+  describe('a robots verdict is a capability, never caller-supplied data', () => {
+    it('refuses an input whose robots value this build did not construct', async () => {
+      // The type annotation is not the boundary; the private-field brand is.
+      // A JavaScript caller, or a TypeScript one willing to cast, gets exactly
+      // this refusal rather than an ALLOWED row nothing derived.
+      const transport = publicTransport();
+      const forged = {
+        ...input(),
+        robots: { decision: 'ALLOWED', rule: null },
+      } as unknown as WebAttemptInput;
+
+      await expect(executeWebAttempt(research, forged, transport)).rejects.toMatchObject({
+        reason: 'ROBOTS_AUTHORISATION_INVALID',
+      });
+      expect(transport.resolvedHostnames).toEqual([]);
+      expect(transport.plans).toEqual([]);
+      expect(await count(research, 'orgunit_fetch_observations')).toBe(0);
+    });
+
+    it('refuses a bare string, which is what the corrected API removed', async () => {
+      const transport = publicTransport();
+      const forged = { ...input(), robots: 'ALLOWED' } as unknown as WebAttemptInput;
+      await expect(executeWebAttempt(research, forged, transport)).rejects.toMatchObject({
+        reason: 'ROBOTS_AUTHORISATION_INVALID',
+      });
+      expect(transport.plans).toEqual([]);
+    });
+
+    it('carries a genuine verdict through to the stored row unchanged', async () => {
+      await executeWebAttempt(
+        research,
+        input({ robots: RobotsAuthorisation.forTestsOnly('ALLOWED', 'Allow: /') }),
+        publicTransport(),
+      );
+      const { rows } = await research.query<{ robots_decision: string; robots_rule: string }>(
+        `SELECT robots_decision, robots_rule FROM orgunit_fetch_observations`,
+      );
+      expect(rows[0]?.robots_decision).toBe('ALLOWED');
+      expect(rows[0]?.robots_rule).toBe('Allow: /');
+    });
+  });
+
+  // ------------------------------------------------------ the port contract
+
+  describe('an explicit port is refused before DNS', () => {
+    for (const url of [
+      'https://www.example.ac.uk:443/',
+      'https://www.example.ac.uk:80/',
+      'https://www.example.ac.uk:8443/',
+      'https://www.example.ac.uk:8080/',
+    ]) {
+      it(`refuses ${url} with zero network activity`, async () => {
+        const transport = publicTransport();
+        await expect(
+          executeWebAttempt(research, input({ requestedUrl: url }), transport),
+        ).rejects.toMatchObject({ reason: 'REQUEST_URL_INVALID' });
+        expect(transport.resolvedHostnames).toEqual([]);
+        expect(transport.plans).toEqual([]);
+        expect(await count(research, 'orgunit_fetch_observations')).toBe(0);
+      });
+    }
+  });
+
   describe('SSRF: resolve, validate every address, then pin', () => {
     const forbidden: Array<[string, ResolvedAddress]> = [
       ['loopback IPv4', { address: '127.0.0.1', family: 4 }],
@@ -729,11 +886,11 @@ describeIf('PHASE 2B web gateway (integration)', () => {
       }
     });
 
-    it('records a caller-supplied DISALLOWED robots verdict without opening a socket', async () => {
+    it('records a DISALLOWED site-policy verdict without opening a socket', async () => {
       const transport = publicTransport();
       const result = await executeWebAttempt(
         research,
-        input({ robotsDecision: 'DISALLOWED', robotsRule: 'Disallow: /' }),
+        input({ robots: RobotsAuthorisation.forTestsOnly('DISALLOWED', 'Disallow: /') }),
         transport,
       );
       expect(transport.resolvedHostnames).toEqual([]);
@@ -781,11 +938,6 @@ describeIf('PHASE 2B web gateway (integration)', () => {
         { scheme_downgraded: true, host_changed: false },
       ],
       [
-        'userinfo in the target',
-        'https://user:pw@www.example.ac.uk/',
-        { target_malformed: false, host_changed: false },
-      ],
-      [
         'explicit port in the target',
         'https://www.example.ac.uk:8443/',
         { target_malformed: false, host_changed: false },
@@ -824,6 +976,66 @@ describeIf('PHASE 2B web gateway (integration)', () => {
         await resetEvidence();
       });
     }
+
+    it('PERSISTS NO CREDENTIAL from a userinfo-bearing Location', async () => {
+      // orgunit_redirect_observations is append-only and nwf_research holds no
+      // DELETE, so a secret written into to_url_raw could never afterwards be
+      // removed - not by this repository and not by an operator using the
+      // research role. The FACT that such a header arrived is the evidence; the
+      // credential is not.
+      const location = 'https://user:s3cr3t@www.example.ac.uk/x?a=1';
+      const transport = publicTransport(redirectTo(302, location));
+      const result = await executeWebAttempt(research, input(), transport);
+
+      // Never followed, under any circumstances.
+      expect(transport.plans).toHaveLength(1);
+      expect(transport.plans[0]?.url).toBe(ROOT_URL);
+
+      const { rows } = await research.query<Record<string, unknown>>(
+        `SELECT to_url_raw, to_url_resolved, target_malformed, scheme_downgraded,
+                host_changed, registrable_domain_changed
+           FROM orgunit_redirect_observations`,
+      );
+      const stored = rows[0]!;
+      expect(stored['to_url_raw']).toBe('https://REDACTED@www.example.ac.uk/x?a=1');
+      expect(String(stored['to_url_raw'])).not.toContain('s3cr3t');
+      expect(String(stored['to_url_raw'])).not.toContain('user');
+
+      // Structurally unpromotable: to_url_resolved is NULL, and migration
+      // 0007's promotion foreign key matches on target_malformed = false, so
+      // the DATABASE refuses to make it a root.
+      expect(stored['target_malformed']).toBe(true);
+      expect(stored['to_url_resolved']).toBeNull();
+      expect(stored['scheme_downgraded']).toBeNull();
+      expect(stored['host_changed']).toBeNull();
+      expect(stored['registrable_domain_changed']).toBeNull();
+
+      // And no credential leaks through the in-memory result either, which is
+      // what a diagnostic print or a test snapshot would otherwise capture.
+      expect(JSON.stringify(result.redirect)).not.toContain('s3cr3t');
+      expect(result.errorDetail ?? '').not.toContain('s3cr3t');
+
+      await resetEvidence();
+    });
+
+    it('refuses to promote a redacted credential-bearing target', async () => {
+      // Proved against pg_constraint rather than against application code.
+      const location = 'https://user:s3cr3t@promoted.example.fr/';
+      await executeWebAttempt(research, input(), publicTransport(redirectTo(302, location)));
+      const { rows } = await research.query<{ id: string }>(
+        `SELECT id FROM orgunit_redirect_observations`,
+      );
+      await expect(
+        admin.query(
+          `INSERT INTO orgunit_root_promotions
+             (redirect_observation_id, target_malformed, scheme_downgraded,
+              registrable_domain_changed, actor_key, decided_at, rationale)
+           VALUES ($1, false, false, true, 'owner-cli', now(), 'test')`,
+          [rows[0]!.id],
+        ),
+      ).rejects.toThrow();
+      await resetEvidence();
+    });
 
     it('creates no redirect edge when a 3xx carries no usable Location', async () => {
       // Inventing a target would put a URL in the evidence that no server

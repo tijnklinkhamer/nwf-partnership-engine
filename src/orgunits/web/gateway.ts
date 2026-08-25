@@ -27,9 +27,11 @@
  *   2. The ROOT must be an official website claim or a live operator promotion,
  *      read from the database. The caller supplies an ID, never a URL.
  *   3. The requested URL must parse, be http(s), carry no credentials, name no
- *      IP literal, use a default port, and sit under a real ICANN suffix.
+ *      IP literal, carry NO EXPLICIT PORT AT ALL, and sit under a real ICANN
+ *      suffix.
  *   4. It must fall inside the root's REGISTRABLE DOMAIN, without a scheme
- *      downgrade.
+ *      downgrade, AND its host must carry no known service label - same
+ *      registrable domain is necessary but not sufficient (`hostPolicy.ts`).
  *   5. The hostname is RESOLVED, EVERY returned address is VALIDATED, and the
  *      connection is PINNED to one validated address - so a re-resolution
  *      between check and connect cannot substitute another (ADR 0004 s11).
@@ -50,6 +52,8 @@ import * as zlib from 'node:zlib';
 import type pg from 'pg';
 import { withTransaction } from '../../db/client.js';
 import { classifyIpAddress, type IpFamily } from './address.js';
+import { checkHostAdmissible } from './hostPolicy.js';
+import { RobotsAuthorisation } from './robotsAuthority.js';
 import {
   resolveRoot,
   resolveRun,
@@ -64,7 +68,6 @@ import {
   insertRedirectObservation,
   type DiscoveryMethod,
   type FetchErrorKind,
-  type RobotsDecision,
 } from './observations.js';
 import {
   CONNECT_TIMEOUT_MS,
@@ -170,17 +173,25 @@ export interface WebAttemptInput {
   discoveryMethod: DiscoveryMethod;
   discoveryParentUrl: string | null;
   /**
-   * The site's own robots verdict for this URL, as decided by the caller.
+   * The site's own policy verdict for this URL, as a CAPABILITY rather than as
+   * data.
    *
    * THIS GATEWAY NEVER INVENTS ONE, and holds no reader that could. Admission
    * policy - which URLs are worth attempting at all - belongs to the bounded
    * frontier that a later slice builds; network trust and root scope belong
-   * here. A caller must therefore state a verdict explicitly, and `DISALLOWED`
-   * is enforced: it produces a BLOCKED_BY_POLICY observation and zero socket
-   * activity.
+   * here.
+   *
+   * It is a `RobotsAuthorisation` and not a string because an earlier draft
+   * took the verdict as an ordinary field, which let any caller write ALLOWED
+   * without anything ever having read the site's rules. `RobotsAuthorisation`
+   * has no production constructor in this build, so no production caller can
+   * reach this function at all - which is deliberately safer than storing a
+   * provenance nobody derived. See `robotsAuthority.ts` and ADR 0005 s8.
+   *
+   * `DISALLOWED` is still ENFORCED here: it produces a BLOCKED_BY_POLICY
+   * observation and zero socket activity.
    */
-  robotsDecision: RobotsDecision;
-  robotsRule: string | null;
+  robots: RobotsAuthorisation;
 }
 
 export interface WebAttemptResult {
@@ -635,6 +646,20 @@ export async function executeWebAttempt(
     );
   }
 
+  // THE BRAND CHECK, not the type annotation, is what makes the robots verdict
+  // unforgeable. A JavaScript caller, or a TypeScript one willing to write
+  // `as unknown as`, can defeat the annotation; neither can produce a value
+  // carrying the private field this asks for.
+  if (!RobotsAuthorisation.isAuthorisation(input.robots)) {
+    throw new WebGatewayRefusal(
+      'ROBOTS_AUTHORISATION_INVALID',
+      'input.robots is not a RobotsAuthorisation this build constructed. A site-policy ' +
+        'verdict is a capability, never caller-supplied data: a row that says the site ' +
+        'permitted this request must be traceable to something that actually read the ' +
+        'site rules, and this build contains no such reader.',
+    );
+  }
+
   const run = await resolveRun(pool, input.runId);
   const root = await resolveRoot(pool, input.root);
 
@@ -656,6 +681,25 @@ export async function executeWebAttempt(
       `${requested.url} is not inside root ${root.rootUrl.url} ` +
         `(root domain ${root.rootUrl.registrableDomain}). A hop that leaves the root is a NEW ` +
         `root and needs its own operator approval; it never extends this one.`,
+    );
+  }
+
+  // SAME REGISTRABLE DOMAIN IS NECESSARY BUT NOT SUFFICIENT.
+  //
+  // The holdout walked into an institution's internal service estate on exactly
+  // this path and spent six minutes of connect timeouts there. This gateway is
+  // the SECOND independent trust gate: it refuses a known service host even if
+  // a future frontier emits one by accident, because a gate that only holds
+  // when the layer above it is correct is not a gate. Refused BEFORE the
+  // identity pre-check and therefore before any DNS lookup or socket.
+  const hostVerdict = checkHostAdmissible(requested.hostname, requested.registrableDomain);
+  if (!hostVerdict.ok) {
+    throw new WebGatewayRefusal(
+      'HOST_IS_SERVICE_SUBDOMAIN',
+      `${requested.hostname} carries the service label "${hostVerdict.refusal.label}". ` +
+        `An institution's mail, identity, ticketing or learning-management host is ` +
+        `infrastructure, never a partner-unit page, and this is a network-scope refusal ` +
+        `rather than a low rank: nothing is fetched and nothing is read.`,
     );
   }
 
@@ -733,13 +777,16 @@ async function attempt(
     plan: null,
   };
 
-  // A URL the caller says the site disallows is not requested. The observation
-  // still exists, because "we were told not to look" is a finding.
-  if (context.input.robotsDecision === 'DISALLOWED') {
+  // A URL the site's own rules disallow is not requested. The observation still
+  // exists, because "we were told not to look" is a finding. The verdict got
+  // here as a capability rather than as data, so it cannot have been invented
+  // by the caller - see robotsAuthority.ts.
+  if (context.input.robots.decision === 'DISALLOWED') {
     return {
       ...blank,
       errorKind: 'BLOCKED_BY_POLICY',
-      errorDetail: 'the caller supplied a DISALLOWED robots decision; no request was made',
+      errorDetail:
+        'the authorisation carried a DISALLOWED site-policy verdict; no request was made',
     };
   }
 
@@ -884,8 +931,8 @@ async function persist(
       responseSha256: record.responseSha256,
       byteCount: record.byteCount,
       truncated: record.truncated,
-      robotsDecision: context.input.robotsDecision,
-      robotsRule: context.input.robotsRule,
+      robotsDecision: context.input.robots.decision,
+      robotsRule: context.input.robots.rule,
       resolvedIpFamily: record.resolvedIpFamily,
       resolvedIpIsPublic: record.resolvedIpIsPublic,
       errorKind: record.errorKind,

@@ -39,10 +39,54 @@ describe('validateRequestUrl: accepts an ordinary institutional URL', () => {
     expect(value.hostname).toBe('www.example.fr');
     expect(value.requestPath).toBe('/');
   });
+});
 
-  it('accepts the scheme default port written explicitly', () => {
-    expect(ok('https://example.fr:443/a').url).toBe('https://example.fr/a');
-    expect(ok('http://example.fr:80/a').url).toBe('http://example.fr/a');
+describe('validateRequestUrl: the explicit-port contract, read from the RAW input', () => {
+  // The frozen contract is that an explicit port is refused BEFORE DNS. It has
+  // to be checked against what the caller WROTE, because the WHATWG parser
+  // erases a scheme-default port: `https://x.fr:443/` leaves `url.port === ''`,
+  // exactly like `https://x.fr/`. A check written against `url.port` alone
+  // therefore enforces the rule for :8443 and silently exempts :443 - it can
+  // never fire for the two ports it is the sole defence against.
+  it('refuses the scheme default port written explicitly', () => {
+    expect(reason('https://example.fr:443/')).toBe('explicit_port');
+    expect(reason('http://example.fr:80/')).toBe('explicit_port');
+  });
+
+  it('refuses the OTHER scheme default, which is not this scheme default either', () => {
+    expect(reason('https://example.fr:80/')).toBe('explicit_port');
+    expect(reason('http://example.fr:443/')).toBe('explicit_port');
+  });
+
+  it('refuses any other explicit port', () => {
+    expect(reason('https://example.fr:8443/')).toBe('explicit_port');
+    expect(reason('http://example.fr:8080/')).toBe('explicit_port');
+    expect(reason('https://example.fr:22/')).toBe('explicit_port');
+    expect(reason('https://example.fr:0/')).toBe('explicit_port');
+  });
+
+  it('refuses an empty explicit port marker', () => {
+    // `https://x.fr:/a` parses and leaves url.port empty. The caller still
+    // wrote a port separator, and a value that needed interpreting to become
+    // requestable is refused rather than interpreted.
+    expect(reason('https://example.fr:/a')).toBe('explicit_port');
+  });
+
+  it('accepts the same URLs without a port', () => {
+    expect(ok('https://example.fr/a').url).toBe('https://example.fr/a');
+    expect(ok('http://example.fr/a').url).toBe('http://example.fr/a');
+  });
+
+  it('does not mistake a colon elsewhere in the URL for a port', () => {
+    // The authority ends at the first path, query or fragment delimiter.
+    expect(ok('https://example.fr/a:b').requestPath).toBe('/a:b');
+    expect(ok('https://example.fr/a?t=1:2').requestPath).toBe('/a?t=1:2');
+  });
+
+  it('reports userinfo rather than a port when both are present', () => {
+    // Userinfo is refused a gate earlier, and its own colon must not be read
+    // as a port separator by the raw-authority reader.
+    expect(reason('https://user:pass@example.fr/')).toBe('userinfo_present');
   });
 });
 
@@ -89,14 +133,6 @@ describe('validateRequestUrl: refusals', () => {
     expect(reason('http://intranet/')).toBe('host_without_dot');
     expect(reason('https://www.fpvalencia/')).toBe('no_icann_public_suffix');
     expect(reason('https://host.invalidtld/')).toBe('no_icann_public_suffix');
-  });
-
-  it('refuses an unexpected explicit port', () => {
-    expect(reason('http://example.fr:8080/')).toBe('non_default_port');
-    expect(reason('https://example.fr:8443/')).toBe('non_default_port');
-    expect(reason('https://example.fr:22/')).toBe('non_default_port');
-    // Including the OTHER scheme's default, which is still not this scheme's.
-    expect(reason('https://example.fr:80/')).toBe('non_default_port');
   });
 
   it('refuses a fragment, because it is not part of the request', () => {
@@ -158,6 +194,81 @@ describe('checkRootScope', () => {
     });
     // Upgrading on our own initiative is fine: it is not a downgrade.
     expect(checkRootScope(httpRoot, ok('https://www.legacy.fr/anything'))).toEqual({ ok: true });
+  });
+});
+
+describe('checkRootScope: the boundary cases the design audit named', () => {
+  const root = ok('https://univ-evry.fr/');
+
+  it('accepts www and the apex against each other, in both directions', () => {
+    expect(checkRootScope(root, ok('https://www.univ-evry.fr/'))).toEqual({ ok: true });
+    expect(checkRootScope(ok('https://www.univ-evry.fr/'), ok('https://univ-evry.fr/'))).toEqual({
+      ok: true,
+    });
+  });
+
+  it('accepts a deeper subdomain under the same registrable domain', () => {
+    expect(checkRootScope(root, ok('https://ri.international.univ-evry.fr/x'))).toEqual({
+      ok: true,
+    });
+  });
+
+  it('REFUSES notuniv-evry.fr, which merely ends with the root domain as text', () => {
+    // The exact shape a string `endsWith` check gets wrong. `univ-evry.fr` is
+    // a suffix of `notuniv-evry.fr` as TEXT and names a different registrant.
+    expect(checkRootScope(root, ok('https://notuniv-evry.fr/'))).toEqual({
+      ok: false,
+      reason: 'registrable_domain_outside_root',
+    });
+    expect(checkRootScope(root, ok('https://www.notuniv-evry.fr/'))).toEqual({
+      ok: false,
+      reason: 'registrable_domain_outside_root',
+    });
+    // And the other direction: the root domain as a PREFIX of another.
+    expect(checkRootScope(root, ok('https://univ-evry.fr.evil.fr/'))).toEqual({
+      ok: false,
+      reason: 'registrable_domain_outside_root',
+    });
+  });
+
+  it('compares IDN hosts deterministically, in punycode', () => {
+    // The WHATWG parser normalises a unicode host to its A-label form, so both
+    // spellings of one host produce one hostname and one registrable domain.
+    // Asserted rather than assumed: an implicit answer here would be a trust
+    // boundary nobody checked.
+    const unicode = ok('https://université-exemple.fr/');
+    const puny = ok('https://xn--universit-exemple-jtb.fr/');
+    expect(unicode.hostname).toBe(puny.hostname);
+    expect(unicode.registrableDomain).toBe(puny.registrableDomain);
+    expect(unicode.hostname.startsWith('xn--')).toBe(true);
+
+    const idnRoot = ok('https://université-exemple.fr/');
+    expect(checkRootScope(idnRoot, puny)).toEqual({ ok: true });
+    expect(checkRootScope(idnRoot, ok('https://sous.université-exemple.fr/'))).toEqual({
+      ok: true,
+    });
+    expect(checkRootScope(idnRoot, ok('https://autre-exemple.fr/'))).toEqual({
+      ok: false,
+      reason: 'registrable_domain_outside_root',
+    });
+  });
+
+  it('normalises a trailing root dot before comparing', () => {
+    // `example.fr.` and `example.fr` are the same name. Two rows on the attempt
+    // identity index, and two different scope answers, would both be wrong.
+    const dotted = ok('https://www.univ-evry.fr./');
+    expect(dotted.hostname).toBe('www.univ-evry.fr');
+    expect(dotted.registrableDomain).toBe('univ-evry.fr');
+    // The SERIALISED url is normalised too, so requested_url and requested_host
+    // cannot disagree about the same host in the stored evidence.
+    expect(dotted.url).toBe('https://www.univ-evry.fr/');
+    expect(checkRootScope(root, dotted)).toEqual({ ok: true });
+    // And a dotted ROOT reaches the same answer as an undotted one.
+    expect(checkRootScope(ok('https://univ-evry.fr./'), ok('https://www.univ-evry.fr/'))).toEqual({
+      ok: true,
+    });
+    // More than one trailing dot is not a spelling of anything.
+    expect(reason('https://www.univ-evry.fr../')).toBe('host_empty_label');
   });
 });
 

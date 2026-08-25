@@ -325,6 +325,12 @@ describe('PHASE-2B-FIREWALL: exactly one institution-website network call site',
     // A placeholder is exactly how an unreviewed capability gets its first
     // import.
     expect(exists(PHASE_2B_NETWORK_MODULE), 'the approved gateway is missing').toBe(true);
+    // hostPolicy.ts and robotsAuthority.ts are PURE boundary modules added by
+    // the trust-contract correction. Neither reads a network resource: one is a
+    // label list, the other is a capability type. The forbidden list below is
+    // unchanged, and every reader named in it is still absent.
+    expect(exists('src/orgunits/web/hostPolicy.ts')).toBe(true);
+    expect(exists('src/orgunits/web/robotsAuthority.ts')).toBe(true);
     for (const path of [
       'src/orgunits/web/robots.ts',
       'src/orgunits/web/sitemap.ts',
@@ -448,6 +454,130 @@ describe('PHASE-2B-FIREWALL: exactly one institution-website network call site',
       expect(source, `${file} requests a policy file`).not.toContain('robots.txt');
       expect(source, `${file} requests a sitemap`).not.toContain('sitemap.xml');
     }
+  });
+
+  it('refuses ANY explicit port, read from the RAW input rather than the parser', () => {
+    // The frozen contract is "an explicit port is refused before DNS". The
+    // WHATWG parser ERASES :443 and :80, so a check written against url.port
+    // alone can never fire for exactly the two ports it is the sole defence
+    // against. The rule has to be read from what the caller wrote.
+    const url = read('src/orgunits/web/url.ts');
+    expect(url, 'the port gate does not read the raw authority').toMatch(/rawAuthority\s*\(/);
+    expect(url, 'the port gate does not exist').toMatch(/hasExplicitPort\s*\(/);
+    expect(url, 'a non-default-only port rule survived').not.toContain('non_default_port');
+  });
+
+  it('keeps the service-subdomain gate in the boundary, ahead of any socket', () => {
+    // ADR 0004 s3: same registrable domain is NECESSARY but NOT SUFFICIENT.
+    // This is a NETWORK-SCOPE guard - it decides whether a socket may exist -
+    // and not a ranking preference, which is why it lives here and not in a
+    // future scorer.
+    expect(
+      exists('src/orgunits/web/hostPolicy.ts'),
+      'the service-subdomain policy is missing',
+    ).toBe(true);
+    const gateway = code(PHASE_2B_NETWORK_MODULE);
+    expect(gateway, 'the gateway does not consult the host policy').toMatch(
+      /checkHostAdmissible\s*\(/,
+    );
+
+    // Refused BEFORE the DNS lookup, proved by ORDER in the file rather than by
+    // reading the comments: the host gate must appear ahead of the resolve call.
+    const gateIndex = gateway.indexOf('checkHostAdmissible(');
+    const resolveIndex = gateway.indexOf('transport.resolveHostname(');
+    expect(gateIndex).toBeGreaterThan(-1);
+    expect(resolveIndex).toBeGreaterThan(-1);
+    expect(gateIndex, 'the host gate runs after DNS').toBeLessThan(resolveIndex);
+
+    // Country-blind (ADR 0004 s12): the policy encodes PRODUCT and PROTOCOL
+    // names, never a language pack, a country or a market.
+    const policy = code('src/orgunits/web/hostPolicy.ts');
+    for (const banned of ['country', 'locale', 'market', 'targetLanguage', 'langPack']) {
+      expect(policy, `the host policy names ${banned}`).not.toMatch(
+        new RegExp(`\\b${banned}\\b`, 'i'),
+      );
+    }
+  });
+
+  it('matches service hosts by LABEL and never by substring', () => {
+    // A substring rule would refuse `international-mail.example.edu`, which is
+    // a real unit host. The policy must therefore split on labels.
+    const policy = code('src/orgunits/web/hostPolicy.ts');
+    expect(policy, 'the host policy does not split labels').toContain(".split('.')");
+    expect(policy, 'the host policy tests raw substrings of the hostname').not.toMatch(
+      /hostname\.includes\s*\(/,
+    );
+  });
+
+  it('lets NO caller manufacture a site-policy verdict', () => {
+    // The defect this replaces: `robotsDecision: 'ALLOWED'` as an ordinary
+    // field let application code write an authoritative-looking provenance
+    // that nothing had derived.
+    expect(exists('src/orgunits/web/robotsAuthority.ts')).toBe(true);
+    const gateway = code(PHASE_2B_NETWORK_MODULE);
+
+    // The gateway takes a CAPABILITY, and checks the brand rather than trusting
+    // the type annotation.
+    expect(gateway, 'the gateway takes a bare robots decision again').not.toMatch(
+      /robotsDecision\s*[:?]\s*(RobotsDecision|string)/,
+    );
+    expect(gateway, 'the gateway does not verify the authorisation').toMatch(
+      /RobotsAuthorisation\.isAuthorisation\s*\(/,
+    );
+
+    // No production file may construct one. The constructor also refuses to run
+    // outside vitest, so this is a second guard and not the only one.
+    const authority = read('src/orgunits/web/robotsAuthority.ts');
+    expect(authority, 'the test seam lost its runtime guard').toContain("process.env['VITEST']");
+    // Every production file EXCEPT the one that declares the seam. The
+    // declaration is the point; a CALL from anywhere else is the defect.
+    for (const file of PRODUCTION_FILES) {
+      if (file === 'src/orgunits/web/robotsAuthority.ts') continue;
+      expect(code(file), `${file} constructs a robots authorisation`).not.toContain('forTestsOnly');
+    }
+  });
+
+  it('has NO production caller of the gateway before the 2B-1c reader exists', () => {
+    // NETWORK PRIMITIVE EXISTS, NO LIVE ORCHESTRATION EXISTS. Stated as an
+    // assertion so the transition is a reviewed edit: 2B-1c will deliberately
+    // widen this when a real site-policy-derived authority can be constructed.
+    const callers = PRODUCTION_FILES.filter(
+      (file) => file !== PHASE_2B_NETWORK_MODULE && /\bexecuteWebAttempt\s*\(/.test(code(file)),
+    );
+    expect(callers, 'a production module already drives the gateway').toEqual([]);
+
+    // And no CLI command reaches it either, by any route.
+    for (const file of PRODUCTION_FILES.filter((f) => f.startsWith('src/cli/'))) {
+      expect(code(file), `${file} imports the orgunit gateway`).not.toContain('orgunits/web');
+    }
+  });
+
+  it('persists no credential from a redirect Location', () => {
+    // orgunit_redirect_observations is append-only and nwf_research holds no
+    // DELETE, so a credential written there could never be removed afterwards.
+    const redirect = code('src/orgunits/web/redirect.ts');
+    expect(redirect, 'a credential-bearing target is not redacted').toContain('REDACTED_USERINFO');
+    expect(redirect, 'the redaction is not derived from the parsed target').toMatch(
+      /username\s*!==\s*''/,
+    );
+  });
+
+  it('implements the frozen timeout policy, with two DISTINCT ceilings', () => {
+    // ADR 0004 s3 had both the latency distribution and the 12 dead-host
+    // connect timeouts in front of it and still chose a long connect timeout,
+    // so failures are classified honestly rather than aggressively. Equal
+    // timers would make READ_TIMEOUT unreachable.
+    const policy = read('src/orgunits/web/policy.ts');
+    const connect = /CONNECT_TIMEOUT_MS\s*=\s*([0-9_]+)/.exec(policy);
+    const total = /TOTAL_TIMEOUT_MS\s*=\s*([0-9_]+)/.exec(policy);
+    const connectMs = Number(connect![1]!.replace(/_/g, ''));
+    const totalMs = Number(total![1]!.replace(/_/g, ''));
+    expect(connectMs, 'the connect timeout fell below the frozen baseline').toBeGreaterThanOrEqual(
+      30_000,
+    );
+    expect(totalMs, 'the total timeout leaves no room to read a response').toBeGreaterThan(
+      connectMs,
+    );
   });
 
   it('names the single permitted network location in ADR 0004', () => {

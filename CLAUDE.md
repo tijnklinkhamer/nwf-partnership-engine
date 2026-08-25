@@ -184,11 +184,51 @@ it, or depend on it, and must never touch learner, payment, or payout data.
     below it measure the caller's answer. A revoked promotion fails BEFORE any
     DNS lookup. Scope is the same REGISTRABLE DOMAIN, computed by the single
     `tldts` implementation exported from `src/website/parse.ts` — never a second
-    one. Resolve, validate EVERY returned address, refuse the whole host if any
-    is forbidden, then PIN the connection to one validated address; the original
-    hostname stays the Host header, the TLS SNI and the certificate subject, and
-    `rejectUnauthorized` is never anything but `true`. Never add proxy support:
-    `node:http`/`node:https` read no proxy variables, and that is load-bearing.
+    one, and **same registrable domain is NECESSARY but NOT SUFFICIENT**: a host
+    carrying a known service label is refused before DNS (rule 19). ANY explicit
+    port is refused, read from the RAW input, because the WHATWG parser erases
+    `:443` and `:80`. Resolve, validate EVERY returned address, refuse the whole
+    host if any is forbidden, then PIN the connection to one validated address;
+    the original hostname stays the Host header, the TLS SNI and the certificate
+    subject, and `rejectUnauthorized` is never anything but `true`. Never add
+    proxy support: `node:http`/`node:https` read no proxy variables, and that is
+    load-bearing.
+
+19. **A site-policy verdict is a CAPABILITY, never caller data, and there is no
+    production constructor for it.** `robots_decision` is `NOT NULL` and its
+    taxonomy offers no truthful "not checked" member — `NOT_APPLICABLE` is
+    pinned by its own column comment to the request that retrieves the policy
+    file. So the gateway takes a `RobotsAuthorisation`, whose only constructor
+    throws outside vitest, whose private `#sealed` brand cannot be forged by a
+    literal, a clone, a cast or reflection, and which the gateway verifies by
+    BRAND rather than by type annotation. **NETWORK PRIMITIVE EXISTS, NO LIVE
+    ORCHESTRATION EXISTS**: no production module may call `executeWebAttempt`,
+    and `phase2b.firewall.test.ts` asserts it. Phase 2B-1c introduces the first
+    production authority, derived from a real evaluation — a deliberate,
+    reviewed widening of that file and those assertions. Never persist ALLOWED
+    because a caller said ALLOWED.
+
+20. **The service-subdomain refusal is a NETWORK-SCOPE GUARD, not a ranking
+    preference, and it matches LABELS.** `src/orgunits/web/hostPolicy.ts` holds
+    one small, country-blind list of product and protocol names — the eight
+    hosts ADR 0004 §3 measured burning six minutes of connect timeouts, plus the
+    reviewed set around them — and refuses a host carrying any of them as a
+    whole subdomain label, before any DNS lookup. `international-mail.` is
+    ADMITTED; a substring rule would refuse it. The registrable domain itself is
+    never examined. Do not grow this list speculatively, and do not move it into
+    a language pack: `mondossierweb` and the `espace-*` prefix are literal
+    observed strings, not French rules.
+
+21. **No credential from a third party is ever persisted.** A redirect
+    `Location` carrying userinfo is stored with a fixed `REDACTED` marker,
+    rebuilt from PARSED components so the raw string is not a source for the
+    output, and classified `target_malformed = true` with `to_url_resolved`
+    NULL — which makes it structurally unpromotable, because migration 0007's
+    promotion foreign key matches on `target_malformed = false`. Stripping the
+    credentials and keeping the URL would be a REPAIR that turns
+    `https://user:secret@evil.fr/` into the requestable `https://evil.fr/`.
+    `orgunit_redirect_observations` is append-only under a role with no
+    `DELETE`, so anything written there could never afterwards be removed.
 
 ## Decisions vs. hypotheses vs. unknowns
 
@@ -222,9 +262,15 @@ Keep these apart. Do not promote one to another without evidence.
   `fetch()` so the connection can be pinned to a validated address, and no proxy
   indirection can put a resolver back in between (Phase 2B-1b,
   `docs/adr/0005-bounded-web-gateway-and-fetch-policy-v1.md`). Fetch policy
-  `orgunit-fetch-policy-v1`: 10 s connect, 30 s total, 5 MiB body cap over both
-  the wire and the decoded stream. A run whose recorded policy version this
-  build does not implement is REFUSED.
+  `orgunit-fetch-policy-v1`: **30 s connect, 45 s total**, 5 MiB body cap over
+  both the wire and the decoded stream. A run whose recorded policy version this
+  build does not implement is REFUSED. The long connect timeout is the frozen
+  design baseline and is deliberate: a shorter one buys throughput by turning
+  slow-but-reachable institutional sites into `CONNECT_TIMEOUT` rows that are
+  indistinguishable from genuinely unreachable ones. The cost the holdout
+  measured is paid by the service-subdomain refusal (rule 20) and, later, by the
+  frontier's per-host circuit breaker — never by weakening evidence quality.
+  Changing these numbers now requires NEW measurement and an ADR.
 
 **Working hypotheses — not settled**
 
@@ -545,12 +591,15 @@ The order of the checks is the design, and it is the order in the file:
 
 | step      | refusal or evidence                                                                                                                   |
 | --------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| attempt   | `attemptNo` is an integer >= 1                                                                                                        |
+| robots    | `input.robots` carries the unforgeable brand — a forged or bare-string verdict is refused, no row, no socket                          |
 | run       | open, non-dry, policy version implemented by this build — else `WebGatewayRefusal`, no row, no socket                                 |
 | root      | a `STRUCTURALLY_VALID` claim, or a live promotion joined to its redirect's `to_url_resolved` — never a URL from the caller            |
-| URL       | http(s), no userinfo, no IP literal, default port only, no fragment, real ICANN suffix                                                |
+| URL       | http(s), no userinfo, no IP literal, NO explicit port at all, no fragment, no empty label, real ICANN suffix                          |
 | scope     | same REGISTRABLE DOMAIN as the root, no HTTPS -> HTTP downgrade                                                                       |
+| host      | no known service label on any subdomain — `moodle.`, `glpi.`, `mail.`, `vpn.`, `espace-*` … refused BEFORE DNS, no row                |
 | identity  | not already recorded for (run, root, url, policy, attempt) — the pre-check saves a request, the unique index is the guarantee         |
-| robots    | a caller-supplied `DISALLOWED` records `BLOCKED_BY_POLICY` and opens no socket                                                        |
+| policy    | a `DISALLOWED` verdict records `BLOCKED_BY_POLICY` and opens no socket                                                                |
 | DNS       | failure or empty answer -> `DNS_FAILURE`, recorded                                                                                    |
 | addresses | EVERY returned address classified; ANY forbidden one refuses the HOST -> `BLOCKED_BY_POLICY`, recorded                                |
 | pin       | connect to one validated address; Host, SNI and certificate stay the ORIGINAL hostname                                                |
@@ -565,12 +614,21 @@ Things that are DELIBERATELY the way they are:
   undesirable to record, it is unrecordable. Everything from the DNS lookup
   onward DOES produce a row, including the refusal to connect to a forbidden
   address.
-- **`robots_decision` is supplied by the caller and NEVER invented here.** The
+- **`robots_decision` is a CAPABILITY the caller cannot manufacture.** The
   gateway holds no reader that could produce one, and admission policy - which
-  URLs are worth attempting - belongs to the later bounded frontier. What the
-  gateway enforces is that `DISALLOWED` means zero socket activity. This is also
-  why **no live institutional request has been made**: without a reader, a live
-  request could not record an honest verdict. ADR 0005 s8 and s10.
+  URLs are worth attempting - belongs to the later bounded frontier. So the
+  verdict arrives as a branded `RobotsAuthorisation` with **no production
+  constructor at all**, and there is consequently **no production code path
+  capable of a live institution-content request** until 2B-1c builds the
+  reader. What the gateway enforces is that `DISALLOWED` means zero socket
+  activity. This is also why **no live institutional request has been made**:
+  without a reader, a live request could not record an honest verdict.
+  ADR 0005 s8 and s10.
+- **Persistence was pulled forward into 2B-1b on purpose.** The original
+  sequence put the evidence writes in a later slice; the landed implementation
+  writes them here, so that every exercise of the network capability is
+  auditable from the moment the capability exists. Append-only, as
+  `nwf_research`, no body, one transaction per attempt. ADR 0005 s10a.
 - **`response_sha256` hashes the DECODED bytes**, and `byte_count` is that same
   representation's length. Hashing the wire would make one page hash differently
   depending on whether the server chose gzip that day, destroying the dedupe the
@@ -737,6 +795,9 @@ src/orgunits/web/    the Phase 2B bounded acquisition primitive:
                        policy.ts       versioned timeouts, caps, headers. PURE.
                        address.ts      numeric IP classification. PURE.
                        url.ts          request-URL validation + root scope. PURE.
+                       hostPolicy.ts   service-subdomain refusal, by LABEL. PURE.
+                       robotsAuthority.ts  the site-policy CAPABILITY. No
+                                       production constructor exists. PURE.
                        redirect.ts     redirect FACTS, never followed. PURE.
                        authority.ts    run + root authority, read from the DB.
                        observations.ts append-only evidence INSERTs.
@@ -924,7 +985,14 @@ Vitest. `npm run validate` is the gate. Three categories:
   robots reader, sitemap reader, frontier, extractor, charset handler, signals,
   candidates and classifier are asserted absent), TLS verification never
   disabled, no proxy indirection, no redirect followed, no retry inside the
-  primitive, and no body written to a file or a column. Phase 1D's socket
+  primitive, and no body written to a file or a column. The trust-contract
+  correction added five more: the explicit-port rule is read from the RAW input
+  (`non_default_port` may not reappear), the service-subdomain gate exists and
+  runs BEFORE the DNS call (proved by ORDER in the file, and asserted
+  country-blind and label-based), no production file constructs a site-policy
+  verdict, **no production file calls `executeWebAttempt` at all**, no credential
+  survives a redirect, and the connect timeout may not fall below 30 s nor equal
+  the total. Phase 1D's socket
   allow-list was widened ONCE, by exact path, for the gateway — the deliberate
   visible edit ADR 0004 s18 predicted — and Phase 1D's own files are asserted
   socket-free, resolver-free and forbidden from importing it. These assert real capabilities (dependencies,

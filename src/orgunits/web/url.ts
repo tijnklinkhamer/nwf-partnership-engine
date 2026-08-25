@@ -32,10 +32,11 @@ export type UrlRejectionReason =
   | 'scheme_not_http'
   | 'userinfo_present'
   | 'host_empty'
+  | 'host_empty_label'
   | 'host_is_ip_literal'
   | 'host_without_dot'
   | 'no_icann_public_suffix'
-  | 'non_default_port'
+  | 'explicit_port'
   | 'fragment_present';
 
 export interface ValidatedUrl {
@@ -44,7 +45,7 @@ export interface ValidatedUrl {
   scheme: 'http:' | 'https:';
   hostname: string;
   registrableDomain: string;
-  /** Always the scheme default; a non-default port is refused, never carried. */
+  /** Always the scheme default; ANY explicit port is refused, never carried. */
   port: number;
   /** Path plus query, exactly what goes on the request line. Never includes a fragment. */
   requestPath: string;
@@ -54,6 +55,42 @@ export type UrlValidation =
   { ok: true; value: ValidatedUrl } | { ok: false; reason: UrlRejectionReason };
 
 const SCHEME_PREFIX = /^[a-zA-Z][a-zA-Z0-9+.-]*:/;
+
+/**
+ * The AUTHORITY component as the caller actually wrote it.
+ *
+ * Read from the RAW string rather than from the parsed URL, because the WHATWG
+ * parser ERASES a scheme-default port: `https://x.fr:443/` and `https://x.fr/`
+ * both leave `url.port === ''`. A check written against `url.port` therefore
+ * cannot fire for `:443` or `:80` at all - it only ever caught the ports it was
+ * not the sole defence against.
+ *
+ * Everything after the FIRST colon is taken and leading slashes are stripped,
+ * rather than requiring a literal `://`, because the parser accepts `https:/x.fr/`
+ * and a backslash-separated form for special schemes, and a stricter reader would
+ * mis-locate the authority on exactly those inputs. The authority ends at the
+ * first path, query or fragment delimiter.
+ */
+function rawAuthority(trimmed: string): string {
+  const afterScheme = trimmed.slice(trimmed.indexOf(':') + 1).replace(/^[/\\]*/, '');
+  const end = afterScheme.search(/[/?#\\]/);
+  return end === -1 ? afterScheme : afterScheme.slice(0, end);
+}
+
+/**
+ * Whether the caller wrote a port at all, default or not.
+ *
+ * Userinfo is dropped first (it may contain a colon of its own, and it is
+ * refused a gate earlier in any case), and an IPv6 literal's brackets are
+ * skipped so its interior colons are not mistaken for a port separator.
+ */
+function hasExplicitPort(authority: string): boolean {
+  const at = authority.lastIndexOf('@');
+  const hostPart = at === -1 ? authority : authority.slice(at + 1);
+  const closingBracket = hostPart.lastIndexOf(']');
+  const afterHost = closingBracket === -1 ? hostPart : hostPart.slice(closingBracket + 1);
+  return afterHost.includes(':');
+}
 
 /**
  * Validates one URL this gateway is being asked to request.
@@ -98,8 +135,26 @@ export function validateRequestUrl(raw: string | null | undefined): UrlValidatio
   // index, and the second would look like a distinct observation.
   if (url.hash !== '') return { ok: false, reason: 'fragment_present' };
 
-  const hostname = url.hostname.toLowerCase();
+  // A TRAILING ROOT DOT IS NORMALISED AWAY, not carried.
+  //
+  // `www.example.fr.` and `www.example.fr` are the same name, and the WHATWG
+  // parser keeps the dot. Carrying it would produce two `requested_host` values
+  // for one host, two rows on the attempt identity index, and - worse - two
+  // scope answers, because the registrable-domain lookup does not agree with
+  // itself across the two spellings. Exactly ONE dot is removed: `example.fr..`
+  // is not a spelling of anything and goes on to fail the suffix gate.
+  const hostname = url.hostname.toLowerCase().replace(/\.$/, '');
   if (hostname === '') return { ok: false, reason: 'host_empty' };
+  // Anything still carrying an empty label after that is malformed, and saying
+  // so here matters: `tldts` TOLERATES a trailing dot and answers with the same
+  // registrable domain either way, so `www.example.fr..` would otherwise pass
+  // the suffix gate while remaining a hostname no resolver should be handed.
+  if (hostname.split('.').includes('')) return { ok: false, reason: 'host_empty_label' };
+  // Written back so the SERIALISED url agrees with the host that was checked.
+  // `requested_url` and `requested_host` are stored side by side and are both
+  // part of how an attempt is identified; letting them disagree about the same
+  // host would put the contradiction in the evidence.
+  if (url.hostname !== hostname) url.hostname = hostname;
 
   // An IP literal names no registrable domain, so it can neither be scoped to a
   // root nor be checked against one. No approved rule in this repository
@@ -110,10 +165,19 @@ export function validateRequestUrl(raw: string | null | undefined): UrlValidatio
   const registrableDomain = icannRegistrableDomain(hostname);
   if (registrableDomain === null) return { ok: false, reason: 'no_icann_public_suffix' };
 
+  // EVERY EXPLICIT PORT IS REFUSED, including the scheme's own default.
+  //
+  // The frozen contract is that a port is refused before DNS, and it has to be
+  // read from what the caller WROTE: `url.port` is empty for `:443` on https
+  // because the parser normalised it away, so testing that alone would enforce
+  // the rule for `:8443` and silently exempt `:443`. A published default port
+  // is also not something an official register has any reason to write, and
+  // accepting it would mean two spellings of one request - which is one
+  // spelling too many for a value that is part of an attempt's identity.
   const defaultPort = DEFAULT_PORT_FOR_SCHEME[url.protocol]!;
-  // `url.port` is empty when the port is the scheme default, because the WHATWG
-  // parser drops it. Anything left is an explicit, non-default port.
-  if (url.port !== '') return { ok: false, reason: 'non_default_port' };
+  if (url.port !== '' || hasExplicitPort(rawAuthority(trimmed))) {
+    return { ok: false, reason: 'explicit_port' };
+  }
 
   return {
     ok: true,

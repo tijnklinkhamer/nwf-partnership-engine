@@ -22,31 +22,76 @@
 export const FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v1';
 
 /**
+ * WHY THE CORRECTION OF THE TIMEOUTS BELOW DID NOT BUMP THIS IDENTIFIER.
+ *
+ * The version exists so that stored evidence can be read under the numbers that
+ * governed it. THE PRE-LANDING CORRECTION IS A CORRECTION OF THE UNPUBLISHED v1
+ * CONTRACT, not a retroactive reinterpretation of durable evidence, and all
+ * four conditions that make that true were verified before it was made:
+ *
+ *   - Phase 2B-1b has not landed; the branch is still under review.
+ *   - The working database holds ZERO rows in all eight orgunit_* tables, so no
+ *     observation anywhere carries this string.
+ *   - No live institutional request has ever been made under it.
+ *   - The correction is on the feature branch that introduced it.
+ *
+ * Bumping to v2 would name a predecessor that governed nothing - a version
+ * whose only distinguishing property is that no evidence exists under it.
+ *
+ * ONCE THE FIRST OBSERVATION EXISTS, this reasoning expires permanently, and
+ * changing any value in this file requires a new version string. There is no
+ * second pre-landing window.
+ */
+
+/**
  * How long a connection may take to become usable, in milliseconds.
  *
- * 10 s. MEASURED JUSTIFICATION, from the 2026-08-24 holdout recorded in
- * ADR 0004 s3: successful fetch latency was median 784 ms, p90 2.3 s and max
- * 11.8 s END TO END, while the scratch tooling's 30 s connect timeout burned a
- * full 30 s on each of 12 dead internal-service hosts on ONE university -
- * six minutes of a run's budget spent learning nothing.
+ * 30 s, which is THE FROZEN DESIGN BASELINE and not a rederivation.
  *
- * 10 s therefore sits above four times the p90 of a COMPLETE request while
- * cutting the cost of an unreachable host by two thirds. It is deliberately
- * not shorter: a slow institutional site declared unreachable is a false
- * negative that looks exactly like a real one in the evidence.
+ * The 2026-08-24 holdout (ADR 0004 s3) measured successful fetch latency at
+ * median 784 ms, p90 2.3 s and max 11.8 s END TO END, and separately burned a
+ * full 30 s on each of 12 dead internal-service hosts on ONE university. The
+ * design audit had BOTH of those numbers in front of it and still chose a long
+ * connect timeout, because the two facts answer different questions: the
+ * latency distribution says how long a REACHABLE host takes, and it says
+ * nothing about how long a slow-but-reachable one may take. A shorter timer
+ * buys throughput by converting an unknown number of slow institutional sites
+ * into CONNECT_TIMEOUT rows that are indistinguishable, in the evidence, from
+ * genuinely unreachable ones. This layer's product is honest classification,
+ * so it pays the wall-clock instead.
+ *
+ * An earlier draft of this file set 10 s by reinterpreting the SAME holdout
+ * evidence. No new measurement justified that, so it was reverted; changing it
+ * again requires new evidence and an ADR, not a rereading.
+ *
+ * The cost the holdout actually measured is addressed where it belongs: the
+ * dead hosts were `moodle.`, `glpi.`, `grr.`, `mail.etudiant.`, `workflow.`,
+ * `mondossierweb.`, `espace-achat.` and `espace-voyage.`, and `hostPolicy.ts`
+ * now refuses every one of them BEFORE a socket exists. The remaining tail
+ * belongs to the per-host circuit breaker in the later frontier, which is
+ * deliberately NOT built here.
  */
-export const CONNECT_TIMEOUT_MS = 10_000;
+export const CONNECT_TIMEOUT_MS = 30_000;
 
 /**
  * The total wall-clock ceiling for one attempt, in milliseconds.
  *
- * 30 s, roughly 2.5x the slowest COMPLETE fetch the holdout observed (11.8 s).
- * Distinct from the connect timeout on purpose: "never answered the socket"
- * and "answered and then dribbled" are different findings, recorded as
- * CONNECT_TIMEOUT and READ_TIMEOUT, and a single generic timer could not tell
- * them apart.
+ * 45 s: the connect ceiling plus 15 s for a response to arrive and complete.
+ *
+ * The two timers must not be equal. Equal timers make the second one
+ * unreachable - a request that spent the whole budget connecting would have no
+ * time left to be read, so every slow response would be recorded as
+ * CONNECT_TIMEOUT and READ_TIMEOUT would become dead taxonomy. 15 s of headroom
+ * is the smallest amount consistent with the holdout: the slowest COMPLETE
+ * fetch it observed took 11.8 s including its own connect, so 15 s of purely
+ * post-connect budget is already above the whole of the slowest success ever
+ * measured.
+ *
+ * The distinction is the point: "never answered the socket" and "answered and
+ * then dribbled" are different findings, recorded as CONNECT_TIMEOUT and
+ * READ_TIMEOUT, and a single generic timer could not tell them apart.
  */
-export const TOTAL_TIMEOUT_MS = 30_000;
+export const TOTAL_TIMEOUT_MS = 45_000;
 
 /**
  * The body ceiling, in bytes, applied to BOTH the wire stream and the decoded

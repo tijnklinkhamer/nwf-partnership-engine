@@ -6,7 +6,7 @@
  * and no cross-domain target becomes a root.
  */
 import { describe, expect, it } from 'vitest';
-import { deriveRedirectFacts } from '../../orgunits/web/redirect.js';
+import { deriveRedirectFacts, REDACTED_USERINFO } from '../../orgunits/web/redirect.js';
 
 const FROM = 'https://www.example.ac.uk/office';
 
@@ -14,6 +14,7 @@ describe('deriveRedirectFacts', () => {
   it('resolves an absolute same-host target', () => {
     expect(deriveRedirectFacts(FROM, 'https://www.example.ac.uk/en/office')).toEqual({
       toUrlRaw: 'https://www.example.ac.uk/en/office',
+      userinfoRedacted: false,
       toUrlResolved: 'https://www.example.ac.uk/en/office',
       targetMalformed: false,
       schemeDowngraded: false,
@@ -99,15 +100,58 @@ describe('deriveRedirectFacts', () => {
     expect(intranet.registrableDomainChanged).toBe(true);
   });
 
-  it('records userinfo and an explicit port in the target without repairing them', () => {
-    const withUserinfo = deriveRedirectFacts(FROM, 'https://user:pw@www.example.ac.uk/');
-    expect(withUserinfo.targetMalformed).toBe(false);
-    expect(withUserinfo.toUrlResolved).toContain('@www.example.ac.uk/');
-    expect(withUserinfo.hostChanged).toBe(false);
+  it('REDACTS a credential-bearing target and makes it structurally unpromotable', () => {
+    // The observation must survive - a redirect carrying credentials is a
+    // finding worth keeping - but the credential must not, because
+    // orgunit_redirect_observations is APPEND-ONLY and nwf_research holds no
+    // DELETE, so a secret written here could never afterwards be removed.
+    const facts = deriveRedirectFacts(FROM, 'https://user:pw@www.example.ac.uk/x?a=1');
 
+    expect(facts.userinfoRedacted).toBe(true);
+    expect(REDACTED_USERINFO).toBe('REDACTED');
+    expect(facts.toUrlRaw).toBe('https://REDACTED@www.example.ac.uk/x?a=1');
+    expect(facts.toUrlRaw).not.toContain('pw');
+    expect(facts.toUrlRaw).not.toContain('user');
+
+    // targetMalformed = true leaves to_url_resolved NULL, and migration 0007's
+    // promotion foreign key matches on target_malformed = false - so the
+    // DATABASE refuses to approve it as a root, not merely this code.
+    expect(facts.targetMalformed).toBe(true);
+    expect(facts.toUrlResolved).toBeNull();
+    expect(facts.schemeDowngraded).toBeNull();
+    expect(facts.hostChanged).toBeNull();
+    expect(facts.registrableDomainChanged).toBeNull();
+  });
+
+  it('redacts a username-only target, and one whose credentials are encoded', () => {
+    const userOnly = deriveRedirectFacts(FROM, 'https://admin@www.example.ac.uk/');
+    expect(userOnly.userinfoRedacted).toBe(true);
+    expect(userOnly.toUrlRaw).not.toContain('admin');
+    expect(userOnly.targetMalformed).toBe(true);
+
+    // Percent-encoding is not a way around it: the question is asked of the
+    // PARSED target, never of the raw string.
+    const encoded = deriveRedirectFacts(FROM, 'https://a%40b:s%3Ac@www.example.ac.uk/');
+    expect(encoded.userinfoRedacted).toBe(true);
+    expect(encoded.toUrlRaw).not.toContain('s%3Ac');
+    expect(encoded.targetMalformed).toBe(true);
+  });
+
+  it('leaves an ordinary target completely unredacted', () => {
+    // An "@" in a PATH is not userinfo and must not trip the redaction.
+    const facts = deriveRedirectFacts(FROM, 'https://www.example.ac.uk/staff/a@b');
+    expect(facts.userinfoRedacted).toBe(false);
+    expect(facts.toUrlRaw).toBe('https://www.example.ac.uk/staff/a@b');
+    expect(facts.targetMalformed).toBe(false);
+  });
+
+  it('records an explicit port in the target without repairing it', () => {
+    // The gateway REFUSES to request a URL with an explicit port. Recording one
+    // a server sent is a different thing, and it stays exactly as received.
     const withPort = deriveRedirectFacts(FROM, 'https://www.example.ac.uk:8443/x');
     expect(withPort.toUrlResolved).toBe('https://www.example.ac.uk:8443/x');
     expect(withPort.hostChanged).toBe(false);
+    expect(withPort.userinfoRedacted).toBe(false);
   });
 
   it('never implies a domain change without a host change', () => {
