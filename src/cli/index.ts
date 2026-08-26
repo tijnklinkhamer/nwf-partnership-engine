@@ -19,6 +19,7 @@ import {
   runWebsiteReport,
   runWebsiteShow,
 } from './commands/website.js';
+import { runOrgunitsDiscover } from './commands/discover.js';
 
 const USAGE = `nwf-pe - NWF Partnership Engine (Phase 1D)
 
@@ -40,6 +41,7 @@ Usage:
   nwf-pe website report
   nwf-pe website conflicts    [--limit <N>]
   nwf-pe website show         <erasmus-code>
+  nwf-pe orgunits discover    --organisation-id <uuid> [--execute] [--json]
 
 Options:
   --country <CC>    Restrict to an ISO-3166-1 alpha-2 country code (e.g. FR).
@@ -56,6 +58,10 @@ Options:
   --dry-run         Parse and report only. Performs no database mutation.
   --limit <N>       Maximum rows to display.
   --json            Emit the full coverage report as JSON.
+  --organisation-id Target organisation for \`orgunits discover\` (exactly one per invocation).
+  --execute         With \`orgunits discover\`: perform a REAL bounded research run.
+                    Without it, the command is a network-free DRY RUN that only
+                    reports the resolved root authority.
   -h, --help        Show this help.
 
 Phase 1B ingests two official datasets: ECHE and the EWP Registry. It measures
@@ -88,6 +94,8 @@ async function main(argv: string[]): Promise<number> {
       'dry-run': { type: 'boolean', default: false },
       json: { type: 'boolean', default: false },
       limit: { type: 'string' },
+      'organisation-id': { type: 'string' },
+      execute: { type: 'boolean', default: false },
       help: { type: 'boolean', short: 'h', default: false },
     },
   });
@@ -183,6 +191,16 @@ async function main(argv: string[]): Promise<number> {
       return 1;
     }
     return runWebsiteShow(identifier);
+  }
+
+  if (group === 'orgunits' && sub === 'discover') {
+    return runOrgunitsDiscover({
+      ...(values['organisation-id'] !== undefined
+        ? { organisationId: values['organisation-id'] }
+        : {}),
+      execute: values.execute === true,
+      json: values.json === true,
+    });
   }
 
   if (group === 'ewp' && sub === 'coverage') {

@@ -276,7 +276,15 @@ export interface SinglePageAttemptInput {
   root: RootAuthorityRef;
   targetUrl: string;
   attemptNo: number;
-  discoveryMethod: 'ROOT' | 'LINK';
+  /**
+   * Widened in Phase 2B-1E (ADR "sitemap behaviour") to also accept SITEMAP
+   * (a sitemap document fetch, or an ordinary page discovered from one) and
+   * WELL_KNOWN_PATH (the conventional sitemap-index fallback probe) - the
+   * two further `discovery_method` values migration 0007 already reserved.
+   * This remains the ONE production caller of `executeWebAttempt`; widening
+   * the type does not add a second call site.
+   */
+  discoveryMethod: 'ROOT' | 'LINK' | 'SITEMAP' | 'WELL_KNOWN_PATH';
   discoveryParentUrl: string | null;
 }
 

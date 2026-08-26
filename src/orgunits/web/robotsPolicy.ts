@@ -246,8 +246,15 @@ function normaliseAgentToken(token: string): string {
  * `User-agent` line, which is how consecutive `User-agent` lines are grouped
  * together as one group with several tokens.
  */
-function parseGroups(body: string): RuleGroup[] {
+interface ParsedRobotsBody {
+  groups: RuleGroup[];
+  /** `Sitemap:` directive values, exactly as written, in file order. DISCOVERY METADATA ONLY - see the module comment. */
+  sitemapUrls: string[];
+}
+
+function parseGroups(body: string): ParsedRobotsBody {
   const groups: RuleGroup[] = [];
+  const sitemapUrls: string[] = [];
   let current: RuleGroup | null = null;
   // True once a non-user-agent directive has been seen for `current`, so the
   // NEXT `User-agent` line starts a fresh group instead of extending this one.
@@ -262,6 +269,17 @@ function parseGroups(body: string): RuleGroup[] {
     if (colon === -1) continue;
     const directive = line.slice(0, colon).trim().toLowerCase();
     const value = line.slice(colon + 1).trim();
+
+    // Sitemap directives are FILE-LEVEL, not scoped to any User-agent group,
+    // and RFC 9309 gives this module no reason to interpret their VALUE - it
+    // is discovery metadata for a later slice, never an access-control rule.
+    // Recorded independently of `current`/`sawDirectiveSinceAgent` so a
+    // Sitemap line can never be mistaken for the directive that starts or
+    // continues a rule group.
+    if (directive === 'sitemap') {
+      if (value !== '') sitemapUrls.push(value);
+      continue;
+    }
 
     if (directive === 'user-agent') {
       if (current === null || sawDirectiveSinceAgent) {
@@ -289,12 +307,14 @@ function parseGroups(body: string): RuleGroup[] {
       }
       continue;
     }
-    // Every other directive (Sitemap, Host, Request-rate, ...) is recognised
-    // as existing and deliberately ignored: this is a robots MATCHER, not a
-    // sitemap reader, and `sitemap.ts` stays absent from this repository.
+    // Every other directive (Host, Request-rate, ...) is recognised as
+    // existing and deliberately ignored: this is a robots MATCHER, not a
+    // sitemap reader. Sitemap: values are captured above, unconditionally,
+    // and never influence Allow/Disallow/user-agent-group/Crawl-delay
+    // semantics.
   }
 
-  return groups;
+  return { groups, sitemapUrls };
 }
 
 /** The approved clamp: never faster than 1.2 s, never slower than 5 s. */
@@ -378,13 +398,17 @@ export class EvaluatedRobotsPolicy {
   readonly #sealed = true;
   readonly #groups: readonly RuleGroup[] | null;
   readonly #unavailableReason: RobotsUnavailableReason | null;
+  /** `Sitemap:` directive values this policy's body declared, in file order. Empty when unavailable or when none were declared. DISCOVERY METADATA - see `sitemapUrls` below. */
+  readonly #sitemapUrls: readonly string[];
 
   private constructor(
     groups: readonly RuleGroup[] | null,
     unavailableReason: RobotsUnavailableReason | null,
+    sitemapUrls: readonly string[] = [],
   ) {
     this.#groups = groups;
     this.#unavailableReason = unavailableReason;
+    this.#sitemapUrls = sitemapUrls;
   }
 
   static isEvaluatedPolicy(value: unknown): value is EvaluatedRobotsPolicy {
@@ -394,7 +418,8 @@ export class EvaluatedRobotsPolicy {
   /** Parses an actually-retrieved robots.txt body (HTTP 2xx with a non-empty body). */
   static fromBody(body: string): EvaluatedRobotsPolicy {
     if (body.trim() === '') return EvaluatedRobotsPolicy.noRestrictions();
-    return new EvaluatedRobotsPolicy(parseGroups(body), null);
+    const parsed = parseGroups(body);
+    return new EvaluatedRobotsPolicy(parsed.groups, null, parsed.sitemapUrls);
   }
 
   /**
@@ -436,6 +461,23 @@ export class EvaluatedRobotsPolicy {
 
   get isUnavailable(): boolean {
     return this.#groups === null;
+  }
+
+  /**
+   * `Sitemap:` directive values this robots.txt declared, in file order,
+   * exactly as written (not yet validated as a request URL - the caller
+   * that consumes these, `sitemap.ts`, applies the same root-scope/trust
+   * gates to each one that any other discovered URL must pass, per ADR
+   * "sitemap trust boundary").
+   *
+   * DISCOVERY METADATA ONLY - see the module comment. These values NEVER
+   * alter `evaluate()`'s Allow/Disallow decision, the user-agent group a
+   * path matches against, or `crawlDelaySecondsFor()`. Always empty when
+   * this policy is `unavailable()` or `noRestrictions()`, because neither
+   * represents a robots.txt body that was actually read.
+   */
+  get sitemapUrls(): readonly string[] {
+    return this.#sitemapUrls;
   }
 
   get unavailableReason(): RobotsUnavailableReason | null {

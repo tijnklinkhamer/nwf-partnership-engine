@@ -321,16 +321,19 @@ describe('PHASE-2B-FIREWALL: exactly one institution-website network call site',
     ]);
   });
 
-  it('built the gateway, 2B-1c added the policy/evidence modules, and 2B-1d added the pure signal layer', () => {
+  it('built the gateway, 2B-1c added the policy/evidence modules, 2B-1d added the pure signal layer, and 2B-1e added bounded discovery orchestration', () => {
     // 2B-1b is the bounded network primitive. 2B-1c added robots evaluation,
     // charset resolution, HTML extraction, PII redaction and page-evidence
     // persistence - all named in ADR 0006 BEFORE they existed, the same
     // discipline ADR 0004 s5 used for the gateway itself. 2B-1d added the
-    // PURE deterministic signal layer (ADR 0007), named the same way. The
-    // frontier, the sitemap reader, the candidates and the classifier remain
-    // later slices, and creating any of them now - even empty, even as a
-    // placeholder - would be building ahead of approval. A placeholder is
-    // exactly how an unreviewed capability gets its first import.
+    // PURE deterministic signal layer (ADR 0007), named the same way. 2B-1e
+    // (this slice) added sitemap discovery and the bounded orchestrator -
+    // sitemap.ts and frontier logic were named as PLANNED (not yet existing)
+    // modules in earlier CLAUDE.md prose, and this is the deliberate,
+    // reviewed widening ADR 0004 s5 predicted for a module the earlier slices
+    // pinned absent. The semantic classifier remains a later slice, and
+    // creating it now - even empty, even as a placeholder - would be
+    // building ahead of approval.
     expect(exists(PHASE_2B_NETWORK_MODULE), 'the approved gateway is missing').toBe(true);
     for (const path of [
       // Trust-contract-correction boundary modules (2B-1b). Neither reads a
@@ -354,15 +357,38 @@ describe('PHASE-2B-FIREWALL: exactly one institution-website network call site',
       'src/orgunits/signals/packs/universal.ts',
       'src/orgunits/signals/packs/fr.ts',
       'src/orgunits/signals/packs/en.ts',
+      // 2B-1e: PURE sitemap XML parsing + bounded orchestration over the
+      // one gateway. See the dedicated "sitemap"/"frontier" describe blocks
+      // below for what these files may and may not do.
+      'src/orgunits/sitemap.ts',
+      'src/orgunits/orchestrator/constants.ts',
+      'src/orgunits/orchestrator/clock.ts',
+      'src/orgunits/orchestrator/anchors.ts',
+      'src/orgunits/orchestrator/circuitBreaker.ts',
+      'src/orgunits/orchestrator/frontier.ts',
+      'src/orgunits/orchestrator/pageCollection.ts',
+      'src/orgunits/orchestrator/candidates.ts',
+      'src/orgunits/orchestrator/run.ts',
+      'src/orgunits/orchestrator/rootRunner.ts',
+      'src/orgunits/orchestrator/orchestrate.ts',
     ]) {
       expect(exists(path), `${path} is an approved module but is missing`).toBe(true);
     }
     for (const path of [
+      // Neither existed before, and neither exists now: 2B-1e placed sitemap
+      // discovery and frontier logic at src/orgunits/sitemap.ts and
+      // src/orgunits/orchestrator/frontier.ts instead - a deliberate naming
+      // decision (frontier logic sits beside the rest of the orchestrator,
+      // not inside src/orgunits/web/), so these EXACT paths remain refused.
       'src/orgunits/web/sitemap.ts',
       'src/orgunits/web/frontier.ts',
+      // The semantic classifier and its candidate-ranking companion remain
+      // NOT authorised. Candidate PERSISTENCE (a deterministic rank, never a
+      // verdict) lives in orchestrator/candidates.ts instead - see ADR 0007
+      // s9 and the 2B-1e ADR's schema-mapping note.
       'src/orgunits/candidates',
       'src/orgunits/classify',
-      // Only fr/en ship in 2B-1d. No placeholder for an unmeasured language.
+      // Only fr/en ship. No placeholder for an unmeasured language.
       'src/orgunits/signals/packs/de.ts',
       'src/orgunits/signals/packs/nl.ts',
       'src/orgunits/signals/packs/es.ts',
@@ -470,30 +496,37 @@ describe('PHASE-2B-FIREWALL: exactly one institution-website network call site',
     }
   });
 
-  it('parses no HTML with a DOM API, and reads no sitemap', () => {
+  it('parses no HTML with a DOM API, and confines the literal sitemap.xml path to the approved sitemap module', () => {
     // ADR 0004 s15/s22: extract.ts reads HTML with regular expressions over
-    // decoded text, deliberately never a DOM. No Phase 2B file may import one,
-    // and no file may consult a sitemap - that reader stays absent (asserted
-    // above) and unreferenced.
+    // decoded text, deliberately never a DOM. No Phase 2B file may import one.
+    // 2B-1e's sitemap.ts is the ONE deliberately, reviewedly widened
+    // exception to "no file may name a sitemap" - it exists specifically to
+    // read one, through the same gateway boundary as everything else.
+    const sitemapPathApproved = new Set(['src/orgunits/sitemap.ts']);
     for (const file of PHASE_2B_FILES) {
       const source = read(file);
       expect(source, `${file} parses HTML with a DOM API`).not.toMatch(
         /\b(parseHTML|innerHTML|querySelectorAll|JSDOM|DOMParser)\b/,
       );
+      if (sitemapPathApproved.has(file)) continue;
       expect(source, `${file} requests a sitemap`).not.toContain('sitemap.xml');
     }
   });
 
-  it('confines "robots.txt" to the files ADR 0006 approved to name it', () => {
+  it('confines "robots.txt" to the files ADR 0006/2B-1e approved to name it', () => {
     // Every OTHER Phase 2B file - the gateway's request-scope machinery,
     // charset resolution, extraction, redaction, page-evidence persistence -
     // has no business naming the policy resource at all: doing so would mean
     // it was reaching for a bypass rather than going through robots.ts.
+    // sitemap.ts is added in 2B-1e, deliberately: it legitimately reads the
+    // `Sitemap:` directives robots.txt itself publishes (discovery metadata
+    // only - never an access-control rule, see robotsPolicy.ts).
     const approved = new Set([
       'src/orgunits/web/robots.ts',
       'src/orgunits/web/robotsPolicy.ts',
       'src/orgunits/web/robotsAuthority.ts',
       PHASE_2B_NETWORK_MODULE, // gateway.ts's own docs explain the scoping mechanism
+      'src/orgunits/sitemap.ts',
     ]);
     for (const file of PHASE_2B_FILES) {
       if (approved.has(file)) continue;
@@ -1265,6 +1298,164 @@ describe('PHASE-2B-FIREWALL: research evidence is append-only and owns nothing e
     }
     // And the value those keys pin is generated, so it cannot be forged.
     expect(sql).toMatch(/root_key\s+text\s*\n?\s*GENERATED ALWAYS AS/);
+  });
+});
+
+describe('PHASE-2B-FIREWALL 2B-1E: the CLI is an entry point, not a network owner', () => {
+  const CLI_FILES = PRODUCTION_FILES.filter((file) => file.startsWith('src/cli/'));
+  const DISCOVER_CLI = 'src/cli/commands/discover.ts';
+
+  it('adds exactly one new CLI command file, and it exists', () => {
+    expect(exists(DISCOVER_CLI), 'the orgunits discover CLI command is missing').toBe(true);
+  });
+
+  it('opens no socket, resolves no hostname, and calls no fetch() from any CLI file', () => {
+    for (const file of CLI_FILES) {
+      const source = read(file);
+      expect(source, `${file} imports a network module`).not.toMatch(
+        /from\s+['"]node:(net|tls|http|https|dns)['"]/,
+      );
+      expect(source, `${file} calls fetch`).not.toMatch(/\bfetch\s*\(/);
+    }
+  });
+
+  it('never imports orgunits/web directly - it reaches the network only through the orchestrator', () => {
+    for (const file of CLI_FILES) {
+      expect(code(file), `${file} imports the orgunit gateway`).not.toContain('orgunits/web');
+    }
+  });
+
+  it('manufactures no robots authorisation and bypasses no budget or root-trust check', () => {
+    const source = code(DISCOVER_CLI);
+    expect(source, 'the CLI constructs a RobotsAuthorisation').not.toContain('RobotsAuthorisation');
+    expect(source, 'the CLI calls executeWebAttempt directly').not.toContain('executeWebAttempt');
+    for (const banned of ['skipRobots', 'ignoreRobots', 'forceAllowed', 'bypassRobots']) {
+      expect(source, `the CLI declares ${banned}`).not.toContain(banned);
+    }
+  });
+
+  it('has no --all/--crawl-everything/--scan-database scope escape, and requires an explicit --execute to touch the network', () => {
+    // CODE, not prose: this checks for an actual declared flag/option, so it
+    // must not trip on this very file's own documentation explaining that no
+    // such flag exists.
+    const source = code(DISCOVER_CLI);
+    for (const banned of ['--all', 'crawlEverything', 'scanDatabase', 'allOrganisations']) {
+      expect(source, `the CLI declares ${banned}`).not.toContain(banned);
+    }
+    expect(source, 'the CLI has no execute guard').toMatch(/execute/);
+    const indexSource = code('src/cli/index.ts');
+    expect(indexSource, 'index.ts declares a --all-shaped flag').not.toMatch(/'--?all'/);
+  });
+
+  it('uses the research database role, never admin/ingest, for orgunits discover', () => {
+    const source = code(DISCOVER_CLI);
+    expect(source, 'the CLI does not select the research pool role').toMatch(
+      /withPool\(\s*['"]research['"]/,
+    );
+    expect(source, 'the CLI selects the admin role').not.toMatch(/withPool\(\s*['"]admin['"]/);
+    expect(source, 'the CLI selects the ingest role').not.toMatch(/withPool\(\s*['"]ingest['"]/);
+  });
+});
+
+describe('PHASE-2B-FIREWALL 2B-1E: sitemap discovery owns no socket and stays bounded', () => {
+  const SITEMAP_FILE = 'src/orgunits/sitemap.ts';
+
+  it('owns zero sockets and uses no generic HTTP client', () => {
+    const source = code(SITEMAP_FILE);
+    expect(source, 'sitemap.ts imports a network module').not.toMatch(
+      /from\s+['"]node:(net|tls|http|https|dns)['"]/,
+    );
+    expect(source, 'sitemap.ts calls fetch').not.toMatch(/\bfetch\s*\(/);
+    expect(source, 'sitemap.ts calls executeWebAttempt directly').not.toContain(
+      'executeWebAttempt',
+    );
+  });
+
+  it('never writes a file and never persists raw XML', () => {
+    const source = code(SITEMAP_FILE);
+    expect(source, 'sitemap.ts writes to disk').not.toMatch(
+      /writeFile|createWriteStream|mkdtemp|tmpdir/,
+    );
+    expect(source, 'sitemap.ts issues an INSERT').not.toMatch(/INSERT\s+INTO/i);
+  });
+
+  it('declares the exact named, bounded sitemap limits', () => {
+    const constants = read('src/orgunits/orchestrator/constants.ts');
+    for (const name of [
+      'MAX_SITEMAP_DOCUMENTS_PER_ROOT',
+      'MAX_SITEMAP_DEPTH',
+      'MAX_SITEMAP_URLS_PER_ROOT',
+      'MAX_SITEMAP_DOCUMENT_BYTES',
+    ]) {
+      expect(constants, `constants.ts does not declare ${name}`).toContain(name);
+    }
+    const sitemap = code(SITEMAP_FILE);
+    expect(sitemap, 'sitemap.ts does not import the document cap').toContain(
+      'MAX_SITEMAP_DOCUMENTS_PER_ROOT',
+    );
+    expect(sitemap, 'sitemap.ts does not import the depth cap').toContain('MAX_SITEMAP_DEPTH');
+    expect(sitemap, 'sitemap.ts does not import the URL cap').toContain(
+      'MAX_SITEMAP_URLS_PER_ROOT',
+    );
+  });
+
+  it('adds zero new runtime dependencies for XML parsing (reuses saxes)', () => {
+    const source = code(SITEMAP_FILE);
+    expect(source, 'sitemap.ts does not use saxes').toMatch(/from\s+['"]saxes['"]/);
+  });
+});
+
+describe('PHASE-2B-FIREWALL 2B-1E: the orchestrator is explicitly bounded, and imports nothing forbidden', () => {
+  const ORCHESTRATOR_FILES = PHASE_2B_FILES.filter((file) =>
+    file.startsWith('src/orgunits/orchestrator/'),
+  );
+
+  it('populates the orchestrator namespace', () => {
+    expect(ORCHESTRATOR_FILES.length, 'src/orgunits/orchestrator is empty').toBeGreaterThan(0);
+  });
+
+  it('declares every frozen/mechanical budget constant by name, once, in constants.ts', () => {
+    const constants = read('src/orgunits/orchestrator/constants.ts');
+    for (const [name, value] of [
+      ['MAX_PAGE_ATTEMPTS_PER_ROOT', '35'],
+      ['MAX_TOTAL_REQUESTS_PER_ROOT', '60'],
+      ['MAX_HOSTS_PER_ROOT', '8'],
+      ['TRACK_B_FLOOR', '8'],
+    ] as const) {
+      expect(constants, `constants.ts does not declare ${name}`).toMatch(
+        new RegExp(`${name}\\s*=\\s*${value}\\b`),
+      );
+    }
+  });
+
+  it('imports no AI, Apollo, contact or outbound-shaped dependency', () => {
+    for (const file of ORCHESTRATOR_FILES) {
+      const source = code(file).toLowerCase();
+      expect(source, `${file} names anthropic`).not.toContain('anthropic');
+      expect(source, `${file} names apollo`).not.toContain('apollo');
+      expect(source, `${file} names nodemailer`).not.toContain('nodemailer');
+      expect(source, `${file} imports node-fetch/axios/got/undici`).not.toMatch(
+        /from ['"](node-fetch|axios|got|undici)['"]/,
+      );
+    }
+  });
+
+  it('imports no search-engine client', () => {
+    for (const file of ORCHESTRATOR_FILES) {
+      const source = code(file).toLowerCase();
+      for (const banned of ['googleapis', 'bing', 'serpapi', 'brave-search', 'duckduckgo']) {
+        expect(source, `${file} names ${banned}`).not.toContain(banned);
+      }
+    }
+  });
+
+  it('imports no browser-automation or PDF-parsing dependency', () => {
+    for (const file of ORCHESTRATOR_FILES) {
+      const source = code(file).toLowerCase();
+      for (const banned of ['playwright', 'puppeteer', 'pdf-parse', 'pdfjs']) {
+        expect(source, `${file} names ${banned}`).not.toContain(banned);
+      }
+    }
   });
 });
 
