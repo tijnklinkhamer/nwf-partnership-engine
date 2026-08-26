@@ -321,12 +321,13 @@ describe('PHASE-2B-FIREWALL: exactly one institution-website network call site',
     ]);
   });
 
-  it('built the gateway, and 2B-1c added exactly the approved policy/evidence modules', () => {
+  it('built the gateway, 2B-1c added the policy/evidence modules, and 2B-1d added the pure signal layer', () => {
     // 2B-1b is the bounded network primitive. 2B-1c added robots evaluation,
     // charset resolution, HTML extraction, PII redaction and page-evidence
     // persistence - all named in ADR 0006 BEFORE they existed, the same
-    // discipline ADR 0004 s5 used for the gateway itself. The frontier, the
-    // sitemap reader, the signals, the candidates and the classifier remain
+    // discipline ADR 0004 s5 used for the gateway itself. 2B-1d added the
+    // PURE deterministic signal layer (ADR 0007), named the same way. The
+    // frontier, the sitemap reader, the candidates and the classifier remain
     // later slices, and creating any of them now - even empty, even as a
     // placeholder - would be building ahead of approval. A placeholder is
     // exactly how an unreviewed capability gets its first import.
@@ -343,15 +344,29 @@ describe('PHASE-2B-FIREWALL: exactly one institution-website network call site',
       'src/orgunits/web/extract.ts',
       'src/orgunits/web/redact.ts',
       'src/orgunits/web/pageEvidence.ts',
+      // 2B-1d: the pure deterministic signal layer. See the dedicated
+      // describe block below for what these files may NOT do.
+      'src/orgunits/signals/types.ts',
+      'src/orgunits/signals/normalise.ts',
+      'src/orgunits/signals/tree.ts',
+      'src/orgunits/signals/weights.ts',
+      'src/orgunits/signals/score.ts',
+      'src/orgunits/signals/packs/universal.ts',
+      'src/orgunits/signals/packs/fr.ts',
+      'src/orgunits/signals/packs/en.ts',
     ]) {
       expect(exists(path), `${path} is an approved module but is missing`).toBe(true);
     }
     for (const path of [
       'src/orgunits/web/sitemap.ts',
       'src/orgunits/web/frontier.ts',
-      'src/orgunits/signals',
       'src/orgunits/candidates',
       'src/orgunits/classify',
+      // Only fr/en ship in 2B-1d. No placeholder for an unmeasured language.
+      'src/orgunits/signals/packs/de.ts',
+      'src/orgunits/signals/packs/nl.ts',
+      'src/orgunits/signals/packs/es.ts',
+      'src/orgunits/signals/packs/it.ts',
     ]) {
       expect(exists(path), `${path} exists but belongs to a later slice`).toBe(false);
     }
@@ -710,6 +725,123 @@ describe('PHASE-2B-FIREWALL: exactly one institution-website network call site',
     // where a reviewer of the next slice will read it.
     const adr = read('docs/adr/0004-bounded-first-party-web-acquisition.md');
     expect(adr).toContain(PHASE_2B_NETWORK_MODULE);
+  });
+});
+
+describe('PHASE-2B-FIREWALL: the deterministic signal layer is PURE, and produces no verdict', () => {
+  const SIGNALS_FILES = PHASE_2B_FILES.filter((file) => file.startsWith('src/orgunits/signals/'));
+
+  it('populates the signals namespace', () => {
+    expect(SIGNALS_FILES.length, 'src/orgunits/signals is empty').toBeGreaterThan(0);
+  });
+
+  it('opens no database connection and imports no database helper', () => {
+    // Scoring a URL or a page's own evidence never needs a row. A signals
+    // file that imports `pg` or this repository's own db helpers would be
+    // reaching for state this layer has no business holding.
+    for (const file of SIGNALS_FILES) {
+      const source = code(file);
+      expect(source, `${file} imports pg`).not.toMatch(/from\s+['"]pg['"]/);
+      expect(source, `${file} imports the db helper`).not.toMatch(/from\s+['"].*\/db\//);
+      expect(source, `${file} names a Pool or a client`).not.toMatch(/\bnew\s+Pool\s*\(/);
+    }
+  });
+
+  it('reads no environment variable', () => {
+    for (const file of SIGNALS_FILES) {
+      expect(code(file), `${file} reads process.env`).not.toContain('process.env');
+    }
+  });
+
+  it('performs no filesystem IO', () => {
+    for (const file of SIGNALS_FILES) {
+      const source = code(file);
+      expect(source, `${file} imports node:fs`).not.toMatch(/from\s+['"]node:fs/);
+      expect(source, `${file} reads a file`).not.toMatch(/\breadFile(Sync)?\s*\(/);
+      expect(source, `${file} writes a file`).not.toMatch(/\bwriteFile(Sync)?\s*\(/);
+    }
+  });
+
+  it('calls no clock or random source, so the same input always scores the same', () => {
+    // Determinism is the whole contract: the same input under the same rule
+    // version must always return the same output.
+    for (const file of SIGNALS_FILES) {
+      const source = code(file);
+      expect(source, `${file} calls Date.now`).not.toMatch(/Date\.now\s*\(/);
+      expect(source, `${file} constructs a bare new Date()`).not.toMatch(/new Date\s*\(\s*\)/);
+      expect(source, `${file} calls Math.random`).not.toMatch(/Math\.random\s*\(/);
+    }
+  });
+
+  it('declares no relevance, verdict or contact-shaped property anywhere in the signal layer', () => {
+    // A signal is a number with reviewable evidence, never a conclusion. See
+    // ADR 0007 s9 and the migration-level equivalent of this check above.
+    for (const file of SIGNALS_FILES) {
+      const source = read(file);
+      for (const banned of [
+        'relevant',
+        'isRelevant',
+        'verified',
+        'confirmed',
+        'approved',
+        'preferred',
+        'qualified',
+        'isUnit',
+        'hasDistributionCapability',
+      ]) {
+        expect(source, `${file} declares the conclusion property ${banned}`).not.toMatch(
+          new RegExp(`\\b${banned}\\s*[:?]`),
+        );
+      }
+      expect(source, `${file} declares a mailbox property`).not.toMatch(
+        /\b(email|mailbox|emailAddress)\s*[:?]/i,
+      );
+      expect(source, `${file} declares a telephone property`).not.toMatch(
+        /\b(phone|telephone|phoneNumber)\s*[:?]/i,
+      );
+    }
+  });
+
+  it('never reads a country, locale or market inside the scoring core', () => {
+    // ADR 0004 s12 / ADR 0007 s6: "French organisation -> French pack only" is
+    // exactly the inference this layer must never make. Country/locale simply
+    // never appears as a concept in the scoring core's own files.
+    for (const file of [
+      'src/orgunits/signals/types.ts',
+      'src/orgunits/signals/score.ts',
+      'src/orgunits/signals/tree.ts',
+      'src/orgunits/signals/normalise.ts',
+    ]) {
+      const source = code(file);
+      for (const banned of ['country', 'locale', 'market', 'targetLanguage', 'langPack']) {
+        expect(source, `${file} names ${banned}`).not.toMatch(new RegExp(`\\b${banned}\\b`, 'i'));
+      }
+    }
+  });
+
+  it('ships exactly the approved universal/fr/en packs, and no per-organisation activation switch', () => {
+    const packsDir = resolve(ROOT, 'src/orgunits/signals/packs');
+    const packFiles = readdirSync(packsDir)
+      .filter((f) => f.endsWith('.ts'))
+      .sort();
+    expect(packFiles).toEqual(['en.ts', 'fr.ts', 'universal.ts']);
+
+    // score.ts must import all three unconditionally - never behind a branch
+    // keyed on a per-organisation property.
+    const scoreSource = code('src/orgunits/signals/score.ts');
+    expect(scoreSource).toMatch(/from\s+['"]\.\/packs\/universal\.js['"]/);
+    expect(scoreSource).toMatch(/from\s+['"]\.\/packs\/fr\.js['"]/);
+    expect(scoreSource).toMatch(/from\s+['"]\.\/packs\/en\.js['"]/);
+  });
+
+  it('declares no AI, Apollo or outbound reference in the signal layer', () => {
+    for (const file of SIGNALS_FILES) {
+      const source = code(file);
+      expect(source.toLowerCase(), `${file} names anthropic`).not.toContain('anthropic');
+      expect(source.toLowerCase(), `${file} names apollo`).not.toContain('apollo');
+      expect(source, `${file} names mailto:`).not.toMatch(/mailto:/i);
+      expect(source, `${file} names tel:`).not.toMatch(/['"]tel:/i);
+    }
   });
 });
 

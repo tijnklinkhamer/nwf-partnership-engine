@@ -10,15 +10,20 @@ Erasmus / Mobility offices, language centres, and student associations — that
 could distribute NWF to language learners.
 
 **Current state: Phase 1D, plus the Phase 2B-1a trust foundation, the
-Phase 2B-1b web gateway, and the Phase 2B-1c policy-governed page evidence
-capability. This repository ingests THREE official datasets into a local
-PostgreSQL database — the ECHE list, the EWP Registry catalogue and the French
-Ministry register of higher-education institutions — lets you inspect them,
-and measures how their published identifiers and website values relate. It
-also holds a SINGLE-PAGE acquisition capability: given one authorised root, it
-can evaluate that host's robots.txt, perform ONE policy-governed GET against
-ONE target page, and turn a successful HTML response into bounded, redacted
-page evidence. That is all it DOES.**
+Phase 2B-1b web gateway, the Phase 2B-1c policy-governed page evidence
+capability, and the Phase 2B-1d deterministic signal layer. This repository
+ingests THREE official datasets into a local PostgreSQL database — the ECHE
+list, the EWP Registry catalogue and the French Ministry register of
+higher-education institutions — lets you inspect them, and measures how their
+published identifiers and website values relate. It also holds a SINGLE-PAGE
+acquisition capability: given one authorised root, it can evaluate that
+host's robots.txt, perform ONE policy-governed GET against ONE target page,
+and turn a successful HTML response into bounded, redacted page evidence. And
+it holds a PURE deterministic scoring layer — given a URL (and, for a
+fetched page, its title and headings), it computes explainable frontier and
+candidate scores. Nothing is wired together yet: the scorer is never called
+by the gateway, by a frontier, or by anything that fetches. That is all it
+DOES.**
 
 **Migration 0007 creates eight `orgunit_*` tables and the `nwf_research` role.
 Phase 2B-1b built `src/orgunits/web/gateway.ts` against them; Phase 2B-1c added
@@ -30,12 +35,19 @@ concurrency, no retry, no circuit breaker, no CLI command, no classifier.**
 Every one of the eight tables still holds zero rows in the working database,
 because no run has been executed against a live institution — Phase 2B-1c
 built a capability that COULD authorise a live request but never issues one
-(no frontier exists yet to decide which pages are worth visiting). See "What
-Phase 2B-1a established", "What Phase 2B-1b built" and
-"What Phase 2B-1c built" below, and
+(no frontier exists yet to decide which pages are worth visiting).
+**Phase 2B-1d built `src/orgunits/signals/` — PURE functions only: no
+socket, no database, no filesystem, no environment variable, no clock — that
+score a URL for frontier acquisition worth and score a fetched page's own
+evidence for classifier-candidate worth, under a versioned, explainable
+ruleset (`orgunit-signal-rules-v1`). No frontier, no candidate persistence, no
+classifier, no CLI, and no research run exists yet to call any of it.** See
+"What Phase 2B-1a established", "What Phase 2B-1b built",
+"What Phase 2B-1c built" and "What Phase 2B-1d built" below, and
 `docs/adr/0004-bounded-first-party-web-acquisition.md`,
-`docs/adr/0005-bounded-web-gateway-and-fetch-policy-v1.md` and
-`docs/adr/0006-policy-governed-page-evidence.md`.
+`docs/adr/0005-bounded-web-gateway-and-fetch-policy-v1.md`,
+`docs/adr/0006-policy-governed-page-evidence.md` and
+`docs/adr/0007-deterministic-orgunit-signal-rules-v1.md`.
 
 The sources are stored SIDE BY SIDE, never merged. No EWP record is attached to
 an organisation, and no `organisations` row is created or modified by EWP or by
@@ -761,6 +773,64 @@ then (via `persistPageEvidence`) turns a successful HTML response into one
 **Working-database row counts are unchanged: all eight `orgunit_*` tables still
 hold zero rows.** Every test writes to `nwf_pe_test` only.
 
+## What Phase 2B-1d built
+
+**The deterministic signal layer — PURE functions and language packs, and
+NOTHING ELSE.** `src/orgunits/signals/` scores a URL for FRONTIER acquisition
+worth (`scoreFrontierUrl`) and scores an already-fetched page's own evidence
+for CANDIDATE handoff-worth (`scoreFetchedPageCandidate`) — two intentionally
+separate, differently-typed functions, never one function behind a mode flag.
+See `docs/adr/0007-deterministic-orgunit-signal-rules-v1.md` for the full
+design.
+
+- **`ORGUNIT_SIGNAL_RULE_VERSION = 'orgunit-signal-rules-v1'` is a NEW
+  ruleset, not a reproduction.** The Phase 2A audit's fitted weights and the
+  2026-08-24 holdout's own reconstruction both had their scratch tooling
+  deleted (ADR 0004 §3); this ruleset is informed by their measured findings
+  but claims no calibration of its own. Shadow validation, not this file, is
+  the gate before any research run is trusted on its output.
+- **Type-level separation, not a runtime flag.** `CandidatePageInput` has no
+  field an inherited/parent-context value could occupy — a caller cannot pass
+  "the parent section looked international" into a candidate score even by
+  mistake, because the type has nowhere to put it.
+- **Frontier inheritance is bounded on three independent axes**
+  (`src/orgunits/signals/tree.ts`): a section root's eligibility is judged on
+  its OWN score only, never a score that already includes an inherited
+  component; inheritance reaches at most two descendant levels; and the
+  contribution decays geometrically (½ at depth 1, ¼ at depth 2) rather than
+  staying at full strength.
+- **A `veto`-kind rule does something a `negative` rule cannot**: on top of
+  its ordinary subtraction from a page's own evidence, it forces the
+  INHERITED contribution for that track to zero (frontier scoring only —
+  candidate scoring has no inheritance to veto in the first place). This is
+  how `/recherche/relations-internationales`-shaped pages are kept from
+  laundering a strong ancestor's score through an academic-research scope
+  that is not the unit itself.
+- **Track A and Track B are discovery STRATEGIES, never unit types.** Neither
+  is `INTERNATIONAL_OFFICE` or `LANGUAGE_CENTRE` — those remain a later,
+  unapproved semantic-classification decision. A page may legitimately score
+  on both tracks.
+- **`fr` and `en` packs run unconditionally, together, for every input.**
+  Nothing in the scoring core reads a country, a locale or an organisation's
+  declared language — `FrontierUrlInput` and `CandidatePageInput` carry no
+  such field. No `de`/`nl`/`es`/`it` placeholder packs exist.
+- **No relevance conclusion anywhere.** No returned type or property is named
+  `relevant`, `verified`, `confirmed`, `approved`, `preferred`, `qualified`,
+  `isUnit` or `hasDistributionCapability`. A score is a number with
+  reviewable evidence (`matchedSignals`/`negativeSignals`/`vetoes`, each
+  carrying a stable rule id, pack, track, field, weight, and whether it was
+  inherited) — never a conclusion.
+- **Nothing calls this layer yet.** No frontier, no candidate persistence, no
+  classifier, no CLI command, no research run. `phase2b.firewall.test.ts`
+  asserts the signals namespace is pure — no socket, no database import, no
+  environment read, no filesystem IO, no `Date.now()`/`Math.random()` — and
+  that `src/orgunits/web/frontier.ts`, `src/orgunits/candidates/` and
+  `src/orgunits/classify/` all remain absent.
+
+**No migration and no new dependency.** Migration 0007 is untouched; the
+runtime dependency list is still exactly `pg`, `read-excel-file`, `saxes`,
+`tldts`, `zod`.
+
 ## What a `website_claims` row means
 
 **A `website_claims` row is ONE SOURCE'S ASSERTION about ONE ECHE SOURCE ROW.
@@ -928,11 +998,33 @@ src/orgunits/web/    the Phase 2B bounded acquisition + page-evidence primitive:
                        pageEvidence.ts derives + persists ONE
                                        orgunit_page_evidence row per eligible
                                        fetch. Opens no socket.
+src/orgunits/signals/  the Phase 2B-1d PURE deterministic signal layer:
+                       types.ts        SignalTrack/SignalRule/MatchedSignal,
+                                       FrontierUrlInput, CandidatePageInput
+                                       (no field an inheritance value could
+                                       occupy). PURE.
+                       normalise.ts    diacritic/hyphen/whitespace folding,
+                                       token-boundary phrase matching. PURE.
+                       tree.ts         path depth, section-root eligibility,
+                                       bounded/decaying inheritance. PURE.
+                       weights.ts      the named, reviewable v1 weight
+                                       classes. PURE.
+                       score.ts        scoreFrontierUrl,
+                                       scoreFetchedPageCandidate,
+                                       ORGUNIT_SIGNAL_RULE_VERSION. PURE.
+                       packs/universal.ts  country/language-blind structural
+                                       negatives + the academic-research
+                                       scope veto. PURE.
+                       packs/fr.ts     French Track A/B terms. PURE.
+                       packs/en.ts     English Track A/B terms. PURE.
                      Nothing else under src/orgunits/ may import node:dns,
                      node:net, node:tls, node:http or node:https, or call
                      fetch(). src/orgunits/web/sitemap.ts, frontier.ts and
-                     src/orgunits/signals/, /candidates/ and /classify/ do not
-                     exist and belong to later slices.
+                     src/orgunits/candidates/ and /classify/ do not exist and
+                     belong to later slices. Nothing under src/orgunits/signals/
+                     opens a socket, a database connection or a file handle,
+                     reads an environment variable, or calls
+                     Date.now()/Math.random().
 ```
 
 ## Things the real data will surprise you with
@@ -1119,17 +1211,25 @@ Vitest. `npm run validate` is the gate. Three categories:
   deliberately widened two things it had previously pinned closed, both by
   exact name: `robots.ts`, `robotsPolicy.ts`, `charset.ts`, `extract.ts`,
   `redact.ts` and `pageEvidence.ts` are now asserted to EXIST (while
-  `sitemap.ts`, `frontier.ts`, `signals/`, `candidates/` and `classify/` stay
-  asserted absent), and `robots.ts` is asserted as the EXACTLY-ONE production
-  caller of `executeWebAttempt` — a caller that must construct its authority
-  only via the two URL-scoped production factories, never the test-only seam.
-  New checks also confine the string `robots.txt` to the files approved to
-  name it, forbid any generic robots-bypass flag, keep the five new modules
-  network-free, and forbid `mailto:`/`tel:` anywhere outside `redact.ts`.
-  Phase 1D's socket
-  allow-list was widened ONCE, by exact path, for the gateway — the deliberate
-  visible edit ADR 0004 s18 predicted — and Phase 1D's own files are asserted
-  socket-free, resolver-free and forbidden from importing it. These assert real capabilities (dependencies,
+  `sitemap.ts`, `frontier.ts`, `signals/`, `candidates/` and `classify/` stayed
+  asserted absent at that point), and `robots.ts` is asserted as the
+  EXACTLY-ONE production caller of `executeWebAttempt` — a caller that must
+  construct its authority only via the two URL-scoped production factories,
+  never the test-only seam. New checks also confine the string `robots.txt`
+  to the files approved to name it, forbid any generic robots-bypass flag,
+  keep the five new modules network-free, and forbid `mailto:`/`tel:`
+  anywhere outside `redact.ts`. Phase 2B-1d then widened `signals/` from
+  "asserted absent" to "asserted present, and asserted PURE": every file
+  under `src/orgunits/signals/` is checked for no `pg`/db-helper import, no
+  `process.env` read, no filesystem IO, no `Date.now()`/`Math.random()`, no
+  relevance/verdict/contact-shaped property, and no `country`/`locale`
+  reference in the scoring core — while `frontier.ts`, `candidates/` and
+  `classify/` remain asserted absent, and no `de`/`nl`/`es`/`it` placeholder
+  pack may exist alongside the approved `universal`/`fr`/`en` three. Phase 1D's
+  socket allow-list was widened ONCE, by exact path, for the gateway — the
+  deliberate visible edit ADR 0004 s18 predicted — and Phase 1D's own files
+  are asserted socket-free, resolver-free and forbidden from importing it.
+  These assert real capabilities (dependencies,
   API hosts, SQL verbs, credential identifiers, forbidden directories), **not**
   ordinary English words, so documentation prose never trips them. `phase2b`
   parses `GRANT` statements rather than scanning for verbs, because the first
