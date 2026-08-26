@@ -39,11 +39,11 @@ import {
   MAX_HOSTS_PER_ROOT,
   MAX_PAGE_ATTEMPTS_PER_ROOT,
   MAX_REDIRECT_CONTINUATION_HOPS,
-  MAX_TOTAL_REQUESTS_PER_ROOT,
   MIN_HOST_PACING_SECONDS,
   TRACK_B_FLOOR,
 } from './constants.js';
 import { createFrontier, type Frontier } from './frontier.js';
+import { RequestBudget, TOTAL_REQUEST_BUDGET_EXHAUSTED_REASON } from './requestBudget.js';
 import { deriveEligiblePage, persistCollectedPages, type CollectedPage } from './pageCollection.js';
 import { scoreAndPersistCandidates, type PersistedCandidateSummary } from './candidates.js';
 import {
@@ -66,7 +66,7 @@ export type RootTerminalReason =
   | 'ROBOTS_BLOCKED_ROOT'
   | 'ROBOTS_UNREADABLE_ROOT'
   | 'PAGE_BUDGET_EXHAUSTED'
-  | 'TOTAL_REQUEST_BUDGET_EXHAUSTED'
+  | typeof TOTAL_REQUEST_BUDGET_EXHAUSTED_REASON
   | 'ALL_REMAINING_HOSTS_INADMISSIBLE'
   | 'NO_ELIGIBLE_HTML'
   | 'COMPLETED_WITH_CANDIDATES'
@@ -162,16 +162,32 @@ export async function runRootAcquisition(
   const frontier: Frontier = createFrontier();
   const hostsUsed = new Set<string>();
   const hostCrawlDelay = new Map<string, number>();
+  // Every URL this root has already attempted (root bootstrap, frontier pick,
+  // or a followed redirect target) - keyed on the exact requested-URL string,
+  // which is the same identity `executeWebAttempt` itself keys a duplicate
+  // refusal on (gateway.ts's `findExistingAttempt`). The frontier's own
+  // admission dedup only knows about URLs discovered THROUGH it, so it alone
+  // cannot prevent a redirect chain, or a self-linking anchor, from
+  // re-offering the ROOT's own URL or an earlier redirect hop's target - both
+  // reachable outside frontier.add(). Checked and populated HERE, before any
+  // pacing wait or gateway call, so a revisit is a graceful skip (the same
+  // "not fetched, loop continues" treatment as BLOCKED/HOST_CAP/CIRCUIT_OPEN)
+  // rather than an uncaught WebGatewayRefusal('DUPLICATE_ATTEMPT') escaping
+  // runRootAcquisition and turning one root's entirely ordinary redirect loop
+  // into the whole run's FAILED completion (see the dedicated redirect-loop
+  // test for the scenario this closes).
+  const attemptedUrls = new Set<string>();
   const collectedPages: CollectedPage[] = [];
 
-  let totalRequests = 0;
+  const budget = new RequestBudget();
   let pageAttempts = 0;
   let robotsRequests = 0;
   let sitemapRequests = 0;
   let trackASelected = 0;
   let trackBSelected = 0;
 
-  let budgetStopReason: 'PAGE_BUDGET_EXHAUSTED' | 'TOTAL_REQUEST_BUDGET_EXHAUSTED' | null = null;
+  let budgetStopReason:
+    'PAGE_BUDGET_EXHAUSTED' | typeof TOTAL_REQUEST_BUDGET_EXHAUSTED_REASON | null = null;
   let allHostsInadmissibleStop = false;
   let rootRobotsBlockedDecision: 'DISALLOWED' | 'ROBOTS_UNREADABLE' | null = null;
   let rootCrossDomainRedirectStopped = false;
@@ -206,6 +222,7 @@ export async function runRootAcquisition(
     | { status: 'BLOCKED'; decision: 'DISALLOWED' | 'ROBOTS_UNREADABLE'; robotsFetched: boolean }
     | { status: 'HOST_CAP' }
     | { status: 'CIRCUIT_OPEN' }
+    | { status: 'ALREADY_ATTEMPTED' }
     | { status: 'BUDGET_EXCEEDED' };
 
   async function attemptUrl(
@@ -224,17 +241,28 @@ export async function runRootAcquisition(
       return { status: 'BUDGET_EXCEEDED' };
     }
 
+    // A revisit of an already-attempted URL (a redirect loop, or a page that
+    // anchors back to itself or to the root) is refused HERE, gracefully,
+    // rather than reaching the gateway's own DUPLICATE_ATTEMPT refusal - see
+    // the comment on `attemptedUrls` above.
+    if (attemptedUrls.has(url)) return { status: 'ALREADY_ATTEMPTED' };
+
     if (!hostsUsed.has(hostname) && hostsUsed.size >= MAX_HOSTS_PER_ROOT)
       return { status: 'HOST_CAP' };
     if (circuitBreaker.isOpen(hostname)) return { status: 'CIRCUIT_OPEN' };
 
     const needsRobots = cache.get(runId, scheme, hostname) === undefined;
     const predictedCost = (needsRobots ? 1 : 0) + 1;
-    if (totalRequests + predictedCost > MAX_TOTAL_REQUESTS_PER_ROOT)
-      return { status: 'BUDGET_EXCEEDED' };
+    // Checked BEFORE any pacing wait and before authoriseAndFetchPage below -
+    // refusal here means zero network activity for this attempt, and the
+    // primitive itself (requestBudget.ts) is what a dedicated unit test
+    // drives to and past its ceiling directly.
+    if (!budget.canAfford(predictedCost)) return { status: 'BUDGET_EXCEEDED' };
     if (budgetClass === 'page' && pageAttempts >= MAX_PAGE_ATTEMPTS_PER_ROOT) {
       return { status: 'BUDGET_EXCEEDED' };
     }
+
+    attemptedUrls.add(url);
 
     const delay = hostCrawlDelay.get(hostname) ?? MIN_HOST_PACING_SECONDS;
     await pacer.waitForSlot(hostname, delay);
@@ -249,7 +277,7 @@ export async function runRootAcquisition(
     hostsUsed.add(hostname);
     const robotsFetched = result.robots.robotsFetch.fetchResult !== null;
     if (robotsFetched) {
-      totalRequests += 1;
+      budget.consume(1);
       robotsRequests += 1;
     }
     if (result.robots.effectiveCrawlDelaySeconds !== null) {
@@ -270,7 +298,7 @@ export async function runRootAcquisition(
       };
     }
 
-    totalRequests += 1;
+    budget.consume(1);
     if (budgetClass === 'page') pageAttempts += 1;
     else sitemapRequests += 1;
 
@@ -313,7 +341,24 @@ export async function runRootAcquisition(
     }
   }
 
-  /** Follows a SAFE, same-domain redirect chain up to the hop cap. Stops (without following) on any cross-domain hop, recording it. */
+  /**
+   * Follows a SAFE, same-domain redirect chain up to the hop cap. Stops
+   * (without following) on any cross-domain hop, recording it.
+   *
+   * EXACT HOP SEMANTICS (pinned here because no ADR prose stated it before
+   * this correction pass, and "off by one" is exactly the kind of thing that
+   * silently drifts): the caller passes `hopsRemaining = MAX_REDIRECT_CONTINUATION_HOPS`
+   * (5) for the FIRST redirect a root or an ordinary page attempt produces.
+   * Each hop this function decides to follow consumes exactly one gateway
+   * attempt and recurses with `hopsRemaining - 1`. `hopsRemaining <= 0` is
+   * checked BEFORE that hop's target is ever attempted, so a chain of six
+   * redirect responses (root -> 1 -> 2 -> 3 -> 4 -> 5 -> 6) has its first FIVE
+   * hops followed (root->1, 1->2, 2->3, 3->4, 4->5) and the SIXTH target
+   * (5's redirect to 6) refused before any DNS lookup or gateway call for it
+   * - "five redirect responses may be continued, the sixth target is
+   * refused", never a sixth hop actually attempted. See the dedicated
+   * redirect-hop-cap integration test.
+   */
   async function followRedirectIfSafe(
     fetch: WebAttemptResult,
     hopsRemaining: number,
@@ -408,8 +453,8 @@ export async function runRootAcquisition(
       budgetStopReason = 'PAGE_BUDGET_EXHAUSTED';
       break;
     }
-    if (totalRequests >= MAX_TOTAL_REQUESTS_PER_ROOT) {
-      budgetStopReason = 'TOTAL_REQUEST_BUDGET_EXHAUSTED';
+    if (!budget.canAfford(1)) {
+      budgetStopReason = TOTAL_REQUEST_BUDGET_EXHAUSTED_REASON;
       break;
     }
     const next = frontier.pickNext(trackBSelected, TRACK_B_FLOOR, isHostCurrentlyAdmissible);
@@ -435,10 +480,10 @@ export async function runRootAcquisition(
       budgetStopReason =
         pageAttempts >= MAX_PAGE_ATTEMPTS_PER_ROOT
           ? 'PAGE_BUDGET_EXHAUSTED'
-          : 'TOTAL_REQUEST_BUDGET_EXHAUSTED';
+          : TOTAL_REQUEST_BUDGET_EXHAUSTED_REASON;
       break;
     }
-    // BLOCKED / HOST_CAP / CIRCUIT_OPEN: this URL is simply not fetched; loop continues to the next frontier entry.
+    // BLOCKED / HOST_CAP / CIRCUIT_OPEN / ALREADY_ATTEMPTED: this URL is simply not fetched; loop continues to the next frontier entry.
   }
 
   // -------------------------------------------------------------- 4. persist evidence + candidates
@@ -477,7 +522,7 @@ export async function runRootAcquisition(
   return {
     rootKey,
     terminalReason,
-    totalRequests,
+    totalRequests: budget.totalConsumed,
     pageAttempts,
     robotsRequests,
     sitemapRequests,

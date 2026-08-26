@@ -7,6 +7,8 @@
  * failure exits non-zero.
  */
 import { parseArgs } from 'node:util';
+import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
 import * as log from '../logging/log.js';
 import { runIngestEche } from './commands/ingestEche.js';
 import { runIngestRuns } from './commands/ingestRuns.js';
@@ -76,7 +78,18 @@ resolution and merges nothing, and there is no crawling, research, scoring,
 compliance, contact or outbound capability in it.
 `;
 
-async function main(argv: string[]): Promise<number> {
+/**
+ * PHASE 2B-1E SAFETY-GAP CORRECTION: exported so a test can drive the REAL
+ * argument-parsing/routing path (`parseArgs({ strict: true, ... })` and
+ * every `group === ... && sub === ...` branch below) directly, rather than
+ * only calling a command handler the CLI happens to use. This is the exact,
+ * already-established pattern `src/db/migrate.ts` uses (`main` exported,
+ * auto-invoke guarded below) - not a new convention introduced for this
+ * correction pass. No behaviour changes: `main` still does exactly what it
+ * did before, and the auto-invoke at the bottom of this file still runs it
+ * with `process.argv` exactly as before when this file is executed directly.
+ */
+export async function main(argv: string[]): Promise<number> {
   const { values, positionals } = parseArgs({
     args: argv,
     allowPositionals: true,
@@ -219,11 +232,15 @@ async function main(argv: string[]): Promise<number> {
   return 1;
 }
 
-main(process.argv.slice(2))
-  .then((code) => {
-    process.exitCode = code;
-  })
-  .catch((err: unknown) => {
-    log.error(err instanceof Error ? err.message : String(err));
-    process.exitCode = 1;
-  });
+// Only run when executed directly, not when imported by a test (the same
+// pattern src/db/migrate.ts already uses).
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+  main(process.argv.slice(2))
+    .then((code) => {
+      process.exitCode = code;
+    })
+    .catch((err: unknown) => {
+      log.error(err instanceof Error ? err.message : String(err));
+      process.exitCode = 1;
+    });
+}
