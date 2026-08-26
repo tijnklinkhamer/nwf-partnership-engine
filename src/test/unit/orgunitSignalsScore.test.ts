@@ -269,6 +269,40 @@ describe('Matrix D vs E: a genuine unit title outranks a degree-programme title'
     // below a genuine unit title, not merely edge it down.
     expect(unitScore - programmeResult.score).toBeGreaterThanOrEqual(SIGNAL_WEIGHT.PHRASE_STRONG);
   });
+
+  /**
+   * THE SIGNED DOMAIN IS PART OF THE CONTRACT, not an accident of the
+   * weights. `scoreFetchedPageCandidate` is positives - negatives - vetoes
+   * with NO zero floor, so a page carrying a structural negative and no unit
+   * vocabulary is genuinely worth less than a page carrying neither, and
+   * says so with a number below zero.
+   *
+   * Pinned here because migration 0007 originally carried
+   * `CHECK (candidate_score >= 0)` - written before this formula existed -
+   * and the correction (migration 0008) moved the SCHEMA rather than
+   * clamping the scorer. If this ever floors to zero, that migration's
+   * premise is gone and the persistence test that depends on it is
+   * meaningless, so the floor must fail loudly right here.
+   */
+  it('a page with a structural negative and no unit vocabulary scores BELOW ZERO, and that is valid output', () => {
+    const programme = scoreFetchedPageCandidate({
+      url: 'https://example.edu/programmes/12345/',
+      title: 'MSc International Marketing',
+    });
+    // Track B has no positive vocabulary here at all, so it is the whole
+    // negative weight, unmasked: 0 - PROGRAMME_SHAPE.
+    const trackB = programme.tracks.find((t) => t.track === 'B')!;
+    expect(trackB.score).toBe(-SIGNAL_WEIGHT.PROGRAMME_SHAPE);
+    expect(trackB.score).toBeLessThan(0);
+
+    // Not a quirk of one rule: an ordinary login page reaches it too, on
+    // BOTH tracks, with no degree-programme vocabulary involved.
+    const login = scoreFetchedPageCandidate({ url: 'https://example.edu/login/', title: 'Login' });
+    for (const track of login.tracks) {
+      expect(track.score).toBe(-SIGNAL_WEIGHT.STRUCTURAL);
+      expect(track.score).toBeLessThan(0);
+    }
+  });
 });
 
 describe('Matrix F: a page published UNDER a unit is not automatically the unit', () => {

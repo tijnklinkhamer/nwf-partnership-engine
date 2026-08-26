@@ -201,11 +201,14 @@ describeDb('Phase 2B schema contract (integration)', () => {
     await admin.end();
   });
 
-  describe('migration 0007 is applied and sequential', () => {
-    it('records versions 0001 through 0007 with no gaps', async () => {
+  describe('the Phase 2B migrations are applied and sequential', () => {
+    it('records versions 0001 through 0008 with no gaps', async () => {
       const { rows } = await admin.query<{ version: string }>(
         'SELECT version FROM schema_migrations ORDER BY version',
       );
+      // Extended for 0008 (signed candidate_score). This list is pinned
+      // deliberately so a new migration cannot arrive unnoticed: adding one
+      // is meant to fail here first and be acknowledged here explicitly.
       expect(rows.map((r) => r.version)).toEqual([
         '0001',
         '0002',
@@ -214,6 +217,7 @@ describeDb('Phase 2B schema contract (integration)', () => {
         '0005',
         '0006',
         '0007',
+        '0008',
       ]);
     });
 

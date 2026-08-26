@@ -927,6 +927,55 @@ within the schema exactly as landed. **No new runtime dependency**: the
 dependency list is still exactly `pg`, `read-excel-file`, `saxes`, `tldts`,
 `zod`.
 
+## What migration 0008 corrected
+
+**`candidate_score` is SIGNED, and the schema now says so.** Migration 0007
+created the candidates table before any scorer existed and gave the column
+`CHECK (candidate_score >= 0)` — a reasonable-looking bound on a value nothing
+yet produced. Phase 2B-1d then defined what the score IS: `positives −
+negatives − vetoes`, with **no zero floor**, deliberately. Phase 2B-1e made it
+reachable by persisting candidate rows for the first time. The two disagreed
+about the value domain, and the database would have won.
+
+The contradiction is not theoretical and not rare. Measured against the landed
+scorer, all of these ordinary pages score below zero:
+
+| page                                | Track A | Track B |
+| ----------------------------------- | ------: | ------: |
+| title `MSc International Marketing` |  **−2** |  **−4** |
+| `/login/`                           |      −3 |      −3 |
+| `/news/archive/`                    |      −2 |      −2 |
+| a `.pdf` link                       |      −3 |      −3 |
+
+A login page or a PDF link on the first real institution would have raised
+`violates check constraint "orgunit_page_candidates_score_chk"` and aborted
+that root's candidate persistence. This was reproduced through the ordinary
+`runRootAcquisition` path before the fix and is now pinned by
+`orgunitOrchestrator.test.ts`.
+
+**The schema moved; the scorer did not.** Clamping in the application
+(`Math.max(0, score)`) was rejected: it destroys information, collapses the
+negative tail into ties that hand ranking to the URL tie-breaker, and makes
+the persisted value differ from the scorer's own output — which would end the
+reproducibility the deterministic layer exists to provide, and would silently
+change a versioned ruleset. `ORGUNIT_SIGNAL_RULE_VERSION` is therefore
+**unchanged**: the same input produces the same score before and after.
+
+Migration 0008 drops exactly one constraint. `candidate_score` stays
+`numeric(8,4) NOT NULL`, every other constraint stays (both foreign keys, the
+composite `root_fk` pinning a candidate to its own page's root, the track and
+`type_hint` taxonomies, `rank`, `rule_version`, the `signals` jsonb-array
+check), and **no replacement lower bound was invented** — a number like
+`>= -10` would be the same mistake again. Bounds belong to the ruleset, tied
+to a rule version, not to schema review. No row was rewritten: all eight
+`orgunit_*` tables were empty in both databases when this landed. Dropping a
+`CHECK` grants nothing, and `nwf_research` still holds `SELECT` + `INSERT`
+only.
+
+No ADR: this follows migration 0006's precedent, which corrected a landed
+privilege defect with migration comments alone. The migration file carries the
+full reasoning.
+
 ## What a `website_claims` row means
 
 **A `website_claims` row is ONE SOURCE'S ASSERTION about ONE ECHE SOURCE ROW.
