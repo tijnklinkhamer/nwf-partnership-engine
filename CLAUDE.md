@@ -11,19 +11,19 @@ could distribute NWF to language learners.
 
 **Current state: Phase 1D, plus the Phase 2B-1a trust foundation, the
 Phase 2B-1b web gateway, the Phase 2B-1c policy-governed page evidence
-capability, and the Phase 2B-1d deterministic signal layer. This repository
-ingests THREE official datasets into a local PostgreSQL database — the ECHE
-list, the EWP Registry catalogue and the French Ministry register of
+capability, the Phase 2B-1d deterministic signal layer, and the Phase 2B-1e
+bounded discovery orchestrator (feature branch, NOT landed on main). This
+repository ingests THREE official datasets into a local PostgreSQL database —
+the ECHE list, the EWP Registry catalogue and the French Ministry register of
 higher-education institutions — lets you inspect them, and measures how their
-published identifiers and website values relate. It also holds a SINGLE-PAGE
-acquisition capability: given one authorised root, it can evaluate that
-host's robots.txt, perform ONE policy-governed GET against ONE target page,
-and turn a successful HTML response into bounded, redacted page evidence. And
-it holds a PURE deterministic scoring layer — given a URL (and, for a
-fetched page, its title and headings), it computes explainable frontier and
-candidate scores. Nothing is wired together yet: the scorer is never called
-by the gateway, by a frontier, or by anything that fetches. That is all it
-DOES.**
+published identifiers and website values relate. It also holds a bounded
+DISCOVERY capability: given one trusted organisation root, it evaluates that
+host's robots.txt, discovers a bounded sitemap tree and a bounded set of
+same-domain anchor links, fetches up to 35 policy-governed pages under a
+60-request total budget, ranks each successfully-read page with the pure
+deterministic signal layer, and appends the ranked result as candidate
+evidence. Nothing beyond this is wired together: no semantic classifier, no
+AI, no contact discovery, no outbound capability. That is all it DOES.**
 
 **Migration 0007 creates eight `orgunit_*` tables and the `nwf_research` role.
 Phase 2B-1b built `src/orgunits/web/gateway.ts` against them; Phase 2B-1c added
@@ -831,6 +831,102 @@ design.
 runtime dependency list is still exactly `pg`, `read-excel-file`, `saxes`,
 `tldts`, `zod`.
 
+## What Phase 2B-1e built
+
+**FEATURE BRANCH ONLY — NOT LANDED ON `main`.** The bounded discovery
+orchestrator: `src/orgunits/orchestrator/` plus `src/orgunits/sitemap.ts`
+call the pure signal layer (2B-1d) for the first time, request pages through
+`robots.ts`/`gateway.ts` (2B-1b/1c) for the first time under an actual
+frontier, and persist `orgunit_page_evidence`/`orgunit_page_candidates` rows
+for the first time. See `docs/adr/0008-bounded-discovery-orchestration.md`
+for the full design.
+
+- **One root, one call, fully independent state.** `runRootAcquisition`
+  (`orchestrator/rootRunner.ts`) takes a run id and a root authority
+  reference and returns an explicit `RootSummary` — never a silent empty
+  result (spec "no silent zero"). `orchestrator/orchestrate.ts` resolves
+  every independent root for one organisation (every `STRUCTURALLY_VALID`
+  website claim AND every live, un-revoked root promotion) and runs each
+  with its own frontier, circuit breaker and robots cache — a failure on one
+  root cannot suppress or rewrite another.
+- **Frozen budgets, named and bounded**: 35 ordinary page attempts, 60 total
+  gateway attempts, 8 distinct hosts, an 8-page Track B scheduling floor
+  _within_ the 35-page budget (never additional pages), and bounded sitemap
+  limits (5 documents, depth 2, 3000 URLs) — all in
+  `orchestrator/constants.ts`, each labelled as either a frozen policy
+  constant or an explicitly-uncalibrated mechanical safety bound.
+- **Sitemap discovery reads `Sitemap:` directives from robots.txt**
+  (`robotsPolicy.ts` gained a `sitemapUrls` getter — discovery metadata only,
+  never an access-control rule) and falls back to the conventional
+  `/sitemap.xml` only when none were declared. Every candidate sitemap URL
+  passes the same root-scope/host trust gates as any other discovered URL
+  before it is ever requested; an off-domain `Sitemap:` value is discarded,
+  never fetched, never promoted.
+- **`sitemap.ts` owns no socket.** It takes an injected document fetcher and
+  parses `urlset`/`sitemapindex` XML with `saxes` (already a dependency) —
+  zero new runtime dependencies. `robots.ts`'s
+  `SinglePageAttemptInput.discoveryMethod` widened to accept the
+  already-reserved `SITEMAP`/`WELL_KNOWN_PATH` values; `robots.ts` remains
+  the exactly-one production caller of `executeWebAttempt`.
+- **A circuit breaker lives above the gateway, per run, per host**
+  (`orchestrator/circuitBreaker.ts`): a deterministic host-terminal failure
+  (DNS failure, every resolved address forbidden) opens it immediately; a
+  transient one (timeout, reset, TLS failure) opens it after 3 consecutive
+  occurrences; any actual response resets the streak; a page-level issue
+  (too-large, non-HTML, unresolved charset) never affects it. Once open, a
+  host's circuit never re-closes in this slice — no retries.
+- **Per-host pacing uses an injectable clock**
+  (`orchestrator/clock.ts`) — real timers in production, a fully
+  test-controlled fake clock in tests, so pacing tests never sleep in real
+  time.
+- **Anchors are a separate, PURE, PII-safe extraction path**
+  (`orchestrator/anchors.ts`) — `mailto:`/`tel:`/`javascript:`/`data:`/
+  `file:`/`ftp:` hrefs are dropped at the source and never reach the
+  frontier; anchor text is redacted through the same `redactContactData`
+  `extract.ts` uses.
+- **Page evidence is buffered per root, then persisted once — never updated
+  after the fact.** `orchestrator/pageCollection.ts` derives each eligible
+  page's extracted text in bounded memory, groups pages by host once the
+  whole root's set is known, applies the landed (previously unwired)
+  `computeChromeLines`/`removeChromeLines` cross-page boilerplate primitive
+  to any host group with at least 3 pages, and only then inserts one
+  `orgunit_page_evidence` row per page — the first genuine use of that
+  2B-1c primitive.
+- **Candidate persistence uses the landed schema's own `track` vocabulary as
+  a mechanism label, not a semantic claim.** Track A (international/mobility
+  discovery) maps to `INTERNATIONAL_OFFICE`, Track B (language-centre
+  discovery) maps to `LANGUAGE_CENTRE` — migration 0007's own column comment
+  ("which deterministic ranking family produced this row") supports this
+  reading; no migration was needed. `type_hint` is left NULL in every row,
+  deliberately: this deterministic layer still cannot separate a unit from a
+  degree programme (ADR 0007), and guessing a hint would manufacture
+  confidence the evidence does not support. Every page with persisted
+  evidence receives one candidate row per track — auditable, never
+  thresholded, because no `RELEVANCE_THRESHOLD` exists here.
+- **Candidate scoring uses ONLY a page's own evidence.** Frontier score
+  (which may legitimately inherit from a strong ancestor section) is never
+  read when computing `candidate_score` — `scoreFetchedPageCandidate`'s own
+  input type has nowhere to put it (2B-1d), and this slice's candidate
+  persistence path calls only that function.
+- **The first network-capable research CLI command**:
+  `nwf-pe orgunits discover --organisation-id <uuid> [--execute] [--json]`.
+  Requires exactly one organisation per invocation (no `--all`); without
+  `--execute` it is a network-free dry run (a plain read of
+  `website_claims`/`orgunit_root_promotions`, zero DNS, zero HTTP); connects
+  as the `research` role only. It never imports anything under
+  `src/orgunits/web/` — its only path to the network is
+  `orchestrator/orchestrate.ts`.
+- **No live institutional request was made.** Every test uses a scripted
+  transport against `nwf_pe_test`. The working database (`nwf_pe`) was
+  inspected before and after implementation and found unchanged: all eight
+  `orgunit_*` tables still hold zero rows there.
+
+**No migration.** Migration 0007 is untouched — this slice populates
+`orgunit_page_evidence` and `orgunit_page_candidates` for the first time, but
+within the schema exactly as landed. **No new runtime dependency**: the
+dependency list is still exactly `pg`, `read-excel-file`, `saxes`, `tldts`,
+`zod`.
+
 ## What a `website_claims` row means
 
 **A `website_claims` row is ONE SOURCE'S ASSERTION about ONE ECHE SOURCE ROW.
@@ -945,6 +1041,11 @@ npm run cli -- website show "F PARIS001"       # every claim about one ECHE row
 
 # Regenerate the committed test fixture from a real ECHE spreadsheet
 npm run fixture:build -- <path-to-real-eche.xlsx>
+
+# Bounded discovery orchestration (Phase 2B-1e, feature branch only)
+npm run cli -- orgunits discover --organisation-id <uuid>              # DRY RUN: zero DNS, zero HTTP
+npm run cli -- orgunits discover --organisation-id <uuid> --execute    # a REAL bounded research run
+npm run cli -- orgunits discover --organisation-id <uuid> --execute --json
 ```
 
 ## Layout
@@ -1017,14 +1118,54 @@ src/orgunits/signals/  the Phase 2B-1d PURE deterministic signal layer:
                                        scope veto. PURE.
                        packs/fr.ts     French Track A/B terms. PURE.
                        packs/en.ts     English Track A/B terms. PURE.
+src/orgunits/sitemap.ts  the Phase 2B-1e sitemap reader: PURE saxes-based
+                       urlset/sitemapindex parsing (parseSitemapXml), plus a
+                       bounded recursive walk (discoverSitemapUrls) over an
+                       INJECTED document fetcher. Owns no socket itself.
+src/orgunits/orchestrator/  the Phase 2B-1e bounded discovery orchestrator:
+                       constants.ts    every frozen budget / mechanical
+                                       safety bound, named. PURE.
+                       clock.ts        injectable Clock (realClock /
+                                       createFakeClock) for per-host pacing.
+                       anchors.ts      PURE, PII-safe discovery-anchor
+                                       extraction; drops mailto:/tel:/
+                                       javascript:/data:/file:/ftp: at the
+                                       source.
+                       circuitBreaker.ts  run-scoped, host-scoped
+                                       HostCircuitBreaker. PURE state
+                                       machine.
+                       frontier.ts     the bounded, deterministic in-memory
+                                       Frontier: admission + ordering +
+                                       Track-B-floor scheduling over
+                                       scoreFrontierUrl results. PURE.
+                       pageCollection.ts  buffers extracted pages per root,
+                                       applies computeChromeLines/
+                                       removeChromeLines across a same-host
+                                       multi-page sample, persists ONE
+                                       orgunit_page_evidence row per page.
+                       candidates.ts   scores every persisted page on both
+                                       tracks via scoreFetchedPageCandidate
+                                       and persists ranked
+                                       orgunit_page_candidates rows.
+                       run.ts          append-only orgunit_research_runs /
+                                       orgunit_research_run_completions
+                                       writes.
+                       rootRunner.ts   runRootAcquisition: ties robots,
+                                       sitemap, frontier, circuit breaker,
+                                       pacing, page collection and candidate
+                                       persistence together for ONE root.
+                       orchestrate.ts  runOrganisationDiscovery: resolves
+                                       every independent root for one
+                                       organisation and runs each in turn.
                      Nothing else under src/orgunits/ may import node:dns,
                      node:net, node:tls, node:http or node:https, or call
-                     fetch(). src/orgunits/web/sitemap.ts, frontier.ts and
+                     fetch(). src/orgunits/web/sitemap.ts, web/frontier.ts and
                      src/orgunits/candidates/ and /classify/ do not exist and
-                     belong to later slices. Nothing under src/orgunits/signals/
-                     opens a socket, a database connection or a file handle,
-                     reads an environment variable, or calls
-                     Date.now()/Math.random().
+                     belong to later slices (sitemap/frontier logic lives at
+                     the paths above instead - a deliberate naming decision).
+                     Nothing under src/orgunits/signals/ opens a socket, a
+                     database connection or a file handle, reads an
+                     environment variable, or calls Date.now()/Math.random().
 ```
 
 ## Things the real data will surprise you with
@@ -1234,7 +1375,19 @@ Vitest. `npm run validate` is the gate. Three categories:
   ordinary English words, so documentation prose never trips them. `phase2b`
   parses `GRANT` statements rather than scanning for verbs, because the first
   draft of its TEMPORARY check failed on the migration COMMENT explaining why
-  the role has none.
+  the role has none. Phase 2B-1e then widened `phase2b` a third time, for
+  exactly the files this slice adds: `src/orgunits/sitemap.ts` and every file
+  under `src/orgunits/orchestrator/` are now asserted to EXIST (while
+  `src/orgunits/web/sitemap.ts`, `web/frontier.ts`, `candidates/` and
+  `classify/` stay asserted absent — sitemap/frontier logic lives at the new
+  paths instead, a deliberate naming decision), `sitemap.ts` is added to the
+  small set of files permitted to name `robots.txt` and the literal
+  `sitemap.xml` path, and three new `describe` blocks assert: the CLI is an
+  entry point that never imports `orgunits/web`, manufactures no robots
+  authorisation, and has no `--all`-shaped scope escape; the sitemap reader
+  owns no socket, persists no raw XML, and imports the named sitemap caps;
+  and the orchestrator declares every frozen budget constant by its exact
+  value and imports no AI/Apollo/search/browser/PDF-shaped dependency.
 
 The committed fixture is machine- and locale-independent: `scripts/build-fixture.ts`
 reuses the production parser, so date cells are written as ISO-8601 rather than as

@@ -486,3 +486,64 @@ describe('RFC 9309: parseable rules survive an unparseable/unknown line in the s
     expect(policy.evaluate(UA, '/b').decision).toBe('DISALLOWED');
   });
 });
+
+describe('EvaluatedRobotsPolicy.sitemapUrls (2B-1E: discovery metadata, never an access-control rule)', () => {
+  it('collects Sitemap: directive values in file order', () => {
+    const body = [
+      'User-agent: *',
+      'Disallow: /admin',
+      'Sitemap: https://example.edu/sitemap-1.xml',
+      'Sitemap: https://example.edu/sitemap-2.xml',
+    ].join('\n');
+    const policy = EvaluatedRobotsPolicy.fromBody(body);
+    expect(policy.sitemapUrls).toEqual([
+      'https://example.edu/sitemap-1.xml',
+      'https://example.edu/sitemap-2.xml',
+    ]);
+  });
+
+  it('a Sitemap: directive never alters an Allow/Disallow decision', () => {
+    const body = [
+      'Sitemap: https://example.edu/sitemap.xml',
+      'User-agent: *',
+      'Disallow: /private',
+    ].join('\n');
+    const policy = EvaluatedRobotsPolicy.fromBody(body);
+    expect(policy.evaluate(UA, '/private').decision).toBe('DISALLOWED');
+    expect(policy.evaluate(UA, '/public').decision).toBe('ALLOWED');
+  });
+
+  it('a Sitemap: directive is file-level, not scoped to any single user-agent group', () => {
+    const body = [
+      'User-agent: SomeOtherBot',
+      'Disallow: /',
+      'Sitemap: https://example.edu/sitemap.xml',
+      'User-agent: NWFPartnershipEngine-Research',
+      'Allow: /',
+    ].join('\n');
+    const policy = EvaluatedRobotsPolicy.fromBody(body);
+    expect(policy.sitemapUrls).toEqual(['https://example.edu/sitemap.xml']);
+    expect(policy.evaluate(UA, '/x').decision).toBe('ALLOWED');
+  });
+
+  it('is empty when no Sitemap: directive was declared', () => {
+    const policy = EvaluatedRobotsPolicy.fromBody('User-agent: *\nAllow: /');
+    expect(policy.sitemapUrls).toEqual([]);
+  });
+
+  it('is empty for noRestrictions() and unavailable() - neither read an actual body', () => {
+    expect(EvaluatedRobotsPolicy.noRestrictions().sitemapUrls).toEqual([]);
+    expect(EvaluatedRobotsPolicy.unavailable('FETCH_FAILED').sitemapUrls).toEqual([]);
+  });
+
+  it('a Crawl-delay directive still parses correctly alongside a Sitemap: directive', () => {
+    const body = [
+      'User-agent: *',
+      'Crawl-delay: 3',
+      'Sitemap: https://example.edu/sitemap.xml',
+    ].join('\n');
+    const policy = EvaluatedRobotsPolicy.fromBody(body);
+    expect(policy.crawlDelaySecondsFor(UA)).toBe(3);
+    expect(policy.sitemapUrls).toEqual(['https://example.edu/sitemap.xml']);
+  });
+});

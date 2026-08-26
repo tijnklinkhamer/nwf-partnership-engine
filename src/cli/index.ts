@@ -7,6 +7,8 @@
  * failure exits non-zero.
  */
 import { parseArgs } from 'node:util';
+import { fileURLToPath } from 'node:url';
+import { resolve } from 'node:path';
 import * as log from '../logging/log.js';
 import { runIngestEche } from './commands/ingestEche.js';
 import { runIngestRuns } from './commands/ingestRuns.js';
@@ -19,6 +21,7 @@ import {
   runWebsiteReport,
   runWebsiteShow,
 } from './commands/website.js';
+import { runOrgunitsDiscover } from './commands/discover.js';
 
 const USAGE = `nwf-pe - NWF Partnership Engine (Phase 1D)
 
@@ -40,6 +43,7 @@ Usage:
   nwf-pe website report
   nwf-pe website conflicts    [--limit <N>]
   nwf-pe website show         <erasmus-code>
+  nwf-pe orgunits discover    --organisation-id <uuid> [--execute] [--json]
 
 Options:
   --country <CC>    Restrict to an ISO-3166-1 alpha-2 country code (e.g. FR).
@@ -56,6 +60,10 @@ Options:
   --dry-run         Parse and report only. Performs no database mutation.
   --limit <N>       Maximum rows to display.
   --json            Emit the full coverage report as JSON.
+  --organisation-id Target organisation for \`orgunits discover\` (exactly one per invocation).
+  --execute         With \`orgunits discover\`: perform a REAL bounded research run.
+                    Without it, the command is a network-free DRY RUN that only
+                    reports the resolved root authority.
   -h, --help        Show this help.
 
 Phase 1B ingests two official datasets: ECHE and the EWP Registry. It measures
@@ -70,7 +78,18 @@ resolution and merges nothing, and there is no crawling, research, scoring,
 compliance, contact or outbound capability in it.
 `;
 
-async function main(argv: string[]): Promise<number> {
+/**
+ * PHASE 2B-1E SAFETY-GAP CORRECTION: exported so a test can drive the REAL
+ * argument-parsing/routing path (`parseArgs({ strict: true, ... })` and
+ * every `group === ... && sub === ...` branch below) directly, rather than
+ * only calling a command handler the CLI happens to use. This is the exact,
+ * already-established pattern `src/db/migrate.ts` uses (`main` exported,
+ * auto-invoke guarded below) - not a new convention introduced for this
+ * correction pass. No behaviour changes: `main` still does exactly what it
+ * did before, and the auto-invoke at the bottom of this file still runs it
+ * with `process.argv` exactly as before when this file is executed directly.
+ */
+export async function main(argv: string[]): Promise<number> {
   const { values, positionals } = parseArgs({
     args: argv,
     allowPositionals: true,
@@ -88,6 +107,8 @@ async function main(argv: string[]): Promise<number> {
       'dry-run': { type: 'boolean', default: false },
       json: { type: 'boolean', default: false },
       limit: { type: 'string' },
+      'organisation-id': { type: 'string' },
+      execute: { type: 'boolean', default: false },
       help: { type: 'boolean', short: 'h', default: false },
     },
   });
@@ -185,6 +206,16 @@ async function main(argv: string[]): Promise<number> {
     return runWebsiteShow(identifier);
   }
 
+  if (group === 'orgunits' && sub === 'discover') {
+    return runOrgunitsDiscover({
+      ...(values['organisation-id'] !== undefined
+        ? { organisationId: values['organisation-id'] }
+        : {}),
+      execute: values.execute === true,
+      json: values.json === true,
+    });
+  }
+
   if (group === 'ewp' && sub === 'coverage') {
     return runEwpCoverage({
       echeFile: values['eche-file'],
@@ -201,11 +232,15 @@ async function main(argv: string[]): Promise<number> {
   return 1;
 }
 
-main(process.argv.slice(2))
-  .then((code) => {
-    process.exitCode = code;
-  })
-  .catch((err: unknown) => {
-    log.error(err instanceof Error ? err.message : String(err));
-    process.exitCode = 1;
-  });
+// Only run when executed directly, not when imported by a test (the same
+// pattern src/db/migrate.ts already uses).
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+  main(process.argv.slice(2))
+    .then((code) => {
+      process.exitCode = code;
+    })
+    .catch((err: unknown) => {
+      log.error(err instanceof Error ? err.message : String(err));
+      process.exitCode = 1;
+    });
+}
