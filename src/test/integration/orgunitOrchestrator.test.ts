@@ -20,6 +20,7 @@ import type {
 import { createFakeClock, type Clock } from '../../orgunits/orchestrator/clock.js';
 import { runRootAcquisition } from '../../orgunits/orchestrator/rootRunner.js';
 import { runOrganisationDiscovery } from '../../orgunits/orchestrator/orchestrate.js';
+import { scoreFetchedPageCandidate } from '../../orgunits/signals/score.js';
 import {
   adminPool,
   researchDatabaseConfigured,
@@ -476,6 +477,137 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
       }
     }
     void summary;
+  });
+
+  // ------------------------------------------------------------ signed candidate score
+
+  /**
+   * MIGRATION 0008's LOAD-BEARING PROOF.
+   *
+   * `scoreFetchedPageCandidate` is a SIGNED sum with no zero floor, so an
+   * ordinary page carrying a structural negative and no unit vocabulary
+   * scores below zero. Migration 0007 originally carried
+   * `CHECK (candidate_score >= 0)`, written before that formula existed;
+   * this test is what proves the correction actually reached the database,
+   * because before migration 0008 the INSERT below fails outright with
+   *
+   *   violates check constraint "orgunit_page_candidates_score_chk"
+   *
+   * It goes through `runRootAcquisition` - the ORDINARY 1E persistence path,
+   * as `nwf_research` - rather than a hand-written INSERT, because a direct
+   * INSERT would prove only that the constraint is gone, not that the real
+   * pipeline can carry a negative score end to end.
+   */
+  it('signed candidate score: a legitimately negative score persists EXACTLY, on both tracks, through the ordinary research path', async () => {
+    // A degree-programme title is the canonical negative case (ADR 0007 s3/s9):
+    // lexically indistinguishable from a genuine unit, and deliberately
+    // pushed below zero by NEG_PROGRAMME_SHAPE.
+    const transport = new RoutedTransport()
+      .route('https://www.example.ac.uk/robots.txt', textResponse(200, ALLOW_ALL_ROBOTS))
+      .route(ROOT, htmlResponse(page('MSc International Marketing', [])));
+
+    const runId = await newRun();
+    const summary = await runRootAcquisition(research, runId, rootRef(), {
+      transport,
+      clock: instantClock(),
+    });
+    expect(summary.candidateEvaluations).toBeGreaterThan(0);
+
+    const { rows } = await research.query<{
+      track: string;
+      candidate_score: string;
+      url: string;
+      title: string | null;
+      headings: { level: 1 | 2 | 3; text: string }[];
+    }>(
+      `SELECT pc.track, pc.candidate_score, f.requested_url AS url, pe.title, pe.headings
+         FROM orgunit_page_candidates pc
+         JOIN orgunit_page_evidence pe ON pe.id = pc.page_evidence_id
+         JOIN orgunit_fetch_observations f ON f.id = pe.fetch_observation_id
+        WHERE pc.run_id = $1 AND f.requested_url = $2
+        ORDER BY pc.track`,
+      [runId, ROOT],
+    );
+    expect(rows.length).toBe(2);
+
+    // The persisted number must be the scorer's own output, not a repaired,
+    // clamped or absolute-valued version of it. Recomputed here from the
+    // evidence AS STORED, so this stays honest if extraction ever changes.
+    // The stored `track` is the schema's own mechanism label; the scorer's
+    // own vocabulary is A/B (candidates.ts maps one onto the other).
+    const scorerTrackOf: Record<string, 'A' | 'B'> = {
+      INTERNATIONAL_OFFICE: 'A',
+      LANGUAGE_CENTRE: 'B',
+    };
+    for (const row of rows) {
+      const recomputed = scoreFetchedPageCandidate({
+        url: row.url,
+        title: row.title,
+        headings: row.headings,
+      });
+      const expected = recomputed.tracks.find((t) => t.track === scorerTrackOf[row.track])!.score;
+      expect(Number(row.candidate_score)).toBe(expected);
+    }
+
+    // Pinned explicitly as well, so a silent change in weights or in the
+    // clamping question shows up here as a number, not only as a tautology
+    // against a recomputation that would move with it.
+    // Track A: +1 heading +1 title (A_INTERNATIONAL_GENERIC) -4 title
+    //          (NEG_PROGRAMME_SHAPE) = -2
+    // Track B:  no positive vocabulary               -4       = -4
+    const byTrack = new Map(rows.map((r) => [r.track, Number(r.candidate_score)]));
+    expect(byTrack.get('INTERNATIONAL_OFFICE')).toBe(-2);
+    expect(byTrack.get('LANGUAGE_CENTRE')).toBe(-4);
+
+    // BOTH tracks, not just one: nothing about the correction may be
+    // track-specific, and no track may be quietly floored.
+    for (const value of byTrack.values()) expect(value).toBeLessThan(0);
+  });
+
+  it('signed candidate score: ranking stays a natural signed order, and distinct negatives stay distinct', async () => {
+    const transport = new RoutedTransport()
+      .route('https://www.example.ac.uk/robots.txt', textResponse(200, ALLOW_ALL_ROBOTS))
+      .route(
+        ROOT,
+        htmlResponse(page('MSc International Marketing', ['/international/office', '/login/'])),
+      )
+      .route(
+        'https://www.example.ac.uk/international/office',
+        htmlResponse(page('International Office', [])),
+      )
+      .route('https://www.example.ac.uk/login/', htmlResponse(page('Login', [])));
+
+    const runId = await newRun();
+    await runRootAcquisition(research, runId, rootRef(), {
+      transport,
+      clock: instantClock(),
+    });
+
+    const { rows } = await research.query<{
+      url: string;
+      candidate_score: string;
+      rank_within_root: number;
+    }>(
+      `SELECT f.requested_url AS url, pc.candidate_score, pc.rank_within_root
+         FROM orgunit_page_candidates pc
+         JOIN orgunit_page_evidence pe ON pe.id = pc.page_evidence_id
+         JOIN orgunit_fetch_observations f ON f.id = pe.fetch_observation_id
+        WHERE pc.run_id = $1 AND pc.track = 'INTERNATIONAL_OFFICE'
+        ORDER BY pc.rank_within_root`,
+      [runId],
+    );
+    expect(rows.length).toBe(3);
+
+    // 18 > -2 > -3: a positive page outranks both negatives, and the two
+    // negative pages keep their own distinct values and their own distinct
+    // ranks. A zero floor would have collapsed the last two into a tie and
+    // handed the ordering to the URL tie-breaker instead of the evidence.
+    const scores = rows.map((r) => Number(r.candidate_score));
+    expect(scores).toEqual([18, -2, -3]);
+    expect(rows.map((r) => r.rank_within_root)).toEqual([1, 2, 3]);
+    expect(rows[0]!.url).toBe('https://www.example.ac.uk/international/office');
+    expect(rows[1]!.url).toBe(ROOT);
+    expect(rows[2]!.url).toBe('https://www.example.ac.uk/login/');
   });
 
   // ------------------------------------------------------------ robots block
