@@ -12,7 +12,7 @@ could distribute NWF to language learners.
 **Current state: Phase 1D, plus the Phase 2B-1a trust foundation, the
 Phase 2B-1b web gateway, the Phase 2B-1c policy-governed page evidence
 capability, the Phase 2B-1d deterministic signal layer, and the Phase 2B-1e
-bounded discovery orchestrator (feature branch, NOT landed on main). This
+bounded discovery orchestrator (landed on main). This
 repository ingests THREE official datasets into a local PostgreSQL database —
 the ECHE list, the EWP Registry catalogue and the French Ministry register of
 higher-education institutions — lets you inspect them, and measures how their
@@ -833,7 +833,7 @@ runtime dependency list is still exactly `pg`, `read-excel-file`, `saxes`,
 
 ## What Phase 2B-1e built
 
-**FEATURE BRANCH ONLY — NOT LANDED ON `main`.** The bounded discovery
+**LANDED ON `main`.** The bounded discovery
 orchestrator: `src/orgunits/orchestrator/` plus `src/orgunits/sitemap.ts`
 call the pure signal layer (2B-1d) for the first time, request pages through
 `robots.ts`/`gateway.ts` (2B-1b/1c) for the first time under an actual
