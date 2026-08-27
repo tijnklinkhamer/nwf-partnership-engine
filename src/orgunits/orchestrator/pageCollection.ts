@@ -39,6 +39,8 @@ import {
   computeChromeLines,
   extractPage,
   removeChromeLines,
+  truncateToCodePointLimit,
+  unicodeCodePointLength,
   type Heading,
 } from '../web/extract.js';
 import type { WebAttemptResult } from '../web/gateway.js';
@@ -132,9 +134,15 @@ export function deriveEligiblePage(
   };
 }
 
+/**
+ * Truncates to the schema's hard cap in Unicode CODE POINTS - matching
+ * PostgreSQL's `length(main_text)`, never JavaScript's UTF-16-code-unit
+ * `.length` (see `truncateToCodePointLimit` in `extract.ts` for why the two
+ * disagree on any astral character, and the shadow-validation defect this
+ * closes).
+ */
 function capMainText(text: string): { text: string; truncated: boolean } {
-  if (text.length <= MAIN_TEXT_CAP) return { text, truncated: false };
-  return { text: text.slice(0, MAIN_TEXT_CAP), truncated: true };
+  return truncateToCodePointLimit(text, MAIN_TEXT_CAP);
 }
 
 export interface PersistedPage {
@@ -145,17 +153,43 @@ export interface PersistedPage {
   readonly headings: Heading[];
 }
 
+/** One page's evidence INSERT did not persist - the page's own URL and the real thrown message, never swallowed. */
+export interface PageEvidencePersistenceFailure {
+  readonly url: string;
+  readonly message: string;
+}
+
+export interface PersistCollectedPagesResult {
+  /** Every page that persisted successfully - unaffected by a SIBLING page's failure. */
+  readonly pages: PersistedPage[];
+  /** Empty when every collected page persisted. Non-empty is an honest, reportable partial failure - never silently dropped. */
+  readonly failures: readonly PageEvidencePersistenceFailure[];
+}
+
 /**
  * Groups the collected pages BY HOST, applies cross-page boilerplate
  * differencing to each group with at least `MIN_PAGES_FOR_BOILERPLATE_DIFFERENCING`
  * pages, and inserts ONE `orgunit_page_evidence` row per page - append-only,
  * `ON CONFLICT (fetch_observation_id, rule_version) DO NOTHING`, exactly as
  * `pageEvidence.ts` does for the single-page case.
+ *
+ * EVERY PAGE IS ATTEMPTED, regardless of an earlier page's outcome - this
+ * function never aborts partway through a root's page set. A single page's
+ * INSERT failing (a genuine, unexpected error; a CHECK violation is no longer
+ * reachable for legitimate extracted text - see `capMainText`) must not cost
+ * every OTHER already-fetched page its evidence, which is exactly the
+ * partial-state the shadow validation found (ISAE/IPAG/Paris Cité/IFPEK: real
+ * network budget spent, real pages read, then the whole root's evidence
+ * batch lost to one bad row). Each failure is collected rather than thrown
+ * immediately, so the caller decides how to surface it - see
+ * `rootRunner.ts`, which persists candidates for every page that DID succeed
+ * and only then raises an aggregate failure, so the run still ends up
+ * honestly FAILED rather than silently COMPLETED.
  */
 export async function persistCollectedPages(
   pool: pg.Pool,
   pages: readonly CollectedPage[],
-): Promise<PersistedPage[]> {
+): Promise<PersistCollectedPagesResult> {
   const byHost = new Map<string, CollectedPage[]>();
   for (const page of pages) {
     const list = byHost.get(page.requestedHost) ?? [];
@@ -164,6 +198,7 @@ export async function persistCollectedPages(
   }
 
   const results: PersistedPage[] = [];
+  const failures: PageEvidencePersistenceFailure[] = [];
 
   for (const [, hostPages] of byHost) {
     const applyDifferencing = hostPages.length >= MIN_PAGES_FOR_BOILERPLATE_DIFFERENCING;
@@ -186,40 +221,47 @@ export async function persistCollectedPages(
           : 'BOILERPLATE_DIFFERENCED'
         : page.preDifferencingMethod;
 
-      const { rows } = await pool.query<{ id: string }>(
-        `INSERT INTO orgunit_page_evidence
-            (fetch_observation_id, root_key, title, declared_lang, headings,
-             main_text, main_text_chars, main_text_truncated, extraction_method,
-             rule_version, observed_at)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
-         ON CONFLICT (fetch_observation_id, rule_version) DO NOTHING
-         RETURNING id`,
-        [
-          page.fetchObservationId,
-          page.rootKey,
-          page.title,
-          page.declaredLang,
-          JSON.stringify(page.headings),
-          mainText,
-          mainText.length,
-          truncated,
-          extractionMethod,
-          EXTRACTION_RULE_VERSION,
-          page.observedAt,
-        ],
-      );
-      const id = rows[0]?.id;
-      if (id !== undefined) {
-        results.push({
-          id,
-          rootKey: page.rootKey,
+      try {
+        const { rows } = await pool.query<{ id: string }>(
+          `INSERT INTO orgunit_page_evidence
+              (fetch_observation_id, root_key, title, declared_lang, headings,
+               main_text, main_text_chars, main_text_truncated, extraction_method,
+               rule_version, observed_at)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+           ON CONFLICT (fetch_observation_id, rule_version) DO NOTHING
+           RETURNING id`,
+          [
+            page.fetchObservationId,
+            page.rootKey,
+            page.title,
+            page.declaredLang,
+            JSON.stringify(page.headings),
+            mainText,
+            unicodeCodePointLength(mainText),
+            truncated,
+            extractionMethod,
+            EXTRACTION_RULE_VERSION,
+            page.observedAt,
+          ],
+        );
+        const id = rows[0]?.id;
+        if (id !== undefined) {
+          results.push({
+            id,
+            rootKey: page.rootKey,
+            url: page.requestedUrl,
+            title: page.title,
+            headings: page.headings,
+          });
+        }
+      } catch (error) {
+        failures.push({
           url: page.requestedUrl,
-          title: page.title,
-          headings: page.headings,
+          message: error instanceof Error ? error.message : String(error),
         });
       }
     }
   }
 
-  return results;
+  return { pages: results, failures };
 }

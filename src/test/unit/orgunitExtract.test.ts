@@ -10,6 +10,8 @@ import {
   extractPage,
   htmlFragmentToText,
   removeChromeLines,
+  truncateToCodePointLimit,
+  unicodeCodePointLength,
 } from '../../orgunits/web/extract.js';
 
 function page(head: string, body: string, htmlAttrs = ''): string {
@@ -267,5 +269,121 @@ describe('computeChromeLines: NOT applied to a single page (documented, tested b
     const result = extractPage(html);
     expect(result.mainText.length).toBeGreaterThan(0);
     expect(result.extractionMethod).toBe('MAIN_ELEMENT');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Shadow-validation defect 2: main_text_chars counted UTF-16 code units
+// against a PostgreSQL `length(main_text)` CHECK, which counts Unicode CODE
+// POINTS. One astral character (an emoji, most mathematical alphanumeric
+// symbols) anywhere in extracted text made the two disagree and the INSERT
+// fail with a CHECK violation - on an otherwise perfectly ordinary,
+// successfully-fetched page. These tests pin the corrected semantics: a code
+// point is what PostgreSQL's `length()` counts for a `text` column, not what
+// JavaScript's `.length` counts.
+// ---------------------------------------------------------------------------
+
+describe('unicodeCodePointLength: matches PostgreSQL length(text), not JS .length', () => {
+  it('agrees with .length for plain ASCII', () => {
+    expect(unicodeCodePointLength('hello world')).toBe('hello world'.length);
+    expect(unicodeCodePointLength('')).toBe(0);
+  });
+
+  it('agrees with .length for BMP characters, including combining sequences', () => {
+    // U+00E9 (e with acute, precomposed) and 'e' + U+0301 (combining acute) are
+    // both entirely within the BMP - one UTF-16 code unit each - so JS .length
+    // and code-point count agree on both spellings, even though the combining
+    // spelling is two separate code points (Postgres length() counts CODE
+    // POINTS, not grapheme clusters, so it agrees with JS .length here too).
+    const precomposed = 'é'; // e with acute, precomposed: one code point
+    const combining = 'é'; // 'e' + COMBINING ACUTE ACCENT: two code points
+    expect(unicodeCodePointLength(precomposed)).toBe(precomposed.length);
+    expect(precomposed.length).toBe(1);
+    expect(unicodeCodePointLength(combining)).toBe(combining.length);
+    expect(unicodeCodePointLength(combining)).toBe(2);
+  });
+
+  it('DISAGREES with .length for an astral character - this is the exact bug', () => {
+    // U+1F600 (GRINNING FACE) is outside the BMP: JS represents it as a
+    // surrogate PAIR, so .length reports 2, while it is ONE Unicode code
+    // point - the same thing PostgreSQL's length() reports for the same
+    // string. A caller that persists mainText.length here stores a count that
+    // can never satisfy `main_text_chars = length(main_text)`.
+    const emoji = '\u{1F600}';
+    expect(emoji.length).toBe(2); // JS: two UTF-16 code units
+    expect(unicodeCodePointLength(emoji)).toBe(1); // matches Postgres length()
+
+    const mixed = `Bienvenue ${emoji} au bureau international.`;
+    expect(unicodeCodePointLength(mixed)).toBe(mixed.length - 1);
+  });
+
+  it('counts every astral character in a longer mixed string correctly', () => {
+    const text = `${'\u{1F600}'.repeat(3)}plain text${'\u{1F600}'.repeat(2)}`;
+    // 5 astral characters, each contributing 2 JS code units but 1 code point.
+    expect(unicodeCodePointLength(text)).toBe(text.length - 5);
+  });
+});
+
+describe('truncateToCodePointLimit: caps in CODE POINTS and never splits a surrogate pair', () => {
+  it('does not truncate a string within the limit', () => {
+    const result = truncateToCodePointLimit('hello', 40_000);
+    expect(result).toEqual({ text: 'hello', truncated: false });
+  });
+
+  it('a string of EXACTLY the limit (in code points) is not truncated', () => {
+    const text = 'a'.repeat(10);
+    const result = truncateToCodePointLimit(text, 10);
+    expect(result).toEqual({ text, truncated: false });
+  });
+
+  it('truncates plain ASCII deterministically one past the limit', () => {
+    const text = 'a'.repeat(11);
+    const result = truncateToCodePointLimit(text, 10);
+    expect(result).toEqual({ text: 'a'.repeat(10), truncated: true });
+  });
+
+  it('never splits a surrogate pair at the truncation boundary', () => {
+    // Two astral characters (4 JS code units, 2 code points) followed by
+    // plain ASCII. Capping at 1 CODE POINT must yield exactly the first
+    // whole astral character, never half of it (an unpaired surrogate).
+    const twoEmoji = '\u{1F600}\u{1F601}';
+    const result = truncateToCodePointLimit(twoEmoji, 1);
+    expect(result.truncated).toBe(true);
+    expect(result.text).toBe('\u{1F600}');
+    expect(unicodeCodePointLength(result.text)).toBe(1);
+    // No lone surrogate: re-splitting into UTF-16 code units yields a
+    // complete surrogate pair, not a dangling high or low half.
+    expect(result.text.length).toBe(2);
+    expect([...result.text].length).toBe(1);
+  });
+
+  it('a boundary that falls exactly between a UTF-16-code-unit cap and the true code-point cap is handled correctly', () => {
+    // 40,000 UTF-16 code units where the first 39,999 are astral (2 units
+    // each is impossible to land exactly on an odd boundary with pure
+    // astral input) - construct the concrete near-cap case instead: N-1
+    // plain characters plus one astral character straddling the boundary.
+    const CAP = 40_000;
+    const text = 'x'.repeat(CAP - 1) + '\u{1F600}'; // JS .length === CAP + 1
+    expect(text.length).toBe(CAP + 1);
+    expect(unicodeCodePointLength(text)).toBe(CAP); // exactly at the code-point cap
+
+    const result = truncateToCodePointLimit(text, CAP);
+    // The code-point count (CAP) is within the limit, so nothing is cut -
+    // even though the UTF-16 length (CAP + 1) is OVER what a naive
+    // `.length <= CAP` check would have allowed through unmodified, and a
+    // naive `.slice(0, CAP)` would have cut the emoji's surrogate pair in half.
+    expect(result.truncated).toBe(false);
+    expect(result.text).toBe(text);
+    expect(unicodeCodePointLength(result.text)).toBe(CAP);
+  });
+
+  it('truncates a string one code point OVER the cap, dropping the trailing astral character whole', () => {
+    const CAP = 40_000;
+    const text = 'x'.repeat(CAP) + '\u{1F600}'; // CAP+1 code points, CAP+2 JS code units
+    const result = truncateToCodePointLimit(text, CAP);
+    expect(result.truncated).toBe(true);
+    expect(result.text).toBe('x'.repeat(CAP));
+    expect(unicodeCodePointLength(result.text)).toBe(CAP);
+    expect(result.text.length).toBe(CAP); // no dangling surrogate carried over
   });
 });

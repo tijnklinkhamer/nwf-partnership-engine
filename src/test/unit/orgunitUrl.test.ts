@@ -184,14 +184,18 @@ describe('checkRootScope', () => {
     });
   });
 
-  it('lets an HTTP root be requested exactly as published, and no further', () => {
-    // The point is to OBSERVE what the institution does with it - very often a
-    // redirect to https, which is evidence rather than something to pre-empt.
+  it('lets an HTTP root authorise http requests anywhere in its scope, not just its own exact URL', () => {
+    // Shadow-validation finding (2026-08): the http bootstrap request for
+    // robots.txt is a DIFFERENT URL from the root itself, so restricting an
+    // http root to "exactly as published, and no further" made every
+    // http-published claim refuse its own robots.txt fetch before any socket
+    // opened - killing acquisition for 17.4% of structurally-valid ECHE
+    // claims. An http root is not a downgrade of anything; it is the root's
+    // own native scheme.
     expect(checkRootScope(httpRoot, ok('http://www.legacy.fr/'))).toEqual({ ok: true });
-    expect(checkRootScope(httpRoot, ok('http://www.legacy.fr/somewhere'))).toEqual({
-      ok: false,
-      reason: 'scheme_downgrade',
-    });
+    expect(checkRootScope(httpRoot, ok('http://www.legacy.fr/robots.txt'))).toEqual({ ok: true });
+    expect(checkRootScope(httpRoot, ok('http://www.legacy.fr/somewhere'))).toEqual({ ok: true });
+    expect(checkRootScope(httpRoot, ok('http://sub.legacy.fr/deep/path'))).toEqual({ ok: true });
     // Upgrading on our own initiative is fine: it is not a downgrade.
     expect(checkRootScope(httpRoot, ok('https://www.legacy.fr/anything'))).toEqual({ ok: true });
   });

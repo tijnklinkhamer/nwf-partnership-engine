@@ -25,7 +25,7 @@
  */
 import type pg from 'pg';
 import { resolveCharset } from './charset.js';
-import { extractPage } from './extract.js';
+import { extractPage, truncateToCodePointLimit, unicodeCodePointLength } from './extract.js';
 import type { WebAttemptResult } from './gateway.js';
 
 /** Versioned so a future extraction-rule change appends new evidence rather than rewriting old evidence. */
@@ -116,7 +116,7 @@ export async function persistPageEvidence(
       extracted.declaredLang,
       JSON.stringify(extracted.headings),
       mainText,
-      mainText.length,
+      unicodeCodePointLength(mainText),
       truncated,
       extracted.extractionMethod,
       EXTRACTION_RULE_VERSION,
@@ -129,13 +129,15 @@ export async function persistPageEvidence(
 }
 
 /**
- * Truncates deterministically to the schema's hard cap.
+ * Truncates deterministically to the schema's hard cap, in Unicode CODE
+ * POINTS - matching PostgreSQL's `length(main_text)`, which the schema's own
+ * `main_text_chars = length(main_text)` CHECK is written against, and never
+ * JavaScript's UTF-16-code-unit `.length` (see `truncateToCodePointLimit`).
  *
  * A body of EXACTLY the cap is not truncated - the same "over-cap is a
  * truncation, an at-cap body is complete" rule the gateway's byte cap already
  * applies (ADR 0005 s6), restated here for characters rather than bytes.
  */
 function capMainText(text: string): { text: string; truncated: boolean } {
-  if (text.length <= MAIN_TEXT_CAP) return { text, truncated: false };
-  return { text: text.slice(0, MAIN_TEXT_CAP), truncated: true };
+  return truncateToCodePointLimit(text, MAIN_TEXT_CAP);
 }

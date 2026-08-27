@@ -62,6 +62,7 @@ const TRANSIENT_ERROR_KINDS: ReadonlySet<string> = new Set([
 
 export type RootTerminalReason =
   | 'INVALID_ROOT_AUTHORITY'
+  | 'ROOT_REQUEST_REFUSED'
   | 'CROSS_DOMAIN_REDIRECT_REQUIRES_PROMOTION'
   | 'ROBOTS_BLOCKED_ROOT'
   | 'ROBOTS_UNREADABLE_ROOT'
@@ -88,6 +89,15 @@ export interface RootSummary {
   readonly trackBSelected: number;
   readonly circuitOpenHosts: readonly string[];
   readonly candidates: readonly PersistedCandidateSummary[];
+  /**
+   * The `WebGatewayRefusal.reason` that ended this root's acquisition early
+   * (e.g. `HOST_IS_SERVICE_SUBDOMAIN`), when `terminalReason` is
+   * `ROOT_REQUEST_REFUSED`. Null otherwise. This root's OWN operational
+   * outcome, never a run-level infrastructure failure - see
+   * `runOrganisationDiscovery`, which still fails the whole run on anything
+   * that is NOT a `WebGatewayRefusal`.
+   */
+  readonly refusalDetail: string | null;
 }
 
 export interface RootRunnerDeps {
@@ -129,6 +139,7 @@ function invalidAuthoritySummary(): RootSummary {
     trackBSelected: 0,
     circuitOpenHosts: [],
     candidates: [],
+    refusalDetail: null,
   };
 }
 
@@ -183,6 +194,7 @@ export async function runRootAcquisition(
   let pageAttempts = 0;
   let robotsRequests = 0;
   let sitemapRequests = 0;
+  let sitemapUrlsAccepted = 0;
   let trackASelected = 0;
   let trackBSelected = 0;
 
@@ -191,6 +203,23 @@ export async function runRootAcquisition(
   let allHostsInadmissibleStop = false;
   let rootRobotsBlockedDecision: 'DISALLOWED' | 'ROBOTS_UNREADABLE' | null = null;
   let rootCrossDomainRedirectStopped = false;
+  // A WebGatewayRefusal that escaped the ordinary control-flow paths below
+  // (attemptUrl's BLOCKED/HOST_CAP/CIRCUIT_OPEN/ALREADY_ATTEMPTED/
+  // BUDGET_EXCEEDED statuses handle every EXPECTED refusal without throwing) -
+  // e.g. an approved root, or its site-policy bootstrap request, whose host
+  // itself carries a service-subdomain label. Caught around steps 1-3 below
+  // and turned into this root's own explicit terminal outcome, so ONE root's
+  // unusual refusal cannot suppress or rewrite an organisation's OTHER
+  // independent root (the shadow-validation "root suppression" defect: an
+  // http root's own site-policy bootstrap request refused itself as a scheme
+  // downgrade - fixed at its source in url.ts's checkRootScope - and the SAME
+  // escape path could reach here from any other WebGatewayRefusal, so the
+  // isolation is general, not specific to that one cause). Anything that is
+  // NOT a WebGatewayRefusal (a genuine infrastructure failure: a lost
+  // database connection, a programming defect) is deliberately RE-THROWN
+  // below, never caught here - it must still fail the whole run, honestly,
+  // exactly as it did before this correction.
+  let rootRequestRefusal: WebGatewayRefusal | null = null;
 
   // ------------------------------------------------------------- trust gates
 
@@ -385,110 +414,115 @@ export async function runRootAcquisition(
     }
   }
 
-  // -------------------------------------------------------------- 1. robots + root bootstrap
+  try {
+    // -------------------------------------------------------------- 1. robots + root bootstrap
 
-  const rootHost = rootUrl.hostname;
-  const rootAttempt = await attemptUrl(rootUrl.url, 'ROOT', null, 'page');
+    const rootHost = rootUrl.hostname;
+    const rootAttempt = await attemptUrl(rootUrl.url, 'ROOT', null, 'page');
 
-  if (rootAttempt.status === 'FETCHED') {
-    ingestFetchedPage(rootAttempt.result);
-    await followRedirectIfSafe(rootAttempt.result, MAX_REDIRECT_CONTINUATION_HOPS);
-  } else if (rootAttempt.status === 'BLOCKED') {
-    rootRobotsBlockedDecision = rootAttempt.decision;
-  }
+    if (rootAttempt.status === 'FETCHED') {
+      ingestFetchedPage(rootAttempt.result);
+      await followRedirectIfSafe(rootAttempt.result, MAX_REDIRECT_CONTINUATION_HOPS);
+    } else if (rootAttempt.status === 'BLOCKED') {
+      rootRobotsBlockedDecision = rootAttempt.decision;
+    }
 
-  // ------------------------------------------------------------- 2. sitemap discovery
+    // ------------------------------------------------------------- 2. sitemap discovery
 
-  // Sitemap: directives, read from the policy cached while evaluating the
-  // root host above (the site policy file is fetched at most once per host
-  // per run - robots.ts's own RobotsCache - so this is a cache read, not a
-  // new request).
-  const cachedRootPolicy = cache.get(runId, rootUrl.scheme, rootHost);
-  const evaluatedSitemapDirectives =
-    cachedRootPolicy === undefined ? [] : (await cachedRootPolicy).sitemapUrls;
-  const seedUrls =
-    evaluatedSitemapDirectives.length > 0
-      ? evaluatedSitemapDirectives
-          .map((raw) => resolveSitemapDirective(raw, rootUrl.url))
-          .filter((u): u is string => u !== null)
-      : [conventionalSitemapUrl(rootUrl.url)];
+    // Sitemap: directives, read from the policy cached while evaluating the
+    // root host above (the site policy file is fetched at most once per host
+    // per run - robots.ts's own RobotsCache - so this is a cache read, not a
+    // new request).
+    const cachedRootPolicy = cache.get(runId, rootUrl.scheme, rootHost);
+    const evaluatedSitemapDirectives =
+      cachedRootPolicy === undefined ? [] : (await cachedRootPolicy).sitemapUrls;
+    const seedUrls =
+      evaluatedSitemapDirectives.length > 0
+        ? evaluatedSitemapDirectives
+            .map((raw) => resolveSitemapDirective(raw, rootUrl.url))
+            .filter((u): u is string => u !== null)
+        : [conventionalSitemapUrl(rootUrl.url)];
 
-  async function fetchSitemapDocument(url: string): Promise<SitemapFetchOutcome> {
-    const hostname = (() => {
-      try {
-        return new URL(url).hostname.toLowerCase();
-      } catch {
-        return '';
+    const fetchSitemapDocument = async (url: string): Promise<SitemapFetchOutcome> => {
+      const hostname = (() => {
+        try {
+          return new URL(url).hostname.toLowerCase();
+        } catch {
+          return '';
+        }
+      })();
+      if (!isHostCurrentlyAdmissible(hostname)) return { ok: false };
+      const attempt = await attemptUrl(url, 'SITEMAP', null, 'sitemap');
+      if (attempt.status !== 'FETCHED' || attempt.result.body === null) return { ok: false };
+      if (
+        attempt.result.httpStatus === null ||
+        attempt.result.httpStatus < 200 ||
+        attempt.result.httpStatus >= 300
+      ) {
+        return { ok: false };
       }
-    })();
-    if (!isHostCurrentlyAdmissible(hostname)) return { ok: false };
-    const attempt = await attemptUrl(url, 'SITEMAP', null, 'sitemap');
-    if (attempt.status !== 'FETCHED' || attempt.result.body === null) return { ok: false };
-    if (
-      attempt.result.httpStatus === null ||
-      attempt.result.httpStatus < 200 ||
-      attempt.result.httpStatus >= 300
-    ) {
-      return { ok: false };
-    }
-    return {
-      ok: true,
-      body: attempt.result.body.toString('utf-8'),
-      contentType: attempt.result.contentType,
+      return {
+        ok: true,
+        body: attempt.result.body.toString('utf-8'),
+        contentType: attempt.result.contentType,
+      };
     };
-  }
 
-  const sitemapResult = await discoverSitemapUrls(seedUrls, admissibleUrl, fetchSitemapDocument);
-  let sitemapUrlsAccepted = 0;
-  for (const { url } of sitemapResult.pageUrls) {
-    if (!admissibleUrl(url)) continue;
-    const admission = frontier.add(url, 'SITEMAP', null, null);
-    if (admission.ok) sitemapUrlsAccepted += 1;
-  }
-
-  // -------------------------------------------------------------- 3. main loop
-
-  while (true) {
-    if (pageAttempts >= MAX_PAGE_ATTEMPTS_PER_ROOT) {
-      budgetStopReason = 'PAGE_BUDGET_EXHAUSTED';
-      break;
-    }
-    if (!budget.canAfford(1)) {
-      budgetStopReason = TOTAL_REQUEST_BUDGET_EXHAUSTED_REASON;
-      break;
-    }
-    const next = frontier.pickNext(trackBSelected, TRACK_B_FLOOR, isHostCurrentlyAdmissible);
-    if (next === null) {
-      if (frontier.size > 0) allHostsInadmissibleStop = true;
-      break;
+    const sitemapResult = await discoverSitemapUrls(seedUrls, admissibleUrl, fetchSitemapDocument);
+    for (const { url } of sitemapResult.pageUrls) {
+      if (!admissibleUrl(url)) continue;
+      const admission = frontier.add(url, 'SITEMAP', null, null);
+      if (admission.ok) sitemapUrlsAccepted += 1;
     }
 
-    const attempt = await attemptUrl(
-      next.url,
-      next.discoveryMethod,
-      next.discoveryParentUrl,
-      'page',
-    );
-    if (attempt.status === 'FETCHED') {
-      const trackAScore = next.score.tracks.find((t) => t.track === 'A')?.score ?? 0;
-      const trackBScore = next.score.tracks.find((t) => t.track === 'B')?.score ?? 0;
-      if (trackAScore > 0) trackASelected += 1;
-      if (trackBScore > 0) trackBSelected += 1;
-      ingestFetchedPage(attempt.result);
-      await followRedirectIfSafe(attempt.result, MAX_REDIRECT_CONTINUATION_HOPS);
-    } else if (attempt.status === 'BUDGET_EXCEEDED') {
-      budgetStopReason =
-        pageAttempts >= MAX_PAGE_ATTEMPTS_PER_ROOT
-          ? 'PAGE_BUDGET_EXHAUSTED'
-          : TOTAL_REQUEST_BUDGET_EXHAUSTED_REASON;
-      break;
+    // -------------------------------------------------------------- 3. main loop
+
+    while (true) {
+      if (pageAttempts >= MAX_PAGE_ATTEMPTS_PER_ROOT) {
+        budgetStopReason = 'PAGE_BUDGET_EXHAUSTED';
+        break;
+      }
+      if (!budget.canAfford(1)) {
+        budgetStopReason = TOTAL_REQUEST_BUDGET_EXHAUSTED_REASON;
+        break;
+      }
+      const next = frontier.pickNext(trackBSelected, TRACK_B_FLOOR, isHostCurrentlyAdmissible);
+      if (next === null) {
+        if (frontier.size > 0) allHostsInadmissibleStop = true;
+        break;
+      }
+
+      const attempt = await attemptUrl(
+        next.url,
+        next.discoveryMethod,
+        next.discoveryParentUrl,
+        'page',
+      );
+      if (attempt.status === 'FETCHED') {
+        const trackAScore = next.score.tracks.find((t) => t.track === 'A')?.score ?? 0;
+        const trackBScore = next.score.tracks.find((t) => t.track === 'B')?.score ?? 0;
+        if (trackAScore > 0) trackASelected += 1;
+        if (trackBScore > 0) trackBSelected += 1;
+        ingestFetchedPage(attempt.result);
+        await followRedirectIfSafe(attempt.result, MAX_REDIRECT_CONTINUATION_HOPS);
+      } else if (attempt.status === 'BUDGET_EXCEEDED') {
+        budgetStopReason =
+          pageAttempts >= MAX_PAGE_ATTEMPTS_PER_ROOT
+            ? 'PAGE_BUDGET_EXHAUSTED'
+            : TOTAL_REQUEST_BUDGET_EXHAUSTED_REASON;
+        break;
+      }
+      // BLOCKED / HOST_CAP / CIRCUIT_OPEN / ALREADY_ATTEMPTED: this URL is simply not fetched; loop continues to the next frontier entry.
     }
-    // BLOCKED / HOST_CAP / CIRCUIT_OPEN / ALREADY_ATTEMPTED: this URL is simply not fetched; loop continues to the next frontier entry.
+  } catch (error) {
+    if (!(error instanceof WebGatewayRefusal)) throw error;
+    rootRequestRefusal = error;
   }
 
   // -------------------------------------------------------------- 4. persist evidence + candidates
 
-  const persistedPages = await persistCollectedPages(pool, collectedPages);
+  const persistResult = await persistCollectedPages(pool, collectedPages);
+  const persistedPages = persistResult.pages;
   const candidateInputs = persistedPages.map((page) => ({
     pageEvidenceId: page.id,
     rootKey: page.rootKey,
@@ -498,10 +532,28 @@ export async function runRootAcquisition(
   }));
   const candidates = await scoreAndPersistCandidates(pool, runId, candidateInputs);
 
+  // A page-evidence persistence failure is NOT a root-level operational
+  // outcome - it is thrown here, AFTER candidates were scored and persisted
+  // for every page that DID succeed, so this root keeps the maximum evidence
+  // it legitimately gathered rather than losing it to one bad row. Thrown
+  // outside the try/catch above (so it is never mistaken for a
+  // WebGatewayRefusal): it propagates to runOrganisationDiscovery and fails
+  // the whole run, honestly, exactly like any other infrastructure failure.
+  if (persistResult.failures.length > 0) {
+    const first = persistResult.failures[0]!;
+    throw new Error(
+      `page evidence persistence failed for ${persistResult.failures.length} of ` +
+        `${collectedPages.length} collected page(s) under root ${rootKey}; first failure at ` +
+        `${first.url}: ${first.message}`,
+    );
+  }
+
   // -------------------------------------------------------------- 5. terminal reason
 
   let terminalReason: RootTerminalReason;
-  if (budgetStopReason !== null) {
+  if (rootRequestRefusal !== null) {
+    terminalReason = 'ROOT_REQUEST_REFUSED';
+  } else if (budgetStopReason !== null) {
     terminalReason = budgetStopReason;
   } else if (allHostsInadmissibleStop) {
     terminalReason = 'ALL_REMAINING_HOSTS_INADMISSIBLE';
@@ -535,6 +587,7 @@ export async function runRootAcquisition(
     trackBSelected,
     circuitOpenHosts: circuitBreaker.openHosts(),
     candidates,
+    refusalDetail: rootRequestRefusal?.reason ?? null,
   };
 }
 
