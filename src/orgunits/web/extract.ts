@@ -99,8 +99,17 @@ function stripElement(html: string, tag: string): string {
   return html.replace(pattern, ' ');
 }
 
-/** Removes every element this extractor must never read the contents of, plus HTML comments. */
-function stripNonContent(html: string): string {
+/**
+ * Removes every element this extractor must never read the contents of, plus
+ * HTML comments. EXPORTED for `orchestrator/anchors.ts` (Phase 2B shadow
+ * validation Pass B): discovery-anchor extraction must never read an `<a>`
+ * shape out of a comment or a `<script>`/`<style>` block either, for exactly
+ * the same reason `extractPage` never reads main text from one - the ISAE
+ * anchor-artifact defect the shadow validation found is what happens when a
+ * naive regex scans HTML that still contains commented-out or
+ * script-embedded markup.
+ */
+export function stripNonContent(html: string): string {
   let result = html.replace(/<!--[\s\S]*?-->/g, ' ');
   for (const tag of REMOVABLE_TAGS) {
     result = stripElement(result, tag);

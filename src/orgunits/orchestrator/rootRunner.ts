@@ -25,7 +25,7 @@ import { authoriseAndFetchPage, createRobotsCache, type RobotsCache } from '../w
 import { resolveRoot, WebGatewayRefusal, type RootAuthorityRef } from '../web/authority.js';
 import { checkHostAdmissible } from '../web/hostPolicy.js';
 import { checkRootScope, validateRequestUrl, type ValidatedUrl } from '../web/url.js';
-import { hasBinaryFileExtension } from '../signals/packs/universal.js';
+import { hasBinaryFileExtension, hasCartActionQueryParam } from '../signals/packs/universal.js';
 import { rawPathname } from '../signals/tree.js';
 import type { WebAttemptResult, WebTransport } from '../web/gateway.js';
 import { extractDiscoveryAnchors, resolveAnchorHref } from './anchors.js';
@@ -234,6 +234,11 @@ export async function runRootAcquisition(
     );
     if (!hostVerdict.ok) return false;
     if (hasBinaryFileExtension(rawPathname(validated.value.url))) return false;
+    // Shadow validation Pass B: a state-mutating WooCommerce cart action is
+    // refused BEFORE any request, for every discovery method this gate
+    // covers (anchors, sitemap entries, safe redirect targets) - see
+    // hasCartActionQueryParam's own doc comment.
+    if (hasCartActionQueryParam(validated.value.url)) return false;
     return true;
   }
 

@@ -142,3 +142,32 @@ export const STRUCTURAL_FILE_EXTENSION_RULE = Object.freeze({
   tracks: BOTH_TRACKS,
   weight: SIGNAL_WEIGHT.STRUCTURAL,
 });
+
+/**
+ * True when the URL's QUERY STRING carries WooCommerce's fixed `add-to-cart`
+ * action parameter (`?add-to-cart=<product_id>`, sometimes with a further
+ * `quantity` parameter) - a real, unchanging WooCommerce implementation
+ * detail, not a guessed convention.
+ *
+ * `NEG_SHOPPING_CART` above matches ONLY `urlPath` (tree.ts's `rawPathname`,
+ * which deliberately excludes the query string - it carries no tree
+ * structure). A WooCommerce "add to cart" link on an ordinary product page
+ * path such as `/boutique/produit/42/?add-to-cart=42` therefore never
+ * matched that rule at all: the 2026-08-27 shadow validation measured
+ * IRTESS spending roughly half its 35-page budget on exactly this shape.
+ * Each such GET also mutates the site's OWN server-side cart state - a
+ * politeness concern independent of relevance. Refused at ADMISSION, before
+ * any request, for every discovery method uniformly (anchors, sitemap
+ * entries, redirect targets alike - `rootRunner.ts`'s `admissibleUrl` is the
+ * one gate all three pass through), not scored: no ruleset change, no new
+ * `SignalRule`, no `orgunit-signal-rules-v2`, and a page reached some OTHER
+ * way (one whose OWN path happens to contain "cart") is still scored by
+ * `NEG_SHOPPING_CART` exactly as before.
+ */
+export function hasCartActionQueryParam(url: string): boolean {
+  try {
+    return new URL(url).searchParams.has('add-to-cart');
+  } catch {
+    return false;
+  }
+}
