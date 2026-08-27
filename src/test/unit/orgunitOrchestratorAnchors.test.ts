@@ -57,6 +57,119 @@ describe('extractDiscoveryAnchors', () => {
     const html = '<a href="MAILTO:x@example.edu">x</a><a href="TEL:0123">y</a>';
     expect(extractDiscoveryAnchors(html)).toEqual([]);
   });
+
+  describe('anchor hygiene (2026-08-27 shadow validation Pass B, defect 3)', () => {
+    // VERIFIED directly against the persisted orgunit_fetch_observations
+    // rows for the real ISAE-SUPAERO run (2b9a87e5-2817-4580-994d-9aaf4b64e2ca,
+    // working database nwf_pe): the captured href was the bare RELATIVE
+    // string "--><!--" - nothing else, no surrounding path text - which
+    // then self-amplified into 26 of 41 requests (63%) as each 301/200
+    // generation appended another copy relative to the previous, still-
+    // malformed URL. This exact byte sequence is used below, alongside a
+    // second, differently-shaped fixture proving the fix is a structural
+    // rule about raw markup delimiters, not a check for this one substring.
+    const REAL_ARTIFACT_HREF = '--><!--';
+    const MALFORMED_HTML = `<a href="${REAL_ARTIFACT_HREF}" class="menu-item">Parcours</a>\n<a href="/international/">International</a>`;
+
+    it('drops the malformed-artifact anchor entirely (0 admissions), while keeping the neighbouring valid anchor', () => {
+      const anchors = extractDiscoveryAnchors(MALFORMED_HTML);
+      expect(anchors.map((a) => a.hrefRaw)).toEqual(['/international/']);
+    });
+
+    it('never resolves the real artifact href to a URL at all, once past extraction', () => {
+      // extractDiscoveryAnchors already discarded it above; this pins that
+      // resolveAnchorHref itself would ALSO have produced the exact
+      // "%3E%3C!--"-bearing URL the audit observed, had extraction not
+      // already removed it - the two layers are independently sufficient.
+      const resolution = resolveAnchorHref(
+        'https://www.isae-supaero.fr/en/isae-supaero/our-newsroom/news/example/',
+        REAL_ARTIFACT_HREF,
+      );
+      expect(resolution).toEqual({
+        ok: true,
+        url: 'https://www.isae-supaero.fr/en/isae-supaero/our-newsroom/news/example/--%3E%3C!--',
+      });
+    });
+
+    it('never reads anchor markup from inside a complete HTML comment (the comment-boundary requirement)', () => {
+      const html = '<!-- <a href="/old-nav">Old nav</a> --><a href="/current">Current</a>';
+      const anchors = extractDiscoveryAnchors(html);
+      expect(anchors.map((a) => a.hrefRaw)).toEqual(['/current']);
+    });
+
+    it('never reads anchor-shaped text from inside a <script> block', () => {
+      const html = '<script>var x = \'<a href="/fake">Fake</a>\';</script><a href="/real">Real</a>';
+      const anchors = extractDiscoveryAnchors(html);
+      expect(anchors.map((a) => a.hrefRaw)).toEqual(['/real']);
+    });
+
+    it('never reads anchor-shaped text from inside a <style> block', () => {
+      const html = '<style>/* <a href="/fake-style">Fake</a> */</style><a href="/real2">Real</a>';
+      const anchors = extractDiscoveryAnchors(html);
+      expect(anchors.map((a) => a.hrefRaw)).toEqual(['/real2']);
+    });
+
+    it('drops any captured href containing a raw angle bracket, independent of the literal --><!-- substring', () => {
+      // A different boundary-crossing shape (a stray unmatched quote pulling
+      // a whole second anchor tag into the first capture) - proving the fix
+      // is a structural rule about raw markup delimiters, not a check for
+      // one specific string.
+      const html =
+        '<a href="/legacy.html --><a href="/other.html">Old link</a>\n<a href="/ok">OK</a>';
+      const anchors = extractDiscoveryAnchors(html);
+      expect(anchors.map((a) => a.hrefRaw)).toEqual(['/ok']);
+    });
+
+    it('a malformed anchor never produces a resolvable, fetchable URL (0 frontier admissions, 0 requests for the artifact)', () => {
+      const anchors = extractDiscoveryAnchors(MALFORMED_HTML);
+      expect(anchors).toHaveLength(1);
+      // The malformed href was discarded at extraction, before
+      // resolveAnchorHref/frontier.add ever runs on it - there is no
+      // artifact URL left to resolve, admit, or fetch at all.
+    });
+
+    it('recall protection: every legitimate useful-target anchor shape (Track A/B, French/English, query-bearing) survives unchanged', () => {
+      const usefulHrefs = [
+        '/international/',
+        '/international-office/',
+        '/relations-internationales/',
+        '/mobilite-internationale/',
+        '/erasmus/',
+        '/incoming-students/',
+        '/centre-de-langues/',
+        '/fle/',
+        '/lansad/',
+        '/ufr-langues/',
+        '/page?lang=en',
+        '/page?locale=fr',
+        '/page?id=123',
+      ];
+      const html = usefulHrefs.map((href, i) => `<a href="${href}">Link ${i}</a>`).join('\n');
+      const anchors = extractDiscoveryAnchors(html);
+      expect(anchors.map((a) => a.hrefRaw)).toEqual(usefulHrefs);
+    });
+
+    it('mixed page: drops the malformed artifact anchor while keeping Track A and Track B useful anchors', () => {
+      const html = [
+        `<a href="${REAL_ARTIFACT_HREF}">Parcours</a>`,
+        '<a href="/international/mobilite">Mobilite internationale</a>',
+        '<a href="/centre-de-langues/fle">FLE</a>',
+      ].join('\n');
+      const anchors = extractDiscoveryAnchors(html);
+      expect(anchors.map((a) => a.hrefRaw)).toEqual([
+        '/international/mobilite',
+        '/centre-de-langues/fle',
+      ]);
+    });
+
+    it('is deterministic: the same input yields the same admitted anchors, in the same order, on repeated calls', () => {
+      const html = '<a href="/b">B</a><a href="/a">A</a><a href="/formation/x--><!--y">Bad</a>';
+      const first = extractDiscoveryAnchors(html);
+      const second = extractDiscoveryAnchors(html);
+      expect(second).toEqual(first);
+      expect(first.map((a) => a.hrefRaw)).toEqual(['/b', '/a']);
+    });
+  });
 });
 
 describe('resolveAnchorHref', () => {

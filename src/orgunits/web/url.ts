@@ -205,22 +205,28 @@ export type ScopeVerdict = { ok: true } | { ok: false; reason: ScopeRefusal };
  * miss them by construction. A hop that LEAVES the registrable domain is a new
  * root and needs its own explicit operator approval; it never extends this one.
  *
- * SCHEME: an HTTPS root never authorises an HTTP descendant, because that is a
- * downgrade the caller chose rather than one the server asked for. When the
- * official claim ITSELF is HTTP, the exact root URL may be requested - that is
- * how the institution's current behaviour (very often a redirect to HTTPS) gets
- * observed at all - but nothing below it. Widening that is a later, deliberate
- * policy decision, not something to infer here.
+ * SCHEME: a DOWNGRADE is navigating FROM a secure (https) root TO an insecure
+ * (http) target - a hop the CALLER chose rather than one the server asked
+ * for. It is not merely "the requested URL uses http". When the official
+ * claim's OWN scheme is http, an http request anywhere inside the root's
+ * scope is the root's native scheme, not a downgrade of anything: that is how
+ * the site-policy bootstrap request, the root page itself, and every
+ * ordinary page discovered from it are all reachable at all for an
+ * http-published claim (correction: an earlier revision restricted an http
+ * root to authorising only its own exact URL byte-for-byte, which made the
+ * bootstrap request - a DIFFERENT URL on the same host - refuse itself
+ * before any socket opened, silently killing acquisition for every
+ * http-published claim; see the fix that removed that restriction). An https
+ * root, by contrast, never authorises an http descendant at any path,
+ * because that is always a downgrade the caller would be choosing on the
+ * server's behalf.
  */
 export function checkRootScope(root: ValidatedUrl, requested: ValidatedUrl): ScopeVerdict {
   if (requested.registrableDomain !== root.registrableDomain) {
     return { ok: false, reason: 'registrable_domain_outside_root' };
   }
-  if (requested.scheme === 'http:') {
-    const isExactRoot = requested.url === root.url;
-    if (!(root.scheme === 'http:' && isExactRoot)) {
-      return { ok: false, reason: 'scheme_downgrade' };
-    }
+  if (requested.scheme === 'http:' && root.scheme !== 'http:') {
+    return { ok: false, reason: 'scheme_downgrade' };
   }
   return { ok: true };
 }

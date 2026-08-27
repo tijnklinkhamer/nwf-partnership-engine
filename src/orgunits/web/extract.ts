@@ -38,6 +38,43 @@
  */
 import { redactContactData } from './redact.js';
 
+/**
+ * Counts Unicode CODE POINTS - what PostgreSQL's `length(text)` counts for a
+ * `text` column - never JavaScript's `string.length`, which counts UTF-16
+ * CODE UNITS. The two agree for every BMP character and disagree for every
+ * ASTRAL one (an emoji, some CJK extension characters, mathematical
+ * alphanumeric symbols): `'\u{1F600}'.length === 2` in JavaScript, while
+ * PostgreSQL's `length('\u{1F600}')` is 1. `orgunit_page_evidence`'s own
+ * `main_text_chars = length(main_text)` CHECK is written against the second
+ * definition, so any caller that persists `main_text_chars` MUST use this
+ * function rather than `.length` - see the shadow-validation defect this
+ * closes (main_text_chars counted UTF-16 code units against a code-point
+ * CHECK, so one astral character anywhere in extracted text made an ordinary,
+ * successfully-fetched page fail to persist at all).
+ */
+export function unicodeCodePointLength(text: string): number {
+  return Array.from(text).length;
+}
+
+/**
+ * Truncates to at most `maxCodePoints` Unicode CODE POINTS, never splitting a
+ * surrogate pair.
+ *
+ * `String.prototype.slice` operates on UTF-16 CODE UNITS, so
+ * `text.slice(0, N)` can cut an astral character in half and leave an
+ * unpaired surrogate at the tail of the stored text. Iterating `text` with a
+ * `for...of` (as `Array.from` does below) yields whole code points, so a cut
+ * always falls on a code-point boundary.
+ */
+export function truncateToCodePointLimit(
+  text: string,
+  maxCodePoints: number,
+): { text: string; truncated: boolean } {
+  const codePoints = Array.from(text);
+  if (codePoints.length <= maxCodePoints) return { text, truncated: false };
+  return { text: codePoints.slice(0, maxCodePoints).join(''), truncated: true };
+}
+
 export type ExtractionMethod =
   'MAIN_ELEMENT' | 'BOILERPLATE_DIFFERENCED' | 'MAIN_ELEMENT_AND_DIFFERENCED' | 'FULL_BODY';
 
@@ -62,8 +99,17 @@ function stripElement(html: string, tag: string): string {
   return html.replace(pattern, ' ');
 }
 
-/** Removes every element this extractor must never read the contents of, plus HTML comments. */
-function stripNonContent(html: string): string {
+/**
+ * Removes every element this extractor must never read the contents of, plus
+ * HTML comments. EXPORTED for `orchestrator/anchors.ts` (Phase 2B shadow
+ * validation Pass B): discovery-anchor extraction must never read an `<a>`
+ * shape out of a comment or a `<script>`/`<style>` block either, for exactly
+ * the same reason `extractPage` never reads main text from one - the ISAE
+ * anchor-artifact defect the shadow validation found is what happens when a
+ * naive regex scans HTML that still contains commented-out or
+ * script-embedded markup.
+ */
+export function stripNonContent(html: string): string {
   let result = html.replace(/<!--[\s\S]*?-->/g, ' ');
   for (const tag of REMOVABLE_TAGS) {
     result = stripElement(result, tag);
