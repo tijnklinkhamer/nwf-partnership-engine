@@ -58,6 +58,14 @@ async function expectRefused(fn: () => Promise<unknown>, states: string[]): Prom
   );
 }
 
+/**
+ * The eight Phase 2B-1 acquisition tables. Extended by
+ * orgunitClassifierSchema.test.ts's own CLASSIFIER_TABLES list for the four
+ * Phase 2B-2 tables migration 0009 adds - listed separately there rather than
+ * merged in here, so this file's "acquisition tables" inventory and that
+ * file's "classifier tables" inventory each stay an accurate, minimal
+ * description of what they are actually testing.
+ */
 const ORGUNIT_TABLES = [
   'orgunit_research_runs',
   'orgunit_research_run_completions',
@@ -67,6 +75,14 @@ const ORGUNIT_TABLES = [
   'orgunit_root_promotion_revocations',
   'orgunit_page_evidence',
   'orgunit_page_candidates',
+];
+
+/** The four Phase 2B-2 classifier tables migration 0009 adds. */
+const CLASSIFIER_TABLES = [
+  'orgunit_classifier_calls',
+  'orgunit_classifier_call_completions',
+  'orgunit_page_classifications',
+  'orgunit_classification_subjects',
 ];
 
 interface FetchRow {
@@ -202,13 +218,14 @@ describeDb('Phase 2B schema contract (integration)', () => {
   });
 
   describe('the Phase 2B migrations are applied and sequential', () => {
-    it('records versions 0001 through 0008 with no gaps', async () => {
+    it('records versions 0001 through 0009 with no gaps', async () => {
       const { rows } = await admin.query<{ version: string }>(
         'SELECT version FROM schema_migrations ORDER BY version',
       );
-      // Extended for 0008 (signed candidate_score). This list is pinned
-      // deliberately so a new migration cannot arrive unnoticed: adding one
-      // is meant to fail here first and be acknowledged here explicitly.
+      // Extended for 0009 (the Phase 2B-2 classifier foundation). This list
+      // is pinned deliberately so a new migration cannot arrive unnoticed:
+      // adding one is meant to fail here first and be acknowledged here
+      // explicitly.
       expect(rows.map((r) => r.version)).toEqual([
         '0001',
         '0002',
@@ -218,16 +235,19 @@ describeDb('Phase 2B schema contract (integration)', () => {
         '0006',
         '0007',
         '0008',
+        '0009',
       ]);
     });
 
-    it('creates all eight orgunit tables', async () => {
+    it('creates all twelve orgunit tables (eight acquisition, four classifier)', async () => {
       const { rows } = await admin.query<{ table_name: string }>(
         `SELECT table_name FROM information_schema.tables
           WHERE table_schema = 'public' AND table_name LIKE 'orgunit%'
           ORDER BY table_name`,
       );
-      expect(rows.map((r) => r.table_name)).toEqual([...ORGUNIT_TABLES].sort());
+      expect(rows.map((r) => r.table_name)).toEqual(
+        [...ORGUNIT_TABLES, ...CLASSIFIER_TABLES].sort(),
+      );
     });
   });
 
@@ -366,18 +386,28 @@ describeDb('Phase 2B schema contract (integration)', () => {
       );
     });
 
-    it('keeps organisation_id nullable, and only on the fetch observation', async () => {
+    it('keeps organisation_id nullable everywhere it appears in Phase 2B-1', async () => {
       // A NOT NULL link would turn a page into evidence of entity resolution.
-      // It also appears exactly once in the schema: a second copy is a second
-      // place that can disagree.
+      // Within the Phase 2B-1 acquisition tables it appears exactly once: a
+      // second copy is a second place that can disagree. Migration 0009
+      // (Phase 2B-2) repeats the same convenience-link pattern on
+      // orgunit_classifier_calls for the same reason - a different table with
+      // the identical nullable-convenience-link justification, not a second
+      // copy WITHIN this table's own provenance chain.
       const { rows } = await admin.query<{ table_name: string; is_nullable: string }>(
         `SELECT table_name, is_nullable FROM information_schema.columns
           WHERE table_schema = 'public'
             AND table_name LIKE 'orgunit%'
-            AND column_name = 'organisation_id'`,
+            AND column_name = 'organisation_id'
+          ORDER BY table_name`,
       );
-      expect(rows.map((r) => r.table_name)).toEqual(['orgunit_fetch_observations']);
-      expect(rows[0]!.is_nullable).toBe('YES');
+      expect(rows.map((r) => r.table_name)).toEqual([
+        'orgunit_classifier_calls',
+        'orgunit_fetch_observations',
+      ]);
+      for (const row of rows) {
+        expect(row.is_nullable, `${row.table_name}.organisation_id`).toBe('YES');
+      }
     });
   });
 

@@ -27,6 +27,19 @@ export function researchDatabaseConfigured(): boolean {
   return databaseConfigured() && Boolean(testDatabaseUrl('research'));
 }
 
+/**
+ * True when the Phase 2B-2 semantic-classifier role is also configured.
+ *
+ * Deliberately a separate predicate, for the same reason
+ * researchDatabaseConfigured() is: an environment that predates migration
+ * 0009 has no DATABASE_URL_CLASSIFIER_TEST, and the classifier schema/grant
+ * tests should skip there rather than fail with a connection error that
+ * looks like a bug in the grants themselves.
+ */
+export function classifierDatabaseConfigured(): boolean {
+  return databaseConfigured() && Boolean(testDatabaseUrl('classifier'));
+}
+
 function pool(role: Role): pg.Pool {
   const url = testDatabaseUrl(role);
   if (!url) throw new Error(`No test database URL configured for role "${role}".`);
@@ -83,8 +96,15 @@ export async function truncateAll(target: pg.Pool): Promise<void> {
   // evidence is listed here too. Listing it explicitly rather than relying on
   // CASCADE keeps the statement an accurate inventory of what a test run can
   // create - a silently cascaded table is one nobody remembers exists.
+  // orgunit_classification_subjects and orgunit_page_classifications
+  // reference orgunit_page_candidates/orgunit_page_evidence and
+  // orgunit_classifier_calls respectively (migration 0009), so Phase 2B-2
+  // evidence is listed here too, for the same reason Phase 2B-1 evidence is:
+  // an accurate inventory, not a reliance on CASCADE to discover it.
   await target.query(
-    `TRUNCATE orgunit_page_candidates, orgunit_page_evidence,
+    `TRUNCATE orgunit_classification_subjects, orgunit_page_classifications,
+              orgunit_classifier_call_completions, orgunit_classifier_calls,
+              orgunit_page_candidates, orgunit_page_evidence,
               orgunit_root_promotion_revocations, orgunit_root_promotions,
               orgunit_redirect_observations, orgunit_fetch_observations,
               orgunit_research_run_completions, orgunit_research_runs,
@@ -110,6 +130,15 @@ export function readonlyPool(): pg.Pool {
 /** The Phase 2B research role (migration 0007). Append-only on orgunit_*. */
 export function researchPool(): pg.Pool {
   return pool('research');
+}
+
+/**
+ * The Phase 2B-2 semantic-classifier role (migration 0009). Append-only on
+ * the four classifier tables; read-only on the upstream evidence it
+ * classifies. No grant at all on website_claims or root authority.
+ */
+export function classifierPool(): pg.Pool {
+  return pool('classifier');
 }
 
 /** The minimum Phase 1 evidence a Phase 2B research root can descend from. */
