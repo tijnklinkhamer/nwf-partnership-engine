@@ -328,11 +328,32 @@ CREATE TABLE orgunit_page_classifications (
 
     confidence                               text         NOT NULL,
     rationale                                text         NOT NULL,
-    -- Structural bounds only (array-of-1-to-4). Per-element shape (source
-    -- enum membership, quote length, literal substring verification against
-    -- the supplied evidence) is an APPLICATION validator's job, exactly as
-    -- orgunit_page_evidence.headings and orgunit_page_candidates.signals
-    -- constrain array-ness only and leave element shape to their producers.
+    -- FULL STRUCTURAL VALIDATION, everything the database can locally know.
+    -- Each element of the array is CHECKed to be an object carrying EXACTLY
+    -- {source, quote} - source a non-empty string from the design's §7
+    -- closed set (TITLE|HEADING|EXCERPT|URL_PATH), quote a non-empty string
+    -- of at most 200 CODE POINTS (see the rationale_chk comment above for
+    -- why length() needs no JS-side pre-computation to agree with it). This
+    -- is everything the database CAN verify from the column's own bytes.
+    --
+    -- ONE THING THE DATABASE DELIBERATELY DOES NOT AND CANNOT VERIFY: that a
+    -- `quote` is a LITERAL SUBSTRING of the actual supplied classifier
+    -- document. That relationship spans this row and the assembled request
+    -- payload the classifier answered, which is not itself a column of any
+    -- table here - the canonical payload is reconstructed at read time from
+    -- orgunit_page_evidence/orgunit_page_candidates plus the versions on
+    -- orgunit_classifier_calls (see that table's input_sha256 comment), so
+    -- there is nothing local to a CHECK constraint to compare against. That
+    -- verification is therefore an APPLICATION responsibility, structurally
+    -- as well as practically: it is exactly the design's §9 "anti-
+    -- hallucination contract", and the future classifier write path (2B-2c)
+    -- MUST perform BOTH gates - schema-valid (this CHECK) AND
+    -- substring-verified (an application check against the assembled
+    -- input) - before any INSERT. A response that fails either produces NO
+    -- row (see the PARTIAL/FAILED completion semantics above); this schema
+    -- makes it impossible to persist a structurally malformed span, and
+    -- deliberately does not attempt to make it impossible to persist an
+    -- unverified one, because it cannot.
     evidence_spans                           jsonb        NOT NULL,
 
     created_at                               timestamptz  NOT NULL DEFAULT now(),
@@ -389,7 +410,45 @@ CREATE TABLE orgunit_page_classifications (
         CHECK (rationale <> '' AND length(rationale) <= 500),
     CONSTRAINT orgunit_page_classifications_evidence_spans_chk
         CHECK (jsonb_typeof(evidence_spans) = 'array'
-               AND jsonb_array_length(evidence_spans) BETWEEN 1 AND 4)
+               AND jsonb_array_length(evidence_spans) BETWEEN 1 AND 4),
+    -- Every element is an OBJECT. Checked before the two element-shape
+    -- CHECKs below run their own jsonpath methods on each element, because
+    -- `.keyvalue()` (the next CHECK) raises a hard jsonpath error - not a
+    -- false match - when applied to a non-object array element; this CHECK
+    -- and that one are read together, in this order, for that reason.
+    CONSTRAINT orgunit_page_classifications_evidence_spans_shape_chk
+        CHECK (NOT jsonb_path_exists(evidence_spans, '$[*] ? (@.type() != "object")')),
+    -- EXACTLY the two approved keys, no more, no less. `.keyvalue()` is
+    -- guarded by a same-path `? (@.type() == "object")` filter first, so it
+    -- is never invoked on a non-object element even though shape_chk above
+    -- already refuses that case - a CHECK must be safe to evaluate on its
+    -- own, independent of evaluation order, since Postgres makes no
+    -- guarantee about which CHECK on a table runs first.
+    CONSTRAINT orgunit_page_classifications_evidence_spans_keys_chk
+        CHECK (NOT jsonb_path_exists(evidence_spans,
+            '$[*] ? (@.type() == "object").keyvalue() ? (@.key != "source" && @.key != "quote")')),
+    -- `source` present, a STRING, and a member of the design's §7 closed
+    -- set. An empty string is refused by the same comparison - it matches
+    -- none of the four values, so no separate "not empty" clause is needed.
+    CONSTRAINT orgunit_page_classifications_evidence_spans_source_chk
+        CHECK (NOT jsonb_path_exists(evidence_spans,
+            '$[*] ? (!exists(@.source) || @.source.type() != "string"
+                     || (@.source != "TITLE" && @.source != "HEADING"
+                         && @.source != "EXCERPT" && @.source != "URL_PATH"))')),
+    -- `quote` present, a STRING, and 1-200 CODE POINTS. `like_regex`
+    -- operates on Postgres's own decoded text, so `.{1,200}` counts code
+    -- points exactly as `length()` does elsewhere in this schema - verified
+    -- empirically against this build's PostgreSQL with an astral (emoji)
+    -- string at exactly 200 and 201 code points before this CHECK was
+    -- written, matching the code-point semantics `rationale_chk` already
+    -- relies on and the historical main_text_chars defect this repository
+    -- has already paid for once (see migration 0007's ADR 0008 record).
+    -- `{1,200}` already excludes an empty string, so no separate check is
+    -- needed for that case.
+    CONSTRAINT orgunit_page_classifications_evidence_spans_quote_chk
+        CHECK (NOT jsonb_path_exists(evidence_spans,
+            '$[*] ? (!exists(@.quote) || @.quote.type() != "string"
+                     || !(@.quote like_regex "^.{1,200}$"))'))
 );
 
 -- One classification per (call, page). A call classifies each of its

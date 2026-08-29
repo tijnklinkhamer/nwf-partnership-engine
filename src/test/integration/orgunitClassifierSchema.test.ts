@@ -690,6 +690,163 @@ describeDb('Phase 2B-2 classifier schema contract (integration)', () => {
     });
   });
 
+  describe('evidence_spans element structure is fully validated at the database', () => {
+    // Design §7's exact closed set. Do not invent a fifth value here.
+    const APPROVED_SOURCES = ['TITLE', 'HEADING', 'EXCERPT', 'URL_PATH'];
+
+    it('rejects an array containing a scalar element', async () => {
+      const callId = await insertCall({ sha: testSha('span-scalar') });
+      await expectSqlState(
+        () =>
+          admin.query(
+            `INSERT INTO orgunit_page_classifications
+               (call_id, page_evidence_id, verdict, unit_type,
+                serves_incoming_international_students, serves_outgoing_mobility_students,
+                provides_language_learning_or_support, confidence, rationale, evidence_spans)
+             VALUES ($1, $2, 'UNIT_PAGE', 'OTHER_UNIT', 'YES', 'NO', 'NO', 'LOW', 'x',
+                     '["not-an-object"]'::jsonb)`,
+            [callId, pageEvidenceId],
+          ),
+        CHECK_VIOLATION,
+      );
+    });
+
+    it('rejects a span missing source', async () => {
+      const callId = await insertCall({ sha: testSha('span-no-source') });
+      await expectSqlState(
+        () =>
+          admin.query(
+            `INSERT INTO orgunit_page_classifications
+               (call_id, page_evidence_id, verdict, unit_type,
+                serves_incoming_international_students, serves_outgoing_mobility_students,
+                provides_language_learning_or_support, confidence, rationale, evidence_spans)
+             VALUES ($1, $2, 'UNIT_PAGE', 'OTHER_UNIT', 'YES', 'NO', 'NO', 'LOW', 'x',
+                     '[{"quote":"x"}]'::jsonb)`,
+            [callId, pageEvidenceId],
+          ),
+        CHECK_VIOLATION,
+      );
+    });
+
+    it('rejects a span missing quote', async () => {
+      const callId = await insertCall({ sha: testSha('span-no-quote') });
+      await expectSqlState(
+        () => insertUnitPage(callId, pageEvidenceId, { spans: [{ source: 'TITLE' }] }),
+        CHECK_VIOLATION,
+      );
+    });
+
+    it('rejects an unknown source value', async () => {
+      const callId = await insertCall({ sha: testSha('span-unknown-source') });
+      await expectSqlState(
+        () =>
+          insertUnitPage(callId, pageEvidenceId, {
+            spans: [{ source: 'BODY_TEXT', quote: 'x' }],
+          }),
+        CHECK_VIOLATION,
+      );
+    });
+
+    it('rejects an empty source value', async () => {
+      const callId = await insertCall({ sha: testSha('span-empty-source') });
+      await expectSqlState(
+        () => insertUnitPage(callId, pageEvidenceId, { spans: [{ source: '', quote: 'x' }] }),
+        CHECK_VIOLATION,
+      );
+    });
+
+    it('rejects an empty quote', async () => {
+      const callId = await insertCall({ sha: testSha('span-empty-quote') });
+      await expectSqlState(
+        () => insertUnitPage(callId, pageEvidenceId, { spans: [{ source: 'TITLE', quote: '' }] }),
+        CHECK_VIOLATION,
+      );
+    });
+
+    it('rejects a quote of 201 Unicode code points, counting code points not UTF-16 units', async () => {
+      // Built from an ASTRAL character exactly as the rationale-cap test
+      // above does, for the same reason: it is the representation gap that
+      // caused the historical main_text_chars defect, and the CHECK must
+      // agree with PostgreSQL's own length()/like_regex code-point counting,
+      // not any JS notion of string length.
+      const emoji = '\u{1F600}';
+      const exactly201 = emoji.repeat(201);
+      expect([...exactly201]).toHaveLength(201);
+      const callId = await insertCall({ sha: testSha('span-quote-201') });
+      await expectSqlState(
+        () =>
+          insertUnitPage(callId, pageEvidenceId, {
+            spans: [{ source: 'TITLE', quote: exactly201 }],
+          }),
+        CHECK_VIOLATION,
+      );
+    });
+
+    it('rejects a span with an unexpected extra key', async () => {
+      const callId = await insertCall({ sha: testSha('span-extra-key') });
+      await expectSqlState(
+        () =>
+          insertUnitPage(callId, pageEvidenceId, {
+            spans: [{ source: 'TITLE', quote: 'x', confidence: 'HIGH' }],
+          }),
+        CHECK_VIOLATION,
+      );
+    });
+
+    it('rejects a non-string source value', async () => {
+      const callId = await insertCall({ sha: testSha('span-source-wrong-type') });
+      await expectSqlState(
+        () => insertUnitPage(callId, pageEvidenceId, { spans: [{ source: 1, quote: 'x' }] }),
+        CHECK_VIOLATION,
+      );
+    });
+
+    it('rejects a non-string quote value', async () => {
+      const callId = await insertCall({ sha: testSha('span-quote-wrong-type') });
+      await expectSqlState(
+        () => insertUnitPage(callId, pageEvidenceId, { spans: [{ source: 'TITLE', quote: 1 }] }),
+        CHECK_VIOLATION,
+      );
+    });
+
+    it('accepts every approved source value', async () => {
+      for (const [i, source] of APPROVED_SOURCES.entries()) {
+        const callId = await insertCall({ sha: testSha(`span-source-ok-${i}`) });
+        await expect(
+          insertUnitPage(callId, pageEvidenceId, { spans: [{ source, quote: 'x' }] }),
+        ).resolves.toBeDefined();
+      }
+    });
+
+    it('accepts a quote of exactly 200 Unicode code points', async () => {
+      const callId = await insertCall({ sha: testSha('span-quote-200') });
+      await expect(
+        insertUnitPage(callId, pageEvidenceId, {
+          spans: [{ source: 'TITLE', quote: 'x'.repeat(200) }],
+        }),
+      ).resolves.toBeDefined();
+    });
+
+    it('accepts an astral (emoji) quote at exactly the 200-code-point PostgreSQL bound', async () => {
+      const emoji = '\u{1F600}';
+      const exactly200 = emoji.repeat(200);
+      expect([...exactly200]).toHaveLength(200);
+      const callId = await insertCall({ sha: testSha('span-quote-astral-200') });
+      await expect(
+        insertUnitPage(callId, pageEvidenceId, { spans: [{ source: 'TITLE', quote: exactly200 }] }),
+      ).resolves.toBeDefined();
+    });
+
+    it('accepts exactly the approved two keys with nothing missing and nothing extra', async () => {
+      const callId = await insertCall({ sha: testSha('span-exact-keys') });
+      await expect(
+        insertUnitPage(callId, pageEvidenceId, {
+          spans: [{ source: 'HEADING', quote: 'Direction des relations internationales' }],
+        }),
+      ).resolves.toBeDefined();
+    });
+  });
+
   describe('classification subjects preserve provenance across dedupe', () => {
     it('links a classification to more than one covered candidate', async () => {
       const callId = await insertCall({ sha: testSha('m11') });
