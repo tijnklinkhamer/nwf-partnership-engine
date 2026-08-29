@@ -1029,9 +1029,21 @@ describe('PHASE-2B-FIREWALL: no contact data, in schema or in code', () => {
 });
 
 describe('PHASE-2B-FIREWALL: a rank never becomes a relevance or outreach fact', () => {
-  it('declares no relevance, verdict or approval column in any migration', () => {
-    // These are CONCLUSIONS. The deterministic layer ranks; it does not decide.
-    // A column here would let a lexical rule's output be read as an answer.
+  it('declares no relevance, verdict or approval column in any Phase 2B-1 migration', () => {
+    // These are CONCLUSIONS. The DETERMINISTIC layer (migrations 0001-0008)
+    // ranks; it does not decide. A column here would let a lexical rule's
+    // output be read as an answer.
+    //
+    // ONE DELIBERATE, REVIEWED EXCEPTION: migration 0009 (Phase 2B-2) adds
+    // `unit_type` to orgunit_page_classifications. This is not the discipline
+    // being relaxed - Phase 2B-2's entire job, approved as a SEPARATE phase
+    // from the deterministic layer, is to store a model's semantic reading.
+    // The column is walled off from the deterministic tables by its own
+    // least-privilege role (nwf_classifier), its own table (never
+    // orgunit_page_candidates - see 'a candidate is a rank and cannot become
+    // a verdict' below, still fully binding on 0001-0008), and its own
+    // comment declaring the row INFERENCE, never fact. The next test confines
+    // the exception to exactly that migration and that table.
     const forbidden = [
       'relevant',
       'is_relevant',
@@ -1052,12 +1064,35 @@ describe('PHASE-2B-FIREWALL: a rank never becomes a relevance or outreach fact',
       'unit_type',
       'decision_status',
     ];
+    const CLASSIFIER_MIGRATION = '0009_orgunit_classifier_foundation.sql';
+    const CLASSIFIER_EXCEPTIONS = new Set(['unit_type']);
     for (const { file, sql } of MIGRATIONS) {
       const columns = declaredColumns(sql);
       for (const name of forbidden) {
+        if (file === CLASSIFIER_MIGRATION && CLASSIFIER_EXCEPTIONS.has(name)) continue;
         expect(columns, `${file} declares the conclusion column ${name}`).not.toContain(name);
       }
     }
+  });
+
+  it('confines the classifier conclusion column to exactly the approved migration and table', () => {
+    // The exception above must never silently widen: unit_type may exist
+    // ONLY in 0009's orgunit_page_classifications - never in any Phase 2B-1
+    // migration, and never on orgunit_page_candidates, the deterministic rank
+    // table the exception must not leak into.
+    const CLASSIFIER_MIGRATION = '0009_orgunit_classifier_foundation.sql';
+    for (const { file, sql } of MIGRATIONS) {
+      if (file === CLASSIFIER_MIGRATION) continue;
+      expect(declaredColumns(sql), `${file} declares unit_type`).not.toContain('unit_type');
+    }
+    const sql0009 = MIGRATIONS.find((m) => m.file === CLASSIFIER_MIGRATION)?.sql ?? '';
+    expect(sql0009).toMatch(/CREATE TABLE orgunit_page_classifications[\s\S]*?unit_type\s+text/);
+    const candidatesTable = /CREATE TABLE orgunit_page_candidates \(([\s\S]*?)\n\);/.exec(
+      MIGRATION_0007?.sql ?? '',
+    );
+    expect(declaredColumns(candidatesTable?.[1] ?? '')).not.toContain('unit_type');
+    // The migration's own comment says the column is inference, not fact.
+    expect(sql0009).toMatch(/THIS ROW IS INFERENCE/);
   });
 
   it('declares no outreach, compliance or eligibility column in any migration', () => {
