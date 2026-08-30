@@ -1,0 +1,120 @@
+/**
+ * DOCUMENT CONSTRUCTION - turns one deduped group of eligible subjects into
+ * the model-facing `ClassifierDocument` shape (still without `docIndex`,
+ * which `ordering.ts` assigns after final batch placement).
+ *
+ * READS ONLY ALREADY-REDACTED, ALREADY-BOUNDED EVIDENCE. `title`,
+ * `headings` and `mainText` on `orgunit_page_evidence` are redacted at
+ * extraction time (`extract.ts`'s own module comment: "REDACTS every
+ * returned textual field before returning it - not as a separate step a
+ * caller might forget"). This module reads those persisted columns and
+ * nothing else - no re-read of a response body, no re-read of raw HTML,
+ * because neither exists anywhere in this database (design §18).
+ *
+ * PURE. No network, no database, no filesystem, no clock.
+ */
+import { truncateToCodePointLimit } from '../web/extract.js';
+import {
+  MAX_EXCERPT_CODE_POINTS,
+  MAX_HEADINGS_PER_DOCUMENT,
+  MAX_HEADING_CODE_POINTS,
+} from './constants.js';
+import { distinctRootKeys, distinctTracks, distinctUrls, type DedupedGroup } from './dedupe.js';
+import type { ClassifierDocument, ClassifierRootRef, ClassifierSignal, Heading } from './types.js';
+
+/**
+ * Builds one document's content from a deduped group.
+ *
+ * `rootRefsByKey` resolves a root key to its human-readable URL and
+ * authority kind - the same lookup the batch-level context uses, so a
+ * document's own `roots` field and the batch's `roots` field always agree
+ * about what a given root key means.
+ */
+export function buildDocumentContent(
+  group: DedupedGroup,
+  rootRefsByKey: ReadonlyMap<string, ClassifierRootRef>,
+): Omit<ClassifierDocument, 'docIndex'> {
+  const { representative } = group;
+  const { text: excerpt, truncated: excerptTruncated } = truncateToCodePointLimit(
+    representative.mainText,
+    MAX_EXCERPT_CODE_POINTS,
+  );
+
+  return {
+    url: representative.url,
+    title: representative.title,
+    declaredLang: representative.declaredLang,
+    headings: boundHeadings(representative.headings),
+    excerpt,
+    mainTextTruncated: representative.mainTextTruncated,
+    excerptTruncated,
+    extractionRuleVersion: representative.extractionRuleVersion,
+    discoveryMethod: representative.discoveryMethod,
+    roots: resolveRoots(distinctRootKeys(group), rootRefsByKey),
+    trackMembership: distinctTracks(group),
+    duplicateUrls: distinctUrls(group).filter((url) => url !== representative.url),
+    signals: mergeSignals(group),
+  };
+}
+
+function boundHeadings(headings: readonly Heading[]): readonly Heading[] {
+  return headings.slice(0, MAX_HEADINGS_PER_DOCUMENT).map((heading) => ({
+    level: heading.level,
+    text: truncateToCodePointLimit(heading.text, MAX_HEADING_CODE_POINTS).text,
+  }));
+}
+
+function resolveRoots(
+  rootKeys: readonly string[],
+  rootRefsByKey: ReadonlyMap<string, ClassifierRootRef>,
+): readonly ClassifierRootRef[] {
+  return rootKeys.map((rootKey) => {
+    const ref = rootRefsByKey.get(rootKey);
+    if (ref === undefined) {
+      // Every eligible candidate's root_key traces back to a ROOT-discovery
+      // fetch observation from the same run (the frontier always starts
+      // there) - see `loaders.ts`'s `loadRootRefs` comment. Reaching this
+      // branch would mean that invariant broke.
+      throw new Error(`No root reference resolvable for root_key ${rootKey}.`);
+    }
+    return ref;
+  });
+}
+
+/**
+ * Merges every subject's signals in a group into one deduped, canonically
+ * ordered list. Different URL variants sharing identical bytes can score
+ * differently (scoring reads the URL itself, among other fields), so this
+ * deliberately does not collapse to the representative's signals alone -
+ * doing so would silently discard real explanatory evidence a sibling
+ * URL variant contributed.
+ *
+ * Canonical order: track, then rule id, then field - never DB row order
+ * (design §44).
+ */
+function mergeSignals(group: DedupedGroup): readonly ClassifierSignal[] {
+  const seen = new Set<string>();
+  const merged: ClassifierSignal[] = [];
+  for (const subject of group.subjects) {
+    for (const signal of subject.signals) {
+      const key = `${signal.track} ${signal.id} ${signal.field} ${signal.kind}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      merged.push(signal);
+    }
+  }
+  return merged.sort(compareSignals);
+}
+
+function compareSignals(a: ClassifierSignal, b: ClassifierSignal): number {
+  return (
+    compareStrings(a.track, b.track) ||
+    compareStrings(a.id, b.id) ||
+    compareStrings(a.field, b.field) ||
+    compareStrings(a.kind, b.kind)
+  );
+}
+
+function compareStrings(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0;
+}

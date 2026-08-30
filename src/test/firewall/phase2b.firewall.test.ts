@@ -371,6 +371,22 @@ describe('PHASE-2B-FIREWALL: exactly one institution-website network call site',
       'src/orgunits/orchestrator/run.ts',
       'src/orgunits/orchestrator/rootRunner.ts',
       'src/orgunits/orchestrator/orchestrate.ts',
+      // 2B-2b: deterministic classifier handoff assembly - pure dedupe,
+      // document construction, ordering/overflow-splitting and canonical
+      // hashing, plus the two narrow impure modules (database loading
+      // through the `classifier` role only, and the run-completion check
+      // that role cannot perform itself). NO prompt, NO provider, NO output
+      // validation, NO classifier-table write - those remain 2B-2c.
+      'src/orgunits/classify/constants.ts',
+      'src/orgunits/classify/types.ts',
+      'src/orgunits/classify/errors.ts',
+      'src/orgunits/classify/runStatus.ts',
+      'src/orgunits/classify/loaders.ts',
+      'src/orgunits/classify/dedupe.ts',
+      'src/orgunits/classify/document.ts',
+      'src/orgunits/classify/canonical.ts',
+      'src/orgunits/classify/ordering.ts',
+      'src/orgunits/classify/assemble.ts',
     ]) {
       expect(exists(path), `${path} is an approved module but is missing`).toBe(true);
     }
@@ -382,12 +398,12 @@ describe('PHASE-2B-FIREWALL: exactly one institution-website network call site',
       // not inside src/orgunits/web/), so these EXACT paths remain refused.
       'src/orgunits/web/sitemap.ts',
       'src/orgunits/web/frontier.ts',
-      // The semantic classifier and its candidate-ranking companion remain
-      // NOT authorised. Candidate PERSISTENCE (a deterministic rank, never a
-      // verdict) lives in orchestrator/candidates.ts instead - see ADR 0007
-      // s9 and the 2B-1e ADR's schema-mapping note.
+      // Candidate PERSISTENCE (a deterministic rank, never a verdict) lives
+      // in orchestrator/candidates.ts instead - see ADR 0007 s9 and the
+      // 2B-1e ADR's schema-mapping note. `src/orgunits/classify/` (above)
+      // is the approved home for handoff assembly; this sibling name stays
+      // refused so a second, competing namespace cannot appear beside it.
       'src/orgunits/candidates',
-      'src/orgunits/classify',
       // Only fr/en ship. No placeholder for an unmeasured language.
       'src/orgunits/signals/packs/de.ts',
       'src/orgunits/signals/packs/nl.ts',
@@ -1537,5 +1553,132 @@ describe('PHASE-2B-FIREWALL: identity and locale boundaries hold', () => {
     expect(columns).toContain('declared_lang');
     expect(sql).not.toMatch(/\bfr_esr\b/);
     expect(sql).not.toMatch(/enseignementsup-recherche/);
+  });
+});
+
+describe('PHASE-2B-FIREWALL 2B-2B: classifier handoff assembly is bounded and network-free', () => {
+  const CLASSIFY_FILES = PHASE_2B_FILES.filter((file) => file.startsWith('src/orgunits/classify/'));
+
+  it('populates the classify namespace', () => {
+    expect(CLASSIFY_FILES.length, 'src/orgunits/classify is empty').toBeGreaterThan(0);
+  });
+
+  it('imports no AI, provider, Apollo, contact or outbound-shaped dependency', () => {
+    for (const file of CLASSIFY_FILES) {
+      const source = code(file).toLowerCase();
+      expect(source, `${file} names anthropic`).not.toContain('anthropic');
+      expect(source, `${file} names openai`).not.toContain('openai');
+      expect(source, `${file} names apollo`).not.toContain('apollo');
+      expect(source, `${file} names nodemailer`).not.toContain('nodemailer');
+      expect(source, `${file} imports node-fetch/axios/got/undici`).not.toMatch(
+        /from ['"](node-fetch|axios|got|undici)['"]/,
+      );
+      expect(source, `${file} names an anthropic-sdk-shaped import`).not.toMatch(/@anthropic-ai/);
+      expect(source, `${file} references an API key`).not.toMatch(/api[_-]?key/);
+    }
+  });
+
+  it('imports no search-engine, browser-automation or PDF/OCR dependency', () => {
+    for (const file of CLASSIFY_FILES) {
+      const source = code(file).toLowerCase();
+      for (const banned of [
+        'googleapis',
+        'bing',
+        'serpapi',
+        'brave-search',
+        'duckduckgo',
+        'playwright',
+        'puppeteer',
+        'pdf-parse',
+        'pdfjs',
+        'tesseract',
+      ]) {
+        expect(source, `${file} names ${banned}`).not.toContain(banned);
+      }
+    }
+  });
+
+  it('imports no network primitive and calls no gateway', () => {
+    for (const file of CLASSIFY_FILES) {
+      const source = code(file);
+      expect(source, `${file} imports a network module`).not.toMatch(
+        /from\s+['"]node:(net|tls|http|https|dns)['"]/,
+      );
+      expect(source, `${file} calls fetch`).not.toMatch(/\bfetch\s*\(/);
+      expect(source, `${file} calls executeWebAttempt directly`).not.toContain('executeWebAttempt');
+      expect(source, `${file} imports orgunits/web`).not.toMatch(/from\s+['"].*orgunits\/web\//);
+    }
+  });
+
+  it('issues no write statement anywhere in the namespace - this slice reads only', () => {
+    // 2B-2B builds a payload in memory; persistence is 2B-2c's job. Every
+    // file here must be safe to call repeatedly with zero side effects
+    // (design "zero side effects" / task acceptance gate "zero DB
+    // mutation").
+    for (const file of CLASSIFY_FILES) {
+      const source = code(file);
+      expect(source, `${file} issues an INSERT`).not.toMatch(/INSERT\s+INTO/i);
+      expect(source, `${file} issues an UPDATE`).not.toMatch(/UPDATE\s+\w+\s+SET/i);
+      expect(source, `${file} issues a DELETE`).not.toMatch(/DELETE\s+FROM/i);
+      expect(source, `${file} issues a TRUNCATE`).not.toMatch(/TRUNCATE\b/i);
+    }
+  });
+
+  it('never writes to a classifier-persistence table (that is 2B-2c)', () => {
+    for (const file of CLASSIFY_FILES) {
+      const source = code(file);
+      for (const table of [
+        'orgunit_classifier_calls',
+        'orgunit_classifier_call_completions',
+        'orgunit_page_classifications',
+        'orgunit_classification_subjects',
+      ]) {
+        // Reading orgunit_research_run_completions or any classifier table
+        // name in a SELECT is fine (runStatus.ts) - what must never appear
+        // is that name paired with a write verb, already ruled out above.
+        // This check additionally proves the four classifier-writer tables
+        // are never even named in this read-only namespace.
+        expect(source, `${file} names ${table}`).not.toContain(table);
+      }
+    }
+  });
+
+  it('declares no contact-shaped property and names no mailto:/tel: scheme', () => {
+    for (const file of CLASSIFY_FILES) {
+      const source = code(file);
+      expect(source, `${file} declares a mailbox property`).not.toMatch(
+        /\b(email|mailbox|emailAddress|contactEmail|adminEmail)\s*[:?]/i,
+      );
+      expect(source, `${file} declares a telephone property`).not.toMatch(
+        /\b(phone|telephone|phoneNumber|mobile)\s*[:?]/i,
+      );
+      expect(source, `${file} names mailto:`).not.toMatch(/mailto:/i);
+      expect(source, `${file} names tel:`).not.toMatch(/['"]tel:/i);
+    }
+  });
+
+  it('the model-facing document/batch types carry no score, rank or weight field', () => {
+    const types = code('src/orgunits/classify/types.ts');
+    // Scoped to each model-facing interface's OWN body individually -
+    // `RawEligibleCandidateRow` legitimately carries `candidateScore`/
+    // `rankWithinRoot` for representative selection, and this test must
+    // isolate exactly the interfaces the model itself receives rather than
+    // scan a blob that could accidentally include a sibling type.
+    for (const interfaceName of [
+      'ClassifierSignal',
+      'ClassifierRootRef',
+      'ClassifierBatchContext',
+      'ClassifierDocument',
+      'ClassifierBatch',
+    ]) {
+      const match = new RegExp(`interface ${interfaceName} \\{([\\s\\S]*?)\\n\\}`).exec(types);
+      expect(match, `could not locate interface ${interfaceName}`).not.toBeNull();
+      const body = match![1]!;
+      for (const forbidden of ['candidateScore', 'rankWithinRoot', 'weight', 'score', 'rank']) {
+        expect(body, `${interfaceName} declares ${forbidden}`).not.toMatch(
+          new RegExp(`\\b${forbidden}\\b`),
+        );
+      }
+    }
   });
 });
