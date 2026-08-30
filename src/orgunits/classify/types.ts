@@ -131,6 +131,16 @@ export interface AssembledBatch {
   readonly assemblyInputSha256: string;
   /** docIndex -> every `orgunit_page_candidates.id` this document represents, sorted. */
   readonly subjectsByDocIndex: ReadonlyMap<number, readonly string[]>;
+  /**
+   * docIndex -> the dedupe REPRESENTATIVE's `orgunit_page_evidence.id`
+   * (`RawEligibleCandidateRow.pageEvidenceId` of `DedupedGroup.representative`
+   * - see `dedupe.ts`). A future 2B-2c persistence writer needs this to
+   * populate `orgunit_page_classifications.page_evidence_id`: the model
+   * never sees or echoes this id (design's own "no internal UUID reaches
+   * the model" rule), so it must be recovered from the SAME assembly pass
+   * that built the batch, never re-queried independently.
+   */
+  readonly pageEvidenceIdByDocIndex: ReadonlyMap<number, string>;
 }
 
 export type AssemblyResult =
