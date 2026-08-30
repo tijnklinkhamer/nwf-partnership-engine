@@ -8,26 +8,38 @@
  * score-anchoring mitigation (§4): rank order must not leak through
  * position even though numeric rank is never sent.
  *
- * OVERFLOW: the PRIMARY overflow mechanism is PER-ROOT splitting, matching
- * `orgunit_classifier_calls.root_key`'s own purpose (migration 0009: "NULL
- * for a whole-organisation call, set when the overflow rule split per
- * root"). This is mathematically sufficient for the 24-document bound on
- * its own: `MAX_CANDIDATES_PER_ROOT_TRACK` (8) x 2 tracks = 16 eligible
+ * THE NORMAL CASE IS ONE WHOLE-ORGANISATION BATCH. Design §2: "one
+ * classifier call = the assembled, content-deduplicated candidate set of
+ * ONE organisation from ONE research run (all of that run's roots, both
+ * tracks together)". `orderAndBatch` therefore ALWAYS attempts a single
+ * batch spanning every root and both tracks FIRST (`tryBuildSingleBatch`,
+ * `rootKey: null`) - an organisation having more than one root is NOT
+ * itself a reason to split; two roots whose combined eligible set still
+ * fits both hard bounds are handed to the model together, exactly as a
+ * single-root organisation would be.
+ *
+ * OVERFLOW IS THE EXCEPTION, NOT THE MECHANISM. Only when the whole-
+ * organisation batch would violate a hard bound does `orderAndBatch` fall
+ * back to PER-ROOT splitting, matching `orgunit_classifier_calls.root_key`'s
+ * own purpose (migration 0009: "NULL for a whole-organisation call, set
+ * when the overflow rule split per root"). Per-root splitting is
+ * mathematically sufficient to resolve the 24-document bound whenever it
+ * DOES trigger: `MAX_CANDIDATES_PER_ROOT_TRACK` (8) x 2 tracks = 16 eligible
  * subjects per root before dedupe, and dedupe only ever REDUCES that count
  * - so a single root's unique-document count can never exceed 16, always
- * safely under 24. Overflow can therefore only arise from COMBINING
- * multiple roots, which per-root splitting resolves completely for the
- * count bound.
+ * safely under 24. Overflow past 24 can therefore only arise from COMBINING
+ * multiple roots' eligible sets, which is exactly the condition under which
+ * this fallback runs.
  *
  * The 64,000-code-point payload bound is a SEPARATE, secondary concern
- * per-root splitting does not automatically guarantee (16 documents each
- * near their own per-field maxima could still exceed it in a pathological
- * case, even though the design calls this "unreachable under the
- * per-document bounds" for realistic evidence). So every candidate batch -
- * whole-organisation or root-scoped - is additionally packed by a
- * deterministic greedy bin-packer that measures the ACTUAL canonical
- * serialized size and splits further, never assumes the ceiling cannot
- * bind.
+ * neither the whole-organisation attempt nor per-root splitting
+ * automatically guarantees (documents near their own per-field maxima
+ * could still exceed it in a pathological case, even though the design
+ * calls this "unreachable under the per-document bounds" for realistic
+ * evidence). So every candidate batch - whole-organisation or root-scoped -
+ * is additionally packed by a deterministic greedy bin-packer that measures
+ * the ACTUAL canonical serialized size and splits further, never assumes
+ * the ceiling cannot bind.
  *
  * PURE. No network, no database, no filesystem, no clock.
  */

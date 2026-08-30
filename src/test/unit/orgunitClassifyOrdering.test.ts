@@ -106,9 +106,153 @@ describe('orderAndBatch - whole-organisation call (no overflow)', () => {
     expect(batches[0]!.batch.context.rootKey).toBeNull();
     expect(batches[0]!.batch.documents).toHaveLength(24);
   });
+
+  // THE CRITICAL REGRESSION (design §2): having MORE THAN ONE ROOT is never
+  // itself a reason to split. Two roots whose COMBINED eligible set still
+  // fits both hard bounds must be handed to the model as a single call,
+  // exactly as a single-root organisation would be - overflow is triggered
+  // by the bounds, never by root count.
+  it('keeps a BOUNDED multi-root organisation as ONE whole-organisation batch (not split merely because two roots exist)', () => {
+    const rootA = rootRef(1);
+    const rootB = rootRef(2);
+    const rowsA = Array.from({ length: 8 }, (_, i) =>
+      row(i, {
+        rootKey: rootA.rootKey,
+        url: `https://root-1.fr/p${i}`,
+        responseSha256: `sha-a-${i}`,
+      }),
+    );
+    const rowsB = Array.from({ length: 8 }, (_, i) =>
+      row(100 + i, {
+        rootKey: rootB.rootKey,
+        url: `https://root-2.fr/p${i}`,
+        responseSha256: `sha-b-${i}`,
+      }),
+    );
+    const roots = [rootA, rootB];
+    const refs = new Map(roots.map((r) => [r.rootKey, r]));
+    const batches = orderAndBatch(
+      dedupeByResponseSha256([...rowsA, ...rowsB]),
+      refs,
+      CONTEXT_BASE,
+      roots,
+    );
+
+    expect(batches).toHaveLength(1);
+    expect(batches[0]!.batch.context.rootKey).toBeNull();
+    expect(batches[0]!.batch.documents).toHaveLength(16);
+    // Both roots are represented in the single call's context.
+    expect(batches[0]!.batch.context.roots.map((r) => r.rootKey).sort()).toEqual(
+      [rootA.rootKey, rootB.rootKey].sort(),
+    );
+    // Documents from both roots are actually present, not just referenced.
+    const urls = batches[0]!.batch.documents.map((d) => d.url);
+    expect(urls.some((u) => u.startsWith('https://root-1.fr/'))).toBe(true);
+    expect(urls.some((u) => u.startsWith('https://root-2.fr/'))).toBe(true);
+  });
+
+  it('keeps a multi-root organisation at EXACTLY 24 unique documents as one batch', () => {
+    const rootA = rootRef(1);
+    const rootB = rootRef(2);
+    const rowsA = Array.from({ length: 12 }, (_, i) =>
+      row(i, {
+        rootKey: rootA.rootKey,
+        url: `https://root-1.fr/p${i}`,
+        responseSha256: `sha-a-${i}`,
+      }),
+    );
+    const rowsB = Array.from({ length: 12 }, (_, i) =>
+      row(100 + i, {
+        rootKey: rootB.rootKey,
+        url: `https://root-2.fr/p${i}`,
+        responseSha256: `sha-b-${i}`,
+      }),
+    );
+    const roots = [rootA, rootB];
+    const refs = new Map(roots.map((r) => [r.rootKey, r]));
+    const batches = orderAndBatch(
+      dedupeByResponseSha256([...rowsA, ...rowsB]),
+      refs,
+      CONTEXT_BASE,
+      roots,
+    );
+
+    expect(batches).toHaveLength(1);
+    expect(batches[0]!.batch.context.rootKey).toBeNull();
+    expect(batches[0]!.batch.documents).toHaveLength(24);
+  });
+
+  it('dedupes globally BEFORE deciding overflow: cross-root duplicates count once toward the 24 bound', () => {
+    // Four roots x 8 candidates = 32 RAW eligible subjects (already past 24
+    // before any dedupe), but every root's 8 candidates map onto the SAME
+    // 6 pieces of underlying content (different URL, same response_sha256).
+    // If overflow were decided on the raw subject count, this would
+    // incorrectly split; deciding it on the DEDUPED document count (6) must
+    // produce a single whole-organisation batch.
+    const roots = [rootRef(1), rootRef(2), rootRef(3), rootRef(4)];
+    const rows: RawEligibleCandidateRow[] = [];
+    roots.forEach((root, rootIndex) => {
+      for (let i = 0; i < 8; i += 1) {
+        const contentIndex = i % 6; // only 6 distinct pieces of content
+        rows.push(
+          row(rootIndex * 100 + i, {
+            rootKey: root.rootKey,
+            url: `https://root-${rootIndex}.fr/variant-${i}`,
+            responseSha256: `shared-content-${contentIndex}`,
+            rankWithinRoot: i + 1,
+          }),
+        );
+      }
+    });
+    expect(rows).toHaveLength(32); // raw subjects exceed the 24 bound
+
+    const refs = new Map(roots.map((r) => [r.rootKey, r]));
+    const batches = orderAndBatch(dedupeByResponseSha256(rows), refs, CONTEXT_BASE, roots);
+
+    expect(batches).toHaveLength(1);
+    expect(batches[0]!.batch.context.rootKey).toBeNull();
+    expect(batches[0]!.batch.documents).toHaveLength(6);
+  });
 });
 
 describe('orderAndBatch - overflow splits by root', () => {
+  it('splits an EXACTLY-25-unique-document organisation into multiple deterministic batches, losing nothing', () => {
+    const rootA = rootRef(1);
+    const rootB = rootRef(2);
+    const rowsA = Array.from({ length: 13 }, (_, i) =>
+      row(i, {
+        rootKey: rootA.rootKey,
+        url: `https://root-1.fr/p${i}`,
+        responseSha256: `sha-a-${i}`,
+      }),
+    );
+    const rowsB = Array.from({ length: 12 }, (_, i) =>
+      row(100 + i, {
+        rootKey: rootB.rootKey,
+        url: `https://root-2.fr/p${i}`,
+        responseSha256: `sha-b-${i}`,
+      }),
+    );
+    expect(rowsA).toHaveLength(13);
+    expect(rowsB).toHaveLength(12);
+    const roots = [rootA, rootB];
+    const refs = new Map(roots.map((r) => [r.rootKey, r]));
+    const batches = orderAndBatch(
+      dedupeByResponseSha256([...rowsA, ...rowsB]),
+      refs,
+      CONTEXT_BASE,
+      roots,
+    );
+
+    const totalDocs = batches.reduce((sum, b) => sum + b.batch.documents.length, 0);
+    expect(totalDocs).toBe(25);
+    expect(batches.length).toBeGreaterThan(1);
+    const allUrls = batches.flatMap((b) => b.batch.documents.map((d) => d.url));
+    expect(new Set(allUrls).size).toBe(25); // every document emitted exactly once
+    const allSubjectIds = batches.flatMap((b) => [...b.subjectsByDocIndex.values()].flat());
+    expect(allSubjectIds).toHaveLength(25); // every subject retained
+  });
+
   it('splits a 25-unique-document organisation into per-root batches', () => {
     // Two roots, 13 unique documents each (26 total) - forces overflow past 24.
     const rootA = rootRef(1);
@@ -261,5 +405,43 @@ describe('orderAndBatch - payload-size safety net', () => {
     expect(() =>
       orderAndBatch(dedupeByResponseSha256(massiveDuplicates), refs, CONTEXT_BASE, roots),
     ).toThrow(PayloadBoundExceededError);
+  });
+
+  it('splits deterministically on PAYLOAD size alone, even with a document count well under 24', () => {
+    // 20 documents, each padded near its own per-field maxima (2,000-code-point
+    // excerpt + twelve 200-code-point headings - the full per-document
+    // bounds), on a SINGLE root - proving the payload bound can trigger a
+    // split independently of both the document-count bound and root count
+    // (task §8/§12).
+    const bigHeadings = Array.from({ length: 12 }, (_, i) => ({
+      level: 2 as const,
+      text: `Heading number ${i} ${'x'.repeat(175)}`,
+    }));
+    const rows = Array.from({ length: 20 }, (_, i) =>
+      row(i, {
+        url: `https://x.fr/page-${String(i).padStart(4, '0')}`,
+        responseSha256: `sha-${i}`,
+        title: `A moderately long institutional page title number ${i}`,
+        headings: bigHeadings,
+        mainText: 'y'.repeat(3000), // truncates to the 2,000-code-point excerpt cap
+      }),
+    );
+    const roots = [rootRef(0)];
+    const refs = new Map(roots.map((r) => [r.rootKey, r]));
+    const batches = orderAndBatch(dedupeByResponseSha256(rows), refs, CONTEXT_BASE, roots);
+
+    // Document count alone would have fit in one batch (20 <= 24); only the
+    // payload bound forces the split.
+    expect(batches.length).toBeGreaterThan(1);
+    const totalDocs = batches.reduce((sum, b) => sum + b.batch.documents.length, 0);
+    expect(totalDocs).toBe(20);
+    const allUrls = batches.flatMap((b) => b.batch.documents.map((d) => d.url));
+    expect(new Set(allUrls).size).toBe(20); // no document lost
+    const allSubjectIds = batches.flatMap((b) => [...b.subjectsByDocIndex.values()].flat());
+    expect(allSubjectIds).toHaveLength(20); // no subject lost
+    for (const b of batches) {
+      const canonicalSize = [...JSON.stringify(b.batch)].length;
+      expect(canonicalSize).toBeLessThanOrEqual(64_000);
+    }
   });
 });
