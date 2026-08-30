@@ -93,6 +93,7 @@ export async function assembleClassifierHandoff(
     batch: entry.batch,
     assemblyInputSha256: hashBatch(entry.batch),
     subjectsByDocIndex: entry.subjectsByDocIndex,
+    pageEvidenceIdByDocIndex: entry.pageEvidenceIdByDocIndex,
   }));
 
   return {

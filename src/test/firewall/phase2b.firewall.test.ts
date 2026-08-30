@@ -1556,8 +1556,23 @@ describe('PHASE-2B-FIREWALL: identity and locale boundaries hold', () => {
   });
 });
 
-describe('PHASE-2B-FIREWALL 2B-2B: classifier handoff assembly is bounded and network-free', () => {
+describe('PHASE-2B-FIREWALL 2B-2B/2B-2C1: classifier handoff assembly and semantic core are bounded and network-free', () => {
   const CLASSIFY_FILES = PHASE_2B_FILES.filter((file) => file.startsWith('src/orgunits/classify/'));
+
+  /**
+   * The ONE file 2B-2C1 permits to issue a write statement. Every other
+   * file under `src/orgunits/classify/` - the original 2B-2B assembly
+   * files AND every new 2B-2C1 semantic-core file (prompt, output schema,
+   * provider contract, scripted provider, retry helper, hash, evidence
+   * verification, validation, orchestration) - must remain provably
+   * write-free by source inspection, exactly as the whole namespace was
+   * before this slice. `orchestrate.ts` calls `persist.ts`'s exported
+   * functions; it contains no SQL of its own, so it stays in this list.
+   */
+  const CLASSIFY_PERSISTENCE_FILE = 'src/orgunits/classify/persist.ts';
+  const CLASSIFY_READ_ONLY_FILES = CLASSIFY_FILES.filter(
+    (file) => file !== CLASSIFY_PERSISTENCE_FILE,
+  );
 
   it('populates the classify namespace', () => {
     expect(CLASSIFY_FILES.length, 'src/orgunits/classify is empty').toBeGreaterThan(0);
@@ -1610,12 +1625,13 @@ describe('PHASE-2B-FIREWALL 2B-2B: classifier handoff assembly is bounded and ne
     }
   });
 
-  it('issues no write statement anywhere in the namespace - this slice reads only', () => {
-    // 2B-2B builds a payload in memory; persistence is 2B-2c's job. Every
-    // file here must be safe to call repeatedly with zero side effects
-    // (design "zero side effects" / task acceptance gate "zero DB
-    // mutation").
-    for (const file of CLASSIFY_FILES) {
+  it('issues no write statement anywhere OUTSIDE persist.ts', () => {
+    // 2B-2B built a payload in memory only. 2B-2C1 adds EXACTLY one
+    // reviewed, deliberate write capability - persist.ts - mirroring the
+    // gateway's own single-module socket-allowlist widening (ADR 0004 s18):
+    // the test fails until someone edits it on purpose, and it is edited
+    // here, for this one named file, and no other.
+    for (const file of CLASSIFY_READ_ONLY_FILES) {
       const source = code(file);
       expect(source, `${file} issues an INSERT`).not.toMatch(/INSERT\s+INTO/i);
       expect(source, `${file} issues an UPDATE`).not.toMatch(/UPDATE\s+\w+\s+SET/i);
@@ -1624,8 +1640,8 @@ describe('PHASE-2B-FIREWALL 2B-2B: classifier handoff assembly is bounded and ne
     }
   });
 
-  it('never writes to a classifier-persistence table (that is 2B-2c)', () => {
-    for (const file of CLASSIFY_FILES) {
+  it('never names a classifier-persistence table OUTSIDE persist.ts', () => {
+    for (const file of CLASSIFY_READ_ONLY_FILES) {
       const source = code(file);
       for (const table of [
         'orgunit_classifier_calls',
@@ -1635,9 +1651,8 @@ describe('PHASE-2B-FIREWALL 2B-2B: classifier handoff assembly is bounded and ne
       ]) {
         // Reading orgunit_research_run_completions or any classifier table
         // name in a SELECT is fine (runStatus.ts) - what must never appear
-        // is that name paired with a write verb, already ruled out above.
-        // This check additionally proves the four classifier-writer tables
-        // are never even named in this read-only namespace.
+        // outside persist.ts is that name at all, now that a write
+        // capability exists to pair it with.
         expect(source, `${file} names ${table}`).not.toContain(table);
       }
     }
@@ -1680,5 +1695,155 @@ describe('PHASE-2B-FIREWALL 2B-2B: classifier handoff assembly is bounded and ne
         );
       }
     }
+  });
+});
+
+describe('PHASE-2B-FIREWALL 2B-2C1: semantic core is provider-neutral, and persistence is append-only INSERT into exactly its four tables', () => {
+  const CLASSIFY_2B_2C1_FILES = [
+    'src/orgunits/classify/prompt.ts',
+    'src/orgunits/classify/outputSchema.ts',
+    'src/orgunits/classify/providerContract.ts',
+    'src/orgunits/classify/scriptedProvider.ts',
+    'src/orgunits/classify/retry.ts',
+    'src/orgunits/classify/finalIdentity.ts',
+    'src/orgunits/classify/evidenceVerification.ts',
+    'src/orgunits/classify/validate.ts',
+    'src/orgunits/classify/persist.ts',
+    'src/orgunits/classify/orchestrate.ts',
+  ];
+  const CLASSIFIER_TABLES = [
+    'orgunit_classifier_calls',
+    'orgunit_classifier_call_completions',
+    'orgunit_page_classifications',
+    'orgunit_classification_subjects',
+  ];
+
+  it('populates the 2B-2C1 semantic-core files, by exact name', () => {
+    for (const file of CLASSIFY_2B_2C1_FILES) {
+      expect(exists(file), `${file} is an approved 2B-2C1 module but is missing`).toBe(true);
+    }
+  });
+
+  it('the real Claude Max Agent SDK runtime adapter does not exist yet (that is 2B-2C2)', () => {
+    // Named ahead of time, exactly as `src/orgunits/classify/` itself was
+    // declared refused before 2B-2b populated it - the same discipline
+    // that made the gateway's own later widening a reviewed, visible act
+    // rather than a silent discovery.
+    for (const path of [
+      'src/orgunits/classify/provider',
+      'src/orgunits/classify/claudeMaxAgentProvider.ts',
+      'src/orgunits/classify/anthropicProvider.ts',
+    ]) {
+      expect(exists(path), `${path} exists but belongs to 2B-2C2`).toBe(false);
+    }
+  });
+
+  it('persist.ts issues ONLY INSERT, never UPDATE, DELETE or TRUNCATE', () => {
+    const source = code('src/orgunits/classify/persist.ts');
+    expect(source, 'persist.ts issues an UPDATE').not.toMatch(/UPDATE\s+\w+\s+SET/i);
+    expect(source, 'persist.ts issues a DELETE').not.toMatch(/DELETE\s+FROM/i);
+    expect(source, 'persist.ts issues a TRUNCATE').not.toMatch(/TRUNCATE\b/i);
+    expect(source, 'persist.ts issues at least one INSERT').toMatch(/INSERT\s+INTO/i);
+  });
+
+  it('every INSERT in persist.ts targets one of the four classifier tables, never an upstream evidence table', () => {
+    const source = code('src/orgunits/classify/persist.ts');
+    const insertTargets = [...source.matchAll(/INSERT\s+INTO\s+([a-z_][a-z0-9_]*)/gi)].map(
+      (m) => m[1]!,
+    );
+    expect(insertTargets.length).toBeGreaterThan(0);
+    for (const table of insertTargets) {
+      expect(CLASSIFIER_TABLES, `persist.ts INSERTs into ${table}`).toContain(table);
+    }
+    // And, restated the other way: every classifier table this file names
+    // at all is named beside an INSERT, never a bare read with no grant to
+    // back it - nwf_classifier holds SELECT on its own tables too (the
+    // idempotency lookup and the reuse read), so this checks INSERT
+    // presence specifically rather than exclusivity of mention.
+    for (const table of CLASSIFIER_TABLES) {
+      expect(source, `persist.ts never names ${table}`).toContain(table);
+    }
+  });
+
+  it('imports no upstream-evidence write, and no orgunits/web/orgunits/orchestrator persistence helper', () => {
+    for (const file of CLASSIFY_2B_2C1_FILES) {
+      const source = code(file);
+      expect(source, `${file} imports orgunits/web`).not.toMatch(/from\s+['"].*orgunits\/web\//);
+      expect(source, `${file} imports orgunits/orchestrator/candidates`).not.toMatch(
+        /from\s+['"].*orchestrator\/candidates/,
+      );
+      expect(source, `${file} imports orgunits/orchestrator/pageCollection`).not.toMatch(
+        /from\s+['"].*orchestrator\/pageCollection/,
+      );
+    }
+  });
+
+  it('declares the provider-neutral ClassifierProvider contract and the scripted test provider, by exact name', () => {
+    const contract = code('src/orgunits/classify/providerContract.ts');
+    expect(contract).toMatch(/export\s+interface\s+ClassifierProvider\b/);
+    expect(contract).toMatch(/export\s+interface\s+ClassifierProviderRequest\b/);
+    expect(contract).toMatch(/export\s+interface\s+ClassifierProviderResult\b/);
+    const scripted = code('src/orgunits/classify/scriptedProvider.ts');
+    expect(scripted).toMatch(/export\s+class\s+ScriptedTestProvider\b/);
+  });
+
+  it('the provider contract exposes no credential, database, filesystem or MCP handle', () => {
+    const contract = code('src/orgunits/classify/providerContract.ts');
+    for (const forbidden of [
+      'apikey',
+      'oauth',
+      'password',
+      'secret',
+      'pg.Pool',
+      'fs.',
+      'mcpServers',
+    ]) {
+      expect(contract.toLowerCase(), `providerContract.ts exposes ${forbidden}`).not.toContain(
+        forbidden.toLowerCase(),
+      );
+    }
+  });
+
+  it('declares frozen, versioned prompt and output-schema constants', () => {
+    const prompt = code('src/orgunits/classify/prompt.ts');
+    expect(prompt).toContain("ORGUNIT_CLASSIFIER_PROMPT_VERSION = 'orgunit-classifier-prompt-v1'");
+    const schema = code('src/orgunits/classify/outputSchema.ts');
+    expect(schema).toContain(
+      "ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION = 'orgunit-classifier-output-schema-v1'",
+    );
+  });
+
+  it('migration 0010 widens error_kind with exactly the two Max-runtime failure kinds, and nothing else', () => {
+    const migration0010 = MIGRATIONS.find((m) => m.file.startsWith('0010_'));
+    expect(migration0010, 'migration 0010 does not exist').toBeDefined();
+    const sql = migration0010!.sql;
+    // SQL `--` line comments are prose, not statements - `code()` only
+    // strips JS/TS comment syntax, so this file's own executable-SQL-only
+    // view strips them itself rather than tripping on words like "grant"
+    // appearing inside an explanatory sentence.
+    const executableSql = sql.replace(/--.*$/gm, '');
+    expect(executableSql).not.toMatch(/CREATE\s+TABLE/i);
+    expect(executableSql).not.toMatch(/\bGRANT\b/i);
+    expect(executableSql).not.toMatch(/\bREVOKE\b/i);
+    expect(executableSql).not.toMatch(/ADD\s+COLUMN/i);
+    expect(executableSql).not.toMatch(/DROP\s+COLUMN/i);
+    const checkMatch =
+      /ADD CONSTRAINT orgunit_classifier_call_completions_error_kind_chk\s+CHECK \(error_kind IS NULL OR error_kind IN\s+\(([^)]+)\)/i.exec(
+        executableSql,
+      );
+    expect(checkMatch, 'could not locate the widened error_kind CHECK').not.toBeNull();
+    const members = checkMatch![1]!.split(',').map((m) => m.trim().replace(/^'|'$/g, ''));
+    expect(members.sort()).toEqual(
+      [
+        'PROVIDER_TRANSIENT',
+        'PROVIDER_REFUSAL',
+        'SCHEMA_INVALID',
+        'EVIDENCE_SPAN_UNVERIFIED',
+        'TIMEOUT',
+        'OTHER',
+        'USAGE_LIMIT_EXHAUSTED',
+        'AUTH_FAILURE',
+      ].sort(),
+    );
   });
 });

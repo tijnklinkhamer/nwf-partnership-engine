@@ -60,6 +60,8 @@ export interface OrderedBatch {
   readonly batch: ClassifierBatch;
   /** docIndex -> every `orgunit_page_candidates.id` (subject) this document represents, sorted. */
   readonly subjectsByDocIndex: ReadonlyMap<number, readonly string[]>;
+  /** docIndex -> the dedupe representative's `orgunit_page_evidence.id` (`types.ts`'s `AssembledBatch` comment). */
+  readonly pageEvidenceIdByDocIndex: ReadonlyMap<number, string>;
 }
 
 interface PendingDocument {
@@ -127,7 +129,11 @@ function tryBuildSingleBatch(
   if (pending.length > MAX_UNIQUE_DOCUMENTS_PER_BATCH) return null;
   const batch = finalize(context, pending);
   if (codePointsOf(batch) > MAX_BATCH_PAYLOAD_CODE_POINTS) return null;
-  return { batch, subjectsByDocIndex: subjectsOf(pending) };
+  return {
+    batch,
+    subjectsByDocIndex: subjectsOf(pending),
+    pageEvidenceIdByDocIndex: pageEvidenceIdsOf(pending),
+  };
 }
 
 /** Deterministic greedy bin-packer: adds documents (in their given, already-sorted order) until a bound would be violated, then starts a new batch. */
@@ -151,11 +157,19 @@ function packDocuments(
       const soleBatch = finalize(context, [doc]);
       throw new PayloadBoundExceededError(doc.content.url, codePointsOf(soleBatch));
     }
-    results.push({ batch: finalize(context, current), subjectsByDocIndex: subjectsOf(current) });
+    results.push({
+      batch: finalize(context, current),
+      subjectsByDocIndex: subjectsOf(current),
+      pageEvidenceIdByDocIndex: pageEvidenceIdsOf(current),
+    });
     current = [doc];
   }
   if (current.length > 0) {
-    results.push({ batch: finalize(context, current), subjectsByDocIndex: subjectsOf(current) });
+    results.push({
+      batch: finalize(context, current),
+      subjectsByDocIndex: subjectsOf(current),
+      pageEvidenceIdByDocIndex: pageEvidenceIdsOf(current),
+    });
   }
   return results;
 }
@@ -188,6 +202,15 @@ function subjectsOf(docs: readonly PendingDocument[]): ReadonlyMap<number, reado
   docs.forEach((doc, index) => {
     const candidateIds = [...doc.group.subjects.map((s) => s.candidateId)].sort(compareUrl);
     map.set(index, candidateIds);
+  });
+  return map;
+}
+
+/** docIndex -> the dedupe representative's `orgunit_page_evidence.id` (`types.ts`'s `AssembledBatch` comment). */
+function pageEvidenceIdsOf(docs: readonly PendingDocument[]): ReadonlyMap<number, string> {
+  const map = new Map<number, string>();
+  docs.forEach((doc, index) => {
+    map.set(index, doc.group.representative.pageEvidenceId);
   });
   return map;
 }

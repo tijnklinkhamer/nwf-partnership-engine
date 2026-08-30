@@ -218,14 +218,15 @@ describeDb('Phase 2B schema contract (integration)', () => {
   });
 
   describe('the Phase 2B migrations are applied and sequential', () => {
-    it('records versions 0001 through 0009 with no gaps', async () => {
+    it('records versions 0001 through 0010 with no gaps', async () => {
       const { rows } = await admin.query<{ version: string }>(
         'SELECT version FROM schema_migrations ORDER BY version',
       );
-      // Extended for 0009 (the Phase 2B-2 classifier foundation). This list
-      // is pinned deliberately so a new migration cannot arrive unnoticed:
-      // adding one is meant to fail here first and be acknowledged here
-      // explicitly.
+      // Extended for 0010 (the Phase 2B-2C1 Max-runtime error_kind
+      // widening - migration 0010's own file explains the two new
+      // members). This list is pinned deliberately so a new migration
+      // cannot arrive unnoticed: adding one is meant to fail here first
+      // and be acknowledged here explicitly, exactly as it was for 0009.
       expect(rows.map((r) => r.version)).toEqual([
         '0001',
         '0002',
@@ -236,6 +237,7 @@ describeDb('Phase 2B schema contract (integration)', () => {
         '0007',
         '0008',
         '0009',
+        '0010',
       ]);
     });
 
