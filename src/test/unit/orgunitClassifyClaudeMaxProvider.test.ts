@@ -1,17 +1,31 @@
 /**
- * `ClaudeMaxAgentProvider` against a fake `AgentSdkRunner`: success mapping,
- * every failure mapping, pre-flight refusal with zero runner calls, bounded
- * transient retry (fake clock, no real sleeps), isolation lifecycle
- * (cleanup on success, failure and throw; parallel independence), and
- * secret-leak proofs with a distinctive fake token. ZERO network, ZERO SDK
- * construction, ZERO Claude usage.
+ * `ClaudeMaxAgentProvider` against fake `AgentSdkRunner` and
+ * `ClassifierAuthStatusRunner` seams: success mapping, every failure
+ * mapping, pre-flight refusal with zero runner calls (conflicts, the
+ * ADR 0010 setup-token prohibition, profile refusals, hygiene, stored
+ * auth-status), bounded transient retry (fake clock, no real sleeps),
+ * scratch lifecycle (cleanup on success, failure and throw; the dedicated
+ * profile PERSISTS), and secret-leak proofs. ZERO network, ZERO SDK
+ * construction, ZERO subprocess, ZERO Claude usage.
  */
 import { existsSync } from 'node:fs';
-import { describe, expect, it } from 'vitest';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { afterEach, describe, expect, it } from 'vitest';
 import { createFakeClock, type FakeClock } from '../../orgunits/orchestrator/clock.js';
 import type { ClassifierProviderRequest } from '../../orgunits/classify/providerContract.js';
 import { ClaudeMaxAgentProvider } from '../../orgunits/classify/provider/claudeMaxAgentProvider.js';
-import { FORBIDDEN_AUTH_VARIABLES } from '../../orgunits/classify/provider/authConflicts.js';
+import {
+  FORBIDDEN_AUTH_VARIABLES,
+  PROHIBITED_SETUP_TOKEN_VARIABLE,
+} from '../../orgunits/classify/provider/authConflicts.js';
+import { CLASSIFIER_PROFILE_DIR_VARIABLE } from '../../orgunits/classify/provider/profile.js';
+import type {
+  AuthStatusInvocation,
+  ClassifierAuthStatusRunner,
+} from '../../orgunits/classify/provider/authStatusRunner.js';
+import type { AuthStatusExecution } from '../../orgunits/classify/provider/authStatus.js';
 import {
   USAGE_LIMIT_ERROR_PREFIXES,
   type AgentSdkRunResult,
@@ -22,9 +36,37 @@ import type { AgentSdkInvocation } from '../../orgunits/classify/provider/sdkOpt
 const FAKE_TOKEN = 'test-oauth-secret-do-not-log';
 const MODEL = 'test-model-max';
 const ALLOWED = [MODEL];
+const REPO_ROOT = join(tmpdir(), 'nwf-pe-test-repo-root');
 
-function validEnv(extra: Record<string, string> = {}): Record<string, string | undefined> {
-  return { CLAUDE_CODE_OAUTH_TOKEN: FAKE_TOKEN, PATH: 'C:\\bin', ...extra };
+const GOOD_AUTH_REPORT = JSON.stringify({
+  loggedIn: true,
+  authMethod: 'claude.ai',
+  apiProvider: 'firstParty',
+  subscriptionType: 'max',
+  email: 'owner-mailbox@example.org',
+  orgId: 'org-identity-value',
+});
+
+const cleanups: string[] = [];
+afterEach(async () => {
+  await Promise.all(
+    cleanups.splice(0).map((dir) => rm(dir, { recursive: true, force: true, maxRetries: 3 })),
+  );
+});
+
+async function provisionedProfile(): Promise<string> {
+  const dir = await mkdtemp(join(tmpdir(), 'nwf-pe-test-profile-'));
+  cleanups.push(dir);
+  await writeFile(join(dir, '.credentials.json'), '{"never":"read"}', 'utf8');
+  return dir;
+}
+
+function envFor(profileDir: string, extra: Record<string, string> = {}) {
+  return {
+    [CLASSIFIER_PROFILE_DIR_VARIABLE]: profileDir,
+    PATH: 'C:\\bin',
+    ...extra,
+  } as Record<string, string | undefined>;
 }
 
 function request(overrides: Partial<ClassifierProviderRequest> = {}): ClassifierProviderRequest {
@@ -52,7 +94,7 @@ function okRunResult(structuredOutput: unknown): AgentSdkRunResult {
   };
 }
 
-/** A fake runner that records invocations and answers from a script of results/throwables. */
+/** A fake SDK runner that records invocations and answers from a script. */
 class FakeRunner implements AgentSdkRunner {
   readonly invocations: AgentSdkInvocation[] = [];
   readonly #script: readonly (AgentSdkRunResult | Error | (() => Promise<AgentSdkRunResult>))[];
@@ -72,16 +114,35 @@ class FakeRunner implements AgentSdkRunner {
   }
 }
 
-function provider(
-  runner: AgentSdkRunner,
-  env: Record<string, string | undefined> = validEnv(),
-  clock?: FakeClock,
-): ClaudeMaxAgentProvider {
+/** A fake auth-status runner: records invocations, answers a scripted report. */
+class FakeAuthStatusRunner implements ClassifierAuthStatusRunner {
+  readonly invocations: AuthStatusInvocation[] = [];
+  readonly #execution: AuthStatusExecution | Error;
+
+  constructor(execution: AuthStatusExecution | Error = { exitCode: 0, stdout: GOOD_AUTH_REPORT }) {
+    this.#execution = execution;
+  }
+
+  async run(invocation: AuthStatusInvocation): Promise<AuthStatusExecution> {
+    this.invocations.push(invocation);
+    if (this.#execution instanceof Error) throw this.#execution;
+    return this.#execution;
+  }
+}
+
+function provider(options: {
+  runner: AgentSdkRunner;
+  env: Record<string, string | undefined>;
+  authStatusRunner?: ClassifierAuthStatusRunner;
+  clock?: FakeClock;
+}): ClaudeMaxAgentProvider {
   return new ClaudeMaxAgentProvider({
-    runner,
-    env: () => env,
+    runner: options.runner,
+    authStatusRunner: options.authStatusRunner ?? new FakeAuthStatusRunner(),
+    env: () => options.env,
+    repoRoot: REPO_ROOT,
     allowedModels: ALLOWED,
-    ...(clock !== undefined ? { clock } : {}),
+    ...(options.clock !== undefined ? { clock: options.clock } : {}),
   });
 }
 
@@ -97,10 +158,8 @@ async function settle<T>(clock: FakeClock, promise: Promise<T>): Promise<T> {
     },
   );
   // Yield a MACROTASK per iteration: the provider performs real filesystem
-  // work (isolation dirs) between clock sleeps, so a microtask-only pump
+  // work (scratch dirs) between clock sleeps, so a microtask-only pump
   // would spin to exhaustion before the first backoff sleep is even armed.
-  // The advance is what lets pending sleeps resolve; the setTimeout(0) is a
-  // scheduler yield, not a wall-clock wait.
   for (let i = 0; i < 10_000 && !settled; i += 1) {
     clock.advance(1_000_000);
     await new Promise((resolveTick) => setTimeout(resolveTick, 0));
@@ -112,7 +171,8 @@ describe('ClaudeMaxAgentProvider - success path', () => {
   it('maps a structured SDK result to a provider-neutral OK with usage metadata only', async () => {
     const payload = [{ doc_index: 0, verdict: 'NOT_A_UNIT' }];
     const runner = new FakeRunner([okRunResult(payload)]);
-    const result = await provider(runner).classify(request());
+    const profileDir = await provisionedProfile();
+    const result = await provider({ runner, env: envFor(profileDir) }).classify(request());
     expect(result.outcome).toBe('OK');
     expect(result.rawOutput).toBe(payload);
     expect(result.responseModelId).toBe('test-model-max-reported');
@@ -133,34 +193,41 @@ describe('ClaudeMaxAgentProvider - success path', () => {
     );
   });
 
-  it('hands the runner a hermetic invocation: sanitized env, isolation dirs, frozen prompt, schema', async () => {
+  it('hands the runner a hermetic invocation: sanitized env, dedicated profile, scratch cwd, frozen prompt, schema', async () => {
     const runner = new FakeRunner([okRunResult([])]);
-    const parentEnv = validEnv({
+    const profileDir = await provisionedProfile();
+    const parentEnv = envFor(profileDir, {
       DATABASE_URL_CLASSIFIER: 'postgres://secret',
       GITHUB_TOKEN: 'ghp_secret',
     });
-    let seenDuringRun: { config: boolean; cwd: boolean } | null = null;
+    let cwdExistedDuringRun: boolean | null = null;
     const observingRunner: AgentSdkRunner = {
       async run(invocation) {
-        seenDuringRun = {
-          config: existsSync(invocation.options.env.CLAUDE_CONFIG_DIR!),
-          cwd: existsSync(invocation.options.cwd),
-        };
+        cwdExistedDuringRun = existsSync(invocation.options.cwd);
         return runner.run(invocation);
       },
     };
-    await provider(observingRunner, parentEnv).classify(request());
+    const authStatusRunner = new FakeAuthStatusRunner();
+    await provider({ runner: observingRunner, env: parentEnv, authStatusRunner }).classify(
+      request(),
+    );
     const invocation = runner.invocations[0]!;
-    // Sanitized: the child env holds the token + isolation + OS basics only.
-    expect(invocation.options.env.CLAUDE_CODE_OAUTH_TOKEN).toBe(FAKE_TOKEN);
+    // Sanitized: the child env holds the profile pointer + isolation + OS basics only.
+    expect(invocation.options.env.CLAUDE_CONFIG_DIR).toBe(profileDir);
+    expect(Object.keys(invocation.options.env)).not.toContain(PROHIBITED_SETUP_TOKEN_VARIABLE);
     expect(JSON.stringify(invocation.options.env)).not.toContain('postgres://secret');
     expect(JSON.stringify(invocation.options.env)).not.toContain('ghp_secret');
     expect(invocation.options.env.CLAUDE_CODE_DISABLE_AUTO_MEMORY).toBe('1');
-    // The isolation directories genuinely existed while the runner ran...
-    expect(seenDuringRun).toEqual({ config: true, cwd: true });
-    // ...and are genuinely gone afterwards (cleanup on success).
-    expect(existsSync(invocation.options.env.CLAUDE_CONFIG_DIR!)).toBe(false);
+    // The auth-status check ran FIRST, under the SAME child env.
+    expect(authStatusRunner.invocations).toHaveLength(1);
+    expect(authStatusRunner.invocations[0]!.env).toEqual(invocation.options.env);
+    // The scratch cwd genuinely existed while the runner ran...
+    expect(cwdExistedDuringRun).toBe(true);
+    // ...and is genuinely gone afterwards (cleanup on success) - while the
+    // dedicated PROFILE persists (Claude-owned auth state, never deleted).
     expect(existsSync(invocation.options.cwd)).toBe(false);
+    expect(existsSync(profileDir)).toBe(true);
+    expect(existsSync(join(profileDir, '.credentials.json'))).toBe(true);
     // Hermetic options and the one source of prompt truth.
     expect(invocation.options.settingSources).toEqual([]);
     expect(invocation.options.persistSession).toBe(false);
@@ -177,37 +244,217 @@ describe('ClaudeMaxAgentProvider - success path', () => {
 });
 
 describe('ClaudeMaxAgentProvider - pre-flight refusals (zero runner calls)', () => {
-  it('missing token -> AUTH_FAILURE, runner never invoked', async () => {
+  it('the prohibited setup-token variable -> AUTH_FAILURE, neither runner invoked, value never echoed', async () => {
     const runner = new FakeRunner([]);
-    const result = await provider(runner, { PATH: 'C:\\bin' }).classify(request());
+    const authStatusRunner = new FakeAuthStatusRunner();
+    const profileDir = await provisionedProfile();
+    const result = await provider({
+      runner,
+      env: envFor(profileDir, { [PROHIBITED_SETUP_TOKEN_VARIABLE]: FAKE_TOKEN }),
+      authStatusRunner,
+    }).classify(request());
     expect(result.outcome).toBe('AUTH_FAILURE');
-    expect(result.outcomeDetail).toContain('MISSING_OAUTH_TOKEN');
+    expect(result.outcomeDetail).toContain('SETUP_TOKEN_PRESENT');
+    expect(result.outcomeDetail).not.toContain(FAKE_TOKEN);
     expect(runner.invocations).toHaveLength(0);
+    expect(authStatusRunner.invocations).toHaveLength(0);
   });
 
-  it('every one of the 14 conflicting-auth variables -> AUTH_FAILURE naming the variable, runner never invoked', async () => {
+  it('every one of the 14 conflicting-auth variables -> AUTH_FAILURE naming the variable, neither runner invoked', async () => {
+    const profileDir = await provisionedProfile();
     for (const variable of FORBIDDEN_AUTH_VARIABLES) {
       const runner = new FakeRunner([]);
-      const result = await provider(runner, validEnv({ [variable]: 'set' })).classify(request());
+      const authStatusRunner = new FakeAuthStatusRunner();
+      const result = await provider({
+        runner,
+        env: envFor(profileDir, { [variable]: 'set' }),
+        authStatusRunner,
+      }).classify(request());
       expect(result.outcome).toBe('AUTH_FAILURE');
       expect(result.outcomeDetail).toContain(variable);
-      expect(result.outcomeDetail).not.toContain(FAKE_TOKEN);
       expect(runner.invocations).toHaveLength(0);
+      expect(authStatusRunner.invocations).toHaveLength(0);
     }
   });
 
-  it('a model outside the allowlist -> AUTH_FAILURE, runner never invoked', async () => {
+  it('an unresolvable profile (no override, no home) -> AUTH_FAILURE, zero runner calls', async () => {
     const runner = new FakeRunner([]);
-    const result = await provider(runner).classify(request({ modelId: 'not-allowed-model' }));
+    const result = await provider({ runner, env: { PATH: 'C:\\bin' } }).classify(request());
+    expect(result.outcome).toBe('AUTH_FAILURE');
+    expect(result.outcomeDetail).toContain('PROFILE_DIR_UNRESOLVED');
+    expect(runner.invocations).toHaveLength(0);
+  });
+
+  it('a profile inside the repository root -> AUTH_FAILURE, zero runner calls', async () => {
+    const runner = new FakeRunner([]);
+    const result = await provider({
+      runner,
+      env: envFor(join(REPO_ROOT, 'profile')),
+    }).classify(request());
+    expect(result.outcome).toBe('AUTH_FAILURE');
+    expect(result.outcomeDetail).toContain('PROFILE_DIR_FORBIDDEN');
+    expect(runner.invocations).toHaveLength(0);
+  });
+
+  it("the user's ordinary <home>/.claude profile -> AUTH_FAILURE, zero runner calls", async () => {
+    const home = join(tmpdir(), 'nwf-pe-test-home');
+    const runner = new FakeRunner([]);
+    const result = await provider({
+      runner,
+      env: {
+        USERPROFILE: home,
+        [CLASSIFIER_PROFILE_DIR_VARIABLE]: join(home, '.claude'),
+      },
+    }).classify(request());
+    expect(result.outcome).toBe('AUTH_FAILURE');
+    expect(result.outcomeDetail).toContain('PROFILE_DIR_FORBIDDEN');
+    expect(runner.invocations).toHaveLength(0);
+  });
+
+  it('an unprovisioned (missing) profile directory -> AUTH_FAILURE with the /login remedy, zero runner calls', async () => {
+    const runner = new FakeRunner([]);
+    const authStatusRunner = new FakeAuthStatusRunner();
+    const result = await provider({
+      runner,
+      env: envFor(join(tmpdir(), 'nwf-pe-test-never-provisioned')),
+      authStatusRunner,
+    }).classify(request());
+    expect(result.outcome).toBe('AUTH_FAILURE');
+    expect(result.outcomeDetail).toContain('PROFILE_NOT_PROVISIONED');
+    expect(result.outcomeDetail).toContain('/login');
+    expect(runner.invocations).toHaveLength(0);
+    expect(authStatusRunner.invocations).toHaveLength(0);
+  });
+
+  it('a profile carrying a semantic surface (CLAUDE.md) -> AUTH_FAILURE naming it, zero runner calls', async () => {
+    const profileDir = await provisionedProfile();
+    await writeFile(join(profileDir, 'CLAUDE.md'), '# injected context', 'utf8');
+    const runner = new FakeRunner([]);
+    const result = await provider({ runner, env: envFor(profileDir) }).classify(request());
+    expect(result.outcome).toBe('AUTH_FAILURE');
+    expect(result.outcomeDetail).toContain('PROFILE_HYGIENE_VIOLATION');
+    expect(result.outcomeDetail).toContain('CLAUDE.md');
+    expect(runner.invocations).toHaveLength(0);
+  });
+
+  it('a model outside the allowlist -> AUTH_FAILURE, zero runner calls', async () => {
+    const runner = new FakeRunner([]);
+    const profileDir = await provisionedProfile();
+    const result = await provider({ runner, env: envFor(profileDir) }).classify(
+      request({ modelId: 'not-allowed-model' }),
+    );
     expect(result.outcome).toBe('AUTH_FAILURE');
     expect(result.outcomeDetail).toContain('MODEL_NOT_ALLOWED');
     expect(runner.invocations).toHaveLength(0);
   });
 });
 
+describe('ClaudeMaxAgentProvider - stored-login (auth-status) refusals', () => {
+  async function refusedBy(
+    authStatusRunner: ClassifierAuthStatusRunner,
+  ): Promise<{ detail: string; sdkCalls: number }> {
+    const runner = new FakeRunner([]);
+    const profileDir = await provisionedProfile();
+    const result = await provider({ runner, env: envFor(profileDir), authStatusRunner }).classify(
+      request(),
+    );
+    expect(result.outcome).toBe('AUTH_FAILURE');
+    return { detail: result.outcomeDetail ?? '', sdkCalls: runner.invocations.length };
+  }
+
+  it('a logged-out profile refuses with NOT_LOGGED_IN and zero SDK calls', async () => {
+    const { detail, sdkCalls } = await refusedBy(
+      new FakeAuthStatusRunner({
+        exitCode: 0,
+        stdout: JSON.stringify({ loggedIn: false }),
+      }),
+    );
+    expect(detail).toContain('NOT_LOGGED_IN');
+    expect(sdkCalls).toBe(0);
+  });
+
+  it('the setup-token auth method (oauth_token) refuses with WRONG_AUTH_METHOD', async () => {
+    const { detail, sdkCalls } = await refusedBy(
+      new FakeAuthStatusRunner({
+        exitCode: 0,
+        stdout: JSON.stringify({
+          loggedIn: true,
+          authMethod: 'oauth_token',
+          apiProvider: 'firstParty',
+        }),
+      }),
+    );
+    expect(detail).toContain('WRONG_AUTH_METHOD');
+    expect(sdkCalls).toBe(0);
+  });
+
+  it('a non-firstParty provider refuses with WRONG_API_PROVIDER', async () => {
+    const { detail, sdkCalls } = await refusedBy(
+      new FakeAuthStatusRunner({
+        exitCode: 0,
+        stdout: JSON.stringify({
+          loggedIn: true,
+          authMethod: 'claude.ai',
+          apiProvider: 'elsewhere',
+        }),
+      }),
+    );
+    expect(detail).toContain('WRONG_API_PROVIDER');
+    expect(sdkCalls).toBe(0);
+  });
+
+  it('a reported non-max subscription refuses with WRONG_SUBSCRIPTION_TYPE', async () => {
+    const { detail, sdkCalls } = await refusedBy(
+      new FakeAuthStatusRunner({
+        exitCode: 0,
+        stdout: JSON.stringify({
+          loggedIn: true,
+          authMethod: 'claude.ai',
+          apiProvider: 'firstParty',
+          subscriptionType: 'pro',
+        }),
+      }),
+    );
+    expect(detail).toContain('WRONG_SUBSCRIPTION_TYPE');
+    expect(sdkCalls).toBe(0);
+  });
+
+  it('unparseable auth-status output refuses without echoing the output', async () => {
+    const { detail, sdkCalls } = await refusedBy(
+      new FakeAuthStatusRunner({ exitCode: 1, stdout: 'boom owner-mailbox@example.org' }),
+    );
+    expect(detail).toContain('AUTH_STATUS_UNPARSEABLE');
+    expect(detail).not.toContain('owner-mailbox@example.org');
+    expect(sdkCalls).toBe(0);
+  });
+
+  it('an auth-status runner failure refuses with AUTH_STATUS_UNAVAILABLE and zero SDK calls', async () => {
+    const { detail, sdkCalls } = await refusedBy(
+      new FakeAuthStatusRunner(new Error('auth-status execution failed before producing a report')),
+    );
+    expect(detail).toContain('AUTH_STATUS_UNAVAILABLE');
+    expect(sdkCalls).toBe(0);
+  });
+
+  it('identity fields from the report never reach any outcome detail', async () => {
+    const runner = new FakeRunner([okRunResult([])]);
+    const profileDir = await provisionedProfile();
+    const result = await provider({ runner, env: envFor(profileDir) }).classify(request());
+    expect(JSON.stringify(result)).not.toContain('owner-mailbox@example.org');
+    expect(JSON.stringify(result)).not.toContain('org-identity-value');
+  });
+});
+
 describe('ClaudeMaxAgentProvider - failure mapping (no retry for terminal kinds)', () => {
+  async function classifyWith(script: readonly (AgentSdkRunResult | Error)[]) {
+    const runner = new FakeRunner(script);
+    const profileDir = await provisionedProfile();
+    const result = await provider({ runner, env: envFor(profileDir) }).classify(request());
+    return { result, runner };
+  }
+
   it('usage exhaustion -> USAGE_LIMIT_EXHAUSTED, exactly ONE runner invocation, no fallback', async () => {
-    const runner = new FakeRunner([
+    const { result, runner } = await classifyWith([
       {
         ...okRunResult(undefined),
         isError: true,
@@ -215,30 +462,30 @@ describe('ClaudeMaxAgentProvider - failure mapping (no retry for terminal kinds)
         structuredOutput: undefined,
       },
     ]);
-    const result = await provider(runner).classify(request());
     expect(result.outcome).toBe('USAGE_LIMIT_EXHAUSTED');
     expect(runner.invocations).toHaveLength(1);
   });
 
   it('auth failure after pre-flight -> AUTH_FAILURE, exactly ONE runner invocation', async () => {
-    const runner = new FakeRunner([new Error('API Error: 401 authentication_error')]);
-    const result = await provider(runner).classify(request());
+    const { result, runner } = await classifyWith([
+      new Error('API Error: 401 authentication_error'),
+    ]);
     expect(result.outcome).toBe('AUTH_FAILURE');
     expect(runner.invocations).toHaveLength(1);
   });
 
   it('provider refusal -> PROVIDER_REFUSAL, exactly ONE runner invocation', async () => {
-    const runner = new FakeRunner([{ ...okRunResult(undefined), stopReason: 'refusal' }]);
-    const result = await provider(runner).classify(request());
+    const { result, runner } = await classifyWith([
+      { ...okRunResult(undefined), stopReason: 'refusal' },
+    ]);
     expect(result.outcome).toBe('PROVIDER_REFUSAL');
     expect(runner.invocations).toHaveLength(1);
   });
 
   it('structured-output failure -> STRUCTURED_OUTPUT_FAILED, ONE invocation, nothing salvaged', async () => {
-    const runner = new FakeRunner([
+    const { result, runner } = await classifyWith([
       { ...okRunResult(undefined), resultText: '{"prose": "json"} as text' },
     ]);
-    const result = await provider(runner).classify(request());
     expect(result.outcome).toBe('STRUCTURED_OUTPUT_FAILED');
     expect(result.rawOutput).toBeNull();
     expect(runner.invocations).toHaveLength(1);
@@ -247,31 +494,40 @@ describe('ClaudeMaxAgentProvider - failure mapping (no retry for terminal kinds)
   it('timeout (AbortError) -> TIMEOUT, exactly ONE runner invocation', async () => {
     const abort = new Error('aborted');
     abort.name = 'AbortError';
-    const runner = new FakeRunner([abort]);
-    const result = await provider(runner).classify(request());
+    const { result, runner } = await classifyWith([abort]);
     expect(result.outcome).toBe('TIMEOUT');
     expect(runner.invocations).toHaveLength(1);
   });
 });
 
 describe('ClaudeMaxAgentProvider - bounded transient retry (fake clock, no real sleeps)', () => {
-  it('transient -> transient -> success: three invocations, OK', async () => {
+  it('transient -> transient -> success: three invocations, OK, auth status checked ONCE', async () => {
     const clock = createFakeClock();
     const runner = new FakeRunner([
       new Error('read ECONNRESET'),
       new Error('read ECONNRESET'),
       okRunResult([{ doc_index: 0 }]),
     ]);
-    const result = await settle(clock, provider(runner, validEnv(), clock).classify(request()));
+    const authStatusRunner = new FakeAuthStatusRunner();
+    const profileDir = await provisionedProfile();
+    const result = await settle(
+      clock,
+      provider({ runner, env: envFor(profileDir), authStatusRunner, clock }).classify(request()),
+    );
     expect(result.outcome).toBe('OK');
     expect(runner.invocations).toHaveLength(3);
+    expect(authStatusRunner.invocations).toHaveLength(1);
   });
 
   it('always-transient: the invocation count is HARD-BOUNDED at 1 + 2 retries, then PROVIDER_TRANSIENT', async () => {
     const clock = createFakeClock();
     const script = Array.from({ length: 10 }, () => new Error('read ECONNRESET'));
     const runner = new FakeRunner(script);
-    const result = await settle(clock, provider(runner, validEnv(), clock).classify(request()));
+    const profileDir = await provisionedProfile();
+    const result = await settle(
+      clock,
+      provider({ runner, env: envFor(profileDir), clock }).classify(request()),
+    );
     expect(result.outcome).toBe('PROVIDER_TRANSIENT');
     expect(runner.invocations).toHaveLength(3); // proven maximum
   });
@@ -282,33 +538,57 @@ describe('ClaudeMaxAgentProvider - bounded transient retry (fake clock, no real 
       new Error('read ECONNRESET'),
       new Error(`${USAGE_LIMIT_ERROR_PREFIXES[0]!} weekly cap`),
     ]);
-    const result = await settle(clock, provider(runner, validEnv(), clock).classify(request()));
+    const profileDir = await provisionedProfile();
+    const result = await settle(
+      clock,
+      provider({ runner, env: envFor(profileDir), clock }).classify(request()),
+    );
     expect(result.outcome).toBe('USAGE_LIMIT_EXHAUSTED');
     expect(runner.invocations).toHaveLength(2);
   });
 });
 
 describe('ClaudeMaxAgentProvider - isolation lifecycle', () => {
-  it('cleans both directories when the runner THROWS', async () => {
+  it('cleans the scratch cwd when the runner THROWS, and the profile persists', async () => {
     const runner = new FakeRunner([
       new Error('spawn failure - not transient-shaped? still cleaned'),
     ]);
-    let dirs: { config: string; cwd: string } | null = null;
+    const profileDir = await provisionedProfile();
+    let seenCwd: string | null = null;
     const observing: AgentSdkRunner = {
       async run(invocation) {
-        dirs = { config: invocation.options.env.CLAUDE_CONFIG_DIR!, cwd: invocation.options.cwd };
+        seenCwd = invocation.options.cwd;
         return runner.run(invocation);
       },
     };
     const clock = createFakeClock();
-    const result = await settle(clock, provider(observing, validEnv(), clock).classify(request()));
+    const result = await settle(
+      clock,
+      provider({ runner: observing, env: envFor(profileDir), clock }).classify(request()),
+    );
     expect(result.outcome).toBe('PROVIDER_TRANSIENT'); // unknown throw, mapped - classify never throws
-    expect(dirs).not.toBeNull();
-    expect(existsSync(dirs!.config)).toBe(false);
-    expect(existsSync(dirs!.cwd)).toBe(false);
+    expect(seenCwd).not.toBeNull();
+    expect(existsSync(seenCwd!)).toBe(false);
+    expect(existsSync(profileDir)).toBe(true);
   });
 
-  it('two concurrent classify() calls use disjoint config/scratch dirs and both are cleaned', async () => {
+  it('the profile also persists across a stored-login refusal', async () => {
+    const profileDir = await provisionedProfile();
+    const result = await provider({
+      runner: new FakeRunner([]),
+      env: envFor(profileDir),
+      authStatusRunner: new FakeAuthStatusRunner({
+        exitCode: 0,
+        stdout: JSON.stringify({ loggedIn: false }),
+      }),
+    }).classify(request());
+    expect(result.outcome).toBe('AUTH_FAILURE');
+    expect(existsSync(profileDir)).toBe(true);
+    expect(existsSync(join(profileDir, '.credentials.json'))).toBe(true);
+  });
+
+  it('two concurrent classify() calls share the profile but use disjoint scratch dirs, both cleaned', async () => {
+    const profileDir = await provisionedProfile();
     const seen: { config: string; cwd: string }[] = [];
     let release: () => void = () => {};
     const gate = new Promise<void>((resolveGate) => {
@@ -325,62 +605,17 @@ describe('ClaudeMaxAgentProvider - isolation lifecycle', () => {
         return okRunResult([]);
       },
     };
-    const p = provider(blockingRunner);
+    const p = provider({ runner: blockingRunner, env: envFor(profileDir) });
     const [a, b] = await Promise.all([p.classify(request()), p.classify(request())]);
     expect(a.outcome).toBe('OK');
     expect(b.outcome).toBe('OK');
     expect(seen).toHaveLength(2);
-    expect(seen[0]!.config).not.toBe(seen[1]!.config);
+    expect(seen[0]!.config).toBe(profileDir);
+    expect(seen[1]!.config).toBe(profileDir);
     expect(seen[0]!.cwd).not.toBe(seen[1]!.cwd);
     for (const d of seen) {
-      expect(existsSync(d.config)).toBe(false);
       expect(existsSync(d.cwd)).toBe(false);
     }
-  });
-});
-
-describe('ClaudeMaxAgentProvider - secret hygiene', () => {
-  it('the fake token never appears in any serialized outcome, on any failure path', async () => {
-    const clock = createFakeClock();
-    const scripts: (AgentSdkRunResult | Error)[][] = [
-      [new Error('read ECONNRESET'), new Error('read ECONNRESET'), new Error('read ECONNRESET')],
-      [
-        {
-          ...okRunResult(undefined),
-          isError: true,
-          resultText: `${USAGE_LIMIT_ERROR_PREFIXES[0]!} cap`,
-        },
-      ],
-      [new Error('401 authentication_error')],
-      [{ ...okRunResult(undefined), resultText: 'no structured output' }],
-      [Object.assign(new Error('aborted'), { name: 'AbortError' })],
-    ];
-    for (const script of scripts) {
-      const runner = new FakeRunner(script);
-      const result = await settle(clock, provider(runner, validEnv(), clock).classify(request()));
-      expect(JSON.stringify(result)).not.toContain(FAKE_TOKEN);
-    }
-    // Pre-flight failure path too.
-    const refused = await provider(
-      new FakeRunner([]),
-      validEnv({ ANTHROPIC_PROFILE: 'x' }),
-    ).classify(request());
-    expect(JSON.stringify(refused)).not.toContain(FAKE_TOKEN);
-  });
-
-  it('scrubs the token to [REDACTED] even if a provider error somehow embeds it', async () => {
-    const runner = new FakeRunner([new Error(`401 authentication_error for bearer ${FAKE_TOKEN}`)]);
-    const result = await provider(runner).classify(request());
-    expect(result.outcome).toBe('AUTH_FAILURE');
-    expect(JSON.stringify(result)).not.toContain(FAKE_TOKEN);
-  });
-
-  it('the token reaches the runner ONLY inside the child env variable, never the prompt or system prompt', async () => {
-    const runner = new FakeRunner([okRunResult([])]);
-    await provider(runner).classify(request());
-    const invocation = runner.invocations[0]!;
-    expect(invocation.prompt).not.toContain(FAKE_TOKEN);
-    expect(invocation.options.systemPrompt).not.toContain(FAKE_TOKEN);
-    expect(invocation.options.env.CLAUDE_CODE_OAUTH_TOKEN).toBe(FAKE_TOKEN);
+    expect(existsSync(profileDir)).toBe(true);
   });
 });

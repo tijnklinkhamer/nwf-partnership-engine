@@ -18,16 +18,16 @@ three must be corrected before a semantic classifier is built on top.
 
 ## 1. Frozen system identity
 
-| item | value |
-| --- | --- |
-| baseline SHA (HEAD == origin/main, clean tree) | `6c80e5fbec2f7c51a7312a00456063b0a2f49851` |
-| migrations applied (working `nwf_pe`) | 0001–0008, sequential, checksums intact |
-| `orgunit_page_candidates_score_chk` | absent (migration 0008 verified live) |
-| `candidate_score` | `numeric(8,4) NOT NULL`, signed values verified persisted |
-| fetch policy | `orgunit-fetch-policy-v1` (30 s connect / 45 s total / 5 MiB) |
-| signal ruleset | `orgunit-signal-rules-v1` |
-| extraction rule version | as landed in 2B-1c/1e (`main_text` cap 40,000) |
-| CLI | `nwf-pe orgunits discover --organisation-id <uuid> --execute` |
+| item                                           | value                                                         |
+| ---------------------------------------------- | ------------------------------------------------------------- |
+| baseline SHA (HEAD == origin/main, clean tree) | `6c80e5fbec2f7c51a7312a00456063b0a2f49851`                    |
+| migrations applied (working `nwf_pe`)          | 0001–0008, sequential, checksums intact                       |
+| `orgunit_page_candidates_score_chk`            | absent (migration 0008 verified live)                         |
+| `candidate_score`                              | `numeric(8,4) NOT NULL`, signed values verified persisted     |
+| fetch policy                                   | `orgunit-fetch-policy-v1` (30 s connect / 45 s total / 5 MiB) |
+| signal ruleset                                 | `orgunit-signal-rules-v1`                                     |
+| extraction rule version                        | as landed in 2B-1c/1e (`main_text` cap 40,000)                |
+| CLI                                            | `nwf-pe orgunits discover --organisation-id <uuid> --execute` |
 
 Frozen constants confirmed unmodified in `orchestrator/constants.ts`:
 MAX_PAGE_ATTEMPTS_PER_ROOT 35, MAX_TOTAL_REQUESTS_PER_ROOT 60,
@@ -65,23 +65,23 @@ All six independently-recorded members fall exactly where the rule puts them.
 
 ### The 15 organisations
 
-| # | stratum | eche_row_key | organisation | root claim(s) |
-|---|---------|--------------|--------------|----------------|
-| 1 | AGREE | F EVRY04\|999850296 | Université d'Évry-Val-d'Essonne | `http://www.univ-evry.fr/` (ECHE) + `https://www.univ-evry.fr/accueil.html` (FR) |
-| 2 | AGREE | F MAYOTTE01\|912525949 | CUFR de Mayotte | `http://www.univ-mayotte.fr/` (ECHE) + `https://www.univ-mayotte.fr/fr/index.html` (FR) |
-| 3 | AGREE | F ROUEN06\|999465788 | INSA Rouen | `https://www.insa-rouen.fr/` ×2 (ECHE + FR) |
-| 4 | AGREE | F TOULOUS16\|999892491 | ISAE-SUPAERO | `https://www.isae-supaero.fr/fr/` (ECHE) + `…/` (FR) |
-| 5 | DISAGREE | F PARIS105\|949302432 | IPAG | `https://www.ipag.fr/` (ECHE) + `https://www.ipag.edu/` (FR) |
-| 6 | DISAGREE | F PARIS482\|897691060 | Université Paris Cité | `https://u-paris.fr/` (ECHE) + `https://u-pariscite.fr/` (FR) |
-| 7 | DISAGREE | F PARIS003\|999885119 | Sorbonne Nouvelle | `https://www.univ-paris3.fr/` (ECHE) + `https://www.sorbonne-nouvelle.fr/` (FR) |
-| 8 | EWP_NO_FR | F DIJON35\|949637858 | IRTESS Dijon | `https://www.irtess.fr/` |
-| 9 | EWP_NO_FR | F RENNES52\|949270228 | IFPEK Rennes | `https://www.ifpek.org/` |
-| 10 | EWP_NO_FR | F GRENOBL21\|915102366 | Grenoble École de Management | `https://www.grenoble-em.com/` |
-| 11 | EWP_NO_FR | F PARIS525\|879184333 | ESLSCA | `https://www.eslsca.fr/` |
-| 12 | NOMATCH | F LE-HAVR19\|934630503 | Agifen | `https://www-ifen.fr/` (typo domain) |
-| 13 | NOMATCH | F DOUAI15\|948581431 | Lycée Prof. François Rabelais (Douai) | `https://lprabelais-douai.etab.ac-lille.fr/` |
-| 14 | NOMATCH | F MONTPEL58\|932096087 | BTP CFA Occitanie | `https://www.btpcfalr.com/` (lapsed) |
-| 15 | NOMATCH | F NANTES79\|924638533 | IMS Nantes | `https://www.ims-nantes.com/` |
+| #   | stratum   | eche_row_key           | organisation                          | root claim(s)                                                                           |
+| --- | --------- | ---------------------- | ------------------------------------- | --------------------------------------------------------------------------------------- |
+| 1   | AGREE     | F EVRY04\|999850296    | Université d'Évry-Val-d'Essonne       | `http://www.univ-evry.fr/` (ECHE) + `https://www.univ-evry.fr/accueil.html` (FR)        |
+| 2   | AGREE     | F MAYOTTE01\|912525949 | CUFR de Mayotte                       | `http://www.univ-mayotte.fr/` (ECHE) + `https://www.univ-mayotte.fr/fr/index.html` (FR) |
+| 3   | AGREE     | F ROUEN06\|999465788   | INSA Rouen                            | `https://www.insa-rouen.fr/` ×2 (ECHE + FR)                                             |
+| 4   | AGREE     | F TOULOUS16\|999892491 | ISAE-SUPAERO                          | `https://www.isae-supaero.fr/fr/` (ECHE) + `…/` (FR)                                    |
+| 5   | DISAGREE  | F PARIS105\|949302432  | IPAG                                  | `https://www.ipag.fr/` (ECHE) + `https://www.ipag.edu/` (FR)                            |
+| 6   | DISAGREE  | F PARIS482\|897691060  | Université Paris Cité                 | `https://u-paris.fr/` (ECHE) + `https://u-pariscite.fr/` (FR)                           |
+| 7   | DISAGREE  | F PARIS003\|999885119  | Sorbonne Nouvelle                     | `https://www.univ-paris3.fr/` (ECHE) + `https://www.sorbonne-nouvelle.fr/` (FR)         |
+| 8   | EWP_NO_FR | F DIJON35\|949637858   | IRTESS Dijon                          | `https://www.irtess.fr/`                                                                |
+| 9   | EWP_NO_FR | F RENNES52\|949270228  | IFPEK Rennes                          | `https://www.ifpek.org/`                                                                |
+| 10  | EWP_NO_FR | F GRENOBL21\|915102366 | Grenoble École de Management          | `https://www.grenoble-em.com/`                                                          |
+| 11  | EWP_NO_FR | F PARIS525\|879184333  | ESLSCA                                | `https://www.eslsca.fr/`                                                                |
+| 12  | NOMATCH   | F LE-HAVR19\|934630503 | Agifen                                | `https://www-ifen.fr/` (typo domain)                                                    |
+| 13  | NOMATCH   | F DOUAI15\|948581431   | Lycée Prof. François Rabelais (Douai) | `https://lprabelais-douai.etab.ac-lille.fr/`                                            |
+| 14  | NOMATCH   | F MONTPEL58\|932096087 | BTP CFA Occitanie                     | `https://www.btpcfalr.com/` (lapsed)                                                    |
+| 15  | NOMATCH   | F NANTES79\|924638533  | IMS Nantes                            | `https://www.ims-nantes.com/`                                                           |
 
 **Root-count note (historical honesty):** the historical holdout counted 18
 roots (AGREE organisations as one root). The landed orchestrator deliberately
@@ -123,46 +123,46 @@ Requests = engine total for the organisation (all roots). "Useful reached" =
 a useful-area page **fetched AND persisted with candidate ranks** (the
 engine's actual deliverable). Fetch-level reach shown when different.
 
-| Organisation | Live root? | Useful reached? | A reached | B reached | Top-5 | Top-8 | Req | Pages | Sitemap material? | Failure class | Notes |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| IRTESS (canary) | yes | **YES** (A#1) | yes | no B target | YES | YES | 40 | 35 | no (2 docs, 0 useful) | — | WooCommerce `?add-to-cart=` chains ate ~½ budget |
-| Évry | yes | no — 0 requests | no | no | no | no | 0 | 0 | — | **H** (defect 1) | http ECHE root refused at robots bootstrap; healthy FR root suppressed |
-| Mayotte | yes | no — 0 requests | no | no | no | no | 0 | 0 | — | **H** (defect 1) | identical to Évry |
-| INSA Rouen | yes | **YES** (A#1=22) | yes | **yes** (FLE B#1=12) | YES | YES | 74 | 70 | no (0 URLs) | — | dual same-domain roots duplicated the whole crawl |
-| ISAE-SUPAERO | yes | no — evidence lost | fetch-level yes (SRI page, langues dept) | fetch-level yes | no | no | 41 | ~36 | no | **H** (defects 2+3) | 26/41 requests burned by `--><!--` anchor loop; then char-count abort |
-| IPAG | yes | no — evidence lost | fetch-level yes (mobility-team page) | — | no | no | 38 | 35 | yes (root 2) | **H** (defect 2) | ipag.fr robots 301 cross-domain → honest 1-req stop; ipag.edu crawl succeeded then persistence aborted |
-| Paris Cité | yes | no — evidence lost | fetch-level yes (DRI aid pages, Welcome Desk) | — | no | no | 39 | 35 | no | **H** (defect 2) | u-pariscite.fr root suppressed |
-| Sorbonne Nouvelle | yes | **YES** (A#1=12) | yes | **yes** (LEA 15, UFR Langues 12) | YES | YES | 38 | 35 | no | — | univ-paris3.fr robots 301 cross-domain → honest stop; `?RH=` duplicates flood top-8 |
-| IFPEK | yes | no — evidence lost | fetch-level yes (`/relations-internationales/`) | — | no | no | 41 | 35 | no | **H** (defect 2) | char-count abort |
-| Grenoble EM | yes | **YES** (A#1=12) | yes | no B target found | YES | YES | 38 | 35 | no | — | intl-student integration TEAM page at #1; BBA programme leak #5–7; alumni-host OAuth URLs wasted requests |
-| ESLSCA | yes | **YES** (A#1=15) | yes | no B target | YES | YES | 38 | 35 | **yes** (546 URLs; a rank-1 came via sitemap) | — | blog noise below rank 2 |
-| Agifen | **no** (DNS) | n/a | — | — | — | — | 1 | 0 | — | **A** | typo domain `www-ifen.fr`: DNS_FAILURE, honest 1-request stop |
-| Rabelais Douai | **no** (decommissioned) | n/a | — | — | — | — | 3 | 1 | — | **A** | 302 → `http://erreur.etab.ac-lille.fr/`; https→http downgrade correctly never followed |
-| BTP CFA Occitanie | **no** (domain squatted) | n/a | — | — | — | — | 37 | 35 | no | **A** | lapsed domain is now an SEO content farm; engine spent full budget; every score 0 (no false positives) |
-| IMS Nantes | yes | **YES** (A#1=13) | yes | no B target | YES | YES | 41 | 35 | partly (5 docs, 116 URLs) | — | Erasmus-Days news items at #3–7 (score 9) |
+| Organisation      | Live root?               | Useful reached?    | A reached                                       | B reached                        | Top-5 | Top-8 | Req | Pages | Sitemap material?                             | Failure class       | Notes                                                                                                     |
+| ----------------- | ------------------------ | ------------------ | ----------------------------------------------- | -------------------------------- | ----- | ----- | --- | ----- | --------------------------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------- |
+| IRTESS (canary)   | yes                      | **YES** (A#1)      | yes                                             | no B target                      | YES   | YES   | 40  | 35    | no (2 docs, 0 useful)                         | —                   | WooCommerce `?add-to-cart=` chains ate ~½ budget                                                          |
+| Évry              | yes                      | no — 0 requests    | no                                              | no                               | no    | no    | 0   | 0     | —                                             | **H** (defect 1)    | http ECHE root refused at robots bootstrap; healthy FR root suppressed                                    |
+| Mayotte           | yes                      | no — 0 requests    | no                                              | no                               | no    | no    | 0   | 0     | —                                             | **H** (defect 1)    | identical to Évry                                                                                         |
+| INSA Rouen        | yes                      | **YES** (A#1=22)   | yes                                             | **yes** (FLE B#1=12)             | YES   | YES   | 74  | 70    | no (0 URLs)                                   | —                   | dual same-domain roots duplicated the whole crawl                                                         |
+| ISAE-SUPAERO      | yes                      | no — evidence lost | fetch-level yes (SRI page, langues dept)        | fetch-level yes                  | no    | no    | 41  | ~36   | no                                            | **H** (defects 2+3) | 26/41 requests burned by `--><!--` anchor loop; then char-count abort                                     |
+| IPAG              | yes                      | no — evidence lost | fetch-level yes (mobility-team page)            | —                                | no    | no    | 38  | 35    | yes (root 2)                                  | **H** (defect 2)    | ipag.fr robots 301 cross-domain → honest 1-req stop; ipag.edu crawl succeeded then persistence aborted    |
+| Paris Cité        | yes                      | no — evidence lost | fetch-level yes (DRI aid pages, Welcome Desk)   | —                                | no    | no    | 39  | 35    | no                                            | **H** (defect 2)    | u-pariscite.fr root suppressed                                                                            |
+| Sorbonne Nouvelle | yes                      | **YES** (A#1=12)   | yes                                             | **yes** (LEA 15, UFR Langues 12) | YES   | YES   | 38  | 35    | no                                            | —                   | univ-paris3.fr robots 301 cross-domain → honest stop; `?RH=` duplicates flood top-8                       |
+| IFPEK             | yes                      | no — evidence lost | fetch-level yes (`/relations-internationales/`) | —                                | no    | no    | 41  | 35    | no                                            | **H** (defect 2)    | char-count abort                                                                                          |
+| Grenoble EM       | yes                      | **YES** (A#1=12)   | yes                                             | no B target found                | YES   | YES   | 38  | 35    | no                                            | —                   | intl-student integration TEAM page at #1; BBA programme leak #5–7; alumni-host OAuth URLs wasted requests |
+| ESLSCA            | yes                      | **YES** (A#1=15)   | yes                                             | no B target                      | YES   | YES   | 38  | 35    | **yes** (546 URLs; a rank-1 came via sitemap) | —                   | blog noise below rank 2                                                                                   |
+| Agifen            | **no** (DNS)             | n/a                | —                                               | —                                | —     | —     | 1   | 0     | —                                             | **A**               | typo domain `www-ifen.fr`: DNS_FAILURE, honest 1-request stop                                             |
+| Rabelais Douai    | **no** (decommissioned)  | n/a                | —                                               | —                                | —     | —     | 3   | 1     | —                                             | **A**               | 302 → `http://erreur.etab.ac-lille.fr/`; https→http downgrade correctly never followed                    |
+| BTP CFA Occitanie | **no** (domain squatted) | n/a                | —                                               | —                                | —     | —     | 37  | 35    | no                                            | **A**               | lapsed domain is now an SEO content farm; engine spent full budget; every score 0 (no false positives)    |
+| IMS Nantes        | yes                      | **YES** (A#1=13)   | yes                                             | no B target                      | YES   | YES   | 41  | 35    | partly (5 docs, 116 URLs)                     | —                   | Erasmus-Days news items at #3–7 (score 9)                                                                 |
 
 ## 6. Aggregate metrics
 
-| metric | value |
-|---|---|
-| organisations run / holdout | 15/15 (one research run each; 15 runs total) |
-| roots resolvable / attempted | 22 / 16 (6 suppressed by defects 1–2, see below) |
-| **useful-unit acquisition recall (persisted candidates)** | **6/15 (40%)** |
-| **live-site useful-unit recall** | **6/12 (50%)** |
-| fetch-level useful-area reach among live sites (diagnostic) | **10/12 (83%)** — ISAE, IPAG, Paris Cité, IFPEK reached it and lost it to defect 2; Évry, Mayotte never started (defect 1) |
-| top-5 recall overall / among live sites | 6/15 (40%) / 6/12 (50%) |
-| **top-5 recall among organisations with a completed candidate set** | **6/6 (100%), all at rank 1** |
-| top-8 recall (same three bases) | 6/15, 6/12, 6/6 |
-| Track A success (where pipeline completed, live) | 6/6 |
-| Track B success where a relevant B target exists and pipeline completed | 2/2 (INSA FLE; Sorbonne Nouvelle LEA + UFR Langues) — plus ISAE fetched its langues-dept and FLE pages before defect 2 destroyed them |
-| Track B floor (8) activation | never reached 8; max B-selected = 4 (Sorbonne); floor schedules only viable B URLs so it never wasted budget; most sites simply had <8 viable B URLs |
-| median / mean / max requests per organisation | 38 / 36.1 / 74 (INSA dual root) — total 469 for the whole holdout |
-| median page attempts per run (runs with any) | 33 (page budget of 35 binding on 8 roots) |
-| 60-request cap / 8-host cap / sitemap caps / frontier cap | never hit (max 41 req/root, max 3 hosts, max 5 sitemap docs once, max frontier 857) |
-| circuit-breaker openings | 0 (no host produced 3 consecutive transient failures) |
-| **silent-zero roots** | **0** at run level — every run has exactly one honest terminal completion; the 6 unattempted roots are attributed to the run-level FAILED error (see defect 1/2 suppression) |
-| **trust violations** | **0** (nine-probe red team, §8) |
-| **PII leakage** | **0** (corpus-wide scan, §8) |
+| metric                                                                  | value                                                                                                                                                                        |
+| ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| organisations run / holdout                                             | 15/15 (one research run each; 15 runs total)                                                                                                                                 |
+| roots resolvable / attempted                                            | 22 / 16 (6 suppressed by defects 1–2, see below)                                                                                                                             |
+| **useful-unit acquisition recall (persisted candidates)**               | **6/15 (40%)**                                                                                                                                                               |
+| **live-site useful-unit recall**                                        | **6/12 (50%)**                                                                                                                                                               |
+| fetch-level useful-area reach among live sites (diagnostic)             | **10/12 (83%)** — ISAE, IPAG, Paris Cité, IFPEK reached it and lost it to defect 2; Évry, Mayotte never started (defect 1)                                                   |
+| top-5 recall overall / among live sites                                 | 6/15 (40%) / 6/12 (50%)                                                                                                                                                      |
+| **top-5 recall among organisations with a completed candidate set**     | **6/6 (100%), all at rank 1**                                                                                                                                                |
+| top-8 recall (same three bases)                                         | 6/15, 6/12, 6/6                                                                                                                                                              |
+| Track A success (where pipeline completed, live)                        | 6/6                                                                                                                                                                          |
+| Track B success where a relevant B target exists and pipeline completed | 2/2 (INSA FLE; Sorbonne Nouvelle LEA + UFR Langues) — plus ISAE fetched its langues-dept and FLE pages before defect 2 destroyed them                                        |
+| Track B floor (8) activation                                            | never reached 8; max B-selected = 4 (Sorbonne); floor schedules only viable B URLs so it never wasted budget; most sites simply had <8 viable B URLs                         |
+| median / mean / max requests per organisation                           | 38 / 36.1 / 74 (INSA dual root) — total 469 for the whole holdout                                                                                                            |
+| median page attempts per run (runs with any)                            | 33 (page budget of 35 binding on 8 roots)                                                                                                                                    |
+| 60-request cap / 8-host cap / sitemap caps / frontier cap               | never hit (max 41 req/root, max 3 hosts, max 5 sitemap docs once, max frontier 857)                                                                                          |
+| circuit-breaker openings                                                | 0 (no host produced 3 consecutive transient failures)                                                                                                                        |
+| **silent-zero roots**                                                   | **0** at run level — every run has exactly one honest terminal completion; the 6 unattempted roots are attributed to the run-level FAILED error (see defect 1/2 suppression) |
+| **trust violations**                                                    | **0** (nine-probe red team, §8)                                                                                                                                              |
+| **PII leakage**                                                         | **0** (corpus-wide scan, §8)                                                                                                                                                 |
 
 ## 7. The three engine defects (all reproduced, all diagnosed)
 
@@ -364,8 +364,7 @@ and root policy**, not in discovery or ranking.
 ## 11. Database state (append-only; deliberately retained)
 
 Phase 1 tables unchanged: organisations 2,289; organisation_sources 2,289;
-website_claims 6,227; website_source_snapshots 1; ewp_heis 3,472; ingest_runs
-10. Phase 2B deltas (all from 0): orgunit_research_runs 0→15; completions
+website_claims 6,227; website_source_snapshots 1; ewp_heis 3,472; ingest_runs 10. Phase 2B deltas (all from 0): orgunit_research_runs 0→15; completions
 0→15; fetch_observations 0→469; redirect_observations 0→58; root_promotions
 0→0; revocations 0→0; page_evidence 0→274; page_candidates 0→508. No research
 row was updated or deleted; the two defective-run partial states are retained
@@ -453,8 +452,8 @@ contained the correct answer at rank 1 in every case.
 
 ---
 
-*Report artifact: `docs/audits/PHASE_2B_SHADOW_VALIDATION_15_ORG_2026-08.md`
+_Report artifact: `docs/audits/PHASE_2B_SHADOW_VALIDATION_15_ORG_2026-08.md`
 (uncommitted, for review). Git state at completion: `main` ==
 `origin/main` == `6c80e5f…`, working tree clean except this file. No
 production code, migration, or config change. All shadow-run evidence
-retained append-only in `nwf_pe`.*
+retained append-only in `nwf_pe`._

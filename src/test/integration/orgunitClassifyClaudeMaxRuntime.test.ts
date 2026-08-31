@@ -2,17 +2,22 @@
  * THE 2B-2C2 RUNTIME ADAPTER PLUGGED INTO THE LANDED 2B-2C1 CORE, network-free:
  * real orchestration, real assembly, real validation, real persistence
  * against `nwf_pe_test` through the actual `nwf_classifier` role — with
- * `ClaudeMaxAgentProvider` in the provider seat and a FAKE `AgentSdkRunner`
- * behind it. No Anthropic connectivity, no OAuth token beyond a fake
- * placeholder, no Claude usage, no production runner construction.
+ * `ClaudeMaxAgentProvider` in the provider seat and FAKE `AgentSdkRunner` /
+ * `ClassifierAuthStatusRunner` seams behind it. No Anthropic connectivity,
+ * no credential of any kind (the dedicated profile is an inert temp
+ * directory whose contents are never read), no Claude usage, no production
+ * runner construction.
  *
  * Four flows, exactly as the slice spec demands:
  *   1. success:        fake structured result -> validation -> semantic rows -> COMPLETED
- *   2. auth failure:   empty pre-flight env  -> AUTH_FAILURE persisted, zero rows, zero runner calls
+ *   2. auth failure:   conflicted pre-flight env -> AUTH_FAILURE persisted, zero rows, zero runner calls
  *   3. exhaustion:     usage-limit error     -> USAGE_LIMIT_EXHAUSTED, zero rows, ONE runner call
  *   4. transient retry: transient x2 -> success -> ONE call row, three runner calls, attempt_no 1
  */
 import { createHash } from 'node:crypto';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type pg from 'pg';
 import {
@@ -28,6 +33,12 @@ import {
 import { checkRunCompleted } from '../../orgunits/classify/runStatus.js';
 import { runOrganisationClassification } from '../../orgunits/classify/orchestrate.js';
 import { ClaudeMaxAgentProvider } from '../../orgunits/classify/provider/claudeMaxAgentProvider.js';
+import { CLASSIFIER_PROFILE_DIR_VARIABLE } from '../../orgunits/classify/provider/profile.js';
+import type {
+  AuthStatusInvocation,
+  ClassifierAuthStatusRunner,
+} from '../../orgunits/classify/provider/authStatusRunner.js';
+import type { AuthStatusExecution } from '../../orgunits/classify/provider/authStatus.js';
 import {
   USAGE_LIMIT_ERROR_PREFIXES,
   type AgentSdkInvocation,
@@ -38,13 +49,29 @@ import type { Clock } from '../../orgunits/orchestrator/clock.js';
 
 const describeDb = classifierDatabaseConfigured() ? describe : describe.skip;
 
-const FAKE_TOKEN = 'test-oauth-secret-do-not-log';
 const MODEL = 'test-model-max';
 /** Constructed, not literal: phase1a bans the spelled-out credential identifier outside the guard and its canonical-list test. */
 const API_KEY_VARIABLE = ['ANTHROPIC', 'API_KEY'].join('_');
 
 /** Resolves sleeps immediately: retry pacing without any real wall-clock wait. */
 const instantClock: Clock = { now: () => 0, sleep: async () => {} };
+
+/** A fake auth-status runner reporting a valid stored Max login. No subprocess. */
+class FakeAuthStatusRunner implements ClassifierAuthStatusRunner {
+  readonly invocations: AuthStatusInvocation[] = [];
+  async run(invocation: AuthStatusInvocation): Promise<AuthStatusExecution> {
+    this.invocations.push(invocation);
+    return {
+      exitCode: 0,
+      stdout: JSON.stringify({
+        loggedIn: true,
+        authMethod: 'claude.ai',
+        apiProvider: 'firstParty',
+        subscriptionType: 'max',
+      }),
+    };
+  }
+}
 
 function sha(seed: string): string {
   return createHash('sha256').update(seed).digest('hex');
@@ -82,6 +109,7 @@ function structuredSuccess(structuredOutput: unknown): AgentSdkRunResult {
 function maxProvider(runner: AgentSdkRunner, env: Record<string, string | undefined>) {
   return new ClaudeMaxAgentProvider({
     runner,
+    authStatusRunner: new FakeAuthStatusRunner(),
     env: () => env,
     clock: instantClock,
     allowedModels: [MODEL],
@@ -107,15 +135,22 @@ describeDb('ClaudeMaxAgentProvider through the real 2B-2C1 orchestration (integr
   let classifier: pg.Pool;
   let readonly: pg.Pool;
   let root: OrgunitRootFixture;
+  /** A provisioned-looking dedicated profile directory (never read by the engine). */
+  let profileDir: string;
+  let profileEnv: Record<string, string | undefined>;
 
   beforeAll(async () => {
     admin = adminPool();
     classifier = classifierPool();
     readonly = readonlyPool();
+    profileDir = await mkdtemp(join(tmpdir(), 'nwf-pe-test-profile-'));
+    await writeFile(join(profileDir, '.credentials.json'), '{"never":"read"}', 'utf8');
+    profileEnv = { [CLASSIFIER_PROFILE_DIR_VARIABLE]: profileDir };
   });
 
   afterAll(async () => {
     await Promise.all([admin.end(), classifier.end(), readonly.end()]);
+    await rm(profileDir, { recursive: true, force: true, maxRetries: 3 });
   });
 
   async function freshRoot(): Promise<void> {
@@ -222,7 +257,7 @@ describeDb('ClaudeMaxAgentProvider through the real 2B-2C1 orchestration (integr
     const runId = await seedScenario('www.example.ac.uk');
     const runCompletion = await checkRunCompleted(readonly, runId);
     const runner = new FakeRunner([structuredSuccess([VALID_DOC_0])]);
-    const provider = maxProvider(runner, { CLAUDE_CODE_OAUTH_TOKEN: FAKE_TOKEN });
+    const provider = maxProvider(runner, profileEnv);
 
     const [result] = await runOrganisationClassification(classifier, {
       organisationId: root.organisationId,
@@ -269,7 +304,7 @@ describeDb('ClaudeMaxAgentProvider through the real 2B-2C1 orchestration (integr
     const runId = await seedScenario('www.authfail.ac.uk');
     const runCompletion = await checkRunCompleted(readonly, runId);
     const runner = new FakeRunner([]);
-    // No token, and a conflicting variable as well - fail closed either way.
+    // A conflicting variable in the orchestration environment - fail closed.
     const provider = maxProvider(runner, { [API_KEY_VARIABLE]: 'stray-console-key' });
 
     const [result] = await runOrganisationClassification(classifier, {
@@ -297,7 +332,6 @@ describeDb('ClaudeMaxAgentProvider through the real 2B-2C1 orchestration (integr
     // The refusal names the variable, never the stray value and never a token.
     expect(completion.rows[0]!.error_summary).toContain(API_KEY_VARIABLE);
     expect(completion.rows[0]!.error_summary).not.toContain('stray-console-key');
-    expect(completion.rows[0]!.error_summary).not.toContain(FAKE_TOKEN);
   });
 
   it('USAGE EXHAUSTION: recognised limit persists USAGE_LIMIT_EXHAUSTED with zero semantic rows, ONE runner call, no retry, no fallback', async () => {
@@ -311,7 +345,7 @@ describeDb('ClaudeMaxAgentProvider through the real 2B-2C1 orchestration (integr
         resultText: `${USAGE_LIMIT_ERROR_PREFIXES[0]!} usage limit until it resets`,
       },
     ]);
-    const provider = maxProvider(runner, { CLAUDE_CODE_OAUTH_TOKEN: FAKE_TOKEN });
+    const provider = maxProvider(runner, profileEnv);
 
     const [result] = await runOrganisationClassification(classifier, {
       organisationId: root.organisationId,
@@ -346,7 +380,7 @@ describeDb('ClaudeMaxAgentProvider through the real 2B-2C1 orchestration (integr
       new Error('read ECONNRESET'),
       structuredSuccess([VALID_DOC_0]),
     ]);
-    const provider = maxProvider(runner, { CLAUDE_CODE_OAUTH_TOKEN: FAKE_TOKEN });
+    const provider = maxProvider(runner, profileEnv);
 
     const [result] = await runOrganisationClassification(classifier, {
       organisationId: root.organisationId,

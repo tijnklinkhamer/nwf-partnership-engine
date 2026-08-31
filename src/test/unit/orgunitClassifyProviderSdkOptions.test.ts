@@ -12,7 +12,10 @@ import {
 } from '../../orgunits/classify/provider/sdkOptions.js';
 
 const SCHEMA = { type: 'array', items: { type: 'object' } };
-const CHILD_ENV = { CLAUDE_CODE_OAUTH_TOKEN: 'test-oauth-secret-do-not-log', PATH: 'C:\\bin' };
+const CHILD_ENV = {
+  CLAUDE_CONFIG_DIR: 'C:\\Users\\owner\\.claude-nwf-classifier',
+  PATH: 'C:\\bin',
+};
 
 function request(overrides: Partial<ClassifierProviderRequest> = {}): ClassifierProviderRequest {
   return {
