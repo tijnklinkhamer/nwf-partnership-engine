@@ -199,8 +199,12 @@ const ROOT_AUTHORITY_TABLES = ['orgunit_root_promotions', 'orgunit_root_promotio
 describe('PHASE-2B-FIREWALL: this slice added no capability at all', () => {
   it('keeps the runtime dependency list exactly as it was', () => {
     // A schema slice needs nothing. Anything new here would be a crawler, a
-    // parser or an SDK arriving ahead of its phase.
+    // parser or an SDK arriving ahead of its phase. Phase 2B-2C2 (ADR 0009)
+    // later added the ONE approved Claude Agent SDK - a deliberate, reviewed
+    // edit of this exact array; the Max-only block at the end of this file
+    // pins its single permitted import site.
     expect(Object.keys(PACKAGE_JSON.dependencies ?? {}).sort()).toEqual([
+      '@anthropic-ai/claude-agent-sdk',
       'pg',
       'read-excel-file',
       'saxes',
@@ -270,7 +274,13 @@ describe('PHASE-2B-FIREWALL: this slice added no capability at all', () => {
       'postmark',
     ];
     for (const name of Object.keys(ALL_DEPENDENCIES)) {
-      expect(name.startsWith('@anthropic-ai/')).toBe(false);
+      // The single exception: the Phase 2B-2C2 Max-only classifier runtime
+      // dependency (ADR 0009). Every other @anthropic-ai/* name - above all
+      // the Messages-API client - stays banned.
+      if (name !== '@anthropic-ai/claude-agent-sdk') {
+        expect(name.startsWith('@anthropic-ai/')).toBe(false);
+      }
+      expect(name).not.toBe('@anthropic-ai/sdk');
       expect(name).not.toBe('anthropic');
       expect(name.includes('apollo')).toBe(false);
       expect(forbidden, `${name} belongs to a phase that is not approved`).not.toContain(name);
@@ -501,8 +511,23 @@ describe('PHASE-2B-FIREWALL: exactly one institution-website network call site',
     // The bytes are a SHA-256 and a length. A body written to a column, a
     // temporary file or a cache directory would be the schema's one refusal
     // undone in application code.
+    //
+    // ONE deliberate, reviewed exemption (Phase 2B-2C2, ADR 0009):
+    // runtimeIsolation.ts creates and removes EMPTY per-invocation temp
+    // directories under the OS temp location - the classifier runtime's
+    // isolated CLAUDE_CONFIG_DIR and scratch cwd. It never touches a
+    // response body (none exists anywhere in the classifier layer), and the
+    // stricter assertion below proves it writes no file CONTENT at all:
+    // directory creation only, never a byte.
+    const EMPTY_DIR_ISOLATION_FILE = 'src/orgunits/classify/provider/runtimeIsolation.ts';
     for (const file of PHASE_2B_FILES) {
       const source = code(file);
+      if (file === EMPTY_DIR_ISOLATION_FILE) {
+        expect(source, `${file} writes file content`).not.toMatch(
+          /writeFile|createWriteStream|appendFile|copyFile/,
+        );
+        continue;
+      }
       expect(source, `${file} writes a body to disk`).not.toMatch(
         /writeFile|createWriteStream|mkdtemp|tmpdir/,
       );
@@ -1579,17 +1604,27 @@ describe('PHASE-2B-FIREWALL 2B-2B/2B-2C1: classifier handoff assembly and semant
   });
 
   it('imports no AI, provider, Apollo, contact or outbound-shaped dependency', () => {
+    // The Phase 2B-2C2 Claude Max provider boundary is the ONE deliberate
+    // exception to the anthropic/API-key name bans, and it is excluded here
+    // BY EXACT PATH PREFIX because it has its own, STRICTER block at the end
+    // of this file (single SDK import site, forbidden-variable-name guard,
+    // env allowlist, hermetic options) - the robots.ts/executeWebAttempt
+    // precedent: one named boundary holds the capability, everything around
+    // it stays pinned closed. Every OTHER ban below still applies to the
+    // provider files via the loop that follows.
     for (const file of CLASSIFY_FILES) {
       const source = code(file).toLowerCase();
-      expect(source, `${file} names anthropic`).not.toContain('anthropic');
+      if (!file.startsWith('src/orgunits/classify/provider/')) {
+        expect(source, `${file} names anthropic`).not.toContain('anthropic');
+        expect(source, `${file} names an anthropic-sdk-shaped import`).not.toMatch(/@anthropic-ai/);
+        expect(source, `${file} references an API key`).not.toMatch(/api[_-]?key/);
+      }
       expect(source, `${file} names openai`).not.toContain('openai');
       expect(source, `${file} names apollo`).not.toContain('apollo');
       expect(source, `${file} names nodemailer`).not.toContain('nodemailer');
       expect(source, `${file} imports node-fetch/axios/got/undici`).not.toMatch(
         /from ['"](node-fetch|axios|got|undici)['"]/,
       );
-      expect(source, `${file} names an anthropic-sdk-shaped import`).not.toMatch(/@anthropic-ai/);
-      expect(source, `${file} references an API key`).not.toMatch(/api[_-]?key/);
     }
   });
 
@@ -1724,17 +1759,24 @@ describe('PHASE-2B-FIREWALL 2B-2C1: semantic core is provider-neutral, and persi
     }
   });
 
-  it('the real Claude Max Agent SDK runtime adapter does not exist yet (that is 2B-2C2)', () => {
-    // Named ahead of time, exactly as `src/orgunits/classify/` itself was
-    // declared refused before 2B-2b populated it - the same discipline
-    // that made the gateway's own later widening a reviewed, visible act
-    // rather than a silent discovery.
+  it('the Claude Max runtime adapter exists ONLY at the declared 2B-2C2 boundary', () => {
+    // 2B-2C1 pinned these paths ABSENT ahead of time so that populating them
+    // would be a reviewed, visible act. Phase 2B-2C2 (ADR 0009) IS that act:
+    // this edit was made deliberately, in the same slice that adds the
+    // stricter Max-only block at the end of this file. The boundary got
+    // NARROWER, not looser: the provider may exist only as the named
+    // subdirectory, a root-level provider file stays refused, and any
+    // Messages-API-shaped provider stays refused everywhere.
+    expect(
+      exists('src/orgunits/classify/provider'),
+      'the 2B-2C2 provider boundary is missing',
+    ).toBe(true);
     for (const path of [
-      'src/orgunits/classify/provider',
       'src/orgunits/classify/claudeMaxAgentProvider.ts',
       'src/orgunits/classify/anthropicProvider.ts',
+      'src/orgunits/classify/provider/anthropicApiProvider.ts',
     ]) {
-      expect(exists(path), `${path} exists but belongs to 2B-2C2`).toBe(false);
+      expect(exists(path), `${path} exists but is not an approved module`).toBe(false);
     }
   });
 
@@ -1845,5 +1887,241 @@ describe('PHASE-2B-FIREWALL 2B-2C1: semantic core is provider-neutral, and persi
         'AUTH_FAILURE',
       ].sort(),
     );
+  });
+});
+
+describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly one module wide, and Max-only', () => {
+  /**
+   * Banned identifiers are CONSTRUCTED here rather than written literally,
+   * because phase1a scans every other source file - this one included - for
+   * the literal strings themselves. A firewall naming a banned string
+   * verbatim would trip the sibling firewall that bans it.
+   */
+  const API_KEY_VARIABLE = ['ANTHROPIC', 'API_KEY'].join('_');
+  const API_KEY_HEADER = ['x-api', 'key'].join('-');
+  const ANTHROPIC_API_HOST = ['api', 'anthropic', 'com'].join('.');
+
+  const PROVIDER_DIR = 'src/orgunits/classify/provider';
+  const PROVIDER_FILES = PHASE_2B_FILES.filter((file) => file.startsWith(`${PROVIDER_DIR}/`));
+  /** THE single permitted Agent SDK import site, by exact path (ADR 0009). */
+  const SDK_IMPORT_SITE = `${PROVIDER_DIR}/agentSdkRunner.ts`;
+
+  const EXPECTED_PROVIDER_FILES = [
+    `${PROVIDER_DIR}/agentSdkRunner.ts`,
+    `${PROVIDER_DIR}/allowedModels.ts`,
+    `${PROVIDER_DIR}/authConflicts.ts`,
+    `${PROVIDER_DIR}/claudeMaxAgentProvider.ts`,
+    `${PROVIDER_DIR}/environment.ts`,
+    `${PROVIDER_DIR}/outcomeMapping.ts`,
+    `${PROVIDER_DIR}/preflight.ts`,
+    `${PROVIDER_DIR}/runtimeIsolation.ts`,
+    `${PROVIDER_DIR}/sdkOptions.ts`,
+  ];
+
+  it('the provider namespace holds exactly the nine approved modules', () => {
+    expect([...PROVIDER_FILES].sort()).toEqual(EXPECTED_PROVIDER_FILES);
+  });
+
+  it('exactly ONE production module imports the Agent SDK, by exact path', () => {
+    for (const file of PRODUCTION_FILES) {
+      const source = code(file);
+      if (file === SDK_IMPORT_SITE) {
+        expect(source, `${file} must import the official Agent SDK`).toMatch(
+          /from\s+['"]@anthropic-ai\/claude-agent-sdk['"]/,
+        );
+        continue;
+      }
+      expect(source, `${file} imports the Agent SDK outside the approved seam`).not.toContain(
+        '@anthropic-ai/claude-agent-sdk',
+      );
+    }
+  });
+
+  it('the Messages-API SDK is imported NOWHERE, and no Anthropic client is constructed', () => {
+    // Import-shaped matching on purpose: sibling firewalls legitimately NAME
+    // the banned package string in their own assertions; what no file - test
+    // files included, since the peer-installed package sits in node_modules -
+    // may do is IMPORT it.
+    for (const file of SOURCE_FILES) {
+      const source = code(file);
+      expect(source, `${file} imports the Messages-API SDK`).not.toMatch(
+        /(from\s+|require\(\s*|import\(\s*)['"]@anthropic-ai\/sdk['"]/,
+      );
+      expect(source, `${file} constructs an Anthropic API client`).not.toMatch(
+        /new\s+Anthropic\s*\(/,
+      );
+    }
+    // Host/header hygiene for PRODUCTION code (phase1a already bans both
+    // strings across every non-firewall source file; firewall files name
+    // them only in constructed form).
+    for (const file of PRODUCTION_FILES) {
+      const source = code(file);
+      expect(source, `${file} names the Anthropic API host`).not.toContain(ANTHROPIC_API_HOST);
+      expect(source, `${file} sets the API-key header`).not.toContain(API_KEY_HEADER);
+    }
+  });
+
+  it('no production file READS or ASSIGNS any forbidden auth/routing variable', async () => {
+    const { FORBIDDEN_AUTH_VARIABLES } =
+      await import('../../orgunits/classify/provider/authConflicts.js');
+    expect(FORBIDDEN_AUTH_VARIABLES).toHaveLength(14);
+    expect(FORBIDDEN_AUTH_VARIABLES).toContain(API_KEY_VARIABLE);
+    for (const file of PRODUCTION_FILES) {
+      const source = code(file);
+      for (const variable of FORBIDDEN_AUTH_VARIABLES) {
+        expect(source, `${file} dereferences ${variable}`).not.toMatch(
+          new RegExp(`process\\.env\\.${variable}\\b|process\\.env\\[\\s*['"]${variable}['"]`),
+        );
+      }
+    }
+  });
+
+  it('the child-environment allowlist builds EXACTLY the approved variable set, and no secret category', async () => {
+    const {
+      buildChildEnvironment,
+      CLASSIFIER_CHILD_ENV_FIXED,
+      CLASSIFIER_CHILD_ENV_OS_PASSTHROUGH,
+    } = await import('../../orgunits/classify/provider/environment.js');
+    const parentEnv = {
+      CLAUDE_CODE_OAUTH_TOKEN: 'firewall-fake-token',
+      DATABASE_URL_ADMIN: 'postgres://secret',
+      DATABASE_URL_CLASSIFIER: 'postgres://secret',
+      GITHUB_TOKEN: 'secret',
+      AWS_SECRET_ACCESS_KEY: 'secret',
+      GOOGLE_APPLICATION_CREDENTIALS: 'secret',
+      AZURE_CLIENT_SECRET: 'secret',
+      [API_KEY_VARIABLE]: 'secret',
+      PATH: '/usr/bin',
+      HOME: '/home/owner',
+      RANDOM_UNRELATED_SECRET: 'secret',
+    };
+    const child = buildChildEnvironment({ parentEnv, configDir: 'X:/isolated/config' });
+    expect(Object.keys(child).sort()).toEqual(
+      [
+        'CLAUDE_CODE_OAUTH_TOKEN',
+        'CLAUDE_CONFIG_DIR',
+        ...Object.keys(CLASSIFIER_CHILD_ENV_FIXED),
+        'PATH',
+        'HOME',
+      ].sort(),
+    );
+    // The allowlist itself may not admit a credential-shaped or DB variable.
+    for (const name of [
+      ...Object.keys(CLASSIFIER_CHILD_ENV_FIXED),
+      ...CLASSIFIER_CHILD_ENV_OS_PASSTHROUGH,
+    ]) {
+      expect(name).not.toBe(API_KEY_VARIABLE);
+      expect(name).not.toBe('ANTHROPIC_AUTH_TOKEN');
+      expect(name.startsWith('CLAUDE_CODE_USE_')).toBe(false);
+      expect(name.includes('DATABASE_URL')).toBe(false);
+    }
+  });
+
+  it('the invocation builder literally pins every hermetic option, and omits every forbidden one', () => {
+    const source = code(`${PROVIDER_DIR}/sdkOptions.ts`);
+    expect(source).toContain('settingSources: []');
+    expect(source).toContain('persistSession: false');
+    expect(source).toContain('strictMcpConfig: true');
+    expect(source).toContain('mcpServers: {}');
+    expect(source).toContain('tools: []');
+    expect(source).toContain('allowedTools: []');
+    expect(source).toContain('skills: []');
+    expect(source).toContain('plugins: []');
+    for (const providerFile of PROVIDER_FILES) {
+      const providerSource = code(providerFile);
+      expect(providerSource, `${providerFile} sets a fallback model`).not.toContain(
+        'fallbackModel',
+      );
+      expect(providerSource, `${providerFile} resumes a session`).not.toMatch(/\bresume\s*:/);
+      expect(providerSource, `${providerFile} forks a session`).not.toContain('forkSession');
+      expect(providerSource, `${providerFile} uses the coding-agent preset`).not.toMatch(
+        /preset\s*:\s*['"]claude_code['"]/,
+      );
+      expect(providerSource, `${providerFile} adds a hook`).not.toMatch(/\bhooks\s*:/);
+      expect(providerSource, `${providerFile} defines a subagent`).not.toMatch(/\bagents\s*:/);
+      expect(providerSource, `${providerFile} widens the filesystem`).not.toContain(
+        'additionalDirectories',
+      );
+    }
+  });
+
+  it('the provider namespace imports no database, persistence or loader capability', () => {
+    for (const file of PROVIDER_FILES) {
+      const source = code(file);
+      expect(source, `${file} imports pg`).not.toMatch(/from\s+['"]pg['"]/);
+      expect(source, `${file} imports the db helpers`).not.toMatch(/from\s+['"].*\/db\//);
+      expect(source, `${file} imports classifier persistence`).not.toMatch(
+        /from\s+['"]\.\.\/persist\.js['"]/,
+      );
+      expect(source, `${file} imports classifier loaders`).not.toMatch(
+        /from\s+['"]\.\.\/loaders\.js['"]/,
+      );
+      expect(source, `${file} names a Postgres pool`).not.toMatch(/\bPool\b/);
+    }
+  });
+
+  it('no provider-routing name appears in the provider namespace outside the guard constant', () => {
+    for (const file of PROVIDER_FILES) {
+      if (file === `${PROVIDER_DIR}/authConflicts.ts`) continue;
+      const source = code(file).toLowerCase();
+      for (const banned of ['bedrock', 'vertex', 'foundry', 'openai', 'gateway']) {
+        expect(source, `${file} names ${banned}`).not.toContain(banned);
+      }
+    }
+  });
+
+  it('no billing, credit-purchase or top-up capability exists in the classifier namespace', () => {
+    const classifyFiles = PHASE_2B_FILES.filter((file) =>
+      file.startsWith('src/orgunits/classify/'),
+    );
+    for (const file of classifyFiles) {
+      const source = code(file);
+      for (const banned of [
+        /buyCredits/i,
+        /purchaseCredits/i,
+        /topUp/i,
+        /addFunds/i,
+        /billingToggle/i,
+      ]) {
+        expect(source, `${file} matches ${banned}`).not.toMatch(banned);
+      }
+    }
+  });
+
+  it('process.env is read by exactly one classify module: the provider adapter', () => {
+    const classifyFiles = PHASE_2B_FILES.filter((file) =>
+      file.startsWith('src/orgunits/classify/'),
+    );
+    for (const file of classifyFiles) {
+      if (file === `${PROVIDER_DIR}/claudeMaxAgentProvider.ts`) continue;
+      expect(code(file), `${file} reads process.env`).not.toContain('process.env');
+    }
+  });
+
+  it('no automated test constructs the production Agent SDK runner', () => {
+    const testFiles = SOURCE_FILES.filter((file) => file.startsWith('src/test/'));
+    for (const file of testFiles) {
+      expect(code(file), `${file} constructs the production runner`).not.toContain(
+        'createProductionAgentSdkRunner',
+      );
+    }
+  });
+
+  it('the provider outcome vocabulary is exactly the landed provider-neutral taxonomy', () => {
+    const mapping = code(`${PROVIDER_DIR}/outcomeMapping.ts`);
+    for (const outcome of [
+      'USAGE_LIMIT_EXHAUSTED',
+      'AUTH_FAILURE',
+      'PROVIDER_TRANSIENT',
+      'PROVIDER_REFUSAL',
+      'STRUCTURED_OUTPUT_FAILED',
+      'TIMEOUT',
+    ]) {
+      expect(mapping, `outcomeMapping.ts never produces ${outcome}`).toContain(outcome);
+    }
+    // No relevance/verdict vocabulary may leak into transport mapping.
+    for (const banned of [/NEEDS_REVIEW/, /\brelevant\b/i, /verified/i]) {
+      expect(mapping).not.toMatch(banned);
+    }
   });
 });

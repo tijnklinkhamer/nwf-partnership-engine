@@ -349,8 +349,12 @@ describe('PHASE-1B-FIREWALL: scope boundaries still hold', () => {
 
   it('added exactly the XML parsing dependency and nothing else', () => {
     // Phase 1B needed a streaming XML parser. Anything beyond saxes and its own
-    // single dependency would be scope creep hiding in package.json.
+    // single dependency would be scope creep hiding in package.json. The list
+    // stays EXACT: Phase 2B-2C2 (ADR 0009) later added the one approved
+    // Claude Agent SDK - a deliberate, reviewed edit of this array, the same
+    // discipline as the gateway's socket-allowlist widening.
     expect(Object.keys(PACKAGE_JSON.dependencies ?? {}).sort()).toEqual([
+      '@anthropic-ai/claude-agent-sdk',
       'pg',
       'read-excel-file',
       'saxes',
