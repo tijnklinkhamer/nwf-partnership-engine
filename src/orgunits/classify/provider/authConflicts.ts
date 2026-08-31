@@ -27,8 +27,19 @@
  * `process.env` read of its own — callers supply the environment object.
  */
 
-/** The one variable the Max-only runtime authenticates with (design §5). */
-export const CLAUDE_MAX_OAUTH_TOKEN_VARIABLE = 'CLAUDE_CODE_OAUTH_TOKEN';
+/**
+ * The setup-token environment credential, PROHIBITED for runtime v1
+ * (ADR 0010). It was the original Max-runtime credential (ADR 0009 §2.1);
+ * live smoke evidence plus upstream reports (anthropics/claude-code#65320,
+ * anthropics/claude-code-action#1614) showed `claude setup-token` output
+ * passing local auth-status checks and then failing every real inference
+ * with `401 OAuth access token is invalid`. The runtime therefore FAILS
+ * CLOSED on its mere presence: it is never preferred, never fallen back
+ * from, and never forwarded. The supported credential is the stored
+ * subscription OAuth login inside the dedicated classifier profile
+ * (`profile.ts`), owned and refreshed by Claude Code itself.
+ */
+export const PROHIBITED_SETUP_TOKEN_VARIABLE = 'CLAUDE_CODE_OAUTH_TOKEN';
 
 /**
  * The canonical 14-variable forbidden list (design §6), verbatim.

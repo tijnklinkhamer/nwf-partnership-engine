@@ -1,26 +1,36 @@
 /**
- * THE DETERMINISTIC MAX-ONLY PRE-FLIGHT (Phase 2B-2C Max-runtime design §7).
+ * THE DETERMINISTIC MAX-ONLY PRE-FLIGHT (ADR 0010 §13, superseding the
+ * design-§7 setup-token shape recorded in ADR 0009).
  *
  * PURE AND NETWORK-FREE, by contract: this function makes ZERO network
  * calls, ZERO model calls, opens no socket, touches no filesystem and reads
  * no `process.env` of its own — the caller supplies the environment object,
- * which is what makes every check unit-testable with a plain map.
+ * which is what makes every check unit-testable with a plain map. The two
+ * NON-pure preflight stages — the names-only profile-hygiene readdir and
+ * the request-free auth-status subprocess — live in `profileHygiene.ts`
+ * and `authStatusRunner.ts`/`authStatus.ts`, and run AFTER this function
+ * passes.
  *
  * Ordered checks, each fatal on its own:
  *
- *   1. `CLAUDE_CODE_OAUTH_TOKEN` present and plausibly token-shaped:
- *      non-empty and containing no whitespace. The VALUE is never logged,
- *      never echoed, never measured — no failure detail includes it or its
- *      length (design §7 step 1).
- *   2. every canonical forbidden conflicting-auth variable ABSENT
- *      (`authConflicts.ts`, the design-§6 14-name list). Presence of ANY of
- *      them refuses the run outright — the conflict is REPORTED BY NAME and
- *      never sanitised away (design §6; spec: "FAIL, DO NOT SANITIZE").
- *      A valid token does not rescue a conflicted environment: the checks
- *      compound, and conflicts dominate.
- *   3. the requested model id is a member of the closed allowlist
- *      (design §7 step 5, §15) — arbitrary strings never reach a provider.
- *   4. the bounded run configuration is internally valid (`maxTurns`, when
+ *   1. every canonical forbidden conflicting-auth variable ABSENT
+ *      (`authConflicts.ts`, the 14-name list). Presence of ANY of them
+ *      refuses the run outright — the conflict is REPORTED BY NAME and
+ *      never sanitised away. Conflicts dominate every other finding.
+ *   2. the prohibited setup-token variable ABSENT. `CLAUDE_CODE_OAUTH_TOKEN`
+ *      was the ADR 0009 credential; verified upstream failures
+ *      (anthropics/claude-code#65320, anthropics/claude-code-action#1614,
+ *      reproduced by this repository's own live smoke) made it unreliable,
+ *      so runtime v1 FAILS CLOSED on its presence rather than silently
+ *      preferring it or falling back after a 401. Its VALUE is never
+ *      logged, echoed or measured.
+ *   3. the dedicated classifier profile directory resolves and is
+ *      permitted (`profile.ts`): configured or derivable, absolute, not
+ *      the repository root or inside it, not the ordinary `<home>/.claude`
+ *      profile, not the home directory.
+ *   4. the requested model id is a member of the closed allowlist —
+ *      arbitrary strings never reach a provider.
+ *   5. the bounded run configuration is internally valid (`maxTurns`, when
  *      present, is a positive integer within the small approved bound).
  *
  * A failure carries a deterministic `kind` and a bounded, operator-facing
@@ -28,28 +38,33 @@
  * maps any pre-flight failure onto the provider-neutral `AUTH_FAILURE`
  * outcome with zero SDK-runner invocations; the exported function is also
  * available to a future orchestration/CLI layer that wants to refuse
- * row-lessly before a call row is ever inserted (design §19 step 3).
+ * row-lessly before a call row is ever inserted.
  */
 import {
-  CLAUDE_MAX_OAUTH_TOKEN_VARIABLE,
+  PROHIBITED_SETUP_TOKEN_VARIABLE,
   findConflictingAuthVariables,
   type ForbiddenAuthVariable,
 } from './authConflicts.js';
+import { resolveClassifierProfileDir, type ProfileDirFailureKind } from './profile.js';
 import { ORGUNIT_CLASSIFIER_ALLOWED_MODELS } from './allowedModels.js';
 import type { ClassifierRunConfig } from '../providerContract.js';
 
-/** The largest `maxTurns` a classifier call may request. A tool-less call needs headroom only for the SDK's internal structured-output re-prompt (design §15: small, named). */
+/** The largest `maxTurns` a classifier call may request. A tool-less call needs headroom only for the SDK's internal structured-output re-prompt (small, named). */
 export const MAX_CLASSIFIER_MAX_TURNS = 8;
 
 export type PreflightFailureKind =
-  | 'MISSING_OAUTH_TOKEN'
-  | 'MALFORMED_OAUTH_TOKEN'
   | 'CONFLICTING_AUTH_VARIABLES'
+  | 'SETUP_TOKEN_PRESENT'
+  | ProfileDirFailureKind
   | 'MODEL_NOT_ALLOWED'
   | 'INVALID_RUN_CONFIG';
 
 export type PreflightResult =
-  | { readonly ok: true }
+  | {
+      readonly ok: true;
+      /** The resolved dedicated classifier profile directory. */
+      readonly profileDir: string;
+    }
   | {
       readonly ok: false;
       readonly kind: PreflightFailureKind;
@@ -62,6 +77,8 @@ export type PreflightResult =
 export interface PreflightInput {
   /** The orchestration-process environment (a plain object in tests; a `process.env` snapshot in production). */
   readonly env: Readonly<Record<string, string | undefined>>;
+  /** The repository root the orchestration process runs from. */
+  readonly repoRoot: string;
   readonly modelId: string;
   readonly runConfig: ClassifierRunConfig;
   /** The closed model allowlist. Defaults to the code-owned constant; tests may inject fake ids through the provider's explicit seam. */
@@ -69,10 +86,9 @@ export interface PreflightInput {
 }
 
 export function runClassifierPreflight(input: PreflightInput): PreflightResult {
-  // 2 first in SEVERITY but checked alongside 1: a conflicted environment is
-  // refused even when the token is also missing or malformed, because the
-  // conflict is the finding the operator must fix FIRST — it is the one that
-  // could route inference off the subscription.
+  // Conflicts first, in SEVERITY order: a conflicted environment is refused
+  // before anything else is even examined, because a conflicting variable is
+  // the one finding that could route inference off the subscription.
   const conflicts = findConflictingAuthVariables(input.env);
   if (conflicts.length > 0) {
     return {
@@ -86,24 +102,22 @@ export function runClassifierPreflight(input: PreflightInput): PreflightResult {
     };
   }
 
-  const token = input.env[CLAUDE_MAX_OAUTH_TOKEN_VARIABLE];
-  if (token === undefined || token.length === 0) {
+  if (input.env[PROHIBITED_SETUP_TOKEN_VARIABLE] !== undefined) {
     return {
       ok: false,
-      kind: 'MISSING_OAUTH_TOKEN',
+      kind: 'SETUP_TOKEN_PRESENT',
       detail:
-        `refused: ${CLAUDE_MAX_OAUTH_TOKEN_VARIABLE} is not set. Provision it with ` +
-        `\`claude setup-token\` (an operator action outside this engine) and export it.`,
+        `refused: ${PROHIBITED_SETUP_TOKEN_VARIABLE} is set. The setup-token mechanism is ` +
+        `prohibited for classifier runtime v1: setup-token credentials pass local status ` +
+        `checks but fail real inference upstream (ADR 0010). Unset it and use the ` +
+        `dedicated stored-login classifier profile instead. Its value was not read ` +
+        `further and is not included here.`,
     };
   }
-  if (/\s/.test(token)) {
-    return {
-      ok: false,
-      kind: 'MALFORMED_OAUTH_TOKEN',
-      detail:
-        `refused: ${CLAUDE_MAX_OAUTH_TOKEN_VARIABLE} is not token-shaped ` +
-        `(it contains whitespace). Its value was not read further and is not included here.`,
-    };
+
+  const profile = resolveClassifierProfileDir({ env: input.env, repoRoot: input.repoRoot });
+  if (!profile.ok) {
+    return { ok: false, kind: profile.kind, detail: profile.detail };
   }
 
   const allowedModels = input.allowedModels ?? ORGUNIT_CLASSIFIER_ALLOWED_MODELS;
@@ -130,5 +144,5 @@ export function runClassifierPreflight(input: PreflightInput): PreflightResult {
     }
   }
 
-  return { ok: true };
+  return { ok: true, profileDir: profile.profileDir };
 }

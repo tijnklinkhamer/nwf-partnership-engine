@@ -1905,20 +1905,26 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
   const PROVIDER_FILES = PHASE_2B_FILES.filter((file) => file.startsWith(`${PROVIDER_DIR}/`));
   /** THE single permitted Agent SDK import site, by exact path (ADR 0009). */
   const SDK_IMPORT_SITE = `${PROVIDER_DIR}/agentSdkRunner.ts`;
+  /** THE single permitted child-process import site, by exact path (ADR 0010). */
+  const CHILD_PROCESS_IMPORT_SITE = `${PROVIDER_DIR}/authStatusRunner.ts`;
 
   const EXPECTED_PROVIDER_FILES = [
     `${PROVIDER_DIR}/agentSdkRunner.ts`,
     `${PROVIDER_DIR}/allowedModels.ts`,
     `${PROVIDER_DIR}/authConflicts.ts`,
+    `${PROVIDER_DIR}/authStatus.ts`,
+    `${PROVIDER_DIR}/authStatusRunner.ts`,
     `${PROVIDER_DIR}/claudeMaxAgentProvider.ts`,
     `${PROVIDER_DIR}/environment.ts`,
     `${PROVIDER_DIR}/outcomeMapping.ts`,
     `${PROVIDER_DIR}/preflight.ts`,
+    `${PROVIDER_DIR}/profile.ts`,
+    `${PROVIDER_DIR}/profileHygiene.ts`,
     `${PROVIDER_DIR}/runtimeIsolation.ts`,
     `${PROVIDER_DIR}/sdkOptions.ts`,
   ];
 
-  it('the provider namespace holds exactly the nine approved modules', () => {
+  it('the provider namespace holds exactly the thirteen approved modules', () => {
     expect([...PROVIDER_FILES].sort()).toEqual(EXPECTED_PROVIDER_FILES);
   });
 
@@ -1961,22 +1967,49 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
     }
   });
 
-  it('no production file READS or ASSIGNS any forbidden auth/routing variable', async () => {
-    const { FORBIDDEN_AUTH_VARIABLES } =
+  it('exactly ONE production module imports child_process, by exact path, and it runs ONLY the fixed request-free command', async () => {
+    for (const file of PRODUCTION_FILES) {
+      const source = code(file);
+      if (file === CHILD_PROCESS_IMPORT_SITE) {
+        expect(source, `${file} must import node:child_process`).toMatch(
+          /from\s+['"]node:child_process['"]/,
+        );
+        continue;
+      }
+      expect(source, `${file} imports child_process outside the approved seam`).not.toContain(
+        'child_process',
+      );
+    }
+    // The command and argument vector are module constants: no setup-token
+    // invocation, no /login automation, no arbitrary command is expressible.
+    const { AUTH_STATUS_COMMAND, AUTH_STATUS_ARGS } =
+      await import('../../orgunits/classify/provider/authStatusRunner.js');
+    expect(AUTH_STATUS_COMMAND).toBe('claude');
+    expect([...AUTH_STATUS_ARGS]).toEqual(['auth', 'status', '--json']);
+    const runnerSource = code(CHILD_PROCESS_IMPORT_SITE);
+    expect(runnerSource).not.toContain('setup-token');
+    expect(runnerSource).not.toMatch(/['"](?:\/)?login['"]/);
+  });
+
+  it('the setup-token credential is PROHIBITED: constant pinned, never read, never forwarded (ADR 0010)', async () => {
+    const { PROHIBITED_SETUP_TOKEN_VARIABLE, FORBIDDEN_AUTH_VARIABLES } =
       await import('../../orgunits/classify/provider/authConflicts.js');
+    expect(PROHIBITED_SETUP_TOKEN_VARIABLE).toBe('CLAUDE_CODE_OAUTH_TOKEN');
     expect(FORBIDDEN_AUTH_VARIABLES).toHaveLength(14);
     expect(FORBIDDEN_AUTH_VARIABLES).toContain(API_KEY_VARIABLE);
     for (const file of PRODUCTION_FILES) {
       const source = code(file);
-      for (const variable of FORBIDDEN_AUTH_VARIABLES) {
+      for (const variable of [...FORBIDDEN_AUTH_VARIABLES, PROHIBITED_SETUP_TOKEN_VARIABLE]) {
         expect(source, `${file} dereferences ${variable}`).not.toMatch(
           new RegExp(`process\\.env\\.${variable}\\b|process\\.env\\[\\s*['"]${variable}['"]`),
         );
       }
     }
+    // The child-env builder no longer names the token variable at all.
+    expect(code(`${PROVIDER_DIR}/environment.ts`)).not.toContain(PROHIBITED_SETUP_TOKEN_VARIABLE);
   });
 
-  it('the child-environment allowlist builds EXACTLY the approved variable set, and no secret category', async () => {
+  it('the child-environment allowlist builds EXACTLY the approved variable set, forwards no credential and no secret category', async () => {
     const {
       buildChildEnvironment,
       CLASSIFIER_CHILD_ENV_FIXED,
@@ -1995,16 +2028,14 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
       HOME: '/home/owner',
       RANDOM_UNRELATED_SECRET: 'secret',
     };
-    const child = buildChildEnvironment({ parentEnv, configDir: 'X:/isolated/config' });
+    const child = buildChildEnvironment({
+      parentEnv,
+      configDir: 'X:/dedicated/classifier-profile',
+    });
     expect(Object.keys(child).sort()).toEqual(
-      [
-        'CLAUDE_CODE_OAUTH_TOKEN',
-        'CLAUDE_CONFIG_DIR',
-        ...Object.keys(CLASSIFIER_CHILD_ENV_FIXED),
-        'PATH',
-        'HOME',
-      ].sort(),
+      ['CLAUDE_CONFIG_DIR', ...Object.keys(CLASSIFIER_CHILD_ENV_FIXED), 'PATH', 'HOME'].sort(),
     );
+    expect(JSON.stringify(child)).not.toContain('firewall-fake-token');
     // The allowlist itself may not admit a credential-shaped or DB variable.
     for (const name of [
       ...Object.keys(CLASSIFIER_CHILD_ENV_FIXED),
@@ -2014,7 +2045,64 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
       expect(name).not.toBe('ANTHROPIC_AUTH_TOKEN');
       expect(name.startsWith('CLAUDE_CODE_USE_')).toBe(false);
       expect(name.includes('DATABASE_URL')).toBe(false);
+      expect(name.includes('OAUTH')).toBe(false);
     }
+  });
+
+  it('stored-subscription auth only: the required auth-status values are pinned, first-party and Max', async () => {
+    const { REQUIRED_AUTH_METHOD, REQUIRED_API_PROVIDER, REQUIRED_SUBSCRIPTION_TYPE } =
+      await import('../../orgunits/classify/provider/authStatus.js');
+    expect(REQUIRED_AUTH_METHOD).toBe('claude.ai');
+    expect(REQUIRED_API_PROVIDER).toBe('firstParty');
+    expect(REQUIRED_SUBSCRIPTION_TYPE).toBe('max');
+  });
+
+  it('the dedicated profile is pinned: named constants, and never the ordinary profile by construction', async () => {
+    const { CLASSIFIER_PROFILE_DIR_BASENAME, CLASSIFIER_PROFILE_DIR_VARIABLE } =
+      await import('../../orgunits/classify/provider/profile.js');
+    expect(CLASSIFIER_PROFILE_DIR_BASENAME).toBe('.claude-nwf-classifier');
+    expect(CLASSIFIER_PROFILE_DIR_VARIABLE).toBe('NWF_PE_CLASSIFIER_CONFIG_DIR');
+    const { FORBIDDEN_PROFILE_ENTRIES } =
+      await import('../../orgunits/classify/provider/profileHygiene.js');
+    for (const surface of [
+      'CLAUDE.md',
+      'settings.json',
+      'settings.local.json',
+      'managed-settings.json',
+      '.mcp.json',
+      'agents',
+      'commands',
+      'skills',
+      'hooks',
+      'rules',
+      'output-styles',
+    ]) {
+      expect(FORBIDDEN_PROFILE_ENTRIES, `hygiene list is missing ${surface}`).toContain(surface);
+    }
+  });
+
+  it('no engine source reads a credential file, and the hygiene check reads NAMES only', () => {
+    for (const file of PRODUCTION_FILES) {
+      expect(code(file), `${file} names the credentials file`).not.toContain('.credentials.json');
+    }
+    const hygiene = code(`${PROVIDER_DIR}/profileHygiene.ts`);
+    expect(hygiene).not.toContain('readFile');
+    expect(hygiene).not.toContain('createReadStream');
+    expect(hygiene).not.toContain('writeFile');
+  });
+
+  it('the persistent profile is never engine-deleted: removal capability exists ONLY in the scratch module', () => {
+    for (const file of PROVIDER_FILES) {
+      if (file === `${PROVIDER_DIR}/runtimeIsolation.ts`) continue;
+      const source = code(file);
+      expect(source, `${file} imports a filesystem removal primitive`).not.toMatch(
+        /\b(?:rm|rmdir|rmSync|rmdirSync|unlink|unlinkSync)\b/,
+      );
+    }
+    // And the scratch module's removal is scoped to the directory it created.
+    const isolation = code(`${PROVIDER_DIR}/runtimeIsolation.ts`);
+    expect(isolation).toContain('mkdtemp');
+    expect(isolation).not.toContain('CLAUDE_CONFIG_DIR');
   });
 
   it('the invocation builder literally pins every hermetic option, and omits every forbidden one', () => {
@@ -2098,11 +2186,14 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
     }
   });
 
-  it('no automated test constructs the production Agent SDK runner', () => {
+  it('no automated test constructs a production runner - SDK or auth-status', () => {
     const testFiles = SOURCE_FILES.filter((file) => file.startsWith('src/test/'));
     for (const file of testFiles) {
-      expect(code(file), `${file} constructs the production runner`).not.toContain(
+      expect(code(file), `${file} constructs the production SDK runner`).not.toContain(
         'createProductionAgentSdkRunner',
+      );
+      expect(code(file), `${file} constructs the production auth-status runner`).not.toContain(
+        'createProductionAuthStatusRunner',
       );
     }
   });
