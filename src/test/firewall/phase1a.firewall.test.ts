@@ -56,11 +56,39 @@ const ALL_DEPENDENCIES = {
   ...(PACKAGE_JSON.devDependencies ?? {}),
 };
 
+/**
+ * THE ONE PERMITTED AI-PROVIDER DEPENDENCY (Phase 2B-2C2, ADR 0009): the
+ * official Claude Agent SDK, importable ONLY inside the approved Max-only
+ * provider boundary (`phase2b.firewall.test.ts` pins the single import
+ * site). The Messages-API client (`@anthropic-ai/sdk`) stays banned as a
+ * direct dependency and as an import everywhere.
+ */
+const PERMITTED_ANTHROPIC_DEPENDENCY = '@anthropic-ai/claude-agent-sdk';
+
+/**
+ * Exact-file exemptions (ADR 0009): a guard must NAME what it refuses, and
+ * an allowlist must NAME what it allows. The conflicting-auth constant may
+ * contain the API-key identifier as a FORBIDDEN NAME; the model allowlist
+ * may contain exact model-id strings. Nothing else may.
+ */
+const AUTH_CONFLICT_GUARD_FILE = 'src/orgunits/classify/provider/authConflicts.ts';
+const MODEL_ALLOWLIST_FILE = 'src/orgunits/classify/provider/allowedModels.ts';
+/**
+ * The one TEST permitted to spell the credential identifier out: the unit
+ * test that pins the guard's canonical 14-variable list VERBATIM, so drift
+ * in the constant cannot hide behind an indirection. Every other test
+ * refers to forbidden variables through the exported constant or a
+ * constructed string.
+ */
+const AUTH_CONFLICT_LIST_TEST_FILE = 'src/test/unit/orgunitClassifyProviderPreflight.test.ts';
+
 describe('PHASE-1A-FIREWALL: no AI/research capability', () => {
-  it('declares no Anthropic SDK dependency', () => {
+  it('declares no Anthropic SDK dependency beyond the one approved Agent SDK', () => {
     for (const name of Object.keys(ALL_DEPENDENCIES)) {
       expect(name).not.toBe('@anthropic-ai/sdk');
-      expect(name.startsWith('@anthropic-ai/')).toBe(false);
+      if (name !== PERMITTED_ANTHROPIC_DEPENDENCY) {
+        expect(name.startsWith('@anthropic-ai/')).toBe(false);
+      }
       expect(name).not.toBe('anthropic');
     }
   });
@@ -71,15 +99,48 @@ describe('PHASE-1A-FIREWALL: no AI/research capability', () => {
       expect(source, `${file} references the Anthropic API host`).not.toContain(
         'api.anthropic.com',
       );
-      expect(source, `${file} references a Claude model id`).not.toMatch(/claude-[a-z0-9-]*\d/);
-      expect(source, `${file} references an Anthropic credential`).not.toContain(
-        'ANTHROPIC_API_KEY',
+      if (file !== MODEL_ALLOWLIST_FILE) {
+        expect(source, `${file} references a Claude model id`).not.toMatch(/claude-[a-z0-9-]*\d/);
+      }
+      if (file !== AUTH_CONFLICT_GUARD_FILE && file !== AUTH_CONFLICT_LIST_TEST_FILE) {
+        expect(source, `${file} references an Anthropic credential`).not.toContain(
+          'ANTHROPIC_API_KEY',
+        );
+      }
+      // The exemption is for NAMING the forbidden variable, never for
+      // READING it as a credential: no file anywhere may dereference it.
+      expect(source, `${file} reads the Anthropic API key from the environment`).not.toMatch(
+        /process\.env\.ANTHROPIC_API_KEY|process\.env\[\s*['"]ANTHROPIC_API_KEY['"]\s*\]/,
       );
     }
   });
 
-  it('has no lockfile entry for an Anthropic package', () => {
-    expect(read('package-lock.json')).not.toContain('@anthropic-ai/sdk');
+  it('the two exempted files exist and are exactly what the exemption says they are', () => {
+    const guard = read(AUTH_CONFLICT_GUARD_FILE);
+    expect(guard).toContain('FORBIDDEN_AUTH_VARIABLES');
+    const allowlist = read(MODEL_ALLOWLIST_FILE);
+    expect(allowlist).toContain('ORGUNIT_CLASSIFIER_ALLOWED_MODELS');
+    // Neither exempted file may itself construct a client or name the API host.
+    for (const source of [guard, allowlist]) {
+      expect(source).not.toContain('api.anthropic.com');
+      expect(source).not.toMatch(/new\s+Anthropic\s*\(/);
+      expect(source).not.toMatch(/from\s+['"]@anthropic-ai\//);
+    }
+  });
+
+  it('has no lockfile entry that makes the Messages-API SDK a DIRECT dependency', () => {
+    // The Agent SDK declares `@anthropic-ai/sdk` as a PEER dependency, which
+    // npm auto-installs into the lockfile (verified at install time,
+    // 2026-08-30; the runtime design audit §16 item 3 anticipated exactly
+    // this). The intent - no Messages-API SDK - therefore narrows to: never
+    // a direct dependency of THIS package, and never imported by any source
+    // file (asserted in phase2b's Max-only block).
+    const lockfile = JSON.parse(read('package-lock.json')) as {
+      packages: Record<string, { dependencies?: Record<string, string> }>;
+    };
+    const rootDeps = lockfile.packages['']?.dependencies ?? {};
+    expect(Object.keys(rootDeps)).not.toContain('@anthropic-ai/sdk');
+    expect(Object.keys(rootDeps)).toContain(PERMITTED_ANTHROPIC_DEPENDENCY);
   });
 });
 

@@ -125,8 +125,11 @@ const MIGRATIONS = readdirSync(resolve(ROOT, 'migrations'))
 describe('PHASE-1D-FIREWALL: Phase 1D added no dependency at all', () => {
   it('keeps the runtime dependency list exactly as it was', () => {
     // Phase 1D needed nothing new: tldts was already present for
-    // canonical_domain, and zod for environment validation.
+    // canonical_domain, and zod for environment validation. Phase 2B-2C2
+    // (ADR 0009) later added the one approved Claude Agent SDK - a
+    // deliberate, reviewed edit of this exact array.
     expect(Object.keys(PACKAGE_JSON.dependencies ?? {}).sort()).toEqual([
+      '@anthropic-ai/claude-agent-sdk',
       'pg',
       'read-excel-file',
       'saxes',
@@ -172,9 +175,15 @@ describe('PHASE-1D-FIREWALL: Phase 1D added no dependency at all', () => {
     }
   });
 
-  it('declares no AI, contact-data or outbound dependency', () => {
+  it('declares no AI, contact-data or outbound dependency beyond the one approved Agent SDK', () => {
+    // The single exception is the Phase 2B-2C2 Max-only classifier runtime
+    // dependency (ADR 0009); `@anthropic-ai/sdk` and every other provider
+    // stay banned, and phase2b pins the single permitted import site.
     for (const name of Object.keys(ALL_DEPENDENCIES)) {
-      expect(name.startsWith('@anthropic-ai/')).toBe(false);
+      if (name !== '@anthropic-ai/claude-agent-sdk') {
+        expect(name.startsWith('@anthropic-ai/')).toBe(false);
+      }
+      expect(name).not.toBe('@anthropic-ai/sdk');
       expect(name.includes('apollo')).toBe(false);
       expect(['resend', 'nodemailer', '@sendgrid/mail', 'postmark']).not.toContain(name);
     }
