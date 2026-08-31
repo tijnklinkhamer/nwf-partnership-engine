@@ -1,6 +1,6 @@
 # ADR 0009 — Claude-Max-only classifier runtime (Phase 2B-2C2)
 
-- **Status:** Proposed (feature branch, not landed)
+- **Status:** Accepted
 - **Decision date:** 2026-08-30
 - **Phase:** 2B-2C2
 - **Evidence base:** `docs/audits/PHASE_2B_2C_CLAUDE_MAX_RUNTIME_DESIGN_2026-08.md`
