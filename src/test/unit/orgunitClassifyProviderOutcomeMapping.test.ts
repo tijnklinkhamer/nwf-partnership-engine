@@ -121,6 +121,33 @@ describe('classifyRunResult', () => {
     expect(classified.kind).toBe('PROVIDER_TRANSIENT');
     expect(classified.kind).not.toBe('USAGE_LIMIT_EXHAUSTED');
   });
+
+  it('maps the EXACT 2B-2C3B deterministic structured-output/request-schema 400 to STRUCTURED_OUTPUT_FAILED, never PROVIDER_TRANSIENT', () => {
+    // The exact text the 2026-09-01 smoke observed: subtype 'success' with
+    // is_error true (the SDK's own documented shape for this failure), and
+    // the error text landing in resultText per this module's own contract.
+    const classified = classifyRunResult(
+      runResult({
+        isError: true,
+        resultText:
+          'Claude Code returned an error result: API Error: 400\n' +
+          "tools.0.custom.input_schema.type: Input should be 'object'",
+      }),
+    );
+    expect(classified.kind).toBe('STRUCTURED_OUTPUT_FAILED');
+    expect(classified.kind).not.toBe('PROVIDER_TRANSIENT');
+  });
+
+  it('does NOT classify an unrelated 4xx (no input_schema mention) as STRUCTURED_OUTPUT_FAILED - narrow, evidence-based recognition only', () => {
+    const classified = classifyRunResult(
+      runResult({
+        subtype: 'error_during_execution',
+        isError: true,
+        errors: ['API Error: 429 rate limit exceeded'],
+      }),
+    );
+    expect(classified.kind).toBe('PROVIDER_TRANSIENT');
+  });
 });
 
 describe('classifyThrownFailure', () => {
@@ -144,6 +171,20 @@ describe('classifyThrownFailure', () => {
 
   it('maps thrown auth text to AUTH_FAILURE', () => {
     expect(classifyThrownFailure(new Error('401 authentication_error')).kind).toBe('AUTH_FAILURE');
+  });
+
+  it('maps a thrown deterministic structured-output/request-schema 400 to STRUCTURED_OUTPUT_FAILED, never PROVIDER_TRANSIENT', () => {
+    // The exact shape a `query()` next() pull throws per the 2026-09-01
+    // smoke, for the transport path (e.g. the very first pull throwing
+    // before any message is yielded at all).
+    const classified = classifyThrownFailure(
+      new Error(
+        'Claude Code returned an error result: API Error: 400\n' +
+          "tools.0.custom.input_schema.type: Input should be 'object'",
+      ),
+    );
+    expect(classified.kind).toBe('STRUCTURED_OUTPUT_FAILED');
+    expect(classified.kind).not.toBe('PROVIDER_TRANSIENT');
   });
 
   it('maps transport resets and unknown throwables to PROVIDER_TRANSIENT - never exhaustion', () => {

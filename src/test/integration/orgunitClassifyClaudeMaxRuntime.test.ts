@@ -256,7 +256,7 @@ describeDb('ClaudeMaxAgentProvider through the real 2B-2C1 orchestration (integr
   it('SUCCESS: fake SDK structured result flows through validation into semantic persistence and COMPLETED', async () => {
     const runId = await seedScenario('www.example.ac.uk');
     const runCompletion = await checkRunCompleted(readonly, runId);
-    const runner = new FakeRunner([structuredSuccess([VALID_DOC_0])]);
+    const runner = new FakeRunner([structuredSuccess({ results: [VALID_DOC_0] })]);
     const provider = maxProvider(runner, profileEnv);
 
     const [result] = await runOrganisationClassification(classifier, {
@@ -378,7 +378,7 @@ describeDb('ClaudeMaxAgentProvider through the real 2B-2C1 orchestration (integr
     const runner = new FakeRunner([
       new Error('read ECONNRESET'),
       new Error('read ECONNRESET'),
-      structuredSuccess([VALID_DOC_0]),
+      structuredSuccess({ results: [VALID_DOC_0] }),
     ]);
     const provider = maxProvider(runner, profileEnv);
 

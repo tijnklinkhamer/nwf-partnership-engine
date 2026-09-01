@@ -1851,7 +1851,7 @@ describe('PHASE-2B-FIREWALL 2B-2C1: semantic core is provider-neutral, and persi
     expect(prompt).toContain("ORGUNIT_CLASSIFIER_PROMPT_VERSION = 'orgunit-classifier-prompt-v1'");
     const schema = code('src/orgunits/classify/outputSchema.ts');
     expect(schema).toContain(
-      "ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION = 'orgunit-classifier-output-schema-v1'",
+      "ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION = 'orgunit-classifier-output-schema-v2'",
     );
   });
 

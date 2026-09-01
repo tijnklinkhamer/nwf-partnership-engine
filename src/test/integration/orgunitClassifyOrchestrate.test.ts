@@ -156,21 +156,23 @@ describeDb('classifier orchestration - full lifecycle (integration)', () => {
 
     const runCompletion = await checkRunCompleted(readonly, runId);
     const provider = new ScriptedTestProvider([
-      scriptedOk([
-        {
-          doc_index: 0,
-          verdict: 'UNIT_PAGE',
-          unit_type: 'INTERNATIONAL_MOBILITY_OFFICE',
-          page_kind: null,
-          unit_name: 'International Office',
-          serves_incoming_international_students: 'YES',
-          serves_outgoing_mobility_students: 'YES',
-          provides_language_learning_or_support: 'NO',
-          confidence: 'HIGH',
-          rationale: 'Title and excerpt directly name the international office.',
-          evidence_spans: [{ source: 'TITLE', quote: 'International Office' }],
-        },
-      ]),
+      scriptedOk({
+        results: [
+          {
+            doc_index: 0,
+            verdict: 'UNIT_PAGE',
+            unit_type: 'INTERNATIONAL_MOBILITY_OFFICE',
+            page_kind: null,
+            unit_name: 'International Office',
+            serves_incoming_international_students: 'YES',
+            serves_outgoing_mobility_students: 'YES',
+            provides_language_learning_or_support: 'NO',
+            confidence: 'HIGH',
+            rationale: 'Title and excerpt directly name the international office.',
+            evidence_spans: [{ source: 'TITLE', quote: 'International Office' }],
+          },
+        ],
+      }),
     ]);
 
     const results = await runOrganisationClassification(classifier, {
@@ -231,35 +233,37 @@ describeDb('classifier orchestration - full lifecycle (integration)', () => {
 
     const runCompletion = await checkRunCompleted(readonly, runId);
     const provider = new ScriptedTestProvider([
-      scriptedOk([
-        {
-          doc_index: 0,
-          verdict: 'UNIT_PAGE',
-          unit_type: 'INTERNATIONAL_MOBILITY_OFFICE',
-          page_kind: null,
-          unit_name: null,
-          serves_incoming_international_students: 'YES',
-          serves_outgoing_mobility_students: 'UNKNOWN',
-          provides_language_learning_or_support: 'NO',
-          confidence: 'HIGH',
-          rationale: 'International Office named directly.',
-          evidence_spans: [{ source: 'TITLE', quote: 'International Office' }],
-        },
-        {
-          doc_index: 1,
-          verdict: 'NOT_A_UNIT',
-          unit_type: null,
-          page_kind: 'DEGREE_PROGRAMME_PAGE',
-          unit_name: null,
-          serves_incoming_international_students: null,
-          serves_outgoing_mobility_students: null,
-          provides_language_learning_or_support: null,
-          confidence: 'HIGH',
-          rationale: 'A degree programme page.',
-          // FABRICATED quote, absent from the actual document - must be dropped.
-          evidence_spans: [{ source: 'TITLE', quote: 'BBA International Business' }],
-        },
-      ]),
+      scriptedOk({
+        results: [
+          {
+            doc_index: 0,
+            verdict: 'UNIT_PAGE',
+            unit_type: 'INTERNATIONAL_MOBILITY_OFFICE',
+            page_kind: null,
+            unit_name: null,
+            serves_incoming_international_students: 'YES',
+            serves_outgoing_mobility_students: 'UNKNOWN',
+            provides_language_learning_or_support: 'NO',
+            confidence: 'HIGH',
+            rationale: 'International Office named directly.',
+            evidence_spans: [{ source: 'TITLE', quote: 'International Office' }],
+          },
+          {
+            doc_index: 1,
+            verdict: 'NOT_A_UNIT',
+            unit_type: null,
+            page_kind: 'DEGREE_PROGRAMME_PAGE',
+            unit_name: null,
+            serves_incoming_international_students: null,
+            serves_outgoing_mobility_students: null,
+            provides_language_learning_or_support: null,
+            confidence: 'HIGH',
+            rationale: 'A degree programme page.',
+            // FABRICATED quote, absent from the actual document - must be dropped.
+            evidence_spans: [{ source: 'TITLE', quote: 'BBA International Business' }],
+          },
+        ],
+      }),
     ]);
 
     const [result] = await runOrganisationClassification(classifier, {
@@ -341,21 +345,23 @@ describeDb('classifier orchestration - full lifecycle (integration)', () => {
 
     const runCompletion = await checkRunCompleted(readonly, runId);
     const okResponse = () =>
-      scriptedOk([
-        {
-          doc_index: 0,
-          verdict: 'UNIT_PAGE',
-          unit_type: 'INTERNATIONAL_MOBILITY_OFFICE',
-          page_kind: null,
-          unit_name: null,
-          serves_incoming_international_students: 'YES',
-          serves_outgoing_mobility_students: 'UNKNOWN',
-          provides_language_learning_or_support: 'NO',
-          confidence: 'HIGH',
-          rationale: 'International Office named directly.',
-          evidence_spans: [{ source: 'TITLE', quote: 'International Office' }],
-        },
-      ]);
+      scriptedOk({
+        results: [
+          {
+            doc_index: 0,
+            verdict: 'UNIT_PAGE',
+            unit_type: 'INTERNATIONAL_MOBILITY_OFFICE',
+            page_kind: null,
+            unit_name: null,
+            serves_incoming_international_students: 'YES',
+            serves_outgoing_mobility_students: 'UNKNOWN',
+            provides_language_learning_or_support: 'NO',
+            confidence: 'HIGH',
+            rationale: 'International Office named directly.',
+            evidence_spans: [{ source: 'TITLE', quote: 'International Office' }],
+          },
+        ],
+      });
 
     const firstProvider = new ScriptedTestProvider([okResponse()]);
     await runOrganisationClassification(classifier, {
@@ -416,7 +422,7 @@ describeDb('classifier orchestration - full lifecycle (integration)', () => {
       evidence_spans: [{ source: 'TITLE' as const, quote: 'International Office' }],
     };
 
-    const provider1 = new ScriptedTestProvider([scriptedOk([doc0])]);
+    const provider1 = new ScriptedTestProvider([scriptedOk({ results: [doc0] })]);
     const [first] = await runOrganisationClassification(classifier, {
       organisationId: root.organisationId,
       runId,
@@ -426,7 +432,7 @@ describeDb('classifier orchestration - full lifecycle (integration)', () => {
     });
     expect(first!.kind).toBe('EXECUTED');
 
-    const provider2 = new ScriptedTestProvider([scriptedOk([doc0])]);
+    const provider2 = new ScriptedTestProvider([scriptedOk({ results: [doc0] })]);
     const [second] = await runOrganisationClassification(classifier, {
       organisationId: root.organisationId,
       runId,
@@ -467,23 +473,25 @@ describeDb('classifier orchestration - full lifecycle (integration)', () => {
 
     const runCompletion = await checkRunCompleted(readonly, runId);
     const provider = new ScriptedTestProvider([
-      scriptedOk([
-        {
-          doc_index: 0,
-          verdict: 'UNIT_PAGE',
-          unit_type: 'INTERNATIONAL_MOBILITY_OFFICE',
-          page_kind: null,
-          unit_name: null,
-          serves_incoming_international_students: 'YES',
-          serves_outgoing_mobility_students: 'UNKNOWN',
-          provides_language_learning_or_support: 'NO',
-          confidence: 'HIGH',
-          rationale: 'International Office named in the title.',
-          // A literal substring of the injection-shaped title - proves the
-          // text is preserved as DATA (still verifiable), never stripped.
-          evidence_spans: [{ source: 'TITLE', quote: injectionTitle }],
-        },
-      ]),
+      scriptedOk({
+        results: [
+          {
+            doc_index: 0,
+            verdict: 'UNIT_PAGE',
+            unit_type: 'INTERNATIONAL_MOBILITY_OFFICE',
+            page_kind: null,
+            unit_name: null,
+            serves_incoming_international_students: 'YES',
+            serves_outgoing_mobility_students: 'UNKNOWN',
+            provides_language_learning_or_support: 'NO',
+            confidence: 'HIGH',
+            rationale: 'International Office named in the title.',
+            // A literal substring of the injection-shaped title - proves the
+            // text is preserved as DATA (still verifiable), never stripped.
+            evidence_spans: [{ source: 'TITLE', quote: injectionTitle }],
+          },
+        ],
+      }),
     ]);
 
     const [result] = await runOrganisationClassification(classifier, {

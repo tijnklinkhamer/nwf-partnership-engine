@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   ClassificationResultSchema,
+  ClassifierResponseEnvelopeSchema,
   ClassifierResponseSchema,
   CONFIDENCE_VALUES,
   EVIDENCE_SOURCES,
@@ -63,8 +64,8 @@ function needsReviewDoc(overrides: Record<string, unknown> = {}) {
 }
 
 describe('output schema version', () => {
-  it('is versioned exactly orgunit-classifier-output-schema-v1', () => {
-    expect(ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION).toBe('orgunit-classifier-output-schema-v1');
+  it('is versioned exactly orgunit-classifier-output-schema-v2', () => {
+    expect(ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION).toBe('orgunit-classifier-output-schema-v2');
   });
 });
 
@@ -265,28 +266,86 @@ describe('ClassifierResponseSchema - the whole call-level response', () => {
   });
 });
 
-describe('the provider-facing JSON Schema', () => {
+describe('the provider-facing JSON Schema (v2: object-rooted envelope)', () => {
   it('is draft-07', () => {
     const schema = ORGUNIT_CLASSIFIER_OUTPUT_JSON_SCHEMA as { $schema?: string };
     expect(schema.$schema).toBe('http://json-schema.org/draft-07/schema#');
   });
 
-  it('is an array schema with a discriminated-union item shape (oneOf branches)', () => {
+  it('has an OBJECT root, not an array root - the exact 2B-2C3B defect this schema corrects', () => {
+    const schema = ORGUNIT_CLASSIFIER_OUTPUT_JSON_SCHEMA as { type?: string };
+    expect(schema.type).toBe('object');
+  });
+
+  it('requires exactly the "results" property, and nothing else', () => {
     const schema = ORGUNIT_CLASSIFIER_OUTPUT_JSON_SCHEMA as {
-      type?: string;
-      items?: { oneOf?: unknown[] };
+      required?: string[];
+      additionalProperties?: boolean;
     };
-    expect(schema.type).toBe('array');
-    expect(Array.isArray(schema.items?.oneOf)).toBe(true);
-    expect(schema.items!.oneOf!.length).toBe(3);
+    expect(schema.required).toEqual(['results']);
+    expect(schema.additionalProperties).toBe(false);
+  });
+
+  it('"results" is an array of at least one item, with a discriminated-union item shape (oneOf branches)', () => {
+    const schema = ORGUNIT_CLASSIFIER_OUTPUT_JSON_SCHEMA as {
+      properties?: {
+        results?: { type?: string; minItems?: number; items?: { oneOf?: unknown[] } };
+      };
+    };
+    const results = schema.properties?.results;
+    expect(results?.type).toBe('array');
+    expect(results?.minItems).toBe(1);
+    expect(Array.isArray(results?.items?.oneOf)).toBe(true);
+    expect(results!.items!.oneOf!.length).toBe(3);
   });
 
   it('every branch forbids additional properties (closed objects)', () => {
     const schema = ORGUNIT_CLASSIFIER_OUTPUT_JSON_SCHEMA as {
-      items: { oneOf: Array<{ additionalProperties?: boolean }> };
+      properties: { results: { items: { oneOf: Array<{ additionalProperties?: boolean }> } } };
     };
-    for (const branch of schema.items.oneOf) {
+    for (const branch of schema.properties.results.items.oneOf) {
       expect(branch.additionalProperties).toBe(false);
     }
+  });
+});
+
+describe('ClassifierResponseEnvelopeSchema - the v2 wire envelope', () => {
+  function envelope(results: unknown[]) {
+    return { results };
+  }
+
+  it('accepts a well-formed envelope', () => {
+    expect(ClassifierResponseEnvelopeSchema.safeParse(envelope([unitPageDoc()])).success).toBe(
+      true,
+    );
+  });
+
+  it('rejects the old v1 bare-array root', () => {
+    expect(ClassifierResponseEnvelopeSchema.safeParse([unitPageDoc()]).success).toBe(false);
+  });
+
+  it('rejects an empty results array', () => {
+    expect(ClassifierResponseEnvelopeSchema.safeParse(envelope([])).success).toBe(false);
+  });
+
+  it('rejects "results" of the wrong type', () => {
+    expect(ClassifierResponseEnvelopeSchema.safeParse({ results: 'wrong' }).success).toBe(false);
+  });
+
+  it('rejects a misspelled property name ("result" instead of "results")', () => {
+    expect(ClassifierResponseEnvelopeSchema.safeParse({ result: [unitPageDoc()] }).success).toBe(
+      false,
+    );
+  });
+
+  it('rejects an extra top-level property (closed envelope)', () => {
+    expect(
+      ClassifierResponseEnvelopeSchema.safeParse({ results: [unitPageDoc()], extra: true }).success,
+    ).toBe(false);
+  });
+
+  it('rejects null and undefined', () => {
+    expect(ClassifierResponseEnvelopeSchema.safeParse(null).success).toBe(false);
+    expect(ClassifierResponseEnvelopeSchema.safeParse(undefined).success).toBe(false);
   });
 });
