@@ -20,6 +20,24 @@
  * failures (spawn failure, connection reset, abort) THROW; the provider's
  * centralized outcome mapping interprets both shapes.
  *
+ * TERMINAL MEANS TERMINAL (2B-2C3C hardening, from the 2026-09-01 2B-2C3B
+ * smoke). The pinned SDK version's `query()` is documented to THROW on the
+ * very next pull after yielding a `result` message that reports an error —
+ * observed directly: `system/init` -> `assistant` -> `result` (`is_error:
+ * true`, no `structured_output`) -> the next iterator pull threw
+ * `API Error: 400 tools.0.custom.input_schema.type: Input should be
+ * 'object'`. A naive `for await...of` loop that keeps iterating after
+ * capturing the result message pulls that extra item anyway, so the SDK's
+ * own throw replaces the terminal result this runner had ALREADY captured -
+ * discarding real, actionable failure information. `consumeQueryStream`
+ * below `break`s the instant it sees `type === 'result'`; `for await...of`'s
+ * own `IteratorClose` semantics then call the stream's `return()` (never
+ * `next()`) to unwind it, so the throw-on-next-pull path is structurally
+ * never reached once a terminal result has arrived. Extracted as its own
+ * function, independent of the real `query()` call, so a test can drive it
+ * with a fake message stream without constructing the production runner
+ * (`phase2b.firewall.test.ts` forbids any test from doing that).
+ *
  * `USAGE_LIMIT_ERROR_PREFIXES` is RE-EXPORTED here from the SDK itself —
  * the SDK's own list of "a usage limit was genuinely reached" message
  * prefixes — so the outcome-mapping module can recognise subscription
@@ -48,7 +66,13 @@ export interface AgentSdkRunResult {
     | 'error_max_budget_usd'
     | 'error_max_structured_output_retries';
   readonly isError: boolean;
-  /** Present only when the SDK's structured-output channel delivered a value. */
+  /**
+   * Present only when the SDK's structured-output channel delivered a value
+   * on a GENUINE (non-error) success. Never populated when `isError` is
+   * true, even if the underlying message happened to carry a
+   * `structured_output` field — an error-flagged result is never pretended
+   * to be successful structured output (2B-2C3C hardening).
+   */
   readonly structuredOutput: unknown | undefined;
   /** Final assistant text on subtype `success` — or, with `isError`, the SDK's error text. */
   readonly resultText: string | null;
@@ -77,7 +101,8 @@ function normalizeResult(message: SDKResultMessage): AgentSdkRunResult {
   return {
     subtype: message.subtype,
     isError: message.is_error,
-    structuredOutput: message.subtype === 'success' ? message.structured_output : undefined,
+    structuredOutput:
+      message.subtype === 'success' && !message.is_error ? message.structured_output : undefined,
     resultText: message.subtype === 'success' ? message.result : null,
     stopReason: message.stop_reason,
     responseModelId,
@@ -85,6 +110,31 @@ function normalizeResult(message: SDKResultMessage): AgentSdkRunResult {
     outputTokens: message.usage.output_tokens ?? null,
     errors: message.subtype === 'success' ? [] : message.errors,
   };
+}
+
+/**
+ * Consumes an SDK message stream to its terminal `result` message and
+ * returns the normalized summary — the seam `createProductionAgentSdkRunner`
+ * calls with the real `query()` stream, and that a test can call directly
+ * with a FAKE stream (see this file's module comment). Stops pulling the
+ * instant a `result` message arrives: never calls `next()` again afterwards,
+ * relying on `for await...of`'s `IteratorClose` (`return()`, not `next()`)
+ * to unwind the stream on `break`.
+ */
+export async function consumeQueryStream(
+  stream: AsyncIterable<{ type: string }>,
+): Promise<AgentSdkRunResult> {
+  let terminal: SDKResultMessage | undefined;
+  for await (const message of stream) {
+    if (message.type === 'result') {
+      terminal = message as SDKResultMessage;
+      break;
+    }
+  }
+  if (terminal === undefined) {
+    throw new Error('Agent SDK query ended without a result message.');
+  }
+  return normalizeResult(terminal);
 }
 
 /**
@@ -123,14 +173,7 @@ export function createProductionAgentSdkRunner(): AgentSdkRunner {
         ...(invocation.options.effort !== undefined ? { effort: invocation.options.effort } : {}),
       };
 
-      let terminal: SDKResultMessage | undefined;
-      for await (const message of query({ prompt: invocation.prompt, options })) {
-        if (message.type === 'result') terminal = message;
-      }
-      if (terminal === undefined) {
-        throw new Error('Agent SDK query ended without a result message.');
-      }
-      return normalizeResult(terminal);
+      return consumeQueryStream(query({ prompt: invocation.prompt, options }));
     },
   };
 }

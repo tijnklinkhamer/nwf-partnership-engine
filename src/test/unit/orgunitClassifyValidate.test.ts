@@ -59,17 +59,55 @@ function validResult(docIndex: number, overrides: Record<string, unknown> = {}) 
   };
 }
 
+/** Wraps a set of raw classification-result objects in the v2 wire envelope. */
+function envelope(results: unknown[]): unknown {
+  return { results };
+}
+
 describe('validateClassifierResponse - structural (atomic) phase', () => {
-  it('SCHEMA_INVALID when the response is not an array at all', () => {
-    const result = validateClassifierResponse({ not: 'an array' }, batch([document(0)]));
+  it('SCHEMA_INVALID when the response is not an envelope object at all', () => {
+    const result = validateClassifierResponse({ not: 'an envelope' }, batch([document(0)]));
     expect(result.kind).toBe('SCHEMA_INVALID');
   });
 
-  it('SCHEMA_INVALID when ONE element in the array is structurally malformed - the whole response fails atomically', () => {
+  it('SCHEMA_INVALID when ONE element in results is structurally malformed - the whole response fails atomically', () => {
     const result = validateClassifierResponse(
-      [validResult(0), { ...validResult(1), unit_type: null }],
+      envelope([validResult(0), { ...validResult(1), unit_type: null }]),
       batch([document(0), document(1)]),
     );
+    expect(result.kind).toBe('SCHEMA_INVALID');
+  });
+
+  it('SCHEMA_INVALID on the old v1 bare-array root (no envelope)', () => {
+    const result = validateClassifierResponse([validResult(0)], batch([document(0)]));
+    expect(result.kind).toBe('SCHEMA_INVALID');
+  });
+
+  it('SCHEMA_INVALID on an empty results array', () => {
+    const result = validateClassifierResponse(envelope([]), batch([document(0)]));
+    expect(result.kind).toBe('SCHEMA_INVALID');
+  });
+
+  it('SCHEMA_INVALID when "results" is the wrong type', () => {
+    const result = validateClassifierResponse({ results: 'wrong' }, batch([document(0)]));
+    expect(result.kind).toBe('SCHEMA_INVALID');
+  });
+
+  it('SCHEMA_INVALID on a misspelled envelope property ("result" instead of "results")', () => {
+    const result = validateClassifierResponse({ result: [validResult(0)] }, batch([document(0)]));
+    expect(result.kind).toBe('SCHEMA_INVALID');
+  });
+
+  it('SCHEMA_INVALID on an extra top-level envelope property', () => {
+    const result = validateClassifierResponse(
+      { results: [validResult(0)], extra: true },
+      batch([document(0)]),
+    );
+    expect(result.kind).toBe('SCHEMA_INVALID');
+  });
+
+  it('SCHEMA_INVALID on null, with zero documents surviving', () => {
+    const result = validateClassifierResponse(null, batch([document(0)]));
     expect(result.kind).toBe('SCHEMA_INVALID');
   });
 });
@@ -77,7 +115,7 @@ describe('validateClassifierResponse - structural (atomic) phase', () => {
 describe('validateClassifierResponse - per-document phase (where PARTIAL comes from)', () => {
   it('accepts every document when every result is valid', () => {
     const b = batch([document(0), document(1)]);
-    const result = validateClassifierResponse([validResult(0), validResult(1)], b);
+    const result = validateClassifierResponse(envelope([validResult(0), validResult(1)]), b);
     expect(result.kind).toBe('VALIDATED');
     if (result.kind !== 'VALIDATED') throw new Error('unreachable');
     expect(result.accepted).toHaveLength(2);
@@ -86,7 +124,7 @@ describe('validateClassifierResponse - per-document phase (where PARTIAL comes f
 
   it('drops a document whose doc_index does not belong to this batch (foreign doc_index), keeping valid siblings', () => {
     const b = batch([document(0)]);
-    const result = validateClassifierResponse([validResult(0), validResult(99)], b);
+    const result = validateClassifierResponse(envelope([validResult(0), validResult(99)]), b);
     expect(result.kind).toBe('VALIDATED');
     if (result.kind !== 'VALIDATED') throw new Error('unreachable');
     expect(result.accepted.map((a) => a.docIndex)).toEqual([0]);
@@ -98,7 +136,7 @@ describe('validateClassifierResponse - per-document phase (where PARTIAL comes f
   it('drops BOTH copies of a duplicated doc_index (ambiguous, cannot tell which was intended)', () => {
     const b = batch([document(0), document(1)]);
     const result = validateClassifierResponse(
-      [validResult(0), validResult(0, { confidence: 'LOW' }), validResult(1)],
+      envelope([validResult(0), validResult(0, { confidence: 'LOW' }), validResult(1)]),
       b,
     );
     expect(result.kind).toBe('VALIDATED');
@@ -111,7 +149,7 @@ describe('validateClassifierResponse - per-document phase (where PARTIAL comes f
 
   it('records a missing doc_index (batch document with no result at all) as a DOC_INDEX rejection', () => {
     const b = batch([document(0), document(1)]);
-    const result = validateClassifierResponse([validResult(0)], b);
+    const result = validateClassifierResponse(envelope([validResult(0)]), b);
     expect(result.kind).toBe('VALIDATED');
     if (result.kind !== 'VALIDATED') throw new Error('unreachable');
     expect(result.accepted.map((a) => a.docIndex)).toEqual([0]);
@@ -123,7 +161,9 @@ describe('validateClassifierResponse - per-document phase (where PARTIAL comes f
   it('rejects a document whose evidence span is not a literal substring of the supplied document', () => {
     const b = batch([document(0)]);
     const result = validateClassifierResponse(
-      [validResult(0, { evidence_spans: [{ source: 'TITLE', quote: 'Centre de Langues' }] })],
+      envelope([
+        validResult(0, { evidence_spans: [{ source: 'TITLE', quote: 'Centre de Langues' }] }),
+      ]),
       b,
     );
     expect(result.kind).toBe('VALIDATED');
@@ -135,12 +175,12 @@ describe('validateClassifierResponse - per-document phase (where PARTIAL comes f
   it('rejects a document whose evidence span is a real quote, but from a DIFFERENT document', () => {
     const b = batch([document(0), document(1)]);
     const result = validateClassifierResponse(
-      [
+      envelope([
         validResult(0, {
           evidence_spans: [{ source: 'TITLE', quote: document(1).title! }],
         }),
         validResult(1),
-      ],
+      ]),
       b,
     );
     expect(result.kind).toBe('VALIDATED');
@@ -154,7 +194,7 @@ describe('validateClassifierResponse - per-document phase (where PARTIAL comes f
   it('rejects a fabricated unit_name absent from every supplied field', () => {
     const b = batch([document(0)]);
     const result = validateClassifierResponse(
-      [validResult(0, { unit_name: 'Invented Department Name' })],
+      envelope([validResult(0, { unit_name: 'Invented Department Name' })]),
       b,
     );
     expect(result.kind).toBe('VALIDATED');
@@ -165,7 +205,7 @@ describe('validateClassifierResponse - per-document phase (where PARTIAL comes f
 
   it('accepts a null unit_name unconditionally', () => {
     const b = batch([document(0)]);
-    const result = validateClassifierResponse([validResult(0, { unit_name: null })], b);
+    const result = validateClassifierResponse(envelope([validResult(0, { unit_name: null })]), b);
     expect(result.kind).toBe('VALIDATED');
     if (result.kind !== 'VALIDATED') throw new Error('unreachable');
     expect(result.accepted).toHaveLength(1);
@@ -177,7 +217,10 @@ describe('validateClassifierResponse - per-document phase (where PARTIAL comes f
     // Bypass outputSchema's own advisory .max(500) by constructing the raw
     // value directly (as if a future looser schema, or a provider quirk,
     // let it through) - proves validate.ts's OWN exact bound independently.
-    const result = validateClassifierResponse([validResult(0, { rationale: longRationale })], b);
+    const result = validateClassifierResponse(
+      envelope([validResult(0, { rationale: longRationale })]),
+      b,
+    );
     // The zod re-parse itself already rejects this (SCHEMA_INVALID) because
     // outputSchema.ts's own .max(500) catches it first; this is expected
     // and correct defense-in-depth, not a gap - see the next test for the
@@ -200,11 +243,11 @@ describe('validateClassifierResponse - per-document phase (where PARTIAL comes f
   it('keeps valid siblings even when one document is rejected (COMPLETED never required for a batch to yield SOME rows)', () => {
     const b = batch([document(0), document(1), document(2)]);
     const result = validateClassifierResponse(
-      [
+      envelope([
         validResult(0),
         validResult(1, { evidence_spans: [{ source: 'TITLE', quote: 'nonexistent' }] }),
         validResult(2),
-      ],
+      ]),
       b,
     );
     expect(result.kind).toBe('VALIDATED');

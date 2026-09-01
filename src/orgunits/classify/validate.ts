@@ -7,14 +7,18 @@
  * TWO PHASES, MATCHING WHAT THE MAX-RUNTIME DESIGN'S §20 SAYS ABOUT WHY
  * PARTIAL IS POSSIBLE AT ALL:
  *
- *   Phase 1 — STRUCTURAL (atomic). The exact zod schema from
- *   `outputSchema.ts` re-parses the raw provider value independently of
+ *   Phase 1 — STRUCTURAL (atomic). The exact v2 envelope schema from
+ *   `outputSchema.ts` (`ClassifierResponseEnvelopeSchema`,
+ *   `{ results: [...] }`) re-parses the raw provider value independently of
  *   whatever the provider claimed about it (layer 2 of the design's double
- *   validation, "never trusting layer 1"). This is genuinely atomic: one
- *   malformed element fails the WHOLE array's parse, because structured-
- *   output validation cannot deliver partial recovery and this module does
- *   not pretend otherwise by weakening the schema. A failure here is
- *   `SCHEMA_INVALID` for the ENTIRE call — zero documents survive.
+ *   validation, "never trusting layer 1"). A malformed envelope OR one
+ *   malformed element inside `results` fails the WHOLE parse, because
+ *   structured-output validation cannot deliver partial recovery and this
+ *   module does not pretend otherwise by weakening the schema. A failure
+ *   here is `SCHEMA_INVALID` for the ENTIRE call — zero documents survive.
+ *   Once parsed, `results` is unwrapped immediately: every phase below this
+ *   one operates on the plain `ClassificationResult[]` application shape —
+ *   the envelope is a wire-transport detail that never leaks past this gate.
  *
  *   Phase 2 — PER-DOCUMENT (where PARTIAL actually comes from). Once every
  *   element in the response individually conforms to the schema, each
@@ -39,7 +43,7 @@
  */
 import { unicodeCodePointLength } from '../web/extract.js';
 import { evidenceSpanVerifies, unitNameVerifies } from './evidenceVerification.js';
-import { ClassifierResponseSchema, type ClassificationResult } from './outputSchema.js';
+import { ClassifierResponseEnvelopeSchema, type ClassificationResult } from './outputSchema.js';
 import type { ClassifierBatch, ClassifierDocument } from './types.js';
 
 export const MAX_UNIT_NAME_CODE_POINTS = 200;
@@ -128,17 +132,18 @@ export function validateClassifierResponse(
   rawOutput: unknown,
   batch: ClassifierBatch,
 ): ValidationResult {
-  const parsed = ClassifierResponseSchema.safeParse(rawOutput);
-  if (!parsed.success) {
-    const firstIssue = parsed.error.issues[0];
+  const parsedEnvelope = ClassifierResponseEnvelopeSchema.safeParse(rawOutput);
+  if (!parsedEnvelope.success) {
+    const firstIssue = parsedEnvelope.error.issues[0];
     return {
       kind: 'SCHEMA_INVALID',
       detail: summariseParseFailure(
-        parsed.error.issues.length,
+        parsedEnvelope.error.issues.length,
         firstIssue ? firstIssue.message : 'unknown',
       ),
     };
   }
+  const results = parsedEnvelope.data.results;
 
   const documentsByIndex = new Map<number, ClassifierDocument>(
     batch.documents.map((d) => [d.docIndex, d]),
@@ -146,7 +151,7 @@ export function validateClassifierResponse(
   const validIndexes = new Set(documentsByIndex.keys());
 
   const occurrences = new Map<number, ClassificationResult[]>();
-  for (const result of parsed.data) {
+  for (const result of results) {
     const bucket = occurrences.get(result.doc_index);
     if (bucket) bucket.push(result);
     else occurrences.set(result.doc_index, [result]);

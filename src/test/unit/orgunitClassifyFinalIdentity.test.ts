@@ -11,6 +11,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { computeFinalInputSha256 } from '../../orgunits/classify/finalIdentity.js';
+import { ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION } from '../../orgunits/classify/outputSchema.js';
 
 const BASE = {
   assemblyInputSha256: '1'.repeat(64),
@@ -61,6 +62,23 @@ describe('computeFinalInputSha256', () => {
     const first = computeFinalInputSha256(BASE);
     const second = computeFinalInputSha256({ ...BASE });
     expect(first).toBe(second);
+  });
+
+  it('the real v2 output schema version hashes differently from the frozen v1 string (2B-2C3C bump)', () => {
+    // The landed constant must genuinely be v2 now, and an otherwise-
+    // identical input's hash must differ from what a v1 call would have
+    // produced - an already-completed v1 call is never silently treated as
+    // identical to a new v2 call with the same assembly/prompt inputs.
+    expect(ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION).toBe('orgunit-classifier-output-schema-v2');
+    const v1Hash = computeFinalInputSha256({
+      ...BASE,
+      outputSchemaVersion: 'orgunit-classifier-output-schema-v1',
+    });
+    const v2Hash = computeFinalInputSha256({
+      ...BASE,
+      outputSchemaVersion: ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
+    });
+    expect(v2Hash).not.toBe(v1Hash);
   });
 
   it('is order-independent over key construction (canonical serialization)', () => {

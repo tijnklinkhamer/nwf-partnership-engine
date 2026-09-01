@@ -498,6 +498,22 @@ describe('ClaudeMaxAgentProvider - failure mapping (no retry for terminal kinds)
     expect(result.outcome).toBe('TIMEOUT');
     expect(runner.invocations).toHaveLength(1);
   });
+
+  it('the deterministic 2B-2C3B structured-output/request-schema 400 -> STRUCTURED_OUTPUT_FAILED, exactly ONE runner invocation, no transport retry', async () => {
+    const { result, runner } = await classifyWith([
+      {
+        ...okRunResult(undefined),
+        isError: true,
+        structuredOutput: undefined,
+        resultText:
+          'Claude Code returned an error result: API Error: 400\n' +
+          "tools.0.custom.input_schema.type: Input should be 'object'",
+      },
+    ]);
+    expect(result.outcome).toBe('STRUCTURED_OUTPUT_FAILED');
+    expect(result.rawOutput).toBeNull();
+    expect(runner.invocations).toHaveLength(1); // never mistaken for transient, never retried
+  });
 });
 
 describe('ClaudeMaxAgentProvider - bounded transient retry (fake clock, no real sleeps)', () => {

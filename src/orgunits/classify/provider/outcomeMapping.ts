@@ -26,6 +26,16 @@
  *     wrong about). Unknown errors are NEVER labelled
  *     USAGE_LIMIT_EXHAUSTED: exhaustion is claimed only on the SDK's own
  *     prefix vocabulary.
+ *   - DETERMINISTIC STRUCTURED-OUTPUT/REQUEST-SCHEMA REJECTION (2B-2C3C,
+ *     from the 2026-09-01 2B-2C3B smoke): `matchesStructuredOutputSchemaFailure`
+ *     recognises the Messages API rejecting the SDK's OWN injected
+ *     structured-output tool schema — observed as `API Error: 4xx` naming
+ *     `input_schema` (`tools.0.custom.input_schema.type: Input should be
+ *     'object'`). Retrying an unmodified request against this failure can
+ *     never succeed, so it maps to `STRUCTURED_OUTPUT_FAILED`, never
+ *     `PROVIDER_TRANSIENT` — and it is deliberately narrow (requires BOTH
+ *     an `API Error: 4xx`-shaped code AND an `input_schema` mention) so an
+ *     unrelated 4xx (a bad model id, a rate limit) is never swept in.
  *
  * Mapping uncertainty can only ever mislabel a failure — it can never
  * route to a paid path, because none exists in-process (design §9).
@@ -69,6 +79,14 @@ export const AUTH_FAILURE_MARKERS: readonly string[] = [
 /** Timeout markers, lowercase, plus the SDK's AbortError name checked separately. */
 export const TIMEOUT_MARKERS: readonly string[] = ['timed out', 'timeout'];
 
+/**
+ * Narrow, evidence-based markers for the deterministic structured-output/
+ * request-schema rejection the 2B-2C3B smoke observed. Both an `API Error:
+ * 4xx`-shaped code AND a mention of `input_schema` are required — matching
+ * only the actually-observed failure class, never a blanket "every 4xx".
+ */
+export const STRUCTURED_OUTPUT_SCHEMA_ERROR_MARKERS: readonly string[] = ['input_schema'];
+
 function matchesUsageLimit(text: string): boolean {
   return USAGE_LIMIT_ERROR_PREFIXES.some((prefix) => text.includes(prefix));
 }
@@ -79,6 +97,13 @@ function matchesAuthFailure(lowerText: string): boolean {
 
 function matchesTimeout(lowerText: string): boolean {
   return TIMEOUT_MARKERS.some((m) => lowerText.includes(m));
+}
+
+function matchesStructuredOutputSchemaFailure(lowerText: string): boolean {
+  return (
+    /\bapi error:\s*4\d\d\b/.test(lowerText) &&
+    STRUCTURED_OUTPUT_SCHEMA_ERROR_MARKERS.some((m) => lowerText.includes(m))
+  );
 }
 
 /**
@@ -147,6 +172,14 @@ export function classifyRunResult(result: AgentSdkRunResult): ClassifiedAttempt 
       detail: `structured output failed: the run terminated (${result.subtype}) without a structured result.`,
     };
   }
+  if (matchesStructuredOutputSchemaFailure(lower)) {
+    return {
+      kind: 'STRUCTURED_OUTPUT_FAILED',
+      detail:
+        'structured output failed: the provider rejected the request structured-output ' +
+        'schema (deterministic HTTP 4xx naming input_schema; never retried).',
+    };
+  }
   // Unrecognised error-shaped result (`error_during_execution`, or a success
   // subtype flagged is_error with unrecognised text): transient, bounded-retryable.
   return {
@@ -182,6 +215,14 @@ export function classifyThrownFailure(error: unknown): ClassifiedAttempt {
       detail:
         'authentication failure reported by the provider runtime. ' +
         'Re-mint the subscription token with `claude setup-token` (operator action).',
+    };
+  }
+  if (matchesStructuredOutputSchemaFailure(lower)) {
+    return {
+      kind: 'STRUCTURED_OUTPUT_FAILED',
+      detail:
+        'structured output failed: the provider rejected the request structured-output ' +
+        'schema (deterministic HTTP 4xx naming input_schema; never retried).',
     };
   }
   return {
