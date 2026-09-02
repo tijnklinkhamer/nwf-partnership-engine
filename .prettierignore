@@ -6,3 +6,9 @@ src/test/fixtures/
 
 # Gitignored working directory for downloaded source artifacts.
 data/
+
+# Frozen empirical audit records are byte-frozen once landed: reformatting one
+# would alter a historical record, so the formatter never touches them. (The
+# 2026-08 shadow-validation audit predates the current prettier's markdown
+# rules; this exemption preserves its exact committed bytes.)
+docs/audits/
