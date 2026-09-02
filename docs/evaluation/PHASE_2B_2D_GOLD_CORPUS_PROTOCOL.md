@@ -1,3 +1,18 @@
+> **MODEL SELECTION SUPERSEDED BY OWNER PRODUCT DECISION ON 2026-09-02:
+> PRODUCTION CLASSIFIER = CLAUDE SONNET 5.** The owner has fixed Sonnet 5 as
+> the production model; Haiku, Opus and Fable are no longer production
+> candidates (§10-§14 below no longer apply as a decision procedure). This
+> document and the 160-item `orgunit-classifier-gold-v1` corpus it describes
+> are RETAINED UNEDITED as historical/audit material — `CANDIDATE_POOL_V1` —
+> and are not the active benchmark. The active protocol is
+> `PHASE_2B_2D_SONNET_ACCEPTANCE_PROTOCOL.md`, which reduces this corpus to a
+> focused ~72-item Sonnet acceptance/regression corpus and reuses this
+> document's absolute quality gates (§8) unchanged — those describe what
+> "good enough for production" means, not which model is being compared.
+> Nothing below this notice was edited; it is preserved as the record of the
+> research that led to the fixed-Sonnet decision, not falsified into having
+> never happened.
+
 # Phase 2B-2D — Gold corpus and model-selection protocol (frozen 2026-09-01)
 
 **Status: FROZEN BEFORE ANY MODEL BENCHMARK.** No candidate model has been

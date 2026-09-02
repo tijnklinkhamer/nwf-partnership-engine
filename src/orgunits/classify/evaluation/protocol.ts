@@ -153,3 +153,55 @@ export const STABILITY_REPEATS = 3;
 
 /** Frontier-audit subset ceiling (diagnostic only; never gold, never selection). */
 export const FRONTIER_AUDIT_MAX_ITEMS = 20;
+
+/**
+ * PHASE 2B-2D1B - SONNET 5 ACCEPTANCE/REGRESSION PROTOCOL.
+ *
+ * MODEL SELECTION SUPERSEDED BY OWNER PRODUCT DECISION on 2026-09-02:
+ * PRODUCTION CLASSIFIER = CLAUDE SONNET 5. Everything above this point
+ * (`ORGUNIT_CLASSIFIER_GOLD_CORPUS_VERSION`, `ORGUNIT_CLASSIFIER_EVAL_PROTOCOL_VERSION`,
+ * `SPLIT_PATTERN`, the Haiku-vs-Sonnet margins) describes the SUPERSEDED
+ * 160-item model-selection corpus and protocol, retained unedited as
+ * `CANDIDATE_POOL_V1` - a historical/audit artifact, never the active
+ * benchmark. `ABSOLUTE_GATES`, `MIN_SUBGROUP_SIZE_FOR_GATING`,
+ * `MAX_SUBGROUP_SHORTFALL` and `ERROR_SEVERITY_WEIGHTS` are UNCHANGED and
+ * REUSED by the acceptance protocol - they describe what "good enough for
+ * production" means, not who is being compared.
+ *
+ * See `docs/evaluation/PHASE_2B_2D_SONNET_ACCEPTANCE_PROTOCOL.md`.
+ */
+
+/** Versions the reduced acceptance corpus's content contract (item shape unchanged from gold-v1; selection rule and split pattern are new). */
+export const ORGUNIT_CLASSIFIER_SONNET_ACCEPTANCE_CORPUS_VERSION =
+  'orgunit-classifier-sonnet-acceptance-v1';
+
+/** Versions the acceptance/regression protocol itself: gates (reused), denominators, benchmark order. */
+export const ORGUNIT_CLASSIFIER_SONNET_ACCEPTANCE_PROTOCOL_VERSION =
+  'orgunit-classifier-sonnet-acceptance-protocol-v1';
+
+/**
+ * The acceptance corpus's development/holdout pattern - nominally 2
+ * DEVELOPMENT : 1 HOLDOUT, targeting the ~48/~24 split for a ~72-item corpus
+ * (task S14). HOLDOUT sits in the MIDDLE position (mirroring `SPLIT_PATTERN`'s
+ * own reasoning - "places a holdout item second so a two-item organisation
+ * still contributes to the holdout"), which also happens to land closest to
+ * the 2:1 target given this corpus's actual per-organisation group sizes
+ * (measured: 49 DEVELOPMENT / 23 HOLDOUT over the frozen 72-item corpus,
+ * against a `[D,D,H]` ordering's measured 52/20 - `[D,H,D]` was kept because
+ * it is closer to target, not because it was tried last). Applied exactly as
+ * `SPLIT_PATTERN`: per organisation, over items sorted by `goldId`
+ * ascending - content-derived, fixed before any Sonnet result exists, and
+ * never selected to keep a particular label out of either side.
+ */
+export const SONNET_ACCEPTANCE_SPLIT_PATTERN = [
+  'DEVELOPMENT',
+  'HOLDOUT',
+  'DEVELOPMENT',
+] as const satisfies readonly SplitAssignment[];
+
+/**
+ * Deterministic per-organisation cap on the ~36 ROUTINE (non-owner-reviewed)
+ * items only - the 36 owner/spotlight-reviewed items are preserved
+ * regardless of how many share an organisation (task S5 - "preserve ALL").
+ */
+export const SONNET_ACCEPTANCE_ROUTINE_PER_ORGANISATION_CAP = 4;

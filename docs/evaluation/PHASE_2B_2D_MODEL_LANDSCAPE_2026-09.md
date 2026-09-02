@@ -1,3 +1,11 @@
+> **MODEL SELECTION SUPERSEDED BY OWNER PRODUCT DECISION ON 2026-09-02:
+> PRODUCTION CLASSIFIER = CLAUDE SONNET 5.** This snapshot's candidate-role
+> framing (reference/challenger/escalation/frontier-audit) no longer governs
+> a live decision — the owner has fixed Sonnet 5 as production. Retained
+> unedited as dated background research on the model landscape as of
+> 2026-09-01; useful context for a future capability audit, never a
+> decision procedure to re-run.
+
 # Phase 2B-2D — Model landscape snapshot, September 2026
 
 **Snapshot date: 2026-09-01.** Verified against official Anthropic

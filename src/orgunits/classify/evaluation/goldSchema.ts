@@ -120,6 +120,13 @@ export const LABEL_PROVENANCES = [
   'DETERMINISTIC',
   /** Set directly by the owner during adjudication. */
   'OWNER',
+  /**
+   * Phase 2B-2D1B: a routine item independently researched against its own
+   * captured evidence (never a candidate model's output) and confirmed gold
+   * WITHOUT owner review - distinct from `OWNER` so a reader can always tell
+   * which of the two confirmed the label.
+   */
+  'EDITORIAL_RESEARCH_CONFIRMED',
 ] as const;
 export const ADJUDICATION_DIFFICULTIES = ['EASY', 'MODERATE', 'HARD'] as const;
 

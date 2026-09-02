@@ -1,4 +1,13 @@
 /**
+ * MODEL SELECTION SUPERSEDED BY OWNER PRODUCT DECISION on 2026-09-02:
+ * PRODUCTION CLASSIFIER = CLAUDE SONNET 5. This module is no longer called
+ * by the active protocol (`PHASE_2B_2D_SONNET_ACCEPTANCE_PROTOCOL.md`) -
+ * there is no challenger to compare Sonnet against. Retained UNEDITED as
+ * historical/background research: a Haiku-vs-Sonnet or Opus-vs-Sonnet
+ * comparison built the same way, should one ever be commissioned again as an
+ * explicit, separately-approved audit, would reuse these primitives rather
+ * than reinvent them.
+ *
  * NON-INFERIORITY COMPARISON (protocol s"Haiku-vs-Sonnet rule") - the
  * predefined test of whether the efficiency challenger is MATERIALLY
  * INFERIOR to the reference candidate on a critical metric.
