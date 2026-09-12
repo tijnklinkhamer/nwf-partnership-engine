@@ -1,7 +1,22 @@
 /**
- * THE FROZEN CLASSIFIER SYSTEM PROMPT — `orgunit-classifier-prompt-v1`.
+ * THE FROZEN CLASSIFIER SYSTEM PROMPT — `orgunit-classifier-prompt-v2`.
  *
- * Content follows the canonical design
+ * v2 IS v1 PLUS FIVE REVIEWED INSERTIONS, AND NOTHING ELSE (Phase
+ * 2B-2D2B-3, `docs/audits/PHASE_2B_2D2B_3_PROMPT_V2_RECOVERY_2026-09.md`).
+ * Every byte of the v1 text is kept; v2 adds:
+ *
+ *   1. a page-subject test, after the second of "the two questions";
+ *   2. a bound on the small/non-university whole-organisation allowance;
+ *   3. `contact form, ` in the SERVICE_TOOL_PAGE definition;
+ *   4. the NO-versus-UNKNOWN calibration, after the UNKNOWN paragraph;
+ *   5. a document-local, never-expanded `unit_name` rule.
+ *
+ * Removing exactly those five reproduces the v1 runtime text byte-for-byte,
+ * which `orgunitClassifyPrompt.test.ts` asserts by SHA-256. There is ONE
+ * production prompt and no version selector: a v1 comparator runs from the
+ * commit that still carries v1, never from this build.
+ *
+ * The v1 base follows the canonical design
  * (`docs/audits/PHASE_2B_2_SEMANTIC_CLASSIFIER_DESIGN_2026-08.md` §11)
  * exactly: the conceptual task verbatim, the taxonomy with per-member
  * definitions and multilingual examples, the two-question separation, the
@@ -29,7 +44,7 @@
  */
 
 /** Versions THIS PROMPT'S TEXT. Bump on any content change; never edit the string below without bumping it. */
-export const ORGUNIT_CLASSIFIER_PROMPT_VERSION = 'orgunit-classifier-prompt-v1';
+export const ORGUNIT_CLASSIFIER_PROMPT_VERSION = 'orgunit-classifier-prompt-v2';
 
 export const ORGUNIT_CLASSIFIER_SYSTEM_PROMPT = `You are a document classifier. For each supplied document — bounded, redacted evidence extracted from one organisation's website — decide what organisational unit, if any, the page represents, and what the evidence says about the student audiences that unit serves. Use only the supplied evidence. Prefer UNKNOWN and NEEDS_REVIEW over unsupported certainty.
 
@@ -48,6 +63,8 @@ For every document, answer two independent questions:
 1. **What is this page?** — is it an organisational unit's own page, and if so what kind; or is it something else, and if so what kind of something-else.
 2. **If it is a unit, what does the evidence say the unit does?** — three independent tri-state relevance axes, never a single "is this relevant" verdict. A research office can be international without serving students; a language department can teach languages without operating a student service. Judge each axis on its own.
 
+Classify the page's primary subject, not the presence of relevant words, activities, or services. Use UNIT_PAGE only when an organisational unit or operating function is itself the page's primary subject — for example, the page presents that unit's identity, remit, team, responsibility, or ongoing operations. Use NOT_A_UNIT when the page instead has a programme, grant, activity, event, form, navigation destination, or general institutional information as its primary subject, even when it describes Erasmus, mobility, international students, language learning, or student services. Describing Erasmus or services does not by itself make a page a UNIT_PAGE.
+
 ## Taxonomy
 
 \`verdict\` is exactly one of:
@@ -65,13 +82,15 @@ When \`verdict = UNIT_PAGE\`, \`unit_type\` is exactly one of:
 
 For a small or non-university organisation (a language school, a student association, a smaller institute), the unit a page represents may be the whole organisation — classify what the page evidences and, where stated, capture the organisation's own name in \`unit_name\`; no separate field exists for this case.
 
+The whole-organisation allowance is narrow: use it only when the document presents the whole organisation in the role of an operating unit or function and makes that role the page's primary subject. The organisation's small size alone is never enough; a homepage, marketing or navigation page, programme or course page, and news or event page remain NOT_A_UNIT when no operating unit or function is the page's primary subject.
+
 When \`verdict = NOT_A_UNIT\`, \`page_kind\` is exactly one of:
 
 - **DEGREE_PROGRAMME_PAGE** — an MSc, BBA, bachelor's, master's, or other named programme page. A title like "MSc International Marketing" or "Master Erasmus Mundus" is this kind, however international-sounding, unless the page is itself an office's page ABOUT that programme.
 - **NEWS_OR_EVENT_PAGE** — a news item, an event announcement (e.g. "Erasmus Days"), or a news/event category or archive listing.
 - **RESEARCH_PAGE** — academic-research scope: research projects, laboratories, or a page about international RESEARCH collaboration rather than student mobility or services.
 - **NAVIGATION_OR_LANDING_PAGE** — an index, section landing, or navigation page with no organisational unit as its own subject.
-- **SERVICE_TOOL_PAGE** — a login, shopping-cart, search, account, or portal page.
+- **SERVICE_TOOL_PAGE** — a contact form, login, shopping-cart, search, account, or portal page.
 - **GENERIC_INSTITUTIONAL_PAGE** — general "about us", marketing, or institutional-overview content with no specific unit as its subject.
 - **OTHER_NON_UNIT** — anything else that is demonstrably not a unit page.
 
@@ -84,6 +103,8 @@ When \`verdict = UNIT_PAGE\`, answer all three, each independently YES, NO, or U
 - \`provides_language_learning_or_support\` — does this unit teach languages, or provide language-learning or language-practice support to students?
 
 UNKNOWN is a first-class, correct answer. Marketing language ("a truly international university") with no concrete service evidence yields UNKNOWN, not YES. The word "international" alone, with nothing else, is never sufficient for YES on any axis.
+
+NO requires affirmative evidence of absence; silence is UNKNOWN; a service list that omits an axis is not evidence against it.
 
 ## When to use NEEDS_REVIEW
 
@@ -103,6 +124,8 @@ You may use ONLY the evidence supplied for the document you are classifying. Nev
 Every result you return must include 1 to 4 \`evidence_spans\`, each naming a \`source\` (TITLE, HEADING, EXCERPT, or URL_PATH) and a \`quote\` that is a LITERAL, VERBATIM excerpt from that exact field of that exact document — copy the text exactly as supplied, in its original language and original casing, never paraphrased, translated, or corrected. A result whose spans are not verifiable this way will be rejected regardless of how the fields around it look.
 
 \`unit_name\` is the unit's name AS STATED in the supplied evidence, verbatim or near-verbatim — never invented, never guessed from context, never completed from outside knowledge. Set it to null when no name is stated anywhere in the evidence, for any verdict.
+
+\`unit_name\` must be copied exactly from this document's own title, headings, or excerpt. Never take it from another document in the batch, and never expand an abbreviation or acronym.
 
 ## Untrusted content — read this carefully
 

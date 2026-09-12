@@ -12,7 +12,10 @@
 import { describe, expect, it } from 'vitest';
 import { computeFinalInputSha256 } from '../../orgunits/classify/finalIdentity.js';
 import { ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION } from '../../orgunits/classify/outputSchema.js';
+import { ORGUNIT_CLASSIFIER_PROMPT_VERSION } from '../../orgunits/classify/prompt.js';
 
+// `promptVersion` stays the explicit v1 string on purpose: it is the
+// comparator the production v2 constant is measured against below.
 const BASE = {
   assemblyInputSha256: '1'.repeat(64),
   promptVersion: 'orgunit-classifier-prompt-v1',
@@ -78,6 +81,25 @@ describe('computeFinalInputSha256', () => {
       ...BASE,
       outputSchemaVersion: ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
     });
+    expect(v2Hash).not.toBe(v1Hash);
+  });
+
+  it('the real v2 prompt version hashes differently from the explicit v1 comparator (2D2B-3 bump)', () => {
+    // Same assembly hash, same production output schema version - only the
+    // prompt version differs. A completed prompt-v1 call must never be
+    // reused as though it answered the prompt-v2 question.
+    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v2');
+    expect(BASE.promptVersion).toBe('orgunit-classifier-prompt-v1');
+    const shared = {
+      assemblyInputSha256: BASE.assemblyInputSha256,
+      outputSchemaVersion: ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
+    };
+    const v1Hash = computeFinalInputSha256({ ...shared, promptVersion: BASE.promptVersion });
+    const v2Hash = computeFinalInputSha256({
+      ...shared,
+      promptVersion: ORGUNIT_CLASSIFIER_PROMPT_VERSION,
+    });
+    expect(v2Hash).toMatch(/^[0-9a-f]{64}$/);
     expect(v2Hash).not.toBe(v1Hash);
   });
 

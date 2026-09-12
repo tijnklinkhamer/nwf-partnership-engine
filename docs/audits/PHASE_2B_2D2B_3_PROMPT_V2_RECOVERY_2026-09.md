@@ -325,3 +325,162 @@ from it.
 ## 8. Implementation results
 
 _Appended by the implementation commit._
+
+Everything in this section is `REIMPLEMENTED_AND_EXECUTED_NOW` unless it says
+otherwise. §§1–7 are left exactly as committed in
+`c68c2c4b3444d54113c757d3593c17012d09a076` (`Document 2D2B-3 prompt v2
+recovery contract`).
+
+### 8.1 The prompt against its oracles
+
+| oracle                                    | required                                                           | measured       |
+| ----------------------------------------- | ------------------------------------------------------------------ | -------------- |
+| `ORGUNIT_CLASSIFIER_PROMPT_VERSION`       | `orgunit-classifier-prompt-v2`                                     | **MATCH**      |
+| v2 runtime length                         | 11,304 characters                                                  | **11,304**     |
+| v2 UTF-8 length                           | 11,382 bytes                                                       | **11,382**     |
+| v2 runtime SHA-256                        | `181a5d6fec9763be5a57e7e4d08c7d8c8a9d9e21838df2ea3e05dd680e4c7635` | **MATCH**      |
+| stripped v2 length / bytes                | 9,887 / 9,963                                                      | **9,887 / 9,963** |
+| stripped v2 SHA-256 (= v1)                | `65f7f327ad14e78aaf3024cb7253e979b1e360fdcd1a58081fccc08fdb0facd0` | **MATCH**      |
+
+The first measurement of the edited file met every oracle; no oracle was
+touched. The byte arithmetic is itself a check: v2 has 78 more bytes than
+characters and v1 has 76, so the delta adds exactly one 3-byte character —
+the em dash in insertion 1 — and every apostrophe in the delta is ASCII
+U+0027, like v1's own.
+
+Two independent proofs, both executed:
+
+- **This record's own bytes.** Before commit 1, a scratch script extracted
+  the five `text` blocks of §3.2 from this file, applied them at the §3.2
+  anchors to the R2B runtime v1 string, and obtained 11,304 / 11,382 /
+  `181a5d6f…7635`. The text recorded here is therefore exactly the text that
+  meets the oracle.
+- **The committed module.** `orgunitClassifyPrompt.test.ts` imports the
+  production constant, asserts the v2 oracles, asserts each insertion occurs
+  exactly once and sits between its exact v1 neighbours, and removes the four
+  paragraphs (each with its `\n\n`) plus `contact form, ` to recover the v1
+  hash.
+
+Mutation checks, each reverted and confirmed byte-identical with `cmp`:
+
+| mutation of `prompt.ts`                                   | prompt tests failing                                                      |
+| --------------------------------------------------------- | ------------------------------------------------------------------------- |
+| one v1 byte changed outside every anchor (a doubled space) | 2 — the v2 oracle and the stripped-v2-equals-v1 proof                    |
+| insertion 4 deleted                                       | 3 — the v2 oracle, exactly-once, and anchor placement                     |
+| a `'bing-search'` string appended (firewall, §8.4)        | the firewall search-engine check fails, naming `prompt.ts`                |
+
+### 8.2 Prompt version and input identity
+
+`computeFinalInputSha256` is unchanged; `orchestrate.ts` is unchanged and
+still passes `ORGUNIT_CLASSIFIER_PROMPT_VERSION` into it and
+`ORGUNIT_CLASSIFIER_SYSTEM_PROMPT` to the provider. For the synthetic identity
+the unit test uses (`assemblyInputSha256` = 64 × `1`, the production output
+schema version `orgunit-classifier-output-schema-v2`):
+
+| prompt version                            | `input_sha256`                                                     |
+| ----------------------------------------- | ------------------------------------------------------------------ |
+| `orgunit-classifier-prompt-v1` (comparator) | `d4d16d07cf4735930f4889fbe5ad045fdd444565b88d6b6ba330964f18171e34` |
+| `orgunit-classifier-prompt-v2` (production) | `e9a6a049ab53711d83ae093885771d157c78495bdf9490f65937e8e6c7376d95` |
+
+These identify a synthetic input only and are recorded to show the
+behaviour, not as a benchmark key. Only the prompt version differs, and the
+identities differ, so a completed v1 call can never be reused for a v2
+question.
+
+### 8.3 Files changed (against R2B `952f80e1`)
+
+| file                                                  | change                                                                                           |
+| ----------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `src/orgunits/classify/prompt.ts`                     | version → v2; header comment describes v2 as v1 + five insertions; the five insertions; nothing else |
+| `src/test/unit/orgunitClassifyPrompt.test.ts`         | version test → v2; the other 7 existing tests kept verbatim; 8 new tests (§8.1, plus no-overfitting and the preserved `NWF` wording) |
+| `src/test/unit/orgunitClassifyFinalIdentity.test.ts`  | the v1 `BASE` comparator kept; 1 new test: production v2 constant vs explicit v1, all else equal |
+| `src/test/firewall/phase2b.firewall.test.ts`          | prompt pin → v2; 1 new test (orchestrate wiring, no other production file declares a prompt version); the `bing` precision fix in §8.4 |
+| `docs/audits/PHASE_2B_2D2B_3_PROMPT_V2_RECOVERY_2026-09.md` | this record (commit 1), extended by this section                                            |
+
+The no-overfitting tests reject gold-ID-shaped tokens (`g` + 16 hex) in the
+whole prompt, and URLs, domain-shaped tokens, digits and the diagnostic
+institution tokens `insa` / `rouen` in the inserted delta (the latter two in
+the whole prompt as well). Those two tokens were taken from the committed
+R1 recovery record and the committed `acceptanceSelection.ts` comments, **not**
+from the fixture lines disclosed in §6. The generic v1 wording naming `NWF`
+as the pipeline's operator is kept and asserted present, because deleting it
+would be a rewrite.
+
+### 8.4 One firewall conflict, resolved by the owner in this session
+
+With the prompt at its oracle, `npm run test:firewall` failed exactly one
+assertion: `src/orgunits/classify/prompt.ts names bing`
+(`PHASE-2B-FIREWALL 2B-2B/2B-2C1 … imports no search-engine, browser-automation
+or PDF/OCR dependency`). The check lowercased every classify file and banned
+the bare **substring** `bing`; insertion 1's authorised word **"Describing"**
+contains it. It was the only failure in the full suite (1 failed, 1,480
+passed, 526 skipped).
+
+The prompt bytes are fixed by §3 and rule 7 forbids weakening a firewall to
+reach green, so the implementation stopped and put the choice to the owner.
+**The owner chose a word-boundary match for `bing` in that one check.** It
+was implemented as `/(?<![a-z])bing/` — anchored at the start of a word only
+— rather than the `/\bbing\b/` shown in the question. Every string
+`\bbing\b` flags is also flagged here, and so are identifier shapes such as
+`bing_search` and `bingapi` that `\bbing\b` would miss. The test now carries
+positive controls (`from 'bing'`, `from 'bing-search'`,
+`https://api.bing.microsoft.com/…`, `bing_search = bingapi`) and one negative
+control (`describing`). Every other banned token in that list stays a
+substring ban, and the separate orchestrator-namespace `bing` ban is
+untouched. `phase1a`, `phase1b` and `phase1d` are unchanged.
+
+### 8.5 Validation, in the brief's order
+
+| step | gate                                                          | result                                                                   |
+| ---- | ------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| 1    | `git diff --check`                                            | clean                                                                    |
+| 2    | `vitest run src/test/unit/orgunitClassifyPrompt.test.ts`      | 16 passed (16)                                                           |
+| 3    | `vitest run src/test/unit/orgunitClassifyFinalIdentity.test.ts` | 10 passed (10)                                                         |
+| 4    | `npm run typecheck`                                           | exit 0                                                                   |
+| 5    | `npm run lint`                                                | exit 0                                                                   |
+| 6    | `npm run format:check`                                        | `All matched files use Prettier code style!`                             |
+| 7    | `npm run test:firewall`                                       | `Test Files 4 passed (4)`; `Tests 198 passed (198)`                      |
+| 8    | `npm run validate`                                            | exit 0; `Test Files 67 passed \| 20 skipped (87)`; `Tests 1481 passed \| 526 skipped (2015)` |
+
+Against the §1 baseline (1,471 / 526): **+10 passed** = 8 prompt + 1 identity
++ 1 firewall, and **+0 skipped**. With no `.env` and no `DATABASE_URL_*`
+variable, every DB-gated test skipped: no database was configured or
+reached. After the run, `ps` showed no PostgreSQL, Agent SDK or fixture
+process, and the OS temp directory held no `nwf-pe-*` entry.
+
+### 8.6 Zero-diff confirmations
+
+Against R2B `952f80e1`, `git diff` is **empty** for: `package.json`,
+`package-lock.json`, `migrations/`, `.env.example`, `CLAUDE.md`, `docs/adr/`,
+`docs/evaluation/`, every other file under `docs/audits/`, `scripts/`,
+`src/config/`, `src/test/fixtures/` (corpus, manifests, gold labels,
+DEVELOPMENT / HOLDOUT membership), `src/test/harness/`,
+`src/test/integration/` (its historical v1 strings kept),
+`src/orgunits/web/`, `src/orgunits/orchestrator/`, `src/orgunits/signals/`,
+`src/orgunits/classify/evaluation/`, `src/orgunits/classify/provider/`
+(Agent SDK runner, Tier 2, SDK options, model allowlist), `outputSchema.ts`,
+`finalIdentity.ts`, `orchestrate.ts`, `providerContract.ts`,
+`evidenceVerification.ts` (`evidenceSpanVerifies` / `unitNameVerifies`),
+`retry.ts`, `validate.ts`, `persist.ts` and `constants.ts`
+(`ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION`). No `.env` file exists in the
+worktree.
+
+Zero live Claude/provider calls, zero database connections or writes, zero
+institutional HTTP requests, zero classifier inference on any item, zero
+gold-label, corpus or manifest changes. The only network traffic was `git
+fetch` / `git push` to GitHub and `npm ci` against the npm registry. No
+merge, no pull request, no push to `main`. This commit cannot record its own
+hash; the push and the remote-head equality are verified in the session's
+closure report.
+
+### 8.7 Remaining uncertainty
+
+- **Effect unmeasured.** Nothing here shows that v2 classifies better than
+  v1. That is what 2D2C measures, DEVELOPMENT first: prompt v1 from
+  `952f80e1` on canonical inputs, then prompt v2 from this branch's R3 commit.
+- **Recovery text, not recovered text.** Whether §3.2 equals the lost §6
+  prompt is unknowable from this repository (§4).
+- **The small-organisation gold question** (`ge789b0f0aedc398c`) is still
+  open, and no label was changed.
+- **The §6 exposure** stands as disclosed. It changed nothing, but it is
+  recorded rather than dismissed.

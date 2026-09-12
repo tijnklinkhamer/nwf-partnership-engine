@@ -1634,11 +1634,26 @@ describe('PHASE-2B-FIREWALL 2B-2B/2B-2C1: classifier handoff assembly and semant
   });
 
   it('imports no search-engine, browser-automation or PDF/OCR dependency', () => {
+    // `bing` must START a word rather than merely occur: it is also the tail
+    // of ordinary English words ("describing", "probing"), and prompt v2
+    // (2D2B-3) carries "Describing" as runtime prompt text. Anchoring only
+    // the start still flags everything a whole-word match would, plus
+    // `bingapi`/`bing_search`-shaped identifiers - the controls prove both.
+    const BING = /(?<![a-z])bing/;
+    for (const sample of [
+      "from 'bing'",
+      "from 'bing-search'",
+      'https://api.bing.microsoft.com/v7.0/search',
+      'const bing_search = bingapi;',
+    ]) {
+      expect(sample, `the bing pattern misses ${sample}`).toMatch(BING);
+    }
+    expect('describing', 'the bing pattern flags English prose').not.toMatch(BING);
     for (const file of CLASSIFY_FILES) {
       const source = code(file).toLowerCase();
+      expect(source, `${file} names bing`).not.toMatch(BING);
       for (const banned of [
         'googleapis',
-        'bing',
         'serpapi',
         'brave-search',
         'duckduckgo',
@@ -1944,11 +1959,29 @@ describe('PHASE-2B-FIREWALL 2B-2C1: semantic core is provider-neutral, and persi
 
   it('declares frozen, versioned prompt and output-schema constants', () => {
     const prompt = code('src/orgunits/classify/prompt.ts');
-    expect(prompt).toContain("ORGUNIT_CLASSIFIER_PROMPT_VERSION = 'orgunit-classifier-prompt-v1'");
+    expect(prompt).toContain("ORGUNIT_CLASSIFIER_PROMPT_VERSION = 'orgunit-classifier-prompt-v2'");
     const schema = code('src/orgunits/classify/outputSchema.ts');
     expect(schema).toContain(
       "ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION = 'orgunit-classifier-output-schema-v2'",
     );
+  });
+
+  it('orchestrate.ts sends the one exported prompt under its exported version, and no other file declares a prompt version', () => {
+    // 2D2B-3 bumped the prompt to v2 WITHOUT a selector: one production
+    // prompt, wired through the two exported constants. A v1 comparator runs
+    // from the commit that still carries v1, never from a second prompt here.
+    const orchestrate = code('src/orgunits/classify/orchestrate.ts');
+    expect(orchestrate).toMatch(
+      /import\s*\{\s*ORGUNIT_CLASSIFIER_PROMPT_VERSION,\s*ORGUNIT_CLASSIFIER_SYSTEM_PROMPT\s*\}\s*from\s*'\.\/prompt\.js'/,
+    );
+    expect(orchestrate).toContain('systemPrompt: ORGUNIT_CLASSIFIER_SYSTEM_PROMPT');
+    expect(orchestrate).toContain('promptVersion: ORGUNIT_CLASSIFIER_PROMPT_VERSION');
+    for (const file of PRODUCTION_FILES) {
+      if (file === 'src/orgunits/classify/prompt.ts') continue;
+      expect(code(file), `${file} declares a prompt version`).not.toMatch(
+        /orgunit-classifier-prompt-v\d/,
+      );
+    }
   });
 
   it('migration 0010 widens error_kind with exactly the two Max-runtime failure kinds, and nothing else', () => {
