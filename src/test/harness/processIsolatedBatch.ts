@@ -19,14 +19,18 @@
  *     the child is forked `detached`, i.e. setsid(): it LEADS its own process
  *     group, whose id is its validated PID. Graceful: the IPC shutdown request
  *     plus `process.kill(-pid, 'SIGTERM')` to that group. Hard, whenever the
- *     grace phase ends without a CONFIRMED shutdown - including after a bare
- *     exit: `process.kill(-pid, 'SIGKILL')`, which still reaches any
- *     same-group descendant of an already-exited leader (ESRCH when the group
- *     is empty, recorded as not delivered). After the direct child has exited, on
- *     EVERY path, one more group SIGKILL sweeps any same-group descendant that
- *     outlived its leader (ESRCH — nobody left — is the ordinary answer). A
- *     descendant that called setsid() itself is in ANOTHER group and is out of
- *     reach by construction; that limit is documented, not papered over.
+ *     grace phase ends without a CONFIRMED shutdown: `process.kill(-pid,
+ *     'SIGKILL')`, which still reaches any same-group descendant of an
+ *     already-exited leader (ESRCH when the group is empty, recorded as not
+ *     delivered). An UNACKNOWLEDGED exit ends the grace phase at once, so that
+ *     group kill follows the leader's exit immediately, while the PGID
+ *     association is freshest, rather than at the grace deadline (2D2B-R2B).
+ *     After the direct child has exited, on EVERY path, one more group SIGKILL
+ *     sweeps any same-group descendant that outlived its leader. Both group
+ *     SIGKILLs settle Darwin's transient zombie-group EPERM for a bounded
+ *     time. A descendant that called setsid() itself is in ANOTHER group and
+ *     is out of reach by construction; that limit is documented, not papered
+ *     over.
  *
  *   Windows (historical design; code-inspected here, executed only on Windows):
  *     graceful is the IPC shutdown request ONLY. `child.kill('SIGTERM')` is
@@ -35,29 +39,37 @@
  *     tree, orphaning a detached grandchild (the lost-laptop kill race; see
  *     docs/audits/PHASE_2B_2D2B_2_TIER2_WINDOWS_KILL_RACE_2026-09.md). An
  *     ignored request keeps the direct child ALIVE until the hard stage:
- *     `taskkill /pid <validated-pid> /T /F`, invoked without a shell. Any
- *     unconfirmed grace phase reaches that stage, a bare exit included.
+ *     `taskkill /pid <validated-pid> /T /F`, invoked without a shell - but
+ *     ONLY while the harness has not observed the child's exit (below).
  *
  * A graceful shutdown is CONFIRMED only when the child both acknowledged
  * over IPC and exited within the grace window. The two halves are tracked
- * INDEPENDENTLY, and the grace phase ends early only when BOTH have arrived
- * (`createGracePhaseTracker`). Every other outcome requires the hard stage:
- * a bare exit without an acknowledgement is recorded as an exit
- * (`CHILD_EXITED_UNCONFIRMED`), never as a confirmed cooperative shutdown,
- * and it does NOT short-circuit the hard tree kill (2D2B-R2A). The complete
- * decision - request, grace, verdict, hard stage - is ONE function,
- * `runTerminationSequence`, which `runProcessIsolatedBatch` calls and the
- * pure contract tests execute on every platform.
+ * INDEPENDENTLY (`createGracePhaseTracker`). ACK plus exit ends the grace
+ * phase early as confirmed. An exit WITHOUT an acknowledgement ends it early
+ * too, as `CHILD_EXITED_UNCONFIRMED`, once the IPC channel has also closed -
+ * the moment an ACK already in flight can no longer arrive (Node does not
+ * order `'message'` before `'exit'`). ACK without exit, and neither, wait for
+ * the grace deadline. Every outcome but a confirmed one logically requires
+ * the hard stage (`hardKillRequired`); a bare exit is never a cooperative
+ * shutdown (2D2B-R2A). The complete decision - request, grace, verdict, hard
+ * stage - is ONE function, `runTerminationSequence`, which
+ * `runProcessIsolatedBatch` calls and the pure contract tests execute on
+ * every platform.
  *
- * WINDOWS LIMIT AFTER AN UNACKNOWLEDGED EXIT: `taskkill /T` walks the tree
- * from a LIVE root. When the direct child has already exited without
- * acknowledging, the hard stage is still ATTEMPTED, but it cannot
- * reconstruct the former descendant tree, and taskkill will normally report
- * failure; the record says so (`delivered: false`, the real exit code) and
- * nothing claims the tree was cleaned up. Once the root's handle is closed its
- * PID may also be reused, so that attempt could in principle reach an
- * unrelated process; the window is the grace period. No Job Object, process
- * enumeration or dependency is introduced to close either gap.
+ * STALE TARGET IDENTITY (2D2B-R2B). `taskkill` targets a NUMBER. Windows
+ * documents a PID as valid only "from the time the process is created until
+ * the process has been terminated", and `validateSignalTargetPid` proves
+ * only that the number is well-formed, never that it still names the child
+ * this harness created. So once the harness has observed the direct child's
+ * exit, `taskkill` is never issued: the required hard stage is recorded as
+ * `SUPPRESSED_EXPIRED_TARGET_IDENTITY`, never as attempted or delivered, and
+ * nothing claims the child's former descendants were cleaned up (`taskkill
+ * /T` could not walk from a dead root anyway). `hardKillProcessTree` checks
+ * the harness-owned exit state immediately before spawning `taskkill`, with
+ * no `await` between the check and the spawn. What remains is the unavoidable
+ * race between that userspace check and `taskkill.exe` opening the PID; it is
+ * documented, not claimed atomic. No Job Object, process enumeration or
+ * dependency is introduced.
  *
  * Every PID that reaches a signal or `taskkill` passes
  * `validateSignalTargetPid` first (a safe integer > 1): `process.kill(-1)`
@@ -125,9 +137,11 @@ export interface TaskkillOutcome {
 export interface TerminationOperations {
   /** One IPC message to the direct child; false when the channel is gone. */
   sendIpc(message: string): boolean;
-  /** POSIX: signal the child's whole process group (the negated validated PID). */
-  signalProcessGroup(pid: number, signal: 'SIGTERM' | 'SIGKILL'): GroupSignalResult;
-  /** Windows: `taskkill /pid <pid> /T /F`, no shell. */
+  /** POSIX graceful: SIGTERM to the child's whole process group (the negated validated PID). */
+  signalProcessGroup(pid: number, signal: 'SIGTERM'): GroupSignalResult;
+  /** POSIX hard: SIGKILL to that group, settling Darwin's transient zombie-group EPERM (bounded). */
+  killProcessGroup(pid: number): Promise<GroupSignalResult>;
+  /** Windows: `taskkill /pid <pid> /T /F`, no shell. Must spawn synchronously when called. */
   taskkillTree(pid: number): Promise<TaskkillOutcome>;
 }
 
@@ -157,6 +171,7 @@ export function beginGracefulShutdown(
 
 export type HardKillMethod = 'POSIX_PROCESS_GROUP_SIGKILL' | 'WINDOWS_TASKKILL_TREE';
 
+/** An EXECUTED hard kill: what was done, and what the operating system answered. */
 export interface HardKillRecord {
   readonly method: HardKillMethod;
   /** POSIX: whether the group still existed; Windows: taskkill's exit code. */
@@ -164,25 +179,73 @@ export interface HardKillRecord {
   readonly taskkillExitCode: number | null;
 }
 
-/** The OS-level tree kill: group SIGKILL on POSIX, `taskkill /T /F` on Windows. */
+/**
+ * What happened to the hard stage - closed. `NOT_REQUIRED`: the shutdown was
+ * confirmed (or the batch completed). `EXECUTED`: the OS action ran; its
+ * `HardKillRecord` says how and whether it was delivered.
+ * `SUPPRESSED_EXPIRED_TARGET_IDENTITY`: the hard stage was REQUIRED but the
+ * OS action was deliberately NOT taken - nothing was attempted, delivered or
+ * cleaned up.
+ */
+export type HardKillDisposition =
+  'NOT_REQUIRED' | 'EXECUTED' | 'SUPPRESSED_EXPIRED_TARGET_IDENTITY';
+
+/** Why a required hard stage was suppressed - closed, one member. */
+export type HardKillSuppressionReason = 'DIRECT_CHILD_EXIT_OBSERVED';
+
+export type HardKillAction =
+  | { readonly disposition: 'EXECUTED'; readonly record: HardKillRecord }
+  | {
+      readonly disposition: 'SUPPRESSED_EXPIRED_TARGET_IDENTITY';
+      readonly suppressionReason: HardKillSuppressionReason;
+    };
+
+export type HardKillStage = { readonly disposition: 'NOT_REQUIRED' } | HardKillAction;
+
+const HARD_KILL_NOT_REQUIRED: HardKillStage = Object.freeze({ disposition: 'NOT_REQUIRED' });
+const HARD_KILL_SUPPRESSED_EXPIRED_TARGET: HardKillAction = Object.freeze({
+  disposition: 'SUPPRESSED_EXPIRED_TARGET_IDENTITY',
+  suppressionReason: 'DIRECT_CHILD_EXIT_OBSERVED',
+});
+
+/**
+ * The OS-level tree kill: group SIGKILL on POSIX, `taskkill /T /F` on Windows.
+ *
+ * `directChildExitObserved` is the harness-owned exit state. On Windows it is
+ * read IMMEDIATELY before `taskkill` is spawned, with no `await` between the
+ * read and the spawn, so no exit event can be processed in between: once the
+ * exit has been observed the PID no longer proves identity, and the action
+ * is SUPPRESSED rather than aimed at whatever process holds that number now.
+ * POSIX ignores it: the group outlives its leader, and a same-group survivor
+ * is exactly what the group SIGKILL is for.
+ */
 export async function hardKillProcessTree(
   platform: TerminationPlatform,
   pid: number,
   ops: TerminationOperations,
-): Promise<HardKillRecord> {
+  directChildExitObserved: () => boolean,
+): Promise<HardKillAction> {
   const target = validateSignalTargetPid(pid);
   if (platform === 'win32') {
+    // FINAL PRE-KILL LIVENESS GATE - synchronous with the spawn below.
+    if (directChildExitObserved()) return HARD_KILL_SUPPRESSED_EXPIRED_TARGET;
     const outcome = await ops.taskkillTree(target);
     return {
-      method: 'WINDOWS_TASKKILL_TREE',
-      delivered: outcome.exitCode === 0,
-      taskkillExitCode: outcome.exitCode,
+      disposition: 'EXECUTED',
+      record: {
+        method: 'WINDOWS_TASKKILL_TREE',
+        delivered: outcome.exitCode === 0,
+        taskkillExitCode: outcome.exitCode,
+      },
     };
   }
   return {
-    method: 'POSIX_PROCESS_GROUP_SIGKILL',
-    delivered: ops.signalProcessGroup(target, 'SIGKILL') === 'SIGNALLED',
-    taskkillExitCode: null,
+    disposition: 'EXECUTED',
+    record: {
+      method: 'POSIX_PROCESS_GROUP_SIGKILL',
+      delivered: (await ops.killProcessGroup(target)) === 'SIGNALLED',
+      taskkillExitCode: null,
+    },
   };
 }
 
@@ -195,9 +258,10 @@ export function isGracefulShutdownConfirmed(input: {
 }
 
 /**
- * What the grace phase observed. Only `SHUTDOWN_CONFIRMED` avoids the hard
- * stage; an exit alone (`CHILD_EXITED_UNCONFIRMED`) says nothing about what
- * the child left behind, so it is not treated as a completed shutdown.
+ * What the grace phase observed. Only `SHUTDOWN_CONFIRMED` makes the hard
+ * stage unnecessary; an exit alone (`CHILD_EXITED_UNCONFIRMED`) says nothing
+ * about what the child left behind, so it is not treated as a completed
+ * shutdown - whether or not the OS action can still safely be taken.
  */
 export type GracePhaseVerdict =
   | 'SHUTDOWN_CONFIRMED'
@@ -237,21 +301,38 @@ export function decideGracePhase(observed: {
 
 /**
  * Tracks the acknowledgement and the exit INDEPENDENTLY. `settled` resolves
- * exactly once: as confirmed the moment the SECOND half arrives, or with
- * whatever had been observed when the grace deadline expires. Events after
- * that are ignored, so neither a late exit nor a late acknowledgement can
- * rewrite the decision.
+ * exactly once:
+ *
+ *   - ACK + exit (either order)             -> confirmed, at the second half;
+ *   - exit, no ACK, IPC channel closed      -> CHILD_EXITED_UNCONFIRMED, at
+ *     once - no acknowledgement can arrive any more, so waiting out the
+ *     grace deadline would only age the target identity (2D2B-R2B);
+ *   - otherwise                             -> whatever had been observed
+ *     when the grace deadline expires.
+ *
+ * The channel condition exists because Node does not order an IPC
+ * `'message'` before the `'exit'` event: an ACK the child sent before it
+ * exited may still be in the pipe, and must be allowed to confirm. Events
+ * after the decision cannot rewrite it. The EXIT, however, stays observable
+ * after the decision (`exitObserved`): it is what the Windows pre-kill gate
+ * reads.
  */
 export interface GracePhaseTracker {
   recordAcknowledgement(): void;
   recordExit(): void;
+  /** The IPC channel is closed: no acknowledgement can arrive after this. */
+  recordChannelClosed(): void;
   expireGrace(): void;
+  /** Whether the direct child's exit has been observed - at any time, decision or not. */
+  exitObserved(): boolean;
   readonly settled: Promise<GracePhaseDecision>;
 }
 
 export function createGracePhaseTracker(): GracePhaseTracker {
   let acknowledged = false;
   let exited = false;
+  let channelClosed = false;
+  let exitObserved = false;
   let decided = false;
   let resolveSettled!: (decision: GracePhaseDecision) => void;
   const settled = new Promise<GracePhaseDecision>((resolveDecision) => {
@@ -261,20 +342,30 @@ export function createGracePhaseTracker(): GracePhaseTracker {
     decided = true;
     resolveSettled(decideGracePhase({ acknowledged, exitedWithinGrace: exited }));
   };
+  const settleIfTerminal = (): void => {
+    if (exited && (acknowledged || channelClosed)) settle();
+  };
   return {
     recordAcknowledgement: () => {
       if (decided) return;
       acknowledged = true;
-      if (exited) settle();
+      settleIfTerminal();
     },
     recordExit: () => {
+      exitObserved = true;
       if (decided) return;
       exited = true;
-      if (acknowledged) settle();
+      settleIfTerminal();
+    },
+    recordChannelClosed: () => {
+      if (decided) return;
+      channelClosed = true;
+      settleIfTerminal();
     },
     expireGrace: () => {
       if (!decided) settle();
     },
+    exitObserved: () => exitObserved,
     settled,
   };
 }
@@ -285,14 +376,15 @@ export type GraceTimerArm = (onExpired: () => void) => () => void;
 export interface TerminationSequenceRecord {
   readonly gracefulPhase: GracefulPhaseRecord;
   readonly grace: GracePhaseDecision;
-  readonly hardKill: HardKillRecord | null;
+  readonly hardKill: HardKillStage;
 }
 
 /**
  * THE termination state machine, shared by `runProcessIsolatedBatch` and the
  * pure contract tests: graceful request -> grace decision -> the OS-level
- * hard stage unless the shutdown was CONFIRMED. The caller feeds the tracker
- * from its own IPC and exit events.
+ * hard stage unless the shutdown was CONFIRMED, gated on target identity
+ * (`hardKillProcessTree`). The caller feeds the tracker from its own IPC,
+ * channel and exit events; the tracker's exit state is the gate.
  */
 export async function runTerminationSequence(input: {
   readonly platform: TerminationPlatform;
@@ -306,9 +398,11 @@ export async function runTerminationSequence(input: {
   const disarmGrace = input.armGrace(() => input.tracker.expireGrace());
   const grace = await input.tracker.settled;
   disarmGrace();
-  if (!grace.hardKillRequired) return { gracefulPhase, grace, hardKill: null };
+  if (!grace.hardKillRequired) return { gracefulPhase, grace, hardKill: HARD_KILL_NOT_REQUIRED };
   await input.beforeHardKill?.();
-  const hardKill = await hardKillProcessTree(input.platform, input.pid, input.ops);
+  const hardKill = await hardKillProcessTree(input.platform, input.pid, input.ops, () =>
+    input.tracker.exitObserved(),
+  );
   return { gracefulPhase, grace, hardKill };
 }
 
@@ -325,14 +419,17 @@ function posixSignalProcessGroup(pid: number, signal: 'SIGTERM' | 'SIGKILL'): Gr
 }
 
 /**
- * The POSIX post-exit sweep. Darwin answers EPERM, not ESRCH, while a
- * group's only remaining members are unreaped zombies - measured at ~3.5 ms
+ * A POSIX group SIGKILL that settles Darwin's zombie window: the hard stage
+ * and the post-exit sweep both use it. Darwin answers EPERM, not ESRCH, while
+ * a group's only remaining members are unreaped zombies - measured at ~3.5 ms
  * right after a group SIGKILL, before launchd reaps them. A sweep that
  * follows a hard kill of an ALREADY-EXITED leader lands in that window every
- * time (2D2B-R2A), so EPERM is retried for a bounded time; an EPERM that
- * persists past the bound is still thrown.
+ * time (2D2B-R2A), and so can a hard kill issued the moment an unacknowledged
+ * leader's exit is observed, if a same-group descendant died with it
+ * (2D2B-R2B). EPERM is retried for a bounded time; an EPERM that persists
+ * past the bound is still thrown.
  */
-async function posixPostExitSweep(pid: number): Promise<GroupSignalResult> {
+async function posixKillProcessGroupSettled(pid: number): Promise<GroupSignalResult> {
   for (let attempt = 1; ; attempt += 1) {
     try {
       return posixSignalProcessGroup(pid, 'SIGKILL');
@@ -412,7 +509,13 @@ export interface ProcessIsolatedBatchResult {
   readonly shutdownAcknowledged: boolean;
   readonly exitedWithinGrace: boolean;
   readonly gracefulShutdownConfirmed: boolean;
+  /** LOGICAL: any unconfirmed shutdown requires the hard stage, executable or not. */
   readonly hardKillRequired: boolean;
+  /** What happened to the hard stage; `NOT_REQUIRED` exactly when `hardKillRequired` is false. */
+  readonly hardKillDisposition: HardKillDisposition;
+  /** Non-null exactly when the disposition is `SUPPRESSED_EXPIRED_TARGET_IDENTITY`. */
+  readonly hardKillSuppressionReason: HardKillSuppressionReason | null;
+  /** The EXECUTED hard stage (method, delivery); null when it was not executed. */
   readonly hardKill: HardKillRecord | null;
   /** POSIX only: the post-exit group sweep's answer. */
   readonly posixGroupSweep: GroupSignalResult | 'NOT_APPLICABLE';
@@ -497,6 +600,8 @@ export async function runProcessIsolatedBatch(
         else forked.once('disconnect', () => resolveDisconnect());
       }),
     ]);
+    // A closed channel carries no further acknowledgement.
+    forked.once('disconnect', () => graceTracker?.recordChannelClosed());
 
     let stderrTail = '';
     forked.stderr?.setEncoding('utf8');
@@ -527,6 +632,7 @@ export async function runProcessIsolatedBatch(
         }
       },
       signalProcessGroup: posixSignalProcessGroup,
+      killProcessGroup: posixKillProcessGroupSettled,
       taskkillTree: windowsTaskkillTree,
     };
 
@@ -541,7 +647,7 @@ export async function runProcessIsolatedBatch(
     let exit: ExitInfo;
     let gracefulPhase: GracefulPhaseRecord | null = null;
     let grace: GracePhaseDecision | null = null;
-    let hardKill: HardKillRecord | null = null;
+    let hardKill: HardKillStage = HARD_KILL_NOT_REQUIRED;
 
     if (first.kind === 'EXIT') {
       exit = first.exit;
@@ -549,6 +655,7 @@ export async function runProcessIsolatedBatch(
       outcome = 'TIMED_OUT_KILLED';
       const tracker = createGracePhaseTracker();
       graceTracker = tracker;
+      if (!forked.connected) tracker.recordChannelClosed();
       if (exitInfo !== undefined) tracker.recordExit();
       const sequence = await runTerminationSequence({
         platform,
@@ -564,8 +671,8 @@ export async function runProcessIsolatedBatch(
       gracefulPhase = sequence.gracefulPhase;
       grace = sequence.grace;
       hardKill = sequence.hardKill;
-      // Confirmed implies the exit was already observed; after a hard stage
-      // the exit is awaited, bounded (immediate when the child exited unacknowledged).
+      // Confirmed or suppressed implies the exit was already observed; after
+      // an executed hard stage the exit is awaited, bounded.
       const settledExit = await withinBound(exited, HARD_KILL_EXIT_WAIT_MS);
       if (settledExit === undefined) {
         throw new Error(
@@ -577,7 +684,7 @@ export async function runProcessIsolatedBatch(
 
     await withinBound(drained, EXIT_DRAIN_MS);
     const posixGroupSweep: GroupSignalResult | 'NOT_APPLICABLE' =
-      platform === 'posix' ? await posixPostExitSweep(pid) : 'NOT_APPLICABLE';
+      platform === 'posix' ? await posixKillProcessGroupSettled(pid) : 'NOT_APPLICABLE';
 
     await options.beforeCleanup?.(scratchDir);
 
@@ -594,13 +701,19 @@ export async function runProcessIsolatedBatch(
       exitedWithinGrace: grace?.exitedWithinGrace ?? false,
       gracefulShutdownConfirmed: grace?.gracefulShutdownConfirmed ?? false,
       hardKillRequired: grace?.hardKillRequired ?? false,
-      hardKill,
+      hardKillDisposition: hardKill.disposition,
+      hardKillSuppressionReason:
+        hardKill.disposition === 'SUPPRESSED_EXPIRED_TARGET_IDENTITY'
+          ? hardKill.suppressionReason
+          : null,
+      hardKill: hardKill.disposition === 'EXECUTED' ? hardKill.record : null,
       posixGroupSweep,
       stderrTail,
       scratchDir,
     };
   } finally {
-    // Emergency path: whatever went wrong above, never leave the tree running.
+    // Emergency path: whatever went wrong above, never leave the tree running
+    // - and, as everywhere, never aim taskkill at a PID whose exit was seen.
     if (
       child !== undefined &&
       child.pid !== undefined &&
@@ -608,11 +721,17 @@ export async function runProcessIsolatedBatch(
       child.signalCode === null
     ) {
       try {
-        await hardKillProcessTree(platform, child.pid, {
-          sendIpc: () => false,
-          signalProcessGroup: posixSignalProcessGroup,
-          taskkillTree: windowsTaskkillTree,
-        });
+        await hardKillProcessTree(
+          platform,
+          child.pid,
+          {
+            sendIpc: () => false,
+            signalProcessGroup: posixSignalProcessGroup,
+            killProcessGroup: posixKillProcessGroupSettled,
+            taskkillTree: windowsTaskkillTree,
+          },
+          () => exitInfo !== undefined,
+        );
       } catch {
         // Best effort; the scratch removal below still runs.
       }

@@ -253,3 +253,88 @@ process isolation is introduced to close these gaps. On POSIX, a same-group
 descendant of an already-exited leader **is** still reachable, because the
 group outlives its leader, and this was executed (see §11 of
 `PHASE_2B_2D2B_2_HARD_LIVENESS_RECOVERY_2026-09.md`).
+
+---
+
+## 6. Safety correction 2D2B-R2B — `taskkill` is never aimed at an exited child's PID
+
+Added by an additive commit (`Refuse stale-PID tree kill after unconfirmed
+exit`) on top of `e237c670e4e95936d44aeb5f347e82e161bff061`. §§1–5 above are
+unchanged. **§5's "Corrected behaviour" row for "exit, no ACK"
+(`taskkill /T /F` attempted) is superseded by this section**, and so is its
+last bullet. That bullet was R2A's own warning and is the finding corrected
+here. Full details, measurements and mutation results are in §12 of
+`PHASE_2B_2D2B_2_HARD_LIVENESS_RECOVERY_2026-09.md`.
+
+### The finding
+
+R2A made an unacknowledged exit wait until the grace deadline and then run
+`taskkill /pid <pid> /T /F`. By then Node had already reported the child's
+exit, and Node 24.18.0 requests the close of its process handle in the same
+synchronous run that emits `'exit'` (reverified from the installed binary).
+libuv 1.52.1 then closes the OS handle in `uv__process_endgame`. Microsoft
+documents a PID as valid only "from the time the process is created until
+the process has been terminated". `validateSignalTargetPid` proves only that
+the number is well-formed. So the delayed call could have force-killed an
+**unrelated** process tree that had since been given that PID. The grace wait
+widened that window. It was not safe merely because it followed the
+owner-preserved contract.
+
+### Corrected Windows behaviour
+
+| grace-phase observation | before (R2A, `e237c670`) | after (R2B) |
+| --- | --- | --- |
+| ACK + exit | `SHUTDOWN_CONFIRMED`; no `taskkill` | unchanged; `NOT_REQUIRED` |
+| exit, no ACK | waited for the deadline, then **`taskkill` on the exited PID** | `CHILD_EXITED_UNCONFIRMED` **at once** (exit + IPC channel closed); `hardKillRequired: true`; **no `taskkill`**: `SUPPRESSED_EXPIRED_TARGET_IDENTITY`, reason `DIRECT_CHILD_EXIT_OBSERVED`, `hardKill: null` |
+| ACK, no exit | `taskkill` at the deadline | `ACKNOWLEDGED_NOT_EXITED`; final gate; `taskkill /pid <validated-live-pid> /T /F`; `EXECUTED` |
+| neither | `taskkill` at the deadline | `NO_SHUTDOWN_RESPONSE`; final gate; `taskkill`; `EXECUTED` |
+| exit arrives after the deadline, before the gate | `taskkill` on the exited PID | verdict unchanged and never confirmed; **no `taskkill`**; suppressed |
+
+The graceful phase is still the IPC request only, and
+`child.kill('SIGTERM')` is still never called. A live `taskkill` still goes
+through `execFile` with `shell: false` and the `buildTaskkillArgs` vector.
+
+**The final pre-kill gate.** `hardKillProcessTree` reads the harness-owned
+exit state and, on `win32`, spawns `taskkill` in the same synchronous run
+only if no exit has been observed. There is no `await` between the two, so no
+exit event can be processed in between. A test proves it: a microtask queued
+at the read has not run when the spawn happens. The emergency cleanup path
+in `finally` goes through the same gate.
+
+### What ran on macOS, and what did not
+
+`REIMPLEMENTED_AND_EXECUTED_NOW`: the complete state machine with the
+**`win32` sequence**, against recording fake operations and explicit ACK /
+exit / channel-closed / grace-expiry events. Every stale-identity path
+(exit + channel closed in either order, exit with the channel open until the
+deadline, exit after the deadline but before the gate, and a late exit after
+an ACK) produces **no `taskkill` call** and the suppressed disposition.
+Every live path produces exactly `taskkill /pid 4242 /T /F`. A six-sequence
+matrix asserts that `taskkill` appears iff the exit was never observed.
+Removing the gate, which restores stale-PID `taskkill`, fails 7 tests.
+
+`INSPECTED_NOT_EXECUTED_ON_THIS_PLATFORM`: the three real Windows process
+tests are still `describe.runIf(process.platform === 'win32')` and were
+**skipped** here. The bare-exit test now expects **suppression**:
+`SUPPRESSED_EXPIRED_TARGET_IDENTITY`, `DIRECT_CHILD_EXIT_OBSERVED`,
+`hardKill: null`, run with a 600 s grace that it can pass only by not
+waiting. The other two now also assert their dispositions (`NOT_REQUIRED`,
+`EXECUTED`). None has run.
+
+### Limits that remain
+
+- **Check-to-exec race.** The child can still exit on its own between the
+  userspace gate and `taskkill.exe` opening the PID. There is no atomic
+  identity guarantee. At that point Node has not yet processed the exit, so
+  libuv still holds the process handle. That is libuv behaviour, not a
+  documented guarantee, and nothing relies on it.
+- **No descendant recovery after an exited root.** `taskkill /T` walks from a
+  **live** root (§1). Once the direct child has exited, its former
+  descendants cannot be recovered this way, and suppression does not try.
+  Nothing claims they were cleaned up.
+- **Out of scope.** Production process isolation and a native Windows Job
+  Object, which is what would actually contain a tree whatever its root's
+  lifetime, remain out of scope. No dependency, native binding or process
+  enumeration was introduced.
+- **2D2C runs on macOS.** It must treat any suppressed termination, and any
+  `CHILD_EXITED_UNCONFIRMED` verdict, as a stop-worthy harness failure.

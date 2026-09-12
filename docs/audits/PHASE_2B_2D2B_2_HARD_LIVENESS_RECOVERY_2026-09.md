@@ -785,3 +785,240 @@ gold labels, HOLDOUT data, the firewall test, and `CLAUDE.md`. There were
 zero live provider calls, zero database connections, zero institutional
 requests, no merge, no pull request, and no push to `main`. The commit's own
 hash and the push are verified in the session's closure report.
+
+---
+
+## 12. Safety correction 2D2B-R2B — no stale-PID tree kill after an unconfirmed exit
+
+Added by a fifth, additive commit (`Refuse stale-PID tree kill after
+unconfirmed exit`) on top of `e237c670e4e95936d44aeb5f347e82e161bff061`. No
+earlier commit was amended, rebased or force-pushed, and §§1–11 are left
+exactly as written. §11 records the R2A behaviour this section supersedes in
+part. It is kept as the record of what was committed and accepted then, not
+as a description of what is safe.
+
+### Why R2A was unsafe
+
+R2A correctly restored the rule that a shutdown is confirmed only by
+acknowledgement **and** exit. It also made an unacknowledged exit wait until
+the grace deadline and then run the hard stage. R2A's own "honest limits"
+(§11, first bullet; Windows record §5) named the consequence and left it
+unmitigated. On Windows that hard stage is `taskkill /pid <pid> /T /F`
+against a **number**, issued after Node had already reported the direct
+child's exit. The wait stretched the time between that exit and the
+`taskkill` call to the whole grace period.
+
+- **Official PID lifetime.** Microsoft documents a process identifier as
+  valid "from the time the process is created until the process has been
+  terminated" (*Process Handles and Identifiers*, learn.microsoft.com,
+  fetched 2026-09-12). Nothing is promised after termination. The
+  `OpenProcess` reference says nothing about reuse either way.
+- **Structural validation is not identity.** `validateSignalTargetPid`
+  proves a PID is a safe integer greater than 1. It cannot prove the number
+  still names the process this harness forked. After the exit, it may name
+  an unrelated process, and `/T /F` would then force-kill that process and
+  its whole tree.
+- **Being historically approved does not make it safe.** The
+  owner-preserved contract asked for the hard stage after any unconfirmed
+  grace phase. That remains the logical requirement (`hardKillRequired:
+  true`). Carrying out the OS action against an expired identifier is a
+  separate question, and safety takes precedence.
+
+### What closes the Windows process handle, reverified — `REIMPLEMENTED_AND_EXECUTED_NOW` (inspection)
+
+Recorded as evidence. **The design does not depend on it.**
+
+- **Installed Node 24.18.0** (`process.versions.uv` = `1.52.1`). The
+  `ChildProcess` constructor source was printed from the installed binary
+  (`node --expose-internals`, `internal/child_process`). Inside
+  `this._handle.onexit`, Node sets `exitCode`/`signalCode`, calls
+  `this._handle.close()`, sets `this._handle = null`, and **only then** emits
+  `'exit'`, all in one synchronous run. By the time any `'exit'` listener
+  runs, the handle close has already been requested.
+- **libuv v1.52.1 `src/win/process.c`** (upstream source at the installed
+  version's tag). Exit is detected by `RegisterWaitForSingleObject` on
+  `process_handle`. The wait callback sets `exit_cb_pending` and posts a
+  completion, and `uv__process_proc_exit` then calls `exit_cb` **without**
+  closing the handle. `uv_close` → `uv__process_close` unregisters the wait
+  and schedules the endgame, and `uv__process_endgame` calls
+  `CloseHandle(handle->process_handle)`.
+- Put together, the parent's own OS handle to the child is closed on a loop
+  turn shortly after `'exit'` is emitted, so from then on nothing in this
+  process pins the process object. Whether a still-open handle prevents PID
+  reuse is not stated by the Microsoft pages consulted. It is therefore
+  **not** treated as a guarantee: the corrected design refuses the call
+  instead of reasoning about handle retention.
+
+### Corrected sequences
+
+`gracefulShutdownConfirmed = acknowledged && exited` is unchanged. Any
+unconfirmed shutdown still has `hardKillRequired: true`.
+
+| observation | verdict | when decided | POSIX hard stage | Windows hard stage |
+| --- | --- | --- | --- | --- |
+| ACK + exit (either order) | `SHUTDOWN_CONFIRMED` | at the second half | none (`NOT_REQUIRED`); post-exit sweep runs | none (`NOT_REQUIRED`) |
+| exit, no ACK | `CHILD_EXITED_UNCONFIRMED` | **at once**: exit + IPC channel closed; the grace deadline only if the channel stays open | group `SIGKILL` **immediately** (`EXECUTED`); sweep | **no `taskkill`** (`SUPPRESSED_EXPIRED_TARGET_IDENTITY`, `DIRECT_CHILD_EXIT_OBSERVED`) |
+| ACK, no exit | `ACKNOWLEDGED_NOT_EXITED` | grace deadline | group `SIGKILL` (`EXECUTED`) | final gate, then `taskkill /pid <validated-live-pid> /T /F` (`EXECUTED`) |
+| neither | `NO_SHUTDOWN_RESPONSE` | grace deadline | group `SIGKILL` (`EXECUTED`) | final gate, then `taskkill` (`EXECUTED`) |
+| any of the last two, and the exit arrives before the final gate | unchanged, never confirmed | grace deadline | group `SIGKILL` (`EXECUTED`) | **no `taskkill`** (suppressed) |
+
+**Why "exit + channel closed", not "exit" alone.** Node does not document
+that an IPC `'message'` is delivered before `'exit'`. An ACK the child sent
+just before exiting may still be in the pipe when the exit is observed. The
+unacknowledged verdict is therefore taken at the event after which no ACK can
+arrive: the IPC channel's `'disconnect'`. That is an event, not a clock. It
+also keeps R2A's "ACK + exit in either order" contract true. Measured on this
+Mac (scratch script; fixtures forked detached as the harness does, request
+plus group SIGTERM):
+
+| fixture | observed event order | runs |
+| --- | --- | --- |
+| `cooperativeShutdown.mjs` | `ack > disconnect > exit > close` | 30/30 |
+| `cooperativeLeaderLeavesSameGroupDescendant.mjs` | `ack > disconnect > exit > close` | 10/10 |
+| `exitsWithoutAck.mjs` | `disconnect > exit > close` | 15/15 |
+| `leaderExitsWithoutAckLeavesSameGroupDescendant.mjs` | `disconnect > exit > close` | 10/10 |
+
+On macOS the channel is always already closed when the exit arrives, so the
+unacknowledged verdict comes at the exit itself. A surviving same-group
+descendant does not hold the channel open. If some platform delivered the
+exit first, the verdict would follow at `'disconnect'`, and if the channel
+never closed, at the grace deadline. On Windows the action is suppression
+either way, because the exit has been observed.
+
+**The final pre-kill liveness gate.** `hardKillProcessTree` now takes the
+harness-owned exit state (`directChildExitObserved`) as a required argument.
+On `win32` it reads that state and, if the exit was observed, returns the
+suppression. Otherwise it calls `ops.taskkillTree` straight away, with no
+`await` between the read and the call, and `windowsTaskkillTree` reaches
+`execFile` synchronously. No `'exit'` event can be processed in between. The
+emergency path in `finally` goes through the same function with the same
+gate (`exitInfo !== undefined`). `ops.taskkillTree(` appears exactly once in
+the file, behind the gate (source-asserted).
+
+**POSIX.** The hard stage now uses `killProcessGroup`, a group SIGKILL that
+settles Darwin's transient zombie-group `EPERM` for a bounded time (the
+same ≤ 2 s bounded retry R2A gave the sweep, now shared). The immediate kill
+after an unacknowledged exit can land in that window when a same-group
+descendant died along with its leader. `ESRCH` is still an honest
+`delivered: false`. The graceful group SIGTERM, the post-exit sweep, the
+firewall-pinned `process.kill(-target, signal)` shape and the
+setsid-descendant limit are unchanged.
+
+### Result model
+
+- `HardKillDisposition` = `NOT_REQUIRED` | `EXECUTED` |
+  `SUPPRESSED_EXPIRED_TARGET_IDENTITY`, a closed union.
+- `HardKillSuppressionReason` = `DIRECT_CHILD_EXIT_OBSERVED`, closed, one
+  member.
+- `HardKillStage` is a discriminated union: `{ NOT_REQUIRED }`, `{ EXECUTED,
+  record: HardKillRecord }`, or `{ SUPPRESSED_EXPIRED_TARGET_IDENTITY,
+  suppressionReason }`. A suppressed stage has **no** `record`, so it cannot
+  carry a method, a delivery flag or an exit code. The constant is frozen.
+- `ProcessIsolatedBatchResult` carries each fact separately:
+  `gracePhaseVerdict`, `hardKillRequired` (logical), `hardKillDisposition`,
+  `hardKillSuppressionReason`, and `hardKill` (the executed record: method,
+  `delivered`, `taskkillExitCode`; `null` when not executed). No free-form
+  process detail, command output or error string was added.
+
+### Tests executed on macOS (darwin, Node 24.18.0)
+
+**Baseline at `e237c670`, before any edit.** The first run of the Tier 2
+file gave **1 failed**, 31 passed, 3 skipped. The R2A same-group regression
+expected the post-exit sweep to answer `NO_SUCH_PROCESS` and got another
+answer, right after asserting `hardKill.delivered === true`. The re-run and
+8 isolated runs passed. Measured cause (scratch script, 40 runs each):
+immediately after a delivered group SIGKILL whose only live member is the
+orphaned descendant, a second group kill answered `SIGNALLED` **39/40**
+unloaded (1 `EPERM`) and **40/40** under 12 busy loops. A SIGKILLed process
+still accepts `kill()` until it has finished dying. That test now accepts
+either sweep answer and relies on the OS probes (both PIDs gone). This is
+not a weakened check: before this commit the assertion was racy, and the
+immediate kill that R2B introduces makes the sweep follow the hard kill even
+more closely.
+
+The Tier 2 file went from **32 passed / 3 skipped** to **39 passed / 3
+skipped**. What each proves:
+
+| test | proves |
+| --- | --- |
+| Windows hard stage, exit observed (new) | gate `true` → no operation of any kind, `{ SUPPRESSED_EXPIRED_TARGET_IDENTITY, DIRECT_CHILD_EXIT_OBSERVED }`, no `record`, frozen |
+| Windows final pre-kill gate (new) | reading the gate queues a microtask that marks the child exited; `taskkill` still observes `exited === false`, so nothing ran between the read and the spawn |
+| Windows execFile source (new) | `shell: false`, `buildTaskkillArgs` vector, exactly one `ops.taskkillTree(` and it sits directly behind the gate |
+| Windows hard stage, exit not observed (updated) | exactly `taskkill /pid 4242 /T /F`; `EXECUTED`; exit code 128 → `delivered: false` |
+| POSIX hard stage (updated) | group SIGKILL whether or not the exit was observed; empty group → `delivered: false` |
+| state machine × posix, × win32 (7 each; +1 each) | ACK+exit in three orders → confirmed, `NOT_REQUIRED`; **exit + channel closed, either order → settled with the manual grace deadline never fired**, POSIX `group:SIGKILL:4242` `EXECUTED`, Windows **no taskkill** and suppressed; exit with the channel open → pending, then the deadline; ACK-without-exit and neither → pending until the deadline, then exactly the hard call, `EXECUTED`; **exit between the grace decision and the final gate** → verdict unchanged and unconfirmed, Windows suppressed, POSIX executed; late events cannot rewrite any decision |
+| Windows decision matrix (new) | across six event sequences, `taskkill` appears iff the exit was never observed, and `EXECUTED` never coexists with an observed exit |
+| POSIX delivery honesty (new) | the immediate post-exit group kill records `delivered` false/true for an empty/surviving group |
+| decision table, harness linkage (restored, extended) | the four combinations; the harness calls `runTerminationSequence` once; the emergency path is gated on `exitInfo`; exit, disconnect and ACK all feed the one tracker |
+| real POSIX `exitsWithoutAck.mjs` (updated) | `graceMs` = **600,000** (twenty times the 30 s test timeout): passes only if the grace is not waited out; `CHILD_EXITED_UNCONFIRMED`, `EXECUTED`, `delivered: false`, sweep `NO_SUCH_PROCESS` |
+| real POSIX leader + same-group descendant (updated) | same 600 s grace; at the hard stage the leader probed gone and the descendant **alive**; the immediate group SIGKILL `delivered: true`; both PIDs probed gone afterwards; scratch removed. Ran in ~1.5 s against R2A's ~2.5 s |
+
+**Mutation checks** (applied to the harness, each run against the Tier 2
+file, then restored and verified byte-identical with `cmp`):
+
+| mutation | tests failing |
+| --- | --- |
+| **restore stale-PID `taskkill`** (remove the Windows pre-kill gate) | **7** |
+| an `await` between the gate and the spawn | 2 |
+| unacknowledged verdict at the exit alone (an in-flight ACK is ignored) | 6 |
+| the emergency path's gate replaced by `() => false` | 1 |
+| R2A behaviour: an unacknowledged exit waits for the grace deadline | 8, including both real POSIX no-grace-wait tests, by timeout |
+
+The last mutation's timed-out harness calls never reached their `finally`,
+and left two `nwf-pe-tier2-batch-*` directories behind (one holding a
+`pids.json` whose two PIDs probed gone). Both were removed. The committed
+code, run normally, leaves none (below).
+
+**Skipped, not run:** the 3 Windows-gated real-process tests. The bare-exit
+test now requires `CHILD_EXITED_UNCONFIRMED`, `hardKillRequired: true`,
+`SUPPRESSED_EXPIRED_TARGET_IDENTITY` / `DIRECT_CHILD_EXIT_OBSERVED`,
+`hardKill: null`, with the same 600 s grace. See §6 of the Windows record.
+
+### What remains
+
+- **Check-to-exec race (Windows).** Between the synchronous userspace gate
+  and the moment `taskkill.exe` opens the PID, the child may exit on its
+  own. The harness cannot close that window, and it offers no atomic
+  identity guarantee. In that window Node has not yet run `onexit`, so libuv
+  still holds its process handle. That is an observation about libuv, not a
+  documented Windows guarantee, and nothing relies on it.
+- **Suppression cleans nothing up.** After an unacknowledged exit on
+  Windows, any descendant the child left behind is not reached. `taskkill /T`
+  could not reach it from a dead root either, which is the §1 mechanism of
+  the Windows record. The record says `SUPPRESSED`, not "cleaned".
+- **POSIX.** The setsid-descendant limit (§8) and the small PGID-reuse
+  exposure of a group signal after the leader is reaped (§11) are unchanged.
+  The immediate kill shortens that exposure for the unacknowledged-exit
+  path.
+- **Out of scope.** No production process isolation, no Windows Job
+  Object, no native binding, no process enumeration and no dependency.
+- **For 2D2C** (to run on macOS): any `hardKillDisposition` of
+  `SUPPRESSED_EXPIRED_TARGET_IDENTITY`, and any `CHILD_EXITED_UNCONFIRMED`
+  verdict, is an **unconfirmed harness termination** and must be treated as
+  a stop-worthy harness failure, never as a clean batch end.
+
+### Validation
+
+| gate | result |
+| --- | --- |
+| `git diff --check` | clean |
+| `npm run typecheck` / `lint` / `format:check` / `build` | pass |
+| `npm run test:unit` | 1,274 passed, 3 skipped (63 files) |
+| `npm run test:firewall` | 197 passed (4 files), unchanged; no firewall edit |
+| `npm run validate` (code change, before this documentation) | **1,471 passed, 526 skipped, 0 failed** (67 files passed, 20 skipped) |
+
+Against R2A's 1,464 / 526: **+7 passed**, all in the Tier 2 file, and **+0
+skipped**.
+
+### Scope confirmations
+
+Changed: `src/test/harness/processIsolatedBatch.ts`,
+`src/test/unit/orgunitClassifyTier2ProcessHarness.test.ts`, and the two R2
+audit records. No fixture changed. Unchanged: every production file, the
+firewall test, timeout constants, provider budgets, diagnostics, prompt,
+schema, SDK options, dependencies and lockfile, migrations, environment
+files, R1 fixtures, scripts, gold labels, HOLDOUT data and `CLAUDE.md`.
+There were zero live provider calls, zero database connections, zero
+institutional requests, no merge, no pull request, and no push to `main`.
+The commit's own hash and the push are verified in the session's closure
+report.
