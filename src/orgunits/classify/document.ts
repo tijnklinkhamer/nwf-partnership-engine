@@ -3,6 +3,15 @@
  * the model-facing `ClassifierDocument` shape (still without `docIndex`,
  * which `ordering.ts` assigns after final batch placement).
  *
+ * CANONICALISES EVIDENCE THAT PREDATES CANONICAL EXTRACTION, and nothing
+ * else. `orgunit-extraction-v1` rows carry undecoded HTML entities and can
+ * never be re-extracted - no response body is stored anywhere in this
+ * repository - so their text is canonicalised here, at read time, exactly
+ * once. `extractionRuleVersion` itself is passed through UNCHANGED as
+ * provenance: a reader can always see that a canonical document was derived
+ * from v1 bytes rather than produced by v2 extraction. See
+ * `canonicaliserFor` below.
+ *
  * READS ONLY ALREADY-REDACTED, ALREADY-BOUNDED EVIDENCE. `title`,
  * `headings` and `mainText` on `orgunit_page_evidence` are redacted at
  * extraction time (`extract.ts`'s own module comment: "REDACTS every
@@ -13,8 +22,10 @@
  *
  * PURE. No network, no database, no filesystem, no clock.
  */
+import { canonicalEvidenceText } from '../web/evidenceCanonical.js';
 import { truncateToCodePointLimit } from '../web/extract.js';
 import {
+  EXTRACTION_VERSION_REQUIRING_ASSEMBLY_CANONICALISATION,
   MAX_EXCERPT_CODE_POINTS,
   MAX_HEADINGS_PER_DOCUMENT,
   MAX_HEADING_CODE_POINTS,
@@ -35,6 +46,7 @@ export function buildDocumentContent(
   rootRefsByKey: ReadonlyMap<string, ClassifierRootRef>,
 ): Omit<ClassifierDocument, 'docIndex'> {
   const { representative } = group;
+  const canonicalise = canonicaliserFor(representative.extractionRuleVersion);
   const { text: excerpt, truncated: excerptTruncated } = truncateToCodePointLimit(
     representative.mainText,
     MAX_EXCERPT_CODE_POINTS,
@@ -42,10 +54,10 @@ export function buildDocumentContent(
 
   return {
     url: representative.url,
-    title: representative.title,
+    title: representative.title === null ? null : canonicalise(representative.title),
     declaredLang: representative.declaredLang,
-    headings: boundHeadings(representative.headings),
-    excerpt,
+    headings: boundHeadings(representative.headings, canonicalise),
+    excerpt: canonicalise(excerpt),
     mainTextTruncated: representative.mainTextTruncated,
     excerptTruncated,
     extractionRuleVersion: representative.extractionRuleVersion,
@@ -57,11 +69,39 @@ export function buildDocumentContent(
   };
 }
 
-function boundHeadings(headings: readonly Heading[]): readonly Heading[] {
+function boundHeadings(
+  headings: readonly Heading[],
+  canonicalise: (text: string) => string,
+): readonly Heading[] {
   return headings.slice(0, MAX_HEADINGS_PER_DOCUMENT).map((heading) => ({
     level: heading.level,
-    text: truncateToCodePointLimit(heading.text, MAX_HEADING_CODE_POINTS).text,
+    text: canonicalise(truncateToCodePointLimit(heading.text, MAX_HEADING_CODE_POINTS).text),
   }));
+}
+
+/**
+ * THE V1/V2 CANONICALISATION GATE.
+ *
+ * Returns `canonicalEvidenceText` for evidence persisted under the one
+ * extraction version that predates canonical extraction, and the IDENTITY
+ * function for everything else. Evidence written under
+ * `orgunit-extraction-v2` is already canonical; running the decoder over it
+ * again would resolve an author's literal `&amp;eacute;` into `é`, silently
+ * inventing a character the page never contained.
+ *
+ * Canonicalisation is applied AFTER bounding, not before. Decoding only ever
+ * shortens text (an entity reference is longer than the character it names),
+ * so a bounded-then-canonicalised field is still within its bound, and doing
+ * it in this order keeps the excerpt boundary a function of the PERSISTED
+ * bytes alone - the same boundary a v1 assembly chose, so the only thing
+ * that changes between assembly versions is the decoding, never which text
+ * was selected. A cut that lands mid-reference leaves a partial `&eac`,
+ * which stays literal, deterministically.
+ */
+function canonicaliserFor(extractionRuleVersion: string): (text: string) => string {
+  return extractionRuleVersion === EXTRACTION_VERSION_REQUIRING_ASSEMBLY_CANONICALISATION
+    ? canonicalEvidenceText
+    : (text) => text;
 }
 
 function resolveRoots(

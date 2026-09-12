@@ -210,3 +210,69 @@ describe('buildDocumentContent - signals', () => {
     }
   });
 });
+
+describe('buildDocumentContent - the extraction-version canonicalisation gate', () => {
+  const V1 = 'orgunit-extraction-v1';
+  const V2 = 'orgunit-extraction-v2';
+
+  function build(extractionRuleVersion: string, fields: Partial<RawEligibleCandidateRow>) {
+    const [group] = dedupeByResponseSha256([
+      row({ candidateId: '1', extractionRuleVersion, ...fields }),
+    ]);
+    return buildDocumentContent(group!, ROOT_REFS);
+  }
+
+  it('canonicalises title, headings and excerpt for extraction-v1 evidence', () => {
+    // v1 rows carry undecoded entities and can never be re-extracted - no
+    // response body is stored anywhere - so the correction happens here.
+    const doc = build(V1, {
+      title: 'Coop&eacute;ration r&eacute;gionale',
+      headings: [{ level: 1, text: 'Relations internationales &agrave; Paris' }],
+      mainText: '&Eacute;cole sup&eacute;rieure, &laquo; Erasmus &raquo;',
+    });
+
+    expect(doc.title).toBe('Coopération régionale');
+    expect(doc.headings).toEqual([{ level: 1, text: 'Relations internationales à Paris' }]);
+    expect(doc.excerpt).toBe('École supérieure, « Erasmus »');
+  });
+
+  it('leaves extraction-v2 evidence completely untouched - no second decoding pass', () => {
+    // v2 extraction already canonicalised this text. Decoding again would
+    // turn an author's literal `&amp;eacute;` into `é`.
+    const doc = build(V2, {
+      title: '&amp;eacute; is literal here',
+      headings: [{ level: 1, text: 'Caf&eacute; &amp; Co' }],
+      mainText: 'Already canonical: Coopération — &apos; stays literal',
+    });
+
+    expect(doc.title).toBe('&amp;eacute; is literal here');
+    expect(doc.headings).toEqual([{ level: 1, text: 'Caf&eacute; &amp; Co' }]);
+    expect(doc.excerpt).toBe('Already canonical: Coopération — &apos; stays literal');
+  });
+
+  it('carries the stored extractionRuleVersion through UNCHANGED, as provenance', () => {
+    // A canonical document derived from v1 bytes must still say it came from
+    // v1 - rewriting the field would erase the fact that this was a
+    // read-time correction rather than a v2 extraction.
+    expect(build(V1, { title: 'Caf&eacute;' }).extractionRuleVersion).toBe(V1);
+    expect(build(V2, { title: 'Café' }).extractionRuleVersion).toBe(V2);
+  });
+
+  it('treats any other version string as already-canonical rather than ordering versions', () => {
+    // The gate is ONE equality, deliberately: there is no comparator that
+    // could decide what an unreviewed future version means.
+    const doc = build('orgunit-extraction-v3', { title: 'Caf&eacute;' });
+    expect(doc.title).toBe('Caf&eacute;');
+  });
+
+  it('canonicalises AFTER bounding, and the result still respects the bound', () => {
+    const longEntityText = '&eacute;'.repeat(MAX_EXCERPT_CODE_POINTS);
+    const doc = build(V1, { mainText: longEntityText });
+
+    expect(doc.excerptTruncated).toBe(true);
+    // Bounding cut the PERSISTED bytes at the cap; decoding then shortened
+    // them, so the canonical excerpt sits at or under the cap, never over.
+    expect([...doc.excerpt].length).toBeLessThanOrEqual(MAX_EXCERPT_CODE_POINTS);
+    expect(doc.excerpt.startsWith('é')).toBe(true);
+  });
+});

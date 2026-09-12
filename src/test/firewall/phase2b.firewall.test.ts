@@ -357,6 +357,11 @@ describe('PHASE-2B-FIREWALL: exactly one institution-website network call site',
       'src/orgunits/web/extract.ts',
       'src/orgunits/web/redact.ts',
       'src/orgunits/web/pageEvidence.ts',
+      // 2B-2D2B-1: the ONE definition of canonical evidence text - the
+      // complete 252-name HTML 4.01 entity table plus NFC. Pure: no socket,
+      // no database, no clock, no dependency. Named here by exact path so a
+      // second, competing decoder cannot appear quietly beside it.
+      'src/orgunits/web/evidenceCanonical.ts',
       // 2B-1d: the pure deterministic signal layer. See the dedicated
       // describe block below for what these files may NOT do.
       'src/orgunits/signals/types.ts',
@@ -1730,6 +1735,97 @@ describe('PHASE-2B-FIREWALL 2B-2B/2B-2C1: classifier handoff assembly and semant
         );
       }
     }
+  });
+});
+
+describe('PHASE-2B-FIREWALL 2B-2D2B-1: ONE canonicalisation definition, and no second entity decoder', () => {
+  const CANONICAL_MODULE = 'src/orgunits/web/evidenceCanonical.ts';
+
+  it('defines the HTML 4.01 named-entity table in exactly one file', () => {
+    // A second table would drift from the first, and the whole point of the
+    // 252-name contract is that ONE reviewed table decides what a named
+    // reference means.
+    const definers = PRODUCTION_FILES.filter((file) =>
+      /NAMED_ENTITIES(\s*:\s*Readonly|\s*=)/.test(code(file)),
+    );
+    expect(definers, 'more than one module defines a named-entity table').toEqual([
+      CANONICAL_MODULE,
+    ]);
+  });
+
+  it('never re-admits &apos;, which HTML 4.01 does not define', () => {
+    const source = code(CANONICAL_MODULE);
+    expect(source, 'apos was added back to the HTML 4.01 table').not.toMatch(/^\s*apos\s*:/m);
+  });
+
+  it('keeps the canonicalisation module pure - no socket, no database, no clock, no randomness', () => {
+    const source = code(CANONICAL_MODULE);
+    expect(source).not.toMatch(/from\s+['"]node:(net|tls|http|https|dns|fs)['"]/);
+    expect(source).not.toMatch(/from\s+['"]pg['"]/);
+    expect(source).not.toMatch(/process\.env/);
+    expect(source).not.toMatch(/Date\.now\s*\(|Math\.random\s*\(/);
+    expect(source, 'the canonicaliser must own no socket').not.toMatch(/\bfetch\s*\(/);
+  });
+
+  it('adds no mojibake-repair or compatibility-folding path', () => {
+    // NFC only. NFKC would rewrite ligatures and full-width forms into
+    // characters the page never published, and a mojibake repair has no
+    // measured population to repair (2D2B observed zero).
+    const source = code(CANONICAL_MODULE);
+    expect(source, 'NFKC compatibility folding appeared').not.toMatch(/NFKC|NFKD/);
+    expect(source).toMatch(/normalize\(\s*'NFC'\s*\)/);
+  });
+
+  it('keeps both extraction callers on the SAME extraction rule version', () => {
+    // They produce the same evidence grain; a split between them would make
+    // the assembly-time canonicalisation gate ambiguous.
+    const versionIn = (file: string): string | undefined =>
+      /EXTRACTION_RULE_VERSION\s*=\s*'([^']+)'/.exec(code(file))?.[1];
+    const a = versionIn('src/orgunits/web/pageEvidence.ts');
+    const b = versionIn('src/orgunits/orchestrator/pageCollection.ts');
+    expect(a).toBeDefined();
+    expect(a).toBe(b);
+  });
+
+  it('gates assembly-time canonicalisation on ONE exact version, never an ordering', () => {
+    // A comparator would have to interpret arbitrary future version strings
+    // and would silently opt in versions nobody reviewed.
+    const constants = code('src/orgunits/classify/constants.ts');
+    expect(constants).toMatch(
+      /EXTRACTION_VERSION_REQUIRING_ASSEMBLY_CANONICALISATION\s*=\s*'orgunit-extraction-v1'/,
+    );
+    const document = code('src/orgunits/classify/document.ts');
+    expect(document, 'the gate must be an equality').toMatch(
+      /extractionRuleVersion\s*===\s*EXTRACTION_VERSION_REQUIRING_ASSEMBLY_CANONICALISATION/,
+    );
+    expect(document, 'a version comparator appeared in the gate').not.toMatch(
+      /localeCompare|parseInt\(.*version|<=?\s*EXTRACTION_VERSION/i,
+    );
+  });
+
+  it('keeps unit_name verification deterministic: whitespace, diacritics and case only', () => {
+    // The fuzzy/similarity-algorithm blacklist is NOT restated here: the
+    // Phase 1B firewall already forbids those across every source file, and
+    // naming them again would trip that very check (it walks this file too).
+    // What is asserted here is the POSITIVE contract instead.
+    const source = code('src/orgunits/classify/evidenceVerification.ts');
+    expect(source, 'verification must stay a literal substring test').toMatch(/\.includes\(/);
+    expect(source, 'a locale-sensitive fold would make verification machine-dependent').not.toMatch(
+      /toLocaleLowerCase|toLocaleUpperCase/,
+    );
+    expect(source, 'case folding is the ONE fold 2B-2D2B-1 added').toMatch(/toLowerCase\(\)/);
+    expect(source, 'the diacritic fold must remain NFD + combining-mark stripping').toMatch(
+      /normalize\(\s*'NFD'\s*\)/,
+    );
+  });
+
+  it('never reads another document while verifying one document', () => {
+    // Cross-document lookup is exactly how a sibling's text becomes a
+    // fabricated name for this page.
+    const source = code('src/orgunits/classify/evidenceVerification.ts');
+    expect(source, 'verification takes a document ARRAY').not.toMatch(
+      /documents\s*:\s*readonly|ClassifierBatch|documents\[/,
+    );
   });
 });
 

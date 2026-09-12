@@ -46,8 +46,15 @@ import {
 import type { WebAttemptResult } from '../web/gateway.js';
 import { MIN_PAGES_FOR_BOILERPLATE_DIFFERENCING } from './constants.js';
 
-/** Versioned exactly as `pageEvidence.ts` - this module produces the SAME evidence grain, just batched. */
-export const EXTRACTION_RULE_VERSION = 'orgunit-extraction-v1';
+/**
+ * Versioned exactly as `pageEvidence.ts` - this module produces the SAME
+ * evidence grain, just batched, so the two constants must always agree. `v2`
+ * (Phase 2B-2D2B-1) is the first bump: `extractPage` now returns CANONICAL
+ * evidence text (full HTML 4.01 entity decoding, then NFC). See
+ * `pageEvidence.ts` for why v1 rows are canonicalised at assembly instead of
+ * being re-extracted.
+ */
+export const EXTRACTION_RULE_VERSION = 'orgunit-extraction-v2';
 export const MAIN_TEXT_CAP = 40_000;
 
 export type NotEligibleReason =

@@ -16,6 +16,18 @@
  *   because it is well-formed enough to have a resolvable charset in the
  *   first place.
  *
+ * CANONICAL EVIDENCE TEXT (Phase 2B-2D2B-1)
+ *
+ *   Every textual field this module returns is CANONICAL in the sense
+ *   `evidenceCanonical.ts` defines: one HTML 4.01 entity-decoding pass, then
+ *   Unicode NFC. The two halves are applied at different points of the
+ *   pipeline on purpose - `htmlFragmentToText` decodes before it collapses
+ *   whitespace, `extractPage` composes afterwards - so the composition is
+ *   `canonicalEvidenceText` performed exactly ONCE per field, never twice.
+ *   This module previously carried its own thirteen-name entity map, which
+ *   left every other named entity (`&eacute;`, `&agrave;`, `&ccedil;` and
+ *   229 more) sitting in persisted evidence as literal markup.
+ *
  * WHAT THIS MODULE DOES NOT DO
  *
  *   - execute JavaScript, or interpret a <script> tag's contents as anything
@@ -36,6 +48,7 @@
  *
  * PURE. No network, no database, no filesystem, no clock.
  */
+import { composeCanonicalForm, decodeHtml4EntitiesOnce } from './evidenceCanonical.js';
 import { redactContactData } from './redact.js';
 
 /**
@@ -117,43 +130,21 @@ export function stripNonContent(html: string): string {
   return result;
 }
 
-const NAMED_ENTITIES: Readonly<Record<string, string>> = Object.freeze({
-  amp: '&',
-  lt: '<',
-  gt: '>',
-  quot: '"',
-  apos: "'",
-  nbsp: ' ',
-  mdash: '—',
-  ndash: '–',
-  hellip: '…',
-  rsquo: '’',
-  lsquo: '‘',
-  rdquo: '”',
-  ldquo: '“',
-});
-
-/** Decodes named, decimal and hexadecimal HTML entities, tolerantly. */
-export function decodeEntities(text: string): string {
-  return text.replace(/&(#x?[0-9a-fA-F]+|[a-zA-Z][a-zA-Z0-9]*);/g, (match, body: string) => {
-    if (body.startsWith('#x') || body.startsWith('#X')) {
-      const code = Number.parseInt(body.slice(2), 16);
-      return Number.isFinite(code) ? String.fromCodePoint(code) : match;
-    }
-    if (body.startsWith('#')) {
-      const code = Number.parseInt(body.slice(1), 10);
-      return Number.isFinite(code) ? String.fromCodePoint(code) : match;
-    }
-    return NAMED_ENTITIES[body] ?? match;
-  });
-}
-
 /**
  * Turns a fragment of (already non-content-stripped) HTML into normalised
  * text: every remaining tag becomes a word boundary rather than being
  * concatenated with its neighbours, entities are decoded, and whitespace
  * collapses to single spaces while paragraph/heading boundaries survive as
  * newlines.
+ *
+ * THIS IS WHERE THE ONE ENTITY-DECODING PASS HAPPENS, and it must stay
+ * BEFORE the whitespace collapse: `&nbsp;`, `&ensp;`, `&emsp;` and
+ * `&thinsp;` are space characters, so decoding first lets them collapse into
+ * ordinary spacing, while decoding afterwards would strand literal U+00A0 /
+ * U+2002 / U+2003 / U+2009 inside otherwise-normalised text. The matching
+ * NFC half is applied once by `extractPage`; together the two halves are
+ * exactly `evidenceCanonical.ts`'s `canonicalEvidenceText`, applied exactly
+ * once per field.
  */
 export function htmlFragmentToText(html: string): string {
   // Block-level and line-breaking elements become a newline; everything else
@@ -163,7 +154,7 @@ export function htmlFragmentToText(html: string): string {
     /<\/?(p|div|br|h[1-6]|li|ul|ol|table|tr|td|th|section|article|header|footer|nav|aside|main|blockquote|pre|hr)\b[^>]*>/gi;
   const withBreaks = html.replace(BLOCK_TAGS, '\n');
   const withoutTags = withBreaks.replace(/<[^>]+>/g, ' ');
-  const decoded = decodeEntities(withoutTags);
+  const decoded = decodeHtml4EntitiesOnce(withoutTags);
   return decoded
     .split('\n')
     .map((line) => line.replace(/\s+/g, ' ').trim())
@@ -253,11 +244,19 @@ export function extractPage(html: string): ExtractedPage {
   const { content, method } = findMainContainer(cleaned);
   const mainText = htmlFragmentToText(content);
 
+  // NFC BEFORE redaction, not after: redaction matches email- and
+  // phone-shaped text, and it must see the same composed characters a reader
+  // would. `declaredLang` is deliberately excluded - it is a BCP-47-shaped
+  // tag this extractor already constrains to `[A-Za-z0-9-]`, not evidence
+  // text, and canonicalising it would imply it could carry prose.
   return {
-    title: title === null ? null : redactContactData(title),
+    title: title === null ? null : redactContactData(composeCanonicalForm(title)),
     declaredLang,
-    headings: headings.map((heading) => ({ ...heading, text: redactContactData(heading.text) })),
-    mainText: redactContactData(mainText),
+    headings: headings.map((heading) => ({
+      ...heading,
+      text: redactContactData(composeCanonicalForm(heading.text)),
+    })),
+    mainText: redactContactData(composeCanonicalForm(mainText)),
     extractionMethod: method,
   };
 }

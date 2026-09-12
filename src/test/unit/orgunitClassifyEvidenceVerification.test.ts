@@ -152,3 +152,67 @@ describe('unitNameVerifies - looser than evidence spans, on purpose', () => {
     expect(unitNameVerifies(withEmoji, 'Bureau 🎓 International')).toBe(true);
   });
 });
+
+describe('evidenceSpanVerifies stays literal after whitespace collapse (2B-2D2B-1)', () => {
+  it('collapses whitespace on both sides and nothing else', () => {
+    expect(evidenceSpanVerifies(doc(), 'EXCERPT', 'les  étudiants     entrants')).toBe(true);
+  });
+
+  it('still refuses a case difference', () => {
+    expect(evidenceSpanVerifies(doc(), 'TITLE', 'bureau des relations internationales')).toBe(
+      false,
+    );
+  });
+
+  it('still refuses a diacritic difference', () => {
+    expect(evidenceSpanVerifies(doc(), 'EXCERPT', 'les etudiants')).toBe(false);
+  });
+
+  it('still refuses a punctuation or quote-style difference', () => {
+    expect(evidenceSpanVerifies(doc(), 'TITLE', 'Internationales - École Supérieure')).toBe(false);
+  });
+
+  it('verifies a DECODED quote against a canonical document, and not against v1 bytes', () => {
+    // The exact 2D2B rejection mechanism: the model quotes what a reader
+    // sees, and v1 evidence held the entity markup instead.
+    const v1 = doc({ title: 'Coop&eacute;ration r&eacute;gionale' });
+    const canonical = doc({ title: 'Coopération régionale' });
+    expect(evidenceSpanVerifies(v1, 'TITLE', 'Coopération régionale')).toBe(false);
+    expect(evidenceSpanVerifies(canonical, 'TITLE', 'Coopération régionale')).toBe(true);
+  });
+});
+
+describe('unitNameVerifies folds whitespace, diacritics AND case - and nothing more', () => {
+  it('accepts a name that differs only in capitalisation', () => {
+    // The Mayotte case: the page says `centre de documentation`, the model
+    // returns it conventionally capitalised.
+    const d = doc({ excerpt: 'Contacter le centre de documentation du campus.' });
+    expect(unitNameVerifies(d, 'Centre de documentation')).toBe(true);
+    expect(unitNameVerifies(d, 'CENTRE DE DOCUMENTATION')).toBe(true);
+    expect(unitNameVerifies(d, 'centre de documentation')).toBe(true);
+  });
+
+  it('accepts case and diacritic and whitespace differences together', () => {
+    expect(unitNameVerifies(doc(), 'bureau   des relations internationales')).toBe(true);
+    expect(unitNameVerifies(doc(), 'ECOLE SUPERIEURE')).toBe(true);
+  });
+
+  it('does NOT fold punctuation', () => {
+    expect(unitNameVerifies(doc(), 'Bureau des Relations-Internationales')).toBe(false);
+  });
+
+  it('does NOT expand an acronym', () => {
+    const d = doc({ title: 'DAI', excerpt: 'Contact the DAI.', headings: [] });
+    expect(unitNameVerifies(d, 'DAI')).toBe(true);
+    expect(unitNameVerifies(d, 'Direction des Affaires Internationales')).toBe(false);
+  });
+
+  it('does NOT reorder tokens or match fuzzily', () => {
+    expect(unitNameVerifies(doc(), 'Relations Internationales Bureau des')).toBe(false);
+    expect(unitNameVerifies(doc(), 'Bureau des Relatons Internationales')).toBe(false);
+  });
+
+  it('still refuses an empty or whitespace-only name', () => {
+    expect(unitNameVerifies(doc(), '   ')).toBe(false);
+  });
+});

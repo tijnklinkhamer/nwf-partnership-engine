@@ -28,8 +28,21 @@ import { resolveCharset } from './charset.js';
 import { extractPage, truncateToCodePointLimit, unicodeCodePointLength } from './extract.js';
 import type { WebAttemptResult } from './gateway.js';
 
-/** Versioned so a future extraction-rule change appends new evidence rather than rewriting old evidence. */
-export const EXTRACTION_RULE_VERSION = 'orgunit-extraction-v1';
+/**
+ * Versioned so a future extraction-rule change appends new evidence rather
+ * than rewriting old evidence.
+ *
+ * `v2` (Phase 2B-2D2B-1) is the first bump: extraction now returns CANONICAL
+ * evidence text - the full 252-name HTML 4.01 entity table decoded once, then
+ * Unicode NFC (`web/evidenceCanonical.ts`). Rows already persisted under
+ * `orgunit-extraction-v1` carry undecoded entities and CANNOT be
+ * re-extracted, because no response body is stored anywhere in this
+ * repository by design; they are canonicalised at classifier assembly
+ * instead (`classify/constants.ts`'s
+ * `EXTRACTION_VERSION_REQUIRING_ASSEMBLY_CANONICALISATION`). Evidence written
+ * under v2 is already canonical and must never be decoded a second time.
+ */
+export const EXTRACTION_RULE_VERSION = 'orgunit-extraction-v2';
 
 /** The hard schema cap. Never increase this without a new migration. */
 export const MAIN_TEXT_CAP = 40_000;

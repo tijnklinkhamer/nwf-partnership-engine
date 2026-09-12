@@ -190,3 +190,75 @@ code.
 Only **2D2B-1 — evidence canonicalisation** is implemented. Explicitly **not**
 in this slice: 2D2B-2 hard liveness, prompt v2, the configuration freeze,
 2D2C, and any live classifier or provider call of any kind.
+
+---
+
+## 6. Implementation outcome against the historical recovery oracles
+
+Added with the 2D2B-1 implementation commit, after that implementation was
+independently reconstructed and fully validated. The owner-preserved oracles
+are `OWNER_PRESERVED_HISTORICAL_REPORT` values; every "reproduced" result below
+is `GITHUB_VERIFIED_NOW`, recomputed in this session from committed inputs.
+
+### Behavioural oracles — all reproduced exactly
+
+| oracle                                         | owner-preserved value         | reproduced now                | result    |
+| ---------------------------------------------- | ----------------------------- | ----------------------------- | --------- |
+| source corpus raw-byte SHA-256                 | `dec0a599…40d63ede`           | `dec0a599…40d63ede`           | **MATCH** |
+| source manifest content hash (`corpusSha256`)  | `42f041ee…baea44b`            | `42f041ee…baea44b`            | **MATCH** |
+| DEVELOPMENT documents whose bytes changed      | 12 of 49                      | 12 of 49                      | **MATCH** |
+| DEVELOPMENT documents byte-identical           | 37, `extractionRuleVersion` included | 37, `extractionRuleVersion` included | **MATCH** |
+| six rejected items among the changed documents | (implied by the mechanism)    | all six                       | **MATCH** |
+
+The twelve changed documents, in corpus order: `ga435ea22d4b11cf4`,
+`g4454e841c09dd8d0`, `g5f96e37ff602795a`, `gdb5b7246327094ef`,
+`g581e2c0586577331`, `g04c5e4d705a2e184`, `g0ec0d43dad311a77`,
+`g877a05e6f5bba835`, `gcce4e2a5f608de5d`, `gf65026e32d9da8db`,
+`g2e0dc1ff57327033`, `g9c1b65eda41afda2`. Only `title`, `headings[].text` and
+`excerpt` differ; the thirteen entity names canonicalised across the
+DEVELOPMENT documents are `Eacute agrave ccedil deg eacute ecirc egrave icirc
+ntilde oacute ocirc oelig ucirc`.
+
+### File-byte oracles — NOT reproduced, and deliberately not forced
+
+| artifact                          | owner-preserved raw-byte SHA-256                                   | produced now                                                       |
+| --------------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| derived corpus `…-canonical-v2.jsonl`          | `4784da1b7e29ac04466307dca3c927025e051532eb5ffb9fd9126fc703cec1d4` | `c5a9923a35689fd8b0950d615ee5339c6ccc63e83ac067960760497b6a9c4536` |
+| derived manifest `…-canonical-v2.manifest.jsonl` | `0ba43510282c83946a997b535ccf32cfc42e303a3921ae8740257b71c34f4083` | `9ef7dfb45307004297f019351163b06478d2f552834f10496545cfaf1a9a20f6` |
+
+**This is a SERIALIZATION difference, not a semantic one.** Every behavioural
+oracle above matches, which fixes what canonicalisation does to which
+documents. What the brief pinned only in prose — and what two independent
+implementations therefore need not agree on byte-for-byte — is the derived
+**item record shape** (which item-level fields a derived row carries beyond
+the canonicalised document and recomputed `documentSha256`) and the derived
+**manifest's exact field names and field set**.
+
+Established before accepting the difference:
+
+- The repository serialization convention is correct: re-serializing the
+  source corpus and source manifest with `canonicalStringify`, one record per
+  line with a trailing newline, reproduces both source files byte-for-byte.
+- The canonicalised field set is not the cause: across all 49 DEVELOPMENT
+  documents only `title`, `headings[].text` and `excerpt` contain any
+  reference, and none is already non-NFC, so canonicalising every string in a
+  document or only those three produces identical bytes.
+- Per-document hashing is not the cause: `hashDocument` recomputes all 49
+  source `documentSha256` values exactly.
+- Roughly 3,720 plausible shape and serialization variants were swept against
+  the derived-corpus target — alternative `corpusVersion` values, added
+  provenance and version fields, a preserved `sourceDocumentSha256`, goldId
+  and URL orderings, a stamped `orgunit-extraction-v2`, narrow record shapes,
+  `JSON.stringify` serialization, CRLF and no-trailing-newline. None matched.
+  The remaining space is free-text field names and values, which cannot be
+  searched to a bounded conclusion.
+
+Forcing a match would mean guessing bytes until a hash agreed — exactly the
+reconstruction-from-a-digest that §3 forbids. The owner reviewed this
+difference and approved committing the independently derived files with the
+deviation recorded here. The committed derived files are self-consistent:
+their own content hash recomputes, and a re-run of
+`scripts/build-sonnet-acceptance-canonical-corpus.ts` reproduces them
+byte-for-byte. **The two owner-preserved derived hashes above remain
+historical identifiers of the LOST files; they do not identify the files
+committed on this branch, and must not be quoted as if they did.**
