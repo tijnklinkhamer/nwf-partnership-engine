@@ -9,12 +9,15 @@
  *   1. the termination SEQUENCE CONTRACT for both platforms, against fake
  *      operations - pure, so it runs on every platform, and it pins the
  *      Windows rule (IPC request only, never a signal, then taskkill /T /F)
- *      even where Windows is not available;
+ *      even where Windows is not available; 1b executes the COMPLETE shared
+ *      state machine (`runTerminationSequence`, the function the real
+ *      harness calls) for both platforms, driven by explicit ACK / exit /
+ *      grace-expiry events rather than a wall clock (2D2B-R2A);
  *   2. REAL POSIX process tests (skipped on Windows): completion,
- *      cooperative shutdown, hard process-group kill, bounded stderr, a
- *      same-group descendant, the post-exit sweep, and the documented
- *      detached-descendant limit - each proven by OS-level `kill(pid, 0)`
- *      probes and scratch-directory absence;
+ *      cooperative shutdown, an unacknowledged exit reaching the hard stage,
+ *      hard process-group kill, bounded stderr, same-group descendants, the
+ *      post-exit sweep, and the documented detached-descendant limit - each
+ *      proven by OS-level `kill(pid, 0)` probes and scratch-directory absence;
  *   3. REAL Windows process tests (skipped on every other platform).
  *
  * Every spawned PID is registered for emergency cleanup, so a failed
@@ -33,13 +36,19 @@ import {
   SHUTDOWN_REQUEST_MESSAGE,
   beginGracefulShutdown,
   buildTaskkillArgs,
+  createGracePhaseTracker,
+  decideGracePhase,
   hardKillProcessTree,
   isGracefulShutdownConfirmed,
   runProcessIsolatedBatch,
+  runTerminationSequence,
   terminationPlatformOf,
   validateSignalTargetPid,
+  type GraceTimerArm,
+  type GroupSignalResult,
   type ProcessIsolatedBatchOptions,
   type TerminationOperations,
+  type TerminationPlatform,
 } from '../harness/processIsolatedBatch.js';
 
 const IS_WINDOWS = process.platform === 'win32';
@@ -99,11 +108,25 @@ function harnessScratchEntries(): string[] {
   return readdirSync(tmpdir()).filter((entry) => entry.startsWith(HARNESS_SCRATCH_PREFIX));
 }
 let scratchBefore: string[] = [];
+// ...nor any timer or child-process handle the harness created.
+const LEAK_CHECKED_RESOURCES = ['Timeout', 'ProcessWrap'];
+function activeResourceCounts(): Record<string, number> {
+  const counts: Record<string, number> = Object.fromEntries(
+    LEAK_CHECKED_RESOURCES.map((kind) => [kind, 0]),
+  );
+  for (const kind of process.getActiveResourcesInfo()) {
+    if (kind in counts) counts[kind]! += 1;
+  }
+  return counts;
+}
+let resourcesBefore: Record<string, number> = {};
 beforeAll(() => {
   scratchBefore = harnessScratchEntries();
+  resourcesBefore = activeResourceCounts();
 });
 afterAll(() => {
   expect(harnessScratchEntries().sort()).toEqual(scratchBefore.sort());
+  expect(activeResourceCounts()).toEqual(resourcesBefore);
 });
 
 interface PidRecord {
@@ -114,19 +137,31 @@ interface PidRecord {
 /**
  * Runs the harness, registering the direct child for emergency cleanup and,
  * for fixtures that write a PID record, polling it so the descendant is
- * registered - and proven ALIVE - while the batch is still running.
+ * registered - and proven ALIVE - while the batch is still running. It also
+ * probes, at the moment the hard stage is about to run, whether the direct
+ * child and the descendant are still alive.
  */
 async function runWithRecord(
-  options: Omit<ProcessIsolatedBatchOptions, 'onChildSpawned' | 'beforeCleanup'>,
+  options: Omit<ProcessIsolatedBatchOptions, 'onChildSpawned' | 'beforeHardKill' | 'beforeCleanup'>,
   expectRecord: boolean,
 ) {
   let record: PidRecord | null = null;
   let descendantAliveWhileRunning: boolean | null = null;
+  let atHardKill: { direct: boolean; descendant: boolean | null } | null = null;
+  let spawnedPid: number | null = null;
   let polling: Promise<void> = Promise.resolve();
   const result = await runProcessIsolatedBatch({
     ...options,
+    beforeHardKill: () => {
+      const current = record as PidRecord | null;
+      atHardKill = {
+        direct: spawnedPid !== null && isAlive(spawnedPid),
+        descendant: current === null ? null : isAlive(current.descendant),
+      };
+    },
     onChildSpawned: (pid, scratchDir) => {
       spawnedGroupLeaders.add(pid);
+      spawnedPid = pid;
       if (!expectRecord) return;
       polling = (async () => {
         const file = join(scratchDir, 'pids.json');
@@ -148,13 +183,21 @@ async function runWithRecord(
     result,
     record: record as PidRecord | null,
     descendantAliveWhileRunning: descendantAliveWhileRunning as boolean | null,
+    atHardKill: atHardKill as { direct: boolean; descendant: boolean | null } | null,
   };
 }
 
 // ---------------------------------------------------------------------------
 // 1. The sequence contract - pure, every platform.
 // ---------------------------------------------------------------------------
-function recordingOps(options: { ipcConnected?: boolean; taskkillExitCode?: number | null } = {}) {
+function recordingOps(
+  options: {
+    ipcConnected?: boolean;
+    taskkillExitCode?: number | null;
+    /** What the POSIX hard group SIGKILL reports (ESRCH once the group is empty). */
+    hardGroupResult?: GroupSignalResult;
+  } = {},
+) {
   const calls: string[] = [];
   const ops: TerminationOperations = {
     sendIpc: (message) => {
@@ -163,7 +206,7 @@ function recordingOps(options: { ipcConnected?: boolean; taskkillExitCode?: numb
     },
     signalProcessGroup: (pid, signal) => {
       calls.push(`group:${signal}:${pid}`);
-      return 'SIGNALLED';
+      return signal === 'SIGKILL' ? (options.hardGroupResult ?? 'SIGNALLED') : 'SIGNALLED';
     },
     taskkillTree: async (pid) => {
       calls.push(`taskkill:${buildTaskkillArgs(pid).join(' ')}`);
@@ -246,6 +289,16 @@ describe('Tier 2 termination contract (pure; executed on every platform)', () =>
       expect(source).toContain(`'${SHUTDOWN_REQUEST_MESSAGE}'`);
       expect(source).toContain(`'${SHUTDOWN_ACK_MESSAGE}'`);
     }
+    // The unacknowledged-exit fixtures answer the request by exiting, never with an ACK.
+    for (const name of [
+      'exitsWithoutAck.mjs',
+      'leaderExitsWithoutAckLeavesSameGroupDescendant.mjs',
+    ]) {
+      const source = readFileSync(fixture(name), 'utf8');
+      expect(source).toContain(`'${SHUTDOWN_REQUEST_MESSAGE}'`);
+      expect(source).not.toContain(SHUTDOWN_ACK_MESSAGE);
+      expect(source).not.toMatch(/process\.send\(/);
+    }
     // The Windows kill-race fixture installs NO IPC listener at all.
     const detached = readFileSync(fixture('spawnsDetachedGrandchildIgnoresShutdown.mjs'), 'utf8');
     expect(detached).not.toMatch(/process\.on\(\s*['"]message['"]/);
@@ -269,6 +322,236 @@ describe('Tier 2 termination contract (pure; executed on every platform)', () =>
 });
 
 // ---------------------------------------------------------------------------
+// 1b. The COMPLETE grace-phase state machine (2D2B-R2A) - the same
+//     `runTerminationSequence` that `runProcessIsolatedBatch` calls, driven
+//     by explicit events and a manual grace deadline: no wall clock, no
+//     real timer, no process. Executed for BOTH platforms on every platform.
+// ---------------------------------------------------------------------------
+function manualGrace() {
+  let onExpired: (() => void) | null = null;
+  let armed = 0;
+  let disarmed = 0;
+  const armGrace: GraceTimerArm = (expire) => {
+    armed += 1;
+    onExpired = expire;
+    return () => {
+      disarmed += 1;
+    };
+  };
+  return {
+    armGrace,
+    expire: () => onExpired?.(),
+    counts: () => ({ armed, disarmed }),
+  };
+}
+
+/** Lets every queued promise continuation run; deterministic, not a clock. */
+const flushPromises = (): Promise<void> =>
+  new Promise((resolveFlush) => {
+    setImmediate(resolveFlush);
+  });
+
+function startSequence(
+  platform: TerminationPlatform,
+  opsOptions: Parameters<typeof recordingOps>[0] = {},
+) {
+  const { ops, calls } = recordingOps(opsOptions);
+  const tracker = createGracePhaseTracker();
+  const grace = manualGrace();
+  let settled = false;
+  const sequence = runTerminationSequence({
+    platform,
+    pid: 4242,
+    ops,
+    tracker,
+    armGrace: grace.armGrace,
+    beforeHardKill: () => {
+      calls.push('before-hard-kill');
+    },
+  }).then((record) => {
+    settled = true;
+    return record;
+  });
+  return { tracker, grace, calls, sequence, isSettled: () => settled };
+}
+
+const GRACEFUL_CALLS: Record<TerminationPlatform, readonly string[]> = {
+  posix: [`ipc:${SHUTDOWN_REQUEST_MESSAGE}`, 'group:SIGTERM:4242'],
+  win32: [`ipc:${SHUTDOWN_REQUEST_MESSAGE}`],
+};
+const HARD_CALL: Record<TerminationPlatform, string> = {
+  posix: 'group:SIGKILL:4242',
+  win32: 'taskkill:/pid 4242 /T /F',
+};
+
+describe('Tier 2 grace-phase decision table (pure; executed on every platform)', () => {
+  it('only acknowledgement AND exit is confirmed; every other combination requires the hard stage', () => {
+    expect(decideGracePhase({ acknowledged: true, exitedWithinGrace: true })).toEqual({
+      verdict: 'SHUTDOWN_CONFIRMED',
+      acknowledged: true,
+      exitedWithinGrace: true,
+      gracefulShutdownConfirmed: true,
+      hardKillRequired: false,
+    });
+    expect(decideGracePhase({ acknowledged: false, exitedWithinGrace: true })).toEqual({
+      verdict: 'CHILD_EXITED_UNCONFIRMED',
+      acknowledged: false,
+      exitedWithinGrace: true,
+      gracefulShutdownConfirmed: false,
+      hardKillRequired: true,
+    });
+    expect(decideGracePhase({ acknowledged: true, exitedWithinGrace: false })).toEqual({
+      verdict: 'ACKNOWLEDGED_NOT_EXITED',
+      acknowledged: true,
+      exitedWithinGrace: false,
+      gracefulShutdownConfirmed: false,
+      hardKillRequired: true,
+    });
+    expect(decideGracePhase({ acknowledged: false, exitedWithinGrace: false })).toEqual({
+      verdict: 'NO_SHUTDOWN_RESPONSE',
+      acknowledged: false,
+      exitedWithinGrace: false,
+      gracefulShutdownConfirmed: false,
+      hardKillRequired: true,
+    });
+  });
+
+  it('runProcessIsolatedBatch reaches the graceful and hard stages ONLY through runTerminationSequence', () => {
+    const source = readFileSync(
+      fileURLToPath(new URL('../harness/processIsolatedBatch.ts', import.meta.url)),
+      'utf8',
+    );
+    const body = source.slice(source.indexOf('export async function runProcessIsolatedBatch('));
+    expect(body.match(/\brunTerminationSequence\(/g)).toHaveLength(1);
+    expect(body).not.toMatch(/\bbeginGracefulShutdown\(/);
+    // The one other hardKillProcessTree call is the emergency path in `finally`.
+    expect(body.match(/\bhardKillProcessTree\(/g)).toHaveLength(1);
+    expect(body).toMatch(/finally \{[\s\S]*hardKillProcessTree\(platform, child\.pid/);
+  });
+});
+
+describe.each(['posix', 'win32'] as const)(
+  'Tier 2 complete termination state machine, %s sequence (pure; executed on every platform)',
+  (platform) => {
+    it('ACK + exit within grace (either order): CONFIRMED, the grace deadline is disarmed, NO hard stage', async () => {
+      for (const order of [
+        ['ack', 'exit'],
+        ['exit', 'ack'],
+      ] as const) {
+        const run = startSequence(platform);
+        for (const event of order) {
+          if (event === 'ack') run.tracker.recordAcknowledgement();
+          else run.tracker.recordExit();
+        }
+        const record = await run.sequence;
+        expect(record.grace.verdict).toBe('SHUTDOWN_CONFIRMED');
+        expect(record.grace.gracefulShutdownConfirmed).toBe(true);
+        expect(record.grace.hardKillRequired).toBe(false);
+        expect(record.hardKill).toBeNull();
+        expect(run.calls).toEqual(GRACEFUL_CALLS[platform]);
+        expect(run.grace.counts()).toEqual({ armed: 1, disarmed: 1 });
+      }
+    });
+
+    it('exit WITHOUT ACK does not end the grace phase and does NOT short-circuit the hard stage', async () => {
+      // An already-dead root: POSIX finds its group empty, taskkill finds no process.
+      const run = startSequence(platform, {
+        hardGroupResult: 'NO_SUCH_PROCESS',
+        taskkillExitCode: 128,
+      });
+      run.tracker.recordExit();
+      await flushPromises();
+      expect(run.isSettled()).toBe(false);
+      expect(run.calls).toEqual(GRACEFUL_CALLS[platform]); // no hard call yet
+      run.grace.expire();
+      const record = await run.sequence;
+      expect(record.grace).toEqual({
+        verdict: 'CHILD_EXITED_UNCONFIRMED',
+        acknowledged: false,
+        exitedWithinGrace: true,
+        gracefulShutdownConfirmed: false,
+        hardKillRequired: true,
+      });
+      expect(run.calls).toEqual([
+        ...GRACEFUL_CALLS[platform],
+        'before-hard-kill',
+        HARD_CALL[platform],
+      ]);
+      // The attempt is recorded with its REAL delivery result - no cleanup is claimed.
+      expect(record.hardKill).toEqual(
+        platform === 'win32'
+          ? { method: 'WINDOWS_TASKKILL_TREE', delivered: false, taskkillExitCode: 128 }
+          : { method: 'POSIX_PROCESS_GROUP_SIGKILL', delivered: false, taskkillExitCode: null },
+      );
+      expect(run.grace.counts()).toEqual({ armed: 1, disarmed: 1 });
+    });
+
+    it('exit without ACK while same-group descendants survive: the hard stage is DELIVERED', async () => {
+      const run = startSequence(platform);
+      run.tracker.recordExit();
+      run.grace.expire();
+      const record = await run.sequence;
+      expect(record.grace.verdict).toBe('CHILD_EXITED_UNCONFIRMED');
+      expect(record.hardKill?.delivered).toBe(true);
+    });
+
+    it('ACK WITHOUT exit: ACKNOWLEDGED_NOT_EXITED reaches the hard stage', async () => {
+      const run = startSequence(platform);
+      run.tracker.recordAcknowledgement();
+      await flushPromises();
+      expect(run.isSettled()).toBe(false);
+      run.grace.expire();
+      const record = await run.sequence;
+      expect(record.grace.verdict).toBe('ACKNOWLEDGED_NOT_EXITED');
+      expect(record.grace.exitedWithinGrace).toBe(false);
+      expect(record.grace.hardKillRequired).toBe(true);
+      expect(run.calls).toEqual([
+        ...GRACEFUL_CALLS[platform],
+        'before-hard-kill',
+        HARD_CALL[platform],
+      ]);
+      expect(record.hardKill).not.toBeNull();
+    });
+
+    it('NEITHER ACK nor exit: NO_SHUTDOWN_RESPONSE reaches the hard stage', async () => {
+      const run = startSequence(platform);
+      run.grace.expire();
+      const record = await run.sequence;
+      expect(record.grace.verdict).toBe('NO_SHUTDOWN_RESPONSE');
+      expect(record.grace.hardKillRequired).toBe(true);
+      expect(run.calls).toEqual([
+        ...GRACEFUL_CALLS[platform],
+        'before-hard-kill',
+        HARD_CALL[platform],
+      ]);
+    });
+
+    it('events after the grace deadline cannot rewrite the decision', async () => {
+      const lateAck = startSequence(platform);
+      lateAck.tracker.recordExit();
+      lateAck.grace.expire();
+      lateAck.tracker.recordAcknowledgement(); // too late to confirm
+      expect((await lateAck.sequence).grace.verdict).toBe('CHILD_EXITED_UNCONFIRMED');
+      expect(lateAck.calls).toContain(HARD_CALL[platform]);
+
+      const lateExit = startSequence(platform);
+      lateExit.tracker.recordAcknowledgement();
+      lateExit.grace.expire();
+      lateExit.tracker.recordExit(); // too late to confirm
+      expect((await lateExit.sequence).grace.verdict).toBe('ACKNOWLEDGED_NOT_EXITED');
+      expect(lateExit.calls).toContain(HARD_CALL[platform]);
+
+      const lateExpiry = startSequence(platform);
+      lateExpiry.tracker.recordAcknowledgement();
+      lateExpiry.tracker.recordExit();
+      lateExpiry.grace.expire(); // already confirmed; ignored
+      expect((await lateExpiry.sequence).hardKill).toBeNull();
+      expect(lateExpiry.calls).not.toContain(HARD_CALL[platform]);
+    });
+  },
+);
+
+// ---------------------------------------------------------------------------
 // 2. Real POSIX processes - executed on macOS in this recovery.
 // ---------------------------------------------------------------------------
 describe.skipIf(IS_WINDOWS)('Tier 2 on POSIX (real fixture processes)', () => {
@@ -281,6 +564,7 @@ describe.skipIf(IS_WINDOWS)('Tier 2 on POSIX (real fixture processes)', () => {
     expect(result.outcome).toBe('COMPLETED');
     expect(result.exitCode).toBe(0);
     expect(result.gracefulShutdownRequested).toBe(false);
+    expect(result.gracePhaseVerdict).toBeNull();
     expect(result.hardKillRequired).toBe(false);
     expect(result.posixGroupSweep).toBe('NO_SUCH_PROCESS');
     expect(isAlive(result.pid)).toBe(false);
@@ -299,6 +583,7 @@ describe.skipIf(IS_WINDOWS)('Tier 2 on POSIX (real fixture processes)', () => {
     expect(result.outcome).toBe('TIMED_OUT_KILLED');
     expect(result.gracefulShutdownRequested).toBe(true);
     expect(result.gracefulPhase).toEqual({ ipcRequestSent: true, groupSigtermSent: true });
+    expect(result.gracePhaseVerdict).toBe('SHUTDOWN_CONFIRMED');
     expect(result.shutdownAcknowledged).toBe(true);
     expect(result.exitedWithinGrace).toBe(true);
     expect(result.gracefulShutdownConfirmed).toBe(true);
@@ -309,17 +594,61 @@ describe.skipIf(IS_WINDOWS)('Tier 2 on POSIX (real fixture processes)', () => {
     expect(existsSync(result.scratchDir)).toBe(false);
   });
 
-  it('a child that exits WITHOUT acknowledging is recorded as an exit, never as a confirmed shutdown', async () => {
-    const { result } = await runWithRecord(
+  it('a child that exits WITHOUT acknowledging is UNCONFIRMED and still reaches the hard group SIGKILL (2D2B-R2A)', async () => {
+    const { result, atHardKill } = await runWithRecord(
       { modulePath: fixture('exitsWithoutAck.mjs'), watchdogMs: WATCHDOG_MS, graceMs: GRACE_MS },
       false,
     );
     expect(result.outcome).toBe('TIMED_OUT_KILLED');
+    expect(result.gracePhaseVerdict).toBe('CHILD_EXITED_UNCONFIRMED');
     expect(result.exitedWithinGrace).toBe(true);
     expect(result.shutdownAcknowledged).toBe(false);
     expect(result.gracefulShutdownConfirmed).toBe(false);
-    expect(result.hardKillRequired).toBe(false);
+    // The bare exit did not short-circuit the hard-kill decision.
+    expect(result.hardKillRequired).toBe(true);
+    expect(atHardKill).toEqual({ direct: false, descendant: null });
+    // Attempted, and honestly not delivered: the fixture left its group empty.
+    expect(result.hardKill).toEqual({
+      method: 'POSIX_PROCESS_GROUP_SIGKILL',
+      delivered: false,
+      taskkillExitCode: null,
+    });
+    expect(result.posixGroupSweep).toBe('NO_SUCH_PROCESS');
     expect(isAlive(result.pid)).toBe(false);
+    expect(existsSync(result.scratchDir)).toBe(false);
+  });
+
+  it('REGRESSION (2D2B-R2A): a leader that exits WITHOUT ACK leaves a SIGTERM-ignoring same-group descendant, which the HARD group kill removes', async () => {
+    const { result, record, descendantAliveWhileRunning, atHardKill } = await runWithRecord(
+      {
+        modulePath: fixture('leaderExitsWithoutAckLeavesSameGroupDescendant.mjs'),
+        watchdogMs: WATCHDOG_MS,
+        graceMs: GRACE_MS,
+      },
+      true,
+    );
+    expect(record).not.toBeNull();
+    expect(record!.direct).toBe(result.pid);
+    expect(descendantAliveWhileRunning).toBe(true);
+    expect(result.gracePhaseVerdict).toBe('CHILD_EXITED_UNCONFIRMED');
+    expect(result.exitedWithinGrace).toBe(true);
+    expect(result.shutdownAcknowledged).toBe(false);
+    expect(result.gracefulShutdownConfirmed).toBe(false);
+    expect(result.hardKillRequired).toBe(true);
+    // Probed at the moment the hard stage began: the leader is already gone,
+    // the descendant survived the graceful SIGTERM and is still ALIVE.
+    expect(atHardKill).toEqual({ direct: false, descendant: true });
+    // The group SIGKILL found a live member - the descendant - and was delivered.
+    expect(result.hardKill).toEqual({
+      method: 'POSIX_PROCESS_GROUP_SIGKILL',
+      delivered: true,
+      taskkillExitCode: null,
+    });
+    // By the time the harness returned, the group was EMPTY: the post-exit
+    // sweep (after settling Darwin's transient zombie-group EPERM) found no one.
+    expect(result.posixGroupSweep).toBe('NO_SUCH_PROCESS');
+    expect(isAlive(result.pid)).toBe(false);
+    expect(await waitUntilGone(record!.descendant)).toBe(true);
     expect(existsSync(result.scratchDir)).toBe(false);
   });
 
@@ -330,6 +659,7 @@ describe.skipIf(IS_WINDOWS)('Tier 2 on POSIX (real fixture processes)', () => {
     );
     expect(result.outcome).toBe('TIMED_OUT_KILLED');
     expect(result.gracefulPhase).toEqual({ ipcRequestSent: true, groupSigtermSent: true });
+    expect(result.gracePhaseVerdict).toBe('NO_SHUTDOWN_RESPONSE');
     expect(result.exitedWithinGrace).toBe(false);
     expect(result.gracefulShutdownConfirmed).toBe(false);
     expect(result.hardKillRequired).toBe(true);
@@ -459,6 +789,7 @@ describe.runIf(IS_WINDOWS)('Tier 2 on Windows (real fixture processes)', () => {
     );
     expect(result.platform).toBe('win32');
     expect(result.gracefulPhase).toEqual({ ipcRequestSent: true, groupSigtermSent: false });
+    expect(result.gracePhaseVerdict).toBe('SHUTDOWN_CONFIRMED');
     expect(result.gracefulShutdownConfirmed).toBe(true);
     expect(result.hardKillRequired).toBe(false);
     expect(result.posixGroupSweep).toBe('NOT_APPLICABLE');
@@ -476,6 +807,7 @@ describe.runIf(IS_WINDOWS)('Tier 2 on Windows (real fixture processes)', () => {
       true,
     );
     expect(descendantAliveWhileRunning).toBe(true);
+    expect(result.gracePhaseVerdict).toBe('NO_SHUTDOWN_RESPONSE');
     expect(result.exitedWithinGrace).toBe(false); // still alive to anchor the tree walk
     expect(result.hardKill?.method).toBe('WINDOWS_TASKKILL_TREE');
     expect(result.hardKill?.taskkillExitCode).toBe(0);
@@ -484,13 +816,21 @@ describe.runIf(IS_WINDOWS)('Tier 2 on Windows (real fixture processes)', () => {
     expect(existsSync(result.scratchDir)).toBe(false);
   });
 
-  it('a bare exit without acknowledgement is not a confirmed shutdown', async () => {
+  it('a bare exit without acknowledgement is UNCONFIRMED and the `taskkill /T /F` hard stage is still ATTEMPTED (2D2B-R2A)', async () => {
     const { result } = await runWithRecord(
       { modulePath: fixture('exitsWithoutAck.mjs'), watchdogMs: WATCHDOG_MS, graceMs: GRACE_MS },
       false,
     );
+    expect(result.gracePhaseVerdict).toBe('CHILD_EXITED_UNCONFIRMED');
     expect(result.exitedWithinGrace).toBe(true);
+    expect(result.shutdownAcknowledged).toBe(false);
     expect(result.gracefulShutdownConfirmed).toBe(false);
-    expect(result.hardKillRequired).toBe(false);
+    expect(result.hardKillRequired).toBe(true);
+    expect(result.hardKill?.method).toBe('WINDOWS_TASKKILL_TREE');
+    // The root is already dead, so the tree walk has no live anchor. Whatever
+    // taskkill reports is recorded as-is; no cleanup is claimed from it.
+    expect(result.hardKill?.delivered).toBe(result.hardKill?.taskkillExitCode === 0);
+    expect(isAlive(result.pid)).toBe(false);
+    expect(existsSync(result.scratchDir)).toBe(false);
   });
 });

@@ -81,6 +81,14 @@ its tree, so at the moment the walk starts the root is guaranteed alive
 (unless it exited on its own — in which case it did so in response to the
 IPC request, and its own shutdown path is responsible for its children).
 
+> **Superseded in part — see §5 (2D2B-R2A).** The parenthesis above
+> describes the recovered implementation as committed, which treated ANY
+> exit within grace as ending the termination sequence, acknowledged or
+> not. That did not honour the owner-preserved contract: only an
+> acknowledged exit is a confirmed shutdown, and an unacknowledged exit
+> must still reach the hard stage. The text above is left as it was
+> written; §5 records the correction.
+
 ---
 
 ## 3. What ran, and what did not
@@ -135,3 +143,113 @@ both stages signal the whole group (`process.kill(-pid, 'SIGTERM')`, then
 one POSIX-specific addition (a post-exit group sweep) that executing it
 revealed was necessary, and the documented limit that a descendant which
 calls setsid() itself cannot be reached by a group signal.
+
+---
+
+## 5. Acceptance correction 2D2B-R2A — an unacknowledged exit reaches the hard stage
+
+Added by an additive commit (`Honor unconfirmed Tier 2 shutdown hard-kill
+contract`) on top of `e8864af81699f0ea0f7919de16da413579fcbee0`. No earlier
+commit was amended, rebased or force-pushed, and §§1–4 above are unchanged
+apart from the pointer added under "Why this closes the race".
+
+### The mismatch, found during external review
+
+The owner-preserved lost 2D2B-2 acceptance report
+(`OWNER_PRESERVED_HISTORICAL_REPORT`) required this Windows contract:
+
+- graceful shutdown is trusted only after **both** `SHUTDOWN_ACK_MESSAGE`
+  and the direct child's exit;
+- a bare exit without acknowledgement is `CHILD_EXITED_UNCONFIRMED`;
+- that bare exit must **not** short-circuit the hard-kill decision;
+- if grace ends without a confirmed shutdown, the hard tree-kill stage is
+  attempted.
+
+The recovered implementation (`94bb04bf…`, accepted at `e8864af8…`) met
+the first two points and missed the last two. Read from the committed bytes
+(`GITHUB_VERIFIED_NOW`): its grace phase raced **the direct child's exit
+alone** against the grace timer. An unacknowledged exit won that race, was
+labelled unconfirmed, and still ended the sequence — `hardKill: null`,
+`hardKillRequired: false`. The Windows-gated test for `exitsWithoutAck.mjs`
+(§3, item 3) and its POSIX twin both asserted exactly that. The pure tests
+in §3 checked the graceful operation and the hard operation **separately**;
+nothing executed the decision that joins them, and the real Windows tests
+were skipped on the Mac. That is how the gap got through.
+
+### Corrected behaviour
+
+| grace-phase observation | before (`e8864af8`)                                    | after (2D2B-R2A)                                      |
+| ----------------------- | ------------------------------------------------------ | ----------------------------------------------------- |
+| ACK + exit              | confirmed; no `taskkill`                               | `SHUTDOWN_CONFIRMED`; no `taskkill` (unchanged)       |
+| exit, no ACK            | unconfirmed; grace ended at the exit; **no `taskkill`** | `CHILD_EXITED_UNCONFIRMED`; **`taskkill /T /F` attempted** |
+| ACK, no exit            | grace expired; `taskkill`                              | `ACKNOWLEDGED_NOT_EXITED`; `taskkill`                 |
+| neither                 | grace expired; `taskkill`                              | `NO_SHUTDOWN_RESPONSE`; `taskkill`                    |
+
+The acknowledgement and the exit are now tracked independently
+(`createGracePhaseTracker`). The grace phase ends early only when **both**
+have arrived; otherwise it runs to its deadline and the verdict is whatever
+had been observed by then. Events after the deadline cannot change it. The
+whole sequence — IPC request, grace, verdict, hard stage unless confirmed —
+is one function, `runTerminationSequence`, which `runProcessIsolatedBatch`
+calls. A source assertion checks that the harness body calls it exactly once
+and never starts the graceful phase itself.
+
+Unchanged: the Windows graceful phase is still the IPC request only, and
+`child.kill('SIGTERM')` is still never called. The hard stage is still
+`taskkill /pid <validated-pid> /T /F` via `execFile` with `shell: false`.
+PID validation, the bounded stderr tail and scratch cleanup are as before.
+
+### What ran on macOS, and what did not
+
+`REIMPLEMENTED_AND_EXECUTED_NOW`: the complete state machine ran with the
+**`win32` sequence** on this Mac, against recording fake operations and
+explicit ACK / exit / grace-expiry events (no wall clock, no real process).
+For the Windows sequence it proves:
+
+- ACK + exit, in either order, ends the grace phase, disarms the grace
+  deadline, and issues no `taskkill`;
+- exit without ACK does **not** end the grace phase: before the deadline the
+  sequence is still pending and has issued only the IPC request. After the
+  deadline it issues exactly `taskkill /pid 4242 /T /F`, and a failing
+  `taskkill` (exit code 128) is recorded as `delivered: false`,
+  `taskkillExitCode: 128`;
+- ACK without exit, and neither, both reach `taskkill`;
+- an ACK or exit arriving after the deadline does not change the verdict.
+
+`INSPECTED_NOT_EXECUTED_ON_THIS_PLATFORM`: the three real Windows process
+tests are still gated with `describe.runIf(process.platform === 'win32')`
+and were **skipped** on this Mac. Item 3 of §3 now requires
+`CHILD_EXITED_UNCONFIRMED`, `hardKillRequired: true` and a
+`WINDOWS_TASKKILL_TREE` attempt, and it requires
+`delivered === (taskkillExitCode === 0)`. It does not assert any particular
+exit code, because none has been observed. The two other Windows tests now
+also assert their verdicts (`SHUTDOWN_CONFIRMED`, `NO_SHUTDOWN_RESPONSE`).
+None of the three has run.
+
+### The honest limit after an already-dead, unacknowledged Windows root
+
+When the direct child has **already exited** without acknowledging, the
+hard stage is attempted, but it cannot do what §2 relies on:
+
+- `taskkill /T` walks descendants from a **live** root. With the root gone
+  there is nothing to start the walk from, so a detached descendant the root
+  left behind is **not** reachable this way. This is the same mechanism that
+  orphaned the grandchild in §1. The difference now is that the root died
+  by its own choice rather than because the harness killed it.
+- `taskkill` will normally report failure for a PID that no longer exists.
+  The harness records the real exit code and `delivered: false`, and it
+  makes **no** claim that the tree was cleaned up. Given the §1 mechanism, a
+  zero exit code would not prove cleanup either.
+- Node closes the child's process handle when it reports the exit, so after
+  that point Windows may reuse the PID. In principle, a `taskkill` issued
+  after an unacknowledged exit could therefore reach an **unrelated**
+  process that has since been given that PID, along with its tree. The
+  exposure lasts from the exit until the grace deadline. This is a residual
+  risk of honouring the contract. It is not mitigated here, and it has not
+  been measured.
+
+No Job Object, native binding, process enumeration, dependency or production
+process isolation is introduced to close these gaps. On POSIX, a same-group
+descendant of an already-exited leader **is** still reachable, because the
+group outlives its leader, and this was executed (see §11 of
+`PHASE_2B_2D2B_2_HARD_LIVENESS_RECOVERY_2026-09.md`).

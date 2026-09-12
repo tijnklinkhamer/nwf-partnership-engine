@@ -604,3 +604,184 @@ The main clone remained clean on `main` at `7adf895f`; the R1 worktree
 remained clean at `3b677dd2`. No merge, no pull request, no push to `main`.
 The final push of this closure commit is verified in the session's
 acceptance report, since a commit cannot record its own hash.
+
+---
+
+## 11. Acceptance correction 2D2B-R2A — the unconfirmed-shutdown contract
+
+Added by a fourth, additive commit (`Honor unconfirmed Tier 2 shutdown
+hard-kill contract`) on top of `e8864af81699f0ea0f7919de16da413579fcbee0`.
+No earlier commit was amended, rebased or force-pushed. §§6–10 are left
+exactly as written, including the rows that record the behaviour this
+section corrects: §7's POSIX step 3–4, §8's "exit without ack … no hard kill"
+row, and the Tier 2 counts. They describe what was committed and accepted
+then, not what the contract required.
+
+### The mismatch, found during external review
+
+The owner-preserved lost 2D2B-2 acceptance report
+(`OWNER_PRESERVED_HISTORICAL_REPORT`) required: graceful shutdown trusted
+only after **both** `SHUTDOWN_ACK_MESSAGE` and the direct child's exit; a
+bare exit without acknowledgement is `CHILD_EXITED_UNCONFIRMED`; that bare
+exit must **not** short-circuit the hard-kill decision; and a grace phase
+that ends without a confirmed shutdown proceeds to the hard tree-kill stage.
+
+The recovered harness at `94bb04bf` (accepted at `e8864af8`) raced **the
+direct child's exit alone** against the grace timer (`GITHUB_VERIFIED_NOW`,
+from the committed bytes). An unacknowledged exit won the race. It was
+labelled correctly (`exitedWithinGrace: true`,
+`gracefulShutdownConfirmed: false`), but the label did not drive the
+decision: `hardKill` stayed `null` and `hardKillRequired` was `false`. The
+POSIX and the Windows-gated tests for `exitsWithoutAck.mjs` both asserted
+`hardKillRequired: false`. The pure tests verified the graceful and hard
+operations separately, never the decision joining them, and the real Windows
+tests were skipped on this Mac.
+
+### Before and after
+
+| grace-phase observation | before (`e8864af8`)                                             | after (this commit)                                                      |
+| ----------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| ACK + exit              | confirmed; no hard stage                                        | `SHUTDOWN_CONFIRMED`; no hard stage (unchanged)                          |
+| exit, no ACK            | unconfirmed; the grace phase ended at the exit; **no hard stage** | `CHILD_EXITED_UNCONFIRMED`; grace runs to its deadline; **hard stage attempted** |
+| ACK, no exit            | grace expired; hard stage                                       | `ACKNOWLEDGED_NOT_EXITED`; hard stage                                    |
+| neither                 | grace expired; hard stage                                       | `NO_SHUTDOWN_RESPONSE`; hard stage                                       |
+
+### What changed (`src/test/harness/processIsolatedBatch.ts` only, plus tests)
+
+- `decideGracePhase` is the pure decision table: only acknowledgement **and**
+  exit gives `SHUTDOWN_CONFIRMED` / `hardKillRequired: false`.
+- `createGracePhaseTracker` records the acknowledgement and the exit
+  **independently**. Its `settled` promise resolves early only when both have
+  arrived; otherwise it resolves at the grace deadline with whatever had been
+  observed. Later events are ignored, so a late ACK or a late exit cannot
+  rewrite the verdict. An acknowledgement counts only once the graceful
+  phase has begun, since it is an answer to the request.
+- `runTerminationSequence` performs the complete sequence: graceful request,
+  armed grace deadline, verdict, disarm, then the hard stage unless the
+  shutdown was confirmed. `runProcessIsolatedBatch` calls it and feeds the
+  tracker from its IPC `message` and `exit` events. A source assertion pins
+  that the harness body calls `runTerminationSequence` exactly once and never
+  calls `beginGracefulShutdown` itself. The one other `hardKillProcessTree`
+  call is the existing emergency path in `finally`.
+- The result gains `gracePhaseVerdict`, which is `null` for `COMPLETED`.
+  `shutdownAcknowledged` now means "acknowledged before the grace decision".
+  An optional `beforeHardKill` hook lets a test probe what is alive at the
+  instant the hard stage begins.
+- **Preserved unchanged:** POSIX graceful IPC request plus group SIGTERM;
+  POSIX hard group SIGKILL; Windows IPC-only graceful phase, never
+  `child.kill('SIGTERM')`; Windows `taskkill /pid <validated-pid> /T /F`
+  via `execFile`, `shell: false`; `validateSignalTargetPid`; the 2,048-char
+  stderr tail; the post-exit group sweep; scratch cleanup on every path;
+  the `HardKillRecord` shape. No firewall assertion changed.
+
+### A second, necessary change surfaced by executing the new path — `REIMPLEMENTED_AND_EXECUTED_NOW`
+
+The first run of the new same-group-descendant regression **failed**: the
+post-exit sweep threw `kill EPERM`. The cause was measured with a scratch
+experiment (5 runs), not assumed. Immediately after a group SIGKILL whose
+only remaining member is the leader's orphaned descendant, Darwin answers
+`kill(-pgid, …)` with **EPERM** for about **3.4–3.6 ms**, then **ESRCH**.
+During that window the killed descendant is an unreaped zombie awaiting
+launchd. The previous sweep treated anything but ESRCH as fatal. A hard kill
+of an **already-exited** leader is followed by the sweep almost at once, so
+it lands in that window every time.
+
+The sweep now retries **EPERM only**, every 10 ms for at most 200 attempts
+(≤ 2 s). An EPERM that persists past the bound is still thrown, and every
+other error is thrown at once. The group-signal function itself, and its
+firewall-pinned `process.kill(-target, signal)` shape, are unchanged. The
+same window plausibly existed after a hard kill of a *live* leader with a
+same-group descendant (the §8 test), where the leader's own exit
+notification usually took longer than the window. That was **not
+observed** failing and is not claimed.
+
+### Tests executed on macOS (darwin, Node 24.18.0)
+
+`orgunitClassifyTier2ProcessHarness.test.ts` went from **17 passed / 3
+skipped** to **32 passed / 3 skipped**. The 15 new tests are:
+
+| test | what it executes |
+| --- | --- |
+| decision table | the four combinations of `decideGracePhase` |
+| harness linkage | `runProcessIsolatedBatch` routes through `runTerminationSequence` exactly once |
+| state machine × **posix** and × **win32** (6 each = 12) | the real `runTerminationSequence` + tracker with recording ops and a manual grace deadline — no wall clock, no timer, no process: ACK+exit in both orders → confirmed, deadline disarmed, no hard call; exit-without-ACK stays **pending** before the deadline with no hard call, then reaches the hard call (`group:SIGKILL:4242` / `taskkill:/pid 4242 /T /F`) with an honest `delivered: false` for an empty group / `taskkillExitCode: 128`; the same with survivors → `delivered: true`; ACK-without-exit → hard call; neither → hard call; late ACK / late exit / late expiry cannot rewrite the verdict |
+| real POSIX: `leaderExitsWithoutAckLeavesSameGroupDescendant.mjs` (new fixture) | below |
+
+Changed real-process expectations: `exitsWithoutAck.mjs` on POSIX now
+requires `CHILD_EXITED_UNCONFIRMED`, `hardKillRequired: true`, a non-null
+`{ POSIX_PROCESS_GROUP_SIGKILL, delivered: false }` record (its group is
+empty, which is the honest answer), and sweep `NO_SUCH_PROCESS`. Cooperative,
+never-exiting and quick-exit tests additionally assert their verdicts. The
+file's `afterAll` now also checks that the counts of active `Timeout` and
+`ProcessWrap` handles equal their values before the file, alongside the
+existing scratch-directory check.
+
+**Descendant-disappearance evidence (new fixture, real processes).** The
+test asserts it, and one scratch run printed it. The leader (pid 39615) was
+terminated by the graceful group SIGTERM without sending an ACK
+(`signal: SIGTERM`, `shutdownAcknowledged: false`). At the instant the hard
+stage began, the leader probed `ESRCH` and its same-group descendant (pid
+39617), which ignores SIGTERM, probed **alive**. The group SIGKILL was
+`delivered: true`, meaning it found a live member. The post-exit sweep then
+found the group empty (`NO_SUCH_PROCESS`). The descendant probed `ESRCH` as
+soon as the harness returned, and the scratch directory was gone. The same
+run of `exitsWithoutAck.mjs` recorded the hard stage as attempted and not
+delivered.
+
+**Mutation checks** (applied to the harness, then restored and compared
+byte-identical with `cmp`):
+
+| mutation | tests failing |
+| --- | --- |
+| an exit (ACKed or not) skips the hard stage — the old recovered behaviour | 8 (6 state-machine + both real POSIX unacknowledged-exit tests) |
+| an exit alone ends the grace phase early | 4 |
+| the sweep does not settle the transient EPERM | 1 (the new real-process regression) |
+
+**Skipped, not run:** the 3 Windows-gated real-process tests. The bare-exit
+one now requires `CHILD_EXITED_UNCONFIRMED` and a `WINDOWS_TASKKILL_TREE`
+attempt with `delivered === (taskkillExitCode === 0)`. See §5 of the Windows
+record.
+
+### Honest limits that remain
+
+- **Windows, already-dead unacknowledged root.** The hard stage is
+  attempted, but `taskkill /T` cannot rebuild a tree whose root has exited.
+  A detached descendant left behind is out of reach, `taskkill` will
+  normally report failure, and that failure is recorded as it is, with no
+  cleanup claimed. Because Node closes the process handle at exit, the PID
+  may be reused before the grace deadline, so that attempt could in
+  principle reach an unrelated process. This is unmitigated and unmeasured.
+  Details are in §5 of `PHASE_2B_2D2B_2_TIER2_WINDOWS_KILL_RACE_2026-09.md`.
+- **POSIX.** A same-group descendant of an exited leader is reachable, and
+  that is executed above. A descendant that called `setsid()` is still out
+  of reach (§8, unchanged). A group signal after the leader has been reaped
+  carries the same small PGID-reuse exposure the existing sweep already had.
+- No dependency, Job Object, native binding, process enumeration or
+  production process isolation was introduced.
+
+### Validation (code change, before this documentation was added)
+
+| gate | result |
+| --- | --- |
+| `git diff --check` | clean |
+| `npm run typecheck` / `lint` / `format:check` / `build` | pass |
+| `npm run test:unit` | 1,267 passed, 3 skipped (63 files) |
+| `npm run test:firewall` | 197 passed (4 files) — unchanged |
+| `npm run validate` | **1,464 passed, 526 skipped, 0 failed** (67 files passed, 20 skipped) |
+
+Against the 1,449 / 526 acceptance numbers: **+15 passed**, all in the Tier 2
+file, and **+0 skipped**. After the runs no fixture process was alive (`ps`),
+and no `nwf-pe-*` entry or `pids.json` existed under the OS temp directory.
+
+### Scope confirmations
+
+Changed: `src/test/harness/processIsolatedBatch.ts`,
+`src/test/unit/orgunitClassifyTier2ProcessHarness.test.ts`, the new fixture
+`src/test/fixtures/processHarness/leaderExitsWithoutAckLeavesSameGroupDescendant.mjs`,
+and the two R2 audit records. Unchanged: every production file, the timeout
+constants, provider budgets, diagnostics, prompt, schema, R1 fixtures and
+derived corpus, dependencies and lockfile, migrations, environment files,
+gold labels, HOLDOUT data, the firewall test, and `CLAUDE.md`. There were
+zero live provider calls, zero database connections, zero institutional
+requests, no merge, no pull request, and no push to `main`. The commit's own
+hash and the push are verified in the session's closure report.
