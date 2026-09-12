@@ -564,3 +564,43 @@ wedged stream (Tier 1 fires), a wedged event loop (only Tier 2 can act), or
 something else is `UNKNOWN`. The §5 decision rule stands unresolved for
 2D2C. The next task in the recovery order is **2D2B-3 — prompt v2**; it was
 not started.
+
+---
+
+## 10. Acceptance closure — `GITHUB_VERIFIED_NOW`
+
+Added by a third, additive commit (`Close 2D2B-2 recovery acceptance`). No
+earlier commit was amended, rebased or force-pushed.
+
+### Commits on this branch
+
+| commit | message |
+| --- | --- |
+| `81528e26421bf72a692576231aec91a73b80cdef` | `Document 2D2B-2 remote recovery basis` |
+| `94bb04bf474793d0826534c740be3ee9a780f991` | `Reimplement 2D2B-2 hard liveness boundary` |
+| _this commit_ | `Close 2D2B-2 recovery acceptance` (documentation only) |
+
+Ancestry: `3b677dd2` (R1 HEAD) → `81528e26` → `94bb04bf` → this commit. The
+branch is based on the exact remote R1 HEAD, not on `main` and not on any
+lost SHA.
+
+### Acceptance re-run on the committed implementation
+
+On a clean worktree at `94bb04bf`, `npm run validate` passed again with
+**1,449 passed, 526 skipped, 0 failed** (67 files passed, 20 skipped). After
+it: no fixture process alive (`ps`), no `nwf-pe-*` entry under the OS temp
+directory, worktree clean.
+
+### Remote state after pushing `94bb04bf`, re-fetched
+
+| ref | value |
+| --- | --- |
+| `origin/main` | `7adf895fa20e9b25758e0748d1a02e26c387d19b` — unchanged |
+| `origin/feat/phase2b-2d2b-1-evidence-canonicalisation-recovery` | `3b677dd2b0788ff9d7967f5c1627dddd1f81a1fd` — unchanged |
+| `origin/feat/phase2b-2d2b-2-hard-liveness-boundary-recovery` | `94bb04bf474793d0826534c740be3ee9a780f991` = local HEAD at that point |
+| remote heads | exactly these three |
+
+The main clone remained clean on `main` at `7adf895f`; the R1 worktree
+remained clean at `3b677dd2`. No merge, no pull request, no push to `main`.
+The final push of this closure commit is verified in the session's
+acceptance report, since a commit cannot record its own hash.
