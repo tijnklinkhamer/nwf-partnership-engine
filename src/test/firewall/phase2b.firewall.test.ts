@@ -2312,3 +2312,158 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
     }
   });
 });
+
+describe('PHASE-2B-FIREWALL 2B-2D2B-2: the hard liveness boundary is runtime-only and bounded, and Tier 2 never reaches production', () => {
+  const PROVIDER_DIR = 'src/orgunits/classify/provider';
+  const PROVIDER_FILES = PHASE_2B_FILES.filter((file) => file.startsWith(`${PROVIDER_DIR}/`));
+  const RUNNER = `${PROVIDER_DIR}/agentSdkRunner.ts`;
+  const PROVIDER = `${PROVIDER_DIR}/claudeMaxAgentProvider.ts`;
+  const OUTCOME_MAPPING = `${PROVIDER_DIR}/outcomeMapping.ts`;
+  /** THE Tier 2 watchdog, by exact path. Test-harness-only. */
+  const TIER2_HARNESS = 'src/test/harness/processIsolatedBatch.ts';
+
+  /** The fields declared by one `export interface <name> { ... }` in comment-stripped source. */
+  function interfaceFields(source: string, name: string): string[] {
+    const block = source.match(new RegExp(`export interface ${name} \\{([\\s\\S]*?)\\n\\}`));
+    expect(block, `${name} is declared`).not.toBeNull();
+    return [...block![1]!.matchAll(/readonly\s+(\w+)\??:/g)].map((m) => m[1]!).sort();
+  }
+
+  it('pins the frozen liveness constants, and leaves the transient retry policy exactly as it was', async () => {
+    const runner = await import('../../orgunits/classify/provider/agentSdkRunner.js');
+    expect(runner.CLASSIFIER_CALL_SOFT_DEADLINE_MS).toBe(300_000);
+    expect(runner.CLASSIFIER_CALL_HARD_KILL_GRACE_MS).toBe(10_000);
+    expect(runner.CLASSIFIER_CALL_TOTAL_BUDGET_MS).toBe(600_000);
+    expect(runner.AGENT_SDK_STDERR_TAIL_MAX_CHARS).toBe(2_048);
+    expect(runner.AGENT_SDK_PROGRESS_TRACE_MAX_ENTRIES).toBe(32);
+    const retry = await import('../../orgunits/classify/retry.js');
+    expect(retry.MAX_TRANSIENT_RETRIES).toBe(2);
+    expect(retry.TRANSIENT_RETRY_BASE_DELAY_MS).toBe(500);
+  });
+
+  it('the production runner wires the runtime controls itself and never uses interrupt() as the boundary', () => {
+    const source = code(RUNNER);
+    expect(source).toMatch(/new AbortController\(\)/);
+    expect(source).toMatch(/^\s*abortController,$/m);
+    expect(source).toMatch(/stderr:\s*\(data: string\)\s*=>\s*diagnostics\.appendStderr\(data\)/);
+    expect(source).toMatch(/runQueryWithLivenessBoundary\(activeQuery,/);
+    expect(source).toContain('resolveAgentSdkAttemptDeadline(runOptions)');
+    // The unbounded pre-2D2B-2 path is gone, and interrupt() is never the boundary.
+    expect(source).not.toMatch(/consumeQueryStream\(\s*query\(/);
+    for (const file of PROVIDER_FILES) {
+      expect(code(file), `${file} calls interrupt()`).not.toMatch(/\.interrupt\s*\(/);
+    }
+  });
+
+  it('no SDK debug or debugFile option is ever enabled, and the SDK debug-log variable is never named', () => {
+    for (const file of PROVIDER_FILES) {
+      const source = code(file);
+      expect(source, `${file} enables SDK debug mode`).not.toMatch(/\bdebug\s*:/);
+      expect(source, `${file} sets an SDK debug file`).not.toMatch(/\bdebugFile\s*:/);
+      expect(source, `${file} names the SDK debug-log variable`).not.toContain(
+        'DEBUG_CLAUDE_AGENT_SDK',
+      );
+    }
+  });
+
+  it('AgentSdkDiagnostics is exactly { progress, stderrTail, pid } over a closed ten-stage trace - no prompt, response, env, document, transcript or cwd field', async () => {
+    const source = code(RUNNER);
+    const fields = interfaceFields(source, 'AgentSdkDiagnostics');
+    expect(fields).toEqual(['pid', 'progress', 'stderrTail']);
+    expect(interfaceFields(source, 'AgentSdkProgressEntry')).toEqual(['elapsedMs', 'stage']);
+    for (const field of fields) {
+      for (const banned of [
+        'prompt',
+        'response',
+        'env',
+        'document',
+        'transcript',
+        'cwd',
+        'option',
+        'session',
+        'message',
+        'credential',
+        'token',
+      ]) {
+        expect(field.toLowerCase(), `diagnostics field ${field}`).not.toContain(banned);
+      }
+    }
+    const runner = await import('../../orgunits/classify/provider/agentSdkRunner.js');
+    expect(runner.AGENT_SDK_PROGRESS_STAGES).toHaveLength(10);
+    const snapshot = runner.createAgentSdkDiagnosticsCollector().snapshot();
+    expect(Object.keys(snapshot).sort()).toEqual(['pid', 'progress', 'stderrTail']);
+    expect(snapshot.pid).toBeNull();
+    expect(Object.isFrozen(snapshot)).toBe(true);
+  });
+
+  it('no PID is recovered through unsupported SDK internals: no pid read, no private-field probe, no custom spawner, no process enumeration', () => {
+    const source = code(RUNNER);
+    // The ONE permitted `.pid` read is the diagnostics freezer normalising
+    // its own input field (`input.pid`); nothing reads a pid off the SDK,
+    // the query, a transport or a process.
+    expect(source.replace(/\binput\.pid\b/g, '')).not.toMatch(/\.pid\b/);
+    expect(source).not.toMatch(/\.\s*_[A-Za-z]|\[\s*['"]_/);
+    expect(source).not.toContain('spawnClaudeCodeProcess');
+    expect(source).not.toContain('child_process');
+    expect(source).not.toMatch(/\bpgrep\b|\blsof\b|\bpidof\b/);
+  });
+
+  it('runtime controls never enter semantic input: the invocation builder, the request contract, identity and orchestration name none of them', () => {
+    for (const file of [
+      `${PROVIDER_DIR}/sdkOptions.ts`,
+      'src/orgunits/classify/providerContract.ts',
+      'src/orgunits/classify/finalIdentity.ts',
+      'src/orgunits/classify/canonical.ts',
+      'src/orgunits/classify/orchestrate.ts',
+    ]) {
+      const source = code(file);
+      for (const runtimeOnly of [
+        'abortController',
+        'AbortController',
+        'stderr',
+        'deadlineMs',
+        'onAttemptDiagnostics',
+        'AgentSdkDiagnostics',
+        'CLASSIFIER_CALL_',
+      ]) {
+        expect(source, `${file} names the runtime-only ${runtimeOnly}`).not.toContain(runtimeOnly);
+      }
+    }
+  });
+
+  it('diagnostics reach no persisted summary and no stdout: the outcome mapping never reads them, and the provider writes no stdout', () => {
+    expect(code(OUTCOME_MAPPING)).not.toMatch(/\.diagnostics\b|stderrTail|\.progress\b/);
+    const provider = code(PROVIDER);
+    expect(provider).not.toContain('process.stdout');
+    expect(provider).not.toContain('console.');
+    expect(provider).not.toMatch(/outcomeDetail:[^\n]*(diagnostics|stderr)/i);
+  });
+
+  it('Tier 2 exists ONLY under src/test/, is excluded from the build, and no production module imports it or falls back to process isolation', () => {
+    expect(exists(TIER2_HARNESS)).toBe(true);
+    const buildConfig = JSON.parse(read('tsconfig.build.json')) as { exclude?: string[] };
+    expect(buildConfig.exclude).toContain('src/test/**/*');
+    for (const file of PRODUCTION_FILES) {
+      const source = code(file);
+      expect(file, `${file} is a harness outside src/test`).not.toMatch(/harness/i);
+      expect(source, `${file} imports the Tier 2 harness`).not.toMatch(
+        /test\/harness|processIsolatedBatch/,
+      );
+      expect(source, `${file} forks a process`).not.toMatch(/\bfork\s*\(/);
+      expect(source, `${file} carries a Tier 2 protocol string`).not.toContain('nwf-pe-tier2');
+    }
+  });
+
+  it('the Tier 2 harness never kills the direct child with child.kill(), never uses a shell, and signals only a validated group', () => {
+    const harness = code(TIER2_HARNESS);
+    expect(harness).not.toMatch(/\b(child|forked|subprocess)\.kill\s*\(/);
+    expect(harness).not.toMatch(/\.kill\(\s*['"]SIGTERM['"]/);
+    expect(harness).not.toMatch(/shell:\s*true/);
+    expect(harness).not.toMatch(/\bexecSync\b|\bspawnSync\b|\bexec\s*\(/);
+    const killTargets = [...harness.matchAll(/process\.kill\(([^,]+),/g)].map((m) => m[1]!.trim());
+    expect(killTargets).toEqual(['-target']);
+    expect(harness).toMatch(
+      /const target = validateSignalTargetPid\(pid\);\s*try \{\s*process\.kill\(-target, signal\)/,
+    );
+  });
+});

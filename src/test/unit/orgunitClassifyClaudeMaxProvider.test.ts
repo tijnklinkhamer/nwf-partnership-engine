@@ -12,7 +12,7 @@ import { existsSync } from 'node:fs';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createFakeClock, type FakeClock } from '../../orgunits/orchestrator/clock.js';
 import type { ClassifierProviderRequest } from '../../orgunits/classify/providerContract.js';
 import { ClaudeMaxAgentProvider } from '../../orgunits/classify/provider/claudeMaxAgentProvider.js';
@@ -27,9 +27,17 @@ import type {
 } from '../../orgunits/classify/provider/authStatusRunner.js';
 import type { AuthStatusExecution } from '../../orgunits/classify/provider/authStatus.js';
 import {
+  AgentSdkTimeoutError,
+  CLASSIFIER_CALL_SOFT_DEADLINE_MS,
+  CLASSIFIER_CALL_TOTAL_BUDGET_MS,
+  createAgentSdkDiagnosticsCollector,
+  runQueryWithLivenessBoundary,
   USAGE_LIMIT_ERROR_PREFIXES,
+  type AgentSdkDiagnostics,
+  type AgentSdkRunOptions,
   type AgentSdkRunResult,
   type AgentSdkRunner,
+  type LivenessBoundedQuery,
 } from '../../orgunits/classify/provider/agentSdkRunner.js';
 import type { AgentSdkInvocation } from '../../orgunits/classify/provider/sdkOptions.js';
 
@@ -94,18 +102,23 @@ function okRunResult(structuredOutput: unknown): AgentSdkRunResult {
   };
 }
 
-/** A fake SDK runner that records invocations and answers from a script. */
+/** A fake SDK runner that records invocations (and their runtime options) and answers from a script. */
 class FakeRunner implements AgentSdkRunner {
   readonly invocations: AgentSdkInvocation[] = [];
+  readonly runOptions: (AgentSdkRunOptions | undefined)[] = [];
   readonly #script: readonly (AgentSdkRunResult | Error | (() => Promise<AgentSdkRunResult>))[];
 
   constructor(script: readonly (AgentSdkRunResult | Error | (() => Promise<AgentSdkRunResult>))[]) {
     this.#script = script;
   }
 
-  async run(invocation: AgentSdkInvocation): Promise<AgentSdkRunResult> {
+  async run(
+    invocation: AgentSdkInvocation,
+    runOptions?: AgentSdkRunOptions,
+  ): Promise<AgentSdkRunResult> {
     const index = this.invocations.length;
     this.invocations.push(invocation);
+    this.runOptions.push(runOptions);
     const entry = this.#script[index];
     if (entry === undefined) throw new Error(`FakeRunner: no scripted entry for run #${index + 1}`);
     if (entry instanceof Error) throw entry;
@@ -135,6 +148,7 @@ function provider(options: {
   env: Record<string, string | undefined>;
   authStatusRunner?: ClassifierAuthStatusRunner;
   clock?: FakeClock;
+  onAttemptDiagnostics?: (diagnostics: AgentSdkDiagnostics) => void;
 }): ClaudeMaxAgentProvider {
   return new ClaudeMaxAgentProvider({
     runner: options.runner,
@@ -143,10 +157,24 @@ function provider(options: {
     repoRoot: REPO_ROOT,
     allowedModels: ALLOWED,
     ...(options.clock !== undefined ? { clock: options.clock } : {}),
+    ...(options.onAttemptDiagnostics !== undefined
+      ? { onAttemptDiagnostics: options.onAttemptDiagnostics }
+      : {}),
   });
 }
 
-/** Pumps a fake clock until the promise settles - no real sleeps anywhere. */
+const SETTLE_STEP_MS = 10;
+
+/**
+ * Pumps a fake clock until the promise settles - no real sleeps anywhere.
+ *
+ * The clock advances ONLY while the provider is actually sleeping, and only
+ * in small steps, so fake elapsed time equals the backoff the provider
+ * requested. (Before 2D2B-2 this jumped 1,000,000 ms per tick, which was
+ * harmless while the clock only paced backoff; now that the provider
+ * enforces a total time budget on the same clock, such a jump would read
+ * as ~17 minutes elapsed and exhaust the budget mid-retry.)
+ */
 async function settle<T>(clock: FakeClock, promise: Promise<T>): Promise<T> {
   let settled = false;
   void promise.then(
@@ -161,7 +189,7 @@ async function settle<T>(clock: FakeClock, promise: Promise<T>): Promise<T> {
   // work (scratch dirs) between clock sleeps, so a microtask-only pump
   // would spin to exhaustion before the first backoff sleep is even armed.
   for (let i = 0; i < 10_000 && !settled; i += 1) {
-    clock.advance(1_000_000);
+    if (clock.pendingCount > 0) clock.advance(SETTLE_STEP_MS);
     await new Promise((resolveTick) => setTimeout(resolveTick, 0));
   }
   return promise;
@@ -633,5 +661,277 @@ describe('ClaudeMaxAgentProvider - isolation lifecycle', () => {
       expect(existsSync(d.cwd)).toBe(false);
     }
     expect(existsSync(profileDir)).toBe(true);
+  });
+});
+
+describe('ClaudeMaxAgentProvider - 2D2B-2 liveness boundary and total budget', () => {
+  const STDERR_MARKER = 'stderr-diagnostic-marker-never-in-a-result';
+
+  function timeoutError(deadlineMs = CLASSIFIER_CALL_SOFT_DEADLINE_MS): AgentSdkTimeoutError {
+    return new AgentSdkTimeoutError(deadlineMs, {
+      progress: [
+        { stage: 'QUERY_STARTED', elapsedMs: 0 },
+        { stage: 'FIRST_STREAM_ACTIVITY', elapsedMs: 1_200 },
+        { stage: 'DEADLINE_EXPIRED', elapsedMs: deadlineMs },
+        { stage: 'ABORT_SIGNALLED', elapsedMs: deadlineMs },
+        { stage: 'CLOSE_CALLED', elapsedMs: deadlineMs },
+        { stage: 'GRACE_EXPIRED', elapsedMs: deadlineMs + 10_000 },
+      ],
+      stderrTail: STDERR_MARKER,
+      pid: null,
+    });
+  }
+
+  let savedVerbose: string | undefined;
+  beforeEach(() => {
+    savedVerbose = process.env.NWF_PE_VERBOSE;
+    delete process.env.NWF_PE_VERBOSE;
+  });
+  afterEach(() => {
+    if (savedVerbose !== undefined) process.env.NWF_PE_VERBOSE = savedVerbose;
+  });
+
+  it('a liveness TIMEOUT is terminal: exactly ONE runner call, no retry, fixed detail with no diagnostics in it', async () => {
+    const clock = createFakeClock();
+    const runner = new FakeRunner([timeoutError(), okRunResult([])]);
+    const profileDir = await provisionedProfile();
+    const result = await settle(
+      clock,
+      provider({ runner, env: envFor(profileDir), clock }).classify(request()),
+    );
+    expect(result.outcome).toBe('TIMEOUT');
+    expect(runner.invocations).toHaveLength(1);
+    expect(result.rawOutput).toBeNull();
+    expect(result.outcomeDetail).toMatch(/liveness deadline/);
+    expect(result.outcomeDetail).not.toContain(STDERR_MARKER);
+  });
+
+  it('the first attempt receives the frozen soft deadline as its runtime deadline', async () => {
+    const runner = new FakeRunner([okRunResult([])]);
+    const profileDir = await provisionedProfile();
+    await provider({ runner, env: envFor(profileDir) }).classify(request());
+    expect(runner.runOptions).toEqual([{ deadlineMs: CLASSIFIER_CALL_SOFT_DEADLINE_MS }]);
+    // The runtime deadline is never smuggled into the semantic invocation.
+    expect(JSON.stringify(runner.invocations[0])).not.toContain('deadline');
+  });
+
+  it('transient failures still retry at most twice, and every attempt stays inside the budget', async () => {
+    const clock = createFakeClock();
+    const script = Array.from({ length: 10 }, () => new Error('read ECONNRESET'));
+    const runner = new FakeRunner(script);
+    const profileDir = await provisionedProfile();
+    const result = await settle(
+      clock,
+      provider({ runner, env: envFor(profileDir), clock }).classify(request()),
+    );
+    expect(result.outcome).toBe('PROVIDER_TRANSIENT');
+    expect(runner.invocations).toHaveLength(3);
+    for (const options of runner.runOptions) {
+      expect(options!.deadlineMs).toBe(CLASSIFIER_CALL_SOFT_DEADLINE_MS);
+    }
+  });
+
+  it('a smaller REMAINING budget becomes the next attempt deadline (the window is never reset per retry)', async () => {
+    const clock = createFakeClock();
+    const runner = new FakeRunner([
+      async () => {
+        clock.advance(450_000); // attempt 1 ran for 450 s, then failed transiently
+        throw new Error('read ECONNRESET');
+      },
+      okRunResult([]),
+    ]);
+    const profileDir = await provisionedProfile();
+    const result = await settle(
+      clock,
+      provider({ runner, env: envFor(profileDir), clock }).classify(request()),
+    );
+    expect(result.outcome).toBe('OK');
+    expect(runner.runOptions.map((o) => o!.deadlineMs)).toEqual([
+      CLASSIFIER_CALL_SOFT_DEADLINE_MS,
+      // 600 s budget - 450 s attempt - 0.5 s backoff
+      CLASSIFIER_CALL_TOTAL_BUDGET_MS - 450_000 - 500,
+    ]);
+  });
+
+  it('an exhausted total budget yields TIMEOUT with ZERO further runner calls', async () => {
+    const clock = createFakeClock();
+    const runner = new FakeRunner([
+      async () => {
+        clock.advance(CLASSIFIER_CALL_TOTAL_BUDGET_MS);
+        throw new Error('read ECONNRESET');
+      },
+      okRunResult([]),
+    ]);
+    const profileDir = await provisionedProfile();
+    const result = await settle(
+      clock,
+      provider({ runner, env: envFor(profileDir), clock }).classify(request()),
+    );
+    expect(result.outcome).toBe('TIMEOUT');
+    expect(result.outcomeDetail).toMatch(/total time budget was exhausted/);
+    expect(runner.invocations).toHaveLength(1); // the retry never started
+  });
+
+  it('retry BACKOFF consumes the same budget, and no attempt starts once it is spent', async () => {
+    const clock = createFakeClock();
+    const runner = new FakeRunner([
+      async () => {
+        clock.advance(599_000); // leaves 1,000 ms
+        throw new Error('read ECONNRESET');
+      },
+      async () => {
+        clock.advance(500); // the 500 ms backoff left exactly 500 ms; this spends it
+        throw new Error('read ECONNRESET');
+      },
+      okRunResult([]),
+    ]);
+    const profileDir = await provisionedProfile();
+    const result = await settle(
+      clock,
+      provider({ runner, env: envFor(profileDir), clock }).classify(request()),
+    );
+    expect(result.outcome).toBe('TIMEOUT');
+    // Attempt 2 got only what the first backoff left; attempt 3 (after the
+    // 1,000 ms backoff) never began, although one retry was still allowed.
+    expect(runner.runOptions.map((o) => o!.deadlineMs)).toEqual([
+      CLASSIFIER_CALL_SOFT_DEADLINE_MS,
+      500,
+    ]);
+    expect(runner.invocations).toHaveLength(2);
+  });
+
+  it('cleans the scratch cwd after a TIMEOUT, and the profile persists', async () => {
+    const runner = new FakeRunner([timeoutError()]);
+    const profileDir = await provisionedProfile();
+    let seenCwd: string | null = null;
+    const observing: AgentSdkRunner = {
+      async run(invocation, runOptions) {
+        seenCwd = invocation.options.cwd;
+        expect(existsSync(seenCwd)).toBe(true);
+        return runner.run(invocation, runOptions);
+      },
+    };
+    const result = await provider({ runner: observing, env: envFor(profileDir) }).classify(
+      request(),
+    );
+    expect(result.outcome).toBe('TIMEOUT');
+    expect(existsSync(seenCwd!)).toBe(false);
+    expect(existsSync(profileDir)).toBe(true);
+  });
+
+  it('onAttemptDiagnostics receives the EXACT immutable diagnostics object, with NWF_PE_VERBOSE unset', async () => {
+    expect(process.env.NWF_PE_VERBOSE).toBeUndefined();
+    const error = timeoutError();
+    const received: AgentSdkDiagnostics[] = [];
+    const runner = new FakeRunner([error]);
+    const profileDir = await provisionedProfile();
+    const result = await provider({
+      runner,
+      env: envFor(profileDir),
+      onAttemptDiagnostics: (diagnostics) => received.push(diagnostics),
+    }).classify(request());
+    expect(result.outcome).toBe('TIMEOUT');
+    expect(received).toHaveLength(1);
+    expect(received[0]).toBe(error.diagnostics);
+    expect(Object.isFrozen(received[0])).toBe(true);
+    expect(Object.isFrozen(received[0]!.progress)).toBe(true);
+    expect(received[0]!.stderrTail).toBe(STDERR_MARKER);
+  });
+
+  it('the hook is not called for a non-timeout failure, and a THROWING hook cannot change the outcome', async () => {
+    const quiet: AgentSdkDiagnostics[] = [];
+    const profileDir = await provisionedProfile();
+    const auth = await provider({
+      runner: new FakeRunner([new Error('API Error: 401 authentication_error')]),
+      env: envFor(profileDir),
+      onAttemptDiagnostics: (diagnostics) => quiet.push(diagnostics),
+    }).classify(request());
+    expect(auth.outcome).toBe('AUTH_FAILURE');
+    expect(quiet).toHaveLength(0);
+
+    const runner = new FakeRunner([timeoutError()]);
+    const result = await provider({
+      runner,
+      env: envFor(profileDir),
+      onAttemptDiagnostics: () => {
+        throw new Error('a broken capture hook');
+      },
+    }).classify(request());
+    expect(result.outcome).toBe('TIMEOUT');
+    expect(runner.invocations).toHaveLength(1);
+  });
+
+  it('the ordinary provider result carries NO diagnostics: same six keys, no stderr, no trace', async () => {
+    const runner = new FakeRunner([timeoutError()]);
+    const profileDir = await provisionedProfile();
+    const result = await provider({ runner, env: envFor(profileDir) }).classify(request());
+    expect(Object.keys(result).sort()).toEqual(
+      [
+        'inputTokens',
+        'outcomeDetail',
+        'outputTokens',
+        'rawOutput',
+        'responseModelId',
+        'outcome',
+      ].sort(),
+    );
+    const serialized = JSON.stringify(result);
+    expect(serialized).not.toContain(STDERR_MARKER);
+    expect(serialized).not.toContain('DEADLINE_EXPIRED');
+    expect(serialized).not.toContain('stderrTail');
+    expect(result.inputTokens).toBeNull(); // no runner result ever supplied usage
+    expect(result.outputTokens).toBeNull();
+  });
+
+  it('END TO END: the real liveness boundary over a never-yielding query -> provider TIMEOUT, abort + close observed, hook fed, scratch cleaned', async () => {
+    let closeCalls = 0;
+    let abortSeen = false;
+    let seenCwd: string | null = null;
+    const neverYielding: LivenessBoundedQuery = {
+      [Symbol.asyncIterator]: () => ({ next: () => new Promise(() => {}) }),
+      close: () => {
+        closeCalls += 1;
+      },
+    };
+    // A test runner composing the REAL boundary with a short real-timer
+    // deadline (the provider asks for up to 300 s; the fake shortens it so
+    // the test does not wait). No SDK, no subprocess.
+    const composedRunner: AgentSdkRunner = {
+      async run(invocation, runOptions) {
+        seenCwd = invocation.options.cwd;
+        expect(runOptions?.deadlineMs).toBe(CLASSIFIER_CALL_SOFT_DEADLINE_MS);
+        const abortController = new AbortController();
+        abortController.signal.addEventListener('abort', () => {
+          abortSeen = true;
+        });
+        return runQueryWithLivenessBoundary(neverYielding, {
+          deadlineMs: Math.min(runOptions?.deadlineMs ?? Infinity, 25),
+          graceMs: 25,
+          abortController,
+          diagnostics: createAgentSdkDiagnosticsCollector(),
+        });
+      },
+    };
+    const received: AgentSdkDiagnostics[] = [];
+    const profileDir = await provisionedProfile();
+    const result = await provider({
+      runner: composedRunner,
+      env: envFor(profileDir),
+      onAttemptDiagnostics: (diagnostics) => received.push(diagnostics),
+    }).classify(request());
+
+    expect(result.outcome).toBe('TIMEOUT');
+    expect(abortSeen).toBe(true);
+    expect(closeCalls).toBe(1);
+    expect(received).toHaveLength(1);
+    expect(received[0]!.progress.map((e) => e.stage)).toEqual([
+      'QUERY_STARTED',
+      'DEADLINE_EXPIRED',
+      'ABORT_SIGNALLED',
+      'CLOSE_CALLED',
+      'GRACE_EXPIRED',
+    ]);
+    expect(received[0]!.pid).toBeNull();
+    expect(existsSync(seenCwd!)).toBe(false);
   });
 });

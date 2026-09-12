@@ -204,20 +204,21 @@ async function runOneClassifierCall(
   });
 
   if (providerResult.outcome !== 'OK') {
+    const failure = buildProviderFailureCompletion(providerResult.outcome);
     await insertCompletion(pool, {
       callId,
-      terminalState: 'FAILED',
+      terminalState: failure.terminalState,
       responseModelId: providerResult.responseModelId,
       inputTokens: providerResult.inputTokens,
       outputTokens: providerResult.outputTokens,
-      errorKind: mapProviderOutcomeToErrorKind(providerResult.outcome),
+      errorKind: failure.errorKind,
       errorSummary: providerResult.outcomeDetail,
     });
     return {
       kind: 'EXECUTED',
       callId,
-      terminalState: 'FAILED',
-      errorKind: mapProviderOutcomeToErrorKind(providerResult.outcome),
+      terminalState: failure.terminalState,
+      errorKind: failure.errorKind,
       documents: assembledBatch.batch.documents.map((doc) => ({
         docIndex: doc.docIndex,
         verdict: null,
@@ -349,7 +350,7 @@ function reversePageEvidenceIndex(assembledBatch: AssembledBatch): ReadonlyMap<s
  * shape" regardless of whether that was caught by the provider itself or
  * by this module's own re-parse.
  */
-function mapProviderOutcomeToErrorKind(outcome: ClassifierProviderOutcomeKind): string {
+export function mapProviderOutcomeToErrorKind(outcome: ClassifierProviderOutcomeKind): string {
   switch (outcome) {
     case 'USAGE_LIMIT_EXHAUSTED':
       return 'USAGE_LIMIT_EXHAUSTED';
@@ -367,4 +368,25 @@ function mapProviderOutcomeToErrorKind(outcome: ClassifierProviderOutcomeKind): 
       // Unreachable: callers only invoke this mapping for `outcome !== 'OK'`.
       throw new Error('mapProviderOutcomeToErrorKind: OK is not a failure outcome.');
   }
+}
+
+export interface ProviderFailureCompletion {
+  readonly terminalState: 'FAILED';
+  readonly errorKind: string;
+}
+
+/**
+ * THE one translation from a non-OK provider outcome to the terminal state
+ * and `error_kind` a completion row persists — used for both the row and
+ * the returned result, so they cannot disagree. Every non-OK outcome is
+ * FAILED (a provider-level failure persists no semantic row at all); a
+ * liveness TIMEOUT persists `FAILED` / `TIMEOUT`. `OK` is refused at runtime.
+ */
+export function buildProviderFailureCompletion(
+  outcome: ClassifierProviderOutcomeKind,
+): ProviderFailureCompletion {
+  if (outcome === 'OK') {
+    throw new Error('buildProviderFailureCompletion: OK is not a failure outcome.');
+  }
+  return { terminalState: 'FAILED', errorKind: mapProviderOutcomeToErrorKind(outcome) };
 }

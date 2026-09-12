@@ -37,6 +37,16 @@
  *      `PROVIDER_TRANSIENT` attempts retry; AUTH_FAILURE,
  *      USAGE_LIMIT_EXHAUSTED, PROVIDER_REFUSAL, STRUCTURED_OUTPUT_FAILED
  *      and TIMEOUT reach the caller on their first occurrence.
+ *   6a. TOTAL BUDGET (2D2B-2): ONE monotonic window of
+ *      `CLASSIFIER_CALL_TOTAL_BUDGET_MS`, opened on the injected `Clock`
+ *      immediately before the first runner attempt and never reset per
+ *      retry. Before EVERY attempt: no budget left -> terminal TIMEOUT with
+ *      zero further runner calls; otherwise the runner's deadline is
+ *      `min(CLASSIFIER_CALL_SOFT_DEADLINE_MS, remaining)`. Backoff sleeps
+ *      spend the same window. Worst case, a call ends within the budget
+ *      plus one hard-kill grace. A deadline TIMEOUT's bounded diagnostics
+ *      go to the optional `onAttemptDiagnostics` hook (and, only under
+ *      `NWF_PE_VERBOSE`, to `debug()` on stderr) — never into the result.
  *   7. MAPPING: outcomes translate through the ONE centralized mapping
  *      module (outcomeMapping.ts). Structured output is returned RAW
  *      (`unknown`) for the landed layer-2 validator — never re-validated,
@@ -71,12 +81,21 @@ import type { ClassifierAuthStatusRunner } from './authStatusRunner.js';
 import { buildChildEnvironment } from './environment.js';
 import { createScratchWorkspace } from './runtimeIsolation.js';
 import { buildAgentSdkInvocation } from './sdkOptions.js';
-import type { AgentSdkRunner, AgentSdkRunResult } from './agentSdkRunner.js';
+import {
+  AgentSdkTimeoutError,
+  CLASSIFIER_CALL_SOFT_DEADLINE_MS,
+  CLASSIFIER_CALL_TOTAL_BUDGET_MS,
+  type AgentSdkDiagnostics,
+  type AgentSdkRunner,
+  type AgentSdkRunResult,
+} from './agentSdkRunner.js';
 import {
   classifyRunResult,
   classifyThrownFailure,
+  classifyTotalBudgetExhausted,
   type ClassifiedAttempt,
 } from './outcomeMapping.js';
+import { debug } from '../../../logging/log.js';
 
 export interface ClaudeMaxAgentProviderOptions {
   /** REQUIRED. Production: `createProductionAgentSdkRunner()`. Tests: a fake. */
@@ -95,6 +114,13 @@ export interface ClaudeMaxAgentProviderOptions {
   readonly clock?: Clock;
   /** Closed model allowlist override — for tests with fake model ids only. */
   readonly allowedModels?: readonly string[];
+  /**
+   * Receives the EXACT, deeply frozen diagnostics of an attempt that hit the
+   * liveness deadline, before the error is reduced to an outcome. The
+   * capture point for a future bounded evaluation harness; independent of
+   * `NWF_PE_VERBOSE`. A hook that throws cannot change the outcome.
+   */
+  readonly onAttemptDiagnostics?: (diagnostics: AgentSdkDiagnostics) => void;
 }
 
 export class ClaudeMaxAgentProvider implements ClassifierProvider {
@@ -104,6 +130,7 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
   readonly #repoRoot: string;
   readonly #clock: Clock;
   readonly #allowedModels: readonly string[] | undefined;
+  readonly #onAttemptDiagnostics: ((diagnostics: AgentSdkDiagnostics) => void) | undefined;
 
   constructor(options: ClaudeMaxAgentProviderOptions) {
     this.#runner = options.runner;
@@ -112,6 +139,7 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
     this.#repoRoot = options.repoRoot ?? process.cwd();
     this.#clock = options.clock ?? realClock;
     this.#allowedModels = options.allowedModels;
+    this.#onAttemptDiagnostics = options.onAttemptDiagnostics;
   }
 
   async classify(request: ClassifierProviderRequest): Promise<ClassifierProviderResult> {
@@ -175,11 +203,21 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
         /** The normalized run result behind `classified`, when the runner returned one (null on a thrown transport failure). */
         readonly runResult: AgentSdkRunResult | null;
       }
+      // ONE window for the whole attempt sequence, opened once, never reset.
+      const budgetStartedAt = this.#clock.now();
       const attempt = async (): Promise<AttemptOutcome> => {
+        const remainingMs = CLASSIFIER_CALL_TOTAL_BUDGET_MS - (this.#clock.now() - budgetStartedAt);
+        if (remainingMs <= 0) {
+          return { classified: classifyTotalBudgetExhausted(), runResult: null };
+        }
+        const deadlineMs = Math.min(CLASSIFIER_CALL_SOFT_DEADLINE_MS, remainingMs);
         try {
-          const runResult = await this.#runner.run(invocation);
+          const runResult = await this.#runner.run(invocation, { deadlineMs });
           return { classified: classifyRunResult(runResult), runResult };
         } catch (error) {
+          if (error instanceof AgentSdkTimeoutError) {
+            this.#captureTimeoutDiagnostics(error.diagnostics);
+          }
           return { classified: classifyThrownFailure(error), runResult: null };
         }
       };
@@ -213,6 +251,29 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
       // Claude-owned persistent state and is never engine-deleted.
       await scratch.cleanup();
     }
+  }
+
+  /**
+   * Hands a timed-out attempt's diagnostics to the capture hook (always,
+   * when one is configured) and to `debug()` (which emits only under
+   * `NWF_PE_VERBOSE`, on stderr). Neither path can reach the provider
+   * result, and neither can alter the attempt's outcome.
+   */
+  #captureTimeoutDiagnostics(diagnostics: AgentSdkDiagnostics): void {
+    if (this.#onAttemptDiagnostics !== undefined) {
+      try {
+        this.#onAttemptDiagnostics(diagnostics);
+      } catch {
+        debug('classifier provider: the onAttemptDiagnostics hook threw; ignored.');
+      }
+    }
+    const trace = diagnostics.progress
+      .map((entry) => `${entry.stage}(+${entry.elapsedMs}ms)`)
+      .join(' ');
+    debug(
+      `classifier provider: attempt TIMEOUT; progress: ${trace}; ` +
+        `stderr tail (${diagnostics.stderrTail.length} chars): ${JSON.stringify(diagnostics.stderrTail)}`,
+    );
   }
 }
 

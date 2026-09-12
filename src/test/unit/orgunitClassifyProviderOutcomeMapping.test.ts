@@ -5,12 +5,14 @@
  */
 import { describe, expect, it } from 'vitest';
 import {
+  AgentSdkTimeoutError,
   USAGE_LIMIT_ERROR_PREFIXES,
   type AgentSdkRunResult,
 } from '../../orgunits/classify/provider/agentSdkRunner.js';
 import {
   classifyRunResult,
   classifyThrownFailure,
+  classifyTotalBudgetExhausted,
 } from '../../orgunits/classify/provider/outcomeMapping.js';
 
 function runResult(overrides: Partial<AgentSdkRunResult> = {}): AgentSdkRunResult {
@@ -151,6 +153,29 @@ describe('classifyRunResult', () => {
 });
 
 describe('classifyThrownFailure', () => {
+  it('recognises the liveness boundary AgentSdkTimeoutError as TIMEOUT by class, with a fixed detail carrying none of its diagnostics', () => {
+    const error = new AgentSdkTimeoutError(149_500, {
+      progress: [{ stage: 'DEADLINE_EXPIRED', elapsedMs: 149_500 }],
+      // Text that would otherwise look like usage exhaustion or auth failure:
+      // class recognition comes FIRST, so neither heuristic can claim it.
+      stderrTail: `${USAGE_LIMIT_ERROR_PREFIXES[0]!} 401 unauthorized`,
+      pid: null,
+    });
+    const classified = classifyThrownFailure(error);
+    expect(classified.kind).toBe('TIMEOUT');
+    if (classified.kind === 'OK') throw new Error('unreachable');
+    expect(classified.detail).toMatch(/liveness deadline/);
+    expect(classified.detail).not.toContain('unauthorized');
+    expect(classified.detail).not.toContain('149500');
+  });
+
+  it('maps a spent total budget to a terminal TIMEOUT with fixed text', () => {
+    const classified = classifyTotalBudgetExhausted();
+    expect(classified.kind).toBe('TIMEOUT');
+    if (classified.kind === 'OK') throw new Error('unreachable');
+    expect(classified.detail).toMatch(/total time budget was exhausted/);
+  });
+
   it('maps an AbortError to TIMEOUT', () => {
     const abort = new Error('The operation was aborted');
     abort.name = 'AbortError';

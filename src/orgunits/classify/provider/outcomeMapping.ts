@@ -46,11 +46,24 @@
  * contract). The provider additionally scrubs the OAuth token value from
  * every detail string as defense in depth before returning it.
  *
- * PURE logic. The only import is the prefix constant re-exported by the
- * runner seam; no network, no database, no filesystem, no clock.
+ * THE LIVENESS BOUNDARY (2D2B-2): the runner's own `AgentSdkTimeoutError`
+ * is recognised as `TIMEOUT` BY CLASS, before any text heuristic, and a
+ * provider whose total budget is spent before an attempt can start reports
+ * the same terminal `TIMEOUT` through `classifyTotalBudgetExhausted`. Both
+ * details are fixed text: the error's diagnostics (stderr tail, progress
+ * trace) are NEVER copied into a detail, which is the string that can reach
+ * a persisted `error_summary`.
+ *
+ * PURE logic. The only imports are the prefix constant and the timeout
+ * error class from the runner seam; no network, no database, no
+ * filesystem, no clock.
  */
 import type { ClassifierProviderOutcomeKind } from '../providerContract.js';
-import { USAGE_LIMIT_ERROR_PREFIXES, type AgentSdkRunResult } from './agentSdkRunner.js';
+import {
+  AgentSdkTimeoutError,
+  USAGE_LIMIT_ERROR_PREFIXES,
+  type AgentSdkRunResult,
+} from './agentSdkRunner.js';
 
 /** A classified failure (or success) of one SDK run attempt. */
 export type ClassifiedAttempt =
@@ -194,6 +207,14 @@ export function classifyRunResult(result: AgentSdkRunResult): ClassifiedAttempt 
  * connection reset, abort) rather than returned.
  */
 export function classifyThrownFailure(error: unknown): ClassifiedAttempt {
+  if (error instanceof AgentSdkTimeoutError) {
+    return {
+      kind: 'TIMEOUT',
+      detail:
+        'the provider invocation exceeded its liveness deadline and was aborted and closed ' +
+        '(TIMEOUT; terminal, never retried).',
+    };
+  }
   const name = error instanceof Error ? error.name : '';
   const message = error instanceof Error ? error.message : String(error);
   const lower = message.toLowerCase();
@@ -229,5 +250,18 @@ export function classifyThrownFailure(error: unknown): ClassifiedAttempt {
     kind: 'PROVIDER_TRANSIENT',
     detail:
       'transient or unrecognised provider transport failure (mapped PROVIDER_TRANSIENT; see outcomeMapping.ts).',
+  };
+}
+
+/**
+ * The terminal outcome when the provider's total call budget is spent
+ * before another runner attempt could begin. No runner was invoked for it.
+ */
+export function classifyTotalBudgetExhausted(): ClassifiedAttempt {
+  return {
+    kind: 'TIMEOUT',
+    detail:
+      'the classifier call total time budget was exhausted before another provider attempt ' +
+      'could begin (TIMEOUT; terminal, never retried).',
   };
 }

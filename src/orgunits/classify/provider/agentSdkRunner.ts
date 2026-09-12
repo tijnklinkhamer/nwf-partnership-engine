@@ -38,6 +38,35 @@
  * with a fake message stream without constructing the production runner
  * (`phase2b.firewall.test.ts` forbids any test from doing that).
  *
+ * THE HARD LIVENESS BOUNDARY (2D2B-2, reconstructed on the 2D2B-R2 recovery
+ * branch after the original was lost with its laptop). The 2D2B DEV run
+ * observed five `classify()` calls that NEVER SETTLED; the mechanism is
+ * unknown. A stream that never yields and never ends would hold the
+ * provider — and every retry, completion row and scratch cleanup behind it —
+ * forever, because the pinned SDK offers no per-query inference timeout.
+ * `runQueryWithLivenessBoundary` below is that missing bound:
+ *
+ *   1. soft deadline (`CLASSIFIER_CALL_SOFT_DEADLINE_MS`, or the provider's
+ *      smaller remaining total budget) — the ONLY duration an attempt may run;
+ *   2. at the deadline the TIMEOUT decision is taken and is TERMINAL: the
+ *      owned `AbortController` is aborted and the real query's synchronous
+ *      `close()` is called (verified in the pinned bundle: close ends the CLI
+ *      subprocess's stdin, then escalates SIGTERM -> SIGKILL within ~7 s);
+ *   3. the helper waits at most `CLASSIFIER_CALL_HARD_KILL_GRACE_MS` for the
+ *      stream to settle, then throws `AgentSdkTimeoutError` UNCONDITIONALLY —
+ *      a late result, a late rejection or a close-triggered settlement can
+ *      never overwrite the decision, and no late rejection goes unhandled.
+ *
+ * `Query.interrupt()` is deliberately NOT the boundary: it is a control
+ * request the CLI must answer, and a wedged child cannot answer anything.
+ * The abort controller, the stderr collector and the deadline are RUNTIME
+ * controls owned by this seam alone — never part of `sdkOptions.ts`, the
+ * provider-neutral request, or any input identity.
+ *
+ * Tier 1 bounds a live event loop. If the batch process itself wedges, only
+ * something OUTSIDE it can intervene: that is the test-harness-only Tier 2
+ * watchdog under `src/test/harness/`, which production never imports.
+ *
  * `USAGE_LIMIT_ERROR_PREFIXES` is RE-EXPORTED here from the SDK itself —
  * the SDK's own list of "a usage limit was genuinely reached" message
  * prefixes — so the outcome-mapping module can recognise subscription
@@ -56,6 +85,186 @@ import type { AgentSdkInvocation } from './sdkOptions.js';
 
 export { USAGE_LIMIT_ERROR_PREFIXES };
 export type { AgentSdkInvocation };
+
+/** FROZEN: the maximum duration of ONE Agent SDK runner attempt. */
+export const CLASSIFIER_CALL_SOFT_DEADLINE_MS = 300_000;
+
+/** FROZEN: how long the inner query may take to settle after abort + close before TIMEOUT is thrown anyway. */
+export const CLASSIFIER_CALL_HARD_KILL_GRACE_MS = 10_000;
+
+/** FROZEN: the maximum cumulative provider-attempt window, retry backoff included (enforced by the provider). */
+export const CLASSIFIER_CALL_TOTAL_BUDGET_MS = 600_000;
+
+/** Timeout diagnostics retain only the LAST this-many characters of SDK subprocess stderr. */
+export const AGENT_SDK_STDERR_TAIL_MAX_CHARS = 2_048;
+
+/** Timeout diagnostics hold at most this many progress entries. */
+export const AGENT_SDK_PROGRESS_TRACE_MAX_ENTRIES = 32;
+
+/**
+ * The CLOSED set of progress stages. Each is recorded at most once per
+ * attempt and none is emitted per message, so a trace can say how far an
+ * attempt got without ever carrying what it said.
+ */
+export const AGENT_SDK_PROGRESS_STAGES = [
+  'QUERY_STARTED',
+  'FIRST_STREAM_ACTIVITY',
+  'RESULT_RECEIVED',
+  'STREAM_ENDED_WITHOUT_RESULT',
+  'STREAM_FAILED',
+  'DEADLINE_EXPIRED',
+  'ABORT_SIGNALLED',
+  'CLOSE_CALLED',
+  'SETTLED_WITHIN_GRACE',
+  'GRACE_EXPIRED',
+] as const;
+
+export type AgentSdkProgressStage = (typeof AGENT_SDK_PROGRESS_STAGES)[number];
+
+const PROGRESS_STAGE_SET: ReadonlySet<string> = new Set(AGENT_SDK_PROGRESS_STAGES);
+
+/** One trace entry: a closed stage and a numeric offset from the attempt's start. Nothing else. */
+export interface AgentSdkProgressEntry {
+  readonly stage: AgentSdkProgressStage;
+  readonly elapsedMs: number;
+}
+
+/**
+ * Bounded, deeply frozen timeout diagnostics. No prompt, document, model
+ * response, request option, environment, credential, cwd or transcript
+ * field exists here — by construction, not by filtering. Never persisted,
+ * never placed in an outcome detail, never written to stdout.
+ */
+export interface AgentSdkDiagnostics {
+  readonly progress: readonly AgentSdkProgressEntry[];
+  readonly stderrTail: string;
+  /**
+   * Always null with the pinned SDK, which exposes no child PID on `Query`
+   * or `Options`. Reserved for a future VERIFIED SDK surface; never obtained
+   * by probing private fields, patching the SDK or enumerating processes.
+   */
+  readonly pid: number | null;
+}
+
+/** Accumulates one attempt's diagnostics while it runs; `snapshot()` freezes a bounded copy. */
+export interface AgentSdkDiagnosticsCollector {
+  record(stage: AgentSdkProgressStage): void;
+  appendStderr(chunk: string): void;
+  snapshot(): AgentSdkDiagnostics;
+}
+
+/** The final `max` characters of `text`, never starting on an orphaned low surrogate. */
+function tailOf(text: string, max: number): string {
+  if (text.length <= max) return text;
+  const tail = text.slice(text.length - max);
+  const first = tail.charCodeAt(0);
+  return first >= 0xdc00 && first <= 0xdfff ? tail.slice(1) : tail;
+}
+
+/**
+ * Builds a bounded, deeply frozen diagnostics value: the object, the trace
+ * array and every trace entry. Unknown stages are dropped, the trace is
+ * capped, stderr keeps its tail, and `pid` is kept only if it is a positive
+ * integer (the pinned SDK always yields null).
+ */
+export function freezeAgentSdkDiagnostics(input: AgentSdkDiagnostics): AgentSdkDiagnostics {
+  const progress = input.progress
+    .filter((entry) => PROGRESS_STAGE_SET.has(entry.stage))
+    .slice(0, AGENT_SDK_PROGRESS_TRACE_MAX_ENTRIES)
+    .map((entry) =>
+      Object.freeze({
+        stage: entry.stage,
+        elapsedMs: Number.isFinite(entry.elapsedMs) ? Math.max(0, Math.round(entry.elapsedMs)) : 0,
+      }),
+    );
+  const pid =
+    typeof input.pid === 'number' && Number.isSafeInteger(input.pid) && input.pid > 0
+      ? input.pid
+      : null;
+  return Object.freeze({
+    progress: Object.freeze(progress),
+    stderrTail: tailOf(String(input.stderrTail), AGENT_SDK_STDERR_TAIL_MAX_CHARS),
+    pid,
+  });
+}
+
+const monotonicNow = (): number => performance.now();
+
+/**
+ * A per-attempt collector. Collection is unconditional — it does not depend
+ * on `NWF_PE_VERBOSE`; verbosity only gates optional emission further up.
+ */
+export function createAgentSdkDiagnosticsCollector(
+  now: () => number = monotonicNow,
+): AgentSdkDiagnosticsCollector {
+  const startedAt = now();
+  const progress: AgentSdkProgressEntry[] = [];
+  const recorded = new Set<string>();
+  let stderrTail = '';
+  return {
+    record(stage: AgentSdkProgressStage): void {
+      if (!PROGRESS_STAGE_SET.has(stage) || recorded.has(stage)) return;
+      if (progress.length >= AGENT_SDK_PROGRESS_TRACE_MAX_ENTRIES) return;
+      recorded.add(stage);
+      progress.push({ stage, elapsedMs: Math.max(0, Math.round(now() - startedAt)) });
+    },
+    appendStderr(chunk: string): void {
+      if (typeof chunk !== 'string' || chunk.length === 0) return;
+      // Never concatenate an unbounded chunk onto the tail first.
+      const combined = chunk.length >= AGENT_SDK_STDERR_TAIL_MAX_CHARS ? chunk : stderrTail + chunk;
+      stderrTail = tailOf(combined, AGENT_SDK_STDERR_TAIL_MAX_CHARS);
+    },
+    snapshot(): AgentSdkDiagnostics {
+      return freezeAgentSdkDiagnostics({ progress, stderrTail, pid: null });
+    },
+  };
+}
+
+/**
+ * Thrown — always, once the soft deadline has passed — by
+ * `runQueryWithLivenessBoundary`. The outcome mapping recognises it as
+ * `TIMEOUT` by class, ahead of any text heuristic, and its message also
+ * says "timed out" so the text path agrees.
+ */
+export class AgentSdkTimeoutError extends Error {
+  override readonly name = 'AgentSdkTimeoutError';
+  declare readonly deadlineMs: number;
+  declare readonly diagnostics: AgentSdkDiagnostics;
+
+  constructor(deadlineMs: number, diagnostics: AgentSdkDiagnostics) {
+    super(
+      `Agent SDK query timed out: no terminal result within its ${deadlineMs} ms liveness ` +
+        `deadline; the query was aborted and closed.`,
+    );
+    Object.defineProperty(this, 'deadlineMs', { value: deadlineMs, enumerable: true });
+    Object.defineProperty(this, 'diagnostics', {
+      value: freezeAgentSdkDiagnostics(diagnostics),
+      enumerable: true,
+    });
+  }
+}
+
+/**
+ * Runtime-only options for ONE runner attempt. Not semantic input: never
+ * hashed, never persisted, never part of the invocation.
+ */
+export interface AgentSdkRunOptions {
+  /** This attempt's soft deadline. Defaults to `CLASSIFIER_CALL_SOFT_DEADLINE_MS`; never exceeds it. */
+  readonly deadlineMs?: number;
+}
+
+function assertPositiveDuration(name: string, value: number): void {
+  if (!Number.isFinite(value) || value <= 0) {
+    throw new TypeError(`${name} must be a positive, finite number of milliseconds.`);
+  }
+}
+
+/** The deadline the production runner applies to one attempt: the override when given, capped at the frozen soft deadline. */
+export function resolveAgentSdkAttemptDeadline(runOptions: AgentSdkRunOptions = {}): number {
+  if (runOptions.deadlineMs === undefined) return CLASSIFIER_CALL_SOFT_DEADLINE_MS;
+  assertPositiveDuration('deadlineMs', runOptions.deadlineMs);
+  return Math.min(runOptions.deadlineMs, CLASSIFIER_CALL_SOFT_DEADLINE_MS);
+}
 
 /** The normalized terminal result of one SDK run. */
 export interface AgentSdkRunResult {
@@ -85,9 +294,12 @@ export interface AgentSdkRunResult {
   readonly errors: readonly string[];
 }
 
-/** The injectable seam. Production: `createProductionAgentSdkRunner()`. Tests: a fake. */
+/**
+ * The injectable seam. Production: `createProductionAgentSdkRunner()`. Tests: a fake.
+ * `runOptions` is optional so a one-argument fake stays a valid runner.
+ */
 export interface AgentSdkRunner {
-  run(invocation: AgentSdkInvocation): Promise<AgentSdkRunResult>;
+  run(invocation: AgentSdkInvocation, runOptions?: AgentSdkRunOptions): Promise<AgentSdkRunResult>;
 }
 
 function normalizeResult(message: SDKResultMessage): AgentSdkRunResult {
@@ -120,31 +332,157 @@ function normalizeResult(message: SDKResultMessage): AgentSdkRunResult {
  * instant a `result` message arrives: never calls `next()` again afterwards,
  * relying on `for await...of`'s `IteratorClose` (`return()`, not `next()`)
  * to unwind the stream on `break`.
+ *
+ * `record`, when given, receives closed progress stages only — the first
+ * message of any kind (once), the terminal result, a stream that ended
+ * without one, or a stream that threw. It never sees a message's content,
+ * and it iterates the stream it was given directly, so `IteratorClose`
+ * still reaches the real iterator's own `return()`.
  */
 export async function consumeQueryStream(
   stream: AsyncIterable<{ type: string }>,
+  record?: (stage: AgentSdkProgressStage) => void,
 ): Promise<AgentSdkRunResult> {
   let terminal: SDKResultMessage | undefined;
-  for await (const message of stream) {
-    if (message.type === 'result') {
-      terminal = message as SDKResultMessage;
-      break;
+  let sawActivity = false;
+  try {
+    for await (const message of stream) {
+      if (!sawActivity) {
+        sawActivity = true;
+        record?.('FIRST_STREAM_ACTIVITY');
+      }
+      if (message.type === 'result') {
+        terminal = message as SDKResultMessage;
+        record?.('RESULT_RECEIVED');
+        break;
+      }
     }
+  } catch (error) {
+    record?.('STREAM_FAILED');
+    throw error;
   }
   if (terminal === undefined) {
+    record?.('STREAM_ENDED_WITHOUT_RESULT');
     throw new Error('Agent SDK query ended without a result message.');
   }
   return normalizeResult(terminal);
 }
 
 /**
+ * The structural slice of the SDK `Query` the boundary needs: the message
+ * stream itself, and the synchronous `close()` that terminates it. Tests
+ * pass a fake; production passes the real `Query` object, so `close()`
+ * reaches the SDK's own teardown.
+ */
+export interface LivenessBoundedQuery extends AsyncIterable<{ type: string }> {
+  close(): void;
+}
+
+export interface LivenessBoundaryOptions {
+  /** This attempt's soft deadline. */
+  readonly deadlineMs: number;
+  /** Test seam only; production uses `CLASSIFIER_CALL_HARD_KILL_GRACE_MS`. */
+  readonly graceMs?: number;
+  /** The controller whose signal was handed to the query (production: the one passed as `Options.abortController`). */
+  readonly abortController: { abort(): void };
+  readonly diagnostics: AgentSdkDiagnosticsCollector;
+}
+
+type StreamSettlement =
+  | { readonly kind: 'RESULT'; readonly result: AgentSdkRunResult }
+  | { readonly kind: 'FAILED'; readonly error: unknown };
+
+/**
+ * Consumes `query` to its terminal result under a hard liveness boundary.
+ *
+ *   - Result before the deadline: returned unchanged; no abort; every timer
+ *     cleared.
+ *   - Stream failure before the deadline: that ORIGINAL error rethrown —
+ *     never relabelled a timeout; every timer cleared.
+ *   - Deadline first: TIMEOUT is decided and cannot be undone. Abort, then
+ *     close, then wait at most `graceMs` for the stream to settle, then throw
+ *     `AgentSdkTimeoutError` regardless of how (or whether) it settled.
+ *
+ * Both settlement handlers are attached synchronously, before any timer can
+ * fire, so a rejection arriving after the decision is already observed and
+ * can never surface as an unhandled rejection.
+ */
+export async function runQueryWithLivenessBoundary(
+  activeQuery: LivenessBoundedQuery,
+  options: LivenessBoundaryOptions,
+): Promise<AgentSdkRunResult> {
+  const graceMs = options.graceMs ?? CLASSIFIER_CALL_HARD_KILL_GRACE_MS;
+  assertPositiveDuration('deadlineMs', options.deadlineMs);
+  assertPositiveDuration('graceMs', graceMs);
+  const { diagnostics } = options;
+
+  diagnostics.record('QUERY_STARTED');
+  const settlement: Promise<StreamSettlement> = consumeQueryStream(activeQuery, (stage) =>
+    diagnostics.record(stage),
+  ).then(
+    (result): StreamSettlement => ({ kind: 'RESULT', result }),
+    (error: unknown): StreamSettlement => ({ kind: 'FAILED', error }),
+  );
+
+  let deadlineTimer: ReturnType<typeof setTimeout> | undefined;
+  let graceTimer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    const first = await Promise.race([
+      settlement,
+      new Promise<{ readonly kind: 'DEADLINE' }>((resolveDeadline) => {
+        deadlineTimer = setTimeout(() => resolveDeadline({ kind: 'DEADLINE' }), options.deadlineMs);
+      }),
+    ]);
+    if (first.kind === 'RESULT') return first.result;
+    if (first.kind === 'FAILED') throw first.error;
+
+    // From here on the outcome is TIMEOUT, whatever the stream does next.
+    diagnostics.record('DEADLINE_EXPIRED');
+    try {
+      options.abortController.abort();
+    } catch {
+      // An abort listener that throws cannot overturn the decision.
+    }
+    diagnostics.record('ABORT_SIGNALLED');
+    try {
+      activeQuery.close();
+    } catch {
+      // Nor can a close that throws.
+    }
+    diagnostics.record('CLOSE_CALLED');
+
+    const afterClose = await Promise.race([
+      settlement.then(() => 'SETTLED' as const),
+      new Promise<'GRACE_EXPIRED'>((resolveGrace) => {
+        graceTimer = setTimeout(() => resolveGrace('GRACE_EXPIRED'), graceMs);
+      }),
+    ]);
+    diagnostics.record(afterClose === 'SETTLED' ? 'SETTLED_WITHIN_GRACE' : 'GRACE_EXPIRED');
+    throw new AgentSdkTimeoutError(options.deadlineMs, diagnostics.snapshot());
+  } finally {
+    clearTimeout(deadlineTimer);
+    clearTimeout(graceTimer);
+  }
+}
+
+/**
  * The production runner: one `query()` per `run()`, streamed to its terminal
- * result message. Never retries, never falls back, never persists anything —
- * retry policy and outcome mapping belong to the provider above this seam.
+ * result message under the hard liveness boundary. One native
+ * `AbortController` per run; SDK subprocess stderr feeds the bounded
+ * collector and nothing else. Never retries, never falls back, never
+ * persists anything — retry policy, the total budget and outcome mapping
+ * belong to the provider above this seam.
  */
 export function createProductionAgentSdkRunner(): AgentSdkRunner {
   return {
-    async run(invocation: AgentSdkInvocation): Promise<AgentSdkRunResult> {
+    async run(
+      invocation: AgentSdkInvocation,
+      runOptions: AgentSdkRunOptions = {},
+    ): Promise<AgentSdkRunResult> {
+      const deadlineMs = resolveAgentSdkAttemptDeadline(runOptions);
+      const diagnostics = createAgentSdkDiagnosticsCollector();
+      const abortController = new AbortController();
+
       // The structural invocation options are converted to the SDK's own
       // Options type HERE, at the single import site — this assignment is
       // what proves, at compile time, that the pure builder's surface
@@ -171,9 +509,19 @@ export function createProductionAgentSdkRunner(): AgentSdkRunner {
         cwd: invocation.options.cwd,
         thinking: invocation.options.thinking,
         ...(invocation.options.effort !== undefined ? { effort: invocation.options.effort } : {}),
+        // Runtime controls, added HERE and only here — never in the pure
+        // invocation builder, never in any input identity.
+        abortController,
+        stderr: (data: string) => diagnostics.appendStderr(data),
       };
 
-      return consumeQueryStream(query({ prompt: invocation.prompt, options }));
+      // The real Query object is retained so the boundary's close() reaches it.
+      const activeQuery = query({ prompt: invocation.prompt, options });
+      return runQueryWithLivenessBoundary(activeQuery, {
+        deadlineMs,
+        abortController,
+        diagnostics,
+      });
     },
   };
 }

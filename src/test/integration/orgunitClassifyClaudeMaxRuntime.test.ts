@@ -13,6 +13,9 @@
  *   2. auth failure:   conflicted pre-flight env -> AUTH_FAILURE persisted, zero rows, zero runner calls
  *   3. exhaustion:     usage-limit error     -> USAGE_LIMIT_EXHAUSTED, zero rows, ONE runner call
  *   4. transient retry: transient x2 -> success -> ONE call row, three runner calls, attempt_no 1
+ * plus, from 2D2B-2:
+ *   5. liveness timeout: AgentSdkTimeoutError -> FAILED / TIMEOUT, zero rows, ONE runner call,
+ *      no diagnostics in error_summary
  */
 import { createHash } from 'node:crypto';
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
@@ -40,6 +43,7 @@ import type {
 } from '../../orgunits/classify/provider/authStatusRunner.js';
 import type { AuthStatusExecution } from '../../orgunits/classify/provider/authStatus.js';
 import {
+  AgentSdkTimeoutError,
   USAGE_LIMIT_ERROR_PREFIXES,
   type AgentSdkInvocation,
   type AgentSdkRunResult,
@@ -370,6 +374,61 @@ describeDb('ClaudeMaxAgentProvider through the real 2B-2C1 orchestration (integr
     );
     expect(completion.rows[0]!.terminal_state).toBe('FAILED');
     expect(completion.rows[0]!.error_kind).toBe('USAGE_LIMIT_EXHAUSTED');
+  });
+
+  it('LIVENESS TIMEOUT (2D2B-2): a deadline timeout persists FAILED / TIMEOUT with zero semantic rows, ONE runner call, no retry, and no diagnostics in error_summary', async () => {
+    const runId = await seedScenario('www.stalled.ac.uk');
+    const runCompletion = await checkRunCompleted(readonly, runId);
+    const stderrMarker = 'stderr-tail-that-must-never-be-persisted';
+    const runner = new FakeRunner([
+      new AgentSdkTimeoutError(300_000, {
+        progress: [
+          { stage: 'QUERY_STARTED', elapsedMs: 0 },
+          { stage: 'DEADLINE_EXPIRED', elapsedMs: 300_000 },
+          { stage: 'ABORT_SIGNALLED', elapsedMs: 300_000 },
+          { stage: 'CLOSE_CALLED', elapsedMs: 300_000 },
+          { stage: 'GRACE_EXPIRED', elapsedMs: 310_000 },
+        ],
+        stderrTail: stderrMarker,
+        pid: null,
+      }),
+      structuredSuccess({ results: [VALID_DOC_0] }),
+    ]);
+    const provider = maxProvider(runner, profileEnv);
+
+    const [result] = await runOrganisationClassification(classifier, {
+      organisationId: root.organisationId,
+      runId,
+      runCompletion,
+      modelId: MODEL,
+      provider,
+    });
+
+    expect(result!.kind).toBe('EXECUTED');
+    if (result!.kind !== 'EXECUTED') throw new Error('unreachable');
+    expect(result!.terminalState).toBe('FAILED');
+    expect(result!.errorKind).toBe('TIMEOUT');
+    expect(runner.invocations).toHaveLength(1); // TIMEOUT is terminal inside the adapter
+
+    expect(await count(classifier, 'orgunit_classifier_calls')).toBe(1);
+    expect(await count(classifier, 'orgunit_classifier_call_completions')).toBe(1);
+    expect(await count(classifier, 'orgunit_page_classifications')).toBe(0);
+    expect(await count(classifier, 'orgunit_classification_subjects')).toBe(0);
+
+    const completion = await classifier.query<{
+      terminal_state: string;
+      error_kind: string;
+      error_summary: string;
+    }>(`SELECT terminal_state, error_kind, error_summary FROM orgunit_classifier_call_completions`);
+    expect(completion.rows[0]!.terminal_state).toBe('FAILED');
+    expect(completion.rows[0]!.error_kind).toBe('TIMEOUT');
+    expect(completion.rows[0]!.error_summary).not.toContain(stderrMarker);
+    expect(completion.rows[0]!.error_summary).not.toContain('DEADLINE_EXPIRED');
+
+    const call = await classifier.query<{ attempt_no: number }>(
+      `SELECT attempt_no FROM orgunit_classifier_calls`,
+    );
+    expect(call.rows[0]!.attempt_no).toBe(1); // a rerun is a deliberate attempt_no + 1, never this
   });
 
   it('TRANSIENT RETRY: transient -> transient -> success yields ONE call row, three bounded runner calls, attempt_no 1, and semantic persistence', async () => {
