@@ -16,6 +16,8 @@ const CHILD_ENV = {
   CLAUDE_CONFIG_DIR: 'C:\\Users\\owner\\.claude-nwf-classifier',
   PATH: 'C:\\bin',
 };
+/** A synthetic ABSOLUTE executable path; the builder never sees a bare command name. */
+const EXECUTABLE = 'C:\\repo\\node_modules\\synthetic-native\\claude.exe';
 
 function request(overrides: Partial<ClassifierProviderRequest> = {}): ClassifierProviderRequest {
   return {
@@ -28,11 +30,12 @@ function request(overrides: Partial<ClassifierProviderRequest> = {}): Classifier
   };
 }
 
-function build(overrides: Partial<ClassifierProviderRequest> = {}) {
+function build(overrides: Partial<ClassifierProviderRequest> = {}, executable = EXECUTABLE) {
   return buildAgentSdkInvocation({
     request: request(overrides),
     childEnv: CHILD_ENV,
     scratchCwd: 'C:\\temp\\nwf-pe-classifier-x\\cwd',
+    claudeCodeExecutablePath: executable,
   });
 }
 
@@ -140,5 +143,18 @@ describe('buildAgentSdkInvocation', () => {
 
   it('passes the model id through unchanged - no hardcoded production model anywhere', () => {
     expect(build().options.model).toBe('test-model-max');
+  });
+
+  it('sets pathToClaudeCodeExecutable to EXACTLY the resolved absolute path it was given (ADR 0010 Amendment A)', () => {
+    expect(build().options.pathToClaudeCodeExecutable).toBe(EXECUTABLE);
+    expect(
+      build({}, '/repo/node_modules/synthetic-native/claude').options.pathToClaudeCodeExecutable,
+    ).toBe('/repo/node_modules/synthetic-native/claude');
+  });
+
+  it('refuses a bare command name or a relative path: PATH may never choose the executable', () => {
+    for (const bad of ['claude', 'claude.exe', './claude', 'node_modules/x/claude', '']) {
+      expect(() => build({}, bad)).toThrow(/absolute/);
+    }
   });
 });

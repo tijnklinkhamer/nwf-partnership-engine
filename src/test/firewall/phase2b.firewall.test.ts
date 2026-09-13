@@ -2036,6 +2036,12 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
   const SDK_IMPORT_SITE = `${PROVIDER_DIR}/agentSdkRunner.ts`;
   /** THE single permitted child-process import site, by exact path (ADR 0010). */
   const CHILD_PROCESS_IMPORT_SITE = `${PROVIDER_DIR}/authStatusRunner.ts`;
+  /**
+   * THE single module permitted to NAME the Agent SDK package without
+   * importing it: the executable resolver locates the installed SDK on disk
+   * to verify the native binary the SDK will spawn (ADR 0010 Amendment A).
+   */
+  const SDK_NAMING_SITE = `${PROVIDER_DIR}/claudeCodeExecutable.ts`;
 
   const EXPECTED_PROVIDER_FILES = [
     `${PROVIDER_DIR}/agentSdkRunner.ts`,
@@ -2043,6 +2049,7 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
     `${PROVIDER_DIR}/authConflicts.ts`,
     `${PROVIDER_DIR}/authStatus.ts`,
     `${PROVIDER_DIR}/authStatusRunner.ts`,
+    `${PROVIDER_DIR}/claudeCodeExecutable.ts`,
     `${PROVIDER_DIR}/claudeMaxAgentProvider.ts`,
     `${PROVIDER_DIR}/environment.ts`,
     `${PROVIDER_DIR}/outcomeMapping.ts`,
@@ -2053,7 +2060,7 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
     `${PROVIDER_DIR}/sdkOptions.ts`,
   ];
 
-  it('the provider namespace holds exactly the thirteen approved modules', () => {
+  it('the provider namespace holds exactly the fourteen approved modules', () => {
     expect([...PROVIDER_FILES].sort()).toEqual(EXPECTED_PROVIDER_FILES);
   });
 
@@ -2063,6 +2070,15 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
       if (file === SDK_IMPORT_SITE) {
         expect(source, `${file} must import the official Agent SDK`).toMatch(
           /from\s+['"]@anthropic-ai\/claude-agent-sdk['"]/,
+        );
+        continue;
+      }
+      if (file === SDK_NAMING_SITE) {
+        // Names the package in ONE constant, to find it on disk; never imports it.
+        expect(source).toContain("AGENT_SDK_PACKAGE_NAME = '@anthropic-ai/claude-agent-sdk'");
+        expect(source.split('@anthropic-ai/claude-agent-sdk')).toHaveLength(2);
+        expect(source, `${file} imports the Agent SDK`).not.toMatch(
+          /(from\s+|require\(\s*|import\(\s*)['"]@anthropic-ai\//,
         );
         continue;
       }
@@ -2109,15 +2125,68 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
         'child_process',
       );
     }
-    // The command and argument vector are module constants: no setup-token
-    // invocation, no /login automation, no arbitrary command is expressible.
-    const { AUTH_STATUS_COMMAND, AUTH_STATUS_ARGS } =
+    // The argument vector is a module constant: no setup-token invocation,
+    // no /login automation, no arbitrary command is expressible.
+    const { AUTH_STATUS_ARGS } =
       await import('../../orgunits/classify/provider/authStatusRunner.js');
-    expect(AUTH_STATUS_COMMAND).toBe('claude');
     expect([...AUTH_STATUS_ARGS]).toEqual(['auth', 'status', '--json']);
     const runnerSource = code(CHILD_PROCESS_IMPORT_SITE);
     expect(runnerSource).not.toContain('setup-token');
     expect(runnerSource).not.toMatch(/['"](?:\/)?login['"]/);
+    // ADR 0010 Amendment A: the executable is the resolved SDK-bundled binary
+    // at an ABSOLUTE path on the invocation — never a bare command that PATH
+    // would resolve, never through a shell.
+    expect(runnerSource).not.toContain('AUTH_STATUS_COMMAND');
+    expect(runnerSource).not.toMatch(/['"]claude(?:\.exe)?['"]/);
+    expect(runnerSource).toMatch(/execFile\(\s*invocation\.executablePath,/);
+    expect(runnerSource).toMatch(/isAbsolute\(invocation\.executablePath\)/);
+    expect(runnerSource).toContain('shell: false');
+    expect(runnerSource).not.toMatch(/shell:\s*(?:true|process)/);
+  });
+
+  it('ONE resolved SDK-bundled executable serves both the auth-status preflight and the inference subprocess; PATH never chooses it (ADR 0010 Amendment A)', () => {
+    const resolver = code(SDK_NAMING_SITE);
+    // The resolver reads node_modules and nothing else: no subprocess, no
+    // socket, no environment, and only Node core imports.
+    expect(resolver).not.toContain('child_process');
+    expect(resolver).not.toMatch(/\bspawn|\bexecFile|\bexec\s*\(/);
+    expect(resolver).not.toContain('process.env');
+    for (const specifier of [...resolver.matchAll(/from\s+['"]([^'"]+)['"]/g)].map((m) => m[1]!)) {
+      expect(specifier, `resolver imports ${specifier}`).toMatch(/^node:/);
+    }
+    expect(resolver).toContain('export function resolveProductionClaudeCodeExecutable');
+    for (const kind of [
+      'UNSUPPORTED_PLATFORM',
+      'SDK_PACKAGE_UNREADABLE',
+      'NATIVE_PACKAGE_MISSING',
+      'VERSION_MISMATCH',
+      'PATH_OUTSIDE_NODE_MODULES',
+      'NOT_A_REGULAR_FILE',
+      'NOT_EXECUTABLE',
+      'CHECKSUM_MISMATCH',
+      'AMBIGUOUS_RESOLUTION',
+    ]) {
+      expect(resolver, `resolver lacks the ${kind} refusal`).toContain(`'${kind}'`);
+    }
+    // The provider resolves ONCE and feeds that one path to BOTH seams.
+    const provider = code(`${PROVIDER_DIR}/claudeMaxAgentProvider.ts`);
+    expect(provider.split('this.#claudeCodeExecutable()')).toHaveLength(2);
+    expect(provider).toMatch(/authStatusRunner\.run\(\{\s*executablePath,/);
+    expect(provider).toMatch(/claudeCodeExecutablePath:\s*executablePath,/);
+    expect(provider).toContain('resolveProductionClaudeCodeExecutable');
+    // The builder pins the SDK's documented option to exactly that path, and
+    // the runner passes it through to the SDK unchanged.
+    const builder = code(`${PROVIDER_DIR}/sdkOptions.ts`);
+    expect(builder).toContain('pathToClaudeCodeExecutable: input.claudeCodeExecutablePath');
+    expect(code(SDK_IMPORT_SITE)).toContain(
+      'pathToClaudeCodeExecutable: invocation.options.pathToClaudeCodeExecutable',
+    );
+    // No provider module consults PATH or a `which`-style lookup for Claude.
+    for (const file of PROVIDER_FILES) {
+      const source = code(file);
+      expect(source, `${file} looks Claude up on PATH`).not.toMatch(/\bwhich\b|\bwhere\.exe\b/);
+      expect(source, `${file} names a bare claude command`).not.toMatch(/execFile\(\s*['"]claude/);
+    }
   });
 
   it('the setup-token credential is PROHIBITED: constant pinned, never read, never forwarded (ADR 0010)', async () => {
@@ -2165,6 +2234,24 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
       ['CLAUDE_CONFIG_DIR', ...Object.keys(CLASSIFIER_CHILD_ENV_FIXED), 'PATH', 'HOME'].sort(),
     );
     expect(JSON.stringify(child)).not.toContain('firewall-fake-token');
+    // ADR 0010 Amendment A: the POSIX account NAME crosses (the macOS Keychain
+    // selector), and ONLY under its own name - LOGNAME is not a substitute.
+    expect(CLASSIFIER_CHILD_ENV_OS_PASSTHROUGH).toContain('USER');
+    expect(CLASSIFIER_CHILD_ENV_OS_PASSTHROUGH).not.toContain('LOGNAME');
+    const withUser = buildChildEnvironment({
+      parentEnv: { ...parentEnv, USER: 'owner-account', LOGNAME: 'owner-account' },
+      configDir: 'X:/dedicated/classifier-profile',
+    });
+    expect(withUser['USER']).toBe('owner-account');
+    expect(Object.keys(withUser)).not.toContain('LOGNAME');
+    expect(
+      Object.keys(
+        buildChildEnvironment({
+          parentEnv: { LOGNAME: 'owner-account' },
+          configDir: 'X:/dedicated/classifier-profile',
+        }),
+      ),
+    ).not.toContain('USER');
     // The allowlist itself may not admit a credential-shaped or DB variable.
     for (const name of [
       ...Object.keys(CLASSIFIER_CHILD_ENV_FIXED),
