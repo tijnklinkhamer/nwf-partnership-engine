@@ -7,7 +7,7 @@
  *
  *   1. its own environment self-check — any variable outside the closed
  *      allowlist is `ISOLATION_VIOLATION`, recorded, and nothing else runs;
- *   2. re-verifies the F0A freeze bytes by raw SHA-256;
+ *   2. re-verifies the F0B freeze bytes by raw SHA-256;
  *   3. verifies the selected variant root through the same checks the
  *      parent ran, loading the SDK-free production modules FROM THAT ROOT;
  *   4. reads the DEVELOPMENT canonical corpus FROM THAT ROOT, verifies it
@@ -205,7 +205,7 @@ export async function runChildEvaluation(
     if (loadedFreeze.rawSha256 !== manifest.freezeConfigRawSha256) {
       return preflightStop(
         'CORPUS_CONFIG_OR_HASH_DRIFT',
-        'the manifest freeze hash is not the F0A hash.',
+        'the manifest freeze hash is not the F0B hash.',
         { stage: 'freeze' },
       );
     }

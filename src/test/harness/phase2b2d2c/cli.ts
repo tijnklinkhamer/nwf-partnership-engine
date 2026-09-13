@@ -4,7 +4,7 @@
  *   node --import tsx src/test/harness/phase2b2d2c/cli.ts [options]
  *
  * DEFAULT = PLAN / PREFLIGHT ONLY. With no `--execute`, the CLI loads and
- * hash-verifies the F0A freeze, reads the DEVELOPMENT canonical corpus and
+ * hash-verifies the F0B freeze, reads the DEVELOPMENT canonical corpus and
  * manifest, reconstructs the twelve frozen batches, verifies every
  * serialized input, all twelve assembly identities and all twenty-four
  * final identities, verifies the v1-then-v2 ordering, verifies any variant
