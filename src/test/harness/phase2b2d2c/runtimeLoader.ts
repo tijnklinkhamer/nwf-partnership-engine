@@ -6,9 +6,11 @@
  * constants, the signal rule version, the fetch policy version, the retry
  * policy, the auth-status constants (a module that imports
  * `node:child_process` but spawns nothing at import), the SDK options
- * builder and the model allowlist. The SDK-bearing runner module and the
- * provider are loaded ONLY by the execution-only loader in `scripts/`, in
- * the child, after the complete lock.
+ * builder, the model allowlist, the child-environment builder and — since
+ * F1A/F0B — the SDK-bundled executable resolver (a module that reads
+ * `node_modules/` and spawns nothing). The SDK-bearing runner module and
+ * the provider are loaded ONLY by the execution-only loader in `scripts/`,
+ * in the child, after the complete lock.
  *
  * Every module is loaded by absolute `file://` URL under the root, and the
  * URL it was loaded from is recorded so the root check can prove nothing
@@ -23,6 +25,8 @@ import type * as CanonicalModule from '../../../orgunits/classify/canonical.js';
 import type * as FinalIdentityModule from '../../../orgunits/classify/finalIdentity.js';
 import type * as ValidateModule from '../../../orgunits/classify/validate.js';
 import type * as SdkOptionsModule from '../../../orgunits/classify/provider/sdkOptions.js';
+import type * as EnvironmentModule from '../../../orgunits/classify/provider/environment.js';
+import type * as ClaudeCodeExecutableModule from '../../../orgunits/classify/provider/claudeCodeExecutable.js';
 
 export const RUNTIME_MODULE_PATHS = {
   canonical: {
@@ -61,6 +65,14 @@ export const RUNTIME_MODULE_PATHS = {
     built: 'dist/orgunits/classify/provider/authStatusRunner.js',
     source: 'src/orgunits/classify/provider/authStatusRunner.ts',
   },
+  environment: {
+    built: 'dist/orgunits/classify/provider/environment.js',
+    source: 'src/orgunits/classify/provider/environment.ts',
+  },
+  claudeCodeExecutable: {
+    built: 'dist/orgunits/classify/provider/claudeCodeExecutable.js',
+    source: 'src/orgunits/classify/provider/claudeCodeExecutable.ts',
+  },
   /** SDK-bearing: required to exist and be fresh; loaded only by the child's execution-only loader. */
   agentSdkRunner: {
     built: 'dist/orgunits/classify/provider/agentSdkRunner.js',
@@ -94,6 +106,8 @@ export const SDK_FREE_RUNTIME_MODULES = [
   'allowedModels',
   'sdkOptions',
   'authStatusRunner',
+  'environment',
+  'claudeCodeExecutable',
 ] as const satisfies readonly RuntimeModuleName[];
 
 /**
@@ -138,7 +152,13 @@ export interface LoadedVariantRuntime {
   readonly authStatusRunner: {
     readonly AUTH_STATUS_TIMEOUT_MS: number;
     readonly AUTH_STATUS_ARGS: readonly string[];
-    readonly AUTH_STATUS_COMMAND: string;
+  };
+  readonly environment: {
+    readonly CLASSIFIER_CHILD_ENV_OS_PASSTHROUGH: readonly string[];
+    readonly buildChildEnvironment: typeof EnvironmentModule.buildChildEnvironment;
+  };
+  readonly claudeCodeExecutable: {
+    readonly resolveBundledClaudeCodeExecutable: typeof ClaudeCodeExecutableModule.resolveBundledClaudeCodeExecutable;
   };
 }
 
@@ -188,7 +208,13 @@ export async function loadVariantRuntime(root: string): Promise<LoadedVariantRun
     authStatusRunner: await load('authStatusRunner', [
       'AUTH_STATUS_TIMEOUT_MS',
       'AUTH_STATUS_ARGS',
-      'AUTH_STATUS_COMMAND',
+    ]),
+    environment: await load('environment', [
+      'CLASSIFIER_CHILD_ENV_OS_PASSTHROUGH',
+      'buildChildEnvironment',
+    ]),
+    claudeCodeExecutable: await load('claudeCodeExecutable', [
+      'resolveBundledClaudeCodeExecutable',
     ]),
   };
 }

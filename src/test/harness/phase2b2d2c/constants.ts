@@ -2,29 +2,40 @@
  * PHASE 2B-2D2C-F1 — the frozen values the DEV runner is built against.
  *
  * Every value here is an OWNER_PRESERVED_REQUIREMENT of the F1 brief or a
- * value of the immutable F0A freeze
- * (`docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_V1.json`). The
- * runner recomputes and verifies the freeze's raw SHA-256 before doing
- * anything execution-capable; these literals exist so that a freeze which
- * has drifted is refused rather than trusted.
+ * value of the immutable freeze
+ * (`docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_V1.json`), at its
+ * F0B revision (F1A/F0B auth/runtime-parity, 2026-09-13). The runner
+ * recomputes and verifies the freeze's raw SHA-256 before doing anything
+ * execution-capable; these literals exist so that a freeze which has
+ * drifted — the superseded F0A bytes included — is refused rather than
+ * trusted.
  *
  * PURE. No network, no database, no filesystem, no clock, no environment.
  */
 
-/** Repository-relative path of the F0A freeze. */
+/** Repository-relative path of the freeze. */
 export const FREEZE_PATH = 'docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_V1.json';
 
-/** The immutable F0A freeze JSON raw SHA-256 (F0A audit §13.9). */
-export const EXPECTED_F0A_FREEZE_RAW_SHA256 =
+/** The immutable F0B freeze JSON raw SHA-256 (F1A/F0B audit §5). The ONLY accepted freeze hash. */
+export const EXPECTED_F0B_FREEZE_RAW_SHA256 =
+  'c3f0a76b3a5939f3e4bf395d46237cf0b0f365fa1f4bf019092a6944849d6157';
+
+/** The superseded F0A raw SHA-256 (F0A audit §13.9): named so it can be REFUSED by exact value, never accepted. */
+export const SUPERSEDED_F0A_FREEZE_RAW_SHA256 =
   '7b84ac0bca90086eea8fb59cdbd501317e3bfd53533fa529a85a8a44988ad6aa';
 
 export const EXPECTED_FREEZE_VERSION = 'phase2b-2d2c-dev-configuration-freeze-v1';
-export const EXPECTED_FREEZE_REVISION = 'F0A_INPUT_IDENTITY_CLOSURE';
+export const EXPECTED_FREEZE_REVISION = 'F0B_AUTH_RUNTIME_PARITY';
 
 /**
  * The two frozen variants. `name` is the freeze's own variant name (the key
  * of every frozen `finalInputSha256`); `label` is the F1 brief's role label,
- * carried alongside, never in place of, the freeze name.
+ * carried alongside, never in place of, the freeze name. `gitCommit` is the
+ * CORRECTED runtime commit (F1A/F0B: the R2B/R3 commit plus the identical
+ * auth/runtime-parity production correction, prompt untouched);
+ * `runtimeBaseCommit` is the R2B/R3 commit it was built from. A root at the
+ * base commit is REFUSED: it resolves no bundled executable and forwards no
+ * `USER`.
  */
 export const FROZEN_VARIANTS = [
   {
@@ -32,7 +43,8 @@ export const FROZEN_VARIANTS = [
     label: 'PROMPT_V1_COMPARATOR',
     role: 'comparator',
     order: 1,
-    gitCommit: '952f80e124bc681ee15c35386d30ba52a6d80c98',
+    gitCommit: '0d2928a474796b89fad0644e99b5b934ecad10d0',
+    runtimeBaseCommit: '952f80e124bc681ee15c35386d30ba52a6d80c98',
     promptVersion: 'orgunit-classifier-prompt-v1',
     runtimePromptSha256: '65f7f327ad14e78aaf3024cb7253e979b1e360fdcd1a58081fccc08fdb0facd0',
     runtimePromptCharacters: 9887,
@@ -43,7 +55,8 @@ export const FROZEN_VARIANTS = [
     label: 'PROMPT_V2_CANDIDATE',
     role: 'candidate',
     order: 2,
-    gitCommit: 'a36d024fa9a0bc6f4bc3c66b32ab6109fa4fa31a',
+    gitCommit: 'c37dd5a73d0f285b97a0a9a43bf0e42be8fc99c7',
+    runtimeBaseCommit: 'a36d024fa9a0bc6f4bc3c66b32ab6109fa4fa31a',
     promptVersion: 'orgunit-classifier-prompt-v2',
     runtimePromptSha256: '181a5d6fec9763be5a57e7e4d08c7d8c8a9d9e21838df2ea3e05dd680e4c7635',
     runtimePromptCharacters: 11304,
@@ -54,6 +67,30 @@ export const FROZEN_VARIANTS = [
 export type FrozenVariantName = (typeof FROZEN_VARIANTS)[number]['name'];
 export type FrozenVariantLabel = (typeof FROZEN_VARIANTS)[number]['label'];
 export type FrozenVariant = (typeof FROZEN_VARIANTS)[number];
+
+/**
+ * F1A/F0B: the Claude Code executable both subprocesses run is the native
+ * binary bundled by the exact installed Agent SDK, resolved from the variant
+ * root's own `node_modules/`. The package NAMES live in the freeze (the
+ * runner namespace never spells the SDK package); the versions and the
+ * run-platform binary identity are restated here so a drifted freeze is
+ * refused.
+ */
+export const FROZEN_AGENT_SDK_VERSION = '0.3.251';
+export const FROZEN_CLAUDE_CODE_VERSION = '2.1.251';
+
+/** The platform the DEV attribution run executes on, and its exact SDK-bundled binary (measured in both corrected roots). */
+export const FROZEN_RUN_PLATFORM = Object.freeze({
+  platform: 'darwin',
+  arch: 'arm64',
+  platformKey: 'darwin-arm64',
+  binaryFileName: 'claude',
+  binaryBytes: 197_171_680,
+  binarySha256: '625869b01e0050f260b2980fac248fd9cef9e462612bded4ec9d3d49ff8969a5',
+});
+
+/** The POSIX account-name variable the macOS Keychain lookup requires (ADR 0010 Amendment A). Presence is frozen; its value is never recorded. */
+export const FROZEN_POSIX_USER_VARIABLE = 'USER';
 
 export const EXPECTED_LOGICAL_BATCHES_PER_VARIANT = 12;
 export const EXPECTED_LOGICAL_EVALUATIONS = 24;

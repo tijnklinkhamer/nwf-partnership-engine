@@ -24,7 +24,17 @@
  *     contains the requested model id;
  *   - the SDK-bearing runner module's frozen liveness constants are read
  *     from the BUILT TEXT here (a static probe that imports nothing), and
- *     re-verified at runtime by the child after the execution lock.
+ *     re-verified at runtime by the child after the execution lock;
+ *   - F1A/F0B (ADR 0010 Amendment A): the root's own built environment
+ *     builder forwards `USER` (and never `LOGNAME`) — value never recorded;
+ *     the root's own built executable resolver and THIS worktree's resolver,
+ *     both run against the root's `node_modules/`, agree on ONE real path
+ *     under the root with the frozen SDK version, Claude Code version and
+ *     native-package identity — and, on the frozen run platform, the frozen
+ *     binary byte length and SHA-256; and the root's built provider, builder
+ *     and auth-status runner are wired so that ONE resolution feeds both
+ *     the auth-status preflight and the inference invocation, with no
+ *     PATH-resolved command anywhere.
  *
  * NO PROMPT INJECTION: the prompt this module checks is whatever the root's
  * own built `prompt.js` exports. Nothing here accepts a prompt string.
@@ -32,9 +42,11 @@
  * Pure aside from the injected probes. No network, no database, no clock.
  */
 import { isAbsolute, join, normalize, resolve, sep } from 'node:path';
+import { resolveBundledClaudeCodeExecutable } from '../../../orgunits/classify/provider/claudeCodeExecutable.js';
 import {
   FROZEN_AUTH_STATUS_TIMEOUT_MS,
   FROZEN_DEFAULT_MAX_TURNS,
+  FROZEN_POSIX_USER_VARIABLE,
   FROZEN_MAX_TRANSIENT_RETRIES,
   FROZEN_STDERR_TAIL_MAX_CHARS,
   FROZEN_TIER1_GRACE_MS,
@@ -75,12 +87,30 @@ export type VariantRootCheckId =
   | 'PROMPT_VERSION_AND_HASH'
   | 'RUNTIME_CONSTANTS'
   | 'MODEL_ALLOWLIST'
-  | 'LIVENESS_CONSTANTS_STATIC_TEXT';
+  | 'LIVENESS_CONSTANTS_STATIC_TEXT'
+  | 'RUNTIME_ENVIRONMENT_PASSTHROUGH'
+  | 'NATIVE_CLAUDE_CODE_EXECUTABLE'
+  | 'AUTH_AND_INFERENCE_SAME_EXECUTABLE';
 
 export interface VariantRootCheck {
   readonly id: VariantRootCheckId;
   readonly ok: boolean;
   readonly detail: string;
+}
+
+/** Non-sensitive provenance of the root's SDK-bundled executable, as verified. */
+export interface VerifiedClaudeCodeExecutable {
+  readonly executablePath: string;
+  readonly sdkVersion: string;
+  readonly claudeCodeVersion: string;
+  readonly nativePackageName: string;
+  readonly nativePackageVersion: string;
+  readonly platformKey: string;
+  readonly binaryFileName: string;
+  readonly binaryBytes: number;
+  readonly binarySha256: string;
+  /** Whether this is the freeze's run platform, on which the binary identity is PINNED rather than recorded. */
+  readonly onFrozenRunPlatform: boolean;
 }
 
 export interface VariantRootVerification {
@@ -90,6 +120,8 @@ export interface VariantRootVerification {
   readonly checks: readonly VariantRootCheck[];
   /** The loaded runtime, present only when every check up to loading passed. */
   readonly runtime: LoadedVariantRuntime | null;
+  /** The verified executable, present only when every check passed. */
+  readonly claudeCodeExecutable: VerifiedClaudeCodeExecutable | null;
 }
 
 function normalisedKey(path: string): string {
@@ -126,7 +158,14 @@ export async function verifyVariantRoot(
   const checks: VariantRootCheck[] = [];
   const fail = (id: VariantRootCheckId, detail: string): VariantRootVerification => {
     checks.push({ id, ok: false, detail });
-    return { variantName: variant.name, root, ok: false, checks, runtime: null };
+    return {
+      variantName: variant.name,
+      root,
+      ok: false,
+      checks,
+      runtime: null,
+      claudeCodeExecutable: null,
+    };
   };
   const pass = (id: VariantRootCheckId, detail: string): void => {
     checks.push({ id, ok: true, detail });
@@ -408,5 +447,229 @@ export async function verifyVariantRoot(
     'soft deadline 300000, grace 10000, total budget 600000, stderr tail 2048',
   );
 
-  return { variantName: variant.name, root, ok: true, checks, runtime };
+  // 12. The root's own environment builder forwards USER — by name, never
+  //     LOGNAME — and nothing outside its allowlist. The VALUE used here is a
+  //     synthetic marker; no real account name enters this check or its detail.
+  const passthrough = runtime.environment.CLASSIFIER_CHILD_ENV_OS_PASSTHROUGH;
+  if (!passthrough.includes(FROZEN_POSIX_USER_VARIABLE) || passthrough.includes('LOGNAME')) {
+    return fail(
+      'RUNTIME_ENVIRONMENT_PASSTHROUGH',
+      `the root's OS passthrough is [${passthrough.join(', ')}]; ${FROZEN_POSIX_USER_VARIABLE} must be present and LOGNAME absent.`,
+    );
+  }
+  let sample: Record<string, string>;
+  try {
+    sample = runtime.environment.buildChildEnvironment({
+      parentEnv: {
+        PATH: '/synthetic/bin',
+        HOME: '/synthetic/home',
+        [FROZEN_POSIX_USER_VARIABLE]: 'synthetic-account-marker',
+        LOGNAME: 'synthetic-logname-marker',
+        SYNTHETIC_UNRELATED_SECRET: 'synthetic-secret-marker',
+      },
+      configDir: '/synthetic/profile',
+    });
+  } catch (error) {
+    return fail(
+      'RUNTIME_ENVIRONMENT_PASSTHROUGH',
+      `the root's environment builder threw: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+  if (
+    sample[FROZEN_POSIX_USER_VARIABLE] !== 'synthetic-account-marker' ||
+    'LOGNAME' in sample ||
+    'SYNTHETIC_UNRELATED_SECRET' in sample
+  ) {
+    return fail(
+      'RUNTIME_ENVIRONMENT_PASSTHROUGH',
+      `the root's environment builder forwarded [${Object.keys(sample).sort().join(', ')}]; ` +
+        `${FROZEN_POSIX_USER_VARIABLE} must cross under its own name only and nothing unlisted may cross.`,
+    );
+  }
+  pass(
+    'RUNTIME_ENVIRONMENT_PASSTHROUGH',
+    `${FROZEN_POSIX_USER_VARIABLE} forwarded by name (value never recorded); LOGNAME and unlisted variables refused`,
+  );
+
+  // 13. ONE native executable under the root: the root's own resolver and
+  //     this worktree's resolver agree, and the provenance is the frozen one.
+  const frozenExecutable = freeze.classifier.claudeCodeExecutable;
+  const own = runtime.claudeCodeExecutable.resolveBundledClaudeCodeExecutable({
+    packageRoot: root,
+  });
+  const ours = resolveBundledClaudeCodeExecutable({ packageRoot: root });
+  if (!own.ok) {
+    return fail(
+      'NATIVE_CLAUDE_CODE_EXECUTABLE',
+      `the root's own resolver refused (${own.kind}): ${own.detail}`,
+    );
+  }
+  if (!ours.ok) {
+    return fail(
+      'NATIVE_CLAUDE_CODE_EXECUTABLE',
+      `the runner's resolver refused the root (${ours.kind}): ${ours.detail}`,
+    );
+  }
+  if (JSON.stringify(own.provenance) !== JSON.stringify(ours.provenance)) {
+    return fail(
+      'NATIVE_CLAUDE_CODE_EXECUTABLE',
+      `the root's resolver and the runner's resolver disagree: ${own.provenance.executablePath} vs ${ours.provenance.executablePath}.`,
+    );
+  }
+  const { provenance } = own;
+  const executableKey = normalisedKey(provenance.executablePath);
+  let realExecutable: string;
+  try {
+    realExecutable = probes.realpath(provenance.executablePath);
+  } catch {
+    return fail('NATIVE_CLAUDE_CODE_EXECUTABLE', 'the resolved executable could not be resolved.');
+  }
+  if (
+    normalisedKey(realExecutable) !== executableKey ||
+    !executableKey.startsWith(join(rootKey, 'node_modules') + sep)
+  ) {
+    return fail(
+      'NATIVE_CLAUDE_CODE_EXECUTABLE',
+      `the resolved executable ${provenance.executablePath} is not a real path under ${root}/node_modules.`,
+    );
+  }
+  const provenanceProblems: string[] = [];
+  const expectProvenance = (name: string, actual: unknown, expected: unknown): void => {
+    if (actual !== expected)
+      provenanceProblems.push(`${name}=${String(actual)} (frozen ${String(expected)})`);
+  };
+  expectProvenance('sdkPackageName', provenance.sdkPackageName, frozenExecutable.sdkPackage);
+  expectProvenance('sdkVersion', provenance.sdkVersion, frozenExecutable.sdkVersion);
+  expectProvenance(
+    'claudeCodeVersion',
+    provenance.claudeCodeVersion,
+    frozenExecutable.claudeCodeVersion,
+  );
+  expectProvenance(
+    'nativePackageName',
+    provenance.nativePackageName,
+    `${frozenExecutable.nativePackagePrefix}${provenance.platformKey}`,
+  );
+  expectProvenance(
+    'nativePackageVersion',
+    provenance.nativePackageVersion,
+    frozenExecutable.sdkVersion,
+  );
+  const onFrozenRunPlatform = provenance.platformKey === frozenExecutable.runPlatform.platformKey;
+  if (onFrozenRunPlatform) {
+    expectProvenance(
+      'nativePackage',
+      provenance.nativePackageName,
+      frozenExecutable.runPlatform.nativePackage,
+    );
+    expectProvenance(
+      'binaryFileName',
+      provenance.binaryFileName,
+      frozenExecutable.runPlatform.binaryFileName,
+    );
+    expectProvenance(
+      'binaryBytes',
+      provenance.binaryBytes,
+      frozenExecutable.runPlatform.binaryBytes,
+    );
+    expectProvenance(
+      'binarySha256',
+      provenance.binarySha256,
+      frozenExecutable.runPlatform.binarySha256,
+    );
+  }
+  if (provenanceProblems.length > 0) {
+    return fail('NATIVE_CLAUDE_CODE_EXECUTABLE', provenanceProblems.join('; '));
+  }
+  pass(
+    'NATIVE_CLAUDE_CODE_EXECUTABLE',
+    `${provenance.nativePackageName} version ${provenance.nativePackageVersion} (Claude Code ${provenance.claudeCodeVersion}) ` +
+      `${provenance.binaryFileName} ${provenance.binaryBytes} bytes sha256 ${provenance.binarySha256}` +
+      `${onFrozenRunPlatform ? ' — PINNED by the freeze' : ` — recorded; ${provenance.platformKey} is not the frozen run platform ${frozenExecutable.runPlatform.platformKey}`}`,
+  );
+
+  // 14. Both subprocesses receive that one path: the root's builder pins
+  //     the SDK option to it, and the root's built provider and auth-status
+  //     runner are wired to resolve once and never through PATH.
+  let invocationPath: unknown;
+  try {
+    invocationPath = runtime.sdkOptions.buildAgentSdkInvocation({
+      request: {
+        systemPrompt: 'synthetic',
+        serializedBatch: '{}',
+        outputJsonSchema: {},
+        modelId: freeze.classifier.requestedModelId,
+        runConfig: { maxTurns: 3, thinking: 'disabled' },
+      },
+      childEnv: {},
+      scratchCwd: '/synthetic/scratch',
+      claudeCodeExecutablePath: provenance.executablePath,
+    }).options.pathToClaudeCodeExecutable;
+  } catch (error) {
+    return fail(
+      'AUTH_AND_INFERENCE_SAME_EXECUTABLE',
+      `the root's invocation builder threw: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+  if (invocationPath !== provenance.executablePath) {
+    return fail(
+      'AUTH_AND_INFERENCE_SAME_EXECUTABLE',
+      `the root's invocation builder emits pathToClaudeCodeExecutable ${String(invocationPath)}, not the resolved path.`,
+    );
+  }
+  let providerText: string;
+  let authRunnerText: string;
+  try {
+    providerText = probes
+      .readFile(join(root, RUNTIME_MODULE_PATHS.provider.built))
+      .toString('utf8');
+    authRunnerText = probes
+      .readFile(join(root, RUNTIME_MODULE_PATHS.authStatusRunner.built))
+      .toString('utf8');
+  } catch {
+    return fail(
+      'AUTH_AND_INFERENCE_SAME_EXECUTABLE',
+      'the built provider or auth-status runner module could not be read.',
+    );
+  }
+  const wiringProblems: string[] = [];
+  if (providerText.split('this.#claudeCodeExecutable()').length !== 2)
+    wiringProblems.push('the provider does not resolve the executable exactly once');
+  if (!/authStatusRunner\.run\(\{\s*executablePath,/.test(providerText))
+    wiringProblems.push('the auth-status invocation does not carry the resolved executable');
+  if (!/claudeCodeExecutablePath:\s*executablePath\b/.test(providerText))
+    wiringProblems.push('the inference invocation does not carry the resolved executable');
+  if (!/execFile\(\s*invocation\.executablePath,/.test(authRunnerText))
+    wiringProblems.push('the auth-status runner does not execute the invocation executable');
+  if (!/shell:\s*false/.test(authRunnerText) || /shell:\s*(?:true|process)/.test(authRunnerText))
+    wiringProblems.push('the auth-status runner uses a shell');
+  if (/['"]claude(?:\.exe)?['"]/.test(authRunnerText) || /AUTH_STATUS_COMMAND/.test(authRunnerText))
+    wiringProblems.push('the auth-status runner names a PATH-resolved command');
+  if (wiringProblems.length > 0) {
+    return fail('AUTH_AND_INFERENCE_SAME_EXECUTABLE', wiringProblems.join('; '));
+  }
+  pass(
+    'AUTH_AND_INFERENCE_SAME_EXECUTABLE',
+    'one resolution feeds the auth-status invocation and pathToClaudeCodeExecutable; no PATH command, no shell',
+  );
+
+  return {
+    variantName: variant.name,
+    root,
+    ok: true,
+    checks,
+    runtime,
+    claudeCodeExecutable: {
+      executablePath: provenance.executablePath,
+      sdkVersion: provenance.sdkVersion,
+      claudeCodeVersion: provenance.claudeCodeVersion,
+      nativePackageName: provenance.nativePackageName,
+      nativePackageVersion: provenance.nativePackageVersion,
+      platformKey: provenance.platformKey,
+      binaryFileName: provenance.binaryFileName,
+      binaryBytes: provenance.binaryBytes,
+      binarySha256: provenance.binarySha256,
+      onFrozenRunPlatform,
+    },
+  };
 }

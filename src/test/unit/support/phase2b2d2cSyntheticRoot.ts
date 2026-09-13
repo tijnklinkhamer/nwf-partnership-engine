@@ -10,14 +10,36 @@
  * The built modules are of three kinds: constants and the prompt are
  * GENERATED JavaScript (so a root can be given a different prompt, version
  * or constant on purpose); the canonicalizer, final identity, output schema,
- * validator and invocation builder RE-EXPORT this worktree's TypeScript by
- * absolute path (their algorithms are blob-identical at both frozen commits,
- * F0A §13.4); and the provider stack is copied from the fixture directory
+ * validator, invocation builder, environment builder and executable
+ * resolver RE-EXPORT this worktree's TypeScript by absolute path (their
+ * algorithms are blob-identical at both frozen commits, F0A §13.4 and
+ * F1A/F0B); and the provider stack is copied from the fixture directory
  * (a scripted provider and two seams that never open a socket).
  *
- * This file names no model id and constructs no production runner.
+ * F1A/F0B: a synthetic root also carries the SDK-bundled executable the
+ * resolver verifies. The SDK package's `package.json` and `manifest.json`
+ * are those of the SDK installed under THIS worktree, and the native
+ * binary is a HARD LINK to (or, across filesystems, a copy of) the native
+ * binary installed under this worktree — a regular file with the real
+ * bytes and the real hash, never a symlink — so a synthetic root resolves
+ * exactly the binary a real root resolves. The binary is never executed by
+ * any test. When the native package is not installed here, the synthetic
+ * root carries none and the executable check refuses it, which the tests
+ * that need a passing root skip on.
+ *
+ * This file names no model id, no platform package and constructs no
+ * production runner.
  */
-import { copyFileSync, mkdirSync, readFileSync, utimesSync, writeFileSync } from 'node:fs';
+import {
+  chmodSync,
+  copyFileSync,
+  existsSync,
+  linkSync,
+  mkdirSync,
+  readFileSync,
+  utimesSync,
+  writeFileSync,
+} from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ORGUNIT_CLASSIFIER_SYSTEM_PROMPT } from '../../../orgunits/classify/prompt.js';
@@ -54,6 +76,31 @@ export function promptTextOf(variantName: FrozenVariant['name']): string {
   return variantName === 'PROMPT_V1_CANONICAL' ? v1PromptText() : ORGUNIT_CLASSIFIER_SYSTEM_PROMPT;
 }
 
+/** The native package installed under this worktree for the running platform, or null. */
+export function hostNativePackage(freeze: Freeze): {
+  readonly name: string;
+  readonly dir: string;
+  readonly binary: string;
+} | null {
+  const sdkDir = join(
+    RUNNER_REPO_ROOT,
+    'node_modules',
+    ...freeze.classifier.agentSdk.package.split('/'),
+  );
+  const manifestPath = join(sdkDir, 'manifest.json');
+  if (!existsSync(manifestPath)) return null;
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as {
+    platforms: Record<string, { binary: string }>;
+  };
+  const platformKey = `${process.platform}-${process.arch}`;
+  const entry = manifest.platforms[platformKey];
+  if (entry === undefined) return null;
+  const name = `${freeze.classifier.claudeCodeExecutable.nativePackagePrefix}${platformKey}`;
+  const dir = join(RUNNER_REPO_ROOT, 'node_modules', ...name.split('/'));
+  const binary = join(dir, entry.binary);
+  return existsSync(binary) ? { name, dir, binary } : null;
+}
+
 export interface SyntheticRootOptions {
   readonly variant: FrozenVariant;
   readonly freeze: Freeze;
@@ -61,6 +108,14 @@ export interface SyntheticRootOptions {
   readonly promptText?: string;
   readonly promptVersion?: string;
   readonly sdkVersion?: string;
+  /** Leave the native package out (the resolver refuses NATIVE_PACKAGE_MISSING). */
+  readonly omitNativePackage?: boolean;
+  /** Corrupt the native binary's bytes (the resolver refuses CHECKSUM_MISMATCH). */
+  readonly corruptNativeBinary?: boolean;
+  /** Build the provider stack WITHOUT the same-executable wiring (the AUTH_AND_INFERENCE_SAME_EXECUTABLE check refuses). */
+  readonly legacyProviderWiring?: boolean;
+  /** Build an environment module that omits USER (the RUNTIME_ENVIRONMENT_PASSTHROUGH check refuses). */
+  readonly environmentWithoutUser?: boolean;
   readonly ruleVersion?: string;
   readonly allowedModels?: readonly string[];
   readonly maxTransientRetries?: number;
@@ -88,11 +143,45 @@ export function buildSyntheticVariantRoot(dir: string, options: SyntheticRootOpt
     join(dir, 'package-lock.json'),
     JSON.stringify({ packages: { [`node_modules/${sdkName}`]: { version: sdkVersion } } }),
   );
-  mkdirSync(join(dir, 'node_modules', ...sdkName.split('/')), { recursive: true });
+  const sdkDir = join(dir, 'node_modules', ...sdkName.split('/'));
+  mkdirSync(sdkDir, { recursive: true });
+  const host = hostNativePackage(freeze);
+  const realSdkDir = join(RUNNER_REPO_ROOT, 'node_modules', ...sdkName.split('/'));
+  const realSdkPackage = existsSync(join(realSdkDir, 'package.json'))
+    ? (JSON.parse(readFileSync(join(realSdkDir, 'package.json'), 'utf8')) as {
+        claudeCodeVersion?: string;
+      })
+    : {};
   writeFileSync(
-    join(dir, 'node_modules', ...sdkName.split('/'), 'package.json'),
-    JSON.stringify({ name: sdkName, version: sdkVersion }),
+    join(sdkDir, 'package.json'),
+    JSON.stringify({
+      name: sdkName,
+      version: sdkVersion,
+      claudeCodeVersion:
+        realSdkPackage.claudeCodeVersion ??
+        freeze.classifier.claudeCodeExecutable.claudeCodeVersion,
+      optionalDependencies: host === null ? {} : { [host.name]: sdkVersion },
+    }),
   );
+  if (existsSync(join(realSdkDir, 'manifest.json'))) {
+    copyFileSync(join(realSdkDir, 'manifest.json'), join(sdkDir, 'manifest.json'));
+  }
+  if (host !== null && !options.omitNativePackage) {
+    const nativeDir = join(dir, 'node_modules', ...host.name.split('/'));
+    mkdirSync(nativeDir, { recursive: true });
+    copyFileSync(join(host.dir, 'package.json'), join(nativeDir, 'package.json'));
+    const binary = join(nativeDir, host.binary.slice(host.dir.length + 1));
+    if (options.corruptNativeBinary) {
+      writeFileSync(binary, 'not the bundled binary\n');
+      chmodSync(binary, 0o755);
+    } else {
+      try {
+        linkSync(host.binary, binary);
+      } catch {
+        copyFileSync(host.binary, binary);
+      }
+    }
+  }
 
   // Corpus and manifest, at the frozen repository-relative paths.
   for (const relative of [freeze.corpus.canonicalCorpusPath, freeze.corpus.canonicalManifestPath]) {
@@ -121,6 +210,11 @@ export function buildSyntheticVariantRoot(dir: string, options: SyntheticRootOpt
     sdkOptions:
       `export const CLASSIFIER_DEFAULT_MAX_TURNS = 3;\n` +
       `export { buildAgentSdkInvocation } from ${JSON.stringify(tsSource('src/orgunits/classify/provider/sdkOptions.ts'))};\n`,
+    environment: options.environmentWithoutUser
+      ? `export const CLASSIFIER_CHILD_ENV_OS_PASSTHROUGH = ['PATH', 'HOME'];\n` +
+        `export function buildChildEnvironment(input) { const child = { CLAUDE_CONFIG_DIR: input.configDir }; for (const name of CLASSIFIER_CHILD_ENV_OS_PASSTHROUGH) if (input.parentEnv[name] !== undefined) child[name] = input.parentEnv[name]; return child; }\n`
+      : `export * from ${JSON.stringify(tsSource('src/orgunits/classify/provider/environment.ts'))};\n`,
+    claudeCodeExecutable: `export * from ${JSON.stringify(tsSource('src/orgunits/classify/provider/claudeCodeExecutable.ts'))};\n`,
     authStatusRunner: '',
     agentSdkRunner: '',
     provider: '',
@@ -145,6 +239,15 @@ export function buildSyntheticVariantRoot(dir: string, options: SyntheticRootOpt
         ),
         built,
       );
+      if (options.legacyProviderWiring) {
+        // Strip the same-executable wiring markers so the root reads as a pre-F1A stack.
+        writeFileSync(
+          built,
+          readFileSync(built, 'utf8')
+            .replace('this.#claudeCodeExecutable()', 'this.#legacyExecutable()')
+            .replace('invocation.executablePath', "'claude'"),
+        );
+      }
     } else if (module === 'agentSdkRunner') {
       copyFileSync(join(FIXTURE_STACK, 'agentSdkRunner.js'), built);
       if (options.softDeadlineMs !== undefined) {

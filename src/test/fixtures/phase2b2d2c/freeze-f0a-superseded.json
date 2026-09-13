@@ -2,8 +2,8 @@
   "freezeId": "PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_V1",
   "version": "phase2b-2d2c-dev-configuration-freeze-v1",
   "status": "FROZEN_NO_INFERENCE_RUN",
-  "freezeRevision": "F0B_AUTH_RUNTIME_PARITY",
-  "supersedesFreezeRawSha256": "7b84ac0bca90086eea8fb59cdbd501317e3bfd53533fa529a85a8a44988ad6aa",
+  "freezeRevision": "F0A_INPUT_IDENTITY_CLOSURE",
+  "supersedesFreezeRawSha256": "422873a11d3876e4aa24b250cbc484a7f66b3100f1e3cda08d733a11c40a7164",
   "revisionHistory": [
     {
       "revision": "F0",
@@ -27,25 +27,6 @@
         "liveness and stop conditions"
       ],
       "rule": "Every artifact produced after this revision records the raw SHA-256 of this F0A file as freezeConfigRawSha256, never the superseded F0 hash; a runner that finds the superseded hash stops with CORPUS_CONFIG_OR_HASH_DRIFT."
-    },
-    {
-      "revision": "F0B_AUTH_RUNTIME_PARITY",
-      "supersedesFreezeRawSha256": "7b84ac0bca90086eea8fb59cdbd501317e3bfd53533fa529a85a8a44988ad6aa",
-      "freezeRawSha256": "the raw SHA-256 of THIS file, which a file cannot contain; recorded in the F1A/F0B audit section and required in every later artifact as freezeConfigRawSha256",
-      "closes": "the macOS stored-auth runtime-parity gap the F2 preparation exposed (F2 record §7): the frozen runtime commits are replaced by the two corrected runtime commits (identical production correction on R2B and R3, prompts untouched), the SDK-bundled native Claude Code executable is pinned as the ONE executable for both the request-free auth-status preflight and the Agent SDK inference subprocess, and the POSIX USER requirement of the macOS Keychain login lookup is recorded as a NAME whose value is never recorded",
-      "timing": "after the F2 preparation closed BLOCKED_PENDING_F1_CORRECTION and before any 2D2C inference; no attempt was consumed and no execution authorisation existed",
-      "unchanged": [
-        "corpus documents and manifest",
-        "prompts and prompt identities",
-        "gold labels",
-        "scoring gates",
-        "run order, batching plan and variant ordering",
-        "model id and run settings",
-        "liveness and stop conditions",
-        "the 12 assembly identities and the 24 final input identities",
-        "the output schema and the 38 required capture fields"
-      ],
-      "rule": "Every artifact produced after this revision records the raw SHA-256 of this F0B file as freezeConfigRawSha256, never the superseded F0A hash and never the F0 hash; a runner that finds either superseded hash, or a variant root at an uncorrected R2B/R3 commit, stops with CORPUS_CONFIG_OR_HASH_DRIFT."
     }
   ],
   "frozenOn": "2026-09-13",
@@ -71,26 +52,12 @@
       "branch": "feat/phase2b-2d2b-3-prompt-v2-recovery",
       "commit": "a36d024fa9a0bc6f4bc3c66b32ab6109fa4fa31a"
     },
-    "correctedRuntimeV1": {
-      "branch": "fix/phase2b-2d2c-runtime-v1-auth-parity-recovery",
-      "commit": "0d2928a474796b89fad0644e99b5b934ecad10d0",
-      "basedOn": "952f80e124bc681ee15c35386d30ba52a6d80c98",
-      "correction": "F1A auth/runtime parity; prompt v1 untouched"
-    },
-    "correctedRuntimeV2": {
-      "branch": "fix/phase2b-2d2c-runtime-v2-auth-parity-recovery",
-      "commit": "c37dd5a73d0f285b97a0a9a43bf0e42be8fc99c7",
-      "basedOn": "a36d024fa9a0bc6f4bc3c66b32ab6109fa4fa31a",
-      "correction": "F1A auth/runtime parity; prompt v2 untouched"
-    },
     "freezeBranch": "feat/phase2b-2d2c-configuration-freeze-recovery",
     "freezeBranchBasedOn": "a36d024fa9a0bc6f4bc3c66b32ab6109fa4fa31a",
     "requiredAncestry": [
       "r3PromptV2 descends from r2bHardLiveness",
       "r2bHardLiveness descends from r1EvidenceCanonicalisation",
-      "r1EvidenceCanonicalisation descends from baselineMain",
-      "correctedRuntimeV1 descends from r2bHardLiveness",
-      "correctedRuntimeV2 descends from r3PromptV2"
+      "r1EvidenceCanonicalisation descends from baselineMain"
     ],
     "ancestryEvidence": "Verified by the F0 audit record with git merge-base --is-ancestor; the freeze unit test never invokes Git and never depends on the current branch name.",
     "lostCommitsPolicy": "No lost 2D2B commit, file or artifact is an ancestor of any pinned commit. Nothing here claims recovery of lost bytes."
@@ -745,7 +712,6 @@
       "strictMcpConfig": true,
       "skills": [],
       "plugins": [],
-      "pathToClaudeCodeExecutable": "the resolved SDK-bundled native Claude Code binary (src/orgunits/classify/provider/claudeCodeExecutable.ts), set explicitly; never left to the SDK default, never a PATH lookup",
       "absent": [
         "fallbackModel",
         "resume",
@@ -763,8 +729,7 @@
         "name": "PROMPT_V1_CANONICAL",
         "role": "comparator",
         "order": 1,
-        "gitCommit": "0d2928a474796b89fad0644e99b5b934ecad10d0",
-        "runtimeBaseCommit": "952f80e124bc681ee15c35386d30ba52a6d80c98",
+        "gitCommit": "952f80e124bc681ee15c35386d30ba52a6d80c98",
         "promptVersion": "orgunit-classifier-prompt-v1",
         "runtimePromptCharacters": 9887,
         "runtimePromptUtf8Bytes": 9963,
@@ -774,8 +739,7 @@
         "name": "PROMPT_V2_CANONICAL",
         "role": "candidate",
         "order": 2,
-        "gitCommit": "c37dd5a73d0f285b97a0a9a43bf0e42be8fc99c7",
-        "runtimeBaseCommit": "a36d024fa9a0bc6f4bc3c66b32ab6109fa4fa31a",
+        "gitCommit": "a36d024fa9a0bc6f4bc3c66b32ab6109fa4fa31a",
         "promptVersion": "orgunit-classifier-prompt-v2",
         "runtimePromptCharacters": 11304,
         "runtimePromptUtf8Bytes": 11382,
@@ -783,36 +747,6 @@
       }
     ],
     "variantIsolation": "Each variant runs from its own clean worktree checked out at exactly its gitCommit, with dependencies restored by npm ci from that commit’s lockfile. The runner must verify the prompt version and runtime prompt SHA-256 at startup and stop on mismatch. Prompts are never switched by a runtime flag.",
-    "variantRuntimeCorrection": "F0B: each variant runs from a worktree at its CORRECTED runtime commit (gitCommit), which is the R2B/R3 commit (runtimeBaseCommit) plus the byte-identical auth/runtime-parity production correction; the prompt files are untouched and the prompt identities above are unchanged. A root at the uncorrected base commit is refused.",
-    "claudeCodeExecutable": {
-      "evidenceClass": "RECONSTRUCTED_AND_VERIFIED_NOW",
-      "source": "SDK_BUNDLED_NATIVE_BINARY",
-      "sdkPackage": "@anthropic-ai/claude-agent-sdk",
-      "sdkVersion": "0.3.251",
-      "claudeCodeVersion": "2.1.251",
-      "nativePackagePrefix": "@anthropic-ai/claude-agent-sdk-",
-      "sameExecutableForAuthStatusAndInference": true,
-      "externalPathCliAcceptedAsPreflightOracle": false,
-      "runPlatform": {
-        "platform": "darwin",
-        "arch": "arm64",
-        "platformKey": "darwin-arm64",
-        "nativePackage": "@anthropic-ai/claude-agent-sdk-darwin-arm64",
-        "nativePackageVersion": "0.3.251",
-        "binaryFileName": "claude",
-        "binaryBytes": 197171680,
-        "binarySha256": "625869b01e0050f260b2980fac248fd9cef9e462612bded4ec9d3d49ff8969a5"
-      },
-      "contract": "The provider resolves the exact native binary bundled by the exact installed SDK from the variant root’s own node_modules ONCE per classify(), fails closed on a missing optional native package, a path outside node_modules, a symlink or non-regular file, any version disagreement, a non-executable binary, a byte-length or SHA-256 mismatch against the SDK’s own manifest, an unsupported platform or an ambiguous resolution, and hands that one path to BOTH the request-free auth-status preflight and the Agent SDK invocation (pathToClaudeCodeExecutable). The runner verifies the same resolution independently and, on the run platform above, pins the binary identity by hash. Execution is refused on any other platform."
-    },
-    "childEnvironment": {
-      "evidenceClass": "RECONSTRUCTED_AND_VERIFIED_NOW",
-      "posixOsPassthroughAddition": "USER",
-      "valueRecorded": false,
-      "lognameIsSubstitute": false,
-      "windowsAllowlistChanged": false,
-      "measurement": "On macOS with Claude Code 2.1.270 (external) and 2.1.251 (SDK-bundled), the stored subscription login lives in the macOS Keychain and auth status --json reports loggedIn: false under the sanitized child environment unless USER is present; a wrong USER fails identically; LOGNAME does not substitute. The production builder and the F1 POSIX child allowlist forward USER by name; no artifact, test or report records its value. The root cause inside Claude Code is not known and is not claimed."
-    },
     "inputIdentity": "input_sha256 = computeFinalInputSha256(assemblyInputSha256, promptVersion, outputSchemaVersion) as implemented at the variant commit; v1 and v2 identities differ by construction, so no v1 result can be reused for a v2 question. Since F0A the exact values are frozen per batch in batching.plan.finalInputSha256 and are recomputed by the freeze unit test."
   },
   "liveness": {
@@ -1024,5 +958,5 @@
       "dependency, lockfile, migration or environment changes"
     ]
   },
-  "nextStep": "Re-enter 2D2C-F2 at its readiness checkpoint against this F0B freeze and the two corrected runtime roots, and present the proposed attempt-1 execution authorisation for an explicit owner decision. This file still authorises nothing."
+  "nextStep": "Implement the DEV-only 2D2C runner against this F0A freeze (2D2C-F1), still without running it, until a separate execution authorisation is recorded."
 }

@@ -12,6 +12,15 @@
  * variable. Nothing else crosses: no database URL, no provider key, no
  * Claude token, no `NODE_OPTIONS`, no debug or transcript setting.
  *
+ * F1A/F0B (ADR 0010 Amendment A, 2026-09-13): the POSIX allowlist gains
+ * `USER`, the account NAME the macOS Keychain lookup of the stored
+ * subscription login requires. The child needs it only so that the
+ * production environment builder inside the variant root can forward it
+ * on to the auth-status and SDK subprocesses; the child never records its
+ * value. `LOGNAME` is NOT a substitute (measured) and never crosses. The
+ * Windows allowlist is unchanged: no evidence of a Windows requirement
+ * exists.
+ *
  * The child re-checks its own environment on startup
  * (`childEnvironmentViolations`): a variable outside the allowlist is an
  * `ISOLATION_VIOLATION`, stopping the experiment before any provider is
@@ -26,7 +35,7 @@ import { HARNESS_SCRATCH_DIR_VARIABLE } from '../processIsolatedBatch.js';
 /** OS necessities, by platform. Canonical names; matched case-insensitively. */
 export const RUNNER_CHILD_ENV_OS_ALLOWLIST: Readonly<Record<'posix' | 'win32', readonly string[]>> =
   {
-    posix: ['PATH', 'TMPDIR', 'TMP', 'TEMP', 'HOME'],
+    posix: ['PATH', 'TMPDIR', 'TMP', 'TEMP', 'HOME', 'USER'],
     win32: ['PATH', 'TMP', 'TEMP', 'USERPROFILE', 'SystemRoot', 'ComSpec'],
   };
 

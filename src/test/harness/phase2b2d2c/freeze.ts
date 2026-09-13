@@ -1,8 +1,10 @@
 /**
- * PHASE 2B-2D2C-F1 — loading and hash-verifying the immutable F0A freeze.
+ * PHASE 2B-2D2C-F1 — loading and hash-verifying the immutable freeze at its
+ * F0B revision.
  *
  * The runner recomputes the raw SHA-256 of the freeze bytes and refuses to
- * proceed unless it equals the F0A value recorded in the F0A audit. The
+ * proceed unless it equals the F0B value recorded in the F1A/F0B audit;
+ * the superseded F0A bytes are refused by exact hash like any other. The
  * structural schema below is CLOSED for every field the runner reads and
  * open for the prose fields it does not: a freeze that carries the right
  * bytes but the wrong shape is a drift, never a warning.
@@ -12,14 +14,19 @@
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import {
-  EXPECTED_F0A_FREEZE_RAW_SHA256,
+  EXPECTED_F0B_FREEZE_RAW_SHA256,
   EXPECTED_FREEZE_REVISION,
   EXPECTED_FREEZE_VERSION,
   EXPECTED_LOGICAL_BATCHES_PER_VARIANT,
   EXPECTED_LOGICAL_EVALUATIONS,
+  FROZEN_AGENT_SDK_VERSION,
+  FROZEN_CLAUDE_CODE_VERSION,
+  FROZEN_POSIX_USER_VARIABLE,
+  FROZEN_RUN_PLATFORM,
   FROZEN_VARIANTS,
   STOP_CONDITIONS,
   REQUIRED_CAPTURE_FIELDS,
+  SUPERSEDED_F0A_FREEZE_RAW_SHA256,
 } from './constants.js';
 
 const Sha256 = z.string().regex(/^[0-9a-f]{64}$/);
@@ -68,10 +75,40 @@ const VariantSchema = z.strictObject({
   role: z.enum(['comparator', 'candidate']),
   order: z.int().min(1).max(2),
   gitCommit: GitSha,
+  runtimeBaseCommit: GitSha,
   promptVersion: z.string().min(1),
   runtimePromptCharacters: z.int().min(1),
   runtimePromptUtf8Bytes: z.int().min(1),
   runtimePromptSha256: Sha256,
+});
+
+/** F1A/F0B: the SDK-bundled executable contract and the run-platform binary identity (prose fields pass through). */
+export const FrozenClaudeCodeExecutableSchema = z.looseObject({
+  source: z.literal('SDK_BUNDLED_NATIVE_BINARY'),
+  sdkPackage: z.string().min(1),
+  sdkVersion: z.string().min(1),
+  claudeCodeVersion: z.string().min(1),
+  nativePackagePrefix: z.string().min(1),
+  sameExecutableForAuthStatusAndInference: z.literal(true),
+  externalPathCliAcceptedAsPreflightOracle: z.literal(false),
+  runPlatform: z.strictObject({
+    platform: z.string().min(1),
+    arch: z.string().min(1),
+    platformKey: z.string().min(1),
+    nativePackage: z.string().min(1),
+    nativePackageVersion: z.string().min(1),
+    binaryFileName: z.string().min(1),
+    binaryBytes: z.int().min(1),
+    binarySha256: Sha256,
+  }),
+});
+
+/** F1A/F0B: the POSIX `USER` requirement, recorded as a NAME; its value is never recorded (prose fields pass through). */
+export const FrozenChildEnvironmentSchema = z.looseObject({
+  posixOsPassthroughAddition: z.literal(FROZEN_POSIX_USER_VARIABLE),
+  valueRecorded: z.literal(false),
+  lognameIsSubstitute: z.literal(false),
+  windowsAllowlistChanged: z.literal(false),
 });
 
 /** Only the fields the runner reads are closed; prose fields pass through. */
@@ -80,6 +117,7 @@ export const FreezeSchema = z.looseObject({
   version: z.literal(EXPECTED_FREEZE_VERSION),
   status: z.literal('FROZEN_NO_INFERENCE_RUN'),
   freezeRevision: z.literal(EXPECTED_FREEZE_REVISION),
+  supersedesFreezeRawSha256: z.literal(SUPERSEDED_F0A_FREEZE_RAW_SHA256),
   git: z.looseObject({
     repository: z.string().min(1),
     r2bHardLiveness: z.looseObject({ commit: GitSha }),
@@ -125,6 +163,8 @@ export const FreezeSchema = z.looseObject({
     outputSchemaVersion: z.string().min(1),
     runConfig: z.strictObject({ maxTurns: z.literal(3), thinking: z.literal('disabled') }),
     variants: z.array(VariantSchema).length(2),
+    claudeCodeExecutable: FrozenClaudeCodeExecutableSchema,
+    childEnvironment: FrozenChildEnvironmentSchema,
   }),
   liveness: z.looseObject({
     tier1: z.looseObject({
@@ -162,7 +202,7 @@ export type FrozenBatchContext = z.infer<typeof FrozenBatchContextSchema>;
 
 export interface LoadedFreeze {
   readonly freeze: Freeze;
-  /** The raw SHA-256 of the exact bytes read — equal to the F0A value, or loading failed. */
+  /** The raw SHA-256 of the exact bytes read — equal to the F0B value, or loading failed. */
   readonly rawSha256: string;
   readonly rawBytes: number;
 }
@@ -188,11 +228,13 @@ export function sha256Hex(bytes: Buffer | string): string {
  */
 export function loadFreezeFromBytes(bytes: Buffer): LoadedFreeze {
   const rawSha256 = sha256Hex(bytes);
-  if (rawSha256 !== EXPECTED_F0A_FREEZE_RAW_SHA256) {
+  if (rawSha256 !== EXPECTED_F0B_FREEZE_RAW_SHA256) {
     throw new FreezeDriftError(
       'CORPUS_CONFIG_OR_HASH_DRIFT',
-      `freeze raw SHA-256 ${rawSha256} does not equal the F0A value ` +
-        `${EXPECTED_F0A_FREEZE_RAW_SHA256}; the freeze is not trusted and nothing proceeds.`,
+      `freeze raw SHA-256 ${rawSha256} does not equal the F0B value ` +
+        `${EXPECTED_F0B_FREEZE_RAW_SHA256}` +
+        `${rawSha256 === SUPERSEDED_F0A_FREEZE_RAW_SHA256 ? ' (it is the SUPERSEDED F0A freeze)' : ''}` +
+        `; the freeze is not trusted and nothing proceeds.`,
     );
   }
   let parsed: unknown;
@@ -209,7 +251,7 @@ export function loadFreezeFromBytes(bytes: Buffer): LoadedFreeze {
     const first = result.error.issues[0];
     throw new FreezeDriftError(
       'CORPUS_CONFIG_OR_HASH_DRIFT',
-      `freeze shape is not the F0A contract: ${first ? `${first.path.join('.')}: ${first.message}` : 'unknown'}`,
+      `freeze shape is not the F0B contract: ${first ? `${first.path.join('.')}: ${first.message}` : 'unknown'}`,
     );
   }
   const freeze = result.data;
@@ -230,6 +272,7 @@ function assertFreezeAgreesWithConstants(freeze: Freeze): void {
       'role',
       'order',
       'gitCommit',
+      'runtimeBaseCommit',
       'promptVersion',
       'runtimePromptSha256',
       'runtimePromptCharacters',
@@ -244,6 +287,30 @@ function assertFreezeAgreesWithConstants(freeze: Freeze): void {
   if (freeze.classifier.variants[0]?.order !== 1 || freeze.classifier.variants[1]?.order !== 2) {
     problems.push('variant order');
   }
+  // F1A/F0B: the executable contract and the run-platform binary identity.
+  const executable = freeze.classifier.claudeCodeExecutable;
+  if (executable.sdkPackage !== freeze.classifier.agentSdk.package) problems.push('sdkPackage');
+  if (executable.sdkVersion !== FROZEN_AGENT_SDK_VERSION) problems.push('sdkVersion');
+  if (freeze.classifier.agentSdk.version !== FROZEN_AGENT_SDK_VERSION)
+    problems.push('agentSdk.version');
+  if (executable.claudeCodeVersion !== FROZEN_CLAUDE_CODE_VERSION)
+    problems.push('claudeCodeVersion');
+  if (executable.nativePackagePrefix !== `${executable.sdkPackage}-`)
+    problems.push('nativePackagePrefix');
+  const run = executable.runPlatform;
+  if (run.platform !== FROZEN_RUN_PLATFORM.platform) problems.push('runPlatform.platform');
+  if (run.arch !== FROZEN_RUN_PLATFORM.arch) problems.push('runPlatform.arch');
+  if (run.platformKey !== FROZEN_RUN_PLATFORM.platformKey) problems.push('runPlatform.platformKey');
+  if (run.nativePackage !== `${executable.nativePackagePrefix}${run.platformKey}`) {
+    problems.push('runPlatform.nativePackage');
+  }
+  if (run.nativePackageVersion !== FROZEN_AGENT_SDK_VERSION)
+    problems.push('runPlatform.nativePackageVersion');
+  if (run.binaryFileName !== FROZEN_RUN_PLATFORM.binaryFileName)
+    problems.push('runPlatform.binaryFileName');
+  if (run.binaryBytes !== FROZEN_RUN_PLATFORM.binaryBytes) problems.push('runPlatform.binaryBytes');
+  if (run.binarySha256 !== FROZEN_RUN_PLATFORM.binarySha256)
+    problems.push('runPlatform.binarySha256');
   const ids = freeze.stopConditions.conditions.map((c) => c.id);
   for (const id of STOP_CONDITIONS) if (!ids.includes(id)) problems.push(`stop condition ${id}`);
   for (const field of REQUIRED_CAPTURE_FIELDS) {

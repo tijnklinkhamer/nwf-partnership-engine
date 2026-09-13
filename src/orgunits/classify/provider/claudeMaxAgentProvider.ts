@@ -16,22 +16,32 @@
  *   2. PROFILE HYGIENE (names-only readdir): the dedicated profile exists
  *      and holds no semantic/config surface (`profileHygiene.ts`). No file
  *      content — credentials above all — is ever read.
+ *   2a. EXECUTABLE RESOLUTION (ADR 0010 Amendment A, 2026-09-13): the
+ *      exact SDK-bundled native Claude Code binary is resolved and
+ *      verified ONCE through the injected `ClaudeCodeExecutableResolver`
+ *      seam (production: `claudeCodeExecutable.ts` against this
+ *      namespace's own package root; tests: a fake). A refusal of any
+ *      kind is a provider-neutral `AUTH_FAILURE` with zero subprocesses.
+ *      The one resolved path is then handed to BOTH the auth-status
+ *      runner and the SDK invocation, so the preflight oracle and the
+ *      inference subprocess are the same file by construction — never an
+ *      external `claude` found on `PATH`.
  *   3. SCRATCH ISOLATION: one fresh scratch `cwd`, unique per invocation,
  *      removed afterwards on success AND failure (`runtimeIsolation.ts`).
  *      The PROFILE directory persists: Claude Code owns and refreshes the
  *      stored login inside it, and this engine never writes or deletes it.
- *   4. STORED-LOGIN CHECK: the request-free `claude auth status --json`,
- *      executed through the injected `ClassifierAuthStatusRunner` seam
- *      under the SAME sanitized child environment and SAME dedicated
- *      profile the SDK subprocess will use, evaluated by the pure
- *      `authStatus.ts` (logged in, `claude.ai` method, `firstParty`
- *      provider, `max` subscription when reported). Any failure returns
- *      the provider-neutral `AUTH_FAILURE` outcome with ZERO SDK-runner
- *      invocations.
+ *   4. STORED-LOGIN CHECK: the request-free `auth status --json` of the
+ *      resolved binary, executed through the injected
+ *      `ClassifierAuthStatusRunner` seam under the SAME sanitized child
+ *      environment and SAME dedicated profile the SDK subprocess will
+ *      use, evaluated by the pure `authStatus.ts` (logged in, `claude.ai`
+ *      method, `firstParty` provider, `max` subscription when reported).
+ *      Any failure returns the provider-neutral `AUTH_FAILURE` outcome
+ *      with ZERO SDK-runner invocations.
  *   5. INVOCATION: the hermetic invocation (sdkOptions.ts) over the
- *      allowlist-built child environment (environment.ts), executed
- *      through the injected `AgentSdkRunner` seam — the provider itself
- *      imports no SDK and opens no socket.
+ *      allowlist-built child environment (environment.ts) and the resolved
+ *      executable, executed through the injected `AgentSdkRunner` seam —
+ *      the provider itself imports no SDK and opens no socket.
  *   6. BOUNDED TRANSIENT RETRY: the landed `retry.ts` helper, max 2
  *      retries, exponential backoff on the injected `Clock`. ONLY
  *      `PROVIDER_TRANSIENT` attempts retry; AUTH_FAILURE,
@@ -76,6 +86,10 @@ import { retryTransient } from '../retry.js';
 import { realClock, type Clock } from '../../orchestrator/clock.js';
 import { runClassifierPreflight } from './preflight.js';
 import { checkProfileHygiene } from './profileHygiene.js';
+import {
+  resolveProductionClaudeCodeExecutable,
+  type ClaudeCodeExecutableResolver,
+} from './claudeCodeExecutable.js';
 import { evaluateAuthStatus, type AuthStatusExecution } from './authStatus.js';
 import type { ClassifierAuthStatusRunner } from './authStatusRunner.js';
 import { buildChildEnvironment } from './environment.js';
@@ -103,6 +117,13 @@ export interface ClaudeMaxAgentProviderOptions {
   /** REQUIRED. Production: `createProductionAuthStatusRunner()`. Tests: a fake. */
   readonly authStatusRunner: ClassifierAuthStatusRunner;
   /**
+   * Resolves the SDK-bundled native Claude Code binary both subprocesses
+   * run. Defaults to the production resolver over this namespace's own
+   * package root (`claudeCodeExecutable.ts`); tests inject a fake that
+   * names a synthetic absolute path. Never a PATH lookup.
+   */
+  readonly claudeCodeExecutable?: ClaudeCodeExecutableResolver;
+  /**
    * The orchestration-process environment. Defaults to reading
    * `process.env` at `classify()` time — the ONE sanctioned read point.
    * Tests inject plain maps.
@@ -126,6 +147,7 @@ export interface ClaudeMaxAgentProviderOptions {
 export class ClaudeMaxAgentProvider implements ClassifierProvider {
   readonly #runner: AgentSdkRunner;
   readonly #authStatusRunner: ClassifierAuthStatusRunner;
+  readonly #claudeCodeExecutable: ClaudeCodeExecutableResolver;
   readonly #env: () => Readonly<Record<string, string | undefined>>;
   readonly #repoRoot: string;
   readonly #clock: Clock;
@@ -135,6 +157,8 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
   constructor(options: ClaudeMaxAgentProviderOptions) {
     this.#runner = options.runner;
     this.#authStatusRunner = options.authStatusRunner;
+    this.#claudeCodeExecutable =
+      options.claudeCodeExecutable ?? resolveProductionClaudeCodeExecutable;
     this.#env = options.env ?? (() => ({ ...process.env }));
     this.#repoRoot = options.repoRoot ?? process.cwd();
     this.#clock = options.clock ?? realClock;
@@ -165,6 +189,14 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
       return refusal(`pre-flight ${hygiene.kind}: ${hygiene.detail}`);
     }
 
+    // ONE resolution, ONE executable, for both subprocesses below. A
+    // refusal here opens no scratch directory and spawns nothing.
+    const executable = this.#claudeCodeExecutable();
+    if (!executable.ok) {
+      return refusal(`pre-flight CLAUDE_CODE_EXECUTABLE_${executable.kind}: ${executable.detail}`);
+    }
+    const executablePath = executable.provenance.executablePath;
+
     const scratch = await createScratchWorkspace();
     try {
       const childEnv = buildChildEnvironment({
@@ -172,11 +204,12 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
         configDir: preflight.profileDir,
       });
 
-      // The request-free stored-login check runs under the SAME environment
-      // and SAME profile the SDK subprocess will receive.
+      // The request-free stored-login check runs under the SAME environment,
+      // SAME profile and SAME executable the SDK subprocess will receive.
       let authStatusExecution: AuthStatusExecution;
       try {
         authStatusExecution = await this.#authStatusRunner.run({
+          executablePath,
           env: childEnv,
           cwd: scratch.scratchCwd,
         });
@@ -196,6 +229,7 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
         request,
         childEnv,
         scratchCwd: scratch.scratchCwd,
+        claudeCodeExecutablePath: executablePath,
       });
 
       interface AttemptOutcome {

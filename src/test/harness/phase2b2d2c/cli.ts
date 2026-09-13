@@ -225,6 +225,19 @@ export async function runCli(argv: readonly string[], io: CliIo): Promise<number
     );
     return 2;
   }
+  // F1A/F0B: execution happens only on the platform whose SDK-bundled binary
+  // the freeze PINS by hash. Plan mode verifies roots anywhere; execution
+  // does not proceed on a platform where the binary identity is merely
+  // recorded.
+  const runPlatform = loaded.freeze.classifier.claudeCodeExecutable.runPlatform;
+  const verifiedExecutables = verifications.map((v) => v.claudeCodeExecutable);
+  if (verifiedExecutables.some((e) => e === null || !e.onFrozenRunPlatform)) {
+    io.stderr(
+      `REFUSED: execution is frozen to ${runPlatform.platformKey}; this process is ` +
+        `${process.platform}-${process.arch}, where the SDK-bundled binary identity is not pinned.\n`,
+    );
+    return 2;
+  }
   const outputRootDecision = validateOutputRoot(
     options.outputRoot!,
     [RUNNER_REPO_ROOT, options.v1Root!, options.v2Root!, ...listWorktrees(RUNNER_REPO_ROOT)],

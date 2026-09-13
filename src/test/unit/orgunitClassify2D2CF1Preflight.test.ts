@@ -1,6 +1,6 @@
 /**
  * PHASE 2B-2D2C-F1 — preflight and freeze: the runner loads and
- * hash-verifies the F0A freeze, reads only the DEVELOPMENT canonical corpus
+ * hash-verifies the F0B freeze, reads only the DEVELOPMENT canonical corpus
  * and manifest, reconstructs the twelve frozen batches, verifies all twelve
  * assembly identities and all twenty-four final identities, and builds a
  * deterministic plan in the frozen v1-then-v2 order — all with zero
@@ -26,13 +26,14 @@ import {
 } from '../harness/phase2b2d2c/batches.js';
 import { parseCliArgs, runCli, type CliIo } from '../harness/phase2b2d2c/cli.js';
 import {
-  EXPECTED_F0A_FREEZE_RAW_SHA256,
+  EXPECTED_F0B_FREEZE_RAW_SHA256,
   EXPECTED_LOGICAL_EVALUATIONS,
   FREEZE_PATH,
   FROZEN_VARIANTS,
+  SUPERSEDED_F0A_FREEZE_RAW_SHA256,
 } from '../harness/phase2b2d2c/constants.js';
 import { loadDevCorpus } from '../harness/phase2b2d2c/corpus.js';
-import { FreezeDriftError, loadFreezeFromBytes } from '../harness/phase2b2d2c/freeze.js';
+import { FreezeDriftError, loadFreezeFromBytes, sha256Hex } from '../harness/phase2b2d2c/freeze.js';
 import { buildExecutionPlan, planOrderIsFrozen, planSha256 } from '../harness/phase2b2d2c/plan.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
@@ -55,12 +56,13 @@ function flipLastByte(bytes: Buffer): Buffer {
   return copy;
 }
 
-describe('2D2C-F1 preflight: the F0A freeze', () => {
+describe('2D2C-F1 preflight: the F0B freeze', () => {
   it('accepts the committed freeze bytes by exact raw SHA-256', () => {
     const loaded = loadFreezeFromBytes(FREEZE_BYTES);
-    expect(loaded.rawSha256).toBe(EXPECTED_F0A_FREEZE_RAW_SHA256);
-    expect(loaded.rawBytes).toBe(49_900);
-    expect(loaded.freeze.freezeRevision).toBe('F0A_INPUT_IDENTITY_CLOSURE');
+    expect(loaded.rawSha256).toBe(EXPECTED_F0B_FREEZE_RAW_SHA256);
+    expect(loaded.rawBytes).toBe(55_531);
+    expect(loaded.freeze.freezeRevision).toBe('F0B_AUTH_RUNTIME_PARITY');
+    expect(loaded.freeze.supersedesFreezeRawSha256).toBe(SUPERSEDED_F0A_FREEZE_RAW_SHA256);
     expect(loaded.freeze.batching.plan).toHaveLength(12);
     expect(loaded.freeze.classifier.variants.map((v) => v.name)).toEqual(
       FROZEN_VARIANTS.map((v) => v.name),
@@ -78,15 +80,45 @@ describe('2D2C-F1 preflight: the F0A freeze', () => {
     }
     expect(caught).toBeInstanceOf(FreezeDriftError);
     expect((caught as FreezeDriftError).stopCondition).toBe('CORPUS_CONFIG_OR_HASH_DRIFT');
-    expect((caught as Error).message).toContain(EXPECTED_F0A_FREEZE_RAW_SHA256);
+    expect((caught as Error).message).toContain(EXPECTED_F0B_FREEZE_RAW_SHA256);
     // Appending a byte is also a drift, even though the JSON would still parse.
     expect(() => loadFreezeFromBytes(Buffer.concat([FREEZE_BYTES, Buffer.from('\n')]))).toThrow(
       FreezeDriftError,
     );
-    // The superseded F0 hash is named in the freeze but is NOT the accepted hash.
+    // The superseded F0A hash is named in the freeze but is NOT the accepted hash.
     expect(loadFreezeFromBytes(FREEZE_BYTES).freeze.supersedesFreezeRawSha256).not.toBe(
-      EXPECTED_F0A_FREEZE_RAW_SHA256,
+      EXPECTED_F0B_FREEZE_RAW_SHA256,
     );
+  });
+
+  it('refuses the superseded F0A freeze bytes by exact hash, naming them as superseded (F0B rejects F0A)', () => {
+    // The exact F0A bytes are committed as a fixture (their hash is the F0A value)
+    // so the refusal is BEHAVIOURAL, not structural.
+    const f0aBytes = readFileSync(
+      join(ROOT, 'src/test/fixtures/phase2b2d2c/freeze-f0a-superseded.json'),
+    );
+    expect(sha256Hex(f0aBytes)).toBe(SUPERSEDED_F0A_FREEZE_RAW_SHA256);
+    let caught: unknown;
+    try {
+      loadFreezeFromBytes(f0aBytes);
+    } catch (error) {
+      caught = error;
+    }
+    expect(caught).toBeInstanceOf(FreezeDriftError);
+    expect((caught as Error).message).toContain('SUPERSEDED F0A');
+    expect(EXPECTED_F0B_FREEZE_RAW_SHA256).not.toBe(SUPERSEDED_F0A_FREEZE_RAW_SHA256);
+    expect(SUPERSEDED_F0A_FREEZE_RAW_SHA256).toBe(
+      '7b84ac0bca90086eea8fb59cdbd501317e3bfd53533fa529a85a8a44988ad6aa',
+    );
+    expect(FREEZE_BYTES.toString('utf8')).toContain(SUPERSEDED_F0A_FREEZE_RAW_SHA256);
+    // The freeze's own variants are the corrected commits, never the R2B/R3 base commits.
+    const { freeze } = loadFreezeFromBytes(FREEZE_BYTES);
+    for (const variant of freeze.classifier.variants) {
+      expect(variant.gitCommit).not.toBe(variant.runtimeBaseCommit);
+      expect(FROZEN_VARIANTS.find((v) => v.name === variant.name)?.gitCommit).toBe(
+        variant.gitCommit,
+      );
+    }
   });
 });
 
@@ -235,7 +267,7 @@ describe('2D2C-F1 preflight: the twelve frozen batches and their identities', ()
           : 'PROMPT_V2_CANDIDATE',
       );
     }
-    expect(plan.freezeConfigRawSha256).toBe(EXPECTED_F0A_FREEZE_RAW_SHA256);
+    expect(plan.freezeConfigRawSha256).toBe(EXPECTED_F0B_FREEZE_RAW_SHA256);
     // A reordered plan is not the frozen order.
     const reordered = { ...plan, evaluations: [...plan.evaluations].reverse() };
     expect(planOrderIsFrozen(reordered)).toBe(false);
@@ -299,7 +331,7 @@ describe('2D2C-F1 preflight: the default CLI is plan-only and reaches no launche
     expect(await runCli([], cliIo)).toBe(0);
     const text = out.join('');
     expect(text).toContain('PLAN ONLY');
-    expect(text).toContain(EXPECTED_F0A_FREEZE_RAW_SHA256);
+    expect(text).toContain(EXPECTED_F0B_FREEZE_RAW_SHA256);
     expect(text).toContain('24 logical evaluations');
     expect(launches()).toBe(0);
   });

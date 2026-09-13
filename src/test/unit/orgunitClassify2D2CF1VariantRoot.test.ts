@@ -35,6 +35,7 @@ import { createProductionClassifierProviderFromVariantRoot } from '../../../scri
 import {
   buildSyntheticVariantRoot,
   fakeGitProbes,
+  hostNativePackage,
   promptTextOf,
   V1,
   V2,
@@ -45,6 +46,8 @@ import {
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const { freeze } = loadFreezeFromBytes(readFileSync(join(ROOT, FREEZE_PATH)));
+/** The SDK-bundled native binary installed under this worktree, which a passing synthetic root hard-links. */
+const HOST_NATIVE = hostNativePackage(freeze);
 const SCRATCH = realpathSync.native(mkdtempSync(join(tmpdir(), 'nwf-pe-2d2c-f1-roots-')));
 afterAll(() => rmSync(SCRATCH, { recursive: true, force: true }));
 
@@ -92,54 +95,128 @@ describe('2D2C-F1 variant roots: the v1 comparator and v2 candidate prompt ident
   });
 });
 
-describe('2D2C-F1 variant roots: a correct synthetic root passes every check, loaded from the root', () => {
-  it.each([V1, V2])('$name', async (variant) => {
-    const root = synthetic({ variant });
-    const verification = await verifyVariantRoot(variant, root, freeze, probes(variant));
-    expect(verification.ok, JSON.stringify(verification.checks)).toBe(true);
-    expect(verification.checks.map((c) => c.id)).toEqual([
-      'PATH_ABSOLUTE_AND_REAL',
-      'CORRECT_REPOSITORY',
-      'HEAD_MATCHES_FROZEN_COMMIT',
-      'WORKTREE_CLEAN',
-      'AGENT_SDK_VERSION',
-      'BUILT_RUNTIME_PRESENT_AND_FRESH',
-      'RUNTIME_MODULES_LOADED_FROM_ROOT',
-      'PROMPT_VERSION_AND_HASH',
-      'RUNTIME_CONSTANTS',
-      'MODEL_ALLOWLIST',
-      'LIVENESS_CONSTANTS_STATIC_TEXT',
-    ]);
-    const runtime = verification.runtime!;
-    for (const module of SDK_FREE_RUNTIME_MODULES) {
-      expect(runtime.moduleUrls[module]).toContain(root);
-      expect(runtime.moduleUrls[module]).not.toContain(join(ROOT, 'dist'));
-    }
-    expect(runtime.prompt.ORGUNIT_CLASSIFIER_SYSTEM_PROMPT).toBe(promptTextOf(variant.name));
-    expect(runtime.prompt.ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe(variant.promptVersion);
-    expect(typeof runtime.canonical.canonicalStringify).toBe('function');
-    expect(typeof runtime.validate.validateClassifierResponse).toBe('function');
-  });
+describe.skipIf(HOST_NATIVE === null)(
+  '2D2C-F1 variant roots: a correct synthetic root passes every check, loaded from the root',
+  () => {
+    it.each([V1, V2])('$name', async (variant) => {
+      const root = synthetic({ variant });
+      const verification = await verifyVariantRoot(variant, root, freeze, probes(variant));
+      expect(verification.ok, JSON.stringify(verification.checks)).toBe(true);
+      expect(verification.checks.map((c) => c.id)).toEqual([
+        'PATH_ABSOLUTE_AND_REAL',
+        'CORRECT_REPOSITORY',
+        'HEAD_MATCHES_FROZEN_COMMIT',
+        'WORKTREE_CLEAN',
+        'AGENT_SDK_VERSION',
+        'BUILT_RUNTIME_PRESENT_AND_FRESH',
+        'RUNTIME_MODULES_LOADED_FROM_ROOT',
+        'PROMPT_VERSION_AND_HASH',
+        'RUNTIME_CONSTANTS',
+        'MODEL_ALLOWLIST',
+        'LIVENESS_CONSTANTS_STATIC_TEXT',
+        'RUNTIME_ENVIRONMENT_PASSTHROUGH',
+        'NATIVE_CLAUDE_CODE_EXECUTABLE',
+        'AUTH_AND_INFERENCE_SAME_EXECUTABLE',
+      ]);
+      // F1A: the verified executable is the root's own hard-linked copy of the
+      // installed native binary — a real path under the ROOT's node_modules,
+      // with the frozen SDK and Claude Code versions.
+      const executable = verification.claudeCodeExecutable!;
+      expect(executable.executablePath.startsWith(join(root, 'node_modules'))).toBe(true);
+      expect(executable.sdkVersion).toBe(freeze.classifier.agentSdk.version);
+      expect(executable.claudeCodeVersion).toBe(
+        freeze.classifier.claudeCodeExecutable.claudeCodeVersion,
+      );
+      expect(executable.nativePackageName).toBe(HOST_NATIVE!.name);
+      expect(executable.binarySha256).toBe(sha256Hex(readFileSync(HOST_NATIVE!.binary)));
+      expect(executable.onFrozenRunPlatform).toBe(
+        executable.platformKey === freeze.classifier.claudeCodeExecutable.runPlatform.platformKey,
+      );
+      const runtime = verification.runtime!;
+      for (const module of SDK_FREE_RUNTIME_MODULES) {
+        expect(runtime.moduleUrls[module]).toContain(root);
+        expect(runtime.moduleUrls[module]).not.toContain(join(ROOT, 'dist'));
+      }
+      expect(runtime.prompt.ORGUNIT_CLASSIFIER_SYSTEM_PROMPT).toBe(promptTextOf(variant.name));
+      expect(runtime.prompt.ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe(variant.promptVersion);
+      expect(typeof runtime.canonical.canonicalStringify).toBe('function');
+      expect(typeof runtime.validate.validateClassifierResponse).toBe('function');
+    });
 
-  it('no shared-runtime impersonation: one root cannot satisfy both variants, and an injected prompt has no entry point', async () => {
-    const v1Root = synthetic({ variant: V1 });
-    // Same root, other variant's Git facts: the root's OWN prompt export is what fails.
-    const asV2 = await verifyVariantRoot(V2, v1Root, freeze, probes(V2));
-    expect(asV2.ok).toBe(false);
-    expect(failedCheck(asV2)).toBe('PROMPT_VERSION_AND_HASH');
-    // Same root, its own Git facts, other variant's HEAD: fails on the commit before the prompt is even loaded.
-    const wrongHead = await verifyVariantRoot(
-      V1,
-      v1Root,
-      freeze,
-      probes(V1, { gitHead: () => `${V2.gitCommit}\n` }),
-    );
-    expect(failedCheck(wrongHead)).toBe('HEAD_MATCHES_FROZEN_COMMIT');
-    expect(wrongHead.runtime).toBeNull();
-    // The verifier's signature offers nowhere to pass a prompt string.
-    expect(verifyVariantRoot.length).toBe(4);
-  });
-});
+    it('F1A refusals, by exact check: a root without USER passthrough, without the native package, with a corrupted binary, or with legacy provider wiring', async () => {
+      expect(
+        failedCheck(
+          await verifyVariantRoot(
+            V1,
+            synthetic({ variant: V1, environmentWithoutUser: true }),
+            freeze,
+            probes(V1),
+          ),
+        ),
+      ).toBe('RUNTIME_ENVIRONMENT_PASSTHROUGH');
+      const missing = await verifyVariantRoot(
+        V1,
+        synthetic({ variant: V1, omitNativePackage: true }),
+        freeze,
+        probes(V1),
+      );
+      expect(failedCheck(missing)).toBe('NATIVE_CLAUDE_CODE_EXECUTABLE');
+      expect(missing.checks.at(-1)?.detail).toContain('NATIVE_PACKAGE_MISSING');
+      const corrupted = await verifyVariantRoot(
+        V1,
+        synthetic({ variant: V1, corruptNativeBinary: true }),
+        freeze,
+        probes(V1),
+      );
+      expect(failedCheck(corrupted)).toBe('NATIVE_CLAUDE_CODE_EXECUTABLE');
+      expect(corrupted.checks.at(-1)?.detail).toContain('CHECKSUM_MISMATCH');
+      const legacy = await verifyVariantRoot(
+        V1,
+        synthetic({ variant: V1, legacyProviderWiring: true }),
+        freeze,
+        probes(V1),
+      );
+      expect(failedCheck(legacy)).toBe('AUTH_AND_INFERENCE_SAME_EXECUTABLE');
+      expect(legacy.checks.at(-1)?.detail).toContain('PATH-resolved command');
+      for (const refused of [missing, corrupted, legacy]) {
+        expect(refused.ok).toBe(false);
+        expect(refused.claudeCodeExecutable).toBeNull();
+      }
+    });
+
+    it('a root at the UNCORRECTED R2B/R3 base commit is refused on HEAD before anything is loaded', async () => {
+      for (const variant of [V1, V2]) {
+        const refused = await verifyVariantRoot(
+          variant,
+          synthetic({ variant }),
+          freeze,
+          probes(variant, { gitHead: () => `${variant.runtimeBaseCommit}\n` }),
+        );
+        expect(failedCheck(refused)).toBe('HEAD_MATCHES_FROZEN_COMMIT');
+        expect(refused.runtime).toBeNull();
+      }
+    });
+
+    it('no shared-runtime impersonation: one root cannot satisfy both variants, and an injected prompt has no entry point', async () => {
+      const v1Root = synthetic({ variant: V1 });
+      // Same root, other variant's Git facts: the root's OWN prompt export is what fails.
+      const asV2 = await verifyVariantRoot(V2, v1Root, freeze, probes(V2));
+      expect(asV2.ok).toBe(false);
+      expect(failedCheck(asV2)).toBe('PROMPT_VERSION_AND_HASH');
+      // Same root, its own Git facts, other variant's HEAD: fails on the commit before the prompt is even loaded.
+      const wrongHead = await verifyVariantRoot(
+        V1,
+        v1Root,
+        freeze,
+        probes(V1, { gitHead: () => `${V2.gitCommit}\n` }),
+      );
+      expect(failedCheck(wrongHead)).toBe('HEAD_MATCHES_FROZEN_COMMIT');
+      expect(wrongHead.runtime).toBeNull();
+      // The verifier's signature offers nowhere to pass a prompt string.
+      expect(verifyVariantRoot.length).toBe(4);
+    });
+  },
+);
 
 describe('2D2C-F1 variant roots: every refusal, by exact check', () => {
   it('a relative path, a symlinked path or a non-directory is refused before any Git probe', async () => {
@@ -377,6 +454,34 @@ describe('2D2C-F1 variant roots: the execution-only loader, against a synthetic 
     expect(calls.repoRoot).toBe(root);
     expect(calls.envNames).toEqual(['NWF_PE_CLASSIFIER_CONFIG_DIR', 'PATH']);
     expect(captured).toEqual([]);
+  });
+
+  it('the loader forwards USER to the root provider by name when the child environment carries it, and never records its value', async () => {
+    const root = synthetic({ variant: V1 });
+    writeFakeProviderScenario(root, { result: { outcome: 'OK', rawOutput: {} } });
+    const handle = await createProductionClassifierProviderFromVariantRoot({
+      manifest: { variantRoot: root },
+      env: {
+        PATH: '/usr/bin',
+        USER: 'synthetic-account-marker',
+        NWF_PE_CLASSIFIER_CONFIG_DIR: '/tmp/profile',
+      },
+      onAttemptDiagnostics: () => {},
+    });
+    await handle.provider.classify({
+      systemPrompt: 'p',
+      serializedBatch: 'b',
+      outputJsonSchema: {},
+      modelId: freeze.classifier.requestedModelId,
+      runConfig: { maxTurns: 3, thinking: 'disabled' },
+    });
+    const calls = readFileSync(join(root, 'fake-provider-calls.json'), 'utf8');
+    expect((JSON.parse(calls) as { envNames: string[] }).envNames).toEqual([
+      'NWF_PE_CLASSIFIER_CONFIG_DIR',
+      'PATH',
+      'USER',
+    ]);
+    expect(calls).not.toContain('synthetic-account-marker');
   });
 
   it('refuses a root whose runtime liveness constants are not the frozen ones, before any seam is constructed', async () => {

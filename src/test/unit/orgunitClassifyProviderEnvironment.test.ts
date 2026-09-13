@@ -1,8 +1,10 @@
 /**
  * The sanitized child environment: allowlist-built, never a parent spread.
  * Covers the child-env secret-exclusion matrix (the prohibited setup-token
- * variable now included), the dedicated persistent CLAUDE_CONFIG_DIR, and
- * Windows case-insensitive OS passthrough.
+ * variable now included), the dedicated persistent CLAUDE_CONFIG_DIR,
+ * Windows case-insensitive OS passthrough, and the POSIX `USER` account
+ * name the macOS Keychain lookup requires (ADR 0010 Amendment A) — passed
+ * through when the parent supplies it, never substituted by `LOGNAME`.
  */
 import { describe, expect, it } from 'vitest';
 import {
@@ -100,6 +102,53 @@ describe('buildChildEnvironment', () => {
     for (const name of CLASSIFIER_CHILD_ENV_OS_PASSTHROUGH) {
       expect(Object.keys(child)).not.toContain(name);
     }
+  });
+
+  it('passes USER through when the parent supplies it (macOS Keychain selector, ADR 0010 Amendment A)', () => {
+    const child = buildChildEnvironment({
+      parentEnv: { USER: 'owner-account', PATH: '/usr/bin', HOME: '/home/owner' },
+      configDir: PROFILE_DIR,
+    });
+    expect(child.USER).toBe('owner-account');
+    expect(Object.keys(child).sort()).toEqual(
+      [
+        'CLAUDE_CONFIG_DIR',
+        ...Object.keys(CLASSIFIER_CHILD_ENV_FIXED),
+        'PATH',
+        'HOME',
+        'USER',
+      ].sort(),
+    );
+    expect(CLASSIFIER_CHILD_ENV_OS_PASSTHROUGH).toContain('USER');
+  });
+
+  it('LOGNAME alone is NOT treated as USER, and LOGNAME itself never crosses (measured: it does not select the Keychain login)', () => {
+    const child = buildChildEnvironment({
+      parentEnv: { LOGNAME: 'owner-account', PATH: '/usr/bin' },
+      configDir: PROFILE_DIR,
+    });
+    expect(Object.keys(child)).not.toContain('USER');
+    expect(Object.keys(child)).not.toContain('LOGNAME');
+    expect(CLASSIFIER_CHILD_ENV_OS_PASSTHROUGH).not.toContain('LOGNAME');
+    const both = buildChildEnvironment({
+      parentEnv: { LOGNAME: 'other-account', USER: 'owner-account' },
+      configDir: PROFILE_DIR,
+    });
+    expect(both.USER).toBe('owner-account');
+    expect(Object.keys(both)).not.toContain('LOGNAME');
+  });
+
+  it('never spreads the parent: an arbitrary parent variable never crosses, whatever its name', () => {
+    const parentEnv: Record<string, string> = { PATH: '/usr/bin', USER: 'owner-account' };
+    for (let i = 0; i < 40; i += 1) parentEnv[`UNRELATED_PARENT_VARIABLE_${i}`] = `value-${i}`;
+    const child = buildChildEnvironment({ parentEnv, configDir: PROFILE_DIR });
+    const permitted = new Set([
+      'CLAUDE_CONFIG_DIR',
+      ...Object.keys(CLASSIFIER_CHILD_ENV_FIXED),
+      ...CLASSIFIER_CHILD_ENV_OS_PASSTHROUGH,
+    ]);
+    for (const name of Object.keys(child)) expect(permitted.has(name), name).toBe(true);
+    expect(JSON.stringify(child)).not.toContain('value-');
   });
 
   it('throws when the profile directory is blank - the builder is not a second, softer gate', () => {

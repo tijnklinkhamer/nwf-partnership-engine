@@ -27,6 +27,8 @@ import * as finalIdentityModule from '../../orgunits/classify/finalIdentity.js';
 import * as outputSchemaModule from '../../orgunits/classify/outputSchema.js';
 import * as allowedModelsModule from '../../orgunits/classify/provider/allowedModels.js';
 import * as authStatusRunnerModule from '../../orgunits/classify/provider/authStatusRunner.js';
+import * as claudeCodeExecutableModule from '../../orgunits/classify/provider/claudeCodeExecutable.js';
+import * as environmentModule from '../../orgunits/classify/provider/environment.js';
 import * as sdkOptionsModule from '../../orgunits/classify/provider/sdkOptions.js';
 import type {
   ClassifierProviderRequest,
@@ -102,6 +104,8 @@ function fakeRuntime(overrides: Partial<LoadedVariantRuntime> = {}): LoadedVaria
         'allowedModels',
         'sdkOptions',
         'authStatusRunner',
+        'environment',
+        'claudeCodeExecutable',
       ].map((m) => [m, `file://${VARIANT_ROOT}/dist/${m}.js`]),
     ) as LoadedVariantRuntime['moduleUrls'],
     canonical: canonicalModule,
@@ -119,6 +123,8 @@ function fakeRuntime(overrides: Partial<LoadedVariantRuntime> = {}): LoadedVaria
     allowedModels: allowedModelsModule,
     sdkOptions: sdkOptionsModule,
     authStatusRunner: authStatusRunnerModule,
+    environment: environmentModule,
+    claudeCodeExecutable: claudeCodeExecutableModule,
     ...overrides,
   };
 }
@@ -230,6 +236,7 @@ function harness(
       ok: options.rootOk ?? true,
       checks: [{ id: 'PATH_ABSOLUTE_AND_REAL', ok: options.rootOk ?? true, detail: 'fake' }],
       runtime: (options.rootOk ?? true) ? runtime : null,
+      claudeCodeExecutable: null,
     }),
     providerFactory: {
       create: async (input) => {

@@ -22,8 +22,9 @@ import {
 } from '../harness/phase2b2d2c/authorisation.js';
 import { runCli, type CliIo } from '../harness/phase2b2d2c/cli.js';
 import {
-  EXPECTED_F0A_FREEZE_RAW_SHA256,
+  EXPECTED_F0B_FREEZE_RAW_SHA256,
   FROZEN_VARIANTS,
+  SUPERSEDED_F0A_FREEZE_RAW_SHA256,
 } from '../harness/phase2b2d2c/constants.js';
 import { sha256Hex } from '../harness/phase2b2d2c/freeze.js';
 
@@ -37,7 +38,7 @@ function validAuthorisation(
   return {
     authorisationVersion: AUTHORISATION_VERSION,
     scope: 'DEVELOPMENT_ONLY',
-    freezeConfigRawSha256: EXPECTED_F0A_FREEZE_RAW_SHA256,
+    freezeConfigRawSha256: EXPECTED_F0B_FREEZE_RAW_SHA256,
     variants: FROZEN_VARIANTS.map((v) => ({
       name: v.name,
       label: v.label,
@@ -82,11 +83,15 @@ function lock(
 }
 
 describe('2D2C-F1 double execution lock: the schema and the statement', () => {
-  it('pins one unmistakable statement naming the scope, the count, the order and the F0A hash', () => {
+  it('pins one unmistakable statement naming the scope, the count, the order and the F0B hash — never the F0A hash', () => {
+    expect(AUTHORISATION_STATEMENT).toContain('F0B FREEZE');
+    expect(AUTHORISATION_STATEMENT).not.toContain(SUPERSEDED_F0A_FREEZE_RAW_SHA256);
+    expect(AUTHORISATION_STATEMENT).not.toContain('F0A');
+    expect(EXPECTED_F0B_FREEZE_RAW_SHA256).not.toBe(SUPERSEDED_F0A_FREEZE_RAW_SHA256);
     expect(AUTHORISATION_STATEMENT).toContain('DEVELOPMENT-ONLY');
     expect(AUTHORISATION_STATEMENT).toContain('AT MOST 24');
     expect(AUTHORISATION_STATEMENT).toContain('12 PROMPT_V1_CANONICAL THEN 12 PROMPT_V2_CANONICAL');
-    expect(AUTHORISATION_STATEMENT).toContain(EXPECTED_F0A_FREEZE_RAW_SHA256);
+    expect(AUTHORISATION_STATEMENT).toContain(EXPECTED_F0B_FREEZE_RAW_SHA256);
     expect(AUTHORISATION_STATEMENT).toContain('NO HOLDOUT');
   });
 
@@ -139,6 +144,22 @@ describe('2D2C-F1 double execution lock: every refusal', () => {
     expect(refusalOf(lock(null, { rawText: '{not json' }))).toBe('AUTHORISATION_MALFORMED');
     expect(refusalOf(lock({}))).toBe('AUTHORISATION_MALFORMED');
     expect(refusalOf(lock({ ...validAuthorisation(), extra: 1 }))).toBe('AUTHORISATION_MALFORMED');
+  });
+
+  it('an authorisation carrying the superseded F0A freeze hash is refused as malformed, in the pinned field and in the statement (F0B rejects F0A)', () => {
+    expect(
+      lock(validAuthorisation({ freezeConfigRawSha256: SUPERSEDED_F0A_FREEZE_RAW_SHA256 })),
+    ).toMatchObject({ granted: false, refusal: 'AUTHORISATION_MALFORMED' });
+    expect(
+      lock(
+        validAuthorisation({
+          operatorAuthorisationStatement: AUTHORISATION_STATEMENT.replace(
+            EXPECTED_F0B_FREEZE_RAW_SHA256,
+            SUPERSEDED_F0A_FREEZE_RAW_SHA256,
+          ).replace('F0B FREEZE', 'F0A FREEZE'),
+        }),
+      ),
+    ).toMatchObject({ granted: false, refusal: 'AUTHORISATION_MALFORMED' });
   });
 
   it('every pinned value is checked: freeze hash, scope, version, count, statement', () => {

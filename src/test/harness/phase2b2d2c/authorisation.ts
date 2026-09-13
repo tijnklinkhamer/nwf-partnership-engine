@@ -6,9 +6,11 @@
  * enables execution. The schema is CLOSED (`strictObject`): a file with an
  * extra field, a missing field, a wrong value or a wrong type is refused.
  * Every pinned value must equal what the runner itself has verified — the
- * F0A freeze hash, both variant names, labels and commits, the maximum
- * evaluation count, the operator attempt number and the exact output root —
- * and the statement must equal `AUTHORISATION_STATEMENT` byte for byte.
+ * F0B freeze hash (F1A/F0B: the F0A hash is REFUSED, both as the pinned
+ * literal and inside the statement), both variant names, labels and
+ * CORRECTED runtime commits, the maximum evaluation count, the operator
+ * attempt number and the exact output root — and the statement must equal
+ * `AUTHORISATION_STATEMENT` byte for byte.
  *
  * The lock is evaluated BEFORE any production provider construction, any
  * authentication-status invocation, any child execution and any
@@ -20,7 +22,7 @@
 import { isAbsolute } from 'node:path';
 import { z } from 'zod';
 import {
-  EXPECTED_F0A_FREEZE_RAW_SHA256,
+  EXPECTED_F0B_FREEZE_RAW_SHA256,
   EXPECTED_LOGICAL_EVALUATIONS,
   FROZEN_VARIANTS,
 } from './constants.js';
@@ -30,8 +32,8 @@ export const AUTHORISATION_VERSION = 'phase2b-2d2c-f1-execution-authorisation-v1
 /** The one unmistakable operator statement. Compared byte for byte; never normalised. */
 export const AUTHORISATION_STATEMENT =
   'I AUTHORISE PHASE 2B-2D2C DEVELOPMENT-ONLY EXECUTION OF AT MOST 24 LOGICAL ' +
-  'EVALUATIONS (12 PROMPT_V1_CANONICAL THEN 12 PROMPT_V2_CANONICAL) AGAINST THE F0A ' +
-  'FREEZE 7b84ac0bca90086eea8fb59cdbd501317e3bfd53533fa529a85a8a44988ad6aa. ' +
+  'EVALUATIONS (12 PROMPT_V1_CANONICAL THEN 12 PROMPT_V2_CANONICAL) AGAINST THE F0B ' +
+  `FREEZE ${EXPECTED_F0B_FREEZE_RAW_SHA256}. ` +
   'NO HOLDOUT. NO GOLD LABEL CHANGE. NO DATABASE.';
 
 const GitSha = z.string().regex(/^[0-9a-f]{40}$/);
@@ -40,7 +42,7 @@ const UtcInstant = z.iso.datetime({ offset: false });
 export const ExecutionAuthorisationSchema = z.strictObject({
   authorisationVersion: z.literal(AUTHORISATION_VERSION),
   scope: z.literal('DEVELOPMENT_ONLY'),
-  freezeConfigRawSha256: z.literal(EXPECTED_F0A_FREEZE_RAW_SHA256),
+  freezeConfigRawSha256: z.literal(EXPECTED_F0B_FREEZE_RAW_SHA256),
   variants: z
     .array(
       z.strictObject({

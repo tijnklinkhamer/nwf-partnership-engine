@@ -192,3 +192,152 @@ semantic-classifier rows.
 - An auth-status output format change that breaks the evaluator (the
   runtime fails closed until a human re-verifies the contract).
 - Everything ADR 0009 §5 already lists.
+
+---
+
+## 7. Amendment A (2026-09-13) — macOS Keychain, the `USER` selector, and the SDK-bundled executable (Phase 2B-2D2C-F1A/F0B)
+
+_Appended by the 2D2C-F1A/F0B correction. §§1–6 above are left exactly as
+accepted on 2026-08-31; this section records what a later measurement
+showed and what changed because of it. It corrects the mechanism by which
+the stored login is REACHED and CHECKED; it does not change the decision
+that the stored subscription login inside a dedicated profile is the only
+authentication mechanism, nor any hermeticity control._
+
+Claims are tagged **FACT**, **DESIGN DECISION**, or **UNKNOWN**, as above.
+
+### 7.1 What was measured (Phase 2B-2D2C-F2, 2026-09-13)
+
+**FACT (own measurement, macOS darwin 25.6.0, Claude Code 2.1.270 external,
+2.1.251 SDK-bundled):** after a successful interactive `/login` inside the
+dedicated profile, the profile holds NO `.credentials.json`. The stored
+subscription login lives in the macOS Keychain. The request-free
+`auth status --json`, run under the EXACT production child environment of
+§2.6 (`CLAUDE_CONFIG_DIR`, the six fixed isolation flags, `PATH`, `HOME`),
+reported `loggedIn: false`. Adding the single variable `USER` (the POSIX
+account NAME) made the same command report `loggedIn: true`,
+`authMethod: claude.ai`, `apiProvider: firstParty`, `subscriptionType: max`.
+A present-but-wrong `USER` failed identically to an absent one. `LOGNAME`,
+`TMPDIR`, `SHELL`, `LANG`, `TERM` and `__CF_USER_TEXT_ENCODING` each made no
+difference. The SDK-bundled 2.1.251 native binary behaves exactly as the
+external 2.1.270 CLI in every one of these cells.
+
+**FACT (own measurement):** the interactive onboarding launch that the
+§2.1 login procedure prescribes writes a `settings.json` into a fresh
+profile directory BEFORE the login completes — it is the CLI's own
+onboarding output, not an operator-added file. Neither the external CLI nor
+the SDK-bundled binary recreated it during subsequent request-free
+`auth status --json` executions.
+
+**FACT (installed package metadata, both frozen runtime roots):** the
+pinned Agent SDK `0.3.251` declares `claudeCodeVersion: "2.1.251"`, ships
+a `manifest.json` recording a per-platform binary checksum and size, and
+resolves its Claude Code executable from the optional platform package
+`@anthropic-ai/claude-agent-sdk-<platform>-<arch>` (here
+`…-darwin-arm64@0.3.251`, a Mach-O arm64 executable of 197,171,680 bytes,
+SHA-256 `625869b01e0050f260b2980fac248fd9cef9e462612bded4ec9d3d49ff8969a5`,
+identical in both roots) unless the documented option
+`pathToClaudeCodeExecutable` overrides it. The production auth-status
+runner of §2.6 meanwhile resolved a bare `claude` through `PATH` — the
+operator's external 2.1.270 installation. The preflight oracle and the
+inference subprocess were therefore two different executables.
+
+### 7.2 Four things this amendment keeps apart
+
+1. **Config-directory isolation** (`CLAUDE_CONFIG_DIR`) — unchanged. It
+   redirects where Claude Code reads and writes ITS OWN configuration and
+   state, and is what keeps Runtime Claude out of the owner's `~/.claude`.
+2. **Credential storage** — on this macOS, Keychain-backed, not a file under
+   the profile. §1's factual basis ("when `CLAUDE_CONFIG_DIR` is set,
+   Claude Code keeps `.credentials.json` under that directory") describes
+   the documented file-based storage; it does not describe the measured
+   2.1.270/2.1.251 behaviour on this Mac. The DISCREPANCY between current
+   documentation and measured behaviour is recorded here as a fact about
+   this machine and these versions, not resolved.
+3. **The `USER` selector** — empirically required for the Keychain lookup.
+   `USER` is an account NAME, not a secret and not Claude state; it is now
+   forwarded by the production child-environment builder and by the F1
+   Tier-2 child allowlist (POSIX only), under its own name only. Its VALUE
+   is never logged, hashed or persisted by this engine — tests and reports
+   record presence or absence. **UNKNOWN:** the root cause inside Claude
+   Code — why `USER` and not the Keychain's own session context or
+   `LOGNAME` selects the entry — is not known to this repository and is not
+   claimed.
+4. **The executable** — the exact SDK-bundled native binary of the exact
+   installed SDK, resolved and verified once per `classify()` and used for
+   BOTH the request-free auth-status preflight and the Agent SDK inference
+   subprocess. The external `claude` on `PATH` is no longer accepted as the
+   inference preflight oracle: it may be any version, it may be absent, and
+   it is not what the SDK runs.
+
+### 7.3 Decision
+
+**DESIGN DECISION.**
+
+- `CLASSIFIER_CHILD_ENV_OS_PASSTHROUGH` gains `USER`. `LOGNAME` is
+  deliberately NOT admitted (measured: not equivalent). Nothing else
+  crosses; the builder still never spreads the parent environment; every
+  credential, provider-routing, database, debug and transcript variable is
+  still excluded.
+- A new, fourteenth provider module, `claudeCodeExecutable.ts`, is the ONE
+  deterministic resolver of the SDK-bundled native executable. It names
+  the SDK package to locate it on disk and never imports it; it fails
+  closed, by named kind, on a missing optional native package, a path
+  outside the package root's `node_modules/`, a symlink or non-regular
+  file, any version disagreement between the SDK, its declared optional
+  dependency, the native package and the SDK's own manifest, a
+  non-executable binary, a byte-length or SHA-256 mismatch against the
+  manifest, an unsupported platform, and an ambiguous resolution (Node's
+  resolver from the SDK's own location finding a different file). It
+  returns non-sensitive provenance (package names and versions, Claude
+  Code version, platform key, byte length, SHA-256) that runners pin and
+  audits print.
+- `authStatusRunner.ts` no longer holds a command name. The invocation
+  carries the resolved ABSOLUTE executable path; a relative path is
+  refused; the argument vector, timeout and single `child_process` import
+  site are unchanged; no shell is ever used.
+- `sdkOptions.ts` sets the SDK's documented `pathToClaudeCodeExecutable`
+  to that same resolved path and refuses a non-absolute value;
+  `agentSdkRunner.ts` passes it through unchanged. `settingSources: []`,
+  `persistSession: false`, empty tools/MCP/skills/plugins and every
+  liveness control are untouched, and no input-identity component changes.
+- `ClaudeMaxAgentProvider.classify()` resolves once, after profile hygiene
+  and before the scratch workspace, and hands the one path to both seams.
+  A resolution refusal is a provider-neutral `AUTH_FAILURE` with zero
+  subprocesses.
+- **Profile hygiene is NOT weakened.** `settings.json` remains a forbidden
+  entry: it is a semantic and executable settings surface (environment
+  blocks, hooks, credential helpers) whatever wrote it. The classifier
+  profile must be cleaned through a RECOVERABLE, NAMES-ONLY quarantine
+  before use: the operator moves exactly `settings.json` — never opened,
+  never parsed, never deleted — into an owner-only directory outside every
+  repository, worktree, authorisation directory and output root, then
+  re-runs the request-free auth-status check. On this Mac that quarantine
+  left the login intact and the file was not recreated by either binary.
+  If a future CLI recreates it on a headless launch, that is a new finding
+  for a new decision, not a reason to allow the entry.
+
+### 7.4 Firewall evolution
+
+- the provider namespace grows from thirteen to FOURTEEN pinned modules;
+- exactly one module IMPORTS the Agent SDK (`agentSdkRunner.ts`) and
+  exactly one other module may NAME it, in one constant, without importing
+  it (`claudeCodeExecutable.ts`);
+- the child-process site holds no command name, executes only
+  `invocation.executablePath` after an absoluteness check, with
+  `shell: false`;
+- the provider resolves exactly once and both seams receive the same path;
+  the builder and runner pass `pathToClaudeCodeExecutable` through; no
+  provider module consults `PATH` or a `which`-style lookup;
+- `USER` is asserted present in the OS passthrough and `LOGNAME` absent.
+
+### 7.5 Future conditions requiring a new decision
+
+- Claude Code moving the stored login back into a file under
+  `CLAUDE_CONFIG_DIR`, or the Keychain lookup ceasing to depend on `USER`:
+  the `USER` passthrough should then be re-measured and, if unneeded,
+  removed.
+- A pinned SDK version whose package no longer ships `manifest.json`, or
+  changes the native-package layout: the resolver fails closed until a
+  human re-verifies the contract.
+- Anything in §6 above.

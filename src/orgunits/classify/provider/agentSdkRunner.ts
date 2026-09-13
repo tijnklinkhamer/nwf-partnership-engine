@@ -509,6 +509,10 @@ export function createProductionAgentSdkRunner(): AgentSdkRunner {
         cwd: invocation.options.cwd,
         thinking: invocation.options.thinking,
         ...(invocation.options.effort !== undefined ? { effort: invocation.options.effort } : {}),
+        // The exact SDK-bundled native binary the auth-status preflight ran
+        // (ADR 0010 Amendment A): passed through the SDK's documented option,
+        // never left to the SDK's implicit default.
+        pathToClaudeCodeExecutable: invocation.options.pathToClaudeCodeExecutable,
         // Runtime controls, added HERE and only here — never in the pure
         // invocation builder, never in any input identity.
         abortController,

@@ -94,21 +94,42 @@ describe('2D2C-F1 isolation: the child environment allowlist', () => {
     [CLASSIFIER_PROFILE_DIR_VARIABLE, '/ambient/profile'],
   ]);
 
-  it('POSIX: exactly PATH, TMPDIR, TMP, TEMP, HOME plus the explicit classifier directory; nothing forbidden', () => {
+  it('POSIX: exactly PATH, TMPDIR, TMP, TEMP, HOME, USER plus the explicit classifier directory; nothing forbidden', () => {
     const env = buildRunnerChildEnvironment({
-      parentEnv: noisyParent,
+      parentEnv: { ...noisyParent, USER: 'owner-account', LOGNAME: 'owner-account' },
       platform: 'posix',
       classifierConfigDir: '/explicit/profile',
     });
     expect(Object.keys(env).sort()).toEqual(
-      ['HOME', CLASSIFIER_PROFILE_DIR_VARIABLE, 'PATH', 'TEMP', 'TMP', 'TMPDIR'].sort(),
+      ['HOME', CLASSIFIER_PROFILE_DIR_VARIABLE, 'PATH', 'TEMP', 'TMP', 'TMPDIR', 'USER'].sort(),
     );
     expect(env[CLASSIFIER_PROFILE_DIR_VARIABLE]).toBe('/explicit/profile');
+    expect(env['USER']).toBe('owner-account');
+    expect('LOGNAME' in env).toBe(false);
     for (const name of FORBIDDEN_NAMES) expect(name in env, name).toBe(false);
-    expect(RUNNER_CHILD_ENV_OS_ALLOWLIST.posix).toEqual(['PATH', 'TMPDIR', 'TMP', 'TEMP', 'HOME']);
+    expect(RUNNER_CHILD_ENV_OS_ALLOWLIST.posix).toEqual([
+      'PATH',
+      'TMPDIR',
+      'TMP',
+      'TEMP',
+      'HOME',
+      'USER',
+    ]);
   });
 
-  it('Windows: exactly PATH, TMP, TEMP, USERPROFILE, SystemRoot, ComSpec plus the explicit directory, with case-insensitive lookup', () => {
+  it('POSIX: USER crosses only under its own name and only when the parent supplies it; LOGNAME alone yields no USER (ADR 0010 Amendment A)', () => {
+    const withoutUser = buildRunnerChildEnvironment({
+      parentEnv: { ...noisyParent, LOGNAME: 'owner-account' },
+      platform: 'posix',
+      classifierConfigDir: '/explicit/profile',
+    });
+    expect('USER' in withoutUser).toBe(false);
+    expect('LOGNAME' in withoutUser).toBe(false);
+    expect(RUNNER_CHILD_ENV_ALLOWLIST).toContain('USER');
+    expect(RUNNER_CHILD_ENV_ALLOWLIST).not.toContain('LOGNAME');
+  });
+
+  it('Windows: exactly PATH, TMP, TEMP, USERPROFILE, SystemRoot, ComSpec plus the explicit directory, with case-insensitive lookup — and NO USER (unchanged by F1A)', () => {
     const env = buildRunnerChildEnvironment({
       parentEnv: {
         ...noisyParent,
@@ -116,6 +137,8 @@ describe('2D2C-F1 isolation: the child environment allowlist', () => {
         USERPROFILE: undefined,
         Path: 'C:\\bin',
         userprofile: 'C:\\Users\\y',
+        USER: 'owner-account',
+        USERNAME: 'owner-account',
       },
       platform: 'win32',
       classifierConfigDir: 'C:\\profile',
@@ -133,6 +156,8 @@ describe('2D2C-F1 isolation: the child environment allowlist', () => {
     );
     expect(env['PATH']).toBe('C:\\bin');
     expect(env['USERPROFILE']).toBe('C:\\Users\\y');
+    expect('USER' in env).toBe(false);
+    expect('USERNAME' in env).toBe(false);
     for (const name of FORBIDDEN_NAMES) expect(name in env, name).toBe(false);
     expect(RUNNER_CHILD_ENV_OS_ALLOWLIST.win32).toEqual([
       'PATH',
@@ -198,6 +223,8 @@ describe.skipIf(IS_WINDOWS)(
       const childEnv = buildRunnerChildEnvironment({
         parentEnv: {
           ...process.env,
+          USER: 'synthetic-account-marker',
+          LOGNAME: 'synthetic-logname-marker',
           DATABASE_URL_ADMIN: 'postgres://never',
           NODE_OPTIONS: '--never',
         },
@@ -228,6 +255,12 @@ describe.skipIf(IS_WINDOWS)(
       for (const name of names) expect(permitted.has(name), name).toBe(true);
       expect(names).toContain(HARNESS_SCRATCH_DIR_VARIABLE);
       expect(names).toContain(CLASSIFIER_PROFILE_DIR_VARIABLE);
+      // The child SEES the USER name (ADR 0010 Amendment A) but its dump records NAMES only, never the value.
+      expect(names).toContain('USER');
+      expect(names).not.toContain('LOGNAME');
+      expect(readFileSync(join(attemptDir, 'child-preflight.json'), 'utf8')).not.toContain(
+        'synthetic-account-marker',
+      );
       for (const name of FORBIDDEN_NAMES) expect(names).not.toContain(name);
       expect(read.envelope.record.execArgv).toEqual([]);
       expect(spawned).not.toBeNull();

@@ -109,8 +109,16 @@ const EXPECTED = {
   v2PromptSha256: '181a5d6fec9763be5a57e7e4d08c7d8c8a9d9e21838df2ea3e05dd680e4c7635',
   sdkVersion: '0.3.251',
   unresolvedGoldId: 'ge789b0f0aedc398c',
-  freezeRevision: 'F0A_INPUT_IDENTITY_CLOSURE',
-  supersededFreezeRawSha256: '422873a11d3876e4aa24b250cbc484a7f66b3100f1e3cda08d733a11c40a7164',
+  freezeRevision: 'F0B_AUTH_RUNTIME_PARITY',
+  f0aRevision: 'F0A_INPUT_IDENTITY_CLOSURE',
+  supersededFreezeRawSha256: '7b84ac0bca90086eea8fb59cdbd501317e3bfd53533fa529a85a8a44988ad6aa',
+  f0FreezeRawSha256: '422873a11d3876e4aa24b250cbc484a7f66b3100f1e3cda08d733a11c40a7164',
+  correctedV1: '0d2928a474796b89fad0644e99b5b934ecad10d0',
+  correctedV2: 'c37dd5a73d0f285b97a0a9a43bf0e42be8fc99c7',
+  claudeCodeVersion: '2.1.251',
+  runPlatformKey: 'darwin-arm64',
+  runBinaryBytes: 197171680,
+  runBinarySha256: '625869b01e0050f260b2980fac248fd9cef9e462612bded4ec9d3d49ff8969a5',
   ruleVersion: 'orgunit-signal-rules-v1',
   fetchPolicyVersion: 'orgunit-fetch-policy-v1',
   assemblyVersion: 'orgunit-classifier-assembly-v2',
@@ -306,6 +314,7 @@ interface FreezeVariant {
   readonly role: string;
   readonly order: number;
   readonly gitCommit: string;
+  readonly runtimeBaseCommit: string;
   readonly promptVersion: string;
   readonly runtimePromptCharacters: number;
   readonly runtimePromptUtf8Bytes: number;
@@ -367,7 +376,10 @@ interface Freeze {
     readonly r1EvidenceCanonicalisation: { readonly commit: string };
     readonly r2bHardLiveness: { readonly commit: string };
     readonly r3PromptV2: { readonly commit: string };
+    readonly correctedRuntimeV1: { readonly commit: string; readonly basedOn: string };
+    readonly correctedRuntimeV2: { readonly commit: string; readonly basedOn: string };
     readonly freezeBranchBasedOn: string;
+    readonly requiredAncestry: readonly string[];
   };
   readonly corpus: Record<string, unknown> & {
     readonly scope: string;
@@ -412,8 +424,36 @@ interface Freeze {
     readonly assemblyVersion: string;
     readonly outputSchemaVersion: string;
     readonly runConfig: Record<string, unknown>;
-    readonly invocationSurfaceFrozenByReference: { readonly absent: readonly string[] };
+    readonly invocationSurfaceFrozenByReference: {
+      readonly absent: readonly string[];
+      readonly pathToClaudeCodeExecutable: string;
+    };
     readonly variants: readonly FreezeVariant[];
+    readonly claudeCodeExecutable: {
+      readonly source: string;
+      readonly sdkPackage: string;
+      readonly sdkVersion: string;
+      readonly claudeCodeVersion: string;
+      readonly nativePackagePrefix: string;
+      readonly sameExecutableForAuthStatusAndInference: boolean;
+      readonly externalPathCliAcceptedAsPreflightOracle: boolean;
+      readonly runPlatform: {
+        readonly platform: string;
+        readonly arch: string;
+        readonly platformKey: string;
+        readonly nativePackage: string;
+        readonly nativePackageVersion: string;
+        readonly binaryFileName: string;
+        readonly binaryBytes: number;
+        readonly binarySha256: string;
+      };
+    };
+    readonly childEnvironment: {
+      readonly posixOsPassthroughAddition: string;
+      readonly valueRecorded: boolean;
+      readonly lognameIsSubstitute: boolean;
+      readonly windowsAllowlistChanged: boolean;
+    };
   };
   readonly liveness: {
     readonly tier1: {
@@ -941,8 +981,16 @@ describe('2D2C-F0 freeze: classifier configuration against production exports', 
       },
       childEnv: {},
       scratchCwd: '/nonexistent-scratch',
+      claudeCodeExecutablePath: '/nonexistent-root/node_modules/synthetic-native/claude',
     });
     const options = invocation.options as unknown as Record<string, unknown>;
+    // F0B: the SDK's documented executable option is set explicitly, to the given path.
+    expect(invocation.options.pathToClaudeCodeExecutable).toBe(
+      '/nonexistent-root/node_modules/synthetic-native/claude',
+    );
+    expect(
+      FREEZE.classifier.invocationSurfaceFrozenByReference.pathToClaudeCodeExecutable,
+    ).toContain('claudeCodeExecutable.ts');
     expect('effort' in options).toBe(false);
     for (const sampling of ['temperature', 'topP', 'topK', 'top_p', 'top_k', 'fallbackModel']) {
       expect(sampling in options).toBe(false);
@@ -960,13 +1008,14 @@ describe('2D2C-F0 freeze: classifier configuration against production exports', 
     expect(invocation.options.plugins).toEqual([]);
   });
 
-  it('the two variants are v1 then v2, at the R2B and R3 commits, with the pinned prompt identities', () => {
+  it('the two variants are v1 then v2, at the CORRECTED runtime commits built from R2B and R3, with the pinned prompt identities', () => {
     const [v1, v2] = FREEZE.classifier.variants;
     expect(FREEZE.classifier.variants).toHaveLength(2);
     expect(v1!.name).toBe('PROMPT_V1_CANONICAL');
     expect(v1!.role).toBe('comparator');
     expect(v1!.order).toBe(1);
-    expect(v1!.gitCommit).toBe(EXPECTED.r2b);
+    expect(v1!.gitCommit).toBe(EXPECTED.correctedV1);
+    expect(v1!.runtimeBaseCommit).toBe(EXPECTED.r2b);
     expect(v1!.promptVersion).toBe('orgunit-classifier-prompt-v1');
     expect(v1!.runtimePromptCharacters).toBe(9887);
     expect(v1!.runtimePromptUtf8Bytes).toBe(9963);
@@ -974,7 +1023,23 @@ describe('2D2C-F0 freeze: classifier configuration against production exports', 
     expect(v2!.name).toBe('PROMPT_V2_CANONICAL');
     expect(v2!.role).toBe('candidate');
     expect(v2!.order).toBe(2);
-    expect(v2!.gitCommit).toBe(EXPECTED.r3);
+    expect(v2!.gitCommit).toBe(EXPECTED.correctedV2);
+    expect(v2!.runtimeBaseCommit).toBe(EXPECTED.r3);
+    // F0B: neither variant may sit at its uncorrected base commit.
+    expect(v1!.gitCommit).not.toBe(EXPECTED.r2b);
+    expect(v2!.gitCommit).not.toBe(EXPECTED.r3);
+    expect(FREEZE.git.correctedRuntimeV1).toMatchObject({
+      commit: EXPECTED.correctedV1,
+      basedOn: EXPECTED.r2b,
+    });
+    expect(FREEZE.git.correctedRuntimeV2).toMatchObject({
+      commit: EXPECTED.correctedV2,
+      basedOn: EXPECTED.r3,
+    });
+    expect(FREEZE.git.requiredAncestry).toContain(
+      'correctedRuntimeV1 descends from r2bHardLiveness',
+    );
+    expect(FREEZE.git.requiredAncestry).toContain('correctedRuntimeV2 descends from r3PromptV2');
     expect(v2!.promptVersion).toBe('orgunit-classifier-prompt-v2');
     expect(v2!.runtimePromptCharacters).toBe(11304);
     expect(v2!.runtimePromptUtf8Bytes).toBe(11382);
@@ -1180,9 +1245,10 @@ describe('2D2C-F0 freeze: the unresolved gold question and the HOLDOUT boundary'
     expect(disclosure).toContain('No HOLDOUT inference and no result-driven tuning');
   });
 
-  it('names the next step as implementing the runner without running it', () => {
-    expect(FREEZE.nextStep).toContain('without running it');
-    expect(FREEZE.nextStep).toContain('separate execution authorisation');
+  it('names the next step as re-entering F2 readiness for an explicit owner decision, and still authorises nothing', () => {
+    expect(FREEZE.nextStep).toContain('Re-enter 2D2C-F2');
+    expect(FREEZE.nextStep).toContain('explicit owner decision');
+    expect(FREEZE.nextStep).toContain('authorises nothing');
   });
 });
 
@@ -1190,24 +1256,47 @@ describe('2D2C-F0 freeze: the unresolved gold question and the HOLDOUT boundary'
 // PHASE 2B-2D2C-F0A — the frozen input identity contract.
 // ===========================================================================
 
-describe('2D2C-F0A freeze: revision marker and superseded hash', () => {
-  it('carries the F0A revision, names the superseded F0 raw hash, and keeps the F0 filename and version', () => {
+describe('2D2C-F0B freeze: revision marker and superseded hashes', () => {
+  it('carries the F0B revision, names the superseded F0A raw hash, and keeps the F0 filename and version', () => {
     expect(FREEZE.freezeRevision).toBe(EXPECTED.freezeRevision);
     expect(FREEZE.supersedesFreezeRawSha256).toBe(EXPECTED.supersededFreezeRawSha256);
     expect(FREEZE.supersedesFreezeRawSha256).toMatch(/^[0-9a-f]{64}$/);
-    // The F0A bytes are a different file from the superseded F0 bytes.
+    // The F0B bytes are a different file from BOTH superseded freezes.
     expect(sha256(raw(FREEZE_PATH))).not.toBe(EXPECTED.supersededFreezeRawSha256);
+    expect(sha256(raw(FREEZE_PATH))).not.toBe(EXPECTED.f0FreezeRawSha256);
     expect(FREEZE.version).toBe(EXPECTED.version);
     expect(FREEZE.freezeId).toBe('PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_V1');
     expect(FREEZE.status).toBe(EXPECTED.status);
   });
 
-  it('records F0 and F0A in the revision history, with F0A before any F1 or inference and changing no experimental input', () => {
-    const [f0, f0a] = FREEZE.revisionHistory;
-    expect(FREEZE.revisionHistory).toHaveLength(2);
+  it('records F0, F0A and F0B in the revision history, retaining the historical entries verbatim', () => {
+    const [f0, f0a, f0b] = FREEZE.revisionHistory;
+    expect(FREEZE.revisionHistory).toHaveLength(3);
     expect(f0!.revision).toBe('F0');
-    expect(f0!.freezeRawSha256).toBe(EXPECTED.supersededFreezeRawSha256);
-    expect(f0a!.revision).toBe(EXPECTED.freezeRevision);
+    expect(f0!.freezeRawSha256).toBe(EXPECTED.f0FreezeRawSha256);
+    expect(f0b!.revision).toBe(EXPECTED.freezeRevision);
+    expect((f0b as { supersedesFreezeRawSha256?: string }).supersedesFreezeRawSha256).toBe(
+      EXPECTED.supersededFreezeRawSha256,
+    );
+    expect(f0b!.timing).toContain('before any 2D2C inference');
+    expect(f0b!.timing).toContain('no attempt was consumed');
+    const f0bUnchanged = (f0b!.unchanged ?? []).join('\n');
+    for (const item of [
+      'corpus',
+      'prompt',
+      'gold labels',
+      'gates',
+      'run order',
+      'model id',
+      '12 assembly identities',
+      '24 final input identities',
+      'output schema',
+    ]) {
+      expect(f0bUnchanged).toContain(item);
+    }
+    expect(f0b!.rule).toContain('never the superseded F0A hash');
+    expect(f0b!.rule).toContain('uncorrected R2B/R3 commit');
+    expect(f0a!.revision).toBe(EXPECTED.f0aRevision);
     expect(f0a!.timing).toContain('before any F1 runner implementation');
     expect(f0a!.timing).toContain('before any 2D2C inference');
     const unchanged = (f0a!.unchanged ?? []).join('\n');
@@ -1215,6 +1304,53 @@ describe('2D2C-F0A freeze: revision marker and superseded hash', () => {
       expect(unchanged).toContain(item);
     }
     expect(f0a!.rule).toContain('never the superseded F0 hash');
+  });
+
+  it('F0B pins the SDK-bundled executable contract and the run-platform binary identity, and the USER requirement by name only', () => {
+    const executable = FREEZE.classifier.claudeCodeExecutable;
+    expect(executable.source).toBe('SDK_BUNDLED_NATIVE_BINARY');
+    expect(executable.sdkPackage).toBe(FREEZE.classifier.agentSdk.package);
+    expect(executable.sdkVersion).toBe(EXPECTED.sdkVersion);
+    expect(executable.claudeCodeVersion).toBe(EXPECTED.claudeCodeVersion);
+    expect(executable.nativePackagePrefix).toBe(`${executable.sdkPackage}-`);
+    expect(executable.sameExecutableForAuthStatusAndInference).toBe(true);
+    expect(executable.externalPathCliAcceptedAsPreflightOracle).toBe(false);
+    expect(executable.runPlatform).toEqual({
+      platform: 'darwin',
+      arch: 'arm64',
+      platformKey: EXPECTED.runPlatformKey,
+      nativePackage: `${executable.nativePackagePrefix}${EXPECTED.runPlatformKey}`,
+      nativePackageVersion: EXPECTED.sdkVersion,
+      binaryFileName: 'claude',
+      binaryBytes: EXPECTED.runBinaryBytes,
+      binarySha256: EXPECTED.runBinarySha256,
+    });
+    // The installed SDK's own manifest agrees with the pinned run-platform identity.
+    const manifest = JSON.parse(
+      raw(`node_modules/${executable.sdkPackage}/manifest.json`).toString('utf8'),
+    ) as { version: string; platforms: Record<string, { checksum: string; size: number }> };
+    expect(manifest.version).toBe(EXPECTED.claudeCodeVersion);
+    expect(manifest.platforms[EXPECTED.runPlatformKey]).toEqual({
+      binary: 'claude',
+      checksum: EXPECTED.runBinarySha256,
+      size: EXPECTED.runBinaryBytes,
+    });
+    expect(
+      (
+        JSON.parse(raw(`node_modules/${executable.sdkPackage}/package.json`).toString('utf8')) as {
+          claudeCodeVersion: string;
+        }
+      ).claudeCodeVersion,
+    ).toBe(EXPECTED.claudeCodeVersion);
+    const childEnvironment = FREEZE.classifier.childEnvironment;
+    expect(childEnvironment).toMatchObject({
+      posixOsPassthroughAddition: 'USER',
+      valueRecorded: false,
+      lognameIsSubstitute: false,
+      windowsAllowlistChanged: false,
+    });
+    // No account name, token or credential value appears anywhere in the freeze bytes.
+    expect(raw(FREEZE_PATH).toString('utf8')).not.toMatch(/"USER"\s*:\s*"/);
   });
 });
 

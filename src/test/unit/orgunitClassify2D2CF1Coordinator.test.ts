@@ -54,7 +54,7 @@ import {
 import { reconstructAndVerifyFrozenBatches } from '../harness/phase2b2d2c/batches.js';
 import { CHILD_ENTRY_PATH } from '../harness/phase2b2d2c/cli.js';
 import {
-  EXPECTED_F0A_FREEZE_RAW_SHA256,
+  EXPECTED_F0B_FREEZE_RAW_SHA256,
   FREEZE_PATH,
   FROZEN_VARIANTS,
   REQUIRED_CAPTURE_FIELDS,
@@ -109,7 +109,7 @@ function outputRoot(): string {
 const AUTHORISATION: ExecutionAuthorisation = {
   authorisationVersion: AUTHORISATION_VERSION,
   scope: 'DEVELOPMENT_ONLY',
-  freezeConfigRawSha256: EXPECTED_F0A_FREEZE_RAW_SHA256,
+  freezeConfigRawSha256: EXPECTED_F0B_FREEZE_RAW_SHA256,
   variants: FROZEN_VARIANTS.map((v) => ({ name: v.name, label: v.label, gitCommit: v.gitCommit })),
   maxLogicalEvaluations: 24,
   attemptNo: 1,

@@ -15,9 +15,15 @@ export class ClaudeMaxAgentProvider {
   constructor(options) {
     this.#options = options;
   }
+  // F1A/F0B shape parity: ONE executable resolution feeds both seams below.
+  #claudeCodeExecutable() {
+    return { ok: true, provenance: { executablePath: join(ROOT, 'node_modules', 'synthetic', 'claude') } };
+  }
   async classify(request) {
     const scenario = JSON.parse(readFileSync(join(ROOT, 'fake-provider-scenario.json'), 'utf8'));
     const env = this.#options.env ? this.#options.env() : {};
+    const executable = this.#claudeCodeExecutable();
+    const executablePath = executable.provenance.executablePath;
     writeFileSync(
       join(ROOT, 'fake-provider-calls.json'),
       JSON.stringify({
@@ -31,14 +37,15 @@ export class ClaudeMaxAgentProvider {
     );
     for (let i = 0; i < (scenario.authStatusInvocations ?? 1); i += 1) {
       try {
-        await this.#options.authStatusRunner.run({ env: {}, cwd: ROOT });
+        await this.#options.authStatusRunner.run({ executablePath, env: {}, cwd: ROOT });
       } catch {
         // The synthetic seam throws by design; the call still counts.
       }
     }
     for (let i = 0; i < (scenario.runnerAttempts ?? 1); i += 1) {
       try {
-        await this.#options.runner.run({ prompt: '', options: {} }, { deadlineMs: 1 });
+        const invocation = { prompt: '', options: { claudeCodeExecutablePath: executablePath } };
+        await this.#options.runner.run(invocation, { deadlineMs: 1 });
       } catch {
         // Likewise.
       }
