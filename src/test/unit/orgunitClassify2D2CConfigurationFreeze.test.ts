@@ -18,17 +18,33 @@
  * WITHOUT Git: the five reviewed 2D2B-3 insertions are removed from the
  * production v2 runtime prompt and the remainder must hash to the pinned v1
  * value.
+ *
+ * PHASE 2B-2D2C-F0A — INPUT IDENTITY CLOSURE. F0 pinned the corpus, the
+ * batch plan and the prompts but not the complete `ClassifierBatchContext`
+ * a batch sends, so the canonical serialized batch bytes and the 12 + 24
+ * input identities were not yet defined. This file now reconstructs every
+ * batch's `{ context, documents }` INDEPENDENTLY from the DEVELOPMENT-only
+ * canonical corpus and the production version constants, serializes it
+ * with the production canonicalizer, and requires the byte length, the
+ * assembly identity and both final identities to equal the frozen values
+ * AND the literal oracle below. Mutation tests prove each check bites; every
+ * mutation is applied to an in-memory clone and the committed bytes are
+ * re-verified untouched afterwards.
  */
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
+import { canonicalStringify } from '../../orgunits/classify/canonical.js';
 import {
   EXTRACTION_VERSION_REQUIRING_ASSEMBLY_CANONICALISATION,
   ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION,
 } from '../../orgunits/classify/constants.js';
-import { GoldCorpusItemSchema } from '../../orgunits/classify/evaluation/goldSchema.js';
+import {
+  GoldCorpusItemSchema,
+  type GoldCorpusItem,
+} from '../../orgunits/classify/evaluation/goldSchema.js';
 import { hashRecords } from '../../orgunits/classify/evaluation/hashes.js';
 import {
   ABSOLUTE_GATES,
@@ -37,6 +53,7 @@ import {
   ORGUNIT_CLASSIFIER_SONNET_ACCEPTANCE_CORPUS_VERSION,
   ORGUNIT_CLASSIFIER_SONNET_ACCEPTANCE_PROTOCOL_VERSION,
 } from '../../orgunits/classify/evaluation/protocol.js';
+import { computeFinalInputSha256 } from '../../orgunits/classify/finalIdentity.js';
 import { ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION } from '../../orgunits/classify/outputSchema.js';
 import {
   ORGUNIT_CLASSIFIER_PROMPT_VERSION,
@@ -58,6 +75,8 @@ import {
   MAX_TRANSIENT_RETRIES,
   TRANSIENT_RETRY_BASE_DELAY_MS,
 } from '../../orgunits/classify/retry.js';
+import { ORGUNIT_SIGNAL_RULE_VERSION } from '../../orgunits/signals/score.js';
+import { FETCH_POLICY_VERSION } from '../../orgunits/web/policy.js';
 import { HARNESS_STDERR_TAIL_MAX_CHARS } from '../harness/processIsolatedBatch.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -90,7 +109,127 @@ const EXPECTED = {
   v2PromptSha256: '181a5d6fec9763be5a57e7e4d08c7d8c8a9d9e21838df2ea3e05dd680e4c7635',
   sdkVersion: '0.3.251',
   unresolvedGoldId: 'ge789b0f0aedc398c',
+  freezeRevision: 'F0A_INPUT_IDENTITY_CLOSURE',
+  supersededFreezeRawSha256: '422873a11d3876e4aa24b250cbc484a7f66b3100f1e3cda08d733a11c40a7164',
+  ruleVersion: 'orgunit-signal-rules-v1',
+  fetchPolicyVersion: 'orgunit-fetch-policy-v1',
+  assemblyVersion: 'orgunit-classifier-assembly-v2',
+  outputSchemaVersion: 'orgunit-classifier-output-schema-v2',
+  v1PromptVersion: 'orgunit-classifier-prompt-v1',
+  v2PromptVersion: 'orgunit-classifier-prompt-v2',
 } as const;
+
+/**
+ * F0A ORACLE: the 12 assembly identities and 24 final identities, as
+ * literals independent of the freeze JSON. Both the JSON and this table are
+ * compared against a fresh reconstruction from the committed corpus on
+ * every run; neither is ever edited to match an unexpected result.
+ */
+const EXPECTED_INPUT_IDENTITIES: readonly {
+  readonly ordinal: number;
+  readonly organisationId: string;
+  readonly serializedBatchUtf8Bytes: number;
+  readonly assemblyInputSha256: string;
+  readonly finalV1: string;
+  readonly finalV2: string;
+}[] = [
+  {
+    ordinal: 1,
+    organisationId: 'e115cbf8-25b4-4ccd-aa26-0b7b67af3f59',
+    serializedBatchUtf8Bytes: 2886,
+    assemblyInputSha256: '7179ad30e8292a024a0eba04233a787bc88293c5b11b94e744046a348da07644',
+    finalV1: 'c208a683f656290a83fdc408f06e2f50a26e2d273a4cb6d738f7ea20b0e983ed',
+    finalV2: '65bb07834ea233e237f71af971fcb3c2e3ced9a86d212321d1ac7bf12e1c8df9',
+  },
+  {
+    ordinal: 2,
+    organisationId: '4001270a-08ce-4018-b91e-abda06c52aa9',
+    serializedBatchUtf8Bytes: 14145,
+    assemblyInputSha256: 'ab75d12af9ac4c455b60bed11c0d6dad1b5f48de10ef96eb42c14aba411b1a91',
+    finalV1: '2339f4fad8eff19d6251edc7c53a6c2c46640ca012ef6aa8f4e087bcf48a31d1',
+    finalV2: 'f5bd11844e43a839799359e36215eb8f3f268951cf8ffdb142dab32332ea7c46',
+  },
+  {
+    ordinal: 3,
+    organisationId: '8b77946d-fe7d-4bb6-839d-5b9d116df3a0',
+    serializedBatchUtf8Bytes: 13857,
+    assemblyInputSha256: 'd7d98440e5bc091862e9d42c6b03eb36b387be9ef197322d2220ac2622a683dd',
+    finalV1: 'fb20bcae94361589bd884c016bc2888607ae888eb7e79d1434d7223a69600415',
+    finalV2: '8cec01c93119499e6f5c5b8137f753d439a06f25576bb12c88b81097b40a3000',
+  },
+  {
+    ordinal: 4,
+    organisationId: 'fc062f6b-d5b6-4026-b02c-0f94f787e2e8',
+    serializedBatchUtf8Bytes: 8596,
+    assemblyInputSha256: 'e154b407c7f8d4d34ce093819a7aafef0c992a478c11583cf326dad88e8b6a12',
+    finalV1: '4b58a69ba08d17984c6c05449a294e2187c7963acf78d9b9e24eb0a64f1236d2',
+    finalV2: 'be7da3efa2932b2a647f97692c73eece22e7e614e50eee3d72090487948dac93',
+  },
+  {
+    ordinal: 5,
+    organisationId: 'eba8e841-8dae-4423-8d47-4e26ede49c13',
+    serializedBatchUtf8Bytes: 8579,
+    assemblyInputSha256: '70d9caf445a693280d1639209d08a7838e35e24be92c4987edffec1a179b1c3b',
+    finalV1: 'aac0f47c352b4e7e8a2ad5a1d645ad63e2c3130a6a2060ce10dc55d27e407f4f',
+    finalV2: '4fd5d1159ca56dea5dc033a082d1244642000237a3d3117d8564d91b01858af3',
+  },
+  {
+    ordinal: 6,
+    organisationId: '885cea79-9d11-4c36-934d-976ff3e23e6f',
+    serializedBatchUtf8Bytes: 6190,
+    assemblyInputSha256: 'd75c5d26c7a44019a734c0b0d625962fe6c700487efb934ebe44dd67c0c8cbda',
+    finalV1: 'fee447327d266aee90022de21690872a23f7f8515d0d279401ff2f260d00cd4e',
+    finalV2: 'd97621f48923580b3f4d0e7fc32d44887163059e6ed9947dcbf755a65a6490ac',
+  },
+  {
+    ordinal: 7,
+    organisationId: 'cf4ac61c-09de-4901-84e6-a7fe0f3366ff',
+    serializedBatchUtf8Bytes: 14463,
+    assemblyInputSha256: '4fbc2317770371ae7c60ae2a7fbbb4d02aab5120f0767cf7dac36c4c8b5c9df4',
+    finalV1: '03470f63873e0699a189823f0ddf6f2244b90e8801de94dd4420b9e763cddd08',
+    finalV2: 'e6053074ba64155f20efbedbf102c059b98425c2ad09d580bae47243ae6fe517',
+  },
+  {
+    ordinal: 8,
+    organisationId: 'ca7f8271-a111-466e-86f4-06913eb80a8d',
+    serializedBatchUtf8Bytes: 12302,
+    assemblyInputSha256: '397be36ecdea24e98a8d9ab69a87038066a996cd78e06ed2e4e46fdb28c5a9c8',
+    finalV1: '708f7b840c8eaafb4d11bac82f747feea2cafda85e83e31c402bd4af9587e369',
+    finalV2: '5e1c29b149d91a401e448c5db4d6d28dd0ec837a8d27161c52c566ad51191955',
+  },
+  {
+    ordinal: 9,
+    organisationId: 'e1e18eda-ceb1-42d6-8f70-6bd6110cb3b1',
+    serializedBatchUtf8Bytes: 11504,
+    assemblyInputSha256: '6ce838c6e2b243bf4dec5dcdf8df0e04d69220b44f7020e4b602fa6f0867a890',
+    finalV1: 'd17be7622466359484ebdbc4263006755dcab81ce1031788c99032eacaea245f',
+    finalV2: '43381ff1e33c76b007c7ff9a747853b0ee9dde14aeee8bd78ecde3588e0855cd',
+  },
+  {
+    ordinal: 10,
+    organisationId: '65af386d-22ca-4d28-bd8e-10438c1e1cc7',
+    serializedBatchUtf8Bytes: 9698,
+    assemblyInputSha256: '1320329b0ec4c20a8426c2e54e83048489bc9be21f0b957fb3d7711bec54ae3c',
+    finalV1: '58aa6a2dd37617b3d05a57a58f458473d09da4d23d765a56f3ca534ee64cba32',
+    finalV2: 'dfb9da31fb825885bd0b735f4e54198565bd8984c0f4d97dea4fa3988298f3a1',
+  },
+  {
+    ordinal: 11,
+    organisationId: '99f0eea2-8c96-4ef9-a263-ac571cba5279',
+    serializedBatchUtf8Bytes: 8358,
+    assemblyInputSha256: '03d3cdb0523ca9daaf055e1a5b5d0f878bbc27cf31454501da4927ca1ea8ec2f',
+    finalV1: '6784b06c3c99ef7216dfb7d476d6fe87462a54e5b2c3e56bc378f28b83bda3b9',
+    finalV2: '719f25367d8c9ffd0cd70be8c2ab6b65e85008af21868a12e2c3972cec1db2aa',
+  },
+  {
+    ordinal: 12,
+    organisationId: 'c95125b8-7783-48de-bc89-ad652f38f0dd',
+    serializedBatchUtf8Bytes: 15921,
+    assemblyInputSha256: '21f433c92635027ea6f451a2c528edc20b6521cdcc5dc4b0e84de3a16549973b',
+    finalV1: 'f2b052cec43e65732a5ba4ccf4115fb2cedfee2a19141cd54a8216fa535e9ef3',
+    finalV2: '0ccaa717538982f58cc6addc16442accaa98f20c0b23ff3e7cb1745b0df0e16d',
+  },
+];
 
 /**
  * The five reviewed 2D2B-3 insertions that turn v1 into v2 (R3 recovery
@@ -129,6 +268,10 @@ const REQUIRED_CAPTURE_FIELDS = [
   'orderedGoldIds',
   'orderedDocIndices',
   'canonicalSerializedInputSha256',
+  'assemblyInputSha256',
+  'finalInputSha256',
+  'serializedBatchUtf8Bytes',
+  'batchContext',
   'promptVersion',
   'promptSha256',
   'requestedModelId',
@@ -168,7 +311,8 @@ interface FreezeVariant {
   readonly runtimePromptUtf8Bytes: number;
   readonly runtimePromptSha256: string;
 }
-interface FreezeBatch {
+/** The F0 plan fields — the batching policy, derived independently below. */
+interface FreezeBatchPlanCore {
   readonly ordinal: number;
   readonly organisationId: string;
   readonly echeRowKey: string;
@@ -179,10 +323,45 @@ interface FreezeBatch {
   readonly corpusLineNumbers: readonly number[];
   readonly historicalAssemblyInputSha256: readonly string[];
 }
+interface FrozenRootRef {
+  readonly rootKey: string;
+  readonly authorityKind: string;
+  readonly url: string;
+}
+/** The reconstructed `ClassifierBatchContext` F0A freezes per batch. */
+interface FrozenBatchContext {
+  readonly organisationName: string;
+  readonly echeRowKey: string;
+  readonly countryCode: string;
+  readonly runId: string;
+  readonly ruleVersion: string;
+  readonly fetchPolicyVersion: string;
+  readonly assemblyVersion: string;
+  readonly rootKey: string | null;
+  readonly roots: readonly FrozenRootRef[];
+}
+/** The F0A input-identity fields added to every plan entry. */
+interface FreezeBatchInputIdentity {
+  readonly context: FrozenBatchContext;
+  readonly serializedBatchUtf8Bytes: number;
+  readonly assemblyInputSha256: string;
+  readonly canonicalSerializedInputSha256: string;
+  readonly finalInputSha256: Record<string, string>;
+}
+type FreezeBatch = FreezeBatchPlanCore & FreezeBatchInputIdentity;
 interface Freeze {
   readonly freezeId: string;
   readonly version: string;
   readonly status: string;
+  readonly freezeRevision: string;
+  readonly supersedesFreezeRawSha256: string;
+  readonly revisionHistory: readonly {
+    readonly revision: string;
+    readonly freezeRawSha256: string;
+    readonly timing?: string;
+    readonly unchanged?: readonly string[];
+    readonly rule?: string;
+  }[];
   readonly git: {
     readonly baselineMain: string;
     readonly r1EvidenceCanonicalisation: { readonly commit: string };
@@ -213,6 +392,19 @@ interface Freeze {
     readonly variantOrdering: string;
     readonly plannedLogicalEvaluations: { readonly total: number; readonly perVariant: number };
     readonly plan: readonly FreezeBatch[];
+  };
+  readonly inputConstruction: {
+    readonly evidenceClass: string;
+    readonly claim: string;
+    readonly batchShape: string;
+    readonly documents: { readonly order: string; readonly docIndex: string };
+    readonly context: Record<string, string | null>;
+    readonly preconditions: readonly string[];
+    readonly serialization: string;
+    readonly finalInputSha256: string;
+    readonly promptVersionByVariant: Record<string, string>;
+    readonly invariants: readonly string[];
+    readonly runnerRule: string;
   };
   readonly classifier: {
     readonly requestedModelId: string;
@@ -261,6 +453,7 @@ interface Freeze {
     readonly rawOutputRule: string;
     readonly writeOnce: string;
     readonly requiredPerLogicalBatch: readonly string[];
+    readonly identityRules: readonly string[];
     readonly neverCaptured: readonly string[];
   };
   readonly scoring: {
@@ -308,7 +501,7 @@ const DEV_MANIFEST_ROW = JSON.parse(raw(DEV_MANIFEST).toString('utf8').trim()) a
 const DEV_GOLD_IDS = new Set(DEV_ROWS.map((row) => row.goldId));
 
 /** Organisation groups in first-appearance order, documents in corpus order — the batching policy, derived independently of the freeze. */
-function deriveBatchPlan(): FreezeBatch[] {
+function deriveBatchPlan(): FreezeBatchPlanCore[] {
   const groups: {
     organisationId: string;
     echeRowKey: string;
@@ -340,6 +533,194 @@ function deriveBatchPlan(): FreezeBatch[] {
     }
   }
   return groups.map((g, i) => ({ ordinal: i + 1, documentCount: g.goldIds.length, ...g }));
+}
+
+/** Projects a frozen plan entry onto its F0 core fields, so the F0 policy check ignores the F0A identity fields. */
+function planCoreOf(batch: FreezeBatch): FreezeBatchPlanCore {
+  return {
+    ordinal: batch.ordinal,
+    organisationId: batch.organisationId,
+    echeRowKey: batch.echeRowKey,
+    organisationName: batch.organisationName,
+    documentCount: batch.documentCount,
+    goldIds: batch.goldIds,
+    docIndices: batch.docIndices,
+    corpusLineNumbers: batch.corpusLineNumbers,
+    historicalAssemblyInputSha256: batch.historicalAssemblyInputSha256,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// F0A: independent reconstruction of every batch's { context, documents }.
+// ---------------------------------------------------------------------------
+type ReconstructedDocument = GoldCorpusItem['document'];
+interface ReconstructedBatchInput {
+  readonly ordinal: number;
+  readonly organisationId: string;
+  readonly context: FrozenBatchContext;
+  readonly documents: readonly ReconstructedDocument[];
+}
+interface ReconstructedIdentity {
+  readonly serialized: string;
+  readonly serializedBatchUtf8Bytes: number;
+  readonly assemblyInputSha256: string;
+  readonly finalV1: string;
+  readonly finalV2: string;
+}
+
+const ordinalCompare = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
+
+/** The one value every row of an organisation must share; throws on disagreement — never picks one. */
+function commonValue<K extends 'organisationName' | 'echeRowKey' | 'countryCode' | 'runId'>(
+  rows: readonly GoldCorpusItem[],
+  key: K,
+): GoldCorpusItem[K] {
+  const distinct = new Set(rows.map((row) => row[key]));
+  if (distinct.size !== 1) {
+    throw new Error(`${key} disagrees within organisation ${rows[0]!.organisationId}`);
+  }
+  return rows[0]![key];
+}
+
+/** Union of every document's roots, deduplicated by exact rootKey with byte-identical metadata required, sorted by rootKey (ordinal). */
+function unionRoots(documents: readonly ReconstructedDocument[]): FrozenRootRef[] {
+  const byKey = new Map<string, FrozenRootRef>();
+  for (const document of documents) {
+    for (const root of document.roots) {
+      const seen = byKey.get(root.rootKey);
+      if (seen === undefined) {
+        byKey.set(root.rootKey, {
+          rootKey: root.rootKey,
+          authorityKind: root.authorityKind,
+          url: root.url,
+        });
+      } else if (seen.authorityKind !== root.authorityKind || seen.url !== root.url) {
+        throw new Error(`root ${root.rootKey} carries disagreeing metadata`);
+      }
+    }
+  }
+  return [...byKey.values()].sort((a, b) => ordinalCompare(a.rootKey, b.rootKey));
+}
+
+/** Reconstructs the exact ClassifierBatch of every organisation from DEV_ROWS and production constants alone. */
+function reconstructBatchInputs(
+  rows: readonly GoldCorpusItem[] = DEV_ROWS,
+): ReconstructedBatchInput[] {
+  const byOrganisation = new Map<string, GoldCorpusItem[]>();
+  for (const row of rows) {
+    const group = byOrganisation.get(row.organisationId);
+    if (group === undefined) byOrganisation.set(row.organisationId, [row]);
+    else group.push(row);
+  }
+  return [...byOrganisation.entries()].map(([organisationId, group], index) => {
+    const documents = group.map((row) => row.document);
+    return {
+      ordinal: index + 1,
+      organisationId,
+      context: {
+        organisationName: commonValue(group, 'organisationName'),
+        echeRowKey: commonValue(group, 'echeRowKey'),
+        countryCode: commonValue(group, 'countryCode'),
+        runId: commonValue(group, 'runId'),
+        ruleVersion: ORGUNIT_SIGNAL_RULE_VERSION,
+        fetchPolicyVersion: FETCH_POLICY_VERSION,
+        assemblyVersion: ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION,
+        rootKey: null,
+        roots: unionRoots(documents),
+      },
+      documents,
+    };
+  });
+}
+
+/** Serializes exactly as the production canonicalizer does and derives all three identities through the production algorithm. */
+function identityOf(
+  input: Pick<ReconstructedBatchInput, 'context' | 'documents'>,
+  promptVersions: { readonly v1: string; readonly v2: string } = {
+    v1: EXPECTED.v1PromptVersion,
+    v2: EXPECTED.v2PromptVersion,
+  },
+): ReconstructedIdentity {
+  const serialized = canonicalStringify({ context: input.context, documents: input.documents });
+  const assemblyInputSha256 = createHash('sha256').update(serialized, 'utf8').digest('hex');
+  const final = (promptVersion: string): string =>
+    computeFinalInputSha256({
+      assemblyInputSha256,
+      promptVersion,
+      outputSchemaVersion: ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
+    });
+  return {
+    serialized,
+    serializedBatchUtf8Bytes: Buffer.byteLength(serialized, 'utf8'),
+    assemblyInputSha256,
+    finalV1: final(promptVersions.v1),
+    finalV2: final(promptVersions.v2),
+  };
+}
+
+/**
+ * The runner's own pre-flight, as a pure check: every frozen identity must
+ * equal the identity recomputed from a reconstruction. Returns the list of
+ * mismatches so the positive test can assert `[]` and the mutation tests can
+ * assert exactly which check fired.
+ */
+function identityMismatches(
+  plan: readonly FreezeBatch[],
+  inputs: readonly ReconstructedBatchInput[],
+): string[] {
+  const mismatches: string[] = [];
+  if (plan.length !== inputs.length) mismatches.push('batch count');
+  for (const [index, batch] of plan.entries()) {
+    const input = inputs[index];
+    if (input === undefined) break;
+    const identity = identityOf(input);
+    if (batch.organisationId !== input.organisationId)
+      mismatches.push(`${batch.ordinal}:organisationId`);
+    if (canonicalStringify(batch.context) !== canonicalStringify(input.context)) {
+      mismatches.push(`${batch.ordinal}:context`);
+    }
+    if (batch.serializedBatchUtf8Bytes !== identity.serializedBatchUtf8Bytes) {
+      mismatches.push(`${batch.ordinal}:serializedBatchUtf8Bytes`);
+    }
+    if (batch.assemblyInputSha256 !== identity.assemblyInputSha256) {
+      mismatches.push(`${batch.ordinal}:assemblyInputSha256`);
+    }
+    if (batch.canonicalSerializedInputSha256 !== batch.assemblyInputSha256) {
+      mismatches.push(`${batch.ordinal}:canonicalSerializedInputSha256`);
+    }
+    if (batch.finalInputSha256['PROMPT_V1_CANONICAL'] !== identity.finalV1) {
+      mismatches.push(`${batch.ordinal}:finalInputSha256.v1`);
+    }
+    if (batch.finalInputSha256['PROMPT_V2_CANONICAL'] !== identity.finalV2) {
+      mismatches.push(`${batch.ordinal}:finalInputSha256.v2`);
+    }
+  }
+  return mismatches;
+}
+
+/** A deep, mutable clone of the parsed freeze for mutation tests; the committed bytes are never touched. */
+function cloneFreeze(): {
+  batching: {
+    plan: (FreezeBatchPlanCore & {
+      context: {
+        organisationName: string;
+        echeRowKey: string;
+        countryCode: string;
+        runId: string;
+        ruleVersion: string;
+        fetchPolicyVersion: string;
+        assemblyVersion: string;
+        rootKey: string | null;
+        roots: FrozenRootRef[];
+      };
+      serializedBatchUtf8Bytes: number;
+      assemblyInputSha256: string;
+      canonicalSerializedInputSha256: string;
+      finalInputSha256: Record<string, string>;
+    })[];
+  };
+} {
+  return JSON.parse(FREEZE_RAW) as ReturnType<typeof cloneFreeze>;
 }
 
 describe('2D2C-F0 freeze: identity and Git pins', () => {
@@ -487,7 +868,7 @@ describe('2D2C-F0 freeze: batching contract, reconstructed from recorded run evi
 
   it('the frozen plan equals the independently derived plan, ordinal by ordinal', () => {
     expect(FREEZE.batching.plan).toHaveLength(12);
-    expect(FREEZE.batching.plan).toEqual(derived);
+    expect(FREEZE.batching.plan.map(planCoreOf)).toEqual(derived);
     for (const [i, batch] of FREEZE.batching.plan.entries()) {
       expect(batch.ordinal).toBe(i + 1);
       expect(batch.documentCount).toBe(batch.goldIds.length);
@@ -802,5 +1183,408 @@ describe('2D2C-F0 freeze: the unresolved gold question and the HOLDOUT boundary'
   it('names the next step as implementing the runner without running it', () => {
     expect(FREEZE.nextStep).toContain('without running it');
     expect(FREEZE.nextStep).toContain('separate execution authorisation');
+  });
+});
+
+// ===========================================================================
+// PHASE 2B-2D2C-F0A — the frozen input identity contract.
+// ===========================================================================
+
+describe('2D2C-F0A freeze: revision marker and superseded hash', () => {
+  it('carries the F0A revision, names the superseded F0 raw hash, and keeps the F0 filename and version', () => {
+    expect(FREEZE.freezeRevision).toBe(EXPECTED.freezeRevision);
+    expect(FREEZE.supersedesFreezeRawSha256).toBe(EXPECTED.supersededFreezeRawSha256);
+    expect(FREEZE.supersedesFreezeRawSha256).toMatch(/^[0-9a-f]{64}$/);
+    // The F0A bytes are a different file from the superseded F0 bytes.
+    expect(sha256(raw(FREEZE_PATH))).not.toBe(EXPECTED.supersededFreezeRawSha256);
+    expect(FREEZE.version).toBe(EXPECTED.version);
+    expect(FREEZE.freezeId).toBe('PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_V1');
+    expect(FREEZE.status).toBe(EXPECTED.status);
+  });
+
+  it('records F0 and F0A in the revision history, with F0A before any F1 or inference and changing no experimental input', () => {
+    const [f0, f0a] = FREEZE.revisionHistory;
+    expect(FREEZE.revisionHistory).toHaveLength(2);
+    expect(f0!.revision).toBe('F0');
+    expect(f0!.freezeRawSha256).toBe(EXPECTED.supersededFreezeRawSha256);
+    expect(f0a!.revision).toBe(EXPECTED.freezeRevision);
+    expect(f0a!.timing).toContain('before any F1 runner implementation');
+    expect(f0a!.timing).toContain('before any 2D2C inference');
+    const unchanged = (f0a!.unchanged ?? []).join('\n');
+    for (const item of ['corpus', 'prompt', 'gold labels', 'gates', 'run order', 'model id']) {
+      expect(unchanged).toContain(item);
+    }
+    expect(f0a!.rule).toContain('never the superseded F0 hash');
+  });
+});
+
+describe('2D2C-F0A freeze: the input-construction contract', () => {
+  const construction = FREEZE.inputConstruction;
+
+  it('is labelled as reconstructed from the committed corpus and production constants, and claims no lost bytes', () => {
+    expect(construction.evidenceClass).toBe(
+      'RECONSTRUCTED_FROM_COMMITTED_DEVELOPMENT_CORPUS_AND_PRODUCTION_CONSTANTS',
+    );
+    expect(construction.claim).toContain('does not claim to reproduce');
+    expect(construction.batchShape).toBe('{ context, documents }');
+    expect(construction.documents.order).toContain('canonical corpus line order');
+    expect(construction.documents.docIndex).toContain('original docIndex');
+  });
+
+  it('pins the exact production rule, fetch-policy and assembly versions, rootKey null, and ordinal root ordering', () => {
+    expect(construction.context['ruleVersion']).toBe(EXPECTED.ruleVersion);
+    expect(construction.context['ruleVersion']).toBe(ORGUNIT_SIGNAL_RULE_VERSION);
+    expect(construction.context['fetchPolicyVersion']).toBe(EXPECTED.fetchPolicyVersion);
+    expect(construction.context['fetchPolicyVersion']).toBe(FETCH_POLICY_VERSION);
+    expect(construction.context['assemblyVersion']).toBe(EXPECTED.assemblyVersion);
+    expect(construction.context['assemblyVersion']).toBe(ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION);
+    expect(construction.context['rootKey']).toBeNull();
+    expect(construction.context['roots']).toContain('deduplicated by exact rootKey');
+    expect(construction.context['roots']).toContain('ordinal string comparison');
+    for (const field of ['organisationName', 'echeRowKey', 'countryCode', 'runId']) {
+      expect(construction.context[field]).toContain('exact common');
+    }
+  });
+
+  it('states the stop-on-disagreement preconditions and the DEVELOPMENT-only roots scope', () => {
+    const preconditions = construction.preconditions.join('\n');
+    expect(preconditions).toContain('organisationName, echeRowKey, countryCode and runId');
+    expect(preconditions).toContain('byte-identical authorityKind and url');
+    expect(preconditions).toContain('no version is chosen');
+    expect(preconditions).toContain('no database, mixed corpus or HOLDOUT file is read');
+  });
+
+  it('names the production serialization and final-identity algorithms, both prompt versions and the output-schema version', () => {
+    expect(construction.serialization).toContain('canonicalStringify({ context, documents })');
+    expect(construction.serialization).toContain('src/orgunits/classify/canonical.ts');
+    expect(construction.finalInputSha256).toContain('computeFinalInputSha256');
+    expect(construction.finalInputSha256).toContain(EXPECTED.outputSchemaVersion);
+    expect(construction.finalInputSha256).toContain('src/orgunits/classify/finalIdentity.ts');
+    expect(construction.promptVersionByVariant).toEqual({
+      PROMPT_V1_CANONICAL: EXPECTED.v1PromptVersion,
+      PROMPT_V2_CANONICAL: EXPECTED.v2PromptVersion,
+    });
+    expect(construction.runnerRule).toContain(
+      'BEFORE any auth status check or provider invocation',
+    );
+    expect(construction.runnerRule).toContain('CORPUS_CONFIG_OR_HASH_DRIFT');
+    const invariants = construction.invariants.join('\n');
+    expect(invariants).toContain('exactly 12 assembly identities');
+    expect(invariants).toContain('exactly 24 final identities');
+    expect(invariants).toContain('[2, 8, 5, 10]');
+    expect(invariants).toContain('never reused');
+  });
+});
+
+describe('2D2C-F0A freeze: batch contexts reconstructed independently from the DEVELOPMENT corpus', () => {
+  const inputs = reconstructBatchInputs();
+
+  it('reconstructs exactly 12 batches whose organisation ordinals match the frozen plan', () => {
+    expect(inputs).toHaveLength(12);
+    expect(inputs.map((i) => i.organisationId)).toEqual(
+      FREEZE.batching.plan.map((b) => b.organisationId),
+    );
+    expect(inputs.reduce((n, i) => n + i.documents.length, 0)).toBe(49);
+  });
+
+  it('every organisation agrees on organisationName, echeRowKey, countryCode and runId, and a disagreement throws', () => {
+    for (const input of inputs) {
+      const rows = DEV_ROWS.filter((r) => r.organisationId === input.organisationId);
+      for (const key of ['organisationName', 'echeRowKey', 'countryCode', 'runId'] as const) {
+        expect(new Set(rows.map((r) => r[key])).size).toBe(1);
+      }
+    }
+    const [first, ...rest] = DEV_ROWS.filter((r) => r.organisationId === inputs[0]!.organisationId);
+    const conflicting = [{ ...first!, runId: `${first!.runId}-x` }, ...rest];
+    expect(() => reconstructBatchInputs(conflicting)).toThrow(/runId disagrees/);
+  });
+
+  it('every context carries the production versions, rootKey null, and the frozen version strings', () => {
+    for (const { context } of inputs) {
+      expect(context.ruleVersion).toBe(ORGUNIT_SIGNAL_RULE_VERSION);
+      expect(context.ruleVersion).toBe(EXPECTED.ruleVersion);
+      expect(context.fetchPolicyVersion).toBe(FETCH_POLICY_VERSION);
+      expect(context.fetchPolicyVersion).toBe(EXPECTED.fetchPolicyVersion);
+      expect(context.assemblyVersion).toBe(ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION);
+      expect(context.assemblyVersion).toBe(EXPECTED.assemblyVersion);
+      expect(context.rootKey).toBeNull();
+      expect(context.countryCode).toBe('FR');
+    }
+  });
+
+  it('roots are the deduplicated union of the batch documents’ roots, strictly ordered by rootKey', () => {
+    for (const input of inputs) {
+      const keys = input.context.roots.map((r) => r.rootKey);
+      expect(new Set(keys).size).toBe(keys.length);
+      expect([...keys].sort(ordinalCompare)).toEqual(keys);
+      const referenced = new Set(input.documents.flatMap((d) => d.roots.map((r) => r.rootKey)));
+      expect(new Set(keys)).toEqual(referenced);
+      expect(keys.length).toBeGreaterThanOrEqual(1);
+      for (const root of input.context.roots) expect(root.rootKey).toMatch(/^(claim|promotion):/);
+    }
+    // Two batches genuinely carry two roots; every other batch carries one.
+    expect(inputs.filter((i) => i.context.roots.length === 2).map((i) => i.ordinal)).toEqual([
+      9, 12,
+    ]);
+    expect(inputs.filter((i) => i.context.roots.length === 1)).toHaveLength(10);
+  });
+
+  it('a duplicate rootKey whose metadata disagrees stops construction rather than being resolved silently', () => {
+    const target = inputs[8]!; // Paris Cité: two roots, four documents
+    const rows = DEV_ROWS.filter((r) => r.organisationId === target.organisationId);
+    const victimKey = rows[0]!.document.roots[0]!.rootKey;
+    const another = rows.find((r) => r.document.roots.some((root) => root.rootKey === victimKey));
+    expect(another).toBeDefined();
+    const mutated = rows.map((r) =>
+      r === another
+        ? {
+            ...r,
+            document: {
+              ...r.document,
+              roots: r.document.roots.map((root) =>
+                root.rootKey === victimKey ? { ...root, url: `${root.url}x` } : root,
+              ),
+            },
+          }
+        : r,
+    );
+    expect(() => reconstructBatchInputs(mutated)).toThrow(/disagreeing metadata/);
+  });
+
+  it('documents are the exact canonical corpus documents in line order with their original docIndex', () => {
+    for (const [index, input] of inputs.entries()) {
+      const batch = FREEZE.batching.plan[index]!;
+      expect(input.documents.map((d) => d.docIndex)).toEqual(batch.docIndices);
+      const rows = batch.corpusLineNumbers.map((line) => DEV_ROWS[line - 1]!);
+      expect(input.documents).toEqual(rows.map((r) => r.document));
+    }
+    expect(inputs[8]!.documents.map((d) => d.docIndex)).toEqual([2, 8, 5, 10]);
+  });
+
+  it('the twelve frozen contexts equal the reconstructed contexts exactly', () => {
+    for (const [index, input] of inputs.entries()) {
+      const batch = FREEZE.batching.plan[index]!;
+      expect(batch.context).toEqual(input.context);
+      expect(batch.context.organisationName).toBe(batch.organisationName);
+      expect(batch.context.echeRowKey).toBe(batch.echeRowKey);
+    }
+  });
+});
+
+describe('2D2C-F0A freeze: the 12 assembly identities and 24 final identities', () => {
+  const inputs = reconstructBatchInputs();
+  const identities = inputs.map((input) => identityOf(input));
+
+  it('serialized UTF-8 byte lengths equal the freeze and the oracle for every batch', () => {
+    for (const [index, identity] of identities.entries()) {
+      expect(identity.serializedBatchUtf8Bytes).toBe(
+        FREEZE.batching.plan[index]!.serializedBatchUtf8Bytes,
+      );
+      expect(identity.serializedBatchUtf8Bytes).toBe(
+        EXPECTED_INPUT_IDENTITIES[index]!.serializedBatchUtf8Bytes,
+      );
+      expect(identity.serializedBatchUtf8Bytes).toBeGreaterThan(0);
+    }
+  });
+
+  it('all twelve assembly hashes equal the freeze and the oracle, and canonicalSerializedInputSha256 equals assemblyInputSha256', () => {
+    expect(EXPECTED_INPUT_IDENTITIES).toHaveLength(12);
+    for (const [index, identity] of identities.entries()) {
+      const batch = FREEZE.batching.plan[index]!;
+      const oracle = EXPECTED_INPUT_IDENTITIES[index]!;
+      expect(oracle.ordinal).toBe(batch.ordinal);
+      expect(oracle.organisationId).toBe(batch.organisationId);
+      expect(identity.assemblyInputSha256).toMatch(/^[0-9a-f]{64}$/);
+      expect(batch.assemblyInputSha256).toBe(identity.assemblyInputSha256);
+      expect(oracle.assemblyInputSha256).toBe(identity.assemblyInputSha256);
+      expect(batch.canonicalSerializedInputSha256).toBe(batch.assemblyInputSha256);
+    }
+  });
+
+  it('the 24 final identities recompute through computeFinalInputSha256 and equal the freeze and the oracle', () => {
+    for (const [index, identity] of identities.entries()) {
+      const batch = FREEZE.batching.plan[index]!;
+      const oracle = EXPECTED_INPUT_IDENTITIES[index]!;
+      expect(Object.keys(batch.finalInputSha256).sort()).toEqual([
+        'PROMPT_V1_CANONICAL',
+        'PROMPT_V2_CANONICAL',
+      ]);
+      expect(batch.finalInputSha256['PROMPT_V1_CANONICAL']).toBe(identity.finalV1);
+      expect(batch.finalInputSha256['PROMPT_V2_CANONICAL']).toBe(identity.finalV2);
+      expect(oracle.finalV1).toBe(identity.finalV1);
+      expect(oracle.finalV2).toBe(identity.finalV2);
+      expect(identity.finalV1).toBe(
+        computeFinalInputSha256({
+          assemblyInputSha256: batch.assemblyInputSha256,
+          promptVersion: FREEZE.classifier.variants[0]!.promptVersion,
+          outputSchemaVersion: FREEZE.classifier.outputSchemaVersion,
+        }),
+      );
+      expect(identity.finalV2).toBe(
+        computeFinalInputSha256({
+          assemblyInputSha256: batch.assemblyInputSha256,
+          promptVersion: FREEZE.classifier.variants[1]!.promptVersion,
+          outputSchemaVersion: FREEZE.classifier.outputSchemaVersion,
+        }),
+      );
+    }
+  });
+
+  it('assembly identity is variant-independent, every v1/v2 pair differs, and all 12 + 24 identities are unique', () => {
+    const assembly = FREEZE.batching.plan.map((b) => b.assemblyInputSha256);
+    expect(assembly).toHaveLength(12);
+    expect(new Set(assembly).size).toBe(12);
+    const finals = FREEZE.batching.plan.flatMap((b) => [
+      b.finalInputSha256['PROMPT_V1_CANONICAL']!,
+      b.finalInputSha256['PROMPT_V2_CANONICAL']!,
+    ]);
+    expect(finals).toHaveLength(24);
+    expect(new Set(finals).size).toBe(24);
+    for (const batch of FREEZE.batching.plan) {
+      expect(batch.finalInputSha256['PROMPT_V1_CANONICAL']).not.toBe(
+        batch.finalInputSha256['PROMPT_V2_CANONICAL'],
+      );
+    }
+    // No final identity collides with any assembly identity, and none is a historical hash.
+    const historical = new Set(DEV_ROWS.map((r) => r.assemblyInputSha256));
+    for (const value of [...assembly, ...finals]) {
+      expect(historical.has(value)).toBe(false);
+    }
+    expect(new Set([...assembly, ...finals]).size).toBe(36);
+  });
+
+  it('never reuses a historical assemblyInputSha256 as a 2D2C identity', () => {
+    for (const batch of FREEZE.batching.plan) {
+      expect(batch.historicalAssemblyInputSha256).not.toContain(batch.assemblyInputSha256);
+    }
+  });
+
+  it('recomputation is deterministic across repeated reconstructions', () => {
+    const again = reconstructBatchInputs().map((input) => identityOf(input));
+    expect(again).toEqual(identities);
+    expect(identityMismatches(FREEZE.batching.plan, reconstructBatchInputs())).toEqual([]);
+  });
+});
+
+describe('2D2C-F0A freeze: mutation coverage — each frozen identity check bites', () => {
+  const pristine = FREEZE_RAW;
+  const inputs = reconstructBatchInputs();
+
+  it('changing one context version changes the serialization and every identity of that batch', () => {
+    const clone = cloneFreeze();
+    clone.batching.plan[0]!.context.ruleVersion = 'orgunit-signal-rules-v2';
+    const mismatches = identityMismatches(clone.batching.plan, inputs);
+    expect(mismatches).toEqual(['1:context']);
+    // And a reconstruction carrying the mutated version hashes differently everywhere.
+    const mutated = identityOf({
+      context: { ...inputs[0]!.context, fetchPolicyVersion: 'orgunit-fetch-policy-v2' },
+      documents: inputs[0]!.documents,
+    });
+    const original = identityOf(inputs[0]!);
+    expect(mutated.assemblyInputSha256).not.toBe(original.assemblyInputSha256);
+    expect(mutated.finalV1).not.toBe(original.finalV1);
+    expect(mutated.finalV2).not.toBe(original.finalV2);
+    expect(raw(FREEZE_PATH).toString('utf8')).toBe(pristine);
+  });
+
+  it('reordering the roots of a two-root batch changes the assembly identity', () => {
+    const target = inputs[8]!;
+    expect(target.context.roots).toHaveLength(2);
+    const reordered = identityOf({
+      context: { ...target.context, roots: [...target.context.roots].reverse() },
+      documents: target.documents,
+    });
+    expect(reordered.assemblyInputSha256).not.toBe(identityOf(target).assemblyInputSha256);
+    const clone = cloneFreeze();
+    clone.batching.plan[8]!.context.roots.reverse();
+    expect(identityMismatches(clone.batching.plan, inputs)).toEqual(['9:context']);
+    expect(raw(FREEZE_PATH).toString('utf8')).toBe(pristine);
+  });
+
+  it('moving one document changes the assembly identity and both final identities', () => {
+    const target = inputs[1]!;
+    const documents = [...target.documents];
+    [documents[0], documents[1]] = [documents[1]!, documents[0]!];
+    const moved = identityOf({ context: target.context, documents });
+    const original = identityOf(target);
+    expect(moved.serializedBatchUtf8Bytes).toBe(original.serializedBatchUtf8Bytes);
+    expect(moved.assemblyInputSha256).not.toBe(original.assemblyInputSha256);
+    expect(moved.finalV1).not.toBe(original.finalV1);
+    expect(moved.finalV2).not.toBe(original.finalV2);
+    const shuffled = inputs.map((input, index) => (index === 1 ? { ...input, documents } : input));
+    expect(identityMismatches(FREEZE.batching.plan, shuffled)).toEqual([
+      '2:assemblyInputSha256',
+      '2:finalInputSha256.v1',
+      '2:finalInputSha256.v2',
+    ]);
+    expect(raw(FREEZE_PATH).toString('utf8')).toBe(pristine);
+  });
+
+  it('changing one prompt version changes that variant’s final identity and only that one', () => {
+    const target = inputs[3]!;
+    const original = identityOf(target);
+    const changed = identityOf(target, {
+      v1: 'orgunit-classifier-prompt-v3',
+      v2: EXPECTED.v2PromptVersion,
+    });
+    expect(changed.assemblyInputSha256).toBe(original.assemblyInputSha256);
+    expect(changed.finalV1).not.toBe(original.finalV1);
+    expect(changed.finalV2).toBe(original.finalV2);
+    expect(changed.finalV1).not.toBe(
+      FREEZE.batching.plan[3]!.finalInputSha256['PROMPT_V1_CANONICAL'],
+    );
+    expect(raw(FREEZE_PATH).toString('utf8')).toBe(pristine);
+  });
+
+  it('changing one frozen input hash by a single character is detected', () => {
+    const flip = (hex: string): string => `${hex.slice(0, -1)}${hex.endsWith('0') ? '1' : '0'}`;
+    const assemblyClone = cloneFreeze();
+    assemblyClone.batching.plan[5]!.assemblyInputSha256 = flip(
+      assemblyClone.batching.plan[5]!.assemblyInputSha256,
+    );
+    expect(identityMismatches(assemblyClone.batching.plan, inputs)).toEqual([
+      '6:assemblyInputSha256',
+      '6:canonicalSerializedInputSha256',
+    ]);
+    const finalClone = cloneFreeze();
+    finalClone.batching.plan[11]!.finalInputSha256['PROMPT_V2_CANONICAL'] = flip(
+      finalClone.batching.plan[11]!.finalInputSha256['PROMPT_V2_CANONICAL']!,
+    );
+    expect(identityMismatches(finalClone.batching.plan, inputs)).toEqual([
+      '12:finalInputSha256.v2',
+    ]);
+    const bytesClone = cloneFreeze();
+    bytesClone.batching.plan[2]!.serializedBatchUtf8Bytes += 1;
+    expect(identityMismatches(bytesClone.batching.plan, inputs)).toEqual([
+      '3:serializedBatchUtf8Bytes',
+    ]);
+    expect(raw(FREEZE_PATH).toString('utf8')).toBe(pristine);
+  });
+
+  it('after every mutation the committed freeze and its parse are unchanged', () => {
+    expect(raw(FREEZE_PATH).toString('utf8')).toBe(pristine);
+    expect(JSON.parse(raw(FREEZE_PATH).toString('utf8'))).toEqual(FREEZE);
+    expect(identityMismatches(FREEZE.batching.plan, reconstructBatchInputs())).toEqual([]);
+  });
+});
+
+describe('2D2C-F0A freeze: output-capture identity rules', () => {
+  it('requires the four F0A capture fields and states the identity rules', () => {
+    for (const field of [
+      'assemblyInputSha256',
+      'finalInputSha256',
+      'serializedBatchUtf8Bytes',
+      'batchContext',
+    ]) {
+      expect(FREEZE.outputCapture.requiredPerLogicalBatch).toContain(field);
+    }
+    const rules = FREEZE.outputCapture.identityRules.join('\n');
+    expect(rules).toContain(
+      'canonicalSerializedInputSha256 and assemblyInputSha256 are the same value',
+    );
+    expect(rules).toContain('promptVersion and the outputSchemaVersion');
+    expect(rules).toContain('BEFORE any provider invocation');
+    expect(rules).toContain('CORPUS_CONFIG_OR_HASH_DRIFT');
+    expect(rules).toContain('before any auth status check');
   });
 });

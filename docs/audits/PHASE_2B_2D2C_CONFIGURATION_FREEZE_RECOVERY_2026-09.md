@@ -540,3 +540,359 @@ freeze, verifying every hash at startup, executing one Tier-2-wrapped logical
 batch at a time in the frozen order, and writing the write-once artifacts of
 §7 — **still without running it**, until a separate execution authorisation
 is recorded. No inference was run by this task.
+
+---
+
+## 13. F0A — input identity closure (2026-09-13) — `RECONSTRUCTED_AND_VERIFIED_NOW`
+
+_Appended by the F0A commit. §§1–12 are left exactly as committed in
+`abce95c499f3d8f1f0d3bb45cf9ed23e58f99b58` and
+`6f768cc8beee9fa8ad124c9fa68ba7338c50fa67`. This section does not pretend the
+omission it closes never existed: §12.5 recorded, in the F0 commit's own
+words, that "the 2D2C canonical input identities do not exist yet"._
+
+### 13.1 The gap, stated exactly
+
+F0 pinned the corpus bytes, the 12 organisation batches, document ordering,
+prompt identities, classifier configuration, liveness, output capture and
+scoring. It did **not** uniquely define the complete `ClassifierBatch` a
+logical batch sends. `ClassifierBatchContext` (`src/orgunits/classify/types.ts`)
+carries nine fields; the corpus rows supply `organisationName`, `echeRowKey`,
+`countryCode` and `runId` directly, but F0 stated no rule for `ruleVersion`,
+`fetchPolicyVersion`, `assemblyVersion`, `rootKey` or the batch-level `roots`.
+Consequently the canonical serialized batch bytes were not frozen, the twelve
+`assemblyInputSha256` values did not exist, the twenty-four final
+`inputSha256` values did not exist, and an F1 runner would have made an
+attribution-affecting choice after the freeze. F0A closes that surface
+**before any F1 implementation and before any 2D2C inference**.
+
+### 13.2 Preflight (`RECONSTRUCTED_AND_VERIFIED_NOW`)
+
+| check                                                            | result                                                                                   |
+| ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `git fetch --prune origin`                                       | no output; nothing new                                                                   |
+| local HEAD                                                       | `6f768cc8beee9fa8ad124c9fa68ba7338c50fa67` on `feat/phase2b-2d2c-configuration-freeze-recovery` |
+| `origin/feat/phase2b-2d2c-configuration-freeze-recovery`         | `6f768cc8beee9fa8ad124c9fa68ba7338c50fa67` — equal                                       |
+| `origin/main`                                                    | `7adf895fa20e9b25758e0748d1a02e26c387d19b` — unchanged                                   |
+| ancestry (`git merge-base --is-ancestor`)                        | main ≤ R1 `3b677dd2` ≤ R2B `952f80e1` ≤ R3 `a36d024f` ≤ HEAD; contract commit `abce95c4` ≤ HEAD |
+| worktree cleanliness                                             | this worktree, main, R1, R2B and R3 worktrees: `git status --porcelain` empty in all five |
+| repository-local Git identity                                    | `Tijn Klinkhamer <tijnklinkhamer@newwavefluent.com>` (local config; global config untouched) |
+| freeze JSON raw SHA-256 before edit                              | `422873a11d3876e4aa24b250cbc484a7f66b3100f1e3cda08d733a11c40a7164` (27,985 bytes)        |
+| baseline `npm run validate`                                      | exit 0; `Test Files 68 passed \| 20 skipped (88)`; `Tests 1516 passed \| 526 skipped (2050)` |
+
+No `.env` exists in the worktree; every database-gated test skipped.
+
+### 13.3 The exact context-construction rule (`RECONSTRUCTED_FROM_COMMITTED_DEVELOPMENT_CORPUS_AND_PRODUCTION_CONSTANTS`)
+
+For every organisation batch in `batching.plan`, the batch is
+`{ context, documents }` where `documents` are the exact canonical
+`document` objects of that organisation's corpus rows, in canonical corpus
+line order, with their original `docIndex` retained, and `context` is:
+
+| field                | rule                                                                                                                       |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `organisationName`   | the exact common value of the organisation's corpus rows                                                                   |
+| `echeRowKey`         | the exact common value                                                                                                     |
+| `countryCode`        | the exact common value                                                                                                     |
+| `runId`              | the exact common value                                                                                                     |
+| `ruleVersion`        | `orgunit-signal-rules-v1` (`ORGUNIT_SIGNAL_RULE_VERSION`)                                                                  |
+| `fetchPolicyVersion` | `orgunit-fetch-policy-v1` (`FETCH_POLICY_VERSION`)                                                                         |
+| `assemblyVersion`    | `orgunit-classifier-assembly-v2` (`ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION`)                                                   |
+| `rootKey`            | `null`                                                                                                                     |
+| `roots`              | the union of every `document.roots` entry in the batch, deduplicated by exact `rootKey`, sorted by `rootKey` with ordinal string comparison (`a < b ? -1 : a > b ? 1 : 0`) |
+
+Preconditions, asserted before any context is built: every row of an
+organisation agrees exactly on `organisationName`, `echeRowKey`,
+`countryCode` and `runId`; a `rootKey` seen on more than one document carries
+byte-identical `authorityKind` and `url` on every occurrence. On any
+disagreement construction stops; no version is ever chosen. The roots union
+includes only roots represented by the selected canonical DEVELOPMENT
+documents — no database, mixed corpus or HOLDOUT file was read to recover
+further run roots. All 49 rows satisfied both preconditions; the corpus has
+one run per organisation and every root key is a `claim:` key.
+
+This reconstruction agrees with the production whole-organisation context
+shape in `src/orgunits/classify/ordering.ts` (`rootKey: null`; roots sorted by
+`rootKey` with the same ordinal comparator; `assemblyVersion` from the same
+constant) with one stated difference: production reads `roots` from the run's
+`ROOT` fetch observations in the database, whereas F0A reads them from the
+committed documents. **F0A does not claim to reproduce the lost 2D2B runner's
+unknown batch bytes**; it defines the batch that 2D2C sends.
+
+The reconstructed roots per batch:
+
+| ordinal | runId | roots (rootKey → authorityKind, url) |
+|---:|---|---|
+| 1 | `2cba125c-695b-475d-bd16-a30fcf9fbd54` | `claim:f3d0fbc2-487e-4874-bb61-76297ebff2f5` → claim, `https://www.irtess.fr/` |
+| 2 | `269c420c-eb8a-440a-b25a-bacd2c50c464` | `claim:50d284fd-f827-4bc0-8608-9cfc31a5d47c` → claim, `https://www.univ-evry.fr/accueil.html` |
+| 3 | `f786d455-5021-4c9a-9183-5255f9ef876b` | `claim:1c50a2cf-b1a5-4df2-9d13-5a80349a98ce` → claim, `https://www.grenoble-em.com/` |
+| 4 | `404f54cb-2911-45b7-84cc-e94bdc1bd560` | `claim:bbf27c39-6aaf-41f5-932a-47acd5b19ff8` → claim, `https://www.univ-mayotte.fr/fr/index.html` |
+| 5 | `7c5a26ba-f29d-4da6-bef2-b90bffba3509` | `claim:3c135617-9f00-4825-b3c6-a86c2f9f1d57` → claim, `https://www.btpcfalr.com/` |
+| 6 | `51f520b5-382d-4eba-b0e4-05f7ff9d0493` | `claim:1233cf2a-5aec-4d90-8f16-97f8d942a564` → claim, `https://www.ims-nantes.com/` |
+| 7 | `a17554dd-93e0-4da9-9e8e-e5483633cc4b` | `claim:133c8e03-60a4-4690-ac92-3190e9fcb7c2` → claim, `https://www.sorbonne-nouvelle.fr/` |
+| 8 | `6f50a126-9324-4601-be79-44981ca5e387` | `claim:b87efea8-4f6c-444b-b6d1-48fbb8b3bb60` → claim, `https://www.ipag.edu/` |
+| 9 | `65377823-9966-458e-8019-0c9c327c8525` | `claim:0b2dc04f-d188-4860-a8be-caeb6b35d9dc` → claim, `https://u-pariscite.fr/`<br>`claim:46699d7e-d058-497f-b6e0-11ae4a435136` → claim, `https://u-paris.fr/` |
+| 10 | `27c05395-c430-49c4-9be6-dee42e44fbfa` | `claim:f1778215-3c41-47b5-972a-013fd8e2b592` → claim, `https://www.eslsca.fr/` |
+| 11 | `10898daa-308e-4562-b420-6942d8eb2128` | `claim:3c26eb9c-8a93-43a0-8048-098cd439b843` → claim, `https://www.ifpek.org/` |
+| 12 | `eb694783-5900-4d08-ad23-3af3448fb4f5` | `claim:65a2d762-93c3-4394-bc5e-423b049ed148` → claim, `https://www.insa-rouen.fr/`<br>`claim:bddf85c1-2c0e-44d6-9628-e9fcf908b0e0` → claim, `https://www.insa-rouen.fr/` |
+
+Two batches carry two roots: ordinal 9 (Paris Cité, `u-pariscite.fr` and
+`u-paris.fr`) and ordinal 12 (INSA Rouen, two distinct claim keys that both
+publish `https://www.insa-rouen.fr/`; deduplication is by exact `rootKey`, so
+both are retained, as production would).
+
+### 13.4 Version and algorithm verification at both variant commits
+
+Read with `git show <commit>:<path>` in the freeze worktree (audit evidence
+only; the unit test never invokes Git):
+
+| export                                       | `952f80e1` (v1 comparator)               | `a36d024f` (v2 candidate)                | HEAD blob equal |
+| -------------------------------------------- | ---------------------------------------- | ---------------------------------------- | --------------- |
+| `ORGUNIT_SIGNAL_RULE_VERSION`                | `orgunit-signal-rules-v1`                | `orgunit-signal-rules-v1`                | yes             |
+| `FETCH_POLICY_VERSION`                       | `orgunit-fetch-policy-v1`                | `orgunit-fetch-policy-v1`                | yes             |
+| `ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION`        | `orgunit-classifier-assembly-v2`         | `orgunit-classifier-assembly-v2`         | yes             |
+| `ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION`   | `orgunit-classifier-output-schema-v2`    | `orgunit-classifier-output-schema-v2`    | yes             |
+
+Blob identity of the algorithm modules at both commits and at HEAD:
+
+| file                                            | blob at `952f80e1` = `a36d024f` = HEAD    |
+| ----------------------------------------------- | ----------------------------------------- |
+| `src/orgunits/classify/canonical.ts`            | `915359fd9fe83547b516a92cf77387ae46fa9b64` |
+| `src/orgunits/classify/finalIdentity.ts`        | `41c456b9b084a3f5927317e6ec003182bb50ca80` |
+| `src/orgunits/classify/types.ts`                | `ae1b1d457492cd32b09b9257f6781332f9d6bd0e` |
+| `src/orgunits/classify/ordering.ts`             | `f062b55ffe69738bd190bc8dacaa080344756885` |
+| `src/orgunits/classify/evaluation/goldSchema.ts`| `e146e3a30233084dbb2b2903b55357fdfeeaf7d7` |
+| `src/orgunits/signals/score.ts`                 | `ee24eaba5def5e92385e5d94daf5055d2cb00891` |
+| `src/orgunits/web/policy.ts`                    | `8289400ccf58cad4e86482ffc1b9438edfb4db68` |
+| `src/orgunits/classify/constants.ts`            | `f1758d63f9cf3d276be85d2624e366cc0e99e753` |
+| `src/orgunits/classify/outputSchema.ts`         | `cf6b854c4870b85a87bb084b393630124991b8cd` |
+
+`git diff --stat 952f80e1 a36d024f` touches only `prompt.ts`, the R3 audit,
+the phase2b firewall test, the prompt test and the final-identity test (which
+gained one assertion that the real v2 prompt version hashes differently from
+the explicit v1 comparator — no algorithm change). `computeFinalInputSha256`
+therefore uses the same algorithm and the same canonical field names
+(`assemblyInputSha256`, `promptVersion`, `outputSchemaVersion`) at both
+commits, and `canonicalStringify` is byte-identical. No compatibility rule
+was needed or invented.
+
+### 13.5 The twelve assembly identities
+
+Computed by a scratch script (not committed) importing the production
+`canonicalStringify`, `computeFinalInputSha256` and the three version
+constants from the worktree; recomputed independently by the freeze test on
+every run. Serialization is exactly `canonicalStringify({ context, documents })`
+encoded as UTF-8; `assemblyInputSha256` is the SHA-256 of those bytes;
+`canonicalSerializedInputSha256` is the same value under the name the
+output-capture contract already used.
+
+| ordinal | echeRowKey | docs | docIndices | roots | serialized UTF-8 bytes | assemblyInputSha256 |
+|---:|---|---:|---|---:|---:|---|
+| 1 | `F DIJON35|949637858` | 3 | `[3, 5, 8]` | 1 | 2886 | `7179ad30e8292a024a0eba04233a787bc88293c5b11b94e744046a348da07644` |
+| 2 | `F EVRY04|999850296` | 5 | `[0, 4, 5, 8, 10]` | 1 | 14145 | `ab75d12af9ac4c455b60bed11c0d6dad1b5f48de10ef96eb42c14aba411b1a91` |
+| 3 | `F GRENOBL21|915102366` | 4 | `[1, 7, 10, 11]` | 1 | 13857 | `d7d98440e5bc091862e9d42c6b03eb36b387be9ef197322d2220ac2622a683dd` |
+| 4 | `F MAYOTTE01|912525949` | 5 | `[1, 6, 7, 8, 13]` | 1 | 8596 | `e154b407c7f8d4d34ce093819a7aafef0c992a478c11583cf326dad88e8b6a12` |
+| 5 | `F MONTPEL58|932096087` | 3 | `[0, 1, 3]` | 1 | 8579 | `70d9caf445a693280d1639209d08a7838e35e24be92c4987edffec1a179b1c3b` |
+| 6 | `F NANTES79|924638533` | 5 | `[0, 4, 10, 11, 14]` | 1 | 6190 | `d75c5d26c7a44019a734c0b0d625962fe6c700487efb934ebe44dd67c0c8cbda` |
+| 7 | `F PARIS003|999885119` | 5 | `[1, 2, 4, 6, 8]` | 1 | 14463 | `4fbc2317770371ae7c60ae2a7fbbb4d02aab5120f0767cf7dac36c4c8b5c9df4` |
+| 8 | `F PARIS105|949302432` | 4 | `[1, 3, 13, 14]` | 1 | 12302 | `397be36ecdea24e98a8d9ab69a87038066a996cd78e06ed2e4e46fdb28c5a9c8` |
+| 9 | `F PARIS482|897691060` | 4 | `[2, 8, 5, 10]` | 2 | 11504 | `6ce838c6e2b243bf4dec5dcdf8df0e04d69220b44f7020e4b602fa6f0867a890` |
+| 10 | `F PARIS525|879184333` | 3 | `[12, 14, 15]` | 1 | 9698 | `1320329b0ec4c20a8426c2e54e83048489bc9be21f0b957fb3d7711bec54ae3c` |
+| 11 | `F RENNES52|949270228` | 3 | `[1, 2, 8]` | 1 | 8358 | `03d3cdb0523ca9daaf055e1a5b5d0f878bbc27cf31454501da4927ca1ea8ec2f` |
+| 12 | `F ROUEN06|999465788` | 5 | `[0, 7, 9, 12, 13]` | 2 | 15921 | `21f433c92635027ea6f451a2c528edc20b6521cdcc5dc4b0e84de3a16549973b` |
+
+Total serialized input across the twelve batches: 126,499 UTF-8 bytes.
+Two consecutive scratch runs produced byte-identical output (SHA-256 of the
+full printed table `187e2798…9d025f3` both times).
+
+### 13.6 The twenty-four final identities
+
+`finalInputSha256 = computeFinalInputSha256({ assemblyInputSha256, promptVersion, outputSchemaVersion: 'orgunit-classifier-output-schema-v2' })`:
+
+| ordinal | variant | promptVersion | finalInputSha256 |
+|---:|---|---|---|
+| 1 | PROMPT_V1_CANONICAL | `orgunit-classifier-prompt-v1` | `c208a683f656290a83fdc408f06e2f50a26e2d273a4cb6d738f7ea20b0e983ed` |
+| 1 | PROMPT_V2_CANONICAL | `orgunit-classifier-prompt-v2` | `65bb07834ea233e237f71af971fcb3c2e3ced9a86d212321d1ac7bf12e1c8df9` |
+| 2 | PROMPT_V1_CANONICAL | `orgunit-classifier-prompt-v1` | `2339f4fad8eff19d6251edc7c53a6c2c46640ca012ef6aa8f4e087bcf48a31d1` |
+| 2 | PROMPT_V2_CANONICAL | `orgunit-classifier-prompt-v2` | `f5bd11844e43a839799359e36215eb8f3f268951cf8ffdb142dab32332ea7c46` |
+| 3 | PROMPT_V1_CANONICAL | `orgunit-classifier-prompt-v1` | `fb20bcae94361589bd884c016bc2888607ae888eb7e79d1434d7223a69600415` |
+| 3 | PROMPT_V2_CANONICAL | `orgunit-classifier-prompt-v2` | `8cec01c93119499e6f5c5b8137f753d439a06f25576bb12c88b81097b40a3000` |
+| 4 | PROMPT_V1_CANONICAL | `orgunit-classifier-prompt-v1` | `4b58a69ba08d17984c6c05449a294e2187c7963acf78d9b9e24eb0a64f1236d2` |
+| 4 | PROMPT_V2_CANONICAL | `orgunit-classifier-prompt-v2` | `be7da3efa2932b2a647f97692c73eece22e7e614e50eee3d72090487948dac93` |
+| 5 | PROMPT_V1_CANONICAL | `orgunit-classifier-prompt-v1` | `aac0f47c352b4e7e8a2ad5a1d645ad63e2c3130a6a2060ce10dc55d27e407f4f` |
+| 5 | PROMPT_V2_CANONICAL | `orgunit-classifier-prompt-v2` | `4fd5d1159ca56dea5dc033a082d1244642000237a3d3117d8564d91b01858af3` |
+| 6 | PROMPT_V1_CANONICAL | `orgunit-classifier-prompt-v1` | `fee447327d266aee90022de21690872a23f7f8515d0d279401ff2f260d00cd4e` |
+| 6 | PROMPT_V2_CANONICAL | `orgunit-classifier-prompt-v2` | `d97621f48923580b3f4d0e7fc32d44887163059e6ed9947dcbf755a65a6490ac` |
+| 7 | PROMPT_V1_CANONICAL | `orgunit-classifier-prompt-v1` | `03470f63873e0699a189823f0ddf6f2244b90e8801de94dd4420b9e763cddd08` |
+| 7 | PROMPT_V2_CANONICAL | `orgunit-classifier-prompt-v2` | `e6053074ba64155f20efbedbf102c059b98425c2ad09d580bae47243ae6fe517` |
+| 8 | PROMPT_V1_CANONICAL | `orgunit-classifier-prompt-v1` | `708f7b840c8eaafb4d11bac82f747feea2cafda85e83e31c402bd4af9587e369` |
+| 8 | PROMPT_V2_CANONICAL | `orgunit-classifier-prompt-v2` | `5e1c29b149d91a401e448c5db4d6d28dd0ec837a8d27161c52c566ad51191955` |
+| 9 | PROMPT_V1_CANONICAL | `orgunit-classifier-prompt-v1` | `d17be7622466359484ebdbc4263006755dcab81ce1031788c99032eacaea245f` |
+| 9 | PROMPT_V2_CANONICAL | `orgunit-classifier-prompt-v2` | `43381ff1e33c76b007c7ff9a747853b0ee9dde14aeee8bd78ecde3588e0855cd` |
+| 10 | PROMPT_V1_CANONICAL | `orgunit-classifier-prompt-v1` | `58aa6a2dd37617b3d05a57a58f458473d09da4d23d765a56f3ca534ee64cba32` |
+| 10 | PROMPT_V2_CANONICAL | `orgunit-classifier-prompt-v2` | `dfb9da31fb825885bd0b735f4e54198565bd8984c0f4d97dea4fa3988298f3a1` |
+| 11 | PROMPT_V1_CANONICAL | `orgunit-classifier-prompt-v1` | `6784b06c3c99ef7216dfb7d476d6fe87462a54e5b2c3e56bc378f28b83bda3b9` |
+| 11 | PROMPT_V2_CANONICAL | `orgunit-classifier-prompt-v2` | `719f25367d8c9ffd0cd70be8c2ab6b65e85008af21868a12e2c3972cec1db2aa` |
+| 12 | PROMPT_V1_CANONICAL | `orgunit-classifier-prompt-v1` | `f2b052cec43e65732a5ba4ccf4115fb2cedfee2a19141cd54a8216fa535e9ef3` |
+| 12 | PROMPT_V2_CANONICAL | `orgunit-classifier-prompt-v2` | `0ccaa717538982f58cc6addc16442accaa98f20c0b23ff3e7cb1745b0df0e16d` |
+
+### 13.7 Uniqueness and v1/v2 difference
+
+- 12 assembly identities, 12 distinct values.
+- 24 final identities, 24 distinct values; the union of the 36 assembly and
+  final identities has 36 distinct values.
+- For every batch the v1 and v2 final identities differ (they share the
+  assembly identity and the output-schema version and differ only in
+  `promptVersion`, which `computeFinalInputSha256` folds in).
+- None of the 36 values equals any of the 13 historical
+  `assemblyInputSha256` values on the corpus rows; those remain provenance
+  only.
+- The Paris Cité combined batch remains one batch, ordinal 9, doc indices
+  `[2, 8, 5, 10]`.
+
+All of the above are asserted by the freeze test, not only observed here.
+
+### 13.8 Output-capture additions
+
+`outputCapture.requiredPerLogicalBatch` gains `assemblyInputSha256`,
+`finalInputSha256`, `serializedBatchUtf8Bytes` and `batchContext`, inserted
+directly after `canonicalSerializedInputSha256` (34 → 38 fields). A new
+`outputCapture.identityRules` list states that
+`canonicalSerializedInputSha256` and `assemblyInputSha256` must be recorded
+equal; that `finalInputSha256` includes the prompt version and the
+output-schema version; that all three identities are recomputed and checked
+against `batching.plan` **before** any provider invocation; and that a
+mismatch is `CORPUS_CONFIG_OR_HASH_DRIFT` and stops before any auth status
+check and before any inference. The same rule is stated as
+`inputConstruction.runnerRule`.
+
+### 13.9 Freeze revision
+
+The filename and `version` (`phase2b-2d2c-dev-configuration-freeze-v1`) are
+unchanged. The JSON gains `freezeRevision: "F0A_INPUT_IDENTITY_CLOSURE"`,
+`supersedesFreezeRawSha256`, a two-entry `revisionHistory`, the top-level
+`inputConstruction` contract, and per-batch `context`,
+`serializedBatchUtf8Bytes`, `assemblyInputSha256`,
+`canonicalSerializedInputSha256` and `finalInputSha256` (keyed by variant
+name). Three prose fields were extended by one sentence each
+(`batching.historicalAssemblyHashRole`, `classifier.inputIdentity`,
+`nextStep`). Corpus documents, prompts, gold labels, gates, run order,
+batching plan, variant ordering, model id, run settings, liveness and stop
+conditions are unchanged.
+
+| freeze JSON raw SHA-256 | value                                                              | bytes  |
+| ----------------------- | ------------------------------------------------------------------ | ------ |
+| F0 (superseded)         | `422873a11d3876e4aa24b250cbc484a7f66b3100f1e3cda08d733a11c40a7164` | 27,985 |
+| **F0A (current)**       | `7b84ac0bca90086eea8fb59cdbd501317e3bfd53533fa529a85a8a44988ad6aa` | 49,900 |
+
+**Every artifact produced from now on records the F0A hash as
+`freezeConfigRawSha256`, never the superseded F0 hash.** The JSON was
+regenerated by a scratch script from the F0 JSON plus the computed
+identities, then formatted with the repository's Prettier configuration; the
+F0A hash above is the hash of the bytes committed by the F0A commit, which
+this audit file (a separate file) can therefore record exactly.
+
+### 13.10 Test additions and mutation results
+
+`src/test/unit/orgunitClassify2D2CConfigurationFreeze.test.ts` grows from 35
+to 61 tests (+26) across six new `describe` blocks, still reading exactly the
+two DEVELOPMENT fixtures and using no Git, network, database, provider, auth
+status or environment-dependent value. It now:
+
+1. reconstructs every batch context independently from `DEV_ROWS` and the
+   production constants (`reconstructBatchInputs`), asserting per-organisation
+   agreement on the four row fields, exact production versions,
+   `rootKey === null`, deduplicated and ordinally-ordered roots, and that
+   disagreeing duplicate root metadata throws;
+2. reconstructs `{ context, documents }` and asserts the twelve frozen
+   contexts, the twelve serialized UTF-8 byte lengths, the twelve assembly
+   hashes (against both the JSON and a literal in-test oracle),
+   `canonicalSerializedInputSha256 === assemblyInputSha256`, all 24 final
+   identities recomputed through `computeFinalInputSha256`, every v1/v2 pair
+   differing, and all 36 identities unique and disjoint from the historical
+   hashes;
+3. asserts the four new capture fields and the identity rules, the F0A
+   revision marker, the superseded hash, and that the current file's raw hash
+   is not the superseded one;
+4. keeps the F0 plan check by projecting each plan entry onto its nine F0
+   fields before deep-equality with the independently derived plan.
+
+Mutation coverage, each applied to an in-memory clone (`JSON.parse` of the
+committed bytes) or a copied reconstruction, with the committed file
+re-read and asserted byte-identical to its pristine contents after every
+mutation:
+
+| mutation                                              | detected as                                                            |
+| ----------------------------------------------------- | ---------------------------------------------------------------------- |
+| `ruleVersion` changed on batch 1's frozen context     | `1:context`; a reconstruction with a changed `fetchPolicyVersion` changes assembly and both final hashes |
+| roots reversed on the two-root batch 9                | `9:context`; reversed reconstruction hashes differently                |
+| documents 0 and 1 swapped in batch 2                  | `2:assemblyInputSha256`, `2:finalInputSha256.v1`, `2:finalInputSha256.v2` (byte length unchanged, as expected) |
+| v1 prompt version changed to `…-prompt-v3` on batch 4 | v1 final identity changes; assembly and v2 identities unchanged        |
+| one hex character flipped in batch 6's assembly hash  | `6:assemblyInputSha256`, `6:canonicalSerializedInputSha256`            |
+| one hex character flipped in batch 12's v2 final hash | `12:finalInputSha256.v2`                                               |
+| batch 3's byte count incremented                      | `3:serializedBatchUtf8Bytes`                                           |
+
+### 13.11 Commands and results (working tree, before commit)
+
+| step | command                                                                      | result                                                                                   |
+| ---- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| 1    | `npx vitest run src/test/unit/orgunitClassify2D2CConfigurationFreeze.test.ts` | `Test Files 1 passed (1)`; `Tests 61 passed (61)`                                        |
+| 2    | `git diff --check`                                                           | clean                                                                                    |
+| 3    | `npm run typecheck`                                                          | exit 0                                                                                   |
+| 4    | `npm run lint`                                                               | exit 0                                                                                   |
+| 5    | `npm run format:check`                                                       | `All matched files use Prettier code style!`                                             |
+| 6    | `npm run test:firewall`                                                      | `Test Files 4 passed (4)`; `Tests 198 passed (198)` — unchanged; no firewall edit        |
+| 7    | `npm run validate`                                                           | exit 0; `Migration check OK: 10 migration(s)`; `Test Files 68 passed \| 20 skipped (88)`; `Tests 1542 passed \| 526 skipped (2076)` |
+
+Against the §13.2 baseline (68 files, 1,516 passed, 526 skipped): **+0 files,
++26 passed, +0 skipped** — exactly the new tests. The re-run of
+`npm run validate` from the clean committed tree, the F0A commit hash and the
+push are recorded in the session's closure report, since a commit cannot
+record its own hash.
+
+### 13.12 Zero-change confirmations
+
+`git diff --stat 6f768cc8..HEAD` lists exactly three files: the freeze JSON,
+this audit and the freeze test. Therefore unchanged: every file under
+`src/orgunits/` (prompt, output schema, assembly, canonicalizer, final
+identity, signals, web policy, provider, liveness), `src/test/harness/`,
+`src/test/firewall/`, every other test, `src/test/fixtures/` (the canonical
+corpus and manifest re-hash to `c5a9923a…4c9c4536` and `9ef7dfb4…9a20f6`;
+gold labels, adjudication files and DEVELOPMENT / HOLDOUT membership
+untouched), `scripts/`, `migrations/`, `package.json`, `package-lock.json`,
+`.env.example`, `docs/adr/`, `docs/evaluation/*.md`, every other
+`docs/audits/*` record and `CLAUDE.md`. No `.env` exists. No gold label
+changed; `ge789b0f0aedc398c` remains as committed. No execution-authorisation
+artifact and no F1 runner were created.
+
+Zero live Claude/provider calls, zero `claude auth status`, zero auth or
+profile changes, zero database connections or writes, zero institutional HTTP
+requests, zero HOLDOUT inspection, derivation or inference, zero
+adjudication-fixture reads, no amend, no rebase, no force-push, no merge, no
+pull request, no push to `main`. Global Git configuration untouched.
+
+### 13.13 Remaining uncertainties
+
+- **The batch-level `roots` are reconstructed from documents, not from the
+  lost run's `ROOT` fetch observations.** If the original run had a root that
+  reached no selected DEVELOPMENT document, production's context would have
+  listed it and this one does not. That is a stated property of the F0A
+  contract, not an error, and it is why the label says
+  `RECONSTRUCTED_FROM_COMMITTED_DEVELOPMENT_CORPUS_AND_PRODUCTION_CONSTANTS`
+  rather than claiming recovered bytes.
+- **The batching policy itself remains reconstructed** (§12.5); F0A freezes
+  the identities of the reconstructed batches, not evidence that the lost
+  runner batched identically.
+- **Whether Tier 1 fires against a stalled inference**, the committed label of
+  `ge789b0f0aedc398c`, and whether prompt v2 improves anything, are unchanged
+  unknowns (§12.5).
+
+### 13.14 Exact next step
+
+Implement the DEV-only 2D2C runner (2D2C-F1) against the **F0A** freeze
+(`7b84ac0b…988ad6aa`): reconstruct every batch by §13.3, recompute all three
+identities and stop with `CORPUS_CONFIG_OR_HASH_DRIFT` on any mismatch before
+any auth status check, then execute one Tier-2-wrapped logical batch at a
+time in the frozen order, writing the write-once artifacts of §7 plus §13.8 —
+**still with zero inference**, until a separate execution authorisation is
+recorded. No inference was run by this task.

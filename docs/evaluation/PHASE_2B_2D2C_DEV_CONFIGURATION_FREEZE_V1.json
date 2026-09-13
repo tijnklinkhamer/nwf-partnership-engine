@@ -2,6 +2,33 @@
   "freezeId": "PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_V1",
   "version": "phase2b-2d2c-dev-configuration-freeze-v1",
   "status": "FROZEN_NO_INFERENCE_RUN",
+  "freezeRevision": "F0A_INPUT_IDENTITY_CLOSURE",
+  "supersedesFreezeRawSha256": "422873a11d3876e4aa24b250cbc484a7f66b3100f1e3cda08d733a11c40a7164",
+  "revisionHistory": [
+    {
+      "revision": "F0",
+      "commit": "6f768cc8beee9fa8ad124c9fa68ba7338c50fa67",
+      "freezeRawSha256": "422873a11d3876e4aa24b250cbc484a7f66b3100f1e3cda08d733a11c40a7164",
+      "pinned": "corpus bytes, 12 organisation batches, document ordering, prompt identities, classifier configuration, liveness, output capture, scoring",
+      "gap": "did not pin ruleVersion, fetchPolicyVersion, rootKey or the batch-level roots construction of ClassifierBatchContext, so the canonical serialized batch bytes, the 12 assemblyInputSha256 values and the 24 final inputSha256 values were not yet defined"
+    },
+    {
+      "revision": "F0A_INPUT_IDENTITY_CLOSURE",
+      "freezeRawSha256": "the raw SHA-256 of THIS file, which a file cannot contain; recorded in the F0A audit section and required in every later artifact as freezeConfigRawSha256",
+      "closes": "the inputConstruction contract below and the per-batch context, serialized byte count, assemblyInputSha256, canonicalSerializedInputSha256 and finalInputSha256 values in batching.plan",
+      "timing": "before any F1 runner implementation and before any 2D2C inference",
+      "unchanged": [
+        "corpus documents and manifest",
+        "prompts and prompt identities",
+        "gold labels",
+        "scoring gates",
+        "run order, batching plan and variant ordering",
+        "model id and run settings",
+        "liveness and stop conditions"
+      ],
+      "rule": "Every artifact produced after this revision records the raw SHA-256 of this F0A file as freezeConfigRawSha256, never the superseded F0 hash; a runner that finds the superseded hash stops with CORPUS_CONFIG_OR_HASH_DRIFT."
+    }
+  ],
   "frozenOn": "2026-09-13",
   "experiment": "PHASE_2B_2D2C_DEV_ATTRIBUTION",
   "purpose": "The complete, machine-readable configuration for the paired Phase 2B-2D2C DEVELOPMENT attribution experiment: prompt v1 on canonical inputs, then prompt v2 on the identical canonical inputs. Every choice that could affect attribution is pinned here BEFORE any 2D2C inference exists. This file authorises nothing: a separate execution authorisation is required before any provider call.",
@@ -90,7 +117,7 @@
       "total": 24,
       "perVariant": 12
     },
-    "historicalAssemblyHashRole": "The assemblyInputSha256 values carried by the corpus rows are historical provenance from the lost run under assembly v1 bytes. The 2D2C runner must compute and record the canonical serialized input SHA-256 of the batch it actually sends; it must not present a historical value as the identity of a 2D2C input.",
+    "historicalAssemblyHashRole": "The assemblyInputSha256 values carried by the corpus rows are historical provenance from the lost run under assembly v1 bytes. The 2D2C runner must compute and record the canonical serialized input SHA-256 of the batch it actually sends; it must not present a historical value as the identity of a 2D2C input. The 2D2C identities are now frozen per batch below (F0A) and are the only values a runner may present.",
     "plan": [
       {
         "ordinal": 1,
@@ -103,7 +130,31 @@
         "corpusLineNumbers": [1, 2, 3],
         "historicalAssemblyInputSha256": [
           "8dbd20fa1b759b8cc0050e3a4c7f19d8b8b31ff796969c76076482feaabc28bb"
-        ]
+        ],
+        "context": {
+          "organisationName": "INSTITUT RÉGIONAL SUPÉRIEUR DU TRAVAIL EDUCATIF ET SOCIAL",
+          "echeRowKey": "F DIJON35|949637858",
+          "countryCode": "FR",
+          "runId": "2cba125c-695b-475d-bd16-a30fcf9fbd54",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:f3d0fbc2-487e-4874-bb61-76297ebff2f5",
+              "authorityKind": "claim",
+              "url": "https://www.irtess.fr/"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 2886,
+        "assemblyInputSha256": "7179ad30e8292a024a0eba04233a787bc88293c5b11b94e744046a348da07644",
+        "canonicalSerializedInputSha256": "7179ad30e8292a024a0eba04233a787bc88293c5b11b94e744046a348da07644",
+        "finalInputSha256": {
+          "PROMPT_V1_CANONICAL": "c208a683f656290a83fdc408f06e2f50a26e2d273a4cb6d738f7ea20b0e983ed",
+          "PROMPT_V2_CANONICAL": "65bb07834ea233e237f71af971fcb3c2e3ced9a86d212321d1ac7bf12e1c8df9"
+        }
       },
       {
         "ordinal": 2,
@@ -122,7 +173,31 @@
         "corpusLineNumbers": [4, 5, 6, 7, 8],
         "historicalAssemblyInputSha256": [
           "34dbf346d61b5e04c5ff160204f8c26e7560bec07385849db57850f123901568"
-        ]
+        ],
+        "context": {
+          "organisationName": "UNIVERSITE D'EVRY-VAL D'ESSONE",
+          "echeRowKey": "F EVRY04|999850296",
+          "countryCode": "FR",
+          "runId": "269c420c-eb8a-440a-b25a-bacd2c50c464",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:50d284fd-f827-4bc0-8608-9cfc31a5d47c",
+              "authorityKind": "claim",
+              "url": "https://www.univ-evry.fr/accueil.html"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 14145,
+        "assemblyInputSha256": "ab75d12af9ac4c455b60bed11c0d6dad1b5f48de10ef96eb42c14aba411b1a91",
+        "canonicalSerializedInputSha256": "ab75d12af9ac4c455b60bed11c0d6dad1b5f48de10ef96eb42c14aba411b1a91",
+        "finalInputSha256": {
+          "PROMPT_V1_CANONICAL": "2339f4fad8eff19d6251edc7c53a6c2c46640ca012ef6aa8f4e087bcf48a31d1",
+          "PROMPT_V2_CANONICAL": "f5bd11844e43a839799359e36215eb8f3f268951cf8ffdb142dab32332ea7c46"
+        }
       },
       {
         "ordinal": 3,
@@ -140,7 +215,31 @@
         "corpusLineNumbers": [9, 10, 11, 12],
         "historicalAssemblyInputSha256": [
           "6b09983883c2d26575c29a584c7f74bc42208f9f37fff4b93d3057bec9329a09"
-        ]
+        ],
+        "context": {
+          "organisationName": "ETABLISSEMENT D'ENSEIGNEMENT SUPERIEUR CONSULAIRE GRENOBLE ECOLE DE MANAGEMENT",
+          "echeRowKey": "F GRENOBL21|915102366",
+          "countryCode": "FR",
+          "runId": "f786d455-5021-4c9a-9183-5255f9ef876b",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:1c50a2cf-b1a5-4df2-9d13-5a80349a98ce",
+              "authorityKind": "claim",
+              "url": "https://www.grenoble-em.com/"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 13857,
+        "assemblyInputSha256": "d7d98440e5bc091862e9d42c6b03eb36b387be9ef197322d2220ac2622a683dd",
+        "canonicalSerializedInputSha256": "d7d98440e5bc091862e9d42c6b03eb36b387be9ef197322d2220ac2622a683dd",
+        "finalInputSha256": {
+          "PROMPT_V1_CANONICAL": "fb20bcae94361589bd884c016bc2888607ae888eb7e79d1434d7223a69600415",
+          "PROMPT_V2_CANONICAL": "8cec01c93119499e6f5c5b8137f753d439a06f25576bb12c88b81097b40a3000"
+        }
       },
       {
         "ordinal": 4,
@@ -159,7 +258,31 @@
         "corpusLineNumbers": [13, 14, 15, 16, 17],
         "historicalAssemblyInputSha256": [
           "7adde05d20c67d04a3839af022d35d11a0ea40ebbb9e8c7e96efd2918e9fe374"
-        ]
+        ],
+        "context": {
+          "organisationName": "Centre Universitaire de Formation et de Recherche de Mayotte",
+          "echeRowKey": "F MAYOTTE01|912525949",
+          "countryCode": "FR",
+          "runId": "404f54cb-2911-45b7-84cc-e94bdc1bd560",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:bbf27c39-6aaf-41f5-932a-47acd5b19ff8",
+              "authorityKind": "claim",
+              "url": "https://www.univ-mayotte.fr/fr/index.html"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 8596,
+        "assemblyInputSha256": "e154b407c7f8d4d34ce093819a7aafef0c992a478c11583cf326dad88e8b6a12",
+        "canonicalSerializedInputSha256": "e154b407c7f8d4d34ce093819a7aafef0c992a478c11583cf326dad88e8b6a12",
+        "finalInputSha256": {
+          "PROMPT_V1_CANONICAL": "4b58a69ba08d17984c6c05449a294e2187c7963acf78d9b9e24eb0a64f1236d2",
+          "PROMPT_V2_CANONICAL": "be7da3efa2932b2a647f97692c73eece22e7e614e50eee3d72090487948dac93"
+        }
       },
       {
         "ordinal": 5,
@@ -172,7 +295,31 @@
         "corpusLineNumbers": [18, 19, 20],
         "historicalAssemblyInputSha256": [
           "8cbfbd8f64c054e16c4fb6ac569a57b2992f5f5baff3d9e20d7e4ae862cd5c7b"
-        ]
+        ],
+        "context": {
+          "organisationName": "BTP CFA OCCITANIE",
+          "echeRowKey": "F MONTPEL58|932096087",
+          "countryCode": "FR",
+          "runId": "7c5a26ba-f29d-4da6-bef2-b90bffba3509",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:3c135617-9f00-4825-b3c6-a86c2f9f1d57",
+              "authorityKind": "claim",
+              "url": "https://www.btpcfalr.com/"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 8579,
+        "assemblyInputSha256": "70d9caf445a693280d1639209d08a7838e35e24be92c4987edffec1a179b1c3b",
+        "canonicalSerializedInputSha256": "70d9caf445a693280d1639209d08a7838e35e24be92c4987edffec1a179b1c3b",
+        "finalInputSha256": {
+          "PROMPT_V1_CANONICAL": "aac0f47c352b4e7e8a2ad5a1d645ad63e2c3130a6a2060ce10dc55d27e407f4f",
+          "PROMPT_V2_CANONICAL": "4fd5d1159ca56dea5dc033a082d1244642000237a3d3117d8564d91b01858af3"
+        }
       },
       {
         "ordinal": 6,
@@ -191,7 +338,31 @@
         "corpusLineNumbers": [21, 22, 23, 24, 25],
         "historicalAssemblyInputSha256": [
           "1c42266ae8af43d2d2d0927c6880322b120f9d115952a0af93eb6d5fb06829ac"
-        ]
+        ],
+        "context": {
+          "organisationName": "Institut des Métiers de l'Enseignement Supérieur",
+          "echeRowKey": "F NANTES79|924638533",
+          "countryCode": "FR",
+          "runId": "51f520b5-382d-4eba-b0e4-05f7ff9d0493",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:1233cf2a-5aec-4d90-8f16-97f8d942a564",
+              "authorityKind": "claim",
+              "url": "https://www.ims-nantes.com/"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 6190,
+        "assemblyInputSha256": "d75c5d26c7a44019a734c0b0d625962fe6c700487efb934ebe44dd67c0c8cbda",
+        "canonicalSerializedInputSha256": "d75c5d26c7a44019a734c0b0d625962fe6c700487efb934ebe44dd67c0c8cbda",
+        "finalInputSha256": {
+          "PROMPT_V1_CANONICAL": "fee447327d266aee90022de21690872a23f7f8515d0d279401ff2f260d00cd4e",
+          "PROMPT_V2_CANONICAL": "d97621f48923580b3f4d0e7fc32d44887163059e6ed9947dcbf755a65a6490ac"
+        }
       },
       {
         "ordinal": 7,
@@ -210,7 +381,31 @@
         "corpusLineNumbers": [26, 27, 28, 29, 30],
         "historicalAssemblyInputSha256": [
           "1bfc305fd94ee3b0463dc1a0f536fc6f415a5120aa26d4d7e469abdd435886f1"
-        ]
+        ],
+        "context": {
+          "organisationName": "UNIVERSITE PARIS III SORBONNE NOUVELLE",
+          "echeRowKey": "F PARIS003|999885119",
+          "countryCode": "FR",
+          "runId": "a17554dd-93e0-4da9-9e8e-e5483633cc4b",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:133c8e03-60a4-4690-ac92-3190e9fcb7c2",
+              "authorityKind": "claim",
+              "url": "https://www.sorbonne-nouvelle.fr/"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 14463,
+        "assemblyInputSha256": "4fbc2317770371ae7c60ae2a7fbbb4d02aab5120f0767cf7dac36c4c8b5c9df4",
+        "canonicalSerializedInputSha256": "4fbc2317770371ae7c60ae2a7fbbb4d02aab5120f0767cf7dac36c4c8b5c9df4",
+        "finalInputSha256": {
+          "PROMPT_V1_CANONICAL": "03470f63873e0699a189823f0ddf6f2244b90e8801de94dd4420b9e763cddd08",
+          "PROMPT_V2_CANONICAL": "e6053074ba64155f20efbedbf102c059b98425c2ad09d580bae47243ae6fe517"
+        }
       },
       {
         "ordinal": 8,
@@ -228,7 +423,31 @@
         "corpusLineNumbers": [31, 32, 33, 34],
         "historicalAssemblyInputSha256": [
           "8d015038fd90e54a8220a9f822f3bc1f08626532de9f369fb1260e9aa8a90148"
-        ]
+        ],
+        "context": {
+          "organisationName": "INSTITUT DE PREPARATION A L'ADMINISTRATION ET A LA GESTION",
+          "echeRowKey": "F PARIS105|949302432",
+          "countryCode": "FR",
+          "runId": "6f50a126-9324-4601-be79-44981ca5e387",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:b87efea8-4f6c-444b-b6d1-48fbb8b3bb60",
+              "authorityKind": "claim",
+              "url": "https://www.ipag.edu/"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 12302,
+        "assemblyInputSha256": "397be36ecdea24e98a8d9ab69a87038066a996cd78e06ed2e4e46fdb28c5a9c8",
+        "canonicalSerializedInputSha256": "397be36ecdea24e98a8d9ab69a87038066a996cd78e06ed2e4e46fdb28c5a9c8",
+        "finalInputSha256": {
+          "PROMPT_V1_CANONICAL": "708f7b840c8eaafb4d11bac82f747feea2cafda85e83e31c402bd4af9587e369",
+          "PROMPT_V2_CANONICAL": "5e1c29b149d91a401e448c5db4d6d28dd0ec837a8d27161c52c566ad51191955"
+        }
       },
       {
         "ordinal": 9,
@@ -247,7 +466,36 @@
         "historicalAssemblyInputSha256": [
           "6c1bdcf74cedd27ba861ad9fbf56f91323d198d0aa3213840eb3168567bb24df",
           "6a9b4d9d25478d13a28feebd92afc7458186b51ac480cbcf6e1e3267f8810519"
-        ]
+        ],
+        "context": {
+          "organisationName": "UNIVERSITE PARIS CITE",
+          "echeRowKey": "F PARIS482|897691060",
+          "countryCode": "FR",
+          "runId": "65377823-9966-458e-8019-0c9c327c8525",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:0b2dc04f-d188-4860-a8be-caeb6b35d9dc",
+              "authorityKind": "claim",
+              "url": "https://u-pariscite.fr/"
+            },
+            {
+              "rootKey": "claim:46699d7e-d058-497f-b6e0-11ae4a435136",
+              "authorityKind": "claim",
+              "url": "https://u-paris.fr/"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 11504,
+        "assemblyInputSha256": "6ce838c6e2b243bf4dec5dcdf8df0e04d69220b44f7020e4b602fa6f0867a890",
+        "canonicalSerializedInputSha256": "6ce838c6e2b243bf4dec5dcdf8df0e04d69220b44f7020e4b602fa6f0867a890",
+        "finalInputSha256": {
+          "PROMPT_V1_CANONICAL": "d17be7622466359484ebdbc4263006755dcab81ce1031788c99032eacaea245f",
+          "PROMPT_V2_CANONICAL": "43381ff1e33c76b007c7ff9a747853b0ee9dde14aeee8bd78ecde3588e0855cd"
+        }
       },
       {
         "ordinal": 10,
@@ -260,7 +508,31 @@
         "corpusLineNumbers": [39, 40, 41],
         "historicalAssemblyInputSha256": [
           "9d0eb20f628e4a5b86e3ce90303a3f20a283aa556805ffa46e9ba98803bad210"
-        ]
+        ],
+        "context": {
+          "organisationName": "Ecole Supérieure Libre des Sciences Commerciales Appliquées",
+          "echeRowKey": "F PARIS525|879184333",
+          "countryCode": "FR",
+          "runId": "27c05395-c430-49c4-9be6-dee42e44fbfa",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:f1778215-3c41-47b5-972a-013fd8e2b592",
+              "authorityKind": "claim",
+              "url": "https://www.eslsca.fr/"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 9698,
+        "assemblyInputSha256": "1320329b0ec4c20a8426c2e54e83048489bc9be21f0b957fb3d7711bec54ae3c",
+        "canonicalSerializedInputSha256": "1320329b0ec4c20a8426c2e54e83048489bc9be21f0b957fb3d7711bec54ae3c",
+        "finalInputSha256": {
+          "PROMPT_V1_CANONICAL": "58aa6a2dd37617b3d05a57a58f458473d09da4d23d765a56f3ca534ee64cba32",
+          "PROMPT_V2_CANONICAL": "dfb9da31fb825885bd0b735f4e54198565bd8984c0f4d97dea4fa3988298f3a1"
+        }
       },
       {
         "ordinal": 11,
@@ -273,7 +545,31 @@
         "corpusLineNumbers": [42, 43, 44],
         "historicalAssemblyInputSha256": [
           "c5cf26ac5017b3365e133dfdc812bc833b286a3d745ce40067b50658b77c8ed7"
-        ]
+        ],
+        "context": {
+          "organisationName": "INSTITUT DE FORMATION EN PEDICURIE-PODOLOGIE, ERGOTHERAPIE, MASSO-KINESITHERAPIE",
+          "echeRowKey": "F RENNES52|949270228",
+          "countryCode": "FR",
+          "runId": "10898daa-308e-4562-b420-6942d8eb2128",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:3c26eb9c-8a93-43a0-8048-098cd439b843",
+              "authorityKind": "claim",
+              "url": "https://www.ifpek.org/"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 8358,
+        "assemblyInputSha256": "03d3cdb0523ca9daaf055e1a5b5d0f878bbc27cf31454501da4927ca1ea8ec2f",
+        "canonicalSerializedInputSha256": "03d3cdb0523ca9daaf055e1a5b5d0f878bbc27cf31454501da4927ca1ea8ec2f",
+        "finalInputSha256": {
+          "PROMPT_V1_CANONICAL": "6784b06c3c99ef7216dfb7d476d6fe87462a54e5b2c3e56bc378f28b83bda3b9",
+          "PROMPT_V2_CANONICAL": "719f25367d8c9ffd0cd70be8c2ab6b65e85008af21868a12e2c3972cec1db2aa"
+        }
       },
       {
         "ordinal": 12,
@@ -292,9 +588,94 @@
         "corpusLineNumbers": [45, 46, 47, 48, 49],
         "historicalAssemblyInputSha256": [
           "0283d1531e58f15c6c5ea1b4c5306f59578c2071e6b60486d29d0ce542dc8764"
-        ]
+        ],
+        "context": {
+          "organisationName": "INSTITUT NATIONAL DES SCIENCES APPLIQUEES DE ROUEN",
+          "echeRowKey": "F ROUEN06|999465788",
+          "countryCode": "FR",
+          "runId": "eb694783-5900-4d08-ad23-3af3448fb4f5",
+          "ruleVersion": "orgunit-signal-rules-v1",
+          "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+          "assemblyVersion": "orgunit-classifier-assembly-v2",
+          "rootKey": null,
+          "roots": [
+            {
+              "rootKey": "claim:65a2d762-93c3-4394-bc5e-423b049ed148",
+              "authorityKind": "claim",
+              "url": "https://www.insa-rouen.fr/"
+            },
+            {
+              "rootKey": "claim:bddf85c1-2c0e-44d6-9628-e9fcf908b0e0",
+              "authorityKind": "claim",
+              "url": "https://www.insa-rouen.fr/"
+            }
+          ]
+        },
+        "serializedBatchUtf8Bytes": 15921,
+        "assemblyInputSha256": "21f433c92635027ea6f451a2c528edc20b6521cdcc5dc4b0e84de3a16549973b",
+        "canonicalSerializedInputSha256": "21f433c92635027ea6f451a2c528edc20b6521cdcc5dc4b0e84de3a16549973b",
+        "finalInputSha256": {
+          "PROMPT_V1_CANONICAL": "f2b052cec43e65732a5ba4ccf4115fb2cedfee2a19141cd54a8216fa535e9ef3",
+          "PROMPT_V2_CANONICAL": "0ccaa717538982f58cc6addc16442accaa98f20c0b23ff3e7cb1745b0df0e16d"
+        }
       }
     ]
+  },
+  "inputConstruction": {
+    "evidenceClass": "RECONSTRUCTED_FROM_COMMITTED_DEVELOPMENT_CORPUS_AND_PRODUCTION_CONSTANTS",
+    "claim": "The complete ClassifierBatch each logical batch sends is constructed deterministically from the committed DEVELOPMENT canonical corpus rows plus three production version constants. This is a reconstruction defined by this freeze; it does not claim to reproduce the lost 2D2B runner’s unknown batch bytes.",
+    "batchShape": "{ context, documents }",
+    "documents": {
+      "source": "the exact canonical `document` object of every corpus row belonging to the organisation",
+      "order": "existing canonical corpus line order",
+      "docIndex": "each document keeps its original docIndex; nothing is renumbered"
+    },
+    "context": {
+      "organisationName": "the exact common organisationName of the organisation’s corpus rows",
+      "echeRowKey": "the exact common echeRowKey of the organisation’s corpus rows",
+      "countryCode": "the exact common countryCode of the organisation’s corpus rows",
+      "runId": "the exact common runId of the organisation’s corpus rows",
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+      "assemblyVersion": "orgunit-classifier-assembly-v2",
+      "rootKey": null,
+      "roots": "the union of every document.roots entry in the organisation batch, deduplicated by exact rootKey, sorted by rootKey using ordinal string comparison (a < b ? -1 : a > b ? 1 : 0)"
+    },
+    "constantSources": {
+      "ruleVersion": "ORGUNIT_SIGNAL_RULE_VERSION (src/orgunits/signals/score.ts)",
+      "fetchPolicyVersion": "FETCH_POLICY_VERSION (src/orgunits/web/policy.ts)",
+      "assemblyVersion": "ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION (src/orgunits/classify/constants.ts)",
+      "outputSchemaVersion": "ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION (src/orgunits/classify/outputSchema.ts)",
+      "verifiedIdenticalAt": [
+        "952f80e124bc681ee15c35386d30ba52a6d80c98",
+        "a36d024fa9a0bc6f4bc3c66b32ab6109fa4fa31a"
+      ]
+    },
+    "preconditions": [
+      "every corpus row of an organisation agrees exactly on organisationName, echeRowKey, countryCode and runId; on any disagreement construction stops",
+      "a rootKey that appears on more than one document carries byte-identical authorityKind and url on every occurrence; on any disagreement construction stops and no version is chosen",
+      "the batch-level roots union includes only roots represented by the selected canonical DEVELOPMENT documents; no database, mixed corpus or HOLDOUT file is read to recover further run roots"
+    ],
+    "serialization": "canonicalStringify({ context, documents }) as implemented in src/orgunits/classify/canonical.ts (sorted object keys, arrays in given order), encoded as UTF-8",
+    "assemblyInputSha256": "lowercase hex SHA-256 of exactly those UTF-8 bytes",
+    "canonicalSerializedInputSha256": "equal to assemblyInputSha256 by definition; both names are retained only because the output-capture contract already used the former",
+    "finalInputSha256": "computeFinalInputSha256({ assemblyInputSha256, promptVersion, outputSchemaVersion: \"orgunit-classifier-output-schema-v2\" }) as implemented in src/orgunits/classify/finalIdentity.ts",
+    "promptVersionByVariant": {
+      "PROMPT_V1_CANONICAL": "orgunit-classifier-prompt-v1",
+      "PROMPT_V2_CANONICAL": "orgunit-classifier-prompt-v2"
+    },
+    "invariants": [
+      "exactly 12 assembly identities, one per logical batch",
+      "exactly 24 final identities, two per logical batch",
+      "the assembly identity of a batch is identical for both variants",
+      "the v1 and v2 final identities of every batch differ",
+      "no two batches share an assembly identity",
+      "no two (batch, variant) pairs share a final identity",
+      "recomputation from the committed corpus produces the same values on every run",
+      "the Paris Cité combined batch remains one batch with docIndices [2, 8, 5, 10]",
+      "the 13 historical assemblyInputSha256 values on the corpus rows are never reused as a 2D2C identity"
+    ],
+    "runnerRule": "The F1 runner reconstructs every batch by this contract, recomputes all three identities, and compares them against batching.plan BEFORE any auth status check or provider invocation; any mismatch is CORPUS_CONFIG_OR_HASH_DRIFT and stops the experiment."
   },
   "classifier": {
     "evidenceClass": "RECONSTRUCTED_AND_VERIFIED_NOW",
@@ -366,7 +747,7 @@
       }
     ],
     "variantIsolation": "Each variant runs from its own clean worktree checked out at exactly its gitCommit, with dependencies restored by npm ci from that commit’s lockfile. The runner must verify the prompt version and runtime prompt SHA-256 at startup and stop on mismatch. Prompts are never switched by a runtime flag.",
-    "inputIdentity": "input_sha256 = computeFinalInputSha256(assemblyInputSha256, promptVersion, outputSchemaVersion) as implemented at the variant commit; v1 and v2 identities differ by construction, so no v1 result can be reused for a v2 question."
+    "inputIdentity": "input_sha256 = computeFinalInputSha256(assemblyInputSha256, promptVersion, outputSchemaVersion) as implemented at the variant commit; v1 and v2 identities differ by construction, so no v1 result can be reused for a v2 question. Since F0A the exact values are frozen per batch in batching.plan.finalInputSha256 and are recomputed by the freeze unit test."
   },
   "liveness": {
     "evidenceClass": "RECONSTRUCTED_AND_VERIFIED_NOW",
@@ -463,6 +844,10 @@
       "orderedGoldIds",
       "orderedDocIndices",
       "canonicalSerializedInputSha256",
+      "assemblyInputSha256",
+      "finalInputSha256",
+      "serializedBatchUtf8Bytes",
+      "batchContext",
       "promptVersion",
       "promptSha256",
       "requestedModelId",
@@ -495,6 +880,13 @@
       "chain of thought",
       "SDK debug files (debug / debugFile / DEBUG_CLAUDE_AGENT_SDK are never enabled)",
       "semantic settings from the user’s normal Claude profile"
+    ],
+    "identityRules": [
+      "canonicalSerializedInputSha256 and assemblyInputSha256 are the same value (the SHA-256 of the canonical serialized { context, documents } bytes) and must be recorded equal",
+      "finalInputSha256 is computeFinalInputSha256 over assemblyInputSha256, the variant’s promptVersion and the outputSchemaVersion; it is the persisted input identity and differs between the two variants for every batch",
+      "all three identities must be recomputed by the runner and checked against batching.plan BEFORE any provider invocation",
+      "an identity mismatch is CORPUS_CONFIG_OR_HASH_DRIFT and must stop before any auth status check and before any inference",
+      "batchContext is the complete reconstructed ClassifierBatchContext actually sent, and serializedBatchUtf8Bytes is the byte length of the exact canonical serialization actually sent"
     ]
   },
   "scoring": {
@@ -566,5 +958,5 @@
       "dependency, lockfile, migration or environment changes"
     ]
   },
-  "nextStep": "Implement the DEV-only 2D2C runner against this freeze (2D2C-F1), still without running it, until a separate execution authorisation is recorded."
+  "nextStep": "Implement the DEV-only 2D2C runner against this F0A freeze (2D2C-F1), still without running it, until a separate execution authorisation is recorded."
 }
