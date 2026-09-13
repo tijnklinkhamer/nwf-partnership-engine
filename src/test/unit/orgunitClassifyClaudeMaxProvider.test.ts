@@ -40,8 +40,44 @@ import {
   type LivenessBoundedQuery,
 } from '../../orgunits/classify/provider/agentSdkRunner.js';
 import type { AgentSdkInvocation } from '../../orgunits/classify/provider/sdkOptions.js';
+import type {
+  ClaudeCodeExecutableResolution,
+  ClaudeCodeExecutableResolver,
+} from '../../orgunits/classify/provider/claudeCodeExecutable.js';
 
 const FAKE_TOKEN = 'test-oauth-secret-do-not-log';
+/** A synthetic ABSOLUTE path standing in for the resolved SDK-bundled native binary. Nothing here is ever spawned. */
+const FAKE_EXECUTABLE =
+  process.platform === 'win32'
+    ? 'C:\\synthetic-root\\node_modules\\synthetic-native\\claude.exe'
+    : '/synthetic-root/node_modules/synthetic-native/claude';
+
+/** A fake resolver that answers a fixed resolution and counts its calls. */
+function fakeExecutable(
+  resolution: ClaudeCodeExecutableResolution = {
+    ok: true,
+    provenance: {
+      executablePath: FAKE_EXECUTABLE,
+      packageRoot: '/synthetic-root',
+      sdkPackageName: 'synthetic-sdk',
+      sdkVersion: '0.0.0-synthetic',
+      claudeCodeVersion: '0.0.0-synthetic',
+      nativePackageName: 'synthetic-native',
+      nativePackageVersion: '0.0.0-synthetic',
+      platformKey: 'synthetic',
+      binaryFileName: 'claude',
+      binaryBytes: 1,
+      binarySha256: '0'.repeat(64),
+    },
+  },
+): ClaudeCodeExecutableResolver & { readonly calls: () => number } {
+  let calls = 0;
+  const resolver = (): ClaudeCodeExecutableResolution => {
+    calls += 1;
+    return resolution;
+  };
+  return Object.assign(resolver, { calls: () => calls });
+}
 const MODEL = 'test-model-max';
 const ALLOWED = [MODEL];
 const REPO_ROOT = join(tmpdir(), 'nwf-pe-test-repo-root');
@@ -147,12 +183,16 @@ function provider(options: {
   runner: AgentSdkRunner;
   env: Record<string, string | undefined>;
   authStatusRunner?: ClassifierAuthStatusRunner;
+  claudeCodeExecutable?: ClaudeCodeExecutableResolver;
   clock?: FakeClock;
   onAttemptDiagnostics?: (diagnostics: AgentSdkDiagnostics) => void;
 }): ClaudeMaxAgentProvider {
   return new ClaudeMaxAgentProvider({
     runner: options.runner,
     authStatusRunner: options.authStatusRunner ?? new FakeAuthStatusRunner(),
+    // Every test injects a fake resolver: no test ever resolves, hashes or
+    // names the real SDK-bundled binary through the provider.
+    claudeCodeExecutable: options.claudeCodeExecutable ?? fakeExecutable(),
     env: () => options.env,
     repoRoot: REPO_ROOT,
     allowedModels: ALLOWED,
@@ -246,9 +286,11 @@ describe('ClaudeMaxAgentProvider - success path', () => {
     expect(JSON.stringify(invocation.options.env)).not.toContain('postgres://secret');
     expect(JSON.stringify(invocation.options.env)).not.toContain('ghp_secret');
     expect(invocation.options.env.CLAUDE_CODE_DISABLE_AUTO_MEMORY).toBe('1');
-    // The auth-status check ran FIRST, under the SAME child env.
+    // The auth-status check ran FIRST, under the SAME child env and the SAME executable.
     expect(authStatusRunner.invocations).toHaveLength(1);
     expect(authStatusRunner.invocations[0]!.env).toEqual(invocation.options.env);
+    expect(authStatusRunner.invocations[0]!.executablePath).toBe(FAKE_EXECUTABLE);
+    expect(invocation.options.pathToClaudeCodeExecutable).toBe(FAKE_EXECUTABLE);
     // The scratch cwd genuinely existed while the runner ran...
     expect(cwdExistedDuringRun).toBe(true);
     // ...and is genuinely gone afterwards (cleanup on success) - while the
@@ -268,6 +310,71 @@ describe('ClaudeMaxAgentProvider - success path', () => {
       type: 'json_schema',
       schema: { type: 'array' },
     });
+  });
+});
+
+describe('ClaudeMaxAgentProvider - the SDK-bundled executable (ADR 0010 Amendment A)', () => {
+  it('resolves ONCE and hands the SAME absolute path to the auth-status preflight and the inference invocation', async () => {
+    const runner = new FakeRunner([okRunResult([])]);
+    const authStatusRunner = new FakeAuthStatusRunner();
+    const claudeCodeExecutable = fakeExecutable();
+    const profileDir = await provisionedProfile();
+    const result = await provider({
+      runner,
+      env: envFor(profileDir),
+      authStatusRunner,
+      claudeCodeExecutable,
+    }).classify(request());
+    expect(result.outcome).toBe('OK');
+    expect(claudeCodeExecutable.calls()).toBe(1);
+    const auth = authStatusRunner.invocations[0]!.executablePath;
+    const inference = runner.invocations[0]!.options.pathToClaudeCodeExecutable;
+    expect(auth).toBe(FAKE_EXECUTABLE);
+    expect(inference).toBe(auth);
+    // Never a bare command name that PATH would resolve.
+    expect(auth).not.toBe('claude');
+    expect(auth.includes('/') || auth.includes('\\')).toBe(true);
+  });
+
+  it('a resolver refusal -> AUTH_FAILURE naming the kind, neither runner invoked, no scratch directory created', async () => {
+    const runner = new FakeRunner([]);
+    const authStatusRunner = new FakeAuthStatusRunner();
+    const profileDir = await provisionedProfile();
+    const result = await provider({
+      runner,
+      env: envFor(profileDir),
+      authStatusRunner,
+      claudeCodeExecutable: fakeExecutable({
+        ok: false,
+        kind: 'NATIVE_PACKAGE_MISSING',
+        detail: 'refused: the optional native package is not installed.',
+      }),
+    }).classify(request());
+    expect(result.outcome).toBe('AUTH_FAILURE');
+    expect(result.outcomeDetail).toContain('CLAUDE_CODE_EXECUTABLE_NATIVE_PACKAGE_MISSING');
+    expect(result.outcomeDetail).toContain('not installed');
+    expect(runner.invocations).toHaveLength(0);
+    expect(authStatusRunner.invocations).toHaveLength(0);
+  });
+
+  it('a resolver that answers a bare command name is refused before any inference: the builder throws, zero runner invocations', async () => {
+    const runner = new FakeRunner([okRunResult([])]);
+    const authStatusRunner = new FakeAuthStatusRunner();
+    const profileDir = await provisionedProfile();
+    const bare = fakeExecutable();
+    const bareResolution = bare() as Extract<ClaudeCodeExecutableResolution, { ok: true }>;
+    await expect(
+      provider({
+        runner,
+        env: envFor(profileDir),
+        authStatusRunner,
+        claudeCodeExecutable: () => ({
+          ok: true,
+          provenance: { ...bareResolution.provenance, executablePath: 'claude' },
+        }),
+      }).classify(request()),
+    ).rejects.toThrow(/absolute/);
+    expect(runner.invocations).toHaveLength(0);
   });
 });
 
