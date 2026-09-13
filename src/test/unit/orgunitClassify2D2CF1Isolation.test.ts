@@ -64,8 +64,18 @@ const code = (relative: string): string =>
   readFileSync(join(ROOT, relative), 'utf8')
     .replace(/\/\*[\s\S]*?\*\//g, ' ')
     .replace(/(^|[^:])\/\/.*$/gm, '$1 ');
-const harnessFiles = (): string[] =>
-  readdirSync(join(ROOT, HARNESS_DIR)).map((f) => `${HARNESS_DIR}/${f}`);
+/**
+ * Every source file under the runner namespace, RECURSIVELY — the namespace
+ * gained a subdirectory (`scoring/`) in 2D2C-F4, and a non-recursive listing
+ * would silently stop checking anything placed inside one.
+ */
+const harnessFiles = (): string[] => {
+  const walk = (relative: string): string[] =>
+    readdirSync(join(ROOT, relative), { withFileTypes: true }).flatMap((entry) =>
+      entry.isDirectory() ? walk(`${relative}/${entry.name}`) : [`${relative}/${entry.name}`],
+    );
+  return walk(HARNESS_DIR).sort();
+};
 
 /** Forbidden names, built from the production guard's own constants so no test spells a credential identifier. */
 const FORBIDDEN_NAMES = [

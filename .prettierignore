@@ -12,3 +12,9 @@ data/
 # 2026-08 shadow-validation audit predates the current prettier's markdown
 # rules; this exemption preserves its exact committed bytes.)
 docs/audits/
+
+# Deterministically DERIVED evaluation results. Their bytes are the output of
+# `canonicalStringify` and are pinned by a manifest of their own SHA-256s; a
+# reformat would change a recorded hash and end the byte-stability the
+# derivation exists to provide.
+docs/evaluation/results/
