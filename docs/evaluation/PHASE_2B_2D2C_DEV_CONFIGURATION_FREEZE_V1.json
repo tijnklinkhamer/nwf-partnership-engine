@@ -1,0 +1,570 @@
+{
+  "freezeId": "PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_V1",
+  "version": "phase2b-2d2c-dev-configuration-freeze-v1",
+  "status": "FROZEN_NO_INFERENCE_RUN",
+  "frozenOn": "2026-09-13",
+  "experiment": "PHASE_2B_2D2C_DEV_ATTRIBUTION",
+  "purpose": "The complete, machine-readable configuration for the paired Phase 2B-2D2C DEVELOPMENT attribution experiment: prompt v1 on canonical inputs, then prompt v2 on the identical canonical inputs. Every choice that could affect attribution is pinned here BEFORE any 2D2C inference exists. This file authorises nothing: a separate execution authorisation is required before any provider call.",
+  "evidenceClasses": {
+    "OWNER_PRESERVED_REQUIREMENT": "A requirement the owner supplied for this freeze (the F0 brief) or preserved from the lost 2D2B work. Authoritative; not derived from lost bytes; not reverified by this task unless also listed below as RECONSTRUCTED_AND_VERIFIED_NOW.",
+    "RECONSTRUCTED_AND_VERIFIED_NOW": "Recomputed in this task from committed bytes at the pinned Git commits, or read from production exports at R3, and pinned by the freeze unit test.",
+    "NOT_REVERIFIED": "Known only from an artifact, run or file that no longer exists, or deliberately not re-measured here."
+  },
+  "git": {
+    "repository": "https://github.com/tijnklinkhamer/nwf-partnership-engine.git",
+    "baselineMain": "7adf895fa20e9b25758e0748d1a02e26c387d19b",
+    "r1EvidenceCanonicalisation": {
+      "branch": "feat/phase2b-2d2b-1-evidence-canonicalisation-recovery",
+      "commit": "3b677dd2b0788ff9d7967f5c1627dddd1f81a1fd"
+    },
+    "r2bHardLiveness": {
+      "branch": "feat/phase2b-2d2b-2-hard-liveness-boundary-recovery",
+      "commit": "952f80e124bc681ee15c35386d30ba52a6d80c98"
+    },
+    "r3PromptV2": {
+      "branch": "feat/phase2b-2d2b-3-prompt-v2-recovery",
+      "commit": "a36d024fa9a0bc6f4bc3c66b32ab6109fa4fa31a"
+    },
+    "freezeBranch": "feat/phase2b-2d2c-configuration-freeze-recovery",
+    "freezeBranchBasedOn": "a36d024fa9a0bc6f4bc3c66b32ab6109fa4fa31a",
+    "requiredAncestry": [
+      "r3PromptV2 descends from r2bHardLiveness",
+      "r2bHardLiveness descends from r1EvidenceCanonicalisation",
+      "r1EvidenceCanonicalisation descends from baselineMain"
+    ],
+    "ancestryEvidence": "Verified by the F0 audit record with git merge-base --is-ancestor; the freeze unit test never invokes Git and never depends on the current branch name.",
+    "lostCommitsPolicy": "No lost 2D2B commit, file or artifact is an ancestor of any pinned commit. Nothing here claims recovery of lost bytes."
+  },
+  "corpus": {
+    "evidenceClass": "RECONSTRUCTED_AND_VERIFIED_NOW",
+    "scope": "DEVELOPMENT",
+    "itemCount": 49,
+    "canonicalCorpusPath": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-v1-canonical-v2.jsonl",
+    "canonicalManifestPath": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-v1-canonical-v2.manifest.jsonl",
+    "sourceCorpusVersion": "orgunit-classifier-sonnet-acceptance-v1",
+    "derivationVersion": "orgunit-classifier-sonnet-acceptance-canonical-v2",
+    "canonicalisationRule": "NFC(decodeHtmlEntities_HTML4_once(text))",
+    "sourceCorpusRawSha256": "dec0a5992afa4fd7b64009202d461edc91ddc29218f35e35f6bb7edd40d63ede",
+    "sourceManifestCorpusSha256": "42f041ee5704408788ff301811983c123c200f4c1d6f4fa89696d6b4abaea44b",
+    "derivedCorpusRawSha256": "c5a9923a35689fd8b0950d615ee5339c6ccc63e83ac067960760497b6a9c4536",
+    "derivedManifestRawSha256": "9ef7dfb45307004297f019351163b06478d2f552834f10496545cfaf1a9a20f6",
+    "derivedCorpusContentSha256": "f00139e42ff5d12dfc1a6ba1b969a635197ddda27f79515473f119ff919a6fa2",
+    "changedDocumentCount": 12,
+    "unchangedDocumentCount": 37,
+    "extractionRuleVersionOfEveryItem": "orgunit-extraction-v1",
+    "inputsAreCanonicalAlready": "Every document in the canonical corpus is already NFC(decodeHtmlEntities_HTML4_once(text)); the runner passes these bytes through and must never canonicalise them a second time.",
+    "oraclePolicy": "The raw SHA-256 values above are recomputed from the committed files by the freeze unit test on every run. A disagreement fails the test; an oracle is never updated to match an unexpected result.",
+    "holdoutFilesNeverRead": [
+      "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-v1.jsonl",
+      "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-adjudication-v1.jsonl"
+    ]
+  },
+  "batching": {
+    "evidenceClass": "RECONSTRUCTED_FROM_RECORDED_RUN_EVIDENCE",
+    "reconstructionBasis": "The lost DEV runner is not recovered. The historical report (OWNER_PRESERVED, NOT_REVERIFIED) records 11 successfully completed evaluation batches plus one failed INSA Rouen batch over 12 organisations whose canonical corpus rows carry 13 distinct historical assemblyInputSha256 values. That is consistent only with one logical batch per organisation, with the two historical Paris Cite assembly groups combined into one batch. The policy below is reconstructed from that evidence, not from recovered runner bytes.",
+    "groupBy": "organisationId",
+    "logicalBatchesPerVariant": 12,
+    "distinctOrganisations": 12,
+    "distinctHistoricalAssemblyInputSha256": 13,
+    "organisationWithTwoHistoricalAssemblyGroups": {
+      "organisationId": "e1e18eda-ceb1-42d6-8f70-6bd6110cb3b1",
+      "echeRowKey": "F PARIS482|897691060",
+      "historicalAssemblyGroupCount": 2,
+      "treatment": "combined into one logical batch; original docIndex values preserved (verified unique within the organisation)"
+    },
+    "organisationOrder": "first appearance in the canonical corpus",
+    "documentOrder": "canonical corpus line order",
+    "docIndexPolicy": "each document keeps its original docIndex from the canonical corpus; verified unique within every logical batch",
+    "forbiddenRegrouping": [
+      "label",
+      "failure class",
+      "language",
+      "observed model result",
+      "historical assemblyInputSha256"
+    ],
+    "concurrency": 1,
+    "execution": "sequential",
+    "processIsolation": "one Tier-2 child process per logical organisation batch",
+    "variantOrdering": "every PROMPT_V1_CANONICAL batch completes before the first PROMPT_V2_CANONICAL batch starts",
+    "plannedLogicalEvaluations": {
+      "total": 24,
+      "perVariant": 12
+    },
+    "historicalAssemblyHashRole": "The assemblyInputSha256 values carried by the corpus rows are historical provenance from the lost run under assembly v1 bytes. The 2D2C runner must compute and record the canonical serialized input SHA-256 of the batch it actually sends; it must not present a historical value as the identity of a 2D2C input.",
+    "plan": [
+      {
+        "ordinal": 1,
+        "organisationId": "e115cbf8-25b4-4ccd-aa26-0b7b67af3f59",
+        "echeRowKey": "F DIJON35|949637858",
+        "organisationName": "INSTITUT RÉGIONAL SUPÉRIEUR DU TRAVAIL EDUCATIF ET SOCIAL",
+        "documentCount": 3,
+        "goldIds": ["g7e9744e811f58e20", "g057656b07c6aa620", "g66010a25ac194274"],
+        "docIndices": [3, 5, 8],
+        "corpusLineNumbers": [1, 2, 3],
+        "historicalAssemblyInputSha256": [
+          "8dbd20fa1b759b8cc0050e3a4c7f19d8b8b31ff796969c76076482feaabc28bb"
+        ]
+      },
+      {
+        "ordinal": 2,
+        "organisationId": "4001270a-08ce-4018-b91e-abda06c52aa9",
+        "echeRowKey": "F EVRY04|999850296",
+        "organisationName": "UNIVERSITE D'EVRY-VAL D'ESSONE",
+        "documentCount": 5,
+        "goldIds": [
+          "g735298870fe173b8",
+          "g6458a352bc79ca01",
+          "g52788fd323659c9c",
+          "g57607d4278d6dc23",
+          "g3130d41296ab8739"
+        ],
+        "docIndices": [0, 4, 5, 8, 10],
+        "corpusLineNumbers": [4, 5, 6, 7, 8],
+        "historicalAssemblyInputSha256": [
+          "34dbf346d61b5e04c5ff160204f8c26e7560bec07385849db57850f123901568"
+        ]
+      },
+      {
+        "ordinal": 3,
+        "organisationId": "8b77946d-fe7d-4bb6-839d-5b9d116df3a0",
+        "echeRowKey": "F GRENOBL21|915102366",
+        "organisationName": "ETABLISSEMENT D'ENSEIGNEMENT SUPERIEUR CONSULAIRE GRENOBLE ECOLE DE MANAGEMENT",
+        "documentCount": 4,
+        "goldIds": [
+          "g1f85c7bcf67d324e",
+          "g3ef86bc145abfab0",
+          "ge419f0b9902faee0",
+          "g7c122ea506478abd"
+        ],
+        "docIndices": [1, 7, 10, 11],
+        "corpusLineNumbers": [9, 10, 11, 12],
+        "historicalAssemblyInputSha256": [
+          "6b09983883c2d26575c29a584c7f74bc42208f9f37fff4b93d3057bec9329a09"
+        ]
+      },
+      {
+        "ordinal": 4,
+        "organisationId": "fc062f6b-d5b6-4026-b02c-0f94f787e2e8",
+        "echeRowKey": "F MAYOTTE01|912525949",
+        "organisationName": "Centre Universitaire de Formation et de Recherche de Mayotte",
+        "documentCount": 5,
+        "goldIds": [
+          "g05d5854d451532bb",
+          "ga435ea22d4b11cf4",
+          "g4454e841c09dd8d0",
+          "g5f96e37ff602795a",
+          "gdb5b7246327094ef"
+        ],
+        "docIndices": [1, 6, 7, 8, 13],
+        "corpusLineNumbers": [13, 14, 15, 16, 17],
+        "historicalAssemblyInputSha256": [
+          "7adde05d20c67d04a3839af022d35d11a0ea40ebbb9e8c7e96efd2918e9fe374"
+        ]
+      },
+      {
+        "ordinal": 5,
+        "organisationId": "eba8e841-8dae-4423-8d47-4e26ede49c13",
+        "echeRowKey": "F MONTPEL58|932096087",
+        "organisationName": "BTP CFA OCCITANIE",
+        "documentCount": 3,
+        "goldIds": ["g581e2c0586577331", "g4aa8728f64f4525d", "g04c5e4d705a2e184"],
+        "docIndices": [0, 1, 3],
+        "corpusLineNumbers": [18, 19, 20],
+        "historicalAssemblyInputSha256": [
+          "8cbfbd8f64c054e16c4fb6ac569a57b2992f5f5baff3d9e20d7e4ae862cd5c7b"
+        ]
+      },
+      {
+        "ordinal": 6,
+        "organisationId": "885cea79-9d11-4c36-934d-976ff3e23e6f",
+        "echeRowKey": "F NANTES79|924638533",
+        "organisationName": "Institut des Métiers de l'Enseignement Supérieur",
+        "documentCount": 5,
+        "goldIds": [
+          "g04b64db14c03ce3a",
+          "g2dba4106c328f4b8",
+          "g12732ff0388c49e8",
+          "g7d88b2fecb73fdb4",
+          "ge789b0f0aedc398c"
+        ],
+        "docIndices": [0, 4, 10, 11, 14],
+        "corpusLineNumbers": [21, 22, 23, 24, 25],
+        "historicalAssemblyInputSha256": [
+          "1c42266ae8af43d2d2d0927c6880322b120f9d115952a0af93eb6d5fb06829ac"
+        ]
+      },
+      {
+        "ordinal": 7,
+        "organisationId": "cf4ac61c-09de-4901-84e6-a7fe0f3366ff",
+        "echeRowKey": "F PARIS003|999885119",
+        "organisationName": "UNIVERSITE PARIS III SORBONNE NOUVELLE",
+        "documentCount": 5,
+        "goldIds": [
+          "g0ec0d43dad311a77",
+          "g877a05e6f5bba835",
+          "gcce4e2a5f608de5d",
+          "gf65026e32d9da8db",
+          "g2e0dc1ff57327033"
+        ],
+        "docIndices": [1, 2, 4, 6, 8],
+        "corpusLineNumbers": [26, 27, 28, 29, 30],
+        "historicalAssemblyInputSha256": [
+          "1bfc305fd94ee3b0463dc1a0f536fc6f415a5120aa26d4d7e469abdd435886f1"
+        ]
+      },
+      {
+        "ordinal": 8,
+        "organisationId": "ca7f8271-a111-466e-86f4-06913eb80a8d",
+        "echeRowKey": "F PARIS105|949302432",
+        "organisationName": "INSTITUT DE PREPARATION A L'ADMINISTRATION ET A LA GESTION",
+        "documentCount": 4,
+        "goldIds": [
+          "g5e9c0d460fee879b",
+          "g543b604f0f0f8380",
+          "g32779df2d7b56a34",
+          "g956f99fae4ad4764"
+        ],
+        "docIndices": [1, 3, 13, 14],
+        "corpusLineNumbers": [31, 32, 33, 34],
+        "historicalAssemblyInputSha256": [
+          "8d015038fd90e54a8220a9f822f3bc1f08626532de9f369fb1260e9aa8a90148"
+        ]
+      },
+      {
+        "ordinal": 9,
+        "organisationId": "e1e18eda-ceb1-42d6-8f70-6bd6110cb3b1",
+        "echeRowKey": "F PARIS482|897691060",
+        "organisationName": "UNIVERSITE PARIS CITE",
+        "documentCount": 4,
+        "goldIds": [
+          "g1a0315d94121cfcf",
+          "g27504b2635a39531",
+          "g04d170f4d3fda759",
+          "g82fe2243c52f4d73"
+        ],
+        "docIndices": [2, 8, 5, 10],
+        "corpusLineNumbers": [35, 36, 37, 38],
+        "historicalAssemblyInputSha256": [
+          "6c1bdcf74cedd27ba861ad9fbf56f91323d198d0aa3213840eb3168567bb24df",
+          "6a9b4d9d25478d13a28feebd92afc7458186b51ac480cbcf6e1e3267f8810519"
+        ]
+      },
+      {
+        "ordinal": 10,
+        "organisationId": "65af386d-22ca-4d28-bd8e-10438c1e1cc7",
+        "echeRowKey": "F PARIS525|879184333",
+        "organisationName": "Ecole Supérieure Libre des Sciences Commerciales Appliquées",
+        "documentCount": 3,
+        "goldIds": ["g0b760d6f3dfafad5", "g34bbf7536e99b410", "ga971a6fc52af6b5f"],
+        "docIndices": [12, 14, 15],
+        "corpusLineNumbers": [39, 40, 41],
+        "historicalAssemblyInputSha256": [
+          "9d0eb20f628e4a5b86e3ce90303a3f20a283aa556805ffa46e9ba98803bad210"
+        ]
+      },
+      {
+        "ordinal": 11,
+        "organisationId": "99f0eea2-8c96-4ef9-a263-ac571cba5279",
+        "echeRowKey": "F RENNES52|949270228",
+        "organisationName": "INSTITUT DE FORMATION EN PEDICURIE-PODOLOGIE, ERGOTHERAPIE, MASSO-KINESITHERAPIE",
+        "documentCount": 3,
+        "goldIds": ["g7a394e6b1670f7ab", "g0615c0e6bcd45942", "g9c1b65eda41afda2"],
+        "docIndices": [1, 2, 8],
+        "corpusLineNumbers": [42, 43, 44],
+        "historicalAssemblyInputSha256": [
+          "c5cf26ac5017b3365e133dfdc812bc833b286a3d745ce40067b50658b77c8ed7"
+        ]
+      },
+      {
+        "ordinal": 12,
+        "organisationId": "c95125b8-7783-48de-bc89-ad652f38f0dd",
+        "echeRowKey": "F ROUEN06|999465788",
+        "organisationName": "INSTITUT NATIONAL DES SCIENCES APPLIQUEES DE ROUEN",
+        "documentCount": 5,
+        "goldIds": [
+          "g1b50947deb11a6d5",
+          "g536c8b148048fcbc",
+          "g99a9fe00e4856de2",
+          "g39e7132da4064000",
+          "g9978fec48fa77fbb"
+        ],
+        "docIndices": [0, 7, 9, 12, 13],
+        "corpusLineNumbers": [45, 46, 47, 48, 49],
+        "historicalAssemblyInputSha256": [
+          "0283d1531e58f15c6c5ea1b4c5306f59578c2071e6b60486d29d0ce542dc8764"
+        ]
+      }
+    ]
+  },
+  "classifier": {
+    "evidenceClass": "RECONSTRUCTED_AND_VERIFIED_NOW",
+    "requestedModelId": "claude-sonnet-5",
+    "modelIdSource": "PHASE_2B_2D_SONNET_ACCEPTANCE_PROTOCOL.md section 0 (owner product decision 2026-09-02); must be a member of ORGUNIT_CLASSIFIER_ALLOWED_MODELS at both variant commits",
+    "agentSdk": {
+      "package": "@anthropic-ai/claude-agent-sdk",
+      "version": "0.3.251",
+      "pinnedIn": ["package.json", "package-lock.json"]
+    },
+    "assemblyVersion": "orgunit-classifier-assembly-v2",
+    "outputSchemaVersion": "orgunit-classifier-output-schema-v2",
+    "runConfig": {
+      "maxTurns": 3,
+      "thinking": "disabled"
+    },
+    "runConfigRules": [
+      "maxTurns and thinking are passed explicitly, never left to a default",
+      "effort is ABSENT from runConfig: not null, not undefined-with-key, not inferred",
+      "no temperature, top_p or top_k setting exists in the request surface and none may be introduced",
+      "no fallbackModel",
+      "no prompt selector: the prompt is whatever the checked-out commit exports"
+    ],
+    "invocationSurfaceFrozenByReference": {
+      "module": "src/orgunits/classify/provider/sdkOptions.ts",
+      "builder": "buildAgentSdkInvocation",
+      "settingSources": [],
+      "persistSession": false,
+      "tools": [],
+      "allowedTools": [],
+      "disallowedTools": "CLASSIFIER_DISALLOWED_TOOLS (every built-in tool by bare name)",
+      "canUseTool": "unconditional deny with interrupt",
+      "mcpServers": {},
+      "strictMcpConfig": true,
+      "skills": [],
+      "plugins": [],
+      "absent": [
+        "fallbackModel",
+        "resume",
+        "forkSession",
+        "hooks",
+        "agents",
+        "additionalDirectories",
+        "debug",
+        "debugFile",
+        "effort"
+      ]
+    },
+    "variants": [
+      {
+        "name": "PROMPT_V1_CANONICAL",
+        "role": "comparator",
+        "order": 1,
+        "gitCommit": "952f80e124bc681ee15c35386d30ba52a6d80c98",
+        "promptVersion": "orgunit-classifier-prompt-v1",
+        "runtimePromptCharacters": 9887,
+        "runtimePromptUtf8Bytes": 9963,
+        "runtimePromptSha256": "65f7f327ad14e78aaf3024cb7253e979b1e360fdcd1a58081fccc08fdb0facd0"
+      },
+      {
+        "name": "PROMPT_V2_CANONICAL",
+        "role": "candidate",
+        "order": 2,
+        "gitCommit": "a36d024fa9a0bc6f4bc3c66b32ab6109fa4fa31a",
+        "promptVersion": "orgunit-classifier-prompt-v2",
+        "runtimePromptCharacters": 11304,
+        "runtimePromptUtf8Bytes": 11382,
+        "runtimePromptSha256": "181a5d6fec9763be5a57e7e4d08c7d8c8a9d9e21838df2ea3e05dd680e4c7635"
+      }
+    ],
+    "variantIsolation": "Each variant runs from its own clean worktree checked out at exactly its gitCommit, with dependencies restored by npm ci from that commit’s lockfile. The runner must verify the prompt version and runtime prompt SHA-256 at startup and stop on mismatch. Prompts are never switched by a runtime flag.",
+    "inputIdentity": "input_sha256 = computeFinalInputSha256(assemblyInputSha256, promptVersion, outputSchemaVersion) as implemented at the variant commit; v1 and v2 identities differ by construction, so no v1 result can be reused for a v2 question."
+  },
+  "liveness": {
+    "evidenceClass": "RECONSTRUCTED_AND_VERIFIED_NOW",
+    "tier1": {
+      "where": "src/orgunits/classify/provider/agentSdkRunner.ts + claudeMaxAgentProvider.ts (production)",
+      "attemptSoftDeadlineMs": 300000,
+      "abortCloseSettlementGraceMs": 10000,
+      "totalProviderCallBudgetMs": 600000,
+      "timeoutNeverRetriedInsideAdapter": true,
+      "transientRetries": {
+        "maxAfterFirstAttempt": 2,
+        "backoffMs": [500, 1000],
+        "backoffConsumesTotalBudget": true
+      },
+      "operatorReattempt": "an operator-authorised reattempt increments attemptNo; it is never an adapter retry",
+      "worstCaseAttemptSequenceMs": 610000
+    },
+    "tier2": {
+      "where": "src/test/harness/processIsolatedBatch.ts (test harness only; never a production fallback)",
+      "parentWatchdogMs": 700000,
+      "gracefulTerminationWindowMs": 10000,
+      "stderrTailMaxChars": 2048,
+      "role": "evidence and containment, not production isolation",
+      "watchdogDerivationMs": {
+        "authStatusRunnerTimeout": 60000,
+        "providerAttemptWindow": 600000,
+        "finalInnerCloseGrace": 10000,
+        "childStartupArtifactFlushAndSchedulingVariance": 30000,
+        "total": 700000
+      },
+      "watchdogRationale": "The auth-status runner (AUTH_STATUS_TIMEOUT_MS) can consume up to 60 s before the provider window opens; the provider window (CLASSIFIER_CALL_TOTAL_BUDGET_MS) is 600 s; the last attempt may add up to the 10 s inner close grace (CLASSIFIER_CALL_HARD_KILL_GRACE_MS); 30 s remain for child startup, artifact flushing and scheduling variance. A Tier-2 kill therefore cannot pre-empt a correctly firing Tier 1."
+    },
+    "decisionRule": {
+      "tier1FiresFirst": "If Tier 1 returns TIMEOUT before Tier 2 fires: record the evidence (progress trace, stderr tail) and stop; continuation is an operator-authorised attemptNo + 1.",
+      "tier2KillsBecauseTier1DidNotFire": "If Tier 2 kills the batch process because Tier 1 did not fire: process-isolated production inference becomes mandatory follow-up 2D2B-2b, and the experiment stops."
+    }
+  },
+  "stopConditions": {
+    "policy": "On any stop condition: persist the available diagnostic record atomically (write-once), then stop the ENTIRE experiment. Never continue into a later batch and never start prompt v2. Resumption requires a separate operator authorisation.",
+    "conditions": [
+      {
+        "id": "CHILD_EXITED_UNCONFIRMED",
+        "meaning": "Tier-2 grace-phase verdict: the child exited without a shutdown acknowledgement. An unconfirmed harness termination, never a clean batch end."
+      },
+      {
+        "id": "SUPPRESSED_EXPIRED_TARGET_IDENTITY",
+        "meaning": "Tier-2 hard-kill disposition: the tree kill was suppressed because the direct child had already exited. An unconfirmed harness termination."
+      },
+      {
+        "id": "TIER2_WATCHDOG_FIRED_BEFORE_TIER1_TIMEOUT",
+        "meaning": "The parent watchdog expired while no Tier-1 TIMEOUT had been observed. Triggers the 2D2B-2b decision."
+      },
+      {
+        "id": "RAW_OUTPUT_NOT_PERSISTED_BEFORE_VALIDATION",
+        "meaning": "The provider returned rawOutput but its canonical serialization and SHA-256 were not durably written before layer-2 validation ran."
+      },
+      {
+        "id": "BATCH_ARTIFACT_MISSING_OR_CORRUPT",
+        "meaning": "A per-batch artifact is absent, unparsable or fails its own recorded hash."
+      },
+      {
+        "id": "CORPUS_CONFIG_OR_HASH_DRIFT",
+        "meaning": "Any recomputed corpus, manifest, prompt, freeze-config or lockfile hash differs from this freeze."
+      },
+      {
+        "id": "UNEXPECTED_RESPONSE_MODEL_ID",
+        "meaning": "The provider-reported model id is not the requested model id."
+      },
+      {
+        "id": "ISOLATION_VIOLATION",
+        "meaning": "Any tool, MCP, browser, settings-source, session-persistence or environment-leak violation observed in any attempt."
+      },
+      {
+        "id": "USAGE_LIMIT_INTERRUPTION",
+        "meaning": "A USAGE_LIMIT_EXHAUSTED outcome. Stops the experiment; a later separately authorised continuation is idempotent by input identity and never counts against quality (protocol section 8 treatment retained)."
+      },
+      {
+        "id": "UNRECONCILED_PROVIDER_FAILURE",
+        "meaning": "Any non-OK provider outcome, or a thrown failure, that cannot be reconciled to exactly one recorded batch attempt with a persisted diagnostic record."
+      }
+    ]
+  },
+  "outputCapture": {
+    "rawOutputRule": "The provider’s returned rawOutput value is captured, canonically serialized and hashed BEFORE layer-2 validation, and is retained even when validation later rejects it. Absence of this record is itself a stop condition.",
+    "writeOnce": "Artifacts are write-once per (variant, batch ordinal, attemptNo). An earlier attempt is never overwritten; a reattempt writes a new artifact under attemptNo + 1.",
+    "requiredPerLogicalBatch": [
+      "freezeVersion",
+      "freezeConfigRawSha256",
+      "variantName",
+      "variantGitCommit",
+      "logicalBatchOrdinal",
+      "organisationId",
+      "echeRowKey",
+      "orderedGoldIds",
+      "orderedDocIndices",
+      "canonicalSerializedInputSha256",
+      "promptVersion",
+      "promptSha256",
+      "requestedModelId",
+      "providerReportedModelId",
+      "startedAtUtc",
+      "endedAtUtc",
+      "monotonicWallTimeMs",
+      "attemptNo",
+      "internalAdapterAttemptCountWhereObservable",
+      "inputTokens",
+      "outputTokens",
+      "cacheUsageWhereExposed",
+      "providerOutcome",
+      "rawOutputCanonicalSerialization",
+      "rawOutputSha256",
+      "validatorAcceptedRecords",
+      "validatorRejectedRecords",
+      "validatorRejectionReasons",
+      "tier1StderrTailOnTimeout",
+      "tier1ProgressTraceOnTimeout",
+      "tier2Outcome",
+      "tier2GracePhaseVerdict",
+      "tier2HardKillDisposition",
+      "tier2CleanupResult"
+    ],
+    "neverCaptured": [
+      "credentials or tokens of any kind",
+      "Claude profile or config-directory contents",
+      "a Claude transcript or session",
+      "chain of thought",
+      "SDK debug files (debug / debugFile / DEBUG_CLAUDE_AGENT_SDK are never enabled)",
+      "semantic settings from the user’s normal Claude profile"
+    ]
+  },
+  "scoring": {
+    "protocol": "orgunit-classifier-sonnet-acceptance-protocol-v1",
+    "protocolDocument": "docs/evaluation/PHASE_2B_2D_SONNET_ACCEPTANCE_PROTOCOL.md",
+    "denominatorsUnchanged": true,
+    "gates": {
+      "minSchemaValidSpanVerifiedRate": 0.99,
+      "minUnitPageRecall": 0.95,
+      "minUnitPagePrecision": 0.9,
+      "minUnitTypeAccuracy": 0.85,
+      "minHardNegativeRejection": 0.9,
+      "maxNeedsReviewRate": 0.15,
+      "maxIsolationViolations": 0,
+      "evidenceSpanVerification": 1,
+      "nonNullUnitNameVerification": 1,
+      "minGateableLanguageSubgroupSize": 20,
+      "maxCatastrophicSubgroupShortfall": 0.1
+    },
+    "providerFailureTreatment": "Provider failures and usage-limit outcomes keep the existing protocol treatment (INVALID is never a missing observation; usage-limit interruptions never count against quality).",
+    "acceptanceRule": "No final acceptance decision may be issued while paired DEV coverage is incomplete (fewer than 12 completed logical batches for either variant) or while any stop condition is unresolved.",
+    "requiredComparison": [
+      "absolute metrics for v1 and v2, each with raw numerator and denominator",
+      "paired per-item transition matrix (v1 verdict x v2 verdict, by gold id)",
+      "recovered invalid-output count (items rejected by the validator under v1 that validate under v2, and the reverse)",
+      "page-versus-unit failures (gold UNIT_PAGE answered NOT_A_UNIT, and hard negatives answered UNIT_PAGE), by gold id",
+      "UNKNOWN/NO axis transitions between variants",
+      "latency and token comparison per batch and in aggregate",
+      "infrastructure and liveness outcomes per batch (Tier 1 and Tier 2)",
+      "no claim of improvement based only on aggregate accuracy"
+    ]
+  },
+  "unresolvedGold": {
+    "goldId": "ge789b0f0aedc398c",
+    "committedLabel": "UNIT_PAGE",
+    "committedLabelEvidenceClass": "OWNER_PRESERVED_REQUIREMENT (the adjudication fixture is not opened by this task)",
+    "membership": "DEVELOPMENT (present in the canonical corpus; verified now)",
+    "labelChangedByThisTask": false,
+    "policy": [
+      "include the item normally in inference and in primary metrics using the committed label",
+      "additionally compute a leave-one-out sensitivity report that removes only this item from every metric denominator",
+      "do not invent an alternative gold label or page kind",
+      "if any pass/fail gate differs between the primary metrics and the leave-one-out report, the final status is BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION",
+      "never silently select whichever interpretation makes prompt v2 look better"
+    ],
+    "blockedStatus": "BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION"
+  },
+  "holdout": {
+    "inferenceDuring2D2C": "FORBIDDEN",
+    "rules": [
+      "no HOLDOUT inference during 2D2C",
+      "no new HOLDOUT inspection, transformation or tuning",
+      "no HOLDOUT batching or prevalence analysis",
+      "no HOLDOUT-derived value anywhere in this DEV configuration",
+      "HOLDOUT remains a later one-shot evaluation, only after a DEV candidate is accepted and separately authorised"
+    ],
+    "historicalExposureDisclosure": "During the R3 (2D2B-3) pre-implementation read, a repository-wide search for SERVICE_TOOL_PAGE printed eight gold-label records from orgunit-classifier-adjudication-v1.jsonl before fixture-search exclusions were introduced; their split membership was deliberately not looked up, so they may include HOLDOUT gold-label text. HOLDOUT therefore does NOT have zero historical exposure. No HOLDOUT inference and no result-driven tuning has occurred at any point."
+  },
+  "exclusions": {
+    "thisFreezeAuthorises": [],
+    "forbiddenUntilSeparateAuthorisation": [
+      "any live Claude/provider inference",
+      "auth login or profile modification",
+      "database access or writes",
+      "institutional network requests",
+      "HOLDOUT inference or semantic inspection",
+      "gold-label changes",
+      "prompt or production-code changes",
+      "dependency, lockfile, migration or environment changes"
+    ]
+  },
+  "nextStep": "Implement the DEV-only 2D2C runner against this freeze (2D2C-F1), still without running it, until a separate execution authorisation is recorded."
+}
