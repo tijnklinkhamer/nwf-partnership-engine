@@ -467,12 +467,27 @@ function boundedTail(text: string): string {
   return text.slice(text.length - HARNESS_STDERR_TAIL_MAX_CHARS);
 }
 
-function childEnvironment(scratchDir: string): Record<string, string> {
-  const env: Record<string, string> = { [HARNESS_SCRATCH_DIR_VARIABLE]: scratchDir };
-  for (const name of CHILD_ENV_PASSTHROUGH) {
-    const value = process.env[name];
-    if (value !== undefined) env[name] = value;
+/**
+ * The child environment. DEFAULT (every pre-2D2C-F1 caller): the OS
+ * passthrough above plus the scratch variable. EXPLICIT (2D2C-F1): the
+ * caller's already-filtered environment, used VERBATIM — nothing from
+ * `process.env` is added to it — plus the scratch variable, which the
+ * harness owns and always sets last so a caller cannot redirect it.
+ */
+function childEnvironment(
+  scratchDir: string,
+  explicit: Readonly<Record<string, string>> | undefined,
+): Record<string, string> {
+  const env: Record<string, string> = {};
+  if (explicit !== undefined) {
+    for (const [name, value] of Object.entries(explicit)) env[name] = value;
+  } else {
+    for (const name of CHILD_ENV_PASSTHROUGH) {
+      const value = process.env[name];
+      if (value !== undefined) env[name] = value;
+    }
   }
+  env[HARNESS_SCRATCH_DIR_VARIABLE] = scratchDir;
   return env;
 }
 
@@ -492,6 +507,12 @@ export interface ProcessIsolatedBatchOptions {
   readonly beforeHardKill?: () => Promise<void> | void;
   /** Called after the child is gone and before the scratch directory is removed. */
   readonly beforeCleanup?: (scratchDir: string) => Promise<void> | void;
+  /**
+   * 2D2C-F1: an explicitly filtered child environment, used verbatim in
+   * place of the default OS passthrough. The harness adds only its own
+   * scratch-directory variable. Absent, the pre-F1 behaviour is unchanged.
+   */
+  readonly childEnv?: Readonly<Record<string, string>>;
 }
 
 export interface ProcessIsolatedBatchResult {
@@ -574,7 +595,7 @@ export async function runProcessIsolatedBatch(
   try {
     const forked = fork(options.modulePath, [...(options.args ?? [])], {
       cwd: scratchDir,
-      env: childEnvironment(scratchDir),
+      env: childEnvironment(scratchDir, options.childEnv),
       // Never inherit the test runner's own Node flags.
       execArgv: [],
       stdio: ['ignore', 'ignore', 'pipe', 'ipc'],

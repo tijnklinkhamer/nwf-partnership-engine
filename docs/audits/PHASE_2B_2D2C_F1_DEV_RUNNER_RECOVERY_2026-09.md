@@ -312,9 +312,387 @@ assertion intact, and both are pinned by the new tests.
 
 ---
 
-_Sections 4 onward are appended by the implementation commit with executed
-evidence: architecture, lock, variant-root isolation, batch reconstruction,
-artifact state machine, raw-before-validation proof, Tier-1/Tier-2
-composition, environment allowlist, stop conditions, test evidence, skipped
-platform coverage, remaining uncertainties and the zero-execution
-confirmation._
+
+_Sections 4 onward were appended by the implementation commit. §§1–3 are left
+exactly as committed in `0bbbd90` (`Document 2D2C-F1 DEV runner contract`)._
+
+## 4. Runner architecture — `RECONSTRUCTED_AND_VERIFIED_NOW`
+
+Everything lives in `src/test/harness/phase2b2d2c/` except the one
+execution-only loader. Responsibilities are small and separately tested:
+
+| file                                  | role                                                                                                                                                        |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `constants.ts`                        | every frozen value the runner is built against: the F0A raw hash, both variants (name, label, commit, prompt identity), the 24/12 counts, Tier-1/Tier-2 numbers, the run config, the ten stop conditions, the 38 capture fields. PURE. |
+| `freeze.ts`                           | `loadFreezeFromBytes`: raw SHA-256 verified FIRST, then a closed zod schema over every field the runner reads, then agreement with `constants.ts`. Any failure is `FreezeDriftError` (`CORPUS_CONFIG_OR_HASH_DRIFT`). |
+| `corpus.ts`                           | `loadDevCorpus`: reads exactly the two frozen fixture paths, refuses any `holdoutFilesNeverRead` path before reading, verifies both raw hashes and the content hash, requires 49 `DEVELOPMENT` rows with unique gold ids. |
+| `batches.ts`                          | `reconstructFrozenBatches` / `batchMismatches` / `reconstructAndVerifyFrozenBatches`: the F0A §13.3 rule with the serializer and final-identity function INJECTED (parent: this worktree's; child: the variant root's). |
+| `plan.ts`                             | `buildExecutionPlan`: 24 evaluations, v1 ordinals 1..12 then v2 ordinals 1..12; `planSha256`; `planOrderIsFrozen`. No timestamp, credential, environment value or document body in the plan. |
+| `authorisation.ts`                    | the double execution lock: closed schema, pinned statement, every refusal as a named value (§6).                                                             |
+| `childEnvironment.ts`                 | the closed child allowlist, the child self-check, the OS-injected tolerance list (§10).                                                                      |
+| `artifacts.ts`                        | write-once durable writer, self-hashed envelopes, reader with typed failures, output-root validation, attempt-directory identity (§8).                        |
+| `rawOutputCheckpoint.ts`              | `persistRawOutputThenValidate`: the structural raw-before-validation invariant (§9).                                                                        |
+| `runtimeLoader.ts`                    | `loadVariantRuntime`: the SDK-free built modules, by absolute `file://` URL under the root, with the loaded URL recorded per module; the required-module table with source paths for staleness. |
+| `variantRoot.ts` / `variantRootProbes.ts` | `verifyVariantRoot`: the eleven ordered checks of §7 over injected probes; the real Git and filesystem probes.                                             |
+| `stopConditions.ts`                   | `deriveStopDecision`: one pure function from the Tier-2 observation and the re-read child artifacts to the stop decision (§12).                              |
+| `childMain.ts` / `childEntry.mjs`     | the child (§11): TypeScript logic with every dependency injected, and the forked entry that registers tsx, installs the Tier-2 shutdown listener, binds real probes and the execution-only factory. |
+| `coordinator.ts`                      | `runExperiment`: sequential order, one child per evaluation, v1-before-v2 gate, write-once attempts, artifact re-reading, the 38-field final record, experiment-wide stop. |
+| `cli.ts`                              | the default-safe CLI (§5).                                                                                                                                  |
+| `scripts/phase2b-2d2c-production-runtime.ts` | the ONE execution-only loader that names the production runner factories (§3, item 2); loads the root's provider stack by absolute path; counting seams; runtime liveness-constant gate. |
+| `src/test/harness/processIsolatedBatch.ts` | the Tier-2 harness, extended by ONE optional field, `childEnv` (§10). Every existing test unchanged and passing.                                        |
+
+Test support: `src/test/unit/support/phase2b2d2cSyntheticRoot.ts` builds a
+synthetic variant root (no Git, no real SDK) in a temporary directory;
+`src/test/fixtures/phase2b2d2c/fixtureChild.mjs` is a scripted Tier-2 child
+with seven behaviours; `src/test/fixtures/phase2b2d2c/syntheticProviderStack/`
+holds the three fake built provider modules a synthetic root receives (a
+scripted provider and two seams that never open a socket). The synthetic
+provider stack is the one place a same-named fake factory exists; it lives
+under `fixtures/`, which the firewall excludes as data, and no test file
+names a production factory.
+
+## 5. Default-safe CLI — `RECONSTRUCTED_AND_VERIFIED_NOW`
+
+```
+node --import tsx src/test/harness/phase2b2d2c/cli.ts [--json] [--v1-root <abs>] [--v2-root <abs>]
+node --import tsx src/test/harness/phase2b2d2c/cli.ts --execute --authorisation <abs> --v1-root <abs> --v2-root <abs> --output-root <abs> --attempt-no <n> --classifier-config-dir <abs>
+```
+
+Executed in this session, plan mode: the freeze hash was verified, 24
+evaluations were printed in the frozen order, the plan hash
+`37b9f8b40422d7423fd28af682f789b14ff050afc56c40d55d8125ca59c3b2e9` was
+byte-identical across two runs (the `--json` output hashed to the same
+SHA-256 twice), and `--execute` alone answered
+`REFUSED: execution requires --v1-root, --v2-root, --output-root,
+--attempt-no, --classifier-config-dir, --authorisation.` with exit code 2.
+The argument parser is closed: an unknown flag is an error. `cli.ts` reads
+`process.env` exactly once, to pass it to the coordinator as the PARENT
+environment for filtering; no runner module reads a bypass variable; the
+CLI statically imports neither the production loader nor `childMain`.
+
+## 6. Double execution lock — `RECONSTRUCTED_AND_VERIFIED_NOW`
+
+`evaluateExecutionLock` requires `--execute` AND an absolute
+`--authorisation` path, then a file matching the CLOSED
+`ExecutionAuthorisationSchema`:
+
+| field                            | pinned value                                                                          |
+| -------------------------------- | ------------------------------------------------------------------------------------- |
+| `authorisationVersion`           | `phase2b-2d2c-f1-execution-authorisation-v1`                                          |
+| `scope`                          | `DEVELOPMENT_ONLY`                                                                    |
+| `freezeConfigRawSha256`          | `7b84ac0b…988ad6aa` (F0A; the superseded F0 hash is refused)                           |
+| `variants`                       | exactly two of `{ name, label, gitCommit }`; both frozen variants must match on all three |
+| `maxLogicalEvaluations`          | `24`                                                                                  |
+| `attemptNo`                      | must equal `--attempt-no`                                                             |
+| `outputRoot`                     | must equal the validated `--output-root`                                              |
+| `issuedAtUtc` / `validUntilUtc`  | an explicit window; `now` must fall inside it                                          |
+| `operatorAuthorisationStatement` | byte-for-byte `AUTHORISATION_STATEMENT`                                                |
+
+The pinned statement: `I AUTHORISE PHASE 2B-2D2C DEVELOPMENT-ONLY EXECUTION
+OF AT MOST 24 LOGICAL EVALUATIONS (12 PROMPT_V1_CANONICAL THEN 12
+PROMPT_V2_CANONICAL) AGAINST THE F0A FREEZE
+7b84ac0bca90086eea8fb59cdbd501317e3bfd53533fa529a85a8a44988ad6aa. NO
+HOLDOUT. NO GOLD LABEL CHANGE. NO DATABASE.`
+
+Twelve named refusals: `EXECUTE_FLAG_ABSENT`, `AUTHORISATION_PATH_ABSENT`,
+`AUTHORISATION_PATH_NOT_ABSOLUTE`, `AUTHORISATION_UNREADABLE`,
+`AUTHORISATION_MALFORMED` (schema, extra field, bad window),
+`AUTHORISATION_EXPIRED`, `AUTHORISATION_NOT_YET_VALID`,
+`AUTHORISATION_VARIANT_MISMATCH`, `AUTHORISATION_OUTPUT_ROOT_MISMATCH`,
+`AUTHORISATION_ATTEMPT_MISMATCH`, `AUTHORISATION_ALREADY_CONSUMED`. The
+consumption marker `<outputRoot>/authorisations/<sha256 of the exact
+authorisation bytes>.json` is written write-once before the first child, so
+the same bytes can never drive a second run. In the CLI the lock is
+evaluated after freeze, corpus, batch, plan and variant-root verification
+and after output-root validation, and before `runExperiment`; every
+rejected path returns before any launcher call (pinned by tests with a
+launcher that throws if reached). No real authorisation file exists in this
+repository; tests build synthetic objects in temporary directories.
+
+## 7. Variant-root isolation — `RECONSTRUCTED_AND_VERIFIED_NOW`
+
+`verifyVariantRoot` runs eleven checks in this order and stops at the first
+failure: `PATH_ABSOLUTE_AND_REAL`, `CORRECT_REPOSITORY` (origin URL equals
+the freeze's repository; `--show-toplevel` equals the root),
+`HEAD_MATCHES_FROZEN_COMMIT`, `WORKTREE_CLEAN`, `AGENT_SDK_VERSION`
+(`package.json`, `package-lock.json` and the installed package all equal
+`0.3.251`), `BUILT_RUNTIME_PRESENT_AND_FRESH` (fourteen built modules
+present and not older than their sources), `RUNTIME_MODULES_LOADED_FROM_ROOT`
+(every loaded module URL lies under the root), `PROMPT_VERSION_AND_HASH`
+(the root's OWN `prompt.js` export: version, characters, UTF-8 bytes,
+SHA-256), `RUNTIME_CONSTANTS` (assembly, output-schema, rule, fetch-policy
+versions; retry policy; auth-status timeout and argument vector; default
+max-turns; the freeze's Tier-1/Tier-2 numbers), `MODEL_ALLOWLIST`,
+`LIVENESS_CONSTANTS_STATIC_TEXT` (the three frozen liveness constants and
+the stderr tail bound read from the BUILT runner text, imported by nothing
+here). The child re-runs the same function, and the execution-only loader
+re-verifies the liveness constants at runtime from the loaded module before
+constructing any seam.
+
+No impersonation: the verifier's signature has nowhere to pass a prompt
+string; a v1 root verified as v2 fails on `PROMPT_VERSION_AND_HASH`; a root
+with another variant's HEAD fails before the prompt is loaded; the child's
+request `systemPrompt` is the root's export (pinned: a v1 root yields the
+v1 text, whose SHA-256 is `65f7f327…facd0`, and not this worktree's
+production prompt).
+
+Both variant worktrees were **neither prepared nor executed**. No test
+opens the real R2B or R3 worktrees; every root under test is synthetic.
+
+## 8. Artifact state machine and write-once — `RECONSTRUCTED_AND_VERIFIED_NOW`
+
+Attempt directory: `<outputRoot>/evaluations/<variantName>/batch-<NN>/attempt-<N>`.
+An existing attempt directory is a `WRITE_ONCE_REFUSAL` before any launch.
+Every artifact is `{ artifactKind, artifactVersion, record, recordSha256 }`
+with `recordSha256 = sha256(canonicalStringify(record))`, written by
+`writeFileOnceDurably`: exclusive temporary file → write → `fsync` →
+`link()` into place (EEXIST is `WriteOnceCollisionError`; a rename would
+overwrite) → unlink temporary → directory `fsync` (recorded as skipped on
+Windows). Per attempt, in order of appearance:
+
+| artifact                       | writer | meaning                                                                        |
+| ------------------------------ | ------ | ------------------------------------------------------------------------------ |
+| `planned-input.json`           | parent | the planned evaluation, attempt number, model id and run config                |
+| `child-manifest.json`          | parent | what the child re-verifies before trusting any field (hash-checked by the child) |
+| `child-preflight.json`         | child  | environment, freeze, root, corpus and identity verification; a stop condition when failed |
+| `raw-output-checkpoint.json`   | child  | the exact canonical raw provider output and its SHA-256 (OK only)              |
+| `validation-result.json`       | child  | accepted results, rejected documents with reasons, schema detail (OK only)     |
+| `tier1-diagnostics.json`       | child  | every `onAttemptDiagnostics` snapshot (progress trace, stderr tail, pid)        |
+| `provider-outcome.json`        | child  | outcome, reported model, tokens, internal attempt count, timestamps            |
+| `child-result.json` / `child-failure.json` | child | the child's own summary with artifact hashes, or a bounded thrown-failure record |
+| `tier2-outcome.json`           | parent | the complete harness result, including the suppressed-hard-kill facts          |
+| `stop-decision.json`           | parent | the derived decision                                                           |
+| `final-record.json`            | parent | the 38 F0A fields by exact name, plus `runnerRecordVersion`, `variantLabel`, `fieldAvailability`, `artifactHashes`, `stopDecision` |
+
+`fieldAvailability` names, per field, `OBSERVED`, `NOT_APPLICABLE`,
+`NOT_OBSERVED_CHILD_LEFT_NO_RECORD` or `NOT_EXPOSED_BY_RUNNER_SEAM`;
+`cacheUsageWhereExposed` is always `null` with the last label, because the
+runner seam exposes no cache usage. A child that left nothing behind yields
+nulls, never a synthesized outcome. The output root must be absolute,
+normalised, existing, real (no symlinked component) and outside the runner
+repository, both variant roots and every `git worktree list` entry.
+
+## 9. Raw-before-validation proof — `RECONSTRUCTED_AND_VERIFIED_NOW`
+
+`persistRawOutputThenValidate` canonicalizes, hashes, awaits the injected
+persistence and only then calls the injected validator; a canonicalization
+or persistence failure throws `RawOutputNotPersistedError`
+(`RAW_OUTPUT_NOT_PERSISTED_BEFORE_VALIDATION`) with the validator unrun. The
+child binds persistence to the write-once artifact writer and validation to
+the ROOT's `validateClassifierResponse`, and records the monotonic sequence
+pair (`persistedSeq < validationStartedSeq`) in its result. Executed tests:
+accepted output (three documents accepted), schema-invalid output
+(`SCHEMA_INVALID`) and evidence-invalid output (one `EVIDENCE` rejection)
+all retain a raw checkpoint whose hash equals
+`sha256(canonicalStringify(rawOutput))`; the temporal test holds the
+persistence promise unresolved across twenty event-loop turns and observes
+zero validator calls and no validation file, then releases it and observes
+one call; a rejecting persistence leaves the validator unrun and writes the
+failure record; a pre-existing checkpoint file is a collision, never an
+overwrite. The mutation that swaps the two steps fails five tests (§13).
+
+## 10. Tier-1/Tier-2 composition and the environment allowlist — `RECONSTRUCTED_AND_VERIFIED_NOW`
+
+The coordinator's default launcher is `runProcessIsolatedBatch` on
+`childEntry.mjs` with `watchdogMs: 700_000`, `graceMs: 10_000` and the
+filtered `childEnv`; the fake launcher used in tests asserts both numbers on
+every launch. Tier 1 is untouched production code inside the child's
+provider (300,000 / 10,000 / 600,000 ms; no adapter retry of `TIMEOUT`;
+at most two transient retries), observed through the counting runner seam
+and the `onAttemptDiagnostics` hook. An operator re-attempt is a new
+`attemptNo`, a new authorisation and a new attempt directory.
+
+The harness extension is one optional field, `childEnv`: when present it is
+used verbatim and the harness adds only its own scratch-directory variable,
+set last; when absent the pre-F1 passthrough is unchanged. Every existing
+Tier-2 test passes unchanged.
+
+Allowlist, by platform, looked up case-insensitively and forwarded under
+canonical names: POSIX `PATH`, `TMPDIR`, `TMP`, `TEMP`, `HOME`; Windows
+`PATH`, `TMP`, `TEMP`, `USERPROFILE`, `SystemRoot`, `ComSpec`; plus
+`NWF_PE_CLASSIFIER_CONFIG_DIR` from the explicit CLI argument only (an
+ambient parent value is never read) and, from the harness,
+`NWF_PE_TIER2_SCRATCH_DIR`. Negative controls (built from the production
+guard's own forbidden-variable constant, so no test spells a credential
+identifier): none of the fourteen conflicting-auth names, the prohibited
+setup-token name, `DATABASE_URL_*`, `NODE_OPTIONS`, `NWF_PE_VERBOSE`,
+`DEBUG`, `CLAUDE_CODE_*` or `PGPASSWORD` reaches a child. Measured on this
+Mac through the real harness: a forked fixture's environment names were
+exactly the allowlist subset present in the parent plus the scratch
+variable plus launchd's `__CF_USER_TEXT_ENCODING`, which is the one
+OS-injected name the child self-check tolerates, and `execArgv` was empty.
+The child's self-check runs BEFORE anything else: the real entry, forked
+with `NODE_OPTIONS` added, wrote `ISOLATION_VIOLATION` naming it and
+performed no root check and no provider import.
+
+## 11. The child — `RECONSTRUCTED_AND_VERIFIED_NOW`
+
+Order, as executed in-process with fakes and, up to the preflight, as a
+real forked process: environment self-check → freeze bytes re-hashed →
+variant root verified and runtime loaded FROM the root → corpus read FROM
+the root and re-hashed → batch reconstructed through the root's
+`canonicalStringify` and `computeFinalInputSha256` → assembly identity,
+final identity, byte length, context, gold ids, doc indices, prompt hash,
+model id and output-schema version compared against BOTH the manifest and
+the freeze → preflight record → provider factory (the first
+execution-capable step) → `classify()` with the root's prompt, the exact
+serialized batch, the root's output JSON schema, the frozen model id and
+`{ maxTurns: 3, thinking: 'disabled' }` (no `effort` key) → raw-before-
+validation → diagnostics, outcome, result. Any thrown error becomes a
+bounded failure record (≤ 2,000 characters, no stack). The real entry was
+forked through the real harness twice in this session: once against this
+worktree as a "variant root" (it is not a frozen worktree; the child
+stopped with `CORPUS_CONFIG_OR_HASH_DRIFT` at `HEAD_MATCHES_FROZEN_COMMIT`,
+exit code 2, `providerConstructed: false`, no provider outcome file), and
+once with an environment leak (§10). The production loader was reached in
+neither run.
+
+## 12. Stop conditions — `RECONSTRUCTED_AND_VERIFIED_NOW`
+
+`deriveStopDecision`, in order: (1) `SUPPRESSED_EXPIRED_TARGET_IDENTITY`
+and `CHILD_EXITED_UNCONFIRMED` from the Tier-2 result, whatever else
+happened; (2) a fired watchdog with no child-recorded Tier-1 `TIMEOUT` →
+`TIER2_WATCHDOG_FIRED_BEFORE_TIER1_TIMEOUT` (a fired watchdog after a
+cooperative acknowledgement is still this, never a clean end); (3)
+child-recorded `ISOLATION_VIOLATION` / `CORPUS_CONFIG_OR_HASH_DRIFT` /
+`RAW_OUTPUT_NOT_PERSISTED_BEFORE_VALIDATION`, or a thrown failure →
+`UNRECONCILED_PROVIDER_FAILURE`; (4) integrity — no result record with
+partial artifacts, a corrupt result, a missing or corrupt outcome, raw or
+validation record → `BATCH_ARTIFACT_MISSING_OR_CORRUPT`; nothing at all →
+`UNRECONCILED_PROVIDER_FAILURE`; an OK without a raw checkpoint persisted
+before validation → `RAW_OUTPUT_NOT_PERSISTED_BEFORE_VALIDATION`; an OK
+whose reported model differs → `UNEXPECTED_RESPONSE_MODEL_ID`; (5)
+`USAGE_LIMIT_EXHAUSTED` → `USAGE_LIMIT_INTERRUPTION`; a Tier-1 `TIMEOUT`
+with persisted diagnostics → the decision-rule halt
+`TIER1_TIMEOUT_DECISION_RULE` (distinct from the ten; the record says
+"continuation is an operator-authorised attemptNo + 1"); every other
+non-OK outcome with a persisted diagnostic record is reconciled and the
+experiment continues (the acceptance rule refuses a decision on incomplete
+coverage). All ten ids are reached by the pure table test and by the
+coordinator matrix; the coordinator stops after the first, writes
+`experiment-stop.json`, starts no later batch and never starts v2.
+
+## 13. Test evidence — `RECONSTRUCTED_AND_VERIFIED_NOW`
+
+Six new unit files, 91 tests, all reading only the DEVELOPMENT canonical
+corpus and manifest among evaluation fixtures:
+
+| file                                          | tests | covers                                                                                                                                                                     |
+| --------------------------------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `orgunitClassify2D2CF1Preflight.test.ts`      | 11    | F0A hash accepted; one-byte and appended-byte drift refused; never-read path refused before the reader; corpus byte drift; all 12 batches and 24 identities; exact mismatch reporting; version drift; deterministic 24-entry plan and order; closed CLI parser; plan-only CLI reaches no launcher; `--execute` alone refused |
+| `orgunitClassify2D2CF1ExecutionLock.test.ts`  | 11    | statement and closed schema; grant; either half alone; relative/unreadable/malformed; every pinned value; commit/label/name/count mismatches; output root, attempt, expiry, not-yet-valid, duplicate; every single-byte partial mutation refused; CLI paths with a throwing launcher |
+| `orgunitClassify2D2CF1VariantRoot.test.ts`    | 13    | v1/v2 prompt identities; both synthetic roots pass all eleven checks, loaded from the root; no impersonation; path/symlink refusals before Git; wrong repository/toplevel/HEAD/dirty; wrong prompt hash and version; wrong SDK version in each of three places; missing and stale builds; wrong constants, allowlist, liveness text; loader export check; the execution-only loader against a synthetic root (counting seams, root as `repoRoot`, filtered env) and its liveness gate |
+| `orgunitClassify2D2CF1Child.test.ts`          | 14    | isolation violation before the factory; seven drift cases before the factory; accepted output with the root's prompt; schema- and evidence-invalid outputs keep the raw checkpoint; the temporal raw-before-validation proof; raw write failure; write-once collision; the structural invariant; unexpected model; usage limit; Tier-1 timeout diagnostics; auth-failure-as-isolation; thrown provider; tampered manifest |
+| `orgunitClassify2D2CF1Isolation.test.ts`      | 12    | POSIX and Windows allowlists with negative controls; explicit classifier directory; child self-check; the real harness with `childEnv`; write-once durable writer; envelope hashing and every reader failure; attempt identity; output-root validation; source boundaries (no db/socket/fetch/SDK import; only the loader names a factory; the entry's single dynamic import; no bypass) |
+| `orgunitClassify2D2CF1Coordinator.test.ts`    | 30    | pure stop table over both platforms; 24 in order with 38-field records; stop after the first; twelfth-v1 and first-v2 stops; twelve behaviours at sequence 2; decision-rule halt versus reconciled continuation; write-once attempt and consumed authorisation; `composeFinalRecord`; six real fixture children through the real harness; the real child entry twice; one Windows-gated real-process test (skipped here) |
+
+Executed on this Mac (darwin, Node 24.18.0): `Tests 90 passed | 1 skipped
+(91)` across the six files. The existing Tier-2 file is unchanged and
+passes in full (`npm run test:unit`: 70 files, 1,434 passed, 4 skipped —
+the three pre-existing Windows-gated tests plus the one added here).
+Firewall: `Test Files 4 passed (4)`; `Tests 198 passed (198)`, unchanged.
+
+Mutation checks, each applied to the working file, run against the named
+test file, then restored and confirmed byte-identical with `cmp`:
+
+| mutation                                                              | tests failing |
+| --------------------------------------------------------------------- | ------------- |
+| double lock: the `--execute` refusal removed                          | 1 of 11       |
+| double lock: a missing authorisation path GRANTS                      | 1 of 11       |
+| raw-before-validation: validator called before persistence            | 5 of 14       |
+| stop-after-first-failure: the coordinator ignores `decision.stop`     | 23 of 30      |
+
+Commands and results, working tree, before the implementation commit:
+
+| step | command                                            | result                                                                                         |
+| ---- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| 1    | six focused files                                  | `Tests 90 passed \| 1 skipped (91)`                                                            |
+| 2    | `npm run test:unit` (existing Tier-2 tests included) | `Test Files 70 passed (70)`; `Tests 1434 passed \| 4 skipped (1438)`                          |
+| 3    | `git diff --check`                                 | clean                                                                                          |
+| 4    | `npm run typecheck`                                | exit 0                                                                                         |
+| 5    | `npm run lint`                                     | exit 0                                                                                         |
+| 6    | `npm run format:check`                             | `All matched files use Prettier code style!`                                                   |
+| 7    | `npm run test:firewall`                            | `Test Files 4 passed (4)`; `Tests 198 passed (198)` — no firewall edit                          |
+| 8    | `npm run build`                                    | exit 0                                                                                         |
+| 9    | `npm run validate`                                 | exit 0; `Migration check OK: 10 migration(s)`; `Test Files 74 passed \| 20 skipped (94)`; `Tests 1632 passed \| 527 skipped (2167)` |
+
+Against the §1 baseline (68 files, 1,542 passed, 526 skipped): **+6 files,
++90 passed, +1 skipped** — exactly the new tests. After every run `ps`
+showed no fixture, child-entry or vitest process and the OS temporary
+directory held no `nwf-pe-*` entry; the Tier-2 leak check (timers, process
+wraps, scratch directories) is asserted in the coordinator file's
+`afterAll`. The re-run of `npm run validate` from the clean committed tree,
+the implementation commit's own hash and the push are recorded in the
+session's closure report.
+
+## 14. Platform coverage — `NOT_REVERIFIED` where marked
+
+Executed on macOS: every pure test for BOTH platform shapes (the stop
+decision over `posix` and `win32` Tier-2 results, the Windows allowlist,
+the Windows-shaped suppressed-hard-kill final record), and every real
+process test in the POSIX blocks. `NOT_REVERIFIED`: the one real-process
+Windows test in the coordinator file (`describe.runIf(win32)`: a real child
+that exits without acknowledging is `SUPPRESSED_EXPIRED_TARGET_IDENTITY`
+and stops the experiment) is defined, skipped here, and has not run on any
+Windows machine; the Windows directory-`fsync` skip path and the
+`taskkill` route inherit the R2B/Windows-record limits unchanged.
+
+## 15. Zero-change and zero-execution confirmations — `RECONSTRUCTED_AND_VERIFIED_NOW`
+
+`git diff --stat` against the base lists one tracked file:
+`src/test/harness/processIsolatedBatch.ts` (+27/−6, the `childEnv` field
+and its comment). Everything else is added. Therefore unchanged: every
+file under `src/orgunits/`, `src/test/firewall/`, `src/test/fixtures/evaluation/`
+(the canonical corpus and manifest re-hash to `c5a9923a…4c9c4536` and
+`9ef7dfb4…9a20f6`; gold labels, adjudication files, DEVELOPMENT / HOLDOUT
+membership untouched), `docs/evaluation/` (the freeze re-hashes to
+`7b84ac0b…988ad6aa`), `package.json`, `package-lock.json`, `migrations/`,
+`.env.example`, `docs/adr/`, every other `docs/audits/*` record and
+`CLAUDE.md`. No `.env` exists. No gold label changed; `ge789b0f0aedc398c`
+remains `UNIT_PAGE` and was neither adjudicated nor scored; no adjudication
+fixture was opened; no HOLDOUT file was read. No execution-authorisation
+file exists anywhere in the repository. The R2B and R3 worktrees were not
+prepared, built or executed.
+
+**Zero inference executed.** Zero live Claude/provider calls, zero Agent
+SDK queries, zero `claude auth status` invocations, zero database
+connections, zero institutional requests. The production Agent SDK runner
+and the production auth-status runner were never constructed: the only
+module naming them is the execution-only loader, which no test imports
+against a real root and which the child imports dynamically only after a
+preflight that, in every real forked run of this session, stopped first.
+No merge, no pull request, no push to `main`, no amend, no rebase, no
+force-push; global Git configuration untouched.
+
+## 16. Remaining uncertainties
+
+- **The brief names `PROMPT_V1_COMPARATOR` / `PROMPT_V2_CANDIDATE`; the
+  freeze names `PROMPT_V1_CANONICAL` / `PROMPT_V2_CANONICAL`.** The runner
+  keys every identity by the freeze name and carries the brief's label
+  alongside (§2.2). If the owner intended the brief's names to REPLACE the
+  freeze names, that is a freeze revision, not a runner change.
+- **A reconciled non-OK, non-timeout, non-usage-limit provider outcome
+  continues the experiment** (§12). That reading follows the freeze's own
+  definition of `UNRECONCILED_PROVIDER_FAILURE` and its acceptance rule; if
+  the owner wants any provider failure to stop the run, the change is one
+  branch in `deriveStopDecision`, pinned by the coordinator matrix.
+- **`cacheUsageWhereExposed` can never be observed** through the landed
+  runner seam, which exposes input and output tokens only; the record says
+  so rather than claiming a value.
+- **Whether Tier 1 fires against a genuinely stalled inference**, the
+  committed label of `ge789b0f0aedc398c`, and whether prompt v2 improves
+  anything remain the F0A §13.13 unknowns; F1 executes nothing that could
+  resolve them.
+- **The Windows real-process path** is defined, not executed (§14).
+
+## 17. Exact next step
+
+**F2 — execution preparation and explicit authorisation, as a separate
+task:** prepare the two runtime worktrees at exactly `952f80e1…` and
+`a36d024f…` (clean checkout, `npm ci`, `npm run build`), verify them with
+this runner's plan mode (`--v1-root`, `--v2-root`), provision the dedicated
+classifier profile outside every repository, choose an output root outside
+every worktree, and record a real execution authorisation for attempt 1 —
+then, and only then, decide whether to run
+`cli.ts --execute …`. F1 does not begin any of this. No inference was run by
+this task.

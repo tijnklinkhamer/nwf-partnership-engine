@@ -1,0 +1,66 @@
+// PHASE 2B-2D2C-F1 — the forked child ENTRY.
+//
+// The Tier-2 harness forks this file with an empty execArgv, so it registers
+// tsx itself and only then imports the TypeScript child. It installs the
+// Tier-2 cooperative-shutdown listener first: on the harness's shutdown
+// request it acknowledges over IPC and exits. Every other step happens in
+// `childMain.ts` with REAL dependencies bound here: the process environment,
+// the real variant-root probes, the real clock, and — as the ONLY
+// execution-capable binding — the production provider factory from
+// `scripts/phase2b-2d2c-production-runtime.ts`, imported DYNAMICALLY inside
+// the factory so that nothing SDK-bearing is loaded before the child's own
+// preflight has passed.
+import { register } from 'tsx/esm/api';
+
+const SHUTDOWN_REQUEST_MESSAGE = 'nwf-pe-tier2:shutdown-request';
+const SHUTDOWN_ACK_MESSAGE = 'nwf-pe-tier2:shutdown-ack';
+
+let shuttingDown = false;
+function shutdown() {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  if (process.connected) process.send(SHUTDOWN_ACK_MESSAGE, () => process.exit(3));
+  else process.exit(3);
+}
+process.on('message', (message) => {
+  if (message === SHUTDOWN_REQUEST_MESSAGE) shutdown();
+});
+process.on('SIGTERM', shutdown);
+
+const manifestFlag = process.argv.indexOf('--manifest');
+const manifestPath = manifestFlag >= 0 ? process.argv[manifestFlag + 1] : undefined;
+if (!manifestPath) {
+  process.stderr.write('childEntry: --manifest <absolute path> is required\n');
+  process.exit(2);
+}
+
+const unregister = register();
+const { runChildEvaluation, readChildManifest } = await import('./childMain.js');
+const { createRealVariantRootProbes } = await import('./variantRootProbes.js');
+const { verifyVariantRoot } = await import('./variantRoot.js');
+const { loadFreezeFromBytes } = await import('./freeze.js');
+const { FROZEN_VARIANTS } = await import('./constants.js');
+const { readFileSync } = await import('node:fs');
+
+const probes = createRealVariantRootProbes();
+const outcome = await runChildEvaluation(manifestPath, {
+  env: { ...process.env },
+  readFile: (path) => readFileSync(path),
+  verifyRoot: async (variantName, root) => {
+    const manifest = readChildManifest(readFileSync(manifestPath));
+    const { freeze } = loadFreezeFromBytes(readFileSync(manifest.freezePath));
+    const variant = FROZEN_VARIANTS.find((v) => v.name === variantName);
+    return verifyVariantRoot(variant, root, freeze, probes);
+  },
+  providerFactory: {
+    async create(input) {
+      // The one execution-capable import, reached only after the preflight.
+      const loader = await import('../../../../scripts/phase2b-2d2c-production-runtime.js');
+      return loader.createProductionClassifierProviderFromVariantRoot(input);
+    },
+  },
+  clock: { nowUtc: () => new Date(), monotonicMs: () => performance.now() },
+});
+unregister();
+process.exitCode = outcome.exitCode;
+if (process.connected) process.disconnect();
