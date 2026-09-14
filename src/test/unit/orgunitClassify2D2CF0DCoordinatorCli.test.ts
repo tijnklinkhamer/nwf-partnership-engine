@@ -64,6 +64,8 @@ import {
 import {
   ATTEMPT2_AUTHORISATION_STATEMENT,
   ATTEMPT2_AUTHORISATION_VERSION,
+  ATTEMPT2_FROZEN_ORDINALS,
+  ATTEMPT2_MAX_ADAPTER_ATTEMPTS,
   ATTEMPT2_MAX_PROVIDER_REQUESTS,
   type Attempt2ExecutionAuthorisation,
 } from '../harness/phase2b2d2c/f0c/authorisationF0C.js';
@@ -239,14 +241,30 @@ function validAuthorisation(
     supersededFreezeRawSha256: APPROVED_F0C_FREEZE_RAW_SHA256,
     freezeApprovalRecordRawSha256: F0E_APPROVAL_RECORD_RAW_SHA256!,
     variants: [
-      { name: F0E_VARIANT.name, label: F0E_VARIANT.label, gitCommit: F0E_VARIANT.gitCommit },
+      {
+        name: F0E_VARIANT.name,
+        label: F0E_VARIANT.label,
+        gitCommit: F0E_VARIANT.gitCommit,
+        promptVersion: F0E_VARIANT.promptVersion,
+        promptSha256: F0E_VARIANT.runtimePromptSha256,
+      },
     ],
     maxLogicalEvaluations: 12,
+    frozenLogicalBatchOrdinals: [...ATTEMPT2_FROZEN_ORDINALS],
+    attempt1VariantReruns: { PROMPT_V1_CANONICAL: 0, PROMPT_V2_CANONICAL: 0 },
     maxProviderRequests: ATTEMPT2_MAX_PROVIDER_REQUESTS,
+    maxAdapterAttempts: ATTEMPT2_MAX_ADAPTER_ATTEMPTS,
     repairPolicy: {
       enabled: true,
       maxRoundsPerLogicalEvaluation: 1,
       minimumRemainingBudgetMs: REPAIR_MINIMUM_REMAINING_BUDGET_MS,
+    },
+    prohibitions: {
+      holdout: 'NONE',
+      goldLabelChanges: 'NONE',
+      thresholdChanges: 'NONE',
+      databaseWrites: 'NONE',
+      migrationWrites: 'NONE',
     },
     outputRoot: root,
     issuedAtUtc: '2026-09-15T11:00:00.000Z',
@@ -434,6 +452,10 @@ describe('2D2C-F0D attempt-2 CLI: plan-only by default, closed arguments, no lau
     expect(() => parseF0CCliArgs(['--v1-root', '/x'])).toThrow(/unknown argument/);
     expect(() => parseF0CCliArgs(['--v2-root', '/x'])).toThrow(/unknown argument/);
     expect(() => parseF0CCliArgs(['--all'])).toThrow(/unknown argument/);
+    expect(parseF0CCliArgs(['--verify-authorisation-candidate', '/x/c.json'])).toMatchObject({
+      verifyAuthorisationCandidate: '/x/c.json',
+      execute: false,
+    });
     expect(() => parseF0CCliArgs(['--attempt-no', 'two'])).toThrow(/positive integer/);
     expect(() => parseF0CCliArgs(['--authorisation'])).toThrow(/requires a value/);
   });
@@ -475,6 +497,146 @@ describe('2D2C-F0D attempt-2 CLI: plan-only by default, closed arguments, no lau
       'RECORDED_AND_PINNED',
     );
     expect(f0ePlanSha256(PLAN)).toBe(PROPOSED_F0E_PLAN_SHA256);
+  });
+
+  it('F0F: --verify-authorisation-candidate with --execute is refused before ANY readiness check; without --output-root/--attempt-no it reports INCOMPLETE and exits 1; a valid candidate against a real empty root is STRUCTURALLY_ACCEPTABLE, exits 0, creates no marker and launches nothing', async () => {
+    const root = outputRoot();
+    const candidatePath = join(SCRATCH, 'candidate-valid.json');
+    writeFileSync(candidatePath, canonicalStringify(validAuthorisation(root)));
+    const both = io();
+    expect(
+      await runF0CCli(
+        ['--execute', '--verify-authorisation-candidate', candidatePath, '--output-root', root],
+        both.cliIo,
+      ),
+    ).toBe(2);
+    expect(both.err.join('')).toContain('CANDIDATE_VERIFICATION_EXCLUDES_EXECUTION');
+    expect(both.out.join('')).toBe('');
+    expect(both.launches()).toBe(0);
+
+    const incomplete = io();
+    expect(
+      await runF0CCli(
+        ['--verify-authorisation-candidate', candidatePath, '--json'],
+        incomplete.cliIo,
+      ),
+    ).toBe(1);
+    const incompleteSummary = JSON.parse(incomplete.out.join('')) as {
+      authorisationCandidate: { decision: string; structurallyAcceptable: boolean };
+      executionAuthorisation: string;
+    };
+    expect(incompleteSummary.authorisationCandidate.decision).toBe(
+      'CANDIDATE_VERIFICATION_INCOMPLETE',
+    );
+    expect(incompleteSummary.authorisationCandidate.structurallyAcceptable).toBe(false);
+
+    const ok = io();
+    expect(
+      await runF0CCli(
+        [
+          '--verify-authorisation-candidate',
+          candidatePath,
+          '--output-root',
+          root,
+          '--attempt-no',
+          '2',
+          '--json',
+        ],
+        ok.cliIo,
+      ),
+    ).toBe(0);
+    const summary = JSON.parse(ok.out.join('')) as {
+      mode: string;
+      authorisationCandidate: {
+        decision: string;
+        structurallyAcceptable: boolean;
+        sha256: string;
+        byteLength: number;
+        outputRoot: string;
+        consumptionMarkerExists: boolean;
+        issued: boolean;
+        consumed: boolean;
+      };
+      executionAuthorisation: string;
+    };
+    expect(summary.mode).toBe('PLAN_ONLY');
+    expect(summary.authorisationCandidate.decision).toBe('STRUCTURALLY_ACCEPTABLE');
+    expect(summary.authorisationCandidate.structurallyAcceptable).toBe(true);
+    expect(summary.authorisationCandidate.sha256).toBe(sha256Hex(readFileSync(candidatePath)));
+    expect(summary.authorisationCandidate.byteLength).toBe(statSync(candidatePath).size);
+    expect(summary.authorisationCandidate.outputRoot).toBe(root);
+    expect(summary.authorisationCandidate.consumptionMarkerExists).toBe(false);
+    expect(summary.authorisationCandidate.issued).toBe(false);
+    expect(summary.authorisationCandidate.consumed).toBe(false);
+    expect(summary.executionAuthorisation).toBe(
+      'CANDIDATE_VERIFIED_ONLY_NOTHING_ISSUED_NOTHING_CONSUMED',
+    );
+    expect(ok.launches()).toBe(0);
+    expect(readdirSync(root)).toEqual([]);
+    expect(
+      existsSync(authorisationMarkerPathOf(root, sha256Hex(readFileSync(candidatePath)))),
+    ).toBe(false);
+
+    // A candidate naming another root, an expired window, or a non-empty root is reported, never granted.
+    const otherRoot = outputRoot();
+    const mismatch = io();
+    expect(
+      await runF0CCli(
+        [
+          '--verify-authorisation-candidate',
+          candidatePath,
+          '--output-root',
+          otherRoot,
+          '--attempt-no',
+          '2',
+          '--json',
+        ],
+        mismatch.cliIo,
+      ),
+    ).toBe(1);
+    expect(
+      (JSON.parse(mismatch.out.join('')) as { authorisationCandidate: { decision: string } })
+        .authorisationCandidate.decision,
+    ).toBe('AUTHORISATION_OUTPUT_ROOT_MISMATCH');
+    const expired = io();
+    expect(
+      await runF0CCli(
+        [
+          '--verify-authorisation-candidate',
+          candidatePath,
+          '--output-root',
+          root,
+          '--attempt-no',
+          '2',
+          '--json',
+        ],
+        { ...expired.cliIo, nowUtc: () => new Date('2026-09-15T14:00:00Z') },
+      ),
+    ).toBe(1);
+    expect(
+      (JSON.parse(expired.out.join('')) as { authorisationCandidate: { decision: string } })
+        .authorisationCandidate.decision,
+    ).toBe('AUTHORISATION_EXPIRED');
+    mkdirSync(join(otherRoot, 'evaluations'));
+    const nonEmpty = io();
+    expect(
+      await runF0CCli(
+        [
+          '--verify-authorisation-candidate',
+          candidatePath,
+          '--output-root',
+          otherRoot,
+          '--attempt-no',
+          '2',
+          '--json',
+        ],
+        nonEmpty.cliIo,
+      ),
+    ).toBe(1);
+    expect(
+      (JSON.parse(nonEmpty.out.join('')) as { authorisationCandidate: { decision: string } })
+        .authorisationCandidate.decision,
+    ).toBe('ATTEMPT2_OUTPUT_ROOT_NOT_EMPTY');
   });
 
   it('--execute alone, or with an authorisation but no root/output/attempt/config, is refused before any launcher', async () => {

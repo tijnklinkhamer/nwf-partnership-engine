@@ -28,10 +28,14 @@ import {
 import {
   ATTEMPT2_AUTHORISATION_STATEMENT,
   ATTEMPT2_AUTHORISATION_VERSION,
+  ATTEMPT2_FROZEN_ORDINALS,
+  ATTEMPT2_MAX_ADAPTER_ATTEMPTS,
   ATTEMPT2_MAX_PROVIDER_REQUESTS,
   ATTEMPT_1_AUTHORISATION_VERSION,
+  ATTEMPT_1_VARIANTS_NEVER_RERUN,
   Attempt2ExecutionAuthorisationSchema,
   evaluateAttempt2ExecutionLock,
+  verifyAttempt2AuthorisationCandidate,
   type Attempt2ExecutionAuthorisation,
   type Attempt2ExecutionLockInput,
 } from '../harness/phase2b2d2c/f0c/authorisationF0C.js';
@@ -57,6 +61,19 @@ const SYNTHETIC_APPROVAL_PIN = 'a'.repeat(64);
 const scratch = mkdtempSync(join(tmpdir(), 'nwf-pe-2d2c-f0e-lock-'));
 afterAll(() => rmSync(scratch, { recursive: true, force: true }));
 
+type AuthorisedVariant = Attempt2ExecutionAuthorisation['variants'][number];
+/** The one V3B variant as the strengthened (F0F) schema binds it: name, label, commit AND prompt identity. */
+function variant(overrides: Partial<AuthorisedVariant> = {}): AuthorisedVariant {
+  return {
+    name: F0E_VARIANT.name,
+    label: F0E_VARIANT.label,
+    gitCommit: F0E_VARIANT.gitCommit,
+    promptVersion: F0E_VARIANT.promptVersion,
+    promptSha256: F0E_VARIANT.runtimePromptSha256,
+    ...overrides,
+  };
+}
+
 function validAuthorisation(
   overrides: Partial<Attempt2ExecutionAuthorisation> = {},
 ): Attempt2ExecutionAuthorisation {
@@ -68,15 +85,23 @@ function validAuthorisation(
     planSha256: PROPOSED_F0E_PLAN_SHA256,
     supersededFreezeRawSha256: APPROVED_F0C_FREEZE_RAW_SHA256,
     freezeApprovalRecordRawSha256: SYNTHETIC_APPROVAL_PIN,
-    variants: [
-      { name: F0E_VARIANT.name, label: F0E_VARIANT.label, gitCommit: F0E_VARIANT.gitCommit },
-    ],
+    variants: [variant()],
     maxLogicalEvaluations: 12,
+    frozenLogicalBatchOrdinals: [...ATTEMPT2_FROZEN_ORDINALS],
+    attempt1VariantReruns: { PROMPT_V1_CANONICAL: 0, PROMPT_V2_CANONICAL: 0 },
     maxProviderRequests: ATTEMPT2_MAX_PROVIDER_REQUESTS,
+    maxAdapterAttempts: ATTEMPT2_MAX_ADAPTER_ATTEMPTS,
     repairPolicy: {
       enabled: true,
       maxRoundsPerLogicalEvaluation: 1,
       minimumRemainingBudgetMs: REPAIR_MINIMUM_REMAINING_BUDGET_MS,
+    },
+    prohibitions: {
+      holdout: 'NONE',
+      goldLabelChanges: 'NONE',
+      thresholdChanges: 'NONE',
+      databaseWrites: 'NONE',
+      migrationWrites: 'NONE',
     },
     outputRoot: OUTPUT_ROOT,
     issuedAtUtc: '2026-09-15T11:00:00.000Z',
@@ -170,10 +195,26 @@ describe('2D2C-F0E attempt-2 lock: the schema and the statement', () => {
     expect(ATTEMPT2_AUTHORISATION_STATEMENT).toContain(PROPOSED_F0E_PLAN_SHA256);
     expect(ATTEMPT2_AUTHORISATION_STATEMENT).toContain(F0E_VARIANT.gitCommit);
     expect(ATTEMPT2_AUTHORISATION_STATEMENT).toContain('120000 MS USABLE-WINDOW FLOOR');
-    expect(ATTEMPT2_AUTHORISATION_STATEMENT).toContain('AT MOST 61 PROVIDER REQUESTS');
     expect(ATTEMPT2_AUTHORISATION_STATEMENT).toContain(
-      'NO HOLDOUT. NO GOLD LABEL CHANGE. NO DATABASE.',
+      'AT MOST 61 PROVIDER REQUESTS AND AT MOST 183 ADAPTER ATTEMPTS',
     );
+    expect(ATTEMPT2_AUTHORISATION_STATEMENT).toContain(
+      'NO HOLDOUT. NO GOLD LABEL OR THRESHOLD CHANGE. NO DATABASE OR MIGRATION WRITE.',
+    );
+    // F0F: the approval record and the prompt identity are named INSIDE the statement.
+    expect(ATTEMPT2_AUTHORISATION_STATEMENT).toContain(
+      `F0E OWNER-APPROVAL RECORD ${F0E_APPROVAL_RECORD_RAW_SHA256}`,
+    );
+    expect(ATTEMPT2_AUTHORISATION_STATEMENT).toContain(
+      `PROMPT SHA-256 ${F0E_VARIANT.runtimePromptSha256}`,
+    );
+    expect(ATTEMPT2_AUTHORISATION_STATEMENT).not.toContain('NOTHING IS AUTHORISABLE');
+    expect(ATTEMPT2_MAX_ADAPTER_ATTEMPTS).toBe(183);
+    expect([...ATTEMPT2_FROZEN_ORDINALS]).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+    expect([...ATTEMPT_1_VARIANTS_NEVER_RERUN]).toEqual([
+      'PROMPT_V1_CANONICAL',
+      'PROMPT_V2_CANONICAL',
+    ]);
     expect(ATTEMPT2_AUTHORISATION_STATEMENT).not.toContain(EXPECTED_F0B_FREEZE_RAW_SHA256);
     expect(ATTEMPT2_AUTHORISATION_STATEMENT).not.toContain(APPROVED_F0C_FREEZE_RAW_SHA256);
     expect(ATTEMPT2_AUTHORISATION_STATEMENT).not.toContain(APPROVED_F0C_PLAN_SHA256);
@@ -193,12 +234,33 @@ describe('2D2C-F0E attempt-2 lock: the schema and the statement', () => {
     expect(
       Attempt2ExecutionAuthorisationSchema.safeParse({
         ...validAuthorisation(),
-        variants: [
-          { name: F0E_VARIANT.name, label: F0E_VARIANT.label, gitCommit: F0E_VARIANT.gitCommit },
-          { name: F0E_VARIANT.name, label: F0E_VARIANT.label, gitCommit: F0E_VARIANT.gitCommit },
-        ],
+        variants: [variant(), variant()],
       }).success,
     ).toBe(false);
+  });
+
+  it('F0F: the verification-only entry reaches exactly the same decision as the lock, and a candidate that grants there has still consumed nothing', () => {
+    const path = writeAuth(validAuthorisation());
+    const viaLock = evaluate(path);
+    const viaVerify = verifyAttempt2AuthorisationCandidate({
+      authorisationPath: path,
+      expected: { outputRoot: OUTPUT_ROOT, attemptNo: 2 },
+      readFile: (p) => readFileSync(p),
+      sha256: sha256Hex,
+      alreadyConsumed: () => false,
+      nowUtc: () => NOW,
+      pinnedApprovalRecordRawSha256: SYNTHETIC_APPROVAL_PIN,
+    });
+    expect(viaVerify).toEqual(viaLock);
+    expect(viaVerify.granted).toBe(true);
+    // The pre-F0F (F0D/F0E) statement no longer satisfies the lock: the strengthened statement is the only one.
+    const preF0F = validAuthorisation({
+      operatorAuthorisationStatement: ATTEMPT2_AUTHORISATION_STATEMENT.replace(
+        ' AND AT MOST 183 ADAPTER ATTEMPTS. NO HOLDOUT. NO GOLD LABEL OR THRESHOLD CHANGE. NO DATABASE OR MIGRATION WRITE.',
+        '. NO HOLDOUT. NO GOLD LABEL CHANGE. NO DATABASE.',
+      ) as typeof ATTEMPT2_AUTHORISATION_STATEMENT,
+    });
+    expect(refusalOf(evaluate(writeAuth(preF0F)))).toBe('AUTHORISATION_MALFORMED');
   });
 
   it('grants (under the synthetic approval pin) exactly when both halves are present and every pinned value matches', () => {
@@ -307,6 +369,101 @@ describe('2D2C-F0E attempt-2 lock: every refusal (under the synthetic approval p
       ],
       ['24 evaluations', { maxLogicalEvaluations: 24 }],
       ['62 requests', { maxProviderRequests: 62 }],
+      ['184 adapter attempts', { maxAdapterAttempts: 184 }],
+      ['182 adapter attempts', { maxAdapterAttempts: 182 }],
+      [
+        'prompt v2 version',
+        { variants: [{ ...variant(), promptVersion: 'orgunit-classifier-prompt-v2' }] },
+      ],
+      [
+        'prompt sha one digit off',
+        {
+          variants: [
+            {
+              ...variant(),
+              promptSha256: `${F0E_VARIANT.runtimePromptSha256.slice(0, -1)}${F0E_VARIANT.runtimePromptSha256.endsWith('0') ? '1' : '0'}`,
+            },
+          ],
+        },
+      ],
+      [
+        'variant without prompt identity',
+        {
+          variants: [
+            { name: F0E_VARIANT.name, label: F0E_VARIANT.label, gitCommit: F0E_VARIANT.gitCommit },
+          ],
+        },
+      ],
+      ['ordinals 1..11', { frozenLogicalBatchOrdinals: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] }],
+      [
+        'ordinals 1..13',
+        { frozenLogicalBatchOrdinals: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13] },
+      ],
+      ['ordinals 2..13', { frozenLogicalBatchOrdinals: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13] }],
+      [
+        'ordinals reordered',
+        { frozenLogicalBatchOrdinals: [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] },
+      ],
+      [
+        'ordinals duplicated',
+        { frozenLogicalBatchOrdinals: [1, 1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] },
+      ],
+      [
+        'one V1 rerun',
+        { attempt1VariantReruns: { PROMPT_V1_CANONICAL: 1, PROMPT_V2_CANONICAL: 0 } },
+      ],
+      [
+        'one V2 rerun',
+        { attempt1VariantReruns: { PROMPT_V1_CANONICAL: 0, PROMPT_V2_CANONICAL: 1 } },
+      ],
+      ['reruns missing a variant', { attempt1VariantReruns: { PROMPT_V1_CANONICAL: 0 } }],
+      [
+        'holdout allowed',
+        {
+          prohibitions: {
+            holdout: 'ALLOWED',
+            goldLabelChanges: 'NONE',
+            thresholdChanges: 'NONE',
+            databaseWrites: 'NONE',
+            migrationWrites: 'NONE',
+          },
+        },
+      ],
+      [
+        'threshold change allowed',
+        {
+          prohibitions: {
+            holdout: 'NONE',
+            goldLabelChanges: 'NONE',
+            thresholdChanges: 'ALLOWED',
+            databaseWrites: 'NONE',
+            migrationWrites: 'NONE',
+          },
+        },
+      ],
+      [
+        'migration write allowed',
+        {
+          prohibitions: {
+            holdout: 'NONE',
+            goldLabelChanges: 'NONE',
+            thresholdChanges: 'NONE',
+            databaseWrites: 'NONE',
+            migrationWrites: 'ALLOWED',
+          },
+        },
+      ],
+      [
+        'prohibitions missing migration writes',
+        {
+          prohibitions: {
+            holdout: 'NONE',
+            goldLabelChanges: 'NONE',
+            thresholdChanges: 'NONE',
+            databaseWrites: 'NONE',
+          },
+        },
+      ],
       [
         'repair disabled',
         {
@@ -354,13 +511,7 @@ describe('2D2C-F0E attempt-2 lock: every refusal (under the synthetic approval p
         evaluate(
           writeAuth(
             validAuthorisation({
-              variants: [
-                {
-                  name: F0E_VARIANT.name,
-                  label: F0E_VARIANT.label,
-                  gitCommit: SUPERSEDED_V3_RUNTIME_COMMIT,
-                },
-              ],
+              variants: [variant({ gitCommit: SUPERSEDED_V3_RUNTIME_COMMIT })],
             }),
           ),
         ),
@@ -421,13 +572,7 @@ describe('2D2C-F0E attempt-2 lock: every refusal (under the synthetic approval p
       evaluate(
         writeAuth(
           validAuthorisation({
-            variants: [
-              {
-                name: F0E_VARIANT.name,
-                label: F0E_VARIANT.label,
-                gitCommit: flip(F0E_VARIANT.gitCommit),
-              },
-            ],
+            variants: [variant({ gitCommit: flip(F0E_VARIANT.gitCommit) })],
           }),
         ),
       ).granted,

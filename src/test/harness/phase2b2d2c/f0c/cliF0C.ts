@@ -27,6 +27,15 @@
  * the first child. Attempt-1 evidence is never written into, and never
  * read as anything but a comparator.
  *
+ * F0F adds ONE plan-only option: `--verify-authorisation-candidate <absolute
+ * path>`, which is REFUSED in combination with `--execute`. It validates the
+ * supplied output root exactly as the execution path would (absolute,
+ * normalised, real, empty, outside every worktree and outside attempt 1),
+ * then evaluates the attempt-2 lock against the candidate bytes through the
+ * verification-only entry and REPORTS the decision. It creates nothing,
+ * consumes nothing, constructs no provider and launches no child: a
+ * candidate reported STRUCTURALLY_ACCEPTABLE has still authorised nothing.
+ *
  * This file lives under `src/test/harness/` for the same reason the
  * attempt-1 CLI does: the firewall forbids any file outside `src/test/` from
  * importing the Tier-2 harness. It never imports the execution-only
@@ -52,7 +61,10 @@ import { sha256Hex } from '../freeze.js';
 import { loadScoringSources } from '../scoring/sources.js';
 import { createRealVariantRootProbes } from '../variantRootProbes.js';
 import type { VariantRootProbes, VariantRootVerification } from '../variantRoot.js';
-import { evaluateAttempt2ExecutionLock } from './authorisationF0C.js';
+import {
+  evaluateAttempt2ExecutionLock,
+  verifyAttempt2AuthorisationCandidate,
+} from './authorisationF0C.js';
 import {
   APPROVED_F0C_FREEZE_RAW_SHA256,
   APPROVED_F0C_PLAN_SHA256,
@@ -98,6 +110,8 @@ export interface F0CCliOptions {
   /** The preserved attempt-1 root, verified READ-ONLY as the comparator; never written. */
   readonly attempt1Root: string | null;
   readonly classifierConfigDir: string | null;
+  /** F0F: a CANDIDATE authorisation to verify structurally in plan-only mode; never executed. */
+  readonly verifyAuthorisationCandidate: string | null;
   readonly json: boolean;
 }
 
@@ -108,6 +122,7 @@ const FLAGS_WITH_VALUE = new Set([
   '--v3-root',
   '--attempt1-root',
   '--classifier-config-dir',
+  '--verify-authorisation-candidate',
 ]);
 
 /** Closed argument parser: an unknown flag is an error, never ignored. There is no `--v1-root`, `--v2-root` or `--all`. */
@@ -120,6 +135,7 @@ export function parseF0CCliArgs(argv: readonly string[]): F0CCliOptions {
     v3Root: null as string | null,
     attempt1Root: null as string | null,
     classifierConfigDir: null as string | null,
+    verifyAuthorisationCandidate: null as string | null,
     json: false,
   };
   for (let i = 0; i < argv.length; i += 1) {
@@ -136,6 +152,8 @@ export function parseF0CCliArgs(argv: readonly string[]): F0CCliOptions {
       else if (arg === '--v3-root') options.v3Root = value;
       else if (arg === '--attempt1-root') options.attempt1Root = value;
       else if (arg === '--classifier-config-dir') options.classifierConfigDir = value;
+      else if (arg === '--verify-authorisation-candidate')
+        options.verifyAuthorisationCandidate = value;
       else {
         const parsed = Number(value);
         if (!Number.isInteger(parsed) || parsed < 1)
@@ -412,6 +430,16 @@ export async function runF0CCli(argv: readonly string[], io: F0CCliIo): Promise<
   const options = parseF0CCliArgs(argv);
   const readiness: ReadinessCheck[] = [];
 
+  // F0F: candidate verification is a plan-only activity. It is refused
+  // together with --execute BEFORE anything else, so a candidate can never
+  // be verified and executed by one invocation.
+  if (options.verifyAuthorisationCandidate !== null && options.execute) {
+    io.stderr(
+      'REFUSED: CANDIDATE_VERIFICATION_EXCLUDES_EXECUTION: --verify-authorisation-candidate is plan-only and cannot be combined with --execute; an issued authorisation is presented with --authorisation instead.\n',
+    );
+    return 2;
+  }
+
   // 1. The CURRENT attempt-2 freeze (F0E, PROPOSED), by hash, then shape,
   //    then production agreement — including that its runtime commit is the
   //    corrected V3B and that it supersedes F0C by exact hash.
@@ -574,6 +602,14 @@ export async function runF0CCli(argv: readonly string[], io: F0CCliIo): Promise<
   }
   const comparatorOk = comparator === null || comparator.ok;
 
+  // F0F: VERIFICATION-ONLY evaluation of a candidate authorisation (plan-only
+  // mode only; refused with --execute above). Nothing is created or consumed.
+  const candidate =
+    options.verifyAuthorisationCandidate === null
+      ? null
+      : verifyCandidateAuthorisation(options, io, freeze, rootVerification);
+  const candidateOk = candidate === null || candidate.structurallyAcceptable;
+
   const summary = {
     mode: options.execute ? 'EXECUTE_REQUESTED' : 'PLAN_ONLY',
     attemptNo: ATTEMPT_2_NO,
@@ -602,7 +638,11 @@ export async function runF0CCli(argv: readonly string[], io: F0CCliIo): Promise<
             claudeCodeExecutable: rootVerification.claudeCodeExecutable,
           },
     attempt1Comparator: comparator,
-    executionAuthorisation: 'NOT_EVALUATED_IN_PLAN_ONLY_MODE',
+    authorisationCandidate: candidate,
+    executionAuthorisation:
+      candidate === null
+        ? 'NOT_EVALUATED_IN_PLAN_ONLY_MODE'
+        : 'CANDIDATE_VERIFIED_ONLY_NOTHING_ISSUED_NOTHING_CONSUMED',
   };
 
   if (!options.execute) {
@@ -611,7 +651,7 @@ export async function runF0CCli(argv: readonly string[], io: F0CCliIo): Promise<
         ? `${JSON.stringify({ ...summary, plan }, null, 2)}\n`
         : renderPlanText(summary, plan),
     );
-    return rootOk && comparatorOk ? 0 : 1;
+    return rootOk && comparatorOk && candidateOk ? 0 : 1;
   }
 
   // EXECUTION PATH — every gate, in order, before the first child.
@@ -723,6 +763,148 @@ export async function runF0CCli(argv: readonly string[], io: F0CCliIo): Promise<
   return result.status === 'COMPLETED_ALL_PLANNED' ? 0 : 3;
 }
 
+export interface AuthorisationCandidateVerification {
+  readonly path: string;
+  readonly sha256: string | null;
+  readonly byteLength: number | null;
+  readonly outputRoot: string | null;
+  readonly structurallyAcceptable: boolean;
+  readonly decision: string;
+  readonly detail: string;
+  readonly consumptionMarkerExists: boolean;
+  readonly issued: false;
+  readonly consumed: false;
+}
+
+/**
+ * F0F: verifies a CANDIDATE authorisation exactly as the execution path
+ * would, and reports. Requires `--output-root` and `--attempt-no` so the
+ * root and attempt bindings are checked against real values; the output
+ * root is validated read-only with the same rules and the same emptiness
+ * requirement as execution. Never writes, never launches, never consumes.
+ */
+function verifyCandidateAuthorisation(
+  options: F0CCliOptions,
+  io: F0CCliIo,
+  freeze: Attempt2Freeze,
+  rootVerification: VariantRootVerification | null,
+): AuthorisationCandidateVerification {
+  const path = options.verifyAuthorisationCandidate!;
+  const report = (
+    fields: Partial<AuthorisationCandidateVerification> & {
+      readonly decision: string;
+      readonly detail: string;
+    },
+  ): AuthorisationCandidateVerification => ({
+    path,
+    sha256: null,
+    byteLength: null,
+    outputRoot: null,
+    structurallyAcceptable: false,
+    consumptionMarkerExists: false,
+    ...fields,
+    issued: false,
+    consumed: false,
+  });
+  let sha256: string | null = null;
+  let byteLength: number | null = null;
+  try {
+    const bytes = readFileSync(path);
+    sha256 = sha256Hex(bytes);
+    byteLength = bytes.byteLength;
+  } catch {
+    // The lock reports the unreadable candidate itself; nothing is hashed.
+  }
+  if (options.outputRoot === null || options.attemptNo === null) {
+    return report({
+      sha256,
+      byteLength,
+      decision: 'CANDIDATE_VERIFICATION_INCOMPLETE',
+      detail:
+        'candidate verification requires --output-root and --attempt-no so the root and attempt bindings are checked against real values.',
+    });
+  }
+  if (options.attemptNo !== ATTEMPT_2_NO) {
+    return report({
+      sha256,
+      byteLength,
+      decision: 'CANDIDATE_VERIFICATION_INCOMPLETE',
+      detail: `the F0E freeze configures attempt ${ATTEMPT_2_NO}; --attempt-no ${options.attemptNo} is not it.`,
+    });
+  }
+  const forbiddenContainers = [
+    RUNNER_REPO_ROOT,
+    ...(options.v3Root === null ? [] : [options.v3Root]),
+    ...(options.attempt1Root === null ? [] : [options.attempt1Root]),
+    ...listWorktrees(RUNNER_REPO_ROOT),
+  ];
+  const outputRootDecision = validateOutputRoot(options.outputRoot, forbiddenContainers, {
+    realpath: (candidatePath) => realpathSync.native(candidatePath),
+    isDirectory: (candidatePath) => {
+      try {
+        return lstatSync(candidatePath).isDirectory();
+      } catch {
+        return false;
+      }
+    },
+  });
+  if (!outputRootDecision.ok) {
+    return report({
+      sha256,
+      byteLength,
+      decision: `OUTPUT_ROOT_${outputRootDecision.refusal}`,
+      detail: outputRootDecision.detail,
+    });
+  }
+  const existing = readdirSync(outputRootDecision.outputRoot);
+  if (existing.length > 0) {
+    return report({
+      sha256,
+      byteLength,
+      outputRoot: outputRootDecision.outputRoot,
+      decision: 'ATTEMPT2_OUTPUT_ROOT_NOT_EMPTY',
+      detail: `the attempt-2 output root must be an empty directory; it holds ${existing.length} entr${existing.length === 1 ? 'y' : 'ies'}.`,
+    });
+  }
+  const consumptionMarkerExists =
+    sha256 !== null && isAuthorisationConsumed(outputRootDecision.outputRoot, sha256);
+  const lock = verifyAttempt2AuthorisationCandidate({
+    authorisationPath: path,
+    expected: { outputRoot: outputRootDecision.outputRoot, attemptNo: options.attemptNo },
+    readFile: (candidatePath) => readFileSync(candidatePath),
+    sha256: sha256Hex,
+    alreadyConsumed: (candidateSha) =>
+      isAuthorisationConsumed(outputRootDecision.outputRoot, candidateSha),
+    nowUtc: io.nowUtc,
+  });
+  const runPlatform = freeze.classifier.claudeCodeExecutable.runPlatform.platformKey;
+  const rootNote =
+    rootVerification === null
+      ? 'no --v3-root supplied, so the runtime root was not verified in this invocation'
+      : `V3 root ${rootVerification.ok ? 'VERIFIED' : 'REFUSED'}`;
+  if (!lock.granted) {
+    return report({
+      sha256,
+      byteLength,
+      outputRoot: outputRootDecision.outputRoot,
+      consumptionMarkerExists,
+      decision: lock.refusal,
+      detail: lock.detail,
+    });
+  }
+  return report({
+    sha256,
+    byteLength,
+    outputRoot: outputRootDecision.outputRoot,
+    consumptionMarkerExists,
+    structurallyAcceptable: true,
+    decision: 'STRUCTURALLY_ACCEPTABLE',
+    detail:
+      `the candidate would satisfy every attempt-2 lock check for output root ${outputRootDecision.outputRoot}, attempt ${options.attemptNo}, at the clock this invocation observed; ` +
+      `${rootNote}; execution is frozen to ${runPlatform}. NOTHING WAS ISSUED, GRANTED OR CONSUMED: this invocation has no execution branch.`,
+  });
+}
+
 function renderPlanText(summary: Record<string, unknown>, plan: Attempt2ExecutionPlan): string {
   const lines: string[] = [
     'PHASE 2B-2D2C attempt-2 runner — PLAN / READINESS ONLY (no provider, auth, database or network call was made; nothing was written)',
@@ -761,6 +943,16 @@ function renderPlanText(summary: Record<string, unknown>, plan: Attempt2Executio
     lines.push(
       '',
       `attempt-1 comparator ${comparator.root}: ${comparator.ok ? 'VERIFIED READ-ONLY' : 'REFUSED'} — ${comparator.detail}`,
+    );
+  }
+  const candidate = summary['authorisationCandidate'] as AuthorisationCandidateVerification | null;
+  if (candidate !== null) {
+    lines.push(
+      '',
+      `authorisation CANDIDATE ${candidate.path}: ${candidate.decision}`,
+      `  sha256 ${candidate.sha256 ?? '<unreadable>'}; ${candidate.byteLength ?? '?'} bytes; output root ${candidate.outputRoot ?? '<not validated>'}; consumption marker ${candidate.consumptionMarkerExists ? 'EXISTS' : 'absent'}`,
+      `  ${candidate.detail}`,
+      '  issued: false; consumed: false — verification only.',
     );
   }
   lines.push(
