@@ -57,7 +57,7 @@ export const F0C_FREEZE_PATH = 'docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_
  * changed bytes are a new proposal.
  */
 export const PROPOSED_F0C_FREEZE_RAW_SHA256 =
-  '5368efa6b9ac3a0ccd16c52bbff4f02da845715125cc094897141f14f24b5f78';
+  'd3de146fa789e64f09d850b03512e602caa226578387306642de6f4904b3efa9';
 
 export const F0C_FREEZE_ID = 'PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0C_V1';
 export const F0C_FREEZE_VERSION = 'phase2b-2d2c-dev-configuration-freeze-f0c-v1';
@@ -134,6 +134,7 @@ export const F0CFreezeSchema = z.looseObject({
   freezeRevision: z.literal(F0C_FREEZE_REVISION),
   attemptNo: z.literal(F0C_ATTEMPT_NO),
   approvalModel: z.looseObject({ thisFileAuthorises: z.array(z.never()).length(0) }),
+  ownerApprovalRequired: z.array(z.string().min(1)).min(1),
   predecessor: z.looseObject({
     file: z.literal('docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_V1.json'),
     rawSha256: z.literal(EXPECTED_F0B_FREEZE_RAW_SHA256),
@@ -419,6 +420,21 @@ export function assertF0CAgreesWithProduction(freeze: F0CFreeze): void {
   const selected = options.options.filter((o) => o.status === 'SELECTED_BY_OWNER_2026_09_14');
   if (selected.length !== 1 || selected[0]!.usableFloorMs !== policy.minimumRemainingBudgetMs) {
     problems.push('floorOptions: the SELECTED option is not the implementation value');
+  }
+  // The owner-approval checklist must name the floor by the implementation value and nothing else.
+  const floorChecklistEntries = freeze.ownerApprovalRequired.filter((entry) =>
+    entry.includes('REPAIR_MINIMUM_REMAINING_BUDGET_MS'),
+  );
+  if (
+    floorChecklistEntries.length !== 1 ||
+    !floorChecklistEntries[0]!.startsWith(
+      `REPAIR_MINIMUM_REMAINING_BUDGET_MS = ${REPAIR_MINIMUM_REMAINING_BUDGET_MS} ms on the usable repair window`,
+    ) ||
+    floorChecklistEntries[0]!.includes('(PROPOSED)')
+  ) {
+    problems.push(
+      'ownerApprovalRequired: the floor checklist entry does not name the implementation value',
+    );
   }
 
   // Liveness: unchanged from F0B and equal to production.

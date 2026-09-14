@@ -52,8 +52,8 @@ evaluation artifact. Git operations were limited to Stage 1 below.
 
 | identity                       | value                                                                                                                                                 |
 | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| F0C raw SHA-256 (82,148 bytes) | `5368efa6b9ac3a0ccd16c52bbff4f02da845715125cc094897141f14f24b5f78`                                                                                    |
-| derived attempt-2 plan SHA-256 | `49521dee7a2f48c04557973ff75a339c35031522dc90bf2f758be95af185e02d`                                                                                    |
+| F0C raw SHA-256 (82,304 bytes) | `d3de146fa789e64f09d850b03512e602caa226578387306642de6f4904b3efa9`                                                                                    |
+| derived attempt-2 plan SHA-256 | `133a7a2017873ae5b2144796084f7cca28b22ce7c9593f3d5e828ce3ec4c3143`                                                                                    |
 | variant                        | `PROMPT_V3_CANONICAL` / `PROMPT_V3_CANDIDATE`, order 1, the only one                                                                                  |
 | runtime commit                 | `0c0d73803ed1155d568afe50a6657b7be7276dbb` (based on R1 `9c509107fd66afdc979364a135bf94eb64379972`)                                                   |
 | prompt                         | `orgunit-classifier-prompt-v3`, `d05dcce614397e09f93d0aec981a3d626d5e90a16851040901ffafec30d3abd1`, 14,012 code points / 14,088 bytes, recomputed from the production bytes |
@@ -72,6 +72,38 @@ which carried the implementation's 60,000 ms floor marked PROPOSED). The
 plan SHA changed because the plan embeds the repair policy, whose floor
 value changed; the evaluation order, the 12 evaluations, the call ceiling
 and every other numeric value are unchanged.
+
+**A third proposal was superseded AFTER an owner approval statement named
+it, and that approval was NOT recorded.** Bytes
+`5368efa6b9ac3a0ccd16c52bbff4f02da845715125cc094897141f14f24b5f78`
+(82,148 bytes; plan
+`49521dee7a2f48c04557973ff75a339c35031522dc90bf2f758be95af185e02d`; branch
+commit `5396b98554fb0d7a7707854409d3afca22c909fc`) were presented with the
+120,000 ms floor in every operative field, and the owner issued
+`APPROVE_F0C_FREEZE` naming that hash. Before writing the approval record
+or pushing, a pre-recording check of the approved bytes found one stale
+string in the informational `ownerApprovalRequired` checklist:
+`REPAIR_MINIMUM_REMAINING_BUDGET_MS = 60000 (PROPOSED)` (the generator's
+checklist had not been updated with the rest of the file; the loader did
+not read that list). The operative value in those bytes was 120,000 and
+loader-enforced, so no run could have been planned at 60,000, but a frozen
+file whose approval checklist contradicts its own frozen value was not
+carried forward. The defect was reported to the owner with the choice
+between recording the approval as given and re-freezing; the owner chose
+to re-freeze. No approval record was written for `5368efa6…`, nothing was
+pushed, and the approval statement naming it is void by the owner's own
+re-freeze decision. The correction is the one checklist entry (now
+`REPAIR_MINIMUM_REMAINING_BUDGET_MS = 120000 ms on the usable repair window
+(owner-selected 2026-09-14; 60000 rejected)`) plus a second entry naming
+the general repair deadline contract; the loader now parses
+`ownerApprovalRequired` and refuses a checklist whose floor entry does not
+name the implementation value or still says `(PROPOSED)`
+(mutation-tested), and the freeze test asserts the raw bytes contain no
+`60000 (PROPOSED)`. A full sweep of the new bytes finds `PROPOSED` only in
+`status` and in `approvalModel.rule`, both by design (bytes never change on
+approval). The plan SHA changed because the plan names the freeze's raw
+hash; the 12 evaluations, their order and every numeric value are
+unchanged.
 
 ## 4. Reconciliation 1 — the repair deadline contract — `RECONSTRUCTED_AND_VERIFIED_NOW`
 
@@ -229,9 +261,10 @@ See the freeze's `ownerApprovalRequired` list and §5. The floor is selected
 (§5); the freeze itself is not approved. A freeze approval is separate from
 an execution authorisation. HOLDOUT remains forbidden.
 
-**Closure line (final bytes of this branch):** `npm run validate` with
-`PHASE2B_2D2C_ATTEMPT1_ROOT` set: 116 test files passed, 2,576 tests
-passed, 4 deliberately skipped (unchanged), typecheck, lint, format check,
-migrations check (11 sequential) and build all passed; exit 0.
+**Closure line (final bytes of this branch, after the re-freeze):**
+`npm run validate` with `PHASE2B_2D2C_ATTEMPT1_ROOT` set: 116 test files
+passed, 2,576 tests passed, 4 deliberately skipped (unchanged), typecheck,
+lint, format check, migrations check (11 sequential) and build all passed;
+exit 0. The same gate passed on the superseded `5396b98…` bytes.
 `PHASE 2B-2D2C-F0C 120K FLOOR INCORPORATED AND PREPARED — AWAITING EXPLICIT
 OWNER FREEZE APPROVAL; ZERO INFERENCE`.

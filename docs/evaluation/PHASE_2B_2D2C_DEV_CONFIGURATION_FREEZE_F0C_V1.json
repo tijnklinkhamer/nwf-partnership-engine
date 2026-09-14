@@ -1409,7 +1409,8 @@
     "the comparator policy: preserved attempt-1 V1/V2 evidence, read-only, no rerun",
     "the post-repair scoring treatment",
     "the repair-timeout continuation rule",
-    "REPAIR_MINIMUM_REMAINING_BUDGET_MS = 60000 (PROPOSED)",
+    "REPAIR_MINIMUM_REMAINING_BUDGET_MS = 120000 ms on the usable repair window (owner-selected 2026-09-14; 60000 rejected)",
+    "the general repair deadline contract stated in repairContract.repairDeadlineFormula",
     "the per-evaluation and total call ceilings as derived",
     "the identity fields changed from F0B",
     "that the 700000 ms Tier-2 watchdog remains sufficient under the shared-budget rule"

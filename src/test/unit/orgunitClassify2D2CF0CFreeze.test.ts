@@ -94,7 +94,7 @@ const F0C = loadF0CFreezeFromBytes(F0C_BYTES);
 const PLAN = buildF0CExecutionPlan(F0C.freeze, F0C.rawSha256);
 
 /** The proposed raw hash, restated as a literal so the loader's own constant is cross-checked. */
-const PROPOSED_RAW_SHA256 = '5368efa6b9ac3a0ccd16c52bbff4f02da845715125cc094897141f14f24b5f78';
+const PROPOSED_RAW_SHA256 = 'd3de146fa789e64f09d850b03512e602caa226578387306642de6f4904b3efa9';
 
 function clone(): F0CFreeze {
   return JSON.parse(JSON.stringify(F0C.freeze)) as F0CFreeze;
@@ -418,6 +418,15 @@ describe('2D2C-F0C: the repair deadline formula and the floor options', () => {
     expect(byFloor.get(60_000)).toMatchObject({ status: 'REJECTED_BY_OWNER_2026_09_14' });
     expect(byFloor.get(120_000)).toMatchObject({ status: 'SELECTED_BY_OWNER_2026_09_14' });
     expect(REPAIR_MINIMUM_REMAINING_BUDGET_MS).toBe(120_000);
+    // The owner-approval checklist names the SELECTED value; no stale "(PROPOSED)" floor line survives.
+    const floorEntries = F0C.freeze.ownerApprovalRequired.filter((e) =>
+      e.includes('REPAIR_MINIMUM_REMAINING_BUDGET_MS'),
+    );
+    expect(floorEntries).toEqual([
+      'REPAIR_MINIMUM_REMAINING_BUDGET_MS = 120000 ms on the usable repair window (owner-selected 2026-09-14; 60000 rejected)',
+    ]);
+    expect(F0C.freeze.ownerApprovalRequired.join('\n')).not.toContain('(PROPOSED)');
+    expect(F0C_BYTES.toString('utf8')).not.toContain('60000 (PROPOSED)');
     // At exactly the floor a worst-case auth-status check leaves 60 000 ms of runner window,
     // above the slowest observed attempt-1 full evaluation (50 179 ms).
     expect(REPAIR_MINIMUM_REMAINING_BUDGET_MS - options.authStatusUpperBoundMs).toBeGreaterThan(
@@ -697,6 +706,14 @@ describe('2D2C-F0C: mutation coverage — each material freeze assertion bites',
       o.status = 'REJECTED_BY_OWNER_2026_09_14';
     }
     expectDrift(none, /SELECTED option is not the implementation value/);
+    // A checklist that still names the rejected floor as PROPOSED is refused.
+    const stale = clone();
+    stale.ownerApprovalRequired = stale.ownerApprovalRequired.map((e) =>
+      e.includes('REPAIR_MINIMUM_REMAINING_BUDGET_MS')
+        ? 'REPAIR_MINIMUM_REMAINING_BUDGET_MS = 60000 (PROPOSED)'
+        : e,
+    );
+    expectDrift(stale, /ownerApprovalRequired: the floor checklist entry/);
   });
 
   it('a changed liveness value, watchdog or shared-budget worst case is refused', () => {
