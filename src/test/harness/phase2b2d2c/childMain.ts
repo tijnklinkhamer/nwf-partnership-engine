@@ -47,7 +47,15 @@ import type {
   ClassifierProviderResult,
 } from '../../../orgunits/classify/providerContract.js';
 import type { ValidationResult } from '../../../orgunits/classify/validate.js';
-import { readArtifact, writeArtifactOnce, type ArtifactKind } from './artifacts.js';
+import type { RepairCandidate, RepairPlan } from '../../../orgunits/classify/repair.js';
+import {
+  ensureRepairDirectory,
+  readArtifact,
+  repairDocumentDirectoryOf,
+  repairRoundDirectoryOf,
+  writeArtifactOnce,
+  type ArtifactKind,
+} from './artifacts.js';
 import { reconstructFrozenBatches } from './batches.js';
 import { childEnvironmentViolations } from './childEnvironment.js';
 import {
@@ -61,8 +69,11 @@ import { loadDevCorpus } from './corpus.js';
 import {
   FreezeDriftError,
   FrozenBatchContextSchema,
+  freezeRepairPolicy,
   loadFreezeFromBytes,
   sha256Hex,
+  type Freeze,
+  type FrozenRepairPolicy,
 } from './freeze.js';
 import { persistRawOutputThenValidate, RawOutputNotPersistedError } from './rawOutputCheckpoint.js';
 import type { LoadedVariantRuntime } from './runtimeLoader.js';
@@ -131,6 +142,14 @@ export interface ChildDependencies {
   readonly clock: ChildClock;
   /** Test seam for the raw-checkpoint persistence; defaults to the write-once artifact writer. */
   readonly persistRawCheckpoint?: (attemptDir: string, checkpoint: unknown) => Promise<void>;
+  /**
+   * ADR 0011: which repair policy applies. Defaults to the FREEZE's own
+   * declaration (`freezeRepairPolicy`: absent means disabled), which is
+   * what the production entry binds. A test may inject a policy because
+   * the F0B freeze bytes - which declare none - are hash-pinned and cannot
+   * be edited to enable one.
+   */
+  readonly repairPolicyFor?: (freeze: Freeze) => FrozenRepairPolicy;
 }
 
 export interface ChildRunOutcome {
@@ -339,6 +358,16 @@ export async function runChildEvaluation(
       );
     }
 
+    // 5a. ADR 0011: the repair policy, and the root's ability to honour it.
+    const repairPolicy = (deps.repairPolicyFor ?? freezeRepairPolicy)(freeze);
+    if (repairPolicy.enabled && runtime.repair === undefined) {
+      return preflightStop(
+        'CORPUS_CONFIG_OR_HASH_DRIFT',
+        'the repair policy is enabled but the variant root ships no built repair module.',
+        { stage: 'repairPolicy', repairPolicy },
+      );
+    }
+
     // 6. Preflight record.
     write('CHILD_PREFLIGHT', {
       ok: true,
@@ -398,7 +427,8 @@ export async function runChildEvaluation(
       write('VALIDATION_RESULT', validationRecordOf(validation));
     }
 
-    // 9. Diagnostics, outcome, result.
+    // 9. Diagnostics and the ORIGINAL call's outcome - durable before any
+    //    repair is even planned (ADR 0011 persistence order).
     if (diagnostics.length > 0) {
       write('TIER1_DIAGNOSTICS', {
         captureHook: 'onAttemptDiagnostics',
@@ -409,22 +439,49 @@ export async function runChildEvaluation(
         })),
       });
     }
+    const originalRunnerAttempts = created.runnerAttempts();
+    const originalAuthStatusInvocations = created.authStatusInvocations();
     write('PROVIDER_OUTCOME', {
       outcome: result.outcome,
       providerReportedModelId: result.responseModelId,
       inputTokens: result.inputTokens,
       outputTokens: result.outputTokens,
       outcomeDetail: result.outcomeDetail,
-      internalAdapterAttemptCountWhereObservable: created.runnerAttempts(),
-      authStatusInvocationsObserved: created.authStatusInvocations(),
+      internalAdapterAttemptCountWhereObservable: originalRunnerAttempts,
+      authStatusInvocationsObserved: originalAuthStatusInvocations,
       startedAtUtc,
       endedAtUtc,
       monotonicWallTimeMs,
       tier1DiagnosticsCaptured: diagnostics.length,
     });
+
+    // 10. ADR 0011: the ONE bounded repair round, only for a VALIDATED
+    //     original with item-level rejections, only under an enabled policy.
+    let repairRound: ChildRepairRoundSummary | null = null;
+    if (repairPolicy.enabled && runtime.repair !== undefined && validation !== null) {
+      repairRound = await runChildRepairRound({
+        attemptDir,
+        manifest,
+        runtime,
+        repair: runtime.repair,
+        policy: repairPolicy,
+        batch: { context: batch.context, documents: batch.documents },
+        validation,
+        rawOutput: result.rawOutput,
+        provider: created.provider,
+        counters: {
+          runnerAttempts: created.runnerAttempts,
+          authStatusInvocations: created.authStatusInvocations,
+        },
+        clock: deps.clock,
+        originalStartedMono: startedMono,
+        persistRawCheckpoint: deps.persistRawCheckpoint,
+      });
+    }
+
     const childStopCondition: StopConditionId | null = isolationViolationFromOutcome(result)
       ? 'ISOLATION_VIOLATION'
-      : null;
+      : (repairRound?.childStopCondition ?? null);
     write('CHILD_RESULT', {
       variantName: manifest.variantName,
       logicalBatchOrdinal: manifest.logicalBatchOrdinal,
@@ -441,6 +498,9 @@ export async function runChildEvaluation(
         TIER1_DIAGNOSTICS: fileHashOf(attemptDir, 'TIER1_DIAGNOSTICS'),
         PROVIDER_OUTCOME: fileHashOf(attemptDir, 'PROVIDER_OUTCOME'),
       },
+      // ADR 0011: null when no repair policy is enabled (every attempt-1
+      // record), otherwise the round's summary and the hash of its record.
+      repairRound: repairRound === null ? null : repairRound.summary,
     });
     return { exitCode: 0, stopCondition: childStopCondition, providerOutcome: result.outcome };
   } catch (error) {
@@ -457,6 +517,308 @@ export async function runChildEvaluation(
     }
     return { exitCode: 1, stopCondition, providerOutcome: null };
   }
+}
+
+export type ChildRepairDisposition = 'ACCEPTED' | 'REJECTED' | 'PROVIDER_FAILED' | 'SKIPPED';
+
+/** What the child records about the ONE repair round, both in `repair-1/repair-round.json` and inside CHILD_RESULT. */
+export interface ChildRepairRoundRecord {
+  readonly round: 1;
+  readonly repairRequestVersion: string;
+  readonly policy: FrozenRepairPolicy;
+  readonly noCandidatesBecause: RepairPlan['noCandidatesBecause'];
+  readonly planned: number;
+  readonly excluded: RepairPlan['excluded'];
+  readonly executed: number;
+  readonly accepted: number;
+  readonly rejected: number;
+  readonly providerFailed: number;
+  readonly skipped: number;
+  readonly documents: readonly {
+    readonly docIndex: number;
+    readonly disposition: ChildRepairDisposition;
+    readonly providerOutcome: ClassifierProviderOutcomeKind | null;
+    readonly errorKind: string | null;
+    readonly repairOutcomeSha256: string | null;
+  }[];
+  readonly inputTokens: number;
+  readonly outputTokens: number;
+  readonly monotonicWallTimeMs: number;
+}
+
+interface ChildRepairRoundSummary {
+  readonly summary: ChildRepairRoundRecord & { readonly repairRoundSha256: string | null };
+  readonly childStopCondition: StopConditionId | null;
+}
+
+interface ChildRepairRoundInput {
+  readonly attemptDir: string;
+  readonly manifest: ChildManifest;
+  readonly runtime: LoadedVariantRuntime;
+  readonly repair: NonNullable<LoadedVariantRuntime['repair']>;
+  readonly policy: FrozenRepairPolicy;
+  readonly batch: ClassifierBatch;
+  readonly validation: ValidationResult;
+  readonly rawOutput: unknown;
+  readonly provider: ClassifierProvider;
+  readonly counters: {
+    readonly runnerAttempts: () => number;
+    readonly authStatusInvocations: () => number;
+  };
+  readonly clock: ChildClock;
+  /** The monotonic instant the ORIGINAL provider call was entered: the budget is measured from here. */
+  readonly originalStartedMono: number;
+  readonly persistRawCheckpoint:
+    ((attemptDir: string, checkpoint: unknown) => Promise<void>) | undefined;
+}
+
+/** The persisted `error_kind` label a repair outcome carries, mirroring production's mapping without importing it. */
+function repairErrorKindOf(
+  result: ClassifierProviderResult,
+  validation: ValidationResult | null,
+  accepted: boolean,
+): string | null {
+  if (accepted) return null;
+  if (result.outcome !== 'OK') {
+    return result.outcome === 'STRUCTURED_OUTPUT_FAILED' ? 'SCHEMA_INVALID' : result.outcome;
+  }
+  if (validation === null || validation.kind === 'SCHEMA_INVALID') return 'SCHEMA_INVALID';
+  return validation.rejected.some((r) => r.category === 'EVIDENCE')
+    ? 'EVIDENCE_SPAN_UNVERIFIED'
+    : 'SCHEMA_INVALID';
+}
+
+/**
+ * THE ONE BOUNDED REPAIR ROUND, in the child (ADR 0011; the same pure
+ * decision module production orchestration uses, loaded FROM THE ROOT).
+ * For every EVIDENCE/LENGTH-rejected document, in docIndex order: decide
+ * the budget from the ORIGINAL call's elapsed time; persist the decision;
+ * if the window allows, build the isolated single-document request, call
+ * the provider ONCE with that window, persist the raw output BEFORE
+ * validation, validate through the root's unchanged validator, persist the
+ * validation and the outcome. Nothing an earlier artifact recorded is ever
+ * rewritten; a repair that fails is terminally rejected; a repair TIMEOUT
+ * is recorded and the round continues (never an experiment stop by itself).
+ */
+async function runChildRepairRound(input: ChildRepairRoundInput): Promise<ChildRepairRoundSummary> {
+  const { attemptDir, repair, policy, runtime, manifest } = input;
+  const plan = repair.planRepairRound({
+    batch: input.batch,
+    validation: input.validation,
+    rawOutput: input.rawOutput,
+    policy,
+    originalIsRepair: false,
+  });
+  const roundDir = repairRoundDirectoryOf(attemptDir);
+  ensureRepairDirectory(roundDir);
+
+  const documents: ChildRepairRoundRecord['documents'][number][] = [];
+  let executed = 0;
+  let accepted = 0;
+  let rejected = 0;
+  let providerFailed = 0;
+  let skipped = 0;
+  let inputTokens = 0;
+  let outputTokens = 0;
+  let wallTimeMs = 0;
+  let childStopCondition: StopConditionId | null = null;
+
+  for (const candidate of plan.candidates) {
+    const docDir = repairDocumentDirectoryOf(attemptDir, candidate.docIndex);
+    ensureRepairDirectory(docDir);
+    const writeDoc = <T>(kind: ArtifactKind, record: T): void => {
+      writeArtifactOnce(docDir, kind, record);
+    };
+    const elapsedMs = Math.max(0, input.clock.monotonicMs() - input.originalStartedMono);
+    const decision = repair.decideRepairBudget({ elapsedMs, policy });
+    writeDoc('REPAIR_DECISION', {
+      round: 1,
+      docIndex: candidate.docIndex,
+      category: candidate.category,
+      rejectionReason: candidate.rejectionReason,
+      reasonCodes: candidate.reasonCodes,
+      invalidFields: candidate.invalidFields,
+      elapsedSinceOriginalMs: Math.round(elapsedMs),
+      totalBudgetMs: repair.REPAIR_TOTAL_BUDGET_MS,
+      hardKillGraceMs: repair.REPAIR_HARD_KILL_GRACE_MS,
+      policy,
+      decision,
+    });
+
+    if (decision.kind === 'SKIP') {
+      skipped += 1;
+      const detail = repair.describeRepairSkip(decision);
+      writeDoc('REPAIR_OUTCOME', {
+        round: 1,
+        docIndex: candidate.docIndex,
+        disposition: 'SKIPPED' satisfies ChildRepairDisposition,
+        providerOutcome: null,
+        errorKind: 'OTHER',
+        detail,
+        verdict: null,
+        providerRequestSent: false,
+      });
+      documents.push({
+        docIndex: candidate.docIndex,
+        disposition: 'SKIPPED',
+        providerOutcome: null,
+        errorKind: 'OTHER',
+        repairOutcomeSha256: fileHashOf(docDir, 'REPAIR_OUTCOME'),
+      });
+      continue;
+    }
+
+    const request = repair.buildRepairRequest(input.batch, candidate as RepairCandidate);
+    const repairInputSha256 = repair.computeRepairInputSha256({
+      repairOfInputSha256: manifest.finalInputSha256,
+      repairRequestSha256: request.requestSha256,
+      promptVersion: runtime.prompt.ORGUNIT_CLASSIFIER_PROMPT_VERSION,
+      outputSchemaVersion: runtime.outputSchema.ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
+    });
+    writeDoc('REPAIR_REQUEST', {
+      round: 1,
+      docIndex: candidate.docIndex,
+      repairRequestVersion: repair.REPAIR_REQUEST_VERSION,
+      notice: request.notice,
+      documentCount: request.batch.documents.length,
+      serializedInputUtf8Bytes: Buffer.byteLength(request.serializedInput, 'utf8'),
+      requestSha256: request.requestSha256,
+      repairOfFinalInputSha256: manifest.finalInputSha256,
+      repairInputSha256,
+      promptSha256: manifest.promptSha256,
+      windowMs: decision.windowMs,
+      firstAttemptDeadlineMs: decision.firstAttemptDeadlineMs,
+      remainingMs: decision.remainingMs,
+    });
+
+    const runnerAttemptsBefore = input.counters.runnerAttempts();
+    const authBefore = input.counters.authStatusInvocations();
+    const startedAtUtc = input.clock.nowUtc().toISOString();
+    const startedMono = input.clock.monotonicMs();
+    const result = await input.provider.classify({
+      systemPrompt: runtime.prompt.ORGUNIT_CLASSIFIER_SYSTEM_PROMPT,
+      serializedBatch: request.serializedInput,
+      outputJsonSchema: runtime.outputSchema.ORGUNIT_CLASSIFIER_OUTPUT_JSON_SCHEMA,
+      modelId: manifest.requestedModelId,
+      runConfig: { ...FROZEN_RUN_CONFIG },
+      totalBudgetMs: decision.windowMs,
+    });
+    const endedAtUtc = input.clock.nowUtc().toISOString();
+    const monotonicWallTimeMs = Math.max(0, Math.round(input.clock.monotonicMs() - startedMono));
+    executed += 1;
+    inputTokens += result.inputTokens ?? 0;
+    outputTokens += result.outputTokens ?? 0;
+    wallTimeMs += monotonicWallTimeMs;
+
+    let repairValidation: ValidationResult | null = null;
+    let rawPersistedBeforeValidation: boolean | null = null;
+    let sequence: { persistedSeq: number; validationStartedSeq: number } | null = null;
+    if (result.outcome === 'OK') {
+      const persisted = await persistRawOutputThenValidate({
+        rawOutput: result.rawOutput,
+        canonicalStringify: runtime.canonical.canonicalStringify,
+        persist: async (checkpoint) => {
+          if (input.persistRawCheckpoint !== undefined)
+            await input.persistRawCheckpoint(docDir, checkpoint);
+          else writeDoc('REPAIR_RAW_OUTPUT_CHECKPOINT', checkpoint);
+        },
+        validate: (raw) => runtime.validate.validateClassifierResponse(raw, request.batch),
+      });
+      rawPersistedBeforeValidation =
+        persisted.sequence.persistedSeq < persisted.sequence.validationStartedSeq;
+      repairValidation = persisted.validation;
+      sequence = persisted.sequence;
+      writeDoc('REPAIR_VALIDATION_RESULT', validationRecordOf(repairValidation));
+    }
+    writeDoc('REPAIR_PROVIDER_OUTCOME', {
+      outcome: result.outcome,
+      providerReportedModelId: result.responseModelId,
+      inputTokens: result.inputTokens,
+      outputTokens: result.outputTokens,
+      outcomeDetail: result.outcomeDetail,
+      internalAdapterAttemptCountWhereObservable:
+        input.counters.runnerAttempts() - runnerAttemptsBefore,
+      authStatusInvocationsObserved: input.counters.authStatusInvocations() - authBefore,
+      startedAtUtc,
+      endedAtUtc,
+      monotonicWallTimeMs,
+      windowMs: decision.windowMs,
+    });
+
+    const acceptedEntry =
+      repairValidation !== null && repairValidation.kind === 'VALIDATED'
+        ? repairValidation.accepted.find((a) => a.docIndex === candidate.docIndex)
+        : undefined;
+    const disposition: ChildRepairDisposition =
+      acceptedEntry !== undefined
+        ? 'ACCEPTED'
+        : result.outcome === 'OK'
+          ? 'REJECTED'
+          : 'PROVIDER_FAILED';
+    if (disposition === 'ACCEPTED') accepted += 1;
+    else if (disposition === 'REJECTED') rejected += 1;
+    else providerFailed += 1;
+    if (result.outcome === 'USAGE_LIMIT_EXHAUSTED') childStopCondition = 'USAGE_LIMIT_INTERRUPTION';
+    if (isolationViolationFromOutcome(result)) childStopCondition = 'ISOLATION_VIOLATION';
+    const errorKind = repairErrorKindOf(result, repairValidation, disposition === 'ACCEPTED');
+    const detail =
+      result.outcome !== 'OK'
+        ? result.outcomeDetail
+        : repairValidation === null
+          ? null
+          : repairValidation.kind === 'SCHEMA_INVALID'
+            ? repairValidation.detail
+            : repairValidation.rejected.map((r) => r.reason).join('; ') || null;
+    writeDoc('REPAIR_OUTCOME', {
+      round: 1,
+      docIndex: candidate.docIndex,
+      disposition,
+      providerOutcome: result.outcome,
+      errorKind,
+      detail,
+      verdict: acceptedEntry?.result.verdict ?? null,
+      providerRequestSent: true,
+      rawCheckpointPersistedBeforeValidation: rawPersistedBeforeValidation,
+      rawBeforeValidationSequence: sequence,
+      artifactHashes: {
+        REPAIR_DECISION: fileHashOf(docDir, 'REPAIR_DECISION'),
+        REPAIR_REQUEST: fileHashOf(docDir, 'REPAIR_REQUEST'),
+        REPAIR_RAW_OUTPUT_CHECKPOINT: fileHashOf(docDir, 'REPAIR_RAW_OUTPUT_CHECKPOINT'),
+        REPAIR_VALIDATION_RESULT: fileHashOf(docDir, 'REPAIR_VALIDATION_RESULT'),
+        REPAIR_PROVIDER_OUTCOME: fileHashOf(docDir, 'REPAIR_PROVIDER_OUTCOME'),
+      },
+    });
+    documents.push({
+      docIndex: candidate.docIndex,
+      disposition,
+      providerOutcome: result.outcome,
+      errorKind,
+      repairOutcomeSha256: fileHashOf(docDir, 'REPAIR_OUTCOME'),
+    });
+  }
+
+  const record: ChildRepairRoundRecord = {
+    round: 1,
+    repairRequestVersion: repair.REPAIR_REQUEST_VERSION,
+    policy,
+    noCandidatesBecause: plan.noCandidatesBecause,
+    planned: plan.candidates.length,
+    excluded: plan.excluded,
+    executed,
+    accepted,
+    rejected,
+    providerFailed,
+    skipped,
+    documents,
+    inputTokens,
+    outputTokens,
+    monotonicWallTimeMs: wallTimeMs,
+  };
+  writeArtifactOnce(roundDir, 'REPAIR_ROUND', record);
+  return {
+    summary: { ...record, repairRoundSha256: fileHashOf(roundDir, 'REPAIR_ROUND') },
+    childStopCondition,
+  };
 }
 
 /** The manifest travels as a self-hashed artifact envelope; the child re-verifies the hash before trusting a field. */

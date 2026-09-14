@@ -111,6 +111,15 @@ export const FrozenChildEnvironmentSchema = z.looseObject({
   windowsAllowlistChanged: z.literal(false),
 });
 
+/** The frozen shape of ADR 0011's repair policy: exactly one round, a named minimum window. */
+export const RepairPolicySchema = z.strictObject({
+  enabled: z.boolean(),
+  maxRoundsPerLogicalEvaluation: z.literal(1),
+  minimumRemainingBudgetMs: z.int().min(1),
+});
+
+export type FrozenRepairPolicy = z.infer<typeof RepairPolicySchema>;
+
 /** Only the fields the runner reads are closed; prose fields pass through. */
 export const FreezeSchema = z.looseObject({
   freezeId: z.literal('PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_V1'),
@@ -194,9 +203,28 @@ export const FreezeSchema = z.looseObject({
     committedLabel: z.string().min(1),
   }),
   holdout: z.looseObject({ inferenceDuring2D2C: z.literal('FORBIDDEN') }),
+  /**
+   * Phase 2B-2D2C-R1 (ADR 0011): the bounded item-level repair policy a
+   * freeze revision may declare. ABSENT on F0B, which is exactly what keeps
+   * the F0B bytes and hash unchanged: absent means DISABLED, the pre-R1
+   * lifecycle. A later freeze revision enabling it must also name a
+   * variant root that implements the repair module, which the child checks.
+   */
+  repairPolicy: RepairPolicySchema.optional(),
 });
 
 export type Freeze = z.infer<typeof FreezeSchema>;
+
+/** The policy a freeze declares, or the DISABLED policy when it declares none (F0B). */
+export function freezeRepairPolicy(freeze: Freeze): FrozenRepairPolicy {
+  return (
+    freeze.repairPolicy ?? {
+      enabled: false,
+      maxRoundsPerLogicalEvaluation: 1,
+      minimumRemainingBudgetMs: 60_000,
+    }
+  );
+}
 export type FrozenBatch = z.infer<typeof FrozenBatchSchema>;
 export type FrozenBatchContext = z.infer<typeof FrozenBatchContextSchema>;
 

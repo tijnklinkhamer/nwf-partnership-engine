@@ -1042,3 +1042,122 @@ describe('ClaudeMaxAgentProvider - 2D2B-2 liveness boundary and total budget', (
     expect(existsSync(seenCwd!)).toBe(false);
   });
 });
+
+describe('ClaudeMaxAgentProvider - ADR 0011 caller-supplied total window (a repair spends only what remains)', () => {
+  it('absent: the frozen window applies, opened before the first runner attempt, exactly as before', async () => {
+    const clock = createFakeClock();
+    const runner = new FakeRunner([okRunResult([])]);
+    const profileDir = await provisionedProfile();
+    // Pre-flight and auth-status work happens before the frozen window opens.
+    const auth = new FakeAuthStatusRunner();
+    const countingAuth: ClassifierAuthStatusRunner = {
+      async run(invocation) {
+        clock.advance(50_000);
+        return auth.run(invocation);
+      },
+    };
+    await settle(
+      clock,
+      provider({ runner, env: envFor(profileDir), clock, authStatusRunner: countingAuth }).classify(
+        request(),
+      ),
+    );
+    expect(runner.runOptions).toEqual([{ deadlineMs: CLASSIFIER_CALL_SOFT_DEADLINE_MS }]);
+  });
+
+  it('present: the window opens at classify() ENTRY, so auth-status time is spent from it', async () => {
+    const clock = createFakeClock();
+    const runner = new FakeRunner([okRunResult([])]);
+    const profileDir = await provisionedProfile();
+    const auth = new FakeAuthStatusRunner();
+    const countingAuth: ClassifierAuthStatusRunner = {
+      async run(invocation) {
+        clock.advance(50_000);
+        return auth.run(invocation);
+      },
+    };
+    const result = await settle(
+      clock,
+      provider({ runner, env: envFor(profileDir), clock, authStatusRunner: countingAuth }).classify(
+        request({ totalBudgetMs: 200_000 }),
+      ),
+    );
+    expect(result.outcome).toBe('OK');
+    // 200 s window - 50 s auth status = 150 s left, below the 300 s soft deadline.
+    expect(runner.runOptions).toEqual([{ deadlineMs: 150_000 }]);
+  });
+
+  it('present: never wider than the frozen total, whatever the caller asks', async () => {
+    const runner = new FakeRunner([okRunResult([])]);
+    const profileDir = await provisionedProfile();
+    await provider({ runner, env: envFor(profileDir) }).classify(
+      request({ totalBudgetMs: CLASSIFIER_CALL_TOTAL_BUDGET_MS * 10 }),
+    );
+    expect(runner.runOptions).toEqual([{ deadlineMs: CLASSIFIER_CALL_SOFT_DEADLINE_MS }]);
+  });
+
+  it('present and spent before any attempt: terminal TIMEOUT with ZERO runner calls', async () => {
+    const clock = createFakeClock();
+    const runner = new FakeRunner([okRunResult([])]);
+    const profileDir = await provisionedProfile();
+    const auth = new FakeAuthStatusRunner();
+    const slowAuth: ClassifierAuthStatusRunner = {
+      async run(invocation) {
+        clock.advance(30_000);
+        return auth.run(invocation);
+      },
+    };
+    const result = await settle(
+      clock,
+      provider({ runner, env: envFor(profileDir), clock, authStatusRunner: slowAuth }).classify(
+        request({ totalBudgetMs: 20_000 }),
+      ),
+    );
+    expect(result.outcome).toBe('TIMEOUT');
+    expect(result.outcomeDetail).toMatch(/total time budget was exhausted/);
+    expect(runner.invocations).toHaveLength(0);
+  });
+
+  it('a malformed window (negative, NaN) is treated as ZERO - a bound, never "no bound"', async () => {
+    for (const totalBudgetMs of [-1, Number.NaN, Number.POSITIVE_INFINITY]) {
+      const runner = new FakeRunner([okRunResult([])]);
+      const profileDir = await provisionedProfile();
+      const result = await provider({ runner, env: envFor(profileDir) }).classify(
+        request({ totalBudgetMs }),
+      );
+      expect(result.outcome, String(totalBudgetMs)).toBe('TIMEOUT');
+      expect(runner.invocations, String(totalBudgetMs)).toHaveLength(0);
+    }
+  });
+
+  it('transient retries inside a caller window stay inside it', async () => {
+    const clock = createFakeClock();
+    const runner = new FakeRunner([
+      async () => {
+        clock.advance(100_000);
+        throw new Error('read ECONNRESET');
+      },
+      okRunResult([]),
+    ]);
+    const profileDir = await provisionedProfile();
+    const result = await settle(
+      clock,
+      provider({ runner, env: envFor(profileDir), clock }).classify(
+        request({ totalBudgetMs: 250_000 }),
+      ),
+    );
+    expect(result.outcome).toBe('OK');
+    // 250 s - 100 s attempt - 0.5 s backoff = 149.5 s for the retry.
+    expect(runner.runOptions.map((o) => o!.deadlineMs)).toEqual([250_000, 149_500]);
+  });
+
+  it('the window never reaches the semantic invocation', async () => {
+    const runner = new FakeRunner([okRunResult([])]);
+    const profileDir = await provisionedProfile();
+    await provider({ runner, env: envFor(profileDir) }).classify(
+      request({ totalBudgetMs: 123_456 }),
+    );
+    expect(JSON.stringify(runner.invocations[0])).not.toContain('123456');
+    expect(JSON.stringify(runner.invocations[0])).not.toContain('totalBudget');
+  });
+});

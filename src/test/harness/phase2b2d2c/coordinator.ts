@@ -223,6 +223,8 @@ export type FinalRecord = Record<RequiredCaptureField, unknown> & {
   readonly fieldAvailability: Readonly<Record<RequiredCaptureField, Availability>>;
   readonly artifactHashes: Readonly<Partial<Record<ArtifactKind, string>>>;
   readonly stopDecision: StopDecision;
+  /** ADR 0011: the child's repair-round summary, or null when no repair policy was enabled (every attempt-1 record). */
+  readonly repairRound: unknown;
 };
 
 /** Composes the 38-field final record from the plan, the child's artifacts and the Tier-2 result. */
@@ -260,6 +262,7 @@ export function composeFinalRecord(input: {
     | undefined;
   const diagnostics = artifacts.records.TIER1_DIAGNOSTICS as
     { attempts: readonly { progress: unknown; stderrTail: string }[] } | undefined;
+  const childResult = artifacts.records.CHILD_RESULT as { repairRound?: unknown } | undefined;
   const isOk = outcome?.outcome === 'OK';
   const isTimeout = outcome?.outcome === 'TIMEOUT';
   const availability: Record<RequiredCaptureField, Availability> = Object.fromEntries(
@@ -367,6 +370,7 @@ export function composeFinalRecord(input: {
     fieldAvailability: availability,
     artifactHashes: artifacts.hashes,
     stopDecision: input.stopDecision,
+    repairRound: childResult?.repairRound ?? null,
   };
 }
 

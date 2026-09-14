@@ -2587,3 +2587,160 @@ describe('PHASE-2B-FIREWALL 2B-2D2B-2: the hard liveness boundary is runtime-onl
     );
   });
 });
+
+describe('PHASE-2B-FIREWALL 2B-2D2C-R1: the ONE bounded item-level repair round is pure, isolated, budget-bound and never silent (ADR 0011)', () => {
+  const REPAIR = 'src/orgunits/classify/repair.ts';
+  const ORCHESTRATE = 'src/orgunits/classify/orchestrate.ts';
+  const PERSIST = 'src/orgunits/classify/persist.ts';
+  const CONTRACT = 'src/orgunits/classify/providerContract.ts';
+  const PROVIDER = 'src/orgunits/classify/provider/claudeMaxAgentProvider.ts';
+  const CHILD = 'src/test/harness/phase2b2d2c/childMain.ts';
+
+  it('the repair module exists, and is pure: no socket, no database, no filesystem, no environment, no clock, no randomness', () => {
+    expect(exists(REPAIR)).toBe(true);
+    const source = code(REPAIR);
+    expect(source).not.toMatch(/from\s+['"]pg['"]/);
+    expect(source).not.toMatch(/from\s+['"].*\/db\//);
+    expect(source).not.toMatch(/from\s+['"]node:(fs|net|tls|http|https|dns|child_process)['"]/);
+    expect(source).not.toContain('process.env');
+    expect(source).not.toMatch(/\bDate\.now\s*\(|\bMath\.random\s*\(|\bperformance\.now\s*\(/);
+    expect(source).not.toMatch(/\bfetch\s*\(/);
+    // It never reaches the provider namespace: the liveness numbers are restated, not imported.
+    expect(source).not.toMatch(/from\s+['"]\.\/provider\//);
+    expect(source).not.toContain('CLASSIFIER_CALL_');
+  });
+
+  it('the repair module names no gold, evaluation, holdout or expected-answer concept: it cannot see a label', () => {
+    const source = code(REPAIR).toLowerCase();
+    for (const banned of [
+      'gold',
+      'holdout',
+      'expected_',
+      'expectedverdict',
+      'adjudicat',
+      'fixture',
+    ]) {
+      expect(source, `repair.ts names ${banned}`).not.toContain(banned);
+    }
+    expect(code(REPAIR)).not.toMatch(/from\s+['"].*evaluation\//);
+  });
+
+  it('exactly one repair round, and the repair constants restate the frozen liveness contract by exact value', async () => {
+    const repair = await import('../../orgunits/classify/repair.js');
+    const runner = await import('../../orgunits/classify/provider/agentSdkRunner.js');
+    expect(repair.REPAIR_MAX_ROUNDS_PER_LOGICAL_EVALUATION).toBe(1);
+    expect(repair.REPAIR_TOTAL_BUDGET_MS).toBe(runner.CLASSIFIER_CALL_TOTAL_BUDGET_MS);
+    expect(repair.REPAIR_HARD_KILL_GRACE_MS).toBe(runner.CLASSIFIER_CALL_HARD_KILL_GRACE_MS);
+    expect(repair.REPAIR_ATTEMPT_SOFT_DEADLINE_MS).toBe(runner.CLASSIFIER_CALL_SOFT_DEADLINE_MS);
+    expect(repair.REPAIR_POLICY_DISABLED.enabled).toBe(false);
+    expect(repair.REPAIRABLE_CATEGORIES).toEqual(['EVIDENCE', 'LENGTH']);
+    // The source literally admits no other round count.
+    expect(code(REPAIR)).toMatch(/REPAIR_MAX_ROUNDS_PER_LOGICAL_EVALUATION = 1 as const/);
+  });
+
+  it('no code path corrects, substitutes or rewrites a unit_name, a quote or a source: the repair only re-asks', () => {
+    for (const file of [REPAIR, ORCHESTRATE, PERSIST, CHILD]) {
+      const source = code(file);
+      // No assignment INTO a result's evidence or name fields anywhere.
+      expect(source, `${file} rewrites unit_name`).not.toMatch(/\.unit_name\s*=[^=]/);
+      expect(source, `${file} rewrites a quote`).not.toMatch(/\.quote\s*=[^=]/);
+      expect(source, `${file} rewrites a source`).not.toMatch(/\.source\s*=[^=]/);
+      expect(source, `${file} spreads a corrected span`).not.toMatch(
+        /evidence_spans:\s*\[[^\]]*source:\s*['"]EXCERPT['"]/,
+      );
+    }
+  });
+
+  it('orchestration invokes the provider in exactly two places - the original call and the single repair - and never loops on a repair', () => {
+    const source = code(ORCHESTRATE);
+    const invocations = source.match(/input\.provider\.classify\(/g) ?? [];
+    expect(invocations).toHaveLength(2);
+    // The repair call passes a caller-supplied window, the original does not.
+    expect(source).toMatch(/totalBudgetMs:\s*budget\.windowMs/);
+    // A repair is planned with originalIsRepair: false ONLY from the original path, and the plan is never re-entered.
+    expect(source.match(/planRepairRound\(/g) ?? []).toHaveLength(1);
+    expect(source).toContain('originalIsRepair: false');
+    expect(source).not.toContain('originalIsRepair: true');
+    // The disabled policy is the default.
+    expect(source).toMatch(/input\.repairPolicy \?\? REPAIR_POLICY_DISABLED/);
+    // The original completion is inserted BEFORE the repair round begins (order in the file).
+    const roundStart = source.indexOf('await runRepairRound(');
+    expect(roundStart).toBeGreaterThan(-1);
+    const lastOriginalCompletion = source.lastIndexOf('await insertCompletion(pool, {', roundStart);
+    expect(lastOriginalCompletion).toBeGreaterThan(-1);
+    expect(lastOriginalCompletion).toBeLessThan(roundStart);
+  });
+
+  it('a repair row is linked by the two migration-0011 columns and only there; persist.ts stays INSERT-only', () => {
+    const persist = code(PERSIST);
+    expect(persist).toContain('repair_of_call_id');
+    expect(persist).toContain('repair_doc_index');
+    expect(persist).not.toMatch(/UPDATE\s+\w+\s+SET/i);
+    expect(persist).not.toMatch(/DELETE\s+FROM/i);
+    for (const file of PRODUCTION_FILES) {
+      if (file === PERSIST) continue;
+      expect(code(file), `${file} names a repair column`).not.toMatch(
+        /repair_of_call_id|repair_doc_index/,
+      );
+    }
+  });
+
+  it('migration 0011 adds exactly the two repair columns, one partial unique index, one trigger, and no grant', () => {
+    const migration = MIGRATIONS.find((m) => m.file.startsWith('0011_'));
+    expect(migration, 'migration 0011 does not exist').toBeDefined();
+    const sql = migration!.sql.replace(/--.*$/gm, '');
+    expect(sql).not.toMatch(/CREATE\s+TABLE/i);
+    expect(sql).not.toMatch(/\bGRANT\b/i);
+    expect(sql).not.toMatch(/\bREVOKE\b/i);
+    expect(sql).not.toMatch(/DROP\s+COLUMN/i);
+    expect(sql.match(/ADD\s+COLUMN/gi) ?? []).toHaveLength(2);
+    expect(sql).toMatch(/CREATE UNIQUE INDEX orgunit_classifier_calls_repair_uidx/);
+    expect(sql).toMatch(/WHERE repair_of_call_id IS NOT NULL/);
+    expect(sql).toMatch(/repair_single_document_chk/);
+    expect(sql).toMatch(/CREATE TRIGGER orgunit_classifier_calls_refuse_repair_of_repair/);
+    // The trigger reads and raises; it never updates or deletes.
+    const trigger = sql.slice(sql.indexOf('CREATE FUNCTION'), sql.indexOf('CREATE TRIGGER'));
+    expect(trigger).not.toMatch(/\bUPDATE\b|\bDELETE\b|\bINSERT\b/i);
+  });
+
+  it('the caller-supplied window is a runtime bound that never enters semantic input, identity or persisted config', () => {
+    expect(code(CONTRACT)).toMatch(/readonly totalBudgetMs\?: number/);
+    for (const file of [
+      'src/orgunits/classify/provider/sdkOptions.ts',
+      'src/orgunits/classify/finalIdentity.ts',
+      'src/orgunits/classify/canonical.ts',
+      PERSIST,
+    ]) {
+      expect(code(file), `${file} reads the window`).not.toContain('totalBudgetMs');
+    }
+    // The provider never widens beyond the frozen total.
+    expect(code(PROVIDER)).toMatch(/Math\.min\(CLASSIFIER_CALL_TOTAL_BUDGET_MS, callerWindowMs\)/);
+  });
+
+  it('the DEV runner honours the freeze: repair is disabled unless a freeze declares it, and a root without the module is refused under an enabled policy', () => {
+    const child = code(CHILD);
+    expect(child).toMatch(/deps\.repairPolicyFor \?\? freezeRepairPolicy/);
+    expect(child).toContain(
+      'the repair policy is enabled but the variant root ships no built repair module',
+    );
+    const freeze = code('src/test/harness/phase2b2d2c/freeze.ts');
+    expect(freeze).toMatch(/repairPolicy: RepairPolicySchema\.optional\(\)/);
+    expect(freeze).toMatch(/enabled: false,/);
+    // The production entry binds no policy override: the freeze alone decides.
+    expect(read('src/test/harness/phase2b2d2c/childEntry.mjs')).not.toContain('repairPolicyFor');
+    // Repair artifacts live under the attempt directory, never beside the ten per-attempt kinds.
+    const artifacts = code('src/test/harness/phase2b2d2c/artifacts.ts');
+    expect(artifacts).toMatch(/REPAIR_ROUND_DIRECTORY_NAME = 'repair-1'/);
+  });
+
+  it('the scorer inventories repair artifacts separately, so the F3 aggregate is never rewritten by a repair', () => {
+    const sources = code('src/test/harness/phase2b2d2c/scoring/sources.ts');
+    expect(sources).toMatch(/inventorySha256\(outputRoot, 'PRIMARY'\)/);
+    expect(sources).toMatch(/inventorySha256\(outputRoot, 'REPAIR'\)/);
+    // An ACCEPTED repair is re-validated by the unchanged validator, never trusted from its artifact alone.
+    expect(sources).toContain('validateClassifierResponse(');
+    const summarise = code('src/test/harness/phase2b2d2c/scoring/summarise.ts');
+    expect(summarise).toMatch(/gatesAppliedTo: 'POST_REPAIR_VALIDITY'/);
+    expect(summarise).toMatch(/firstPassRateAlwaysReported: true/);
+  });
+});

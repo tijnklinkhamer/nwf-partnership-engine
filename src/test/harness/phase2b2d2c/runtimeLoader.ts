@@ -19,10 +19,12 @@
  *
  * Filesystem/loader primitives only. No network, no database, no clock.
  */
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type * as CanonicalModule from '../../../orgunits/classify/canonical.js';
 import type * as FinalIdentityModule from '../../../orgunits/classify/finalIdentity.js';
+import type * as RepairModule from '../../../orgunits/classify/repair.js';
 import type * as ValidateModule from '../../../orgunits/classify/validate.js';
 import type * as SdkOptionsModule from '../../../orgunits/classify/provider/sdkOptions.js';
 import type * as EnvironmentModule from '../../../orgunits/classify/provider/environment.js';
@@ -87,6 +89,19 @@ export const RUNTIME_MODULE_PATHS = {
 
 export type RuntimeModuleName = keyof typeof RUNTIME_MODULE_PATHS;
 
+/**
+ * Phase 2B-2D2C-R1 (ADR 0011): the pure repair module. OPTIONAL at a variant
+ * root, because the frozen attempt-1 roots predate it; REQUIRED the moment a
+ * freeze revision enables the repair policy (the child refuses a root that
+ * lacks it under an enabled policy). Loaded from the root exactly like every
+ * other SDK-free module - never from this worktree.
+ */
+export const OPTIONAL_RUNTIME_MODULE_PATHS = {
+  repair: { built: 'dist/orgunits/classify/repair.js', source: 'src/orgunits/classify/repair.ts' },
+} as const;
+
+export type OptionalRuntimeModuleName = keyof typeof OPTIONAL_RUNTIME_MODULE_PATHS;
+
 /** Every module that must be built and fresh at a variant root. */
 export const REQUIRED_RUNTIME_MODULES = Object.keys(
   RUNTIME_MODULE_PATHS,
@@ -119,7 +134,9 @@ export const SDK_FREE_RUNTIME_MODULES = [
  */
 export interface LoadedVariantRuntime {
   readonly root: string;
-  readonly moduleUrls: Readonly<Record<(typeof SDK_FREE_RUNTIME_MODULES)[number], string>>;
+  readonly moduleUrls: Readonly<Record<(typeof SDK_FREE_RUNTIME_MODULES)[number], string>> & {
+    readonly repair?: string;
+  };
   readonly canonical: {
     readonly canonicalStringify: typeof CanonicalModule.canonicalStringify;
   };
@@ -160,6 +177,30 @@ export interface LoadedVariantRuntime {
   readonly claudeCodeExecutable: {
     readonly resolveBundledClaudeCodeExecutable: typeof ClaudeCodeExecutableModule.resolveBundledClaudeCodeExecutable;
   };
+  /** ADR 0011: present only when the root ships the built repair module. */
+  readonly repair?: {
+    readonly REPAIR_REQUEST_VERSION: string;
+    readonly REPAIR_TOTAL_BUDGET_MS: number;
+    readonly REPAIR_HARD_KILL_GRACE_MS: number;
+    readonly REPAIR_ATTEMPT_SOFT_DEADLINE_MS: number;
+    readonly planRepairRound: typeof RepairModule.planRepairRound;
+    readonly buildRepairRequest: typeof RepairModule.buildRepairRequest;
+    readonly computeRepairInputSha256: typeof RepairModule.computeRepairInputSha256;
+    readonly decideRepairBudget: typeof RepairModule.decideRepairBudget;
+    readonly describeRepairSkip: typeof RepairModule.describeRepairSkip;
+  };
+}
+
+export function optionalRuntimeModuleUrl(root: string, module: OptionalRuntimeModuleName): string {
+  return pathToFileURL(join(root, OPTIONAL_RUNTIME_MODULE_PATHS[module].built)).href;
+}
+
+/** True when the root ships the built optional module. */
+export function optionalRuntimeModulePresent(
+  root: string,
+  module: OptionalRuntimeModuleName,
+): boolean {
+  return existsSync(join(root, OPTIONAL_RUNTIME_MODULE_PATHS[module].built));
 }
 
 export function runtimeModuleUrl(root: string, module: RuntimeModuleName): string {
@@ -182,9 +223,31 @@ export async function loadVariantRuntime(root: string): Promise<LoadedVariantRun
     }
     return loaded as T;
   };
+  const repairPresent = optionalRuntimeModulePresent(root, 'repair');
+  const repairUrl = optionalRuntimeModuleUrl(root, 'repair');
+  const repair = repairPresent
+    ? ((await import(repairUrl)) as NonNullable<LoadedVariantRuntime['repair']>)
+    : undefined;
+  if (repair !== undefined) {
+    for (const name of [
+      'REPAIR_REQUEST_VERSION',
+      'REPAIR_TOTAL_BUDGET_MS',
+      'REPAIR_HARD_KILL_GRACE_MS',
+      'REPAIR_ATTEMPT_SOFT_DEADLINE_MS',
+      'planRepairRound',
+      'buildRepairRequest',
+      'computeRepairInputSha256',
+      'decideRepairBudget',
+      'describeRepairSkip',
+    ]) {
+      if (!(name in repair))
+        throw new Error(`${OPTIONAL_RUNTIME_MODULE_PATHS.repair.built} does not export ${name}.`);
+    }
+  }
   return {
     root,
-    moduleUrls: urls,
+    moduleUrls: repair === undefined ? urls : { ...urls, repair: repairUrl },
+    ...(repair === undefined ? {} : { repair }),
     canonical: await load('canonical', ['canonicalStringify']),
     finalIdentity: await load('finalIdentity', ['computeFinalInputSha256']),
     prompt: await load('prompt', [

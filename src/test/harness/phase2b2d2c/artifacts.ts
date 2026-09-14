@@ -27,6 +27,7 @@ import {
   closeSync,
   fsyncSync,
   linkSync,
+  mkdirSync,
   openSync,
   readFileSync,
   unlinkSync,
@@ -54,6 +55,18 @@ export const ARTIFACT_KINDS = [
   'EXPERIMENT_STOP',
   'EXPERIMENT_COMPLETION',
   'AUTHORISATION_CONSUMPTION',
+  // Phase 2B-2D2C-R1 (ADR 0011): the ONE bounded repair round. These live
+  // UNDER the attempt directory, in `repair-1/` and `repair-1/doc-<k>/`,
+  // never beside the ten per-attempt artifacts above - so an attempt that
+  // performed no repair (every attempt-1 artifact) is byte-for-byte and
+  // file-for-file unchanged.
+  'REPAIR_ROUND',
+  'REPAIR_DECISION',
+  'REPAIR_REQUEST',
+  'REPAIR_RAW_OUTPUT_CHECKPOINT',
+  'REPAIR_VALIDATION_RESULT',
+  'REPAIR_PROVIDER_OUTCOME',
+  'REPAIR_OUTCOME',
 ] as const;
 
 export type ArtifactKind = (typeof ARTIFACT_KINDS)[number];
@@ -76,7 +89,46 @@ export const ARTIFACT_FILE_NAMES: Readonly<Record<ArtifactKind, string>> = {
   EXPERIMENT_STOP: 'experiment-stop.json',
   EXPERIMENT_COMPLETION: 'experiment-completion.json',
   AUTHORISATION_CONSUMPTION: 'authorisation-consumption.json',
+  REPAIR_ROUND: 'repair-round.json',
+  REPAIR_DECISION: 'repair-decision.json',
+  REPAIR_REQUEST: 'repair-request.json',
+  REPAIR_RAW_OUTPUT_CHECKPOINT: 'repair-raw-output-checkpoint.json',
+  REPAIR_VALIDATION_RESULT: 'repair-validation-result.json',
+  REPAIR_PROVIDER_OUTCOME: 'repair-provider-outcome.json',
+  REPAIR_OUTCOME: 'repair-outcome.json',
 };
+
+/** The artifact kinds that live in the repair round's own directories, never directly in an attempt directory. */
+export const REPAIR_ARTIFACT_KINDS: readonly ArtifactKind[] = [
+  'REPAIR_ROUND',
+  'REPAIR_DECISION',
+  'REPAIR_REQUEST',
+  'REPAIR_RAW_OUTPUT_CHECKPOINT',
+  'REPAIR_VALIDATION_RESULT',
+  'REPAIR_PROVIDER_OUTCOME',
+  'REPAIR_OUTCOME',
+];
+
+/** The single repair round's directory name under an attempt directory (ADR 0011: the round is always 1). */
+export const REPAIR_ROUND_DIRECTORY_NAME = 'repair-1';
+
+/** `<attemptDir>/repair-1` — the round summary lives here. */
+export function repairRoundDirectoryOf(attemptDir: string): string {
+  return join(attemptDir, REPAIR_ROUND_DIRECTORY_NAME);
+}
+
+/** `<attemptDir>/repair-1/doc-<k>` — one rejected document's derived repair identity. */
+export function repairDocumentDirectoryOf(attemptDir: string, docIndex: number): string {
+  if (!Number.isInteger(docIndex) || docIndex < 0) {
+    throw new RangeError('docIndex must be a non-negative integer.');
+  }
+  return join(repairRoundDirectoryOf(attemptDir), `doc-${docIndex}`);
+}
+
+/** Creates a repair directory (idempotent). Only ever called for `repair-1/...` paths under an attempt directory. */
+export function ensureRepairDirectory(path: string): void {
+  mkdirSync(path, { recursive: true });
+}
 
 export interface ArtifactEnvelope<T = unknown> {
   readonly artifactKind: ArtifactKind;

@@ -950,6 +950,7 @@ describe('2D2C-F1 coordinator with a fake launcher', () => {
         'fieldAvailability',
         'artifactHashes',
         'stopDecision',
+        'repairRound', // ADR 0011: null on every attempt that performed no repair round
       ].sort(),
     );
     expect(final.providerOutcome).toBeNull();

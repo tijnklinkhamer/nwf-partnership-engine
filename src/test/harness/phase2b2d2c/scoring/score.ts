@@ -85,10 +85,29 @@ export interface ScoredItem {
   readonly rawOutputSha256: string | null;
   readonly validationResultSha256: string;
   readonly finalRecordSha256: string;
+  /** POST-REPAIR when a repair exists for this item (ADR 0011); otherwise the first-pass state. */
   readonly validatorState: ValidatorState;
   readonly rejectionCategory: string | null;
   readonly rejectionReason: string | null;
   readonly prediction: PredictionFields | null;
+  /**
+   * ADR 0011: PRESENT ONLY when a repair was recorded for this item — never
+   * on an attempt-1 row, which keeps those rows byte-identical. The
+   * FIRST-PASS validator state the original call recorded, before repair.
+   */
+  readonly firstPass?: {
+    readonly validatorState: 'REJECTED';
+    readonly rejectionCategory: string;
+    readonly rejectionReason: string;
+  };
+  /** ADR 0011: the repair's disposition and artifact identities. Present exactly when `firstPass` is. */
+  readonly repair?: {
+    readonly disposition: 'ACCEPTED' | 'REJECTED' | 'PROVIDER_FAILED' | 'SKIPPED';
+    readonly errorKind: string | null;
+    readonly reasonCodes: readonly string[];
+    readonly rawOutputSha256: string | null;
+    readonly repairOutcomeSha256: string;
+  };
   readonly gold: Readonly<Record<string, string | null>>;
   readonly goldSource: Readonly<Record<string, string>>;
   readonly fieldCorrectness: Readonly<Record<string, FieldCorrectness>>;
@@ -266,8 +285,26 @@ function scoreOne(
   }
   const acceptedEntry = accepted[0];
   const rejectedEntry = rejected[0];
-  const validatorState: ValidatorState = acceptedEntry !== undefined ? 'ACCEPTED' : 'REJECTED';
-  const prediction = acceptedEntry === undefined ? null : predictionOf(acceptedEntry.result);
+  const firstPassState: ValidatorState = acceptedEntry !== undefined ? 'ACCEPTED' : 'REJECTED';
+
+  // ADR 0011: a repair, when one was recorded, decides the POST-REPAIR state.
+  // The loader already re-validated an ACCEPTED repair against the frozen
+  // document, so `acceptedResult` is trusted here exactly as a first-pass
+  // accepted result is.
+  const repair = evaluation.repairs.find((r) => r.docIndex === docIndex);
+  if (repair !== undefined && (firstPassState !== 'REJECTED' || rejectedEntry === undefined)) {
+    fail(
+      `${evaluation.attemptDirectory}: docIndex ${docIndex} (${goldId}) has a repair but was accepted first pass.`,
+    );
+  }
+  const repaired =
+    repair !== undefined && repair.disposition === 'ACCEPTED' && repair.acceptedResult !== null;
+  const validatorState: ValidatorState = repaired ? 'ACCEPTED' : firstPassState;
+  const prediction = repaired
+    ? predictionOf(repair.acceptedResult!)
+    : acceptedEntry === undefined
+      ? null
+      : predictionOf(acceptedEntry.result);
 
   const gold: Record<string, string | null> = {};
   const goldSource: Record<string, string> = {};
@@ -364,9 +401,25 @@ function scoreOne(
     validationResultSha256: evaluation.artifactFileSha256['VALIDATION_RESULT'] ?? '',
     finalRecordSha256: evaluation.artifactFileSha256['FINAL_RECORD'] ?? '',
     validatorState,
-    rejectionCategory: rejectedEntry?.category ?? null,
-    rejectionReason: rejectedEntry?.reason ?? null,
+    rejectionCategory: repaired ? null : (rejectedEntry?.category ?? null),
+    rejectionReason: repaired ? null : (rejectedEntry?.reason ?? null),
     prediction,
+    ...(repair === undefined || rejectedEntry === undefined
+      ? {}
+      : {
+          firstPass: {
+            validatorState: 'REJECTED' as const,
+            rejectionCategory: rejectedEntry.category,
+            rejectionReason: rejectedEntry.reason,
+          },
+          repair: {
+            disposition: repair.disposition,
+            errorKind: repair.errorKind,
+            reasonCodes: repair.reasonCodes,
+            rawOutputSha256: repair.rawOutputSha256,
+            repairOutcomeSha256: repair.artifactFileSha256['REPAIR_OUTCOME'] ?? '',
+          },
+        }),
     gold,
     goldSource,
     fieldCorrectness,

@@ -41,6 +41,16 @@ export interface InsertCallInput {
   readonly inputSha256: string;
   readonly inputDocumentCount: number;
   readonly attemptNo: number;
+  /**
+   * ADR 0011 / migration 0011: set together, or not at all. A repair call
+   * names the ORDINARY call it repairs and the one `doc_index` it re-asks;
+   * the database refuses a second repair of that document, a repair of a
+   * repair, and a repair carrying more than one document.
+   */
+  readonly repair?: {
+    readonly repairOfCallId: string;
+    readonly repairDocIndex: number;
+  };
 }
 
 export async function insertClassifierCall(pool: pg.Pool, input: InsertCallInput): Promise<string> {
@@ -48,8 +58,8 @@ export async function insertClassifierCall(pool: pg.Pool, input: InsertCallInput
     `INSERT INTO orgunit_classifier_calls
        (run_id, eche_row_key, organisation_id, root_key, model_id, prompt_version,
         classifier_version, output_schema_version, request_config, input_sha256,
-        input_document_count, attempt_no, requested_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10, $11, $12, now())
+        input_document_count, attempt_no, repair_of_call_id, repair_doc_index, requested_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10, $11, $12, $13, $14, now())
      RETURNING id`,
     [
       input.runId,
@@ -64,9 +74,76 @@ export async function insertClassifierCall(pool: pg.Pool, input: InsertCallInput
       input.inputSha256,
       input.inputDocumentCount,
       input.attemptNo,
+      input.repair?.repairOfCallId ?? null,
+      input.repair?.repairDocIndex ?? null,
     ],
   );
   return rows[0]!.id;
+}
+
+export interface PersistedRepairCall {
+  readonly callId: string;
+  readonly repairDocIndex: number;
+  readonly terminalState: 'COMPLETED' | 'PARTIAL' | 'FAILED' | null;
+  readonly errorKind: string | null;
+  readonly errorSummary: string | null;
+}
+
+/** Every repair call recorded against one ordinary call, with its completion when one exists, by `repair_doc_index`. */
+export async function loadRepairCalls(
+  pool: pg.Pool,
+  originalCallId: string,
+): Promise<readonly PersistedRepairCall[]> {
+  const { rows } = await pool.query<{
+    id: string;
+    repair_doc_index: number;
+    terminal_state: 'COMPLETED' | 'PARTIAL' | 'FAILED' | null;
+    error_kind: string | null;
+    error_summary: string | null;
+  }>(
+    `SELECT c.id, c.repair_doc_index, comp.terminal_state, comp.error_kind, comp.error_summary
+       FROM orgunit_classifier_calls c
+       LEFT JOIN orgunit_classifier_call_completions comp ON comp.call_id = c.id
+      WHERE c.repair_of_call_id = $1
+      ORDER BY c.repair_doc_index`,
+    [originalCallId],
+  );
+  return rows.map((row) => ({
+    callId: row.id,
+    repairDocIndex: row.repair_doc_index,
+    terminalState: row.terminal_state,
+    errorKind: row.error_kind,
+    errorSummary: row.error_summary,
+  }));
+}
+
+/**
+ * THE READER RULE (ADR 0011): the EFFECTIVE classifications of an ordinary
+ * call are its own persisted rows plus the persisted row of every repair
+ * call of it that completed COMPLETED. Nothing is preferred over an
+ * original row, because a repair exists only for a document the original
+ * did not persist; the two sets are disjoint by construction (migration
+ * 0011: one repair per document, and a repair carries exactly one). Each
+ * returned row names the call it came from, so a reader can always tell a
+ * first-pass answer from a repaired one.
+ */
+export async function loadEffectiveClassifications(
+  pool: pg.Pool,
+  originalCallId: string,
+): Promise<
+  readonly (PersistedClassification & { readonly fromCallId: string; readonly repaired: boolean })[]
+> {
+  const own = await loadPersistedClassifications(pool, originalCallId);
+  const repairs = await loadRepairCalls(pool, originalCallId);
+  const effective: (PersistedClassification & { fromCallId: string; repaired: boolean })[] =
+    own.map((row) => ({ ...row, fromCallId: originalCallId, repaired: false }));
+  for (const repair of repairs) {
+    if (repair.terminalState !== 'COMPLETED') continue;
+    for (const row of await loadPersistedClassifications(pool, repair.callId)) {
+      effective.push({ ...row, fromCallId: repair.callId, repaired: true });
+    }
+  }
+  return effective;
 }
 
 export interface IdentityLookup {

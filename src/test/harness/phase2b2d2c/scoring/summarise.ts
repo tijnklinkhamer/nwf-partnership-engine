@@ -129,6 +129,42 @@ export interface VariantSemanticMetrics {
   readonly gates: readonly GateOutcome[];
 }
 
+export interface RepairVariantSummary {
+  readonly variantName: FrozenVariantName;
+  readonly firstPass: {
+    readonly accepted: number;
+    readonly rejected: number;
+    readonly rate: number | null;
+  };
+  readonly postRepair: {
+    readonly accepted: number;
+    readonly rejected: number;
+    readonly rate: number | null;
+  };
+  readonly recoveredByRepair: number;
+  readonly repairs: {
+    readonly planned: number;
+    readonly executed: number;
+    readonly accepted: number;
+    readonly rejected: number;
+    readonly providerFailed: number;
+    readonly skipped: number;
+  };
+  readonly repairInputTokens: number;
+  readonly repairOutputTokens: number;
+  readonly repairWallTimeMs: number;
+  readonly evaluationsWithARound: number;
+}
+
+export interface RepairSummary {
+  readonly gatesAppliedTo: 'POST_REPAIR_VALIDITY';
+  readonly firstPassRateAlwaysReported: true;
+  readonly artifactInventory: { readonly count: number; readonly sha256: string };
+  readonly artifactsVerified: number;
+  readonly perVariant: readonly RepairVariantSummary[];
+  readonly note: string;
+}
+
 export interface VariantSummary {
   readonly variantName: FrozenVariantName;
   readonly promptVersion: string;
@@ -386,6 +422,13 @@ export interface F4Summary {
     readonly gatesFailedByEveryVariant: readonly string[];
     readonly note: string;
   };
+  /**
+   * ADR 0011: the repair round, PRESENT ONLY when at least one evaluation
+   * recorded one. Absent on every attempt-1 derivation, which keeps those
+   * bytes unchanged. When present, every gate above and below is applied to
+   * POST-REPAIR validity, and the first-pass rate is reported beside it.
+   */
+  readonly repair?: RepairSummary;
   readonly scorableGoldBackedFields: readonly string[];
   readonly unscorableGoldBackedFields: readonly string[];
   /** F4A: per-variant semantic metrics. Absent on a no-gold derivation. */
@@ -442,23 +485,91 @@ function distributionOf(rows: readonly ScoredItem[]): Record<string, Record<stri
   return distribution;
 }
 
+/**
+ * ADR 0011: null unless at least one evaluation recorded a repair round, so
+ * an attempt-1 derivation carries no `repair` key at all.
+ */
+function repairSummaryOf(
+  sources: LoadedSources,
+  rowsByVariant: ReadonlyMap<FrozenVariantName, readonly ScoredItem[]>,
+): RepairSummary | null {
+  if (!sources.evaluations.some((e) => e.repairRound !== null)) return null;
+  const perVariant = FROZEN_VARIANTS.map((variant): RepairVariantSummary => {
+    const rows = rowsByVariant.get(variant.name) ?? [];
+    const evaluations = sources.evaluations.filter((e) => e.variantName === variant.name);
+    const rounds = evaluations.flatMap((e) => (e.repairRound === null ? [] : [e.repairRound]));
+    const firstPassAccepted = rows.filter(
+      (r) => (r.firstPass ?? r).validatorState === 'ACCEPTED',
+    ).length;
+    const postRepairAccepted = rows.filter((r) => r.validatorState === 'ACCEPTED').length;
+    const sum = (select: (round: (typeof rounds)[number]) => number): number =>
+      rounds.reduce((total, round) => total + select(round), 0);
+    return {
+      variantName: variant.name,
+      firstPass: {
+        accepted: firstPassAccepted,
+        rejected: rows.length - firstPassAccepted,
+        rate: rate(firstPassAccepted, rows.length),
+      },
+      postRepair: {
+        accepted: postRepairAccepted,
+        rejected: rows.length - postRepairAccepted,
+        rate: rate(postRepairAccepted, rows.length),
+      },
+      recoveredByRepair: postRepairAccepted - firstPassAccepted,
+      repairs: {
+        planned: sum((r) => r.planned),
+        executed: sum((r) => r.executed),
+        accepted: sum((r) => r.accepted),
+        rejected: sum((r) => r.rejected),
+        providerFailed: sum((r) => r.providerFailed),
+        skipped: sum((r) => r.skipped),
+      },
+      repairInputTokens: sum((r) => r.inputTokens),
+      repairOutputTokens: sum((r) => r.outputTokens),
+      repairWallTimeMs: sum((r) => r.monotonicWallTimeMs),
+      evaluationsWithARound: rounds.length,
+    };
+  });
+  return {
+    gatesAppliedTo: 'POST_REPAIR_VALIDITY',
+    firstPassRateAlwaysReported: true,
+    artifactInventory: sources.repairArtifactInventory,
+    artifactsVerified: sources.repairArtifactsVerified,
+    perVariant,
+    note:
+      'ADR 0011: each rejected document was re-asked at most once, alone, and re-validated by the ' +
+      'unchanged validator. Every gate in this file is applied to POST-REPAIR validity; the ' +
+      'first-pass acceptance (what the original calls produced before any repair) is reported ' +
+      'beside it here and in variants[].accepted, and is never hidden. A repair never rewrites, ' +
+      'corrects or substitutes any original answer.',
+  };
+}
+
 function summariseVariant(
   sources: LoadedSources,
   variantName: FrozenVariantName,
   rows: readonly ScoredItem[],
 ): VariantSummary {
-  const accepted = rows.filter((r) => r.validatorState === 'ACCEPTED').length;
+  // FIRST-PASS validity, deliberately (ADR 0011): these counts are what F3
+  // recorded for the original calls, and `matchesF3Totals` must keep meaning
+  // that. Post-repair validity is reported in the summary's `repair` block.
+  const firstPassOf = (
+    row: ScoredItem,
+  ): Pick<ScoredItem, 'validatorState' | 'rejectionCategory' | 'rejectionReason'> =>
+    row.firstPass ?? row;
+  const accepted = rows.filter((r) => firstPassOf(r).validatorState === 'ACCEPTED').length;
   const rejected = rows.length - accepted;
   const expected = F4_EXPECTED_VALIDATOR_TOTALS[variantName];
   const rejectionsByCategory: Record<string, number> = {};
   const rejectionsByReason: Record<string, number> = {};
   for (const row of rows) {
-    if (row.rejectionCategory !== null) {
-      rejectionsByCategory[row.rejectionCategory] =
-        (rejectionsByCategory[row.rejectionCategory] ?? 0) + 1;
+    const { rejectionCategory, rejectionReason } = firstPassOf(row);
+    if (rejectionCategory !== null) {
+      rejectionsByCategory[rejectionCategory] = (rejectionsByCategory[rejectionCategory] ?? 0) + 1;
     }
-    if (row.rejectionReason !== null) {
-      rejectionsByReason[row.rejectionReason] = (rejectionsByReason[row.rejectionReason] ?? 0) + 1;
+    if (rejectionReason !== null) {
+      rejectionsByReason[rejectionReason] = (rejectionsByReason[rejectionReason] ?? 0) + 1;
     }
   }
   const evaluations = sources.evaluations.filter((e) => e.variantName === variantName);
@@ -847,6 +958,7 @@ export function buildSummary(
   const variants = FROZEN_VARIANTS.map((variant) =>
     summariseVariant(sources, variant.name, rowsByVariant.get(variant.name) ?? []),
   );
+  const repairSummary = repairSummaryOf(sources, rowsByVariant);
   const goldIsAvailable = availability.fields.some(
     (f) => f.available && f.source === 'F4A_SCORING_SUPPLEMENT',
   );
@@ -1189,6 +1301,7 @@ export function buildSummary(
           },
         }
       : {}),
+    ...(repairSummary === null ? {} : { repair: repairSummary }),
     scorableGoldBackedFields: scorable.map((f) => f.field),
     unscorableGoldBackedFields: unscorable.map((f) => f.field),
     ...(goldIsAvailable ? { semanticMetrics } : {}),

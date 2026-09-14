@@ -58,6 +58,18 @@ export interface ClassifierProviderRequest {
   readonly outputJsonSchema: unknown;
   readonly modelId: string;
   readonly runConfig: ClassifierRunConfig;
+  /**
+   * OPTIONAL, ADR 0011: a caller-supplied TOTAL time window, in
+   * milliseconds, for this one call. Absent, the adapter applies its own
+   * frozen total budget exactly as before. Present, the adapter opens its
+   * window the moment `classify()` is entered (so pre-flight and
+   * auth-status time count against it), never widens it beyond the frozen
+   * total, and bounds every attempt inside it. It exists so that a bounded
+   * repair round can spend only what REMAINS of its original evaluation's
+   * budget. It is a runtime bound, never semantic input: it enters no
+   * serialisation, no identity and no persisted `request_config`.
+   */
+  readonly totalBudgetMs?: number;
 }
 
 export type ClassifierProviderOutcomeKind =

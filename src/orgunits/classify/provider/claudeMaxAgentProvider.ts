@@ -167,6 +167,13 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
   }
 
   async classify(request: ClassifierProviderRequest): Promise<ClassifierProviderResult> {
+    // ADR 0011: a caller-supplied window is opened HERE, at entry, so that
+    // pre-flight and the auth-status check spend it too - a caller composing
+    // a bounded repair inside an outer window can then account exactly.
+    // Without one, the frozen window opens immediately before the first
+    // runner attempt, exactly as 2D2B-2 landed it.
+    const callEnteredAt = this.#clock.now();
+    const callerWindowMs = resolveCallerWindowMs(request.totalBudgetMs);
     const parentEnv = this.#env();
 
     const preflight = runClassifierPreflight({
@@ -238,9 +245,15 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
         readonly runResult: AgentSdkRunResult | null;
       }
       // ONE window for the whole attempt sequence, opened once, never reset.
-      const budgetStartedAt = this.#clock.now();
+      // The frozen window opens here; a caller-supplied one was opened at
+      // entry and is never wider than the frozen total.
+      const totalBudgetMs =
+        callerWindowMs === null
+          ? CLASSIFIER_CALL_TOTAL_BUDGET_MS
+          : Math.min(CLASSIFIER_CALL_TOTAL_BUDGET_MS, callerWindowMs);
+      const budgetStartedAt = callerWindowMs === null ? this.#clock.now() : callEnteredAt;
       const attempt = async (): Promise<AttemptOutcome> => {
-        const remainingMs = CLASSIFIER_CALL_TOTAL_BUDGET_MS - (this.#clock.now() - budgetStartedAt);
+        const remainingMs = totalBudgetMs - (this.#clock.now() - budgetStartedAt);
         if (remainingMs <= 0) {
           return { classified: classifyTotalBudgetExhausted(), runResult: null };
         }
@@ -309,6 +322,18 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
         `stderr tail (${diagnostics.stderrTail.length} chars): ${JSON.stringify(diagnostics.stderrTail)}`,
     );
   }
+}
+
+/**
+ * A caller-supplied window, normalised: `null` when absent (the frozen
+ * window applies), otherwise a non-negative integer number of milliseconds.
+ * A malformed value (non-finite, negative) is treated as ZERO, which yields
+ * a terminal TIMEOUT before any runner attempt - never as "no bound".
+ */
+function resolveCallerWindowMs(totalBudgetMs: number | undefined): number | null {
+  if (totalBudgetMs === undefined) return null;
+  if (!Number.isFinite(totalBudgetMs) || totalBudgetMs < 0) return 0;
+  return Math.floor(totalBudgetMs);
 }
 
 /** An AUTH_FAILURE refusal with zero SDK-runner invocations. */
