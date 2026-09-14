@@ -847,3 +847,118 @@ describe('2D2C-F0C: the owner freeze-approval record names exactly the frozen by
     );
   });
 });
+
+describe('2D2C-F0C: the owner ratification record corrects the approval MARKER only, names the same frozen bytes, and authorises nothing', () => {
+  const APPROVAL_PATH = 'docs/evaluation/PHASE_2B_2D2C_F0C_OWNER_FREEZE_APPROVAL_V1.json';
+  const RATIFICATION_PATH =
+    'docs/evaluation/PHASE_2B_2D2C_F0C_OWNER_FREEZE_APPROVAL_RATIFICATION_V1.json';
+  const approvalBytes = readFileSync(join(ROOT, APPROVAL_PATH));
+  const ratification = JSON.parse(readFileSync(join(ROOT, RATIFICATION_PATH), 'utf8')) as {
+    recordKind: string;
+    ratifies: string;
+    ratifiedApprovalRecord: {
+      file: string;
+      rawSha256: string;
+      committedAt: string;
+      preservedVerbatim: boolean;
+      neverRewrittenAmendedReplacedOrMutated: boolean;
+    };
+    markerCorrection: {
+      markerAsReceivedInTheApprovalStatement: string;
+      canonicalMarker: string;
+      nature: string;
+    };
+    approvedFreeze: {
+      file: string;
+      rawSha256: string;
+      rawBytes: number;
+      derivedAttempt2PlanSha256: string;
+      approvedFreezeCommit: string;
+      bytesUnchangedByThisRatification: boolean;
+    };
+    approvedIdentitiesRestated: Record<string, unknown>;
+    semanticsUnchanged: Record<string, unknown>;
+    thisRecordAuthorises: unknown[];
+    thisRecordDoesNotAuthorise: string[];
+    ownerStatementAsReceived: string;
+  };
+  const approval = JSON.parse(approvalBytes.toString('utf8')) as {
+    approvedFreeze: { rawSha256: string; derivedAttempt2PlanSha256: string; branchCommit: string };
+    approvedIdentities: Record<string, unknown>;
+    statementMarkerAsReceived: string;
+    statementMarkerExpected: string;
+  };
+
+  it('references the existing approval record by exact raw SHA-256 and commit, and leaves it verbatim', () => {
+    expect(ratification.recordKind).toBe('OWNER_FREEZE_APPROVAL_RATIFICATION');
+    expect(ratification.ratifies).toBe('DEVELOPMENT_CONFIGURATION_FREEZE_APPROVAL_ONLY');
+    expect(ratification.ratifiedApprovalRecord.file).toBe(APPROVAL_PATH);
+    expect(ratification.ratifiedApprovalRecord.rawSha256).toBe(
+      createHash('sha256').update(approvalBytes).digest('hex'),
+    );
+    expect(ratification.ratifiedApprovalRecord.committedAt).toMatch(/^[0-9a-f]{40}$/);
+    expect(ratification.ratifiedApprovalRecord.preservedVerbatim).toBe(true);
+    expect(ratification.ratifiedApprovalRecord.neverRewrittenAmendedReplacedOrMutated).toBe(true);
+    // The approval record itself still carries the marker exactly as it arrived.
+    expect(approval.statementMarkerAsReceived).toBe('PPROVE_F0C_FREEZE');
+    expect(approval.statementMarkerExpected).toBe('APPROVE_F0C_FREEZE');
+  });
+
+  it('records the marker typo and the canonical marker, and changes no identity', () => {
+    expect(ratification.markerCorrection.markerAsReceivedInTheApprovalStatement).toBe(
+      approval.statementMarkerAsReceived,
+    );
+    expect(ratification.markerCorrection.canonicalMarker).toBe(approval.statementMarkerExpected);
+    expect(ratification.markerCorrection.nature).toBe('TRANSCRIPTION_TYPO_IN_THE_MARKER_ONLY');
+    expect(ratification.approvedFreeze.file).toBe(F0C_FREEZE_PATH);
+    expect(ratification.approvedFreeze.rawSha256).toBe(PROPOSED_F0C_FREEZE_RAW_SHA256);
+    expect(ratification.approvedFreeze.rawSha256).toBe(approval.approvedFreeze.rawSha256);
+    expect(ratification.approvedFreeze.rawBytes).toBe(F0C.rawBytes);
+    expect(ratification.approvedFreeze.derivedAttempt2PlanSha256).toBe(f0cPlanSha256(PLAN));
+    expect(ratification.approvedFreeze.derivedAttempt2PlanSha256).toBe(
+      approval.approvedFreeze.derivedAttempt2PlanSha256,
+    );
+    expect(ratification.approvedFreeze.approvedFreezeCommit).toBe(
+      approval.approvedFreeze.branchCommit,
+    );
+    expect(ratification.approvedFreeze.bytesUnchangedByThisRatification).toBe(true);
+    for (const key of [
+      'runtimeCommit',
+      'r1Commit',
+      'promptVersion',
+      'promptSha256',
+      'predecessorF0BRawSha256',
+      'attempt1ComparatorInventorySha256',
+      'repairMinimumRemainingBudgetMs',
+    ]) {
+      expect(ratification.approvedIdentitiesRestated[key], key).toEqual(
+        approval.approvedIdentities[key],
+      );
+    }
+    for (const flag of [
+      'freezeBytesChanged',
+      'planChanged',
+      'runtimeIdentityChanged',
+      'repairPolicyChanged',
+      'approvalRecordChanged',
+    ]) {
+      expect(ratification.semanticsUnchanged[flag], flag).toBe(false);
+    }
+  });
+
+  it('is not an attempt-2 execution authorisation and grants nothing', () => {
+    expect(ratification.thisRecordAuthorises).toEqual([]);
+    const denied = ratification.thisRecordDoesNotAuthorise.join('\n');
+    expect(denied).toMatch(/attempt-2 execution/);
+    expect(denied).toMatch(/NOT an attempt-2 execution authorisation/);
+    expect(denied).toMatch(/inference/);
+    expect(denied).toMatch(/HOLDOUT/);
+    expect(denied).toMatch(/push to main/);
+    expect(ratification.ownerStatementAsReceived.startsWith('APPROVE_F0C_FREEZE')).toBe(true);
+    expect(ratification.ownerStatementAsReceived).toContain(PROPOSED_F0C_FREEZE_RAW_SHA256);
+    expect(ratification.ownerStatementAsReceived).toContain(f0cPlanSha256(PLAN));
+    expect(ratification.ownerStatementAsReceived).toContain(
+      'this ratification is not an attempt-2 execution authorisation',
+    );
+  });
+});
