@@ -1,0 +1,166 @@
+{
+  "recordId": "PHASE_2B_2D2C_PROMPT_V3_DESIGN_CANDIDATES_V1",
+  "kind": "DESIGN_RECORD_NO_IMPLEMENTATION",
+  "status": "READY_FOR_OWNER_REVIEW",
+  "createdOn": "2026-09-14",
+  "purpose": "Records, as exact textual deltas against the frozen Prompt V2, the bounded Prompt V3 design candidates produced by the V3D1 failure analysis. Nothing here is implemented: src/orgunits/classify/prompt.ts is untouched, no prompt version is minted, and no inference is authorised.",
+  "basePrompt": {
+    "module": "src/orgunits/classify/prompt.ts",
+    "version": "orgunit-classifier-prompt-v2",
+    "sha256": "181a5d6fec9763be5a57e7e4d08c7d8c8a9d9e21838df2ea3e05dd680e4c7635",
+    "comparatorVersion": "orgunit-classifier-prompt-v1",
+    "comparatorSha256": "65f7f327ad14e78aaf3024cb7253e979b1e360fdcd1a58081fccc08fdb0facd0"
+  },
+  "deltaSemantics": {
+    "REPLACE_PARAGRAPH": "The anchor paragraph, which must occur exactly once in the base text, is replaced by the candidate text.",
+    "INSERT_PARAGRAPH_AFTER": "The candidate text is inserted as a new paragraph (preceded by one blank line) directly after the anchor paragraph, which must occur exactly once.",
+    "measuredDeltaRule": "characters counts Unicode code points; utf8Bytes counts UTF-8 bytes; both are the candidate text minus the base text, and the test recomputes them."
+  },
+  "prohibitedContentPolicy": {
+    "rule": "No candidate paragraph may contain an organisation name or acronym, a URL, a gold id, a copied case-specific title, a hidden label, threshold language, a digit, or any reference to DEVELOPMENT, HOLDOUT or the evaluation set. The test screens every paragraph.",
+    "forbiddenSubstrings": [
+      "DEVELOPMENT",
+      "HOLDOUT",
+      "gold",
+      "threshold",
+      "evaluation set",
+      "recall",
+      "precision",
+      "per cent",
+      "percent",
+      "IMS",
+      "IPAG",
+      "ESLSCA",
+      "IFPEK",
+      "CUFR",
+      "INSA",
+      "Irtess",
+      "Sorbonne",
+      "Evry",
+      "Mayotte",
+      "Paris Cit",
+      "Grenoble",
+      "Rouen",
+      "Nantes",
+      "DAI",
+      "DRRI",
+      "DRI ",
+      "Welcome Desk",
+      "Buddy System",
+      "Campus France",
+      "Eiffel",
+      "BTS ",
+      "Sorbonne Nouvelle"
+    ]
+  },
+  "candidates": [
+    {
+      "id": "A",
+      "name": "Precise whole-organisation rescue",
+      "category": "PRECISE_SMALL_ORGANISATION_RESCUE",
+      "operations": [
+        {
+          "kind": "REPLACE_PARAGRAPH",
+          "anchorParagraph": "The whole-organisation allowance is narrow: use it only when the document presents the whole organisation in the role of an operating unit or function and makes that role the page's primary subject. The organisation's small size alone is never enough; a homepage, marketing or navigation page, programme or course page, and news or event page remain NOT_A_UNIT when no operating unit or function is the page's primary subject.",
+          "anchorIdentity": "Prompt V2 insertion 2 (the bound on the small-organisation allowance), under the taxonomy, after the small/non-university paragraph.",
+          "text": "The whole-organisation allowance is narrow: use it only when the document presents the whole organisation in the role of an operating unit or function and makes that role the page's primary subject. A page whose title names a programme, a scheme or an audience can still meet this test when the document attributes to the organisation itself its own ongoing strategy, charter, eligibility rules, responsibility or operations for that function, and makes that commitment the page's structural subject in its title or headings rather than a single sentence saying that the organisation takes part. A named office is not required for this. The organisation's small size alone is never enough, and a page whose subject is the external programme itself, its grant amounts, its conditions or its sponsor's description, with the organisation appearing only as a participant, is NOT_A_UNIT; a homepage, marketing or navigation page, degree or course page, and news or event page remain NOT_A_UNIT when no operating unit or function is the page's primary subject."
+        }
+      ],
+      "rationale": "Prompt V2's bound on the whole-organisation allowance names programme pages as NOT_A_UNIT with no counter-clause for a programme-titled page that is in fact the small organisation's own standing mobility function. The owner confirmed that reading; this replacement states it, with the discriminating evidence (the organisation's OWN strategy, charter, eligibility rules, responsibility or operations as the structural subject) and the protected negative (the external programme described as such, with the organisation as a participant) in the same paragraph.",
+      "targetFailureMechanism": "M2: whole-organisation standing function on a programme-titled page with no named office (Prompt V2 insertion 2 read as excluding it).",
+      "protectedNegativeMechanisms": [
+        "generic external-programme descriptions and grant tables with the organisation as a participant",
+        "homepage, marketing, navigation, degree or course, news or event pages of a small organisation"
+      ],
+      "predictedItemsHelped": ["ge789b0f0aedc398c"],
+      "itemsAtRisk": ["g32779df2d7b56a34", "g956f99fae4ad4764"],
+      "itemsNotAddressed": ["g57607d4278d6dc23", "gf65026e32d9da8db"],
+      "interactionWithExistingClauses": "Refines insertion 2 in place; leaves insertion 1 (the page-subject test) unchanged, so a named-unit service page that insertion 1 reads as a scheme page is NOT helped. Consistent with the v1 small/non-university paragraph it follows.",
+      "measuredDelta": {
+        "characters": 628,
+        "utf8Bytes": 628
+      },
+      "changesPromptIdentity": true,
+      "whyGeneral": "Names no organisation, URL, id or title; the discriminator is who the document attributes the standing commitment to and at what structural level, which any organisation's page either does or does not exhibit."
+    },
+    {
+      "id": "B",
+      "name": "Two-stage page-subject decision",
+      "category": "TWO_STAGE_PAGE_SUBJECT_DECISION",
+      "operations": [
+        {
+          "kind": "REPLACE_PARAGRAPH",
+          "anchorParagraph": "Classify the page's primary subject, not the presence of relevant words, activities, or services. Use UNIT_PAGE only when an organisational unit or operating function is itself the page's primary subject — for example, the page presents that unit's identity, remit, team, responsibility, or ongoing operations. Use NOT_A_UNIT when the page instead has a programme, grant, activity, event, form, navigation destination, or general institutional information as its primary subject, even when it describes Erasmus, mobility, international students, language learning, or student services. Describing Erasmus or services does not by itself make a page a UNIT_PAGE.",
+          "anchorIdentity": "Prompt V2 insertion 1 (the page-subject test), after numbered question 2 under the two-questions section.",
+          "text": "Classify the page's primary subject, not the presence of relevant words, activities, or services. Decide in two steps. Step one: does the document evidence an ongoing operating responsibility, meaning a standing function that receives, supports, advises, teaches or administers on a continuing basis, as the page's primary subject? Evidence for this is the document's own title, headings or body presenting that responsibility's remit, the people it serves, its standing procedures, or the operator that administers it together with how to reach that operator. A single dated event, a news or category listing, a degree programme's curriculum or admissions, an index or navigation destination, a form, tool or viewer, general institutional marketing, and a description of an external programme or funding scheme as such, with the organisation appearing only as a participant, are not such evidence, however much they mention Erasmus, mobility, international students, language learning or student services. Step two: if such a responsibility is evidenced, who holds it in this document? The page is a UNIT_PAGE when the document presents a named unit, service or provision as the operator, for example a heading, section or block that names it and states its role, contact or address for this subject, or, for a small or non-university organisation, when the document attributes the organisation's own standing responsibility to the organisation itself as described under the taxonomy. A unit that appears only as one step, mailbox or contact line inside a procedure whose subject is the scheme does not make the page that unit's page. When no operator is evidenced, the page is NOT_A_UNIT with the page_kind that fits its subject; the institution as a whole counts as an operator only under the small or non-university allowance. Describing Erasmus or services does not by itself make a page a UNIT_PAGE."
+        },
+        {
+          "kind": "REPLACE_PARAGRAPH",
+          "anchorParagraph": "The whole-organisation allowance is narrow: use it only when the document presents the whole organisation in the role of an operating unit or function and makes that role the page's primary subject. The organisation's small size alone is never enough; a homepage, marketing or navigation page, programme or course page, and news or event page remain NOT_A_UNIT when no operating unit or function is the page's primary subject.",
+          "anchorIdentity": "Prompt V2 insertion 2, replaced with Candidate A's text so that step two's reference to the allowance resolves to the owner-confirmed reading.",
+          "text": "The whole-organisation allowance is narrow: use it only when the document presents the whole organisation in the role of an operating unit or function and makes that role the page's primary subject. A page whose title names a programme, a scheme or an audience can still meet this test when the document attributes to the organisation itself its own ongoing strategy, charter, eligibility rules, responsibility or operations for that function, and makes that commitment the page's structural subject in its title or headings rather than a single sentence saying that the organisation takes part. A named office is not required for this. The organisation's small size alone is never enough, and a page whose subject is the external programme itself, its grant amounts, its conditions or its sponsor's description, with the organisation appearing only as a participant, is NOT_A_UNIT; a homepage, marketing or navigation page, degree or course page, and news or event page remain NOT_A_UNIT when no operating unit or function is the page's primary subject."
+        }
+      ],
+      "rationale": "All three V2 losses cite insertion 1's primary-subject test: two pages were read as scheme pages although a named unit is presented in the document as their operator, and one as a programme page although the organisation's own strategy and charter are its headings. Splitting the decision into responsibility-evidenced-then-holder makes 'operated by a named unit' and 'the small organisation's own standing function' explicit positive outcomes, while the inline-mention clause and the no-operator clause keep the scheme, grant and participation negatives closed. Step two references the allowance, so insertion 2 must carry Candidate A's clarification; B therefore subsumes A rather than stacking on it.",
+      "targetFailureMechanism": "M1: a named unit presented as the operator of a service, aid or section page is read as incidental to a scheme subject (two losses). M2: the whole-organisation standing function on a programme-titled page (one loss). Both arise from Prompt V2 insertion 1 as written.",
+      "protectedNegativeMechanisms": [
+        "a unit that appears only as a step, mailbox or contact line inside a procedure (staff-mobility how-to, scholarship listing)",
+        "a scheme managed by the institution as a whole at a university (no unit, no allowance)",
+        "external-programme description with the organisation as a participant",
+        "dated news or event, category listing, navigation index, tool or form, degree programme, homepage, research event"
+      ],
+      "predictedItemsHelped": ["g57607d4278d6dc23", "gf65026e32d9da8db", "ge789b0f0aedc398c"],
+      "itemsAtRisk": [
+        "g32779df2d7b56a34",
+        "g956f99fae4ad4764",
+        "g04d170f4d3fda759",
+        "g536c8b148048fcbc",
+        "g3130d41296ab8739",
+        "g6458a352bc79ca01"
+      ],
+      "interactionWithExistingClauses": "Replaces insertions 1 and 2 of Prompt V2; keeps insertion 3 (contact form), insertion 4 (NO versus UNKNOWN) and insertion 5 (document-local unit name) byte-identical; keeps every v1 paragraph byte-identical, including the NEEDS_REVIEW sparse-evidence blocker that step one does not override. The closing sentence of insertion 1 is retained verbatim so the anti-keyword rule stays present.",
+      "measuredDelta": {
+        "characters": 1873,
+        "utf8Bytes": 1871
+      },
+      "changesPromptIdentity": true,
+      "whyGeneral": "Every clause is about how the document presents an operator (heading, section or block naming it with role, contact or address) or the organisation's own commitment (structural subject), never about a particular institution, page or wording; the same clauses are what separate the positives from the negatives across every organisation in the frozen sample."
+    },
+    {
+      "id": "C",
+      "name": "Evidence-output compliance check",
+      "category": "EVIDENCE_OUTPUT_COMPLIANCE",
+      "operations": [
+        {
+          "kind": "INSERT_PARAGRAPH_AFTER",
+          "anchorParagraph": "`unit_name` must be copied exactly from this document's own title, headings, or excerpt. Never take it from another document in the batch, and never expand an abbreviation or acronym.",
+          "anchorIdentity": "Prompt V2 insertion 5 (document-local unit name), under the evidence-and-citation section, before the untrusted-content section.",
+          "text": "Before returning, check every result against its own document and nothing else. A non-null `unit_name` must appear, apart from spacing, accents and letter case, in that document's title, headings or excerpt; if only a short form of the name appears there, return that short form, and if no form appears, return null, even when a longer or expanded form appears in another document of this batch or is known to you. Each evidence quote must be copied contiguously and unabridged from the one field its `source` names, with no ellipsis, no omitted words and no corrected characters, and `source` must name the field in which that exact text appears: text that opens the excerpt is EXCERPT even when it reads like a heading. A result that fails this check is discarded whole, so cite fewer spans rather than one that cannot be verified."
+        }
+      ],
+      "rationale": "Both persistent validator rejections are compliance failures on fields the validator checks literally: an acronym expanded from batch context although only the acronym appears in the document, and a quote copied correctly but attributed to HEADING when it appears at the top of EXCERPT. Prompt V2 already forbids the expansion and both prompts still produced it, so this paragraph is recorded as a cheap, unmeasured addition, not as the mechanism the schema-valid span-rate gate can rely on.",
+      "targetFailureMechanism": "R1: unit_name expanded beyond the document's own text. R2: evidence source label names the wrong field for a literal quote.",
+      "protectedNegativeMechanisms": ["none affected: the paragraph changes no verdict rule"],
+      "predictedItemsHelped": ["g0ec0d43dad311a77", "g877a05e6f5bba835"],
+      "itemsAtRisk": [],
+      "interactionWithExistingClauses": "Restates insertion 5 and the evidence-span paragraph as a final self-check; no contradiction with either. Adds no verdict rule. The instruction to return the short form when only the short form appears is consistent with the validator's fold (whitespace, diacritics, case) and with the gold expectation on the affected item.",
+      "measuredDelta": {
+        "characters": 835,
+        "utf8Bytes": 835
+      },
+      "changesPromptIdentity": true,
+      "whyGeneral": "Describes the validator's own literal contract in the model's terms; names no document, field value or organisation.",
+      "reliabilityCaveat": "A prompt-side check cannot make a rate that requires every one of the frozen sample's items to verify reliable: the same model produced the same two failures under two prompts, one of which already carried the relevant rule. The non-prompt reliability slice is recorded in the audit and is separate from this candidate."
+    }
+  ],
+  "redundancyAndContradiction": {
+    "AandB": "Candidate B's second operation IS Candidate A's replacement; applying both A and B would attempt A's anchor twice and the second application would fail (anchor absent). They are alternatives, with B subsuming A.",
+    "BandC": "Independent anchors and independent concerns (verdict rule versus output compliance); no contradiction; can be applied together.",
+    "AandC": "Independent; can be applied together, but A alone leaves the two named-unit losses unaddressed."
+  },
+  "recommendedComposition": {
+    "semanticDelta": "B (which carries A) — the minimal delta that addresses all three V2 losses while keeping every protected negative mechanism closed.",
+    "complianceDelta": "C — included as a low-cost, unmeasured addition; explicitly NOT relied upon for minSchemaValidSpanVerifiedRate.",
+    "resultingPromptIdentity": "A new ORGUNIT_CLASSIFIER_PROMPT_VERSION (a v3 identity) minted only in a later implementation task, with a new configuration freeze, a new owner authorisation and a new controlled DEVELOPMENT run. This record authorises none of those."
+  }
+}

@@ -1,0 +1,4752 @@
+{
+  "census": {
+    "categories": {
+      "axisErrorsCausedOnlyByIncorrectVerdict": {
+        "v1": [
+          {
+            "axis": "serves_incoming_international_students",
+            "gold": "UNKNOWN",
+            "goldId": "g0ec0d43dad311a77",
+            "predicted": null
+          },
+          {
+            "axis": "serves_outgoing_mobility_students",
+            "gold": "YES",
+            "goldId": "g0ec0d43dad311a77",
+            "predicted": null
+          },
+          {
+            "axis": "provides_language_learning_or_support",
+            "gold": "UNKNOWN",
+            "goldId": "g0ec0d43dad311a77",
+            "predicted": null
+          },
+          {
+            "axis": "serves_incoming_international_students",
+            "gold": "YES",
+            "goldId": "g877a05e6f5bba835",
+            "predicted": null
+          },
+          {
+            "axis": "serves_outgoing_mobility_students",
+            "gold": "YES",
+            "goldId": "g877a05e6f5bba835",
+            "predicted": null
+          },
+          {
+            "axis": "provides_language_learning_or_support",
+            "gold": "UNKNOWN",
+            "goldId": "g877a05e6f5bba835",
+            "predicted": null
+          }
+        ],
+        "v2": [
+          {
+            "axis": "serves_incoming_international_students",
+            "gold": "UNKNOWN",
+            "goldId": "g0ec0d43dad311a77",
+            "predicted": null
+          },
+          {
+            "axis": "serves_outgoing_mobility_students",
+            "gold": "YES",
+            "goldId": "g0ec0d43dad311a77",
+            "predicted": null
+          },
+          {
+            "axis": "provides_language_learning_or_support",
+            "gold": "UNKNOWN",
+            "goldId": "g0ec0d43dad311a77",
+            "predicted": null
+          },
+          {
+            "axis": "serves_incoming_international_students",
+            "gold": "UNKNOWN",
+            "goldId": "g57607d4278d6dc23",
+            "predicted": null
+          },
+          {
+            "axis": "serves_outgoing_mobility_students",
+            "gold": "YES",
+            "goldId": "g57607d4278d6dc23",
+            "predicted": null
+          },
+          {
+            "axis": "provides_language_learning_or_support",
+            "gold": "UNKNOWN",
+            "goldId": "g57607d4278d6dc23",
+            "predicted": null
+          },
+          {
+            "axis": "serves_incoming_international_students",
+            "gold": "YES",
+            "goldId": "g877a05e6f5bba835",
+            "predicted": null
+          },
+          {
+            "axis": "serves_outgoing_mobility_students",
+            "gold": "YES",
+            "goldId": "g877a05e6f5bba835",
+            "predicted": null
+          },
+          {
+            "axis": "provides_language_learning_or_support",
+            "gold": "UNKNOWN",
+            "goldId": "g877a05e6f5bba835",
+            "predicted": null
+          },
+          {
+            "axis": "serves_incoming_international_students",
+            "gold": "UNKNOWN",
+            "goldId": "ge789b0f0aedc398c",
+            "predicted": null
+          },
+          {
+            "axis": "serves_outgoing_mobility_students",
+            "gold": "YES",
+            "goldId": "ge789b0f0aedc398c",
+            "predicted": null
+          },
+          {
+            "axis": "provides_language_learning_or_support",
+            "gold": "UNKNOWN",
+            "goldId": "ge789b0f0aedc398c",
+            "predicted": null
+          },
+          {
+            "axis": "serves_incoming_international_students",
+            "gold": "UNKNOWN",
+            "goldId": "gf65026e32d9da8db",
+            "predicted": null
+          },
+          {
+            "axis": "serves_outgoing_mobility_students",
+            "gold": "YES",
+            "goldId": "gf65026e32d9da8db",
+            "predicted": null
+          },
+          {
+            "axis": "provides_language_learning_or_support",
+            "gold": "UNKNOWN",
+            "goldId": "gf65026e32d9da8db",
+            "predicted": null
+          }
+        ]
+      },
+      "correctItemsAtRiskUnderBroaderPositiveRule": [
+        "g04b64db14c03ce3a",
+        "g04d170f4d3fda759",
+        "g05d5854d451532bb",
+        "g0b760d6f3dfafad5",
+        "g12732ff0388c49e8",
+        "g1a0315d94121cfcf",
+        "g27504b2635a39531",
+        "g2e0dc1ff57327033",
+        "g3130d41296ab8739",
+        "g32779df2d7b56a34",
+        "g39e7132da4064000",
+        "g3ef86bc145abfab0",
+        "g52788fd323659c9c",
+        "g536c8b148048fcbc",
+        "g543b604f0f0f8380",
+        "g5e9c0d460fee879b",
+        "g5f96e37ff602795a",
+        "g7c122ea506478abd",
+        "g7d88b2fecb73fdb4",
+        "g82fe2243c52f4d73",
+        "g956f99fae4ad4764",
+        "g9978fec48fa77fbb"
+      ],
+      "falseNegativeUnitsAnswered": {
+        "v1": [],
+        "v2": ["g57607d4278d6dc23", "ge789b0f0aedc398c", "gf65026e32d9da8db"]
+      },
+      "falseNegativeUnitsRejected": {
+        "v1": ["g0ec0d43dad311a77", "g877a05e6f5bba835"],
+        "v2": ["g0ec0d43dad311a77", "g877a05e6f5bba835"]
+      },
+      "falsePositiveUnits": {
+        "v1": [
+          "g04b64db14c03ce3a",
+          "g04d170f4d3fda759",
+          "g3130d41296ab8739",
+          "g536c8b148048fcbc",
+          "g6458a352bc79ca01"
+        ],
+        "v2": ["g6458a352bc79ca01"]
+      },
+      "independentAxisErrors": {
+        "v1": [
+          {
+            "axis": "provides_language_learning_or_support",
+            "gold": "UNKNOWN",
+            "goldId": "g34bbf7536e99b410",
+            "predicted": "NO"
+          },
+          {
+            "axis": "provides_language_learning_or_support",
+            "gold": "UNKNOWN",
+            "goldId": "g57607d4278d6dc23",
+            "predicted": "NO"
+          },
+          {
+            "axis": "provides_language_learning_or_support",
+            "gold": "UNKNOWN",
+            "goldId": "g735298870fe173b8",
+            "predicted": "NO"
+          },
+          {
+            "axis": "serves_outgoing_mobility_students",
+            "gold": "UNKNOWN",
+            "goldId": "g99a9fe00e4856de2",
+            "predicted": "NO"
+          },
+          {
+            "axis": "provides_language_learning_or_support",
+            "gold": "UNKNOWN",
+            "goldId": "ga971a6fc52af6b5f",
+            "predicted": "NO"
+          },
+          {
+            "axis": "provides_language_learning_or_support",
+            "gold": "UNKNOWN",
+            "goldId": "gdb5b7246327094ef",
+            "predicted": "NO"
+          },
+          {
+            "axis": "provides_language_learning_or_support",
+            "gold": "UNKNOWN",
+            "goldId": "ge419f0b9902faee0",
+            "predicted": "NO"
+          },
+          {
+            "axis": "provides_language_learning_or_support",
+            "gold": "UNKNOWN",
+            "goldId": "gf65026e32d9da8db",
+            "predicted": "NO"
+          }
+        ],
+        "v2": []
+      },
+      "validatorRejected": {
+        "persistent": ["g0ec0d43dad311a77", "g877a05e6f5bba835"],
+        "v1": ["g0ec0d43dad311a77", "g32779df2d7b56a34", "g877a05e6f5bba835", "g956f99fae4ad4764"],
+        "v2": ["g0ec0d43dad311a77", "g877a05e6f5bba835"]
+      }
+    },
+    "censusVersion": "phase2b-2d2c-v3d1-failure-census-v1",
+    "goldVerdictCounts": { "NEEDS_REVIEW": 2, "NOT_A_UNIT": 33, "UNIT_PAGE": 14 },
+    "itemCount": 49,
+    "reconciliation": {
+      "v1": {
+        "accepted": 45,
+        "hardNegatives": 21,
+        "hardNegativesRejectedAsNonUnit": 16,
+        "items": 49,
+        "needsReviewAnswered": 1,
+        "needsReviewGold": 2,
+        "notAUnitCorrect": 27,
+        "notAUnitGold": 33,
+        "rejected": 4,
+        "unitPageCorrect": 12,
+        "unitPageGold": 14,
+        "unitPagePredicted": 17,
+        "unitPageRecalled": 12,
+        "unitTypeCorrect": 12
+      },
+      "v2": {
+        "accepted": 47,
+        "hardNegatives": 21,
+        "hardNegativesRejectedAsNonUnit": 21,
+        "items": 49,
+        "needsReviewAnswered": 0,
+        "needsReviewGold": 2,
+        "notAUnitCorrect": 33,
+        "notAUnitGold": 33,
+        "rejected": 2,
+        "unitPageCorrect": 9,
+        "unitPageGold": 14,
+        "unitPagePredicted": 10,
+        "unitPageRecalled": 9,
+        "unitTypeCorrect": 9
+      }
+    },
+    "records": [
+      {
+        "axisDifferences": [
+          {
+            "axis": "serves_incoming_international_students",
+            "classification": "MECHANICALLY_NULLED_BY_NON_UNIT_VERDICT",
+            "gold": null,
+            "v1": "UNKNOWN",
+            "v1Correctness": "NOT_APPLICABLE",
+            "v2": null,
+            "v2Correctness": "NOT_APPLICABLE"
+          },
+          {
+            "axis": "serves_outgoing_mobility_students",
+            "classification": "MECHANICALLY_NULLED_BY_NON_UNIT_VERDICT",
+            "gold": null,
+            "v1": "UNKNOWN",
+            "v1Correctness": "NOT_APPLICABLE",
+            "v2": null,
+            "v2Correctness": "NOT_APPLICABLE"
+          },
+          {
+            "axis": "provides_language_learning_or_support",
+            "classification": "MECHANICALLY_NULLED_BY_NON_UNIT_VERDICT",
+            "gold": null,
+            "v1": "UNKNOWN",
+            "v1Correctness": "NOT_APPLICABLE",
+            "v2": null,
+            "v2Correctness": "NOT_APPLICABLE"
+          }
+        ],
+        "corpusLineNumber": 21,
+        "docIndex": 0,
+        "echeRowKey": "F NANTES79|924638533",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": "NAVIGATION_OR_LANDING_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g04b64db14c03ce3a",
+        "logicalBatchOrdinal": 6,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": true,
+          "v1Verdict": "UNIT_PAGE",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "INCORRECT_TO_CORRECT",
+          "verdictDiffers": true,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": ["minUnitPagePrecision"],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "INCORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "HEADING"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "UNKNOWN",
+            "serves_incoming_international_students": "UNKNOWN",
+            "serves_outgoing_mobility_students": "UNKNOWN",
+            "unit_name_present": true,
+            "unit_name_sha256": "fe940857506504f2c9231f6712cf38c8502cf9db6a52ea9b7687d4a56b5d7bfb",
+            "unit_type": "OTHER_UNIT",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "0619b61e5f705a08f00224b171fa0b29409e00dc65a484c455584f9d84027316",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["HEADING", "HEADING"],
+            "page_kind": "NAVIGATION_OR_LANDING_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": true,
+            "unit_name_sha256": "fe940857506504f2c9231f6712cf38c8502cf9db6a52ea9b7687d4a56b5d7bfb",
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "49accf30bff43384871cb9f6da06d114f15c9339cf1b57e0761dfebbe7014fb4",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 20,
+        "docIndex": 3,
+        "echeRowKey": "F MONTPEL58|932096087",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": "OTHER_NON_UNIT",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g04c5e4d705a2e184",
+        "logicalBatchOrdinal": 5,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "HEADING"],
+            "page_kind": "NAVIGATION_OR_LANDING_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "5bc01d728b003696723181136678806d5435e815a1c6be62617371963e9a4b32",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "HEADING"],
+            "page_kind": "NAVIGATION_OR_LANDING_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "83a19c3433895415f0e82f92a213f2a304d7c7f1ec7b1690f3a793463c1292bc",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [
+          {
+            "axis": "serves_incoming_international_students",
+            "classification": "MECHANICALLY_NULLED_BY_NON_UNIT_VERDICT",
+            "gold": null,
+            "v1": "UNKNOWN",
+            "v1Correctness": "NOT_APPLICABLE",
+            "v2": null,
+            "v2Correctness": "NOT_APPLICABLE"
+          },
+          {
+            "axis": "serves_outgoing_mobility_students",
+            "classification": "MECHANICALLY_NULLED_BY_NON_UNIT_VERDICT",
+            "gold": null,
+            "v1": "YES",
+            "v1Correctness": "NOT_APPLICABLE",
+            "v2": null,
+            "v2Correctness": "NOT_APPLICABLE"
+          },
+          {
+            "axis": "provides_language_learning_or_support",
+            "classification": "MECHANICALLY_NULLED_BY_NON_UNIT_VERDICT",
+            "gold": null,
+            "v1": "UNKNOWN",
+            "v1Correctness": "NOT_APPLICABLE",
+            "v2": null,
+            "v2Correctness": "NOT_APPLICABLE"
+          }
+        ],
+        "corpusLineNumber": 37,
+        "docIndex": 5,
+        "echeRowKey": "F PARIS482|897691060",
+        "gold": {
+          "hard_negative": "HARD_NEGATIVE",
+          "page_kind": "GENERIC_INSTITUTIONAL_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g04d170f4d3fda759",
+        "logicalBatchOrdinal": 9,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "UNIT_PAGE",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "INCORRECT_TO_CORRECT",
+          "verdictDiffers": true,
+          "verdictIndependentFieldDifferences": ["unit_name_present"]
+        },
+        "v1": {
+          "countsAgainstGates": ["minUnitPagePrecision", "minHardNegativeRejection"],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "INCORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "HEADING", "EXCERPT"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "UNKNOWN",
+            "serves_incoming_international_students": "UNKNOWN",
+            "serves_outgoing_mobility_students": "YES",
+            "unit_name_present": true,
+            "unit_name_sha256": "107317e2e1c59c668b679bf9075dbcbd1a3702878a1323f1fd36ae9f4cbc0a5c",
+            "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "4aaa7eae3acadecff41342f872a90fbd51837b55fe3502f9c445956d5ffe4f0e",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["TITLE", "HEADING", "EXCERPT"],
+            "page_kind": "OTHER_NON_UNIT",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "3bb0f96c0e7a89153dda41f1f3ba90a1ed1f2ab3ce9702b70997b7463ad3cfc2",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 2,
+        "docIndex": 5,
+        "echeRowKey": "F DIJON35|949637858",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": "GENERIC_INSTITUTIONAL_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g057656b07c6aa620",
+        "logicalBatchOrdinal": 1,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "HEADING"],
+            "page_kind": "GENERIC_INSTITUTIONAL_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "2e8d92796202ca53617e6ca091cc5aa07e5c20b1141275a88afad27ee59f4df1",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "HEADING"],
+            "page_kind": "SERVICE_TOOL_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "e5042d7644bfb210e4dd91f48c1be79ca53b4d20be099d0a6b9ed4bfd5890c6d",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 13,
+        "docIndex": 1,
+        "echeRowKey": "F MAYOTTE01|912525949",
+        "gold": {
+          "hard_negative": "HARD_NEGATIVE",
+          "page_kind": "SERVICE_TOOL_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g05d5854d451532bb",
+        "logicalBatchOrdinal": 4,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 1,
+            "evidence_span_sources": ["TITLE"],
+            "page_kind": "OTHER_NON_UNIT",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "155a916cd8484953d06a2e896124b94cc7a914a79f59126483b469de4ed0220a",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 1,
+            "evidence_span_sources": ["TITLE"],
+            "page_kind": "OTHER_NON_UNIT",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "f6727c794f8aa4210bcb19066730e587f586b76e46ac4140d9fcf9b8a2164a83",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 43,
+        "docIndex": 2,
+        "echeRowKey": "F RENNES52|949270228",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": "NEWS_OR_EVENT_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g0615c0e6bcd45942",
+        "logicalBatchOrdinal": 11,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": ["unit_name_present"]
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["HEADING", "EXCERPT"],
+            "page_kind": "NEWS_OR_EVENT_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": true,
+            "unit_name_sha256": "f885c0f760f0c67018192bbcb2beb2cad6a7ba9fa8044ca0db97e7d66ee38842",
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "58057299b8a144abfa7f07973a15b35aa78c5a43df574bc602d8cb2acee8dd85",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "EXCERPT"],
+            "page_kind": "NEWS_OR_EVENT_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "fc4222c3ca40f6543d1693df60c4547f9207ce09d185f453eb332bd0f6661f35",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 39,
+        "docIndex": 12,
+        "echeRowKey": "F PARIS525|879184333",
+        "gold": {
+          "hard_negative": "HARD_NEGATIVE",
+          "page_kind": "NEWS_OR_EVENT_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g0b760d6f3dfafad5",
+        "logicalBatchOrdinal": 10,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "EXCERPT"],
+            "page_kind": "NEWS_OR_EVENT_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "ccb1678acddf9f621025a2c2f24a61a8e413c8d3332feba4a7d11b89a87c2636",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "EXCERPT"],
+            "page_kind": "NEWS_OR_EVENT_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "42c894a5a55ad254150660d5e68ad17930a2bf3289c0818fd167fab35cc801e0",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 26,
+        "docIndex": 1,
+        "echeRowKey": "F PARIS003|999885119",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": null,
+          "provides_language_learning_or_support": "UNKNOWN",
+          "serves_incoming_international_students": "UNKNOWN",
+          "serves_outgoing_mobility_students": "YES",
+          "unit_name_expectation": "NAMED",
+          "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "g0ec0d43dad311a77",
+        "logicalBatchOrdinal": 7,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "REJECTED",
+          "v2Verdict": "REJECTED",
+          "validityTransition": "REJECTED_TO_REJECTED",
+          "verdictCorrectnessTransition": "INCORRECT_TO_INCORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [
+            "minSchemaValidSpanVerifiedRate",
+            "minUnitPageRecall",
+            "minUnitTypeAccuracy"
+          ],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "INCORRECT",
+            "serves_incoming_international_students": "INCORRECT",
+            "serves_outgoing_mobility_students": "INCORRECT",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "INCORRECT",
+            "verdict": "INCORRECT"
+          },
+          "prediction": null,
+          "rawOutputSha256": "1dbf22033606b43bf44fa99248d66aeb16ea0ff2889dca13b48519eb95f22883",
+          "rejectionCategory": "EVIDENCE",
+          "rejectionReason": "unit_name is not supported by any supplied field",
+          "validatorState": "REJECTED"
+        },
+        "v2": {
+          "countsAgainstGates": [
+            "minSchemaValidSpanVerifiedRate",
+            "minUnitPageRecall",
+            "minUnitTypeAccuracy"
+          ],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "INCORRECT",
+            "serves_incoming_international_students": "INCORRECT",
+            "serves_outgoing_mobility_students": "INCORRECT",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "INCORRECT",
+            "verdict": "INCORRECT"
+          },
+          "prediction": null,
+          "rawOutputSha256": "76433b332f38afc64deb5aecf8cf2d2cef4c8ddd770a6a24ca06f88012ba45c2",
+          "rejectionCategory": "EVIDENCE",
+          "rejectionReason": "unit_name is not supported by any supplied field",
+          "validatorState": "REJECTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 23,
+        "docIndex": 10,
+        "echeRowKey": "F NANTES79|924638533",
+        "gold": {
+          "hard_negative": "HARD_NEGATIVE",
+          "page_kind": "NEWS_OR_EVENT_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g12732ff0388c49e8",
+        "logicalBatchOrdinal": 6,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "HEADING"],
+            "page_kind": "NEWS_OR_EVENT_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "0619b61e5f705a08f00224b171fa0b29409e00dc65a484c455584f9d84027316",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["TITLE", "EXCERPT", "HEADING"],
+            "page_kind": "NEWS_OR_EVENT_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "49accf30bff43384871cb9f6da06d114f15c9339cf1b57e0761dfebbe7014fb4",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 35,
+        "docIndex": 2,
+        "echeRowKey": "F PARIS482|897691060",
+        "gold": {
+          "hard_negative": "HARD_NEGATIVE",
+          "page_kind": "NEWS_OR_EVENT_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": null,
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g1a0315d94121cfcf",
+        "logicalBatchOrdinal": 9,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "NOT_APPLICABLE",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["HEADING", "EXCERPT"],
+            "page_kind": "NEWS_OR_EVENT_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "4aaa7eae3acadecff41342f872a90fbd51837b55fe3502f9c445956d5ffe4f0e",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "NOT_APPLICABLE",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "EXCERPT"],
+            "page_kind": "NEWS_OR_EVENT_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "3bb0f96c0e7a89153dda41f1f3ba90a1ed1f2ab3ce9702b70997b7463ad3cfc2",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 45,
+        "docIndex": 0,
+        "echeRowKey": "F ROUEN06|999465788",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": "NAVIGATION_OR_LANDING_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g1b50947deb11a6d5",
+        "logicalBatchOrdinal": 12,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": ["unit_name_present"]
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "EXCERPT"],
+            "page_kind": "GENERIC_INSTITUTIONAL_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": true,
+            "unit_name_sha256": "2d17bfebbe2e023cd7a4db4ca46791e9e659731910b071631e69a89227225baf",
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "11d103a8e86103b8118f66af50907674eb9068f62e786a9b57078d95c4c700a5",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["TITLE", "HEADING", "HEADING"],
+            "page_kind": "NAVIGATION_OR_LANDING_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "e755610281b88ca3c79eb9144e52219ba94a724a94bbd850bf12ffb5f76eab27",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 9,
+        "docIndex": 1,
+        "echeRowKey": "F GRENOBL21|915102366",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": "SERVICE_TOOL_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g1f85c7bcf67d324e",
+        "logicalBatchOrdinal": 3,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": ["unit_name_present"]
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["HEADING", "EXCERPT"],
+            "page_kind": "SERVICE_TOOL_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "43631b3124937abe5e7cf03e13443072243abb929f969885e54330979a05da5a",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["TITLE", "HEADING", "EXCERPT"],
+            "page_kind": "SERVICE_TOOL_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": true,
+            "unit_name_sha256": "483403b49fb9c22b0290be6f9f89534ed22fc26076bf3811b336a651ba30ad4b",
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "ba559e71bb26d4da8dbc66cb6744d0f533cfc36eb34dc3c30556dcad58499126",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 36,
+        "docIndex": 8,
+        "echeRowKey": "F PARIS482|897691060",
+        "gold": {
+          "hard_negative": "HARD_NEGATIVE",
+          "page_kind": "NEWS_OR_EVENT_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g27504b2635a39531",
+        "logicalBatchOrdinal": 9,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["TITLE", "URL_PATH", "HEADING"],
+            "page_kind": "NAVIGATION_OR_LANDING_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "4aaa7eae3acadecff41342f872a90fbd51837b55fe3502f9c445956d5ffe4f0e",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["TITLE", "HEADING", "URL_PATH"],
+            "page_kind": "NEWS_OR_EVENT_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "3bb0f96c0e7a89153dda41f1f3ba90a1ed1f2ab3ce9702b70997b7463ad3cfc2",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 22,
+        "docIndex": 4,
+        "echeRowKey": "F NANTES79|924638533",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": "SERVICE_TOOL_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g2dba4106c328f4b8",
+        "logicalBatchOrdinal": 6,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "EXCERPT"],
+            "page_kind": "GENERIC_INSTITUTIONAL_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "0619b61e5f705a08f00224b171fa0b29409e00dc65a484c455584f9d84027316",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "HEADING"],
+            "page_kind": "GENERIC_INSTITUTIONAL_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "49accf30bff43384871cb9f6da06d114f15c9339cf1b57e0761dfebbe7014fb4",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 30,
+        "docIndex": 8,
+        "echeRowKey": "F PARIS003|999885119",
+        "gold": {
+          "hard_negative": "HARD_NEGATIVE",
+          "page_kind": "NAVIGATION_OR_LANDING_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g2e0dc1ff57327033",
+        "logicalBatchOrdinal": 7,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "EXCERPT", "URL_PATH"],
+            "page_kind": "NAVIGATION_OR_LANDING_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "1dbf22033606b43bf44fa99248d66aeb16ea0ff2889dca13b48519eb95f22883",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["HEADING", "EXCERPT"],
+            "page_kind": "NAVIGATION_OR_LANDING_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "76433b332f38afc64deb5aecf8cf2d2cef4c8ddd770a6a24ca06f88012ba45c2",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [
+          {
+            "axis": "serves_incoming_international_students",
+            "classification": "MECHANICALLY_NULLED_BY_NON_UNIT_VERDICT",
+            "gold": null,
+            "v1": "NO",
+            "v1Correctness": "NOT_APPLICABLE",
+            "v2": null,
+            "v2Correctness": "NOT_APPLICABLE"
+          },
+          {
+            "axis": "serves_outgoing_mobility_students",
+            "classification": "MECHANICALLY_NULLED_BY_NON_UNIT_VERDICT",
+            "gold": null,
+            "v1": "NO",
+            "v1Correctness": "NOT_APPLICABLE",
+            "v2": null,
+            "v2Correctness": "NOT_APPLICABLE"
+          },
+          {
+            "axis": "provides_language_learning_or_support",
+            "classification": "MECHANICALLY_NULLED_BY_NON_UNIT_VERDICT",
+            "gold": null,
+            "v1": "NO",
+            "v1Correctness": "NOT_APPLICABLE",
+            "v2": null,
+            "v2Correctness": "NOT_APPLICABLE"
+          }
+        ],
+        "corpusLineNumber": 8,
+        "docIndex": 10,
+        "echeRowKey": "F EVRY04|999850296",
+        "gold": {
+          "hard_negative": "HARD_NEGATIVE",
+          "page_kind": "GENERIC_INSTITUTIONAL_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g3130d41296ab8739",
+        "logicalBatchOrdinal": 2,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": true,
+          "v1Verdict": "UNIT_PAGE",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "INCORRECT_TO_CORRECT",
+          "verdictDiffers": true,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": ["minUnitPagePrecision", "minHardNegativeRejection"],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "INCORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "EXCERPT"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "NO",
+            "serves_incoming_international_students": "NO",
+            "serves_outgoing_mobility_students": "NO",
+            "unit_name_present": true,
+            "unit_name_sha256": "fb51eb7ef8a3a68a77c293d53582ca082d5adfe8c5c23b0b80d05f0e870e15b2",
+            "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "a69fc7841f410ff932fd136e979c848a177bdfdf923ea7d7faa5dff4047a4bc0",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["TITLE", "HEADING", "EXCERPT"],
+            "page_kind": "OTHER_NON_UNIT",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": true,
+            "unit_name_sha256": "fb51eb7ef8a3a68a77c293d53582ca082d5adfe8c5c23b0b80d05f0e870e15b2",
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "3d0ee19b2ebb1adb60a2d68ba0e754a555f9f092c36fcf5b6bf362e8109fcc25",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 33,
+        "docIndex": 13,
+        "echeRowKey": "F PARIS105|949302432",
+        "gold": {
+          "hard_negative": "HARD_NEGATIVE",
+          "page_kind": "GENERIC_INSTITUTIONAL_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g32779df2d7b56a34",
+        "logicalBatchOrdinal": 8,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": true,
+          "v1Verdict": "REJECTED",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "REJECTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "INCORRECT_TO_CORRECT",
+          "verdictDiffers": true,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": ["minSchemaValidSpanVerifiedRate", "minHardNegativeRejection"],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "INCORRECT"
+          },
+          "prediction": null,
+          "rawOutputSha256": "af01e087d0f79b9605e6659c050e3705f4f8e671375bd91b25104ae011e50456",
+          "rejectionCategory": "EVIDENCE",
+          "rejectionReason": "unit_name is not supported by any supplied field",
+          "validatorState": "REJECTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["TITLE", "HEADING", "EXCERPT"],
+            "page_kind": "GENERIC_INSTITUTIONAL_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "4fe17f68aa5b2a84ddbcbf774a4efe66f018493836a9206b93fe384559ea5fcd",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [
+          {
+            "axis": "provides_language_learning_or_support",
+            "classification": "INDEPENDENT",
+            "gold": "UNKNOWN",
+            "v1": "NO",
+            "v1Correctness": "INCORRECT",
+            "v2": "UNKNOWN",
+            "v2Correctness": "CORRECT"
+          }
+        ],
+        "corpusLineNumber": 40,
+        "docIndex": 14,
+        "echeRowKey": "F PARIS525|879184333",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": null,
+          "provides_language_learning_or_support": "UNKNOWN",
+          "serves_incoming_international_students": "YES",
+          "serves_outgoing_mobility_students": "UNKNOWN",
+          "unit_name_expectation": "NULL",
+          "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "g34bbf7536e99b410",
+        "logicalBatchOrdinal": 10,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "UNIT_PAGE",
+          "v2Verdict": "UNIT_PAGE",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "INCORRECT",
+            "serves_incoming_international_students": "CORRECT",
+            "serves_outgoing_mobility_students": "CORRECT",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "CORRECT",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "EXCERPT", "HEADING"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "NO",
+            "serves_incoming_international_students": "YES",
+            "serves_outgoing_mobility_students": "UNKNOWN",
+            "unit_name_present": true,
+            "unit_name_sha256": "2cc0aafba277021428c8718a3389f828c088c7329f2ca9f0270566f79b955fa0",
+            "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "ccb1678acddf9f621025a2c2f24a61a8e413c8d3332feba4a7d11b89a87c2636",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "CORRECT",
+            "serves_incoming_international_students": "CORRECT",
+            "serves_outgoing_mobility_students": "CORRECT",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "CORRECT",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "HEADING", "EXCERPT"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "UNKNOWN",
+            "serves_incoming_international_students": "YES",
+            "serves_outgoing_mobility_students": "UNKNOWN",
+            "unit_name_present": true,
+            "unit_name_sha256": "2cc0aafba277021428c8718a3389f828c088c7329f2ca9f0270566f79b955fa0",
+            "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "42c894a5a55ad254150660d5e68ad17930a2bf3289c0818fd167fab35cc801e0",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 48,
+        "docIndex": 12,
+        "echeRowKey": "F ROUEN06|999465788",
+        "gold": {
+          "hard_negative": "HARD_NEGATIVE",
+          "page_kind": "NAVIGATION_OR_LANDING_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g39e7132da4064000",
+        "logicalBatchOrdinal": 12,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["HEADING", "EXCERPT"],
+            "page_kind": "RESEARCH_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "11d103a8e86103b8118f66af50907674eb9068f62e786a9b57078d95c4c700a5",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "EXCERPT"],
+            "page_kind": "NAVIGATION_OR_LANDING_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "e755610281b88ca3c79eb9144e52219ba94a724a94bbd850bf12ffb5f76eab27",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 10,
+        "docIndex": 7,
+        "echeRowKey": "F GRENOBL21|915102366",
+        "gold": {
+          "hard_negative": "HARD_NEGATIVE",
+          "page_kind": "DEGREE_PROGRAMME_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g3ef86bc145abfab0",
+        "logicalBatchOrdinal": 3,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "EXCERPT"],
+            "page_kind": "DEGREE_PROGRAMME_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "43631b3124937abe5e7cf03e13443072243abb929f969885e54330979a05da5a",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["TITLE", "HEADING", "EXCERPT"],
+            "page_kind": "DEGREE_PROGRAMME_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "ba559e71bb26d4da8dbc66cb6744d0f533cfc36eb34dc3c30556dcad58499126",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 15,
+        "docIndex": 7,
+        "echeRowKey": "F MAYOTTE01|912525949",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": "SERVICE_TOOL_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g4454e841c09dd8d0",
+        "logicalBatchOrdinal": 4,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": ["unit_name_present"]
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "HEADING"],
+            "page_kind": "OTHER_NON_UNIT",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "155a916cd8484953d06a2e896124b94cc7a914a79f59126483b469de4ed0220a",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["HEADING", "EXCERPT"],
+            "page_kind": "SERVICE_TOOL_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": true,
+            "unit_name_sha256": "4d3fdd855422f526e57c907b057494e1433ffc5f1508624e57a822600f0c3576",
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "f6727c794f8aa4210bcb19066730e587f586b76e46ac4140d9fcf9b8a2164a83",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 19,
+        "docIndex": 1,
+        "echeRowKey": "F MONTPEL58|932096087",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": "OTHER_NON_UNIT",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g4aa8728f64f4525d",
+        "logicalBatchOrdinal": 5,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "HEADING"],
+            "page_kind": "NEWS_OR_EVENT_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "5bc01d728b003696723181136678806d5435e815a1c6be62617371963e9a4b32",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "HEADING"],
+            "page_kind": "NAVIGATION_OR_LANDING_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "83a19c3433895415f0e82f92a213f2a304d7c7f1ec7b1690f3a793463c1292bc",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 6,
+        "docIndex": 5,
+        "echeRowKey": "F EVRY04|999850296",
+        "gold": {
+          "hard_negative": "HARD_NEGATIVE",
+          "page_kind": "NAVIGATION_OR_LANDING_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g52788fd323659c9c",
+        "logicalBatchOrdinal": 2,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "HEADING", "TITLE"],
+            "page_kind": "NAVIGATION_OR_LANDING_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "a69fc7841f410ff932fd136e979c848a177bdfdf923ea7d7faa5dff4047a4bc0",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["TITLE", "EXCERPT", "HEADING"],
+            "page_kind": "NAVIGATION_OR_LANDING_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "3d0ee19b2ebb1adb60a2d68ba0e754a555f9f092c36fcf5b6bf362e8109fcc25",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [
+          {
+            "axis": "serves_incoming_international_students",
+            "classification": "MECHANICALLY_NULLED_BY_NON_UNIT_VERDICT",
+            "gold": null,
+            "v1": "YES",
+            "v1Correctness": "NOT_APPLICABLE",
+            "v2": null,
+            "v2Correctness": "NOT_APPLICABLE"
+          },
+          {
+            "axis": "serves_outgoing_mobility_students",
+            "classification": "MECHANICALLY_NULLED_BY_NON_UNIT_VERDICT",
+            "gold": null,
+            "v1": "UNKNOWN",
+            "v1Correctness": "NOT_APPLICABLE",
+            "v2": null,
+            "v2Correctness": "NOT_APPLICABLE"
+          },
+          {
+            "axis": "provides_language_learning_or_support",
+            "classification": "MECHANICALLY_NULLED_BY_NON_UNIT_VERDICT",
+            "gold": null,
+            "v1": "NO",
+            "v1Correctness": "NOT_APPLICABLE",
+            "v2": null,
+            "v2Correctness": "NOT_APPLICABLE"
+          }
+        ],
+        "corpusLineNumber": 46,
+        "docIndex": 7,
+        "echeRowKey": "F ROUEN06|999465788",
+        "gold": {
+          "hard_negative": "HARD_NEGATIVE",
+          "page_kind": "GENERIC_INSTITUTIONAL_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g536c8b148048fcbc",
+        "logicalBatchOrdinal": 12,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "UNIT_PAGE",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "INCORRECT_TO_CORRECT",
+          "verdictDiffers": true,
+          "verdictIndependentFieldDifferences": ["unit_name_present"]
+        },
+        "v1": {
+          "countsAgainstGates": ["minUnitPagePrecision", "minHardNegativeRejection"],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "INCORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["TITLE", "EXCERPT", "EXCERPT"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "NO",
+            "serves_incoming_international_students": "YES",
+            "serves_outgoing_mobility_students": "UNKNOWN",
+            "unit_name_present": true,
+            "unit_name_sha256": "09ac46fd57b3b1c1050b78fde31440e5fe88f0810570d53520038a8e0a41c30d",
+            "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "11d103a8e86103b8118f66af50907674eb9068f62e786a9b57078d95c4c700a5",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["TITLE", "HEADING", "EXCERPT"],
+            "page_kind": "OTHER_NON_UNIT",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "e755610281b88ca3c79eb9144e52219ba94a724a94bbd850bf12ffb5f76eab27",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 32,
+        "docIndex": 3,
+        "echeRowKey": "F PARIS105|949302432",
+        "gold": {
+          "hard_negative": "HARD_NEGATIVE",
+          "page_kind": "RESEARCH_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g543b604f0f0f8380",
+        "logicalBatchOrdinal": 8,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["TITLE", "HEADING", "EXCERPT"],
+            "page_kind": "RESEARCH_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "af01e087d0f79b9605e6659c050e3705f4f8e671375bd91b25104ae011e50456",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "HEADING"],
+            "page_kind": "NEWS_OR_EVENT_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "4fe17f68aa5b2a84ddbcbf774a4efe66f018493836a9206b93fe384559ea5fcd",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [
+          {
+            "axis": "serves_incoming_international_students",
+            "classification": "MECHANICALLY_NULLED_BY_NON_UNIT_VERDICT",
+            "gold": "UNKNOWN",
+            "v1": "UNKNOWN",
+            "v1Correctness": "CORRECT",
+            "v2": null,
+            "v2Correctness": "INCORRECT"
+          },
+          {
+            "axis": "serves_outgoing_mobility_students",
+            "classification": "MECHANICALLY_NULLED_BY_NON_UNIT_VERDICT",
+            "gold": "YES",
+            "v1": "YES",
+            "v1Correctness": "CORRECT",
+            "v2": null,
+            "v2Correctness": "INCORRECT"
+          },
+          {
+            "axis": "provides_language_learning_or_support",
+            "classification": "MECHANICALLY_NULLED_BY_NON_UNIT_VERDICT",
+            "gold": "UNKNOWN",
+            "v1": "NO",
+            "v1Correctness": "INCORRECT",
+            "v2": null,
+            "v2Correctness": "INCORRECT"
+          }
+        ],
+        "corpusLineNumber": 7,
+        "docIndex": 8,
+        "echeRowKey": "F EVRY04|999850296",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": null,
+          "provides_language_learning_or_support": "UNKNOWN",
+          "serves_incoming_international_students": "UNKNOWN",
+          "serves_outgoing_mobility_students": "YES",
+          "unit_name_expectation": "NAMED",
+          "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "g57607d4278d6dc23",
+        "logicalBatchOrdinal": 2,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": true,
+          "v1Verdict": "UNIT_PAGE",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_INCORRECT",
+          "verdictDiffers": true,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "INCORRECT",
+            "serves_incoming_international_students": "CORRECT",
+            "serves_outgoing_mobility_students": "CORRECT",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "CORRECT",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "TITLE", "HEADING"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "NO",
+            "serves_incoming_international_students": "UNKNOWN",
+            "serves_outgoing_mobility_students": "YES",
+            "unit_name_present": true,
+            "unit_name_sha256": "fb51eb7ef8a3a68a77c293d53582ca082d5adfe8c5c23b0b80d05f0e870e15b2",
+            "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "a69fc7841f410ff932fd136e979c848a177bdfdf923ea7d7faa5dff4047a4bc0",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": ["minUnitPageRecall", "minUnitTypeAccuracy"],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "INCORRECT",
+            "serves_incoming_international_students": "INCORRECT",
+            "serves_outgoing_mobility_students": "INCORRECT",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "INCORRECT",
+            "verdict": "INCORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "EXCERPT", "TITLE"],
+            "page_kind": "NAVIGATION_OR_LANDING_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": true,
+            "unit_name_sha256": "fb51eb7ef8a3a68a77c293d53582ca082d5adfe8c5c23b0b80d05f0e870e15b2",
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "3d0ee19b2ebb1adb60a2d68ba0e754a555f9f092c36fcf5b6bf362e8109fcc25",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 18,
+        "docIndex": 0,
+        "echeRowKey": "F MONTPEL58|932096087",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": "OTHER_NON_UNIT",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g581e2c0586577331",
+        "logicalBatchOrdinal": 5,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "HEADING"],
+            "page_kind": "GENERIC_INSTITUTIONAL_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "5bc01d728b003696723181136678806d5435e815a1c6be62617371963e9a4b32",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "HEADING"],
+            "page_kind": "NAVIGATION_OR_LANDING_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "83a19c3433895415f0e82f92a213f2a304d7c7f1ec7b1690f3a793463c1292bc",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 31,
+        "docIndex": 1,
+        "echeRowKey": "F PARIS105|949302432",
+        "gold": {
+          "hard_negative": "HARD_NEGATIVE",
+          "page_kind": "RESEARCH_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g5e9c0d460fee879b",
+        "logicalBatchOrdinal": 8,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["TITLE", "HEADING", "EXCERPT"],
+            "page_kind": "RESEARCH_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "af01e087d0f79b9605e6659c050e3705f4f8e671375bd91b25104ae011e50456",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "HEADING"],
+            "page_kind": "NEWS_OR_EVENT_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "4fe17f68aa5b2a84ddbcbf774a4efe66f018493836a9206b93fe384559ea5fcd",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 16,
+        "docIndex": 8,
+        "echeRowKey": "F MAYOTTE01|912525949",
+        "gold": {
+          "hard_negative": "HARD_NEGATIVE",
+          "page_kind": "NEWS_OR_EVENT_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g5f96e37ff602795a",
+        "logicalBatchOrdinal": 4,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "EXCERPT"],
+            "page_kind": "NEWS_OR_EVENT_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "155a916cd8484953d06a2e896124b94cc7a914a79f59126483b469de4ed0220a",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "EXCERPT"],
+            "page_kind": "NEWS_OR_EVENT_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "f6727c794f8aa4210bcb19066730e587f586b76e46ac4140d9fcf9b8a2164a83",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 5,
+        "docIndex": 4,
+        "echeRowKey": "F EVRY04|999850296",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": null,
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": null,
+          "unit_type": null,
+          "verdict": "NEEDS_REVIEW"
+        },
+        "goldId": "g6458a352bc79ca01",
+        "logicalBatchOrdinal": 2,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "UNIT_PAGE",
+          "v2Verdict": "UNIT_PAGE",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "INCORRECT_TO_INCORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": ["minUnitPagePrecision"],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "NOT_APPLICABLE",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "INCORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "HEADING", "TITLE"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "UNKNOWN",
+            "serves_incoming_international_students": "UNKNOWN",
+            "serves_outgoing_mobility_students": "UNKNOWN",
+            "unit_name_present": true,
+            "unit_name_sha256": "8db14b1d9a211fbe0afea9daed6fe536e35cfe66115ed8dde0f9d776f8b4548a",
+            "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "a69fc7841f410ff932fd136e979c848a177bdfdf923ea7d7faa5dff4047a4bc0",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": ["minUnitPagePrecision"],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "NOT_APPLICABLE",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "INCORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "HEADING", "TITLE"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "UNKNOWN",
+            "serves_incoming_international_students": "UNKNOWN",
+            "serves_outgoing_mobility_students": "UNKNOWN",
+            "unit_name_present": true,
+            "unit_name_sha256": "8db14b1d9a211fbe0afea9daed6fe536e35cfe66115ed8dde0f9d776f8b4548a",
+            "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "3d0ee19b2ebb1adb60a2d68ba0e754a555f9f092c36fcf5b6bf362e8109fcc25",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 3,
+        "docIndex": 8,
+        "echeRowKey": "F DIJON35|949637858",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": null,
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": null,
+          "unit_type": null,
+          "verdict": "NEEDS_REVIEW"
+        },
+        "goldId": "g66010a25ac194274",
+        "logicalBatchOrdinal": 1,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NEEDS_REVIEW",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_INCORRECT",
+          "verdictDiffers": true,
+          "verdictIndependentFieldDifferences": ["unit_name_present"]
+        },
+        "v1": {
+          "countsAgainstGates": ["maxNeedsReviewRate"],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "NOT_APPLICABLE",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["TITLE", "HEADING", "URL_PATH"],
+            "page_kind": null,
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": true,
+            "unit_name_sha256": "970a1783a4be215f7ea849112d784815e871d74708e27b03045c7f3290a089ea",
+            "unit_type": null,
+            "verdict": "NEEDS_REVIEW"
+          },
+          "rawOutputSha256": "2e8d92796202ca53617e6ca091cc5aa07e5c20b1141275a88afad27ee59f4df1",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "NOT_APPLICABLE",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "INCORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 4,
+            "evidence_span_sources": ["TITLE", "HEADING", "HEADING", "URL_PATH"],
+            "page_kind": "NEWS_OR_EVENT_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "e5042d7644bfb210e4dd91f48c1be79ca53b4d20be099d0a6b9ed4bfd5890c6d",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [
+          {
+            "axis": "provides_language_learning_or_support",
+            "classification": "INDEPENDENT",
+            "gold": "UNKNOWN",
+            "v1": "NO",
+            "v1Correctness": "INCORRECT",
+            "v2": "UNKNOWN",
+            "v2Correctness": "CORRECT"
+          }
+        ],
+        "corpusLineNumber": 4,
+        "docIndex": 0,
+        "echeRowKey": "F EVRY04|999850296",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": null,
+          "provides_language_learning_or_support": "UNKNOWN",
+          "serves_incoming_international_students": "YES",
+          "serves_outgoing_mobility_students": "UNKNOWN",
+          "unit_name_expectation": "NAMED",
+          "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "g735298870fe173b8",
+        "logicalBatchOrdinal": 2,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "UNIT_PAGE",
+          "v2Verdict": "UNIT_PAGE",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "INCORRECT",
+            "serves_incoming_international_students": "CORRECT",
+            "serves_outgoing_mobility_students": "CORRECT",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "CORRECT",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "TITLE", "HEADING"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "NO",
+            "serves_incoming_international_students": "YES",
+            "serves_outgoing_mobility_students": "UNKNOWN",
+            "unit_name_present": true,
+            "unit_name_sha256": "56e8f59322a6fa5da6a34808b2901e5e74c6681950c470c0dfbeae49bc500812",
+            "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "a69fc7841f410ff932fd136e979c848a177bdfdf923ea7d7faa5dff4047a4bc0",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "CORRECT",
+            "serves_incoming_international_students": "CORRECT",
+            "serves_outgoing_mobility_students": "CORRECT",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "CORRECT",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "EXCERPT", "TITLE"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "UNKNOWN",
+            "serves_incoming_international_students": "YES",
+            "serves_outgoing_mobility_students": "UNKNOWN",
+            "unit_name_present": true,
+            "unit_name_sha256": "56e8f59322a6fa5da6a34808b2901e5e74c6681950c470c0dfbeae49bc500812",
+            "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "3d0ee19b2ebb1adb60a2d68ba0e754a555f9f092c36fcf5b6bf362e8109fcc25",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 42,
+        "docIndex": 1,
+        "echeRowKey": "F RENNES52|949270228",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": "NEWS_OR_EVENT_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g7a394e6b1670f7ab",
+        "logicalBatchOrdinal": 11,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": ["unit_name_present"]
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["HEADING", "EXCERPT"],
+            "page_kind": "NEWS_OR_EVENT_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": true,
+            "unit_name_sha256": "d8f7a8bb09446caa0a4514d3d6342c9eafd4fd15f8f9e823d814cbeef550678b",
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "58057299b8a144abfa7f07973a15b35aa78c5a43df574bc602d8cb2acee8dd85",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "EXCERPT"],
+            "page_kind": "NEWS_OR_EVENT_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "fc4222c3ca40f6543d1693df60c4547f9207ce09d185f453eb332bd0f6661f35",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 12,
+        "docIndex": 11,
+        "echeRowKey": "F GRENOBL21|915102366",
+        "gold": {
+          "hard_negative": "HARD_NEGATIVE",
+          "page_kind": "DEGREE_PROGRAMME_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g7c122ea506478abd",
+        "logicalBatchOrdinal": 3,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "EXCERPT"],
+            "page_kind": "DEGREE_PROGRAMME_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "43631b3124937abe5e7cf03e13443072243abb929f969885e54330979a05da5a",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["TITLE", "HEADING", "EXCERPT"],
+            "page_kind": "DEGREE_PROGRAMME_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "ba559e71bb26d4da8dbc66cb6744d0f533cfc36eb34dc3c30556dcad58499126",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 24,
+        "docIndex": 11,
+        "echeRowKey": "F NANTES79|924638533",
+        "gold": {
+          "hard_negative": "HARD_NEGATIVE",
+          "page_kind": "NEWS_OR_EVENT_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g7d88b2fecb73fdb4",
+        "logicalBatchOrdinal": 6,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "EXCERPT"],
+            "page_kind": "NEWS_OR_EVENT_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "0619b61e5f705a08f00224b171fa0b29409e00dc65a484c455584f9d84027316",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["TITLE", "EXCERPT", "HEADING"],
+            "page_kind": "NEWS_OR_EVENT_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "49accf30bff43384871cb9f6da06d114f15c9339cf1b57e0761dfebbe7014fb4",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 1,
+        "docIndex": 3,
+        "echeRowKey": "F DIJON35|949637858",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": null,
+          "provides_language_learning_or_support": "UNKNOWN",
+          "serves_incoming_international_students": "UNKNOWN",
+          "serves_outgoing_mobility_students": "UNKNOWN",
+          "unit_name_expectation": "NAMED",
+          "unit_type": "OTHER_UNIT",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "g7e9744e811f58e20",
+        "logicalBatchOrdinal": 1,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "UNIT_PAGE",
+          "v2Verdict": "UNIT_PAGE",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "CORRECT",
+            "serves_incoming_international_students": "CORRECT",
+            "serves_outgoing_mobility_students": "CORRECT",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "CORRECT",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "HEADING"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "UNKNOWN",
+            "serves_incoming_international_students": "UNKNOWN",
+            "serves_outgoing_mobility_students": "UNKNOWN",
+            "unit_name_present": true,
+            "unit_name_sha256": "c13087980320d191fb2c64a08060c562c15609f76760a364015e358241ea0db2",
+            "unit_type": "OTHER_UNIT",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "2e8d92796202ca53617e6ca091cc5aa07e5c20b1141275a88afad27ee59f4df1",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "CORRECT",
+            "serves_incoming_international_students": "CORRECT",
+            "serves_outgoing_mobility_students": "CORRECT",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "CORRECT",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "HEADING"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "UNKNOWN",
+            "serves_incoming_international_students": "UNKNOWN",
+            "serves_outgoing_mobility_students": "UNKNOWN",
+            "unit_name_present": true,
+            "unit_name_sha256": "c13087980320d191fb2c64a08060c562c15609f76760a364015e358241ea0db2",
+            "unit_type": "OTHER_UNIT",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "e5042d7644bfb210e4dd91f48c1be79ca53b4d20be099d0a6b9ed4bfd5890c6d",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 38,
+        "docIndex": 10,
+        "echeRowKey": "F PARIS482|897691060",
+        "gold": {
+          "hard_negative": "HARD_NEGATIVE",
+          "page_kind": "NEWS_OR_EVENT_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": null,
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g82fe2243c52f4d73",
+        "logicalBatchOrdinal": 9,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "NOT_APPLICABLE",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["HEADING", "EXCERPT"],
+            "page_kind": "NEWS_OR_EVENT_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "4aaa7eae3acadecff41342f872a90fbd51837b55fe3502f9c445956d5ffe4f0e",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "NOT_APPLICABLE",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "EXCERPT"],
+            "page_kind": "NEWS_OR_EVENT_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "3bb0f96c0e7a89153dda41f1f3ba90a1ed1f2ab3ce9702b70997b7463ad3cfc2",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 27,
+        "docIndex": 2,
+        "echeRowKey": "F PARIS003|999885119",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": null,
+          "provides_language_learning_or_support": "UNKNOWN",
+          "serves_incoming_international_students": "YES",
+          "serves_outgoing_mobility_students": "YES",
+          "unit_name_expectation": "NAMED",
+          "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "g877a05e6f5bba835",
+        "logicalBatchOrdinal": 7,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "REJECTED",
+          "v2Verdict": "REJECTED",
+          "validityTransition": "REJECTED_TO_REJECTED",
+          "verdictCorrectnessTransition": "INCORRECT_TO_INCORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [
+            "minSchemaValidSpanVerifiedRate",
+            "minUnitPageRecall",
+            "minUnitTypeAccuracy"
+          ],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "INCORRECT",
+            "serves_incoming_international_students": "INCORRECT",
+            "serves_outgoing_mobility_students": "INCORRECT",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "INCORRECT",
+            "verdict": "INCORRECT"
+          },
+          "prediction": null,
+          "rawOutputSha256": "1dbf22033606b43bf44fa99248d66aeb16ea0ff2889dca13b48519eb95f22883",
+          "rejectionCategory": "EVIDENCE",
+          "rejectionReason": "evidence_spans[0] (source=HEADING) is not a literal substring of the supplied field",
+          "validatorState": "REJECTED"
+        },
+        "v2": {
+          "countsAgainstGates": [
+            "minSchemaValidSpanVerifiedRate",
+            "minUnitPageRecall",
+            "minUnitTypeAccuracy"
+          ],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "INCORRECT",
+            "serves_incoming_international_students": "INCORRECT",
+            "serves_outgoing_mobility_students": "INCORRECT",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "INCORRECT",
+            "verdict": "INCORRECT"
+          },
+          "prediction": null,
+          "rawOutputSha256": "76433b332f38afc64deb5aecf8cf2d2cef4c8ddd770a6a24ca06f88012ba45c2",
+          "rejectionCategory": "EVIDENCE",
+          "rejectionReason": "evidence_spans[0] (source=HEADING) is not a literal substring of the supplied field",
+          "validatorState": "REJECTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 34,
+        "docIndex": 14,
+        "echeRowKey": "F PARIS105|949302432",
+        "gold": {
+          "hard_negative": "HARD_NEGATIVE",
+          "page_kind": "GENERIC_INSTITUTIONAL_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g956f99fae4ad4764",
+        "logicalBatchOrdinal": 8,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": true,
+          "v1Verdict": "REJECTED",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "REJECTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "INCORRECT_TO_CORRECT",
+          "verdictDiffers": true,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": ["minSchemaValidSpanVerifiedRate", "minHardNegativeRejection"],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "INCORRECT"
+          },
+          "prediction": null,
+          "rawOutputSha256": "af01e087d0f79b9605e6659c050e3705f4f8e671375bd91b25104ae011e50456",
+          "rejectionCategory": "EVIDENCE",
+          "rejectionReason": "unit_name is not supported by any supplied field",
+          "validatorState": "REJECTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["TITLE", "HEADING", "EXCERPT"],
+            "page_kind": "GENERIC_INSTITUTIONAL_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "4fe17f68aa5b2a84ddbcbf774a4efe66f018493836a9206b93fe384559ea5fcd",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 49,
+        "docIndex": 13,
+        "echeRowKey": "F ROUEN06|999465788",
+        "gold": {
+          "hard_negative": "HARD_NEGATIVE",
+          "page_kind": "DEGREE_PROGRAMME_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "g9978fec48fa77fbb",
+        "logicalBatchOrdinal": 12,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": ["unit_name_present"]
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "EXCERPT"],
+            "page_kind": "DEGREE_PROGRAMME_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": true,
+            "unit_name_sha256": "fa433d0c11c9814c3d5399b8bc07fb90aca67c4a8fa74ce5522b627a68063baf",
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "11d103a8e86103b8118f66af50907674eb9068f62e786a9b57078d95c4c700a5",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "EXCERPT"],
+            "page_kind": "DEGREE_PROGRAMME_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "e755610281b88ca3c79eb9144e52219ba94a724a94bbd850bf12ffb5f76eab27",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [
+          {
+            "axis": "serves_outgoing_mobility_students",
+            "classification": "INDEPENDENT",
+            "gold": "UNKNOWN",
+            "v1": "NO",
+            "v1Correctness": "INCORRECT",
+            "v2": "UNKNOWN",
+            "v2Correctness": "CORRECT"
+          }
+        ],
+        "corpusLineNumber": 47,
+        "docIndex": 9,
+        "echeRowKey": "F ROUEN06|999465788",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": null,
+          "provides_language_learning_or_support": "YES",
+          "serves_incoming_international_students": "YES",
+          "serves_outgoing_mobility_students": "UNKNOWN",
+          "unit_name_expectation": null,
+          "unit_type": "LANGUAGE_CENTRE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "g99a9fe00e4856de2",
+        "logicalBatchOrdinal": 12,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "UNIT_PAGE",
+          "v2Verdict": "UNIT_PAGE",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": ["unit_name_present"]
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "CORRECT",
+            "serves_incoming_international_students": "CORRECT",
+            "serves_outgoing_mobility_students": "INCORRECT",
+            "unit_name_expectation": "NOT_APPLICABLE",
+            "unit_type": "CORRECT",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "EXCERPT", "EXCERPT"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "YES",
+            "serves_incoming_international_students": "YES",
+            "serves_outgoing_mobility_students": "NO",
+            "unit_name_present": true,
+            "unit_name_sha256": "7c019db2dff759a340793c8beab4a9efc1f45625fc3d79cac5c004a170a77978",
+            "unit_type": "LANGUAGE_CENTRE",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "11d103a8e86103b8118f66af50907674eb9068f62e786a9b57078d95c4c700a5",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "CORRECT",
+            "serves_incoming_international_students": "CORRECT",
+            "serves_outgoing_mobility_students": "CORRECT",
+            "unit_name_expectation": "NOT_APPLICABLE",
+            "unit_type": "CORRECT",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["TITLE", "EXCERPT", "EXCERPT"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "YES",
+            "serves_incoming_international_students": "YES",
+            "serves_outgoing_mobility_students": "UNKNOWN",
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": "LANGUAGE_CENTRE",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "e755610281b88ca3c79eb9144e52219ba94a724a94bbd850bf12ffb5f76eab27",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 44,
+        "docIndex": 8,
+        "echeRowKey": "F RENNES52|949270228",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": null,
+          "provides_language_learning_or_support": "UNKNOWN",
+          "serves_incoming_international_students": "YES",
+          "serves_outgoing_mobility_students": "YES",
+          "unit_name_expectation": "NAMED",
+          "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "g9c1b65eda41afda2",
+        "logicalBatchOrdinal": 11,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "UNIT_PAGE",
+          "v2Verdict": "UNIT_PAGE",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "CORRECT",
+            "serves_incoming_international_students": "CORRECT",
+            "serves_outgoing_mobility_students": "CORRECT",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "CORRECT",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 4,
+            "evidence_span_sources": ["HEADING", "EXCERPT", "EXCERPT", "EXCERPT"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "UNKNOWN",
+            "serves_incoming_international_students": "YES",
+            "serves_outgoing_mobility_students": "YES",
+            "unit_name_present": true,
+            "unit_name_sha256": "148caf3d4120325e3a4037c6815dfbd3c2afc8782386aa14f8ab6c589d3d735e",
+            "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "58057299b8a144abfa7f07973a15b35aa78c5a43df574bc602d8cb2acee8dd85",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "CORRECT",
+            "serves_incoming_international_students": "CORRECT",
+            "serves_outgoing_mobility_students": "CORRECT",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "CORRECT",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "EXCERPT", "EXCERPT"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "UNKNOWN",
+            "serves_incoming_international_students": "YES",
+            "serves_outgoing_mobility_students": "YES",
+            "unit_name_present": true,
+            "unit_name_sha256": "d281a68f3e9f2097f53a6583b7deb5f2b359962954b90135bed3304faddb2b31",
+            "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "fc4222c3ca40f6543d1693df60c4547f9207ce09d185f453eb332bd0f6661f35",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 14,
+        "docIndex": 6,
+        "echeRowKey": "F MAYOTTE01|912525949",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": "SERVICE_TOOL_PAGE",
+          "provides_language_learning_or_support": null,
+          "serves_incoming_international_students": null,
+          "serves_outgoing_mobility_students": null,
+          "unit_name_expectation": "NULL",
+          "unit_type": null,
+          "verdict": "NOT_A_UNIT"
+        },
+        "goldId": "ga435ea22d4b11cf4",
+        "logicalBatchOrdinal": 4,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "NOT_A_UNIT",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": ["unit_name_present"]
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "INCORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["TITLE", "HEADING"],
+            "page_kind": "OTHER_NON_UNIT",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "155a916cd8484953d06a2e896124b94cc7a914a79f59126483b469de4ed0220a",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "CORRECT",
+            "provides_language_learning_or_support": "NOT_APPLICABLE",
+            "serves_incoming_international_students": "NOT_APPLICABLE",
+            "serves_outgoing_mobility_students": "NOT_APPLICABLE",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "NOT_APPLICABLE",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["HEADING", "EXCERPT"],
+            "page_kind": "SERVICE_TOOL_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": true,
+            "unit_name_sha256": "c13087980320d191fb2c64a08060c562c15609f76760a364015e358241ea0db2",
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "f6727c794f8aa4210bcb19066730e587f586b76e46ac4140d9fcf9b8a2164a83",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [
+          {
+            "axis": "provides_language_learning_or_support",
+            "classification": "INDEPENDENT",
+            "gold": "UNKNOWN",
+            "v1": "NO",
+            "v1Correctness": "INCORRECT",
+            "v2": "UNKNOWN",
+            "v2Correctness": "CORRECT"
+          }
+        ],
+        "corpusLineNumber": 41,
+        "docIndex": 15,
+        "echeRowKey": "F PARIS525|879184333",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": null,
+          "provides_language_learning_or_support": "UNKNOWN",
+          "serves_incoming_international_students": "YES",
+          "serves_outgoing_mobility_students": "UNKNOWN",
+          "unit_name_expectation": "NULL",
+          "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "ga971a6fc52af6b5f",
+        "logicalBatchOrdinal": 10,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "UNIT_PAGE",
+          "v2Verdict": "UNIT_PAGE",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "INCORRECT",
+            "serves_incoming_international_students": "CORRECT",
+            "serves_outgoing_mobility_students": "CORRECT",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "CORRECT",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "EXCERPT", "HEADING"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "NO",
+            "serves_incoming_international_students": "YES",
+            "serves_outgoing_mobility_students": "UNKNOWN",
+            "unit_name_present": true,
+            "unit_name_sha256": "f4c3a3caea34390f6bf04b330e826b6681e813d6e32c12c513fb6f034da0b0cf",
+            "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "ccb1678acddf9f621025a2c2f24a61a8e413c8d3332feba4a7d11b89a87c2636",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "CORRECT",
+            "serves_incoming_international_students": "CORRECT",
+            "serves_outgoing_mobility_students": "CORRECT",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "CORRECT",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "HEADING", "EXCERPT"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "UNKNOWN",
+            "serves_incoming_international_students": "YES",
+            "serves_outgoing_mobility_students": "UNKNOWN",
+            "unit_name_present": true,
+            "unit_name_sha256": "f4c3a3caea34390f6bf04b330e826b6681e813d6e32c12c513fb6f034da0b0cf",
+            "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "42c894a5a55ad254150660d5e68ad17930a2bf3289c0818fd167fab35cc801e0",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [],
+        "corpusLineNumber": 28,
+        "docIndex": 4,
+        "echeRowKey": "F PARIS003|999885119",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": null,
+          "provides_language_learning_or_support": "YES",
+          "serves_incoming_international_students": "UNKNOWN",
+          "serves_outgoing_mobility_students": "UNKNOWN",
+          "unit_name_expectation": "NAMED",
+          "unit_type": "LANGUAGE_DEPARTMENT",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "gcce4e2a5f608de5d",
+        "logicalBatchOrdinal": 7,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "UNIT_PAGE",
+          "v2Verdict": "UNIT_PAGE",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "CORRECT",
+            "serves_incoming_international_students": "CORRECT",
+            "serves_outgoing_mobility_students": "CORRECT",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "CORRECT",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "EXCERPT", "EXCERPT"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "YES",
+            "serves_incoming_international_students": "UNKNOWN",
+            "serves_outgoing_mobility_students": "UNKNOWN",
+            "unit_name_present": true,
+            "unit_name_sha256": "462ef5586eb1956ffabd2929352fb9de278351d541f0975c43786a21b7cfd894",
+            "unit_type": "LANGUAGE_DEPARTMENT",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "1dbf22033606b43bf44fa99248d66aeb16ea0ff2889dca13b48519eb95f22883",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "CORRECT",
+            "serves_incoming_international_students": "CORRECT",
+            "serves_outgoing_mobility_students": "CORRECT",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "CORRECT",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "EXCERPT", "EXCERPT"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "YES",
+            "serves_incoming_international_students": "UNKNOWN",
+            "serves_outgoing_mobility_students": "UNKNOWN",
+            "unit_name_present": true,
+            "unit_name_sha256": "75b084f2c7dd295210167450d7d5d012be0447d9a95117610784105aa9824f84",
+            "unit_type": "LANGUAGE_DEPARTMENT",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "76433b332f38afc64deb5aecf8cf2d2cef4c8ddd770a6a24ca06f88012ba45c2",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [
+          {
+            "axis": "provides_language_learning_or_support",
+            "classification": "INDEPENDENT",
+            "gold": "UNKNOWN",
+            "v1": "NO",
+            "v1Correctness": "INCORRECT",
+            "v2": "UNKNOWN",
+            "v2Correctness": "CORRECT"
+          }
+        ],
+        "corpusLineNumber": 17,
+        "docIndex": 13,
+        "echeRowKey": "F MAYOTTE01|912525949",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": null,
+          "provides_language_learning_or_support": "UNKNOWN",
+          "serves_incoming_international_students": "YES",
+          "serves_outgoing_mobility_students": "UNKNOWN",
+          "unit_name_expectation": "NULL",
+          "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "gdb5b7246327094ef",
+        "logicalBatchOrdinal": 4,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "UNIT_PAGE",
+          "v2Verdict": "UNIT_PAGE",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "INCORRECT",
+            "serves_incoming_international_students": "CORRECT",
+            "serves_outgoing_mobility_students": "CORRECT",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "CORRECT",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "EXCERPT", "EXCERPT"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "NO",
+            "serves_incoming_international_students": "YES",
+            "serves_outgoing_mobility_students": "UNKNOWN",
+            "unit_name_present": true,
+            "unit_name_sha256": "a78def8b207cd295277c451c9e42cfafa6546ed109d7f553819891f6e69647f1",
+            "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "155a916cd8484953d06a2e896124b94cc7a914a79f59126483b469de4ed0220a",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "CORRECT",
+            "serves_incoming_international_students": "CORRECT",
+            "serves_outgoing_mobility_students": "CORRECT",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "CORRECT",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "EXCERPT", "EXCERPT"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "UNKNOWN",
+            "serves_incoming_international_students": "YES",
+            "serves_outgoing_mobility_students": "UNKNOWN",
+            "unit_name_present": true,
+            "unit_name_sha256": "a78def8b207cd295277c451c9e42cfafa6546ed109d7f553819891f6e69647f1",
+            "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "f6727c794f8aa4210bcb19066730e587f586b76e46ac4140d9fcf9b8a2164a83",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [
+          {
+            "axis": "provides_language_learning_or_support",
+            "classification": "INDEPENDENT",
+            "gold": "UNKNOWN",
+            "v1": "NO",
+            "v1Correctness": "INCORRECT",
+            "v2": "UNKNOWN",
+            "v2Correctness": "CORRECT"
+          }
+        ],
+        "corpusLineNumber": 11,
+        "docIndex": 10,
+        "echeRowKey": "F GRENOBL21|915102366",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": null,
+          "provides_language_learning_or_support": "UNKNOWN",
+          "serves_incoming_international_students": "YES",
+          "serves_outgoing_mobility_students": "UNKNOWN",
+          "unit_name_expectation": "NAMED",
+          "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "ge419f0b9902faee0",
+        "logicalBatchOrdinal": 3,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "UNIT_PAGE",
+          "v2Verdict": "UNIT_PAGE",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_CORRECT",
+          "verdictDiffers": false,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "INCORRECT",
+            "serves_incoming_international_students": "CORRECT",
+            "serves_outgoing_mobility_students": "CORRECT",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "CORRECT",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "EXCERPT", "EXCERPT"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "NO",
+            "serves_incoming_international_students": "YES",
+            "serves_outgoing_mobility_students": "UNKNOWN",
+            "unit_name_present": true,
+            "unit_name_sha256": "f611cd257d63d266effc36cd5b384796984f44c915881138f92f3ff405626eae",
+            "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "43631b3124937abe5e7cf03e13443072243abb929f969885e54330979a05da5a",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "CORRECT",
+            "serves_incoming_international_students": "CORRECT",
+            "serves_outgoing_mobility_students": "CORRECT",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "CORRECT",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "EXCERPT", "EXCERPT"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "UNKNOWN",
+            "serves_incoming_international_students": "YES",
+            "serves_outgoing_mobility_students": "UNKNOWN",
+            "unit_name_present": true,
+            "unit_name_sha256": "f611cd257d63d266effc36cd5b384796984f44c915881138f92f3ff405626eae",
+            "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "ba559e71bb26d4da8dbc66cb6744d0f533cfc36eb34dc3c30556dcad58499126",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [
+          {
+            "axis": "serves_incoming_international_students",
+            "classification": "MECHANICALLY_NULLED_BY_NON_UNIT_VERDICT",
+            "gold": "UNKNOWN",
+            "v1": "UNKNOWN",
+            "v1Correctness": "CORRECT",
+            "v2": null,
+            "v2Correctness": "INCORRECT"
+          },
+          {
+            "axis": "serves_outgoing_mobility_students",
+            "classification": "MECHANICALLY_NULLED_BY_NON_UNIT_VERDICT",
+            "gold": "YES",
+            "v1": "YES",
+            "v1Correctness": "CORRECT",
+            "v2": null,
+            "v2Correctness": "INCORRECT"
+          },
+          {
+            "axis": "provides_language_learning_or_support",
+            "classification": "MECHANICALLY_NULLED_BY_NON_UNIT_VERDICT",
+            "gold": "UNKNOWN",
+            "v1": "UNKNOWN",
+            "v1Correctness": "CORRECT",
+            "v2": null,
+            "v2Correctness": "INCORRECT"
+          }
+        ],
+        "corpusLineNumber": 25,
+        "docIndex": 14,
+        "echeRowKey": "F NANTES79|924638533",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": null,
+          "provides_language_learning_or_support": "UNKNOWN",
+          "serves_incoming_international_students": "UNKNOWN",
+          "serves_outgoing_mobility_students": "YES",
+          "unit_name_expectation": "NULL",
+          "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "ge789b0f0aedc398c",
+        "logicalBatchOrdinal": 6,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": false,
+          "v1Verdict": "UNIT_PAGE",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_INCORRECT",
+          "verdictDiffers": true,
+          "verdictIndependentFieldDifferences": ["unit_name_present"]
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "CORRECT",
+            "serves_incoming_international_students": "CORRECT",
+            "serves_outgoing_mobility_students": "CORRECT",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "CORRECT",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "HEADING", "URL_PATH"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "UNKNOWN",
+            "serves_incoming_international_students": "UNKNOWN",
+            "serves_outgoing_mobility_students": "YES",
+            "unit_name_present": false,
+            "unit_name_sha256": null,
+            "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "0619b61e5f705a08f00224b171fa0b29409e00dc65a484c455584f9d84027316",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": ["minUnitPageRecall", "minUnitTypeAccuracy"],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "INCORRECT",
+            "serves_incoming_international_students": "INCORRECT",
+            "serves_outgoing_mobility_students": "INCORRECT",
+            "unit_name_expectation": "INCORRECT",
+            "unit_type": "INCORRECT",
+            "verdict": "INCORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "HEADING", "HEADING"],
+            "page_kind": "GENERIC_INSTITUTIONAL_PAGE",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": true,
+            "unit_name_sha256": "8e3dc9afadca4218bf32789d5c6bba1f92fb2c91f49f31527ad853224ee60752",
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "49accf30bff43384871cb9f6da06d114f15c9339cf1b57e0761dfebbe7014fb4",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      },
+      {
+        "axisDifferences": [
+          {
+            "axis": "serves_incoming_international_students",
+            "classification": "MECHANICALLY_NULLED_BY_NON_UNIT_VERDICT",
+            "gold": "UNKNOWN",
+            "v1": "UNKNOWN",
+            "v1Correctness": "CORRECT",
+            "v2": null,
+            "v2Correctness": "INCORRECT"
+          },
+          {
+            "axis": "serves_outgoing_mobility_students",
+            "classification": "MECHANICALLY_NULLED_BY_NON_UNIT_VERDICT",
+            "gold": "YES",
+            "v1": "YES",
+            "v1Correctness": "CORRECT",
+            "v2": null,
+            "v2Correctness": "INCORRECT"
+          },
+          {
+            "axis": "provides_language_learning_or_support",
+            "classification": "MECHANICALLY_NULLED_BY_NON_UNIT_VERDICT",
+            "gold": "UNKNOWN",
+            "v1": "NO",
+            "v1Correctness": "INCORRECT",
+            "v2": null,
+            "v2Correctness": "INCORRECT"
+          }
+        ],
+        "corpusLineNumber": 29,
+        "docIndex": 6,
+        "echeRowKey": "F PARIS003|999885119",
+        "gold": {
+          "hard_negative": "NOT_HARD_NEGATIVE",
+          "page_kind": null,
+          "provides_language_learning_or_support": "UNKNOWN",
+          "serves_incoming_international_students": "UNKNOWN",
+          "serves_outgoing_mobility_students": "YES",
+          "unit_name_expectation": "NAMED",
+          "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+          "verdict": "UNIT_PAGE"
+        },
+        "goldId": "gf65026e32d9da8db",
+        "logicalBatchOrdinal": 7,
+        "paired": {
+          "differenceCausedByTopLevelVerdict": true,
+          "v1Verdict": "UNIT_PAGE",
+          "v2Verdict": "NOT_A_UNIT",
+          "validityTransition": "ACCEPTED_TO_ACCEPTED",
+          "verdictCorrectnessTransition": "CORRECT_TO_INCORRECT",
+          "verdictDiffers": true,
+          "verdictIndependentFieldDifferences": []
+        },
+        "v1": {
+          "countsAgainstGates": [],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "INCORRECT",
+            "serves_incoming_international_students": "CORRECT",
+            "serves_outgoing_mobility_students": "CORRECT",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "CORRECT",
+            "verdict": "CORRECT"
+          },
+          "prediction": {
+            "confidence": "HIGH",
+            "evidence_span_count": 3,
+            "evidence_span_sources": ["HEADING", "EXCERPT", "HEADING"],
+            "page_kind": null,
+            "provides_language_learning_or_support": "NO",
+            "serves_incoming_international_students": "UNKNOWN",
+            "serves_outgoing_mobility_students": "YES",
+            "unit_name_present": true,
+            "unit_name_sha256": "e2fc972e539327abbd40071d73a4d8ac7abdb72431297721dd6fa1e54823e33f",
+            "unit_type": "INTERNATIONAL_MOBILITY_OFFICE",
+            "verdict": "UNIT_PAGE"
+          },
+          "rawOutputSha256": "1dbf22033606b43bf44fa99248d66aeb16ea0ff2889dca13b48519eb95f22883",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        },
+        "v2": {
+          "countsAgainstGates": ["minUnitPageRecall", "minUnitTypeAccuracy"],
+          "fieldCorrectness": {
+            "hard_negative": "NOT_APPLICABLE",
+            "page_kind": "NOT_APPLICABLE",
+            "provides_language_learning_or_support": "INCORRECT",
+            "serves_incoming_international_students": "INCORRECT",
+            "serves_outgoing_mobility_students": "INCORRECT",
+            "unit_name_expectation": "CORRECT",
+            "unit_type": "INCORRECT",
+            "verdict": "INCORRECT"
+          },
+          "prediction": {
+            "confidence": "MEDIUM",
+            "evidence_span_count": 2,
+            "evidence_span_sources": ["HEADING", "EXCERPT"],
+            "page_kind": "OTHER_NON_UNIT",
+            "provides_language_learning_or_support": null,
+            "serves_incoming_international_students": null,
+            "serves_outgoing_mobility_students": null,
+            "unit_name_present": true,
+            "unit_name_sha256": "e2fc972e539327abbd40071d73a4d8ac7abdb72431297721dd6fa1e54823e33f",
+            "unit_type": null,
+            "verdict": "NOT_A_UNIT"
+          },
+          "rawOutputSha256": "76433b332f38afc64deb5aecf8cf2d2cef4c8ddd770a6a24ca06f88012ba45c2",
+          "rejectionCategory": null,
+          "rejectionReason": null,
+          "validatorState": "ACCEPTED"
+        }
+      }
+    ]
+  },
+  "excludedFromOutputs": [
+    "raw model output",
+    "rationale text",
+    "evidence quote text",
+    "unit_name text (only its SHA-256 and presence flag are carried)",
+    "chain of thought",
+    "credentials or profile information"
+  ],
+  "kind": "DIAGNOSTIC_CENSUS_DERIVED_FROM_COMMITTED_SCORING",
+  "recordId": "PHASE_2B_2D2C_V3D1_FAILURE_CENSUS_V1",
+  "sourceScoredItemsPath": "docs/evaluation/results/phase2b-2d2c-dev-attribution-attempt-1-gold-v1-adjudicated/scored-items.jsonl",
+  "sourceScoredItemsSha256": "0be23d03a776c09bdbaaf72c0e55591d60ffa396e05b9921cd55f2484bd08697"
+}
