@@ -1,1 +1,36 @@
-{"excludedFromOutputs":["raw model output","chain of thought","full rationales","full evidence excerpts","credentials","profile information","provider transcripts"],"generationCommand":"node --import tsx src/test/harness/phase2b2d2c/scoring/generate.ts --output-root <preserved attempt-1 root> --out docs/evaluation/results/phase2b-2d2c-dev-attribution-attempt-1","ordering":"scored-items.jsonl is ordered by (goldId ascending, variantName ascending).","outputSchemaVersion":"phase2b-2d2c-f4-scored-item-v1","outputs":{"scored-items.jsonl":"d79a6ec0a482dcad982c017e8de610f41f084bfe61b2470b548981986cc114a1","summary.json":"10da1eef98795c1aadc6f0b853e5287e7f27174527242d653d7723b224f71f3a"},"scorerVersion":"phase2b-2d2c-f4-scorer-v1","serialization":"canonicalStringify from src/orgunits/classify/canonical.ts; one JSON object per line, LF-terminated.","sources":{"artifactInventorySha256":"ee17e1f2ee8021e59c06377342042e56f84269165f8ec39521011cb1d3538137","artifactsVerified":243,"consumedAtUtc":"2026-09-13T20:20:07.472Z","consumptionMarkerSha256":"cf27a3a9d15191022c13d649579ebab9f3bfeaa275bf0e62ee7b77c87b1d65bf","corpusContentSha256":"f00139e42ff5d12dfc1a6ba1b969a635197ddda27f79515473f119ff919a6fa2","corpusItems":49,"corpusManifestRawSha256":"9ef7dfb45307004297f019351163b06478d2f552834f10496545cfaf1a9a20f6","corpusRawSha256":"c5a9923a35689fd8b0950d615ee5339c6ccc63e83ac067960760497b6a9c4536","corpusSplit":"DEVELOPMENT","experimentCompletedAtUtc":"2026-09-13T20:28:39.194Z","experimentStatus":"COMPLETED_ALL_PLANNED","freezeRawSha256":"c3f0a76b3a5939f3e4bf395d46237cf0b0f365fa1f4bf019092a6944849d6157","freezeVersion":"phase2b-2d2c-dev-configuration-freeze-v1","planSha256":"05cb6984a57a871ac6b0a0720ab2fefceb5b5843f440dbf7831abdf9bfc82f6c"}}
+{
+  "excludedFromOutputs": [
+    "raw model output",
+    "chain of thought",
+    "full rationales",
+    "full evidence excerpts",
+    "credentials",
+    "profile information",
+    "provider transcripts"
+  ],
+  "generationCommand": "node --import tsx src/test/harness/phase2b2d2c/scoring/generate.ts --output-root <preserved attempt-1 root> --out docs/evaluation/results/phase2b-2d2c-dev-attribution-attempt-1",
+  "ordering": "scored-items.jsonl is ordered by (goldId ascending, variantName ascending).",
+  "outputSchemaVersion": "phase2b-2d2c-f4-scored-item-v1",
+  "outputs": {
+    "scored-items.jsonl": "d79a6ec0a482dcad982c017e8de610f41f084bfe61b2470b548981986cc114a1",
+    "summary.json": "79331e6192e3a153df60d6ed3b475b6122f9ff7d2ec28ef46ab7eca9096ec6af"
+  },
+  "scorerVersion": "phase2b-2d2c-f4-scorer-v1",
+  "serialization": "canonicalStringify from src/orgunits/classify/canonical.ts fixes key order and number formatting. scored-items.jsonl is one canonical JSON object per line, LF-terminated, and is not formatter-managed (Prettier has no .jsonl parser). summary.json and manifest.json are additionally laid out by prettier@3.9.6 under the repository's own .prettierrc.json, so `prettier --check` covers them; the layout is part of these bytes.",
+  "sources": {
+    "artifactInventorySha256": "ee17e1f2ee8021e59c06377342042e56f84269165f8ec39521011cb1d3538137",
+    "artifactsVerified": 243,
+    "consumedAtUtc": "2026-09-13T20:20:07.472Z",
+    "consumptionMarkerSha256": "cf27a3a9d15191022c13d649579ebab9f3bfeaa275bf0e62ee7b77c87b1d65bf",
+    "corpusContentSha256": "f00139e42ff5d12dfc1a6ba1b969a635197ddda27f79515473f119ff919a6fa2",
+    "corpusItems": 49,
+    "corpusManifestRawSha256": "9ef7dfb45307004297f019351163b06478d2f552834f10496545cfaf1a9a20f6",
+    "corpusRawSha256": "c5a9923a35689fd8b0950d615ee5339c6ccc63e83ac067960760497b6a9c4536",
+    "corpusSplit": "DEVELOPMENT",
+    "experimentCompletedAtUtc": "2026-09-13T20:28:39.194Z",
+    "experimentStatus": "COMPLETED_ALL_PLANNED",
+    "freezeRawSha256": "c3f0a76b3a5939f3e4bf395d46237cf0b0f365fa1f4bf019092a6944849d6157",
+    "freezeVersion": "phase2b-2d2c-dev-configuration-freeze-v1",
+    "planSha256": "05cb6984a57a871ac6b0a0720ab2fefceb5b5843f440dbf7831abdf9bfc82f6c"
+  }
+}

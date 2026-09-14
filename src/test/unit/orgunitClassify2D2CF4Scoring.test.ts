@@ -349,14 +349,14 @@ describe('F4 emission is deterministic', () => {
     expect(renderScoredItems(rows)).toBe(renderScoredItems([...rows].reverse()));
   });
 
-  it('writes byte-identical files into two separate directories', () => {
+  it('writes byte-identical files into two separate directories', async () => {
     const rows = [row({ goldId: 'ga', variantName: 'PROMPT_V1_CANONICAL' })];
     const summary = { scorerVersion: 'x', sources: {} } as never;
     const a = mkdtempSync(join(tmpdir(), 'f4a-'));
     const b = mkdtempSync(join(tmpdir(), 'f4b-'));
     try {
-      const first = emitOutputs(a, rows, summary, 'cmd');
-      const second = emitOutputs(b, rows, summary, 'cmd');
+      const first = await emitOutputs(a, rows, summary, 'cmd');
+      const second = await emitOutputs(b, rows, summary, 'cmd');
       expect(first.files.map((f) => f.sha256)).toEqual(second.files.map((f) => f.sha256));
       for (const file of first.files) {
         expect(readFileSync(join(a, file.name))).toEqual(readFileSync(join(b, file.name)));
@@ -495,13 +495,13 @@ describe.skipIf(!ATTEMPT_PRESENT)('F4 scores the preserved attempt 1', () => {
     }
   });
 
-  it('produces byte-identical derived outputs on two separate derivations', () => {
+  it('produces byte-identical derived outputs on two separate derivations', async () => {
     const run = runScoring(SCORER_REPO_ROOT, ATTEMPT_ROOT);
     const a = mkdtempSync(join(tmpdir(), 'f4-real-a-'));
     const b = mkdtempSync(join(tmpdir(), 'f4-real-b-'));
     try {
-      const first = emitOutputs(a, run.allRows, run.summary, 'cmd');
-      const second = emitOutputs(b, run.allRows, run.summary, 'cmd');
+      const first = await emitOutputs(a, run.allRows, run.summary, 'cmd');
+      const second = await emitOutputs(b, run.allRows, run.summary, 'cmd');
       expect(first.files.map((f) => f.sha256)).toEqual(second.files.map((f) => f.sha256));
     } finally {
       rmSync(a, { recursive: true, force: true });

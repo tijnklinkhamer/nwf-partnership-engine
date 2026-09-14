@@ -63,15 +63,15 @@ export function parseArgs(argv: readonly string[]): GenerateOptions {
   return { outputRoot, out };
 }
 
-export function generate(
+export async function generate(
   options: GenerateOptions,
   generationCommand = GENERATION_COMMAND,
-): {
+): Promise<{
   readonly recommendation: string;
   readonly files: readonly { readonly name: string; readonly sha256: string }[];
-} {
+}> {
   const run = runScoring(SCORER_REPO_ROOT, options.outputRoot);
-  const emitted = emitOutputs(options.out, run.allRows, run.summary, generationCommand);
+  const emitted = await emitOutputs(options.out, run.allRows, run.summary, generationCommand);
   return {
     recommendation: run.summary.recommendation,
     files: emitted.files.map((file) => ({ name: file.name, sha256: file.sha256 })),
@@ -83,7 +83,7 @@ if (
   resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url))
 ) {
   const options = parseArgs(process.argv.slice(2));
-  const result = generate(options);
+  const result = await generate(options);
   process.stdout.write(`recommendation: ${result.recommendation}\n`);
   for (const file of result.files) process.stdout.write(`${file.sha256}  ${file.name}\n`);
 }
