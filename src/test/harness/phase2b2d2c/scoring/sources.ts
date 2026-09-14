@@ -38,7 +38,7 @@ import { validateClassifierResponse } from '../../../../orgunits/classify/valida
 import type { ClassifierBatch, ClassifierDocument } from '../../../../orgunits/classify/types.js';
 import { readArtifact, REPAIR_ROUND_DIRECTORY_NAME, type ArtifactKind } from '../artifacts.js';
 import { reconstructAndVerifyFrozenBatches } from '../batches.js';
-import { FREEZE_PATH, FROZEN_VARIANTS, type FrozenVariantName } from '../constants.js';
+import { FREEZE_PATH, FROZEN_VARIANTS } from '../constants.js';
 import { loadDevCorpus } from '../corpus.js';
 import { loadFreezeFromBytes, sha256Hex, type Freeze } from '../freeze.js';
 import { buildExecutionPlan, planOrderIsFrozen, planSha256, type ExecutionPlan } from '../plan.js';
@@ -48,6 +48,14 @@ import {
   F4_EXPECTED_AUTHORISATION_SHA256,
   F4_EXPECTED_PLAN_SHA256,
 } from './constants.js';
+
+/**
+ * F0D: every variant a scored row may carry — the two attempt-1 variants and
+ * the attempt-2 V3 variant. WHICH of them a loader admits is decided by that
+ * loader's own frozen plan, never by this union.
+ */
+export type ScoredVariantName =
+  'PROMPT_V1_CANONICAL' | 'PROMPT_V2_CANONICAL' | 'PROMPT_V3_CANONICAL';
 
 export class ScoringSourceError extends Error {
   override readonly name = 'ScoringSourceError';
@@ -87,7 +95,7 @@ export type PersistedValidation = z.infer<typeof PersistedValidationSchema>;
 
 const PlannedInputSchema = z.looseObject({
   sequence: z.number().int().min(1),
-  variantName: z.enum(['PROMPT_V1_CANONICAL', 'PROMPT_V2_CANONICAL']),
+  variantName: z.enum(['PROMPT_V1_CANONICAL', 'PROMPT_V2_CANONICAL', 'PROMPT_V3_CANONICAL']),
   variantLabel: z.string(),
   variantOrder: z.number().int(),
   variantGitCommit: z.string(),
@@ -198,14 +206,14 @@ const FinalRecordSchema = z.looseObject({
   freezeConfigRawSha256: z.string(),
 });
 
-const ExperimentCompletionSchema = z.looseObject({
+export const ExperimentCompletionSchema = z.looseObject({
   status: z.string(),
   evaluationsStarted: z.number().int(),
   perVariantEndedWithoutStop: z.record(z.string(), z.number().int()),
   completedAtUtc: z.string(),
 });
 
-const ConsumptionSchema = z.looseObject({
+export const ConsumptionSchema = z.looseObject({
   authorisationSha256: z.string(),
   attemptNo: z.number().int(),
   consumedAtUtc: z.string(),
@@ -217,7 +225,7 @@ const ConsumptionSchema = z.looseObject({
 
 export interface LoadedEvaluation {
   readonly sequence: number;
-  readonly variantName: FrozenVariantName;
+  readonly variantName: ScoredVariantName;
   readonly logicalBatchOrdinal: number;
   readonly organisationId: string;
   readonly echeRowKey: string;
@@ -303,7 +311,7 @@ export interface LoadedSources {
   readonly outputRoot: string;
 }
 
-const PER_EVALUATION_KINDS: readonly ArtifactKind[] = [
+export const PER_EVALUATION_KINDS: readonly ArtifactKind[] = [
   'PLANNED_INPUT',
   'CHILD_MANIFEST',
   'CHILD_PREFLIGHT',
@@ -316,7 +324,10 @@ const PER_EVALUATION_KINDS: readonly ArtifactKind[] = [
   'FINAL_RECORD',
 ];
 
-function readVerified<T>(directory: string, kind: ArtifactKind): { record: T; fileSha256: string } {
+export function readVerified<T>(
+  directory: string,
+  kind: ArtifactKind,
+): { record: T; fileSha256: string } {
   const read = readArtifact<T>(directory, kind);
   if (!read.ok)
     fail(`artifact ${kind} in ${directory} failed to verify: ${read.failure} — ${read.detail}`);
@@ -329,7 +340,7 @@ function readVerified<T>(directory: string, kind: ArtifactKind): { record: T; fi
  * SEPARATELY (`repairInventorySha256`) and never enter this hash, so a
  * repair round leaves the primary aggregate exactly as F3 recorded it.
  */
-function inventorySha256(
+export function inventorySha256(
   outputRoot: string,
   select: 'PRIMARY' | 'REPAIR' = 'PRIMARY',
 ): { count: number; sha256: string } {
@@ -349,6 +360,188 @@ function inventorySha256(
     (relative) => `${sha256Hex(readFileSync(join(outputRoot, relative)))}  ${relative}\n`,
   );
   return { count: files.length, sha256: sha256Hex(lines.join('')) };
+}
+
+/** The planned identity one evaluation directory must carry — the subset of a planned evaluation the loader compares. */
+export interface PlannedEvaluationIdentity {
+  readonly sequence: number;
+  readonly variantName: ScoredVariantName;
+  readonly logicalBatchOrdinal: number;
+  readonly organisationId: string;
+  readonly echeRowKey: string;
+  readonly orderedGoldIds: readonly string[];
+  readonly orderedDocIndices: readonly number[];
+  readonly promptVersion: string;
+  readonly promptSha256: string;
+  readonly variantGitCommit: string;
+  readonly finalInputSha256: string;
+}
+
+export interface LoadedEvaluationDirectory {
+  readonly evaluation: LoadedEvaluation;
+  /** The ten per-evaluation artifacts, each hash-verified. */
+  readonly artifactsVerified: number;
+  /** The repair artifacts under `repair-1/`, each hash-verified (zero when no round was recorded). */
+  readonly repairArtifactsVerified: number;
+}
+
+/**
+ * F0D: reads and verifies ONE evaluation's batch directory — write-once
+ * layout (exactly one attempt directory, exactly the ten artifact files,
+ * `repair-1` the only admitted subdirectory), every artifact hash-verified,
+ * every identity equal to the PLANNED evaluation, a clean Tier-2 outcome,
+ * no stop condition, a VALIDATED envelope, and the repair round (when one
+ * was recorded) re-verified against the frozen document. Shared by the
+ * attempt-1 loader below and the attempt-2 loader, so both attempts are
+ * held to the same artifact contract; the two differ only in which frozen
+ * plan and which attempt number they supply.
+ */
+export function loadEvaluationDirectory(input: {
+  readonly batchDirectory: string;
+  readonly attemptNo: number;
+  readonly planned: PlannedEvaluationIdentity;
+  readonly freezeRawSha256: string;
+  readonly frozenBatch: ClassifierBatch;
+}): LoadedEvaluationDirectory {
+  const { batchDirectory, attemptNo, planned } = input;
+  const attempts = readdirSync(batchDirectory).sort();
+  if (attempts.length !== 1 || attempts[0] !== `attempt-${attemptNo}`) {
+    fail(`write-once violation at ${batchDirectory}: attempts ${attempts.join(', ') || '(none)'}.`);
+  }
+  const directory = join(batchDirectory, `attempt-${attemptNo}`);
+  const entries = readdirSync(directory, { withFileTypes: true });
+  const present = entries
+    .filter((entry) => entry.isFile())
+    .map((entry) => entry.name)
+    .sort();
+  if (present.length !== PER_EVALUATION_KINDS.length) {
+    fail(
+      `${directory} holds ${present.length} files; ${PER_EVALUATION_KINDS.length} artifact kinds are expected.`,
+    );
+  }
+  const subdirectories = entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+  for (const name of subdirectories) {
+    // ADR 0011: the ONE repair round is the only subdirectory an attempt may hold.
+    if (name !== REPAIR_ROUND_DIRECTORY_NAME)
+      fail(`${directory} holds an unexpected directory ${name}.`);
+  }
+  const artifactFileSha256: Record<string, string> = {};
+  let artifactsVerified = 0;
+  for (const kind of PER_EVALUATION_KINDS) {
+    artifactFileSha256[kind] = readVerified(directory, kind).fileSha256;
+    artifactsVerified += 1;
+  }
+  const plannedInput = PlannedInputSchema.parse(readVerified(directory, 'PLANNED_INPUT').record);
+  const validation = PersistedValidationSchema.parse(
+    readVerified(directory, 'VALIDATION_RESULT').record,
+  );
+  const providerOutcome = ProviderOutcomeSchema.parse(
+    readVerified(directory, 'PROVIDER_OUTCOME').record,
+  );
+  const childResult = ChildResultSchema.parse(readVerified(directory, 'CHILD_RESULT').record);
+  const stopDecision = StopDecisionSchema.parse(readVerified(directory, 'STOP_DECISION').record);
+  const tier2 = Tier2Schema.parse(readVerified(directory, 'TIER2_OUTCOME').record);
+  const finalRecord = FinalRecordSchema.parse(readVerified(directory, 'FINAL_RECORD').record);
+
+  // Identity: the artifacts must be the plan's own evaluation, not another.
+  if (plannedInput.sequence !== planned.sequence) {
+    fail(`${directory}: sequence ${plannedInput.sequence} != planned ${planned.sequence}.`);
+  }
+  if (plannedInput.variantName !== planned.variantName) {
+    fail(`${directory}: variant ${plannedInput.variantName} != planned ${planned.variantName}.`);
+  }
+  if (plannedInput.variantGitCommit !== planned.variantGitCommit) {
+    fail(`${directory}: variant commit differs from the frozen runtime root.`);
+  }
+  if (plannedInput.promptSha256 !== planned.promptSha256) {
+    fail(`${directory}: prompt SHA-256 differs from the frozen variant prompt.`);
+  }
+  if (plannedInput.finalInputSha256 !== planned.finalInputSha256) {
+    fail(`${directory}: final input identity differs from the frozen plan.`);
+  }
+  if (
+    canonicalStringify(plannedInput.orderedGoldIds) !== canonicalStringify(planned.orderedGoldIds)
+  ) {
+    fail(`${directory}: gold-id order differs from the frozen corpus order.`);
+  }
+  if (
+    canonicalStringify(plannedInput.orderedDocIndices) !==
+    canonicalStringify(planned.orderedDocIndices)
+  ) {
+    fail(`${directory}: docIndex order differs from the frozen corpus order.`);
+  }
+  if (plannedInput.attemptNo !== attemptNo)
+    fail(`${directory}: attemptNo ${plannedInput.attemptNo}.`);
+  if (
+    canonicalStringify(finalRecord.orderedGoldIds) !== canonicalStringify(planned.orderedGoldIds)
+  ) {
+    fail(`${directory}: final record gold ids differ from the planned input.`);
+  }
+  if (finalRecord.freezeConfigRawSha256 !== input.freezeRawSha256) {
+    fail(`${directory}: final record names a different freeze.`);
+  }
+  if (
+    childResult.variantName !== planned.variantName ||
+    childResult.logicalBatchOrdinal !== planned.logicalBatchOrdinal
+  ) {
+    fail(`${directory}: child result identity differs from the planned evaluation.`);
+  }
+  if (childResult.attemptNo !== attemptNo) {
+    fail(`${directory}: child result attemptNo ${childResult.attemptNo}.`);
+  }
+  if (!childResult.rawCheckpointPersistedBeforeValidation) {
+    fail(`${directory}: the raw checkpoint was not persisted before validation.`);
+  }
+  if (
+    childResult.rawBeforeValidationSequence.persistedSeq >=
+    childResult.rawBeforeValidationSequence.validationStartedSeq
+  ) {
+    fail(`${directory}: raw-before-validation sequence is not strictly ordered.`);
+  }
+  if (stopDecision.stop || stopDecision.stopCondition !== null || stopDecision.haltKind !== null) {
+    fail(`${directory}: a stop condition is recorded; the run is not cleanly scorable.`);
+  }
+  if (tier2.outcome !== 'COMPLETED' || tier2.exitCode !== 0) {
+    fail(`${directory}: Tier-2 outcome ${tier2.outcome} exit ${String(tier2.exitCode)}.`);
+  }
+  if (validation.kind !== 'VALIDATED') {
+    fail(
+      `${directory}: validation kind ${validation.kind}; item-level scoring needs a VALIDATED envelope.`,
+    );
+  }
+
+  const loadedRepairs = subdirectories.includes(REPAIR_ROUND_DIRECTORY_NAME)
+    ? loadRepairRound(join(directory, REPAIR_ROUND_DIRECTORY_NAME), validation, input.frozenBatch)
+    : { round: null, repairs: [], verified: 0 };
+
+  return {
+    evaluation: {
+      sequence: planned.sequence,
+      variantName: planned.variantName,
+      logicalBatchOrdinal: planned.logicalBatchOrdinal,
+      organisationId: planned.organisationId,
+      echeRowKey: planned.echeRowKey,
+      orderedGoldIds: planned.orderedGoldIds,
+      orderedDocIndices: planned.orderedDocIndices,
+      promptVersion: planned.promptVersion,
+      promptSha256: planned.promptSha256,
+      variantGitCommit: planned.variantGitCommit,
+      finalInputSha256: planned.finalInputSha256,
+      rawOutputSha256: finalRecord.rawOutputSha256,
+      providerOutcome: finalRecord.providerOutcome,
+      validation,
+      wallTimeMs: providerOutcome.monotonicWallTimeMs,
+      outputTokens: providerOutcome.outputTokens,
+      inputTokens: providerOutcome.inputTokens,
+      rawBeforeValidation: childResult.rawCheckpointPersistedBeforeValidation,
+      attemptDirectory: directory,
+      artifactFileSha256,
+      repairRound: loadedRepairs.round,
+      repairs: loadedRepairs.repairs,
+    },
+    artifactsVerified,
+    repairArtifactsVerified: loadedRepairs.verified,
+  };
 }
 
 /**
@@ -419,151 +612,22 @@ export function loadScoringSources(repoRoot: string, outputRoot: string): Loaded
       planned.variantName,
       `batch-${String(planned.logicalBatchOrdinal).padStart(2, '0')}`,
     );
-    const attempts = readdirSync(batchDirectory).sort();
-    if (attempts.length !== 1 || attempts[0] !== `attempt-${F4_ATTEMPT_NO}`) {
-      fail(
-        `write-once violation at ${batchDirectory}: attempts ${attempts.join(', ') || '(none)'}.`,
-      );
-    }
-    const directory = join(batchDirectory, `attempt-${F4_ATTEMPT_NO}`);
-    const entries = readdirSync(directory, { withFileTypes: true });
-    const present = entries
-      .filter((entry) => entry.isFile())
-      .map((entry) => entry.name)
-      .sort();
-    if (present.length !== PER_EVALUATION_KINDS.length) {
-      fail(
-        `${directory} holds ${present.length} files; ${PER_EVALUATION_KINDS.length} artifact kinds are expected.`,
-      );
-    }
-    const subdirectories = entries
-      .filter((entry) => entry.isDirectory())
-      .map((entry) => entry.name);
-    for (const name of subdirectories) {
-      // ADR 0011: the ONE repair round is the only subdirectory an attempt may hold.
-      if (name !== REPAIR_ROUND_DIRECTORY_NAME)
-        fail(`${directory} holds an unexpected directory ${name}.`);
-    }
-    const artifactFileSha256: Record<string, string> = {};
-    for (const kind of PER_EVALUATION_KINDS) {
-      artifactFileSha256[kind] = readVerified(directory, kind).fileSha256;
-      artifactsVerified += 1;
-    }
-    const plannedInput = PlannedInputSchema.parse(readVerified(directory, 'PLANNED_INPUT').record);
-    const validation = PersistedValidationSchema.parse(
-      readVerified(directory, 'VALIDATION_RESULT').record,
-    );
-    const providerOutcome = ProviderOutcomeSchema.parse(
-      readVerified(directory, 'PROVIDER_OUTCOME').record,
-    );
-    const childResult = ChildResultSchema.parse(readVerified(directory, 'CHILD_RESULT').record);
-    const stopDecision = StopDecisionSchema.parse(readVerified(directory, 'STOP_DECISION').record);
-    const tier2 = Tier2Schema.parse(readVerified(directory, 'TIER2_OUTCOME').record);
-    const finalRecord = FinalRecordSchema.parse(readVerified(directory, 'FINAL_RECORD').record);
-
-    // Identity: the artifacts must be the plan's own evaluation, not another.
-    if (plannedInput.sequence !== planned.sequence) {
-      fail(`${directory}: sequence ${plannedInput.sequence} != planned ${planned.sequence}.`);
-    }
-    if (plannedInput.variantName !== planned.variantName) {
-      fail(`${directory}: variant ${plannedInput.variantName} != planned ${planned.variantName}.`);
-    }
-    if (plannedInput.variantGitCommit !== planned.variantGitCommit) {
-      fail(`${directory}: variant commit differs from the frozen runtime root.`);
-    }
-    if (plannedInput.promptSha256 !== planned.promptSha256) {
-      fail(`${directory}: prompt SHA-256 differs from the frozen variant prompt.`);
-    }
-    if (plannedInput.finalInputSha256 !== planned.finalInputSha256) {
-      fail(`${directory}: final input identity differs from the frozen plan.`);
-    }
-    if (
-      canonicalStringify(plannedInput.orderedGoldIds) !== canonicalStringify(planned.orderedGoldIds)
-    ) {
-      fail(`${directory}: gold-id order differs from the frozen corpus order.`);
-    }
-    if (
-      canonicalStringify(plannedInput.orderedDocIndices) !==
-      canonicalStringify(planned.orderedDocIndices)
-    ) {
-      fail(`${directory}: docIndex order differs from the frozen corpus order.`);
-    }
-    if (plannedInput.attemptNo !== F4_ATTEMPT_NO)
-      fail(`${directory}: attemptNo ${plannedInput.attemptNo}.`);
-    if (
-      canonicalStringify(finalRecord.orderedGoldIds) !== canonicalStringify(planned.orderedGoldIds)
-    ) {
-      fail(`${directory}: final record gold ids differ from the planned input.`);
-    }
-    if (finalRecord.freezeConfigRawSha256 !== loadedFreeze.rawSha256) {
-      fail(`${directory}: final record names a different freeze.`);
-    }
-    if (
-      childResult.variantName !== planned.variantName ||
-      childResult.logicalBatchOrdinal !== planned.logicalBatchOrdinal
-    ) {
-      fail(`${directory}: child result identity differs from the planned evaluation.`);
-    }
-    if (!childResult.rawCheckpointPersistedBeforeValidation) {
-      fail(`${directory}: the raw checkpoint was not persisted before validation.`);
-    }
-    if (
-      childResult.rawBeforeValidationSequence.persistedSeq >=
-      childResult.rawBeforeValidationSequence.validationStartedSeq
-    ) {
-      fail(`${directory}: raw-before-validation sequence is not strictly ordered.`);
-    }
-    if (
-      stopDecision.stop ||
-      stopDecision.stopCondition !== null ||
-      stopDecision.haltKind !== null
-    ) {
-      fail(`${directory}: a stop condition is recorded; the run is not cleanly scorable.`);
-    }
-    if (tier2.outcome !== 'COMPLETED' || tier2.exitCode !== 0) {
-      fail(`${directory}: Tier-2 outcome ${tier2.outcome} exit ${String(tier2.exitCode)}.`);
-    }
-    if (validation.kind !== 'VALIDATED') {
-      fail(
-        `${directory}: validation kind ${validation.kind}; item-level scoring needs a VALIDATED envelope.`,
-      );
-    }
-
     const frozenBatch = batches.find((b) => b.ordinal === planned.logicalBatchOrdinal);
     if (frozenBatch === undefined)
-      fail(`${directory}: no frozen batch ${planned.logicalBatchOrdinal}.`);
-    const loadedRepairs = subdirectories.includes(REPAIR_ROUND_DIRECTORY_NAME)
-      ? loadRepairRound(join(directory, REPAIR_ROUND_DIRECTORY_NAME), validation, {
-          context: frozenBatch.context,
-          documents: frozenBatch.documents as unknown as readonly ClassifierDocument[],
-        })
-      : { round: null, repairs: [], verified: 0 };
-    repairArtifactsVerified += loadedRepairs.verified;
-
-    evaluations.push({
-      sequence: planned.sequence,
-      variantName: planned.variantName,
-      logicalBatchOrdinal: planned.logicalBatchOrdinal,
-      organisationId: planned.organisationId,
-      echeRowKey: planned.echeRowKey,
-      orderedGoldIds: planned.orderedGoldIds,
-      orderedDocIndices: planned.orderedDocIndices,
-      promptVersion: planned.promptVersion,
-      promptSha256: planned.promptSha256,
-      variantGitCommit: planned.variantGitCommit,
-      finalInputSha256: planned.finalInputSha256,
-      rawOutputSha256: finalRecord.rawOutputSha256,
-      providerOutcome: finalRecord.providerOutcome,
-      validation,
-      wallTimeMs: providerOutcome.monotonicWallTimeMs,
-      outputTokens: providerOutcome.outputTokens,
-      inputTokens: providerOutcome.inputTokens,
-      rawBeforeValidation: childResult.rawCheckpointPersistedBeforeValidation,
-      attemptDirectory: directory,
-      artifactFileSha256,
-      repairRound: loadedRepairs.round,
-      repairs: loadedRepairs.repairs,
+      fail(`${batchDirectory}: no frozen batch ${planned.logicalBatchOrdinal}.`);
+    const loaded = loadEvaluationDirectory({
+      batchDirectory,
+      attemptNo: F4_ATTEMPT_NO,
+      planned,
+      freezeRawSha256: loadedFreeze.rawSha256,
+      frozenBatch: {
+        context: frozenBatch.context,
+        documents: frozenBatch.documents as unknown as readonly ClassifierDocument[],
+      },
     });
+    evaluations.push(loaded.evaluation);
+    artifactsVerified += loaded.artifactsVerified;
+    repairArtifactsVerified += loaded.repairArtifactsVerified;
   }
 
   const inventory = inventorySha256(outputRoot, 'PRIMARY');
@@ -622,7 +686,7 @@ export function loadScoringSources(repoRoot: string, outputRoot: string): Loaded
  * the frozen document reconstructed from the corpus — a repair artifact
  * claiming acceptance the validator does not reproduce fails closed.
  */
-function loadRepairRound(
+export function loadRepairRound(
   roundDirectory: string,
   originalValidation: PersistedValidation,
   batch: ClassifierBatch,

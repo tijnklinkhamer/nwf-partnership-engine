@@ -20,7 +20,8 @@ import { describe, expect, it } from 'vitest';
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const SCORING_DIR = join(REPO_ROOT, 'src/test/harness/phase2b2d2c/scoring');
 
-const ENTRY_POINTS = ['generate.ts', 'run.ts', 'emit.ts'];
+// F0D: the attempt-2 scorer entries walk the same graph and are held to the same wall.
+const ENTRY_POINTS = ['generate.ts', 'run.ts', 'emit.ts', 'attempt2Generate.ts', 'attempt2Run.ts'];
 
 /** Modules that can reach inference, credentials, a database or a child process. */
 const FORBIDDEN_MODULES = [

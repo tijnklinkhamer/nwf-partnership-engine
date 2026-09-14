@@ -43,11 +43,28 @@ import {
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ORGUNIT_CLASSIFIER_SYSTEM_PROMPT } from '../../../orgunits/classify/prompt.js';
-import { FROZEN_VARIANTS, type FrozenVariant } from '../../harness/phase2b2d2c/constants.js';
+import { FROZEN_VARIANTS } from '../../harness/phase2b2d2c/constants.js';
+import { F0C_VARIANT } from '../../harness/phase2b2d2c/f0c/freezeF0C.js';
 import type { Freeze } from '../../harness/phase2b2d2c/freeze.js';
 import { v1FromV2, v2FromV3 } from '../../harness/phase2b2d2c/promptLineage.js';
-import { RUNTIME_MODULE_PATHS } from '../../harness/phase2b2d2c/runtimeLoader.js';
-import type { VariantRootProbes } from '../../harness/phase2b2d2c/variantRoot.js';
+import {
+  OPTIONAL_RUNTIME_MODULE_PATHS,
+  RUNTIME_MODULE_PATHS,
+} from '../../harness/phase2b2d2c/runtimeLoader.js';
+import type {
+  RootVerificationContract,
+  VariantIdentity,
+  VariantRootProbes,
+} from '../../harness/phase2b2d2c/variantRoot.js';
+
+/**
+ * F0D: the slice of a freeze a synthetic root needs — satisfied by the F0B
+ * `Freeze` and by the F0C freeze alike (both carry the corpus paths, the SDK
+ * package names, the executable contract and the version constants).
+ */
+export type SyntheticRootFreeze = RootVerificationContract & {
+  readonly corpus: Pick<Freeze['corpus'], 'canonicalCorpusPath' | 'canonicalManifestPath'>;
+};
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const RUNNER_REPO_ROOT = resolve(HERE, '..', '..', '..', '..');
@@ -70,12 +87,15 @@ export function v1PromptText(): string {
   return v1FromV2(v2PromptText());
 }
 
-export function promptTextOf(variantName: FrozenVariant['name']): string {
-  return variantName === 'PROMPT_V1_CANONICAL' ? v1PromptText() : v2PromptText();
+/** v1 and v2 are RECONSTRUCTED comparator texts; every other name (the F0C V3 variant) is the production prompt itself. */
+export function promptTextOf(variantName: string): string {
+  if (variantName === 'PROMPT_V1_CANONICAL') return v1PromptText();
+  if (variantName === 'PROMPT_V2_CANONICAL') return v2PromptText();
+  return ORGUNIT_CLASSIFIER_SYSTEM_PROMPT;
 }
 
 /** The native package installed under this worktree for the running platform, or null. */
-export function hostNativePackage(freeze: Freeze): {
+export function hostNativePackage(freeze: SyntheticRootFreeze): {
   readonly name: string;
   readonly dir: string;
   readonly binary: string;
@@ -100,8 +120,20 @@ export function hostNativePackage(freeze: Freeze): {
 }
 
 export interface SyntheticRootOptions {
-  readonly variant: FrozenVariant;
-  readonly freeze: Freeze;
+  readonly variant: VariantIdentity;
+  readonly freeze: SyntheticRootFreeze;
+  /**
+   * F0D: ship the built repair module (ADR 0011), re-exporting THIS
+   * worktree's `repair.ts` — what the F0C V3 root requires and the attempt-1
+   * roots never had. Absent, the root carries no repair module.
+   */
+  readonly withRepairModule?: boolean;
+  /** F0D: override the root's exported DEFAULT floor constant (the F0C default-floor check must refuse it). */
+  readonly repairFloorOverride?: number;
+  /** F0D: make the built repair module older than its source (refused as stale). */
+  readonly staleRepairModule?: boolean;
+  /** F0D: ship a repair module whose budget decision IGNORES the policy floor (the F0C floor probe must refuse it). */
+  readonly repairDecisionIgnoresPolicy?: boolean;
   /** Overrides, each applied on purpose by a test that wants that check to fail. */
   readonly promptText?: string;
   readonly promptVersion?: string;
@@ -266,13 +298,37 @@ export function buildSyntheticVariantRoot(dir: string, options: SyntheticRootOpt
       utimesSync(built, older, older);
     }
   }
+  if (options.withRepairModule) {
+    const source = join(dir, OPTIONAL_RUNTIME_MODULE_PATHS.repair.source);
+    mkdirSync(dirname(source), { recursive: true });
+    writeFileSync(source, '// placeholder source for repair\n');
+    utimesSync(source, past, past);
+    const built = join(dir, OPTIONAL_RUNTIME_MODULE_PATHS.repair.built);
+    mkdirSync(dirname(built), { recursive: true });
+    // A local export shadows the same name from `export *`, so the override
+    // replaces exactly the one constant and leaves every function intact.
+    writeFileSync(
+      built,
+      `export * from ${JSON.stringify(tsSource('src/orgunits/classify/repair.ts'))};\n` +
+        (options.repairFloorOverride === undefined
+          ? ''
+          : `export const REPAIR_MINIMUM_REMAINING_BUDGET_MS = ${options.repairFloorOverride};\n`) +
+        (options.repairDecisionIgnoresPolicy
+          ? 'export function decideRepairBudget(input) { const remainingMs = Math.max(0, 600000 - Math.floor(input.elapsedMs)); const usableMs = Math.max(0, remainingMs - 10000); return { kind: "PROCEED", remainingMs, windowMs: usableMs, firstAttemptDeadlineMs: Math.min(300000, usableMs) }; }\n'
+          : ''),
+    );
+    if (options.staleRepairModule) {
+      const older = new Date(past.getTime() - 60_000);
+      utimesSync(built, older, older);
+    }
+  }
   return dir;
 }
 
 /** Fake Git facts for a synthetic root; every default is the frozen truth for `variant`. */
 export function fakeGitProbes(
-  variant: FrozenVariant,
-  freeze: Freeze,
+  variant: VariantIdentity,
+  freeze: { readonly git: { readonly repository: string } },
   overrides: Partial<
     Pick<VariantRootProbes, 'gitHead' | 'gitStatusPorcelain' | 'gitOriginUrl' | 'gitToplevel'>
   > = {},
@@ -288,6 +344,8 @@ export function fakeGitProbes(
 
 export const V1 = FROZEN_VARIANTS[0];
 export const V2 = FROZEN_VARIANTS[1];
+/** F0D: the ONE attempt-2 variant, from the F0C loader's own constant. */
+export const V3 = F0C_VARIANT;
 
 /** Writes the scripted scenario the synthetic provider reads. */
 export function writeFakeProviderScenario(root: string, scenario: unknown): void {

@@ -7,7 +7,9 @@
  *
  *   1. its own environment self-check — any variable outside the closed
  *      allowlist is `ISOLATION_VIOLATION`, recorded, and nothing else runs;
- *   2. re-verifies the F0B freeze bytes by raw SHA-256;
+ *   2. re-verifies the F0B freeze bytes by raw SHA-256 for an attempt-1
+ *      manifest, or the approved F0C freeze bytes for an attempt-2 manifest;
+ *      the family is decided by the bytes' own hash (F0D, `f0c/freezeFamily.ts`);
  *   3. verifies the selected variant root through the same checks the
  *      parent ran, loading the SDK-free production modules FROM THAT ROOT;
  *   4. reads the DEVELOPMENT canonical corpus FROM THAT ROOT, verifies it
@@ -58,21 +60,15 @@ import {
 } from './artifacts.js';
 import { reconstructFrozenBatches } from './batches.js';
 import { childEnvironmentViolations } from './childEnvironment.js';
-import {
-  FROZEN_RUN_CONFIG,
-  FROZEN_VARIANTS,
-  RUNNER_ARTIFACT_VERSION,
-  type FrozenVariantName,
-  type StopConditionId,
-} from './constants.js';
+import { FROZEN_RUN_CONFIG, RUNNER_ARTIFACT_VERSION, type StopConditionId } from './constants.js';
 import { loadDevCorpus } from './corpus.js';
+import { F0CFreezeError } from './f0c/freezeF0C.js';
+import { resolveChildFreeze, type ChildFreezeView } from './f0c/freezeFamily.js';
 import {
   FreezeDriftError,
   FrozenBatchContextSchema,
   freezeRepairPolicy,
-  loadFreezeFromBytes,
   sha256Hex,
-  type Freeze,
   type FrozenRepairPolicy,
 } from './freeze.js';
 import { persistRawOutputThenValidate, RawOutputNotPersistedError } from './rawOutputCheckpoint.js';
@@ -85,8 +81,11 @@ export const ChildManifestSchema = z.strictObject({
   freezePath: z.string().min(1),
   freezeConfigRawSha256: z.string().regex(/^[0-9a-f]{64}$/),
   freezeVersion: z.string().min(1),
-  variantName: z.enum(['PROMPT_V1_CANONICAL', 'PROMPT_V2_CANONICAL']),
-  variantLabel: z.enum(['PROMPT_V1_COMPARATOR', 'PROMPT_V2_CANDIDATE']),
+  // F0D: the attempt-2 variant joins the closed set. WHICH of these a given
+  // freeze schedules is decided by the freeze family the manifest's hash
+  // names (step 2), never by this list alone.
+  variantName: z.enum(['PROMPT_V1_CANONICAL', 'PROMPT_V2_CANONICAL', 'PROMPT_V3_CANONICAL']),
+  variantLabel: z.enum(['PROMPT_V1_COMPARATOR', 'PROMPT_V2_CANDIDATE', 'PROMPT_V3_CANDIDATE']),
   variantGitCommit: z.string().regex(/^[0-9a-f]{40}$/),
   variantRoot: z.string().min(1),
   promptVersion: z.string().min(1),
@@ -134,10 +133,7 @@ export interface ChildClock {
 export interface ChildDependencies {
   readonly env: Readonly<Record<string, string | undefined>>;
   readonly readFile: (path: string) => Buffer;
-  readonly verifyRoot: (
-    variantName: FrozenVariantName,
-    root: string,
-  ) => Promise<VariantRootVerification>;
+  readonly verifyRoot: (variantName: string, root: string) => Promise<VariantRootVerification>;
   readonly providerFactory: ChildProviderFactory;
   readonly clock: ChildClock;
   /** Test seam for the raw-checkpoint persistence; defaults to the write-once artifact writer. */
@@ -149,7 +145,7 @@ export interface ChildDependencies {
    * the F0B freeze bytes - which declare none - are hash-pinned and cannot
    * be edited to enable one.
    */
-  readonly repairPolicyFor?: (freeze: Freeze) => FrozenRepairPolicy;
+  readonly repairPolicyFor?: (freeze: ChildFreezeView) => FrozenRepairPolicy;
 }
 
 export interface ChildRunOutcome {
@@ -212,26 +208,45 @@ export async function runChildEvaluation(
       );
     }
 
-    // 2. Freeze bytes.
-    let loadedFreeze;
+    // 2. Freeze bytes — whichever family the BYTES are (decided by their
+    //    hash), through that family's own hash-pinned loader; then the
+    //    manifest must name exactly that hash, and, for the attempt-2
+    //    freeze, exactly the attempt it configures.
+    let view: ChildFreezeView;
     try {
-      loadedFreeze = loadFreezeFromBytes(deps.readFile(manifest.freezePath));
+      view = resolveChildFreeze(deps.readFile(manifest.freezePath));
     } catch (error) {
       return preflightStop('CORPUS_CONFIG_OR_HASH_DRIFT', boundedMessage(error), {
         stage: 'freeze',
       });
     }
-    if (loadedFreeze.rawSha256 !== manifest.freezeConfigRawSha256) {
+    if (view.rawSha256 !== manifest.freezeConfigRawSha256) {
       return preflightStop(
         'CORPUS_CONFIG_OR_HASH_DRIFT',
-        'the manifest freeze hash is not the F0B hash.',
-        { stage: 'freeze' },
+        view.family === 'F0B_ATTEMPT_1'
+          ? 'the manifest freeze hash is not the F0B hash.'
+          : 'the manifest freeze hash is not the approved F0C hash.',
+        { stage: 'freeze', family: view.family },
       );
     }
-    const { freeze } = loadedFreeze;
+    if (view.family === 'F0C_ATTEMPT_2' && manifest.attemptNo !== view.attemptNo) {
+      return preflightStop(
+        'CORPUS_CONFIG_OR_HASH_DRIFT',
+        `the F0C freeze configures attempt ${view.attemptNo}; the manifest requests attempt ${manifest.attemptNo}.`,
+        { stage: 'freeze', family: view.family },
+      );
+    }
 
-    // 3. Variant root, loaded from the root.
-    const variant = FROZEN_VARIANTS.find((v) => v.name === manifest.variantName)!;
+    // 3. Variant root, loaded from the root. The variant must be one THIS
+    //    freeze schedules: an attempt-1 variant under F0C is refused here.
+    const variant = view.variants.find((v) => v.name === manifest.variantName);
+    if (variant === undefined) {
+      return preflightStop(
+        'CORPUS_CONFIG_OR_HASH_DRIFT',
+        `${manifest.variantName} is not a variant this freeze (${view.family}) schedules.`,
+        { stage: 'variant', family: view.family },
+      );
+    }
     if (
       variant.gitCommit !== manifest.variantGitCommit ||
       variant.promptVersion !== manifest.promptVersion
@@ -258,7 +273,7 @@ export async function runChildEvaluation(
     // 4. Corpus from the root; batch through the root's algorithms.
     let batch;
     try {
-      const corpus = loadDevCorpus(freeze, {
+      const corpus = loadDevCorpus(view, {
         read: (relative) => deps.readFile(join(manifest.variantRoot, relative)),
       });
       const batches = reconstructFrozenBatches(corpus.rows, {
@@ -284,7 +299,14 @@ export async function runChildEvaluation(
     }
 
     // 5. Every identity, against the manifest AND the freeze.
-    const frozen = freeze.batching.plan[manifest.logicalBatchOrdinal - 1]!;
+    const frozen = view.frozenBatch(manifest.logicalBatchOrdinal);
+    if (frozen === undefined) {
+      return preflightStop(
+        'CORPUS_CONFIG_OR_HASH_DRIFT',
+        `the freeze carries no batch with ordinal ${manifest.logicalBatchOrdinal}.`,
+        { stage: 'batch' },
+      );
+    }
     const canonical = runtime.canonical.canonicalStringify;
     const mismatches: string[] = [];
     const expectEqual = (name: string, actual: unknown, ...expected: unknown[]): void => {
@@ -328,11 +350,20 @@ export async function runChildEvaluation(
       frozen.assemblyInputSha256,
       frozen.canonicalSerializedInputSha256,
     );
+    // The final identity is recomputed through the ROOT's own function for
+    // the variant the manifest names, and the freeze must carry that same
+    // identity for that variant — an F0C freeze carries none for V1 or V2,
+    // so an attempt-1 variant can never pass this check under attempt 2.
+    const rootFinalInputSha256 = runtime.finalIdentity.computeFinalInputSha256({
+      assemblyInputSha256: batch.assemblyInputSha256,
+      promptVersion: variant.promptVersion,
+      outputSchemaVersion: runtime.outputSchema.ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
+    });
     expectEqual(
       'finalInputSha256',
-      batch.finalInputSha256[manifest.variantName],
+      rootFinalInputSha256,
       manifest.finalInputSha256,
-      frozen.finalInputSha256[manifest.variantName],
+      frozen.finalInputSha256For(manifest.variantName),
     );
     expectEqual(
       'promptSha256',
@@ -340,11 +371,11 @@ export async function runChildEvaluation(
       manifest.promptSha256,
       variant.runtimePromptSha256,
     );
-    expectEqual('requestedModelId', manifest.requestedModelId, freeze.classifier.requestedModelId);
+    expectEqual('requestedModelId', manifest.requestedModelId, view.classifier.requestedModelId);
     expectEqual(
       'outputSchemaVersion',
       manifest.outputSchemaVersion,
-      freeze.classifier.outputSchemaVersion,
+      view.classifier.outputSchemaVersion,
       runtime.outputSchema.ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
     );
     if (mismatches.length > 0) {
@@ -359,7 +390,7 @@ export async function runChildEvaluation(
     }
 
     // 5a. ADR 0011: the repair policy, and the root's ability to honour it.
-    const repairPolicy = (deps.repairPolicyFor ?? freezeRepairPolicy)(freeze);
+    const repairPolicy = (deps.repairPolicyFor ?? freezeRepairPolicy)(view);
     if (repairPolicy.enabled && runtime.repair === undefined) {
       return preflightStop(
         'CORPUS_CONFIG_OR_HASH_DRIFT',
@@ -507,7 +538,7 @@ export async function runChildEvaluation(
     const stopCondition: StopConditionId | null =
       error instanceof RawOutputNotPersistedError
         ? error.stopCondition
-        : error instanceof FreezeDriftError
+        : error instanceof FreezeDriftError || error instanceof F0CFreezeError
           ? error.stopCondition
           : null;
     try {

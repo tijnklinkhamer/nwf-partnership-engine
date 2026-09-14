@@ -42,6 +42,7 @@ import { canonicalStringify } from '../../../../orgunits/classify/canonical.js';
 import { sha256Hex } from '../freeze.js';
 import type { ScoredItem } from './score.js';
 import type { F4Summary } from './summarise.js';
+import type { Attempt2Summary } from './attempt2Summarise.js';
 
 /** The one ordering rule, applied everywhere: gold id, then variant name. */
 export function orderScoredItems(rows: readonly ScoredItem[]): readonly ScoredItem[] {
@@ -79,7 +80,8 @@ export function renderScoredItems(rows: readonly ScoredItem[]): string {
  */
 const EMIT_MODULE_PATH = fileURLToPath(import.meta.url);
 
-async function formatJson(text: string, fileName: string): Promise<string> {
+/** The repository-Prettier JSON layout, shared with the attempt-2 emitter so both derivations lay out identically. */
+export async function formatJson(text: string, fileName: string): Promise<string> {
   const options = await resolveConfig(EMIT_MODULE_PATH);
   return format(text, {
     ...(options ?? {}),
@@ -161,4 +163,59 @@ export async function emitOutputs(
       bytes: Buffer.byteLength(file.text, 'utf8'),
     })),
   };
+}
+
+/**
+ * F0D: the attempt-2 derivation's three files, byte-stable across runs and
+ * laid out exactly as the attempt-1 files above. This module remains the
+ * ONE writer of the scoring namespace; it writes only under `directory`.
+ */
+export async function emitAttempt2Outputs(
+  directory: string,
+  rows: readonly ScoredItem[],
+  summary: Attempt2Summary,
+  generationCommand: string,
+): Promise<readonly { readonly name: string; readonly sha256: string; readonly bytes: number }[]> {
+  mkdirSync(directory, { recursive: true });
+  const scoredItems = renderScoredItems(rows);
+  const summaryText = await formatJson(canonicalStringify(summary), 'summary.json');
+  const scoredItemsSha256 = sha256Hex(scoredItems);
+  const summarySha256 = sha256Hex(summaryText);
+  const manifest = await formatJson(
+    canonicalStringify({
+      scorerVersion: summary.scorerVersion,
+      outputSchemaVersion: summary.outputSchemaVersion,
+      attemptNo: summary.attemptNo,
+      generationCommand,
+      ordering: 'scored-items.jsonl is ordered by (goldId ascending, variantName ascending).',
+      serialization:
+        'canonicalStringify from src/orgunits/classify/canonical.ts fixes key order and number ' +
+        'formatting. scored-items.jsonl is one canonical JSON object per line, LF-terminated, and ' +
+        `is not formatter-managed. summary.json and manifest.json are laid out by prettier@${PRETTIER_VERSION} ` +
+        "under the repository's own .prettierrc.json; the layout is part of these bytes.",
+      sources: summary.sources,
+      outputs: { 'scored-items.jsonl': scoredItemsSha256, 'summary.json': summarySha256 },
+      excludedFromOutputs: [
+        'raw model output',
+        'chain of thought',
+        'full rationales',
+        'full evidence excerpts',
+        'credentials',
+        'profile information',
+        'provider transcripts',
+      ],
+    }),
+    'manifest.json',
+  );
+  const files = [
+    { name: 'scored-items.jsonl', text: scoredItems, sha256: scoredItemsSha256 },
+    { name: 'summary.json', text: summaryText, sha256: summarySha256 },
+    { name: 'manifest.json', text: manifest, sha256: sha256Hex(manifest) },
+  ];
+  for (const file of files) writeFileSync(join(directory, file.name), file.text, 'utf8');
+  return files.map((file) => ({
+    name: file.name,
+    sha256: file.sha256,
+    bytes: Buffer.byteLength(file.text, 'utf8'),
+  }));
 }

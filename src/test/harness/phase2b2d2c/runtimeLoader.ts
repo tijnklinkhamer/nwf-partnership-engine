@@ -180,6 +180,8 @@ export interface LoadedVariantRuntime {
   /** ADR 0011: present only when the root ships the built repair module. */
   readonly repair?: {
     readonly REPAIR_REQUEST_VERSION: string;
+    readonly REPAIR_MAX_ROUNDS_PER_LOGICAL_EVALUATION: number;
+    readonly REPAIR_MINIMUM_REMAINING_BUDGET_MS: number;
     readonly REPAIR_TOTAL_BUDGET_MS: number;
     readonly REPAIR_HARD_KILL_GRACE_MS: number;
     readonly REPAIR_ATTEMPT_SOFT_DEADLINE_MS: number;
@@ -231,6 +233,8 @@ export async function loadVariantRuntime(root: string): Promise<LoadedVariantRun
   if (repair !== undefined) {
     for (const name of [
       'REPAIR_REQUEST_VERSION',
+      'REPAIR_MAX_ROUNDS_PER_LOGICAL_EVALUATION',
+      'REPAIR_MINIMUM_REMAINING_BUDGET_MS',
       'REPAIR_TOTAL_BUDGET_MS',
       'REPAIR_HARD_KILL_GRACE_MS',
       'REPAIR_ATTEMPT_SOFT_DEADLINE_MS',

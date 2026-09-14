@@ -37,9 +37,10 @@ if (!manifestPath) {
 const unregister = register();
 const { runChildEvaluation, readChildManifest } = await import('./childMain.js');
 const { createRealVariantRootProbes } = await import('./variantRootProbes.js');
-const { verifyVariantRoot } = await import('./variantRoot.js');
-const { loadFreezeFromBytes } = await import('./freeze.js');
-const { FROZEN_VARIANTS } = await import('./constants.js');
+// F0D: the freeze FAMILY (attempt-1 F0B or attempt-2 F0C) is decided by the
+// bytes' own hash; the F0C V3 root additionally passes the repair-module
+// checks. Neither family's loader is bypassed.
+const { resolveChildFreeze, verifyRootForVariant } = await import('./f0c/freezeFamily.js');
 const { readFileSync } = await import('node:fs');
 
 const probes = createRealVariantRootProbes();
@@ -48,9 +49,8 @@ const outcome = await runChildEvaluation(manifestPath, {
   readFile: (path) => readFileSync(path),
   verifyRoot: async (variantName, root) => {
     const manifest = readChildManifest(readFileSync(manifestPath));
-    const { freeze } = loadFreezeFromBytes(readFileSync(manifest.freezePath));
-    const variant = FROZEN_VARIANTS.find((v) => v.name === variantName);
-    return verifyVariantRoot(variant, root, freeze, probes);
+    const view = resolveChildFreeze(readFileSync(manifest.freezePath));
+    return verifyRootForVariant(view, variantName, root, probes);
   },
   providerFactory: {
     async create(input) {

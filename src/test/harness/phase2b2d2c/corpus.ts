@@ -32,7 +32,10 @@ export interface LoadedDevCorpus {
   readonly manifestPath: string;
 }
 
-export function loadDevCorpus(freeze: Freeze, reader: CorpusReader): LoadedDevCorpus {
+export function loadDevCorpus(
+  freeze: Pick<Freeze, 'corpus'>,
+  reader: CorpusReader,
+): LoadedDevCorpus {
   const { canonicalCorpusPath, canonicalManifestPath, holdoutFilesNeverRead } = freeze.corpus;
   for (const path of [canonicalCorpusPath, canonicalManifestPath]) {
     if (holdoutFilesNeverRead.includes(path)) {

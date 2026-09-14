@@ -49,7 +49,7 @@ import {
 import { NON_PREDICTED_GOLD_FIELDS, predictedClassOf, type ScoredItem } from './score.js';
 import type { LoadedOwnerAdjudication } from './adjudication.js';
 import type { LoadedGoldSupplement } from './supplement.js';
-import type { LoadedSources } from './sources.js';
+import type { LoadedSources, ScoredVariantName } from './sources.js';
 
 export const RECOMMENDATIONS = [
   'PROMOTE_PROMPT_V2_TO_NEXT_GATE',
@@ -122,7 +122,7 @@ export interface GateOutcome {
 }
 
 export interface VariantSemanticMetrics {
-  readonly variantName: FrozenVariantName;
+  readonly variantName: ScoredVariantName;
   readonly fields: readonly FieldMetrics[];
   readonly ternaryByAxis: readonly { readonly axis: string; readonly metrics: TernaryMetrics }[];
   readonly hardNegative: HardNegativeMetrics;
@@ -464,7 +464,9 @@ export interface F4Summary {
   readonly recommendationScope: string;
 }
 
-function distributionOf(rows: readonly ScoredItem[]): Record<string, Record<string, number>> {
+export function distributionOf(
+  rows: readonly ScoredItem[],
+): Record<string, Record<string, number>> {
   const distribution: Record<string, Record<string, number>> = {};
   for (const field of Object.keys(FIELD_VOCABULARIES)) {
     const counts: Record<string, number> = {};
@@ -649,7 +651,7 @@ function sliceRowsOf(paired: readonly PairedItem[]): readonly SliceRow[] {
  * validator rejected IS included, with `predicted: null`, which is what makes
  * the strict denominator strict.
  */
-function observationsFor(
+export function observationsFor(
   rows: readonly ScoredItem[],
   field: string,
 ): readonly ScorableObservation[] {
@@ -667,7 +669,7 @@ function observationsFor(
   return observations;
 }
 
-function hardNegativeMetricsOf(rows: readonly ScoredItem[]): HardNegativeMetrics {
+export function hardNegativeMetricsOf(rows: readonly ScoredItem[]): HardNegativeMetrics {
   const hardNegatives = rows.filter((row) => row.gold['hard_negative'] === 'HARD_NEGATIVE');
   let rejectedAsNonUnit = 0;
   let acceptedAsUnitPage = 0;
@@ -702,7 +704,7 @@ function hardNegativeMetricsOf(rows: readonly ScoredItem[]): HardNegativeMetrics
  * A gate whose denominator is zero reports `met: null`, never `true` — an
  * unmeasured gate is not a passed gate.
  */
-function gateOutcomesOf(
+export function gateOutcomesOf(
   gates: Readonly<Record<string, number>>,
   fields: readonly FieldMetrics[],
   hardNegative: HardNegativeMetrics,
@@ -789,8 +791,8 @@ function gateOutcomesOf(
   ];
 }
 
-function semanticMetricsOf(
-  variantName: FrozenVariantName,
+export function semanticMetricsOf(
+  variantName: ScoredVariantName,
   rows: readonly ScoredItem[],
   gates: Readonly<Record<string, number>>,
 ): VariantSemanticMetrics {

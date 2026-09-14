@@ -25,10 +25,12 @@ import type {
   GoldCorpusItem,
   ProposedLabel,
 } from '../../../../orgunits/classify/evaluation/goldSchema.js';
-import type { FrozenVariantName } from '../constants.js';
 import { sha256Hex } from '../freeze.js';
 import { GOLD_BACKED_FIELDS, requireAvailable, type GoldAvailability } from './gold.js';
-import type { LoadedEvaluation, LoadedSources } from './sources.js';
+import type { LoadedEvaluation, LoadedSources, ScoredVariantName } from './sources.js';
+
+/** F0D: the sources a per-variant scoring pass reads — satisfied by the attempt-1 and the attempt-2 loaders alike. */
+export type ScoringSourceRows = Pick<LoadedSources, 'corpusRows' | 'evaluations'>;
 
 export class ScoringError extends Error {
   override readonly name = 'ScoringError';
@@ -77,7 +79,7 @@ export interface ScoredItem {
   readonly logicalBatchOrdinal: number;
   readonly positionWithinBatch: number;
   readonly sequence: number;
-  readonly variantName: FrozenVariantName;
+  readonly variantName: ScoredVariantName;
   readonly promptVersion: string;
   readonly promptSha256: string;
   readonly variantGitCommit: string;
@@ -209,8 +211,8 @@ export const NON_PREDICTED_GOLD_FIELDS: readonly string[] = Object.freeze(['hard
  * document claimed both accepted and rejected, and any non-DEVELOPMENT row.
  */
 export function scoreVariant(
-  sources: LoadedSources,
-  variantName: FrozenVariantName,
+  sources: ScoringSourceRows,
+  variantName: ScoredVariantName,
   availability: GoldAvailability,
   preserved: PreservedGold,
 ): readonly ScoredItem[] {

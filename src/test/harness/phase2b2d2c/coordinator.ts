@@ -39,21 +39,56 @@ import {
   writeFileOnceDurably,
   type ArtifactKind,
 } from './artifacts.js';
-import type { ExecutionAuthorisation } from './authorisation.js';
 import { buildRunnerChildEnvironment } from './childEnvironment.js';
-import type { ChildManifest } from './childMain.js';
+import { ChildManifestSchema, type ChildManifest } from './childMain.js';
 import {
   EXPECTED_LOGICAL_BATCHES_PER_VARIANT,
   FROZEN_TIER2_GRACE_MS,
   FROZEN_TIER2_WATCHDOG_MS,
-  FROZEN_VARIANTS,
   REQUIRED_CAPTURE_FIELDS,
   RUNNER_ARTIFACT_VERSION,
-  type FrozenVariantName,
   type RequiredCaptureField,
   type StopConditionId,
 } from './constants.js';
-import type { ExecutionPlan, PlannedEvaluation } from './plan.js';
+import type { FrozenBatchContext } from './freeze.js';
+
+/**
+ * F0D: the plan shape the coordinator runs, STRUCTURAL so the attempt-1
+ * plan (`plan.ts`, 24 evaluations, two variants) and the attempt-2 plan
+ * (`f0c/freezeF0C.ts`, 12 evaluations, one variant) both satisfy it. The
+ * coordinator reads identities and frozen configuration only; the plan
+ * builder that produced them already verified every identity against its
+ * own freeze, and the child re-verifies every one of them again.
+ */
+export interface RunnerEvaluation {
+  readonly sequence: number;
+  readonly variantName: string;
+  readonly variantLabel: string;
+  readonly variantOrder: number;
+  readonly variantGitCommit: string;
+  readonly promptVersion: string;
+  readonly promptSha256: string;
+  readonly logicalBatchOrdinal: number;
+  readonly organisationId: string;
+  readonly echeRowKey: string;
+  readonly orderedGoldIds: readonly string[];
+  readonly orderedDocIndices: readonly number[];
+  readonly batchContext: FrozenBatchContext;
+  readonly serializedBatchUtf8Bytes: number;
+  readonly assemblyInputSha256: string;
+  readonly canonicalSerializedInputSha256: string;
+  readonly finalInputSha256: string;
+}
+
+export interface RunnerPlan {
+  readonly freezeVersion: string;
+  readonly freezeConfigRawSha256: string;
+  readonly requestedModelId: string;
+  readonly runConfig: { readonly maxTurns: 3; readonly thinking: 'disabled' };
+  readonly outputSchemaVersion: string;
+  readonly plannedLogicalEvaluations: number;
+  readonly evaluations: readonly RunnerEvaluation[];
+}
 import {
   deriveStopDecision,
   type ChildArtifactObservation,
@@ -79,13 +114,15 @@ export interface CoordinatorClock {
 }
 
 export interface ExperimentInput {
-  readonly plan: ExecutionPlan;
+  readonly plan: RunnerPlan;
   readonly freezePath: string;
   readonly outputRoot: string;
   readonly attemptNo: number;
-  readonly authorisation: ExecutionAuthorisation;
+  /** The granted authorisation (attempt-1 or attempt-2 shape); carried, never re-read here. */
+  readonly authorisation: Readonly<Record<string, unknown>>;
   readonly authorisationSha256: string;
-  readonly variantRoots: Readonly<Record<FrozenVariantName, string>>;
+  /** One root per variant the plan schedules, keyed by variant name. */
+  readonly variantRoots: Readonly<Record<string, string>>;
   readonly classifierConfigDir: string;
   readonly parentEnv: Readonly<Record<string, string | undefined>>;
   readonly platform: 'posix' | 'win32';
@@ -114,7 +151,7 @@ export interface ExperimentResult {
   readonly halt: ExperimentHalt | null;
   readonly evaluationsStarted: number;
   readonly evaluationsEndedWithoutStop: number;
-  readonly perVariantEndedWithoutStop: Readonly<Record<FrozenVariantName, number>>;
+  readonly perVariantEndedWithoutStop: Readonly<Record<string, number>>;
   readonly experimentDir: string;
 }
 
@@ -229,8 +266,8 @@ export type FinalRecord = Record<RequiredCaptureField, unknown> & {
 
 /** Composes the 38-field final record from the plan, the child's artifacts and the Tier-2 result. */
 export function composeFinalRecord(input: {
-  readonly plan: ExecutionPlan;
-  readonly evaluation: PlannedEvaluation;
+  readonly plan: RunnerPlan;
+  readonly evaluation: RunnerEvaluation;
   readonly attemptNo: number;
   readonly artifacts: ReadArtifacts;
   readonly tier2: ProcessIsolatedBatchResult;
@@ -379,10 +416,12 @@ export async function runExperiment(input: ExperimentInput): Promise<ExperimentR
   const watchdogMs = input.tier2?.watchdogMs ?? FROZEN_TIER2_WATCHDOG_MS;
   const graceMs = input.tier2?.graceMs ?? FROZEN_TIER2_GRACE_MS;
   const experimentDir = experimentDirectoryOf(input.outputRoot, input.attemptNo);
-  const endedWithoutStop: Record<FrozenVariantName, number> = {
-    PROMPT_V1_CANONICAL: 0,
-    PROMPT_V2_CANONICAL: 0,
-  };
+  // One counter per variant the plan schedules, in first-appearance order —
+  // both attempt-1 variants for the F0B plan, the one V3 variant for F0C.
+  const endedWithoutStop: Record<string, number> = {};
+  for (const evaluation of plan.evaluations) endedWithoutStop[evaluation.variantName] ??= 0;
+  const endedTotal = (): number =>
+    Object.values(endedWithoutStop).reduce((total, count) => total + count, 0);
   let started = 0;
 
   // Consume the authorisation write-once, before anything else is created:
@@ -422,23 +461,32 @@ export async function runExperiment(input: ExperimentInput): Promise<ExperimentR
       status: 'STOPPED',
       halt: h,
       evaluationsStarted: started,
-      evaluationsEndedWithoutStop:
-        endedWithoutStop.PROMPT_V1_CANONICAL + endedWithoutStop.PROMPT_V2_CANONICAL,
+      evaluationsEndedWithoutStop: endedTotal(),
       perVariantEndedWithoutStop: { ...endedWithoutStop },
       experimentDir,
     };
   };
 
   for (const evaluation of plan.evaluations) {
-    // Structural v1-before-v2 gate: a v2 evaluation needs all twelve v1 evaluations ended without a stop.
+    // Structural v1-before-v2 gate (attempt-1 plans): a v2 evaluation needs
+    // all twelve v1 evaluations ended without a stop. An attempt-2 plan
+    // schedules neither, so the gate never fires there.
     if (
-      evaluation.variantName === FROZEN_VARIANTS[1].name &&
-      endedWithoutStop.PROMPT_V1_CANONICAL !== EXPECTED_LOGICAL_BATCHES_PER_VARIANT
+      evaluation.variantName === 'PROMPT_V2_CANONICAL' &&
+      (endedWithoutStop['PROMPT_V1_CANONICAL'] ?? 0) !== EXPECTED_LOGICAL_BATCHES_PER_VARIANT
     ) {
       return halt({
         kind: 'WRITE_ONCE_REFUSAL',
         atSequence: evaluation.sequence,
-        detail: `refusing to start ${evaluation.variantName}: only ${endedWithoutStop.PROMPT_V1_CANONICAL} of ${EXPECTED_LOGICAL_BATCHES_PER_VARIANT} v1 evaluations ended without a stop.`,
+        detail: `refusing to start ${evaluation.variantName}: only ${endedWithoutStop['PROMPT_V1_CANONICAL'] ?? 0} of ${EXPECTED_LOGICAL_BATCHES_PER_VARIANT} v1 evaluations ended without a stop.`,
+      });
+    }
+    const variantRoot = input.variantRoots[evaluation.variantName];
+    if (variantRoot === undefined) {
+      return halt({
+        kind: 'WRITE_ONCE_REFUSAL',
+        atSequence: evaluation.sequence,
+        detail: `refusing to start ${evaluation.variantName}: no variant root was supplied for it.`,
       });
     }
     const attemptDir = attemptDirectoryOf(
@@ -462,7 +510,9 @@ export async function runExperiment(input: ExperimentInput): Promise<ExperimentR
       requestedModelId: plan.requestedModelId,
       runConfig: plan.runConfig,
     });
-    const manifest: ChildManifest = {
+    // Parsed through the child's own closed schema before it is written, so a
+    // plan naming a variant the manifest contract does not admit stops here.
+    const manifest: ChildManifest = ChildManifestSchema.parse({
       runnerRecordVersion: RUNNER_ARTIFACT_VERSION,
       freezePath: input.freezePath,
       freezeConfigRawSha256: plan.freezeConfigRawSha256,
@@ -470,7 +520,7 @@ export async function runExperiment(input: ExperimentInput): Promise<ExperimentR
       variantName: evaluation.variantName,
       variantLabel: evaluation.variantLabel,
       variantGitCommit: evaluation.variantGitCommit,
-      variantRoot: input.variantRoots[evaluation.variantName],
+      variantRoot,
       promptVersion: evaluation.promptVersion,
       promptSha256: evaluation.promptSha256,
       logicalBatchOrdinal: evaluation.logicalBatchOrdinal,
@@ -488,7 +538,7 @@ export async function runExperiment(input: ExperimentInput): Promise<ExperimentR
       attemptNo: input.attemptNo,
       attemptDir,
       classifierConfigDir: input.classifierConfigDir,
-    };
+    });
     writeArtifactOnce(attemptDir, 'CHILD_MANIFEST', manifest);
     const childEnv = buildRunnerChildEnvironment({
       parentEnv: input.parentEnv,
@@ -559,7 +609,7 @@ export async function runExperiment(input: ExperimentInput): Promise<ExperimentR
             },
       );
     }
-    endedWithoutStop[evaluation.variantName] += 1;
+    endedWithoutStop[evaluation.variantName] = (endedWithoutStop[evaluation.variantName] ?? 0) + 1;
   }
 
   writeArtifactOnce(experimentDir, 'EXPERIMENT_COMPLETION', {
@@ -572,8 +622,7 @@ export async function runExperiment(input: ExperimentInput): Promise<ExperimentR
     status: 'COMPLETED_ALL_PLANNED',
     halt: null,
     evaluationsStarted: started,
-    evaluationsEndedWithoutStop:
-      endedWithoutStop.PROMPT_V1_CANONICAL + endedWithoutStop.PROMPT_V2_CANONICAL,
+    evaluationsEndedWithoutStop: endedTotal(),
     perVariantEndedWithoutStop: { ...endedWithoutStop },
     experimentDir,
   };

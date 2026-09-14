@@ -217,7 +217,7 @@ export const FreezeSchema = z.looseObject({
 export type Freeze = z.infer<typeof FreezeSchema>;
 
 /** The policy a freeze declares, or the DISABLED policy when it declares none (F0B). */
-export function freezeRepairPolicy(freeze: Freeze): FrozenRepairPolicy {
+export function freezeRepairPolicy(freeze: Pick<Freeze, 'repairPolicy'>): FrozenRepairPolicy {
   return (
     freeze.repairPolicy ?? {
       enabled: false,

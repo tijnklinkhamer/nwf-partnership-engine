@@ -24,7 +24,6 @@ import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { canonicalStringify } from '../../../../orgunits/classify/canonical.js';
 import { computeFinalInputSha256 } from '../../../../orgunits/classify/finalIdentity.js';
-import { MAX_TRANSIENT_RETRIES } from '../../../../orgunits/classify/retry.js';
 import {
   REPAIR_ATTEMPT_SOFT_DEADLINE_MS,
   REPAIR_HARD_KILL_GRACE_MS,
@@ -35,8 +34,14 @@ import {
 import {
   EXPECTED_F0B_FREEZE_RAW_SHA256,
   EXPECTED_LOGICAL_BATCHES_PER_VARIANT,
+  FROZEN_AGENT_SDK_VERSION,
   FROZEN_AUTH_STATUS_TIMEOUT_MS,
+  FROZEN_CLAUDE_CODE_VERSION,
+  FROZEN_MAX_TRANSIENT_RETRIES,
+  FROZEN_POSIX_USER_VARIABLE,
   FROZEN_RUN_CONFIG,
+  FROZEN_RUN_PLATFORM,
+  FROZEN_STDERR_TAIL_MAX_CHARS,
   FROZEN_TIER1_GRACE_MS,
   FROZEN_TIER1_SOFT_DEADLINE_MS,
   FROZEN_TIER1_TOTAL_BUDGET_MS,
@@ -45,7 +50,12 @@ import {
   REQUIRED_CAPTURE_FIELDS,
   STOP_CONDITIONS,
 } from '../constants.js';
-import { FrozenBatchContextSchema, RepairPolicySchema } from '../freeze.js';
+import {
+  FrozenBatchContextSchema,
+  FrozenChildEnvironmentSchema,
+  FrozenClaudeCodeExecutableSchema,
+  RepairPolicySchema,
+} from '../freeze.js';
 
 /** Repository-relative path of the PROPOSED F0C freeze. */
 export const F0C_FREEZE_PATH = 'docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0C_V1.json';
@@ -58,6 +68,33 @@ export const F0C_FREEZE_PATH = 'docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_
  */
 export const PROPOSED_F0C_FREEZE_RAW_SHA256 =
   'd3de146fa789e64f09d850b03512e602caa226578387306642de6f4904b3efa9';
+
+/**
+ * F0D (attempt-2 preparation): the owner APPROVED exactly these bytes on
+ * 2026-09-14 (`PHASE_2B_2D2C_F0C_OWNER_FREEZE_APPROVAL_V1.json`, ratified by
+ * `..._RATIFICATION_V1.json`). The value is the SAME as the proposed one —
+ * approval is a separate record and never edits the bytes — and is
+ * restated under its own name so that attempt-2 code reads "approved",
+ * never "proposed", and so a drifted approval record is refused by hash.
+ */
+export const APPROVED_F0C_FREEZE_RAW_SHA256 = PROPOSED_F0C_FREEZE_RAW_SHA256;
+export const APPROVED_F0C_FREEZE_RAW_BYTES = 82_304;
+/** The derived attempt-2 plan identity the owner approved; a rebuilt plan must equal it exactly. */
+export const APPROVED_F0C_PLAN_SHA256 =
+  '133a7a2017873ae5b2144796084f7cca28b22ce7c9593f3d5e828ce3ec4c3143';
+/** The branch commit whose bytes were approved (the freeze bytes are identical at every later commit of the branch). */
+export const F0C_APPROVED_FREEZE_COMMIT = '5ddb558ff5404b1e5f1633e6def634a2a57fd7e3';
+export const F0C_APPROVAL_RECORD_PATH =
+  'docs/evaluation/PHASE_2B_2D2C_F0C_OWNER_FREEZE_APPROVAL_V1.json';
+export const F0C_APPROVAL_RECORD_RAW_SHA256 =
+  '61eb52f3193636ff496d403140538cfd370964b82e7b660fbe6d9944a831dd22';
+export const F0C_RATIFICATION_RECORD_PATH =
+  'docs/evaluation/PHASE_2B_2D2C_F0C_OWNER_FREEZE_APPROVAL_RATIFICATION_V1.json';
+export const F0C_RATIFICATION_RECORD_RAW_SHA256 =
+  'bad4b359b319039a4341c66ad04efd7a92285725cd526b934d7883cb40162cba';
+/** The attempt-1 authorisation that was CONSUMED on 2026-09-13; presenting it for attempt 2 is refused by exact hash. */
+export const SPENT_ATTEMPT_1_AUTHORISATION_SHA256 =
+  '46d1bd9ebed544f7ebf463f26ff6ec7cca89d8a9d849fdfd04a42412dc2d5705';
 
 export const F0C_FREEZE_ID = 'PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0C_V1';
 export const F0C_FREEZE_VERSION = 'phase2b-2d2c-dev-configuration-freeze-f0c-v1';
@@ -187,6 +224,8 @@ export const F0CFreezeSchema = z.looseObject({
     outputSchemaVersion: z.string().min(1),
     runConfig: z.strictObject({ maxTurns: z.literal(3), thinking: z.literal('disabled') }),
     variants: z.array(F0CVariantSchema).length(1),
+    claudeCodeExecutable: FrozenClaudeCodeExecutableSchema,
+    childEnvironment: FrozenChildEnvironmentSchema,
   }),
   repairPolicy: RepairPolicySchema,
   repairContract: z.looseObject({
@@ -241,11 +280,15 @@ export const F0CFreezeSchema = z.looseObject({
       attemptSoftDeadlineMs: z.int(),
       abortCloseSettlementGraceMs: z.int(),
       totalProviderCallBudgetMs: z.int(),
-      transientRetries: z.looseObject({ maxAfterFirstAttempt: z.int() }),
+      transientRetries: z.looseObject({
+        maxAfterFirstAttempt: z.int(),
+        backoffMs: z.array(z.int()),
+      }),
     }),
     tier2: z.looseObject({
       parentWatchdogMs: z.int(),
       gracefulTerminationWindowMs: z.int(),
+      stderrTailMaxChars: z.int(),
       watchdogDerivationMs: z.looseObject({
         authStatusRunnerTimeout: z.int(),
         providerAttemptWindow: z.int(),
@@ -265,13 +308,23 @@ export const F0CFreezeSchema = z.looseObject({
   outputCapture: z.looseObject({ requiredPerLogicalBatch: z.array(z.string().min(1)) }),
   scoring: z.looseObject({
     gates: z.record(z.string(), z.number()),
+    acceptanceRule: z.string().min(1),
     comparatorPolicy: z.looseObject({
       attempt1: z.looseObject({
         freezeRawSha256: z.literal(EXPECTED_F0B_FREEZE_RAW_SHA256),
         artifactInventorySha256: Sha256,
+        artifactCount: z.int().min(1),
+        authorisationSha256: Sha256,
+        planSha256: Sha256,
         readOnly: z.literal(true),
         neverInsideAttempt2Namespace: z.literal(true),
       }),
+      stochasticCaveat: z.string().min(1),
+    }),
+    scoringInputs: z.looseObject({
+      devLabelsFixture: z.looseObject({ path: z.string().min(1), rawSha256: Sha256 }),
+      scoringSupplement: z.looseObject({ path: z.string().min(1), rawSha256: Sha256 }),
+      ownerAdjudicationRecord: z.looseObject({ path: z.string().min(1), rawSha256: Sha256 }),
     }),
     postRepairTreatment: z.looseObject({
       gatesAppliedTo: z.literal('POST_REPAIR_VALIDITY'),
@@ -445,7 +498,7 @@ export function assertF0CAgreesWithProduction(freeze: F0CFreeze): void {
     problems.push('tier1.abortCloseSettlementGraceMs');
   if (tier1.totalProviderCallBudgetMs !== FROZEN_TIER1_TOTAL_BUDGET_MS)
     problems.push('tier1.totalProviderCallBudgetMs');
-  if (tier1.transientRetries.maxAfterFirstAttempt !== MAX_TRANSIENT_RETRIES)
+  if (tier1.transientRetries.maxAfterFirstAttempt !== FROZEN_MAX_TRANSIENT_RETRIES)
     problems.push('tier1.transientRetries');
   if (tier1.totalProviderCallBudgetMs !== REPAIR_TOTAL_BUDGET_MS)
     problems.push('repair total budget');
@@ -479,6 +532,35 @@ export function assertF0CAgreesWithProduction(freeze: F0CFreeze): void {
     problems.push('sharedBudgetRule tier2');
   }
 
+  // F0D: the SDK-bundled executable contract and the run-platform binary
+  // identity are the F0B ones, exactly (the V3 root resolves the same binary).
+  const executable = freeze.classifier.claudeCodeExecutable;
+  if (executable.sdkPackage !== freeze.classifier.agentSdk.package) problems.push('sdkPackage');
+  if (executable.sdkVersion !== FROZEN_AGENT_SDK_VERSION) problems.push('sdkVersion');
+  if (freeze.classifier.agentSdk.version !== FROZEN_AGENT_SDK_VERSION)
+    problems.push('agentSdk.version');
+  if (executable.claudeCodeVersion !== FROZEN_CLAUDE_CODE_VERSION)
+    problems.push('claudeCodeVersion');
+  if (executable.nativePackagePrefix !== `${executable.sdkPackage}-`)
+    problems.push('nativePackagePrefix');
+  const run = executable.runPlatform;
+  if (run.platform !== FROZEN_RUN_PLATFORM.platform) problems.push('runPlatform.platform');
+  if (run.arch !== FROZEN_RUN_PLATFORM.arch) problems.push('runPlatform.arch');
+  if (run.platformKey !== FROZEN_RUN_PLATFORM.platformKey) problems.push('runPlatform.platformKey');
+  if (run.nativePackage !== `${executable.nativePackagePrefix}${run.platformKey}`)
+    problems.push('runPlatform.nativePackage');
+  if (run.nativePackageVersion !== FROZEN_AGENT_SDK_VERSION)
+    problems.push('runPlatform.nativePackageVersion');
+  if (run.binaryFileName !== FROZEN_RUN_PLATFORM.binaryFileName)
+    problems.push('runPlatform.binaryFileName');
+  if (run.binaryBytes !== FROZEN_RUN_PLATFORM.binaryBytes) problems.push('runPlatform.binaryBytes');
+  if (run.binarySha256 !== FROZEN_RUN_PLATFORM.binarySha256)
+    problems.push('runPlatform.binarySha256');
+  if (freeze.classifier.childEnvironment.posixOsPassthroughAddition !== FROZEN_POSIX_USER_VARIABLE)
+    problems.push('childEnvironment.posixOsPassthroughAddition');
+  if (tier2.stderrTailMaxChars !== FROZEN_STDERR_TAIL_MAX_CHARS)
+    problems.push('tier2.stderrTailMaxChars');
+
   // Run config, stop conditions, capture fields: unchanged.
   if (freeze.classifier.runConfig.maxTurns !== FROZEN_RUN_CONFIG.maxTurns)
     problems.push('runConfig.maxTurns');
@@ -498,7 +580,7 @@ export function assertF0CAgreesWithProduction(freeze: F0CFreeze): void {
   const ceilingByOrdinal = new Map(
     freeze.callCeiling.perLogicalEvaluation.map((c) => [c.ordinal, c]),
   );
-  if (freeze.callCeiling.maxTransientRetriesPerRequest !== MAX_TRANSIENT_RETRIES)
+  if (freeze.callCeiling.maxTransientRetriesPerRequest !== FROZEN_MAX_TRANSIENT_RETRIES)
     problems.push('callCeiling retries');
   let documents = 0;
   for (const [index, batch] of freeze.batching.plan.entries()) {
@@ -540,7 +622,7 @@ export function assertF0CAgreesWithProduction(freeze: F0CFreeze): void {
     totals.maxRepairRequests !== documents ||
     totals.maxProviderRequests !== EXPECTED_LOGICAL_BATCHES_PER_VARIANT + documents ||
     totals.maxAdapterAttempts !==
-      (EXPECTED_LOGICAL_BATCHES_PER_VARIANT + documents) * (1 + MAX_TRANSIENT_RETRIES)
+      (EXPECTED_LOGICAL_BATCHES_PER_VARIANT + documents) * (1 + FROZEN_MAX_TRANSIENT_RETRIES)
   ) {
     problems.push('callCeiling.totals');
   }
@@ -560,7 +642,7 @@ export interface CallCeiling {
   readonly maxAdapterAttempts: number;
 }
 
-/** THE mechanical ceiling: one original request plus at most one repair per document, each with at most 1 + MAX_TRANSIENT_RETRIES adapter attempts. */
+/** THE mechanical ceiling: one original request plus at most one repair per document, each with at most 1 + FROZEN_MAX_TRANSIENT_RETRIES adapter attempts. */
 export function deriveCallCeiling(documentCount: number): CallCeiling {
   if (!Number.isInteger(documentCount) || documentCount < 1)
     throw new RangeError('documentCount must be a positive integer.');
@@ -569,7 +651,7 @@ export function deriveCallCeiling(documentCount: number): CallCeiling {
     maxEligibleRejectedDocuments: documentCount,
     maxRepairRequests: documentCount,
     maxProviderRequests: 1 + documentCount,
-    maxAdapterAttempts: (1 + documentCount) * (1 + MAX_TRANSIENT_RETRIES),
+    maxAdapterAttempts: (1 + documentCount) * (1 + FROZEN_MAX_TRANSIENT_RETRIES),
   };
 }
 
@@ -694,6 +776,11 @@ export function f0cPlanOrderIsFrozen(plan: F0CExecutionPlan): boolean {
         !(ATTEMPT_1_VARIANT_NAMES as readonly string[]).includes(evaluation.variantName),
     )
   );
+}
+
+/** `<outputRoot>/experiments/attempt-2` — the attempt-2 experiment directory. */
+export function f0cExperimentDirectoryOf(outputRoot: string): string {
+  return `${outputRoot}/experiments/attempt-${F0C_ATTEMPT_NO}`;
 }
 
 /** The write-once attempt-2 namespaces; attempt-1 directories are outside all of them. */

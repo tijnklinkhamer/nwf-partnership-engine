@@ -53,7 +53,6 @@ import {
   FROZEN_TIER1_SOFT_DEADLINE_MS,
   FROZEN_TIER1_TOTAL_BUDGET_MS,
   FROZEN_TRANSIENT_RETRY_BASE_DELAY_MS,
-  type FrozenVariant,
 } from './constants.js';
 import { sha256Hex, type Freeze } from './freeze.js';
 import {
@@ -61,6 +60,52 @@ import {
   RUNTIME_MODULE_PATHS,
   type LoadedVariantRuntime,
 } from './runtimeLoader.js';
+
+/**
+ * The identity a variant root must exhibit — STRUCTURAL, so the attempt-1
+ * variants (`FrozenVariant`) and the F0C attempt-2 variant
+ * (`F0C_VARIANT`) both satisfy it without either freeze importing the
+ * other's constants. The verifier compares VALUES; nothing here is a
+ * literal type.
+ */
+export interface VariantIdentity {
+  readonly name: string;
+  readonly gitCommit: string;
+  readonly promptVersion: string;
+  readonly runtimePromptSha256: string;
+  readonly runtimePromptCharacters: number;
+  readonly runtimePromptUtf8Bytes: number;
+}
+
+/**
+ * The slice of a freeze this verifier reads. Both the F0B `Freeze` and the
+ * F0C freeze satisfy it structurally; the F0C loader asserts these very
+ * fields against the same production constants the F0B loader does.
+ */
+export interface RootVerificationContract {
+  readonly git: { readonly repository: string };
+  readonly classifier: Pick<
+    Freeze['classifier'],
+    | 'agentSdk'
+    | 'assemblyVersion'
+    | 'outputSchemaVersion'
+    | 'requestedModelId'
+    | 'claudeCodeExecutable'
+  >;
+  readonly inputConstruction: {
+    readonly context: Pick<
+      Freeze['inputConstruction']['context'],
+      'ruleVersion' | 'fetchPolicyVersion'
+    >;
+  };
+  readonly liveness: {
+    readonly tier1: Pick<
+      Freeze['liveness']['tier1'],
+      'attemptSoftDeadlineMs' | 'abortCloseSettlementGraceMs' | 'totalProviderCallBudgetMs'
+    >;
+    readonly tier2: Pick<Freeze['liveness']['tier2'], 'stderrTailMaxChars'>;
+  };
+}
 
 export interface VariantRootProbes {
   readonly realpath: (path: string) => string;
@@ -92,8 +137,9 @@ export type VariantRootCheckId =
   | 'NATIVE_CLAUDE_CODE_EXECUTABLE'
   | 'AUTH_AND_INFERENCE_SAME_EXECUTABLE';
 
+/** `id` is a string so a family-specific verifier (F0C's V3 root) can append its own check ids to the same list. */
 export interface VariantRootCheck {
-  readonly id: VariantRootCheckId;
+  readonly id: VariantRootCheckId | string;
   readonly ok: boolean;
   readonly detail: string;
 }
@@ -114,7 +160,7 @@ export interface VerifiedClaudeCodeExecutable {
 }
 
 export interface VariantRootVerification {
-  readonly variantName: FrozenVariant['name'];
+  readonly variantName: string;
   readonly root: string;
   readonly ok: boolean;
   readonly checks: readonly VariantRootCheck[];
@@ -150,9 +196,9 @@ const LIVENESS_TEXT_PROBES: readonly { readonly name: string; readonly pattern: 
 ];
 
 export async function verifyVariantRoot(
-  variant: FrozenVariant,
+  variant: VariantIdentity,
   root: string,
-  freeze: Freeze,
+  freeze: RootVerificationContract,
   probes: VariantRootProbes,
 ): Promise<VariantRootVerification> {
   const checks: VariantRootCheck[] = [];
