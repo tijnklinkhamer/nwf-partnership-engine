@@ -391,10 +391,25 @@ describe.skipIf(!ATTEMPT1_PRESENT)(
       ).toThrow(ScoringSourceError);
     });
 
-    it('emits byte-identical derived outputs on two separate derivations, into scratch only, with no raw model text', async () => {
+    it('emits byte-identical derived outputs on two separate derivations, into scratch only, with no raw model text, and never touches the real committed attempt-2 result', async () => {
       const { root } = buildSyntheticAttempt2Root();
       const outA = tmp('nwf-pe-f0d-out-a-');
       const outB = tmp('nwf-pe-f0d-out-b-');
+      // F0H (2026-09-14) deliberately widens this check, by exact name: a
+      // REAL attempt 2 was executed and its result committed to exactly
+      // this directory. That is unrelated to this SYNTHETIC derivation —
+      // the invariant this test protects is that a scratch `--out` never
+      // writes into, modifies or deletes the committed directory, not that
+      // the committed directory can never exist.
+      const committedDir = join(
+        REPO_ROOT,
+        'docs/evaluation/results/phase2b-2d2c-dev-attribution-attempt-2-gold-v1-adjudicated',
+      );
+      const committedBefore = existsSync(committedDir)
+        ? readdirSync(committedDir)
+            .sort()
+            .map((name) => `${name}:${readFileSync(join(committedDir, name)).length}`)
+        : null;
       const a = await generateAttempt2({
         attempt2Root: root,
         attempt1Root: ATTEMPT1_ROOT,
@@ -424,14 +439,17 @@ describe.skipIf(!ATTEMPT1_PRESENT)(
       expect(
         readFileSync(join(outA, 'scored-items.jsonl'), 'utf8').split('\n').filter(Boolean),
       ).toHaveLength(147);
-      expect(
-        existsSync(
-          join(
-            REPO_ROOT,
-            'docs/evaluation/results/phase2b-2d2c-dev-attribution-attempt-2-gold-v1-adjudicated',
-          ),
-        ),
-      ).toBe(false);
+      // Neither scratch output is the committed path, and the committed
+      // directory's own presence/absence and contents are unchanged by
+      // this synthetic run.
+      expect(outA).not.toBe(committedDir);
+      expect(outB).not.toBe(committedDir);
+      const committedAfter = existsSync(committedDir)
+        ? readdirSync(committedDir)
+            .sort()
+            .map((name) => `${name}:${readFileSync(join(committedDir, name)).length}`)
+        : null;
+      expect(committedAfter).toEqual(committedBefore);
     });
   },
 );

@@ -2752,7 +2752,7 @@ describe('PHASE-2B-FIREWALL 2B-2D2C-F0D/F0E: attempt-2 preparation is plan-only,
   const FAMILY = `${F0C_DIR}/freezeFamily.ts`;
   const V3_ROOT = `${F0C_DIR}/variantRootF0C.ts`;
 
-  it('the attempt-2 modules exist, no attempt-2 evidence, results, authorisation or marker exists anywhere in the repository, and the F0E approval record is pinned by literal', () => {
+  it('the attempt-2 modules exist; F0G/F0H (2026-09-14) COMMITTED the attempt-2 result under exactly its named directory and nothing else matching attempt-2/attempt-3 exists; no raw authorisation or consumption-marker file leaked into the repository; and the F0E approval record is pinned by literal', () => {
     for (const file of [
       CLI,
       LOCK,
@@ -2769,11 +2769,23 @@ describe('PHASE-2B-FIREWALL 2B-2D2C-F0D/F0E: attempt-2 preparation is plan-only,
     ]) {
       expect(exists(file), `${file} is missing`).toBe(true);
     }
-    for (const entry of readdirSync(resolve(ROOT, 'docs/evaluation/results'))) {
-      expect(entry, 'an attempt-2 results directory exists').not.toMatch(/attempt-2/);
+    // F0G/F0H deliberately widen this check, by exact name: attempt 2 was
+    // executed under an owner-issued authorisation and its DERIVED,
+    // PII-free scored result was committed to the one directory the F0D
+    // emitter names (`COMMITTED_ATTEMPT2_RESULTS_DIR`). No OTHER
+    // attempt-2-shaped results directory, and no attempt-3 of any shape,
+    // may ever appear alongside it.
+    const resultsEntries = readdirSync(resolve(ROOT, 'docs/evaluation/results'));
+    expect(
+      resultsEntries.filter((entry) => entry.includes('attempt-2')),
+      'exactly one committed attempt-2 results directory',
+    ).toEqual(['phase2b-2d2c-dev-attribution-attempt-2-gold-v1-adjudicated']);
+    for (const entry of resultsEntries) {
+      expect(entry, 'no attempt-3 results directory exists').not.toMatch(/attempt-3/);
     }
     for (const entry of readdirSync(resolve(ROOT, 'docs/evaluation'))) {
       expect(entry).not.toMatch(/attempt-2/);
+      expect(entry).not.toMatch(/attempt-3/);
       expect(entry).not.toMatch(/authorisation/i);
       expect(entry).not.toMatch(/consumption/i);
     }
