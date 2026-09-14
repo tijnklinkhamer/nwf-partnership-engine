@@ -434,12 +434,12 @@ describe('decideRepairBudget is the one budget arithmetic', () => {
       code: 'REPAIR_SKIPPED_INSUFFICIENT_BUDGET',
       remainingMs: 55_000,
       usableMs: 45_000,
-      minimumRemainingBudgetMs: 60_000,
+      minimumRemainingBudgetMs: 120_000,
     });
     if (decision.kind !== 'SKIP') throw new Error('unreachable');
     expect(describeRepairSkip(decision)).toBe(
       'REPAIR_SKIPPED_INSUFFICIENT_BUDGET: 45000 ms usable of 55000 ms remaining in the original ' +
-        "evaluation's budget, below the 60000 ms minimum; no provider request was sent.",
+        "evaluation's budget, below the 120000 ms minimum; no provider request was sent.",
     );
   });
 
