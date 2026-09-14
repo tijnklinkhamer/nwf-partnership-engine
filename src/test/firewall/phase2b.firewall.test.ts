@@ -2745,20 +2745,23 @@ describe('PHASE-2B-FIREWALL 2B-2D2C-R1: the ONE bounded item-level repair round 
   });
 });
 
-describe('PHASE-2B-FIREWALL 2B-2D2C-F0D: attempt-2 preparation is plan-only, freshly authorised, family-dispatched by hash, and scored against the pinned comparator', () => {
+describe('PHASE-2B-FIREWALL 2B-2D2C-F0D/F0E: attempt-2 preparation is plan-only, freshly authorised against the CURRENT (F0E) freeze only, family-dispatched by hash, and scored against the pinned comparator', () => {
   const F0C_DIR = 'src/test/harness/phase2b2d2c/f0c';
   const CLI = `${F0C_DIR}/cliF0C.ts`;
   const LOCK = `${F0C_DIR}/authorisationF0C.ts`;
   const FAMILY = `${F0C_DIR}/freezeFamily.ts`;
   const V3_ROOT = `${F0C_DIR}/variantRootF0C.ts`;
 
-  it('the F0D modules exist, and no attempt-2 evidence, results, authorisation or marker exists anywhere in the repository', () => {
+  it('the attempt-2 modules exist, and no attempt-2 evidence, results, authorisation or marker exists anywhere in the repository; no F0E approval record exists or is pinned', () => {
     for (const file of [
       CLI,
       LOCK,
       FAMILY,
       V3_ROOT,
       `${F0C_DIR}/planVerification.ts`,
+      `${F0C_DIR}/attempt2FreezeCore.ts`,
+      `${F0C_DIR}/freezeF0C.ts`,
+      `${F0C_DIR}/freezeF0E.ts`,
       'src/test/harness/phase2b2d2c/scoring/attempt2Sources.ts',
       'src/test/harness/phase2b2d2c/scoring/attempt2Run.ts',
       'src/test/harness/phase2b2d2c/scoring/attempt2Summarise.ts',
@@ -2774,11 +2777,14 @@ describe('PHASE-2B-FIREWALL 2B-2D2C-F0D: attempt-2 preparation is plan-only, fre
       expect(entry).not.toMatch(/authorisation/i);
       expect(entry).not.toMatch(/consumption/i);
     }
+    expect(exists('docs/evaluation/PHASE_2B_2D2C_F0E_OWNER_FREEZE_APPROVAL_V1.json')).toBe(false);
+    expect(code(`${F0C_DIR}/freezeF0E.ts`)).toMatch(
+      /export const F0E_APPROVAL_RECORD_RAW_SHA256: string \| null = null;/,
+    );
   });
 
-  it('the attempt-2 CLI never imports the network namespace, has no --all/--v1-root/--v2-root, requires an EMPTY output root, and evaluates the attempt-2 lock only', () => {
+  it('the attempt-2 CLI never imports a socket-bearing module, has no --all/--v1-root/--v2-root, requires an EMPTY output root, refuses execution while F0E is unapproved, loads the CURRENT revision only, and evaluates the attempt-2 lock only', () => {
     const cli = code(CLI);
-    // The pure fetch-policy constant is the only web-namespace import (as in the attempt-1 CLI); no socket-bearing module.
     expect(cli).not.toMatch(
       /orgunits\/web\/(gateway|robots|authority|observations|pageEvidence|robotsAuthority)/,
     );
@@ -2786,35 +2792,44 @@ describe('PHASE-2B-FIREWALL 2B-2D2C-F0D: attempt-2 preparation is plan-only, fre
     expect(cli).not.toMatch(/['"]--all['"]/);
     expect(cli).not.toMatch(/['"]--v1-root['"]|['"]--v2-root['"]/);
     expect(cli).toContain('ATTEMPT2_OUTPUT_ROOT_NOT_EMPTY');
-    expect(cli).toContain('evaluateF0CExecutionLock(');
+    expect(cli).toContain('REPLACEMENT_FREEZE_NOT_OWNER_APPROVED');
+    expect(cli).toContain('evaluateAttempt2ExecutionLock(');
     expect(cli).not.toContain('evaluateExecutionLock(');
     expect(cli).not.toContain('repairPolicyFor');
     expect(cli).not.toMatch(/from\s+['"]\.\.\/\.\.\/\.\.\/\.\.\/\.\.\/scripts\//);
-    expect(cli).toMatch(/if \(options\.attemptNo !== F0C_ATTEMPT_NO\)/);
+    expect(cli).toMatch(/if \(options\.attemptNo !== ATTEMPT_2_NO\)/);
+    expect(cli).toContain('loadF0EFreezeFromBytes(readFileSync(freezePath))');
+    expect(cli).not.toContain('loadF0CFreezeFromBytes(');
   });
 
-  it('the attempt-2 lock pins attempt 2, the APPROVED F0C hash, the approved plan, both owner records and the one V3 variant by literal, and refuses the spent and the attempt-1 authorisation by name', () => {
+  it('the attempt-2 lock pins attempt 2, the F0E hash, the F0E plan, the superseded F0C hash and the one V3B variant by literal; refuses the spent, the attempt-1 and the F0C-naming authorisation by name; and refuses everything while F0E is unapproved', () => {
     const lock = code(LOCK);
-    expect(lock).toContain('attemptNo: z.literal(F0C_ATTEMPT_NO)');
-    expect(lock).toContain('freezeConfigRawSha256: z.literal(APPROVED_F0C_FREEZE_RAW_SHA256)');
-    expect(lock).toContain('planSha256: z.literal(APPROVED_F0C_PLAN_SHA256)');
-    expect(lock).toContain(
-      'freezeApprovalRecordRawSha256: z.literal(F0C_APPROVAL_RECORD_RAW_SHA256)',
-    );
-    expect(lock).toContain('name: z.literal(F0C_VARIANT.name)');
+    expect(lock).toContain('attemptNo: z.literal(ATTEMPT_2_NO)');
+    expect(lock).toContain('freezeConfigRawSha256: z.literal(PROPOSED_F0E_FREEZE_RAW_SHA256)');
+    expect(lock).toContain('planSha256: z.literal(PROPOSED_F0E_PLAN_SHA256)');
+    expect(lock).toContain('supersededFreezeRawSha256: z.literal(APPROVED_F0C_FREEZE_RAW_SHA256)');
+    expect(lock).toContain('name: z.literal(F0E_VARIANT.name)');
     expect(lock).toContain('SPENT_ATTEMPT_1_AUTHORISATION_PRESENTED');
     expect(lock).toContain('ATTEMPT_1_AUTHORISATION_PRESENTED');
+    expect(lock).toContain('SUPERSEDED_F0C_FREEZE_NAMED');
+    expect(lock).toContain('REPLACEMENT_FREEZE_NOT_OWNER_APPROVED');
     expect(lock).not.toMatch(/freezeConfigRawSha256:\s*z\.string\(\)/);
     expect(lock).not.toMatch(/attemptNo:\s*z\.int\(\)/);
-    // It emits no authorisation: nothing here writes.
     expect(lock).not.toMatch(/writeFileSync|mkdirSync|appendFileSync/);
   });
 
-  it('the freeze family is decided by the bytes’ own SHA-256, never by a caller flag or an environment variable, and the child entry routes through it', () => {
+  it('the freeze family is decided by the bytes’ own SHA-256 — F0E dispatches, the superseded F0C is refused, never a caller flag or environment variable — and the child entry routes through it', () => {
     const family = code(FAMILY);
     expect(family).toMatch(
-      /createHash\('sha256'\)\.update\(bytes\)\.digest\('hex'\) === PROPOSED_F0C_FREEZE_RAW_SHA256/,
+      /const rawSha256 = createHash\('sha256'\)\.update\(bytes\)\.digest\('hex'\);/,
     );
+    expect(family).toContain(
+      "if (rawSha256 === PROPOSED_F0E_FREEZE_RAW_SHA256) return 'F0E_ATTEMPT_2';",
+    );
+    expect(family).toContain(
+      "if (rawSha256 === APPROVED_F0C_FREEZE_RAW_SHA256) return 'F0C_ATTEMPT_2_SUPERSEDED';",
+    );
+    expect(family).toContain('superseded by F0E before any execution');
     expect(family).not.toContain('process.env');
     expect(family).not.toMatch(/from\s+['"]node:(fs|net|http|https|dns|child_process)['"]/);
     const entry = read('src/test/harness/phase2b2d2c/childEntry.mjs');
@@ -2823,7 +2838,7 @@ describe('PHASE-2B-FIREWALL 2B-2D2C-F0D: attempt-2 preparation is plan-only, fre
     expect(entry).not.toContain('repairPolicyFor');
   });
 
-  it('the V3 root verifier probes the EFFECTIVE floor from the root’s own decision function and fails closed on a default-floor contradiction', () => {
+  it('the V3 root verifier probes the EFFECTIVE floor from the root’s own decision function and fails closed on a default-floor contradiction, with no special case for any revision or waiver', () => {
     const verifier = code(V3_ROOT);
     expect(verifier).toContain('REPAIR_FLOOR_HONOURED_FROM_POLICY');
     expect(verifier).toContain('REPAIR_DEFAULT_FLOOR_CONSTANT');
@@ -2832,9 +2847,10 @@ describe('PHASE-2B-FIREWALL 2B-2D2C-F0D: attempt-2 preparation is plan-only, fre
     );
     expect(verifier).toContain("return fail(\n      'REPAIR_DEFAULT_FLOOR_CONSTANT'");
     expect(verifier).not.toContain('process.env');
+    expect(verifier).not.toMatch(/F0E_|F0C_|waiver|WAIVER/);
   });
 
-  it('the attempt-2 scorer pins the comparator to the F0C freeze’s own comparator identity and the gold inputs to its scoringInputs hashes', () => {
+  it('the attempt-2 scorer pins the comparator to the freeze’s own comparator identity and the gold inputs to its scoringInputs hashes, and reads the CURRENT freeze', () => {
     const run = code('src/test/harness/phase2b2d2c/scoring/attempt2Run.ts');
     expect(run).toContain('comparator.artifactInventorySha256 !== pinned.artifactInventorySha256');
     expect(run).toContain('verifyPinnedScoringInput(');
@@ -2844,6 +2860,8 @@ describe('PHASE-2B-FIREWALL 2B-2D2C-F0D: attempt-2 preparation is plan-only, fre
     const sources = code('src/test/harness/phase2b2d2c/scoring/attempt2Sources.ts');
     expect(sources).toContain('SPENT_ATTEMPT_1_AUTHORISATION_SHA256');
     expect(sources).toContain('attempt-1 variants are never inside the attempt-2 namespace');
+    expect(sources).toContain('loadF0EFreezeFromBytes(');
+    expect(sources).not.toContain('loadF0CFreezeFromBytes(');
     const summarise = code('src/test/harness/phase2b2d2c/scoring/attempt2Summarise.ts');
     expect(summarise).toContain("gatesAppliedTo: 'POST_REPAIR_VALIDITY'");
     expect(summarise).toContain('firstPassRateAlwaysReported: true');

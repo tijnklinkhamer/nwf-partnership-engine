@@ -8,7 +8,8 @@
  *   1. its own environment self-check — any variable outside the closed
  *      allowlist is `ISOLATION_VIOLATION`, recorded, and nothing else runs;
  *   2. re-verifies the F0B freeze bytes by raw SHA-256 for an attempt-1
- *      manifest, or the approved F0C freeze bytes for an attempt-2 manifest;
+ *      manifest, or the current F0E freeze bytes for an attempt-2 manifest (the
+ *      superseded F0C bytes are refused);
  *      the family is decided by the bytes' own hash (F0D, `f0c/freezeFamily.ts`);
  *   3. verifies the selected variant root through the same checks the
  *      parent ran, loading the SDK-free production modules FROM THAT ROOT;
@@ -225,14 +226,14 @@ export async function runChildEvaluation(
         'CORPUS_CONFIG_OR_HASH_DRIFT',
         view.family === 'F0B_ATTEMPT_1'
           ? 'the manifest freeze hash is not the F0B hash.'
-          : 'the manifest freeze hash is not the approved F0C hash.',
+          : 'the manifest freeze hash is not the proposed F0E hash.',
         { stage: 'freeze', family: view.family },
       );
     }
-    if (view.family === 'F0C_ATTEMPT_2' && manifest.attemptNo !== view.attemptNo) {
+    if (view.family === 'F0E_ATTEMPT_2' && manifest.attemptNo !== view.attemptNo) {
       return preflightStop(
         'CORPUS_CONFIG_OR_HASH_DRIFT',
-        `the F0C freeze configures attempt ${view.attemptNo}; the manifest requests attempt ${manifest.attemptNo}.`,
+        `the F0E freeze configures attempt ${view.attemptNo}; the manifest requests attempt ${manifest.attemptNo}.`,
         { stage: 'freeze', family: view.family },
       );
     }

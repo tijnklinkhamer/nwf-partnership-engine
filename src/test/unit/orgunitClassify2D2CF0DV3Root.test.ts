@@ -21,7 +21,8 @@ import { fileURLToPath } from 'node:url';
 import { afterAll, describe, expect, it } from 'vitest';
 import { REPAIR_MINIMUM_REMAINING_BUDGET_MS } from '../../orgunits/classify/repair.js';
 import { FREEZE_PATH } from '../harness/phase2b2d2c/constants.js';
-import { F0C_FREEZE_PATH, loadF0CFreezeFromBytes } from '../harness/phase2b2d2c/f0c/freezeF0C.js';
+import { F0C_FREEZE_PATH } from '../harness/phase2b2d2c/f0c/freezeF0C.js';
+import { F0E_FREEZE_PATH, loadF0EFreezeFromBytes } from '../harness/phase2b2d2c/f0c/freezeF0E.js';
 import {
   freezeFamilyOf,
   resolveChildFreeze,
@@ -41,9 +42,10 @@ import {
 } from './support/phase2b2d2cSyntheticRoot.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
+const F0E_BYTES = readFileSync(join(ROOT, F0E_FREEZE_PATH));
 const F0C_BYTES = readFileSync(join(ROOT, F0C_FREEZE_PATH));
 const F0B_BYTES = readFileSync(join(ROOT, FREEZE_PATH));
-const { freeze: F0C } = loadF0CFreezeFromBytes(F0C_BYTES);
+const { freeze: F0C } = loadF0EFreezeFromBytes(F0E_BYTES);
 const { freeze: F0B } = loadFreezeFromBytes(F0B_BYTES);
 const HOST_NATIVE = hostNativePackage(F0C);
 const SCRATCH = realpathSync.native(mkdtempSync(join(tmpdir(), 'nwf-pe-2d2c-f0d-roots-')));
@@ -167,7 +169,7 @@ describe.skipIf(HOST_NATIVE === null)(
       expect(verification.checks.at(-1)?.detail).toContain('did not SKIP');
     });
 
-    it('THE REBUILT-ROOT FINDING: a module honouring the policy but exporting a 60000 default floor passes the probe and FAILS the default-floor check, fail closed', async () => {
+    it('FINDING F1 REPRODUCED SYNTHETICALLY (the superseded 0c0d738 root): a module honouring the policy but exporting a 60000 default floor passes the probe and FAILS the default-floor check, fail closed', async () => {
       const verification = await verifyV3Root(
         synthetic({ repairFloorOverride: 60_000 }),
         F0C,
@@ -208,25 +210,27 @@ describe.skipIf(HOST_NATIVE === null)(
 );
 
 describe('2D2C-F0D freeze family: decided by the bytes’ own hash, and each family verifies only the variants it schedules', () => {
-  it('the F0C bytes are the F0C family and the F0B bytes are the F0B family; one changed byte of F0C falls to the F0B loader and is refused there', () => {
-    expect(freezeFamilyOf(F0C_BYTES)).toBe('F0C_ATTEMPT_2');
+  it('the F0E bytes are the F0E family, the F0B bytes the F0B family, and the superseded F0C bytes are recognised only to be REFUSED; one changed byte of F0E falls to the F0B loader and is refused there', () => {
+    expect(freezeFamilyOf(F0E_BYTES)).toBe('F0E_ATTEMPT_2');
+    expect(freezeFamilyOf(F0C_BYTES)).toBe('F0C_ATTEMPT_2_SUPERSEDED');
+    expect(() => resolveChildFreeze(F0C_BYTES)).toThrow(/superseded by F0E before any execution/);
     expect(freezeFamilyOf(F0B_BYTES)).toBe('F0B_ATTEMPT_1');
-    expect(resolveChildFreeze(F0C_BYTES).family).toBe('F0C_ATTEMPT_2');
-    expect(resolveChildFreeze(F0C_BYTES).attemptNo).toBe(2);
-    expect(resolveChildFreeze(F0C_BYTES).variants.map((v) => v.name)).toEqual([
+    expect(resolveChildFreeze(F0E_BYTES).family).toBe('F0E_ATTEMPT_2');
+    expect(resolveChildFreeze(F0E_BYTES).attemptNo).toBe(2);
+    expect(resolveChildFreeze(F0E_BYTES).variants.map((v) => v.name)).toEqual([
       'PROMPT_V3_CANONICAL',
     ]);
     expect(resolveChildFreeze(F0B_BYTES).variants.map((v) => v.name)).toEqual([
       'PROMPT_V1_CANONICAL',
       'PROMPT_V2_CANONICAL',
     ]);
-    expect(() => resolveChildFreeze(Buffer.concat([F0C_BYTES, Buffer.from(' ')]))).toThrow(
+    expect(() => resolveChildFreeze(Buffer.concat([F0E_BYTES, Buffer.from(' ')]))).toThrow(
       /does not equal the F0B value/,
     );
   });
 
-  it('an F0C view answers a V3 identity per batch and NO identity for V1 or V2; an F0B view answers V1 and V2 and none for V3', () => {
-    const f0c = resolveChildFreeze(F0C_BYTES).frozenBatch(1)!;
+  it('an F0E view answers a V3 identity per batch and NO identity for V1 or V2; an F0B view answers V1 and V2 and none for V3', () => {
+    const f0c = resolveChildFreeze(F0E_BYTES).frozenBatch(1)!;
     expect(f0c.finalInputSha256For('PROMPT_V3_CANONICAL')).toBe(
       F0C.batching.plan[0]!.finalInputSha256.PROMPT_V3_CANONICAL,
     );
@@ -237,7 +241,7 @@ describe('2D2C-F0D freeze family: decided by the bytes’ own hash, and each fam
       F0B.batching.plan[0]!.finalInputSha256.PROMPT_V1_CANONICAL,
     );
     expect(f0b.finalInputSha256For('PROMPT_V3_CANONICAL')).toBeUndefined();
-    expect(resolveChildFreeze(F0C_BYTES).frozenBatch(13)).toBeUndefined();
+    expect(resolveChildFreeze(F0E_BYTES).frozenBatch(13)).toBeUndefined();
   });
 
   it('verifyRootForVariant refuses a variant the family does not schedule without touching the root', async () => {
@@ -259,13 +263,13 @@ describe('2D2C-F0D freeze family: decided by the bytes’ own hash, and each fam
       'is not a variant this freeze (F0B_ATTEMPT_1) schedules',
     );
     const v1UnderF0C = await verifyRootForVariant(
-      resolveChildFreeze(F0C_BYTES),
+      resolveChildFreeze(F0E_BYTES),
       'PROMPT_V1_CANONICAL',
       '/synthetic/root',
       counting,
     );
     expect(v1UnderF0C.ok).toBe(false);
-    expect(v1UnderF0C.checks[0]?.detail).toContain('F0C_ATTEMPT_2');
+    expect(v1UnderF0C.checks[0]?.detail).toContain('F0E_ATTEMPT_2');
     expect(touched).toBe(0);
   });
 });

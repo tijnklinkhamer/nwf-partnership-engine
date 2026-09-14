@@ -1,9 +1,9 @@
 /**
  * PHASE 2B-2D2C-F0D — READ-ONLY LOADING AND INTEGRITY VERIFICATION OF A
- * FUTURE ATTEMPT-2 ROOT, PINNED TO THE APPROVED F0C FREEZE.
+ * FUTURE ATTEMPT-2 ROOT, PINNED TO THE CURRENT (F0E) ATTEMPT-2 FREEZE.
  *
- * This is the attempt-2 counterpart of `sources.ts`: it opens the APPROVED
- * F0C freeze (by exact hash), the DEVELOPMENT-only canonical corpus, and an
+ * This is the attempt-2 counterpart of `sources.ts`: it opens the CURRENT
+ * F0E freeze (by exact hash), the DEVELOPMENT-only canonical corpus, and an
  * attempt-2 output root, and verifies — through the SAME per-evaluation
  * loader attempt 1 is held to — that the root holds exactly the twelve
  * frozen PROMPT_V3_CANONICAL evaluations of attempt 2 and nothing else:
@@ -40,19 +40,19 @@ import { reconstructFrozenBatches } from '../batches.js';
 import { EXPECTED_LOGICAL_BATCHES_PER_VARIANT } from '../constants.js';
 import { loadDevCorpus } from '../corpus.js';
 import {
-  APPROVED_F0C_FREEZE_RAW_SHA256,
-  APPROVED_F0C_PLAN_SHA256,
-  buildF0CExecutionPlan,
-  F0C_ATTEMPT_NO,
-  F0C_FREEZE_PATH,
-  F0C_VARIANT,
-  f0cPlanOrderIsFrozen,
-  f0cPlanSha256,
-  loadF0CFreezeFromBytes,
+  ATTEMPT_2_NO,
+  ATTEMPT_2_VARIANT_NAME,
+  buildF0EExecutionPlan,
+  F0E_FREEZE_PATH,
+  f0ePlanOrderIsFrozen,
+  f0ePlanSha256,
+  loadF0EFreezeFromBytes,
+  PROPOSED_F0E_FREEZE_RAW_SHA256,
+  PROPOSED_F0E_PLAN_SHA256,
   SPENT_ATTEMPT_1_AUTHORISATION_SHA256,
-  type F0CExecutionPlan,
-  type F0CFreeze,
-} from '../f0c/freezeF0C.js';
+  type Attempt2ExecutionPlan,
+  type Attempt2Freeze,
+} from '../f0c/freezeF0E.js';
 import { f0cBatchMismatches } from '../f0c/planVerification.js';
 import { sha256Hex } from '../freeze.js';
 import {
@@ -75,13 +75,13 @@ export const ATTEMPT2_EXPECTED_PRIMARY_ARTIFACT_COUNT =
 
 export interface LoadedAttempt2Sources {
   readonly attemptNo: 2;
-  readonly freeze: F0CFreeze;
+  readonly freeze: Attempt2Freeze;
   readonly freezeRawSha256: string;
   readonly corpusRows: readonly GoldCorpusItem[];
   readonly corpusRawSha256: string;
   readonly corpusManifestRawSha256: string;
   readonly corpusContentSha256: string;
-  readonly plan: F0CExecutionPlan;
+  readonly plan: Attempt2ExecutionPlan;
   readonly planSha256: string;
   readonly evaluations: readonly LoadedEvaluation[];
   readonly artifactsVerified: number;
@@ -106,10 +106,10 @@ export function loadAttempt2ScoringSources(
   repoRoot: string,
   outputRoot: string,
 ): LoadedAttempt2Sources {
-  const loadedFreeze = loadF0CFreezeFromBytes(readFileSync(join(repoRoot, F0C_FREEZE_PATH)));
-  if (loadedFreeze.rawSha256 !== APPROVED_F0C_FREEZE_RAW_SHA256) {
+  const loadedFreeze = loadF0EFreezeFromBytes(readFileSync(join(repoRoot, F0E_FREEZE_PATH)));
+  if (loadedFreeze.rawSha256 !== PROPOSED_F0E_FREEZE_RAW_SHA256) {
     fail(
-      `the F0C freeze hashes to ${loadedFreeze.rawSha256}; the approved value is ${APPROVED_F0C_FREEZE_RAW_SHA256}.`,
+      `the F0E freeze hashes to ${loadedFreeze.rawSha256}; the pinned value is ${PROPOSED_F0E_FREEZE_RAW_SHA256}.`,
     );
   }
   const { freeze } = loadedFreeze;
@@ -126,14 +126,14 @@ export function loadAttempt2ScoringSources(
   });
   const mismatches = f0cBatchMismatches(freeze, batches);
   if (mismatches.length > 0) {
-    fail(`reconstructed batches differ from the approved F0C freeze: ${mismatches.join(', ')}.`);
+    fail(`reconstructed batches differ from the F0E freeze: ${mismatches.join(', ')}.`);
   }
-  const plan = buildF0CExecutionPlan(freeze, loadedFreeze.rawSha256);
-  if (!f0cPlanOrderIsFrozen(plan)) fail('the rebuilt attempt-2 plan is not in the frozen order.');
-  const rebuiltPlanSha256 = f0cPlanSha256(plan);
-  if (rebuiltPlanSha256 !== APPROVED_F0C_PLAN_SHA256) {
+  const plan = buildF0EExecutionPlan(freeze, loadedFreeze.rawSha256);
+  if (!f0ePlanOrderIsFrozen(plan)) fail('the rebuilt attempt-2 plan is not in the frozen order.');
+  const rebuiltPlanSha256 = f0ePlanSha256(plan);
+  if (rebuiltPlanSha256 !== PROPOSED_F0E_PLAN_SHA256) {
     fail(
-      `rebuilt attempt-2 plan SHA-256 ${rebuiltPlanSha256} differs from the approved ${APPROVED_F0C_PLAN_SHA256}.`,
+      `rebuilt attempt-2 plan SHA-256 ${rebuiltPlanSha256} differs from the pinned ${PROPOSED_F0E_PLAN_SHA256}.`,
     );
   }
 
@@ -145,29 +145,29 @@ export function loadAttempt2ScoringSources(
     }
   }
   const experimentDirs = readdirSync(join(outputRoot, 'experiments')).sort();
-  if (experimentDirs.length !== 1 || experimentDirs[0] !== `attempt-${F0C_ATTEMPT_NO}`) {
+  if (experimentDirs.length !== 1 || experimentDirs[0] !== `attempt-${ATTEMPT_2_NO}`) {
     fail(
-      `experiments/ holds ${experimentDirs.join(', ') || '(none)'}; exactly attempt-${F0C_ATTEMPT_NO} is expected.`,
+      `experiments/ holds ${experimentDirs.join(', ') || '(none)'}; exactly attempt-${ATTEMPT_2_NO} is expected.`,
     );
   }
   const variantDirs = readdirSync(join(outputRoot, 'evaluations')).sort();
-  if (variantDirs.length !== 1 || variantDirs[0] !== F0C_VARIANT.name) {
+  if (variantDirs.length !== 1 || variantDirs[0] !== ATTEMPT_2_VARIANT_NAME) {
     fail(
-      `evaluations/ holds ${variantDirs.join(', ') || '(none)'}; exactly ${F0C_VARIANT.name} is expected (attempt-1 variants are never inside the attempt-2 namespace).`,
+      `evaluations/ holds ${variantDirs.join(', ') || '(none)'}; exactly ${ATTEMPT_2_VARIANT_NAME} is expected (attempt-1 variants are never inside the attempt-2 namespace).`,
     );
   }
-  const batchDirs = readdirSync(join(outputRoot, 'evaluations', F0C_VARIANT.name)).sort();
+  const batchDirs = readdirSync(join(outputRoot, 'evaluations', ATTEMPT_2_VARIANT_NAME)).sort();
   const expectedBatchDirs = plan.evaluations.map(
     (e) => `batch-${String(e.logicalBatchOrdinal).padStart(2, '0')}`,
   );
   if (JSON.stringify(batchDirs) !== JSON.stringify(expectedBatchDirs)) {
     fail(
-      `evaluations/${F0C_VARIANT.name} holds ${batchDirs.join(', ')}; the twelve frozen batches are expected.`,
+      `evaluations/${ATTEMPT_2_VARIANT_NAME} holds ${batchDirs.join(', ')}; the twelve frozen batches are expected.`,
     );
   }
 
   // Experiment-level artifacts and the consumption marker.
-  const experimentDirectory = join(outputRoot, 'experiments', `attempt-${F0C_ATTEMPT_NO}`);
+  const experimentDirectory = join(outputRoot, 'experiments', `attempt-${ATTEMPT_2_NO}`);
   const manifest = readVerified<{
     freezeConfigRawSha256?: unknown;
     attemptNo?: unknown;
@@ -178,7 +178,7 @@ export function loadAttempt2ScoringSources(
   if (manifest.freezeConfigRawSha256 !== loadedFreeze.rawSha256) {
     fail('the experiment manifest names a different freeze.');
   }
-  if (manifest.attemptNo !== F0C_ATTEMPT_NO) {
+  if (manifest.attemptNo !== ATTEMPT_2_NO) {
     fail(`the experiment manifest is for attempt ${String(manifest.attemptNo)}.`);
   }
   if (manifest.plannedLogicalEvaluations !== plan.plannedLogicalEvaluations) {
@@ -188,7 +188,7 @@ export function loadAttempt2ScoringSources(
   if (
     typeof roots !== 'object' ||
     roots === null ||
-    JSON.stringify(Object.keys(roots).sort()) !== JSON.stringify([F0C_VARIANT.name])
+    JSON.stringify(Object.keys(roots).sort()) !== JSON.stringify([ATTEMPT_2_VARIANT_NAME])
   ) {
     fail('the experiment manifest names variant roots other than the one V3 root.');
   }
@@ -214,12 +214,14 @@ export function loadAttempt2ScoringSources(
     );
   }
   const completionVariants = Object.keys(completion.perVariantEndedWithoutStop).sort();
-  if (JSON.stringify(completionVariants) !== JSON.stringify([F0C_VARIANT.name])) {
+  if (JSON.stringify(completionVariants) !== JSON.stringify([ATTEMPT_2_VARIANT_NAME])) {
     fail(
-      `the completion counts variants ${completionVariants.join(', ')}; only ${F0C_VARIANT.name} may appear.`,
+      `the completion counts variants ${completionVariants.join(', ')}; only ${ATTEMPT_2_VARIANT_NAME} may appear.`,
     );
   }
-  if (completion.perVariantEndedWithoutStop[F0C_VARIANT.name] !== plan.plannedLogicalEvaluations) {
+  if (
+    completion.perVariantEndedWithoutStop[ATTEMPT_2_VARIANT_NAME] !== plan.plannedLogicalEvaluations
+  ) {
     fail('the completion did not end every planned evaluation without a stop.');
   }
   const markerDirectoryEntries = readdirSync(join(outputRoot, 'authorisations'));
@@ -238,7 +240,7 @@ export function loadAttempt2ScoringSources(
   if (marker.authorisationSha256 !== authorisationSha256) {
     fail('the consumption marker names a different authorisation than the experiment manifest.');
   }
-  if (marker.attemptNo !== F0C_ATTEMPT_NO) {
+  if (marker.attemptNo !== ATTEMPT_2_NO) {
     fail(`the consumption marker is for attempt ${marker.attemptNo}.`);
   }
 
@@ -258,7 +260,7 @@ export function loadAttempt2ScoringSources(
       fail(`${batchDirectory}: no frozen batch ${planned.logicalBatchOrdinal}.`);
     const loaded = loadEvaluationDirectory({
       batchDirectory,
-      attemptNo: F0C_ATTEMPT_NO,
+      attemptNo: ATTEMPT_2_NO,
       planned,
       freezeRawSha256: loadedFreeze.rawSha256,
       frozenBatch: {
@@ -291,7 +293,7 @@ export function loadAttempt2ScoringSources(
   }
 
   return {
-    attemptNo: F0C_ATTEMPT_NO,
+    attemptNo: ATTEMPT_2_NO,
     freeze,
     freezeRawSha256: loadedFreeze.rawSha256,
     corpusRows: corpus.rows,

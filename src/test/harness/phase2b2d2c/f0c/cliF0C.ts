@@ -4,8 +4,9 @@
  *   node --import tsx src/test/harness/phase2b2d2c/f0c/cliF0C.ts [options]
  *
  * DEFAULT = PLAN / READINESS ONLY. With no `--execute`, the CLI loads and
- * hash-verifies the APPROVED F0C freeze, verifies the owner approval record
- * and its ratification by exact hash, verifies the F0B predecessor bytes,
+ * hash-verifies the CURRENT attempt-2 freeze (F0E, PROPOSED, superseding
+ * F0C), verifies the superseded F0C bytes and owner records by exact hash,
+ * reports the F0E approval status, verifies the F0B predecessor bytes,
  * reads the DEVELOPMENT canonical corpus and manifest, reconstructs the
  * twelve frozen batches through this worktree's production algorithms,
  * verifies every serialized input, every assembly identity, every V3 final
@@ -32,7 +33,7 @@
  * production loader; the child does, after the lock.
  */
 import { execFileSync } from 'node:child_process';
-import { lstatSync, readdirSync, readFileSync, realpathSync } from 'node:fs';
+import { existsSync, lstatSync, readdirSync, readFileSync, realpathSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { canonicalStringify } from '../../../../orgunits/classify/canonical.js';
@@ -51,26 +52,34 @@ import { sha256Hex } from '../freeze.js';
 import { loadScoringSources } from '../scoring/sources.js';
 import { createRealVariantRootProbes } from '../variantRootProbes.js';
 import type { VariantRootProbes, VariantRootVerification } from '../variantRoot.js';
-import { evaluateF0CExecutionLock } from './authorisationF0C.js';
+import { evaluateAttempt2ExecutionLock } from './authorisationF0C.js';
 import {
   APPROVED_F0C_FREEZE_RAW_SHA256,
   APPROVED_F0C_PLAN_SHA256,
-  buildF0CExecutionPlan,
-  deriveCallCeiling,
   F0C_APPROVAL_RECORD_PATH,
   F0C_APPROVAL_RECORD_RAW_SHA256,
-  F0C_ATTEMPT_NO,
   F0C_FREEZE_PATH,
   F0C_RATIFICATION_RECORD_PATH,
   F0C_RATIFICATION_RECORD_RAW_SHA256,
-  F0C_VARIANT,
-  F0CFreezeError,
-  f0cPlanOrderIsFrozen,
-  f0cPlanSha256,
-  loadF0CFreezeFromBytes,
-  type F0CExecutionPlan,
-  type F0CFreeze,
 } from './freezeF0C.js';
+import {
+  ATTEMPT_2_NO,
+  ATTEMPT_2_VARIANT_NAME,
+  buildF0EExecutionPlan,
+  deriveCallCeiling,
+  F0CFreezeError,
+  F0E_APPROVAL_RECORD_PATH,
+  F0E_APPROVAL_RECORD_RAW_SHA256,
+  F0E_FREEZE_PATH,
+  F0E_VARIANT,
+  f0ePlanOrderIsFrozen,
+  f0ePlanSha256,
+  loadF0EFreezeFromBytes,
+  PROPOSED_F0E_FREEZE_RAW_SHA256,
+  PROPOSED_F0E_PLAN_SHA256,
+  type Attempt2ExecutionPlan,
+  type Attempt2Freeze,
+} from './freezeF0E.js';
 import { f0cBatchMismatches, holdoutBoundaryViolations } from './planVerification.js';
 import { verifyV3Root } from './variantRootF0C.js';
 
@@ -193,11 +202,50 @@ function refuseReadiness(id: string, detail: string): never {
   throw new F0CFreezeError('CORPUS_CONFIG_OR_HASH_DRIFT', `${id}: ${detail}`);
 }
 
-/** The owner approval record and its ratification, by exact hash, naming exactly the frozen bytes. */
+export type F0EApprovalStatus = 'PENDING_OWNER_APPROVAL' | 'RECORDED_AND_PINNED';
+
+/**
+ * The F0E owner freeze-approval record: PENDING until the owner records it
+ * and its hash is pinned in `freezeF0E.ts` by a reviewed edit. Plan-only
+ * mode reports the status; the execution path REFUSES while pending.
+ */
+export function f0eApprovalStatus(repoRoot: string): {
+  readonly status: F0EApprovalStatus;
+  readonly detail: string;
+} {
+  const path = join(repoRoot, F0E_APPROVAL_RECORD_PATH);
+  if (F0E_APPROVAL_RECORD_RAW_SHA256 === null) {
+    return {
+      status: 'PENDING_OWNER_APPROVAL',
+      detail: `${F0E_APPROVAL_RECORD_PATH} is not recorded and no approval hash is pinned; the F0E freeze is PROPOSED and authorises nothing.${existsSync(path) ? ' (A file exists at that path but is NOT pinned; it is not trusted.)' : ''}`,
+    };
+  }
+  const actual = sha256Hex(readFileSync(path));
+  if (actual !== F0E_APPROVAL_RECORD_RAW_SHA256) {
+    refuseReadiness(
+      'OWNER_FREEZE_APPROVAL_RECORD_F0E',
+      `${F0E_APPROVAL_RECORD_PATH} hashes to ${actual}; the pinned approval record is ${F0E_APPROVAL_RECORD_RAW_SHA256}.`,
+    );
+  }
+  return { status: 'RECORDED_AND_PINNED', detail: actual };
+}
+
+/**
+ * The SUPERSEDED F0C freeze and its owner records, by exact hash — kept
+ * verifiable as immutable historical evidence. They authorise nothing.
+ */
 export function verifyOwnerApprovalRecords(
   repoRoot: string,
-  freezeRawSha256: string,
+  supersededFreezeRawSha256: string,
 ): readonly ReadinessCheck[] {
+  const f0cSha256 = sha256Hex(readFileSync(join(repoRoot, F0C_FREEZE_PATH)));
+  if (f0cSha256 !== APPROVED_F0C_FREEZE_RAW_SHA256 || f0cSha256 !== supersededFreezeRawSha256) {
+    refuseReadiness(
+      'SUPERSEDED_F0C_BYTE_IDENTICAL',
+      `${F0C_FREEZE_PATH} hashes to ${f0cSha256}; the superseded F0C bytes are ${APPROVED_F0C_FREEZE_RAW_SHA256}.`,
+    );
+  }
+  const freezeRawSha256 = f0cSha256;
   const approvalBytes = readFileSync(join(repoRoot, F0C_APPROVAL_RECORD_PATH));
   const approvalSha = sha256Hex(approvalBytes);
   if (approvalSha !== F0C_APPROVAL_RECORD_RAW_SHA256) {
@@ -253,8 +301,17 @@ export function verifyOwnerApprovalRecords(
     );
   }
   return [
-    { id: 'OWNER_FREEZE_APPROVAL_RECORD', ok: true, detail: approvalSha },
-    { id: 'OWNER_FREEZE_APPROVAL_RATIFICATION', ok: true, detail: ratificationSha },
+    {
+      id: 'SUPERSEDED_F0C_BYTE_IDENTICAL',
+      ok: true,
+      detail: `${f0cSha256} (historical; authorises nothing)`,
+    },
+    { id: 'OWNER_FREEZE_APPROVAL_RECORD_F0C', ok: true, detail: `${approvalSha} (historical)` },
+    {
+      id: 'OWNER_FREEZE_APPROVAL_RATIFICATION_F0C',
+      ok: true,
+      detail: `${ratificationSha} (historical)`,
+    },
   ];
 }
 
@@ -277,7 +334,7 @@ export interface Attempt1ComparatorVerification {
  */
 export function verifyAttempt1Comparator(
   repoRoot: string,
-  freeze: F0CFreeze,
+  freeze: Attempt2Freeze,
   attempt1Root: string,
 ): Attempt1ComparatorVerification {
   const comparator = freeze.scoring.comparatorPolicy.attempt1;
@@ -286,11 +343,11 @@ export function verifyAttempt1Comparator(
   const variantDirs = readdirSync(evaluationsDir).sort();
   const experimentDirs = readdirSync(join(attempt1Root, 'experiments')).sort();
   const containsNoAttempt2Namespace =
-    !variantDirs.includes(F0C_VARIANT.name) &&
-    !experimentDirs.includes(`attempt-${F0C_ATTEMPT_NO}`) &&
+    !variantDirs.includes(ATTEMPT_2_VARIANT_NAME) &&
+    !experimentDirs.includes(`attempt-${ATTEMPT_2_NO}`) &&
     !variantDirs.some((variant) =>
       readdirSync(join(evaluationsDir, variant)).some((batch) =>
-        readdirSync(join(evaluationsDir, variant, batch)).includes(`attempt-${F0C_ATTEMPT_NO}`),
+        readdirSync(join(evaluationsDir, variant, batch)).includes(`attempt-${ATTEMPT_2_NO}`),
       ),
     );
   const problems: string[] = [];
@@ -329,24 +386,35 @@ export async function runF0CCli(argv: readonly string[], io: F0CCliIo): Promise<
   const options = parseF0CCliArgs(argv);
   const readiness: ReadinessCheck[] = [];
 
-  // 1. The approved freeze, by hash, then shape, then production agreement.
-  const freezePath = join(RUNNER_REPO_ROOT, F0C_FREEZE_PATH);
-  const loaded = loadF0CFreezeFromBytes(readFileSync(freezePath));
-  if (loaded.rawSha256 !== APPROVED_F0C_FREEZE_RAW_SHA256) {
+  // 1. The CURRENT attempt-2 freeze (F0E, PROPOSED), by hash, then shape,
+  //    then production agreement — including that its runtime commit is the
+  //    corrected V3B and that it supersedes F0C by exact hash.
+  const freezePath = join(RUNNER_REPO_ROOT, F0E_FREEZE_PATH);
+  const loaded = loadF0EFreezeFromBytes(readFileSync(freezePath));
+  if (loaded.rawSha256 !== PROPOSED_F0E_FREEZE_RAW_SHA256) {
     refuseReadiness(
-      'APPROVED_F0C_FREEZE',
-      `raw SHA-256 ${loaded.rawSha256} is not the approved value.`,
+      'PROPOSED_F0E_FREEZE',
+      `raw SHA-256 ${loaded.rawSha256} is not the pinned value.`,
     );
   }
   readiness.push({
-    id: 'APPROVED_F0C_FREEZE',
+    id: 'PROPOSED_F0E_FREEZE',
     ok: true,
-    detail: `${loaded.rawSha256} (${loaded.rawBytes} bytes)`,
+    detail: `${loaded.rawSha256} (${loaded.rawBytes} bytes); supersedes F0C ${loaded.freeze.supersedes?.rawSha256 ?? '?'}; runtime ${F0E_VARIANT.gitCommit}`,
   });
   const { freeze } = loaded;
 
-  // 2. The owner approval and its ratification, by exact hash.
-  readiness.push(...verifyOwnerApprovalRecords(RUNNER_REPO_ROOT, loaded.rawSha256));
+  // 2. The superseded F0C bytes and their owner records (historical, by exact
+  //    hash), then the F0E approval STATUS (pending until recorded and pinned).
+  readiness.push(
+    ...verifyOwnerApprovalRecords(RUNNER_REPO_ROOT, freeze.supersedes?.rawSha256 ?? ''),
+  );
+  const approval = f0eApprovalStatus(RUNNER_REPO_ROOT);
+  readiness.push({
+    id: 'OWNER_FREEZE_APPROVAL_RECORD_F0E',
+    ok: approval.status === 'RECORDED_AND_PINNED',
+    detail: `${approval.status}: ${approval.detail}`,
+  });
 
   // 3. The F0B predecessor bytes are byte-identical.
   const f0bSha256 = sha256Hex(readFileSync(join(RUNNER_REPO_ROOT, FREEZE_PATH)));
@@ -397,29 +465,35 @@ export async function runF0CCli(argv: readonly string[], io: F0CCliIo): Promise<
     detail: `${batches.length} batches, ${corpus.rows.length} DEVELOPMENT rows; 12 V3 identities and 24 attempt-1 comparator identities recomputed`,
   });
 
-  // 5. The plan: order, count, one variant, the approved SHA-256.
-  const plan = buildF0CExecutionPlan(freeze, loaded.rawSha256);
-  if (!f0cPlanOrderIsFrozen(plan)) {
+  // 5. The plan: order, count, one variant, the pinned F0E plan SHA-256 (and NOT the superseded F0C plan).
+  const plan = buildF0EExecutionPlan(freeze, loaded.rawSha256);
+  if (!f0ePlanOrderIsFrozen(plan)) {
     refuseReadiness(
       'PLAN_ORDER_FROZEN',
       'the plan is not the one V3 variant over ordinals 1..12 in order.',
     );
   }
-  const rebuiltPlanSha256 = f0cPlanSha256(plan);
-  if (rebuiltPlanSha256 !== APPROVED_F0C_PLAN_SHA256) {
+  const rebuiltPlanSha256 = f0ePlanSha256(plan);
+  if (rebuiltPlanSha256 === APPROVED_F0C_PLAN_SHA256) {
+    refuseReadiness('PLAN_SHA256_PINNED', 'the rebuilt plan is the SUPERSEDED F0C plan.');
+  }
+  if (rebuiltPlanSha256 !== PROPOSED_F0E_PLAN_SHA256) {
     refuseReadiness(
-      'PLAN_SHA256_APPROVED',
-      `rebuilt plan SHA-256 ${rebuiltPlanSha256} is not the approved ${APPROVED_F0C_PLAN_SHA256}.`,
+      'PLAN_SHA256_PINNED',
+      `rebuilt plan SHA-256 ${rebuiltPlanSha256} is not the pinned F0E plan ${PROPOSED_F0E_PLAN_SHA256}.`,
     );
   }
   const scheduledVariants = [...new Set(plan.evaluations.map((e) => e.variantName))];
-  if (scheduledVariants.length !== 1 || scheduledVariants[0] !== F0C_VARIANT.name) {
+  if (scheduledVariants.length !== 1 || scheduledVariants[0] !== ATTEMPT_2_VARIANT_NAME) {
     refuseReadiness('PLAN_ONE_VARIANT', `scheduled variants: ${scheduledVariants.join(', ')}.`);
   }
+  if (plan.evaluations.some((e) => e.variantGitCommit !== F0E_VARIANT.gitCommit)) {
+    refuseReadiness('PLAN_RUNTIME_COMMIT', 'an evaluation names a runtime commit other than V3B.');
+  }
   readiness.push({
-    id: 'PLAN_SHA256_APPROVED',
+    id: 'PLAN_SHA256_PINNED',
     ok: true,
-    detail: `${rebuiltPlanSha256}; ${plan.plannedLogicalEvaluations} logical evaluations of ${F0C_VARIANT.name}, ordinals 1..12; PROMPT_V1_CANONICAL and PROMPT_V2_CANONICAL scheduled 0 times`,
+    detail: `${rebuiltPlanSha256}; ${plan.plannedLogicalEvaluations} logical evaluations of ${ATTEMPT_2_VARIANT_NAME} at ${F0E_VARIANT.gitCommit}, ordinals 1..12; PROMPT_V1_CANONICAL and PROMPT_V2_CANONICAL scheduled 0 times; the superseded F0C plan ${APPROVED_F0C_PLAN_SHA256} is not reproduced`,
   });
 
   // 6. The mechanical call ceiling, recomputed from the batch structure.
@@ -476,7 +550,9 @@ export async function runF0CCli(argv: readonly string[], io: F0CCliIo): Promise<
 
   const summary = {
     mode: options.execute ? 'EXECUTE_REQUESTED' : 'PLAN_ONLY',
-    attemptNo: F0C_ATTEMPT_NO,
+    attemptNo: ATTEMPT_2_NO,
+    freezeRevision: freeze.freezeRevision,
+    f0eApprovalStatus: approval.status,
     freezeConfigRawSha256: loaded.rawSha256,
     freezeRawBytes: loaded.rawBytes,
     freezeVersion: freeze.version,
@@ -523,9 +599,9 @@ export async function runF0CCli(argv: readonly string[], io: F0CCliIo): Promise<
     io.stderr(`REFUSED: attempt-2 execution requires ${missing.join(', ')}.\n`);
     return 2;
   }
-  if (options.attemptNo !== F0C_ATTEMPT_NO) {
+  if (options.attemptNo !== ATTEMPT_2_NO) {
     io.stderr(
-      `REFUSED: the F0C freeze configures attempt ${F0C_ATTEMPT_NO}; --attempt-no ${options.attemptNo} is not it.\n`,
+      `REFUSED: the F0E freeze configures attempt ${ATTEMPT_2_NO}; --attempt-no ${options.attemptNo} is not it.\n`,
     );
     return 2;
   }
@@ -581,7 +657,14 @@ export async function runF0CCli(argv: readonly string[], io: F0CCliIo): Promise<
     );
     return 2;
   }
-  const lock = evaluateF0CExecutionLock({
+  // The LAST gate before the lock: every readiness check above must already
+  // hold, and then the replacement freeze must be owner-approved (recorded
+  // AND pinned) before any authorisation is even read.
+  if (approval.status !== 'RECORDED_AND_PINNED') {
+    io.stderr(`REFUSED: REPLACEMENT_FREEZE_NOT_OWNER_APPROVED: ${approval.detail}\n`);
+    return 2;
+  }
+  const lock = evaluateAttempt2ExecutionLock({
     executeFlag: options.execute,
     authorisationPath: options.authorisation,
     expected: { outputRoot: outputRootDecision.outputRoot, attemptNo: options.attemptNo! },
@@ -601,7 +684,7 @@ export async function runF0CCli(argv: readonly string[], io: F0CCliIo): Promise<
     attemptNo: options.attemptNo!,
     authorisation: lock.authorisation,
     authorisationSha256: lock.authorisationSha256,
-    variantRoots: { [F0C_VARIANT.name]: options.v3Root! },
+    variantRoots: { [ATTEMPT_2_VARIANT_NAME]: options.v3Root! },
     classifierConfigDir: options.classifierConfigDir!,
     parentEnv: io.env,
     platform: terminationPlatformOf(process.platform),
@@ -614,11 +697,11 @@ export async function runF0CCli(argv: readonly string[], io: F0CCliIo): Promise<
   return result.status === 'COMPLETED_ALL_PLANNED' ? 0 : 3;
 }
 
-function renderPlanText(summary: Record<string, unknown>, plan: F0CExecutionPlan): string {
+function renderPlanText(summary: Record<string, unknown>, plan: Attempt2ExecutionPlan): string {
   const lines: string[] = [
-    'PHASE 2B-2D2C-F0D attempt-2 runner — PLAN / READINESS ONLY (no provider, auth, database or network call was made; nothing was written)',
-    `freeze ${String(summary['freezeVersion'])} raw sha256 ${String(summary['freezeConfigRawSha256'])} (${String(summary['freezeRawBytes'])} bytes) — APPROVED`,
-    `plan sha256 ${String(summary['planSha256'])}; ${plan.plannedLogicalEvaluations} logical evaluations of ${F0C_VARIANT.name}, attempt ${plan.attemptNo}, concurrency 1`,
+    'PHASE 2B-2D2C attempt-2 runner — PLAN / READINESS ONLY (no provider, auth, database or network call was made; nothing was written)',
+    `freeze ${String(summary['freezeVersion'])} (${String(summary['freezeRevision'])}) raw sha256 ${String(summary['freezeConfigRawSha256'])} (${String(summary['freezeRawBytes'])} bytes) — ${String(summary['f0eApprovalStatus'])}`,
+    `plan sha256 ${String(summary['planSha256'])}; ${plan.plannedLogicalEvaluations} logical evaluations of ${ATTEMPT_2_VARIANT_NAME} at ${F0E_VARIANT.gitCommit}, attempt ${plan.attemptNo}, concurrency 1`,
     `requested model ${plan.requestedModelId}; runConfig ${JSON.stringify(plan.runConfig)}; repair policy ${JSON.stringify(plan.repairPolicy)}`,
     `tier1 ${plan.liveness.tier1SoftDeadlineMs}/${plan.liveness.tier1GraceMs}/${plan.liveness.tier1TotalBudgetMs} ms; tier2 ${plan.liveness.tier2WatchdogMs}/${plan.liveness.tier2GraceMs} ms`,
     `call ceiling ${JSON.stringify(summary['callCeilingTotals'])}`,
@@ -640,7 +723,10 @@ function renderPlanText(summary: Record<string, unknown>, plan: F0CExecutionPlan
     checks: readonly { id: string; ok: boolean; detail: string }[];
   } | null;
   if (root !== null) {
-    lines.push('', `${F0C_VARIANT.name} root ${root.root}: ${root.ok ? 'VERIFIED' : 'REFUSED'}`);
+    lines.push(
+      '',
+      `${ATTEMPT_2_VARIANT_NAME} root ${root.root}: ${root.ok ? 'VERIFIED' : 'REFUSED'}`,
+    );
     for (const check of root.checks)
       lines.push(`  ${check.ok ? 'ok ' : 'FAIL'} ${check.id}: ${check.detail}`);
   }
@@ -653,7 +739,7 @@ function renderPlanText(summary: Record<string, unknown>, plan: F0CExecutionPlan
   }
   lines.push(
     '',
-    'Execution requires BOTH --execute AND --authorisation <absolute path> naming a NEW attempt-2 owner authorisation; neither alone enables anything. This invocation authorised nothing.',
+    'Execution requires an OWNER-APPROVED F0E freeze (approval record pinned), then BOTH --execute AND --authorisation <absolute path> naming a NEW attempt-2 owner authorisation; nothing less enables anything. This invocation authorised nothing.',
   );
   return `${lines.join('\n')}\n`;
 }

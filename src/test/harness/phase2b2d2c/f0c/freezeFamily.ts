@@ -6,10 +6,10 @@
  * paths and hashes, the classifier identities, the variants it admits, one
  * frozen batch by ordinal with the final identity for a named variant, and
  * the repair policy. F0B (attempt 1, two variants, no repair policy) and
- * F0C (attempt 2, one variant, repair enabled) answer those questions from
+ * F0E (attempt 2, one variant, repair enabled; F0C is recognised only to be refused as superseded) answer those questions from
  * different schemas with different hash pins. This module resolves WHICH
- * family a set of bytes belongs to BY HASH — the F0C hash selects the F0C
- * loader, anything else goes to the F0B loader, which refuses everything
+ * family a set of bytes belongs to BY HASH — the F0E hash selects the F0E
+ * loader, the superseded F0C hash is refused, anything else goes to the F0B loader, which refuses everything
  * but the F0B bytes — and returns the common view. Neither loader is
  * changed, and neither learns about the other.
  *
@@ -37,15 +37,20 @@ import {
   type VariantRootProbes,
   type VariantRootVerification,
 } from '../variantRoot.js';
+import { F0CFreezeError, type Attempt2Freeze } from './attempt2FreezeCore.js';
+import { APPROVED_F0C_FREEZE_RAW_SHA256 } from './freezeF0C.js';
 import {
-  F0C_VARIANT,
-  loadF0CFreezeFromBytes,
-  PROPOSED_F0C_FREEZE_RAW_SHA256,
-  type F0CFreeze,
-} from './freezeF0C.js';
+  F0E_VARIANT,
+  loadF0EFreezeFromBytes,
+  PROPOSED_F0E_FREEZE_RAW_SHA256,
+} from './freezeF0E.js';
 import { verifyV3Root } from './variantRootF0C.js';
 
-export type FreezeFamily = 'F0B_ATTEMPT_1' | 'F0C_ATTEMPT_2';
+/**
+ * `F0C_ATTEMPT_2_SUPERSEDED` is recognised only to be REFUSED: Finding F1
+ * superseded F0C before any execution, so its bytes may never drive a child.
+ */
+export type FreezeFamily = 'F0B_ATTEMPT_1' | 'F0E_ATTEMPT_2' | 'F0C_ATTEMPT_2_SUPERSEDED';
 
 export interface FrozenBatchView {
   readonly ordinal: number;
@@ -78,8 +83,8 @@ export interface ChildFreezeView {
   /** Present exactly when the freeze declares one (F0C); absent on F0B, which `freezeRepairPolicy` reads as DISABLED. */
   readonly repairPolicy?: FrozenRepairPolicy;
   frozenBatch(ordinal: number): FrozenBatchView | undefined;
-  /** The F0C freeze itself, present only for the F0C family (the V3 root verifier needs its repair contract). */
-  readonly f0c?: F0CFreeze;
+  /** The attempt-2 freeze itself, present only for the F0E family (the V3 root verifier needs its repair contract). */
+  readonly attempt2?: Attempt2Freeze;
 }
 
 function f0bView(bytes: Buffer): ChildFreezeView {
@@ -122,11 +127,11 @@ function f0bView(bytes: Buffer): ChildFreezeView {
   };
 }
 
-function f0cView(bytes: Buffer): ChildFreezeView {
-  const loaded = loadF0CFreezeFromBytes(bytes);
+function f0eView(bytes: Buffer): ChildFreezeView {
+  const loaded = loadF0EFreezeFromBytes(bytes);
   const { freeze } = loaded;
   return {
-    family: 'F0C_ATTEMPT_2',
+    family: 'F0E_ATTEMPT_2',
     attemptNo: freeze.attemptNo,
     rawSha256: loaded.rawSha256,
     rawBytes: loaded.rawBytes,
@@ -138,9 +143,9 @@ function f0cView(bytes: Buffer): ChildFreezeView {
       assemblyVersion: freeze.classifier.assemblyVersion,
     },
     rootContract: freeze,
-    variants: [F0C_VARIANT],
+    variants: [F0E_VARIANT],
     repairPolicy: freeze.repairPolicy,
-    f0c: freeze,
+    attempt2: freeze,
     frozenBatch: (ordinal) => {
       const batch = freeze.batching.plan.find((b) => b.ordinal === ordinal);
       if (batch === undefined) return undefined;
@@ -158,7 +163,7 @@ function f0cView(bytes: Buffer): ChildFreezeView {
         // stay in the freeze as provenance and are deliberately NOT answered
         // here: a manifest naming V1 or V2 under F0C has no frozen identity.
         finalInputSha256For: (variantName) =>
-          variantName === F0C_VARIANT.name ? batch.finalInputSha256.PROMPT_V3_CANONICAL : undefined,
+          variantName === F0E_VARIANT.name ? batch.finalInputSha256.PROMPT_V3_CANONICAL : undefined,
       };
     },
   };
@@ -166,18 +171,26 @@ function f0cView(bytes: Buffer): ChildFreezeView {
 
 /** Which family a set of freeze bytes belongs to, decided by exact raw hash — never by a caller's say-so. */
 export function freezeFamilyOf(bytes: Buffer): FreezeFamily {
-  return createHash('sha256').update(bytes).digest('hex') === PROPOSED_F0C_FREEZE_RAW_SHA256
-    ? 'F0C_ATTEMPT_2'
-    : 'F0B_ATTEMPT_1';
+  const rawSha256 = createHash('sha256').update(bytes).digest('hex');
+  if (rawSha256 === PROPOSED_F0E_FREEZE_RAW_SHA256) return 'F0E_ATTEMPT_2';
+  if (rawSha256 === APPROVED_F0C_FREEZE_RAW_SHA256) return 'F0C_ATTEMPT_2_SUPERSEDED';
+  return 'F0B_ATTEMPT_1';
 }
 
 /**
  * Loads whichever freeze the bytes are, through that family's own
- * hash-pinned loader. Bytes that are neither freeze are refused by the F0B
- * loader's hash check.
+ * hash-pinned loader. The superseded F0C bytes are REFUSED outright; bytes
+ * that are no known freeze are refused by the F0B loader's hash check.
  */
 export function resolveChildFreeze(bytes: Buffer): ChildFreezeView {
-  return freezeFamilyOf(bytes) === 'F0C_ATTEMPT_2' ? f0cView(bytes) : f0bView(bytes);
+  const family = freezeFamilyOf(bytes);
+  if (family === 'F0C_ATTEMPT_2_SUPERSEDED') {
+    throw new F0CFreezeError(
+      'CORPUS_CONFIG_OR_HASH_DRIFT',
+      `the F0C freeze (${APPROVED_F0C_FREEZE_RAW_SHA256}) was superseded by F0E before any execution (Finding F1: its runtime commit exports a 60000 ms repair floor); it may not drive a child.`,
+    );
+  }
+  return family === 'F0E_ATTEMPT_2' ? f0eView(bytes) : f0bView(bytes);
 }
 
 /**
@@ -209,8 +222,8 @@ export async function verifyRootForVariant(
       claudeCodeExecutable: null,
     };
   }
-  if (view.family === 'F0C_ATTEMPT_2' && view.f0c !== undefined) {
-    return verifyV3Root(root, view.f0c, probes);
+  if (view.family === 'F0E_ATTEMPT_2' && view.attempt2 !== undefined) {
+    return verifyV3Root(root, view.attempt2, probes);
   }
   return verifyVariantRoot(variant, root, view.rootContract, probes);
 }

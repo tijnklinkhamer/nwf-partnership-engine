@@ -1,6 +1,6 @@
 /**
- * PHASE 2B-2D2C-F0D — verifying the ONE attempt-2 variant root (the V3
- * runtime at the frozen commit) BEYOND the attempt-1 root checks.
+ * PHASE 2B-2D2C-F0D/F0E — verifying the ONE attempt-2 variant root (the V3
+ * runtime at the commit the CURRENT attempt-2 freeze pins) BEYOND the attempt-1 root checks.
  *
  * Every attempt-1 check (`verifyVariantRoot`: path, repository, HEAD,
  * cleanliness, SDK version in three places, built runtime present and
@@ -51,7 +51,7 @@ import {
   type VariantRootProbes,
   type VariantRootVerification,
 } from '../variantRoot.js';
-import { F0C_VARIANT, type F0CFreeze } from './freezeF0C.js';
+import type { Attempt2Freeze } from './attempt2FreezeCore.js';
 
 export type V3RootCheckId =
   | VariantRootCheckId
@@ -78,10 +78,13 @@ function normalisedKey(path: string): string {
  */
 export async function verifyV3Root(
   root: string,
-  freeze: F0CFreeze,
+  freeze: Attempt2Freeze,
   probes: VariantRootProbes,
 ): Promise<V3RootVerification> {
-  const base = await verifyVariantRoot(F0C_VARIANT, root, freeze, probes);
+  // The variant the FREEZE pins; the loader already asserted it equals the
+  // revision descriptor's, so a superseded runtime commit cannot arrive here.
+  const variant = freeze.classifier.variants[0]!;
+  const base = await verifyVariantRoot(variant, root, freeze, probes);
   const checks: V3RootCheck[] = [...base.checks];
   if (!base.ok || base.runtime === null) return { ...base, checks };
   const fail = (id: V3RootCheckId, detail: string): V3RootVerification => {

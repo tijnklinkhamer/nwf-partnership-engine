@@ -1,5 +1,5 @@
 /**
- * PHASE 2B-2D2C-F0D — the attempt-2 scorer, pinned to the approved F0C
+ * PHASE 2B-2D2C-F0D — the attempt-2 scorer, pinned to the current F0E
  * freeze, exercised over a SYNTHETIC attempt-2 root.
  *
  * No attempt-2 evidence exists (attempt 2 is not authorised). To prove the
@@ -36,12 +36,12 @@ import {
   writeArtifactOnce,
 } from '../harness/phase2b2d2c/artifacts.js';
 import {
-  APPROVED_F0C_FREEZE_RAW_SHA256,
-  buildF0CExecutionPlan,
-  F0C_FREEZE_PATH,
-  loadF0CFreezeFromBytes,
+  PROPOSED_F0E_FREEZE_RAW_SHA256,
+  buildF0EExecutionPlan,
+  F0E_FREEZE_PATH,
+  loadF0EFreezeFromBytes,
   SPENT_ATTEMPT_1_AUTHORISATION_SHA256,
-} from '../harness/phase2b2d2c/f0c/freezeF0C.js';
+} from '../harness/phase2b2d2c/f0c/freezeF0E.js';
 import { sha256Hex } from '../harness/phase2b2d2c/freeze.js';
 import { generateAttempt2 } from '../harness/phase2b2d2c/scoring/attempt2Generate.js';
 import { runAttempt2Scoring } from '../harness/phase2b2d2c/scoring/attempt2Run.js';
@@ -58,10 +58,10 @@ const SUPPLEMENT = 'docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json
 const ADJUDICATION = 'docs/evaluation/PHASE_2B_2D2C_DEV_OWNER_ADJUDICATION_G1_V1.json';
 const F3_INVENTORY = 'ee17e1f2ee8021e59c06377342042e56f84269165f8ec39521011cb1d3538137';
 
-const { freeze, rawSha256 } = loadF0CFreezeFromBytes(
-  readFileSync(join(REPO_ROOT, F0C_FREEZE_PATH)),
+const { freeze, rawSha256 } = loadF0EFreezeFromBytes(
+  readFileSync(join(REPO_ROOT, F0E_FREEZE_PATH)),
 );
-const PLAN = buildF0CExecutionPlan(freeze, rawSha256);
+const PLAN = buildF0EExecutionPlan(freeze, rawSha256);
 
 const scratch: string[] = [];
 afterEach(() => {
@@ -240,10 +240,10 @@ function buildSyntheticAttempt2Root(options: { withSkippedRepair?: boolean } = {
 describe.skipIf(!ATTEMPT1_PRESENT)(
   '2D2C-F0D attempt-2 scorer over a SYNTHETIC attempt-2 root (nothing real is scored)',
   () => {
-    it('loads and verifies the synthetic root against the approved F0C freeze: 12 V3 evaluations, 123 primary artifacts, the marker the manifest names', () => {
+    it('loads and verifies the synthetic root against the pinned F0E freeze: 12 V3 evaluations, 123 primary artifacts, the marker the manifest names', () => {
       const { root, authorisationSha256 } = buildSyntheticAttempt2Root();
       const sources = loadAttempt2ScoringSources(REPO_ROOT, root);
-      expect(sources.freezeRawSha256).toBe(APPROVED_F0C_FREEZE_RAW_SHA256);
+      expect(sources.freezeRawSha256).toBe(PROPOSED_F0E_FREEZE_RAW_SHA256);
       expect(sources.evaluations).toHaveLength(12);
       expect(sources.evaluations.every((e) => e.variantName === 'PROMPT_V3_CANONICAL')).toBe(true);
       expect(sources.artifactsVerified).toBe(ATTEMPT2_EXPECTED_PRIMARY_ARTIFACT_COUNT);
@@ -382,10 +382,10 @@ describe.skipIf(!ATTEMPT1_PRESENT)(
       });
       expect(() =>
         runAttempt2Scoring(REPO_ROOT, good, driftedComparator, SUPPLEMENT, ADJUDICATION),
-      ).toThrow(/not the comparator the F0C freeze pins/);
+      ).toThrow(/not the comparator the F0[CE] freeze pins/);
       expect(() =>
         runAttempt2Scoring(REPO_ROOT, good, ATTEMPT1_ROOT, ADJUDICATION, ADJUDICATION),
-      ).toThrow(/scoring supplement path .* is not the one the F0C freeze pins/);
+      ).toThrow(/scoring supplement path .* is not the one the F0[CE] freeze pins/);
       expect(() =>
         runAttempt2Scoring(REPO_ROOT, good, ATTEMPT1_ROOT, undefined, ADJUDICATION),
       ).toThrow(ScoringSourceError);

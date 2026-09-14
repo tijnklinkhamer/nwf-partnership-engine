@@ -19,23 +19,23 @@ import { FETCH_POLICY_VERSION } from '../../orgunits/web/policy.js';
 import { reconstructFrozenBatches } from '../harness/phase2b2d2c/batches.js';
 import { loadDevCorpus } from '../harness/phase2b2d2c/corpus.js';
 import {
-  APPROVED_F0C_PLAN_SHA256,
-  buildF0CExecutionPlan,
-  F0C_FREEZE_PATH,
-  f0cPlanOrderIsFrozen,
-  f0cPlanSha256,
-  loadF0CFreezeFromBytes,
-  type F0CExecutionPlan,
-  type F0CFreeze,
-} from '../harness/phase2b2d2c/f0c/freezeF0C.js';
+  PROPOSED_F0E_PLAN_SHA256,
+  buildF0EExecutionPlan,
+  F0E_FREEZE_PATH,
+  f0ePlanOrderIsFrozen,
+  f0ePlanSha256,
+  loadF0EFreezeFromBytes,
+  type Attempt2ExecutionPlan,
+  type Attempt2Freeze,
+} from '../harness/phase2b2d2c/f0c/freezeF0E.js';
 import {
   f0cBatchMismatches,
   holdoutBoundaryViolations,
 } from '../harness/phase2b2d2c/f0c/planVerification.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
-const BYTES = readFileSync(join(ROOT, F0C_FREEZE_PATH));
-const { freeze, rawSha256 } = loadF0CFreezeFromBytes(BYTES);
+const BYTES = readFileSync(join(ROOT, F0E_FREEZE_PATH));
+const { freeze, rawSha256 } = loadF0EFreezeFromBytes(BYTES);
 const corpus = loadDevCorpus(freeze, { read: (relative) => readFileSync(join(ROOT, relative)) });
 const batches = reconstructFrozenBatches(corpus.rows, {
   canonicalStringify,
@@ -45,37 +45,37 @@ const batches = reconstructFrozenBatches(corpus.rows, {
   assemblyVersion: ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION,
   outputSchemaVersion: ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
 });
-const PLAN = buildF0CExecutionPlan(freeze, rawSha256);
+const PLAN = buildF0EExecutionPlan(freeze, rawSha256);
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
 describe('2D2C-F0D plan verification: the approved plan against batches reconstructed from the DEVELOPMENT corpus', () => {
   it('the committed freeze reconstructs with zero mismatches, and the rebuilt plan is the approved one in the frozen order', () => {
     expect(f0cBatchMismatches(freeze, batches)).toEqual([]);
     expect(holdoutBoundaryViolations(freeze, PLAN)).toEqual([]);
-    expect(f0cPlanOrderIsFrozen(PLAN)).toBe(true);
-    expect(f0cPlanSha256(PLAN)).toBe(APPROVED_F0C_PLAN_SHA256);
+    expect(f0ePlanOrderIsFrozen(PLAN)).toBe(true);
+    expect(f0ePlanSha256(PLAN)).toBe(PROPOSED_F0E_PLAN_SHA256);
   });
 
   it('a swapped-in attempt-1 identity, a changed assembly identity, a changed gold-id order and a reordered batch are each detected by name', () => {
-    const swapped = clone(freeze) as F0CFreeze;
+    const swapped = clone(freeze) as Attempt2Freeze;
     swapped.batching.plan[0]!.finalInputSha256.PROMPT_V3_CANONICAL =
       swapped.batching.plan[0]!.attempt1ComparatorFinalInputSha256.PROMPT_V2_CANONICAL;
     expect(f0cBatchMismatches(swapped, batches)).toEqual([
       '1:finalInputSha256.PROMPT_V3_CANONICAL',
     ]);
 
-    const assembly = clone(freeze) as F0CFreeze;
+    const assembly = clone(freeze) as Attempt2Freeze;
     assembly.batching.plan[4]!.assemblyInputSha256 = assembly.batching.plan[3]!.assemblyInputSha256;
     expect(f0cBatchMismatches(assembly, batches)).toContain('5:assemblyInputSha256');
 
-    const goldOrder = clone(freeze) as F0CFreeze;
+    const goldOrder = clone(freeze) as Attempt2Freeze;
     goldOrder.batching.plan[1]!.goldIds = [...goldOrder.batching.plan[1]!.goldIds].reverse();
     expect(f0cBatchMismatches(goldOrder, batches)).toEqual(['2:goldIds']);
 
-    const reordered = clone(freeze) as F0CFreeze;
+    const reordered = clone(freeze) as Attempt2Freeze;
     const [first, second] = reordered.batching.plan as [
-      F0CFreeze['batching']['plan'][number],
-      F0CFreeze['batching']['plan'][number],
+      Attempt2Freeze['batching']['plan'][number],
+      Attempt2Freeze['batching']['plan'][number],
     ];
     reordered.batching.plan.splice(0, 2, second, first);
     const mismatches = f0cBatchMismatches(reordered, batches);
@@ -84,7 +84,7 @@ describe('2D2C-F0D plan verification: the approved plan against batches reconstr
   });
 
   it('a comparator identity equal to the V3 identity, or a comparator identity that is not the reconstruction’s, is detected', () => {
-    const equal = clone(freeze) as F0CFreeze;
+    const equal = clone(freeze) as Attempt2Freeze;
     equal.batching.plan[2]!.attempt1ComparatorFinalInputSha256.PROMPT_V1_CANONICAL =
       equal.batching.plan[2]!.finalInputSha256.PROMPT_V3_CANONICAL;
     const mismatches = f0cBatchMismatches(equal, batches);
@@ -96,25 +96,25 @@ describe('2D2C-F0D plan verification: the approved plan against batches reconstr
     const never = freeze.corpus.holdoutFilesNeverRead[0]!;
     const smuggledPath = clone(PLAN) as unknown as { evaluations: { echeRowKey: string }[] };
     smuggledPath.evaluations[0]!.echeRowKey = never;
-    expect(holdoutBoundaryViolations(freeze, smuggledPath as unknown as F0CExecutionPlan)).toEqual([
-      never,
-    ]);
+    expect(
+      holdoutBoundaryViolations(freeze, smuggledPath as unknown as Attempt2ExecutionPlan),
+    ).toEqual([never]);
     const smuggledToken = clone(PLAN) as unknown as { evaluations: { organisationId: string }[] };
     smuggledToken.evaluations[11]!.organisationId = 'HOLDOUT-item';
-    expect(holdoutBoundaryViolations(freeze, smuggledToken as unknown as F0CExecutionPlan)).toEqual(
-      ['the token HOLDOUT'],
-    );
+    expect(
+      holdoutBoundaryViolations(freeze, smuggledToken as unknown as Attempt2ExecutionPlan),
+    ).toEqual(['the token HOLDOUT']);
     const reordered = clone(PLAN) as unknown as { evaluations: unknown[] };
     reordered.evaluations.reverse();
-    expect(f0cPlanOrderIsFrozen(reordered as unknown as F0CExecutionPlan)).toBe(false);
+    expect(f0ePlanOrderIsFrozen(reordered as unknown as Attempt2ExecutionPlan)).toBe(false);
     const truncated = clone(PLAN) as unknown as { evaluations: unknown[] };
     truncated.evaluations.pop();
-    expect(f0cPlanOrderIsFrozen(truncated as unknown as F0CExecutionPlan)).toBe(false);
+    expect(f0ePlanOrderIsFrozen(truncated as unknown as Attempt2ExecutionPlan)).toBe(false);
     // Every mutation above changes the plan identity; the committed bytes are untouched.
-    expect(f0cPlanSha256(reordered as unknown as F0CExecutionPlan)).not.toBe(
-      APPROVED_F0C_PLAN_SHA256,
+    expect(f0ePlanSha256(reordered as unknown as Attempt2ExecutionPlan)).not.toBe(
+      PROPOSED_F0E_PLAN_SHA256,
     );
-    expect(loadF0CFreezeFromBytes(readFileSync(join(ROOT, F0C_FREEZE_PATH))).rawSha256).toBe(
+    expect(loadF0EFreezeFromBytes(readFileSync(join(ROOT, F0E_FREEZE_PATH))).rawSha256).toBe(
       rawSha256,
     );
   });

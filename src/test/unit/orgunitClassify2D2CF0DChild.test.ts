@@ -1,12 +1,12 @@
 /**
- * PHASE 2B-2D2C-F0D — the Tier-2 child under an ATTEMPT-2 (F0C) manifest.
+ * PHASE 2B-2D2C-F0D — the Tier-2 child under an ATTEMPT-2 (F0E) manifest.
  *
  * With a fake provider and a runtime assembled from this worktree's own
  * modules (the production V3 prompt, the real repair module), proves that
- * the child resolves the F0C family by the freeze bytes' hash, re-verifies
- * every identity against the F0C plan, applies the FREEZE's repair policy
+ * the child resolves the F0E family by the freeze bytes' hash, re-verifies
+ * every identity against the F0E plan, applies the FREEZE's repair policy
  * (the 120 000 ms floor) to the one bounded repair round, and refuses: an
- * attempt-1 variant under F0C, a wrong attempt number, a manifest whose
+ * attempt-1 variant under F0E, a wrong attempt number, a manifest whose
  * hash names the other family, a V3 manifest against the F0B bytes, and a
  * root without the repair module. No provider is constructed on any
  * refused path. Nothing outside a scratch directory is written.
@@ -51,20 +51,20 @@ import {
 import { FREEZE_PATH, RUNNER_ARTIFACT_VERSION } from '../harness/phase2b2d2c/constants.js';
 import { loadDevCorpus } from '../harness/phase2b2d2c/corpus.js';
 import {
-  APPROVED_F0C_FREEZE_RAW_SHA256,
-  buildF0CExecutionPlan,
-  F0C_FREEZE_PATH,
-  F0C_VARIANT,
-  loadF0CFreezeFromBytes,
-} from '../harness/phase2b2d2c/f0c/freezeF0C.js';
+  PROPOSED_F0E_FREEZE_RAW_SHA256,
+  buildF0EExecutionPlan,
+  F0E_FREEZE_PATH,
+  F0E_VARIANT,
+  loadF0EFreezeFromBytes,
+} from '../harness/phase2b2d2c/f0c/freezeF0E.js';
 import { EXPECTED_F0B_FREEZE_RAW_SHA256 } from '../harness/phase2b2d2c/constants.js';
 import { sha256Hex } from '../harness/phase2b2d2c/freeze.js';
 import type { LoadedVariantRuntime } from '../harness/phase2b2d2c/runtimeLoader.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
-const F0C_BYTES = readFileSync(join(ROOT, F0C_FREEZE_PATH));
+const F0C_BYTES = readFileSync(join(ROOT, F0E_FREEZE_PATH));
 const F0B_BYTES = readFileSync(join(ROOT, FREEZE_PATH));
-const { freeze, rawSha256 } = loadF0CFreezeFromBytes(F0C_BYTES);
+const { freeze, rawSha256 } = loadF0EFreezeFromBytes(F0C_BYTES);
 const corpus = loadDevCorpus(freeze, { read: (relative) => readFileSync(join(ROOT, relative)) });
 const batches = reconstructFrozenBatches(corpus.rows, {
   canonicalStringify,
@@ -74,7 +74,7 @@ const batches = reconstructFrozenBatches(corpus.rows, {
   assemblyVersion: constantsModule.ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION,
   outputSchemaVersion: outputSchemaModule.ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
 });
-const plan = buildF0CExecutionPlan(freeze, rawSha256);
+const plan = buildF0EExecutionPlan(freeze, rawSha256);
 const V3_BATCH_1 = plan.evaluations[0]!;
 const BATCH_1 = batches[0]!;
 const VARIANT_ROOT = '/synthetic/variant-root-v3';
@@ -135,7 +135,7 @@ function manifestFor(dir: string, overrides: Partial<ChildManifest> = {}): Child
   const evaluation = V3_BATCH_1;
   return {
     runnerRecordVersion: RUNNER_ARTIFACT_VERSION,
-    freezePath: join(ROOT, F0C_FREEZE_PATH),
+    freezePath: join(ROOT, F0E_FREEZE_PATH),
     freezeConfigRawSha256: rawSha256,
     freezeVersion: freeze.version,
     variantName: evaluation.variantName,
@@ -287,10 +287,10 @@ const record = <T>(dir: string, kind: ArtifactKind): T | null => {
   return read.ok ? read.envelope.record : null;
 };
 
-describe('2D2C-F0D child under an F0C manifest: the freeze policy governs the one repair round', () => {
+describe('2D2C-F0D child under an F0E manifest: the freeze policy governs the one repair round', () => {
   const [d0, d1, d2] = V3_BATCH_1.orderedDocIndices as [number, number, number];
 
-  it('passes preflight against the F0C plan, sends the original, repairs the ONE rejected document alone under the FROZEN 120000 ms floor, and records repairRound', async () => {
+  it('passes preflight against the F0E plan, sends the original, repairs the ONE rejected document alone under the FROZEN 120000 ms floor, and records repairRound', async () => {
     const dir = attemptDir();
     const h = harness(dir, {
       results: [
@@ -310,7 +310,7 @@ describe('2D2C-F0D child under an F0C manifest: the freeze policy governs the on
     expect(h.factoryCalls()).toBe(1);
     expect(h.requests).toHaveLength(2);
     expect(h.requests[0]?.systemPrompt).toBe(promptModule.ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
-    expect(sha256Hex(h.requests[0]!.systemPrompt)).toBe(F0C_VARIANT.runtimePromptSha256);
+    expect(sha256Hex(h.requests[0]!.systemPrompt)).toBe(F0E_VARIANT.runtimePromptSha256);
     const preflight = record<{ ok: boolean; detail: string }>(dir, 'CHILD_PREFLIGHT');
     expect(preflight?.ok).toBe(true);
     const decision = record<{
@@ -336,7 +336,7 @@ describe('2D2C-F0D child under an F0C manifest: the freeze policy governs the on
     expect(childResult?.repairRound?.accepted).toBe(1);
   });
 
-  it('an F0C manifest naming an attempt-1 variant is CORPUS_CONFIG_OR_HASH_DRIFT before any provider construction', async () => {
+  it('an F0E manifest naming an attempt-1 variant is CORPUS_CONFIG_OR_HASH_DRIFT before any provider construction', async () => {
     const dir = attemptDir();
     const h = harness(dir, {
       manifest: {
@@ -351,11 +351,11 @@ describe('2D2C-F0D child under an F0C manifest: the freeze policy governs the on
     expect(outcome.stopCondition).toBe('CORPUS_CONFIG_OR_HASH_DRIFT');
     expect(h.factoryCalls()).toBe(0);
     expect(record<{ detail: string }>(dir, 'CHILD_PREFLIGHT')?.detail).toContain(
-      'PROMPT_V1_CANONICAL is not a variant this freeze (F0C_ATTEMPT_2) schedules',
+      'PROMPT_V1_CANONICAL is not a variant this freeze (F0E_ATTEMPT_2) schedules',
     );
   });
 
-  it('an F0C manifest requesting attempt 1 (or 3) is refused: the F0C freeze configures attempt 2', async () => {
+  it('an F0E manifest requesting attempt 1 (or 3) is refused: the F0C freeze configures attempt 2', async () => {
     for (const attemptNo of [1, 3]) {
       const dir = attemptDir();
       const h = harness(dir, { manifest: { attemptNo } });
@@ -377,7 +377,7 @@ describe('2D2C-F0D child under an F0C manifest: the freeze policy governs the on
       'CORPUS_CONFIG_OR_HASH_DRIFT',
     );
     expect(record<{ detail: string }>(f0cBytesF0bHash, 'CHILD_PREFLIGHT')?.detail).toBe(
-      'the manifest freeze hash is not the approved F0C hash.',
+      'the manifest freeze hash is not the proposed F0E hash.',
     );
     const f0bBytesF0cHash = attemptDir();
     h = harness(f0bBytesF0cHash, { freezeBytes: F0B_BYTES });
@@ -408,7 +408,7 @@ describe('2D2C-F0D child under an F0C manifest: the freeze policy governs the on
     expect(h.factoryCalls()).toBe(0);
   });
 
-  it('a root without the built repair module is refused under the F0C policy, before any provider construction', async () => {
+  it('a root without the built repair module is refused under the F0E policy, before any provider construction', async () => {
     const dir = attemptDir();
     const h = harness(dir, { withRepair: false });
     const outcome = await runChildEvaluation(h.manifestPath, h.deps);
@@ -431,6 +431,6 @@ describe('2D2C-F0D child under an F0C manifest: the freeze policy governs the on
       'finalInputSha256',
     );
     expect(h.factoryCalls()).toBe(0);
-    expect(APPROVED_F0C_FREEZE_RAW_SHA256).toBe(rawSha256);
+    expect(PROPOSED_F0E_FREEZE_RAW_SHA256).toBe(rawSha256);
   });
 });

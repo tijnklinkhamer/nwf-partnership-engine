@@ -16,17 +16,18 @@ import { canonicalStringify } from '../../../../orgunits/classify/canonical.js';
 import { computeFinalInputSha256 } from '../../../../orgunits/classify/finalIdentity.js';
 import { ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION } from '../../../../orgunits/classify/outputSchema.js';
 import type { ReconstructedBatch } from '../batches.js';
-import { F0C_VARIANT, type F0CExecutionPlan, type F0CFreeze } from './freezeF0C.js';
+import type { Attempt2ExecutionPlan, Attempt2Freeze } from './attempt2FreezeCore.js';
 
 /**
  * Every F0C plan batch against the reconstruction. Returns the mismatch
  * list; empty means verified.
  */
 export function f0cBatchMismatches(
-  freeze: F0CFreeze,
+  freeze: Attempt2Freeze,
   batches: readonly ReconstructedBatch[],
 ): readonly string[] {
   const mismatches: string[] = [];
+  const promptVersion = freeze.classifier.variants[0]!.promptVersion;
   if (freeze.batching.plan.length !== batches.length) {
     mismatches.push(`batch count ${batches.length} != ${freeze.batching.plan.length}`);
   }
@@ -56,7 +57,7 @@ export function f0cBatchMismatches(
       mismatches.push(`${tag}:canonicalSerializedInputSha256`);
     const v3 = computeFinalInputSha256({
       assemblyInputSha256: batch.assemblyInputSha256,
-      promptVersion: F0C_VARIANT.promptVersion,
+      promptVersion,
       outputSchemaVersion: ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
     });
     if (frozen.finalInputSha256.PROMPT_V3_CANONICAL !== v3)
@@ -73,8 +74,8 @@ export function f0cBatchMismatches(
 
 /** No never-read path, and no HOLDOUT-shaped token, anywhere in the plan's canonical bytes. */
 export function holdoutBoundaryViolations(
-  freeze: F0CFreeze,
-  plan: F0CExecutionPlan,
+  freeze: Attempt2Freeze,
+  plan: Attempt2ExecutionPlan,
 ): readonly string[] {
   const text = canonicalStringify(plan);
   const violations: string[] = [];

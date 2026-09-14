@@ -44,7 +44,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ORGUNIT_CLASSIFIER_SYSTEM_PROMPT } from '../../../orgunits/classify/prompt.js';
 import { FROZEN_VARIANTS } from '../../harness/phase2b2d2c/constants.js';
-import { F0C_VARIANT } from '../../harness/phase2b2d2c/f0c/freezeF0C.js';
+import { F0E_VARIANT } from '../../harness/phase2b2d2c/f0c/freezeF0E.js';
 import type { Freeze } from '../../harness/phase2b2d2c/freeze.js';
 import { v1FromV2, v2FromV3 } from '../../harness/phase2b2d2c/promptLineage.js';
 import {
@@ -344,8 +344,8 @@ export function fakeGitProbes(
 
 export const V1 = FROZEN_VARIANTS[0];
 export const V2 = FROZEN_VARIANTS[1];
-/** F0D: the ONE attempt-2 variant, from the F0C loader's own constant. */
-export const V3 = F0C_VARIANT;
+/** The ONE attempt-2 variant, from the CURRENT (F0E) revision's own constant: the corrected V3B runtime. */
+export const V3 = F0E_VARIANT;
 
 /** Writes the scripted scenario the synthetic provider reads. */
 export function writeFakeProviderScenario(root: string, scenario: unknown): void {
