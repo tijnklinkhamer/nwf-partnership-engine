@@ -94,7 +94,7 @@ const F0C = loadF0CFreezeFromBytes(F0C_BYTES);
 const PLAN = buildF0CExecutionPlan(F0C.freeze, F0C.rawSha256);
 
 /** The proposed raw hash, restated as a literal so the loader's own constant is cross-checked. */
-const PROPOSED_RAW_SHA256 = '7bde30ada493d28a80c7aa683e6b8f0a3d81a24e7ae1e22c41ddecda43e9ef34';
+const PROPOSED_RAW_SHA256 = '5368efa6b9ac3a0ccd16c52bbff4f02da845715125cc094897141f14f24b5f78';
 
 function clone(): F0CFreeze {
   return JSON.parse(JSON.stringify(F0C.freeze)) as F0CFreeze;
@@ -309,9 +309,9 @@ describe('2D2C-F0C: the repair policy equals the production constants and ADR 00
     expect(F0C.freeze.repairPolicy.minimumRemainingBudgetMs).toBe(
       REPAIR_MINIMUM_REMAINING_BUDGET_MS,
     );
-    expect(F0C.freeze.repairPolicy.minimumRemainingBudgetMs).toBe(60_000);
+    expect(F0C.freeze.repairPolicy.minimumRemainingBudgetMs).toBe(120_000);
     expect(F0C.freeze.repairContract.minimumRemainingBudgetMsStatus).toBe(
-      'PROPOSED_PENDING_OWNER_FREEZE_APPROVAL',
+      'OWNER_SELECTED_2026_09_14_PENDING_FREEZE_APPROVAL',
     );
   });
 
@@ -374,21 +374,32 @@ describe('2D2C-F0C: the repair policy equals the production constants and ADR 00
 });
 
 describe('2D2C-F0C: the repair deadline formula and the floor options', () => {
-  it('states repairDeadlineMs = min(300 s, remaining - 10 s grace) with the frozen production numbers', () => {
+  it('states the GENERAL rule: window = max(0, remaining - grace) at the decision; per attempt min(300 s, max(0, window - elapsedSinceRepairClassifyEntry)), with the frozen production numbers', () => {
     const formula = F0C.freeze.repairContract.repairDeadlineFormula;
     expect(formula.statement).toContain(
-      'min(CLASSIFIER_CALL_SOFT_DEADLINE_MS, remainingBudgetMs - CLASSIFIER_CALL_HARD_KILL_GRACE_MS)',
+      'repairWindowMs = max(0, remainingLogicalEvaluationBudgetMsAtRepairDecision - CLASSIFIER_CALL_HARD_KILL_GRACE_MS)',
     );
+    expect(formula.statement).toContain(
+      'repairAttemptDeadlineMs = min(CLASSIFIER_CALL_SOFT_DEADLINE_MS, max(0, repairWindowMs - elapsedSinceRepairClassifyEntryMs))',
+    );
+    expect(formula.statement).toContain('for EVERY adapter/runner attempt');
+    expect(formula.statement).toContain(
+      '(pre-flight and auth-status, prior transient attempts, retry backoff)',
+    );
+    expect(formula.statement).toContain(
+      'A non-positive remainder is the existing terminal TIMEOUT with no new runner attempt',
+    );
+
     expect(formula.softDeadlineMs).toBe(CLASSIFIER_CALL_SOFT_DEADLINE_MS);
     expect(formula.hardKillGraceMs).toBe(CLASSIFIER_CALL_HARD_KILL_GRACE_MS);
     expect(formula.totalBudgetMs).toBe(CLASSIFIER_CALL_TOTAL_BUDGET_MS);
     expect(formula.implementation.join('\n')).toContain('strict less-than');
     expect(formula.implementation.join('\n')).toContain(
-      'never more than the frozen 300000 ms soft deadline',
+      'no attempt ever receives more than the frozen 300000 ms soft deadline nor more than remaining - 10000',
     );
   });
 
-  it('presents the 60 000 ms and 120 000 ms floor options with exact residual-time arithmetic, selects nothing, and keeps the implementation value', () => {
+  it('records the REJECTED 60 000 ms and the owner-SELECTED 120 000 ms floor options with exact residual-time arithmetic, and freezes the selected implementation value', () => {
     const options = F0C.freeze.repairContract.minimumRemainingBudgetMsOptions;
     expect(options.authStatusUpperBoundMs).toBe(60_000);
     expect(options.measuredOnAttempt1.slowestFullEvaluationWallMs).toBe(50_179);
@@ -403,8 +414,16 @@ describe('2D2C-F0C: the repair deadline formula and the floor options', () => {
     });
     expect(60_000 + 50_179).toBeLessThanOrEqual(120_000);
     expect(options.recommendation).toContain('120000');
-    expect(options.recommendation).toContain('NOT adopted here');
-    // Nothing selected: the frozen policy value is still the implementation constant.
+    expect(options.recommendation).toContain('SELECTED by the owner');
+    expect(byFloor.get(60_000)).toMatchObject({ status: 'REJECTED_BY_OWNER_2026_09_14' });
+    expect(byFloor.get(120_000)).toMatchObject({ status: 'SELECTED_BY_OWNER_2026_09_14' });
+    expect(REPAIR_MINIMUM_REMAINING_BUDGET_MS).toBe(120_000);
+    // At exactly the floor a worst-case auth-status check leaves 60 000 ms of runner window,
+    // above the slowest observed attempt-1 full evaluation (50 179 ms).
+    expect(REPAIR_MINIMUM_REMAINING_BUDGET_MS - options.authStatusUpperBoundMs).toBeGreaterThan(
+      50_179,
+    );
+    // The frozen policy value IS the implementation constant (selected, not merely presented).
     expect(F0C.freeze.repairPolicy.minimumRemainingBudgetMs).toBe(
       REPAIR_MINIMUM_REMAINING_BUDGET_MS,
     );
@@ -654,6 +673,30 @@ describe('2D2C-F0C: mutation coverage — each material freeze assertion bites',
       }
     ).worstCaseInferenceWindowAfterMaxAuthStatusMs = 60_000;
     expectDrift(option, /worst-case inference window/);
+    // A statement that reverts to the first-attempt-only wording is refused.
+    const reverted = clone();
+    (reverted.repairContract.repairDeadlineFormula as { statement: string }).statement =
+      'repairDeadlineMs = min(CLASSIFIER_CALL_SOFT_DEADLINE_MS, remainingBudgetMs - CLASSIFIER_CALL_HARD_KILL_GRACE_MS), per attempt';
+    expectDrift(reverted, /repairDeadlineFormula.statement/);
+    // Selecting the rejected option (or selecting none) is refused.
+    const swapped = clone();
+    for (const o of swapped.repairContract.minimumRemainingBudgetMsOptions.options as {
+      usableFloorMs: number;
+      status: string;
+    }[]) {
+      o.status =
+        o.usableFloorMs === 60_000
+          ? 'SELECTED_BY_OWNER_2026_09_14'
+          : 'REJECTED_BY_OWNER_2026_09_14';
+    }
+    expectDrift(swapped, /SELECTED option is not the implementation value/);
+    const none = clone();
+    for (const o of none.repairContract.minimumRemainingBudgetMsOptions.options as {
+      status: string;
+    }[]) {
+      o.status = 'REJECTED_BY_OWNER_2026_09_14';
+    }
+    expectDrift(none, /SELECTED option is not the implementation value/);
   });
 
   it('a changed liveness value, watchdog or shared-budget worst case is refused', () => {

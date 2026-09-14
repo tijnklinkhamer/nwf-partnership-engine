@@ -57,7 +57,7 @@ export const F0C_FREEZE_PATH = 'docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_
  * changed bytes are a new proposal.
  */
 export const PROPOSED_F0C_FREEZE_RAW_SHA256 =
-  '7bde30ada493d28a80c7aa683e6b8f0a3d81a24e7ae1e22c41ddecda43e9ef34';
+  '5368efa6b9ac3a0ccd16c52bbff4f02da845715125cc094897141f14f24b5f78';
 
 export const F0C_FREEZE_ID = 'PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0C_V1';
 export const F0C_FREEZE_VERSION = 'phase2b-2d2c-dev-configuration-freeze-f0c-v1';
@@ -189,7 +189,7 @@ export const F0CFreezeSchema = z.looseObject({
   }),
   repairPolicy: RepairPolicySchema,
   repairContract: z.looseObject({
-    minimumRemainingBudgetMsStatus: z.literal('PROPOSED_PENDING_OWNER_FREEZE_APPROVAL'),
+    minimumRemainingBudgetMsStatus: z.literal('OWNER_SELECTED_2026_09_14_PENDING_FREEZE_APPROVAL'),
     rules: z.array(z.string().min(1)).min(12),
     repairDeadlineFormula: z.looseObject({
       statement: z.string().min(1),
@@ -205,6 +205,7 @@ export const F0CFreezeSchema = z.looseObject({
         .array(
           z.looseObject({
             usableFloorMs: z.int(),
+            status: z.enum(['SELECTED_BY_OWNER_2026_09_14', 'REJECTED_BY_OWNER_2026_09_14']),
             remainingFloorMs: z.int(),
             worstCaseInferenceWindowAfterMaxAuthStatusMs: z.int(),
           }),
@@ -386,11 +387,15 @@ export function assertF0CAgreesWithProduction(freeze: F0CFreeze): void {
     problems.push('repairDeadlineFormula.hardKillGraceMs');
   if (formula.totalBudgetMs !== FROZEN_TIER1_TOTAL_BUDGET_MS)
     problems.push('repairDeadlineFormula.totalBudgetMs');
-  if (
-    !formula.statement.includes(
-      'min(CLASSIFIER_CALL_SOFT_DEADLINE_MS, remainingBudgetMs - CLASSIFIER_CALL_HARD_KILL_GRACE_MS)',
-    )
-  ) {
+  // The GENERAL rule (window at the repair decision; per attempt, elapsed since repair classify entry).
+  const requiredFormulaFragments = [
+    'repairWindowMs = max(0, remainingLogicalEvaluationBudgetMsAtRepairDecision - CLASSIFIER_CALL_HARD_KILL_GRACE_MS)',
+    'repairAttemptDeadlineMs = min(CLASSIFIER_CALL_SOFT_DEADLINE_MS, max(0, repairWindowMs - elapsedSinceRepairClassifyEntryMs))',
+    'prior transient attempts, retry backoff',
+    'A non-positive remainder is the existing terminal TIMEOUT with no new runner attempt',
+    'repairWindowMs < REPAIR_MINIMUM_REMAINING_BUDGET_MS -> skip, fail closed',
+  ];
+  if (!requiredFormulaFragments.every((fragment) => formula.statement.includes(fragment))) {
     problems.push('repairDeadlineFormula.statement');
   }
   // The floor options: arithmetic over the auth upper bound and the grace, nothing selected.
@@ -409,6 +414,11 @@ export function assertF0CAgreesWithProduction(freeze: F0CFreeze): void {
   }
   if (!options.options.some((o) => o.usableFloorMs === policy.minimumRemainingBudgetMs)) {
     problems.push('floorOptions: the implementation value is not among the presented options');
+  }
+  // Exactly one option is SELECTED, and it is the implementation value; every other option is REJECTED.
+  const selected = options.options.filter((o) => o.status === 'SELECTED_BY_OWNER_2026_09_14');
+  if (selected.length !== 1 || selected[0]!.usableFloorMs !== policy.minimumRemainingBudgetMs) {
+    problems.push('floorOptions: the SELECTED option is not the implementation value');
   }
 
   // Liveness: unchanged from F0B and equal to production.

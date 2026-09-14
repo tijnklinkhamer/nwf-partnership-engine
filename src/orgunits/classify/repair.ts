@@ -91,11 +91,17 @@ export const REPAIR_ATTEMPT_SOFT_DEADLINE_MS = 300_000;
 
 /**
  * Below this much USABLE window (remaining budget minus the grace) a repair
- * is skipped rather than started. UNCALIBRATED: a named floor so that a
- * repair is never opened with a window too short for any answer, chosen
- * as the auth-status pre-flight's own upper bound and nothing more precise.
+ * is skipped rather than started. OWNER-SELECTED for F0C (2026-09-14):
+ * 120 000 ms. The auth-status pre-flight runs INSIDE the repair window and
+ * may take up to 60 000 ms, so at exactly the floor a worst-case auth-status
+ * check still leaves 60 000 ms of runner window - more than the slowest
+ * observed attempt-1 full evaluation (50 179 ms, itself including its own
+ * auth-status check). A conservative readiness threshold, not a proof that
+ * a repair succeeds. The earlier 60 000 ms value (equal to the auth-status
+ * bound alone) was rejected: at that floor a worst-case auth-status check
+ * consumed the whole window and produced a TIMEOUT with zero inference.
  */
-export const REPAIR_MINIMUM_REMAINING_BUDGET_MS = 60_000;
+export const REPAIR_MINIMUM_REMAINING_BUDGET_MS = 120_000;
 
 export interface RepairPolicy {
   readonly enabled: boolean;

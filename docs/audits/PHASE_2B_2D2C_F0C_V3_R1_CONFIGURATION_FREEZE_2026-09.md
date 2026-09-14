@@ -1,9 +1,9 @@
-# Phase 2B-2D2C-F0C — V3 + R1 DEVELOPMENT configuration freeze (PREPARED, CORRECTED, NOT APPROVED)
+# Phase 2B-2D2C-F0C — V3 + R1 DEVELOPMENT configuration freeze (PREPARED, 120K FLOOR INCORPORATED, NOT APPROVED)
 
 **Date:** 2026-09-14
 **Branch:** `feat/phase2b-2d2c-f0c-v3-r1-configuration-freeze` (cut from the
 exact V3 commit `0c0d73803ed1155d568afe50a6657b7be7276dbb`; NOT pushed)
-**State at this record:** `CORRECTED AND PREPARED — AWAITING EXPLICIT OWNER FREEZE APPROVAL; ZERO INFERENCE`.
+**State at this record:** `120K FLOOR INCORPORATED AND PREPARED — AWAITING EXPLICIT OWNER FREEZE APPROVAL; ZERO INFERENCE`.
 This is an audit record committed additively. The freeze it describes is
 PROPOSED; nothing in this branch is owner-approved, and nothing here
 authorises an attempt.
@@ -52,20 +52,26 @@ evaluation artifact. Git operations were limited to Stage 1 below.
 
 | identity                       | value                                                                                                                                                 |
 | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| F0C raw SHA-256 (81,241 bytes) | `7bde30ada493d28a80c7aa683e6b8f0a3d81a24e7ae1e22c41ddecda43e9ef34`                                                                                    |
-| derived attempt-2 plan SHA-256 | `fdd79d3e23cc22187dec7d874a30f61a4f71096d9f0f5c3287bff2698456f9aa`                                                                                    |
+| F0C raw SHA-256 (82,148 bytes) | `5368efa6b9ac3a0ccd16c52bbff4f02da845715125cc094897141f14f24b5f78`                                                                                    |
+| derived attempt-2 plan SHA-256 | `49521dee7a2f48c04557973ff75a339c35031522dc90bf2f758be95af185e02d`                                                                                    |
 | variant                        | `PROMPT_V3_CANONICAL` / `PROMPT_V3_CANDIDATE`, order 1, the only one                                                                                  |
 | runtime commit                 | `0c0d73803ed1155d568afe50a6657b7be7276dbb` (based on R1 `9c509107fd66afdc979364a135bf94eb64379972`)                                                   |
 | prompt                         | `orgunit-classifier-prompt-v3`, `d05dcce614397e09f93d0aec981a3d626d5e90a16851040901ffafec30d3abd1`, 14,012 code points / 14,088 bytes, recomputed from the production bytes |
 | model                          | `claude-sonnet-5` (unchanged; allow-listed at the V3 commit)                                                                                          |
-| repair policy                  | enabled, 1 round, `minimumRemainingBudgetMs` 60,000 (**PROPOSED**, see §5)                                                                            |
+| repair policy                  | enabled, 1 round, `minimumRemainingBudgetMs` **120,000 on the usable window** (owner-selected 2026-09-14, see §5; the selection is not a freeze approval)                                                                            |
 | call ceiling (mechanical)      | 12 original + at most 49 repair = at most 61 provider requests; at most 183 adapter attempts                                                          |
 | liveness                       | Tier 1 300 s / 10 s / 600 s and Tier 2 700 s unchanged; per-evaluation worst case 610 s under the shared-budget rule                                  |
 
-The earlier proposal (`0782fc3f9ab459c95bd6f8d6b34c69820a493a3bab2c40f06a51946314a8491a`,
-plan `80fa11403115f2aa6e43261543131e8b34cc340030cf2f5a30fc71a39ca41ff7`)
-is superseded by the bytes above after the reconciliation in §4–§6; only
-prose blocks were added to the freeze, no numeric value changed.
+Two earlier proposals are superseded by the bytes above and were never
+approved: `0782fc3f9ab459c95bd6f8d6b34c69820a493a3bab2c40f06a51946314a8491a`
+(plan `80fa11403115f2aa6e43261543131e8b34cc340030cf2f5a30fc71a39ca41ff7`)
+and, after reconciliation 1,
+`7bde30ada493d28a80c7aa683e6b8f0a3d81a24e7ae1e22c41ddecda43e9ef34`
+(plan `fdd79d3e23cc22187dec7d874a30f61a4f71096d9f0f5c3287bff2698456f9aa`,
+which carried the implementation's 60,000 ms floor marked PROPOSED). The
+plan SHA changed because the plan embeds the repair policy, whose floor
+value changed; the evaluation order, the 12 evaluations, the call ceiling
+and every other numeric value are unchanged.
 
 ## 4. Reconciliation 1 — the repair deadline contract — `RECONSTRUCTED_AND_VERIFIED_NOW`
 
@@ -88,22 +94,49 @@ elapsedSinceEntry)`; a non-positive remainder is a terminal TIMEOUT with
   expires; because the orchestrator subtracted it before handing over the
   window, a repair ends no later than `originalEnteredAt + 600000`.
 
-**Therefore the per-attempt deadline is `min(CLASSIFIER_CALL_SOFT_DEADLINE_MS,
-remainingBudgetMs − CLASSIFIER_CALL_HARD_KILL_GRACE_MS − preflightAndAuthStatusMs)`,
-which is never more than the required `min(300000, remaining − 10000)` and
-never more than the frozen 300,000 ms soft deadline.** The earlier report's
-sentence "each repair receives exactly remaining − 10,000 ms" described the
-WINDOW (the bound on all of a repair's attempts, backoff and auth-status
-work), not the deadline; it was report wording, not code. No production
-byte changed. The freeze now carries an explicit `repairDeadlineFormula`
-block, cross-checked against the production constants by the loader, and
-three new tests prove the formula through the real adapter with a fake
-runner and fake clock: a 590 s window still yields a 300 s first-attempt
-deadline; a 90 s window with a 20 s auth-status check yields exactly 70 s;
-at the 60 s floor with a 60 s auth-status check the repair is a terminal
-TIMEOUT with zero runner calls, and one millisecond less usable is a SKIP.
+**The GENERAL rule, as implemented and as now frozen (owner reconciliation
+of 2026-09-14):**
 
-## 5. Reconciliation 2 — the minimum remaining budget (NOT approved) — `RECONSTRUCTED_AND_VERIFIED_NOW`
+```
+repairWindowMs          = max(0, remainingLogicalEvaluationBudgetMsAtRepairDecision − CLASSIFIER_CALL_HARD_KILL_GRACE_MS)
+repairAttemptDeadlineMs = min(CLASSIFIER_CALL_SOFT_DEADLINE_MS, max(0, repairWindowMs − elapsedSinceRepairClassifyEntryMs))
+```
+
+for EVERY adapter/runner attempt of the repair, where
+`elapsedSinceRepairClassifyEntryMs` includes all time already spent inside
+that repair call: pre-flight and the auth-status check, every earlier
+transient attempt and every retry backoff sleep. A non-positive remainder
+is the existing terminal TIMEOUT (`classifyTotalBudgetExhausted`) with no
+new runner attempt. The earlier prose in this section and in the previous
+freeze bytes stated only the FIRST attempt's deadline (`… − preflightAndAuthStatusMs`);
+the code was already general, and no production byte changed for this
+reconciliation. The freeze's `repairDeadlineFormula.statement` now states
+the general rule verbatim and the loader refuses a statement that reverts
+to the first-attempt-only wording (mutation-tested).
+
+Tests through the real adapter (`ClaudeMaxAgentProvider` with a fake
+runner, fake auth-status runner and fake clock):
+
+- a 590 s window still yields a 300 s first-attempt deadline;
+- a 130 s window with a 20 s auth-status check yields exactly 110 s;
+- **the general rule, later attempt:** window 250,000 ms (elapsed 340,000 at
+  the decision), auth status 20,000 ms, attempt 1 runs 100,000 ms then fails
+  transiently, backoff 500 ms → runner deadlines exactly `[230000, 129500]`;
+  a mutation that ignores the elapsed time (`min(300000, window)`) fails
+  this test;
+- **the general rule, exhausted:** the same window, attempt 1 spends
+  230,000 ms → the remainder after backoff is negative → terminal TIMEOUT
+  "total time budget was exhausted", exactly one runner invocation, the
+  retry never starts;
+- at the 120 s floor with a 60 s auth-status check the runner still receives
+  a 60 s deadline and the repair completes; one millisecond less usable is a
+  SKIP before any request;
+- the rejected 60 s floor is kept as a regression witness: 60 s usable is now
+  a SKIP at the decision, and a 60 s window handed to the adapter anyway is
+  fully spent by a worst-case auth-status check (terminal TIMEOUT, zero
+  runner calls).
+
+## 5. Reconciliation 2 — the minimum remaining budget — OWNER-SELECTED 120,000 ms — `RECONSTRUCTED_AND_VERIFIED_NOW`
 
 Timing at the floor boundary, as implemented:
 
@@ -126,17 +159,31 @@ Options (usable-floor semantics; the grace is already outside `usable`):
 
 | usable floor | remaining floor | worst-case inference window after a 60 s auth-status check | meaning                                                                                                                                                         |
 | ------------ | --------------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 60,000 ms    | 70,000 ms       | 0 ms                                                        | guarantees only that a repair request is OPENED; a worst-case auth-status check leaves a persisted FAILED / TIMEOUT repair with zero inference                    |
-| 120,000 ms   | 130,000 ms      | 60,000 ms                                                   | exceeds the slowest observed FULL evaluation (50,179 ms, itself including auth status) by 9,821 ms; derivation `60000 + 50179 = 110179 ≤ 120000`; grace separate |
+| 60,000 ms    | 70,000 ms       | 0 ms                                                        | **REJECTED by the owner (2026-09-14)**: guarantees only that a repair request is OPENED; a worst-case auth-status check leaves a persisted FAILED / TIMEOUT repair with zero inference |
+| 120,000 ms   | 130,000 ms      | 60,000 ms                                                   | **SELECTED by the owner (2026-09-14)**: exceeds the slowest observed FULL evaluation (50,179 ms, itself including auth status) by 9,821 ms; derivation `60000 + 50179 = 110179 ≤ 120000`; grace separate |
 
 The owner's decomposition `60000 + 50000 + 10000 = 120000` double-counts the
 grace when read against `usable` (the grace is already subtracted); read
 against `remaining` it is 130,000 ms, which the 120,000 ms usable floor
-provides. **Recommendation: usable floor 120,000 ms.** Nothing is adopted
-here: the freeze bytes carry the implementation's 60,000 ms marked
-PROPOSED and present both options; adopting 120,000 ms changes
-`REPAIR_MINIMUM_REMAINING_BUDGET_MS` and the freeze, a new proposal with new
-hashes.
+provides.
+
+**Selection incorporated.** `REPAIR_MINIMUM_REMAINING_BUDGET_MS` in
+`src/orgunits/classify/repair.ts` is now `120_000` (the harness default
+`freezeRepairPolicy` reads the constant instead of repeating the number),
+the freeze bytes carry `repairPolicy.minimumRemainingBudgetMs = 120000`
+with `minimumRemainingBudgetMsStatus =
+OWNER_SELECTED_2026_09_14_PENDING_FREEZE_APPROVAL`, each option carries a
+`status` (`REJECTED_BY_OWNER_2026_09_14` / `SELECTED_BY_OWNER_2026_09_14`),
+and the loader refuses a freeze whose SELECTED option is not the
+implementation value or that selects none (mutation-tested). Final floor
+arithmetic at the boundary: remaining 130,000 ms − 10,000 ms grace = usable
+120,000 ms = the floor → PROCEED; worst-case auth status 60,000 ms → runner
+deadline `min(300000, 120000 − 60000) = 60,000 ms`; 60,000 − 50,179 = 9,821 ms
+of margin over the slowest observed full evaluation; usable 119,999 ms →
+SKIP with zero provider requests. This is a conservative readiness
+threshold, not a proof that a repair succeeds. The selection is NOT an F0C
+freeze approval and NOT an execution authorisation. ADR 0011 is amended
+additively (§8 of the ADR); no migration, no validator change.
 
 ## 6. Reconciliation 4 — the Tier-2 reserve — `RECONSTRUCTED_AND_VERIFIED_NOW`
 
@@ -149,7 +196,7 @@ risk**: the synthetic benchmark writes the maximum per-evaluation repair
 artifact set (1 round summary + 6 × 5 document artifacts = 31 write-once,
 fsync-backed files, attempt-1-like sizes) with the real writer and must
 finish inside the 30,000 ms reserve. Measured on this Mac in this session:
-**276.3 ms** for all 31 files. That is a measurement on this machine today,
+**255.6 ms** for all 31 files (276.3 ms in the previous run). That is a measurement on this machine today,
 not a proof for the run machine on the run day; it is re-run as part of
 every validation.
 
@@ -157,15 +204,34 @@ every validation.
 
 On the final bytes of this branch: `npm run validate` (migrations check: 11
 sequential; typecheck; lint; `prettier --check`; every unit, integration and
-firewall suite; build) passed — see the closure line below for the counts.
-The attempt-root-gated suites were run with `PHASE2B_2D2C_ATTEMPT1_ROOT`
-set and passed; the committed attempt-1 scoring outputs are reproduced byte
-for byte. The preserved attempt-1 root still holds exactly 243 files; no
-`attempt-2` path exists anywhere under the DEV-runs directory; no
-authorisation, consumption marker or evaluation artifact was created; no
+firewall suite with `PHASE2B_2D2C_ATTEMPT1_ROOT` set so the attempt-gated
+suites run; build) passed — see the closure line below for the counts.
+Mutation checks: reverting the constant to 60,000 fails 3 tests across the
+F0C freeze, repair and provider suites; making the provider deadline ignore
+elapsed time fails the general-rule test. Re-proofs after the change:
+F0B `c3f0a76b3a5939f3e4bf395d46237cf0b0f365fa1f4bf019092a6944849d6157`
+(55,531 bytes, last commit `57d64dcb…`, unmodified); attempt-1 artifact
+inventory `ee17e1f2ee8021e59c06377342042e56f84269165f8ec39521011cb1d3538137`
+recomputed with the scorer's own loader over 243 verified files, 24
+completed evaluations (12 V1 + 12 V2), status `COMPLETED_ALL_PLANNED`,
+zero repair artifacts; spent authorisation `attempt-1.json` still
+`46d1bd9ebed544f7ebf463f26ff6ec7cca89d8a9d849fdfd04a42412dc2d5705`
+(1,053 bytes); no `attempt-2` path exists anywhere under the DEV-runs
+directory; the F0C plan holds exactly 12 V3 evaluations, order frozen, and
+names V1/V2 only as read-only comparators (no rerun); mechanical ceiling
+1 + documentCount per batch, 61 provider requests / 183 adapter attempts.
+No authorisation, consumption marker or evaluation artifact was created; no
 migration was applied and no database was written.
 
 ## 8. Owner decisions required before F0C is frozen
 
-See the freeze's `ownerApprovalRequired` list and §5. A freeze approval is
-separate from an execution authorisation. HOLDOUT remains forbidden.
+See the freeze's `ownerApprovalRequired` list and §5. The floor is selected
+(§5); the freeze itself is not approved. A freeze approval is separate from
+an execution authorisation. HOLDOUT remains forbidden.
+
+**Closure line (final bytes of this branch):** `npm run validate` with
+`PHASE2B_2D2C_ATTEMPT1_ROOT` set: 116 test files passed, 2,576 tests
+passed, 4 deliberately skipped (unchanged), typecheck, lint, format check,
+migrations check (11 sequential) and build all passed; exit 0.
+`PHASE 2B-2D2C-F0C 120K FLOOR INCORPORATED AND PREPARED — AWAITING EXPLICIT
+OWNER FREEZE APPROVAL; ZERO INFERENCE`.

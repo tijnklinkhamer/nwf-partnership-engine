@@ -75,7 +75,7 @@ const VARIANT_ROOT = '/synthetic/variant-root-v1';
 const ENABLED: FrozenRepairPolicy = {
   enabled: true,
   maxRoundsPerLogicalEvaluation: 1,
-  minimumRemainingBudgetMs: 60_000,
+  minimumRemainingBudgetMs: 120_000,
 };
 
 const scratchDirs: string[] = [];

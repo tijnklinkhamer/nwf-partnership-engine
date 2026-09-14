@@ -911,14 +911,14 @@
   "repairPolicy": {
     "enabled": true,
     "maxRoundsPerLogicalEvaluation": 1,
-    "minimumRemainingBudgetMs": 60000
+    "minimumRemainingBudgetMs": 120000
   },
   "repairContract": {
     "adr": "docs/adr/0011-bounded-item-level-repair-round.md",
-    "adrRawSha256": "a0b5f518345d6f326e1912f31947a7b6bff8ba1b7dece49ef3663c0b51b40d58",
-    "minimumRemainingBudgetMsStatus": "PROPOSED_PENDING_OWNER_FREEZE_APPROVAL",
+    "adrRawSha256": "98b5d8ad5b49d61e0aa5b6ff1475a044f3cfc79f33cb42f6d08d9d2936fdb452",
+    "minimumRemainingBudgetMsStatus": "OWNER_SELECTED_2026_09_14_PENDING_FREEZE_APPROVAL",
     "repairDeadlineFormula": {
-      "statement": "repairDeadlineMs = min(CLASSIFIER_CALL_SOFT_DEADLINE_MS, remainingBudgetMs - CLASSIFIER_CALL_HARD_KILL_GRACE_MS), per attempt, with a fail-closed non-positive guard and the minimum-remaining-budget gate applied BEFORE any repair request is opened.",
+      "statement": "repairWindowMs = max(0, remainingLogicalEvaluationBudgetMsAtRepairDecision - CLASSIFIER_CALL_HARD_KILL_GRACE_MS); for EVERY adapter/runner attempt of the repair: repairAttemptDeadlineMs = min(CLASSIFIER_CALL_SOFT_DEADLINE_MS, max(0, repairWindowMs - elapsedSinceRepairClassifyEntryMs)), where elapsedSinceRepairClassifyEntryMs includes all time already spent inside that repair call (pre-flight and auth-status, prior transient attempts, retry backoff). A non-positive remainder is the existing terminal TIMEOUT with no new runner attempt. The minimum-remaining-budget gate (repairWindowMs < REPAIR_MINIMUM_REMAINING_BUDGET_MS -> skip, fail closed) is applied BEFORE any repair request is opened.",
       "softDeadlineMs": 300000,
       "hardKillGraceMs": 10000,
       "totalBudgetMs": 600000,
@@ -928,16 +928,16 @@
         "window: the provider receives totalBudgetMs = usableMs and opens it at classify() ENTRY, so pre-flight and the auth-status check spend it; it is never widened beyond 600000",
         "per attempt: deadlineMs = min(300000, totalBudgetMs - elapsedSinceEntry); a non-positive remainder is a terminal TIMEOUT with zero runner calls; transient retries and their backoff stay inside the same window",
         "grace: the 10000 ms hard-kill grace is reserved by subtracting it from remainingMs before the window is handed over; the runner spends it only after a deadline expires, so a repair ends no later than originalEnteredAt + 600000 ms",
-        "consequence: the first attempt of a repair receives min(300000, remaining - 10000 - preflightAndAuthStatusMs), which is never more than the frozen 300000 ms soft deadline and never more than remaining - 10000"
+        "consequence: the FIRST attempt receives min(300000, repairWindowMs - preflightAndAuthStatusMs); every LATER attempt additionally loses the earlier attempts and their backoff; no attempt ever receives more than the frozen 300000 ms soft deadline nor more than remaining - 10000"
       ],
       "provedBy": [
         "src/test/unit/orgunitClassifyRepair.test.ts (decideRepairBudget: window and first-attempt deadline arithmetic, boundaries, non-positive guard)",
-        "src/test/unit/orgunitClassifyClaudeMaxProvider.test.ts (the caller window through the real adapter: never wider than the frozen total, opened at entry, spent by auth status, a repair attempt never exceeds 300000 ms)",
+        "src/test/unit/orgunitClassifyClaudeMaxProvider.test.ts (the caller window through the real adapter: never wider than the frozen total, opened at entry, spent by auth status; a repair attempt never exceeds 300000 ms; the general rule for a LATER attempt - auth status, an earlier attempt and its backoff all reduce the next deadline - and the exhausted case with no further runner attempt)",
         "src/test/integration/orgunitClassifyRepairOrchestrate.test.ts (the orchestrator hands the provider exactly remaining - grace)"
       ]
     },
     "minimumRemainingBudgetMsOptions": {
-      "note": "The floor compares usableMs = remainingMs - 10000 (the grace is already outside it) with a strict less-than. Two options are presented for explicit owner selection; the bytes of this file carry the current implementation value (60000) and NOTHING here selects a value.",
+      "note": "The floor compares usableMs = remainingMs - 10000 (the grace is already outside it) with a strict less-than. Two options were presented; the owner SELECTED 120000 ms on the usable window on 2026-09-14 and REJECTED 60000 ms. The implementation constant and this file now carry 120000. The selection is a readiness threshold, not a proof that a repair succeeds, and it is NOT a freeze approval.",
       "measuredOnAttempt1": {
         "slowestFullEvaluationWallMs": 50179,
         "slowestFullEvaluationRef": "PROMPT_V1_CANONICAL batch-10 provider-outcome.json monotonicWallTimeMs (includes its own auth-status check; one adapter attempt)",
@@ -949,21 +949,23 @@
       "options": [
         {
           "usableFloorMs": 60000,
+          "status": "REJECTED_BY_OWNER_2026_09_14",
           "remainingFloorMs": 70000,
           "worstCaseInferenceWindowAfterMaxAuthStatusMs": 0,
           "semantics": "Guarantees only that a repair request is OPENED. If the auth-status check takes its full 60000 ms upper bound, the repair times out before any runner attempt (a persisted FAILED / TIMEOUT repair row, zero inference); if it exceeds it, AUTH_STATUS_UNAVAILABLE. Typical auth-status time is far below the bound (attempt-1 whole evaluations took 10-50 s including it), but that is an observation, not a guarantee."
         },
         {
           "usableFloorMs": 120000,
+          "status": "SELECTED_BY_OWNER_2026_09_14",
           "remainingFloorMs": 130000,
           "worstCaseInferenceWindowAfterMaxAuthStatusMs": 60000,
           "semantics": "After a worst-case 60000 ms auth-status check, at least 60000 ms of inference window remains, which exceeds the slowest observed attempt-1 FULL evaluation (50179 ms, itself including auth status) by 9821 ms; a single-document repair is smaller than any full batch. The hard-kill grace is reserved separately by the orchestrator, so the owner-suggested decomposition 60000 + 50000 + 10000 double-counts the grace when read against usableMs; read against remainingMs it is 130000, which this option provides.",
           "mechanicalDerivation": "usableFloorMs >= AUTH_STATUS_TIMEOUT_MS (60000) + slowestObservedFullEvaluationWallMs (50179) = 110179 ms; 120000 is the smallest round figure at or above it, leaving 9821 ms headroom."
         }
       ],
-      "recommendation": "usableFloorMs = 120000 (remainingFloorMs = 130000). Adopting it changes REPAIR_MINIMUM_REMAINING_BUDGET_MS in src/orgunits/classify/repair.ts and this file (a new proposal with new hashes); it is NOT adopted here."
+      "recommendation": "usableFloorMs = 120000 (remainingFloorMs = 130000), SELECTED by the owner; REPAIR_MINIMUM_REMAINING_BUDGET_MS in src/orgunits/classify/repair.ts is 120000 and this file freezes it."
     },
-    "minimumRemainingBudgetMsBasis": "The implementation (src/orgunits/classify/repair.ts, REPAIR_MINIMUM_REMAINING_BUDGET_MS) carries 60000 ms as an explicitly uncalibrated floor equal to the auth-status pre-flight’s own upper bound. A floor equal to that bound guarantees that a repair request is opened, not that inference time remains after the auth-status check. The owner’s R1 approval statement named \"a named minimum remaining budget\" without selecting the number; minimumRemainingBudgetMsOptions below presents 60000 and 120000 with their exact residual-time semantics for explicit selection.",
+    "minimumRemainingBudgetMsBasis": "The owner selected 120000 ms on the usable repair window (2026-09-14). At exactly the floor a worst-case 60000 ms auth-status check still leaves 60000 ms of runner window, with the 10000 ms hard-kill grace already reserved outside the usable window; 60000 exceeds the slowest observed attempt-1 full evaluation (50179 ms) by 9821 ms. The earlier 60000 ms value was rejected because at that floor a worst-case auth-status check consumed the whole window (TIMEOUT, zero inference). minimumRemainingBudgetMsOptions below records both options and their exact residual-time semantics.",
     "productionConstantSources": {
       "maxRoundsPerLogicalEvaluation": "REPAIR_MAX_ROUNDS_PER_LOGICAL_EVALUATION (src/orgunits/classify/repair.ts)",
       "minimumRemainingBudgetMs": "REPAIR_MINIMUM_REMAINING_BUDGET_MS (src/orgunits/classify/repair.ts)",

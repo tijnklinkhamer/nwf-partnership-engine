@@ -13,6 +13,7 @@
  */
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
+import { REPAIR_MINIMUM_REMAINING_BUDGET_MS } from '../../../orgunits/classify/repair.js';
 import {
   EXPECTED_F0B_FREEZE_RAW_SHA256,
   EXPECTED_FREEZE_REVISION,
@@ -221,7 +222,7 @@ export function freezeRepairPolicy(freeze: Freeze): FrozenRepairPolicy {
     freeze.repairPolicy ?? {
       enabled: false,
       maxRoundsPerLogicalEvaluation: 1,
-      minimumRemainingBudgetMs: 60_000,
+      minimumRemainingBudgetMs: REPAIR_MINIMUM_REMAINING_BUDGET_MS,
     }
   );
 }

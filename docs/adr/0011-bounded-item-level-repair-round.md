@@ -132,3 +132,37 @@ auth + 600 s window + 10 s grace + 30 s variance) already assumed.
   non-compliance; it does not measure compliance. Attempt 2 will.
 - **UNKNOWN:** the right value of the minimum remaining window. 60 s is
   the auth-status pre-flight's own upper bound and nothing more precise.
+
+## 8. Amendment (2026-09-14, F0C preparation): the floor and the general deadline rule
+
+**DESIGN DECISION (owner selection at the F0C checkpoint):**
+`REPAIR_MINIMUM_REMAINING_BUDGET_MS` is **120 000 ms on the usable window**.
+The 60 000 ms value recorded above as "explicitly uncalibrated" is rejected:
+it equalled the auth-status pre-flight's own upper bound, so at that floor a
+worst-case auth-status check could consume the whole repair window and
+produce a terminal TIMEOUT with zero runner inference. At 120 000 ms, a
+worst-case 60 000 ms auth-status check still leaves 60 000 ms of runner
+window, which exceeds the slowest observed attempt-1 full evaluation
+(50 179 ms, itself including its own auth-status check). This is a
+conservative readiness threshold, not a proof that a repair succeeds.
+
+**FACT (as implemented since R1, restated exactly):**
+
+```
+remainingMs             = max(0, 600000 − elapsedSinceOriginalCallEnteredMs)   // measured at the repair decision
+repairWindowMs          = max(0, remainingMs − CLASSIFIER_CALL_HARD_KILL_GRACE_MS)
+skip (fail closed)      if repairWindowMs < REPAIR_MINIMUM_REMAINING_BUDGET_MS   // strict; exactly the floor proceeds
+repairAttemptDeadlineMs = min(CLASSIFIER_CALL_SOFT_DEADLINE_MS,
+                              max(0, repairWindowMs − elapsedSinceRepairClassifyEntryMs))
+```
+
+for EVERY adapter/runner attempt of the repair, where
+`elapsedSinceRepairClassifyEntryMs` includes all time already spent inside
+that repair call: pre-flight and the auth-status check, every earlier
+transient attempt and every retry backoff sleep. A non-positive remainder is
+the existing terminal TIMEOUT with no new runner attempt. The window is
+never widened beyond the frozen total, and the grace is spent by the runner
+only after a deadline expires, so a repair ends no later than the original
+call's entry plus 600 000 ms. Nothing about production behaviour changed in
+this amendment; the earlier "floor" wording in this document is superseded
+by this section.
