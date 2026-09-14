@@ -117,13 +117,37 @@
   },
   "unresolvedGold": {
     "goldId": "ge789b0f0aedc398c",
-    "treatment": "The F0B policy is unchanged and binds here: include the item in primary metrics using its committed label, report a leave-one-out view that removes only it, and never select whichever reading flatters a prompt variant. This supplement adjudicates nothing.",
-    "labelChangedByThisTask": false
+    "treatment": "The F0B policy is unchanged and still binds: include the item in primary metrics using its committed label, report a leave-one-out view that removes only it, and never select whichever reading flatters a prompt variant. What the owner adjudication adds is the EVENT F0B's blocked status was named for - BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION - so a derivation given the adjudication record may stop reporting that blocker as active. It may do so ONLY because the record confirms exactly the label already scored; it alters no prediction, no gold value, no metric denominator and no threshold.",
+    "labelChangedByThisTask": false,
+    "ownerAdjudicationRecordPath": "docs/evaluation/PHASE_2B_2D2C_DEV_OWNER_ADJUDICATION_G1_V1.json",
+    "F0B_STATUS_AT_INFERENCE_TIME": "UNRESOLVED",
+    "POST_INFERENCE_OWNER_STATUS": "ADJUDICATED_KEEP_EXISTING_LABEL",
+    "statusSeparation": "These two are deliberately distinct records of two different moments. At inference time (2026-09-13) the item WAS unresolved, and attempt 1 must keep saying so forever - rewriting that would falsely claim the run was executed against an adjudicated corpus. The owner adjudicated afterwards (G1) and confirmed the already-committed label, which is a POST-INFERENCE fact about the gold, not about the run.",
+    "labelChangedByAnyTask": false
   },
   "prohibitions": [
     "This supplement never becomes an input to inference.",
     "This supplement never edits, supersedes or re-versions the F0B inference freeze.",
     "The label fixture is never imported by production code.",
     "No gold label is corrected, normalised or invented anywhere in this task."
+  ],
+  "supplementRevision": 2,
+  "supersedesSupplementRawSha256": "ccb7efd599b5ba39866cc7bbfda940c9ae1d94e32dd0e0431fef3d48bcb51fe4",
+  "revisionHistory": [
+    {
+      "revision": 1,
+      "rawSha256": "ccb7efd599b5ba39866cc7bbfda940c9ae1d94e32dd0e0431fef3d48bcb51fe4",
+      "landedIn": "PHASE_2B_2D2C_F4A",
+      "summary": "Named the DEVELOPMENT-only gold label fixture produced by the owner-authorised projection. Scored attempt 1 and closed BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION.",
+      "reproduces": "docs/evaluation/results/phase2b-2d2c-dev-attribution-attempt-1-gold-v1 is reproducible only against THIS revision's bytes, because a derivation records the supplement hash it read."
+    },
+    {
+      "revision": 2,
+      "rawSha256": null,
+      "landedIn": "PHASE_2B_2D2C_G2",
+      "summary": "Added ownerAdjudication: a reference to the owner-adjudication record, and the explicit separation of the status at inference time from the post-inference owner status. No label, id, hash, count or scope value was changed.",
+      "reproduces": "docs/evaluation/results/phase2b-2d2c-dev-attribution-attempt-1-gold-v1-adjudicated is reproducible against THIS revision's bytes.",
+      "rawSha256Note": "Self-referentially unknowable: a file cannot carry its own hash. This revision's hash is recorded in the G2 audit and in every derivation that reads it."
+    }
   ]
 }

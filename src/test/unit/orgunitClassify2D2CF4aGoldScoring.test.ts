@@ -151,36 +151,48 @@ describe('the scoring supplement fails closed on every mismatch', () => {
 
 describeWithAttempt('the gold-backed derivation, over the preserved attempt', () => {
   const root = ATTEMPT_ROOT as string;
-  const goldRun = runScoring(SCORER_REPO_ROOT, root, GOLD_SUPPLEMENT_PATH);
-  const noGoldRun = runScoring(SCORER_REPO_ROOT, root);
+  /**
+   * LAZY, and that is not a style preference. Vitest still evaluates a
+   * `describe.skip` factory in order to collect it, so deriving at factory
+   * scope made the whole suite fail to COLLECT — not skip — whenever
+   * PHASE2B_2D2C_ATTEMPT1_ROOT was unset, which is every CI run that has no
+   * preserved attempt. Memoising behind a call keeps the derivation inside
+   * the test bodies, where skipping actually applies.
+   */
+  let goldRunCache: ReturnType<typeof runScoring> | null = null;
+  const gold = (): ReturnType<typeof runScoring> =>
+    (goldRunCache ??= runScoring(SCORER_REPO_ROOT, root, GOLD_SUPPLEMENT_PATH));
+  let noGoldRunCache: ReturnType<typeof runScoring> | null = null;
+  const noGold = (): ReturnType<typeof runScoring> =>
+    (noGoldRunCache ??= runScoring(SCORER_REPO_ROOT, root));
 
   it('scores every gold-backed field corpus-wide, from the supplement', () => {
-    expect(goldRun.supplement?.labelCount).toBe(49);
-    for (const field of goldRun.summary.goldAvailability.fields) {
+    expect(gold().supplement?.labelCount).toBe(49);
+    for (const field of gold().summary.goldAvailability.fields) {
       expect(field.available).toBe(true);
       expect(field.source).toBe('F4A_SCORING_SUPPLEMENT');
     }
-    expect(goldRun.summary.unscorableGoldBackedFields).toEqual([]);
+    expect(gold().summary.unscorableGoldBackedFields).toEqual([]);
   });
 
   it('keeps the no-gold derivation completely unchanged', () => {
-    expect(noGoldRun.summary.recommendation).toBe('INSUFFICIENT_VALID_DEV_EVIDENCE');
-    expect(noGoldRun.summary.scorerVersion).toBe('phase2b-2d2c-f4-scorer-v1');
-    expect(noGoldRun.summary.semanticMetrics).toBeUndefined();
-    expect(noGoldRun.summary.goldSupplement).toBeUndefined();
+    expect(noGold().summary.recommendation).toBe('INSUFFICIENT_VALID_DEV_EVIDENCE');
+    expect(noGold().summary.scorerVersion).toBe('phase2b-2d2c-f4-scorer-v1');
+    expect(noGold().summary.semanticMetrics).toBeUndefined();
+    expect(noGold().summary.goldSupplement).toBeUndefined();
   });
 
   it('records a DIFFERENT scorer version for a gold-backed run', () => {
-    expect(goldRun.summary.scorerVersion).toBe('phase2b-2d2c-f4a-scorer-gold-v1');
-    expect(goldRun.summary.outputSchemaVersion).toBe('phase2b-2d2c-f4a-scored-item-gold-v1');
+    expect(gold().summary.scorerVersion).toBe('phase2b-2d2c-f4a-scorer-gold-v1');
+    expect(gold().summary.outputSchemaVersion).toBe('phase2b-2d2c-f4a-scored-item-gold-v1');
   });
 
   it('leaves the validator totals exactly as F3 recorded them', () => {
-    for (const variant of goldRun.summary.variants) expect(variant.matchesF3Totals).toBe(true);
+    for (const variant of gold().summary.variants) expect(variant.matchesF3Totals).toBe(true);
   });
 
   it('never counts a biconditional null half as a measurement', () => {
-    for (const row of goldRun.allRows) {
+    for (const row of gold().allRows) {
       const goldVerdict = row.gold['verdict'];
       const unitTypeCorrectness = row.fieldCorrectness['unit_type'];
       const pageKindCorrectness = row.fieldCorrectness['page_kind'];
@@ -197,13 +209,13 @@ describeWithAttempt('the gold-backed derivation, over the preserved attempt', ()
   });
 
   it('counts a validator-rejected item as INCORRECT under the strict view', () => {
-    const rejected = goldRun.allRows.filter((row) => row.validatorState === 'REJECTED');
+    const rejected = gold().allRows.filter((row) => row.validatorState === 'REJECTED');
     expect(rejected.length).toBe(6);
     for (const row of rejected) expect(row.fieldCorrectness['verdict']).toBe('INCORRECT');
   });
 
   it('keeps every strict denominator equal to the items the gold defines', () => {
-    const metrics = goldRun.summary.semanticMetrics ?? [];
+    const metrics = gold().summary.semanticMetrics ?? [];
     expect(metrics).toHaveLength(2);
     for (const variant of metrics) {
       const verdict = variant.fields.find((f) => f.field === 'verdict');
@@ -217,7 +229,7 @@ describeWithAttempt('the gold-backed derivation, over the preserved attempt', ()
   });
 
   it('reports ternary precision, recall and F1 for all three relevance axes', () => {
-    for (const variant of goldRun.summary.semanticMetrics ?? []) {
+    for (const variant of gold().summary.semanticMetrics ?? []) {
       expect(variant.ternaryByAxis).toHaveLength(3);
       for (const axis of variant.ternaryByAxis) {
         expect(axis.metrics.classes.length).toBeGreaterThanOrEqual(3);
@@ -231,7 +243,7 @@ describeWithAttempt('the gold-backed derivation, over the preserved attempt', ()
   });
 
   it('uses only the freeze’s own gate thresholds', () => {
-    const gates = (goldRun.summary.semanticMetrics ?? [])[0]?.gates ?? [];
+    const gates = (gold().summary.semanticMetrics ?? [])[0]?.gates ?? [];
     const thresholds = Object.fromEntries(gates.map((gate) => [gate.gate, gate.threshold]));
     expect(thresholds['minUnitPageRecall']).toBe(0.95);
     expect(thresholds['minUnitPagePrecision']).toBe(0.9);
@@ -241,7 +253,7 @@ describeWithAttempt('the gold-backed derivation, over the preserved attempt', ()
   });
 
   it('blocks on the open owner gold question, because a gate verdict really flips', () => {
-    const sensitivity = goldRun.summary.goldQuestionSensitivity;
+    const sensitivity = gold().summary.goldQuestionSensitivity;
     const flips = sensitivity.gateVerdictFlips ?? [];
     expect(flips.length).toBeGreaterThan(0);
     const unitType = flips.find((flip) => flip.gate === 'minUnitTypeAccuracy');
@@ -250,12 +262,12 @@ describeWithAttempt('the gold-backed derivation, over the preserved attempt', ()
     expect(unitType?.primaryDenominator).toBe(14);
     expect(unitType?.leaveOneOutMet).toBe(false);
     expect(unitType?.leaveOneOutDenominator).toBe(13);
-    expect(goldRun.summary.recommendation).toBe('BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION');
+    expect(gold().summary.recommendation).toBe('BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION');
     expect(sensitivity.labelChangedByThisTask).toBe(false);
   });
 
   it('answers the six §10 questions from gold rather than from prose', () => {
-    const f4a = goldRun.summary.f4aInterpretation;
+    const f4a = gold().summary.f4aInterpretation;
     expect(f4a).toBeDefined();
     // 10.1 — the movements toward NOT_A_UNIT are exactly balanced.
     expect(f4a?.verdictMovementTotals['CORRECTION']).toBe(4);
@@ -293,17 +305,17 @@ describeWithAttempt('the gold-backed derivation, over the preserved attempt', ()
   });
 
   it('never presents validator acceptance as semantic correctness', () => {
-    const gates = (goldRun.summary.semanticMetrics ?? [])[0]?.gates ?? [];
+    const gates = (gold().summary.semanticMetrics ?? [])[0]?.gates ?? [];
     const validity = gates.find((gate) => gate.gate === 'minSchemaValidSpanVerifiedRate');
     expect(validity?.note).toContain('NOT a semantic metric');
   });
 
   it('changes no gold label and claims no attempt-2', () => {
-    expect(goldRun.summary.goldSupplement?.altersInferenceFreeze).toBe(false);
-    expect(goldRun.summary.goldSupplement?.visibleToModelDuringInference).toBe(false);
-    expect(goldRun.summary.goldSupplement?.createdAfterInference).toBe(true);
-    expect(goldRun.sources.freezeRawSha256).toBe(FREEZE_SHA256);
-    expect(goldRun.sources.artifactInventorySha256).toBe(ATTEMPT_AGGREGATE);
-    expect(goldRun.sources.artifactsVerified).toBe(243);
+    expect(gold().summary.goldSupplement?.altersInferenceFreeze).toBe(false);
+    expect(gold().summary.goldSupplement?.visibleToModelDuringInference).toBe(false);
+    expect(gold().summary.goldSupplement?.createdAfterInference).toBe(true);
+    expect(gold().sources.freezeRawSha256).toBe(FREEZE_SHA256);
+    expect(gold().sources.artifactInventorySha256).toBe(ATTEMPT_AGGREGATE);
+    expect(gold().sources.artifactsVerified).toBe(243);
   });
 });

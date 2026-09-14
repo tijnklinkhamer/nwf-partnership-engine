@@ -24,3 +24,4 @@ docs/audits/
 # own Prettier, so `prettier --check` covers them like any other committed JSON.
 docs/evaluation/results/phase2b-2d2c-dev-attribution-attempt-1/scored-items.jsonl
 docs/evaluation/results/phase2b-2d2c-dev-attribution-attempt-1-gold-v1/scored-items.jsonl
+docs/evaluation/results/phase2b-2d2c-dev-attribution-attempt-1-gold-v1-adjudicated/scored-items.jsonl

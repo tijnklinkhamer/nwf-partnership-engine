@@ -47,6 +47,7 @@ import {
   type ValidityTransitionCounts,
 } from './paired.js';
 import { NON_PREDICTED_GOLD_FIELDS, predictedClassOf, type ScoredItem } from './score.js';
+import type { LoadedOwnerAdjudication } from './adjudication.js';
 import type { LoadedGoldSupplement } from './supplement.js';
 import type { LoadedSources } from './sources.js';
 
@@ -208,6 +209,19 @@ export interface GoldQuestionSensitivity {
     readonly leaveOneOutDenominator: number;
     readonly leaveOneOutMet: boolean | null;
   }[];
+  /**
+   * G2: whether F0B's leave-one-out rule fired AT ALL, kept separate from
+   * whether it still blocks. An adjudication discharges the BLOCK; it never
+   * un-fires the rule, and the flip below stays reported either way.
+   */
+  readonly sensitivityRuleFires?: boolean;
+  /** G2: whether an owner adjudication of this item was supplied and verified. */
+  readonly ownerAdjudicated?: boolean;
+  readonly ownerDecision?: string;
+  readonly ownerConfirmedVerdict?: string;
+  readonly ownerConfirmedUnitType?: string;
+  readonly ownerAdjudicationRecordPath?: string;
+  readonly ownerAdjudicationRecordRawSha256?: string;
   readonly changesAnyHeadline: boolean;
   /**
    * True when every semantic pair this task can score is this one item — in
@@ -325,6 +339,52 @@ export interface F4Summary {
     readonly createdAfterInference: true;
     readonly visibleToModelDuringInference: false;
     readonly altersInferenceFreeze: false;
+  };
+  /**
+   * G2: the owner gold-adjudication record, when one was supplied. ABSENT —
+   * not `null` — on every other derivation, for the same reason
+   * `goldSupplement` is: omitting the key keeps the pre-adjudication F4A
+   * derivation byte-identical under this scorer, so the discharge is
+   * provably additive rather than a rewrite of what F4A concluded.
+   */
+  readonly ownerAdjudication?: {
+    readonly recordPath: string;
+    readonly recordRawSha256: string;
+    readonly schemaVersion: string;
+    readonly goldId: string;
+    readonly decision: string;
+    readonly ownerStatement: string;
+    readonly basis: string;
+    readonly confirmedVerdict: string;
+    readonly confirmedUnitType: string;
+    readonly goldRecordSha256: string;
+    readonly recordedAtUtc: string;
+    readonly recordedAtUtcMeaning: string;
+    readonly labelChanged: false;
+    readonly modelPredictionsConsidered: false;
+    readonly metricEffectsConsidered: false;
+    readonly altersAnyPrediction: false;
+    readonly altersAnyGoldValue: false;
+    readonly altersAnyMetricDenominator: false;
+    readonly altersAnyThreshold: false;
+    readonly dischargedBlocker: 'BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION';
+    readonly dischargeBasis: string;
+  };
+  /**
+   * G2: the explicit statement that no variant is acceptable, carried as
+   * DATA so a reader never has to infer it from a recommendation enum. The
+   * recommendation names what to do next; this names what is still false.
+   */
+  readonly acceptability?: {
+    readonly anyVariantAcceptable: false;
+    readonly anyVariantProductionReady: false;
+    readonly perVariant: readonly {
+      readonly variantName: string;
+      readonly failedGates: readonly string[];
+      readonly acceptable: false;
+    }[];
+    readonly gatesFailedByEveryVariant: readonly string[];
+    readonly note: string;
   };
   readonly scorableGoldBackedFields: readonly string[];
   readonly unscorableGoldBackedFields: readonly string[];
@@ -782,6 +842,7 @@ export function buildSummary(
   availability: GoldAvailability,
   committedLabel: string | null,
   supplement: LoadedGoldSupplement | null = null,
+  ownerAdjudication: LoadedOwnerAdjudication | null = null,
 ): F4Summary {
   const variants = FROZEN_VARIANTS.map((variant) =>
     summariseVariant(sources, variant.name, rowsByVariant.get(variant.name) ?? []),
@@ -930,9 +991,22 @@ export function buildSummary(
         (gate, index) => gate.met === false && semanticMetrics[1]?.gates[index]?.met === true,
       )
     : [];
-  const blockedByOpenGoldQuestion = goldIsAvailable
+  /**
+   * F0B's sensitivity rule still FIRES exactly as before — the gate really
+   * does flip at 13 items, and that is reported wherever it was reported
+   * before. What changes is only whether the fired rule still BLOCKS.
+   *
+   * The status F0B names is BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION, and the
+   * owner adjudication is the event it is pending on. A record that confirms
+   * the already-scored label byte for byte discharges it without touching a
+   * single number; `loadOwnerAdjudication` refuses a record that confirms
+   * anything else, so this is never a route to re-labelling by assertion.
+   */
+  const sensitivityRuleFires = goldIsAvailable
     ? gateVerdictsDiffer || headlineSignChanges
     : section9TriggerMet;
+  const openGoldQuestionAdjudicated = ownerAdjudication !== null;
+  const blockedByOpenGoldQuestion = sensitivityRuleFires && !openGoldQuestionAdjudicated;
 
   const recommendation: Recommendation = goldUnavailable
     ? 'INSUFFICIENT_VALID_DEV_EVIDENCE'
@@ -942,8 +1016,9 @@ export function buildSummary(
         ? 'KEEP_PROMPT_V1_AND_REVISE_V2'
         : 'PROMOTE_PROMPT_V2_TO_NEXT_GATE';
   const concurrentStatus: Recommendation | null =
-    (goldUnavailable ? section9TriggerMet : blockedByOpenGoldQuestion) &&
-    recommendation !== 'BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION'
+    (goldUnavailable
+      ? section9TriggerMet && !openGoldQuestionAdjudicated
+      : blockedByOpenGoldQuestion) && recommendation !== 'BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION'
       ? 'BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION'
       : null;
 
@@ -968,10 +1043,33 @@ export function buildSummary(
             `${F4_OPEN_OWNER_GOLD_ID} changes a gate verdict or the sign of a headline, so ` +
             'BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION is the binding status.',
         ]
-      : [
-          `F0B's leave-one-out rule does NOT fire: removing ${F4_OPEN_OWNER_GOLD_ID} changes no ` +
-            'gate verdict and no headline sign, so the open owner question does not decide this.',
-        ]),
+      : sensitivityRuleFires && openGoldQuestionAdjudicated
+        ? [
+            `F0B's leave-one-out rule STILL FIRES and is still reported in full: removing ` +
+              `${F4_OPEN_OWNER_GOLD_ID} does change a gate verdict. It no longer BLOCKS, because ` +
+              'the status it names — BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION — was pending an ' +
+              'owner adjudication that has now happened. The owner confirmed the existing label ' +
+              `(${ownerAdjudication?.confirmedVerdict ?? ''} / ` +
+              `${ownerAdjudication?.confirmedUnitType ?? ''}) on the frozen document and rubric ` +
+              'alone, with no model prediction and no metric effect in view, so every number ' +
+              'above is identical to the pre-adjudication derivation.',
+            'The leave-one-out view is NOT evidence against the owner-confirmed primary label. ' +
+              'It measures how thin a 14-item unit-type denominator is: one item is 7.1% of it, ' +
+              'so a single removal crossing a 0.85 threshold is a statement about the ' +
+              'denominator, not about the label. The primary metric remains the reported one.',
+          ]
+        : [
+            `F0B's leave-one-out rule does NOT fire: removing ${F4_OPEN_OWNER_GOLD_ID} changes no ` +
+              'gate verdict and no headline sign, so the open owner question does not decide this.',
+          ]),
+    ...(recommendation === 'KEEP_PROMPT_V1_AND_REVISE_V2'
+      ? [
+          'KEEP_PROMPT_V1_AND_REVISE_V2 is the closest available enum member and it does NOT ' +
+            'mean v1 passes. V1 fails frozen gates of its own; it remains the COMPARATOR while a ' +
+            'new prompt iteration is designed. Nothing here promotes v1, authorises a HOLDOUT ' +
+            'run, or declares any variant acceptable.',
+        ]
+      : []),
   ];
 
   const recommendationBasis = goldUnavailable
@@ -1035,6 +1133,62 @@ export function buildSummary(
             altersInferenceFreeze: false as const,
           },
         }),
+    ...(ownerAdjudication === null
+      ? {}
+      : {
+          ownerAdjudication: {
+            recordPath: ownerAdjudication.recordPath,
+            recordRawSha256: ownerAdjudication.recordRawSha256,
+            schemaVersion: ownerAdjudication.schemaVersion,
+            goldId: ownerAdjudication.goldId,
+            decision: ownerAdjudication.decision,
+            ownerStatement: ownerAdjudication.ownerStatement,
+            basis: ownerAdjudication.basis,
+            confirmedVerdict: ownerAdjudication.confirmedVerdict,
+            confirmedUnitType: ownerAdjudication.confirmedUnitType,
+            goldRecordSha256: ownerAdjudication.goldRecordSha256,
+            recordedAtUtc: ownerAdjudication.recordedAtUtc,
+            recordedAtUtcMeaning: ownerAdjudication.recordedAtUtcMeaning,
+            labelChanged: false as const,
+            modelPredictionsConsidered: false as const,
+            metricEffectsConsidered: false as const,
+            altersAnyPrediction: false as const,
+            altersAnyGoldValue: false as const,
+            altersAnyMetricDenominator: false as const,
+            altersAnyThreshold: false as const,
+            dischargedBlocker: 'BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION' as const,
+            dischargeBasis:
+              'The record confirms byte for byte the label this derivation already scored: gold ' +
+              `record ${ownerAdjudication.goldRecordSha256} in fixture ` +
+              `${supplement?.fixtureRawSha256 ?? ''}. Because nothing about the gold moved, every ` +
+              'metric here is identical to the pre-adjudication derivation, and the discharge is ' +
+              'a change of STATUS only.',
+          },
+        }),
+    ...(goldIsAvailable
+      ? {
+          acceptability: {
+            anyVariantAcceptable: false as const,
+            anyVariantProductionReady: false as const,
+            perVariant: semanticMetrics.map((metrics) => ({
+              variantName: metrics.variantName,
+              failedGates: metrics.gates.filter((g) => g.met === false).map((g) => g.gate),
+              acceptable: false as const,
+            })),
+            gatesFailedByEveryVariant: (semanticMetrics[0]?.gates ?? [])
+              .filter(
+                (gate, index) =>
+                  gate.met === false && semanticMetrics.every((m) => m.gates[index]?.met === false),
+              )
+              .map((gate) => gate.gate),
+            note:
+              'NEITHER VARIANT IS ACCEPTABLE AND NEITHER IS PRODUCTION-READY. Every variant ' +
+              "fails at least one of F0B's own frozen gates, and the gates listed in " +
+              'gatesFailedByEveryVariant are failed by all of them. No recommendation in this ' +
+              'file promotes a variant, authorises a HOLDOUT run, or authorises a merge to main.',
+          },
+        }
+      : {}),
     scorableGoldBackedFields: scorable.map((f) => f.field),
     unscorableGoldBackedFields: unscorable.map((f) => f.field),
     ...(goldIsAvailable ? { semanticMetrics } : {}),
@@ -1056,6 +1210,17 @@ export function buildSummary(
       presentInCorpus: openQuestionPresent,
       committedLabel,
       labelChangedByThisTask: false,
+      sensitivityRuleFires,
+      ownerAdjudicated: openGoldQuestionAdjudicated,
+      ...(ownerAdjudication === null
+        ? {}
+        : {
+            ownerDecision: ownerAdjudication.decision,
+            ownerConfirmedVerdict: ownerAdjudication.confirmedVerdict,
+            ownerConfirmedUnitType: ownerAdjudication.confirmedUnitType,
+            ownerAdjudicationRecordPath: ownerAdjudication.recordPath,
+            ownerAdjudicationRecordRawSha256: ownerAdjudication.recordRawSha256,
+          }),
       primary: { items: paired.length, validity, verdictCorrectness: primaryVerdict },
       leaveOneOut: {
         items: withoutOpenQuestion.length,
@@ -1090,8 +1255,20 @@ export function buildSummary(
                     `${flip.leaveOneOutDenominator}`,
                 )
                 .join('; ')}. ` +
-              "F0B's unresolvedGold policy makes that BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION.") +
-          ' Its label is NOT adjudicated, changed or reinterpreted here.'
+              (openGoldQuestionAdjudicated
+                ? "F0B's unresolvedGold policy named that status " +
+                  'BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION; the owner has since adjudicated the ' +
+                  `item and CONFIRMED its existing label (${ownerAdjudication?.decision ?? ''}), ` +
+                  'so the blocker is discharged while this flip stays reported exactly as ' +
+                  'measured. The flip is a statement about a 14-item denominator, NOT evidence ' +
+                  'against the owner-confirmed label, and the primary metric remains the ' +
+                  'reported one.'
+                : "F0B's unresolvedGold policy makes that " +
+                  'BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION.')) +
+          (openGoldQuestionAdjudicated
+            ? ' Its label was CONFIRMED unchanged by the owner on the frozen document and rubric ' +
+              'alone; no label was changed or reinterpreted here.'
+            : ' Its label is NOT adjudicated, changed or reinterpreted here.')
         : 'Validator validity is unchanged by the exclusion. The semantic comparison is not: this ' +
           'item is the only pair with any gold at all, so excluding it leaves no semantic evidence ' +
           'whatsoever. Its label is NOT adjudicated, changed or reinterpreted here.',

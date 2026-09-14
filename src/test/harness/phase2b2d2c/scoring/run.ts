@@ -10,6 +10,7 @@
 import type { FrozenVariantName } from '../constants.js';
 import { FROZEN_VARIANTS } from '../constants.js';
 import { F4_HOLDOUT_ITEM_COUNT, F4_OPEN_OWNER_GOLD_ID } from './constants.js';
+import { loadOwnerAdjudication, type LoadedOwnerAdjudication } from './adjudication.js';
 import { resolveGoldAvailability, type GoldAvailability } from './gold.js';
 import { loadGoldSupplement, type LoadedGoldSupplement } from './supplement.js';
 import { pairByIdentity, type PairedItem } from './paired.js';
@@ -22,6 +23,8 @@ export interface ScoringRun {
   readonly availability: GoldAvailability;
   /** F4A: the scoring-only gold supplement, when one was supplied. */
   readonly supplement: LoadedGoldSupplement | null;
+  /** G2: the owner gold-adjudication record, when one was supplied. */
+  readonly ownerAdjudication: LoadedOwnerAdjudication | null;
   readonly rowsByVariant: ReadonlyMap<FrozenVariantName, readonly ScoredItem[]>;
   readonly allRows: readonly ScoredItem[];
   readonly paired: readonly PairedItem[];
@@ -39,11 +42,19 @@ export interface ScoringRun {
  * scores exactly as F4 did: no gold, no semantic denominator, and
  * `INSUFFICIENT_VALID_DEV_EVIDENCE`. Supplied, every check in
  * `loadGoldSupplement` must pass before a single label is used.
+ *
+ * `ownerAdjudicationPath` is OPT-IN the same way, and is a SEPARATE argument
+ * rather than a field of the supplement on purpose: a derivation given only
+ * the supplement must keep reproducing F4A's blocked result exactly, so the
+ * pre-adjudication output stays derivable from the same tree. It requires a
+ * supplement, because an adjudication of a label no run loaded confirms
+ * nothing.
  */
 export function runScoring(
   repoRoot: string,
   outputRoot: string,
   goldSupplementPath?: string,
+  ownerAdjudicationPath?: string,
 ): ScoringRun {
   const sources = loadScoringSources(repoRoot, outputRoot);
 
@@ -74,6 +85,40 @@ export function runScoring(
       throw new Error(
         `the scoring supplement labels ${unresolved.goldId} ${String(projected)}, but F0B ` +
           `preserves ${unresolved.committedLabel}. This task does not adjudicate that.`,
+      );
+    }
+  }
+
+  // The adjudication is checked AGAINST the loaded supplement, so it can
+  // only ever confirm a label this run actually scored.
+  let ownerAdjudication: LoadedOwnerAdjudication | null = null;
+  if (ownerAdjudicationPath !== undefined) {
+    if (supplement === null) {
+      throw new Error(
+        'an owner-adjudication record was supplied without a gold supplement. There is no ' +
+          'committed label for it to confirm, so it would discharge a blocker over nothing.',
+      );
+    }
+    ownerAdjudication = loadOwnerAdjudication(repoRoot, ownerAdjudicationPath, {
+      freezeRawSha256: sources.freezeRawSha256,
+      supplementRawSha256: supplement.supplementRawSha256,
+      artifactInventorySha256: sources.artifactInventorySha256,
+      developmentGoldIds: corpusGoldIds,
+      labelByGoldId: supplement.labelByGoldId,
+    });
+    // Independent of every hash check above: the adjudicated item must be
+    // the one F0B left open. An adjudication of some other item cannot
+    // discharge THIS blocker.
+    if (ownerAdjudication.goldId !== unresolved.goldId) {
+      throw new Error(
+        `the owner-adjudication record adjudicates ${ownerAdjudication.goldId}, but F0B's open ` +
+          `gold question is ${unresolved.goldId}.`,
+      );
+    }
+    if (ownerAdjudication.confirmedVerdict !== unresolved.committedLabel) {
+      throw new Error(
+        `the owner-adjudication record confirms ${ownerAdjudication.confirmedVerdict}, but F0B ` +
+          `preserves ${unresolved.committedLabel}.`,
       );
     }
   }
@@ -112,6 +157,16 @@ export function runScoring(
     availability,
     unresolved.committedLabel,
     supplement,
+    ownerAdjudication,
   );
-  return { sources, availability, supplement, rowsByVariant, allRows, paired, summary };
+  return {
+    sources,
+    availability,
+    supplement,
+    ownerAdjudication,
+    rowsByVariant,
+    allRows,
+    paired,
+    summary,
+  };
 }
