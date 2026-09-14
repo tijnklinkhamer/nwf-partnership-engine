@@ -11,11 +11,13 @@
  * corpus, the gates, the repair policy and the liveness numbers are
  * byte-identical to F0C (asserted by the F0E unit test).
  *
- * STATUS: PROPOSED. The raw SHA-256 pinned below is the hash presented for
- * owner freeze approval; approval is a SEPARATE record and never edits the
- * bytes. Until `F0E_APPROVAL_RECORD_RAW_SHA256` names a real record, the
- * attempt-2 lock refuses every authorisation (REPLACEMENT_FREEZE_NOT_OWNER_APPROVED),
- * and F0C — superseded — is refused by the child outright.
+ * STATUS: OWNER-APPROVED 2026-09-14 (the bytes still say PROPOSED, by design).
+ * The raw SHA-256 pinned below is the hash the owner approved; approval is a
+ * SEPARATE record and never edits the
+ * bytes. The owner approval record is now pinned by hash below; had it been
+ * `null`, the attempt-2 lock would refuse every authorisation
+ * (REPLACEMENT_FREEZE_NOT_OWNER_APPROVED). F0C — superseded — is refused by
+ * the child outright.
  *
  * This is the CURRENT attempt-2 revision: the runner, lock, CLI, family
  * dispatch and attempt-2 scorer import their pins from HERE.
@@ -74,10 +76,16 @@ export const PROPOSED_F0E_FREEZE_RAW_BYTES = 86_878;
 export const PROPOSED_F0E_PLAN_SHA256 =
   '6c6ee79b7e8591a69b43241ad422e437d70440bc08919fd82d8cf9afac388e25';
 
-/** The owner approval record for F0E. NOT YET RECORDED: `null` means no approval exists and nothing may execute. */
+/**
+ * The owner approval record for F0E: RECORDED 2026-09-14 (`APPROVE_F0E_FREEZE`,
+ * naming exactly the raw and plan hashes above) and pinned here by its exact
+ * raw SHA-256. `null` would mean "no approval exists"; a record whose bytes
+ * do not hash to this value is refused, never trusted.
+ */
 export const F0E_APPROVAL_RECORD_PATH =
   'docs/evaluation/PHASE_2B_2D2C_F0E_OWNER_FREEZE_APPROVAL_V1.json';
-export const F0E_APPROVAL_RECORD_RAW_SHA256: string | null = null;
+export const F0E_APPROVAL_RECORD_RAW_SHA256: string | null =
+  'f1b4b05750da28029bfcb328b5824bf87e80bb28a9852b0ab3a999bfc557c1dc';
 
 export const F0E_FREEZE_ID = 'PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0E_V1';
 export const F0E_FREEZE_VERSION = 'phase2b-2d2c-dev-configuration-freeze-f0e-v1';

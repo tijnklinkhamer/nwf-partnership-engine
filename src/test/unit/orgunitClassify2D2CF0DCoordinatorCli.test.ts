@@ -65,7 +65,6 @@ import {
   ATTEMPT2_AUTHORISATION_STATEMENT,
   ATTEMPT2_AUTHORISATION_VERSION,
   ATTEMPT2_MAX_PROVIDER_REQUESTS,
-  evaluateAttempt2ExecutionLock,
   type Attempt2ExecutionAuthorisation,
 } from '../harness/phase2b2d2c/f0c/authorisationF0C.js';
 import {
@@ -77,6 +76,7 @@ import {
 import { APPROVED_F0C_FREEZE_RAW_SHA256 } from '../harness/phase2b2d2c/f0c/freezeF0C.js';
 import {
   buildF0EExecutionPlan,
+  F0E_APPROVAL_RECORD_RAW_SHA256,
   F0E_FREEZE_PATH,
   F0E_VARIANT,
   f0ePlanSha256,
@@ -226,7 +226,10 @@ function fakeLauncher(behaviours: Record<number, 'ok' | 'usageLimit'> = {}) {
   return { launcher, launched };
 }
 
-function validAuthorisation(root: string): Attempt2ExecutionAuthorisation {
+function validAuthorisation(
+  root: string,
+  overrides: Partial<Attempt2ExecutionAuthorisation> = {},
+): Attempt2ExecutionAuthorisation {
   return {
     authorisationVersion: ATTEMPT2_AUTHORISATION_VERSION,
     scope: 'DEVELOPMENT_ONLY',
@@ -234,7 +237,7 @@ function validAuthorisation(root: string): Attempt2ExecutionAuthorisation {
     freezeConfigRawSha256: PROPOSED_F0E_FREEZE_RAW_SHA256,
     planSha256: PROPOSED_F0E_PLAN_SHA256,
     supersededFreezeRawSha256: APPROVED_F0C_FREEZE_RAW_SHA256,
-    freezeApprovalRecordRawSha256: 'a'.repeat(64),
+    freezeApprovalRecordRawSha256: F0E_APPROVAL_RECORD_RAW_SHA256!,
     variants: [
       { name: F0E_VARIANT.name, label: F0E_VARIANT.label, gitCommit: F0E_VARIANT.gitCommit },
     ],
@@ -249,6 +252,7 @@ function validAuthorisation(root: string): Attempt2ExecutionAuthorisation {
     issuedAtUtc: '2026-09-15T11:00:00.000Z',
     validUntilUtc: '2026-09-15T13:00:00.000Z',
     operatorAuthorisationStatement: ATTEMPT2_AUTHORISATION_STATEMENT,
+    ...overrides,
   };
 }
 
@@ -443,7 +447,7 @@ describe('2D2C-F0D attempt-2 CLI: plan-only by default, closed arguments, no lau
     expect(text).toContain('12 logical evaluations of PROMPT_V3_CANONICAL');
     expect(text).toContain('PROMPT_V1_CANONICAL and PROMPT_V2_CANONICAL scheduled 0 times');
     expect(text).toContain('ok  OWNER_FREEZE_APPROVAL_RATIFICATION_F0C');
-    expect(text).toContain('FAIL OWNER_FREEZE_APPROVAL_RECORD_F0E: PENDING_OWNER_APPROVAL');
+    expect(text).toContain('ok  OWNER_FREEZE_APPROVAL_RECORD_F0E: RECORDED_AND_PINNED');
     expect(text).toContain('ok  SUPERSEDED_F0C_BYTE_IDENTICAL');
     expect(text).toContain(`at ${F0E_VARIANT.gitCommit}`);
     expect(text).toContain('at most 61 provider requests');
@@ -468,7 +472,7 @@ describe('2D2C-F0D attempt-2 CLI: plan-only by default, closed arguments, no lau
     expect(parsed.plan.attemptNo).toBe(2);
     expect(parsed.executionAuthorisation).toBe('NOT_EVALUATED_IN_PLAN_ONLY_MODE');
     expect((parsed as unknown as { f0eApprovalStatus: string }).f0eApprovalStatus).toBe(
-      'PENDING_OWNER_APPROVAL',
+      'RECORDED_AND_PINNED',
     );
     expect(f0ePlanSha256(PLAN)).toBe(PROPOSED_F0E_PLAN_SHA256);
   });
@@ -602,7 +606,7 @@ describe.skipIf(HOST_NATIVE === null || !ON_RUN_PLATFORM)(
       expect(existsSync(join(root, 'authorisations'))).toBe(false);
     });
 
-    it('WITH THE F0E FREEZE UNAPPROVED, every execution request — the attempt-1 authorisation, and a would-be valid attempt-2 authorisation — is refused as REPLACEMENT_FREEZE_NOT_OWNER_APPROVED before the lock; nothing is created and no launcher runs', async () => {
+    it('the attempt-1 authorisation, an authorisation naming the superseded F0C freeze, and one naming the F0B hash are refused by the lock; nothing is created', async () => {
       const root = outputRoot();
       const attempt1Path = join(SCRATCH, 'auth-f1.json');
       writeFileSync(
@@ -624,40 +628,78 @@ describe.skipIf(HOST_NATIVE === null || !ON_RUN_PLATFORM)(
           operatorAuthorisationStatement: AUTHORISATION_STATEMENT,
         }),
       );
-      const validPath = join(SCRATCH, 'auth-would-be-valid.json');
-      writeFileSync(validPath, JSON.stringify(validAuthorisation(root)));
+      const f0cPath = join(SCRATCH, 'auth-f0c.json');
+      writeFileSync(
+        f0cPath,
+        JSON.stringify({
+          ...validAuthorisation(root),
+          freezeConfigRawSha256: APPROVED_F0C_FREEZE_RAW_SHA256,
+        }),
+      );
+      const f0bPath = join(SCRATCH, 'auth-f0b.json');
+      writeFileSync(
+        f0bPath,
+        JSON.stringify({
+          ...validAuthorisation(root),
+          freezeConfigRawSha256: EXPECTED_F0B_FREEZE_RAW_SHA256,
+        }),
+      );
       const { launcher, launched } = fakeLauncher();
-      for (const authPath of [attempt1Path, validPath]) {
+      const expectations: readonly [string, string][] = [
+        [attempt1Path, 'ATTEMPT_1_AUTHORISATION_PRESENTED'],
+        [f0cPath, 'SUPERSEDED_F0C_FREEZE_NAMED'],
+        [f0bPath, 'AUTHORISATION_MALFORMED'],
+      ];
+      for (const [authPath, refusal] of expectations) {
         const run = io({ rootProbes: probes, launcher });
         expect(await runF0CCli(args(authPath, root), run.cliIo)).toBe(2);
-        expect(run.err.join('')).toContain('REPLACEMENT_FREEZE_NOT_OWNER_APPROVED');
+        expect(run.err.join('')).toContain(`attempt-2 execution lock ${refusal}`);
       }
       expect(launched).toHaveLength(0);
       expect(readdirSync(root)).toEqual([]);
     });
 
-    it('the lock itself, given a synthetic approval pin through its test seam, grants the would-be valid authorisation and refuses the attempt-1 one — so it is the missing owner approval, and only that, holding execution', () => {
+    it('ONLY a NEW attempt-2 authorisation naming this root and the pinned approval record drives the launcher: 12 launches, marker written; the same root cannot be reused, and the same authorisation cannot name another root', async () => {
       const root = outputRoot();
-      const validPath = join(SCRATCH, 'auth-lock-direct.json');
-      writeFileSync(validPath, JSON.stringify(validAuthorisation(root)));
-      const evaluate = (path: string, pin?: string) =>
-        evaluateAttempt2ExecutionLock({
-          executeFlag: true,
-          authorisationPath: path,
-          expected: { outputRoot: root, attemptNo: 2 },
-          readFile: (p) => readFileSync(p),
-          sha256: sha256Hex,
-          alreadyConsumed: () => false,
-          nowUtc: () => new Date('2026-09-15T12:00:00Z'),
-          ...(pin === undefined ? {} : { pinnedApprovalRecordRawSha256: pin }),
-        });
-      expect(evaluate(validPath, 'a'.repeat(64)).granted).toBe(true);
-      expect(evaluate(join(SCRATCH, 'auth-f1.json'), 'a'.repeat(64)).granted).toBe(false);
-      // Production pins NO approval: the same file is refused without the seam.
-      const production = evaluate(validPath);
-      expect(production.granted).toBe(false);
-      if (!production.granted)
-        expect(production.refusal).toBe('REPLACEMENT_FREEZE_NOT_OWNER_APPROVED');
+      const authPath = join(SCRATCH, 'auth-valid.json');
+      writeFileSync(authPath, JSON.stringify(validAuthorisation(root)));
+      const { launcher, launched } = fakeLauncher();
+      const run = io({ rootProbes: probes, launcher });
+      expect(await runF0CCli(args(authPath, root), run.cliIo)).toBe(0);
+      expect(launched).toHaveLength(12);
+      expect(
+        launched.every((l) => l.variantName === 'PROMPT_V3_CANONICAL' && l.attemptNo === 2),
+      ).toBe(true);
+      const authSha = sha256Hex(readFileSync(authPath));
+      expect(existsSync(authorisationMarkerPathOf(root, authSha))).toBe(true);
+      const summary = JSON.parse(run.out.join('')) as {
+        executionAuthorisation: string;
+        experiment: { status: string };
+      };
+      expect(summary.executionAuthorisation).toBe('GRANTED_AND_CONSUMED');
+      expect(summary.experiment.status).toBe('COMPLETED_ALL_PLANNED');
+      // Second run into the same root: refused as non-empty, before the lock.
+      const again = io({ rootProbes: probes, launcher });
+      expect(await runF0CCli(args(authPath, root), again.cliIo)).toBe(2);
+      expect(again.err.join('')).toContain('ATTEMPT2_OUTPUT_ROOT_NOT_EMPTY');
+      // The same authorisation against a fresh root: refused, it names the other root.
+      const fresh = outputRoot();
+      const other = io({ rootProbes: probes, launcher });
+      expect(await runF0CCli(args(authPath, fresh), other.cliIo)).toBe(2);
+      expect(other.err.join('')).toContain('AUTHORISATION_OUTPUT_ROOT_MISMATCH');
+      // An authorisation naming a different approval record is refused.
+      const wrongRecordPath = join(SCRATCH, 'auth-wrong-record.json');
+      writeFileSync(
+        wrongRecordPath,
+        JSON.stringify(
+          validAuthorisation(fresh, { freezeApprovalRecordRawSha256: 'b'.repeat(64) }),
+        ),
+      );
+      const wrong = io({ rootProbes: probes, launcher });
+      expect(await runF0CCli(args(wrongRecordPath, fresh), wrong.cliIo)).toBe(2);
+      expect(wrong.err.join('')).toContain('AUTHORISATION_APPROVAL_RECORD_MISMATCH');
+      expect(launched).toHaveLength(12);
+      expect(readdirSync(fresh)).toEqual([]);
     });
   },
 );

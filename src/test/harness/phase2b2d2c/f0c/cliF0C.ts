@@ -220,14 +220,40 @@ export function f0eApprovalStatus(repoRoot: string): {
       detail: `${F0E_APPROVAL_RECORD_PATH} is not recorded and no approval hash is pinned; the F0E freeze is PROPOSED and authorises nothing.${existsSync(path) ? ' (A file exists at that path but is NOT pinned; it is not trusted.)' : ''}`,
     };
   }
-  const actual = sha256Hex(readFileSync(path));
+  const bytes = readFileSync(path);
+  const actual = sha256Hex(bytes);
   if (actual !== F0E_APPROVAL_RECORD_RAW_SHA256) {
     refuseReadiness(
       'OWNER_FREEZE_APPROVAL_RECORD_F0E',
       `${F0E_APPROVAL_RECORD_PATH} hashes to ${actual}; the pinned approval record is ${F0E_APPROVAL_RECORD_RAW_SHA256}.`,
     );
   }
-  return { status: 'RECORDED_AND_PINNED', detail: actual };
+  // The record must name EXACTLY the frozen bytes, the derived plan and the
+  // superseded F0C, and must claim to authorise nothing.
+  const record = JSON.parse(bytes.toString('utf8')) as {
+    recordKind?: unknown;
+    approvedFreeze?: { file?: unknown; rawSha256?: unknown; derivedAttempt2PlanSha256?: unknown };
+    supersedes?: { rawSha256?: unknown };
+    thisRecordAuthorises?: unknown;
+  };
+  if (
+    record.recordKind !== 'OWNER_FREEZE_APPROVAL' ||
+    record.approvedFreeze?.file !== F0E_FREEZE_PATH ||
+    record.approvedFreeze?.rawSha256 !== PROPOSED_F0E_FREEZE_RAW_SHA256 ||
+    record.approvedFreeze?.derivedAttempt2PlanSha256 !== PROPOSED_F0E_PLAN_SHA256 ||
+    record.supersedes?.rawSha256 !== APPROVED_F0C_FREEZE_RAW_SHA256 ||
+    !Array.isArray(record.thisRecordAuthorises) ||
+    record.thisRecordAuthorises.length !== 0
+  ) {
+    refuseReadiness(
+      'OWNER_FREEZE_APPROVAL_RECORD_F0E',
+      'the F0E approval record does not name exactly the frozen bytes, plan and superseded F0C, or claims to authorise something.',
+    );
+  }
+  return {
+    status: 'RECORDED_AND_PINNED',
+    detail: `${actual} (names the frozen bytes, plan and superseded F0C; authorises nothing)`,
+  };
 }
 
 /**

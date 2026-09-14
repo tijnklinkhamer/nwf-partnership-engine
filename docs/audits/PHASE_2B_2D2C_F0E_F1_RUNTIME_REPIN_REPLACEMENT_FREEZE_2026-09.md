@@ -203,3 +203,76 @@ REPAIR_MINIMUM_REMAINING_BUDGET_MS = 120000 ms on the usable repair window, as e
 
 This approval freezes the exact F0E bytes and DEVELOPMENT plan named above and supersedes F0C for any future execution. It authorises no inference, no attempt 2, no execution authorisation, no consumption marker, no HOLDOUT or mixed-label access, no gold or threshold change, no migration application, and no merge or push to main.
 ```
+
+## 7. Owner approval of F0E — recorded 2026-09-14 (freeze approval only)
+
+The owner issued `APPROVE_F0E_FREEZE` naming raw
+`3b49461af417f8846306dacea561da8865956934f40e72b91ec06db7b1639587`, plan
+`6c6ee79b7e8591a69b43241ad422e437d70440bc08919fd82d8cf9afac388e25`, runtime
+V3B `8224e630…`, superseded runtime `0c0d738…`, R1 `9c50910…`, the V3 prompt
+identity, the superseded F0C raw and plan hashes, predecessor F0B, the
+attempt-1 comparator inventory, the 120 000 ms floor as exported by the
+corrected runtime, and the general repair deadline contract — every value
+equal to the bytes (recomputed before recording; F0E bytes untouched).
+
+Recorded additively as
+`docs/evaluation/PHASE_2B_2D2C_F0E_OWNER_FREEZE_APPROVAL_V1.json`, raw SHA-256
+**`f1b4b05750da28029bfcb328b5824bf87e80bb28a9852b0ab3a999bfc557c1dc`**, the
+owner statement verbatim, `thisRecordAuthorises: []`. Pinned by that literal
+in `freezeF0E.ts` (`F0E_APPROVAL_RECORD_RAW_SHA256`); the CLI additionally
+checks the record's CONTENT names exactly the frozen bytes, plan and
+superseded F0C and claims to authorise nothing. The attempt-2 lock now
+grants only an authorisation that names this record's hash
+(`AUTHORISATION_APPROVAL_RECORD_MISMATCH` otherwise); a null pin — the
+pre-approval state — still refuses everything, and both paths are tested.
+
+Refreshed plan-only readiness (`cliF0C.ts --v3-root <V3B> --attempt1-root
+<attempt-1>`, exit 0): the only previously pending line,
+`OWNER_FREEZE_APPROVAL_RECORD_F0E`, is now `ok RECORDED_AND_PINNED`; every
+other line is unchanged from §3, including `REPAIR_DEFAULT_FLOOR_CONSTANT ok`
+with the verifier code unchanged (no waiver, no revision special-case —
+asserted by the firewall). F0E raw and plan recomputed equal to the approved
+values; F0C `d3de146f…` and F0B `c3f0a76b…` byte-identical; attempt-1
+inventory `ee17e1f2…` (243) unchanged. Zero inference; no attempt-2
+namespace, execution authorisation or consumption marker exists
+(`phase2b-2d2c-dev-runs` still holds only `attempt-1`, `authorisations/attempt-1.json`,
+`run-control/attempt-1`); both databases at migration 0011 with 0 research
+rows. Validation after pinning: full `npm run validate` with `PHASE2B_2D2C_ATTEMPT1_ROOT` set — migrations check OK (11), typecheck, lint, format, **123 test files passed, 2,660 tests passed, 4 deliberately skipped**, build; exit 0.
+
+**Next gated step:** a SEPARATE, NEW owner execution authorisation for
+attempt 2 (`phase2b-2d2c-f0e-execution-authorisation-v1`), whose exact
+statement and closed JSON shape are in §8. Nothing in this section makes
+attempt 2 executable; this approval is not that authorisation.
+
+## 8. Proposed attempt-2 execution authorisation — FOR SEPARATE OWNER REVIEW, NOT ISSUED, NOT RECORDED
+
+Statement (compared byte for byte by the lock):
+
+```
+I AUTHORISE PHASE 2B-2D2C DEVELOPMENT-ONLY EXECUTION OF ATTEMPT 2: AT MOST 12 LOGICAL EVALUATIONS OF PROMPT_V3_CANONICAL (FROZEN ORDINALS 1..12, ONE VARIANT; NO PROMPT_V1_CANONICAL AND NO PROMPT_V2_CANONICAL RERUN) AGAINST THE APPROVED F0E FREEZE 3b49461af417f8846306dacea561da8865956934f40e72b91ec06db7b1639587 WITH DERIVED PLAN 6c6ee79b7e8591a69b43241ad422e437d70440bc08919fd82d8cf9afac388e25, RUNTIME 8224e630b9310f1eeada608a34627e854b30f5aa, REPAIR POLICY ENABLED (ONE ROUND PER LOGICAL EVALUATION, 120000 MS USABLE-WINDOW FLOOR), AT MOST 61 PROVIDER REQUESTS. NO HOLDOUT. NO GOLD LABEL CHANGE. NO DATABASE.
+```
+
+Closed JSON shape (`Attempt2ExecutionAuthorisationSchema`); every hash a literal:
+
+```json
+{
+  "authorisationVersion": "phase2b-2d2c-f0e-execution-authorisation-v1",
+  "scope": "DEVELOPMENT_ONLY",
+  "attemptNo": 2,
+  "freezeConfigRawSha256": "3b49461af417f8846306dacea561da8865956934f40e72b91ec06db7b1639587",
+  "planSha256": "6c6ee79b7e8591a69b43241ad422e437d70440bc08919fd82d8cf9afac388e25",
+  "supersededFreezeRawSha256": "d3de146fa789e64f09d850b03512e602caa226578387306642de6f4904b3efa9",
+  "freezeApprovalRecordRawSha256": "f1b4b05750da28029bfcb328b5824bf87e80bb28a9852b0ab3a999bfc557c1dc",
+  "variants": [{ "name": "PROMPT_V3_CANONICAL", "label": "PROMPT_V3_CANDIDATE", "gitCommit": "8224e630b9310f1eeada608a34627e854b30f5aa" }],
+  "maxLogicalEvaluations": 12,
+  "maxProviderRequests": 61,
+  "repairPolicy": { "enabled": true, "maxRoundsPerLogicalEvaluation": 1, "minimumRemainingBudgetMs": 120000 },
+  "outputRoot": "<absolute path of a NEW, EMPTY directory outside every worktree and outside the attempt-1 root>",
+  "issuedAtUtc": "<ISO-8601 UTC>",
+  "validUntilUtc": "<ISO-8601 UTC>",
+  "operatorAuthorisationStatement": "<the statement above, verbatim>"
+}
+```
+
+Invocation it would unlock (darwin-arm64 only, from the F0E worktree):
+`node --import tsx src/test/harness/phase2b2d2c/f0c/cliF0C.ts --execute --authorisation <abs> --v3-root /Users/tijnklinkhamer/Developer/wt-phase2b-2d2c-runtime-v3b-f1-repin --attempt1-root /Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/attempt-1 --output-root <the empty directory> --attempt-no 2 --classifier-config-dir /Users/tijnklinkhamer/.claude-nwf-classifier`.

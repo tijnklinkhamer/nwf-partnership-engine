@@ -18,8 +18,8 @@
  *   - the changed fields are exactly the listed ones;
  *   - F0C, its approval record and its ratification are byte-unchanged and
  *     F0C is refused as superseded by the family resolver;
- *   - no F0E approval record exists or is pinned, so nothing authorises
- *     attempt 2; no `60000 (PROPOSED)` line and no stale F0C-era sentence
+ *   - the F0E owner approval record exists, is pinned by hash, and names
+ *     exactly the frozen bytes and plan while authorising nothing; no `60000 (PROPOSED)` line and no stale F0C-era sentence
  *     survives in the F0E bytes;
  *   - MUTATION: a changed byte, a freeze still pinning the superseded
  *     runtime, a wrong `supersedes` block, and a wrong floor are refused.
@@ -27,7 +27,7 @@
  * No Git, no network, no database, no provider, no filesystem write.
  */
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
@@ -278,9 +278,55 @@ describe('2D2C-F0E: the superseded F0C and its records are untouched, and F0C is
     expect(resolveChildFreeze(F0E_BYTES).variants[0]?.gitCommit).toBe(V3B_RUNTIME_COMMIT);
   });
 
-  it('no F0E approval record exists or is pinned, so no freeze authorises attempt 2', () => {
-    expect(F0E_APPROVAL_RECORD_RAW_SHA256).toBeNull();
-    expect(existsSync(join(ROOT, F0E_APPROVAL_RECORD_PATH))).toBe(false);
+  it('the F0E owner approval record EXISTS, hashes to the pinned value, names exactly the frozen bytes, plan, runtime and superseded F0C, and authorises nothing', () => {
+    const bytes = readFileSync(join(ROOT, F0E_APPROVAL_RECORD_PATH));
+    expect(F0E_APPROVAL_RECORD_RAW_SHA256).toBe(sha(bytes));
+    expect(F0E_APPROVAL_RECORD_RAW_SHA256).toMatch(/^[0-9a-f]{64}$/);
+    const record = JSON.parse(bytes.toString('utf8')) as {
+      recordKind: string;
+      approves: string;
+      approvedFreeze: {
+        file: string;
+        rawSha256: string;
+        rawBytes: number;
+        derivedAttempt2PlanSha256: string;
+        freezeRevision: string;
+      };
+      supersedes: { rawSha256: string; derivedAttempt2PlanSha256: string };
+      approvedIdentities: Record<string, unknown>;
+      ownerStatementAsReceived: string;
+      statementMarkerAsReceived: string;
+      thisRecordAuthorises: unknown[];
+      thisRecordDoesNotAuthorise: string[];
+    };
+    expect(record.recordKind).toBe('OWNER_FREEZE_APPROVAL');
+    expect(record.approves).toBe('DEVELOPMENT_CONFIGURATION_FREEZE_ONLY');
+    expect(record.approvedFreeze.file).toBe(F0E_FREEZE_PATH);
+    expect(record.approvedFreeze.rawSha256).toBe(PROPOSED_F0E_FREEZE_RAW_SHA256);
+    expect(record.approvedFreeze.rawBytes).toBe(PROPOSED_F0E_FREEZE_RAW_BYTES);
+    expect(record.approvedFreeze.derivedAttempt2PlanSha256).toBe(PROPOSED_F0E_PLAN_SHA256);
+    expect(record.approvedFreeze.freezeRevision).toBe('F0E_V3B_R1_ATTEMPT_2');
+    expect(record.supersedes.rawSha256).toBe(APPROVED_F0C_FREEZE_RAW_SHA256);
+    expect(record.supersedes.derivedAttempt2PlanSha256).toBe(APPROVED_F0C_PLAN_SHA256);
+    expect(record.approvedIdentities['runtimeCommit']).toBe(V3B_RUNTIME_COMMIT);
+    expect(record.approvedIdentities['runtimeBaseCommitSuperseded']).toBe(
+      SUPERSEDED_V3_RUNTIME_COMMIT,
+    );
+    expect(record.approvedIdentities['promptSha256']).toBe(F0E_VARIANT.runtimePromptSha256);
+    expect(record.approvedIdentities['repairMinimumRemainingBudgetMs']).toBe(120_000);
+    expect(record.statementMarkerAsReceived).toBe('APPROVE_F0E_FREEZE');
+    expect(record.ownerStatementAsReceived.startsWith('APPROVE_F0E_FREEZE')).toBe(true);
+    expect(record.ownerStatementAsReceived).toContain(PROPOSED_F0E_FREEZE_RAW_SHA256);
+    expect(record.ownerStatementAsReceived).toContain(PROPOSED_F0E_PLAN_SHA256);
+    expect(record.ownerStatementAsReceived).toContain(V3B_RUNTIME_COMMIT);
+    expect(record.ownerStatementAsReceived).toContain(APPROVED_F0C_FREEZE_RAW_SHA256);
+    expect(record.thisRecordAuthorises).toEqual([]);
+    const denied = record.thisRecordDoesNotAuthorise.join('\n');
+    expect(denied).toMatch(/inference/);
+    expect(denied).toMatch(/attempt 2/);
+    expect(denied).toMatch(/consumption marker/);
+    expect(denied).toMatch(/HOLDOUT/);
+    expect(denied).toMatch(/push to main/);
   });
 
   it('the F0E bytes carry no stale F0C-era line: PROPOSED only in status and the approval rule, no `60000 (PROPOSED)`, no claim that the F0C unit test recomputes them', () => {

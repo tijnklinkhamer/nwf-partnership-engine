@@ -2752,7 +2752,7 @@ describe('PHASE-2B-FIREWALL 2B-2D2C-F0D/F0E: attempt-2 preparation is plan-only,
   const FAMILY = `${F0C_DIR}/freezeFamily.ts`;
   const V3_ROOT = `${F0C_DIR}/variantRootF0C.ts`;
 
-  it('the attempt-2 modules exist, and no attempt-2 evidence, results, authorisation or marker exists anywhere in the repository; no F0E approval record exists or is pinned', () => {
+  it('the attempt-2 modules exist, no attempt-2 evidence, results, authorisation or marker exists anywhere in the repository, and the F0E approval record is pinned by literal', () => {
     for (const file of [
       CLI,
       LOCK,
@@ -2777,9 +2777,10 @@ describe('PHASE-2B-FIREWALL 2B-2D2C-F0D/F0E: attempt-2 preparation is plan-only,
       expect(entry).not.toMatch(/authorisation/i);
       expect(entry).not.toMatch(/consumption/i);
     }
-    expect(exists('docs/evaluation/PHASE_2B_2D2C_F0E_OWNER_FREEZE_APPROVAL_V1.json')).toBe(false);
+    // The F0E owner approval record exists and is pinned by a 64-hex LITERAL, never derived at runtime.
+    expect(exists('docs/evaluation/PHASE_2B_2D2C_F0E_OWNER_FREEZE_APPROVAL_V1.json')).toBe(true);
     expect(code(`${F0C_DIR}/freezeF0E.ts`)).toMatch(
-      /export const F0E_APPROVAL_RECORD_RAW_SHA256: string \| null = null;/,
+      /export const F0E_APPROVAL_RECORD_RAW_SHA256: string \| null =\n {2}'[0-9a-f]{64}';/,
     );
   });
 

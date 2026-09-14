@@ -4,9 +4,9 @@
  *
  * Proves that nothing which satisfied the attempt-1 lock can satisfy this
  * one; that an authorisation naming the SUPERSEDED F0C freeze is refused by
- * name; that while F0E has no owner approval pinned EVERY authorisation is
- * refused (production pins `null`); and that, under a synthetic approval pin
- * injected through the test seam, every pinned value is still checked: the
+ * name; that production pins the RECORDED F0E approval hash (an authorisation
+ * must name it; a null pin refuses everything); and that, under a synthetic
+ * approval pin injected through the test seam, every pinned value is still checked: the
  * spent attempt-1 bytes, the attempt-1 shape, the F0B hash, attempt 1,
  * either attempt-1 variant, the wrong commit, output root, attempt, window
  * and duplicate use are all refused. No file outside a scratch directory is
@@ -51,7 +51,7 @@ import { sha256Hex } from '../harness/phase2b2d2c/freeze.js';
 
 const NOW = new Date('2026-09-15T12:00:00Z');
 const OUTPUT_ROOT = '/synthetic/attempt-2-output';
-/** A SYNTHETIC approval-record hash, injected through the test seam: production pins `null` until the owner approves F0E. */
+/** A SYNTHETIC approval-record hash used through the test seam, so the tests below do not depend on the real record's bytes. */
 const SYNTHETIC_APPROVAL_PIN = 'a'.repeat(64);
 
 const scratch = mkdtempSync(join(tmpdir(), 'nwf-pe-2d2c-f0e-lock-'));
@@ -115,15 +115,24 @@ function evaluate(
 const refusalOf = (decision: ReturnType<typeof evaluateAttempt2ExecutionLock>): string =>
   decision.granted ? 'GRANTED' : decision.refusal;
 
-describe('2D2C-F0E attempt-2 lock: the unapproved replacement freeze holds everything closed', () => {
-  it('production pins NO F0E approval record yet, so every authorisation — even a would-be valid one — is refused before the schema', () => {
-    expect(F0E_APPROVAL_RECORD_RAW_SHA256).toBeNull();
-    const decision = evaluate(writeAuth(validAuthorisation()), {
-      pinnedApprovalRecordRawSha256: undefined,
+describe('2D2C-F0E attempt-2 lock: the approval pin is the gate, and the superseded F0C is refused by name', () => {
+  it('production pins the RECORDED F0E approval hash: an authorisation naming that record grants, one naming any other record is refused, and a null pin (the pre-approval state) refuses everything before the schema', () => {
+    expect(F0E_APPROVAL_RECORD_RAW_SHA256).toMatch(/^[0-9a-f]{64}$/);
+    const real = validAuthorisation({
+      freezeApprovalRecordRawSha256: F0E_APPROVAL_RECORD_RAW_SHA256!,
     });
-    expect(refusalOf(decision)).toBe('REPLACEMENT_FREEZE_NOT_OWNER_APPROVED');
-    if (!decision.granted)
-      expect(decision.detail).toContain(
+    expect(evaluate(writeAuth(real), { pinnedApprovalRecordRawSha256: undefined }).granted).toBe(
+      true,
+    );
+    expect(
+      refusalOf(
+        evaluate(writeAuth(validAuthorisation()), { pinnedApprovalRecordRawSha256: undefined }),
+      ),
+    ).toBe('AUTHORISATION_APPROVAL_RECORD_MISMATCH');
+    const preApproval = evaluate(writeAuth(real), { pinnedApprovalRecordRawSha256: null });
+    expect(refusalOf(preApproval)).toBe('REPLACEMENT_FREEZE_NOT_OWNER_APPROVED');
+    if (!preApproval.granted)
+      expect(preApproval.detail).toContain(
         'no authorisation can execute against an unapproved freeze',
       );
   });
