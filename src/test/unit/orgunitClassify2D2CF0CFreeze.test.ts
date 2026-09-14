@@ -562,11 +562,14 @@ describe('2D2C-F0C: loading and planning create nothing', () => {
       expect(entry).not.toMatch(/authorisation/i);
       expect(entry).not.toMatch(/consumption/i);
     }
+    // The owner freeze-approval record EXISTS (recorded 2026-09-14, a deliberate reviewed
+    // widening of the earlier "does not exist yet" pin); it is a freeze approval and nothing
+    // else, and it names the frozen bytes exactly - asserted in its own describe below.
     expect(
       existsSync(
         join(ROOT, 'docs', 'evaluation', 'PHASE_2B_2D2C_F0C_OWNER_FREEZE_APPROVAL_V1.json'),
       ),
-    ).toBe(false);
+    ).toBe(true);
     // The F0C harness module imports no writer.
     const source = readFileSync(
       join(ROOT, 'src/test/harness/phase2b2d2c/f0c/freezeF0C.ts'),
@@ -763,6 +766,84 @@ describe('2D2C-F0C: mutation coverage — each material freeze assertion bites',
     expect(sha256(readFileSync(join(ROOT, FREEZE_PATH)))).toBe(EXPECTED_F0B_FREEZE_RAW_SHA256);
     expect(canonicalStringify(loadF0CFreezeFromBytes(F0C_BYTES).freeze)).toBe(
       canonicalStringify(F0C.freeze),
+    );
+  });
+});
+
+describe('2D2C-F0C: the owner freeze-approval record names exactly the frozen bytes and authorises nothing', () => {
+  const APPROVAL_PATH = 'docs/evaluation/PHASE_2B_2D2C_F0C_OWNER_FREEZE_APPROVAL_V1.json';
+  const record = JSON.parse(readFileSync(join(ROOT, APPROVAL_PATH), 'utf8')) as {
+    recordKind: string;
+    approves: string;
+    approvedFreeze: {
+      file: string;
+      rawSha256: string;
+      rawBytes: number;
+      derivedAttempt2PlanSha256: string;
+      branchCommit: string;
+      bytesNeverChangeOnApproval: boolean;
+    };
+    approvedIdentities: {
+      runtimeCommit: string;
+      r1Commit: string;
+      promptVersion: string;
+      promptSha256: string;
+      predecessorF0BRawSha256: string;
+      attempt1ComparatorInventorySha256: string;
+      repairMinimumRemainingBudgetMs: number;
+    };
+    ownerStatementAsReceived: string;
+    thisRecordAuthorises: unknown[];
+    thisRecordDoesNotAuthorise: string[];
+  };
+
+  it('is a freeze approval, not an execution authorisation, and grants nothing', () => {
+    expect(record.recordKind).toBe('OWNER_FREEZE_APPROVAL');
+    expect(record.approves).toBe('DEVELOPMENT_CONFIGURATION_FREEZE_ONLY');
+    expect(record.thisRecordAuthorises).toEqual([]);
+    expect(record.thisRecordDoesNotAuthorise.join('\n')).toMatch(/inference/);
+    expect(record.thisRecordDoesNotAuthorise.join('\n')).toMatch(/attempt 2/);
+    expect(record.thisRecordDoesNotAuthorise.join('\n')).toMatch(/HOLDOUT/);
+    expect(record.thisRecordDoesNotAuthorise.join('\n')).toMatch(/push to main/);
+  });
+
+  it('names the committed F0C bytes by their exact raw SHA-256, size and derived plan SHA-256', () => {
+    expect(record.approvedFreeze.file).toBe(F0C_FREEZE_PATH);
+    expect(record.approvedFreeze.rawSha256).toBe(PROPOSED_F0C_FREEZE_RAW_SHA256);
+    expect(record.approvedFreeze.rawSha256).toBe(F0C.rawSha256);
+    expect(record.approvedFreeze.rawBytes).toBe(F0C.rawBytes);
+    expect(record.approvedFreeze.derivedAttempt2PlanSha256).toBe(f0cPlanSha256(PLAN));
+    expect(record.approvedFreeze.branchCommit).toMatch(/^[0-9a-f]{40}$/);
+    expect(record.approvedFreeze.bytesNeverChangeOnApproval).toBe(true);
+    // The statement itself names the same hashes verbatim.
+    expect(record.ownerStatementAsReceived).toContain(PROPOSED_F0C_FREEZE_RAW_SHA256);
+    expect(record.ownerStatementAsReceived).toContain(f0cPlanSha256(PLAN));
+    expect(record.ownerStatementAsReceived).toContain(record.approvedFreeze.branchCommit);
+  });
+
+  it('names the same runtime, prompt, predecessor, comparator and floor the frozen bytes carry', () => {
+    const variant = F0C.freeze.classifier.variants[0]!;
+    expect(record.approvedIdentities.runtimeCommit).toBe(variant.gitCommit);
+    expect(record.approvedIdentities.runtimeCommit).toBe(F0C.freeze.git.v3Runtime.commit);
+    expect(record.approvedIdentities.r1Commit).toBe(F0C.freeze.git.r1RepairReliability.commit);
+    expect(record.approvedIdentities.promptVersion).toBe(ORGUNIT_CLASSIFIER_PROMPT_VERSION);
+    expect(record.approvedIdentities.promptSha256).toBe(V3_PROMPT_SHA256);
+    expect(record.approvedIdentities.promptSha256).toBe(
+      createHash('sha256').update(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT, 'utf8').digest('hex'),
+    );
+    expect(record.approvedIdentities.predecessorF0BRawSha256).toBe(
+      F0C.freeze.predecessor.rawSha256,
+    );
+    expect(record.approvedIdentities.attempt1ComparatorInventorySha256).toBe(
+      (F0C.freeze.scoring.comparatorPolicy.attempt1 as Record<string, unknown>)[
+        'artifactInventorySha256'
+      ],
+    );
+    expect(record.approvedIdentities.repairMinimumRemainingBudgetMs).toBe(
+      F0C.freeze.repairPolicy.minimumRemainingBudgetMs,
+    );
+    expect(record.approvedIdentities.repairMinimumRemainingBudgetMs).toBe(
+      REPAIR_MINIMUM_REMAINING_BUDGET_MS,
     );
   });
 });
