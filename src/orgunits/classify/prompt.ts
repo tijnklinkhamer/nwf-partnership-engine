@@ -1,29 +1,61 @@
 /**
- * THE FROZEN CLASSIFIER SYSTEM PROMPT — `orgunit-classifier-prompt-v3`.
+ * THE FROZEN CLASSIFIER SYSTEM PROMPT — `orgunit-classifier-prompt-v4`.
  *
- * v3 IS v2 PLUS THE OWNER-APPROVED SEMANTIC DELTA, AND NOTHING ELSE (Phase
- * 2B-2D2C-V3, owner decision APPROVE_V3_SEMANTIC_B_PLUS_C of 2026-09-14;
- * the delta is the committed design record
+ * v4 IS v3 PLUS EXACTLY THE THREE OWNER-APPROVED BOUNDED SEMANTIC
+ * NARROWINGS FROM THE F0H FAILURE DIAGNOSIS, AND NOTHING ELSE (Phase
+ * 2B-2D2C-V4I1, owner instruction of 2026-09-14 approving candidates D1,
+ * D2 and D3 from
+ * `docs/audits/PHASE_2B_2D2C_F0H_ATTEMPT_2_DEV_FAILURE_ANALYSIS_2026-09.md`
+ * §7 for implementation only). Exactly three operations on the v3 text,
+ * every one a narrowing of an existing clause, none a new criterion:
+ *
+ *   1. REPLACE the opening of the whole-organisation-allowance carve-out
+ *      sentence ("A page whose title names a programme...") so the
+ *      carve-out applies only to a small or non-university organisation —
+ *      the SAME structural classification the base prompt already defines
+ *      two sentences earlier — closing the gap that let it fire on a
+ *      large, multi-faculty university (D1, targets
+ *      SMALL_ORGANISATION_RESCUE_TOO_BROAD, F0H §4.1).
+ *   2. INSERT one sentence directly after the existing "one step, mailbox
+ *      or contact line" exclusion sentence in the two-step page-subject
+ *      paragraph, so that a named unit presented only as the receiving or
+ *      processing contact for an externally-named, externally-sponsored
+ *      scheme does not by itself satisfy step two unless the document also
+ *      describes that unit's own standing remit or ongoing operations
+ *      beyond that one scheme (D2, targets
+ *      OPERATOR_MENTION_MISTAKEN_FOR_PAGE_SUBJECT, F0H §4.2).
+ *   3. INSERT one further sentence immediately after operation 2's
+ *      sentence, so that a page whose only content is an interactive
+ *      contact-form template addressed to a named unit, with no
+ *      descriptive text about that unit's remit, activities or people
+ *      served, does not satisfy step two — while a page that instead
+ *      DISPLAYS identifying and contact information about a unit as
+ *      content remains eligible, exactly as the existing IRTESS-shaped
+ *      precedent already requires (D3, targets
+ *      PAGE_SUBJECT_TWO_STAGE_OVERREACH, F0H §4.3).
+ *
+ * Every other byte of v3 is kept, including the evidence-output compliance
+ * check (Candidate C), the two-step page-subject decision's own step-one
+ * sentence, and every v1/v2 paragraph untouched by v3. Reversing exactly
+ * these three operations reproduces the v3 runtime text byte for byte
+ * (SHA-256 `d05dcce614397e09f93d0aec981a3d626d5e90a16851040901ffafec30d3abd1`),
+ * and from there the v3 header's own documented reversal reproduces v2 and
+ * v1; `orgunitClassifyPrompt.test.ts` asserts the v4-to-v3 reversal by
+ * SHA-256 through the harness's `promptLineage.ts`. There is ONE
+ * production prompt and no version selector: a v1, v2 or v3 comparator
+ * runs from the commit that still carries it, never from this build.
+ *
+ * v3 WAS v2 PLUS THE OWNER-APPROVED SEMANTIC DELTA (Phase 2B-2D2C-V3, owner
+ * decision APPROVE_V3_SEMANTIC_B_PLUS_C of 2026-09-14; the delta is the
+ * committed design record
  * `docs/evaluation/PHASE_2B_2D2C_PROMPT_V3_DESIGN_CANDIDATES_V1.json`,
- * Candidate B — whose second operation IS Candidate A, byte for byte — plus
- * Candidate C). Exactly three operations on the v2 text:
- *
- *   1. REPLACE v2 insertion 1 (the page-subject test) with the two-step
- *      page-subject decision (Candidate B, operation 1);
- *   2. REPLACE v2 insertion 2 (the whole-organisation allowance bound) with
- *      the precise whole-organisation rescue (Candidate A, carried by B);
- *   3. INSERT the evidence-output compliance check (Candidate C) directly
- *      after v2 insertion 5 (the document-local `unit_name` rule).
- *
- * Every other byte of v2 is kept: insertions 3, 4 and 5 and every v1
- * paragraph are byte-identical, including the closing sentence of the
- * page-subject paragraph and the NEEDS_REVIEW sparse-evidence blocker.
- * Reversing exactly those three operations reproduces the v2 runtime text
- * byte for byte, and removing v2's five insertions from THAT reproduces v1;
- * `orgunitClassifyPrompt.test.ts` asserts both by SHA-256 through the
- * harness's `promptLineage.ts`. There is ONE production prompt and no
- * version selector: a v1 or v2 comparator runs from the commit that still
- * carries it, never from this build.
+ * Candidate B — whose second operation IS Candidate A, byte for byte —
+ * plus Candidate C): a REPLACE of v2 insertion 1 (the page-subject test)
+ * with the two-step page-subject decision; a REPLACE of v2 insertion 2
+ * (the whole-organisation allowance bound) with the precise
+ * whole-organisation rescue; an INSERT of the evidence-output compliance
+ * check directly after v2 insertion 5 (the document-local `unit_name`
+ * rule).
  *
  * v2 WAS v1 PLUS FIVE REVIEWED INSERTIONS (Phase 2B-2D2B-3,
  * `docs/audits/PHASE_2B_2D2B_3_PROMPT_V2_RECOVERY_2026-09.md`): a
@@ -60,7 +92,7 @@
  */
 
 /** Versions THIS PROMPT'S TEXT. Bump on any content change; never edit the string below without bumping it. */
-export const ORGUNIT_CLASSIFIER_PROMPT_VERSION = 'orgunit-classifier-prompt-v3';
+export const ORGUNIT_CLASSIFIER_PROMPT_VERSION = 'orgunit-classifier-prompt-v4';
 
 export const ORGUNIT_CLASSIFIER_SYSTEM_PROMPT = `You are a document classifier. For each supplied document — bounded, redacted evidence extracted from one organisation's website — decide what organisational unit, if any, the page represents, and what the evidence says about the student audiences that unit serves. Use only the supplied evidence. Prefer UNKNOWN and NEEDS_REVIEW over unsupported certainty.
 
@@ -79,7 +111,7 @@ For every document, answer two independent questions:
 1. **What is this page?** — is it an organisational unit's own page, and if so what kind; or is it something else, and if so what kind of something-else.
 2. **If it is a unit, what does the evidence say the unit does?** — three independent tri-state relevance axes, never a single "is this relevant" verdict. A research office can be international without serving students; a language department can teach languages without operating a student service. Judge each axis on its own.
 
-Classify the page's primary subject, not the presence of relevant words, activities, or services. Decide in two steps. Step one: does the document evidence an ongoing operating responsibility, meaning a standing function that receives, supports, advises, teaches or administers on a continuing basis, as the page's primary subject? Evidence for this is the document's own title, headings or body presenting that responsibility's remit, the people it serves, its standing procedures, or the operator that administers it together with how to reach that operator. A single dated event, a news or category listing, a degree programme's curriculum or admissions, an index or navigation destination, a form, tool or viewer, general institutional marketing, and a description of an external programme or funding scheme as such, with the organisation appearing only as a participant, are not such evidence, however much they mention Erasmus, mobility, international students, language learning or student services. Step two: if such a responsibility is evidenced, who holds it in this document? The page is a UNIT_PAGE when the document presents a named unit, service or provision as the operator, for example a heading, section or block that names it and states its role, contact or address for this subject, or, for a small or non-university organisation, when the document attributes the organisation's own standing responsibility to the organisation itself as described under the taxonomy. A unit that appears only as one step, mailbox or contact line inside a procedure whose subject is the scheme does not make the page that unit's page. When no operator is evidenced, the page is NOT_A_UNIT with the page_kind that fits its subject; the institution as a whole counts as an operator only under the small or non-university allowance. Describing Erasmus or services does not by itself make a page a UNIT_PAGE.
+Classify the page's primary subject, not the presence of relevant words, activities, or services. Decide in two steps. Step one: does the document evidence an ongoing operating responsibility, meaning a standing function that receives, supports, advises, teaches or administers on a continuing basis, as the page's primary subject? Evidence for this is the document's own title, headings or body presenting that responsibility's remit, the people it serves, its standing procedures, or the operator that administers it together with how to reach that operator. A single dated event, a news or category listing, a degree programme's curriculum or admissions, an index or navigation destination, a form, tool or viewer, general institutional marketing, and a description of an external programme or funding scheme as such, with the organisation appearing only as a participant, are not such evidence, however much they mention Erasmus, mobility, international students, language learning or student services. Step two: if such a responsibility is evidenced, who holds it in this document? The page is a UNIT_PAGE when the document presents a named unit, service or provision as the operator, for example a heading, section or block that names it and states its role, contact or address for this subject, or, for a small or non-university organisation, when the document attributes the organisation's own standing responsibility to the organisation itself as described under the taxonomy. A unit that appears only as one step, mailbox or contact line inside a procedure whose subject is the scheme does not make the page that unit's page. A named unit presented only as the receiving or processing contact for an externally-named, externally-sponsored scheme does not by itself satisfy step two, unless the document also describes that unit's own standing remit or ongoing operations beyond that one scheme. A page whose only content is an interactive contact-form template (name, message or similar fields addressed to a named unit) with no descriptive text about that unit's remit, activities or people served does not satisfy step two; a page that instead displays identifying and contact information about a unit as content, such as a heading together with stated details, remains eligible. When no operator is evidenced, the page is NOT_A_UNIT with the page_kind that fits its subject; the institution as a whole counts as an operator only under the small or non-university allowance. Describing Erasmus or services does not by itself make a page a UNIT_PAGE.
 
 ## Taxonomy
 
@@ -98,7 +130,7 @@ When \`verdict = UNIT_PAGE\`, \`unit_type\` is exactly one of:
 
 For a small or non-university organisation (a language school, a student association, a smaller institute), the unit a page represents may be the whole organisation — classify what the page evidences and, where stated, capture the organisation's own name in \`unit_name\`; no separate field exists for this case.
 
-The whole-organisation allowance is narrow: use it only when the document presents the whole organisation in the role of an operating unit or function and makes that role the page's primary subject. A page whose title names a programme, a scheme or an audience can still meet this test when the document attributes to the organisation itself its own ongoing strategy, charter, eligibility rules, responsibility or operations for that function, and makes that commitment the page's structural subject in its title or headings rather than a single sentence saying that the organisation takes part. A named office is not required for this. The organisation's small size alone is never enough, and a page whose subject is the external programme itself, its grant amounts, its conditions or its sponsor's description, with the organisation appearing only as a participant, is NOT_A_UNIT; a homepage, marketing or navigation page, degree or course page, and news or event page remain NOT_A_UNIT when no operating unit or function is the page's primary subject.
+The whole-organisation allowance is narrow: use it only when the document presents the whole organisation in the role of an operating unit or function and makes that role the page's primary subject. For a small or non-university organisation as described above, a page whose title names a programme, a scheme or an audience can still meet this test when the document attributes to the organisation itself its own ongoing strategy, charter, eligibility rules, responsibility or operations for that function, and makes that commitment the page's structural subject in its title or headings rather than a single sentence saying that the organisation takes part. A named office is not required for this. The organisation's small size alone is never enough, and a page whose subject is the external programme itself, its grant amounts, its conditions or its sponsor's description, with the organisation appearing only as a participant, is NOT_A_UNIT; a homepage, marketing or navigation page, degree or course page, and news or event page remain NOT_A_UNIT when no operating unit or function is the page's primary subject.
 
 When \`verdict = NOT_A_UNIT\`, \`page_kind\` is exactly one of:
 

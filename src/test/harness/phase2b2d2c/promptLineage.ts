@@ -1,11 +1,17 @@
 /**
- * PHASE 2B-2D2C-V3 — THE PROMPT LINEAGE, AS EXACT TEXT DELTAS.
+ * PHASE 2B-2D2C-V4I1 — THE PROMPT LINEAGE, AS EXACT TEXT DELTAS.
  *
  * The production prompt (`src/orgunits/classify/prompt.ts`) is ONE string
  * at ONE version. Earlier frozen identities are never kept as second
  * strings anywhere in production; they are RECONSTRUCTED from the current
  * prompt by removing the exact reviewed deltas, and pinned by SHA-256:
  *
+ *   v4 -> v3 : replace D1's narrowed sentence by the v3 sentence it
+ *              narrowed, and remove D2's and D3's inserted sentences
+ *              (Phase 2B-2D2C-V4I1, owner instruction of 2026-09-14
+ *              approving candidates D1/D2/D3 of
+ *              `docs/audits/PHASE_2B_2D2C_F0H_ATTEMPT_2_DEV_FAILURE_ANALYSIS_2026-09.md`
+ *              §7 for implementation only).
  *   v3 -> v2 : replace Candidate B's two paragraphs by the two Prompt V2
  *              paragraphs they replaced, and remove Candidate C's inserted
  *              paragraph (Phase 2B-2D2C-V3, owner decision
@@ -27,14 +33,18 @@ export const V1_PROMPT_SHA256 = '65f7f327ad14e78aaf3024cb7253e979b1e360fdcd1a580
 export const V2_PROMPT_SHA256 = '181a5d6fec9763be5a57e7e4d08c7d8c8a9d9e21838df2ea3e05dd680e4c7635';
 /** The projected and now landed v3 identity (V3R1 owner review packet §2). */
 export const V3_PROMPT_SHA256 = 'd05dcce614397e09f93d0aec981a3d626d5e90a16851040901ffafec30d3abd1';
+/** The v4 identity implemented by Phase 2B-2D2C-V4I1 (this task). */
+export const V4_PROMPT_SHA256 = 'a2dad6e85102ee710d4eb1c5ca4ea3995273b3e25834d27a83f36ad6b65a256b';
 
 export const V1_PROMPT_SIZE = { characters: 9_887, utf8Bytes: 9_963 } as const;
 export const V2_PROMPT_SIZE = { characters: 11_304, utf8Bytes: 11_382 } as const;
 export const V3_PROMPT_SIZE = { characters: 14_012, utf8Bytes: 14_088 } as const;
+export const V4_PROMPT_SIZE = { characters: 14_731, utf8Bytes: 14_807 } as const;
 
 export const V1_PROMPT_VERSION = 'orgunit-classifier-prompt-v1';
 export const V2_PROMPT_VERSION = 'orgunit-classifier-prompt-v2';
 export const V3_PROMPT_VERSION = 'orgunit-classifier-prompt-v3';
+export const V4_PROMPT_VERSION = 'orgunit-classifier-prompt-v4';
 
 // ---------------------------------------------------------------------------
 // v2 = v1 + five reviewed insertions (2D2B-3).
@@ -83,7 +93,8 @@ export const V3_C_EVIDENCE_OUTPUT_COMPLIANCE =
   "Before returning, check every result against its own document and nothing else. A non-null `unit_name` must appear, apart from spacing, accents and letter case, in that document's title, headings or excerpt; if only a short form of the name appears there, return that short form, and if no form appears, return null, even when a longer or expanded form appears in another document of this batch or is known to you. Each evidence quote must be copied contiguously and unabridged from the one field its `source` names, with no ellipsis, no omitted words and no corrected characters, and `source` must name the field in which that exact text appears: text that opens the excerpt is EXCERPT even when it reads like a heading. A result that fails this check is discarded whole, so cite fewer spans rather than one that cannot be verified.";
 
 export interface PromptDeltaOperation {
-  readonly kind: 'REPLACE_PARAGRAPH' | 'INSERT_PARAGRAPH_AFTER';
+  readonly kind:
+    'REPLACE_PARAGRAPH' | 'INSERT_PARAGRAPH_AFTER' | 'REPLACE_SENTENCE' | 'INSERT_SENTENCE_AFTER';
   readonly anchorParagraph: string;
   readonly text: string;
 }
@@ -156,6 +167,89 @@ export function v1FromV2(v2: string): string {
   }
   exactlyOnce(text, V2_INLINE_INSERTION_3, 'v2 inline insertion');
   return text.replace(V2_INLINE_INSERTION_3, '');
+}
+
+// ---------------------------------------------------------------------------
+// v4 = v3 + D1 (narrow the whole-organisation carve-out) + D2 (narrow the
+// operator-contact condition) + D3 (narrow the operator-naming condition
+// against a bare contact-form template). Phase 2B-2D2C-V4I1, from the F0H
+// failure-diagnosis candidates D1/D2/D3.
+// ---------------------------------------------------------------------------
+
+/** The v3 sentence inside Candidate B's page-subject paragraph that D1 narrows. */
+export const V3_SENTENCE_WHOLE_ORG_CARVEOUT =
+  "A page whose title names a programme, a scheme or an audience can still meet this test when the document attributes to the organisation itself its own ongoing strategy, charter, eligibility rules, responsibility or operations for that function, and makes that commitment the page's structural subject in its title or headings rather than a single sentence saying that the organisation takes part.";
+
+/** D1: the same sentence, narrowed to organisations already reachable under the base prompt's own small/non-university classification. */
+export const V4_D1_WHOLE_ORG_CARVEOUT_NARROWED =
+  "For a small or non-university organisation as described above, a page whose title names a programme, a scheme or an audience can still meet this test when the document attributes to the organisation itself its own ongoing strategy, charter, eligibility rules, responsibility or operations for that function, and makes that commitment the page's structural subject in its title or headings rather than a single sentence saying that the organisation takes part.";
+
+/** The v3 sentence D2 and D3 are inserted directly after, in order. */
+export const V3_SENTENCE_MAILBOX_CONTACT_LINE =
+  "A unit that appears only as one step, mailbox or contact line inside a procedure whose subject is the scheme does not make the page that unit's page.";
+
+/** D2: a named unit as a bare external-scheme receiving contact does not by itself satisfy step two. */
+export const V4_D2_OPERATOR_CONTACT_NARROWING =
+  "A named unit presented only as the receiving or processing contact for an externally-named, externally-sponsored scheme does not by itself satisfy step two, unless the document also describes that unit's own standing remit or ongoing operations beyond that one scheme.";
+
+/** D3: a bare interactive contact-form template naming a unit does not by itself satisfy step two. */
+export const V4_D3_CONTACT_FORM_TEMPLATE_NARROWING =
+  "A page whose only content is an interactive contact-form template (name, message or similar fields addressed to a named unit) with no descriptive text about that unit's remit, activities or people served does not satisfy step two; a page that instead displays identifying and contact information about a unit as content, such as a heading together with stated details, remains eligible.";
+
+/** The exact three operations of the approved v4 delta, in application order (D1, D2, D3). */
+export const V4_DELTA_OPERATIONS: readonly PromptDeltaOperation[] = [
+  {
+    kind: 'REPLACE_SENTENCE',
+    anchorParagraph: V3_SENTENCE_WHOLE_ORG_CARVEOUT,
+    text: V4_D1_WHOLE_ORG_CARVEOUT_NARROWED,
+  },
+  {
+    kind: 'INSERT_SENTENCE_AFTER',
+    anchorParagraph: V3_SENTENCE_MAILBOX_CONTACT_LINE,
+    text: V4_D2_OPERATOR_CONTACT_NARROWING,
+  },
+  {
+    kind: 'INSERT_SENTENCE_AFTER',
+    // D3 is inserted directly after D2's own sentence, which exists only
+    // once D2 has already been applied - this operation is APPLIED in
+    // sequence, never independently of the one before it.
+    anchorParagraph: V4_D2_OPERATOR_CONTACT_NARROWING,
+    text: V4_D3_CONTACT_FORM_TEMPLATE_NARROWING,
+  },
+];
+
+/** Applies the v4 delta to a v3 text. Refuses a non-unique or absent anchor at each step. */
+export function v4FromV3(v3: string): string {
+  let text = v3;
+  for (const op of V4_DELTA_OPERATIONS) {
+    exactlyOnce(text, op.anchorParagraph, `v4 anchor "${op.anchorParagraph.slice(0, 40)}"`);
+    if (op.kind === 'REPLACE_SENTENCE') {
+      text = text.replace(op.anchorParagraph, op.text);
+    } else if (op.kind === 'INSERT_SENTENCE_AFTER') {
+      text = text.replace(op.anchorParagraph, `${op.anchorParagraph} ${op.text}`);
+    } else {
+      throw new PromptLineageError(`v4FromV3 does not support operation kind ${op.kind}`);
+    }
+  }
+  return text;
+}
+
+/** Strips the v4 delta from a v4 text, reconstructing v3 byte for byte. Reverses in the opposite order to v4FromV3. */
+export function v3FromV4(v4: string): string {
+  let text = v4;
+  for (const op of [...V4_DELTA_OPERATIONS].reverse()) {
+    if (op.kind === 'REPLACE_SENTENCE') {
+      exactlyOnce(text, op.text, `v4 sentence "${op.text.slice(0, 40)}"`);
+      text = text.replace(op.text, op.anchorParagraph);
+    } else if (op.kind === 'INSERT_SENTENCE_AFTER') {
+      const block = `${op.anchorParagraph} ${op.text}`;
+      exactlyOnce(text, block, `v4 inserted sentence "${op.text.slice(0, 40)}"`);
+      text = text.replace(block, op.anchorParagraph);
+    } else {
+      throw new PromptLineageError(`v3FromV4 does not support operation kind ${op.kind}`);
+    }
+  }
+  return text;
 }
 
 export function promptSha256(text: string): string {

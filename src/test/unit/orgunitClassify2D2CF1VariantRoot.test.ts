@@ -87,13 +87,13 @@ const failedCheck = (verification: Awaited<ReturnType<typeof verifyVariantRoot>>
   verification.checks.find((c) => !c.ok)?.id ?? null;
 
 describe('2D2C-F1 variant roots: the v1 comparator and v2 candidate prompt identities', () => {
-  it('the derived v1 and v2 texts hash to the two frozen identities; the production prompt is now v3 and is neither', () => {
+  it('the derived v1 and v2 texts hash to the two frozen identities; the production prompt is now v4 and is neither', () => {
     expect(sha256Hex(v1PromptText())).toBe(V1.runtimePromptSha256);
     expect(v1PromptText().length).toBe(V1.runtimePromptCharacters);
     expect(sha256Hex(promptTextOf(V2.name))).toBe(V2.runtimePromptSha256);
     expect(promptTextOf(V2.name).length).toBe(V2.runtimePromptCharacters);
     expect(promptTextOf(V1.name)).not.toBe(promptTextOf(V2.name));
-    // 2D2C-V3: production carries v3, which the frozen roots never do.
+    // 2D2C-V4I1: production carries v4 (v3 + D1/D2/D3), which the frozen roots never do.
     expect(sha256Hex(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT)).not.toBe(V2.runtimePromptSha256);
     expect(sha256Hex(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT)).not.toBe(V1.runtimePromptSha256);
   });

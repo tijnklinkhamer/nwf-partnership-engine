@@ -45,7 +45,7 @@ import { fileURLToPath } from 'node:url';
 import { ORGUNIT_CLASSIFIER_SYSTEM_PROMPT } from '../../../orgunits/classify/prompt.js';
 import { FROZEN_VARIANTS, type FrozenVariant } from '../../harness/phase2b2d2c/constants.js';
 import type { Freeze } from '../../harness/phase2b2d2c/freeze.js';
-import { v1FromV2, v2FromV3 } from '../../harness/phase2b2d2c/promptLineage.js';
+import { v1FromV2, v2FromV3, v3FromV4 } from '../../harness/phase2b2d2c/promptLineage.js';
 import { RUNTIME_MODULE_PATHS } from '../../harness/phase2b2d2c/runtimeLoader.js';
 import type { VariantRootProbes } from '../../harness/phase2b2d2c/variantRoot.js';
 
@@ -58,12 +58,13 @@ const FIXTURE_STACK = join(
 
 /**
  * The frozen v2 comparator prompt text, RECONSTRUCTED from the production
- * v3 prompt by reversing the exact 2D2C-V3 delta; and the v1 comparator
- * text, reconstructed from that by removing the five 2D2B-3 insertions —
- * exactly as the freeze and prompt tests derive them, without Git.
+ * v4 prompt by reversing the exact 2D2C-V4I1 delta (v4 -> v3) and then the
+ * exact 2D2C-V3 delta (v3 -> v2); and the v1 comparator text, reconstructed
+ * from that by removing the five 2D2B-3 insertions — exactly as the freeze
+ * and prompt tests derive them, without Git.
  */
 export function v2PromptText(): string {
-  return v2FromV3(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+  return v2FromV3(v3FromV4(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT));
 }
 
 export function v1PromptText(): string {

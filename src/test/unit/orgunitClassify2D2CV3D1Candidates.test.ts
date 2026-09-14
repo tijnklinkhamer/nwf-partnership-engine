@@ -30,6 +30,7 @@ import {
 } from '../harness/phase2b2d2c/v3d1/candidates.js';
 import {
   v2FromV3,
+  v3FromV4,
   V3_DELTA_OPERATIONS,
   V3_PROMPT_SHA256,
 } from '../harness/phase2b2d2c/promptLineage.js';
@@ -56,8 +57,13 @@ interface DesignRecord {
 
 const record = JSON.parse(readFileSync(join(REPO_ROOT, RECORD_PATH), 'utf8')) as DesignRecord;
 const sha256 = (text: string): string => createHash('sha256').update(text, 'utf8').digest('hex');
-/** The frozen Prompt V2 base, reconstructed from the production v3 prompt (2D2C-V3). */
-const PROMPT_V2 = v2FromV3(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+/**
+ * The frozen Prompt V3 identity, reconstructed from the production v4 prompt
+ * (2D2C-V4I1: the production prompt is now v3 + D1/D2/D3, never v3 itself).
+ */
+const RECONSTRUCTED_V3 = v3FromV4(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+/** The frozen Prompt V2 base, reconstructed from the reconstructed v3 (2D2C-V3). */
+const PROMPT_V2 = v2FromV3(RECONSTRUCTED_V3);
 const devTitles = readFileSync(join(REPO_ROOT, DEV_LABELS), 'utf8')
   .trim()
   .split('\n')
@@ -72,9 +78,9 @@ describe('the design record is anchored on the frozen Prompt V2, which the produ
     expect(sha256(PROMPT_V2)).toBe(V2_SHA256);
   });
 
-  it("2D2C-V3: the production prompt is v3, and it IS the record's Candidate B (carrying A) plus C applied to v2", () => {
-    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v3');
-    expect(sha256(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT)).toBe(V3_PROMPT_SHA256);
+  it("2D2C-V3 (reconstructed): the production v4 prompt's v3 lineage IS the record's Candidate B (carrying A) plus C applied to v2", () => {
+    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v4');
+    expect(sha256(RECONSTRUCTED_V3)).toBe(V3_PROMPT_SHA256);
     const b = record.candidates.find((c) => c.id === 'B')!;
     const c = record.candidates.find((c) => c.id === 'C')!;
     const a = record.candidates.find((c) => c.id === 'A')!;
@@ -91,7 +97,7 @@ describe('the design record is anchored on the frozen Prompt V2, which the produ
       changesPromptIdentity: true,
     };
     const applied = applyCandidateDelta(PROMPT_V2, combined);
-    expect(applied.text).toBe(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+    expect(applied.text).toBe(RECONSTRUCTED_V3);
     expect(applied.characterDelta).toBe(2_708);
     expect(applied.utf8ByteDelta).toBe(2_706);
     // The harness lineage carries the same three operations, byte for byte.
