@@ -94,7 +94,7 @@ const F0C = loadF0CFreezeFromBytes(F0C_BYTES);
 const PLAN = buildF0CExecutionPlan(F0C.freeze, F0C.rawSha256);
 
 /** The proposed raw hash, restated as a literal so the loader's own constant is cross-checked. */
-const PROPOSED_RAW_SHA256 = '0782fc3f9ab459c95bd6f8d6b34c69820a493a3bab2c40f06a51946314a8491a';
+const PROPOSED_RAW_SHA256 = '7bde30ada493d28a80c7aa683e6b8f0a3d81a24e7ae1e22c41ddecda43e9ef34';
 
 function clone(): F0CFreeze {
   return JSON.parse(JSON.stringify(F0C.freeze)) as F0CFreeze;
@@ -373,6 +373,44 @@ describe('2D2C-F0C: the repair policy equals the production constants and ADR 00
   });
 });
 
+describe('2D2C-F0C: the repair deadline formula and the floor options', () => {
+  it('states repairDeadlineMs = min(300 s, remaining - 10 s grace) with the frozen production numbers', () => {
+    const formula = F0C.freeze.repairContract.repairDeadlineFormula;
+    expect(formula.statement).toContain(
+      'min(CLASSIFIER_CALL_SOFT_DEADLINE_MS, remainingBudgetMs - CLASSIFIER_CALL_HARD_KILL_GRACE_MS)',
+    );
+    expect(formula.softDeadlineMs).toBe(CLASSIFIER_CALL_SOFT_DEADLINE_MS);
+    expect(formula.hardKillGraceMs).toBe(CLASSIFIER_CALL_HARD_KILL_GRACE_MS);
+    expect(formula.totalBudgetMs).toBe(CLASSIFIER_CALL_TOTAL_BUDGET_MS);
+    expect(formula.implementation.join('\n')).toContain('strict less-than');
+    expect(formula.implementation.join('\n')).toContain(
+      'never more than the frozen 300000 ms soft deadline',
+    );
+  });
+
+  it('presents the 60 000 ms and 120 000 ms floor options with exact residual-time arithmetic, selects nothing, and keeps the implementation value', () => {
+    const options = F0C.freeze.repairContract.minimumRemainingBudgetMsOptions;
+    expect(options.authStatusUpperBoundMs).toBe(60_000);
+    expect(options.measuredOnAttempt1.slowestFullEvaluationWallMs).toBe(50_179);
+    const byFloor = new Map(options.options.map((o) => [o.usableFloorMs, o]));
+    expect(byFloor.get(60_000)).toMatchObject({
+      remainingFloorMs: 70_000,
+      worstCaseInferenceWindowAfterMaxAuthStatusMs: 0,
+    });
+    expect(byFloor.get(120_000)).toMatchObject({
+      remainingFloorMs: 130_000,
+      worstCaseInferenceWindowAfterMaxAuthStatusMs: 60_000,
+    });
+    expect(60_000 + 50_179).toBeLessThanOrEqual(120_000);
+    expect(options.recommendation).toContain('120000');
+    expect(options.recommendation).toContain('NOT adopted here');
+    // Nothing selected: the frozen policy value is still the implementation constant.
+    expect(F0C.freeze.repairPolicy.minimumRemainingBudgetMs).toBe(
+      REPAIR_MINIMUM_REMAINING_BUDGET_MS,
+    );
+  });
+});
+
 describe('2D2C-F0C: the call ceiling is mechanically derived from the frozen batch structure', () => {
   it('per evaluation: 1 original + at most documentCount repairs, each at most 1 + MAX_TRANSIENT_RETRIES adapter attempts', () => {
     for (const batch of F0C.freeze.batching.plan) {
@@ -599,6 +637,23 @@ describe('2D2C-F0C: mutation coverage — each material freeze assertion bites',
       retries.callCeiling as { maxTransientRetriesPerRequest: number }
     ).maxTransientRetriesPerRequest = 5;
     expectDrift(retries, /callCeiling retries/);
+  });
+
+  it('a changed deadline-formula number or a floor option with wrong arithmetic is refused', () => {
+    const soft = clone();
+    (soft.repairContract.repairDeadlineFormula as { softDeadlineMs: number }).softDeadlineMs =
+      310_000;
+    expectDrift(soft, /repairDeadlineFormula.softDeadlineMs/);
+    const grace = clone();
+    (grace.repairContract.repairDeadlineFormula as { hardKillGraceMs: number }).hardKillGraceMs = 0;
+    expectDrift(grace, /repairDeadlineFormula.hardKillGraceMs/);
+    const option = clone();
+    (
+      option.repairContract.minimumRemainingBudgetMsOptions.options[0] as {
+        worstCaseInferenceWindowAfterMaxAuthStatusMs: number;
+      }
+    ).worstCaseInferenceWindowAfterMaxAuthStatusMs = 60_000;
+    expectDrift(option, /worst-case inference window/);
   });
 
   it('a changed liveness value, watchdog or shared-budget worst case is refused', () => {

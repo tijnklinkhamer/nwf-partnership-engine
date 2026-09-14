@@ -917,7 +917,53 @@
     "adr": "docs/adr/0011-bounded-item-level-repair-round.md",
     "adrRawSha256": "a0b5f518345d6f326e1912f31947a7b6bff8ba1b7dece49ef3663c0b51b40d58",
     "minimumRemainingBudgetMsStatus": "PROPOSED_PENDING_OWNER_FREEZE_APPROVAL",
-    "minimumRemainingBudgetMsBasis": "The implementation (src/orgunits/classify/repair.ts, REPAIR_MINIMUM_REMAINING_BUDGET_MS) carries 60000 ms as an explicitly uncalibrated floor equal to the auth-status pre-flight’s own upper bound. The owner’s R1 approval statement named \"a named minimum remaining budget\" without selecting the number; this freeze presents 60000 ms for explicit selection.",
+    "repairDeadlineFormula": {
+      "statement": "repairDeadlineMs = min(CLASSIFIER_CALL_SOFT_DEADLINE_MS, remainingBudgetMs - CLASSIFIER_CALL_HARD_KILL_GRACE_MS), per attempt, with a fail-closed non-positive guard and the minimum-remaining-budget gate applied BEFORE any repair request is opened.",
+      "softDeadlineMs": 300000,
+      "hardKillGraceMs": 10000,
+      "totalBudgetMs": 600000,
+      "implementation": [
+        "orchestrator / child: elapsedMs = clock.now() - originalEnteredAt, measured immediately before each repair decision; remainingMs = max(0, 600000 - elapsedMs); usableMs = max(0, remainingMs - 10000)",
+        "gate: if usableMs < minimumRemainingBudgetMs -> REPAIR_SKIPPED_INSUFFICIENT_BUDGET, persisted, zero provider calls (strict less-than; applied before the repair call row and before classify())",
+        "window: the provider receives totalBudgetMs = usableMs and opens it at classify() ENTRY, so pre-flight and the auth-status check spend it; it is never widened beyond 600000",
+        "per attempt: deadlineMs = min(300000, totalBudgetMs - elapsedSinceEntry); a non-positive remainder is a terminal TIMEOUT with zero runner calls; transient retries and their backoff stay inside the same window",
+        "grace: the 10000 ms hard-kill grace is reserved by subtracting it from remainingMs before the window is handed over; the runner spends it only after a deadline expires, so a repair ends no later than originalEnteredAt + 600000 ms",
+        "consequence: the first attempt of a repair receives min(300000, remaining - 10000 - preflightAndAuthStatusMs), which is never more than the frozen 300000 ms soft deadline and never more than remaining - 10000"
+      ],
+      "provedBy": [
+        "src/test/unit/orgunitClassifyRepair.test.ts (decideRepairBudget: window and first-attempt deadline arithmetic, boundaries, non-positive guard)",
+        "src/test/unit/orgunitClassifyClaudeMaxProvider.test.ts (the caller window through the real adapter: never wider than the frozen total, opened at entry, spent by auth status, a repair attempt never exceeds 300000 ms)",
+        "src/test/integration/orgunitClassifyRepairOrchestrate.test.ts (the orchestrator hands the provider exactly remaining - grace)"
+      ]
+    },
+    "minimumRemainingBudgetMsOptions": {
+      "note": "The floor compares usableMs = remainingMs - 10000 (the grace is already outside it) with a strict less-than. Two options are presented for explicit owner selection; the bytes of this file carry the current implementation value (60000) and NOTHING here selects a value.",
+      "measuredOnAttempt1": {
+        "slowestFullEvaluationWallMs": 50179,
+        "slowestFullEvaluationRef": "PROMPT_V1_CANONICAL batch-10 provider-outcome.json monotonicWallTimeMs (includes its own auth-status check; one adapter attempt)",
+        "meanFullEvaluationWallMs": 20698,
+        "authStatusInvocationsPerEvaluation": 1,
+        "adapterAttemptsPerEvaluation": 1
+      },
+      "authStatusUpperBoundMs": 60000,
+      "options": [
+        {
+          "usableFloorMs": 60000,
+          "remainingFloorMs": 70000,
+          "worstCaseInferenceWindowAfterMaxAuthStatusMs": 0,
+          "semantics": "Guarantees only that a repair request is OPENED. If the auth-status check takes its full 60000 ms upper bound, the repair times out before any runner attempt (a persisted FAILED / TIMEOUT repair row, zero inference); if it exceeds it, AUTH_STATUS_UNAVAILABLE. Typical auth-status time is far below the bound (attempt-1 whole evaluations took 10-50 s including it), but that is an observation, not a guarantee."
+        },
+        {
+          "usableFloorMs": 120000,
+          "remainingFloorMs": 130000,
+          "worstCaseInferenceWindowAfterMaxAuthStatusMs": 60000,
+          "semantics": "After a worst-case 60000 ms auth-status check, at least 60000 ms of inference window remains, which exceeds the slowest observed attempt-1 FULL evaluation (50179 ms, itself including auth status) by 9821 ms; a single-document repair is smaller than any full batch. The hard-kill grace is reserved separately by the orchestrator, so the owner-suggested decomposition 60000 + 50000 + 10000 double-counts the grace when read against usableMs; read against remainingMs it is 130000, which this option provides.",
+          "mechanicalDerivation": "usableFloorMs >= AUTH_STATUS_TIMEOUT_MS (60000) + slowestObservedFullEvaluationWallMs (50179) = 110179 ms; 120000 is the smallest round figure at or above it, leaving 9821 ms headroom."
+        }
+      ],
+      "recommendation": "usableFloorMs = 120000 (remainingFloorMs = 130000). Adopting it changes REPAIR_MINIMUM_REMAINING_BUDGET_MS in src/orgunits/classify/repair.ts and this file (a new proposal with new hashes); it is NOT adopted here."
+    },
+    "minimumRemainingBudgetMsBasis": "The implementation (src/orgunits/classify/repair.ts, REPAIR_MINIMUM_REMAINING_BUDGET_MS) carries 60000 ms as an explicitly uncalibrated floor equal to the auth-status pre-flight’s own upper bound. A floor equal to that bound guarantees that a repair request is opened, not that inference time remains after the auth-status check. The owner’s R1 approval statement named \"a named minimum remaining budget\" without selecting the number; minimumRemainingBudgetMsOptions below presents 60000 and 120000 with their exact residual-time semantics for explicit selection.",
     "productionConstantSources": {
       "maxRoundsPerLogicalEvaluation": "REPAIR_MAX_ROUNDS_PER_LOGICAL_EVALUATION (src/orgunits/classify/repair.ts)",
       "minimumRemainingBudgetMs": "REPAIR_MINIMUM_REMAINING_BUDGET_MS (src/orgunits/classify/repair.ts)",
@@ -1106,7 +1152,7 @@
         "providerWindow": 600000,
         "lastAttemptHardKillGrace": 10000,
         "total": 610000,
-        "proof": "Every repair is opened only while remaining - grace >= minimumRemainingBudgetMs and is given exactly remaining - grace; sequential repairs each re-measure remaining, so the sum of all windows never exceeds the original 600000 ms; at most one hard-kill grace can be outstanding at the end. The original call’s own auth-status time precedes the window in the child’s measurement only by the child reading the clock before classify(), which makes the measurement conservative (it includes it)."
+        "proof": "Every repair is opened only while usableMs = remaining - grace >= minimumRemainingBudgetMs; its WINDOW (the bound on all of its attempts, backoff and its own pre-flight and auth-status check) is usableMs; each ATTEMPT inside it is bounded by min(300000, window remaining), so no repair attempt ever receives more than the frozen soft deadline. Sequential repairs each re-measure remaining, so the sum of all windows never exceeds the original 600000 ms; at most one hard-kill grace can be outstanding at the end. The child reads the clock before the original classify(), so the original call’s own pre-flight and auth-status time is inside the measured window (conservative). Artifact writes between calls (the original outcome records, each repair’s decision and request records, each repair’s post-call records) are inside the measured window for the NEXT repair; only the round summary and CHILD_RESULT, written after the last repair, fall outside it and inside the Tier-2 variance reserve."
       },
       "tier2Sufficiency": {
         "watchdogMs": 700000,
@@ -1117,8 +1163,8 @@
           "childStartupArtifactFlushAndSchedulingVariance": 30000,
           "total": 700000
         },
-        "claim": "SUFFICIENT: the derivation already reserves 60000 ms for the auth-status runner, 600000 ms for the provider window, 10000 ms for one final inner close grace and 30000 ms for startup, artifact flushing and scheduling variance. Under the shared-budget rule the provider window (original plus every repair, auth status of repairs included) still totals at most 600000 ms, and repair artifact writes are bounded per document and counted within the 30000 ms variance reserve for the observed shapes. No Tier-2 value changes.",
-        "assumptionToVerify": "The 30000 ms variance reserve must absorb the repair artifact writes (at most 1 + 6 x documentCount write-once files per evaluation) on this Mac; attempt-1 wrote 10 files per evaluation within it. If plan-only verification measures otherwise, the watchdog derivation is revisited BEFORE authorisation, never during a run."
+        "claim": "SUFFICIENT for every provider-facing millisecond: the derivation reserves 60000 ms for the ORIGINAL call’s auth-status runner, 600000 ms for the provider window and 10000 ms for one final inner close grace; under the shared-budget rule the original call, every repair and every repair’s own auth-status check together total at most 600000 ms plus one grace, so this part is proved by the formula, not assumed. The 30000 ms variance reserve must absorb child startup, scheduling, and the write-once repair artifacts written after the last repair (the round summary and CHILD_RESULT) plus any write not already inside the measured window; that residual is a BOUNDED READINESS RISK, not a proved fact: a request-free synthetic persistence benchmark (src/test/unit/orgunitClassify2D2CF0CPersistenceBenchmark.test.ts) writes the maximum per-evaluation repair artifact set with the real fsync-backed writer and must finish inside the reserve on the run machine. No Tier-2 value changes.",
+        "boundedReadinessRisk": "Persistence latency cannot be proved by plan-only verification. The synthetic benchmark measures the maximum per-evaluation repair artifact set (1 round summary + 6 x 5 document artifacts = 31 write-once, fsync-backed files at attempt-1-like sizes) on the run machine without any provider or SDK call; the measured value is recorded in the F0C audit. If it approaches the reserve, the watchdog derivation is revisited BEFORE authorisation, never during a run."
       },
       "repairTimeoutContinuation": "A Tier-1 TIMEOUT of a REPAIR request is recorded on that repair (FAILED / TIMEOUT), the document stays rejected, the original PARTIAL stands, and the experiment continues; the F0B decision rule tier1FiresFirst applies to the ORIGINAL request only. TIER2_WATCHDOG_FIRED_BEFORE_TIER1_TIMEOUT is unchanged and remains a stop."
     }

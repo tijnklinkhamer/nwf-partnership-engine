@@ -16,6 +16,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { createFakeClock, type FakeClock } from '../../orgunits/orchestrator/clock.js';
 import type { ClassifierProviderRequest } from '../../orgunits/classify/providerContract.js';
 import { ClaudeMaxAgentProvider } from '../../orgunits/classify/provider/claudeMaxAgentProvider.js';
+import { decideRepairBudget, REPAIR_POLICY_ONE_ROUND } from '../../orgunits/classify/repair.js';
 import {
   FORBIDDEN_AUTH_VARIABLES,
   PROHIBITED_SETUP_TOKEN_VARIABLE,
@@ -28,6 +29,7 @@ import type {
 import type { AuthStatusExecution } from '../../orgunits/classify/provider/authStatus.js';
 import {
   AgentSdkTimeoutError,
+  CLASSIFIER_CALL_HARD_KILL_GRACE_MS,
   CLASSIFIER_CALL_SOFT_DEADLINE_MS,
   CLASSIFIER_CALL_TOTAL_BUDGET_MS,
   createAgentSdkDiagnosticsCollector,
@@ -1159,5 +1161,81 @@ describe('ClaudeMaxAgentProvider - ADR 0011 caller-supplied total window (a repa
     );
     expect(JSON.stringify(runner.invocations[0])).not.toContain('123456');
     expect(JSON.stringify(runner.invocations[0])).not.toContain('totalBudget');
+  });
+});
+
+describe('ClaudeMaxAgentProvider - a repair attempt can never receive more than the frozen soft deadline (F0C deadline formula, through the real adapter)', () => {
+  it('a large repair window (remaining - grace = 590 s) still yields a 300 s first-attempt deadline', async () => {
+    const clock = createFakeClock();
+    const runner = new FakeRunner([okRunResult([])]);
+    const profileDir = await provisionedProfile();
+    const budget = decideRepairBudget({ elapsedMs: 0, policy: REPAIR_POLICY_ONE_ROUND });
+    if (budget.kind !== 'PROCEED') throw new Error('unreachable');
+    expect(budget.windowMs).toBe(
+      CLASSIFIER_CALL_TOTAL_BUDGET_MS - CLASSIFIER_CALL_HARD_KILL_GRACE_MS,
+    );
+    await settle(
+      clock,
+      provider({ runner, env: envFor(profileDir), clock }).classify(
+        request({ totalBudgetMs: budget.windowMs }),
+      ),
+    );
+    expect(runner.runOptions.map((o) => o!.deadlineMs)).toEqual([CLASSIFIER_CALL_SOFT_DEADLINE_MS]);
+    expect(budget.firstAttemptDeadlineMs).toBe(CLASSIFIER_CALL_SOFT_DEADLINE_MS);
+  });
+
+  it('a small repair window yields exactly min(300 s, remaining - grace - auth-status time)', async () => {
+    const clock = createFakeClock();
+    const runner = new FakeRunner([okRunResult([])]);
+    const profileDir = await provisionedProfile();
+    const auth = new FakeAuthStatusRunner();
+    const slowAuth: ClassifierAuthStatusRunner = {
+      async run(invocation) {
+        clock.advance(20_000);
+        return auth.run(invocation);
+      },
+    };
+    // 500 s elapsed: remaining 100 s, usable (window) 90 s.
+    const budget = decideRepairBudget({ elapsedMs: 500_000, policy: REPAIR_POLICY_ONE_ROUND });
+    if (budget.kind !== 'PROCEED') throw new Error('unreachable');
+    expect(budget.windowMs).toBe(90_000);
+    await settle(
+      clock,
+      provider({ runner, env: envFor(profileDir), clock, authStatusRunner: slowAuth }).classify(
+        request({ totalBudgetMs: budget.windowMs }),
+      ),
+    );
+    // 90 s window - 20 s auth status = 70 s, below the 300 s soft deadline.
+    expect(runner.runOptions.map((o) => o!.deadlineMs)).toEqual([70_000]);
+  });
+
+  it('at the 60 s floor with an auth-status check at its 60 s upper bound, the repair is a terminal TIMEOUT with ZERO runner calls (fail closed, no inference)', async () => {
+    const clock = createFakeClock();
+    const runner = new FakeRunner([okRunResult([])]);
+    const profileDir = await provisionedProfile();
+    const auth = new FakeAuthStatusRunner();
+    const maxAuth: ClassifierAuthStatusRunner = {
+      async run(invocation) {
+        clock.advance(60_000);
+        return auth.run(invocation);
+      },
+    };
+    // 530 s elapsed: remaining 70 s, usable 60 s = exactly the floor -> PROCEED.
+    const budget = decideRepairBudget({ elapsedMs: 530_000, policy: REPAIR_POLICY_ONE_ROUND });
+    expect(budget.kind).toBe('PROCEED');
+    if (budget.kind !== 'PROCEED') throw new Error('unreachable');
+    expect(budget.windowMs).toBe(60_000);
+    const result = await settle(
+      clock,
+      provider({ runner, env: envFor(profileDir), clock, authStatusRunner: maxAuth }).classify(
+        request({ totalBudgetMs: budget.windowMs }),
+      ),
+    );
+    expect(result.outcome).toBe('TIMEOUT');
+    expect(runner.invocations).toHaveLength(0);
+    // One millisecond less usable is a SKIP before any request is opened.
+    expect(decideRepairBudget({ elapsedMs: 530_001, policy: REPAIR_POLICY_ONE_ROUND }).kind).toBe(
+      'SKIP',
+    );
   });
 });
