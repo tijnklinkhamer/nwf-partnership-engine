@@ -16,6 +16,8 @@ import {
 } from '../../../../orgunits/classify/outputSchema.js';
 import { FROZEN_VARIANTS, type FrozenVariantName } from '../constants.js';
 import {
+  F4A_GOLD_OUTPUT_SCHEMA_VERSION,
+  F4A_GOLD_SCORER_VERSION,
   F4_EXPECTED_VALIDATOR_TOTALS,
   F4_OPEN_OWNER_GOLD_ID,
   F4_OUTPUT_SCHEMA_VERSION,
@@ -24,7 +26,16 @@ import {
   F4_SLICE_NAMES,
 } from './constants.js';
 import { GOLD_BACKED_FIELDS, type GoldAvailability } from './gold.js';
-import { computeMcNemar, rate, type McNemarResult } from './metrics.js';
+import {
+  computeFieldMetrics,
+  computeMcNemar,
+  computeTernaryMetrics,
+  rate,
+  type FieldMetrics,
+  type McNemarResult,
+  type ScorableObservation,
+  type TernaryMetrics,
+} from './metrics.js';
 import {
   CONCORDANCE_FIELD_NAMES,
   countConcordance,
@@ -35,7 +46,8 @@ import {
   type PairedItem,
   type ValidityTransitionCounts,
 } from './paired.js';
-import type { ScoredItem } from './score.js';
+import { NON_PREDICTED_GOLD_FIELDS, predictedClassOf, type ScoredItem } from './score.js';
+import type { LoadedGoldSupplement } from './supplement.js';
 import type { LoadedSources } from './sources.js';
 
 export const RECOMMENDATIONS = [
@@ -56,6 +68,65 @@ export const FIELD_VOCABULARIES: Readonly<Record<string, readonly string[]>> = O
   serves_outgoing_mobility_students: RELEVANCE_VALUES,
   provides_language_learning_or_support: RELEVANCE_VALUES,
 });
+
+/**
+ * The SCORING vocabulary of a field: its schema vocabulary plus `NULL`.
+ *
+ * `NULL` is a real, distinct answer, not padding. A model that answers
+ * NOT_A_UNIT on an item whose gold is UNIT_PAGE necessarily returns a null
+ * `unit_type`, and folding that into the `REJECTED` column would conflate
+ * "the validator could not verify this" with "the model gave a different
+ * structured answer". Gold is never `NULL` in a scored denominator — the
+ * biconditional's null half is `NOT_APPLICABLE` and is excluded entirely.
+ */
+export const SCORING_VOCABULARIES: Readonly<Record<string, readonly string[]>> = Object.freeze({
+  verdict: ['UNIT_PAGE', 'NOT_A_UNIT', 'NEEDS_REVIEW'],
+  unit_type: [...UNIT_TYPES, 'NULL'],
+  page_kind: [...PAGE_KINDS, 'NULL'],
+  serves_incoming_international_students: [...RELEVANCE_VALUES, 'NULL'],
+  serves_outgoing_mobility_students: [...RELEVANCE_VALUES, 'NULL'],
+  provides_language_learning_or_support: [...RELEVANCE_VALUES, 'NULL'],
+  unit_name_expectation: ['NAMED', 'NULL'],
+});
+
+/** The three relevance axes, which get per-class precision/recall/F1. */
+export const TERNARY_AXES: readonly string[] = Object.freeze([
+  'serves_incoming_international_students',
+  'serves_outgoing_mobility_students',
+  'provides_language_learning_or_support',
+]);
+
+export interface HardNegativeMetrics {
+  /** Items the gold marks `hard_negative`. */
+  readonly denominator: number;
+  /** Of those, items answered NOT_A_UNIT by a validator-accepted result. */
+  readonly rejectedAsNonUnit: number;
+  /** Of those, items answered UNIT_PAGE — the protocol's costly failure. */
+  readonly acceptedAsUnitPage: number;
+  readonly answeredNeedsReview: number;
+  readonly validatorRejected: number;
+  /** STRICT: a validator-rejected hard negative is NOT a successful rejection. */
+  readonly strictRejectionRate: number | null;
+  readonly conditionalDenominator: number;
+  readonly conditionalRejectionRate: number | null;
+}
+
+export interface GateOutcome {
+  readonly gate: string;
+  readonly threshold: number;
+  readonly observed: number | null;
+  readonly denominator: number;
+  readonly met: boolean | null;
+  readonly note: string;
+}
+
+export interface VariantSemanticMetrics {
+  readonly variantName: FrozenVariantName;
+  readonly fields: readonly FieldMetrics[];
+  readonly ternaryByAxis: readonly { readonly axis: string; readonly metrics: TernaryMetrics }[];
+  readonly hardNegative: HardNegativeMetrics;
+  readonly gates: readonly GateOutcome[];
+}
 
 export interface VariantSummary {
   readonly variantName: FrozenVariantName;
@@ -114,7 +185,29 @@ export interface GoldQuestionSensitivity {
     readonly items: number;
     readonly validity: ValidityTransitionCounts;
     readonly verdictCorrectness: CorrectnessTransitionCounts;
+    /** F4A: the freeze's own gates, recomputed over the 48-item denominator. */
+    readonly gates?: readonly {
+      readonly variantName: string;
+      readonly gates: readonly GateOutcome[];
+    }[];
   };
+  /**
+   * F4A: every frozen gate whose PASS/FAIL verdict changes when this one item
+   * is removed. F0B's policy turns a non-empty list here into
+   * BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION, so it is reported by name and
+   * with both denominators rather than as a bare boolean.
+   */
+  readonly gateVerdictFlips?: readonly {
+    readonly variantName: string;
+    readonly gate: string;
+    readonly threshold: number;
+    readonly primaryObserved: number | null;
+    readonly primaryDenominator: number;
+    readonly primaryMet: boolean | null;
+    readonly leaveOneOutObserved: number | null;
+    readonly leaveOneOutDenominator: number;
+    readonly leaveOneOutMet: boolean | null;
+  }[];
   readonly changesAnyHeadline: boolean;
   /**
    * True when every semantic pair this task can score is this one item — in
@@ -126,6 +219,70 @@ export interface GoldQuestionSensitivity {
   readonly semanticEvidenceRestsSolelyOnThisItem: boolean;
   readonly section9TriggerMet: boolean;
   readonly headlineComparisonNote: string;
+}
+
+/** F4A §10.1 — one item where the two variants' verdicts disagree. */
+export interface VerdictMovementRow {
+  readonly goldId: string;
+  readonly goldVerdict: string;
+  readonly v1Verdict: string | null;
+  readonly v2Verdict: string | null;
+  readonly v1Correct: boolean | null;
+  readonly v2Correct: boolean | null;
+  readonly movement: 'CORRECTION' | 'REGRESSION' | 'NEITHER_CORRECT' | 'NOT_COMPARABLE';
+}
+
+/** F4A §10.2 — one relevance-axis answer that differs between the variants. */
+export interface AxisMovementRow {
+  readonly goldId: string;
+  readonly axis: string;
+  readonly gold: string;
+  readonly v1: string | null;
+  readonly v2: string | null;
+  readonly movement: 'CORRECTION' | 'REGRESSION' | 'NEITHER_CORRECT' | 'NOT_COMPARABLE';
+}
+
+/** F4A §10.3 / §10.4 — what happened to an item's validator state, and whether it was right. */
+export interface ValidatorMovementRow {
+  readonly goldId: string;
+  readonly transition: string;
+  readonly v1RejectionCategory: string | null;
+  readonly v1RejectionReason: string | null;
+  readonly v2RejectionCategory: string | null;
+  readonly v2RejectionReason: string | null;
+  readonly goldVerdict: string | null;
+  readonly v2Verdict: string | null;
+  readonly v2VerdictCorrect: boolean | null;
+}
+
+export interface F4AInterpretation {
+  readonly verdictMovements: readonly VerdictMovementRow[];
+  readonly verdictMovementTotals: Readonly<Record<string, number>>;
+  readonly axisMovements: readonly AxisMovementRow[];
+  readonly axisMovementTotals: Readonly<Record<string, number>>;
+  /** Items where v1 answered NO on an axis; v2 emitted no NO at all. */
+  readonly v1NoAnswers: number;
+  readonly v2NoAnswers: number;
+  readonly v1NoAnswersThatWereCorrect: number;
+  /** Gold classes the corpus's relevance axes actually use. */
+  readonly axisGoldClassesPresent: readonly string[];
+  /**
+   * Of the axis REGRESSIONS, how many are a CONSEQUENCE of v2 moving the
+   * verdict to NOT_A_UNIT — which forces all three axes to null under the
+   * output schema's biconditional — rather than an axis-calibration change in
+   * its own right. Without this split, "dropping NO caused regressions" would
+   * be asserted where the evidence says the verdict move did.
+   */
+  readonly axisRegressionsCausedByVerdictMove: number;
+  readonly axisRegressionsIndependentOfVerdict: number;
+  readonly validatorRecoveries: readonly ValidatorMovementRow[];
+  readonly persistentRejections: readonly ValidatorMovementRow[];
+  readonly validatorRegressions: readonly ValidatorMovementRow[];
+  /** Every field-level CORRECT_TO_INCORRECT, by gold id — §10.5. */
+  readonly regressionsByField: readonly {
+    readonly field: string;
+    readonly goldIds: readonly string[];
+  }[];
 }
 
 export interface F4Summary {
@@ -148,8 +305,31 @@ export interface F4Summary {
     readonly corpusSplit: 'DEVELOPMENT';
   };
   readonly goldAvailability: GoldAvailability;
+  /**
+   * F4A: the scoring-only supplement's provenance.
+   *
+   * ABSENT — not `null` — on a no-gold derivation, and that is deliberate:
+   * omitting the key entirely keeps the blocked F4 derivation BYTE-IDENTICAL
+   * under this scorer, which is what proves the gold path is purely additive
+   * rather than a rewrite of what F4 concluded.
+   */
+  readonly goldSupplement?: {
+    readonly supplementPath: string;
+    readonly supplementVersion: string;
+    readonly supplementRawSha256: string;
+    readonly fixturePath: string;
+    readonly fixtureRawSha256: string;
+    readonly fixtureManifestRawSha256: string;
+    readonly mixedSourceWholeFileSha256: string;
+    readonly labelCount: number;
+    readonly createdAfterInference: true;
+    readonly visibleToModelDuringInference: false;
+    readonly altersInferenceFreeze: false;
+  };
   readonly scorableGoldBackedFields: readonly string[];
   readonly unscorableGoldBackedFields: readonly string[];
+  /** F4A: per-variant semantic metrics. Absent on a no-gold derivation. */
+  readonly semanticMetrics?: readonly VariantSemanticMetrics[];
   readonly variants: readonly VariantSummary[];
   readonly paired: {
     readonly pairs: number;
@@ -161,6 +341,8 @@ export interface F4Summary {
   };
   readonly slices: readonly SliceRow[];
   readonly goldQuestionSensitivity: GoldQuestionSensitivity;
+  /** F4A: the §10 determinations, as data. Absent on a no-gold derivation. */
+  readonly f4aInterpretation?: F4AInterpretation;
   readonly interpretation: {
     readonly didCanonicalisationEliminateKnownValidatorFailures: string;
     readonly didPromptV2ImprovePageVersusUnit: string;
@@ -287,16 +469,339 @@ function sliceRowsOf(paired: readonly PairedItem[]): readonly SliceRow[] {
   return rows;
 }
 
+/**
+ * The scorable observations for one field over one variant.
+ *
+ * An item whose `fieldCorrectness` is `NOT_APPLICABLE` or `GOLD_UNAVAILABLE`
+ * is EXCLUDED from the denominator entirely — the gold defines no class for
+ * it, so counting it either way would invent a measurement. An item the
+ * validator rejected IS included, with `predicted: null`, which is what makes
+ * the strict denominator strict.
+ */
+function observationsFor(
+  rows: readonly ScoredItem[],
+  field: string,
+): readonly ScorableObservation[] {
+  const observations: ScorableObservation[] = [];
+  for (const row of rows) {
+    const correctness = row.fieldCorrectness[field];
+    if (correctness !== 'CORRECT' && correctness !== 'INCORRECT') continue;
+    const gold = row.gold[field];
+    if (gold === null || gold === undefined) continue;
+    observations.push({
+      gold,
+      predicted: row.prediction === null ? null : predictedClassOf(row.prediction, field),
+    });
+  }
+  return observations;
+}
+
+function hardNegativeMetricsOf(rows: readonly ScoredItem[]): HardNegativeMetrics {
+  const hardNegatives = rows.filter((row) => row.gold['hard_negative'] === 'HARD_NEGATIVE');
+  let rejectedAsNonUnit = 0;
+  let acceptedAsUnitPage = 0;
+  let answeredNeedsReview = 0;
+  let validatorRejected = 0;
+  for (const row of hardNegatives) {
+    if (row.prediction === null) {
+      validatorRejected += 1;
+      continue;
+    }
+    if (row.prediction.verdict === 'NOT_A_UNIT') rejectedAsNonUnit += 1;
+    else if (row.prediction.verdict === 'UNIT_PAGE') acceptedAsUnitPage += 1;
+    else answeredNeedsReview += 1;
+  }
+  const conditionalDenominator = hardNegatives.length - validatorRejected;
+  return {
+    denominator: hardNegatives.length,
+    rejectedAsNonUnit,
+    acceptedAsUnitPage,
+    answeredNeedsReview,
+    validatorRejected,
+    strictRejectionRate: rate(rejectedAsNonUnit, hardNegatives.length),
+    conditionalDenominator,
+    conditionalRejectionRate: rate(rejectedAsNonUnit, conditionalDenominator),
+  };
+}
+
+/**
+ * The freeze's own acceptance gates, evaluated against the STRICT view.
+ *
+ * These thresholds are F0B's, not this task's: nothing here invents a bound.
+ * A gate whose denominator is zero reports `met: null`, never `true` — an
+ * unmeasured gate is not a passed gate.
+ */
+function gateOutcomesOf(
+  gates: Readonly<Record<string, number>>,
+  fields: readonly FieldMetrics[],
+  hardNegative: HardNegativeMetrics,
+  rows: readonly ScoredItem[],
+): readonly GateOutcome[] {
+  const field = (name: string): FieldMetrics | undefined => fields.find((f) => f.field === name);
+  const verdict = field('verdict');
+  const unitPage = verdict?.confusion['UNIT_PAGE'] ?? {};
+  const unitPageSupport = Object.values(unitPage).reduce((total, count) => total + count, 0);
+  const unitPageCorrect = unitPage['UNIT_PAGE'] ?? 0;
+  let unitPagePredicted = 0;
+  for (const goldClass of Object.keys(verdict?.confusion ?? {})) {
+    unitPagePredicted += verdict?.confusion[goldClass]?.['UNIT_PAGE'] ?? 0;
+  }
+  const needsReview = rows.filter(
+    (row) => row.prediction !== null && row.prediction.verdict === 'NEEDS_REVIEW',
+  ).length;
+  const accepted = rows.filter((row) => row.validatorState === 'ACCEPTED').length;
+  const unitType = field('unit_type');
+  const outcome = (
+    gate: string,
+    threshold: number | undefined,
+    observed: number | null,
+    denominator: number,
+    note: string,
+    higherIsBetter = true,
+  ): GateOutcome => ({
+    gate,
+    threshold: threshold ?? Number.NaN,
+    observed,
+    denominator,
+    met:
+      observed === null || threshold === undefined
+        ? null
+        : higherIsBetter
+          ? observed >= threshold
+          : observed <= threshold,
+    note,
+  });
+  return [
+    outcome(
+      'minSchemaValidSpanVerifiedRate',
+      gates['minSchemaValidSpanVerifiedRate'],
+      rate(accepted, rows.length),
+      rows.length,
+      'validator acceptance, which is schema validity plus span verification. NOT a semantic metric.',
+    ),
+    outcome(
+      'minUnitPageRecall',
+      gates['minUnitPageRecall'],
+      rate(unitPageCorrect, unitPageSupport),
+      unitPageSupport,
+      'STRICT: a validator-rejected UNIT_PAGE item counts as a miss.',
+    ),
+    outcome(
+      'minUnitPagePrecision',
+      gates['minUnitPagePrecision'],
+      rate(unitPageCorrect, unitPagePredicted),
+      unitPagePredicted,
+      'over items answered UNIT_PAGE by a validator-accepted result.',
+    ),
+    outcome(
+      'minUnitTypeAccuracy',
+      gates['minUnitTypeAccuracy'],
+      unitType?.strictAccuracy ?? null,
+      unitType?.strictDenominator ?? 0,
+      'STRICT, over items whose gold verdict is UNIT_PAGE.',
+    ),
+    outcome(
+      'minHardNegativeRejection',
+      gates['minHardNegativeRejection'],
+      hardNegative.strictRejectionRate,
+      hardNegative.denominator,
+      'STRICT: a validator-rejected hard negative is not a successful rejection.',
+    ),
+    outcome(
+      'maxNeedsReviewRate',
+      gates['maxNeedsReviewRate'],
+      rate(needsReview, rows.length),
+      rows.length,
+      'over every item, answered or not.',
+      false,
+    ),
+  ];
+}
+
+function semanticMetricsOf(
+  variantName: FrozenVariantName,
+  rows: readonly ScoredItem[],
+  gates: Readonly<Record<string, number>>,
+): VariantSemanticMetrics {
+  const fields = Object.keys(SCORING_VOCABULARIES)
+    .filter((name) => !NON_PREDICTED_GOLD_FIELDS.includes(name))
+    .sort()
+    .map((name) =>
+      computeFieldMetrics(name, SCORING_VOCABULARIES[name] ?? [], observationsFor(rows, name)),
+    );
+  const hardNegative = hardNegativeMetricsOf(rows);
+  return {
+    variantName,
+    fields,
+    ternaryByAxis: TERNARY_AXES.map((axis) => ({
+      axis,
+      metrics: computeTernaryMetrics(SCORING_VOCABULARIES[axis] ?? [], observationsFor(rows, axis)),
+    })),
+    hardNegative,
+    gates: gateOutcomesOf(gates, fields, hardNegative, rows),
+  };
+}
+
+function movementOf(
+  goldValue: string,
+  a: string | null,
+  b: string | null,
+): 'CORRECTION' | 'REGRESSION' | 'NEITHER_CORRECT' | 'NOT_COMPARABLE' {
+  if (a === null || b === null) return 'NOT_COMPARABLE';
+  const aCorrect = a === goldValue;
+  const bCorrect = b === goldValue;
+  if (!aCorrect && bCorrect) return 'CORRECTION';
+  if (aCorrect && !bCorrect) return 'REGRESSION';
+  if (aCorrect && bCorrect) return 'NEITHER_CORRECT';
+  return 'NEITHER_CORRECT';
+}
+
+/**
+ * F4A §10 — the six questions the task names, answered from gold rather than
+ * narrated. Every row here is a real item with its gold class beside both
+ * variants' answers, so a reader can check the claim instead of trusting it.
+ */
+function interpretF4A(paired: readonly PairedItem[]): F4AInterpretation {
+  const verdictMovements: VerdictMovementRow[] = [];
+  for (const pair of paired) {
+    const goldVerdict = pair.v1.gold['verdict'];
+    if (goldVerdict === null || goldVerdict === undefined) continue;
+    const v1Verdict = pair.v1.prediction?.verdict ?? null;
+    const v2Verdict = pair.v2.prediction?.verdict ?? null;
+    if (v1Verdict === v2Verdict) continue;
+    verdictMovements.push({
+      goldId: pair.goldId,
+      goldVerdict,
+      v1Verdict,
+      v2Verdict,
+      v1Correct: v1Verdict === null ? null : v1Verdict === goldVerdict,
+      v2Correct: v2Verdict === null ? null : v2Verdict === goldVerdict,
+      movement: movementOf(goldVerdict, v1Verdict, v2Verdict),
+    });
+  }
+
+  const axisMovements: AxisMovementRow[] = [];
+  let v1NoAnswers = 0;
+  let v2NoAnswers = 0;
+  let v1NoAnswersThatWereCorrect = 0;
+  for (const pair of paired) {
+    for (const axis of TERNARY_AXES) {
+      const gold = pair.v1.gold[axis];
+      const v1 = pair.v1.prediction ? predictedClassOf(pair.v1.prediction, axis) : null;
+      const v2 = pair.v2.prediction ? predictedClassOf(pair.v2.prediction, axis) : null;
+      if (v1 === 'NO') {
+        v1NoAnswers += 1;
+        if (gold === 'NO') v1NoAnswersThatWereCorrect += 1;
+      }
+      if (v2 === 'NO') v2NoAnswers += 1;
+      if (gold === null || gold === undefined) continue;
+      if (v1 === v2) continue;
+      axisMovements.push({
+        goldId: pair.goldId,
+        axis,
+        gold,
+        v1,
+        v2,
+        movement: movementOf(gold, v1, v2),
+      });
+    }
+  }
+
+  const validatorRow = (pair: PairedItem): ValidatorMovementRow => {
+    const goldVerdict = pair.v1.gold['verdict'] ?? null;
+    const v2Verdict = pair.v2.prediction?.verdict ?? null;
+    return {
+      goldId: pair.goldId,
+      transition: pair.validityTransition,
+      v1RejectionCategory: pair.v1.rejectionCategory,
+      v1RejectionReason: pair.v1.rejectionReason,
+      v2RejectionCategory: pair.v2.rejectionCategory,
+      v2RejectionReason: pair.v2.rejectionReason,
+      goldVerdict,
+      v2Verdict,
+      v2VerdictCorrect:
+        goldVerdict === null || v2Verdict === null ? null : v2Verdict === goldVerdict,
+    };
+  };
+
+  const tally = <T extends { movement: string }>(rows: readonly T[]): Record<string, number> => {
+    const totals: Record<string, number> = {
+      CORRECTION: 0,
+      REGRESSION: 0,
+      NEITHER_CORRECT: 0,
+      NOT_COMPARABLE: 0,
+    };
+    for (const row of rows) totals[row.movement] = (totals[row.movement] ?? 0) + 1;
+    return totals;
+  };
+
+  const regressionFields = [...new Set(paired.flatMap((p) => Object.keys(p.correctnessTransition)))]
+    .sort()
+    .map((field) => ({
+      field,
+      goldIds: paired
+        .filter((p) => p.correctnessTransition[field] === 'CORRECT_TO_INCORRECT')
+        .map((p) => p.goldId),
+    }))
+    .filter((entry) => entry.goldIds.length > 0);
+
+  const axisRegressions = axisMovements.filter((row) => row.movement === 'REGRESSION');
+  const axisRegressionsCausedByVerdictMove = axisRegressions.filter(
+    (row) => row.v2 === 'NULL',
+  ).length;
+
+  return {
+    verdictMovements,
+    verdictMovementTotals: tally(verdictMovements),
+    axisMovements,
+    axisMovementTotals: tally(axisMovements),
+    v1NoAnswers,
+    v2NoAnswers,
+    v1NoAnswersThatWereCorrect,
+    axisGoldClassesPresent: [...new Set(axisMovements.map((row) => row.gold))].sort(),
+    axisRegressionsCausedByVerdictMove,
+    axisRegressionsIndependentOfVerdict:
+      axisRegressions.length - axisRegressionsCausedByVerdictMove,
+    validatorRecoveries: paired
+      .filter((p) => p.validityTransition === 'REJECTED_TO_ACCEPTED')
+      .map(validatorRow),
+    persistentRejections: paired
+      .filter((p) => p.validityTransition === 'REJECTED_TO_REJECTED')
+      .map(validatorRow),
+    validatorRegressions: paired
+      .filter((p) => p.validityTransition === 'ACCEPTED_TO_REJECTED')
+      .map(validatorRow),
+    regressionsByField: regressionFields,
+  };
+}
+
 export function buildSummary(
   sources: LoadedSources,
   rowsByVariant: ReadonlyMap<FrozenVariantName, readonly ScoredItem[]>,
   paired: readonly PairedItem[],
   availability: GoldAvailability,
   committedLabel: string | null,
+  supplement: LoadedGoldSupplement | null = null,
 ): F4Summary {
   const variants = FROZEN_VARIANTS.map((variant) =>
     summariseVariant(sources, variant.name, rowsByVariant.get(variant.name) ?? []),
   );
+  const goldIsAvailable = availability.fields.some(
+    (f) => f.available && f.source === 'F4A_SCORING_SUPPLEMENT',
+  );
+  // The freeze's `scoring.gates`, read as declared. `Freeze` types this block
+  // loosely, so the shape is narrowed once, here, and never re-asserted.
+  const frozenGates: Readonly<Record<string, number>> = Object.fromEntries(
+    Object.entries(
+      ((sources.freeze as { scoring?: { gates?: Record<string, unknown> } }).scoring?.gates ??
+        {}) as Record<string, unknown>,
+    ).filter((entry): entry is [string, number] => typeof entry[1] === 'number'),
+  );
+  const semanticMetrics = goldIsAvailable
+    ? FROZEN_VARIANTS.map((variant) =>
+        semanticMetricsOf(variant.name, rowsByVariant.get(variant.name) ?? [], frozenGates),
+      )
+    : [];
   const validity = countValidityTransitions(paired);
   const correctnessByField = GOLD_BACKED_FIELDS.map((field) =>
     countCorrectnessTransitions(paired, field),
@@ -305,11 +810,12 @@ export function buildSummary(
     countConcordance(paired, field),
   );
   const verdictTransitions = correctnessByField.find((c) => c.field === 'verdict');
+  const corpusWideSources: readonly string[] = ['DEV_CANONICAL_CORPUS', 'F4A_SCORING_SUPPLEMENT'];
   const scorable = availability.fields.filter(
-    (f) => f.available && f.source === 'DEV_CANONICAL_CORPUS',
+    (f) => f.available && corpusWideSources.includes(f.source),
   );
   const unscorable = availability.fields.filter(
-    (f) => !f.available || f.source !== 'DEV_CANONICAL_CORPUS',
+    (f) => !f.available || !corpusWideSources.includes(f.source),
   );
 
   const withoutOpenQuestion = paired.filter((p) => p.goldId !== F4_OPEN_OWNER_GOLD_ID);
@@ -362,13 +868,112 @@ export function buildSummary(
         )
       : null;
 
+  // F4A: the freeze's own gates, re-evaluated with the open owner question
+  // removed. F0B's unresolvedGold policy binds on exactly this comparison:
+  // "if any pass/fail gate differs between the primary metrics and the
+  // leave-one-out report, the final status is BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION".
+  const leaveOneOutSemantic = goldIsAvailable
+    ? FROZEN_VARIANTS.map((variant) =>
+        semanticMetricsOf(
+          variant.name,
+          (rowsByVariant.get(variant.name) ?? []).filter(
+            (row) => row.goldId !== F4_OPEN_OWNER_GOLD_ID,
+          ),
+          frozenGates,
+        ),
+      )
+    : [];
+  const gateVerdictFlips = semanticMetrics.flatMap((primary, index) => {
+    const loo = leaveOneOutSemantic[index];
+    if (loo === undefined) return [];
+    return primary.gates
+      .map((gate, gateIndex) => ({ gate, looGate: loo.gates[gateIndex] }))
+      .filter((pair) => pair.looGate !== undefined && pair.gate.met !== pair.looGate.met)
+      .map((pair) => ({
+        variantName: primary.variantName,
+        gate: pair.gate.gate,
+        threshold: pair.gate.threshold,
+        primaryObserved: pair.gate.observed,
+        primaryDenominator: pair.gate.denominator,
+        primaryMet: pair.gate.met,
+        leaveOneOutObserved: pair.looGate?.observed ?? null,
+        leaveOneOutDenominator: pair.looGate?.denominator ?? 0,
+        leaveOneOutMet: pair.looGate?.met ?? null,
+      }));
+  });
+  const gateVerdictsDiffer = gateVerdictFlips.length > 0;
+
   const goldUnavailable = scorable.length === 0;
+
+  /**
+   * The derived comparison. No threshold is invented here: the only bounds
+   * used are the freeze's own gates, and the only movement counted is the
+   * PAIRED per-item transition, so a variant cannot look better by answering
+   * a different set of items.
+   */
+  const netByField = correctnessByField.map((field) => ({
+    field: field.field,
+    scorablePairs: field.scorablePairs,
+    net: field.netStrictCorrectnessChange,
+  }));
+  const scoredFields = netByField.filter((entry) => entry.scorablePairs > 0);
+  const netOverall = scoredFields.reduce((total, entry) => total + entry.net, 0);
+  const regressedFields = scoredFields.filter((entry) => entry.net < 0);
+  const improvedFields = scoredFields.filter((entry) => entry.net > 0);
+  const gatesLostByV2 = goldIsAvailable
+    ? (semanticMetrics[0]?.gates ?? []).filter(
+        (gate, index) => gate.met === true && semanticMetrics[1]?.gates[index]?.met === false,
+      )
+    : [];
+  const gatesGainedByV2 = goldIsAvailable
+    ? (semanticMetrics[0]?.gates ?? []).filter(
+        (gate, index) => gate.met === false && semanticMetrics[1]?.gates[index]?.met === true,
+      )
+    : [];
+  const blockedByOpenGoldQuestion = goldIsAvailable
+    ? gateVerdictsDiffer || headlineSignChanges
+    : section9TriggerMet;
+
   const recommendation: Recommendation = goldUnavailable
     ? 'INSUFFICIENT_VALID_DEV_EVIDENCE'
-    : 'BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION';
-  const concurrentStatus: Recommendation | null = section9TriggerMet
-    ? 'BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION'
-    : null;
+    : blockedByOpenGoldQuestion
+      ? 'BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION'
+      : gatesLostByV2.length > 0 || regressedFields.length > 0 || netOverall <= 0
+        ? 'KEEP_PROMPT_V1_AND_REVISE_V2'
+        : 'PROMOTE_PROMPT_V2_TO_NEXT_GATE';
+  const concurrentStatus: Recommendation | null =
+    (goldUnavailable ? section9TriggerMet : blockedByOpenGoldQuestion) &&
+    recommendation !== 'BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION'
+      ? 'BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION'
+      : null;
+
+  const goldBackedBasis = [
+    `Gold is available for all ${availability.devItemCount} DEVELOPMENT items from the ` +
+      `scoring-only supplement (${supplement?.supplementPath ?? ''}), projected under explicit ` +
+      'owner authorisation from the mixed adjudication file. It was created AFTER inference, was ' +
+      'never visible to the model, and leaves the F0B inference freeze byte-unchanged.',
+    `PAIRED, per item: v2 nets ${netOverall >= 0 ? '+' : ''}${netOverall} correct answers across ` +
+      `${scoredFields.length} scorable field(s). Improved: ` +
+      `${improvedFields.map((f) => `${f.field} ${f.net > 0 ? '+' : ''}${f.net}`).join(', ') || 'none'}. ` +
+      `Regressed: ${regressedFields.map((f) => `${f.field} ${f.net}`).join(', ') || 'none'}.`,
+    `Frozen gates: v2 loses ${gatesLostByV2.length} gate(s) v1 met ` +
+      `(${gatesLostByV2.map((g) => g.gate).join(', ') || 'none'}) and gains ` +
+      `${gatesGainedByV2.length} (${gatesGainedByV2.map((g) => g.gate).join(', ') || 'none'}). ` +
+      "These thresholds are F0B's; none was invented, relaxed or re-tuned here.",
+    'Validator acceptance is reported separately and is NOT presented as semantic correctness: ' +
+      'an accepted answer is a verifiable answer, not a right one.',
+    ...(blockedByOpenGoldQuestion
+      ? [
+          `F0B's leave-one-out rule FIRES: removing the open owner gold question ` +
+            `${F4_OPEN_OWNER_GOLD_ID} changes a gate verdict or the sign of a headline, so ` +
+            'BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION is the binding status.',
+        ]
+      : [
+          `F0B's leave-one-out rule does NOT fire: removing ${F4_OPEN_OWNER_GOLD_ID} changes no ` +
+            'gate verdict and no headline sign, so the open owner question does not decide this.',
+        ]),
+  ];
+
   const recommendationBasis = goldUnavailable
     ? [
         'No gold-backed field is reachable from any DEVELOPMENT-only source, so no semantic ' +
@@ -389,11 +994,13 @@ export function buildSummary(
             ]
           : []),
       ]
-    : ['A gold-backed field is available; see the metric tables.'];
+    : goldBackedBasis;
 
   return {
-    scorerVersion: F4_SCORER_VERSION,
-    outputSchemaVersion: F4_OUTPUT_SCHEMA_VERSION,
+    scorerVersion: goldIsAvailable ? F4A_GOLD_SCORER_VERSION : F4_SCORER_VERSION,
+    outputSchemaVersion: goldIsAvailable
+      ? F4A_GOLD_OUTPUT_SCHEMA_VERSION
+      : F4_OUTPUT_SCHEMA_VERSION,
     sources: {
       freezeVersion: sources.freeze.version,
       freezeRawSha256: sources.freezeRawSha256,
@@ -411,8 +1018,26 @@ export function buildSummary(
       corpusSplit: 'DEVELOPMENT',
     },
     goldAvailability: availability,
+    ...(supplement === null
+      ? {}
+      : {
+          goldSupplement: {
+            supplementPath: supplement.supplementPath,
+            supplementVersion: supplement.supplementVersion,
+            supplementRawSha256: supplement.supplementRawSha256,
+            fixturePath: supplement.fixturePath,
+            fixtureRawSha256: supplement.fixtureRawSha256,
+            fixtureManifestRawSha256: supplement.fixtureManifestRawSha256,
+            mixedSourceWholeFileSha256: supplement.sourceWholeFileSha256,
+            labelCount: supplement.labelCount,
+            createdAfterInference: true as const,
+            visibleToModelDuringInference: false as const,
+            altersInferenceFreeze: false as const,
+          },
+        }),
     scorableGoldBackedFields: scorable.map((f) => f.field),
     unscorableGoldBackedFields: unscorable.map((f) => f.field),
+    ...(goldIsAvailable ? { semanticMetrics } : {}),
     variants,
     paired: {
       pairs: paired.length,
@@ -425,6 +1050,7 @@ export function buildSummary(
         'this is never evidence of generalisation, and it is null while gold is unavailable.',
     },
     slices: sliceRows,
+    ...(goldIsAvailable ? { f4aInterpretation: interpretF4A(paired) } : {}),
     goldQuestionSensitivity: {
       goldId: F4_OPEN_OWNER_GOLD_ID,
       presentInCorpus: openQuestionPresent,
@@ -435,38 +1061,114 @@ export function buildSummary(
         items: withoutOpenQuestion.length,
         validity: leaveOneOutValidity,
         verdictCorrectness: leaveOneOutVerdict,
+        ...(goldIsAvailable
+          ? {
+              gates: leaveOneOutSemantic.map((metrics) => ({
+                variantName: metrics.variantName,
+                gates: metrics.gates,
+              })),
+            }
+          : {}),
       },
+      ...(goldIsAvailable ? { gateVerdictFlips } : {}),
       changesAnyHeadline: headlineSignChanges,
       semanticEvidenceRestsSolelyOnThisItem,
       section9TriggerMet,
-      headlineComparisonNote:
-        'Validator validity is unchanged by the exclusion. The semantic comparison is not: this ' +
-        'item is the only pair with any gold at all, so excluding it leaves no semantic evidence ' +
-        'whatsoever. Its label is NOT adjudicated, changed or reinterpreted here.',
+      headlineComparisonNote: goldIsAvailable
+        ? 'Validator validity is unchanged by the exclusion. ' +
+          (gateVerdictFlips.length === 0
+            ? 'No frozen gate changes its pass/fail verdict either, so the open owner question ' +
+              'does not decide the comparison.'
+            : `${gateVerdictFlips.length} frozen gate verdict(s) DO change: ` +
+              `${gateVerdictFlips
+                .map(
+                  (flip) =>
+                    `${flip.variantName} ${flip.gate} ` +
+                    `${flip.primaryMet === true ? 'MET' : 'NOT MET'} at ` +
+                    `${flip.primaryDenominator} items but ` +
+                    `${flip.leaveOneOutMet === true ? 'MET' : 'NOT MET'} at ` +
+                    `${flip.leaveOneOutDenominator}`,
+                )
+                .join('; ')}. ` +
+              "F0B's unresolvedGold policy makes that BLOCKED_PENDING_OWNER_GOLD_ADJUDICATION.") +
+          ' Its label is NOT adjudicated, changed or reinterpreted here.'
+        : 'Validator validity is unchanged by the exclusion. The semantic comparison is not: this ' +
+          'item is the only pair with any gold at all, so excluding it leaves no semantic evidence ' +
+          'whatsoever. Its label is NOT adjudicated, changed or reinterpreted here.',
     },
-    interpretation: {
-      didCanonicalisationEliminateKnownValidatorFailures:
-        `PARTIALLY. Of the ${F4_SLICES.PREVIOUSLY_REJECTED.length} items the historical DEV v1 ` +
-        `pass reported rejected, ${historicallyRejectedNowAcceptedUnderBoth} now validate under ` +
-        `BOTH prompts and ${historicallyRejectedStillRejectedUnderBoth} are still rejected under ` +
-        'both. This is a validator-validity statement only; whether the accepted answers are ' +
-        'semantically right is unknown.',
-      didPromptV2ImprovePageVersusUnit:
-        'UNANSWERABLE without gold. On the five page-versus-unit items the two prompts disagree ' +
-        `on verdict for ${pageVersusUnitVerdictDisagreements} of the items both answered, and v2 ` +
-        `newly produced a verifiable answer for ${pageVersusUnitRecoveries}; which answer is ` +
-        'correct cannot be established from any DEVELOPMENT-only source.',
-      didPromptV2ImproveUnknownVersusNoCalibration:
-        'UNANSWERABLE without gold. On the four calibration items both prompts returned the same ' +
-        `verdict and unit type; the relevance axes differ on ${unknownNoAxisDisagreements} ` +
-        'axis-comparisons across those items. No gold axis value exists to grade them against.',
-      didPromptV2IntroduceRegressionsElsewhere:
-        `NO VALIDITY REGRESSION: ${validity.ACCEPTED_TO_REJECTED} items moved from accepted to ` +
-        'rejected. Semantic regression is unmeasurable except on the single gold-backed item, ' +
-        `where v2 ${primaryVerdict.CORRECT_TO_INCORRECT > 0 ? 'regressed' : 'did not regress'}. ` +
-        `Gold-free, the two prompts give different structured answers on a substantial minority ` +
-        'of items (see concordanceByField), which is a behavioural change of unknown sign.',
-    },
+    interpretation: goldIsAvailable
+      ? (() => {
+          const f4a = interpretF4A(paired);
+          const stillRejected = f4a.persistentRejections.map((r) => r.goldId).join(', ');
+          const recoveredCorrect = f4a.validatorRecoveries.filter(
+            (r) => r.v2VerdictCorrect === true,
+          ).length;
+          const axisTotals = f4a.axisMovementTotals;
+          const verdictTotals = f4a.verdictMovementTotals;
+          return {
+            didCanonicalisationEliminateKnownValidatorFailures:
+              `PARTIALLY, AND THE REMAINDER IS NAMED. ${f4a.validatorRecoveries.length} item(s) ` +
+              `moved from validator-rejected under v1 to accepted under v2, of which ` +
+              `${recoveredCorrect} carry a v2 verdict that matches gold. ` +
+              `${f4a.persistentRejections.length} item(s) are still rejected under both ` +
+              `(${stillRejected || 'none'}); their rejection categories and reasons are listed ` +
+              'in f4aInterpretation.persistentRejections. Validator acceptance is verifiability, ' +
+              'never semantic correctness.',
+            didPromptV2ImprovePageVersusUnit:
+              `MIXED, AND MEASURABLE. The two variants give different verdicts on ` +
+              `${f4a.verdictMovements.length} item(s): ${verdictTotals['CORRECTION'] ?? 0} are ` +
+              `corrections (v1 wrong, v2 right), ${verdictTotals['REGRESSION'] ?? 0} are ` +
+              `regressions (v1 right, v2 wrong), ${verdictTotals['NEITHER_CORRECT'] ?? 0} leave ` +
+              `correctness unchanged and ${verdictTotals['NOT_COMPARABLE'] ?? 0} involve a ` +
+              'validator-rejected answer. Net verdict correctness is ' +
+              `${primaryVerdict.netStrictCorrectnessChange >= 0 ? '+' : ''}` +
+              `${primaryVerdict.netStrictCorrectnessChange} over ${primaryVerdict.scorablePairs} ` +
+              'paired items. Every row is in f4aInterpretation.verdictMovements with its gold.',
+            didPromptV2ImproveUnknownVersusNoCalibration:
+              `YES ON THE AXIS ITSELF; THE DAMAGE COMES FROM ELSEWHERE. v1 emitted NO on ` +
+              `${f4a.v1NoAnswers} axis answer(s), of which ${f4a.v1NoAnswersThatWereCorrect} ` +
+              `matched gold; v2 emitted NO on ${f4a.v2NoAnswers}. Dropping NO cost nothing, ` +
+              'because no gold axis in this corpus is NO at all — the classes present are ' +
+              `${f4a.axisGoldClassesPresent.join('/')}. Of the ${axisTotals['REGRESSION'] ?? 0} ` +
+              `axis regressions, ${f4a.axisRegressionsCausedByVerdictMove} are a CONSEQUENCE of ` +
+              'v2 moving the verdict to NOT_A_UNIT, which nulls all three axes by the output ' +
+              `schema's own biconditional, and ${f4a.axisRegressionsIndependentOfVerdict} are ` +
+              `independent of the verdict. ${axisTotals['CORRECTION'] ?? 0} axis answers are ` +
+              'corrected. The UNKNOWN/NO calibration change is a gain; the verdict change is ' +
+              'what loses axis accuracy.',
+            didPromptV2IntroduceRegressionsElsewhere:
+              `YES, AND THEY ARE NAMED. No validity regression: ` +
+              `${validity.ACCEPTED_TO_REJECTED} item(s) moved from accepted to rejected. ` +
+              'Semantically, ' +
+              `${f4a.regressionsByField.map((r) => `${r.field} ${r.goldIds.length}`).join(', ') || 'no field'} ` +
+              'regressed at least one previously-correct item; every gold id is listed in ' +
+              'f4aInterpretation.regressionsByField. A net gain on one field does not cancel a ' +
+              'regression on another, and neither is reported as an aggregate improvement.',
+          };
+        })()
+      : {
+          didCanonicalisationEliminateKnownValidatorFailures:
+            `PARTIALLY. Of the ${F4_SLICES.PREVIOUSLY_REJECTED.length} items the historical DEV v1 ` +
+            `pass reported rejected, ${historicallyRejectedNowAcceptedUnderBoth} now validate under ` +
+            `BOTH prompts and ${historicallyRejectedStillRejectedUnderBoth} are still rejected under ` +
+            'both. This is a validator-validity statement only; whether the accepted answers are ' +
+            'semantically right is unknown.',
+          didPromptV2ImprovePageVersusUnit:
+            'UNANSWERABLE without gold. On the five page-versus-unit items the two prompts disagree ' +
+            `on verdict for ${pageVersusUnitVerdictDisagreements} of the items both answered, and v2 ` +
+            `newly produced a verifiable answer for ${pageVersusUnitRecoveries}; which answer is ` +
+            'correct cannot be established from any DEVELOPMENT-only source.',
+          didPromptV2ImproveUnknownVersusNoCalibration:
+            'UNANSWERABLE without gold. On the four calibration items both prompts returned the same ' +
+            `verdict and unit type; the relevance axes differ on ${unknownNoAxisDisagreements} ` +
+            'axis-comparisons across those items. No gold axis value exists to grade them against.',
+          didPromptV2IntroduceRegressionsElsewhere:
+            `NO VALIDITY REGRESSION: ${validity.ACCEPTED_TO_REJECTED} items moved from accepted to ` +
+            'rejected. Semantic regression is unmeasurable except on the single gold-backed item, ' +
+            `where v2 ${primaryVerdict.CORRECT_TO_INCORRECT > 0 ? 'regressed' : 'did not regress'}. ` +
+            `Gold-free, the two prompts give different structured answers on a substantial minority ` +
+            'of items (see concordanceByField), which is a behavioural change of unknown sign.',
+        },
     recommendation,
     concurrentStatus,
     recommendationBasis,

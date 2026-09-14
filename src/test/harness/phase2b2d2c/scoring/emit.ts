@@ -40,7 +40,6 @@ import { fileURLToPath } from 'node:url';
 import { format, resolveConfig, version as PRETTIER_VERSION } from 'prettier';
 import { canonicalStringify } from '../../../../orgunits/classify/canonical.js';
 import { sha256Hex } from '../freeze.js';
-import { F4_OUTPUT_SCHEMA_VERSION, F4_SCORER_VERSION } from './constants.js';
 import type { ScoredItem } from './score.js';
 import type { F4Summary } from './summarise.js';
 
@@ -101,8 +100,8 @@ export async function renderManifest(input: {
 }): Promise<string> {
   return formatJson(
     canonicalStringify({
-      scorerVersion: F4_SCORER_VERSION,
-      outputSchemaVersion: F4_OUTPUT_SCHEMA_VERSION,
+      scorerVersion: input.summary.scorerVersion,
+      outputSchemaVersion: input.summary.outputSchemaVersion,
       generationCommand: input.generationCommand,
       ordering: 'scored-items.jsonl is ordered by (goldId ascending, variantName ascending).',
       serialization:

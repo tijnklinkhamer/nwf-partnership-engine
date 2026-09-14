@@ -87,6 +87,10 @@ function correctnessTransitionOf(
   if (a === undefined || b === undefined) return 'GOLD_UNAVAILABLE';
   if (a === 'GOLD_UNAVAILABLE' || b === 'GOLD_UNAVAILABLE') return 'GOLD_UNAVAILABLE';
   if (a === 'NO_PREDICTION' || b === 'NO_PREDICTION') return 'GOLD_UNAVAILABLE';
+  // F4A: the gold label defines this field as undefined for this item, so
+  // there is no correctness to transition between. Reported as unavailable
+  // rather than invented as a pass.
+  if (a === 'NOT_APPLICABLE' || b === 'NOT_APPLICABLE') return 'GOLD_UNAVAILABLE';
   if (a === 'CORRECT') return b === 'CORRECT' ? 'CORRECT_TO_CORRECT' : 'CORRECT_TO_INCORRECT';
   return b === 'CORRECT' ? 'INCORRECT_TO_CORRECT' : 'INCORRECT_TO_INCORRECT';
 }

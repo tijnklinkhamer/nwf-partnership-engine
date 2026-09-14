@@ -60,3 +60,56 @@ describe('the Prettier ignore file names no open-ended evaluation-results subtre
     }
   });
 });
+
+/**
+ * The two result directories are SEPARATE derivations of the same preserved
+ * evidence, and must stay separate. The blocked one is what F4 could honestly
+ * conclude with no gold; overwriting it with the gold-backed result would
+ * erase the record that the blocker was real rather than an oversight.
+ */
+describe('the blocked and gold-backed derivations are distinct and correctly labelled', () => {
+  const RESULTS = join(REPO_ROOT, 'docs/evaluation/results');
+  const blocked = join(RESULTS, 'phase2b-2d2c-dev-attribution-attempt-1');
+  const gold = join(RESULTS, 'phase2b-2d2c-dev-attribution-attempt-1-gold-v1');
+
+  const manifestOf = (directory: string): Record<string, unknown> =>
+    JSON.parse(readFileSync(join(directory, 'manifest.json'), 'utf8')) as Record<string, unknown>;
+  const summaryOf = (directory: string): Record<string, unknown> =>
+    JSON.parse(readFileSync(join(directory, 'summary.json'), 'utf8')) as Record<string, unknown>;
+
+  it('records the F4 scorer for the blocked derivation, with no gold at all', () => {
+    expect(manifestOf(blocked)['scorerVersion']).toBe('phase2b-2d2c-f4-scorer-v1');
+    const summary = summaryOf(blocked);
+    expect(summary['recommendation']).toBe('INSUFFICIENT_VALID_DEV_EVIDENCE');
+    expect(summary['goldSupplement']).toBeUndefined();
+    expect(summary['semanticMetrics']).toBeUndefined();
+  });
+
+  it('records the F4A gold scorer for the gold-backed derivation', () => {
+    expect(manifestOf(gold)['scorerVersion']).toBe('phase2b-2d2c-f4a-scorer-gold-v1');
+    const summary = summaryOf(gold);
+    expect(summary['goldSupplement']).toBeDefined();
+    expect(Array.isArray(summary['semanticMetrics'])).toBe(true);
+  });
+
+  it('reads the same preserved attempt in both', () => {
+    const a = manifestOf(blocked)['sources'] as Record<string, unknown>;
+    const b = manifestOf(gold)['sources'] as Record<string, unknown>;
+    expect(a['artifactInventorySha256']).toBe(
+      'ee17e1f2ee8021e59c06377342042e56f84269165f8ec39521011cb1d3538137',
+    );
+    expect(b['artifactInventorySha256']).toBe(a['artifactInventorySha256']);
+    expect(b['artifactsVerified']).toBe(243);
+    expect(b['freezeRawSha256']).toBe(a['freezeRawSha256']);
+    expect(b['planSha256']).toBe(a['planSha256']);
+  });
+
+  it('carries no provider prose in either scored-items file', () => {
+    for (const directory of [blocked, gold]) {
+      const text = readFileSync(join(directory, 'scored-items.jsonl'), 'utf8');
+      for (const forbidden of ['rationale', 'ambiguity', 'excerpt', 'transcript', '"url"']) {
+        expect(text.includes(forbidden), `${directory} leaks ${forbidden}`).toBe(false);
+      }
+    }
+  });
+});

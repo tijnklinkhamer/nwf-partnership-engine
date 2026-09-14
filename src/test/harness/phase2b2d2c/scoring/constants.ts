@@ -15,6 +15,20 @@ export const F4_SCORER_VERSION = 'phase2b-2d2c-f4-scorer-v1';
 /** Versions the derived-output SHAPE (scored-items.jsonl / summary.json). */
 export const F4_OUTPUT_SCHEMA_VERSION = 'phase2b-2d2c-f4-scored-item-v1';
 
+/**
+ * PHASE 2B-2D2C-F4A — the versions a GOLD-BACKED derivation records.
+ *
+ * A gold-backed run applies different scoring RULES (every gold-backed field
+ * is compared, not just a single preserved verdict) and emits a different
+ * output SHAPE (per-variant semantic metrics, confusion matrices, ternary
+ * axes, gate outcomes, supplement provenance). Recording the F4 versions for
+ * it would claim two different derivations were the same derivation, so a
+ * gold-backed run carries its own pair and the no-gold run keeps the F4 pair
+ * it was actually produced under.
+ */
+export const F4A_GOLD_SCORER_VERSION = 'phase2b-2d2c-f4a-scorer-gold-v1';
+export const F4A_GOLD_OUTPUT_SCHEMA_VERSION = 'phase2b-2d2c-f4a-scored-item-gold-v1';
+
 /** The preserved attempt this scorer reads, and the only one it may read. */
 export const F4_ATTEMPT_NO = 1;
 

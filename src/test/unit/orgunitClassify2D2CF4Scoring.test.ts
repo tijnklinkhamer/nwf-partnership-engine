@@ -351,7 +351,14 @@ describe('F4 emission is deterministic', () => {
 
   it('writes byte-identical files into two separate directories', async () => {
     const rows = [row({ goldId: 'ga', variantName: 'PROMPT_V1_CANONICAL' })];
-    const summary = { scorerVersion: 'x', sources: {} } as never;
+    // The manifest now records the summary's OWN versions, so a stub summary
+    // must carry them: a gold-backed derivation and a no-gold one are not the
+    // same scorer and must not claim the same version.
+    const summary = {
+      scorerVersion: 'x',
+      outputSchemaVersion: 'x-schema',
+      sources: {},
+    } as never;
     const a = mkdtempSync(join(tmpdir(), 'f4a-'));
     const b = mkdtempSync(join(tmpdir(), 'f4b-'));
     try {

@@ -21,7 +21,10 @@
  * PURE. No network, no database, no filesystem, no clock, no randomness.
  */
 import type { ClassificationResult } from '../../../../orgunits/classify/outputSchema.js';
-import type { GoldCorpusItem } from '../../../../orgunits/classify/evaluation/goldSchema.js';
+import type {
+  GoldCorpusItem,
+  ProposedLabel,
+} from '../../../../orgunits/classify/evaluation/goldSchema.js';
 import type { FrozenVariantName } from '../constants.js';
 import { sha256Hex } from '../freeze.js';
 import { GOLD_BACKED_FIELDS, requireAvailable, type GoldAvailability } from './gold.js';
@@ -53,7 +56,17 @@ export interface PredictionFields {
   readonly evidence_span_count: number;
 }
 
-export type FieldCorrectness = 'CORRECT' | 'INCORRECT' | 'GOLD_UNAVAILABLE' | 'NO_PREDICTION';
+/**
+ * `NOT_APPLICABLE` (F4A) is NOT a missing measurement. It marks a field the
+ * gold label defines as undefined for THIS item — `unit_type` on an item
+ * whose gold verdict is NOT_A_UNIT, `page_kind` on a UNIT_PAGE, a relevance
+ * axis on a non-unit, an `ANY` unit-name expectation — plus `hard_negative`,
+ * which is a denominator FLAG rather than anything a model predicts. Keeping
+ * it distinct from `GOLD_UNAVAILABLE` is what stops the biconditional's own
+ * null half from being counted as a failure to measure.
+ */
+export type FieldCorrectness =
+  'CORRECT' | 'INCORRECT' | 'GOLD_UNAVAILABLE' | 'NO_PREDICTION' | 'NOT_APPLICABLE';
 
 export interface ScoredItem {
   readonly goldId: string;
@@ -99,10 +112,76 @@ function predictionOf(result: ClassificationResult): PredictionFields {
   };
 }
 
-/** goldId -> the gold verdict a DEVELOPMENT-only source preserves, when any does. */
+/**
+ * The gold a DEVELOPMENT-only source supplies.
+ *
+ * `verdictByGoldId` is the F0B freeze's single preserved verdict — one item,
+ * one field. `labelByGoldId` is the F4A scoring supplement's full
+ * DEVELOPMENT label set. When both are present the FULL set wins: a
+ * one-item source must never shadow a corpus-wide one.
+ */
 export interface PreservedGold {
   readonly verdictByGoldId: ReadonlyMap<string, string>;
+  readonly labelByGoldId?: ReadonlyMap<string, ProposedLabel>;
 }
+
+/**
+ * The gold class for one field of one item, or `null` when the gold label
+ * defines that field as undefined for this item.
+ *
+ * `unit_name_expectation` is reduced to its `kind`: the hard gate is the
+ * MECHANICAL rule (a NULL expectation requires a null unit_name, a NAMED one
+ * requires a non-null unit_name), and name AGREEMENT stays a soft, reported
+ * metric exactly as `ProposedLabelSchema` documents. `hard_negative` is
+ * returned as a flag string but never compared against a prediction.
+ */
+export function goldClassOf(label: ProposedLabel, field: string): string | null {
+  switch (field) {
+    case 'verdict':
+      return label.verdict;
+    case 'unit_type':
+      return label.unit_type;
+    case 'page_kind':
+      return label.page_kind;
+    case 'serves_incoming_international_students':
+      return label.serves_incoming_international_students;
+    case 'serves_outgoing_mobility_students':
+      return label.serves_outgoing_mobility_students;
+    case 'provides_language_learning_or_support':
+      return label.provides_language_learning_or_support;
+    case 'unit_name_expectation':
+      return label.unit_name_expectation.kind === 'ANY' ? null : label.unit_name_expectation.kind;
+    case 'hard_negative':
+      return label.hard_negative ? 'HARD_NEGATIVE' : 'NOT_HARD_NEGATIVE';
+    default:
+      return null;
+  }
+}
+
+/** The predicted class for one field, in the SAME vocabulary as the gold. */
+export function predictedClassOf(prediction: PredictionFields, field: string): string {
+  switch (field) {
+    case 'verdict':
+      return prediction.verdict;
+    case 'unit_type':
+      return prediction.unit_type ?? 'NULL';
+    case 'page_kind':
+      return prediction.page_kind ?? 'NULL';
+    case 'serves_incoming_international_students':
+      return prediction.serves_incoming_international_students ?? 'NULL';
+    case 'serves_outgoing_mobility_students':
+      return prediction.serves_outgoing_mobility_students ?? 'NULL';
+    case 'provides_language_learning_or_support':
+      return prediction.provides_language_learning_or_support ?? 'NULL';
+    case 'unit_name_expectation':
+      return prediction.unit_name_present ? 'NAMED' : 'NULL';
+    default:
+      return 'NULL';
+  }
+}
+
+/** `hard_negative` is a denominator flag, never something a model answers. */
+export const NON_PREDICTED_GOLD_FIELDS: readonly string[] = Object.freeze(['hard_negative']);
 
 /**
  * Builds every scored row for one variant's twelve evaluations.
@@ -196,6 +275,8 @@ function scoreOne(
   const strictScorableFields: string[] = [];
   const conditionalScorableFields: string[] = [];
 
+  const label = preserved.labelByGoldId?.get(goldId);
+
   for (const field of GOLD_BACKED_FIELDS) {
     const entry = availability.fields.find((f) => f.field === field);
     if (entry === undefined || !entry.available) {
@@ -215,6 +296,36 @@ function scoreOne(
     }
     // Fails closed if a caller ever widens availability without a real source.
     requireAvailable(availability, field, goldId);
+
+    if (entry.source === 'F4A_SCORING_SUPPLEMENT') {
+      if (label === undefined) {
+        fail(`the scoring supplement is available but carries no label for ${goldId}.`);
+      }
+      const goldClass = goldClassOf(label, field);
+      gold[field] = goldClass;
+      goldSource[field] = entry.source;
+      if (goldClass === null) {
+        // The label's own biconditional says this field is undefined here.
+        fieldCorrectness[field] = 'NOT_APPLICABLE';
+        continue;
+      }
+      if (NON_PREDICTED_GOLD_FIELDS.includes(field)) {
+        // A denominator flag, reported but never graded against an answer.
+        fieldCorrectness[field] = 'NOT_APPLICABLE';
+        continue;
+      }
+      strictScorableFields.push(field);
+      if (prediction === null) {
+        // STRICT: a rejected item is incorrect, never absent.
+        fieldCorrectness[field] = 'INCORRECT';
+      } else {
+        conditionalScorableFields.push(field);
+        fieldCorrectness[field] =
+          predictedClassOf(prediction, field) === goldClass ? 'CORRECT' : 'INCORRECT';
+      }
+      continue;
+    }
+
     const goldValue = field === 'verdict' ? (preserved.verdictByGoldId.get(goldId) ?? null) : null;
     if (goldValue === null) {
       gold[field] = null;

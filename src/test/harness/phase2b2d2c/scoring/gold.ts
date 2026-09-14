@@ -48,6 +48,12 @@ export type GoldSourceKind =
   | 'DEV_CANONICAL_CORPUS'
   /** The F0B freeze's `unresolvedGold` block: one gold id, one verdict. */
   | 'F0B_FREEZE_UNRESOLVED_GOLD'
+  /**
+   * PHASE 2B-2D2C-F4A: the scoring-only DEVELOPMENT label fixture, projected
+   * from the mixed adjudication file under explicit owner authorisation and
+   * named by a supplement that is NOT the inference freeze. Corpus-wide.
+   */
+  | 'F4A_SCORING_SUPPLEMENT'
   /** No permitted source carries it. */
   | 'NONE';
 
@@ -86,10 +92,35 @@ export function resolveGoldAvailability(input: {
   readonly freezePreservedVerdictGoldIds: readonly string[];
   readonly labelFileRecordCount: number;
   readonly devItemCount: number;
+  /**
+   * F4A: when a scoring supplement supplies DEVELOPMENT labels, every
+   * gold-backed field becomes available CORPUS-WIDE from that one source.
+   * It is checked BEFORE the freeze's single preserved verdict, so the
+   * one-item source can never shadow the full one.
+   */
+  readonly supplement?: {
+    readonly path: string;
+    readonly fixturePath: string;
+    readonly itemCount: number;
+  };
 }): GoldAvailability {
   const corpusFields = new Set(DEV_CORPUS_FIELD_NAMES);
   const preserved = [...input.freezePreservedVerdictGoldIds].sort();
+  const supplement = input.supplement;
   const fields = GOLD_BACKED_FIELDS.map((field): GoldFieldAvailability => {
+    if (supplement !== undefined) {
+      return {
+        field,
+        available: true,
+        source: 'F4A_SCORING_SUPPLEMENT',
+        availableForGoldIds: [],
+        reason:
+          `the scoring-only supplement (${supplement.path}) names a DEVELOPMENT-only label ` +
+          `fixture (${supplement.fixturePath}) carrying this field for all ` +
+          `${supplement.itemCount} items. It was created after inference, was never visible ` +
+          'to the model, and does not alter the F0B inference freeze.',
+      };
+    }
     if (corpusFields.has(field)) {
       return {
         field,
@@ -125,7 +156,9 @@ export function resolveGoldAvailability(input: {
   return {
     fields,
     anyCorpusWideFieldAvailable: fields.some(
-      (f) => f.available && f.source === 'DEV_CANONICAL_CORPUS',
+      (f) =>
+        f.available &&
+        (f.source === 'DEV_CANONICAL_CORPUS' || f.source === 'F4A_SCORING_SUPPLEMENT'),
     ),
     labelFileNotOpened: LABEL_FILE,
     labelFileRecordCount: input.labelFileRecordCount,

@@ -33,6 +33,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { afterAll, afterEach, describe, expect, it, vi } from 'vitest';
@@ -372,6 +373,18 @@ describe('the projection runner, end to end, on a synthetic source', () => {
   mkdirSync(dirname(join(shadow, allowlist.mixedSourcePath)), { recursive: true });
   writeFileSync(join(shadow, allowlist.mixedSourcePath), `${syntheticSource.join('\n')}\n`, 'utf8');
 
+  /** Hashes of the three committed paths, taken BEFORE any shadow run. */
+  const realHashesBeforeShadowRun = new Map<string, string | null>(
+    [FIXTURE_PATH, FIXTURE_MANIFEST_PATH, SUPPLEMENT_PATH].map((relative) => [
+      relative,
+      existsSync(join(REPO_ROOT, relative))
+        ? createHash('sha256')
+            .update(readFileSync(join(REPO_ROOT, relative)))
+            .digest('hex')
+        : null,
+    ]),
+  );
+
   afterAll(() => rmSync(shadow, { recursive: true, force: true }));
 
   it('refuses every authorisation that is not the owner’s exact statement', () => {
@@ -425,12 +438,29 @@ describe('the projection runner, end to end, on a synthetic source', () => {
     }
   });
 
+  /**
+   * The runner writes three real paths. This suite drives it against a shadow
+   * root, so the committed artifacts must be untouched by it — asserted by
+   * hashing them before and after, rather than by assuming they are absent.
+   * They are NOT absent any more: the authorised projection has since run for
+   * real, and a test that depended on their absence would have quietly stopped
+   * proving anything the moment it did.
+   */
   it('never wrote into the real repository', () => {
-    expect(existsSync(join(REPO_ROOT, FIXTURE_PATH))).toBe(false);
-    expect(existsSync(join(REPO_ROOT, FIXTURE_MANIFEST_PATH))).toBe(false);
-    const supplement = JSON.parse(readFileSync(join(REPO_ROOT, SUPPLEMENT_PATH), 'utf8')) as {
-      status: string;
-    };
-    expect(supplement.status).toBe('PREPARED_AWAITING_AUTHORISED_PROJECTION');
+    for (const relative of [FIXTURE_PATH, FIXTURE_MANIFEST_PATH, SUPPLEMENT_PATH]) {
+      const before = realHashesBeforeShadowRun.get(relative) ?? null;
+      const after = existsSync(join(REPO_ROOT, relative))
+        ? createHash('sha256')
+            .update(readFileSync(join(REPO_ROOT, relative)))
+            .digest('hex')
+        : null;
+      expect(after, `${relative} changed during the shadow run`).toBe(before);
+    }
+  });
+
+  it('produced a shadow fixture that is NOT the committed one', () => {
+    if (!existsSync(join(REPO_ROOT, FIXTURE_PATH))) return;
+    const shadowFixture = readFileSync(join(shadow, FIXTURE_PATH));
+    expect(shadowFixture.equals(readFileSync(join(REPO_ROOT, FIXTURE_PATH)))).toBe(false);
   });
 });

@@ -1,7 +1,7 @@
 {
   "supplementId": "PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1",
   "version": "phase2b-2d2c-dev-scoring-supplement-v1",
-  "status": "PREPARED_AWAITING_AUTHORISED_PROJECTION",
+  "status": "ACTIVE_SCORING_ONLY",
   "kind": "SCORING_ONLY",
   "createdOn": "2026-09-14",
   "purpose": "Names the DEVELOPMENT-only gold label fixture the F4 scorer may read, and the exact conditions under which it was produced. It authorises no inference and configures none: it exists so that a scoring run can be given gold WITHOUT editing the inference freeze that attempt 1 actually ran under.",
@@ -92,18 +92,18 @@
     "path": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.jsonl",
     "manifestPath": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.manifest.json",
     "schema": "AdjudicationItemSchema from src/orgunits/classify/evaluation/goldSchema.ts",
-    "recordCount": null,
-    "rawSha256": null,
-    "manifestRawSha256": null,
+    "recordCount": 49,
+    "rawSha256": "19d9cc3e9dcfe0b10930aa095075cd4828459377d9ea67c8dd296da6126fcd08",
+    "manifestRawSha256": "53801e48498777727af719cd67cef09f3865617b15283b9e3d24daa4d884d519",
     "populationRule": "recordCount, rawSha256 and manifestRawSha256 stay null until the owner-authorised projection has run. A scorer presented with a null hash here must fail closed."
   },
   "provenance": {
     "sourceKind": "MIXED_DEVELOPMENT_AND_HOLDOUT_ADJUDICATION_FILE",
     "sourcePath": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-adjudication-v1.jsonl",
     "sourceListedNeverReadByFreeze": true,
-    "sourceWholeFileSha256": null,
+    "sourceWholeFileSha256": "8a85222a832a076dd5658d9ccdb122a3bee364874b15164ed3c08873aeb8df6f",
     "ownerAuthorisationRequired": true,
-    "ownerAuthorisationStatement": null,
+    "ownerAuthorisationStatement": "I AUTHORISE ONE LOCAL, NON-INFERENCE, MACHINE-ONLY PROJECTION OF THE MIXED 72-RECORD ADJUDICATION FILE ONTO THE 49 FROZEN DEVELOPMENT GOLD IDS. NON-DEVELOPMENT RECORDS MAY BE HANDLED ONLY AS UNAVOIDABLE RAW BYTES FOR ID ROUTING AND WHOLE-FILE INTEGRITY; THEIR IDS, LABELS, AND SEMANTIC FIELDS MUST NOT BE DESERIALIZED, RETAINED, LOGGED, DISPLAYED, EMITTED, SCORED, OR USED. NO HOLDOUT INFERENCE. NO GOLD LABEL CHANGE. NO DATABASE.",
     "accessContract": [
       "The allowlist of 49 DEVELOPMENT gold ids is built only from the approved canonical corpus.",
       "The source is read as a byte stream, one JSONL record at a time.",
