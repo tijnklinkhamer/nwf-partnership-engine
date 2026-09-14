@@ -45,6 +45,7 @@ import { fileURLToPath } from 'node:url';
 import { ORGUNIT_CLASSIFIER_SYSTEM_PROMPT } from '../../../orgunits/classify/prompt.js';
 import { FROZEN_VARIANTS, type FrozenVariant } from '../../harness/phase2b2d2c/constants.js';
 import type { Freeze } from '../../harness/phase2b2d2c/freeze.js';
+import { v1FromV2, v2FromV3 } from '../../harness/phase2b2d2c/promptLineage.js';
 import { RUNTIME_MODULE_PATHS } from '../../harness/phase2b2d2c/runtimeLoader.js';
 import type { VariantRootProbes } from '../../harness/phase2b2d2c/variantRoot.js';
 
@@ -55,25 +56,22 @@ const FIXTURE_STACK = join(
   'src/test/fixtures/phase2b2d2c/syntheticProviderStack',
 );
 
-/** The five reviewed 2D2B-3 insertions (R3 §3.2); removing them from v2 yields the v1 comparator prompt without Git. */
-const V2_PARAGRAPH_INSERTIONS = [
-  "Classify the page's primary subject, not the presence of relevant words, activities, or services. Use UNIT_PAGE only when an organisational unit or operating function is itself the page's primary subject — for example, the page presents that unit's identity, remit, team, responsibility, or ongoing operations. Use NOT_A_UNIT when the page instead has a programme, grant, activity, event, form, navigation destination, or general institutional information as its primary subject, even when it describes Erasmus, mobility, international students, language learning, or student services. Describing Erasmus or services does not by itself make a page a UNIT_PAGE.",
-  "The whole-organisation allowance is narrow: use it only when the document presents the whole organisation in the role of an operating unit or function and makes that role the page's primary subject. The organisation's small size alone is never enough; a homepage, marketing or navigation page, programme or course page, and news or event page remain NOT_A_UNIT when no operating unit or function is the page's primary subject.",
-  'NO requires affirmative evidence of absence; silence is UNKNOWN; a service list that omits an axis is not evidence against it.',
-  "`unit_name` must be copied exactly from this document's own title, headings, or excerpt. Never take it from another document in the batch, and never expand an abbreviation or acronym.",
-] as const;
-const V2_INLINE_INSERTION = 'contact form, ';
+/**
+ * The frozen v2 comparator prompt text, RECONSTRUCTED from the production
+ * v3 prompt by reversing the exact 2D2C-V3 delta; and the v1 comparator
+ * text, reconstructed from that by removing the five 2D2B-3 insertions —
+ * exactly as the freeze and prompt tests derive them, without Git.
+ */
+export function v2PromptText(): string {
+  return v2FromV3(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+}
 
-/** The v1 comparator prompt text, derived from the production v2 prompt exactly as the freeze test derives it. */
 export function v1PromptText(): string {
-  let stripped: string = ORGUNIT_CLASSIFIER_SYSTEM_PROMPT;
-  for (const paragraph of V2_PARAGRAPH_INSERTIONS)
-    stripped = stripped.replace(`\n\n${paragraph}`, '');
-  return stripped.replace(V2_INLINE_INSERTION, '');
+  return v1FromV2(v2PromptText());
 }
 
 export function promptTextOf(variantName: FrozenVariant['name']): string {
-  return variantName === 'PROMPT_V1_CANONICAL' ? v1PromptText() : ORGUNIT_CLASSIFIER_SYSTEM_PROMPT;
+  return variantName === 'PROMPT_V1_CANONICAL' ? v1PromptText() : v2PromptText();
 }
 
 /** The native package installed under this worktree for the running platform, or null. */

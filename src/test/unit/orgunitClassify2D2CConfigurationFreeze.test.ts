@@ -59,6 +59,7 @@ import {
   ORGUNIT_CLASSIFIER_PROMPT_VERSION,
   ORGUNIT_CLASSIFIER_SYSTEM_PROMPT,
 } from '../../orgunits/classify/prompt.js';
+import { v2FromV3 } from '../harness/phase2b2d2c/promptLineage.js';
 import {
   AGENT_SDK_STDERR_TAIL_MAX_CHARS,
   CLASSIFIER_CALL_HARD_KILL_GRACE_MS,
@@ -1047,15 +1048,18 @@ describe('2D2C-F0 freeze: classifier configuration against production exports', 
     expect(v1!.order).toBeLessThan(v2!.order);
   });
 
-  it('the current production prompt IS the frozen v2 identity', () => {
-    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v2');
-    expect(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT.length).toBe(11304);
-    expect(Buffer.byteLength(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT, 'utf8')).toBe(11382);
-    expect(sha256(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT)).toBe(EXPECTED.v2PromptSha256);
+  it('the frozen v2 identity is reconstructible from the current production prompt (v3) without Git', () => {
+    // 2D2C-V3: production is v3; the freeze still names v2 and v1, both of
+    // which are reconstructed by reversing the exact reviewed deltas.
+    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v3');
+    const v2 = v2FromV3(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+    expect(v2.length).toBe(11304);
+    expect(Buffer.byteLength(v2, 'utf8')).toBe(11382);
+    expect(sha256(v2)).toBe(EXPECTED.v2PromptSha256);
   });
 
   it('removing the five reviewed insertions from v2 reproduces the frozen v1 identity without Git', () => {
-    let stripped = ORGUNIT_CLASSIFIER_SYSTEM_PROMPT;
+    let stripped = v2FromV3(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
     for (const paragraph of V2_PARAGRAPH_INSERTIONS) {
       const block = `\n\n${paragraph}`;
       expect(stripped.split(block)).toHaveLength(2);
