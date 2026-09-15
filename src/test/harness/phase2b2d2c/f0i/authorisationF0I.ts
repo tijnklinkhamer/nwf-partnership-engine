@@ -11,8 +11,12 @@
  *   - the attempt-1 authorisation (version `...-f1-...`) and the attempt-2
  *     authorisation (version `...-f0e-...`) are refused BY NAME before the
  *     schema runs;
- *   - the CONSUMED attempt-1 and attempt-2 authorisation bytes are refused
- *     by exact SHA-256, whatever they parse to;
+ *   - the CONSUMED attempt-1, attempt-2 AND attempt-3 authorisation bytes
+ *     are refused by exact SHA-256, whatever they parse to. The attempt-3
+ *     one (F0K) is the authorisation whose invocation was refused BEFORE
+ *     inference by the stale child-manifest variant set: it produced zero
+ *     evaluations, but it was physically consumed, and physical consumption
+ *     is permanent. A replacement attempt-3 run needs NEW owner bytes;
  *   - an authorisation naming the F0B or F0E freeze hash, attempt 1,
  *     attempt 2, or any of the three prior variants (V1, V2, V3) as a
  *     scheduled candidate is refused by the closed schema;
@@ -59,6 +63,8 @@ import {
   PROPOSED_F0I_PLAN_SHA256,
   SPENT_ATTEMPT_1_AUTHORISATION_SHA256,
   SPENT_ATTEMPT_2_AUTHORISATION_SHA256,
+  SPENT_ATTEMPT_3_AUTHORISATION_SHA256,
+  SPENT_ATTEMPT_3_CONSUMPTION_RECORD_SHA256,
 } from './freezeF0I.js';
 
 export const ATTEMPT3_AUTHORISATION_VERSION = 'phase2b-2d2c-f0i-execution-authorisation-v1';
@@ -108,6 +114,29 @@ export const ATTEMPT3_AUTHORISATION_STATEMENT =
   `AT MOST ${ATTEMPT3_MAX_PROVIDER_REQUESTS} PROVIDER REQUESTS AND AT MOST ` +
   `${ATTEMPT3_MAX_ADAPTER_ATTEMPTS} ADAPTER ATTEMPTS. ` +
   'NO HOLDOUT. NO GOLD LABEL OR THRESHOLD CHANGE. NO DATABASE OR MIGRATION WRITE.';
+
+/**
+ * F0K. The second unmistakable owner sentence an attempt-3 authorisation
+ * must carry, and the ONLY place a replacement is described: the pinned
+ * `operatorAuthorisationStatement` above is a literal that every attempt-3
+ * authorisation shares and may never be edited, so the fact that THIS one
+ * follows a preserved pre-inference refusal is stated here, by hash,
+ * separately and explicitly. Compared byte for byte; never normalised.
+ *
+ * The block carrying it is REQUIRED, which is deliberate: the first
+ * attempt-3 authorisation did not carry it and is permanently spent, so no
+ * attempt-3 authorisation can ever again be issued without acknowledging
+ * what happened to that one.
+ */
+export const ATTEMPT3_REPLACEMENT_STATEMENT =
+  'THIS IS A REPLACEMENT ATTEMPT-3 EXECUTION AUTHORISATION. THE FIRST ATTEMPT-3 AUTHORISATION ' +
+  `${SPENT_ATTEMPT_3_AUTHORISATION_SHA256} WAS PHYSICALLY CONSUMED ON 2026-09-15 AND IS PERMANENTLY ` +
+  `SPENT; ITS CONSUMPTION RECORD IS ${SPENT_ATTEMPT_3_CONSUMPTION_RECORD_SHA256}. THE INVOCATION IT ` +
+  'DROVE WAS REFUSED BEFORE ANY INFERENCE (PRE_INFERENCE_REFUSAL): THE TIER-2 CHILD DISPATCH PATH DID ' +
+  'NOT ADMIT THE APPROVED PROMPT_V4_CANONICAL VARIANT, SO ZERO LOGICAL EVALUATIONS, ZERO PROVIDER ' +
+  'REQUESTS, ZERO ADAPTER ATTEMPTS, ZERO CLASSIFIER RESPONSES AND ZERO REPAIRS OCCURRED. ITS EVIDENCE ' +
+  'IS PRESERVED IMMUTABLY AND IS NEVER REUSED, RELABELLED OR EMPTIED. SEMANTIC ATTEMPT 3 HAS NOT BEEN ' +
+  'EXECUTED, AND THIS AUTHORISATION AUTHORISES ITS FIRST AND ONLY EXECUTION.';
 
 const Sha256 = z.string().regex(/^[0-9a-f]{64}$/);
 const GitSha = z.string().regex(/^[0-9a-f]{40}$/);
@@ -162,6 +191,21 @@ export const Attempt3ExecutionAuthorisationSchema = z.strictObject({
     databaseWrites: z.literal('NONE'),
     migrationWrites: z.literal('NONE'),
   }),
+  /**
+   * F0K: the replacement binding. Every member is a literal, so an
+   * authorisation that names the wrong superseded bytes, the wrong
+   * consumption record, a non-zero execution count, an outcome other than
+   * PRE_INFERENCE_REFUSAL, or a different replacement sentence is
+   * AUTHORISATION_MALFORMED.
+   */
+  replacementOf: z.strictObject({
+    supersededAuthorisationSha256: z.literal(SPENT_ATTEMPT_3_AUTHORISATION_SHA256),
+    supersededConsumptionRecordSha256: z.literal(SPENT_ATTEMPT_3_CONSUMPTION_RECORD_SHA256),
+    supersededOutcome: z.literal('PRE_INFERENCE_REFUSAL'),
+    /** How many times semantic attempt 3 has actually executed: zero, or this is not a replacement. */
+    priorSemanticAttemptExecutions: z.literal(0),
+    operatorReplacementStatement: z.literal(ATTEMPT3_REPLACEMENT_STATEMENT),
+  }),
   outputRoot: z.string().min(1),
   issuedAtUtc: UtcInstant,
   validUntilUtc: UtcInstant,
@@ -177,6 +221,7 @@ export type Attempt3ExecutionLockRefusal =
   | 'AUTHORISATION_UNREADABLE'
   | 'SPENT_ATTEMPT_1_AUTHORISATION_PRESENTED'
   | 'SPENT_ATTEMPT_2_AUTHORISATION_PRESENTED'
+  | 'SPENT_ATTEMPT_3_AUTHORISATION_PRESENTED'
   | 'ATTEMPT_1_AUTHORISATION_PRESENTED'
   | 'ATTEMPT_2_AUTHORISATION_PRESENTED'
   | 'AUTHORISATION_MALFORMED'
@@ -265,6 +310,15 @@ export function evaluateAttempt3ExecutionLock(
     return refuse(
       'SPENT_ATTEMPT_2_AUTHORISATION_PRESENTED',
       'these are the exact bytes of the attempt-2 authorisation consumed on 2026-09-14; attempt 3 requires a NEW owner authorisation.',
+    );
+  }
+  // F0K. Root-independent and permanent: the consumption marker under an
+  // output root cannot refuse these bytes under a DIFFERENT output root, and
+  // a replacement attempt-3 run uses a different output root by construction.
+  if (authorisationSha256 === SPENT_ATTEMPT_3_AUTHORISATION_SHA256) {
+    return refuse(
+      'SPENT_ATTEMPT_3_AUTHORISATION_PRESENTED',
+      'these are the exact bytes of the FIRST attempt-3 authorisation, consumed on 2026-09-15; its invocation was refused before any inference (PRE_INFERENCE_REFUSAL), but consumption is physical and permanent, so a replacement attempt-3 run requires NEW owner authorisation bytes.',
     );
   }
   let parsed: unknown;

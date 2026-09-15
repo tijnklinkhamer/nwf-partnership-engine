@@ -23,17 +23,33 @@
  * EXECUTION requires the attempt-3 triple lock (`--execute` AND
  * `--authorisation <absolute path>` naming a NEW owner authorisation of the
  * attempt-3 shape), the V4 root, an EMPTY output root outside every
- * repository worktree and outside the attempt-1 AND attempt-2 roots,
- * `--attempt-no 3` and the classifier configuration directory. Every
- * readiness check above runs FIRST; only when all of them and the lock pass
- * does the coordinator fork the first child. Attempt-1 and attempt-2
- * evidence are never written into, and never read as anything but
- * comparators.
+ * repository worktree and outside the attempt-1, attempt-2 AND prior
+ * attempt-3 roots, `--attempt-no 3`, the classifier configuration directory,
+ * and (F0K) `--prior-attempt3-root <absolute path>`, the preserved prior
+ * attempt-3 output root. Every readiness check above runs FIRST; only when
+ * all of them, the replacement gate and the lock pass does the coordinator
+ * fork the first child. Attempt-1, attempt-2 and prior attempt-3 evidence
+ * are never written into, and never read as anything but comparators or, for
+ * the prior attempt-3 root, as the read-only proof that no semantic attempt-3
+ * execution occurred.
+ *
+ * F0K — THE REPLACEMENT GATE. Semantic attempt 3 may execute at most once.
+ * `--prior-attempt3-root` is classified read-only by
+ * `priorAttempt3Evidence.ts`: only a proven PRE_INFERENCE_REFUSAL (or a path
+ * holding no evidence at all) permits a replacement authorisation to run.
+ * Any artifact that exists only past child-manifest construction, any file
+ * the classifier cannot account for, and an unreadable root all REFUSE. This
+ * is separate from, and additional to, the lock's PHYSICAL consumption
+ * check: the first attempt-3 authorisation
+ * (`d7a66ad4...`) is refused by exact SHA-256 for all time, in every output
+ * root, because consumption is permanent even when the invocation it drove
+ * inferred nothing.
  *
  * `--verify-authorisation-candidate <absolute path>` is REFUSED in
  * combination with `--execute`. It validates the supplied output root
  * exactly as the execution path would (absolute, normalised, real, empty,
- * outside every worktree and outside attempt 1 AND attempt 2), then
+ * outside every worktree and outside attempt 1, attempt 2 AND the prior
+ * attempt-3 root), evaluates the SAME F0K replacement gate, then
  * evaluates the attempt-3 lock against the candidate bytes through the
  * verification-only entry and REPORTS the decision. It creates nothing,
  * consumes nothing, constructs no provider and launches no child: a
@@ -101,6 +117,10 @@ import {
   type F0IFreeze,
 } from './freezeF0I.js';
 import { f0iBatchMismatches, holdoutBoundaryViolationsF0I } from './planVerificationF0I.js';
+import {
+  classifyPriorAttempt3Root,
+  type PriorAttempt3Classification,
+} from './priorAttempt3Evidence.js';
 import { verifyV4Root } from './variantRootF0I.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -120,6 +140,15 @@ export interface F0ICliOptions {
   /** The preserved attempt-2 root, verified READ-ONLY as a comparator; never written. */
   readonly attempt2Root: string | null;
   readonly classifierConfigDir: string | null;
+  /**
+   * F0K: the preserved PRIOR attempt-3 output root, classified READ-ONLY to
+   * decide whether semantic attempt 3 already executed. REQUIRED for both
+   * `--execute` and `--verify-authorisation-candidate`, with no default and
+   * no discovery, so the replacement gate can never be skipped by omission.
+   * A path that names no directory is an explicit assertion that no prior
+   * attempt-3 evidence lives there, and is reported as such.
+   */
+  readonly priorAttempt3Root: string | null;
   readonly verifyAuthorisationCandidate: string | null;
   readonly json: boolean;
 }
@@ -132,6 +161,7 @@ const FLAGS_WITH_VALUE = new Set([
   '--attempt1-root',
   '--attempt2-root',
   '--classifier-config-dir',
+  '--prior-attempt3-root',
   '--verify-authorisation-candidate',
 ]);
 
@@ -146,6 +176,7 @@ export function parseF0ICliArgs(argv: readonly string[]): F0ICliOptions {
     attempt1Root: null as string | null,
     attempt2Root: null as string | null,
     classifierConfigDir: null as string | null,
+    priorAttempt3Root: null as string | null,
     verifyAuthorisationCandidate: null as string | null,
     json: false,
   };
@@ -164,6 +195,7 @@ export function parseF0ICliArgs(argv: readonly string[]): F0ICliOptions {
       else if (arg === '--attempt1-root') options.attempt1Root = value;
       else if (arg === '--attempt2-root') options.attempt2Root = value;
       else if (arg === '--classifier-config-dir') options.classifierConfigDir = value;
+      else if (arg === '--prior-attempt3-root') options.priorAttempt3Root = value;
       else if (arg === '--verify-authorisation-candidate')
         options.verifyAuthorisationCandidate = value;
       else {
@@ -728,6 +760,9 @@ export async function runF0ICli(argv: readonly string[], io: F0ICliIo): Promise<
   if (options.attemptNo === null) missing.push('--attempt-no');
   if (options.classifierConfigDir === null) missing.push('--classifier-config-dir');
   if (options.authorisation === null) missing.push('--authorisation');
+  // F0K: the replacement gate has no default and no discovery, so a missing
+  // flag is a refusal rather than a skipped check.
+  if (options.priorAttempt3Root === null) missing.push('--prior-attempt3-root');
   if (missing.length > 0) {
     io.stderr(`REFUSED: attempt-3 execution requires ${missing.join(', ')}.\n`);
     return 2;
@@ -771,11 +806,28 @@ export async function runF0ICli(argv: readonly string[], io: F0ICliIo): Promise<
     );
     return 2;
   }
+  // F0K: semantic attempt 3 may be executed at most ONCE. Physical
+  // authorisation consumption (the lock's marker, permanent and per-bytes)
+  // is a DIFFERENT fact, and a replacement authorisation is legitimate only
+  // because the preserved prior invocation produced zero inference. That is
+  // read from the evidence, not asserted: anything other than a proven
+  // pre-inference refusal — or an unreadable or unexplained root — refuses.
+  const priorAttempt3 = classifyPriorAttempt3Root(
+    options.priorAttempt3Root!,
+    realPriorAttempt3Probes(),
+  );
+  if (!priorAttempt3.replacementPermitted) {
+    io.stderr(
+      `REFUSED: prior attempt-3 evidence ${priorAttempt3.disposition}: ${priorAttempt3.detail}\n`,
+    );
+    return 2;
+  }
   const forbiddenContainers = [
     RUNNER_REPO_ROOT,
     options.v4Root!,
     options.attempt1Root,
     options.attempt2Root,
+    options.priorAttempt3Root!,
     ...listWorktrees(RUNNER_REPO_ROOT),
   ];
   const outputRootDecision = validateOutputRoot(options.outputRoot!, forbiddenContainers, {
@@ -844,6 +896,8 @@ export interface AuthorisationCandidateVerification {
   readonly decision: string;
   readonly detail: string;
   readonly consumptionMarkerExists: boolean;
+  /** F0K: the read-only verdict on the preserved prior attempt-3 root, or null when the flag was absent. */
+  readonly priorAttempt3: PriorAttempt3Classification | null;
   readonly issued: false;
   readonly consumed: false;
 }
@@ -874,6 +928,7 @@ function verifyCandidateAuthorisation(
     outputRoot: null,
     structurallyAcceptable: false,
     consumptionMarkerExists: false,
+    priorAttempt3: null,
     ...fields,
     issued: false,
     consumed: false,
@@ -896,6 +951,30 @@ function verifyCandidateAuthorisation(
         'candidate verification requires --output-root and --attempt-no so the root and attempt bindings are checked against real values.',
     });
   }
+  // F0K: the candidate path evaluates EXACTLY what the execution path would,
+  // and the replacement gate is one of those checks.
+  if (options.priorAttempt3Root === null) {
+    return report({
+      sha256,
+      byteLength,
+      decision: 'CANDIDATE_VERIFICATION_INCOMPLETE',
+      detail:
+        'candidate verification requires --prior-attempt3-root so the replacement gate is evaluated against real preserved evidence, exactly as execution would.',
+    });
+  }
+  const priorAttempt3 = classifyPriorAttempt3Root(
+    options.priorAttempt3Root,
+    realPriorAttempt3Probes(),
+  );
+  if (!priorAttempt3.replacementPermitted) {
+    return report({
+      sha256,
+      byteLength,
+      priorAttempt3,
+      decision: `PRIOR_ATTEMPT_3_${priorAttempt3.disposition}`,
+      detail: priorAttempt3.detail,
+    });
+  }
   if (options.attemptNo !== ATTEMPT_3_NO) {
     return report({
       sha256,
@@ -909,6 +988,7 @@ function verifyCandidateAuthorisation(
     ...(options.v4Root === null ? [] : [options.v4Root]),
     ...(options.attempt1Root === null ? [] : [options.attempt1Root]),
     ...(options.attempt2Root === null ? [] : [options.attempt2Root]),
+    options.priorAttempt3Root,
     ...listWorktrees(RUNNER_REPO_ROOT),
   ];
   const outputRootDecision = validateOutputRoot(options.outputRoot, forbiddenContainers, {
@@ -925,6 +1005,7 @@ function verifyCandidateAuthorisation(
     return report({
       sha256,
       byteLength,
+      priorAttempt3,
       decision: `OUTPUT_ROOT_${outputRootDecision.refusal}`,
       detail: outputRootDecision.detail,
     });
@@ -935,6 +1016,7 @@ function verifyCandidateAuthorisation(
       sha256,
       byteLength,
       outputRoot: outputRootDecision.outputRoot,
+      priorAttempt3,
       decision: 'ATTEMPT3_OUTPUT_ROOT_NOT_EMPTY',
       detail: `the attempt-3 output root must be an empty directory; it holds ${existing.length} entr${existing.length === 1 ? 'y' : 'ies'}.`,
     });
@@ -961,6 +1043,7 @@ function verifyCandidateAuthorisation(
       byteLength,
       outputRoot: outputRootDecision.outputRoot,
       consumptionMarkerExists,
+      priorAttempt3,
       decision: lock.refusal,
       detail: lock.detail,
     });
@@ -970,12 +1053,42 @@ function verifyCandidateAuthorisation(
     byteLength,
     outputRoot: outputRootDecision.outputRoot,
     consumptionMarkerExists,
+    priorAttempt3,
     structurallyAcceptable: true,
     decision: 'STRUCTURALLY_ACCEPTABLE',
     detail:
       `the candidate would satisfy every attempt-3 lock check for output root ${outputRootDecision.outputRoot}, attempt ${options.attemptNo}, at the clock this invocation observed; ` +
       `${rootNote}; execution is frozen to ${runPlatform}. NOTHING WAS ISSUED, GRANTED OR CONSUMED: this invocation has no execution branch.`,
   });
+}
+
+/**
+ * F0K. Real, read-only probes over a preserved prior attempt-3 root. It is
+ * listed, never opened, never written, never moved and never removed: the
+ * refused invocation's evidence is immutable.
+ */
+function realPriorAttempt3Probes(): Parameters<typeof classifyPriorAttempt3Root>[1] {
+  const walk = (dir: string, prefix: string, out: string[]): void => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const relative = prefix === '' ? entry.name : `${prefix}/${entry.name}`;
+      if (entry.isDirectory()) walk(join(dir, entry.name), relative, out);
+      else out.push(relative);
+    }
+  };
+  return {
+    isDirectory: (path) => {
+      try {
+        return lstatSync(path).isDirectory();
+      } catch {
+        return false;
+      }
+    },
+    listFilesRecursively: (root) => {
+      const out: string[] = [];
+      walk(root, '', out);
+      return out;
+    },
+  };
 }
 
 function renderPlanText(summary: Record<string, unknown>, plan: F0IExecutionPlan): string {

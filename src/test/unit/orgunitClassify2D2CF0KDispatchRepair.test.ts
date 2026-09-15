@@ -27,7 +27,11 @@
  *   4. the same thing at PROCESS level through the real Tier-2 child entry,
  *      which stops at its own preflight against a non-frozen root — before
  *      any provider import, so no authentication or network path is reachable;
- *   5. the sibling stale set: the shared scorer planned-input schema now
+ *   5. the replacement-authorisation state machine: the spent attempt-3 bytes
+ *      are refused by exact SHA-256 in EVERY output root, and a replacement
+ *      is permitted only where the preserved evidence PROVES a pre-inference
+ *      refusal;
+ *   6. the sibling stale set: the shared scorer planned-input schema now
  *      admits the V4 evaluations an attempt-3 run would persist.
  *
  * No provider, no network, no database, no clock outside the injected ones.
@@ -82,14 +86,35 @@ import {
   PROPOSED_F0E_FREEZE_RAW_SHA256,
   F0E_FREEZE_PATH,
 } from '../harness/phase2b2d2c/f0c/freezeF0E.js';
+import {
+  ATTEMPT3_AUTHORISATION_STATEMENT,
+  ATTEMPT3_AUTHORISATION_VERSION,
+  ATTEMPT3_FROZEN_ORDINALS,
+  ATTEMPT3_MAX_ADAPTER_ATTEMPTS,
+  ATTEMPT3_MAX_PROVIDER_REQUESTS,
+  ATTEMPT3_REPLACEMENT_STATEMENT,
+  evaluateAttempt3ExecutionLock,
+  type Attempt3ExecutionAuthorisation,
+  type Attempt3ExecutionLockInput,
+} from '../harness/phase2b2d2c/f0i/authorisationF0I.js';
 import { CHILD_ENTRY_PATH } from '../harness/phase2b2d2c/f0i/cliF0I.js';
 import {
   buildF0IExecutionPlan,
+  F0I_APPROVAL_RECORD_RAW_SHA256,
   F0I_FREEZE_PATH,
+  F0I_RATIFICATION_RECORD_RAW_SHA256,
   F0I_VARIANT,
   loadF0IFreezeFromBytes,
   PROPOSED_F0I_FREEZE_RAW_SHA256,
+  PROPOSED_F0I_PLAN_SHA256,
+  SPENT_ATTEMPT_3_AUTHORISATION_SHA256,
+  SPENT_ATTEMPT_3_CONSUMPTION_RECORD_SHA256,
 } from '../harness/phase2b2d2c/f0i/freezeF0I.js';
+import { REPAIR_MINIMUM_REMAINING_BUDGET_MS } from '../../orgunits/classify/repair.js';
+import {
+  classifyPriorAttempt3Root,
+  type PriorAttempt3Probes,
+} from '../harness/phase2b2d2c/f0i/priorAttempt3Evidence.js';
 import { sha256Hex } from '../harness/phase2b2d2c/freeze.js';
 import { runProcessIsolatedBatch } from '../harness/processIsolatedBatch.js';
 import { PlannedInputSchema } from '../harness/phase2b2d2c/scoring/sources.js';
@@ -622,7 +647,214 @@ describe.skipIf(IS_WINDOWS)('2D2C-F0K: the REAL child entry under an attempt-3 m
 });
 
 // ---------------------------------------------------------------------------
-// 5. The sibling stale set: the shared scorer planned-input schema.
+// 5. The replacement-authorisation state machine.
+// ---------------------------------------------------------------------------
+
+describe('2D2C-F0K: physical consumption is permanent and root-independent', () => {
+  it('pins the spent attempt-3 authorisation and its consumption record by exact hash', () => {
+    expect(SPENT_ATTEMPT_3_AUTHORISATION_SHA256).toBe(
+      'd7a66ad4834753be4b6c07cb7aac5f279181d0da9b92f541c07ca0b00b81d7d4',
+    );
+    expect(SPENT_ATTEMPT_3_CONSUMPTION_RECORD_SHA256).toBe(
+      '35757c0b9c83a1b2e6b3e7c5ddb3c9935e8820f27f25eb95e7d484ed4f2d637e',
+    );
+  });
+
+  it('refuses the spent attempt-3 bytes even under a FRESH output root with no consumption marker', () => {
+    // Bytes whose hash is the spent one; the lock must never reach the schema.
+    const bytes = Buffer.from('any bytes at all', 'utf8');
+    const input: Attempt3ExecutionLockInput = {
+      executeFlag: true,
+      authorisationPath: '/synthetic/replacement.json',
+      expected: { outputRoot: '/synthetic/attempt-3-retry-1', attemptNo: 3 },
+      readFile: () => bytes,
+      sha256: () => SPENT_ATTEMPT_3_AUTHORISATION_SHA256,
+      alreadyConsumed: () => false,
+      nowUtc: () => new Date('2026-09-15T12:00:00Z'),
+    };
+    const decision = evaluateAttempt3ExecutionLock(input);
+    expect(decision.granted).toBe(false);
+    if (!decision.granted) {
+      expect(decision.refusal).toBe('SPENT_ATTEMPT_3_AUTHORISATION_PRESENTED');
+      expect(decision.detail).toContain('PRE_INFERENCE_REFUSAL');
+    }
+  });
+});
+
+function probesFor(files: readonly string[], directory = true): PriorAttempt3Probes {
+  return { isDirectory: () => directory, listFilesRecursively: () => files };
+}
+
+const PRESERVED_SHAPE = [
+  `authorisations/${SPENT_ATTEMPT_3_AUTHORISATION_SHA256}.json`,
+  'evaluations/PROMPT_V4_CANONICAL/batch-01/attempt-3/planned-input.json',
+  'experiments/attempt-3/experiment-manifest.json',
+];
+
+describe('2D2C-F0K: a replacement is permitted only where zero inference is PROVEN', () => {
+  it('classifies the preserved attempt-3 root shape as PRE_INFERENCE_REFUSAL', () => {
+    const verdict = classifyPriorAttempt3Root('/preserved/attempt-3', probesFor(PRESERVED_SHAPE));
+    expect(verdict.disposition).toBe('PRE_INFERENCE_REFUSAL');
+    expect(verdict.replacementPermitted).toBe(true);
+  });
+
+  it('refuses when any artifact past child-manifest construction is present', () => {
+    for (const extra of [
+      'evaluations/PROMPT_V4_CANONICAL/batch-01/attempt-3/child-manifest.json',
+      'evaluations/PROMPT_V4_CANONICAL/batch-01/attempt-3/provider-outcome.json',
+      'evaluations/PROMPT_V4_CANONICAL/batch-01/attempt-3/final-record.json',
+      'evaluations/PROMPT_V4_CANONICAL/batch-01/attempt-3/repair-1/repair-round.json',
+      'experiments/attempt-3/experiment-completion.json',
+    ]) {
+      const verdict = classifyPriorAttempt3Root(
+        '/preserved/attempt-3',
+        probesFor([...PRESERVED_SHAPE, extra]),
+      );
+      expect(verdict.disposition).toBe('SEMANTIC_EXECUTION_OBSERVED');
+      expect(verdict.replacementPermitted).toBe(false);
+    }
+  });
+
+  it('refuses an unaccounted file, and an unreadable root, as AMBIGUOUS', () => {
+    const unknown = classifyPriorAttempt3Root(
+      '/preserved/attempt-3',
+      probesFor([...PRESERVED_SHAPE, 'notes.txt']),
+    );
+    expect(unknown.disposition).toBe('AMBIGUOUS');
+    expect(unknown.replacementPermitted).toBe(false);
+    const unreadable = classifyPriorAttempt3Root('/preserved/attempt-3', {
+      isDirectory: () => true,
+      listFilesRecursively: () => {
+        throw new Error('EACCES');
+      },
+    });
+    expect(unreadable.disposition).toBe('AMBIGUOUS');
+    expect(unreadable.replacementPermitted).toBe(false);
+  });
+
+  it('reads a path that names no directory, and an empty one, as NO_PRIOR_ATTEMPT_3_EVIDENCE', () => {
+    expect(classifyPriorAttempt3Root('/nowhere', probesFor([], false)).disposition).toBe(
+      'NO_PRIOR_ATTEMPT_3_EVIDENCE',
+    );
+    expect(classifyPriorAttempt3Root('/empty', probesFor([])).disposition).toBe(
+      'NO_PRIOR_ATTEMPT_3_EVIDENCE',
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 5b. The replacement binding is REQUIRED, and every member of it is pinned.
+// ---------------------------------------------------------------------------
+
+const REPLACEMENT_OUTPUT_ROOT = '/synthetic/attempt-3-retry-1';
+
+function replacementAuthorisation(
+  overrides: Record<string, unknown> = {},
+): Attempt3ExecutionAuthorisation {
+  return {
+    authorisationVersion: ATTEMPT3_AUTHORISATION_VERSION,
+    scope: 'DEVELOPMENT_ONLY',
+    attemptNo: 3,
+    freezeConfigRawSha256: PROPOSED_F0I_FREEZE_RAW_SHA256,
+    planSha256: PROPOSED_F0I_PLAN_SHA256,
+    freezeApprovalRecordRawSha256: F0I_APPROVAL_RECORD_RAW_SHA256 as string,
+    freezeApprovalRatificationRecordRawSha256: F0I_RATIFICATION_RECORD_RAW_SHA256 as string,
+    variants: [
+      {
+        name: F0I_VARIANT.name,
+        label: F0I_VARIANT.label,
+        gitCommit: F0I_VARIANT.gitCommit,
+        promptVersion: F0I_VARIANT.promptVersion,
+        promptSha256: F0I_VARIANT.runtimePromptSha256,
+      },
+    ],
+    maxLogicalEvaluations: 12,
+    frozenLogicalBatchOrdinals: [...ATTEMPT3_FROZEN_ORDINALS],
+    priorVariantReruns: { PROMPT_V1_CANONICAL: 0, PROMPT_V2_CANONICAL: 0, PROMPT_V3_CANONICAL: 0 },
+    maxProviderRequests: ATTEMPT3_MAX_PROVIDER_REQUESTS,
+    maxAdapterAttempts: ATTEMPT3_MAX_ADAPTER_ATTEMPTS,
+    repairPolicy: {
+      enabled: true,
+      maxRoundsPerLogicalEvaluation: 1,
+      minimumRemainingBudgetMs: REPAIR_MINIMUM_REMAINING_BUDGET_MS,
+    },
+    prohibitions: {
+      holdout: 'NONE',
+      goldLabelChanges: 'NONE',
+      thresholdChanges: 'NONE',
+      databaseWrites: 'NONE',
+      migrationWrites: 'NONE',
+    },
+    replacementOf: {
+      supersededAuthorisationSha256: SPENT_ATTEMPT_3_AUTHORISATION_SHA256,
+      supersededConsumptionRecordSha256: SPENT_ATTEMPT_3_CONSUMPTION_RECORD_SHA256,
+      supersededOutcome: 'PRE_INFERENCE_REFUSAL',
+      priorSemanticAttemptExecutions: 0,
+      operatorReplacementStatement: ATTEMPT3_REPLACEMENT_STATEMENT,
+    },
+    outputRoot: REPLACEMENT_OUTPUT_ROOT,
+    issuedAtUtc: '2026-09-15T12:00:00Z',
+    validUntilUtc: '2026-09-15T16:00:00Z',
+    operatorAuthorisationStatement: ATTEMPT3_AUTHORISATION_STATEMENT,
+    ...overrides,
+  } as Attempt3ExecutionAuthorisation;
+}
+
+function lockFor(authorisation: unknown): Attempt3ExecutionLockInput {
+  const bytes = Buffer.from(JSON.stringify(authorisation), 'utf8');
+  return {
+    executeFlag: true,
+    authorisationPath: '/synthetic/replacement.json',
+    expected: { outputRoot: REPLACEMENT_OUTPUT_ROOT, attemptNo: 3 },
+    readFile: () => bytes,
+    sha256: sha256Hex,
+    alreadyConsumed: () => false,
+    nowUtc: () => new Date('2026-09-15T13:00:00Z'),
+  };
+}
+
+describe('2D2C-F0K: an attempt-3 authorisation must bind itself to the preserved refusal', () => {
+  it('the replacement statement names the spent bytes, its consumption record and the zero-inference outcome', () => {
+    expect(ATTEMPT3_REPLACEMENT_STATEMENT).toContain(SPENT_ATTEMPT_3_AUTHORISATION_SHA256);
+    expect(ATTEMPT3_REPLACEMENT_STATEMENT).toContain(SPENT_ATTEMPT_3_CONSUMPTION_RECORD_SHA256);
+    expect(ATTEMPT3_REPLACEMENT_STATEMENT).toContain('PRE_INFERENCE_REFUSAL');
+    expect(ATTEMPT3_REPLACEMENT_STATEMENT).toContain('PROMPT_V4_CANONICAL');
+  });
+
+  it('a correctly-bound replacement is GRANTED, and the pinned attempt-3 statement is unchanged', () => {
+    const decision = evaluateAttempt3ExecutionLock(lockFor(replacementAuthorisation()));
+    expect(decision.granted).toBe(true);
+    expect(ATTEMPT3_AUTHORISATION_STATEMENT).toContain(PROPOSED_F0I_FREEZE_RAW_SHA256);
+    expect(ATTEMPT3_AUTHORISATION_STATEMENT).toContain(F0I_VARIANT.runtimePromptSha256);
+  });
+
+  it('every mutation of the binding — and its absence — is AUTHORISATION_MALFORMED', () => {
+    const mutations: Record<string, unknown>[] = [
+      {},
+      { supersededAuthorisationSha256: 'b'.repeat(64) },
+      { supersededConsumptionRecordSha256: 'c'.repeat(64) },
+      { supersededOutcome: 'COMPLETED' },
+      { priorSemanticAttemptExecutions: 1 },
+      { operatorReplacementStatement: `${ATTEMPT3_REPLACEMENT_STATEMENT} ` },
+    ];
+    for (const mutation of mutations) {
+      const base = replacementAuthorisation();
+      const authorisation =
+        Object.keys(mutation).length === 0
+          ? (() => {
+              const { replacementOf: _dropped, ...rest } = base as Record<string, unknown>;
+              return rest;
+            })()
+          : { ...base, replacementOf: { ...base.replacementOf, ...mutation } };
+      const decision = evaluateAttempt3ExecutionLock(lockFor(authorisation));
+      expect(decision.granted).toBe(false);
+      if (!decision.granted) expect(decision.refusal).toBe('AUTHORISATION_MALFORMED');
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 6. The sibling stale set: the shared scorer planned-input schema.
 // ---------------------------------------------------------------------------
 
 describe('2D2C-F0K: the shared scorer planned-input schema admits the V4 evaluations', () => {

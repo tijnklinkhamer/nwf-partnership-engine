@@ -27,6 +27,7 @@ import {
   ATTEMPT3_FROZEN_ORDINALS,
   ATTEMPT3_MAX_ADAPTER_ATTEMPTS,
   ATTEMPT3_MAX_PROVIDER_REQUESTS,
+  ATTEMPT3_REPLACEMENT_STATEMENT,
   Attempt3ExecutionAuthorisationSchema,
   evaluateAttempt3ExecutionLock,
   PRIOR_VARIANTS_NEVER_RERUN,
@@ -42,6 +43,8 @@ import {
   PROPOSED_F0I_PLAN_SHA256,
   SPENT_ATTEMPT_1_AUTHORISATION_SHA256,
   SPENT_ATTEMPT_2_AUTHORISATION_SHA256,
+  SPENT_ATTEMPT_3_AUTHORISATION_SHA256,
+  SPENT_ATTEMPT_3_CONSUMPTION_RECORD_SHA256,
   V3B_RUNTIME_COMMIT,
 } from '../harness/phase2b2d2c/f0i/freezeF0I.js';
 import { sha256Hex } from '../harness/phase2b2d2c/freeze.js';
@@ -98,6 +101,15 @@ function validAuthorisation(
       thresholdChanges: 'NONE',
       databaseWrites: 'NONE',
       migrationWrites: 'NONE',
+    },
+    // F0K: every attempt-3 authorisation now binds itself to the preserved
+    // pre-inference refusal of the first one, by hash.
+    replacementOf: {
+      supersededAuthorisationSha256: SPENT_ATTEMPT_3_AUTHORISATION_SHA256,
+      supersededConsumptionRecordSha256: SPENT_ATTEMPT_3_CONSUMPTION_RECORD_SHA256,
+      supersededOutcome: 'PRE_INFERENCE_REFUSAL',
+      priorSemanticAttemptExecutions: 0,
+      operatorReplacementStatement: ATTEMPT3_REPLACEMENT_STATEMENT,
     },
     outputRoot: OUTPUT_ROOT,
     issuedAtUtc: '2026-09-15T00:00:00Z',

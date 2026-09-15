@@ -64,6 +64,30 @@ export const SPENT_ATTEMPT_1_AUTHORISATION_SHA256 =
 export const SPENT_ATTEMPT_2_AUTHORISATION_SHA256 =
   'b169b5d8079b64d5c7459392fb347bb93f6793de9d340f30fd472393964e6d40';
 
+/**
+ * F0K. The FIRST attempt-3 execution authorisation, issued and PHYSICALLY
+ * CONSUMED on 2026-09-15. Its invocation produced ZERO logical evaluations,
+ * ZERO provider requests, ZERO adapter attempts, ZERO classifier responses
+ * and ZERO repairs: the parent refused to build the child manifest because
+ * the manifest's closed variant set had not been widened to admit the
+ * approved `PROMPT_V4_CANONICAL`, so the run terminated
+ * PRE_INFERENCE_REFUSAL before any child was forked.
+ *
+ * Consumption is PHYSICAL and PERMANENT, and is a DIFFERENT fact from
+ * semantic-attempt completion. These bytes are therefore refused by exact
+ * SHA-256 here, in every output root and for all time - exactly as the
+ * spent attempt-1 and attempt-2 bytes are - so that a replacement run can
+ * never be driven by a re-presented, already-spent authorisation. That the
+ * attempt is still SEMANTICALLY attempt 3 is a separate question, answered
+ * by `priorAttempt3Evidence.ts` from the preserved evidence itself.
+ */
+export const SPENT_ATTEMPT_3_AUTHORISATION_SHA256 =
+  'd7a66ad4834753be4b6c07cb7aac5f279181d0da9b92f541c07ca0b00b81d7d4';
+
+/** The consumption marker written for it, pinned so the preserved evidence can be re-verified byte-for-byte. */
+export const SPENT_ATTEMPT_3_CONSUMPTION_RECORD_SHA256 =
+  '35757c0b9c83a1b2e6b3e7c5ddb3c9935e8820f27f25eb95e7d484ed4f2d637e';
+
 export const ATTEMPT_3_NO = 3;
 export const ATTEMPT_3_STATUS = 'PROPOSED_PENDING_OWNER_FREEZE_APPROVAL';
 /** The ONE attempt-3 variant name and label. */
