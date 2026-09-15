@@ -7,21 +7,23 @@
  * frozen batch by ordinal with the final identity for a named variant, and
  * the repair policy. F0B (attempt 1, two variants, no repair policy), F0E
  * (attempt 2, one variant, repair enabled; F0C is recognised only to be
- * refused as superseded) and F0I (attempt 3, one variant, repair enabled)
- * answer those questions from different schemas with different hash pins.
- * This module resolves WHICH family a set of bytes belongs to BY HASH — the
- * F0I hash selects the F0I loader, the F0E hash selects the F0E loader, the
- * superseded F0C hash is refused, anything else goes to the F0B loader,
- * which refuses everything but the F0B bytes — and returns the common view.
- * No loader is changed, and none learns about another.
+ * refused as superseded), F0I (attempt 3, one variant, repair enabled) and
+ * F0O (attempt 4, one variant, repair enabled) answer those questions from
+ * different schemas with different hash pins. This module resolves WHICH
+ * family a set of bytes belongs to BY HASH — the F0O hash selects the F0O
+ * loader, the F0I hash selects the F0I loader, the F0E hash selects the F0E
+ * loader, the superseded F0C hash is refused, anything else goes to the F0B
+ * loader, which refuses everything but the F0B bytes — and returns the
+ * common view. No loader is changed, and none learns about another.
  *
  * `finalInputSha256For` answers `undefined` for a variant the family does
  * not schedule: an attempt-2 manifest naming PROMPT_V1_CANONICAL or
- * PROMPT_V2_CANONICAL, or an attempt-3 manifest naming any of
- * PROMPT_V1_CANONICAL/PROMPT_V2_CANONICAL/PROMPT_V3_CANONICAL, therefore
- * fails the child's identity check — exactly the "no prior variant is ever
- * scheduled again" invariant, enforced where the request would otherwise be
- * built.
+ * PROMPT_V2_CANONICAL, an attempt-3 manifest naming any of
+ * PROMPT_V1_CANONICAL/PROMPT_V2_CANONICAL/PROMPT_V3_CANONICAL, or an
+ * attempt-4 manifest naming any of PROMPT_V1_CANONICAL/PROMPT_V2_CANONICAL/
+ * PROMPT_V3_CANONICAL/PROMPT_V4_CANONICAL, therefore fails the child's
+ * identity check — exactly the "no prior variant is ever scheduled again"
+ * invariant, enforced where the request would otherwise be built.
  *
  * Pure aside from the injected bytes and probes. No network, no database,
  * no clock, no filesystem of its own.
@@ -56,13 +58,24 @@ import {
   PROPOSED_F0I_FREEZE_RAW_SHA256,
 } from '../f0i/freezeF0I.js';
 import { verifyV4Root } from '../f0i/variantRootF0I.js';
+import type { Attempt4Freeze } from '../f0o/attempt4FreezeCore.js';
+import {
+  F0O_VARIANT,
+  loadF0OFreezeFromBytes,
+  PROPOSED_F0O_FREEZE_RAW_SHA256,
+} from '../f0o/freezeF0O.js';
+import { verifyV5Root } from '../f0o/variantRootF0O.js';
 
 /**
  * `F0C_ATTEMPT_2_SUPERSEDED` is recognised only to be REFUSED: Finding F1
  * superseded F0C before any execution, so its bytes may never drive a child.
  */
 export type FreezeFamily =
-  'F0B_ATTEMPT_1' | 'F0E_ATTEMPT_2' | 'F0C_ATTEMPT_2_SUPERSEDED' | 'F0I_ATTEMPT_3';
+  | 'F0B_ATTEMPT_1'
+  | 'F0E_ATTEMPT_2'
+  | 'F0C_ATTEMPT_2_SUPERSEDED'
+  | 'F0I_ATTEMPT_3'
+  | 'F0O_ATTEMPT_4';
 
 export interface FrozenBatchView {
   readonly ordinal: number;
@@ -99,6 +112,8 @@ export interface ChildFreezeView {
   readonly attempt2?: Attempt2Freeze;
   /** The attempt-3 freeze itself, present only for the F0I family (the V4 root verifier needs its repair contract). */
   readonly attempt3?: Attempt3Freeze;
+  /** The attempt-4 freeze itself, present only for the F0O family (the V5 root verifier needs its repair contract). */
+  readonly attempt4?: Attempt4Freeze;
 }
 
 function f0bView(bytes: Buffer): ChildFreezeView {
@@ -226,9 +241,53 @@ function f0iView(bytes: Buffer): ChildFreezeView {
   };
 }
 
+function f0oView(bytes: Buffer): ChildFreezeView {
+  const loaded = loadF0OFreezeFromBytes(bytes);
+  const { freeze } = loaded;
+  return {
+    family: 'F0O_ATTEMPT_4',
+    attemptNo: freeze.attemptNo,
+    rawSha256: loaded.rawSha256,
+    rawBytes: loaded.rawBytes,
+    version: freeze.version,
+    corpus: freeze.corpus,
+    classifier: {
+      requestedModelId: freeze.classifier.requestedModelId,
+      outputSchemaVersion: freeze.classifier.outputSchemaVersion,
+      assemblyVersion: freeze.classifier.assemblyVersion,
+    },
+    rootContract: freeze,
+    variants: [F0O_VARIANT],
+    repairPolicy: freeze.repairPolicy,
+    attempt4: freeze,
+    frozenBatch: (ordinal) => {
+      const batch = freeze.batching.plan.find((b) => b.ordinal === ordinal);
+      if (batch === undefined) return undefined;
+      return {
+        ordinal: batch.ordinal,
+        organisationId: batch.organisationId,
+        echeRowKey: batch.echeRowKey,
+        goldIds: batch.goldIds,
+        docIndices: batch.docIndices,
+        context: batch.context,
+        serializedBatchUtf8Bytes: batch.serializedBatchUtf8Bytes,
+        assemblyInputSha256: batch.assemblyInputSha256,
+        canonicalSerializedInputSha256: batch.canonicalSerializedInputSha256,
+        // Attempt 4 schedules ONE variant. The attempt-1, attempt-2 and
+        // attempt-3 comparator identities stay in the freeze as provenance
+        // and are deliberately NOT answered here: a manifest naming V1, V2,
+        // V3 or V4 under F0O has no frozen identity.
+        finalInputSha256For: (variantName) =>
+          variantName === F0O_VARIANT.name ? batch.finalInputSha256.PROMPT_V5_CANONICAL : undefined,
+      };
+    },
+  };
+}
+
 /** Which family a set of freeze bytes belongs to, decided by exact raw hash — never by a caller's say-so. */
 export function freezeFamilyOf(bytes: Buffer): FreezeFamily {
   const rawSha256 = createHash('sha256').update(bytes).digest('hex');
+  if (rawSha256 === PROPOSED_F0O_FREEZE_RAW_SHA256) return 'F0O_ATTEMPT_4';
   if (rawSha256 === PROPOSED_F0I_FREEZE_RAW_SHA256) return 'F0I_ATTEMPT_3';
   if (rawSha256 === PROPOSED_F0E_FREEZE_RAW_SHA256) return 'F0E_ATTEMPT_2';
   if (rawSha256 === APPROVED_F0C_FREEZE_RAW_SHA256) return 'F0C_ATTEMPT_2_SUPERSEDED';
@@ -248,6 +307,7 @@ export function resolveChildFreeze(bytes: Buffer): ChildFreezeView {
       `the F0C freeze (${APPROVED_F0C_FREEZE_RAW_SHA256}) was superseded by F0E before any execution (Finding F1: its runtime commit exports a 60000 ms repair floor); it may not drive a child.`,
     );
   }
+  if (family === 'F0O_ATTEMPT_4') return f0oView(bytes);
   if (family === 'F0I_ATTEMPT_3') return f0iView(bytes);
   return family === 'F0E_ATTEMPT_2' ? f0eView(bytes) : f0bView(bytes);
 }
@@ -281,6 +341,9 @@ export async function verifyRootForVariant(
       runtime: null,
       claudeCodeExecutable: null,
     };
+  }
+  if (view.family === 'F0O_ATTEMPT_4' && view.attempt4 !== undefined) {
+    return verifyV5Root(root, view.attempt4, probes);
   }
   if (view.family === 'F0I_ATTEMPT_3' && view.attempt3 !== undefined) {
     return verifyV4Root(root, view.attempt3, probes);

@@ -9,8 +9,9 @@
  *      allowlist is `ISOLATION_VIOLATION`, recorded, and nothing else runs;
  *   2. re-verifies the F0B freeze bytes by raw SHA-256 for an attempt-1
  *      manifest, the current F0E freeze bytes for an attempt-2 manifest (the
- *      superseded F0C bytes are refused), or the approved+ratified F0I bytes
- *      for an attempt-3 manifest;
+ *      superseded F0C bytes are refused), the approved+ratified F0I bytes
+ *      for an attempt-3 manifest, or the approved F0O bytes for an attempt-4
+ *      manifest;
  *      the family is decided by the bytes' own hash (F0D, `f0c/freezeFamily.ts`);
  *   3. verifies the selected variant root through the same checks the
  *      parent ran, loading the SDK-free production modules FROM THAT ROOT;
@@ -84,24 +85,29 @@ export const ChildManifestSchema = z.strictObject({
   freezeConfigRawSha256: z.string().regex(/^[0-9a-f]{64}$/),
   freezeVersion: z.string().min(1),
   // F0D: the attempt-2 variant joins the closed set; F0K: the attempt-3
-  // variant joins it too. Admission here is NECESSARY, never sufficient:
-  // WHICH of these a given freeze schedules is decided by the freeze family
-  // the manifest's hash names (step 2) and re-checked against that family's
-  // own variant list (step 3), never by this list alone. A name absent here
-  // is refused by the PARENT, before the child is forked and before any
-  // freeze is read - which is what refused the approved PROMPT_V4_CANONICAL
-  // attempt-3 dispatch on 2026-09-15 (F0K), before any inference.
+  // variant joins it too; F0P: the attempt-4 variant joins it too - added
+  // deliberately AHEAD of any attempt-4 execution, precisely because F0K
+  // showed what happens when this admission lags an approved freeze: the
+  // approved PROMPT_V4_CANONICAL attempt-3 dispatch was refused here on
+  // 2026-09-15, before any inference, because this set had not been widened
+  // in time. Admission here is NECESSARY, never sufficient: WHICH of these a
+  // given freeze schedules is decided by the freeze family the manifest's
+  // hash names (step 2) and re-checked against that family's own variant
+  // list (step 3), never by this list alone. A name absent here is refused
+  // by the PARENT, before the child is forked and before any freeze is read.
   variantName: z.enum([
     'PROMPT_V1_CANONICAL',
     'PROMPT_V2_CANONICAL',
     'PROMPT_V3_CANONICAL',
     'PROMPT_V4_CANONICAL',
+    'PROMPT_V5_CANONICAL',
   ]),
   variantLabel: z.enum([
     'PROMPT_V1_COMPARATOR',
     'PROMPT_V2_CANDIDATE',
     'PROMPT_V3_CANDIDATE',
     'PROMPT_V4_CANDIDATE',
+    'PROMPT_V5_CANDIDATE',
   ]),
   variantGitCommit: z.string().regex(/^[0-9a-f]{40}$/),
   variantRoot: z.string().min(1),
@@ -244,22 +250,30 @@ export async function runChildEvaluation(
           ? 'the manifest freeze hash is not the F0B hash.'
           : view.family === 'F0I_ATTEMPT_3'
             ? 'the manifest freeze hash is not the approved F0I hash.'
-            : 'the manifest freeze hash is not the proposed F0E hash.',
+            : view.family === 'F0O_ATTEMPT_4'
+              ? 'the manifest freeze hash is not the approved F0O hash.'
+              : 'the manifest freeze hash is not the proposed F0E hash.',
         { stage: 'freeze', family: view.family },
       );
     }
-    // F0K: the attempt-bound families BOTH declare the attempt they
-    // configure, and BOTH must refuse a manifest that requests another one.
+    // F0K: the attempt-bound families ALL declare the attempt they
+    // configure, and ALL must refuse a manifest that requests another one.
     // Only F0E was checked here before; an F0I manifest requesting attempt 1
     // or 2 was admitted by this step and had to be caught, if at all, by a
     // later identity check. The gate is now symmetric, and fails closed.
+    // F0P: F0O joins the same symmetric gate the moment it is admitted here,
+    // deliberately ahead of any attempt-4 execution.
     if (
-      (view.family === 'F0E_ATTEMPT_2' || view.family === 'F0I_ATTEMPT_3') &&
+      (view.family === 'F0E_ATTEMPT_2' ||
+        view.family === 'F0I_ATTEMPT_3' ||
+        view.family === 'F0O_ATTEMPT_4') &&
       manifest.attemptNo !== view.attemptNo
     ) {
+      const familyLabel =
+        view.family === 'F0I_ATTEMPT_3' ? 'F0I' : view.family === 'F0O_ATTEMPT_4' ? 'F0O' : 'F0E';
       return preflightStop(
         'CORPUS_CONFIG_OR_HASH_DRIFT',
-        `the ${view.family === 'F0I_ATTEMPT_3' ? 'F0I' : 'F0E'} freeze configures attempt ${view.attemptNo}; the manifest requests attempt ${manifest.attemptNo}.`,
+        `the ${familyLabel} freeze configures attempt ${view.attemptNo}; the manifest requests attempt ${manifest.attemptNo}.`,
         { stage: 'freeze', family: view.family },
       );
     }

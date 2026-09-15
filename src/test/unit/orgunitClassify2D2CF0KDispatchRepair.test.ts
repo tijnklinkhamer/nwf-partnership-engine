@@ -150,18 +150,25 @@ const record = <T>(dir: string, kind: ArtifactKind): T | null => {
 // ---------------------------------------------------------------------------
 
 describe('2D2C-F0K: the child-manifest variant contract', () => {
-  it('admits exactly the four attempt-1/2/3 variant names and labels, in order', () => {
+  // PHASE 2B-2D2C-F0P widened this set by exactly PROMPT_V5_CANONICAL /
+  // PROMPT_V5_CANDIDATE — deliberately, ahead of any attempt-4 execution, so
+  // that admission here never again lags an approved freeze the way it did
+  // for attempt 3 (F0K). This test is updated in place, by exact name,
+  // exactly as F0H/F0N updated their own predecessors' stale assertions.
+  it('admits exactly the five attempt-1/2/3/4 variant names and labels, in order', () => {
     expect(ChildManifestSchema.shape.variantName.options).toEqual([
       'PROMPT_V1_CANONICAL',
       'PROMPT_V2_CANONICAL',
       'PROMPT_V3_CANONICAL',
       'PROMPT_V4_CANONICAL',
+      'PROMPT_V5_CANONICAL',
     ]);
     expect(ChildManifestSchema.shape.variantLabel.options).toEqual([
       'PROMPT_V1_COMPARATOR',
       'PROMPT_V2_CANDIDATE',
       'PROMPT_V3_CANDIDATE',
       'PROMPT_V4_CANDIDATE',
+      'PROMPT_V5_CANDIDATE',
     ]);
   });
 
@@ -174,11 +181,11 @@ describe('2D2C-F0K: the child-manifest variant contract', () => {
     expect(ChildManifestSchema.shape.variantLabel.options).toContain(V4_BATCH_1.variantLabel);
   });
 
-  it('the set is still CLOSED: an unadmitted variant is refused, exactly as V4 was', () => {
+  it('the set is still CLOSED: an unadmitted variant is refused, exactly as V4 was (and V5 now legitimately is not)', () => {
     const base = manifestFor('/synthetic/attempt-dir');
     for (const override of [
-      { variantName: 'PROMPT_V5_CANONICAL' },
-      { variantLabel: 'PROMPT_V5_CANDIDATE' },
+      { variantName: 'PROMPT_V6_CANONICAL' },
+      { variantLabel: 'PROMPT_V6_CANDIDATE' },
       { variantName: 'prompt_v4_canonical' },
     ]) {
       const parsed = ChildManifestSchema.safeParse({ ...base, ...override });

@@ -70,6 +70,26 @@ export const ATTEMPT_4_STATUS = 'PROPOSED_PENDING_OWNER_FREEZE_APPROVAL';
 export const ATTEMPT_4_VARIANT_NAME = 'PROMPT_V5_CANONICAL';
 export const ATTEMPT_4_VARIANT_LABEL = 'PROMPT_V5_CANDIDATE';
 
+/**
+ * PHASE 2B-2D2C-F0P. The attempt-1, attempt-2 and BOTH attempt-3
+ * authorisations are all CONSUMED; none of them can authorise attempt 4.
+ * Refused by exact SHA-256, independent of any output root, exactly as
+ * `attempt3FreezeCore.ts` refuses the attempt-1/attempt-2 bytes for attempt
+ * 3. Attempt 3 carries TWO spent authorisations because its first
+ * (`d7a66ad4...`) was physically consumed by a run refused
+ * PRE_INFERENCE_REFUSAL (F0K) and a REPLACEMENT (`7feb00b2...`) was later
+ * issued and actually executed (`COMPLETED_ALL_PLANNED`); both are
+ * permanently spent and neither may drive attempt 4.
+ */
+export const SPENT_ATTEMPT_1_AUTHORISATION_SHA256 =
+  '46d1bd9ebed544f7ebf463f26ff6ec7cca89d8a9d849fdfd04a42412dc2d5705';
+export const SPENT_ATTEMPT_2_AUTHORISATION_SHA256 =
+  'b169b5d8079b64d5c7459392fb347bb93f6793de9d340f30fd472393964e6d40';
+export const SPENT_ATTEMPT_3_AUTHORISATION_SHA256 =
+  'd7a66ad4834753be4b6c07cb7aac5f279181d0da9b92f541c07ca0b00b81d7d4';
+export const SPENT_ATTEMPT_3_REPLACEMENT_AUTHORISATION_SHA256 =
+  '7feb00b2ab5a04db56e1949532269289880ac8f82c1e8bfe196ef0b2fe746bd4';
+
 /** The attempt-1 variants that must NEVER appear in an attempt-4 plan. */
 export const ATTEMPT_1_VARIANT_NAMES = ['PROMPT_V1_CANONICAL', 'PROMPT_V2_CANONICAL'] as const;
 /** The attempt-2 variant that must NEVER be re-run for attempt 4 - only read as a comparator. */
