@@ -2772,26 +2772,34 @@ describe('PHASE-2B-FIREWALL 2B-2D2C-F0D/F0E: attempt-2 preparation is plan-only,
     // F0G/F0H deliberately widened this check, by exact name: attempt 2 was
     // executed under an owner-issued authorisation and its DERIVED,
     // PII-free scored result was committed to the one directory the F0D
-    // emitter names (`COMMITTED_ATTEMPT2_RESULTS_DIR`). F0O (2026-09-15) now
-    // deliberately widens it a second time, by exact name only: F0L
-    // committed exactly one deterministic, PII-free attempt-3 scored-results
-    // directory alongside it. This is a test-only historical-state widening
-    // — it names the two directories that now legitimately exist and
-    // continues to refuse anything else attempt-2/attempt-3-shaped.
+    // emitter names (`COMMITTED_ATTEMPT2_RESULTS_DIR`). F0O (2026-09-15) then
+    // widened it a second time, by exact name only: F0L committed exactly
+    // one deterministic, PII-free attempt-3 scored-results directory
+    // alongside it. F0S (2026-09-15) now widens it a THIRD time, by exact
+    // name only: this task committed exactly one deterministic, PII-free
+    // attempt-4 scored-results directory alongside both. This is a
+    // test-only historical-state widening — it names the three directories
+    // that now legitimately exist and continues to refuse anything else
+    // attempt-2/attempt-3/attempt-4-shaped.
     const resultsEntries = readdirSync(resolve(ROOT, 'docs/evaluation/results'));
     const attemptDirs = resultsEntries
-      .filter((entry) => entry.includes('attempt-2') || entry.includes('attempt-3'))
+      .filter(
+        (entry) =>
+          entry.includes('attempt-2') || entry.includes('attempt-3') || entry.includes('attempt-4'),
+      )
       .sort();
     expect(
       attemptDirs,
-      'exactly the two committed attempt-2 and attempt-3 results directories, and nothing else attempt-2/attempt-3-shaped',
+      'exactly the three committed attempt-2, attempt-3 and attempt-4 results directories, and nothing else attempt-2/attempt-3/attempt-4-shaped',
     ).toEqual([
       'phase2b-2d2c-dev-attribution-attempt-2-gold-v1-adjudicated',
       'phase2b-2d2c-dev-attribution-attempt-3-gold-v1-adjudicated',
+      'phase2b-2d2c-dev-attribution-attempt-4-gold-v1-adjudicated',
     ]);
     for (const entry of readdirSync(resolve(ROOT, 'docs/evaluation'))) {
       expect(entry).not.toMatch(/attempt-2/);
       expect(entry).not.toMatch(/attempt-3/);
+      expect(entry).not.toMatch(/attempt-4/);
       expect(entry).not.toMatch(/authorisation/i);
       expect(entry).not.toMatch(/consumption/i);
     }

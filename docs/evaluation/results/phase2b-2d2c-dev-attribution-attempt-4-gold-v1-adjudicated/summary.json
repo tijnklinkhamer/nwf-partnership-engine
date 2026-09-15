@@ -1,0 +1,1692 @@
+{
+  "attemptNo": 4,
+  "candidate": {
+    "firstPass": {
+      "accepted": 48,
+      "rate": 0.9795918367346939,
+      "rejected": 1,
+      "rejectionsByCategory": { "EVIDENCE": 1 }
+    },
+    "inputTokens": 40,
+    "items": 49,
+    "outputTokens": 30099,
+    "postRepair": { "accepted": 49, "rate": 1, "rejected": 0, "rejectionsByCategory": {} },
+    "predictionDistribution": {
+      "page_kind": {
+        "DEGREE_PROGRAMME_PAGE": 4,
+        "GENERIC_INSTITUTIONAL_PAGE": 1,
+        "NAVIGATION_OR_LANDING_PAGE": 8,
+        "NEWS_OR_EVENT_PAGE": 11,
+        "NULL": 16,
+        "OTHER_NON_UNIT": 5,
+        "REJECTED": 0,
+        "RESEARCH_PAGE": 0,
+        "SERVICE_TOOL_PAGE": 4
+      },
+      "provides_language_learning_or_support": {
+        "NO": 0,
+        "NULL": 33,
+        "REJECTED": 0,
+        "UNKNOWN": 14,
+        "YES": 2
+      },
+      "serves_incoming_international_students": {
+        "NO": 0,
+        "NULL": 33,
+        "REJECTED": 0,
+        "UNKNOWN": 7,
+        "YES": 9
+      },
+      "serves_outgoing_mobility_students": {
+        "NO": 0,
+        "NULL": 33,
+        "REJECTED": 0,
+        "UNKNOWN": 10,
+        "YES": 6
+      },
+      "unit_type": {
+        "INTERNATIONAL_MOBILITY_OFFICE": 13,
+        "LANGUAGE_CENTRE": 1,
+        "LANGUAGE_DEPARTMENT": 1,
+        "NULL": 33,
+        "OTHER_UNIT": 1,
+        "REJECTED": 0
+      },
+      "verdict": { "NEEDS_REVIEW": 0, "NOT_A_UNIT": 33, "NULL": 0, "REJECTED": 0, "UNIT_PAGE": 16 }
+    },
+    "promptSha256": "4c7352812740ca2df518b5274d18aae2f7f695d05ab0f60fcf72c000db8f01c9",
+    "promptVersion": "orgunit-classifier-prompt-v5",
+    "recoveredByRepair": 1,
+    "variantGitCommit": "1bb7578ac962650675f05aec3507c57a49517239",
+    "variantName": "PROMPT_V5_CANONICAL",
+    "wallTimeMs": 271725
+  },
+  "comparisons": [
+    {
+      "comparator": "PROMPT_V1_CANONICAL",
+      "concordanceByField": [
+        {
+          "agree": 42,
+          "comparablePairs": 45,
+          "disagree": 3,
+          "field": "verdict",
+          "notComparable": 4
+        },
+        {
+          "agree": 43,
+          "comparablePairs": 45,
+          "disagree": 2,
+          "field": "unit_type",
+          "notComparable": 4
+        },
+        {
+          "agree": 31,
+          "comparablePairs": 45,
+          "disagree": 14,
+          "field": "page_kind",
+          "notComparable": 4
+        },
+        {
+          "agree": 43,
+          "comparablePairs": 45,
+          "disagree": 2,
+          "field": "serves_incoming_international_students",
+          "notComparable": 4
+        },
+        {
+          "agree": 42,
+          "comparablePairs": 45,
+          "disagree": 3,
+          "field": "serves_outgoing_mobility_students",
+          "notComparable": 4
+        },
+        {
+          "agree": 35,
+          "comparablePairs": 45,
+          "disagree": 10,
+          "field": "provides_language_learning_or_support",
+          "notComparable": 4
+        },
+        {
+          "agree": 41,
+          "comparablePairs": 45,
+          "disagree": 4,
+          "field": "confidence",
+          "notComparable": 4
+        },
+        {
+          "agree": 38,
+          "comparablePairs": 45,
+          "disagree": 7,
+          "field": "unit_name_present",
+          "notComparable": 4
+        },
+        {
+          "agree": 34,
+          "comparablePairs": 45,
+          "disagree": 11,
+          "field": "unit_name_sha256",
+          "notComparable": 4
+        }
+      ],
+      "correctnessByField": [
+        {
+          "CORRECT_TO_CORRECT": 0,
+          "CORRECT_TO_INCORRECT": 0,
+          "GOLD_UNAVAILABLE": 49,
+          "INCORRECT_TO_CORRECT": 0,
+          "INCORRECT_TO_INCORRECT": 0,
+          "field": "hard_negative",
+          "netStrictCorrectnessChange": 0,
+          "recoveries": 0,
+          "regressions": 0,
+          "scorablePairs": 0
+        },
+        {
+          "CORRECT_TO_CORRECT": 13,
+          "CORRECT_TO_INCORRECT": 4,
+          "GOLD_UNAVAILABLE": 16,
+          "INCORRECT_TO_CORRECT": 6,
+          "INCORRECT_TO_INCORRECT": 10,
+          "field": "page_kind",
+          "netStrictCorrectnessChange": 2,
+          "recoveries": 6,
+          "regressions": 4,
+          "scorablePairs": 33
+        },
+        {
+          "CORRECT_TO_CORRECT": 5,
+          "CORRECT_TO_INCORRECT": 0,
+          "GOLD_UNAVAILABLE": 35,
+          "INCORRECT_TO_CORRECT": 8,
+          "INCORRECT_TO_INCORRECT": 1,
+          "field": "provides_language_learning_or_support",
+          "netStrictCorrectnessChange": 8,
+          "recoveries": 8,
+          "regressions": 0,
+          "scorablePairs": 14
+        },
+        {
+          "CORRECT_TO_CORRECT": 12,
+          "CORRECT_TO_INCORRECT": 0,
+          "GOLD_UNAVAILABLE": 35,
+          "INCORRECT_TO_CORRECT": 1,
+          "INCORRECT_TO_INCORRECT": 1,
+          "field": "serves_incoming_international_students",
+          "netStrictCorrectnessChange": 1,
+          "recoveries": 1,
+          "regressions": 0,
+          "scorablePairs": 14
+        },
+        {
+          "CORRECT_TO_CORRECT": 11,
+          "CORRECT_TO_INCORRECT": 0,
+          "GOLD_UNAVAILABLE": 35,
+          "INCORRECT_TO_CORRECT": 2,
+          "INCORRECT_TO_INCORRECT": 1,
+          "field": "serves_outgoing_mobility_students",
+          "netStrictCorrectnessChange": 2,
+          "recoveries": 2,
+          "regressions": 0,
+          "scorablePairs": 14
+        },
+        {
+          "CORRECT_TO_CORRECT": 27,
+          "CORRECT_TO_INCORRECT": 2,
+          "GOLD_UNAVAILABLE": 5,
+          "INCORRECT_TO_CORRECT": 8,
+          "INCORRECT_TO_INCORRECT": 7,
+          "field": "unit_name_expectation",
+          "netStrictCorrectnessChange": 6,
+          "recoveries": 8,
+          "regressions": 2,
+          "scorablePairs": 44
+        },
+        {
+          "CORRECT_TO_CORRECT": 12,
+          "CORRECT_TO_INCORRECT": 0,
+          "GOLD_UNAVAILABLE": 35,
+          "INCORRECT_TO_CORRECT": 1,
+          "INCORRECT_TO_INCORRECT": 1,
+          "field": "unit_type",
+          "netStrictCorrectnessChange": 1,
+          "recoveries": 1,
+          "regressions": 0,
+          "scorablePairs": 14
+        },
+        {
+          "CORRECT_TO_CORRECT": 39,
+          "CORRECT_TO_INCORRECT": 1,
+          "GOLD_UNAVAILABLE": 0,
+          "INCORRECT_TO_CORRECT": 5,
+          "INCORRECT_TO_INCORRECT": 4,
+          "field": "verdict",
+          "netStrictCorrectnessChange": 4,
+          "recoveries": 5,
+          "regressions": 1,
+          "scorablePairs": 49
+        }
+      ],
+      "lostByV5": [],
+      "pairs": 49,
+      "recoveredByV5": [
+        "g0ec0d43dad311a77",
+        "g32779df2d7b56a34",
+        "g877a05e6f5bba835",
+        "g956f99fae4ad4764"
+      ],
+      "validity": {
+        "ACCEPTED_TO_ACCEPTED": 45,
+        "ACCEPTED_TO_REJECTED": 0,
+        "REJECTED_TO_ACCEPTED": 4,
+        "REJECTED_TO_REJECTED": 0,
+        "bothRejected": 0,
+        "netValidityChange": 4,
+        "total": 49,
+        "v1OnlyRejection": 4,
+        "v2OnlyRejection": 0
+      },
+      "verdictCorrections": [
+        "g04b64db14c03ce3a",
+        "g3130d41296ab8739",
+        "g32779df2d7b56a34",
+        "g877a05e6f5bba835",
+        "g956f99fae4ad4764"
+      ],
+      "verdictRegressions": ["g66010a25ac194274"]
+    },
+    {
+      "comparator": "PROMPT_V2_CANONICAL",
+      "concordanceByField": [
+        {
+          "agree": 42,
+          "comparablePairs": 47,
+          "disagree": 5,
+          "field": "verdict",
+          "notComparable": 2
+        },
+        {
+          "agree": 42,
+          "comparablePairs": 47,
+          "disagree": 5,
+          "field": "unit_type",
+          "notComparable": 2
+        },
+        {
+          "agree": 38,
+          "comparablePairs": 47,
+          "disagree": 9,
+          "field": "page_kind",
+          "notComparable": 2
+        },
+        {
+          "agree": 42,
+          "comparablePairs": 47,
+          "disagree": 5,
+          "field": "serves_incoming_international_students",
+          "notComparable": 2
+        },
+        {
+          "agree": 42,
+          "comparablePairs": 47,
+          "disagree": 5,
+          "field": "serves_outgoing_mobility_students",
+          "notComparable": 2
+        },
+        {
+          "agree": 42,
+          "comparablePairs": 47,
+          "disagree": 5,
+          "field": "provides_language_learning_or_support",
+          "notComparable": 2
+        },
+        {
+          "agree": 40,
+          "comparablePairs": 47,
+          "disagree": 7,
+          "field": "confidence",
+          "notComparable": 2
+        },
+        {
+          "agree": 38,
+          "comparablePairs": 47,
+          "disagree": 9,
+          "field": "unit_name_present",
+          "notComparable": 2
+        },
+        {
+          "agree": 38,
+          "comparablePairs": 47,
+          "disagree": 9,
+          "field": "unit_name_sha256",
+          "notComparable": 2
+        }
+      ],
+      "correctnessByField": [
+        {
+          "CORRECT_TO_CORRECT": 0,
+          "CORRECT_TO_INCORRECT": 0,
+          "GOLD_UNAVAILABLE": 49,
+          "INCORRECT_TO_CORRECT": 0,
+          "INCORRECT_TO_INCORRECT": 0,
+          "field": "hard_negative",
+          "netStrictCorrectnessChange": 0,
+          "recoveries": 0,
+          "regressions": 0,
+          "scorablePairs": 0
+        },
+        {
+          "CORRECT_TO_CORRECT": 19,
+          "CORRECT_TO_INCORRECT": 3,
+          "GOLD_UNAVAILABLE": 16,
+          "INCORRECT_TO_CORRECT": 0,
+          "INCORRECT_TO_INCORRECT": 11,
+          "field": "page_kind",
+          "netStrictCorrectnessChange": -3,
+          "recoveries": 0,
+          "regressions": 3,
+          "scorablePairs": 33
+        },
+        {
+          "CORRECT_TO_CORRECT": 9,
+          "CORRECT_TO_INCORRECT": 0,
+          "GOLD_UNAVAILABLE": 35,
+          "INCORRECT_TO_CORRECT": 4,
+          "INCORRECT_TO_INCORRECT": 1,
+          "field": "provides_language_learning_or_support",
+          "netStrictCorrectnessChange": 4,
+          "recoveries": 4,
+          "regressions": 0,
+          "scorablePairs": 14
+        },
+        {
+          "CORRECT_TO_CORRECT": 9,
+          "CORRECT_TO_INCORRECT": 0,
+          "GOLD_UNAVAILABLE": 35,
+          "INCORRECT_TO_CORRECT": 4,
+          "INCORRECT_TO_INCORRECT": 1,
+          "field": "serves_incoming_international_students",
+          "netStrictCorrectnessChange": 4,
+          "recoveries": 4,
+          "regressions": 0,
+          "scorablePairs": 14
+        },
+        {
+          "CORRECT_TO_CORRECT": 9,
+          "CORRECT_TO_INCORRECT": 0,
+          "GOLD_UNAVAILABLE": 35,
+          "INCORRECT_TO_CORRECT": 4,
+          "INCORRECT_TO_INCORRECT": 1,
+          "field": "serves_outgoing_mobility_students",
+          "netStrictCorrectnessChange": 4,
+          "recoveries": 4,
+          "regressions": 0,
+          "scorablePairs": 14
+        },
+        {
+          "CORRECT_TO_CORRECT": 29,
+          "CORRECT_TO_INCORRECT": 4,
+          "GOLD_UNAVAILABLE": 5,
+          "INCORRECT_TO_CORRECT": 6,
+          "INCORRECT_TO_INCORRECT": 5,
+          "field": "unit_name_expectation",
+          "netStrictCorrectnessChange": 2,
+          "recoveries": 6,
+          "regressions": 4,
+          "scorablePairs": 44
+        },
+        {
+          "CORRECT_TO_CORRECT": 9,
+          "CORRECT_TO_INCORRECT": 0,
+          "GOLD_UNAVAILABLE": 35,
+          "INCORRECT_TO_CORRECT": 4,
+          "INCORRECT_TO_INCORRECT": 1,
+          "field": "unit_type",
+          "netStrictCorrectnessChange": 4,
+          "recoveries": 4,
+          "regressions": 0,
+          "scorablePairs": 14
+        },
+        {
+          "CORRECT_TO_CORRECT": 40,
+          "CORRECT_TO_INCORRECT": 2,
+          "GOLD_UNAVAILABLE": 0,
+          "INCORRECT_TO_CORRECT": 4,
+          "INCORRECT_TO_INCORRECT": 3,
+          "field": "verdict",
+          "netStrictCorrectnessChange": 2,
+          "recoveries": 4,
+          "regressions": 2,
+          "scorablePairs": 49
+        }
+      ],
+      "lostByV5": [],
+      "pairs": 49,
+      "recoveredByV5": ["g0ec0d43dad311a77", "g877a05e6f5bba835"],
+      "validity": {
+        "ACCEPTED_TO_ACCEPTED": 47,
+        "ACCEPTED_TO_REJECTED": 0,
+        "REJECTED_TO_ACCEPTED": 2,
+        "REJECTED_TO_REJECTED": 0,
+        "bothRejected": 0,
+        "netValidityChange": 2,
+        "total": 49,
+        "v1OnlyRejection": 2,
+        "v2OnlyRejection": 0
+      },
+      "verdictCorrections": [
+        "g57607d4278d6dc23",
+        "g877a05e6f5bba835",
+        "ge789b0f0aedc398c",
+        "gf65026e32d9da8db"
+      ],
+      "verdictRegressions": ["g04d170f4d3fda759", "g536c8b148048fcbc"]
+    },
+    {
+      "comparator": "PROMPT_V3_CANONICAL",
+      "concordanceByField": [
+        {
+          "agree": 45,
+          "comparablePairs": 49,
+          "disagree": 4,
+          "field": "verdict",
+          "notComparable": 0
+        },
+        {
+          "agree": 46,
+          "comparablePairs": 49,
+          "disagree": 3,
+          "field": "unit_type",
+          "notComparable": 0
+        },
+        {
+          "agree": 38,
+          "comparablePairs": 49,
+          "disagree": 11,
+          "field": "page_kind",
+          "notComparable": 0
+        },
+        {
+          "agree": 46,
+          "comparablePairs": 49,
+          "disagree": 3,
+          "field": "serves_incoming_international_students",
+          "notComparable": 0
+        },
+        {
+          "agree": 46,
+          "comparablePairs": 49,
+          "disagree": 3,
+          "field": "serves_outgoing_mobility_students",
+          "notComparable": 0
+        },
+        {
+          "agree": 46,
+          "comparablePairs": 49,
+          "disagree": 3,
+          "field": "provides_language_learning_or_support",
+          "notComparable": 0
+        },
+        {
+          "agree": 42,
+          "comparablePairs": 49,
+          "disagree": 7,
+          "field": "confidence",
+          "notComparable": 0
+        },
+        {
+          "agree": 37,
+          "comparablePairs": 49,
+          "disagree": 12,
+          "field": "unit_name_present",
+          "notComparable": 0
+        },
+        {
+          "agree": 37,
+          "comparablePairs": 49,
+          "disagree": 12,
+          "field": "unit_name_sha256",
+          "notComparable": 0
+        }
+      ],
+      "correctnessByField": [
+        {
+          "CORRECT_TO_CORRECT": 0,
+          "CORRECT_TO_INCORRECT": 0,
+          "GOLD_UNAVAILABLE": 49,
+          "INCORRECT_TO_CORRECT": 0,
+          "INCORRECT_TO_INCORRECT": 0,
+          "field": "hard_negative",
+          "netStrictCorrectnessChange": 0,
+          "recoveries": 0,
+          "regressions": 0,
+          "scorablePairs": 0
+        },
+        {
+          "CORRECT_TO_CORRECT": 16,
+          "CORRECT_TO_INCORRECT": 5,
+          "GOLD_UNAVAILABLE": 16,
+          "INCORRECT_TO_CORRECT": 3,
+          "INCORRECT_TO_INCORRECT": 9,
+          "field": "page_kind",
+          "netStrictCorrectnessChange": -2,
+          "recoveries": 3,
+          "regressions": 5,
+          "scorablePairs": 33
+        },
+        {
+          "CORRECT_TO_CORRECT": 13,
+          "CORRECT_TO_INCORRECT": 1,
+          "GOLD_UNAVAILABLE": 35,
+          "INCORRECT_TO_CORRECT": 0,
+          "INCORRECT_TO_INCORRECT": 0,
+          "field": "provides_language_learning_or_support",
+          "netStrictCorrectnessChange": -1,
+          "recoveries": 0,
+          "regressions": 1,
+          "scorablePairs": 14
+        },
+        {
+          "CORRECT_TO_CORRECT": 13,
+          "CORRECT_TO_INCORRECT": 1,
+          "GOLD_UNAVAILABLE": 35,
+          "INCORRECT_TO_CORRECT": 0,
+          "INCORRECT_TO_INCORRECT": 0,
+          "field": "serves_incoming_international_students",
+          "netStrictCorrectnessChange": -1,
+          "recoveries": 0,
+          "regressions": 1,
+          "scorablePairs": 14
+        },
+        {
+          "CORRECT_TO_CORRECT": 13,
+          "CORRECT_TO_INCORRECT": 1,
+          "GOLD_UNAVAILABLE": 35,
+          "INCORRECT_TO_CORRECT": 0,
+          "INCORRECT_TO_INCORRECT": 0,
+          "field": "serves_outgoing_mobility_students",
+          "netStrictCorrectnessChange": -1,
+          "recoveries": 0,
+          "regressions": 1,
+          "scorablePairs": 14
+        },
+        {
+          "CORRECT_TO_CORRECT": 29,
+          "CORRECT_TO_INCORRECT": 5,
+          "GOLD_UNAVAILABLE": 5,
+          "INCORRECT_TO_CORRECT": 6,
+          "INCORRECT_TO_INCORRECT": 4,
+          "field": "unit_name_expectation",
+          "netStrictCorrectnessChange": 1,
+          "recoveries": 6,
+          "regressions": 5,
+          "scorablePairs": 44
+        },
+        {
+          "CORRECT_TO_CORRECT": 13,
+          "CORRECT_TO_INCORRECT": 1,
+          "GOLD_UNAVAILABLE": 35,
+          "INCORRECT_TO_CORRECT": 0,
+          "INCORRECT_TO_INCORRECT": 0,
+          "field": "unit_type",
+          "netStrictCorrectnessChange": -1,
+          "recoveries": 0,
+          "regressions": 1,
+          "scorablePairs": 14
+        },
+        {
+          "CORRECT_TO_CORRECT": 41,
+          "CORRECT_TO_INCORRECT": 1,
+          "GOLD_UNAVAILABLE": 0,
+          "INCORRECT_TO_CORRECT": 3,
+          "INCORRECT_TO_INCORRECT": 4,
+          "field": "verdict",
+          "netStrictCorrectnessChange": 2,
+          "recoveries": 3,
+          "regressions": 1,
+          "scorablePairs": 49
+        }
+      ],
+      "lostByV5": [],
+      "pairs": 49,
+      "recoveredByV5": [],
+      "validity": {
+        "ACCEPTED_TO_ACCEPTED": 49,
+        "ACCEPTED_TO_REJECTED": 0,
+        "REJECTED_TO_ACCEPTED": 0,
+        "REJECTED_TO_REJECTED": 0,
+        "bothRejected": 0,
+        "netValidityChange": 0,
+        "total": 49,
+        "v1OnlyRejection": 0,
+        "v2OnlyRejection": 0
+      },
+      "verdictCorrections": ["g4454e841c09dd8d0", "g52788fd323659c9c", "ga435ea22d4b11cf4"],
+      "verdictRegressions": ["g0ec0d43dad311a77"]
+    },
+    {
+      "comparator": "PROMPT_V4_CANONICAL",
+      "concordanceByField": [
+        {
+          "agree": 47,
+          "comparablePairs": 49,
+          "disagree": 2,
+          "field": "verdict",
+          "notComparable": 0
+        },
+        {
+          "agree": 47,
+          "comparablePairs": 49,
+          "disagree": 2,
+          "field": "unit_type",
+          "notComparable": 0
+        },
+        {
+          "agree": 38,
+          "comparablePairs": 49,
+          "disagree": 11,
+          "field": "page_kind",
+          "notComparable": 0
+        },
+        {
+          "agree": 47,
+          "comparablePairs": 49,
+          "disagree": 2,
+          "field": "serves_incoming_international_students",
+          "notComparable": 0
+        },
+        {
+          "agree": 47,
+          "comparablePairs": 49,
+          "disagree": 2,
+          "field": "serves_outgoing_mobility_students",
+          "notComparable": 0
+        },
+        {
+          "agree": 47,
+          "comparablePairs": 49,
+          "disagree": 2,
+          "field": "provides_language_learning_or_support",
+          "notComparable": 0
+        },
+        {
+          "agree": 45,
+          "comparablePairs": 49,
+          "disagree": 4,
+          "field": "confidence",
+          "notComparable": 0
+        },
+        {
+          "agree": 42,
+          "comparablePairs": 49,
+          "disagree": 7,
+          "field": "unit_name_present",
+          "notComparable": 0
+        },
+        {
+          "agree": 41,
+          "comparablePairs": 49,
+          "disagree": 8,
+          "field": "unit_name_sha256",
+          "notComparable": 0
+        }
+      ],
+      "correctnessByField": [
+        {
+          "CORRECT_TO_CORRECT": 0,
+          "CORRECT_TO_INCORRECT": 0,
+          "GOLD_UNAVAILABLE": 49,
+          "INCORRECT_TO_CORRECT": 0,
+          "INCORRECT_TO_INCORRECT": 0,
+          "field": "hard_negative",
+          "netStrictCorrectnessChange": 0,
+          "recoveries": 0,
+          "regressions": 0,
+          "scorablePairs": 0
+        },
+        {
+          "CORRECT_TO_CORRECT": 16,
+          "CORRECT_TO_INCORRECT": 6,
+          "GOLD_UNAVAILABLE": 16,
+          "INCORRECT_TO_CORRECT": 3,
+          "INCORRECT_TO_INCORRECT": 8,
+          "field": "page_kind",
+          "netStrictCorrectnessChange": -3,
+          "recoveries": 3,
+          "regressions": 6,
+          "scorablePairs": 33
+        },
+        {
+          "CORRECT_TO_CORRECT": 13,
+          "CORRECT_TO_INCORRECT": 1,
+          "GOLD_UNAVAILABLE": 35,
+          "INCORRECT_TO_CORRECT": 0,
+          "INCORRECT_TO_INCORRECT": 0,
+          "field": "provides_language_learning_or_support",
+          "netStrictCorrectnessChange": -1,
+          "recoveries": 0,
+          "regressions": 1,
+          "scorablePairs": 14
+        },
+        {
+          "CORRECT_TO_CORRECT": 13,
+          "CORRECT_TO_INCORRECT": 1,
+          "GOLD_UNAVAILABLE": 35,
+          "INCORRECT_TO_CORRECT": 0,
+          "INCORRECT_TO_INCORRECT": 0,
+          "field": "serves_incoming_international_students",
+          "netStrictCorrectnessChange": -1,
+          "recoveries": 0,
+          "regressions": 1,
+          "scorablePairs": 14
+        },
+        {
+          "CORRECT_TO_CORRECT": 13,
+          "CORRECT_TO_INCORRECT": 1,
+          "GOLD_UNAVAILABLE": 35,
+          "INCORRECT_TO_CORRECT": 0,
+          "INCORRECT_TO_INCORRECT": 0,
+          "field": "serves_outgoing_mobility_students",
+          "netStrictCorrectnessChange": -1,
+          "recoveries": 0,
+          "regressions": 1,
+          "scorablePairs": 14
+        },
+        {
+          "CORRECT_TO_CORRECT": 32,
+          "CORRECT_TO_INCORRECT": 3,
+          "GOLD_UNAVAILABLE": 5,
+          "INCORRECT_TO_CORRECT": 3,
+          "INCORRECT_TO_INCORRECT": 6,
+          "field": "unit_name_expectation",
+          "netStrictCorrectnessChange": 0,
+          "recoveries": 3,
+          "regressions": 3,
+          "scorablePairs": 44
+        },
+        {
+          "CORRECT_TO_CORRECT": 13,
+          "CORRECT_TO_INCORRECT": 1,
+          "GOLD_UNAVAILABLE": 35,
+          "INCORRECT_TO_CORRECT": 0,
+          "INCORRECT_TO_INCORRECT": 0,
+          "field": "unit_type",
+          "netStrictCorrectnessChange": -1,
+          "recoveries": 0,
+          "regressions": 1,
+          "scorablePairs": 14
+        },
+        {
+          "CORRECT_TO_CORRECT": 44,
+          "CORRECT_TO_INCORRECT": 2,
+          "GOLD_UNAVAILABLE": 0,
+          "INCORRECT_TO_CORRECT": 0,
+          "INCORRECT_TO_INCORRECT": 3,
+          "field": "verdict",
+          "netStrictCorrectnessChange": -2,
+          "recoveries": 0,
+          "regressions": 2,
+          "scorablePairs": 49
+        }
+      ],
+      "lostByV5": [],
+      "pairs": 49,
+      "recoveredByV5": [],
+      "validity": {
+        "ACCEPTED_TO_ACCEPTED": 49,
+        "ACCEPTED_TO_REJECTED": 0,
+        "REJECTED_TO_ACCEPTED": 0,
+        "REJECTED_TO_REJECTED": 0,
+        "bothRejected": 0,
+        "netValidityChange": 0,
+        "total": 49,
+        "v1OnlyRejection": 0,
+        "v2OnlyRejection": 0
+      },
+      "verdictCorrections": [],
+      "verdictRegressions": ["g0ec0d43dad311a77", "g536c8b148048fcbc"]
+    }
+  ],
+  "devGateOutcome": "FROZEN_GATES_FAILED_ON_DEV",
+  "failedGates": ["minUnitPageRecall", "minUnitPagePrecision"],
+  "gates": [
+    {
+      "denominator": 49,
+      "gate": "minSchemaValidSpanVerifiedRate",
+      "met": true,
+      "note": "validator acceptance, which is schema validity plus span verification. NOT a semantic metric.",
+      "observed": 1,
+      "threshold": 0.99
+    },
+    {
+      "denominator": 14,
+      "gate": "minUnitPageRecall",
+      "met": false,
+      "note": "STRICT: a validator-rejected UNIT_PAGE item counts as a miss.",
+      "observed": 0.9285714285714286,
+      "threshold": 0.95
+    },
+    {
+      "denominator": 16,
+      "gate": "minUnitPagePrecision",
+      "met": false,
+      "note": "over items answered UNIT_PAGE by a validator-accepted result.",
+      "observed": 0.8125,
+      "threshold": 0.9
+    },
+    {
+      "denominator": 14,
+      "gate": "minUnitTypeAccuracy",
+      "met": true,
+      "note": "STRICT, over items whose gold verdict is UNIT_PAGE.",
+      "observed": 0.9285714285714286,
+      "threshold": 0.85
+    },
+    {
+      "denominator": 21,
+      "gate": "minHardNegativeRejection",
+      "met": true,
+      "note": "STRICT: a validator-rejected hard negative is not a successful rejection.",
+      "observed": 0.9047619047619048,
+      "threshold": 0.9
+    },
+    {
+      "denominator": 49,
+      "gate": "maxNeedsReviewRate",
+      "met": true,
+      "note": "over every item, answered or not.",
+      "observed": 0,
+      "threshold": 0.15
+    }
+  ],
+  "goldAvailability": {
+    "anyCorpusWideFieldAvailable": true,
+    "devItemCount": 49,
+    "fields": [
+      {
+        "available": true,
+        "availableForGoldIds": [],
+        "field": "hard_negative",
+        "reason": "the scoring-only supplement (docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json) names a DEVELOPMENT-only label fixture (src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.jsonl) carrying this field for all 49 items. It was created after inference, was never visible to the model, and does not alter the F0B inference freeze.",
+        "source": "F4A_SCORING_SUPPLEMENT"
+      },
+      {
+        "available": true,
+        "availableForGoldIds": [],
+        "field": "page_kind",
+        "reason": "the scoring-only supplement (docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json) names a DEVELOPMENT-only label fixture (src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.jsonl) carrying this field for all 49 items. It was created after inference, was never visible to the model, and does not alter the F0B inference freeze.",
+        "source": "F4A_SCORING_SUPPLEMENT"
+      },
+      {
+        "available": true,
+        "availableForGoldIds": [],
+        "field": "provides_language_learning_or_support",
+        "reason": "the scoring-only supplement (docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json) names a DEVELOPMENT-only label fixture (src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.jsonl) carrying this field for all 49 items. It was created after inference, was never visible to the model, and does not alter the F0B inference freeze.",
+        "source": "F4A_SCORING_SUPPLEMENT"
+      },
+      {
+        "available": true,
+        "availableForGoldIds": [],
+        "field": "serves_incoming_international_students",
+        "reason": "the scoring-only supplement (docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json) names a DEVELOPMENT-only label fixture (src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.jsonl) carrying this field for all 49 items. It was created after inference, was never visible to the model, and does not alter the F0B inference freeze.",
+        "source": "F4A_SCORING_SUPPLEMENT"
+      },
+      {
+        "available": true,
+        "availableForGoldIds": [],
+        "field": "serves_outgoing_mobility_students",
+        "reason": "the scoring-only supplement (docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json) names a DEVELOPMENT-only label fixture (src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.jsonl) carrying this field for all 49 items. It was created after inference, was never visible to the model, and does not alter the F0B inference freeze.",
+        "source": "F4A_SCORING_SUPPLEMENT"
+      },
+      {
+        "available": true,
+        "availableForGoldIds": [],
+        "field": "unit_name_expectation",
+        "reason": "the scoring-only supplement (docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json) names a DEVELOPMENT-only label fixture (src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.jsonl) carrying this field for all 49 items. It was created after inference, was never visible to the model, and does not alter the F0B inference freeze.",
+        "source": "F4A_SCORING_SUPPLEMENT"
+      },
+      {
+        "available": true,
+        "availableForGoldIds": [],
+        "field": "unit_type",
+        "reason": "the scoring-only supplement (docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json) names a DEVELOPMENT-only label fixture (src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.jsonl) carrying this field for all 49 items. It was created after inference, was never visible to the model, and does not alter the F0B inference freeze.",
+        "source": "F4A_SCORING_SUPPLEMENT"
+      },
+      {
+        "available": true,
+        "availableForGoldIds": [],
+        "field": "verdict",
+        "reason": "the scoring-only supplement (docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json) names a DEVELOPMENT-only label fixture (src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.jsonl) carrying this field for all 49 items. It was created after inference, was never visible to the model, and does not alter the F0B inference freeze.",
+        "source": "F4A_SCORING_SUPPLEMENT"
+      }
+    ],
+    "holdoutItemCount": 23,
+    "labelFileNotOpened": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-adjudication-v1.jsonl",
+    "labelFileRecordCount": 72
+  },
+  "goldSupplement": {
+    "fixturePath": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-dev-labels-v1.jsonl",
+    "fixtureRawSha256": "19d9cc3e9dcfe0b10930aa095075cd4828459377d9ea67c8dd296da6126fcd08",
+    "labelCount": 49,
+    "pinnedByF0O": true,
+    "supplementPath": "docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json",
+    "supplementRawSha256": "dd00e1653deac617eb6ba82e537f090b34de37de5c939a0e52c0466fdc874db5",
+    "supplementVersion": "phase2b-2d2c-dev-scoring-supplement-v1"
+  },
+  "holdoutEligibility": {
+    "devCandidatePassesEveryFrozenGate": false,
+    "holdoutInferencePermittedByThisSummary": false,
+    "rule": "No final acceptance decision may be issued while attempt-4 coverage is incomplete (fewer than 12 completed PROMPT_V5_CANONICAL logical evaluations) or while any stop condition is unresolved. HOLDOUT stays forbidden until a DEV candidate passes every frozen gate."
+  },
+  "outputSchemaVersion": "phase2b-2d2c-f0s-attempt4-summary-v1",
+  "ownerAdjudication": {
+    "confirmedVerdict": "UNIT_PAGE",
+    "goldId": "ge789b0f0aedc398c",
+    "labelChanged": false,
+    "pinnedByF0O": true,
+    "recordPath": "docs/evaluation/PHASE_2B_2D2C_DEV_OWNER_ADJUDICATION_G1_V1.json",
+    "recordRawSha256": "e6e87f7edfe58f4e0bf84504699445be183be88d6ec04f812da7c3ef017994f7"
+  },
+  "pageVersusUnitFailures": {
+    "goldUnitPageAnsweredNotAUnit": ["g0ec0d43dad311a77"],
+    "goldUnitPageValidatorRejected": [],
+    "hardNegativesAnsweredUnitPage": ["g04d170f4d3fda759", "g536c8b148048fcbc"]
+  },
+  "perBatchCost": [
+    {
+      "documents": 3,
+      "echeRowKey": "F DIJON35|949637858",
+      "logicalBatchOrdinal": 1,
+      "v1": { "outputTokens": 817, "wallTimeMs": 10085 },
+      "v2": { "outputTokens": 879, "wallTimeMs": 23411 },
+      "v3": { "outputTokens": 860, "wallTimeMs": 19064 },
+      "v4": { "outputTokens": 868, "wallTimeMs": 12970 },
+      "v5": {
+        "inputTokens": 2,
+        "outputTokens": 986,
+        "repairExecuted": 0,
+        "repairWallTimeMs": 0,
+        "wallTimeMs": 11613
+      }
+    },
+    {
+      "documents": 5,
+      "echeRowKey": "F EVRY04|999850296",
+      "logicalBatchOrdinal": 2,
+      "v1": { "outputTokens": 1657, "wallTimeMs": 24707 },
+      "v2": { "outputTokens": 1780, "wallTimeMs": 17796 },
+      "v3": { "outputTokens": 2106, "wallTimeMs": 20228 },
+      "v4": { "outputTokens": 1705, "wallTimeMs": 14330 },
+      "v5": {
+        "inputTokens": 2,
+        "outputTokens": 1893,
+        "repairExecuted": 0,
+        "repairWallTimeMs": 0,
+        "wallTimeMs": 15131
+      }
+    },
+    {
+      "documents": 4,
+      "echeRowKey": "F GRENOBL21|915102366",
+      "logicalBatchOrdinal": 3,
+      "v1": { "outputTokens": 2405, "wallTimeMs": 23386 },
+      "v2": { "outputTokens": 1259, "wallTimeMs": 14158 },
+      "v3": { "outputTokens": 2735, "wallTimeMs": 22677 },
+      "v4": { "outputTokens": 1214, "wallTimeMs": 11473 },
+      "v5": {
+        "inputTokens": 4,
+        "outputTokens": 2704,
+        "repairExecuted": 1,
+        "repairWallTimeMs": 4645,
+        "wallTimeMs": 25375
+      }
+    },
+    {
+      "documents": 5,
+      "echeRowKey": "F MAYOTTE01|912525949",
+      "logicalBatchOrdinal": 4,
+      "v1": { "outputTokens": 3243, "wallTimeMs": 30123 },
+      "v2": { "outputTokens": 1619, "wallTimeMs": 24272 },
+      "v3": { "outputTokens": 1377, "wallTimeMs": 13726 },
+      "v4": { "outputTokens": 1582, "wallTimeMs": 14757 },
+      "v5": {
+        "inputTokens": 4,
+        "outputTokens": 3302,
+        "repairExecuted": 0,
+        "repairWallTimeMs": 0,
+        "wallTimeMs": 28986
+      }
+    },
+    {
+      "documents": 3,
+      "echeRowKey": "F MONTPEL58|932096087",
+      "logicalBatchOrdinal": 5,
+      "v1": { "outputTokens": 916, "wallTimeMs": 12010 },
+      "v2": { "outputTokens": 975, "wallTimeMs": 10600 },
+      "v3": { "outputTokens": 1026, "wallTimeMs": 13912 },
+      "v4": { "outputTokens": 956, "wallTimeMs": 9005 },
+      "v5": {
+        "inputTokens": 2,
+        "outputTokens": 1022,
+        "repairExecuted": 0,
+        "repairWallTimeMs": 0,
+        "wallTimeMs": 9343
+      }
+    },
+    {
+      "documents": 5,
+      "echeRowKey": "F NANTES79|924638533",
+      "logicalBatchOrdinal": 6,
+      "v1": { "outputTokens": 1431, "wallTimeMs": 15218 },
+      "v2": { "outputTokens": 1552, "wallTimeMs": 16828 },
+      "v3": { "outputTokens": 1600, "wallTimeMs": 17628 },
+      "v4": { "outputTokens": 1497, "wallTimeMs": 12833 },
+      "v5": {
+        "inputTokens": 2,
+        "outputTokens": 1686,
+        "repairExecuted": 0,
+        "repairWallTimeMs": 0,
+        "wallTimeMs": 14603
+      }
+    },
+    {
+      "documents": 5,
+      "echeRowKey": "F PARIS003|999885119",
+      "logicalBatchOrdinal": 7,
+      "v1": { "outputTokens": 1948, "wallTimeMs": 16799 },
+      "v2": { "outputTokens": 1844, "wallTimeMs": 17930 },
+      "v3": { "outputTokens": 1948, "wallTimeMs": 43867 },
+      "v4": { "outputTokens": 3842, "wallTimeMs": 41945 },
+      "v5": {
+        "inputTokens": 4,
+        "outputTokens": 3893,
+        "repairExecuted": 0,
+        "repairWallTimeMs": 0,
+        "wallTimeMs": 32700
+      }
+    },
+    {
+      "documents": 4,
+      "echeRowKey": "F PARIS105|949302432",
+      "logicalBatchOrdinal": 8,
+      "v1": { "outputTokens": 3071, "wallTimeMs": 27093 },
+      "v2": { "outputTokens": 2565, "wallTimeMs": 25529 },
+      "v3": { "outputTokens": 1278, "wallTimeMs": 13395 },
+      "v4": { "outputTokens": 1199, "wallTimeMs": 10165 },
+      "v5": {
+        "inputTokens": 4,
+        "outputTokens": 2916,
+        "repairExecuted": 0,
+        "repairWallTimeMs": 0,
+        "wallTimeMs": 28131
+      }
+    },
+    {
+      "documents": 4,
+      "echeRowKey": "F PARIS482|897691060",
+      "logicalBatchOrdinal": 9,
+      "v1": { "outputTokens": 4181, "wallTimeMs": 36093 },
+      "v2": { "outputTokens": 1237, "wallTimeMs": 11650 },
+      "v3": { "outputTokens": 1347, "wallTimeMs": 13634 },
+      "v4": { "outputTokens": 1338, "wallTimeMs": 13358 },
+      "v5": {
+        "inputTokens": 6,
+        "outputTokens": 4452,
+        "repairExecuted": 0,
+        "repairWallTimeMs": 0,
+        "wallTimeMs": 37782
+      }
+    },
+    {
+      "documents": 3,
+      "echeRowKey": "F PARIS525|879184333",
+      "logicalBatchOrdinal": 10,
+      "v1": { "outputTokens": 1036, "wallTimeMs": 50179 },
+      "v2": { "outputTokens": 946, "wallTimeMs": 10579 },
+      "v3": { "outputTokens": 1087, "wallTimeMs": 13916 },
+      "v4": { "outputTokens": 2218, "wallTimeMs": 19553 },
+      "v5": {
+        "inputTokens": 2,
+        "outputTokens": 1105,
+        "repairExecuted": 0,
+        "repairWallTimeMs": 0,
+        "wallTimeMs": 10283
+      }
+    },
+    {
+      "documents": 3,
+      "echeRowKey": "F RENNES52|949270228",
+      "logicalBatchOrdinal": 11,
+      "v1": { "outputTokens": 1132, "wallTimeMs": 12600 },
+      "v2": { "outputTokens": 956, "wallTimeMs": 11786 },
+      "v3": { "outputTokens": 1128, "wallTimeMs": 12715 },
+      "v4": { "outputTokens": 1169, "wallTimeMs": 12203 },
+      "v5": {
+        "inputTokens": 4,
+        "outputTokens": 2426,
+        "repairExecuted": 0,
+        "repairWallTimeMs": 0,
+        "wallTimeMs": 24206
+      }
+    },
+    {
+      "documents": 5,
+      "echeRowKey": "F ROUEN06|999465788",
+      "logicalBatchOrdinal": 12,
+      "v1": { "outputTokens": 3872, "wallTimeMs": 35867 },
+      "v2": { "outputTokens": 1929, "wallTimeMs": 18047 },
+      "v3": { "outputTokens": 1758, "wallTimeMs": 15044 },
+      "v4": { "outputTokens": 3968, "wallTimeMs": 29593 },
+      "v5": {
+        "inputTokens": 4,
+        "outputTokens": 3714,
+        "repairExecuted": 0,
+        "repairWallTimeMs": 0,
+        "wallTimeMs": 33572
+      }
+    }
+  ],
+  "repair": {
+    "artifactInventory": {
+      "count": 18,
+      "sha256": "a5d9d20ea0d9c99df0b2664bee67c8264caf3720467ceee7f0e2d3a032bea25c"
+    },
+    "artifactsVerified": 18,
+    "evaluationsWithARound": 12,
+    "firstPassRateAlwaysReported": true,
+    "gatesAppliedTo": "POST_REPAIR_VALIDITY",
+    "policy": { "enabled": true, "minimumRemainingBudgetMs": 120000 },
+    "repairInputTokens": 2,
+    "repairOutputTokens": 355,
+    "repairWallTimeMs": 4645,
+    "repairs": {
+      "accepted": 1,
+      "executed": 1,
+      "planned": 1,
+      "providerFailed": 0,
+      "rejected": 0,
+      "skipped": 0
+    }
+  },
+  "scope": "This summary concerns the DEVELOPMENT split only. It is a report of measured gate outcomes, not an acceptance decision; it authorises no HOLDOUT inference, no merge to main, no further attempt and no production change. HOLDOUT requires a separate owner authorisation.",
+  "scorerVersion": "phase2b-2d2c-f0s-attempt4-scorer-v1",
+  "semanticMetrics": {
+    "fields": [
+      {
+        "conditionalAccuracy": 0.5757575757575758,
+        "conditionalCorrect": 19,
+        "conditionalDenominator": 33,
+        "confusion": {
+          "DEGREE_PROGRAMME_PAGE": {
+            "DEGREE_PROGRAMME_PAGE": 3,
+            "GENERIC_INSTITUTIONAL_PAGE": 0,
+            "NAVIGATION_OR_LANDING_PAGE": 0,
+            "NEWS_OR_EVENT_PAGE": 0,
+            "NULL": 0,
+            "OTHER_NON_UNIT": 0,
+            "REJECTED": 0,
+            "RESEARCH_PAGE": 0,
+            "SERVICE_TOOL_PAGE": 0
+          },
+          "GENERIC_INSTITUTIONAL_PAGE": {
+            "DEGREE_PROGRAMME_PAGE": 1,
+            "GENERIC_INSTITUTIONAL_PAGE": 0,
+            "NAVIGATION_OR_LANDING_PAGE": 0,
+            "NEWS_OR_EVENT_PAGE": 0,
+            "NULL": 2,
+            "OTHER_NON_UNIT": 2,
+            "REJECTED": 0,
+            "RESEARCH_PAGE": 0,
+            "SERVICE_TOOL_PAGE": 1
+          },
+          "NAVIGATION_OR_LANDING_PAGE": {
+            "DEGREE_PROGRAMME_PAGE": 0,
+            "GENERIC_INSTITUTIONAL_PAGE": 0,
+            "NAVIGATION_OR_LANDING_PAGE": 4,
+            "NEWS_OR_EVENT_PAGE": 0,
+            "NULL": 0,
+            "OTHER_NON_UNIT": 1,
+            "REJECTED": 0,
+            "RESEARCH_PAGE": 0,
+            "SERVICE_TOOL_PAGE": 0
+          },
+          "NEWS_OR_EVENT_PAGE": {
+            "DEGREE_PROGRAMME_PAGE": 0,
+            "GENERIC_INSTITUTIONAL_PAGE": 0,
+            "NAVIGATION_OR_LANDING_PAGE": 0,
+            "NEWS_OR_EVENT_PAGE": 9,
+            "NULL": 0,
+            "OTHER_NON_UNIT": 0,
+            "REJECTED": 0,
+            "RESEARCH_PAGE": 0,
+            "SERVICE_TOOL_PAGE": 0
+          },
+          "NULL": {
+            "DEGREE_PROGRAMME_PAGE": 0,
+            "GENERIC_INSTITUTIONAL_PAGE": 0,
+            "NAVIGATION_OR_LANDING_PAGE": 0,
+            "NEWS_OR_EVENT_PAGE": 0,
+            "NULL": 0,
+            "OTHER_NON_UNIT": 0,
+            "REJECTED": 0,
+            "RESEARCH_PAGE": 0,
+            "SERVICE_TOOL_PAGE": 0
+          },
+          "OTHER_NON_UNIT": {
+            "DEGREE_PROGRAMME_PAGE": 0,
+            "GENERIC_INSTITUTIONAL_PAGE": 0,
+            "NAVIGATION_OR_LANDING_PAGE": 3,
+            "NEWS_OR_EVENT_PAGE": 0,
+            "NULL": 0,
+            "OTHER_NON_UNIT": 0,
+            "REJECTED": 0,
+            "RESEARCH_PAGE": 0,
+            "SERVICE_TOOL_PAGE": 0
+          },
+          "RESEARCH_PAGE": {
+            "DEGREE_PROGRAMME_PAGE": 0,
+            "GENERIC_INSTITUTIONAL_PAGE": 0,
+            "NAVIGATION_OR_LANDING_PAGE": 0,
+            "NEWS_OR_EVENT_PAGE": 2,
+            "NULL": 0,
+            "OTHER_NON_UNIT": 0,
+            "REJECTED": 0,
+            "RESEARCH_PAGE": 0,
+            "SERVICE_TOOL_PAGE": 0
+          },
+          "SERVICE_TOOL_PAGE": {
+            "DEGREE_PROGRAMME_PAGE": 0,
+            "GENERIC_INSTITUTIONAL_PAGE": 1,
+            "NAVIGATION_OR_LANDING_PAGE": 0,
+            "NEWS_OR_EVENT_PAGE": 0,
+            "NULL": 0,
+            "OTHER_NON_UNIT": 1,
+            "REJECTED": 0,
+            "RESEARCH_PAGE": 0,
+            "SERVICE_TOOL_PAGE": 3
+          }
+        },
+        "correct": 19,
+        "field": "page_kind",
+        "incorrect": 14,
+        "rejectedOrUnscorable": 0,
+        "strictAccuracy": 0.5757575757575758,
+        "strictDenominator": 33,
+        "support": 33
+      },
+      {
+        "conditionalAccuracy": 0.9285714285714286,
+        "conditionalCorrect": 13,
+        "conditionalDenominator": 14,
+        "confusion": {
+          "NO": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+          "NULL": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+          "UNKNOWN": { "NO": 0, "NULL": 1, "REJECTED": 0, "UNKNOWN": 11, "YES": 0 },
+          "YES": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 2 }
+        },
+        "correct": 13,
+        "field": "provides_language_learning_or_support",
+        "incorrect": 1,
+        "rejectedOrUnscorable": 0,
+        "strictAccuracy": 0.9285714285714286,
+        "strictDenominator": 14,
+        "support": 14
+      },
+      {
+        "conditionalAccuracy": 0.9285714285714286,
+        "conditionalCorrect": 13,
+        "conditionalDenominator": 14,
+        "confusion": {
+          "NO": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+          "NULL": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+          "UNKNOWN": { "NO": 0, "NULL": 1, "REJECTED": 0, "UNKNOWN": 5, "YES": 0 },
+          "YES": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 8 }
+        },
+        "correct": 13,
+        "field": "serves_incoming_international_students",
+        "incorrect": 1,
+        "rejectedOrUnscorable": 0,
+        "strictAccuracy": 0.9285714285714286,
+        "strictDenominator": 14,
+        "support": 14
+      },
+      {
+        "conditionalAccuracy": 0.9285714285714286,
+        "conditionalCorrect": 13,
+        "conditionalDenominator": 14,
+        "confusion": {
+          "NO": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+          "NULL": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+          "UNKNOWN": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 8, "YES": 0 },
+          "YES": { "NO": 0, "NULL": 1, "REJECTED": 0, "UNKNOWN": 0, "YES": 5 }
+        },
+        "correct": 13,
+        "field": "serves_outgoing_mobility_students",
+        "incorrect": 1,
+        "rejectedOrUnscorable": 0,
+        "strictAccuracy": 0.9285714285714286,
+        "strictDenominator": 14,
+        "support": 14
+      },
+      {
+        "conditionalAccuracy": 0.7954545454545454,
+        "conditionalCorrect": 35,
+        "conditionalDenominator": 44,
+        "confusion": {
+          "NAMED": { "NAMED": 9, "NULL": 0, "REJECTED": 0 },
+          "NULL": { "NAMED": 9, "NULL": 26, "REJECTED": 0 }
+        },
+        "correct": 35,
+        "field": "unit_name_expectation",
+        "incorrect": 9,
+        "rejectedOrUnscorable": 0,
+        "strictAccuracy": 0.7954545454545454,
+        "strictDenominator": 44,
+        "support": 44
+      },
+      {
+        "conditionalAccuracy": 0.9285714285714286,
+        "conditionalCorrect": 13,
+        "conditionalDenominator": 14,
+        "confusion": {
+          "INTERNATIONAL_MOBILITY_OFFICE": {
+            "INTERNATIONAL_MOBILITY_OFFICE": 10,
+            "LANGUAGE_CENTRE": 0,
+            "LANGUAGE_DEPARTMENT": 0,
+            "NULL": 1,
+            "OTHER_UNIT": 0,
+            "REJECTED": 0
+          },
+          "LANGUAGE_CENTRE": {
+            "INTERNATIONAL_MOBILITY_OFFICE": 0,
+            "LANGUAGE_CENTRE": 1,
+            "LANGUAGE_DEPARTMENT": 0,
+            "NULL": 0,
+            "OTHER_UNIT": 0,
+            "REJECTED": 0
+          },
+          "LANGUAGE_DEPARTMENT": {
+            "INTERNATIONAL_MOBILITY_OFFICE": 0,
+            "LANGUAGE_CENTRE": 0,
+            "LANGUAGE_DEPARTMENT": 1,
+            "NULL": 0,
+            "OTHER_UNIT": 0,
+            "REJECTED": 0
+          },
+          "NULL": {
+            "INTERNATIONAL_MOBILITY_OFFICE": 0,
+            "LANGUAGE_CENTRE": 0,
+            "LANGUAGE_DEPARTMENT": 0,
+            "NULL": 0,
+            "OTHER_UNIT": 0,
+            "REJECTED": 0
+          },
+          "OTHER_UNIT": {
+            "INTERNATIONAL_MOBILITY_OFFICE": 0,
+            "LANGUAGE_CENTRE": 0,
+            "LANGUAGE_DEPARTMENT": 0,
+            "NULL": 0,
+            "OTHER_UNIT": 1,
+            "REJECTED": 0
+          }
+        },
+        "correct": 13,
+        "field": "unit_type",
+        "incorrect": 1,
+        "rejectedOrUnscorable": 0,
+        "strictAccuracy": 0.9285714285714286,
+        "strictDenominator": 14,
+        "support": 14
+      },
+      {
+        "conditionalAccuracy": 0.8979591836734694,
+        "conditionalCorrect": 44,
+        "conditionalDenominator": 49,
+        "confusion": {
+          "NEEDS_REVIEW": { "NEEDS_REVIEW": 0, "NOT_A_UNIT": 1, "REJECTED": 0, "UNIT_PAGE": 1 },
+          "NOT_A_UNIT": { "NEEDS_REVIEW": 0, "NOT_A_UNIT": 31, "REJECTED": 0, "UNIT_PAGE": 2 },
+          "UNIT_PAGE": { "NEEDS_REVIEW": 0, "NOT_A_UNIT": 1, "REJECTED": 0, "UNIT_PAGE": 13 }
+        },
+        "correct": 44,
+        "field": "verdict",
+        "incorrect": 5,
+        "rejectedOrUnscorable": 0,
+        "strictAccuracy": 0.8979591836734694,
+        "strictDenominator": 49,
+        "support": 49
+      }
+    ],
+    "gates": [
+      {
+        "denominator": 49,
+        "gate": "minSchemaValidSpanVerifiedRate",
+        "met": true,
+        "note": "validator acceptance, which is schema validity plus span verification. NOT a semantic metric.",
+        "observed": 1,
+        "threshold": 0.99
+      },
+      {
+        "denominator": 14,
+        "gate": "minUnitPageRecall",
+        "met": false,
+        "note": "STRICT: a validator-rejected UNIT_PAGE item counts as a miss.",
+        "observed": 0.9285714285714286,
+        "threshold": 0.95
+      },
+      {
+        "denominator": 16,
+        "gate": "minUnitPagePrecision",
+        "met": false,
+        "note": "over items answered UNIT_PAGE by a validator-accepted result.",
+        "observed": 0.8125,
+        "threshold": 0.9
+      },
+      {
+        "denominator": 14,
+        "gate": "minUnitTypeAccuracy",
+        "met": true,
+        "note": "STRICT, over items whose gold verdict is UNIT_PAGE.",
+        "observed": 0.9285714285714286,
+        "threshold": 0.85
+      },
+      {
+        "denominator": 21,
+        "gate": "minHardNegativeRejection",
+        "met": true,
+        "note": "STRICT: a validator-rejected hard negative is not a successful rejection.",
+        "observed": 0.9047619047619048,
+        "threshold": 0.9
+      },
+      {
+        "denominator": 49,
+        "gate": "maxNeedsReviewRate",
+        "met": true,
+        "note": "over every item, answered or not.",
+        "observed": 0,
+        "threshold": 0.15
+      }
+    ],
+    "hardNegative": {
+      "acceptedAsUnitPage": 2,
+      "answeredNeedsReview": 0,
+      "conditionalDenominator": 21,
+      "conditionalRejectionRate": 0.9047619047619048,
+      "denominator": 21,
+      "rejectedAsNonUnit": 19,
+      "strictRejectionRate": 0.9047619047619048,
+      "validatorRejected": 0
+    },
+    "ternaryByAxis": [
+      {
+        "axis": "serves_incoming_international_students",
+        "metrics": {
+          "classes": [
+            {
+              "className": "YES",
+              "f1": 1,
+              "falseNegatives": 0,
+              "falsePositives": 0,
+              "precision": 1,
+              "recall": 1,
+              "truePositives": 8
+            },
+            {
+              "className": "NO",
+              "f1": null,
+              "falseNegatives": 0,
+              "falsePositives": 0,
+              "precision": null,
+              "recall": null,
+              "truePositives": 0
+            },
+            {
+              "className": "UNKNOWN",
+              "f1": 0.9090909090909091,
+              "falseNegatives": 1,
+              "falsePositives": 0,
+              "precision": 1,
+              "recall": 0.8333333333333334,
+              "truePositives": 5
+            },
+            {
+              "className": "NULL",
+              "f1": null,
+              "falseNegatives": 0,
+              "falsePositives": 1,
+              "precision": 0,
+              "recall": null,
+              "truePositives": 0
+            }
+          ],
+          "confusion": {
+            "NO": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+            "NULL": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+            "UNKNOWN": { "NO": 0, "NULL": 1, "REJECTED": 0, "UNKNOWN": 5, "YES": 0 },
+            "YES": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 8 }
+          },
+          "macroF1": 0.9545454545454546
+        }
+      },
+      {
+        "axis": "serves_outgoing_mobility_students",
+        "metrics": {
+          "classes": [
+            {
+              "className": "YES",
+              "f1": 0.9090909090909091,
+              "falseNegatives": 1,
+              "falsePositives": 0,
+              "precision": 1,
+              "recall": 0.8333333333333334,
+              "truePositives": 5
+            },
+            {
+              "className": "NO",
+              "f1": null,
+              "falseNegatives": 0,
+              "falsePositives": 0,
+              "precision": null,
+              "recall": null,
+              "truePositives": 0
+            },
+            {
+              "className": "UNKNOWN",
+              "f1": 1,
+              "falseNegatives": 0,
+              "falsePositives": 0,
+              "precision": 1,
+              "recall": 1,
+              "truePositives": 8
+            },
+            {
+              "className": "NULL",
+              "f1": null,
+              "falseNegatives": 0,
+              "falsePositives": 1,
+              "precision": 0,
+              "recall": null,
+              "truePositives": 0
+            }
+          ],
+          "confusion": {
+            "NO": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+            "NULL": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+            "UNKNOWN": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 8, "YES": 0 },
+            "YES": { "NO": 0, "NULL": 1, "REJECTED": 0, "UNKNOWN": 0, "YES": 5 }
+          },
+          "macroF1": 0.9545454545454546
+        }
+      },
+      {
+        "axis": "provides_language_learning_or_support",
+        "metrics": {
+          "classes": [
+            {
+              "className": "YES",
+              "f1": 1,
+              "falseNegatives": 0,
+              "falsePositives": 0,
+              "precision": 1,
+              "recall": 1,
+              "truePositives": 2
+            },
+            {
+              "className": "NO",
+              "f1": null,
+              "falseNegatives": 0,
+              "falsePositives": 0,
+              "precision": null,
+              "recall": null,
+              "truePositives": 0
+            },
+            {
+              "className": "UNKNOWN",
+              "f1": 0.9565217391304348,
+              "falseNegatives": 1,
+              "falsePositives": 0,
+              "precision": 1,
+              "recall": 0.9166666666666666,
+              "truePositives": 11
+            },
+            {
+              "className": "NULL",
+              "f1": null,
+              "falseNegatives": 0,
+              "falsePositives": 1,
+              "precision": 0,
+              "recall": null,
+              "truePositives": 0
+            }
+          ],
+          "confusion": {
+            "NO": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+            "NULL": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 0 },
+            "UNKNOWN": { "NO": 0, "NULL": 1, "REJECTED": 0, "UNKNOWN": 11, "YES": 0 },
+            "YES": { "NO": 0, "NULL": 0, "REJECTED": 0, "UNKNOWN": 0, "YES": 2 }
+          },
+          "macroF1": 0.9782608695652174
+        }
+      }
+    ],
+    "variantName": "PROMPT_V5_CANONICAL"
+  },
+  "sources": {
+    "attempt1Comparator": {
+      "artifactInventorySha256": "ee17e1f2ee8021e59c06377342042e56f84269165f8ec39521011cb1d3538137",
+      "artifactsVerified": 243,
+      "freezeRawSha256": "c3f0a76b3a5939f3e4bf395d46237cf0b0f365fa1f4bf019092a6944849d6157",
+      "planSha256": "05cb6984a57a871ac6b0a0720ab2fefceb5b5843f440dbf7831abdf9bfc82f6c",
+      "readOnly": true,
+      "rerun": false
+    },
+    "attempt2Comparator": {
+      "artifactInventorySha256": "8c96a54f3fa57e523390ef39a0ffd3d2fe00dde2543d21e0105de8a3cac7cce2",
+      "artifactsVerified": 123,
+      "freezeRawSha256": "3b49461af417f8846306dacea561da8865956934f40e72b91ec06db7b1639587",
+      "planSha256": "6c6ee79b7e8591a69b43241ad422e437d70440bc08919fd82d8cf9afac388e25",
+      "readOnly": true,
+      "repairArtifactInventory": {
+        "count": 18,
+        "sha256": "738ef4507c04d8c9dbf410fea16f84ccecedeef00902e0fe0ed5ea7039f26b18"
+      },
+      "rerun": false
+    },
+    "attempt3Comparator": {
+      "artifactInventorySha256": "13fce8e4e6b0c5f5db14ce32cbafa4ad508cc47cdae8a0614f7379b97d9128be",
+      "artifactsVerified": 123,
+      "freezeRawSha256": "018f7bc1d34ff92ae11491595bd42df986e5369652bf58b0fce19111467d615e",
+      "planSha256": "3829955f64b9bdddb51ba7b5389363b0fa36c0449628206914f608f9f1830a2b",
+      "readOnly": true,
+      "repairArtifactInventory": {
+        "count": 24,
+        "sha256": "c1fb41d4fde2d8baec317e8012de4b102b1376d7b74448d31081c9ca35e7fb17"
+      },
+      "rerun": false
+    },
+    "attempt4": {
+      "artifactInventorySha256": "f08045e5a38a8cc5305d285bc8177ec706bce0a2b3f6f62982d6275d2f1669c0",
+      "artifactsVerified": 123,
+      "authorisationSha256": "7df4a92a6fc61a018331aef6df8ef0a15dcda016136e4c562ac7028607cf8a75",
+      "consumedAtUtc": "2026-09-15T17:19:16.397Z",
+      "consumptionMarkerSha256": "428c76fe07766c86c4a99054621e590dbb0777404a722ef3733c32ea4f00a87a",
+      "experimentCompletedAtUtc": "2026-09-15T17:24:10.632Z",
+      "experimentStatus": "COMPLETED_ALL_PLANNED",
+      "freezeRawSha256": "77cccff133ceac9ca57ac30c4468690d99ae3d53a294e30249f97487c727a75e",
+      "freezeVersion": "phase2b-2d2c-dev-configuration-freeze-f0o-v1",
+      "planSha256": "292d9424d487f3d69903a3b81172bd0a90c65adbd7ee6fa63cf3a9d0ced79898",
+      "repairArtifactInventory": {
+        "count": 18,
+        "sha256": "a5d9d20ea0d9c99df0b2664bee67c8264caf3720467ceee7f0e2d3a032bea25c"
+      }
+    },
+    "corpus": {
+      "contentSha256": "f00139e42ff5d12dfc1a6ba1b969a635197ddda27f79515473f119ff919a6fa2",
+      "items": 49,
+      "manifestRawSha256": "9ef7dfb45307004297f019351163b06478d2f552834f10496545cfaf1a9a20f6",
+      "rawSha256": "c5a9923a35689fd8b0950d615ee5339c6ccc63e83ac067960760497b6a9c4536",
+      "split": "DEVELOPMENT"
+    }
+  },
+  "stochasticCaveat": "one sample per variant per attempt; a comparison proves nothing about future model performance",
+  "unmeasuredGates": []
+}

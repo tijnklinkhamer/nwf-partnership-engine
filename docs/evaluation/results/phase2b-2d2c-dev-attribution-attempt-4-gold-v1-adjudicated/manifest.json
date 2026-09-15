@@ -1,0 +1,78 @@
+{
+  "attemptNo": 4,
+  "excludedFromOutputs": [
+    "raw model output",
+    "chain of thought",
+    "full rationales",
+    "full evidence excerpts",
+    "credentials",
+    "profile information",
+    "provider transcripts"
+  ],
+  "generationCommand": "node --import tsx src/test/harness/phase2b2d2c/scoring/attempt4Generate.ts --attempt4-root <attempt-4 root> --attempt1-root <preserved attempt-1 root> --attempt2-root <preserved attempt-2 root> --attempt3-root <preserved attempt-3 root> --gold-supplement docs/evaluation/PHASE_2B_2D2C_DEV_SCORING_SUPPLEMENT_V1.json --owner-adjudication docs/evaluation/PHASE_2B_2D2C_DEV_OWNER_ADJUDICATION_G1_V1.json --out docs/evaluation/results/phase2b-2d2c-dev-attribution-attempt-4-gold-v1-adjudicated",
+  "ordering": "scored-items.jsonl is ordered by (goldId ascending, variantName ascending).",
+  "outputSchemaVersion": "phase2b-2d2c-f0s-attempt4-summary-v1",
+  "outputs": {
+    "scored-items.jsonl": "7bd51906be2c02f50c67f6c9f25950b48a09e7d4c84d06692a3a2722608c7f48",
+    "summary.json": "e83347e9ae1dc722b26db70687b1ea2f7142d4a17d701035b71ba6067257d376"
+  },
+  "scorerVersion": "phase2b-2d2c-f0s-attempt4-scorer-v1",
+  "serialization": "canonicalStringify from src/orgunits/classify/canonical.ts fixes key order and number formatting. scored-items.jsonl is one canonical JSON object per line, LF-terminated, and is not formatter-managed. summary.json and manifest.json are laid out by prettier@3.9.6 under the repository's own .prettierrc.json; the layout is part of these bytes.",
+  "sources": {
+    "attempt1Comparator": {
+      "artifactInventorySha256": "ee17e1f2ee8021e59c06377342042e56f84269165f8ec39521011cb1d3538137",
+      "artifactsVerified": 243,
+      "freezeRawSha256": "c3f0a76b3a5939f3e4bf395d46237cf0b0f365fa1f4bf019092a6944849d6157",
+      "planSha256": "05cb6984a57a871ac6b0a0720ab2fefceb5b5843f440dbf7831abdf9bfc82f6c",
+      "readOnly": true,
+      "rerun": false
+    },
+    "attempt2Comparator": {
+      "artifactInventorySha256": "8c96a54f3fa57e523390ef39a0ffd3d2fe00dde2543d21e0105de8a3cac7cce2",
+      "artifactsVerified": 123,
+      "freezeRawSha256": "3b49461af417f8846306dacea561da8865956934f40e72b91ec06db7b1639587",
+      "planSha256": "6c6ee79b7e8591a69b43241ad422e437d70440bc08919fd82d8cf9afac388e25",
+      "readOnly": true,
+      "repairArtifactInventory": {
+        "count": 18,
+        "sha256": "738ef4507c04d8c9dbf410fea16f84ccecedeef00902e0fe0ed5ea7039f26b18"
+      },
+      "rerun": false
+    },
+    "attempt3Comparator": {
+      "artifactInventorySha256": "13fce8e4e6b0c5f5db14ce32cbafa4ad508cc47cdae8a0614f7379b97d9128be",
+      "artifactsVerified": 123,
+      "freezeRawSha256": "018f7bc1d34ff92ae11491595bd42df986e5369652bf58b0fce19111467d615e",
+      "planSha256": "3829955f64b9bdddb51ba7b5389363b0fa36c0449628206914f608f9f1830a2b",
+      "readOnly": true,
+      "repairArtifactInventory": {
+        "count": 24,
+        "sha256": "c1fb41d4fde2d8baec317e8012de4b102b1376d7b74448d31081c9ca35e7fb17"
+      },
+      "rerun": false
+    },
+    "attempt4": {
+      "artifactInventorySha256": "f08045e5a38a8cc5305d285bc8177ec706bce0a2b3f6f62982d6275d2f1669c0",
+      "artifactsVerified": 123,
+      "authorisationSha256": "7df4a92a6fc61a018331aef6df8ef0a15dcda016136e4c562ac7028607cf8a75",
+      "consumedAtUtc": "2026-09-15T17:19:16.397Z",
+      "consumptionMarkerSha256": "428c76fe07766c86c4a99054621e590dbb0777404a722ef3733c32ea4f00a87a",
+      "experimentCompletedAtUtc": "2026-09-15T17:24:10.632Z",
+      "experimentStatus": "COMPLETED_ALL_PLANNED",
+      "freezeRawSha256": "77cccff133ceac9ca57ac30c4468690d99ae3d53a294e30249f97487c727a75e",
+      "freezeVersion": "phase2b-2d2c-dev-configuration-freeze-f0o-v1",
+      "planSha256": "292d9424d487f3d69903a3b81172bd0a90c65adbd7ee6fa63cf3a9d0ced79898",
+      "repairArtifactInventory": {
+        "count": 18,
+        "sha256": "a5d9d20ea0d9c99df0b2664bee67c8264caf3720467ceee7f0e2d3a032bea25c"
+      }
+    },
+    "corpus": {
+      "contentSha256": "f00139e42ff5d12dfc1a6ba1b969a635197ddda27f79515473f119ff919a6fa2",
+      "items": 49,
+      "manifestRawSha256": "9ef7dfb45307004297f019351163b06478d2f552834f10496545cfaf1a9a20f6",
+      "rawSha256": "c5a9923a35689fd8b0950d615ee5339c6ccc63e83ac067960760497b6a9c4536",
+      "split": "DEVELOPMENT"
+    }
+  }
+}

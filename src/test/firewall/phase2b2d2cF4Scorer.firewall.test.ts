@@ -23,6 +23,7 @@ const SCORING_DIR = join(REPO_ROOT, 'src/test/harness/phase2b2d2c/scoring');
 // F0D: the attempt-2 scorer entries walk the same graph and are held to the same wall.
 // F0N: the attempt-3 scorer entries (F0J/F0L) walk the same graph and are held to the same wall too -
 // closes the gap F0L §1 and F0M §8 both noted but did not fix (this task's own scope forbade touching tests).
+// F0S: the attempt-4 scorer entries walk the same graph and are held to the same wall too.
 const ENTRY_POINTS = [
   'generate.ts',
   'run.ts',
@@ -31,6 +32,8 @@ const ENTRY_POINTS = [
   'attempt2Run.ts',
   'attempt3Generate.ts',
   'attempt3Run.ts',
+  'attempt4Generate.ts',
+  'attempt4Run.ts',
 ];
 
 /** Modules that can reach inference, credentials, a database or a child process. */

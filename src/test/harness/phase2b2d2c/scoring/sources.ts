@@ -50,13 +50,17 @@ import {
 } from './constants.js';
 
 /**
- * F0D/F0J: every variant a scored row may carry — the two attempt-1
- * variants, the attempt-2 V3 variant, and the attempt-3 V4 variant. WHICH of
- * them a loader admits is decided by that loader's own frozen plan, never by
- * this union.
+ * F0D/F0J/F0S: every variant a scored row may carry — the two attempt-1
+ * variants, the attempt-2 V3 variant, the attempt-3 V4 variant, and the
+ * attempt-4 V5 variant. WHICH of them a loader admits is decided by that
+ * loader's own frozen plan, never by this union.
  */
 export type ScoredVariantName =
-  'PROMPT_V1_CANONICAL' | 'PROMPT_V2_CANONICAL' | 'PROMPT_V3_CANONICAL' | 'PROMPT_V4_CANONICAL';
+  | 'PROMPT_V1_CANONICAL'
+  | 'PROMPT_V2_CANONICAL'
+  | 'PROMPT_V3_CANONICAL'
+  | 'PROMPT_V4_CANONICAL'
+  | 'PROMPT_V5_CANONICAL';
 
 export class ScoringSourceError extends Error {
   override readonly name = 'ScoringSourceError';
@@ -96,19 +100,24 @@ export type PersistedValidation = z.infer<typeof PersistedValidationSchema>;
 
 export const PlannedInputSchema = z.looseObject({
   sequence: z.number().int().min(1),
-  // F0K: `loadEvaluationDirectory` is shared by the attempt-1, attempt-2 AND
-  // attempt-3 loaders, so this closed set must name every variant any of
-  // them can have persisted. It stayed at V1..V3 when attempt 3 was
-  // prepared, which would have refused all twelve PROMPT_V4_CANONICAL
-  // planned inputs at scoring time. Admission here is NECESSARY, never
+  // F0K/F0S: `loadEvaluationDirectory` is shared by the attempt-1, attempt-2,
+  // attempt-3 AND attempt-4 loaders, so this closed set must name every
+  // variant any of them can have persisted. It stayed at V1..V3 when attempt
+  // 3 was prepared, which would have refused all twelve PROMPT_V4_CANONICAL
+  // planned inputs at scoring time, and it stayed at V1..V4 when attempt 4
+  // was prepared, which would have refused all twelve PROMPT_V5_CANONICAL
+  // planned inputs the same way. Admission here is NECESSARY, never
   // sufficient: each attempt's own loader still checks that the name is the
   // ONE variant its freeze schedules (`attempt3Sources.ts` refuses any
-  // V1/V2/V3 directory in the attempt-3 namespace outright).
+  // V1/V2/V3 directory in the attempt-3 namespace outright, and
+  // `attempt4Sources.ts` refuses any V1/V2/V3/V4 directory in the attempt-4
+  // namespace outright). PROMPT_V6_CANONICAL remains deliberately unadmitted.
   variantName: z.enum([
     'PROMPT_V1_CANONICAL',
     'PROMPT_V2_CANONICAL',
     'PROMPT_V3_CANONICAL',
     'PROMPT_V4_CANONICAL',
+    'PROMPT_V5_CANONICAL',
   ]),
   variantLabel: z.string(),
   variantOrder: z.number().int(),
