@@ -50,12 +50,13 @@ import {
 } from './constants.js';
 
 /**
- * F0D: every variant a scored row may carry — the two attempt-1 variants and
- * the attempt-2 V3 variant. WHICH of them a loader admits is decided by that
- * loader's own frozen plan, never by this union.
+ * F0D/F0J: every variant a scored row may carry — the two attempt-1
+ * variants, the attempt-2 V3 variant, and the attempt-3 V4 variant. WHICH of
+ * them a loader admits is decided by that loader's own frozen plan, never by
+ * this union.
  */
 export type ScoredVariantName =
-  'PROMPT_V1_CANONICAL' | 'PROMPT_V2_CANONICAL' | 'PROMPT_V3_CANONICAL';
+  'PROMPT_V1_CANONICAL' | 'PROMPT_V2_CANONICAL' | 'PROMPT_V3_CANONICAL' | 'PROMPT_V4_CANONICAL';
 
 export class ScoringSourceError extends Error {
   override readonly name = 'ScoringSourceError';
