@@ -2752,7 +2752,7 @@ describe('PHASE-2B-FIREWALL 2B-2D2C-F0D/F0E: attempt-2 preparation is plan-only,
   const FAMILY = `${F0C_DIR}/freezeFamily.ts`;
   const V3_ROOT = `${F0C_DIR}/variantRootF0C.ts`;
 
-  it('the attempt-2 modules exist; F0G/F0H (2026-09-14) COMMITTED the attempt-2 result under exactly its named directory and nothing else matching attempt-2/attempt-3 exists; no raw authorisation or consumption-marker file leaked into the repository; and the F0E approval record is pinned by literal', () => {
+  it('the attempt-2 modules exist; F0G/F0H (2026-09-14) COMMITTED the attempt-2 result under exactly its named directory, and F0L (2026-09-15) additionally COMMITTED the attempt-3 result under exactly its own named directory, and nothing else matching attempt-2/attempt-3 exists; no raw authorisation or consumption-marker file leaked into the repository; and the F0E approval record is pinned by literal', () => {
     for (const file of [
       CLI,
       LOCK,
@@ -2769,20 +2769,26 @@ describe('PHASE-2B-FIREWALL 2B-2D2C-F0D/F0E: attempt-2 preparation is plan-only,
     ]) {
       expect(exists(file), `${file} is missing`).toBe(true);
     }
-    // F0G/F0H deliberately widen this check, by exact name: attempt 2 was
+    // F0G/F0H deliberately widened this check, by exact name: attempt 2 was
     // executed under an owner-issued authorisation and its DERIVED,
     // PII-free scored result was committed to the one directory the F0D
-    // emitter names (`COMMITTED_ATTEMPT2_RESULTS_DIR`). No OTHER
-    // attempt-2-shaped results directory, and no attempt-3 of any shape,
-    // may ever appear alongside it.
+    // emitter names (`COMMITTED_ATTEMPT2_RESULTS_DIR`). F0O (2026-09-15) now
+    // deliberately widens it a second time, by exact name only: F0L
+    // committed exactly one deterministic, PII-free attempt-3 scored-results
+    // directory alongside it. This is a test-only historical-state widening
+    // — it names the two directories that now legitimately exist and
+    // continues to refuse anything else attempt-2/attempt-3-shaped.
     const resultsEntries = readdirSync(resolve(ROOT, 'docs/evaluation/results'));
+    const attemptDirs = resultsEntries
+      .filter((entry) => entry.includes('attempt-2') || entry.includes('attempt-3'))
+      .sort();
     expect(
-      resultsEntries.filter((entry) => entry.includes('attempt-2')),
-      'exactly one committed attempt-2 results directory',
-    ).toEqual(['phase2b-2d2c-dev-attribution-attempt-2-gold-v1-adjudicated']);
-    for (const entry of resultsEntries) {
-      expect(entry, 'no attempt-3 results directory exists').not.toMatch(/attempt-3/);
-    }
+      attemptDirs,
+      'exactly the two committed attempt-2 and attempt-3 results directories, and nothing else attempt-2/attempt-3-shaped',
+    ).toEqual([
+      'phase2b-2d2c-dev-attribution-attempt-2-gold-v1-adjudicated',
+      'phase2b-2d2c-dev-attribution-attempt-3-gold-v1-adjudicated',
+    ]);
     for (const entry of readdirSync(resolve(ROOT, 'docs/evaluation'))) {
       expect(entry).not.toMatch(/attempt-2/);
       expect(entry).not.toMatch(/attempt-3/);
