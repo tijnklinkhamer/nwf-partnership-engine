@@ -67,12 +67,30 @@ const INFERENCE_CAPABLE_ARTIFACT_FILE_NAMES: readonly string[] = [
   'repair-outcome.json',
 ];
 
-/** The shapes a PRE-INFERENCE slot root may hold, and nothing else. */
+/**
+ * The shapes a PRE-INFERENCE slot root may hold, and nothing else.
+ *
+ * PHASE 2B-2D2C-F0X widening: `study-slot-identity.json`
+ * (`f0x/outerSlotIdentity.ts`) is the durable OUTER-layer record F0X writes
+ * write-once, at the slot's own output root, before (and as part of)
+ * authorisation consumption — deliberately BEFORE `runExperiment`'s own
+ * `authorisations/<hash>.json` marker can be relied on to exist. Without
+ * this entry a slot root holding only that record would fall through to
+ * the "unaccounted" branch below and read as `AMBIGUOUS` instead of the
+ * correct `PRE_INFERENCE_REFUSAL` (Class B candidate) — misclassifying
+ * every real slot's normal pre-launch state. It carries no inference-shaped
+ * content (`outerSlotIdentity.ts`'s own record has no provider, prompt
+ * output or classifier field), so admitting it here changes no Class C
+ * detection: a slot root with ANY inference-capable artifact is still
+ * `SEMANTIC_EXECUTION_OBSERVED` regardless of this file's presence, because
+ * that check runs first.
+ */
 const PRE_INFERENCE_PATH_PATTERNS: readonly RegExp[] = [
   /^authorisations\/[0-9a-f]{64}\.json$/,
   /^experiments\/attempt-[1-9][0-9]*\/experiment-manifest\.json$/,
   /^evaluations\/[A-Z0-9_]+\/batch-[0-9]{2}\/attempt-[1-9][0-9]*\/planned-input\.json$/,
   /^experiments\/attempt-[1-9][0-9]*\/experiment-stop\.json$/,
+  /^study-slot-identity\.json$/,
 ];
 
 const DURABLE_CLOSURE_FILE_NAMES: readonly string[] = [
