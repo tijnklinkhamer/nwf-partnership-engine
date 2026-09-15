@@ -14,7 +14,7 @@ was found.
 
 - Starting commit (exact approved F0O head): `a187362103905896e5ed0748154c68249f679575`
 - Branch: `feat/phase2b-2d2c-f0p-attempt-4-readiness` (this worktree, reused from the F0K/F0N/F0O lineage)
-- Final commit: recorded at the end of this document after commit
+- Machinery commit: `18f76daef148af08eefcddbd9a265146b10b6c31`
 
 ## What this slice built
 
