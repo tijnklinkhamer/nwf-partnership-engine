@@ -2,756 +2,833 @@
 
 Date: 2026-09-15. Owner instruction:
 `PHASE 2B-2D2C-F0U — REPLICATION METHODOLOGY REVIEW / STOCHASTICITY
-CHARACTERISATION DESIGN — ZERO INFERENCE`. Methodology design only. Zero
-provider calls, zero classifier inference, zero auth-status calls, zero new
-prompt, zero V6 implementation, zero HOLDOUT access and zero execution
-authorisation were made or created by this task. Branched from the exact F0T
-closing commit `71933872510c1a27e5e011d76641999c029bea24`, branch
-`design/phase2b-2d2c-f0u-replication-methodology`. Not merged to `main`. No
-`tsx`/`node` invocation of `src/orgunits/classify/provider*`, `orchestrate.ts`
-or any network-capable module occurred; every finding below is read directly
-from committed documents, the two frozen runtime worktrees' source (not
-executed), the SDK's own bundled type declarations (read, not imported into
-an execution), and the preserved `provider-outcome.json` artifacts already
-written by attempts 3 and 4.
+CHARACTERISATION DESIGN — ZERO INFERENCE`, methodology design only. Cut from
+F0T's exact closing commit at
+`71933872510c1a27e5e011d76641999c029bea24`, branch
+`design/phase2b-2d2c-f0u-replication-methodology`. Not merged to `main`.
 
-**Outcome: PHASE 2B-2D2C-F0U COMPLETE — METHODOLOGY DESIGNED, NO EXPERIMENT
-EXECUTED, NO ACCEPTANCE RULE CHANGED.** Recommended next step:
-**M2 — TARGETED DIAGNOSTIC REPLICATION FIRST**, specifically a
-critical-*batch* (not critical-item-in-isolation) resampling design at
-**N = 5** paired replications, before any full 12-batch paired study and
-before any V6. Full parameters in §13. **This task stops here for owner
-review.**
+**This task authorises no provider request, no classifier inference, no
+auth-status call, no new prompt, no V6, no HOLDOUT access and no execution
+authorisation. It designs an experiment; it does not run one.** Every
+concrete figure below (hashes, gate values, token/timing counts, code
+excerpts) is read directly from committed files, from the two frozen runtime
+worktrees at their exact F0O-pinned commits (re-verified live in this task —
+§3), and from the immutable `attempt-3-retry-1`/`attempt-4` evidence roots
+outside this repository. No `tsx`/`node` invocation of any file under
+`src/orgunits/classify/provider*`, `orchestrate.ts`, or any CLI/coordinator
+module occurred; no `ANTHROPIC_API_KEY` or equivalent credential was read or
+used; no file named in F0T §8's forbidden list
+(`orgunit-classifier-sonnet-acceptance-v1.jsonl`,
+`...-adjudication-v1.jsonl`, `orgunit-classifier-gold-v1.jsonl`,
+`orgunit-classifier-adjudication-v1.jsonl`) was opened.
+
+**Outcome: PHASE 2B-2D2C-F0U COMPLETE.** Recommendation
+**M1 — FULL PAIRED REPLICATION STUDY RECOMMENDED**, using full-frozen-batch
+resampling (Design B, §4) at **N = 5 fresh paired replications per prompt**
+(10 fresh runs total), historical Attempts 3/4 treated as **pilot-only, not
+counted** among the five, executed in a predetermined alternating pair order
+frozen before any inference (§6). The full analysis contract, interpretation
+rules and resource envelope are specified in §§7–10 below. **Item-only
+resampling (Design A) is explicitly NOT recommended as the first step**: the
+historical batch shape is one provider call per ~4-document batch, not one
+call per document (§4), so an item-scored-alone replication would change the
+execution context relative to Attempts 3/4 in a way this task cannot show is
+immaterial — exactly the risk the owner instruction warned against.
 
 ---
 
-## 1. The historical record, preserved exactly
+## 1. Preserve the current empirical conclusions exactly
 
-These two results are immutable inputs to everything below. Nothing in this
-document changes a hash, a gate outcome, or a stored file under
-`docs/evaluation/results/`.
+The following are immutable historical observations. A future replication
+study may characterise variability around them; **it may never relabel
+either historical run as a pass.**
 
-| | V4 / Attempt 3 | V5 / Attempt 4 |
+**V4 / Attempt 3** — runtime `7c3cb5b5b7e57c1c9cee03900c922a01b2075573`
+(independently re-verified live in this task: `git rev-parse HEAD` inside
+`/Users/tijnklinkhamer/Developer/wt-phase2b-2d2c-v4i1-bounded-semantic-narrowing`
+returns exactly this SHA), prompt SHA-256
+`a2dad6e85102ee710d4eb1c5ca4ea3995273b3e25834d27a83f36ad6b65a256b`
+(independently confirmed present, byte-identical, in nine committed sources
+including `src/test/harness/phase2b2d2c/f0i/freezeF0I.ts` and
+`docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0I_V1.json` — grep
+re-run in this task, not merely re-quoted):
+
+| metric | value | source |
 | --- | --- | --- |
-| runtime commit | `7c3cb5b5b7e57c1c9cee03900c922a01b2075573` | `1bb7578ac962650675f05aec3507c57a49517239` |
-| prompt SHA-256 | `a2dad6e85102ee710d4eb1c5ca4ea3995273b3e25834d27a83f36ad6b65a256b` | `4c7352812740ca2df518b5274d18aae2f7f695d05ab0f60fcf72c000db8f01c9` |
-| `devGateOutcome` | `FROZEN_GATES_FAILED_ON_DEV` | `FROZEN_GATES_FAILED_ON_DEV` |
-| `failedGates` | `["minUnitPagePrecision"]` | `["minUnitPageRecall", "minUnitPagePrecision"]` |
+| `minUnitPageRecall` | 14/14 = 1.0000 | F0L §9 / F0S §12, re-verified §1 above |
+| `minUnitPagePrecision` | 14/16 = 0.8750 | F0L §9 / F0S §12 |
+| `devGateOutcome` | `FROZEN_GATES_FAILED_ON_DEV` | F0L §17 |
 
-Full six-gate comparison (source: F0L §"gate" table, F0S §9 — both re-cited,
-neither re-derived by this task):
+**V5 / Attempt 4** — runtime `1bb7578ac962650675f05aec3507c57a49517239`
+(independently re-verified live: `git rev-parse HEAD` inside
+`/Users/tijnklinkhamer/Developer/wt-phase2b-2d2c-v5i1-whole-org-base-scope`
+returns exactly this SHA), prompt SHA-256
+`4c7352812740ca2df518b5274d18aae2f7f695d05ab0f60fcf72c000db8f01c9`
+(independently confirmed present, byte-identical, in seven committed sources
+including `src/test/harness/phase2b2d2c/f0o/freezeF0O.ts`):
 
-| gate | V4 observed | V4 pass/fail | V5 observed | V5 pass/fail | threshold |
-| --- | --- | --- | --- | --- | --- |
-| `minSchemaValidSpanVerifiedRate` | 49/49 = 1.0000 | PASS | 49/49 = 1.0000 | PASS | ≥ 0.99 |
-| `minUnitPageRecall` | 14/14 = 1.0000 | PASS | 13/14 = 0.9286 | **FAIL** | ≥ 0.95 |
-| `minUnitPagePrecision` | 14/16 = 0.8750 | **FAIL** | 13/16 = 0.8125 | **FAIL** | ≥ 0.90 |
-| `minUnitTypeAccuracy` | 14/14 = 1.0000 | PASS | 13/14 = 0.9286 | PASS | ≥ 0.85 |
-| `minHardNegativeRejection` | 20/21 = 0.9524 | PASS | 19/21 = 0.9048 | PASS | ≥ 0.90 |
-| `maxNeedsReviewRate` | 0/49 = 0.0000 | PASS | 0/49 = 0.0000 | PASS | ≤ 0.15 |
-
-A future replication study may characterise the *variability* around these
-numbers. **It may never relabel either historical run as a pass, never
-retroactively grant HOLDOUT eligibility to either, and never overwrite either
-row above.** Any replication result is additive evidence alongside these two
-rows, not a substitute for them.
-
-**One additional, purely descriptive observation, preserved here because it
-bears on the overfitting risk discussed in §12**: `g04d170f4d3fda759`'s
-verdict trajectory across all five prompt variants tried so far
-(source: F0S §10) is `V1 UNIT_PAGE (wrong) → V2 NOT_A_UNIT (correct) → V3
-UNIT_PAGE (wrong) → V4 UNIT_PAGE (wrong) → V5 UNIT_PAGE (wrong)`. This is not
-a monotonically-improving sequence under successive deliberate edits — it
-alternates once before settling wrong three times running. That shape is
-consistent with (not proof of) the same run-to-run variability this whole
-task exists to characterise; it is recorded as a fact about the trajectory,
-not as a conclusion about its cause.
-
-## 2. Correcting the epistemic model of rationales
-
-**A persisted provider rationale is an observable model OUTPUT — a piece of
-text the model chose to emit as an explanation.** It is not, and cannot be
-treated as, a transcript of the model's actual internal computation. The
-internal process that produced a given token sequence (including the
-`verdict` token) is not observable from anything preserved in this
-repository, in either runtime worktree, or in any artifact this task is
-permitted to read.
-
-This matters because F0T's central findings rest on an inference bridge: from
-"the rationale text does not mention X" to "X did not influence the
-verdict." That bridge is usually reasonable — a rationale that discusses a
-different clause at length, using specific and non-generic language, is
-meaningfully more likely to reflect what the model actually weighed than one
-that happens to be silent — but it is an inference, not a direct
-observation, and a model can in principle apply a rule without verbalising
-it (an "unfaithful" or merely incomplete rationale). F0T's own text is
-already careful about this in most places (§4: "grounded in what each
-rationale explicitly invokes, not in whether the resulting prediction was
-correct") but the summary line at the top of F0T —
-
-> `g04d170f4d3fda759`... shows **zero visible engagement with E1's new
-> qualifier**
-
-— is accurate as stated but easy to over-read as "E1 had no effect." The
-methodologically precise restatement, used from here on in this document and
-recommended (as an *additive* clarification, not an edit) for any future
-reference to this finding, is:
-
-> **The preserved V5 output contains no observable rationale evidence that
-> the newly added qualifier governed the decision.**
-
-This is not a rewrite of F0T — F0T is not modified by this task — it is the
-same discipline F0T itself applied in §1 to F0S's "establishes only
-eligibility" wording, extended one step further.
-
-### Which F0T conclusions are direct observation versus causal inference
-
-| F0T claim | basis | classification |
+| metric | value | source |
 | --- | --- | --- |
-| The E1 edit is exactly the one-sentence diff shown in F0T §2 | byte-for-byte `diff` of `prompt.ts` in the two pinned runtime worktrees | **DIRECT OBSERVATION** |
-| V4's and V5's `verdict`/`rationale`/`evidence_spans` for each of the three critical items, as quoted in F0T §3 | direct read of `raw-output-checkpoint.json` | **DIRECT OBSERVATION** |
-| "V5's rationale never mentions organisation size or type at all" (`g04d...`) | textual absence, checked against the specific added clause's vocabulary | **DIRECT OBSERVATION** (of the text) |
-| No `temperature`/`top_p`/seed is set anywhere in `src/orgunits/classify/` | `grep` across both runtime worktrees | **DIRECT OBSERVATION** — see §3 for the sharper structural reason this is so |
-| "Neither is explained by Candidate E1's edited text" (the per-item `NOT_EXPLAINED_BY_E1` classifications, F0T §4) | absence of the edited clause's vocabulary from the rationale, bridged to "the edit did not cause this outcome" | **CAUSAL INFERENCE** — the bridge described above; HIGH confidence per F0T's own labelling, but an inference, not a readout |
-| "F0M's diagnosis of the mechanism survives; its implicit prediction does not" | interpretive judgment reconciling two documents | **CAUSAL / INTERPRETIVE INFERENCE** |
-| Recommended category B | a policy conclusion resting on the two causal inferences above plus the structural sampling-variance fact | **POLICY INFERENCE**, downstream of the causal inferences, not itself an observation |
+| `minUnitPageRecall` | 13/14 = 0.9286 | F0S §9 |
+| `minUnitPagePrecision` | 13/16 = 0.8125 | F0S §9 |
+| `devGateOutcome` | `FROZEN_GATES_FAILED_ON_DEV` | F0S §17 |
 
-None of this contradicts F0T. It sharpens what kind of evidence a
-replication study is actually being asked to strengthen: not the DIRECT
-OBSERVATION rows (those are already as solid as they will ever be — they are
-`diff` and `JSON.parse` on immutable files), but the CAUSAL/POLICY rows,
-which are exactly the rows a single paired sample cannot settle. This is the
-whole justification for everything from §3 onward: **a rationale's silence
-on a clause is the best evidence a single sample can offer for
-non-engagement, and it is not sufficient evidence by itself; repeated
-sampling under a fixed prompt is what would let "silent on X" graduate from
-a plausible reading of one output to a measured property of the model's
-behaviour on this item.**
+Both runtime worktrees carry **no production runtime delta beyond the
+prompt text** — F0O §5's own `git diff` on `package.json`/`package-lock.json`
+between the two lineages is empty, independently reconfirmed in this task
+(§3). The only difference between the two attempts, structurally, is the
+prompt string itself.
 
-## 3. Inventory of nondeterminism sources
+## 2. Correct the epistemic model of rationales
 
-Inspected the actual call-construction site in both pinned runtime
-worktrees: `src/orgunits/classify/provider/sdkOptions.ts`,
-`agentSdkRunner.ts`, `claudeCodeExecutable.ts`, `providerContract.ts`,
-`repair.ts`, `retry.ts`, plus the bundled SDK type declarations
-(`node_modules/@anthropic-ai/claude-agent-sdk/sdk.d.ts`, read-only, not
-imported into any execution) and `docs/evaluation/PHASE_2B_2D_MODEL_LANDSCAPE_2026-09.md`.
-Both worktrees' `HEAD` was reverified against F0T's cited commits before
-reading (`7c3cb5b5b7e57c1c9cee03900c922a01b2075573` and
-`1bb7578ac962650675f05aec3507c57a49517239` — both matched exactly).
+**Persisted provider rationale is an observable model *output* —
+generated text, itself sampled — never a verified trace of the model's
+internal computation.** Hidden/internal causal reasoning is not observable
+by this harness, by F0T, or by this task; nothing in the preserved artifacts
+exposes attention weights, activations, or any other mechanistic signal.
+F0T's own phrase, quoted exactly (F0T outcome paragraph):
 
-| # | source | finding | evidence | classification |
-| - | --- | --- | --- | --- |
-| 1 | `temperature`/`top_p`/`top_k` | Not present anywhere in the constructed SDK options (`sdkOptions.ts:141-210` builds `model`, `maxTurns`, `thinking` and nothing sampling-related), and the SDK's own `Options` type exposes no such field. **`temperature`/`top_p`/`top_k` are documented as deprecated on Claude 4.7+ and later models — a non-default value returns a 400.** | `sdkOptions.ts:141-210`; `sdk.d.ts` (no match for these fields on the request `Options` type); `docs/evaluation/PHASE_2B_2D_MODEL_LANDSCAPE_2026-09.md:57-58`: "`temperature`/`top_p`/`top_k` are deprecated on Claude 4.7+ (400 on non-default values). The classifier runtime sets none of them." | **OBSERVED_BUT_NOT_CONTROLLABLE** — and more precisely: **not an omission by this harness**. There is no code path through which this harness (or any harness calling this model generation through this SDK) could pin sampling temperature. "Just set temperature=0" is not an available mitigation for this model family. |
-| 2 | deterministic seed | No `seed` field in `sdkOptions.ts`, `providerContract.ts`, or `agentSdkRunner.ts`. The SDK's own `sdk.d.ts` has no sampling-seed parameter on the request surface at all — its only `seed` occurrences are an unrelated file-read-state cache (`seedReadState`, line 2745/2751/4252/4255) and an AWS streaming-upload signature parameter (line 7569). | `sdk.d.ts` grep, both worktrees | **OBSERVED_BUT_NOT_CONTROLLABLE** — the SDK surface this harness calls through does not expose a sampling seed to pin, as far as this task's read-only inspection established. |
-| 3 | requested model id | `"claude-sonnet-5"` in both attempts — flows from a single frozen value in the F0O configuration freeze into `sdkOptions.ts:190` (`model: request.modelId`) identically for both runtime worktrees. | `docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0O_V1.json:959` (`"requestedModelId": "claude-sonnet-5"`), `:960` (source: `PHASE_2B_2D_SONNET_ACCEPTANCE_PROTOCOL.md` §0, owner product decision 2026-09-02) | **CONTROLLED_AND_PINNED** as a string, identical both attempts |
-| 4 | provider-reported model id | `"claude-sonnet-5"` in every one of the 24 primary `provider-outcome.json` records this task read (12 V4 + 12 V5), byte-identical to the requested id, on both attempts. | direct `python3 -m json.tool` read of every `provider-outcome.json` under `attempt-3-retry-1/` and `attempt-4/` | **CONTROLLED_AND_PINNED** as a *string*; see #11 below for what this does and does not establish about the underlying weights |
-| 5 | SDK version | `@anthropic-ai/claude-agent-sdk` at exactly `0.3.251` in **both** runtime worktrees' `package.json`, independently reverified in this task (not merely restated from F0T). | `wt-phase2b-2d2c-v4i1.../package.json:38`, `wt-phase2b-2d2c-v5i1.../package.json:38` | **CONTROLLED_AND_PINNED** |
-| 6 | CLI / bundled executable identity | `sdkOptions.ts`'s own design comment: the executable path is "set EXPLICITLY to the exact SDK-bundled native binary the provider resolved and verified (`claudeCodeExecutable.ts`) — the SAME file the request-free auth status preflight ran (ADR 0010 Amendment A)." | `sdkOptions.ts` comment block, lines ~60-68 | **CONTROLLED_AND_PINNED by design** — verified-by-construction; this task did not re-execute the preflight (that would be a request-free auth-status call, out of this task's zero-execution scope), so this is reported as the harness's own stated invariant, not independently re-observed here |
-| 7 | prompt caching | No `cache_control`, `cacheCreation`, `cache_read`, or `cachedTokens` field anywhere in the provider adapter source, and the persisted `provider-outcome.json` schema itself carries only `inputTokens`/`outputTokens` — no separate cache-token field exists to record one either way. **Yet every recorded `inputTokens` value across both attempts is 2-6**, far smaller than a fully assembled multi-document batch-plus-system-prompt payload would imply if counted in full. | `grep` across `classify/provider/*.ts`, both worktrees; every `provider-outcome.json` `record.inputTokens` value read directly (range 2-6 across 24 primary records) | **UNKNOWN** — this task did not resolve why `inputTokens` is this small. Two explanations are equally consistent with the evidence and neither is asserted: (a) some accounting layer this task did not trace, upstream of the persisted record, is not being captured in full; (b) prompt caching is active at a layer below what `classify/provider/*.ts` constructs explicitly (e.g. an SDK-internal default) and the persisted schema simply does not surface a cache-token breakdown. **Flagged as an open item for a future task, not resolved by inference here.** |
-| 8 | batching / document order | Both attempts' 12 batches, 49 documents, are structurally pinned by the same F0O-approved plan: identical `sequence` (1..12), identical 12-organisation grouping, identical per-batch gold-id order and doc-index order, confirmed field-by-field against the plan for attempt-4 (F0R §4: "every identity field ... matches the F0O-approved plan's own planned identity for that ordinal") and equivalently for attempt-3 (F0K). | F0K, F0R (already-published structural closures, re-cited not re-derived) | **CONTROLLED_AND_PINNED** — batch composition and order are identical between the two historical runs, and each batch is a genuine **multi-document call**: an average of ~4 documents share one provider call (49 documents / 12 calls). This is why the replication design in §4 treats a whole batch, not a single isolated document, as the smallest context-equivalent unit. |
-| 9 | repair | `repair.ts` re-presents an item-level-rejected document to the provider **exactly once, alone** — same frozen system prompt, same schema, same batch context — and is a genuine second model call, not a local re-parse. Repair *triggering* is itself input-dependent (it fires only when first-pass validation rejects a document), so which documents get a second, independently-sampled call differs run to run: V4 triggered 2 repairs (batch-03/doc-7, batch-07/doc-2), V5 triggered 1 (batch-03/doc-11) — different batch/doc pairs, neither one of F0T's three critical items. | `repair.ts` header comment; F0K §"repair escalations"; F0R §"Batch 03 / document 11" | **OBSERVED_BUT_NOT_CONTROLLABLE** — repair is a real, semantically live second sampling opportunity whose occurrence is itself downstream of first-pass sampling variance |
-| 10 | transient network retry | `retryTransient()` / `MAX_TRANSIENT_RETRIES = 2` (`retry.ts:38`), exponential backoff, **inside** the provider adapter per the retry-taxonomy design comment. Bounded, and in both historical runs it never fired: "Transient retries: 0" (F0R), "no retry, no timeout, anywhere in the root" (F0K). | `retry.ts:38`; F0K, F0R retry counts | **CONTROLLED_AND_PINNED as an upper bound** (never more than 2 retries per call); did not materially operate in either historical run, but remains a live source for a future replication that happens to hit a transient failure |
-| 11 | model-generation lifecycle / weight stability over time | `sdkOptions.ts` deliberately omits `fallbackModel` — its own comment: "a silent provider-side model swap would contaminate 2B-2D cohorts" — i.e. the harness already explicitly names and forecloses *automatic* mid-run model substitution. The model-landscape snapshot (`docs/evaluation/PHASE_2B_2D_MODEL_LANDSCAPE_2026-09.md:34`) records Haiku 4.5 with **both** an alias and a separate dated snapshot id (`claude-haiku-4-5-20251001`), but records `claude-sonnet-5` with **no such alternate dated form anywhere in this repository's evaluation documentation**, and the SDK's own type comments (`sdk.d.ts:1271`) describe `claude-sonnet-5` as a "canonical wire model id" — a step more specific than a bare alias like `'sonnet'`. Sonnet 5's published retirement floor is 2027-06-30 (same doc, §3) — a floor on *retirement*, not a guarantee that the id's backing weights are immutable for that whole window. | as cited | **UNKNOWN**, precisely bounded: the two runs are same-day (V4 13:23-13:26 UTC, V5 17:19-17:24 UTC, both 2026-09-15), ruling out any deprecation-driven ID reuse over that ~4-hour gap; but nothing in this repository, either runtime worktree, or the preserved artifacts establishes whether `claude-sonnet-5` denotes byte-for-byte identical serving weights across that gap or across any other window, versus a rolling identifier the provider may revise without a string change. Automatic **fallback** substitution is ruled out by construction (#11 above); silent **revision of what the pinned id itself serves** is not addressed by anything this task read, in either direction. |
+> "the one item E1 was actually designed to fix (`g04d170f4d3fda759`) shows
+> **zero visible engagement with E1's new qualifier** in V5's own rationale"
 
-**Summary for the replication design**: nothing here suggests a *fixable*
-determinism gap this harness failed to close. Sampling parameters are
-structurally unavailable on this model generation (#1, #2); everything this
-harness *can* pin (model-id string, SDK version, batch composition/order,
-executable identity, transient-retry ceiling) is already pinned identically
-across both historical runs. The open items are (a) an unexplained but
-observed token-accounting anomaly (#7, flagged, not resolved) and (b) a
-structural unknown about long-run model-identity stability that repeated
-sampling cannot resolve either (#11) but that same-day pairing already
-neutralises for this specific V4-vs-V5 comparison. **Repeated sampling is
-therefore the correct lever**: it is the only one of the tools available to
-this project that can characterise the effect of the *un-pinnable* sources
-(#1, #2, #9) empirically, since none of them can be pinned away.
+**Revised, epistemically precise form, recorded here additively — not by
+editing F0T:**
+
+> The preserved V5 output contains no observable rationale evidence that the
+> new E1 qualifier governed the decision.
+
+This is strictly weaker than "E1 was never engaged," and the difference
+matters: a model can in principle apply a constraint without narrating it,
+and a rationale is a second sampled output conditioned on (but not
+identical to) whatever process produced the verdict. F0T's own confidence
+label (`HIGH`) is appropriately calibrated to *what the rationale text says*,
+not to *what happened inside the model* — F0T never claims the stronger
+thing, but the outcome paragraph's prose ("never engaged", "absent from the
+model's visible reasoning trace") reads more strongly than the underlying
+evidence supports unless read carefully. This section makes that reading
+explicit rather than assumed.
+
+**Classification of F0T's own claims, direct observable fact vs. causal
+inference:**
+
+| F0T claim | class | why |
+| --- | --- | --- |
+| The exact byte diff of the E1 prompt edit (F0T §2) | **direct observable fact** | A `diff` of two files. Nothing inferred. |
+| The exact rationale text for each of the three critical items (F0T §3) | **direct observable fact** | Read verbatim from `raw-output-checkpoint.json` / `final-record.json`. |
+| The V4→V5 verdict transition table (F0S §11, reused by F0T) | **direct observable fact** | A field-by-field diff of two structured records. |
+| Absence of an explicit `temperature`/`seed` parameter anywhere in the classifier call path | **direct observable fact** | Grep-verifiable; independently reconfirmed in this task (§3). |
+| "V5's rationale shows no evidence the model applied... the newly added qualifier" (F0T §3, §5) | **causal inference from an absence** | Absence of a phrase in generated text is evidence, not proof, that the underlying process did not use it. Rated `HIGH` confidence by F0T on the strength of the *contrast* with two structurally similar items that do cite the qualifier explicitly (§6 below) — a reasonable inference, but an inference. |
+| "`g0ec0d43dad311a77`/`g536c8b148048fcbc` are `LIKELY_STOCHASTIC_OR_OTHER_REASONING_PATH`" (F0T §4) | **causal inference, explicitly labelled as such by F0T itself** | F0T names the label "LIKELY_..." precisely because at n=1 per variant it cannot be more than a plausible reading; the structural fact (no temperature pin) makes the reading *available*, not *confirmed* (F0T §4's own "stated as a structural fact enabling the reading... not as proof by itself"). |
+| "the measured DEV gate movement is... plausibly reproducible by simply re-sampling V4 against itself" (F0T §7) | **hypothesis motivating this task** | This is precisely the question a replication study is designed to test, not something F0T could establish at n=1. |
+
+No F0T conclusion is retracted here. This section states, once and
+explicitly, which of F0T's sentences are readings of directly observed bytes
+and which are inferences from those bytes — a distinction F0T's own prose
+mostly preserves but does not always foreground, and one this methodology
+review depends on to avoid over-trusting n=1 causal claims while designing
+an experiment meant to test them.
+
+## 3. Inventory of every material source of nondeterminism
+
+Inspected read-only: `src/orgunits/classify/{providerContract.ts,
+provider/sdkOptions.ts, provider/agentSdkRunner.ts, provider/allowedModels.ts,
+provider/claudeCodeExecutable.ts, retry.ts}` in this repository (identical
+architecture to both runtime worktrees per F0O §5's confirmed-empty
+package-diff), `package.json`/`package-lock.json` in this repo and both
+runtime worktrees, the installed `@anthropic-ai/claude-agent-sdk` package
+manifest, and real per-call artifacts (`final-record.json`,
+`provider-outcome.json`) from both preserved evidence roots. No file was
+modified anywhere.
+
+| # | source | value found | class | evidence |
+| --- | --- | --- | --- | --- |
+| 1 | temperature / top_p / top_k | **not present anywhere in the option surface.** `providerContract.ts`'s `runConfig` type and `sdkOptions.ts`'s exhaustive, self-documenting option-by-option comment (every field the invocation builder sets, and why) name `maxTurns`, `thinking`, `systemPrompt`, `outputFormat`, `env`, `cwd`, `pathToClaudeCodeExecutable`, isolation flags — no sampling-temperature field of any kind. | **OBSERVED_BUT_NOT_CONTROLLABLE** | `sdkOptions.ts` lines 1–79 (full option list, verified exhaustive against the pinned SDK's own typings per its own docstring); zero grep matches for `temperature\|top_p\|top_k` anywhere under `src/orgunits/classify/` |
+| 2 | deterministic seed | **not present.** Same grep, zero matches for `seed` (case-insensitive) anywhere under `src/orgunits/classify/`. | **OBSERVED_BUT_NOT_CONTROLLABLE** | grep, this task, zero matches |
+| 3 | exact requested model id | `claude-sonnet-5` — one of exactly three entries in the closed `ORGUNIT_CLASSIFIER_ALLOWED_MODELS` allowlist (`allowedModels.ts`), frozen identically across the F0I (attempt-3/V4) and F0O (attempt-4/V5) configuration freezes (F0O §5, "runtime/reliability contract: model id... byte-identical"). | **CONTROLLED_AND_PINNED** (as a string) — see #11 for what the string itself does *not* pin | `allowedModels.ts:28`; `requestedModelId` field, re-read directly from `final-record.json`, all 12 batch-01…12 V5 records: `claude-sonnet-5` uniformly (this task, Python re-parse) |
+| 4 | exact provider-reported model id (Attempts 3 and 4) | `providerReportedModelId` is a **separately persisted field**, distinct from `requestedModelId`. Re-read directly from all 12 V5 `final-record.json` files in this task: `providerReportedModelId == requestedModelId == "claude-sonnet-5"` in every one, with no exception. The repair call's own `provider-outcome.json` (F0R §5) likewise names `claude-sonnet-5`. | **OBSERVED, but uninformative** — see #11 | This task, direct re-parse of `final-record.json` across all 12 V5 batches |
+| 5 | SDK / client library version | `@anthropic-ai/claude-agent-sdk` `0.3.251`, pinned in `package-lock.json`. Independently re-verified live in this task: identical `0.3.251` string present in `package.json` in **both** runtime worktrees (`wt-...v4i1...` and `wt-...v5i1...`), matching F0O §5's claim of an empty `package.json`/`package-lock.json` diff between the two lineages. | **CONTROLLED_AND_PINNED** | This task: `grep '"@anthropic-ai/claude-agent-sdk"'` in both runtime worktrees' `package.json`, both return `0.3.251` |
+| 6 | Claude Code / bundled CLI executable identity | The installed SDK package declares its own bundled `claudeCodeVersion`: `2.1.251` (read directly from `node_modules/@anthropic-ai/claude-agent-sdk/package.json` in this task). `claudeCodeExecutable.ts`'s `resolveBundledClaudeCodeExecutable` reads this field at runtime and refuses to proceed if the resolved binary's own declared identity does not match what the SDK package declares — it is a verified, not merely assumed, identity. Because the SDK version is pinned identically (#5), this transitively pins the bundled CLI identity identically across the two lineages. | **CONTROLLED_AND_PINNED** (transitively, via #5, and structurally verified at runtime rather than merely declared) | `node_modules/@anthropic-ai/claude-agent-sdk/package.json`: `"version": "0.3.251", "claudeCodeVersion": "2.1.251"` (this task); `claudeCodeExecutable.ts` lines 198–254 |
+| 7 | prompt caching | **Not configured (no `cache_control` anywhere under `src/orgunits/classify/`, grep-verified, zero matches) and not observable.** F0R §6, quoted: every `final-record.json`'s `fieldAvailability.cacheUsageWhereExposed` is `"NOT_EXPOSED_BY_RUNNER_SEAM"`, and `coordinator.ts`'s `composeFinalRecord` **hard-codes** `cacheUsageWhereExposed: null` "regardless of what the underlying Agent SDK response actually contained." The V5 system prompt is a single ~14,919-byte static string reused unchanged across all 13 calls in that run (F0R §6) — the exact shape automatic prompt caching exists for, if the provider or SDK applies it transparently. Whether it does, and whether caching can affect anything beyond accounting (this repository's own `CLAUDE.md` records an open, unresolved, structurally analogous question about citations and caching interaction for a different feature), is **not determinable from any artifact this harness persists.** | **UNKNOWN** | F0R §6 (quoted); grep, this task, zero `cache_control` matches |
+| 8 | batching and document order | **Byte-identical between the historical V4 and V5 runs, and frozen by construction for any replication that reuses the F0O plan.** F0O §5: every batch's `assemblyInputSha256`, `canonicalSerializedInputSha256`, `context`, `goldIds`, `docIndices`, `corpusLineNumbers` are asserted, and independently re-derivable, as `identityFieldsUnchangedFromF0I` — i.e. attempt-4's batch composition and per-batch document order is the *same frozen plan* attempt-3 used. F0R §4 confirms 12 batches, ordinals `batch-01`…`batch-12`, 49 documents total (sum of `orderedDocIndices.length`). | **CONTROLLED_AND_PINNED** | F0O §5 ("Intentionally unchanged"); F0R §4 |
+| 9 | repair behaviour | **A real, second live model call when the first pass is validator-rejected** (`EVIDENCE`/`LENGTH` category) — not a local re-parse. F0R §5, traced end to end for V5's one repair: "Repair request existence: yes — `repair-request.json` present, one provider call issued"; "Repair provider outcome: OK, `claude-sonnet-5`, 2 input / 355 output tokens, 4645 ms wall time." The repair *policy* (one round, 120,000 ms remaining-budget floor) is frozen and identical across attempts (F0O §5). But **whether a repair fires at all is itself downstream of the same first-pass sampling variance** this whole task is trying to characterise — V4/attempt-3 triggered 2 repairs, V5/attempt-4 triggered 1 (same item, batch-03/doc-11, both times — F0R §5, F0L §9). A replication that reruns the identical frozen batches could plausibly see a *different* repair count purely from first-pass sampling, which would itself be a data point about instability, not noise to discard. | policy: **CONTROLLED_AND_PINNED**; actuation: **OBSERVED_BUT_NOT_CONTROLLABLE**, and itself a compounding nondeterminism source | F0R §5; F0L §9 |
+| 10 | transient network retry | `retry.ts`: `MAX_TRANSIENT_RETRIES = 2` (three attempts total), exponential backoff base `500` ms — a bounded, named, frozen policy. **Zero transient retries occurred in either preserved attempt** (F0R §5 table: "Transient retries: 0"; every record's `internalAdapterAttemptCountWhereObservable: 1`). | policy: **CONTROLLED_AND_PINNED**; actuation: **OBSERVED_BUT_NOT_CONTROLLABLE** (live-network-dependent; 0/13 and 0/14 observed) | `retry.ts` lines 37–41; F0R §5 |
+| 11 | is the requested model id a fixed snapshot, or could its underlying implementation drift between the historical runs and any future replication? | **UNKNOWN, and this harness cannot resolve it from the inside.** `allowedModels.ts`'s own comment claims "Exact ids, no aliases, no date suffixes" — but `claude-sonnet-5` carries no dated/versioned suffix of the kind other Anthropic model identifiers elsewhere use (e.g. a `-YYYYMMDD` snapshot pin), so the comment's own claim that this is "not an alias" is an assertion this codebase cannot itself verify. The one field that *might* have exposed provider-side snapshot resolution, `providerReportedModelId` (#4), simply echoes the same unqualified string back — it provides **no additional confirmation either way**. If the provider ever repoints what `claude-sonnet-5` resolves to between the historical runs (2026-09-15) and a future replication (days or weeks later), nothing in this harness would detect it, before, during, or after the fact. | **UNKNOWN** | `allowedModels.ts` lines 25–30 (comment text quoted); #4's direct re-parse |
+
+**Summary for the replication design:** every *mechanical* axis (batching,
+document order, model-id string, SDK/CLI version, `maxTurns`/`thinking`,
+repair policy, retry policy) is `CONTROLLED_AND_PINNED` and will reproduce
+identically in a replication that reuses the frozen F0I/F0O plans. The
+**only** axis genuinely free to vary between replications is the provider's
+own sampling behaviour behind that pinned model-id string — exactly the
+thing this study exists to characterise. Prompt caching (#7) and model-id
+snapshot stability (#11) are `UNKNOWN` risks that a replication cannot
+control either, and are called out explicitly in §11's protocol comparison
+and in the resource/threat discussion below rather than assumed away.
 
 ## 4. What must actually be replicated
 
-### The context-equivalence constraint, established from §3 item 8
+**Structural fact governing this whole section, established in §3 item 8 and
+F0R §4/§5: the historical unit of execution is one provider call per
+~4-document batch (49 documents / 12 batches ≈ 4.08/batch), not one call per
+document.** Batch-03's own first-pass validation result — 3 accepted, 1
+rejected out of 4 documents in one call (F0R §5) — is direct, observed
+confirmation that multiple documents are classified inside a single
+provider invocation, sharing whatever context a single call carries. This
+fact is the central constraint on every design below.
 
-Because each historical batch call classifies **multiple documents
-together** (49 documents / 12 calls), an isolated single-document call is
-**not** context-equivalent to how the historical runs produced that
-document's verdict — the model saw that document alongside its
-same-organisation siblings, not alone. **A "critical-item-only" replication
-that constructs a synthetic single-document call is therefore not measuring
-the same thing the historical runs measured**, and this task does not
-recommend it in that form.
+### Design A — critical-item-only resampling
 
-The three critical items are **not** in the same batch:
-`g04d170f4d3fda759` is batch-09/doc-5, `g0ec0d43dad311a77` is
-batch-07/doc-1, `g536c8b148048fcbc` is batch-12/doc-7 (F0T §3). The
-context-preserving version of "critical-item-only" replication is therefore
-**critical-*batch* replication**: replay batches 07, 09 and 12 **in full**,
-at their original ordinal/sequence and with their full original document
-set, under each prompt — never a synthetic single-document call. The
-control items named in the owner instruction
-(`gdb5b7246327094ef`, `g57607d4278d6dc23`, `ge789b0f0aedc398c`,
-`gf65026e32d9da8db`, `g4454e841c09dd8d0`, `ga435ea22d4b11cf4`) sit in
-batches this task did not individually re-derive here (doing so requires
-reading the full per-batch plan, which a later execution-preparation task
-should do explicitly before dispatch, not assume from this document) — but
-by the same logic, **whichever batches contain them must also be replayed
-whole**, never isolated.
+Repeat only `g04d170f4d3fda759`, `g0ec0d43dad311a77`, `g536c8b148048fcbc`
+plus a handful of controls, each as its own single-item call.
 
-### Design A — critical-batch resampling
+- **Execution-context equivalence to Attempts 3/4: NO, by construction.**
+  The historical calls scored these items alongside 3 batch-mates in one
+  invocation; a single-item call is a different request shape (different
+  total prompt length, different position-in-output, no batch-sibling
+  context) than what actually produced the historical verdicts. Nothing in
+  the preserved evidence establishes that batch-mate context is immaterial
+  to the model's answer on a given document — the owner instruction's own
+  caution applies directly here.
+- **What it can answer:** cheaply, whether *this specific* document, judged
+  in isolation, is sensitive to resampling at all — a useful, low-cost
+  signal for prompt-authoring intuition.
+- **What it cannot answer:** whether the *historical* V4→V5 flips
+  (`g0ec0d43dad311a77`, `g536c8b148048fcbc`) would recur under the actual
+  execution conditions that produced them. A null result here (item is
+  stable in isolation) would not rule out batch-context-driven instability;
+  a positive result (item flips in isolation) would not by itself prove the
+  historical flip had the same cause.
+- **Susceptibility to post-hoc selection:** high if item selection happens
+  after seeing any new result; low if the item list (already frozen: three
+  critical items, six stable controls, §5) is fixed before execution, as
+  this document does.
+- **Usefulness for future prompt design:** moderate — a fast, cheap smoke
+  test once a real effect is independently confirmed by Design B, never a
+  substitute for confirming one.
+- **Cost/time:** lowest of all four designs named in this section
+  (single-document calls, no batch overhead) — but see Design A′
+  immediately below for a batch-preserving alternative at nearly the same
+  cost tier that does not share this design's execution-context problem.
 
-Repeat batches 07, 09, 12 (whichever batches carry the six control items,
-determined before execution, not assumed here) under both prompts.
+### Design A′ — critical-*batch* resampling (a batch-preserving variant, worth distinguishing from pure item-isolation)
 
-- Execution-context equivalence: **preserved** — same batch composition,
-  same document set per call, same ordinal, same frozen plan the historical
-  runs used.
-- Batch context changes: none, by construction — this is the whole point of
-  replaying whole batches rather than isolated items.
-- What it can answer: whether the *specific* items F0T already flagged are
-  individually stable or unstable under repeated same-prompt sampling, and
-  whether the two observed flips reproduce.
-- What it cannot answer: whether some *other*, not-yet-observed item would
-  also flip under repeated sampling — it only re-examines items already
-  known to be interesting, which is also its main strength (targeted,
-  cheap) and its main limitation (post-hoc selection, see below).
-- Susceptibility to post-hoc selection: **real and named explicitly.** These
-  three items were chosen *because* they were the ones that moved between
-  V4 and V5 — resampling only them and finding they are unstable is
-  somewhat expected (regression to the mean on selected extremes); finding
-  they are *stable* would be the more informative and harder-to-predict
-  result. §10's interpretation rules are written to not over-credit either
-  outcome from Design A alone.
-- Usefulness for future prompt design: high and immediate — directly
-  informs whether E1 (or a structural variant of it) is worth pursuing.
-- Cost/time: low — 3 of 12 batches, ~25% of a full attempt's batch count,
-  per prompt, per replication (see §5).
+A distinct, cheaper alternative worth naming precisely rather than
+conflating with Design A: instead of scoring a critical item alone, replay
+only the **frozen batches that already contain it** — `g0ec0d43dad311a77`
+is batch-07/doc-1, `g04d170f4d3fda759` is batch-09/doc-5,
+`g536c8b148048fcbc` is batch-12/doc-7 (F0T §3 headers) — i.e. 3 of the 12
+batches, skipping the other 9 entirely.
 
-### Design B — full frozen-batch resampling
+- **Execution-context equivalence to Attempts 3/4, for the covered batches
+  specifically: YES**, and for a structural reason this task can verify
+  directly rather than assume: `sdkOptions.ts`'s own documented invocation
+  contract sets `persistSession: false` because "no session transcript
+  survives; each batch is an independent observation" (§3's own source
+  reading). If that holds, batches do not share state with one another at
+  all, so replaying batch-07, batch-09 and batch-12 alone — each still with
+  its full, unmodified, frozen ~4-document composition (§4's structural
+  fact) — reproduces the *exact* call shape those three historical calls
+  had, at 3/12 the dispatch cost of full Design B.
+- **What it cannot do, and why it cannot substitute for Design B despite
+  the point above:** the owner's own analysis contract (§8) requires the
+  **six frozen DEV gate metrics per replication**, and those gates are
+  computed over **all 49 items**, not a 12-item subset. A 3-batch
+  replication can answer "is this specific item's verdict stable" but
+  cannot produce a `devGateOutcome`, a precision/recall figure, or any
+  fixture-wide confusion count for that replication — it structurally
+  cannot fulfil §8's per-replication gate-distribution requirement.
+- **Where it is genuinely useful:** as an optional, cheap, execution-context-
+  faithful **triage step before committing to the full N=5 Design B study**
+  (§13) — if all three critical items already show `UNSTABLE_WITHIN_PROMPT`-
+  shaped disagreement across even 3–5 cheap batch-preserving replications,
+  that alone is enough to justify Design B without further debate; it is
+  never a reason to skip Design B, only a possible reason to be more
+  confident going in.
 
-Repeat all twelve original logical batches (all 49 DEVELOPMENT documents)
-under both prompts.
+### Design B — full frozen-batch resampling (RECOMMENDED first step)
 
-- Execution-context equivalence: preserved, maximally — this is the exact
-  historical procedure, repeated.
-- Batch context changes: none.
-- What it can answer: full-corpus stability of every one of the six frozen
-  gates, not just the three flagged items; whether an item this task has
-  not looked at also varies run to run.
-- Susceptibility to post-hoc selection: **lowest of the three designs** —
-  nothing about which items are "interesting" is decided before execution.
-- Usefulness for future prompt design: the only design that can honestly
-  support a future acceptance-rule change (§11), because it is the only one
-  that measures the same quantity ("does this prompt pass the six frozen
-  gates") the acceptance rule is actually about.
-- Cost/time: highest of the three (§5).
+Repeat all twelve original logical batches, in the frozen F0O/F0I plan
+shape, on the same 49 DEVELOPMENT documents, for each prompt variant.
+
+- **Execution-context equivalence to Attempts 3/4: YES, by construction.**
+  Reusing the frozen plan (§3 item 8: `assemblyInputSha256`, `goldIds`,
+  `docIndices`, `corpusLineNumbers` all pinned) reproduces exactly the
+  batch composition, document order, and per-batch document count the
+  historical runs used. The only thing that can differ between a
+  replication and Attempts 3/4 is the model's own sampling — which is
+  exactly the variable under study.
+- **What it can answer:** whether the historical six-gate movement and the
+  two specific verdict flips are stable, reversible, or one-off draws, under
+  conditions genuinely equivalent to how they were originally produced.
+- **What it cannot answer directly:** *why* a given item is unstable (that
+  still requires reading rationales, as F0T did) — Design B measures
+  frequency, not mechanism.
+- **Susceptibility to post-hoc selection:** low, if the analysis contract
+  (§8) and inclusion rule (§7) are frozen before execution, as this document
+  does.
+- **Usefulness for future prompt design:** high — it is the only design that
+  tells a future V6 task whether a candidate wording change is worth
+  attributing any signal to at all.
+- **Cost/time:** highest per-replication cost of the three, but, per §5's
+  resource envelope, still modest in absolute terms (minutes per run, well
+  under a dollar-scale token budget per the observed historical figures).
 
 ### Design C — synthetic single-rule micro-evaluation
 
-Construct a deliberately isolated diagnostic suite targeting the
-whole-organisation/operator boundary specifically (e.g. a small set of
-hand-built or held-out-style documents engineered to isolate exactly the
-small/non-university qualifier, independent of the 49-item DEV corpus).
+Construct a deliberately isolated diagnostic suite that probes the
+whole-organisation/operator boundary specifically — e.g. minimal synthetic
+or excerpted single-document prompts built to force the model to reveal
+whether the E1 qualifier is *engageable at all* under some phrasing, without
+the noise of an unrelated 4-document batch. Distinct from the existing,
+already-specified `orgunitClassify*Contract.test.ts` pattern (F0M §7), which
+asserts prompt-text monotonicity and gold-fixture properties with **zero
+model calls**; Design C, by contrast, is a genuine live diagnostic call and
+must not be confused with that zero-inference contract-test pattern.
 
-- Execution-context equivalence: **not applicable / not comparable** — by
-  design this uses different documents than the historical runs, so it
-  cannot directly explain the two observed DEV flips; it can only test
-  whether the *rule itself*, presented cleanly, is something the model
-  applies reliably in principle.
-- Useful diagnostically, as the owner instruction says, but **must not
+- **Execution-context equivalence to Attempts 3/4: NO, deliberately.** Its
+  entire value is *removing* batch context to isolate one mechanism; it
+  cannot be read as evidence about what happened in the batched historical
+  calls.
+- **What it can answer:** whether a candidate prompt wording, in principle,
+  is capable of moving the model's stated reasoning — useful diagnostic
+  input to *constructing* a future candidate.
+- **What it cannot answer:** whether the historical flips would replicate,
+  or whether the effect survives inside a real batch. **Must never
   substitute for the frozen 49-item DEV gates** — a synthetic suite has no
-  standing in the acceptance methodology (§11) and this document does not
-  propose giving it any.
-- Cost/time: low, but requires constructing new evaluation material, which
-  is itself a design task with its own overfitting risk (§12) if built
-  carelessly (e.g. by encoding knowledge of exactly what went wrong with
-  `g04d170f4d3fda759`).
+  gold-fixture-equivalent authority and was never intended to.
+- **Susceptibility to post-hoc selection:** highest of the three — a
+  hand-built diagnostic suite invites tuning the suite to the desired
+  answer unless its items and expected contrasts are predeclared before any
+  new result exists (owner instruction §8, applied here).
+- **Usefulness for future prompt design:** potentially high, as a
+  *complement*, once Design B has established that real instability
+  exists and needs explaining.
+- **Cost/time:** low per item, but its value is entirely in careful upfront
+  design, not in execution volume.
 
-**Item-only, single-document calls are explicitly rejected as a stand-in for
-any of the above** — not merely unequal in cost, but not equivalent in
-execution context to the runs whose stochasticity is being characterised
-(§4 opening paragraph).
+**Conclusion for this section, per the owner's explicit steer:** model
+outputs plausibly depend on batch context (§4's structural fact, directly
+observed in batch-03's mixed accept/reject first pass). Design A cannot be
+assumed equivalent to the frozen evaluation. **Design B is preferred for
+measuring real Attempt-3/4 stochasticity**; Design C is valuable but
+strictly diagnostic and never a gate substitute.
 
-## 5. Replication size — quantitative estimate
+## 5. Replication sizes, quantified
 
-All figures below are read directly from the preserved artifacts of the two
-historical runs — no provider call was made to produce them.
-
-**Per-attempt historical baseline** (12 batches, 49 documents each):
+Two real, observed data points exist (never averaged together — they are
+two different prompts):
 
 | | V4 / Attempt 3 | V5 / Attempt 4 |
 | --- | --- | --- |
-| primary provider requests | 12 | 12 |
-| repair provider requests | 2 | 1 |
-| **total provider requests** | **14** (ceiling: ≤61) | **13** (ceiling: ≤61) |
-| total adapter attempts | 14 (ceiling: ≤183) | 13 (ceiling: ≤183) |
-| wall clock (experiment manifest start → completion) | `13:23:04.912Z`–`13:26:55.195Z` ≈ **3m50s** | `17:19:16.410Z`–`17:24:10.632Z` ≈ **4m54s** |
-| output tokens, 12 primary calls (summed from each `provider-outcome.json`) | **21,556** | **30,099** |
-| artifact directory size (`du -sh`) | 828K (`attempt-3-retry-1/`) | 804K (`attempt-4/`) |
+| logical evaluations (batches) | 12 | 12 |
+| documents | 49 | 49 |
+| original provider requests | 12 | 12 |
+| repair provider requests | 2 (F0L §9) | 1 (F0R §5) |
+| **total provider requests, observed** | **14** | **13** |
+| elapsed wall-clock | not recorded as a single Start/Completion pair in F0K's structural closure (gap, disclosed rather than estimated around) | **≈ 4m54s** (`2026-09-15T17:19:16.410Z` → `17:24:10.632Z`, F0R §4) |
+| summed per-call wall time (primary + repair) | 202,185 ms + 11,105 ms ≈ **213.3 s** (F0L §9 — a sum of per-call durations, not necessarily equal to true elapsed clock time if calls are sequential with framework overhead between them; disclosed as an approximation, not presented as the same quantity as V5's elapsed figure) | not separately summed in F0R (elapsed figure used instead) |
+| input tokens (persisted, summed) | 30 (primary) + 4 (repair) = **34** (F0L §9) | **42** (F0R §6) |
+| output tokens (persisted, summed) | 21,556 (primary) + 883 (repair) = **22,439** (F0L §9) | **30,454** (F0R §6) |
+| worst-case provider-request ceiling | **61** (12 original + 49 max repairs) | 61 |
+| worst-case adapter-attempt ceiling | **183** | 183 |
+| on-disk evidence-root size | **828 KB** (`du -sh`, this task) | **804 KB** (`du -sh`, this task) |
 
-Sources: F0K §"provider-request and adapter-attempt counts" and
-§"Timestamps"; F0R §5 table and §"Start/Completion"; direct
-`json.tool`/summation over every `provider-outcome.json` in both preserved
-roots (this task's own read); `du -sh` on both preserved roots.
+**Estimated resource envelope for N fresh paired replications** (N per
+prompt, 2N runs total), scaling linearly from the two observed data points
+above, using the larger (V4) per-run figures as a conservative per-run
+upper bound and explicitly not assuming ceilings are reached (0
+timeouts/hard-kills were observed in either historical attempt, F0R §5):
 
-**A "pair" = one full V4 attempt + one full V5 attempt** (Design B unit).
-Scaling directly from the observed baseline (assuming no repair-rate or
-duration blow-up — a simplifying assumption, stated as such, not a
-guarantee):
+| N per prompt | total fresh runs | logical evaluations | expected provider requests (~13–14/run, observed range) | approx. wall-clock (sequential, ~3.5–5 min/run observed) | approx. output tokens (~22K–30K/run observed) | approx. artifact volume (~0.8 MB/run observed) | worst-case ceiling (61 req/run × runs) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 3 | 6 | 72 | ~78–84 | ~21–30 min | ~130–180 K | ~5 MB | 366 |
+| 5 | 10 | 120 | ~130–140 | ~35–50 min | ~220–300 K | ~8 MB | 610 |
+| 7 | 14 | 168 | ~182–196 | ~49–70 min | ~310–420 K | ~11 MB | 854 |
+| 10 | 20 | 240 | ~260–280 | ~70–100 min | ~440–600 K | ~16 MB | 1,220 |
 
-| N pairs (Design B, full-batch) | logical evaluations | provider requests (observed rate) | provider requests (worst-case ceiling) | wall clock (observed, sequential dispatch) | output tokens | artifact volume |
-| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| 3 | 6 attempts / 72 batches | ≈ 81 | ≤ 366 | ≈ 27 min | ≈ 155,000 | ≈ 4.9 MB |
-| 5 | 10 attempts / 120 batches | ≈ 135 | ≤ 610 | ≈ 44 min | ≈ 258,000 | ≈ 8.2 MB |
-| 7 | 14 attempts / 168 batches | ≈ 189 | ≤ 854 | ≈ 62 min | ≈ 361,000 | ≈ 11.5 MB |
-| 10 | 20 attempts / 240 batches | ≈ 270 | ≤ 1220 | ≈ 88 min | ≈ 516,000 | ≈ 16.3 MB |
+All rows are comfortably inside the per-run worst-case ceiling and represent
+a modest resource commitment in absolute terms by the standard this project
+already accepted for Attempts 1–4. **This task does not use cost as the
+only criterion** (per the owner instruction): the deciding factor for N is
+statistical usefulness (§9–§10), not expense — every row above is cheap
+enough that cost does not meaningfully discriminate between N=3 and N=10.
 
-("output tokens" scales the observed 12-primary-call sums, 21,556 + 30,099 =
-51,655 per pair, by N; it excludes repair-call tokens, which this task did
-not separately sum but which are bounded by the single-document nature of a
-repair request and are a small fraction of a primary batch's output, per
-§3 item 9.)
+**Recommended N: 5 per prompt (10 fresh runs total).** Below N=5, a
+unanimous-direction interpretation rule (§10) has very little room to fail
+gracefully — a single anomalous replication at N=3 swings the conclusion
+entirely, and three replications is little more than the two historical
+observations already provide. Above N=5, marginal statistical value is
+small relative to the added wall-clock and operator-approval overhead (§6)
+for a *diagnostic* study whose job is to distinguish gross instability from
+a real effect, not to produce a publication-grade confidence interval — this
+is exactly the caveat §9 explains stays out of reach at any N this small
+anyway. N=5 matches the owner's own stated default candidate.
 
-**Design A (critical-batch, 3 of 12 batches per attempt) scales at roughly
-one quarter of Design B's cost per pair** — for N = 5: ≈ 3/12 × 120 = 30
-batch dispatches (vs. 120 for full Design B at N = 5), ≈ 34 provider
-requests at the observed rate, and, scaling the per-batch average durations
-directly (V4 ≈ 202,185 ms / 12 ≈ 16.8s/batch; V5 ≈ 271,725 ms / 12 ≈
-22.6s/batch — both from summed `monotonicWallTimeMs`), **≈ 10-11 minutes of
-compute time**, realistically 15-20 minutes of wall clock once sequential
-per-batch dispatch overhead (observed as the gap between per-batch
-timestamps in F0K/F0R) is included.
+## 6. Predetermined paired execution ordering
 
-**Recommendation on N**: the owner's default candidate of **5** is
-evaluated seriously here and adopted, but **applied first to Design A, not
-Design B** (§13) — 5 is large enough to distinguish "stable in 5/5" from
-"unstable in ≥1/5" for the handful of items that actually matter, small
-enough to run inside minutes rather than the better part of two hours, and
-matches this project's existing single-digit-N conventions (the 3
-"protected recovered positives" tracked since F0S §10). A smaller N (3)
-does not comfortably distinguish an isolated fluke from a genuine
-low-but-nonzero instability rate; a larger N (7, 10) buys resolution this
-task cannot show is needed until Design A's cheaper result is in hand.
+**If Design B is run, the pair order below is frozen now, before any new
+result exists, and must not be adapted based on intermediate outputs:**
 
-**Historical-runs-as-pilot, not as N**: the owner's default (exclude V4/V5
-from N) is adopted without qualification. The tradeoff, stated explicitly
-per the owner's request: counting them would roughly halve the cost of
-reaching a given N, but F0T and F0M were both derived by inspecting
-*exactly these two runs' failures* — treating them as fresh, unselected
-replicates would launder the same look-then-design bias this whole
-methodology review exists to guard against. They remain valuable as the
-motivating pilot observation, cited throughout, never as replicate #1.
+| pair | first run | second run |
+| --- | --- | --- |
+| 1 | V4 | V5 |
+| 2 | V5 | V4 |
+| 3 | V4 | V5 |
+| 4 | V5 | V4 |
+| 5 | V4 | V5 |
 
-## 6. Paired execution ordering — frozen before any result is seen
+Rationale: alternating the starting variant bounds the maximum possible
+correlation between "which variant ran first" and "which variant ran under
+whatever slow temporal drift may exist" (§3 item 11's `UNKNOWN` risk) to at
+most a one-pair imbalance (V4 leads 3 pairs, V5 leads 2), rather than the
+worst case of running all five V4 replications first and all five V5
+replications second, which would let any monotonic drift over the study's
+duration masquerade as a prompt effect. This is preferred over "all V4 then
+all V5" for exactly that reason, and preferred over a random order because a
+frozen, published order is independently auditable and cannot be quietly
+reshuffled after a result is seen.
 
-**Alternating order is recommended over "all V4 then all V5."** Reasoning:
-if any slow, monotonic drift exists across the session (provider load,
-time-of-day effects, or anything else this task's §3 inventory could not
-rule out — see item 11), running all of one prompt first would confound
-that drift entirely with prompt identity — an afternoon-specific effect
-would be indistinguishable from a V5-specific one. Alternation spreads any
-such drift evenly across both prompts, which is the standard reason to
-counterbalance a within-subject comparison; it is not offered as a
-statistical test (§9 explicitly declines decorative inferential machinery),
-only as a design property that removes one specific, plausible confound at
-zero cost.
+**Output roots and authorisation binding.** The existing execution-lock
+machinery (F0P: a candidate's `outputRoot` is fixed at creation and the
+candidate is permanently spent once its root is non-empty) means each of
+the 10 replications structurally requires **its own fresh output root and
+its own execution-authorisation candidate** — this is not a design choice
+this task is free to relax, it is how the existing one-shot lock already
+works. Given that, the choice is not "does every run need its own
+candidate" (it does) but **whether the owner grants one binding approval
+covering the entire 10-run study up front, or ten separate approval
+decisions made one at a time.**
 
-**Exact frozen order, for N = 5** (applied independently within each
-replicated batch under Design A, or within each full attempt under Design
-B):
+**Recommendation: one owner authorisation binding the entire predetermined
+study.** A separate approval decision per run, made after seeing the prior
+run's result, would either explicitly or implicitly become an adaptive
+stopping rule — exactly what §7 forbids ("no run until pass", "no adaptive
+stopping"). A single up-front approval that pre-authorises issuing all ten
+candidates against the frozen order in §6, with the analysis withheld until
+every run completes or fails per the predeclared inclusion rule (§7), gives
+the cleanest fail-closed semantics: either the whole frozen protocol
+executes to completion (or documented failure) as designed, or it does not
+start at all. This is a **contract design only** — this task creates no
+authorisation, candidate, or output root.
 
-```
-pair 1: V4 -> V5
-pair 2: V5 -> V4
-pair 3: V4 -> V5
-pair 4: V5 -> V4
-pair 5: V4 -> V5
-```
+## 7. No gold during execution; predeclared inclusion rule
 
-This order is fixed here, before any replication executes, and **must not
-be adapted based on an intermediate result** (§7).
+- Every one of the 10 replications uses the identical, already-frozen
+  DEVELOPMENT input (the F0O/F0I plan's 12 batches, 49 documents) — no DEV
+  label is loaded while any model call is in flight, exactly as Attempts 1–4
+  already enforce structurally (the scorer firewall, F0S §6, walks the
+  transitive import graph and proves no scoring/gold-reading code is
+  reachable from the execution path).
+- **All ten runs are executed to completion (or documented
+  failure/halt) before any deterministic gold scoring begins on any of
+  them.** No run is scored early to decide whether to continue.
+- **No adaptive stopping.** A flip on a specific item, an early pass, a
+  favourable early trend, or a desired confidence level appearing after 3 or
+  4 replications does not end the study early. The N frozen in §5 is fixed
+  before the first replication executes.
+- **Predeclared inclusion rule:** every replication that is *authorised and
+  either completes (`COMPLETED_ALL_PLANNED`) or reaches a genuine terminal
+  failure/halt state* (a Tier-2 hard kill, a stop condition, a provider
+  outage) is included in the analysis, exactly as recorded, with its
+  terminal state reported as part of the result — **no completed or failed
+  run is discarded**, and no replacement run is silently substituted for one
+  that failed. If a run fails to even start (e.g. an authorisation/lock
+  defect unrelated to model behaviour), it is replaced by re-issuing a fresh
+  candidate for the *same* pair slot and the substitution is disclosed in
+  the report, never silently.
 
-**Output roots**: each replication gets its **own** output root, following
-this project's existing `attempt-N`-style convention — e.g.
-`phase2b-2d2c-dev-runs/f0u-replication/pair-<k>-{v4,v5}[-batch-<NN>]` — never
-a shared or overwritten directory. This keeps every individual replication
-byte-inspectable on its own, exactly as `attempt-3-retry-1/` and
-`attempt-4/` are today, and lets a later audit trace any one replication
-back to its own immutable artifacts without reconstructing it from a pooled
-log.
+## 8. Deterministic post-execution analysis contract
 
-**Authorisation**: **one owner authorisation should bind the entire
-predetermined study** (fixed N, fixed order, fixed output-root naming, fixed
-inclusion rule — all specified in one protocol before execution), rather
-than N separate ad hoc authorisations issued as the study proceeds. Three
-reasons: (1) re-authorising after each pair would reopen exactly the
-adaptive-stopping risk §7 prohibits, even if unintentionally — an owner who
-authorises pair 3 *after seeing* pairs 1-2's results has, in effect, made a
-data-dependent decision about whether to continue; (2) it matches this
-project's own established idiom of a single frozen execution-authorisation
-candidate bundling a named freeze and a validity window (as F0P built for
-attempt-4), extended naturally to "N replications under one freeze"; (3) it
-gives the clearest consumption/replay semantics: a single authorisation
-covering a fixed, numbered sequence of N×2 (or, under Design A, N×2×(number
-of critical batches)) slots, consumed in the frozen order, structurally
-refuses an out-of-order or extra consumption — the same pattern F0K used to
-separate "physical authorisation consumption" from "semantic attempt
-completion" for one attempt, scaled to a fixed slot list. This is a design
-recommendation only; **no authorisation, freeze byte, or execution machinery
-is created by this task** (owner instruction §13/14).
+Defined now, before any replication executes, applied identically to each
+prompt (V4, V5) separately and then paired:
 
-## 7. No gold during execution — the fail-closed contract
+**Per-prompt, across its 5 replications:**
 
-- Every replication in the frozen order (§6) is dispatched and reaches a
-  terminal, durably-persisted state (its own output root, exactly as
-  `attempt-3-retry-1/` and `attempt-4/` exist today) **before** any process
-  in the study loads a DEV label.
-- **No adaptive stopping.** Not because `g04d` happened to flip, not because
-  the frozen gates happened to pass on some replication, not because one
-  prompt "looks better" partway through, not because a desired confidence
-  level appears to have been reached early. The order in §6 is exhaustive
-  and fixed; every slot in it is dispatched.
-- **No discarded completed runs.** A predeclared inclusion rule, stated here
-  and not revisable after data exists: *every authorised replication that
-  reaches a terminal state — COMPLETED, or a structurally-recorded failure
-  such as a Tier-2 hard kill — is included in the analysis in §8. None is
-  excluded post hoc, however inconvenient its result.*
-- Deterministic gold scoring begins only after **every** planned replication
-  in the study (all N pairs, all designated batches) has completed
-  dispatch. A partial scoring pass midway through the sequence is exactly
-  the adaptive-stopping risk this section forbids.
+1. Distribution (all 5 values, not just mean) of each of the six frozen DEV
+   gate metrics (`minSchemaValidSpanVerifiedRate`, `minUnitPageRecall`,
+   `minUnitPagePrecision`, `minUnitTypeAccuracy`,
+   `minHardNegativeRejection`, `maxNeedsReviewRate`).
+2. Number/fraction of the 5 replications passing **every** frozen gate
+   simultaneously (`devGateOutcome` distribution:
+   `FROZEN_GATES_PASSED_ON_DEV` vs `FROZEN_GATES_FAILED_ON_DEV` counts).
+3. Mean, median, min, max for precision and recall specifically (the two
+   gates both historical runs failed on).
+4. Exact per-run confusion counts (TP/FP/FN/TN plus the
+   `NEEDS_REVIEW`-adjacent categories F0S §11 already defines), reported per
+   replication, never pooled without also reporting the per-run values.
+5. Per-item verdict frequency, over the 5 fresh replicates, for **every**
+   one of the 49 DEVELOPMENT items — not only the critical/control set —
+   reported as a simple frequency table (e.g. `g04d170f4d3fda759: UNIT_PAGE
+   ×5` or `×4, NOT_A_UNIT ×1`).
+6. Per-item validator-acceptance frequency (first-pass vs. post-repair),
+   same 49-item scope.
+7. Per-item repair-trigger frequency (how often each item's first pass was
+   rejected and required a repair round), same 49-item scope — this doubles
+   as the direct measurement of §3 item 9's "repair actuation is itself
+   stochastic" finding.
 
-## 8. Analysis contract — defined before any new data exists
+**Paired (V4 vs. V5), computed per matched pair (§6's ordering) and pooled:**
 
-For each prompt (V4, V5) separately, across its N replications:
+8. Paired precision difference, recall difference, hard-negative-rejection
+   difference — reported as 5 individual paired deltas, never only a mean
+   delta.
+9. Total verdict-disagreement count per pair (how many of the 49 items
+   differ between that pair's V4 run and its V5 run).
+10. Corrections (V4 wrong → V5 right) and regressions (V4 right → V5 wrong),
+    per pair and pooled, using the same taxonomy F0S §11 already applies to
+    the historical single pair.
 
-- distribution of each of the six frozen gate metrics (§1's table columns)
-  across replications — full listing, not summary statistics alone;
-- number/fraction of replications passing **every** frozen gate
-  simultaneously (i.e., reproducing a `FROZEN_GATES_PASSED_ON_DEV`-shaped
-  outcome, in whatever scope the replication covers — full 49 items for
-  Design B, the replicated subset for Design A);
-- mean, median, min, max of `minUnitPagePrecision` and `minUnitPageRecall`
-  specifically (the two gates that actually differ between the historical
-  V4 and V5 results);
-- exact per-run confusion counts (the same shape as F0S §11's 49-item
-  reconciliation table, restricted to whichever items were replicated);
-- per-item verdict frequency across the N replications (e.g. "4/5
-  `UNIT_PAGE`, 1/5 `NOT_A_UNIT`") for every replicated item;
-- per-item validator (post-repair) acceptance frequency;
-- per-item repair-trigger frequency (did first-pass validation reject this
-  item's evidence, requiring the one bounded repair round, in this
-  replication).
+**Critical items, named individually** (`g04d170f4d3fda759`,
+`g0ec0d43dad311a77`, `g536c8b148048fcbc`) **and stable controls, named
+individually** (`gdb5b7246327094ef`, `g57607d4278d6dc23`,
+`ge789b0f0aedc398c`, `gf65026e32d9da8db`, `g4454e841c09dd8d0`,
+`ga435ea22d4b11cf4` — F0T §6's own contrast set):
 
-**Paired V4-vs-V5, reported per pair and then aggregated**:
+11. Exact verdict frequency under V4 (5 values) and under V5 (5 values),
+    for each of these nine items, reported as its own table — this is the
+    direct answer to whether the two historical flips and the one
+    historical non-flip are stable, reversible, or noise.
 
-- precision difference (V5 − V4) per pair;
-- recall difference per pair;
-- hard-negative-rejection difference per pair;
-- total verdict-disagreement count per pair (number of items where V4 and
-  V5 land on different verdicts in that pair);
-- corrections (items V4 got wrong and V5 got right, per pair);
-- regressions (items V4 got right and V5 got wrong, per pair).
+**Rationale-content coding, only if attempted, defined before any new
+rationale exists:** if a future task chooses to code whether a fresh
+rationale "engages" the E1 qualifier (as F0T did for the historical pair),
+the objective rule must be fixed **before** any of the 10 replications
+execute — e.g. "the rationale text contains a substring matching
+`/small|non-university|large|multi-faculty/i` in connection with the
+whole-organisation-allowance discussion" — and applied identically and
+mechanically to every rationale, never read and judged case by case after
+the fact. This task does not define that rule (it is out of scope for a
+methodology-design task with no new rationale to code yet), but flags that
+any future task attempting it must predeclare the rule first, exactly as
+this section predeclares the six-gate and confusion-count analysis.
 
-**For the three critical items and the six stable controls named in the
-owner instruction**, report exact verdict frequency under V4 and separately
-under V5 (not a pooled V4+V5 frequency — the whole point is to see whether
-each prompt is internally stable before comparing them to each other).
+## 9. Statistical validity — what independence this design does and does not have
 
-**Objective rationale-coding rule for "did the rationale invoke E1's
-qualifier," fixed here, before any new rationale exists**: a rationale is
-coded `ENGAGES_E1_QUALIFIER = true` if and only if it contains, case-
-insensitively, at least one of a fixed phrase set drawn directly from the
-edited clause's own vocabulary — `{"small", "non-university", "small or
-non-university", "organisation size", "organization size", "organisation
-type", "organization type"}` — applied as a plain substring/phrase match,
-identically to every replication's rationale, by whoever performs the
-analysis. This rule is deliberately mechanical and was written by reading
-only the *existing* E1 diff (already public in F0T §2), not any new
-rationale — no future rationale may expand or narrow this list.
+**Ordinary binomial confidence intervals and McNemar-style tests are not
+valid here**, for three independent reasons:
 
-## 9. Independence — what statistics are and are not justified
+1. **The 49 items are not independent draws within one run.** They are
+   grouped into 12 batches of ~4 documents each, scored by one provider
+   call per batch (§4). A per-call effect (a particular sampling draw
+   happening to favour or disfavour a whole batch, or the batch's specific
+   4-document composition eliciting a shared framing) would move several
+   items' outcomes together, violating the i.i.d. assumption a binomial CI
+   or McNemar test requires at the item level.
+2. **Paired V4/V5 replications may share temporal conditions.** Two runs
+   executed close together in time could share whatever unpinned,
+   provider-side state is not controlled (§3 items 7 and 11) — an
+   independence assumption across pairs is not established either.
+3. **The replicate count is small (N=5 per prompt) by design (§5).**
+   Asymptotic approximations (normal-approximation binomial CIs, McNemar's
+   chi-square) are unreliable at this N regardless of the independence
+   question.
 
-Three concrete reasons ordinary independence assumptions do not hold here:
+**No decorative p-values.** This task recommends **descriptive paired
+evidence** as the primary and, at this sample size, sufficient form of
+analysis: the frequency tables and paired-delta tables in §8 already show
+directly whether an effect is unanimous, majority, or split across the 5
+replications — which is the actual question (§10), and does not require an
+inferential test to answer.
 
-1. **The 49 items are not independent trials within a run** — they are
-   grouped into 12 multi-document batch calls (§3 item 8, §4), so items in
-   the same batch share a provider call and, potentially, shared context
-   effects. A binomial confidence interval or a McNemar test over pooled
-   item counts implicitly assumes each item is an independent Bernoulli
-   trial; that assumption is violated by construction here.
-2. **Paired V4/V5 replications may share temporal conditions** — a pair
-   dispatched close together in time shares whatever the harness does not
-   pin (§3 item 11). This is exactly why §6 alternates rather than blocks
-   by prompt, but alternation reduces this concern, it does not eliminate
-   the non-independence of items within one dispatch.
-3. **Replicate count will be small** (N = 5 recommended, §5) — asymptotic
-   methods (normal-approximation binomial CIs, chi-square) are not reliable
-   at this N regardless of the independence question.
-
-**No McNemar test, no ordinary binomial CI on pooled item counts, and no
-decorative p-values** are proposed by this document, for the reasons above.
-
-**Descriptive paired evidence (§8's tables) is the primary output.** If a
-resampling-based method is used at all, the correct resampling **unit** is
-the **whole replication pair** — one complete (V4-run, V5-run) execution
-under the frozen order — not an individual item and not an individual
-batch, because a pair is the closest thing to an independent unit this
-design actually produces (each pair is independently authorised-and-
-dispatched per §6, and items/batches within a pair are exactly the
-non-independent things listed above). A pair-level bootstrap (resample N
-pairs with replacement, recompute the aggregate paired differences from
-§8, repeat) is the most defensible inferential add-on available, and even
-it is a small-sample approximation at N = 5 that should be presented as
-descriptive uncertainty, not a hypothesis-test p-value.
+**If a resampling method is used at all** (e.g. once a later study reaches
+a substantially larger N), the correct resampling unit is **the whole
+replication (one full 12-batch, 49-document run), not the item and not the
+batch** — a replication is the only unit for which the independence
+assumption is defensible (items within a run share batch-call structure;
+runs across the whole study do not share any structure once ordering
+effects are accounted for by §6's alternation). At N=5 or N=10, though, a
+bootstrap over replications has coarse resolution (few distinct resamples
+possible) and should be reported, if at all, as a clearly-labelled
+secondary illustration, never as the basis for a pass/fail conclusion.
 
 ## 10. Prospective interpretation rules
 
-Defined here, before any replication executes, so that no rule can be
-shaped to fit a result already seen.
+Defined now, before any new data exists, to avoid a rule satisfiable by one
+lucky run:
 
-- **`STABLE_WITHIN_PROMPT`**: for a given prompt and a given item, the
-  **same** verdict is produced in **all** N replications of that prompt
-  (unanimous, not majority).
-- **`UNSTABLE_WITHIN_PROMPT`**: for a given prompt and item, **any**
-  disagreement exists across the N replications of that prompt (even a
-  single dissenting replicate out of N disqualifies "stable" — no
-  premature majority-vote smoothing, because even one flip out of five
-  already falsifies the claim that this item's verdict under this prompt
-  is deterministic, which is the exact claim under test).
-- **`V5_REPRODUCIBLY_BETTER`**: across the N paired replications, V5's
-  aggregate result on a named metric (full-gate pass count, or
-  `minUnitPagePrecision`/`minUnitPageRecall` specifically) exceeds V4's on
-  the same metric in a **supermajority** of pairs (≥ 4/5 at N = 5) **and**
-  the specific items responsible for the improvement are
-  `STABLE_WITHIN_PROMPT` under V5 — i.e. "better" requires both a
-  consistent aggregate direction and a traceable, non-flaky item-level
-  cause, not a lucky aggregate produced by different items flipping in
-  different replications.
-- **`V5_REPRODUCIBLY_WORSE`**: the symmetric condition.
-- **`NO_CLEAR_PROMPT_EFFECT`**: neither of the above thresholds is met —
-  e.g. wins split roughly evenly across pairs with no consistent
-  direction, or the items driving any apparent difference are themselves
-  `UNSTABLE_WITHIN_PROMPT` for both V4 and V5 (meaning within-prompt noise
-  is at least as large as the between-prompt difference, which would mean
-  the *original* single-sample V4-vs-V5 comparison was not measuring a
-  prompt effect at all).
+**Per item, within one prompt, across its N=5 replications:**
 
-**Explicitly avoided**: "at least one replication passes" as a success
-criterion for anything. A single favourable replicate, at N = 5, is
-exactly the kind of lucky outcome this whole review exists to stop treating
-as signal.
+- **`STABLE_WITHIN_PROMPT`**: the item's verdict (on whatever dimension the
+  frozen gates score — `verdict`, and where relevant `unit_type`) is
+  identical across all 5 replications of that prompt.
+- **`UNSTABLE_WITHIN_PROMPT`**: the item's verdict varies across the 5
+  replications of the *same* prompt (not a V4-vs-V5 comparison — a
+  within-prompt disagreement).
 
-**What would be sufficient to conclude F0T's suspected stochasticity is
-materially affecting the observed V4/V5 difference**: if the three critical
-items are `UNSTABLE_WITHIN_PROMPT` under **V4 alone**, repeated N times
-with **no prompt change at all** — i.e. re-running the unmodified V4 prompt
-against batch-09 five times already produces a mix of `UNIT_PAGE` and
-`NOT_A_UNIT` for `g04d170f4d3fda759` — that is the single most direct
-possible demonstration that the original one-sample V4-to-V5 transition
-could have produced the observed flips with the prompt text held constant.
-This is why Design A (§4) resamples **both** prompts independently, not
-only the V4-to-V5 pairing: the within-prompt arm is the sharper diagnostic
-for exactly this question.
+**At the paired, prompt-vs-prompt level, per gate metric or per item:**
 
-## 11. Future acceptance methodology — options compared, none selected
+- **`V5_REPRODUCIBLY_BETTER`**: in **every one** of the 5 paired
+  replications (§6's ordering), V5's value for the metric is
+  strictly better than its paired V4 run's value (a unanimous-direction
+  requirement — a single reversal drops the classification to
+  `NO_CLEAR_PROMPT_EFFECT`, deliberately, to avoid "one lucky run" driving
+  the conclusion).
+- **`V5_REPRODUCIBLY_WORSE`**: the symmetric unanimous-direction
+  requirement in the opposite direction.
+- **`NO_CLEAR_PROMPT_EFFECT`**: the paired deltas are inconsistent in sign
+  across the 5 pairs (some favour V4, some favour V5), **or** the deltas
+  are consistent in sign but no larger in magnitude than the
+  `UNSTABLE_WITHIN_PROMPT` spread already measured for the same item/metric
+  — i.e. the between-prompt signal is not distinguishable from the
+  within-prompt noise floor this same study measures directly.
 
-**The replication study is diagnostic first.** It must not retroactively
-make V5 (or any candidate) eligible for HOLDOUT — HOLDOUT remains forbidden
-regardless of any replication result, full stop.
+**A softer, explicitly-labelled alternative rule** (majority rather than
+unanimous direction, e.g. 4-of-5) trades a lower false-negative rate
+(catching a real but noisy effect) for a higher false-positive rate (one
+correlated pair of anomalous runs looking like an effect). This task does
+not select between the strict and soft rule — that is exactly the kind of
+acceptance-methodology decision §11 reserves for an explicit owner
+protocol revision — but recommends the **strict (unanimous) rule as the
+default reporting standard**, with the 4-of-5 count always reported
+alongside it as supplementary context, never substituted for it.
 
-Whether a *future* V6 evaluation should move from the current single-run
-protocol to a replication-aware one is a **separate, later, explicitly
-owner-approved decision**. Four candidate shapes, compared without
-selecting any of them:
+**Sufficiency for concluding F0T's suspected stochasticity materially
+affects the V4/V5 difference:** if the two historical flips
+(`g0ec0d43dad311a77`, `g536c8b148048fcbc`) land in `UNSTABLE_WITHIN_PROMPT`
+for **either** prompt (i.e. the same item's verdict varies across 5
+same-prompt replications), that is direct, sufficient evidence that at
+least part of the historical V4→V5 movement is attributable to sampling
+variance rather than the prompt text — no paired comparison is even needed
+to reach that conclusion for that item. Conversely, if all nine named items
+(§8, critical + stable) are `STABLE_WITHIN_PROMPT` for both prompts, and the
+two historical flips are `V5_REPRODUCIBLY_WORSE` under the strict rule, that
+would be evidence the historical movement is a real, reproducible prompt
+effect rather than noise — the finding F0T's own n=1 measurement could not
+distinguish.
+
+## 11. Future acceptance methodology — a separate decision
+
+**This study is diagnostic. It does not retroactively make V5 eligible for
+HOLDOUT**, regardless of outcome — HOLDOUT eligibility is gated on passing
+every frozen DEV gate on the one frozen historical run, per the existing
+protocol, and this task changes nothing about that gate.
+
+**Whether a future V6 evaluation should move from "one frozen run → six
+gates" to a replication-aware criterion is a genuinely separate,
+owner-level decision.** Options, compared:
 
 | option | rule | advantage | failure mode |
 | --- | --- | --- | --- |
-| status quo | one frozen run → all six existing gates | simplest; matches every attempt run so far; cheapest | exactly the blindness to run-to-run variance this whole task exists to address |
-| strict replication | all six gates, in **every** one of N independently authorised replications | lowest false-accept risk; hardest to game with a lucky sample | may be infeasible-strict if Design A shows even modest natural item-level variance — one bad replicate out of N fails the candidate regardless of the other N−1; cost scales with N |
-| supermajority replication | all six gates in ≥ k of N replications (e.g. ≥ 4/5) | more tolerant of isolated noise while still requiring demonstrated reliability | introduces a new, currently uncalibrated threshold (why 4/5 and not 3/5) that itself needs justification from real replication data, not invented in this document |
-| pooled-count threshold | pool TP/FP/FN/TN counts across all N replications' identical 49 items and threshold one pooled precision/recall | cheap to compute and explain | **reintroduces the §9 non-independence problem** — pooling N repeated, correlated measurements of the same 49 items inflates the effective sample size illusorily (a pooled 49×N-item precision is not a precision measured on 49×N independent items); not recommended by this document, listed because the owner asked for a comparison |
-| median + no-catastrophic-replicate | median precision/recall across N clears the existing thresholds **and** no single replication falls below a named emergency floor (e.g. the worst-observed historical `FROZEN_GATES_FAILED_ON_DEV` result) | balances central tendency against tail risk without the pooling flaw above | the floor itself needs calibration from real replication data before it means anything; not yet calibrated here |
+| **Status quo** | one frozen run, six gates, as today | simplest; matches Attempts 1–4's existing precedent exactly; cheapest | exactly the problem F0T surfaced: a single sample cannot distinguish a real effect from noise, so a prompt could pass or fail DEV essentially by chance |
+| **Pass-every-replication** | all six gates must pass in **every** one of N independently authorised repetitions | strongest guarantee; hardest to pass by luck | may be too strict for a genuinely marginal-but-real improvement to ever clear, especially as N grows; expensive if N is large |
+| **Pooled-count threshold** | e.g. pool all N×49 item outcomes and require the pooled precision/recall to clear the gate thresholds | smooths over item-level noise; simple to compute | conflates within-run batch-correlated errors (§9) with genuine independent evidence — a pooled count is not the same statistical object as 49 independent trials, and reporting it as if it were would misstate its precision |
+| **Median-metric-plus-no-catastrophic-replicate** | median of each gate metric across N replications must clear the threshold, **and** no single replicate may fall below some floor (e.g. an absolute worst-case bound) | tolerant of one anomalous run without being fooled by it; closer to how §10's rules already reason | requires picking a floor value, which is itself a new calibration decision this task explicitly does not make |
 
-**No option is selected.** Any change to the acceptance methodology
-requires an explicit owner-approved protocol revision, written and approved
-**before** V6 exists or is executed — not inferred from this comparison
-table, and not defaulted to by whichever option a future task happens to
-find convenient.
+**No new acceptance rule is selected here.** This section compares
+mechanisms; it does not adopt one. **Any change to future acceptance
+methodology must be an explicit, owner-approved protocol revision, made
+before a V6 candidate exists or is executed** — never inferred from this
+document's existence, and never backfilled onto V5's already-frozen,
+already-failed result. **HOLDOUT remains forbidden regardless of which
+acceptance methodology is eventually chosen.**
 
 ## 12. Protecting against DEV overfitting
 
-Repeated inspection of the same 49 labelled DEVELOPMENT items across five
-prompt variants (V1-V5) already carries real risk of tuning toward this
-specific sample's idiosyncrasies rather than a general rule — and §1's
-observation about `g04d170f4d3fda759`'s non-monotonic V1-V5 trajectory is
-one concrete, already-observed symptom worth naming plainly rather than
-treating as reassuring.
+Repeated inspection of the same 49 labelled DEVELOPMENT items across
+D1→D2→D3→E1 (four successive prompt edits, each diagnosed from this same
+fixture) creates a real, structural risk of increasingly item-specific
+tuning — a prompt that has been iteratively adjusted against the same 49
+answers stops being evidence about the underlying task and starts being
+evidence about those 49 answers specifically. Recommended safeguards,
+consistent with the pattern this repository's own audits already partially
+follow:
 
-**One thing this project already does right, worth calling out and
-extending rather than reinventing**: Candidate E1 itself (F0M) was phrased
-as a *structural* qualifier — "small or non-university organisation" — not
-as a patch naming Université Paris Cité or `g04d170f4d3fda759` directly.
-That discipline should be made an explicit, standing rule for any future
-prompt edit, not left as an informal habit: **no institution name,
-ECHE/organisation id, or gold id may appear in prompt wording, ever.**
-
-**Another practice already partly in place, worth formalising**: F0S §10
-already tracks a named "protected recovered positives" group
-(`g57607d4278d6dc23`, `ge789b0f0aedc398c`, `gf65026e32d9da8db`) across every
-prompt variant specifically so a future edit cannot silently regress them
-while chasing one blocker. Recommend extending this into a single,
-explicitly maintained, versioned list of protected positives *and*
-protected hard negatives (not just positives) that every future prompt
-variant is checked against before being proposed as a candidate — this is
-an extension of an existing practice, not a new mechanism.
-
-**Additional recommended safeguards**:
-
-- Mechanism-level prompt changes only (already largely practised; make it
-  explicit).
-- A synthetic rule-isolation suite (Design C, §4) may inform how a
-  candidate edit is *worded*, but never substitutes for scoring against the
-  frozen 49-item DEV set, and must itself be built without reference to
-  which specific DEV items are currently failing (to avoid smuggling
-  item-specific knowledge in through the "synthetic" side door).
-- The frozen DEV set is used for **evaluation**, not iterative
-  sentence-by-sentence repair against one flagged item's own rationale —
-  the `g04d170f4d3fda759` trajectory across V1-V5 is a caution here, not
-  precedent to continue.
-- A recommended cap: **no more than one further prompt variant (a
-  hypothetical V6) should be attempted on the strength of single-sample DEV
-  evidence alone.** A V6 should require either (a) surviving the Design A
-  diagnostic in §13, or (b) an explicit owner override accepting the
-  single-sample risk knowingly. This is a recommendation for the owner to
-  adopt, not a rule this task imposes — acceptance-methodology decisions
-  are reserved to the owner per §11.
-
-**HOLDOUT is not, and must never become, the mechanism for resolving DEV
-overfitting concerns** — that would defeat the reason a held-out set exists
-at all.
+- **Mechanism-level changes only, never item-specific wording.** E1 itself
+  already follows this discipline (F0M §6: it reuses D1's own
+  general-purpose "small or non-university organisation" phrase, names no
+  institution, and is checked by `orgunitClassify*Contract.test.ts`'s own
+  structural-monotonicity assertions rather than a per-item hand-tuned
+  clause). Any future candidate should be held to the same bar.
+- **No institution-, country-, or gold-id-specific wording ever.** Already
+  the working norm (F0M §6's explicit "invents no new language"); worth
+  restating as an explicit, checked constraint for any V6.
+- **Predeclared protected positives/negatives, before a candidate is
+  designed, not after.** F0M §4/§6 already does this (the "protected
+  positives" and "positives at risk: none identified" analysis, checked
+  against every relevant fixture row before recommending E1) — the pattern
+  should be required, not merely customary.
+- **Synthetic rule-isolation tests (Design C, §4) used to *construct*
+  candidate wording, never to *gate* it.** Design C's diagnostic value is
+  real but its authority is zero against the frozen DEV gates — this
+  distinction should stay explicit in any future write-up that uses it.
+- **Frozen DEV used for evaluation, never for sentence-by-sentence repair
+  against a single failing item.** The existing pattern (diagnose from one
+  item's raw rationale, design one bounded candidate addressing the
+  identified *mechanism*, re-evaluate against the whole fixture) is the
+  right shape and should continue — but see the cap below.
+- **A cap on further prompt iterations before methodology escalation.**
+  D1→D2→D3→E1 is already four successive edits diagnosed against this same
+  49-item fixture, and E1 produced a measured *regression*, not an
+  improvement, on the one item it targeted's neighbourhood (F0S §11: two
+  regressions, zero corrections). **Recommendation: no further semantic
+  prompt iteration (a hypothetical V6) should be attempted against this
+  same 49-item DEV fixture without first completing this task's Design-B
+  replication** — precisely the ordering F0T's own recommendation (category
+  B) already implies, and precisely what this document's M1 recommendation
+  (§13) makes concrete. If a V6 is later designed and it too fails to show a
+  reproducible improvement under replication, that is itself the trigger for
+  the broader evaluation redesign the owner's `M4` option names, rather than
+  a fifth iteration against the same fixture.
+- **HOLDOUT is never the answer to this problem.** Reaching for a larger or
+  different evidence pool to escape a DEV-overfitting risk would only move
+  the same risk onto the one held-out resource this whole program exists to
+  protect. §11 already restates that HOLDOUT stays forbidden regardless of
+  outcome; this section adds that it specifically must never be reached for
+  as a shortcut around DEV-fixture fatigue.
 
 ## 13. Recommended next protocol
 
-**M2 — TARGETED DIAGNOSTIC REPLICATION FIRST.**
+**M1 — FULL PAIRED REPLICATION STUDY RECOMMENDED.**
 
-Unambiguous first next step: **Design A (§4), critical-batch resampling, at
-N = 5 paired replications (§5), in the frozen alternating order (§6),
-covering batches 07, 09 and 12** (plus whichever batches carry the six
-named control items, determined before execution by reading the frozen
-per-batch plan, not assumed here).
+- **Exact proposed N:** 5 fresh paired replications per prompt (10 fresh
+  runs total: 5 × V4, 5 × V5).
+- **Do historical V4/V5 runs count as replicates?** **No — pilot-only.**
+  Both were already inspected in detail by F0M and F0T before this
+  methodology was designed (F0M read V4's raw rationale field-by-field;
+  F0T read both V4's and V5's raw rationale field-by-field for all three
+  critical items). Counting either as one of the "fresh" five would not be
+  a blind draw — the analyst has already seen, and reasoned extensively
+  about, their specific outputs, which is a form of look-ahead bias distinct
+  from (but as real as) the gold-label contamination the "no HOLDOUT" rule
+  guards against. **The tradeoff, stated explicitly:** treating them as
+  pilot-only costs nothing in gold-label integrity (no DEV label was
+  touched) but means the study starts from 5 genuinely blind replicates per
+  prompt rather than 6; the alternative (counting them) would give a
+  slightly larger nominal N at zero additional execution cost, at the price
+  of mixing one already-scrutinised, non-blind observation into an
+  otherwise blind sample — this task judges that trade not worth taking for
+  a diagnostic study whose entire purpose is distinguishing real signal from
+  noise.
+- **Exact unit of replication:** one full frozen 12-batch, 49-document run
+  per prompt variant, reusing the F0O/F0I plan exactly (§4, Design B) — never
+  a single item or single batch scored in isolation.
+- **Exact execution ordering:** the frozen, alternating pair order in §6
+  (V4→V5, V5→V4, V4→V5, V5→V4, V4→V5), fixed before any inference, not
+  adapted based on intermediate results.
+- **Exact analysis contract:** §8 in full, applied identically to both
+  prompts, plus the interpretation rules in §10.
+- **Estimated resource envelope:** ~130–140 total provider requests,
+  ~35–50 minutes sequential wall-clock, ~220–300K output tokens, ~8 MB of
+  artifacts — the N=5 row of §5's table, comfortably inside the existing
+  worst-case ceilings this project already accepted for Attempts 1–4.
+- **What result would justify later V6 design:** the two historical flips
+  (`g0ec0d43dad311a77`, `g536c8b148048fcbc`) and the one unchanged item
+  (`g04d170f4d3fda759`) all classify `STABLE_WITHIN_PROMPT` for both
+  prompts (§10), **and** the historical V4→V5 regression pattern classifies
+  `V5_REPRODUCIBLY_WORSE` under the strict unanimous rule — i.e. the
+  measured movement is real and repeatable, not noise, which would justify
+  investing in a further semantic redesign (the structural
+  placement/salience fix F0T §7 already sketches, not a fourth restatement
+  of the same qualifier).
+- **What result would argue against further prompt tuning:** any of the
+  three critical items classifies `UNSTABLE_WITHIN_PROMPT` for either
+  prompt, or the paired V4-vs-V5 comparison classifies
+  `NO_CLEAR_PROMPT_EFFECT` under §10's rules — either would directly confirm
+  F0T's own recommendation (category B) that prompt-level causality is not
+  reliable enough at this evaluation's current resolution to keep iterating
+  wording rule by rule, and would point toward the owner's `M4` (broader
+  evaluation redesign) rather than a V6 prompt edit.
 
-- **Exact proposed N**: 5, applied to Design A first. A full Design B study
-  (N = 3 to 5, per §5's cost table) is the natural **second stage**, run
-  only if Design A produces a result meeting the "justifies further
-  investment" bar below — not run in parallel with Design A, and not
-  skipped straight to.
-- **Historical V4/V5 count as N?** No — pilot-only, per §5's explicit
-  tradeoff discussion. Not one of the 5.
-- **Exact unit of replication**: one complete, unmodified dispatch of a
-  named batch ordinal (07, 09, 12, plus control batches) under a named
-  prompt (V4 or V5), through the frozen pipeline exactly as attempts 3 and
-  4 ran it, producing its own immutable output root (§6).
-- **Exact execution ordering**: the alternating sequence in §6, applied
-  independently within each replicated batch (so batch-09 gets its own
-  five V4/V5 pairs in `V4→V5, V5→V4, V4→V5, V5→V4, V4→V5` order,
-  independently of batch-07's and batch-12's own five pairs) — frozen now,
-  not adapted after any intermediate result (§7).
-- **Exact analysis contract**: §8 in full, restricted to the replicated
-  batches' items, computed only after all planned dispatches for this
-  stage are complete and persisted; gold loaded only at that point (§7).
-- **Estimated resource envelope**: ≈ 30 batch dispatches, ≈ 34 provider
-  requests at the observed repair rate, ≈ 10-11 minutes of compute time /
-  15-20 minutes of realistic wall clock (§5) — roughly one quarter of a
-  full Design B study at the same N.
-- **What result would justify a later V6 design**: Design A produces
-  `V5_REPRODUCIBLY_BETTER` (§10) on at least `g04d170f4d3fda759`, or a
-  stable, reproducible (not one-off) pattern on the two flipped items —
-  i.e. graduation to a full Design B confirmatory study and, beyond that,
-  to an actual V6 prompt edit, requires clearing the supermajority-plus-
-  stability bar in §10, never a single favourable replicate.
-- **What result would argue against further prompt tuning**: Design A
-  shows the critical items `UNSTABLE_WITHIN_PROMPT` under a **single fixed
-  prompt** resampled alone (§10's sufficiency condition) — that result
-  would directly confirm F0T's stochasticity concern at the lowest
-  possible cost and argues for **M4** (stop hand-tuning prompt wording;
-  require a broader evaluation redesign — e.g. an inference-time
-  majority-vote-over-K-samples robustness layer, or committing to Design
-  C as a genuine second evaluation instrument) rather than any further
-  single-sample-driven prompt edit.
+**Design A′ (critical-batch resampling, §4) may optionally precede Design B
+as a cheap triage step** — replaying only batches 07/09/12 (the batches
+already containing the three critical items) is, thanks to
+`persistSession: false` (§4), execution-context-faithful for those specific
+items at roughly a quarter of Design B's dispatch cost. It is optional, not
+required, and its result can only raise or lower confidence going into
+Design B — it cannot substitute for it, because it cannot produce a
+per-replication `devGateOutcome` over all 49 items (§4's own limitation
+note).
 
-**M1 (full paired replication study) is not recommended as the *first*
-step** — it is the right *second* step, conditional on Design A's result,
-not a parallel or alternative first move; running it first spends roughly
-4× the resource envelope to answer a question Design A can answer more
-cheaply for the items that actually matter to the current disagreement.
+**Design C (synthetic rule-isolation) is recommended as a second-stage
+complement, not a substitute for or prerequisite to Design B**: useful once
+Design B has established whether real instability exists, to help construct
+(never gate) whatever candidate wording addresses it.
 
-**M3 (synthetic rule-isolation suite first)** is not recommended as the
-first step either — per §4's Design C discussion, it cannot explain the
-two *already-observed* DEV flips (different documents), only inform future
-wording; it is complementary to, not a substitute for, Design A, and is
-better pursued in parallel with or after Design A rather than instead of
-it.
+No freeze bytes, execution machinery, or authorisation candidate are
+prepared by this task. This section names the next protocol; it does not
+begin it.
 
-**M4** is the fallback this document names explicitly (§10, §12) if Design
-A's within-prompt arm shows instability — not selected now, held in
-reserve pending Design A's result.
+## 14. Zero-inference / zero-execution proof
 
-## 14. This document
+- **Zero provider calls, zero SDK `query()`, zero auth operations**: no
+  `tsx`/`node` invocation of any file under `src/orgunits/classify/provider*`,
+  `orchestrate.ts`, `loaders.ts`, or any CLI/coordinator/child-execution
+  module occurred anywhere in this task. Every command run was one of
+  `git` (branch/checkout/log/rev-parse/show — read-only), `grep`, `find`,
+  `du`, `cat`/`Read`, and short disposable `python3 -c` snippets that only
+  called `json.load`/dict traversal on already-existing preserved artifact
+  files (`final-record.json`) — no script imported or executed any
+  production module. No `ANTHROPIC_API_KEY` or equivalent credential was
+  read or used.
+- **Zero HOLDOUT access**: no file named in F0T §8's forbidden list
+  (`orgunit-classifier-sonnet-acceptance-v1.jsonl`,
+  `...-adjudication-v1.jsonl`, `orgunit-classifier-gold-v1.jsonl`,
+  `orgunit-classifier-adjudication-v1.jsonl`) was opened by this task. Every
+  gold-adjacent fact quoted above is reused, by citation, from F0L, F0M,
+  F0R, F0S and F0T's own already-published figures, or is a structural
+  fact (a hash, a model id, a token count, a timestamp) with no gold
+  content.
+- **Zero V6 / zero prompt implementation**: no file under
+  `src/orgunits/classify/prompt.ts`, in this worktree or either runtime
+  worktree, was modified — both runtime worktrees show no uncommitted
+  changes (`git status --short`, both clean, checked live in this task
+  alongside the `rev-parse` checks in §1/§3). No candidate wording beyond
+  what F0M already designed (E1/E2, unimplemented) is proposed here; this
+  task proposes no wording at all.
+- **Zero gold/threshold/validator/repair-policy change**: no file under
+  `docs/evaluation/`, `src/orgunits/classify/validate.ts`,
+  `src/orgunits/classify/repair.ts` was modified.
+- **Zero freeze/authorisation/execution-lock artifact created**: no file
+  under `phase2b-2d2c-dev-runs/` was created, and no execution-authorisation
+  candidate exists anywhere as a result of this task.
+- **This task added exactly one file** — this document — and created no
+  other diff. `git status --short` immediately before writing this document
+  showed a clean tree at exactly `71933872510c1a27e5e011d76641999c029bea24`.
 
-Additive documentation only. No file under `docs/evaluation/`,
-`src/orgunits/classify/prompt.ts` (in this worktree or either runtime
-worktree), `src/orgunits/classify/validate.ts`, `src/orgunits/classify/
-repair.ts`, or any scored-output file under `docs/evaluation/results/` was
-modified. `git status` in both runtime worktrees shows no changes (neither
-worktree was written to at all — only read). This task added exactly one
-new file: this document, at
-`docs/audits/PHASE_2B_2D2C_F0U_REPLICATION_METHODOLOGY_REVIEW_2026-09.md`,
-on branch `design/phase2b-2d2c-f0u-replication-methodology`, cut from the
-exact F0T commit `71933872510c1a27e5e011d76641999c029bea24`.
+## Owner checkpoint
 
-## 15. Zero-inference / zero-execution proof
+1. **F0T's conclusions are preserved exactly** (§1): V4 `14/16`/`14/14`,
+   V5 `13/16`/`13/14`, both `FROZEN_GATES_FAILED_ON_DEV`, both immutable.
+2. **Rationale epistemics corrected** (§2): observable output vs. hidden
+   process, distinguished explicitly for every load-bearing F0T claim, with
+   the additive reframing the owner requested recorded without editing F0T.
+3. **Eleven-item nondeterminism inventory** (§3), each independently
+   re-verified live in this task (both runtime worktrees' HEAD commits and
+   `package.json` SDK pins re-checked, not merely re-quoted; model-id fields
+   re-read directly from all 12 V5 batch records). Two genuine `UNKNOWN`s
+   surfaced and flagged rather than resolved by inference: prompt-caching
+   semantics, and whether the requested model-id string denotes a fixed
+   snapshot.
+4. **Design comparison** (§4): Design B (full frozen-batch resampling)
+   recommended over Design A (item-only) on the directly observed structural
+   fact that batches, not single documents, are the real unit of execution;
+   Design C scoped as a diagnostic complement only.
+5. **Resource envelope quantified from real data** (§5): N=5 per prompt
+   estimated at ~35–50 minutes, ~130–140 requests, well inside the existing
+   61/183 per-run ceilings.
+6. **Predetermined paired ordering and authorisation-binding design**
+   (§6): alternating V4/V5 start, one study-level owner approval
+   recommended over ten separate adaptive ones.
+7. **No-gold, no-adaptive-stopping, predeclared inclusion rule** (§7).
+8. **Deterministic analysis contract, fixed before any data exists** (§8).
+9. **Independence assumptions addressed honestly** (§9): binomial CI and
+   McNemar rejected as invalid for this design; descriptive paired
+   reporting recommended; the correct resampling unit (whole replication)
+   named for any future larger-N study.
+10. **Prospective interpretation rules** (§10), unanimous-direction as the
+    default standard, explicitly designed to resist a one-lucky-run result.
+11. **Future acceptance methodology surveyed, not decided** (§11): four
+    options compared; no rule adopted; HOLDOUT stays forbidden regardless.
+12. **DEV-overfitting safeguards recommended** (§12), including an explicit
+    cap: no further prompt iteration against this same fixture before this
+    replication study runs.
+13. **Recommendation: M1 — full paired replication study, N=5 per prompt,
+    Design B, historical runs pilot-only, frozen alternating order, full
+    analysis contract specified** (§13).
+14. **Zero-inference/zero-execution proof given in full** (§14).
 
-- **Zero provider calls, zero classifier inference, zero auth-status
-  calls**: every command run by this task was one of `git`
-  (checkout/branch/log/rev-parse only), `grep`, `find`, `du`, `cat`,
-  `python3 -m json.tool` (read-only formatting of already-persisted JSON),
-  and `Read`/`Write` on files. No `tsx`/`node` invocation of any file under
-  `src/orgunits/classify/provider*`, `orchestrate.ts`, `loaders.ts`, or any
-  CLI/coordinator/child-execution module occurred, in this repository or in
-  either runtime worktree. No `ANTHROPIC_API_KEY` or equivalent credential
-  was read or used. The SDK's bundled `.d.ts` type declaration files were
-  read as text for their documentation comments only — never imported into
-  any executed program.
-- **Zero V6 / zero prompt implementation**: no wording is proposed anywhere
-  in this document for any prompt clause; §12 and §13 discuss *when* a V6
-  might be justified and what it would need to clear, never *what it should
-  say*.
-- **Zero HOLDOUT access**: no file named
-  `orgunit-classifier-sonnet-acceptance-v1.jsonl`,
-  `...-adjudication-v1.jsonl`, `orgunit-classifier-gold-v1.jsonl`, or
-  `orgunit-classifier-adjudication-v1.jsonl` was opened. The only
-  evaluation-adjacent artifacts read were: already-published audit
-  documents (F0K, F0L, F0M, F0R, F0S, F0T — all previously committed),
-  the F0O configuration-freeze JSON (a frozen run-configuration record, not
-  a gold/label fixture), and the `docs/evaluation/results/` **directory
-  listing** (names only, to confirm the gold-adjacent fixture naming
-  pattern without opening any of the named-forbidden files).
-- **Zero execution authorisation**: no freeze byte, authorisation candidate,
-  or execution-machinery file was created. §6's authorisation-design
-  recommendation is prose only.
-- **Zero scored-output change**: `docs/evaluation/results/` is untouched;
-  this task added exactly the one file named in §14 and created no other
-  diff anywhere in this repository.
+**No provider call, no `query()`, no auth-status call, no HOLDOUT access,
+no V6 prompt text, no freeze bytes, no execution machinery, and no
+authorisation candidate were created or issued anywhere in this task.**
 
-## 16. Result
-
-Methodology designed, not executed. Twelve numbered owner requirements
-(§1-§12) addressed with the evidence available from committed documents,
-read-only inspection of the two pinned runtime worktrees, and the SDK's own
-bundled type declarations — no inference substituted for a fact this task
-could instead verify directly (§3's nondeterminism inventory in particular
-was independently re-derived from source, not merely restated from F0T).
-**Recommended next protocol: M2, Design A, N = 5, exact parameters in
-§13.** This task performed no provider call, no `query()`, no auth-status
-call, no HOLDOUT access, no V6 implementation, and created no execution
-authorisation anywhere. **This task stops here for owner review.**
+**PHASE 2B-2D2C-F0U COMPLETE — STOP FOR OWNER REVIEW.**
