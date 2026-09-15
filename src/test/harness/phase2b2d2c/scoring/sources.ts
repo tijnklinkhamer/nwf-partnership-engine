@@ -94,9 +94,22 @@ export const PersistedValidationSchema = z.union([
 
 export type PersistedValidation = z.infer<typeof PersistedValidationSchema>;
 
-const PlannedInputSchema = z.looseObject({
+export const PlannedInputSchema = z.looseObject({
   sequence: z.number().int().min(1),
-  variantName: z.enum(['PROMPT_V1_CANONICAL', 'PROMPT_V2_CANONICAL', 'PROMPT_V3_CANONICAL']),
+  // F0K: `loadEvaluationDirectory` is shared by the attempt-1, attempt-2 AND
+  // attempt-3 loaders, so this closed set must name every variant any of
+  // them can have persisted. It stayed at V1..V3 when attempt 3 was
+  // prepared, which would have refused all twelve PROMPT_V4_CANONICAL
+  // planned inputs at scoring time. Admission here is NECESSARY, never
+  // sufficient: each attempt's own loader still checks that the name is the
+  // ONE variant its freeze schedules (`attempt3Sources.ts` refuses any
+  // V1/V2/V3 directory in the attempt-3 namespace outright).
+  variantName: z.enum([
+    'PROMPT_V1_CANONICAL',
+    'PROMPT_V2_CANONICAL',
+    'PROMPT_V3_CANONICAL',
+    'PROMPT_V4_CANONICAL',
+  ]),
   variantLabel: z.string(),
   variantOrder: z.number().int(),
   variantGitCommit: z.string(),
