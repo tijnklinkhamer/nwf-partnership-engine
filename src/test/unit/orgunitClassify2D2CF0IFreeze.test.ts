@@ -45,6 +45,7 @@ import {
 } from '../harness/phase2b2d2c/f0i/attempt3FreezeCore.js';
 import {
   buildF0IExecutionPlan,
+  F0I_APPROVAL_RECORD_PATH,
   F0I_APPROVAL_RECORD_RAW_SHA256,
   F0I_FREEZE_PATH,
   F0I_REVISION,
@@ -90,8 +91,75 @@ describe('2D2C-F0I: identity and status - PREPARATION ONLY, no approval, no auth
     expect(F0I.revision).toBe(F0I_REVISION);
   });
 
-  it('no owner freeze-approval record exists for F0I', () => {
-    expect(F0I_APPROVAL_RECORD_RAW_SHA256).toBeNull();
+  it('the F0I owner approval record EXISTS, hashes to the pinned value, names exactly the frozen bytes, plan and V4 runtime, and authorises nothing', () => {
+    expect(F0I_APPROVAL_RECORD_PATH).not.toBeNull();
+    const bytes = readFileSync(join(ROOT, F0I_APPROVAL_RECORD_PATH as string));
+    expect(F0I_APPROVAL_RECORD_RAW_SHA256).toBe(sha(bytes));
+    expect(F0I_APPROVAL_RECORD_RAW_SHA256).toMatch(/^[0-9a-f]{64}$/);
+    const record = JSON.parse(bytes.toString('utf8')) as {
+      recordKind: string;
+      approves: string;
+      approvedFreeze: {
+        file: string;
+        rawSha256: string;
+        rawBytes: number;
+        derivedAttempt3PlanSha256: string;
+        branchCommit: string;
+        freezeRevision: string;
+      };
+      predecessor: {
+        attempt1: { rawSha256: string };
+        attempt2: { rawSha256: string; approvalRecordRawSha256: string };
+      };
+      approvedIdentities: Record<string, unknown>;
+      ownerStatementAsReceived: string;
+      statementMarkerAsReceived: string;
+      thisRecordAuthorises: unknown[];
+      thisRecordDoesNotAuthorise: string[];
+    };
+    expect(record.recordKind).toBe('OWNER_FREEZE_APPROVAL');
+    expect(record.approves).toBe('DEVELOPMENT_CONFIGURATION_FREEZE_ONLY');
+    expect(record.approvedFreeze.file).toBe(F0I_FREEZE_PATH);
+    expect(record.approvedFreeze.rawSha256).toBe(PROPOSED_F0I_FREEZE_RAW_SHA256);
+    expect(record.approvedFreeze.rawBytes).toBe(PROPOSED_F0I_FREEZE_RAW_BYTES);
+    expect(record.approvedFreeze.derivedAttempt3PlanSha256).toBe(PROPOSED_F0I_PLAN_SHA256);
+    expect(record.approvedFreeze.branchCommit).toBe('734fd4b1913efcab74096a9fd538c51a32a560d2');
+    expect(record.approvedFreeze.freezeRevision).toBe('F0I_V4_ATTEMPT_3');
+    expect(record.predecessor.attempt1.rawSha256).toBe(
+      'c3f0a76b3a5939f3e4bf395d46237cf0b0f365fa1f4bf019092a6944849d6157',
+    );
+    expect(record.predecessor.attempt2.rawSha256).toBe(PROPOSED_F0E_FREEZE_RAW_SHA256);
+    expect(record.predecessor.attempt2.approvalRecordRawSha256).toBe(
+      F0E_APPROVAL_RECORD_RAW_SHA256,
+    );
+    expect(record.approvedIdentities['v4RuntimeCommit']).toBe(V4_RUNTIME_COMMIT);
+    expect(record.approvedIdentities['v4RuntimeBasedOnV3BCommit']).toBe(V3B_RUNTIME_COMMIT);
+    expect(record.approvedIdentities['promptSha256']).toBe(F0I_VARIANT.runtimePromptSha256);
+    expect(record.approvedIdentities['logicalEvaluations']).toBe(12);
+    expect(record.approvedIdentities['documents']).toBe(49);
+    expect(record.approvedIdentities['priorVariantReruns']).toBe(0);
+    expect(
+      (record.approvedIdentities['callCeiling'] as { maxProviderRequests: number })
+        .maxProviderRequests,
+    ).toBe(61);
+    expect(
+      (record.approvedIdentities['callCeiling'] as { maxAdapterAttempts: number })
+        .maxAdapterAttempts,
+    ).toBe(183);
+    expect(record.approvedIdentities['repairMinimumRemainingBudgetMs']).toBe(120_000);
+    expect(record.statementMarkerAsReceived).toBe('APPROVE_F0I_FREEZE');
+    expect(record.ownerStatementAsReceived.startsWith('APPROVE_F0I_FREEZE')).toBe(true);
+    expect(record.ownerStatementAsReceived).toContain(PROPOSED_F0I_FREEZE_RAW_SHA256);
+    expect(record.ownerStatementAsReceived).toContain(PROPOSED_F0I_PLAN_SHA256);
+    expect(record.ownerStatementAsReceived).toContain(V4_RUNTIME_COMMIT);
+    expect(record.ownerStatementAsReceived).toContain(F0I_VARIANT.runtimePromptSha256);
+    expect(record.thisRecordAuthorises).toEqual([]);
+    const denied = record.thisRecordDoesNotAuthorise.join('\n');
+    expect(denied).toMatch(/inference/);
+    expect(denied).toMatch(/attempt 3/);
+    expect(denied).toMatch(/consumption marker/);
+    expect(denied).toMatch(/HOLDOUT/);
+    expect(denied).toMatch(/push to main/);
   });
 
   it('pins the dedicated V4 runtime root, built from the exact V3B commit, with the D1/D2/D3 prompt identity', () => {

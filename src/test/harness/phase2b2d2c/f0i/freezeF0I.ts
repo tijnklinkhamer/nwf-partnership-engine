@@ -19,7 +19,15 @@
  * the gates, the repair policy and the liveness numbers are byte-identical
  * to F0E (asserted by the F0I unit test).
  *
- * STATUS: PROPOSED_PENDING_OWNER_FREEZE_APPROVAL. This is preparation only.
+ * STATUS: OWNER-APPROVED 2026-09-15 (the bytes still say
+ * PROPOSED_PENDING_OWNER_FREEZE_APPROVAL, by design). The raw SHA-256
+ * pinned below is the hash the owner approved; approval is a SEPARATE
+ * record and never edits the bytes. The owner approval record is now
+ * pinned by hash below; had it been `null`, no freeze would authorise
+ * anything. This approval is a freeze approval only - it authorises no
+ * inference, no attempt 3, and no execution. A SEPARATE, NEW owner
+ * execution authorisation, naming this record, is required before any
+ * attempt-3 inference may occur, and does not exist yet.
  */
 import {
   ATTEMPT_3_NO,
@@ -73,9 +81,16 @@ export const PROPOSED_F0I_FREEZE_RAW_BYTES = 87_754;
 export const PROPOSED_F0I_PLAN_SHA256 =
   '3829955f64b9bdddb51ba7b5389363b0fa36c0449628206914f608f9f1830a2b';
 
-/** No owner freeze-approval record exists for F0I. `null` means exactly that. */
-export const F0I_APPROVAL_RECORD_PATH: string | null = null;
-export const F0I_APPROVAL_RECORD_RAW_SHA256: string | null = null;
+/**
+ * The owner approval record for F0I: RECORDED 2026-09-15 (`APPROVE_F0I_FREEZE`,
+ * naming exactly the raw and plan hashes above) and pinned here by its exact
+ * raw SHA-256. `null` would mean "no approval exists"; a record whose bytes
+ * do not hash to this value is refused, never trusted.
+ */
+export const F0I_APPROVAL_RECORD_PATH: string | null =
+  'docs/evaluation/PHASE_2B_2D2C_F0I_OWNER_FREEZE_APPROVAL_V1.json';
+export const F0I_APPROVAL_RECORD_RAW_SHA256: string | null =
+  '39655f5eb5f5ace8af87357b5b44b6028ebd3d7bc9505d6ea05be9e2252f5b2a';
 
 export const F0I_FREEZE_ID = 'PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0I_V1';
 export const F0I_FREEZE_VERSION = 'phase2b-2d2c-dev-configuration-freeze-f0i-v1';
