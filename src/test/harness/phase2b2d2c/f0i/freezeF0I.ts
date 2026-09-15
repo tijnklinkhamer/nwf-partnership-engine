@@ -92,6 +92,24 @@ export const F0I_APPROVAL_RECORD_PATH: string | null =
 export const F0I_APPROVAL_RECORD_RAW_SHA256: string | null =
   '39655f5eb5f5ace8af87357b5b44b6028ebd3d7bc9505d6ea05be9e2252f5b2a';
 
+/**
+ * ADDITIVE SUPPLEMENT, RECORDED 2026-09-15 - never a correction. The
+ * approval record above was written in a session that began after a
+ * `/clear`, so it necessarily recorded the literal shorter confirmation
+ * message actually received (with an explicit honesty note disclosing
+ * that gap) rather than the complete prepared owner freeze statement.
+ * This ratification record restates every identity that statement would
+ * have named - sourced only from the F0I freeze bytes and the existing
+ * approval record, never from a later instruction - so the approval chain
+ * is self-contained. It does not edit, replace or supersede the approval
+ * record above, changes no freeze or plan byte, makes no new semantic
+ * decision, and grants no attempt-3 execution authority.
+ */
+export const F0I_RATIFICATION_RECORD_PATH: string | null =
+  'docs/evaluation/PHASE_2B_2D2C_F0I_OWNER_FREEZE_APPROVAL_RATIFICATION_V1.json';
+export const F0I_RATIFICATION_RECORD_RAW_SHA256: string | null =
+  '7990db3375120a80470330172a259b8078b2934375e584dc9c9a54ffccf60083';
+
 export const F0I_FREEZE_ID = 'PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0I_V1';
 export const F0I_FREEZE_VERSION = 'phase2b-2d2c-dev-configuration-freeze-f0i-v1';
 export const F0I_FREEZE_REVISION = 'F0I_V4_ATTEMPT_3';

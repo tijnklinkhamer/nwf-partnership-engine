@@ -48,6 +48,8 @@ import {
   F0I_APPROVAL_RECORD_PATH,
   F0I_APPROVAL_RECORD_RAW_SHA256,
   F0I_FREEZE_PATH,
+  F0I_RATIFICATION_RECORD_PATH,
+  F0I_RATIFICATION_RECORD_RAW_SHA256,
   F0I_REVISION,
   F0I_VARIANT,
   f0iPlanOrderIsFrozen,
@@ -158,6 +160,126 @@ describe('2D2C-F0I: identity and status - PREPARATION ONLY, no approval, no auth
     expect(denied).toMatch(/inference/);
     expect(denied).toMatch(/attempt 3/);
     expect(denied).toMatch(/consumption marker/);
+    expect(denied).toMatch(/HOLDOUT/);
+    expect(denied).toMatch(/push to main/);
+  });
+
+  it('the F0I owner approval RATIFICATION record EXISTS, hashes to the pinned value, restates every identity self-containedly, and authorises nothing', () => {
+    expect(F0I_RATIFICATION_RECORD_PATH).not.toBeNull();
+    const bytes = readFileSync(join(ROOT, F0I_RATIFICATION_RECORD_PATH as string));
+    expect(F0I_RATIFICATION_RECORD_RAW_SHA256).toBe(sha(bytes));
+    expect(F0I_RATIFICATION_RECORD_RAW_SHA256).toMatch(/^[0-9a-f]{64}$/);
+    const record = JSON.parse(bytes.toString('utf8')) as {
+      recordKind: string;
+      ratifies: string;
+      ratifiedApprovalRecord: { file: string; rawSha256: string; preservedVerbatim: boolean };
+      approvedFreeze: { rawSha256: string; derivedAttempt3PlanSha256: string };
+      approvedIdentitiesRestated: Record<string, unknown>;
+      sixFrozenSemanticGatesRestated: Record<string, unknown>;
+      holdoutProhibitionRestated: { inferenceDuring2D2C: string };
+      attempt1ComparatorIdentityRestatedComplete: Record<string, unknown>;
+      attempt2ComparatorIdentityRestatedComplete: Record<string, unknown>;
+      semanticsUnchanged: Record<string, boolean>;
+      thisRecordAuthorises: unknown[];
+      thisRecordDoesNotAuthorise: string[];
+      relationshipToTheRatifiedRecord: string[];
+    };
+    expect(record.recordKind).toBe('OWNER_FREEZE_APPROVAL_RATIFICATION');
+    expect(record.ratifies).toBe('DEVELOPMENT_CONFIGURATION_FREEZE_APPROVAL_ONLY');
+    // Ratifies the EXISTING approval record, unedited, by its own pinned hash.
+    expect(record.ratifiedApprovalRecord.file).toBe(F0I_APPROVAL_RECORD_PATH);
+    expect(record.ratifiedApprovalRecord.rawSha256).toBe(F0I_APPROVAL_RECORD_RAW_SHA256);
+    expect(record.ratifiedApprovalRecord.preservedVerbatim).toBe(true);
+    // Never touches freeze or plan bytes.
+    expect(record.approvedFreeze.rawSha256).toBe(PROPOSED_F0I_FREEZE_RAW_SHA256);
+    expect(record.approvedFreeze.derivedAttempt3PlanSha256).toBe(PROPOSED_F0I_PLAN_SHA256);
+    // Restates the identities the owner's ratification instruction named.
+    expect(record.approvedIdentitiesRestated['v4RuntimeCommit']).toBe(V4_RUNTIME_COMMIT);
+    expect(record.approvedIdentitiesRestated['v4RuntimeBasedOnV3BCommit']).toBe(V3B_RUNTIME_COMMIT);
+    expect(record.approvedIdentitiesRestated['promptVersion']).toBe('orgunit-classifier-prompt-v4');
+    expect(record.approvedIdentitiesRestated['promptSha256']).toBe(F0I_VARIANT.runtimePromptSha256);
+    expect(record.approvedIdentitiesRestated['promptCharacters']).toBe(14_731);
+    expect(record.approvedIdentitiesRestated['promptUtf8Bytes']).toBe(14_807);
+    expect(record.approvedIdentitiesRestated['modelId']).toBe(
+      (F0I.freeze.classifier as { requestedModelId: string }).requestedModelId,
+    );
+    expect(record.approvedIdentitiesRestated['logicalEvaluations']).toBe(12);
+    expect(record.approvedIdentitiesRestated['documents']).toBe(49);
+    expect(
+      (record.approvedIdentitiesRestated['priorVariantReruns'] as Record<string, number>)
+        .PROMPT_V3_CANONICAL,
+    ).toBe(0);
+    expect(
+      (record.approvedIdentitiesRestated['callCeiling'] as { maxProviderRequests: number })
+        .maxProviderRequests,
+    ).toBe(61);
+    expect(
+      (record.approvedIdentitiesRestated['callCeiling'] as { maxAdapterAttempts: number })
+        .maxAdapterAttempts,
+    ).toBe(183);
+    expect(
+      (
+        record.approvedIdentitiesRestated['repairPolicy'] as {
+          minimumRemainingBudgetMs: number;
+        }
+      ).minimumRemainingBudgetMs,
+    ).toBe(120_000);
+    // Six frozen semantic gates, byte-identical to F0I.freeze.scoring.gates.
+    const gates = F0I.freeze.scoring.gates as Record<string, number>;
+    expect(record.sixFrozenSemanticGatesRestated['minSchemaValidSpanVerifiedRate']).toBe(
+      gates['minSchemaValidSpanVerifiedRate'],
+    );
+    expect(record.sixFrozenSemanticGatesRestated['minUnitPageRecall']).toBe(
+      gates['minUnitPageRecall'],
+    );
+    expect(record.sixFrozenSemanticGatesRestated['minUnitPagePrecision']).toBe(
+      gates['minUnitPagePrecision'],
+    );
+    expect(record.sixFrozenSemanticGatesRestated['minUnitTypeAccuracy']).toBe(
+      gates['minUnitTypeAccuracy'],
+    );
+    expect(record.sixFrozenSemanticGatesRestated['minHardNegativeRejection']).toBe(
+      gates['minHardNegativeRejection'],
+    );
+    expect(record.sixFrozenSemanticGatesRestated['maxNeedsReviewRate']).toBe(
+      gates['maxNeedsReviewRate'],
+    );
+    // HOLDOUT prohibition restated, byte-identical to F0I.freeze.holdout.
+    expect(record.holdoutProhibitionRestated.inferenceDuring2D2C).toBe(
+      (F0I.freeze.holdout as { inferenceDuring2D2C: string }).inferenceDuring2D2C,
+    );
+    expect(record.holdoutProhibitionRestated.inferenceDuring2D2C).toBe('FORBIDDEN');
+    // Complete, non-abbreviated attempt-1 and attempt-2 comparator identities.
+    expect(record.attempt1ComparatorIdentityRestatedComplete['freezeRawSha256']).toBe(
+      'c3f0a76b3a5939f3e4bf395d46237cf0b0f365fa1f4bf019092a6944849d6157',
+    );
+    expect(record.attempt1ComparatorIdentityRestatedComplete['artifactInventorySha256']).toBe(
+      'ee17e1f2ee8021e59c06377342042e56f84269165f8ec39521011cb1d3538137',
+    );
+    expect(record.attempt1ComparatorIdentityRestatedComplete['artifactCount']).toBe(243);
+    expect(record.attempt2ComparatorIdentityRestatedComplete['freezeRawSha256']).toBe(
+      PROPOSED_F0E_FREEZE_RAW_SHA256,
+    );
+    expect(record.attempt2ComparatorIdentityRestatedComplete['approvalRecordRawSha256']).toBe(
+      F0E_APPROVAL_RECORD_RAW_SHA256,
+    );
+    expect(record.attempt2ComparatorIdentityRestatedComplete['primaryArtifactCount']).toBe(123);
+    expect(record.attempt2ComparatorIdentityRestatedComplete['repairArtifactCount']).toBe(18);
+    // Explicit statements the instruction requires.
+    expect(record.semanticsUnchanged['freezeBytesChanged']).toBe(false);
+    expect(record.semanticsUnchanged['planBytesChanged']).toBe(false);
+    expect(record.semanticsUnchanged['approvalRecordChanged']).toBe(false);
+    expect(record.semanticsUnchanged['newSemanticDecisionMade']).toBe(false);
+    expect(record.thisRecordAuthorises).toEqual([]);
+    const relationship = record.relationshipToTheRatifiedRecord.join('\n');
+    expect(relationship).toMatch(/remains immutable historical evidence/);
+    expect(relationship).toMatch(/does not supersede it/);
+    expect(relationship).toMatch(/no freeze bytes and no plan bytes change/);
+    expect(relationship).toMatch(/no new semantic decision/);
+    expect(relationship).toMatch(/no attempt-3 execution authority is granted/);
+    const denied = record.thisRecordDoesNotAuthorise.join('\n');
+    expect(denied).toMatch(/inference/);
+    expect(denied).toMatch(/attempt 3/);
     expect(denied).toMatch(/HOLDOUT/);
     expect(denied).toMatch(/push to main/);
   });
