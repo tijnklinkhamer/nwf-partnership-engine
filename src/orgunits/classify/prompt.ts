@@ -1,7 +1,45 @@
 /**
- * THE FROZEN CLASSIFIER SYSTEM PROMPT — `orgunit-classifier-prompt-v4`.
+ * THE FROZEN CLASSIFIER SYSTEM PROMPT — `orgunit-classifier-prompt-v5`.
  *
- * v4 IS v3 PLUS EXACTLY THE THREE OWNER-APPROVED BOUNDED SEMANTIC
+ * v5 IS v4 PLUS EXACTLY ONE OWNER-APPROVED BOUNDED SEMANTIC NARROWING —
+ * CANDIDATE E1 — AND NOTHING ELSE (Phase 2B-2D2C-F0N/V5I1, owner decision
+ * `APPROVE_V5_SEMANTIC_E1_IMPLEMENTATION_ONLY` of 2026-09-15, approving
+ * exactly Candidate E1 from
+ * `docs/audits/PHASE_2B_2D2C_F0M_V4_RESIDUAL_PRECISION_ROOT_CAUSE_AND_V5_OPTIONS_2026-09.md`
+ * §6 for implementation only; Candidate E2 was NOT selected). One
+ * operation on the v4 text, itself a narrowing of an existing clause, no
+ * new criterion:
+ *
+ *   1. REPLACE the whole-organisation-allowance paragraph's OPENING
+ *      sentence ("The whole-organisation allowance is narrow: use it
+ *      only when...") so it too applies only to a small or non-university
+ *      organisation, extending the exact qualifying phrase D1 (V4I1)
+ *      already introduced on the paragraph's SECOND sentence
+ *      ("For a small or non-university organisation as described
+ *      above, ...") to this first sentence as well. F0M §3 established
+ *      from the raw provider record that V4's own rationale for
+ *      `g04d170f4d3fda759` (Université Paris Cité) tracked exactly this
+ *      opening sentence's test — "operating unit or function... primary
+ *      subject" — verbatim, and explicitly noted no distinct office was
+ *      named; the opening sentence was independently sufficient and
+ *      organisation-size-blind in both v3 and v4, so D1's narrowing of
+ *      the second sentence was never reached. This operation closes that
+ *      gap (E1, targets the residual mechanism F0M §3 identified; F0M's
+ *      own label for it: the whole-organisation allowance's base sentence
+ *      was left ungated by D1).
+ *
+ * Every other byte of v4 is kept, including D1's own second-sentence
+ * qualifier byte-for-byte, D2, D3, the evidence-output compliance check
+ * (Candidate C), and every v1/v2/v3 paragraph untouched by v4. Reversing
+ * exactly this one operation reproduces the v4 runtime text byte for byte
+ * (SHA-256 `a2dad6e85102ee710d4eb1c5ca4ea3995273b3e25834d27a83f36ad6b65a256b`),
+ * and from there v4's own documented reversal reproduces v3, v2 and v1;
+ * `orgunitClassifyPrompt.test.ts` asserts the v5-to-v4 reversal by SHA-256
+ * through the harness's `promptLineage.ts`. There is ONE production prompt
+ * and no version selector: a v1, v2, v3 or v4 comparator runs from the
+ * commit that still carries it, never from this build.
+ *
+ * v4 WAS v3 PLUS EXACTLY THE THREE OWNER-APPROVED BOUNDED SEMANTIC
  * NARROWINGS FROM THE F0H FAILURE DIAGNOSIS, AND NOTHING ELSE (Phase
  * 2B-2D2C-V4I1, owner instruction of 2026-09-14 approving candidates D1,
  * D2 and D3 from
@@ -92,7 +130,7 @@
  */
 
 /** Versions THIS PROMPT'S TEXT. Bump on any content change; never edit the string below without bumping it. */
-export const ORGUNIT_CLASSIFIER_PROMPT_VERSION = 'orgunit-classifier-prompt-v4';
+export const ORGUNIT_CLASSIFIER_PROMPT_VERSION = 'orgunit-classifier-prompt-v5';
 
 export const ORGUNIT_CLASSIFIER_SYSTEM_PROMPT = `You are a document classifier. For each supplied document — bounded, redacted evidence extracted from one organisation's website — decide what organisational unit, if any, the page represents, and what the evidence says about the student audiences that unit serves. Use only the supplied evidence. Prefer UNKNOWN and NEEDS_REVIEW over unsupported certainty.
 
@@ -130,7 +168,7 @@ When \`verdict = UNIT_PAGE\`, \`unit_type\` is exactly one of:
 
 For a small or non-university organisation (a language school, a student association, a smaller institute), the unit a page represents may be the whole organisation — classify what the page evidences and, where stated, capture the organisation's own name in \`unit_name\`; no separate field exists for this case.
 
-The whole-organisation allowance is narrow: use it only when the document presents the whole organisation in the role of an operating unit or function and makes that role the page's primary subject. For a small or non-university organisation as described above, a page whose title names a programme, a scheme or an audience can still meet this test when the document attributes to the organisation itself its own ongoing strategy, charter, eligibility rules, responsibility or operations for that function, and makes that commitment the page's structural subject in its title or headings rather than a single sentence saying that the organisation takes part. A named office is not required for this. The organisation's small size alone is never enough, and a page whose subject is the external programme itself, its grant amounts, its conditions or its sponsor's description, with the organisation appearing only as a participant, is NOT_A_UNIT; a homepage, marketing or navigation page, degree or course page, and news or event page remain NOT_A_UNIT when no operating unit or function is the page's primary subject.
+The whole-organisation allowance is narrow and, like the rest of this paragraph, applies only to a small or non-university organisation as described above: use it only when the document presents the whole organisation in the role of an operating unit or function and makes that role the page's primary subject. For a small or non-university organisation as described above, a page whose title names a programme, a scheme or an audience can still meet this test when the document attributes to the organisation itself its own ongoing strategy, charter, eligibility rules, responsibility or operations for that function, and makes that commitment the page's structural subject in its title or headings rather than a single sentence saying that the organisation takes part. A named office is not required for this. The organisation's small size alone is never enough, and a page whose subject is the external programme itself, its grant amounts, its conditions or its sponsor's description, with the organisation appearing only as a participant, is NOT_A_UNIT; a homepage, marketing or navigation page, degree or course page, and news or event page remain NOT_A_UNIT when no operating unit or function is the page's primary subject.
 
 When \`verdict = NOT_A_UNIT\`, \`page_kind\` is exactly one of:
 

@@ -1,11 +1,17 @@
 /**
- * PHASE 2B-2D2C-V4I1 — THE PROMPT LINEAGE, AS EXACT TEXT DELTAS.
+ * PHASE 2B-2D2C-V4I1/V5I1 — THE PROMPT LINEAGE, AS EXACT TEXT DELTAS.
  *
  * The production prompt (`src/orgunits/classify/prompt.ts`) is ONE string
  * at ONE version. Earlier frozen identities are never kept as second
  * strings anywhere in production; they are RECONSTRUCTED from the current
  * prompt by removing the exact reviewed deltas, and pinned by SHA-256:
  *
+ *   v5 -> v4 : replace E1's narrowed opening sentence by the v4 sentence
+ *              it narrowed (Phase 2B-2D2C-F0N/V5I1, owner decision
+ *              `APPROVE_V5_SEMANTIC_E1_IMPLEMENTATION_ONLY` of
+ *              2026-09-15, approving Candidate E1 of
+ *              `docs/audits/PHASE_2B_2D2C_F0M_V4_RESIDUAL_PRECISION_ROOT_CAUSE_AND_V5_OPTIONS_2026-09.md`
+ *              §6 for implementation only; Candidate E2 was not selected).
  *   v4 -> v3 : replace D1's narrowed sentence by the v3 sentence it
  *              narrowed, and remove D2's and D3's inserted sentences
  *              (Phase 2B-2D2C-V4I1, owner instruction of 2026-09-14
@@ -33,18 +39,22 @@ export const V1_PROMPT_SHA256 = '65f7f327ad14e78aaf3024cb7253e979b1e360fdcd1a580
 export const V2_PROMPT_SHA256 = '181a5d6fec9763be5a57e7e4d08c7d8c8a9d9e21838df2ea3e05dd680e4c7635';
 /** The projected and now landed v3 identity (V3R1 owner review packet §2). */
 export const V3_PROMPT_SHA256 = 'd05dcce614397e09f93d0aec981a3d626d5e90a16851040901ffafec30d3abd1';
-/** The v4 identity implemented by Phase 2B-2D2C-V4I1 (this task). */
+/** The v4 identity implemented by Phase 2B-2D2C-V4I1. */
 export const V4_PROMPT_SHA256 = 'a2dad6e85102ee710d4eb1c5ca4ea3995273b3e25834d27a83f36ad6b65a256b';
+/** The v5 identity implemented by Phase 2B-2D2C-F0N/V5I1 (this task). */
+export const V5_PROMPT_SHA256 = '4c7352812740ca2df518b5274d18aae2f7f695d05ab0f60fcf72c000db8f01c9';
 
 export const V1_PROMPT_SIZE = { characters: 9_887, utf8Bytes: 9_963 } as const;
 export const V2_PROMPT_SIZE = { characters: 11_304, utf8Bytes: 11_382 } as const;
 export const V3_PROMPT_SIZE = { characters: 14_012, utf8Bytes: 14_088 } as const;
 export const V4_PROMPT_SIZE = { characters: 14_731, utf8Bytes: 14_807 } as const;
+export const V5_PROMPT_SIZE = { characters: 14_843, utf8Bytes: 14_919 } as const;
 
 export const V1_PROMPT_VERSION = 'orgunit-classifier-prompt-v1';
 export const V2_PROMPT_VERSION = 'orgunit-classifier-prompt-v2';
 export const V3_PROMPT_VERSION = 'orgunit-classifier-prompt-v3';
 export const V4_PROMPT_VERSION = 'orgunit-classifier-prompt-v4';
+export const V5_PROMPT_VERSION = 'orgunit-classifier-prompt-v5';
 
 // ---------------------------------------------------------------------------
 // v2 = v1 + five reviewed insertions (2D2B-3).
@@ -247,6 +257,60 @@ export function v3FromV4(v4: string): string {
       text = text.replace(block, op.anchorParagraph);
     } else {
       throw new PromptLineageError(`v3FromV4 does not support operation kind ${op.kind}`);
+    }
+  }
+  return text;
+}
+
+// ---------------------------------------------------------------------------
+// v5 = v4 + E1 (extend D1's own already-approved small/non-university
+// qualifier to the whole-organisation-allowance paragraph's previously
+// ungated OPENING sentence). Phase 2B-2D2C-F0N/V5I1, from F0M's root-cause
+// finding and Candidate E1
+// (`docs/audits/PHASE_2B_2D2C_F0M_V4_RESIDUAL_PRECISION_ROOT_CAUSE_AND_V5_OPTIONS_2026-09.md`
+// §6).
+// ---------------------------------------------------------------------------
+
+/** The v4 whole-organisation-allowance paragraph's opening sentence, left ungated by D1. E1's anchor. */
+export const V4_SENTENCE_WHOLE_ORG_ALLOWANCE_OPENING =
+  "The whole-organisation allowance is narrow: use it only when the document presents the whole organisation in the role of an operating unit or function and makes that role the page's primary subject.";
+
+/** E1: the same opening sentence, narrowed with D1's own exact qualifying phrase. */
+export const V5_E1_WHOLE_ORG_ALLOWANCE_OPENING_NARROWED =
+  "The whole-organisation allowance is narrow and, like the rest of this paragraph, applies only to a small or non-university organisation as described above: use it only when the document presents the whole organisation in the role of an operating unit or function and makes that role the page's primary subject.";
+
+/** The exact one operation of the approved v5 delta (E1 only; E2 was not selected). */
+export const V5_DELTA_OPERATIONS: readonly PromptDeltaOperation[] = [
+  {
+    kind: 'REPLACE_SENTENCE',
+    anchorParagraph: V4_SENTENCE_WHOLE_ORG_ALLOWANCE_OPENING,
+    text: V5_E1_WHOLE_ORG_ALLOWANCE_OPENING_NARROWED,
+  },
+];
+
+/** Applies the v5 delta to a v4 text. Refuses a non-unique or absent anchor. */
+export function v5FromV4(v4: string): string {
+  let text = v4;
+  for (const op of V5_DELTA_OPERATIONS) {
+    exactlyOnce(text, op.anchorParagraph, `v5 anchor "${op.anchorParagraph.slice(0, 40)}"`);
+    if (op.kind === 'REPLACE_SENTENCE') {
+      text = text.replace(op.anchorParagraph, op.text);
+    } else {
+      throw new PromptLineageError(`v5FromV4 does not support operation kind ${op.kind}`);
+    }
+  }
+  return text;
+}
+
+/** Strips the v5 delta from a v5 text, reconstructing v4 byte for byte. */
+export function v4FromV5(v5: string): string {
+  let text = v5;
+  for (const op of [...V5_DELTA_OPERATIONS].reverse()) {
+    if (op.kind === 'REPLACE_SENTENCE') {
+      exactlyOnce(text, op.text, `v5 sentence "${op.text.slice(0, 40)}"`);
+      text = text.replace(op.text, op.anchorParagraph);
+    } else {
+      throw new PromptLineageError(`v4FromV5 does not support operation kind ${op.kind}`);
     }
   }
   return text;
