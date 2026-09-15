@@ -1,8 +1,10 @@
 /**
  * PHASE 2B-2D2C-F0O — the PROPOSED attempt-4 configuration freeze
  * (`docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0O_V1.json`),
- * PREPARED only. No owner freeze approval and no execution authorisation
- * exist. This is preparation, never attempt 4 itself.
+ * now OWNER-APPROVED as a FREEZE (`APPROVE_F0O_ATTEMPT_4_FREEZE`,
+ * 2026-09-15). Freeze approval only: no execution authorisation exists,
+ * and none is created by this file. This is preparation plus approval,
+ * never attempt 4 itself.
  *
  * What is proved:
  *   - F0O loads at its pinned raw SHA-256 and byte count, and its rebuilt
@@ -26,8 +28,9 @@
  *     `attempt2ComparatorFinalInputSha256` are untouched from F0I, and the
  *     new `attempt3ComparatorFinalInputSha256` is copied verbatim from
  *     F0I's own `finalInputSha256.PROMPT_V4_CANONICAL`;
- *   - NO OWNER FREEZE APPROVAL RECORD EXISTS for F0O, and this file does not
- *     create one;
+ *   - the F0O OWNER FREEZE APPROVAL RECORD EXISTS, hashes to the pinned
+ *     value, and names exactly the frozen bytes, plan and V5 runtime, and
+ *     authorises no attempt-4 execution;
  *   - MUTATION: a changed byte, a freeze naming a prior variant as the
  *     scheduled candidate, and a wrong V5 identity are refused.
  *
@@ -94,9 +97,79 @@ describe('2D2C-F0O: identity and status - PREPARATION ONLY, no approval, no auth
     expect(F0O.revision).toBe(F0O_REVISION);
   });
 
-  it('NO owner freeze approval record exists for F0O, and none is created by this module', () => {
-    expect(F0O_APPROVAL_RECORD_PATH).toBeNull();
-    expect(F0O_APPROVAL_RECORD_RAW_SHA256).toBeNull();
+  it('the F0O owner approval record EXISTS, hashes to the pinned value, names exactly the frozen bytes, plan and V5 runtime, and authorises no execution', () => {
+    expect(F0O_APPROVAL_RECORD_PATH).not.toBeNull();
+    const bytes = readFileSync(join(ROOT, F0O_APPROVAL_RECORD_PATH as string));
+    expect(F0O_APPROVAL_RECORD_RAW_SHA256).toBe(sha(bytes));
+    expect(F0O_APPROVAL_RECORD_RAW_SHA256).toMatch(/^[0-9a-f]{64}$/);
+    const record = JSON.parse(bytes.toString('utf8')) as {
+      recordKind: string;
+      approves: string;
+      approvedFreeze: {
+        file: string;
+        rawSha256: string;
+        rawBytes: number;
+        derivedAttempt4PlanSha256: string;
+        branchCommit: string;
+        freezeRevision: string;
+      };
+      predecessor: {
+        attempt1: { rawSha256: string };
+        attempt2: { rawSha256: string; approvalRecordRawSha256: string };
+        attempt3: { rawSha256: string; approvalRecordRawSha256: string };
+      };
+      approvedIdentities: Record<string, unknown>;
+      ownerStatementAsReceived: string;
+      statementMarkerAsReceived: string;
+      thisRecordAuthorises: unknown[];
+      thisRecordDoesNotAuthorise: string[];
+    };
+    expect(record.recordKind).toBe('OWNER_FREEZE_APPROVAL');
+    expect(record.approves).toBe('DEVELOPMENT_CONFIGURATION_FREEZE_ONLY');
+    expect(record.approvedFreeze.file).toBe(F0O_FREEZE_PATH);
+    expect(record.approvedFreeze.rawSha256).toBe(PROPOSED_F0O_FREEZE_RAW_SHA256);
+    expect(record.approvedFreeze.rawBytes).toBe(PROPOSED_F0O_FREEZE_RAW_BYTES);
+    expect(record.approvedFreeze.derivedAttempt4PlanSha256).toBe(PROPOSED_F0O_PLAN_SHA256);
+    expect(record.approvedFreeze.branchCommit).toBe('0fb4d426b9db608c86a3348f9066e46fb8d6946d');
+    expect(record.approvedFreeze.freezeRevision).toBe('F0O_V5_ATTEMPT_4');
+    expect(record.predecessor.attempt1.rawSha256).toBe(
+      'c3f0a76b3a5939f3e4bf395d46237cf0b0f365fa1f4bf019092a6944849d6157',
+    );
+    expect(record.predecessor.attempt2.rawSha256).toBe(PROPOSED_F0E_FREEZE_RAW_SHA256);
+    expect(record.predecessor.attempt3.rawSha256).toBe(PROPOSED_F0I_FREEZE_RAW_SHA256);
+    expect(record.predecessor.attempt3.approvalRecordRawSha256).toBe(
+      F0I_APPROVAL_RECORD_RAW_SHA256,
+    );
+    expect(record.approvedIdentities['v5RuntimeCommit']).toBe(V5_RUNTIME_COMMIT);
+    expect(record.approvedIdentities['v5RuntimeBasedOnV4Commit']).toBe(V4_RUNTIME_COMMIT);
+    expect(record.approvedIdentities['promptSha256']).toBe(F0O_VARIANT.runtimePromptSha256);
+    expect(record.approvedIdentities['logicalEvaluations']).toBe(12);
+    expect(record.approvedIdentities['documents']).toBe(49);
+    expect(record.approvedIdentities['priorVariantReruns']).toBe(0);
+    expect(
+      (record.approvedIdentities['callCeiling'] as { maxProviderRequests: number })
+        .maxProviderRequests,
+    ).toBe(61);
+    expect(
+      (record.approvedIdentities['callCeiling'] as { maxAdapterAttempts: number })
+        .maxAdapterAttempts,
+    ).toBe(183);
+    expect(record.approvedIdentities['repairMinimumRemainingBudgetMs']).toBe(120_000);
+    expect(record.statementMarkerAsReceived).toBe('APPROVE_F0O_ATTEMPT_4_FREEZE');
+    expect(record.ownerStatementAsReceived).toContain('APPROVE_F0O_ATTEMPT_4_FREEZE');
+    expect(record.ownerStatementAsReceived).toContain(PROPOSED_F0O_FREEZE_RAW_SHA256);
+    expect(record.ownerStatementAsReceived).toContain(PROPOSED_F0O_PLAN_SHA256);
+    expect(record.ownerStatementAsReceived).toContain(V5_RUNTIME_COMMIT);
+    expect(record.ownerStatementAsReceived).toContain(F0O_VARIANT.runtimePromptSha256);
+    expect(record.thisRecordAuthorises).toEqual([]);
+    const denied = record.thisRecordDoesNotAuthorise.join('\n');
+    expect(denied).toMatch(/execution authorisation/);
+    expect(denied).toMatch(/inference/);
+    expect(denied).toMatch(/HOLDOUT/);
+    expect(denied).toMatch(/gold-label change/);
+    expect(denied).toMatch(/prompt modification/);
+    expect(denied).toMatch(/DB\/migration write/);
+    expect(denied).toMatch(/push to main/);
   });
 
   it('pins the dedicated V5 runtime root, built from the exact V4 commit, with the Candidate E1 prompt identity', () => {

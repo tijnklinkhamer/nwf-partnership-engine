@@ -79,15 +79,18 @@ export const PROPOSED_F0O_PLAN_SHA256 =
   '292d9424d487f3d69903a3b81172bd0a90c65adbd7ee6fa63cf3a9d0ced79898';
 
 /**
- * NO OWNER APPROVAL RECORD EXISTS FOR F0O, AND NONE IS CREATED HERE. The
- * owner's instruction for this task (F0O) explicitly authorises freeze
- * PREPARATION only, not the resulting bytes, not an approval record, and
- * not an execution authorisation. `null` is the honest value: a record
- * whose bytes do not hash to a pinned value would be refused, never
- * trusted, and no such record exists to hash.
+ * The owner approval record for F0O: RECORDED 2026-09-15 (`APPROVE_F0O_ATTEMPT_4_FREEZE`,
+ * naming exactly the raw and plan hashes above) and pinned here by its exact
+ * raw SHA-256. This is a FREEZE approval only - it authorises no attempt-4
+ * execution, no inference, no HOLDOUT access, no gold/threshold/prompt
+ * change. A SEPARATE, NEW owner execution authorisation, naming this
+ * record, is required before any attempt-4 inference may occur, and does
+ * not exist yet.
  */
-export const F0O_APPROVAL_RECORD_PATH: string | null = null;
-export const F0O_APPROVAL_RECORD_RAW_SHA256: string | null = null;
+export const F0O_APPROVAL_RECORD_PATH: string | null =
+  'docs/evaluation/PHASE_2B_2D2C_F0O_OWNER_FREEZE_APPROVAL_V1.json';
+export const F0O_APPROVAL_RECORD_RAW_SHA256: string | null =
+  '94eae6c19c1fad0c3d7ccb71494fe7c79dcaa9de2afa5842e01cc291d2e02719';
 
 export const F0O_FREEZE_ID = 'PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0O_V1';
 export const F0O_FREEZE_VERSION = 'phase2b-2d2c-dev-configuration-freeze-f0o-v1';
