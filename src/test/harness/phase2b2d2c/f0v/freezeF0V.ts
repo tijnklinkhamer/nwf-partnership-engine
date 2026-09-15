@@ -61,9 +61,21 @@ export const F0V_FREEZE_VERSION = 'phase2b-2d2c-dev-replication-study-freeze-f0v
 export const F0V_FREEZE_REVISION = 'F0V_REPLICATION_STUDY_V4_V5_N5';
 export const F0V_STATUS = 'PROPOSED_PENDING_OWNER_FREEZE_APPROVAL' as const;
 
-/** No F0V owner freeze approval exists yet, and none is created by this task. */
-export const F0V_APPROVAL_RECORD_PATH: string | null = null;
-export const F0V_APPROVAL_RECORD_RAW_SHA256: string | null = null;
+/**
+ * The owner approval record for F0V: RECORDED 2026-09-15
+ * (`APPROVE_F0V_REPLICATION_STUDY_FREEZE`, naming exactly the raw and plan
+ * hashes above) and pinned here by its exact raw SHA-256. This is a FREEZE
+ * approval only - it authorises no execution, no provider call, no
+ * inference, no output-root creation, no execution-authorisation candidate,
+ * no HOLDOUT access, no V6/prompt/gold/threshold/acceptance-rule change. A
+ * SEPARATE, NEW owner decision, naming this record and all ten exact
+ * future candidate hashes together, is required before any replication
+ * inference may occur, and does not exist yet.
+ */
+export const F0V_APPROVAL_RECORD_PATH: string | null =
+  'docs/evaluation/PHASE_2B_2D2C_F0V_OWNER_FREEZE_APPROVAL_V1.json';
+export const F0V_APPROVAL_RECORD_RAW_SHA256: string | null =
+  'ed127c305f8b60a3269d8d993ca832307d8c2d31d6e8367af8709f1b6873a311';
 
 /** The F0U reconciled methodology commit this freeze is built from. */
 export const F0U_METHODOLOGY_COMMIT = '9454e0167fa8cc28d929a1fbf023b26c9727c9b6';

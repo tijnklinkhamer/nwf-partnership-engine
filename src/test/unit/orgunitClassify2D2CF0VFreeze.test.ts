@@ -36,6 +36,7 @@
  * No Git, no network, no database, no provider, no filesystem write.
  * Zero inference is exercised or authorised by this file.
  */
+import { createHash } from 'node:crypto';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -95,8 +96,9 @@ const PLAN = buildReplicationStudyPlan(F0I_PLAN, F0O_PLAN);
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 const raw = (bytes: Buffer): Record<string, unknown> =>
   JSON.parse(bytes.toString('utf8')) as Record<string, unknown>;
+const sha = (bytes: Buffer): string => createHash('sha256').update(bytes).digest('hex');
 
-describe('2D2C-F0V: identity and status - PREPARATION ONLY, no approval, no authorisation, no output root', () => {
+describe('2D2C-F0V: identity and status - FREEZE APPROVED, no execution authorisation, no output root', () => {
   it('loads at the pinned raw SHA-256 and byte count, PROPOSED, authorising nothing', () => {
     expect(F0V.rawSha256).toBe(PROPOSED_F0V_FREEZE_RAW_SHA256);
     expect(F0V.rawBytes).toBe(PROPOSED_F0V_FREEZE_RAW_BYTES);
@@ -107,9 +109,67 @@ describe('2D2C-F0V: identity and status - PREPARATION ONLY, no approval, no auth
     expect(F0V.freeze.exclusions.thisFreezeAuthorises).toEqual([]);
   });
 
-  it('has no owner freeze approval record - null path, null hash', () => {
-    expect(F0V_APPROVAL_RECORD_PATH).toBeNull();
-    expect(F0V_APPROVAL_RECORD_RAW_SHA256).toBeNull();
+  it('the F0V owner approval record EXISTS, hashes to the pinned value, names exactly the frozen bytes/plan, and authorises no execution', () => {
+    expect(F0V_APPROVAL_RECORD_PATH).not.toBeNull();
+    const bytes = readFileSync(join(ROOT, F0V_APPROVAL_RECORD_PATH as string));
+    expect(F0V_APPROVAL_RECORD_RAW_SHA256).toBe(sha(bytes));
+    expect(F0V_APPROVAL_RECORD_RAW_SHA256).toMatch(/^[0-9a-f]{64}$/);
+    const record = JSON.parse(bytes.toString('utf8')) as {
+      recordKind: string;
+      approves: string;
+      approvedFreeze: {
+        file: string;
+        rawSha256: string;
+        rawBytes: number;
+        derivedStudyPlanSha256: string;
+        branchCommit: string;
+        freezeRevision: string;
+      };
+      studyDesign: {
+        nPerPrompt: number;
+        totalFreshRuns: number;
+        totalLogicalEvaluations: number;
+        v4LogicalEvaluations: number;
+        v5LogicalEvaluations: number;
+        historicalRunsRole: string;
+      };
+      ceilings: {
+        fullStudy: { maxProviderRequests: number; maxAdapterAttempts: number };
+      };
+      freezeApprovalIsNotExecutionAuthorisation: boolean;
+      holdout: { forbidden: boolean };
+      statementMarkerAsReceived: string;
+      thisRecordAuthorises: unknown[];
+      thisRecordDoesNotAuthorise: string[];
+    };
+    expect(record.recordKind).toBe('OWNER_FREEZE_APPROVAL');
+    expect(record.approves).toBe('REPLICATION_STUDY_FREEZE_ONLY');
+    expect(record.approvedFreeze.file).toBe(F0V_FREEZE_PATH);
+    expect(record.approvedFreeze.rawSha256).toBe(PROPOSED_F0V_FREEZE_RAW_SHA256);
+    expect(record.approvedFreeze.rawBytes).toBe(PROPOSED_F0V_FREEZE_RAW_BYTES);
+    expect(record.approvedFreeze.derivedStudyPlanSha256).toBe(PROPOSED_F0V_PLAN_SHA256);
+    expect(record.approvedFreeze.freezeRevision).toBe(F0V_FREEZE_REVISION);
+    expect(record.studyDesign.nPerPrompt).toBe(F0V_N_PER_PROMPT);
+    expect(record.studyDesign.totalFreshRuns).toBe(F0V_TOTAL_SLOTS);
+    expect(record.studyDesign.totalLogicalEvaluations).toBe(120);
+    expect(record.studyDesign.v4LogicalEvaluations).toBe(60);
+    expect(record.studyDesign.v5LogicalEvaluations).toBe(60);
+    expect(record.studyDesign.historicalRunsRole).toBe('PILOT_ONLY');
+    expect(record.ceilings.fullStudy.maxProviderRequests).toBe(610);
+    expect(record.ceilings.fullStudy.maxAdapterAttempts).toBe(1830);
+    expect(record.freezeApprovalIsNotExecutionAuthorisation).toBe(true);
+    expect(record.holdout.forbidden).toBe(true);
+    expect(record.statementMarkerAsReceived).toBe('APPROVE_F0V_REPLICATION_STUDY_FREEZE');
+    expect(record.thisRecordAuthorises).toEqual([]);
+    expect(record.thisRecordDoesNotAuthorise.length).toBeGreaterThan(0);
+    expect(record.thisRecordDoesNotAuthorise).toEqual(
+      expect.arrayContaining([
+        'any classifier inference',
+        'any execution',
+        'creation of any study output root',
+        'creation of any execution-authorisation candidate',
+      ]),
+    );
   });
 
   it('names its owner decision as freeze-preparation-only', () => {
