@@ -89,9 +89,28 @@ export const F2_STUDY_ROOT = '/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-r
 export const F2_CONTROL_ROOT =
   '/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5-control';
 
-/** The owner freeze-approval record. It does NOT exist until the owner approves. */
+/**
+ * The owner freeze-approval record. It now EXISTS: the owner recorded decision
+ * `APPROVE_F2_FINAL_V6_N5_DEV_STUDY_FREEZE_ONLY` against the exact bytes above.
+ *
+ * It is a SEPARATE, additive file on purpose. Approval never edits the approved
+ * freeze - flipping `status` in place would change the very hash the owner
+ * approved - so `F2_FREEZE_STATUS` stays
+ * `PROPOSED_PENDING_OWNER_FREEZE_APPROVAL` forever, and so do
+ * `approvalModel.ownerFreezeApprovalExists` and
+ * `executionAuthorisationExists`: they are statements the freeze bytes make
+ * about themselves, not a live view of the world.
+ *
+ * FREEZE ONLY. This record authorises no execution-authorisation candidate, no
+ * provider request, no inference, no auth-status invocation, no scoring and no
+ * HOLDOUT access; every one of those needs a separate, later owner decision.
+ */
 export const F2_APPROVAL_RECORD_PATH =
   'docs/evaluation/PHASE_2B_2D2C_F2_OWNER_FREEZE_APPROVAL_V1.json';
+export const F2_APPROVAL_RECORD_RAW_SHA256 =
+  '184e70ec2db4dba2539dcfd220a4516fed5427a2ada24ed57c8c734eecccb03f';
+export const F2_APPROVAL_RECORD_RAW_BYTES = 27_288;
+export const F2_OWNER_DECISION_MARKER = 'APPROVE_F2_FINAL_V6_N5_DEV_STUDY_FREEZE_ONLY';
 
 // ---------------------------------------------------------------------------
 

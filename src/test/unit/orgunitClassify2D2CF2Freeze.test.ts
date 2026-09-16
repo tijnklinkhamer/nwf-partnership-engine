@@ -38,7 +38,10 @@ import {
   assertF2FreezeAgreesWithProduction,
   F2FreezeError,
   F2_APPROVAL_RECORD_PATH,
+  F2_APPROVAL_RECORD_RAW_BYTES,
+  F2_APPROVAL_RECORD_RAW_SHA256,
   F2_CONTROL_ROOT,
+  F2_OWNER_DECISION_MARKER,
   F2_FREEZE_PATH,
   F2_INHERITED_PLAN_SHA256,
   F2_INTEGRATED_RUNTIME_COMMIT,
@@ -92,8 +95,81 @@ describe('2D2C-F2 freeze: identity, status and what it authorises', () => {
     expect(F2.freeze.approvalModel.executionAuthorisationExists).toBe(false);
   });
 
-  it('no owner freeze-approval record exists yet', () => {
-    expect(existsSync(join(ROOT, F2_APPROVAL_RECORD_PATH))).toBe(false);
+  it('the owner freeze-approval record EXISTS, hashes to the pinned value, binds exactly the approved identities, and authorises nothing', () => {
+    const path = join(ROOT, F2_APPROVAL_RECORD_PATH);
+    expect(existsSync(path)).toBe(true);
+    const bytes = readFileSync(path);
+    expect(sha256(bytes)).toBe(F2_APPROVAL_RECORD_RAW_SHA256);
+    expect(bytes.byteLength).toBe(F2_APPROVAL_RECORD_RAW_BYTES);
+
+    const record = JSON.parse(bytes.toString('utf8')) as Record<string, unknown>;
+    expect(record.recordKind).toBe('OWNER_FREEZE_APPROVAL');
+    expect(record.approves).toBe('F2_FINAL_V6_N5_DEV_STUDY_FREEZE_ONLY');
+    expect(record.ownerDecisionMarker).toBe(F2_OWNER_DECISION_MARKER);
+    expect(record.statementMarkerAsReceived).toBe(record.statementMarkerExpected);
+
+    // It approves THESE bytes and this plan - not "the latest freeze".
+    const approved = record.approvedFreeze as Record<string, unknown>;
+    expect(approved.file).toBe(F2_FREEZE_PATH);
+    expect(approved.rawSha256).toBe(PROPOSED_F2_FREEZE_RAW_SHA256);
+    expect(approved.rawBytes).toBe(PROPOSED_F2_FREEZE_RAW_BYTES);
+    expect(approved.derivedStudyPlanSha256).toBe(PROPOSED_F2_PLAN_SHA256);
+    expect(approved.branchHeadReviewed).toMatch(/^[0-9a-f]{40}$/);
+
+    // Approval does not mutate what it approves, and says so explicitly.
+    expect(approved.bytesNeverChangeOnApproval).toBe(true);
+    expect(approved.statusInsideTheBytes).toBe('PROPOSED_PENDING_OWNER_FREEZE_APPROVAL');
+    expect(approved.statusFieldInsideTheFreezeRemainsStatement).toContain(
+      'PROPOSED_PENDING_OWNER_FREEZE_APPROVAL',
+    );
+    expect(record.approvalIsFreezeOnly).toBe(true);
+    expect(record.freezeApprovalIsNotExecutionAuthorisation).toBe(true);
+
+    // Both lineages, the reliability semantics and the five slots, by exact value.
+    const lineages = record.lineages as {
+      semanticSource: Record<string, unknown>;
+      executionReliabilityBase: Record<string, unknown>;
+      integratedRuntime: Record<string, unknown>;
+    };
+    expect(lineages.semanticSource.commit).toBe(V6_SEMANTIC_SOURCE_COMMIT);
+    expect(lineages.semanticSource.promptSha256).toBe(V6_PROMPT_SHA256);
+    expect(lineages.executionReliabilityBase.commit).toBe(F0Z_RELIABILITY_BASE_COMMIT);
+    expect(lineages.executionReliabilityBase.reliabilitySemantics).toBe(RELIABILITY_SEMANTICS_V2);
+    expect(lineages.integratedRuntime.commit).toBe(F2_INTEGRATED_RUNTIME_COMMIT);
+    expect((record.reliability as Record<string, unknown>).semanticsVersion).toBe(
+      RELIABILITY_SEMANTICS_V2,
+    );
+    expect(record.slotIdsInFrozenOrder).toEqual(F2_SLOTS.map((slot) => slot.slotId));
+    const roots = record.outputRoots as Record<string, unknown>;
+    expect(roots.studyRoot).toBe(F2_STUDY_ROOT);
+    expect(roots.controlRoot).toBe(F2_CONTROL_ROOT);
+
+    // The 5/5 rule survives the approval unweakened.
+    const rule = record.finalDevDecisionRule as Record<string, unknown>;
+    expect(rule.decision).toBe('DEV_READY_FOR_HOLDOUT');
+    expect(rule.noFourOfFiveFallback).toBe(true);
+    expect(rule.noAveragingAwayAFailingReplicate).toBe(true);
+    expect(rule.noThresholdTuningAfterOutcomes).toBe(true);
+    expect(rule.noReplacementOfAFailedReplicate).toBe(true);
+    expect(rule.unmeasuredGateIsNeverAPassedGate).toBe(true);
+    expect(record.sixFrozenDevGates).toEqual(F2.freeze.sixFrozenDevGates);
+    expect(record.gateThresholdsChangedByThisRecord).toEqual([]);
+
+    // The four flags the owner decision requires, and an empty authorises list.
+    expect(record.executionAuthorised).toBe(false);
+    expect(record.providerCallsAuthorised).toBe(false);
+    expect(record.scoringAuthorised).toBe(false);
+    expect(record.holdoutAuthorised).toBe(false);
+    expect(record.thisRecordAuthorises).toEqual([]);
+    expect(record.outputRootsCreatedByThisRecord ?? roots.createdByThisRecord).toBe(0);
+  });
+
+  it('the approval record creates no output root and no execution candidate', () => {
+    expect(existsSync(F2_STUDY_ROOT)).toBe(false);
+    expect(existsSync(F2_CONTROL_ROOT)).toBe(false);
+    for (const slot of F2_SLOTS) {
+      expect(existsSync(f2OutputRootPathOf(F2_STUDY_ROOT, slot))).toBe(false);
+    }
   });
 
   it('the f2 namespace ships no CLI, execution lock, variant-root verifier or provider import', () => {
