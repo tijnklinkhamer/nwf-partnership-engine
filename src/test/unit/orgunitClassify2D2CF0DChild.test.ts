@@ -171,6 +171,7 @@ function ok(rawOutput: unknown): ClassifierProviderResult {
     inputTokens: 100,
     outputTokens: 50,
     outcomeDetail: null,
+    outcomeReasonCode: null,
   };
 }
 

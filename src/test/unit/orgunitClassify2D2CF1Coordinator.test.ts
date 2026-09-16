@@ -158,6 +158,7 @@ function tier2(overrides: Partial<ProcessIsolatedBatchResult> = {}): ProcessIsol
     hardKillDisposition: 'NOT_REQUIRED',
     hardKillSuppressionReason: null,
     hardKill: null,
+    livenessWitness: null,
     posixGroupSweep: 'NO_SUCH_PROCESS',
     stderrTail: '',
     scratchDir: join(SCRATCH, 'gone'),
@@ -195,6 +196,7 @@ const WINDOWS_SUPPRESSED = tier2({
   hardKillRequired: true,
   hardKillDisposition: 'SUPPRESSED_EXPIRED_TARGET_IDENTITY',
   hardKillSuppressionReason: 'DIRECT_CHILD_EXIT_OBSERVED',
+  livenessWitness: null,
   posixGroupSweep: 'NOT_APPLICABLE',
 });
 

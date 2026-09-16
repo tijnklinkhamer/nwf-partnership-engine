@@ -10,6 +10,7 @@ import {
   type AgentSdkRunResult,
 } from '../../orgunits/classify/provider/agentSdkRunner.js';
 import {
+  PROVIDER_OUTCOME_REASON_CODES,
   classifyRunResult,
   classifyThrownFailure,
   classifyTotalBudgetExhausted,
@@ -229,5 +230,117 @@ describe('classifyThrownFailure', () => {
     if (classified.kind === 'OK') throw new Error('unreachable');
     expect(classified.detail).not.toContain(secret);
     expect(classified.detail).not.toContain('boom');
+  });
+});
+
+/**
+ * 2D2C-F0Z — REASON CODES, AND THE ORDERING CORRECTION.
+ *
+ * `STRUCTURED_OUTPUT_FAILED` covers five structurally different SDK
+ * conditions. Recovery-1's PAIR_3_V4 batch-09 was `error_max_turns` under
+ * `maxTurns: 3` with 4,518 output tokens — a turn-budget exhaustion, not a
+ * schema failure — and the distinction survived only as English prose.
+ *
+ * These tests pin the machine-readable code, and pin the ordering fix: every
+ * EXPLICIT SDK subtype is now tested before the `matchesTimeout` TEXT
+ * heuristic, which matches the bare substring "timeout" anywhere.
+ */
+describe('2D2C-F0Z provider outcome reason codes', () => {
+  it('every non-OK classification carries a code from the closed set', () => {
+    const cases = [
+      classifyRunResult(runResult({ subtype: 'error_max_turns', isError: true })),
+      classifyRunResult(runResult({ subtype: 'error_max_budget_usd', isError: true })),
+      classifyRunResult(
+        runResult({ subtype: 'error_max_structured_output_retries', isError: true }),
+      ),
+      classifyRunResult(runResult({ structuredOutput: undefined })),
+      classifyRunResult(runResult({ subtype: 'error_during_execution', isError: true })),
+      classifyRunResult(runResult({ stopReason: 'refusal' })),
+      classifyThrownFailure(
+        new AgentSdkTimeoutError(300_000, { progress: [], stderrTail: '', pid: null }),
+      ),
+      classifyTotalBudgetExhausted(),
+    ];
+    for (const classified of cases) {
+      expect(classified.kind).not.toBe('OK');
+      if (classified.kind === 'OK') continue;
+      expect(PROVIDER_OUTCOME_REASON_CODES).toContain(classified.reasonCode);
+    }
+  });
+
+  it('disambiguates the five STRUCTURED_OUTPUT_FAILED conditions from one another', () => {
+    const of = (r: AgentSdkRunResult) => {
+      const c = classifyRunResult(r);
+      return c.kind === 'OK' ? null : { kind: c.kind, reasonCode: c.reasonCode };
+    };
+    expect(of(runResult({ structuredOutput: undefined }))).toEqual({
+      kind: 'STRUCTURED_OUTPUT_FAILED',
+      reasonCode: 'SUCCESS_WITHOUT_STRUCTURED_OUTPUT',
+    });
+    expect(
+      of(runResult({ subtype: 'error_max_structured_output_retries', isError: true })),
+    ).toEqual({
+      kind: 'STRUCTURED_OUTPUT_FAILED',
+      reasonCode: 'SDK_STRUCTURED_OUTPUT_RETRIES_EXHAUSTED',
+    });
+    expect(of(runResult({ subtype: 'error_max_turns', isError: true }))).toEqual({
+      kind: 'STRUCTURED_OUTPUT_FAILED',
+      reasonCode: 'MAX_TURNS_EXHAUSTED',
+    });
+    expect(of(runResult({ subtype: 'error_max_budget_usd', isError: true }))).toEqual({
+      kind: 'STRUCTURED_OUTPUT_FAILED',
+      reasonCode: 'MAX_BUDGET_USD_EXHAUSTED',
+    });
+    expect(
+      of(
+        runResult({
+          subtype: 'error_during_execution',
+          isError: true,
+          errors: ['API Error: 400 tools.0.custom.input_schema.type: Input should be object'],
+        }),
+      ),
+    ).toEqual({
+      kind: 'STRUCTURED_OUTPUT_FAILED',
+      reasonCode: 'REQUEST_SCHEMA_REJECTED',
+    });
+  });
+
+  it('ORDERING REGRESSION: an error_max_turns result whose text merely mentions a timeout is NOT a TIMEOUT', () => {
+    // Before the F0Z ordering correction the text heuristic ran first, so
+    // this was classified TIMEOUT. Under C1 a TIMEOUT and a
+    // STRUCTURED_OUTPUT_FAILED travel different paths, so a structural fact
+    // must never lose to a substring.
+    const classified = classifyRunResult(
+      runResult({
+        subtype: 'error_max_turns',
+        isError: true,
+        errors: ['the tool call timed out after a timeout waiting on the sandbox'],
+      }),
+    );
+    expect(classified.kind).toBe('STRUCTURED_OUTPUT_FAILED');
+    if (classified.kind !== 'OK') expect(classified.reasonCode).toBe('MAX_TURNS_EXHAUSTED');
+  });
+
+  it('a genuine provider-reported timeout with no explicit subtype still maps to TIMEOUT', () => {
+    const classified = classifyRunResult(
+      runResult({
+        subtype: 'error_during_execution',
+        isError: true,
+        errors: ['upstream request timed out'],
+      }),
+    );
+    expect(classified.kind).toBe('TIMEOUT');
+    if (classified.kind !== 'OK') expect(classified.reasonCode).toBe('PROVIDER_REPORTED_TIMEOUT');
+  });
+
+  it('tells the two TIMEOUT flavours apart: liveness deadline versus total budget', () => {
+    const deadline = classifyThrownFailure(
+      new AgentSdkTimeoutError(300_000, { progress: [], stderrTail: '', pid: null }),
+    );
+    const budget = classifyTotalBudgetExhausted();
+    expect(deadline.kind).toBe('TIMEOUT');
+    expect(budget.kind).toBe('TIMEOUT');
+    if (deadline.kind !== 'OK') expect(deadline.reasonCode).toBe('LIVENESS_DEADLINE_EXCEEDED');
+    if (budget.kind !== 'OK') expect(budget.reasonCode).toBe('TOTAL_BUDGET_EXHAUSTED');
   });
 });

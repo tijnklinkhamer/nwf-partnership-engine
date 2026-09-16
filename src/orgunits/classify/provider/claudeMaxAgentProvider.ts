@@ -283,6 +283,7 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
           inputTokens: usage?.inputTokens ?? null,
           outputTokens: usage?.outputTokens ?? null,
           outcomeDetail: null,
+          outcomeReasonCode: null,
         };
       }
       return {
@@ -292,6 +293,7 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
         inputTokens: usage?.inputTokens ?? null,
         outputTokens: usage?.outputTokens ?? null,
         outcomeDetail: boundDetail(finalAttempt.classified.detail),
+        outcomeReasonCode: finalAttempt.classified.reasonCode,
       };
     } finally {
       // The SCRATCH directory only. The dedicated profile directory is
@@ -345,6 +347,9 @@ function refusal(detail: string): ClassifierProviderResult {
     inputTokens: null,
     outputTokens: null,
     outcomeDetail: boundDetail(detail),
+    // Every `refusal()` is a pre-inference control-plane refusal: the runner
+    // was never invoked, so no SDK condition exists to name.
+    outcomeReasonCode: 'PRE_FLIGHT_REFUSAL',
   };
 }
 

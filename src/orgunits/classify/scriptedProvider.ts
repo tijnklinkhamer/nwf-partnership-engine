@@ -74,6 +74,7 @@ function baseResult(outcome: ClassifierProviderOutcomeKind): ClassifierProviderR
     inputTokens: null,
     outputTokens: null,
     outcomeDetail: null,
+    outcomeReasonCode: null,
   };
 }
 
@@ -89,6 +90,7 @@ export function scriptedOk(
     inputTokens: overrides.inputTokens ?? 100,
     outputTokens: overrides.outputTokens ?? 50,
     outcomeDetail: overrides.outcomeDetail ?? null,
+    outcomeReasonCode: overrides.outcomeReasonCode ?? null,
   };
 }
 

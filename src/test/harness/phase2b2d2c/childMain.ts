@@ -508,6 +508,10 @@ export async function runChildEvaluation(
           progress: snapshot.progress,
           stderrTail: snapshot.stderrTail,
           pid: snapshot.pid,
+          // 2D2C-F0Z: deadline arm/fire instants, the overshoot between
+          // them, and the in-child heartbeat's expected-versus-observed
+          // beats. Null on an older runner that recorded no witness.
+          livenessWitness: snapshot.livenessWitness ?? null,
         })),
       });
     }
@@ -519,6 +523,10 @@ export async function runChildEvaluation(
       inputTokens: result.inputTokens,
       outputTokens: result.outputTokens,
       outcomeDetail: result.outcomeDetail,
+      // 2D2C-F0Z: the machine-readable reason, so `error_max_turns` is never
+      // read as a schema failure and a liveness TIMEOUT is never confused
+      // with a total-budget one. Reporting only; nothing branches on it.
+      outcomeReasonCode: result.outcomeReasonCode,
       internalAdapterAttemptCountWhereObservable: originalRunnerAttempts,
       authStatusInvocationsObserved: originalAuthStatusInvocations,
       startedAtUtc,

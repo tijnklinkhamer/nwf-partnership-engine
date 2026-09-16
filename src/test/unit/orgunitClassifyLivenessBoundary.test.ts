@@ -544,20 +544,69 @@ describe('timeout diagnostics - bounded, closed, immutable, verbose-independent'
     expect(timeout.diagnostics.progress.length).toBeLessThanOrEqual(10);
   });
 
-  it('the diagnostics shape is exactly { progress, stderrTail, pid } and each entry exactly { stage, elapsedMs }, with pid null', async () => {
+  it('the diagnostics shape is exactly { progress, stderrTail, pid, livenessWitness } and each entry exactly { stage, elapsedMs }, with pid null', async () => {
     const q = new ControlledQuery('end');
     const { run } = boundary(q);
     q.push({ type: 'system', subtype: 'init', cwd: '/secret/cwd', session_id: 'sess' });
     await vi.advanceTimersByTimeAsync(DEADLINE);
     const { diagnostics } = run.error() as AgentSdkTimeoutError;
-    expect(Object.keys(diagnostics).sort()).toEqual(['pid', 'progress', 'stderrTail']);
+    // 2D2C-F0Z widened this pin by exactly one key, deliberately and by
+    // name. The witness is the field Recovery-1 lacked; the pin stays an
+    // EXACT key set so a future addition is a reviewed edit, never a drift.
+    expect(Object.keys(diagnostics).sort()).toEqual([
+      'livenessWitness',
+      'pid',
+      'progress',
+      'stderrTail',
+    ]);
     for (const entry of diagnostics.progress) {
       expect(Object.keys(entry).sort()).toEqual(['elapsedMs', 'stage']);
     }
     expect(diagnostics.pid).toBeNull();
-    // Message content never reaches the trace.
+    // Message content never reaches the trace - witness included.
     expect(JSON.stringify(diagnostics)).not.toContain('/secret/cwd');
     expect(JSON.stringify(diagnostics)).not.toContain('sess');
+  });
+
+  it('the 2D2C-F0Z liveness witness is a closed key set carrying no content', async () => {
+    const q = new ControlledQuery('end');
+    const { run } = boundary(q);
+    q.push({ type: 'system', subtype: 'init', cwd: '/secret/cwd', session_id: 'sess' });
+    await vi.advanceTimersByTimeAsync(DEADLINE);
+    const { diagnostics } = run.error() as AgentSdkTimeoutError;
+    const witness = diagnostics.livenessWitness;
+    expect(witness).not.toBeNull();
+    expect(Object.keys(witness!).sort()).toEqual([
+      'deadlineArmedAtMonotonicMs',
+      'deadlineArmedAtUtc',
+      'deadlineFiredAtMonotonicMs',
+      'deadlineFiredAtUtc',
+      'deadlineNominalMs',
+      'deadlineOvershootMs',
+      'heartbeat',
+    ]);
+    expect(Object.keys(witness!.heartbeat!).sort()).toEqual([
+      'expectedBeats',
+      'maxGapMonotonicMs',
+      'maxGapWallMs',
+      'nominalIntervalMs',
+      'observedBeats',
+    ]);
+    expect(witness!.deadlineNominalMs).toBe(DEADLINE);
+    expect(witness!.deadlineFiredAtUtc).not.toBeNull();
+    // The whole witness, and its heartbeat, are frozen like everything else.
+    expect(Object.isFrozen(witness)).toBe(true);
+    expect(Object.isFrozen(witness!.heartbeat)).toBe(true);
+  });
+
+  it('records ZERO deadline overshoot when the timer callback runs on time', async () => {
+    const q = new ControlledQuery('end');
+    const { run } = boundary(q);
+    await vi.advanceTimersByTimeAsync(DEADLINE);
+    const { diagnostics } = run.error() as AgentSdkTimeoutError;
+    // Fake timers fire exactly on schedule, so this is the control case: a
+    // healthy loop reads 0. Any non-zero value in a real run is the signal.
+    expect(diagnostics.livenessWitness?.deadlineOvershootMs).toBe(0);
   });
 
   it('diagnostics are DEEPLY immutable: object, trace array, every entry, and the error property itself', async () => {
@@ -623,5 +672,126 @@ describe('timeout diagnostics - bounded, closed, immutable, verbose-independent'
     const timeout = run.error() as AgentSdkTimeoutError;
     expect(timeout.diagnostics.progress.length).toBeGreaterThan(0);
     expect(timeout.diagnostics.stderrTail).toBe('stderr written before the stall');
+  });
+});
+
+/**
+ * 2D2C-F0Z — THE LIVENESS WITNESS UNDER A DELAYED TIMER CALLBACK.
+ *
+ * Recovery-1's PAIR_4_V4 recorded `DEADLINE_EXPIRED` at 1,080,400 ms on a
+ * 300,000 ms deadline and left no field saying so. These tests drive the
+ * boundary with a witness clock that JUMPS — the shape a stalled event loop
+ * or a suspended process presents to an observer inside it — and prove the
+ * overshoot and the missed heartbeats are both recorded.
+ *
+ * The clock is a WITNESS seam only: it feeds no deadline, abort, close or
+ * grace decision, so a jumping clock cannot change control flow. That is
+ * asserted here too.
+ */
+describe('2D2C-F0Z liveness witness: delayed timer callbacks are recorded, never acted on', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
+  /** A monotonic clock that adds `jumpMs` from the moment `release()` is called. */
+  function jumpingClock(jumpMs: number) {
+    let jumped = false;
+    return {
+      release: () => {
+        jumped = true;
+      },
+      clock: {
+        monotonicMs: () => Date.now() + (jumped ? jumpMs : 0),
+        nowUtc: () => new Date(Date.now() + (jumped ? jumpMs : 0)),
+      },
+    };
+  }
+
+  it('records the overshoot when the deadline callback runs far later than nominal', async () => {
+    const STALL = 780_400; // the exact PAIR_4_V4 shortfall
+    const { clock, release } = jumpingClock(STALL);
+    const q = new ControlledQuery('end');
+    const abort = observedAbortController();
+    const diagnostics = createAgentSdkDiagnosticsCollector(() => Date.now());
+    const run = capture(
+      runQueryWithLivenessBoundary(q, {
+        deadlineMs: DEADLINE,
+        graceMs: GRACE,
+        abortController: abort.controller,
+        diagnostics,
+        witnessClock: clock,
+      }),
+    );
+    release();
+    await vi.advanceTimersByTimeAsync(DEADLINE + GRACE);
+
+    const { diagnostics: snapshot } = run.error() as AgentSdkTimeoutError;
+    const witness = snapshot.livenessWitness!;
+    expect(witness.deadlineNominalMs).toBe(DEADLINE);
+    expect(witness.deadlineOvershootMs).toBe(STALL);
+    expect(witness.deadlineFiredAtUtc).not.toBeNull();
+    // The decision itself is unchanged: still exactly one abort, one close.
+    expect(abort.aborts()).toBe(1);
+    expect(q.closeCalls).toBe(1);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('records a heartbeat shortfall: beats DUE far exceed beats OBSERVED', async () => {
+    const STALL = 60_000;
+    const { clock, release } = jumpingClock(STALL);
+    const q = new ControlledQuery('end');
+    const abort = observedAbortController();
+    const diagnostics = createAgentSdkDiagnosticsCollector(() => Date.now());
+    const run = capture(
+      runQueryWithLivenessBoundary(q, {
+        deadlineMs: DEADLINE,
+        graceMs: GRACE,
+        abortController: abort.controller,
+        diagnostics,
+        witnessClock: clock,
+        heartbeatIntervalMs: 1_000,
+      }),
+    );
+    release();
+    await vi.advanceTimersByTimeAsync(DEADLINE + GRACE);
+
+    const heartbeat = (run.error() as AgentSdkTimeoutError).diagnostics.livenessWitness!.heartbeat!;
+    expect(heartbeat.nominalIntervalMs).toBe(1_000);
+    // The witness clock says (DEADLINE + STALL) elapsed; the loop only ever
+    // ran DEADLINE/1000 beats. The shortfall IS the evidence.
+    expect(heartbeat.expectedBeats).toBeGreaterThan(heartbeat.observedBeats);
+    expect(heartbeat.expectedBeats - heartbeat.observedBeats).toBeGreaterThanOrEqual(
+      STALL / 1_000 - 1,
+    );
+    // Wall and monotonic agree, as the F0Z experiment measured. The witness
+    // records both so a reader can SEE that, rather than assume a divergence
+    // this runtime does not produce.
+    expect(Math.abs(heartbeat.maxGapWallMs - heartbeat.maxGapMonotonicMs)).toBeLessThanOrEqual(1);
+  });
+
+  it('a jumping witness clock changes NO control decision: a result before the deadline still wins', async () => {
+    const { clock, release } = jumpingClock(999_999);
+    const q = new ControlledQuery('end');
+    const abort = observedAbortController();
+    const diagnostics = createAgentSdkDiagnosticsCollector(() => Date.now());
+    const run = capture(
+      runQueryWithLivenessBoundary(q, {
+        deadlineMs: DEADLINE,
+        graceMs: GRACE,
+        abortController: abort.controller,
+        diagnostics,
+        witnessClock: clock,
+      }),
+    );
+    release();
+    q.push(resultMessage());
+    await vi.advanceTimersByTimeAsync(0);
+
+    // The witness clock is far past the deadline, yet the RESULT still wins:
+    // the deadline is a real timer, never a clock comparison.
+    expect(run.state()).toBe('fulfilled');
+    expect(run.value()).toMatchObject({ subtype: 'success' });
+    expect(abort.aborts()).toBe(0);
+    expect(q.closeCalls).toBe(0);
+    expect(vi.getTimerCount()).toBe(0);
   });
 });

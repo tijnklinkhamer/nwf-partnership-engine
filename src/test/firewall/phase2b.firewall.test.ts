@@ -2486,12 +2486,34 @@ describe('PHASE-2B-FIREWALL 2B-2D2B-2: the hard liveness boundary is runtime-onl
     }
   });
 
-  it('AgentSdkDiagnostics is exactly { progress, stderrTail, pid } over a closed ten-stage trace - no prompt, response, env, document, transcript or cwd field', async () => {
+  it('AgentSdkDiagnostics is exactly { progress, stderrTail, pid, livenessWitness } over a closed ten-stage trace - no prompt, response, env, document, transcript or cwd field', async () => {
     const source = code(RUNNER);
+    // 2D2C-F0Z widened this by exactly one field, `livenessWitness`, and the
+    // ban list below is applied to IT and to every field of its two nested
+    // shapes as well - so the diagnostics value still cannot carry a prompt,
+    // a response, an environment, a document, a transcript or a cwd.
     const fields = interfaceFields(source, 'AgentSdkDiagnostics');
-    expect(fields).toEqual(['pid', 'progress', 'stderrTail']);
+    expect(fields).toEqual(['livenessWitness', 'pid', 'progress', 'stderrTail']);
     expect(interfaceFields(source, 'AgentSdkProgressEntry')).toEqual(['elapsedMs', 'stage']);
-    for (const field of fields) {
+    const witnessFields = interfaceFields(source, 'AgentSdkLivenessWitness');
+    expect(witnessFields).toEqual([
+      'deadlineArmedAtMonotonicMs',
+      'deadlineArmedAtUtc',
+      'deadlineFiredAtMonotonicMs',
+      'deadlineFiredAtUtc',
+      'deadlineNominalMs',
+      'deadlineOvershootMs',
+      'heartbeat',
+    ]);
+    const heartbeatFields = interfaceFields(source, 'AgentSdkHeartbeatWitness');
+    expect(heartbeatFields).toEqual([
+      'expectedBeats',
+      'maxGapMonotonicMs',
+      'maxGapWallMs',
+      'nominalIntervalMs',
+      'observedBeats',
+    ]);
+    for (const field of [...fields, ...witnessFields, ...heartbeatFields]) {
       for (const banned of [
         'prompt',
         'response',
@@ -2511,9 +2533,37 @@ describe('PHASE-2B-FIREWALL 2B-2D2B-2: the hard liveness boundary is runtime-onl
     const runner = await import('../../orgunits/classify/provider/agentSdkRunner.js');
     expect(runner.AGENT_SDK_PROGRESS_STAGES).toHaveLength(10);
     const snapshot = runner.createAgentSdkDiagnosticsCollector().snapshot();
-    expect(Object.keys(snapshot).sort()).toEqual(['pid', 'progress', 'stderrTail']);
+    expect(Object.keys(snapshot).sort()).toEqual([
+      'livenessWitness',
+      'pid',
+      'progress',
+      'stderrTail',
+    ]);
     expect(snapshot.pid).toBeNull();
+    // A collector that never ran a boundary records no witness at all.
+    expect(snapshot.livenessWitness).toBeNull();
     expect(Object.isFrozen(snapshot)).toBe(true);
+  });
+
+  it('2D2C-F0Z: the liveness witness is EVIDENCE - it carries no causal claim and no decision reads it', () => {
+    const source = code(RUNNER);
+    // The witness must never name a cause. A field called `hostStalled`,
+    // `suspended` or `cause` would be an inference presented as a record.
+    for (const banned of ['hostStall', 'suspend', 'cause', 'reason', 'because', 'diagnosis']) {
+      expect(
+        interfaceFields(source, 'AgentSdkLivenessWitness').join(' ').toLowerCase(),
+        `the witness names a cause via ${banned}`,
+      ).not.toContain(banned.toLowerCase());
+    }
+    // The heartbeat is observation-only: nothing aborts, closes, retries or
+    // refuses on a missed beat.
+    const heartbeatBlock = source.slice(source.indexOf('const heartbeat = setInterval'));
+    const body = heartbeatBlock.slice(0, heartbeatBlock.indexOf('}, heartbeatIntervalMs)'));
+    for (const forbidden of ['abort', 'close(', 'throw ', 'reject']) {
+      expect(body, `the heartbeat callback performs control action ${forbidden}`).not.toContain(
+        forbidden,
+      );
+    }
   });
 
   it('no PID is recovered through unsupported SDK internals: no pid read, no private-field probe, no custom spawner, no process enumeration', () => {

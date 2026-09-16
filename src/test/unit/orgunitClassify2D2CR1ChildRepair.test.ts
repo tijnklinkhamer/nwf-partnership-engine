@@ -171,6 +171,7 @@ function ok(rawOutput: unknown): ClassifierProviderResult {
     inputTokens: 100,
     outputTokens: 50,
     outcomeDetail: null,
+    outcomeReasonCode: null,
   };
 }
 
@@ -463,6 +464,7 @@ describe('2D2C-R1 child: the one repair round', () => {
           inputTokens: null,
           outputTokens: null,
           outcomeDetail: 'liveness deadline',
+          outcomeReasonCode: null,
         },
         ok({ results: [acceptedFor(d2)] }),
       ],
@@ -493,6 +495,7 @@ describe('2D2C-R1 child: the one repair round', () => {
           inputTokens: null,
           outputTokens: null,
           outcomeDetail: 'limit',
+          outcomeReasonCode: null,
         },
       ],
     });

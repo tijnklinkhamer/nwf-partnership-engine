@@ -65,12 +65,49 @@ import {
   type AgentSdkRunResult,
 } from './agentSdkRunner.js';
 
+/**
+ * 2D2C-F0Z: the CLOSED, machine-readable reason behind a non-OK outcome.
+ *
+ * Five structurally different SDK conditions used to collapse into the single
+ * enum member `STRUCTURED_OUTPUT_FAILED`, with the distinction surviving only
+ * as English prose inside `outcomeDetail`. Recovery-1's PAIR_3_V4 batch-09 is
+ * the worked example: it was `error_max_turns` under `maxTurns: 3` with 4,518
+ * output tokens — a TURN-BUDGET exhaustion, which reading as "the model could
+ * not produce the schema" would be a plain attribution error.
+ *
+ * This code is REPORTING ONLY. No control-flow branch reads it; the enum
+ * member alone still decides stop/continue, exactly as before.
+ */
+export const PROVIDER_OUTCOME_REASON_CODES = [
+  // STRUCTURED_OUTPUT_FAILED, disambiguated
+  'SUCCESS_WITHOUT_STRUCTURED_OUTPUT',
+  'SDK_STRUCTURED_OUTPUT_RETRIES_EXHAUSTED',
+  'MAX_TURNS_EXHAUSTED',
+  'MAX_BUDGET_USD_EXHAUSTED',
+  'REQUEST_SCHEMA_REJECTED',
+  // TIMEOUT, disambiguated
+  'LIVENESS_DEADLINE_EXCEEDED',
+  'TOTAL_BUDGET_EXHAUSTED',
+  'PROVIDER_REPORTED_TIMEOUT',
+  'ABORTED',
+  // everything else
+  'USAGE_LIMIT_REACHED',
+  'AUTH_FAILURE_REPORTED',
+  'PRE_FLIGHT_REFUSAL',
+  'MODEL_REFUSAL',
+  'UNRECOGNISED_ERROR',
+] as const;
+
+export type ProviderOutcomeReasonCode = (typeof PROVIDER_OUTCOME_REASON_CODES)[number];
+
 /** A classified failure (or success) of one SDK run attempt. */
 export type ClassifiedAttempt =
   | { readonly kind: 'OK'; readonly structuredOutput: unknown }
   | {
       readonly kind: Exclude<ClassifierProviderOutcomeKind, 'OK'>;
       readonly detail: string;
+      /** Required: every non-OK classification names its reason in machine-readable form. */
+      readonly reasonCode: ProviderOutcomeReasonCode;
     };
 
 /**
@@ -132,6 +169,7 @@ export function classifyRunResult(result: AgentSdkRunResult): ClassifiedAttempt 
       return {
         kind: 'PROVIDER_REFUSAL',
         detail: 'provider refusal: the model declined this request (stop_reason refusal).',
+        reasonCode: 'MODEL_REFUSAL',
       };
     }
     if (result.structuredOutput !== undefined) {
@@ -143,6 +181,7 @@ export function classifyRunResult(result: AgentSdkRunResult): ClassifiedAttempt 
       kind: 'STRUCTURED_OUTPUT_FAILED',
       detail:
         'structured output failed: the SDK reported success but delivered no structured_output value.',
+      reasonCode: 'SUCCESS_WITHOUT_STRUCTURED_OUTPUT',
     };
   }
 
@@ -154,6 +193,7 @@ export function classifyRunResult(result: AgentSdkRunResult): ClassifiedAttempt 
       detail:
         'subscription usage limit reached (recognised via the SDK usage-limit message vocabulary). ' +
         'No retry, no fallback; re-run deliberately after the limit resets.',
+      reasonCode: 'USAGE_LIMIT_REACHED',
     };
   }
   if (matchesAuthFailure(lower)) {
@@ -162,27 +202,43 @@ export function classifyRunResult(result: AgentSdkRunResult): ClassifiedAttempt 
       detail:
         'authentication failure reported by the provider runtime. ' +
         'Re-mint the subscription token with `claude setup-token` (operator action).',
+      reasonCode: 'AUTH_FAILURE_REPORTED',
     };
   }
   if (result.stopReason === 'refusal') {
     return {
       kind: 'PROVIDER_REFUSAL',
       detail: 'provider refusal: the model declined this request (stop_reason refusal).',
+      reasonCode: 'MODEL_REFUSAL',
     };
   }
+
+  // 2D2C-F0Z ORDERING CORRECTION. Every EXPLICIT SDK subtype is tested before
+  // the `matchesTimeout` TEXT heuristic, because the heuristic matches the
+  // bare substring "timeout" anywhere in the error text. Previously
+  // `matchesTimeout` ran first, so an `error_max_turns` result whose text
+  // merely MENTIONED a timeout was classified TIMEOUT - and under C1 a
+  // TIMEOUT and a STRUCTURED_OUTPUT_FAILED now travel different paths, so a
+  // structural fact must never lose to a substring.
   if (result.subtype === 'error_max_structured_output_retries') {
     return {
       kind: 'STRUCTURED_OUTPUT_FAILED',
       detail: 'structured output failed: the SDK exhausted its internal structured-output retries.',
+      reasonCode: 'SDK_STRUCTURED_OUTPUT_RETRIES_EXHAUSTED',
     };
   }
-  if (matchesTimeout(lower)) {
-    return { kind: 'TIMEOUT', detail: 'the provider runtime reported a timeout.' };
-  }
-  if (result.subtype === 'error_max_turns' || result.subtype === 'error_max_budget_usd') {
+  if (result.subtype === 'error_max_turns') {
     return {
       kind: 'STRUCTURED_OUTPUT_FAILED',
       detail: `structured output failed: the run terminated (${result.subtype}) without a structured result.`,
+      reasonCode: 'MAX_TURNS_EXHAUSTED',
+    };
+  }
+  if (result.subtype === 'error_max_budget_usd') {
+    return {
+      kind: 'STRUCTURED_OUTPUT_FAILED',
+      detail: `structured output failed: the run terminated (${result.subtype}) without a structured result.`,
+      reasonCode: 'MAX_BUDGET_USD_EXHAUSTED',
     };
   }
   if (matchesStructuredOutputSchemaFailure(lower)) {
@@ -191,6 +247,14 @@ export function classifyRunResult(result: AgentSdkRunResult): ClassifiedAttempt 
       detail:
         'structured output failed: the provider rejected the request structured-output ' +
         'schema (deterministic HTTP 4xx naming input_schema; never retried).',
+      reasonCode: 'REQUEST_SCHEMA_REJECTED',
+    };
+  }
+  if (matchesTimeout(lower)) {
+    return {
+      kind: 'TIMEOUT',
+      detail: 'the provider runtime reported a timeout.',
+      reasonCode: 'PROVIDER_REPORTED_TIMEOUT',
     };
   }
   // Unrecognised error-shaped result (`error_during_execution`, or a success
@@ -199,6 +263,7 @@ export function classifyRunResult(result: AgentSdkRunResult): ClassifiedAttempt 
     kind: 'PROVIDER_TRANSIENT',
     detail:
       'transient or unrecognised provider failure (mapped PROVIDER_TRANSIENT; see outcomeMapping.ts).',
+    reasonCode: 'UNRECOGNISED_ERROR',
   };
 }
 
@@ -213,6 +278,7 @@ export function classifyThrownFailure(error: unknown): ClassifiedAttempt {
       detail:
         'the provider invocation exceeded its liveness deadline and was aborted and closed ' +
         '(TIMEOUT; terminal, never retried).',
+      reasonCode: 'LIVENESS_DEADLINE_EXCEEDED',
     };
   }
   const name = error instanceof Error ? error.name : '';
@@ -220,7 +286,11 @@ export function classifyThrownFailure(error: unknown): ClassifiedAttempt {
   const lower = message.toLowerCase();
 
   if (name === 'AbortError' || matchesTimeout(lower)) {
-    return { kind: 'TIMEOUT', detail: 'the provider invocation timed out or was aborted.' };
+    return {
+      kind: 'TIMEOUT',
+      detail: 'the provider invocation timed out or was aborted.',
+      reasonCode: name === 'AbortError' ? 'ABORTED' : 'PROVIDER_REPORTED_TIMEOUT',
+    };
   }
   if (matchesUsageLimit(message)) {
     return {
@@ -228,6 +298,7 @@ export function classifyThrownFailure(error: unknown): ClassifiedAttempt {
       detail:
         'subscription usage limit reached (recognised via the SDK usage-limit message vocabulary). ' +
         'No retry, no fallback; re-run deliberately after the limit resets.',
+      reasonCode: 'USAGE_LIMIT_REACHED',
     };
   }
   if (matchesAuthFailure(lower)) {
@@ -236,6 +307,7 @@ export function classifyThrownFailure(error: unknown): ClassifiedAttempt {
       detail:
         'authentication failure reported by the provider runtime. ' +
         'Re-mint the subscription token with `claude setup-token` (operator action).',
+      reasonCode: 'AUTH_FAILURE_REPORTED',
     };
   }
   if (matchesStructuredOutputSchemaFailure(lower)) {
@@ -244,12 +316,14 @@ export function classifyThrownFailure(error: unknown): ClassifiedAttempt {
       detail:
         'structured output failed: the provider rejected the request structured-output ' +
         'schema (deterministic HTTP 4xx naming input_schema; never retried).',
+      reasonCode: 'REQUEST_SCHEMA_REJECTED',
     };
   }
   return {
     kind: 'PROVIDER_TRANSIENT',
     detail:
       'transient or unrecognised provider transport failure (mapped PROVIDER_TRANSIENT; see outcomeMapping.ts).',
+    reasonCode: 'UNRECOGNISED_ERROR',
   };
 }
 
@@ -263,5 +337,6 @@ export function classifyTotalBudgetExhausted(): ClassifiedAttempt {
     detail:
       'the classifier call total time budget was exhausted before another provider attempt ' +
       'could begin (TIMEOUT; terminal, never retried).',
+    reasonCode: 'TOTAL_BUDGET_EXHAUSTED',
   };
 }

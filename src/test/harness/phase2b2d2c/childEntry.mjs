@@ -14,6 +14,12 @@ import { register } from 'tsx/esm/api';
 
 const SHUTDOWN_REQUEST_MESSAGE = 'nwf-pe-tier2:shutdown-request';
 const SHUTDOWN_ACK_MESSAGE = 'nwf-pe-tier2:shutdown-ack';
+// 2D2C-F0Z liveness probe. Answering is a one-line echo with no side effect:
+// it touches no artifact, no state and no decision. A child too stalled to
+// answer is simply recorded as unanswered by the parent - never killed,
+// refused or timed out for it.
+const LIVENESS_PING_MESSAGE = 'nwf-pe-tier2:liveness-ping';
+const LIVENESS_PONG_MESSAGE = 'nwf-pe-tier2:liveness-pong';
 
 let shuttingDown = false;
 function shutdown() {
@@ -24,6 +30,15 @@ function shutdown() {
 }
 process.on('message', (message) => {
   if (message === SHUTDOWN_REQUEST_MESSAGE) shutdown();
+  if (
+    typeof message === 'object' &&
+    message !== null &&
+    message.type === LIVENESS_PING_MESSAGE &&
+    process.connected &&
+    !shuttingDown
+  ) {
+    process.send({ type: LIVENESS_PONG_MESSAGE, seq: message.seq }, () => {});
+  }
 });
 process.on('SIGTERM', shutdown);
 

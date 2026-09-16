@@ -1178,6 +1178,7 @@ function tier2Ok(scratch: string) {
     hardKillDisposition: 'NOT_REQUIRED' as const,
     hardKillSuppressionReason: null,
     hardKill: null,
+    livenessWitness: null,
     posixGroupSweep: 'NO_SUCH_PROCESS' as const,
     stderrTail: '',
     scratchDir: join(scratch, 'gone'),

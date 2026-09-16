@@ -133,6 +133,7 @@ function tier2(overrides: Partial<ProcessIsolatedBatchResult> = {}): ProcessIsol
     hardKillDisposition: 'NOT_REQUIRED',
     hardKillSuppressionReason: null,
     hardKill: null,
+    livenessWitness: null,
     posixGroupSweep: 'NO_SUCH_PROCESS',
     stderrTail: '',
     scratchDir: join(SCRATCH, 'gone'),

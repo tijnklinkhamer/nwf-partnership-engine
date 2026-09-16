@@ -102,6 +102,24 @@ export const AGENT_SDK_STDERR_TAIL_MAX_CHARS = 2_048;
 export const AGENT_SDK_PROGRESS_TRACE_MAX_ENTRIES = 32;
 
 /**
+ * 2D2C-F0Z: the nominal period of the in-child liveness heartbeat armed
+ * alongside the soft deadline. NOT a timeout and NOT a control: nothing is
+ * aborted, retried or refused because of a missed beat. It exists so that a
+ * future incident can be CLASSIFIED rather than guessed at.
+ *
+ * Why a heartbeat and not a clock comparison: the F0Z experiment measured,
+ * on this runtime, that `performance.now()` advances through a process
+ * suspension (a child SIGSTOPped for 2,000 ms saw wall and monotonic agree
+ * to within 0.3 ms), and Recovery-1's own PAIR_4_V4 record corroborates it —
+ * its `monotonicWallTimeMs` and its UTC delta are 4 ms apart over 18
+ * minutes. **Wall-versus-monotonic drift therefore does NOT detect host
+ * suspension here and is never presented as if it did.** A missed beat does:
+ * the same suspended child produced 1 beat where ~5 were due, with an
+ * inter-beat gap of 2,055 ms against a 100 ms nominal.
+ */
+export const AGENT_SDK_HEARTBEAT_INTERVAL_MS = 1_000;
+
+/**
  * The CLOSED set of progress stages. Each is recorded at most once per
  * attempt and none is emitted per message, so a trace can say how far an
  * attempt got without ever carrying what it said.
@@ -130,6 +148,47 @@ export interface AgentSdkProgressEntry {
 }
 
 /**
+ * 2D2C-F0Z: how many heartbeats were DUE versus how many were OBSERVED, and
+ * the largest gap between consecutive observed beats. Pure measurement — it
+ * states what the event loop did, never why.
+ *
+ * `maxGapWallMs` and `maxGapMonotonicMs` are recorded side by side precisely
+ * so a reader can SEE that they agree under suspension rather than being
+ * told to assume a difference that this runtime does not produce.
+ */
+export interface AgentSdkHeartbeatWitness {
+  readonly nominalIntervalMs: number;
+  readonly expectedBeats: number;
+  readonly observedBeats: number;
+  readonly maxGapWallMs: number;
+  readonly maxGapMonotonicMs: number;
+}
+
+/**
+ * 2D2C-F0Z: when the soft deadline was ARMED, when its callback actually
+ * RAN, and the difference between the two minus the nominal duration.
+ *
+ * `deadlineOvershootMs` is the field Recovery-1 lacked. PAIR_4_V4 recorded
+ * `DEADLINE_EXPIRED` at 1,080,400 ms on a 300,000 ms deadline; had this
+ * field existed it would have read 780,400 and the event would have been
+ * self-evident instead of reconstructed in prose.
+ *
+ * EVIDENCE, NOT CAUSE. A large overshoot proves the callback did not run on
+ * time. It does NOT say whether the host suspended, the loop was starved, or
+ * the process was descheduled, and nothing here claims otherwise.
+ */
+export interface AgentSdkLivenessWitness {
+  readonly deadlineNominalMs: number;
+  readonly deadlineArmedAtUtc: string;
+  readonly deadlineArmedAtMonotonicMs: number;
+  readonly deadlineFiredAtUtc: string | null;
+  readonly deadlineFiredAtMonotonicMs: number | null;
+  /** `fired − armed − nominal`, on the monotonic clock. Null when the deadline never fired. */
+  readonly deadlineOvershootMs: number | null;
+  readonly heartbeat: AgentSdkHeartbeatWitness | null;
+}
+
+/**
  * Bounded, deeply frozen timeout diagnostics. No prompt, document, model
  * response, request option, environment, credential, cwd or transcript
  * field exists here — by construction, not by filtering. Never persisted,
@@ -144,12 +203,19 @@ export interface AgentSdkDiagnostics {
    * by probing private fields, patching the SDK or enumerating processes.
    */
   readonly pid: number | null;
+  /**
+   * 2D2C-F0Z liveness witness. Null on any path that recorded none — an
+   * older artifact, or a boundary that never armed its deadline.
+   */
+  readonly livenessWitness: AgentSdkLivenessWitness | null;
 }
 
 /** Accumulates one attempt's diagnostics while it runs; `snapshot()` freezes a bounded copy. */
 export interface AgentSdkDiagnosticsCollector {
   record(stage: AgentSdkProgressStage): void;
   appendStderr(chunk: string): void;
+  /** 2D2C-F0Z: records the one liveness witness for this attempt. Last write wins; never merged. */
+  recordLivenessWitness(witness: AgentSdkLivenessWitness): void;
   snapshot(): AgentSdkDiagnostics;
 }
 
@@ -167,14 +233,60 @@ function tailOf(text: string, max: number): string {
  * capped, stderr keeps its tail, and `pid` is kept only if it is a positive
  * integer (the pinned SDK always yields null).
  */
-export function freezeAgentSdkDiagnostics(input: AgentSdkDiagnostics): AgentSdkDiagnostics {
+/** A whole number of milliseconds, never negative, never NaN/Infinity. */
+const boundedMs = (value: number): number =>
+  Number.isFinite(value) ? Math.max(0, Math.round(value)) : 0;
+
+/** Deeply freezes the 2D2C-F0Z witness, or returns null when none was recorded. */
+function freezeLivenessWitness(
+  witness: AgentSdkLivenessWitness | null | undefined,
+): AgentSdkLivenessWitness | null {
+  if (witness === null || witness === undefined) return null;
+  const heartbeat = witness.heartbeat;
+  return Object.freeze({
+    deadlineNominalMs: boundedMs(witness.deadlineNominalMs),
+    deadlineArmedAtUtc: String(witness.deadlineArmedAtUtc),
+    deadlineArmedAtMonotonicMs: boundedMs(witness.deadlineArmedAtMonotonicMs),
+    deadlineFiredAtUtc:
+      witness.deadlineFiredAtUtc === null ? null : String(witness.deadlineFiredAtUtc),
+    deadlineFiredAtMonotonicMs:
+      witness.deadlineFiredAtMonotonicMs === null
+        ? null
+        : boundedMs(witness.deadlineFiredAtMonotonicMs),
+    // Overshoot may legitimately be 0; it is never negative, because a timer
+    // cannot fire early. It stays null when the deadline never fired.
+    deadlineOvershootMs:
+      witness.deadlineOvershootMs === null ? null : boundedMs(witness.deadlineOvershootMs),
+    heartbeat:
+      heartbeat === null || heartbeat === undefined
+        ? null
+        : Object.freeze({
+            nominalIntervalMs: boundedMs(heartbeat.nominalIntervalMs),
+            expectedBeats: boundedMs(heartbeat.expectedBeats),
+            observedBeats: boundedMs(heartbeat.observedBeats),
+            maxGapWallMs: boundedMs(heartbeat.maxGapWallMs),
+            maxGapMonotonicMs: boundedMs(heartbeat.maxGapMonotonicMs),
+          }),
+  });
+}
+
+/**
+ * What `freezeAgentSdkDiagnostics` accepts. `livenessWitness` is OPTIONAL so
+ * that every pre-F0Z caller — and every test that builds a diagnostics value
+ * by hand — stays valid unchanged; an absent witness freezes to null.
+ */
+export type AgentSdkDiagnosticsInput = Omit<AgentSdkDiagnostics, 'livenessWitness'> & {
+  readonly livenessWitness?: AgentSdkLivenessWitness | null;
+};
+
+export function freezeAgentSdkDiagnostics(input: AgentSdkDiagnosticsInput): AgentSdkDiagnostics {
   const progress = input.progress
     .filter((entry) => PROGRESS_STAGE_SET.has(entry.stage))
     .slice(0, AGENT_SDK_PROGRESS_TRACE_MAX_ENTRIES)
     .map((entry) =>
       Object.freeze({
         stage: entry.stage,
-        elapsedMs: Number.isFinite(entry.elapsedMs) ? Math.max(0, Math.round(entry.elapsedMs)) : 0,
+        elapsedMs: boundedMs(entry.elapsedMs),
       }),
     );
   const pid =
@@ -185,6 +297,7 @@ export function freezeAgentSdkDiagnostics(input: AgentSdkDiagnostics): AgentSdkD
     progress: Object.freeze(progress),
     stderrTail: tailOf(String(input.stderrTail), AGENT_SDK_STDERR_TAIL_MAX_CHARS),
     pid,
+    livenessWitness: freezeLivenessWitness(input.livenessWitness),
   });
 }
 
@@ -201,6 +314,7 @@ export function createAgentSdkDiagnosticsCollector(
   const progress: AgentSdkProgressEntry[] = [];
   const recorded = new Set<string>();
   let stderrTail = '';
+  let livenessWitness: AgentSdkLivenessWitness | null = null;
   return {
     record(stage: AgentSdkProgressStage): void {
       if (!PROGRESS_STAGE_SET.has(stage) || recorded.has(stage)) return;
@@ -214,8 +328,11 @@ export function createAgentSdkDiagnosticsCollector(
       const combined = chunk.length >= AGENT_SDK_STDERR_TAIL_MAX_CHARS ? chunk : stderrTail + chunk;
       stderrTail = tailOf(combined, AGENT_SDK_STDERR_TAIL_MAX_CHARS);
     },
+    recordLivenessWitness(witness: AgentSdkLivenessWitness): void {
+      livenessWitness = witness;
+    },
     snapshot(): AgentSdkDiagnostics {
-      return freezeAgentSdkDiagnostics({ progress, stderrTail, pid: null });
+      return freezeAgentSdkDiagnostics({ progress, stderrTail, pid: null, livenessWitness });
     },
   };
 }
@@ -231,7 +348,7 @@ export class AgentSdkTimeoutError extends Error {
   declare readonly deadlineMs: number;
   declare readonly diagnostics: AgentSdkDiagnostics;
 
-  constructor(deadlineMs: number, diagnostics: AgentSdkDiagnostics) {
+  constructor(deadlineMs: number, diagnostics: AgentSdkDiagnosticsInput) {
     super(
       `Agent SDK query timed out: no terminal result within its ${deadlineMs} ms liveness ` +
         `deadline; the query was aborted and closed.`,
@@ -386,6 +503,18 @@ export interface LivenessBoundaryOptions {
   /** The controller whose signal was handed to the query (production: the one passed as `Options.abortController`). */
   readonly abortController: { abort(): void };
   readonly diagnostics: AgentSdkDiagnosticsCollector;
+  /**
+   * 2D2C-F0Z test seam for the witness clocks only. Production passes
+   * nothing and gets `performance.now()` / `Date`. These clocks feed
+   * EVIDENCE fields exclusively — no deadline, abort, close or grace
+   * decision reads them, so a fake clock cannot alter control flow.
+   */
+  readonly witnessClock?: {
+    readonly monotonicMs: () => number;
+    readonly nowUtc: () => Date;
+  };
+  /** 2D2C-F0Z test seam: the heartbeat period. Production uses `AGENT_SDK_HEARTBEAT_INTERVAL_MS`. */
+  readonly heartbeatIntervalMs?: number;
 }
 
 type StreamSettlement =
@@ -416,6 +545,66 @@ export async function runQueryWithLivenessBoundary(
   assertPositiveDuration('graceMs', graceMs);
   const { diagnostics } = options;
 
+  // ---- 2D2C-F0Z liveness witness: observation only, no control ----
+  const witnessClock = options.witnessClock ?? {
+    monotonicMs: monotonicNow,
+    nowUtc: () => new Date(),
+  };
+  const heartbeatIntervalMs = options.heartbeatIntervalMs ?? AGENT_SDK_HEARTBEAT_INTERVAL_MS;
+  const armedAtMonotonicMs = witnessClock.monotonicMs();
+  const armedAtUtc = witnessClock.nowUtc().toISOString();
+  let observedBeats = 0;
+  let maxGapWallMs = 0;
+  let maxGapMonotonicMs = 0;
+  let lastBeatMonotonicMs = armedAtMonotonicMs;
+  let lastBeatWallMs = witnessClock.nowUtc().getTime();
+  let firedAtMonotonicMs: number | null = null;
+  let firedAtUtc: string | null = null;
+
+  /**
+   * Builds the witness from whatever was observed. `expectedBeats` is how
+   * many beats the elapsed time was DUE; `observedBeats` is how many the
+   * event loop actually ran. A shortfall is the stall signal.
+   */
+  const buildWitness = (): AgentSdkLivenessWitness => {
+    const endedAtMonotonicMs = firedAtMonotonicMs ?? witnessClock.monotonicMs();
+    const elapsedMs = Math.max(0, endedAtMonotonicMs - armedAtMonotonicMs);
+    return {
+      deadlineNominalMs: options.deadlineMs,
+      deadlineArmedAtUtc: armedAtUtc,
+      deadlineArmedAtMonotonicMs: armedAtMonotonicMs,
+      deadlineFiredAtUtc: firedAtUtc,
+      deadlineFiredAtMonotonicMs: firedAtMonotonicMs,
+      deadlineOvershootMs:
+        firedAtMonotonicMs === null
+          ? null
+          : Math.max(0, firedAtMonotonicMs - armedAtMonotonicMs - options.deadlineMs),
+      heartbeat: {
+        nominalIntervalMs: heartbeatIntervalMs,
+        expectedBeats: Math.floor(elapsedMs / heartbeatIntervalMs),
+        observedBeats,
+        maxGapWallMs,
+        maxGapMonotonicMs,
+      },
+    };
+  };
+
+  // `unref()` so a pending beat can never hold the batch process open, and
+  // the `finally` below clears it on EVERY path — a leaked interval would
+  // trip the existing `vi.getTimerCount() === 0` assertions.
+  const heartbeat = setInterval(() => {
+    observedBeats += 1;
+    const beatMonotonicMs = witnessClock.monotonicMs();
+    const beatWallMs = witnessClock.nowUtc().getTime();
+    maxGapMonotonicMs = Math.max(maxGapMonotonicMs, beatMonotonicMs - lastBeatMonotonicMs);
+    maxGapWallMs = Math.max(maxGapWallMs, beatWallMs - lastBeatWallMs);
+    lastBeatMonotonicMs = beatMonotonicMs;
+    lastBeatWallMs = beatWallMs;
+  }, heartbeatIntervalMs);
+  if (typeof (heartbeat as { unref?: () => void }).unref === 'function') {
+    (heartbeat as { unref: () => void }).unref();
+  }
+
   diagnostics.record('QUERY_STARTED');
   const settlement: Promise<StreamSettlement> = consumeQueryStream(activeQuery, (stage) =>
     diagnostics.record(stage),
@@ -437,6 +626,10 @@ export async function runQueryWithLivenessBoundary(
     if (first.kind === 'FAILED') throw first.error;
 
     // From here on the outcome is TIMEOUT, whatever the stream does next.
+    // The witness's fire instants are captured FIRST, before any teardown
+    // work can add latency that would be mistaken for overshoot.
+    firedAtMonotonicMs = witnessClock.monotonicMs();
+    firedAtUtc = witnessClock.nowUtc().toISOString();
     diagnostics.record('DEADLINE_EXPIRED');
     try {
       options.abortController.abort();
@@ -458,10 +651,13 @@ export async function runQueryWithLivenessBoundary(
       }),
     ]);
     diagnostics.record(afterClose === 'SETTLED' ? 'SETTLED_WITHIN_GRACE' : 'GRACE_EXPIRED');
+    // Recorded before the snapshot, so the witness travels with the error.
+    diagnostics.recordLivenessWitness(buildWitness());
     throw new AgentSdkTimeoutError(options.deadlineMs, diagnostics.snapshot());
   } finally {
     clearTimeout(deadlineTimer);
     clearTimeout(graceTimer);
+    clearInterval(heartbeat);
   }
 }
 

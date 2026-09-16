@@ -255,6 +255,9 @@ describe('ClaudeMaxAgentProvider - success path', () => {
       [
         'inputTokens',
         'outcomeDetail',
+        // 2D2C-F0Z: the machine-readable reason code. Still no raw provider
+        // response body, transcript, stderr tail or session id.
+        'outcomeReasonCode',
         'outputTokens',
         'rawOutput',
         'responseModelId',
@@ -970,7 +973,7 @@ describe('ClaudeMaxAgentProvider - 2D2B-2 liveness boundary and total budget', (
     expect(runner.invocations).toHaveLength(1);
   });
 
-  it('the ordinary provider result carries NO diagnostics: same six keys, no stderr, no trace', async () => {
+  it('the ordinary provider result carries NO diagnostics: same seven keys, no stderr, no trace', async () => {
     const runner = new FakeRunner([timeoutError()]);
     const profileDir = await provisionedProfile();
     const result = await provider({ runner, env: envFor(profileDir) }).classify(request());
@@ -978,6 +981,9 @@ describe('ClaudeMaxAgentProvider - 2D2B-2 liveness boundary and total budget', (
       [
         'inputTokens',
         'outcomeDetail',
+        // 2D2C-F0Z: the machine-readable reason code. Still no raw provider
+        // response body, transcript, stderr tail or session id.
+        'outcomeReasonCode',
         'outputTokens',
         'rawOutput',
         'responseModelId',

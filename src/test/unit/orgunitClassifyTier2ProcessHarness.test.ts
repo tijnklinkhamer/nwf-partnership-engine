@@ -551,8 +551,12 @@ describe('Tier 2 grace-phase decision table (pure; executed on every platform)',
     );
     // The exit, the channel closure and the ACK all feed the one tracker.
     expect(body).toMatch(/graceTracker\?\.recordExit\(\)/);
+    // 2D2C-F0Z gave this listener a block body so it can also timestamp the
+    // disconnect for the liveness witness. The assertion still proves the
+    // SAME thing: the channel closure feeds the one tracker, from this one
+    // `once('disconnect')` registration.
     expect(body).toMatch(
-      /forked\.once\('disconnect', \(\) => graceTracker\?\.recordChannelClosed\(\)\)/,
+      /forked\.once\('disconnect', \(\) => \{[\s\S]*?graceTracker\?\.recordChannelClosed\(\);[\s\S]*?\}\)/,
     );
     expect(body).toMatch(/graceTracker\?\.recordAcknowledgement\(\)/);
   });
@@ -1064,5 +1068,100 @@ describe.runIf(IS_WINDOWS)('Tier 2 on Windows (real fixture processes)', () => {
     expect(result.posixGroupSweep).toBe('NOT_APPLICABLE');
     expect(isAlive(result.pid)).toBe(false);
     expect(existsSync(result.scratchDir)).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 2D2C-F0Z — the parent-side liveness witness.
+//
+// Recovery-1's incident D was a hard-killed child: whatever it knew died with
+// it. The parent survived, so the parent is where the durable evidence has to
+// live. Every assertion below is about RECORDING; none of these fields is read
+// by the termination sequence or by `deriveStopDecision`, and C2 is NOT
+// implemented, so no verdict changes.
+// ---------------------------------------------------------------------------
+describe('2D2C-F0Z parent-side liveness witness', () => {
+  it('records the witness on the ordinary COMPLETED path, with no watchdog fire', async () => {
+    const result = await runProcessIsolatedBatch({
+      modulePath: fixture('quickExit.mjs'),
+      watchdogMs: 30_000,
+      graceMs: 1_000,
+    });
+    expect(result.outcome).toBe('COMPLETED');
+    const w = result.livenessWitness!;
+    expect(w).not.toBeNull();
+    expect(w.watchdogNominalMs).toBe(30_000);
+    expect(w.graceNominalMs).toBe(1_000);
+    // The watchdog never fired, so every fire-related field stays null and
+    // the overshoot is honestly absent rather than reported as zero.
+    expect(w.watchdogFiredAtUtc).toBeNull();
+    expect(w.watchdogOvershootMs).toBeNull();
+    expect(w.ipcConnectedAtWatchdogFire).toBeNull();
+    expect(w.graceArmedAtUtc).toBeNull();
+    expect(w.graceExpiredByDeadline).toBe(false);
+    expect(w.shutdownRequestAttemptedAtUtc).toBeNull();
+    expect(w.hardKillAttemptedAtUtc).toBeNull();
+    // The child did exit, and that instant is recorded.
+    expect(w.childExitObservedAtUtc).not.toBeNull();
+    expect(w.parentHeartbeat).not.toBeNull();
+  });
+
+  it('records the watchdog overshoot and the IPC state sampled at the fire', async () => {
+    const result = await runProcessIsolatedBatch({
+      modulePath: fixture('cooperativeShutdown.mjs'),
+      watchdogMs: 250,
+      graceMs: 5_000,
+    });
+    expect(result.outcome).toBe('TIMED_OUT_KILLED');
+    const w = result.livenessWitness!;
+    expect(w.watchdogNominalMs).toBe(250);
+    expect(w.watchdogFiredAtUtc).not.toBeNull();
+    // A healthy parent overshoots its own timer by a small amount; the field
+    // exists so a future 780,400 ms is self-evident rather than reconstructed.
+    expect(w.watchdogOvershootMs).not.toBeNull();
+    expect(w.watchdogOvershootMs!).toBeLessThan(5_000);
+    // This child keeps its channel open, so the request really was sent.
+    expect(w.ipcConnectedAtWatchdogFire).toBe(true);
+    expect(w.shutdownRequestAttemptedAtUtc).not.toBeNull();
+    expect(w.shutdownAckObservedAtUtc).not.toBeNull();
+    expect(result.gracePhaseVerdict).toBe('SHUTDOWN_CONFIRMED');
+    // Confirmed, so no hard stage was attempted at all.
+    expect(w.hardKillAttemptedAtUtc).toBeNull();
+    expect(w.graceExpiredByDeadline).toBe(false);
+  });
+
+  it('EXPLAINS an ipcRequestSent:false: the channel was already closed when the watchdog fired', async () => {
+    const result = await runProcessIsolatedBatch({
+      modulePath: fixture('disconnectsThenLingers.mjs'),
+      watchdogMs: 250,
+      graceMs: 5_000,
+    });
+    expect(result.outcome).toBe('TIMED_OUT_KILLED');
+    expect(result.gracefulPhase?.ipcRequestSent).toBe(false);
+    const w = result.livenessWitness!;
+    // THE POINT: the landed record said only `ipcRequestSent: false`, which
+    // reads as "the child ignored us". These two fields say what actually
+    // happened - the child had already closed the channel, so no request
+    // could be sent and no ACK was ever possible.
+    expect(w.ipcConnectedAtWatchdogFire).toBe(false);
+    expect(w.childDisconnectObservedAtUtc).not.toBeNull();
+    expect(w.shutdownAckObservedAtUtc).toBeNull();
+
+    // C2 IS NOT IMPLEMENTED. The verdict is unchanged from the landed
+    // behaviour: this is still an unconfirmed termination and still a stop.
+    expect(result.gracePhaseVerdict).toBe('CHILD_EXITED_UNCONFIRMED');
+    expect(result.hardKillRequired).toBe(true);
+  });
+
+  it('the witness never names a cause: no field asserts a stall, a suspension or a reason', async () => {
+    const result = await runProcessIsolatedBatch({
+      modulePath: fixture('quickExit.mjs'),
+      watchdogMs: 30_000,
+      graceMs: 1_000,
+    });
+    const keys = Object.keys(result.livenessWitness!).join(' ').toLowerCase();
+    for (const banned of ['stall', 'suspend', 'cause', 'reason', 'hung', 'wedged', 'diagnosis']) {
+      expect(keys, `the witness names a cause via ${banned}`).not.toContain(banned);
+    }
   });
 });

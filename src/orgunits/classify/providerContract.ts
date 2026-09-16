@@ -104,6 +104,18 @@ export interface ClassifierProviderResult {
    * source rather than at the persistence boundary.
    */
   readonly outcomeDetail: string | null;
+  /**
+   * 2D2C-F0Z: the machine-readable reason behind a non-`OK` outcome, from
+   * the closed `PROVIDER_OUTCOME_REASON_CODES` set. `null` on `OK` and on
+   * any implementation that predates the field.
+   *
+   * REPORTING ONLY. Nothing branches on it — the outcome enum alone still
+   * decides stop/continue. It exists so that `error_max_turns` (a turn-budget
+   * exhaustion) can never be read as a schema failure, and so that a
+   * liveness-deadline TIMEOUT can be told apart from a total-budget one
+   * without parsing English.
+   */
+  readonly outcomeReasonCode: string | null;
 }
 
 /** The provider-neutral seam. Implementations own network, auth and retries entirely themselves. */

@@ -284,6 +284,7 @@ function okResult(
     inputTokens: 100,
     outputTokens: 50,
     outcomeDetail: null,
+    outcomeReasonCode: null,
   };
 }
 
@@ -569,6 +570,7 @@ describe('2D2C-F1 child: provider outcomes and thrown failures', () => {
         inputTokens: null,
         outputTokens: null,
         outcomeDetail: 'limit',
+        outcomeReasonCode: null,
       },
     });
     const outcome = await runChildEvaluation(h.manifestPath, h.deps);
@@ -601,11 +603,15 @@ describe('2D2C-F1 child: provider outcomes and thrown failures', () => {
         inputTokens: null,
         outputTokens: null,
         outcomeDetail: 'timed out',
+        outcomeReasonCode: null,
       },
     });
     expect((await runChildEvaluation(h.manifestPath, h.deps)).providerOutcome).toBe('TIMEOUT');
+    // 2D2C-F0Z: the child now also persists the boundary's liveness witness
+    // beside each attempt's trace. This fixture's diagnostics carry none, so
+    // it is recorded as an explicit null rather than omitted.
     expect(record<{ attempts: unknown[] }>(dir, 'TIER1_DIAGNOSTICS')!.attempts).toEqual([
-      diagnostics,
+      { ...diagnostics, livenessWitness: null },
     ]);
     expect(existsSync(join(dir, ARTIFACT_FILE_NAMES.RAW_OUTPUT_CHECKPOINT))).toBe(false);
   });
@@ -620,6 +626,7 @@ describe('2D2C-F1 child: provider outcomes and thrown failures', () => {
         inputTokens: null,
         outputTokens: null,
         outcomeDetail: 'pre-flight CONFLICTING_AUTH_VARIABLES: refused',
+        outcomeReasonCode: null,
       },
     });
     expect((await runChildEvaluation(h.manifestPath, h.deps)).stopCondition).toBe(
@@ -633,6 +640,7 @@ describe('2D2C-F1 child: provider outcomes and thrown failures', () => {
         inputTokens: null,
         outputTokens: null,
         outcomeDetail: 'pre-flight NOT_LOGGED_IN',
+        outcomeReasonCode: null,
       },
     });
     expect((await runChildEvaluation(plain.manifestPath, plain.deps)).stopCondition).toBeNull();

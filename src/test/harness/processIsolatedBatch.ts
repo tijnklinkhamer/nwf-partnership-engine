@@ -87,10 +87,27 @@ import { join } from 'node:path';
 
 export const SHUTDOWN_REQUEST_MESSAGE = 'nwf-pe-tier2:shutdown-request';
 export const SHUTDOWN_ACK_MESSAGE = 'nwf-pe-tier2:shutdown-ack';
+/**
+ * 2D2C-F0Z liveness probe. PURELY OBSERVATIONAL: a child that never answers
+ * is recorded as unresponsive and is NEVER killed, refused or timed out for
+ * it. No decision anywhere reads the probe's result.
+ *
+ * It exists because the F0Z experiment showed the parent can see a stall the
+ * child cannot report: a child SIGSTOPped for 2,000 ms answered with a
+ * 2,002 ms round trip against a 396 ms median, while the parent stayed
+ * healthy and able to write the observation down.
+ */
+export const LIVENESS_PING_MESSAGE = 'nwf-pe-tier2:liveness-ping';
+export const LIVENESS_PONG_MESSAGE = 'nwf-pe-tier2:liveness-pong';
 /** The child learns its scratch directory from this variable (and runs with it as cwd). */
 export const HARNESS_SCRATCH_DIR_VARIABLE = 'NWF_PE_TIER2_SCRATCH_DIR';
 export const HARNESS_SCRATCH_PREFIX = 'nwf-pe-tier2-batch-';
 export const HARNESS_STDERR_TAIL_MAX_CHARS = 2_048;
+
+/** 2D2C-F0Z: nominal period of the parent's own heartbeat (host-stall witness). */
+const PARENT_HEARTBEAT_INTERVAL_MS = 1_000;
+/** 2D2C-F0Z: nominal period of the parent->child liveness probe. */
+const CHILD_PROBE_INTERVAL_MS = 5_000;
 
 /** Bounded wait, after exit, for stdio and the IPC channel to drain. */
 const EXIT_DRAIN_MS = 2_000;
@@ -493,6 +510,63 @@ function childEnvironment(
 
 export type ProcessIsolatedBatchOutcome = 'COMPLETED' | 'TIMED_OUT_KILLED';
 
+/** 2D2C-F0Z: how many parent heartbeats were due versus observed, and the worst gap. */
+export interface ParentHeartbeatWitness {
+  readonly nominalIntervalMs: number;
+  readonly expectedBeats: number;
+  readonly observedBeats: number;
+  readonly maxGapMs: number;
+}
+
+/** 2D2C-F0Z: what the parent saw when it asked the child whether it was still answering. */
+export interface ChildProbeWitness {
+  readonly nominalIntervalMs: number;
+  readonly pingsSent: number;
+  readonly pongsReceived: number;
+  readonly medianRttMs: number | null;
+  readonly maxRttMs: number | null;
+  /** Pings outstanding when the child ended. Non-zero means it stopped answering. */
+  readonly unanswered: number;
+}
+
+/**
+ * 2D2C-F0Z: the parent-side liveness witness, recorded for EVERY evaluation.
+ *
+ * This is the half of the evidence Recovery-1 was missing that a hard-killed
+ * child could never have written itself: the parent survives, so it can say
+ * when its own timers actually ran, whether the IPC channel was still open
+ * when the watchdog fired, and whether the child was answering at all.
+ *
+ * EVIDENCE, NOT CAUSE. Every field states an observation. None of them names
+ * a reason, and nothing in the termination or stop logic reads any of them —
+ * C2 (the decision change these fields would support) is deliberately NOT
+ * implemented in this slice.
+ */
+export interface Tier2LivenessWitness {
+  readonly watchdogNominalMs: number;
+  readonly watchdogArmedAtUtc: string;
+  readonly watchdogFiredAtUtc: string | null;
+  /** `fired − armed − nominal` on the monotonic clock; null when the watchdog never fired. */
+  readonly watchdogOvershootMs: number | null;
+  readonly graceNominalMs: number;
+  readonly graceArmedAtUtc: string | null;
+  /** True only when the grace DEADLINE decided it, false when an early settle did. */
+  readonly graceExpiredByDeadline: boolean;
+  /**
+   * `child.connected` sampled at the instant the watchdog fired. This is the
+   * fact that explains an `ipcRequestSent: false`: a child that has finished
+   * its work disconnects before exiting, so the request could not be sent.
+   */
+  readonly ipcConnectedAtWatchdogFire: boolean | null;
+  readonly shutdownRequestAttemptedAtUtc: string | null;
+  readonly shutdownAckObservedAtUtc: string | null;
+  readonly childDisconnectObservedAtUtc: string | null;
+  readonly childExitObservedAtUtc: string | null;
+  readonly hardKillAttemptedAtUtc: string | null;
+  readonly parentHeartbeat: ParentHeartbeatWitness | null;
+  readonly childProbe: ChildProbeWitness | null;
+}
+
 export interface ProcessIsolatedBatchOptions {
   /** The batch module to fork (a test fixture today; a 2D2C batch entry later). */
   readonly modulePath: string;
@@ -540,6 +614,12 @@ export interface ProcessIsolatedBatchResult {
   readonly hardKill: HardKillRecord | null;
   /** POSIX only: the post-exit group sweep's answer. */
   readonly posixGroupSweep: GroupSignalResult | 'NOT_APPLICABLE';
+  /**
+   * 2D2C-F0Z: the parent-side liveness witness for this evaluation.
+   * Observation only. `null` from a launcher double that records none - the
+   * real harness always produces one.
+   */
+  readonly livenessWitness: Tier2LivenessWitness | null;
   /** The final ≤ 2,048 characters the child wrote to stderr. */
   readonly stderrTail: string;
   /** Already removed when this result is returned. */
@@ -592,6 +672,90 @@ export async function runProcessIsolatedBatch(
   let exitInfo: ExitInfo | undefined;
   /** Exists only once the graceful phase has begun; the IPC and exit events feed it. */
   let graceTracker: GracePhaseTracker | undefined;
+
+  // ---- 2D2C-F0Z parent-side liveness witness: observation only ----
+  // Every field below is written by an observer and read by nobody but the
+  // final record. No termination or stop decision consults any of them.
+  const utcNow = (): string => new Date().toISOString();
+  const witnessArmedMonotonicMs = performance.now();
+  const witness: {
+    watchdogArmedAtUtc: string;
+    watchdogFiredAtUtc: string | null;
+    watchdogOvershootMs: number | null;
+    graceArmedAtUtc: string | null;
+    graceExpiredByDeadline: boolean;
+    ipcConnectedAtWatchdogFire: boolean | null;
+    shutdownRequestAttemptedAtUtc: string | null;
+    shutdownAckObservedAtUtc: string | null;
+    childDisconnectObservedAtUtc: string | null;
+    childExitObservedAtUtc: string | null;
+    hardKillAttemptedAtUtc: string | null;
+  } = {
+    watchdogArmedAtUtc: utcNow(),
+    watchdogFiredAtUtc: null,
+    watchdogOvershootMs: null,
+    graceArmedAtUtc: null,
+    graceExpiredByDeadline: false,
+    ipcConnectedAtWatchdogFire: null,
+    shutdownRequestAttemptedAtUtc: null,
+    shutdownAckObservedAtUtc: null,
+    childDisconnectObservedAtUtc: null,
+    childExitObservedAtUtc: null,
+    hardKillAttemptedAtUtc: null,
+  };
+
+  let parentBeats = 0;
+  let parentMaxGapMs = 0;
+  let lastParentBeatMs = witnessArmedMonotonicMs;
+  // `unref()`: a pending beat must never hold the parent open. Cleared in the
+  // `finally` below on every path, including the throwing ones.
+  const parentHeartbeat = setInterval(() => {
+    parentBeats += 1;
+    const beatMs = performance.now();
+    parentMaxGapMs = Math.max(parentMaxGapMs, beatMs - lastParentBeatMs);
+    lastParentBeatMs = beatMs;
+  }, PARENT_HEARTBEAT_INTERVAL_MS);
+  parentHeartbeat.unref?.();
+
+  const probeSentAt = new Map<number, number>();
+  const probeRtts: number[] = [];
+  let probeSeq = 0;
+  let childProbe: ReturnType<typeof setInterval> | undefined;
+
+  const buildWitness = (): Tier2LivenessWitness => {
+    const elapsedMs = Math.max(0, performance.now() - witnessArmedMonotonicMs);
+    const sorted = [...probeRtts].sort((a, b) => a - b);
+    return Object.freeze({
+      watchdogNominalMs: options.watchdogMs,
+      watchdogArmedAtUtc: witness.watchdogArmedAtUtc,
+      watchdogFiredAtUtc: witness.watchdogFiredAtUtc,
+      watchdogOvershootMs: witness.watchdogOvershootMs,
+      graceNominalMs: options.graceMs,
+      graceArmedAtUtc: witness.graceArmedAtUtc,
+      graceExpiredByDeadline: witness.graceExpiredByDeadline,
+      ipcConnectedAtWatchdogFire: witness.ipcConnectedAtWatchdogFire,
+      shutdownRequestAttemptedAtUtc: witness.shutdownRequestAttemptedAtUtc,
+      shutdownAckObservedAtUtc: witness.shutdownAckObservedAtUtc,
+      childDisconnectObservedAtUtc: witness.childDisconnectObservedAtUtc,
+      childExitObservedAtUtc: witness.childExitObservedAtUtc,
+      hardKillAttemptedAtUtc: witness.hardKillAttemptedAtUtc,
+      parentHeartbeat: Object.freeze({
+        nominalIntervalMs: PARENT_HEARTBEAT_INTERVAL_MS,
+        expectedBeats: Math.floor(elapsedMs / PARENT_HEARTBEAT_INTERVAL_MS),
+        observedBeats: parentBeats,
+        maxGapMs: Math.round(parentMaxGapMs),
+      }),
+      childProbe: Object.freeze({
+        nominalIntervalMs: CHILD_PROBE_INTERVAL_MS,
+        pingsSent: probeSeq,
+        pongsReceived: probeRtts.length,
+        medianRttMs: sorted.length === 0 ? null : Math.round(sorted[sorted.length >> 1]!),
+        maxRttMs: sorted.length === 0 ? null : Math.round(sorted[sorted.length - 1]!),
+        unanswered: probeSeq - probeRtts.length,
+      }),
+    });
+  };
+
   try {
     const forked = fork(options.modulePath, [...(options.args ?? [])], {
       cwd: scratchDir,
@@ -610,6 +774,7 @@ export async function runProcessIsolatedBatch(
     exited = new Promise<ExitInfo>((resolveExit) => {
       forked.once('exit', (code, signal) => {
         exitInfo = { code, signal };
+        witness.childExitObservedAtUtc ??= utcNow();
         graceTracker?.recordExit();
         resolveExit(exitInfo);
       });
@@ -622,7 +787,10 @@ export async function runProcessIsolatedBatch(
       }),
     ]);
     // A closed channel carries no further acknowledgement.
-    forked.once('disconnect', () => graceTracker?.recordChannelClosed());
+    forked.once('disconnect', () => {
+      witness.childDisconnectObservedAtUtc ??= utcNow();
+      graceTracker?.recordChannelClosed();
+    });
 
     let stderrTail = '';
     forked.stderr?.setEncoding('utf8');
@@ -632,7 +800,26 @@ export async function runProcessIsolatedBatch(
     forked.on('message', (message) => {
       // An acknowledgement is an ANSWER to the request: before the graceful
       // phase there is no tracker, and nothing to acknowledge.
-      if (message === SHUTDOWN_ACK_MESSAGE) graceTracker?.recordAcknowledgement();
+      if (message === SHUTDOWN_ACK_MESSAGE) {
+        witness.shutdownAckObservedAtUtc ??= utcNow();
+        graceTracker?.recordAcknowledgement();
+      }
+      // 2D2C-F0Z probe reply. A child that never answers is simply recorded
+      // as unanswered; nothing is killed, refused or retried because of it.
+      if (
+        typeof message === 'object' &&
+        message !== null &&
+        (message as { type?: unknown }).type === LIVENESS_PONG_MESSAGE
+      ) {
+        const seq = (message as { seq?: unknown }).seq;
+        if (typeof seq === 'number') {
+          const sentAt = probeSentAt.get(seq);
+          if (sentAt !== undefined) {
+            probeSentAt.delete(seq);
+            probeRtts.push(performance.now() - sentAt);
+          }
+        }
+      }
     });
 
     if (forked.pid === undefined) {
@@ -643,6 +830,8 @@ export async function runProcessIsolatedBatch(
 
     const ops: TerminationOperations = {
       sendIpc: (message) => {
+        if (message === SHUTDOWN_REQUEST_MESSAGE)
+          witness.shutdownRequestAttemptedAtUtc ??= utcNow();
         if (!forked.connected) return false;
         try {
           return forked.send(message, () => {
@@ -653,9 +842,31 @@ export async function runProcessIsolatedBatch(
         }
       },
       signalProcessGroup: posixSignalProcessGroup,
-      killProcessGroup: posixKillProcessGroupSettled,
-      taskkillTree: windowsTaskkillTree,
+      killProcessGroup: (targetPid) => {
+        witness.hardKillAttemptedAtUtc ??= utcNow();
+        return posixKillProcessGroupSettled(targetPid);
+      },
+      taskkillTree: (targetPid) => {
+        witness.hardKillAttemptedAtUtc ??= utcNow();
+        return windowsTaskkillTree(targetPid);
+      },
     };
+
+    // 2D2C-F0Z: the parent->child liveness probe. Armed only while the
+    // channel is open; every unanswered ping is simply counted.
+    childProbe = setInterval(() => {
+      if (!forked.connected) return;
+      probeSeq += 1;
+      probeSentAt.set(probeSeq, performance.now());
+      try {
+        forked.send({ type: LIVENESS_PING_MESSAGE, seq: probeSeq }, () => {
+          // A probe racing the child's exit is not an error worth surfacing.
+        });
+      } catch {
+        // A closed channel simply leaves this ping unanswered.
+      }
+    }, CHILD_PROBE_INTERVAL_MS);
+    childProbe.unref?.();
 
     const watchdog = timer(options.watchdogMs);
     const first = await Promise.race([
@@ -663,6 +874,16 @@ export async function runProcessIsolatedBatch(
       watchdog.elapsed.then(() => ({ kind: 'WATCHDOG' as const })),
     ]);
     watchdog.cancel();
+    if (first.kind === 'WATCHDOG') {
+      witness.watchdogFiredAtUtc = utcNow();
+      witness.watchdogOvershootMs = Math.max(
+        0,
+        Math.round(performance.now() - witnessArmedMonotonicMs - options.watchdogMs),
+      );
+      // Sampled BEFORE the graceful phase runs: this is the fact that
+      // explains an `ipcRequestSent: false` without inferring anything.
+      witness.ipcConnectedAtWatchdogFire = forked.connected;
+    }
 
     let outcome: ProcessIsolatedBatchOutcome = 'COMPLETED';
     let exit: ExitInfo;
@@ -684,7 +905,14 @@ export async function runProcessIsolatedBatch(
         ops,
         tracker,
         armGrace: (onExpired) => {
-          const handle = setTimeout(onExpired, options.graceMs);
+          witness.graceArmedAtUtc = utcNow();
+          const handle = setTimeout(() => {
+            // Distinguishes a grace decision taken AT THE DEADLINE from one
+            // taken early by an exit or an ACK - two situations the landed
+            // record collapsed into one CHILD_EXITED_UNCONFIRMED verdict.
+            witness.graceExpiredByDeadline = true;
+            onExpired();
+          }, options.graceMs);
           return () => clearTimeout(handle);
         },
         beforeHardKill: options.beforeHardKill,
@@ -729,10 +957,16 @@ export async function runProcessIsolatedBatch(
           : null,
       hardKill: hardKill.disposition === 'EXECUTED' ? hardKill.record : null,
       posixGroupSweep,
+      livenessWitness: buildWitness(),
       stderrTail,
       scratchDir,
     };
   } finally {
+    // 2D2C-F0Z: the witness timers are cleared FIRST and on every path,
+    // including the throwing ones. A leaked interval would keep the parent
+    // alive past the run it was observing.
+    clearInterval(parentHeartbeat);
+    if (childProbe !== undefined) clearInterval(childProbe);
     // Emergency path: whatever went wrong above, never leave the tree running
     // - and, as everywhere, never aim taskkill at a PID whose exit was seen.
     if (

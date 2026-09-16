@@ -570,6 +570,13 @@ export async function runExperiment(input: ExperimentInput): Promise<ExperimentR
       hardKillSuppressionReason: tier2.hardKillSuppressionReason,
       hardKill: tier2.hardKill,
       posixGroupSweep: tier2.posixGroupSweep,
+      // 2D2C-F0Z: the parent-side liveness witness for this evaluation -
+      // watchdog arm/fire/overshoot, grace arm and whether the DEADLINE
+      // decided it, the IPC connected state sampled at the watchdog fire,
+      // the shutdown request/ACK/exit instants, the hard-kill attempt, the
+      // parent's own heartbeat and the parent->child probe. Every field is
+      // an observation; nothing in the stop decision reads any of them.
+      livenessWitness: tier2.livenessWitness ?? null,
       stderrTail: tier2.stderrTail,
       scratchDirRemoved,
     });
