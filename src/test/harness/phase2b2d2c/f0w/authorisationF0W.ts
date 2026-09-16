@@ -174,6 +174,15 @@ export type F0WSlotExecutionLockDecision =
       readonly slot: StudySlotIdentity;
       /** SHA-256 of the exact authorisation bytes — the identity a consumption marker records. */
       readonly authorisationSha256: string;
+      /**
+       * The exact byte length of the SAME read this SHA-256 was computed
+       * from — never a second, independently re-read length. A caller that
+       * also cross-checks an approval's own `candidateAuthorisationBytes`
+       * (F0X) compares against THIS value, so a TOCTOU split (one read for
+       * the hash, a different, later read for the length) is structurally
+       * impossible.
+       */
+      readonly authorisationBytes: number;
     }
   | {
       readonly granted: false;
@@ -192,7 +201,15 @@ export interface F0WSlotExecutionLockInput {
   };
   readonly readFile: (path: string) => Buffer;
   readonly sha256: (bytes: Buffer) => string;
-  readonly alreadyConsumed: (authorisationSha256: string) => boolean;
+  /**
+   * SLOT-SCOPED: `outputRoot` is always the slot's OWN frozen output root
+   * (`input.expected.outputRoot`, already verified against the authorisation
+   * by the time this is called) — never a study-wide root. A caller must
+   * never collapse this to a study-root-only check: a consumption marker
+   * living under one slot's output root must never be read as spending a
+   * DIFFERENT slot's candidate.
+   */
+  readonly alreadyConsumed: (authorisationSha256: string, outputRoot: string) => boolean;
   readonly nowUtc: () => Date;
   /** Resolves a slotId against the frozen F0V registry; throws SlotRegistryError on an unknown id. */
   readonly resolveSlot: (slotId: string) => StudySlotIdentity;
@@ -362,13 +379,19 @@ export function evaluateF0WSlotExecutionLock(
       `the authorised historical attempt number (${authorisation.historicalAttemptNo}) is not the one this invocation expects (${input.expected.attemptNo}).`,
     );
   }
-  if (input.alreadyConsumed(authorisationSha256)) {
+  if (input.alreadyConsumed(authorisationSha256, input.expected.outputRoot)) {
     return refuse(
       'AUTHORISATION_ALREADY_CONSUMED',
       'this exact authorisation was already consumed under the output root; a re-attempt needs a new authorisation.',
     );
   }
-  return { granted: true, authorisation, slot, authorisationSha256 };
+  return {
+    granted: true,
+    authorisation,
+    slot,
+    authorisationSha256,
+    authorisationBytes: bytes.length,
+  };
 }
 
 /**

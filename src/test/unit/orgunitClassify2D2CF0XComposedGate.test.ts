@@ -82,6 +82,7 @@ import {
   type F0XStudyExecutionApproval,
 } from '../harness/phase2b2d2c/f0x/studyExecutionApprovalF0X.js';
 import {
+  isConsumedByOuterSlotIdentity,
   readOuterSlotIdentity,
   writeOuterSlotIdentity,
   type OuterSlotIdentityRecord,
@@ -92,6 +93,10 @@ import {
   writeStudyTerminal,
   STUDY_RECORD_VERSION,
 } from '../harness/phase2b2d2c/f0x/studyRecords.js';
+import {
+  authorisationMarkerPathOf,
+  isAuthorisationConsumed,
+} from '../harness/phase2b2d2c/coordinator.js';
 
 const REAL_F0V_STUDY_ROOT_STRING =
   '/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5';
@@ -986,5 +991,223 @@ describe('2D2C-F0X: study-level durable records', () => {
       ],
     });
     for (const word of forbidden) expect(source.toLowerCase()).not.toContain(word.toLowerCase());
+  });
+});
+
+describe('2D2C-F0X corrective closure: candidate BYTE LENGTH binding (FIX 1)', () => {
+  it('all-ten preflight refuses a slot whose approval entry has the CORRECT sha but the WRONG byte length', () => {
+    const dir = freshDir();
+    for (const slot of F0V_SLOTS) {
+      writeCandidateFile(dir, slot);
+      createSlotOutputRoot(slot);
+    }
+    const approvalPath = writeApprovalFile(dir, (a) => {
+      a.slots[4]!.candidateAuthorisationBytes = a.slots[4]!.candidateAuthorisationBytes + 1;
+    });
+    const decision = runAllTenPreflight({
+      registry,
+      candidatePathForSlot: (slotId) => join(dir, `${slotId}.json`),
+      studyApprovalPath: approvalPath,
+      readFile,
+      sha256: sha256Hex,
+      nowUtc,
+      currentHead,
+      alreadyConsumed,
+      sequencingProbes,
+      outputRootProbes,
+      forbiddenOutputRootContainers: [],
+    });
+    expect(decision.granted).toBe(false);
+    const slot5 = decision.slots.find((s) => s.slotId === F0V_SLOTS[4]!.slotId);
+    expect(slot5?.listedInApproval).toBe(false);
+    expect(slot5?.candidateGranted).toBe(true); // the candidate ITSELF is structurally fine
+    expect(slot5?.problems.some((p) => p.includes('APPROVAL_CANDIDATE_BYTES_MISMATCH'))).toBe(true);
+  });
+
+  it('the live composed gate refuses the same correct-sha/wrong-byte-length candidate, immediately before consumption', () => {
+    const slot = F0V_SLOTS[0]!;
+    const dir = freshDir();
+    const candidatePath = writeCandidateFile(dir, slot);
+    const approvalPath = writeApprovalFile(dir, (a) => {
+      a.slots[0]!.candidateAuthorisationBytes = a.slots[0]!.candidateAuthorisationBytes + 1;
+    });
+    createSlotOutputRoot(slot);
+
+    const decision = evaluateComposedSlotExecutionDecision({
+      targetSlotId: slot.slotId,
+      registry,
+      authorisationPath: candidatePath,
+      studyApprovalPath: approvalPath,
+      readFile,
+      sha256: sha256Hex,
+      nowUtc,
+      currentHead,
+      alreadyConsumed,
+      sequencingProbes,
+      outputRootProbes,
+      forbiddenOutputRootContainers: [],
+    });
+    expect(decision).toMatchObject({
+      granted: false,
+      failedGate: 'APPROVAL_CANDIDATE_MISMATCH',
+      refusal: 'APPROVAL_CANDIDATE_BYTES_MISMATCH',
+    });
+  });
+
+  it('a genuinely valid pairing still grants, and the candidate file is read EXACTLY ONCE — the hash and the byte length the composed gate cross-checks both come from that one read, so the candidate cannot "change between conceptual checks" via separate reads', () => {
+    const slot = F0V_SLOTS[0]!;
+    const dir = freshDir();
+    const candidatePath = writeCandidateFile(dir, slot);
+    const approvalPath = writeApprovalFile(dir);
+    createSlotOutputRoot(slot);
+
+    let candidateReadCount = 0;
+    const countingReadFile = (p: string): Buffer => {
+      if (p === candidatePath) candidateReadCount += 1;
+      return readFile(p);
+    };
+
+    const decision = evaluateComposedSlotExecutionDecision({
+      targetSlotId: slot.slotId,
+      registry,
+      authorisationPath: candidatePath,
+      studyApprovalPath: approvalPath,
+      readFile: countingReadFile,
+      sha256: sha256Hex,
+      nowUtc,
+      currentHead,
+      alreadyConsumed,
+      sequencingProbes,
+      outputRootProbes,
+      forbiddenOutputRootContainers: [],
+    });
+    expect(decision.granted).toBe(true);
+    expect(candidateReadCount).toBe(1);
+  });
+});
+
+describe('2D2C-F0X corrective closure: slot-scoped authorisation consumption (FIX 2)', () => {
+  function outerRecordFor(
+    slot: StudySlotIdentity,
+    outputRoot: string,
+    candidateAuthorisationSha256: string,
+  ): OuterSlotIdentityRecord {
+    const identity = historicalIdentityOf(slot.variantName);
+    return {
+      recordVersion: 'phase2b-2d2c-f0x-outer-slot-identity-v1',
+      studyId: 'REPLICATION_V4_V5_N5',
+      f0vFreezeRawSha256: PROPOSED_F0V_FREEZE_RAW_SHA256,
+      f0vApprovalRecordRawSha256: APPROVAL_SHA,
+      f0vPlanSha256: PROPOSED_F0V_PLAN_SHA256,
+      f0uMethodologyRawSha256: F0U_METHODOLOGY_RAW_SHA256,
+      executionIntegrationCommit: FIXED_HEAD,
+      slotId: slot.slotId,
+      sequence: slot.sequence,
+      pairNumber: slot.pairNumber,
+      variantName: slot.variantName,
+      sourceHistoricalAttemptNo: identity.historicalAttemptNo,
+      sourceHistoricalFreezeRawSha256: identity.historicalFreezeRawSha256,
+      sourceHistoricalPlanSha256: identity.historicalPlanSha256,
+      runtimeCommit: identity.runtimeCommit,
+      promptSha256: identity.promptSha256,
+      candidateAuthorisationSha256,
+      studyExecutionApprovalSha256: 'd'.repeat(64),
+      outputRoot,
+      consumedAtUtc: '2026-09-16T12:00:00.000Z',
+    };
+  }
+
+  function writeLegacyMarker(outputRoot: string, sha: string): void {
+    const markerPath = authorisationMarkerPathOf(outputRoot, sha);
+    mkdirSync(dirname(markerPath), { recursive: true });
+    writeFileSync(markerPath, '{}');
+  }
+
+  it('an outer-slot-identity record ALONE marks the candidate consumed', () => {
+    const slot = F0V_SLOTS[0]!;
+    const root = createSlotOutputRoot(slot);
+    const sha = 'a'.repeat(64);
+    writeOuterSlotIdentity(outerRecordFor(slot, root, sha));
+    expect(isConsumedByOuterSlotIdentity(root, sha, readFile)).toBe(true);
+    expect(isAuthorisationConsumed(root, sha)).toBe(false);
+  });
+
+  it("the coordinator's legacy marker ALONE marks the candidate consumed", () => {
+    const slot = F0V_SLOTS[0]!;
+    const root = createSlotOutputRoot(slot);
+    const sha = 'b'.repeat(64);
+    writeLegacyMarker(root, sha);
+    expect(isConsumedByOuterSlotIdentity(root, sha, readFile)).toBe(false);
+    expect(isAuthorisationConsumed(root, sha)).toBe(true);
+  });
+
+  it('BOTH markers present still reads as consumed', () => {
+    const slot = F0V_SLOTS[0]!;
+    const root = createSlotOutputRoot(slot);
+    const sha = 'c'.repeat(64);
+    writeOuterSlotIdentity(outerRecordFor(slot, root, sha));
+    writeLegacyMarker(root, sha);
+    expect(isConsumedByOuterSlotIdentity(root, sha, readFile)).toBe(true);
+    expect(isAuthorisationConsumed(root, sha)).toBe(true);
+  });
+
+  it('NEITHER marker present reads as fresh', () => {
+    const slot = F0V_SLOTS[0]!;
+    const root = createSlotOutputRoot(slot);
+    const sha = 'e'.repeat(64);
+    expect(isConsumedByOuterSlotIdentity(root, sha, readFile)).toBe(false);
+    expect(isAuthorisationConsumed(root, sha)).toBe(false);
+  });
+
+  it('a legacy marker written under a DIFFERENT slot output root does not consume THIS slot', () => {
+    const slot = F0V_SLOTS[0]!;
+    const otherSlot = F0V_SLOTS[1]!;
+    const root = createSlotOutputRoot(slot);
+    const otherRoot = createSlotOutputRoot(otherSlot);
+    const sha = 'f'.repeat(64);
+    writeLegacyMarker(otherRoot, sha);
+    expect(isAuthorisationConsumed(root, sha)).toBe(false);
+    expect(isConsumedByOuterSlotIdentity(root, sha, readFile)).toBe(false);
+  });
+
+  it('an outer-slot-identity record written for a DIFFERENT slot output root does not consume THIS slot', () => {
+    const slot = F0V_SLOTS[0]!;
+    const otherSlot = F0V_SLOTS[1]!;
+    const root = createSlotOutputRoot(slot);
+    const otherRoot = createSlotOutputRoot(otherSlot);
+    const sha = 'a1'.repeat(32);
+    writeOuterSlotIdentity(outerRecordFor(otherSlot, otherRoot, sha));
+    expect(isConsumedByOuterSlotIdentity(root, sha, readFile)).toBe(false);
+  });
+
+  it('a crash immediately after the outer consumption record is written (but before runExperiment ever starts) cannot be automatically retried: the sequencing gate refuses the same slot again', () => {
+    const slot = F0V_SLOTS[0]!;
+    const dir = freshDir();
+    const candidatePath = writeCandidateFile(dir, slot);
+    const approvalPath = writeApprovalFile(dir);
+    const root = createSlotOutputRoot(slot);
+    const sha = sha256Hex(candidateBytesOf(slot));
+    // Only the outer identity record exists — nothing from `runExperiment` itself.
+    writeOuterSlotIdentity(outerRecordFor(slot, root, sha));
+
+    const decision = evaluateComposedSlotExecutionDecision({
+      targetSlotId: slot.slotId,
+      registry,
+      authorisationPath: candidatePath,
+      studyApprovalPath: approvalPath,
+      readFile,
+      sha256: sha256Hex,
+      nowUtc,
+      currentHead,
+      alreadyConsumed,
+      sequencingProbes,
+      outputRootProbes,
+      forbiddenOutputRootContainers: [],
+    });
+    expect(decision).toMatchObject({
+      granted: false,
+      failedGate: 'SEQUENCING',
+      refusal: 'TARGET_SLOT_ALREADY_HAS_EVIDENCE',
+    });
   });
 });

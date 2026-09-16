@@ -436,6 +436,167 @@ describe('2D2C-F0X executor: all-ten-before-first-child and frozen order (fake l
   });
 });
 
+describe('2D2C-F0X corrective closure: a failed all-ten preflight writes ZERO artifacts', () => {
+  function fullyValidCandidatesOnly(): {
+    dir: string;
+    candidatePathForSlot: (slotId: string) => string | null;
+  } {
+    const dir = freshDir();
+    for (const slot of F0V_SLOTS) {
+      writeCandidateFile(dir, slot);
+      mkdirSync(slotOutputRoot(slot), { recursive: true });
+    }
+    return { dir, candidatePathForSlot: (slotId) => join(dir, `${slotId}.json`) };
+  }
+
+  function studyRootTopLevelArtifacts(): readonly string[] {
+    if (!existsSync(F0V_STUDY_ROOT)) return [];
+    return readdirSync(F0V_STUDY_ROOT).filter(
+      (name) =>
+        name === 'study-manifest.json' || name === 'study-terminal.json' || name === 'study-events',
+    );
+  }
+
+  function snapshotSlotTree(): Readonly<Record<string, readonly string[]>> {
+    const snapshot: Record<string, readonly string[]> = {};
+    for (const slot of F0V_SLOTS)
+      snapshot[slot.slotId] = listFilesRecursively(slotOutputRoot(slot));
+    return snapshot;
+  }
+
+  const SCENARIOS: Record<
+    string,
+    () => {
+      candidatePathForSlot: (slotId: string) => string | null;
+      studyApprovalPath: string | null;
+    }
+  > = {
+    'candidate 10 is missing': () => {
+      const dir = freshDir();
+      for (const slot of F0V_SLOTS.slice(0, 9)) {
+        writeCandidateFile(dir, slot);
+        mkdirSync(slotOutputRoot(slot), { recursive: true });
+      }
+      mkdirSync(slotOutputRoot(F0V_SLOTS[9]!), { recursive: true });
+      const approvalPath = writeApprovalFile(dir, buildValidApproval());
+      return {
+        candidatePathForSlot: (slotId) =>
+          existsSync(join(dir, `${slotId}.json`)) ? join(dir, `${slotId}.json`) : null,
+        studyApprovalPath: approvalPath,
+      };
+    },
+    'the study approval is missing': () => {
+      const { candidatePathForSlot } = fullyValidCandidatesOnly();
+      return { candidatePathForSlot, studyApprovalPath: null };
+    },
+    'a candidate byte-length mismatch inside the approval (slot 5, correct SHA)': () => {
+      const { dir, candidatePathForSlot } = fullyValidCandidatesOnly();
+      const approval = buildValidApproval() as unknown as {
+        slots: { candidateAuthorisationBytes: number }[];
+      };
+      approval.slots[4]!.candidateAuthorisationBytes += 1;
+      const approvalPath = writeApprovalFile(dir, approval as unknown as F0XStudyExecutionApproval);
+      return { candidatePathForSlot, studyApprovalPath: approvalPath };
+    },
+    'a candidate hash mismatch inside the approval (slot 4)': () => {
+      const { dir, candidatePathForSlot } = fullyValidCandidatesOnly();
+      const approval = buildValidApproval() as unknown as {
+        slots: { candidateAuthorisationSha256: string }[];
+      };
+      approval.slots[3]!.candidateAuthorisationSha256 = 'f'.repeat(64);
+      const approvalPath = writeApprovalFile(dir, approval as unknown as F0XStudyExecutionApproval);
+      return { candidatePathForSlot, studyApprovalPath: approvalPath };
+    },
+    'output root 10 does not exist': () => {
+      const dir = freshDir();
+      for (const slot of F0V_SLOTS.slice(0, 9)) {
+        writeCandidateFile(dir, slot);
+        mkdirSync(slotOutputRoot(slot), { recursive: true });
+      }
+      writeCandidateFile(dir, F0V_SLOTS[9]!); // candidate exists, output root does not
+      const approvalPath = writeApprovalFile(dir, buildValidApproval());
+      return {
+        candidatePathForSlot: (slotId) => join(dir, `${slotId}.json`),
+        studyApprovalPath: approvalPath,
+      };
+    },
+    'the approval slot list is reordered': () => {
+      const { dir, candidatePathForSlot } = fullyValidCandidatesOnly();
+      const approval = buildValidApproval() as unknown as { slots: unknown[] };
+      const [first, second, ...rest] = approval.slots;
+      approval.slots = [second, first, ...rest];
+      const approvalPath = writeApprovalFile(dir, approval as unknown as F0XStudyExecutionApproval);
+      return { candidatePathForSlot, studyApprovalPath: approvalPath };
+    },
+    'candidate 7 is expired': () => {
+      const dir = freshDir();
+      for (const slot of F0V_SLOTS) {
+        mkdirSync(slotOutputRoot(slot), { recursive: true });
+        if (slot.slotId === F0V_SLOTS[6]!.slotId) {
+          writeCandidateFile(dir, slot, { validUntilUtc: '2020-01-01T00:00:00.000Z' });
+        } else {
+          writeCandidateFile(dir, slot);
+        }
+      }
+      const overrides = new Map([
+        [F0V_SLOTS[6]!.slotId, { validUntilUtc: '2020-01-01T00:00:00.000Z' }],
+      ]);
+      const approvalPath = writeApprovalFile(dir, buildValidApproval(F0V_SLOTS, overrides));
+      return {
+        candidatePathForSlot: (slotId) => join(dir, `${slotId}.json`),
+        studyApprovalPath: approvalPath,
+      };
+    },
+    'the study approval itself is expired': () => {
+      const { dir, candidatePathForSlot } = fullyValidCandidatesOnly();
+      const approval = buildValidApproval() as unknown as { validUntilUtc: string };
+      approval.validUntilUtc = '2020-01-01T00:00:00.000Z';
+      const approvalPath = writeApprovalFile(dir, approval as unknown as F0XStudyExecutionApproval);
+      return { candidatePathForSlot, studyApprovalPath: approvalPath };
+    },
+  };
+
+  for (const [name, buildScenario] of Object.entries(SCENARIOS)) {
+    it(`${name}: BLOCKED_BEFORE_START leaves the study/slot tree byte-for-byte unchanged`, async () => {
+      const { candidatePathForSlot, studyApprovalPath } = buildScenario();
+      const beforeSlotTree = snapshotSlotTree();
+      expect(studyRootTopLevelArtifacts()).toEqual([]);
+      const dispatched: string[] = [];
+
+      const outcome = await runReplicationStudyExecution({
+        registry,
+        f0iPlan: F0I_PLAN,
+        f0oPlan: F0O_PLAN,
+        executionIntegrationCommit: FIXED_HEAD,
+        candidatePathForSlot,
+        studyApprovalPath,
+        readFile,
+        sha256: sha256Hex,
+        currentHead,
+        alreadyConsumed,
+        sequencingProbes,
+        outputRootProbes,
+        forbiddenOutputRootContainers: [],
+        v4Root: ROOT,
+        v5Root: ROOT,
+        classifierConfigDir: join(freshDir(), 'profile'),
+        parentEnv: {},
+        platform: 'posix',
+        launcher: fakeLauncherThatNeverRunsAProvider(dispatched),
+        clock: { nowUtc: () => new Date('2026-09-16T12:00:00.000Z') },
+      });
+
+      expect(outcome.status).toBe('BLOCKED_BEFORE_START');
+      expect(dispatched).toHaveLength(0);
+      // No study manifest, no terminal record, no events directory.
+      expect(studyRootTopLevelArtifacts()).toEqual([]);
+      // Every slot output root's own file listing is exactly what it was
+      // before this invocation — no slot artifact, no consumption marker.
+      expect(snapshotSlotTree()).toEqual(beforeSlotTree);
+    });
+  }
+});
+
 describe('2D2C-F0X executor: physical dispatch through the REAL Tier-2 harness (zero provider)', () => {
   it("a V4 slot and a V5 slot each physically reach the real child entry's own preflight, refuse before any provider, and the whole study still completes", async () => {
     const truncated = <

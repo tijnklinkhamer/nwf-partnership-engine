@@ -34,7 +34,11 @@
  * cross-checking) — this module additionally re-confirms the two GRANTED
  * decisions name the identical `slotId` and the identical candidate hash,
  * so a caller can never accidentally pair a slot-4 candidate with a
- * study approval entry meant for slot 7.
+ * study approval entry meant for slot 7. F0X CORRECTIVE CLOSURE: gate 3
+ * additionally requires the approval's own `candidateAuthorisationBytes`
+ * for this slot to equal the exact byte length gate 2 read the candidate
+ * at — a matching SHA-256 alone is not sufficient, and both values come
+ * from the SAME single read (no second file read, no TOCTOU split).
  *
  * PURE aside from the injected probes. No network, no database, no
  * filesystem of its own, no clock of its own, no child process.
@@ -67,6 +71,17 @@ export type ComposedGateName =
   | 'APPROVAL_CANDIDATE_MISMATCH'
   | 'OUTPUT_ROOT';
 
+/**
+ * Refusal codes under the `APPROVAL_CANDIDATE_MISMATCH` gate specifically.
+ * `APPROVAL_CANDIDATE_BYTES_MISMATCH` fires when the approval's listed hash
+ * DOES match (so a caller who checked only the hash would proceed) but its
+ * separately-listed `candidateAuthorisationBytes` does not match the exact
+ * byte length gate 2 read the candidate at — never a second, independent
+ * read of the file, only the length gate 2 already measured.
+ */
+export type ApprovalCandidateMismatchRefusal =
+  'APPROVAL_DOES_NOT_LIST_THIS_CANDIDATE' | 'APPROVAL_CANDIDATE_BYTES_MISMATCH';
+
 export interface ComposedSlotExecutionGrant {
   readonly granted: true;
   readonly slot: StudySlotIdentity;
@@ -97,7 +112,7 @@ export interface ComposedSlotExecutionInput {
   readonly sha256: (bytes: Buffer) => string;
   readonly nowUtc: () => Date;
   readonly currentHead: () => string;
-  readonly alreadyConsumed: (authorisationSha256: string) => boolean;
+  readonly alreadyConsumed: (authorisationSha256: string, outputRoot: string) => boolean;
   readonly sequencingProbes: SlotEvidenceProbes;
   readonly outputRootProbes: SlotOutputRootProbes;
   readonly forbiddenOutputRootContainers: readonly string[];
@@ -186,15 +201,32 @@ export function evaluateComposedSlotExecutionDecision(
   // same one-line lookup F0W's `approvalListsCandidate` performs, inlined
   // here because that helper is typed against F0W's own (superseded)
   // approval shape, not the F0X-superseding one this module evaluates.
-  const listed =
-    studyApproval.approval.slots.find((entry) => entry.slotId === slot.slotId)
-      ?.candidateAuthorisationSha256 === slotLock.authorisationSha256;
-  if (!listed) {
+  const approvalEntry = studyApproval.approval.slots.find((entry) => entry.slotId === slot.slotId);
+  if (
+    approvalEntry === undefined ||
+    approvalEntry.candidateAuthorisationSha256 !== slotLock.authorisationSha256
+  ) {
     return {
       granted: false,
       failedGate: 'APPROVAL_CANDIDATE_MISMATCH',
       refusal: 'APPROVAL_DOES_NOT_LIST_THIS_CANDIDATE',
       detail: `the study approval does not name candidate ${slotLock.authorisationSha256} for slot ${slot.slotId}.`,
+    };
+  }
+  // Gate 3b: the approval's listed BYTE LENGTH for this exact candidate must
+  // also match — never just the hash. Both the hash (gate 2) and this length
+  // check are read from the ONE buffer `evaluateF0WSlotExecutionLock` read
+  // the candidate file into; there is no second, independent read here that
+  // could observe a different version of the file (no TOCTOU split).
+  if (approvalEntry.candidateAuthorisationBytes !== slotLock.authorisationBytes) {
+    return {
+      granted: false,
+      failedGate: 'APPROVAL_CANDIDATE_MISMATCH',
+      refusal: 'APPROVAL_CANDIDATE_BYTES_MISMATCH',
+      detail:
+        `the study approval names candidate ${slotLock.authorisationSha256} for slot ${slot.slotId} ` +
+        `with byte length ${approvalEntry.candidateAuthorisationBytes}; the candidate file actually read ` +
+        `as ${slotLock.authorisationBytes} bytes.`,
     };
   }
 

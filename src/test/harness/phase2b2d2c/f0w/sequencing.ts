@@ -6,16 +6,24 @@
  * by the owner's brief §6):
  *
  *   - Class A `FAILURE_BEFORE_AUTHORISATION_CONSUMPTION` — the run never
- *     reached the point of consuming its authorisation. By construction this
- *     leaves NO durable trace under the slot's output root: the
- *     authorisation-consumption marker is the very first thing
- *     `runExperiment` (`coordinator.ts`) writes. It is therefore, BY DESIGN,
- *     indistinguishable from "this slot has simply never been attempted" —
- *     this module does not pretend otherwise. Both read as `NO_EVIDENCE`
- *     here, and both are non-blocking: a slot with no evidence is eligible
- *     for a fresh (or first) attempt once its predecessors are closed.
+ *     reached the point of consuming its authorisation. This is NOT, in
+ *     general, "the first thing `runExperiment` writes" any more: under
+ *     F0X, `study-slot-identity.json` (`f0x/outerSlotIdentity.ts`) is
+ *     written write-once, durably, BEFORE `runExperiment` is ever called —
+ *     and that write IS what consumes the slot's F0X authorisation (see
+ *     that module's docstring). So Class A, precisely, is a failure
+ *     STRICTLY BEFORE that outer-identity write: by construction it leaves
+ *     NO durable trace under the slot's output root at all, and is
+ *     therefore, BY DESIGN, indistinguishable from "this slot has simply
+ *     never been attempted" — this module does not pretend otherwise. A
+ *     failure AFTER that write is a DIFFERENT, confirmed fact — Class B,
+ *     below — never Class A. Both a genuine Class A failure and true
+ *     never-attempted read as `NO_EVIDENCE` here, and both are
+ *     non-blocking: a slot with no evidence is eligible for a fresh (or
+ *     first) attempt once its predecessors are closed.
  *   - Class B `AUTHORISATION_CONSUMED_CONFIRMED_PRE_INFERENCE_REFUSAL` — the
- *     authorisation WAS consumed (the marker exists) but the run never got
+ *     authorisation WAS consumed (the F0X outer-slot-identity record and/or
+ *     the coordinator's own legacy marker exists) but the run never got
  *     past child-manifest construction (exactly F0K's own historical case).
  *     This PAUSES the study: it is never silently replaced, only recovered
  *     by a SEPARATE, owner-reviewed decision for the SAME slot.

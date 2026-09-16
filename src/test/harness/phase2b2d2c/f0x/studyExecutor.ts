@@ -11,8 +11,12 @@
  *
  *   1. `runAllTenPreflight` — ALL ten candidates, the ONE study approval,
  *      and ALL ten output roots verified TOGETHER, before slot 1 is
- *      touched. A refusal here writes ONE `BLOCKED_BEFORE_START` terminal
- *      record and launches nothing, ever.
+ *      touched. A refusal here writes NOTHING — no study manifest, no slot
+ *      transition, no terminal record, no slot artifact, no consumption, no
+ *      output-root mutation — and launches nothing, ever. The refusal is
+ *      returned to the caller as `BLOCKED_BEFORE_START`, but leaves zero
+ *      durable trace: before a GRANTED preflight the study has not started,
+ *      by definition.
  *   2. `writeStudyManifest` — the study-wide identity, written once.
  *   3. For each of the ten frozen slots, in order:
  *        a. `evaluateComposedSlotExecutionDecision` — the four-gate
@@ -93,7 +97,7 @@ export interface StudyExecutorInput {
   readonly readFile: (path: string) => Buffer;
   readonly sha256: (bytes: Buffer) => string;
   readonly currentHead: () => string;
-  readonly alreadyConsumed: (authorisationSha256: string) => boolean;
+  readonly alreadyConsumed: (authorisationSha256: string, outputRoot: string) => boolean;
   readonly sequencingProbes: SlotEvidenceProbes;
   readonly outputRootProbes: SlotOutputRootProbes;
   readonly forbiddenOutputRootContainers: readonly string[];
@@ -180,14 +184,12 @@ export async function runReplicationStudyExecution(
     studyRoot,
   });
   if (!preflight.granted) {
-    writeStudyTerminal(studyRoot, {
-      recordVersion: STUDY_RECORD_VERSION,
-      outcome: 'BLOCKED_BEFORE_START',
-      pauseReason: preflight.reason,
-      blockingSlotId: null,
-      slotsCompleted: 0,
-      completedAtUtc: input.clock.nowUtc().toISOString(),
-    });
+    // F0X CORRECTIVE CLOSURE: before a GRANTED all-ten preflight, the study
+    // has not started — so a refusal here writes NOTHING: no study
+    // manifest, no slot transition, no terminal record, no slot artifact,
+    // no consumption, no output-root mutation. `BLOCKED_BEFORE_START` is
+    // reported back to the caller (the CLI may print/report it) but leaves
+    // zero durable trace, exactly like a genuine "never attempted" slot.
     return { status: 'BLOCKED_BEFORE_START', preflight };
   }
 

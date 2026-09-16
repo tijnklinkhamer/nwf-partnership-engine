@@ -23,6 +23,14 @@
  * the SAME `alreadyConsumed` probe a live execution would use; P-Q by the
  * final all-ten evidence sweep.
  *
+ * F0X CORRECTIVE CLOSURE: the per-slot approval-membership check (K-N above)
+ * cross-checks BOTH the approval's listed `candidateAuthorisationSha256` AND
+ * its listed `candidateAuthorisationBytes` against the ONE read
+ * `evaluateF0WSlotExecutionLock` performed for that slot's candidate — a
+ * matching hash with a mismatched byte length is refused
+ * (`APPROVAL_CANDIDATE_BYTES_MISMATCH`), never silently accepted because the
+ * hash alone matched.
+ *
  * PURE aside from the injected probes. No network, no database, no
  * filesystem of its own, no child process, no provider.
  */
@@ -62,7 +70,7 @@ export interface AllTenPreflightInput {
   readonly sha256: (bytes: Buffer) => string;
   readonly nowUtc: () => Date;
   readonly currentHead: () => string;
-  readonly alreadyConsumed: (authorisationSha256: string) => boolean;
+  readonly alreadyConsumed: (authorisationSha256: string, outputRoot: string) => boolean;
   readonly sequencingProbes: SlotEvidenceProbes;
   readonly outputRootProbes: SlotOutputRootProbes;
   readonly forbiddenOutputRootContainers: readonly string[];
@@ -132,11 +140,26 @@ export function runAllTenPreflight(input: AllTenPreflightInput): AllTenPreflight
 
     let listedInApproval = false;
     if (studyApproval.granted && lock.granted) {
-      listedInApproval =
-        studyApproval.approval.slots.find((entry) => entry.slotId === slot.slotId)
-          ?.candidateAuthorisationSha256 === lock.authorisationSha256;
-      if (!listedInApproval) {
+      const approvalEntry = studyApproval.approval.slots.find(
+        (entry) => entry.slotId === slot.slotId,
+      );
+      if (
+        approvalEntry === undefined ||
+        approvalEntry.candidateAuthorisationSha256 !== lock.authorisationSha256
+      ) {
         problems.push('the study approval does not list this exact candidate for this slot.');
+      } else if (approvalEntry.candidateAuthorisationBytes !== lock.authorisationBytes) {
+        // Correct SHA, wrong length: the approval's own byte-length claim for
+        // this slot's candidate does not match what was actually read — the
+        // same immutable buffer the hash above was computed from, never a
+        // second, independent read.
+        problems.push(
+          `APPROVAL_CANDIDATE_BYTES_MISMATCH: the study approval lists byte length ` +
+            `${approvalEntry.candidateAuthorisationBytes} for this slot's candidate; the candidate ` +
+            `file actually read as ${lock.authorisationBytes} bytes.`,
+        );
+      } else {
+        listedInApproval = true;
       }
     } else if (!studyApproval.granted) {
       problems.push(`study approval: ${studyApproval.refusal} — ${studyApproval.detail}`);

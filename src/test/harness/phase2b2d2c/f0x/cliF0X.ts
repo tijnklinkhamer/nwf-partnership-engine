@@ -47,10 +47,11 @@ import {
   F0O_FREEZE_PATH,
   loadF0OFreezeFromBytes,
 } from '../f0o/freezeF0O.js';
-import { F0V_FREEZE_PATH, F0V_STUDY_ROOT } from '../f0v/freezeF0V.js';
+import { F0V_FREEZE_PATH } from '../f0v/freezeF0V.js';
 import { type SlotEvidenceProbes } from '../f0w/sequencing.js';
 import { loadStudySlotRegistry, type StudySlotRegistry } from '../f0w/slotRegistry.js';
 import { runAllTenPreflight, type AllTenPreflightDecision } from './allTenPreflight.js';
+import { isConsumedByOuterSlotIdentity } from './outerSlotIdentity.js';
 import { runReplicationStudyExecution, type StudyExecutionOutcome } from './studyExecutor.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -197,6 +198,21 @@ function outputRootProbes(): OutputRootProbes {
   };
 }
 
+/**
+ * SLOT-SCOPED: `outputRoot` is always the SLOT'S OWN frozen output root
+ * (never `F0V_STUDY_ROOT` — the earlier defect this closes was checking the
+ * study root, under which no coordinator marker ever lives). Treats EITHER
+ * a matching valid F0X outer-slot-identity record OR the coordinator's own
+ * matching legacy `authorisations/<sha>.json` marker as spent, per
+ * `outerSlotIdentity.ts`'s consumption-semantics contract.
+ */
+function isF0XSlotAuthorisationConsumed(authorisationSha256: string, outputRoot: string): boolean {
+  return (
+    isConsumedByOuterSlotIdentity(outputRoot, authorisationSha256, (p) => readFileSync(p)) ||
+    isAuthorisationConsumed(outputRoot, authorisationSha256)
+  );
+}
+
 function sequencingProbes(): SlotEvidenceProbes {
   return {
     isDirectory: (path) => {
@@ -270,7 +286,7 @@ export async function runF0XCli(argv: readonly string[], io: F0XCliIo): Promise<
     readFile: (p) => readFileSync(p),
     sha256: sha256Hex,
     currentHead,
-    alreadyConsumed: (sha) => isAuthorisationConsumed(F0V_STUDY_ROOT, sha),
+    alreadyConsumed: isF0XSlotAuthorisationConsumed,
     sequencingProbes: sequencingProbes(),
     outputRootProbes: outputRootProbes(),
     forbiddenOutputRootContainers: forbiddenContainers,

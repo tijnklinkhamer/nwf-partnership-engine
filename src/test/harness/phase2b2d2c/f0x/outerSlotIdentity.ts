@@ -21,6 +21,30 @@
  * because importing `envelopeOf` would require an `ArtifactKind` this
  * record deliberately is not one of.
  *
+ * F0X CORRECTIVE CLOSURE — CONSUMPTION SEMANTICS, STATED EXPLICITLY: this
+ * record's durable, write-once CREATION under `record.outputRoot` IS the
+ * act that consumes a slot's F0X per-slot authorisation for
+ * replication-study purposes. It is not a note ABOUT consumption written
+ * after the fact — it is the authoritative F0X per-slot
+ * authorisation-consumption fact. `consumedAtUtc` is therefore truthful: the
+ * instant this write durably lands is the instant the authorisation is
+ * spent. `coordinator.ts`'s own later `authorisations/<sha>.json` marker
+ * (written by `runExperiment`, once it starts) remains a SEPARATE, additional,
+ * INNER historical-run consumption marker — a legacy fact about that
+ * pre-existing machinery, not this record's replacement. A caller answering
+ * "has this slot's F0X authorisation already been consumed?" must treat
+ * EITHER a matching valid outer-identity record (this module,
+ * `isConsumedByOuterSlotIdentity`) OR a matching legacy coordinator marker
+ * (`coordinator.ts`'s `isAuthorisationConsumed`) as spent — never only one of
+ * the two, and never a study-wide root in place of the SLOT's own output
+ * root. A process crash strictly BEFORE this record's write leaves no trace
+ * of either kind: that failure is Class A
+ * (`FAILURE_BEFORE_AUTHORISATION_CONSUMPTION`, `sequencing.ts`), genuinely
+ * indistinguishable from "never attempted". A crash AFTER this record's
+ * write but before `runExperiment` ever starts is a DIFFERENT, confirmed
+ * fact — `AUTHORISATION_CONSUMED_CONFIRMED_PRE_INFERENCE_REFUSAL` (Class B)
+ * — because this record already exists.
+ *
  * PURE aside from the injected clock and writer. No network, no database.
  */
 import { join } from 'node:path';
@@ -124,4 +148,27 @@ export function readOuterSlotIdentity(
     };
   }
   return { ok: true, envelope: envelope as OuterSlotIdentityEnvelope };
+}
+
+/**
+ * Request-free: true iff a VALID outer-slot identity record already exists
+ * under `outputRoot` (re-verified via `readOuterSlotIdentity`'s own
+ * recomputed-hash check — a corrupt or tampered record is never trusted)
+ * AND that record names EXACTLY `authorisationSha256` as the candidate it
+ * consumed. This is HALF of the slot-scoped consumption answer (see the
+ * module docstring): a caller determining whether a slot's F0X
+ * authorisation has been consumed combines this with the coordinator's own
+ * legacy marker check (`coordinator.ts`'s `isAuthorisationConsumed`, scoped
+ * to the SAME slot output root) and treats either as spent. A missing or
+ * corrupt record here is never itself evidence of non-consumption — it is
+ * simply this half's own "no" — because the legacy marker may still say
+ * "yes".
+ */
+export function isConsumedByOuterSlotIdentity(
+  outputRoot: string,
+  authorisationSha256: string,
+  readFile: (path: string) => Buffer,
+): boolean {
+  const read = readOuterSlotIdentity(outputRoot, readFile);
+  return read.ok && read.envelope.record.candidateAuthorisationSha256 === authorisationSha256;
 }
