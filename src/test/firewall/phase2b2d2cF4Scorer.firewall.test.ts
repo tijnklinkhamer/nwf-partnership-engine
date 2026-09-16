@@ -231,6 +231,7 @@ describe('2D2C-F0X: the N=5 replication scorer is pinned, gold-free until scorin
       .replace(/^\s*\/\/.*$/gm, '');
   const REPLICATION_FILES = [
     'replicationContract.ts',
+    'replicationComparator.ts',
     'replicationSources.ts',
     'replicationScore.ts',
     'replicationSummarise.ts',

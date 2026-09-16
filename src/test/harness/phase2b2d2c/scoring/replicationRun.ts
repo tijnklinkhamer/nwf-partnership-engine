@@ -42,6 +42,7 @@ import { sha256Hex } from '../freeze.js';
 import { F4_HOLDOUT_ITEM_COUNT, F4_OPEN_OWNER_GOLD_ID } from './constants.js';
 import { loadOwnerAdjudication, type LoadedOwnerAdjudication } from './adjudication.js';
 import { resolveGoldAvailability, type GoldAvailability } from './gold.js';
+import { assertSharedAttempt1Comparator } from './replicationComparator.js';
 import {
   buildPartialReplicateClarification,
   INCLUDED_N_PER_PROMPT,
@@ -363,12 +364,17 @@ export function runReplicationStudyScoring(
       canonicalStringify(v5Freeze.scoring.scoringInputs.devLabelsFixture) ||
     canonicalStringify(v4Freeze.scoring.scoringInputs.ownerAdjudicationRecord) !==
       canonicalStringify(v5Freeze.scoring.scoringInputs.ownerAdjudicationRecord) ||
-    canonicalStringify(v4Freeze.scoring.comparatorPolicy.attempt1) !==
-      canonicalStringify(v5Freeze.scoring.comparatorPolicy.attempt1) ||
     canonicalStringify(v4Freeze.unresolvedGold) !== canonicalStringify(v5Freeze.unresolvedGold)
   ) {
     fail('the F0I and F0O freezes pin different scoring inputs.');
   }
+  // The attempt-1 comparator is compared on its SHARED provenance only: each
+  // freeze also carries its own attempt-local namespace assertion, which is
+  // supposed to differ and is checked separately, against its own key.
+  assertSharedAttempt1Comparator(
+    v4Freeze.scoring.comparatorPolicy.attempt1,
+    v5Freeze.scoring.comparatorPolicy.attempt1,
+  );
   const scoringInputs = v5Freeze.scoring.scoringInputs;
   verifyPinnedScoringInput(
     repoRoot,
