@@ -60,7 +60,8 @@ export type ScoredVariantName =
   | 'PROMPT_V2_CANONICAL'
   | 'PROMPT_V3_CANONICAL'
   | 'PROMPT_V4_CANONICAL'
-  | 'PROMPT_V5_CANONICAL';
+  | 'PROMPT_V5_CANONICAL'
+  | 'PROMPT_V6_CANONICAL';
 
 export class ScoringSourceError extends Error {
   override readonly name = 'ScoringSourceError';
@@ -111,13 +112,22 @@ export const PlannedInputSchema = z.looseObject({
   // ONE variant its freeze schedules (`attempt3Sources.ts` refuses any
   // V1/V2/V3 directory in the attempt-3 namespace outright, and
   // `attempt4Sources.ts` refuses any V1/V2/V3/V4 directory in the attempt-4
-  // namespace outright). PROMPT_V6_CANONICAL remains deliberately unadmitted.
+  // namespace outright).
+  //
+  // 2B-2D2C-F2 admits PROMPT_V6_CANONICAL, the DELIBERATE, REVIEWED widening
+  // this comment has predicted at every attempt. It admits a NAME and nothing
+  // else: it grants no reliability semantics, no gate change and no scorer
+  // capability. A V6 run still names RELIABILITY_SEMANTICS_V2 in its
+  // manifest, which the historical v1 reader continues to REFUSE at
+  // `assertScorerReliabilitySemantics` - so widening this set does not let
+  // the Recovery-1 scorer read a V6 study.
   variantName: z.enum([
     'PROMPT_V1_CANONICAL',
     'PROMPT_V2_CANONICAL',
     'PROMPT_V3_CANONICAL',
     'PROMPT_V4_CANONICAL',
     'PROMPT_V5_CANONICAL',
+    'PROMPT_V6_CANONICAL',
   ]),
   variantLabel: z.string(),
   variantOrder: z.number().int(),
