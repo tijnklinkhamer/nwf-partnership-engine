@@ -73,6 +73,8 @@ import {
   type StudySlotIdentity,
   type StudyVariantName,
 } from '../f0v/studyPlanCore.js';
+import { RELIABILITY_SEMANTICS_V1_HISTORICAL } from '../constants.js';
+import { assertScorerReliabilitySemantics } from './reliabilitySemantics.js';
 import {
   INVALID_NON_TERMINAL_PROVIDER_OUTCOMES,
   type ReplicateStatus,
@@ -212,6 +214,10 @@ const ExperimentManifestSchema = z.looseObject({
   plannedLogicalEvaluations: z.number().int(),
   variantRoots: z.record(z.string(), z.string()),
   authorisationSha256: z.string(),
+  // 2D2C-F0Z: OPTIONAL by design. Recovery-1 wrote no such field, so its
+  // absence means the historical v1 semantics and every historical manifest
+  // parses byte-for-byte as before.
+  reliabilitySemanticsVersion: z.string().optional(),
 });
 
 const ExperimentStopSchema = z.looseObject({
@@ -606,6 +612,17 @@ export function loadReplicate(
   ) {
     fail(`${outputRoot}: the experiment manifest is not the frozen ${slot.slotId} experiment.`);
   }
+  // 2D2C-F0Z: FAIL CLOSED on a semantics mismatch. THIS SCORER IS THE
+  // HISTORICAL RECOVERY-1 READER and implements v1 only. A manifest with no
+  // version field is v1 by definition and passes untouched - which is every
+  // Recovery-1 manifest, so this changes nothing about how history reads. A
+  // manifest that NAMES v2 is refused here rather than silently scored as
+  // though its denominator were composed the same way.
+  assertScorerReliabilitySemantics(
+    manifest.reliabilitySemanticsVersion,
+    RELIABILITY_SEMANTICS_V1_HISTORICAL,
+    `${outputRoot}: experiment manifest`,
+  );
   const hasCompletion = experimentFiles.includes(ARTIFACT_FILE_NAMES.EXPERIMENT_COMPLETION);
   const hasStop = experimentFiles.includes(ARTIFACT_FILE_NAMES.EXPERIMENT_STOP);
   const expectedExperimentFiles = [
