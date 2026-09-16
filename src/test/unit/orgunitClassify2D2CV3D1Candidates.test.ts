@@ -9,19 +9,17 @@
  * organisation identifiers, URLs, gold ids, digits, copied titles and
  * evaluation vocabulary.
  *
- * 2D2C-V3: the production prompt is now v3 = v2 + Candidate B (carrying A)
- * + Candidate C. The frozen v2 base is RECONSTRUCTED from it through the
- * harness lineage, the record's candidates are applied to that base, and
- * applying B + C to it must reproduce the production v3 byte for byte.
+ * 2D2C-V3: the v3 prompt is v2 + Candidate B (carrying A) + Candidate C.
+ * 2B-2D2C-F2 integrated v6 onto the accepted F0Z runtime, so v3 is no
+ * longer this build's production text and is RECONSTRUCTED from it through
+ * the harness lineage (v6 -> v5 -> v4 -> v3); the frozen v2 base is
+ * reconstructed one step further, the record's candidates are applied to
+ * that base, and applying B + C must reproduce v3 byte for byte.
  */
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import {
-  ORGUNIT_CLASSIFIER_PROMPT_VERSION,
-  ORGUNIT_CLASSIFIER_SYSTEM_PROMPT,
-} from '../../orgunits/classify/prompt.js';
 import {
   applyCandidateDelta,
   CandidateDeltaError,
@@ -32,7 +30,12 @@ import {
   v2FromV3,
   V3_DELTA_OPERATIONS,
   V3_PROMPT_SHA256,
+  V3_PROMPT_VERSION,
 } from '../harness/phase2b2d2c/promptLineage.js';
+import { v3PromptText } from './support/phase2b2d2cSyntheticRoot.js';
+
+/** The frozen v3 prompt, reconstructed from this build's v6 production text. */
+const PROMPT_V3 = v3PromptText();
 
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const RECORD_PATH = 'docs/evaluation/PHASE_2B_2D2C_PROMPT_V3_DESIGN_CANDIDATES_V1.json';
@@ -56,8 +59,8 @@ interface DesignRecord {
 
 const record = JSON.parse(readFileSync(join(REPO_ROOT, RECORD_PATH), 'utf8')) as DesignRecord;
 const sha256 = (text: string): string => createHash('sha256').update(text, 'utf8').digest('hex');
-/** The frozen Prompt V2 base, reconstructed from the production v3 prompt (2D2C-V3). */
-const PROMPT_V2 = v2FromV3(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+/** The frozen Prompt V2 base, reconstructed one step below the v3 prompt (2D2C-V3). */
+const PROMPT_V2 = v2FromV3(PROMPT_V3);
 const devTitles = readFileSync(join(REPO_ROOT, DEV_LABELS), 'utf8')
   .trim()
   .split('\n')
@@ -72,9 +75,9 @@ describe('the design record is anchored on the frozen Prompt V2, which the produ
     expect(sha256(PROMPT_V2)).toBe(V2_SHA256);
   });
 
-  it("2D2C-V3: the production prompt is v3, and it IS the record's Candidate B (carrying A) plus C applied to v2", () => {
-    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v3');
-    expect(sha256(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT)).toBe(V3_PROMPT_SHA256);
+  it("2D2C-V3: the v3 prompt IS the record's Candidate B (carrying A) plus C applied to v2", () => {
+    expect(V3_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v3');
+    expect(sha256(PROMPT_V3)).toBe(V3_PROMPT_SHA256);
     const b = record.candidates.find((c) => c.id === 'B')!;
     const c = record.candidates.find((c) => c.id === 'C')!;
     const a = record.candidates.find((c) => c.id === 'A')!;
@@ -91,7 +94,7 @@ describe('the design record is anchored on the frozen Prompt V2, which the produ
       changesPromptIdentity: true,
     };
     const applied = applyCandidateDelta(PROMPT_V2, combined);
-    expect(applied.text).toBe(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+    expect(applied.text).toBe(PROMPT_V3);
     expect(applied.characterDelta).toBe(2_708);
     expect(applied.utf8ByteDelta).toBe(2_706);
     // The harness lineage carries the same three operations, byte for byte.

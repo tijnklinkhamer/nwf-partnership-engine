@@ -55,11 +55,16 @@ import {
 } from '../../orgunits/classify/evaluation/protocol.js';
 import { computeFinalInputSha256 } from '../../orgunits/classify/finalIdentity.js';
 import { ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION } from '../../orgunits/classify/outputSchema.js';
-import {
-  ORGUNIT_CLASSIFIER_PROMPT_VERSION,
-  ORGUNIT_CLASSIFIER_SYSTEM_PROMPT,
-} from '../../orgunits/classify/prompt.js';
-import { v2FromV3 } from '../harness/phase2b2d2c/promptLineage.js';
+import { ORGUNIT_CLASSIFIER_SYSTEM_PROMPT } from '../../orgunits/classify/prompt.js';
+import { v2FromV3, V3_PROMPT_VERSION } from '../harness/phase2b2d2c/promptLineage.js';
+import { v3PromptText } from './support/phase2b2d2cSyntheticRoot.js';
+
+/**
+ * The frozen V3 prompt text. 2B-2D2C-F2 integrated v6 onto the accepted F0Z
+ * runtime, so V3 is no longer this build's production text and is
+ * RECONSTRUCTED from it by reversing the exact reviewed deltas.
+ */
+const PROMPT_V3 = v3PromptText();
 import {
   AGENT_SDK_STDERR_TAIL_MAX_CHARS,
   CLASSIFIER_CALL_HARD_KILL_GRACE_MS,
@@ -1048,18 +1053,19 @@ describe('2D2C-F0 freeze: classifier configuration against production exports', 
     expect(v1!.order).toBeLessThan(v2!.order);
   });
 
-  it('the frozen v2 identity is reconstructible from the current production prompt (v3) without Git', () => {
-    // 2D2C-V3: production is v3; the freeze still names v2 and v1, both of
-    // which are reconstructed by reversing the exact reviewed deltas.
-    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v3');
-    const v2 = v2FromV3(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+  it('the frozen v2 identity is reconstructible from the reconstructed v3 prompt without Git', () => {
+    // 2D2C-V3: the freeze names v2 and v1; 2B-2D2C-F2 made v6 production, so
+    // v3 itself is reconstructed first. All three come from reversing the
+    // exact reviewed deltas, never from Git.
+    expect(V3_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v3');
+    const v2 = v2FromV3(PROMPT_V3);
     expect(v2.length).toBe(11304);
     expect(Buffer.byteLength(v2, 'utf8')).toBe(11382);
     expect(sha256(v2)).toBe(EXPECTED.v2PromptSha256);
   });
 
   it('removing the five reviewed insertions from v2 reproduces the frozen v1 identity without Git', () => {
-    let stripped = v2FromV3(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+    let stripped = v2FromV3(PROMPT_V3);
     for (const paragraph of V2_PARAGRAPH_INSERTIONS) {
       const block = `\n\n${paragraph}`;
       expect(stripped.split(block)).toHaveLength(2);

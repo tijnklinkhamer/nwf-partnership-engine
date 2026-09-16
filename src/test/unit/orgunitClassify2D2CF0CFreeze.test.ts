@@ -35,10 +35,6 @@ import { canonicalStringify } from '../../orgunits/classify/canonical.js';
 import { ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION } from '../../orgunits/classify/constants.js';
 import { computeFinalInputSha256 } from '../../orgunits/classify/finalIdentity.js';
 import { ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION } from '../../orgunits/classify/outputSchema.js';
-import {
-  ORGUNIT_CLASSIFIER_PROMPT_VERSION,
-  ORGUNIT_CLASSIFIER_SYSTEM_PROMPT,
-} from '../../orgunits/classify/prompt.js';
 import { ORGUNIT_CLASSIFIER_ALLOWED_MODELS } from '../../orgunits/classify/provider/allowedModels.js';
 import {
   CLASSIFIER_CALL_HARD_KILL_GRACE_MS,
@@ -82,7 +78,19 @@ import {
   type F0CFreeze,
 } from '../harness/phase2b2d2c/f0c/freezeF0C.js';
 import { freezeRepairPolicy, loadFreezeFromBytes } from '../harness/phase2b2d2c/freeze.js';
-import { V3_PROMPT_SHA256, V3_PROMPT_SIZE } from '../harness/phase2b2d2c/promptLineage.js';
+import {
+  V3_PROMPT_SHA256,
+  V3_PROMPT_SIZE,
+  V3_PROMPT_VERSION,
+} from '../harness/phase2b2d2c/promptLineage.js';
+import { v3PromptText } from './support/phase2b2d2cSyntheticRoot.js';
+
+/**
+ * The frozen V3 prompt text. 2B-2D2C-F2 integrated v6 onto the accepted F0Z
+ * runtime, so V3 is no longer this build's production text and is
+ * RECONSTRUCTED from it by reversing the exact reviewed deltas.
+ */
+const PROMPT_V3 = v3PromptText();
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const sha256 = (b: Buffer | string): string => createHash('sha256').update(b).digest('hex');
@@ -152,19 +160,15 @@ describe('2D2C-F0C: identity, status and the proposed hash', () => {
 });
 
 describe('2D2C-F0C: the one variant, recomputed from the PRODUCTION V3 bytes', () => {
-  it('names PROMPT_V3_CANONICAL / PROMPT_V3_CANDIDATE at the V3 commit with the production prompt identity', () => {
+  it('names PROMPT_V3_CANONICAL / PROMPT_V3_CANDIDATE at the V3 commit with the reconstructed V3 prompt identity', () => {
     const [variant] = F0C.freeze.classifier.variants;
     expect(F0C.freeze.classifier.variants).toHaveLength(1);
     expect(variant).toEqual(F0C_VARIANT);
-    expect(variant!.promptVersion).toBe(ORGUNIT_CLASSIFIER_PROMPT_VERSION);
-    expect(variant!.runtimePromptSha256).toBe(
-      sha256(Buffer.from(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT, 'utf8')),
-    );
+    expect(variant!.promptVersion).toBe(V3_PROMPT_VERSION);
+    expect(variant!.runtimePromptSha256).toBe(sha256(Buffer.from(PROMPT_V3, 'utf8')));
     expect(variant!.runtimePromptSha256).toBe(V3_PROMPT_SHA256);
-    expect(variant!.runtimePromptCharacters).toBe([...ORGUNIT_CLASSIFIER_SYSTEM_PROMPT].length);
-    expect(variant!.runtimePromptUtf8Bytes).toBe(
-      Buffer.byteLength(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT, 'utf8'),
-    );
+    expect(variant!.runtimePromptCharacters).toBe([...PROMPT_V3].length);
+    expect(variant!.runtimePromptUtf8Bytes).toBe(Buffer.byteLength(PROMPT_V3, 'utf8'));
     expect(variant!.runtimePromptCharacters).toBe(V3_PROMPT_SIZE.characters);
     expect(variant!.runtimePromptUtf8Bytes).toBe(V3_PROMPT_SIZE.utf8Bytes);
   });
@@ -826,10 +830,10 @@ describe('2D2C-F0C: the owner freeze-approval record names exactly the frozen by
     expect(record.approvedIdentities.runtimeCommit).toBe(variant.gitCommit);
     expect(record.approvedIdentities.runtimeCommit).toBe(F0C.freeze.git.v3Runtime.commit);
     expect(record.approvedIdentities.r1Commit).toBe(F0C.freeze.git.r1RepairReliability.commit);
-    expect(record.approvedIdentities.promptVersion).toBe(ORGUNIT_CLASSIFIER_PROMPT_VERSION);
+    expect(record.approvedIdentities.promptVersion).toBe(V3_PROMPT_VERSION);
     expect(record.approvedIdentities.promptSha256).toBe(V3_PROMPT_SHA256);
     expect(record.approvedIdentities.promptSha256).toBe(
-      createHash('sha256').update(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT, 'utf8').digest('hex'),
+      createHash('sha256').update(PROMPT_V3, 'utf8').digest('hex'),
     );
     expect(record.approvedIdentities.predecessorF0BRawSha256).toBe(
       F0C.freeze.predecessor.rawSha256,

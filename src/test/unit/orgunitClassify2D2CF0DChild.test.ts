@@ -21,7 +21,6 @@ import * as canonicalModule from '../../orgunits/classify/canonical.js';
 import * as constantsModule from '../../orgunits/classify/constants.js';
 import * as finalIdentityModule from '../../orgunits/classify/finalIdentity.js';
 import * as outputSchemaModule from '../../orgunits/classify/outputSchema.js';
-import * as promptModule from '../../orgunits/classify/prompt.js';
 import * as allowedModelsModule from '../../orgunits/classify/provider/allowedModels.js';
 import * as authStatusRunnerModule from '../../orgunits/classify/provider/authStatusRunner.js';
 import * as claudeCodeExecutableModule from '../../orgunits/classify/provider/claudeCodeExecutable.js';
@@ -60,6 +59,7 @@ import {
 import { EXPECTED_F0B_FREEZE_RAW_SHA256 } from '../harness/phase2b2d2c/constants.js';
 import { sha256Hex } from '../harness/phase2b2d2c/freeze.js';
 import type { LoadedVariantRuntime } from '../harness/phase2b2d2c/runtimeLoader.js';
+import { v3PromptText } from './support/phase2b2d2cSyntheticRoot.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const F0C_BYTES = readFileSync(join(ROOT, F0E_FREEZE_PATH));
@@ -78,6 +78,18 @@ const plan = buildF0EExecutionPlan(freeze, rawSha256);
 const V3_BATCH_1 = plan.evaluations[0]!;
 const BATCH_1 = batches[0]!;
 const VARIANT_ROOT = '/synthetic/variant-root-v3';
+
+/**
+ * The frozen V3 runtime prompt module, RECONSTRUCTED from this build's own
+ * v6 production text (2B-2D2C-F2 integrated v6 onto the accepted F0Z
+ * runtime). Each reversal fails closed unless its region occurs exactly
+ * once, and `F0E_VARIANT.runtimePromptSha256` is asserted below, so a
+ * drifted reconstruction cannot pass as V3.
+ */
+const V3_PROMPT_MODULE = {
+  ORGUNIT_CLASSIFIER_PROMPT_VERSION: F0E_VARIANT.promptVersion,
+  ORGUNIT_CLASSIFIER_SYSTEM_PROMPT: v3PromptText(),
+} as const;
 
 const scratchDirs: string[] = [];
 afterEach(() => {
@@ -114,8 +126,11 @@ function fakeRuntime(withRepair: boolean): LoadedVariantRuntime {
     ) as LoadedVariantRuntime['moduleUrls'],
     canonical: canonicalModule,
     finalIdentity: finalIdentityModule,
-    // The production prompt of THIS worktree IS the frozen V3 prompt.
-    prompt: promptModule,
+    // 2B-2D2C-F2: this worktree's production prompt is now v6, so the frozen
+    // V3 runtime this F0E child is verified against is RECONSTRUCTED from it
+    // by reversing the exact reviewed v6->v5->v4->v3 deltas. A variant root
+    // is defined by what IT exports, never by whatever this build ships.
+    prompt: V3_PROMPT_MODULE,
     outputSchema: outputSchemaModule,
     validate: validateModule,
     constants: constantsModule,
@@ -310,7 +325,7 @@ describe('2D2C-F0D child under an F0E manifest: the freeze policy governs the on
     expect(outcome).toEqual({ exitCode: 0, stopCondition: null, providerOutcome: 'OK' });
     expect(h.factoryCalls()).toBe(1);
     expect(h.requests).toHaveLength(2);
-    expect(h.requests[0]?.systemPrompt).toBe(promptModule.ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+    expect(h.requests[0]?.systemPrompt).toBe(V3_PROMPT_MODULE.ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
     expect(sha256Hex(h.requests[0]!.systemPrompt)).toBe(F0E_VARIANT.runtimePromptSha256);
     const preflight = record<{ ok: boolean; detail: string }>(dir, 'CHILD_PREFLIGHT');
     expect(preflight?.ok).toBe(true);

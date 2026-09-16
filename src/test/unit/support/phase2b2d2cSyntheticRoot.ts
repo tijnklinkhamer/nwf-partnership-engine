@@ -46,7 +46,13 @@ import { ORGUNIT_CLASSIFIER_SYSTEM_PROMPT } from '../../../orgunits/classify/pro
 import { FROZEN_VARIANTS } from '../../harness/phase2b2d2c/constants.js';
 import { F0E_VARIANT } from '../../harness/phase2b2d2c/f0c/freezeF0E.js';
 import type { Freeze } from '../../harness/phase2b2d2c/freeze.js';
-import { v1FromV2, v2FromV3 } from '../../harness/phase2b2d2c/promptLineage.js';
+import {
+  v1FromV2,
+  v2FromV3,
+  v3FromV4,
+  v4FromV5,
+  v5FromV6,
+} from '../../harness/phase2b2d2c/promptLineage.js';
 import {
   OPTIONAL_RUNTIME_MODULE_PATHS,
   RUNTIME_MODULE_PATHS,
@@ -74,23 +80,50 @@ const FIXTURE_STACK = join(
 );
 
 /**
- * The frozen v2 comparator prompt text, RECONSTRUCTED from the production
- * v3 prompt by reversing the exact 2D2C-V3 delta; and the v1 comparator
- * text, reconstructed from that by removing the five 2D2B-3 insertions —
- * exactly as the freeze and prompt tests derive them, without Git.
+ * EVERY HISTORICAL COMPARATOR TEXT IS RECONSTRUCTED FROM THE ONE PRODUCTION
+ * PROMPT, WITHOUT GIT.
+ *
+ * 2B-2D2C-F2 integrated the approved v6 prompt onto the accepted F0Z
+ * runtime, so the production text this build exports is now v6 rather than
+ * v3. The synthetic roots the F0B/F0C/F0I/F0O freezes are verified against
+ * still need their own exact v1/v2/v3/v4/v5 texts, so each one is derived by
+ * reversing the exact reviewed delta chain, one version at a time —
+ * `v5FromV6`, `v4FromV5`, `v3FromV4`, `v2FromV3`, `v1FromV2`. Each reversal
+ * fails closed unless its region occurs exactly once, so a drifted prompt
+ * cannot silently produce a plausible-looking comparator.
  */
+export function v5PromptText(): string {
+  return v5FromV6(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+}
+
+export function v4PromptText(): string {
+  return v4FromV5(v5PromptText());
+}
+
+export function v3PromptText(): string {
+  return v3FromV4(v4PromptText());
+}
+
 export function v2PromptText(): string {
-  return v2FromV3(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+  return v2FromV3(v3PromptText());
 }
 
 export function v1PromptText(): string {
   return v1FromV2(v2PromptText());
 }
 
-/** v1 and v2 are RECONSTRUCTED comparator texts; every other name (the F0C V3 variant) is the production prompt itself. */
+/**
+ * The exact text a frozen variant name denotes. Every name resolves to a
+ * RECONSTRUCTED text except the production version itself — the default is
+ * deliberately the production prompt, so a root built for an unnamed future
+ * variant still carries whatever this build actually ships.
+ */
 export function promptTextOf(variantName: string): string {
   if (variantName === 'PROMPT_V1_CANONICAL') return v1PromptText();
   if (variantName === 'PROMPT_V2_CANONICAL') return v2PromptText();
+  if (variantName === 'PROMPT_V3_CANONICAL') return v3PromptText();
+  if (variantName === 'PROMPT_V4_CANONICAL') return v4PromptText();
+  if (variantName === 'PROMPT_V5_CANONICAL') return v5PromptText();
   return ORGUNIT_CLASSIFIER_SYSTEM_PROMPT;
 }
 
