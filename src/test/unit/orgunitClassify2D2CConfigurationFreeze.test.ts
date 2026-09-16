@@ -59,7 +59,7 @@ import {
   ORGUNIT_CLASSIFIER_PROMPT_VERSION,
   ORGUNIT_CLASSIFIER_SYSTEM_PROMPT,
 } from '../../orgunits/classify/prompt.js';
-import { v2FromV3, v3FromV4, v4FromV5 } from '../harness/phase2b2d2c/promptLineage.js';
+import { v2FromV3, v3FromV4, v4FromV5, v5FromV6 } from '../harness/phase2b2d2c/promptLineage.js';
 import {
   AGENT_SDK_STDERR_TAIL_MAX_CHARS,
   CLASSIFIER_CALL_HARD_KILL_GRACE_MS,
@@ -1048,12 +1048,12 @@ describe('2D2C-F0 freeze: classifier configuration against production exports', 
     expect(v1!.order).toBeLessThan(v2!.order);
   });
 
-  it('the frozen v2 identity is reconstructible from the current production prompt (v5) without Git', () => {
-    // 2D2C-F0N/V5I1: production is now v5 (v4 + E1); the freeze still
+  it('the frozen v2 identity is reconstructible from the current production prompt (v6) without Git', () => {
+    // 2D2C-F1/V6I1: production is now v6 (v5 + R1/R2/R3); the freeze still
     // names v2 and v1, both reconstructed by reversing the exact reviewed
-    // deltas in sequence: v5 -> v4 -> v3 -> v2 -> v1.
-    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v5');
-    const v4 = v4FromV5(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+    // deltas in sequence: v6 -> v5 -> v4 -> v3 -> v2 -> v1.
+    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v6');
+    const v4 = v4FromV5(v5FromV6(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT));
     const v3 = v3FromV4(v4);
     const v2 = v2FromV3(v3);
     expect(v2.length).toBe(11304);
@@ -1062,7 +1062,7 @@ describe('2D2C-F0 freeze: classifier configuration against production exports', 
   });
 
   it('removing the five reviewed insertions from v2 reproduces the frozen v1 identity without Git', () => {
-    let stripped = v2FromV3(v3FromV4(v4FromV5(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT)));
+    let stripped = v2FromV3(v3FromV4(v4FromV5(v5FromV6(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT))));
     for (const paragraph of V2_PARAGRAPH_INSERTIONS) {
       const block = `\n\n${paragraph}`;
       expect(stripped.split(block)).toHaveLength(2);

@@ -84,11 +84,11 @@ describe('computeFinalInputSha256', () => {
     expect(v2Hash).not.toBe(v1Hash);
   });
 
-  it('the real v5 prompt version hashes differently from the explicit v1 comparator (2D2B-3, 2D2C-V3, 2D2C-V4I1 and 2D2C-F0N/V5I1 bumps)', () => {
+  it('the real v6 prompt version hashes differently from the explicit v1 comparator (2D2B-3, 2D2C-V3, 2D2C-V4I1, 2D2C-F0N/V5I1 and 2D2C-F1/V6I1 bumps)', () => {
     // Same assembly hash, same production output schema version - only the
     // prompt version differs. A completed prompt-v1 call must never be
-    // reused as though it answered the prompt-v5 question.
-    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v5');
+    // reused as though it answered the prompt-v6 question.
+    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v6');
     expect(BASE.promptVersion).toBe('orgunit-classifier-prompt-v1');
     const shared = {
       assemblyInputSha256: BASE.assemblyInputSha256,

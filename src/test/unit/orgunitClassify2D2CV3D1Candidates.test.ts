@@ -32,6 +32,7 @@ import {
   v2FromV3,
   v3FromV4,
   v4FromV5,
+  v5FromV6,
   V3_DELTA_OPERATIONS,
   V3_PROMPT_SHA256,
 } from '../harness/phase2b2d2c/promptLineage.js';
@@ -63,7 +64,7 @@ const sha256 = (text: string): string => createHash('sha256').update(text, 'utf8
  * (2D2C-F0N/V5I1: the production prompt is now v4 + E1, never v3 itself;
  * reverse v5 -> v4 -> v3 in sequence).
  */
-const RECONSTRUCTED_V3 = v3FromV4(v4FromV5(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT));
+const RECONSTRUCTED_V3 = v3FromV4(v4FromV5(v5FromV6(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT)));
 /** The frozen Prompt V2 base, reconstructed from the reconstructed v3 (2D2C-V3). */
 const PROMPT_V2 = v2FromV3(RECONSTRUCTED_V3);
 const devTitles = readFileSync(join(REPO_ROOT, DEV_LABELS), 'utf8')
@@ -80,8 +81,8 @@ describe('the design record is anchored on the frozen Prompt V2, which the produ
     expect(sha256(PROMPT_V2)).toBe(V2_SHA256);
   });
 
-  it("2D2C-V3 (reconstructed): the production v5 prompt's v3 lineage IS the record's Candidate B (carrying A) plus C applied to v2", () => {
-    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v5');
+  it("2D2C-V3 (reconstructed): the production v6 prompt's v3 lineage IS the record's Candidate B (carrying A) plus C applied to v2", () => {
+    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v6');
     expect(sha256(RECONSTRUCTED_V3)).toBe(V3_PROMPT_SHA256);
     const b = record.candidates.find((c) => c.id === 'B')!;
     const c = record.candidates.find((c) => c.id === 'C')!;

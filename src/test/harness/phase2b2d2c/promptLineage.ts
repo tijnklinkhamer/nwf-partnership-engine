@@ -1,11 +1,16 @@
 /**
- * PHASE 2B-2D2C-V4I1/V5I1 — THE PROMPT LINEAGE, AS EXACT TEXT DELTAS.
+ * PHASE 2B-2D2C-V4I1/V5I1/F1-V6I1 — THE PROMPT LINEAGE, AS EXACT TEXT DELTAS.
  *
  * The production prompt (`src/orgunits/classify/prompt.ts`) is ONE string
  * at ONE version. Earlier frozen identities are never kept as second
  * strings anywhere in production; they are RECONSTRUCTED from the current
  * prompt by removing the exact reviewed deltas, and pinned by SHA-256:
  *
+ *   v6 -> v5 : reverse exactly R1, R2 and R3 - replace each of the three
+ *              V6 replacement texts by the one V5 region it replaced
+ *              (Phase 2B-2D2C-F1, owner decision
+ *              `APPROVE_V6_R1_R2_R3_IMPLEMENTATION_FOR_FREEZE_REVIEW_ONLY`,
+ *              implementation for freeze review only).
  *   v5 -> v4 : replace E1's narrowed opening sentence by the v4 sentence
  *              it narrowed (Phase 2B-2D2C-F0N/V5I1, owner decision
  *              `APPROVE_V5_SEMANTIC_E1_IMPLEMENTATION_ONLY` of
@@ -41,20 +46,24 @@ export const V2_PROMPT_SHA256 = '181a5d6fec9763be5a57e7e4d08c7d8c8a9d9e21838df2e
 export const V3_PROMPT_SHA256 = 'd05dcce614397e09f93d0aec981a3d626d5e90a16851040901ffafec30d3abd1';
 /** The v4 identity implemented by Phase 2B-2D2C-V4I1. */
 export const V4_PROMPT_SHA256 = 'a2dad6e85102ee710d4eb1c5ca4ea3995273b3e25834d27a83f36ad6b65a256b';
-/** The v5 identity implemented by Phase 2B-2D2C-F0N/V5I1 (this task). */
+/** The v5 identity implemented by Phase 2B-2D2C-F0N/V5I1, and the base this task derives from. */
 export const V5_PROMPT_SHA256 = '4c7352812740ca2df518b5274d18aae2f7f695d05ab0f60fcf72c000db8f01c9';
+/** The v6 identity implemented by Phase 2B-2D2C-F1/V6I1 (this task). NOT accepted, NOT authorised to run. */
+export const V6_PROMPT_SHA256 = '06262d43352375231eb83afdd485babc8564675d783da0b7409bc15dca0513b7';
 
 export const V1_PROMPT_SIZE = { characters: 9_887, utf8Bytes: 9_963 } as const;
 export const V2_PROMPT_SIZE = { characters: 11_304, utf8Bytes: 11_382 } as const;
 export const V3_PROMPT_SIZE = { characters: 14_012, utf8Bytes: 14_088 } as const;
 export const V4_PROMPT_SIZE = { characters: 14_731, utf8Bytes: 14_807 } as const;
 export const V5_PROMPT_SIZE = { characters: 14_843, utf8Bytes: 14_919 } as const;
+export const V6_PROMPT_SIZE = { characters: 16_007, utf8Bytes: 16_093 } as const;
 
 export const V1_PROMPT_VERSION = 'orgunit-classifier-prompt-v1';
 export const V2_PROMPT_VERSION = 'orgunit-classifier-prompt-v2';
 export const V3_PROMPT_VERSION = 'orgunit-classifier-prompt-v3';
 export const V4_PROMPT_VERSION = 'orgunit-classifier-prompt-v4';
 export const V5_PROMPT_VERSION = 'orgunit-classifier-prompt-v5';
+export const V6_PROMPT_VERSION = 'orgunit-classifier-prompt-v6';
 
 // ---------------------------------------------------------------------------
 // v2 = v1 + five reviewed insertions (2D2B-3).
@@ -104,7 +113,12 @@ export const V3_C_EVIDENCE_OUTPUT_COMPLIANCE =
 
 export interface PromptDeltaOperation {
   readonly kind:
-    'REPLACE_PARAGRAPH' | 'INSERT_PARAGRAPH_AFTER' | 'REPLACE_SENTENCE' | 'INSERT_SENTENCE_AFTER';
+    | 'REPLACE_PARAGRAPH'
+    | 'INSERT_PARAGRAPH_AFTER'
+    | 'REPLACE_SENTENCE'
+    | 'INSERT_SENTENCE_AFTER'
+    /** One whole list bullet, replaced outright (v6/R3). */
+    | 'REPLACE_BULLET';
   readonly anchorParagraph: string;
   readonly text: string;
 }
@@ -312,6 +326,102 @@ export function v4FromV5(v5: string): string {
     } else {
       throw new PromptLineageError(`v4FromV5 does not support operation kind ${op.kind}`);
     }
+  }
+  return text;
+}
+
+// ---------------------------------------------------------------------------
+// v6 = v5 + R1 + R2 + R3. Phase 2B-2D2C-F1, owner decision
+// `APPROVE_V6_R1_R2_R3_IMPLEMENTATION_FOR_FREEZE_REVIEW_ONLY` — the single
+// V6 prompt design from the F1 analysis, implemented FOR FREEZE REVIEW ONLY.
+// Three REPLACE operations, each source region occurring exactly once; no
+// other prompt semantics change. `g66010a25` is deliberately NOT targeted.
+// ---------------------------------------------------------------------------
+
+/** The v5 step-two primary affirmative sentence R1 replaces. */
+export const V5_SENTENCE_STEP_TWO_OPERATOR =
+  "The page is a UNIT_PAGE when the document presents a named unit, service or provision as the operator, for example a heading, section or block that names it and states its role, contact or address for this subject, or, for a small or non-university organisation, when the document attributes the organisation's own standing responsibility to the organisation itself as described under the taxonomy.";
+
+/**
+ * R1: define what MAY be the operator (a named office/department/centre/
+ * standing student-facing service, never a grant/bursary/aid/scholarship/
+ * funding-scheme NAME, which is a subject), bind the whole-organisation
+ * restriction into the primary affirmative ("and only then"), and state
+ * that the organisation naming only itself evidences NO operator however
+ * fully the scheme's rules, amounts, procedure and contacts are given.
+ * Targets the `g04d170f4` false-positive mechanism.
+ */
+export const V6_R1_OPERATOR_DEFINITION =
+  "The page is a UNIT_PAGE when the document presents a named unit, service or provision as the operator — a named office, department, centre or standing student-facing service, never the name of a grant, bursary, aid, scholarship or funding scheme the page describes, which is a subject and not an operator — for example a heading, section or block that names it and states its role, contact or address for this subject, or, for a small or non-university organisation and only then, when the document attributes the organisation's own standing responsibility to the organisation itself as described under the taxonomy. When the only entity the document names as administering the function is the organisation itself and that allowance does not apply, no operator is evidenced, however fully the document states the function's eligibility rules, amounts, procedure and contacts.";
+
+/**
+ * R2: replace D2's external-scheme contact criterion outright. The
+ * incumbent test ("standing remit or ongoing operations beyond that one
+ * scheme") is not observable in the supplied evidence; the replacement
+ * tests OBSERVABLE STRUCTURE — a heading or section of the unit's own.
+ * Separates `g0ec0d43` (own DAI sections) from `g536c8b14` (DRI named only
+ * in running text as a contact).
+ */
+export const V6_R2_EXTERNAL_SCHEME_STRUCTURE =
+  'A named unit presented only as the receiving or processing contact for an externally-named, externally-sponsored scheme does not by itself satisfy step two. It satisfies step two when the document gives that unit a heading or section of its own for this subject — one stating its remit, its address, its opening hours, or how it is reached as a standing office — and not when its name appears only inside running text as the mailbox to write to, the place to deposit a file, or the deadline to meet.';
+
+/** The v5 thin-evidence NEEDS_REVIEW blocker bullet R3 replaces, in full. */
+export const V5_BULLET_THIN_EVIDENCE_BLOCKER =
+  '- the evidence is too sparse to tell a unit from a non-unit despite unit-shaped signals (e.g. a truncated excerpt naming an office with no further content);';
+
+/**
+ * R3: give the thin-evidence blocker EXPLICIT PRECEDENCE over UNIT_PAGE,
+ * with two stated exceptions that stop it becoming a broad abstention rule
+ * (the office's own name as title/leading heading; headings that themselves
+ * state remit, strategy, eligibility or standing procedures). Targets
+ * `g6458a35` while preserving `g7e9744e8` and `ge789b0f0`.
+ */
+export const V6_R3_THIN_EVIDENCE_PRECEDENCE =
+  "- the evidence is too sparse to tell a unit from a non-unit despite unit-shaped signals — for example the document names an office but supplies no body text at all, and neither its title nor its headings state what that office does, whom it serves, or what it administers. Check this blocker before answering UNIT_PAGE: a named office and a way to reach it, with nothing else, is this blocker rather than a unit page. It is not this blocker when the title or the leading heading is that office's own name, nor when the headings themselves state the function's remit, strategy, eligibility or standing procedures;";
+
+/** The exact three operations of the approved v6 delta, in application order (R1, R2, R3). */
+export const V6_DELTA_OPERATIONS: readonly PromptDeltaOperation[] = [
+  {
+    kind: 'REPLACE_SENTENCE',
+    anchorParagraph: V5_SENTENCE_STEP_TWO_OPERATOR,
+    text: V6_R1_OPERATOR_DEFINITION,
+  },
+  {
+    kind: 'REPLACE_SENTENCE',
+    anchorParagraph: V4_D2_OPERATOR_CONTACT_NARROWING,
+    text: V6_R2_EXTERNAL_SCHEME_STRUCTURE,
+  },
+  {
+    kind: 'REPLACE_BULLET',
+    anchorParagraph: V5_BULLET_THIN_EVIDENCE_BLOCKER,
+    text: V6_R3_THIN_EVIDENCE_PRECEDENCE,
+  },
+];
+
+/**
+ * Applies the v6 delta to a v5 text. Every operation is an exact,
+ * whole-region REPLACE whose source must occur EXACTLY ONCE - no fuzzy
+ * matching, no regex, fail closed otherwise.
+ */
+export function v6FromV5(v5: string): string {
+  let text = v5;
+  for (const op of V6_DELTA_OPERATIONS) {
+    if (op.kind !== 'REPLACE_SENTENCE' && op.kind !== 'REPLACE_BULLET')
+      throw new PromptLineageError(`v6FromV5 does not support operation kind ${op.kind}`);
+    exactlyOnce(text, op.anchorParagraph, `v6 anchor "${op.anchorParagraph.slice(0, 40)}"`);
+    text = text.replace(op.anchorParagraph, op.text);
+  }
+  return text;
+}
+
+/** Strips the v6 delta from a v6 text, reconstructing v5 byte for byte. Reverses in the opposite order to v6FromV5. */
+export function v5FromV6(v6: string): string {
+  let text = v6;
+  for (const op of [...V6_DELTA_OPERATIONS].reverse()) {
+    if (op.kind !== 'REPLACE_SENTENCE' && op.kind !== 'REPLACE_BULLET')
+      throw new PromptLineageError(`v5FromV6 does not support operation kind ${op.kind}`);
+    exactlyOnce(text, op.text, `v6 replacement "${op.text.slice(0, 40)}"`);
+    text = text.replace(op.text, op.anchorParagraph);
   }
   return text;
 }

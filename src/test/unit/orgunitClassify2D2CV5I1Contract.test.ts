@@ -36,7 +36,15 @@ import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { ORGUNIT_CLASSIFIER_SYSTEM_PROMPT } from '../../orgunits/classify/prompt.js';
-import { V5_DELTA_OPERATIONS, v4FromV5 } from '../harness/phase2b2d2c/promptLineage.js';
+import { V5_DELTA_OPERATIONS, v4FromV5, v5FromV6 } from '../harness/phase2b2d2c/promptLineage.js';
+
+/**
+ * The v5 text this contract is about, RECONSTRUCTED from the live production
+ * prompt. Production is v6 (2D2C-F1/V6I1), so E1's contract is checked
+ * against the reconstructed v5 rather than against the live prompt - which
+ * is also what proves V6's R1/R2/R3 did not disturb anything E1 established.
+ */
+const reconstructedV5 = (): string => v5FromV6(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
 
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const DEV_LABELS_PATH = join(
@@ -100,10 +108,11 @@ describe('E1 is a pure textual narrowing of v4 - nothing removed, nothing weaken
   });
 
   it('does not touch D2, D3 or Candidate C: reconstructing v4 and diffing shows exactly one sentence changed', () => {
-    const v4 = v4FromV5(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+    const v5 = reconstructedV5();
+    const v4 = v4FromV5(v5);
     // Every v4 paragraph other than the one E1 replaces survives unchanged in v5.
     const v4Paragraphs = v4.split('\n\n');
-    const v5Paragraphs = ORGUNIT_CLASSIFIER_SYSTEM_PROMPT.split('\n\n');
+    const v5Paragraphs = v5.split('\n\n');
     expect(v5Paragraphs).toHaveLength(v4Paragraphs.length);
     const changed = v4Paragraphs.filter((p, i) => p !== v5Paragraphs[i]);
     expect(changed).toHaveLength(1);
@@ -111,14 +120,15 @@ describe('E1 is a pure textual narrowing of v4 - nothing removed, nothing weaken
   });
 
   it('does not touch the NEEDS_REVIEW section, the taxonomy, or the evidence/citation rules', () => {
-    const v4 = v4FromV5(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+    const v5 = reconstructedV5();
+    const v4 = v4FromV5(v5);
     const needsReviewSectionV4 = v4.slice(
       v4.indexOf('## When to use NEEDS_REVIEW'),
       v4.indexOf('## Evidence and citation'),
     );
-    const needsReviewSectionV5 = ORGUNIT_CLASSIFIER_SYSTEM_PROMPT.slice(
-      ORGUNIT_CLASSIFIER_SYSTEM_PROMPT.indexOf('## When to use NEEDS_REVIEW'),
-      ORGUNIT_CLASSIFIER_SYSTEM_PROMPT.indexOf('## Evidence and citation'),
+    const needsReviewSectionV5 = v5.slice(
+      v5.indexOf('## When to use NEEDS_REVIEW'),
+      v5.indexOf('## Evidence and citation'),
     );
     expect(needsReviewSectionV5).toBe(needsReviewSectionV4);
   });

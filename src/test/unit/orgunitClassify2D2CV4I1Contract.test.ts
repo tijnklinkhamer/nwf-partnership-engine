@@ -30,7 +30,22 @@ import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { ORGUNIT_CLASSIFIER_SYSTEM_PROMPT } from '../../orgunits/classify/prompt.js';
-import { V4_DELTA_OPERATIONS, v3FromV4 } from '../harness/phase2b2d2c/promptLineage.js';
+import {
+  V4_DELTA_OPERATIONS,
+  v3FromV4,
+  v4FromV5,
+  v5FromV6,
+} from '../harness/phase2b2d2c/promptLineage.js';
+
+/**
+ * The v4 text this contract is about, RECONSTRUCTED from the live production
+ * prompt. Production is v6 (2D2C-F1/V6I1), so the D1/D2/D3 contract is
+ * checked against the reconstructed v4 rather than against the live prompt -
+ * R2 REPLACED D2's own sentence and R3 REPLACED a NEEDS_REVIEW bullet, so
+ * the live text is no longer v4 and asserting on it would be asserting the
+ * wrong thing.
+ */
+const reconstructedV4 = (): string => v4FromV5(v5FromV6(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT));
 
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const DEV_LABELS_PATH = join(
@@ -104,14 +119,15 @@ describe('D1, D2 and D3 are each a pure textual narrowing of v3 - nothing remove
   });
 
   it('none of the three operations touches the NEEDS_REVIEW section, the taxonomy, or the evidence/citation rules', () => {
-    const v3 = v3FromV4(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+    const v4 = reconstructedV4();
+    const v3 = v3FromV4(v4);
     const needsReviewSection = v3.slice(
       v3.indexOf('## When to use NEEDS_REVIEW'),
       v3.indexOf('## Evidence and citation'),
     );
-    const v4NeedsReviewSection = ORGUNIT_CLASSIFIER_SYSTEM_PROMPT.slice(
-      ORGUNIT_CLASSIFIER_SYSTEM_PROMPT.indexOf('## When to use NEEDS_REVIEW'),
-      ORGUNIT_CLASSIFIER_SYSTEM_PROMPT.indexOf('## Evidence and citation'),
+    const v4NeedsReviewSection = v4.slice(
+      v4.indexOf('## When to use NEEDS_REVIEW'),
+      v4.indexOf('## Evidence and citation'),
     );
     expect(v4NeedsReviewSection).toBe(needsReviewSection);
   });
