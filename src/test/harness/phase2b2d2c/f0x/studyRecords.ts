@@ -55,6 +55,12 @@ export interface StudyManifestRecord {
     readonly candidateAuthorisationSha256: string;
   }[];
   readonly startedAtUtc: string;
+  /**
+   * RECOVERY-1 ONLY: the owner-approved recovery overlay binding. ABSENT (never
+   * `null`, never `undefined`-valued) for the original study, so an original
+   * manifest's canonical bytes are unchanged.
+   */
+  readonly recovery?: Readonly<Record<string, unknown>>;
 }
 
 export function studyManifestPathOf(studyRoot: string): string {

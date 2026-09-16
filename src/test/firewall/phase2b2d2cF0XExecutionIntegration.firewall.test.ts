@@ -256,3 +256,63 @@ describe('2D2C-F0X: narrow, exact execution reachability', () => {
     }
   });
 });
+
+describe('2D2C-F0X recovery-1: a narrow, pinned, request-free recovery surface', () => {
+  const codeOf = (name: string): string =>
+    readSource(join(F0X_DIR, name))
+      .replace(/\/\*\*[\s\S]*?\*\//g, '')
+      .replace(/^\s*\/\/.*$/gm, '');
+
+  it('the production CLI and the materialiser obtain the overlay ONLY through the pinned loader, never the test-only seam', () => {
+    for (const name of ['cliF0X.ts', 'materialiseRecovery1.ts', 'studyExecutor.ts']) {
+      expect(codeOf(name)).not.toContain('parseRecovery1OverlayForTestOnly');
+    }
+    expect(codeOf('cliF0X.ts')).toContain('loadRecovery1OverlayFromBytes');
+  });
+
+  it('the recovery study root and control directory are literal ONLY in the overlay module — never a CLI flag or a second copy', () => {
+    for (const name of ENTRY_POINTS.filter((entry) => entry !== 'recovery1Overlay.ts')) {
+      expect(codeOf(name), name).not.toContain('replication-v4-v5-n5-recovery-1');
+    }
+    const cli = codeOf('cliF0X.ts');
+    for (const flag of ['--study-root', '--recovery-root', '--control-dir', '--output-root']) {
+      expect(cli).not.toContain(flag);
+    }
+  });
+
+  it('the materialiser has no execution path: it never calls the executor, runExperiment, a launcher or the Tier-2 harness', () => {
+    const code = codeOf('materialiseRecovery1.ts');
+    for (const forbidden of [
+      'runReplicationStudyExecution',
+      'runExperiment',
+      'createF0XProductionLauncher',
+      'runProcessIsolatedBatch',
+      '.launch(',
+      'writeOuterSlotIdentity',
+      'writeStudyManifest',
+    ]) {
+      expect(code, forbidden).not.toContain(forbidden);
+    }
+  });
+
+  it('the materialiser never overwrites: every writeFileSync is write-exclusive, and every mkdirSync is non-recursive', () => {
+    const code = codeOf('materialiseRecovery1.ts');
+    const writes = [...code.matchAll(/writeFileSync\(([\s\S]*?)\);/g)].map((m) => m[1] ?? '');
+    expect(writes.length).toBeGreaterThanOrEqual(3);
+    for (const call of writes) expect(call).toContain("flag: 'wx'");
+    expect(code).not.toMatch(/mkdirSync\([^)]*recursive/);
+    expect(code).not.toMatch(/\b(rmSync|unlinkSync|renameSync|appendFileSync)\b/);
+  });
+
+  it('the recovery lock refuses spent candidates by hash BEFORE parsing, and both recovery schemas are closed and versioned apart from the originals', () => {
+    const code = codeOf('recovery1Authority.ts');
+    const spentCheck = code.indexOf('SPENT_CANDIDATE_PRESENTED');
+    const firstParse = code.indexOf('JSON.parse(bytes');
+    expect(spentCheck).toBeGreaterThan(0);
+    expect(spentCheck).toBeLessThan(firstParse);
+    expect(code).toContain("'phase2b-2d2c-f0x-recovery-1-slot-authorisation-v1'");
+    expect(code).toContain("'phase2b-2d2c-f0x-recovery-1-study-execution-approval-v1'");
+    expect(code).not.toContain('.passthrough(');
+    expect(code).not.toContain('.loose(');
+  });
+});

@@ -77,6 +77,12 @@ export interface OuterSlotIdentityRecord {
   readonly studyExecutionApprovalSha256: string;
   readonly outputRoot: string;
   readonly consumedAtUtc: string;
+  /**
+   * RECOVERY-1 ONLY: the overlay hash and the candidate's own `recoveryOf`
+   * block (failed slot, spent candidate, failed preflight, Class B). ABSENT for
+   * the original study, so an original record's canonical bytes are unchanged.
+   */
+  readonly recovery?: Readonly<Record<string, unknown>>;
 }
 
 export interface OuterSlotIdentityEnvelope {

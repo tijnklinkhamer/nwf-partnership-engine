@@ -43,11 +43,6 @@
  * PURE aside from the injected probes. No network, no database, no
  * filesystem of its own, no clock of its own, no child process.
  */
-import {
-  evaluateF0WSlotExecutionLock,
-  type F0WSlotExecutionAuthorisation,
-  type F0WSlotExecutionLockDecision,
-} from '../f0w/authorisationF0W.js';
 import { evaluateSequencingGate, type SequencingDecision } from '../f0w/sequencing.js';
 import { type StudySlotRegistry } from '../f0w/slotRegistry.js';
 import { historicalIdentityOf } from '../f0w/slotExecutionPlan.js';
@@ -58,10 +53,13 @@ import { futureOutputRootPathOf, type StudySlotIdentity } from '../f0v/studyPlan
 import type { OutputRootDecision, OutputRootProbes as SlotOutputRootProbes } from '../artifacts.js';
 import type { SlotEvidenceProbes } from '../f0w/sequencing.js';
 import {
-  evaluateF0XStudyExecutionApproval,
-  type F0XStudyExecutionApproval,
-  type F0XStudyExecutionApprovalDecision,
-} from './studyExecutionApprovalF0X.js';
+  ORIGINAL_F0X_STUDY_AUTHORITY,
+  type SlotAuthorisationCore,
+  type StudyApprovalCore,
+  type StudyApprovalDecision,
+  type StudyAuthority,
+  type StudySlotLockDecision,
+} from './studyAuthority.js';
 import type { z } from 'zod';
 
 export type ComposedGateName =
@@ -85,9 +83,9 @@ export type ApprovalCandidateMismatchRefusal =
 export interface ComposedSlotExecutionGrant {
   readonly granted: true;
   readonly slot: StudySlotIdentity;
-  readonly authorisation: F0WSlotExecutionAuthorisation;
+  readonly authorisation: SlotAuthorisationCore;
   readonly authorisationSha256: string;
-  readonly approval: F0XStudyExecutionApproval;
+  readonly approval: StudyApprovalCore;
   readonly approvalSha256: string;
   readonly outputRoot: string;
   readonly historicalAttemptNo: 3 | 4;
@@ -117,6 +115,8 @@ export interface ComposedSlotExecutionInput {
   readonly outputRootProbes: SlotOutputRootProbes;
   readonly forbiddenOutputRootContainers: readonly string[];
   readonly studyRoot?: string;
+  /** Which lock and approval apply. Default: the original F0X study. */
+  readonly authority?: StudyAuthority;
 }
 
 function outputRootOfSlot(slot: StudySlotIdentity, studyRoot: string): string {
@@ -133,6 +133,12 @@ export function evaluateComposedSlotExecutionDecision(
   input: ComposedSlotExecutionInput,
 ): ComposedSlotExecutionDecision {
   const studyRoot = input.studyRoot ?? F0V_STUDY_ROOT;
+  const authority = input.authority ?? ORIGINAL_F0X_STUDY_AUTHORITY;
+  if (authority.studyRoot !== null && authority.studyRoot !== studyRoot) {
+    throw new Error(
+      `the ${authority.kind} authority binds study root ${authority.studyRoot}; the composed decision was asked about ${studyRoot}.`,
+    );
+  }
 
   // Gate 1: sequencing.
   const sequencing: SequencingDecision = evaluateSequencingGate(
@@ -154,7 +160,7 @@ export function evaluateComposedSlotExecutionDecision(
   const identity = historicalIdentityOf(slot.variantName);
 
   // Gate 2: per-slot candidate authorisation, evaluated LIVE.
-  const slotLock: F0WSlotExecutionLockDecision = evaluateF0WSlotExecutionLock({
+  const slotLock: StudySlotLockDecision = authority.evaluateSlotLock({
     executeFlag: true,
     authorisationPath: input.authorisationPath,
     expected: {
@@ -178,7 +184,7 @@ export function evaluateComposedSlotExecutionDecision(
   }
 
   // Gate 3: study-level approval, current and issued for this build.
-  const studyApproval: F0XStudyExecutionApprovalDecision = evaluateF0XStudyExecutionApproval({
+  const studyApproval: StudyApprovalDecision = authority.evaluateStudyApproval({
     approvalPath: input.studyApprovalPath,
     readFile: input.readFile,
     sha256: input.sha256,

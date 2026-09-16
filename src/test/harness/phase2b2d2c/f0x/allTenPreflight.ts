@@ -34,10 +34,6 @@
  * PURE aside from the injected probes. No network, no database, no
  * filesystem of its own, no child process, no provider.
  */
-import {
-  evaluateF0WSlotExecutionLock,
-  type F0WSlotExecutionLockDecision,
-} from '../f0w/authorisationF0W.js';
 import { classifySlotEvidence, type SlotEvidenceProbes } from '../f0w/sequencing.js';
 import { historicalIdentityOf } from '../f0w/slotExecutionPlan.js';
 import type { StudySlotRegistry } from '../f0w/slotRegistry.js';
@@ -46,9 +42,11 @@ import type { OutputRootProbes as SlotOutputRootProbes } from '../artifacts.js';
 import { F0V_STUDY_ROOT } from '../f0v/freezeF0V.js';
 import { futureOutputRootPathOf } from '../f0v/studyPlanCore.js';
 import {
-  evaluateF0XStudyExecutionApproval,
-  type F0XStudyExecutionApproval,
-} from './studyExecutionApprovalF0X.js';
+  ORIGINAL_F0X_STUDY_AUTHORITY,
+  type StudyApprovalCore,
+  type StudyAuthority,
+  type StudySlotLockDecision,
+} from './studyAuthority.js';
 
 export interface AllTenPreflightSlotResult {
   readonly slotId: string;
@@ -75,18 +73,22 @@ export interface AllTenPreflightInput {
   readonly outputRootProbes: SlotOutputRootProbes;
   readonly forbiddenOutputRootContainers: readonly string[];
   readonly studyRoot?: string;
+  /** Which lock/approval/study-level checks apply. Default: the original F0X study. */
+  readonly authority?: StudyAuthority;
 }
 
 export type AllTenPreflightDecision =
   | {
       readonly granted: true;
-      readonly approval: F0XStudyExecutionApproval;
+      readonly approval: StudyApprovalCore;
       readonly approvalSha256: string;
+      readonly studyLevelProblems: readonly string[];
       readonly slots: readonly AllTenPreflightSlotResult[];
     }
   | {
       readonly granted: false;
       readonly reason: string;
+      readonly studyLevelProblems: readonly string[];
       readonly slots: readonly AllTenPreflightSlotResult[];
     };
 
@@ -99,8 +101,15 @@ export type AllTenPreflightDecision =
  */
 export function runAllTenPreflight(input: AllTenPreflightInput): AllTenPreflightDecision {
   const studyRoot = input.studyRoot ?? F0V_STUDY_ROOT;
+  const authority = input.authority ?? ORIGINAL_F0X_STUDY_AUTHORITY;
+  if (authority.studyRoot !== null && authority.studyRoot !== studyRoot) {
+    throw new Error(
+      `the ${authority.kind} authority binds study root ${authority.studyRoot}; the preflight was asked to check ${studyRoot}.`,
+    );
+  }
+  const studyLevelProblems = authority.studyLevelPreflight();
 
-  const studyApproval = evaluateF0XStudyExecutionApproval({
+  const studyApproval = authority.evaluateStudyApproval({
     approvalPath: input.studyApprovalPath,
     readFile: input.readFile,
     sha256: input.sha256,
@@ -115,7 +124,7 @@ export function runAllTenPreflight(input: AllTenPreflightInput): AllTenPreflight
     const identity = historicalIdentityOf(slot.variantName);
 
     const candidatePath = input.candidatePathForSlot(slot.slotId);
-    const lock: F0WSlotExecutionLockDecision = evaluateF0WSlotExecutionLock({
+    const lock: StudySlotLockDecision = authority.evaluateSlotLock({
       executeFlag: true,
       authorisationPath: candidatePath,
       expected: { slotId: slot.slotId, outputRoot, attemptNo: identity.historicalAttemptNo },
@@ -186,12 +195,16 @@ export function runAllTenPreflight(input: AllTenPreflightInput): AllTenPreflight
   });
 
   const anySlotProblem = slotResults.some((result) => result.problems.length > 0);
-  if (!studyApproval.granted || anySlotProblem) {
+  if (studyLevelProblems.length > 0 || !studyApproval.granted || anySlotProblem) {
     return {
       granted: false,
-      reason: !studyApproval.granted
-        ? `study approval refused: ${studyApproval.refusal}`
-        : `${slotResults.filter((r) => r.problems.length > 0).length} of ${slotResults.length} slots failed preflight.`,
+      reason:
+        studyLevelProblems.length > 0
+          ? `${authority.kind} study-level preflight refused (${studyLevelProblems.length} problem(s)): ${studyLevelProblems[0]}`
+          : !studyApproval.granted
+            ? `study approval refused: ${studyApproval.refusal}`
+            : `${slotResults.filter((r) => r.problems.length > 0).length} of ${slotResults.length} slots failed preflight.`,
+      studyLevelProblems,
       slots: slotResults,
     };
   }
@@ -199,6 +212,7 @@ export function runAllTenPreflight(input: AllTenPreflightInput): AllTenPreflight
     granted: true,
     approval: studyApproval.approval,
     approvalSha256: studyApproval.approvalSha256,
+    studyLevelProblems,
     slots: slotResults,
   };
 }

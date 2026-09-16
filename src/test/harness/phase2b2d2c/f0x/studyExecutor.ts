@@ -61,6 +61,15 @@
  *     pauses the study at that slot and leaves every later candidate
  *     unconsumed.
  *
+ * RECOVERY-1 (owner-approved output-namespace recovery of that invocation):
+ * `input.authority` may be `createRecovery1Authority` (`recovery1Authority.ts`).
+ * It changes WHICH lock, approval and study root apply, adds a request-free
+ * study-level preflight (failed-study re-inventory, empty recovery roots) inside
+ * the all-ten preflight, and adds a `recovery` binding to the study manifest
+ * and every outer slot identity. The gate order, the evidence-based
+ * progression above, the child freeze path and `runExperiment` are unchanged;
+ * a Class B or ambiguous recovery slot pauses exactly as any other slot does.
+ *
  * This module reuses `runExperiment` BYTE-FOR-BYTE: it builds the exact
  * `ExperimentInput` shape `cliF0O.ts` already builds for a live attempt,
  * differing only in WHICH slot's template, output root and variant-root
@@ -96,10 +105,14 @@ import {
   type ExperimentInput,
   type ExperimentResult,
 } from '../coordinator.js';
-import type { F0WSlotExecutionAuthorisation } from '../f0w/authorisationF0W.js';
 import { F0V_STUDY_ROOT } from '../f0v/freezeF0V.js';
 import type { StudySlotIdentity } from '../f0v/studyPlanCore.js';
 import { runAllTenPreflight, type AllTenPreflightDecision } from './allTenPreflight.js';
+import {
+  ORIGINAL_F0X_STUDY_AUTHORITY,
+  type SlotAuthorisationCore,
+  type StudyAuthority,
+} from './studyAuthority.js';
 import { resolveChildFreezePath } from './childFreezePath.js';
 import {
   evaluateComposedSlotExecutionDecision,
@@ -137,6 +150,12 @@ export interface StudyExecutorInput {
   readonly outputRootProbes: SlotOutputRootProbes;
   readonly forbiddenOutputRootContainers: readonly string[];
   readonly studyRoot?: string;
+  /**
+   * Which lock, approval, study root and study-level checks apply. Default:
+   * the original F0X study. RECOVERY-1 supplies `createRecovery1Authority`
+   * (`recovery1Authority.ts`), whose study root is the overlay's recovery root.
+   */
+  readonly authority?: StudyAuthority;
   /** Absolute root of the runner repository the historical F0I/F0O freeze bytes are read from. */
   readonly runnerRepoRoot: string;
   readonly v4Root: string;
@@ -201,7 +220,7 @@ export function buildSlotExperimentInput(
   input: StudyExecutorInput,
   template: SlotExecutionPlanTemplate,
   childFreezePath: string,
-  authorisation: F0WSlotExecutionAuthorisation,
+  authorisation: SlotAuthorisationCore,
   authorisationSha256: string,
 ): ExperimentInput {
   return {
@@ -244,7 +263,17 @@ function transitionEventForRefusal(
 export async function runReplicationStudyExecution(
   input: StudyExecutorInput,
 ): Promise<StudyExecutionOutcome> {
-  const studyRoot = input.studyRoot ?? F0V_STUDY_ROOT;
+  const authority = input.authority ?? ORIGINAL_F0X_STUDY_AUTHORITY;
+  if (
+    authority.studyRoot !== null &&
+    input.studyRoot !== undefined &&
+    input.studyRoot !== authority.studyRoot
+  ) {
+    throw new Error(
+      `the ${authority.kind} authority binds study root ${authority.studyRoot}; the executor was given ${input.studyRoot}. A study root is never chosen per invocation.`,
+    );
+  }
+  const studyRoot = authority.studyRoot ?? input.studyRoot ?? F0V_STUDY_ROOT;
   const startedAtUtc = input.clock.nowUtc().toISOString();
 
   // Defect-1 closure: every slot's child freeze path is resolved to a
@@ -276,6 +305,7 @@ export async function runReplicationStudyExecution(
     outputRootProbes: input.outputRootProbes,
     forbiddenOutputRootContainers: input.forbiddenOutputRootContainers,
     studyRoot,
+    authority,
   });
   if (!preflight.granted) {
     // F0X CORRECTIVE CLOSURE: before a GRANTED all-ten preflight, the study
@@ -287,6 +317,7 @@ export async function runReplicationStudyExecution(
     return { status: 'BLOCKED_BEFORE_START', preflight };
   }
 
+  const manifestBinding = authority.studyManifestBinding();
   writeStudyManifest(studyRoot, {
     recordVersion: STUDY_RECORD_VERSION,
     studyId: 'REPLICATION_V4_V5_N5',
@@ -302,6 +333,7 @@ export async function runReplicationStudyExecution(
       candidateAuthorisationSha256: slot.candidateAuthorisationSha256 as string,
     })),
     startedAtUtc,
+    ...(manifestBinding === null ? {} : { recovery: manifestBinding }),
   });
 
   const completedSlots: CompletedSlotOutcome[] = [];
@@ -322,6 +354,7 @@ export async function runReplicationStudyExecution(
       outputRootProbes: input.outputRootProbes,
       forbiddenOutputRootContainers: input.forbiddenOutputRootContainers,
       studyRoot,
+      authority,
     });
 
     if (!decision.granted) {
@@ -360,6 +393,7 @@ export async function runReplicationStudyExecution(
     });
 
     const template = buildSlotExecutionPlanTemplate(slot, input.f0iPlan, input.f0oPlan, studyRoot);
+    const identityBinding = authority.outerSlotIdentityBinding(decision.authorisation);
     const identity: OuterSlotIdentityRecord = {
       recordVersion: OUTER_SLOT_IDENTITY_VERSION,
       studyId: 'REPLICATION_V4_V5_N5',
@@ -381,6 +415,7 @@ export async function runReplicationStudyExecution(
       studyExecutionApprovalSha256: decision.approvalSha256,
       outputRoot: decision.outputRoot,
       consumedAtUtc: input.clock.nowUtc().toISOString(),
+      ...(identityBinding === null ? {} : { recovery: identityBinding }),
     };
     // Write-once, BEFORE runExperiment: a crash between here and the
     // child-manifest write for logical evaluation 1 leaves exactly this
