@@ -37,6 +37,7 @@
 import {
   MAX_NON_TERMINAL_TIMEOUTS_PER_REPLICATE,
   NON_TERMINAL_PROVIDER_OUTCOMES,
+  RELIABILITY_SEMANTICS_V1_HISTORICAL,
   RELIABILITY_SEMANTICS_V2,
   type EvaluationOutcomeClass,
   type StopConditionId,
@@ -164,8 +165,48 @@ const stop = (
   evaluationOutcomeClass,
 });
 
+/**
+ * 2D2C-F0Z: the semantics this decision runs under.
+ *
+ * ABSENT (undefined/null) IS v1. That equivalence is the historical-
+ * compatibility invariant: a caller that names no version must get exactly
+ * the pre-F0Z behaviour, for EVERY outcome and not merely for TIMEOUT.
+ *
+ * An unknown non-empty version is NOT coerced to v1. It is refused, matching
+ * the already-landed scorer principle that a semantics version a reader does
+ * not implement is refused rather than interpreted — a runtime that cannot
+ * say which rule set applies cannot be trusted to apply one.
+ */
+type ResolvedSemantics =
+  | { readonly known: true; readonly isV2: boolean }
+  | { readonly known: false; readonly observed: string };
+
+function resolveSemantics(version: string | undefined): ResolvedSemantics {
+  if (version === undefined || version === null) return { known: true, isV2: false };
+  if (version === RELIABILITY_SEMANTICS_V1_HISTORICAL) return { known: true, isV2: false };
+  if (version === RELIABILITY_SEMANTICS_V2) return { known: true, isV2: true };
+  return { known: false, observed: version };
+}
+
 export function deriveStopDecision(input: StopDecisionInput): StopDecision {
   const { tier2, artifacts } = input;
+
+  // 0. An unknown semantics version is refused BEFORE any rule is applied:
+  //    if we cannot say which rule set governs this evaluation, we cannot
+  //    honestly apply either one. Deterministic, durable and fail-closed.
+  const semantics = resolveSemantics(input.reliabilitySemanticsVersion);
+  if (!semantics.known) {
+    return stop(
+      'CORPUS_CONFIG_OR_HASH_DRIFT',
+      `the run declares reliability semantics ${JSON.stringify(semantics.observed)}, which this build does not ` +
+        `implement (known: ${JSON.stringify(RELIABILITY_SEMANTICS_V1_HISTORICAL)}, ${JSON.stringify(RELIABILITY_SEMANTICS_V2)}). ` +
+        'An unknown version is refused, never coerced to the historical default: the two known versions differ in ' +
+        'whether a confirmed TIMEOUT continues and in which non-OK outcomes may be recorded as observations, so ' +
+        'guessing would silently pick a denominator composition.',
+      'AUTH_OR_PRE_INFERENCE_FAILURE',
+    );
+  }
+  const isV2 = semantics.isV2;
 
   // 1. Unconfirmed harness terminations — stop-worthy, whatever else happened.
   if (tier2.hardKillDisposition === 'SUPPRESSED_EXPIRED_TARGET_IDENTITY') {
@@ -341,7 +382,7 @@ export function deriveStopDecision(input: StopDecisionInput): StopDecision {
       );
     }
     // v1 (Recovery-1, and any caller that names no version): unchanged.
-    if (input.reliabilitySemanticsVersion !== RELIABILITY_SEMANTICS_V2) {
+    if (!isV2) {
       return {
         stop: true,
         stopCondition: null,
@@ -380,15 +421,27 @@ export function deriveStopDecision(input: StopDecisionInput): StopDecision {
       evaluationOutcomeClass: 'PROVIDER_TIMEOUT_NON_TERMINAL',
     };
   }
-  // Every remaining non-OK outcome. The continue-set is an ALLOW-LIST, and it
-  // is exactly the set the forward scorer admits as an observed INVALID
-  // observation. Before F0Z this branch continued on ANY unrecognised non-OK
-  // outcome - AUTH_FAILURE, PROVIDER_REFUSAL and PROVIDER_TRANSIENT included -
-  // none of which any scorer admits, so such a run was silently unscoreable.
-  // Those are control-plane or ambiguous failures, never observations, and
-  // conflating them with a semantic INVALID is exactly the defect F0Z exists
-  // to remove. They now FAIL CLOSED.
-  if (!(NON_TERMINAL_PROVIDER_OUTCOMES as readonly string[]).includes(result.providerOutcome)) {
+  // Every remaining non-OK outcome.
+  //
+  // v2 (C6): the continue-set is a CLOSED ALLOW-LIST, and it is exactly the
+  // set the forward scorer admits as an observed INVALID observation. Before
+  // F0Z this branch continued on ANY unrecognised non-OK outcome -
+  // AUTH_FAILURE, PROVIDER_REFUSAL and PROVIDER_TRANSIENT included - none of
+  // which any scorer admits, so such a run was silently unscoreable. Those
+  // are control-plane or ambiguous failures, never observations, and
+  // conflating them with a semantic INVALID is the defect F0Z exists to
+  // remove. Under v2 they FAIL CLOSED.
+  //
+  // v1: the pre-F0Z behaviour is PRESERVED EXACTLY - all four continue, with
+  // the original detail wording. This is NOT an endorsement of that rule; it
+  // is preserved only because v1 is HISTORICAL EVIDENCE SEMANTICS, and the
+  // compatibility invariant is that an absent version reproduces the
+  // pre-F0Z decision for EVERY outcome, not merely for TIMEOUT. Recovery-1
+  // never hit these three, so no historical result depends on it either way.
+  const admittedUnderV2 = (NON_TERMINAL_PROVIDER_OUTCOMES as readonly string[]).includes(
+    result.providerOutcome,
+  );
+  if (isV2 && !admittedUnderV2) {
     return stop(
       'UNRECONCILED_PROVIDER_FAILURE',
       `non-OK outcome ${result.providerOutcome} is not an admitted non-terminal observation ` +
@@ -402,6 +455,11 @@ export function deriveStopDecision(input: StopDecisionInput): StopDecision {
     stopCondition: null,
     haltKind: null,
     detail: `non-OK outcome ${result.providerOutcome} reconciled to this attempt with a persisted diagnostic record; the batch is not completed and the experiment continues.`,
-    evaluationOutcomeClass: 'STRUCTURED_OUTPUT_FAILED_NON_TERMINAL',
+    // The CLASS stays honest even where v1's BEHAVIOUR does not: an
+    // AUTH_FAILURE that v1 continued on is still labelled a control-plane
+    // failure, so the record documents the defect instead of repeating it.
+    evaluationOutcomeClass: admittedUnderV2
+      ? 'STRUCTURED_OUTPUT_FAILED_NON_TERMINAL'
+      : 'AUTH_OR_PRE_INFERENCE_FAILURE',
   };
 }

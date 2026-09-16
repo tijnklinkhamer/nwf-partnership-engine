@@ -687,38 +687,43 @@ describe('2D2C-F1 stop decision (pure; both platforms)', () => {
       requestedModelId: MODEL,
     });
     expect(noDiagnostics.stopCondition).toBe('BATCH_ARTIFACT_MISSING_OR_CORRUPT');
-    // 2D2C-F0Z: the continue-set is now a CLOSED ALLOW-LIST, and it is
-    // exactly the set a scorer admits as an observed INVALID observation.
-    // AUTH_FAILURE, PROVIDER_TRANSIENT and PROVIDER_REFUSAL used to continue
-    // here, yet no scorer admits them - so such a run was silently
-    // unscoreable. They are control-plane or ambiguous failures, never
-    // semantic observations, and they now fail closed.
-    const continues: Record<string, boolean> = {
-      AUTH_FAILURE: false,
-      PROVIDER_TRANSIENT: false,
-      PROVIDER_REFUSAL: false,
-      STRUCTURED_OUTPUT_FAILED: true,
+    // 2D2C-F0Z: the closed allow-list (C6) is SCOPED TO v2. Under v1 - which
+    // is what an ABSENT version means, and what this call passes - all four
+    // continue exactly as they did pre-F0Z. Under v2 only the two outcomes a
+    // scorer admits as an observed INVALID may continue; the other three are
+    // control-plane or ambiguous failures and fail closed.
+    const CONTINUES_UNDER: Record<string, { v1: boolean; v2: boolean }> = {
+      AUTH_FAILURE: { v1: true, v2: false },
+      PROVIDER_TRANSIENT: { v1: true, v2: false },
+      PROVIDER_REFUSAL: { v1: true, v2: false },
+      STRUCTURED_OUTPUT_FAILED: { v1: true, v2: true },
     };
-    for (const [outcome, shouldContinue] of Object.entries(continues)) {
-      const decision = deriveStopDecision({
-        tier2: completed,
-        artifacts: okArtifacts({
-          result: {
-            present: true,
-            valid: true,
-            providerOutcome: outcome as 'AUTH_FAILURE',
-            providerReportedModelId: null,
-            rawCheckpointPersistedBeforeValidation: null,
-            childStopCondition: null,
-          },
-          rawCheckpoint: absent,
-          validation: absent,
-        }),
-        requestedModelId: MODEL,
-      });
-      expect(decision.stop, outcome).toBe(!shouldContinue);
-      if (!shouldContinue) {
-        expect(decision.stopCondition, outcome).toBe('UNRECONCILED_PROVIDER_FAILURE');
+    for (const [outcome, expected] of Object.entries(CONTINUES_UNDER)) {
+      const decideWith = (version?: string) =>
+        deriveStopDecision({
+          tier2: completed,
+          artifacts: okArtifacts({
+            result: {
+              present: true,
+              valid: true,
+              providerOutcome: outcome as 'AUTH_FAILURE',
+              providerReportedModelId: null,
+              rawCheckpointPersistedBeforeValidation: null,
+              childStopCondition: null,
+            },
+            rawCheckpoint: absent,
+            validation: absent,
+          }),
+          requestedModelId: MODEL,
+          ...(version === undefined ? {} : { reliabilitySemanticsVersion: version }),
+        });
+      // v1: absent version, historical behaviour preserved exactly.
+      expect(decideWith().stop, `${outcome} v1`).toBe(!expected.v1);
+      // v2: the closed allow-list.
+      const v2 = decideWith('RELIABILITY_SEMANTICS_V2_TIMEOUT_CONTINUATION');
+      expect(v2.stop, `${outcome} v2`).toBe(!expected.v2);
+      if (!expected.v2) {
+        expect(v2.stopCondition, `${outcome} v2`).toBe('UNRECONCILED_PROVIDER_FAILURE');
       }
     }
     // The unconfirmed-termination verdicts win over everything else, on both platforms.

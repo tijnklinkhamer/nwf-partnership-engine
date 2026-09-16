@@ -203,12 +203,15 @@ describe('2D2C-F0Z: v1 semantics are UNCHANGED (Recovery-1 must re-derive identi
     expect(decision.detail).toContain('This is not one of the ten stop conditions.');
   });
 
-  it('an explicit v1 version, and any unknown version, also reproduce it', () => {
-    for (const version of [RELIABILITY_SEMANTICS_V1_HISTORICAL, 'SOMETHING_ELSE']) {
-      const decision = decide({ reliabilitySemanticsVersion: version });
-      expect(decision.stop, version).toBe(true);
-      expect(decision.haltKind, version).toBe('TIER1_TIMEOUT_DECISION_RULE');
-    }
+  it('an explicit v1 version reproduces it too', () => {
+    // NOTE: an UNKNOWN version does NOT reproduce it. The stage-1 final
+    // correction stopped coercing unknown versions to the historical
+    // default; they now fail closed. See the unknown-version describe below.
+    const decision = decide({
+      reliabilitySemanticsVersion: RELIABILITY_SEMANTICS_V1_HISTORICAL,
+    });
+    expect(decision.stop).toBe(true);
+    expect(decision.haltKind).toBe('TIER1_TIMEOUT_DECISION_RULE');
   });
 
   it('the ceiling never applies under v1: a prior count cannot change the historical rule', () => {
@@ -341,5 +344,179 @@ describe('2D2C-F0Z: C2 IS NOT IMPLEMENTED', () => {
     });
     expect(decision.stopCondition).toBe('TIER2_WATCHDOG_FIRED_BEFORE_TIER1_TIMEOUT');
     expect(decision.evaluationOutcomeClass).toBe('TIER2_LIVENESS_FAILURE');
+  });
+});
+
+/**
+ * 2D2C-F0Z STAGE-1 FINAL COMPATIBILITY CORRECTION.
+ *
+ * C6 (the closed non-terminal allow-list) is the correct FUTURE v2 rule and
+ * is KEPT. The defect it carried was one of SCOPE: it applied regardless of
+ * the declared semantics, so an ABSENT version — which the F0Z contract
+ * defines as historical v1 — silently changed behaviour for AUTH_FAILURE,
+ * PROVIDER_REFUSAL and PROVIDER_TRANSIENT.
+ *
+ * The invariant these tests pin is stronger than "TIMEOUT is unchanged":
+ *
+ *     ABSENT reliabilitySemanticsVersion == historical v1 behaviour,
+ *     for EVERY outcome.
+ *
+ * v1's continuation on those three is NOT endorsed here. It is preserved
+ * only because v1 is historical evidence semantics. Recovery-1 never hit any
+ * of the three, so no historical result depends on it either way.
+ */
+describe('2D2C-F0Z final: C6 is SCOPED to v2; v1 keeps the exact pre-F0Z behaviour', () => {
+  const HISTORICALLY_CONTINUING = [
+    'AUTH_FAILURE',
+    'PROVIDER_REFUSAL',
+    'PROVIDER_TRANSIENT',
+  ] as const;
+
+  const decideFor = (
+    outcome: (typeof HISTORICALLY_CONTINUING)[number] | 'STRUCTURED_OUTPUT_FAILED',
+    version: string | undefined,
+  ) =>
+    deriveStopDecision({
+      tier2: CLEAN_TIER2,
+      artifacts: artifacts(outcome),
+      requestedModelId: MODEL,
+      ...(version === undefined ? {} : { reliabilitySemanticsVersion: version }),
+    });
+
+  it.each(HISTORICALLY_CONTINUING)(
+    'an ABSENT version preserves historical continuation for %s',
+    (outcome) => {
+      const decision = decideFor(outcome, undefined);
+      expect(decision.stop).toBe(false);
+      expect(decision.stopCondition).toBeNull();
+      expect(decision.haltKind).toBeNull();
+      // The original pre-F0Z detail wording, byte-for-byte.
+      expect(decision.detail).toBe(
+        `non-OK outcome ${outcome} reconciled to this attempt with a persisted diagnostic record; ` +
+          'the batch is not completed and the experiment continues.',
+      );
+    },
+  );
+
+  it.each(HISTORICALLY_CONTINUING)('an EXPLICIT v1 does the same for %s', (outcome) => {
+    const decision = decideFor(outcome, RELIABILITY_SEMANTICS_V1_HISTORICAL);
+    expect(decision.stop).toBe(false);
+    expect(decision.stopCondition).toBeNull();
+    expect(decision.haltKind).toBeNull();
+  });
+
+  it.each(HISTORICALLY_CONTINUING)('v2 STOPS %s, exactly as C6 requires', (outcome) => {
+    const decision = decideFor(outcome, RELIABILITY_SEMANTICS_V2);
+    expect(decision.stop).toBe(true);
+    expect(decision.stopCondition).toBe('UNRECONCILED_PROVIDER_FAILURE');
+    expect(decision.evaluationOutcomeClass).toBe('AUTH_OR_PRE_INFERENCE_FAILURE');
+    expect(decision.detail).toContain('not an admitted non-terminal observation');
+  });
+
+  it.each(HISTORICALLY_CONTINUING)(
+    'even where v1 CONTINUES on %s, the class still names it a control-plane failure',
+    (outcome) => {
+      // The behaviour is historical; the LABEL is honest. The record
+      // documents the defect rather than repeating it.
+      const decision = decideFor(outcome, undefined);
+      expect(decision.stop).toBe(false);
+      expect(decision.evaluationOutcomeClass).toBe('AUTH_OR_PRE_INFERENCE_FAILURE');
+    },
+  );
+
+  it('STRUCTURED_OUTPUT_FAILED continues under BOTH versions, identically', () => {
+    for (const version of [
+      undefined,
+      RELIABILITY_SEMANTICS_V1_HISTORICAL,
+      RELIABILITY_SEMANTICS_V2,
+    ]) {
+      const decision = decideFor('STRUCTURED_OUTPUT_FAILED', version);
+      expect(decision.stop, String(version)).toBe(false);
+      expect(decision.evaluationOutcomeClass, String(version)).toBe(
+        'STRUCTURED_OUTPUT_FAILED_NON_TERMINAL',
+      );
+    }
+  });
+
+  it('v1 TIMEOUT still produces the historical TIER1_TIMEOUT_DECISION_RULE', () => {
+    for (const version of [undefined, RELIABILITY_SEMANTICS_V1_HISTORICAL]) {
+      const decision = decide(
+        version === undefined ? {} : { reliabilitySemanticsVersion: version },
+      );
+      expect(decision.stop, String(version)).toBe(true);
+      expect(decision.haltKind, String(version)).toBe('TIER1_TIMEOUT_DECISION_RULE');
+    }
+  });
+
+  it('v2 confirmed TIMEOUT still performs the C1 continuation', () => {
+    const decision = decide({ reliabilitySemanticsVersion: RELIABILITY_SEMANTICS_V2 });
+    expect(decision.stop).toBe(false);
+    expect(decision.evaluationOutcomeClass).toBe('PROVIDER_TIMEOUT_NON_TERMINAL');
+  });
+});
+
+describe('2D2C-F0Z final: an UNKNOWN semantics version fails closed, never coerced to v1', () => {
+  const UNKNOWN = ['RELIABILITY_SEMANTICS_V3_FUTURE', 'v1', '', ' ', 'RELIABILITY_SEMANTICS'];
+
+  it.each(UNKNOWN)('refuses %j deterministically, before any other rule', (version) => {
+    const decision = deriveStopDecision({
+      tier2: CLEAN_TIER2,
+      artifacts: artifacts('OK'),
+      requestedModelId: MODEL,
+      reliabilitySemanticsVersion: version,
+    });
+    expect(decision.stop).toBe(true);
+    expect(decision.stopCondition).toBe('CORPUS_CONFIG_OR_HASH_DRIFT');
+    expect(decision.evaluationOutcomeClass).toBe('AUTH_OR_PRE_INFERENCE_FAILURE');
+    expect(decision.detail).toContain('which this build does not implement');
+    expect(decision.detail).toContain('never coerced to the historical default');
+  });
+
+  it('the refusal wins over every other rule, including a would-be OK and a would-be v1 continuation', () => {
+    // A perfectly reconcilable OK is still refused: a runtime that cannot say
+    // which rule set governs it cannot honestly apply one.
+    for (const outcome of ['OK', 'AUTH_FAILURE', 'STRUCTURED_OUTPUT_FAILED', 'TIMEOUT'] as const) {
+      const decision = deriveStopDecision({
+        tier2: CLEAN_TIER2,
+        artifacts: artifacts(outcome),
+        requestedModelId: MODEL,
+        reliabilitySemanticsVersion: 'SOMETHING_UNKNOWN',
+      });
+      expect(decision.stop, outcome).toBe(true);
+      expect(decision.stopCondition, outcome).toBe('CORPUS_CONFIG_OR_HASH_DRIFT');
+    }
+  });
+
+  it('is deterministic: the same unknown version yields the identical decision every time', () => {
+    const once = deriveStopDecision({
+      tier2: CLEAN_TIER2,
+      artifacts: artifacts('OK'),
+      requestedModelId: MODEL,
+      reliabilitySemanticsVersion: 'SOMETHING_UNKNOWN',
+    });
+    const twice = deriveStopDecision({
+      tier2: CLEAN_TIER2,
+      artifacts: artifacts('OK'),
+      requestedModelId: MODEL,
+      reliabilitySemanticsVersion: 'SOMETHING_UNKNOWN',
+    });
+    expect(once).toEqual(twice);
+  });
+
+  it('only the two KNOWN versions, and an absent one, are ever interpreted', () => {
+    for (const known of [
+      undefined,
+      RELIABILITY_SEMANTICS_V1_HISTORICAL,
+      RELIABILITY_SEMANTICS_V2,
+    ]) {
+      const decision = deriveStopDecision({
+        tier2: CLEAN_TIER2,
+        artifacts: artifacts('OK'),
+        requestedModelId: MODEL,
+        ...(known === undefined ? {} : { reliabilitySemanticsVersion: known }),
+      });
+      expect(decision.stop, String(known)).toBe(false);
+      expect(decision.evaluationOutcomeClass, String(known)).toBe('VALIDATED_SEMANTIC_RESULT');
+    }
   });
 });
