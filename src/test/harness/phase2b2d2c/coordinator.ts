@@ -45,6 +45,8 @@ import {
   EXPECTED_LOGICAL_BATCHES_PER_VARIANT,
   FROZEN_TIER2_GRACE_MS,
   FROZEN_TIER2_WATCHDOG_MS,
+  MAX_NON_TERMINAL_TIMEOUTS_PER_REPLICATE,
+  RELIABILITY_SEMANTICS_VERSION,
   REQUIRED_CAPTURE_FIELDS,
   RUNNER_ARTIFACT_VERSION,
   type RequiredCaptureField,
@@ -140,7 +142,10 @@ export type ExperimentHalt =
       readonly detail: string;
     }
   | {
-      readonly kind: 'TIER1_TIMEOUT_DECISION_RULE';
+      // `TIER1_TIMEOUT_DECISION_RULE` is RETAINED so Recovery-1's own
+      // experiment-stop.json records keep parsing and keep meaning what they
+      // meant. `TIER1_TIMEOUT_CEILING_REACHED` is the v2 replacement.
+      readonly kind: 'TIER1_TIMEOUT_DECISION_RULE' | 'TIER1_TIMEOUT_CEILING_REACHED';
       readonly atSequence: number;
       readonly detail: string;
     }
@@ -423,6 +428,11 @@ export async function runExperiment(input: ExperimentInput): Promise<ExperimentR
   const endedTotal = (): number =>
     Object.values(endedWithoutStop).reduce((total, count) => total + count, 0);
   let started = 0;
+  // 2D2C-F0Z: how many NON-TERMINAL Tier-1 TIMEOUTs this replicate has
+  // recorded so far. Bounded by MAX_NON_TERMINAL_TIMEOUTS_PER_REPLICATE, so a
+  // wedged runtime cannot time out every batch and still report
+  // COMPLETED_ALL_PLANNED.
+  let nonTerminalTimeouts = 0;
 
   // Consume the authorisation write-once, before anything else is created:
   // the marker is named by the authorisation's own hash, so the same bytes
@@ -449,6 +459,12 @@ export async function runExperiment(input: ExperimentInput): Promise<ExperimentR
     variantRoots: input.variantRoots,
     authorisationSha256: input.authorisationSha256,
     tier2: { watchdogMs, graceMs },
+    // 2D2C-F0Z: the semantics THIS run executes under. Recovery-1 wrote no
+    // such field, so its absence means v1 - the version is recorded so a
+    // future run can be REFUSED by a v1 reader, never so history can be
+    // reinterpreted.
+    reliabilitySemanticsVersion: RELIABILITY_SEMANTICS_VERSION,
+    maxNonTerminalTimeoutsPerReplicate: MAX_NON_TERMINAL_TIMEOUTS_PER_REPLICATE,
     startedAtUtc: input.clock.nowUtc().toISOString(),
   });
 
@@ -585,6 +601,8 @@ export async function runExperiment(input: ExperimentInput): Promise<ExperimentR
       tier2: tier2ObservationOf(tier2),
       artifacts: artifacts.observation,
       requestedModelId: plan.requestedModelId,
+      priorNonTerminalTimeouts: nonTerminalTimeouts,
+      reliabilitySemanticsVersion: RELIABILITY_SEMANTICS_VERSION,
     });
     writeArtifactOnce(attemptDir, 'STOP_DECISION', decision);
     writeArtifactOnce(
@@ -610,11 +628,17 @@ export async function runExperiment(input: ExperimentInput): Promise<ExperimentR
               detail: decision.detail,
             }
           : {
-              kind: 'TIER1_TIMEOUT_DECISION_RULE',
+              kind: decision.haltKind,
               atSequence: evaluation.sequence,
               detail: decision.detail,
             },
       );
+    }
+    // A non-terminal Tier-1 TIMEOUT counts against the replicate's bound. It
+    // is counted ONLY when the evaluation actually continued, so a timeout
+    // that stopped the run can never also consume the budget.
+    if (decision.evaluationOutcomeClass === 'PROVIDER_TIMEOUT_NON_TERMINAL') {
+      nonTerminalTimeouts += 1;
     }
     endedWithoutStop[evaluation.variantName] = (endedWithoutStop[evaluation.variantName] ?? 0) + 1;
   }

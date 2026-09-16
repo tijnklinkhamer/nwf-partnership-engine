@@ -34,7 +34,13 @@
  *
  * PURE. No network, no database, no filesystem, no clock.
  */
-import type { StopConditionId } from './constants.js';
+import {
+  MAX_NON_TERMINAL_TIMEOUTS_PER_REPLICATE,
+  NON_TERMINAL_PROVIDER_OUTCOMES,
+  RELIABILITY_SEMANTICS_V2,
+  type EvaluationOutcomeClass,
+  type StopConditionId,
+} from './constants.js';
 
 /** What the parent saw from the Tier-2 harness, reduced to the fields the decision reads. */
 export interface Tier2Observation {
@@ -95,7 +101,15 @@ export interface ChildArtifactObservation {
     { readonly present: true; readonly valid: boolean } | { readonly present: false };
 }
 
-export type HaltKind = 'STOP_CONDITION' | 'TIER1_TIMEOUT_DECISION_RULE';
+/**
+ * `TIER1_TIMEOUT_DECISION_RULE` is RETAINED, never removed: Recovery-1's
+ * `experiment-stop.json` records carry it and must keep parsing and meaning
+ * exactly what they meant. Under v2 semantics it is no longer PRODUCED for a
+ * reconciled TIMEOUT; `TIER1_TIMEOUT_CEILING_REACHED` is produced instead,
+ * once a replicate exceeds `MAX_NON_TERMINAL_TIMEOUTS_PER_REPLICATE`.
+ */
+export type HaltKind =
+  'STOP_CONDITION' | 'TIER1_TIMEOUT_DECISION_RULE' | 'TIER1_TIMEOUT_CEILING_REACHED';
 
 export type StopDecision =
   | {
@@ -103,31 +117,51 @@ export type StopDecision =
       readonly stopCondition: null;
       readonly haltKind: null;
       readonly detail: string;
+      readonly evaluationOutcomeClass: EvaluationOutcomeClass;
     }
   | {
       readonly stop: true;
       readonly stopCondition: StopConditionId;
       readonly haltKind: 'STOP_CONDITION';
       readonly detail: string;
+      readonly evaluationOutcomeClass: EvaluationOutcomeClass;
     }
   | {
       readonly stop: true;
       readonly stopCondition: null;
-      readonly haltKind: 'TIER1_TIMEOUT_DECISION_RULE';
+      readonly haltKind: 'TIER1_TIMEOUT_DECISION_RULE' | 'TIER1_TIMEOUT_CEILING_REACHED';
       readonly detail: string;
+      readonly evaluationOutcomeClass: EvaluationOutcomeClass;
     };
 
 export interface StopDecisionInput {
   readonly tier2: Tier2Observation;
   readonly artifacts: ChildArtifactObservation;
   readonly requestedModelId: string;
+  /**
+   * 2D2C-F0Z: how many NON-TERMINAL Tier-1 TIMEOUTs this replicate has
+   * already recorded, BEFORE this evaluation. Absent means 0, which
+   * reproduces the caller that does not track it.
+   */
+  readonly priorNonTerminalTimeouts?: number;
+  /**
+   * 2D2C-F0Z: the semantics this run executes under. Absent means the
+   * historical v1 rule, so every pre-F0Z caller - and every replay of a
+   * Recovery-1 observation - behaves exactly as it did.
+   */
+  readonly reliabilitySemanticsVersion?: string;
 }
 
-const stop = (stopCondition: StopConditionId, detail: string): StopDecision => ({
+const stop = (
+  stopCondition: StopConditionId,
+  detail: string,
+  evaluationOutcomeClass: EvaluationOutcomeClass,
+): StopDecision => ({
   stop: true,
   stopCondition,
   haltKind: 'STOP_CONDITION',
   detail,
+  evaluationOutcomeClass,
 });
 
 export function deriveStopDecision(input: StopDecisionInput): StopDecision {
@@ -138,12 +172,14 @@ export function deriveStopDecision(input: StopDecisionInput): StopDecision {
     return stop(
       'SUPPRESSED_EXPIRED_TARGET_IDENTITY',
       'the Tier-2 hard stage was required but suppressed because the direct child had already exited; an unconfirmed harness termination.',
+      'AMBIGUOUS_CHILD_TERMINATION',
     );
   }
   if (tier2.gracePhaseVerdict === 'CHILD_EXITED_UNCONFIRMED') {
     return stop(
       'CHILD_EXITED_UNCONFIRMED',
       'the child exited during the Tier-2 grace phase without acknowledging shutdown; an unconfirmed harness termination.',
+      'AMBIGUOUS_CHILD_TERMINATION',
     );
   }
 
@@ -158,12 +194,14 @@ export function deriveStopDecision(input: StopDecisionInput): StopDecision {
         'TIER2_WATCHDOG_FIRED_BEFORE_TIER1_TIMEOUT',
         `the Tier-2 watchdog expired (grace verdict ${tier2.gracePhaseVerdict ?? 'null'}, hard kill ${tier2.hardKillDisposition}) ` +
           'while no Tier-1 TIMEOUT had been recorded: Tier 1 did not fire. This triggers the 2D2B-2b decision.',
+        'TIER2_LIVENESS_FAILURE',
       );
     }
     // Tier 1 fired and recorded, yet the child outlived the watchdog: still an unclean end.
     return stop(
       'UNRECONCILED_PROVIDER_FAILURE',
       'a Tier-1 TIMEOUT was recorded but the child did not exit before the Tier-2 watchdog; the attempt is not reconciled to a clean child end.',
+      'TIER2_LIVENESS_FAILURE',
     );
   }
 
@@ -176,6 +214,7 @@ export function deriveStopDecision(input: StopDecisionInput): StopDecision {
     return stop(
       artifacts.preflight.stopCondition,
       'the child preflight recorded a stop condition before any provider construction.',
+      'AUTH_OR_PRE_INFERENCE_FAILURE',
     );
   }
   if (artifacts.failure.present) {
@@ -183,11 +222,13 @@ export function deriveStopDecision(input: StopDecisionInput): StopDecision {
       return stop(
         artifacts.failure.stopCondition,
         'the child recorded a stop condition in its failure record.',
+        'AUTH_OR_PRE_INFERENCE_FAILURE',
       );
     }
     return stop(
       'UNRECONCILED_PROVIDER_FAILURE',
       'the child recorded a thrown failure; no provider outcome is reconciled to this attempt.',
+      'AMBIGUOUS_CHILD_TERMINATION',
     );
   }
 
@@ -202,30 +243,42 @@ export function deriveStopDecision(input: StopDecisionInput): StopDecision {
       return stop(
         'BATCH_ARTIFACT_MISSING_OR_CORRUPT',
         'the child persisted partial artifacts but no result record; the attempt is incomplete.',
+        'AMBIGUOUS_CHILD_TERMINATION',
       );
     }
     if (artifacts.preflight.present && !artifacts.preflight.valid) {
-      return stop('BATCH_ARTIFACT_MISSING_OR_CORRUPT', 'the child preflight record is corrupt.');
+      return stop(
+        'BATCH_ARTIFACT_MISSING_OR_CORRUPT',
+        'the child preflight record is corrupt.',
+        'AMBIGUOUS_CHILD_TERMINATION',
+      );
     }
     return stop(
       'UNRECONCILED_PROVIDER_FAILURE',
       `the child ended (exit ${tier2.exitCode ?? 'null'}, signal ${tier2.signal ?? 'null'}) with no result and no failure record.`,
+      'AMBIGUOUS_CHILD_TERMINATION',
     );
   }
   if (!artifacts.result.valid) {
     return stop(
       'BATCH_ARTIFACT_MISSING_OR_CORRUPT',
       'the child result record fails its own recorded hash or shape.',
+      'AMBIGUOUS_CHILD_TERMINATION',
     );
   }
   const result = artifacts.result;
   if (result.childStopCondition !== null) {
-    return stop(result.childStopCondition, 'the child result carries a stop condition.');
+    return stop(
+      result.childStopCondition,
+      'the child result carries a stop condition.',
+      'AUTH_OR_PRE_INFERENCE_FAILURE',
+    );
   }
   if (!artifacts.providerOutcome.present || !artifacts.providerOutcome.valid) {
     return stop(
       'BATCH_ARTIFACT_MISSING_OR_CORRUPT',
       'the provider outcome record is missing or corrupt.',
+      'AMBIGUOUS_CHILD_TERMINATION',
     );
   }
   if (result.providerOutcome === 'OK') {
@@ -236,24 +289,28 @@ export function deriveStopDecision(input: StopDecisionInput): StopDecision {
       return stop(
         'RAW_OUTPUT_NOT_PERSISTED_BEFORE_VALIDATION',
         'the provider returned rawOutput but no raw-output checkpoint was durably persisted before validation.',
+        'AMBIGUOUS_CHILD_TERMINATION',
       );
     }
     if (!artifacts.rawCheckpoint.valid) {
       return stop(
         'BATCH_ARTIFACT_MISSING_OR_CORRUPT',
         'the raw-output checkpoint fails its own recorded hash.',
+        'AMBIGUOUS_CHILD_TERMINATION',
       );
     }
     if (!artifacts.validation.present || !artifacts.validation.valid) {
       return stop(
         'BATCH_ARTIFACT_MISSING_OR_CORRUPT',
         'the validation record is missing or corrupt.',
+        'AMBIGUOUS_CHILD_TERMINATION',
       );
     }
     if (result.providerReportedModelId !== input.requestedModelId) {
       return stop(
         'UNEXPECTED_RESPONSE_MODEL_ID',
         `the provider reported model ${JSON.stringify(result.providerReportedModelId)}; requested ${JSON.stringify(input.requestedModelId)}.`,
+        'AUTH_OR_PRE_INFERENCE_FAILURE',
       );
     }
     return {
@@ -261,6 +318,7 @@ export function deriveStopDecision(input: StopDecisionInput): StopDecision {
       stopCondition: null,
       haltKind: null,
       detail: 'OK outcome reconciled: raw checkpoint, validation and model id all recorded.',
+      evaluationOutcomeClass: 'VALIDATED_SEMANTIC_RESULT',
     };
   }
 
@@ -269,28 +327,81 @@ export function deriveStopDecision(input: StopDecisionInput): StopDecision {
     return stop(
       'USAGE_LIMIT_INTERRUPTION',
       'the provider reported subscription usage-limit exhaustion; the experiment stops (a later authorised continuation is idempotent by input identity).',
+      'AUTH_OR_PRE_INFERENCE_FAILURE',
     );
   }
   if (result.providerOutcome === 'TIMEOUT') {
+    // A TIMEOUT without its diagnostics is not a reconciled timeout at all:
+    // it is an evaluation we cannot describe. Unchanged, and FAIL CLOSED.
     if (!artifacts.tier1Diagnostics.present || !artifacts.tier1Diagnostics.valid) {
       return stop(
         'BATCH_ARTIFACT_MISSING_OR_CORRUPT',
         'a Tier-1 TIMEOUT was recorded without a valid diagnostics record.',
+        'AMBIGUOUS_CHILD_TERMINATION',
       );
     }
+    // v1 (Recovery-1, and any caller that names no version): unchanged.
+    if (input.reliabilitySemanticsVersion !== RELIABILITY_SEMANTICS_V2) {
+      return {
+        stop: true,
+        stopCondition: null,
+        haltKind: 'TIER1_TIMEOUT_DECISION_RULE',
+        detail:
+          'Tier 1 returned TIMEOUT before Tier 2 fired; the diagnostics are recorded and the experiment stops per the frozen ' +
+          'decision rule. Continuation is an operator-authorised attemptNo + 1. This is not one of the ten stop conditions.',
+        evaluationOutcomeClass: 'PROVIDER_TIMEOUT_NON_TERMINAL',
+      };
+    }
+    // v2 (2D2C-F0Z C1): a CONFIRMED timeout whose evidence is complete closes
+    // this evaluation durably and the next frozen one proceeds. Its own items
+    // are observed-INVALID; no semantic verdict is fabricated for them, and
+    // the batch is never re-run - no retry beyond the frozen contract exists.
+    const priorTimeouts = input.priorNonTerminalTimeouts ?? 0;
+    if (priorTimeouts >= MAX_NON_TERMINAL_TIMEOUTS_PER_REPLICATE) {
+      return {
+        stop: true,
+        stopCondition: null,
+        haltKind: 'TIER1_TIMEOUT_CEILING_REACHED',
+        detail:
+          `this replicate has already recorded ${priorTimeouts} non-terminal Tier-1 TIMEOUTs, reaching the ` +
+          `MAX_NON_TERMINAL_TIMEOUTS_PER_REPLICATE bound of ${MAX_NON_TERMINAL_TIMEOUTS_PER_REPLICATE}; the experiment stops rather than ` +
+          'continuing to spend a frozen plan against an apparently unhealthy runtime. The bound is an explicitly uncalibrated mechanical safety limit.',
+        evaluationOutcomeClass: 'PROVIDER_TIMEOUT_NON_TERMINAL',
+      };
+    }
     return {
-      stop: true,
+      stop: false,
       stopCondition: null,
-      haltKind: 'TIER1_TIMEOUT_DECISION_RULE',
+      haltKind: null,
       detail:
-        'Tier 1 returned TIMEOUT before Tier 2 fired; the diagnostics are recorded and the experiment stops per the frozen ' +
-        'decision rule. Continuation is an operator-authorised attemptNo + 1. This is not one of the ten stop conditions.',
+        'Tier 1 returned TIMEOUT before Tier 2 fired and its diagnostics are recorded; under RELIABILITY_SEMANTICS_V2 this ' +
+        "evaluation closes durably, THIS batch's items are INVALID provider-timeout observations, and the next frozen logical " +
+        'evaluation proceeds. No verdict is fabricated and this batch is never re-run.',
+      evaluationOutcomeClass: 'PROVIDER_TIMEOUT_NON_TERMINAL',
     };
+  }
+  // Every remaining non-OK outcome. The continue-set is an ALLOW-LIST, and it
+  // is exactly the set the forward scorer admits as an observed INVALID
+  // observation. Before F0Z this branch continued on ANY unrecognised non-OK
+  // outcome - AUTH_FAILURE, PROVIDER_REFUSAL and PROVIDER_TRANSIENT included -
+  // none of which any scorer admits, so such a run was silently unscoreable.
+  // Those are control-plane or ambiguous failures, never observations, and
+  // conflating them with a semantic INVALID is exactly the defect F0Z exists
+  // to remove. They now FAIL CLOSED.
+  if (!(NON_TERMINAL_PROVIDER_OUTCOMES as readonly string[]).includes(result.providerOutcome)) {
+    return stop(
+      'UNRECONCILED_PROVIDER_FAILURE',
+      `non-OK outcome ${result.providerOutcome} is not an admitted non-terminal observation ` +
+        `(admitted: ${NON_TERMINAL_PROVIDER_OUTCOMES.join(', ')}); the experiment stops rather than record a ` +
+        'control-plane failure as though it were a semantic observation.',
+      'AUTH_OR_PRE_INFERENCE_FAILURE',
+    );
   }
   return {
     stop: false,
     stopCondition: null,
     haltKind: null,
     detail: `non-OK outcome ${result.providerOutcome} reconciled to this attempt with a persisted diagnostic record; the batch is not completed and the experiment continues.`,
+    evaluationOutcomeClass: 'STRUCTURED_OUTPUT_FAILED_NON_TERMINAL',
   };
 }

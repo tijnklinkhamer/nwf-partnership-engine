@@ -130,6 +130,85 @@ export const STOP_CONDITIONS = [
 export type StopConditionId = (typeof STOP_CONDITIONS)[number];
 
 /**
+ * 2D2C-F0Z — THE RELIABILITY SEMANTICS VERSION.
+ *
+ * A run under `RELIABILITY_SEMANTICS_V2` is NOT observation-semantics-
+ * identical to Recovery-1 and must never be silently pooled with it. Under
+ * v1 a confirmed provider TIMEOUT ended the whole replicate, so its items and
+ * every later batch's items were UNOBSERVED. Under v2 that evaluation closes
+ * durably, ITS OWN items become observed-INVALID, and the next frozen logical
+ * evaluation proceeds. The denominator's SIZE is unchanged; its COMPOSITION
+ * is not.
+ *
+ * Recovery-1 wrote no such field. Its absence therefore MEANS v1, and the
+ * historical scorer keeps reading it exactly as before - the version is
+ * recorded so a future run can be refused by a v1 reader, never so history
+ * can be reinterpreted.
+ */
+export const RELIABILITY_SEMANTICS_V1_HISTORICAL = 'RELIABILITY_SEMANTICS_V1_RECOVERY_1';
+export const RELIABILITY_SEMANTICS_V2 = 'RELIABILITY_SEMANTICS_V2_TIMEOUT_CONTINUATION';
+
+/** The semantics a NEW run executes under. Recorded in the experiment manifest. */
+export const RELIABILITY_SEMANTICS_VERSION = RELIABILITY_SEMANTICS_V2;
+
+/**
+ * MECHANICAL SAFETY BOUND, EXPLICITLY UNCALIBRATED. Without it a wedged host
+ * could time out all twelve batches and still report COMPLETED_ALL_PLANNED.
+ *
+ * Recovery-1 measured 3 timeouts across 98 started batches (3.1%), and no
+ * replicate had more than one. 2 is comfortably above that observed maximum
+ * and far below 12. It is a bound, not a measurement, and it is the one
+ * number in this slice a future run should re-examine.
+ */
+export const MAX_NON_TERMINAL_TIMEOUTS_PER_REPLICATE = 2;
+
+/**
+ * 2D2C-F0Z — THE EXPLICIT EVALUATION-OUTCOME TAXONOMY.
+ *
+ * One durable class per logical evaluation, recorded on its stop decision.
+ * The whole point is that these three families stay APART:
+ *
+ *   SEMANTIC INVALID OBSERVATION - the provider answered (or was asked and
+ *     produced nothing usable); the item IS observed and counts in the
+ *     denominator;
+ *   MISSING DUE TO TERMINAL LIVENESS FAILURE - no answer exists and none can
+ *     be attributed; the item is UNOBSERVED;
+ *   CONTROL-PLANE FAILURE - the run was never entitled to ask; no item
+ *     conclusion of any kind.
+ *
+ * Collapsing any two of them is precisely the defect this slice corrects.
+ */
+export const EVALUATION_OUTCOME_CLASSES = [
+  /** OK, reconciled: raw checkpoint, validation and model id all recorded. */
+  'VALIDATED_SEMANTIC_RESULT',
+  /** OK, but documents remained rejected after the ADR 0011 repair round. */
+  'VALIDATOR_REJECTED_POST_REPAIR',
+  /** Semantic INVALID: the provider produced no usable structured result. Continues. */
+  'STRUCTURED_OUTPUT_FAILED_NON_TERMINAL',
+  /** Semantic INVALID: a confirmed Tier-1 TIMEOUT, durably closed. Continues (v2 only). */
+  'PROVIDER_TIMEOUT_NON_TERMINAL',
+  /** CONTROL-PLANE: auth, refusal, usage limit, isolation, drift. Never an observation. */
+  'AUTH_OR_PRE_INFERENCE_FAILURE',
+  /** TERMINAL LIVENESS: the Tier-2 watchdog fired on a child that was genuinely not answering. */
+  'TIER2_LIVENESS_FAILURE',
+  /** The child disappeared and the evidence cannot say cleanly how. FAIL CLOSED. */
+  'AMBIGUOUS_CHILD_TERMINATION',
+] as const;
+
+export type EvaluationOutcomeClass = (typeof EVALUATION_OUTCOME_CLASSES)[number];
+
+/**
+ * The CLOSED set of provider outcomes a non-terminal evaluation may carry.
+ *
+ * This is deliberately the same set the forward scorer admits as observed
+ * INVALID. Before F0Z the coordinator continued on ANY unrecognised non-OK
+ * outcome - including `AUTH_FAILURE`, `PROVIDER_REFUSAL` and
+ * `PROVIDER_TRANSIENT` - none of which the scorer admits, so such a run was
+ * silently unscoreable. Continuation is now allow-listed and fails closed.
+ */
+export const NON_TERMINAL_PROVIDER_OUTCOMES = ['STRUCTURED_OUTPUT_FAILED', 'TIMEOUT'] as const;
+
+/**
  * The 38 capture fields F0A requires per logical batch, in the freeze's own
  * order. The final record carries every one of them by this exact name.
  */

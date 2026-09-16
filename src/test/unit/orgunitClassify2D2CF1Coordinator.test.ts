@@ -687,19 +687,26 @@ describe('2D2C-F1 stop decision (pure; both platforms)', () => {
       requestedModelId: MODEL,
     });
     expect(noDiagnostics.stopCondition).toBe('BATCH_ARTIFACT_MISSING_OR_CORRUPT');
-    for (const outcome of [
-      'AUTH_FAILURE',
-      'PROVIDER_TRANSIENT',
-      'PROVIDER_REFUSAL',
-      'STRUCTURED_OUTPUT_FAILED',
-    ] as const) {
+    // 2D2C-F0Z: the continue-set is now a CLOSED ALLOW-LIST, and it is
+    // exactly the set a scorer admits as an observed INVALID observation.
+    // AUTH_FAILURE, PROVIDER_TRANSIENT and PROVIDER_REFUSAL used to continue
+    // here, yet no scorer admits them - so such a run was silently
+    // unscoreable. They are control-plane or ambiguous failures, never
+    // semantic observations, and they now fail closed.
+    const continues: Record<string, boolean> = {
+      AUTH_FAILURE: false,
+      PROVIDER_TRANSIENT: false,
+      PROVIDER_REFUSAL: false,
+      STRUCTURED_OUTPUT_FAILED: true,
+    };
+    for (const [outcome, shouldContinue] of Object.entries(continues)) {
       const decision = deriveStopDecision({
         tier2: completed,
         artifacts: okArtifacts({
           result: {
             present: true,
             valid: true,
-            providerOutcome: outcome,
+            providerOutcome: outcome as 'AUTH_FAILURE',
             providerReportedModelId: null,
             rawCheckpointPersistedBeforeValidation: null,
             childStopCondition: null,
@@ -709,7 +716,10 @@ describe('2D2C-F1 stop decision (pure; both platforms)', () => {
         }),
         requestedModelId: MODEL,
       });
-      expect(decision.stop, outcome).toBe(false);
+      expect(decision.stop, outcome).toBe(!shouldContinue);
+      if (!shouldContinue) {
+        expect(decision.stopCondition, outcome).toBe('UNRECONCILED_PROVIDER_FAILURE');
+      }
     }
     // The unconfirmed-termination verdicts win over everything else, on both platforms.
     for (const platformResult of [WINDOWS_SUPPRESSED, EXITED_UNCONFIRMED]) {
@@ -889,15 +899,47 @@ describe('2D2C-F1 coordinator with a fake launcher', () => {
     },
   );
 
-  it('a Tier-1 TIMEOUT halts by the decision rule; a reconciled provider failure continues to the next batch', async () => {
+  it('2D2C-F0Z: a confirmed Tier-1 TIMEOUT CONTINUES to the next batch; a reconciled provider failure does too', async () => {
+    // Under v1 this halted the whole replicate at sequence 4. Recovery-1 paid
+    // 92 never-attempted item-observations for that rule. Under v2 the
+    // evaluation closes durably, its own items are INVALID, and the plan runs
+    // to the end.
     const timeout = fakeLauncher({ 4: 'tier1Timeout' });
     const a = await runExperiment(experimentInput({ launcher: timeout.launcher }));
-    expect(a.halt).toMatchObject({ kind: 'TIER1_TIMEOUT_DECISION_RULE', atSequence: 4 });
-    expect(timeout.launched).toHaveLength(4);
+    expect(a.status).toBe('COMPLETED_ALL_PLANNED');
+    expect(timeout.launched).toHaveLength(24);
     const reconciled = fakeLauncher({ 5: 'reconciledFailure' });
     const b = await runExperiment(experimentInput({ launcher: reconciled.launcher }));
     expect(b.status).toBe('COMPLETED_ALL_PLANNED');
     expect(reconciled.launched).toHaveLength(24);
+  });
+
+  it('2D2C-F0Z: the per-replicate timeout ceiling stops the run, and never silently skips a batch', async () => {
+    // Two non-terminal timeouts are inside the bound; the third reaches it.
+    const timeouts = fakeLauncher({ 4: 'tier1Timeout', 7: 'tier1Timeout', 9: 'tier1Timeout' });
+    const result = await runExperiment(experimentInput({ launcher: timeouts.launcher }));
+    expect(result.halt).toMatchObject({
+      kind: 'TIER1_TIMEOUT_CEILING_REACHED',
+      atSequence: 9,
+    });
+    // Every batch up to and including the stopping one really ran: the run
+    // stops, it never jumps over a frozen evaluation.
+    expect(timeouts.launched).toHaveLength(9);
+  });
+
+  it('2D2C-F0Z: the experiment manifest records the reliability semantics version and the ceiling', async () => {
+    const { launcher } = fakeLauncher();
+    const result = await runExperiment(experimentInput({ launcher }));
+    const manifest = readRecord<{
+      reliabilitySemanticsVersion: string;
+      maxNonTerminalTimeoutsPerReplicate: number;
+    }>(result.experimentDir, 'EXPERIMENT_MANIFEST');
+    // Recorded so a v1 reader can REFUSE a v2 run, never so history can be
+    // reinterpreted: Recovery-1 wrote no such field and keeps meaning v1.
+    expect(manifest.reliabilitySemanticsVersion).toBe(
+      'RELIABILITY_SEMANTICS_V2_TIMEOUT_CONTINUATION',
+    );
+    expect(manifest.maxNonTerminalTimeoutsPerReplicate).toBe(2);
   });
 
   it('an existing attempt directory is a write-once refusal before any launch; a consumed authorisation is refused before anything', async () => {
@@ -940,6 +982,7 @@ describe('2D2C-F1 coordinator with a fake launcher', () => {
         stopCondition: 'UNRECONCILED_PROVIDER_FAILURE',
         haltKind: 'STOP_CONDITION',
         detail: 'x',
+        evaluationOutcomeClass: 'AMBIGUOUS_CHILD_TERMINATION',
       },
       scratchDirRemoved: true,
     });
