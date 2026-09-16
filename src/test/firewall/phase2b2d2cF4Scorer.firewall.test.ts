@@ -24,6 +24,7 @@ const SCORING_DIR = join(REPO_ROOT, 'src/test/harness/phase2b2d2c/scoring');
 // F0N: the attempt-3 scorer entries (F0J/F0L) walk the same graph and are held to the same wall too -
 // closes the gap F0L §1 and F0M §8 both noted but did not fix (this task's own scope forbade touching tests).
 // F0S: the attempt-4 scorer entries walk the same graph and are held to the same wall too.
+// F0X: the N=5 replication scorer (built, not run) and its clarification generator, by exact name.
 const ENTRY_POINTS = [
   'generate.ts',
   'run.ts',
@@ -34,6 +35,8 @@ const ENTRY_POINTS = [
   'attempt3Run.ts',
   'attempt4Generate.ts',
   'attempt4Run.ts',
+  'replicationRun.ts',
+  'replicationClarificationGenerate.ts',
 ];
 
 /** Modules that can reach inference, credentials, a database or a child process. */
@@ -218,5 +221,81 @@ describe('the F4 scorer cannot reach an execution, provider, auth or database pa
         );
       if (writes) expect(name).toBe('emit.ts');
     }
+  });
+});
+
+describe('2D2C-F0X: the N=5 replication scorer is pinned, gold-free until scoring, and interprets nothing', () => {
+  const codeOf = (name: string): string =>
+    readSource(join(SCORING_DIR, name))
+      .replace(/\/\*\*[\s\S]*?\*\//g, '')
+      .replace(/^\s*\/\/.*$/gm, '');
+  const REPLICATION_FILES = [
+    'replicationContract.ts',
+    'replicationSources.ts',
+    'replicationScore.ts',
+    'replicationSummarise.ts',
+    'replicationRun.ts',
+    'replicationClarificationGenerate.ts',
+  ];
+
+  it('every replication module is on the walked graph', () => {
+    const graph = transitiveGraph();
+    for (const name of REPLICATION_FILES) expect(graph.files).toContain(join(SCORING_DIR, name));
+  });
+
+  it('only replicationRun.ts can reach a gold label, and the readiness path above runReplicationStudyScoring never loads one', () => {
+    for (const name of REPLICATION_FILES.filter((n) => n !== 'replicationRun.ts')) {
+      const code = codeOf(name);
+      for (const specifier of ['./supplement.js', './adjudication.js']) {
+        expect(code.includes(specifier), `${name} imports ${specifier}`).toBe(false);
+      }
+    }
+    const run = codeOf('replicationRun.ts');
+    const scoringEntry = run.indexOf('export function runReplicationStudyScoring');
+    expect(scoringEntry).toBeGreaterThan(0);
+    const readinessPath = run.slice(0, scoringEntry);
+    for (const loader of [
+      'loadGoldSupplement(',
+      'loadOwnerAdjudication(',
+      'resolveGoldAvailability(',
+    ]) {
+      expect(readinessPath.includes(loader), `the readiness path calls ${loader}`).toBe(false);
+    }
+  });
+
+  it('the scoring pass refuses a forbidden source and pins every input before it loads any gold', () => {
+    const run = codeOf('replicationRun.ts');
+    const body = run.slice(run.indexOf('export function runReplicationStudyScoring'));
+    const firstRefusal = body.indexOf('refuseForbiddenScoringSource(repoRoot, goldSupplementPath)');
+    const fixtureVerified = body.indexOf("'DEV label fixture'");
+    const supplementLoad = body.indexOf('loadGoldSupplement(');
+    expect(firstRefusal).toBeGreaterThan(0);
+    expect(firstRefusal).toBeLessThan(body.indexOf('loadReplicationStudySources('));
+    expect(fixtureVerified).toBeGreaterThan(0);
+    expect(fixtureVerified).toBeLessThan(supplementLoad);
+    for (const pin of [
+      'RECOVERY_1_EXECUTION_INVENTORY_RAW_SHA256',
+      'RECOVERY_1_STRUCTURAL_CLOSURE_RAW_SHA256',
+      'REPLICATION_CLARIFICATION_RAW_SHA256',
+      'F0X_RECOVERY_1_STUDY_ROOT',
+    ]) {
+      expect(run, pin).toContain(pin);
+    }
+  });
+
+  it('computes no F0U §10 prompt-effect label and fabricates no metric for an incomplete replicate', () => {
+    for (const name of REPLICATION_FILES) {
+      const code = codeOf(name).replace(/'[^'\n]*'/g, "''");
+      for (const label of [
+        'V5_REPRODUCIBLY_BETTER',
+        'V5_REPRODUCIBLY_WORSE',
+        'NO_CLEAR_PROMPT_EFFECT',
+      ]) {
+        expect(code.includes(label), `${name} computes ${label}`).toBe(false);
+      }
+    }
+    const summarise = codeOf('replicationSummarise.ts');
+    expect(summarise).toContain('assertReplicateInvariants(replicate, corpusGoldIds)');
+    expect(codeOf('replicationScore.ts')).toContain("if (status !== 'COMPLETE')");
   });
 });

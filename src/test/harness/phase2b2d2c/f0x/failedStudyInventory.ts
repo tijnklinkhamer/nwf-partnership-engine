@@ -127,7 +127,7 @@ function baseName(path: string): string {
 }
 
 /** sha256 over the sorted `"<fileSha256>  <relative path>\n"` lines — a whole-tree fingerprint. */
-function treeFingerprint(entries: readonly { path: string; fileSha256: string }[]): string {
+export function treeFingerprint(entries: readonly { path: string; fileSha256: string }[]): string {
   return sha256(
     [...entries]
       .sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0))
@@ -136,7 +136,7 @@ function treeFingerprint(entries: readonly { path: string; fileSha256: string }[
   );
 }
 
-function pinRecord(
+export function pinRecord(
   root: string,
   path: string,
   probes: InventoryProbes,

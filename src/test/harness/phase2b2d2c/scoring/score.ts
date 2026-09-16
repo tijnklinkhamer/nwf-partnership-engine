@@ -210,20 +210,68 @@ export const NON_PREDICTED_GOLD_FIELDS: readonly string[] = Object.freeze(['hard
  * Fails closed on a duplicate gold id, a missing or extra document, a
  * document claimed both accepted and rejected, and any non-DEVELOPMENT row.
  */
-export function scoreVariant(
-  sources: ScoringSourceRows,
-  variantName: ScoredVariantName,
-  availability: GoldAvailability,
-  preserved: PreservedGold,
-): readonly ScoredItem[] {
+export type CorpusIndex = ReadonlyMap<
+  string,
+  { readonly row: GoldCorpusItem; readonly line: number }
+>;
+
+/** F0X: the DEVELOPMENT corpus by gold id. Fails closed on a non-DEVELOPMENT or duplicated row. */
+export function corpusIndexOf(corpusRows: readonly GoldCorpusItem[]): CorpusIndex {
   const corpusByGoldId = new Map<string, { row: GoldCorpusItem; line: number }>();
-  sources.corpusRows.forEach((row, index) => {
+  corpusRows.forEach((row, index) => {
     if (row.split !== 'DEVELOPMENT')
       fail(`corpus row ${row.goldId} is ${row.split}; only DEVELOPMENT is scorable.`);
     if (corpusByGoldId.has(row.goldId))
       fail(`duplicate gold id ${row.goldId} in the canonical corpus.`);
     corpusByGoldId.set(row.goldId, { row, line: index + 1 });
   });
+  return corpusByGoldId;
+}
+
+/**
+ * F0X: every scored row of ONE validated evaluation, in batch order. Fails
+ * closed on a gold id outside the corpus and a docIndex that disagrees with
+ * the corpus row.
+ */
+export function scoreEvaluation(
+  evaluation: LoadedEvaluation,
+  corpusByGoldId: CorpusIndex,
+  availability: GoldAvailability,
+  preserved: PreservedGold,
+): readonly ScoredItem[] {
+  const rows: ScoredItem[] = [];
+  for (const [position, goldId] of evaluation.orderedGoldIds.entries()) {
+    const docIndex = evaluation.orderedDocIndices[position];
+    if (docIndex === undefined)
+      fail(`${evaluation.attemptDirectory}: no docIndex at position ${position}.`);
+    const corpusEntry = corpusByGoldId.get(goldId);
+    if (corpusEntry === undefined)
+      fail(`gold id ${goldId} is not a DEVELOPMENT canonical corpus row.`);
+    if (corpusEntry.row.docIndex !== docIndex) {
+      fail(
+        `gold id ${goldId}: docIndex ${docIndex} differs from the corpus row's ${corpusEntry.row.docIndex}.`,
+      );
+    }
+    rows.push(
+      scoreOne(evaluation, goldId, docIndex, corpusEntry.line, position, availability, preserved),
+    );
+  }
+  return rows;
+}
+
+/**
+ * Builds every scored row for one variant's twelve evaluations.
+ *
+ * Fails closed on a duplicate gold id, a missing or extra document, a
+ * document claimed both accepted and rejected, and any non-DEVELOPMENT row.
+ */
+export function scoreVariant(
+  sources: ScoringSourceRows,
+  variantName: ScoredVariantName,
+  availability: GoldAvailability,
+  preserved: PreservedGold,
+): readonly ScoredItem[] {
+  const corpusByGoldId = corpusIndexOf(sources.corpusRows);
 
   const rows: ScoredItem[] = [];
   const seen = new Set<string>();
@@ -231,24 +279,11 @@ export function scoreVariant(
   if (evaluations.length === 0) fail(`no evaluation found for variant ${variantName}.`);
 
   for (const evaluation of evaluations) {
-    for (const [position, goldId] of evaluation.orderedGoldIds.entries()) {
-      const docIndex = evaluation.orderedDocIndices[position];
-      if (docIndex === undefined)
-        fail(`${evaluation.attemptDirectory}: no docIndex at position ${position}.`);
+    for (const goldId of evaluation.orderedGoldIds) {
       if (seen.has(goldId)) fail(`gold id ${goldId} appears twice under ${variantName}.`);
       seen.add(goldId);
-      const corpusEntry = corpusByGoldId.get(goldId);
-      if (corpusEntry === undefined)
-        fail(`gold id ${goldId} is not a DEVELOPMENT canonical corpus row.`);
-      if (corpusEntry.row.docIndex !== docIndex) {
-        fail(
-          `gold id ${goldId}: docIndex ${docIndex} differs from the corpus row's ${corpusEntry.row.docIndex}.`,
-        );
-      }
-      rows.push(
-        scoreOne(evaluation, goldId, docIndex, corpusEntry.line, position, availability, preserved),
-      );
     }
+    rows.push(...scoreEvaluation(evaluation, corpusByGoldId, availability, preserved));
   }
   if (seen.size !== sources.corpusRows.length) {
     fail(
@@ -308,6 +343,69 @@ function scoreOne(
       ? null
       : predictionOf(acceptedEntry.result);
 
+  const fields = goldFieldsOf(goldId, prediction, availability, preserved);
+
+  return {
+    goldId,
+    corpusLineNumber,
+    docIndex,
+    echeRowKey: evaluation.echeRowKey,
+    organisationId: evaluation.organisationId,
+    logicalBatchOrdinal: evaluation.logicalBatchOrdinal,
+    positionWithinBatch,
+    sequence: evaluation.sequence,
+    variantName: evaluation.variantName,
+    promptVersion: evaluation.promptVersion,
+    promptSha256: evaluation.promptSha256,
+    variantGitCommit: evaluation.variantGitCommit,
+    finalInputSha256: evaluation.finalInputSha256,
+    rawOutputSha256: evaluation.rawOutputSha256,
+    validationResultSha256: evaluation.artifactFileSha256['VALIDATION_RESULT'] ?? '',
+    finalRecordSha256: evaluation.artifactFileSha256['FINAL_RECORD'] ?? '',
+    validatorState,
+    rejectionCategory: repaired ? null : (rejectedEntry?.category ?? null),
+    rejectionReason: repaired ? null : (rejectedEntry?.reason ?? null),
+    prediction,
+    ...(repair === undefined || rejectedEntry === undefined
+      ? {}
+      : {
+          firstPass: {
+            validatorState: 'REJECTED' as const,
+            rejectionCategory: rejectedEntry.category,
+            rejectionReason: rejectedEntry.reason,
+          },
+          repair: {
+            disposition: repair.disposition,
+            errorKind: repair.errorKind,
+            reasonCodes: repair.reasonCodes,
+            rawOutputSha256: repair.rawOutputSha256,
+            repairOutcomeSha256: repair.artifactFileSha256['REPAIR_OUTCOME'] ?? '',
+          },
+        }),
+    ...fields,
+  };
+}
+
+/** The gold-backed part of one scored row: gold values, their source, and field-level correctness. */
+export interface GoldFields {
+  readonly gold: Readonly<Record<string, string | null>>;
+  readonly goldSource: Readonly<Record<string, string>>;
+  readonly fieldCorrectness: Readonly<Record<string, FieldCorrectness>>;
+  readonly strictScorableFields: readonly string[];
+  readonly conditionalScorableFields: readonly string[];
+}
+
+/**
+ * F0X: the per-field gold loop, shared by a validated item and (through
+ * `scoreInvalidItem`) an INVALID one. A `null` prediction is STRICT-incorrect
+ * on every gold-applicable field, never absent.
+ */
+export function goldFieldsOf(
+  goldId: string,
+  prediction: PredictionFields | null,
+  availability: GoldAvailability,
+  preserved: PreservedGold,
+): GoldFields {
   const gold: Record<string, string | null> = {};
   const goldSource: Record<string, string> = {};
   const fieldCorrectness: Record<string, FieldCorrectness> = {};
@@ -385,47 +483,5 @@ function scoreOne(
     }
   }
 
-  return {
-    goldId,
-    corpusLineNumber,
-    docIndex,
-    echeRowKey: evaluation.echeRowKey,
-    organisationId: evaluation.organisationId,
-    logicalBatchOrdinal: evaluation.logicalBatchOrdinal,
-    positionWithinBatch,
-    sequence: evaluation.sequence,
-    variantName: evaluation.variantName,
-    promptVersion: evaluation.promptVersion,
-    promptSha256: evaluation.promptSha256,
-    variantGitCommit: evaluation.variantGitCommit,
-    finalInputSha256: evaluation.finalInputSha256,
-    rawOutputSha256: evaluation.rawOutputSha256,
-    validationResultSha256: evaluation.artifactFileSha256['VALIDATION_RESULT'] ?? '',
-    finalRecordSha256: evaluation.artifactFileSha256['FINAL_RECORD'] ?? '',
-    validatorState,
-    rejectionCategory: repaired ? null : (rejectedEntry?.category ?? null),
-    rejectionReason: repaired ? null : (rejectedEntry?.reason ?? null),
-    prediction,
-    ...(repair === undefined || rejectedEntry === undefined
-      ? {}
-      : {
-          firstPass: {
-            validatorState: 'REJECTED' as const,
-            rejectionCategory: rejectedEntry.category,
-            rejectionReason: rejectedEntry.reason,
-          },
-          repair: {
-            disposition: repair.disposition,
-            errorKind: repair.errorKind,
-            reasonCodes: repair.reasonCodes,
-            rawOutputSha256: repair.rawOutputSha256,
-            repairOutcomeSha256: repair.artifactFileSha256['REPAIR_OUTCOME'] ?? '',
-          },
-        }),
-    gold,
-    goldSource,
-    fieldCorrectness,
-    strictScorableFields,
-    conditionalScorableFields,
-  };
+  return { gold, goldSource, fieldCorrectness, strictScorableFields, conditionalScorableFields };
 }
