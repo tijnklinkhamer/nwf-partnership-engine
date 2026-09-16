@@ -12,18 +12,42 @@ could distribute NWF to language learners.
 **Current state: Phase 1D, plus the Phase 2B-1a trust foundation, the
 Phase 2B-1b web gateway, the Phase 2B-1c policy-governed page evidence
 capability, the Phase 2B-1d deterministic signal layer, and the Phase 2B-1e
-bounded discovery orchestrator (landed on main). This
-repository ingests THREE official datasets into a local PostgreSQL database —
-the ECHE list, the EWP Registry catalogue and the French Ministry register of
-higher-education institutions — lets you inspect them, and measures how their
-published identifiers and website values relate. It also holds a bounded
-DISCOVERY capability: given one trusted organisation root, it evaluates that
-host's robots.txt, discovers a bounded sitemap tree and a bounded set of
-same-domain anchor links, fetches up to 35 policy-governed pages under a
-60-request total budget, ranks each successfully-read page with the pure
-deterministic signal layer, and appends the ranked result as candidate
-evidence. Nothing beyond this is wired together: no semantic classifier, no
-AI, no contact discovery, no outbound capability. That is all it DOES.**
+bounded discovery orchestrator (landed on main), plus the accepted
+Phase 2B-2C2 / 2B-2C2A semantic-classifier runtime and the accepted
+Phase 2B-2D2C-R1 bounded item-level repair round — see
+`docs/adr/0009-claude-max-only-classifier-runtime.md`,
+`docs/adr/0010-stored-max-subscription-profile-auth.md` and
+`docs/adr/0011-bounded-item-level-repair-round.md` (all Status: Accepted).
+This repository ingests THREE official datasets into a
+local PostgreSQL database — the ECHE list, the EWP Registry catalogue and
+the French Ministry register of higher-education institutions — lets you
+inspect them, and measures how their published identifiers and website
+values relate. It also holds a bounded DISCOVERY capability: given one
+trusted organisation root, it evaluates that host's robots.txt, discovers a
+bounded sitemap tree and a bounded set of same-domain anchor links, fetches
+up to 35 policy-governed pages under a 60-request total budget, ranks each
+successfully-read page with the pure deterministic signal layer, and appends
+the ranked result as candidate evidence. On top of that, an approved,
+narrowly-scoped internal semantic classifier (`src/orgunits/classify/`,
+migrations 0009-0011, the append-only `nwf_classifier` role) can turn that
+ranked page evidence into a structured, schema-validated classification, by
+calling ONLY the owner's own Claude Max subscription through the Agent SDK —
+never a Console API key, never PAYG, never Bedrock, never Vertex, never an
+unapproved provider or auth path. That classifier is INFERENCE ONLY: it
+sends nothing to a partner organisation, creates no contact, and has no
+outreach action. Nothing beyond all of this is wired together: still no
+contact discovery, no outreach execution, no Apollo integration, and no
+capability that sends anything to a real organisation. That is all it
+DOES.**
+
+**Current phase note (Phase 2B-2D2C, DEVELOPMENT only).** The branch-local
+Phase 2B-2D2C work, through the owner-reviewed F0X slice on this branch, is a
+bounded V4/V5 N=5 REPLICATION STUDY that evaluates classifier reliability
+under ADR 0011's one bounded repair round. It is an EVALUATION capability,
+not a general-purpose production classifier CLI and not an outreach
+capability: it runs only under its exact frozen per-slot authorisations plus
+one exact study-level owner execution approval, stays DEVELOPMENT-only, and
+HOLDOUT remains prohibited until separately authorised.
 
 **Migration 0007 creates eight `orgunit_*` tables and the `nwf_research` role.
 Phase 2B-1b built `src/orgunits/web/gateway.ts` against them; Phase 2B-1c added
@@ -57,9 +81,15 @@ DERIVED comparison over immutable claims, never a stored conclusion: see "What
 Phase 1D measured".
 
 There is no entity resolution, no crawling or scraping, no research pipeline, no
-Claude/Anthropic integration, no contact discovery or storage, no scoring, no
-compliance engine, no email templates, no Apollo integration and no outbound
-capability. Do not add any of them without an approved phase.
+contact discovery or storage, no scoring, no compliance engine, no email
+templates, no Apollo integration and no outbound/outreach capability. Do not
+add any of them without an approved phase. The one approved exception is the bounded
+internal semantic classifier described above: an INFERENCE-ONLY use of the
+owner's own Claude Max subscription through the Agent SDK (ADR 0009, ADR
+0010, ADR 0011). It sends nothing to an external organisation, stores no
+contact, and performs no outreach — every other prohibition in this
+paragraph still governs anything beyond that bounded inference, and the
+classifier gains no exception to any of them.
 
 **Phase 1D never fetches an institution website.** It reasons about websites
 using only what official registers PUBLISH about them. It issues no request to
@@ -80,10 +110,22 @@ it, or depend on it, and must never touch learner, payment, or payout data.
 
 ## Non-negotiable rules
 
-1. **No outbound capability.** This repository cannot send anything and must stay
-   that way in Phase 1B. When an outbound phase is eventually approved, sending
-   must default to off and pass an explicit multi-gate check. Never add an email
-   dependency, provider credential or send code path to this repo now.
+1. **No outbound PARTNERSHIP-OUTREACH capability.** This repository cannot send
+   anything to an external organisation, activate a contact, or execute outreach —
+   no email, no Apollo execution — and must stay that way absent a separately
+   approved outbound-outreach phase, where sending would default to off and
+   pass an explicit multi-gate check. Never add an email dependency, an
+   outreach-provider credential, or a partnership-outreach send code path to
+   this repo now.
+
+   **Separately approved internal semantic-classifier inference is not
+   partnership outreach.** ADR 0009, ADR 0010 and ADR 0011 govern the bounded
+   Claude Max classifier runtime and its repair policy. That runtime may use
+   only the owner-provisioned Claude Max subscription path defined by ADR 0010
+   through the Agent SDK; no Console API key, PAYG, Bedrock, Vertex or other
+   unapproved provider/auth path is permitted. It classifies already-fetched,
+   already-authorised page evidence only and does not create or activate
+   contacts, send outreach, or access HOLDOUT without separate authorisation.
 2. **Never guess a value.** No inferred websites, no inferred country from a name
    or an Erasmus-code prefix, no invented identifiers. Unknown is `NULL`.
    `normaliseRow` throws on a malformed row rather than repairing it.
@@ -191,10 +233,17 @@ it, or depend on it, and must never touch learner, payment, or payout data.
     The gateway returns bounded bytes IN MEMORY because a later extractor needs
     them; when the caller drops that value the bytes are gone.
     `src/research/`, `src/crawl/`, `src/scrape/` and `src/enrich/` stay
-    forbidden, as do `src/orgunits/web/robots.ts`, `sitemap.ts`, `frontier.ts`,
-    `extract.ts`, `charset.ts`, `src/orgunits/signals/`,
-    `src/orgunits/candidates/` and `src/orgunits/classify/` — all asserted
-    absent, all belonging to later slices.
+    forbidden, as does `src/orgunits/candidates/`. (This list described a
+    point-in-time snapshot as later slices landed; several of the paths named
+    here — including `src/orgunits/web/robots.ts`, `extract.ts`, `charset.ts`
+    and `src/orgunits/signals/` — exist today, per "What Phase 2B-1c built"
+    and "What Phase 2B-1d built" below.) **`src/orgunits/classify/` is no
+    longer forbidden or absent**: ADR 0009, ADR 0010 and ADR 0011 (all
+    Status: Accepted) approved a bounded internal semantic-classifier
+    namespace there, gated to the owner's own Claude Max subscription via
+    the Agent SDK, append-only through the `nwf_classifier` role (migration
+    0009). It remains subject to every other rule in this file, including
+    rule 1's outreach prohibition.
 
 18. **ONE invocation of the gateway is ONE HTTP ATTEMPT, and every authority
     comes from the database.** `executeWebAttempt` performs at most one GET. It
@@ -1209,9 +1258,15 @@ src/orgunits/orchestrator/  the Phase 2B-1e bounded discovery orchestrator:
                      Nothing else under src/orgunits/ may import node:dns,
                      node:net, node:tls, node:http or node:https, or call
                      fetch(). src/orgunits/web/sitemap.ts, web/frontier.ts and
-                     src/orgunits/candidates/ and /classify/ do not exist and
-                     belong to later slices (sitemap/frontier logic lives at
-                     the paths above instead - a deliberate naming decision).
+                     src/orgunits/candidates/ still do not exist (sitemap/
+                     frontier logic lives at the paths above instead - a
+                     deliberate naming decision). src/orgunits/classify/ DOES
+                     exist: an approved, bounded internal semantic-classifier
+                     namespace (ADR 0009, ADR 0010, ADR 0011, all Status:
+                     Accepted), which calls ONLY the owner's own Claude Max
+                     subscription through the Agent SDK and is append-only
+                     through the nwf_classifier role (migration 0009). See
+                     those ADRs for its internal layout.
                      Nothing under src/orgunits/signals/ opens a socket, a
                      database connection or a file handle, reads an
                      environment variable, or calls Date.now()/Math.random().
