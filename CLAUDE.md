@@ -126,6 +126,7 @@ it, or depend on it, and must never touch learner, payment, or payout data.
    unapproved provider/auth path is permitted. It classifies already-fetched,
    already-authorised page evidence only and does not create or activate
    contacts, send outreach, or access HOLDOUT without separate authorisation.
+
 2. **Never guess a value.** No inferred websites, no inferred country from a name
    or an Erasmus-code prefix, no invented identifiers. Unknown is `NULL`.
    `normaliseRow` throws on a malformed row rather than repairing it.
