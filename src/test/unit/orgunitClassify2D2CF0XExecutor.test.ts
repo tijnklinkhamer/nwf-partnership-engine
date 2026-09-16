@@ -7,7 +7,15 @@
  *
  * `F0V_STUDY_ROOT` is mocked to a temporary directory for this file's
  * whole module graph, exactly as in `orgunitClassify2D2CF0XComposedGate`
- * — the real, still-forbidden frozen root is never touched.
+ * — the real frozen root (which now holds the preserved first real F0X
+ * study invocation) is never written, and this file proves it by hash.
+ *
+ * ZERO-INFERENCE EXECUTION-RECOVERY CORRECTION: progression now follows the
+ * slot's own preserved evidence, never the mere return of `runExperiment`.
+ * A fake launcher that leaves no child artifact is therefore NOT Class C
+ * (the study pauses at slot 1), and the ten-slot happy path uses a fake
+ * launcher that writes the artifacts a child writes only after a provider
+ * call returned.
  */
 import {
   existsSync,
@@ -33,6 +41,9 @@ vi.mock('../harness/phase2b2d2c/f0v/freezeF0V.js', async (importOriginal) => {
   return { ...actual, F0V_STUDY_ROOT: root };
 });
 
+import { canonicalStringify } from '../../orgunits/classify/canonical.js';
+import { snapshotTreeSha256 } from '../helpers/treeSnapshot.js';
+import { attemptDirectoryOf, writeArtifactOnce } from '../harness/phase2b2d2c/artifacts.js';
 import { CHILD_ENTRY_PATH } from '../harness/phase2b2d2c/cli.js';
 import type { ChildLauncher } from '../harness/phase2b2d2c/coordinator.js';
 import { runProcessIsolatedBatch } from '../harness/processIsolatedBatch.js';
@@ -83,9 +94,17 @@ import {
   type F0XStudyExecutionApproval,
 } from '../harness/phase2b2d2c/f0x/studyExecutionApprovalF0X.js';
 import { runReplicationStudyExecution } from '../harness/phase2b2d2c/f0x/studyExecutor.js';
-import { outerSlotIdentityPathOf } from '../harness/phase2b2d2c/f0x/outerSlotIdentity.js';
+import {
+  isConsumedByOuterSlotIdentity,
+  outerSlotIdentityPathOf,
+} from '../harness/phase2b2d2c/f0x/outerSlotIdentity.js';
+import { isAuthorisationConsumed } from '../harness/phase2b2d2c/coordinator.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
+const REAL_F0V_STUDY_ROOT_STRING =
+  '/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5';
+/** The real root holds preserved evidence; this file must never write there. */
+const REAL_STUDY_ROOT_AT_LOAD = snapshotTreeSha256(REAL_F0V_STUDY_ROOT_STRING);
 const FIXED_HEAD = 'a'.repeat(40);
 const APPROVAL_SHA = F0V_APPROVAL_RECORD_RAW_SHA256 as string;
 
@@ -247,7 +266,11 @@ function listFilesRecursively(root: string): readonly string[] {
   walk(root);
   return results;
 }
-const sequencingProbes = { isDirectory: (p: string) => existsSync(p), listFilesRecursively };
+const sequencingProbes = {
+  isDirectory: (p: string) => existsSync(p),
+  listFilesRecursively,
+  readFile: (p: string) => readFileSync(p),
+};
 
 /** A fully valid, ten-slot fixture: every candidate present, every output root created. */
 function fullyValidStudySetup(
@@ -293,11 +316,83 @@ function fakeLauncherThatNeverRunsAProvider(dispatched: string[]): ChildLauncher
   };
 }
 
-describe('2D2C-F0X executor: real frozen study root stays absent', () => {
-  it('never creates anything at the real F0V study root', () => {
-    expect(
-      existsSync('/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5'),
-    ).toBe(false);
+/**
+ * Writes, into the dispatched attempt directory, exactly the artifacts a real
+ * child writes only AFTER `provider.classify` returned — a genuine Class C
+ * semantic-execution marker set — without any process or provider.
+ */
+function fakeLauncherWritingSemanticExecution(dispatched: string[]): ChildLauncher {
+  const inner = fakeLauncherThatNeverRunsAProvider(dispatched);
+  return {
+    launch: async (input) => {
+      const manifest = (
+        JSON.parse(readFileSync(input.manifestPath, 'utf8')) as {
+          record: {
+            variantName: string;
+            logicalBatchOrdinal: number;
+            attemptNo: number;
+            requestedModelId: string;
+          };
+        }
+      ).record;
+      const dir = input.attemptDir;
+      writeArtifactOnce(dir, 'CHILD_PREFLIGHT', {
+        ok: true,
+        stopCondition: null,
+        detail: 'fake',
+        checks: [],
+        providerConstructed: false,
+      });
+      const serialization = canonicalStringify({ results: [] });
+      writeArtifactOnce(dir, 'RAW_OUTPUT_CHECKPOINT', {
+        rawOutputCanonicalSerialization: serialization,
+        rawOutputSha256: sha256Hex(serialization),
+        rawOutputUtf8Bytes: Buffer.byteLength(serialization, 'utf8'),
+      });
+      writeArtifactOnce(dir, 'VALIDATION_RESULT', {
+        kind: 'SCHEMA_INVALID',
+        detail: 'fake',
+        accepted: [],
+        rejected: [],
+      });
+      writeArtifactOnce(dir, 'PROVIDER_OUTCOME', {
+        outcome: 'OK',
+        providerReportedModelId: manifest.requestedModelId,
+        inputTokens: 10,
+        outputTokens: 20,
+        outcomeDetail: null,
+        internalAdapterAttemptCountWhereObservable: 1,
+        authStatusInvocationsObserved: 1,
+        startedAtUtc: '2026-09-16T12:00:00.000Z',
+        endedAtUtc: '2026-09-16T12:00:01.000Z',
+        monotonicWallTimeMs: 1000,
+        tier1DiagnosticsCaptured: 0,
+      });
+      writeArtifactOnce(dir, 'CHILD_RESULT', {
+        variantName: manifest.variantName,
+        logicalBatchOrdinal: manifest.logicalBatchOrdinal,
+        attemptNo: manifest.attemptNo,
+        providerOutcome: 'OK',
+        providerReportedModelId: manifest.requestedModelId,
+        rawCheckpointPersistedBeforeValidation: true,
+        rawBeforeValidationSequence: { persistedSeq: 1, validationStartedSeq: 2 },
+        childStopCondition: null,
+        artifactHashes: {},
+        repairRound: null,
+      });
+      return inner.launch(input);
+    },
+  };
+}
+
+describe('2D2C-F0X executor: the real frozen study root is never written', () => {
+  it('the mocked study root is not the real F0V study root', () => {
+    expect(F0V_STUDY_ROOT).not.toBe(REAL_F0V_STUDY_ROOT_STRING);
+    expect(F0V_STUDY_ROOT.startsWith(`${REAL_F0V_STUDY_ROOT_STRING}/`)).toBe(false);
+  });
+
+  afterAll(() => {
+    expect(snapshotTreeSha256(REAL_F0V_STUDY_ROOT_STRING)).toEqual(REAL_STUDY_ROOT_AT_LOAD);
   });
 });
 
@@ -327,6 +422,7 @@ describe('2D2C-F0X executor: all-ten-before-first-child and frozen order (fake l
       sequencingProbes,
       outputRootProbes,
       forbiddenOutputRootContainers: [],
+      runnerRepoRoot: ROOT,
       v4Root: ROOT,
       v5Root: ROOT,
       classifierConfigDir: join(freshDir(), 'profile'),
@@ -340,7 +436,7 @@ describe('2D2C-F0X executor: all-ten-before-first-child and frozen order (fake l
     expect(dispatched).toHaveLength(0);
   });
 
-  it('dispatches all ten slots in the frozen order, with a fake launcher, and completes the whole study', async () => {
+  it('dispatches all ten slots in the frozen order and completes the whole study ONLY when every slot leaves real Class C evidence', async () => {
     const { candidatePathForSlot, studyApprovalPath } = fullyValidStudySetup();
     const dispatched: string[] = [];
 
@@ -358,12 +454,13 @@ describe('2D2C-F0X executor: all-ten-before-first-child and frozen order (fake l
       sequencingProbes,
       outputRootProbes,
       forbiddenOutputRootContainers: [],
+      runnerRepoRoot: ROOT,
       v4Root: ROOT,
       v5Root: ROOT,
       classifierConfigDir: join(freshDir(), 'profile'),
       parentEnv: {},
       platform: 'posix',
-      launcher: fakeLauncherThatNeverRunsAProvider(dispatched),
+      launcher: fakeLauncherWritingSemanticExecution(dispatched),
       clock: { nowUtc: () => new Date('2026-09-16T12:00:00.000Z') },
     });
 
@@ -373,12 +470,21 @@ describe('2D2C-F0X executor: all-ten-before-first-child and frozen order (fake l
         F0V_SLOTS.map((s) => s.slotId),
       );
     }
-    // This fake launcher writes no child artifacts (unlike a real child), so
-    // each slot's first logical evaluation reconciles as a stop condition —
-    // which still durably closes the slot (EXPERIMENT_STOP), so it is still
-    // Class C and the study still auto-advances through all ten slots in
-    // their frozen order: exactly one dispatched child per slot.
-    expect(dispatched).toHaveLength(F0V_SLOTS.length);
+    // Every dispatched child left provider-outcome/raw-output/child-result
+    // markers, so each slot is Class C and durably closed, and the study
+    // auto-advances through all ten slots in their frozen order.
+    expect(dispatched.length).toBeGreaterThanOrEqual(F0V_SLOTS.length);
+    for (const slot of F0V_SLOTS) {
+      expect(
+        existsSync(
+          join(
+            F0V_STUDY_ROOT,
+            'study-events',
+            `${String(slot.sequence).padStart(3, '0')}-${slot.slotId}-SLOT_COMPLETED_CLASS_C.json`,
+          ),
+        ),
+      ).toBe(true);
+    }
     // The outer-slot-identity record exists for every slot, written before dispatch.
     for (const slot of F0V_SLOTS) {
       expect(existsSync(outerSlotIdentityPathOf(slotOutputRoot(slot)))).toBe(true);
@@ -417,22 +523,27 @@ describe('2D2C-F0X executor: all-ten-before-first-child and frozen order (fake l
       sequencingProbes,
       outputRootProbes,
       forbiddenOutputRootContainers: [],
+      runnerRepoRoot: ROOT,
       v4Root: ROOT,
       v5Root: ROOT,
       classifierConfigDir: join(freshDir(), 'profile'),
       parentEnv: {},
       platform: 'posix',
-      launcher: fakeLauncherThatNeverRunsAProvider(dispatched),
+      launcher: fakeLauncherWritingSemanticExecution(dispatched),
       clock: { nowUtc: () => new Date('2026-09-16T12:00:00.000Z') },
     });
 
     expect(outcome.status).toBe('PAUSED');
     if (outcome.status === 'PAUSED') {
       expect(outcome.pausedAtSlot).toBe(slot2.slotId);
-      expect(outcome.failedGate.failedGate).toBe('SLOT_AUTHORISATION');
+      expect(outcome.pauseKind).toBe('GATE_REFUSAL');
+      if (outcome.pauseKind === 'GATE_REFUSAL') {
+        expect(outcome.failedGate.failedGate).toBe('SLOT_AUTHORISATION');
+      }
     }
-    // Slot 1 (PAIR_1_V4) was dispatched; slot 2 never started.
-    expect(dispatched).toHaveLength(1);
+    // Slot 1 (PAIR_1_V4) ran as Class C (all 12 evaluations); slot 2 never started.
+    expect(dispatched).toHaveLength(12);
+    expect(dispatched.every((dir) => dir.startsWith(slotOutputRoot(F0V_SLOTS[0]!)))).toBe(true);
   });
 });
 
@@ -577,6 +688,7 @@ describe('2D2C-F0X corrective closure: a failed all-ten preflight writes ZERO ar
         sequencingProbes,
         outputRootProbes,
         forbiddenOutputRootContainers: [],
+        runnerRepoRoot: ROOT,
         v4Root: ROOT,
         v5Root: ROOT,
         classifierConfigDir: join(freshDir(), 'profile'),
@@ -597,8 +709,193 @@ describe('2D2C-F0X corrective closure: a failed all-ten preflight writes ZERO ar
   }
 });
 
+describe('2D2C-F0X zero-inference correction: progression follows the slot’s OWN evidence, never the mere return of runExperiment', () => {
+  /** Writes the EXACT preserved refusal: ok:false, providerConstructed:false, ENOENT at `freeze`. */
+  function fakeLauncherRefusingAtFreeze(dispatched: string[]): ChildLauncher {
+    const inner = fakeLauncherThatNeverRunsAProvider(dispatched);
+    return {
+      launch: async (input) => {
+        const manifest = (
+          JSON.parse(readFileSync(input.manifestPath, 'utf8')) as {
+            record: { variantName: string };
+          }
+        ).record;
+        const relative =
+          manifest.variantName === 'PROMPT_V4_CANONICAL' ? F0I_FREEZE_PATH : F0O_FREEZE_PATH;
+        writeArtifactOnce(input.attemptDir, 'CHILD_PREFLIGHT', {
+          ok: false,
+          stopCondition: 'CORPUS_CONFIG_OR_HASH_DRIFT',
+          detail: `Error: ENOENT: no such file or directory, open '${relative}'`,
+          checks: { stage: 'freeze' },
+          providerConstructed: false,
+        });
+        return inner.launch(input);
+      },
+    };
+  }
+
+  function executorInput(
+    setup: ReturnType<typeof fullyValidStudySetup>,
+    launcher: ChildLauncher,
+    overrides: Partial<Parameters<typeof runReplicationStudyExecution>[0]> = {},
+  ): Parameters<typeof runReplicationStudyExecution>[0] {
+    return {
+      registry,
+      f0iPlan: F0I_PLAN,
+      f0oPlan: F0O_PLAN,
+      executionIntegrationCommit: FIXED_HEAD,
+      candidatePathForSlot: setup.candidatePathForSlot,
+      studyApprovalPath: setup.studyApprovalPath,
+      readFile,
+      sha256: sha256Hex,
+      currentHead,
+      alreadyConsumed: (hash, outputRoot) =>
+        isConsumedByOuterSlotIdentity(outputRoot, hash, readFile) ||
+        isAuthorisationConsumed(outputRoot, hash),
+      sequencingProbes,
+      outputRootProbes,
+      forbiddenOutputRootContainers: [],
+      runnerRepoRoot: ROOT,
+      v4Root: ROOT,
+      v5Root: ROOT,
+      classifierConfigDir: join(freshDir(), 'profile'),
+      parentEnv: {},
+      platform: 'posix',
+      launcher,
+      clock: { nowUtc: () => new Date('2026-09-16T12:00:00.000Z') },
+      ...overrides,
+    };
+  }
+
+  const eventsOnDisk = (): string[] =>
+    existsSync(join(F0V_STUDY_ROOT, 'study-events'))
+      ? readdirSync(join(F0V_STUDY_ROOT, 'study-events')).sort()
+      : [];
+
+  it('a confirmed pre-inference refusal on slot 1 (the preserved failure shape) is CLASS B: the study PAUSES, a STOPPED experiment is NOT Class C, and slots 2..10 are never started or consumed', async () => {
+    const setup = fullyValidStudySetup();
+    const dispatched: string[] = [];
+    const outcome = await runReplicationStudyExecution(
+      executorInput(setup, fakeLauncherRefusingAtFreeze(dispatched)),
+    );
+
+    expect(outcome.status).toBe('PAUSED');
+    if (outcome.status !== 'PAUSED') return;
+    expect(outcome.pauseKind).toBe('POST_EXECUTION_EVIDENCE');
+    if (outcome.pauseKind !== 'POST_EXECUTION_EVIDENCE') return;
+    expect(outcome.pausedAtSlot).toBe('PAIR_1_V4');
+    expect(outcome.experiment.status).toBe('STOPPED');
+    expect(outcome.inclusionClass).toBe(
+      'CLASS_B_AUTHORISATION_CONSUMED_CONFIRMED_PRE_INFERENCE_REFUSAL',
+    );
+    expect(outcome.completedSlots).toEqual([]);
+    expect(dispatched).toHaveLength(1);
+
+    expect(eventsOnDisk()).toEqual([
+      '001-PAIR_1_V4-SLOT_GRANTED.json',
+      '001-PAIR_1_V4-SLOT_PAUSED_CLASS_B.json',
+    ]);
+    const terminal = (
+      JSON.parse(readFileSync(join(F0V_STUDY_ROOT, 'study-terminal.json'), 'utf8')) as {
+        record: { outcome: string; blockingSlotId: string; slotsCompleted: number };
+      }
+    ).record;
+    expect(terminal).toMatchObject({
+      outcome: 'PAUSED',
+      blockingSlotId: 'PAIR_1_V4',
+      slotsCompleted: 0,
+    });
+
+    // The executor cannot burn the other nine candidates: exactly ONE slot
+    // holds an outer identity and a consumption marker; nine roots are empty.
+    for (const [index, slot] of F0V_SLOTS.entries()) {
+      const hash = sha256Hex(candidateBytesOf(slot));
+      const consumed =
+        isConsumedByOuterSlotIdentity(slotOutputRoot(slot), hash, readFile) ||
+        isAuthorisationConsumed(slotOutputRoot(slot), hash);
+      expect(consumed).toBe(index === 0);
+      if (index > 0) expect(listFilesRecursively(slotOutputRoot(slot))).toEqual([]);
+    }
+
+    // Re-invoking cannot resume past it either: the all-ten preflight sees
+    // slot 1's evidence and refuses before any write or dispatch.
+    const again: string[] = [];
+    const eventsBefore = eventsOnDisk();
+    const second = await runReplicationStudyExecution(
+      executorInput(setup, fakeLauncherRefusingAtFreeze(again)),
+    );
+    expect(second.status).toBe('BLOCKED_BEFORE_START');
+    expect(again).toEqual([]);
+    expect(eventsOnDisk()).toEqual(eventsBefore);
+  });
+
+  it('a STOPPED experiment whose child left NO record is AMBIGUOUS, never Class C: the study pauses at slot 1', async () => {
+    const dispatched: string[] = [];
+    const outcome = await runReplicationStudyExecution(
+      executorInput(fullyValidStudySetup(), fakeLauncherThatNeverRunsAProvider(dispatched)),
+    );
+    expect(outcome.status).toBe('PAUSED');
+    if (outcome.status !== 'PAUSED' || outcome.pauseKind !== 'POST_EXECUTION_EVIDENCE') {
+      throw new Error('expected a post-execution pause');
+    }
+    expect(outcome.experiment.status).toBe('STOPPED');
+    expect(outcome.inclusionClass).toBe('AMBIGUOUS_EVIDENCE');
+    expect(dispatched).toHaveLength(1);
+    expect(eventsOnDisk()).toEqual([
+      '001-PAIR_1_V4-SLOT_AMBIGUOUS.json',
+      '001-PAIR_1_V4-SLOT_GRANTED.json',
+    ]);
+  });
+
+  it('a real semantic-execution marker makes the slot Class C, but it must STILL be durably closed before progression', async () => {
+    const dispatched: string[] = [];
+    // The probe hides both terminal experiment records, modelling a Class C
+    // slot that has not (yet) been durably closed.
+    const hidingClosure = {
+      ...sequencingProbes,
+      listFilesRecursively: (root: string) =>
+        listFilesRecursively(root).filter(
+          (file) =>
+            !file.endsWith('experiment-stop.json') && !file.endsWith('experiment-completion.json'),
+        ),
+    };
+    const outcome = await runReplicationStudyExecution(
+      executorInput(fullyValidStudySetup(), fakeLauncherWritingSemanticExecution(dispatched), {
+        sequencingProbes: hidingClosure,
+      }),
+    );
+    expect(outcome.status).toBe('PAUSED');
+    if (outcome.status !== 'PAUSED' || outcome.pauseKind !== 'POST_EXECUTION_EVIDENCE') {
+      throw new Error('expected a post-execution pause');
+    }
+    expect(outcome.inclusionClass).toBe('CLASS_C_PROVIDER_REQUEST_OR_SEMANTIC_EXECUTION_OBSERVED');
+    expect(outcome.classification.durablyClosed).toBe(false);
+    expect(outcome.pausedAtSlot).toBe('PAIR_1_V4');
+    expect(listFilesRecursively(slotOutputRoot(F0V_SLOTS[1]!))).toEqual([]);
+  });
+
+  it('defect 1: a runner root under which the frozen F0I/F0O bytes do not resolve refuses BEFORE the preflight — zero writes, zero consumption, zero dispatch', async () => {
+    const setup = fullyValidStudySetup();
+    const dispatched: string[] = [];
+    await expect(
+      runReplicationStudyExecution(
+        executorInput(setup, fakeLauncherWritingSemanticExecution(dispatched), {
+          runnerRepoRoot: freshDir(),
+        }),
+      ),
+    ).rejects.toMatchObject({
+      name: 'ChildFreezePathError',
+      refusal: 'FREEZE_UNREADABLE_AT_ABSOLUTE_PATH',
+    });
+    expect(dispatched).toEqual([]);
+    expect(existsSync(join(F0V_STUDY_ROOT, 'study-manifest.json'))).toBe(false);
+    expect(existsSync(join(F0V_STUDY_ROOT, 'study-terminal.json'))).toBe(false);
+    for (const slot of F0V_SLOTS) expect(listFilesRecursively(slotOutputRoot(slot))).toEqual([]);
+  });
+});
+
 describe('2D2C-F0X executor: physical dispatch through the REAL Tier-2 harness (zero provider)', () => {
-  it("a V4 slot and a V5 slot each physically reach the real child entry's own preflight, refuse before any provider, and the whole study still completes", async () => {
+  it('slot 1 (V4) physically reaches the real child entry, passes FREEZE loading from the absolute manifest path in its scratch cwd, refuses at variantRoot before any provider — and the study PAUSES as Class B instead of burning slots 2..10', async () => {
     const truncated = <
       T extends { evaluations: readonly unknown[]; plannedLogicalEvaluations: number },
     >(
@@ -609,6 +906,7 @@ describe('2D2C-F0X executor: physical dispatch through the REAL Tier-2 harness (
 
     const { candidatePathForSlot, studyApprovalPath } = fullyValidStudySetup();
     const pids: number[] = [];
+    const scratchDirs: string[] = [];
     const realLauncher: ChildLauncher = {
       launch: (input) =>
         runProcessIsolatedBatch({
@@ -617,7 +915,10 @@ describe('2D2C-F0X executor: physical dispatch through the REAL Tier-2 harness (
           watchdogMs: 20_000,
           graceMs: 1_000,
           childEnv: input.childEnv,
-          onChildSpawned: (pid) => pids.push(pid),
+          onChildSpawned: (pid, scratchDir) => {
+            pids.push(pid);
+            scratchDirs.push(scratchDir);
+          },
         }),
     };
 
@@ -635,11 +936,12 @@ describe('2D2C-F0X executor: physical dispatch through the REAL Tier-2 harness (
       sequencingProbes,
       outputRootProbes,
       forbiddenOutputRootContainers: [],
+      runnerRepoRoot: ROOT,
       // The runner's OWN worktree is not a frozen V4/V5 variant worktree:
       // HEAD is not the historical frozen commit, so the REAL child fails
       // its own `variantRoot` preflight (`HEAD_MATCHES_FROZEN_COMMIT`)
-      // before constructing any provider — exactly the technique
-      // `orgunitClassify2D2CF1Coordinator.test.ts` already established.
+      // before constructing any provider — but only AFTER its `freeze`
+      // stage, which is exactly what the absolute path must get past.
       v4Root: ROOT,
       v5Root: ROOT,
       classifierConfigDir: join(freshDir(), 'profile'),
@@ -649,28 +951,45 @@ describe('2D2C-F0X executor: physical dispatch through the REAL Tier-2 harness (
       clock: { nowUtc: () => new Date('2026-09-16T12:00:00.000Z') },
     });
 
-    expect(outcome.status).toBe('COMPLETED_ALL_SLOTS');
-    // One real child process per slot (truncated to 1 evaluation each) x 10 slots.
-    expect(pids.length).toBe(F0V_SLOTS.length);
+    // Exactly ONE real child process, forked with a scratch cwd outside the repo.
+    expect(pids).toHaveLength(1);
+    expect(scratchDirs[0]!.startsWith(ROOT)).toBe(false);
 
-    if (outcome.status === 'COMPLETED_ALL_SLOTS') {
-      const v4Slot = outcome.completedSlots.find(
-        (c) => c.slot.variantName === 'PROMPT_V4_CANONICAL',
-      )!;
-      const v5Slot = outcome.completedSlots.find(
-        (c) => c.slot.variantName === 'PROMPT_V5_CANONICAL',
-      )!;
-      for (const completed of [v4Slot, v5Slot]) {
-        expect(completed.experiment.status).toBe('STOPPED');
-        expect(completed.experiment.halt).toMatchObject({
-          kind: 'STOP_CONDITION',
-          stopCondition: 'CORPUS_CONFIG_OR_HASH_DRIFT',
-        });
+    const slot1 = F0V_SLOTS[0]!;
+    const dir = attemptDirectoryOf(slotOutputRoot(slot1), slot1.variantName, 1, 3);
+    const manifest = (
+      JSON.parse(readFileSync(join(dir, 'child-manifest.json'), 'utf8')) as {
+        record: { freezePath: string };
       }
+    ).record;
+    expect(manifest.freezePath).toBe(join(ROOT, F0I_FREEZE_PATH));
+    const preflight = (
+      JSON.parse(readFileSync(join(dir, 'child-preflight.json'), 'utf8')) as {
+        record: { ok: boolean; providerConstructed: boolean; checks: { stage: string } };
+      }
+    ).record;
+    expect(preflight.ok).toBe(false);
+    expect(preflight.providerConstructed).toBe(false);
+    // Past `freeze`: the child opened and hash-resolved the F0I bytes.
+    expect(preflight.checks.stage).toBe('variantRoot');
+
+    expect(outcome.status).toBe('PAUSED');
+    if (outcome.status === 'PAUSED') {
+      expect(outcome.pausedAtSlot).toBe(slot1.slotId);
+      expect(outcome.pauseKind).toBe('POST_EXECUTION_EVIDENCE');
+      if (outcome.pauseKind === 'POST_EXECUTION_EVIDENCE') {
+        expect(outcome.inclusionClass).toBe(
+          'CLASS_B_AUTHORISATION_CONSUMED_CONFIRMED_PRE_INFERENCE_REFUSAL',
+        );
+        expect(outcome.experiment.status).toBe('STOPPED');
+      }
+      expect(outcome.completedSlots).toEqual([]);
     }
 
-    // Zero provider-outcome artifacts anywhere: the real child refused
-    // before constructing any provider, for every one of the ten slots.
+    // Slots 2..10: no evidence, no outer identity, no consumption marker.
+    for (const slot of F0V_SLOTS.slice(1)) {
+      expect(listFilesRecursively(slotOutputRoot(slot))).toEqual([]);
+    }
     for (const slot of F0V_SLOTS) {
       const files = listFilesRecursively(slotOutputRoot(slot));
       expect(files.some((f) => f.endsWith('provider-outcome.json'))).toBe(false);

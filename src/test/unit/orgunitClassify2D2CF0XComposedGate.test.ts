@@ -7,8 +7,9 @@
  * whole module graph (never the real, still-forbidden frozen root) so
  * that a genuine four-gate GRANTED decision, and the real-directory-backed
  * output-root gate specifically, can be exercised without ever creating
- * anything under the real study root — which this file also asserts stays
- * absent throughout.
+ * anything under the real study root — which this file also asserts it
+ * never writes (the root now legitimately holds the preserved first real
+ * F0X study invocation, so its bytes are snapshotted and re-compared).
  */
 import {
   existsSync,
@@ -41,6 +42,7 @@ vi.mock('../harness/phase2b2d2c/f0v/freezeF0V.js', async (importOriginal) => {
 });
 
 import { canonicalStringify } from '../../orgunits/classify/canonical.js';
+import { snapshotTreeSha256 } from '../helpers/treeSnapshot.js';
 import { WriteOnceCollisionError } from '../harness/phase2b2d2c/artifacts.js';
 import {
   F0U_METHODOLOGY_RAW_SHA256,
@@ -100,6 +102,9 @@ import {
 
 const REAL_F0V_STUDY_ROOT_STRING =
   '/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5';
+
+/** The real root holds preserved evidence; this file must never write there. */
+const REAL_STUDY_ROOT_AT_LOAD = snapshotTreeSha256(REAL_F0V_STUDY_ROOT_STRING);
 
 const FIXED_HEAD = 'a'.repeat(40);
 const OTHER_HEAD = 'b'.repeat(40);
@@ -272,6 +277,7 @@ const outputRootProbes = {
 };
 const sequencingProbes = {
   isDirectory: (p: string) => existsSync(p),
+  readFile: (p: string) => readFileSync(p),
   listFilesRecursively: (root: string): readonly string[] => {
     if (!existsSync(root)) return [];
     const results: string[] = [];
@@ -287,9 +293,14 @@ const sequencingProbes = {
   },
 };
 
-describe('2D2C-F0X: the real frozen study root stays absent', () => {
-  it('never creates anything at the real, non-mocked F0V study root path', () => {
-    expect(existsSync(REAL_F0V_STUDY_ROOT_STRING)).toBe(false);
+describe('2D2C-F0X: the real frozen study root is never written by this file', () => {
+  it('the mocked study root this file writes to is not the real, non-mocked F0V study root path', () => {
+    expect(F0V_STUDY_ROOT).not.toBe(REAL_F0V_STUDY_ROOT_STRING);
+    expect(F0V_STUDY_ROOT.startsWith(`${REAL_F0V_STUDY_ROOT_STRING}/`)).toBe(false);
+  });
+
+  afterAll(() => {
+    expect(snapshotTreeSha256(REAL_F0V_STUDY_ROOT_STRING)).toEqual(REAL_STUDY_ROOT_AT_LOAD);
   });
 });
 

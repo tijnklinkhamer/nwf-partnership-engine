@@ -180,12 +180,37 @@ describe('2D2C-F0V: identity and status - FREEZE APPROVED, no execution authoris
     expect(F0V.freeze.methodology.recommendation).toBe('M1_FULL_PAIRED_REPLICATION_STUDY');
   });
 
-  it('creates no output root and no execution-authorisation candidate anywhere on disk', () => {
-    expect(existsSync(F0V_STUDY_ROOT)).toBe(false);
-    for (const slot of F0V_SLOTS) {
-      expect(existsSync(futureOutputRootPathOf(F0V_STUDY_ROOT, slot))).toBe(false);
-    }
-  });
+  // F0X zero-inference recovery: on the owner's machine the frozen study root
+  // now EXISTS — it holds the preserved, immutable evidence of the first real
+  // F0X study invocation, created by that execution and never by this freeze.
+  // The F0V freeze itself still creates nothing: absence is asserted where no
+  // preserved study exists; presence of exactly the ten frozen slot roots,
+  // where it does (see docs/evaluation/PHASE_2B_2D2C_F0X_FAILED_STUDY_ERRATUM_V1.json).
+  it.skipIf(existsSync(F0V_STUDY_ROOT))(
+    'creates no output root and no execution-authorisation candidate anywhere on disk',
+    () => {
+      for (const slot of F0V_SLOTS) {
+        expect(existsSync(futureOutputRootPathOf(F0V_STUDY_ROOT, slot))).toBe(false);
+      }
+    },
+  );
+
+  it.runIf(existsSync(F0V_STUDY_ROOT))(
+    'where the preserved first F0X study invocation exists, the frozen root holds exactly the ten frozen slot roots plus the study-level records',
+    () => {
+      for (const slot of F0V_SLOTS) {
+        expect(existsSync(futureOutputRootPathOf(F0V_STUDY_ROOT, slot))).toBe(true);
+      }
+      expect(readdirSync(F0V_STUDY_ROOT).sort()).toEqual(
+        [
+          ...F0V_SLOTS.map((slot) => slot.futureOutputRootName),
+          'study-events',
+          'study-manifest.json',
+          'study-terminal.json',
+        ].sort(),
+      );
+    },
+  );
 
   it('the f0v harness directory holds only freeze/plan-derivation machinery - no CLI, no lock, no authorisation, no variant root', () => {
     const dir = resolve(ROOT, 'src/test/harness/phase2b2d2c/f0v');

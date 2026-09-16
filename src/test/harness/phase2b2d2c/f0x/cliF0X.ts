@@ -223,6 +223,7 @@ function sequencingProbes(): SlotEvidenceProbes {
       }
     },
     listFilesRecursively,
+    readFile: (path) => readFileSync(path),
   };
 }
 
@@ -290,6 +291,10 @@ export async function runF0XCli(argv: readonly string[], io: F0XCliIo): Promise<
     sequencingProbes: sequencingProbes(),
     outputRootProbes: outputRootProbes(),
     forbiddenOutputRootContainers: forbiddenContainers,
+    // Defect-1 closure: the executor resolves every child freeze path
+    // against THIS root to a canonical absolute, hash-verified path,
+    // exactly as `cliF0O.ts` already did for attempt 4.
+    runnerRepoRoot: RUNNER_REPO_ROOT,
     v4Root: options.v4Root!,
     v5Root: options.v5Root!,
     classifierConfigDir: options.classifierConfigDir!,

@@ -922,10 +922,18 @@ describe('2D2C-F0W: the study-level execution-approval candidate check', () => {
 // 5. The fail-closed sequencing gate.
 // ---------------------------------------------------------------------------
 
-function evidenceProbes(byRoot: Record<string, readonly string[] | undefined>): SlotEvidenceProbes {
+function evidenceProbes(
+  byRoot: Record<string, readonly string[] | undefined>,
+  fileBytes: Record<string, Buffer> = {},
+): SlotEvidenceProbes {
   return {
     isDirectory: (path) => byRoot[path] !== undefined,
     listFilesRecursively: (path) => byRoot[path] ?? [],
+    readFile: (path) => {
+      const bytes = fileBytes[path];
+      if (bytes === undefined) throw new Error(`ENOENT: synthetic probe holds no ${path}`);
+      return bytes;
+    },
   };
 }
 
@@ -993,12 +1001,15 @@ describe('2D2C-F0W: the fail-closed sequencing gate', () => {
   });
 
   it('Class C prior slot NOT YET durably closed blocks progression', () => {
+    // F0X zero-inference correction: a child manifest alone is a control-plane
+    // record, not Class C; a real semantic-execution marker is required.
     const decision = evaluateSequencingGate(
       'PAIR_1_V5',
       SEQUENCING_ROOT_OF,
       evidenceProbes({
         [SEQUENCING_ROOT_OF(PAIR_1_V4)]: [
           'evaluations/PROMPT_V4_CANONICAL/batch-01/attempt-3/child-manifest.json',
+          'evaluations/PROMPT_V4_CANONICAL/batch-01/attempt-3/provider-outcome.json',
         ],
       }),
     );
@@ -1015,6 +1026,7 @@ describe('2D2C-F0W: the fail-closed sequencing gate', () => {
       evidenceProbes({
         [SEQUENCING_ROOT_OF(PAIR_1_V4)]: [
           'evaluations/PROMPT_V4_CANONICAL/batch-01/attempt-3/child-manifest.json',
+          'evaluations/PROMPT_V4_CANONICAL/batch-01/attempt-3/provider-outcome.json',
           'experiments/attempt-3/experiment-completion.json',
         ],
       }),
@@ -1029,6 +1041,7 @@ describe('2D2C-F0W: the fail-closed sequencing gate', () => {
       evidenceProbes({
         [SEQUENCING_ROOT_OF(PAIR_1_V4)]: [
           'evaluations/PROMPT_V4_CANONICAL/batch-01/attempt-3/child-manifest.json',
+          'evaluations/PROMPT_V4_CANONICAL/batch-01/attempt-3/provider-outcome.json',
           'experiments/attempt-3/experiment-completion.json',
         ],
         [SEQUENCING_ROOT_OF(PAIR_1_V5)]: [
@@ -1066,6 +1079,9 @@ describe('2D2C-F0W: the fail-closed sequencing gate', () => {
       listFilesRecursively: () => {
         throw new Error('EACCES');
       },
+      readFile: () => {
+        throw new Error('EACCES');
+      },
     };
     const decision = evaluateSequencingGate('PAIR_1_V5', SEQUENCING_ROOT_OF, probes);
     expect(decision).toMatchObject({ eligible: false, refusal: 'PRIOR_SLOT_AMBIGUOUS_EVIDENCE' });
@@ -1077,12 +1093,28 @@ describe('2D2C-F0W: the fail-closed sequencing gate', () => {
 // ---------------------------------------------------------------------------
 
 describe('2D2C-F0W: output-root readiness', () => {
-  it('the REAL frozen study root and all ten REAL frozen slot roots are currently absent', () => {
-    expect(existsSync(F0V_STUDY_ROOT)).toBe(false);
-    for (const slot of F0V_SLOTS) {
-      expect(existsSync(futureOutputRootPathOf(F0V_STUDY_ROOT, slot))).toBe(false);
-    }
-  });
+  // F0X zero-inference recovery: on the owner's machine the real frozen study
+  // root now EXISTS — it holds the preserved, immutable evidence of the first
+  // real F0X invocation (ten confirmed pre-inference refusals). Absence is
+  // therefore asserted only where that evidence is not present; where it is,
+  // the ten real slot roots must all be present and nothing here writes them.
+  it.skipIf(existsSync(F0V_STUDY_ROOT))(
+    'the REAL frozen study root and all ten REAL frozen slot roots are absent (no preserved study on this machine)',
+    () => {
+      for (const slot of F0V_SLOTS) {
+        expect(existsSync(futureOutputRootPathOf(F0V_STUDY_ROOT, slot))).toBe(false);
+      }
+    },
+  );
+
+  it.runIf(existsSync(F0V_STUDY_ROOT))(
+    'the REAL frozen study root holds the preserved failed study: all ten REAL frozen slot roots are present',
+    () => {
+      for (const slot of F0V_SLOTS) {
+        expect(existsSync(futureOutputRootPathOf(F0V_STUDY_ROOT, slot))).toBe(true);
+      }
+    },
+  );
 
   it('inspectStudyRootReadiness reports allAbsent against a synthetic exists-probe with nothing present', () => {
     const readiness = inspectStudyRootReadiness(
@@ -1372,7 +1404,22 @@ describe('2D2C-F0W: parseF0WCliArgs is a closed parser', () => {
 });
 
 describe('2D2C-F0W: the readiness report against real committed bytes', () => {
-  it('reports READY (no problems) with no root created', () => {
+  // As above: READY is only the truthful answer where the preserved failed
+  // study root does not exist. Where it does, the same report must say
+  // BLOCKED, because a fresh study may never start over existing roots.
+  it.runIf(existsSync(F0V_STUDY_ROOT))(
+    'reports BLOCKED, naming the existing output roots, where the preserved failed study root exists',
+    () => {
+      const report = buildReadinessReport(RUNNER_REPO_ROOT);
+      expect(report.f0vFreezeVerified).toBe(true);
+      expect(report.f0iFreezeVerified).toBe(true);
+      expect(report.f0oFreezeVerified).toBe(true);
+      expect(report.outputRootReadiness?.allAbsent).toBe(false);
+      expect(report.problems.length).toBeGreaterThan(0);
+    },
+  );
+
+  it.skipIf(existsSync(F0V_STUDY_ROOT))('reports READY (no problems) with no root created', () => {
     const report = buildReadinessReport(RUNNER_REPO_ROOT);
     expect(report.f0vFreezeVerified).toBe(true);
     expect(report.f0iFreezeVerified).toBe(true);
@@ -1383,21 +1430,24 @@ describe('2D2C-F0W: the readiness report against real committed bytes', () => {
     expect(existsSync(F0V_STUDY_ROOT)).toBe(false);
   });
 
-  it('CLI stdout reports the READY outcome as JSON', async () => {
-    const out: string[] = [];
-    const err: string[] = [];
-    const { runF0WCli } = await import('../harness/phase2b2d2c/f0w/cliF0W.js');
-    const exitCode = await runF0WCli(['--json'], {
-      stdout: (t) => out.push(t),
-      stderr: (t) => err.push(t),
-      env: {},
-      nowUtc: () => NOW,
-    });
-    expect(exitCode).toBe(0);
-    const summary = JSON.parse(out.join('')) as { outcome: string };
-    expect(summary.outcome).toBe(
-      'REPLICATION_STUDY_MECHANICALLY_READY_FOR_CANDIDATE_MATERIALISATION',
-    );
-    expect(err).toEqual([]);
-  });
+  it.skipIf(existsSync(F0V_STUDY_ROOT))(
+    'CLI stdout reports the READY outcome as JSON',
+    async () => {
+      const out: string[] = [];
+      const err: string[] = [];
+      const { runF0WCli } = await import('../harness/phase2b2d2c/f0w/cliF0W.js');
+      const exitCode = await runF0WCli(['--json'], {
+        stdout: (t) => out.push(t),
+        stderr: (t) => err.push(t),
+        env: {},
+        nowUtc: () => NOW,
+      });
+      expect(exitCode).toBe(0);
+      const summary = JSON.parse(out.join('')) as { outcome: string };
+      expect(summary.outcome).toBe(
+        'REPLICATION_STUDY_MECHANICALLY_READY_FOR_CANDIDATE_MATERIALISATION',
+      );
+      expect(err).toEqual([]);
+    },
+  );
 });

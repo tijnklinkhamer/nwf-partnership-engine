@@ -23,19 +23,42 @@
  *     first) attempt once its predecessors are closed.
  *   - Class B `AUTHORISATION_CONSUMED_CONFIRMED_PRE_INFERENCE_REFUSAL` — the
  *     authorisation WAS consumed (the F0X outer-slot-identity record and/or
- *     the coordinator's own legacy marker exists) but the run never got
- *     past child-manifest construction (exactly F0K's own historical case).
- *     This PAUSES the study: it is never silently replaced, only recovered
- *     by a SEPARATE, owner-reviewed decision for the SAME slot.
+ *     the coordinator's own legacy marker exists) and no provider request
+ *     or semantic execution happened, CONFIRMED by the evidence itself:
+ *     either no child was ever forked (exactly F0K's own historical case),
+ *     or every forked child left a self-hash-verified `child-preflight.json`
+ *     recording `ok: false` AND `providerConstructed: false` — a refusal
+ *     `childMain.ts` writes only on its `preflightStop` path, which returns
+ *     before the provider factory is ever reached. This PAUSES the study:
+ *     it is never silently replaced, only recovered by a SEPARATE,
+ *     owner-reviewed decision for the SAME slot.
  *   - Class C `PROVIDER_REQUEST_OR_SEMANTIC_EXECUTION_OBSERVED` — some
- *     artifact exists that only comes into being once the parent got past
- *     manifest construction (a child manifest, preflight, provider outcome,
- *     final record, repair artifact, or the experiment's own terminal
- *     record). This PERMANENTLY includes the slot — inclusion is
+ *     artifact exists that `childMain.ts` can only write AFTER
+ *     `provider.classify` returned (`provider-outcome.json`,
+ *     `raw-output-checkpoint.json`, `validation-result.json`,
+ *     `tier1-diagnostics.json`, `child-result.json`, or any ADR 0011 repair
+ *     artifact). This PERMANENTLY includes the slot — inclusion is
  *     irrevocable — and, once the slot's OWN evidence is DURABLY CLOSED
  *     (an `experiment-completion.json` or `experiment-stop.json` exists, so
  *     no further artifact can legally be appended under write-once rules),
  *     progression to the next frozen slot is permitted.
+ *
+ * PHASE 2B-2D2C-F0X ZERO-INFERENCE EXECUTION-RECOVERY CORRECTION: this module
+ * previously read ANY artifact past parent child-manifest construction — a
+ * `child-manifest.json`, a `child-preflight.json`, a `final-record.json`, a
+ * `stop-decision.json`, a `tier2-outcome.json` — as Class C. The first real
+ * F0X study invocation (2026-09-16) exposed that: all ten children refused
+ * at their own freeze stage (`providerConstructed: false`, zero provider
+ * requests, zero adapter attempts), yet each slot read as "semantic
+ * execution observed" and the study advanced through all ten candidates.
+ * Those files are PARENT/CHILD CONTROL-PLANE records: they prove a child
+ * was dispatched, never that a provider request happened. They are now
+ * admitted ONLY inside an attempt directory whose child preflight
+ * CONFIRMS a pre-provider refusal; anywhere else — a child manifest with no
+ * preflight, a preflight recording `ok: true` (the provider factory became
+ * reachable, but nothing proves or excludes a request), a
+ * `child-failure.json`, an unverifiable preflight — the slot is AMBIGUOUS
+ * and blocks, fail closed.
  *
  * Anything this module cannot account for is `AMBIGUOUS` and BLOCKS
  * progression — fail closed, never assumed harmless, exactly as F0K's
@@ -48,24 +71,30 @@
  * PURE aside from the injected probes. No network, no database, no clock, no
  * filesystem of its own, and it never writes, moves or deletes anything —
  * exactly like `priorAttempt3Evidence.ts`, it only reads the SHAPE of
- * preserved evidence.
+ * preserved evidence, plus the CONTENT of exactly one kind of file,
+ * `child-preflight.json` (a record carrying no gold id, no document and no
+ * classifier output), and nothing else.
  */
-import { F0V_SLOTS, type StudySlotIdentity } from '../f0v/studyPlanCore.js';
+import { join } from 'node:path';
+import { canonicalStringify } from '../../../../orgunits/classify/canonical.js';
+import { F0V_SLOTS, sha256Hex, type StudySlotIdentity } from '../f0v/studyPlanCore.js';
 
-/** Artifacts that can only exist once the parent got past child-manifest construction. */
-const INFERENCE_CAPABLE_ARTIFACT_FILE_NAMES: readonly string[] = [
-  'child-manifest.json',
-  'child-preflight.json',
-  'child-failure.json',
-  'child-result.json',
+/**
+ * IRREVERSIBLE semantic-execution markers: artifacts `childMain.ts` writes
+ * only AFTER `provider.classify` has returned (the original call's raw
+ * checkpoint, validation, diagnostics, provider outcome and child result)
+ * or inside the ADR 0011 repair round, which itself runs only after a
+ * validated original. `experiment-completion.json` is deliberately NOT
+ * here: it is the parent's closure record, and the coordinator writes it
+ * for any run whose planned evaluations all ended — it proves closure,
+ * never that a request happened.
+ */
+export const SEMANTIC_EXECUTION_MARKER_FILE_NAMES: readonly string[] = [
+  'provider-outcome.json',
   'raw-output-checkpoint.json',
   'validation-result.json',
-  'provider-outcome.json',
   'tier1-diagnostics.json',
-  'tier2-outcome.json',
-  'stop-decision.json',
-  'final-record.json',
-  'experiment-completion.json',
+  'child-result.json',
   'repair-round.json',
   'repair-decision.json',
   'repair-request.json',
@@ -73,6 +102,29 @@ const INFERENCE_CAPABLE_ARTIFACT_FILE_NAMES: readonly string[] = [
   'repair-validation-result.json',
   'repair-provider-outcome.json',
   'repair-outcome.json',
+];
+
+/** `evaluations/<VARIANT>/batch-NN/attempt-N/<file>` — one forked child's own directory. */
+const ATTEMPT_DIRECTORY_FILE_PATTERN =
+  /^(evaluations\/[A-Z0-9_]+\/batch-[0-9]{2}\/attempt-[1-9][0-9]*)\/([^/]+)$/;
+
+const CHILD_MANIFEST_FILE_NAME = 'child-manifest.json';
+const CHILD_PREFLIGHT_FILE_NAME = 'child-preflight.json';
+
+/**
+ * Parent/child CONTROL-PLANE records a dispatched child's attempt directory
+ * holds after a confirmed pre-provider refusal: the parent's manifest, the
+ * child's own refusing preflight, and the parent's reconciliation
+ * (`final-record.json`, `stop-decision.json`, `tier2-outcome.json`). None of
+ * them is evidence of a provider request; each is admitted ONLY inside an
+ * attempt directory whose preflight confirms the refusal.
+ */
+const CONFIRMED_REFUSAL_ATTEMPT_FILE_NAMES: readonly string[] = [
+  CHILD_MANIFEST_FILE_NAME,
+  CHILD_PREFLIGHT_FILE_NAME,
+  'final-record.json',
+  'stop-decision.json',
+  'tier2-outcome.json',
 ];
 
 /**
@@ -89,7 +141,7 @@ const INFERENCE_CAPABLE_ARTIFACT_FILE_NAMES: readonly string[] = [
  * every real slot's normal pre-launch state. It carries no inference-shaped
  * content (`outerSlotIdentity.ts`'s own record has no provider, prompt
  * output or classifier field), so admitting it here changes no Class C
- * detection: a slot root with ANY inference-capable artifact is still
+ * detection: a slot root with ANY semantic-execution marker is still
  * `SEMANTIC_EXECUTION_OBSERVED` regardless of this file's presence, because
  * that check runs first.
  */
@@ -113,6 +165,62 @@ export interface SlotEvidenceProbes {
   readonly isDirectory: (path: string) => boolean;
   /** Every FILE under `root`, as root-relative POSIX paths, in any order. */
   readonly listFilesRecursively: (root: string) => readonly string[];
+  /**
+   * Exact bytes of one file. Called ONLY for `child-preflight.json` files
+   * inside a dispatched child's attempt directory — never for a manifest,
+   * planned input, final record, corpus or gold file.
+   */
+  readonly readFile: (path: string) => Buffer;
+}
+
+type PreflightVerdict =
+  | { readonly confirmedRefusal: true; readonly stage: string | null }
+  | { readonly confirmedRefusal: false; readonly detail: string };
+
+/**
+ * Reads ONE child preflight and answers only: does it CONFIRM a pre-provider
+ * refusal? Requires the artifact envelope's own `recordSha256` to verify,
+ * `artifactKind: 'CHILD_PREFLIGHT'`, `record.ok === false` and
+ * `record.providerConstructed === false` — anything else is not a
+ * confirmation, and the caller reads the slot as AMBIGUOUS.
+ */
+function verifyConfirmedPreflightRefusal(
+  path: string,
+  readFile: (path: string) => Buffer,
+): PreflightVerdict {
+  let envelope: {
+    artifactKind?: unknown;
+    record?: { ok?: unknown; providerConstructed?: unknown; checks?: { stage?: unknown } };
+    recordSha256?: unknown;
+  };
+  try {
+    envelope = JSON.parse(readFile(path).toString('utf8')) as typeof envelope;
+  } catch (error) {
+    return {
+      confirmedRefusal: false,
+      detail: `${path} could not be read or parsed (${error instanceof Error ? error.message : String(error)}).`,
+    };
+  }
+  if (envelope.artifactKind !== 'CHILD_PREFLIGHT' || envelope.record === undefined) {
+    return { confirmedRefusal: false, detail: `${path} is not a CHILD_PREFLIGHT envelope.` };
+  }
+  if (sha256Hex(canonicalStringify(envelope.record)) !== envelope.recordSha256) {
+    return { confirmedRefusal: false, detail: `${path} fails its own recorded hash.` };
+  }
+  if (envelope.record.ok !== false) {
+    return {
+      confirmedRefusal: false,
+      detail: `${path} records ok: ${JSON.stringify(envelope.record.ok)} — the child passed its preflight, so the provider factory was reachable, yet no semantic-execution marker exists: a provider request can be neither confirmed nor excluded.`,
+    };
+  }
+  if (envelope.record.providerConstructed !== false) {
+    return {
+      confirmedRefusal: false,
+      detail: `${path} records providerConstructed: ${JSON.stringify(envelope.record.providerConstructed)}, not false.`,
+    };
+  }
+  const stage = envelope.record.checks?.stage;
+  return { confirmedRefusal: true, stage: typeof stage === 'string' ? stage : null };
 }
 
 export interface SlotEvidenceClassification {
@@ -164,29 +272,72 @@ export function classifySlotEvidence(
   if (files.length === 0) {
     return report('NO_EVIDENCE', 'this slot output root is an empty directory.', []);
   }
-  const inferenceCapable = files.filter((file) =>
-    INFERENCE_CAPABLE_ARTIFACT_FILE_NAMES.includes(file.slice(file.lastIndexOf('/') + 1)),
+  const semanticMarkers = files.filter((file) =>
+    SEMANTIC_EXECUTION_MARKER_FILE_NAMES.includes(file.slice(file.lastIndexOf('/') + 1)),
   );
-  if (inferenceCapable.length > 0) {
+  if (semanticMarkers.length > 0) {
     return report(
       'SEMANTIC_EXECUTION_OBSERVED',
-      `holds ${inferenceCapable.length} artifact(s) that exist only once the parent got past child-manifest construction (${inferenceCapable.slice(0, 5).join(', ')}).`,
+      `holds ${semanticMarkers.length} semantic-execution marker(s) a child writes only after a provider call returned (${semanticMarkers.slice(0, 5).join(', ')}).`,
       files,
     );
   }
-  const unaccounted = files.filter(
-    (file) => !PRE_INFERENCE_PATH_PATTERNS.some((pattern) => pattern.test(file)),
-  );
+
+  // No marker. Every remaining file must be a parent-only pre-inference
+  // record, or a control-plane record inside a dispatched child's attempt
+  // directory — and each such directory must then CONFIRM its refusal.
+  const unaccounted: string[] = [];
+  const attemptDirectories = new Map<string, Set<string>>();
+  for (const file of files) {
+    if (PRE_INFERENCE_PATH_PATTERNS.some((pattern) => pattern.test(file))) continue;
+    const match = ATTEMPT_DIRECTORY_FILE_PATTERN.exec(file);
+    if (match !== null && CONFIRMED_REFUSAL_ATTEMPT_FILE_NAMES.includes(match[2]!)) {
+      const names = attemptDirectories.get(match[1]!) ?? new Set<string>();
+      names.add(match[2]!);
+      attemptDirectories.set(match[1]!, names);
+      continue;
+    }
+    unaccounted.push(file);
+  }
   if (unaccounted.length > 0) {
     return report(
       'AMBIGUOUS',
-      `holds ${unaccounted.length} file(s) this classifier cannot account for (${unaccounted.slice(0, 5).join(', ')}); an unexplained root is refused, never assumed harmless.`,
+      `holds ${unaccounted.length} file(s) this classifier cannot account for without a semantic-execution marker (${unaccounted.slice(0, 5).join(', ')}); an unexplained root is refused, never assumed harmless.`,
+      files,
+    );
+  }
+
+  const stages = new Set<string>();
+  for (const [directory, names] of [...attemptDirectories.entries()].sort(([a], [b]) =>
+    a.localeCompare(b),
+  )) {
+    if (!names.has(CHILD_MANIFEST_FILE_NAME) || !names.has(CHILD_PREFLIGHT_FILE_NAME)) {
+      return report(
+        'AMBIGUOUS',
+        `${directory} holds child control-plane record(s) (${[...names].sort().join(', ')}) without both a child manifest and a child preflight: no confirmed pre-provider refusal exists for that child.`,
+        files,
+      );
+    }
+    const verdict = verifyConfirmedPreflightRefusal(
+      join(root, directory, CHILD_PREFLIGHT_FILE_NAME),
+      probes.readFile,
+    );
+    if (!verdict.confirmedRefusal) {
+      return report('AMBIGUOUS', verdict.detail, files);
+    }
+    stages.add(verdict.stage ?? '<unrecorded>');
+  }
+
+  if (attemptDirectories.size === 0) {
+    return report(
+      'PRE_INFERENCE_REFUSAL',
+      `holds only a consumption marker, an experiment manifest and/or planned input(s) (${files.length} file(s)): the run was refused before any child was forked.`,
       files,
     );
   }
   return report(
     'PRE_INFERENCE_REFUSAL',
-    `holds only a consumption marker, an experiment manifest and/or planned input(s) (${files.length} file(s)): the run was refused before any child was forked.`,
+    `authorisation consumed; ${attemptDirectories.size} child(ren) dispatched, each with a hash-verified child preflight recording ok: false and providerConstructed: false (stage(s): ${[...stages].sort().join(', ')}), and no semantic-execution marker anywhere (${files.length} file(s)): a confirmed pre-provider refusal.`,
     files,
   );
 }

@@ -34,13 +34,32 @@
  *           Tier-2 machinery. It writes its OWN authorisation-consumption
  *           marker as its first act, then runs the frozen 12 logical
  *           evaluations through the injected launcher.
- *        d. Whatever `runExperiment` returns (`COMPLETED_ALL_PLANNED` or
- *           `STOPPED`), the slot's own evidence is DURABLY CLOSED by
- *           construction (`coordinator.ts` always writes
- *           `EXPERIMENT_COMPLETION` or `EXPERIMENT_STOP` before
- *           returning) — so this is Class C, and the loop advances.
+ *        d. `classifySlotEvidence` re-reads the slot's own output root
+ *           FRESH, and ONLY that evidence decides progression — never the
+ *           mere fact that `runExperiment` returned, and never its
+ *           `COMPLETED_ALL_PLANNED`/`STOPPED` status. Class C (a real
+ *           semantic-execution marker) AND durably closed advances; Class B
+ *           (consumed, confirmed pre-provider refusal) PAUSES; anything
+ *           else (ambiguous, or Class C not yet closed) PAUSES, fail closed.
  *   4. `writeStudyTerminal` — written exactly once, whichever way the loop
  *      ends: all ten slots closed, or a pause.
+ *
+ * ZERO-INFERENCE EXECUTION-RECOVERY CORRECTION. The first real study
+ * invocation (2026-09-16) exposed two defects this module now closes:
+ *
+ *   - DEFECT 1: every child manifest received the RELATIVE historical
+ *     freeze path, which the Tier-2 child (cwd = its scratch directory)
+ *     could not open. `resolveChildFreezePath` (`childFreezePath.ts`) now
+ *     supplies a canonical ABSOLUTE, hash-verified path, resolved for all
+ *     ten slots BEFORE the all-ten preflight — a failure throws with
+ *     nothing written.
+ *   - DEFECT 2: step 3d used to label ANY returned experiment — including
+ *     `STOPPED` after ten freeze-stage refusals with
+ *     `providerConstructed: false` — `SLOT_COMPLETED_CLASS_C` and advance,
+ *     spending all ten candidates on zero inference. Progression is now the
+ *     evidence classification above, so one confirmed pre-inference refusal
+ *     pauses the study at that slot and leaves every later candidate
+ *     unconsumed.
  *
  * This module reuses `runExperiment` BYTE-FOR-BYTE: it builds the exact
  * `ExperimentInput` shape `cliF0O.ts` already builds for a live attempt,
@@ -58,14 +77,30 @@
  */
 import type { F0IExecutionPlan } from '../f0i/freezeF0I.js';
 import type { F0OExecutionPlan } from '../f0o/freezeF0O.js';
-import { buildSlotExecutionPlanTemplate } from '../f0w/slotExecutionPlan.js';
+import {
+  buildSlotExecutionPlanTemplate,
+  type SlotExecutionPlanTemplate,
+} from '../f0w/slotExecutionPlan.js';
 import type { StudySlotRegistry } from '../f0w/slotRegistry.js';
-import type { SlotEvidenceProbes } from '../f0w/sequencing.js';
+import {
+  classifySlotEvidence,
+  inclusionClassOf,
+  type SlotEvidenceClassification,
+  type SlotEvidenceProbes,
+  type SlotInclusionClass,
+} from '../f0w/sequencing.js';
 import type { OutputRootProbes as SlotOutputRootProbes } from '../artifacts.js';
-import { runExperiment, type ChildLauncher, type ExperimentResult } from '../coordinator.js';
+import {
+  runExperiment,
+  type ChildLauncher,
+  type ExperimentInput,
+  type ExperimentResult,
+} from '../coordinator.js';
+import type { F0WSlotExecutionAuthorisation } from '../f0w/authorisationF0W.js';
 import { F0V_STUDY_ROOT } from '../f0v/freezeF0V.js';
 import type { StudySlotIdentity } from '../f0v/studyPlanCore.js';
 import { runAllTenPreflight, type AllTenPreflightDecision } from './allTenPreflight.js';
+import { resolveChildFreezePath } from './childFreezePath.js';
 import {
   evaluateComposedSlotExecutionDecision,
   type ComposedSlotExecutionDecision,
@@ -102,6 +137,8 @@ export interface StudyExecutorInput {
   readonly outputRootProbes: SlotOutputRootProbes;
   readonly forbiddenOutputRootContainers: readonly string[];
   readonly studyRoot?: string;
+  /** Absolute root of the runner repository the historical F0I/F0O freeze bytes are read from. */
+  readonly runnerRepoRoot: string;
   readonly v4Root: string;
   readonly v5Root: string;
   readonly classifierConfigDir: string;
@@ -123,9 +160,21 @@ export type StudyExecutionOutcome =
     }
   | {
       readonly status: 'PAUSED';
+      /** A composed gate refused the slot BEFORE its candidate was consumed. */
+      readonly pauseKind: 'GATE_REFUSAL';
       readonly completedSlots: readonly CompletedSlotOutcome[];
       readonly pausedAtSlot: string;
       readonly failedGate: ComposedSlotExecutionDecision & { readonly granted: false };
+    }
+  | {
+      readonly status: 'PAUSED';
+      /** The slot ran, and its OWN preserved evidence is not a durably closed Class C replicate. */
+      readonly pauseKind: 'POST_EXECUTION_EVIDENCE';
+      readonly completedSlots: readonly CompletedSlotOutcome[];
+      readonly pausedAtSlot: string;
+      readonly inclusionClass: SlotInclusionClass;
+      readonly classification: SlotEvidenceClassification;
+      readonly experiment: ExperimentResult;
     }
   | {
       readonly status: 'COMPLETED_ALL_SLOTS';
@@ -140,6 +189,35 @@ function variantRootsFor(
   return slot.variantName === 'PROMPT_V4_CANONICAL'
     ? { PROMPT_V4_CANONICAL: v4Root }
     : { PROMPT_V5_CANONICAL: v5Root };
+}
+
+/**
+ * The exact `ExperimentInput` the executor hands `runExperiment` for ONE
+ * granted slot: the historical plan and attempt number from the template,
+ * the slot's own output root, and the canonical ABSOLUTE child freeze path.
+ * Exported so the physical Tier-2 proof exercises this very construction.
+ */
+export function buildSlotExperimentInput(
+  input: StudyExecutorInput,
+  template: SlotExecutionPlanTemplate,
+  childFreezePath: string,
+  authorisation: F0WSlotExecutionAuthorisation,
+  authorisationSha256: string,
+): ExperimentInput {
+  return {
+    plan: template.plan,
+    freezePath: childFreezePath,
+    outputRoot: template.outputRoot,
+    attemptNo: template.attemptNo,
+    authorisation,
+    authorisationSha256,
+    variantRoots: variantRootsFor(template.slot, input.v4Root, input.v5Root),
+    classifierConfigDir: input.classifierConfigDir,
+    parentEnv: input.parentEnv,
+    platform: input.platform,
+    launcher: input.launcher,
+    clock: input.clock,
+  };
 }
 
 function transitionEventForRefusal(
@@ -168,6 +246,22 @@ export async function runReplicationStudyExecution(
 ): Promise<StudyExecutionOutcome> {
   const studyRoot = input.studyRoot ?? F0V_STUDY_ROOT;
   const startedAtUtc = input.clock.nowUtc().toISOString();
+
+  // Defect-1 closure: every slot's child freeze path is resolved to a
+  // canonical absolute, hash-verified path BEFORE the preflight. A throw
+  // here leaves zero durable trace — no manifest, no identity, no consumption.
+  const childFreezePathBySlot = new Map<string, string>();
+  for (const slot of input.registry.slots) {
+    childFreezePathBySlot.set(
+      slot.slotId,
+      resolveChildFreezePath({
+        runnerRepoRoot: input.runnerRepoRoot,
+        template: buildSlotExecutionPlanTemplate(slot, input.f0iPlan, input.f0oPlan, studyRoot),
+        readFile: input.readFile,
+        sha256: input.sha256,
+      }),
+    );
+  }
 
   const preflight = runAllTenPreflight({
     registry: input.registry,
@@ -247,7 +341,13 @@ export async function runReplicationStudyExecution(
         slotsCompleted: completedSlots.length,
         completedAtUtc: input.clock.nowUtc().toISOString(),
       });
-      return { status: 'PAUSED', completedSlots, pausedAtSlot: slot.slotId, failedGate: decision };
+      return {
+        status: 'PAUSED',
+        pauseKind: 'GATE_REFUSAL',
+        completedSlots,
+        pausedAtSlot: slot.slotId,
+        failedGate: decision,
+      };
     }
 
     writeSlotTransition(studyRoot, ordinal, {
@@ -288,30 +388,68 @@ export async function runReplicationStudyExecution(
     // — Class B evidence, never silently retried.
     writeOuterSlotIdentity(identity);
 
-    const experiment = await runExperiment({
-      plan: template.plan,
-      freezePath: template.freezePath,
-      outputRoot: template.outputRoot,
-      attemptNo: template.attemptNo,
-      authorisation: decision.authorisation,
-      authorisationSha256: decision.authorisationSha256,
-      variantRoots: variantRootsFor(slot, input.v4Root, input.v5Root),
-      classifierConfigDir: input.classifierConfigDir,
-      parentEnv: input.parentEnv,
-      platform: input.platform,
-      launcher: input.launcher,
-      clock: input.clock,
-    });
+    const experiment = await runExperiment(
+      buildSlotExperimentInput(
+        input,
+        template,
+        childFreezePathBySlot.get(slot.slotId)!,
+        decision.authorisation,
+        decision.authorisationSha256,
+      ),
+    );
 
-    // Whatever the outcome, `runExperiment` always wrote a terminal
-    // record (EXPERIMENT_COMPLETION or EXPERIMENT_STOP) before returning
-    // — the slot is durably closed, Class C, and the loop advances.
+    // Defect-2 closure: a returned experiment — COMPLETED or STOPPED — is
+    // NOT by itself a replicate. The slot's OWN preserved evidence, read
+    // fresh, decides: only a real semantic-execution marker (Class C) that
+    // is also durably closed advances the study.
+    const classification = classifySlotEvidence(template.outputRoot, input.sequencingProbes);
+    const inclusionClass = inclusionClassOf(classification);
+    const experimentSummary = `experiment status ${experiment.status}; ${experiment.evaluationsEndedWithoutStop} of ${experiment.evaluationsStarted} evaluations ended without a stop.`;
+    if (
+      inclusionClass !== 'CLASS_C_PROVIDER_REQUEST_OR_SEMANTIC_EXECUTION_OBSERVED' ||
+      !classification.durablyClosed
+    ) {
+      const event: SlotTransitionEventKind =
+        inclusionClass === 'CLASS_B_AUTHORISATION_CONSUMED_CONFIRMED_PRE_INFERENCE_REFUSAL'
+          ? 'SLOT_PAUSED_CLASS_B'
+          : 'SLOT_AMBIGUOUS';
+      const reason =
+        inclusionClass === 'CLASS_C_PROVIDER_REQUEST_OR_SEMANTIC_EXECUTION_OBSERVED'
+          ? `POST_EXECUTION/${inclusionClass}_NOT_DURABLY_CLOSED: ${classification.detail} ${experimentSummary}`
+          : `POST_EXECUTION/${inclusionClass}: ${classification.detail} ${experimentSummary}`;
+      writeSlotTransition(studyRoot, ordinal, {
+        recordVersion: STUDY_RECORD_VERSION,
+        slotId: slot.slotId,
+        sequence: slot.sequence,
+        event,
+        detail: reason,
+        atUtc: input.clock.nowUtc().toISOString(),
+      });
+      writeStudyTerminal(studyRoot, {
+        recordVersion: STUDY_RECORD_VERSION,
+        outcome: 'PAUSED',
+        pauseReason: reason,
+        blockingSlotId: slot.slotId,
+        slotsCompleted: completedSlots.length,
+        completedAtUtc: input.clock.nowUtc().toISOString(),
+      });
+      return {
+        status: 'PAUSED',
+        pauseKind: 'POST_EXECUTION_EVIDENCE',
+        completedSlots,
+        pausedAtSlot: slot.slotId,
+        inclusionClass,
+        classification,
+        experiment,
+      };
+    }
+
     writeSlotTransition(studyRoot, ordinal, {
       recordVersion: STUDY_RECORD_VERSION,
       slotId: slot.slotId,
       sequence: slot.sequence,
       event: 'SLOT_COMPLETED_CLASS_C',
-      detail: `experiment status ${experiment.status}; ${experiment.evaluationsEndedWithoutStop} of ${experiment.evaluationsStarted} evaluations ended without a stop.`,
+      detail: `${classification.detail} ${experimentSummary}`,
       atUtc: input.clock.nowUtc().toISOString(),
     });
     completedSlots.push({ slot, experiment });

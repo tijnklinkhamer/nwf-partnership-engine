@@ -1,0 +1,490 @@
+{
+  "erratumId": "PHASE_2B_2D2C_F0X_FAILED_STUDY_ERRATUM_V1",
+  "version": "phase2b-2d2c-f0x-failed-study-erratum-v1",
+  "status": "ADDITIVE_ERRATUM_PROPOSED_FOR_OWNER_REVIEW",
+  "scope": "DEVELOPMENT_ONLY",
+  "createdAtUtc": "2026-09-16",
+  "subject": {
+    "studyId": "REPLICATION_V4_V5_N5",
+    "studyRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5",
+    "controlRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-control",
+    "executionIntegrationCommit": "74ee8a445da02d80a8b5d73e651bbde9a2a97115",
+    "studyExecutionApprovalSha256": "86f904464e16ce7a1ca2b6ca3862fb6427bf2c20f74688956c7248ff5fc6c9d9",
+    "startedAtUtc": "2026-09-16T13:50:59.603Z",
+    "completedAtUtc": "2026-09-16T13:51:04.639Z"
+  },
+  "preservedEvidence": {
+    "immutable": true,
+    "modifiedByThisErratum": false,
+    "inventoryPath": "docs/evaluation/PHASE_2B_2D2C_F0X_FAILED_STUDY_INVENTORY_V1.json",
+    "inventoryRawSha256": "1371cd669fe463b7e785637542c8f95519a13fd11dfbe60ef18a4bf52031d3ee",
+    "wholeStudyTree": {
+      "fileCount": 122,
+      "treeSha256": "5034ccbded9f0d82beee4e11bb711e84591bb8963dff8d63610c66502ebb3412"
+    },
+    "studyManifest": {
+      "path": "study-manifest.json",
+      "fileSha256": "51643cb6e72e18a1744c40a88684adc0a1f25ef89838ff53ac2e77b8cd472aca",
+      "recordSha256": "a4a7901eefc1d58beed28a71a47fe6452bd08486bc1a5c16684b7b2b93dec961",
+      "recordSha256Verified": true
+    },
+    "studyTerminal": {
+      "path": "study-terminal.json",
+      "fileSha256": "0a3e3a3032d6de0c853cd8920a214db2f8c87de74ad71418c7c7c2adc7e955ae",
+      "recordSha256": "9c6a573719464d10d2aac22057b2fbf1b1e4b58d19dd62cb11f747760eca5848",
+      "recordSha256Verified": true
+    },
+    "totals": {
+      "slotsPresent": 10,
+      "childPreflights": 10,
+      "childPreflightsWithProviderConstructedFalse": 10,
+      "semanticExecutionMarkers": 0,
+      "providerRequestsObserved": 0,
+      "adapterAttemptsObserved": 0,
+      "classA": 0,
+      "classB": 10,
+      "classC": 0,
+      "ambiguous": 0
+    }
+  },
+  "erratum": {
+    "recordedTerminalOutcome": "COMPLETED_ALL_SLOTS",
+    "recordedSlotsCompleted": 10,
+    "recordedTerminalOutcomeIsA": "CONTROL_PLANE_ARTIFACT_OF_THE_F0X_PROGRESSION_DEFECT",
+    "statement": "The preserved study-terminal.json records COMPLETED_ALL_SLOTS with slotsCompleted 10, and each of the ten study-events/*-SLOT_COMPLETED_CLASS_C.json records a Class C completion. Neither establishes any successful or empirical replicate. Every one of the ten children refused at its own freeze stage (ENOENT on the relative historical freeze path, providerConstructed false); zero provider requests, zero adapter attempts, zero classifier results, zero repairs, no scoring and no HOLDOUT access occurred. Under the frozen F0V inclusion rule every slot is CLASS_B_AUTHORISATION_CONSUMED_CONFIRMED_PRE_INFERENCE_REFUSAL: its candidate is spent, no semantic replicate exists, and it counts zero toward N=5. The historical records are not rewritten; this erratum supersedes their interpretation only.",
+    "rootCauses": [
+      {
+        "id": "DEFECT_1_RELATIVE_CHILD_FREEZE_PATH",
+        "summary": "studyExecutor.ts passed buildSlotExecutionPlanTemplate()'s relative historical freeze path into runExperiment; the Tier-2 harness forks each child with its scratch directory as cwd and childMain.ts reads manifest.freezePath verbatim, so every child failed with ENOENT at stage freeze. cliF0O.ts had absolutised with join(RUNNER_REPO_ROOT, F0O_FREEZE_PATH)."
+      },
+      {
+        "id": "DEFECT_2_STOPPED_EXPERIMENT_ADVANCED_AS_CLASS_C",
+        "summary": "studyExecutor.ts labelled any returned runExperiment() result, STOPPED included, SLOT_COMPLETED_CLASS_C and advanced; f0w/sequencing.ts read child-manifest/child-preflight/final-record/stop-decision/tier2-outcome as SEMANTIC_EXECUTION_OBSERVED, so the next slot's sequencing gate also admitted it."
+      }
+    ],
+    "correctedClassifierVerdictOnPreservedEvidence": "10_OF_10_CLASS_B"
+  },
+  "slots": [
+    {
+      "slotId": "PAIR_1_V4",
+      "sequence": 1,
+      "variantName": "PROMPT_V4_CANONICAL",
+      "failedOutputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5/pair-1-v4",
+      "failedSlotTreeSha256": "9a857ced300bb7023ab76070487836d4498090e7398bc88336ea93bd3717ceba",
+      "spentCandidateAuthorisationSha256": "c57fbf6216d089f9b065e0d7921ed24101fa1148a669c8e6ce3fde0e39a3e150",
+      "consumptionMarker": {
+        "path": "authorisations/c57fbf6216d089f9b065e0d7921ed24101fa1148a669c8e6ce3fde0e39a3e150.json",
+        "fileSha256": "1a5fee660ca4ae75b857d4bba107d1d2fc7d48acf6b35b73fea9ce7df47363d4",
+        "recordSha256": "58a1e8e769e2ad78d018863c3cdabe119835a6761e1fe898cb5fe7c034e13fd2"
+      },
+      "outerSlotIdentity": {
+        "path": "study-slot-identity.json",
+        "fileSha256": "ac865c56b3c3a617363b82cca656d92cbac7f0aeb27e4022ca734b08f9c78736",
+        "recordSha256": "b589a84a42935cac954918ae8e24647c7743248ae281089f28d1744ebe94d690"
+      },
+      "childPreflight": {
+        "path": "evaluations/PROMPT_V4_CANONICAL/batch-01/attempt-3/child-preflight.json",
+        "fileSha256": "d941b842073c47b7d1723a3a0176cc87c30f1a654206c0a6d6a78bc7ef41816e",
+        "recordSha256": "547e3bd57e313c10eb30d7f1e7e03ba70d6abcc6f70ed0ad519eaebfa44d3f0c",
+        "ok": false,
+        "providerConstructed": false,
+        "stage": "freeze",
+        "stopCondition": "CORPUS_CONFIG_OR_HASH_DRIFT",
+        "detail": "Error: ENOENT: no such file or directory, open 'docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0I_V1.json'"
+      },
+      "experimentStop": {
+        "path": "experiments/attempt-3/experiment-stop.json",
+        "fileSha256": "e1a64cdd6a0753a95458cef8baabc712029090a1d33c00bcfd78918c622fbeef",
+        "recordSha256": "d7371cda95ea618bad9793b841d52961610ff66f479b49a67b0207aa786bb333",
+        "stopCondition": "CORPUS_CONFIG_OR_HASH_DRIFT"
+      },
+      "semanticExecutionMarkers": [],
+      "providerRequestsObserved": 0,
+      "adapterAttemptsObserved": 0,
+      "recordedStudyEvent": "001-PAIR_1_V4-SLOT_COMPLETED_CLASS_C.json",
+      "correctedInclusionClass": "CLASS_B_AUTHORISATION_CONSUMED_CONFIRMED_PRE_INFERENCE_REFUSAL",
+      "countsTowardN": false,
+      "proposedReplacementOutputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1/pair-1-v4"
+    },
+    {
+      "slotId": "PAIR_1_V5",
+      "sequence": 2,
+      "variantName": "PROMPT_V5_CANONICAL",
+      "failedOutputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5/pair-1-v5",
+      "failedSlotTreeSha256": "8d3717df61243db18e7647f1fb0f1121625db5066713a69f539ce704d7586480",
+      "spentCandidateAuthorisationSha256": "917c72c85a337452882ffa93b01a1eb1b566036ebadf6f6805c78891899e7e9c",
+      "consumptionMarker": {
+        "path": "authorisations/917c72c85a337452882ffa93b01a1eb1b566036ebadf6f6805c78891899e7e9c.json",
+        "fileSha256": "3ee2b5550007c46a83da287357dc0385375160e96792747248d36660ff4a069d",
+        "recordSha256": "cb275f36623797282588ea6b3bc22afe300f9ba2b8f68303425c106471fcf9f7"
+      },
+      "outerSlotIdentity": {
+        "path": "study-slot-identity.json",
+        "fileSha256": "498830786226ebc711958c94d4d66605636e795f643de590bc904857d48cb48e",
+        "recordSha256": "91099d36ad7d75e830d2da7d9ea46eaabf4fe9e93ba5c6f6c1b8c894ee752292"
+      },
+      "childPreflight": {
+        "path": "evaluations/PROMPT_V5_CANONICAL/batch-01/attempt-4/child-preflight.json",
+        "fileSha256": "4b344e889e029ef488aec9ac5ee95ea7487b102198c76bab3fa072e11bf87a85",
+        "recordSha256": "d86be5c0b305f2cf4fd0c7b44b4d47150a5c341f64f97d8dba1bf1a6606523d4",
+        "ok": false,
+        "providerConstructed": false,
+        "stage": "freeze",
+        "stopCondition": "CORPUS_CONFIG_OR_HASH_DRIFT",
+        "detail": "Error: ENOENT: no such file or directory, open 'docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0O_V1.json'"
+      },
+      "experimentStop": {
+        "path": "experiments/attempt-4/experiment-stop.json",
+        "fileSha256": "21fdf9df1e9eb3c70274bf7db8e873a6287322028c475111d798c65071fe9a79",
+        "recordSha256": "54146548e0703014c7100e4d1d1721b16b1e08fb90550e67f05ef205d41067b1",
+        "stopCondition": "CORPUS_CONFIG_OR_HASH_DRIFT"
+      },
+      "semanticExecutionMarkers": [],
+      "providerRequestsObserved": 0,
+      "adapterAttemptsObserved": 0,
+      "recordedStudyEvent": "002-PAIR_1_V5-SLOT_COMPLETED_CLASS_C.json",
+      "correctedInclusionClass": "CLASS_B_AUTHORISATION_CONSUMED_CONFIRMED_PRE_INFERENCE_REFUSAL",
+      "countsTowardN": false,
+      "proposedReplacementOutputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1/pair-1-v5"
+    },
+    {
+      "slotId": "PAIR_2_V5",
+      "sequence": 3,
+      "variantName": "PROMPT_V5_CANONICAL",
+      "failedOutputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5/pair-2-v5",
+      "failedSlotTreeSha256": "006c4132fc6d8bd32eba00e1a03707917a9786039e772908f66825670816e406",
+      "spentCandidateAuthorisationSha256": "8e72458eaeb7ed8f51c0a9e529b791a579686780d72964f5a5762d218db1239b",
+      "consumptionMarker": {
+        "path": "authorisations/8e72458eaeb7ed8f51c0a9e529b791a579686780d72964f5a5762d218db1239b.json",
+        "fileSha256": "738a3c75f5c2329b5c4ece6a7eaf33946c318f50fa95e75aa97197d456b36082",
+        "recordSha256": "3822e4078c8393d7a920cd10a71617bcc0be7f58a1617858eda2e09d5d1bfe24"
+      },
+      "outerSlotIdentity": {
+        "path": "study-slot-identity.json",
+        "fileSha256": "b84427d1616a8fa3f273f89a100c6eda633b95bf06673c52b3c7d6c01e40e351",
+        "recordSha256": "e1556c59075577b61651c7252db99801706f7beed1c87793d74c774f8b661b2b"
+      },
+      "childPreflight": {
+        "path": "evaluations/PROMPT_V5_CANONICAL/batch-01/attempt-4/child-preflight.json",
+        "fileSha256": "4b344e889e029ef488aec9ac5ee95ea7487b102198c76bab3fa072e11bf87a85",
+        "recordSha256": "d86be5c0b305f2cf4fd0c7b44b4d47150a5c341f64f97d8dba1bf1a6606523d4",
+        "ok": false,
+        "providerConstructed": false,
+        "stage": "freeze",
+        "stopCondition": "CORPUS_CONFIG_OR_HASH_DRIFT",
+        "detail": "Error: ENOENT: no such file or directory, open 'docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0O_V1.json'"
+      },
+      "experimentStop": {
+        "path": "experiments/attempt-4/experiment-stop.json",
+        "fileSha256": "ca89d20379c1e4440ba02eda935edc64d41bff47bb898e3ec2e1f10cdad7f4a6",
+        "recordSha256": "a194ea726e1aed5514485cd16540e679be4b7e9147b59915a1bd66044f36de47",
+        "stopCondition": "CORPUS_CONFIG_OR_HASH_DRIFT"
+      },
+      "semanticExecutionMarkers": [],
+      "providerRequestsObserved": 0,
+      "adapterAttemptsObserved": 0,
+      "recordedStudyEvent": "003-PAIR_2_V5-SLOT_COMPLETED_CLASS_C.json",
+      "correctedInclusionClass": "CLASS_B_AUTHORISATION_CONSUMED_CONFIRMED_PRE_INFERENCE_REFUSAL",
+      "countsTowardN": false,
+      "proposedReplacementOutputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1/pair-2-v5"
+    },
+    {
+      "slotId": "PAIR_2_V4",
+      "sequence": 4,
+      "variantName": "PROMPT_V4_CANONICAL",
+      "failedOutputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5/pair-2-v4",
+      "failedSlotTreeSha256": "8091401c57eca4f63cd1bd36268ec51635c5d266c12c3bd187129bfb230256ef",
+      "spentCandidateAuthorisationSha256": "58c2aac0fd3e48488fbcf9ac80f730b0eab8cdc48c909a5e249a15737da0a8bb",
+      "consumptionMarker": {
+        "path": "authorisations/58c2aac0fd3e48488fbcf9ac80f730b0eab8cdc48c909a5e249a15737da0a8bb.json",
+        "fileSha256": "92ad053c3c728c04defafebe0630bdc8c9f39264755a8495d6bba6149610ffe0",
+        "recordSha256": "3aa7d363ae7ddf79dcf390bbf8ce02b31e41dd622f8ecaf576b9c395e34817c5"
+      },
+      "outerSlotIdentity": {
+        "path": "study-slot-identity.json",
+        "fileSha256": "09474e0d1ee9a2da341afe68f0c3a11dbf9ec1db5f1821a84d1b7781daa82e27",
+        "recordSha256": "2a6519b4125c7032bfce19fdafcbcf8f8af2beb5636d97d0a83d5e9a60b4f697"
+      },
+      "childPreflight": {
+        "path": "evaluations/PROMPT_V4_CANONICAL/batch-01/attempt-3/child-preflight.json",
+        "fileSha256": "d941b842073c47b7d1723a3a0176cc87c30f1a654206c0a6d6a78bc7ef41816e",
+        "recordSha256": "547e3bd57e313c10eb30d7f1e7e03ba70d6abcc6f70ed0ad519eaebfa44d3f0c",
+        "ok": false,
+        "providerConstructed": false,
+        "stage": "freeze",
+        "stopCondition": "CORPUS_CONFIG_OR_HASH_DRIFT",
+        "detail": "Error: ENOENT: no such file or directory, open 'docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0I_V1.json'"
+      },
+      "experimentStop": {
+        "path": "experiments/attempt-3/experiment-stop.json",
+        "fileSha256": "bf745cd10bb1de19fec9bb4ee4e7b1d32eb293e5748d0b399daf3b0172174d1f",
+        "recordSha256": "4f97ad055715b4a0e7905e19b4c0137a1a8a3c384743cbfbf12174a34d9ca7dc",
+        "stopCondition": "CORPUS_CONFIG_OR_HASH_DRIFT"
+      },
+      "semanticExecutionMarkers": [],
+      "providerRequestsObserved": 0,
+      "adapterAttemptsObserved": 0,
+      "recordedStudyEvent": "004-PAIR_2_V4-SLOT_COMPLETED_CLASS_C.json",
+      "correctedInclusionClass": "CLASS_B_AUTHORISATION_CONSUMED_CONFIRMED_PRE_INFERENCE_REFUSAL",
+      "countsTowardN": false,
+      "proposedReplacementOutputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1/pair-2-v4"
+    },
+    {
+      "slotId": "PAIR_3_V4",
+      "sequence": 5,
+      "variantName": "PROMPT_V4_CANONICAL",
+      "failedOutputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5/pair-3-v4",
+      "failedSlotTreeSha256": "f83fb7bf1abcda5e9a90a0c14763097db2030e335cdf9702e7c6d7988e2fff45",
+      "spentCandidateAuthorisationSha256": "54692fc8dff3df37cb6fae906ab3aedcbafc8012dfa143361287f704afc35841",
+      "consumptionMarker": {
+        "path": "authorisations/54692fc8dff3df37cb6fae906ab3aedcbafc8012dfa143361287f704afc35841.json",
+        "fileSha256": "3ce2d29c07716ea6e653a9259e0d87ae438bd47955810266fa19d973a5b33e8d",
+        "recordSha256": "73da6d8247268e40654b4be0a7de4fbd49b6319f000db6c7a584854a4277a8af"
+      },
+      "outerSlotIdentity": {
+        "path": "study-slot-identity.json",
+        "fileSha256": "c6641ff00e45ebfc5e9b80c49cc8a9cfe2b0e39ed7fb5841df36052b310f13b6",
+        "recordSha256": "bdd8ed4ad644804b0b437a3bd7eded8b2d181badcd49dc901b35ce8927fee36f"
+      },
+      "childPreflight": {
+        "path": "evaluations/PROMPT_V4_CANONICAL/batch-01/attempt-3/child-preflight.json",
+        "fileSha256": "d941b842073c47b7d1723a3a0176cc87c30f1a654206c0a6d6a78bc7ef41816e",
+        "recordSha256": "547e3bd57e313c10eb30d7f1e7e03ba70d6abcc6f70ed0ad519eaebfa44d3f0c",
+        "ok": false,
+        "providerConstructed": false,
+        "stage": "freeze",
+        "stopCondition": "CORPUS_CONFIG_OR_HASH_DRIFT",
+        "detail": "Error: ENOENT: no such file or directory, open 'docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0I_V1.json'"
+      },
+      "experimentStop": {
+        "path": "experiments/attempt-3/experiment-stop.json",
+        "fileSha256": "6d78a37d4beee5348cc06dd966965b7e18ad3165b8c67d6da88fcd09f88eacb0",
+        "recordSha256": "5ae8274a40af7fcd1125d8fabccd346dbe746091ca5acc5731c0f5ac50bbdd95",
+        "stopCondition": "CORPUS_CONFIG_OR_HASH_DRIFT"
+      },
+      "semanticExecutionMarkers": [],
+      "providerRequestsObserved": 0,
+      "adapterAttemptsObserved": 0,
+      "recordedStudyEvent": "005-PAIR_3_V4-SLOT_COMPLETED_CLASS_C.json",
+      "correctedInclusionClass": "CLASS_B_AUTHORISATION_CONSUMED_CONFIRMED_PRE_INFERENCE_REFUSAL",
+      "countsTowardN": false,
+      "proposedReplacementOutputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1/pair-3-v4"
+    },
+    {
+      "slotId": "PAIR_3_V5",
+      "sequence": 6,
+      "variantName": "PROMPT_V5_CANONICAL",
+      "failedOutputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5/pair-3-v5",
+      "failedSlotTreeSha256": "91aaddfd65031b8a5ce57c2139d46c1ab313887f45c2f4d6aacaa1a813ee6c7e",
+      "spentCandidateAuthorisationSha256": "91a742267c69d6c60a0363e94742ecdc8959b2d630866f663ca08e913353ef3c",
+      "consumptionMarker": {
+        "path": "authorisations/91a742267c69d6c60a0363e94742ecdc8959b2d630866f663ca08e913353ef3c.json",
+        "fileSha256": "fdf539d8847bcdd73ad664e2379af42468189211119f9c509cef6782ff65176c",
+        "recordSha256": "a4df3f0e399b87758aa68dc67bbe0f1a8899027236c066ea065d15d92139f7cf"
+      },
+      "outerSlotIdentity": {
+        "path": "study-slot-identity.json",
+        "fileSha256": "bff3c9b5ef8a4018a4d6e5e02651dc1e12d2cb11cf058581852bdc1b32b29df7",
+        "recordSha256": "8374aec8733599fc4046df6ac7277b0a97e4e9aa7d7c2394f20527d26365bad6"
+      },
+      "childPreflight": {
+        "path": "evaluations/PROMPT_V5_CANONICAL/batch-01/attempt-4/child-preflight.json",
+        "fileSha256": "4b344e889e029ef488aec9ac5ee95ea7487b102198c76bab3fa072e11bf87a85",
+        "recordSha256": "d86be5c0b305f2cf4fd0c7b44b4d47150a5c341f64f97d8dba1bf1a6606523d4",
+        "ok": false,
+        "providerConstructed": false,
+        "stage": "freeze",
+        "stopCondition": "CORPUS_CONFIG_OR_HASH_DRIFT",
+        "detail": "Error: ENOENT: no such file or directory, open 'docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0O_V1.json'"
+      },
+      "experimentStop": {
+        "path": "experiments/attempt-4/experiment-stop.json",
+        "fileSha256": "d66053675d3b0c0bd89ddd7f4856131b44dd7ac50c7f7982042f817705823681",
+        "recordSha256": "c2e366ce24013c7c42afc30824f4af575e9e17fbbff5028cdc176c47b8fba2ac",
+        "stopCondition": "CORPUS_CONFIG_OR_HASH_DRIFT"
+      },
+      "semanticExecutionMarkers": [],
+      "providerRequestsObserved": 0,
+      "adapterAttemptsObserved": 0,
+      "recordedStudyEvent": "006-PAIR_3_V5-SLOT_COMPLETED_CLASS_C.json",
+      "correctedInclusionClass": "CLASS_B_AUTHORISATION_CONSUMED_CONFIRMED_PRE_INFERENCE_REFUSAL",
+      "countsTowardN": false,
+      "proposedReplacementOutputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1/pair-3-v5"
+    },
+    {
+      "slotId": "PAIR_4_V5",
+      "sequence": 7,
+      "variantName": "PROMPT_V5_CANONICAL",
+      "failedOutputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5/pair-4-v5",
+      "failedSlotTreeSha256": "f1a4a16a003522b0ceeec5e54bb5584ca0cf0b6e32ef58729451d9c75721e2f4",
+      "spentCandidateAuthorisationSha256": "9ed38f23019001d017879e88eaf2f4dbacef93183dda71c2c5f7635ce48f785f",
+      "consumptionMarker": {
+        "path": "authorisations/9ed38f23019001d017879e88eaf2f4dbacef93183dda71c2c5f7635ce48f785f.json",
+        "fileSha256": "6b8d4d5b1383fae0b76aa2d2fbff3b68f264bec751474625fcc119eeb0877ab1",
+        "recordSha256": "45ab8537a19c2a3fee4bcedceea5c8f6c3f17b9f8bf98972ecbb3bd6e7368daf"
+      },
+      "outerSlotIdentity": {
+        "path": "study-slot-identity.json",
+        "fileSha256": "1afb5d4b802bf1031d0d9b01307e86b3eafb31823ec9af037cff3e57acd93b04",
+        "recordSha256": "e2671b54e532a7ecd9745c5c66ad4b99dfd170248bcb4253336d2d4c376031df"
+      },
+      "childPreflight": {
+        "path": "evaluations/PROMPT_V5_CANONICAL/batch-01/attempt-4/child-preflight.json",
+        "fileSha256": "4b344e889e029ef488aec9ac5ee95ea7487b102198c76bab3fa072e11bf87a85",
+        "recordSha256": "d86be5c0b305f2cf4fd0c7b44b4d47150a5c341f64f97d8dba1bf1a6606523d4",
+        "ok": false,
+        "providerConstructed": false,
+        "stage": "freeze",
+        "stopCondition": "CORPUS_CONFIG_OR_HASH_DRIFT",
+        "detail": "Error: ENOENT: no such file or directory, open 'docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0O_V1.json'"
+      },
+      "experimentStop": {
+        "path": "experiments/attempt-4/experiment-stop.json",
+        "fileSha256": "5d12e2cd6c15dcbb8e1861010dbd595743b184121a44cd30f4bfb41bef6aa0ad",
+        "recordSha256": "d9fc70fc7b9433e36b3295c182848be180fa7b634346642fd3a93775d7c0cdab",
+        "stopCondition": "CORPUS_CONFIG_OR_HASH_DRIFT"
+      },
+      "semanticExecutionMarkers": [],
+      "providerRequestsObserved": 0,
+      "adapterAttemptsObserved": 0,
+      "recordedStudyEvent": "007-PAIR_4_V5-SLOT_COMPLETED_CLASS_C.json",
+      "correctedInclusionClass": "CLASS_B_AUTHORISATION_CONSUMED_CONFIRMED_PRE_INFERENCE_REFUSAL",
+      "countsTowardN": false,
+      "proposedReplacementOutputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1/pair-4-v5"
+    },
+    {
+      "slotId": "PAIR_4_V4",
+      "sequence": 8,
+      "variantName": "PROMPT_V4_CANONICAL",
+      "failedOutputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5/pair-4-v4",
+      "failedSlotTreeSha256": "bed5f2f1bc85090444649aac7d246f1c98c1a2c55c99103df16d77bdaad1228a",
+      "spentCandidateAuthorisationSha256": "7ff089dde6c7405d50db5e256fc6ee385d18f44bc958490d230d93e2870511e5",
+      "consumptionMarker": {
+        "path": "authorisations/7ff089dde6c7405d50db5e256fc6ee385d18f44bc958490d230d93e2870511e5.json",
+        "fileSha256": "bef23bcc99199b187e3f6d65fae0eeacce2e52ac3eeccdcee66421cd6c5fbf8b",
+        "recordSha256": "bf42e0800b0377508a4fa7ee03ab79f5f716c2422c03a3a000e7ba42fa9e822b"
+      },
+      "outerSlotIdentity": {
+        "path": "study-slot-identity.json",
+        "fileSha256": "b22e0de023703e5ea6cc2e26d60ae9371cd74b7506cef6a02dac092fbc40c86b",
+        "recordSha256": "f0cdb2fc293315f331d9b7ef688dcb50c8cdcba6bb46082a06c8796db40848fb"
+      },
+      "childPreflight": {
+        "path": "evaluations/PROMPT_V4_CANONICAL/batch-01/attempt-3/child-preflight.json",
+        "fileSha256": "d941b842073c47b7d1723a3a0176cc87c30f1a654206c0a6d6a78bc7ef41816e",
+        "recordSha256": "547e3bd57e313c10eb30d7f1e7e03ba70d6abcc6f70ed0ad519eaebfa44d3f0c",
+        "ok": false,
+        "providerConstructed": false,
+        "stage": "freeze",
+        "stopCondition": "CORPUS_CONFIG_OR_HASH_DRIFT",
+        "detail": "Error: ENOENT: no such file or directory, open 'docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0I_V1.json'"
+      },
+      "experimentStop": {
+        "path": "experiments/attempt-3/experiment-stop.json",
+        "fileSha256": "48ea3aef877d2655867aad6202942cc076a2f0f688e87d2f04c328ddc7ba941a",
+        "recordSha256": "ff56e5c25bd0155635db68842523108da9414fcf7e536e53fd3051b93d910886",
+        "stopCondition": "CORPUS_CONFIG_OR_HASH_DRIFT"
+      },
+      "semanticExecutionMarkers": [],
+      "providerRequestsObserved": 0,
+      "adapterAttemptsObserved": 0,
+      "recordedStudyEvent": "008-PAIR_4_V4-SLOT_COMPLETED_CLASS_C.json",
+      "correctedInclusionClass": "CLASS_B_AUTHORISATION_CONSUMED_CONFIRMED_PRE_INFERENCE_REFUSAL",
+      "countsTowardN": false,
+      "proposedReplacementOutputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1/pair-4-v4"
+    },
+    {
+      "slotId": "PAIR_5_V4",
+      "sequence": 9,
+      "variantName": "PROMPT_V4_CANONICAL",
+      "failedOutputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5/pair-5-v4",
+      "failedSlotTreeSha256": "00d2f3cd02a54c9d8026fd176dd5ae85da46dcbc2b74b1f2338acea9308673f6",
+      "spentCandidateAuthorisationSha256": "43c682a321c6f74f524e34e7438b81664e4b56820eb293d6cbfb1c11c1f91802",
+      "consumptionMarker": {
+        "path": "authorisations/43c682a321c6f74f524e34e7438b81664e4b56820eb293d6cbfb1c11c1f91802.json",
+        "fileSha256": "10b267c408d68b16e82acef801c8d559226c74f470be9135b7a90a8d3448dbe5",
+        "recordSha256": "5d172b99eb6aa2fbe7e9a48857017caa93277b6e5280e0493a37efe041b60be3"
+      },
+      "outerSlotIdentity": {
+        "path": "study-slot-identity.json",
+        "fileSha256": "eda73b9fbc9ffb3cc687a516586f5ae7fcc07a3db34f19253ff9eee07d24d6fd",
+        "recordSha256": "84dd3478a73691c40665f36244082bad768cfc991e3a0efea50aaa2e604ae1b0"
+      },
+      "childPreflight": {
+        "path": "evaluations/PROMPT_V4_CANONICAL/batch-01/attempt-3/child-preflight.json",
+        "fileSha256": "d941b842073c47b7d1723a3a0176cc87c30f1a654206c0a6d6a78bc7ef41816e",
+        "recordSha256": "547e3bd57e313c10eb30d7f1e7e03ba70d6abcc6f70ed0ad519eaebfa44d3f0c",
+        "ok": false,
+        "providerConstructed": false,
+        "stage": "freeze",
+        "stopCondition": "CORPUS_CONFIG_OR_HASH_DRIFT",
+        "detail": "Error: ENOENT: no such file or directory, open 'docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0I_V1.json'"
+      },
+      "experimentStop": {
+        "path": "experiments/attempt-3/experiment-stop.json",
+        "fileSha256": "eb6e4a50c669e5a472842632c846681386a6bea7aa41a626b7a75463581b1f1e",
+        "recordSha256": "55c801d6ee8fe979ece88d879f198e681f12a8391845ca1ce13c2db8ca4bdf11",
+        "stopCondition": "CORPUS_CONFIG_OR_HASH_DRIFT"
+      },
+      "semanticExecutionMarkers": [],
+      "providerRequestsObserved": 0,
+      "adapterAttemptsObserved": 0,
+      "recordedStudyEvent": "009-PAIR_5_V4-SLOT_COMPLETED_CLASS_C.json",
+      "correctedInclusionClass": "CLASS_B_AUTHORISATION_CONSUMED_CONFIRMED_PRE_INFERENCE_REFUSAL",
+      "countsTowardN": false,
+      "proposedReplacementOutputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1/pair-5-v4"
+    },
+    {
+      "slotId": "PAIR_5_V5",
+      "sequence": 10,
+      "variantName": "PROMPT_V5_CANONICAL",
+      "failedOutputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5/pair-5-v5",
+      "failedSlotTreeSha256": "cebcf93738ba1c7ee07bcc0120c9af2f3f9c2debd5ce8cb9748364cb692da5c9",
+      "spentCandidateAuthorisationSha256": "bad7fe0aea449f56fdb44ecd1711c7d59d0f99e18a5aa8feda2114afd9775e91",
+      "consumptionMarker": {
+        "path": "authorisations/bad7fe0aea449f56fdb44ecd1711c7d59d0f99e18a5aa8feda2114afd9775e91.json",
+        "fileSha256": "ea5642b78215237401ae0157f1dc6f20eb230e93e2b4b59a1c12d50172c19e4d",
+        "recordSha256": "6d75497752caa88ec4428fdf9dc567527dc0392baae9c41ba35c47c0f58356fd"
+      },
+      "outerSlotIdentity": {
+        "path": "study-slot-identity.json",
+        "fileSha256": "f61621c583896a4784f14e4543c6acde4f7634dcbe6cf97b0d7bce9cb45ba0a9",
+        "recordSha256": "9b1578ac0cc3f9ffd427f0078bbc300cdd0169894a68357927b1a8a7988e2614"
+      },
+      "childPreflight": {
+        "path": "evaluations/PROMPT_V5_CANONICAL/batch-01/attempt-4/child-preflight.json",
+        "fileSha256": "4b344e889e029ef488aec9ac5ee95ea7487b102198c76bab3fa072e11bf87a85",
+        "recordSha256": "d86be5c0b305f2cf4fd0c7b44b4d47150a5c341f64f97d8dba1bf1a6606523d4",
+        "ok": false,
+        "providerConstructed": false,
+        "stage": "freeze",
+        "stopCondition": "CORPUS_CONFIG_OR_HASH_DRIFT",
+        "detail": "Error: ENOENT: no such file or directory, open 'docs/evaluation/PHASE_2B_2D2C_DEV_CONFIGURATION_FREEZE_F0O_V1.json'"
+      },
+      "experimentStop": {
+        "path": "experiments/attempt-4/experiment-stop.json",
+        "fileSha256": "2159618e416bdbbfb77ada5bc60084e633a286fe3fcd0a89de8f301363240c94",
+        "recordSha256": "38275fecd73b539e0ffb2efbb9ed828ae4904978dfe11edb524c6ab0163f6285",
+        "stopCondition": "CORPUS_CONFIG_OR_HASH_DRIFT"
+      },
+      "semanticExecutionMarkers": [],
+      "providerRequestsObserved": 0,
+      "adapterAttemptsObserved": 0,
+      "recordedStudyEvent": "010-PAIR_5_V5-SLOT_COMPLETED_CLASS_C.json",
+      "correctedInclusionClass": "CLASS_B_AUTHORISATION_CONSUMED_CONFIRMED_PRE_INFERENCE_REFUSAL",
+      "countsTowardN": false,
+      "proposedReplacementOutputRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1/pair-5-v5"
+    }
+  ],
+  "recovery": {
+    "status": "DESIGN_ONLY_NOT_MATERIALISED",
+    "designDocument": "docs/audits/PHASE_2B_2D2C_F0X_ZERO_INFERENCE_EXECUTION_RECOVERY_2026-09.md",
+    "proposedRecoveryNamespace": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1",
+    "proposedRecoveryControlRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1-control",
+    "replacementCandidatesCreated": 0,
+    "replacementRootsCreated": 0,
+    "recoveryApprovalCreated": false,
+    "providerRequestsMade": 0,
+    "requiresSeparateOwnerApproval": true
+  }
+}
