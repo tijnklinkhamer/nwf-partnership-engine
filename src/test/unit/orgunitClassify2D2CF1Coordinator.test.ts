@@ -905,9 +905,16 @@ describe('2D2C-F1 coordinator with a fake launcher', () => {
     // evaluation closes durably, its own items are INVALID, and the plan runs
     // to the end.
     const timeout = fakeLauncher({ 4: 'tier1Timeout' });
-    const a = await runExperiment(experimentInput({ launcher: timeout.launcher }));
+    const inputA = experimentInput({ launcher: timeout.launcher });
+    const a = await runExperiment(inputA);
     expect(a.status).toBe('COMPLETED_ALL_PLANNED');
     expect(timeout.launched).toHaveLength(24);
+    // NO DUPLICATE EXECUTION: 24 planned evaluations, 24 launches, and 24
+    // distinct attempt directories. The timed-out batch ran exactly once and
+    // was never re-run as part of continuing.
+    const dirs = attemptDirs(inputA.outputRoot);
+    expect(dirs).toHaveLength(24);
+    expect(new Set(dirs).size).toBe(24);
     const reconciled = fakeLauncher({ 5: 'reconciledFailure' });
     const b = await runExperiment(experimentInput({ launcher: reconciled.launcher }));
     expect(b.status).toBe('COMPLETED_ALL_PLANNED');

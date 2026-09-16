@@ -1165,3 +1165,58 @@ describe('2D2C-F0Z parent-side liveness witness', () => {
     }
   });
 });
+
+// ---------------------------------------------------------------------------
+// 2D2C-F0Z — the remaining witness cases: grace expiry by deadline, and the
+// exact meaning of `ipcRequestSent`.
+// ---------------------------------------------------------------------------
+describe('2D2C-F0Z: grace expiry and the meaning of ipcRequestSent', () => {
+  it('records graceExpiredByDeadline when the DEADLINE decided, not an early settle', async () => {
+    const result = await runProcessIsolatedBatch({
+      modulePath: fixture('neverExits.mjs'),
+      watchdogMs: 250,
+      graceMs: 300,
+    });
+    expect(result.outcome).toBe('TIMED_OUT_KILLED');
+    expect(result.gracePhaseVerdict).toBe('NO_SHUTDOWN_RESPONSE');
+    const w = result.livenessWitness!;
+    // The landed record could not tell an early CHILD_EXITED_UNCONFIRMED from
+    // one taken at the deadline. This field does.
+    expect(w.graceExpiredByDeadline).toBe(true);
+    expect(w.graceArmedAtUtc).not.toBeNull();
+    expect(w.hardKillAttemptedAtUtc).not.toBeNull();
+    // The child never answered the probe or the request.
+    expect(w.shutdownAckObservedAtUtc).toBeNull();
+  });
+
+  it('a cooperative child settles the grace EARLY, so the deadline never decides', async () => {
+    const result = await runProcessIsolatedBatch({
+      modulePath: fixture('cooperativeShutdown.mjs'),
+      watchdogMs: 250,
+      graceMs: 10_000,
+    });
+    expect(result.gracePhaseVerdict).toBe('SHUTDOWN_CONFIRMED');
+    expect(result.livenessWitness!.graceExpiredByDeadline).toBe(false);
+  });
+
+  it('ipcRequestSent means "send() returned true", NEVER "the child received it"', () => {
+    // Node's subprocess.send() can return true on a channel whose peer is
+    // already gone - reproduced directly during the F0Z investigation. So a
+    // true here is not evidence of delivery, and the grace verdict does not
+    // treat it as such: confirmation still requires a real ACK.
+    const { ops } = recordingOps();
+    const record = beginGracefulShutdown('win32', 4242, ops);
+    expect(record.ipcRequestSent).toBe(true);
+    // An un-acknowledged, un-exited child is still NOT confirmed.
+    expect(decideGracePhase({ acknowledged: false, exitedWithinGrace: false })).toMatchObject({
+      verdict: 'NO_SHUTDOWN_RESPONSE',
+      gracefulShutdownConfirmed: false,
+      hardKillRequired: true,
+    });
+    // And an exit alone is never a cooperative shutdown either.
+    expect(decideGracePhase({ acknowledged: false, exitedWithinGrace: true })).toMatchObject({
+      verdict: 'CHILD_EXITED_UNCONFIRMED',
+      gracefulShutdownConfirmed: false,
+    });
+  });
+});
