@@ -27,6 +27,13 @@
  * refuses the F2 bytes outright, so no historical caller can reach the new
  * family by accident, and every historical family resolves exactly as before.
  *
+ * PHASE 2B-2D2C-F7 adds ONE more family, additively and in the same way:
+ * `F6_V6_FINAL_RESTART_STUDY`, the owner-approved fresh V6 N=5 restart. Its
+ * freeze is a study freeze over the SAME approved F2 plan, so it too resolves
+ * only through `resolveChildFreezeAt`, which verifies beside it the F6 owner
+ * freeze approval, the F2 freeze and its approval, and the inherited F0O
+ * freeze (`f7/restartStudyContextF7.ts`). The F2 family is untouched.
+ *
  * `finalInputSha256For` answers `undefined` for a variant the family does
  * not schedule: an attempt-2 manifest naming PROMPT_V1_CANONICAL or
  * PROMPT_V2_CANONICAL, an attempt-3 manifest naming any of
@@ -90,6 +97,13 @@ import {
   loadF4V6StudyContext,
   type F4V6StudyContext,
 } from '../f4/v6StudyContextF4.js';
+import { PROPOSED_F6_FREEZE_RAW_SHA256 } from '../f6/freezeF6.js';
+import {
+  F7_RESTART_FREEZE_FAMILY,
+  F7_STUDY_CONTEXT_PATHS,
+  loadF7RestartStudyContext,
+  type F7RestartStudyContext,
+} from '../f7/restartStudyContextF7.js';
 
 /**
  * `F0C_ATTEMPT_2_SUPERSEDED` is recognised only to be REFUSED: Finding F1
@@ -101,7 +115,8 @@ export type FreezeFamily =
   | 'F0C_ATTEMPT_2_SUPERSEDED'
   | 'F0I_ATTEMPT_3'
   | 'F0O_ATTEMPT_4'
-  | typeof F4_V6_FREEZE_FAMILY;
+  | typeof F4_V6_FREEZE_FAMILY
+  | typeof F7_RESTART_FREEZE_FAMILY;
 
 export interface FrozenBatchView {
   readonly ordinal: number;
@@ -142,6 +157,8 @@ export interface ChildFreezeView {
   readonly attempt4?: Attempt4Freeze;
   /** F4: the verified final-V6 study context, present only for the F2_V6_FINAL_STUDY family. */
   readonly f2Study?: F4V6StudyContext;
+  /** F7: the verified F6 restart study context, present only for the F6_V6_FINAL_RESTART_STUDY family. */
+  readonly f6Restart?: F7RestartStudyContext;
 }
 
 function f0bView(bytes: Buffer): ChildFreezeView {
@@ -403,9 +420,104 @@ function f2View(
   };
 }
 
+/**
+ * F7: the F6 restart study view. The F6 bytes restart the approved F2 plan, so
+ * the corpus, classifier identities, root contract, repair policy and batch
+ * partition are exactly the F2 view's; the ONE scheduled variant is V6 and its
+ * final identity per ordinal is the approved F6 plan's, which every one of the
+ * five F6 slots must agree on.
+ */
+function f6RestartView(
+  freezePath: string,
+  bytes: Buffer,
+  readFile: (path: string) => Buffer,
+): ChildFreezeView {
+  if (
+    !isAbsolute(freezePath) ||
+    normalize(freezePath) !== freezePath ||
+    !freezePath.endsWith(`/${F7_STUDY_CONTEXT_PATHS.f6Freeze}`)
+  ) {
+    throw new F0CFreezeError(
+      'CORPUS_CONFIG_OR_HASH_DRIFT',
+      `the F6 restart study freeze must be read from an absolute, normalised path ending in ${F7_STUDY_CONTEXT_PATHS.f6Freeze}; got ${JSON.stringify(freezePath)}.`,
+    );
+  }
+  const repoRoot = freezePath.slice(
+    0,
+    freezePath.length - F7_STUDY_CONTEXT_PATHS.f6Freeze.length - 1,
+  );
+  const context = loadF7RestartStudyContext({
+    f6FreezeBytes: bytes,
+    f6OwnerFreezeApprovalBytes: readFile(
+      join(repoRoot, F7_STUDY_CONTEXT_PATHS.f6OwnerFreezeApproval),
+    ),
+    f2FreezeBytes: readFile(join(repoRoot, F2_FREEZE_PATH)),
+    f2OwnerFreezeApprovalBytes: readFile(join(repoRoot, F2_APPROVAL_RECORD_PATH)),
+    f0oFreezeBytes: readFile(join(repoRoot, F0O_FREEZE_PATH)),
+  });
+  const v6FinalByOrdinal = new Map<number, string>();
+  for (const evaluation of context.f6Plan.plan.evaluations) {
+    const known = v6FinalByOrdinal.get(evaluation.logicalBatchOrdinal);
+    if (known !== undefined && known !== evaluation.finalInputSha256) {
+      throw new F0CFreezeError(
+        'CORPUS_CONFIG_OR_HASH_DRIFT',
+        `the approved F6 plan assigns two V6 final identities to ordinal ${evaluation.logicalBatchOrdinal}.`,
+      );
+    }
+    v6FinalByOrdinal.set(evaluation.logicalBatchOrdinal, evaluation.finalInputSha256);
+  }
+  const study = context.f4;
+  const f0o = study.f0oFreeze;
+  const f2Corpus = study.f2Freeze.corpus;
+  return {
+    family: F7_RESTART_FREEZE_FAMILY,
+    attemptNo: F4_V6_SLOT_ATTEMPT_NO,
+    rawSha256: context.f6FreezeRawSha256,
+    rawBytes: context.f6FreezeRawBytes,
+    version: context.f6Freeze.version,
+    corpus: {
+      ...f0o.corpus,
+      holdoutFilesNeverRead: [
+        ...new Set([
+          ...f0o.corpus.holdoutFilesNeverRead,
+          ...f2Corpus.holdoutFilesNeverRead,
+          ...f2Corpus.additionalForbiddenFilesForThisStudy,
+        ]),
+      ],
+    },
+    classifier: {
+      requestedModelId: study.requestedModelId,
+      outputSchemaVersion: study.outputSchemaVersion,
+      assemblyVersion: f0o.classifier.assemblyVersion,
+    },
+    rootContract: study.v6RootContract,
+    variants: [F4_V6_VARIANT],
+    repairPolicy: f0o.repairPolicy,
+    f6Restart: context,
+    frozenBatch: (ordinal) => {
+      const batch = f0o.batching.plan.find((b) => b.ordinal === ordinal);
+      if (batch === undefined) return undefined;
+      return {
+        ordinal: batch.ordinal,
+        organisationId: batch.organisationId,
+        echeRowKey: batch.echeRowKey,
+        goldIds: batch.goldIds,
+        docIndices: batch.docIndices,
+        context: batch.context,
+        serializedBatchUtf8Bytes: batch.serializedBatchUtf8Bytes,
+        assemblyInputSha256: batch.assemblyInputSha256,
+        canonicalSerializedInputSha256: batch.canonicalSerializedInputSha256,
+        finalInputSha256For: (variantName) =>
+          variantName === F4_V6_VARIANT.name ? v6FinalByOrdinal.get(batch.ordinal) : undefined,
+      };
+    },
+  };
+}
+
 /** Which family a set of freeze bytes belongs to, decided by exact raw hash — never by a caller's say-so. */
 export function freezeFamilyOf(bytes: Buffer): FreezeFamily {
   const rawSha256 = createHash('sha256').update(bytes).digest('hex');
+  if (rawSha256 === PROPOSED_F6_FREEZE_RAW_SHA256) return F7_RESTART_FREEZE_FAMILY;
   if (rawSha256 === PROPOSED_F2_FREEZE_RAW_SHA256) return F4_V6_FREEZE_FAMILY;
   if (rawSha256 === PROPOSED_F0O_FREEZE_RAW_SHA256) return 'F0O_ATTEMPT_4';
   if (rawSha256 === PROPOSED_F0I_FREEZE_RAW_SHA256) return 'F0I_ATTEMPT_3';
@@ -433,6 +545,12 @@ export function resolveChildFreeze(bytes: Buffer): ChildFreezeView {
       'the F2 final-V6 study freeze resolves only through resolveChildFreezeAt, which verifies its owner freeze-approval record and inherited F0O freeze beside it.',
     );
   }
+  if (family === F7_RESTART_FREEZE_FAMILY) {
+    throw new F0CFreezeError(
+      'CORPUS_CONFIG_OR_HASH_DRIFT',
+      'the F6 restart study freeze resolves only through resolveChildFreezeAt, which verifies its owner freeze-approval record, the F2 study and the inherited F0O freeze beside it.',
+    );
+  }
   if (family === 'F0O_ATTEMPT_4') return f0oView(bytes);
   if (family === 'F0I_ATTEMPT_3') return f0iView(bytes);
   return family === 'F0E_ATTEMPT_2' ? f0eView(bytes) : f0bView(bytes);
@@ -449,7 +567,9 @@ export function resolveChildFreezeAt(
   readFile: (path: string) => Buffer,
 ): ChildFreezeView {
   const bytes = readFile(freezePath);
-  return freezeFamilyOf(bytes) === F4_V6_FREEZE_FAMILY
+  const family = freezeFamilyOf(bytes);
+  if (family === F7_RESTART_FREEZE_FAMILY) return f6RestartView(freezePath, bytes, readFile);
+  return family === F4_V6_FREEZE_FAMILY
     ? f2View(freezePath, bytes, readFile)
     : resolveChildFreeze(bytes);
 }
@@ -483,6 +603,10 @@ export async function verifyRootForVariant(
       runtime: null,
       claudeCodeExecutable: null,
     };
+  }
+  if (view.family === F7_RESTART_FREEZE_FAMILY && view.f6Restart !== undefined) {
+    // The F6 restart runs the SAME approved V6 runtime: the identical root contract.
+    return verifyV5Root(root, view.f6Restart.f4.v6RootContract, probes);
   }
   if (view.family === F4_V6_FREEZE_FAMILY && view.f2Study !== undefined) {
     // The V6 root is held to every V5-root check (the V6 runtime is the F0Z

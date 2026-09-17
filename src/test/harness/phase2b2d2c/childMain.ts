@@ -19,6 +19,10 @@
  *      this logical evaluation's assembly and V6 final identities — against
  *      the approved plan the child rebuilt itself; a binding under any other
  *      family, or its absence under F2, is refused;
+ *   2b. (F7, F6 restart family only) the same proof for the F6 restart study
+ *      binding against the F6 plan the child rebuilt itself
+ *      (`f7/restartStudyContextF7.ts`); an F4 binding under F6, an F6 binding
+ *      under F2, or any binding under a historical family is refused;
  *   3. verifies the selected variant root through the same checks the
  *      parent ran, loading the SDK-free production modules FROM THAT ROOT;
  *   4. reads the DEVELOPMENT canonical corpus FROM THAT ROOT, verifies it
@@ -84,6 +88,12 @@ import {
   F4_STUDY_ID,
   F4_V6_FREEZE_FAMILY,
 } from './f4/v6StudyContextF4.js';
+import {
+  F7ChildStudyBindingSchema,
+  F7_CHILD_STUDY_BINDING_VERSION,
+  F7_RESTART_FREEZE_FAMILY,
+  f7StudyBindingProblem,
+} from './f7/restartStudyContextF7.js';
 import {
   FreezeDriftError,
   FrozenBatchContextSchema,
@@ -154,8 +164,13 @@ export const ChildManifestSchema = z.strictObject({
    * F4: present exactly for a manifest under the F2 final-V6 study family,
    * and refused under every other family. Optional, so every historical
    * manifest's canonical bytes are unchanged.
+   *
+   * F7: the F6 restart study binding travels in the SAME field, as the other
+   * member of a closed union of two strict, version-discriminated schemas, so
+   * the coordinator that writes it is unchanged. Which member a family admits
+   * is decided in the child (step 2a/2b), never by this schema.
    */
-  f2StudyBinding: F4ChildStudyBindingSchema.optional(),
+  f2StudyBinding: z.union([F4ChildStudyBindingSchema, F7ChildStudyBindingSchema]).optional(),
 });
 
 export type ChildManifest = z.infer<typeof ChildManifestSchema>;
@@ -282,7 +297,9 @@ export async function runChildEvaluation(
               ? 'the manifest freeze hash is not the approved F0O hash.'
               : view.family === F4_V6_FREEZE_FAMILY
                 ? 'the manifest freeze hash is not the approved F2 final-V6 study hash.'
-                : 'the manifest freeze hash is not the proposed F0E hash.',
+                : view.family === F7_RESTART_FREEZE_FAMILY
+                  ? 'the manifest freeze hash is not the approved F6 restart study hash.'
+                  : 'the manifest freeze hash is not the proposed F0E hash.',
         { stage: 'freeze', family: view.family },
       );
     }
@@ -297,7 +314,8 @@ export async function runChildEvaluation(
       (view.family === 'F0E_ATTEMPT_2' ||
         view.family === 'F0I_ATTEMPT_3' ||
         view.family === 'F0O_ATTEMPT_4' ||
-        view.family === F4_V6_FREEZE_FAMILY) &&
+        view.family === F4_V6_FREEZE_FAMILY ||
+        view.family === F7_RESTART_FREEZE_FAMILY) &&
       manifest.attemptNo !== view.attemptNo
     ) {
       const familyLabel =
@@ -307,7 +325,9 @@ export async function runChildEvaluation(
             ? 'F0O'
             : view.family === F4_V6_FREEZE_FAMILY
               ? 'F2 final-V6 study'
-              : 'F0E';
+              : view.family === F7_RESTART_FREEZE_FAMILY
+                ? 'F6 restart study'
+                : 'F0E';
       return preflightStop(
         'CORPUS_CONFIG_OR_HASH_DRIFT',
         `the ${familyLabel} freeze configures attempt ${view.attemptNo}; the manifest requests attempt ${manifest.attemptNo}.`,
@@ -317,7 +337,10 @@ export async function runChildEvaluation(
 
     // 2a. F4: the final-V6 study binding, proven against the plan the child
     //     rebuilt itself from the approved bytes — never taken on trust.
-    const bindingProblem = f2StudyBindingProblem(view, manifest);
+    const bindingProblem =
+      view.family === F7_RESTART_FREEZE_FAMILY
+        ? f6RestartStudyBindingProblem(view, manifest)
+        : f2StudyBindingProblem(view, manifest);
     if (bindingProblem !== null) {
       return preflightStop('CORPUS_CONFIG_OR_HASH_DRIFT', bindingProblem, {
         stage: 'studyBinding',
@@ -664,8 +687,10 @@ function f2StudyBindingProblem(view: ChildFreezeView, manifest: ChildManifest): 
   if (binding === undefined) {
     return 'a manifest under the F2 final-V6 study freeze carries no study binding.';
   }
+  if (binding.bindingVersion !== F4_CHILD_STUDY_BINDING_VERSION) {
+    return 'the final-V6 study binding disagrees with the approved study on: bindingVersion.';
+  }
   const problems: string[] = [];
-  if (binding.bindingVersion !== F4_CHILD_STUDY_BINDING_VERSION) problems.push('bindingVersion');
   if (binding.studyId !== F4_STUDY_ID) problems.push('studyId');
   if (binding.f2FreezeRawSha256 !== view.rawSha256) problems.push('f2FreezeRawSha256');
   if (binding.f2PlanSha256 !== study.f2PlanSha256) problems.push('f2PlanSha256');
@@ -711,6 +736,27 @@ function f2StudyBindingProblem(view: ChildFreezeView, manifest: ChildManifest): 
   return mismatches.length === 0
     ? null
     : `slot ${binding.slotId} logical evaluation ${manifest.logicalBatchOrdinal} disagrees with the approved plan on: ${mismatches.join(', ')}.`;
+}
+
+/**
+ * F7: why a manifest's F6 restart study binding is refused, or null when it
+ * is proven. Only an F7 binding is admitted under the F6 restart family; the
+ * identity proof itself is `f7StudyBindingProblem`.
+ */
+function f6RestartStudyBindingProblem(
+  view: ChildFreezeView,
+  manifest: ChildManifest,
+): string | null {
+  const study = view.f6Restart;
+  if (study === undefined) return 'the F6 restart study view carries no verified study context.';
+  const binding = manifest.f2StudyBinding;
+  if (binding === undefined) {
+    return 'a manifest under the F6 restart study freeze carries no study binding.';
+  }
+  if (binding.bindingVersion !== F7_CHILD_STUDY_BINDING_VERSION) {
+    return `a ${binding.bindingVersion} binding is present under the ${F7_RESTART_FREEZE_FAMILY} freeze family; only ${F7_CHILD_STUDY_BINDING_VERSION} is admitted there.`;
+  }
+  return f7StudyBindingProblem(study, binding, manifest);
 }
 
 export type ChildRepairDisposition = 'ACCEPTED' | 'REJECTED' | 'PROVIDER_FAILED' | 'SKIPPED';

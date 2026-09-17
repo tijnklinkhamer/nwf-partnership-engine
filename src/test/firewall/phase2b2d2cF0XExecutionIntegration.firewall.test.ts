@@ -278,7 +278,30 @@ describe('2D2C-F0X: narrow, exact execution reachability', () => {
         specifier.endsWith('/f4/v6StudyContextF4.js'),
       ),
     );
+    // PHASE 2B-2D2C-F7 — a second DELIBERATE, EXACT-NAME widening, of the same
+    // kind: the child's freeze-family boundary now also recognises the
+    // owner-approved F6 restart freeze BY HASH, through ONE pure, child-facing
+    // F7 study-context module, which itself builds on the F4 context. It is the
+    // only f7/ module reachable from f0x/, and only freezeFamily.ts and
+    // childMain.ts import it.
+    const CHILD_FACING_F7_STUDY_CONTEXT =
+      'src/test/harness/phase2b2d2c/f7/restartStudyContextF7.ts';
     expect(importersOfWidened.map((file) => file.slice(REPO_ROOT.length + 1)).sort()).toEqual([
+      'src/test/harness/phase2b2d2c/childMain.ts',
+      'src/test/harness/phase2b2d2c/f0c/freezeFamily.ts',
+      CHILD_FACING_F7_STUDY_CONTEXT,
+    ]);
+    expect(
+      graph.files
+        .map((file) => file.slice(REPO_ROOT.length + 1))
+        .filter((relative) => relative.includes('/f7/')),
+    ).toEqual([CHILD_FACING_F7_STUDY_CONTEXT]);
+    const importersOfF7Context = graph.files.filter((file) =>
+      importSpecifiersOf(readSource(file)).some((specifier) =>
+        specifier.endsWith('/f7/restartStudyContextF7.js'),
+      ),
+    );
+    expect(importersOfF7Context.map((file) => file.slice(REPO_ROOT.length + 1)).sort()).toEqual([
       'src/test/harness/phase2b2d2c/childMain.ts',
       'src/test/harness/phase2b2d2c/f0c/freezeFamily.ts',
     ]);
