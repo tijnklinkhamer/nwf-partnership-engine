@@ -130,7 +130,7 @@ describe('2D2C-F6 freeze: identity, status and what it authorises', () => {
     expect(() => loadF6FreezeFromBytes(drifted)).toThrow(F6FreezeError);
   });
 
-  it('the owner FREEZE-ONLY approval exists, names exactly these bytes and authorises nothing; no F6 root and no F6 candidate exists', () => {
+  it('the owner FREEZE-ONLY approval exists, names exactly these bytes and authorises nothing; no execution authority is committed', () => {
     const bytes = readFileSync(join(ROOT, F6_APPROVAL_RECORD_PATH));
     expect(sha256(bytes)).toBe(F6_APPROVAL_RECORD_RAW_SHA256);
     expect(bytes.length).toBe(F6_APPROVAL_RECORD_RAW_BYTES);
@@ -161,8 +161,12 @@ describe('2D2C-F6 freeze: identity, status and what it authorises', () => {
     // The freeze bytes did not change on approval.
     expect(F6.rawSha256).toBe(PROPOSED_F6_FREEZE_RAW_SHA256);
 
-    expect(existsSync(F6_STUDY_ROOT)).toBe(false);
-    for (const slot of F6_SLOTS) expect(existsSync(f6OutputRootPathOf(slot))).toBe(false);
+    // 2D2C-F8: the owner separately authorised ONE execution of this frozen
+    // study, which created the F6 study root and its five slot roots on the
+    // run machine. Root ABSENCE was a true statement about F6 PREPARATION, not
+    // a property of the freeze, so it is no longer asserted: this test pins the
+    // freeze and the FREEZE-ONLY approval, and the repository still carries no
+    // committed execution authority.
     for (const entry of readdirSync(join(ROOT, 'docs/evaluation'))) {
       expect(entry).not.toMatch(/F6_EXECUTION|F6_STUDY_EXECUTION/);
     }
