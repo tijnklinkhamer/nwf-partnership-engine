@@ -116,6 +116,11 @@ import {
 } from '../harness/phase2b2d2c/f3/materialiseF3Candidates.js';
 import { loadF3SlotRegistry } from '../harness/phase2b2d2c/f3/slotRegistryF3.js';
 import {
+  F5_STUDY_ROOT_FILE_COUNT,
+  F5_STUDY_ROOT_INVENTORY_SHA256,
+} from '../harness/phase2b2d2c/f6/f5ClosureF6.js';
+import { computeRootInventory } from '../harness/phase2b2d2c/f6/rootInventoryF6.js';
+import {
   buildF3StudyExecutionApprovalStatement,
   F3_STUDY_EXECUTION_APPROVAL_VERSION,
   type F3StudyExecutionApproval,
@@ -140,6 +145,23 @@ import { parseF4CliArgs } from '../harness/phase2b2d2c/f4/cliF4.js';
 
 const ROOT = resolve(__dirname, '..', '..', '..');
 const REAL_STUDY_ROOT = '/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5';
+
+/**
+ * PHASE 2B-2D2C-F6 — a DELIBERATE, EXACT-NAME historical-state widening.
+ *
+ * When this suite was written the real study root did not exist. F5 then
+ * executed the approved study under an owner study-level approval, and the
+ * root now holds that run as IMMUTABLE historical evidence, pinned by the F5
+ * structural closure record's inventory. What this suite protects is
+ * unchanged and now asserted more strongly: the mocked suite never writes into
+ * the real root — the root is either absent or byte-for-byte that inventory.
+ */
+function expectRealStudyRootAbsentOrExactlyTheImmutableF5Evidence(): void {
+  if (!existsSync(REAL_STUDY_ROOT)) return;
+  const inventory = computeRootInventory(REAL_STUDY_ROOT);
+  expect(inventory.fileCount).toBe(F5_STUDY_ROOT_FILE_COUNT);
+  expect(inventory.inventorySha256).toBe(F5_STUDY_ROOT_INVENTORY_SHA256);
+}
 const sha256 = (bytes: Buffer | string): string => createHash('sha256').update(bytes).digest('hex');
 
 const CONTEXT = loadF4V6StudyContext({
@@ -185,7 +207,7 @@ afterEach(() => {
 });
 afterAll(() => {
   rmSync(F2_STUDY_ROOT, { recursive: true, force: true });
-  expect(existsSync(REAL_STUDY_ROOT)).toBe(false);
+  expectRealStudyRootAbsentOrExactlyTheImmutableF5Evidence();
 });
 
 const rootOf = (slot: F2SlotIdentity): string => f2OutputRootPathOf(F2_STUDY_ROOT, slot);
@@ -530,9 +552,9 @@ const stopAtSlot2: Script['hang'] = (slotId, ordinal) => slotId === 'V6_REP_2' &
 // ---------------------------------------------------------------------------
 
 describe('2D2C-F4: the study context and the executable plan are derived from the approved bytes', () => {
-  it('the mocked study root is not the real one, and the real one does not exist', () => {
+  it('the mocked study root is not the real one, and the real one is absent or exactly the immutable F5 evidence', () => {
     expect(F2_STUDY_ROOT).not.toBe(REAL_STUDY_ROOT);
-    expect(existsSync(REAL_STUDY_ROOT)).toBe(false);
+    expectRealStudyRootAbsentOrExactlyTheImmutableF5Evidence();
   });
 
   it('rebuilds the approved F2 plan hash and the inherited plan, and carries v2 semantics', () => {

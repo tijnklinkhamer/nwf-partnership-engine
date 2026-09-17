@@ -64,6 +64,13 @@ import {
   F2_N_REPLICATES,
   F2_SLOTS,
 } from '../harness/phase2b2d2c/f2/studyPlanCoreF2.js';
+import {
+  F5_STUDY_EXECUTION_APPROVAL_BYTES,
+  F5_STUDY_EXECUTION_APPROVAL_SHA256,
+  F5_STUDY_ROOT_FILE_COUNT,
+  F5_STUDY_ROOT_INVENTORY_SHA256,
+} from '../harness/phase2b2d2c/f6/f5ClosureF6.js';
+import { computeRootInventory } from '../harness/phase2b2d2c/f6/rootInventoryF6.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const sha256 = (value: Buffer | string): string => createHash('sha256').update(value).digest('hex');
@@ -102,6 +109,8 @@ const APPROVED_CONTROL_ROOT_ENTRIES = [
   'F3_EXECUTION_CANDIDATES_SUPERSESSION.json',
   'EXECUTION_CANDIDATE_MANIFEST_F4.json',
   'execution-candidates-f4',
+  // F6: the owner's F5 study-level execution approval, pinned by exact bytes below.
+  'STUDY_EXECUTION_APPROVAL.json',
 ];
 function expectControlRootHoldsOnlyApprovedEntries(): void {
   if (!existsSync(F2_CONTROL_ROOT)) return;
@@ -110,6 +119,35 @@ function expectControlRootHoldsOnlyApprovedEntries(): void {
       entry,
     );
   }
+  const approval = join(F2_CONTROL_ROOT, 'STUDY_EXECUTION_APPROVAL.json');
+  if (existsSync(approval)) {
+    const bytes = readFileSync(approval);
+    expect(sha256(bytes)).toBe(F5_STUDY_EXECUTION_APPROVAL_SHA256);
+    expect(bytes.byteLength).toBe(F5_STUDY_EXECUTION_APPROVAL_BYTES);
+  }
+}
+
+/**
+ * PHASE 2B-2D2C-F6 — a DELIBERATE, EXACT-NAME historical-state widening.
+ *
+ * When this suite was written no output root existed. F5 then executed the
+ * approved study under the owner's study-level approval (pinned above), and
+ * the study root and all five slot roots now hold that run as IMMUTABLE
+ * historical evidence. What this suite protects is unchanged: neither the
+ * freeze nor its approval record created anything. So the study root must be
+ * either absent (with every slot root absent) or byte-for-byte the inventory
+ * the F5 structural closure record pins — never anything else.
+ */
+function expectStudyRootAbsentOrExactlyTheImmutableF5Evidence(): void {
+  if (!existsSync(F2_STUDY_ROOT)) {
+    for (const slot of F2_SLOTS) {
+      expect(existsSync(f2OutputRootPathOf(F2_STUDY_ROOT, slot))).toBe(false);
+    }
+    return;
+  }
+  const inventory = computeRootInventory(F2_STUDY_ROOT);
+  expect(inventory.fileCount).toBe(F5_STUDY_ROOT_FILE_COUNT);
+  expect(inventory.inventorySha256).toBe(F5_STUDY_ROOT_INVENTORY_SHA256);
 }
 
 describe('2D2C-F2 freeze: identity, status and what it authorises', () => {
@@ -193,11 +231,8 @@ describe('2D2C-F2 freeze: identity, status and what it authorises', () => {
   });
 
   it('the approval record creates no output root and no execution candidate', () => {
-    expect(existsSync(F2_STUDY_ROOT)).toBe(false);
+    expectStudyRootAbsentOrExactlyTheImmutableF5Evidence();
     expectControlRootHoldsOnlyApprovedEntries();
-    for (const slot of F2_SLOTS) {
-      expect(existsSync(f2OutputRootPathOf(F2_STUDY_ROOT, slot))).toBe(false);
-    }
   });
 
   it('the f2 namespace ships no CLI, execution lock, variant-root verifier or provider import', () => {
@@ -545,12 +580,9 @@ describe('2D2C-F2 freeze: HOLDOUT, output roots and the execution boundary', () 
     expect(F2.freeze.outputRoots.noOutputDirectoryContainsSemanticResultsYet).toBe(true);
   });
 
-  it('neither the study root nor any of the five slot roots exists yet', () => {
-    expect(existsSync(F2_STUDY_ROOT)).toBe(false);
+  it('neither the study root nor any of the five slot roots exists, except as the immutable F5 evidence', () => {
+    expectStudyRootAbsentOrExactlyTheImmutableF5Evidence();
     expectControlRootHoldsOnlyApprovedEntries();
-    for (const slot of F2_SLOTS) {
-      expect(existsSync(f2OutputRootPathOf(F2_STUDY_ROOT, slot))).toBe(false);
-    }
     expect(new Set(F2_SLOTS.map((slot) => f2OutputRootPathOf(F2_STUDY_ROOT, slot))).size).toBe(
       F2_N_REPLICATES,
     );

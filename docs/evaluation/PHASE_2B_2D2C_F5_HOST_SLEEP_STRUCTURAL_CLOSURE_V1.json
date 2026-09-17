@@ -1,0 +1,319 @@
+{
+  "closureId": "PHASE_2B_2D2C_F5_HOST_SLEEP_STRUCTURAL_CLOSURE_V1",
+  "closureVersion": "phase2b-2d2c-f5-host-sleep-structural-closure-v1",
+  "recordKind": "REQUEST_FREE_STRUCTURAL_AND_INCIDENT_CLOSURE",
+  "recordedOnUtcDate": "2026-09-17",
+  "ownerDecision": "AUTHORISE_F6_FRESH_V6_N5_RESTART_PREPARATION_AFTER_HOST_SLEEP_CONTAMINATION",
+  "purpose": "Close the F5 final-V6 N=5 DEV study attempt STRUCTURALLY, and record the host-sleep incident that interrupted it, using control-plane evidence only. This record changes no F5 byte, reclassifies no F5 slot, scores nothing and authorises nothing.",
+  "scope": {
+    "evidenceClass": "CONTROL_PLANE_ONLY",
+    "controlPlaneFilesRead": [
+      "study-manifest.json",
+      "study-terminal.json",
+      "study-events/*.json",
+      "<slot>/study-slot-identity.json",
+      "<slot>/experiments/attempt-1/experiment-manifest.json",
+      "<slot>/experiments/attempt-1/experiment-stop.json",
+      "<slot>/experiments/attempt-1/experiment-completion.json (status and completedAtUtc only)",
+      "<slot>/evaluations/PROMPT_V6_CANONICAL/batch-NN/attempt-1/planned-input.json (orderedDocIndices length only)",
+      "<slot>/evaluations/PROMPT_V6_CANONICAL/batch-NN/attempt-1/provider-outcome.json (outcome and timing fields only)",
+      "<slot>/evaluations/PROMPT_V6_CANONICAL/batch-NN/attempt-1/stop-decision.json",
+      "<slot>/evaluations/PROMPT_V6_CANONICAL/batch-NN/attempt-1/tier2-outcome.json",
+      "<slot>/evaluations/PROMPT_V6_CANONICAL/batch-NN/attempt-1/tier1-diagnostics.json",
+      "<slot>/evaluations/PROMPT_V6_CANONICAL/batch-NN/attempt-1/child-preflight.json (ok, providerConstructed, stopCondition, detail)",
+      "`pmset -g log` (macOS power-management log, read-only, unprivileged)"
+    ],
+    "semanticFilesNeverParsed": [
+      "child-result.json",
+      "raw-output-checkpoint.json",
+      "validation-result.json",
+      "repair-1/*",
+      "final-record.json rawOutputCanonicalSerialization / validatorAcceptedRecords / validatorRejectedRecords / validatorRejectionReasons"
+    ],
+    "inventoryNote": "The study-root inventory below HASHES every file, semantic files included, as an identity. Hashing is not inspection: no semantic file was parsed, and no verdict, rationale or label was read."
+  },
+  "zeroRequestConfirmation": {
+    "providerCalls": 0,
+    "classifierInference": 0,
+    "authStatusInvocations": 0,
+    "scoring": 0,
+    "devGoldLoaded": false,
+    "scorerLoaded": false,
+    "holdoutAccessed": false,
+    "f5EvidenceModified": false
+  },
+  "f5Study": {
+    "studyId": "FINAL_V6_DEV_N5",
+    "runnerExecutionBuildCommit": "1b000dda59803f804c5f03430733e711f67949d7",
+    "integratedRuntimeCommit": "12bd406da5d989d2d31bda8e7aeb11ab39c8937f",
+    "f2FreezeRawSha256": "4062627904ffb682051f5fc3c5d7c581b1b90e49d74a1fe119972fdfa41d8439",
+    "f2PlanSha256": "410e5bc48f0fbdff22a01e1cd31705e7ae22429506921d9fa0fed00f0f28df4c",
+    "f2OwnerFreezeApprovalRawSha256": "184e70ec2db4dba2539dcfd220a4516fed5427a2ada24ed57c8c734eecccb03f",
+    "reliabilitySemanticsVersion": "RELIABILITY_SEMANTICS_V2_TIMEOUT_CONTINUATION",
+    "studyRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5",
+    "controlRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5-control",
+    "studyExecutionApproval": {
+      "path": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5-control/STUDY_EXECUTION_APPROVAL.json",
+      "rawSha256": "aed64a864c5e46ea2d58fac696c091dfea7fd5118e49f70b01fabc605266299d",
+      "rawBytes": 4098,
+      "committed": false
+    },
+    "studyManifestRecordSha256": "27845391e0acab958ffbf41d098e3b8e125755d41d9d98cbfd306493a55f2220",
+    "studyTerminalRecordSha256": "7f54de478423cfea1c4b25851706c0e1961fe0a816919d5ced02c3f6e7139f28",
+    "startedAtUtc": "2026-09-17T08:29:42.751Z",
+    "completedAtUtc": "2026-09-17T09:25:58.164Z",
+    "terminalOutcome": "PAUSED",
+    "terminalBlockingSlotId": "V6_REP_5",
+    "consumedCandidateAuthorisationSha256s": [
+      "5e56f40371561043098bc0ce06cc8f2f99a3f7896d15d415393e3bc5c0fda87d",
+      "a8a570a0790e4faca2f5ba31003bb0a463b7b4d3e33b31c2064c86b400b32247",
+      "c35f820887032aa684141b5f727784b77e60ace95738ffb9a570a7ce250ed8b5",
+      "aa8e7ea50849396b70b386c2323aa37c4588c5d6c0cd9283ed799584c603dba1",
+      "ca12fbba74b139712c91b2e0c9d33c70bd34b745d25b1f12bdffbd4fdf9bbe30"
+    ]
+  },
+  "inventory": {
+    "format": "one line per regular file: '<sha256-hex> <byte-length> ./<relative-path>' with LC_ALL=C byte-order sorting of the paths, each line terminated by a single LF; the inventory SHA-256 is over those exact bytes",
+    "studyRoot": {
+      "fileCount": 567,
+      "inventorySha256": "fc9d8aac1e8ba22429c99be3295078a58268dcbacb00390ee1bfb0c6394287db",
+      "reverifiedDuringThisClosure": true
+    },
+    "controlRoot": {
+      "fileCount": 14,
+      "inventorySha256": "266fde835f0477fb2af55dd422c05c7048a5ea436b74ddf16e54364e07ec610a",
+      "reverifiedDuringThisClosure": true
+    },
+    "immutable": true
+  },
+  "slots": [
+    {
+      "sequence": 1,
+      "slotId": "V6_REP_1",
+      "inclusionClass": "C",
+      "recordedEvent": "SLOT_COMPLETED_CLASS_C",
+      "recordedEventSha256": "0ba6ae8d541ead44fc1c59e9efe8402c8b4d60524b7af449a1333e88db7ac1e5",
+      "experimentStatus": "COMPLETED_ALL_PLANNED",
+      "plannedLogicalEvaluations": 12,
+      "evaluationsStartedAndClosed": 12,
+      "itemsStructurallyObserved": 49,
+      "stopCondition": null
+    },
+    {
+      "sequence": 2,
+      "slotId": "V6_REP_2",
+      "inclusionClass": "C",
+      "recordedEvent": "SLOT_COMPLETED_CLASS_C",
+      "recordedEventSha256": "0cfb8b61b7075e367d7a07bc1011f81af7b2960a7db2a5158dd21a270ae5f1f0",
+      "experimentStatus": "COMPLETED_ALL_PLANNED",
+      "plannedLogicalEvaluations": 12,
+      "evaluationsStartedAndClosed": 12,
+      "itemsStructurallyObserved": 49,
+      "stopCondition": null
+    },
+    {
+      "sequence": 3,
+      "slotId": "V6_REP_3",
+      "inclusionClass": "C",
+      "recordedEvent": "SLOT_COMPLETED_CLASS_C",
+      "recordedEventSha256": "4816bc6d788fd7260bf9a92f1ab77da12809caf9c7f28ae969dee51e4a5f5271",
+      "experimentStatus": "COMPLETED_ALL_PLANNED",
+      "plannedLogicalEvaluations": 12,
+      "evaluationsStartedAndClosed": 12,
+      "itemsStructurallyObserved": 49,
+      "stopCondition": null
+    },
+    {
+      "sequence": 4,
+      "slotId": "V6_REP_4",
+      "inclusionClass": "C",
+      "recordedEvent": "SLOT_COMPLETED_CLASS_C",
+      "recordedEventSha256": "81385c2570d12bc2efe048a55c6ce3efac2abc1874379a1a6f33a89654ef1437",
+      "experimentStatus": "STOPPED",
+      "plannedLogicalEvaluations": 12,
+      "evaluationsStartedAndClosed": 10,
+      "itemsStructurallyObserved": 34,
+      "stopCondition": "TIER2_WATCHDOG_FIRED_BEFORE_TIER1_TIMEOUT",
+      "stoppedAtSequence": 10,
+      "itemAccounting": {
+        "batches01To08ClosedWithProviderOutcomeOk": 34,
+        "batch09ProviderTimeoutNonTerminalInvalidItems": 4,
+        "batch10Tier2LivenessFailureUnobservedItems": 3,
+        "batches11To12NeverStarted": 8,
+        "total": 49
+      },
+      "recoverableInsideF5": false,
+      "rerun": false,
+      "replaced": false,
+      "reason": "A slot with a provider request or semantic execution is irrevocably part of its study and is never replaced, discarded or rerun (frozen Class-C rule)."
+    },
+    {
+      "sequence": 5,
+      "slotId": "V6_REP_5",
+      "inclusionClass": "AMBIGUOUS",
+      "recordedEvent": "SLOT_AMBIGUOUS",
+      "recordedEventSha256": "e7e13aad271686cd0979ec92d27801d111b168dd6aa44359ac848bc28d2c3527",
+      "experimentStatus": "STOPPED",
+      "plannedLogicalEvaluations": 12,
+      "evaluationsStartedAndClosed": 1,
+      "itemsStructurallyObserved": 0,
+      "stopCondition": "TIER2_WATCHDOG_FIRED_BEFORE_TIER1_TIMEOUT",
+      "stoppedAtSequence": 1,
+      "confirmedProviderRequest": false,
+      "mechanicalResolutionAttempt": {
+        "evidenceExamined": [
+          "batch-01 child-preflight.json: ok true, providerConstructed false (the preflight record is written BEFORE provider construction, so it neither confirms nor excludes a later request)",
+          "batch-01 has no provider-outcome.json, child-result.json, raw-output-checkpoint.json or tier1-diagnostics.json",
+          "batch-01 tier2-outcome.json: TIMED_OUT_KILLED, grace verdict SHUTDOWN_CONFIRMED, stderrTail empty"
+        ],
+        "result": "NOT_RESOLVED",
+        "why": "No already-existing control-plane artifact records whether the child entered the provider after its preflight. Absence of a semantic marker under a Tier-2 kill cannot exclude a request, and nothing confirms one."
+      },
+      "forcedIntoClassB": false,
+      "forcedIntoClassC": false,
+      "doesNotAffectTheF6Decision": "REP_4 alone already makes the F5 5/5 completion criterion unattainable."
+    }
+  ],
+  "structuralConclusion": {
+    "markers": [
+      "F5_CANNOT_SATISFY_FROZEN_5_OF_5_COMPLETION_RULE",
+      "NO_SEMANTIC_DEV_VERDICT_DRAWN_FROM_F5"
+    ],
+    "completeReplicates": 3,
+    "requiredCompleteReplicates": 5,
+    "why": "The frozen F2 decision rule requires all 5/5 replicates COMPLETE under RELIABILITY_SEMANTICS_V2_TIMEOUT_CONTINUATION. V6_REP_4 is Class C and STOPPED, and is never rerun or replaced; V6_REP_5 is AMBIGUOUS. At most three F5 replicates can ever be complete.",
+    "notConcluded": [
+      "any statement that V6 failed",
+      "any statement that DEV is not ready for HOLDOUT because of model performance",
+      "any gate outcome, precision, recall or other semantic metric",
+      "any comparison of V6_REP_1..3 with V4, V5 or each other"
+    ],
+    "f5Scored": false
+  },
+  "hostSleepIncident": {
+    "platform": "darwin",
+    "powerSourceDuringIncident": "Battery (100%) per every pmset log entry below",
+    "powerManagementLog": [
+      {
+        "utc": "2026-09-17T08:44:27Z",
+        "event": "Sleep",
+        "detail": "Entering Sleep state due to 'Clamshell Sleep' (Using Batt, 350 secs)"
+      },
+      {
+        "utc": "2026-09-17T08:50:17Z",
+        "event": "DarkWake",
+        "detail": "DarkWake from Deep Idle (45 secs)"
+      },
+      {
+        "utc": "2026-09-17T08:51:02Z",
+        "event": "Sleep",
+        "detail": "Entering Sleep state due to 'Maintenance Sleep' (986 secs)"
+      },
+      {
+        "utc": "2026-09-17T09:07:28Z",
+        "event": "DarkWake",
+        "detail": "DarkWake from Deep Idle, rtc/SleepService (31 secs)"
+      },
+      {
+        "utc": "2026-09-17T09:07:59Z",
+        "event": "Sleep",
+        "detail": "Entering Sleep state due to 'Sleep Service Back to Sleep' (1079 secs)"
+      },
+      {
+        "utc": "2026-09-17T09:25:58Z",
+        "event": "DarkWake",
+        "detail": "DarkWake from Deep Idle, rtc/SleepService (2 secs)"
+      },
+      {
+        "utc": "2026-09-17T09:26:00Z",
+        "event": "Sleep",
+        "detail": "Entering Sleep state due to 'Sleep Service Back to Sleep' (927 secs)"
+      }
+    ],
+    "systemSleepBeganUtc": "2026-09-17T08:44:27Z",
+    "affectedEvaluations": [
+      {
+        "slotId": "V6_REP_4",
+        "logicalBatchOrdinal": 9,
+        "startedAtUtc": "2026-09-17T08:44:16.108Z",
+        "secondsBeforeSystemSleep": 11,
+        "endedAtUtc": "2026-09-17T08:50:19.576Z",
+        "recordedEvaluationOutcomeClass": "PROVIDER_TIMEOUT_NON_TERMINAL",
+        "recordedProviderOutcome": "TIMEOUT",
+        "tier1": {
+          "deadlineNominalMs": 300000,
+          "deadlineArmedAtUtc": "2026-09-17T08:44:16.754Z",
+          "deadlineFiredAtUtc": "2026-09-17T08:50:17.568Z",
+          "deadlineOvershootMs": 60813,
+          "heartbeatExpectedBeats": 360,
+          "heartbeatObservedBeats": 20,
+          "heartbeatMaxGapMs": 343777
+        },
+        "tier2": {
+          "watchdogArmedAtUtc": "2026-09-17T08:44:14.371Z",
+          "watchdogFiredAtUtc": null,
+          "parentHeartbeatExpectedBeats": 365,
+          "parentHeartbeatObservedBeats": 22,
+          "parentHeartbeatMaxGapMs": 344168,
+          "childProbe": { "pingsSent": 4, "pongsReceived": 4, "maxRttMs": 6, "unanswered": 0 }
+        },
+        "coincidence": "Tier 1 fired at 08:50:17.568Z, inside the DarkWake that began at 08:50:17Z."
+      },
+      {
+        "slotId": "V6_REP_4",
+        "logicalBatchOrdinal": 10,
+        "recordedEvaluationOutcomeClass": "TIER2_LIVENESS_FAILURE",
+        "recordedStopCondition": "TIER2_WATCHDOG_FIRED_BEFORE_TIER1_TIMEOUT",
+        "tier2": {
+          "watchdogNominalMs": 700000,
+          "watchdogArmedAtUtc": "2026-09-17T08:50:19.670Z",
+          "watchdogFiredAtUtc": "2026-09-17T09:07:27.999Z",
+          "watchdogOvershootMs": 328327,
+          "gracePhaseVerdict": "SHUTDOWN_CONFIRMED",
+          "parentHeartbeatExpectedBeats": 1028,
+          "parentHeartbeatObservedBeats": 45,
+          "parentHeartbeatMaxGapMs": 984262,
+          "childProbe": { "pingsSent": 9, "pongsReceived": 9, "maxRttMs": 2, "unanswered": 0 }
+        },
+        "coincidence": "The watchdog fired at 09:07:27.999Z, inside the DarkWake at 09:07:28Z, after a 986 s Maintenance Sleep; the 984,262 ms parent heartbeat gap matches that sleep."
+      },
+      {
+        "slotId": "V6_REP_5",
+        "logicalBatchOrdinal": 1,
+        "recordedEvaluationOutcomeClass": "TIER2_LIVENESS_FAILURE",
+        "recordedStopCondition": "TIER2_WATCHDOG_FIRED_BEFORE_TIER1_TIMEOUT",
+        "tier2": {
+          "watchdogNominalMs": 700000,
+          "watchdogArmedAtUtc": "2026-09-17T09:07:28.489Z",
+          "watchdogFiredAtUtc": "2026-09-17T09:25:58.025Z",
+          "watchdogOvershootMs": 409534,
+          "gracePhaseVerdict": "SHUTDOWN_CONFIRMED",
+          "parentHeartbeatExpectedBeats": 1109,
+          "parentHeartbeatObservedBeats": 33,
+          "parentHeartbeatMaxGapMs": 1077481,
+          "childProbe": { "pingsSent": 7, "pongsReceived": 7, "maxRttMs": 1, "unanswered": 0 }
+        },
+        "coincidence": "The watchdog fired at 09:25:58.025Z, inside the DarkWake at 09:25:58Z, after a 1079 s sleep; the 1,077,481 ms parent heartbeat gap matches that sleep."
+      }
+    ],
+    "childResponsiveness": "Every child probe ping sent was answered (4/4, 9/9, 7/7, max RTT 6 ms) and both Tier-2 shutdown requests were acknowledged within grace. The processes were responsive whenever the host was awake; the gaps are whole-host gaps, not a hung child.",
+    "similarityToF0YHostStall": {
+      "reference": "F0Y DEV decision audit, section 4.D (PAIR_4_V4, 1,082,976 ms): outside the repository at /Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/f0y-dev-decision-audit/PHASE_2B_2D2C_F0Y_DEV_DECISION_AUDIT_V1.md (sha256 3b1f0152bbda6effd67b98dc04ce89525fe725bea11976b2c2b6c8f14ecc2095, 40163 bytes)",
+      "sharedSignature": "One-shot timers in two processes released late and within seconds of each other, with a wall-clock gap far above the nominal deadline and no evidence of provider latency; F0Y reconstructed a single ~780 s host-level stall. F5 adds a direct macOS power-management record that the host was asleep across each gap.",
+      "differenceFromF0Y": "F0Y inferred the stall from timer arithmetic alone; F5's cause is corroborated by pmset Sleep/DarkWake entries to the second."
+    },
+    "conclusion": "CONTROL-PLANE EVIDENCE IS CONSISTENT WITH HOST SLEEP / WHOLE-HOST SUSPENSION AND MOTIVATES A FRESH STUDY RESTART.",
+    "retroactiveReclassification": "NONE. Every durable F5 classification stays exactly as the frozen runtime recorded it. This record does not state that any historical stop record is incorrect, and it cannot manufacture semantic observations that were never made."
+  },
+  "consequence": {
+    "f5Status": "IMMUTABLE_HISTORICAL_STUDY_ATTEMPT",
+    "f5RecoveredInPlace": false,
+    "rep4RerunOrReplaced": false,
+    "rep5RerunOrReplaced": false,
+    "nextStudy": "FINAL_V6_DEV_N5_RESTART_1",
+    "nextStudyIsAFreshStudyNotF5Recovery": true,
+    "f5ObservationsCountTowardNextStudy": 0,
+    "f5AndNextStudyNeverPooled": true
+  },
+  "thisRecordAuthorises": []
+}
