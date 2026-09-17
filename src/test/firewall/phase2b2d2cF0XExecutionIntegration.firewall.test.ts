@@ -250,10 +250,38 @@ describe('2D2C-F0X: narrow, exact execution reachability', () => {
     for (const specifier of graph.externalSpecifiers) {
       expect(specifier.toLowerCase()).not.toContain('v6');
     }
+    // PHASE 2B-2D2C-F4 — a DELIBERATE, EXACT-NAME widening, not a relaxation.
+    // The Tier-2 child is shared by every study, and F4 taught its freeze-family
+    // boundary (`f0c/freezeFamily.ts`) to recognise the owner-approved F2
+    // final-V6 study freeze BY HASH. So the ONE child-facing, pure study-context
+    // module is now reachable from f0x/ — transitively, through the child, and
+    // through nothing else. What this test protects is unchanged and is asserted
+    // directly below: no f0x/*.ts file imports any V6 or F4 module itself, the
+    // widened module is the only V6-named file reachable, and it is reached only
+    // because freezeFamily.ts imports it.
+    const CHILD_FACING_F4_STUDY_CONTEXT = 'src/test/harness/phase2b2d2c/f4/v6StudyContextF4.ts';
     for (const file of graph.files) {
       const relative = file.slice(REPO_ROOT.length + 1);
+      if (relative === CHILD_FACING_F4_STUDY_CONTEXT) continue;
       expect(relative.toLowerCase()).not.toContain('v6');
+      expect(relative).not.toContain('/f4/');
     }
+    for (const name of ENTRY_POINTS) {
+      const specifiers = importSpecifiersOf(readSource(join(F0X_DIR, name)));
+      for (const specifier of specifiers) {
+        expect(specifier.toLowerCase(), `${name} imports ${specifier}`).not.toContain('v6');
+        expect(specifier, `${name} imports ${specifier}`).not.toContain('/f4/');
+      }
+    }
+    const importersOfWidened = graph.files.filter((file) =>
+      importSpecifiersOf(readSource(file)).some((specifier) =>
+        specifier.endsWith('/f4/v6StudyContextF4.js'),
+      ),
+    );
+    expect(importersOfWidened.map((file) => file.slice(REPO_ROOT.length + 1)).sort()).toEqual([
+      'src/test/harness/phase2b2d2c/childMain.ts',
+      'src/test/harness/phase2b2d2c/f0c/freezeFamily.ts',
+    ]);
   });
 });
 

@@ -16,6 +16,17 @@
  * loader, which refuses everything but the F0B bytes — and returns the
  * common view. No loader is changed, and none learns about another.
  *
+ * PHASE 2B-2D2C-F4 adds ONE family, additively: `F2_V6_FINAL_STUDY`, the
+ * owner-approved final V6 N=5 DEV study. Its freeze is a STUDY freeze, not an
+ * attempt freeze: it carries no batch plan, corpus contract or root contract
+ * of its own and instead names the F0O batch plan it inherits. It therefore
+ * resolves ONLY through `resolveChildFreezeAt`, which is handed the path the
+ * bytes came from and verifies, beside them in the same repository, the owner
+ * freeze-approval record and the inherited F0O freeze — all by exact hash —
+ * before any view exists (`f4/v6StudyContextF4.ts`). `resolveChildFreeze`
+ * refuses the F2 bytes outright, so no historical caller can reach the new
+ * family by accident, and every historical family resolves exactly as before.
+ *
  * `finalInputSha256For` answers `undefined` for a variant the family does
  * not schedule: an attempt-2 manifest naming PROMPT_V1_CANONICAL or
  * PROMPT_V2_CANONICAL, an attempt-3 manifest naming any of
@@ -29,6 +40,7 @@
  * no clock, no filesystem of its own.
  */
 import { createHash } from 'node:crypto';
+import { isAbsolute, join, normalize } from 'node:path';
 import { FROZEN_VARIANTS } from '../constants.js';
 import {
   loadFreezeFromBytes,
@@ -60,11 +72,24 @@ import {
 import { verifyV4Root } from '../f0i/variantRootF0I.js';
 import type { Attempt4Freeze } from '../f0o/attempt4FreezeCore.js';
 import {
+  F0O_FREEZE_PATH,
   F0O_VARIANT,
   loadF0OFreezeFromBytes,
   PROPOSED_F0O_FREEZE_RAW_SHA256,
 } from '../f0o/freezeF0O.js';
 import { verifyV5Root } from '../f0o/variantRootF0O.js';
+import {
+  F2_APPROVAL_RECORD_PATH,
+  F2_FREEZE_PATH,
+  PROPOSED_F2_FREEZE_RAW_SHA256,
+} from '../f2/freezeF2.js';
+import {
+  F4_V6_FREEZE_FAMILY,
+  F4_V6_SLOT_ATTEMPT_NO,
+  F4_V6_VARIANT,
+  loadF4V6StudyContext,
+  type F4V6StudyContext,
+} from '../f4/v6StudyContextF4.js';
 
 /**
  * `F0C_ATTEMPT_2_SUPERSEDED` is recognised only to be REFUSED: Finding F1
@@ -75,7 +100,8 @@ export type FreezeFamily =
   | 'F0E_ATTEMPT_2'
   | 'F0C_ATTEMPT_2_SUPERSEDED'
   | 'F0I_ATTEMPT_3'
-  | 'F0O_ATTEMPT_4';
+  | 'F0O_ATTEMPT_4'
+  | typeof F4_V6_FREEZE_FAMILY;
 
 export interface FrozenBatchView {
   readonly ordinal: number;
@@ -114,6 +140,8 @@ export interface ChildFreezeView {
   readonly attempt3?: Attempt3Freeze;
   /** The attempt-4 freeze itself, present only for the F0O family (the V5 root verifier needs its repair contract). */
   readonly attempt4?: Attempt4Freeze;
+  /** F4: the verified final-V6 study context, present only for the F2_V6_FINAL_STUDY family. */
+  readonly f2Study?: F4V6StudyContext;
 }
 
 function f0bView(bytes: Buffer): ChildFreezeView {
@@ -284,9 +312,101 @@ function f0oView(bytes: Buffer): ChildFreezeView {
   };
 }
 
+/**
+ * F4: the final-V6 study view. The F2 bytes name an inherited F0O batch plan,
+ * so the batch partition, corpus contract, classifier identities and root
+ * contract are the F0O freeze's; the ONE scheduled variant is V6 and its
+ * final identity per ordinal is the approved F2 plan's. Every one of the five
+ * slots must agree on that identity, or no view exists.
+ */
+function f2View(
+  freezePath: string,
+  bytes: Buffer,
+  readFile: (path: string) => Buffer,
+): ChildFreezeView {
+  const normalised = normalize(freezePath);
+  if (
+    !isAbsolute(freezePath) ||
+    normalised !== freezePath ||
+    !freezePath.endsWith(`/${F2_FREEZE_PATH}`)
+  ) {
+    throw new F0CFreezeError(
+      'CORPUS_CONFIG_OR_HASH_DRIFT',
+      `the F2 final-V6 study freeze must be read from an absolute, normalised path ending in ${F2_FREEZE_PATH}; got ${JSON.stringify(freezePath)}.`,
+    );
+  }
+  const repoRoot = freezePath.slice(0, freezePath.length - F2_FREEZE_PATH.length - 1);
+  const context = loadF4V6StudyContext({
+    f2FreezeBytes: bytes,
+    f2OwnerFreezeApprovalBytes: readFile(join(repoRoot, F2_APPROVAL_RECORD_PATH)),
+    f0oFreezeBytes: readFile(join(repoRoot, F0O_FREEZE_PATH)),
+  });
+  const v6FinalByOrdinal = new Map<number, string>();
+  for (const evaluation of context.f2Plan.evaluations) {
+    const known = v6FinalByOrdinal.get(evaluation.logicalBatchOrdinal);
+    if (known !== undefined && known !== evaluation.finalInputSha256) {
+      throw new F0CFreezeError(
+        'CORPUS_CONFIG_OR_HASH_DRIFT',
+        `the approved F2 plan assigns two V6 final identities to ordinal ${evaluation.logicalBatchOrdinal}.`,
+      );
+    }
+    v6FinalByOrdinal.set(evaluation.logicalBatchOrdinal, evaluation.finalInputSha256);
+  }
+  const f0o = context.f0oFreeze;
+  const f2Corpus = context.f2Freeze.corpus;
+  return {
+    family: F4_V6_FREEZE_FAMILY,
+    attemptNo: F4_V6_SLOT_ATTEMPT_NO,
+    rawSha256: context.f2FreezeRawSha256,
+    rawBytes: context.f2FreezeRawBytes,
+    version: context.f2Freeze.version,
+    // The inherited corpus identity (proven equal to the F2 freeze's own), with
+    // the never-read list WIDENED to every file either freeze forbids.
+    corpus: {
+      ...f0o.corpus,
+      holdoutFilesNeverRead: [
+        ...new Set([
+          ...f0o.corpus.holdoutFilesNeverRead,
+          ...f2Corpus.holdoutFilesNeverRead,
+          ...f2Corpus.additionalForbiddenFilesForThisStudy,
+        ]),
+      ],
+    },
+    classifier: {
+      requestedModelId: context.requestedModelId,
+      outputSchemaVersion: context.outputSchemaVersion,
+      assemblyVersion: f0o.classifier.assemblyVersion,
+    },
+    rootContract: context.v6RootContract,
+    variants: [F4_V6_VARIANT],
+    repairPolicy: f0o.repairPolicy,
+    f2Study: context,
+    frozenBatch: (ordinal) => {
+      const batch = f0o.batching.plan.find((b) => b.ordinal === ordinal);
+      if (batch === undefined) return undefined;
+      return {
+        ordinal: batch.ordinal,
+        organisationId: batch.organisationId,
+        echeRowKey: batch.echeRowKey,
+        goldIds: batch.goldIds,
+        docIndices: batch.docIndices,
+        context: batch.context,
+        serializedBatchUtf8Bytes: batch.serializedBatchUtf8Bytes,
+        assemblyInputSha256: batch.assemblyInputSha256,
+        canonicalSerializedInputSha256: batch.canonicalSerializedInputSha256,
+        // The study schedules ONE variant. Every V1..V5 identity the inherited
+        // freeze carries stays provenance and is deliberately NOT answered.
+        finalInputSha256For: (variantName) =>
+          variantName === F4_V6_VARIANT.name ? v6FinalByOrdinal.get(batch.ordinal) : undefined,
+      };
+    },
+  };
+}
+
 /** Which family a set of freeze bytes belongs to, decided by exact raw hash — never by a caller's say-so. */
 export function freezeFamilyOf(bytes: Buffer): FreezeFamily {
   const rawSha256 = createHash('sha256').update(bytes).digest('hex');
+  if (rawSha256 === PROPOSED_F2_FREEZE_RAW_SHA256) return F4_V6_FREEZE_FAMILY;
   if (rawSha256 === PROPOSED_F0O_FREEZE_RAW_SHA256) return 'F0O_ATTEMPT_4';
   if (rawSha256 === PROPOSED_F0I_FREEZE_RAW_SHA256) return 'F0I_ATTEMPT_3';
   if (rawSha256 === PROPOSED_F0E_FREEZE_RAW_SHA256) return 'F0E_ATTEMPT_2';
@@ -307,9 +427,31 @@ export function resolveChildFreeze(bytes: Buffer): ChildFreezeView {
       `the F0C freeze (${APPROVED_F0C_FREEZE_RAW_SHA256}) was superseded by F0E before any execution (Finding F1: its runtime commit exports a 60000 ms repair floor); it may not drive a child.`,
     );
   }
+  if (family === F4_V6_FREEZE_FAMILY) {
+    throw new F0CFreezeError(
+      'CORPUS_CONFIG_OR_HASH_DRIFT',
+      'the F2 final-V6 study freeze resolves only through resolveChildFreezeAt, which verifies its owner freeze-approval record and inherited F0O freeze beside it.',
+    );
+  }
   if (family === 'F0O_ATTEMPT_4') return f0oView(bytes);
   if (family === 'F0I_ATTEMPT_3') return f0iView(bytes);
   return family === 'F0E_ATTEMPT_2' ? f0eView(bytes) : f0bView(bytes);
+}
+
+/**
+ * F4: resolves the freeze a manifest names FROM ITS PATH. The F2 final-V6
+ * study freeze needs its path, because its approval record and inherited
+ * freeze are verified beside it; every historical family is delegated to
+ * `resolveChildFreeze` unchanged, with exactly the one read it always made.
+ */
+export function resolveChildFreezeAt(
+  freezePath: string,
+  readFile: (path: string) => Buffer,
+): ChildFreezeView {
+  const bytes = readFile(freezePath);
+  return freezeFamilyOf(bytes) === F4_V6_FREEZE_FAMILY
+    ? f2View(freezePath, bytes, readFile)
+    : resolveChildFreeze(bytes);
 }
 
 /**
@@ -341,6 +483,12 @@ export async function verifyRootForVariant(
       runtime: null,
       claudeCodeExecutable: null,
     };
+  }
+  if (view.family === F4_V6_FREEZE_FAMILY && view.f2Study !== undefined) {
+    // The V6 root is held to every V5-root check (the V6 runtime is the F0Z
+    // reliability runtime plus only prompt.ts), against the inherited contract
+    // with its ONE variant replaced by the approved V6 identity.
+    return verifyV5Root(root, view.f2Study.v6RootContract, probes);
   }
   if (view.family === 'F0O_ATTEMPT_4' && view.attempt4 !== undefined) {
     return verifyV5Root(root, view.attempt4, probes);

@@ -10,9 +10,15 @@
  *   2. re-verifies the F0B freeze bytes by raw SHA-256 for an attempt-1
  *      manifest, the current F0E freeze bytes for an attempt-2 manifest (the
  *      superseded F0C bytes are refused), the approved+ratified F0I bytes
- *      for an attempt-3 manifest, or the approved F0O bytes for an attempt-4
- *      manifest;
+ *      for an attempt-3 manifest, the approved F0O bytes for an attempt-4
+ *      manifest, or (F4) the owner-approved F2 final-V6 study freeze together
+ *      with its owner freeze-approval record and inherited F0O freeze;
  *      the family is decided by the bytes' own hash (F0D, `f0c/freezeFamily.ts`);
+ *   2a. (F4, F2 family only) proves the manifest's study binding — F2 freeze,
+ *      plan and approval identities, reliability semantics v2, the slot, and
+ *      this logical evaluation's assembly and V6 final identities — against
+ *      the approved plan the child rebuilt itself; a binding under any other
+ *      family, or its absence under F2, is refused;
  *   3. verifies the selected variant root through the same checks the
  *      parent ran, loading the SDK-free production modules FROM THAT ROOT;
  *   4. reads the DEVELOPMENT canonical corpus FROM THAT ROOT, verifies it
@@ -63,10 +69,21 @@ import {
 } from './artifacts.js';
 import { reconstructFrozenBatches } from './batches.js';
 import { childEnvironmentViolations } from './childEnvironment.js';
-import { FROZEN_RUN_CONFIG, RUNNER_ARTIFACT_VERSION, type StopConditionId } from './constants.js';
+import {
+  FROZEN_RUN_CONFIG,
+  RELIABILITY_SEMANTICS_V2,
+  RUNNER_ARTIFACT_VERSION,
+  type StopConditionId,
+} from './constants.js';
 import { loadDevCorpus } from './corpus.js';
 import { F0CFreezeError } from './f0c/freezeF0C.js';
-import { resolveChildFreeze, type ChildFreezeView } from './f0c/freezeFamily.js';
+import { resolveChildFreezeAt, type ChildFreezeView } from './f0c/freezeFamily.js';
+import {
+  F4ChildStudyBindingSchema,
+  F4_CHILD_STUDY_BINDING_VERSION,
+  F4_STUDY_ID,
+  F4_V6_FREEZE_FAMILY,
+} from './f4/v6StudyContextF4.js';
 import {
   FreezeDriftError,
   FrozenBatchContextSchema,
@@ -101,6 +118,10 @@ export const ChildManifestSchema = z.strictObject({
     'PROMPT_V3_CANONICAL',
     'PROMPT_V4_CANONICAL',
     'PROMPT_V5_CANONICAL',
+    // F4: the approved final-V6 study's ONE variant, admitted ahead of any V6
+    // execution for exactly the F0K/F0P reason above. Which family may
+    // schedule it is still decided by the freeze's hash, never by this list.
+    'PROMPT_V6_CANONICAL',
   ]),
   variantLabel: z.enum([
     'PROMPT_V1_COMPARATOR',
@@ -108,6 +129,7 @@ export const ChildManifestSchema = z.strictObject({
     'PROMPT_V3_CANDIDATE',
     'PROMPT_V4_CANDIDATE',
     'PROMPT_V5_CANDIDATE',
+    'PROMPT_V6_CANDIDATE',
   ]),
   variantGitCommit: z.string().regex(/^[0-9a-f]{40}$/),
   variantRoot: z.string().min(1),
@@ -128,6 +150,12 @@ export const ChildManifestSchema = z.strictObject({
   attemptNo: z.int().min(1),
   attemptDir: z.string().min(1),
   classifierConfigDir: z.string().min(1),
+  /**
+   * F4: present exactly for a manifest under the F2 final-V6 study family,
+   * and refused under every other family. Optional, so every historical
+   * manifest's canonical bytes are unchanged.
+   */
+  f2StudyBinding: F4ChildStudyBindingSchema.optional(),
 });
 
 export type ChildManifest = z.infer<typeof ChildManifestSchema>;
@@ -237,7 +265,7 @@ export async function runChildEvaluation(
     //    freeze, exactly the attempt it configures.
     let view: ChildFreezeView;
     try {
-      view = resolveChildFreeze(deps.readFile(manifest.freezePath));
+      view = resolveChildFreezeAt(manifest.freezePath, deps.readFile);
     } catch (error) {
       return preflightStop('CORPUS_CONFIG_OR_HASH_DRIFT', boundedMessage(error), {
         stage: 'freeze',
@@ -252,7 +280,9 @@ export async function runChildEvaluation(
             ? 'the manifest freeze hash is not the approved F0I hash.'
             : view.family === 'F0O_ATTEMPT_4'
               ? 'the manifest freeze hash is not the approved F0O hash.'
-              : 'the manifest freeze hash is not the proposed F0E hash.',
+              : view.family === F4_V6_FREEZE_FAMILY
+                ? 'the manifest freeze hash is not the approved F2 final-V6 study hash.'
+                : 'the manifest freeze hash is not the proposed F0E hash.',
         { stage: 'freeze', family: view.family },
       );
     }
@@ -266,16 +296,33 @@ export async function runChildEvaluation(
     if (
       (view.family === 'F0E_ATTEMPT_2' ||
         view.family === 'F0I_ATTEMPT_3' ||
-        view.family === 'F0O_ATTEMPT_4') &&
+        view.family === 'F0O_ATTEMPT_4' ||
+        view.family === F4_V6_FREEZE_FAMILY) &&
       manifest.attemptNo !== view.attemptNo
     ) {
       const familyLabel =
-        view.family === 'F0I_ATTEMPT_3' ? 'F0I' : view.family === 'F0O_ATTEMPT_4' ? 'F0O' : 'F0E';
+        view.family === 'F0I_ATTEMPT_3'
+          ? 'F0I'
+          : view.family === 'F0O_ATTEMPT_4'
+            ? 'F0O'
+            : view.family === F4_V6_FREEZE_FAMILY
+              ? 'F2 final-V6 study'
+              : 'F0E';
       return preflightStop(
         'CORPUS_CONFIG_OR_HASH_DRIFT',
         `the ${familyLabel} freeze configures attempt ${view.attemptNo}; the manifest requests attempt ${manifest.attemptNo}.`,
         { stage: 'freeze', family: view.family },
       );
+    }
+
+    // 2a. F4: the final-V6 study binding, proven against the plan the child
+    //     rebuilt itself from the approved bytes — never taken on trust.
+    const bindingProblem = f2StudyBindingProblem(view, manifest);
+    if (bindingProblem !== null) {
+      return preflightStop('CORPUS_CONFIG_OR_HASH_DRIFT', bindingProblem, {
+        stage: 'studyBinding',
+        family: view.family,
+      });
     }
 
     // 3. Variant root, loaded from the root. The variant must be one THIS
@@ -597,6 +644,73 @@ export async function runChildEvaluation(
     }
     return { exitCode: 1, stopCondition, providerOutcome: null };
   }
+}
+
+/**
+ * F4: why a manifest's final-V6 study binding is refused, or null when it is
+ * proven. Under every historical family a binding must be ABSENT (it cannot
+ * smuggle a V6 identity into an attempt freeze); under the F2 family it must
+ * be PRESENT and agree with the approved study the child itself rebuilt.
+ */
+function f2StudyBindingProblem(view: ChildFreezeView, manifest: ChildManifest): string | null {
+  const binding = manifest.f2StudyBinding;
+  if (view.family !== F4_V6_FREEZE_FAMILY) {
+    return binding === undefined
+      ? null
+      : `a final-V6 study binding is present under the ${view.family} freeze family; it is admitted only under ${F4_V6_FREEZE_FAMILY}.`;
+  }
+  const study = view.f2Study;
+  if (study === undefined) return 'the F2 final-V6 study view carries no verified study context.';
+  if (binding === undefined) {
+    return 'a manifest under the F2 final-V6 study freeze carries no study binding.';
+  }
+  const problems: string[] = [];
+  if (binding.bindingVersion !== F4_CHILD_STUDY_BINDING_VERSION) problems.push('bindingVersion');
+  if (binding.studyId !== F4_STUDY_ID) problems.push('studyId');
+  if (binding.f2FreezeRawSha256 !== view.rawSha256) problems.push('f2FreezeRawSha256');
+  if (binding.f2PlanSha256 !== study.f2PlanSha256) problems.push('f2PlanSha256');
+  if (binding.f2OwnerFreezeApprovalRawSha256 !== study.f2OwnerFreezeApprovalRawSha256) {
+    problems.push('f2OwnerFreezeApprovalRawSha256');
+  }
+  if (binding.f2OwnerFreezeApprovalRawBytes !== study.f2OwnerFreezeApprovalRawBytes) {
+    problems.push('f2OwnerFreezeApprovalRawBytes');
+  }
+  if (problems.length > 0) {
+    return `the final-V6 study binding disagrees with the approved study on: ${problems.join(', ')}.`;
+  }
+  if (
+    binding.reliabilitySemanticsVersion !== RELIABILITY_SEMANTICS_V2 ||
+    study.f2Freeze.reliability.semanticsVersion !== RELIABILITY_SEMANTICS_V2
+  ) {
+    return `the final-V6 study runs only ${RELIABILITY_SEMANTICS_V2}; the binding names ${binding.reliabilitySemanticsVersion}.`;
+  }
+  const planned = study.f2Plan.evaluations.find(
+    (evaluation) =>
+      evaluation.slotId === binding.slotId &&
+      evaluation.logicalBatchOrdinal === manifest.logicalBatchOrdinal,
+  );
+  if (planned === undefined || planned.replicateNumber !== binding.replicateNumber) {
+    return `the approved plan schedules no logical evaluation ${manifest.logicalBatchOrdinal} for slot ${binding.slotId} replicate ${binding.replicateNumber}.`;
+  }
+  const mismatches: string[] = [];
+  if (planned.variantName !== manifest.variantName) mismatches.push('variantName');
+  if (planned.variantGitCommit !== manifest.variantGitCommit) mismatches.push('variantGitCommit');
+  if (planned.promptVersion !== manifest.promptVersion) mismatches.push('promptVersion');
+  if (planned.promptSha256 !== manifest.promptSha256) mismatches.push('promptSha256');
+  if (planned.assemblyInputSha256 !== manifest.assemblyInputSha256) {
+    mismatches.push('assemblyInputSha256');
+  }
+  if (planned.finalInputSha256 !== manifest.finalInputSha256) mismatches.push('finalInputSha256');
+  if (JSON.stringify(planned.orderedGoldIds) !== JSON.stringify(manifest.orderedGoldIds)) {
+    mismatches.push('orderedGoldIds');
+  }
+  if (JSON.stringify(planned.orderedDocIndices) !== JSON.stringify(manifest.orderedDocIndices)) {
+    mismatches.push('orderedDocIndices');
+  }
+  if (manifest.requestedModelId !== study.requestedModelId) mismatches.push('requestedModelId');
+  return mismatches.length === 0
+    ? null
+    : `slot ${binding.slotId} logical evaluation ${manifest.logicalBatchOrdinal} disagrees with the approved plan on: ${mismatches.join(', ')}.`;
 }
 
 export type ChildRepairDisposition = 'ACCEPTED' | 'REJECTED' | 'PROVIDER_FAILED' | 'SKIPPED';

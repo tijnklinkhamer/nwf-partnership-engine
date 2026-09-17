@@ -132,6 +132,13 @@ export interface ExperimentInput {
   readonly clock: CoordinatorClock;
   /** Test seam: watchdog/grace override. Production passes nothing and gets the frozen values. */
   readonly tier2?: { readonly watchdogMs: number; readonly graceMs: number };
+  /**
+   * F4 ONLY: the final-V6 study binding written into every child manifest (as
+   * `f2StudyBinding`) and into the experiment manifest, so the child can prove
+   * which approved study, slot and execution it belongs to. ABSENT for every
+   * historical caller, whose manifests' canonical bytes are therefore unchanged.
+   */
+  readonly childStudyBinding?: Readonly<Record<string, unknown>>;
 }
 
 export type ExperimentHalt =
@@ -466,6 +473,7 @@ export async function runExperiment(input: ExperimentInput): Promise<ExperimentR
     reliabilitySemanticsVersion: RELIABILITY_SEMANTICS_VERSION,
     maxNonTerminalTimeoutsPerReplicate: MAX_NON_TERMINAL_TIMEOUTS_PER_REPLICATE,
     startedAtUtc: input.clock.nowUtc().toISOString(),
+    ...(input.childStudyBinding === undefined ? {} : { studyBinding: input.childStudyBinding }),
   });
 
   const halt = (h: ExperimentHalt): ExperimentResult => {
@@ -554,6 +562,7 @@ export async function runExperiment(input: ExperimentInput): Promise<ExperimentR
       attemptNo: input.attemptNo,
       attemptDir,
       classifierConfigDir: input.classifierConfigDir,
+      ...(input.childStudyBinding === undefined ? {} : { f2StudyBinding: input.childStudyBinding }),
     });
     writeArtifactOnce(attemptDir, 'CHILD_MANIFEST', manifest);
     const childEnv = buildRunnerChildEnvironment({

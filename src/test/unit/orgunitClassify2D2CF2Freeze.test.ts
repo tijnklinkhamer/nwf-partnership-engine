@@ -84,6 +84,34 @@ const PROMPT_IDENTITY = {
 };
 const PLAN = buildF2StudyPlan(F0O_PLAN, f0oPlanSha256(F0O_PLAN), PROMPT_IDENTITY);
 
+/**
+ * PHASE 2B-2D2C-F4 — a DELIBERATE, EXACT-NAME historical-state widening.
+ *
+ * When this suite was written the control root did not exist. Since then two
+ * owner-authorised, request-free materialisations created it: F3 (its
+ * candidate inventory and five pre-dispatch candidates) and F4 (the recorded
+ * F3 supersession, and a fresh versioned candidate directory with its own
+ * inventory). What this suite protects is unchanged and still asserted: the
+ * approval record creates nothing, the STUDY root and every slot root stay
+ * absent, and the control root holds ONLY these reviewed entries — in
+ * particular no study-level owner execution approval.
+ */
+const APPROVED_CONTROL_ROOT_ENTRIES = [
+  'EXECUTION_CANDIDATE_MANIFEST.json',
+  'execution-candidates',
+  'F3_EXECUTION_CANDIDATES_SUPERSESSION.json',
+  'EXECUTION_CANDIDATE_MANIFEST_F4.json',
+  'execution-candidates-f4',
+];
+function expectControlRootHoldsOnlyApprovedEntries(): void {
+  if (!existsSync(F2_CONTROL_ROOT)) return;
+  for (const entry of readdirSync(F2_CONTROL_ROOT)) {
+    expect(APPROVED_CONTROL_ROOT_ENTRIES, `unexpected control-root entry ${entry}`).toContain(
+      entry,
+    );
+  }
+}
+
 describe('2D2C-F2 freeze: identity, status and what it authorises', () => {
   it('is exactly the pinned bytes, and authorises nothing', () => {
     expect(F2.rawSha256).toBe(PROPOSED_F2_FREEZE_RAW_SHA256);
@@ -166,7 +194,7 @@ describe('2D2C-F2 freeze: identity, status and what it authorises', () => {
 
   it('the approval record creates no output root and no execution candidate', () => {
     expect(existsSync(F2_STUDY_ROOT)).toBe(false);
-    expect(existsSync(F2_CONTROL_ROOT)).toBe(false);
+    expectControlRootHoldsOnlyApprovedEntries();
     for (const slot of F2_SLOTS) {
       expect(existsSync(f2OutputRootPathOf(F2_STUDY_ROOT, slot))).toBe(false);
     }
@@ -519,7 +547,7 @@ describe('2D2C-F2 freeze: HOLDOUT, output roots and the execution boundary', () 
 
   it('neither the study root nor any of the five slot roots exists yet', () => {
     expect(existsSync(F2_STUDY_ROOT)).toBe(false);
-    expect(existsSync(F2_CONTROL_ROOT)).toBe(false);
+    expectControlRootHoldsOnlyApprovedEntries();
     for (const slot of F2_SLOTS) {
       expect(existsSync(f2OutputRootPathOf(F2_STUDY_ROOT, slot))).toBe(false);
     }
