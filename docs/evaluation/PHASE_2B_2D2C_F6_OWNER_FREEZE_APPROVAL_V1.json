@@ -1,0 +1,254 @@
+{
+  "recordId": "phase2b-2d2c-f6-owner-freeze-approval-v1",
+  "recordKind": "OWNER_FREEZE_APPROVAL",
+  "approves": "F6_FRESH_V6_N5_RESTART_FREEZE_ONLY",
+  "recordedAtUtc": "2026-09-17T15:53:29Z",
+  "recordedBy": "claude-code-session under explicit owner instruction; the approval itself is the owner’s",
+  "ownerDecisionMarker": "APPROVE_F6_FRESH_V6_N5_RESTART_FREEZE_ONLY",
+  "statementMarkerAsReceived": "APPROVE_F6_FRESH_V6_N5_RESTART_FREEZE_ONLY",
+  "statementMarkerExpected": "APPROVE_F6_FRESH_V6_N5_RESTART_FREEZE_ONLY",
+  "approvalIsFreezeOnly": true,
+  "freezeApprovalIsNotExecutionAuthorisation": true,
+  "approvedFreeze": {
+    "file": "docs/evaluation/PHASE_2B_2D2C_DEV_FINAL_V6_STUDY_RESTART_FREEZE_F6_V1.json",
+    "rawSha256": "70509071a1326bb3c75101b486d081b92f4b90e646615c6a55615cb2a738d491",
+    "rawBytes": 22640,
+    "derivedStudyPlanSha256": "197f25e1ffbfd4fa1dc58fe575a11c49cb4e1633edf043ea350e999d396786fb",
+    "freezeId": "PHASE_2B_2D2C_DEV_FINAL_V6_STUDY_RESTART_FREEZE_F6_V1",
+    "version": "phase2b-2d2c-dev-final-v6-study-restart-freeze-f6-v1",
+    "freezeRevision": "F6_FINAL_V6_N5_FRESH_RESTART_AFTER_HOST_SLEEP",
+    "branch": "feat/phase2b-2d2c-f6-v6-fresh-restart-after-host-sleep",
+    "branchHeadReviewed": "98de86aee43b59ea3a5c42833981a9bff6c50439",
+    "statusInsideTheBytes": "PROPOSED_PENDING_OWNER_FREEZE_APPROVAL",
+    "bytesNeverChangeOnApproval": true,
+    "bytesNeverChangeOnApprovalStatement": "The bytes of the approved freeze do NOT change on approval. This record is additive and immutable; the freeze file is not edited, not re-hashed and not re-statused by it. Its raw SHA-256 and byte length after this approval are identical to the ones approved above.",
+    "statusFieldInsideTheFreezeRemainsStatement": "The status field inside the freeze remains PROPOSED_PENDING_OWNER_FREEZE_APPROVAL BY DESIGN, and its approvalModel.ownerFreezeApprovalExists stays false inside the bytes. Approval is recorded here, in a separate file, precisely so that the approved bytes stay byte-identical to the bytes that were reviewed.",
+    "approvalIsFreezeOnlyStatement": "This approval is FREEZE ONLY. It fixes the immutable configuration of the fresh F6 V6 N=5 DEVELOPMENT restart study and nothing else. It creates no study root, no control root, no slot output directory and no execution-authorisation candidate, and it consumes no authorisation."
+  },
+  "f5Binding": {
+    "closureRecord": {
+      "file": "docs/evaluation/PHASE_2B_2D2C_F5_HOST_SLEEP_STRUCTURAL_CLOSURE_V1.json",
+      "rawSha256": "a9cffba1c2d4f10755241d95d7d251a7214d3d212b64ade37940c01aedfaf2b9",
+      "rawBytes": 15959
+    },
+    "f5StudyId": "FINAL_V6_DEV_N5",
+    "f5StudyRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5",
+    "f5ControlRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5-control",
+    "f5StudyRootInventory": {
+      "fileCount": 567,
+      "inventorySha256": "fc9d8aac1e8ba22429c99be3295078a58268dcbacb00390ee1bfb0c6394287db",
+      "reverifiedBeforeThisRecord": true
+    },
+    "f5ControlRootInventory": {
+      "fileCount": 14,
+      "inventorySha256": "266fde835f0477fb2af55dd422c05c7048a5ea436b74ddf16e54364e07ec610a",
+      "reverifiedBeforeThisRecord": true
+    },
+    "rep4": "CLASS_C_STOPPED_UNCHANGED",
+    "rep5": "AMBIGUOUS_UNCHANGED",
+    "f5Scored": false,
+    "f5IsSeparateHistoricalEvidence": true,
+    "f5NeverPooledWithF6": true,
+    "f5CountedTowardF6N": false,
+    "f5SlotsImportedIntoF6": [],
+    "f5SlotsReplacedByF6": [],
+    "statement": "F5 is separate historical evidence and is never pooled with F6. No F5 slot is reused, rerun, replaced, imported, counted or scored by F6, and no F5 authority can authorise F6."
+  },
+  "study": {
+    "studyId": "FINAL_V6_DEV_N5_RESTART_1",
+    "variantName": "PROMPT_V6_CANONICAL",
+    "arms": 1,
+    "nReplicates": 5,
+    "pairedComparison": false,
+    "logicalEvaluationsPerReplicate": 12,
+    "totalLogicalEvaluations": 60,
+    "devDocuments": 49,
+    "studyQuestion": "Does V6 reproducibly satisfy the frozen DEV gates?",
+    "studyQuestionForm": "ABSOLUTE, not comparative."
+  },
+  "slotOrder": [
+    {
+      "sequence": 1,
+      "slotId": "V6_RESTART_1",
+      "replicateNumber": 1,
+      "variantName": "PROMPT_V6_CANONICAL",
+      "futureOutputRootName": "v6-restart-1"
+    },
+    {
+      "sequence": 2,
+      "slotId": "V6_RESTART_2",
+      "replicateNumber": 2,
+      "variantName": "PROMPT_V6_CANONICAL",
+      "futureOutputRootName": "v6-restart-2"
+    },
+    {
+      "sequence": 3,
+      "slotId": "V6_RESTART_3",
+      "replicateNumber": 3,
+      "variantName": "PROMPT_V6_CANONICAL",
+      "futureOutputRootName": "v6-restart-3"
+    },
+    {
+      "sequence": 4,
+      "slotId": "V6_RESTART_4",
+      "replicateNumber": 4,
+      "variantName": "PROMPT_V6_CANONICAL",
+      "futureOutputRootName": "v6-restart-4"
+    },
+    {
+      "sequence": 5,
+      "slotId": "V6_RESTART_5",
+      "replicateNumber": 5,
+      "variantName": "PROMPT_V6_CANONICAL",
+      "futureOutputRootName": "v6-restart-5"
+    }
+  ],
+  "slotIdsInFrozenOrder": [
+    "V6_RESTART_1",
+    "V6_RESTART_2",
+    "V6_RESTART_3",
+    "V6_RESTART_4",
+    "V6_RESTART_5"
+  ],
+  "outputRoots": {
+    "studyRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5-restart-1",
+    "controlRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5-restart-1-control",
+    "slotOutputRootAbsolutePaths": [
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5-restart-1/v6-restart-1",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5-restart-1/v6-restart-2",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5-restart-1/v6-restart-3",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5-restart-1/v6-restart-4",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5-restart-1/v6-restart-5"
+    ],
+    "note": "NAMES ONLY. Neither root, nor any slot subdirectory, exists, and none is created by this record. Verified absent at recording time.",
+    "createdByThisRecord": 0
+  },
+  "lineages": {
+    "semanticSource": {
+      "commit": "a0da2c462a698823fd9536347edf22ecfbf80f64",
+      "promptVersion": "orgunit-classifier-prompt-v6",
+      "promptSha256": "06262d43352375231eb83afdd485babc8564675d783da0b7409bc15dca0513b7",
+      "promptCodePoints": 16007,
+      "promptUtf8Bytes": 16093
+    },
+    "executionReliabilityBase": {
+      "commit": "805d39b6043a69cedf809ca9b2151168e1f88a58",
+      "reliabilitySemantics": "RELIABILITY_SEMANTICS_V2_TIMEOUT_CONTINUATION"
+    },
+    "integratedRuntime": {
+      "commit": "12bd406da5d989d2d31bda8e7aeb11ab39c8937f",
+      "isANewSemanticVersion": false
+    }
+  },
+  "sourceStudy": {
+    "f2Freeze": {
+      "file": "docs/evaluation/PHASE_2B_2D2C_DEV_FINAL_V6_STUDY_FREEZE_F2_V1.json",
+      "rawSha256": "4062627904ffb682051f5fc3c5d7c581b1b90e49d74a1fe119972fdfa41d8439",
+      "rawBytes": 26446
+    },
+    "f2OwnerFreezeApproval": {
+      "file": "docs/evaluation/PHASE_2B_2D2C_F2_OWNER_FREEZE_APPROVAL_V1.json",
+      "rawSha256": "184e70ec2db4dba2539dcfd220a4516fed5427a2ada24ed57c8c734eecccb03f",
+      "rawBytes": 27288
+    },
+    "f2PlanSha256": "410e5bc48f0fbdff22a01e1cd31705e7ae22429506921d9fa0fed00f0f28df4c",
+    "sameTwelveLogicalEvaluationsPerReplicate": true
+  },
+  "reliability": {
+    "semanticsVersion": "RELIABILITY_SEMANTICS_V2_TIMEOUT_CONTINUATION",
+    "maxNonTerminalTimeoutsPerReplicate": 2,
+    "timeoutCeilingBehaviour": {
+      "firstConfirmedNonTerminalTimeout": "MAY_CONTINUE",
+      "secondConfirmedNonTerminalTimeout": "MAY_CONTINUE",
+      "thirdConfirmedNonTerminalTimeout": "STOPS_FAIL_CLOSED"
+    },
+    "c2Implemented": false,
+    "c2Status": "NOT_IMPLEMENTED"
+  },
+  "finalDevDecisionRule": {
+    "id": "F6_FINAL_DEV_DECISION_RULE_V1",
+    "rule": "STRICT_5_OF_5",
+    "decision": "DEV_READY_FOR_HOLDOUT",
+    "conditions": [
+      "all 5/5 F6 replicates are COMPLETE under RELIABILITY_SEMANTICS_V2_TIMEOUT_CONTINUATION",
+      "each of the 5/5 F6 replicates individually passes every one of the six frozen DEV gates"
+    ],
+    "anyPartialReplicate": "DEV_NOT_READY_FOR_HOLDOUT",
+    "anyCompleteReplicateFailingAnyFrozenGate": "DEV_NOT_READY_FOR_HOLDOUT",
+    "noFourOfFiveFallback": true,
+    "noPoolingWithF5": true,
+    "noAveragingAwayAFailingReplicate": true,
+    "noReplacementOfAnF6ClassCReplicate": true,
+    "devReadyForHoldoutIsNotAHoldoutAuthorisation": true
+  },
+  "hostAwakeExecutionContract": {
+    "contractVersion": "phase2b-2d2c-f6-host-awake-execution-contract-v1",
+    "lidRule": "LID_OPEN_REQUIRED",
+    "caffeinateWrapperRequiredForExecution": true,
+    "wrapper": ["/usr/bin/caffeinate", "-dimsu", "--"],
+    "caffeinateDoesNotMakeLidCloseSafe": true,
+    "permanentPmsetChange": false,
+    "altersClassifierSemantics": false,
+    "altersReliabilitySemantics": false
+  },
+  "freezeApproved": true,
+  "executionAuthorised": false,
+  "providerCallsAuthorised": false,
+  "scoringAuthorised": false,
+  "holdoutAuthorised": false,
+  "thisRecordAuthorises": [],
+  "thisRecordDoesNotAuthorise": [
+    "any provider request",
+    "classifier inference",
+    "auth-status invocation",
+    "F6 execution",
+    "a study-level execution approval",
+    "scoring",
+    "DEV gold access",
+    "HOLDOUT access",
+    "any prompt modification",
+    "any threshold modification",
+    "any reliability-semantics modification",
+    "C2",
+    "reuse, rerun or replacement of any F5 slot",
+    "any freeze-byte modification"
+  ],
+  "verifiedBeforeRecording": {
+    "protocol": "Every pre-approval check in the owner decision, performed request-free from the committed branch before this record was written, by re-deriving each identity through the committed hash-pinned loaders. Zero provider calls, zero inference, zero auth-status invocation, zero scoring, zero DEV gold or HOLDOUT access.",
+    "headExactly": "98de86aee43b59ea3a5c42833981a9bff6c50439",
+    "branchExact": true,
+    "localEqualsPushedRemote": true,
+    "worktreeClean": true,
+    "freezeRawSha256Recomputed": "70509071a1326bb3c75101b486d081b92f4b90e646615c6a55615cb2a738d491",
+    "freezeRawBytesRecomputed": 22640,
+    "derivedF6PlanSha256Recomputed": "197f25e1ffbfd4fa1dc58fe575a11c49cb4e1633edf043ea350e999d396786fb",
+    "f6FreezeMatchesApprovedF2Contract": true,
+    "f5ClosureRawSha256Recomputed": "a9cffba1c2d4f10755241d95d7d251a7214d3d212b64ade37940c01aedfaf2b9",
+    "f5ClosureRawBytesRecomputed": 15959,
+    "f5StudyRootInventoryRecomputed": {
+      "fileCount": 567,
+      "inventorySha256": "fc9d8aac1e8ba22429c99be3295078a58268dcbacb00390ee1bfb0c6394287db"
+    },
+    "rep4ClassCUnchanged": true,
+    "rep5AmbiguousUnchanged": true,
+    "f5NotScored": true,
+    "f6SlotIds": ["V6_RESTART_1", "V6_RESTART_2", "V6_RESTART_3", "V6_RESTART_4", "V6_RESTART_5"],
+    "f6StudyRootAbsent": true,
+    "f6ControlRootAbsent": true,
+    "f6SlotRootsAbsent": true,
+    "f6ExecutionCandidateExists": false,
+    "f6StudyLevelExecutionApprovalExists": false,
+    "v6PromptSha256Recomputed": "06262d43352375231eb83afdd485babc8564675d783da0b7409bc15dca0513b7",
+    "integratedRuntime": "12bd406da5d989d2d31bda8e7aeb11ab39c8937f",
+    "reliabilitySemantics": "RELIABILITY_SEMANTICS_V2_TIMEOUT_CONTINUATION",
+    "maxNonTerminalTimeoutsPerReplicate": 2,
+    "c2Status": "NOT_IMPLEMENTED",
+    "devGoldOrHoldoutAccessed": false,
+    "allMatched": true
+  },
+  "permits": [
+    "pinning this record’s raw SHA-256 and byte length in the F6 freeze module by a reviewed, additive commit on this branch",
+    "building, AFTER this record is committed, the minimal additive F6 execution layer and request-free F6 execution candidates, neither of which authorises execution"
+  ],
+  "nextGatedStep": "The minimal F6 execution build, then request-free materialisation of five F6 execution-authorisation candidates bound to that exact build, then a SEPARATE, NEW owner study-level execution approval naming all five exact candidate hashes and byte lengths. This freeze approval is none of those."
+}

@@ -112,9 +112,16 @@ export const F6_FREEZE_ID = 'PHASE_2B_2D2C_DEV_FINAL_V6_STUDY_RESTART_FREEZE_F6_
 export const F6_FREEZE_VERSION = 'phase2b-2d2c-dev-final-v6-study-restart-freeze-f6-v1';
 export const F6_FREEZE_STATUS = 'PROPOSED_PENDING_OWNER_FREEZE_APPROVAL';
 
-/** Does not exist until the owner approves these exact bytes. */
+/**
+ * The owner FREEZE-ONLY approval of these exact bytes (2026-09-17). Pinned by
+ * literal; it authorises no execution, provider call, scoring or HOLDOUT.
+ */
 export const F6_APPROVAL_RECORD_PATH =
   'docs/evaluation/PHASE_2B_2D2C_F6_OWNER_FREEZE_APPROVAL_V1.json';
+export const F6_APPROVAL_RECORD_RAW_SHA256 =
+  'c8cbe7c8865326a8ec854a9caccacc503353ac99b7451710e01bf0b11a5ca857';
+export const F6_APPROVAL_RECORD_RAW_BYTES = 12_085;
+export const F6_OWNER_DECISION_MARKER = 'APPROVE_F6_FRESH_V6_N5_RESTART_FREEZE_ONLY';
 
 const Sha256 = z.string().regex(/^[0-9a-f]{64}$/);
 

@@ -60,7 +60,10 @@ import {
   F6FreezeError,
   F6FreezeSchema,
   F6_APPROVAL_RECORD_PATH,
+  F6_APPROVAL_RECORD_RAW_BYTES,
+  F6_APPROVAL_RECORD_RAW_SHA256,
   F6_FREEZE_PATH,
+  F6_OWNER_DECISION_MARKER,
   loadF6FreezeFromBytes,
   PROPOSED_F6_FREEZE_RAW_BYTES,
   PROPOSED_F6_FREEZE_RAW_SHA256,
@@ -127,13 +130,41 @@ describe('2D2C-F6 freeze: identity, status and what it authorises', () => {
     expect(() => loadF6FreezeFromBytes(drifted)).toThrow(F6FreezeError);
   });
 
-  it('no F6 owner freeze approval, no F6 root, no F6 control root and no F6 candidate exists yet', () => {
-    expect(existsSync(join(ROOT, F6_APPROVAL_RECORD_PATH))).toBe(false);
+  it('the owner FREEZE-ONLY approval exists, names exactly these bytes and authorises nothing; no F6 root and no F6 candidate exists', () => {
+    const bytes = readFileSync(join(ROOT, F6_APPROVAL_RECORD_PATH));
+    expect(sha256(bytes)).toBe(F6_APPROVAL_RECORD_RAW_SHA256);
+    expect(bytes.length).toBe(F6_APPROVAL_RECORD_RAW_BYTES);
+    const approval = JSON.parse(bytes.toString('utf8')) as {
+      ownerDecisionMarker: string;
+      approvalIsFreezeOnly: boolean;
+      approvedFreeze: { file: string; rawSha256: string; rawBytes: number };
+      freezeApproved: boolean;
+      executionAuthorised: boolean;
+      providerCallsAuthorised: boolean;
+      scoringAuthorised: boolean;
+      holdoutAuthorised: boolean;
+      thisRecordAuthorises: unknown[];
+    };
+    expect(approval.ownerDecisionMarker).toBe(F6_OWNER_DECISION_MARKER);
+    expect(approval.approvalIsFreezeOnly).toBe(true);
+    expect(approval.approvedFreeze).toMatchObject({
+      file: F6_FREEZE_PATH,
+      rawSha256: PROPOSED_F6_FREEZE_RAW_SHA256,
+      rawBytes: PROPOSED_F6_FREEZE_RAW_BYTES,
+    });
+    expect(approval.freezeApproved).toBe(true);
+    expect(approval.executionAuthorised).toBe(false);
+    expect(approval.providerCallsAuthorised).toBe(false);
+    expect(approval.scoringAuthorised).toBe(false);
+    expect(approval.holdoutAuthorised).toBe(false);
+    expect(approval.thisRecordAuthorises).toEqual([]);
+    // The freeze bytes did not change on approval.
+    expect(F6.rawSha256).toBe(PROPOSED_F6_FREEZE_RAW_SHA256);
+
     expect(existsSync(F6_STUDY_ROOT)).toBe(false);
-    expect(existsSync(F6_CONTROL_ROOT)).toBe(false);
     for (const slot of F6_SLOTS) expect(existsSync(f6OutputRootPathOf(slot))).toBe(false);
     for (const entry of readdirSync(join(ROOT, 'docs/evaluation'))) {
-      expect(entry).not.toMatch(/F6_OWNER|F6_EXECUTION|F6_STUDY_EXECUTION/);
+      expect(entry).not.toMatch(/F6_EXECUTION|F6_STUDY_EXECUTION/);
     }
   });
 
