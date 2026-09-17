@@ -1,0 +1,536 @@
+{
+  "freezeId": "PHASE_2B_2D2C_DEV_FINAL_V6_STUDY_RESTART_FREEZE_F6_V1",
+  "version": "phase2b-2d2c-dev-final-v6-study-restart-freeze-f6-v1",
+  "status": "PROPOSED_PENDING_OWNER_FREEZE_APPROVAL",
+  "freezeRevision": "F6_FINAL_V6_N5_FRESH_RESTART_AFTER_HOST_SLEEP",
+  "studyId": "FINAL_V6_DEV_N5_RESTART_1",
+  "ownerDecision": "AUTHORISE_F6_FRESH_V6_N5_RESTART_PREPARATION_AFTER_HOST_SLEEP_CONTAMINATION",
+  "purpose": "Freeze the exact configuration of ONE completely fresh five-replicate V6 DEVELOPMENT study, run under the identical frozen semantic, runtime and scoring contract as the approved F2 study, because host sleep structurally contaminated the F5 execution of that study before it could measure five complete replicates. This file runs nothing, authorises nothing, creates no directory and contacts no provider.",
+  "approvalModel": {
+    "rule": "This file is PROPOSED. It becomes the frozen F6 configuration only when a separate owner freeze-approval record names this file's exact raw SHA-256. The bytes never change on approval, and the status field inside the bytes stays PROPOSED_PENDING_OWNER_FREEZE_APPROVAL forever.",
+    "approvalRecord": "docs/evaluation/PHASE_2B_2D2C_F6_OWNER_FREEZE_APPROVAL_V1.json (does not exist until the owner approves)",
+    "establishedOrder": [
+      "F6 freeze candidate (this file)",
+      "owner freeze approval naming these exact bytes",
+      "F6 execution build and request-free F6 execution candidates",
+      "owner study-level execution approval naming the exact candidate bytes",
+      "execution"
+    ],
+    "thisFileAuthorises": [],
+    "ownerFreezeApprovalExists": false,
+    "executionAuthorisationExists": false
+  },
+  "restartReason": {
+    "summary": "A fresh, fully predeclared study after an exogenous execution-environment failure prevented the original study from measuring five complete replicates.",
+    "basedOnlyOn": [
+      "STRUCTURAL_INCOMPLETENESS",
+      "HOST_POWER_SLEEP_EVIDENCE",
+      "LIVENESS_AND_HEARTBEAT_RECORDS",
+      "IMMUTABLE_INCLUSION_CLASSES",
+      "FROZEN_5_OF_5_COMPLETION_REQUIREMENT"
+    ],
+    "notBasedOn": [
+      "SEMANTIC_VERDICTS",
+      "CORRECTNESS",
+      "PRECISION",
+      "RECALL",
+      "GATE_OUTCOMES",
+      "GOLD",
+      "MODEL_COMPARISON"
+    ],
+    "f5SemanticResultsInspected": false,
+    "f5Scored": false,
+    "isNotRerunningUntilV6Passes": true,
+    "f5Markers": [
+      "F5_CANNOT_SATISFY_FROZEN_5_OF_5_COMPLETION_RULE",
+      "NO_SEMANTIC_DEV_VERDICT_DRAWN_FROM_F5"
+    ]
+  },
+  "f5Binding": {
+    "closureRecord": {
+      "file": "docs/evaluation/PHASE_2B_2D2C_F5_HOST_SLEEP_STRUCTURAL_CLOSURE_V1.json",
+      "rawSha256": "a9cffba1c2d4f10755241d95d7d251a7214d3d212b64ade37940c01aedfaf2b9",
+      "rawBytes": 15959
+    },
+    "f5StudyId": "FINAL_V6_DEV_N5",
+    "f5SlotIds": ["V6_REP_1", "V6_REP_2", "V6_REP_3", "V6_REP_4", "V6_REP_5"],
+    "f5StudyRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5",
+    "f5ControlRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5-control",
+    "f5StudyRootInventory": {
+      "fileCount": 567,
+      "inventorySha256": "fc9d8aac1e8ba22429c99be3295078a58268dcbacb00390ee1bfb0c6394287db"
+    },
+    "f5StudyExecutionApproval": {
+      "rawSha256": "aed64a864c5e46ea2d58fac696c091dfea7fd5118e49f70b01fabc605266299d",
+      "rawBytes": 4098
+    },
+    "f5ConsumedCandidateAuthorisationSha256s": [
+      "5e56f40371561043098bc0ce06cc8f2f99a3f7896d15d415393e3bc5c0fda87d",
+      "a8a570a0790e4faca2f5ba31003bb0a463b7b4d3e33b31c2064c86b400b32247",
+      "c35f820887032aa684141b5f727784b77e60ace95738ffb9a570a7ce250ed8b5",
+      "aa8e7ea50849396b70b386c2323aa37c4588c5d6c0cd9283ed799584c603dba1",
+      "ca12fbba74b139712c91b2e0c9d33c70bd34b745d25b1f12bdffbd4fdf9bbe30"
+    ],
+    "f5Immutable": true,
+    "f5CountedTowardF6N": false,
+    "f5PooledWithF6": false,
+    "f5SlotsImportedIntoF6": [],
+    "f5SlotsReplacedByF6": [],
+    "f5SemanticObservationsCountedInF6": 0,
+    "f5RemainsASeparateHistoricalStudyAttempt": true,
+    "priorStudyIdentityRule": "No F6 authority (per-slot candidate, study-level approval, outer slot identity or child study binding) may name the F5 study id, an F5 slot id, a path under an F5 root, the F5 study-level approval hash or a consumed F5 candidate hash, and every one must name the F6 study id. Only this freeze binds F5, and only as evidence."
+  },
+  "studyQuestion": {
+    "question": "Does V6 reproducibly satisfy the frozen DEV gates?",
+    "form": "ABSOLUTE, not comparative.",
+    "identicalToF2StudyQuestion": true,
+    "notAPairedComparison": true
+  },
+  "lineages": {
+    "semanticSource": {
+      "commit": "a0da2c462a698823fd9536347edf22ecfbf80f64",
+      "promptVersion": "orgunit-classifier-prompt-v6",
+      "promptSha256": "06262d43352375231eb83afdd485babc8564675d783da0b7409bc15dca0513b7",
+      "promptCodePoints": 16007,
+      "promptUtf8Bytes": 16093
+    },
+    "executionReliabilityBase": {
+      "commit": "805d39b6043a69cedf809ca9b2151168e1f88a58",
+      "reliabilitySemantics": "RELIABILITY_SEMANTICS_V2_TIMEOUT_CONTINUATION"
+    },
+    "integratedRuntime": {
+      "commit": "12bd406da5d989d2d31bda8e7aeb11ab39c8937f",
+      "isANewSemanticVersion": false
+    },
+    "promptChangedByThisFreeze": false,
+    "runtimeChangedByThisFreeze": false
+  },
+  "sourceStudy": {
+    "f2Freeze": {
+      "file": "docs/evaluation/PHASE_2B_2D2C_DEV_FINAL_V6_STUDY_FREEZE_F2_V1.json",
+      "rawSha256": "4062627904ffb682051f5fc3c5d7c581b1b90e49d74a1fe119972fdfa41d8439",
+      "rawBytes": 26446
+    },
+    "f2OwnerFreezeApproval": {
+      "file": "docs/evaluation/PHASE_2B_2D2C_F2_OWNER_FREEZE_APPROVAL_V1.json",
+      "rawSha256": "184e70ec2db4dba2539dcfd220a4516fed5427a2ada24ed57c8c734eecccb03f",
+      "rawBytes": 27288
+    },
+    "f2PlanSha256": "410e5bc48f0fbdff22a01e1cd31705e7ae22429506921d9fa0fed00f0f28df4c",
+    "inheritedAttempt4PlanSha256": "292d9424d487f3d69903a3b81172bd0a90c65adbd7ee6fa63cf3a9d0ced79898",
+    "derivation": "REMAP_OF_APPROVED_F2_PLAN_CROSS_CHECKED_BY_INDEPENDENT_REBUILD",
+    "derivationRule": "Every F6 evaluation is the approved F2 plan's evaluation at the same position with only slotId replaced; the same plan is rebuilt independently through F2's own buildF2StudyPlan over the F6 slots, and the two must agree field for field. All five approved F2 replicates must carry the same twelve evaluations.",
+    "sameTwelveLogicalEvaluationsPerReplicate": true
+  },
+  "reliability": {
+    "semanticsVersion": "RELIABILITY_SEMANTICS_V2_TIMEOUT_CONTINUATION",
+    "c2Implemented": false,
+    "c2Status": "NOT_IMPLEMENTED",
+    "maxNonTerminalTimeoutsPerReplicate": 2,
+    "timeoutCeilingBehaviour": {
+      "firstConfirmedNonTerminalTimeout": "MAY_CONTINUE",
+      "secondConfirmedNonTerminalTimeout": "MAY_CONTINUE",
+      "thirdConfirmedNonTerminalTimeout": "STOPS_FAIL_CLOSED"
+    },
+    "unchangedBecauseOfHostSleep": true,
+    "hostSleepPreventionIsAnExecutionEnvironmentCorrectionNotAReliabilitySemanticsChange": true
+  },
+  "corpus": {
+    "scope": "DEVELOPMENT",
+    "itemCount": 49,
+    "canonicalCorpusPath": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-v1-canonical-v2.jsonl",
+    "canonicalManifestPath": "src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-v1-canonical-v2.manifest.jsonl",
+    "derivedCorpusRawSha256": "c5a9923a35689fd8b0950d615ee5339c6ccc63e83ac067960760497b6a9c4536",
+    "derivedManifestRawSha256": "9ef7dfb45307004297f019351163b06478d2f552834f10496545cfaf1a9a20f6",
+    "derivedCorpusContentSha256": "f00139e42ff5d12dfc1a6ba1b969a635197ddda27f79515473f119ff919a6fa2"
+  },
+  "gold": {
+    "devLabelsRawSha256": "19d9cc3e9dcfe0b10930aa095075cd4828459377d9ea67c8dd296da6126fcd08",
+    "frozen": true,
+    "inaccessibleToInference": true,
+    "loadedByF6Preparation": false,
+    "goldChangesAuthorisedByThisFreeze": []
+  },
+  "batching": {
+    "logicalBatchesPerReplicate": 12,
+    "groupBy": "organisationId",
+    "concurrency": 1,
+    "execution": "sequential",
+    "partitionOrderAndDocumentsIdenticalToF2": true,
+    "frozenLogicalEvaluations": [
+      {
+        "logicalBatchOrdinal": 1,
+        "documentCount": 3,
+        "assemblyInputSha256": "7179ad30e8292a024a0eba04233a787bc88293c5b11b94e744046a348da07644",
+        "finalInputSha256V6": "5aafb099922a782b0886851294799ec3d21a45a875c8179378ec2961b0e6690e"
+      },
+      {
+        "logicalBatchOrdinal": 2,
+        "documentCount": 5,
+        "assemblyInputSha256": "ab75d12af9ac4c455b60bed11c0d6dad1b5f48de10ef96eb42c14aba411b1a91",
+        "finalInputSha256V6": "a06aaf3d9d5882db02e424bb1ef4bc4af38a0dbf0b790da65a0f9df4574f8f99"
+      },
+      {
+        "logicalBatchOrdinal": 3,
+        "documentCount": 4,
+        "assemblyInputSha256": "d7d98440e5bc091862e9d42c6b03eb36b387be9ef197322d2220ac2622a683dd",
+        "finalInputSha256V6": "788db2c386a393aaee8c721bfddafe2fd393fff5d2cdbc021e1f513d1e9e3a65"
+      },
+      {
+        "logicalBatchOrdinal": 4,
+        "documentCount": 5,
+        "assemblyInputSha256": "e154b407c7f8d4d34ce093819a7aafef0c992a478c11583cf326dad88e8b6a12",
+        "finalInputSha256V6": "cc027b8b5183f8d626bc672c4a8810bafc16e5a4d9db63ecf70ce8f0d44a5ca1"
+      },
+      {
+        "logicalBatchOrdinal": 5,
+        "documentCount": 3,
+        "assemblyInputSha256": "70d9caf445a693280d1639209d08a7838e35e24be92c4987edffec1a179b1c3b",
+        "finalInputSha256V6": "568e2e6b858df74d6920b5adfcc3e4b1bbbd3a7b9b893ca789394d66746da515"
+      },
+      {
+        "logicalBatchOrdinal": 6,
+        "documentCount": 5,
+        "assemblyInputSha256": "d75c5d26c7a44019a734c0b0d625962fe6c700487efb934ebe44dd67c0c8cbda",
+        "finalInputSha256V6": "0fab476cc188ed7295d741bc3439bc19733dc5b2bb3208300274b61846fbfe1e"
+      },
+      {
+        "logicalBatchOrdinal": 7,
+        "documentCount": 5,
+        "assemblyInputSha256": "4fbc2317770371ae7c60ae2a7fbbb4d02aab5120f0767cf7dac36c4c8b5c9df4",
+        "finalInputSha256V6": "d67c3bef8c0531155b948722ed445d0b3115c4e85ad3dc19d6da6f19e15abf33"
+      },
+      {
+        "logicalBatchOrdinal": 8,
+        "documentCount": 4,
+        "assemblyInputSha256": "397be36ecdea24e98a8d9ab69a87038066a996cd78e06ed2e4e46fdb28c5a9c8",
+        "finalInputSha256V6": "5e49950de55682055fdcdee44a94b54430a7a23e28ecee5d57ae9ca28b0f9c02"
+      },
+      {
+        "logicalBatchOrdinal": 9,
+        "documentCount": 4,
+        "assemblyInputSha256": "6ce838c6e2b243bf4dec5dcdf8df0e04d69220b44f7020e4b602fa6f0867a890",
+        "finalInputSha256V6": "334089e529952a64ccb43c5c3269b2e460ef83a9db035394310166b3171398e2"
+      },
+      {
+        "logicalBatchOrdinal": 10,
+        "documentCount": 3,
+        "assemblyInputSha256": "1320329b0ec4c20a8426c2e54e83048489bc9be21f0b957fb3d7711bec54ae3c",
+        "finalInputSha256V6": "abb9473e74f10946d84821d3a1a2e158d76d319dfafdde015e6de8645efc6249"
+      },
+      {
+        "logicalBatchOrdinal": 11,
+        "documentCount": 3,
+        "assemblyInputSha256": "03d3cdb0523ca9daaf055e1a5b5d0f878bbc27cf31454501da4927ca1ea8ec2f",
+        "finalInputSha256V6": "8b62011f9532a35b2a08c6aaf4059f1d081a26308a2a821c7bf52ad0bf55d0f1"
+      },
+      {
+        "logicalBatchOrdinal": 12,
+        "documentCount": 5,
+        "assemblyInputSha256": "21f433c92635027ea6f451a2c528edc20b6521cdcc5dc4b0e84de3a16549973b",
+        "finalInputSha256V6": "bae0ce504c2e086f1ef6bbdc7f31e311aaa0130df0fef5179c560701874d3343"
+      }
+    ]
+  },
+  "studyDesign": {
+    "variantName": "PROMPT_V6_CANONICAL",
+    "variantLabel": "PROMPT_V6_CANDIDATE",
+    "nReplicates": 5,
+    "totalFreshRuns": 5,
+    "arms": 1,
+    "pairedComparison": false,
+    "historicalRunsCountTowardN": false,
+    "nFrozenBeforeAnyInference": true
+  },
+  "slots": [
+    {
+      "sequence": 1,
+      "slotId": "V6_RESTART_1",
+      "replicateNumber": 1,
+      "variantName": "PROMPT_V6_CANONICAL",
+      "futureOutputRootName": "v6-restart-1"
+    },
+    {
+      "sequence": 2,
+      "slotId": "V6_RESTART_2",
+      "replicateNumber": 2,
+      "variantName": "PROMPT_V6_CANONICAL",
+      "futureOutputRootName": "v6-restart-2"
+    },
+    {
+      "sequence": 3,
+      "slotId": "V6_RESTART_3",
+      "replicateNumber": 3,
+      "variantName": "PROMPT_V6_CANONICAL",
+      "futureOutputRootName": "v6-restart-3"
+    },
+    {
+      "sequence": 4,
+      "slotId": "V6_RESTART_4",
+      "replicateNumber": 4,
+      "variantName": "PROMPT_V6_CANONICAL",
+      "futureOutputRootName": "v6-restart-4"
+    },
+    {
+      "sequence": 5,
+      "slotId": "V6_RESTART_5",
+      "replicateNumber": 5,
+      "variantName": "PROMPT_V6_CANONICAL",
+      "futureOutputRootName": "v6-restart-5"
+    }
+  ],
+  "derivedStudyPlanSha256": "197f25e1ffbfd4fa1dc58fe575a11c49cb4e1633edf043ea350e999d396786fb",
+  "outputRoots": {
+    "studyRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5-restart-1",
+    "controlRoot": "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5-restart-1-control",
+    "note": "NAMES ONLY. Neither directory, nor any slot subdirectory, is created by this file or by the F6 preparation task.",
+    "freshNamespace": true,
+    "createdByThisFile": 0,
+    "mustNotReuse": [
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/v6-final-n5-control",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/replication-v4-v5-n5-recovery-1",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/failed-study",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/attempt-2",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/attempt-3",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/attempt-3-retry-1",
+      "/Users/tijnklinkhamer/Developer/phase2b-2d2c-dev-runs/attempt-4"
+    ],
+    "noOutputDirectoryContainsSemanticResultsYet": true
+  },
+  "perRunPolicy": {
+    "requestedModelId": "claude-sonnet-5",
+    "agentSdkVersion": "0.3.251",
+    "assemblyVersion": "orgunit-classifier-assembly-v2",
+    "outputSchemaVersion": "orgunit-classifier-output-schema-v2",
+    "runConfig": {
+      "maxTurns": 3,
+      "thinking": "disabled"
+    },
+    "repairPolicy": {
+      "enabled": true,
+      "maxRoundsPerLogicalEvaluation": 1,
+      "minimumRemainingBudgetMs": 120000
+    },
+    "tier1": {
+      "attemptSoftDeadlineMs": 300000,
+      "abortCloseSettlementGraceMs": 10000,
+      "totalProviderCallBudgetMs": 600000,
+      "authStatusTimeoutMs": 60000,
+      "maxTransientRetriesAfterFirstAttempt": 2,
+      "transientBackoffMs": [500, 1000]
+    },
+    "tier2": {
+      "parentWatchdogMs": 700000,
+      "gracefulTerminationWindowMs": 10000
+    },
+    "stopConditionIds": [
+      "CHILD_EXITED_UNCONFIRMED",
+      "SUPPRESSED_EXPIRED_TARGET_IDENTITY",
+      "TIER2_WATCHDOG_FIRED_BEFORE_TIER1_TIMEOUT",
+      "RAW_OUTPUT_NOT_PERSISTED_BEFORE_VALIDATION",
+      "BATCH_ARTIFACT_MISSING_OR_CORRUPT",
+      "CORPUS_CONFIG_OR_HASH_DRIFT",
+      "UNEXPECTED_RESPONSE_MODEL_ID",
+      "ISOLATION_VIOLATION",
+      "USAGE_LIMIT_INTERRUPTION",
+      "UNRECONCILED_PROVIDER_FAILURE"
+    ],
+    "identicalToF2PerRunPolicy": true,
+    "changedByThisFreeze": []
+  },
+  "requestCeilings": {
+    "derivation": "SUM_OF_FIVE_SLOT_PER_RUN_TOTALS_NEVER_A_HARDCODED_MULTIPLICATION",
+    "perRun": {
+      "plannedLogicalEvaluations": 12,
+      "originalProviderRequestCeiling": 12,
+      "documents": 49,
+      "repairRequestCeiling": 49,
+      "totalProviderRequestCeiling": 61,
+      "adapterAttemptCeiling": 183
+    },
+    "fullStudy": {
+      "totalSlots": 5,
+      "plannedLogicalEvaluations": 60,
+      "totalProviderRequestCeiling": 305,
+      "adapterAttemptCeiling": 915
+    },
+    "maxTransientRetriesPerRequest": 2,
+    "attemptsPerProviderRequest": 3,
+    "identicalToF2RequestCeilings": true
+  },
+  "hostAwakeExecutionContract": {
+    "contractVersion": "phase2b-2d2c-f6-host-awake-execution-contract-v1",
+    "lidRule": "LID_OPEN_REQUIRED",
+    "operatorPreconditions": [
+      "LID_OPEN_REQUIRED",
+      "NO_LID_CLOSE_UNTIL_STUDY_TERMINAL_RECORD",
+      "EXTERNAL_POWER_CONNECTED_SHOULD",
+      "CAFFEINATE_WRAPS_THE_FULL_CLI_LIFETIME",
+      "NO_PERMANENT_PMSET_CHANGE"
+    ],
+    "wrapper": ["/usr/bin/caffeinate", "-dimsu", "--"],
+    "wrapperForm": "/usr/bin/caffeinate -dimsu -- <F6 STUDY EXECUTION COMMAND>",
+    "wrapperVerifiedOnRunMac": {
+      "macOS": "26.6 (25G72), arm64",
+      "verifiedOn": "2026-09-17",
+      "dashDashAccepted": true,
+      "flags": {
+        "d": "prevent display sleep",
+        "i": "prevent system idle sleep",
+        "m": "prevent disk idle sleep",
+        "s": "prevent system sleep; honoured ONLY on AC power",
+        "u": "declare user active (5 s default timeout)"
+      },
+      "caffeinateIsNotAnAncestorOfTheUtility": true,
+      "assertionAttribution": "pmset -g assertions reports each assertion as: caffeinate asserting on behalf of '<utility path>' (pid <utility pid>)"
+    },
+    "caffeinateDoesNotMakeLidCloseSafe": true,
+    "externalPower": "SHOULD be connected; recorded by the preflight, an advisory rather than a refusal.",
+    "preflight": {
+      "recordVersion": "phase2b-2d2c-f6-host-awake-preflight-record-v1",
+      "requestFree": true,
+      "readOnlyCommands": [
+        "/usr/bin/pmset -g batt",
+        "/usr/bin/pmset -g assertions",
+        "/usr/sbin/ioreg -r -k AppleClamshellState -d 4"
+      ],
+      "refusesWhen": [
+        "PLATFORM_NOT_DARWIN",
+        "NO_PROCESS_LINEAGE",
+        "ASSERTIONS_UNREADABLE",
+        "NO_CAFFEINATE_IDLE_SLEEP_ASSERTION_FOR_THIS_PROCESS",
+        "LID_OBSERVED_CLOSED"
+      ],
+      "advisesWhen": [
+        "NOT_ON_AC_POWER_PREVENT_SYSTEM_SLEEP_INEFFECTIVE",
+        "POWER_SOURCE_UNKNOWN",
+        "LID_STATE_UNREADABLE_OPERATOR_PRECONDITION_ONLY"
+      ],
+      "lidObservationNeverWaivesTheOperatorPrecondition": true,
+      "runsBeforeSlot1AndIsRecordedDurably": true
+    },
+    "altersClassifierSemantics": false,
+    "altersReliabilitySemantics": false,
+    "altersTimeoutsRetriesOrWatchdog": false,
+    "permanentPmsetChange": false
+  },
+  "futureExecutionBuild": {
+    "status": "NOT_BUILT_BY_THIS_FREEZE",
+    "whenBuilt": "Only after the owner freeze approval of these exact bytes.",
+    "principle": "Reuse F4 unchanged wherever possible; add only the smallest additive layer for the F6 study identity, the five F6 slots, the F6 roots, the F6 freeze/approval/candidates and the host-awake preflight.",
+    "mustNotChange": [
+      "coordinator semantics",
+      "child provider semantics",
+      "F0Z v2 timeout logic",
+      "repair logic",
+      "provider logic",
+      "scoring logic"
+    ],
+    "candidatesBindTheExactExecutionBuildCommit": true,
+    "childBindingBeforeProviderConstruction": [
+      "canonical F2 freeze identity",
+      "canonical F2 plan identity",
+      "V6 prompt identity",
+      "integrated runtime identity",
+      "F6 restart freeze identity",
+      "F6 slot identity",
+      "logical evaluation identity",
+      "assemblyInputSha256",
+      "V6 finalInputSha256",
+      "RELIABILITY_SEMANTICS_V2_TIMEOUT_CONTINUATION",
+      "corpus identity",
+      "requested model and runtime constants"
+    ],
+    "unknownFreezeFamilyOrOverlay": "REFUSE",
+    "historicalChildFreezeFamiliesWeakened": false
+  },
+  "executionBoundary": {
+    "goldBlind": true,
+    "noGoldLoadedByTheInferencePath": true,
+    "noScorerReachableFromExecution": true,
+    "allFiveSlotsTerminalBeforeAnyScoringBegins": true,
+    "noSemanticResultInspectionBetweenReplicates": true,
+    "noGateScoringBetweenReplicates": true,
+    "noComparisonToF5": true,
+    "noPromptEditAfterAnyV6ProviderRequest": true,
+    "scoringRequiresSeparateOwnerAuthorisation": true
+  },
+  "noAdaptiveScoring": {
+    "nFrozenBeforeInference": true,
+    "slotCountFixedAt": 5,
+    "slotOrderFixed": true,
+    "analysisContractFixed": true,
+    "noAdaptiveStoppingBecauseEarlyResultsLookGoodOrBad": true
+  },
+  "inclusionRules": {
+    "principle": "FAIL CLOSED. A replicate that reaches semantic/provider execution is part of the study and is NEVER silently replaced.",
+    "classA": {
+      "id": "FAILURE_BEFORE_AUTHORISATION_CONSUMPTION"
+    },
+    "classB": {
+      "id": "AUTHORISATION_CONSUMED_CONFIRMED_PRE_INFERENCE_REFUSAL"
+    },
+    "classC": {
+      "id": "PROVIDER_REQUEST_OR_SEMANTIC_EXECUTION_OBSERVED",
+      "action": "That slot is IRREVOCABLY part of F6, whether it completes or ends in a genuine terminal failure. Never replaced, never discarded, never rerun."
+    },
+    "identicalToF2InclusionRules": true,
+    "terminalFailureIncludedAsRecorded": true,
+    "neverSilentlySubstituteAReplicate": true
+  },
+  "finalDevDecisionRule": {
+    "id": "F6_FINAL_DEV_DECISION_RULE_V1",
+    "decision": "DEV_READY_FOR_HOLDOUT",
+    "conditions": [
+      "all 5/5 F6 replicates are COMPLETE under RELIABILITY_SEMANTICS_V2_TIMEOUT_CONTINUATION",
+      "each of the 5/5 F6 replicates individually passes every one of the six frozen DEV gates"
+    ],
+    "anyPartialReplicate": "DEV_NOT_READY_FOR_HOLDOUT",
+    "anyCompleteReplicateFailingAnyFrozenGate": "DEV_NOT_READY_FOR_HOLDOUT",
+    "f6CannotObtainFiveCompleteReplicates": "NOT_HOLDOUT_READY",
+    "noFourOfFiveFallback": true,
+    "noPoolingWithF5": true,
+    "noAveragingAwayAFailingReplicate": true,
+    "noReplacementOfAnF6ClassCReplicate": true,
+    "noThresholdTuning": true,
+    "noPromptTuning": true,
+    "unmeasuredGateIsNeverAPassedGate": true,
+    "identicalStrengthToF2Rule": true
+  },
+  "sixFrozenDevGates": {
+    "minSchemaValidSpanVerifiedRate": 0.99,
+    "minUnitPageRecall": 0.95,
+    "minUnitPagePrecision": 0.9,
+    "minUnitTypeAccuracy": 0.85,
+    "minHardNegativeRejection": 0.9,
+    "maxNeedsReviewRate": 0.15
+  },
+  "gateThresholdsChangedByThisFreeze": [],
+  "holdout": {
+    "inferenceDuring2D2C": "FORBIDDEN",
+    "accessDuringThisStudy": "FORBIDDEN",
+    "openedOrHashedByF6": false,
+    "rule": "HOLDOUT must never be opened, read or hashed. A DEV_READY_FOR_HOLDOUT outcome is NOT a HOLDOUT authorisation."
+  },
+  "exclusions": {
+    "thisFreezeAuthorises": [],
+    "noProviderCall": true,
+    "noClassifierInference": true,
+    "noAuthStatusInvocation": true,
+    "noDevExecution": true,
+    "noScoring": true,
+    "noHoldoutAccess": true,
+    "noGoldChanges": true,
+    "noC2": true,
+    "noThresholdChanges": true,
+    "noTimeoutRetryOrMaxTurnsChanges": true,
+    "noPromptChanges": true,
+    "noF5EvidenceModification": true,
+    "noOwnerFreezeApproval": true,
+    "noExecutionCandidates": true,
+    "noExecutionAuthorisation": true,
+    "noOutputRootsCreated": true
+  }
+}
