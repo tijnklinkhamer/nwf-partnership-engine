@@ -21,15 +21,20 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import {
+  adjudicateBlockedAttemptFromEvidence,
+  BLOCKED_ATTEMPT_ADJUDICATION_DEFAULT,
   classifyAttempt,
   classifyRealisedDenominatorFailure,
+  describeBlockedAttempt,
   DevConfirmBudget,
   discloseAttempt,
   FinalHoldoutState,
   inadmissibilityClass,
   mayRetrySameCandidate,
   resolveSemanticAttemptState,
+  type AttemptDisposition,
   type DurableAttemptEvidence,
+  type ResolvedAttemptDisposition,
   type SemanticAttemptState,
 } from '../harness/phase2b2d2c/methodology/attemptConsumption.js';
 
@@ -690,5 +695,306 @@ describe('the R3 helper is pure and unreachable from production', () => {
     expect(modules.map((m) => m['module'])).toContain(
       'src/test/harness/phase2b2d2c/methodology/attemptConsumption.ts',
     );
+  });
+});
+
+/**
+ * R3 SUPPORT CORRECTION - BLOCKED is STICKY.
+ *
+ * The methodology already said an AMBIGUOUS attempt is "neither counted
+ * against the three-attempt budget nor released for retry". The first
+ * implementation expressed only the first half: `record()` returned `BLOCKED`
+ * and incremented nothing, but left the machine willing to accept another
+ * attempt - which releases the candidate for retry by omission, the automatic
+ * refund R3 exists to refuse. These tests drive the STATE MACHINE, not one
+ * cell of the truth table. The R3 document bytes are unchanged.
+ */
+describe('a BLOCKED DEV_CONFIRM attempt halts the generation until it is adjudicated', () => {
+  /** Reach a blocked budget the way the methodology actually would. */
+  function blockedBudget(): DevConfirmBudget {
+    const budget = new DevConfirmBudget();
+    const state = resolveSemanticAttemptState(EVIDENCE.durabilityGap);
+    expect(state).toBe('AMBIGUOUS');
+    budget.record(classifyAttempt({ state, outcome: 'INADMISSIBLE' }));
+    return budget;
+  }
+
+  it('marks the attempt unresolved rather than merely returning a label', () => {
+    const budget = blockedBudget();
+    expect(budget.hasUnresolvedBlockedAttempt).toBe(true);
+    expect(budget.mayBeginNextAttempt).toBe(false);
+    expect(budget.blockedAttemptCount).toBe(1);
+  });
+
+  it('refuses a retry of the SAME candidate while blocked', () => {
+    const budget = blockedBudget();
+    expect(
+      mayRetrySameCandidate({
+        disposition: 'BLOCKED',
+        candidateHashUnchanged: true,
+        preSemanticDefectRepaired: true,
+      }),
+    ).toBe(false);
+    expect(() => budget.record('NOT_CONSUMED')).toThrow(/DEV_CONFIRM_BLOCKED/);
+  });
+
+  it('refuses a DIFFERENT candidate while blocked', () => {
+    const budget = blockedBudget();
+    for (const disposition of ['CONSUMED', 'NOT_CONSUMED', 'BLOCKED'] as const) {
+      expect(() => budget.record(disposition), disposition).toThrow(/DEV_CONFIRM_BLOCKED/);
+    }
+  });
+
+  it('counts nothing against the three before adjudication', () => {
+    const budget = blockedBudget();
+    expect(budget.consumedAttemptCount).toBe(0);
+    expect(budget.closed).toBe(false);
+    expect(budget.state).toBe('OPEN');
+  });
+
+  it('increments exactly once when adjudicated CONSUMED', () => {
+    const budget = blockedBudget();
+    budget.adjudicateBlockedAttempt('CONSUMED');
+    expect(budget.consumedAttemptCount).toBe(1);
+    expect(budget.hasUnresolvedBlockedAttempt).toBe(false);
+    expect(budget.mayBeginNextAttempt).toBe(true);
+  });
+
+  it('increments nothing when adjudicated NOT_CONSUMED, and releases the block', () => {
+    const budget = blockedBudget();
+    budget.adjudicateBlockedAttempt('NOT_CONSUMED');
+    expect(budget.consumedAttemptCount).toBe(0);
+    expect(budget.hasUnresolvedBlockedAttempt).toBe(false);
+    expect(budget.mayBeginNextAttempt).toBe(true);
+  });
+
+  it('refuses a second adjudication of the same blocked attempt', () => {
+    const budget = blockedBudget();
+    budget.adjudicateBlockedAttempt('CONSUMED');
+    expect(() => budget.adjudicateBlockedAttempt('CONSUMED')).toThrow(
+      /NO_UNRESOLVED_BLOCKED_ATTEMPT/,
+    );
+    expect(() => budget.adjudicateBlockedAttempt('NOT_CONSUMED')).toThrow(
+      /NO_UNRESOLVED_BLOCKED_ATTEMPT/,
+    );
+    expect(budget.consumedAttemptCount).toBe(1);
+  });
+
+  it('refuses an adjudication when no attempt is blocked at all', () => {
+    const budget = new DevConfirmBudget();
+    expect(() => budget.adjudicateBlockedAttempt('CONSUMED')).toThrow(
+      /NO_UNRESOLVED_BLOCKED_ATTEMPT/,
+    );
+  });
+
+  it('closes the generation at exactly three consumed attempts, blocks included', () => {
+    const budget = new DevConfirmBudget();
+    budget.record('CONSUMED');
+    budget.record('CONSUMED');
+    budget.record('BLOCKED');
+    expect(budget.closed).toBe(false);
+    budget.adjudicateBlockedAttempt('CONSUMED');
+    expect(budget.consumedAttemptCount).toBe(3);
+    expect(budget.closed).toBe(true);
+    expect(budget.state).toBe('METHODOLOGY_GENERATION_CLOSED');
+    expect(budget.mayBeginNextAttempt).toBe(false);
+    expect(() => budget.record('CONSUMED')).toThrow(/METHODOLOGY_GENERATION_CLOSED/);
+  });
+
+  it('does not close the generation when the third block is adjudicated NOT_CONSUMED', () => {
+    const budget = new DevConfirmBudget();
+    budget.record('CONSUMED');
+    budget.record('CONSUMED');
+    budget.record('BLOCKED');
+    budget.adjudicateBlockedAttempt('NOT_CONSUMED');
+    expect(budget.consumedAttemptCount).toBe(2);
+    expect(budget.closed).toBe(false);
+  });
+
+  it('defaults an unresolvable adjudication toward CONSUMED', () => {
+    expect(BLOCKED_ATTEMPT_ADJUDICATION_DEFAULT).toBe('CONSUMED');
+    // Still silent: the same durability gap, no better evidence than before.
+    expect(adjudicateBlockedAttemptFromEvidence(EVIDENCE.durabilityGap)).toBe('CONSUMED');
+    // Later evidence that a request DID go out.
+    expect(adjudicateBlockedAttemptFromEvidence(EVIDENCE.executionObserved)).toBe('CONSUMED');
+    expect(adjudicateBlockedAttemptFromEvidence(EVIDENCE.requestRecordedThenDied)).toBe('CONSUMED');
+  });
+
+  it('resolves NOT_CONSUMED only on a positively established pre-inference refusal', () => {
+    expect(adjudicateBlockedAttemptFromEvidence(EVIDENCE.confirmedPreInferenceRefusal)).toBe(
+      'NOT_CONSUMED',
+    );
+    expect(adjudicateBlockedAttemptFromEvidence(EVIDENCE.nothingHappened)).toBe('NOT_CONSUMED');
+    // Absence of positive request evidence is NOT the same finding, and must
+    // not be read as one: the durability gap still defaults to CONSUMED.
+    const absenceOnly: DurableAttemptEvidence = {
+      ...EVIDENCE.durabilityGap,
+      confirmedPreInferenceRefusal: false,
+    };
+    expect(adjudicateBlockedAttemptFromEvidence(absenceOnly)).toBe('CONSUMED');
+  });
+
+  it('agrees with the frozen R3 text, which is unchanged', () => {
+    const ambiguous = obj('sectionO_attemptConsumption.ambiguousAttempts');
+    expect(ambiguous['countsTowardTheBudget']).toBe(false);
+    expect(ambiguous['releasesTheCandidateForRetry']).toBe(false);
+    expect(ambiguous['blocksFurtherAttemptsAgainstThatSplit']).toBe(true);
+    expect(ambiguous['adjudicationDefault']).toBe(BLOCKED_ATTEMPT_ADJUDICATION_DEFAULT);
+  });
+});
+
+describe('a BLOCKED FINAL_HOLDOUT is neither spent nor available', () => {
+  function blockedHoldout(): FinalHoldoutState {
+    const holdout = new FinalHoldoutState();
+    const state = resolveSemanticAttemptState(EVIDENCE.durabilityGap);
+    expect(holdout.record({ state, outcome: 'INADMISSIBLE' })).toBe('BLOCKED');
+    return holdout;
+  }
+
+  it('starts AVAILABLE and becomes BLOCKED on an ambiguous attempt', () => {
+    const holdout = new FinalHoldoutState();
+    expect(holdout.availability).toBe('AVAILABLE');
+    const blocked = blockedHoldout();
+    expect(blocked.availability).toBe('BLOCKED');
+    expect(blocked.hasUnresolvedBlockedAttempt).toBe(true);
+  });
+
+  it('does not silently become AVAILABLE, and is not labelled RETIRED either', () => {
+    const holdout = blockedHoldout();
+    expect(holdout.available).toBe(false);
+    expect(holdout.retired).toBe(false);
+  });
+
+  it('refuses every further semantic attempt while blocked', () => {
+    const holdout = blockedHoldout();
+    for (const state of ['STARTED', 'NOT_STARTED', 'AMBIGUOUS'] as const) {
+      for (const outcome of ['ACCEPT', 'REJECT', 'INADMISSIBLE'] as const) {
+        expect(() => holdout.record({ state, outcome }), `${state}/${outcome}`).toThrow(
+          /FINAL_HOLDOUT is BLOCKED/,
+        );
+      }
+    }
+    expect(holdout.availability).toBe('BLOCKED');
+  });
+
+  it('retires irreversibly when adjudicated CONSUMED', () => {
+    const holdout = blockedHoldout();
+    expect(holdout.adjudicateBlockedAttempt('CONSUMED')).toBe('RETIRED');
+    expect(holdout.retired).toBe(true);
+    expect(() => holdout.record({ state: 'NOT_STARTED', outcome: 'INADMISSIBLE' })).toThrow(
+      /RETIRED/,
+    );
+    expect(() => holdout.adjudicateBlockedAttempt('NOT_CONSUMED')).toThrow(
+      /NO_UNRESOLVED_BLOCKED_ATTEMPT/,
+    );
+    expect(holdout.retired).toBe(true);
+  });
+
+  it('returns to AVAILABLE when adjudicated NOT_CONSUMED, for the same candidate only', () => {
+    const holdout = blockedHoldout();
+    expect(holdout.adjudicateBlockedAttempt('NOT_CONSUMED')).toBe('AVAILABLE');
+    expect(holdout.available).toBe(true);
+    expect(holdout.retired).toBe(false);
+    // The retry right is the ordinary one: byte-identical candidate, repaired
+    // pre-semantic defect. Nothing about adjudication widens it.
+    expect(
+      mayRetrySameCandidate({
+        disposition: 'NOT_CONSUMED',
+        candidateHashUnchanged: false,
+        preSemanticDefectRepaired: true,
+      }),
+    ).toBe(false);
+    expect(
+      mayRetrySameCandidate({
+        disposition: 'NOT_CONSUMED',
+        candidateHashUnchanged: true,
+        preSemanticDefectRepaired: true,
+      }),
+    ).toBe(true);
+    // And the holdout still retires on that retry if it crosses the boundary.
+    expect(holdout.record({ state: 'STARTED', outcome: 'ACCEPT' })).toBe('CONSUMED');
+    expect(holdout.retired).toBe(true);
+  });
+
+  it('refuses an adjudication when nothing is blocked', () => {
+    const holdout = new FinalHoldoutState();
+    expect(() => holdout.adjudicateBlockedAttempt('CONSUMED')).toThrow(
+      /NO_UNRESOLVED_BLOCKED_ATTEMPT/,
+    );
+  });
+
+  it('has no direct BLOCKED -> new semantic attempt transition', () => {
+    const holdout = blockedHoldout();
+    // The ONLY methods that change state are record() - which throws while
+    // blocked - and adjudicateBlockedAttempt(), which yields RETIRED or
+    // AVAILABLE and never a semantic attempt of its own.
+    expect(holdout.adjudicateBlockedAttempt('NOT_CONSUMED')).toBe('AVAILABLE');
+    const names = Object.getOwnPropertyNames(FinalHoldoutState.prototype).sort();
+    expect(names).toEqual([
+      'adjudicateBlockedAttempt',
+      'availability',
+      'available',
+      'constructor',
+      'hasUnresolvedBlockedAttempt',
+      'record',
+      'retired',
+    ]);
+  });
+});
+
+describe('blocked state never reaches the prompt-development terminal surface', () => {
+  it('refuses a BLOCKED terminal disclosure outright', () => {
+    for (const outcome of ['ACCEPT', 'REJECT', 'INADMISSIBLE'] as const) {
+      expect(
+        () =>
+          discloseAttempt({
+            terminalOutcome: outcome,
+            // A caller reaching past the type - the only way this is possible.
+            consumption: 'BLOCKED' as unknown as ResolvedAttemptDisposition,
+          }),
+        outcome,
+      ).toThrow(/BLOCKED is not a terminal disclosure/);
+    }
+  });
+
+  it('offers no terminal outcome for an ambiguous attempt at all', () => {
+    const state = resolveSemanticAttemptState(EVIDENCE.durabilityGap);
+    const disposition: AttemptDisposition = classifyAttempt({ state, outcome: 'INADMISSIBLE' });
+    expect(disposition).toBe('BLOCKED');
+    expect(inadmissibilityClass(state)).toBe('UNRESOLVED');
+  });
+
+  it('keeps the two resolved tokens working exactly as before', () => {
+    expect(discloseAttempt({ terminalOutcome: 'REJECT', consumption: 'CONSUMED' })).toEqual({
+      terminalOutcome: 'REJECT',
+      consumption: 'CONSUMED',
+    });
+    expect(
+      discloseAttempt({ terminalOutcome: 'INADMISSIBLE', consumption: 'NOT_CONSUMED' }),
+    ).toEqual({ terminalOutcome: 'INADMISSIBLE', consumption: 'NOT_CONSUMED' });
+  });
+
+  it('exposes owner/audit blocked state that leaks no sealed detail', () => {
+    const audit = describeBlockedAttempt({
+      coarseStructuralReason: 'G3_REALISED_DENOMINATOR_BELOW_MINIMUM',
+      sealedItemId: 'an-item-id-that-must-never-escape',
+      failingOrganisation: 'an-organisation-that-must-never-escape',
+      realisedDenominator: 41,
+    });
+    expect(Object.keys(audit).sort()).toEqual([
+      'adjudicationDefault',
+      'attemptState',
+      'awaitingOwnerAdjudication',
+      'countedAgainstBudget',
+      'releasedForRetry',
+    ]);
+    const serialised = JSON.stringify(audit);
+    expect(serialised).not.toMatch(/an-item-id/);
+    expect(serialised).not.toMatch(/an-organisation/);
+    expect(serialised).not.toMatch(/G3_REALISED/);
+    expect(serialised).not.toMatch(/41/);
+    expect(audit.countedAgainstBudget).toBe(false);
+    expect(audit.releasedForRetry).toBe(false);
+    expect(audit.adjudicationDefault).toBe('CONSUMED');
   });
 });

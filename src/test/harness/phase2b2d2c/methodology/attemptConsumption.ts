@@ -52,6 +52,20 @@ export type TerminalOutcome = 'ACCEPT' | 'REJECT' | 'INADMISSIBLE';
 export type AttemptDisposition = 'CONSUMED' | 'NOT_CONSUMED' | 'BLOCKED';
 
 /**
+ * A disposition that has actually settled what the attempt cost. `BLOCKED` is
+ * excluded BY TYPE, because an unresolved block is not a cost - it is the
+ * absence of an answer about the cost.
+ */
+export type ResolvedAttemptDisposition = 'CONSUMED' | 'NOT_CONSUMED';
+
+/**
+ * How an owner adjudication settles one BLOCKED attempt. `BLOCKED` is
+ * deliberately absent: an adjudication that left the attempt blocked would not
+ * be an adjudication, and would let a block be "resolved" into itself forever.
+ */
+export type BlockedAttemptAdjudication = ResolvedAttemptDisposition;
+
+/**
  * Durable evidence about one attempt, as the two record systems actually
  * expose it. The production classifier writes Postgres rows; the study
  * harness writes write-once JSON artifacts and touches no database. An
@@ -137,6 +151,28 @@ export function inadmissibilityClass(
   return 'UNRESOLVED';
 }
 
+/** The adjudication a BLOCKED attempt resolves to when evidence cannot settle it. */
+export const BLOCKED_ATTEMPT_ADJUDICATION_DEFAULT: BlockedAttemptAdjudication = 'CONSUMED';
+
+/**
+ * Adjudicate one BLOCKED attempt from whatever durable evidence exists LATER.
+ *
+ * The default runs toward spending the attempt. `NOT_CONSUMED` is returned
+ * ONLY when the already-frozen NOT_STARTED condition is positively
+ * established - a confirmed pre-inference refusal with zero recorded provider
+ * requests and no execution marker. Evidence that is merely still silent
+ * re-resolves to AMBIGUOUS, and an attempt whose cost cannot be established
+ * is CONSUMED: the absence of positive request evidence is not evidence of
+ * absence, and treating it as such is the loophole R3 exists to close.
+ */
+export function adjudicateBlockedAttemptFromEvidence(
+  evidence: DurableAttemptEvidence,
+): BlockedAttemptAdjudication {
+  return resolveSemanticAttemptState(evidence) === 'NOT_STARTED'
+    ? 'NOT_CONSUMED'
+    : BLOCKED_ATTEMPT_ADJUDICATION_DEFAULT;
+}
+
 /**
  * May this exact candidate run again against this split?
  *
@@ -175,12 +211,23 @@ export function classifyRealisedDenominatorFailure(input: {
   return { outcome: 'INADMISSIBLE', disposition: 'CONSUMED' };
 }
 
-/** The DEV_CONFIRM three-attempt budget: monotonic, and it never decrements. */
+/**
+ * The DEV_CONFIRM three-attempt budget: monotonic, it never decrements, and an
+ * unresolved BLOCK halts it.
+ *
+ * STICKINESS IS THE POINT. "Neither counted nor released" is not a property of
+ * one cell of a truth table; it is a property of the STATE MACHINE. A blocked
+ * attempt that merely returned `BLOCKED` and then let the next `record()`
+ * through would release the candidate for retry by doing nothing, which is
+ * exactly the automatic refund R3 refuses to make. So the block is held here,
+ * and only an explicit adjudication clears it.
+ */
 export class DevConfirmBudget {
   static readonly MAX_CONSUMED_ATTEMPTS = 3;
 
   #consumed = 0;
   #blocked = 0;
+  #unresolvedBlock = false;
 
   get consumedAttemptCount(): number {
     return this.#consumed;
@@ -190,8 +237,21 @@ export class DevConfirmBudget {
     return this.#blocked;
   }
 
+  /** Is an attempt halted, awaiting owner adjudication, right now? */
+  get hasUnresolvedBlockedAttempt(): boolean {
+    return this.#unresolvedBlock;
+  }
+
   get closed(): boolean {
     return this.#consumed >= DevConfirmBudget.MAX_CONSUMED_ATTEMPTS;
+  }
+
+  /**
+   * May ANY next attempt begin - a retry of the same candidate or a different
+   * candidate alike? Both are refused while a block is unresolved.
+   */
+  get mayBeginNextAttempt(): boolean {
+    return !this.closed && !this.#unresolvedBlock;
   }
 
   /** `METHODOLOGY_GENERATION_CLOSED` once three attempts have been consumed. */
@@ -205,36 +265,109 @@ export class DevConfirmBudget {
         'METHODOLOGY_GENERATION_CLOSED: no fourth consumed attempt is evaluated against this generation under any circumstance',
       );
     }
+    if (this.#unresolvedBlock) {
+      throw new Error(
+        'DEV_CONFIRM_BLOCKED: an attempt is AMBIGUOUS and unadjudicated, so no next candidate and no retry of the same candidate may begin against this split until an owner adjudication classifies it',
+      );
+    }
     if (disposition === 'CONSUMED') this.#consumed += 1;
-    if (disposition === 'BLOCKED') this.#blocked += 1;
+    if (disposition === 'BLOCKED') {
+      this.#blocked += 1;
+      this.#unresolvedBlock = true;
+    }
+  }
+
+  /**
+   * Settle the one unresolved BLOCKED attempt. One-shot: the block is cleared
+   * by the first adjudication, so a second call finds nothing to adjudicate
+   * and throws rather than incrementing the counter twice.
+   */
+  adjudicateBlockedAttempt(resolution: BlockedAttemptAdjudication): void {
+    if (!this.#unresolvedBlock) {
+      throw new Error(
+        'NO_UNRESOLVED_BLOCKED_ATTEMPT: there is nothing to adjudicate, and an adjudication is never replayed against an attempt that has already been settled',
+      );
+    }
+    this.#unresolvedBlock = false;
+    if (resolution === 'CONSUMED') this.#consumed += 1;
   }
 }
 
-/** The one-shot FINAL_HOLDOUT. Retirement is irreversible. */
+/** Where the one-shot instrument stands. There is no fourth value. */
+export type FinalHoldoutAvailability = 'AVAILABLE' | 'BLOCKED' | 'RETIRED';
+
+/**
+ * The one-shot FINAL_HOLDOUT. Retirement is irreversible, and unresolved
+ * ambiguity is PRESERVED rather than collapsed in either direction.
+ *
+ * BLOCKED is a real state here, not a returned label. An ambiguous attempt
+ * leaves the instrument neither spent nor available: treating it as available
+ * would hand a second semantic attempt to anyone whose first one crashed
+ * inside the request window, and marking it RETIRED would spend a one-shot
+ * instrument on a fault that may have issued no request at all.
+ */
 export class FinalHoldoutState {
-  #retired = false;
+  #availability: FinalHoldoutAvailability = 'AVAILABLE';
+
+  get availability(): FinalHoldoutAvailability {
+    return this.#availability;
+  }
 
   get retired(): boolean {
-    return this.#retired;
+    return this.#availability === 'RETIRED';
+  }
+
+  get hasUnresolvedBlockedAttempt(): boolean {
+    return this.#availability === 'BLOCKED';
+  }
+
+  /** Only an AVAILABLE holdout may be attempted. BLOCKED is not available. */
+  get available(): boolean {
+    return this.#availability === 'AVAILABLE';
   }
 
   /**
    * Record one attempt. The HOLDOUT retires the moment a semantic attempt is
    * made against it, at terminal closure, whatever the outcome - ACCEPT,
-   * REJECT or INADMISSIBLE alike. A pre-semantic refusal leaves it intact.
+   * REJECT or INADMISSIBLE alike. A pre-semantic refusal leaves it intact. An
+   * AMBIGUOUS attempt BLOCKS it, and no further attempt of any kind may be
+   * recorded until that block is adjudicated.
    */
   record(input: {
     readonly state: SemanticAttemptState;
     readonly outcome: TerminalOutcome;
   }): AttemptDisposition {
-    if (this.#retired) {
+    if (this.#availability === 'RETIRED') {
       throw new Error(
         'the FINAL_HOLDOUT is RETIRED: no second semantic attempt, no replacement candidate, no threshold change and no prompt change may be run against it',
       );
     }
+    if (this.#availability === 'BLOCKED') {
+      throw new Error(
+        'the FINAL_HOLDOUT is BLOCKED: an attempt is AMBIGUOUS and unadjudicated, so it is neither retired nor available - no semantic attempt, no retry of the same candidate and no other candidate may run against it until an owner adjudication classifies it',
+      );
+    }
     const disposition = classifyAttempt(input);
-    if (disposition === 'CONSUMED') this.#retired = true;
+    if (disposition === 'CONSUMED') this.#availability = 'RETIRED';
+    if (disposition === 'BLOCKED') this.#availability = 'BLOCKED';
     return disposition;
+  }
+
+  /**
+   * Settle the BLOCKED attempt. `CONSUMED` retires the instrument
+   * irreversibly; `NOT_CONSUMED` returns it to AVAILABLE, where only the SAME
+   * byte-identical selected candidate may retry and every existing owner
+   * authorisation requirement still applies. One-shot: the state leaves
+   * BLOCKED on the first adjudication, so a second call throws.
+   */
+  adjudicateBlockedAttempt(resolution: BlockedAttemptAdjudication): FinalHoldoutAvailability {
+    if (this.#availability !== 'BLOCKED') {
+      throw new Error(
+        `NO_UNRESOLVED_BLOCKED_ATTEMPT: the FINAL_HOLDOUT is ${this.#availability}, so there is nothing to adjudicate and an adjudication is never replayed`,
+      );
+    }
+    this.#availability = resolution === 'CONSUMED' ? 'RETIRED' : 'AVAILABLE';
+    return this.#availability;
   }
 }
 
@@ -245,18 +378,64 @@ export class FinalHoldoutState {
  */
 export interface AttemptDisclosure {
   readonly terminalOutcome: TerminalOutcome;
-  readonly consumption: AttemptDisposition;
+  readonly consumption: ResolvedAttemptDisposition;
 }
 
+/**
+ * Disclose one TERMINAL attempt.
+ *
+ * A BLOCKED attempt is NOT terminal, so it has no place here at all. The
+ * consumption parameter is typed to the two resolved values and checked again
+ * at runtime, because the alternative - pairing `BLOCKED` with some terminal
+ * outcome - would fabricate a verdict for an attempt whose cost is precisely
+ * what nobody yet knows. Blocked state travels the separate owner/audit
+ * surface below, which the prompt developer never sees.
+ */
 export function discloseAttempt(input: {
   readonly terminalOutcome: TerminalOutcome;
-  readonly consumption: AttemptDisposition;
+  readonly consumption: ResolvedAttemptDisposition;
   readonly coarseStructuralReason?: string;
   readonly sealedItemId?: string;
   readonly failingOrganisation?: string;
   readonly realisedDenominator?: number;
 }): AttemptDisclosure {
+  if ((input.consumption as AttemptDisposition) === 'BLOCKED') {
+    throw new Error(
+      'BLOCKED is not a terminal disclosure: an AMBIGUOUS attempt has no terminal outcome and no settled consumption, and no terminal outcome may be fabricated for it',
+    );
+  }
   // Everything except the two tokens is dropped here, by construction: a
   // caller cannot widen the surface by passing more.
   return { terminalOutcome: input.terminalOutcome, consumption: input.consumption };
+}
+
+/**
+ * The OWNER/AUDIT view of a halted attempt - deliberately not part of the
+ * prompt-development terminal surface, and carrying no item, organisation,
+ * denominator or candidate output of its own.
+ */
+export interface BlockedAttemptAudit {
+  readonly attemptState: 'BLOCKED';
+  readonly awaitingOwnerAdjudication: true;
+  readonly adjudicationDefault: BlockedAttemptAdjudication;
+  readonly countedAgainstBudget: false;
+  readonly releasedForRetry: false;
+}
+
+export function describeBlockedAttempt(input?: {
+  readonly coarseStructuralReason?: string;
+  readonly sealedItemId?: string;
+  readonly failingOrganisation?: string;
+  readonly realisedDenominator?: number;
+}): BlockedAttemptAudit {
+  // `input` is accepted and discarded for exactly the reason `discloseAttempt`
+  // discards its own extras: a caller must not be able to widen the surface.
+  void input;
+  return {
+    attemptState: 'BLOCKED',
+    awaitingOwnerAdjudication: true,
+    adjudicationDefault: BLOCKED_ATTEMPT_ADJUDICATION_DEFAULT,
+    countedAgainstBudget: false,
+    releasedForRetry: false,
+  };
 }
