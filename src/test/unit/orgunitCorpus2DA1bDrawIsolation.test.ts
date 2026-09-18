@@ -665,8 +665,28 @@ describe('2D-A1b: A1b changed no production file and weakened no firewall', () =
     )
       .split('\n')
       .filter((line) => line.length > 0);
+    // WHY THIS LIST GREW, ONCE, BY EXACT NAME.
+    //
+    //   This assertion diffs the WHOLE of `docs/evaluation` against the A1
+    //   frame commit, so it does not only bound A1b: it bounds every branch
+    //   that DESCENDS from A1b. A2 descends from A1b - deliberately, because
+    //   the methodology, plan, frame and draw bytes it binds are all already
+    //   in that tree - and A2 must land its own governance records in the
+    //   same directory as every record before them.
+    //
+    //   So the two A2 Batch-01 filenames are permitted BY EXACT NAME, the
+    //   same deliberate, reviewed widening Phase 2B-1c applied to the
+    //   firewall when a later slice legitimately needed a file an earlier
+    //   slice had pinned closed. Nothing is weakened: every other path under
+    //   `docs/evaluation` is still refused, the frozen methodology, plan,
+    //   approval, frame and draw bytes are all still covered, and no other
+    //   assertion in this file was touched. A future step that needs its own
+    //   record widens this list the same visible way - it does not delete
+    //   the check.
     const permitted = [
       'docs/evaluation/PHASE_2B_2D_METHOD_V2_A1B_DRAW_AUTHORITY_RECORD_V1.json',
+      'docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_AUTHORITY_RECORD_V1.json',
+      'docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_EXECUTION_RECORD_V1.json',
       'docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json',
     ];
     for (const file of changed) {
