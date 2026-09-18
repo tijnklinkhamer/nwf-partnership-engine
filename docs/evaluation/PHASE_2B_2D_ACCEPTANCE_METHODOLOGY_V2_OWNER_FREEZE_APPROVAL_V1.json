@@ -1,0 +1,325 @@
+{
+  "recordId": "phase2b-2d-acceptance-methodology-v2-owner-freeze-approval-v1",
+  "recordKind": "OWNER_FREEZE_APPROVAL",
+  "approves": "PHASE_2B_2D_METHODOLOGY_V2_R3_EXACT_BYTES",
+  "recordedAtUtc": "2026-09-18T12:39:57Z",
+  "recordedBy": "claude-code-session under explicit owner instruction; the approval itself is the owner's",
+  "ownerDecision": "APPROVE_PHASE_2B_2D_METHODOLOGY_V2_R3_EXACT_BYTES",
+  "statementMarkerAsReceived": "APPROVE_PHASE_2B_2D_METHODOLOGY_V2_R3_EXACT_BYTES",
+  "statementMarkerExpected": "APPROVE_PHASE_2B_2D_METHODOLOGY_V2_R3_EXACT_BYTES",
+  "methodologyFrozen": true,
+  "approvalIsMethodologyFreezeOnly": true,
+  "freezeApprovalIsNotExecutionAuthorisation": true,
+
+  "approvedProposal": {
+    "methodologyVersion": "PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3",
+    "proposalPath": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+    "proposalSha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+    "proposalBytes": 142306,
+    "proposalSourceCommit": "f5f2ded0e14be2310aec221428d51b06925e9c9d",
+    "supportBuildCommit": "e270be2a299b5dfdc9130e10d2530593678b5391",
+    "branch": "design/phase2b-2d-acceptance-methodology-v2",
+    "statusInsideTheBytes": "PROPOSED",
+    "bytesNeverChangeOnApproval": true,
+    "bytesNeverChangeOnApprovalStatement": "The bytes of the approved proposal do NOT change on approval. This record is additive and immutable; PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json is not edited, not reformatted, not re-hashed, not re-timestamped and not re-statused by it. Its SHA-256 and byte length after this approval are identical to the ones approved above, and were reverified byte-for-byte after the support correction landed.",
+    "statusFieldInsideTheProposalRemainsStatement": "The status field inside R3 remains PROPOSED BY DESIGN, and its thisFileAuthorises stays empty inside the bytes. Approval is recorded here, in a separate file, precisely so that the approved bytes stay byte-identical to the bytes that were reviewed.",
+    "earlierRevisionsUnchanged": {
+      "PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL.json": "c53e9d26e7bf8d798d7b3057f109335ab9f07427ab51f3e1b4a80974b16ee86e",
+      "PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R1.json": "3eb37ca36d854a76de4894bca399bf5112d3bd481b1d0ec3c1f999cdd3841d9e",
+      "PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R2.json": "8e5a2ba268ea1a521148f2b15f116c743668b21be3930d9f967f87fc7b1810e3",
+      "statement": "R2, R1 and the original proposal are retained as history and are byte-identical to their own commits. R3 revises R2; it supersedes nothing."
+    }
+  },
+
+  "approvalWasConditionalOnOneThing": {
+    "condition": "the executable support code had to be brought into exact agreement with the already-approved R3 semantics",
+    "defect": "R3 freezes an AMBIGUOUS attempt as BLOCKED - neither counted against the budget nor released for retry - but attemptConsumption.ts expressed only the first half. DevConfirmBudget and FinalHoldoutState returned BLOCKED, incremented nothing, and then accepted a further attempt, which releases the candidate for retry BY OMISSION. discloseAttempt() would also have accepted BLOCKED paired with a terminal outcome.",
+    "theMethodologyWasNotAtFault": "The defect was in the support module's state machine, never in the R3 text. No methodology byte was changed to fix it.",
+    "resolvedBy": "e270be2a299b5dfdc9130e10d2530593678b5391",
+    "conditionSatisfied": true
+  },
+
+  "boundDecisions": {
+    "D1": "APPROVED_OWNER_DECISION",
+    "D2": "APPROVED_OWNER_DECISION",
+    "D3": "APPROVED_OWNER_DECISION",
+    "D4": "APPROVED_OWNER_DECISION",
+    "D5": "APPROVED_OWNER_DECISION",
+    "D6": "APPROVED_OWNER_DECISION",
+    "D7_terminalOutcomeTokenDisclosure": "APPROVED_OWNER_DECISION",
+    "d1ThroughD6NotReopenedByR3": true,
+    "d7Detail": "Prompt-development disclosure gains exactly two procedural tokens and nothing item-level: the terminal outcome token ACCEPT / REJECT / INADMISSIBLE, and the attempt consumption state CONSUMED / NOT_CONSUMED."
+  },
+
+  "boundDesign": {
+    "corpusOption": {
+      "selectedOption": "CORPUS_OPTION_B",
+      "selectedOptionName": "BALANCED",
+      "ownerDecision": "D3 (APPROVED_OWNER_DECISION)"
+    },
+    "certificationDesign": {
+      "selectedDesign": "D2_D",
+      "selectedDesignName": "CLUSTER_AWARE_BOUND",
+      "selectedInstantiation": "D2_D_EXACT_DEFLATED_MATERIALITY_MARGIN",
+      "alpha": 0.05,
+      "boundType": "exact one-sided Clopper-Pearson",
+      "clusteringUnit": "organisation",
+      "pointEstimateAloneIsNeverSufficient": true,
+      "theBoundIsNotRequiredToMeetThePointTarget": true
+    },
+    "sixSemanticGates": [
+      {
+        "id": "G1",
+        "metric": "schemaSpanValidity",
+        "gateKind": "ZERO_TOLERANCE",
+        "pointTarget": 0.99
+      },
+      {
+        "id": "G2",
+        "metric": "unitPageRecall",
+        "gateKind": "RATE_LOWER_BOUND",
+        "pointTarget": 0.95
+      },
+      {
+        "id": "G3",
+        "metric": "unitPagePrecision",
+        "gateKind": "RATE_LOWER_BOUND",
+        "pointTarget": 0.9
+      },
+      {
+        "id": "G4",
+        "metric": "unitTypeAccuracy",
+        "gateKind": "RATE_LOWER_BOUND",
+        "pointTarget": 0.85
+      },
+      {
+        "id": "G5",
+        "metric": "hardNegativeRejection",
+        "gateKind": "RATE_LOWER_BOUND",
+        "pointTarget": 0.9
+      },
+      {
+        "id": "G6",
+        "metric": "needsReviewRate",
+        "gateKind": "RATE_UPPER_BOUND",
+        "pointTarget": 0.15
+      }
+    ],
+    "gateCountIsSix": true,
+    "sevenStructuralPreconditions": [
+      { "id": "S1", "name": "completeEvidence", "evaluability": "POST_SEMANTIC" },
+      { "id": "S2", "name": "correctReliabilitySemantics", "evaluability": "PRE_SEMANTIC" },
+      { "id": "S3", "name": "minimumSampleFeasibility", "evaluability": "BOTH" },
+      { "id": "S4", "name": "noForbiddenMissingness", "evaluability": "POST_SEMANTIC" },
+      { "id": "S5", "name": "correctSplitProvenance", "evaluability": "BOTH" },
+      { "id": "S6", "name": "candidateFrozenBeforeConfirmation", "evaluability": "BOTH" },
+      { "id": "S7", "name": "noExecutionContamination", "evaluability": "BOTH" }
+    ],
+    "preconditionCountIsSeven": true,
+    "preconditionRuleTextUnchangedFromR2": "R3 added an evaluability classification to each precondition and changed no rule text and no count.",
+    "replicationAndStability": {
+      "mainPass": "R = 1 over the FULL frozen split - every item of SET_P union SET_R",
+      "allSixGatesComputedOnTheMainPassOnly": true,
+      "stabilitySubsetId": "STABILITY_SUBSET_V2_R2",
+      "stabilitySubsetSize": 40,
+      "stabilityReplicatesTotal": 3,
+      "replicatesTotalIncludesTheMainPass": true,
+      "extraInferenceCostPerGatedSplit": 80,
+      "subsetSelectedBeforeAnyModelOutputExists": true,
+      "instabilityVeto": { "ST1_MINIMUM_AGREEMENT": 0.9, "ST3_MAXIMUM_RANGE": 0.1 },
+      "nFiveReplicationRetired": "The N = 5 replication design is NOT carried into Methodology V2, and nothing in the attempt-consumption rule resurrects its replacement logic."
+    }
+  },
+
+  "boundAttemptConsumptionRule": {
+    "boundaryId": "SEMANTIC_ATTEMPT_STARTED",
+    "boundaryType": "MONOTONIC - once TRUE it can never return to FALSE",
+    "boundaryIsNotANewInvention": "It is the Methodology V2 name for the already-frozen F0V predeclared inclusion rule, CLASS C (PROVIDER_REQUEST_OR_SEMANTIC_EXECUTION_OBSERVED), implemented in src/test/harness/phase2b2d2c/f0w/sequencing.ts.",
+    "aPreRequestRecordIsNecessaryButNotSufficient": "An orgunit_classifier_calls row, or a passing child preflight, records an INTENT to dispatch, not a dispatch. The boundary is set by POSITIVE evidence of execution, never by the absence of a refusal record. On 2026-09-16 the opposite reading spent all ten F0X candidate slots on ten children that had issued zero provider requests.",
+    "threeStates": [
+      { "state": "STARTED", "consumption": "CONSUMED", "autoResolves": true },
+      { "state": "NOT_STARTED", "consumption": "NOT_CONSUMED", "autoResolves": true },
+      { "state": "AMBIGUOUS", "consumption": "BLOCKED", "autoResolves": false }
+    ],
+    "devConfirmBudget": {
+      "maxConsumedAttemptsPerMethodologyGeneration": 3,
+      "whatCountsAgainstTheThree": "CONSUMED attempts only",
+      "counterIsMonotonicAndNeverDecremented": true,
+      "onReachingThree": "METHODOLOGY_GENERATION_CLOSED",
+      "preSemanticInadmissible": "NOT_CONSUMED; the byte-identical candidate may retry once the pre-semantic defect is repaired",
+      "postSemanticInadmissible": "CONSUMED; it costs a slot exactly as an ACCEPT or a REJECT does",
+      "candidateDeterminedRealisedDenominatorFailure": "POST-SEMANTIC by definition and ALWAYS consumes - the G3 unit-page precision case - so precision cannot be dodged by predicting UNIT_PAGE almost never"
+    },
+    "finalHoldout": {
+      "maxConsumedAttempts": 1,
+      "oneShot": true,
+      "preSemanticInadmissibleDoesNotRetireIt": true,
+      "retiresIrreversiblyAtTerminalClosureOnEveryOutcome": ["ACCEPT", "REJECT", "INADMISSIBLE"],
+      "aPostSemanticInadmissibleHoldoutMeans": [
+        "NO VALID HOLDOUT CONCLUSION",
+        "THE HOLDOUT IS RETIRED"
+      ],
+      "andItIsNotAPassEither": true
+    },
+    "ambiguousBlockedSemantics": {
+      "countsTowardTheBudget": false,
+      "releasesTheCandidateForRetry": false,
+      "blocksFurtherAttemptsAgainstThatSplit": true,
+      "adjudicationDefault": "CONSUMED",
+      "stickinessIsNowEnforcedByTheSupportBuild": true,
+      "whatStickyMeans": [
+        "DEV_CONFIRM: while a block is unresolved, no next candidate and no retry of the same candidate may begin; consumedAttemptCount does not increment; the methodology generation stays halted",
+        "FINAL_HOLDOUT: a blocked holdout is neither AVAILABLE nor RETIRED, and no semantic attempt of any kind may be recorded against it",
+        "only an explicit owner adjudication clears a block, it is one-shot, and BLOCKED is not an admissible adjudication result",
+        "adjudicate CONSUMED: clear the block, increment exactly once (retire the FINAL_HOLDOUT irreversibly), close the generation if that is the third consumed attempt",
+        "adjudicate NOT_CONSUMED: clear the block, increment nothing, and restore only the existing byte-identical + repaired-pre-semantic-defect retry right",
+        "an unresolvable adjudication resolves to CONSUMED; NOT_CONSUMED requires the frozen NOT_STARTED condition to be POSITIVELY established, never merely the absence of positive request evidence"
+      ],
+      "aBlockedAttemptIsNotTerminal": "It has no terminal outcome and no settled consumption, so it has no terminal disclosure. discloseAttempt() refuses BLOCKED rather than fabricating INADMISSIBLE + BLOCKED, and blocked owner/audit state travels a separate surface carrying no item id, organisation, coarse reason or realised denominator."
+    },
+    "theR3TextWasNotChangedToMatchTheCode": "The support build was changed to match the already-approved text. The R3 bytes describe these semantics exactly as approved; the module's own capability summary inside the R3 bytes names the eight exports that existed when R3 was written, and the adjudication members the support build adds are a strictly additive enforcement of sectionO_attemptConsumption.ambiguousAttempts, not a new rule."
+  },
+
+  "boundHoldoutDisposition": {
+    "existingHistoricalHoldout": "HISTORICAL_EVALUATION_ONLY",
+    "eligibleAsFinalHoldout": false,
+    "noExistingHistoricalHoldoutFileIsEligible": true,
+    "disclosedEventClassification": "PROCEDURAL_HOLDOUT_ACCESS_WITHOUT_ITEM_LEVEL_SEMANTIC_DISCLOSURE",
+    "holdoutInferenceRun": false,
+    "holdoutLabelsRead": false,
+    "aFinalHoldoutMustBeFreshlyDrawn": "Any FINAL_HOLDOUT under Methodology V2 is drawn from a corpus that does not yet exist. This approval creates none."
+  },
+
+  "boundPhase2EEligibilityRule": {
+    "allSevenConditionsRequired": true,
+    "conditionsAreConjunctive": true,
+    "conditions": [
+      "passes all six Methodology V2 DEV_CONFIRM gates",
+      "passes the frozen stability requirements",
+      "violates no structural veto",
+      "is selected and frozen",
+      "then passes all six FINAL_HOLDOUT gates",
+      "passes FINAL_HOLDOUT stability requirements, which Methodology V2 does apply there",
+      "violates no FINAL_HOLDOUT structural veto"
+    ],
+    "onlyThenMayItBecome": "SELECTED_RUNTIME_MODEL",
+    "eligibilityIsNotAuthorisation": true,
+    "neitherPassAuthorisesLiveExecution": "Passing all seven makes a candidate ELIGIBLE to be proposed as SELECTED_RUNTIME_MODEL. The live Phase 2B-2E shadow run requires its own separate owner authorisation, which this record does not create and does not pre-approve.",
+    "noSelectedRuntimeModelExistsToday": true
+  },
+
+  "authorityFlags": {
+    "methodologyFrozen": true,
+    "acquisitionAuthorised": false,
+    "liveWebAuthorised": false,
+    "corpusCollectionAuthorised": false,
+    "labellingAuthorised": false,
+    "providerInferenceAuthorised": false,
+    "candidateDevelopmentAuthorised": false,
+    "promptV7Authorised": false,
+    "devConfirmExecutionAuthorised": false,
+    "finalHoldoutExecutionAuthorised": false,
+    "phase2EExecutionAuthorised": false,
+    "runtimeModelSelected": false,
+    "productionDefaultAuthorised": false
+  },
+
+  "thisApprovalFreezesMethodologyOnly": "This approval freezes METHODOLOGY ONLY.",
+  "thisApprovalDoesNotCreate": [
+    "a corpus",
+    "a candidate",
+    "a selected model",
+    "a HOLDOUT",
+    "a provider call",
+    "a live institution request"
+  ],
+
+  "verifiedBeforeThisRecordWasWritten": {
+    "r3ProposalSha256Reverified": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+    "r3ProposalBytesReverified": 142306,
+    "r3BytesUnchangedBySupportCorrection": true,
+    "supportFilesChanged": [
+      "src/test/harness/phase2b2d2c/methodology/attemptConsumption.ts",
+      "src/test/unit/orgunitClassifyAcceptanceMethodologyV2R3.test.ts"
+    ],
+    "supportFilesChangedCount": 2,
+    "bothAreTestSideOnly": true,
+    "srcOrgunitsUnchanged": "git diff f5f2ded -- src/orgunits/ is empty; no production file was touched by the support correction",
+    "focusedTestFile": "src/test/unit/orgunitClassifyAcceptanceMethodologyV2R3.test.ts",
+    "focusedTestsPassed": 90,
+    "focusedTestsAddedByTheSupportCorrection": 24,
+    "focusedTestsFailed": 0,
+    "validate": {
+      "command": "npm run validate",
+      "exitCode": 0,
+      "testFilesPassed": 140,
+      "testFilesSkipped": 27,
+      "testsPassed": 3397,
+      "testsSkipped": 612,
+      "testsFailed": 0
+    },
+    "firewall": {
+      "command": "npx vitest run src/test/firewall",
+      "testFilesPassed": 14,
+      "testsPassed": 344,
+      "testsFailed": 0,
+      "f7FirewallUnchangedAndGreen": true,
+      "noFirewallAssertionWeakened": true
+    },
+    "worktreeCleanAndPushed": true
+  },
+
+  "exclusionsReaffirmed": {
+    "noProviderExecution": true,
+    "noProviderInference": true,
+    "noCandidateInference": true,
+    "noPromptCandidateCreated": true,
+    "noPromptV7Created": true,
+    "noPromptFileEdited": true,
+    "noV6Run": true,
+    "noV6Rescore": true,
+    "noHoldoutAccess": true,
+    "noHoldoutItemInspection": true,
+    "noHistoricalHoldoutFileOpened": true,
+    "noNewLabels": true,
+    "noLabelsCollected": true,
+    "noLiveWebAcquisition": true,
+    "noLiveOrganisationsAcquired": true,
+    "noInstitutionRequest": true,
+    "noPhase2EExecution": true,
+    "noRuntimeModelPromotion": true,
+    "noRuntimeModelSelected": true,
+    "noProductionDefaultChanged": true,
+    "noGoldChanged": true,
+    "noThresholdAppliedToAnyExistingResult": true,
+    "noNewNetworkAuthority": true,
+    "noClassifierRuntimeCodeTouched": true,
+    "noProductionOrgunitsFileTouched": true,
+    "noFirewallAssertionWeakened": true,
+    "noD1ThroughD6DecisionReopened": true,
+    "noMethodologyByteAltered": true
+  },
+
+  "whatIsNowPermitted": {
+    "nextPermittedAction": "PHASE_2B_2D_CORPUS_ACQUISITION_PLANNING",
+    "meaning": "A written acquisition and labelling PLAN for the CORPUS_OPTION_B (BALANCED) corpus, sized against the frozen D2_D certification design and the section-K feasibility preconditions, may now be drafted and put to the owner.",
+    "planningIsNotExecution": "Planning produces a document. It acquires nothing, requests nothing from any institution, collects no page, creates no label and calls no provider. Each of those requires its own separate owner authorisation, and none is granted here.",
+    "stillRequiringSeparateOwnerAuthorisation": [
+      "any live web acquisition or institution request",
+      "corpus collection",
+      "gold labelling and adjudication",
+      "prompt candidate development and Prompt V7",
+      "any provider inference",
+      "DEV_CONFIRM execution",
+      "FINAL_HOLDOUT execution",
+      "Phase 2B-2E execution",
+      "selecting a runtime model or changing a production default"
+    ]
+  },
+
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256. This file is never rewritten, re-hashed or re-statused.",
+    "theApprovedBytesAreTheProposalBytes": "This record approves the R3 proposal exactly as committed at f5f2ded0e14be2310aec221428d51b06925e9c9d. It contains no copy of the methodology and no restatement that could drift from it; every value quoted above is quoted from those bytes."
+  }
+}
