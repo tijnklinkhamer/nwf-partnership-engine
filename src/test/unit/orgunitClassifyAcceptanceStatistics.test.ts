@@ -16,15 +16,30 @@
  */
 import { describe, expect, it } from 'vitest';
 import {
+  binomialLowerTail,
+  ceilingGateFeasibility,
+  certificationAcceptanceProbability,
+  certificationBoundary,
   clopperPearsonLowerBound,
+  clopperPearsonUpperBound,
   clusterBootstrapLowerBound,
+  clusterDeflatedBound,
+  criticalEventsForUpperCertification,
+  criticalSuccessesForLowerCertification,
   DEFAULT_ALPHA,
+  designEffect,
+  estimatorVarianceDecomposition,
   gateFeasibility,
+  intraclassCorrelation,
   maxErrorsUnderPointThreshold,
+  maxEventsUnderPointCeiling,
+  minimumDenominatorForPower,
   minimumTrialsToCertify,
+  minimumTrialsToCertifyCeiling,
   passEveryReplicateAcceptanceProbability,
   replicateDispersion,
   requiredPerReplicatePass,
+  type CertificationRule,
 } from '../../orgunits/classify/evaluation/acceptanceStatistics.js';
 
 describe('clopperPearsonLowerBound', () => {
@@ -294,5 +309,397 @@ describe('clusterBootstrapLowerBound', () => {
     expect(() => clusterBootstrapLowerBound([], 0.05)).toThrow(/zero clusters/i);
     expect(() => clusterBootstrapLowerBound(clustersOf([[]]), 0.05)).toThrow(/no items/i);
     expect(() => clusterBootstrapLowerBound(clustersOf([[1]]), 0.05, 0)).toThrow(/at least 1/i);
+  });
+});
+
+/* ------------------------------------------------------------------ *
+ * R1 ADDITIONS - the upper bound, the operating characteristic, and
+ * the cluster-aware instrument. Same discipline: integers in,
+ * rationals out, no provider, no gold, no holdout.
+ * ------------------------------------------------------------------ */
+
+describe('clopperPearsonUpperBound - the instrument the SIXTH gate needs', () => {
+  it('uses the exact closed form when nothing happened', () => {
+    // k === 0 has the closed form 1 - alpha ** (1 / n).
+    for (const trials of [11, 19, 49, 200]) {
+      expect(clopperPearsonUpperBound(0, trials)).toBeCloseTo(1 - Math.pow(0.05, 1 / trials), 12);
+    }
+    expect(clopperPearsonUpperBound(0, 49)).toBeCloseTo(0.0593, 4);
+    expect(clopperPearsonUpperBound(0, 11)).toBeCloseTo(0.2384, 4);
+  });
+
+  it('satisfies the DEFINING property, checked by direct binomial summation', () => {
+    // The bound is defined by P(X <= k | n, bound) === alpha. Verified with
+    // a plain pmf sum rather than by restating the implementation.
+    const logChoose = (n: number, k: number): number => {
+      let total = 0;
+      for (let i = 1; i <= k; i += 1) total += Math.log(n - k + i) - Math.log(i);
+      return total;
+    };
+    const tailAtMost = (k: number, n: number, p: number): number => {
+      let total = 0;
+      for (let i = 0; i <= k; i += 1) {
+        total += Math.exp(logChoose(n, i) + i * Math.log(p) + (n - i) * Math.log(1 - p));
+      }
+      return total;
+    };
+    for (const [k, n] of [
+      [2, 49],
+      [7, 49],
+      [1, 21],
+      [15, 100],
+      [30, 200],
+    ] as const) {
+      expect(tailAtMost(k, n, clopperPearsonUpperBound(k, n))).toBeCloseTo(DEFAULT_ALPHA, 9);
+    }
+  });
+
+  it('is the exact reflection of the lower bound, and never below the point estimate', () => {
+    for (const [k, n] of [
+      [2, 49],
+      [7, 49],
+      [12, 49],
+      [0, 20],
+      [20, 20],
+    ] as const) {
+      expect(clopperPearsonUpperBound(k, n)).toBeCloseTo(
+        1 - clopperPearsonLowerBound(n - k, n),
+        12,
+      );
+      expect(clopperPearsonUpperBound(k, n)).toBeGreaterThanOrEqual(k / n);
+    }
+  });
+
+  it('is monotone in events and refuses an undefined request', () => {
+    let previous = -1;
+    for (let k = 0; k <= 20; k += 1) {
+      const bound = clopperPearsonUpperBound(k, 20);
+      expect(bound).toBeGreaterThan(previous);
+      previous = bound;
+    }
+    expect(clopperPearsonUpperBound(20, 20)).toBe(1);
+    expect(() => clopperPearsonUpperBound(1, 0)).toThrow(/zero trials/i);
+    expect(() => clopperPearsonUpperBound(5, 4)).toThrow(/cannot exceed/i);
+  });
+});
+
+describe('the SIXTH gate - maxNeedsReviewRate is a CEILING, not a floor', () => {
+  it('reports the minimum denominator each ceiling needs', () => {
+    expect(minimumTrialsToCertifyCeiling(0.25)).toBe(11);
+    expect(minimumTrialsToCertifyCeiling(0.15)).toBe(19);
+    // And each minimum really is minimal.
+    for (const [ceiling, n] of [
+      [0.25, 11],
+      [0.15, 19],
+    ] as const) {
+      expect(clopperPearsonUpperBound(0, n)).toBeLessThanOrEqual(ceiling);
+      expect(clopperPearsonUpperBound(0, n - 1)).toBeGreaterThan(ceiling);
+    }
+  });
+
+  it('is the ONE frozen gate already certifiable at the historical denominator', () => {
+    const feasibility = ceilingGateFeasibility(0.15, 49);
+    expect(feasibility.certifiableAtThisDenominator).toBe(true);
+    expect(feasibility.bestAttainableUpperBound).toBeCloseTo(0.0593, 4);
+    expect(feasibility.additionalTrialsRequired).toBe(0);
+  });
+
+  it('exposes the inversion: certification is STRICTER than its own point gate', () => {
+    const feasibility = ceilingGateFeasibility(0.15, 49);
+    // 7 of 49 passes the point gate (0.1429 <= 0.15) and fails certification.
+    expect(feasibility.pointEstimateEventTolerance).toBe(7);
+    expect(maxEventsUnderPointCeiling(0.15, 49)).toBe(7);
+    expect(feasibility.maxEventsStillCertifying).toBe(2);
+    expect(criticalEventsForUpperCertification(0.15, 49)).toBe(2);
+    expect(7 / 49).toBeLessThanOrEqual(0.15);
+    expect(clopperPearsonUpperBound(7, 49)).toBeGreaterThan(0.25);
+  });
+
+  it('reports not-certifiable rather than pretending, at a denominator too small', () => {
+    const feasibility = ceilingGateFeasibility(0.15, 14);
+    expect(feasibility.certifiableAtThisDenominator).toBe(false);
+    expect(feasibility.maxEventsStillCertifying).toBeNull();
+    expect(feasibility.additionalTrialsRequired).toBe(5);
+  });
+
+  it('computes an exact operating characteristic in the ceiling direction', () => {
+    const rule: CertificationRule = {
+      direction: 'lower is better',
+      pointTarget: 0.15,
+      certificationLevel: 0.25,
+      denominator: 200,
+      alpha: 0.05,
+      clustering: { averageClusterSize: 8, icc: 0.1 },
+    };
+    const boundary = certificationBoundary(rule);
+    expect(boundary.feasible).toBe(true);
+    expect(boundary.criticalCount).toBe(30);
+    // Lower really is better: acceptance falls as the true rate rises.
+    const at10 = certificationAcceptanceProbability(rule, 0.1);
+    const at15 = certificationAcceptanceProbability(rule, 0.15);
+    const at20 = certificationAcceptanceProbability(rule, 0.2);
+    expect(at10).toBeGreaterThan(at15);
+    expect(at15).toBeGreaterThan(at20);
+    expect(at20).toBeLessThan(0.05);
+    expect(at10).toBeCloseTo(binomialLowerTail(30, 200, 0.1), 12);
+  });
+});
+
+describe('all six gates have a stated, computable decision boundary', () => {
+  // (id, direction, point target, certification level, denominator, mean
+  // cluster size) - the R1 corpus option B profile, as the document
+  // publishes it. G1 is a declared zero-tolerance gate and has no level.
+  const SIX_GATES = [
+    ['G2 unitPageRecall', 'higher is better', 0.95, 0.9, 100, 4, 97],
+    ['G3 unitPagePrecision', 'higher is better', 0.9, 0.85, 66, 2, 62],
+    ['G4 unitTypeAccuracy', 'higher is better', 0.85, 0.75, 100, 4, 85],
+    ['G5 hardNegativeRejection', 'higher is better', 0.9, 0.85, 155, 4, 141],
+    ['G6 needsReviewRate', 'lower is better', 0.15, 0.25, 360, 8, 54],
+  ] as const;
+
+  it.each(SIX_GATES)(
+    '%s has a feasible, NON-DEGENERATE boundary at its proposed denominator',
+    (_id, direction, pointTarget, level, denominator, clusterSize, expectedCritical) => {
+      const rule: CertificationRule = {
+        direction,
+        pointTarget,
+        certificationLevel: level,
+        denominator,
+        alpha: 0.05,
+        clustering: { averageClusterSize: clusterSize, icc: 0.1 },
+      };
+      const boundary = certificationBoundary(rule);
+      expect(boundary.feasible).toBe(true);
+      expect(boundary.criticalCount).toBe(expectedCritical);
+      // NON-DEGENERATE: the gate tolerates at least one error. A gate whose
+      // critical count equals its denominator is a zero-tolerance gate
+      // wearing a percentage label, which is the defect being removed.
+      if (direction === 'higher is better')
+        expect(boundary.criticalCount).toBeLessThan(denominator);
+      else expect(boundary.criticalCount).toBeGreaterThan(0);
+      // And the guarantee: acceptance at the certification level is bounded.
+      expect(certificationAcceptanceProbability(rule, level)).toBeLessThanOrEqual(0.05);
+    },
+  );
+
+  it('G1 at 0.99 is a zero-tolerance gate at every attainable denominator', () => {
+    // Undeflated, 299 items is the first denominator that certifies 0.99 -
+    // and it still permits zero errors. Deflated it is worse. No corpus this
+    // project could acquire makes G1 a tolerant rate gate.
+    expect(minimumTrialsToCertify(0.99)).toBe(299);
+    for (const denominator of [299, 400, 472]) {
+      expect(criticalSuccessesForLowerCertification(0.99, denominator)).toBe(denominator);
+    }
+    // Undeflated, it first tolerates a SINGLE error at 473 items - already
+    // beyond the largest gated split any corpus option proposes.
+    expect(minimumTrialsToCertify(0.99, 1)).toBe(473);
+    expect(criticalSuccessesForLowerCertification(0.99, 473)).toBe(472);
+    // Under the design effect a real clustered sample carries, that first
+    // single-error tolerance arrives at 805 items.
+    const deflated = (denominator: number): CertificationRule => ({
+      direction: 'higher is better',
+      pointTarget: 0.99,
+      certificationLevel: 0.99,
+      denominator,
+      alpha: 0.05,
+      clustering: { averageClusterSize: 8, icc: 0.1 },
+    });
+    expect(certificationBoundary(deflated(804)).criticalCount).toBe(804);
+    expect(certificationBoundary(deflated(805)).criticalCount).toBe(804);
+  });
+});
+
+describe('certificationBoundary and its operating characteristic', () => {
+  it('reduces to a single binomial tail, so the OC needs no simulation', () => {
+    const rule: CertificationRule = {
+      direction: 'higher is better',
+      pointTarget: 0.95,
+      certificationLevel: null,
+      denominator: 14,
+      alpha: 0.05,
+    };
+    const boundary = certificationBoundary(rule);
+    expect(boundary.criticalCount).toBe(14);
+    expect(boundary.bindingCondition).toBe('point');
+    // The frozen 14-item recall gate: only 14/14 passes, and a candidate
+    // whose true recall is exactly the 0.95 the gate names passes 0.4877.
+    expect(certificationAcceptanceProbability(rule, 0.95)).toBeCloseTo(Math.pow(0.95, 14), 6);
+  });
+
+  it('names which condition binds, and reports an infeasible rule as infeasible', () => {
+    const feasible = certificationBoundary({
+      direction: 'higher is better',
+      pointTarget: 0.95,
+      certificationLevel: 0.9,
+      denominator: 100,
+      alpha: 0.05,
+    });
+    expect(feasible.bindingCondition).toBe('bound');
+    const infeasible = certificationBoundary({
+      direction: 'higher is better',
+      pointTarget: 0.95,
+      certificationLevel: 0.95,
+      denominator: 14,
+      alpha: 0.05,
+    });
+    expect(infeasible.feasible).toBe(false);
+    expect(infeasible.criticalCount).toBeNull();
+    expect(certificationAcceptanceProbability(infeasible.rule, 1)).toBe(0);
+  });
+
+  it('shows acceptance is NOT monotone in the denominator for an exact discrete test', () => {
+    // This is why a pre-registered denominator must be chosen on its
+    // computed operating characteristic, never by rounding a sample-size
+    // formula upward.
+    const power = (denominator: number): number =>
+      certificationAcceptanceProbability(
+        {
+          direction: 'higher is better',
+          pointTarget: 0.95,
+          certificationLevel: 0.9,
+          denominator,
+          alpha: 0.05,
+          clustering: { averageClusterSize: 4, icc: 0.1 },
+        },
+        0.975,
+      );
+    expect(power(70)).toBeLessThan(power(60));
+    expect(power(80)).toBeGreaterThan(power(60));
+  });
+
+  it('finds the smallest denominator reaching a target power, or reports none', () => {
+    const makeRule = (denominator: number): CertificationRule => ({
+      direction: 'higher is better',
+      pointTarget: 0.95,
+      certificationLevel: 0.9,
+      denominator,
+      alpha: 0.05,
+    });
+    const found = minimumDenominatorForPower(makeRule, 0.98, 0.8, 500)!;
+    expect(certificationAcceptanceProbability(makeRule(found), 0.98)).toBeGreaterThanOrEqual(0.8);
+    // Certifying the THRESHOLD ITSELF at 80% power is unreachable, and the
+    // search says so rather than truncating.
+    const atTheThreshold = (denominator: number): CertificationRule => ({
+      ...makeRule(denominator),
+      certificationLevel: 0.95,
+    });
+    expect(minimumDenominatorForPower(atTheThreshold, 0.95, 0.8, 400)).toBeNull();
+  });
+});
+
+describe('the cluster-aware instrument', () => {
+  it('computes the design effect and never scores clustering as helpful', () => {
+    expect(designEffect(4, 0.1)).toBeCloseTo(1.3, 12);
+    expect(designEffect(8, 0.1)).toBeCloseTo(1.7, 12);
+    expect(designEffect(1, 0.5)).toBe(1);
+    expect(designEffect(10, 0)).toBe(1);
+    expect(() => designEffect(0.5, 0.1)).toThrow(/at least 1/i);
+    expect(() => designEffect(4, 1.5)).toThrow(/icc/i);
+  });
+
+  it('deflates conservatively: the bound never exceeds the undeflated one', () => {
+    for (const [k, n] of [
+      [95, 100],
+      [140, 155],
+      [59, 60],
+    ] as const) {
+      const deflated = clusterDeflatedBound(k, n, 4, 0.1);
+      expect(deflated.effectiveTrials).toBeLessThan(n);
+      expect(deflated.lowerBound).toBeLessThanOrEqual(clopperPearsonLowerBound(k, n));
+      expect(deflated.upperBound).toBeGreaterThanOrEqual(clopperPearsonUpperBound(n - k, n));
+    }
+  });
+
+  it('is a no-op at an ICC of zero, so the correction is exactly the clustering', () => {
+    const deflated = clusterDeflatedBound(95, 100, 4, 0);
+    expect(deflated.designEffect).toBe(1);
+    expect(deflated.effectiveTrials).toBe(100);
+    expect(deflated.lowerBound).toBeCloseTo(clopperPearsonLowerBound(95, 100), 12);
+  });
+
+  it('estimates an intraclass correlation and floors it at zero', () => {
+    const clusters = (values: readonly number[][]) =>
+      values.map((cluster, index) => ({ clusterId: `org-${index}`, values: cluster }));
+    // Errors concentrated in whole organisations: strongly positive ICC.
+    const concentrated = intraclassCorrelation(
+      clusters([
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [1, 1, 1, 1],
+        [1, 1, 1, 1],
+        [1, 1, 1, 1],
+        [1, 1, 1, 1],
+      ]),
+    );
+    // The same error count spread evenly: no organisation signal.
+    const dispersed = intraclassCorrelation(
+      clusters([
+        [0, 0, 1, 1],
+        [0, 0, 1, 1],
+        [0, 0, 1, 1],
+        [0, 0, 1, 1],
+        [1, 1, 1, 1],
+        [1, 1, 1, 1],
+      ]),
+    );
+    expect(concentrated).toBeGreaterThan(0.5);
+    expect(dispersed).toBeLessThan(concentrated);
+    expect(dispersed).toBeGreaterThanOrEqual(0);
+    expect(() => intraclassCorrelation(clusters([[1, 1]]))).toThrow(/at least 2 clusters/i);
+  });
+});
+
+describe('estimatorVarianceDecomposition - why N = 5 is not evidence', () => {
+  it('separates the sample component from the stochastic component', () => {
+    const decomposition = estimatorVarianceDecomposition({
+      betweenItemVariance: 0.2,
+      withinItemVariance: 0.05,
+      items: 100,
+      replicates: 5,
+    });
+    expect(decomposition.sampleComponent).toBeCloseTo(0.2 / 100, 12);
+    expect(decomposition.stochasticComponent).toBeCloseTo(0.05 / 500, 12);
+    expect(decomposition.total).toBeCloseTo(0.002 + 0.0001, 12);
+    expect(decomposition.inferenceBudget).toBe(500);
+  });
+
+  it('shows replication is the STRICTLY DOMINATED use of a fixed inference budget', () => {
+    // At a fixed budget n * R the variance is
+    // (R * between + within) / budget, strictly increasing in R. This holds
+    // for every positive pair of components, so it needs no measurement.
+    for (const between of [0.02, 0.1, 0.4]) {
+      for (const within of [0.02, 0.1, 0.4]) {
+        let previous = Number.NEGATIVE_INFINITY;
+        for (const replicates of [1, 2, 4, 5, 10]) {
+          const total = estimatorVarianceDecomposition({
+            betweenItemVariance: between,
+            withinItemVariance: within,
+            items: 1000 / replicates,
+            replicates,
+          }).total;
+          expect(total).toBeGreaterThan(previous);
+          previous = total;
+        }
+      }
+    }
+  });
+
+  it('refuses a degenerate request rather than dividing by zero', () => {
+    expect(() =>
+      estimatorVarianceDecomposition({
+        betweenItemVariance: 0.1,
+        withinItemVariance: 0.1,
+        items: 0,
+        replicates: 1,
+      }),
+    ).toThrow(/at least 1/i);
+    expect(() =>
+      estimatorVarianceDecomposition({
+        betweenItemVariance: -0.1,
+        withinItemVariance: 0.1,
+        items: 10,
+        replicates: 1,
+      }),
+    ).toThrow(/non-negative/i);
   });
 });
