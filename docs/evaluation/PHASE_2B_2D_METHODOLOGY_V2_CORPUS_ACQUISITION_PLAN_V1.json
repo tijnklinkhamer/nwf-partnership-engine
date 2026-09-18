@@ -1,0 +1,952 @@
+{
+  "recordKind": "CORPUS_ACQUISITION_PLAN",
+  "recordId": "phase2b-2d-methodology-v2-corpus-acquisition-plan-v1",
+  "version": "V1",
+  "status": "PROPOSED",
+  "thisFileAuthorises": [],
+  "createdInPhase": "PHASE_2B_2D",
+  "createdOn": "2026-09-18",
+  "companionDocument": "docs/audits/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.md",
+  "purpose": "Option B of the owner instruction: a FRAME, ACQUISITION and LABELLING plan for the CORPUS_OPTION_B corpus. It plans; it executes nothing.",
+
+  "boundMethodology": {
+    "proposalPath": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+    "proposalSha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+    "proposalBytes": 142306,
+    "proposalSourceCommit": "f5f2ded0e14be2310aec221428d51b06925e9c9d",
+    "supportBuildCommit": "e270be2a299b5dfdc9130e10d2530593678b5391",
+    "ownerFreezeApprovalPath": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+    "ownerFreezeApprovalSha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+    "ownerFreezeApprovalCommit": "5988bebd0aacc21404a72de464e0c3ef033e3ee0",
+    "planBranchBaseCommit": "5988bebd0aacc21404a72de464e0c3ef033e3ee0",
+    "allHashesReverifiedInThisTask": true,
+    "methodologyIsFrozenAndNotReopenedHere": true,
+    "permittedActionThisPlanExercises": "PHASE_2B_2D_CORPUS_ACQUISITION_PLANNING"
+  },
+
+  "boundCorpusOption": {
+    "selectedOption": "CORPUS_OPTION_B",
+    "selectedOptionName": "BALANCED",
+    "totalNewOrganisations": 110,
+    "reserveOrganisations": 40,
+    "DEV_TRAIN": 20,
+    "DEV_CONFIRM": 45,
+    "FINAL_HOLDOUT": 45,
+    "allThreeStrictlyOrganisationDisjoint": true,
+    "allOrganisationsAreNEW": true,
+    "historicalDevelopmentSet": {
+      "items": 49,
+      "becomes": "DEV_TRAIN_DIAGNOSTIC_ONLY",
+      "contributesZeroOrganisationsToMethodologyV2": true,
+      "contributesZeroItemsToMethodologyV2": true,
+      "distinctOrganisations": 12
+    },
+    "perGatedSplitContract": {
+      "SET_P_target": 360,
+      "SET_R_target": 200,
+      "SET_R_goldUnitPages_minimum": 100,
+      "hardNegativesInSET_P_minimum": 155,
+      "minimumRepresentationPerGatedSemanticClass": 2,
+      "minimumOrganisationsPerGate": 10,
+      "approximateEvaluationSetSize": 560,
+      "inferencePerGatedSplit": 640
+    },
+    "approximateTotalDocumentsPlanningEstimate": 1370,
+    "documentCountIsNeverAFreezeCondition": true
+  },
+
+  "currentInputState": {
+    "measuredOn": "2026-09-18",
+    "method": "read-only psql against the local container nwf_pe_postgres; zero network; zero write",
+    "workingDatabase": "nwf_pe",
+    "schemaMigrationsApplied": 11,
+    "schemaMigrationRange": "0001..0011",
+    "schemaAppliedOn": "2026-09-14",
+    "rowCounts": {
+      "organisations": 0,
+      "organisation_sources": 0,
+      "ingest_runs": 0,
+      "website_claims": 0,
+      "website_source_snapshots": 0,
+      "ewp_snapshots": 0,
+      "ewp_heis": 0,
+      "ewp_hosts": 0,
+      "ewp_hei_other_ids": 0,
+      "ewp_api_declarations": 0,
+      "ewp_host_covered_heis": 0,
+      "orgunit_research_runs": 0,
+      "orgunit_research_run_completions": 0,
+      "orgunit_fetch_observations": 0,
+      "orgunit_redirect_observations": 0,
+      "orgunit_root_promotions": 0,
+      "orgunit_root_promotion_revocations": 0,
+      "orgunit_page_evidence": 0,
+      "orgunit_page_candidates": 0,
+      "orgunit_classification_subjects": 0,
+      "orgunit_classifier_calls": 0,
+      "orgunit_classifier_call_completions": 0,
+      "orgunit_page_classifications": 0
+    },
+    "testDatabaseAlsoEmpty": true,
+    "retainedResearchRuns": 0,
+    "locallyCachedOfficialArtifacts": "NONE",
+    "repositoryFixturesNotUsedAsSourceSubstitute": true,
+    "frameEnumerableToday": false,
+    "whyNotEnumerable": "SD1 admits an organisation on a STRUCTURALLY_VALID website_claims row or a live orgunit_root_promotions row. website_claims holds 0 rows. orgunit_root_promotions holds 0 rows and carries no organisation column at all - it reaches eche_row_key only through orgunit_redirect_observations -> orgunit_fetch_observations, both of which are also empty, so a live promotion is structurally impossible until acquisition has produced redirect evidence.",
+    "a0Required": true,
+    "a0IsBlocking": true
+  },
+
+  "actions": {
+    "A0": {
+      "name": "OFFICIAL_SOURCE_BOOTSTRAP",
+      "required": true,
+      "blocking": "A1",
+      "steps": [
+        {
+          "id": "A0.1",
+          "command": "npm run cli -- ingest eche --url <official-eche-url> | --file <eche.xlsx>",
+          "writes": ["ingest_runs", "organisations", "organisation_sources"],
+          "network": "official EU document host, or none with --file"
+        },
+        {
+          "id": "A0.2",
+          "command": "npm run cli -- website ingest eche --eche-file <eche.xlsx>",
+          "writes": ["website_source_snapshots", "website_claims"],
+          "network": "NONE - Phase 1D performs no ECHE fetch"
+        },
+        {
+          "id": "A0.3",
+          "optional": true,
+          "command": "npm run cli -- website ingest fr --eche-file <eche.xlsx>",
+          "writes": ["website_source_snapshots", "website_claims"],
+          "network": "official FR register host",
+          "recommendation": "SKIP for this generation - not required by SD1, changes no organisation's eligibility, and adds a second ROOT (and therefore a second full request budget) for up to 88 ECHE rows. If run, it must be run BEFORE A1 so its roots are counted, or only AFTER A2 completes - never between the frame commit and acquisition."
+        }
+      ],
+      "inheritedConstraints": [
+        "no resolver follows a redirect; a 3xx is refused naming the target, and the recovery path is an operator passing the new --url",
+        "--eche-file is required by every website command and must be the same artifact ingested at A0.1, because a claim is keyed by that artifact's SHA-256",
+        "re-ingesting the same artifact under the same rule_version inserts nothing",
+        "A0 touches no institution and writes no orgunit_* table"
+      ],
+      "artifactIdentityRecorded": [
+        "ingest_runs.source_file_sha256",
+        "website_source_snapshots.source_artifact_sha256"
+      ],
+      "doesNotReconstructHistoricalCohortEvidence": true
+    },
+    "A1": {
+      "name": "FRAME_MATERIALISATION",
+      "output": "FRAME_V2_GEN1.json + frameHash",
+      "network": false,
+      "dbWrite": false
+    },
+    "A1b": {
+      "name": "DETERMINISTIC_DRAW",
+      "output": "DRAW_V2_GEN1.json (110 selection + 40 reserve + split assignment)",
+      "network": false,
+      "dbWrite": false
+    },
+    "A2": {
+      "name": "LIVE_INSTITUTION_ACQUISITION",
+      "network": true,
+      "institutionNetwork": true,
+      "dbWrite": "append-only as the research role"
+    },
+    "A3": { "name": "PAGE_SELECTION_AND_CORPUS_FREEZE_PREP", "network": false, "dbWrite": false },
+    "A4": {
+      "name": "HUMAN_LABELLING",
+      "network": false,
+      "dbWrite": false,
+      "createsLabels": true,
+      "providerInference": false
+    },
+    "A5": { "name": "GOLD_CORPUS_FREEZE_APPROVAL", "network": false, "dbWrite": false },
+    "A6": {
+      "name": "CANDIDATE_DEVELOPMENT",
+      "onlyAfter": "A5",
+      "readsDevConfirm": false,
+      "readsFinalHoldout": false
+    },
+    "everyActionRequiresItsOwnOwnerAuthorisation": true,
+    "noneExecutedInThisTask": true
+  },
+
+  "SD1_frame": {
+    "eligibility": "at least one STRUCTURALLY_VALID website_claims row OR at least one live un-revoked orgunit_root_promotions row; AND contributes no item to the historical 49-item DEVELOPMENT set; AND appears in no earlier Methodology V2 generation corpus",
+    "enumeratedInFullBeforeAnyDrawAndAnyAcquisition": true,
+    "frameIsCountryBlind": true,
+    "frameHashCommitted": true,
+    "artifactName": "FRAME_V2_GEN1.json",
+    "artifactBinds": [
+      "generationId",
+      "methodologyR3Sha256",
+      "methodologyApprovalSha256",
+      "sourceIdentity.echeArtifactSha256",
+      "sourceIdentity.claimSnapshotSha256",
+      "sourceIdentity.claimRuleVersion",
+      "sourceIdentity.databaseSchemaVersion",
+      "eligibleOrganisationCount",
+      "examinedOrganisationCount",
+      "entries[].echeRowKey",
+      "entries[].organisationId",
+      "entries[].rootAuthorityType",
+      "entries[].rootAuthorityId",
+      "entries[].rootAuthorityCount",
+      "entries[].included",
+      "entries[].reason",
+      "frameHash"
+    ],
+    "everyExaminedOrganisationAppearsIncludedOrNot": true,
+    "rootAuthorityIdIsNeverAnAcquisitionUrl": "Rule 18 requires the caller to pass a ROOT ID, never a root URL. A2 re-resolves every root from the database at execution time.",
+    "rootAuthorityCountIsCarriedBecauseBudgetsArePerRoot": true,
+    "historicalExclusionIsMechanicallyComputableToday": {
+      "answer": true,
+      "evidence": "Each of the 49 canonical DEVELOPMENT items carries both echeRowKey and organisationId (GoldCorpusItemSchema, src/orgunits/classify/evaluation/goldSchema.ts:91). Source file: src/test/fixtures/evaluation/orgunit-classifier-sonnet-acceptance-v1-canonical-v2.jsonl.",
+      "distinctOrganisations": 12,
+      "mappingIsOneToOne": "12 distinct organisationId values and 12 distinct echeRowKey values"
+    },
+    "generationExclusionIsVacuousForGeneration1ButMustStillBeImplemented": true
+  },
+
+  "SD2_draw": {
+    "rankKey": "sha256(eche_row_key)",
+    "rankRendering": "lower-case hex, ascending, plain lexicographic byte comparison over the 64-character string",
+    "seeded": false,
+    "ACQUISITION_TARGET_ORGANISATIONS": 110,
+    "ACQUISITION_RESERVE_ORGANISATIONS": 40,
+    "bothListsCommittedTogetherBeforeAcquisition": true,
+    "splitAssignment": "SPLIT_ASSIGNMENT_CYCLE_V2_R2[i mod 22] where i is the 0-based selection index",
+    "SPLIT_ASSIGNMENT_CYCLE_V2_R2": [
+      "DEV_TRAIN",
+      "DEV_CONFIRM",
+      "FINAL_HOLDOUT",
+      "DEV_CONFIRM",
+      "FINAL_HOLDOUT",
+      "DEV_TRAIN",
+      "DEV_CONFIRM",
+      "FINAL_HOLDOUT",
+      "DEV_CONFIRM",
+      "FINAL_HOLDOUT",
+      "DEV_CONFIRM",
+      "FINAL_HOLDOUT",
+      "DEV_TRAIN",
+      "DEV_CONFIRM",
+      "FINAL_HOLDOUT",
+      "DEV_CONFIRM",
+      "FINAL_HOLDOUT",
+      "DEV_TRAIN",
+      "DEV_CONFIRM",
+      "FINAL_HOLDOUT",
+      "DEV_CONFIRM",
+      "FINAL_HOLDOUT"
+    ],
+    "cycleLength": 22,
+    "cycleComposition": { "DEV_TRAIN": 4, "DEV_CONFIRM": 9, "FINAL_HOLDOUT": 9 },
+    "repetitions": 5,
+    "exactRealisedCounts": { "DEV_TRAIN": 20, "DEV_CONFIRM": 45, "FINAL_HOLDOUT": 45 },
+    "replacementRule": "A selected organisation that is not ACQUISITION_SUCCESSFUL is replaced by the next unused RESERVE organisation in rank order; the replacement inherits the replaced organisation's selection index and therefore its split. No reshuffle.",
+    "replacementLedgerFields": [
+      "selectionIndex",
+      "split",
+      "replacedEcheRowKey",
+      "replacementEcheRowKey",
+      "reserveRankPosition",
+      "reason",
+      "recordedAtUtc"
+    ],
+    "replacementReasonTaxonomyIsMechanicalOnly": [
+      "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "ACQUISITION_UNSUCCESSFUL_ROOT_AUTHORITY_FAILURE",
+      "ACQUISITION_UNSUCCESSFUL_ROBOTS_DISALLOWED",
+      "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    ],
+    "noReplacementReasonMayBeSemantic": true,
+    "reserveExhaustionIsARefusal": "CORPUS_FREEZE_REFUSED"
+  },
+
+  "SD3_to_SD12_selection": {
+    "SD3_SET_P": {
+      "rank": "sha256(\"SET_P_V2_R2:\" + documentSha256) ascending",
+      "maxPerOrganisation": 8,
+      "classFiltering": "NONE"
+    },
+    "SD3_SET_R": {
+      "rank": "frozen deterministic Track A/B signal score descending",
+      "tieBreak": "sha256(\"SET_R_V2_R2:\" + documentSha256) ascending",
+      "maxPerOrganisation": 4,
+      "candidateIndependent": true
+    },
+    "documentSha256Source": "orgunit_fetch_observations.response_sha256, reached via orgunit_page_evidence.fetch_observation_id - orgunit_page_evidence carries no document hash of its own",
+    "trackScoreSource": "orgunit_page_candidates.track / candidate_score / rank_within_root / rule_version, persisted at acquisition time by scoreAndPersistCandidates under ORGUNIT_SIGNAL_RULE_VERSION = 'orgunit-signal-rules-v1'; the selector reads, never recomputes",
+    "SD4": {
+      "ORGANISATION_GATE_SHARE_CAP": 0.1,
+      "truncationIsRecordedNeverSilent": true,
+      "onlyGateTheShareCapCanBind": "G3",
+      "whyOnlyG3": "G3's planned denominator is 66 (10% = 6.6) while the per-organisation SET_P cap is 8. Every other gate's 10% share exceeds the per-organisation cap: G1 56 vs 12, G2 10 vs 4, G5 15.5 vs 8, G6 36 vs 8."
+    },
+    "SD7": {
+      "exactDuplicateKey": "documentSha256",
+      "NEAR_DUPLICATE_SHINGLE_SIZE": 5,
+      "NEAR_DUPLICATE_JACCARD_THRESHOLD": 0.9,
+      "comparisonScope": "within one organisation only",
+      "crossOrganisationNearDuplicatesAreKept": true,
+      "runsBeforeBothSamplesAreDrawn": true,
+      "uncalibrated": true
+    },
+    "SD9": {
+      "MIN_PAGES_PER_ORGANISATION": 4,
+      "MAX_PAGES_ACQUIRED_PER_ORGANISATION": 35,
+      "appliedAfterDeduplication": true,
+      "maxPagesIsNotANewBudget": true
+    },
+    "SD12": { "weighting": "NONE - every weight is exactly 1" },
+    "unionIsDeduplicatedByGoldId": true,
+    "doubleInferenceIsForbidden": true,
+    "extensionRule": "A shortfall advances a per-organisation cursor down the ALREADY-FROZEN rank, committed in full at corpus freeze. No new ordering may be chosen after labels exist, no gold-aware cherry-picking, no cross-split borrowing, no relaxation of the per-organisation cap.",
+    "unattainableMinimumIsARefusal": "CORPUS_FREEZE_REFUSED"
+  },
+
+  "feasibilityFindings": {
+    "classification": "ARITHMETIC PROPERTIES OF FROZEN NUMBERS, SURFACED BY ACQUISITION PLANNING. This plan changes no methodology byte and proposes no amendment.",
+    "finding1": {
+      "id": "SET_R_TARGET_EXCEEDS_ITS_STRUCTURAL_CEILING",
+      "statement": "SD4 caps SET_R at 4 pages per organisation per split; a gated split holds 45 organisations; the maximum attainable SET_R is therefore 180. SD5's shortfall rule extends SET_R 'never by relaxing the per-organisation cap', so extension cannot lift it either. The perGatedSplitContract.SET_R value of 200 is unreachable under the frozen caps.",
+      "structuralMaximum": 180,
+      "statedTarget": 200,
+      "bindingRequirementUnaffected": "G2 and G4 have denominator 100 and SET_R_goldUnitPages_minimum is 100, both attainable within 180. The unreachable figure is a sample-size target, not a gate denominator.",
+      "recommendedReading": "A realised SET_R of at most 180 violates no minimum and no maximum and is therefore CONFORMANT, consistent with R3's own rule that a corpus meeting every minimum and violating no maximum is conformant whatever its document count.",
+      "ownerConfirmationSought": "whether a realised SET_R <= 180 is recorded as CONFORMANT (recommended) or as a freeze-blocking shortfall"
+    },
+    "finding2": {
+      "id": "GOLD_UNIT_PAGE_MINIMUM_DEMANDS_UNMEASURED_ENRICHMENT",
+      "statement": "With SET_R at most 180 and at least 100 gold UNIT_PAGE required, SET_R must realise a gold UNIT_PAGE share of at least 55.6%. R3's carried planning assumption for gold UNIT_PAGE prevalence in a production-like sample is 0.175, so the required enrichment factor is at least 3.17x. The Track A/B ruleset's realised enrichment factor has never been measured.",
+      "requiredShare": 0.5556,
+      "assumedBasePrevalence": 0.175,
+      "requiredEnrichmentFactor": 3.17,
+      "risk": "If enrichment falls short, SD5's extension is capped at 180 and the outcome is CORPUS_FREEZE_REFUSED after the full acquisition and labelling spend - the most expensive possible point of discovery.",
+      "mitigation": "The enrichment factor is computable from DEV_TRAIN alone, which is unsealed and labelled first. Sequencing DEV_TRAIN labelling ahead of the gated splits is an operational choice inside the frozen methodology, not a change to it."
+    }
+  },
+
+  "sealedDataDesign": {
+    "principle": "DEV_CONFIRM and FINAL_HOLDOUT labels MUST live in split-scoped files. The historical mixed 72-record and 160-record files are why the R3 section B boundary event was possible at all.",
+    "committedToGit": [
+      "FRAME_V2_GEN1.json",
+      "DRAW_V2_GEN1.json",
+      "REPLACEMENT_LEDGER_V2_GEN1.json",
+      "MANIFEST_DEV_TRAIN.json (items, document hashes, gold)",
+      "MANIFEST_DEV_CONFIRM.json (HASHES AND COUNTS ONLY)",
+      "MANIFEST_FINAL_HOLDOUT.json (HASHES AND COUNTS ONLY)",
+      "CORPUS_FREEZE_V2_GEN1.json"
+    ],
+    "externalRoots": {
+      "DEV_TRAIN": "~/Developer/phase2b-2d-methodology-v2/gen1-dev-train/",
+      "DEV_CONFIRM": "~/Developer/phase2b-2d-methodology-v2-sealed/gen1-dev-confirm/",
+      "FINAL_HOLDOUT": "~/Developer/phase2b-2d-methodology-v2-sealed-holdout/gen1-final-holdout/"
+    },
+    "threeSeparateRootsNotThreeSubdirectories": "the cheapest real accident is a tool pointed one directory too high",
+    "gatedSplitManifestMayNotContain": [
+      "item ids",
+      "document hashes",
+      "gold labels",
+      "gold class distribution"
+    ],
+    "gatedSplitManifestMayContain": [
+      "item count",
+      "organisation count",
+      "per-split content hash",
+      "realised SET_P and SET_R sizes",
+      "aggregate agreement and kappa"
+    ],
+    "failClosedMechanisms": [
+      "separate filesystem roots, unreachable from one another by relative traversal",
+      "a split token on every sealed record; every reader is constructed with the split it may read and throws on the first differing token, before returning any row",
+      "a scoped reader with no default and no 'load the corpus' entry point",
+      "a CI firewall test asserting no committed file carries a gold label, item id or document hash for a gated split"
+    ],
+    "finalHoldoutIsSealedMoreStrictly": "its sealed root is read by no tooling that exists at corpus-freeze time; the scoring runner capable of reading it is built after the freeze, under the separate HOLDOUT authorisation, and the freeze is what it is checked against",
+    "neverAMixedFile": true
+  },
+
+  "acquisitionPath": {
+    "noSecondCrawlerIsBuilt": true,
+    "noBudgetIsIncreased": true,
+    "entryPointChain": [
+      {
+        "layer": "argv",
+        "file": "src/cli/index.ts",
+        "line": 209,
+        "symbol": "orgunits discover branch"
+      },
+      {
+        "layer": "command",
+        "file": "src/cli/commands/discover.ts",
+        "line": 81,
+        "symbol": "runOrgunitsDiscover"
+      },
+      {
+        "layer": "organisation",
+        "file": "src/orgunits/orchestrator/orchestrate.ts",
+        "line": 110,
+        "symbol": "runOrganisationDiscovery"
+      },
+      {
+        "layer": "run",
+        "file": "src/orgunits/orchestrator/run.ts",
+        "line": 29,
+        "symbol": "startRun / completeRun"
+      },
+      {
+        "layer": "root",
+        "file": "src/orgunits/orchestrator/rootRunner.ts",
+        "line": 151,
+        "symbol": "runRootAcquisition"
+      },
+      {
+        "layer": "robots",
+        "file": "src/orgunits/web/robots.ts",
+        "line": 320,
+        "symbol": "authoriseAndFetchPage"
+      },
+      {
+        "layer": "gateway",
+        "file": "src/orgunits/web/gateway.ts",
+        "line": 650,
+        "symbol": "executeWebAttempt"
+      }
+    ],
+    "databaseRole": "research",
+    "callerPassesRootIdNeverRootUrl": true,
+    "frozenBudgetsArePerRoot": true,
+    "budgets": {
+      "MAX_PAGE_ATTEMPTS_PER_ROOT": 35,
+      "MAX_TOTAL_REQUESTS_PER_ROOT": 60,
+      "MAX_HOSTS_PER_ROOT": 8,
+      "TRACK_B_FLOOR": 8,
+      "MAX_SITEMAP_DOCUMENTS_PER_ROOT": 5,
+      "MAX_SITEMAP_DEPTH": 2,
+      "MAX_SITEMAP_URLS_PER_ROOT": 3000,
+      "MIN_HOST_PACING_SECONDS": 1.2,
+      "MAX_REDIRECT_CONTINUATION_HOPS": 5,
+      "CIRCUIT_BREAKER_TRANSIENT_FAILURE_THRESHOLD": 3,
+      "FETCH_POLICY_VERSION": "orgunit-fetch-policy-v1",
+      "CONNECT_TIMEOUT_MS": 30000,
+      "TOTAL_TIMEOUT_MS": 45000,
+      "MAX_BODY_BYTES": 5242880
+    },
+    "noRetryExists": "rootRunner.ts:307 always passes attemptNo 1; production never issues a retry",
+    "noRedirectIsFollowedToANewDomain": true,
+    "crossDomainRedirectSurfacesAs": "CROSS_DOMAIN_REDIRECT_REQUIRES_PROMOTION",
+    "rootTerminalReasons": [
+      "INVALID_ROOT_AUTHORITY",
+      "ROOT_REQUEST_REFUSED",
+      "CROSS_DOMAIN_REDIRECT_REQUIRES_PROMOTION",
+      "ROBOTS_BLOCKED_ROOT",
+      "ROBOTS_UNREADABLE_ROOT",
+      "PAGE_BUDGET_EXHAUSTED",
+      "TOTAL_REQUEST_BUDGET_EXHAUSTED",
+      "ALL_REMAINING_HOSTS_INADMISSIBLE",
+      "NO_ELIGIBLE_HTML",
+      "COMPLETED_WITH_CANDIDATES",
+      "COMPLETED_WITH_NO_PROMISING_CANDIDATES"
+    ],
+    "runTerminalStates": ["COMPLETED", "FAILED", "ABORTED"],
+    "abortedIsNeverWrittenByThisOrchestrator": true,
+    "sd9MappingNotes": [
+      "SD9 says 'per organisation'; the landed budget is per ROOT, so a two-root organisation may attempt up to 70 ordinary pages. rootAuthorityCount is recorded so the difference is visible.",
+      "RootSummary.pagesWithEvidence is a pre-SD7 count; SD9's threshold is applied after deduplication, so success is decided by A3's deduper."
+    ]
+  },
+
+  "batchingPlan": {
+    "recommendedBatchSize": 5,
+    "unit": "organisations, strictly sequential, one CLI invocation each",
+    "concurrency": 1,
+    "concurrencyUnchanged": true,
+    "whyNotOne": "durability is already per-organisation; 150 manual checkpoints buys nothing",
+    "whyNotWholeCohort": "a systematic defect would consume all 150 organisations of live contact before anyone looked",
+    "whatBatchSizeActuallyBounds": "how much live institution contact happens before a human inspects the result - approximately 5 x 60 = 300 requests",
+    "hostMustStayAwake": "The F5 attempt was lost to host clamshell sleep, which produced a stopped replicate, an ambiguous replicate and a 1,082,976 ms apparent latency that was a host stall. During a bounded web run, host sleep produces connect timeouts indistinguishable from unreachable institutions and can fail an organisation that was never unreachable.",
+    "pauseConditions": [
+      {
+        "id": "P1",
+        "condition": "repeated root-authority failure",
+        "threshold": "INVALID_ROOT_AUTHORITY on >= 3 consecutive organisations"
+      },
+      {
+        "id": "P2",
+        "condition": "repeated robots refusal",
+        "threshold": "ROBOTS_BLOCKED_ROOT or ROBOTS_UNREADABLE_ROOT on >= 3 consecutive organisations, or > 40% of a batch"
+      },
+      {
+        "id": "P3",
+        "condition": "repeated gateway failure",
+        "threshold": "runTerminalState FAILED on >= 2 consecutive organisations, or any ORCHESTRATION_ERROR"
+      },
+      {
+        "id": "P4",
+        "condition": "DB / persistence anomaly",
+        "threshold": "any page-evidence or candidate INSERT failure; any completion row missing for a started run"
+      },
+      {
+        "id": "P5",
+        "condition": "systematic low-page yield",
+        "threshold": "> 30% of a batch fails the SD9 >= 4-page minimum"
+      },
+      {
+        "id": "P6",
+        "condition": "unexpected reserve usage",
+        "threshold": "> 10 replacements consumed before 50 successful organisations"
+      },
+      {
+        "id": "P7",
+        "condition": "invariant / hash mismatch",
+        "threshold": "frame, draw or replacement-ledger hash does not recompute"
+      },
+      {
+        "id": "P8",
+        "condition": "host-state anomaly",
+        "threshold": "evidence of host sleep/wake, or a wall-clock gap inconsistent with the pacing clock"
+      }
+    ],
+    "noPauseConditionDependsOnSemanticOrGoldOutcomes": true,
+    "aRobotsRefusalIsALegitimateOutcomeNotAnError": "The response to a genuine refusal is to consume a reserve organisation, never to retry differently. The P2 threshold exists to catch a defect in our own user-agent token or robots evaluation.",
+    "onPause": "record the batch boundary, the reason and the replacement-ledger state, and stop. Never degrade, retry with different settings, or continue with a widened budget."
+  },
+
+  "dualReviewResolution": {
+    "problem": "R3 section I defines dual-review scope in terms of GOLD (all gold UNIT_PAGE items, plus a 15% sample of gold negatives), but gold is the OUTPUT of dual review. Membership is defined by a value that does not exist until the set has been reviewed.",
+    "doesR3ContainAMechanicallyCompleteSolution": false,
+    "howThatWasEstablished": "Every scalar path in R3 was enumerated. Outside sectionI there are exactly five dual-review references (sectionD.expectedBurden.humanLabel, sectionH...requirements[2], sectionJ.splits[1].dualReviewRequired, sectionJ.splits[2].dualReviewRequired, revises.whatR3DoesNotChange[6]) plus openUnknowns[12]. None states how eligibility is determined before gold exists.",
+    "whyTheObviousImplementationIsInadmissible": [
+      "If reviewer A's label alone decides whether B sees an item, A's false positives are caught at 100% while A's false negatives escape at 85%. The correction is one-directional, so gold systematically under-counts UNIT_PAGE - and G2 and G4 are estimated on exactly that class.",
+      "Agreement computed over a set whose membership was decided by one rater's own outcome is conditional on that outcome, so the reported kappa would not measure what R3 commissioned it to measure."
+    ],
+    "candidates": {
+      "C1": {
+        "name": "PRE_COMMITTED_POOL",
+        "rule": "DUAL_REVIEW_POOL = SET_R union (15% salted-rank sample of SET_P), fixed before any human sees any item",
+        "unbiased": true,
+        "satisfiesR3LiteralScope": false,
+        "approximateDualReviewedItems": 470,
+        "approximateLabels": 940
+      },
+      "C2": {
+        "name": "SYMMETRIC_UNION_TRIGGER_WITH_FROZEN_PROBE",
+        "recommended": true,
+        "rules": [
+          "FROZEN PROBE committed before labelling: items whose sha256(\"DUAL_REVIEW_V2_R2:\" + goldId) falls in the lowest 15%",
+          "SYMMETRIC FIRST PASS: every item receives exactly one first label; which reviewer is first is decided by the frozen salted rank sha256(\"FIRST_REVIEWER_V2_GEN1:\" + goldId), not by making A the reviewer of record",
+          "UNION TRIGGER: an item receives a second, blind, independent label iff it is in PROBE OR its first label is UNIT_PAGE OR its first label is NEEDS_REVIEW"
+        ],
+        "satisfiesR3LiteralScope": true,
+        "proof": "An item can only become gold UNIT_PAGE if at least one human proposed UNIT_PAGE. Any item whose first label is UNIT_PAGE is dual-reviewed by the trigger; any item whose first label is not UNIT_PAGE can acquire that verdict only through a second label, which exists only if it was already dual-reviewed. Therefore {gold UNIT_PAGE} is a subset of {dual-reviewed}, with no forward reference to gold.",
+        "residualLimitation": "A first-pass false negative outside PROBE is never corrected. No design short of labelling 100% twice corrects it.",
+        "residualIsMeasurableNotAssumedAway": "PROBE is a frozen, label-independent, unbiased 15% sample, so the false-negative rate of first-pass negatives is estimable from it with an exact binomial interval using the same acceptanceStatistics.ts helper the gates use.",
+        "reportingDiscipline": [
+          "the headline kappa is the PROBE-stratum kappa, the only stratum whose membership is label-independent",
+          "trigger-stratum agreement is reported separately and explicitly labelled conditional-on-first-label, never pooled into the headline figure",
+          "the estimated first-pass false-negative rate and its interval are committed to the corpus manifest as a stated limitation"
+        ],
+        "approximateDualReviewedItems": "350-390",
+        "approximateLabels": "700-780"
+      },
+      "C3": {
+        "name": "FULL_DUAL_REVIEW_OF_EVERY_ITEM",
+        "recommended": false,
+        "approximateLabels": 2240,
+        "whyNotRecommended": "roughly 3x R3's planned human budget, which R3 explicitly sized and justified"
+      }
+    },
+    "recommendation": "C2",
+    "IMPLEMENTATION_DETAIL_REQUIRING_OWNER_CONFIRMATION": [
+      { "id": "DR1", "decision": "C1, C2 or C3", "recommendation": "C2", "smallest": false },
+      {
+        "id": "DR2",
+        "decision": "does a first-pass NEEDS_REVIEW trigger the second label?",
+        "recommendation": "YES - NEEDS_REVIEW is a gated outcome (G6) and an item one human could not decide is exactly an item a second human should see",
+        "smallest": true
+      },
+      {
+        "id": "DR3",
+        "decision": "is the headline kappa the PROBE-stratum kappa?",
+        "recommendation": "YES, with trigger-stratum agreement reported beside it under its own name",
+        "smallest": false
+      }
+    ],
+    "recordedBeforeLabellingBegins": true,
+    "noR3MethodologyChangedByThisResolution": true
+  },
+
+  "labellingWorkflow": {
+    "dualReviewRequired": { "DEV_TRAIN": false, "DEV_CONFIRM": true, "FINAL_HOLDOUT": true },
+    "whatNeedsNoHuman": [
+      "goldId",
+      "documentSha256",
+      "split assignment",
+      "language stratum",
+      "discovery method",
+      "track membership",
+      "sparse and truncated flags"
+    ],
+    "whatRequiresHumanConfirmation": [
+      "the page-level verdict UNIT_PAGE / NOT_A_UNIT / NEEDS_REVIEW",
+      "unit_type on every gold UNIT_PAGE",
+      "the hard_negative flag"
+    ],
+    "reviewersSeeNoModelOutputNoMetricNoThresholdNoGateOutcome": true,
+    "reviewerBIsBlindToReviewerA": true,
+    "adjudicationIsHumanOnly": true,
+    "whoMayAdjudicate": "the owner OR an independent third human; never A or B for that item; recorded in the corpus manifest before labelling begins and unchangeable afterwards",
+    "actorKeyIsAnOpaqueSlug": "^[a-z0-9][a-z0-9_-]{2,63}$ - never a name, a mailbox or a handle",
+    "goldProvenanceMustNameBothSourceLabels": true,
+    "agreementAndKappaRecomputedInCI": true,
+    "noModelOutputMayDefineConfirmOrAdjudicateGold": true,
+    "ifNoSecondHumanIsAvailable": "the corpus records UNMEASURED_LABEL_ERROR as a stated limitation - never a fabricated agreement statistic - and is NOT conformant for a gated split",
+    "anUndeterminableItemIsNEEDS_REVIEWorExcludedWithItsReasonRecorded": true,
+    "historicalLabelsAreNotReReviewed": true,
+    "sequencing": [
+      "DEV_TRAIN labelled first, single-reviewer - unsealed, cheap, and it yields the realised Track A/B enrichment factor before any gated labelling budget is spent",
+      "DEV_CONFIRM: first pass, trigger evaluation, second pass, adjudication",
+      "FINAL_HOLDOUT: the same, in its own sealed root, sharing no tooling with a reader that has DEV_CONFIRM open",
+      "agreement statistics and the corpus feasibility validator",
+      "A5 corpus freeze - owner approval"
+    ]
+  },
+
+  "capabilityGapAudit": {
+    "legend": {
+      "E": "EXISTS_AND_REUSABLE",
+      "S": "SMALL_ADDITIVE_TOOLING_REQUIRED",
+      "M": "MISSING_AND_BLOCKING"
+    },
+    "components": [
+      {
+        "component": "authoritative source bootstrap",
+        "class": "E",
+        "where": "src/cli/commands/ingestEche.ts:36 runIngestEche; src/cli/commands/website.ts:169 runWebsiteIngestEche; :284 runWebsiteIngestFr"
+      },
+      {
+        "component": "frame enumerator",
+        "class": "S",
+        "blocks": "A1",
+        "where": "NO database-wide enumeration exists; every reader is scoped to one eche_row_key / claim id / promotion id (discover.ts:44, orchestrate.ts:46, authority.ts:179)"
+      },
+      {
+        "component": "historical-org exclusion",
+        "class": "S",
+        "blocks": "A1",
+        "where": "data present and sufficient: 49 canonical items each carry echeRowKey and organisationId; 12 distinct organisations"
+      },
+      {
+        "component": "Methodology-V2-generation exclusion",
+        "class": "S",
+        "blocks": "A1",
+        "where": "vacuous for generation 1; must still be implemented and tested now"
+      },
+      {
+        "component": "SHA selection + 22-cycle",
+        "class": "S",
+        "blocks": "A1b",
+        "where": "sha256OfCanonical at src/orgunits/classify/evaluation/hashes.ts:18; deriveGoldId at select.ts:87"
+      },
+      {
+        "component": "reserve replacement ledger",
+        "class": "S",
+        "blocks": "A2",
+        "where": "no equivalent exists; append-only JSON writer"
+      },
+      {
+        "component": "acquisition batch runner",
+        "class": "S",
+        "blocks": "A2",
+        "where": "runOrganisationDiscovery at orchestrate.ts:110 is the per-organisation unit; NO batch runner, sweep, queue or scheduler exists and none should be added above the CLI"
+      },
+      {
+        "component": "SD7 near deduper",
+        "class": "M",
+        "blocks": "A3, SD9",
+        "where": "NOTHING EXISTS - no shingling, no n-gram tokeniser, no Jaccard, no NEAR_DUPLICATE_* constant anywhere in src/. Exact dedupe only: dedupeByResponseSha256 at src/orgunits/classify/dedupe.ts:33"
+      },
+      {
+        "component": "SET_P selector",
+        "class": "S",
+        "blocks": "A3",
+        "where": "salted rank over documentSha256, joined from orgunit_fetch_observations.response_sha256"
+      },
+      {
+        "component": "SET_R selector",
+        "class": "S",
+        "blocks": "A3",
+        "where": "scores already persisted in orgunit_page_candidates by scoreAndPersistCandidates at candidates.ts:95; selector reads, never recomputes"
+      },
+      {
+        "component": "sealed split writer",
+        "class": "S",
+        "blocks": "A3",
+        "where": "scripts/build-gold-corpus.ts is the closest precedent but writes ONE mixed file - the exact shape the sealing design forbids"
+      },
+      {
+        "component": "reviewer package generator",
+        "class": "M",
+        "blocks": "A4",
+        "where": "nothing exists; the F0Y blinded HTML packet is a one-off precedent, not a tool"
+      },
+      {
+        "component": "dual-review recorder",
+        "class": "M",
+        "blocks": "A4",
+        "where": "nothing exists; no second annotator, no percent agreement and no kappa anywhere in the repository"
+      },
+      {
+        "component": "adjudication recorder",
+        "class": "M",
+        "blocks": "A4",
+        "where": "nothing reusable; the only blinded review in the history covered exactly one item"
+      },
+      {
+        "component": "gold projector",
+        "class": "E/S",
+        "blocks": "A5",
+        "where": "src/test/harness/phase2b2d2c/goldProjection/project.ts; needs a V2 provenance shape binding both source labels"
+      },
+      {
+        "component": "split manifest/hash generator",
+        "class": "S",
+        "blocks": "A5",
+        "where": "hashRecords / hashDocument at hashes.ts:23, :33"
+      },
+      {
+        "component": "corpus feasibility validator",
+        "class": "E",
+        "blocks": "A5",
+        "where": "src/test/harness/phase2b2d2c/methodology/acceptanceStatistics.ts - gateFeasibility, ceilingGateFeasibility, certificationBoundary, clusterDeflatedBound, intraclassCorrelation, minimumDenominatorForPower; covers K1-K5"
+      },
+      {
+        "component": "leakage firewall",
+        "class": "S",
+        "blocks": "A5",
+        "where": "pattern established in src/test/firewall/phase2b*.firewall.test.ts; the sealing assertions are new"
+      },
+      {
+        "component": "corpus freeze validator",
+        "class": "S",
+        "blocks": "A5",
+        "where": "src/test/harness/phase2b2d2c/f2/freezeF2.ts and freeze.ts are precedents"
+      }
+    ],
+    "whereNewCodeMustLive": "src/test/harness/phase2b2d2c/<topic>/ - NEVER under src/orgunits/",
+    "whyNotSrcOrgunits": "The F7 firewall (src/test/firewall/phase2b2d2cF7RestartExecution.firewall.test.ts) enumerates changed paths with git against baseline 4a1daf4309e35c8be12b30ae085a9083551fdb8b and fails on any changed path beginning with src/orgunits/. A NEW FILE THERE IS A CHANGE THERE, whatever the file contains. This is the R1 defect R3 section P records and fixed by MOVING the file rather than exempting it. Importing from src/orgunits/ is fine; adding to it is not.",
+    "shapeOfTheRemainingBuild": "The three MISSING_AND_BLOCKING components other than SD7 are all in the human-review workflow, because the repository has never performed a dual review.",
+    "noComponentImplementedInThisTask": true
+  },
+
+  "burdenEstimate": {
+    "classification": "RANGES. Nothing here was measured in this task.",
+    "a0Bootstrap": "0.5-2 h",
+    "a1FrameAndDraw": "1-2 days build; minutes to run",
+    "a2PerRoot": "3-30 min (typical 5-10)",
+    "a2For110Successful": "12-25 h typical; up to ~55 h if slow hosts dominate",
+    "a2For150TargetPlusReserve": "17-35 h typical; up to ~75 h worst case",
+    "documentsRetainedPlanningEstimate": 1370,
+    "a3SelectionAndDedupe": "2-4 days build; minutes to run",
+    "a4DualReviewedItems": "350-390",
+    "a4IndependentHumanLabels": "700-780 dual-review labels, plus ~1,120 first-pass labels",
+    "a4Adjudications": 36,
+    "a4HumanTime": "60-150 h at 2-5 min per label",
+    "a5Freeze": "1-2 days",
+    "a6InferencePerGatedSplit": 640,
+    "dominantCost": "Human labelling, at roughly 60-150 h against 17-35 h of machine acquisition. That asymmetry is why the enrichment factor should be measured on DEV_TRAIN before the gated labelling budget is committed."
+  },
+
+  "worstCaseNetworkExposure": {
+    "basis": "EXISTING FROZEN CEILINGS ONLY. No new budget proposed, nothing measured live.",
+    "perRoot": { "totalGatewayRequests": 60, "ordinaryPageAttempts": 35, "distinctHosts": 8 },
+    "adr0008MeasuredPracticalCeiling": "35 pages + 8 site-policy fetches + 5 sitemap documents = 48, so the 60-cap is mechanically unreachable through ordinary bounded discovery; 60 is nonetheless used here because a ceiling is what a worst case is made of",
+    "allOneHundredFiftyOrganisationsOneRootEach": {
+      "totalGatewayRequests": 9000,
+      "ordinaryPageAttempts": 5250,
+      "robotsRequests": 1200,
+      "sitemapDocuments": 750,
+      "distinctHosts": 1200,
+      "distinctRegistrableDomains": 150,
+      "redirectTargetsRequestedOnANewDomain": 0
+    },
+    "ifOptionalFrRegisterIngestIsRun": {
+      "effect": "up to 88 ECHE rows gain a second STRUCTURALLY_VALID claim and therefore a second ROOT with a full budget",
+      "ceilingBecomes": 14280,
+      "arithmetic": "9000 + 60 * min(150, 88) = 9000 + 5280",
+      "expectedEffect": "negligible - 88 of 6139 rows is 1.4%, so a 150-organisation draw is expected to contain about 2 such organisations (about +120 requests). The 14,280 figure is a true ceiling, not a forecast."
+    },
+    "recommendationOnA03": "Not required by SD1 and changes no organisation's eligibility. Either run it BEFORE A1 so its roots are counted in rootAuthorityCount and in the exposure budget, or not until AFTER A2 completes. It must never be ingested between the frame commit and acquisition, which would silently add roots the committed frame did not account for. The simplest safe choice is to skip it for this generation."
+  },
+
+  "authorityMatrix": [
+    {
+      "action": "A0",
+      "input": "official ECHE (+ optional FR) artifact",
+      "output": "organisations, website_claims, snapshots",
+      "network": true,
+      "institutionNetwork": false,
+      "dbRead": true,
+      "dbWrite": true,
+      "humanLabels": false,
+      "providerInference": false,
+      "devConfirmAccessible": "n/a",
+      "finalHoldoutAccessible": "n/a",
+      "ownerAuthorisationRequired": true
+    },
+    {
+      "action": "A1",
+      "input": "A0 artifact hashes + DB",
+      "output": "FRAME_V2_GEN1.json + frameHash",
+      "network": false,
+      "institutionNetwork": false,
+      "dbRead": true,
+      "dbWrite": false,
+      "humanLabels": false,
+      "providerInference": false,
+      "devConfirmAccessible": "n/a",
+      "finalHoldoutAccessible": "n/a",
+      "ownerAuthorisationRequired": true
+    },
+    {
+      "action": "A1b",
+      "input": "committed frame",
+      "output": "DRAW_V2_GEN1.json",
+      "network": false,
+      "institutionNetwork": false,
+      "dbRead": false,
+      "dbWrite": false,
+      "humanLabels": false,
+      "providerInference": false,
+      "devConfirmAccessible": "n/a",
+      "finalHoldoutAccessible": "n/a",
+      "ownerAuthorisationRequired": true
+    },
+    {
+      "action": "A2",
+      "input": "draw + root ids",
+      "output": "orgunit_* evidence rows, replacement ledger",
+      "network": true,
+      "institutionNetwork": true,
+      "dbRead": true,
+      "dbWrite": true,
+      "humanLabels": false,
+      "providerInference": false,
+      "devConfirmAccessible": "n/a",
+      "finalHoldoutAccessible": "n/a",
+      "ownerAuthorisationRequired": true
+    },
+    {
+      "action": "A3",
+      "input": "acquired evidence",
+      "output": "SET_P / SET_R, sealed split files",
+      "network": false,
+      "institutionNetwork": false,
+      "dbRead": true,
+      "dbWrite": false,
+      "humanLabels": false,
+      "providerInference": false,
+      "devConfirmAccessible": "write only",
+      "finalHoldoutAccessible": "write only",
+      "ownerAuthorisationRequired": true
+    },
+    {
+      "action": "A4",
+      "input": "sealed items + rubric",
+      "output": "reviews, adjudications, gold",
+      "network": false,
+      "institutionNetwork": false,
+      "dbRead": false,
+      "dbWrite": false,
+      "humanLabels": true,
+      "providerInference": false,
+      "devConfirmAccessible": "human reviewers only",
+      "finalHoldoutAccessible": "human reviewers only",
+      "ownerAuthorisationRequired": true
+    },
+    {
+      "action": "A5",
+      "input": "gold + manifests",
+      "output": "corpus freeze record",
+      "network": false,
+      "institutionNetwork": false,
+      "dbRead": false,
+      "dbWrite": false,
+      "humanLabels": false,
+      "providerInference": false,
+      "devConfirmAccessible": "hashes only",
+      "finalHoldoutAccessible": "hashes only",
+      "ownerAuthorisationRequired": true
+    },
+    {
+      "action": "A6",
+      "input": "DEV_TRAIN only",
+      "output": "prompt candidate",
+      "network": "n/a",
+      "institutionNetwork": false,
+      "dbRead": false,
+      "dbWrite": false,
+      "humanLabels": false,
+      "providerInference": true,
+      "devConfirmAccessible": false,
+      "finalHoldoutAccessible": false,
+      "ownerAuthorisationRequired": true
+    }
+  ],
+
+  "exclusions": {
+    "noLiveWebAcquisition": true,
+    "noInstitutionRequest": true,
+    "noOfficialSourceFetch": true,
+    "noDatabaseWrite": true,
+    "noDatabaseMutation": true,
+    "noLabelsCreated": true,
+    "noGoldChanged": true,
+    "noAdjudication": true,
+    "noProviderInference": true,
+    "noCandidateInference": true,
+    "noPromptCandidateCreated": true,
+    "noPromptV7Created": true,
+    "noR4Created": true,
+    "noMethodologyReopened": true,
+    "noD1ThroughD6DecisionReopened": true,
+    "noHoldoutAccess": true,
+    "noHoldoutItemInspection": true,
+    "noHistoricalHoldoutFileOpened": true,
+    "noCorpusCreated": true,
+    "noFrameMaterialised": true,
+    "noDrawExecuted": true,
+    "noProductionOrgunitsFileTouched": true,
+    "noFirewallAssertionWeakened": true,
+    "noRepositoryFixtureUsedAsSourceSubstitute": true,
+    "noPhase2EExecution": true,
+    "noRuntimeModelSelected": true,
+    "noProductionDefaultChanged": true,
+    "noNewNetworkAuthority": true
+  },
+
+  "openUnknowns": [
+    "UNKNOWN: the realised Track A/B enrichment factor. Never measured. Finding 2 makes it the single largest schedule risk, and it is computable from DEV_TRAIN alone.",
+    "UNKNOWN: the acquisition success rate under SD9's >= 4-page minimum. No live institution run has ever been executed from this repository, so the 40-organisation reserve is sized against no measurement.",
+    "UNKNOWN: the realised inter-rater agreement and Cohen kappa. Required to be measured; unmeasured today because no label has been collected.",
+    "UNKNOWN: the true label error rate of the historical 49 DEVELOPMENT labels. Never measured.",
+    "UNKNOWN: whether the official ECHE document page has moved again since 2026-08-24. A0 must budget for a refused redirect and an operator-supplied --url.",
+    "UNKNOWN: the realised per-root wall-clock cost of acquisition against real institutional hosts. The 3-30 min range is derived from frozen timeouts and pacing, not from measurement."
+  ],
+
+  "remainingOwnerAction": "OWNER_REVIEW_OF_THIS_ACQUISITION_PLAN",
+  "remainingOwnerActionDetail": {
+    "thisPlanAuthorisesNothing": true,
+    "theNextDecision": "whether to approve this plan and, separately, whether to authorise A0 - the official-source bootstrap - which is blocking and must complete before any frame can be enumerated",
+    "decisionsSurfacedForOwnerConfirmation": [
+      "DR1/DR2/DR3 - the dual-review implementation detail (recommendation: C2, NEEDS_REVIEW triggers, PROBE-stratum kappa)",
+      "Finding 1 - whether a realised SET_R <= 180 is CONFORMANT (recommended) or freeze-blocking",
+      "whether the optional FR register ingest A0.3 is run at all, and if so before A1"
+    ],
+    "noAcquisitionPlanApprovalIsRecordedInThisTask": true
+  }
+}
