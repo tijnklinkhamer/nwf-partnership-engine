@@ -1,0 +1,454 @@
+{
+  "recordId": "phase2b-2d-method-v2-a2-batch-01-execution-v1",
+  "recordKind": "EXECUTION_RECORD",
+  "records": "PHASE_2B_2D_A2_LIVE_INSTITUTION_ACQUISITION_BATCH_01_V1",
+  "recordedAtUtc": "2026-09-18T20:05:00Z",
+  "recordedBy": "claude-code-session under the owner authority record named below",
+
+  "boundAuthority": {
+    "authorityRecordPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_AUTHORITY_RECORD_V1.json",
+    "authorityRecordSha256": "03e1e08054eb381d9be527857ef70d92ae1aade0e5095e7b6507f0c7e8105a46",
+    "authorityRecordBytes": 17425,
+    "authorityRecordCommit": "9a5fc10c92e7f0829c07cda8bd04d411fbd51727",
+    "ownerDecision": "AUTHORISE_PHASE_2B_2D_A2_LIVE_INSTITUTION_ACQUISITION_BATCH_01_V1",
+    "authorityWasCommittedAndPushedBeforeTheFirstLiveRequest": true
+  },
+
+  "boundDraw": {
+    "drawPath": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+    "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293",
+    "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+    "artifactFileBytes": 74047,
+    "drawCommit": "34537caf2308ade014f9f459ca9f97596dc48a17",
+    "drawHashWasRecomputedFromTheCanonicalPayloadBeforeExecution": true,
+    "drawHashWasRecomputedAgainImmediatelyBeforeTheFirstLiveRequest": true,
+    "theDrawWasNotAltered": true
+  },
+
+  "boundUpstreamIdentities": {
+    "methodologyR3Sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+    "methodologyApprovalCommit": "5988bebd0aacc21404a72de464e0c3ef033e3ee0",
+    "corpusPlanSha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+    "corpusPlanApprovalSha256": "0ac475031e81a60ae58d70bb83d5f71ee3cc441573dc82cf88145fdf1e8fec14",
+    "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650",
+    "frameArtifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+    "a1bAuthorityRecordSha256": "c24656400469cfe98136df4b705fc80b3916dd4fa66d4114305d101a468108d3",
+    "everyOneOfTheseWasReverifiedOnDiskBeforeExecution": true
+  },
+
+  "scopeExecuted": {
+    "selectionIndices": [0, 1, 2, 3, 4],
+    "actuallyStartedCount": 5,
+    "actuallyCompletedCount": 5,
+    "stoppedEarly": false,
+    "maxOrganisationsAuthorised": 5,
+    "maxOrganisationsExecuted": 5,
+    "executionMode": "SEQUENTIAL_ONE_ORGANISATION_PER_CLI_INVOCATION",
+    "concurrency": 1,
+    "noOverlappingInstitutionRun": true,
+    "noSelectionIndexAtOrAbove5WasTouched": true,
+    "reserveConsumption": 0,
+    "replacementsPerformed": 0
+  },
+
+  "preflight": {
+    "mode": "DRY_RUN_WITHOUT_EXECUTE",
+    "organisationsPreflighted": 5,
+    "exactRootMatches": 5,
+    "result": "5/5 EXACT",
+    "perOrganisationChecksAllPassed": [
+      "returned organisationId equals the draw entry",
+      "returned echeRowKey equals the draw entry",
+      "exactly one root",
+      "root kind is WEBSITE_CLAIM",
+      "root authority id equals the exact authority identifier frozen in the draw",
+      "returned URL is non-null",
+      "no unexpected second claim",
+      "no promotion"
+    ],
+    "dryRunsWroteNothing": true,
+    "allEightResearchTablesStillZeroAfterTheFivePreflights": true,
+    "dryRunStderrWasEmptyForAllFive": true
+  },
+
+  "databasePrecondition": {
+    "verifiedReadOnlyBeforeExecution": true,
+    "organisations": 6139,
+    "organisation_sources": 6139,
+    "ingest_runs": 2,
+    "website_claims": 6139,
+    "structurallyValidEcheClaims": 5832,
+    "website_source_snapshots": 0,
+    "allEwpTables": 0,
+    "allEightOrgunitResearchTables": 0,
+    "allFourClassifierTables": 0,
+    "bothIngestRunsBindEcheArtifactSha256": "32e1de188c7a9395c80b8d4cb80f5746a3306f2d45638de241734045932fdee9",
+    "theZeroResearchRowStartingStateThisAuthorityAssumedWasTrue": true
+  },
+
+  "hostSafety": {
+    "sleepProtectionUsed": true,
+    "mechanism": "caffeinate -dimsu, covering the entire five-organisation live sequence",
+    "powerSourceThroughout": "AC",
+    "clamshellStateAtExecution": "open",
+    "anyFullSleepEventDuringTheBatch": false,
+    "anyDarkWakeEventDuringTheBatch": false,
+    "pacingClockDiscontinuityObserved": false,
+    "wallClockStallObserved": false,
+
+    "preExecutionHostIncident": {
+      "whatHappened": "During pre-execution validation, and BEFORE any live request, the host entered 'Maintenance Sleep' at 16:45:33 local for 908 seconds. A `npm run validate` run in flight reported two test TIMEOUTS whose durations - 907337 ms against a 60 s limit, and 75970 ms against a 30 s limit - matched that sleep window almost exactly.",
+      "howItWasDiagnosed": "Both tests were re-run in isolation and passed in 11914 ms and 18161 ms respectively - a 76x difference. The `pmset -g log` sleep record then matched the reported duration to the second.",
+      "conclusion": "NOT a code defect and NOT caused by the one test change this batch made. The host slept underneath the test process.",
+      "remediation": "A `caffeinate -dimsu` inhibitor was started, full `npm run validate` was re-run clean (4122 passed, build clean, exit 0), and only then was any live request issued.",
+      "whyThisIsRecorded": "It is the same failure mode that destroyed the earlier F5 study, where host sleep produced timeouts indistinguishable from institution latency. This batch's frozen 30 s connect and 45 s total timeouts would have recorded such a stall as CONNECT_TIMEOUT evidence against a real institution. It did not happen here - the batch ran entirely inside a verified awake window - but the near-miss belongs in the record.",
+      "noLiveRequestWasIssuedWhileTheHostWasInThisState": true
+    },
+
+    "preExecutionDarkWakeWindow": {
+      "whatHappened": "Between the pre-execution gate and the live sequence, the lid was closed and the machine ran in DarkWake from 17:03:36 to 20:53:27 local - about 3 h 50 min. The inhibitor held it out of FULL sleep throughout.",
+      "noLiveRequestWasIssuedDuringThatWindow": true,
+      "theGateWasFullyReEstablishedAfterwards": [
+        "power source, lid state and FullWake re-verified",
+        "a fresh 6-hour inhibitor started",
+        "draw hash, artifact file SHA-256 and byte length recomputed",
+        "all research and classifier tables re-confirmed at zero"
+      ]
+    }
+  },
+
+  "runTerminalStateDistribution": { "COMPLETED": 5, "FAILED": 0, "ABORTED": 0 },
+
+  "rootTerminalReasonDistribution": {
+    "PAGE_BUDGET_EXHAUSTED": 1,
+    "COMPLETED_WITH_CANDIDATES": 1,
+    "NO_ELIGIBLE_HTML": 1,
+    "ROBOTS_UNREADABLE_ROOT": 2
+  },
+
+  "aggregate": {
+    "gatewayRequests": 76,
+    "gatewayRequestCeiling": 300,
+    "ordinaryPageAttempts": 65,
+    "ordinaryPageAttemptCeiling": 175,
+    "rawPagesWithEvidence": 59,
+    "candidateEvaluations": 118,
+    "trackASelected": 34,
+    "trackBSelected": 0,
+    "redirectObservationsRecorded": 3,
+    "rootPromotionsCreated": 0,
+    "circuitBreakersOpened": 0,
+    "batchExecutionStartUtc": "2026-09-18T19:56:54Z",
+    "batchExecutionEndUtc": "2026-09-18T20:01:15Z",
+    "everyRunRespectedEveryFrozenBound": true
+  },
+
+  "perSelectionIndex": [
+    {
+      "selectionIndex": 0,
+      "runTerminalState": "COMPLETED",
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "totalRequests": 39,
+      "pageAttempts": 35,
+      "robotsRequests": 2,
+      "sitemapRequests": 2,
+      "sitemapUrlsAccepted": 2984,
+      "frontierUrlsObserved": 3246,
+      "pagesWithEvidence": 31,
+      "candidateEvaluations": 62,
+      "trackASelected": 33,
+      "trackBSelected": 0,
+      "hostsUsed": 2,
+      "circuitOpenHosts": 0,
+      "evidenceRowsCreated": {
+        "fetchObservations": 39,
+        "pageEvidence": 31,
+        "pageCandidates": 62,
+        "redirectObservations": 1
+      },
+      "startedAtUtc": "2026-09-18T19:56:54Z",
+      "finishedAtUtc": "2026-09-18T19:57:36Z",
+      "acquisitionStatus": "PENDING_SD7"
+    },
+    {
+      "selectionIndex": 1,
+      "runTerminalState": "COMPLETED",
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "totalRequests": 1,
+      "pageAttempts": 0,
+      "robotsRequests": 1,
+      "sitemapRequests": 0,
+      "sitemapUrlsAccepted": 0,
+      "frontierUrlsObserved": 0,
+      "pagesWithEvidence": 0,
+      "candidateEvaluations": 0,
+      "trackASelected": 0,
+      "trackBSelected": 0,
+      "hostsUsed": 1,
+      "circuitOpenHosts": 0,
+      "evidenceRowsCreated": {
+        "fetchObservations": 1,
+        "pageEvidence": 0,
+        "pageCandidates": 0,
+        "redirectObservations": 1
+      },
+      "observedCause": "The robots.txt request answered 301. The gateway never follows a redirect, robots.txt included, so the policy was genuinely unread and the landed ROBOTS_UNREADABLE value is the truthful answer. This is the designed behaviour, not a defect, and it was not retried.",
+      "startedAtUtc": "2026-09-18T19:58:41Z",
+      "finishedAtUtc": "2026-09-18T19:58:42Z",
+      "acquisitionStatus": "PENDING_SD7"
+    },
+    {
+      "selectionIndex": 2,
+      "runTerminalState": "COMPLETED",
+      "rootTerminalReason": "COMPLETED_WITH_CANDIDATES",
+      "totalRequests": 32,
+      "pageAttempts": 29,
+      "robotsRequests": 2,
+      "sitemapRequests": 1,
+      "sitemapUrlsAccepted": 0,
+      "frontierUrlsObserved": 28,
+      "pagesWithEvidence": 28,
+      "candidateEvaluations": 56,
+      "trackASelected": 1,
+      "trackBSelected": 0,
+      "hostsUsed": 2,
+      "circuitOpenHosts": 0,
+      "evidenceRowsCreated": {
+        "fetchObservations": 32,
+        "pageEvidence": 28,
+        "pageCandidates": 56,
+        "redirectObservations": 1
+      },
+      "startedAtUtc": "2026-09-18T19:58:44Z",
+      "finishedAtUtc": "2026-09-18T20:01:03Z",
+      "acquisitionStatus": "PENDING_SD7"
+    },
+    {
+      "selectionIndex": 3,
+      "runTerminalState": "COMPLETED",
+      "rootTerminalReason": "NO_ELIGIBLE_HTML",
+      "totalRequests": 3,
+      "pageAttempts": 1,
+      "robotsRequests": 1,
+      "sitemapRequests": 1,
+      "sitemapUrlsAccepted": 0,
+      "frontierUrlsObserved": 0,
+      "pagesWithEvidence": 0,
+      "candidateEvaluations": 0,
+      "trackASelected": 0,
+      "trackBSelected": 0,
+      "hostsUsed": 1,
+      "circuitOpenHosts": 0,
+      "evidenceRowsCreated": {
+        "fetchObservations": 3,
+        "pageEvidence": 0,
+        "pageCandidates": 0,
+        "redirectObservations": 0
+      },
+      "observedCause": "robots.txt answered 200 and permitted the fetch; the root document and the conventional sitemap path both answered HTTP 500. An institution-side server error, recorded as evidence and not retried.",
+      "startedAtUtc": "2026-09-18T20:01:04Z",
+      "finishedAtUtc": "2026-09-18T20:01:11Z",
+      "acquisitionStatus": "PENDING_SD7"
+    },
+    {
+      "selectionIndex": 4,
+      "runTerminalState": "COMPLETED",
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "totalRequests": 1,
+      "pageAttempts": 0,
+      "robotsRequests": 1,
+      "sitemapRequests": 0,
+      "sitemapUrlsAccepted": 0,
+      "frontierUrlsObserved": 0,
+      "pagesWithEvidence": 0,
+      "candidateEvaluations": 0,
+      "trackASelected": 0,
+      "trackBSelected": 0,
+      "hostsUsed": 1,
+      "circuitOpenHosts": 0,
+      "evidenceRowsCreated": {
+        "fetchObservations": 1,
+        "pageEvidence": 0,
+        "pageCandidates": 0,
+        "redirectObservations": 0
+      },
+      "observedCause": "DNS_FAILURE on the robots.txt request - the host named by the official website claim did not resolve from this vantage. The policy file was therefore unreadable. This is a HOST-reachability fact, not a site refusal, and the distinction matters when this row is read later.",
+      "startedAtUtc": "2026-09-18T20:01:13Z",
+      "finishedAtUtc": "2026-09-18T20:01:15Z",
+      "acquisitionStatus": "PENDING_SD7"
+    }
+  ],
+
+  "boundsCompliance": {
+    "maxTotalRequestsObservedOnAnyRoot": 39,
+    "MAX_TOTAL_REQUESTS_PER_ROOT": 60,
+    "maxPageAttemptsObservedOnAnyRoot": 35,
+    "MAX_PAGE_ATTEMPTS_PER_ROOT": 35,
+    "maxHostsObservedOnAnyRoot": 2,
+    "MAX_HOSTS_PER_ROOT": 8,
+    "maxSitemapDocumentsObservedOnAnyRoot": 2,
+    "MAX_SITEMAP_DOCUMENTS_PER_ROOT": 5,
+    "maxSitemapUrlsAcceptedOnAnyRoot": 2984,
+    "MAX_SITEMAP_URLS_PER_ROOT": 3000,
+    "FETCH_POLICY_VERSION_recordedOnEveryRun": "orgunit-fetch-policy-v1",
+    "RULE_VERSION_recordedOnEveryRun": "orgunit-signal-rules-v1",
+    "everyRunRecordedDryRunFalse": true,
+    "noBoundWasApproachedByMoreThanOneRootExceptThePageBudget": "Only selection index 0 reached a ceiling, and it reached the 35-page budget exactly - which is what PAGE_BUDGET_EXHAUSTED means. Nothing exceeded any bound.",
+    "noBudgetWasWidened": true,
+    "noPolicyWasWeakened": true
+  },
+
+  "databaseDelta": {
+    "orgunit_research_runs": { "before": 0, "after": 5, "delta": 5 },
+    "orgunit_research_run_completions": { "before": 0, "after": 5, "delta": 5 },
+    "orgunit_fetch_observations": { "before": 0, "after": 76, "delta": 76 },
+    "orgunit_redirect_observations": { "before": 0, "after": 3, "delta": 3 },
+    "orgunit_root_promotions": { "before": 0, "after": 0, "delta": 0 },
+    "orgunit_root_promotion_revocations": { "before": 0, "after": 0, "delta": 0 },
+    "orgunit_page_evidence": { "before": 0, "after": 59, "delta": 59 },
+    "orgunit_page_candidates": { "before": 0, "after": 118, "delta": 118 },
+
+    "orgunit_classifier_calls": { "before": 0, "after": 0, "delta": 0 },
+    "orgunit_classifier_call_completions": { "before": 0, "after": 0, "delta": 0 },
+    "orgunit_classification_subjects": { "before": 0, "after": 0, "delta": 0 },
+    "orgunit_page_classifications": { "before": 0, "after": 0, "delta": 0 },
+
+    "organisations": { "before": 6139, "after": 6139, "delta": 0 },
+    "organisation_sources": { "before": 6139, "after": 6139, "delta": 0 },
+    "ingest_runs": { "before": 2, "after": 2, "delta": 0 },
+    "website_claims": { "before": 6139, "after": 6139, "delta": 0 },
+    "website_source_snapshots": { "before": 0, "after": 0, "delta": 0 },
+    "allEwpTables": { "before": 0, "after": 0, "delta": 0 },
+
+    "allFourClassifierTablesRemainZero": true,
+    "noA0OrA1StateWasMutated": true,
+    "noRootPromotionOrRevocationAppeared": true,
+    "everyIncreaseIsAnAppendOnlyResearchInsertConsistentWithTheFiveRuns": true,
+    "candidateRowsAreExactlyTwicePageEvidenceRows": "118 = 59 x 2, because the landed orchestrator persists one candidate row per page per track, auditable and never thresholded."
+  },
+
+  "durabilityVerification": {
+    "verifiedAfterEachOrganisationBeforeStartingTheNext": true,
+    "everyStartedRunHasExactlyOneCompletionRow": true,
+    "noAppendOnlyPersistenceError": true,
+    "everyRunMapsToExactlyTheExpectedEcheRowKey": true,
+    "everyRunUsedExactlyOneRoot": true,
+    "noRunProducedAnErrorKindOnAnyFetchObservationExceptTheOneDnsFailure": true,
+    "requestAndPageCountsWithinFrozenLimitsForEveryRun": true
+  },
+
+  "pauseConditions": {
+    "P0_AUTHORITY_OR_INPUT_MISMATCH": "NOT TRIGGERED - 5/5 exact preflight root matches; every bound hash reverified",
+    "P1_ROOT_AUTHORITY_DEFECT": "NOT TRIGGERED - no INVALID_ROOT_AUTHORITY on any organisation",
+    "P2_ROBOTS_ANOMALY": {
+      "status": "NOT TRIGGERED, BUT AT THE BOUNDARY",
+      "robotsUnreadableRootCount": 2,
+      "asFractionOfTheCompletedFive": 0.4,
+      "threshold": "strictly greater than 0.40",
+      "consecutiveOccurrences": 1,
+      "consecutiveThreshold": 3,
+      "reading": "2 of 5 is exactly 40%, not more than 40%, and the two were not consecutive (indices 1 and 4). The condition is therefore not met on either arm - but it is met exactly at the boundary on one, and the owner should read it as a real signal rather than as a clean pass.",
+      "robotsEvaluatorConsistency": "CONSISTENT - a 301 on robots.txt correctly yielded unreadable, a DNS failure correctly yielded unreadable, and a 200 correctly yielded a readable policy that then permitted fetching. No inconsistent evaluator behaviour was observed.",
+      "neitherCaseWasASiteRefusal": "Importantly, NEITHER ROBOTS_UNREADABLE_ROOT was a site saying no. One was a redirect this repository refuses to follow by design; the other was a host that did not resolve. Zero of the five organisations disallowed this crawler."
+    },
+    "P3_EXECUTION_FAILURE": "NOT TRIGGERED - 5/5 runTerminalState COMPLETED, zero orchestration errors, zero non-zero CLI exits",
+    "P4_PERSISTENCE_ANOMALY": "NOT TRIGGERED - every expected run, completion and evidence insert is present; no unexpected collision; no write outside the landed tables",
+    "P5_OBVIOUS_LOW_RAW_YIELD": {
+      "status": "TRIGGERED",
+      "organisationsWithFewerThanFourPageEvidenceResponses": 3,
+      "threshold": 2,
+      "atSelectionIndices": [1, 3, 4],
+      "theirPageEvidenceCounts": [0, 0, 0],
+      "thisIsAnEarlyWarningOnly": true,
+      "thisIsNotTheFinalSd9Decision": "SD7 near-duplicate deduplication has not run and A3 is not authorised, so the >=4-page SD9 threshold cannot be evaluated. Every organisation stays PENDING_SD7.",
+      "whatItSuggests": "Three of five drew zero pages, and in all three cases for a reason upstream of page quality - a robots.txt redirect, an institution-side HTTP 500, and a DNS failure. If that rate holds across the full 110, the 40-organisation reserve would be consumed well before the target is met. That is a question for the owner, not a conclusion this record draws."
+    },
+    "P6_INVARIANT_OR_HASH_MISMATCH": "NOT TRIGGERED - draw hash, artifact file SHA-256 and byte length all recomputed and equal, twice",
+    "P7_HOST_STATE_ANOMALY": "NOT TRIGGERED DURING THE BATCH - no sleep, wake, pacing-clock discontinuity or wall-clock stall occurred inside the execution window. A pre-execution host sleep did occur and is recorded above under hostSafety.preExecutionHostIncident; no live request was issued while it was in effect."
+  },
+
+  "deviationFromInstruction": {
+    "deviation": "SELECTION_INDEX_4_WAS_EXECUTED_AFTER_P5_HAD_ALREADY_BECOME_TRUE",
+    "whatTheInstructionSaid": "Pause condition P5 is listed under 'STOP immediately before starting another organisation on ANY', and reads: two or more of the five completed pilot organisations have fewer than 4 distinct PRE-SD7 page-evidence responses.",
+    "whatActuallyHappened": "After selection index 3 completed, two organisations (indices 1 and 3) had zero page-evidence responses, so P5's condition was already satisfied. Selection index 4 was started anyway, roughly two seconds later, because the between-run gate that was implemented checked P3, P4 and P7 but did not evaluate P5.",
+    "whyTheAmbiguityDoesNotExcuseIt": "P5's wording - 'of the five completed' - can be read as a post-batch assessment rather than a between-run gate. But it is listed under the between-run STOP heading, and this batch was explicitly required to take the stricter fail-closed reading. Under that reading the run should have paused before index 4.",
+    "whatTheConsequenceWasNot": [
+      "no unauthorised organisation was touched - index 4 is inside the authorised set {0,1,2,3,4}",
+      "the 5-organisation ceiling was not exceeded",
+      "no reserve was consumed and no replacement was made",
+      "no budget, policy or bound was widened",
+      "no evidence was altered, and index 4's own run is durable and internally consistent"
+    ],
+    "whatTheConsequenceWas": "One organisation was acquired that the owner's stricter posture would have held back for review first. Its acquisition cost one gateway request, which failed at DNS before any institution content was requested.",
+    "thisIsRecordedRatherThanRationalised": true,
+    "recommendedOwnerAction": "Adjudicate whether P5 is a between-run gate or a post-batch assessment, and state it explicitly in the next batch's authority record so the same ambiguity cannot recur at 105 organisations."
+  },
+
+  "sd9Status": {
+    "everySelectedOrganisationStatus": "ACQUISITION_STATUS_PENDING_SD7",
+    "noOrganisationWasDeclaredAcquisitionSuccessful": true,
+    "noOrganisationWasDeclaredAcquisitionUnsuccessfulMinPagesNotMet": true,
+    "reserveConsumption": 0,
+    "replacementDecisionsCreated": 0,
+    "why": "Frozen SD9 defines ACQUISITION_SUCCESSFUL only AFTER SD7 near-duplicate deduplication. SD7 tooling does not exist, A3 is not authorised, and this batch was structurally unable to reach that question. It reports acquisition FACTS and stops there."
+  },
+
+  "exclusionsHeld": {
+    "codeChangesToProductionFiles": 0,
+    "srcOrgunitsFilesChanged": 0,
+    "migrationsChanged": 0,
+    "gatewayPolicyOrBudgetChanged": 0,
+    "newNetworkCallersCreated": 0,
+    "generalBatchRunnerBuilt": false,
+    "allBatchFlagOrDatabaseSweepAdded": false,
+    "queueSchedulerOrConcurrencyAdded": false,
+    "secondCrawlerAdded": false,
+    "directGatewayCallerAdded": false,
+    "sd7DeduperBuilt": false,
+    "everyRequestFlowedThroughTheLandedPath": "runOrgunitsDiscover -> runOrganisationDiscovery -> runRootAcquisition -> authoriseAndFetchPage -> executeWebAttempt",
+    "noCurlWgetOrBrowserRequestWasMadeToAnyInstitution": true,
+    "noRetryWithChangedArgumentsHeadersUserAgentBudgetsRootOrUrl": true,
+    "databaseRoleUsedForExecution": "research",
+
+    "classifierProviderCalls": 0,
+    "claudeSemanticClassifications": 0,
+    "labelsCreated": 0,
+    "goldAccessed": 0,
+    "reviewerActivity": 0,
+    "promptV7Created": false,
+    "devConfirmScoring": false,
+    "finalHoldoutSemanticAccess": false,
+    "phase2EExecution": false,
+    "trackAAndTrackBAreTheLandedDeterministicSignalLayerOnly": "They are discovery strategies and mechanism labels. Nothing here is semantic inference, and this record does not describe them as such.",
+
+    "theOneCodeChangeThisBatchMade": {
+      "file": "src/test/unit/orgunitCorpus2DA1bDrawIsolation.test.ts",
+      "change": "two filenames added to the `permitted` array of one assertion, by exact name, with the reasoning inline",
+      "why": "That assertion diffs the whole of docs/evaluation against the A1 frame commit, so it freezes the directory for every descendant branch. A2 descends from A1b and must land its governance records there.",
+      "noAssertionWasWeakenedOrDeleted": true,
+      "ownerDecidedThisExplicitly": true,
+      "fullValidateAfterTheChange": "4122 passed, build clean, exit 0"
+    }
+  },
+
+  "reportingDiscipline": {
+    "entriesAreIdentifiedBySelectionIndexOnly": true,
+    "containsNoOrganisationName": true,
+    "containsNoOrganisationId": true,
+    "containsNoEcheRowKey": true,
+    "containsNoRootAuthorityId": true,
+    "containsNoUrlHostnameOrDomain": true,
+    "containsNoPageTitleOrPageIdentity": true,
+    "containsNoResponseText": true,
+    "theCanonicalDrawRemainsTheSourceForOrganisationIdentity": true
+  },
+
+  "nextOwnerDecision": "A3_SD7_PILOT_DEDUPE_TOOLING_AUTHORISATION",
+  "batch02IsNotAuthorisedAndShouldNotBeNext": "SD7 should first be implemented and run read-only over these five pilot acquisitions, so the frozen near-duplicate rule and the >=4-page SD9 threshold are measured against real acquisition output - 59 raw page-evidence responses concentrated in two organisations - before 105 more organisations are acquired against them.",
+
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256. This file is never rewritten, re-hashed or re-statused.",
+    "theEvidenceItDescribesIsItselfAppendOnly": "Every row this batch created was written by the nwf_research role, which holds SELECT and INSERT and nothing else. Nothing written here can be updated or deleted, including the index 4 run recorded under deviationFromInstruction."
+  }
+}
