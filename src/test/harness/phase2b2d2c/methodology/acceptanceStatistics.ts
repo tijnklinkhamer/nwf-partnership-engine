@@ -24,8 +24,20 @@
  *
  * Nothing here is itself a gate, a threshold or an acceptance decision.
  * The proposed rule that uses them is
- * `docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL.json`,
+ * `docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R2.json`,
  * which is a PROPOSAL and authorises nothing.
+ *
+ * EVALUATION / DESIGN TOOLING, NOT PRODUCTION CODE. This module lives under
+ * `src/test/harness/` deliberately. It was first written under
+ * `src/orgunits/classify/evaluation/`, which made it a new file inside the
+ * production classifier namespace that the historical F7 firewall
+ * (`src/test/firewall/phase2b2d2cF7RestartExecution.firewall.test.ts`)
+ * correctly freezes relative to the F6 execution approval. The firewall was
+ * RIGHT and was not weakened: the module moved instead, in Methodology V2 R2.
+ * `src/test/**` is excluded from `tsconfig.build.json`, so nothing here can
+ * reach `dist/`; no production module, classifier runtime path or provider
+ * path may import it, and `orgunitClassifyAcceptanceMethodologyV2R2.test.ts`
+ * asserts that.
  */
 
 /** One-sided confidence level used throughout unless a caller overrides it. */

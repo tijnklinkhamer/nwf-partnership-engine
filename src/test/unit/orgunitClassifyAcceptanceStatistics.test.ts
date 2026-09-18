@@ -40,7 +40,7 @@ import {
   replicateDispersion,
   requiredPerReplicatePass,
   type CertificationRule,
-} from '../../orgunits/classify/evaluation/acceptanceStatistics.js';
+} from '../harness/phase2b2d2c/methodology/acceptanceStatistics.js';
 
 describe('clopperPearsonLowerBound', () => {
   it('uses the exact closed form when every trial succeeded', () => {

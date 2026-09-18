@@ -30,7 +30,7 @@ import {
   gateFeasibility,
   minimumTrialsToCertify,
   passEveryReplicateAcceptanceProbability,
-} from '../../orgunits/classify/evaluation/acceptanceStatistics.js';
+} from '../harness/phase2b2d2c/methodology/acceptanceStatistics.js';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const PROPOSAL_PATH = 'docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL.json';
