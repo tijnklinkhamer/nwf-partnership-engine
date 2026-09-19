@@ -1,0 +1,130 @@
+{
+  "recordId": "phase2b-2d-method-v2-a3a-batch-02-zero-page-closure-v1",
+  "recordKind": "CLOSURE_RECORD",
+  "records": "PHASE_2B_2D_A3A_SD9_CLOSURE_OF_BATCH_02_ZERO_PAGE_ORGANISATIONS_V1",
+  "recordedAtUtc": "2026-09-19T00:00:00Z",
+  "recordedBy": "claude-code-session under the owner decision named below",
+
+  "ownerDecision": "AUTHORISE_PHASE_2B_2D_A2_ACQUISITION_YIELD_ROOT_CAUSE_AUDIT_V1",
+  "terminalState": "CLOSED",
+
+  "whatThisRecordIs": "The mechanical SD9 finalisation of the two organisations Batch 02 started. It computes nothing: SD7 is strictly removal-only, so an organisation whose raw page-evidence count is zero has a post-SD7 count of zero under every reading of every SD7 detail, and MIN_PAGES_PER_ORGANISATION (4) is unreachable. No near-duplicate computation was performed, because no page exists to compare.",
+
+  "boundInputs": {
+    "batch02ExecutionRecordPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_02_EXECUTION_RECORD_V1.json",
+    "batch02ExecutionRecordSha256": "fd2f0089428daf0f2b96cd45ef6417e70954119f7cbff667b5486e50bd3bb7d1",
+    "batch02ExecutionRecordBytes": 14893,
+    "batch02ExecutionRecordCommit": "637c6e6a9a15e2ca24f0f9794842cce727464136",
+    "sd7PilotExecutionRecordPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_EXECUTION_RECORD_V1.json",
+    "sd7PilotExecutionRecordSha256": "3be65f6e491f46c00a855a06a24167d4fd1d74201942b0240b74dc6a0e4d9ee8",
+    "sd7PilotAuthorityRecordPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_AUTHORITY_RECORD_V1.json",
+    "sd7PilotAuthorityRecordSha256": "f5ccfa65d37223db60ad2935fd5c2ec3032cd76ba2af576fe385a376ab7336dd",
+    "allFourWereReverifiedOnDiskBeforeThisRecordWasWritten": true
+  },
+
+  "frozenRuleApplied": {
+    "MIN_PAGES_PER_ORGANISATION": 4,
+    "sd7IsRemovalOnly": true,
+    "sd7HasNoBranchThatProducesAPage": true,
+    "thereforeZeroRawPagesImpliesZeroSurvivingPages": true,
+    "r3WasNotAltered": true,
+    "noThresholdWasReinterpreted": true
+  },
+
+  "aggregate": {
+    "organisationsMeasured": 2,
+    "rawPages": 0,
+    "sd9Success": 0,
+    "sd9Failure": 2,
+    "sd9Pending": 0,
+    "reserveConsumption": 0
+  },
+
+  "perSelectionIndex": [
+    {
+      "selectionIndex": 5,
+      "rawPageEvidenceCount": 0,
+      "postSd7SurvivingPageCount": 0,
+      "nearDuplicateComputationPerformed": false,
+      "reasonNoComputation": "No page exists. A removal-only operation over an empty set is the empty set.",
+      "sd9Outcome": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+    },
+    {
+      "selectionIndex": 6,
+      "rawPageEvidenceCount": 0,
+      "postSd7SurvivingPageCount": 0,
+      "nearDuplicateComputationPerformed": false,
+      "reasonNoComputation": "No page exists. A removal-only operation over an empty set is the empty set.",
+      "sd9Outcome": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+    },
+    {
+      "selectionIndex": 7,
+      "started": false,
+      "sd9Outcome": "NOT_APPLICABLE_NEVER_STARTED",
+      "note": "Never started; P5_LOW_RAW_YIELD had already triggered. Not an acquisition failure, and not counted in any denominator here."
+    },
+    {
+      "selectionIndex": 8,
+      "started": false,
+      "sd9Outcome": "NOT_APPLICABLE_NEVER_STARTED",
+      "note": "Never started; P5_LOW_RAW_YIELD had already triggered. Not an acquisition failure, and not counted in any denominator here."
+    },
+    {
+      "selectionIndex": 9,
+      "started": false,
+      "sd9Outcome": "NOT_APPLICABLE_NEVER_STARTED",
+      "note": "Never started; P5_LOW_RAW_YIELD had already triggered. Not an acquisition failure, and not counted in any denominator here."
+    }
+  ],
+
+  "noDetailedArtifactsWereCreated": {
+    "reason": "The A3a SD7 pilot's detailed per-organisation artifacts describe shingle sets, Jaccard edges and survivor selection. For an empty page set every one of those would be an empty structure presented as a measurement. Writing them would manufacture the appearance of an analysis that did not and could not occur.",
+    "noShingleArtifact": true,
+    "noJaccardEdgeArtifact": true,
+    "noSurvivorOrderArtifact": true,
+    "noSealedDetailArtifact": true
+  },
+
+  "cumulativeSd9StateAcrossBothBatches": {
+    "organisationsFinalised": 7,
+    "sd9Success": 2,
+    "sd9Failure": 5,
+    "sd9Pending": 0,
+    "sourceOfTheBatch01Numbers": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_EXECUTION_RECORD_V1.json (2 success / 3 failure / 0 pending)",
+    "sevenOrganisationsIsNotAPopulationEstimate": true,
+    "noExtrapolationToTheFull110IsDrawn": true
+  },
+
+  "whatThisRecordDoesNotDo": {
+    "doesNotAuthoriseBatch03": true,
+    "doesNotConsumeAReserveEntry": true,
+    "doesNotReplaceAFailedSelectionSlot": true,
+    "doesNotReviseTheCorpusPlan": true,
+    "doesNotAdjudicateP2": true,
+    "doesNotDiagnoseWhyThePageCountWasZero": "That is the separate acquisition-yield root-cause audit, docs/audits/PHASE_2B_2D_ACQUISITION_YIELD_ROOT_CAUSE_AUDIT_V1.md."
+  },
+
+  "reportingDiscipline": {
+    "resultsAreReportedBySelectionIndexOnly": true,
+    "thisRecordCarriesNoInstitutionIdentity": true,
+    "thisRecordCarriesNoOrganisationIdOrEcheRowKey": true,
+    "thisRecordCarriesNoDomainHostnameOrUrl": true,
+    "thisRecordCarriesNoPageContentTitleOrText": true,
+    "theCanonicalDrawRemainsTheSourceForOrganisationIdentity": true
+  },
+
+  "sideEffects": {
+    "networkRequestsIssued": 0,
+    "databaseRowsWritten": 0,
+    "databaseAccessWasReadOnly": true,
+    "labelsCreated": 0,
+    "providerCallsMade": 0
+  },
+
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256."
+  },
+
+  "thisFileAuthorises": []
+}
