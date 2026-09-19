@@ -691,13 +691,25 @@ describe('2D-A1b: A1b changed no production file and weakened no firewall', () =
     //   every detailed SD7 result is written to a split-scoped external root
     //   outside this repository - and the three names are listed here rather
     //   than covered by a prefix so that a fourth one is a visible edit too.
+    //
+    //   IT GREW A THIRD TIME, FOR A2 BATCH 02, BY EXACT NAME. Batch 02
+    //   descends from A3a and lands three records: the owner's operational
+    //   adjudication of the one SD7 short-text edge case A3a returned for
+    //   confirmation, Batch 02's own authority record, and Batch 02's
+    //   aggregate public execution record. All three are aggregate and
+    //   identity-free - no per-organisation identity, domain or page content
+    //   reaches any of them - and the three names are listed here rather than
+    //   covered by a `BATCH_02` prefix so that Batch 03 is a visible edit too.
     const permitted = [
       'docs/evaluation/PHASE_2B_2D_METHOD_V2_A1B_DRAW_AUTHORITY_RECORD_V1.json',
       'docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_AUTHORITY_RECORD_V1.json',
       'docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_DEVIATION_ADJUDICATION_V1.json',
       'docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_EXECUTION_RECORD_V1.json',
+      'docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_02_AUTHORITY_RECORD_V1.json',
+      'docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_02_EXECUTION_RECORD_V1.json',
       'docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_AUTHORITY_RECORD_V1.json',
       'docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_EXECUTION_RECORD_V1.json',
+      'docs/evaluation/PHASE_2B_2D_METHOD_V2_SD7_SHORT_TEXT_OWNER_DECISION_V1.json',
       'docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json',
     ];
     for (const file of changed) {
