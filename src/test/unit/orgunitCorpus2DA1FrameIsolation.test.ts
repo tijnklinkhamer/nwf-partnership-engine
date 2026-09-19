@@ -73,15 +73,53 @@ const PURE_MODULES = ['frameContract.ts', 'claimSnapshot.ts', 'frameEnumeration.
 /** The commit A1 branched from: the Corpus Plan V1 owner approval. */
 const A1_BASE_COMMIT = 'ee7384087979ec74a45668bc9d770963444600cc';
 
-function baseCommitAvailable(): boolean {
+/**
+ * A1'S OWN TERMINAL COMMIT, AND WHY THE RANGE HAS ONE.
+ *
+ * The checks below make a HISTORICAL claim: *A1* added no production file and
+ * weakened no firewall. They used to prove it with `git diff <base> --`, which
+ * compares the base to the WORKING TREE — so as later phases landed, the claim
+ * silently became "no phase after the Corpus Plan V1 approval may ever touch
+ * `src/orgunits/`". That is a different, much stronger statement, it was never
+ * approved, and the first legitimately-approved production change after A1
+ * (the ADR 0012 robots repair) is what made the difference visible.
+ *
+ * Bounding the range at A1's terminal commit restores the approved claim
+ * exactly. Nothing is exempted and no protected path is removed: every
+ * assertion below is unchanged and still has to hold over the whole of A1.
+ * What a later phase does is governed by that phase's own isolation test —
+ * for the ADR 0012 repair, `orgunitRobotsOptionBRepairScope.test.ts`.
+ *
+ * `c64fad3` materialises FRAME_V2_GEN1 and is the last A1 commit; A1b begins
+ * at the next one.
+ */
+const A1_TERMINAL_COMMIT = 'c64fad3474499d392d316e35c720310c76e9405b';
+
+function commitExists(commit: string): boolean {
   try {
-    execFileSync('git', ['-C', REPO_ROOT, 'cat-file', '-e', `${A1_BASE_COMMIT}^{commit}`], {
+    execFileSync('git', ['-C', REPO_ROOT, 'cat-file', '-e', `${commit}^{commit}`], {
       stdio: 'ignore',
     });
     return true;
   } catch {
     return false;
   }
+}
+
+/** A shallow clone may carry neither endpoint; the check is then skipped rather than guessed. */
+function rangeAvailable(): boolean {
+  return commitExists(A1_BASE_COMMIT) && commitExists(A1_TERMINAL_COMMIT);
+}
+
+/** The paths A1 itself changed: base → A1's own terminal state, never → HEAD. */
+function changedWithinA1(...paths: readonly string[]): string[] {
+  return execFileSync(
+    'git',
+    ['-C', REPO_ROOT, 'diff', '--name-only', A1_BASE_COMMIT, A1_TERMINAL_COMMIT, '--', ...paths],
+    { encoding: 'utf8' },
+  )
+    .split('\n')
+    .filter((line) => line.length > 0);
 }
 
 function readSource(name: string): string {
@@ -473,16 +511,10 @@ describe('2D-A1: the frame carries identifiers, never targets or verdicts', () =
 });
 
 describe('2D-A1: A1 changed no production file and weakened no firewall', () => {
-  it.skipIf(!baseCommitAvailable())(
-    'since the Corpus Plan V1 approval commit, A1 touched nothing under src/orgunits/, migrations/ or src/cli/',
+  it.skipIf(!rangeAvailable())(
+    'across A1 itself, from the Corpus Plan V1 approval commit to the frozen frame, it touched nothing under src/orgunits/, migrations/ or src/cli/',
     () => {
-      const changed = execFileSync(
-        'git',
-        ['-C', REPO_ROOT, 'diff', '--name-only', A1_BASE_COMMIT, '--'],
-        { encoding: 'utf8' },
-      )
-        .split('\n')
-        .filter((line) => line.length > 0);
+      const changed = changedWithinA1();
       for (const file of changed) {
         expect(file.startsWith('src/orgunits/'), file).toBe(false);
         expect(file.startsWith('migrations/'), file).toBe(false);
@@ -497,17 +529,12 @@ describe('2D-A1: A1 changed no production file and weakened no firewall', () => 
     },
   );
 
-  it.skipIf(!baseCommitAvailable())('modified no existing firewall file', () => {
-    const changed = execFileSync(
-      'git',
-      ['-C', REPO_ROOT, 'diff', '--name-only', A1_BASE_COMMIT, '--', 'src/test/firewall'],
-      { encoding: 'utf8' },
-    )
-      .split('\n')
-      .filter((line) => line.length > 0);
-    // Before this file is committed it is untracked and the diff is empty;
-    // afterwards it is the only firewall path in it. Neither state may contain
-    // any OTHER firewall file, which is the assertion that matters.
+  it.skipIf(!rangeAvailable())('modified no existing firewall file', () => {
+    const changed = changedWithinA1('src/test/firewall');
+    // A1 added no firewall file of its own, so the exclusion below is expected
+    // to match nothing; it stays because the assertion that matters is "no
+    // OTHER firewall file", and that has to keep holding if A1's own file is
+    // ever moved into the range.
     expect(
       changed.filter((file) => file !== 'src/test/firewall/phase2b2dA1Frame.firewall.test.ts'),
     ).toEqual([]);

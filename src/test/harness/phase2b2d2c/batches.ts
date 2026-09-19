@@ -13,6 +13,12 @@
  * ones loaded from the selected variant root, and both must agree with the
  * freeze. Every mismatch is `CORPUS_CONFIG_OR_HASH_DRIFT`.
  *
+ * ONE FIELD IS NOT AN ALGORITHM. `fetchPolicyVersion` is HISTORICAL RUN
+ * PROVENANCE and is read out of the freeze being verified, never out of
+ * `src/orgunits/web/policy.ts`. See `HistoricalRunProvenance` below for why,
+ * and `docs/evaluation/PHASE_2B_ROBOTS_OPTION_B_FREEZE_COLLISION_OWNER_DECISION_V1.json`
+ * for the owner decision that settled it.
+ *
  * PURE. No network, no database, no filesystem, no clock.
  */
 import { createHash } from 'node:crypto';
@@ -31,9 +37,106 @@ export interface ReconstructionAlgorithms {
   readonly canonicalStringify: (value: unknown) => string;
   readonly computeFinalInputSha256: (input: FinalIdentityInput) => string;
   readonly ruleVersion: string;
-  readonly fetchPolicyVersion: string;
   readonly assemblyVersion: string;
   readonly outputSchemaVersion: string;
+}
+
+/**
+ * THE HISTORICAL RUN PROVENANCE A RECONSTRUCTION STAMPS INTO EVERY CONTEXT.
+ *
+ * SEPARATE FROM `ReconstructionAlgorithms` ON PURPOSE, AND THIS IS THE WHOLE
+ * CORRECTION. `fetchPolicyVersion` used to live in that bag beside
+ * `ruleVersion` and `assemblyVersion`, and every caller filled it from
+ * `src/orgunits/web/policy.ts::FETCH_POLICY_VERSION`. That read the field as
+ * "the acquisition engine's current algorithm version", and it was wrong at
+ * the temporal boundary: the classifier's production loader takes fetch-policy
+ * provenance from `orgunit_research_runs.fetch_policy_version` (see
+ * `loaders.ts::loadRunContext`), so for a classifier input it is RUN
+ * PROVENANCE — a fact about the acquisition run whose pages are being
+ * classified — not a property of whatever build is verifying the freeze today.
+ *
+ * The distinction is invisible while exactly one fetch policy has ever
+ * existed, and decisive the moment a second one does. ADR 0012 bumped
+ * production to `orgunit-fetch-policy-v2`; the historical 2D2C studies ran
+ * under, and froze, `orgunit-fetch-policy-v1`. Reconstructing their inputs
+ * with today's constant would rebuild DIFFERENT input identities for
+ * experiments whose evidence was never re-acquired — redefining history
+ * rather than verifying it.
+ *
+ * `ruleVersion`, `assemblyVersion` and `outputSchemaVersion` are NOT moved
+ * here and are NOT weakened: those genuinely are algorithms this build
+ * implements, and a freeze that disagrees with them is genuine drift.
+ */
+export interface HistoricalRunProvenance {
+  /** The fetch-policy version FROZEN for this historical input. Never `FETCH_POLICY_VERSION`. */
+  readonly fetchPolicyVersion: string;
+}
+
+/**
+ * The FORM of a fetch-policy version string. A form check only: it refuses an
+ * empty, whitespace or obviously-not-a-policy-version value so that a
+ * structurally broken freeze stops here rather than silently producing a
+ * plausible-looking hash. It deliberately does NOT enumerate the known
+ * versions — pinning `v1` here would re-create, one layer down, exactly the
+ * "today's world is the only world" coupling this file exists to remove.
+ */
+const FETCH_POLICY_VERSION_FORM = /^orgunit-fetch-policy-v[1-9][0-9]*$/;
+
+/**
+ * The minimum structure `historicalRunProvenanceOf` reads. Structural rather
+ * than the concrete `Freeze` type so the F0E/F0I/F0O freezes — which carry
+ * their own top-level schemas but the SAME `FrozenBatchContextSchema` — are
+ * covered by one implementation instead of four.
+ */
+export interface FrozenInputProvenanceSource {
+  readonly inputConstruction: {
+    readonly context: { readonly fetchPolicyVersion: string };
+  };
+  readonly batching: {
+    readonly plan: readonly {
+      readonly ordinal: number;
+      readonly context: { readonly fetchPolicyVersion: string };
+    }[];
+  };
+}
+
+/**
+ * Reads the historical fetch-policy provenance OUT OF the freeze being
+ * verified, and proves the freeze agrees with itself about it.
+ *
+ * Two checks, both `CORPUS_CONFIG_OR_HASH_DRIFT`:
+ *
+ *   A. the frozen `inputConstruction.context.fetchPolicyVersion` exists and
+ *      has the form of a fetch-policy version;
+ *   B. EVERY frozen batch context carries that exact value.
+ *
+ * (B) is what keeps this from being a weakening. Without it, a freeze whose
+ * construction contract said v1 while its batch contexts said v2 would still
+ * reconstruct — the reconstruction would follow the contract and the batch
+ * comparison would then report a `context` mismatch, but the error would name
+ * the wrong thing. With it, a freeze that disagrees with itself is refused by
+ * name, before a single hash is computed.
+ */
+export function historicalRunProvenanceOf(
+  freeze: FrozenInputProvenanceSource,
+): HistoricalRunProvenance {
+  const frozen = freeze.inputConstruction.context.fetchPolicyVersion;
+  if (typeof frozen !== 'string' || !FETCH_POLICY_VERSION_FORM.test(frozen)) {
+    throw new FreezeDriftError(
+      'CORPUS_CONFIG_OR_HASH_DRIFT',
+      `the freeze carries no usable historical fetchPolicyVersion (${JSON.stringify(frozen)}).`,
+    );
+  }
+  const disagreeing = freeze.batching.plan
+    .filter((batch) => batch.context.fetchPolicyVersion !== frozen)
+    .map((batch) => `${batch.ordinal}`);
+  if (disagreeing.length > 0) {
+    throw new FreezeDriftError(
+      'CORPUS_CONFIG_OR_HASH_DRIFT',
+      `the freeze disagrees with itself about fetchPolicyVersion: inputConstruction says ${frozen}, batches ${disagreeing.join(', ')} do not.`,
+    );
+  }
+  return { fetchPolicyVersion: frozen };
 }
 
 export interface ReconstructedBatch {
@@ -95,6 +198,7 @@ function unionRoots(documents: readonly GoldCorpusItem['document'][]): FrozenBat
 export function reconstructFrozenBatches(
   rows: readonly GoldCorpusItem[],
   algorithms: ReconstructionAlgorithms,
+  provenance: HistoricalRunProvenance,
 ): ReconstructedBatch[] {
   const groups = new Map<string, { rows: GoldCorpusItem[]; lines: number[] }>();
   for (const [index, row] of rows.entries()) {
@@ -113,7 +217,7 @@ export function reconstructFrozenBatches(
       countryCode: commonValue(group.rows, 'countryCode'),
       runId: commonValue(group.rows, 'runId'),
       ruleVersion: algorithms.ruleVersion,
-      fetchPolicyVersion: algorithms.fetchPolicyVersion,
+      fetchPolicyVersion: provenance.fetchPolicyVersion,
       assemblyVersion: algorithms.assemblyVersion,
       rootKey: null,
       roots: unionRoots(documents),
@@ -204,12 +308,13 @@ export function reconstructAndVerifyFrozenBatches(
   rows: readonly GoldCorpusItem[],
   algorithms: ReconstructionAlgorithms,
 ): ReconstructedBatch[] {
+  // THE HISTORICAL PROVENANCE COMES OUT OF THE FREEZE, NOT OUT OF THIS BUILD.
+  // Read first, so a freeze that disagrees with itself about it stops before
+  // any algorithm comparison and with the accurate reason.
+  const provenance = historicalRunProvenanceOf(freeze);
   const construction = freeze.inputConstruction.context;
   const versionProblems: string[] = [];
   if (construction.ruleVersion !== algorithms.ruleVersion) versionProblems.push('ruleVersion');
-  if (construction.fetchPolicyVersion !== algorithms.fetchPolicyVersion) {
-    versionProblems.push('fetchPolicyVersion');
-  }
   if (construction.assemblyVersion !== algorithms.assemblyVersion)
     versionProblems.push('assemblyVersion');
   if (freeze.classifier.assemblyVersion !== algorithms.assemblyVersion) {
@@ -224,7 +329,7 @@ export function reconstructAndVerifyFrozenBatches(
       `production version constants differ from the freeze: ${versionProblems.join(', ')}.`,
     );
   }
-  const batches = reconstructFrozenBatches(rows, algorithms);
+  const batches = reconstructFrozenBatches(rows, algorithms, provenance);
   const mismatches = batchMismatches(freeze.batching.plan, batches, algorithms.canonicalStringify);
   if (mismatches.length > 0) {
     throw new FreezeDriftError(

@@ -129,16 +129,36 @@ describe('2D2C-F9: the scoring adapter reaches exactly a scoring-only graph', ()
     }
   });
 
-  it('the v2 scorer is byte-identical to the F7 execution build', () => {
-    let available = true;
-    try {
-      execFileSync('git', ['-C', REPO_ROOT, 'cat-file', '-e', `${EXECUTION_BUILD}^{commit}`], {
-        stdio: 'ignore',
-      });
-    } catch {
-      available = false;
-    }
-    if (!available) return;
+  /**
+   * F9'S OWN TERMINAL COMMIT, AND WHY THE RANGE HAS ONE.
+   *
+   * This is a HISTORICAL claim about F9: the F9 adapter left the v2 scorer
+   * and its sources byte-identical to the F7 execution build. It used to
+   * prove it with `git diff <base> --`, which compares the base to the
+   * WORKING TREE — so it did not bound F9, it froze `f2/` and `scoring/`
+   * against every future phase, forever, on F9's authority.
+   *
+   * `9b8a0e6` IS the F9 scoring-adapter commit — F9's terminal state.
+   * Bounded there, the claim is proved exactly as written. A later phase that
+   * legitimately edits `scoring/` (the ADR 0012 freeze-verifier provenance
+   * correction does, to stop reconstructing historical inputs with today's
+   * `FETCH_POLICY_VERSION`) is governed by its own isolation test, not by
+   * F9's.
+   */
+  const F9_TERMINAL_COMMIT = '9b8a0e61a52ded96bfd40f1aa502d5311cef7619';
+
+  it('across F9 itself, the v2 scorer stayed byte-identical to the F7 execution build', () => {
+    const exists = (commit: string): boolean => {
+      try {
+        execFileSync('git', ['-C', REPO_ROOT, 'cat-file', '-e', `${commit}^{commit}`], {
+          stdio: 'ignore',
+        });
+        return true;
+      } catch {
+        return false;
+      }
+    };
+    if (!exists(EXECUTION_BUILD) || !exists(F9_TERMINAL_COMMIT)) return;
     const diff = execFileSync(
       'git',
       [
@@ -147,6 +167,7 @@ describe('2D2C-F9: the scoring adapter reaches exactly a scoring-only graph', ()
         'diff',
         '--name-only',
         EXECUTION_BUILD,
+        F9_TERMINAL_COMMIT,
         '--',
         `${HARNESS}/f2/`,
         `${HARNESS}/scoring/`,

@@ -1033,32 +1033,59 @@ describe('the historical F7 firewall passes unchanged', () => {
   const F6_OWNER_FREEZE_APPROVAL_COMMIT = '4a1daf4309e35c8be12b30ae085a9083551fdb8b';
   const F7_FIREWALL = 'src/test/firewall/phase2b2d2cF7RestartExecution.firewall.test.ts';
 
-  const commitAvailable = (): boolean => {
+  /**
+   * METHODOLOGY V2'S OWN TERMINAL COMMIT, AND WHY EVERY RANGE HERE HAS ONE.
+   *
+   * The three checks in this block make HISTORICAL claims about METHODOLOGY
+   * WORK: it changed no production file, and edited no firewall. They used to
+   * prove them with `git diff <base> --`, which compares the base to the
+   * WORKING TREE — so as later phases landed, the claims silently grew into
+   * "no phase after the F6 approval may ever touch `src/orgunits/`" and "no
+   * phase may ever edit a firewall". Neither was ever approved, and the first
+   * approved production change after methodology work (the ADR 0012 robots
+   * repair) is what exposed the difference.
+   *
+   * `5988beb` records the owner freeze approval of the exact R3 bytes and is
+   * the last methodology commit. Bounded there, each claim is proved exactly
+   * as it was written, over the whole of the methodology work, with every
+   * protected path and every assertion unchanged. What a LATER phase does is
+   * that phase's own isolation test's business.
+   */
+  const METHODOLOGY_TERMINAL_COMMIT = '5988bebd0aacc21404a72de464e0c3ef033e3ee0';
+
+  const commitExists = (commit: string): boolean => {
     try {
-      execFileSync(
-        'git',
-        ['-C', ROOT, 'cat-file', '-e', `${F6_OWNER_FREEZE_APPROVAL_COMMIT}^{commit}`],
-        {
-          stdio: 'ignore',
-        },
-      );
+      execFileSync('git', ['-C', ROOT, 'cat-file', '-e', `${commit}^{commit}`], {
+        stdio: 'ignore',
+      });
       return true;
     } catch {
       return false;
     }
   };
 
+  const changedBetween = (base: string): string[] =>
+    execFileSync(
+      'git',
+      ['-C', ROOT, 'diff', '--name-only', base, METHODOLOGY_TERMINAL_COMMIT, '--'],
+      {
+        encoding: 'utf8',
+      },
+    )
+      .split('\n')
+      .filter((line) => line.length > 0);
+
+  const commitAvailable = (): boolean =>
+    commitExists(F6_OWNER_FREEZE_APPROVAL_COMMIT) && commitExists(METHODOLOGY_TERMINAL_COMMIT);
+
   it.skipIf(!commitAvailable())(
-    'methodology work changed nothing under src/orgunits/ since the F6 approval commit',
+    'methodology work changed nothing under src/orgunits/ between the F6 approval commit and its own terminal commit',
     () => {
-      const changed = execFileSync(
-        'git',
-        ['-C', ROOT, 'diff', '--name-only', F6_OWNER_FREEZE_APPROVAL_COMMIT, '--'],
-        { encoding: 'utf8' },
-      )
-        .split('\n')
-        .filter((line) => line.length > 0);
-      expect(changed.filter((file) => file.startsWith('src/orgunits/'))).toEqual([]);
+      expect(
+        changedBetween(F6_OWNER_FREEZE_APPROVAL_COMMIT).filter((file) =>
+          file.startsWith('src/orgunits/'),
+        ),
+      ).toEqual([]);
     },
   );
 
@@ -1074,25 +1101,11 @@ describe('the historical F7 firewall passes unchanged', () => {
    */
   const PRE_METHODOLOGY_BASELINE = '9b8a0e61a52ded96bfd40f1aa502d5311cef7619';
 
-  const baselineAvailable = (): boolean => {
-    try {
-      execFileSync('git', ['-C', ROOT, 'cat-file', '-e', `${PRE_METHODOLOGY_BASELINE}^{commit}`], {
-        stdio: 'ignore',
-      });
-      return true;
-    } catch {
-      return false;
-    }
-  };
+  const baselineAvailable = (): boolean =>
+    commitExists(PRE_METHODOLOGY_BASELINE) && commitExists(METHODOLOGY_TERMINAL_COMMIT);
 
   it.skipIf(!baselineAvailable())('methodology work edited no firewall file at all', () => {
-    const changed = execFileSync(
-      'git',
-      ['-C', ROOT, 'diff', '--name-only', PRE_METHODOLOGY_BASELINE, '--'],
-      { encoding: 'utf8' },
-    )
-      .split('\n')
-      .filter((line) => line.length > 0);
+    const changed = changedBetween(PRE_METHODOLOGY_BASELINE);
     expect(changed).not.toContain(F7_FIREWALL);
     expect(changed.filter((file) => file.startsWith('src/test/firewall/'))).toEqual([]);
   });
@@ -1100,14 +1113,7 @@ describe('the historical F7 firewall passes unchanged', () => {
   it.skipIf(!baselineAvailable())(
     'methodology work touched only docs/ and src/test/ - no production file in any namespace',
     () => {
-      const changed = execFileSync(
-        'git',
-        ['-C', ROOT, 'diff', '--name-only', PRE_METHODOLOGY_BASELINE, '--'],
-        { encoding: 'utf8' },
-      )
-        .split('\n')
-        .filter((line) => line.length > 0);
-      const stray = changed.filter(
+      const stray = changedBetween(PRE_METHODOLOGY_BASELINE).filter(
         (file) => !file.startsWith('docs/') && !file.startsWith('src/test/'),
       );
       expect(stray).toEqual([]);

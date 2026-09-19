@@ -18,9 +18,9 @@ import { ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION } from '../../orgunits/classify/con
 import { computeFinalInputSha256 } from '../../orgunits/classify/finalIdentity.js';
 import { ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION } from '../../orgunits/classify/outputSchema.js';
 import { ORGUNIT_SIGNAL_RULE_VERSION } from '../../orgunits/signals/score.js';
-import { FETCH_POLICY_VERSION } from '../../orgunits/web/policy.js';
 import {
   batchMismatches,
+  historicalRunProvenanceOf,
   reconstructAndVerifyFrozenBatches,
   reconstructFrozenBatches,
 } from '../harness/phase2b2d2c/batches.js';
@@ -42,10 +42,17 @@ const ALGORITHMS = {
   canonicalStringify,
   computeFinalInputSha256,
   ruleVersion: ORGUNIT_SIGNAL_RULE_VERSION,
-  fetchPolicyVersion: FETCH_POLICY_VERSION,
   assemblyVersion: ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION,
   outputSchemaVersion: ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
 };
+/**
+ * The HISTORICAL run provenance, read out of the F0B freeze rather than out of
+ * `src/orgunits/web/policy.ts`. `FETCH_POLICY_VERSION` is deliberately NOT
+ * imported by this file any more: the F0B study ran under
+ * `orgunit-fetch-policy-v1` and reconstructs as v1 no matter what the current
+ * acquisition build is called.
+ */
+const PROVENANCE = historicalRunProvenanceOf(loadFreezeFromBytes(FREEZE_BYTES).freeze);
 const realReader = { read: (relative: string) => readFileSync(join(ROOT, relative)) };
 
 function flipLastByte(bytes: Buffer): Buffer {
@@ -205,12 +212,13 @@ describe('2D2C-F1 preflight: the twelve frozen batches and their identities', ()
   });
 
   it('a corpus/config/hash mismatch is reported by exact check and stops before anything executable', () => {
-    const batches = reconstructFrozenBatches(corpus.rows, ALGORITHMS);
+    const batches = reconstructFrozenBatches(corpus.rows, ALGORITHMS, PROVENANCE);
     const recomputed = reconstructFrozenBatches(
       corpus.rows.map((row, index) =>
         index === 3 ? corpus.rows[4]! : index === 4 ? corpus.rows[3]! : row,
       ),
       ALGORITHMS,
+      PROVENANCE,
     );
     expect(batchMismatches(freeze.batching.plan, recomputed, canonicalStringify)).toEqual([
       '2:goldIds',
@@ -231,7 +239,11 @@ describe('2D2C-F1 preflight: the twelve frozen batches and their identities', ()
     // A corpus row whose organisation fields disagree stops construction; no version is chosen.
     const [first, ...rest] = corpus.rows;
     expect(() =>
-      reconstructFrozenBatches([{ ...first!, runId: `${first!.runId}-x` }, ...rest], ALGORITHMS),
+      reconstructFrozenBatches(
+        [{ ...first!, runId: `${first!.runId}-x` }, ...rest],
+        ALGORITHMS,
+        PROVENANCE,
+      ),
     ).toThrow(/runId disagrees/);
   });
 

@@ -82,7 +82,6 @@ import {
   TRANSIENT_RETRY_BASE_DELAY_MS,
 } from '../../orgunits/classify/retry.js';
 import { ORGUNIT_SIGNAL_RULE_VERSION } from '../../orgunits/signals/score.js';
-import { FETCH_POLICY_VERSION } from '../../orgunits/web/policy.js';
 import { HARNESS_STDERR_TAIL_MAX_CHARS } from '../harness/processIsolatedBatch.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -669,7 +668,13 @@ function reconstructBatchInputs(
         countryCode: commonValue(group, 'countryCode'),
         runId: commonValue(group, 'runId'),
         ruleVersion: ORGUNIT_SIGNAL_RULE_VERSION,
-        fetchPolicyVersion: FETCH_POLICY_VERSION,
+        // HISTORICAL RUN PROVENANCE, not a production algorithm version: the
+        // F0A/F0B study ran under `orgunit-fetch-policy-v1` and its inputs
+        // reconstruct as v1 whatever the current acquisition build is called
+        // (ADR 0012 made it v2). `EXPECTED.fetchPolicyVersion` is the frozen
+        // value, pinned by this file and asserted equal to the freeze's own
+        // below.
+        fetchPolicyVersion: EXPECTED.fetchPolicyVersion,
         assemblyVersion: ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION,
         rootKey: null,
         roots: unionRoots(documents),
@@ -1380,8 +1385,10 @@ describe('2D2C-F0A freeze: the input-construction contract', () => {
   it('pins the exact production rule, fetch-policy and assembly versions, rootKey null, and ordinal root ordering', () => {
     expect(construction.context['ruleVersion']).toBe(EXPECTED.ruleVersion);
     expect(construction.context['ruleVersion']).toBe(ORGUNIT_SIGNAL_RULE_VERSION);
+    // NOT compared to production `FETCH_POLICY_VERSION`: that is run
+    // provenance, frozen with this historical input, and ADR 0012 moved the
+    // current acquisition build to v2 without re-acquiring a single page.
     expect(construction.context['fetchPolicyVersion']).toBe(EXPECTED.fetchPolicyVersion);
-    expect(construction.context['fetchPolicyVersion']).toBe(FETCH_POLICY_VERSION);
     expect(construction.context['assemblyVersion']).toBe(EXPECTED.assemblyVersion);
     expect(construction.context['assemblyVersion']).toBe(ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION);
     expect(construction.context['rootKey']).toBeNull();
@@ -1449,7 +1456,6 @@ describe('2D2C-F0A freeze: batch contexts reconstructed independently from the D
     for (const { context } of inputs) {
       expect(context.ruleVersion).toBe(ORGUNIT_SIGNAL_RULE_VERSION);
       expect(context.ruleVersion).toBe(EXPECTED.ruleVersion);
-      expect(context.fetchPolicyVersion).toBe(FETCH_POLICY_VERSION);
       expect(context.fetchPolicyVersion).toBe(EXPECTED.fetchPolicyVersion);
       expect(context.assemblyVersion).toBe(ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION);
       expect(context.assemblyVersion).toBe(EXPECTED.assemblyVersion);

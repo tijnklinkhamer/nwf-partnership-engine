@@ -52,7 +52,6 @@ import {
 } from '../../orgunits/classify/repair.js';
 import { MAX_TRANSIENT_RETRIES } from '../../orgunits/classify/retry.js';
 import { ORGUNIT_SIGNAL_RULE_VERSION } from '../../orgunits/signals/score.js';
-import { FETCH_POLICY_VERSION } from '../../orgunits/web/policy.js';
 import { reconstructAndVerifyFrozenBatches } from '../harness/phase2b2d2c/batches.js';
 import {
   EXPECTED_F0B_FREEZE_RAW_SHA256,
@@ -183,7 +182,14 @@ describe('2D2C-F0C: the one variant, recomputed from the PRODUCTION V3 bytes', (
     );
     expect(F0C.freeze.classifier.assemblyVersion).toBe(ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION);
     expect(F0C.freeze.inputConstruction.context.ruleVersion).toBe(ORGUNIT_SIGNAL_RULE_VERSION);
-    expect(F0C.freeze.inputConstruction.context.fetchPolicyVersion).toBe(FETCH_POLICY_VERSION);
+    // The fetch-policy version is HISTORICAL RUN PROVENANCE, so it is checked
+    // against the F0B freeze this attempt inherits its inputs from - never
+    // against production `FETCH_POLICY_VERSION`, which ADR 0012 moved to v2
+    // without re-acquiring any of this study's evidence.
+    expect(F0C.freeze.inputConstruction.context.fetchPolicyVersion).toBe(
+      F0B.freeze.inputConstruction.context.fetchPolicyVersion,
+    );
+    expect(F0C.freeze.inputConstruction.context.fetchPolicyVersion).toBe('orgunit-fetch-policy-v1');
     expect(F0C.freeze.classifier.runConfig).toEqual({ maxTurns: 3, thinking: 'disabled' });
     expect(F0C.freeze.scoring.gates).toEqual(
       (F0B.freeze as unknown as { scoring: { gates: unknown } }).scoring.gates,
@@ -209,7 +215,6 @@ describe('2D2C-F0C: the 12 V3 final identities and the batches, recomputed from 
     canonicalStringify,
     computeFinalInputSha256,
     ruleVersion: ORGUNIT_SIGNAL_RULE_VERSION,
-    fetchPolicyVersion: FETCH_POLICY_VERSION,
     assemblyVersion: ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION,
     outputSchemaVersion: ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
   });

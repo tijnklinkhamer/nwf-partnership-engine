@@ -33,7 +33,6 @@ import {
   type ClassificationResult,
 } from '../../../../orgunits/classify/outputSchema.js';
 import { ORGUNIT_SIGNAL_RULE_VERSION } from '../../../../orgunits/signals/score.js';
-import { FETCH_POLICY_VERSION } from '../../../../orgunits/web/policy.js';
 import { validateClassifierResponse } from '../../../../orgunits/classify/validate.js';
 import type { ClassifierBatch, ClassifierDocument } from '../../../../orgunits/classify/types.js';
 import { readArtifact, REPAIR_ROUND_DIRECTORY_NAME, type ArtifactKind } from '../artifacts.js';
@@ -591,7 +590,6 @@ export function loadScoringSources(repoRoot: string, outputRoot: string): Loaded
     canonicalStringify,
     computeFinalInputSha256,
     ruleVersion: ORGUNIT_SIGNAL_RULE_VERSION,
-    fetchPolicyVersion: FETCH_POLICY_VERSION,
     assemblyVersion: ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION,
     outputSchemaVersion: ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
   });

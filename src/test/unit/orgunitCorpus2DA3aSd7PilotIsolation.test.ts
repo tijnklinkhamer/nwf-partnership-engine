@@ -89,15 +89,46 @@ const THE_ONLY_FILE_MODULES = ['pilotArtifact.ts', 'materialisePilot.ts'];
 /** The commit A3a branched from: the A2 Batch-01 execution record. */
 const A3A_BASE_COMMIT = 'a0ae27cc30f15537014fa8a4efaae9aa25da542a';
 
-function baseCommitAvailable(): boolean {
+/**
+ * A3a'S OWN TERMINAL COMMIT, AND WHY THE RANGE HAS ONE.
+ *
+ * The checks below make a HISTORICAL claim about A3a. They used to prove it
+ * with `git diff <base> --`, which compares the base to the WORKING TREE, and
+ * so quietly turned "A3a changed no production file" into "no phase after the
+ * Batch-01 record may ever change one". Bounding the range at A3a's own
+ * terminal commit restores the approved claim exactly; every assertion below
+ * is unchanged and still has to hold over the whole of A3a.
+ *
+ * `013a04d` is the executed SD7 pilot and its aggregate record — the last A3a
+ * commit in the pilot's own lineage.
+ */
+const A3A_TERMINAL_COMMIT = '013a04d194d7171c8c7319a84987d9e23a618fea';
+
+function commitExists(commit: string): boolean {
   try {
-    execFileSync('git', ['-C', REPO_ROOT, 'cat-file', '-e', `${A3A_BASE_COMMIT}^{commit}`], {
+    execFileSync('git', ['-C', REPO_ROOT, 'cat-file', '-e', `${commit}^{commit}`], {
       stdio: 'ignore',
     });
     return true;
   } catch {
     return false;
   }
+}
+
+/** A shallow clone may carry neither endpoint; the check is then skipped rather than guessed. */
+function rangeAvailable(): boolean {
+  return commitExists(A3A_BASE_COMMIT) && commitExists(A3A_TERMINAL_COMMIT);
+}
+
+/** The paths A3a itself changed: base → A3a's own terminal state, never → HEAD. */
+function changedWithinA3a(...paths: readonly string[]): string[] {
+  return execFileSync(
+    'git',
+    ['-C', REPO_ROOT, 'diff', '--name-only', A3A_BASE_COMMIT, A3A_TERMINAL_COMMIT, '--', ...paths],
+    { encoding: 'utf8' },
+  )
+    .split('\n')
+    .filter((line) => line.length > 0);
 }
 
 function readSource(name: string): string {
@@ -647,16 +678,10 @@ describe('2D-A3a: purity, and the one entry point', () => {
 });
 
 describe('2D-A3a: A3a changed no production file and weakened no firewall', () => {
-  it.skipIf(!baseCommitAvailable())(
-    'since the A2 Batch-01 commit, A3a touched nothing under src/orgunits/, migrations/, src/cli/ or src/ingest/',
+  it.skipIf(!rangeAvailable())(
+    'across A3a itself, from the A2 Batch-01 commit to the executed pilot record, it touched nothing under src/orgunits/, migrations/, src/cli/ or src/ingest/',
     () => {
-      const changed = execFileSync(
-        'git',
-        ['-C', REPO_ROOT, 'diff', '--name-only', A3A_BASE_COMMIT, '--'],
-        { encoding: 'utf8' },
-      )
-        .split('\n')
-        .filter((line) => line.length > 0);
+      const changed = changedWithinA3a();
       for (const file of changed) {
         expect(file.startsWith('src/orgunits/'), file).toBe(false);
         expect(file.startsWith('migrations/'), file).toBe(false);
@@ -685,25 +710,12 @@ describe('2D-A3a: A3a changed no production file and weakened no firewall', () =
     },
   );
 
-  it.skipIf(!baseCommitAvailable())('modified no firewall file at all', () => {
-    const changed = execFileSync(
-      'git',
-      ['-C', REPO_ROOT, 'diff', '--name-only', A3A_BASE_COMMIT, '--', 'src/test/firewall'],
-      { encoding: 'utf8' },
-    )
-      .split('\n')
-      .filter((line) => line.length > 0);
-    expect(changed).toEqual([]);
+  it.skipIf(!rangeAvailable())('modified no firewall file at all', () => {
+    expect(changedWithinA3a('src/test/firewall')).toEqual([]);
   });
 
-  it.skipIf(!baseCommitAvailable())('committed no sealed detail file to git', () => {
-    const changed = execFileSync(
-      'git',
-      ['-C', REPO_ROOT, 'diff', '--name-only', A3A_BASE_COMMIT, '--'],
-      { encoding: 'utf8' },
-    )
-      .split('\n')
-      .filter((line) => line.length > 0);
+  it.skipIf(!rangeAvailable())('committed no sealed detail file to git', () => {
+    const changed = changedWithinA3a();
     for (const file of changed) {
       expect(file.includes('SD7_PILOT_DETAIL'), `${file} is a sealed detail file`).toBe(false);
       expect(file.includes('gen1-dev-confirm'), file).toBe(false);

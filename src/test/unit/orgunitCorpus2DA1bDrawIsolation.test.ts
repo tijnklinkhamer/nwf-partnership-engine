@@ -80,15 +80,49 @@ const THE_ONLY_FILE_MODULES = ['readFrozenFrame.ts', 'materialiseDraw.ts'];
 /** The commit A1b branched from: the A1 frame materialisation. */
 const A1B_BASE_COMMIT = 'c64fad3474499d392d316e35c720310c76e9405b';
 
-function baseCommitAvailable(): boolean {
+/**
+ * A1b'S OWN TERMINAL COMMIT, AND WHY THE RANGE HAS ONE.
+ *
+ * The checks below make a HISTORICAL claim about A1b. They used to prove it
+ * with `git diff <base> --`, which compares the base to the WORKING TREE — so
+ * they did not bound A1b at all, they bounded every branch DESCENDING from
+ * A1b. The `docs/evaluation` check below said so in as many words, and had
+ * already been widened three times by exact filename for A2 Batch 01, A3a and
+ * A2 Batch 02 — records that are not A1b changes and never should have needed
+ * an A1b allowlist entry.
+ *
+ * `34537ca` materialises DRAW_V2_GEN1 and is the last A1b commit. Bounded
+ * there, the allowlist returns to exactly the two artifacts A1b itself wrote,
+ * the accretion stops permanently, and every assertion still has to hold over
+ * the whole of A1b. A later phase is governed by its own isolation test.
+ */
+const A1B_TERMINAL_COMMIT = '34537caf2308ade014f9f459ca9f97596dc48a17';
+
+function commitExists(commit: string): boolean {
   try {
-    execFileSync('git', ['-C', REPO_ROOT, 'cat-file', '-e', `${A1B_BASE_COMMIT}^{commit}`], {
+    execFileSync('git', ['-C', REPO_ROOT, 'cat-file', '-e', `${commit}^{commit}`], {
       stdio: 'ignore',
     });
     return true;
   } catch {
     return false;
   }
+}
+
+/** A shallow clone may carry neither endpoint; the check is then skipped rather than guessed. */
+function rangeAvailable(): boolean {
+  return commitExists(A1B_BASE_COMMIT) && commitExists(A1B_TERMINAL_COMMIT);
+}
+
+/** The paths A1b itself changed: base → A1b's own terminal state, never → HEAD. */
+function changedWithinA1b(...paths: readonly string[]): string[] {
+  return execFileSync(
+    'git',
+    ['-C', REPO_ROOT, 'diff', '--name-only', A1B_BASE_COMMIT, A1B_TERMINAL_COMMIT, '--', ...paths],
+    { encoding: 'utf8' },
+  )
+    .split('\n')
+    .filter((line) => line.length > 0);
 }
 
 function readSource(name: string): string {
@@ -619,16 +653,10 @@ describe('2D-A1b: the frozen constants are declared by value, so a drift is visi
 });
 
 describe('2D-A1b: A1b changed no production file and weakened no firewall', () => {
-  it.skipIf(!baseCommitAvailable())(
-    'since the A1 frame commit, A1b touched nothing under src/orgunits/, migrations/, src/cli/ or src/ingest/',
+  it.skipIf(!rangeAvailable())(
+    'across A1b itself, from the A1 frame commit to the frozen draw, it touched nothing under src/orgunits/, migrations/, src/cli/ or src/ingest/',
     () => {
-      const changed = execFileSync(
-        'git',
-        ['-C', REPO_ROOT, 'diff', '--name-only', A1B_BASE_COMMIT, '--'],
-        { encoding: 'utf8' },
-      )
-        .split('\n')
-        .filter((line) => line.length > 0);
+      const changed = changedWithinA1b();
       for (const file of changed) {
         expect(file.startsWith('src/orgunits/'), file).toBe(false);
         expect(file.startsWith('migrations/'), file).toBe(false);
@@ -646,74 +674,42 @@ describe('2D-A1b: A1b changed no production file and weakened no firewall', () =
     },
   );
 
-  it.skipIf(!baseCommitAvailable())('modified no firewall file at all', () => {
-    const changed = execFileSync(
-      'git',
-      ['-C', REPO_ROOT, 'diff', '--name-only', A1B_BASE_COMMIT, '--', 'src/test/firewall'],
-      { encoding: 'utf8' },
-    )
-      .split('\n')
-      .filter((line) => line.length > 0);
-    expect(changed).toEqual([]);
+  it.skipIf(!rangeAvailable())('modified no firewall file at all', () => {
+    expect(changedWithinA1b('src/test/firewall')).toEqual([]);
   });
 
-  it.skipIf(!baseCommitAvailable())('changed no frozen methodology, plan or approval byte', () => {
-    const changed = execFileSync(
-      'git',
-      ['-C', REPO_ROOT, 'diff', '--name-only', A1B_BASE_COMMIT, '--', 'docs/evaluation'],
-      { encoding: 'utf8' },
-    )
-      .split('\n')
-      .filter((line) => line.length > 0);
-    // WHY THIS LIST GREW, ONCE, BY EXACT NAME.
+  it.skipIf(!rangeAvailable())('changed no frozen methodology, plan or approval byte', () => {
+    const changed = changedWithinA1b('docs/evaluation');
+    // WHY THIS LIST SHRANK BACK TO TWO ENTRIES.
     //
-    //   This assertion diffs the WHOLE of `docs/evaluation` against the A1
-    //   frame commit, so it does not only bound A1b: it bounds every branch
-    //   that DESCENDS from A1b. A2 descends from A1b - deliberately, because
-    //   the methodology, plan, frame and draw bytes it binds are all already
-    //   in that tree - and A2 must land its own governance records in the
-    //   same directory as every record before them.
+    //   It had grown three times - for A2 Batch 01, for A3a, and for A2
+    //   Batch 02 - and each widening was honest about its reason: the check
+    //   diffed the WHOLE of `docs/evaluation` from the A1 frame commit to the
+    //   WORKING TREE, so it did not bound A1b, it bounded every branch that
+    //   descends from A1b. Every later phase lands governance records in this
+    //   directory, so every later phase had to be added here, and the list
+    //   would have grown without end. The fourth widening would have been for
+    //   a file with nothing to do with A1b at all.
     //
-    //   So the two A2 Batch-01 filenames are permitted BY EXACT NAME, the
-    //   same deliberate, reviewed widening Phase 2B-1c applied to the
-    //   firewall when a later slice legitimately needed a file an earlier
-    //   slice had pinned closed. Nothing is weakened: every other path under
-    //   `docs/evaluation` is still refused, the frozen methodology, plan,
-    //   approval, frame and draw bytes are all still covered, and no other
-    //   assertion in this file was touched. A future step that needs its own
-    //   record widens this list the same visible way - it does not delete
-    //   the check.
+    //   The defect was the RANGE, not the list. Bounded to
+    //   A1B_BASE..A1B_TERMINAL, this diff returns exactly what A1b itself
+    //   wrote: its own authority record and the frozen draw. Nothing is
+    //   weakened - the claim "A1b changed no frozen methodology, plan or
+    //   approval byte" is still proved in full, over the whole of A1b, and
+    //   more sharply than before, because A1b may now no longer hide a change
+    //   behind a name some later phase legitimately needed.
     //
-    //   IT GREW A SECOND TIME, FOR A3a, BY EXACT NAME. A3a descends from A2
-    //   and lands three records: the owner's adjudication of the one Batch-01
-    //   process deviation, A3a's own authority record, and A3a's aggregate
-    //   public execution record. None of them is a gated-split artifact -
-    //   every detailed SD7 result is written to a split-scoped external root
-    //   outside this repository - and the three names are listed here rather
-    //   than covered by a prefix so that a fourth one is a visible edit too.
-    //
-    //   IT GREW A THIRD TIME, FOR A2 BATCH 02, BY EXACT NAME. Batch 02
-    //   descends from A3a and lands three records: the owner's operational
-    //   adjudication of the one SD7 short-text edge case A3a returned for
-    //   confirmation, Batch 02's own authority record, and Batch 02's
-    //   aggregate public execution record. All three are aggregate and
-    //   identity-free - no per-organisation identity, domain or page content
-    //   reaches any of them - and the three names are listed here rather than
-    //   covered by a `BATCH_02` prefix so that Batch 03 is a visible edit too.
+    //   A later phase's records are that phase's business, and each phase
+    //   carries its own isolation test bounded the same way.
     const permitted = [
       'docs/evaluation/PHASE_2B_2D_METHOD_V2_A1B_DRAW_AUTHORITY_RECORD_V1.json',
-      'docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_AUTHORITY_RECORD_V1.json',
-      'docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_DEVIATION_ADJUDICATION_V1.json',
-      'docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_EXECUTION_RECORD_V1.json',
-      'docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_02_AUTHORITY_RECORD_V1.json',
-      'docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_02_EXECUTION_RECORD_V1.json',
-      'docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_AUTHORITY_RECORD_V1.json',
-      'docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_EXECUTION_RECORD_V1.json',
-      'docs/evaluation/PHASE_2B_2D_METHOD_V2_SD7_SHORT_TEXT_OWNER_DECISION_V1.json',
       'docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json',
     ];
     for (const file of changed) {
       expect(permitted, `A1b changed ${file}`).toContain(file);
     }
+    // The range genuinely reaches A1b's own output rather than an empty diff:
+    // both artifacts must be present, or this check is proving nothing.
+    expect([...changed].sort()).toEqual([...permitted].sort());
   });
 });

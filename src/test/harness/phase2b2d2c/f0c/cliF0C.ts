@@ -50,10 +50,9 @@ import { ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION } from '../../../../orgunits/classi
 import { computeFinalInputSha256 } from '../../../../orgunits/classify/finalIdentity.js';
 import { ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION } from '../../../../orgunits/classify/outputSchema.js';
 import { ORGUNIT_SIGNAL_RULE_VERSION } from '../../../../orgunits/signals/score.js';
-import { FETCH_POLICY_VERSION } from '../../../../orgunits/web/policy.js';
 import { runProcessIsolatedBatch, terminationPlatformOf } from '../../processIsolatedBatch.js';
 import { validateOutputRoot } from '../artifacts.js';
-import { reconstructFrozenBatches } from '../batches.js';
+import { historicalRunProvenanceOf, reconstructFrozenBatches } from '../batches.js';
 import { EXPECTED_F0B_FREEZE_RAW_SHA256, FREEZE_PATH } from '../constants.js';
 import { isAuthorisationConsumed, runExperiment, type ChildLauncher } from '../coordinator.js';
 import { loadDevCorpus } from '../corpus.js';
@@ -481,19 +480,22 @@ export async function runF0CCli(argv: readonly string[], io: F0CCliIo): Promise<
   const corpus = loadDevCorpus(freeze, {
     read: (relative) => readFileSync(join(RUNNER_REPO_ROOT, relative)),
   });
-  const batches = reconstructFrozenBatches(corpus.rows, {
-    canonicalStringify,
-    computeFinalInputSha256,
-    ruleVersion: ORGUNIT_SIGNAL_RULE_VERSION,
-    fetchPolicyVersion: FETCH_POLICY_VERSION,
-    assemblyVersion: ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION,
-    outputSchemaVersion: ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
-  });
+  const batches = reconstructFrozenBatches(
+    corpus.rows,
+    {
+      canonicalStringify,
+      computeFinalInputSha256,
+      ruleVersion: ORGUNIT_SIGNAL_RULE_VERSION,
+      assemblyVersion: ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION,
+      outputSchemaVersion: ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
+    },
+    // The fetch-policy version is HISTORICAL RUN PROVENANCE, read out of this
+    // freeze - never today's production FETCH_POLICY_VERSION.
+    historicalRunProvenanceOf(freeze),
+  );
   const versionProblems: string[] = [];
   if (freeze.inputConstruction.context.ruleVersion !== ORGUNIT_SIGNAL_RULE_VERSION)
     versionProblems.push('ruleVersion');
-  if (freeze.inputConstruction.context.fetchPolicyVersion !== FETCH_POLICY_VERSION)
-    versionProblems.push('fetchPolicyVersion');
   if (freeze.inputConstruction.context.assemblyVersion !== ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION)
     versionProblems.push('assemblyVersion');
   if (freeze.classifier.assemblyVersion !== ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION)

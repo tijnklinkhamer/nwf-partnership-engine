@@ -387,14 +387,26 @@ export async function runChildEvaluation(
       const corpus = loadDevCorpus(view, {
         read: (relative) => deps.readFile(join(manifest.variantRoot, relative)),
       });
-      const batches = reconstructFrozenBatches(corpus.rows, {
-        canonicalStringify: runtime.canonical.canonicalStringify,
-        computeFinalInputSha256: runtime.finalIdentity.computeFinalInputSha256,
-        ruleVersion: runtime.score.ORGUNIT_SIGNAL_RULE_VERSION,
-        fetchPolicyVersion: runtime.policy.FETCH_POLICY_VERSION,
-        assemblyVersion: runtime.constants.ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION,
-        outputSchemaVersion: runtime.outputSchema.ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
-      });
+      const batches = reconstructFrozenBatches(
+        corpus.rows,
+        {
+          canonicalStringify: runtime.canonical.canonicalStringify,
+          computeFinalInputSha256: runtime.finalIdentity.computeFinalInputSha256,
+          ruleVersion: runtime.score.ORGUNIT_SIGNAL_RULE_VERSION,
+          assemblyVersion: runtime.constants.ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION,
+          outputSchemaVersion: runtime.outputSchema.ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
+        },
+        // HISTORICAL PROVENANCE, AND ALREADY THE HISTORICAL ONE HERE. This is
+        // the VARIANT ROOT's constant, not this worktree's: the child loads
+        // production modules from the pinned root it was told to run, and
+        // `verifyRootForVariant` (variantRoot.ts) has already refused the root
+        // unless `FETCH_POLICY_VERSION` there equals
+        // `freeze.inputConstruction.context.fetchPolicyVersion`. So the value
+        // is the frozen one, proven equal, before this line is reached - which
+        // is exactly why the child never needed today's policy.ts and does not
+        // now.
+        { fetchPolicyVersion: runtime.policy.FETCH_POLICY_VERSION },
+      );
       batch = batches.find((b) => b.ordinal === manifest.logicalBatchOrdinal);
     } catch (error) {
       return preflightStop('CORPUS_CONFIG_OR_HASH_DRIFT', boundedMessage(error), {

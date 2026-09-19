@@ -34,14 +34,16 @@ import * as repairModule from '../../orgunits/classify/repair.js';
 import * as retryModule from '../../orgunits/classify/retry.js';
 import * as validateModule from '../../orgunits/classify/validate.js';
 import * as scoreModule from '../../orgunits/signals/score.js';
-import * as policyModule from '../../orgunits/web/policy.js';
 import {
   readArtifact,
   repairDocumentDirectoryOf,
   repairRoundDirectoryOf,
   type ArtifactKind,
 } from '../harness/phase2b2d2c/artifacts.js';
-import { reconstructFrozenBatches } from '../harness/phase2b2d2c/batches.js';
+import {
+  historicalRunProvenanceOf,
+  reconstructFrozenBatches,
+} from '../harness/phase2b2d2c/batches.js';
 import {
   runChildEvaluation,
   type ChildDependencies,
@@ -65,15 +67,33 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const F0C_BYTES = readFileSync(join(ROOT, F0E_FREEZE_PATH));
 const F0B_BYTES = readFileSync(join(ROOT, FREEZE_PATH));
 const { freeze, rawSha256 } = loadF0EFreezeFromBytes(F0C_BYTES);
+
+/**
+ * THE VARIANT ROOT'S OWN FETCH-POLICY VERSION, NOT THIS BUILD'S.
+ *
+ * `FETCH_POLICY_VERSION` is v2 since ADR 0012; the historical variant root this
+ * synthetic runtime stands in for exported `orgunit-fetch-policy-v1`, and
+ * `verifyRootForVariant` refuses any root whose constant differs from the
+ * freeze. So the frozen value is read from the freeze here, exactly as the
+ * prompt module above is reconstructed rather than taken from this worktree:
+ * a variant root is defined by what IT exports, never by whatever this build
+ * ships.
+ */
+const FROZEN_POLICY_MODULE = {
+  FETCH_POLICY_VERSION: freeze.inputConstruction.context.fetchPolicyVersion,
+};
 const corpus = loadDevCorpus(freeze, { read: (relative) => readFileSync(join(ROOT, relative)) });
-const batches = reconstructFrozenBatches(corpus.rows, {
-  canonicalStringify,
-  computeFinalInputSha256: finalIdentityModule.computeFinalInputSha256,
-  ruleVersion: scoreModule.ORGUNIT_SIGNAL_RULE_VERSION,
-  fetchPolicyVersion: policyModule.FETCH_POLICY_VERSION,
-  assemblyVersion: constantsModule.ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION,
-  outputSchemaVersion: outputSchemaModule.ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
-});
+const batches = reconstructFrozenBatches(
+  corpus.rows,
+  {
+    canonicalStringify,
+    computeFinalInputSha256: finalIdentityModule.computeFinalInputSha256,
+    ruleVersion: scoreModule.ORGUNIT_SIGNAL_RULE_VERSION,
+    assemblyVersion: constantsModule.ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION,
+    outputSchemaVersion: outputSchemaModule.ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
+  },
+  historicalRunProvenanceOf(freeze),
+);
 const plan = buildF0EExecutionPlan(freeze, rawSha256);
 const V3_BATCH_1 = plan.evaluations[0]!;
 const BATCH_1 = batches[0]!;
@@ -136,7 +156,7 @@ function fakeRuntime(withRepair: boolean): LoadedVariantRuntime {
     constants: constantsModule,
     retry: retryModule,
     score: scoreModule,
-    policy: policyModule,
+    policy: FROZEN_POLICY_MODULE,
     allowedModels: allowedModelsModule,
     sdkOptions: sdkOptionsModule,
     authStatusRunner: authStatusRunnerModule,

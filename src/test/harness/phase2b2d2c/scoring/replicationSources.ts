@@ -36,9 +36,12 @@ import { computeFinalInputSha256 } from '../../../../orgunits/classify/finalIden
 import { ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION } from '../../../../orgunits/classify/outputSchema.js';
 import type { ClassifierDocument } from '../../../../orgunits/classify/types.js';
 import { ORGUNIT_SIGNAL_RULE_VERSION } from '../../../../orgunits/signals/score.js';
-import { FETCH_POLICY_VERSION } from '../../../../orgunits/web/policy.js';
 import { readArtifact, ARTIFACT_FILE_NAMES, type ArtifactKind } from '../artifacts.js';
-import { reconstructFrozenBatches, type ReconstructedBatch } from '../batches.js';
+import {
+  type ReconstructedBatch,
+  historicalRunProvenanceOf,
+  reconstructFrozenBatches,
+} from '../batches.js';
 import { EXPECTED_CORPUS_ITEM_COUNT, EXPECTED_LOGICAL_BATCHES_PER_VARIANT } from '../constants.js';
 import { loadDevCorpus } from '../corpus.js';
 import {
@@ -299,14 +302,19 @@ function loadVariantContext(
   const corpus = loadDevCorpus(loaded.freeze, {
     read: (relative) => readFileSync(join(repoRoot, relative)),
   });
-  const batches = reconstructFrozenBatches(corpus.rows, {
-    canonicalStringify,
-    computeFinalInputSha256,
-    ruleVersion: ORGUNIT_SIGNAL_RULE_VERSION,
-    fetchPolicyVersion: FETCH_POLICY_VERSION,
-    assemblyVersion: ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION,
-    outputSchemaVersion: ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
-  });
+  const batches = reconstructFrozenBatches(
+    corpus.rows,
+    {
+      canonicalStringify,
+      computeFinalInputSha256,
+      ruleVersion: ORGUNIT_SIGNAL_RULE_VERSION,
+      assemblyVersion: ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION,
+      outputSchemaVersion: ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
+    },
+    // The fetch-policy version is HISTORICAL RUN PROVENANCE, read out of this
+    // freeze - never today's production FETCH_POLICY_VERSION.
+    historicalRunProvenanceOf(loaded.freeze),
+  );
   const mismatches = v4
     ? f0iBatchMismatches(loaded.freeze as F0IFreeze, batches)
     : f0oBatchMismatches(loaded.freeze as F0OFreeze, batches);

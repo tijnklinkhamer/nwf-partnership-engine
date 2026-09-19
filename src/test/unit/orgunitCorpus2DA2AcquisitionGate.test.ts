@@ -312,9 +312,26 @@ describe('2D-A2 Batch 02: the gate namespace is pure and starts nothing', () => 
 describe('2D-A2 Batch 02: the gate changed no production file', () => {
   const BATCH_02_BASE_COMMIT = '013a04d194d7171c8c7319a84987d9e23a618fea';
 
-  function baseCommitAvailable(): boolean {
+  /**
+   * BATCH 02'S OWN TERMINAL COMMIT, AND WHY THE RANGE HAS ONE.
+   *
+   * This check makes a HISTORICAL claim about Batch 02. It used to prove it
+   * with `git diff <base> --`, which compares the base to the WORKING TREE,
+   * and so quietly turned "Batch 02 changed no production file" into "no
+   * phase after A3a may ever change one" — a statement nobody approved, and
+   * one the ADR 0012 robots repair, which IS approved, necessarily breaks.
+   *
+   * `637c6e6` is the Batch 02 execution record: the run's own terminal state,
+   * the point at which the P5 gate stopped it. The later root-cause audit and
+   * SD9 closure commits are separate work and are NOT inspected here — they
+   * are not Batch 02's gate, and the repair they led to is governed by
+   * `orgunitRobotsOptionBRepairScope.test.ts`.
+   */
+  const BATCH_02_TERMINAL_COMMIT = '637c6e6a9a15e2ca24f0f9794842cce727464136';
+
+  function commitExists(commit: string): boolean {
     try {
-      execFileSync('git', ['-C', REPO_ROOT, 'cat-file', '-e', `${BATCH_02_BASE_COMMIT}^{commit}`], {
+      execFileSync('git', ['-C', REPO_ROOT, 'cat-file', '-e', `${commit}^{commit}`], {
         stdio: 'ignore',
       });
       return true;
@@ -323,12 +340,25 @@ describe('2D-A2 Batch 02: the gate changed no production file', () => {
     }
   }
 
-  it.skipIf(!baseCommitAvailable())(
-    'since the A3a commit, Batch 02 touched nothing under src/orgunits/, migrations/, src/cli/ or the firewall',
+  /** A shallow clone may carry neither endpoint; the check is then skipped rather than guessed. */
+  function rangeAvailable(): boolean {
+    return commitExists(BATCH_02_BASE_COMMIT) && commitExists(BATCH_02_TERMINAL_COMMIT);
+  }
+
+  it.skipIf(!rangeAvailable())(
+    'across Batch 02 itself, from the A3a commit to the Batch 02 execution record, it touched nothing under src/orgunits/, migrations/, src/cli/ or the firewall',
     () => {
       const changed = execFileSync(
         'git',
-        ['-C', REPO_ROOT, 'diff', '--name-only', BATCH_02_BASE_COMMIT, '--'],
+        [
+          '-C',
+          REPO_ROOT,
+          'diff',
+          '--name-only',
+          BATCH_02_BASE_COMMIT,
+          BATCH_02_TERMINAL_COMMIT,
+          '--',
+        ],
         { encoding: 'utf8' },
       )
         .split('\n')

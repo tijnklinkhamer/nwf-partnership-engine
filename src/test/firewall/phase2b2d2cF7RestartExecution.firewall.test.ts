@@ -92,23 +92,40 @@ const FORBIDDEN_MODULES = [
 
 const FORBIDDEN_NODE_MODULES = ['node:http', 'node:https', 'node:net', 'node:tls', 'node:dns'];
 
-/** The commit recording the owner FREEZE-ONLY approval of F6; F7 is everything after it. */
+/** The commit recording the owner FREEZE-ONLY approval of F6; F7 begins after it. */
 const F6_OWNER_FREEZE_APPROVAL_COMMIT = '4a1daf4309e35c8be12b30ae085a9083551fdb8b';
 
-/** A shallow clone may not carry the commit; the check is then skipped rather than guessed. */
-function approvalCommitAvailable(): boolean {
+/**
+ * F7'S OWN TERMINAL COMMIT, AND WHY THE RANGE HAS ONE.
+ *
+ * The git check below makes a HISTORICAL claim about F7: F7 changed neither
+ * the coordinator, the production classifier, nor any F3/F4/F6 module. It
+ * used to prove it with `git diff <base> --`, which compares the base to the
+ * WORKING TREE — so it did not bound F7, it bound every phase after F7, and
+ * silently asserted that no later work may ever touch `src/orgunits/`. That
+ * is a far stronger claim than the one F7 was approved under.
+ *
+ * `911309e` IS the F7 execution build — the terminal commit of the slice this
+ * firewall governs. Bounded there, the claim is proved exactly as written;
+ * every forbidden path below is unchanged, and none of F7's other assertions
+ * (which read the CURRENT source, not history) is affected at all.
+ */
+const F7_EXECUTION_BUILD_COMMIT = '911309ecce0621c2ea51b84eb68cf484d332dd4a';
+
+function commitExists(commit: string): boolean {
   try {
-    execFileSync(
-      'git',
-      ['-C', REPO_ROOT, 'cat-file', '-e', `${F6_OWNER_FREEZE_APPROVAL_COMMIT}^{commit}`],
-      {
-        stdio: 'ignore',
-      },
-    );
+    execFileSync('git', ['-C', REPO_ROOT, 'cat-file', '-e', `${commit}^{commit}`], {
+      stdio: 'ignore',
+    });
     return true;
   } catch {
     return false;
   }
+}
+
+/** A shallow clone may not carry both commits; the check is then skipped rather than guessed. */
+function approvalCommitAvailable(): boolean {
+  return commitExists(F6_OWNER_FREEZE_APPROVAL_COMMIT) && commitExists(F7_EXECUTION_BUILD_COMMIT);
 }
 
 function readSource(path: string): string {
@@ -222,11 +239,19 @@ describe('2D2C-F7: the execution layer reaches exactly its narrow graph', () => 
   });
 
   it.skipIf(!approvalCommitAvailable())(
-    'since the F6 owner freeze-approval commit, F7 changed neither the coordinator, the production classifier, nor any F3/F4/F6 module',
+    'across F7 itself, from the F6 owner freeze-approval commit to the F7 execution build, it changed neither the coordinator, the production classifier, nor any F3/F4/F6 module',
     () => {
       const changed = execFileSync(
         'git',
-        ['-C', REPO_ROOT, 'diff', '--name-only', F6_OWNER_FREEZE_APPROVAL_COMMIT, '--'],
+        [
+          '-C',
+          REPO_ROOT,
+          'diff',
+          '--name-only',
+          F6_OWNER_FREEZE_APPROVAL_COMMIT,
+          F7_EXECUTION_BUILD_COMMIT,
+          '--',
+        ],
         { encoding: 'utf8' },
       )
         .split('\n')

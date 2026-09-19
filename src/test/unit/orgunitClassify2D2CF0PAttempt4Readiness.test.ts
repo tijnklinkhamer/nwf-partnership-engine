@@ -67,7 +67,6 @@ import * as repairModule from '../../orgunits/classify/repair.js';
 import * as retryModule from '../../orgunits/classify/retry.js';
 import * as validateModule from '../../orgunits/classify/validate.js';
 import * as scoreModule from '../../orgunits/signals/score.js';
-import * as policyModule from '../../orgunits/web/policy.js';
 import {
   attemptDirectoryOf,
   readArtifact,
@@ -145,6 +144,21 @@ const F0I_BYTES = readFileSync(join(ROOT, F0I_FREEZE_PATH));
 const F0E_BYTES = readFileSync(join(ROOT, F0E_FREEZE_PATH));
 const F0B_BYTES = readFileSync(join(ROOT, FREEZE_PATH));
 const { freeze, rawSha256 } = loadF0OFreezeFromBytes(F0O_BYTES);
+
+/**
+ * THE VARIANT ROOT'S OWN FETCH-POLICY VERSION, NOT THIS BUILD'S.
+ *
+ * `FETCH_POLICY_VERSION` is v2 since ADR 0012; the historical variant root this
+ * synthetic runtime stands in for exported `orgunit-fetch-policy-v1`, and
+ * `verifyRootForVariant` refuses any root whose constant differs from the
+ * freeze. So the frozen value is read from the freeze here, exactly as the
+ * prompt module above is reconstructed rather than taken from this worktree:
+ * a variant root is defined by what IT exports, never by whatever this build
+ * ships.
+ */
+const FROZEN_POLICY_MODULE = {
+  FETCH_POLICY_VERSION: freeze.inputConstruction.context.fetchPolicyVersion,
+};
 const PLAN = buildF0OExecutionPlan(freeze, rawSha256);
 const MODEL = PLAN.requestedModelId;
 const V5_BATCH_1 = PLAN.evaluations[0]!;
@@ -825,7 +839,7 @@ function fakeRuntime(): LoadedVariantRuntime {
     constants: constantsModule,
     retry: retryModule,
     score: scoreModule,
-    policy: policyModule,
+    policy: FROZEN_POLICY_MODULE,
     allowedModels: allowedModelsModule,
     sdkOptions: sdkOptionsModule,
     authStatusRunner: authStatusRunnerModule,

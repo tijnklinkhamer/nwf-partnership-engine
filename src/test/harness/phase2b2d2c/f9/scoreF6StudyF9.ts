@@ -42,9 +42,12 @@ import { computeFinalInputSha256 } from '../../../../orgunits/classify/finalIden
 import { ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION } from '../../../../orgunits/classify/outputSchema.js';
 import type { ClassifierDocument } from '../../../../orgunits/classify/types.js';
 import { ORGUNIT_SIGNAL_RULE_VERSION } from '../../../../orgunits/signals/score.js';
-import { FETCH_POLICY_VERSION } from '../../../../orgunits/web/policy.js';
 import { ARTIFACT_FILE_NAMES } from '../artifacts.js';
-import { reconstructFrozenBatches, type ReconstructedBatch } from '../batches.js';
+import {
+  type ReconstructedBatch,
+  historicalRunProvenanceOf,
+  reconstructFrozenBatches,
+} from '../batches.js';
 import {
   EXPECTED_CORPUS_ITEM_COUNT,
   EXPECTED_LOGICAL_BATCHES_PER_VARIANT,
@@ -218,14 +221,23 @@ export function loadF9StudyContext(repoRoot: string): F9StudyContext {
   if (corpus.rows.length !== EXPECTED_CORPUS_ITEM_COUNT) {
     fail(`the DEVELOPMENT corpus holds ${corpus.rows.length} items.`);
   }
-  const batches = reconstructFrozenBatches(corpus.rows, {
-    canonicalStringify,
-    computeFinalInputSha256,
-    ruleVersion: ORGUNIT_SIGNAL_RULE_VERSION,
-    fetchPolicyVersion: FETCH_POLICY_VERSION,
-    assemblyVersion: ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION,
-    outputSchemaVersion: ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
-  });
+  const batches = reconstructFrozenBatches(
+    corpus.rows,
+    {
+      canonicalStringify,
+      computeFinalInputSha256,
+      ruleVersion: ORGUNIT_SIGNAL_RULE_VERSION,
+      assemblyVersion: ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION,
+      outputSchemaVersion: ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
+    },
+    // The fetch-policy version is HISTORICAL RUN PROVENANCE, and it is read
+    // from the F0O freeze rather than from the F2 one on purpose: F2 carries no
+    // `inputConstruction` and no batch plan of its own - its own `batching`
+    // block records `inheritedFrom: "attempt-4 (F0O) execution plan"` and pins
+    // the F0O freeze by path and raw SHA-256. The partition being reconstructed
+    // here IS the F0O partition, so its provenance is the F0O freeze's.
+    historicalRunProvenanceOf(study.f4.f0oFreeze),
+  );
   const f0oGates = study.f4.f0oFreeze.scoring.gates;
   if (canonicalStringify(f0oGates) !== canonicalStringify(f2.sixFrozenDevGates)) {
     fail('the F2 freeze does not restate the F0O frozen gates verbatim.');

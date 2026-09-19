@@ -32,7 +32,6 @@ import { ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION } from '../../../orgunits/classify/
 import { computeFinalInputSha256 } from '../../../orgunits/classify/finalIdentity.js';
 import { ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION } from '../../../orgunits/classify/outputSchema.js';
 import { ORGUNIT_SIGNAL_RULE_VERSION } from '../../../orgunits/signals/score.js';
-import { FETCH_POLICY_VERSION } from '../../../orgunits/web/policy.js';
 import { runProcessIsolatedBatch, terminationPlatformOf } from '../processIsolatedBatch.js';
 import { validateOutputRoot } from './artifacts.js';
 import { evaluateExecutionLock } from './authorisation.js';
@@ -158,7 +157,6 @@ export async function runCli(argv: readonly string[], io: CliIo): Promise<number
     canonicalStringify,
     computeFinalInputSha256,
     ruleVersion: ORGUNIT_SIGNAL_RULE_VERSION,
-    fetchPolicyVersion: FETCH_POLICY_VERSION,
     assemblyVersion: ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION,
     outputSchemaVersion: ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
   });

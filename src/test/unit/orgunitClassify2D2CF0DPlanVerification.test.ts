@@ -15,8 +15,10 @@ import { ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION } from '../../orgunits/classify/con
 import { computeFinalInputSha256 } from '../../orgunits/classify/finalIdentity.js';
 import { ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION } from '../../orgunits/classify/outputSchema.js';
 import { ORGUNIT_SIGNAL_RULE_VERSION } from '../../orgunits/signals/score.js';
-import { FETCH_POLICY_VERSION } from '../../orgunits/web/policy.js';
-import { reconstructFrozenBatches } from '../harness/phase2b2d2c/batches.js';
+import {
+  historicalRunProvenanceOf,
+  reconstructFrozenBatches,
+} from '../harness/phase2b2d2c/batches.js';
 import { loadDevCorpus } from '../harness/phase2b2d2c/corpus.js';
 import {
   PROPOSED_F0E_PLAN_SHA256,
@@ -37,14 +39,17 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const BYTES = readFileSync(join(ROOT, F0E_FREEZE_PATH));
 const { freeze, rawSha256 } = loadF0EFreezeFromBytes(BYTES);
 const corpus = loadDevCorpus(freeze, { read: (relative) => readFileSync(join(ROOT, relative)) });
-const batches = reconstructFrozenBatches(corpus.rows, {
-  canonicalStringify,
-  computeFinalInputSha256,
-  ruleVersion: ORGUNIT_SIGNAL_RULE_VERSION,
-  fetchPolicyVersion: FETCH_POLICY_VERSION,
-  assemblyVersion: ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION,
-  outputSchemaVersion: ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
-});
+const batches = reconstructFrozenBatches(
+  corpus.rows,
+  {
+    canonicalStringify,
+    computeFinalInputSha256,
+    ruleVersion: ORGUNIT_SIGNAL_RULE_VERSION,
+    assemblyVersion: ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION,
+    outputSchemaVersion: ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
+  },
+  historicalRunProvenanceOf(freeze),
+);
 const PLAN = buildF0EExecutionPlan(freeze, rawSha256);
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
