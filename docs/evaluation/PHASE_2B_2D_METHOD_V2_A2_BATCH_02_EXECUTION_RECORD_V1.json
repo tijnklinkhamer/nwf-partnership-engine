@@ -1,0 +1,306 @@
+{
+  "recordId": "phase2b-2d-method-v2-a2-batch-02-execution-v1",
+  "recordKind": "EXECUTION_RECORD",
+  "records": "PHASE_2B_2D_A2_LIVE_INSTITUTION_ACQUISITION_BATCH_02_V1",
+  "recordedBy": "claude-code-session under the Batch-02 owner authority record",
+  "ownerDecision": "AUTHORISE_PHASE_2B_2D_A2_LIVE_INSTITUTION_ACQUISITION_BATCH_02_V1",
+  "boundAuthorityRecord": {
+    "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_02_AUTHORITY_RECORD_V1.json",
+    "sha256": "8dd7f7be302ee69a0a21030720529b066f04e4b625d51c2ec21af1659d40a4d3",
+    "bytes": 22923,
+    "commit": "96d17c9a05948ed65d00fb8801c9bf4b00ef2f39"
+  },
+  "boundShortTextOwnerDecision": {
+    "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_SD7_SHORT_TEXT_OWNER_DECISION_V1.json",
+    "sha256": "2f41f495322eceae3b675cbe1d227115f3b4292d6e3a711879793af33b466fff",
+    "bytes": 7584,
+    "commit": "d7d686b855489bdb21be95041e4dd165d1acd0a2",
+    "decision": "SHORT_TEXT_AMBIGUITY_BLOCKS_ONLY_WHEN_IT_CAN_CHANGE_SD9"
+  },
+  "boundDraw": {
+    "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+    "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293",
+    "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+    "artifactFileBytes": 74047,
+    "commit": "34537caf2308ade014f9f459ca9f97596dc48a17",
+    "allThreeReverifiedBeforeAnyEntryWasRead": true,
+    "onlyPrimarySelectionIndicesFiveThroughNineWereRead": true,
+    "theReserveListWasNeverRead": true
+  },
+  "boundGateTooling": {
+    "path": "src/test/harness/phase2b2d/acquisitionGate/",
+    "commit": "38082f163d2a00a700fb31939e9f02cc7c62311f",
+    "modules": ["betweenRunGate.ts", "gateContract.ts"],
+    "testPath": "src/test/unit/orgunitCorpus2DA2AcquisitionGate.test.ts",
+    "testCount": 30,
+    "theGateIsPureAndStartsNoProcess": true,
+    "validateExitCodeBeforeAnyLiveRequest": 0,
+    "validateTotals": { "passed": 4232, "skipped": 75, "failed": 0 }
+  },
+  "preflight": {
+    "everyAuthorisedIndexWasDryRunBeforeAnyLiveRequest": true,
+    "dryRunCount": 5,
+    "dryRunIndices": [5, 6, 7, 8, 9],
+    "allGreen": true,
+    "checksPerIndex": [
+      "organisationId matches the draw",
+      "echeRowKey matches the draw",
+      "exactly one root",
+      "root type is WEBSITE_CLAIM",
+      "root authority id matches the draw byte for byte",
+      "root URL is non-null",
+      "no root promotion",
+      "no unexpected second root",
+      "the command reported zero DNS and zero HTTP"
+    ],
+    "databaseWasUnchangedByThePreflight": true,
+    "indicesSevenEightAndNineWerePreflightedButNeverExecuted": true
+  },
+  "databasePrecondition": {
+    "verifiedBeforeAnyLiveRequest": true,
+    "matchedTheRequiredPostBatch01StateExactly": true,
+    "orgunit_research_runs": 5,
+    "orgunit_research_run_completions": 5,
+    "orgunit_fetch_observations": 76,
+    "orgunit_redirect_observations": 3,
+    "orgunit_root_promotions": 0,
+    "orgunit_root_promotion_revocations": 0,
+    "orgunit_page_evidence": 59,
+    "orgunit_page_candidates": 118,
+    "allFourClassifierTablesZero": true,
+    "a0TablesUnchanged": true
+  },
+  "hostSafety": {
+    "caffeinateHeldAcrossTheEntireLiveWindow": true,
+    "mechanism": "caffeinate -dimsu, no expiry, asserting PreventSystemSleep for the whole window and released immediately afterwards",
+    "acPower": true,
+    "lidOpen": true,
+    "fullWake": true,
+    "diskHeadroomGib": 689,
+    "executionWorktreeClean": true,
+    "theBatchWasHELDUntilAcPowerWasConnected": {
+      "statement": "The live window did not open when the batch was otherwise ready. The host was on BATTERY, and AC power is a required precondition. Execution was stopped before the first live request and resumed only after AC power was confirmed.",
+      "whyThisMattered": "This host performs a maintenance sleep roughly every two hours even on AC, and had slept on battery 14 minutes before the window would have opened. F5 was lost to a host sleep whose symptoms were indistinguishable from institution latency, so the precondition was treated as binding rather than advisory."
+    },
+    "sleepOrWakeDuringTheLiveWindow": false,
+    "p7Triggered": false
+  },
+  "execution": {
+    "attemptedSelectionIndexRange": [5, 9],
+    "maximumOrganisationsAuthorisedToStart": 5,
+    "actuallyStartedCount": 2,
+    "completedCount": 2,
+    "failedCount": 0,
+    "stoppedEarly": true,
+    "stoppingGate": "P5_LOW_RAW_YIELD",
+    "stoppingGateIsTheIntendedDiagnosticOutcomeNotAnIncident": true,
+    "organisationsNeverStarted": [7, 8, 9],
+    "executionMode": "SEQUENTIAL_ONE_ORGANISATION_PER_CLI_INVOCATION",
+    "concurrency": 1,
+    "commandUsed": "npm run cli -- orgunits discover --organisation-id <id> --execute --json",
+    "noBatchCommandNoQueueNoSchedulerNoSecondCrawler": true,
+    "liveWindowStartUtc": "2026-09-19T09:56:44Z",
+    "liveWindowEndUtc": "2026-09-19T09:58:30Z"
+  },
+  "perSelectionIndex": [
+    {
+      "selectionIndex": 5,
+      "started": true,
+      "runTerminalState": "COMPLETED",
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "gatewayRequests": 1,
+      "ordinaryPageAttempts": 0,
+      "robotsRequests": 1,
+      "sitemapRequests": 0,
+      "rawPageEvidenceCount": 0,
+      "candidateRows": 0,
+      "trackACandidates": 0,
+      "trackBCandidates": 0,
+      "redirectObservations": 1,
+      "httpStatus": 301,
+      "errorKind": null,
+      "robotsDecision": "NOT_APPLICABLE",
+      "distinctHostsUsed": 1,
+      "circuitOpenHosts": 0,
+      "maxAttemptNo": 1,
+      "whatHappened": "The robots.txt request answered 301. The gateway never follows a redirect, robots.txt included, so the site policy was genuinely unread and the root terminated as ROBOTS_UNREADABLE_ROOT before any institution content was requested. The 3xx was recorded as a redirect observation, which is a fact, not a promotion.",
+      "acquisitionStatus": "ACQUISITION_STATUS_PENDING_SD7"
+    },
+    {
+      "selectionIndex": 6,
+      "started": true,
+      "runTerminalState": "COMPLETED",
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "gatewayRequests": 1,
+      "ordinaryPageAttempts": 0,
+      "robotsRequests": 1,
+      "sitemapRequests": 0,
+      "rawPageEvidenceCount": 0,
+      "candidateRows": 0,
+      "trackACandidates": 0,
+      "trackBCandidates": 0,
+      "redirectObservations": 0,
+      "httpStatus": null,
+      "errorKind": "TLS_FAILURE",
+      "robotsDecision": "NOT_APPLICABLE",
+      "distinctHostsUsed": 1,
+      "circuitOpenHosts": 0,
+      "maxAttemptNo": 1,
+      "whatHappened": "The robots.txt request failed at TLS from this vantage, so the site policy was unread and the root terminated as ROBOTS_UNREADABLE_ROOT before any institution content was requested. TLS verification was never relaxed and no retry was issued.",
+      "acquisitionStatus": "ACQUISITION_STATUS_PENDING_SD7"
+    },
+    {
+      "selectionIndex": 7,
+      "started": false,
+      "reasonNotStarted": "P5_LOW_RAW_YIELD had already triggered when index 6 completed",
+      "acquisitionStatus": "NOT_ACQUIRED_NOT_STARTED"
+    },
+    {
+      "selectionIndex": 8,
+      "started": false,
+      "reasonNotStarted": "P5_LOW_RAW_YIELD had already triggered when index 6 completed",
+      "acquisitionStatus": "NOT_ACQUIRED_NOT_STARTED"
+    },
+    {
+      "selectionIndex": 9,
+      "started": false,
+      "reasonNotStarted": "P5_LOW_RAW_YIELD had already triggered when index 6 completed",
+      "acquisitionStatus": "NOT_ACQUIRED_NOT_STARTED"
+    }
+  ],
+  "p5GateTrace": {
+    "theGateWasEvaluatedBEFOREEachNextOrganisationWasStarted": true,
+    "theGateWasTheLandedPureModuleNotAnAdHocCalculation": true,
+    "durabilityWasVerifiedBeforeEachGateEvaluation": true,
+    "evaluations": [
+      {
+        "afterCompletedOrganisation": 5,
+        "completedCount": 1,
+        "rawPageEvidenceCount": 0,
+        "lowRawYieldCount": 1,
+        "threshold": 2,
+        "decision": "CONTINUE",
+        "mayStartNextOrganisation": true,
+        "actionTaken": "started selection index 6"
+      },
+      {
+        "afterCompletedOrganisation": 6,
+        "completedCount": 2,
+        "rawPageEvidenceCount": 0,
+        "lowRawYieldCount": 2,
+        "threshold": 2,
+        "decision": "PAUSE_P5_LOW_RAW_YIELD",
+        "mayStartNextOrganisation": false,
+        "actionTaken": "STOPPED. Selection index 7 was never started."
+      }
+    ],
+    "thisIsTheOwnersFirstWorkedExampleExactly": "first two both <4 => stop after 2",
+    "batch01WouldHaveStartedIndexSevenHere": "Batch 01's between-run check evaluated P3, P4 and P7 but not P5, which is how it started an organisation after P5 had already become true. The executable gate refused at exactly the point the prose always required."
+  },
+  "aggregate": {
+    "aggregateGatewayRequests": 2,
+    "aggregateOrdinaryPageAttempts": 0,
+    "aggregateRobotsRequests": 2,
+    "aggregateSitemapRequests": 0,
+    "aggregateRawPageEvidence": 0,
+    "aggregateCandidateRows": 0,
+    "aggregateRedirectObservations": 1,
+    "ceilingIfAllFiveHadStarted": { "gatewayRequests": 300, "ordinaryPageAttempts": 175 },
+    "unusedAuthorityExpired": true,
+    "unusedCapacityWasNotTransferredToAnotherOrganisation": true,
+    "noInstitutionCONTENTWasEverRequested": "Both started organisations terminated at the site-policy stage. Every one of the two gateway requests was a robots.txt request, and zero ordinary page attempts were issued. This batch read two site policies and no institution pages.",
+    "terminalReasonDistribution": { "ROBOTS_UNREADABLE_ROOT": 2 },
+    "errorKindDistribution": { "TLS_FAILURE": 1, "NONE": 1 },
+    "httpStatusDistribution": { "301": 1, "NULL": 1 }
+  },
+  "databaseDeltas": {
+    "orgunit_research_runs": { "before": 5, "after": 7, "delta": 2 },
+    "orgunit_research_run_completions": { "before": 5, "after": 7, "delta": 2 },
+    "orgunit_fetch_observations": { "before": 76, "after": 78, "delta": 2 },
+    "orgunit_redirect_observations": { "before": 3, "after": 4, "delta": 1 },
+    "orgunit_root_promotions": { "before": 0, "after": 0, "delta": 0 },
+    "orgunit_root_promotion_revocations": { "before": 0, "after": 0, "delta": 0 },
+    "orgunit_page_evidence": { "before": 59, "after": 59, "delta": 0 },
+    "orgunit_page_candidates": { "before": 118, "after": 118, "delta": 0 },
+    "organisations": { "before": 6139, "after": 6139, "delta": 0 },
+    "website_claims": { "before": 6139, "after": 6139, "delta": 0 },
+    "everyDeltaWasExpected": true,
+    "everyWriteWasAppendOnlyUnderTheResearchRole": true,
+    "noPersistenceAnomaly": true,
+    "classifierTablesAfter": {
+      "orgunit_classification_subjects": 0,
+      "orgunit_classifier_calls": 0,
+      "orgunit_classifier_call_completions": 0,
+      "orgunit_page_classifications": 0
+    }
+  },
+  "durabilityVerification": {
+    "performedAfterEachRunAndBeforeEachGateEvaluation": true,
+    "perRunChecks": [
+      "exactly one durable run",
+      "exactly one completion row",
+      "terminal state present",
+      "root terminal reason present",
+      "dry_run is false",
+      "fetch policy version is orgunit-fetch-policy-v1",
+      "every fetch observation carries the expected echeRowKey",
+      "every fetch observation carries the expected root_key and no other",
+      "request counts, page attempts and raw page-evidence counts read back from the database",
+      "candidate counts by track",
+      "no persistence anomaly"
+    ],
+    "allChecksPassedForBothStartedOrganisations": true
+  },
+  "authorityHeld": {
+    "reserveConsumption": 0,
+    "replacementsCreated": 0,
+    "replacementLedgerEntriesCreated": 0,
+    "rootPromotionsCreated": 0,
+    "providerCallsMade": 0,
+    "labelsCreated": 0,
+    "goldCreated": 0,
+    "setPMaterialised": false,
+    "setRMaterialised": false,
+    "sd7Run": false,
+    "sd9DecisionMade": false,
+    "pageSelectionPerformed": false,
+    "promptV7Created": false,
+    "holdoutSemanticAccess": false,
+    "phase2EWork": false,
+    "budgetsWidened": false,
+    "networkPolicyWeakened": false,
+    "productionFilesChanged": 0,
+    "firewallFilesChanged": 0,
+    "migrationsChanged": 0,
+    "evenTheZeroPageOrganisationsWereNotReplaced": true
+  },
+  "whatThisBatchDoesNotConclude": {
+    "noSd9VerdictIsReachedHere": "SD9 may only be decided after SD7 near-duplicate deduplication, and SD7 is not authorised in this batch. Both started organisations remain ACQUISITION_STATUS_PENDING_SD7 even though a zero-page organisation cannot mechanically reach four pages.",
+    "noPopulationEstimateIsDrawn": "Two organisations is far too small a sample to revise the corpus plan, and the combined Batch-01 plus Batch-02 picture is not a population estimate either.",
+    "theRobotsOutcomesAreNotAJudgementAboutTheInstitutions": "ROBOTS_UNREADABLE_ROOT records that this vantage could not read a site policy - once because of a 301 that is never followed, once because of a TLS failure. It is a statement about the request from this vantage, not about the institution.",
+    "noExtrapolationToTheFull110IsDrawn": true
+  },
+  "observationForTheOwner": {
+    "cumulativeZeroYieldAcrossBothBatches": "Batch 01 recorded 3 of 5 organisations with zero raw page evidence; Batch 02 recorded 2 of 2. Seven live organisations have now been acquired in total and five of them produced no page evidence at all.",
+    "thisIsReportedAsAWarningNotAsAnAnalysis": true,
+    "everyBatch02TerminationWasAtTheSitePolicyStage": true,
+    "whetherThisIsASamplingEffectAVantageEffectOrACapabilityLimitIsUNKNOWN": "Batch 02's two terminations were a robots.txt 301 and a robots.txt TLS failure - neither is a robots DISALLOW. Deciding what that means is an owner question and is deliberately not answered here.",
+    "p2RobotsAnomalyAssessment": "P2's frozen pilot rule asks for three consecutive ROBOTS_BLOCKED_ROOT / ROBOTS_UNREADABLE_ROOT outcomes, or more than 40% of the completed organisations. Two consecutive were observed, which is below the consecutive threshold; the percentage limb is reported rather than applied, because P5 stopped the batch first and a 2-organisation denominator cannot support it. This is surfaced for owner review, not adjudicated here."
+  },
+  "returnedTokens": ["BATCH_02_STOPPED_BY_INTENDED_P5_YIELD_GATE"],
+  "terminalState": "PHASE_2B_2D_A2_BATCH_02_COMPLETE_AWAITING_SD7_MEASUREMENT",
+  "nextOwnerDecision": "A3A_SD7_BATCH_02_MEASUREMENT_AUTHORISATION",
+  "batch03IsNotAuthorised": true,
+  "reportingDiscipline": {
+    "thisRecordCarriesNoInstitutionIdentity": true,
+    "thisRecordCarriesNoOrganisationIdOrEcheRowKey": true,
+    "thisRecordCarriesNoDomainHostnameOrUrl": true,
+    "thisRecordCarriesNoPageContentTitleOrText": true,
+    "resultsAreReportedBySelectionIndexOnly": true,
+    "noSplitIsNamedAgainstAnySelectionIndex": true
+  },
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256."
+  }
+}
