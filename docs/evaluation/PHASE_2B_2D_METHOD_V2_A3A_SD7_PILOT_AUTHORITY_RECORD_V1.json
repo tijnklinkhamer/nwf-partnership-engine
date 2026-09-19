@@ -1,0 +1,279 @@
+{
+  "recordId": "phase2b-2d-method-v2-a3a-sd7-pilot-authority-v1",
+  "recordKind": "OWNER_AUTHORITY_RECORD",
+  "authorises": "PHASE_2B_2D_METHOD_V2_A3A_SD7_NEAR_DUPLICATE_PILOT_V1",
+  "recordedAtUtc": "2026-09-19T00:00:00Z",
+  "recordedBy": "claude-code-session, transcribing an exact owner decision",
+  "ownerDecision": "AUTHORISE_PHASE_2B_2D_A3A_SD7_PILOT_V1",
+
+  "whatThisRecordIs": "The immutable statement of what A3a may and may not do. It is committed and pushed BEFORE any pilot analysis runs, so the authority cannot be reconstructed after the fact from what the step turned out to need.",
+
+  "whatIsAuthorised": [
+    "pure / read-only SD7 tooling",
+    "read-only processing of the five Batch-01 acquisitions",
+    "exact-duplicate and near-duplicate measurement",
+    "mechanical evaluation of whether Batch-01 acquisition outputs survive the frozen SD7 rule",
+    "writing sealed pilot-analysis artifacts into the already-approved split-scoped external roots",
+    "one aggregate public execution record"
+  ],
+
+  "whatIsNotAuthorised": [
+    "any network",
+    "Batch 02",
+    "reserve consumption",
+    "replacement",
+    "SET_P",
+    "SET_R",
+    "labels",
+    "gold",
+    "provider inference",
+    "Prompt V7",
+    "DEV_CONFIRM scoring",
+    "FINAL_HOLDOUT semantic disclosure",
+    "Phase 2E"
+  ],
+
+  "scope": {
+    "selectionIndices": [0, 1, 2, 3, 4],
+    "organisationCount": 5,
+    "noSelectionIndexAtOrAbove5MayBeTouched": true,
+    "noReserveEntryMayBeTouched": true
+  },
+
+  "authorityFlags": {
+    "a3aSd7PilotAuthorised": true,
+    "sd7MeasurementAuthorised": true,
+    "databaseReadAuthorised": true,
+    "networkAuthorised": false,
+    "databaseWriteAuthorised": false,
+    "setPAuthorised": false,
+    "setRAuthorised": false,
+    "replacementAuthorised": false,
+    "reserveConsumptionAuthorised": false,
+    "labellingAuthorised": false,
+    "providerInferenceAuthorised": false,
+    "holdoutSemanticDisclosureAuthorised": false,
+    "institutionAcquisitionAuthorised": false,
+    "pageSelectionAuthorised": false,
+    "candidateDevelopmentAuthorised": false,
+    "holdoutExecutionAuthorised": false,
+    "phase2EAuthorised": false
+  },
+
+  "zeroNetwork": {
+    "noHttp": true,
+    "noDns": true,
+    "noGateway": true,
+    "noInstitutionRequest": true,
+    "noProvider": true,
+    "aThirdPartyRequestOfAnyKindIsAStopNotAResult": true
+  },
+
+  "databaseAccess": {
+    "mode": "READ_ONLY",
+    "role": "nwf_readonly",
+    "whyThatRole": "It holds SELECT on the eight orgunit_* evidence tables and no write grant anywhere in the schema (migrations 0002, 0003, 0005, 0007, 0009). nwf_research would also have worked for reading, but it carries INSERT - and the correct role for a read-only step is the one that cannot write even by mistake.",
+    "forbiddenStatements": [
+      "INSERT",
+      "UPDATE",
+      "DELETE",
+      "DDL",
+      "temporary persistent table",
+      "promotion",
+      "revocation"
+    ],
+    "tableCountsMustBeReverifiedBeforeAndAfterAndMustBeIdentical": true
+  },
+
+  "boundInputs": {
+    "batch01AuthorityRecordPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_AUTHORITY_RECORD_V1.json",
+    "batch01AuthorityRecordSha256": "03e1e08054eb381d9be527857ef70d92ae1aade0e5095e7b6507f0c7e8105a46",
+    "batch01AuthorityRecordBytes": 17425,
+    "batch01AuthorityRecordCommit": "9a5fc10c92e7f0829c07cda8bd04d411fbd51727",
+    "batch01ExecutionRecordPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_EXECUTION_RECORD_V1.json",
+    "batch01ExecutionRecordSha256": "8a1b0f57f1c568e2ac04aced7ba453ad8d7b666f557fd622b3a5e6378309f9cc",
+    "batch01ExecutionRecordBytes": 23602,
+    "batch01ExecutionRecordCommit": "a0ae27cc30f15537014fa8a4efaae9aa25da542a",
+    "deviationAdjudicationPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_DEVIATION_ADJUDICATION_V1.json",
+    "drawPath": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+    "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293",
+    "drawArtifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+    "methodologyR3Sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+    "everyBoundHashIsReverifiedOnDiskBeforeTheAnalysisRuns": true
+  },
+
+  "frozenSd7RuleAsBound": {
+    "source": "PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json, sectionE_samplingContract, rule SD7",
+    "exactDuplicates": "removed by documentSha256, as production does",
+    "canonicalLandedDocumentSha": "orgunit_fetch_observations.response_sha256 - the SHA-256 of the DECODED response bytes. orgunit_page_evidence carries no hash column of its own, so the document hash is reached by join from the page's fetch observation. This is the landed schema's only document hash and therefore the one the frozen wording names.",
+    "nearDuplicateScope": "within one organisation only",
+    "nearDuplicateInput": "the redacted extracted main_text",
+    "normalisation": "whitespace and case normalisation",
+    "shingleSize": 5,
+    "shingleKind": "overlapping TOKEN 5-grams",
+    "similarity": "Jaccard",
+    "NEAR_DUPLICATE_JACCARD_THRESHOLD": 0.9,
+    "thresholdComparison": "at or above - inclusive",
+    "crossOrganisationNearDuplicatesRemainDistinct": true,
+    "explicitlyNotPermitted": [
+      "stemming",
+      "punctuation stripping",
+      "semantic embeddings",
+      "a model",
+      "a language-specific tokenizer",
+      "a fuzzy URL rule"
+    ],
+    "R3IsNotAltered": true
+  },
+
+  "normalisationAsSpecifiedByTheOwner": [
+    "perform case normalisation using locale-independent lower-casing",
+    "trim leading/trailing whitespace",
+    "collapse Unicode whitespace runs for tokenisation",
+    "split into whitespace-delimited tokens",
+    "preserve punctuation inside tokens",
+    "perform NO Unicode canonical normalisation beyond what JavaScript string handling already represents",
+    "perform NO accent removal"
+  ],
+
+  "shortTextFailClosedRule": {
+    "theGapInTheFrozenMethodology": "R3 does not state what Jaccard(empty, empty) means when a normalised page yields fewer than 5 tokens and therefore no shingles at all.",
+    "theRule": "A page with normalisedTokenCount < 5 is recorded internally as SD7_SHORT_TEXT_UNRESOLVED and is NOT used to make a final SD9 success decision in this pilot.",
+    "noSemanticAnswerMayBeInvented": true,
+    "publicReportingIsAggregateOnly": true,
+    "ifOneOrMoreOccur": "return SD7_IMPLEMENTATION_DETAIL_REQUIRING_OWNER_CONFIRMATION",
+    "ifZeroOccur": "the ambiguity is irrelevant for this pilot"
+  },
+
+  "noSurvivorOrderMayBeInvented": {
+    "why": "R3 chooses the survivor of a near-duplicate pair by the deterministic rank of the SAMPLE being drawn. A3a does not draw SET_P or SET_R, so that rank does not exist yet.",
+    "forbiddenSubstitutes": [
+      "database order",
+      "fetch order",
+      "URL order",
+      "SHA order",
+      "selection index",
+      "arbitrary graph traversal"
+    ],
+    "a3aIsAMeasurementPass": true,
+    "whatItMustSurfaceInstead": "whether the real pilot contains any case where a later SET_P or SET_R survivor choice could change the outcome",
+    "computingOrderingKeysSolelyForTheAmbiguityAuditIsPermitted": "provided no sample membership is written"
+  },
+
+  "sd9PilotDecisionLogic": {
+    "caseA": "raw page count = 0 -> the post-SD7 count is necessarily 0, because deduplication cannot create pages. Status may be internally finalised as ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET with no dedupe assumption at all.",
+    "caseB": "no unresolved short-text or survivor-order ambiguity AND the exact post-SD7 count is known -> >=4 is ACQUISITION_SUCCESSFUL, <4 is ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+    "caseC": "an unresolved implementation ambiguity could change whether the count is >=4 -> ACQUISITION_STATUS_PENDING_SD7_OWNER_DETAIL",
+    "MIN_PAGES_PER_ORGANISATION": 4,
+    "noVerdictMayBeForced": true
+  },
+
+  "noReplacementYet": {
+    "evenWhereA3aCanFinaliseAnSd9Failure": "DO NOT consume a reserve, DO NOT create a replacement, DO NOT inherit a failed selection slot onto a reserve",
+    "thisPilotIsDiagnostic": true,
+    "reserveReplacementRequiresALaterExplicitOwnerAuthorisation": true,
+    "reserveConsumptionMustBeZero": true
+  },
+
+  "sealedDataRule": {
+    "theFiveOrganisationsSpan": ["DEV_TRAIN", "DEV_CONFIRM", "FINAL_HOLDOUT"],
+    "theToolMayMechanicallyProcessExtractedText": true,
+    "theOperatorAndPromptDevelopmentSurfaceMustNotReceiveRealPageContentFromGatedSplits": true,
+    "theToolingMustNeverPrintOrReturn": [
+      "main_text",
+      "excerpts",
+      "titles",
+      "URLs",
+      "document hashes",
+      "page IDs",
+      "shingles",
+      "organisation identities",
+      "per-page similarities"
+    ],
+    "noRealPageContentMayAppearIn": [
+      "terminal output",
+      "test snapshots",
+      "public Git artifacts",
+      "the final response"
+    ],
+    "theAlgorithmMayProcessTheseBytesInternallyOnly": true,
+    "externalRoots": {
+      "DEV_TRAIN": "~/Developer/phase2b-2d-methodology-v2/gen1-dev-train/",
+      "DEV_CONFIRM": "~/Developer/phase2b-2d-methodology-v2-sealed/gen1-dev-confirm/",
+      "FINAL_HOLDOUT": "~/Developer/phase2b-2d-methodology-v2-sealed-holdout/gen1-final-holdout/"
+    },
+    "threeSeparateRootsNotThreeSubdirectories": "the cheapest real accident is a tool pointed one directory too high",
+    "everySealedRecordCarriesItsSplitToken": true,
+    "theWriterRefusesARecordWhoseSplitTokenDiffersFromTheRootItIsWritingTo": true,
+    "routingIsDerivedFromTheCanonicalDrawAndFromNothingElse": true,
+    "sealedRecordsCarryNoMainTextAndNoShingles": "A shingle is a five-word fragment of the page. Sealing it would be storing page content under another name, and the pilot's measurements do not need it: hashes, counts, similarities and component structure are sufficient for any later audit."
+  },
+
+  "publicExecutionRecordContract": {
+    "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_EXECUTION_RECORD_V1.json",
+    "mayContain": [
+      "Batch-01 input record hashes",
+      "total organisations analysed",
+      "total raw page evidence",
+      "aggregate exact-duplicate rows removed",
+      "aggregate near-duplicate edge count",
+      "aggregate number of organisations containing near duplicates",
+      "aggregate short-text unresolved count",
+      "aggregate non-transitive-component count",
+      "aggregate number of mechanically finalisable SD9 successes",
+      "aggregate number of mechanically finalisable SD9 failures",
+      "aggregate number still pending owner detail",
+      "sealed detailed artifact hashes",
+      "zero reserve consumption"
+    ],
+    "mustNotContain": [
+      "which selection index had which dedupe result",
+      "split-specific dedupe counts",
+      "page or document IDs",
+      "URLs",
+      "titles",
+      "text",
+      "shingles",
+      "similarity pairs"
+    ]
+  },
+
+  "yieldInterpretationDiscipline": {
+    "mayNotExtrapolate": "3/5 zero-yield does NOT license a 60% population-failure conclusion. Five organisations are too few.",
+    "mayState": [
+      "BATCH_01_OBSERVED_ZERO_RAW_PAGE_RATE = 3/5",
+      "SAMPLE_TOO_SMALL_FOR_CORPUS_PLAN_REVISION"
+    ],
+    "mustAlsoRecord": "the three zero-page organisations are mechanically unable to become SD9 successes after deduplication, so Batch 01 can yield AT MOST 2 acquisition successes out of 5. This is a meaningful warning, not yet a population estimate."
+  },
+
+  "namespaceConstraints": {
+    "doNotModify": [
+      "src/orgunits/",
+      "migrations/",
+      "src/cli/",
+      "src/ingest/",
+      "src/website/",
+      "src/db/",
+      "src/test/harness/phase2b2d/corpus/",
+      "src/test/harness/phase2b2d/draw/",
+      "src/test/harness/phase2b2d2c/",
+      "src/test/firewall/"
+    ],
+    "newToolingNamespace": "src/test/harness/phase2b2d/sd7/",
+    "whyASiblingDirectory": "A1's corpus/ and A1b's draw/ directories both have their module inventories frozen by landed isolation tests, and src/test/firewall/ is frozen wholesale by orgunitClassifyAcceptanceMethodologyV2R2. A sibling directory is the only place new step tooling can land without moving a baseline.",
+    "a3aTestsLiveIn": "src/test/unit/"
+  },
+
+  "nextOwnerDecisionAfterA3a": {
+    "ifNoSd7ImplementationAmbiguityBlocksThePilot": "A2_BATCH_02_DIAGNOSTIC_AUTHORISATION",
+    "ifAnSd7ImplementationAmbiguityCanAffectSd9": "A3_SD7_IMPLEMENTATION_DETAIL_OWNER_DECISION",
+    "batch02ShouldStillBeSmallAndShouldStillUseTheCorrectedIncrementalP5Gate": true
+  },
+
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256. This file is never rewritten, re-hashed or re-statused.",
+    "itIsCommittedAndPushedBeforeThePilotAnalysisRuns": true
+  }
+}

@@ -683,10 +683,21 @@ describe('2D-A1b: A1b changed no production file and weakened no firewall', () =
     //   assertion in this file was touched. A future step that needs its own
     //   record widens this list the same visible way - it does not delete
     //   the check.
+    //
+    //   IT GREW A SECOND TIME, FOR A3a, BY EXACT NAME. A3a descends from A2
+    //   and lands three records: the owner's adjudication of the one Batch-01
+    //   process deviation, A3a's own authority record, and A3a's aggregate
+    //   public execution record. None of them is a gated-split artifact -
+    //   every detailed SD7 result is written to a split-scoped external root
+    //   outside this repository - and the three names are listed here rather
+    //   than covered by a prefix so that a fourth one is a visible edit too.
     const permitted = [
       'docs/evaluation/PHASE_2B_2D_METHOD_V2_A1B_DRAW_AUTHORITY_RECORD_V1.json',
       'docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_AUTHORITY_RECORD_V1.json',
+      'docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_DEVIATION_ADJUDICATION_V1.json',
       'docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_EXECUTION_RECORD_V1.json',
+      'docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_AUTHORITY_RECORD_V1.json',
+      'docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_EXECUTION_RECORD_V1.json',
       'docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json',
     ];
     for (const file of changed) {
