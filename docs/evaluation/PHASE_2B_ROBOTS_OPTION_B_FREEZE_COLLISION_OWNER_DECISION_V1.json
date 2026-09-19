@@ -1,0 +1,194 @@
+{
+  "recordId": "phase2b-robots-option-b-freeze-collision-owner-decision-v1",
+  "recordKind": "OWNER_DECISION_RECORD",
+  "recordedAtUtc": "2026-09-19T00:00:00Z",
+  "recordedBy": "claude-code-session, transcribing an exact owner decision",
+  "whatThisRecordIs": "An IMMUTABLE governance record of the owner's resolution of the collision between the ADR 0012 same-host robots redirect repair and the historical 2D2C classifier freezes. It adds a decision and changes no evidence: no frozen JSON byte, no owner freeze approval, no acquisition row and no earlier record is edited by it or by the work it authorises.",
+
+  "theCollision": {
+    "whatHappened": "ADR 0012 changes what one robots.txt resolution may do on the wire, so it bumps the acquisition policy identifier from orgunit-fetch-policy-v1 to orgunit-fetch-policy-v2. Every historical 2D2C freeze binds fetchPolicyVersion = orgunit-fetch-policy-v1 inside its frozen ClassifierBatchContext, and therefore inside its frozen canonical serialized batch bytes, its assemblyInputSha256 and its finalInputSha256. The freeze verifier required that frozen value to equal the CURRENT production constant, so the bump made 52 checks across the F0/F0C/F0I/F0O/F2/F6 freeze families report CORPUS_CONFIG_OR_HASH_DRIFT.",
+    "measuredFailingChecks": 52,
+    "theTwoWrongWaysOut": [
+      "Re-freeze the historical studies to v2, which would mint NEW input identities for experiments whose evidence was never re-acquired - a redefinition of history, not a repair.",
+      "Abandon the ADR 0012 repair, leaving the measured acquisition capability limit in place."
+    ],
+    "theResolutionChosen": "Neither. The verifier was asking the wrong question."
+  },
+
+  "freezeCollisionResolution": "PIN_HISTORICAL_FETCH_POLICY_VERSION",
+  "historicalFreezeBytesChanged": false,
+  "newFreezeCreated": false,
+  "productionFetchPolicyVersion": "orgunit-fetch-policy-v2",
+  "historicalFetchPolicyVersion": "orgunit-fetch-policy-v1",
+  "historicalIsolationRepair": "TEMPORALLY_BOUND_BASE_TO_PHASE_END",
+  "oldFirewallsWeakened": false,
+  "optionBImplementationStillSelected": true,
+  "rootRunnerBudgetAccountingChangeAccepted": true,
+  "networkAuthorised": false,
+  "targetedRevalidationAuthorised": false,
+  "batch03Authorised": false,
+
+  "whyTheVerifierWasWrong": {
+    "theRuleRemoved": "freeze.inputConstruction.context.fetchPolicyVersion === src/orgunits/web/policy.ts::FETCH_POLICY_VERSION",
+    "whyItIsTheWrongTemporalBoundary": "The classifier's own production loader obtains fetch-policy provenance from orgunit_research_runs.fetch_policy_version via loadRunContext(). For a classifier input, fetchPolicyVersion is therefore a fact about the ACQUISITION RUN whose pages are being classified - run provenance - and not the version of the acquisition algorithm the build reading the freeze happens to implement. The distinction is invisible while exactly one fetch policy has ever existed, and decisive the moment a second one does.",
+    "theRuleNow": "historical provenance must equal the exact provenance FROZEN for that historical input",
+    "whatReplacedIt": [
+      "A: freeze.inputConstruction.context.fetchPolicyVersion exists and has the form of a fetch-policy version.",
+      "B: every frozen batch context carries that exact frozen value, or the freeze is refused as self-contradictory.",
+      "C: the fresh reconstruction stamps that exact frozen value into every rebuilt context.",
+      "D: the reconstructed canonical bytes, assemblyInputSha256 and every finalInputSha256 still equal the frozen oracles exactly.",
+      "E: mutating the historical frozen value to any other value still fails with CORPUS_CONFIG_OR_HASH_DRIFT.",
+      "F: no freeze JSON is edited.",
+      "G: no owner freeze approval is edited."
+    ],
+    "theGuardWasNotRemoved": true,
+    "implementedIn": "src/test/harness/phase2b2d2c/batches.ts",
+    "provenBy": "src/test/unit/orgunitClassifyHistoricalFetchPolicyProvenance.test.ts"
+  },
+
+  "notWidened": {
+    "statement": "This decision is specifically and only about treating fetchPolicyVersion as historical run provenance. No other frozen or runtime value was relaxed.",
+    "stillCheckedAgainstThisBuildUnchanged": [
+      "ruleVersion",
+      "assemblyVersion",
+      "classifier.assemblyVersion",
+      "outputSchemaVersion"
+    ],
+    "stillCheckedUnchanged": [
+      "promptVersion and prompt hash",
+      "requested model id",
+      "runtime and SDK identity",
+      "corpus bytes and corpus manifest hashes",
+      "batching partition and order",
+      "gold pins",
+      "every input hash"
+    ],
+    "noHistoricalHashEdited": true,
+    "aStructurallyAnalogousIssueElsewhereIsReportedNotFixed": true
+  },
+
+  "historicalIsolationCorrection": {
+    "theDefect": "Several phase-isolation tests proved a HISTORICAL claim with `git diff <PHASE_BASE> --`, which compares the base commit to the WORKING TREE. That silently converted 'this phase did not modify production' into 'no future phase may ever modify production' - a statement no owner approved, and one that any approved later production change necessarily breaks.",
+    "theCorrection": "Every historical phase-isolation assertion now compares PHASE_BASE_COMMIT..PHASE_TERMINAL_COMMIT. Protected paths and assertions are otherwise unchanged; only the END POINT became historically correct.",
+    "noOldInvariantWeakened": true,
+    "noPathAddedToAnOldAllowlist": true,
+    "boundRanges": [
+      {
+        "claim": "Methodology V2 changed nothing under src/orgunits/ since the F6 approval",
+        "file": "src/test/unit/orgunitClassifyAcceptanceMethodologyV2R2.test.ts",
+        "baseCommit": "4a1daf4309e35c8be12b30ae085a9083551fdb8b",
+        "terminalCommit": "5988bebd0aacc21404a72de464e0c3ef033e3ee0"
+      },
+      {
+        "claim": "Methodology V2 edited no firewall file and touched only docs/ and src/test/",
+        "file": "src/test/unit/orgunitClassifyAcceptanceMethodologyV2R2.test.ts",
+        "baseCommit": "9b8a0e61a52ded96bfd40f1aa502d5311cef7619",
+        "terminalCommit": "5988bebd0aacc21404a72de464e0c3ef033e3ee0"
+      },
+      {
+        "claim": "F7 changed neither the coordinator, the production classifier, nor any F3/F4/F6 module",
+        "file": "src/test/firewall/phase2b2d2cF7RestartExecution.firewall.test.ts",
+        "baseCommit": "4a1daf4309e35c8be12b30ae085a9083551fdb8b",
+        "terminalCommit": "911309ecce0621c2ea51b84eb68cf484d332dd4a"
+      },
+      {
+        "claim": "F9 left the v2 scorer byte-identical to the F7 execution build",
+        "file": "src/test/firewall/phase2b2d2cF9ScoringAdapter.firewall.test.ts",
+        "baseCommit": "911309ecce0621c2ea51b84eb68cf484d332dd4a",
+        "terminalCommit": "9b8a0e61a52ded96bfd40f1aa502d5311cef7619"
+      },
+      {
+        "claim": "A1 added no production file and weakened no firewall",
+        "file": "src/test/unit/orgunitCorpus2DA1FrameIsolation.test.ts",
+        "baseCommit": "ee7384087979ec74a45668bc9d770963444600cc",
+        "terminalCommit": "c64fad3474499d392d316e35c720310c76e9405b"
+      },
+      {
+        "claim": "A1b added no production file, weakened no firewall, and changed no frozen methodology, plan or approval byte",
+        "file": "src/test/unit/orgunitCorpus2DA1bDrawIsolation.test.ts",
+        "baseCommit": "c64fad3474499d392d316e35c720310c76e9405b",
+        "terminalCommit": "34537caf2308ade014f9f459ca9f97596dc48a17"
+      },
+      {
+        "claim": "A2 Batch 02 changed no production file",
+        "file": "src/test/unit/orgunitCorpus2DA2AcquisitionGate.test.ts",
+        "baseCommit": "013a04d194d7171c8c7319a84987d9e23a618fea",
+        "terminalCommit": "637c6e6a9a15e2ca24f0f9794842cce727464136"
+      },
+      {
+        "claim": "A3a added no production file, weakened no firewall, and committed no sealed detail file",
+        "file": "src/test/unit/orgunitCorpus2DA3aSd7PilotIsolation.test.ts",
+        "baseCommit": "a0ae27cc30f15537014fa8a4efaae9aa25da542a",
+        "terminalCommit": "013a04d194d7171c8c7319a84987d9e23a618fea"
+      }
+    ],
+    "everyEndpointVerifiedAgainstGitAncestry": true,
+    "noShaGuessed": true
+  },
+
+  "a1bAccretionFix": {
+    "theDefect": "A1b's docs/evaluation check diffed the WHOLE of docs/evaluation from the A1 frame commit to the working tree, so it bounded every branch DESCENDING from A1b rather than A1b. Its allowlist had already been widened three times by exact filename - for A2 Batch 01, for A3a and for A2 Batch 02 - for records that are not A1b changes. The file's own comment acknowledged this and predicted the failure mode.",
+    "theFix": "The range was bounded to A1B_BASE..A1B_TERMINAL. The allowlist returns to the two artifacts A1b itself wrote, and a later phase's governance record can never again require an A1b allowlist entry.",
+    "allowlistNowExactly": [
+      "docs/evaluation/PHASE_2B_2D_METHOD_V2_A1B_DRAW_AUTHORITY_RECORD_V1.json",
+      "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json"
+    ],
+    "filenamesRemovedFromTheAllowlist": 8,
+    "theAlreadyExistingBaselineFailureThisResolves": "docs/evaluation/PHASE_2B_2D_ACQUISITION_YIELD_ROOT_CAUSE_RESULT_V1.json",
+    "thatFilenameWasNotAddedToAnA1bAllowlist": true,
+    "theCheckIsStrongerNotWeaker": "The range now also asserts the diff equals the allowlist exactly, so A1b can no longer hide a change behind a name some later phase legitimately needed."
+  },
+
+  "optionBScopeUnchanged": {
+    "selectedOption": "B",
+    "scope": "SAME_HOST_SINGLE_HOP_ROBOTS_REDIRECT_CONTINUATION",
+    "notWidenedToOptionC": true,
+    "adrPath": "docs/adr/0012-same-host-robots-redirect-continuation.md",
+    "adrSha256": "7b240eef21960940cdcc569ee4d85d4137fee1ee746884ecbd3d5095ee15a47a",
+    "adrBytes": 16804,
+    "adrUnchangedByThisDecision": true,
+    "productionFilesAuthorised": [
+      "src/orgunits/web/policy.ts",
+      "src/orgunits/web/robots.ts",
+      "src/orgunits/orchestrator/rootRunner.ts"
+    ],
+    "whyRootRunnerIsIncluded": "A robots resolution may now issue two gateway requests instead of one, and RequestBudget.consume THROWS rather than clamping. The per-attempt prediction must therefore reserve two potential robots requests, and the charge must be a count rather than a boolean, under the UNCHANGED total ceiling of 60. The owner accepted this exact change; it authorises no other orchestrator behaviour change, and a test pins its only semantic effect to request accounting.",
+    "pinnedBy": "src/test/unit/orgunitRobotsOptionBRepairScope.test.ts"
+  },
+
+  "boundPriorEvidence": {
+    "rootCauseResultPath": "docs/evaluation/PHASE_2B_2D_ACQUISITION_YIELD_ROOT_CAUSE_RESULT_V1.json",
+    "rootCauseResultSha256": "6f0dade0bc0c750edc0510192394da8899d3b0a114c21ebf66f14254803b2c68",
+    "rootCauseResultBytes": 26502,
+    "batch02ExecutionRecordPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_02_EXECUTION_RECORD_V1.json",
+    "batch02ExecutionRecordSha256": "fd2f0089428daf0f2b96cd45ef6417e70954119f7cbff667b5486e50bd3bb7d1",
+    "batch02ExecutionRecordBytes": 14893,
+    "hashesReverifiedOnDiskWhenThisRecordWasWritten": true,
+    "neitherIsEditedByThisDecision": true
+  },
+
+  "noHistoricalEvidenceReinterpreted": {
+    "existingRunRowsKeep": "orgunit-fetch-policy-v1",
+    "existingObservationRowsKeep": "orgunit-fetch-policy-v1",
+    "rowsRewritten": 0,
+    "assertRunIsExecutableStillRefusesAPolicyVersionThisBuildDoesNotImplement": true,
+    "soAV1RunCanBeReadButNeverResumedUnderV2Behaviour": true
+  },
+
+  "thisRecordAuthorises": [
+    "AUTHORISE_HISTORICAL_PHASE_RANGE_SCOPING_CORRECTION_V1",
+    "AUTHORISE_ROBOTS_OPTION_B_REPAIR_COMPLETION_V1"
+  ],
+  "thisRecordExplicitlyDoesNotAuthorise": [
+    "ANY_LIVE_NETWORK",
+    "TARGETED_REVALIDATION",
+    "BATCH_03",
+    "RESERVE_CONSUMPTION",
+    "REPLACEMENT",
+    "PROVIDER_INFERENCE",
+    "LABELS",
+    "HOLDOUT_SEMANTIC_ACCESS",
+    "PHASE_2E"
+  ],
+  "nextOwnerDecision": "A2_ROBOTS_OPTION_B_TARGETED_REVALIDATION_AUTHORISATION"
+}
