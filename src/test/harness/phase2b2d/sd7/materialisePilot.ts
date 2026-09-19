@@ -418,13 +418,21 @@ function buildPublicRecord(parts: {
       phase2EWork: false,
     },
 
+    // HASHES ONLY, and deliberately not the sizes.
+    //
+    //   A sealed file's BYTE LENGTH and organisation count are a proxy for how
+    //   much measured structure that split held - a 1.9 KB file and a 14 KB one
+    //   do not hold the same thing - and the owner's permitted list names
+    //   "sealed detailed artifact hashes", not their sizes. Which split holds
+    //   page-bearing organisations happens to be derivable from records that
+    //   already landed, but that is a reason to not widen the leak surface
+    //   further rather than a licence to.
     sealedDetailedArtifacts: parts.sealed.map((outcome) => ({
       split: outcome.split,
       sha256: outcome.sha256,
-      bytes: outcome.bytes,
-      organisationCount: outcome.organisationCount,
       committedToGit: false,
       containsNoPageTextOrShingles: true,
+      sizeIsWithheldAsASplitSpecificSignal: true,
     })),
 
     reportingDiscipline: {
@@ -471,10 +479,10 @@ async function main(): Promise<void> {
   console.log(
     `publicRecord                    ${outcome.publicRecordSha256} (${outcome.publicRecordBytes} bytes)`,
   );
+  // HASHES ONLY here too. The terminal IS the operator and prompt-development
+  // surface, so it gets no more than the public record does.
   for (const sealedOutcome of outcome.sealed) {
-    console.log(
-      `sealed ${sealedOutcome.split.padEnd(14)}           ${sealedOutcome.sha256} (${sealedOutcome.bytes} bytes, ${sealedOutcome.organisationCount} org)`,
-    );
+    console.log(`sealed ${sealedOutcome.split.padEnd(14)}           ${sealedOutcome.sha256}`);
   }
   for (const token of outcome.returnedTokens) console.log(token);
   console.log(outcome.terminalState);

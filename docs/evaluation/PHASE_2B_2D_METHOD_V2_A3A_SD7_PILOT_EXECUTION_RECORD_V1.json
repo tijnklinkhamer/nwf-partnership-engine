@@ -1,0 +1,135 @@
+{
+  "recordId": "phase2b-2d-method-v2-a3a-sd7-pilot-execution-v1",
+  "recordKind": "EXECUTION_RECORD",
+  "records": "PHASE_2B_2D_METHOD_V2_A3A_SD7_NEAR_DUPLICATE_PILOT_V1",
+  "recordedBy": "claude-code-session under the A3a owner authority record",
+  "ownerDecision": "AUTHORISE_PHASE_2B_2D_A3A_SD7_PILOT_V1",
+  "boundInputs": [
+    {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_AUTHORITY_RECORD_V1.json",
+      "sha256": "03e1e08054eb381d9be527857ef70d92ae1aade0e5095e7b6507f0c7e8105a46",
+      "bytes": 17425
+    },
+    {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_EXECUTION_RECORD_V1.json",
+      "sha256": "8a1b0f57f1c568e2ac04aced7ba453ad8d7b666f557fd622b3a5e6378309f9cc",
+      "bytes": 23602
+    },
+    {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "sha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "bytes": 74047
+    }
+  ],
+  "boundAuthorityRecordPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_AUTHORITY_RECORD_V1.json",
+  "boundDeviationAdjudicationPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_DEVIATION_ADJUDICATION_V1.json",
+  "frozenRuleApplied": {
+    "exactDuplicateKey": "orgunit_fetch_observations.response_sha256",
+    "NEAR_DUPLICATE_SHINGLE_SIZE": 5,
+    "NEAR_DUPLICATE_JACCARD_THRESHOLD": 0.9,
+    "thresholdComparison": "AT_OR_ABOVE_INCLUSIVE",
+    "thresholdDecidedInExactIntegerArithmetic": true,
+    "comparisonScope": "WITHIN_ONE_ORGANISATION_ONLY",
+    "MIN_PAGES_PER_ORGANISATION": 4,
+    "noStemming": true,
+    "noPunctuationStripping": true,
+    "noUnicodeCanonicalNormalisation": true,
+    "noAccentRemoval": true,
+    "noLanguageSpecificTokenizer": true,
+    "noEmbeddingAndNoModel": true,
+    "r3WasNotAltered": true
+  },
+  "aggregate": {
+    "organisationsAnalysed": 5,
+    "rawPageEvidenceRowsAnalysed": 59,
+    "exactDuplicateRowsRemoved": 2,
+    "exactDuplicateGroupCount": 1,
+    "distinctDocumentCount": 57,
+    "nearDuplicateEdgeCount": 0,
+    "organisationsWithNearDuplicates": 0,
+    "organisationsWithNoNearDuplicates": 5,
+    "shortTextUnresolvedPageCount": 1,
+    "organisationsWithShortTextUnresolvedPages": 1,
+    "nonTransitiveComponentCount": 0,
+    "organisationsWithNonTransitiveComponents": 0,
+    "unauditableComponentCount": 0,
+    "organisationsWhoseSurvivorIdentityIsOrderDependent": 0,
+    "organisationsWhoseSurvivorCountIsOrderDependent": 0,
+    "organisationsWhoseSd9DecisionIsOrderDependent": 0,
+    "sd9MechanicallyFinalisedSuccessCount": 2,
+    "sd9MechanicallyFinalisedFailureCount": 3,
+    "sd9StillPendingOwnerDetailCount": 0
+  },
+  "survivorOrderDiscipline": {
+    "noGlobalPreSampleSurvivorRankWasInvented": true,
+    "forbiddenSubstitutesNoneOfWhichWereUsed": [
+      "database order",
+      "fetch order",
+      "URL order",
+      "SHA order",
+      "selection index",
+      "arbitrary graph traversal"
+    ],
+    "whatWasMeasuredInstead": "the exact RANGE of post-SD7 page counts over ALL possible survivor orders, per organisation. A verdict is finalised only where the whole range falls on one side of MIN_PAGES_PER_ORGANISATION.",
+    "everyNearDuplicateComponentIsAClique": true,
+    "componentsExceedingTheExactAuditGuard": 0
+  },
+  "zeroYieldFinding": {
+    "BATCH_01_OBSERVED_ZERO_RAW_PAGE_RATE": "3/5",
+    "SAMPLE_TOO_SMALL_FOR_CORPUS_PLAN_REVISION": true,
+    "zeroPageOrganisationsCannotBecomeSuccessful": "Deduplication is a removal operation and has no branch that produces a page, so an organisation with zero raw page evidence is mechanically unable to reach MIN_PAGES_PER_ORGANISATION under any reading of any unresolved SD7 detail.",
+    "maximumPossibleAcquisitionSuccessesInBatch01": 2,
+    "thisIsAWarningNotAPopulationEstimate": true,
+    "noExtrapolationToTheFull110IsDrawn": true
+  },
+  "authorityHeld": {
+    "networkRequestsIssued": 0,
+    "dnsLookupsPerformed": 0,
+    "providerCallsMade": 0,
+    "databaseWrites": 0,
+    "reserveConsumption": 0,
+    "replacementsCreated": 0,
+    "setPMaterialised": false,
+    "setRMaterialised": false,
+    "labelsCreated": 0,
+    "goldCreated": 0,
+    "holdoutSemanticDisclosure": false,
+    "phase2EWork": false
+  },
+  "sealedDetailedArtifacts": [
+    {
+      "split": "DEV_TRAIN",
+      "sha256": "a4d0c69a0271efde36420cc50d44ab274fc21ad1739f24043f8200dfed430381",
+      "committedToGit": false,
+      "containsNoPageTextOrShingles": true,
+      "sizeIsWithheldAsASplitSpecificSignal": true
+    },
+    {
+      "split": "DEV_CONFIRM",
+      "sha256": "b83917fe02a27ab35a957b7ee7de82a1dc96544acfb4053bf32d213cc37277ae",
+      "committedToGit": false,
+      "containsNoPageTextOrShingles": true,
+      "sizeIsWithheldAsASplitSpecificSignal": true
+    },
+    {
+      "split": "FINAL_HOLDOUT",
+      "sha256": "f00e322b696e8654e6e1ae0be3338217e4a6106e44fc682d42ab68848c4afa28",
+      "committedToGit": false,
+      "containsNoPageTextOrShingles": true,
+      "sizeIsWithheldAsASplitSpecificSignal": true
+    }
+  ],
+  "reportingDiscipline": {
+    "thisRecordCarriesNoPerSelectionIndexResult": true,
+    "thisRecordCarriesNoSplitSpecificDedupeCount": true,
+    "thisRecordCarriesNoPageOrDocumentId": true,
+    "thisRecordCarriesNoUrlTitleTextOrShingle": true,
+    "thisRecordCarriesNoSimilarityPair": true
+  },
+  "returnedTokens": ["SD7_IMPLEMENTATION_DETAIL_REQUIRING_OWNER_CONFIRMATION"],
+  "terminalState": "PHASE_2B_2D_A3A_SD7_PILOT_COMPLETE_AWAITING_BATCH_02_DECISION",
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256."
+  }
+}

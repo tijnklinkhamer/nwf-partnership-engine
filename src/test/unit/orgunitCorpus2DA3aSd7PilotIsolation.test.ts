@@ -496,6 +496,43 @@ describe('2D-A3a: no page content can reach a terminal, a log or a public artifa
     expect(code).toContain('thisRecordCarriesNoPageOrDocumentId');
   });
 
+  it('publishes sealed artifact HASHES without their sizes', () => {
+    // A sealed file's byte length and organisation count are a proxy for how
+    // much measured structure a split held, so neither is published.
+    const record = JSON.parse(
+      readFileSync(
+        join(
+          REPO_ROOT,
+          'docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_EXECUTION_RECORD_V1.json',
+        ),
+        'utf8',
+      ),
+    ) as { sealedDetailedArtifacts: readonly Record<string, unknown>[] };
+    expect(record.sealedDetailedArtifacts).toHaveLength(3);
+    for (const entry of record.sealedDetailedArtifacts) {
+      expect(typeof entry.sha256).toBe('string');
+      expect(entry.bytes, 'a sealed file size was published').toBeUndefined();
+      expect(entry.organisationCount, 'a sealed organisation count was published').toBeUndefined();
+    }
+  });
+
+  it('publishes no organisation identity, uuid or URL at all', () => {
+    const raw = readFileSync(
+      join(
+        REPO_ROOT,
+        'docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_EXECUTION_RECORD_V1.json',
+      ),
+      'utf8',
+    );
+    expect(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/.test(raw)).toBe(false);
+    expect(raw).not.toContain('selectionIndex');
+    expect(raw).not.toContain('echeRowKey');
+    expect(/https?:\/\//.test(raw)).toBe(false);
+    // The only long hex strings are the bound input hashes and the three
+    // sealed artifact hashes: six in total, and no document hash among them.
+    expect([...raw.matchAll(/\b[0-9a-f]{64}\b/g)]).toHaveLength(6);
+  });
+
   it('routes each split to its OWN root, three roots, not three subdirectories', () => {
     const contract = codeOf('sd7Contract.ts');
     expect(contract).toContain('phase2b-2d-methodology-v2/gen1-dev-train');
