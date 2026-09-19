@@ -1,0 +1,439 @@
+{
+  "recordId": "phase2b-2d-acquisition-yield-root-cause-result-v1",
+  "recordKind": "DIAGNOSTIC_RESULT",
+  "records": "PHASE_2B_2D_A2_ACQUISITION_YIELD_ROOT_CAUSE_AUDIT_V1",
+  "recordedAtUtc": "2026-09-19T00:00:00Z",
+  "recordedBy": "claude-code-session under the owner decision named below",
+
+  "ownerDecision": "AUTHORISE_PHASE_2B_2D_A2_ACQUISITION_YIELD_ROOT_CAUSE_AUDIT_V1",
+  "status": "DIAGNOSTIC_COMPLETE",
+  "thisFileAuthorises": [],
+
+  "auditDocument": {
+    "path": "docs/audits/PHASE_2B_2D_ACQUISITION_YIELD_ROOT_CAUSE_AUDIT_V1.md",
+    "hashRecordedInTheFinalReportRatherThanHere": "A file cannot contain its own sibling's hash and remain the thing that was hashed without an ordering rule; the audit hash and this record's hash are both reported in the session's final report and are recomputable from the committed bytes."
+  },
+
+  "boundInputs": {
+    "batch01ExecutionRecordPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_EXECUTION_RECORD_V1.json",
+    "batch01ExecutionRecordSha256": "8a1b0f57f1c568e2ac04aced7ba453ad8d7b666f557fd622b3a5e6378309f9cc",
+    "batch02ExecutionRecordPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_02_EXECUTION_RECORD_V1.json",
+    "batch02ExecutionRecordSha256": "fd2f0089428daf0f2b96cd45ef6417e70954119f7cbff667b5486e50bd3bb7d1",
+    "sd7PilotExecutionRecordPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_EXECUTION_RECORD_V1.json",
+    "sd7PilotExecutionRecordSha256": "3be65f6e491f46c00a855a06a24167d4fd1d74201942b0240b74dc6a0e4d9ee8",
+    "batch02ZeroPageClosurePath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_BATCH_02_ZERO_PAGE_CLOSURE_V1.json",
+    "evidenceSource": "the working database nwf_pe, read as nwf_research (and nwf_classifier for the four classifier-table counts) under default_transaction_read_only = on"
+  },
+
+  "persistedStateAtAuditClose": {
+    "orgunit_research_runs": 7,
+    "orgunit_research_run_completions": 7,
+    "orgunit_fetch_observations": 78,
+    "orgunit_redirect_observations": 4,
+    "orgunit_root_promotions": 0,
+    "orgunit_root_promotion_revocations": 0,
+    "orgunit_page_evidence": 59,
+    "orgunit_page_candidates": 118,
+    "orgunit_classification_subjects": 0,
+    "orgunit_classifier_calls": 0,
+    "orgunit_classifier_call_completions": 0,
+    "orgunit_page_classifications": 0,
+    "unchangedFromThePostBatch02State": true
+  },
+
+  "rootAuthorityFacts": {
+    "allSevenRootsWereEchePublishedWebsiteClaims": true,
+    "allSevenWereStructurallyValid": true,
+    "rootPromotionsUsed": 0,
+    "everyRefusalConcernsAnOfficiallyPublishedRootNotAnOperatorWidenedOne": true
+  },
+
+  "zeroYieldCensus": {
+    "organisationsAttempted": 7,
+    "rawZeroOrganisations": 5,
+    "rawPositiveOrganisations": 2,
+    "zeroYieldOrganisationsThatNeverReachedAnInstitutionContentRequest": 4,
+    "perSelectionIndex": [
+      {
+        "selectionIndex": 0,
+        "batch": 1,
+        "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+        "gatewayRequests": 39,
+        "pageAttempts": 35,
+        "rawPages": 31,
+        "zeroYield": false
+      },
+      {
+        "selectionIndex": 1,
+        "batch": 1,
+        "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+        "gatewayRequests": 1,
+        "pageAttempts": 0,
+        "rawPages": 0,
+        "zeroYield": true,
+        "stageReached": "SITE_POLICY",
+        "mechanism": "ROBOTS_REDIRECTED",
+        "httpStatus": 301,
+        "errorKind": null,
+        "robotsDecision": "NOT_APPLICABLE"
+      },
+      {
+        "selectionIndex": 2,
+        "batch": 1,
+        "rootTerminalReason": "COMPLETED_WITH_CANDIDATES",
+        "gatewayRequests": 32,
+        "pageAttempts": 29,
+        "rawPages": 28,
+        "zeroYield": false
+      },
+      {
+        "selectionIndex": 3,
+        "batch": 1,
+        "rootTerminalReason": "NO_ELIGIBLE_HTML",
+        "gatewayRequests": 3,
+        "pageAttempts": 1,
+        "rawPages": 0,
+        "zeroYield": true,
+        "stageReached": "ROOT_AND_SITEMAP",
+        "mechanism": "ROOT_OR_SITEMAP_HTTP_5XX",
+        "httpStatus": 500,
+        "errorKind": null,
+        "robotsDecision": "ALLOWED"
+      },
+      {
+        "selectionIndex": 4,
+        "batch": 1,
+        "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+        "gatewayRequests": 1,
+        "pageAttempts": 0,
+        "rawPages": 0,
+        "zeroYield": true,
+        "stageReached": "SITE_POLICY",
+        "mechanism": "ROBOTS_DNS_FAILURE",
+        "httpStatus": null,
+        "errorKind": "DNS_FAILURE",
+        "robotsDecision": "NOT_APPLICABLE"
+      },
+      {
+        "selectionIndex": 5,
+        "batch": 2,
+        "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+        "gatewayRequests": 1,
+        "pageAttempts": 0,
+        "rawPages": 0,
+        "zeroYield": true,
+        "stageReached": "SITE_POLICY",
+        "mechanism": "ROBOTS_REDIRECTED",
+        "httpStatus": 301,
+        "errorKind": null,
+        "robotsDecision": "NOT_APPLICABLE"
+      },
+      {
+        "selectionIndex": 6,
+        "batch": 2,
+        "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+        "gatewayRequests": 1,
+        "pageAttempts": 0,
+        "rawPages": 0,
+        "zeroYield": true,
+        "stageReached": "SITE_POLICY",
+        "mechanism": "ROBOTS_TLS_FAILURE",
+        "httpStatus": null,
+        "errorKind": "TLS_FAILURE",
+        "robotsDecision": "NOT_APPLICABLE"
+      }
+    ]
+  },
+
+  "failureModeAggregate": {
+    "ROBOTS_REDIRECTED": 2,
+    "ROBOTS_TLS_FAILURE": 1,
+    "ROBOTS_DNS_FAILURE": 1,
+    "ROOT_AND_SITEMAP_HTTP_5XX": 1,
+    "ROBOTS_DISALLOW_ACTUALLY_MATCHED": 0,
+    "notOneOrganisationRefusedThisCrawler": true
+  },
+
+  "redirectObservationCensus": {
+    "totalRedirectObservations": 4,
+    "producedByAnOrdinaryPageRequest": 2,
+    "producedByARobotsTxtRequest": 2,
+    "allFourAreWellFormed": true,
+    "allFourAreCredentialFree": true,
+    "allFourAreNonDowngrading": true,
+    "allFourStayedWithinTheRegistrableDomain": true
+  },
+
+  "robotsRedirectClassification": {
+    "R1_SAME_ORIGIN_SAFE": 1,
+    "R2_SAME_REGISTRABLE_DOMAIN_SAFE_CANDIDATE": 1,
+    "R3_CROSS_REGISTRABLE_DOMAIN": 0,
+    "R4_SCHEME_DOWNGRADE": 0,
+    "R5_MALFORMED_OR_CREDENTIALLED": 0,
+    "noRedirectWasFollowedDuringThisAudit": true,
+    "bothTargetsPreserveTheExactPathRobotsTxtWithNoQueryOrFragment": true
+  },
+
+  "wouldAdr0008PageContinuationSafetyHavePermittedTheRobotsTargets": {
+    "answer": "YES_FOR_BOTH",
+    "count": 2,
+    "outOf": 2,
+    "gateByGateAgainstLandedFollowRedirectIfSafe": "src/orgunits/orchestrator/rootRunner.ts:396-420 - every gate passes for both, including the credential gate (line 402), the cross-domain gate (403), the scheme-downgrade gate (407), the hop cap (408), URL and host admissibility (409, 412) and page-budget headroom (413).",
+    "theGatewayScopeRuleAgreesIndependently": "src/orgunits/web/url.ts:225-231 refuses only http-requested-under-a-non-http-root; index 5's root claim scheme is itself http, so an https target is an upgrade, not a downgrade."
+  },
+
+  "canonicalisationCheck": {
+    "robotsRedirects": {
+      "httpToHttpsSameHostname": 1,
+      "wwwLabelRemovedSameRegistrableDomain": 1,
+      "sameHostPathChangeOnly": 0
+    },
+    "ordinaryPageRedirects": {
+      "httpToHttpsSameHostname": 0,
+      "wwwLabelRemovedSameRegistrableDomain": 1,
+      "sameHostPathChangeOnly": 1
+    },
+    "bothRobotsRedirectsArePureCanonicalisation": true,
+    "noWebsiteClaimWasModified": true,
+    "noRedirectTargetWasFetched": true
+  },
+
+  "observedAsymmetryEvidence": {
+    "theTwoOrdinaryPageRedirectsBelongToTheTwoSuccessfulOrganisations": true,
+    "bothWereContinuedByTheLandedOrchestrator": true,
+    "index2IsTheDecisiveCase": "Its root answered 301 with a ZERO-byte body, so no anchor could have been extracted; the continuation came from followRedirectIfSafe enqueuing the redirect target, which was then separately revalidated (including its own robots.txt fetch on the new host) and went on to yield 28 pages.",
+    "index1AndIndex2ShareTheIdenticalRedirectShape": "www.X -> X, same registrable domain, same scheme, well-formed, credential-free. Index 2's was continued and succeeded; index 1's terminated the whole root at zero pages. The only difference is whether the 3xx came from an ordinary page or from the policy file."
+  },
+
+  "tlsFailureAudit": {
+    "selectionIndex": 6,
+    "errorKind": "TLS_FAILURE",
+    "requestedScheme": "https:",
+    "httpStatus": null,
+    "resolvedIpFamily": "IPV4",
+    "resolvedIpIsPublic": true,
+    "dnsResolvedAndAnAddressPassedClassification": true,
+    "failureOccurredOnRobotsTxtOnly": true,
+    "attemptNo": 1,
+    "subtype": "NOT_DETERMINABLE_FROM_PERSISTED_EVIDENCE",
+    "certificateHostnameMismatch": "UNKNOWN",
+    "expiredOrUntrustedCertificate": "UNKNOWN",
+    "tlsHandshakeTimeout": "UNKNOWN",
+    "protocolOrCipherNegotiationFailure": "UNKNOWN",
+    "connectionResetDuringTls": "PARTIALLY_EXCLUDED - a reset maps to CONNECTION_RESET, not TLS_FAILURE (src/orgunits/web/gateway.ts:304-306), so a reset classified as such did not occur",
+    "otherTlsFailure": "UNKNOWN",
+    "whySubtypeIsUnavailable": "The gateway derives the precise cause into errorDetail (src/orgunits/web/gateway.ts:285-307) but that string is documented NOT PERSISTED at gateway.ts:223-230. orgunit_fetch_observations has no free-text column, orgunit_research_run_completions forces error_summary NULL for a COMPLETED run, and nothing under src/cli/ or src/orgunits/orchestrator/ reads errorDetail. The detail was discarded by design.",
+    "sniUsedTheOriginalHostname": true,
+    "certificateVerificationRemainedEnabled": true,
+    "noInsecureTlsIsProposedAsARepair": true,
+    "structuralHypothesisOnly": "This root's hostname carries two labels above the registrable domain rather than one, which a single-label wildcard certificate would not cover. Consistent with a hostname mismatch; NOT evidence of one. A new handshake would be needed and none was made."
+  },
+
+  "dnsFailureAudit": {
+    "selectionIndex": 4,
+    "errorKind": "DNS_FAILURE",
+    "resolvedIpFamily": null,
+    "noAddressWasEverReturned": true,
+    "attemptNo": 1,
+    "subtype": "NOT_DETERMINABLE_FROM_PERSISTED_EVIDENCE",
+    "enotfoundOrNxdomainLike": "UNKNOWN",
+    "temporaryResolverFailure": "UNKNOWN",
+    "otherDnsFailure": "UNKNOWN",
+    "whySubtypeIsUnavailable": "The gateway records DNS_FAILURE both for a lookup that throws and for a lookup returning an empty answer (src/orgunits/web/gateway.ts:826-841), collapsing both onto one taxonomy member, and errorDetail is not persisted.",
+    "answerToTheOwnersQuestion": "THE_PERSISTED_EVIDENCE_IS_INSUFFICIENT_TO_KNOW",
+    "isItPlainlyAuthoritativeSourceStalenessOrAnUnreachableHost": "NOT_CERTIFIABLE - plausible but not establishable from stored evidence, and one observation from one vantage cannot establish permanence in any case",
+    "noNewDnsLookupWasPerformed": true
+  },
+
+  "http5xxAudit": {
+    "selectionIndex": 3,
+    "robotsPolicyWasReadSuccessfully": true,
+    "robotsDecisionForBothRequests": "ALLOWED",
+    "statuses": { "root": 500, "sitemap": 500 },
+    "failureWasRootAndSitemapNotRootOnly": true,
+    "sitemapPathWasTheConventionalWellKnownOne": true,
+    "bothResponsesWereByteIdentical": true,
+    "numberOfAttemptsPerUrl": 1,
+    "maxAttemptNoAcrossTheRun": 1,
+    "doesLandedPolicyAllowRetries": false,
+    "retryExpectationConfirmedAsNo": true,
+    "noRetryAuthorityWasInvented": true,
+    "alternativeSameDomainCandidateInPersistedEvidence": "NONE - three fetch observations exist and no more. The 500 body was HTML-shaped but page evidence requires a genuine 2xx (rule 23), so no evidence row was derived, no anchors entered the frontier, and frontierUrlsObserved was 0.",
+    "engineBehavedAsDesigned": true
+  },
+
+  "capabilityLimitVsExternalClassification": {
+    "perSelectionIndex": {
+      "1": "CURRENT_POLICY_CAPABILITY_LIMIT",
+      "3": "EXTERNAL_TRANSIENT_OR_UNKNOWN",
+      "4": "EXTERNAL_TRANSIENT_OR_UNKNOWN",
+      "5": "CURRENT_POLICY_CAPABILITY_LIMIT",
+      "6": "EXTERNAL_TRANSIENT_OR_UNKNOWN"
+    },
+    "totals": {
+      "CURRENT_POLICY_CAPABILITY_LIMIT": 2,
+      "EXTERNAL_TRANSIENT_OR_UNKNOWN": 3,
+      "EXTERNAL_UNRECOVERABLE_UNDER_CURRENT_SOURCE": 0,
+      "SOURCE_QUALITY_LIMIT_AS_PRIMARY_CAUSE": 0,
+      "SOURCE_QUALITY_LIMIT_AS_CONTRIBUTING_FACTOR": 1,
+      "UNRESOLVED": 0
+    },
+    "contributingSourceQualityNote": "Index 5's official claim publishes an http:// scheme. The engine honoured it correctly and then refused the server's own https canonicalisation, so source quality contributes but is not the limiting factor.",
+    "nothingIsCalledABugMerelyForBeingZeroYield": true
+  },
+
+  "robotsRedirectAsymmetry": {
+    "verdict": "INTENTIONAL_SAFETY_DISTINCTION_WITH_A_DOCUMENTED_REASON",
+    "ownerOptionNumber": 1,
+    "documentedIn": [
+      "docs/adr/0006-policy-governed-page-evidence.md:110-116",
+      "docs/adr/0006-policy-governed-page-evidence.md:118-136",
+      "CLAUDE.md rule 22",
+      "src/orgunits/web/robots.ts:33-40, :158, :218-219"
+    ],
+    "theFollowAndProceedAlternativeIsExplicitlyRejectedByName": true,
+    "adr0006DeclaresExactlyOneCanonicalPolicyFailClosed": true,
+    "theOrdinaryPagePermission": "docs/adr/0008-bounded-discovery-orchestration.md:297-321, scoped by its own text to ordinary/root page requests",
+    "ordinaryPageContinuationIsImplementedNotMerelyDescribed": true,
+    "implementationSite": "src/orgunits/orchestrator/rootRunner.ts:396-420, called at :430 (root), :512 (frontier page) and :418 (recursive hop), hop cap MAX_REDIRECT_CONTINUATION_HOPS = 5 at src/orgunits/orchestrator/constants.ts:63",
+    "qualification": "Part of ADR 0006's stated reason is the premise that this repository's own gateway never follows a redirect for any request (0006:123-124). That premise is still true AT THE GATEWAY GRAIN but no longer describes the system: ADR 0008 added a revalidated same-domain continuation above the gateway and never revisits the robots.txt case. The asymmetry is intentional and reasoned, but the reason has not been re-stated against the orchestration layer that now exists. This is why the verdict is (1) and not (3).",
+    "whereTheGapSitsInCode": {
+      "robotsEvaluationIgnoresTheRedirectFactsItAlreadyHolds": "src/orgunits/web/robots.ts:207-237 receives the full WebAttemptResult, whose redirect: RedirectFacts | null field (gateway.ts:244; redirect.ts:30-54) carries toUrlResolved, targetMalformed, schemeDowngraded, hostChanged and registrableDomainChanged. It branches on status 3xx and never reads result.redirect.",
+      "theOrchestratorDiscardsTheRobotsFetchResult": "src/orgunits/orchestrator/rootRunner.ts:326-332 returns only a decision string on the BLOCKED path, so followRedirectIfSafe is structurally unreachable there; :431-432 takes that path without calling it and :567-568 maps it to ROBOTS_UNREADABLE_ROOT."
+    },
+    "whatTheTestsPin": {
+      "robotsRedirectIsNeverFollowedAndTheTargetIsNeverRequested": "src/test/integration/orgunitRobots.test.ts:395-415",
+      "redirectedMapsToRobotsUnreadable": "src/test/unit/orgunitRobotsPolicy.test.ts:148-158",
+      "anHttpRootRedirectingToHttpsOnTheSameDomainIsFollowedAsASafeContinuation": "src/test/integration/orgunitOrchestrator.test.ts:1294 - index 5's exact shape, tested and required, at the PAGE grain",
+      "noTestPinsThe301RobotsCaseAtTheOrchestratorGrain": true
+    },
+    "UNKNOWN": "Whether ADR 0008's author actively considered and refused same-domain robots.txt continuation. No document records the deliberation; absence of discussion is equally consistent with 'settled by ADR 0006' and with 'not thought about'.",
+    "incidentalDocumentationInconsistencySurfacedNotFixed": "docs/adr/0008-bounded-discovery-orchestration.md:3 reads 'Status: Proposed (feature branch, not landed)' while CLAUDE.md's 'What Phase 2B-1e built' says 'LANDED ON main.' Landed code and live evidence both confirm the orchestrator is in force; the ADR header is stale."
+  },
+
+  "governingArchitecturalFacts": {
+    "theRobotsFetchIsNestedInsideAuthoriseAndFetchPageAndItsResultIsDropped": "Any continuation must either live inside robots.ts (keeping RobotsCache coherent - key (runId, scheme, hostname), robots.ts:173) or the BLOCKED return must carry the robots fetch result upward. Every option must answer which cache key a continued policy memoises under.",
+    "aSameRegistrableDomainHopIsStructurallyUnpromotable": "orgunit_root_promotions carries CHECK (redirect_domain_changed = true). Both observed robots targets are same-domain, so the promotion path is unavailable by design - the schema treats same-domain reachability as a SCOPE question, not an authority-widening one. The scope machinery already admits both targets; robots.ts simply never asks."
+  },
+
+  "repairOptions": {
+    "noneIsImplemented": true,
+    "noneIsApproved": true,
+    "OPTION_A_KEEP_CURRENT_POLICY": {
+      "robotsCorrectness": "Maximally conservative; fail-closed; never proceeds on an unread policy; RFC-compatible because following is a MAY.",
+      "ssrfNetworkSafety": "Strongest - no new request class.",
+      "authoritySemantics": "Unchanged.",
+      "requestBudgetImpact": "Cheapest: 1 request then stop.",
+      "hostBudgetImpact": "1 host.",
+      "redirectLoopHandling": "Structurally impossible.",
+      "evidenceProvenanceImpact": "Unchanged.",
+      "migrationRequired": false,
+      "methodologyChanges": "Changes no rule, but has a consequence: the A1 frame's 5,820 eligible organisations were judged eligible on CLAIM STRUCTURE. If a canonicalisation-shaped robots redirect makes an organisation unacquirable, eligibility overstates acquirability and the corpus plan's already-unmeasured enrichment factor degrades further.",
+      "firewallInvariantsChange": false,
+      "costOnThisSample": "2 of 7 organisations lost for a reason that is not a site refusal."
+    },
+    "OPTION_B_SAME_ORIGIN_ROBOTS_REDIRECT_CONTINUATION": {
+      "definition": "Permit only same scheme+host, or http->https on the same hostname.",
+      "robotsCorrectness": "Arguably better than A: the retrieved policy belongs to the same hostname, and RFC 9309 s2.3.1.4 permits a bounded follow, so this is a strict subset of what the RFC allows.",
+      "ssrfNetworkSafety": "Near-zero new exposure - byte-identical hostname, same resolution, same address classification; only the scheme may change, upward.",
+      "authoritySemantics": "Unchanged. Target is inside root scope under the existing url.ts:225-231 rule. No promotion, no claim rewrite, no new authority type.",
+      "requestBudgetImpact": "+1 per affected host from MAX_TOTAL_REQUESTS_PER_ROOT (60); robots requests already consume it (rootRunner.ts:313-316). Needs an explicit cap.",
+      "hostBudgetImpact": "Zero new hosts by construction.",
+      "redirectLoopHandling": "Near-nil: a downgrade is refused so http->https->http cannot cycle, and a same-scheme same-host redirect to the identical URL is not a new URL. A cap should still be explicit rather than argued.",
+      "evidenceProvenanceImpact": "A second orgunit_fetch_observations row, discovery_method ROBOTS, different URL - fits the existing dedupe index (run, root_key, url, policy, attempt) unchanged.",
+      "migrationRequired": false,
+      "methodologyChanges": "Recovers index 5's shape only - 1 of 2 observed.",
+      "firewallInvariantsChange": "No invariant changes: robots.ts stays the one production caller of executeWebAttempt, and a second invocation is not a followed redirect, so the redirect:'follow' and no-retry pins hold. BUT ADR 0006's 'exactly ONE canonical policy ... fail closed' must be superseded by a new ADR. That is the real cost."
+    },
+    "OPTION_C_ADR_0008_EQUIVALENT_ROBOTS_CONTINUATION": {
+      "definition": "Well-formed, credential-free, no downgrade, same registrable domain, bounded and revalidated.",
+      "robotsCorrectness": "Weaker than B, substantively rather than formally. robots.txt is a per-ORIGIN policy (robots.ts:26-31; ADR 0006). Retrieving X/robots.txt and applying it to www.X applies a different origin's policy to the original host - precisely the 'proceed on the target's policy' posture ADR 0006 s4 rejected by name. Caching under the TARGET origin instead is coherent but gains nothing, because the original origin stays unread. This tension is Option C's central design question and has no obviously right answer.",
+      "ssrfNetworkSafety": "A sibling host is a new hostname, so a new resolution and a new address validation. Handled by the gateway (rule 18), and the ordinary-page path already accepts exactly this exposure - but it is nonzero and new for the policy resource.",
+      "authoritySemantics": "Same registrable domain, inside root scope. No promotion.",
+      "requestBudgetImpact": "+1 per hop up to a cap. The continuation is itself a bootstrap (NOT_APPLICABLE), so it does not recurse into another policy fetch.",
+      "hostBudgetImpact": "May consume a slot from MAX_HOSTS_PER_ROOT (8). Must be counted.",
+      "redirectLoopHandling": "Real risk (www.X -> X -> www.X). Needs a hop cap AND a visited-URL set; rootRunner has attemptedUrls but robots.ts has no equivalent, so one must be added - more new machinery than B.",
+      "evidenceProvenanceImpact": "Same as B. No new column.",
+      "migrationRequired": false,
+      "methodologyChanges": "Recovers both observed shapes - 2 of 2.",
+      "firewallInvariantsChange": "Same as B, plus materially more complexity inside robots.ts, or a restructuring that lifts the continuation into the orchestrator and fights cache ownership."
+    },
+    "OPTION_D_ROOT_CLAIM_CANONICALISATION_BEFORE_ROBOTS": {
+      "assessment": "CANNOT_BE_DONE_WITHOUT_SILENTLY_CHANGING_SOURCE_AUTHORITY_SEMANTICS",
+      "recommendation": "REJECT_ON_THOSE_GROUNDS",
+      "reason1_theRootAuthorityIsTheClaim": "Rule 18: the caller supplies a root id, never a URL. Canonicalising would request a URL the official source did not publish while attributing it to that claim's authority, so every root_website_claim_id would point at a claim whose normalised_url differs from what was requested. The provenance would silently misstate what was asked for.",
+      "reason2_itIsARepairOfPublishedBytes": "Rules 2, 12 and 13, and the Phase 1D record of the 55 email-addresses-as-websites defect, exist to stop exactly this. A canonicalised claim is a guess about what the source meant.",
+      "reason3_noSanctionedMechanismExists": "The one path for fetching somewhere a claim did not name is orgunit_root_promotions (rule 16), whose CHECK (redirect_domain_changed = true) refuses a same-domain hop by construction. Doing it in memory only does not help: the evidence would still attribute requests to an unpublished URL."
+    },
+    "recommendationOfferedForTheOwnersDecisionAndNotActedOn": {
+      "option": "OPTION_B",
+      "why": "It recovers the narrowest, safest, most clearly-canonicalisation case with essentially no new network exposure, no new host consumption, no loop surface, no migration and no firewall change - at the cost of one new ADR superseding ADR 0006 s4's 'exactly ONE canonical policy' sentence.",
+      "caveat": "Option C recovers one more observed organisation but buys a genuine per-origin correctness problem and needs loop machinery robots.ts does not have. It is the better candidate only if the per-origin question is answered first, on its own merits, rather than for yield. Two observations are a thin basis for choosing between B and C at all."
+    }
+  },
+
+  "yieldCounterfactual": {
+    "currentObservedAcquisitionSuccesses": 2,
+    "POTENTIALLY_RECOVERABLE_AT_ROBOTS_STAGE": 2,
+    "potentiallyRecoverableSelectionIndices": [1, 5],
+    "recoverableUnderOptionBAlone": 1,
+    "recoverableUnderOptionC": 2,
+    "clearlyUnaffectedByAnyRobotsRedirectChange": 3,
+    "unaffectedSelectionIndices": [3, 4, 6],
+    "whatPotentiallyRecoverableMeans": "A safe continuation would have let the SITE POLICY be read. It does NOT mean those organisations would become SD9 successes: a readable robots.txt may Disallow the paths that matter, or the site may yield fewer than MIN_PAGES_PER_ORGANISATION (4) useful pages, or zero.",
+    "noWouldSucceedClaimIsMade": true
+  },
+
+  "populationInferenceDiscipline": {
+    "sevenOrganisationsIsInsufficientForAPopulationSuccessRateEstimate": true,
+    "theObserved2of7RawPositiveRateIsAnOperationalWarningNotAPopulationParameter": true,
+    "noConfidenceIntervalIsQuotedAtThisDenominator": true,
+    "noExtrapolationToThe110OrganisationDrawIsDrawn": true,
+    "noExtrapolationToThe5820OrganisationFrameIsDrawn": true,
+    "whyTheTwoCapabilityCasesAreStillValuable": "They are a MECHANISM finding: the mechanism is identifiable and reproducible from stored evidence. Their value is not that two is a meaningful sample."
+  },
+
+  "corpusViabilityDecision": {
+    "decision": "ACQUISITION_CAPABILITY_LIMIT_FOUND_REPAIR_DECISION_REQUIRED",
+    "ownerOptionLetter": "B",
+    "basis": "Two of five zero-yield organisations terminated on safe, already-persisted, same-registrable-domain, credential-free, non-downgrading redirect targets that the landed ordinary-page continuation would have accepted on every gate and that the gateway's own scope rule independently admits. The remaining three are external failures where the engine behaved as designed, and two of those three cannot be sub-classified because the detail was deliberately not persisted."
+  },
+
+  "whatThisAuditDoesNotAuthorise": {
+    "batch03": false,
+    "anyNewInstitutionNetworkRequest": false,
+    "retries": false,
+    "reserveConsumptionOfAnyKind": false,
+    "replacementOfAFailedSelectionSlot": false,
+    "gatewayOrPolicyModification": false,
+    "robotsPolicyModification": false,
+    "rootPromotion": false,
+    "databaseMutation": false,
+    "labels": false,
+    "providerInference": false,
+    "promptV7": false,
+    "holdoutSemanticAccess": false,
+    "phase2E": false,
+    "anyRepairOption": false
+  },
+
+  "sideEffects": {
+    "networkRequestsToAnyInstitution": 0,
+    "redirectTargetsFetched": 0,
+    "dnsLookupsPerformed": 0,
+    "tlsHandshakesAttempted": 0,
+    "databaseRowsWritten": 0,
+    "databaseAccessWasReadOnly": true,
+    "productionCodeFilesChanged": 0,
+    "diagnosticHelperModulesAdded": 0,
+    "providerCallsMade": 0,
+    "labelsCreated": 0,
+    "rootPromotionsCreated": 0,
+    "policyOrBudgetModifications": 0
+  },
+
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256."
+  }
+}
