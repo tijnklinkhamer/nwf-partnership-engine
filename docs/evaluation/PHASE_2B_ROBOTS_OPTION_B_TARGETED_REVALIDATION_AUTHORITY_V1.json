@@ -1,0 +1,195 @@
+{
+  "recordId": "phase2b-robots-option-b-targeted-revalidation-authority-v1",
+  "recordKind": "OWNER_AUTHORISATION",
+  "authorises": "PHASE_2B_ROBOTS_OPTION_B_TARGETED_LIVE_REVALIDATION_V1",
+  "recordedAtUtc": "2026-09-19T00:00:00Z",
+  "recordedBy": "claude-code-session under explicit owner instruction; the authorisation itself is the owner's",
+  "ownerDecision": "AUTHORISE_PHASE_2B_ROBOTS_OPTION_B_TARGETED_REVALIDATION_V1",
+  "statementMarkerAsReceived": "AUTHORISE_PHASE_2B_ROBOTS_OPTION_B_TARGETED_REVALIDATION_V1",
+
+  "purpose": {
+    "propositionUnderTest": "Does the landed Option-B repair successfully handle, in a real live run, the previously observed robots.txt redirect that satisfies the narrow SAME-HOST predicate?",
+    "thisIsACapabilityRevalidation": true,
+    "thisIsNotACorpusReplacementDecision": true,
+    "rawPageYieldIsSecondary": "A result can validate Option B even if later acquisition yields zero pages, because the question is whether the capability gap was repaired."
+  },
+
+  "boundImplementationState": {
+    "implementationHead": "6b43663809f8b89cbfc2de48368b23f2a35e52a9",
+    "worktreeCleanAtBinding": true,
+    "implementationRecordPath": "docs/evaluation/PHASE_2B_2D_ROBOTS_OPTION_B_REPAIR_IMPLEMENTATION_V1.json",
+    "implementationRecordSha256": "5b7b7be6de272b56820149d85e59f3cb5253658752eb0f55ef90f037109d77fb",
+    "implementationRecordBytes": 8267,
+    "implementationRecordCommit": "6b43663809f8b89cbfc2de48368b23f2a35e52a9",
+    "adrPath": "docs/adr/0012-same-host-robots-redirect-continuation.md",
+    "adrSha256": "7b240eef21960940cdcc569ee4d85d4137fee1ee746884ecbd3d5095ee15a47a",
+    "adrBytes": 16804,
+    "adrCommit": "b6a8490d695a40886c0619ba81411f31198e849e",
+    "optionBCodeCommit": "b6a8490d695a40886c0619ba81411f31198e849e"
+  },
+
+  "verifiedBoundFactsOfTheImplementationRecord": {
+    "selectedOption": "B",
+    "scope": "SAME_HOST_SINGLE_HOP_ROBOTS_REDIRECT_CONTINUATION",
+    "fetchPolicyVersion": "orgunit-fetch-policy-v2",
+    "historicalFetchPolicyVersion": "orgunit-fetch-policy-v1",
+    "historicalFreezeBytesChanged": false,
+    "targetedRevalidationAuthorised_beforeThisRecord": false,
+    "keyNamingNote": "The implementation record spells the historical policy fact `historicalFreezePolicyVersion`, not `historicalFetchPolicyVersion`. The VALUE required by the owner instruction is bound exactly (`orgunit-fetch-policy-v1`); only the key spelling differs, and it is reported here rather than silently normalised."
+  },
+
+  "whatThisRecordChangesOperationally": {
+    "statement": "The implementation record bound `targetedRevalidationAuthorised = false`. This record is the owner decision that changes that single point operationally, for exactly one organisation and exactly one run.",
+    "theImplementationRecordItselfIsNotEdited": true,
+    "itIsAppendOnlyAndIsReferencedBySha256Instead": true
+  },
+
+  "limits": {
+    "maximumLiveOrganisations": 1,
+    "maximumLiveRuns": 1,
+    "requiredFetchPolicyVersion": "orgunit-fetch-policy-v2",
+    "historicalRunMustRemain": true,
+    "historicalRunMutationAuthorised": false,
+    "corpusReplacementAuthorised": false,
+    "reserveConsumptionAuthorised": false,
+    "batch03Authorised": false,
+    "providerInferenceAuthorised": false,
+    "labellingAuthorised": false,
+    "holdoutSemanticAccessAuthorised": false
+  },
+
+  "authorityFlags": {
+    "targetedRevalidationAuthorised": true,
+    "networkAuthorised": true,
+    "institutionNetworkAuthorised": true,
+    "databaseResearchReadAuthorised": true,
+    "databaseResearchAppendOnlyWriteAuthorised": true,
+    "secondOrganisationAuthorised": false,
+    "hostChangingRobotsRedirectAuthorised": false,
+    "batch03Authorised": false,
+    "reserveConsumptionAuthorised": false,
+    "replacementAuthorised": false,
+    "corpusReplacementAuthorised": false,
+    "corpusInclusionOfTheNewRunAuthorised": false,
+    "historicalRecordMutationAuthorised": false,
+    "originalV1RunSupersessionAuthorised": false,
+    "setPAuthorised": false,
+    "setRAuthorised": false,
+    "labellingAuthorised": false,
+    "providerInferenceAuthorised": false,
+    "promptV7Authorised": false,
+    "devConfirmAuthorised": false,
+    "holdoutSemanticAccessAuthorised": false,
+    "phase2EAuthorised": false,
+    "budgetWideningAuthorised": false,
+    "networkPolicyWideningAuthorised": false,
+    "rootPromotionAuthorised": false,
+    "sd7MutatingMeasurementAuthorised": false
+  },
+
+  "targetSelectionRule": {
+    "theTargetIsNotChosenByInstitutionName": true,
+    "theTargetIsDerivedOnlyFromAlreadyPersistedEvidence": "the seven v1 runs and the landed root-cause audit",
+    "predicate": [
+      "target well formed",
+      "no credentials",
+      "exact /robots.txt path",
+      "no query",
+      "no fragment",
+      "no explicit port",
+      "SAME hostname",
+      "scheme unchanged OR http -> https",
+      "not https -> http",
+      "target != original URL"
+    ],
+    "expectedMatchCount": 1,
+    "ifMatchCountIsNotExactlyOne": "STOP and return TARGET_SELECTION_NOT_UNIQUE_OR_MISSING",
+    "noInferenceOfWhichCaseWasIntendedIsPermitted": true
+  },
+
+  "disclosureDiscipline": {
+    "mayReport": ["historical selection index", "aggregate counts", "policy outcome classes"],
+    "mayNotReport": [
+      "institution name",
+      "hostname",
+      "domain",
+      "URL",
+      "raw redirect target",
+      "echeRowKey",
+      "organisation UUID",
+      "page title",
+      "page content"
+    ]
+  },
+
+  "frozenNetworkBoundsRestatedNotChanged": {
+    "statement": "Every value below is quoted from the landed, frozen implementation. This record changes none of them.",
+    "MAX_TOTAL_REQUESTS_PER_ROOT": 60,
+    "MAX_PAGE_ATTEMPTS_PER_ROOT": 35,
+    "MAX_HOSTS_PER_ROOT": 8,
+    "MAX_SITEMAP_DOCUMENTS_PER_ROOT": 5,
+    "MAX_SITEMAP_DEPTH": 2,
+    "MAX_SITEMAP_URLS_PER_ROOT": 3000,
+    "MIN_HOST_PACING_SECONDS": 1.2,
+    "MAX_REDIRECT_CONTINUATION_HOPS": 5,
+    "MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS": 1,
+    "CONNECT_TIMEOUT_MS": 30000,
+    "TOTAL_TIMEOUT_MS": 45000,
+    "MAX_BODY_BYTES": 5242880,
+    "noCeilingMayBeWidened": true
+  },
+
+  "executionDiscipline": {
+    "exactlyOneCliInvocation": "npm run cli -- orgunits discover --organisation-id <private> --execute --json",
+    "noBatchCommand": true,
+    "noConcurrency": true,
+    "noSecondOrganisation": true,
+    "noRetry": true,
+    "noChangedArguments": true,
+    "noManualCurlWgetOrBrowserRequest": true,
+    "noDirectTestOfTheRedirectedRobotsUrl": true,
+    "allTrafficMustPassThroughTheLandedAcquisitionPath": true
+  },
+
+  "hostSafetyPrecondition": {
+    "required": [
+      "AC power",
+      "lid open",
+      "host fully awake",
+      "no unresolved sleep/wake transition",
+      "database reachable",
+      "sufficient disk",
+      "clean worktree",
+      "this authority record committed"
+    ],
+    "mechanism": "caffeinate -dimsu scoped to the live window",
+    "why": "The F5 execution was lost to a host clamshell sleep whose symptoms were indistinguishable from institution-side latency. A host stall is NOT institution evidence.",
+    "ifSleepWakeOccursDuringTheLiveRun": "preserve durable evidence, stop, do not retry"
+  },
+
+  "terminalClassifications": [
+    "OPTION_B_LIVE_PATH_CONFIRMED",
+    "EXTERNAL_SITE_DRIFT_REVALIDATION_INCONCLUSIVE",
+    "EXTERNAL_NETWORK_FAILURE_REVALIDATION_INCONCLUSIVE",
+    "OPTION_B_IMPLEMENTATION_FAILURE"
+  ],
+
+  "evidenceStatusOfTheNewRun": {
+    "status": "TARGETED_REVALIDATION_EVIDENCE_ONLY",
+    "untilASeparateOwnerDecision": true,
+    "mustNot": [
+      "replace the historical v1 acquisition",
+      "change Batch-01's A3a result",
+      "change historical SD9 closure",
+      "consume a reserve",
+      "mark the original run invalid",
+      "be selected for SET_P or SET_R"
+    ]
+  },
+
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256. This file is never rewritten, re-hashed or re-statused.",
+    "noInventedFutureCommitShaIsBoundHere": "The execution-record commit does not exist when this record is written and is deliberately absent rather than predicted."
+  }
+}
