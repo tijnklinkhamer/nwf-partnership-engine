@@ -30,6 +30,7 @@ import {
   truncateAll,
   type OrgunitRootFixture,
 } from './helpers.js';
+import { FETCH_POLICY_VERSION } from '../../orgunits/web/policy.js';
 
 const configured = researchDatabaseConfigured();
 const describeIf = configured ? describe : describe.skip;
@@ -74,7 +75,7 @@ describeIf('page evidence persistence (integration)', () => {
     const { rows } = await research.query<{ id: string }>(
       `INSERT INTO orgunit_research_runs
          (started_at, network_vantage, fetch_policy_version, rule_version, dry_run)
-       VALUES (now(), 'test-vantage', 'orgunit-fetch-policy-v1', 'test-rules-1', false)
+       VALUES (now(), 'test-vantage', '${FETCH_POLICY_VERSION}', 'test-rules-1', false)
        RETURNING id`,
     );
     runId = rows[0]!.id;

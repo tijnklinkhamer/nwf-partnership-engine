@@ -252,8 +252,12 @@ export async function runRootAcquisition(
   // -------------------------------------------------------- the one attempt
 
   type AttemptStatus =
-    | { status: 'FETCHED'; result: WebAttemptResult; robotsFetched: boolean }
-    | { status: 'BLOCKED'; decision: 'DISALLOWED' | 'ROBOTS_UNREADABLE'; robotsFetched: boolean }
+    | { status: 'FETCHED'; result: WebAttemptResult; robotsRequestCount: number }
+    | {
+        status: 'BLOCKED';
+        decision: 'DISALLOWED' | 'ROBOTS_UNREADABLE';
+        robotsRequestCount: number;
+      }
     | { status: 'HOST_CAP' }
     | { status: 'CIRCUIT_OPEN' }
     | { status: 'ALREADY_ATTEMPTED' }
@@ -286,7 +290,16 @@ export async function runRootAcquisition(
     if (circuitBreaker.isOpen(hostname)) return { status: 'CIRCUIT_OPEN' };
 
     const needsRobots = cache.get(runId, scheme, hostname) === undefined;
-    const predictedCost = (needsRobots ? 1 : 0) + 1;
+    // THE ROBOTS TERM IS 2, NOT 1, SINCE ADR 0012. A robots bootstrap may now
+    // issue one narrowly-authorised same-host continuation, so an uncached
+    // host can cost two gateway requests before the page request. This is a
+    // PREDICTION, and `RequestBudget.consume` THROWS rather than clamping
+    // when it is exceeded - so under-predicting here would convert a budget
+    // edge into a thrown error mid-root instead of a clean BUDGET_EXCEEDED
+    // refusal. Predicting the worst case costs only headroom, and ADR 0008 §4
+    // already measured the 60-ceiling as mechanically unreachable through the
+    // other three caps.
+    const predictedCost = (needsRobots ? 2 : 0) + 1;
     // Checked BEFORE any pacing wait and before authoriseAndFetchPage below -
     // refusal here means zero network activity for this attempt, and the
     // primitive itself (requestBudget.ts) is what a dedicated unit test
@@ -309,10 +322,15 @@ export async function runRootAcquisition(
     );
 
     hostsUsed.add(hostname);
-    const robotsFetched = result.robots.robotsFetch.fetchResult !== null;
-    if (robotsFetched) {
-      budget.consume(1);
-      robotsRequests += 1;
+    // A COUNT, NOT A BOOLEAN (ADR 0012). One authorisation may now make two
+    // gateway requests: the site-policy bootstrap and, for the narrow
+    // same-host redirect shape only, one continuation. Both are real requests
+    // against the total-request ceiling, so both are charged here. A cache hit
+    // is 0.
+    const robotsRequestCount = result.robots.robotsFetch.attempts.length;
+    if (robotsRequestCount > 0) {
+      budget.consume(robotsRequestCount);
+      robotsRequests += robotsRequestCount;
     }
     if (result.robots.effectiveCrawlDelaySeconds !== null) {
       hostCrawlDelay.set(
@@ -328,7 +346,7 @@ export async function runRootAcquisition(
       return {
         status: 'BLOCKED',
         decision: decision === 'DISALLOWED' ? 'DISALLOWED' : 'ROBOTS_UNREADABLE',
-        robotsFetched,
+        robotsRequestCount,
       };
     }
 
@@ -337,7 +355,7 @@ export async function runRootAcquisition(
     else sitemapRequests += 1;
 
     updateCircuitBreaker(hostname, result.fetch);
-    return { status: 'FETCHED', result: result.fetch, robotsFetched };
+    return { status: 'FETCHED', result: result.fetch, robotsRequestCount };
   }
 
   function updateCircuitBreaker(hostname: string, fetch: WebAttemptResult): void {

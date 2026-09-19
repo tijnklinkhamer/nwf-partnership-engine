@@ -30,10 +30,28 @@
  *   one - fetching `www.example.edu/robots.txt` once does not authorise
  *   anything on `international.example.edu`.
  *
- * THE REDIRECT POSTURE
+ * THE REDIRECT POSTURE, AS NARROWED BY ADR 0012
  *
- *   robots.txt is fetched exactly like any other request: ONE GET, no
- *   redirect followed. A 3xx response therefore leaves the policy unread, and
+ *   The GATEWAY still follows nothing. Every request this module makes is one
+ *   GET against one explicitly authorised URL, and `executeWebAttempt` has no
+ *   redirect-following code path at all. What ADR 0012 added is one
+ *   SEPARATELY AUTHORISED SECOND REQUEST, decided HERE, after the first
+ *   request's redirect facts were already derived and persisted - the same
+ *   architectural shape ADR 0008 uses for ordinary pages: the gateway observes
+ *   one request; orchestration decides whether another, independently
+ *   validated one is permitted.
+ *
+ *   The permission is deliberately narrower than ADR 0008's. It covers ONE
+ *   hop, to the SAME HOSTNAME's own `/robots.txt`, under the same scheme or
+ *   an http -> https upgrade, and nothing else (`continuationTargetFor`).
+ *   A host change of any kind - including the `www.` canonicalisation ADR
+ *   0008 accepts for ordinary pages - is refused, because robots.txt is a
+ *   per-ORIGIN policy: retrieving `example.edu/robots.txt` and applying it to
+ *   `www.example.edu` would be applying a different origin's rules to the
+ *   host actually being crawled, which is precisely the follow-and-proceed
+ *   posture ADR 0006 §4 rejected by name and which ADR 0012 does NOT revive.
+ *
+ *   Outside that one shape, nothing moved: a 3xx leaves the policy unread and
  *   `EvaluatedRobotsPolicy.unavailable('REDIRECTED')` records that honestly -
  *   `ROBOTS_UNREADABLE` on every ordinary page this run subsequently attempts
  *   against that host. See robotsPolicy.ts for why that mapping is truthful
@@ -58,7 +76,7 @@ import {
   type WebTransport,
 } from './gateway.js';
 import type { RootAuthorityRef } from './authority.js';
-import { RESEARCH_USER_AGENT } from './policy.js';
+import { MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS, RESEARCH_USER_AGENT } from './policy.js';
 import { RobotsAuthorisation } from './robotsAuthority.js';
 import { EvaluatedRobotsPolicy } from './robotsPolicy.js';
 
@@ -140,8 +158,101 @@ export interface RobotsFetchContext {
  */
 export interface RobotsFetchOutcome {
   policy: EvaluatedRobotsPolicy;
-  /** Null when the cache served this call - no request was made. */
+  /**
+   * The DECISIVE fetch - the one whose response the policy was derived from.
+   * Null when the cache served this call, so no request was made.
+   *
+   * Under an ADR 0012 continuation this is the SECOND request, not the first:
+   * the first one's only contribution was a redirect target.
+   */
   fetchResult: WebAttemptResult | null;
+  /**
+   * EVERY gateway attempt this call made, in order - 0 (cache hit), 1
+   * (ordinary case) or 2 (one ADR 0012 continuation).
+   *
+   * A COUNT, not a boolean, because a continuation is a REAL gateway request
+   * and the caller's request budget must charge for it. `fetchResult !== null`
+   * used to be a sufficient proxy for "one request happened"; once a second
+   * one became possible that proxy would have silently under-charged the
+   * 60-request ceiling by exactly the requests this repair added.
+   */
+  attempts: readonly WebAttemptResult[];
+}
+
+/**
+ * Decides whether one robots.txt 3xx may be continued, and to exactly where.
+ *
+ * PURE. Returns the continuation URL, or null to fail closed. This is the
+ * whole of ADR 0012's Option-B boundary, in one place, so that "what may be
+ * continued" is reviewable as a single predicate rather than inferred from
+ * control flow.
+ *
+ * EVERY CONDITION IS NECESSARY, and each one refuses a shape that was
+ * explicitly considered and NOT authorised:
+ *
+ *   1. The gateway derived usable redirect facts at all. `targetMalformed`
+ *      already covers an unparsable Location, a non-http(s) scheme AND a
+ *      credential-bearing target (redirect.ts treats userinfo as malformed on
+ *      purpose, so that stripping-and-requesting is structurally impossible),
+ *      which is why there is no separate credential branch below: it would be
+ *      a second implementation of a decision redirect.ts already made.
+ *   2. The target is EXACTLY `/robots.txt` - no other path, no query, no
+ *      fragment. A policy file that redirects to `/other-path` is not
+ *      canonicalising its policy URL, and whatever is there is not this
+ *      host's robots.txt.
+ *   3. No explicit port. Rule 18's port refusal, restated here so a
+ *      non-default port is refused BEFORE a second authority is minted rather
+ *      than at the gateway. (`URL` erases `:443`/`:80`, so a redirect that
+ *      merely spells out the default port is admitted as the identical URL it
+ *      is.)
+ *   4. The hostname is BYTE-IDENTICAL, case-insensitively. This is the line
+ *      between Option B and Option C, and it is the reason a `www.` hop is
+ *      refused here while ADR 0008 accepts one for an ordinary page: a page
+ *      carries no policy, but robots.txt IS the policy, and it is scoped to
+ *      one origin.
+ *   5. The scheme is unchanged, or upgraded http -> https. A downgrade is
+ *      refused, which is also what makes a redirect CYCLE impossible: with no
+ *      host change and no downgrade, the only reachable target is the https
+ *      form of the same URL, and that is one hop from anywhere.
+ *   6. The target is not the request URL itself. A self-redirect offers no
+ *      new bytes, and continuing to it would reach the gateway's own
+ *      DUPLICATE_ATTEMPT refusal - a refusal that would then be recorded as
+ *      though this module had tried something meaningful.
+ *
+ * Root scope, host policy, DNS, address classification and TLS are NOT
+ * checked here, deliberately. They are the gateway's, they run independently
+ * for the second request exactly as they did for the first, and duplicating
+ * them here would create a second, drifting implementation of a trust
+ * boundary that has exactly one.
+ */
+export function continuationTargetFor(
+  requestedRobotsUrl: string,
+  result: WebAttemptResult,
+): string | null {
+  const facts = result.redirect;
+  if (facts === null || facts.targetMalformed || facts.toUrlResolved === null) return null;
+
+  let origin: URL;
+  let target: URL;
+  try {
+    origin = new URL(requestedRobotsUrl);
+    target = new URL(facts.toUrlResolved);
+  } catch {
+    /* c8 ignore next -- both strings were produced by URL serialisation upstream */
+    return null;
+  }
+
+  if (target.pathname !== '/robots.txt' || target.search !== '' || target.hash !== '') return null;
+  if (target.port !== '') return null;
+  if (target.hostname.toLowerCase() !== origin.hostname.toLowerCase()) return null;
+
+  const sameScheme = target.protocol === origin.protocol;
+  const upgraded = origin.protocol === 'http:' && target.protocol === 'https:';
+  if (!sameScheme && !upgraded) return null;
+
+  const continuation = target.toString();
+  if (continuation === requestedRobotsUrl) return null;
+  return continuation;
 }
 
 /**
@@ -171,39 +282,126 @@ export async function getRobotsPolicy(
   const hostname = target.hostname;
 
   const cached = cache.get(context.runId, scheme, hostname);
-  if (cached !== undefined) return { policy: await cached, fetchResult: null };
+  // A cache hit makes ZERO gateway requests, so it charges the caller's
+  // request budget nothing - `attempts` is empty, not "one, unknown".
+  if (cached !== undefined) return { policy: await cached, fetchResult: null, attempts: [] };
 
   const robotsUrl = `${scheme}//${hostname}/robots.txt`;
-  // A holder rather than a bare outer variable: the fetch result is produced
-  // INSIDE the cached promise (so a concurrent second caller for the same
-  // host awaits the same in-flight request rather than racing a second one),
-  // but this function still needs to hand it back to ITS OWN caller once,
-  // without re-deriving it from the (memoised) policy.
-  const observed: { result: WebAttemptResult | null } = { result: null };
-  const pending: Promise<EvaluatedRobotsPolicy> = (async () => {
-    const result = await executeWebAttempt(
+
+  /**
+   * ONE robots.txt GET, through the one gateway, under a freshly minted
+   * authority scoped to exactly this URL.
+   *
+   * A LOCAL FUNCTION CALLED TWICE, not two call sites. The continuation must
+   * NOT reuse the first authority: `RobotsAuthorisation` is URL-scoped and
+   * `executeWebAttempt` refuses a byte-for-byte mismatch
+   * (ROBOTS_AUTHORISATION_SCOPE_MISMATCH), so presenting the original
+   * authority for the redirected URL would be refused - correctly. Minting a
+   * new bootstrap authority for the new URL is the only honest way to make
+   * the second request, and it keeps the unforgeable, exact-scope invariant
+   * intact for both.
+   */
+  const fetchRobotsDocument = (url: string): Promise<WebAttemptResult> =>
+    executeWebAttempt(
       pool,
       {
         runId: context.runId,
         root: context.root,
-        requestedUrl: robotsUrl,
+        requestedUrl: url,
         attemptNo: 1,
         discoveryMethod: 'ROBOTS',
         discoveryParentUrl: null,
-        robots: RobotsAuthorisation.forRobotsTxtBootstrap(robotsUrl),
+        robots: RobotsAuthorisation.forRobotsTxtBootstrap(url),
       },
       transport,
     );
-    observed.result = result;
+
+  // A holder rather than a bare outer variable: the fetch results are produced
+  // INSIDE the cached promise (so a concurrent second caller for the same
+  // host awaits the same in-flight request rather than racing a second one),
+  // but this function still needs to hand them back to ITS OWN caller once,
+  // without re-deriving them from the (memoised) policy.
+  const observed: { attempts: WebAttemptResult[] } = { attempts: [] };
+  // A self-reference the continuation needs before this function's own
+  // `cache.set` below has run. Assigned immediately after the IIFE is
+  // constructed, which is BEFORE the IIFE resumes from its first `await` - so
+  // it is always non-null by the time the loop below reads it.
+  const resolution: { promise: Promise<EvaluatedRobotsPolicy> | null } = { promise: null };
+  const pending: Promise<EvaluatedRobotsPolicy> = (async () => {
+    let requestedUrl = robotsUrl;
+    let result = await fetchRobotsDocument(requestedUrl);
+    observed.attempts.push(result);
+
+    // THE ADR 0012 CONTINUATION, AND ITS BOUND.
+    //
+    // The loop is bounded by the policy constant so that the declared bound
+    // is the ACTUAL bound rather than a number a comment claims. It runs at
+    // most once, and `continuationTargetFor` returns null for everything
+    // outside the narrow same-host shape - so for every host that does not
+    // exhibit it, this is byte-for-byte the v1 behaviour: one request, then
+    // the honest mapping below.
+    //
+    // THE CHAIN IS PROVABLY AT MOST TWO REQUESTS EVEN IF THAT CONSTANT WERE
+    // RAISED, which is why there is no visited-URL set here. A continuation
+    // may not change host and may not change scheme except http -> https, and
+    // may not target the URL just requested. From an https robots URL the
+    // only admissible target is therefore the identical URL, which condition
+    // 6 refuses; from an http one it is the https form, from which the same
+    // argument applies. A cycle has nowhere to go.
+    for (let hop = 0; hop < MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS; hop += 1) {
+      const continuation = continuationTargetFor(requestedUrl, result);
+      if (continuation === null) break;
+      requestedUrl = continuation;
+
+      // THE CONTINUATION'S OWN ORIGIN IS MEMOISED TOO, BEFORE THE REQUEST.
+      //
+      // Not a convenience - a correctness requirement, found by the
+      // orchestrator's own budget test. The cache is keyed per ORIGIN, so
+      // `http://host` and `https://host` are different entries. Without this,
+      // an http root that upgrades would fetch `https://host/robots.txt` here
+      // and then, the first time an https page on that host was authorised,
+      // fetch THE IDENTICAL URL again - which the gateway refuses outright as
+      // a DUPLICATE_ATTEMPT (same run, root, URL, policy version and attempt
+      // number), turning an ordinary canonicalising site into a refused root.
+      //
+      // It is also the per-origin-honest thing to do: the bytes about to be
+      // read ARE that origin's own policy file, read from that origin's own
+      // URL. This is the one place a policy is shared between two cache keys,
+      // and it is shared only with the origin it was literally fetched from.
+      // `set`-if-absent, never overwrite: an https policy this run already
+      // evaluated on its own is the better evidence and stays.
+      const target = new URL(requestedUrl);
+      const memo = resolution.promise;
+      if (memo !== null && cache.get(context.runId, target.protocol, target.hostname) === undefined)
+        cache.set(context.runId, target.protocol, target.hostname, memo);
+
+      result = await fetchRobotsDocument(requestedUrl);
+      observed.attempts.push(result);
+    }
+
+    // The LAST response is the decisive one, mapped by exactly the same
+    // honest function as an uncontinued fetch - so a continuation that itself
+    // answers 3xx is `REDIRECTED`, a 5xx is `SERVER_ERROR`, a 4xx is
+    // `noRestrictions`, and a transport failure is `FETCH_FAILED`, with no
+    // special case anywhere for having been reached by a continuation.
     return evaluateRobotsFetch(result);
   })();
+  resolution.promise = pending;
 
   // The promise itself is cached BEFORE it settles, so two ordinary pages on
   // the same host requested concurrently within one run still fetch
-  // robots.txt only once.
+  // robots.txt only once - and, under a continuation, the WHOLE two-request
+  // resolution is that one in-flight computation. A concurrent caller
+  // therefore cannot observe the intermediate "redirected, unread" state or
+  // duplicate the continuation: it awaits the same promise and receives
+  // whatever single policy that resolution settled on.
   cache.set(context.runId, scheme, hostname, pending);
   const policy = await pending;
-  return { policy, fetchResult: observed.result };
+  return {
+    policy,
+    fetchResult: observed.attempts.at(-1) ?? null,
+    attempts: observed.attempts,
+  };
 }
 
 function evaluateRobotsFetch(result: WebAttemptResult): EvaluatedRobotsPolicy {

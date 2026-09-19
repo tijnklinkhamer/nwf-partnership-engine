@@ -24,12 +24,15 @@ import {
 } from '../../orgunits/web/robots.js';
 import {
   adminPool,
+  count,
   researchDatabaseConfigured,
   researchPool,
   seedOrgunitRoot,
   truncateAll,
   type OrgunitRootFixture,
 } from './helpers.js';
+import { RobotsAuthorisation } from '../../orgunits/web/robotsAuthority.js';
+import { FETCH_POLICY_VERSION } from '../../orgunits/web/policy.js';
 
 const configured = researchDatabaseConfigured();
 const describeIf = configured ? describe : describe.skip;
@@ -111,7 +114,7 @@ describeIf('robots.ts orchestration (integration)', () => {
     const { rows } = await research.query<{ id: string }>(
       `INSERT INTO orgunit_research_runs
          (started_at, network_vantage, fetch_policy_version, rule_version, dry_run)
-       VALUES (now(), 'test-vantage', 'orgunit-fetch-policy-v1', 'test-rules-1', false)
+       VALUES (now(), 'test-vantage', '${FETCH_POLICY_VERSION}', 'test-rules-1', false)
        RETURNING id`,
     );
     return rows[0]!.id;
@@ -575,6 +578,308 @@ describeIf('robots.ts orchestration (integration)', () => {
           transport,
         ),
       ).rejects.toMatchObject({ reason: 'ROBOTS_AUTHORISATION_SCOPE_MISMATCH' });
+    });
+  });
+  // ------------------------------------- ADR 0012: same-host robots redirect
+
+  /**
+   * THE ONE CONTINUABLE SHAPE, END TO END, THROUGH THE REAL GATEWAY.
+   *
+   * These use a SECOND, http:// root claim, because the only admissible
+   * continuation is an http -> https upgrade on the identical hostname: a
+   * same-scheme same-host target of exactly /robots.txt IS the URL just
+   * requested, and every other shape is refused. The claim is inserted here
+   * rather than added to `seedOrgunitRoot` so no other test's fixture moves.
+   */
+  describe('ADR 0012: one same-host robots.txt redirect continuation', () => {
+    const HTTP_ROOT = 'http://www.example.ac.uk/';
+    const HTTP_ROBOTS = 'http://www.example.ac.uk/robots.txt';
+    const HTTPS_ROBOTS = 'https://www.example.ac.uk/robots.txt';
+    let httpClaimId: string;
+
+    beforeAll(async () => {
+      const { rows } = await admin.query<{ id: string }>(
+        `INSERT INTO website_claims
+           (source_kind, eche_row_key, organisation_id, source_row_key, raw_value,
+            structural_status, normalised_url, hostname, registrable_domain,
+            rule_version, source_artifact_sha256, observed_at, ingest_run_id)
+         VALUES ('ECHE_PUBLISHED', $1, $2, 'adr0012-http-root', 'http://www.example.ac.uk/',
+                 'STRUCTURALLY_VALID', $3, 'www.example.ac.uk', 'example.ac.uk',
+                 'test-rules-adr0012', repeat('b', 64), now(), $4)
+         RETURNING id`,
+        [fixture.echeRowKey, fixture.organisationId, HTTP_ROOT, fixture.ingestRunId],
+      );
+      httpClaimId = rows[0]!.id;
+    });
+
+    const httpRoot = () => ({ kind: 'WEBSITE_CLAIM' as const, websiteClaimId: httpClaimId });
+
+    /** robots.txt over http answers `first`; over https answers `second`. */
+    function upgradingTransport(
+      first: TransportOutcome,
+      second: TransportOutcome,
+    ): ScriptedTransport {
+      return new ScriptedTransport((plan) => {
+        if (plan.url === HTTP_ROBOTS) return first;
+        if (plan.url === HTTPS_ROBOTS) return second;
+        return htmlResponse('<main><p>hi</p></main>');
+      });
+    }
+
+    it('reads the policy from the SECOND response, and authorises the page under it', async () => {
+      const transport = upgradingTransport(
+        redirectResponse(301, HTTPS_ROBOTS),
+        textResponse(200, 'User-agent: *\nDisallow: /admin'),
+      );
+      const result = await authoriseAndFetchPage(
+        research,
+        createRobotsCache(),
+        {
+          runId,
+          root: httpRoot(),
+          targetUrl: `${HTTP_ROOT}office`,
+          attemptNo: 1,
+          discoveryMethod: 'LINK',
+          discoveryParentUrl: HTTP_ROOT,
+        },
+        transport,
+      );
+
+      // Two robots requests, then the page - in that exact order.
+      expect(transport.plans.map((p) => p.url)).toEqual([
+        HTTP_ROBOTS,
+        HTTPS_ROBOTS,
+        `${HTTP_ROOT}office`,
+      ]);
+      expect(result.kind).toBe('FETCHED');
+      // The policy genuinely came from the second response: an unread policy
+      // would have been ROBOTS_UNREADABLE, and a policy that ignored the
+      // second body would not know about /admin.
+      expect(result.robots.authorisation.decision).toBe('ALLOWED');
+      expect(result.robots.robotsFetch.attempts).toHaveLength(2);
+      expect(result.robots.robotsFetch.fetchResult?.requestedUrl).toBe(HTTPS_ROBOTS);
+      expect(
+        RobotsAuthorisation.forEvaluatedPolicy(
+          result.robots.robotsFetch.policy,
+          `${HTTP_ROOT}admin/x`,
+          ROBOTS_USER_AGENT_TOKEN,
+        ).decision,
+      ).toBe('DISALLOWED');
+    });
+
+    it('persists BOTH attempts and the 3xx, and erases nothing', async () => {
+      const transport = upgradingTransport(
+        redirectResponse(301, HTTPS_ROBOTS),
+        textResponse(200, 'User-agent: *\nAllow: /'),
+      );
+      await authoriseOrdinaryPage(
+        research,
+        createRobotsCache(),
+        { runId, root: httpRoot(), targetUrl: `${HTTP_ROOT}x` },
+        transport,
+      );
+
+      const { rows } = await research.query<{
+        requested_url: string;
+        http_status: number;
+        robots_decision: string;
+        discovery_method: string;
+        fetch_policy_version: string;
+        attempt_no: number;
+      }>(
+        `SELECT requested_url, http_status, robots_decision, discovery_method,
+                fetch_policy_version, attempt_no
+           FROM orgunit_fetch_observations
+          WHERE run_id = $1 ORDER BY requested_url`,
+        [runId],
+      );
+      expect(rows).toHaveLength(2);
+      // The first 3xx is NOT collapsed into the second row, and both are
+      // stamped with this build's policy version.
+      expect(rows[0]).toMatchObject({
+        requested_url: HTTP_ROBOTS,
+        http_status: 301,
+        robots_decision: 'NOT_APPLICABLE',
+        discovery_method: 'ROBOTS',
+        fetch_policy_version: FETCH_POLICY_VERSION,
+        attempt_no: 1,
+      });
+      expect(rows[1]).toMatchObject({
+        requested_url: HTTPS_ROBOTS,
+        http_status: 200,
+        robots_decision: 'NOT_APPLICABLE',
+        discovery_method: 'ROBOTS',
+        fetch_policy_version: FETCH_POLICY_VERSION,
+        attempt_no: 1,
+      });
+
+      const redirects = await research.query<{ to_url_resolved: string; host_changed: boolean }>(
+        `SELECT r.to_url_resolved, r.host_changed
+           FROM orgunit_redirect_observations r
+           JOIN orgunit_fetch_observations f ON f.id = r.fetch_observation_id
+          WHERE f.run_id = $1`,
+        [runId],
+      );
+      expect(redirects.rows).toEqual([{ to_url_resolved: HTTPS_ROBOTS, host_changed: false }]);
+      // No promotion was invented for a same-host hop.
+      expect(await count(research, 'orgunit_root_promotions')).toBe(0);
+    });
+
+    it('validates the second request INDEPENDENTLY: its own resolution, its own scoped authority', async () => {
+      const transport = upgradingTransport(
+        redirectResponse(308, HTTPS_ROBOTS),
+        textResponse(200, 'User-agent: *\nAllow: /'),
+      );
+      await authoriseOrdinaryPage(
+        research,
+        createRobotsCache(),
+        { runId, root: httpRoot(), targetUrl: `${HTTP_ROOT}x` },
+        transport,
+      );
+      // The hostname was resolved and classified again for the second
+      // request - the gateway never reuses the first request's answer.
+      expect(transport.resolvedHostnames).toEqual(['www.example.ac.uk', 'www.example.ac.uk']);
+      // And it ran under a NEW bootstrap authority scoped to the NEW URL. The
+      // first authority was scoped to HTTP_ROBOTS, and the gateway refuses a
+      // byte-for-byte mismatch - so a reused authority could not have reached
+      // the wire at all, and the request above is proof it was reminted.
+      expect(transport.plans.map((p) => p.url)).toEqual([HTTP_ROBOTS, HTTPS_ROBOTS]);
+    });
+
+    it('STOPS at one hop: a second 3xx leaves the policy unread', async () => {
+      const transport = upgradingTransport(
+        redirectResponse(301, HTTPS_ROBOTS),
+        redirectResponse(301, 'https://www.example.ac.uk/robots.txt?v=2'),
+      );
+      const result = await authoriseAndFetchPage(
+        research,
+        createRobotsCache(),
+        {
+          runId,
+          root: httpRoot(),
+          targetUrl: `${HTTP_ROOT}x`,
+          attemptNo: 1,
+          discoveryMethod: 'LINK',
+          discoveryParentUrl: HTTP_ROOT,
+        },
+        transport,
+      );
+      expect(result.kind).toBe('BLOCKED');
+      expect(result.robots.authorisation.decision).toBe('ROBOTS_UNREADABLE');
+      // Exactly two requests: no third robots request, and no page request.
+      expect(transport.plans.map((p) => p.url)).toEqual([HTTP_ROBOTS, HTTPS_ROBOTS]);
+    });
+
+    it('a host-changing robots redirect is still NOT continued', async () => {
+      // The `www.` canonicalisation ADR 0008 accepts for an ordinary page.
+      const transport = transportWithRobots(
+        redirectResponse(301, 'https://example.ac.uk/robots.txt'),
+      );
+      const result = await authoriseOrdinaryPage(
+        research,
+        createRobotsCache(),
+        { runId, root: root(), targetUrl: `${ROOT_URL}x` },
+        transport,
+      );
+      expect(result.authorisation.decision).toBe('ROBOTS_UNREADABLE');
+      expect(transport.plans.map((p) => p.url)).toEqual([HTTPS_ROBOTS]);
+      expect(result.robotsFetch.attempts).toHaveLength(1);
+    });
+
+    it('an https -> http downgrade is still NOT continued', async () => {
+      const transport = transportWithRobots(redirectResponse(301, HTTP_ROBOTS));
+      const result = await authoriseOrdinaryPage(
+        research,
+        createRobotsCache(),
+        { runId, root: root(), targetUrl: `${ROOT_URL}x` },
+        transport,
+      );
+      expect(result.authorisation.decision).toBe('ROBOTS_UNREADABLE');
+      expect(transport.plans.map((p) => p.url)).toEqual([HTTPS_ROBOTS]);
+    });
+
+    it('two concurrent callers share ONE resolution, continuation included', async () => {
+      const transport = upgradingTransport(
+        redirectResponse(301, HTTPS_ROBOTS),
+        textResponse(200, 'User-agent: *\nAllow: /'),
+      );
+      const cache = createRobotsCache();
+      const [a, b] = await Promise.all([
+        authoriseOrdinaryPage(
+          research,
+          cache,
+          { runId, root: httpRoot(), targetUrl: `${HTTP_ROOT}a` },
+          transport,
+        ),
+        authoriseOrdinaryPage(
+          research,
+          cache,
+          { runId, root: httpRoot(), targetUrl: `${HTTP_ROOT}b` },
+          transport,
+        ),
+      ]);
+      // ONE first request and at most ONE continuation, for both callers -
+      // the cache stores the in-flight promise for the WHOLE two-request
+      // resolution, so the second caller can never observe the intermediate
+      // "redirected, unread" state nor duplicate the continuation.
+      expect(transport.plans.map((p) => p.url)).toEqual([HTTP_ROBOTS, HTTPS_ROBOTS]);
+      expect(a.authorisation.decision).toBe('ALLOWED');
+      expect(b.authorisation.decision).toBe('ALLOWED');
+      // Exactly one of them made the requests; the other was served the
+      // memoised policy and charges its caller's budget nothing.
+      expect([a.robotsFetch.attempts.length, b.robotsFetch.attempts.length].sort()).toEqual([0, 2]);
+    });
+
+    it('memoises the continuation under its OWN origin, so no third request is ever made', async () => {
+      // THE DEFECT THIS CLOSES, found by the orchestrator's budget test. The
+      // cache is keyed per ORIGIN. Without memoising the continuation under
+      // the https origin it was literally fetched from, the first https page
+      // on this host would bootstrap `https://.../robots.txt` A SECOND TIME -
+      // the identical URL, same run, same root, same attempt number - which
+      // the gateway refuses as DUPLICATE_ATTEMPT, failing an ordinary
+      // canonicalising root outright.
+      const transport = upgradingTransport(
+        redirectResponse(301, HTTPS_ROBOTS),
+        textResponse(200, 'User-agent: *\nAllow: /'),
+      );
+      const cache = createRobotsCache();
+      await authoriseOrdinaryPage(
+        research,
+        cache,
+        { runId, root: httpRoot(), targetUrl: `${HTTP_ROOT}x` },
+        transport,
+      );
+      // Now an https page on the SAME hostname - the shape a root redirect
+      // continuation produces.
+      const second = await authoriseOrdinaryPage(
+        research,
+        cache,
+        { runId, root: httpRoot(), targetUrl: 'https://www.example.ac.uk/y' },
+        transport,
+      );
+      expect(second.authorisation.decision).toBe('ALLOWED');
+      expect(second.robotsFetch.attempts).toHaveLength(0);
+      expect(transport.plans.map((p) => p.url)).toEqual([HTTP_ROBOTS, HTTPS_ROBOTS]);
+    });
+
+    it('refuses to execute a run recorded under the superseded v1 policy', async () => {
+      const legacy = await research.query<{ id: string }>(
+        `INSERT INTO orgunit_research_runs
+           (started_at, network_vantage, fetch_policy_version, rule_version, dry_run)
+         VALUES (now(), 'test-vantage', 'orgunit-fetch-policy-v1', 'test-rules-1', false)
+         RETURNING id`,
+      );
+      const transport = transportWithRobots(textResponse(200, 'User-agent: *\nAllow: /'));
+      await expect(
+        authoriseOrdinaryPage(
+          research,
+          createRobotsCache(),
+          { runId: legacy.rows[0]!.id, root: root(), targetUrl: `${ROOT_URL}x` },
+          transport,
+        ),
+      ).rejects.toMatchObject({ reason: 'RUN_FETCH_POLICY_UNSUPPORTED' });
+      // A v1 run cannot be executed under v2 behaviour, so no socket opened.
+      expect(transport.plans).toEqual([]);
     });
   });
 });

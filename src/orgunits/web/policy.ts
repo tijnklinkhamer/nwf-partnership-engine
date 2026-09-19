@@ -19,7 +19,42 @@
  * executing a v2 run under v1 timeouts and stamping "v2" on the row - would
  * make `fetch_policy_version` a label rather than a fact.
  */
-export const FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v1';
+export const FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v2';
+
+/**
+ * WHY v1 BECAME v2 (Phase 2B-2D, ADR 0012 - same-host robots redirect
+ * continuation).
+ *
+ * The pre-landing window described below CLOSED. `orgunit-fetch-policy-v1`
+ * governed real durable evidence: seven research runs and 78 fetch
+ * observations in the working database, produced by the A2 Batch-01/Batch-02
+ * live acquisition. So the rule that file states - "once the first
+ * observation exists, changing any value in this file requires a new version
+ * string" - is now in force, and this is its first exercise.
+ *
+ * WHAT CHANGED, EXACTLY. Under v1, one invocation of the robots bootstrap
+ * issued at most ONE gateway request; a 3xx left the policy unread
+ * (`ROBOTS_UNREADABLE`) and that was the end of it. Under v2, a site-policy
+ * response that redirects to the SAME HOSTNAME's own policy path - same
+ * scheme, or http upgraded to https, and nothing else - may be followed by
+ * exactly ONE further, separately validated gateway request
+ * (`MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS`). Nothing else about the policy
+ * moved: the timeouts, the caps, the headers, the user agent, the redirect
+ * status set and the port rule are byte-identical to v1.
+ *
+ * WHY THAT NEEDS A VERSION AND NOT JUST AN ADR. `fetch_policy_version` is the
+ * column a reader uses to know WHAT NETWORK BEHAVIOUR produced a row. A v1
+ * row reading `ROBOTS_UNREADABLE` after a 301 means "this build would not
+ * have continued"; the same row stamped v2 would mean "this build examined
+ * the target and refused it". Those are different findings about the same
+ * institution, and only the version string can tell them apart.
+ *
+ * NO v1 EVIDENCE IS REINTERPRETED. The Batch-01 and Batch-02 runs keep
+ * `orgunit-fetch-policy-v1` on their run rows and on all 78 observations,
+ * forever. `assertRunIsExecutable` (authority.ts) refuses to execute a run
+ * whose recorded version this build does not implement, so a v1 run cannot be
+ * resumed under v2 behaviour - it can only be read.
+ */
 
 /**
  * WHY THE CORRECTION OF THE TIMEOUTS BELOW DID NOT BUMP THIS IDENTIFIER.
@@ -148,6 +183,28 @@ export const SUPPORTED_CONTENT_ENCODINGS = Object.freeze(['gzip', 'deflate', 'br
  * one would put a URL in the evidence that no server actually pointed at.
  */
 export const REDIRECT_STATUSES: ReadonlySet<number> = new Set([301, 302, 303, 307, 308]);
+
+/**
+ * How many times ONE site-policy bootstrap may be continued to a redirect
+ * target. Exactly one, and deliberately not five.
+ *
+ * ADR 0012. This is NOT ADR 0008's `MAX_REDIRECT_CONTINUATION_HOPS = 5`, and
+ * reusing that number here would have been the mistake: an ordinary page's
+ * hop budget exists because a site may legitimately chain several
+ * canonicalisations on the way to a content URL, and each hop is re-admitted
+ * by the frontier's own gates. A POLICY resource has no such journey. The one
+ * shape this repair exists to recover is a single canonicalisation of the
+ * policy URL itself (http -> https on the same hostname), and one hop covers
+ * it completely.
+ *
+ * A SECOND 3xx THEREFORE STOPS. The continuation's own response is evaluated
+ * by the same honest mapping as the first, and a 3xx there is
+ * `ROBOTS_UNREADABLE` with no third request - not because a chain would be
+ * unsafe to validate, but because a policy file that redirects twice is not
+ * the narrow canonicalisation case this was authorised for, and fail-closed
+ * remains the default outside it.
+ */
+export const MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS = 1;
 
 /** The only ports this gateway will request. A published non-default port is refused, not silently allowed. */
 export const DEFAULT_PORT_FOR_SCHEME: Readonly<Record<string, number>> = Object.freeze({
