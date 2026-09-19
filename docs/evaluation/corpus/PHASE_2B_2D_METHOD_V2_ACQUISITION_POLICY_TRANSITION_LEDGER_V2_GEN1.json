@@ -1,0 +1,58 @@
+{
+  "record": "PHASE_2B_2D_METHOD_V2_ACQUISITION_POLICY_TRANSITION_LEDGER",
+  "recordKind": "ACQUISITION_POLICY_TRANSITION_LEDGER_V2_GEN1",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "appendOnly": true,
+  "purpose": "Tracks cases where the SAME selected organisation has more than one acquisition run because of an approved acquisition-policy transition. An entry here is NOT a replacement: no reserve is consumed and no selection index changes hands.",
+  "thisIsNotTheReserveReplacementLedger": {
+    "statement": "A replacement swaps a selected organisation for a reserve one. A policy transition keeps the same organisation and changes which of its runs is the acquisition of record. Recording the second in the first’s ledger would make \"how many reserves have been consumed?\" answerable only by reading a reason column.",
+    "reserveReplacementLedgerPath": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+    "reserveReplacementLedgerExists": false,
+    "reserveConsumedByThisLedger": 0
+  },
+  "boundAmendment": {
+    "path": "docs/evaluation/PHASE_2B_2D_CORPUS_ACQUISITION_PLAN_V1_OPTION_B_AMENDMENT_V1.json",
+    "sha256": "d440afabd68f4a528bdeadb6c45cf6a489e541d33c214e961419f4adaa80cbc3",
+    "bytes": 11185
+  },
+  "boundAdjudication": {
+    "path": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_B_REVALIDATION_EVIDENCE_ADJUDICATION_V1.json",
+    "sha256": "2f42765263b375e939881c0f408aab246ceee0ab1a59f70401adfb4ec2daca1c",
+    "bytes": 5467
+  },
+  "boundMeasurementOfRecord": {
+    "path": "docs/evaluation/PHASE_2B_2D_OPTION_B_TRANSITION_SD7_MEASUREMENT_OF_RECORD_V1.json",
+    "sha256": "e5bfae12c86b8661dde9232eddedb3a0a215df11b6438a7768be536725862b7f"
+  },
+  "entryCount": 1,
+  "entries": [
+    {
+      "entryIndex": 0,
+      "selectionIndex": 5,
+      "split": "DEV_TRAIN",
+      "oldPolicyVersion": "orgunit-fetch-policy-v1",
+      "newPolicyVersion": "orgunit-fetch-policy-v2",
+      "oldRunOpaqueRef": "eecae5bc8b23e005a1daaf99a73f927b06ab7471bf1cc32c814861c98b096eba",
+      "newRunOpaqueRef": "1caccd6c616c6ddaccc5ebc7a23f951b08e6819fc3bc6b6d8e91e14f965a71fe",
+      "opaqueRefDerivation": "SHA-256 of the run UUID",
+      "transitionReason": "OPTION_B_SAME_HOST_ROBOTS_CAPABILITY_REPAIR",
+      "oldSd9Status": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "newSd9Status": "ACQUISITION_SUCCESSFUL",
+      "oldRunRawPageEvidence": 0,
+      "newRunRawPageEvidence": 33,
+      "newRunPostSd7PageCount": 28,
+      "historicalRunRetained": true,
+      "historicalRunClassification": "SUPERSEDED_FOR_GENERATION_ACQUISITION_DECISION_BY_POLICY_REPAIR",
+      "reserveConsumed": false,
+      "replacementCreated": false,
+      "organisationChanged": false,
+      "selectionIndexChanged": false,
+      "splitChanged": false,
+      "organisationIdentityIsNotPublishedHere": true
+    }
+  ],
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A later transition is a NEW entry appended to this ledger; a correction is a NEW record that references this one by SHA-256."
+  }
+}
