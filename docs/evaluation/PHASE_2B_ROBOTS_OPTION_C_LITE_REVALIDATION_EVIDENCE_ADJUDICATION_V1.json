@@ -1,0 +1,298 @@
+{
+  "recordId": "phase2b-robots-option-c-lite-revalidation-evidence-adjudication-v1",
+  "recordKind": "REVALIDATION_EVIDENCE_ADJUDICATION",
+  "records": "PHASE_2B_ROBOTS_OPTION_C_LITE_REVALIDATION_EVIDENCE_ADJUDICATION_V1",
+  "recordedAtUtc": "2026-09-20T10:58:00Z",
+  "ownerDecision": "AUTHORISE_PHASE_2B_ROBOTS_OPTION_C_LITE_REVALIDATION_EVIDENCE_ADJUDICATION_V1",
+  "startingHead": "9493073aededf0ba2bec68820ebfcc15787efd05",
+  "generationId": "METHODOLOGY_V2_GEN1",
+
+  "boundRevalidationResult": {
+    "path": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_C_LITE_TARGETED_REVALIDATION_RESULT_V1.json",
+    "sha256": "dfee9e7770bdd1c385c112708d7b3cbb0efcaf0da43c5e7286b52fd24af2dae1",
+    "bytes": 16811,
+    "commit": "9493073aededf0ba2bec68820ebfcc15787efd05",
+    "editedByThisAdjudication": false
+  },
+  "boundRevalidationAuthority": {
+    "path": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_C_LITE_TARGETED_REVALIDATION_AUTHORITY_V1.json",
+    "sha256": "506c473889c8bb76c76e8c2052d1033e0f9dbcd1fcf1a46acc13f8ff5b37b12c",
+    "bytes": 16221,
+    "commit": "61c21b6e23d93a21a9d88c907819a07901322d4a"
+  },
+  "boundValidationTestCorrection": {
+    "path": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_C_LITE_VALIDATION_TEST_CORRECTION_V1.json",
+    "sha256": "4d5c74a08c4f47d9d8239820d9ea092007b421749bcd428401bee0c56a48f55f",
+    "bytes": 7733
+  },
+  "boundImplementationRecord": {
+    "path": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_C_LITE_IMPLEMENTATION_V1.json",
+    "sha256": "04ff52625dbb4ce8a9e2734b8e1ceed9080294a94a2e90660385f072822b0310",
+    "bytes": 12466
+  },
+  "boundPrecedent": {
+    "path": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_B_REVALIDATION_EVIDENCE_ADJUDICATION_V1.json",
+    "sha256": "2f42765263b375e939881c0f408aab246ceee0ab1a59f70401adfb4ec2daca1c",
+    "bytes": 5467,
+    "why": "The Option-B adjudication established the shape this one follows: accept live evidence, move the acquisition of record, retain the historical run, consume no reserve."
+  },
+  "implementationHead": "c2e07b87ab2394287154977580240a5723bf6cbd",
+
+  "validationCorrectionApplied": true,
+  "validationExitCode": 0,
+  "liveRevalidationsAccepted": [1, 7],
+
+  "selectionIndex1AcquisitionOfRecordPolicy": "orgunit-fetch-policy-v3",
+  "selectionIndex1Sd9": "ACQUISITION_SUCCESSFUL",
+  "selectionIndex7AcquisitionOfRecordPolicy": "orgunit-fetch-policy-v3",
+  "selectionIndex7Sd9": "ACQUISITION_SUCCESSFUL",
+
+  "historicalRunsRetained": true,
+  "historicalExecutionRecordsEdited": false,
+  "reserveConsumption": 0,
+  "replacementPerformed": false,
+  "batchContinuationAuthorised": false,
+  "index8Authorised": false,
+  "thisFileAuthorises": [],
+
+  "adjudication": {
+    "verdict": "OPTION_C_LITE_LIVE_REVALIDATION_ACCEPTED",
+    "appliesToSelectionIndices": [1, 7],
+    "reason": [
+      "a qualifying v3 host-changing same-registrable-domain robots redirect was observed",
+      "request #2 was issued and persisted",
+      "request #2 returned 200",
+      "no third continuation hop was issued",
+      "v3 provenance is correct on every new run and every new observation",
+      "the historical run was left untouched",
+      "the formal SD7 measurement is determinate",
+      "full repository validation is now green"
+    ],
+    "acceptanceWasConditionalOnValidation": true,
+    "whyConditional": "The authority forbade adjudicating on a red gate. The single failing test was a repair-scope bookkeeping defect, corrected under its own owner decision, and only then was this verdict reached."
+  },
+
+  "perIndex": [
+    {
+      "selectionIndex": 1,
+      "split": "DEV_CONFIRM",
+      "oldAcquisitionOfRecord": {
+        "policyVersion": "orgunit-fetch-policy-v1",
+        "runOpaqueRef": "7aedd8d7106590724655e3dbaf9bf443c2050e316c2123217b50c85c011dc50a",
+        "sd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "rawPageEvidence": 0,
+        "disposition": "SUPERSEDED_FOR_GENERATION_ACQUISITION_DECISION_BY_POLICY_REPAIR",
+        "retained": true,
+        "deleted": false,
+        "executionRecordEdited": false
+      },
+      "newAcquisitionOfRecord": {
+        "policyVersion": "orgunit-fetch-policy-v3",
+        "runOpaqueRef": "83564aa2b2639f799c12eff6d9a66d7041d751e13054aebb53e70c5a71e08076",
+        "liveClassification": "OPTION_C_LITE_LIVE_PATH_CONFIRMED",
+        "runTerminalState": "COMPLETED",
+        "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+        "rawPages": 34,
+        "formalPostSd7CountOfRecord": 32,
+        "formalPostSd7CountMin": 32,
+        "formalPostSd7CountMax": 34,
+        "minPagesThreshold": 4,
+        "wholeRangeAboveThreshold": true,
+        "sd9": "ACQUISITION_SUCCESSFUL"
+      },
+      "continuationTrace": {
+        "robotsPathRequestsInTheRun": 3,
+        "continuationHopsUsed": 1,
+        "maxRobotsRedirectContinuationHops": 1,
+        "thirdContinuationHopIssued": false,
+        "registrableDomainChanged": false,
+        "hostChanged": true,
+        "schemeDowngraded": false
+      }
+    },
+    {
+      "selectionIndex": 7,
+      "split": "FINAL_HOLDOUT",
+      "oldAcquisitionOfRecord": {
+        "policyVersion": "orgunit-fetch-policy-v2",
+        "runOpaqueRef": "d808fae09b353443abaa4a5405d892a0545c058ac0a503deb712ef922604a0fd",
+        "sd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "rawPageEvidence": 0,
+        "disposition": "SUPERSEDED_FOR_GENERATION_ACQUISITION_DECISION_BY_POLICY_REPAIR",
+        "retained": true,
+        "deleted": false,
+        "executionRecordEdited": false
+      },
+      "newAcquisitionOfRecord": {
+        "policyVersion": "orgunit-fetch-policy-v3",
+        "runOpaqueRef": "8d77c6a290bd6eb4833a926792ba5791cdc95a1a58080a748e4a2c7c1d5759f9",
+        "liveClassification": "OPTION_C_LITE_LIVE_PATH_CONFIRMED",
+        "runTerminalState": "COMPLETED",
+        "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+        "rawPages": 34,
+        "formalPostSd7CountOfRecord": 17,
+        "formalPostSd7CountMin": 17,
+        "formalPostSd7CountMax": 34,
+        "minPagesThreshold": 4,
+        "wholeRangeAboveThreshold": true,
+        "sd9": "ACQUISITION_SUCCESSFUL"
+      },
+      "continuationTrace": {
+        "robotsPathRequestsInTheRun": 3,
+        "continuationHopsUsed": 1,
+        "maxRobotsRedirectContinuationHops": 1,
+        "thirdContinuationHopIssued": false,
+        "registrableDomainChanged": false,
+        "hostChanged": true,
+        "schemeDowngraded": false
+      }
+    }
+  ],
+
+  "whatSupersededMeans": {
+    "historicalEvidenceStaysImmutable": true,
+    "remainsValidEvidenceOfOldPolicyBehaviour": true,
+    "neverDeleted": true,
+    "originalExecutionRecordsNeverEdited": true,
+    "generation1NowUsesTheV3RunForAcquisitionStatus": true,
+    "whatItDoesNotMean": "It does not mean the historical run was wrong, retracted or invalid. Under v1 and v2 respectively those runs recorded exactly what the policy of the day could read."
+  },
+
+  "threeRobotsPathRequestsIsNotAViolation": {
+    "preservedFromTheRevalidationResult": true,
+    "reinterpretedHere": false,
+    "requestOne": "the initial origin robots request",
+    "requestTwo": "the ONE authorised redirect continuation",
+    "requestThree": "a later INDEPENDENT target-origin robots lookup, because that target host was subsequently crawled in its own right",
+    "requestThreeHasNoRedirectParent": true,
+    "requestThreeIsASecondContinuationHop": false,
+    "continuationChainLength": 1,
+    "maxRobotsRedirectContinuationHopsRespected": true,
+    "requestThreeIsPositiveCacheEvidence": "Its existence proves the continuation policy was NOT improperly cached as independent authority for the target origin. Had it been cached, request three would not exist and that origin's policy would have been asserted by a request nobody made of it."
+  },
+
+  "formalSd7ResultsOfRecord": {
+    "source": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_C_LITE_TARGETED_REVALIDATION_RESULT_V1.json",
+    "networkRerun": false,
+    "newSd7AlgorithmWritten": false,
+    "databaseWrites": 0,
+    "whyTheMinimumIsTheCountOfRecord": "Survivor order and short-text handling remain unresolved in R3, so each organisation carries a post-SD7 RANGE. The formal count of record is the minimum, following the Option-B transition precedent.",
+    "whyNoUnresolvedDetailCanChangeEitherVerdict": "Both COMPLETE ranges lie above MIN_PAGES_PER_ORGANISATION. 32..34 and 17..34 are each entirely >= 4, so no resolution of survivor order or short-text handling can move either SD9 verdict."
+  },
+
+  "generation1StateAfterThisAdjudication": {
+    "finalisedSelectionSlots": 8,
+    "success": 5,
+    "successIndices": [0, 1, 2, 5, 7],
+    "failure": 3,
+    "failureIndices": [3, 4, 6],
+    "pending": 0,
+    "remainingNeverStartedPrimarySlots": 102,
+    "before": {
+      "finalised": 8,
+      "success": 3,
+      "successIndices": [0, 2, 5],
+      "failure": 5,
+      "failureIndices": [1, 3, 4, 6, 7],
+      "pending": 0
+    },
+    "doNotExtrapolate": "This success rate is over 8 finalised slots of 110 and must not be extrapolated to all 110 organisations."
+  },
+
+  "batch02P5State": {
+    "index5RawAcquisitionOfRecord": 33,
+    "index5Sd9": "ACQUISITION_SUCCESSFUL",
+    "index6Raw": 0,
+    "index6Sd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+    "index7RawAcquisitionOfRecord": 34,
+    "index7Sd9": "ACQUISITION_SUCCESSFUL",
+    "lowRawYieldCount": 1,
+    "lowYieldSelectionIndices": [6],
+    "historicalV2ContinuationStopOnP5RemainsHistoricallyCorrect": true,
+    "whyItRemainsCorrect": "At the moment of that stop, index 7's acquisition of record was the failed v2 run. The gate read the evidence in front of it correctly. Accepted v3 evidence changes the CURRENT prospective state, not the historical decision.",
+    "prospectiveStateNowDiffers": true,
+    "thisEnablesALaterOwnerDecisionToContinueToIndex8": true,
+    "index8StartedInThisTask": false
+  },
+
+  "reserveState": {
+    "reserveConsumption": 0,
+    "reserveLedgerEntryCreated": false,
+    "reserveReplacementLedgerExists": false,
+    "replacementPerformed": false,
+    "organisationChanged": false,
+    "selectionIndexChanged": false,
+    "splitChanged": false,
+    "whyThisIsNotReplacement": "Replacement swaps a selected organisation for a reserve one. This is an acquisition-evidence transition for the SAME drawn organisation, at the same selection index, in the same split."
+  },
+
+  "historicalRecordsLeftUnedited": [
+    "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_EXECUTION_RECORD_V1.json",
+    "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_02_EXECUTION_RECORD_V1.json",
+    "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_02_V2_CONTINUATION_EXECUTION_RECORD_V1.json",
+    "docs/evaluation/PHASE_2B_ROBOTS_OPTION_B_TARGETED_REVALIDATION_RESULT_V1.json",
+    "docs/evaluation/PHASE_2B_ROBOTS_OPTION_C_LITE_TARGETED_REVALIDATION_RESULT_V1.json",
+    "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_ACQUISITION_POLICY_TRANSITION_LEDGER_V2_GEN1.json",
+    "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+    "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json"
+  ],
+
+  "network": {
+    "institutionHttpRequests": 0,
+    "dnsResolutions": 0,
+    "tlsHandshakes": 0,
+    "executeRuns": 0,
+    "retries": 0,
+    "indices1And7Rerun": false,
+    "index8Touched": false,
+    "index9Touched": false
+  },
+
+  "prohibitionsObserved": {
+    "labelsCreated": 0,
+    "providerInference": false,
+    "classifierInvoked": false,
+    "holdoutSemanticAccess": false,
+    "whyRoutingIndex7IsNotHoldoutAccess": "Index 7 is a FINAL_HOLDOUT slot, and this adjudication reads only its acquisition-level counts: raw page count, post-SD7 range and SD9 status. It invokes no classifier, produces no label and reads no page content, title, URL or semantic model.",
+    "phase2EEntered": false,
+    "corpusReplacement": false,
+    "setPOrSetRMaterialised": false
+  },
+
+  "terminalState": "PHASE_2B_OPTION_C_LITE_EVIDENCE_ADJUDICATED_AWAITING_BATCH_02_V3_CONTINUATION",
+  "nextOwnerDecision": "A2_BATCH_02_V3_CONTINUATION_AUTHORISATION",
+  "whatThatLaterAuthorityMayPermit": {
+    "selectionIndices": [8, 9],
+    "order": "index 8, then index 9",
+    "incrementalP5GateStartsFrom": { "lowRawYieldCount": 1, "lowYieldIndices": [6] },
+    "ifIndex8YieldsRawBelow4": "STOP before index 9",
+    "reserveConsumedAutomatically": false
+  },
+
+  "disclosureDiscipline": {
+    "institutionIdentityInThisRecord": false,
+    "reported": [
+      "selection index",
+      "split",
+      "opaque SHA-256 run refs",
+      "aggregate counts",
+      "policy outcome classes"
+    ],
+    "notReported": [
+      "institution name",
+      "hostname",
+      "domain",
+      "URL",
+      "raw redirect target",
+      "echeRowKey",
+      "organisation UUID",
+      "page title",
+      "page content"
+    ]
+  },
+
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256."
+  }
+}
