@@ -1,0 +1,335 @@
+{
+  "artifact": "PHASE_2B_2D_A2_TRANSPORT_FAILURE_OBSERVABILITY_IMPLEMENTATION_V1",
+  "phase": "PHASE_2B_2D",
+  "step": "A2_TRANSPORT_FAILURE_OBSERVABILITY_IMPLEMENTATION",
+  "version": "V1",
+  "status": "IMPLEMENTED",
+  "thisFileAuthorises": [],
+  "producedUnderOwnerDecision": [
+    "AUTHORISE_COMMIT_PUSH_EXISTING_TRANSPORT_OBSERVABILITY_DESIGN_ARTIFACTS_V1",
+    "AUTHORISE_PHASE_2B_2D_A2_TRANSPORT_FAILURE_OBSERVABILITY_IMPLEMENTATION_V1"
+  ],
+
+  "sourceDesignPath": "docs/evaluation/PHASE_2B_2D_A2_TRANSPORT_FAILURE_OBSERVABILITY_DESIGN_V1.json",
+  "sourceDesignSha256": "6f184a93e96324d169ad98ffb0e3b7d0b85999604dbb3ff648f4a8dbd74cdaa0",
+  "sourceDesignBytes": 40609,
+  "sourceDesignCommit": "6898a94eee0aca0be273459f01d0da2a7b13df5b",
+  "sourceDesignBytesUnchangedByCommit": true,
+  "supportingAuditPath": "docs/audits/PHASE_2B_2D_A2_TRANSPORT_FAILURE_OBSERVABILITY_DESIGN_V1.md",
+  "supportingAuditSha256": "32901e9018f9e43e1d4400f1a5172e05c825afc152b6c6d6d3e6e48fb2434854",
+  "supportingAuditBytes": 40815,
+  "selectedDesignOutcome": "OBSERVABILITY_DESIGN_READY_FOR_IMPLEMENTATION",
+  "designContradictionFound": false,
+
+  "startingHead": "e206673437d3f18895acad352099b9c23d1d4182",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "commits": {
+    "designFreeze": "6898a94eee0aca0be273459f01d0da2a7b13df5b",
+    "designFreezePushedBeforeImplementation": true,
+    "migrationAndProduction": "cbbedd8ea8eaa62580c1fe8c05a95508400161db",
+    "adrAndTestMatrix": "e59204d980c874314cc8278bbf5470070f782895",
+    "implementationRecord": "INTRODUCED_BY_THE_COMMIT_THAT_ADDS_THIS_FILE"
+  },
+
+  "errorSubtypeMembers": [
+    "TLS_HANDSHAKE_TIMEOUT",
+    "TLS_CERT_INVALID",
+    "TLS_PROTOCOL_INCOMPATIBLE",
+    "TLS_OTHER",
+    "DNS_NAME_NOT_FOUND",
+    "DNS_TEMPORARY_FAILURE",
+    "DNS_NO_ADDRESS_RETURNED",
+    "DNS_OTHER"
+  ],
+  "errorSubtypeMemberCount": 8,
+  "membersAddedBeyondDesign": 0,
+  "membersRemoved": 0,
+  "membersRenamed": 0,
+  "canonicalTypeScriptLocation": "src/orgunits/web/observations.ts",
+  "vocabularyDeclaredOnce": true,
+
+  "tlsMapping": {
+    "ERR_TLS_HANDSHAKE_TIMEOUT": "TLS_HANDSHAKE_TIMEOUT",
+    "ERR_TLS_CERT_ALTNAME_INVALID": "TLS_CERT_INVALID",
+    "CERT_HAS_EXPIRED": "TLS_CERT_INVALID",
+    "DEPTH_ZERO_SELF_SIGNED_CERT": "TLS_CERT_INVALID",
+    "SELF_SIGNED_CERT_IN_CHAIN": "TLS_CERT_INVALID",
+    "UNABLE_TO_VERIFY_LEAF_SIGNATURE": "TLS_CERT_INVALID",
+    "UNABLE_TO_GET_ISSUER_CERT_LOCALLY": "TLS_CERT_INVALID",
+    "ERR_SSL_WRONG_VERSION_NUMBER": "TLS_PROTOCOL_INCOMPATIBLE",
+    "EPROTO": "TLS_PROTOCOL_INCOMPATIBLE",
+    "any other ERR_TLS_*": "TLS_OTHER",
+    "any other ERR_SSL_*": "TLS_OTHER"
+  },
+  "tlsExactCodesEvaluatedBeforePrefixes": true,
+  "tlsOrderingPinnedByTest": "B - ERR_TLS_HANDSHAKE_TIMEOUT must not become TLS_OTHER",
+  "tlsVerificationWeakened": false,
+  "rejectUnauthorizedStaysTrue": true,
+  "certificateDetailPersisted": "NONE",
+
+  "dnsMapping": {
+    "ENOTFOUND": "DNS_NAME_NOT_FOUND",
+    "EAI_NONAME": "DNS_NAME_NOT_FOUND",
+    "EAI_AGAIN": "DNS_TEMPORARY_FAILURE",
+    "every other EAI_* code": "DNS_OTHER",
+    "unknown or absent code": "DNS_OTHER",
+    "resolver answered with zero addresses": "DNS_NO_ADDRESS_RETURNED",
+    "resolver threw carrying no usable code": "DNS_OTHER"
+  },
+  "dnsHonestyCaveat": "DNS_NAME_NOT_FOUND means exactly 'Node reported ENOTFOUND', which on Node 24 covers BOTH EAI_NONAME (NXDOMAIN) and EAI_NODATA (no address of either family); the runtime destroys that distinction before this repository can observe it. Recorded in the column comment.",
+  "eaiNonameRetainedDefensively": true,
+  "liveDnsLookupPerformed": false,
+  "mappingIsTotal": true,
+  "mappingIsPure": true,
+
+  "migrationPath": "migrations/0012_transport_failure_subtype.sql",
+  "migrationSha256": "0b5b85929a1531e2288dab520b555ae233ae4fd710bb38ebea701d6023f1d2f0",
+  "migrationBytes": 9873,
+  "migrationIsNextSequential": true,
+  "migrationSequenceAfter": "0001..0012, sequential, guard passes",
+  "migrationEditsAnExistingMigration": false,
+  "databaseCheckName": "orgunit_fetch_observations_error_subtype_chk",
+  "databaseCheckSql": "CHECK (error_subtype IS NULL OR (error_kind IS NOT DISTINCT FROM 'TLS_FAILURE' AND error_subtype IN ('TLS_HANDSHAKE_TIMEOUT', 'TLS_CERT_INVALID', 'TLS_PROTOCOL_INCOMPATIBLE', 'TLS_OTHER')) OR (error_kind IS NOT DISTINCT FROM 'DNS_FAILURE' AND error_subtype IN ('DNS_NAME_NOT_FOUND', 'DNS_TEMPORARY_FAILURE', 'DNS_NO_ADDRESS_RETURNED', 'DNS_OTHER')))",
+  "databaseCheckUsesIsNotDistinctFrom": true,
+  "whyNotPlainEquality": "a PostgreSQL CHECK passes when its expression is TRUE *or NULL*, so the '=' form ACCEPTS error_kind IS NULL beside a non-null subtype - the exact combination the constraint exists to forbid. Verified on PostgreSQL 16, read-only, before the migration was written, and pinned by test E.",
+  "migrationStatementCounts": { "alterTable": 2, "commentOn": 1, "index": 0 },
+  "migrationContainsUpdate": false,
+  "migrationContainsDelete": false,
+  "migrationContainsInsert": false,
+  "migrationContainsGrant": false,
+  "migrationContainsRevoke": false,
+  "migrationContainsDrop": false,
+  "migrationContainsTruncate": false,
+  "migrationContainsAnyDml": false,
+  "noBackfillProvenBy": "test G, scanning the migration with `--` comments and single-quoted string literals stripped, because a forbidden verb inside a COMMENT ON literal is prose rather than a statement",
+  "columnNullable": true,
+  "columnDefault": null,
+  "columnType": "text",
+
+  "privilegeChangeRequired": false,
+  "grantStatementsAdded": 0,
+  "revokeStatementsAdded": 0,
+  "updateAuthorityBroadened": false,
+  "deleteAuthorityBroadened": false,
+  "measuredTableAclAfterMigration": [
+    "nwf_owner=arwdDxt/nwf_owner",
+    "nwf_research=ar/nwf_owner",
+    "nwf_readonly=r/nwf_owner",
+    "nwf_classifier=r/nwf_owner"
+  ],
+  "columnLevelAclsOnTable": 0,
+  "nwfResearchStillSelectInsertOnly": true,
+
+  "productionFilesChanged": [
+    "migrations/0012_transport_failure_subtype.sql",
+    "src/orgunits/web/gateway.ts",
+    "src/orgunits/web/observations.ts"
+  ],
+  "productionFilesChangedCount": 3,
+  "unapprovedProductionSurfaceRequired": false,
+  "mappingPlacement": "src/orgunits/web/gateway.ts, beside classifyNodeError - the design left this an open implementation choice; gateway.ts was chosen so the change stays inside the design's exact listed productionFiles and adds no file to the src/orgunits/web/ inventory that firewall assertions enumerate. gateway.ts is already imported by an existing unit test, so the mapping remains unit-testable.",
+  "structuralChange": "DnsResolutionError gained a REQUIRED readonly code, carried in memory only, so the subtype is derived from structure rather than by parsing a message that contains the hostname",
+  "tlsErrorCodesNowDerivedFromSubtypeTable": true,
+  "tlsErrorCodeMembershipUnchanged": true,
+
+  "historicalRowsBackfilled": false,
+  "historicalRowsSubtypeNull": true,
+  "historicalFetchObservationCountBefore": 204,
+  "historicalFetchObservationCountAfter": 204,
+  "historicalSubtypeNullCountAfter": 204,
+  "historicalSubtypeNonNullCountAfter": 0,
+  "historicalErrorKindCensus": {
+    "(null - an HTTP response arrived)": 200,
+    "TLS_FAILURE": 2,
+    "DNS_FAILURE": 1,
+    "READ_TIMEOUT": 1
+  },
+  "historicalNullMeansExactly": "SUBTYPE_NOT_CAPTURED_AT_EXECUTION_TIME",
+  "enrichmentFromCurrentExternalState": "FORBIDDEN AND NOT PERFORMED",
+
+  "rawErrorDetailPersisted": false,
+  "freeTextErrorColumnAdded": false,
+  "errorColumnsOnTable": ["error_kind", "error_subtype"],
+  "rawDetailProof": "test H persists a scripted failure whose detail carries a hostname and certificate altnames, asserts it IS present on the in-memory result, and asserts no column of the persisted row contains any of it",
+
+  "retryImplemented": false,
+  "retryDispositionForImplemented": false,
+  "retryVerdictStoredInSchema": false,
+  "rejectedSchemaShapes": [
+    "is_retryable",
+    "retry_class",
+    "should_retry",
+    "retry_after_ms",
+    "attempts_remaining"
+  ],
+  "retryAfterPersisted": false,
+  "httpStatusOverloadedIntoSubtype": false,
+
+  "networkBehaviourChanged": false,
+  "requestSequenceUnchanged": true,
+  "requestSequenceProof": "no orchestrator, robots, policy or circuit-breaker production file changed; the circuit breaker reads errorKind alone and no subtype reaches it; the gateway still performs exactly one resolveHostname and one execute per invocation and the pinned lookup still refuses a second call; the pre-existing orchestrator and robots integration suites assert exact request sequences and were edited ONLY to add `subtype: null` at scripted failure constructions - no assertion was changed - and they pass unchanged",
+  "circuitBreakerChanged": false,
+  "pacingChanged": false,
+  "budgetsChanged": false,
+  "robotsContinuationChanged": false,
+  "redirectContinuationChanged": false,
+
+  "fetchPolicyVersionBefore": "orgunit-fetch-policy-v3",
+  "fetchPolicyVersionAfter": "orgunit-fetch-policy-v3",
+  "fetchPolicyVersionPinnedByTest": true,
+  "futureRetryRequiresV4": true,
+
+  "adrPath": "docs/adr/0014-transport-failure-observability.md",
+  "adrSha256": "fae5b4a6141180a93c8f5e409254ffe34eec78069feac265ee104e875c82a8c7",
+  "adrBytes": 20016,
+  "adrStatus": "Proposed (feature branch, not landed)",
+  "adrStatusPrecedent": "ADR 0008",
+  "existingAdrsEdited": 0,
+
+  "testFilesAdded": [
+    "src/test/unit/orgunitTransportFailureSubtype.test.ts",
+    "src/test/integration/orgunitTransportSubtype.test.ts",
+    "src/test/firewall/phase2bTransportSubtype.firewall.test.ts"
+  ],
+  "focusedTestTotals": {
+    "unitMappingTests": 23,
+    "integrationPersistenceAndConstraintTests": 16,
+    "repairScopeFirewallTests": 30,
+    "total": 69,
+    "failed": 0
+  },
+  "existingFirewallAssertionsWidened": 0,
+  "newRepairScopeFileAdded": 1,
+  "phaseIsolationDisciplineFollowed": "a NEW repair-scope file bounded to its own BASE..working-tree range, never a widened older firewall assertion",
+  "firewallCaughtThisChange": "phase2b.firewall.test.ts's 'never disables TLS verification' assertion flagged the NEW repair-scope test for containing the global TLS opt-out's literal name in a regex. The firewall was NOT weakened; the token is now assembled from parts in the new file.",
+
+  "migrationAppliedToWorkingDatabase": true,
+  "migrationAppliedToTestDatabase": true,
+  "databaseContainerRecreated": false,
+  "databaseVolumeRecreated": false,
+  "workingDatabaseCountsBefore": {
+    "organisations": 6139,
+    "website_claims": 6139,
+    "orgunit_research_runs": 12,
+    "orgunit_research_run_completions": 12,
+    "orgunit_fetch_observations": 204,
+    "orgunit_redirect_observations": 11,
+    "orgunit_root_promotions": 0,
+    "orgunit_root_promotion_revocations": 0,
+    "orgunit_page_evidence": 160,
+    "orgunit_page_candidates": 320
+  },
+  "workingDatabaseCountsAfter": {
+    "organisations": 6139,
+    "website_claims": 6139,
+    "orgunit_research_runs": 12,
+    "orgunit_research_run_completions": 12,
+    "orgunit_fetch_observations": 204,
+    "orgunit_redirect_observations": 11,
+    "orgunit_root_promotions": 0,
+    "orgunit_root_promotion_revocations": 0,
+    "orgunit_page_evidence": 160,
+    "orgunit_page_candidates": 320
+  },
+  "workingDatabaseCountsIdentical": true,
+  "observationContentFingerprintBefore": "9c32ee2d2a94cbc4b0930da04e08e1a5",
+  "observationContentFingerprintAfter": "9c32ee2d2a94cbc4b0930da04e08e1a5",
+  "observationContentUnchanged": true,
+  "acquisitionRunCreated": false,
+  "observationRowAddedOrDeleted": false,
+  "pageEvidenceChanged": false,
+
+  "governanceTouchpoints": [
+    {
+      "what": "orgunitSchema.test.ts's applied-migration list",
+      "action": "0012 acknowledged explicitly",
+      "why": "the list is pinned deliberately so a new migration fails there first and is acknowledged rather than arriving unnoticed - the designed workflow for landing a migration",
+      "frozenArtifactChanged": false
+    },
+    {
+      "what": "frameContract.ts DATABASE_SCHEMA_VERSION_RANGE, 0001..0011 -> 0001..0012",
+      "action": "bumped, with the reasoning recorded at the constant",
+      "why": "it tracks migrations/ and the A1 unit test asserts it does; it is stamped as PROVENANCE onto a frame at materialisation time",
+      "frozenArtifactChanged": false,
+      "frameV2Gen1BytesChanged": false,
+      "frameV2Gen1Sha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "frameV2Gen1StillRecords": "0001..0011",
+      "consequenceNamedNotHidden": "the schema stamp is covered by the frame hash, so re-materialising Gen-1 under this build would now produce a different frameHash than the committed artifact. No eligibility judgement, no count, no draw and no acquisition-of-record status moves. Surfaced for owner awareness rather than amended silently.",
+      "ownerReviewRequested": true
+    }
+  ],
+
+  "methodologyR3Unchanged": true,
+  "corpusPlanV1Unchanged": true,
+  "optionBAmendmentUnchanged": true,
+  "optionCLiteAmendmentUnchanged": true,
+  "frameArtifactUnchanged": true,
+  "drawArtifactUnchanged": true,
+  "v2TransitionLedgerUnchanged": true,
+  "v3TransitionLedgerUnchanged": true,
+  "acquisitionOfRecordUnchanged": "5 success / 4 failure of 9 finalised",
+  "acquisitionStatusChanged": false,
+  "p5GateUnchanged": true,
+  "reserveStateUnchanged": true,
+  "historicalFreezeFilesChanged": 0,
+  "ownerApprovalRecordsChanged": 0,
+  "methodologyFreezePerformed": false,
+  "acquisitionPlanAmended": false,
+
+  "existingFailureRows": [
+    {
+      "index": 3,
+      "failure": "ROOT_AND_SITEMAP_HTTP_5XX",
+      "errorSubtype": "NOT_APPLICABLE",
+      "reacquired": false
+    },
+    { "index": 4, "failure": "ROBOTS_DNS_FAILURE", "errorSubtype": null, "reacquired": false },
+    { "index": 6, "failure": "ROBOTS_TLS_FAILURE", "errorSubtype": null, "reacquired": false },
+    { "index": 8, "failure": "ROBOTS_TLS_FAILURE", "errorSubtype": null, "reacquired": false }
+  ],
+
+  "validation": {
+    "command": "npm run validate",
+    "exitCode": 0,
+    "testFilesPassed": 180,
+    "testFilesSkipped": 5,
+    "testFilesTotal": 185,
+    "testFilesFailed": 0,
+    "testsPassed": 4527,
+    "testsSkipped": 75,
+    "testsTotal": 4602,
+    "testsFailed": 0,
+    "databaseInfrastructureFailureOccurred": false,
+    "containerStartRequired": false,
+    "firstRunFailures": [
+      "phase2b.firewall.test.ts 'never disables TLS verification' - caused by the NEW repair-scope test naming the global TLS opt-out literal; fixed in the new file, firewall untouched",
+      "orgunitSchema.test.ts applied-migration list - the designed new-migration acknowledgement; 0012 added",
+      "orgunitCorpus2DA1Frame.test.ts schema range - the designed drift alarm; constant bumped to 0001..0012"
+    ],
+    "firstRunFailuresWereCodeDefects": false,
+    "allResolvedWithoutWeakeningAnyAssertion": true
+  },
+
+  "institutionNetworkExecuted": false,
+  "institutionHttpRequests": 0,
+  "institutionDnsLookups": 0,
+  "institutionTlsHandshakes": 0,
+  "executeAcquisitionRuns": 0,
+  "index9Started": false,
+  "indicesAtOrAbove10Started": false,
+  "reserveConsumption": 0,
+  "replacementPerformed": false,
+  "providerCalls": 0,
+  "classifierCalls": 0,
+  "labelsProduced": 0,
+  "holdoutSemanticAccess": false,
+  "phase2eEntered": false,
+  "localOnlyAccess": [
+    "the local PostgreSQL on 127.0.0.1:55432 (nwf_pe and nwf_pe_test)",
+    "git fetch/push against the repository's own origin"
+  ],
+
+  "blockers": [],
+  "outcome": "PHASE_2B_2D_A2_TRANSPORT_FAILURE_OBSERVABILITY_IMPLEMENTED_AWAITING_RETRY_POLICY_DESIGN",
+  "nextOwnerDecision": "A2_BOUNDED_TRANSPORT_RETRY_POLICY_DESIGN_AUTHORISATION"
+}
