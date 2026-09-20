@@ -47,6 +47,7 @@ function redirected(requestedUrl: string, location: string, status = 301): WebAt
     requestedUrl,
     attemptNo: 1,
     networkVantage: 'test-vantage',
+    errorSubtype: null,
     httpStatus: status,
     errorKind: null,
     errorDetail: null,

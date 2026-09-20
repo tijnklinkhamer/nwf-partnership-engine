@@ -58,6 +58,7 @@ class RoutedTransport implements WebTransport {
     kind: 'FAILURE',
     failure: 'CONNECTION_REFUSED',
     detail: 'unscripted URL',
+    subtype: null,
   };
 
   route(url: string, outcome: TransportOutcome | (() => TransportOutcome)): this {
@@ -116,7 +117,7 @@ function redirectResponse(status: number, location: string): TransportOutcome {
 }
 
 function connectTimeout(): TransportOutcome {
-  return { kind: 'FAILURE', failure: 'CONNECT_TIMEOUT', detail: 'simulated' };
+  return { kind: 'FAILURE', failure: 'CONNECT_TIMEOUT', detail: 'simulated', subtype: null };
 }
 
 function page(title: string, links: string[] = [], text = 'Body text.'): string {
@@ -1421,6 +1422,7 @@ describeIf('bounded discovery orchestration (integration, 2B-1E)', () => {
           return {
             kind: 'FAILURE',
             failure: 'CONNECTION_REFUSED',
+            subtype: null,
             detail: 'should never be reached',
           };
         },

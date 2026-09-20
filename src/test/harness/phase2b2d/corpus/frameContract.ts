@@ -58,8 +58,30 @@ export const A0_SOURCE_MANIFEST_SHA256 =
   '6f152a0cfb18831fe925a11a206debdffe195e99c4a8cc4d921237e35821a3cf';
 export const A0_SOURCE_MANIFEST_BYTES = 2116;
 
-/** Migrations 0001..0011, as applied to the working database. */
-export const DATABASE_SCHEMA_VERSION_RANGE = '0001..0011';
+/**
+ * The migration range applied to the working database, stamped as PROVENANCE
+ * onto a frame at the moment it is materialised.
+ *
+ * It tracks `migrations/` and is asserted to, by the A1 unit test - so adding
+ * a migration is meant to fail there first and be acknowledged here, exactly
+ * as a new migration is acknowledged in the schema inventory test.
+ *
+ * MOVED TO 0001..0012 by the Phase 2B-2D A2 transport-failure observability
+ * migration (ADR 0014): an additive, nullable `error_subtype` column on
+ * `orgunit_fetch_observations`, with no backfill and no grant change.
+ *
+ * FRAME_V2_GEN1 IS NOT REWRITTEN BY THIS. The committed artifact
+ * `docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json` keeps
+ * `"databaseSchemaVersion": "0001..0011"`, which is the true statement that
+ * it WAS materialised under that schema; its bytes, its frameHash, its 6,139
+ * judgements and all of its counts are untouched. The consequence worth
+ * naming is narrower and is deliberately not hidden: because the schema stamp
+ * is covered by the frame hash, re-materialising Gen-1 under THIS build would
+ * now produce a different `frameHash`. Nothing about eligibility, the draw or
+ * any acquisition-of-record status moves - only the build fact that a
+ * migration was added.
+ */
+export const DATABASE_SCHEMA_VERSION_RANGE = '0001..0012';
 
 /** The committed frame artifact. */
 export const FRAME_ARTIFACT_PATH =

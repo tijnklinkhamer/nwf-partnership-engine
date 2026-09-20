@@ -86,6 +86,7 @@ class RoutedTransport implements WebTransport {
     kind: 'FAILURE',
     failure: 'CONNECTION_REFUSED',
     detail: 'unscripted URL',
+    subtype: null,
   };
 
   route(url: string, outcome: TransportOutcome | (() => TransportOutcome)): this {

@@ -76,6 +76,7 @@ import {
   insertRedirectObservation,
   type DiscoveryMethod,
   type FetchErrorKind,
+  type TransportFailureSubtype,
 } from './observations.js';
 import {
   CONNECT_TIMEOUT_MS,
@@ -100,7 +101,27 @@ export interface ResolvedAddress {
 
 /** Hostname resolution failed. Distinct from "resolved to something forbidden". */
 export class DnsResolutionError extends Error {
-  constructor(message: string) {
+  constructor(
+    message: string,
+    /**
+     * The resolver's OWN code, carried IN MEMORY ONLY.
+     *
+     * REQUIRED, not optional, and that is the point. Before migration 0012
+     * this class interpolated the code into a human sentence and discarded
+     * the structure, so the only way back to it was parsing prose - prose
+     * that contains the HOSTNAME, which is the raw-error-text path this
+     * repository refuses to make durable. Recovering the code here is what
+     * lets a NORMALISED subtype be derived instead.
+     *
+     * Optional would let a future transport quietly omit it and degrade
+     * every DNS failure to `DNS_OTHER` - a wrong value that looks like a
+     * right one. Required makes the obligation structural, the same posture
+     * `RobotsAuthorisation` takes with its brand.
+     *
+     * NEVER PERSISTED. Only `dnsFailureSubtype(code)` reaches a column.
+     */
+    readonly code: string,
+  ) {
     super(message);
     this.name = 'DnsResolutionError';
   }
@@ -156,7 +177,18 @@ export type TransportOutcome =
       body: Buffer;
       truncated: boolean;
     }
-  | { kind: 'FAILURE'; failure: TransportFailureKind; detail: string };
+  | {
+      kind: 'FAILURE';
+      failure: TransportFailureKind;
+      detail: string;
+      /**
+       * The TLS refinement of `failure`, or null for every non-TLS failure.
+       *
+       * A REQUIRED KEY with a nullable value: a new failure path must say it
+       * has no subtype rather than forget to mention one.
+       */
+      subtype: TransportFailureSubtype | null;
+    };
 
 /**
  * The seam tests replace.
@@ -221,6 +253,16 @@ export interface WebAttemptResult {
   httpStatus: number | null;
   errorKind: FetchErrorKind | null;
   /**
+   * The TLS/DNS refinement of `errorKind`, exactly as persisted.
+   *
+   * PERSISTED, unlike `errorDetail` below: it is one of eight fixed tokens
+   * carrying no hostname, no certificate subject and no runtime wording.
+   * EVIDENCE, never a retry verdict - nothing in this repository decides
+   * retryability, and a future policy that does will DERIVE it from here
+   * rather than read a stored answer.
+   */
+  errorSubtype: TransportFailureSubtype | null;
+  /**
    * The precise reason, for an operator reading a report.
    *
    * NOT PERSISTED. `error_kind` is a bounded taxonomy and a fetch observation
@@ -279,33 +321,105 @@ export function createPinnedLookup(plan: RequestPlan): LookupFunction {
   };
 }
 
-/** Node error codes that mean the peer's TLS could not be trusted or negotiated. */
-const TLS_ERROR_CODES = new Set([
-  'EPROTO',
-  'ERR_TLS_CERT_ALTNAME_INVALID',
-  'ERR_TLS_HANDSHAKE_TIMEOUT',
-  'CERT_HAS_EXPIRED',
-  'DEPTH_ZERO_SELF_SIGNED_CERT',
-  'SELF_SIGNED_CERT_IN_CHAIN',
-  'UNABLE_TO_VERIFY_LEAF_SIGNATURE',
-  'UNABLE_TO_GET_ISSUER_CERT_LOCALLY',
-  'ERR_SSL_WRONG_VERSION_NUMBER',
-]);
+/**
+ * The EXACT TLS codes this build names, each with the condition it means.
+ *
+ * ORDER IS LOAD-BEARING WHERE THIS TABLE IS USED. Every key here also starts
+ * with `ERR_TLS_` or `ERR_SSL_` or is a bare OpenSSL name, and the catch-all
+ * below keys on those prefixes - so consulting the prefixes first would
+ * swallow `ERR_TLS_HANDSHAKE_TIMEOUT` into `TLS_OTHER`. That single member is
+ * the one plausibly-transient TLS condition and the whole reason this split
+ * exists, so `tlsFailureSubtype` reads this table FIRST, always.
+ */
+const TLS_CODE_TO_SUBTYPE: Readonly<Record<string, TransportFailureSubtype>> = Object.freeze({
+  ERR_TLS_HANDSHAKE_TIMEOUT: 'TLS_HANDSHAKE_TIMEOUT',
+  ERR_TLS_CERT_ALTNAME_INVALID: 'TLS_CERT_INVALID',
+  CERT_HAS_EXPIRED: 'TLS_CERT_INVALID',
+  DEPTH_ZERO_SELF_SIGNED_CERT: 'TLS_CERT_INVALID',
+  SELF_SIGNED_CERT_IN_CHAIN: 'TLS_CERT_INVALID',
+  UNABLE_TO_VERIFY_LEAF_SIGNATURE: 'TLS_CERT_INVALID',
+  UNABLE_TO_GET_ISSUER_CERT_LOCALLY: 'TLS_CERT_INVALID',
+  ERR_SSL_WRONG_VERSION_NUMBER: 'TLS_PROTOCOL_INCOMPATIBLE',
+  EPROTO: 'TLS_PROTOCOL_INCOMPATIBLE',
+});
+
+/**
+ * Node error codes that mean the peer's TLS could not be trusted or negotiated.
+ *
+ * DERIVED from the subtype table rather than written out a second time: two
+ * hand-maintained lists of the same nine codes would eventually disagree, and
+ * the disagreement would be a code classified `TLS_FAILURE` with no subtype,
+ * or the reverse. The membership is byte-for-byte what it was before
+ * migration 0012; only its source moved.
+ */
+const TLS_ERROR_CODES = new Set(Object.keys(TLS_CODE_TO_SUBTYPE));
+
+/**
+ * The TLS condition a Node error code names. TOTAL over every input.
+ *
+ * PURE. `TLS_OTHER` is the honest answer for anything this build does not
+ * name, and it asserts NOTHING about transience - an unrecognised future
+ * `ERR_SSL_*` must never be able to acquire the retry semantics of a
+ * recognised one by accident. Evidence, never a verdict.
+ */
+export function tlsFailureSubtype(code: string): TransportFailureSubtype {
+  // EXACT CODES BEFORE PREFIXES. See TLS_CODE_TO_SUBTYPE.
+  return TLS_CODE_TO_SUBTYPE[code] ?? 'TLS_OTHER';
+}
+
+/**
+ * The exact resolver codes this build names.
+ *
+ * `ENOTFOUND` is what Node 24 reports for BOTH `EAI_NONAME` (NXDOMAIN) and
+ * `EAI_NODATA` (the name exists with no address of either family): the
+ * runtime collapses them before this repository can observe the difference,
+ * so `DNS_NAME_NOT_FOUND` means exactly "Node reported ENOTFOUND" and
+ * promises no more. `EAI_NONAME` is kept here defensively - it is
+ * unreachable on this runtime, and would be the truthful mapping on one that
+ * did surface it.
+ */
+const DNS_CODE_TO_SUBTYPE: Readonly<Record<string, TransportFailureSubtype>> = Object.freeze({
+  ENOTFOUND: 'DNS_NAME_NOT_FOUND',
+  EAI_NONAME: 'DNS_NAME_NOT_FOUND',
+  EAI_AGAIN: 'DNS_TEMPORARY_FAILURE',
+});
+
+/**
+ * The DNS condition a resolver code names. TOTAL over every input.
+ *
+ * PURE, and performs NO lookup of its own. Every other `EAI_*` code, and
+ * anything unrecognised or absent, is `DNS_OTHER` - which, like `TLS_OTHER`,
+ * says only "not named by this build" and never "try again".
+ */
+export function dnsFailureSubtype(code: string): TransportFailureSubtype {
+  return DNS_CODE_TO_SUBTYPE[code] ?? 'DNS_OTHER';
+}
 
 export function classifyNodeError(error: NodeJS.ErrnoException): {
   failure: TransportFailureKind;
   detail: string;
+  subtype: TransportFailureSubtype | null;
 } {
   const code = error.code ?? '';
   if (TLS_ERROR_CODES.has(code) || code.startsWith('ERR_TLS_') || code.startsWith('ERR_SSL_')) {
-    return { failure: 'TLS_FAILURE', detail: `${code || error.name}: ${error.message}` };
+    return {
+      failure: 'TLS_FAILURE',
+      detail: `${code || error.name}: ${error.message}`,
+      subtype: tlsFailureSubtype(code),
+    };
   }
-  if (code === 'ECONNREFUSED') return { failure: 'CONNECTION_REFUSED', detail: error.message };
+  // The remaining kinds are already the exact category a retry rule would key
+  // on, so they carry no subtype rather than a second spelling of one fact.
+  if (code === 'ECONNREFUSED') {
+    return { failure: 'CONNECTION_REFUSED', detail: error.message, subtype: null };
+  }
   if (code === 'ECONNRESET' || code === 'EPIPE') {
-    return { failure: 'CONNECTION_RESET', detail: `${code}: ${error.message}` };
+    return { failure: 'CONNECTION_RESET', detail: `${code}: ${error.message}`, subtype: null };
   }
-  if (code === 'ETIMEDOUT') return { failure: 'CONNECT_TIMEOUT', detail: error.message };
-  return { failure: 'OTHER', detail: `${code || error.name}: ${error.message}` };
+  if (code === 'ETIMEDOUT') {
+    return { failure: 'CONNECT_TIMEOUT', detail: error.message, subtype: null };
+  }
+  return { failure: 'OTHER', detail: `${code || error.name}: ${error.message}`, subtype: null };
 }
 
 /**
@@ -496,6 +610,7 @@ function executeWithNode(plan: RequestPlan): Promise<TransportOutcome> {
         failure: 'CONNECT_TIMEOUT',
         kind: 'FAILURE',
         detail: `no usable connection within ${plan.connectTimeoutMs} ms`,
+        subtype: null,
       });
     }, plan.connectTimeoutMs);
     timers.add(connectTimer);
@@ -505,6 +620,7 @@ function executeWithNode(plan: RequestPlan): Promise<TransportOutcome> {
         failure: 'READ_TIMEOUT',
         kind: 'FAILURE',
         detail: `attempt exceeded ${plan.totalTimeoutMs} ms in total`,
+        subtype: null,
       });
     }, plan.totalTimeoutMs);
     timers.add(totalTimer);
@@ -532,6 +648,7 @@ function executeWithNode(plan: RequestPlan): Promise<TransportOutcome> {
           kind: 'FAILURE',
           failure: 'RESPONSE_TOO_LARGE',
           detail: `declared ${declaredLength} bytes, cap is ${plan.maxBodyBytes}`,
+          subtype: null,
         });
         return;
       }
@@ -544,6 +661,7 @@ function executeWithNode(plan: RequestPlan): Promise<TransportOutcome> {
           kind: 'FAILURE',
           failure: 'INVALID_CONTENT_ENCODING',
           detail: `content coding "${encoding}" is not one this gateway decodes`,
+          subtype: null,
         });
         return;
       }
@@ -572,6 +690,7 @@ function executeWithNode(plan: RequestPlan): Promise<TransportOutcome> {
               kind: 'FAILURE',
               failure: 'INVALID_CONTENT_ENCODING',
               detail: `${encoding} stream could not be decoded: ${error.message}`,
+              subtype: null,
             }),
         );
       };
@@ -607,7 +726,10 @@ export const nodeWebTransport: WebTransport = {
       }));
     } catch (error) {
       const code = (error as NodeJS.ErrnoException).code ?? 'UNKNOWN';
-      throw new DnsResolutionError(`${hostname} did not resolve (${code})`);
+      // The code travels as STRUCTURE as well as prose. The message keeps its
+      // exact wording for an operator; only the normalised subtype derived
+      // from `code` is ever written to a column.
+      throw new DnsResolutionError(`${hostname} did not resolve (${code})`, code);
     }
   },
   execute: executeWithNode,
@@ -626,6 +748,14 @@ interface AttemptContext {
 interface AttemptRecord {
   httpStatus: number | null;
   errorKind: FetchErrorKind | null;
+  /**
+   * The TLS/DNS refinement of `errorKind`, and the ONE new durable value.
+   *
+   * Null for every outcome that is not a TLS or DNS failure, which the
+   * database also enforces: migration 0012's CHECK refuses a subtype beside
+   * any other kind, and refuses one beside no kind at all.
+   */
+  errorSubtype: TransportFailureSubtype | null;
   errorDetail: string | null;
   contentType: string | null;
   responseSha256: string | null;
@@ -796,6 +926,7 @@ async function attempt(
   const blank: AttemptRecord = {
     httpStatus: null,
     errorKind: null,
+    errorSubtype: null,
     errorDetail: null,
     contentType: null,
     responseSha256: null,
@@ -825,16 +956,29 @@ async function attempt(
   try {
     addresses = await transport.resolveHostname(requested.hostname);
   } catch (error) {
+    // The resolver's own code, never its prose. `DnsResolutionError` carries
+    // it as structure precisely so the subtype does not have to be recovered
+    // by parsing a sentence that contains the hostname. A transport that
+    // threw something carrying no usable code yields DNS_OTHER, which is the
+    // honest answer and never implies transience.
+    const code =
+      error instanceof DnsResolutionError
+        ? error.code
+        : ((error as NodeJS.ErrnoException).code ?? '');
     return {
       ...blank,
       errorKind: 'DNS_FAILURE',
+      errorSubtype: dnsFailureSubtype(code),
       errorDetail: `${(error as Error).message} (from vantage ${context.run.networkVantage})`,
     };
   }
   if (addresses.length === 0) {
+    // A resolver that ANSWERED with nothing is a different finding from one
+    // that failed, and it has no error code of its own - hence its own member.
     return {
       ...blank,
       errorKind: 'DNS_FAILURE',
+      errorSubtype: 'DNS_NO_ADDRESS_RETURNED',
       errorDetail:
         `${requested.hostname} returned no address of either family ` +
         `(from vantage ${context.run.networkVantage})`,
@@ -887,6 +1031,7 @@ async function attempt(
     return {
       ...blank,
       errorKind: TRANSPORT_FAILURE_TO_ERROR_KIND[outcome.failure],
+      errorSubtype: outcome.subtype,
       errorDetail: `${outcome.detail} (from vantage ${context.run.networkVantage})`,
       resolvedIpFamily: pinnedFamily,
       resolvedIpIsPublic: true,
@@ -904,6 +1049,7 @@ async function attempt(
   return {
     httpStatus: outcome.status,
     errorKind: null,
+    errorSubtype: null,
     errorDetail: null,
     contentType: contentType === '' ? null : contentType,
     responseSha256: createHash('sha256').update(outcome.body).digest('hex'),
@@ -967,6 +1113,7 @@ async function persist(
       resolvedIpFamily: record.resolvedIpFamily,
       resolvedIpIsPublic: record.resolvedIpIsPublic,
       errorKind: record.errorKind,
+      errorSubtype: record.errorSubtype,
       fetchPolicyVersion: FETCH_POLICY_VERSION,
       observedAt,
     });
@@ -993,6 +1140,7 @@ async function persist(
     networkVantage: context.run.networkVantage,
     httpStatus: record.httpStatus,
     errorKind: record.errorKind,
+    errorSubtype: record.errorSubtype,
     errorDetail: record.errorDetail,
     contentType: record.contentType,
     responseSha256: record.responseSha256,

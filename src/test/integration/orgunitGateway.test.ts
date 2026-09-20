@@ -772,7 +772,7 @@ describeIf('PHASE 2B web gateway (integration)', () => {
 
     it('records a DNS failure as its own category, not as a connection failure', async () => {
       const transport = new ScriptedTransport(
-        new DnsResolutionError('www.example.ac.uk did not resolve (ENOTFOUND)'),
+        new DnsResolutionError('www.example.ac.uk did not resolve (ENOTFOUND)', 'ENOTFOUND'),
         okHtml(),
       );
       const result = await executeWebAttempt(research, input(), transport);
@@ -789,7 +789,10 @@ describeIf('PHASE 2B web gateway (integration)', () => {
     });
 
     it('says "from this vantage" rather than claiming the site is down', async () => {
-      const transport = new ScriptedTransport(new DnsResolutionError('nope'), okHtml());
+      const transport = new ScriptedTransport(
+        new DnsResolutionError('nope', 'ENOTFOUND'),
+        okHtml(),
+      );
       const result = await executeWebAttempt(research, input(), transport);
       expect(result.errorDetail).toContain('from vantage test-vantage');
       expect(result.networkVantage).toBe('test-vantage');
@@ -828,8 +831,13 @@ describeIf('PHASE 2B web gateway (integration)', () => {
 
     it('does not retry a timeout, a 429 or a 500', async () => {
       const outcomes: TransportOutcome[] = [
-        { kind: 'FAILURE', failure: 'READ_TIMEOUT', detail: 'exceeded 30000 ms' },
-        { kind: 'FAILURE', failure: 'CONNECT_TIMEOUT', detail: 'no connection in 10000 ms' },
+        { kind: 'FAILURE', failure: 'READ_TIMEOUT', detail: 'exceeded 30000 ms', subtype: null },
+        {
+          kind: 'FAILURE',
+          failure: 'CONNECT_TIMEOUT',
+          detail: 'no connection in 10000 ms',
+          subtype: null,
+        },
         {
           kind: 'RESPONSE',
           status: 429,
@@ -880,7 +888,7 @@ describeIf('PHASE 2B web gateway (integration)', () => {
             discoveryMethod: 'LINK',
             discoveryParentUrl: ROOT_URL,
           }),
-          publicTransport({ kind: 'FAILURE', failure, detail: 'test' }),
+          publicTransport({ kind: 'FAILURE', failure, detail: 'test', subtype: null }),
         );
         expect(result.errorKind, failure).toBe(expected);
       }

@@ -263,6 +263,7 @@ describeIf('page evidence persistence (integration)', () => {
       kind: 'FAILURE',
       failure: 'CONNECT_TIMEOUT',
       detail: 'test',
+      subtype: null,
     });
     const outcome = await persistPageEvidence(research, fetchResult);
     expect(outcome).toEqual({ outcome: 'NOT_ELIGIBLE', reason: 'NO_BODY' });
