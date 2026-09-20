@@ -25,9 +25,12 @@
  *     for the at-most-two-request site-policy resolution;
  *   - no firewall file was touched at all.
  *
- * THE RANGE IS BASE -> WORKING TREE, which is correct while this IS the
- * current phase. When it becomes history its terminal commit is pinned here,
- * the way ADR 0012's now is.
+ * THE RANGE IS REPAIR_BASE_COMMIT..REPAIR_TERMINAL_COMMIT. It was BASE ->
+ * WORKING TREE while this WAS the current phase; the repair is now history,
+ * so its terminal commit is pinned here, exactly the way ADR 0012's is. A
+ * pinned range is what stops a landed phase's isolation test from policing
+ * every later phase forever - the discipline already adopted for A1, A1b,
+ * A3a, F7 and the Option-B repair.
  */
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -49,6 +52,14 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
  * was observed and where this repair's authorisation begins.
  */
 const REPAIR_BASE_COMMIT = 'e860b29853cff308f4a27ac8cd089745d1dd12a3';
+
+/**
+ * The commit this repair ENDED at: the Option-C-lite implementation itself.
+ * Everything after it - the targeted-revalidation authority and result
+ * records, and every later phase - is outside this repair's change surface
+ * and is not this file's business.
+ */
+const REPAIR_TERMINAL_COMMIT = 'c2e07b87ab2394287154977580240a5723bf6cbd';
 
 /** The exact production surface ADR 0013 is authorised to change. */
 const AUTHORISED_PRODUCTION_FILES = [
@@ -95,13 +106,48 @@ function commitExists(commit: string): boolean {
   }
 }
 
-const baseAvailable = commitExists(REPAIR_BASE_COMMIT);
+const rangeAvailable = commitExists(REPAIR_BASE_COMMIT) && commitExists(REPAIR_TERMINAL_COMMIT);
 
-/** Every path this repair changed: its base commit -> the current working tree. */
+/** Every path this repair changed, over its own pinned commit range. */
 function changedInRepair(...paths: readonly string[]): string[] {
   return execFileSync(
     'git',
-    ['-C', REPO_ROOT, 'diff', '--name-only', REPAIR_BASE_COMMIT, '--', ...paths],
+    [
+      '-C',
+      REPO_ROOT,
+      'diff',
+      '--name-only',
+      REPAIR_BASE_COMMIT,
+      REPAIR_TERMINAL_COMMIT,
+      '--',
+      ...paths,
+    ],
+    { encoding: 'utf8' },
+  )
+    .split('\n')
+    .filter((line) => line.length > 0);
+}
+
+/**
+ * The same range, with git's own CHANGE STATUS per path: `A` added, `M`
+ * modified, `D` deleted, `R<score>` renamed. `--name-only` cannot tell those
+ * apart, which is precisely the defect this file once carried: it read an
+ * ADDED ADR 0013 as evidence that an ADR had been edited.
+ */
+function nameStatusInRepair(...paths: readonly string[]): string[] {
+  return execFileSync(
+    'git',
+    [
+      '-C',
+      REPO_ROOT,
+      'diff',
+      '--name-status',
+      '--find-renames',
+      REPAIR_BASE_COMMIT,
+      REPAIR_TERMINAL_COMMIT,
+      '--',
+      ...paths,
+    ],
     { encoding: 'utf8' },
   )
     .split('\n')
@@ -109,9 +155,11 @@ function changedInRepair(...paths: readonly string[]): string[] {
 }
 
 function diffOf(path: string): string {
-  return execFileSync('git', ['-C', REPO_ROOT, 'diff', '-U0', REPAIR_BASE_COMMIT, '--', path], {
-    encoding: 'utf8',
-  });
+  return execFileSync(
+    'git',
+    ['-C', REPO_ROOT, 'diff', '-U0', REPAIR_BASE_COMMIT, REPAIR_TERMINAL_COMMIT, '--', path],
+    { encoding: 'utf8' },
+  );
 }
 
 /** Added/removed lines of a diff, with hunk headers and file headers dropped. */
@@ -127,23 +175,23 @@ function sourceOf(path: string): string {
 }
 
 describe('ADR 0013 repair scope: exactly three production files, by exact path', () => {
-  it.skipIf(!baseAvailable)('changed no production file outside the authorised three', () => {
+  it.skipIf(!rangeAvailable)('changed no production file outside the authorised three', () => {
     const production = changedInRepair().filter((file) =>
       PRODUCTION_PREFIXES.some((prefix) => file.startsWith(prefix)),
     );
     expect([...production].sort()).toEqual([...AUTHORISED_PRODUCTION_FILES].sort());
   });
 
-  it.skipIf(!baseAvailable)('changed all three of them - this is not a vacuous range', () => {
+  it.skipIf(!rangeAvailable)('changed all three of them - this is not a vacuous range', () => {
     const changed = changedInRepair();
     for (const file of AUTHORISED_PRODUCTION_FILES) expect(changed).toContain(file);
   });
 
-  it.skipIf(!baseAvailable)('added no migration and changed none', () => {
+  it.skipIf(!rangeAvailable)('added no migration and changed none', () => {
     expect(changedInRepair('migrations')).toEqual([]);
   });
 
-  it.skipIf(!baseAvailable)(
+  it.skipIf(!rangeAvailable)(
     'left the gateway, the redirect module, every other web primitive and the frozen budgets untouched',
     () => {
       const changed = changedInRepair();
@@ -151,7 +199,7 @@ describe('ADR 0013 repair scope: exactly three production files, by exact path',
     },
   );
 
-  it.skipIf(!baseAvailable)(
+  it.skipIf(!rangeAvailable)(
     'changed no classifier production file, no CLI, no database layer, no signals and no provider',
     () => {
       for (const file of changedInRepair()) {
@@ -164,11 +212,11 @@ describe('ADR 0013 repair scope: exactly three production files, by exact path',
     },
   );
 
-  it.skipIf(!baseAvailable)('touched no firewall file at all', () => {
+  it.skipIf(!rangeAvailable)('touched no firewall file at all', () => {
     expect(changedInRepair('src/test/firewall')).toEqual([]);
   });
 
-  it.skipIf(!baseAvailable)('opened no new production namespace', () => {
+  it.skipIf(!rangeAvailable)('opened no new production namespace', () => {
     for (const forbidden of [
       'src/research/',
       'src/crawl/',
@@ -182,23 +230,33 @@ describe('ADR 0013 repair scope: exactly three production files, by exact path',
     }
   });
 
-  it.skipIf(!baseAvailable)('edited no historical classifier freeze and no owner approval', () => {
+  it.skipIf(!rangeAvailable)('edited no historical classifier freeze and no owner approval', () => {
     for (const file of changedInRepair('docs/evaluation')) {
       expect(file.toUpperCase().includes('FREEZE'), file).toBe(false);
       expect(file.toUpperCase().includes('APPROVAL'), file).toBe(false);
     }
   });
 
-  it.skipIf(!baseAvailable)('edited no ADR that already existed', () => {
-    // ADR 0006's and ADR 0012's bytes are history. ADR 0013 supersedes one
-    // premise and one boundary of ADR 0012 by SAYING SO, never by editing it.
-    // The new ADR is a new path, so it does not appear in a diff of tracked
-    // files at all - its presence is asserted separately, on disk.
-    expect(changedInRepair('docs/adr')).toEqual([]);
-    expect(
-      sourceOf('docs/adr/0013-same-registrable-domain-robots-redirect-continuation.md'),
-    ).toContain('RFC 9309 §2.3.1.2');
-  });
+  it.skipIf(!rangeAvailable)(
+    'added exactly ADR 0013 and edited no ADR that already existed',
+    () => {
+      // ADR 0006's and ADR 0012's bytes are history. ADR 0013 supersedes one
+      // premise and one boundary of ADR 0012 by SAYING SO, never by editing it.
+      //
+      // A NAME-ONLY diff cannot express that, because it reports an ADDED path
+      // and a MODIFIED one identically - so the honest assertion is over git's
+      // own change STATUS, and it is exact in both directions at once: the one
+      // and only entry under docs/adr is the ADDITION of ADR 0013. An edited,
+      // deleted or renamed predecessor would appear as an M, D or R line and
+      // fail; a second new ADR would appear as an extra A line and fail too.
+      expect(nameStatusInRepair('docs/adr')).toEqual([
+        'A\tdocs/adr/0013-same-registrable-domain-robots-redirect-continuation.md',
+      ]);
+      expect(
+        sourceOf('docs/adr/0013-same-registrable-domain-robots-redirect-continuation.md'),
+      ).toContain('RFC 9309 §2.3.1.2');
+    },
+  );
 });
 
 describe('ADR 0013 repair scope: the policy the repair declares', () => {
@@ -236,7 +294,7 @@ describe('ADR 0013 repair scope: the policy the repair declares', () => {
     expect(source).toContain('new Set([301, 302, 303, 307, 308])');
   });
 
-  it.skipIf(!baseAvailable)('changed no value in policy.ts other than the version string', () => {
+  it.skipIf(!rangeAvailable)('changed no value in policy.ts other than the version string', () => {
     // Every changed CODE line (comments carry the reasoning and are reviewed
     // as prose) must be the version assignment itself.
     const lines = changedLinesOf(diffOf('src/orgunits/web/policy.ts'))
@@ -354,7 +412,7 @@ describe('ADR 0013 repair scope: rootRunner.ts changed host and request accounti
     'return null',
   ];
 
-  it.skipIf(!baseAvailable)(
+  it.skipIf(!rangeAvailable)(
     'every changed code line is part of the host or request accounting',
     () => {
       const lines = changedLinesOf(diffOf('src/orgunits/orchestrator/rootRunner.ts'))
@@ -374,7 +432,7 @@ describe('ADR 0013 repair scope: rootRunner.ts changed host and request accounti
     },
   );
 
-  it.skipIf(!baseAvailable)('added no import, so it reaches nothing new', () => {
+  it.skipIf(!rangeAvailable)('added no import, so it reaches nothing new', () => {
     const added = changedLinesOf(diffOf('src/orgunits/orchestrator/rootRunner.ts')).filter((line) =>
       /^\s*import\s/.test(line),
     );
