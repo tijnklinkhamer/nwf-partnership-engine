@@ -1,0 +1,402 @@
+{
+  "recordId": "phase2b-2d-method-v2-a2-batch-02-v3-continuation-execution-record-v1",
+  "recordKind": "EXECUTION_RECORD",
+  "recordedAtUtc": "2026-09-20T14:30:00Z",
+  "recordedOn": "2026-09-20",
+
+  "ownerDecision": "AUTHORISE_PHASE_2B_2D_A2_BATCH_02_V3_CONTINUATION_V1",
+  "terminalState": "PAUSED_ON_P5",
+  "terminalMarker": "PHASE_2B_2D_A2_BATCH_02_V3_CONTINUATION_PAUSED_ON_P5_AWAITING_YIELD_REASSESSMENT",
+  "caseUnderAuthoritySection26": "CASE_A",
+
+  "boundAuthority": {
+    "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_02_V3_CONTINUATION_AUTHORITY_V1.json",
+    "sha256": "47f8d92126ffb1e998764ce79482af900807f90db4f3745904ed4954601838fa",
+    "bytes": 19003,
+    "commit": "9c5cf2767b2d6d4fc808a87bf38063bc97aeafaa",
+    "committedAndPushedBeforeAnyLiveRequest": true
+  },
+
+  "startingHead": {
+    "commit": "55dc413a28d169e074ae26cbf791e560e0d99de9",
+    "branch": "feat/phase2b-2d-a2-batch-02",
+    "worktreeCleanAtStart": true,
+    "remoteDurability": {
+      "remoteRefAtTaskStart": "9493073aededf0ba2bec68820ebfcc15787efd05",
+      "localCommitsNotYetOnRemoteAtTaskStart": [
+        "6b22e92 test(2b): pin the Option-C-lite repair range and make its ADR assertion exact",
+        "55dc413 docs(2b): adjudicate the Option-C-lite v3 revalidation evidence"
+      ],
+      "pushedBeforeAnyOtherStep": true,
+      "remoteRefAfterThatPush": "55dc413a28d169e074ae26cbf791e560e0d99de9",
+      "why": "Section 4 requires the remote to contain the complete adjudication ancestry. It did not, so the two adjudication commits were pushed before anything else in this task proceeded."
+    }
+  },
+
+  "frozenInputVerification": {
+    "allReadFromTheCommittedTreeNotQuotedFromMemory": true,
+    "methodologyR3Sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+    "methodologyR3Matched": true,
+    "planV1Sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+    "planV1Matched": true,
+    "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650",
+    "frameHashMatched": true,
+    "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293",
+    "drawHashMatched": true,
+    "drawArtifactSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+    "drawArtifactMatched": true,
+    "v3TransitionLedgerSha256": "f994ac91863d83b9693f6e9aaf9864a783bcfe234bf117be83ee8d67841d0b2b",
+    "v3TransitionLedgerBytes": 8159,
+    "v3TransitionLedgerMatched": true,
+    "optionCLiteAdjudicationSha256": "3fcafa8ae20beb481e0b4446cc8b9681caad56915e231b71bb98567304cf96c0",
+    "optionCLiteAdjudicationBytes": 12865,
+    "optionCLiteAdjudicationMatched": true,
+    "neitherArtifactWasReconstructed": true,
+    "optionBAmendmentPresent": true,
+    "optionCLiteAmendmentPresent": true,
+    "v2TransitionLedgerUnchanged": true,
+    "adr0013Unchanged": true,
+    "adr0013LastTouchedByCommit": "c2e07b87ab2394287154977580240a5723bf6cbd",
+    "productionFetchPolicyVersion": "orgunit-fetch-policy-v3",
+    "noFrameOrDrawRegeneration": true
+  },
+
+  "frozenBudgetsReadFromLandedSource": {
+    "MAX_TOTAL_REQUESTS_PER_ROOT": 60,
+    "MAX_PAGE_ATTEMPTS_PER_ROOT": 35,
+    "MAX_HOSTS_PER_ROOT": 8,
+    "MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS": 1,
+    "MAX_REDIRECT_CONTINUATION_HOPS": 5,
+    "MAX_SITEMAP_DOCUMENTS_PER_ROOT": 5,
+    "MAX_SITEMAP_DEPTH": 2,
+    "MAX_SITEMAP_URLS_PER_ROOT": 3000,
+    "MIN_HOST_PACING_SECONDS": 1.2,
+    "CONNECT_TIMEOUT_MS": 30000,
+    "TOTAL_TIMEOUT_MS": 45000,
+    "MAX_BODY_BYTES": 5242880,
+    "allTwelveMatched": true,
+    "noneChanged": true
+  },
+
+  "databaseStartingState": {
+    "orgunit_research_runs": 11,
+    "orgunit_research_run_completions": 11,
+    "orgunit_fetch_observations": 203,
+    "orgunit_redirect_observations": 11,
+    "orgunit_page_evidence": 160,
+    "orgunit_page_candidates": 320,
+    "orgunit_root_promotions": 0,
+    "orgunit_root_promotion_revocations": 0,
+    "matchedTheAuthorityPrecondition": true,
+    "runPolicyVersionDistribution": { "v1": 7, "v2": 2, "v3": 2 },
+    "observationPolicyVersionDistribution": { "v1": 78, "v2": 39, "v3": 86 },
+    "classifierTablesAllZero": true,
+    "noUnexplainedDrift": true
+  },
+
+  "dryRunResult": {
+    "bothDryRunsExecutedBeforeAnyLiveRequest": true,
+    "index8": {
+      "mode": "DRY_RUN",
+      "organisationIdMatchesFrozenDraw": true,
+      "echeRowKeyMatchesFrozenDraw": true,
+      "rootCount": 1,
+      "rootAuthorityType": "WEBSITE_CLAIM",
+      "rootAuthorityIdMatchesFrozenDraw": true,
+      "green": true
+    },
+    "index9": {
+      "mode": "DRY_RUN",
+      "organisationIdMatchesFrozenDraw": true,
+      "echeRowKeyMatchesFrozenDraw": true,
+      "rootCount": 1,
+      "rootAuthorityType": "WEBSITE_CLAIM",
+      "rootAuthorityIdMatchesFrozenDraw": true,
+      "green": true
+    },
+    "dnsLookups": 0,
+    "httpRequests": 0,
+    "databaseWrites": 0,
+    "allEightTablesUnchangedAfterBothDryRuns": true
+  },
+
+  "hostSafety": {
+    "result": "OWNER_WAIVED_AC_POWER_REQUIREMENT_NO_OTHER_HOST_SAFETY_WAIVER",
+    "ownerWaiver": {
+      "name": "OWNER_WAIVER_HOST_SAFETY_BATTERY_V1",
+      "scope": "This Batch-02 v3 continuation only.",
+      "waived": ["AC power"],
+      "conditionsImposedByTheOwner": [
+        "a dedicated caffeinate -dimsu must be running",
+        "battery must not drop below 80%",
+        "stop before the next institution request if the sleep-prevention assertion disappears",
+        "stop before the next institution request on any sleep/wake anomaly"
+      ],
+      "allOtherHostSafetyRequirementsRemainedMandatory": true
+    },
+    "observedAtTheLiveWindow": {
+      "acPower": false,
+      "powerSource": "Battery Power",
+      "batteryPercentBeforeIndex8": 100,
+      "batteryPercentAfterIndex8": 100,
+      "batteryStayedAboveEightyPercent": true,
+      "lidOpen": true,
+      "appleClamshellState": "No",
+      "databaseReachable": true,
+      "diskFreeGiB": 698,
+      "worktreeClean": true,
+      "dedicatedCaffeinatePid": 31716,
+      "dedicatedCaffeinateFlags": "-dimsu",
+      "preventUserIdleSystemSleepEffective": 1,
+      "preventUserIdleDisplaySleepEffective": 1,
+      "preventSystemSleepEffective": 0,
+      "preventSystemSleepAssertionCreatedByTheDedicatedCaffeinate": true,
+      "whyPreventSystemSleepReadsZero": [
+        "macOS honours a PreventSystemSleep assertion only while the system is on",
+        "AC power (man caffeinate, -s). The dedicated caffeinate DID create the",
+        "assertion and it is listed under its pid, but the effective aggregate is",
+        "0 because the host is on battery. This is recorded as the exact observed",
+        "value rather than reported as active, because the protection was not in",
+        "force. Idle sleep WAS prevented; forced or clamshell sleep was not.",
+        "The owner was shown this exact distinction and directed that the",
+        "continuation proceed on the idle-sleep guard."
+      ],
+      "sleepOrWakeEventDuringTheLiveWindow": false,
+      "mostRecentPriorSleepWakeCycle": "2026-09-20T14:00:09Z sleep / 2026-09-20T14:01:21Z wake, both resolved and ~21 minutes before the run started",
+      "noUnresolvedSleepWakeEvent": true
+    }
+  },
+
+  "authorisedSelectionIndices": [8, 9],
+  "startedSelectionIndices": [8],
+  "completedSelectionIndices": [8],
+  "neverStartedSelectionIndices": [9],
+
+  "p5Trace": {
+    "gateUsed": "src/test/harness/phase2b2d/acquisitionGate/betweenRunGate.ts",
+    "gateUnmodified": true,
+    "thresholdUnchanged": 2,
+    "minRawPageEvidencePerOrganisation": 4,
+    "seededFromCurrentAcquisitionOfRecord": [
+      { "selectionIndex": 5, "rawPageEvidenceCount": 33 },
+      { "selectionIndex": 6, "rawPageEvidenceCount": 0 },
+      { "selectionIndex": 7, "rawPageEvidenceCount": 34 }
+    ],
+    "initialLowYieldCount": 1,
+    "initialLowYieldSelectionIndices": [6],
+    "beforeIndex8": {
+      "completedCount": 3,
+      "lowRawYieldCount": 1,
+      "lowRawYieldSelectionIndices": [6],
+      "remainingSelectionIndices": [8, 9],
+      "decision": "CONTINUE",
+      "mayStartNextOrganisation": true
+    },
+    "afterIndex8": {
+      "completedCount": 4,
+      "lowRawYieldCount": 2,
+      "lowRawYieldSelectionIndices": [6, 8],
+      "remainingSelectionIndices": [9],
+      "decision": "PAUSE_P5_LOW_RAW_YIELD",
+      "mayStartNextOrganisation": false
+    },
+    "index9NeverStarted": true,
+    "theGateWasNotReasonedAroundManually": true
+  },
+
+  "stopReason": "P5_LOW_RAW_YIELD reached the frozen threshold of 2 after index 8 completed with zero raw page evidence. Index 9 was therefore never started, exactly as the authority requires.",
+
+  "perIndexResults": [
+    {
+      "selectionIndex": 8,
+      "split": "DEV_CONFIRM",
+      "runRefSha256": "5145934ca138277794e2e426e07e24d34bcf90ad1ec126cf80d1da6c24d05ecc",
+      "runRefIsAnOpaqueSha256OfTheRunIdNotTheRunIdItself": true,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v3",
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "runTerminalState": "COMPLETED",
+      "rootCount": 1,
+      "rootAuthorityType": "WEBSITE_CLAIM",
+      "rootAuthorityMatchesFrozenDraw": true,
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "gatewayRequests": 1,
+      "robotsRequests": 1,
+      "sitemapRequests": 0,
+      "pageAttempts": 0,
+      "rawPageEvidenceCount": 0,
+      "candidateCount": 0,
+      "distinctHostsUsed": 1,
+      "frontierUrlsObserved": 0,
+      "circuitOpenHosts": 0,
+      "observationErrorKind": "TLS_FAILURE",
+      "observationRobotsDecision": "NOT_APPLICABLE",
+      "observationDiscoveryMethod": "ROBOTS",
+      "redirectObservationsCreated": 0,
+      "wallClockSeconds": 3,
+      "startedAtUtc": "2026-09-20T14:22:14Z",
+      "finishedAtUtc": "2026-09-20T14:22:17Z"
+    },
+    {
+      "selectionIndex": 9,
+      "split": "FINAL_HOLDOUT",
+      "started": false,
+      "reasonNotStarted": "PAUSE_P5_LOW_RAW_YIELD returned by the landed between-run gate after index 8.",
+      "noNetworkRequestWasIssuedForThisIndex": true,
+      "noRunRowExists": true
+    }
+  ],
+
+  "whatHappenedAtIndex8": {
+    "classification": "A NORMAL SITE-POLICY / TRANSPORT FAILURE, NOT AN ORCHESTRATION FAILURE",
+    "detail": [
+      "The single gateway request this run issued was the robots.txt bootstrap.",
+      "It failed at the transport layer and was recorded as TLS_FAILURE, so the",
+      "site policy was never read and the root terminated ROBOTS_UNREADABLE_ROOT",
+      "with zero page attempts. The run itself reached COMPLETED and wrote its",
+      "own completion row; nothing about the orchestrator failed."
+    ],
+    "notRetried": true,
+    "noAlternateUrlWasTried": true,
+    "noManualRobotsRequestWasMade": true,
+    "noCurlWgetOrBrowserWasUsed": true,
+    "thisIsNotANewRobotsRedirectEdgeCase": [
+      "No 3xx was observed and no redirect observation was created, so the",
+      "Option-C-lite continuation path was never reached. This is a transport",
+      "failure before any policy bytes existed, which is a different finding from",
+      "the robots-redirect shapes ADR 0012 and ADR 0013 repaired."
+    ],
+    "noAcquisitionCodeChangeIsMadeOrProposedFromThisObservation": true,
+    "tlsFailureSubtypeIsNotPersistable": "The taxonomy stores TLS_FAILURE; the precise transport reason lives in the in-memory result only and is not durable. That limitation is recorded, not repaired."
+  },
+
+  "formalSd7": {
+    "performedForEveryNewCompletedRun": true,
+    "newNetworkRequests": 0,
+    "databaseMutations": 0,
+    "labelsCreated": 0,
+    "setPOrSetRTouched": false,
+    "index8": {
+      "rawPageEvidenceCount": 0,
+      "postSd7SurvivingPageCount": 0,
+      "nearDuplicateComputationPerformed": false,
+      "reasonNoComputation": "No page exists. SD7 is removal-only, so a removal-only operation over an empty set is the empty set. This follows the landed zero-page precedent and manufactures no empty shingle or Jaccard artifact.",
+      "precedentApplied": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_BATCH_02_ZERO_PAGE_CLOSURE_V1.json",
+      "precedentSha256": "983f9828c70290dd9121f2e8f428ce9eda8a8ee23b532bcb5385aad8a9c878b8",
+      "splitDetailRouting": "DEV_CONFIRM sealed root; no detail enters this public record.",
+      "noUnresolvedSd7ImplementationDetailCouldCrossFour": true
+    }
+  },
+
+  "finalSd9": {
+    "index8": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+    "index9": "NOT_APPLICABLE_NEVER_STARTED",
+    "aggregateNewSuccessCount": 0,
+    "aggregateNewFailureCount": 1,
+    "aggregateNewPendingCount": 0,
+    "neverStartedIsNotAnAcquisitionFailureAndIsInNoDenominator": true
+  },
+
+  "aggregates": {
+    "newRunsCreated": 1,
+    "allNewRunsAtV3": true,
+    "aggregateGatewayRequests": 1,
+    "aggregatePageAttempts": 0,
+    "aggregateRawPages": 0,
+    "aggregateCandidates": 0,
+    "aggregateRedirectObservations": 0
+  },
+
+  "policyVersionProvenance": {
+    "everyNewRunFetchPolicyVersion": "orgunit-fetch-policy-v3",
+    "everyNewObservationFetchPolicyVersion": "orgunit-fetch-policy-v3",
+    "anyNewRowAtV1OrV2": false,
+    "policyVersionProvenanceFailure": false,
+    "runDistributionAfter": { "v1": 7, "v2": 2, "v3": 3 },
+    "observationDistributionAfter": { "v1": 78, "v2": 39, "v3": 87 },
+    "historicalV1RunsUnchanged": 7,
+    "historicalV1ObservationsUnchanged": 78,
+    "historicalV2ObservationsUnchanged": 39
+  },
+
+  "databasePostflight": {
+    "orgunit_research_runs": { "before": 11, "after": 12, "delta": 1 },
+    "orgunit_research_run_completions": { "before": 11, "after": 12, "delta": 1 },
+    "orgunit_fetch_observations": { "before": 203, "after": 204, "delta": 1 },
+    "orgunit_redirect_observations": { "before": 11, "after": 11, "delta": 0 },
+    "orgunit_page_evidence": { "before": 160, "after": 160, "delta": 0 },
+    "orgunit_page_candidates": { "before": 320, "after": 320, "delta": 0 },
+    "orgunit_root_promotions": { "before": 0, "after": 0, "delta": 0 },
+    "orgunit_root_promotion_revocations": { "before": 0, "after": 0, "delta": 0 },
+    "classifierTablesRemainZero": {
+      "orgunit_classification_subjects": 0,
+      "orgunit_classifier_calls": 0,
+      "orgunit_classifier_call_completions": 0,
+      "orgunit_page_classifications": 0
+    },
+    "allHistoricalRunsUnchanged": true,
+    "exactlyOneNewRunExactlyOneNewCompletionExactlyOneNewObservation": true
+  },
+
+  "scopeDiscipline": {
+    "reserveConsumption": 0,
+    "reserveOrganisationsSelected": 0,
+    "replacementLedgerCreated": false,
+    "splitAssignmentsAltered": 0,
+    "selectionIndexTenOrHigherTouched": false,
+    "proofIndexTenOrHigherUntouched": [
+      "Only draw entries 8 and 9 were read. No draw entry at index >= 10 was",
+      "read, dry-run, resolved or requested, and the only organisation that",
+      "reached the network in this task is the one at index 8."
+    ],
+    "batch03Started": false,
+    "labelsCreated": 0,
+    "providerInferencePerformed": false,
+    "classifierExecuted": false,
+    "holdoutSemanticClassifierAccessed": false,
+    "acquisitionCodeModified": false,
+    "repairScopeTestModified": false,
+    "methodologyFrameOrDrawModified": false,
+    "v3TransitionLedgerModified": false,
+    "whyTheLedgerIsUntouched": "Index 8 was BORN under v3. It carries no acquisition-policy evidence transition, so it is not a ledger entry."
+  },
+
+  "disclosureDiscipline": {
+    "institutionIdentityDisclosed": false,
+    "organisationUuidDisclosed": false,
+    "echeRowKeyDisclosed": false,
+    "institutionNameDisclosed": false,
+    "hostnameDisclosed": false,
+    "urlDisclosed": false,
+    "redirectTargetDisclosed": false,
+    "pageTitleDisclosed": false,
+    "pageTextDisclosed": false,
+    "rawRunJsonKeptOutsideGit": true,
+    "publicRunLinkageIsAnOpaqueSha256Only": true
+  },
+
+  "resultingGenerationOnePrimaryState": {
+    "finalisedPrimarySlots": 9,
+    "successCount": 5,
+    "successSelectionIndices": [0, 1, 2, 5, 7],
+    "failureCount": 4,
+    "failureSelectionIndices": [3, 4, 6, 8],
+    "pendingCount": 0,
+    "neverStartedPrimarySlots": 101,
+    "reserveConsumed": 0,
+    "originalBatch02State": {
+      "index5": "ACQUISITION_SUCCESSFUL",
+      "index6": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "index7": "ACQUISITION_SUCCESSFUL",
+      "index8": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "index9": "NEVER_STARTED"
+    },
+    "noPopulationSuccessRateConclusionIsAuthorisedFromTheseNineOutcomes": true
+  },
+
+  "nextOwnerDecision": "A2_ACQUISITION_YIELD_REASSESSMENT_AFTER_V3_BATCH02_CONTINUATION",
+
+  "ownDurability": {
+    "ownCommitShaDeliberatelyAbsent": "A record cannot truthfully contain the SHA of the commit that introduces it. This record's own commit is reported in the task's final report instead; no future commit SHA is fabricated here."
+  }
+}
