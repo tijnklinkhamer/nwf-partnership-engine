@@ -1,0 +1,834 @@
+{
+  "artifact": "PHASE_2B_2D_A2_TRANSPORT_FAILURE_OBSERVABILITY_DESIGN_V1",
+  "phase": "PHASE_2B_2D",
+  "step": "A2_TRANSPORT_FAILURE_OBSERVABILITY_DESIGN",
+  "version": "V1",
+  "status": "DESIGN_COMPLETE",
+  "thisFileAuthorises": [],
+  "designOnly": true,
+  "producedUnderOwnerDecision": "AUTHORISE_PHASE_2B_2D_A2_TRANSPORT_FAILURE_OBSERVABILITY_DESIGN_V1",
+  "supportingNote": "docs/audits/PHASE_2B_2D_A2_TRANSPORT_FAILURE_OBSERVABILITY_DESIGN_V1.md",
+  "supportingNoteLocationNote": "docs/design/ is NOT a repository convention - docs/ holds adr/, audits/ and evaluation/ only - so the note follows the reassessment's own audits/+evaluation/ pairing",
+
+  "sourceBinding": {
+    "reassessmentAudit": {
+      "path": "docs/audits/PHASE_2B_2D_A2_ACQUISITION_RESILIENCE_REASSESSMENT_V1.md",
+      "sha256": "0aebe3b40d21b8c736db96852fbd257129dbe3bf63b2c99e08d5e860fe0e4bd0",
+      "verifiedAtTaskStart": true
+    },
+    "reassessmentResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_ACQUISITION_RESILIENCE_REASSESSMENT_RESULT_V1.json",
+      "sha256": "d3a2343383b6249eaf91a52d7812f7c82882e15ac771c0927dbc433fa523082d",
+      "verifiedAtTaskStart": true
+    },
+    "reassessmentCommit": "e206673437d3f18895acad352099b9c23d1d4182",
+    "remoteDurable": true,
+    "remoteBranch": "refs/heads/feat/phase2b-2d-a2-batch-02",
+    "pushKind": "FAST_FORWARD_OF_EXISTING_COMMIT_ONLY",
+    "commitsReconstructedOrModified": 0,
+    "selectedDecisionClass": "C_TRANSPORT_OBSERVABILITY_MUST_BE_FIXED_BEFORE_RETRY_POLICY"
+  },
+
+  "vocabulary": {
+    "memberCount": 8,
+    "adoptedVerbatimFromReassessment": true,
+    "membersAdded": 0,
+    "membersRemoved": 0,
+    "membersRenamed": 0,
+    "frozenByThisDesign": true,
+    "members": [
+      { "subtype": "TLS_HANDSHAKE_TIMEOUT", "validOnlyWithErrorKind": "TLS_FAILURE" },
+      { "subtype": "TLS_CERT_INVALID", "validOnlyWithErrorKind": "TLS_FAILURE" },
+      { "subtype": "TLS_PROTOCOL_INCOMPATIBLE", "validOnlyWithErrorKind": "TLS_FAILURE" },
+      { "subtype": "TLS_OTHER", "validOnlyWithErrorKind": "TLS_FAILURE" },
+      { "subtype": "DNS_NAME_NOT_FOUND", "validOnlyWithErrorKind": "DNS_FAILURE" },
+      { "subtype": "DNS_TEMPORARY_FAILURE", "validOnlyWithErrorKind": "DNS_FAILURE" },
+      { "subtype": "DNS_NO_ADDRESS_RETURNED", "validOnlyWithErrorKind": "DNS_FAILURE" },
+      { "subtype": "DNS_OTHER", "validOnlyWithErrorKind": "DNS_FAILURE" }
+    ],
+    "notDuplicatedIntoSubtype": [
+      "CONNECT_TIMEOUT",
+      "READ_TIMEOUT",
+      "CONNECTION_REFUSED",
+      "CONNECTION_RESET"
+    ],
+    "whyNotDuplicated": "their error_kind is already the exact category a retry rule would key on; mirroring them would add a second spelling of the same fact",
+    "honestyCaveats": [
+      {
+        "member": "DNS_NAME_NOT_FOUND",
+        "caveat": "means exactly 'Node reported ENOTFOUND', which on Node 24.18.0 covers BOTH EAI_NONAME (NXDOMAIN) and EAI_NODATA (name exists, no address of either family). Node destroys that distinction before this repository can observe it.",
+        "action": "documented in the column comment; name kept because renaming would depart from the frozen proposal"
+      },
+      {
+        "member": "TLS_PROTOCOL_INCOMPATIBLE",
+        "caveat": "includes EPROTO, which is broader than 'wrong TLS version'; the reassessment itself listed EPROTO among the unenumerable catch-alls",
+        "biasDirection": "SAFE - it labels the condition NON-retryable, so the worst case is a retry never attempted, never a request that should not have been issued"
+      }
+    ],
+    "deliberatelyDeferredExpansions": [
+      {
+        "what": "split TLS_CERT_INVALID into TLS_CERT_NAME_MISMATCH / TLS_CERT_EXPIRED / TLS_CERT_UNTRUSTED_CHAIN",
+        "source": "the reassessment's own deferral",
+        "why": "all three are equally non-retryable; diagnostic value only"
+      },
+      {
+        "what": "split EAI_FAIL (SERVFAIL) out of DNS_OTHER",
+        "source": "surfaced by this design's runtime verification",
+        "why": "outside the frozen eight-member proposal; DNS_OTHER derives as non-retryable, which is the safe side"
+      }
+    ]
+  },
+
+  "tlsMapping": {
+    "derivedFrom": "src/orgunits/web/gateway.ts TLS_ERROR_CODES (lines 283-293) and classifyNodeError (line 295), read from the file",
+    "exactCodes": [
+      {
+        "nodeCode": "ERR_TLS_HANDSHAKE_TIMEOUT",
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": "TLS_HANDSHAKE_TIMEOUT"
+      },
+      {
+        "nodeCode": "ERR_TLS_CERT_ALTNAME_INVALID",
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": "TLS_CERT_INVALID"
+      },
+      {
+        "nodeCode": "CERT_HAS_EXPIRED",
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": "TLS_CERT_INVALID"
+      },
+      {
+        "nodeCode": "DEPTH_ZERO_SELF_SIGNED_CERT",
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": "TLS_CERT_INVALID"
+      },
+      {
+        "nodeCode": "SELF_SIGNED_CERT_IN_CHAIN",
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": "TLS_CERT_INVALID"
+      },
+      {
+        "nodeCode": "UNABLE_TO_VERIFY_LEAF_SIGNATURE",
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": "TLS_CERT_INVALID"
+      },
+      {
+        "nodeCode": "UNABLE_TO_GET_ISSUER_CERT_LOCALLY",
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": "TLS_CERT_INVALID"
+      },
+      {
+        "nodeCode": "ERR_SSL_WRONG_VERSION_NUMBER",
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": "TLS_PROTOCOL_INCOMPATIBLE"
+      },
+      {
+        "nodeCode": "EPROTO",
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": "TLS_PROTOCOL_INCOMPATIBLE"
+      }
+    ],
+    "catchAllBranches": [
+      {
+        "branch": "code.startsWith('ERR_TLS_') and not named above",
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": "TLS_OTHER"
+      },
+      {
+        "branch": "code.startsWith('ERR_SSL_') and not named above",
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": "TLS_OTHER"
+      }
+    ],
+    "catchAllSemantics": "TLS_OTHER means 'a TLS-family condition this build's taxonomy does not name'. It NEVER implies transience or retryability.",
+    "unseenFutureCodeCannotImplyRetryability": true,
+    "evaluationOrderRequirement": "the exact-code table MUST be consulted BEFORE the prefix catch-alls, or ERR_TLS_HANDSHAKE_TIMEOUT - the single plausibly-retryable member and the whole reason the TLS split exists - would be swallowed into TLS_OTHER. Today's classifyNodeError ORs set and prefix tests into one condition so order is invisible there; for the subtype it is decisive.",
+    "tlsVerificationWeakened": false,
+    "rejectUnauthorizedStaysTrue": true,
+    "tlsIgnoreCertificateFlagProposed": false,
+    "certificateDetailPersisted": "NONE - no subject, no SAN, no issuer, no hostname, no URL, no raw OpenSSL text"
+  },
+
+  "dnsMapping": {
+    "runtimeVerified": true,
+    "nodeVersion": "24.18.0",
+    "nodeVersionPinnedBy": ".node-version",
+    "verificationMethod": "STATIC INTROSPECTION ONLY - util.getSystemErrorMap() plus direct construction of internal/errors.DNSException with the numeric uv errno that lib/dns.js passes",
+    "freshDnsLookupPerformed": false,
+    "queryLeftThisMachine": false,
+    "nodeNormalisationFinding": "Node maps BOTH uv EAI_NODATA (-3007) and uv EAI_NONAME (-3008) onto err.code === 'ENOTFOUND'. Every other EAI_* code passes through verbatim.",
+    "codes": [
+      {
+        "uvErrno": -3007,
+        "uvName": "EAI_NODATA",
+        "nodeExposes": "ENOTFOUND",
+        "errorSubtype": "DNS_NAME_NOT_FOUND"
+      },
+      {
+        "uvErrno": -3008,
+        "uvName": "EAI_NONAME",
+        "nodeExposes": "ENOTFOUND",
+        "errorSubtype": "DNS_NAME_NOT_FOUND"
+      },
+      {
+        "uvErrno": -3001,
+        "uvName": "EAI_AGAIN",
+        "nodeExposes": "EAI_AGAIN",
+        "errorSubtype": "DNS_TEMPORARY_FAILURE"
+      },
+      {
+        "uvErrno": -3000,
+        "uvName": "EAI_ADDRFAMILY",
+        "nodeExposes": "EAI_ADDRFAMILY",
+        "errorSubtype": "DNS_OTHER"
+      },
+      {
+        "uvErrno": -3002,
+        "uvName": "EAI_BADFLAGS",
+        "nodeExposes": "EAI_BADFLAGS",
+        "errorSubtype": "DNS_OTHER"
+      },
+      {
+        "uvErrno": -3013,
+        "uvName": "EAI_BADHINTS",
+        "nodeExposes": "EAI_BADHINTS",
+        "errorSubtype": "DNS_OTHER"
+      },
+      {
+        "uvErrno": -3003,
+        "uvName": "EAI_CANCELED",
+        "nodeExposes": "EAI_CANCELED",
+        "errorSubtype": "DNS_OTHER"
+      },
+      {
+        "uvErrno": -3004,
+        "uvName": "EAI_FAIL",
+        "nodeExposes": "EAI_FAIL",
+        "errorSubtype": "DNS_OTHER"
+      },
+      {
+        "uvErrno": -3005,
+        "uvName": "EAI_FAMILY",
+        "nodeExposes": "EAI_FAMILY",
+        "errorSubtype": "DNS_OTHER"
+      },
+      {
+        "uvErrno": -3006,
+        "uvName": "EAI_MEMORY",
+        "nodeExposes": "EAI_MEMORY",
+        "errorSubtype": "DNS_OTHER"
+      },
+      {
+        "uvErrno": -3009,
+        "uvName": "EAI_OVERFLOW",
+        "nodeExposes": "EAI_OVERFLOW",
+        "errorSubtype": "DNS_OTHER"
+      },
+      {
+        "uvErrno": -3014,
+        "uvName": "EAI_PROTOCOL",
+        "nodeExposes": "EAI_PROTOCOL",
+        "errorSubtype": "DNS_OTHER"
+      },
+      {
+        "uvErrno": -3010,
+        "uvName": "EAI_SERVICE",
+        "nodeExposes": "EAI_SERVICE",
+        "errorSubtype": "DNS_OTHER"
+      },
+      {
+        "uvErrno": -3011,
+        "uvName": "EAI_SOCKTYPE",
+        "nodeExposes": "EAI_SOCKTYPE",
+        "errorSubtype": "DNS_OTHER"
+      }
+    ],
+    "nonCodePaths": [
+      {
+        "condition": "transport.resolveHostname resolved but addresses.length === 0 (gateway.ts:834)",
+        "errorKind": "DNS_FAILURE",
+        "errorSubtype": "DNS_NO_ADDRESS_RETURNED"
+      },
+      {
+        "condition": "the resolver threw something carrying no usable code",
+        "errorKind": "DNS_FAILURE",
+        "errorSubtype": "DNS_OTHER"
+      }
+    ],
+    "eaiNonameReachableOnNode24": false,
+    "eaiNonameRetainedDefensively": true,
+    "blockerFound": {
+      "what": "the DNS code is DESTROYED at the transport seam today",
+      "where": "src/orgunits/web/gateway.ts:600-612, nodeWebTransport.resolveHostname",
+      "how": "the catch reads error.code, interpolates it into a human sentence containing the HOSTNAME, and throws new DnsResolutionError(message); the structured code is discarded",
+      "rejectedFix": "parsing the message string - it would make a durable evidence value depend on unstable wording and is the forbidden raw-error-text path in disguise",
+      "selectedFix": "DnsResolutionError gains a REQUIRED readonly code: string, carried in memory only; only its normalised subtype is ever persisted",
+      "whyRequiredNotOptional": "optional would let a future production transport silently degrade to DNS_OTHER - a wrong value that looks like a right one; required makes the obligation structural, mirroring the RobotsAuthorisation posture",
+      "testCallSitesAffected": [
+        "src/test/integration/orgunitGateway.test.ts:775",
+        "src/test/integration/orgunitGateway.test.ts:792"
+      ]
+    }
+  },
+
+  "databaseCheck": {
+    "constraintName": "orgunit_fetch_observations_error_subtype_chk",
+    "sql": "CHECK (error_subtype IS NULL OR (error_kind IS NOT DISTINCT FROM 'TLS_FAILURE' AND error_subtype IN ('TLS_HANDSHAKE_TIMEOUT', 'TLS_CERT_INVALID', 'TLS_PROTOCOL_INCOMPATIBLE', 'TLS_OTHER')) OR (error_kind IS NOT DISTINCT FROM 'DNS_FAILURE' AND error_subtype IN ('DNS_NAME_NOT_FOUND', 'DNS_TEMPORARY_FAILURE', 'DNS_NO_ADDRESS_RETURNED', 'DNS_OTHER')))",
+    "enforcedBy": "PostgreSQL, not application code",
+    "enforces": [
+      "the vocabulary is closed at exactly eight members",
+      "a subtype may only accompany the error_kind it refines",
+      "no subtype may accompany error_kind IS NULL or any unrelated kind"
+    ],
+    "doesNotEnforce": "that a transport-kind row must CARRY a subtype - see nullSemantics.totalityRatherThanVersionMarker",
+    "departureFromBriefSketch": {
+      "briefSketched": "error_kind = 'TLS_FAILURE' AND ...",
+      "designUses": "error_kind IS NOT DISTINCT FROM 'TLS_FAILURE' AND ...",
+      "reason": "a PostgreSQL CHECK passes when the expression is TRUE *or NULL*. With plain '=', a row with error_kind = NULL and error_subtype = 'TLS_OTHER' evaluates FALSE OR NULL OR NULL = NULL and is ACCEPTED - which is exactly the combination the brief asks to make unrepresentable.",
+      "direction": "STRICTER",
+      "verifiedNotReasoned": true,
+      "verifiedAgainst": "PostgreSQL 16.15, read-only SELECT over a VALUES list, no DDL, no table touched"
+    },
+    "verificationMatrix": [
+      {
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": "TLS_CERT_INVALID",
+        "naiveEqualsForm": "ACCEPT",
+        "isNotDistinctFromForm": "ACCEPT"
+      },
+      {
+        "errorKind": "DNS_FAILURE",
+        "errorSubtype": "DNS_TEMPORARY_FAILURE",
+        "naiveEqualsForm": "ACCEPT",
+        "isNotDistinctFromForm": "ACCEPT"
+      },
+      {
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": "DNS_OTHER",
+        "naiveEqualsForm": "REJECT",
+        "isNotDistinctFromForm": "REJECT"
+      },
+      {
+        "errorKind": "CONNECT_TIMEOUT",
+        "errorSubtype": "TLS_OTHER",
+        "naiveEqualsForm": "REJECT",
+        "isNotDistinctFromForm": "REJECT"
+      },
+      {
+        "errorKind": null,
+        "errorSubtype": "TLS_OTHER",
+        "naiveEqualsForm": "ACCEPT_THE_HOLE",
+        "isNotDistinctFromForm": "REJECT"
+      },
+      {
+        "errorKind": null,
+        "errorSubtype": null,
+        "naiveEqualsForm": "ACCEPT",
+        "isNotDistinctFromForm": "ACCEPT"
+      },
+      {
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": null,
+        "naiveEqualsForm": "ACCEPT",
+        "isNotDistinctFromForm": "ACCEPT"
+      },
+      {
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": "NOT_IN_VOCABULARY",
+        "naiveEqualsForm": "REJECT",
+        "isNotDistinctFromForm": "REJECT"
+      }
+    ]
+  },
+
+  "migration": {
+    "created": false,
+    "applied": false,
+    "proposedPath": "migrations/0012_transport_failure_subtype.sql",
+    "numberingGuard": "scripts/ guard requires NNNN_lower_snake_case.sql and strict sequence from 0001; 0011 is the current head",
+    "targetTable": "orgunit_fetch_observations",
+    "whyThatTable": "it is the single durable grain for one HTTP ATTEMPT, which is the grain a transport failure has; it already carries error_kind so one CHECK can relate the two; page evidence and candidates exist only for 2xx HTML; a redirect observation is by definition a response; the classifier tables' error_kind is a different, unrelated column",
+    "columnName": "error_subtype",
+    "columnType": "text",
+    "nullable": true,
+    "defaultValue": null,
+    "indexRequired": false,
+    "whyNoIndex": "204 rows; error_kind itself is unindexed; an index would be speculative capacity for a query nobody has written",
+    "statements": [
+      "ALTER TABLE orgunit_fetch_observations ADD COLUMN error_subtype text;",
+      "ALTER TABLE orgunit_fetch_observations ADD CONSTRAINT orgunit_fetch_observations_error_subtype_chk CHECK (...);",
+      "COMMENT ON COLUMN orgunit_fetch_observations.error_subtype IS '...';"
+    ],
+    "containsUpdate": false,
+    "containsDelete": false,
+    "containsInsert": false,
+    "containsDrop": false,
+    "containsGrant": false,
+    "containsRevoke": false,
+    "destructiveAlter": false,
+    "validationCost": "ADD CONSTRAINT validates the 204 existing rows, all error_subtype IS NULL, all satisfying the first disjunct trivially. NOT VALID + VALIDATE is available but unnecessary at this size.",
+    "editsAnExistingMigration": false,
+    "rule5Implicated": false,
+    "columnCommentMustState": [
+      "the value is EVIDENCE and never a retry verdict",
+      "NULL means SUBTYPE_NOT_CAPTURED_AT_EXECUTION_TIME and nothing else",
+      "DNS_NAME_NOT_FOUND means 'Node reported ENOTFOUND', covering both NXDOMAIN and no-address-of-family",
+      "TLS_OTHER and DNS_OTHER mean 'not named by this build's taxonomy' and must never be read as transient"
+    ]
+  },
+
+  "privileges": {
+    "changeRequired": false,
+    "grantStatementsInMigration": 0,
+    "updateAuthorityBroadened": false,
+    "columnLevelGrantsInAnyMigration": 0,
+    "columnLevelAclsOnTable": 0,
+    "verificationMethod": "pg_attribute.attacl is NULL for every column of orgunit_fetch_observations, so the table-level ACL alone governs; PostgreSQL applies a table-level privilege to columns added later",
+    "measuredTableAcl": [
+      "nwf_owner=arwdDxt/nwf_owner",
+      "nwf_research=ar/nwf_owner",
+      "nwf_readonly=r/nwf_owner",
+      "nwf_classifier=r/nwf_owner"
+    ],
+    "nwfResearchPrivileges": "a = INSERT, r = SELECT. No w (UPDATE), no d (DELETE). Rule 15 as a measured fact.",
+    "incidentalConsequence": "nwf_classifier holds table-level SELECT (migration 0009) and so gains read access to the new column automatically. Harmless: a bounded enum with no free text, no hostname, no PII; the classifier reads page evidence, not fetch-observation error columns. Recorded, no design change follows."
+  },
+
+  "nullSemantics": {
+    "historicalRowsRemainNull": true,
+    "historicalRowCount": 204,
+    "backfill": "NONE",
+    "backfillPossible": false,
+    "whyImpossible": "orgunit_fetch_observations is append-only and nwf_research holds no UPDATE grant - measured on the live ACL, not inferred",
+    "historicalNullMeansExactly": "SUBTYPE_NOT_CAPTURED_AT_EXECUTION_TIME",
+    "historicalNullDoesNotMean": ["UNKNOWN_RETRYABILITY", "TRANSIENT", "anything about the host"],
+    "inferenceForbiddenFrom": [
+      "duration",
+      "HTTP status",
+      "IP family",
+      "previous or future attempts",
+      "institution identity",
+      "later successful acquisition",
+      "current DNS or TLS state"
+    ],
+    "historicalCensus": [
+      { "errorKind": null, "note": "an HTTP response arrived", "rows": 200 },
+      { "errorKind": "TLS_FAILURE", "rows": 2 },
+      { "errorKind": "DNS_FAILURE", "rows": 1 },
+      { "errorKind": "READ_TIMEOUT", "rows": 1 }
+    ],
+    "totalityRatherThanVersionMarker": {
+      "reassessmentProposedRule": "error_subtype NOT NULL for every transport-kind row after the migration, so a NULL could only mean 'written before the change'",
+      "designVerdict": "NOT NEEDED, and the database form of it is HARMFUL",
+      "whyNotNeeded": "the mapping function is TOTAL - every TLS and DNS path terminates in a member, with TLS_OTHER / DNS_OTHER absorbing everything unrecognised. 'Could not classify' is not a reachable outcome, so it is not a meaning NULL can carry. A NULL on a transport-kind row can only mean the row predates the implementation.",
+      "whyDbFormHarmful": "a CHECK cannot express 'after the migration' without hard-coding a wall-clock boundary against created_at. That would make the migration BREAKING: any build not yet carrying the subtype code would have its INSERTs rejected, turning an observability gap into an acquisition outage and forcing code-first deployment.",
+      "totalityEnforcedBy": "code invariant pinned by tests A, B, C and C2 - not a schema constraint",
+      "noNewVersionMarkerNeeded": true
+    }
+  },
+
+  "prospectiveOnly": {
+    "appliesOnlyToNewObservations": true,
+    "historicalRowsUpdated": 0,
+    "appendOnlyPostureVerified": true,
+    "designRejectedIfItForcedAnUpdate": "it does not - insertFetchObservation names its columns explicitly, so the current build inserts successfully against the new schema and writes NULL"
+  },
+
+  "rawErrorDetail": {
+    "durableErrorDetailColumnProposed": false,
+    "errorDetailRemainsInMemoryOnly": true,
+    "whyNormalisedSubtypeIsPreferred": [
+      "leaks nothing - errorDetail today embeds the HOSTNAME and, for a certificate failure, whatever OpenSSL says about subject, SAN or issuer; a subtype is one of eight fixed tokens",
+      "is stable - Node and OpenSSL wording changes between releases; a durable value that changes on a runtime upgrade is evidence of the build, not of the site",
+      "is queryable - WHERE error_subtype = 'DNS_TEMPORARY_FAILURE' is a fact; WHERE error_detail LIKE '%EAI_AGAIN%' is a hope",
+      "is bounded - a free-text column on an append-only evidence table is the shape rule 17 exists to prevent, and nothing could later remove what landed there",
+      "is sufficient - every future retry rule the reassessment identified is decidable from the eight members"
+    ],
+    "rejectedAlternative": {
+      "what": "a durable free-text error_detail column",
+      "genuineNeedBehindIt": "the reassessment's own 'errorDetail never leaves the gateway' finding is why the TLS subtypes of the three historical failures are permanently unrecoverable; an operator diagnosing a novel TLS_OTHER will want the code, not the bucket",
+      "betterSuccessorIfEverNeeded": "a bounded redacted code token - error_code_observed text CHECK (~ '^[A-Z][A-Z0-9_]{0,63}$') - carrying ERR_SSL_SOMETHING_NEW without a hostname or certificate subject",
+      "whyNotIncludedNow": "not required by any retry decision, not part of the frozen eight-member proposal, and adding it would exceed the minimal prerequisite this authorisation covers"
+    }
+  },
+
+  "retryability": {
+    "storedInSchema": false,
+    "derivedAsPolicy": true,
+    "rejectedSchema": [
+      "is_retryable boolean",
+      "retry_class TRANSIENT/TERMINAL",
+      "should_retry",
+      "retry_after_ms",
+      "attempts_remaining"
+    ],
+    "whyRejected": "retryability is POLICY and error_subtype is EVIDENCE. A stored verdict would repeat the website_claims mistake (rule 12): freezing a conclusion into an immutable claim, where a later change of policy cannot correct the old rows because the role that wrote them cannot rewrite them.",
+    "proofNotPersisted": [
+      "the migration adds exactly one column whose CHECK admits exactly eight values, none a verdict, boolean or class name",
+      "the word 'retry' appears in no column, type or value - only in the UNIMPLEMENTED interface below",
+      "phase2b.firewall.test.ts's 'no relevance, verdict or approval column in any migration' family runs over every migration and continues to pass unchanged"
+    ],
+    "retryImplemented": false,
+    "retryPolicyFrozen": false,
+    "futureInterface": {
+      "implemented": false,
+      "signature": "retryDispositionFor(errorKind: FetchErrorKind | null, errorSubtype: TransportFailureSubtype | null, httpStatus: number | null): RetryDisposition",
+      "purity": "PURE - no socket, no database, no clock",
+      "returns": ["RETRY_ELIGIBLE", "NOT_RETRY_ELIGIBLE", "INSUFFICIENT_EVIDENCE"],
+      "whyThreeValues": "INSUFFICIENT_EVIDENCE is what a coarse historical row must produce, and it must be distinguishable from 'decided: no'",
+      "illustrativeDispositions": [
+        {
+          "errorKind": "TLS_FAILURE",
+          "errorSubtype": null,
+          "disposition": "INSUFFICIENT_EVIDENCE",
+          "why": "a pre-migration row: the class contains both retryable and non-retryable conditions and this row does not say which"
+        },
+        {
+          "errorKind": "DNS_FAILURE",
+          "errorSubtype": null,
+          "disposition": "INSUFFICIENT_EVIDENCE",
+          "why": "same"
+        },
+        {
+          "errorKind": "TLS_FAILURE",
+          "errorSubtype": "TLS_CERT_INVALID",
+          "disposition": "NOT_RETRY_ELIGIBLE",
+          "why": "a certificate does not become valid on attempt two"
+        },
+        {
+          "errorKind": "TLS_FAILURE",
+          "errorSubtype": "TLS_OTHER",
+          "disposition": "NOT_RETRY_ELIGIBLE",
+          "why": "unnamed condition; the catch-all never implies transience"
+        },
+        {
+          "errorKind": "DNS_FAILURE",
+          "errorSubtype": "DNS_TEMPORARY_FAILURE",
+          "disposition": "CANDIDATE_RETRY_ELIGIBLE",
+          "why": "the one class the runtime says is temporary - the actual policy is NOT frozen here"
+        },
+        {
+          "errorKind": "DNS_FAILURE",
+          "errorSubtype": "DNS_NAME_NOT_FOUND",
+          "disposition": "NOT_RETRY_ELIGIBLE",
+          "why": "Node reported ENOTFOUND"
+        }
+      ],
+      "historicalRowsAllYield": "INSUFFICIENT_EVIDENCE",
+      "historicalRowsAffected": [
+        "index 4 DNS_FAILURE",
+        "index 6 TLS_FAILURE",
+        "index 8 TLS_FAILURE"
+      ]
+    }
+  },
+
+  "fetchPolicyVersion": {
+    "bumpProposed": false,
+    "currentProductionVersion": "orgunit-fetch-policy-v3",
+    "remainsAfterObservability": "orgunit-fetch-policy-v3",
+    "whyNoBump": "observability changes what is RECORDED, not what is REQUESTED: the same URLs, in the same order, under the same 30s/45s timeouts, the same 5 MiB cap, the same headers, the same robots continuation boundary, the same circuit breaker",
+    "whyABumpWouldBeDestructive": {
+      "mechanism": "resolveRun in src/orgunits/web/authority.ts:133 refuses on strict inequality with WebGatewayRefusal('RUN_FETCH_POLICY_UNSUPPORTED')",
+      "consequence1": "every run row already recorded under v3 would become unexecutable by the new build, stranding the in-flight Generation-1 acquisition",
+      "consequence2": "the attempt identity (run, root, url, fetch_policy_version, attempt_no) that the dedupe index and findExistingAttempt depend on would change",
+      "consequence3": "it would assert, falsely and durably on every subsequent row, that the request boundary moved"
+    },
+    "futureRetryRequiresV4": true,
+    "whyRetryRequiresV4": "issuing a second request where v3 issued one changes request behaviour, changes what a MAX_TOTAL_ATTEMPTS budget means, and changes what a row's absence proves",
+    "distinctionStated": "v3 governs which requests are issued; this change governs which columns are written about them"
+  },
+
+  "httpAndRetryAfterScope": {
+    "errorSubtypeOverloadedForHttp": false,
+    "index3Treatment": "ROOT_AND_SITEMAP_HTTP_5XX - an HTTP response arrived, http_status carries it, error_kind is NULL, error_subtype NOT APPLICABLE and structurally must stay NULL",
+    "futureServiceRetryReadsHttpStatusDirectly": true,
+    "retryAfterPersistence": {
+      "inScope": false,
+      "currentState": "the gateway reads response headers into memory via flattenHeaders and persists none of them; there is no header column on orgunit_fetch_observations and none is proposed",
+      "requiredBeforeStandardsAware503Retry": true,
+      "whyOutOfScopeNow": "the reassessment did not identify it as part of the minimal prerequisite, no currently-recorded failure is a 503, and bundling it would widen an authorisation granted for the TLS/DNS blind spot",
+      "recordedSoItIsNotLost": true
+    }
+  },
+
+  "productionChangeSurface": {
+    "editedInThisTask": 0,
+    "productionFiles": [
+      {
+        "path": "src/orgunits/web/observations.ts",
+        "changes": [
+          "add export type TransportFailureSubtype (the eight members)",
+          "add errorSubtype to FetchObservationRow",
+          "add the column and one bind parameter to the INSERT"
+        ]
+      },
+      {
+        "path": "src/orgunits/web/gateway.ts",
+        "changes": [
+          "add required readonly code to DnsResolutionError",
+          "pass it from nodeWebTransport.resolveHostname",
+          "add the pure total subtype mapping (exact codes before prefixes)",
+          "widen the TransportOutcome FAILURE variant and AttemptRecord with subtype: TransportFailureSubtype | null",
+          "set the subtype on both DNS branches (throw and empty-answer)",
+          "pass it to insertFetchObservation",
+          "expose errorSubtype on WebAttemptResult"
+        ]
+      }
+    ],
+    "migrationFiles": ["migrations/0012_transport_failure_subtype.sql"],
+    "openImplementationChoice": {
+      "question": "does the pure mapping live in gateway.ts beside classifyNodeError, or in a new src/orgunits/web/transportSubtype.ts?",
+      "mildPreference": "a separate pure module - testable without the socket module and keeps gateway.ts from growing",
+      "costOfSeparateModule": "it adds a file to the src/orgunits/web/ inventory that firewall assertions enumerate",
+      "ownerDecisionRequired": false
+    },
+    "filesNeedingNoChange": [
+      {
+        "path": "src/orgunits/web/robots.ts",
+        "why": "it returns WebAttemptResult values straight through (fetchResult, attempts), so the new field rides along with no edit; evaluateRobotsFetch keys only on errorKind !== null"
+      },
+      {
+        "path": "src/orgunits/orchestrator/rootRunner.ts",
+        "why": "it feeds the circuit breaker from errorKind alone (lines 435-451) and MUST stay that way - test I"
+      },
+      { "path": "src/orgunits/web/pageEvidence.ts", "why": "reads no error kind" },
+      { "path": "src/orgunits/orchestrator/pageCollection.ts", "why": "reads no error kind" },
+      { "path": "src/orgunits/orchestrator/candidates.ts", "why": "reads no error kind" },
+      { "path": "src/orgunits/sitemap.ts", "why": "reads no error kind" },
+      { "path": "src/orgunits/signals/", "why": "pure scoring; no error kind anywhere" },
+      { "path": "src/cli/", "why": "no error taxonomy surface" },
+      {
+        "path": "migrations/0001-0011",
+        "why": "untouched; 0012 is a new forward migration, rule 5 is not implicated"
+      }
+    ],
+    "testOnlyEdits": {
+      "scriptedFailureConstructions": 9,
+      "acrossFiles": [
+        "src/test/integration/orgunitGateway.test.ts",
+        "src/test/integration/orgunitPageEvidence.test.ts",
+        "src/test/integration/orgunitOrchestratorSafety.test.ts",
+        "src/test/integration/orgunitAnchorHygiene.test.ts",
+        "src/test/integration/orgunitOrchestrator.test.ts"
+      ],
+      "dnsResolutionErrorCallSites": 2,
+      "whyForced": "required keys with nullable values (subtype: TransportFailureSubtype | null) were chosen over optional properties, so a new failure path cannot forget to state it",
+      "productionRisk": "none - mechanical edits in test files only"
+    }
+  },
+
+  "testMatrix": [
+    {
+      "id": "A",
+      "kind": "unit",
+      "assertion": "each of the nine landed TLS codes maps to exactly its expected subtype"
+    },
+    {
+      "id": "B",
+      "kind": "unit",
+      "assertion": "an unknown ERR_TLS_* and an unknown ERR_SSL_* both map to TLS_OTHER; and ERR_TLS_HANDSHAKE_TIMEOUT maps to TLS_HANDSHAKE_TIMEOUT, NOT TLS_OTHER - the exact-match-before-prefix order"
+    },
+    {
+      "id": "C",
+      "kind": "unit",
+      "assertion": "ENOTFOUND to DNS_NAME_NOT_FOUND; EAI_AGAIN to DNS_TEMPORARY_FAILURE; every other EAI code and any unknown code to DNS_OTHER; the empty-address branch to DNS_NO_ADDRESS_RETURNED; a resolver throw with no usable code to DNS_OTHER"
+    },
+    {
+      "id": "C2",
+      "kind": "unit",
+      "assertion": "the mapping is TOTAL: no TLS or DNS input yields null"
+    },
+    {
+      "id": "D",
+      "kind": "integration",
+      "assertion": "a scripted TLS failure and a scripted DNS failure each persist the expected error_subtype; a CONNECT_TIMEOUT, a READ_TIMEOUT and a 200 each persist NULL"
+    },
+    {
+      "id": "E",
+      "kind": "integration",
+      "assertion": "the DB rejects TLS_FAILURE+DNS_OTHER, CONNECT_TIMEOUT+any subtype, error_kind IS NULL+any subtype, and any value outside the eight"
+    },
+    {
+      "id": "F",
+      "kind": "integration",
+      "assertion": "the 204 pre-existing rows remain valid; ADD CONSTRAINT validates them without error"
+    },
+    {
+      "id": "G",
+      "kind": "firewall/repair-scope",
+      "assertion": "0012_*.sql contains no UPDATE, DELETE, INSERT, GRANT, REVOKE or DROP"
+    },
+    {
+      "id": "H",
+      "kind": "firewall/repair-scope",
+      "assertion": "no persisted value ever contains error.message: the row's subtype is always one of eight tokens, and no new free-text column exists in any migration"
+    },
+    {
+      "id": "I",
+      "kind": "integration",
+      "assertion": "the implementation issues the SAME request sequence as v3 - same URL order, same count, same robots resolution - and the circuit breaker consumes errorKind only; no subtype reaches it"
+    },
+    {
+      "id": "J",
+      "kind": "unit",
+      "assertion": "no historical classifier freeze, approval record or evaluation artifact changes; FETCH_POLICY_VERSION is still orgunit-fetch-policy-v3"
+    },
+    {
+      "id": "K",
+      "kind": "firewall",
+      "assertion": "no new network primitive: gateway.ts remains the only socket under src/orgunits/, robots.ts the only production caller of executeWebAttempt, rejectUnauthorized never false, dependency list unchanged"
+    }
+  ],
+  "testPlacementRule": {
+    "rule": "per the resolved phase-isolation decision, a change under src/orgunits/ is pinned by BASE..PHASE_TERMINAL ranges and the correct move is a NEW repair-scope test, never widening an existing firewall assertion",
+    "newTestFileScope": "phase2bTransportSubtype",
+    "assertionsThatBelongThere": ["G", "H", "the src/orgunits/web/ inventory part of K"],
+    "existingPhase2bFirewallAssertionsWidened": 0,
+    "whyExistingAssertionsStillPass": "error_subtype matches none of the forbidden raw-body, contact, relevance/verdict or outreach column names, and an ALTER-based migration declares no columns under phase2b.firewall.test.ts's declaredColumns parser at all"
+  },
+
+  "rolloutOrder": {
+    "deploymentModel": "a single local PostgreSQL applied by npm run db:migrate, no rolling fleet - ordering is a correctness question, not an availability one",
+    "migrationFirst": true,
+    "whyMigrationFirst": "0012 is additive and nullable and insertFetchObservation names its columns explicitly, so the CURRENT build continues to insert successfully against the NEW schema, writing NULL. The reverse order - code emitting a column the database does not have - fails every insert. This is safe precisely because the timestamp-gated NOT NULL was rejected.",
+    "steps": [
+      "1. additive DB migration 0012",
+      "2. types and the INSERT column list (observations.ts)",
+      "3. the pure subtype derivation and DnsResolutionError.code (gateway.ts)",
+      "4. persistence wiring: AttemptRecord to persist to insertFetchObservation, and the field on WebAttemptResult",
+      "5. tests A-K including the new repair-scope file",
+      "6. ADR 0014 finalised",
+      "7. npm run validate to EXIT 0",
+      "8. owner verification"
+    ],
+    "noLiveAcquisitionBetweenSteps": true
+  },
+
+  "adrPlan": {
+    "path": "docs/adr/0014-transport-failure-observability.md",
+    "createdInThisStep": false,
+    "statusAtCreation": "Proposed",
+    "precedent": "ADR 0008 carries 'Status: Proposed (feature branch, not landed)', so the repository does use Proposed ADRs for approved-but-unlanded designs",
+    "whyNotCreatedNow": "the brief mandates two artifacts and does not list the ADR among them; its rollout order places ADR finalisation at implementation step 6; and 'design but do not create the migration' applies the same discipline. Fully specified here; one step to land as Proposed if the owner prefers.",
+    "mustCover": [
+      "context - the class-C reassessment finding; TLS and DNS heterogeneity",
+      "evidence vs policy - the load-bearing distinction; why a verdict is not stored",
+      "the eight-member vocabulary verbatim, with the honesty caveats",
+      "the exact Node mapping, including the Node-24 ENOTFOUND normalisation and the evaluation-order requirement",
+      "prospective-only semantics; historical NULL = SUBTYPE_NOT_CAPTURED_AT_EXECUTION_TIME; totality rather than a version marker",
+      "no backfill - impossible, not merely forbidden, with the measured ACL",
+      "no raw error detail; the bounded-code-token successor recorded as rejected",
+      "no TLS weakening: rejectUnauthorized stays true, firewall-asserted",
+      "no retry introduced; retryDispositionFor specified, unimplemented",
+      "no fetch-policy bump from observability alone, with the RUN_FETCH_POLICY_UNSUPPORTED reasoning, and that a future retry DOES require v4 and a separate owner decision",
+      "Retry-After and HTTP 5xx out of scope, and why",
+      "consequences, including the three permanently INSUFFICIENT_EVIDENCE rows"
+    ]
+  },
+
+  "governanceImpact": {
+    "methodologyR3": "unchanged - it governs classifier acceptance, not transport evidence",
+    "corpusAcquisitionPlanV1": "unchanged for observability-only",
+    "optionBAmendment": "unchanged",
+    "optionCLiteAmendment": "unchanged - the robots continuation boundary is untouched",
+    "frameV2Gen1": "unchanged",
+    "drawV2Gen1": "unchanged",
+    "v3TransitionLedger": "unchanged - no observation is reclassified",
+    "acquisitionOfRecord": "unchanged - 5 success / 4 failure of 9 finalised",
+    "p5Gate": "unchanged - it keys on yield, not on error taxonomy",
+    "reserve": "unchanged, 0 consumed",
+    "classifierFreezes": "unchanged - no freeze references error_kind on this table",
+    "circuitBreakerBehaviour": "unchanged BY REQUIREMENT - rootRunner.ts must keep keying on errorKind alone (test I)",
+    "reAcquisitionAuthorised": false,
+    "whyReAcquisitionWouldNotHelp": "re-running a finalised index would be a new acquisition under a new run id producing new rows; it would not enrich the existing ones, and it would spend budget to obtain evidence about a host's PRESENT state rather than its state at the time of record"
+  },
+
+  "existingFailureRows": [
+    {
+      "index": 3,
+      "failure": "ROOT_AND_SITEMAP_HTTP_5XX",
+      "errorSubtype": "NOT_APPLICABLE",
+      "reason": "an HTTP response arrived; http_status carries it and error_kind is NULL",
+      "reclassified": false
+    },
+    {
+      "index": 4,
+      "failure": "ROBOTS_DNS_FAILURE",
+      "errorSubtype": null,
+      "reason": "remains NULL permanently; whether it was EAI_AGAIN or ENOTFOUND is unrecoverable",
+      "reclassified": false
+    },
+    {
+      "index": 6,
+      "failure": "ROBOTS_TLS_FAILURE",
+      "errorSubtype": null,
+      "reason": "remains NULL permanently",
+      "reclassified": false
+    },
+    {
+      "index": 8,
+      "failure": "ROBOTS_TLS_FAILURE",
+      "errorSubtype": null,
+      "reason": "remains NULL permanently",
+      "reclassified": false
+    }
+  ],
+  "enrichmentFromCurrentExternalState": "FORBIDDEN AND NOT PERFORMED - a transport observation is a statement about one moment from one vantage; repairing it from today's network would replace evidence with a reconstruction",
+
+  "networkActivity": {
+    "institutionNetworkTouched": false,
+    "dnsLookupsPerformed": 0,
+    "tlsHandshakesPerformed": 0,
+    "httpRequestsToInstitutions": 0,
+    "acquisitionExecuted": false,
+    "index9Started": false,
+    "indicesAtOrAbove10Started": false,
+    "reserveConsumed": 0,
+    "replacementPerformed": false,
+    "classifierExecuted": false,
+    "holdoutAccessed": false,
+    "phase2eEntered": false,
+    "localOnlyAccess": [
+      "the local PostgreSQL on 127.0.0.1:55432 (read-only SELECTs)",
+      "git fetch/push against the repository's own origin",
+      "static introspection of the locally installed Node runtime"
+    ]
+  },
+
+  "deliverableChanges": {
+    "productionFilesEdited": 0,
+    "migrationsCreated": 0,
+    "migrationsApplied": 0,
+    "schemaMutations": 0,
+    "adrsCreated": 0,
+    "docsCreated": 2
+  },
+
+  "departuresFromBriefLetter": [
+    {
+      "section": "10",
+      "departure": "the CHECK uses IS NOT DISTINCT FROM rather than =",
+      "direction": "STRICTER",
+      "reason": "the = form the brief sketches ACCEPTS error_kind IS NULL with a non-null subtype, because a PostgreSQL CHECK passes on NULL - the exact combination section 10 asks to forbid",
+      "evidence": "verified on PostgreSQL 16.15, read-only, no DDL"
+    },
+    {
+      "section": "24",
+      "departure": "the supporting note is at docs/audits/ rather than docs/design/",
+      "direction": "CONVENTION-CONFORMING",
+      "reason": "docs/design/ is not a repository convention - docs/ holds adr/, audits/ and evaluation/ only - and section 24 made the note conditional on that convention existing; the reassessment this continues uses exactly the audits/+evaluation/ pairing"
+    },
+    {
+      "section": "19",
+      "departure": "ADR 0014 is fully specified but not created",
+      "direction": "CONSERVATIVE",
+      "reason": "the brief mandates two artifacts and does not list the ADR among them; its own rollout order places ADR finalisation at implementation step 6"
+    }
+  ],
+
+  "outcome": "OBSERVABILITY_DESIGN_READY_FOR_IMPLEMENTATION",
+  "unresolvedOwnerChoices": [],
+  "blockers": [],
+  "nextOwnerDecision": "A2_TRANSPORT_FAILURE_OBSERVABILITY_IMPLEMENTATION_AUTHORISATION"
+}
