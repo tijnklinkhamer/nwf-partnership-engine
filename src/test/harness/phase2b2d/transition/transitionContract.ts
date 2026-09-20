@@ -149,10 +149,31 @@ export const DRAW_HASH = '79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f9
 export const HISTORICAL_POLICY_VERSION = 'orgunit-fetch-policy-v1';
 
 /**
- * Read from production, never restated. `FETCH_POLICY_VERSION` is what a run
- * actually records, and a hand-copied string here could disagree with it.
+ * THE VERSION THE OPTION-B TRANSITION MOVED ACQUISITION TO - A HISTORICAL
+ * LITERAL, AND NO LONGER PRODUCTION'S CURRENT VALUE.
+ *
+ * It USED to read `FETCH_POLICY_VERSION`, on the reasoning that a
+ * hand-copied string could disagree with what a run actually records. That
+ * reasoning held only while v2 WAS production. ADR 0013 moved production to
+ * `orgunit-fetch-policy-v3`, and this step's published measurement record and
+ * ledger are a v2-era measurement whose bytes are frozen: reading the live
+ * constant here would silently restate them as a claim about v3, which is a
+ * claim this step never made and its evidence cannot support.
+ *
+ * This is the same boundary the classifier-freeze provenance correction drew:
+ * a historical artifact binds the policy version that governed IT, never the
+ * version the build reading it happens to implement. `FETCH_POLICY_VERSION`
+ * is still imported below, and `PRODUCTION_POLICY_VERSION_IS_NOT_THIS_STEPS`
+ * pins that the two have genuinely diverged - so this constant cannot quietly
+ * become right again by accident.
  */
-export const FUTURE_POLICY_VERSION = FETCH_POLICY_VERSION;
+export const FUTURE_POLICY_VERSION = 'orgunit-fetch-policy-v2';
+
+/**
+ * Production's CURRENT value, carried for one purpose only: to be asserted
+ * DIFFERENT from the constant above. See its comment.
+ */
+export const PRODUCTION_POLICY_VERSION_IS_NOT_THIS_STEPS = FETCH_POLICY_VERSION;
 
 /** Likewise: the declared bound IS the production bound. */
 export const ROBOTS_REDIRECT_CONTINUATION_HOPS = MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS;

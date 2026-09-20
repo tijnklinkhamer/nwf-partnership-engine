@@ -30,7 +30,7 @@
  *   one - fetching `www.example.edu/robots.txt` once does not authorise
  *   anything on `international.example.edu`.
  *
- * THE REDIRECT POSTURE, AS NARROWED BY ADR 0012
+ * THE REDIRECT POSTURE, AS NARROWED BY ADR 0012 AND WIDENED BY ADR 0013
  *
  *   The GATEWAY still follows nothing. Every request this module makes is one
  *   GET against one explicitly authorised URL, and `executeWebAttempt` has no
@@ -41,17 +41,35 @@
  *   one request; orchestration decides whether another, independently
  *   validated one is permitted.
  *
- *   The permission is deliberately narrower than ADR 0008's. It covers ONE
- *   hop, to the SAME HOSTNAME's own `/robots.txt`, under the same scheme or
- *   an http -> https upgrade, and nothing else (`continuationTargetFor`).
- *   A host change of any kind - including the `www.` canonicalisation ADR
- *   0008 accepts for ordinary pages - is refused, because robots.txt is a
- *   per-ORIGIN policy: retrieving `example.edu/robots.txt` and applying it to
- *   `www.example.edu` would be applying a different origin's rules to the
- *   host actually being crawled, which is precisely the follow-and-proceed
- *   posture ADR 0006 §4 rejected by name and which ADR 0012 does NOT revive.
+ *   ADR 0013 ("Option C-lite") moved exactly one line of that boundary. The
+ *   permission now covers ONE hop, to the SAME REGISTRABLE DOMAIN's own
+ *   `/robots.txt`, under the same scheme or an http -> https upgrade, and
+ *   nothing else (`continuationTargetFor`). A `www.` label gained or dropped
+ *   inside one registrable domain is therefore continuable, where ADR 0012
+ *   refused it.
  *
- *   Outside that one shape, nothing moved: a 3xx leaves the policy unread and
+ *   WHY THAT IS NOT A RETURN TO FOLLOW-AND-PROCEED. RFC 9309 s2.3.1.2 states
+ *   that a robots.txt reached through redirects - explicitly including
+ *   redirects across authorities - MUST be "fetched, parsed, and its rules
+ *   followed in the context of the INITIAL authority". That is precisely what
+ *   this module does: the bytes retrieved from the redirect target govern the
+ *   ORIGIN THAT WAS ASKED, for this resolution. ADR 0012 s3 refused a host
+ *   change partly on the premise that a policy from another origin cannot
+ *   govern the original one; ADR 0013 supersedes that premise, and that
+ *   premise only. The redirect target is a POLICY RETRIEVAL ENDPOINT, never
+ *   new crawl authority: nothing here promotes it, makes it a root, rewrites
+ *   a website claim or changes organisation identity.
+ *
+ *   AND THE TARGET ORIGIN'S OWN CACHE ENTRY IS NOT WRITTEN. A same-hostname
+ *   scheme upgrade still memoises its target origin, because the bytes
+ *   literally ARE that origin's own policy file read from that origin's own
+ *   URL. A HOST-CHANGING continuation does not, because they are not: they
+ *   are the initial authority's policy, retrieved elsewhere. If this run
+ *   later needs to crawl the target host, that host resolves its own policy
+ *   through its own origin semantics - one more robots request, honestly
+ *   charged.
+ *
+ *   Outside that shape, nothing moved: a 3xx leaves the policy unread and
  *   `EvaluatedRobotsPolicy.unavailable('REDIRECTED')` records that honestly -
  *   `ROBOTS_UNREADABLE` on every ordinary page this run subsequently attempts
  *   against that host. See robotsPolicy.ts for why that mapping is truthful
@@ -79,6 +97,7 @@ import type { RootAuthorityRef } from './authority.js';
 import { MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS, RESEARCH_USER_AGENT } from './policy.js';
 import { RobotsAuthorisation } from './robotsAuthority.js';
 import { EvaluatedRobotsPolicy } from './robotsPolicy.js';
+import { validateRequestUrl } from './url.js';
 
 /**
  * The PRODUCT token robots.txt `User-agent:` groups are matched against.
@@ -121,10 +140,56 @@ export const ROBOTS_USER_AGENT_TOKEN = RESEARCH_USER_AGENT.replace(/\s*\([^)]*\)
  */
 export class RobotsCache {
   private readonly entries = new Map<string, Promise<EvaluatedRobotsPolicy>>();
+  private readonly policyRequestsByUrl = new Map<string, number>();
 
   /** `(runId, scheme, hostname)` - the exact policy-origin identity. */
   private key(runId: string, scheme: string, hostname: string): string {
     return `${runId}|${scheme}|${hostname.toLowerCase()}`;
+  }
+
+  /**
+   * The `attemptNo` the NEXT site-policy request for this exact URL must
+   * carry, counting from 1.
+   *
+   * WHY A COUNTER EXISTS AT ALL, AND WHY IT IS NOT A LOOPHOLE.
+   *
+   *   A gateway attempt's identity is `(run, root, url, policy version,
+   *   attempt no)`, and a repeat of an identity already recorded is refused -
+   *   by THROWING - as `DUPLICATE_ATTEMPT`. Rule 18 names the sanctioned
+   *   answer: "a retry is the caller passing `attemptNo + 1`". This is that,
+   *   and nothing more: it never suppresses a row, never reuses one, and
+   *   never lets one request masquerade as another. Every request still gets
+   *   its own observation.
+   *
+   * WHAT MADE IT NECESSARY (ADR 0013 s6).
+   *
+   *   A host-changing continuation fetches `example.edu/robots.txt` and does
+   *   NOT memoise the result under the `example.edu` origin, because those
+   *   bytes are the INITIAL authority's policy, not independently the target
+   *   host's own. So when this run later needs to crawl `example.edu` for
+   *   real, that origin correctly resolves its own policy - by requesting the
+   *   IDENTICAL URL a second time. Under a fixed `attemptNo: 1` that second,
+   *   genuinely different act would collide with the first one's identity and
+   *   throw, ending the whole root.
+   *
+   *   The alternative - memoising the redirected bytes under the target
+   *   origin - is exactly the policy-authority contamination ADR 0013 s6
+   *   refuses. So the two requests are recorded as what they are: two
+   *   attempts at one URL, made for two different reasons.
+   *
+   * IT IS BOUNDED. At most one bootstrap per origin per run (the cache above)
+   * plus at most one continuation per origin, and every request is charged to
+   * the run's total-request budget regardless. There is no path here that
+   * loops.
+   *
+   * IN THE ORDINARY CASE THIS ALWAYS ANSWERS 1, so nothing about a site that
+   * does not exhibit the host-changing shape is affected.
+   */
+  nextPolicyAttemptNo(runId: string, url: string): number {
+    const key = `${runId}|${url}`;
+    const next = (this.policyRequestsByUrl.get(key) ?? 0) + 1;
+    this.policyRequestsByUrl.set(key, next);
+    return next;
   }
 
   get(runId: string, scheme: string, hostname: string): Promise<EvaluatedRobotsPolicy> | undefined {
@@ -145,11 +210,44 @@ export function createRobotsCache(): RobotsCache {
   return new RobotsCache();
 }
 
+/**
+ * Whether ONE HOST-CHANGING site-policy continuation may be issued to this
+ * exact URL.
+ *
+ * ADR 0013 s8. Option B's continuation could never introduce a hostname, so
+ * the distinct-host ceiling (`MAX_HOSTS_PER_ROOT`) was structurally untouched
+ * by it. Option C-lite's can, so the decision belongs to the layer that
+ * actually keeps that ledger - the orchestrator - and is asked here rather
+ * than guessed. A robots request gets NO exemption from the host cap: if the
+ * ceiling is reached, the continuation is not issued and the policy stays
+ * unread.
+ *
+ * This module deliberately holds no host ledger of its own. It is a
+ * single-page seam (see "WHAT THIS MODULE IS NOT" above) and inventing one
+ * here would be a second, drifting copy of the orchestrator's accounting.
+ */
+export type HostChangingContinuationAdmission = (continuationUrl: string) => boolean;
+
+/**
+ * FAIL CLOSED. A caller that keeps no host ledger cannot honestly charge a
+ * new hostname, so it gets exactly ADR 0012's behaviour: same-registrable-
+ * domain continuations that DO change host are refused, and the
+ * already-authorised same-hostname shapes are unaffected.
+ */
+const REFUSE_HOST_CHANGING_CONTINUATION: HostChangingContinuationAdmission = () => false;
+
 export interface RobotsFetchContext {
   runId: string;
   root: RootAuthorityRef;
   /** The ORDINARY page's URL. Its scheme and hostname determine the robots.txt origin. */
   targetUrl: string;
+  /**
+   * Consulted ONLY for a continuation that changes hostname, and only after
+   * `continuationTargetFor` has already admitted the target on every other
+   * ground. Absent means refuse - see
+   * `REFUSE_HOST_CHANGING_CONTINUATION`.
+   */
+  admitHostChangingContinuation?: HostChangingContinuationAdmission | undefined;
 }
 
 /**
@@ -180,12 +278,20 @@ export interface RobotsFetchOutcome {
 }
 
 /**
- * Decides whether one robots.txt 3xx may be continued, and to exactly where.
+ * ONE CONTINUABLE ROBOTS.TXT REDIRECT, AND WHERE IT GOES.
  *
- * PURE. Returns the continuation URL, or null to fail closed. This is the
- * whole of ADR 0012's Option-B boundary, in one place, so that "what may be
+ * PURE. Returns the continuation, or null to fail closed. This is the whole
+ * of ADR 0013's Option-C-lite boundary, in one place, so that "what may be
  * continued" is reviewable as a single predicate rather than inferred from
  * control flow.
+ *
+ * IT RETURNS THE HOST-CHANGE FACT ALONGSIDE THE URL, because two callers need
+ * it and neither may recompute it: `getRobotsPolicy` must ask the
+ * orchestrator for a distinct-host slot before issuing a host-changing
+ * continuation, and must NOT memoise the resulting policy under a changed
+ * target origin. A caller deriving "did the host change?" by parsing the two
+ * URLs again would be a second implementation of the one comparison that
+ * matters here.
  *
  * EVERY CONDITION IS NECESSARY, and each one refuses a shape that was
  * explicitly considered and NOT authorised:
@@ -196,63 +302,69 @@ export interface RobotsFetchOutcome {
  *      purpose, so that stripping-and-requesting is structurally impossible),
  *      which is why there is no separate credential branch below: it would be
  *      a second implementation of a decision redirect.ts already made.
- *   2. The target is EXACTLY `/robots.txt` - no other path, no query, no
- *      fragment. A policy file that redirects to `/other-path` is not
+ *   2. BOTH URLs pass `validateRequestUrl` - the gateway's own URL gate,
+ *      called here rather than re-expressed. It is what refuses userinfo, an
+ *      IP literal, a fragment, a non-http(s) scheme, an empty label, a host
+ *      outside the ICANN public suffix set and ANY explicit port including a
+ *      default one, and it is what computes the registrable domain from the
+ *      single `tldts` implementation this repository has. Calling it here is
+ *      not belt-and-braces: a target the gateway would REFUSE must never be
+ *      minted an authority, because a gateway refusal THROWS and would turn
+ *      an ordinary redirect into a failed root.
+ *   3. The target's request path is exactly `/robots.txt` - which is path AND
+ *      query together, so a query-bearing target is refused by the same
+ *      comparison. A policy file that redirects to `/other-path` is not
  *      canonicalising its policy URL, and whatever is there is not this
  *      host's robots.txt.
- *   3. No explicit port. Rule 18's port refusal, restated here so a
- *      non-default port is refused BEFORE a second authority is minted rather
- *      than at the gateway. (`URL` erases `:443`/`:80`, so a redirect that
- *      merely spells out the default port is admitted as the identical URL it
- *      is.)
- *   4. The hostname is BYTE-IDENTICAL, case-insensitively. This is the line
- *      between Option B and Option C, and it is the reason a `www.` hop is
- *      refused here while ADR 0008 accepts one for an ordinary page: a page
- *      carries no policy, but robots.txt IS the policy, and it is scoped to
- *      one origin.
+ *   4. The target is in the SAME REGISTRABLE DOMAIN. THIS IS THE ADR 0013
+ *      LINE, and it is the one thing that moved: ADR 0012 required the
+ *      hostname to be byte-identical. A cross-registrable-domain target is
+ *      still refused outright, which is why this repository remains stricter
+ *      than RFC 9309 s2.3.1.2's "even across authorities".
  *   5. The scheme is unchanged, or upgraded http -> https. A downgrade is
- *      refused, which is also what makes a redirect CYCLE impossible: with no
- *      host change and no downgrade, the only reachable target is the https
- *      form of the same URL, and that is one hop from anywhere.
- *   6. The target is not the request URL itself. A self-redirect offers no
+ *      refused.
+ *   6. The target is not the URL just requested. A self-redirect offers no
  *      new bytes, and continuing to it would reach the gateway's own
  *      DUPLICATE_ATTEMPT refusal - a refusal that would then be recorded as
- *      though this module had tried something meaningful.
+ *      though this module had tried something meaningful. Compared on the
+ *      SERIALISED forms, so two spellings of one URL are one URL.
  *
  * Root scope, host policy, DNS, address classification and TLS are NOT
  * checked here, deliberately. They are the gateway's, they run independently
  * for the second request exactly as they did for the first, and duplicating
  * them here would create a second, drifting implementation of a trust
- * boundary that has exactly one.
+ * boundary that has exactly one. The HOST BUDGET is not checked here either:
+ * it is the orchestrator's ledger, asked through
+ * `admitHostChangingContinuation`.
  */
+export interface RobotsContinuation {
+  /** The exact URL a second, independently validated gateway request may ask for. */
+  readonly url: string;
+  /** True when that URL's hostname differs from the one just requested. */
+  readonly hostChanged: boolean;
+}
+
 export function continuationTargetFor(
   requestedRobotsUrl: string,
   result: WebAttemptResult,
-): string | null {
+): RobotsContinuation | null {
   const facts = result.redirect;
   if (facts === null || facts.targetMalformed || facts.toUrlResolved === null) return null;
 
-  let origin: URL;
-  let target: URL;
-  try {
-    origin = new URL(requestedRobotsUrl);
-    target = new URL(facts.toUrlResolved);
-  } catch {
-    /* c8 ignore next -- both strings were produced by URL serialisation upstream */
-    return null;
-  }
+  const origin = validateRequestUrl(requestedRobotsUrl);
+  const target = validateRequestUrl(facts.toUrlResolved);
+  if (!origin.ok || !target.ok) return null;
 
-  if (target.pathname !== '/robots.txt' || target.search !== '' || target.hash !== '') return null;
-  if (target.port !== '') return null;
-  if (target.hostname.toLowerCase() !== origin.hostname.toLowerCase()) return null;
+  if (target.value.requestPath !== '/robots.txt') return null;
+  if (target.value.registrableDomain !== origin.value.registrableDomain) return null;
 
-  const sameScheme = target.protocol === origin.protocol;
-  const upgraded = origin.protocol === 'http:' && target.protocol === 'https:';
+  const sameScheme = target.value.scheme === origin.value.scheme;
+  const upgraded = origin.value.scheme === 'http:' && target.value.scheme === 'https:';
   if (!sameScheme && !upgraded) return null;
 
-  const continuation = target.toString();
-  if (continuation === requestedRobotsUrl) return null;
-  return continuation;
+  if (target.value.url === origin.value.url) return null;
+
+  return { url: target.value.url, hostChanged: target.value.hostname !== origin.value.hostname };
 }
 
 /**
@@ -280,6 +392,8 @@ export async function getRobotsPolicy(
   const target = new URL(context.targetUrl);
   const scheme = target.protocol;
   const hostname = target.hostname;
+  const admitHostChangingContinuation =
+    context.admitHostChangingContinuation ?? REFUSE_HOST_CHANGING_CONTINUATION;
 
   const cached = cache.get(context.runId, scheme, hostname);
   // A cache hit makes ZERO gateway requests, so it charges the caller's
@@ -308,7 +422,10 @@ export async function getRobotsPolicy(
         runId: context.runId,
         root: context.root,
         requestedUrl: url,
-        attemptNo: 1,
+        // Normally 1. It is 2 only when this run already requested this exact
+        // policy URL for a DIFFERENT origin's resolution - see
+        // `RobotsCache.nextPolicyAttemptNo`.
+        attemptNo: cache.nextPolicyAttemptNo(context.runId, url),
         discoveryMethod: 'ROBOTS',
         discoveryParentUrl: null,
         robots: RobotsAuthorisation.forRobotsTxtBootstrap(url),
@@ -351,28 +468,54 @@ export async function getRobotsPolicy(
     for (let hop = 0; hop < MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS; hop += 1) {
       const continuation = continuationTargetFor(requestedUrl, result);
       if (continuation === null) break;
-      requestedUrl = continuation;
 
-      // THE CONTINUATION'S OWN ORIGIN IS MEMOISED TOO, BEFORE THE REQUEST.
+      // THE HOST BUDGET IS ASKED BEFORE THE REQUEST, AND ONLY WHEN THE HOST
+      // ACTUALLY CHANGES (ADR 0013 s8). A same-hostname continuation reaches
+      // no new host and consumes no distinct-host slot, so it is not asked -
+      // that is byte-for-byte the ADR 0012 path. A host-CHANGING one is a
+      // second hostname under this root, and the orchestrator's ledger is the
+      // only place that can say whether another one is affordable. It answers
+      // no -> the policy stays unread, exactly as any other refusal here.
+      if (continuation.hostChanged && !admitHostChangingContinuation(continuation.url)) break;
+
+      requestedUrl = continuation.url;
+
+      // THE SAME-HOSTNAME CONTINUATION'S OWN ORIGIN IS MEMOISED TOO, BEFORE
+      // THE REQUEST - AND A HOST-CHANGING ONE'S IS NOT.
       //
-      // Not a convenience - a correctness requirement, found by the
-      // orchestrator's own budget test. The cache is keyed per ORIGIN, so
-      // `http://host` and `https://host` are different entries. Without this,
-      // an http root that upgrades would fetch `https://host/robots.txt` here
-      // and then, the first time an https page on that host was authorised,
-      // fetch THE IDENTICAL URL again - which the gateway refuses outright as
-      // a DUPLICATE_ATTEMPT (same run, root, URL, policy version and attempt
-      // number), turning an ordinary canonicalising site into a refused root.
+      // For the same hostname this is not a convenience but a correctness
+      // requirement, found by the orchestrator's own budget test. The cache
+      // is keyed per ORIGIN, so `http://host` and `https://host` are
+      // different entries. Without this, an http root that upgrades would
+      // fetch `https://host/robots.txt` here and then, the first time an
+      // https page on that host was authorised, fetch THE IDENTICAL URL again
+      // - which the gateway refuses outright as a DUPLICATE_ATTEMPT (same
+      // run, root, URL, policy version and attempt number), turning an
+      // ordinary canonicalising site into a refused root. It is also the
+      // per-origin-honest thing to do: the bytes about to be read ARE that
+      // origin's own policy file, read from that origin's own URL.
       //
-      // It is also the per-origin-honest thing to do: the bytes about to be
-      // read ARE that origin's own policy file, read from that origin's own
-      // URL. This is the one place a policy is shared between two cache keys,
-      // and it is shared only with the origin it was literally fetched from.
-      // `set`-if-absent, never overwrite: an https policy this run already
-      // evaluated on its own is the better evidence and stays.
+      // FOR A HOST-CHANGING CONTINUATION IT WOULD BE A LIE (ADR 0013 s6).
+      // Under RFC 9309 s2.3.1.2 the bytes fetched from
+      // `example.edu/robots.txt` after `www.example.edu/robots.txt`
+      // redirected are the policy governing `www.example.edu` FOR THIS
+      // LOOKUP. They are not independently `example.edu`'s own policy: nobody
+      // asked `example.edu` for its policy, and its server was never given
+      // the chance to answer that question with a different document, a 404
+      // or a Disallow. Caching them under `example.edu` would let a later
+      // ordinary page on that host be authorised by a policy that host never
+      // published for itself - policy-authority contamination, and precisely
+      // the follow-and-proceed posture this repository still refuses. So if
+      // this run later needs `example.edu`, it resolves that origin's policy
+      // through its own origin semantics: one more robots request, honestly
+      // charged to the budget.
       const target = new URL(requestedUrl);
       const memo = resolution.promise;
-      if (memo !== null && cache.get(context.runId, target.protocol, target.hostname) === undefined)
+      if (
+        !continuation.hostChanged &&
+        memo !== null &&
+        cache.get(context.runId, target.protocol, target.hostname) === undefined
+      )
         cache.set(context.runId, target.protocol, target.hostname, memo);
 
       result = await fetchRobotsDocument(requestedUrl);
@@ -484,6 +627,15 @@ export interface SinglePageAttemptInput {
    */
   discoveryMethod: 'ROOT' | 'LINK' | 'SITEMAP' | 'WELL_KNOWN_PATH';
   discoveryParentUrl: string | null;
+  /**
+   * Passed straight through to the site-policy resolution (ADR 0013 s8).
+   * `undefined` means a host-changing continuation is refused, so a caller
+   * that keeps no distinct-host ledger cannot spend a slot it is not
+   * counting. Declared as an explicit `| undefined` rather than as a purely
+   * optional property because `exactOptionalPropertyTypes` is on and this
+   * value is forwarded verbatim by `authoriseAndFetchPage`.
+   */
+  admitHostChangingContinuation?: HostChangingContinuationAdmission | undefined;
 }
 
 export type SinglePageAttemptResult =
@@ -524,7 +676,12 @@ export async function authoriseAndFetchPage(
   const robots = await authoriseOrdinaryPage(
     pool,
     cache,
-    { runId: input.runId, root: input.root, targetUrl: input.targetUrl },
+    {
+      runId: input.runId,
+      root: input.root,
+      targetUrl: input.targetUrl,
+      admitHostChangingContinuation: input.admitHostChangingContinuation,
+    },
     transport,
   );
 

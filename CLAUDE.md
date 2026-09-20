@@ -17,7 +17,10 @@ Phase 2B-2C2 / 2B-2C2A semantic-classifier runtime and the accepted
 Phase 2B-2D2C-R1 bounded item-level repair round — see
 `docs/adr/0009-claude-max-only-classifier-runtime.md`,
 `docs/adr/0010-stored-max-subscription-profile-auth.md` and
-`docs/adr/0011-bounded-item-level-repair-round.md` (all Status: Accepted).
+`docs/adr/0011-bounded-item-level-repair-round.md` (all Status: Accepted),
+plus the accepted robots-redirect continuation repairs
+`docs/adr/0012-same-host-robots-redirect-continuation.md` and
+`docs/adr/0013-same-registrable-domain-robots-redirect-continuation.md`.
 This repository ingests THREE official datasets into a
 local PostgreSQL database — the ECHE list, the EWP Registry catalogue and
 the French Ministry register of higher-education institutions — lets you
@@ -314,9 +317,22 @@ it, or depend on it, and must never touch learner, payment, or payout data.
     ordinary page. `src/orgunits/web/robots.ts` is the ONE production caller
     of `executeWebAttempt`, owns no socket itself, and fetches robots.txt at
     most once per host per run via an explicit, run-scoped `RobotsCache` —
-    never a module-level singleton. Robots.txt redirects are never followed
-    and map onto the already-landed `ROBOTS_UNREADABLE` value; no migration
-    was needed (ADR 0006 s7).
+    never a module-level singleton. **A robots.txt 3xx may be continued
+    EXACTLY ONCE, to the SAME REGISTRABLE DOMAIN's own policy path** — ADR
+    0012 (same hostname) as widened by ADR 0013 (same registrable domain,
+    "Option C-lite"), on RFC 9309 §2.3.1.2, which says a policy file reached
+    through redirects governs the INITIAL authority. The gateway still
+    follows nothing: the continuation is a separate, fully revalidated
+    request decided in `robots.ts`, under a freshly minted URL-scoped
+    authority. A cross-registrable-domain target, a downgrade, any other
+    path, a query, a port, a credential and a second hop are all refused, and
+    anything refused maps onto the already-landed `ROBOTS_UNREADABLE` value;
+    no migration was ever needed (ADR 0006 s7). A HOST-CHANGING continuation
+    consumes a distinct-host slot like any other hostname — there is no
+    robots exemption from `MAX_HOSTS_PER_ROOT`, and the orchestrator answers
+    that question before the request is issued — and its result is NOT cached
+    as the target origin's own policy, because nobody asked that origin for
+    its policy. If the run later crawls that host, it resolves its own.
 23. **Page evidence is extracted with no DOM, and every returned field is
     redacted before it is returned.** `extract.ts` reads charset-decoded text
     with regular expressions — `jsdom`, `cheerio`, `parse5`,
@@ -360,10 +376,14 @@ Keep these apart. Do not promote one to another without evidence.
   `src/orgunits/web/gateway.ts`, using Node's core HTTP client rather than
   `fetch()` so the connection can be pinned to a validated address, and no proxy
   indirection can put a resolver back in between (Phase 2B-1b,
-  `docs/adr/0005-bounded-web-gateway-and-fetch-policy-v1.md`). Fetch policy
-  `orgunit-fetch-policy-v1`: **30 s connect, 45 s total**, 5 MiB body cap over
-  both the wire and the decoded stream. A run whose recorded policy version this
-  build does not implement is REFUSED. The long connect timeout is the frozen
+  `docs/adr/0005-bounded-web-gateway-and-fetch-policy-v1.md`). The fetch
+  policy is now **`orgunit-fetch-policy-v3`** — v1 under ADR 0005, v2 under
+  ADR 0012, v3 under ADR 0013, and each bump changed ONLY the robots-redirect
+  continuation boundary. The numbers have never moved: **30 s connect, 45 s
+  total**, 5 MiB body cap over both the wire and the decoded stream. A run
+  whose recorded policy version this build does not implement is REFUSED, so a
+  v1 or v2 run can be read but never resumed, and no historical observation is
+  reinterpreted. The long connect timeout is the frozen
   design baseline and is deliberate: a shorter one buys throughput by turning
   slow-but-reachable institutional sites into `CONNECT_TIMEOUT` rows that are
   indistinguishable from genuinely unreachable ones. The cost the holdout
@@ -376,6 +396,14 @@ Keep these apart. Do not promote one to another without evidence.
   regular expressions over decoded text rather than a DOM; charset resolution
   scans a real 64 KiB `<head>` rather than the 1024-byte prescan window that
   missed the ADR 0004 s3 holdout's own late-meta case.
+- A robots.txt 3xx is continued exactly ONCE, to the same registrable domain's
+  own policy path (Phase 2B-2D, `docs/adr/0012-...` as superseded on that one
+  boundary by `docs/adr/0013-same-registrable-domain-robots-redirect-continuation.md`).
+  RFC 9309 §2.3.1.2 recommends following at least five such redirects, even
+  across authorities, and applying the result to the INITIAL authority; this
+  repository deliberately follows ONE, inside ONE registrable domain, and
+  records that as a stricter posture rather than an oversight. The gateway is
+  untouched by both repairs and still follows nothing.
 
 **Working hypotheses — not settled**
 

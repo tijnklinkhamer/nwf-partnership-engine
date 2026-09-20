@@ -19,7 +19,50 @@
  * executing a v2 run under v1 timeouts and stamping "v2" on the row - would
  * make `fetch_policy_version` a label rather than a fact.
  */
-export const FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v2';
+export const FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v3';
+
+/**
+ * WHY v2 BECAME v3 (Phase 2B-2D, ADR 0013 - same-REGISTRABLE-DOMAIN robots
+ * redirect continuation, "Option C-lite").
+ *
+ * WHAT CHANGED, EXACTLY. Under v2 a site-policy 3xx could be continued only
+ * to the BYTE-IDENTICAL HOSTNAME's own policy path. Under v3 the boundary is
+ * the SAME REGISTRABLE DOMAIN, computed by the one `tldts` implementation
+ * this repository has (`src/website/parse.ts`, reached through
+ * `validateRequestUrl`). A `www.` label dropped or gained inside one
+ * registrable domain is therefore continuable, where v2 refused it.
+ * NOTHING ELSE MOVED: the timeouts, the caps, the headers, the user agent,
+ * the redirect status set, the port rule and the ONE-HOP bound below are
+ * byte-identical to v2 (and, apart from that bound, to v1).
+ *
+ * WHY THE BOUNDARY MOVED. RFC 9309 s2.3.1.2 is explicit that a site-policy
+ * fetch may redirect, that crawlers SHOULD follow at least five consecutive
+ * redirects "even across authorities (for example, hosts in the case of
+ * HTTP)", and that a policy file reached that way MUST be "fetched, parsed,
+ * and its rules followed in the context of the INITIAL authority". ADR 0012
+ * s3 refused a host change partly on the premise that a policy retrieved
+ * from another origin cannot govern the original origin; that premise is not
+ * a correct statement of RFC 9309's redirect semantics, and ADR 0013
+ * supersedes it on that point ONLY. The repository stays deliberately
+ * narrower than the RFC: same registrable domain only, one hop only.
+ *
+ * WHY THAT NEEDS A VERSION AND NOT JUST AN ADR. `fetch_policy_version` is the
+ * column a reader uses to know WHAT NETWORK BEHAVIOUR produced a row. A v2
+ * row reading `ROBOTS_UNREADABLE` after a host-changing 301 means "this build
+ * examined the target and refused it because the hostname changed"; the same
+ * row stamped v3 would mean "this build examined the target and refused it
+ * for some other reason, or never saw one". Those are different findings
+ * about the same institution, and only the version string can tell them
+ * apart.
+ *
+ * NO v1 OR v2 EVIDENCE IS REINTERPRETED. Every historical run keeps the
+ * version it was issued under, on its run row and on all of its observations,
+ * forever. `assertRunIsExecutable` (authority.ts) refuses to execute a run
+ * whose recorded version this build does not implement, so a v1 or v2 run
+ * cannot be resumed under v3 behaviour - it can only be read. Historical
+ * classifier freezes likewise bind the fetch-policy version of the
+ * acquisition run they were built from, never this constant.
+ */
 
 /**
  * WHY v1 BECAME v2 (Phase 2B-2D, ADR 0012 - same-host robots redirect
@@ -188,21 +231,34 @@ export const REDIRECT_STATUSES: ReadonlySet<number> = new Set([301, 302, 303, 30
  * How many times ONE site-policy bootstrap may be continued to a redirect
  * target. Exactly one, and deliberately not five.
  *
- * ADR 0012. This is NOT ADR 0008's `MAX_REDIRECT_CONTINUATION_HOPS = 5`, and
- * reusing that number here would have been the mistake: an ordinary page's
- * hop budget exists because a site may legitimately chain several
- * canonicalisations on the way to a content URL, and each hop is re-admitted
- * by the frontier's own gates. A POLICY resource has no such journey. The one
- * shape this repair exists to recover is a single canonicalisation of the
- * policy URL itself (http -> https on the same hostname), and one hop covers
- * it completely.
+ * ADR 0012, UNCHANGED BY ADR 0013. This is NOT ADR 0008's
+ * `MAX_REDIRECT_CONTINUATION_HOPS = 5`, and reusing that number here would
+ * have been the mistake: an ordinary page's hop budget exists because a site
+ * may legitimately chain several canonicalisations on the way to a content
+ * URL, and each hop is re-admitted by the frontier's own gates. A POLICY
+ * resource has no such journey. The shapes this repair exists to recover are
+ * a single canonicalisation of the policy URL itself - `http` -> `https`, or
+ * a `www.` label gained or dropped inside the same registrable domain - and
+ * one hop covers each of them completely.
  *
- * A SECOND 3xx THEREFORE STOPS. The continuation's own response is evaluated
- * by the same honest mapping as the first, and a 3xx there is
- * `ROBOTS_UNREADABLE` with no third request - not because a chain would be
- * unsafe to validate, but because a policy file that redirects twice is not
- * the narrow canonicalisation case this was authorised for, and fail-closed
- * remains the default outside it.
+ * RFC 9309 s2.3.1.2 says crawlers SHOULD follow at least five consecutive
+ * site-policy redirects. THIS REPOSITORY DELIBERATELY DOES NOT, and ADR 0013
+ * records that as a stricter posture rather than an oversight: five hops is a
+ * recommendation about interoperability, and one hop is what the two observed
+ * shapes need. A SECOND 3xx THEREFORE STOPS. The continuation's own response
+ * is evaluated by the same honest mapping as the first, and a 3xx there is
+ * `ROBOTS_UNREADABLE` with no third request.
+ *
+ * THIS CONSTANT IS NOW THE WHOLE OF THE CHAIN BOUND, and that is a real
+ * change from ADR 0012. Under Option B the predicate's own structure proved a
+ * two-request ceiling independently: with no host change and no downgrade
+ * permitted, the only reachable target from an `https` policy URL was the
+ * identical URL, which the self-redirect condition refuses. Option C-lite
+ * admits a host change, so `a -> b -> a` is expressible and that structural
+ * argument no longer holds. It is not needed while this is 1 - one hop cannot
+ * cycle - but RAISING IT WOULD REQUIRE A VISITED-URL SET, and this sentence
+ * is here so that a later reader does not raise it on the strength of the
+ * argument that used to justify its safety.
  */
 export const MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS = 1;
 

@@ -8,12 +8,32 @@
  * IT CALLS THE LANDED PREDICATE. IT DOES NOT REIMPLEMENT IT.
  *
  *   `continuationTargetFor` is imported from `src/orgunits/web/robots.ts` -
- *   the production module ADR 0012 landed - and is the ONLY thing this module
- *   imports from the orgunit web surface. A second implementation of that
- *   predicate, however carefully written, would answer a question about
- *   ITSELF rather than about the code that actually ran. The transition rule
- *   is "could the Option-B code path have changed this run's robots
- *   outcome?", and only the Option-B code path can answer it.
+ *   the production module - and is the ONLY thing this module imports from
+ *   the orgunit web surface. A second implementation of that predicate,
+ *   however carefully written, would answer a question about ITSELF rather
+ *   than about the code that actually ran. The transition rule is "could the
+ *   Option-B code path have changed this run's robots outcome?", and only
+ *   that code path can answer it.
+ *
+ * WHY THE OPTION-B QUESTION IS STILL ANSWERABLE AFTER ADR 0013
+ *
+ *   ADR 0013 widened the landed predicate's host boundary from BYTE-IDENTICAL
+ *   HOSTNAME to SAME REGISTRABLE DOMAIN, and made it report which of the two
+ *   it found. Option B is therefore exactly Option C-lite restricted to
+ *   `hostChanged === false`, and that is how this module asks - the landed
+ *   predicate for the whole shared boundary, plus the ONE condition ADR 0012
+ *   added on top, stated once.
+ *
+ *   The alternative - freezing a private copy of the v2 predicate here - was
+ *   refused for the reason above: this census is a claim about what the v2
+ *   BUILD would have done, and a copy would drift from it silently. This
+ *   module keeps answering the v2 question with v3's code because the v2
+ *   answer is a strict subset of the v3 answer, and the subset boundary is a
+ *   single boolean the predicate now returns rather than something to
+ *   re-derive.
+ *
+ *   FOR THE v3 QUESTION, SEE THE OPTION-C-LITE CENSUS. This module is not it,
+ *   and its published counts are the v2-era measurement of record.
  *
  *   The import is type-and-function only. Nothing here calls
  *   `executeWebAttempt`, `authoriseAndFetchPage`, `getRobotsPolicy` or any
@@ -121,7 +141,9 @@ function asAttemptResult(redirect: PersistedRedirect): PredicateResult {
  */
 export function qualifiesUnderOptionB(redirect: PersistedRedirect): boolean {
   if (!isRobotsRequest(redirect.requestedUrl)) return false;
-  return continuationTargetFor(redirect.requestedUrl, asAttemptResult(redirect)) !== null;
+  const continuation = continuationTargetFor(redirect.requestedUrl, asAttemptResult(redirect));
+  // ADR 0012's boundary = ADR 0013's boundary AND the hostname did not change.
+  return continuation !== null && !continuation.hostChanged;
 }
 
 export function classifyRun(

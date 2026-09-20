@@ -39,6 +39,7 @@ import {
   FRAME_ARTIFACT,
   FRAME_HASH,
   FUTURE_POLICY_VERSION,
+  PRODUCTION_POLICY_VERSION_IS_NOT_THIS_STEPS,
   HISTORICAL_POLICY_VERSION,
   HISTORICAL_V1_RUN_COUNT,
   MEASUREMENT_RECORD_PATH,
@@ -153,10 +154,19 @@ describe('2D Option-B transition: the frozen inputs are byte-for-byte unchanged'
   });
 });
 
-describe('2D Option-B transition: the future acquisition policy version', () => {
-  it('is v2, and is read from production rather than restated', () => {
+describe('2D Option-B transition: the acquisition policy version it moved to', () => {
+  it('is v2 - a HISTORICAL literal, now that production has moved past it', () => {
+    // This step's published record and ledger are a v2-era measurement with
+    // frozen bytes. Reading the live constant here would restate them as a
+    // claim about whatever version production implements today, which is a
+    // claim this step never made. See the constant's own comment.
     expect(FUTURE_POLICY_VERSION).toBe('orgunit-fetch-policy-v2');
-    expect(FUTURE_POLICY_VERSION).toBe(FETCH_POLICY_VERSION);
+  });
+
+  it('has genuinely diverged from production, so the literal cannot be right by accident', () => {
+    expect(PRODUCTION_POLICY_VERSION_IS_NOT_THIS_STEPS).toBe(FETCH_POLICY_VERSION);
+    expect(FETCH_POLICY_VERSION).toBe('orgunit-fetch-policy-v3');
+    expect(FUTURE_POLICY_VERSION).not.toBe(FETCH_POLICY_VERSION);
   });
 
   it('is not the historical one', () => {
@@ -167,7 +177,7 @@ describe('2D Option-B transition: the future acquisition policy version', () => 
   it('admits no future v1 acquisition run, because the build implements exactly one version', () => {
     const source = read('src/orgunits/web/policy.ts');
     expect(source.match(/FETCH_POLICY_VERSION\s*=\s*'[^']+'/g)).toEqual([
-      "FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v2'",
+      "FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v3'",
     ]);
     // No production CODE may name the historical version: a v1 string reachable
     // from production is a v1 run waiting for an argument to select it. Comments

@@ -21,10 +21,21 @@
  *   - the step adds no file under src/orgunits/, touches no migration, no CLI
  *     and no firewall, and rewrites no frozen artifact.
  *
- * THE RANGE IS BASE -> WORKING TREE, on the precedent of
- * `orgunitRobotsOptionBRepairScope.test.ts`: this step IS the current phase,
- * so its own end is the working tree. When it becomes history, its terminal
- * commit is pinned here the way A1's, A1b's and A3a's now are.
+ * THE RANGE IS NOW BASE -> TERMINAL COMMIT, the way A1's, A1b's and A3a's
+ * are, and the way `orgunitRobotsOptionBRepairScope.test.ts` now is. This
+ * step stopped being the current phase when ADR 0013 (Option C-lite) opened
+ * the next one; leaving the range open to the working tree would make this
+ * file fail for changes a later phase authorises rather than for anything
+ * this step did.
+ *
+ * ONE LATER PHASE HAS EDITED THIS STEP'S TOOLING SINCE, DELIBERATELY. ADR
+ * 0013 widened the landed continuation predicate, so
+ * `compatibilityCensus.ts` now expresses Option B as "the landed predicate
+ * admits it AND the hostname did not change" - the same question, asked of
+ * the code that answers it, rather than a frozen private copy that could
+ * drift. The published census counts are unchanged, and the source
+ * assertions below are read LIVE precisely so that such an edit still has to
+ * satisfy every isolation property this step was approved under.
  *
  * WHY THIS LIVES IN src/test/unit/ AND NOT src/test/firewall/
  *
@@ -104,13 +115,26 @@ function commitExists(commit: string): boolean {
   }
 }
 
-const baseAvailable = commitExists(TRANSITION_BASE_COMMIT);
+/** The commit this step ENDED at. Everything after it is a later phase's. */
+const TRANSITION_TERMINAL_COMMIT = 'b0f4efa01d7e861a701e3514afc690a99262f554';
 
-/** Every path this step changed: its base commit -> the current working tree. */
+const baseAvailable =
+  commitExists(TRANSITION_BASE_COMMIT) && commitExists(TRANSITION_TERMINAL_COMMIT);
+
+/** Every path this step changed: its base commit -> its own terminal commit. */
 function changedInStep(...paths: readonly string[]): string[] {
   return execFileSync(
     'git',
-    ['-C', REPO_ROOT, 'diff', '--name-only', TRANSITION_BASE_COMMIT, '--', ...paths],
+    [
+      '-C',
+      REPO_ROOT,
+      'diff',
+      '--name-only',
+      TRANSITION_BASE_COMMIT,
+      TRANSITION_TERMINAL_COMMIT,
+      '--',
+      ...paths,
+    ],
     { encoding: 'utf8' },
   )
     .split('\n')

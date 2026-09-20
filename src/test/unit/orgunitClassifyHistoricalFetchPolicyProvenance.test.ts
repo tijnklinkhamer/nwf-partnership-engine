@@ -2,7 +2,8 @@
  * PHASE 2B — HISTORICAL FETCH-POLICY PROVENANCE, AND THE PROOF IT IS NOT A
  * WEAKENING.
  *
- * ADR 0012 moved production acquisition to `orgunit-fetch-policy-v2`. Every
+ * ADR 0012 moved production acquisition to `orgunit-fetch-policy-v2`, and ADR
+ * 0013 moved it again to `orgunit-fetch-policy-v3`. Every
  * historical 2D2C freeze binds `orgunit-fetch-policy-v1` inside its frozen
  * `ClassifierBatchContext`, and therefore inside its frozen canonical bytes,
  * `assemblyInputSha256` and `finalInputSha256`. Those experiments really did
@@ -23,7 +24,9 @@
  *
  * This file proves the third way is sound. It shows, in one place:
  *
- *   1. production is v2 RIGHT NOW;
+ *   1. production is v3 RIGHT NOW - two bumps away from the frozen value,
+ *      which is the point: the guard below is indifferent to HOW FAR
+ *      production has moved, so a third bump needs no new argument here;
  *   2. a real historical freeze reconstructs and verifies exactly as v1,
  *      matching every frozen oracle byte for byte;
  *   3. mutating that frozen v1 to v2 IN MEMORY still fails with
@@ -73,14 +76,24 @@ const ALGORITHMS = {
 };
 
 const HISTORICAL = 'orgunit-fetch-policy-v1';
-const PRODUCTION = 'orgunit-fetch-policy-v2';
+const PRODUCTION = 'orgunit-fetch-policy-v3';
 
 /** A deep structural copy, so a mutation can never reach the loaded freeze or the file. */
 const cloneFreeze = (): Freeze => JSON.parse(JSON.stringify(freeze)) as Freeze;
 
 describe('the two fetch-policy versions are genuinely different right now', () => {
-  it('production acquisition is v2', () => {
+  it('production acquisition is v3', () => {
     expect(FETCH_POLICY_VERSION).toBe(PRODUCTION);
+  });
+
+  it('has moved TWICE since the freeze, and the freeze did not follow either move', () => {
+    // ADR 0012 (v1 -> v2) and ADR 0013 (v2 -> v3). Neither required a single
+    // byte of a historical freeze to change, and this is what proves it: the
+    // frozen value is still the FIRST version, unchanged across both bumps.
+    expect(freeze.inputConstruction.context.fetchPolicyVersion).toBe('orgunit-fetch-policy-v1');
+    for (const superseded of ['orgunit-fetch-policy-v2', 'orgunit-fetch-policy-v3']) {
+      expect(freeze.inputConstruction.context.fetchPolicyVersion, superseded).not.toBe(superseded);
+    }
   });
 
   it('the historical freeze is v1, in its construction contract AND in every batch', () => {

@@ -249,6 +249,56 @@ export async function runRootAcquisition(
     return true;
   }
 
+  /**
+   * ADR 0013 s8: whether ONE host-changing site-policy continuation may be
+   * issued to this exact URL, under THIS root's ledger.
+   *
+   * `continuationTargetFor` has already decided the target is a
+   * same-registrable-domain site-policy path with no downgrade, no port, no
+   * query and no credential. What is left is everything that is a property of
+   * this ROOT RUN rather than of the redirect: root scope, the service-
+   * subdomain refusal, the per-host circuit breaker and the distinct-host
+   * ceiling. There is no robots exemption from any of them.
+   *
+   * THE GATEWAY WOULD REFUSE MOST OF THESE TOO, AND THAT IS THE POINT OF
+   * ASKING FIRST. A gateway refusal THROWS (`WebGatewayRefusal`) rather than
+   * recording a row, and a throw from inside the site-policy resolution would
+   * escape as this root's `ROOT_REQUEST_REFUSED` - turning an ordinary
+   * redirect to, say, `mail.example.edu` into a failed root instead of an
+   * unread policy. Refusing here keeps it an unread policy.
+   *
+   * THE ATTEMPT'S OWN HOST IS COUNTED AS ALREADY SPENT. `hostsUsed.add` does
+   * not run until after the request returns, but this attempt is committed by
+   * the time this function can be called, so the projection below includes it
+   * - otherwise the eighth host's continuation could quietly become a ninth.
+   */
+  function mayReachContinuationHost(continuationUrl: string, pendingHost: string): boolean {
+    const validated = validateRequestUrl(continuationUrl);
+    if (!validated.ok) return false;
+    if (!checkRootScope(rootUrl, validated.value).ok) return false;
+    if (!checkHostAdmissible(validated.value.hostname, validated.value.registrableDomain).ok) {
+      return false;
+    }
+
+    const candidate = validated.value.hostname;
+    if (circuitBreaker.isOpen(candidate)) return false;
+
+    const projected = new Set(hostsUsed);
+    projected.add(pendingHost);
+    if (!projected.has(candidate) && projected.size >= MAX_HOSTS_PER_ROOT) return false;
+    return true;
+  }
+
+  /** The lower-cased hostname of an already-requested URL, or null if it will not parse. */
+  function hostnameOf(url: string): string | null {
+    try {
+      return new URL(url).hostname.toLowerCase();
+      /* c8 ignore next 3 -- every URL here was serialised by the gateway itself */
+    } catch {
+      return null;
+    }
+  }
+
   // -------------------------------------------------------- the one attempt
 
   type AttemptStatus =
@@ -317,11 +367,34 @@ export async function runRootAcquisition(
     const result = await authoriseAndFetchPage(
       pool,
       cache,
-      { runId, root, targetUrl: url, attemptNo: 1, discoveryMethod, discoveryParentUrl },
+      {
+        runId,
+        root,
+        targetUrl: url,
+        attemptNo: 1,
+        discoveryMethod,
+        discoveryParentUrl,
+        // ADR 0013 s8: the site-policy resolution may now reach a SECOND
+        // hostname, and this root's distinct-host ledger lives here.
+        admitHostChangingContinuation: (continuationUrl) =>
+          mayReachContinuationHost(continuationUrl, hostname),
+      },
       transport,
     );
 
     hostsUsed.add(hostname);
+    // EVERY HOST THE SITE-POLICY RESOLUTION ACTUALLY REACHED IS RECORDED
+    // (ADR 0013 s8). Under ADR 0012 this was always just `hostname`, because
+    // a continuation could not change host; under C-lite it can, and a host
+    // that was requested but never counted would let the NINTH host be
+    // reached under an 8-host cap. Read from each attempt's own
+    // `requestedUrl` - the URL the gateway was actually given - rather than
+    // recomputed from the predicate, so the ledger records what happened
+    // rather than what was permitted.
+    for (const attempt of result.robots.robotsFetch.attempts) {
+      const attemptedHost = hostnameOf(attempt.requestedUrl);
+      if (attemptedHost !== null) hostsUsed.add(attemptedHost);
+    }
     // A COUNT, NOT A BOOLEAN (ADR 0012). One authorisation may now make two
     // gateway requests: the site-policy bootstrap and, for the narrow
     // same-host redirect shape only, one continuation. Both are real requests

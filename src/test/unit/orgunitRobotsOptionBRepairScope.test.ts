@@ -23,23 +23,29 @@
  *     the two whose HISTORICAL RANGES were bounded to their own phase ends,
  *     and neither lost a forbidden path, module or assertion.
  *
- * The range is BASE -> WORKING TREE on purpose, and that is not the defect
+ * THE RANGE IS NOW BASE -> TERMINAL COMMIT, and that is the sentence this
+ * file's earlier version promised: "when this repair becomes history, its
+ * terminal commit is pinned here the same way the others now are." ADR 0013
+ * (Option C-lite) is the phase that made it history. Leaving the range open
+ * to the working tree would be exactly the defect
  * `docs/evaluation/PHASE_2B_ROBOTS_OPTION_B_FREEZE_COLLISION_OWNER_DECISION_V1.json`
- * corrects: this repair IS the current phase, so its own end is the working
- * tree. The defect was a PAST phase measuring itself against a future it
- * could not have been approved for. When this repair becomes history, its
- * terminal commit is pinned here the same way the others now are.
+ * corrects - a past phase measuring itself against a future it could not have
+ * been approved for - and would make THIS file fail for changes ADR 0013
+ * authorises rather than for anything ADR 0012 forbade.
+ *
+ * FOR THE SAME REASON, EVERY ASSERTION HERE READS THE REPAIR'S OWN BYTES.
+ * The three that used to read live production values - the fetch policy
+ * version, and the predicate's same-host behaviour - now read
+ * `git show <terminal>:<path>`, because both genuinely moved under ADR 0013
+ * and a historical scope proof must not silently restate itself as a claim
+ * about today. What production does TODAY is
+ * `orgunitRobotsOptionCLiteRepairScope.test.ts`'s subject, not this file's.
  */
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import {
-  FETCH_POLICY_VERSION,
-  MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS,
-} from '../../orgunits/web/policy.js';
-import { continuationTargetFor } from '../../orgunits/web/robots.js';
-import type { WebAttemptResult } from '../../orgunits/web/gateway.js';
+import { MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS } from '../../orgunits/web/policy.js';
 
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 
@@ -48,6 +54,12 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
  * that found the capability limit ADR 0012 repairs.
  */
 const REPAIR_BASE_COMMIT = '74d8139cc3358ae600bb8751ae81121711ae313b';
+
+/**
+ * The commit this repair ENDED at: its implementation record. Everything
+ * after it belongs to a later, separately authorised phase.
+ */
+const REPAIR_TERMINAL_COMMIT = '6b43663809f8b89cbfc2de48368b23f2a35e52a9';
 
 /** The exact production surface this repair is authorised to change. */
 const AUTHORISED_PRODUCTION_FILES = [
@@ -103,13 +115,22 @@ function commitExists(commit: string): boolean {
   }
 }
 
-const baseAvailable = commitExists(REPAIR_BASE_COMMIT);
+const baseAvailable = commitExists(REPAIR_BASE_COMMIT) && commitExists(REPAIR_TERMINAL_COMMIT);
 
-/** Every path this repair changed: its base commit -> the current working tree. */
+/** Every path this repair changed: its base commit -> its own terminal commit. */
 function changedInRepair(...paths: readonly string[]): string[] {
   return execFileSync(
     'git',
-    ['-C', REPO_ROOT, 'diff', '--name-only', REPAIR_BASE_COMMIT, '--', ...paths],
+    [
+      '-C',
+      REPO_ROOT,
+      'diff',
+      '--name-only',
+      REPAIR_BASE_COMMIT,
+      REPAIR_TERMINAL_COMMIT,
+      '--',
+      ...paths,
+    ],
     { encoding: 'utf8' },
   )
     .split('\n')
@@ -117,7 +138,16 @@ function changedInRepair(...paths: readonly string[]): string[] {
 }
 
 function diffOf(path: string): string {
-  return execFileSync('git', ['-C', REPO_ROOT, 'diff', '-U0', REPAIR_BASE_COMMIT, '--', path], {
+  return execFileSync(
+    'git',
+    ['-C', REPO_ROOT, 'diff', '-U0', REPAIR_BASE_COMMIT, REPAIR_TERMINAL_COMMIT, '--', path],
+    { encoding: 'utf8' },
+  );
+}
+
+/** A file's bytes AS THIS REPAIR LEFT THEM, never as they are today. */
+function sourceAtTerminal(path: string): string {
+  return execFileSync('git', ['-C', REPO_ROOT, 'show', `${REPAIR_TERMINAL_COMMIT}:${path}`], {
     encoding: 'utf8',
   });
 }
@@ -170,12 +200,20 @@ describe('ADR 0012 repair scope: exactly three production files, by exact path',
   );
 });
 
-describe('ADR 0012 repair scope: the policy the repair declares', () => {
-  it('names the new fetch policy version, and it is v2', () => {
-    expect(FETCH_POLICY_VERSION).toBe('orgunit-fetch-policy-v2');
+describe('ADR 0012 repair scope: the policy the repair declared', () => {
+  it.skipIf(!baseAvailable)('named a new fetch policy version, and it was v2', () => {
+    // READ AT THE TERMINAL COMMIT. Production is past v2 now (ADR 0013), and
+    // asserting the live constant here would make this historical scope proof
+    // fail for a change it was never asked about.
+    const source = sourceAtTerminal('src/orgunits/web/policy.ts');
+    expect(source.match(/FETCH_POLICY_VERSION\s*=\s*'[^']+'/g)).toEqual([
+      "FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v2'",
+    ]);
   });
 
-  it('bounds a site-policy continuation at exactly ONE hop', () => {
+  it('bounds a site-policy continuation at exactly ONE hop - and still does', () => {
+    // The ONE value this repair declared that ADR 0013 deliberately did not
+    // move, so it is still honest to read live.
     expect(MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS).toBe(1);
   });
 
@@ -188,56 +226,48 @@ describe('ADR 0012 repair scope: the policy the repair declares', () => {
   });
 });
 
-describe('ADR 0012 repair scope: the continuation predicate is same-host, single-hop', () => {
-  const resultRedirectingTo = (target: string | null): WebAttemptResult =>
-    ({
-      redirect:
-        target === null
-          ? null
-          : { toUrlResolved: target, targetMalformed: false, status: 301, locationRaw: target },
-    }) as unknown as WebAttemptResult;
-
-  const from = 'https://www.example.edu/robots.txt';
-
-  it('continues the one authorised shape: http -> https on the identical hostname', () => {
-    expect(
-      continuationTargetFor(
-        'http://www.example.edu/robots.txt',
-        resultRedirectingTo('https://www.example.edu/robots.txt'),
-      ),
-    ).toBe('https://www.example.edu/robots.txt');
+describe('ADR 0012 repair scope: the continuation predicate it landed was same-host', () => {
+  /**
+   * THE PREDICATE'S BEHAVIOUR IS READ FROM ITS OWN SOURCE AT THE TERMINAL
+   * COMMIT, not exercised live.
+   *
+   * ADR 0013 widened the live predicate from byte-identical hostname to same
+   * registrable domain. Calling it here would therefore measure ADR 0013 and
+   * report the answer as ADR 0012's, which is the whole failure mode this
+   * file's range pinning exists to prevent. What ADR 0012 landed is a fact
+   * about bytes at one commit, and that is what is asserted. The CURRENT
+   * predicate's behaviour is exercised, case by case, in
+   * `orgunitRobotsOptionCLiteContinuation.test.ts`.
+   */
+  it.skipIf(!baseAvailable)('compared the hostname, byte for byte, and nothing wider', () => {
+    const source = sourceAtTerminal('src/orgunits/web/robots.ts');
+    expect(source).toContain(
+      'if (target.hostname.toLowerCase() !== origin.hostname.toLowerCase()) return null;',
+    );
+    // No registrable-domain notion existed in this module at that commit.
+    expect(source).not.toContain('registrableDomain');
   });
 
-  it('refuses EVERY cross-host target, including a www canonicalisation', () => {
-    for (const target of [
-      'https://example.edu/robots.txt',
-      'https://www2.example.edu/robots.txt',
-      'https://international.example.edu/robots.txt',
-      'https://elsewhere.fr/robots.txt',
-    ]) {
-      expect(continuationTargetFor(from, resultRedirectingTo(target)), target).toBeNull();
-    }
+  it.skipIf(!baseAvailable)('bounded the path, the query, the fragment and the port', () => {
+    const source = sourceAtTerminal('src/orgunits/web/robots.ts');
+    expect(source).toContain(
+      "if (target.pathname !== '/robots.txt' || target.search !== '' || target.hash !== '') return null;",
+    );
+    expect(source).toContain("if (target.port !== '') return null;");
   });
 
-  it('refuses a second hop by refusing the only target a first hop could reach', () => {
-    // From an https policy URL the sole same-host, non-downgrading target is
-    // the identical URL, and a self-redirect is refused - so a chain has
-    // nowhere to go even before the loop bound is applied.
-    expect(continuationTargetFor(from, resultRedirectingTo(from))).toBeNull();
-  });
-
-  it('refuses any path that is not exactly the same host’s own /robots.txt', () => {
-    for (const target of [
-      'https://www.example.edu/robots',
-      'https://www.example.edu/policy/robots.txt',
-      'https://www.example.edu/robots.txt?v=2',
-      'https://www.example.edu/robots.txt#top',
-    ]) {
-      expect(continuationTargetFor(from, resultRedirectingTo(target)), target).toBeNull();
-    }
+  it.skipIf(!baseAvailable)('refused a downgrade and a self-redirect', () => {
+    const source = sourceAtTerminal('src/orgunits/web/robots.ts');
+    expect(source).toContain('const sameScheme = target.protocol === origin.protocol;');
+    expect(source).toContain(
+      "const upgraded = origin.protocol === 'http:' && target.protocol === 'https:';",
+    );
+    expect(source).toContain('if (continuation === requestedRobotsUrl) return null;');
   });
 
   it('robots.ts is still the one production caller of the gateway, and owns no socket', () => {
+    // Read LIVE on purpose: this is an invariant ADR 0013 had to preserve,
+    // not a historical property of ADR 0012's commit.
     const source = readFileSync(join(REPO_ROOT, 'src/orgunits/web/robots.ts'), 'utf8');
     for (const forbidden of ['node:http', 'node:https', 'node:net', 'node:tls', 'node:dns']) {
       expect(source, forbidden).not.toContain(forbidden);

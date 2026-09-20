@@ -770,8 +770,14 @@ describeIf('robots.ts orchestration (integration)', () => {
       expect(transport.plans.map((p) => p.url)).toEqual([HTTP_ROBOTS, HTTPS_ROBOTS]);
     });
 
-    it('a host-changing robots redirect is still NOT continued', async () => {
-      // The `www.` canonicalisation ADR 0008 accepts for an ordinary page.
+    it('a host-changing robots redirect is not continued for a caller with no host ledger', async () => {
+      // UPDATED BY ADR 0013. Under ADR 0012 this shape was refused outright.
+      // Under Option C-lite it is continuable - but only when the caller can
+      // charge the new hostname to a distinct-host budget, and this call
+      // supplies no `admitHostChangingContinuation`. The default is refusal,
+      // so a caller that keeps no ledger still gets exactly ADR 0012's
+      // behaviour. The continuable path is exercised in
+      // `orgunitRobotsOptionCLite.test.ts`.
       const transport = transportWithRobots(
         redirectResponse(301, 'https://example.ac.uk/robots.txt'),
       );

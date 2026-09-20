@@ -1,10 +1,23 @@
 /**
- * ADR 0012's OPTION-B BOUNDARY, AS A PURE PREDICATE.
+ * ADR 0013's OPTION-C-LITE BOUNDARY, AS A PURE PREDICATE.
  *
  * `continuationTargetFor` is the whole of what may be continued after a
  * robots.txt 3xx. Everything it returns null for stays exactly as it was
- * under `orgunit-fetch-policy-v1`: the policy is unread and every ordinary
- * page on that host is `ROBOTS_UNREADABLE`.
+ * under `orgunit-fetch-policy-v1` and `-v2`: the policy is unread and every
+ * ordinary page on that host is `ROBOTS_UNREADABLE`.
+ *
+ * WHAT MOVED FROM ADR 0012, AND ONLY IT: the host boundary went from
+ * BYTE-IDENTICAL HOSTNAME to SAME REGISTRABLE DOMAIN. The three cases below
+ * that used to assert a refusal - a `www.` label dropped, a `www.` label
+ * added, a sibling host - now assert a continuation, and each says so. A
+ * cross-registrable-domain target is still refused, which is the line this
+ * repository holds tighter than RFC 9309 s2.3.1.2's "even across
+ * authorities".
+ *
+ * THE PREDICATE ALSO REPORTS WHETHER THE HOST CHANGED, because two things
+ * downstream turn on it and neither may recompute it: the distinct-host
+ * budget, and whether the resulting policy may be memoised under the target
+ * origin. Every case below asserts that flag, not just the URL.
  *
  * THE REDIRECT FACTS ARE DERIVED, NOT HAND-BUILT. Every case below runs the
  * real `deriveRedirectFacts` over a real `Location` value, because the
@@ -53,13 +66,15 @@ function redirected(requestedUrl: string, location: string, status = 301): WebAt
 const HTTP = 'http://www.example.ac.uk/robots.txt';
 const HTTPS = 'https://www.example.ac.uk/robots.txt';
 
-describe('ADR 0012: the one continuable robots.txt redirect shape', () => {
+describe('ADR 0013: the continuable robots.txt redirect shapes', () => {
   it('CONTINUES an http -> https upgrade on the identical hostname', () => {
-    // The ONE shape this repair exists to recover: the acquisition-yield
-    // diagnostic's selection index 5, whose official ECHE claim publishes an
-    // http:// scheme and whose server canonicalises to https on the same
-    // hostname.
-    expect(continuationTargetFor(HTTP, redirected(HTTP, HTTPS))).toBe(HTTPS);
+    // ADR 0012's shape, unchanged: the acquisition-yield diagnostic's
+    // selection index 5, whose official ECHE claim publishes an http://
+    // scheme and whose server canonicalises to https on the same hostname.
+    expect(continuationTargetFor(HTTP, redirected(HTTP, HTTPS))).toEqual({
+      url: HTTPS,
+      hostChanged: false,
+    });
   });
 
   it('REFUSES a relative Location, because one cannot express this upgrade', () => {
@@ -77,36 +92,59 @@ describe('ADR 0012: the one continuable robots.txt redirect shape', () => {
 
   it('CONTINUES across every redirect status the policy recognises', () => {
     for (const status of [301, 302, 303, 307, 308]) {
-      expect(continuationTargetFor(HTTP, redirected(HTTP, HTTPS, status)), `status ${status}`).toBe(
-        HTTPS,
-      );
+      expect(
+        continuationTargetFor(HTTP, redirected(HTTP, HTTPS, status)),
+        `status ${status}`,
+      ).toEqual({ url: HTTPS, hostChanged: false });
     }
   });
 
-  it('REFUSES a www label being dropped, though the registrable domain is unchanged', () => {
-    // THE OPTION-B / OPTION-C LINE. ADR 0008 accepts exactly this hop for an
-    // ordinary page. It is refused here because robots.txt is a per-ORIGIN
-    // policy: the bytes at example.ac.uk/robots.txt are not www.example.ac.uk's
-    // rules, and applying them to www.example.ac.uk would be the
-    // follow-and-proceed posture ADR 0006 s4 rejected by name.
+  it('CONTINUES a www label being dropped, and reports the host change', () => {
+    // THE ADR 0013 LINE. ADR 0012 refused this on the premise that a policy
+    // retrieved from another origin cannot govern the original one. RFC 9309
+    // s2.3.1.2 says otherwise: a robots.txt reached through redirects - "even
+    // across authorities" - MUST have its rules followed in the context of
+    // the INITIAL authority. This is the shape selection index 1 and
+    // selection index 7 both exhibit.
     expect(
       continuationTargetFor(HTTPS, redirected(HTTPS, 'https://example.ac.uk/robots.txt')),
-    ).toBeNull();
+    ).toEqual({ url: 'https://example.ac.uk/robots.txt', hostChanged: true });
   });
 
-  it('REFUSES a www label being added', () => {
+  it('CONTINUES a www label being added', () => {
     const apex = 'https://example.ac.uk/robots.txt';
     expect(
       continuationTargetFor(apex, redirected(apex, 'https://www.example.ac.uk/robots.txt')),
-    ).toBeNull();
+    ).toEqual({ url: 'https://www.example.ac.uk/robots.txt', hostChanged: true });
   });
 
-  it('REFUSES a sibling host under the same registrable domain', () => {
+  it('CONTINUES a sibling host under the same registrable domain', () => {
+    // Not narrowed to a `www.` rule. The boundary is the registrable domain,
+    // computed by the one `tldts` implementation this repository has - a
+    // narrower "www only" rule would be a second, hand-written host taxonomy.
     expect(
       continuationTargetFor(
         HTTPS,
         redirected(HTTPS, 'https://international.example.ac.uk/robots.txt'),
       ),
+    ).toEqual({ url: 'https://international.example.ac.uk/robots.txt', hostChanged: true });
+  });
+
+  it('CONTINUES an http -> https upgrade that ALSO changes host', () => {
+    const httpApex = 'http://example.ac.uk/robots.txt';
+    expect(continuationTargetFor(httpApex, redirected(httpApex, HTTPS))).toEqual({
+      url: HTTPS,
+      hostChanged: true,
+    });
+  });
+
+  it('REFUSES a registrable-domain SIBLING that merely shares a label', () => {
+    // `example.ac.uk` and `example-two.ac.uk` are different registrable
+    // domains under the same public suffix, and `ac.uk` is a multi-label
+    // suffix - which is exactly the case a naive "last two labels" rule gets
+    // wrong. The single tldts implementation is what makes this right.
+    expect(
+      continuationTargetFor(HTTPS, redirected(HTTPS, 'https://www.example-two.ac.uk/robots.txt')),
     ).toBeNull();
   });
 
@@ -117,9 +155,13 @@ describe('ADR 0012: the one continuable robots.txt redirect shape', () => {
   });
 
   it('REFUSES an https -> http downgrade', () => {
-    // Refused on its own merits, and it is also what makes a cycle
-    // unreachable: without a downgrade there is no way back to http.
+    // Refused on its own merits. NOTE that it is no longer ALSO the reason a
+    // cycle is unreachable: ADR 0012's structural two-request argument relied
+    // on the host being fixed, and C-lite admits a host change. The bound is
+    // now MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS alone - see policy.ts.
     expect(continuationTargetFor(HTTPS, redirected(HTTPS, HTTP))).toBeNull();
+    const apexHttp = 'http://example.ac.uk/robots.txt';
+    expect(continuationTargetFor(HTTPS, redirected(HTTPS, apexHttp)), 'cross-host').toBeNull();
   });
 
   it('REFUSES any path other than exactly /robots.txt', () => {
@@ -166,6 +208,11 @@ describe('ADR 0012: the one continuable robots.txt redirect shape', () => {
     expect(
       continuationTargetFor(HTTP, redirected(HTTP, 'https://www.example.ac.uk:8443/robots.txt')),
     ).toBeNull();
+    // Including on a host-changing target, where a self-redirect refusal
+    // could no longer catch it.
+    expect(
+      continuationTargetFor(HTTPS, redirected(HTTPS, 'https://example.ac.uk:8443/robots.txt')),
+    ).toBeNull();
   });
 
   it('REFUSES a redirect to the URL just requested', () => {
@@ -188,8 +235,9 @@ describe('ADR 0012: the one continuable robots.txt redirect shape', () => {
   });
 
   it('bounds the continuation at exactly ONE hop', () => {
-    // Not ADR 0008's five. A policy resource has no multi-hop journey to
-    // make, and the second response is final whatever it says.
+    // Not ADR 0008's five, and not RFC 9309 s2.3.1.2's "at least five"
+    // either. A policy resource has no multi-hop journey to make, and the
+    // second response is final whatever it says.
     expect(MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS).toBe(1);
   });
 });
