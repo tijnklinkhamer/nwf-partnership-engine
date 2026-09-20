@@ -1,0 +1,307 @@
+{
+  "recordId": "phase2b-2d-method-v2-a2-batch-02-v2-continuation-authority-v1",
+  "recordKind": "OWNER_AUTHORITY",
+  "recordedAtUtc": "2026-09-20T01:09:35Z",
+  "recordedOn": "2026-09-20",
+
+  "ownerDecision": "AUTHORISE_PHASE_2B_2D_A2_BATCH_02_V2_CONTINUATION_V1",
+
+  "originalBatch": "02",
+  "continuationOfHistoricalBatch": true,
+
+  "whatThisIs": [
+    "This authority continues the ORIGINAL Batch-02 primary selection under the",
+    "landed orgunit-fetch-policy-v2 acquisition behaviour. It is NOT Batch 03, it",
+    "is NOT a new batch, and it does NOT rewrite the historical Batch-02 stop.",
+    "The historical Batch-02 P5 stop stands exactly as recorded; what changed is",
+    "the ACQUISITION OF RECORD for selection index 5, which the separately",
+    "approved Option-B evidence adjudication moved from the zero-yield v1 run to",
+    "the successful v2 targeted revalidation run. That adjudication is why the",
+    "carried-forward low-yield count entering this continuation is 1 and not 2."
+  ],
+
+  "authorisedSelectionIndices": [7, 8, 9],
+  "maximumNewOrganisations": 3,
+  "requiredFetchPolicyVersion": "orgunit-fetch-policy-v2",
+
+  "initialLowYieldCount": 1,
+  "initialLowYieldSelectionIndex": 6,
+  "selectionIndex5CurrentStatus": "ACQUISITION_SUCCESSFUL",
+
+  "reserveConsumptionAuthorised": false,
+  "replacementAuthorised": false,
+  "batch03Authorised": false,
+  "labelsAuthorised": false,
+  "providerInferenceAuthorised": false,
+  "holdoutSemanticClassifierAccessAuthorised": false,
+
+  "explicitlyNotAuthorised": [
+    "any selection index >= 10",
+    "any reserve organisation",
+    "replacement of any failed primary slot",
+    "host-changing robots continuation",
+    "Option C",
+    "any methodology change",
+    "any frame or draw change",
+    "SET_P",
+    "SET_R",
+    "labels",
+    "provider inference",
+    "Prompt V7",
+    "DEV_CONFIRM classifier scoring",
+    "FINAL_HOLDOUT semantic classifier access",
+    "Phase 2E entry"
+  ],
+
+  "acquisitionOfRecordStateAtAuthorisation": {
+    "selectionIndex5": {
+      "acquisitionOfRecord": "V2_TARGETED_REVALIDATION_RUN",
+      "formalPostSd7DistinctPages": 28,
+      "rawPageEvidence": 33,
+      "sd9": "ACQUISITION_SUCCESSFUL",
+      "historicalV1RunRetainedAsEvidence": true,
+      "reserveConsumed": 0
+    },
+    "selectionIndex6": {
+      "acquisitionOfRecord": "HISTORICAL_V1_RUN",
+      "v1CompatibleWithV2Transition": true,
+      "rawPageEvidence": 0,
+      "sd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+    },
+    "selectionIndices789": "NEVER_STARTED"
+  },
+
+  "p5Contract": {
+    "carriedForwardInitialLowYieldCount": 1,
+    "newRawLowYieldDefinition": "a completed continuation run whose RAW orgunit_page_evidence count is < 4",
+    "runningCount": "1 + number of completed continuation runs with raw pages < 4",
+    "threshold": 2,
+    "comparison": ">=",
+    "evaluatedAfterEachCompletedRun": true,
+    "effect": "PAUSE BEFORE STARTING THE NEXT INDEX",
+    "workedExamples": [
+      "index 7 raw < 4  => STOP; indices 8 and 9 must not start",
+      "index 7 raw >= 4 => index 8 may start",
+      "index 8 raw < 4  => STOP; index 9 must not start",
+      "indices 7 and 8 both raw >= 4 => index 9 may start"
+    ],
+    "whyRawAndNotPostSd7": [
+      "RAW < 4 can never become >= 4 after removal-only SD7 deduplication, so RAW",
+      "is the safe early stop signal during the live window. A run with RAW >= 4",
+      "may still fail formal SD9 after dedupe; that is reported separately and is",
+      "NOT retroactive evidence that P5 should have fired earlier."
+    ],
+    "gateImplementation": {
+      "path": "src/test/harness/phase2b2d/acquisitionGate/betweenRunGate.ts",
+      "contractPath": "src/test/harness/phase2b2d/acquisitionGate/gateContract.ts",
+      "unmodifiedForThisContinuation": true,
+      "thresholdUnchanged": true,
+      "howCarriedForwardStateIsRepresented": [
+        "The landed gate takes a growing list of completed-run observations over",
+        "the authorised Batch-02 index set [5,6,7,8,9], which is exactly this",
+        "continuation's scope. The carried-forward count of 1 is therefore",
+        "representable with no code change at all: the operator seeds the list",
+        "with the ACQUISITION OF RECORD for the already-executed primaries",
+        "(index 5 = 33 raw pages, index 6 = 0 raw pages), which the gate counts",
+        "as exactly one low-raw-yield organisation. No harness adaptation was",
+        "needed and none was made."
+      ]
+    }
+  },
+
+  "boundImmutableInputs": {
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306,
+      "commit": "f5f2ded0e14be2310aec221428d51b06925e9c9d",
+      "verifiedUnchanged": true
+    },
+    "corpusAcquisitionPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "bytes": 45200,
+      "commit": "6f2de0fd5a80f050857a14531e74b659f0ff30c1",
+      "verifiedUnchanged": true
+    },
+    "planV1OptionBAmendment": {
+      "path": "docs/evaluation/PHASE_2B_2D_CORPUS_ACQUISITION_PLAN_V1_OPTION_B_AMENDMENT_V1.json",
+      "sha256": "d440afabd68f4a528bdeadb6c45cf6a489e541d33c214e961419f4adaa80cbc3",
+      "bytes": 11185,
+      "commit": "95f2bd78b7dd1f33cb82554e8abaf2aec6840a1d",
+      "verifiedPresent": true
+    },
+    "optionBEvidenceAdjudication": {
+      "path": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_B_REVALIDATION_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "2f42765263b375e939881c0f408aab246ceee0ab1a59f70401adfb4ec2daca1c",
+      "bytes": 5467,
+      "commit": "95f2bd78b7dd1f33cb82554e8abaf2aec6840a1d",
+      "verifiedPresent": true,
+      "readFromCommittedTreeNotGuessed": true
+    },
+    "acquisitionPolicyTransitionLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_ACQUISITION_POLICY_TRANSITION_LEDGER_V2_GEN1.json",
+      "sha256": "e3a2fe6199af4c0859b625b8f2b599e51bf4273a815d50ca8a8527fc28611aaf",
+      "bytes": 3054,
+      "commit": "b0f4efa01d7e861a701e3514afc690a99262f554",
+      "verifiedPresent": true,
+      "mustNotBeAlteredByThisContinuation": true,
+      "why": "Indices 7, 8 and 9 are BORN under v2. They carry no v1->v2 evidence transition, so they are not ledger entries."
+    },
+    "optionBTransitionSd7MeasurementOfRecord": {
+      "path": "docs/evaluation/PHASE_2B_2D_OPTION_B_TRANSITION_SD7_MEASUREMENT_OF_RECORD_V1.json",
+      "sha256": "e5bfae12c86b8661dde9232eddedb3a0a215df11b6438a7768be536725862b7f",
+      "bytes": 11574,
+      "commit": "b0f4efa01d7e861a701e3514afc690a99262f554"
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650",
+      "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "bytes": 3554080,
+      "commit": "c64fad3474499d392d316e35c720310c76e9405b",
+      "verifiedUnchanged": true
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "bytes": 74047,
+      "commit": "34537caf2308ade014f9f459ca9f97596dc48a17",
+      "verifiedUnchanged": true
+    },
+    "historicalBatch02Authority": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_02_AUTHORITY_RECORD_V1.json",
+      "sha256": "8dd7f7be302ee69a0a21030720529b066f04e4b625d51c2ec21af1659d40a4d3",
+      "bytes": 22923,
+      "commit": "96d17c9a05948ed65d00fb8801c9bf4b00ef2f39"
+    },
+    "historicalBatch02ExecutionRecord": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_02_EXECUTION_RECORD_V1.json",
+      "sha256": "fd2f0089428daf0f2b96cd45ef6417e70954119f7cbff667b5486e50bd3bb7d1",
+      "bytes": 14893,
+      "commit": "637c6e6a9a15e2ca24f0f9794842cce727464136"
+    }
+  },
+
+  "drawPreflight": {
+    "readOnlyPrimaryEntriesAt": [7, 8, 9],
+    "reserveEntriesNotRead": true,
+    "allThreeIncludedInOriginalPrimary110": true,
+    "eachHasExactlyOneRootAuthority": true,
+    "eachRootAuthorityType": "WEBSITE_CLAIM",
+    "eachRootAuthorityResolvesToStructurallyValidClaim": true,
+    "eachClaimEcheRowKeyMatchesDrawEntry": true,
+    "eachClaimOrganisationIdMatchesDrawEntry": true,
+    "exactlyOneStructurallyValidClaimPerEcheRowKey": true,
+    "noUnexpectedPromotion": true,
+    "noRootDrift": true,
+    "priorResearchRunsTouchingTheseEcheRowKeys": 0,
+    "institutionIdentitiesNotDisclosedHere": true,
+    "splits": {
+      "note": "Recorded because SD7 detail routing depends on the split, NOT because any label, classifier or holdout access is authorised here. Acquisition is split-blind; only SD7 DETAIL routing is split-aware.",
+      "7": "FINAL_HOLDOUT",
+      "8": "DEV_CONFIRM",
+      "9": "FINAL_HOLDOUT"
+    }
+  },
+
+  "databasePreconditionVerified": {
+    "verifiedRatherThanAssumed": true,
+    "orgunit_research_runs": 8,
+    "orgunit_research_run_completions": 8,
+    "orgunit_fetch_observations": 116,
+    "orgunit_redirect_observations": 6,
+    "orgunit_page_evidence": 92,
+    "orgunit_page_candidates": 184,
+    "orgunit_root_promotions": 0,
+    "orgunit_root_promotion_revocations": 0,
+    "classifierTablesAllZero": {
+      "orgunit_classification_subjects": 0,
+      "orgunit_classifier_calls": 0,
+      "orgunit_classifier_call_completions": 0,
+      "orgunit_page_classifications": 0
+    },
+    "historicalAcquisitionRunsAtV1": 7,
+    "currentAcquisitionRunsAtV2": 1,
+    "noUnexplainedAdditionalResearchRun": true,
+    "runAccounting": "5 Batch-01 runs (indices 0-4) + 2 Batch-02 runs (indices 5,6) + 1 index-5 v2 targeted revalidation = 8"
+  },
+
+  "frozenBudgetsUnchanged": {
+    "MAX_TOTAL_REQUESTS_PER_ROOT": 60,
+    "MAX_PAGE_ATTEMPTS_PER_ROOT": 35,
+    "MAX_HOSTS_PER_ROOT": 8,
+    "MAX_SITEMAP_DOCUMENTS_PER_ROOT": 5,
+    "MAX_SITEMAP_DEPTH": 2,
+    "MAX_SITEMAP_URLS_PER_ROOT": 3000,
+    "MAX_REDIRECT_CONTINUATION_HOPS": 5,
+    "MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS": 1,
+    "MIN_HOST_PACING_SECONDS": 1.2,
+    "CONNECT_TIMEOUT_MS": 30000,
+    "TOTAL_TIMEOUT_MS": 45000,
+    "MAX_BODY_BYTES": 5242880,
+    "noWidening": true,
+    "unusedCapacityFromAStoppedContinuationExpires": true
+  },
+
+  "optionBBoundaryUnchanged": {
+    "allowedRobotsContinuationRequiresAll": [
+      "same hostname",
+      "no explicit port",
+      "exact /robots.txt path",
+      "no query",
+      "no fragment",
+      "same scheme or http->https",
+      "single hop",
+      "no scheme downgrade"
+    ],
+    "hostChangingRobotsRedirectRefused": true,
+    "optionBNotModified": true,
+    "optionCNotAuthorisedRegardlessOfLiveOutcome": true
+  },
+
+  "executionContract": {
+    "commandShape": "npm run cli -- orgunits discover --organisation-id <PRIVATE_ID> --execute --json",
+    "oneInvocationPerOrganisation": true,
+    "concurrency": 1,
+    "retries": 0,
+    "sequentialOrder": [7, 8, 9],
+    "noManualCurlWgetOrBrowser": true,
+    "noDirectRobotsRequests": true,
+    "noAlternateCrawler": true,
+    "aGenuineRobotsRefusalIsAnAcquisitionResultNotPermissionToRetry": true
+  },
+
+  "hostSafetyRequiredAgain": {
+    "previousBatteryWaiverNotCarriedForward": true,
+    "required": [
+      "AC power",
+      "lid open",
+      "caffeinate active",
+      "no unresolved sleep/wake transition",
+      "database reachable",
+      "sufficient disk",
+      "clean worktree",
+      "authority commit pushed"
+    ],
+    "ifAcUnavailable": "STOP before network; no self-waiver",
+    "ifSleepWakeDuringRun": "allow the current run to reach its durable boundary if possible, then STOP; no next organisation"
+  },
+
+  "pauseConditions": {
+    "P0": "input / frame / draw / authority mismatch -> STOP",
+    "P1": "INVALID_ROOT_AUTHORITY -> STOP",
+    "P3": "FAILED run, orchestration error, uncaught execution failure -> STOP",
+    "P4": "durability / persistence anomaly -> STOP",
+    "P5": "currentLowRawYieldCount reaches 2 -> STOP BEFORE NEXT ORGANISATION",
+    "P6": "hash / provenance mismatch -> STOP",
+    "P7": "sleep/wake / pacing-clock anomaly -> STOP after current durable boundary",
+    "policyVersionProvenanceFailure": "any new run or observation at v1 -> STOP after the durable boundary, classify POLICY_VERSION_PROVENANCE_FAILURE, no retry"
+  },
+
+  "ownDurability": {
+    "thisRecordIsCommittedAndPushedBeforeAnyLiveRequest": true,
+    "ownCommitShaDeliberatelyAbsent": "A record cannot truthfully contain the SHA of the commit that introduces it. This record's own commit and push are reported in the continuation execution record instead; no future commit SHA is fabricated here."
+  }
+}
