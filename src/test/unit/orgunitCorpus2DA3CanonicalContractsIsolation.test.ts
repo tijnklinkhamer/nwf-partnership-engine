@@ -1,12 +1,19 @@
 /**
  * PHASE 2B-2D A3 R1 ISOLATION — CONTRACTS AND TYPES, AND NOTHING ELSE.
  *
+ * R2 WIDENED THIS FILE DELIBERATELY, BY EXACT NAME: the namespace now holds
+ * exactly R1's two files plus R2's `rank.ts` and `setP.ts`, and `node:crypto`
+ * is the one bare import the closure may reach - through `rank.ts` only.
+ * Every other assertion below is unchanged. R2's own boundaries live in
+ * `orgunitCorpus2DA3CanonicalSetPIsolation.test.ts`.
+ *
  * By walking the real import graph and source text of
  * `src/test/harness/phase2b2d/a3prep/`, this file proves:
  *
- *   - R1 holds exactly `contracts.ts` and `types.ts`; every later-slice module
- *     (rank, SET_P, SET_R, caps, SD7, SD9, manifests, split scope, freeze
- *     preflight, synthetic fixtures) is absent;
+ *   - the namespace holds exactly R1's `contracts.ts` and `types.ts` and R2's
+ *     `rank.ts` and `setP.ts`; every later-slice module (SET_R, caps, SD7,
+ *     SD9, manifests, split scope, freeze preflight, synthetic fixtures) is
+ *     absent;
  *   - the whole transitive import closure of R1 is pure: no socket, no
  *     fetch(), no database, no filesystem, no child process, no environment
  *     read, no clock, no randomness, no provider or AI SDK;
@@ -30,10 +37,13 @@ const A3PREP_DIR = join(REPO_ROOT, 'src/test/harness/phase2b2d/a3prep');
 
 const R1_FILES = ['contracts.ts', 'types.ts'];
 
+/** R2, added by exact name. Nothing else joins the namespace without a new edit here. */
+const R2_FILES = ['rank.ts', 'setP.ts'];
+
+const NAMESPACE_FILES = [...R1_FILES, ...R2_FILES].sort();
+
 /** Later slices. Their absence is part of what R1 is. */
 const LATER_SLICE_FILES = [
-  'rank.ts',
-  'setP.ts',
   'setR.ts',
   'organisationCaps.ts',
   'sd7.ts',
@@ -65,10 +75,15 @@ function specifiersOf(source: string): string[] {
 }
 
 /** Every module R1 reaches, transitively, as repo-relative paths. */
-function importClosure(): { modules: string[]; bareSpecifiers: string[] } {
+function importClosure(): {
+  modules: string[];
+  bareSpecifiers: string[];
+  bareImporters: Record<string, string[]>;
+} {
   const seen = new Set<string>();
   const bare = new Set<string>();
-  const queue = R1_FILES.map((file) => join(A3PREP_DIR, file));
+  const bareImporters: Record<string, string[]> = {};
+  const queue = NAMESPACE_FILES.map((file) => join(A3PREP_DIR, file));
   while (queue.length > 0) {
     const absolute = queue.shift() as string;
     const rel = relative(REPO_ROOT, absolute);
@@ -79,15 +94,16 @@ function importClosure(): { modules: string[]; bareSpecifiers: string[] } {
         queue.push(resolve(dirname(absolute), specifier.replace(/\.js$/, '.ts')));
       } else {
         bare.add(specifier);
+        (bareImporters[specifier] ??= []).push(rel);
       }
     }
   }
-  return { modules: [...seen].sort(), bareSpecifiers: [...bare].sort() };
+  return { modules: [...seen].sort(), bareSpecifiers: [...bare].sort(), bareImporters };
 }
 
-describe('2D-A3 R1: the a3prep namespace holds exactly R1', () => {
-  it('contains exactly contracts.ts and types.ts', () => {
-    expect(readdirSync(A3PREP_DIR).sort()).toEqual(R1_FILES);
+describe('2D-A3 R1: the a3prep namespace holds exactly R1 and R2', () => {
+  it('contains exactly contracts.ts, types.ts, rank.ts and setP.ts', () => {
+    expect(readdirSync(A3PREP_DIR).sort()).toEqual(NAMESPACE_FILES);
   });
 
   it('contains no later-slice module', () => {
@@ -103,14 +119,17 @@ describe('2D-A3 R1: the import closure is pure and bounded', () => {
   it('reaches only a3prep and the two canonical pure contracts', () => {
     expect(closure.modules).toEqual(
       [
-        ...R1_FILES.map((f) => `src/test/harness/phase2b2d/a3prep/${f}`),
+        ...NAMESPACE_FILES.map((f) => `src/test/harness/phase2b2d/a3prep/${f}`),
         ...PERMITTED_EXTERNAL_MODULES,
       ].sort(),
     );
   });
 
-  it('imports no package and no node built-in at all', () => {
-    expect(closure.bareSpecifiers).toEqual([]);
+  it('imports no package, and node:crypto as its only built-in, through rank.ts alone', () => {
+    expect(closure.bareSpecifiers).toEqual(['node:crypto']);
+    expect(closure.bareImporters['node:crypto']).toEqual([
+      'src/test/harness/phase2b2d/a3prep/rank.ts',
+    ]);
   });
 
   it('never reaches src/orgunits, the CLI, migrations, the classifier/provider runtime or A2 machinery', () => {
@@ -142,8 +161,8 @@ describe('2D-A3 R1: the import closure is pure and bounded', () => {
     }
   });
 
-  it('R1 names no sealed root and no sealed-split path', () => {
-    for (const file of R1_FILES) {
+  it('R1 and R2 name no sealed root and no sealed-split path', () => {
+    for (const file of NAMESPACE_FILES) {
       const code = stripComments(readFileSync(join(A3PREP_DIR, file), 'utf8'));
       expect(code, file).not.toMatch(/SEALED_ROOT_BY_SPLIT/);
       expect(code, file).not.toMatch(/gen1-dev-confirm|gen1-final-holdout|-sealed/);
