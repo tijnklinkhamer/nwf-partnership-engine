@@ -42,7 +42,7 @@ const REPAIR_BASE_COMMIT = 'ad7f788a74c6a5e108ca0df1f5776f5e3324e5dc';
  * file runs while the correction is being built; it is then pinned to the
  * correction commit so later A2 work cannot enter the range.
  */
-const REPAIR_TERMINAL_COMMIT: string | null = null;
+const REPAIR_TERMINAL_COMMIT: string | null = '9a49714fee4521f17a519348b77b94c3ffab0f00';
 
 const THIS_FILE = 'src/test/unit/orgunitCorpus2DA2PostP12ValidationReview.test.ts';
 const REVIEW_RECORD_PATH =
