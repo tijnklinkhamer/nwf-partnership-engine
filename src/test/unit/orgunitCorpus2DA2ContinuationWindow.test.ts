@@ -13,6 +13,7 @@
  * hashes only, so no institution identity can reach a failure message.
  */
 
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -172,8 +173,37 @@ const FOUR = append(GENESIS, [3, 4, 6, 8]);
 
 const DRAW_TEXT = readText(DRAW_PATH);
 const REAL_DRAW = JSON.parse(DRAW_TEXT) as DrawArtifact;
-const LEDGER_TEXT = readText(REPLACEMENT_LEDGER_PATH);
+/**
+ * THE GENESIS REVISION IS READ FROM ITS OWN COMMIT, NOT THE WORKING TREE.
+ *
+ * The ledger is an evolving, append-only artifact. Every assertion below that
+ * names the "committed" ledger is a claim about its GENESIS revision - the
+ * empty ledger `36bd531` introduced and the Window V1 plan binds by file sha -
+ * and that claim stays true after the approved Window V1 live authority
+ * appended four entries (c4396c1). Reading the working tree instead would turn
+ * "the genesis was empty" into "no reserve may ever be assigned".
+ *
+ * CI clones with full history. Without it the working-tree ledger is read,
+ * and these assertions FAIL loudly rather than pass vacuously. The present
+ * four-entry revision is pinned separately, in section 1b.
+ */
+const GENESIS_REVISION_COMMIT = '36bd5316300b396aeb38d347ac4f46f885ccacba';
+function readAtCommit(commit: string, path: string): string | null {
+  try {
+    return execFileSync('git', ['-C', REPO_ROOT, 'show', `${commit}:${path}`], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+  } catch {
+    return null;
+  }
+}
+const LEDGER_TEXT =
+  readAtCommit(GENESIS_REVISION_COMMIT, REPLACEMENT_LEDGER_PATH) ??
+  readText(REPLACEMENT_LEDGER_PATH);
 const COMMITTED_LEDGER = JSON.parse(LEDGER_TEXT) as ReplacementLedger;
+const CURRENT_LEDGER_TEXT = readText(REPLACEMENT_LEDGER_PATH);
+const CURRENT_LEDGER = JSON.parse(CURRENT_LEDGER_TEXT) as ReplacementLedger;
 const PLAN_TEXT = readText(WINDOW_PLAN_PATH);
 const COMMITTED_PLAN = JSON.parse(PLAN_TEXT) as WindowPlan;
 
@@ -181,7 +211,7 @@ const COMMITTED_PLAN = JSON.parse(PLAN_TEXT) as WindowPlan;
 // 1. THE GENESIS LEDGER
 // ===========================================================================
 
-describe('2D-A2 continuation: the canonical replacement ledger is the EMPTY genesis', () => {
+describe('2D-A2 continuation: the canonical replacement ledger GENESIS revision (36bd531) is empty', () => {
   it('(A) exists at the one pinned path, is valid against the real draw, and holds zero entries', () => {
     expect(REPLACEMENT_LEDGER_PATH).toBe(
       'docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json',
@@ -238,6 +268,49 @@ describe('2D-A2 continuation: the canonical replacement ledger is the EMPTY gene
     expect(ledgerExtendsGenesis({ ...edited, ledgerHash: recomputeLedgerHash(edited) })).toBe(
       false,
     );
+  });
+});
+
+// ===========================================================================
+// 1b. THE CURRENT REVISION: WINDOW V1'S FOUR PRE-NETWORK ASSIGNMENTS
+// ===========================================================================
+
+describe('2D-A2 continuation: the canonical ledger now carries exactly Window V1’s four pre-network rows', () => {
+  it('is valid, extends the genesis header, and holds reserves 0-3 for slots 3, 4, 6, 8', () => {
+    expect(validateReplacementLedger(REAL_DRAW, CURRENT_LEDGER)).toEqual({
+      valid: true,
+      entryCount: 4,
+    });
+    expect(ledgerExtendsGenesis(CURRENT_LEDGER)).toBe(true);
+    expect(sha256(CURRENT_LEDGER_TEXT)).toBe(
+      '6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0',
+    );
+    expect(CURRENT_LEDGER.ledgerHash).toBe(
+      '2febfecfe14bc0f6ca709271e33782e2ac2a8a14f09a14ff4ff0bdf608b7e452',
+    );
+    expect(
+      CURRENT_LEDGER.entries.map((e) => [e.selectionIndex, e.reserveRankPosition, e.reason]),
+    ).toEqual([
+      [3, 0, 'ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET'],
+      [4, 1, 'ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE'],
+      [6, 2, 'ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE'],
+      [8, 3, 'ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE'],
+    ]);
+    expect(reserveConsumedCount(REAL_DRAW, CURRENT_LEDGER)).toBe(4);
+  });
+
+  it('is exactly what the landed append machinery derives from the genesis revision at its recorded instant', () => {
+    const prepared = prepareReplacementAppend({
+      draw: REAL_DRAW,
+      ledger: COMMITTED_LEDGER,
+      assignments: [3, 4, 6, 8].map((selectionIndex, reserveRankPosition) => ({
+        selectionIndex,
+        reserveRankPosition,
+        reason: CURRENT_REPLACEMENT_REASONS[selectionIndex as 3 | 4 | 6 | 8],
+      })),
+      recordedAtUtc: CURRENT_LEDGER.entries[0]!.recordedAtUtc,
+    });
+    expect(canonicalStringify(prepared.nextLedger)).toBe(canonicalStringify(CURRENT_LEDGER));
   });
 });
 
@@ -584,10 +657,8 @@ describe('2D-A2 continuation: append preparation (for the later live authority)'
         row.replacementEcheRowKey === REAL_DRAW.reserve[row.reserveRankPosition]!.echeRowKey,
       ).toBe(true);
     });
-    // The canonical file on disk is untouched: still the empty genesis.
-    expect((JSON.parse(readText(REPLACEMENT_LEDGER_PATH)) as ReplacementLedger).entries).toEqual(
-      [],
-    );
+    // Preparing is pure: the canonical file on disk is exactly as it was.
+    expect(readText(REPLACEMENT_LEDGER_PATH)).toBe(CURRENT_LEDGER_TEXT);
   });
 
   it('refuses assignments that are not exactly the planner’s (manual reordering)', () => {
