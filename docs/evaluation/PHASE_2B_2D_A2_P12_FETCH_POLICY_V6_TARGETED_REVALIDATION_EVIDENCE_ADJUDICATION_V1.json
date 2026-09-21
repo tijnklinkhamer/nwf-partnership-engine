@@ -1,0 +1,503 @@
+{
+  "recordId": "phase2b-2d-a2-p12-fetch-policy-v6-targeted-revalidation-evidence-adjudication-v1",
+  "recordKind": "TARGETED_CAPABILITY_REVALIDATION_FINAL_EVIDENCE_ADJUDICATION",
+  "records": "PHASE_2B_2D_A2_P12_FETCH_POLICY_V6_TARGETED_REVALIDATION_EVIDENCE_ADJUDICATION_V1",
+  "recordedAtUtc": "2026-09-21T21:07:03Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "ownerDecisions": [
+    "ACCEPT_A2_P12_V6_TARGETED_REVALIDATION_AS_VALID_CURRENT_EVIDENCE_V1",
+    "CLOSE_P12_DOCUMENT_BASE_CAPABILITY_REVIEW_NO_ACQUISITION_RECOVERY_V1",
+    "ACCEPT_DEFERRED_HREF_ENTITY_DECODING_AS_NON_BLOCKING_FOR_P12_ADJUDICATION_V1",
+    "ADJUDICATE_P12_ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET_V1",
+    "AUTHORISE_ACQUISITION_POLICY_TRANSITION_LEDGER_V6_GEN1_V1"
+  ],
+  "startingHead": "b7f578460e0182d41b5df4a33b4e345e6d5d7d18",
+  "startingState": {
+    "worktreeClean": true,
+    "localEqualsOrigin": true,
+    "overlappingA2Movement": false,
+    "ancestryVerified": [
+      "f8923fc961ce2753be723099d633345fbe9011bd",
+      "1d6cee614df14b8b9156d4d26e2ca462ffc50548",
+      "b7f578460e0182d41b5df4a33b4e345e6d5d7d18"
+    ]
+  },
+  "bound": {
+    "v6PolicyRepair": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_DISCOVERY_RCDATA_FETCH_POLICY_V6_REPAIR_V1.json",
+      "sha256": "76d6a8bc102313bf844558bc7d78843b7517e43a1fcdf1ce4dfdfe16bc998c93",
+      "bytes": 9861,
+      "commit": "679eb1ad05d3730ddca9334d51fc15217f34b579"
+    },
+    "v6Implementation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_DISCOVERY_RCDATA_V6_IMPLEMENTATION_V1.json",
+      "sha256": "48879c82078f037cb0e04ad26adddc41679877e0393df678c6f8a48fc7a71532",
+      "bytes": 10404,
+      "commit": "f8923fc961ce2753be723099d633345fbe9011bd"
+    },
+    "targetedRevalidationAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_P12_FETCH_POLICY_V6_TARGETED_REVALIDATION_AUTHORITY_V1.json",
+      "sha256": "e4b7b2d290a4a586a172e4eae2712f028114f811f662edc4d749e7e60ba5564d",
+      "bytes": 8771,
+      "commit": "1d6cee614df14b8b9156d4d26e2ca462ffc50548"
+    },
+    "targetedRevalidationResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_P12_FETCH_POLICY_V6_TARGETED_REVALIDATION_RESULT_V1.json",
+      "sha256": "4dba1ff368470be09aee9c1cda17077b95bdcc2371d33f93a74cc718f5d443f8",
+      "bytes": 15532,
+      "commit": "b7f578460e0182d41b5df4a33b4e345e6d5d7d18",
+      "recomputedInThisStep": true,
+      "edited": false
+    },
+    "windowV2EvidenceAdjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_PRIMARY_10_14_LIVE_WINDOW_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "9503dec328acaae530dd2574b0a7f14c7b2ed67e3f5fa1fdbce0f41830c0e563",
+      "bytes": 18185,
+      "commit": "69dff793439a8d20d29894100c4b73e064206308",
+      "edited": false
+    },
+    "windowV2Result": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_PRIMARY_10_14_LIVE_WINDOW_RESULT_V1.json",
+      "sha256": "c16ec72e84b938d338d3108291e4d9899c438d9123ab90a80a0674c8eb0e9576",
+      "bytes": 22408,
+      "commit": "575b706d1c33f7b62eb3ac5000780581bc901dbe",
+      "edited": false
+    },
+    "capabilityReview": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_ANCHOR_DOCUMENT_BASE_CAPABILITY_REVIEW_V1.json",
+      "sha256": "eac03dc122d3e7b8a575e82f1a9509145aec2ac3b00eca3d86ca5b1e3a1e5066",
+      "bytes": 18903,
+      "commit": "69dff793439a8d20d29894100c4b73e064206308",
+      "edited": false
+    },
+    "transitionLedgerV4": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_ACQUISITION_POLICY_TRANSITION_LEDGER_V4_GEN1.json",
+      "sha256": "ca69abf483bad007419a1bcc8ab0e156901f87abd604ca369e8fa4cc7a965346",
+      "bytes": 17539,
+      "commit": "7a86da7464ab03edb5b04d9f49e44b23443b791a",
+      "entries": 6,
+      "edited": false
+    },
+    "transitionLedgerV6": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_ACQUISITION_POLICY_TRANSITION_LEDGER_V6_GEN1.json",
+      "sha256": "592b17062a601ac21f0525209e133220b90ebd97848790f9da66e22f9391461d",
+      "bytes": 19454,
+      "entries": 7,
+      "committedBeforeThisRecord": true,
+      "createdInThisStep": true,
+      "commit": "3702cf3bf5897f4b614c0806573f3218b130528c"
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0",
+      "bytes": 7254,
+      "ledgerHash": "2febfecfe14bc0f6ca709271e33782e2ac2a8a14f09a14ff4ff0bdf608b7e452",
+      "entries": 4,
+      "lastChangedIn": "c4396c1",
+      "byteIdenticalAfterThisStep": true,
+      "appended": false
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    },
+    "sealedSd7Detail": {
+      "root": "~/Developer/phase2b-2d-methodology-v2/gen1-dev-train",
+      "file": "P12_FETCH_POLICY_V6_TARGETED_REVALIDATION_SD7_DETAIL_V1.json",
+      "sha256": "f0d75b307d58869e92fabf00520f6b3578ab248b5b839de78f817d1c6656ade3",
+      "bytes": 1198,
+      "reReadInThisStep": true,
+      "committedToGit": false,
+      "historicalV4SealedFileSha256Unchanged": "fb63977638cc4d388d935ce019776183a70a25decf16da59001d5898baed112d"
+    }
+  },
+  "validation": {
+    "command": "npm run validate",
+    "runsOfIt": 1,
+    "atHead": "b7f578460e0182d41b5df4a33b4e345e6d5d7d18",
+    "workingTreeAtValidate": "HEAD plus exactly the two new records of this step (untracked)",
+    "startedUtc": "2026-09-21T21:07:22Z",
+    "finishedUtc": "2026-09-21T21:11:52Z",
+    "exitCode": 0,
+    "steps": ["migrations:check", "typecheck", "lint", "format:check", "test", "build"],
+    "testFiles": {
+      "passed": 193,
+      "skipped": 5,
+      "failed": 0,
+      "total": 198
+    },
+    "tests": {
+      "passed": 4927,
+      "skipped": 75,
+      "failed": 0,
+      "total": 5002
+    },
+    "validatedBytesOfThisRecord": {
+      "sha256": "030c9c4d629c62e0eedc0a68f341283d8d2498b5b63e20ec57839a18d047e7c7",
+      "note": "validate ran over this record with only this validation block as a placeholder and the ledger commit not yet recorded; both were then filled and prettier --check re-run on the final bytes. The V6 ledger was not edited after validate."
+    },
+    "log": {
+      "location": "outside the repository, in this session scratchpad",
+      "sha256": "06f556066591a3c34f5fe959c01e6c4df7c68d9a7e1fcd28268a70775adc6b75",
+      "bytes": 32660,
+      "committedToGit": false
+    }
+  },
+  "evidenceIntegrity": {
+    "verdict": "P12_V6_REVALIDATION_EVIDENCE_INTEGRITY_ACCEPTED",
+    "reverifiedFromDurableEvidence": {
+      "workItemId": "P:12",
+      "selectionIndex": 12,
+      "split": "DEV_TRAIN",
+      "occupant": "ORIGINAL_SELECTION",
+      "drawEntrySha256": "62918025160460de236c6dc48350beb89172a08864cad98b5a2bb44e51393391",
+      "drawEntrySha256RecomputedFromDrawArtifact": true,
+      "liveInvocations": 1,
+      "policy": "orgunit-fetch-policy-v6",
+      "newObservations": 38,
+      "allNewObservationsV6": true,
+      "runTerminal": "COMPLETED",
+      "completionErrorKind": null,
+      "rootTerminal": "PAGE_BUDGET_EXHAUSTED",
+      "rawPages": 1,
+      "candidateRows": 2,
+      "formalSd7": {
+        "min": 1,
+        "max": 1,
+        "exact": true
+      },
+      "diagnosticSd9": "ACQUISITION_UNSUCCESSFUL"
+    },
+    "databaseCrossChecks": {
+      "v6RunFoundBySha256OfRunUuid": true,
+      "v4RunFoundBySha256OfRunUuid": true,
+      "everyV6ObservationEcheRowKeyEqualsDrawEntry": true,
+      "everyV6ObservationOrganisationEqualsDrawEntry": true,
+      "everyV4ObservationEcheRowKeyEqualsDrawEntry": true,
+      "v6SingleRootClaimEqualsV4RootClaim": true,
+      "v6PromotionRootObservations": 0,
+      "runsForThisOrganisation": 2,
+      "v6RunIsLatestRun": true,
+      "runsAfterV6Run": 0
+    },
+    "defectsFound": {
+      "organisationMismatch": false,
+      "rootMismatch": false,
+      "manualRetry": false,
+      "secondCliInvocation": false,
+      "persistenceAnomaly": false,
+      "promotion": false,
+      "classifierOrProviderExecution": false,
+      "ledgerMutation": false,
+      "unauthorisedNetwork": false,
+      "activeTargetSleepWake": false
+    }
+  },
+  "documentBaseCapabilityFinding": {
+    "v4LinkAttempts": 34,
+    "v6LinkAttempts": 34,
+    "overlap": 34,
+    "union": 34,
+    "sameOrder": true,
+    "sameParent": true,
+    "sameSetDigest": "695c45e180d7e3496489682edc65fc4ecfae49c7848b6ff1649ca3501b65f559",
+    "rawPages": {
+      "v4": 1,
+      "v6": 1
+    },
+    "formalSd7": {
+      "v4": 1,
+      "v6": 1
+    },
+    "diagnosticSd9": {
+      "v4": "ACQUISITION_UNSUCCESSFUL",
+      "v6": "ACQUISITION_UNSUCCESSFUL"
+    },
+    "accepted": [
+      "V6_FRONTIER_NOT_MATERIALLY_CHANGED",
+      "DOCUMENT_BASE_CAPABILITY_DID_NOT_RECOVER_P12_ACQUISITION"
+    ],
+    "supportedClaim": "the approved v6 document-base/RCDATA capability changes produced no material frontier or acquisition change for P:12",
+    "notClaimed": "P:12 definitely had no <base>. No body is persisted and the root bytes differed between runs, so the presence or absence of a <base> element is not established.",
+    "sufficientToCloseTheCapabilityHold": true
+  },
+  "rootByteVariance": {
+    "rootDocumentBytesDifferedBetweenV4AndV6": true,
+    "perfectByteIdenticalCounterfactual": false,
+    "whyItDoesNotKeepTheSlotPending": [
+      "the exact 34 LINK frontier URLs remained identical",
+      "their ordering remained identical",
+      "raw page yield remained 1",
+      "formal SD7 remained exactly 1",
+      "the site generic 404 body hash remained identical across runs",
+      "no v6 LINK attempt returned 2xx or 3xx"
+    ],
+    "treatment": "The adjudication reads the accepted v6 run as CURRENT evidence. It does not require proving what the old root body contained.",
+    "underminesCurrentV6Result": false
+  },
+  "entityDecodingGap": {
+    "openCapabilities": {
+      "ANCHOR_HREF_CHARACTER_REFERENCE_DECODING": "DEFERRED",
+      "BASE_HREF_CHARACTER_REFERENCE_DECODING": "DEFERRED"
+    },
+    "implementedHere": false,
+    "representedAsFixed": false,
+    "evidence": [
+      "the capability review recorded 0 of the 34 historical P:12 frontier URLs containing an ampersand or entity artifact",
+      "the v6 frontier is exactly the same 34 URLs (same set digest)",
+      "v6 was approved and executed with this limitation already documented"
+    ],
+    "decision": "KNOWN_OPEN_ENTITY_DECODING_CAPABILITY_NOT_A_P12_ADJUDICATION_BLOCKER",
+    "status": "REPOSITORY_WIDE_KNOWN_TECHNICAL_DEBT_NOT_A_P12_HOLD",
+    "anotherRepairLoopStarted": false
+  },
+  "p12CapabilityReview": {
+    "P12_DOCUMENT_BASE_CAPABILITY_REVIEW": "CLOSED",
+    "outcome": "NO_ACQUISITION_RECOVERY_UNDER_REPAIRED_V6_POLICY",
+    "furtherP12AcquisitionScheduled": false,
+    "futureGeneralParserRepairReopensThisAdjudicationAutomatically": false,
+    "futureParserRepairRequires": "independent evidence and authority"
+  },
+  "p12FinalState": {
+    "workItemId": "P:12",
+    "selectionIndex": 12,
+    "split": "DEV_TRAIN",
+    "usableRootResponse": true,
+    "postSd7": 1,
+    "minimumRequired": 4,
+    "invalidRootAuthority": false,
+    "robotsExplicitDisallow": false,
+    "acquisitionBlockingHostUnreachable": false,
+    "linkTransportFailuresDoNotMakeHostUnreachable": "three ordinary LINK transport failures (2 CONNECTION_RESET, 1 CONNECT_TIMEOUT) did not stop the required policy/resource: the robots policy resolved after its bounded retry, the root returned 200 and page evidence was produced",
+    "reasonPrecedenceApplied": "Owner Clarification Q3 (ROOT_AUTHORITY_FAILURE > ROBOTS_DISALLOWED > HOST_UNREACHABLE > MIN_PAGES_NOT_MET), recomputed with the landed pure replacementReasonFor",
+    "status": "ACQUISITION_UNSUCCESSFUL",
+    "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+    "pendingCapabilityReview": false,
+    "previousStatus": "ACQUISITION_STATUS_PENDING_CAPABILITY_REVIEW",
+    "pendingReplacementObligation": true,
+    "currentAorPolicy": "orgunit-fetch-policy-v6",
+    "currentAorRunOpaqueRef": "dbd6ba8045d7842477798c148c8d7061b6c924ec4591d7ce5516749f171cb5fd",
+    "currentAorOutcome": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+    "historicalV4Run": {
+      "opaqueRef": "fdc6f64fbdd9b66a93007e28b001675063a59b67f5eb02d38dda7c181d1b10aa",
+      "retained": true,
+      "classification": "SUPERSEDED_FOR_GENERATION_ACQUISITION_DECISION_BY_POLICY_REPAIR",
+      "databaseRowsDeletedOrUpdated": 0,
+      "windowV2RoleAndP5ContributionImmutable": true
+    },
+    "transitionType": "FAILED_TO_FAILED_POLICY_TRANSITION (established valid type, V4 ledger entries 3-5)"
+  },
+  "replacementObligationCreated": {
+    "selectionIndex": 12,
+    "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+    "reserveAssigned": false,
+    "replacementLedgerAppended": false,
+    "kind": "LOGICAL_OBLIGATION_ONLY",
+    "assignmentRequires": "the next bounded-window owner decision"
+  },
+  "generation1SlotState": {
+    "ACQUISITION_SUCCESSFUL": 11,
+    "CURRENT_ACQUISITION_FAILURE": 2,
+    "PENDING_CAPABILITY_REVIEW": 0,
+    "NEVER_STARTED": 97,
+    "totalSelectionSlots": 110,
+    "finalisedSelectionSlots": {
+      "from": 0,
+      "to": 12,
+      "count": 13
+    },
+    "doNotExtrapolate": "11 successful slots of 110; not a population success rate"
+  },
+  "generationSuccessfulSelectionIndices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11],
+  "generationFailureSelectionIndices": [10, 12],
+  "pendingCapabilityReviewSelectionIndices": [],
+  "neverStartedSelectionIndices": {
+    "from": 13,
+    "to": 109,
+    "count": 97
+  },
+  "pendingReplacementObligations": [
+    {
+      "selectionIndex": 10,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "reserveAssigned": false
+    },
+    {
+      "selectionIndex": 12,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "reserveAssigned": false
+    }
+  ],
+  "otherSlotsPreserved": {
+    "P:10": {
+      "status": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "pendingReplacementObligation": true
+    },
+    "P:11": {
+      "status": "ACQUISITION_SUCCESSFUL"
+    },
+    "P:13": {
+      "status": "NEVER_STARTED"
+    },
+    "P:14": {
+      "status": "NEVER_STARTED"
+    },
+    "windowV2Terminal": "PAUSE_P5_LOW_RAW_YIELD",
+    "windowV2Reopened": false
+  },
+  "replacementLedger": {
+    "mutated": false,
+    "sha256": "6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0",
+    "ledgerHash": "2febfecfe14bc0f6ca709271e33782e2ac2a8a14f09a14ff4ff0bdf608b7e452",
+    "entries": 4,
+    "reservePosition4": "UNASSIGNED"
+  },
+  "reserveConsumed": 4,
+  "reserveUnused": 36,
+  "nextUnusedReservePosition": 4,
+  "reserve4AssignedHere": false,
+  "p6": {
+    "condition": "reserveConsumed > 10 AND successfulOrganisationCount < 50",
+    "reserveConsumed": 4,
+    "successfulSelectionSlots": 11,
+    "pendingObligationCountsAsConsumption": false,
+    "result": "NOT_TRIGGERED",
+    "fires": false
+  },
+  "transitionLedgerV6Summary": {
+    "predecessor": "V4_GEN1 (bound by SHA-256, bytes and entry count)",
+    "v5LedgerFabricated": false,
+    "v5Ledger": "V5_LEDGER_NOT_CREATED_BECAUSE_V5_HAD_ZERO_WORKING_CORPUS_EXECUTIONS_AND_ZERO_AOR_TRANSITIONS",
+    "entryCount": 7,
+    "carriedForwardEntries": 6,
+    "newEntryIndex": 6,
+    "transitionedSelectionIndices": [1, 4, 5, 6, 7, 8, 12],
+    "transitionedToASuccessfulRun": [1, 5, 7],
+    "transitionedToAStillUnsuccessfulRun": [4, 6, 8, 12],
+    "reserveConsumedByThisLedger": 0,
+    "replacementsCreated": 0,
+    "historicalRunsRetained": 7,
+    "historicalDatabaseRowsEdited": 0,
+    "productionPolicyVersionAtThisRecord": "orgunit-fetch-policy-v6"
+  },
+  "testTemporalAudit": {
+    "testsReadingV4LedgerAsCurrent": 0,
+    "testsAssertingAbsenceOfALaterTransitionLedger": 0,
+    "testsCountingTransitionLedgerFilesInDocsEvaluationCorpus": 0,
+    "repairScopeFirewallsAlreadyPinnedToTerminalCommits": [
+      "4047709 (v5)",
+      "ec79256 (v6)",
+      "d9c32af (v4)"
+    ],
+    "productionPolicyVersionAssertionsAlreadyV6": true,
+    "testsChanged": 0,
+    "productionCodeChanged": false
+  },
+  "databaseReverification": {
+    "mode": "nwf_readonly inside BEGIN TRANSACTION READ ONLY (transaction_read_only = on, confirmed), SELECT only, every transaction rolled back",
+    "counts": {
+      "orgunit_research_runs": 24,
+      "orgunit_research_run_completions": 24,
+      "orgunit_fetch_observations": 521,
+      "orgunit_redirect_observations": 32,
+      "orgunit_page_evidence": 355,
+      "orgunit_page_candidates": 710,
+      "orgunit_root_promotions": 0,
+      "orgunit_root_promotion_revocations": 0,
+      "orgunit_classification_subjects": 0,
+      "orgunit_classifier_calls": 0,
+      "orgunit_classifier_call_completions": 0,
+      "orgunit_page_classifications": 0
+    },
+    "runPolicyCounts": {
+      "v1": 7,
+      "v2": 2,
+      "v3": 3,
+      "v4": 11,
+      "v5": 0,
+      "v6": 1
+    },
+    "runsWithoutCompletion": 0,
+    "matchesPostV6RunExpectation": true,
+    "driftSinceV6Result": "none",
+    "laterInstitutionRun": false,
+    "promotionOrRevocationDrift": false,
+    "databaseWrites": 0,
+    "adjudicationStoredInDatabase": false
+  },
+  "focusedChecks": {
+    "network": 0,
+    "passed": [
+      "P:12 v6 result binding (sha256 + bytes) and its reported facts",
+      "v4/v6 LINK frontier comparison (overlap 34, union 34, same digest, same order, same parent)",
+      "V4 transition ledger byte-identical",
+      "V6 ledger predecessor binding (sha256, bytes, entry count 6)",
+      "all six V4 entries carried forward semantically identical, in order",
+      "seventh entry exact",
+      "no V5 transition ledger file exists",
+      "current Generation-1 state (11 / 2 / 0 / 97, sums to 110)",
+      "replacement ledger byte-identical, ledgerHash unchanged, 4 entries, reserve position 4 unassigned",
+      "replacement reason recomputed with the landed replacementReasonFor = ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "no identity leakage: no URL, no UUID, and none of the P:12 hostname, registrable domain, raw claim value or organisation name in either new record",
+      "no docs/evaluation filename carries a reserved token"
+    ],
+    "failed": []
+  },
+  "scopeProofs": {
+    "institutionDnsHttpTls": 0,
+    "orgunitsDiscoverInvocations": 0,
+    "anotherP12Invocation": false,
+    "p10OrP11Rerun": false,
+    "p13P14P15Executed": false,
+    "reservePosition4OrLaterAssigned": false,
+    "replacementLedgerMutated": false,
+    "parserOrCrawlerRepair": false,
+    "fetchPolicyV7": false,
+    "hrefEntityDecodingImplemented": false,
+    "migrationCreated": false,
+    "productionCodeChanged": false,
+    "classifierOrProviderExecution": 0,
+    "labelsCreated": 0,
+    "setP": 0,
+    "setR": 0,
+    "semanticHoldoutAccess": 0,
+    "a3": false,
+    "phase2E": false,
+    "databaseWrites": 0,
+    "earlierGovernanceRecordsEdited": false,
+    "liveResultEdited": false
+  },
+  "identityDisclosure": {
+    "institutionNames": 0,
+    "organisationUuids": 0,
+    "echeRowKeys": 0,
+    "hostnames": 0,
+    "urls": 0,
+    "pageTitlesOrText": 0,
+    "publicLinkageIsOnly": [
+      "workItemId",
+      "selectionIndex",
+      "drawEntrySha256",
+      "SHA-256(run UUID)",
+      "SHA-256 of the sorted LINK URL set"
+    ]
+  },
+  "nextOwnerDecision": "A2_POST_P12_ADJUDICATION_REPLACEMENT_AND_PRIMARY_CONTINUATION_STRATEGY",
+  "nextOwnerDecisionInputs": {
+    "successful": 11,
+    "currentFailures": [10, 12],
+    "pendingReplacements": [10, 12],
+    "pendingCapabilityReview": [],
+    "nextUntouchedPrimary": 13,
+    "reserveConsumed": 4,
+    "nextUnusedReserve": 4,
+    "mayDetermine": "the next bounded mixed window",
+    "reservesAssignedOrPrimariesExecutedHere": false
+  },
+  "terminalState": "PHASE_2B_2D_A2_P12_V6_TARGETED_REVALIDATION_EVIDENCE_ADJUDICATED_UNSUCCESSFUL_AWAITING_REPLACEMENT_AND_PRIMARY_CONTINUATION_STRATEGY"
+}
