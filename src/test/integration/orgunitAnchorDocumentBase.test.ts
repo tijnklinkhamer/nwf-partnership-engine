@@ -184,11 +184,12 @@ describeIf('bounded discovery orchestration - HTML document base (fetch policy v
     // The base URL itself is never requested: the base changes resolution only.
     expect(requested.filter((url) => url === `${ORIGIN}/portal/`)).toEqual([]);
 
-    // Discovery parent stays the fetched page, and every row is stamped v5.
+    // Discovery parent stays the fetched page, and every row carries the
+    // CURRENT stamp (v5 when this landed, v6 since the RCDATA repair).
     const links = rows.filter((row) => row.discovery_method === 'LINK');
     expect(links).toHaveLength(SLUGS.length);
     for (const row of links) expect(row.discovery_parent_url).toBe(ROOT);
-    for (const row of rows) expect(row.fetch_policy_version).toBe('orgunit-fetch-policy-v5');
+    for (const row of rows) expect(row.fetch_policy_version).toBe('orgunit-fetch-policy-v6');
     expect(summary.pagesWithEvidence).toBe(1 + SLUGS.length);
   });
 

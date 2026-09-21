@@ -50,10 +50,17 @@
  *      orphaned, malformed one (guard 1 cannot see those, because there is
  *      no matching `-->` for it to find).
  *
+ * RCDATA HYGIENE (fetch policy v6). `<title>` and `<textarea>` hold TEXT in
+ * HTML, so an `<a href>` or `<base href>` written inside one is never an
+ * element. Under v1..v5 guard 1 kept their content and this module read it as
+ * live markup. Both extractors here now read `stripNonNavigableMarkup`
+ * (extract.ts): `stripNonContent` plus complete title/textarea elements
+ * removed - one layered sanitiser, not a second pipeline in this file.
+ *
  * PURE. No network, no database, no filesystem, no clock.
  */
 import { redactContactData } from '../web/redact.js';
-import { stripNonContent } from '../web/extract.js';
+import { stripNonNavigableMarkup } from '../web/extract.js';
 import { MAX_DISCOVERED_ANCHORS_PER_PAGE } from './constants.js';
 
 export interface DiscoveredAnchor {
@@ -106,8 +113,9 @@ export function extractDiscoveryAnchors(html: string): DiscoveredAnchor[] {
   // content are removed BEFORE the anchor regex ever sees the document -
   // exactly what extractPage does for main-text extraction, and for the
   // same reason: neither is live markup a visitor's browser would ever turn
-  // into a real, followable link.
-  const contentOnly = stripNonContent(html);
+  // into a real, followable link. Since v6 so is <title>/<textarea> content,
+  // which is RCDATA text rather than markup.
+  const contentOnly = stripNonNavigableMarkup(html);
   let match: RegExpExecArray | null;
   ANCHOR_PATTERN.lastIndex = 0;
   while ((match = ANCHOR_PATTERN.exec(contentOnly)) !== null) {
@@ -172,10 +180,12 @@ export function resolveAnchorHref(pageUrl: string, hrefRaw: string): LinkResolut
  *      fetched document URL, and the search does NOT continue to a later
  *      `<base href>`.
  *
- * The base is read from `stripNonContent`'s output - the same canonical
+ * The base is read from `stripNonNavigableMarkup`'s output - the same
  * sanitiser anchor discovery uses - so a `<base>` inside a comment, script,
- * style, noscript, svg, template or iframe is never seen. There is exactly
- * one sanitiser; this module does not write a second.
+ * style, noscript, svg, template or iframe is never seen, and since v6
+ * neither is one written as text inside `<title>` or `<textarea>`. The first
+ * href-bearing rule above applies to what survives that filter. There is
+ * exactly one sanitiser; this module does not write a second.
  *
  * THE BASE CHANGES RESOLUTION ONLY. It is never fetched, never persisted and
  * grants no authority: every URL resolved against it still goes through the
@@ -229,7 +239,7 @@ function hrefAttributeOf(attributes: string): string | null {
  * have.
  */
 export function extractDocumentBaseHref(html: string): string | null {
-  const contentOnly = stripNonContent(html);
+  const contentOnly = stripNonNavigableMarkup(html);
   BASE_TAG_PATTERN.lastIndex = 0;
   let match: RegExpExecArray | null;
   while ((match = BASE_TAG_PATTERN.exec(contentOnly)) !== null) {

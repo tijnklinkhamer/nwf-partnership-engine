@@ -327,7 +327,7 @@ describeIf('ADR 0015: the bounded transport retry', () => {
         expect(rows[1]!.error_kind).toBeNull();
         expect(rows[1]!.http_status).toBe(200);
         // U: every new observation carries v4.
-        for (const row of rows) expect(row.fetch_policy_version).toBe('orgunit-fetch-policy-v5');
+        for (const row of rows) expect(row.fetch_policy_version).toBe('orgunit-fetch-policy-v6');
         for (const row of rows) expect(row.discovery_method).toBe('ROBOTS');
 
         // The policy was read from the RETRY, so the page proceeded.
@@ -744,7 +744,7 @@ describeIf('ADR 0015: the bounded transport retry', () => {
       const rows = await policyObservations(WWW_ROBOTS);
       expect(rows.map((r) => r.attempt_no)).toEqual([1, 2]);
       expect(rows[0]!.error_kind).toBe('CONNECT_TIMEOUT');
-      for (const row of rows) expect(row.fetch_policy_version).toBe('orgunit-fetch-policy-v5');
+      for (const row of rows) expect(row.fetch_policy_version).toBe('orgunit-fetch-policy-v6');
     });
 
     it('still fails the root closed when the retry also fails', async () => {

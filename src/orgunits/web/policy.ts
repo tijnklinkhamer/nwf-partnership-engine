@@ -19,7 +19,37 @@
  * executing a v2 run under v1 timeouts and stamping "v2" on the row - would
  * make `fetch_policy_version` a label rather than a fact.
  */
-export const FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v5';
+export const FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v6';
+
+/**
+ * WHY v5 BECAME v6 (Phase 2B-2D A2 - discovery RCDATA markup hygiene, owner
+ * decision APPROVE_FETCH_POLICY_V6_FOR_RCDATA_DISCOVERY_HYGIENE_V1;
+ * docs/evaluation/PHASE_2B_2D_A2_DISCOVERY_RCDATA_FETCH_POLICY_V6_REPAIR_V1.json).
+ *
+ * WHAT CHANGED, EXACTLY, AND IT IS ONE THING. Markup-shaped text inside a
+ * `<title>` or `<textarea>` element - RCDATA in HTML, so text and never
+ * elements - can no longer contribute a discovered anchor or the document
+ * `<base>`. Under v5 both regex extractors in
+ * `src/orgunits/orchestrator/anchors.ts` read it as live markup; v6 reads
+ * `stripNonNavigableMarkup` (`extract.ts`) instead. A page with no
+ * markup-shaped text in either element yields byte- and sequence-identical
+ * frontier input under v5 and v6.
+ *
+ * NOTHING ELSE MOVED: not a value in this file, the v5 first-href-bearing
+ * base rule, base or href resolution, admission, the gateway, robots,
+ * redirects, retry, budgets, or page-evidence extraction (`extractPage` does
+ * not use the new sanitiser).
+ *
+ * WHY IT MUST BE A NEW VERSION. From byte-identical HTML v6 can build a
+ * different frontier than v5 - one false `<base>` in a title re-resolves
+ * every relative link on the page - so the stamp must say which rule ran.
+ * No v5 working-corpus run existed when this landed.
+ *
+ * Character-reference decoding in URL-valued attributes is STILL NOT part of
+ * any version (owner decisions
+ * DEFER_ANCHOR_HREF_CHARACTER_REFERENCE_DECODING_AS_SEPARATE_CAPABILITY_V1 and
+ * PRESERVE_HREF_CHARACTER_REFERENCE_DECODING_AS_SEPARATE_DEFERRED_CAPABILITY_V1).
+ */
 
 /**
  * WHY v4 BECAME v5 (Phase 2B-2D A2 - the anchor document-base repair, owner
