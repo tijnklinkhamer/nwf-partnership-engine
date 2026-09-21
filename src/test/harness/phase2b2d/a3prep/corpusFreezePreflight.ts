@@ -3,7 +3,10 @@ import {
   REQUIRED_SPLIT_ORGANISATION_COUNTS,
   REQUIRED_TOTAL_ORGANISATIONS,
 } from './contracts.js';
-import { publicManifestCarriesForbiddenGatedDetail, type A3PublicManifest } from './manifestTypes.js';
+import {
+  publicManifestCarriesForbiddenGatedDetail,
+  type A3PublicManifest,
+} from './manifestTypes.js';
 import type { A3OrganisationInput, A3Sd9Status, A3Split } from './types.js';
 
 export type A3PreflightStatus = 'READY' | 'NOT_READY';
@@ -88,10 +91,28 @@ export function checkCorpusFreezePreflight(
     }
   }
 
+  const expectedManifestSplits: readonly A3Split[] = [
+    'DEV_TRAIN',
+    'DEV_CONFIRM',
+    'FINAL_HOLDOUT',
+  ];
+  const seenManifestSplits = new Set<A3Split>();
   for (const manifest of input.manifests) {
+    if (seenManifestSplits.has(manifest.split)) {
+      reasons.push(`duplicate public manifest for ${manifest.split}`);
+    }
+    seenManifestSplits.add(manifest.split);
     if (publicManifestCarriesForbiddenGatedDetail(manifest)) {
       reasons.push(`${manifest.split}: public manifest carries forbidden sealed detail`);
     }
+  }
+  for (const split of expectedManifestSplits) {
+    if (!seenManifestSplits.has(split)) reasons.push(`missing public manifest for ${split}`);
+  }
+  if (input.manifests.length !== expectedManifestSplits.length) {
+    reasons.push(
+      `expected ${expectedManifestSplits.length} public manifests, received ${input.manifests.length}`,
+    );
   }
 
   if (!input.setPDeterminismVerified) reasons.push('SET_P determinism not verified');

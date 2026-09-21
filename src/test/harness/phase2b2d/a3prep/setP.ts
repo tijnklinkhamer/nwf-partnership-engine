@@ -2,7 +2,13 @@ import {
   SET_P_MAX_PAGES_PER_ORGANISATION,
   SET_P_RANK_SALT,
 } from './contracts.js';
-import { assertUniqueDocumentHashes, plainHexCompare, saltedDocumentRankHash } from './rank.js';
+import {
+  assertSingleOrganisationAndSplit,
+  assertUniqueDocumentHashes,
+  assertUniqueRankHashes,
+  plainLexicographicCompare,
+  saltedDocumentRankHash,
+} from './rank.js';
 import type { A3DistinctDocument } from './types.js';
 
 export interface RankedSetPDocument extends A3DistinctDocument {
@@ -13,13 +19,22 @@ export interface RankedSetPDocument extends A3DistinctDocument {
 export function rankSetP(
   documents: readonly A3DistinctDocument[],
 ): readonly RankedSetPDocument[] {
+  assertSingleOrganisationAndSplit(documents);
   assertUniqueDocumentHashes(documents);
-  return documents
-    .map((document) => ({
-      ...document,
-      setPRankHash: saltedDocumentRankHash(SET_P_RANK_SALT, document.documentSha256),
-    }))
-    .sort((a, b) => plainHexCompare(a.setPRankHash, b.setPRankHash))
+
+  const hashed = documents.map((document) => ({
+    ...document,
+    setPRankHash: saltedDocumentRankHash(SET_P_RANK_SALT, document.documentSha256),
+  }));
+  assertUniqueRankHashes(
+    hashed.map((document) => ({
+      documentSha256: document.documentSha256,
+      rankHash: document.setPRankHash,
+    })),
+  );
+
+  return hashed
+    .sort((a, b) => plainLexicographicCompare(a.setPRankHash, b.setPRankHash))
     .map((document, setPRankPosition) => ({ ...document, setPRankPosition }));
 }
 

@@ -12,6 +12,10 @@ resources, or its live run.
 A separate `feat/phase2b-2d-a3-corpus-prep` branch already existed when this
 worker began. This worker did not mutate it.
 
+The execution environment exposed no local repository checkout, so an isolated
+remote Git branch was used instead of a local Git worktree. No claim is made
+that a local worktree was created.
+
 ## Research performed
 
 Repository truth inspected includes:
@@ -21,9 +25,11 @@ Repository truth inspected includes:
 - Methodology V2 R3 and the machine-readable R3 proposal;
 - Corpus Acquisition Plan V1;
 - FRAME_V2_GEN1 / DRAW_V2_GEN1 and the A1/A1b harnesses;
+- migrations 0007/0008 for fetch-observation document hashes, page evidence and
+  persisted candidate-score provenance;
 - A2 Batch-01 / Batch-02 authority and execution lineage;
-- A3a SD7 pilot authority, execution record, owner short-text decision and
-  canonical `src/test/harness/phase2b2d/sd7/` implementation;
+- A3a SD7 pilot authority, execution record, the append-only owner short-text
+  adjudication and the Batch-02 zero-page closure;
 - classifier-evaluation lineage through 2D2B, 2D2C, F0C/F0X/F0Z/F2/F3/F4/F6;
 - current schema/provenance conventions relevant to page evidence, fetch
   observations and persisted candidate scores.
@@ -41,6 +47,9 @@ and committed artifacts were treated as primary technical truth.
   amendments/owner decisions.
 - Current A2 truth: Batch-02 acquisition/revalidation remains lead-owned.
 - Current A3a truth: SD7 measurement primitives already exist and are reused.
+- Current short-text truth: the owner adjudication
+  `SHORT_TEXT_AMBIGUITY_BLOCKS_ONLY_WHEN_IT_CAN_CHANGE_SD9` is binding
+  operationally without changing R3.
 - Not authorised: real Generation-1 A3 selection/freeze, labels, provider
   inference, classifier execution, HOLDOUT semantic access, contact discovery,
   Apollo or outreach.
@@ -71,7 +80,8 @@ measurement was created. A3's SD7 adapter uses the landed
 
 The rank implementation follows the already-landed deterministic-draw
 convention: exact UTF-8 input, lower-case SHA-256 hex and plain lexicographic
-comparison.
+comparison. It also fails closed on duplicate document identities, hash
+collisions, mixed organisations/splits and non-finite SET_R scores.
 
 ## Implemented pure modules
 
@@ -79,7 +89,7 @@ Under `src/test/harness/phase2b2d/a3prep/`:
 
 - `contracts.ts` — frozen constants and explicit owner-decision blockers;
 - `types.ts` — DB-independent A2→A3 fact contract;
-- `rank.ts` — exact salted hash ranking primitive;
+- `rank.ts` — exact salted hash ranking and ambiguity checks;
 - `setP.ts` — deterministic class-blind SET_P ranking/selection;
 - `setR.ts` — deterministic SET_R ranking once one approved document score exists;
 - `organisationCaps.ts` — sample-cap and 10% gate-share checking;
@@ -89,6 +99,17 @@ Under `src/test/harness/phase2b2d/a3prep/`:
 - `manifestTypes.ts` — DEV_TRAIN vs gated public-manifest shapes;
 - `corpusFreezePreflight.ts` — READY / NOT_READY mechanical checker;
 - `syntheticFixtures.ts` — invented, network-free fixtures.
+
+## Already-resolved SD7 short-text handling
+
+The append-only owner adjudication
+`PHASE_2B_2D_METHOD_V2_SD7_SHORT_TEXT_OWNER_DECISION_V1.json` resolved the
+operational blocking rule without assigning a semantic Jaccard value:
+short-text documents remain `SD7_SHORT_TEXT_UNRESOLVED`, but SD9 can be
+finalised when every admissible treatment stays on the same side of the
+four-page boundary. The A3 bounds implementation follows exactly that rule.
+
+This is **not** an open A3 owner decision.
 
 ## A3_PREP_OWNER_DECISION_REQUIRED
 
@@ -143,22 +164,27 @@ Marker:
 ## Split / sealed-data safeguards
 
 The prep surface has no `loadEntireCorpus()`. Scoped readers reject missing
-split tokens and mixed collections. Gated public manifest types contain only
-aggregate counts/hashes and are structurally separate from the DEV_TRAIN type
-that may expose identities and document hashes.
+split tokens and mixed collections. Per-organisation rankers reject mixed
+splits. Gated public manifest types contain only aggregate counts/hashes and are
+structurally separate from the DEV_TRAIN type that may expose identities and
+document hashes. Preflight requires exactly one public manifest for each split.
 
-No real DEV_CONFIRM or FINAL_HOLDOUT detail was read by this worker.
+No real DEV_CONFIRM or FINAL_HOLDOUT page detail was read by this worker.
 
 ## Validation scope
 
 The added test file is synthetic-only and covers deterministic ranking under
-input reordering, SET_P/SET_R caps, SET_R score/tie order, SD9's exact boundary,
-10% gate-share checking, split leakage refusal and preflight refusal while owner
-semantics remain unresolved.
+input reordering, SET_P/SET_R caps, SET_R score/tie order, ranker isolation,
+existing SD7 exact-dedup reuse, cross-organisation refusal, owner-adjudicated
+short-text bounds, SD9's exact boundary, 10% gate-share checking, split leakage
+refusal and preflight refusal while owner semantics remain unresolved.
 
 No shared DB-backed validation, Docker action or institution network was run.
-Full validation is intentionally deferred to integration if it would contend
-with live A2:
+No GitHub Actions workflow or commit-status check was configured for the first
+A3-prep commit, so remote CI supplied no validation result.
+
+Full validation is intentionally deferred to integration because the requested
+parallel-work rule forbids contending with the lead's live A2 resources:
 
 `FULL_VALIDATE_DEFERRED_TO_INTEGRATION_DUE_TO_PARALLEL_LIVE_A2`.
 

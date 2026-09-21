@@ -3,8 +3,9 @@ import {
   nearDuplicatePass,
   type PageForSd7,
 } from '../sd7/nearDuplicatePairs.js';
-import type { A3PageEvidenceInput } from './types.js';
+import { A3PrepStop } from './contracts.js';
 import { evaluateSd9FromBounds } from './sd9.js';
+import type { A3PageEvidenceInput } from './types.js';
 
 export interface A3Sd7Assessment {
   readonly inputPageCount: number;
@@ -24,10 +25,26 @@ export interface A3Sd7Assessment {
  * It MEASURES bounds only. It does not choose a survivor order, because SD9 is
  * defined before SET_P/SET_R materialisation while SD7 names the rank "of the
  * sample being drawn"; the two samples have different ranks.
+ *
+ * Short-text handling follows the already-recorded owner operational decision:
+ * retain the unresolved flag and finalise SD9 only if all admissible treatments
+ * lie on the same side of the >=4 boundary.
  */
 export function assessSd7ForOrganisation(
   pages: readonly A3PageEvidenceInput[],
 ): A3Sd7Assessment {
+  if (pages.length > 0) {
+    const first = pages[0]!;
+    for (const page of pages) {
+      if (page.organisationKey !== first.organisationKey) {
+        throw new A3PrepStop('STOP: mixed organisations reached one SD7 assessment.');
+      }
+      if (page.split !== first.split) {
+        throw new A3PrepStop('STOP: mixed splits reached one SD7 assessment.');
+      }
+    }
+  }
+
   const pageForSd7: PageForSd7[] = pages.map((page) => ({
     pageId: page.pageEvidenceId,
     documentSha256: page.documentSha256,
@@ -44,7 +61,7 @@ export function assessSd7ForOrganisation(
 
   const near = nearDuplicatePass(exact.groups, (documentSha256) => {
     const text = textByHash.get(documentSha256);
-    if (text === undefined) throw new Error(`missing text for ${documentSha256}`);
+    if (text === undefined) throw new A3PrepStop(`STOP: missing text for ${documentSha256}.`);
     return text;
   });
 

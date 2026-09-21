@@ -1,8 +1,15 @@
 import {
   SET_R_MAX_PAGES_PER_ORGANISATION,
   SET_R_RANK_SALT,
+  A3PrepStop,
 } from './contracts.js';
-import { assertUniqueDocumentHashes, plainHexCompare, saltedDocumentRankHash } from './rank.js';
+import {
+  assertSingleOrganisationAndSplit,
+  assertUniqueDocumentHashes,
+  assertUniqueRankHashes,
+  plainLexicographicCompare,
+  saltedDocumentRankHash,
+} from './rank.js';
 import type { A3ResolvedSetRDocument } from './types.js';
 
 export interface RankedSetRDocument extends A3ResolvedSetRDocument {
@@ -13,17 +20,34 @@ export interface RankedSetRDocument extends A3ResolvedSetRDocument {
 export function rankSetR(
   documents: readonly A3ResolvedSetRDocument[],
 ): readonly RankedSetRDocument[] {
+  assertSingleOrganisationAndSplit(documents);
   assertUniqueDocumentHashes(documents);
-  return documents
-    .map((document) => ({
-      ...document,
-      setRTieBreakHash: saltedDocumentRankHash(SET_R_RANK_SALT, document.documentSha256),
-    }))
+
+  for (const document of documents) {
+    if (!Number.isFinite(document.candidateIndependentScore)) {
+      throw new A3PrepStop(
+        `STOP: non-finite SET_R score for ${document.documentSha256}.`,
+      );
+    }
+  }
+
+  const hashed = documents.map((document) => ({
+    ...document,
+    setRTieBreakHash: saltedDocumentRankHash(SET_R_RANK_SALT, document.documentSha256),
+  }));
+  assertUniqueRankHashes(
+    hashed.map((document) => ({
+      documentSha256: document.documentSha256,
+      rankHash: document.setRTieBreakHash,
+    })),
+  );
+
+  return hashed
     .sort((a, b) => {
       if (a.candidateIndependentScore !== b.candidateIndependentScore) {
         return b.candidateIndependentScore - a.candidateIndependentScore;
       }
-      return plainHexCompare(a.setRTieBreakHash, b.setRTieBreakHash);
+      return plainLexicographicCompare(a.setRTieBreakHash, b.setRTieBreakHash);
     })
     .map((document, setRRankPosition) => ({ ...document, setRRankPosition }));
 }

@@ -4,6 +4,7 @@ import {
   SET_P_MAX_PAGES_PER_ORGANISATION,
   SET_R_MAX_PAGES_PER_ORGANISATION,
 } from './contracts.js';
+import { plainLexicographicCompare } from './rank.js';
 
 export type A3Sample = 'SET_P' | 'SET_R';
 
@@ -37,5 +38,5 @@ export function organisationShareViolations(
   return Object.entries(contributions)
     .filter(([, contribution]) => contribution > allowed)
     .map(([organisationKey, contribution]) => ({ organisationKey, contribution, allowed }))
-    .sort((a, b) => a.organisationKey.localeCompare(b.organisationKey));
+    .sort((a, b) => plainLexicographicCompare(a.organisationKey, b.organisationKey));
 }

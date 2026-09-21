@@ -9,9 +9,13 @@ import {
   gateShareIntegerCap,
   organisationShareViolations,
 } from '../harness/phase2b2d/a3prep/organisationCaps.js';
+import { assessSd7ForOrganisation } from '../harness/phase2b2d/a3prep/sd7.js';
 import { rankSetP, selectSetP } from '../harness/phase2b2d/a3prep/setP.js';
 import { rankSetR, selectSetR } from '../harness/phase2b2d/a3prep/setR.js';
-import { evaluateSd9FromBounds, evaluateSd9FromExactPostSd7Count } from '../harness/phase2b2d/a3prep/sd9.js';
+import {
+  evaluateSd9FromBounds,
+  evaluateSd9FromExactPostSd7Count,
+} from '../harness/phase2b2d/a3prep/sd9.js';
 import {
   assertRecordsMatchScope,
   assertSingleSplitCollection,
@@ -21,6 +25,7 @@ import {
   distinctDocuments,
   resolvedSetRDocuments,
   syntheticOrganisation,
+  syntheticPage,
 } from '../harness/phase2b2d/a3prep/syntheticFixtures.js';
 
 describe('2D-A3 prep: SET_P is deterministic and class-blind by construction', () => {
@@ -38,6 +43,14 @@ describe('2D-A3 prep: SET_P is deterministic and class-blind by construction', (
       SET_P_MAX_PAGES_PER_ORGANISATION,
     );
   });
+
+  it('rejects a mixed-organisation or mixed-split input', () => {
+    const [first] = distinctDocuments('ORG_X', 'DEV_TRAIN', 1);
+    const [otherOrg] = distinctDocuments('ORG_Y', 'DEV_TRAIN', 1);
+    const [otherSplit] = distinctDocuments('ORG_X', 'DEV_CONFIRM', 1);
+    expect(() => rankSetP([first!, otherOrg!])).toThrow(/mixed organisations/);
+    expect(() => rankSetP([first!, otherSplit!])).toThrow(/mixed splits/);
+  });
 });
 
 describe('2D-A3 prep: SET_R ranks only an already-resolved candidate-independent score', () => {
@@ -48,10 +61,61 @@ describe('2D-A3 prep: SET_R ranks only an already-resolved candidate-independent
     expect(ranked[0]!.setRTieBreakHash < ranked[1]!.setRTieBreakHash).toBe(true);
   });
 
+  it('is independent of input enumeration order', () => {
+    const docs = resolvedSetRDocuments('ORG_X', 'DEV_TRAIN', [2, 9, 9, 1, 7, 6]);
+    const expected = rankSetR(docs).map((d) => d.documentSha256);
+    expect(rankSetR([...docs].reverse()).map((d) => d.documentSha256)).toEqual(expected);
+  });
+
   it('takes at most four pages per organisation', () => {
     expect(
       selectSetR(resolvedSetRDocuments('ORG_X', 'DEV_TRAIN', [9, 8, 7, 6, 5, 4])),
     ).toHaveLength(SET_R_MAX_PAGES_PER_ORGANISATION);
+  });
+
+  it('fails closed on a non-finite score', () => {
+    const docs = resolvedSetRDocuments('ORG_X', 'DEV_TRAIN', [9, Number.NaN]);
+    expect(() => rankSetR(docs)).toThrow(/non-finite/);
+  });
+});
+
+describe('2D-A3 prep: SD7 reuses the canonical measurement and SD9 bounds', () => {
+  it('removes exact duplicates before near-duplicate measurement', () => {
+    const org = 'ORG_X';
+    const split = 'DEV_TRAIN' as const;
+    const shared = Array.from({ length: 30 }, (_, i) => `invented-${i}`).join(' ');
+    const pages = [
+      syntheticPage(org, split, 'p1', 'same-document', shared),
+      syntheticPage(org, split, 'p2', 'same-document', shared),
+      syntheticPage(org, split, 'p3', 'different-a'),
+      syntheticPage(org, split, 'p4', 'different-b'),
+      syntheticPage(org, split, 'p5', 'different-c'),
+    ];
+    const result = assessSd7ForOrganisation(pages);
+    expect(result.exactDuplicateRowsRemoved).toBe(1);
+    expect(result.exactDistinctDocumentCount).toBe(4);
+  });
+
+  it('keeps cross-organisation measurement outside this per-organisation adapter', () => {
+    const a = syntheticPage('ORG_A', 'DEV_TRAIN', 'a', 'sha-a');
+    const b = syntheticPage('ORG_B', 'DEV_TRAIN', 'b', 'sha-b', a.mainText);
+    expect(() => assessSd7ForOrganisation([a, b])).toThrow(/mixed organisations/);
+  });
+
+  it('uses the owner-adjudicated short-text bounds rule rather than inventing Jaccard', () => {
+    const org = 'ORG_X';
+    const split = 'DEV_TRAIN' as const;
+    const pages = [
+      syntheticPage(org, split, 'p1', 'sha-1'),
+      syntheticPage(org, split, 'p2', 'sha-2'),
+      syntheticPage(org, split, 'p3', 'sha-3'),
+      syntheticPage(org, split, 'p4', 'sha-4', 'too short'),
+    ];
+    const result = assessSd7ForOrganisation(pages);
+    expect(result.shortTextUnresolvedCount).toBe(1);
+    expect(result.postSd7CountMin).toBe(3);
+    expect(result.postSd7CountMax).toBe(4);
+    expect(result.sd9Status).toBe('ACQUISITION_STATUS_PENDING_SD7_OWNER_DETAIL');
   });
 });
 
@@ -126,10 +190,41 @@ describe('2D-A3 prep: corpus freeze preflight refuses unresolved owner semantics
       const org = syntheticOrganisation(index, splitCycle[index % 22]!, 4);
       return { ...org, sd9Status: 'ACQUISITION_SUCCESSFUL' as const };
     });
+    const manifests = [
+      {
+        schemaVersion: 'A3_PUBLIC_MANIFEST_PREP_V1',
+        split: 'DEV_TRAIN',
+        itemCount: 1,
+        organisationCount: 20,
+        splitContentHash: 'train-hash',
+        realisedSetPSize: 1,
+        realisedSetRSize: 1,
+        itemIds: ['synthetic-item'],
+        documentSha256s: ['synthetic-document'],
+      },
+      {
+        schemaVersion: 'A3_PUBLIC_MANIFEST_PREP_V1',
+        split: 'DEV_CONFIRM',
+        itemCount: 1,
+        organisationCount: 45,
+        splitContentHash: 'confirm-hash',
+        realisedSetPSize: 1,
+        realisedSetRSize: 1,
+      },
+      {
+        schemaVersion: 'A3_PUBLIC_MANIFEST_PREP_V1',
+        split: 'FINAL_HOLDOUT',
+        itemCount: 1,
+        organisationCount: 45,
+        splitContentHash: 'holdout-hash',
+        realisedSetPSize: 1,
+        realisedSetRSize: 1,
+      },
+    ] as const;
 
     const result = checkCorpusFreezePreflight({
       organisations,
-      manifests: [],
+      manifests,
       setPDeterminismVerified: true,
       setRDeterminismVerified: true,
       capsVerified: true,
