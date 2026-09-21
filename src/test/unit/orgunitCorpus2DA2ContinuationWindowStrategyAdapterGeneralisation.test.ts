@@ -109,11 +109,14 @@ const git = (...args: string[]): string =>
 /** b3db5af: the post-P:12 replacement + primary continuation strategy, V1. */
 const REPAIR_BASE_COMMIT = 'b3db5af9f8b868cb0bd6ac8303abc1514c9810f8';
 /**
- * The repair's terminal commit. `null` while the repair is being built: the
- * range is then base -> working tree (tracked AND untracked). Once pinned, the
- * range is the completed repair's own, so later A2 work cannot enter it.
+ * c099c23: Commit A, the adapter generalisation itself. `null` would mean
+ * base -> working tree (tracked AND untracked), which is how this file ran
+ * while the repair was being built. Pinned to the code commit so later A2
+ * work cannot enter the range; Commit B adds only the mixed plan, the
+ * implementation record and this pin, and the plan's committed bytes are
+ * proven separately in section 6.
  */
-const REPAIR_TERMINAL_COMMIT: string | null = null;
+const REPAIR_TERMINAL_COMMIT: string | null = 'c099c230fa32d3cca9c1cbc08dc3fdacb5af0f1e';
 const THIS_FILE =
   'src/test/unit/orgunitCorpus2DA2ContinuationWindowStrategyAdapterGeneralisation.test.ts';
 const MIXED_PLAN_PATH = 'docs/evaluation/PHASE_2B_2D_A2_POST_P12_MIXED_WINDOW_PLAN_V1.json';
@@ -1222,5 +1225,45 @@ describe('2D-A2 strategy adapter generalisation: a replacement chain (synthetic)
     const wrong = chainPreflight(spec, syntheticAppend(CHAIN_START, [10]));
     expect(wrong.preflight.invariants.replacementAssignmentsRecorded).toBe(false);
     expect(wrong.verdict.decision).toBe('PAUSE_P7_INVARIANT_MISMATCH');
+  });
+});
+
+// ===========================================================================
+// 6. THE COMMITTED MIXED PLAN (OFFLINE PRECOMMIT)
+// ===========================================================================
+
+const MIXED_PLAN_FILE_SHA256 = 'b794f2577aa5a000ba5ff7eae9467eb3375acdff47bb48d7854bd9a1a298d387';
+const MIXED_PLAN_BYTES = 6553;
+const MIXED_PLAN_HASH = '0ebb51620631660abe886409411827fb2160e28b8c793b4c04ba9b620d4148bc';
+
+describe('2D-A2 strategy adapter generalisation: the committed mixed plan', () => {
+  const text = readText(MIXED_PLAN_PATH);
+  const committed = JSON.parse(text) as GenericWindowPlan;
+
+  it('is the exact precommitted bytes and its hash recomputes', () => {
+    expect(sha256(text)).toBe(MIXED_PLAN_FILE_SHA256);
+    expect(bytesOf(text)).toBe(MIXED_PLAN_BYTES);
+    expect(committed.windowPlanHash).toBe(MIXED_PLAN_HASH);
+    expect(recomputeWindowPlanHash(committed)).toBe(MIXED_PLAN_HASH);
+  });
+
+  it('is exactly what the strategy-derived spec renders (never the other way round)', () => {
+    expect(canonicalStringify(committed)).toBe(canonicalStringify(MIXED_PLAN));
+  });
+
+  it('P7 over the committed bytes: refused on the real ledger, all-green on the simulated one', () => {
+    const real = computePrecommittedWindowPreflight(mixedInput({ windowPlan: committed }));
+    expect(falseInvariants(real).sort()).toEqual([
+      'currentOccupantsMatch',
+      'replacementAssignmentsRecorded',
+    ]);
+    expect(mixedGate(real, 4, committed).decision).toBe('PAUSE_P7_INVARIANT_MISMATCH');
+    const simulated = computePrecommittedWindowPreflight(
+      mixedInput({ windowPlan: committed, ledger: SIX_ENTRY_LEDGER }),
+    );
+    expect(falseInvariants(simulated)).toEqual([]);
+    const verdict = mixedGate(simulated, 6, committed);
+    expect(verdict.decision).toBe('CONTINUE_TO_NEXT_WORK_ITEM');
+    expect(verdict.nextWorkItemId).toBe('R:10:4');
   });
 });
