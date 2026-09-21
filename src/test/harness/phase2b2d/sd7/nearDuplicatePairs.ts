@@ -203,16 +203,34 @@ export interface NearDuplicatePass {
 }
 
 /**
- * Compare every pair of distinct documents WITHIN ONE ORGANISATION.
+ * The near-duplicate RELATION over one organisation's distinct documents, and
+ * nothing derived from it: no component, no survivor, no order, no bound.
  *
- * The caller is responsible for never handing this function two organisations'
- * pages at once; `pilotAnalysis.ts` calls it once per organisation and the
- * tests assert that cross-organisation pairs are never formed.
+ * `measurableIndices` and every edge's `aIndex`/`bIndex` index `documents`.
  */
-export function nearDuplicatePass(
+export interface NearDuplicateGraphMeasurement {
+  readonly documents: readonly DistinctDocument[];
+  readonly measurableIndices: readonly number[];
+  readonly shortTextUnresolvedCount: number;
+  readonly comparedPairCount: number;
+  readonly edges: readonly NearDuplicateEdge[];
+}
+
+/**
+ * THE ONE CANONICAL NEAR-DUPLICATE PAIR MEASUREMENT: normalise, 5-token
+ * shingles, Jaccard at or above 0.90, every measurable pair exactly once.
+ *
+ * Exported so a later consumer reuses this measurement rather than growing a
+ * second one. It chooses no survivor and applies no rank; `nearDuplicatePass`
+ * below is built on it and audits the components.
+ *
+ * The same one-organisation rule applies: the caller must never hand it two
+ * organisations' pages at once.
+ */
+export function measureNearDuplicateGraph(
   groups: readonly ExactDuplicateGroup[],
   textOf: DocumentTextLookup,
-): NearDuplicatePass {
+): NearDuplicateGraphMeasurement {
   const documents: DistinctDocument[] = [];
   const shingles: (ReadonlySet<string> | null)[] = [];
 
@@ -246,6 +264,31 @@ export function nearDuplicatePass(
       }
     }
   }
+
+  return {
+    documents,
+    measurableIndices,
+    shortTextUnresolvedCount: documents.length - measurableIndices.length,
+    comparedPairCount,
+    edges,
+  };
+}
+
+/**
+ * Compare every pair of distinct documents WITHIN ONE ORGANISATION.
+ *
+ * The caller is responsible for never handing this function two organisations'
+ * pages at once; `pilotAnalysis.ts` calls it once per organisation and the
+ * tests assert that cross-organisation pairs are never formed.
+ */
+export function nearDuplicatePass(
+  groups: readonly ExactDuplicateGroup[],
+  textOf: DocumentTextLookup,
+): NearDuplicatePass {
+  const { documents, measurableIndices, comparedPairCount, edges } = measureNearDuplicateGraph(
+    groups,
+    textOf,
+  );
 
   const components = auditComponents(measurableIndices, edges);
   const isolated = measurableIndices.length - components.reduce((sum, c) => sum + c.size, 0);
