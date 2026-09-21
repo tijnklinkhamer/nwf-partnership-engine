@@ -94,6 +94,63 @@
     "ledgerHash": "sha256(canonicalStringify(ledger without ledgerHash)); changes on every append by design",
     "revisionIdentity": "every later revision binds previous ledger file sha, new ledger file sha, and the appended entry hashes"
   },
-  "entries": [],
-  "ledgerHash": "7e89966722961162067690abf5cf79cebac26e1697de8488f4f7ed0e8d303bda"
+  "entries": [
+    {
+      "sequence": 0,
+      "selectionIndex": 3,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "E TOLEDO08|949075549",
+      "replacementEcheRowKey": "LV RIGA40|946131405",
+      "reserveRankPosition": 0,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-09-21T13:54:41Z",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": null,
+      "entryHash": "0bd4bf62f761d28db2f3b743cd9550c14f8fda4168971a10c5fc3c108ecb4443"
+    },
+    {
+      "sequence": 1,
+      "selectionIndex": 4,
+      "split": "FINAL_HOLDOUT",
+      "replacedEcheRowKey": "F PARIS258|949142770",
+      "replacementEcheRowKey": "F FONTAIN02|937830921",
+      "reserveRankPosition": 1,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-21T13:54:41Z",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "0bd4bf62f761d28db2f3b743cd9550c14f8fda4168971a10c5fc3c108ecb4443",
+      "entryHash": "7a3fd5395b48b38a914afacde1dcb0d441bec831ade04f2576c31b7016035365"
+    },
+    {
+      "sequence": 2,
+      "selectionIndex": 6,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "E BARCELO266|942020933",
+      "replacementEcheRowKey": "RO CLUJNAP08|949238606",
+      "reserveRankPosition": 2,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-21T13:54:41Z",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "7a3fd5395b48b38a914afacde1dcb0d441bec831ade04f2576c31b7016035365",
+      "entryHash": "4461628ac3e3d9cc9aeb2ec22c6f886dcd17e8f2ddd9043d6ac2256f9ad39d76"
+    },
+    {
+      "sequence": 3,
+      "selectionIndex": 8,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "E MALAGA53|943599705",
+      "replacementEcheRowKey": "D MAGDEBU01|999873285",
+      "reserveRankPosition": 3,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-21T13:54:41Z",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "4461628ac3e3d9cc9aeb2ec22c6f886dcd17e8f2ddd9043d6ac2256f9ad39d76",
+      "entryHash": "e0b0d6ea751c4f58d065c1f877fa2d52feed138e6334ce5a9fa137e9fae79854"
+    }
+  ],
+  "ledgerHash": "2febfecfe14bc0f6ca709271e33782e2ac2a8a14f09a14ff4ff0bdf608b7e452"
 }

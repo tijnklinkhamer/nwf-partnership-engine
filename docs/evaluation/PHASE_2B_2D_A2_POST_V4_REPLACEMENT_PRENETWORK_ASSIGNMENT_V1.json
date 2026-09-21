@@ -1,0 +1,87 @@
+{
+  "recordId": "phase2b-2d-a2-post-v4-replacement-prenetwork-assignment-v1",
+  "recordKind": "PRENETWORK_REPLACEMENT_ASSIGNMENT",
+  "records": "PHASE_2B_2D_A2_POST_V4_REPLACEMENT_PRENETWORK_ASSIGNMENT_V1",
+  "recordedAtUtc": "2026-09-21T13:55:34Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "boundLiveAuthority": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_V4_REPLACEMENT_AND_INDEX9_LIVE_WINDOW_AUTHORITY_V1.json",
+    "sha256": "908389207724b8d8ffd69208b8b457e1dfb22196cfe957f25f17eb8c42e8bd28",
+    "bytes": 4777,
+    "commit": "23d443d0ec93614e9de1aa611b859475331a31a7",
+    "pushedToOriginBeforeThisAssignment": true
+  },
+  "boundPreLiveGovernanceRatification": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_PRE_LIVE_GOVERNANCE_RATIFICATION_V1.json",
+    "sha256": "f3afacd5db8cd1a86ca3193cb4e9ebcc96e6a18b6bd2c0fe0725e3875d42e87a",
+    "bytes": 10421,
+    "commit": "23d443d0ec93614e9de1aa611b859475331a31a7"
+  },
+  "windowPlanHash": "d33c2e05a9fdeb4dbf409187b64cf20ced0cd27adc0478ec99340829548f4cdc",
+  "ledgerPath": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+  "previousGenesisLedgerSha256": "a80e429059875d1a1aeea1c35092d88ecbf0395cfe8c8efcb278d17dac1e4ee2",
+  "previousLedgerHash": "7e89966722961162067690abf5cf79cebac26e1697de8488f4f7ed0e8d303bda",
+  "previousLedgerEntries": 0,
+  "newLedgerSha256": "6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0",
+  "newLedgerBytes": 7254,
+  "newLedgerHash": "2febfecfe14bc0f6ca709271e33782e2ac2a8a14f09a14ff4ff0bdf608b7e452",
+  "newLedgerEntries": 4,
+  "appendedEntryHashes": [
+    "0bd4bf62f761d28db2f3b743cd9550c14f8fda4168971a10c5fc3c108ecb4443",
+    "7a3fd5395b48b38a914afacde1dcb0d441bec831ade04f2576c31b7016035365",
+    "4461628ac3e3d9cc9aeb2ec22c6f886dcd17e8f2ddd9043d6ac2256f9ad39d76",
+    "e0b0d6ea751c4f58d065c1f877fa2d52feed138e6334ce5a9fa137e9fae79854"
+  ],
+  "headEntryHash": "e0b0d6ea751c4f58d065c1f877fa2d52feed138e6334ce5a9fa137e9fae79854",
+  "entryRecordedAtUtc": "2026-09-21T13:54:41Z",
+  "entryRecordedAtUtcSource": "date -u, passed explicitly to prepareReplacementAppend; one shared instant for one pre-network precommit event",
+  "reserveConsumedBefore": 0,
+  "reserveConsumedAfter": 4,
+  "assignments": ["3->0", "4->1", "6->2", "8->3"],
+  "splits": { "3": "DEV_CONFIRM", "4": "FINAL_HOLDOUT", "6": "DEV_CONFIRM", "8": "DEV_CONFIRM" },
+  "reasons": {
+    "3": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+    "4": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+    "6": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+    "8": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+  },
+  "replacedOccupantKind": "ORIGINAL_SELECTION for all four",
+  "mechanism": "the landed pure prepareReplacementAppend over the validated genesis ledger and the verified frozen draw (file sha and drawHash rechecked); identities, splits and replaced occupants derived mechanically, rendered with the repository prettier",
+  "validationOfPopulatedLedger": {
+    "validatorResult": "valid, entryCount 4",
+    "ledgerHashRecomputes": true,
+    "extendsGenesisHeader": true,
+    "hashChainValid": true,
+    "reservePositionsExactly": [0, 1, 2, 3],
+    "duplicateReserve": false,
+    "gap": false,
+    "historicalEntryEdited": false,
+    "currentOccupantsDerived": {
+      "3": "RESERVE_REPLACEMENT position 0",
+      "4": "RESERVE_REPLACEMENT position 1",
+      "6": "RESERVE_REPLACEMENT position 2",
+      "8": "RESERVE_REPLACEMENT position 3",
+      "9": "ORIGINAL_SELECTION"
+    },
+    "everyOccupantMatchesItsWindowPlanDrawEntryDigest": true
+  },
+  "windowPreflightP7": {
+    "frameBindingValid": true,
+    "drawBindingValid": true,
+    "ownerClarificationBindingValid": true,
+    "replacementLedgerValid": true,
+    "replacementLedgerExtendsGenesis": true,
+    "windowPlanValid": true,
+    "workItemsMatchFrozenPlan": true,
+    "workItemDrawEntriesMatch": true,
+    "replacementAssignmentsRecorded": true,
+    "currentOccupantsMatch": true
+  },
+  "institutionNetworkExecutedBeforeAssignmentCommit": false,
+  "reserveConsumptionBecomesEffective": "on the push of the commit introducing this record together with the populated ledger",
+  "institutionIdentityInThisRecord": false
+}
