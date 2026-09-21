@@ -36,7 +36,9 @@
  *   plan against that spec; `computeWindowPreflight` is the Window V1 entry
  *   point, now a thin wrapper that supplies the V1 spec from constants.
  *
- * THIS MODULE IS PURE. File hashes are computed by the caller and passed in.
+ * THIS MODULE IS PURE. File hashes are computed by the caller and passed in;
+ * the generic strategy adapter also re-hashes the bytes it is handed, and
+ * reads no file itself.
  */
 
 import { createHash } from 'node:crypto';
@@ -52,6 +54,7 @@ import {
   type DrawForLedger,
   type ReplacementLedger,
 } from './replacementLedger.js';
+import { planPendingReplacementObligations } from './replacementPlanner.js';
 import {
   CURRENT_REPLACEMENT_REASONS,
   DRAW_FILE_SHA256,
@@ -63,6 +66,8 @@ import {
   OWNER_CLARIFICATION_BYTES,
   OWNER_CLARIFICATION_PATH,
   OWNER_CLARIFICATION_SHA256,
+  P6_MAX_REPLACEMENTS_BEFORE_SUCCESS_FLOOR,
+  P6_SUCCESS_FLOOR,
   P2_BATCH_PERCENT_STRICTLY_ABOVE,
   P5_BATCH_PERCENT_STRICTLY_ABOVE,
   FRAME_PATH,
@@ -962,6 +967,433 @@ export function windowSpecFromNextWindowStrategy(
       liveAuthorityGranted: false,
     },
   };
+}
+
+// ---------------------------------------------------------------------------
+// A spec from ANY acquisition-window strategy record (generalisation V1).
+// ---------------------------------------------------------------------------
+
+/**
+ * `windowSpecFromNextWindowStrategy` above is the HISTORICAL adapter: it binds
+ * the post-Window-V1 strategy only (its exact path, SHA and byte count, the
+ * Window V2 record identity, `candidateWindowV2`, zero failures, zero pending,
+ * ORIGINAL_SELECTION for every replacement) and is kept byte-for-byte so the
+ * Window V2 spec it produced stays reproducible.
+ *
+ * `windowSpecFromAcquisitionWindowStrategy` is the reusable path for later
+ * strategy records (first: the post-P:12 mixed-window strategy):
+ *
+ *   IMMUTABLE STRATEGY BYTES + VALIDATED STARTING-LEDGER BYTES + PLAN IDENTITY
+ *     -> PrecommittedWindowSpec -> buildPrecommittedWindowPlan -> P7
+ *
+ * No plan is an input. The adapter re-hashes both files itself, so a parsed
+ * record can never disagree with the file facts it is bound by; it derives
+ * every replacement's `replacesOccupant` from the validated starting ledger
+ * instead of trusting the strategy's claim, requires each replacement to
+ * discharge a pending obligation with the same reason, and requires the
+ * replacements' reserve positions to be exactly what the landed planner
+ * derives. Everything the generic spec validator already checks (splits,
+ * digests, duplicates, monotonic reserve positions) is left to it: the
+ * adapter refuses whenever it reports a violation.
+ */
+
+export const ACQUISITION_WINDOW_STRATEGY_RECORD_KIND = 'OFFLINE_ACQUISITION_WINDOW_STRATEGY';
+
+/** The output plan's identity. Metadata only; it never selects a work item. */
+export interface WindowPlanIdentity {
+  readonly recordId: string;
+  readonly records: string;
+  readonly windowName: string;
+}
+
+/** A work item exactly as a strategy record precommits it. */
+export interface AcquisitionWindowStrategyWorkItem {
+  readonly order: number;
+  readonly workItemId: string;
+  readonly kind: WorkItemKind;
+  readonly selectionIndex: number;
+  readonly split: Split;
+  readonly drawEntryKind?: 'RESERVE' | 'SELECTION';
+  readonly drawEntrySha256: string;
+  readonly reserveRankPosition?: number | null;
+  readonly replacementReason?: ReplacementReason | null;
+  readonly replacesOccupant?: ReplacedOccupantKind | null;
+}
+
+/** The fields of a generic strategy record the spec is read from. Nothing else is trusted. */
+export interface AcquisitionWindowStrategyRecord {
+  readonly recordId: string;
+  readonly recordKind: string;
+  readonly records: string;
+  readonly generationId: string;
+  readonly thisFileAuthorises: readonly string[];
+  readonly isLiveAuthority: boolean;
+  readonly bound: {
+    readonly frame: {
+      readonly path?: string;
+      readonly artifactFileSha256: string;
+      readonly frameHash: string;
+    };
+    readonly draw: {
+      readonly path?: string;
+      readonly artifactFileSha256: string;
+      readonly drawHash: string;
+    };
+    readonly replacementLedger: {
+      readonly path: string;
+      readonly sha256: string;
+      readonly bytes: number;
+      readonly ledgerHash: string;
+      readonly entries: number;
+    };
+    readonly ownerReserveOrderClarification?: { readonly sha256: string };
+  };
+  readonly currentGenerationState: {
+    readonly ACQUISITION_SUCCESSFUL: number;
+    readonly CURRENT_ACQUISITION_FAILURE: readonly number[];
+    readonly PENDING_CAPABILITY_REVIEW: readonly number[];
+    readonly pendingReplacementObligations: readonly {
+      readonly selectionIndex: number;
+      readonly reason: ReplacementReason;
+    }[];
+    readonly nextNeverStartedSelectionIndex: number;
+    readonly replacementLedgerEntries: number;
+    readonly reserveConsumed: number;
+    readonly reserveUnused: number;
+    readonly nextUnusedReservePosition: number;
+    readonly p6: { readonly result: string };
+  };
+  readonly windowSize: { readonly plannedWindowSize: number };
+  readonly candidateWindow: {
+    readonly workItems: readonly AcquisitionWindowStrategyWorkItem[];
+    readonly replacementItems: number;
+    readonly primaryItems: number;
+  };
+}
+
+export interface AcquisitionWindowStrategyAdapterInput {
+  /** The frozen draw; the starting ledger is validated against it. */
+  readonly draw: DrawForPlan;
+  /** The strategy file's exact bytes (as UTF-8 text) and the file facts the caller recomputed. */
+  readonly strategyText: string;
+  readonly strategyFile: GovernanceFileBinding;
+  /** The starting replacement-ledger revision's exact bytes (as UTF-8 text). */
+  readonly startingLedgerText: string;
+  readonly identity: WindowPlanIdentity;
+}
+
+const RECORD_ID_SLUG = /^[a-z0-9][a-z0-9-]{2,127}$/;
+const RECORDS_TOKEN = /^[A-Z0-9][A-Z0-9_]{2,127}$/;
+const P6_STRATEGY_RESULTS: Readonly<Record<string, boolean>> = {
+  NOT_TRIGGERED: false,
+  TRIGGERED: true,
+};
+
+const isIndexList = (value: unknown): value is readonly number[] =>
+  Array.isArray(value) && value.every((v) => isIntegerIn(v, 0, SELECTION_COUNT - 1));
+const isAbsent = (value: unknown): boolean => value === undefined || value === null;
+
+/**
+ * The spec a generic acquisition-window strategy precommits, bound to the
+ * validated starting ledger it names. Throws on ANY disagreement. The plan it
+ * will check does not exist when this runs, and is never an input.
+ */
+export function windowSpecFromAcquisitionWindowStrategy(
+  input: AcquisitionWindowStrategyAdapterInput,
+): PrecommittedWindowSpec {
+  const refuse = (why: string): never => {
+    throw new Error(`the acquisition-window strategy cannot bind a spec: ${why}`);
+  };
+  const { draw, strategyText, strategyFile, startingLedgerText, identity } = input;
+
+  // 1. The strategy file: re-hashed here, so the record IS those bytes.
+  if (
+    strategyFile.sha256 !== sha256(strategyText) ||
+    strategyFile.bytes !== Buffer.byteLength(strategyText, 'utf8')
+  ) {
+    refuse('the strategy file facts are not the supplied strategy bytes');
+  }
+  let strategy: AcquisitionWindowStrategyRecord;
+  try {
+    strategy = JSON.parse(strategyText) as AcquisitionWindowStrategyRecord;
+  } catch {
+    return refuse('the strategy bytes are not JSON');
+  }
+  if (strategy.recordKind !== ACQUISITION_WINDOW_STRATEGY_RECORD_KIND) refuse('wrong recordKind');
+  if (typeof strategy.records !== 'string' || !RECORDS_TOKEN.test(strategy.records)) {
+    refuse('the strategy records token is malformed');
+  }
+  if (strategyFile.path !== `docs/evaluation/${strategy.records}.json`) {
+    refuse('the strategy path is not docs/evaluation/<records>.json');
+  }
+  if (strategy.generationId !== GENERATION_ID) refuse('wrong generation');
+  if (!Array.isArray(strategy.thisFileAuthorises) || strategy.thisFileAuthorises.length !== 0) {
+    refuse('the strategy claims authority');
+  }
+  if (strategy.isLiveAuthority !== false) refuse('the strategy claims live authority');
+
+  // 2. The plan identity: caller metadata, never the strategy's own identity.
+  if (
+    !RECORD_ID_SLUG.test(identity.recordId) ||
+    !RECORDS_TOKEN.test(identity.records) ||
+    typeof identity.windowName !== 'string' ||
+    identity.windowName.trim().length === 0
+  ) {
+    refuse('the plan identity is malformed');
+  }
+  if (identity.recordId === strategy.recordId || identity.records === strategy.records) {
+    refuse('the plan identity reuses the strategy identity');
+  }
+
+  // 3. Frozen frame, draw and owner-clarification bindings.
+  const bound = strategy.bound;
+  if (
+    bound?.frame?.artifactFileSha256 !== FRAME_FILE_SHA256 ||
+    bound.frame.frameHash !== FRAME_HASH ||
+    (bound.frame.path !== undefined && bound.frame.path !== FRAME_PATH) ||
+    bound.draw?.artifactFileSha256 !== DRAW_FILE_SHA256 ||
+    bound.draw.drawHash !== DRAW_HASH ||
+    (bound.draw.path !== undefined && bound.draw.path !== DRAW_PATH)
+  ) {
+    refuse('frame or draw binding is not the frozen one');
+  }
+  if (draw.drawHash !== DRAW_HASH) refuse('the supplied draw is not the frozen draw');
+  if (
+    bound.ownerReserveOrderClarification !== undefined &&
+    bound.ownerReserveOrderClarification.sha256 !== OWNER_CLARIFICATION_SHA256
+  ) {
+    refuse('the owner reserve-order clarification binding is not the landed one');
+  }
+
+  // 4. The starting ledger: the supplied bytes must BE the bound revision.
+  const ledgerBinding = bound.replacementLedger;
+  if (
+    ledgerBinding?.path !== REPLACEMENT_LEDGER_PATH ||
+    typeof ledgerBinding.sha256 !== 'string' ||
+    !HEX64.test(ledgerBinding.sha256) ||
+    typeof ledgerBinding.ledgerHash !== 'string' ||
+    !HEX64.test(ledgerBinding.ledgerHash) ||
+    !isIntegerIn(ledgerBinding.entries, 0, RESERVE_COUNT) ||
+    !isIntegerIn(ledgerBinding.bytes, 1, Number.MAX_SAFE_INTEGER)
+  ) {
+    refuse('the starting ledger binding is malformed');
+  }
+  if (
+    sha256(startingLedgerText) !== ledgerBinding.sha256 ||
+    Buffer.byteLength(startingLedgerText, 'utf8') !== ledgerBinding.bytes
+  ) {
+    refuse('the supplied ledger bytes are not the bound starting revision');
+  }
+  let ledger: ReplacementLedger;
+  try {
+    ledger = JSON.parse(startingLedgerText) as ReplacementLedger;
+  } catch {
+    return refuse('the starting ledger bytes are not JSON');
+  }
+  const ledgerValidation = validateReplacementLedger(draw, ledger);
+  if (!ledgerValidation.valid) refuse('the starting ledger does not validate against the draw');
+  if (
+    ledger.ledgerHash !== ledgerBinding.ledgerHash ||
+    ledger.entries.length !== ledgerBinding.entries ||
+    !ledgerExtendsGenesis(ledger)
+  ) {
+    refuse('the starting ledger is not the bound revision');
+  }
+  const entryCount = ledger.entries.length;
+
+  // 5. Generation state: consistent with the ledger and with itself.
+  const state = strategy.currentGenerationState;
+  if (
+    state === undefined ||
+    !isIntegerIn(state.ACQUISITION_SUCCESSFUL, 0, SELECTION_COUNT) ||
+    !isIndexList(state.CURRENT_ACQUISITION_FAILURE) ||
+    !isIndexList(state.PENDING_CAPABILITY_REVIEW) ||
+    !Array.isArray(state.pendingReplacementObligations) ||
+    !isIntegerIn(state.nextNeverStartedSelectionIndex, 0, SELECTION_COUNT)
+  ) {
+    return refuse('the generation state is malformed');
+  }
+  if (
+    state.replacementLedgerEntries !== entryCount ||
+    state.reserveConsumed !== entryCount ||
+    state.nextUnusedReservePosition !== entryCount ||
+    state.reserveUnused !== RESERVE_COUNT - entryCount
+  ) {
+    refuse('the generation state disagrees with the bound ledger');
+  }
+  const failures = new Set(state.CURRENT_ACQUISITION_FAILURE);
+  const underReview = new Set(state.PENDING_CAPABILITY_REVIEW);
+  const obligations = new Map<number, ReplacementReason>();
+  for (const obligation of state.pendingReplacementObligations) {
+    if (
+      !isIntegerIn(obligation?.selectionIndex, 0, SELECTION_COUNT - 1) ||
+      !(REPLACEMENT_REASONS as readonly unknown[]).includes(obligation.reason) ||
+      obligations.has(obligation.selectionIndex) ||
+      !failures.has(obligation.selectionIndex) ||
+      underReview.has(obligation.selectionIndex)
+    ) {
+      refuse('a pending replacement obligation is malformed, duplicated or not a current failure');
+    }
+    obligations.set(obligation.selectionIndex, obligation.reason);
+  }
+  const p6Stated = P6_STRATEGY_RESULTS[state.p6?.result];
+  const p6Derived =
+    entryCount > P6_MAX_REPLACEMENTS_BEFORE_SUCCESS_FLOOR &&
+    state.ACQUISITION_SUCCESSFUL < P6_SUCCESS_FLOOR;
+  if (p6Stated === undefined || p6Stated !== p6Derived) {
+    refuse('the stated P6 result disagrees with the ledger and the success count');
+  }
+  if (p6Derived) refuse('P6 fires: no window may be planned');
+
+  // 6. The candidate window.
+  const candidate = strategy.candidateWindow?.workItems;
+  if (!Array.isArray(candidate) || candidate.length === 0) {
+    return refuse('the strategy carries no candidate window');
+  }
+  if (candidate.length !== strategy.windowSize?.plannedWindowSize) {
+    refuse('the candidate window is not the planned window size');
+  }
+  candidate.forEach((item, position) => {
+    if (item.order !== position + 1) refuse('the candidate order is not 1..n');
+  });
+  const replacementItems = candidate.filter((item) => item.kind === 'REPLACEMENT');
+  const primaryItems = candidate.filter((item) => item.kind === 'PRIMARY');
+  if (
+    replacementItems.length !== strategy.candidateWindow.replacementItems ||
+    primaryItems.length !== strategy.candidateWindow.primaryItems ||
+    replacementItems.length + primaryItems.length !== candidate.length
+  ) {
+    refuse('the replacement/primary counts disagree with the candidate items');
+  }
+
+  // Replacements: each discharges a pending obligation with its reason, and
+  // together they take exactly the positions the landed planner derives.
+  for (const item of replacementItems) {
+    const owed = obligations.get(item.selectionIndex);
+    if (owed === undefined) refuse(`${item.workItemId}: no pending obligation for its slot`);
+    if (item.replacementReason !== owed) refuse(`${item.workItemId}: wrong replacement reason`);
+    if (!isIntegerIn(item.reserveRankPosition, 0, RESERVE_COUNT - 1)) {
+      refuse(`${item.workItemId}: carries no reserve position`);
+    }
+    if (item.drawEntryKind !== undefined && item.drawEntryKind !== 'RESERVE') {
+      refuse(`${item.workItemId}: a replacement must digest a RESERVE entry`);
+    }
+  }
+  let planned: ReturnType<typeof planPendingReplacementObligations>;
+  try {
+    planned = planPendingReplacementObligations(
+      draw,
+      ledger,
+      replacementItems.map((item) => item.selectionIndex),
+    );
+  } catch {
+    return refuse('the replacement slots cannot be planned against the starting ledger');
+  }
+  replacementItems.forEach((item, k) => {
+    const expected = planned[k]!;
+    if (
+      item.selectionIndex !== expected.selectionIndex ||
+      item.reserveRankPosition !== expected.reserveRankPosition
+    ) {
+      refuse(
+        `${item.workItemId}: not the planner's slot/reserve assignment at replacement ${String(k)}`,
+      );
+    }
+  });
+
+  // The replaced occupant is DERIVED from the ledger; a claim must agree.
+  const occupantKindOf = (selectionIndex: number): ReplacedOccupantKind =>
+    currentOccupantForSelectionIndex(draw, ledger, selectionIndex).occupantKind;
+  for (const item of replacementItems) {
+    const derived = occupantKindOf(item.selectionIndex);
+    if (item.replacesOccupant !== derived) {
+      refuse(`${item.workItemId}: claimed occupant kind is not the ledger's (${derived})`);
+    }
+  }
+
+  // Primaries: untouched slots, in frozen order, carrying no replacement fact.
+  primaryItems.forEach((item, k) => {
+    if (
+      !isAbsent(item.reserveRankPosition) ||
+      !isAbsent(item.replacementReason) ||
+      !isAbsent(item.replacesOccupant)
+    ) {
+      refuse(`${item.workItemId}: a PRIMARY carries replacement facts`);
+    }
+    if (item.drawEntryKind !== undefined && item.drawEntryKind !== 'SELECTION') {
+      refuse(`${item.workItemId}: a primary must digest a SELECTION entry`);
+    }
+    if (item.selectionIndex !== state.nextNeverStartedSelectionIndex + k) {
+      refuse(`${item.workItemId}: primaries must be the next never-started slots in frozen order`);
+    }
+    if (occupantKindOf(item.selectionIndex) !== 'ORIGINAL_SELECTION') {
+      refuse(`${item.workItemId}: a primary slot has already been replaced`);
+    }
+  });
+
+  const spec: PrecommittedWindowSpec = {
+    planSchema: GENERIC_WINDOW_PLAN_SCHEMA,
+    recordId: identity.recordId,
+    records: identity.records,
+    windowName: identity.windowName,
+    generationId: strategy.generationId,
+    governance: {
+      strategy: {
+        path: strategyFile.path,
+        sha256: strategyFile.sha256,
+        bytes: strategyFile.bytes,
+      },
+    },
+    startingLedger: {
+      path: ledgerBinding.path,
+      artifactFileSha256: ledgerBinding.sha256,
+      bytes: ledgerBinding.bytes,
+      ledgerHash: ledgerBinding.ledgerHash,
+      entryCount,
+    },
+    plannedWindowSize: candidate.length,
+    workItems: candidate.map((item) =>
+      item.kind === 'REPLACEMENT'
+        ? {
+            kind: item.kind,
+            workItemId: item.workItemId,
+            selectionIndex: item.selectionIndex,
+            reserveRankPosition: item.reserveRankPosition as number,
+            split: item.split,
+            drawEntrySha256: item.drawEntrySha256,
+            replacementReason: item.replacementReason as ReplacementReason,
+            replacesOccupant: occupantKindOf(item.selectionIndex),
+          }
+        : {
+            kind: item.kind,
+            workItemId: item.workItemId,
+            selectionIndex: item.selectionIndex,
+            reserveRankPosition: null,
+            split: item.split,
+            drawEntrySha256: item.drawEntrySha256,
+            replacementReason: null,
+            replacesOccupant: null,
+          },
+    ),
+    stateAtPlanTime: {
+      successfulSelectionSlots: state.ACQUISITION_SUCCESSFUL,
+      currentAcquisitionFailures: state.CURRENT_ACQUISITION_FAILURE.length,
+      pendingReplacementObligations: state.pendingReplacementObligations.length,
+      nextNeverStartedSelectionIndex: state.nextNeverStartedSelectionIndex,
+      replacementLedgerEntries: state.replacementLedgerEntries,
+      reserveConsumed: state.reserveConsumed,
+      reserveUnused: state.reserveUnused,
+      nextUnusedReservePosition: state.nextUnusedReservePosition,
+      p6Fires: p6Derived,
+      liveAuthorityGranted: false,
+    },
+  };
+
+  // 7. Everything the generic validator checks (splits, digests, duplicates,
+  //    canonical ids, monotonic reserve positions) - never duplicated here.
+  const violations = precommittedWindowSpecViolations(draw, spec);
+  if (violations.length > 0) refuse(violations.join('; '));
+  return spec;
 }
 
 // ---------------------------------------------------------------------------
