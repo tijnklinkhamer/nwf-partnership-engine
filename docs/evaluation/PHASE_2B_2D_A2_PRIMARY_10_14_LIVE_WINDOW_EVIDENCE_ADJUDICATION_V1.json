@@ -1,0 +1,452 @@
+{
+  "recordId": "phase2b-2d-a2-primary-10-14-live-window-evidence-adjudication-v1",
+  "recordKind": "LIVE_WINDOW_EVIDENCE_PARTIAL_ADJUDICATION",
+  "records": "PHASE_2B_2D_A2_PRIMARY_10_14_LIVE_WINDOW_EVIDENCE_ADJUDICATION_V1",
+  "recordedAtUtc": "2026-09-21T16:57:54Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "ownerDecision": "AUTHORISE_PHASE_2B_2D_A2_PRIMARY_10_14_WINDOW_EVIDENCE_ADJUDICATION_AND_P12_CAPABILITY_REVIEW_V1",
+  "startingHead": "575b706d1c33f7b62eb3ac5000780581bc901dbe",
+  "startingState": {
+    "worktreeClean": true,
+    "localEqualsOrigin": true,
+    "ancestryVerified": [
+      "744fe29b0a348fdc99a479f43f4c7affb3c80926",
+      "798ddd88155704de53d63d4b5b1c07ab693cebf3",
+      "8af5ad187f6632b22997f128ebb81063b3061cf3",
+      "575b706d1c33f7b62eb3ac5000780581bc901dbe"
+    ]
+  },
+  "bound": {
+    "windowPlanV2": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_PRIMARY_10_14_WINDOW_PLAN_V1.json",
+      "sha256": "f3c3e31c49dfff17c53289d32274e1240330a476ae046544bf8c3516e7c25ef5",
+      "bytes": 6275,
+      "windowPlanHash": "5db74eed5aa7bd427d824ae066b47817a92f8b806e99aaf12fdec824494feb67",
+      "commit": "744fe29b0a348fdc99a479f43f4c7affb3c80926"
+    },
+    "liveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_PRIMARY_10_14_LIVE_WINDOW_AUTHORITY_V1.json",
+      "sha256": "4cbebe89d0e4bc9921458547c1bee71210094cf0f75b3b53b2c0cb5ad078af27",
+      "bytes": 5754,
+      "commit": "8af5ad187f6632b22997f128ebb81063b3061cf3"
+    },
+    "liveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_PRIMARY_10_14_LIVE_WINDOW_RESULT_V1.json",
+      "sha256": "c16ec72e84b938d338d3108291e4d9899c438d9123ab90a80a0674c8eb0e9576",
+      "bytes": 22408,
+      "commit": "575b706d1c33f7b62eb3ac5000780581bc901dbe",
+      "recomputedInThisStep": true,
+      "edited": false
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0",
+      "bytes": 7254,
+      "ledgerHash": "2febfecfe14bc0f6ca709271e33782e2ac2a8a14f09a14ff4ff0bdf608b7e452",
+      "entries": 4,
+      "lastChangedIn": "c4396c1",
+      "byteIdenticalAfterThisStep": true
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    },
+    "capabilityReview": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_ANCHOR_DOCUMENT_BASE_CAPABILITY_REVIEW_V1.json",
+      "sha256": "eac03dc122d3e7b8a575e82f1a9509145aec2ac3b00eca3d86ca5b1e3a1e5066",
+      "bytes": 18903,
+      "committedWithThisRecord": true
+    }
+  },
+  "validation": {
+    "command": "npm run validate",
+    "runsOfIt": 1,
+    "atHead": "575b706d1c33f7b62eb3ac5000780581bc901dbe",
+    "workingTreeAtValidate": "HEAD plus exactly the two new records of this step (untracked)",
+    "startedUtc": "2026-09-21T17:00:37Z",
+    "finishedUtc": "2026-09-21T17:04:46Z",
+    "exitCode": 0,
+    "steps": ["migrations:check", "typecheck", "lint", "format:check", "test", "build"],
+    "testFiles": {
+      "passed": 187,
+      "skipped": 5,
+      "failed": 0,
+      "total": 192
+    },
+    "tests": {
+      "passed": 4800,
+      "skipped": 75,
+      "failed": 0,
+      "total": 4875
+    },
+    "validatedBytesOfThisRecord": {
+      "sha256": "e491d395ea7e9f69a0234e19996c2032d634e0a21b276a328112bc6341c7d666",
+      "note": "validate ran over this record with only this validation block as a placeholder; the block was then filled and prettier --check re-run on the final bytes of both records. The capability review was not edited after validate."
+    },
+    "log": {
+      "location": "outside the repository, in this session's scratchpad",
+      "sha256": "2c435b303aa13df1aba0b26c99b521bc01c258425e69581c386e6018e934b735",
+      "bytes": 28212,
+      "committedToGit": false
+    }
+  },
+  "databaseReverification": {
+    "mode": "owner role inside BEGIN TRANSACTION READ ONLY (transaction_read_only = on, confirmed), SELECT only, every transaction rolled back",
+    "counts": {
+      "orgunit_research_runs": 23,
+      "orgunit_research_run_completions": 23,
+      "orgunit_fetch_observations": 483,
+      "orgunit_redirect_observations": 32,
+      "orgunit_page_evidence": 354,
+      "orgunit_page_candidates": 708,
+      "orgunit_root_promotions": 0,
+      "orgunit_root_promotion_revocations": 0,
+      "orgunit_classification_subjects": 0,
+      "orgunit_classifier_calls": 0,
+      "orgunit_classifier_call_completions": 0,
+      "orgunit_page_classifications": 0
+    },
+    "matchesPostWindowExpectation": true,
+    "driftSinceWindowResult": "none",
+    "runsForP13OrP14Organisations": 0,
+    "databaseWrites": 0
+  },
+  "p5HistoricalTerminal": {
+    "windowV2TerminalGateDecision": "PAUSE_P5_LOW_RAW_YIELD",
+    "rawPagesObserved": {
+      "P:10": 0,
+      "P:11": 34,
+      "P:12": 1
+    },
+    "lowYieldCount": 2,
+    "plannedWindowSize": 5,
+    "fraction": 0.4,
+    "threshold": "> 30% of the planned window size (2 of 5)",
+    "pausedCorrectlyAfter": "P:12",
+    "finalHistoricalTruth": true,
+    "reinterpretedByCapabilityFindings": false,
+    "windowV2Reopened": false,
+    "note": "even if P:12 is later revalidated after a crawler repair, the Window-V2 gate decision stays PAUSE_P5_LOW_RAW_YIELD"
+  },
+  "evidenceIntegrityStandard": {
+    "checked": [
+      "draw-entry digest = plan (canonicalStringify of the exact SELECTION entry)",
+      "the run organisation and eche row key equal the draw entry on every observation",
+      "exactly one run per organisation; P:13/P:14 organisations have zero runs",
+      "frozen root = the single STRUCTURALLY_VALID website claim in the draw entry; no promotion root",
+      "dry_run false; one durable COMPLETED completion, null error",
+      "v4 on the run and every observation",
+      "budgets: total <= 60, page attempts <= 35, hosts <= 8, sitemap documents <= 5",
+      "no transport or manual retry (max attempt_no 1), no robots redirect continuation",
+      "candidate rows = 2 x page rows; no page with a null document hash",
+      "formal SD7 recomputed in memory from persisted evidence with the landed analyseOrganisation and toSealedRecord, deep-equal to the sealed detail; sealed sha256 and bytes re-read"
+    ],
+    "holdoutHandling": "P:11 checked by counts, hashes and booleans only; no page text, title, URL or label displayed",
+    "defectsFound": 0
+  },
+  "items": [
+    {
+      "workItemId": "P:10",
+      "selectionIndex": 10,
+      "split": "DEV_CONFIRM",
+      "runRefSha256": "713978aeff367ded58bda4d38b5c4fe8b85897de9ac45adf7c4bd8a6f8409dd0",
+      "integrity": {
+        "drawEntryDigestMatchesPlan": true,
+        "runsForThisOrganisation": 1,
+        "frozenRootEqualsCurrentValidClaim": true,
+        "promotionRoots": 0,
+        "dryRun": false,
+        "runTerminalState": "COMPLETED",
+        "completionErrorKind": null,
+        "runFetchPolicyVersion": "orgunit-fetch-policy-v4",
+        "everyObservationV4": true,
+        "gatewayRequests": 1,
+        "pageAttempts": 0,
+        "robotsRequests": 1,
+        "robotsOutcome": {
+          "errorKind": "TLS_FAILURE",
+          "errorSubtype": "TLS_CERT_INVALID",
+          "attemptNo": 1
+        },
+        "transportRetries": 0,
+        "retryCorrectlyNotFired": "TLS_CERT_INVALID is non-retryable under v4",
+        "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+        "rawPages": 0,
+        "persistenceAnomaly": false,
+        "hostStateAnomaly": false,
+        "orchestrationError": false,
+        "policyMismatch": false,
+        "verdict": "CLEAN"
+      },
+      "formalSd7": {
+        "recomputedInThisStep": true,
+        "postSd7Min": 0,
+        "postSd7Max": 0,
+        "countIsExact": true,
+        "decidedByCase": "A",
+        "sealedDetail": {
+          "sha256": "de02e6e1ea6094330330ed59a4e91f63f8066515bc9bba3d86496bc7f41ee4dd",
+          "bytes": 1061,
+          "reReadAndMatched": true,
+          "splitScopedRoot": "dev-confirm"
+        }
+      },
+      "finalAdjudication": "ACQUISITION_UNSUCCESSFUL",
+      "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "replacementReasonBasis": "no usable HTTP response was obtained; acquisition was blocked by a TLS certificate transport failure on the site-policy request",
+      "pendingReplacementObligationCreated": true,
+      "reserveAssigned": false
+    },
+    {
+      "workItemId": "P:11",
+      "selectionIndex": 11,
+      "split": "FINAL_HOLDOUT",
+      "runRefSha256": "550d7a413130b34d3dc0c44a47a4e0db7fbd647507ea0cc6f1b77b2feb66c299",
+      "integrity": {
+        "drawEntryDigestMatchesPlan": true,
+        "runsForThisOrganisation": 1,
+        "frozenRootEqualsCurrentValidClaim": true,
+        "promotionRoots": 0,
+        "dryRun": false,
+        "runTerminalState": "COMPLETED",
+        "completionErrorKind": null,
+        "runFetchPolicyVersion": "orgunit-fetch-policy-v4",
+        "everyObservationV4": true,
+        "gatewayRequests": 38,
+        "pageAttempts": 35,
+        "sitemapDocumentRequests": 1,
+        "distinctHosts": 2,
+        "robotsRequests": 2,
+        "robotsRedirectContinuations": 0,
+        "maxAttemptNo": 1,
+        "redirectObservations": 1,
+        "rawPages": 34,
+        "candidateRows": 68,
+        "pagesWithNullDocumentHash": 0,
+        "persistenceAnomaly": false,
+        "hostStateAnomaly": false,
+        "orchestrationError": false,
+        "verdict": "CLEAN"
+      },
+      "formalSd7": {
+        "recomputedInThisStep": true,
+        "postSd7Min": 33,
+        "postSd7Max": 34,
+        "countIsExact": false,
+        "shortTextUnresolved": 1,
+        "exactDuplicateRowsRemoved": 0,
+        "nearDuplicateEdges": 0,
+        "nonTransitiveComponents": 0,
+        "unauditableComponents": 0,
+        "wholeRangeAtOrAbove4": true,
+        "decidedByCase": "B",
+        "sealedDetail": {
+          "sha256": "2e56b15f79a3adb10d197c0f75247cbdff0289a7efb737235734057c74fbd8ad",
+          "bytes": 15101,
+          "reReadAndMatched": true,
+          "splitScopedRoot": "final-holdout"
+        }
+      },
+      "semanticHoldoutInspection": false,
+      "finalAdjudication": "ACQUISITION_SUCCESSFUL"
+    },
+    {
+      "workItemId": "P:12",
+      "selectionIndex": 12,
+      "split": "DEV_TRAIN",
+      "runRefSha256": "fdc6f64fbdd9b66a93007e28b001675063a59b67f5eb02d38dda7c181d1b10aa",
+      "integrity": {
+        "drawEntryDigestMatchesPlan": true,
+        "runsForThisOrganisation": 1,
+        "frozenRootEqualsCurrentValidClaim": true,
+        "promotionRoots": 0,
+        "dryRun": false,
+        "runTerminalState": "COMPLETED",
+        "completionErrorKind": null,
+        "runFetchPolicyVersion": "orgunit-fetch-policy-v4",
+        "everyObservationV4": true,
+        "gatewayRequests": 37,
+        "pageAttempts": 35,
+        "sitemapDocumentRequests": 1,
+        "distinctHosts": 1,
+        "robotsRequests": 1,
+        "maxAttemptNo": 1,
+        "redirectObservations": 0,
+        "transportErrors": 0,
+        "rawPages": 1,
+        "candidateRows": 2,
+        "pagesWithNullDocumentHash": 0,
+        "persistenceAnomaly": false,
+        "hostStateAnomaly": false,
+        "orchestrationError": false,
+        "verdict": "CLEAN_EVIDENCE_CAPABILITY_QUESTION_OPEN"
+      },
+      "formalSd7": {
+        "recomputedInThisStep": true,
+        "postSd7Min": 1,
+        "postSd7Max": 1,
+        "countIsExact": true,
+        "decidedByCase": "B",
+        "sealedDetail": {
+          "sha256": "fb63977638cc4d388d935ce019776183a70a25decf16da59001d5898baed112d",
+          "bytes": 1653,
+          "reReadAndMatched": true,
+          "splitScopedRoot": "dev-train"
+        }
+      },
+      "fanoutStructure": {
+        "siteRootDocument": {
+          "path": "origin root",
+          "status": 200
+        },
+        "siteRootPolicyFile": 404,
+        "conventionalSitemap": 404,
+        "linkAttempts": 34,
+        "linkStatus": {
+          "404": 34
+        },
+        "linkParents": "all 34 discovered on the one root document",
+        "linkShapes": {
+          "singleSegmentSlug": 33,
+          "originRootPathWithQuery": 1
+        },
+        "bodyShapes": {
+          "genericServer404Identical837Bytes": 33,
+          "applicationRendered404Bytes125084": 1
+        },
+        "sameGeneric404AsPolicyFileAndSitemap": true,
+        "redirects": 0,
+        "transportFailures": 0
+      },
+      "baseHrefPresence": "P12_BASE_ELEMENT_PRESENCE_NOT_OBSERVABLE_FROM_PERSISTED_EVIDENCE",
+      "capabilityCausalityOutcome": "P12_CAPABILITY_CAUSALITY_UNRESOLVED",
+      "finalCurrentStatus": "ACQUISITION_STATUS_PENDING_CAPABILITY_REVIEW",
+      "notAdjudicatedAs": ["ACQUISITION_UNSUCCESSFUL", "ACQUISITION_SUCCESSFUL"],
+      "pendingReplacementObligationCreated": false,
+      "whyNoObligation": "creating one would treat potentially crawler-caused missing evidence as an institution acquisition failure before the capability question is decided",
+      "diagnosticSd9Only": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET (diagnostic, not of record)"
+    },
+    {
+      "workItemId": "P:13",
+      "selectionIndex": 13,
+      "split": "DEV_CONFIRM",
+      "status": "NEVER_STARTED",
+      "drawEntryDigestMatchesPlan": true,
+      "runs": 0,
+      "note": "precommitted in Window V2; P5 prevented execution; the dry run is not an acquisition start"
+    },
+    {
+      "workItemId": "P:14",
+      "selectionIndex": 14,
+      "split": "FINAL_HOLDOUT",
+      "status": "NEVER_STARTED",
+      "drawEntryDigestMatchesPlan": true,
+      "runs": 0,
+      "note": "precommitted in Window V2; P5 prevented execution; the dry run is not an acquisition start"
+    }
+  ],
+  "windowV2CarriedForwardAsOpenLiveWindow": false,
+  "futureExecutionRequires": "a NEW bounded window",
+  "capabilityFinding": {
+    "baseHrefSupport": "BASE_HREF_NOT_SUPPORTED",
+    "genericGapProvenSynthetically": true,
+    "p12CausalityOutcome": "P12_CAPABILITY_CAUSALITY_UNRESOLVED",
+    "keyCausalEvidence": [
+      "the document URL is the origin root, so absolute, root-relative, path-relative and ../ hrefs all resolve identically under the current code: persisted URLs cannot show the href form",
+      "33 of 34 link 404s are byte-identical to the generic 404 for the policy file and sitemap path, i.e. never routed to the application that served the root; the one root-path request was routed (application 404)",
+      "no retained body anywhere; base presence is unobservable without new network",
+      "historical signature count outside P:12: 0 of 22 other durable runs"
+    ],
+    "detail": "see the bound capability review"
+  },
+  "generation1SlotState": {
+    "ACQUISITION_SUCCESSFUL": 11,
+    "CURRENT_ACQUISITION_FAILURE": 1,
+    "PENDING_CAPABILITY_REVIEW": 1,
+    "NEVER_STARTED": 97,
+    "totalSelectionSlots": 110,
+    "doNotExtrapolate": "11 successful slots of 110; not a population success rate"
+  },
+  "generationSuccessfulSelectionIndices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11],
+  "generationFailureSelectionIndices": [10],
+  "pendingCapabilityReviewSelectionIndices": [12],
+  "neverStartedSelectionIndices": {
+    "from": 13,
+    "to": 109,
+    "count": 97
+  },
+  "pendingReplacementObligations": [
+    {
+      "selectionIndex": 10,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "reserveAssigned": false
+    }
+  ],
+  "replacementLedger": {
+    "mutated": false,
+    "sha256": "6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0",
+    "ledgerHash": "2febfecfe14bc0f6ca709271e33782e2ac2a8a14f09a14ff4ff0bdf608b7e452",
+    "entries": 4,
+    "reservePosition4": "UNASSIGNED"
+  },
+  "reserveConsumed": 4,
+  "reserveUnused": 36,
+  "nextUnusedReservePosition": 4,
+  "reserve4AssignedHere": false,
+  "p6": {
+    "threshold": "> 10 replacements consumed before 50 successful organisations",
+    "reserveConsumed": 4,
+    "successfulSelectionSlots": 11,
+    "pendingObligationCountsAsConsumption": false,
+    "fires": false
+  },
+  "targetedRevalidationScopeCandidates": ["S:12"],
+  "proposedRepair": {
+    "designOnly": true,
+    "implemented": false,
+    "expectedFetchPolicyVersion": "orgunit-fetch-policy-v5",
+    "detail": "see the bound capability review"
+  },
+  "scopeProofs": {
+    "institutionDnsHttpTls": 0,
+    "orgunitsDiscoverInvocations": 0,
+    "databaseWrites": 0,
+    "migrationCreated": false,
+    "productionCodeChanged": false,
+    "testCodeChanged": false,
+    "fetchPolicyChanged": false,
+    "retryChanged": false,
+    "classifierOrProviderExecution": 0,
+    "labelsCreated": 0,
+    "setP": 0,
+    "setR": 0,
+    "semanticHoldoutAccess": 0,
+    "a3": 0,
+    "phase2E": 0,
+    "liveResultEdited": false,
+    "earlierGovernanceRecordsEdited": false
+  },
+  "identityDisclosure": {
+    "institutionNames": 0,
+    "organisationUuids": 0,
+    "echeRowKeys": 0,
+    "hostnames": 0,
+    "urls": 0,
+    "pageTitlesOrText": 0,
+    "publicLinkageIsOnly": ["workItemId", "selectionIndex", "SHA-256(run UUID)"]
+  },
+  "nextOwnerDecision": "A2_ANCHOR_DOCUMENT_BASE_CAPABILITY_OWNER_DECISION",
+  "nextOwnerDecisionInputs": {
+    "question": "repair the confirmed generic <base href> gap (as fetch-policy v5) and targetedly revalidate S:12, although run-specific causality is unprovable from persisted evidence - or accept P:12 as an acquisition failure without repair",
+    "ifRepairChosen": "A2_ANCHOR_DOCUMENT_BASE_CAPABILITY_REPAIR_IMPLEMENTATION, then targeted revalidation of S:12",
+    "ifNoRepairChosen": "adjudicate S:12 ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET, add its replacement obligation, then A2_POST_WINDOW_V2_REPLACEMENT_AND_PRIMARY_CONTINUATION_STRATEGY",
+    "alsoToConfirm": "first-<base>-with-href (HTML spec) vs \"first valid <base href>\" (brief wording)",
+    "reserve4MustNotBeAssignedBeforeThisDecision": true
+  },
+  "terminalState": "PHASE_2B_2D_A2_WINDOW_V2_EVIDENCE_PARTIALLY_ADJUDICATED_P12_CAPABILITY_CAUSALITY_UNRESOLVED_AWAITING_OWNER_DECISION"
+}
