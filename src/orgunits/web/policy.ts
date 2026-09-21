@@ -19,9 +19,38 @@
  * executing a v2 run under v1 timeouts and stamping "v2" on the row - would
  * make `fetch_policy_version` a label rather than a fact.
  */
-export const FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v4';
+export const FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v5';
 
 /**
+ * WHY v4 BECAME v5 (Phase 2B-2D A2 - the anchor document-base repair, owner
+ * decision APPROVE_FETCH_POLICY_V5_FOR_DOCUMENT_BASE_REPAIR_V1;
+ * docs/evaluation/PHASE_2B_2D_A2_ANCHOR_DOCUMENT_BASE_FETCH_POLICY_V5_REPAIR_V1.json).
+ *
+ * WHAT CHANGED, EXACTLY, AND IT IS ONE THING. Under v4 every discovered
+ * anchor href was resolved against the fetched document URL. Under v5 it is
+ * resolved against the HTML DOCUMENT BASE: the first `<base>` element with an
+ * href attribute, resolved against the fetched document URL, or the fetched
+ * document URL itself when there is none or it is not a usable http(s) URL
+ * (`src/orgunits/orchestrator/anchors.ts`). A page with no usable `<base
+ * href>` yields byte- and sequence-identical frontier input under v4 and v5.
+ *
+ * NOTHING ELSE MOVED. Not a value in this file, not the retry classes, the
+ * redirect bounds, the robots continuation, the root authority, the scope
+ * gates, the budgets or page eligibility. The base is never fetched and grants
+ * no authority: every base-resolved URL passes the same admission and gateway
+ * checks a v4 URL did.
+ *
+ * WHY IT MUST BE A NEW VERSION. From byte-identical HTML, v5 may request URLs
+ * v4 never would - and never request the ones v4 did. `fetch_policy_version`
+ * is the only durable stamp that tells a reader which link-resolution rule
+ * produced a run's LINK attempts, so a v4 run can be read but not resumed
+ * here, and no v1..v4 evidence is reinterpreted.
+ *
+ * KNOWN OPEN CAPABILITY, NOT PART OF v5: HTML character references inside
+ * URL-valued attributes (`&amp;` in an href or a base href) are still not
+ * decoded (owner decision
+ * DEFER_ANCHOR_HREF_CHARACTER_REFERENCE_DECODING_AS_SEPARATE_CAPABILITY_V1).
+ *
  * WHY v3 BECAME v4 (Phase 2B-2D, ADR 0015 - bounded transport retry).
  *
  * WHAT CHANGED, EXACTLY, AND IT IS ONE THING. Under v3, one transport failure

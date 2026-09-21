@@ -29,6 +29,17 @@ import type { FetchErrorKind, TransportFailureSubtype } from '../../orgunits/web
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const read = (relative: string): string => readFileSync(join(REPO_ROOT, relative), 'utf8');
 
+/**
+ * ADR 0015's semantic implementation commit. The v4 bump is a fact about THIS
+ * commit; production moved to v5 afterwards (the anchor document-base repair),
+ * so reading the working tree would restate history as a claim about today.
+ */
+const ADR_0015_TERMINAL_COMMIT = 'd9c32af156d2241151601d6d6b0bf3eb9dafcee2';
+const readAtAdr0015Terminal = (relative: string): string =>
+  execFileSync('git', ['-C', REPO_ROOT, 'show', `${ADR_0015_TERMINAL_COMMIT}:${relative}`], {
+    encoding: 'utf8',
+  });
+
 const ROBOTS: TransportRetryContext = 'ROBOTS_POLICY_RESOLUTION';
 const PAGE: TransportRetryContext = 'ORDINARY_PAGE';
 
@@ -420,10 +431,12 @@ describe('ADR 0015 retry policy: AB. a retry is reconstructible without a stored
 });
 
 describe('ADR 0015: the production surface declares the policy exactly once', () => {
-  it('bumps the fetch policy to v4, in one declaration', () => {
-    expect(read('src/orgunits/web/policy.ts').match(/FETCH_POLICY_VERSION\s*=\s*'[^']+'/g)).toEqual(
-      ["FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v4'"],
-    );
+  it('bumped the fetch policy to v4, in one declaration, at its terminal commit', () => {
+    expect(
+      readAtAdr0015Terminal('src/orgunits/web/policy.ts').match(
+        /FETCH_POLICY_VERSION\s*=\s*'[^']+'/g,
+      ),
+    ).toEqual(["FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v4'"]);
   });
 
   it('declares the retry token as 1, in one place, beside the hop bound', () => {

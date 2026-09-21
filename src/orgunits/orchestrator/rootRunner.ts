@@ -28,7 +28,12 @@ import { checkRootScope, validateRequestUrl, type ValidatedUrl } from '../web/ur
 import { hasBinaryFileExtension, hasCartActionQueryParam } from '../signals/packs/universal.js';
 import { rawPathname } from '../signals/tree.js';
 import type { WebAttemptResult, WebTransport } from '../web/gateway.js';
-import { extractDiscoveryAnchors, resolveAnchorHref } from './anchors.js';
+import {
+  extractDiscoveryAnchors,
+  extractDocumentBaseHref,
+  resolveAnchorHref,
+  resolveDocumentBase,
+} from './anchors.js';
 import {
   createHostCircuitBreaker,
   type HostCircuitBreaker,
@@ -495,8 +500,17 @@ export async function runRootAcquisition(
     if (derived.outcome !== 'ELIGIBLE') return;
     collectedPages.push(derived.page);
 
+    // Fetch policy v5: hrefs resolve against the HTML DOCUMENT BASE (the first
+    // href-bearing <base>, else this page's URL), exactly as a browser would.
+    // The base changes resolution only: every resolved URL still passes
+    // admissibleUrl below and the gateway after it, and the discovery parent
+    // stays the page that was actually fetched.
+    const documentBase = resolveDocumentBase(
+      fetch.requestedUrl,
+      extractDocumentBaseHref(derived.decodedHtml),
+    );
     for (const anchor of extractDiscoveryAnchors(derived.decodedHtml)) {
-      const resolution = resolveAnchorHref(fetch.requestedUrl, anchor.hrefRaw);
+      const resolution = resolveAnchorHref(documentBase.url, anchor.hrefRaw);
       if (!resolution.ok) continue;
       if (!admissibleUrl(resolution.url)) continue;
       frontier.add(resolution.url, 'LINK', fetch.requestedUrl, anchor.text);
