@@ -1,0 +1,394 @@
+{
+  "recordId": "phase2b-2d-a2-reserve-assignment-order-owner-clarification-v1",
+  "recordKind": "OWNER_OPERATIONAL_ADJUDICATION",
+  "records": "PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1",
+  "recordedAtUtc": "2026-09-21T13:05:00Z",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "ownerDecisions": [
+    "APPROVE_ASCENDING_SELECTION_INDEX_RESERVE_ASSIGNMENT_V1",
+    "APPROVE_SAME_SLOT_APPEND_ONLY_REPLACEMENT_CHAIN_V1",
+    "APPROVE_MECHANICAL_REPLACEMENT_REASON_PRECEDENCE_V1",
+    "APPROVE_WINDOW_LOCAL_BATCH_PAUSE_SEMANTICS_V1"
+  ],
+  "accompanyingOwnerDecision": "AUTHORISE_PUSH_EXISTING_POST_V4_P5_CONTINUATION_STRATEGY_COMMIT_V1",
+  "durability": {
+    "startingLocalHead": "512f28306e3659528f566279e858665dfb7419bc",
+    "strategyCommitParent": "7a86da7464ab03edb5b04d9f49e44b23443b791a",
+    "originBeforePush": "7a86da7464ab03edb5b04d9f49e44b23443b791a",
+    "pushed": "7a86da7..512f283 feat/phase2b-2d-a2-batch-02",
+    "originAfterPush": "512f28306e3659528f566279e858665dfb7419bc",
+    "strategyCommitAmendedOrRewritten": false
+  },
+  "boundStrategy": {
+    "strategyArtifactPath": "docs/evaluation/PHASE_2B_2D_A2_POST_V4_P5_ACQUISITION_CONTINUATION_STRATEGY_V1.json",
+    "strategyArtifactSha256": "619f326184c4b91b09a57413a6288356850dad2270e9b0d01c0e288dc76b4097",
+    "strategyArtifactBytes": 60326,
+    "strategyAuditPath": "docs/audits/PHASE_2B_2D_A2_POST_V4_P5_ACQUISITION_CONTINUATION_STRATEGY_V1.md",
+    "strategyAuditSha256": "abf286eeca8bf5c4d51cb6725f95e4e893b3ba123d88b119b3aaf7768630a2c0",
+    "strategyAuditBytes": 7784,
+    "strategyCommit": "512f28306e3659528f566279e858665dfb7419bc",
+    "strategyOutcomeAsWritten": "OWNER_DECISION_REQUIRED_FOR_RESERVE_ASSIGNMENT_ORDER",
+    "strategyEdited": false,
+    "temporalTruth": "Strategy V1 remains a true record of what was open when it was written. The current effective strategy is Strategy V1 + this clarification, read together."
+  },
+  "boundEvidence": {
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    },
+    "v4Result": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_V4_TARGETED_TRANSPORT_REVALIDATION_RESULT_V1.json",
+      "sha256": "2ee08e19c6968710b0a3b52df4f9c4e7ef5ae553a88adba9e342d7b4e1378dc1"
+    },
+    "v4Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_V4_TARGETED_TRANSPORT_REVALIDATION_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "1aec378daa5f1e35834ec3be44de765f2f841c7f6076996a75c7f243fdef4f3c"
+    },
+    "batch01Execution": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_EXECUTION_RECORD_V1.json",
+      "sha256": "8a1b0f57f1c568e2ac04aced7ba453ad8d7b666f557fd622b3a5e6378309f9cc"
+    }
+  },
+
+  "governanceClassification": {
+    "classification": "OWNER_OPERATIONAL_ADJUDICATION",
+    "resolves": "the R3 sectionE rules.1 silence on which of several simultaneously pending failed selection slots receives the next unused reserve, plus three operational confirmations the strategy surfaced",
+    "explicitlyNot": [
+      "METHODOLOGY_R3_REVISION",
+      "METHODOLOGY_R4",
+      "PLAN_V1_AMENDMENT",
+      "SAMPLING_METHOD_CHANGE",
+      "SPLIT_CHANGE",
+      "RESERVE_LIST_CHANGE",
+      "DRAW_CHANGE"
+    ],
+    "precedent": "PHASE_2B_2D_METHOD_V2_SD7_SHORT_TEXT_OWNER_DECISION_V1.json",
+    "r3Changed": false,
+    "planV1Changed": false,
+    "frameChanged": false,
+    "drawChanged": false,
+    "reserveRankChanged": false,
+    "splitAssignmentChanged": false
+  },
+
+  "Q1_reserveAssignmentOrder": {
+    "decision": "APPROVE_ASCENDING_SELECTION_INDEX_RESERVE_ASSIGNMENT_V1",
+    "replacementOrdering": "SELECTION_INDEX_ASCENDING",
+    "generalRule": {
+      "name": "PENDING_REPLACEMENT_OBLIGATION_ORDER",
+      "value": "SELECTION_INDEX_ASCENDING",
+      "appliesWhen": "any future bounded-window planning point at which more than one replacement obligation is pending simultaneously",
+      "algorithm": [
+        "collect the pending replacement obligations",
+        "sort them by selectionIndex ascending",
+        "walk the unused reserve list in its already-frozen rank order",
+        "assign the next unused reserve monotonically to each sorted obligation"
+      ],
+      "noManualOrderingByAnyFutureOperator": true,
+      "notAOneOffForTheCurrentFourSlots": true
+    },
+    "forbiddenAssignmentInputs": [
+      "institution name",
+      "country",
+      "hostname",
+      "website",
+      "acquisition failure type",
+      "expected yield",
+      "split preference",
+      "semantic evidence",
+      "model output",
+      "human preference"
+    ],
+    "reserveIdentityAffectsOrdering": false,
+    "reserveIdentitiesInspectedToValidateOrOptimise": false,
+    "rationale": [
+      "selectionIndex exists before any acquisition outcome",
+      "deterministic",
+      "result-blind",
+      "identity-blind",
+      "split-blind",
+      "reproducible from frozen artifacts",
+      "requires no new random seed",
+      "introduces the least owner discretion",
+      "cannot be tuned after seeing reserve characteristics"
+    ],
+    "doesNotChange": "next unused RESERVE organisation in rank order",
+    "onlyAnswers": "which waiting selection slot receives that next reserve first",
+    "currentAssignments": [
+      { "selectionIndex": 3, "reservePosition": 0 },
+      { "selectionIndex": 4, "reservePosition": 1 },
+      { "selectionIndex": 6, "reservePosition": 2 },
+      { "selectionIndex": 8, "reservePosition": 3 }
+    ],
+    "reservePositionMeans": "the draw's reserveRankPosition (0..39); global rank positions 110..113",
+    "reserveIdentitiesAreWhateverTheFrozenDrawMadeThem": true,
+    "assignmentsCreatedOrWrittenByThisRecord": false
+  },
+
+  "Q2_replacementChain": {
+    "decision": "APPROVE_SAME_SLOT_APPEND_ONLY_REPLACEMENT_CHAIN_V1",
+    "replacementChain": "SAME_SELECTION_SLOT_APPEND_ONLY_ACROSS_PRECOMMITTED_WINDOWS",
+    "ifAReserveOccupyingSlotSIsAcquisitionUnsuccessful": [
+      "slot S remains unfilled by a successful organisation",
+      "the failed reserve's evidence remains immutable",
+      "a NEW replacement obligation is created for the SAME selectionIndex S",
+      "the next unused reserve may later be assigned to S under the same frozen assignment algorithm (Q1)",
+      "the replacement inherits the SAME split",
+      "no prior ledger row is edited or removed"
+    ],
+    "chainTerminatesOnlyWhen": [
+      "A. an organisation occupying the slot is ACQUISITION_SUCCESSFUL",
+      "B. the reserve is exhausted, causing CORPUS_FREEZE_REFUSED"
+    ],
+    "boundedWindowRule": {
+      "liveWindowMembershipMayAdaptToOutcomesDuringExecution": false,
+      "example": "If 3R0 fails inside the window 3R0/4R1/6R2/8R3/9P, reserve 4 is NOT inserted for slot 3 into that window. The failed R0 run is preserved, slot 3 gets a pending next replacement obligation, the window finishes or stops under its already-frozen gate, and any next assignment happens only when a NEW bounded window is precommitted under owner authority.",
+      "preserves": [
+        "bounded exposure",
+        "result blindness",
+        "precommitment",
+        "deterministic batch composition"
+      ]
+    },
+    "ledgerSemantics": {
+      "eachTransitionIsANewRow": true,
+      "earlierRowsNeverMutated": true,
+      "chainShape": "original selected organisation -> reserve position N -> reserve position M -> ...",
+      "aLaterRowIsSufficientToInferItContinuesTheSameSelectionIndex": true,
+      "mutableCurrentOrganisationField": "FORBIDDEN",
+      "currentOccupantIsDerivedFromTheLedger": true
+    }
+  },
+
+  "Q3_replacementReasonPrecedence": {
+    "decision": "APPROVE_MECHANICAL_REPLACEMENT_REASON_PRECEDENCE_V1",
+    "vocabularyUnchanged": [
+      "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "ACQUISITION_UNSUCCESSFUL_ROOT_AUTHORITY_FAILURE",
+      "ACQUISITION_UNSUCCESSFUL_ROBOTS_DISALLOWED",
+      "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    ],
+    "newTokenAdded": false,
+    "v4SubtypeAddedToEnum": false,
+    "precedence": [
+      {
+        "rank": 1,
+        "reason": "ACQUISITION_UNSUCCESSFUL_ROOT_AUTHORITY_FAILURE",
+        "when": "acquisition could not validly begin from the frozen/approved root authority because the authority itself was structurally invalid, revoked, mismatched, or otherwise failed the root-authority contract"
+      },
+      {
+        "rank": 2,
+        "reason": "ACQUISITION_UNSUCCESSFUL_ROBOTS_DISALLOWED",
+        "when": "a readable/evaluable robots policy explicitly disallowed the authorised crawl"
+      },
+      {
+        "rank": 3,
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "when": "acquisition was prevented before obtaining the required usable web policy/resource by a transport or resolution failure - DNS failure, TLS transport failure, CONNECT_TIMEOUT, READ_TIMEOUT before usable response completion, CONNECTION_REFUSED, CONNECTION_RESET - where no usable HTTP response established an application-level page outcome"
+      },
+      {
+        "rank": 4,
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "when": "every remaining determinate SD9 failure (formal post-SD7 page count < 4) to which none of ranks 1-3 applies; the fallback mechanical reason"
+      }
+    ],
+    "supersedesStrategyProposal": "Strategy V1 section6 proposed a rule keyed on rootTerminalReason, under which indices 4, 6 and 8 would have been MIN_PAGES_NOT_MET. The owner chose this precedence instead. Strategy V1 is not edited; this record governs.",
+    "reasonIsNotARetryPolicy": {
+      "hostUnreachableIsACoarseMechanicalReplacementReason": true,
+      "doesNotMean": [
+        "permanent",
+        "globally unreachable",
+        "no future network could ever connect",
+        "operator intent",
+        "server intent"
+      ],
+      "authorisesAnotherRetry": false,
+      "detailedEvidenceRemainsIn": "the immutable acquisition run"
+    },
+    "currentReasonsVerifiedAgainstDurableEvidence": {
+      "3": {
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "evidence": "Batch-01 execution record: rootTerminalReason NO_ELIGIBLE_HTML; robots.txt answered 200 and permitted the fetch; root document and conventional sitemap both answered HTTP 500; 0 raw pages",
+        "whyNotRanks1To3": "valid root authority; robots readable and permitting; the host produced HTTP responses, so this is not host-unreachable evidence"
+      },
+      "4": {
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "evidence": "v4 result: firstPolicyAttemptErrorKind DNS_FAILURE, firstPolicyAttemptErrorSubtype DNS_NAME_NOT_FOUND, firstPolicyAttemptHttpStatusClass null, retryIssued false (NOT_RETRY_ELIGIBLE), rootTerminalReason ROBOTS_UNREADABLE_ROOT, 0 raw pages"
+      },
+      "6": {
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "evidence": "v4 result: firstPolicyAttemptErrorKind CONNECTION_RESET, firstPolicyAttemptHttpStatusClass null, retryIssued true, retryResultBroadClass CONNECTION_RESET, policyResolutionRequestCount 2, rootTerminalReason ROBOTS_UNREADABLE_ROOT, 0 raw pages"
+      },
+      "8": {
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "evidence": "v4 result: identical mechanical shape to index 6"
+      },
+      "anyDeviationFromOwnerExpectation": false,
+      "verificationMethod": "read of committed records only; those records were themselves independently re-verified against the database by the v4 adjudication. No database query, no network in this task."
+    },
+    "replacementReasons": {
+      "3": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "4": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "6": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "8": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    }
+  },
+
+  "Q4_windowLocalPauseSemantics": {
+    "decision": "APPROVE_WINDOW_LOCAL_BATCH_PAUSE_SEMANTICS_V1",
+    "aNewWindowBeginsWithNewBatchLocalPauseStateInputs": true,
+    "historicalPausesErasedOrRewritten": false,
+    "historicalBatch01And02OutcomesImmutable": true,
+    "batchPauseScope": {
+      "P1_consecutive": "CURRENT_WINDOW",
+      "P2_consecutive": "CURRENT_WINDOW",
+      "P2_batchPercentage": "CURRENT_WINDOW",
+      "P3_consecutive": "CURRENT_WINDOW",
+      "P3_orchestrationError": "IMMEDIATE",
+      "P4": "IMMEDIATE_CURRENT_OPERATION",
+      "P5": "CURRENT_WINDOW",
+      "P6": "GENERATION_GLOBAL",
+      "P7": "GENERATION_INVARIANT_IMMEDIATE",
+      "P8": "CURRENT_LIVE_WINDOW_IMMEDIATE"
+    },
+    "details": {
+      "P1_P2_P3_consecutiveArms": "evaluated over organisations executed in the current bounded live window; an already-adjudicated streak does not carry across a closed window boundary, because a new owner-authorised window occurs only after the previous pause caused the required human review",
+      "v4TargetedRevalidationsPreTriggerNextWindowP2": false,
+      "P2_percentageArm": "'> 40% of a batch' is scoped to the current window and evaluated against the frozen planned-window denominator, with exact harness semantics fixed during implementation; organisations from closed windows are never mixed in",
+      "P3_orchestrationError": "immediate; no consecutive count",
+      "P4": "a persistence anomaly in the current operation pauses immediately; resolved historical persistence history does not pre-trigger a new window",
+      "P5": {
+        "scope": "CURRENT_WINDOW",
+        "lowYieldCountAtWindowStart": 0,
+        "historicalLowYieldRunsPreTrigger": false,
+        "fiveItemWindowThreshold": 2,
+        "arithmetic": "2 / 5 = 40% > 30%; 1 / 5 = 20% does not exceed 30%",
+        "thresholdIsSpecificToAFiveItemWindow": true,
+        "evaluatedAfter": "every completed work item",
+        "stickyWithinWindow": true,
+        "onFire": "do not continue to later items"
+      },
+      "P6": {
+        "scope": "GENERATION_GLOBAL",
+        "frozenCondition": "> 10 replacements consumed before 50 successful organisations",
+        "resetAtWindowBoundary": false,
+        "current": { "successful": 5, "reserveConsumed": 0 },
+        "afterProposedAssignments": { "reserveConsumed": 4, "triggers": false }
+      },
+      "P7": "any current invariant, frame, draw or replacement-ledger hash mismatch pauses immediately; protects generation-wide frozen state",
+      "P8": "a host-state anomaly during current live execution pauses immediately; an already adjudicated and closed historical host event does not make future windows impossible and is not rewritten"
+    }
+  },
+
+  "batch02RemainsPausedForever": {
+    "decision": "PAUSE_P5_LOW_RAW_YIELD",
+    "remainingHistoricalAuthorisedIndices": [9],
+    "mayStartNextOrganisation": false,
+    "oldHarnessAltered": false,
+    "index9MayOnlyAppearIn": "a NEW continuation window under separate authority"
+  },
+
+  "resolvedStrategyOutcome": "MIXED_REPLACEMENT_PLUS_PRIMARY_CONTINUATION_READY",
+  "resolvedFrom": "OWNER_DECISION_REQUIRED_FOR_RESERVE_ASSIGNMENT_ORDER",
+  "readyMeans": "MECHANICALLY READY for offline implementation; not authorised for execution",
+  "nextWindowConcept": ["3:R0", "4:R1", "6:R2", "8:R3", "9:PRIMARY"],
+  "nextWindowConceptDetail": [
+    {
+      "order": 1,
+      "kind": "REPLACEMENT",
+      "selectionIndex": 3,
+      "reservePosition": 0,
+      "split": "DEV_CONFIRM"
+    },
+    {
+      "order": 2,
+      "kind": "REPLACEMENT",
+      "selectionIndex": 4,
+      "reservePosition": 1,
+      "split": "FINAL_HOLDOUT"
+    },
+    {
+      "order": 3,
+      "kind": "REPLACEMENT",
+      "selectionIndex": 6,
+      "reservePosition": 2,
+      "split": "DEV_CONFIRM"
+    },
+    {
+      "order": 4,
+      "kind": "REPLACEMENT",
+      "selectionIndex": 8,
+      "reservePosition": 3,
+      "split": "DEV_CONFIRM"
+    },
+    {
+      "order": 5,
+      "kind": "PRIMARY",
+      "selectionIndex": 9,
+      "reservePosition": null,
+      "split": "FINAL_HOLDOUT"
+    }
+  ],
+  "splitComposition": {
+    "DEV_CONFIRM": 3,
+    "FINAL_HOLDOUT": 2,
+    "DEV_TRAIN": 0,
+    "verifiedFrom": "the committed draw's selection entries for indices 3, 4, 6, 8, 9 and SPLIT_ASSIGNMENT_CYCLE_V2_R2[i mod 22]; replacements inherit their slot's split",
+    "holdoutIdentitiesExposed": false
+  },
+  "noIdentitySelectedByDiscretion": true,
+
+  "notAuthorisedHere": {
+    "reserveExecutionAuthorised": false,
+    "index9ExecutionAuthorised": false,
+    "institutionNetworkAuthorised": false,
+    "replacementAssignmentsCreated": false,
+    "ledgerEntriesWritten": false,
+    "replacementLedgerCreated": false,
+    "continuationGateImplemented": false,
+    "reserveConsumed": false,
+    "productionCodeChanged": false,
+    "testCodeChanged": false,
+    "migrationCreated": false,
+    "fetchOrRetryPolicyChanged": false,
+    "labelsCreated": false,
+    "classifierOrProviderInvoked": false,
+    "setPOrSetRCreated": false,
+    "holdoutSemanticAccess": false,
+    "phase2EEntered": false
+  },
+
+  "recordedImplementationRequirement": {
+    "file": "src/test/unit/orgunitCorpus2DOptionBTransition.test.ts",
+    "currentAssertion": "the reserve replacement ledger does not exist (working-tree read)",
+    "whenTheLedgerIsCreated": "the historical Option-B assertion must NOT be rewritten to claim the ledger existed then; the implementation authority converts it to read its own historical terminal commit, following the established temporal-test pattern",
+    "modifiedNow": false
+  },
+
+  "nextOwnerDecision": "A2_POST_V4_REPLACEMENT_AND_INDEX9_BATCH_IMPLEMENTATION_AUTHORISATION",
+  "nextOwnerDecisionScope": {
+    "offlineOnly": true,
+    "implements": [
+      "replacement ledger structure",
+      "the exact four initial assignments",
+      "the generic continuation-window gate",
+      "all eight frozen pause conditions under this record's scopes",
+      "the temporal correction for the Option-B ledger-absence test",
+      "tests",
+      "authority-preparation machinery"
+    ],
+    "liveInstitutionNetwork": false,
+    "executionRequiresASeparateLaterOwnerDecision": true
+  },
+
+  "immutability": {
+    "thisRecordIsImmutableOnceCommitted": true,
+    "aLaterDecisionIsANewRecord": true
+  },
+
+  "terminalState": "PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFIED_MIXED_CONTINUATION_READY_AWAITING_OFFLINE_IMPLEMENTATION_AUTHORISATION"
+}
