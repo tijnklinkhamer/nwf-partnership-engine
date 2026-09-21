@@ -202,17 +202,25 @@ export interface NearDuplicatePass {
   readonly survivorIdentityIsOrderDependent: boolean;
 }
 
+export interface NearDuplicateGraphMeasurement {
+  readonly documents: readonly DistinctDocument[];
+  readonly measurableIndices: readonly number[];
+  readonly shortTextUnresolvedCount: number;
+  readonly comparedPairCount: number;
+  readonly edges: readonly NearDuplicateEdge[];
+}
+
 /**
- * Compare every pair of distinct documents WITHIN ONE ORGANISATION.
+ * THE ONE CANONICAL NEAR-DUPLICATE PAIR MEASUREMENT.
  *
- * The caller is responsible for never handing this function two organisations'
- * pages at once; `pilotAnalysis.ts` calls it once per organisation and the
- * tests assert that cross-organisation pairs are never formed.
+ * Exported for A3's higher-level sample-specific survivor adapter. It owns the
+ * normalisation -> 5-token shingle -> Jaccard >= 0.90 pair measurement so A3
+ * does not grow a second near-duplicate implementation.
  */
-export function nearDuplicatePass(
+export function measureNearDuplicateGraph(
   groups: readonly ExactDuplicateGroup[],
   textOf: DocumentTextLookup,
-): NearDuplicatePass {
+): NearDuplicateGraphMeasurement {
   const documents: DistinctDocument[] = [];
   const shingles: (ReadonlySet<string> | null)[] = [];
 
@@ -246,6 +254,29 @@ export function nearDuplicatePass(
       }
     }
   }
+
+  return {
+    documents,
+    measurableIndices,
+    shortTextUnresolvedCount: documents.length - measurableIndices.length,
+    comparedPairCount,
+    edges,
+  };
+}
+
+/**
+ * Compare every pair of distinct documents WITHIN ONE ORGANISATION.
+ *
+ * The caller is responsible for never handing this function two organisations'
+ * pages at once; `pilotAnalysis.ts` calls it once per organisation and the
+ * tests assert that cross-organisation pairs are never formed.
+ */
+export function nearDuplicatePass(
+  groups: readonly ExactDuplicateGroup[],
+  textOf: DocumentTextLookup,
+): NearDuplicatePass {
+  const graph = measureNearDuplicateGraph(groups, textOf);
+  const { documents, measurableIndices, comparedPairCount, edges } = graph;
 
   const components = auditComponents(measurableIndices, edges);
   const isolated = measurableIndices.length - components.reduce((sum, c) => sum + c.size, 0);
