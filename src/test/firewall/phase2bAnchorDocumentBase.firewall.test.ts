@@ -39,8 +39,13 @@ const V4_SOURCE_COMMIT = '69dff793439a8d20d29894100c4b73e064206308';
 /** The governance decision record commit; everything after it is this repair. */
 const REPAIR_BASE_COMMIT = '158072409dd3cc3c781fb63a653b16d64dec448f';
 
-/** The commit this repair ENDS at, or `null` while it is still the current phase. */
-const REPAIR_TERMINAL_COMMIT: string | null = null;
+/**
+ * The commit this repair ENDS at: the v5 implementation. Pinned immediately
+ * after it landed, so a later phase is never judged against this repair's
+ * authorised surface. The implementation record that follows is governance
+ * and belongs to no production range.
+ */
+const REPAIR_TERMINAL_COMMIT: string | null = '40477099896856005d3d131bcaeac4d443424ec4';
 
 const AUTHORISED_PRODUCTION_FILES = [
   'src/orgunits/orchestrator/anchors.ts',
