@@ -1,0 +1,262 @@
+{
+  "recordId": "phase2b-2d-a2-post-p12-mixed-window-post-live-validation-review-v1",
+  "recordKind": "POST_LIVE_VALIDATION_REVIEW",
+  "records": "PHASE_2B_2D_A2_POST_P12_MIXED_WINDOW_POST_LIVE_VALIDATION_REVIEW_V1",
+  "recordedAtUtc": "2026-09-21T22:44:41Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "ad7f788a74c6a5e108ca0df1f5776f5e3324e5dc",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "ownerDecisions": [
+    "ACCEPT_POST_P12_MIXED_WINDOW_LIVE_EVIDENCE_PENDING_OFFLINE_VALIDATION_CLOSURE_V1",
+    "AUTHORISE_HISTORICAL_LEDGER_ASSERTION_TEMPORAL_REPIN_V1",
+    "AUTHORISE_ONE_POST_FIX_FULL_VALIDATE_RERUN_V1"
+  ],
+  "boundLiveResult": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P12_MIXED_WINDOW_LIVE_RESULT_V1.json",
+    "sha256": "d743096a53e2b55cbc3dd717eea4e50a768cf401db43eb86023c35e140b453f5",
+    "bytes": 40390,
+    "commit": "ad7f788a74c6a5e108ca0df1f5776f5e3324e5dc",
+    "edited": false,
+    "note": "its finalValidation block (exitCode 1) is historical truth and stays as written; the rerun below is a separate, later closure event"
+  },
+  "liveExecution": {
+    "status": "COMPLETE",
+    "started": ["R:10:4", "R:12:5", "P:13", "P:14", "P:15"],
+    "unstarted": [],
+    "terminalGate": "WINDOW_COMPLETE",
+    "p1ToP8Triggered": [],
+    "aorAdjudicationPerformed": false
+  },
+  "postLiveRepositoryValidation": "FAILED",
+  "firstValidate": {
+    "command": "npm run validate",
+    "exitCode": 1,
+    "source": "the bound live result's finalValidation block",
+    "failedTests": 9,
+    "failedFiles": 3,
+    "failedFilesNote": "file A failed at MODULE LOAD, so its tests were never collected and contribute 0 to the 9; B contributes 2 and C contributes 7",
+    "afterAllInstitutionExecution": true
+  },
+  "classification": "POST_LIVE_VALIDATION_HISTORICAL_LEDGER_ASSERTION_DRIFT",
+  "classificationMeaning": "tests that were correct at earlier immutable phases read the CURRENT working-tree replacement ledger although their assertions describe an earlier ledger revision; the ledger evolved exactly as authorised (04f1c1d) and the tests became temporally stale",
+  "sameClassAs": {
+    "commit": "527690ec35e70e3db91ed2bee23724f40921ee25",
+    "what": "genesis-ledger claims pinned to the genesis commit 36bd531"
+  },
+  "notClassifiedAs": [
+    "live acquisition failure",
+    "production bug",
+    "ledger corruption",
+    "P7 failure"
+  ],
+  "failureMap": {
+    "suiteLoadFailure": {
+      "file": "src/test/unit/orgunitCorpus2DA2ContinuationWindowStrategyAdapterGeneralisation.test.ts",
+      "describe": null,
+      "test": "(module load: realAdapterInput -> windowSpecFromAcquisitionWindowStrategy)",
+      "historicalClaim": "the mixed plan was materialised against the PRE-ASSIGNMENT four-entry ledger",
+      "pinnedTo": "9122438c9f5d3aaa6cf876a1e81d121ebd92cc9e"
+    },
+    "failedTests": [
+      {
+        "file": "src/test/unit/orgunitCorpus2DA2ContinuationWindow.test.ts",
+        "describe": "2D-A2 continuation: the canonical ledger now carries exactly Window V1’s four pre-network rows",
+        "test": "is valid, extends the genesis header, and holds reserves 0-3 for slots 3, 4, 6, 8",
+        "historicalClaim": "the Window V1 revision holds exactly four entries",
+        "pinnedTo": "c4396c1bd8324fcff1393d1b7c6163ff857a6346"
+      },
+      {
+        "file": "src/test/unit/orgunitCorpus2DA2ContinuationWindow.test.ts",
+        "describe": "2D-A2 continuation: the canonical ledger now carries exactly Window V1’s four pre-network rows",
+        "test": "is exactly what the landed append machinery derives from the genesis revision at its recorded instant",
+        "historicalClaim": "the Window V1 revision is genesis + four appends",
+        "pinnedTo": "c4396c1bd8324fcff1393d1b7c6163ff857a6346"
+      },
+      {
+        "file": "src/test/unit/orgunitCorpus2DA2ContinuationWindowPreflightGeneralisation.test.ts",
+        "describe": "2D-A2 preflight generalisation: Window V1 is unchanged",
+        "test": "the generic preflight holds every invariant for V1 on the current four-entry ledger",
+        "historicalClaim": "V1 preflight green over the four-entry ledger the repair reviewed",
+        "pinnedTo": "744fe29b0a348fdc99a479f43f4c7affb3c80926"
+      },
+      {
+        "file": "src/test/unit/orgunitCorpus2DA2ContinuationWindowPreflightGeneralisation.test.ts",
+        "describe": "2D-A2 preflight generalisation: Window V1 is unchanged",
+        "test": "the historical entry point returns its ten invariants, green on the current ledger",
+        "historicalClaim": "V1 historical entry point green over the four-entry ledger",
+        "pinnedTo": "744fe29b0a348fdc99a479f43f4c7affb3c80926"
+      },
+      {
+        "file": "src/test/unit/orgunitCorpus2DA2ContinuationWindowPreflightGeneralisation.test.ts",
+        "describe": "2D-A2 preflight generalisation: the Window V2 spec",
+        "test": "binds the CURRENT four-entry ledger as its starting revision, not the genesis",
+        "historicalClaim": "Window V2 bound the four-entry ledger as its starting revision",
+        "pinnedTo": "744fe29b0a348fdc99a479f43f4c7affb3c80926"
+      },
+      {
+        "file": "src/test/unit/orgunitCorpus2DA2ContinuationWindowPreflightGeneralisation.test.ts",
+        "describe": "2D-A2 preflight generalisation: the Window V2 plan",
+        "test": "holds EVERY P7 invariant over the current ledger; a primary-only window needs zero assignments",
+        "historicalClaim": "Window V2 P7 green over its bound four-entry starting revision",
+        "pinnedTo": "744fe29b0a348fdc99a479f43f4c7affb3c80926"
+      },
+      {
+        "file": "src/test/unit/orgunitCorpus2DA2ContinuationWindowPreflightGeneralisation.test.ts",
+        "describe": "2D-A2 preflight generalisation: the Window V2 plan",
+        "test": "the landed gate, unmodified, starts P:10 after the green preflight (offline proof only)",
+        "historicalClaim": "the gate continues to P:10 over the four-entry revision",
+        "pinnedTo": "744fe29b0a348fdc99a479f43f4c7affb3c80926"
+      },
+      {
+        "file": "src/test/unit/orgunitCorpus2DA2ContinuationWindowPreflightGeneralisation.test.ts",
+        "describe": "2D-A2 preflight generalisation: Window V2 negative P7 mutations",
+        "test": "an altered observed strategy or ledger file SHA is refused",
+        "historicalClaim": "a single-invariant mutation over the four-entry revision isolates exactly one invariant",
+        "pinnedTo": "744fe29b0a348fdc99a479f43f4c7affb3c80926"
+      },
+      {
+        "file": "src/test/unit/orgunitCorpus2DA2ContinuationWindowPreflightGeneralisation.test.ts",
+        "describe": "2D-A2 preflight generalisation: Window V2 negative P7 mutations",
+        "test": "an unexpected reserve 4 appended to the ledger (outside the window) is refused",
+        "historicalClaim": "reserve 4 is UNASSIGNED in the four-entry revision",
+        "pinnedTo": "744fe29b0a348fdc99a479f43f4c7affb3c80926"
+      }
+    ]
+  },
+  "testTitlesRenamedForTemporalMeaning": {
+    "note": "titles that said 'current' now name the pinned revision; assertions, expectations and mutation cases are unchanged",
+    "renamed": [
+      [
+        "src/test/unit/orgunitCorpus2DA2ContinuationWindow.test.ts",
+        "2D-A2 continuation: the canonical ledger now carries exactly Window V1’s four pre-network rows",
+        "2D-A2 continuation: the Window V1 revision (c4396c1) carries exactly Window V1’s four pre-network rows"
+      ],
+      [
+        "src/test/unit/orgunitCorpus2DA2ContinuationWindowPreflightGeneralisation.test.ts",
+        "the generic preflight holds every invariant for V1 on the current four-entry ledger",
+        "the generic preflight holds every invariant for V1 on the four-entry ledger (744fe29)"
+      ],
+      [
+        "src/test/unit/orgunitCorpus2DA2ContinuationWindowPreflightGeneralisation.test.ts",
+        "the historical entry point returns its ten invariants, green on the current ledger",
+        "the historical entry point returns its ten invariants, green on the four-entry ledger (744fe29)"
+      ],
+      [
+        "src/test/unit/orgunitCorpus2DA2ContinuationWindowPreflightGeneralisation.test.ts",
+        "binds the CURRENT four-entry ledger as its starting revision, not the genesis",
+        "binds the four-entry ledger (744fe29) as its starting revision, not the genesis"
+      ],
+      [
+        "src/test/unit/orgunitCorpus2DA2ContinuationWindowPreflightGeneralisation.test.ts",
+        "holds EVERY P7 invariant over the current ledger; a primary-only window needs zero assignments",
+        "holds EVERY P7 invariant over the four-entry ledger (744fe29); a primary-only window needs zero assignments"
+      ],
+      [
+        "src/test/unit/orgunitCorpus2DA2ContinuationWindowStrategyAdapterGeneralisation.test.ts",
+        "is the exact selected strategy, outcome B, and the four-entry ledger is untouched",
+        "is the exact selected strategy, outcome B, and the four-entry ledger it bound (9122438) is intact"
+      ]
+    ]
+  },
+  "liveEvidenceAffected": false,
+  "replacementLedgerValid": true,
+  "replacementLedger": {
+    "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+    "sixEntryLedgerCommit": "04f1c1db2194ec374f4fcdaaaaaf0e13b18f31e2",
+    "fileSha256": "c06e41a08e51934682fa1bc7621bdc9be8c708aee7278fd9177b03f98d8e17b3",
+    "bytes": 8473,
+    "ledgerHash": "5c464b2a56412951a9da11a608252584af3abfa6928c43ea22477be8afcd895b",
+    "entries": 6,
+    "firstFourEqualWindowV1Revision": true,
+    "appended": [
+      {
+        "sequence": 4,
+        "selectionIndex": 10,
+        "reserveRankPosition": 4,
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacedOccupantKind": "ORIGINAL_SELECTION",
+        "entryHash": "32fd0356291f27d15fd59ed8be0123e7d71b1ffbc9288ab3349430f00afb0976"
+      },
+      {
+        "sequence": 5,
+        "selectionIndex": 12,
+        "reserveRankPosition": 5,
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "replacedOccupantKind": "ORIGINAL_SELECTION",
+        "entryHash": "247c62c9c3bf6ae242316b05ef413bbcb76210231085b5d84966724985ef0b36"
+      }
+    ],
+    "reserveConsumed": 6,
+    "reserveUnused": 34,
+    "nextUnusedReserveRankPosition": 6,
+    "modifiedByThisRepair": false
+  },
+  "historicalPinsApplied": [
+    {
+      "revision": "genesis (0 entries)",
+      "commit": "36bd5316300b396aeb38d347ac4f46f885ccacba",
+      "file": "src/test/unit/orgunitCorpus2DA2ContinuationWindow.test.ts",
+      "note": "pre-existing pin from 527690e, unchanged"
+    },
+    {
+      "revision": "Window V1 four-entry",
+      "commit": "c4396c1bd8324fcff1393d1b7c6163ff857a6346",
+      "fileSha256": "6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0",
+      "file": "src/test/unit/orgunitCorpus2DA2ContinuationWindow.test.ts"
+    },
+    {
+      "revision": "preflight-generalisation four-entry boundary",
+      "commit": "744fe29b0a348fdc99a479f43f4c7affb3c80926",
+      "fileSha256": "6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0",
+      "file": "src/test/unit/orgunitCorpus2DA2ContinuationWindowPreflightGeneralisation.test.ts"
+    },
+    {
+      "revision": "strategy-adapter pre-live four-entry boundary",
+      "commit": "9122438c9f5d3aaa6cf876a1e81d121ebd92cc9e",
+      "fileSha256": "6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0",
+      "file": "src/test/unit/orgunitCorpus2DA2ContinuationWindowStrategyAdapterGeneralisation.test.ts"
+    },
+    {
+      "revision": "post-P12 six-entry append",
+      "commit": "04f1c1db2194ec374f4fcdaaaaaf0e13b18f31e2",
+      "fileSha256": "c06e41a08e51934682fa1bc7621bdc9be8c708aee7278fd9177b03f98d8e17b3",
+      "file": "src/test/unit/orgunitCorpus2DA2ContinuationWindow.test.ts",
+      "note": "new section 1c: validity, genesis extension, Window V1 prefix, rows 4-5, reserve positions 0-5, consumed 6, occupants 10->4 and 12->5, ledgerHash, file sha, parent commit holds the four-entry bytes, re-derivation through the landed append; plus non-vacuity mutations"
+    }
+  ],
+  "workingTreeReadsRetained": {
+    "note": "only for no-write checks, which snapshot the working-tree bytes at module load and compare after; no entry count is assumed",
+    "files": [
+      "src/test/unit/orgunitCorpus2DA2ContinuationWindow.test.ts",
+      "src/test/unit/orgunitCorpus2DA2ContinuationWindowStrategyAdapterGeneralisation.test.ts"
+    ]
+  },
+  "historicalRepairRangesMoved": false,
+  "filesChanged": [
+    "src/test/unit/orgunitCorpus2DA2ContinuationWindowStrategyAdapterGeneralisation.test.ts",
+    "src/test/unit/orgunitCorpus2DA2ContinuationWindow.test.ts",
+    "src/test/unit/orgunitCorpus2DA2ContinuationWindowPreflightGeneralisation.test.ts",
+    "src/test/unit/orgunitCorpus2DA2PostP12ValidationReview.test.ts",
+    "docs/evaluation/PHASE_2B_2D_A2_POST_P12_MIXED_WINDOW_POST_LIVE_VALIDATION_REVIEW_V1.json"
+  ],
+  "productionCodeChanged": false,
+  "harnessCodeChanged": false,
+  "liveEvidenceChanged": false,
+  "institutionRerunRequired": false,
+  "institutionRerunPerformed": false,
+  "institutionNetworkRequests": 0,
+  "databaseReads": 0,
+  "databaseWrites": 0,
+  "finalValidationRerun": "REPORTED_IN_COMMIT_MESSAGE_AND_FINAL_OPERATOR_REPORT",
+  "finalValidationRerunNote": "this record cannot carry the outcome of a validate run over a tree that contains it; the single authorised rerun's exit code and totals are reported outside it",
+  "aorStateUnchanged": {
+    "successfulSelectionSlots": 11,
+    "currentFailures": [10, 12],
+    "pendingReplacementObligations": [10, 12],
+    "P:13/P:14/P:15": "LIVE_EVIDENCE_PENDING_ADJUDICATION"
+  },
+  "nextOwnerDecisionIfGreen": "A2_POST_P12_MIXED_WINDOW_EVIDENCE_ADJUDICATION",
+  "nextOwnerDecisionIfRed": "A2_POST_P12_MIXED_WINDOW_VALIDATION_CLOSURE_BLOCKED_OFFLINE_REVIEW"
+}

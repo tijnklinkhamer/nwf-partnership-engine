@@ -193,8 +193,20 @@ const FRAME = JSON.parse(FRAME_TEXT) as FrameArtifact;
 const GENESIS_REVISION_COMMIT = '36bd5316300b396aeb38d347ac4f46f885ccacba';
 const GENESIS_LEDGER_TEXT = git('show', `${GENESIS_REVISION_COMMIT}:${REPLACEMENT_LEDGER_PATH}`);
 const GENESIS_LEDGER = JSON.parse(GENESIS_LEDGER_TEXT) as ReplacementLedger;
-const CURRENT_LEDGER_TEXT = readText(REPLACEMENT_LEDGER_PATH);
-const CURRENT_LEDGER = JSON.parse(CURRENT_LEDGER_TEXT) as ReplacementLedger;
+/**
+ * THE FOUR-ENTRY LEDGER THIS REPAIR REVIEWED IS READ AT ITS TERMINAL COMMIT.
+ *
+ * Every "current four-entry ledger" claim below is a claim about the state at
+ * 744fe29 - the revision the Window V2 plan bound as its starting ledger. The
+ * canonical ledger keeps growing by authorised appends (six entries at
+ * 04f1c1d), so a working-tree read made these historical assertions drift;
+ * the post-live validation review at ad7f788 recorded exactly that failure.
+ */
+const REPAIR_FOUR_ENTRY_LEDGER_TEXT = git(
+  'show',
+  `${REPAIR_TERMINAL_COMMIT}:${REPLACEMENT_LEDGER_PATH}`,
+);
+const REPAIR_FOUR_ENTRY_LEDGER = JSON.parse(REPAIR_FOUR_ENTRY_LEDGER_TEXT) as ReplacementLedger;
 
 const V1_PLAN_TEXT = readText(WINDOW_PLAN_PATH);
 const V1_PLAN = JSON.parse(V1_PLAN_TEXT) as WindowPlan;
@@ -285,8 +297,8 @@ describe('2D-A2 preflight generalisation: Window V1 is unchanged', () => {
     expect(plannedWindowSizeOf(V1_PLAN)).toBe(5);
   });
 
-  it('the generic preflight holds every invariant for V1 on the current four-entry ledger', () => {
-    const preflight = computePrecommittedWindowPreflight(v1Input(CURRENT_LEDGER));
+  it('the generic preflight holds every invariant for V1 on the four-entry ledger (744fe29)', () => {
+    const preflight = computePrecommittedWindowPreflight(v1Input(REPAIR_FOUR_ENTRY_LEDGER));
     expect(falseInvariants(preflight)).toEqual([]);
     expect(preflight.ledgerEntryCount).toBe(4);
   });
@@ -301,10 +313,10 @@ describe('2D-A2 preflight generalisation: Window V1 is unchanged', () => {
     expect(preflight.invariants.noUnexpectedReplacementAssignments).toBe(true);
   });
 
-  it('the historical entry point returns its ten invariants, green on the current ledger', () => {
+  it('the historical entry point returns its ten invariants, green on the four-entry ledger (744fe29)', () => {
     const preflight = computeWindowPreflight({
       ...baseReal,
-      ledger: CURRENT_LEDGER,
+      ledger: REPAIR_FOUR_ENTRY_LEDGER,
       windowPlan: V1_PLAN,
     });
     expect(Object.keys(preflight.invariants)).toHaveLength(10);
@@ -317,11 +329,14 @@ describe('2D-A2 preflight generalisation: Window V1 is unchanged', () => {
     const draft = { ...V1_PLAN, workItems: items };
     const resealed = { ...draft, windowPlanHash: recomputeWindowPlanHash(draft) } as WindowPlan;
     expect(
-      computeWindowPreflight({ ...baseReal, ledger: CURRENT_LEDGER, windowPlan: resealed })
-        .invariants.windowPlanValid,
+      computeWindowPreflight({
+        ...baseReal,
+        ledger: REPAIR_FOUR_ENTRY_LEDGER,
+        windowPlan: resealed,
+      }).invariants.windowPlanValid,
     ).toBe(false);
     const generic = computePrecommittedWindowPreflight({
-      ...v1Input(CURRENT_LEDGER),
+      ...v1Input(REPAIR_FOUR_ENTRY_LEDGER),
       windowPlan: resealed,
     });
     expect(generic.invariants.windowPlanValid).toBe(false);
@@ -371,8 +386,8 @@ const v2Input = (
     strategy: sha256(STRATEGY_TEXT),
     windowV1EvidenceAdjudication: sha256(readText(ADJUDICATION_PATH)),
   },
-  observedStartingLedgerFileSha256: sha256(CURRENT_LEDGER_TEXT),
-  ledger: CURRENT_LEDGER,
+  observedStartingLedgerFileSha256: sha256(REPAIR_FOUR_ENTRY_LEDGER_TEXT),
+  ledger: REPAIR_FOUR_ENTRY_LEDGER,
   windowPlan: V2_PLAN,
   expectedWindowSpec: V2_SPEC,
   ...patch,
@@ -402,7 +417,7 @@ describe('2D-A2 preflight generalisation: the Window V2 spec', () => {
     expect(precommittedWindowSpecViolations(REAL_DRAW, V2_SPEC)).toEqual([]);
   });
 
-  it('binds the CURRENT four-entry ledger as its starting revision, not the genesis', () => {
+  it('binds the four-entry ledger (744fe29) as its starting revision, not the genesis', () => {
     expect(V2_SPEC.startingLedger).toEqual({
       path: REPLACEMENT_LEDGER_PATH,
       artifactFileSha256: FOUR_ENTRY_LEDGER_SHA256,
@@ -410,9 +425,9 @@ describe('2D-A2 preflight generalisation: the Window V2 spec', () => {
       ledgerHash: FOUR_ENTRY_LEDGER_HASH,
       entryCount: 4,
     });
-    expect(sha256(CURRENT_LEDGER_TEXT)).toBe(FOUR_ENTRY_LEDGER_SHA256);
-    expect(CURRENT_LEDGER.ledgerHash).toBe(FOUR_ENTRY_LEDGER_HASH);
-    expect(recomputeLedgerHash(CURRENT_LEDGER)).toBe(FOUR_ENTRY_LEDGER_HASH);
+    expect(sha256(REPAIR_FOUR_ENTRY_LEDGER_TEXT)).toBe(FOUR_ENTRY_LEDGER_SHA256);
+    expect(REPAIR_FOUR_ENTRY_LEDGER.ledgerHash).toBe(FOUR_ENTRY_LEDGER_HASH);
+    expect(recomputeLedgerHash(REPAIR_FOUR_ENTRY_LEDGER)).toBe(FOUR_ENTRY_LEDGER_HASH);
   });
 
   it('every spec digest is the frozen draw selection entry (re-proven, not trusted)', () => {
@@ -538,7 +553,7 @@ describe('2D-A2 preflight generalisation: the Window V2 plan', () => {
     expect(text).not.toMatch(/https?:\/\//);
   });
 
-  it('holds EVERY P7 invariant over the current ledger; a primary-only window needs zero assignments', () => {
+  it('holds EVERY P7 invariant over the four-entry ledger (744fe29); a primary-only window needs zero assignments', () => {
     const preflight = computePrecommittedWindowPreflight(v2Input());
     expect(falseInvariants(preflight)).toEqual([]);
     expect(preflight.invariants).toMatchObject({
@@ -567,7 +582,7 @@ describe('2D-A2 preflight generalisation: the Window V2 plan', () => {
   it('the historical V1-only entry point still cannot accept the V2 plan', () => {
     const preflight = computeWindowPreflight({
       ...baseReal,
-      ledger: CURRENT_LEDGER,
+      ledger: REPAIR_FOUR_ENTRY_LEDGER,
       windowPlan: V2_PLAN as unknown as WindowPlan,
     });
     expect(preflight.invariants.windowPlanValid).toBe(false);
@@ -796,14 +811,14 @@ describe('2D-A2 preflight generalisation: Window V2 negative P7 mutations', () =
   });
 
   it('an unexpected reserve 4 appended to the ledger (outside the window) is refused', () => {
-    const ledger = appendReal(CURRENT_LEDGER, 20);
+    const ledger = appendReal(REPAIR_FOUR_ENTRY_LEDGER, 20);
     const preflight = computePrecommittedWindowPreflight(v2Input({ ledger }));
     expect(falseInvariants(preflight)).toEqual(['noUnexpectedReplacementAssignments']);
     expect(v2Gate(preflight).decision).toBe('PAUSE_P7_INVARIANT_MISMATCH');
   });
 
   it('a current-occupant mismatch (slot 12 replaced by reserve 4) is refused', () => {
-    const ledger = appendReal(CURRENT_LEDGER, 12);
+    const ledger = appendReal(REPAIR_FOUR_ENTRY_LEDGER, 12);
     const preflight = computePrecommittedWindowPreflight(v2Input({ ledger }));
     expect(preflight.invariants.currentOccupantsMatch).toBe(false);
     expect(preflight.invariants.noUnexpectedReplacementAssignments).toBe(false);

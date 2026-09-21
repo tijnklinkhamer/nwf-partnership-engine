@@ -212,8 +212,29 @@ const REAL_DRAW = JSON.parse(DRAW_TEXT) as DrawArtifact;
 const FRAME_TEXT = readText(FRAME_PATH);
 const FRAME = JSON.parse(FRAME_TEXT) as FrameArtifact;
 
-const CURRENT_LEDGER_TEXT = readText(REPLACEMENT_LEDGER_PATH);
-const CURRENT_LEDGER = JSON.parse(CURRENT_LEDGER_TEXT) as ReplacementLedger;
+/**
+ * THE PRE-ASSIGNMENT FOUR-ENTRY LEDGER IS READ AT THE PRE-LIVE MIXED-PLAN
+ * TERMINAL, NOT THE WORKING TREE.
+ *
+ * This repair materialised the post-P:12 mixed plan against the four-entry
+ * ledger, and every "real four-entry ledger" claim below is a claim about the
+ * state at 9122438 (the precommitted mixed plan). The mixed window's own
+ * pre-network assignment then appended reserves 4-5 (04f1c1d), exactly as
+ * this file's in-memory six-entry simulation predicted; a working-tree read
+ * made these historical assertions drift, and the post-live validation
+ * review at ad7f788 recorded that failure. The six-entry revision itself is
+ * pinned in orgunitCorpus2DA2ContinuationWindow.test.ts, section 1c.
+ */
+const PRE_LIVE_MIXED_PLAN_TERMINAL_COMMIT = '9122438c9f5d3aaa6cf876a1e81d121ebd92cc9e';
+const PRE_ASSIGNMENT_FOUR_ENTRY_LEDGER_TEXT = git(
+  'show',
+  `${PRE_LIVE_MIXED_PLAN_TERMINAL_COMMIT}:${REPLACEMENT_LEDGER_PATH}`,
+);
+const PRE_ASSIGNMENT_FOUR_ENTRY_LEDGER = JSON.parse(
+  PRE_ASSIGNMENT_FOUR_ENTRY_LEDGER_TEXT,
+) as ReplacementLedger;
+/** Working-tree bytes as this module loaded them; used ONLY by no-write checks. */
+const WORKING_TREE_LEDGER_TEXT_AT_LOAD = readText(REPLACEMENT_LEDGER_PATH);
 const FOUR_ENTRY_LEDGER_SHA256 = '6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0';
 const FOUR_ENTRY_LEDGER_HASH = '2febfecfe14bc0f6ca709271e33782e2ac2a8a14f09a14ff4ff0bdf608b7e452';
 const FOUR_ENTRY_LEDGER_BYTES = 7254;
@@ -253,7 +274,7 @@ const realAdapterInput = (
   draw: REAL_DRAW,
   strategyText: POST_P12_STRATEGY_TEXT,
   strategyFile: POST_P12_STRATEGY_FILE,
-  startingLedgerText: CURRENT_LEDGER_TEXT,
+  startingLedgerText: PRE_ASSIGNMENT_FOUR_ENTRY_LEDGER_TEXT,
   identity: MIXED_IDENTITY,
   ...patch,
 });
@@ -383,7 +404,7 @@ const MIXED_SPEC = windowSpecFromAcquisitionWindowStrategy(realAdapterInput());
 const MIXED_PLAN = buildPrecommittedWindowPlan(REAL_DRAW, MIXED_SPEC) as GenericWindowPlan;
 
 describe('2D-A2 strategy adapter generalisation: the post-P:12 strategy', () => {
-  it('is the exact selected strategy, outcome B, and the four-entry ledger is untouched', () => {
+  it('is the exact selected strategy, outcome B, and the four-entry ledger it bound (9122438) is intact', () => {
     expect(POST_P12_STRATEGY_FILE.sha256).toBe(POST_P12_STRATEGY_SHA256);
     expect(POST_P12_STRATEGY_FILE.bytes).toBe(POST_P12_STRATEGY_BYTES);
     const record = JSON.parse(POST_P12_STRATEGY_TEXT) as Record<string, unknown>;
@@ -391,10 +412,10 @@ describe('2D-A2 strategy adapter generalisation: the post-P:12 strategy', () => 
     expect(record.strategyOutcomeName).toBe(
       'MIXED_WINDOW_STRATEGY_SELECTED_BUT_STRATEGY_TO_SPEC_ADAPTER_GENERALISATION_REQUIRED',
     );
-    expect(sha256(CURRENT_LEDGER_TEXT)).toBe(FOUR_ENTRY_LEDGER_SHA256);
-    expect(bytesOf(CURRENT_LEDGER_TEXT)).toBe(FOUR_ENTRY_LEDGER_BYTES);
-    expect(CURRENT_LEDGER.ledgerHash).toBe(FOUR_ENTRY_LEDGER_HASH);
-    expect(CURRENT_LEDGER.entries).toHaveLength(4);
+    expect(sha256(PRE_ASSIGNMENT_FOUR_ENTRY_LEDGER_TEXT)).toBe(FOUR_ENTRY_LEDGER_SHA256);
+    expect(bytesOf(PRE_ASSIGNMENT_FOUR_ENTRY_LEDGER_TEXT)).toBe(FOUR_ENTRY_LEDGER_BYTES);
+    expect(PRE_ASSIGNMENT_FOUR_ENTRY_LEDGER.ledgerHash).toBe(FOUR_ENTRY_LEDGER_HASH);
+    expect(PRE_ASSIGNMENT_FOUR_ENTRY_LEDGER.entries).toHaveLength(4);
   });
 
   it('adapts to exactly R:10:4, R:12:5, P:13, P:14, P:15 with derived occupants', () => {
@@ -569,7 +590,7 @@ describe('2D-A2 strategy adapter generalisation: negative cases fail closed', ()
     ],
     [
       'supplied ledger bytes re-serialised (same content, different bytes)',
-      realAdapterInput({ startingLedgerText: JSON.stringify(CURRENT_LEDGER) }),
+      realAdapterInput({ startingLedgerText: JSON.stringify(PRE_ASSIGNMENT_FOUR_ENTRY_LEDGER) }),
     ],
     [
       'plan identity reuses the strategy identity',
@@ -755,7 +776,7 @@ const MIN_PAGES: ReplacementReason = 'ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET
 /** The two precommitted assignments, through the landed pure append. IN MEMORY ONLY. */
 const SIX_ENTRY_LEDGER = prepareReplacementAppend({
   draw: REAL_DRAW,
-  ledger: CURRENT_LEDGER,
+  ledger: PRE_ASSIGNMENT_FOUR_ENTRY_LEDGER,
   assignments: [
     { selectionIndex: 10, reserveRankPosition: 4, reason: HOST },
     { selectionIndex: 12, reserveRankPosition: 5, reason: MIN_PAGES },
@@ -768,8 +789,8 @@ const mixedInput = (
 ): PrecommittedWindowPreflightInput => ({
   ...baseReal,
   observedGovernanceSha256: { strategy: sha256(POST_P12_STRATEGY_TEXT) },
-  observedStartingLedgerFileSha256: sha256(CURRENT_LEDGER_TEXT),
-  ledger: CURRENT_LEDGER,
+  observedStartingLedgerFileSha256: sha256(PRE_ASSIGNMENT_FOUR_ENTRY_LEDGER_TEXT),
+  ledger: PRE_ASSIGNMENT_FOUR_ENTRY_LEDGER,
   windowPlan: MIXED_PLAN,
   expectedWindowSpec: MIXED_SPEC,
   ...patch,
@@ -860,7 +881,8 @@ describe('2D-A2 strategy adapter generalisation: P7 over the real and the simula
       [10, 4],
       [12, 5],
     ]);
-    expect(sha256(readText(REPLACEMENT_LEDGER_PATH))).toBe(FOUR_ENTRY_LEDGER_SHA256);
+    expect(sha256(PRE_ASSIGNMENT_FOUR_ENTRY_LEDGER_TEXT)).toBe(FOUR_ENTRY_LEDGER_SHA256);
+    expect(readText(REPLACEMENT_LEDGER_PATH)).toBe(WORKING_TREE_LEDGER_TEXT_AT_LOAD);
     expect(git('status', '--porcelain', '--', REPLACEMENT_LEDGER_PATH)).toBe('');
   });
 
@@ -905,7 +927,7 @@ describe('2D-A2 strategy adapter generalisation: P7 over the real and the simula
       {
         ledger: prepareReplacementAppend({
           draw: REAL_DRAW,
-          ledger: CURRENT_LEDGER,
+          ledger: PRE_ASSIGNMENT_FOUR_ENTRY_LEDGER,
           assignments: [{ selectionIndex: 10, reserveRankPosition: 4, reason: HOST }],
           recordedAtUtc: SIMULATED_AT,
         }).nextLedger,
@@ -914,7 +936,7 @@ describe('2D-A2 strategy adapter generalisation: P7 over the real and the simula
     [
       'assignments in the wrong reserve order (slot 10 -> 5, slot 12 -> 4)',
       {
-        ledger: forgeAppend(CURRENT_LEDGER, [
+        ledger: forgeAppend(PRE_ASSIGNMENT_FOUR_ENTRY_LEDGER, [
           { selectionIndex: 10, reserveRankPosition: 5, reason: HOST },
           { selectionIndex: 12, reserveRankPosition: 4, reason: MIN_PAGES },
         ]),
@@ -923,7 +945,7 @@ describe('2D-A2 strategy adapter generalisation: P7 over the real and the simula
     [
       'slot 12 given reserve 4',
       {
-        ledger: forgeAppend(CURRENT_LEDGER, [
+        ledger: forgeAppend(PRE_ASSIGNMENT_FOUR_ENTRY_LEDGER, [
           { selectionIndex: 12, reserveRankPosition: 4, reason: MIN_PAGES },
           { selectionIndex: 10, reserveRankPosition: 5, reason: HOST },
         ]),
@@ -932,7 +954,7 @@ describe('2D-A2 strategy adapter generalisation: P7 over the real and the simula
     [
       'slot 10 given reserve 5',
       {
-        ledger: forgeAppend(CURRENT_LEDGER, [
+        ledger: forgeAppend(PRE_ASSIGNMENT_FOUR_ENTRY_LEDGER, [
           { selectionIndex: 10, reserveRankPosition: 5, reason: HOST },
         ]),
       },
@@ -940,7 +962,7 @@ describe('2D-A2 strategy adapter generalisation: P7 over the real and the simula
     [
       'wrong replacement reason',
       {
-        ledger: forgeAppend(CURRENT_LEDGER, [
+        ledger: forgeAppend(PRE_ASSIGNMENT_FOUR_ENTRY_LEDGER, [
           { selectionIndex: 10, reserveRankPosition: 4, reason: MIN_PAGES },
           { selectionIndex: 12, reserveRankPosition: 5, reason: MIN_PAGES },
         ]),
@@ -949,7 +971,7 @@ describe('2D-A2 strategy adapter generalisation: P7 over the real and the simula
     [
       'wrong replaced occupant',
       {
-        ledger: forgeAppend(CURRENT_LEDGER, [
+        ledger: forgeAppend(PRE_ASSIGNMENT_FOUR_ENTRY_LEDGER, [
           {
             selectionIndex: 10,
             reserveRankPosition: 4,
