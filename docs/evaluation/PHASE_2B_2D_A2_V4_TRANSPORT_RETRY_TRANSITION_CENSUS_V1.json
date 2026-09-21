@@ -1,0 +1,280 @@
+{
+  "record": "PHASE_2B_2D_A2_V4_TRANSPORT_RETRY_TRANSITION_CENSUS",
+  "recordKind": "V4_TRANSITION_COMPATIBILITY_CENSUS",
+  "version": "V1",
+  "phase": "PHASE_2B_2D",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "ownerDecision": "AUTHORISE_PHASE_2B_2D_A2_BOUNDED_TRANSPORT_RETRY_IMPLEMENTATION_V1",
+  "thisFileAuthorises": [],
+  "status": "COMPLETE",
+  "semanticImplementationCommit": "d9c32af156d2241151601d6d6b0bf3eb9dafcee2",
+  "frozenRetryDesign": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_BOUNDED_TRANSPORT_RETRY_POLICY_DESIGN_V1.json",
+    "sha256": "46c3e1ff49db96cc6bb6d84d6088f799cfff6aa8d34d0b4d659be31a6fddc1cd",
+    "bytes": 77776
+  },
+  "acquisitionPlanAmendment": {
+    "path": "docs/evaluation/PHASE_2B_2D_CORPUS_ACQUISITION_PLAN_V1_BOUNDED_TRANSPORT_RETRY_AMENDMENT_V3.json",
+    "sha256": "30323723d481e1298bc83b5fab10148486db4c3b0132db2cd16113ae8376b30e",
+    "bytes": 7172,
+    "commit": "f9e988ab3c1183757b4a95c68865bebf59087260"
+  },
+  "boundAdr": {
+    "path": "docs/adr/0015-bounded-transport-retry.md",
+    "sha256": "0ce230dcf0fe08a61af4a9dab7e8dedbb39849d5cf39df801f1c377e6078041b",
+    "bytes": 15831
+  },
+  "method": {
+    "decidedBy": "src/orgunits/web/retryPolicy.ts::retryDispositionFor, IMPORTED AND CALLED - never reimplemented",
+    "context": "ROBOTS_POLICY_RESOLUTION, applied to every persisted observation whose discovery_method is ROBOTS and whose error_kind is not null",
+    "runClassificationRule": "AFFECTED if any such observation yields RETRY_ELIGIBLE; otherwise UNAVAILABLE if any yields INSUFFICIENT_EVIDENCE; otherwise UNAFFECTED",
+    "readOnly": true,
+    "connectedAs": "DATABASE_URL_READONLY",
+    "networkRequestsToAnyInstitution": 0,
+    "rowsWritten": 0,
+    "rowsUpdated": 0,
+    "rowsDeleted": 0,
+    "forbiddenInputsUsed": [],
+    "forbiddenInputs": [
+      "pageYield",
+      "label",
+      "modelResult",
+      "semanticClass",
+      "organisationIdentity",
+      "hostname",
+      "url",
+      "pageContent"
+    ]
+  },
+  "identityDiscipline": {
+    "runsAreNamedByAnOpaqueSha256OfTheRunId": true,
+    "whyNotTheRunIdItself": "the same convention the V3 continuation execution record already uses (runRefIsAnOpaqueSha256OfTheRunIdNotTheRunIdItself), so a published census cannot be joined back to a specific institution's acquisition by anyone holding only this file",
+    "containsNoInstitutionName": true,
+    "containsNoEcheRowKey": true,
+    "containsNoHostname": true,
+    "containsNoUrl": true,
+    "containsNoPageContent": true
+  },
+  "totals": {
+    "runsExamined": 12,
+    "fetchObservationsExamined": 204,
+    "robotsObservationsExamined": 19,
+    "robotsFailureObservations": 3,
+    "nonRobotsFailureObservations": 1
+  },
+  "countsByClass": {
+    "V4_TRANSITION_UNAFFECTED": 9,
+    "V4_TRANSITION_AFFECTED": 0,
+    "V4_TRANSITION_CLASSIFICATION_UNAVAILABLE_FROM_HISTORICAL_EVIDENCE": 3
+  },
+  "whyZeroAreAFFECTED": "AFFECTED requires persisted evidence sufficient to PROVE v4 would have issued an additional request. Every site-policy failure in this corpus predates migration 0012 and carries error_subtype NULL, and both TLS_FAILURE and DNS_FAILURE span retryable and non-retryable conditions. None can be proved either way, which is what the third class is for.",
+  "whyTheThirdClassIsNotUNAFFECTED": "UNAFFECTED is a positive finding that a rerun would change nothing, and is grounds for leaving a run alone. UNAVAILABLE is the ABSENCE of a finding. Collapsing them would silently convert 'we cannot tell' into 'we checked and it was fine'.",
+  "runs": [
+    {
+      "runRefSha256": "e1685cde6ad43f2f38caebfb5e16f5677faddfca92a00e337cdb53bf13067e40",
+      "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+      "observations": 39,
+      "robotsObservations": 2,
+      "robotsFailureEvidence": [],
+      "nonRobotsFailureCount": 0,
+      "classification": "V4_TRANSITION_UNAFFECTED"
+    },
+    {
+      "runRefSha256": "7aedd8d7106590724655e3dbaf9bf443c2050e316c2123217b50c85c011dc50a",
+      "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+      "observations": 1,
+      "robotsObservations": 1,
+      "robotsFailureEvidence": [],
+      "nonRobotsFailureCount": 0,
+      "classification": "V4_TRANSITION_UNAFFECTED"
+    },
+    {
+      "runRefSha256": "8817e22d9682c3dd071cc6659973ba634c024ffa1a04accfb4ad2a259ffb7566",
+      "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+      "observations": 32,
+      "robotsObservations": 2,
+      "robotsFailureEvidence": [],
+      "nonRobotsFailureCount": 0,
+      "classification": "V4_TRANSITION_UNAFFECTED"
+    },
+    {
+      "runRefSha256": "2ada6fe0272c409ded4ae198c801f492cede477ee1ec33eac1e0e51d24ca9551",
+      "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+      "observations": 3,
+      "robotsObservations": 1,
+      "robotsFailureEvidence": [],
+      "nonRobotsFailureCount": 0,
+      "classification": "V4_TRANSITION_UNAFFECTED"
+    },
+    {
+      "runRefSha256": "210ec71c8b3907fc94024a772e046dfb31028d20f9597004af8b1a9d6a0cca53",
+      "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+      "observations": 1,
+      "robotsObservations": 1,
+      "robotsFailureEvidence": [
+        {
+          "errorKind": "DNS_FAILURE",
+          "errorSubtype": null,
+          "httpStatus": null
+        }
+      ],
+      "nonRobotsFailureCount": 0,
+      "classification": "V4_TRANSITION_CLASSIFICATION_UNAVAILABLE_FROM_HISTORICAL_EVIDENCE"
+    },
+    {
+      "runRefSha256": "eecae5bc8b23e005a1daaf99a73f927b06ab7471bf1cc32c814861c98b096eba",
+      "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+      "observations": 1,
+      "robotsObservations": 1,
+      "robotsFailureEvidence": [],
+      "nonRobotsFailureCount": 0,
+      "classification": "V4_TRANSITION_UNAFFECTED"
+    },
+    {
+      "runRefSha256": "a5550818fe15b4a058d5daddc55ce283834c7d619730e217919157f88e18046c",
+      "fetchPolicyVersion": "orgunit-fetch-policy-v1",
+      "observations": 1,
+      "robotsObservations": 1,
+      "robotsFailureEvidence": [
+        {
+          "errorKind": "TLS_FAILURE",
+          "errorSubtype": null,
+          "httpStatus": null
+        }
+      ],
+      "nonRobotsFailureCount": 0,
+      "classification": "V4_TRANSITION_CLASSIFICATION_UNAVAILABLE_FROM_HISTORICAL_EVIDENCE"
+    },
+    {
+      "runRefSha256": "1caccd6c616c6ddaccc5ebc7a23f951b08e6819fc3bc6b6d8e91e14f965a71fe",
+      "fetchPolicyVersion": "orgunit-fetch-policy-v2",
+      "observations": 38,
+      "robotsObservations": 2,
+      "robotsFailureEvidence": [],
+      "nonRobotsFailureCount": 1,
+      "classification": "V4_TRANSITION_UNAFFECTED"
+    },
+    {
+      "runRefSha256": "d808fae09b353443abaa4a5405d892a0545c058ac0a503deb712ef922604a0fd",
+      "fetchPolicyVersion": "orgunit-fetch-policy-v2",
+      "observations": 1,
+      "robotsObservations": 1,
+      "robotsFailureEvidence": [],
+      "nonRobotsFailureCount": 0,
+      "classification": "V4_TRANSITION_UNAFFECTED"
+    },
+    {
+      "runRefSha256": "83564aa2b2639f799c12eff6d9a66d7041d751e13054aebb53e70c5a71e08076",
+      "fetchPolicyVersion": "orgunit-fetch-policy-v3",
+      "observations": 43,
+      "robotsObservations": 3,
+      "robotsFailureEvidence": [],
+      "nonRobotsFailureCount": 0,
+      "classification": "V4_TRANSITION_UNAFFECTED"
+    },
+    {
+      "runRefSha256": "8d77c6a290bd6eb4833a926792ba5791cdc95a1a58080a748e4a2c7c1d5759f9",
+      "fetchPolicyVersion": "orgunit-fetch-policy-v3",
+      "observations": 43,
+      "robotsObservations": 3,
+      "robotsFailureEvidence": [],
+      "nonRobotsFailureCount": 0,
+      "classification": "V4_TRANSITION_UNAFFECTED"
+    },
+    {
+      "runRefSha256": "5145934ca138277794e2e426e07e24d34bcf90ad1ec126cf80d1da6c24d05ecc",
+      "fetchPolicyVersion": "orgunit-fetch-policy-v3",
+      "observations": 1,
+      "robotsObservations": 1,
+      "robotsFailureEvidence": [
+        {
+          "errorKind": "TLS_FAILURE",
+          "errorSubtype": null,
+          "httpStatus": null
+        }
+      ],
+      "nonRobotsFailureCount": 0,
+      "classification": "V4_TRANSITION_CLASSIFICATION_UNAVAILABLE_FROM_HISTORICAL_EVIDENCE"
+    }
+  ],
+  "currentFailureClassifications": [
+    {
+      "selectionIndex": 3,
+      "documentedFailure": "ROOT_AND_SITEMAP_HTTP_5XX",
+      "runRefSha256": "2ada6fe0272c409ded4ae198c801f492cede477ee1ec33eac1e0e51d24ca9551",
+      "robotsFailureEvidence": [],
+      "classification": "V4_TRANSITION_UNAFFECTED",
+      "why": "an HTTP response arrived and no site-policy request failed at transport level. V1 transport retry does not read http_status as a trigger at all, so v4 provably issues no additional request here.",
+      "wouldSucceed": "NOT CLAIMED"
+    },
+    {
+      "selectionIndex": 4,
+      "documentedFailure": "ROBOTS_DNS_FAILURE",
+      "runRefSha256": "210ec71c8b3907fc94024a772e046dfb31028d20f9597004af8b1a9d6a0cca53",
+      "robotsFailureEvidence": [
+        {
+          "errorKind": "DNS_FAILURE",
+          "errorSubtype": null,
+          "httpStatus": null
+        }
+      ],
+      "classification": "V4_TRANSITION_CLASSIFICATION_UNAVAILABLE_FROM_HISTORICAL_EVIDENCE",
+      "why": "DNS_FAILURE spans DNS_TEMPORARY_FAILURE (retryable) and DNS_NAME_NOT_FOUND / DNS_NO_ADDRESS_RETURNED (not). The row predates migration 0012 and does not say which.",
+      "wouldSucceed": "NOT CLAIMED"
+    },
+    {
+      "selectionIndex": 6,
+      "documentedFailure": "ROBOTS_TLS_FAILURE",
+      "runRefSha256": "a5550818fe15b4a058d5daddc55ce283834c7d619730e217919157f88e18046c",
+      "robotsFailureEvidence": [
+        {
+          "errorKind": "TLS_FAILURE",
+          "errorSubtype": null,
+          "httpStatus": null
+        }
+      ],
+      "classification": "V4_TRANSITION_CLASSIFICATION_UNAVAILABLE_FROM_HISTORICAL_EVIDENCE",
+      "why": "TLS_FAILURE spans TLS_HANDSHAKE_TIMEOUT (retryable) and TLS_CERT_INVALID / TLS_PROTOCOL_INCOMPATIBLE (not). The row does not say which.",
+      "wouldSucceed": "NOT CLAIMED"
+    },
+    {
+      "selectionIndex": 8,
+      "documentedFailure": "ROBOTS_TLS_FAILURE",
+      "runRefSha256": "5145934ca138277794e2e426e07e24d34bcf90ad1ec126cf80d1da6c24d05ecc",
+      "robotsFailureEvidence": [
+        {
+          "errorKind": "TLS_FAILURE",
+          "errorSubtype": null,
+          "httpStatus": null
+        }
+      ],
+      "classification": "V4_TRANSITION_CLASSIFICATION_UNAVAILABLE_FROM_HISTORICAL_EVIDENCE",
+      "why": "same as index 6",
+      "wouldSucceed": "NOT CLAIMED"
+    }
+  ],
+  "noWouldSucceedClaimAnywhere": true,
+  "mechanicallyDerivedNotHardCoded": "each classification above is the value the landed retryDispositionFor returned for that run's own persisted evidence, and the evidence it was given is recorded beside it so the derivation is checkable",
+  "oneNonRobotsFailureObserved": {
+    "errorKind": "READ_TIMEOUT",
+    "discoveryMethod": "LINK",
+    "count": 1,
+    "effectOnItsRun": "NONE",
+    "why": "READ_TIMEOUT is retryable in SITE-POLICY context only. In ORDINARY_PAGE context retryDispositionFor returns NOT_RETRY_ELIGIBLE, so v4 issues no additional request for it - a mechanical demonstration that the context parameter is load-bearing rather than decorative."
+  },
+  "acquisitionOfRecordUnchanged": "5 success / 4 failure of 9 finalised",
+  "statusChanges": 0,
+  "runsSuperseded": 0,
+  "rerunsPerformed": 0,
+  "historicalRowsChanged": false,
+  "reserveConsumption": 0,
+  "institutionHttpRequests": 0,
+  "institutionDnsLookups": 0,
+  "institutionTlsHandshakes": 0,
+  "targetedRevalidationAuthorised": false,
+  "nextOwnerDecision": "A2_V4_TARGETED_TRANSPORT_REVALIDATION_AUTHORISATION",
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A later census is a NEW record that references this one by SHA-256."
+  }
+}

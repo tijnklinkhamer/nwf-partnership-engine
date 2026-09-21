@@ -22,14 +22,17 @@
  *   - no TLS weakening, no new dependency, no new network location;
  *   - no historical freeze, owner approval or evaluation artifact moved.
  *
- * THE RANGE IS REPAIR_BASE_COMMIT -> THE WORKING TREE while this repair IS the
- * current phase. WHEN IT BECOMES HISTORY ITS TERMINAL COMMIT IS PINNED IN
- * `REPAIR_TERMINAL_COMMIT` BELOW, exactly as ADR 0012's, ADR 0013's and the
- * observability repair's now are - and the temporal-test correction
+ * THE RANGE IS REPAIR_BASE_COMMIT..REPAIR_TERMINAL_COMMIT, CLOSED IMMEDIATELY.
+ * It was open to the working tree only while the semantic implementation was
+ * being written; the moment that landed, the terminal commit was pinned here -
+ * exactly as ADR 0012's, ADR 0013's and the observability repair's now are.
+ * The temporal-test correction
  * (`docs/evaluation/PHASE_2B_2D_A2_BOUNDED_TRANSPORT_RETRY_TEMPORAL_TEST_CORRECTION_V1.json`)
- * exists precisely because leaving that null is a promise, not a mechanism.
- * `sourceOf` and `trackedInRange` below already read through the pin, so
- * closing the range is a one-line edit and nothing else.
+ * exists precisely because leaving that open is a promise rather than a
+ * mechanism, and this file was not going to repeat the defect it was written
+ * alongside. Everything after the terminal commit - the acquisition-plan
+ * amendment, the transition census, this pin itself - is governance, belongs
+ * to no production range, and is correctly invisible here.
  */
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -54,14 +57,13 @@ const REPAIR_BASE_COMMIT = 'ba6ae909f9179ee3da8ac083eb29049fa8baddce';
  * The commit this repair ENDS at, or `null` while it is still the current
  * phase.
  *
- * Null means "compare against the working tree", which is correct for exactly
- * as long as this repair IS the present. The moment a later phase begins, this
- * must name the semantic implementation commit - otherwise that later phase is
- * swept into this range and judged against this repair's authorised surface,
- * which is the defect the temporal-test correction removed from three other
- * files.
+ * Null would mean "compare against the working tree", which is correct for
+ * exactly as long as this repair IS the present. It names the semantic
+ * implementation commit instead - otherwise a later phase would be swept into
+ * this range and judged against this repair's authorised surface, which is the
+ * defect the temporal-test correction removed from three other files.
  */
-const REPAIR_TERMINAL_COMMIT: string | null = null;
+const REPAIR_TERMINAL_COMMIT: string | null = 'd9c32af156d2241151601d6d6b0bf3eb9dafcee2';
 
 /** The exact production surface this repair is authorised to change. */
 const AUTHORISED_PRODUCTION_FILES = [
