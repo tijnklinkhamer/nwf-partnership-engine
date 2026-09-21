@@ -1,0 +1,86 @@
+{
+  "record": "PHASE_2B_2D_METHOD_V2_FRAME_SCHEMA_PROVENANCE_OWNER_ADJUDICATION",
+  "recordKind": "OWNER_ADJUDICATION_OF_A_FROZEN_ARTIFACT_PROVENANCE_TOUCHPOINT",
+  "version": "V1",
+  "phase": "PHASE_2B_2D",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "ownerDecision": "ACCEPT_FRAME_V2_GEN1_HISTORICAL_SCHEMA_PROVENANCE_V1",
+  "status": "ADJUDICATED",
+  "thisFileAuthorises": [],
+
+  "whyThisRecordExists": {
+    "statement": "Migration 0012 (transport-failure observability) advanced the repository's migration range from 0001..0011 to 0001..0012. FRAME_V2_GEN1 was materialised under 0001..0011 and stamps that range as provenance. The implementation record surfaced the divergence for owner awareness rather than amending it silently; this file is the owner's answer.",
+    "surfacedBy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_TRANSPORT_FAILURE_OBSERVABILITY_IMPLEMENTATION_V1.json",
+      "sha256": "120e1507214630e1f11eb405242d2a2973f5cd5eebc85ced3bf85e74e8d76a7b",
+      "bytes": 15574,
+      "field": "governanceTouchpoints[1]",
+      "ownerReviewRequested": true
+    }
+  },
+
+  "historicalFrameSchemaVersion": "0001..0011",
+  "currentRepositorySchemaVersion": "0001..0012",
+  "theseStatementsAreNotContradictory": true,
+  "meaning": "HISTORICAL_PROVENANCE_ACCEPTED_CURRENT_SCHEMA_MAY_ADVANCE",
+
+  "reasoning": {
+    "aProvenanceStampRecordsTheConditionsOfMaterialisation": "databaseSchemaVersion on a frozen frame says WHAT SCHEMA WAS IN PLACE WHEN THIS FRAME WAS MATERIALISED. It is not a claim about the present, and it does not become false when the schema advances - it would become false only if it were rewritten.",
+    "whyBackfillingWouldBeTheError": "Rewriting the stamp to 0001..0012 would assert that migration 0012 existed at A1 materialisation time. It did not. That is the same class of defect as back-filling an EWP snapshot's origin provenance (CLAUDE.md, 'an EWP snapshot records TWO different provenance facts') and the same class the append-only rules exist to prevent.",
+    "whyTheFrameHashDivergenceIsNotADefect": "The schema stamp is inside the hashed region, so re-materialising Gen-1 under this build would produce a different frameHash. That is the hash doing its job: it says 'these are different materialisations', which is TRUE. It does not say the membership changed, and the membership did not change.",
+    "whatDidNotMove": "No eligibility judgement, no organisation count, no draw, no split, no acquisition-of-record status."
+  },
+
+  "boundArtifacts": {
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "sha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "bytes": 3554080,
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650",
+      "sourceIdentityDatabaseSchemaVersion": "0001..0011",
+      "examinedOrganisationCount": 6139,
+      "eligibleOrganisationCount": 5820
+    },
+    "currentSchemaSource": {
+      "path": "migrations/",
+      "highestApplied": "0012_transport_failure_subtype.sql",
+      "range": "0001..0012",
+      "contractConstant": "src/test/harness/phase2b2d/corpus/frameContract.ts::DATABASE_SCHEMA_VERSION_RANGE",
+      "contractConstantValue": "0001..0012",
+      "contractConstantTracksMigrationsDirectoryByTest": "src/test/unit/orgunitCorpus2DA1Frame.test.ts"
+    }
+  },
+
+  "decisions": {
+    "historicalFrameBytesChanged": false,
+    "historicalFrameHashChanged": false,
+    "drawChanged": false,
+    "frameRegenerationAuthorised": false,
+    "backfillOfTheProvenanceStampAuthorised": false,
+    "productionOrTestCorrectionAuthorised": false,
+    "schemaZeroZeroOneTwoTreatedAsRetroactivelyPresentAtA1": false
+  },
+
+  "forwardRule": {
+    "aFutureA1MaterialisationUnderADifferentSchemaMayNotOverwriteGen1": true,
+    "whatSuchAnOutputWouldBe": "A DIFFERENT PROSPECTIVE MATERIALISATION. Identical organisation membership does not make it Gen-1's frozen frame; Gen-1 is the committed bytes, not a recipe that may be re-cooked.",
+    "ifAFutureGenerationIsWanted": "it is a NEW generationId with its own frame, its own frameHash and its own schema stamp, referencing this one by SHA-256 - never an edit."
+  },
+
+  "impactAssessment": {
+    "methodologyR3Unchanged": true,
+    "corpusPlanV1Unchanged": true,
+    "optionBAmendmentUnchanged": true,
+    "optionCLiteAmendmentUnchanged": true,
+    "drawArtifactUnchanged": true,
+    "p5GateUnchanged": true,
+    "acquisitionOfRecordUnchanged": "5 success / 4 failure of 9 finalised",
+    "reserveStateUnchanged": true,
+    "reserveConsumed": 0
+  },
+
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A further adjudication is a NEW record that references this one by SHA-256."
+  }
+}

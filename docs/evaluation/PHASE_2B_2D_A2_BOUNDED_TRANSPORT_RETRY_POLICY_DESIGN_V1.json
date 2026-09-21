@@ -1,0 +1,1181 @@
+{
+  "artifact": "PHASE_2B_2D_A2_BOUNDED_TRANSPORT_RETRY_POLICY_DESIGN_V1",
+  "phase": "PHASE_2B_2D",
+  "step": "A2_BOUNDED_TRANSPORT_RETRY_POLICY_DESIGN",
+  "version": "V1",
+  "status": "DESIGN_FROZEN",
+  "thisFileAuthorises": [],
+  "producedUnderOwnerDecision": [
+    "ACCEPT_FRAME_V2_GEN1_HISTORICAL_SCHEMA_PROVENANCE_V1",
+    "AUTHORISE_PHASE_2B_2D_A2_BOUNDED_TRANSPORT_RETRY_POLICY_DESIGN_V1",
+    "APPROVE_FRAME_SCHEMA_PROVENANCE_ADJUDICATION_V1",
+    "REVISE_BOUNDED_TRANSPORT_RETRY_POLICY_RETRYABLE_SET_V1",
+    "AUTHORISE_COMMIT_PUSH_FINAL_BOUNDED_TRANSPORT_RETRY_DESIGN_ARTIFACTS_V1"
+  ],
+  "designOutcome": "BOUNDED_TRANSPORT_RETRY_POLICY_READY_FOR_IMPLEMENTATION",
+  "nextOwnerDecision": "A2_BOUNDED_TRANSPORT_RETRY_IMPLEMENTATION_AUTHORISATION",
+  "ownerCorrectionV1": {
+    "ownerDecision": "REVISE_BOUNDED_TRANSPORT_RETRY_POLICY_RETRYABLE_SET_V1",
+    "what": "The V1 retryable evidence set is widened from TWO classes to SIX. TLS_HANDSHAKE_TIMEOUT and DNS_TEMPORARY_FAILURE are joined by CONNECT_TIMEOUT, READ_TIMEOUT, CONNECTION_RESET and CONNECTION_REFUSED.",
+    "whatWasNotChanged": [
+      "the retry context - still ROBOTS_POLICY_RESOLUTION_ONLY",
+      "the retry budget - still 1 per complete logical policy resolution",
+      "MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS = 1",
+      "MAX_TOTAL_REQUESTS_PER_ROOT = 60, MAX_PAGE_ATTEMPTS_PER_ROOT = 35, MAX_HOSTS_PER_ROOT = 8",
+      "the retry/redirect state machine and its five cases",
+      "the worst case of 3 requests per logical policy resolution",
+      "the pacing design, the circuit-breaker decision, the v4 requirement and the no-migration finding",
+      "the historical compatibility rule and the treatment of indices 3, 4, 6 and 8"
+    ],
+    "exactReasonsThePriorSetWasCorrected": [
+      {
+        "rejectedRationale": "a timeout is the resilience measure already paid, so retrying it is redundant",
+        "whyItWasWrong": "A TIMEOUT IS A BOUNDED WAITING POLICY. It limits how long ONE attempt may wait; it does not make that attempt resilient to a transient failure. Waiting 30 s and then giving up samples one connection attempt over one window - it does not retry anything. For an IDEMPOTENT robots.txt GET, one fresh exact-URL attempt can legitimately observe a different transport outcome while preserving every security check.",
+        "affectedClasses": ["CONNECT_TIMEOUT", "READ_TIMEOUT"]
+      },
+      {
+        "rejectedRationale": "CONNECTION_RESET has never been observed in this corpus, so admitting it would be speculative",
+        "whyItWasWrong": "OBSERVED CORPUS FREQUENCY MUST NOT DETERMINE RETRY SEMANTICS. Retryability is a property of what the transport evidence MEANS, not of how often this particular sample happened to produce it. Reasoning from frequency is outcome-driven tuning wearing the clothes of caution.",
+        "affectedClasses": ["CONNECTION_RESET"]
+      },
+      {
+        "rejectedRationale": "the 35-page x 2 retry envelope makes a class too expensive to admit",
+        "whyItWasWrong": "That envelope is a property of the REJECTED broad context (EVERY_ORCHESTRATOR_GATEWAY_ATTEMPT), where each of 35 page attempts could carry its own retry. It remains a valid reason to reject THAT context. It has no bearing on which classes are admitted INSIDE the selected robots-only context, where the bound is one token per resolution regardless of which class triggered it.",
+        "affectedClasses": [
+          "CONNECT_TIMEOUT",
+          "READ_TIMEOUT",
+          "CONNECTION_RESET",
+          "CONNECTION_REFUSED"
+        ]
+      },
+      {
+        "rejectedRationale": "READ_TIMEOUT is server-health evidence and therefore belongs with HTTP 5xx in the deferred service-response track",
+        "whyItWasWrong": "No usable HTTP response existed. A response that never completed is a TRANSPORT outcome, and the row carries error_kind rather than http_status - which is precisely the line section 13 draws between transport retry and service-response retry. Treating it as service evidence would put a row with a NULL http_status into a policy that keys on http_status.",
+        "affectedClasses": ["READ_TIMEOUT"]
+      }
+    ],
+    "obsoleteRationalesRemoved": true,
+    "noObsoleteRationaleSurvivesInEitherArtifact": true,
+    "thirtyFiveTimesTwoArgumentRetainedOnlyWhereValid": "contextSelection.optionsAssessed.B_EVERY_ORCHESTRATOR_GATEWAY_ATTEMPT.budgetImpact - as a reason to reject that CONTEXT, never a class"
+  },
+  "startingState": {
+    "head": "6f62b2e87de1f06e0545da8ae9340418d0ec70fc",
+    "branch": "feat/phase2b-2d-a2-batch-02",
+    "worktreeClean": true,
+    "localHeadEqualsOrigin": true,
+    "terminalMarkerAtStart": "PHASE_2B_2D_A2_TRANSPORT_FAILURE_OBSERVABILITY_IMPLEMENTED_AWAITING_RETRY_POLICY_DESIGN",
+    "currentFetchPolicyVersion": "orgunit-fetch-policy-v3",
+    "migrationRange": "0001..0012"
+  },
+  "boundSourceArtifacts": {
+    "observabilityDesign": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_TRANSPORT_FAILURE_OBSERVABILITY_DESIGN_V1.json",
+      "sha256": "6f184a93e96324d169ad98ffb0e3b7d0b85999604dbb3ff648f4a8dbd74cdaa0",
+      "bytes": 40609,
+      "commit": "6898a94eee0aca0be273459f01d0da2a7b13df5b"
+    },
+    "observabilityDesignAudit": {
+      "path": "docs/audits/PHASE_2B_2D_A2_TRANSPORT_FAILURE_OBSERVABILITY_DESIGN_V1.md",
+      "sha256": "32901e9018f9e43e1d4400f1a5172e05c825afc152b6c6d6d3e6e48fb2434854",
+      "bytes": 40815
+    },
+    "observabilityImplementation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_TRANSPORT_FAILURE_OBSERVABILITY_IMPLEMENTATION_V1.json",
+      "sha256": "120e1507214630e1f11eb405242d2a2973f5cd5eebc85ced3bf85e74e8d76a7b",
+      "bytes": 15574,
+      "migrationAndProductionCommit": "cbbedd8ea8eaa62580c1fe8c05a95508400161db",
+      "adrAndTestMatrixCommit": "e59204d980c874314cc8278bbf5470070f782895",
+      "implementationRecordCommit": "6f62b2e87de1f06e0545da8ae9340418d0ec70fc"
+    },
+    "observabilityAdr": {
+      "path": "docs/adr/0014-transport-failure-observability.md",
+      "sha256": "fae5b4a6141180a93c8f5e409254ffe34eec78069feac265ee104e875c82a8c7",
+      "bytes": 20016
+    },
+    "migration0012": {
+      "path": "migrations/0012_transport_failure_subtype.sql",
+      "sha256": "0b5b85929a1531e2288dab520b555ae233ae4fd710bb38ebea701d6023f1d2f0",
+      "bytes": 9873
+    },
+    "resilienceReassessment": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_ACQUISITION_RESILIENCE_REASSESSMENT_RESULT_V1.json",
+      "sha256": "d3a2343383b6249eaf91a52d7812f7c82882e15ac771c0927dbc433fa523082d",
+      "bytes": 42527
+    },
+    "corpusPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "bytes": 45200
+    },
+    "optionBAmendment": {
+      "path": "docs/evaluation/PHASE_2B_2D_CORPUS_ACQUISITION_PLAN_V1_OPTION_B_AMENDMENT_V1.json",
+      "sha256": "d440afabd68f4a528bdeadb6c45cf6a489e541d33c214e961419f4adaa80cbc3",
+      "bytes": 11185
+    },
+    "optionCLiteAmendment": {
+      "path": "docs/evaluation/PHASE_2B_2D_CORPUS_ACQUISITION_PLAN_V1_OPTION_C_LITE_AMENDMENT_V2.json",
+      "sha256": "9abc5528da2c96c89b0a2070dd0817a4dc8b83229fbd183ee4a94f495eed886d",
+      "bytes": 2640
+    },
+    "adr0013": {
+      "path": "docs/adr/0013-same-registrable-domain-robots-redirect-continuation.md",
+      "sha256": "d7c51025759664cb4d4fdcdea00e5da509c39d03fc9e40302baebf0f119a9b1a",
+      "bytes": 22316
+    },
+    "frameSchemaProvenanceAdjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_FRAME_SCHEMA_PROVENANCE_OWNER_ADJUDICATION_V1.json",
+      "sha256": "bd79ab9604d9518fcf057469114b13b2118d6ae445dcfc62c06721af9bb6d0a6",
+      "bytes": 4740
+    }
+  },
+  "evidenceTaxonomy": {
+    "errorKindMembers": [
+      "DNS_FAILURE",
+      "CONNECT_TIMEOUT",
+      "READ_TIMEOUT",
+      "TLS_FAILURE",
+      "CONNECTION_REFUSED",
+      "CONNECTION_RESET",
+      "BLOCKED_BY_POLICY",
+      "MALFORMED_URL",
+      "RESPONSE_TOO_LARGE",
+      "UNSUPPORTED_CONTENT_TYPE",
+      "TOO_MANY_REDIRECTS",
+      "OTHER"
+    ],
+    "errorSubtypeMembers": [
+      "TLS_HANDSHAKE_TIMEOUT",
+      "TLS_CERT_INVALID",
+      "TLS_PROTOCOL_INCOMPATIBLE",
+      "TLS_OTHER",
+      "DNS_NAME_NOT_FOUND",
+      "DNS_TEMPORARY_FAILURE",
+      "DNS_NO_ADDRESS_RETURNED",
+      "DNS_OTHER"
+    ],
+    "canonicalTypeScriptLocation": "src/orgunits/web/observations.ts",
+    "subtypeIsReadableInMemory": "WebAttemptResult.errorSubtype (src/orgunits/web/gateway.ts) - the retry decision reads the in-memory result of the attempt it is deciding about, never a database row",
+    "subtypesAddedByThisDesign": 0,
+    "subtypesRenamedByThisDesign": 0,
+    "vocabularyChanged": false
+  },
+  "policyFunction": {
+    "name": "retryDispositionFor",
+    "implemented": false,
+    "signature": "retryDispositionFor(input: { context: TransportRetryContext; errorKind: FetchErrorKind | null; errorSubtype: TransportFailureSubtype | null; httpStatus: number | null }): RetryDisposition",
+    "returns": ["RETRY_ELIGIBLE", "NOT_RETRY_ELIGIBLE", "INSUFFICIENT_EVIDENCE"],
+    "purity": "PURE - no socket, no database, no clock, no environment read, no filesystem",
+    "totality": "TOTAL. Any (context, errorKind, errorSubtype, httpStatus) combination not explicitly enumerated below returns INSUFFICIENT_EVIDENCE, which issues no retry. A future error_kind or subtype therefore fails closed by construction.",
+    "dispositionIsNeverPersisted": true,
+    "contextParameterAddedRelativeToObservabilityDesign": {
+      "priorSignature": "retryDispositionFor(errorKind, errorSubtype, httpStatus)",
+      "whyContextWasAdded": "the selected retry context is ROBOTS_POLICY_RESOLUTION ONLY. Without context in the signature, 'no retry on an ordinary page' would be enforced only by where the function happens to be called, which is not a property a test can assert about the function itself.",
+      "priorSignatureWasExplicitlyNotFrozen": "docs/evaluation/PHASE_2B_2D_A2_TRANSPORT_FAILURE_OBSERVABILITY_DESIGN_V1.json retryability.retryPolicyFrozen = false"
+    },
+    "deliberateRefinementOfAnIllustration": {
+      "members": ["TLS_OTHER", "DNS_OTHER"],
+      "observabilityDesignIllustrated": "NOT_RETRY_ELIGIBLE",
+      "thisDesignSelects": "INSUFFICIENT_EVIDENCE",
+      "why": "NOT_RETRY_ELIGIBLE asserts 'the condition is identified and it is not retryable'. TLS_OTHER and DNS_OTHER mean precisely 'a condition this build's taxonomy does not name', so the condition is NOT identified. INSUFFICIENT_EVIDENCE is the honest class and yields identical behaviour (zero retries); the distinction matters only to a later reader, for whom a population of INSUFFICIENT_EVIDENCE rows is a signal that the taxonomy may need a new named member, while NOT_RETRY_ELIGIBLE would close that question falsely.",
+      "behaviouralDifference": "NONE - both issue zero retries",
+      "permittedBy": "owner section 13, which offered either class for TLS_OTHER"
+    }
+  },
+  "contextSelection": {
+    "selected": "ROBOTS_POLICY_RESOLUTION_ONLY",
+    "selectedOptionLabel": "A",
+    "optionsAssessed": {
+      "A_ROBOTS_POLICY_RESOLUTION_ONLY": {
+        "necessity": "HIGH. Site-policy resolution has NO alternative URL: a host publishes its policy at exactly one place, and a single transport failure there yields ROBOTS_UNREADABLE, which blocks every page under that origin. Three of the four current Generation-1 failures (indices 4, 6, 8) are exactly this shape, and each produced ZERO pages.",
+        "networkExpansion": "At most +1 request per ORIGIN per run, bounded by MAX_HOSTS_PER_ROOT = 8, so at most +8 per root and in practice +1. Under every corpus run observed so far the marginal cost is one request.",
+        "pageFrontierRedundancy": "NOT APPLICABLE - that is the point. Redundancy is what page discovery has and policy resolution does not.",
+        "budgetImpact": "Absorbed by raising the rootRunner robots prediction term from 2 to 3 inside the unchanged 60-request ceiling. No frozen budget moves.",
+        "circuitBreakerInteraction": "NONE. Robots attempts never reach the breaker today (proved below), so a robots retry cannot perturb breaker state.",
+        "methodologicalEffect": "Changes only WHETHER a root gets past the policy gate. It does not change which pages are discovered, ranked or persisted once past it, so page-evidence and candidate semantics are untouched.",
+        "verdict": "SELECTED"
+      },
+      "B_EVERY_ORCHESTRATOR_GATEWAY_ATTEMPT": {
+        "necessity": "LOW. An ordinary page failure costs one of 35 frontier slots and the frontier holds alternatives; the root still yields evidence.",
+        "networkExpansion": "Up to +35 page requests plus sitemap requests per root - potentially near-doubling a root's traffic against institutions.",
+        "budgetImpact": "It does not fit. 35 page attempts each with a retry is 70 requests against a 60-request ceiling, so adopting B requires moving a FROZEN POLICY CONSTANT. THIS ARGUMENT IS ABOUT THE CONTEXT, NOT ABOUT ANY EVIDENCE CLASS: it applies only where each of 35 page attempts could carry its own retry, and it has no bearing on which classes are admitted inside the selected robots-only context, where one token bounds the whole resolution.",
+        "circuitBreakerInteraction": "ARCHITECTURAL CONFLICT. updateCircuitBreaker is fed one call per page attempt and opens a host after CIRCUIT_BREAKER_TRANSIENT_FAILURE_THRESHOLD = 3 consecutive transient failures. A retried failure would feed the streak twice, so a host would open after 1.5 real failures rather than 3 - silently redefining a frozen safety bound.",
+        "methodologicalEffect": "Changes which pages are successfully fetched, therefore the page sample, therefore the corpus. A methodology-affecting change.",
+        "verdict": "REJECTED for V1",
+        "doesNotJustifyExcludingAnyClassFromTheSelectedContext": true
+      },
+      "C_ROBOTS_PLUS_OTHER_ACQUISITION_CRITICAL_BOOTSTRAP": {
+        "necessity": "NOT DEMONSTRATED. The two other bootstrap requests are the root page and the sitemap. The sitemap has an explicit fallback (anchor discovery), so it is not a single point of failure. The root page is closer to critical, but the one Generation-1 root-stage failure (index 3) is an HTTP 500 - a service response, which section 7 places outside transport retry entirely - so no observed failure would be repaired by widening to C.",
+        "networkExpansion": "Strictly more than A for no evidenced gain.",
+        "verdict": "REJECTED for V1 - would be selecting a broader context for symmetry, which the design mandate forbids"
+      }
+    },
+    "contextTokenVocabulary": ["ROBOTS_POLICY_RESOLUTION"],
+    "everyOtherContextYields": "NOT_RETRY_ELIGIBLE",
+    "whyOtherContextsAreNotRetryEligibleRatherThanInsufficient": "the context is always known to the caller; there is no evidential gap. V1 has DECIDED not to retry there."
+  },
+  "classification": {
+    "methodNote": "Every class was assessed from transport semantics BEFORE any historical index was consulted, and the set was subsequently CORRECTED BY THE OWNER (REVISE_BOUNDED_TRANSPORT_RETRY_POLICY_RETRYABLE_SET_V1) from two classes to six - see ownerCorrectionV1 for the exact reason each prior rationale was withdrawn. No class is admitted or refused because a particular organisation failed, and none is admitted or refused because of how often this corpus happened to produce it.",
+    "retryEligible": [
+      {
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": "TLS_HANDSHAKE_TIMEOUT",
+        "semanticClass": "SEMANTICALLY_TRANSIENT_CANDIDATE",
+        "whyRetryCanChangeTheResult": "TCP connected and the TLS negotiation began but did not complete in time. NO REFUSAL WAS STATED: no certificate was rejected, no protocol was declared incompatible and no peer said no. It is a timing outcome, and timing outcomes differ between attempts.",
+        "sameUrlAppropriate": true,
+        "freshValidationRequired": true,
+        "oneRetrySufficientAsBoundedResilience": true,
+        "pacingNote": "the failed attempt already spent far more than MIN_HOST_PACING_SECONDS against that host, so the acquired slot will usually not wait"
+      },
+      {
+        "errorKind": "DNS_FAILURE",
+        "errorSubtype": "DNS_TEMPORARY_FAILURE",
+        "semanticClass": "SEMANTICALLY_TRANSIENT_CANDIDATE",
+        "whyRetryCanChangeTheResult": "EAI_AGAIN is the resolver's OWN statement that the condition is temporary and the query may be repeated. The only class where the runtime asserts transience rather than the policy inferring it.",
+        "sameUrlAppropriate": true,
+        "freshValidationRequired": true,
+        "freshResolutionIsEssentialHere": "a retry that reused the previous DNS outcome would be retrying nothing - the previous outcome IS the failure",
+        "oneRetrySufficientAsBoundedResilience": true,
+        "pacingNote": "no socket to the institution was opened; the slot is acquired for uniformity"
+      },
+      {
+        "errorKind": "CONNECT_TIMEOUT",
+        "errorSubtype": null,
+        "semanticClass": "SEMANTICALLY_TRANSIENT_CANDIDATE",
+        "whyRetryCanChangeTheResult": "The TCP connection did not complete within the bounded wait. A TIMEOUT IS A BOUNDED WAITING POLICY, NOT A RESILIENCE MEASURE: it caps how long one attempt may wait and says nothing about whether that attempt was representative. No refusal was received and no name failed - the connection simply did not establish within the window. One fresh exact-URL attempt can legitimately establish where the previous one did not.",
+        "sameUrlAppropriate": true,
+        "freshValidationRequired": true,
+        "oneRetrySufficientAsBoundedResilience": true,
+        "timeoutsUnchanged": {
+          "CONNECT_TIMEOUT_MS": 30000,
+          "TOTAL_TIMEOUT_MS": 45000
+        },
+        "noTimeoutIsExtendedByThisPolicy": true,
+        "costNote": "the retry costs up to another connect-timeout window of wall clock. ONE is the bound, and it applies to at most one policy resolution per origin."
+      },
+      {
+        "errorKind": "READ_TIMEOUT",
+        "errorSubtype": null,
+        "semanticClass": "SEMANTICALLY_TRANSIENT_CANDIDATE",
+        "whyRetryCanChangeTheResult": "The response did not complete within the bounded total wait. NO USABLE HTTP RESPONSE EXISTED, so this is transport evidence - the row carries error_kind and a NULL http_status, which is exactly the line separating transport retry from the deferred service-response track. The same bounded-waiting-policy reasoning as CONNECT_TIMEOUT applies: the window caps the wait, it does not make the attempt resilient.",
+        "sameUrlAppropriate": true,
+        "freshValidationRequired": true,
+        "oneRetrySufficientAsBoundedResilience": true,
+        "timeoutsUnchanged": {
+          "CONNECT_TIMEOUT_MS": 30000,
+          "TOTAL_TIMEOUT_MS": 45000
+        },
+        "noTimeoutIsExtendedByThisPolicy": true,
+        "notTheSameAsAn5xx": "a 5xx is a COMPLETED response carrying a status; this is the absence of one. They are distinguished in the evidence itself, not by convention."
+      },
+      {
+        "errorKind": "CONNECTION_RESET",
+        "errorSubtype": null,
+        "semanticClass": "SEMANTICALLY_TRANSIENT_CANDIDATE",
+        "whyRetryCanChangeTheResult": "The connection was interrupted rather than refused on stated grounds. Its transport semantics can represent a transient peer or connection interruption - a recycled load balancer, a restarted worker, a dropped path - and ONE exact idempotent GET retry can produce a different result.",
+        "decidedOn": "SEMANTICS",
+        "explicitlyNotDecidedOn": "observed corpus frequency - which must never determine retry semantics",
+        "sameUrlAppropriate": true,
+        "freshValidationRequired": true,
+        "oneRetrySufficientAsBoundedResilience": true,
+        "pacingNote": "FAILS FAST. The host pacing slot is load-bearing for this class, not defence in depth - without it the retry could follow the failure within milliseconds."
+      },
+      {
+        "errorKind": "CONNECTION_REFUSED",
+        "errorSubtype": null,
+        "semanticClass": "SEMANTICALLY_TRANSIENT_CANDIDATE",
+        "whyRetryCanChangeTheResult": "It represents a connection-level refusal AT THAT ATTEMPT IN TIME, and remote service state can change between two attempts - a listener restarting, a backend rotating. It is categorically unlike the four genuinely fixed refusals: an invalid certificate, an incompatible TLS protocol, a nonexistent name, and this repository's own policy refusal. None of those can change between two attempts; a listening socket can.",
+        "sameUrlAppropriate": true,
+        "freshValidationRequired": true,
+        "oneRetrySufficientAsBoundedResilience": true,
+        "exactlyOneRetryNotRepeated": "this does NOT admit repeated connection-refused retries. The resolution-level token permits one, then the failure stands.",
+        "pacingNote": "FAILS FAST. As with CONNECTION_RESET, the host pacing slot is load-bearing for this class."
+      }
+    ],
+    "retryEligibleCount": 6,
+    "notRetryEligible": [
+      {
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": "TLS_CERT_INVALID",
+        "semanticClass": "SEMANTICALLY_NON_RETRYABLE",
+        "why": "a certificate does not become valid on attempt two. The only thing that could change the outcome is weakening verification, which section 6 forbids absolutely."
+      },
+      {
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": "TLS_PROTOCOL_INCOMPATIBLE",
+        "semanticClass": "SEMANTICALLY_NON_RETRYABLE",
+        "why": "a version or cipher mismatch is deterministic for a fixed client and server. The only thing that could change the outcome is a protocol downgrade, which section 6 forbids absolutely."
+      },
+      {
+        "errorKind": "DNS_FAILURE",
+        "errorSubtype": "DNS_NAME_NOT_FOUND",
+        "semanticClass": "SEMANTICALLY_NON_RETRYABLE",
+        "why": "ENOTFOUND is an authoritative negative answer, not a failure to obtain one. Node 24 collapses EAI_NONAME and EAI_NODATA into it, but BOTH underlying conditions are negative answers, so the conflation does not create ambiguity about retryability."
+      },
+      {
+        "errorKind": "DNS_FAILURE",
+        "errorSubtype": "DNS_NO_ADDRESS_RETURNED",
+        "semanticClass": "SEMANTICALLY_NON_RETRYABLE",
+        "why": "the resolver ANSWERED, successfully, with zero addresses. A successful query is not repeated because its answer was inconvenient. Assessed explicitly against the owner's 'unless the evidence semantics strongly justify otherwise' and found not to justify it: there is no signal here distinguishing a stale-but-answered zone from a transient one."
+      },
+      {
+        "errorKind": "BLOCKED_BY_POLICY",
+        "errorSubtype": null,
+        "semanticClass": "SEMANTICALLY_NON_RETRYABLE",
+        "why": "this repository's OWN refusal (a DISALLOWED policy, or a forbidden resolved address). Retrying it would be retrying our own decision, which is deterministic, and in the address case would be re-attempting something the SSRF guard exists to prevent."
+      },
+      {
+        "errorKind": "MALFORMED_URL",
+        "errorSubtype": null,
+        "semanticClass": "SEMANTICALLY_NON_RETRYABLE",
+        "why": "a pure function of the input string"
+      },
+      {
+        "errorKind": "RESPONSE_TOO_LARGE",
+        "errorSubtype": null,
+        "semanticClass": "SEMANTICALLY_NON_RETRYABLE",
+        "why": "a response arrived and exceeded the cap; this is page-level, not transport-level, and the second copy would be the same size"
+      },
+      {
+        "errorKind": "UNSUPPORTED_CONTENT_TYPE",
+        "errorSubtype": null,
+        "semanticClass": "SEMANTICALLY_NON_RETRYABLE",
+        "why": "a response arrived and was the wrong type"
+      },
+      {
+        "errorKind": "TOO_MANY_REDIRECTS",
+        "errorSubtype": null,
+        "semanticClass": "SEMANTICALLY_NON_RETRYABLE",
+        "why": "a bounded-hop refusal this repository made; deterministic"
+      },
+      {
+        "errorKind": null,
+        "errorSubtype": null,
+        "semanticClass": "NOT_A_TRANSPORT_FAILURE",
+        "why": "an HTTP response arrived. http_status carries it, and every HTTP status - 500, 502, 503, 504 included - is outside V1 by section 7."
+      }
+    ],
+    "insufficientEvidence": [
+      {
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": "TLS_OTHER",
+        "semanticClass": "INSUFFICIENTLY_SPECIFIC",
+        "why": "a TLS-family condition this build's taxonomy does not name. The catch-all never implies transience and must never be mistaken for a recognised retry-compatible class."
+      },
+      {
+        "errorKind": "DNS_FAILURE",
+        "errorSubtype": "DNS_OTHER",
+        "semanticClass": "INSUFFICIENTLY_SPECIFIC",
+        "why": "same, for DNS. Covers every EAI_* code outside ENOTFOUND/EAI_NONAME/EAI_AGAIN, and a resolver throw carrying no usable code."
+      },
+      {
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": null,
+        "semanticClass": "INSUFFICIENTLY_SPECIFIC",
+        "why": "a pre-migration-0012 row, or any future path that fails to state a subtype. TLS_FAILURE spans both retryable and non-retryable conditions and this evidence does not say which."
+      },
+      {
+        "errorKind": "DNS_FAILURE",
+        "errorSubtype": null,
+        "semanticClass": "INSUFFICIENTLY_SPECIFIC",
+        "why": "same, for DNS"
+      },
+      {
+        "errorKind": "OTHER",
+        "errorSubtype": null,
+        "semanticClass": "INSUFFICIENTLY_SPECIFIC",
+        "why": "the gateway's catch-all, which today absorbs INVALID_CONTENT_ENCODING among others. It identifies no condition."
+      },
+      {
+        "errorKind": "ANY_UNENUMERATED_COMBINATION",
+        "errorSubtype": "ANY",
+        "semanticClass": "INSUFFICIENTLY_SPECIFIC",
+        "why": "the total-function default. A future member fails closed."
+      }
+    ],
+    "noOutcomeDrivenTuning": {
+      "statement": "No class was admitted because it would have rescued a specific organisation, and none was rejected because it would not have. The counterfactual audit below was performed afterwards and changed nothing. The owner correction additionally removed two rationales that were outcome-shaped in a subtler way - one reasoning from this corpus's observed frequency, one reasoning from a cost envelope belonging to a context that was already rejected.",
+      "corpusFrequencyIsNeverAnInput": true,
+      "circuitBreakerTaxonomyTreatedAsEvidenceNotApproval": true,
+      "theSixRetryableClassesNowIncludeAllFourTheBreakerCallsTransient": true,
+      "whyThatCoincidenceIsNotCircular": "the four were admitted on their own transport semantics - each is an interrupted or incomplete attempt rather than a stated, stable refusal - and NOT because the breaker labels them transient. The sets coincide because both are reasoning about the same underlying property, not because one was copied from the other. The breaker's own behaviour is untouched either way: no robots attempt ever reaches it."
+    },
+    "notRetryEligibleCount": 10,
+    "insufficientEvidenceCount": 6
+  },
+  "securityPosture": {
+    "aRetryIsDefinedAs": "the EXACT same logical URL, through a NEW executeWebAttempt invocation, with attemptNo + 1, under a freshly minted URL-scoped RobotsAuthorisation, subject to every gate the first attempt passed",
+    "explicitlyForbidden": [
+      "disabled TLS verification",
+      "accepting an invalid certificate",
+      "hostname mismatch bypass",
+      "protocol downgrade",
+      "HTTPS to HTTP fallback",
+      "an alternate hostname",
+      "an alternate URL",
+      "proxy fallback",
+      "a different User-Agent",
+      "cookies or session state",
+      "an alternate DNS mechanism or resolver",
+      "skipping the SSRF / resolved-address classification"
+    ],
+    "whyNoneIsReachableByConstruction": "the retry calls the SAME fetchRobotsDocument(url) local function the first attempt used, with the same url. It has no parameter through which any of the above could vary. rejectUnauthorized is never anything but true, and the gateway re-runs URL validation, root scope, host policy, DNS resolution, address classification and connection pinning for the second invocation exactly as for the first - there is no 'retry path' inside the gateway and none is added.",
+    "gatewayFileChanged": false,
+    "gatewayStillFollowsNothing": true,
+    "rejectUnauthorizedStaysTrue": true
+  },
+  "retryBudget": {
+    "constantName": "MAX_ROBOTS_TRANSPORT_RETRIES_PER_POLICY_RESOLUTION",
+    "value": 1,
+    "grain": "ONE LOGICAL ROBOTS-POLICY RESOLUTION",
+    "notPerUrl": true,
+    "notPerFailure": true,
+    "separateFrom": {
+      "MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS": 1
+    },
+    "whyResolutionLevel": "it makes worst-case network exposure mechanically bounded rather than a function of how many distinct URLs a redirect chain happens to visit, OR OF HOW MANY EVIDENCE CLASSES ARE ADMITTED. Once the token is spent, every later retry-eligible failure in that same resolution is not retried - so widening the retryable set from two classes to six changes WHICH failures can trigger the one retry, never HOW MANY retries are possible.",
+    "canTheCurrentArchitectureExpressThisCleanly": {
+      "answer": "YES, with no new state object",
+      "why": "getRobotsPolicy already performs the WHOLE resolution - initial request, redirect-continuation loop and final evaluation - inside one async IIFE (`pending`), and memoises that promise in RobotsCache BEFORE it settles. A single `let retryBudget = MAX_ROBOTS_TRANSPORT_RETRIES_PER_POLICY_RESOLUTION` declared in that IIFE's scope IS the resolution-level token: it is created once per resolution, it is visible to the initial request and to every continuation hop, and because concurrent callers await the same memoised promise rather than starting their own resolution, they share that one token automatically.",
+      "minimalRequiredState": "one integer in an existing closure",
+      "newClassesRequired": 0,
+      "newModulesRequired": 0
+    }
+  },
+  "retryRedirectStateMachine": {
+    "shape": "the retry is a property of ONE REQUEST SLOT; the continuation loop is unchanged and wraps it",
+    "pseudocode": [
+      "retryBudget = 1",
+      "requestedUrl = robotsUrl",
+      "result = await fetchWithBoundedRetry(requestedUrl)",
+      "for hop in 0 .. MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS - 1:",
+      "    continuation = continuationTargetFor(requestedUrl, result)   // UNCHANGED",
+      "    if continuation is null: break",
+      "    if continuation.hostChanged and not admitHostChangingContinuation(continuation.url): break",
+      "    requestedUrl = continuation.url",
+      "    (same-hostname memoisation, exactly as today)               // UNCHANGED",
+      "    result = await fetchWithBoundedRetry(requestedUrl)",
+      "return evaluateRobotsFetch(result)                              // UNCHANGED",
+      "",
+      "fetchWithBoundedRetry(url):",
+      "    r = await fetchRobotsDocument(url); attempts.push(r)",
+      "    if retryBudget == 0: return r",
+      "    if retryDispositionFor({ context: ROBOTS_POLICY_RESOLUTION, errorKind: r.errorKind, errorSubtype: r.errorSubtype, httpStatus: r.httpStatus }) != RETRY_ELIGIBLE: return r",
+      "    if not await acquireTransportRetrySlot(url): return r        // fail closed; pacing paid here",
+      "    retryBudget -= 1",
+      "    r2 = await fetchRobotsDocument(url); attempts.push(r2)       // attemptNo increments automatically",
+      "    return r2"
+    ],
+    "cases": [
+      {
+        "case": 1,
+        "sequence": "initial -> retryable transport failure -> exact-URL retry -> 200",
+        "requests": 2,
+        "retryBudgetAfter": 0,
+        "decisiveResponse": "the retry's 200",
+        "policy": "parsed from body"
+      },
+      {
+        "case": 2,
+        "sequence": "initial -> retryable failure -> retry -> qualifying 3xx -> one authorised continuation -> 200",
+        "requests": 3,
+        "retryBudgetAfter": 0,
+        "decisiveResponse": "the continuation's 200",
+        "note": "the continuation is NOT retryable here because the token was already spent - this is CASE 4's rule seen from the other side"
+      },
+      {
+        "case": 3,
+        "sequence": "initial -> qualifying 3xx -> continuation -> retryable transport failure -> exact continuation-URL retry -> 200",
+        "requests": 3,
+        "retryBudgetAfter": 0,
+        "decisiveResponse": "the continuation retry's 200",
+        "note": "the retry is of the CONTINUATION URL, which is the URL that failed - never the original"
+      },
+      {
+        "case": 4,
+        "sequence": "initial -> retryable failure -> retry (token spent) -> qualifying redirect -> continuation fails transiently",
+        "requests": 3,
+        "retryBudgetAfter": 0,
+        "secondRetryIssued": false,
+        "decisiveResponse": "the continuation's transport failure",
+        "policy": "unavailable('FETCH_FAILED') -> ROBOTS_UNREADABLE"
+      },
+      {
+        "case": 5,
+        "sequence": "initial -> redirect -> continuation transient failure -> retry (token spent) -> the retry itself answers a second redirect",
+        "requests": 3,
+        "retryBudgetAfter": 0,
+        "furtherContinuationIssued": false,
+        "why": "the hop loop is bounded at MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS = 1 and hop 0 is already consumed",
+        "decisiveResponse": "the retry's 3xx",
+        "policy": "unavailable('REDIRECTED') -> ROBOTS_UNREADABLE"
+      }
+    ],
+    "worstCaseRequestsPerLogicalPolicyResolution": 3,
+    "worstCaseProof": "1 initial + at most 1 from a retry token bounded at 1 + at most 1 from a hop loop bounded at 1 = 3, in every interleaving. Neither bound can be consumed twice and neither depends on the other.",
+    "terminationArgument": "unchanged from ADR 0013: a continuation may not change registrable domain, may not downgrade scheme, and may not target the URL just requested, so from an https policy URL there is no admissible target at all and from an http one there is exactly one. The retry adds no new URL - it repeats one - so it cannot introduce a cycle."
+  },
+  "attemptNumbering": {
+    "firstAttempt": "attemptNo = N",
+    "retry": "attemptNo = N + 1",
+    "bothPersistedAsSeparateObservations": true,
+    "firstAttemptNeverOverwritten": true,
+    "mechanism": "RobotsCache.nextPolicyAttemptNo(runId, url), which already exists and is already called by fetchRobotsDocument on every policy request",
+    "newNumberingStateRequired": "NONE",
+    "whyThisIsNotACoincidence": "the counter was introduced for ADR 0013 s6 precisely so that two genuinely different requests to one policy URL receive two identities instead of colliding on DUPLICATE_ATTEMPT. A retry is another instance of the same situation, and CLAUDE.md rule 18 already names attemptNo + 1 as the sanctioned form of a retry.",
+    "duplicateAttemptInteraction": "NONE. (run, root, url, policy version, attemptNo) differs on every request, so the gateway's identity pre-check and unique index are satisfied without change.",
+    "maxAttemptNoAtOneUrlUnderV4": 4,
+    "maxAttemptNoDerivation": "a host-changing continuation target can be requested twice by resolution 1 (continuation + its retry) and twice by the later independent target-origin resolution (initial + its retry). attempt_no has CHECK (attempt_no >= 1) and no upper bound, so no constraint is approached.",
+    "durableRetryReasonFieldRequired": false,
+    "reconstructionRule": {
+      "statement": "a row is the retry of its predecessor iff: same run, same requested_url, attempt_no = predecessor + 1, discovery_method = 'ROBOTS', fetch_policy_version = 'orgunit-fetch-policy-v4', and retryDispositionFor over the PREDECESSOR's own (context, error_kind, error_subtype, http_status) returns RETRY_ELIGIBLE.",
+      "disambiguatesFrom": "the ADR 0013 independent target-origin lookup, which also produces attempt_no = 2 at one URL - but only after a predecessor that did NOT fail retry-eligibly (it redirected or succeeded). The predecessor's own evidence therefore decides, deterministically.",
+      "storedVerdictWouldBe": "the website_claims mistake (CLAUDE.md rule 12): freezing a derived conclusion into an immutable evidence row"
+    }
+  },
+  "pacing": {
+    "selected": "THE RETRY ACQUIRES A HOST PACING SLOT THROUGH THE ORCHESTRATOR'S EXISTING PACER, VIA A NEW CALLBACK ON RobotsFetchContext",
+    "callback": {
+      "name": "acquireTransportRetrySlot",
+      "signature": "(retryUrl: string) => Promise<boolean>",
+      "absentMeans": "REFUSE THE RETRY",
+      "whyFailClosed": "it mirrors REFUSE_HOST_CHANGING_CONTINUATION, which already establishes this exact pattern in this exact file: a caller that keeps no ledger cannot honestly charge against it, so it gets the pre-repair behaviour. A caller with no pacer cannot honestly pace, so it gets no retry.",
+      "orchestratorImplementation": "await pacer.waitForSlot(hostnameOf(retryUrl), hostCrawlDelay.get(host) ?? MIN_HOST_PACING_SECONDS), then return true - the same delay resolution attemptUrl already performs for the first request",
+      "onlyProductionCallerOfRobots": "src/orgunits/orchestrator/rootRunner.ts",
+      "whyRobotsTsStillOwnsNoClock": "it awaits a promise the caller supplies; it imports no Clock, calls no setTimeout and reads no time. The firewall property 'robots.ts owns no socket and no clock' is preserved."
+    },
+    "newBackoffConstantIntroduced": false,
+    "reusedConstant": "MIN_HOST_PACING_SECONDS = 1.2",
+    "hiddenSocketLevelRetryBelowTheGateway": "NONE - the gateway performs at most one GET per invocation and that does not change",
+    "measuredFindingAboutExistingPacing": {
+      "finding": "PACING IS PER attemptUrl CALL, NOT PER GATEWAY REQUEST. rootRunner.ts calls pacer.waitForSlot exactly once, before authoriseAndFetchPage. Under v3 that one slot already covers up to THREE same-host gateway requests: the robots bootstrap, one same-host continuation, and the page request. robots.ts contains no pacing of any kind.",
+      "consequence": "the owner's fallback premise - 'if same-host pacing already guarantees >= 1.2 seconds' - is FALSE for intra-resolution requests, so V1 could not simply rely on it. This is why an explicit slot acquisition was designed rather than assumed.",
+      "whatV1DoesNotChange": "the EXISTING unpaced continuation. Pacing it would alter landed, already-revalidated v3 behaviour that is outside this authorisation's scope.",
+      "worstCaseSameHostRequestsUnderOnePacingSlot": {
+        "v3": 3,
+        "v4": 3,
+        "note": "unchanged, because the retry acquires its own slot"
+      },
+      "recommendedSeparateFutureItem": "PACE_EVERY_INTRA_RESOLUTION_GATEWAY_REQUEST - a small, separate repair that would give the existing continuation its own slot too. Not bundled here.",
+      "blocksImplementation": false
+    },
+    "whyTheSlotIsLoadBearingUnderTheCorrectedSet": "With the two-class set, both admitted classes were self-pacing in practice (a handshake timeout had already spent far more than 1.2 s; a DNS temporary failure opened no institution socket). THE CORRECTED SIX-CLASS SET CHANGES THAT. CONNECTION_RESET and CONNECTION_REFUSED fail in milliseconds, so without an acquired slot a retry could follow the failure almost immediately - the exact double-hit pacing exists to prevent. The slot was already designed in; under the corrected set it is load-bearing rather than defence in depth, and test J is correspondingly more important.",
+    "existingV3ContinuationPacingDeliberatelyUnchanged": "The discovery that the existing continuation is unpaced does NOT license changing it inside the retry implementation. That would be a separate behavioural change to landed, already-revalidated v3 behaviour; it is recorded as finding F1 and as the separate item PACE_EVERY_INTRA_RESOLUTION_GATEWAY_REQUEST."
+  },
+  "requestBudget": {
+    "ceilingUnchanged": {
+      "MAX_TOTAL_REQUESTS_PER_ROOT": 60
+    },
+    "aRetryConsumesOneOrdinaryGatewayRequest": true,
+    "hiddenRetryBudgetOutsideTheCeiling": false,
+    "budgetWidening": false,
+    "howTheRetryIsCharged": "unchanged mechanism: rootRunner consumes result.robots.robotsFetch.attempts.length after the call. A retry appends to that array, so it is charged automatically and exactly once.",
+    "howAffordabilityIsGuaranteedBeforeTheRetryIsIssued": {
+      "mechanism": "rootRunner's PRE-ATTEMPT PREDICTION, raised from 2 to 3 for the robots term",
+      "current": "predictedCost = (needsRobots ? 2 : 0) + 1",
+      "underV4": "predictedCost = (needsRobots ? 3 : 0) + 1",
+      "why": "budget.canAfford(predictedCost) is checked BEFORE any pacing wait and before any gateway call, and RequestBudget.consume THROWS rather than clamping. Reserving the worst case up front means a retry that is later issued is always already affordable, and unspent headroom is simply never consumed - exactly how the ADR 0012 continuation term already behaves.",
+      "whyNoBudgetCallbackIntoRobotsTs": "unlike the distinct-host ceiling, the request ceiling is a COUNT, and a count can be reserved in advance. The host ceiling is about IDENTITY, which cannot, which is why admitHostChangingContinuation had to exist and a budget callback does not.",
+      "defensiveAffordabilityCheckInsideTheCallback": "RECOMMENDED - acquireTransportRetrySlot returns false when budget.canAfford(1) is false, so a future caller that under-predicts degrades to 'no retry' instead of a thrown mid-root error"
+    },
+    "whenTheBudgetCannotAffordARetry": {
+      "behaviour": "the retry is NOT issued; the first attempt's outcome stands",
+      "terminalReasonIsHonest": "the resolution yields unavailable('FETCH_FAILED') -> ROBOTS_UNREADABLE, which is TRUE: this build did not read the policy. No new terminal reason is invented, and in particular the root is NOT reported as TOTAL_REQUEST_BUDGET_EXHAUSTED, because the budget did not stop the root - it stopped one optional extra request.",
+      "newTerminalReasonsAdded": 0
+    },
+    "reachabilityNote": "ADR 0008 s4 measured the 60-ceiling as mechanically unreachable through the other three caps (35 + 8 + 5 = 48). Raising the robots term to 3 raises the worst-case projection but does not make the ceiling reachable in ordinary bounded discovery; the ceiling remains proved by requestBudget.ts's own direct unit test."
+  },
+  "robotsWorstCase": {
+    "v3LogicalPolicyResolutionMaximum": 2,
+    "v4LogicalPolicyResolutionMaximum": 3,
+    "composition": "1 initial + at most 1 retry + at most 1 redirect continuation",
+    "independentTargetOriginLookupIsNotPartOfThisCount": {
+      "statement": "A host-changing continuation does NOT memoise the target origin's policy (ADR 0013 s6). If the run later crawls that host, that origin resolves its OWN policy - a SEPARATE logical resolution, with its OWN retry token.",
+      "thatSeparateResolutionsOwnMaximum": 3,
+      "doNotConflate": true,
+      "worstCaseAcrossBothResolutionsForOneHostPair": 6,
+      "eachIsChargedSeparatelyToTheSame60Ceiling": true,
+      "eachIsPredictedSeparately": "each resolution is triggered by a different attemptUrl call, and each such call predicts 3 for its own robots term"
+    },
+    "cacheSemanticsUnchanged": true,
+    "attemptNoSemanticsUnchanged": true,
+    "duplicateAttemptProtectionUnchanged": true,
+    "unchangedByTheCorrectedRetryableSet": "PROVEN AGAIN AFTER THE CORRECTION. The maximum is 1 initial + at most 1 from a token bounded at 1 + at most 1 from a hop loop bounded at 1 = 3. The retryable SET determines which failures may consume the token; the TOKEN determines how many requests exist. Six admitted classes and two admitted classes yield the identical bound."
+  },
+  "rootRunnerAccountingImpact": {
+    "changeRequired": true,
+    "from": 2,
+    "to": 3,
+    "exactProductionChange": {
+      "file": "src/orgunits/orchestrator/rootRunner.ts",
+      "site": "attemptUrl, the predictedCost expression",
+      "edit": "(needsRobots ? 2 : 0) + 1  ->  (needsRobots ? 3 : 0) + 1, with the comment updated to name the retry term alongside the ADR 0012 continuation term"
+    },
+    "additionalProductionChanges": [
+      {
+        "file": "src/orgunits/web/policy.ts",
+        "change": "FETCH_POLICY_VERSION -> 'orgunit-fetch-policy-v4'; add MAX_ROBOTS_TRANSPORT_RETRIES_PER_POLICY_RESOLUTION = 1 beside MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS; document what v3 -> v4 changed and what it did not"
+      },
+      {
+        "file": "src/orgunits/web/retryPolicy.ts",
+        "change": "NEW FILE - the pure retryDispositionFor function, the RetryDisposition and TransportRetryContext types. A new file rather than an addition to robots.ts so the policy is unit-testable in isolation and provably free of IO.",
+        "alternativeConsidered": "placing it in observations.ts beside the vocabulary - rejected because observations.ts performs database writes, and the design requires the policy function to be provably pure"
+      },
+      {
+        "file": "src/orgunits/web/robots.ts",
+        "change": "the retryBudget token inside the pending IIFE; fetchWithBoundedRetry wrapping fetchRobotsDocument; acquireTransportRetrySlot on RobotsFetchContext with a fail-closed default; RobotsFetchOutcome.attempts doc updated from '0, 1 or 2' to '0, 1, 2 or 3'"
+      },
+      {
+        "file": "src/orgunits/orchestrator/rootRunner.ts",
+        "change": "the prediction term above, plus supplying acquireTransportRetrySlot from the existing pacer and budget"
+      }
+    ],
+    "productionFilesChangedCount": 4,
+    "newProductionFilesCount": 1,
+    "firewallInventoryNote": "src/orgunits/web/retryPolicy.ts is a NEW file in a namespace whose inventory several firewall tests enumerate by exact name. Per the phase-isolation discipline, the implementation adds a NEW repair-scope test bounded to its own BASE..HEAD range and acknowledges the new file where an existing inventory assertion requires it, rather than widening an older firewall assertion's meaning.",
+    "testsRequiringUpdateForTheVersionBump": [
+      "src/test/firewall/phase2bTransportSubtype.firewall.test.ts (asserts FETCH_POLICY_VERSION is v3 - re-pin to v4; the pinning MECHANISM, an exact literal with exactly one declaration, is preserved, so this is a re-pin, not a weakening)",
+      "src/test/unit/orgunitRobotsOptionCLiteRepairScope.test.ts (same)",
+      "src/test/unit/orgunitCorpus2DOptionBTransition.test.ts (same)",
+      "src/test/unit/orgunitClassifyHistoricalFetchPolicyProvenance.test.ts (PRODUCTION becomes v4; v3 joins the superseded set alongside v2)",
+      "src/test/harness/phase2b2d/v3transition/v3Contract.ts (EXPECTED_PRODUCTION_POLICY_VERSION)",
+      "src/test/integration/orgunitRobotsOptionCLite.test.ts (scripted observations asserting v3 on newly written rows)"
+    ],
+    "consequenceOfTheBumpThatMustBeStatedNotDiscovered": {
+      "v3CensusCanNoLongerBeReMaterialised": "src/test/harness/phase2b2d/v3transition/materialiseV3Census.ts REFUSES to run when the production version is not v3. That guard is correct and should NOT be weakened: after the bump the v3 census is a frozen historical measurement, not a re-runnable one.",
+      "alreadyMaterialised": true,
+      "nothingPendingDependsOnIt": true,
+      "v3RunsBecomeUnresumable": "authority.ts already refuses a run whose recorded policy version this build does not implement. v1 and v2 runs are already in that state; v3 joins them. Historical rows are READ normally and are never reinterpreted.",
+      "generationOneWillContainAMixOfV1V2V3AndV4Acquisitions": "precedented - the same was true across the Option-B and Option-C-lite transitions, and is handled by the transition-ledger + census + targeted-revalidation mechanism, not by re-running everything."
+    }
+  },
+  "cacheAndConcurrency": {
+    "oneResolutionOneRetryBudgetOneSequenceOfAttempts": true,
+    "mechanism": "RobotsCache memoises the resolution PROMISE before it settles (robots.ts already does this). A concurrent caller for the same (runId, scheme, hostname) awaits that same promise and therefore the same retryBudget closure.",
+    "retryStampede": "STRUCTURALLY IMPOSSIBLE - a second caller never enters the IIFE",
+    "concurrentCallersEachSpendARetry": false,
+    "allWaitersObserveTheFinalEvaluatedPolicy": true,
+    "concurrentCallersChargeTheBudget": "ZERO - only the caller that performed the resolution receives a non-empty attempts array; a cache hit returns attempts: []. Unchanged by this design.",
+    "newCacheStateRequired": "NONE",
+    "cacheKeyUnchanged": "(runId, scheme, hostname)"
+  },
+  "targetOriginCacheSemantics": {
+    "adr0013SemanticsPreserved": true,
+    "aHostChangingContinuationDoesNotBecomeIndependentAuthorityForTheTargetOrigin": true,
+    "aRetryOfThatContinuationUrlMustNotPopulateTheTargetOriginCache": {
+      "guaranteed": true,
+      "howGuaranteed": "STRUCTURALLY. The retry lives inside fetchWithBoundedRetry, which touches no cache entry at all - it calls fetchRobotsDocument and nothing else. Every cache.set in getRobotsPolicy is in the continuation loop and is already conditioned on !continuation.hostChanged. The retry adds no cache write, so there is no path by which it could add one.",
+      "notMerelyConventional": true
+    },
+    "sameHostnameContinuationMemoisationUnchanged": "still performed BEFORE the request, still only when the hostname did not change. If that continuation then fails transiently and is retried, the memoised promise is the SAME resolution promise, so a concurrent waiter still observes one policy.",
+    "laterTargetOriginLookupRemainsIndependentlyEvaluated": true
+  },
+  "circuitBreaker": {
+    "changed": false,
+    "decision": "V1 ROBOTS-RESOLUTION RETRY REMAINS ENTIRELY LOCAL TO ROBOTS-POLICY RESOLUTION AND THE BREAKER IS NOT TOUCHED",
+    "measuredBasis": "rootRunner.ts contains exactly ONE call to updateCircuitBreaker, on result.fetch - the ORDINARY PAGE fetch - and it is placed AFTER the early return for the BLOCKED branch. No robots attempt has ever reached the breaker, in v1, v2 or v3.",
+    "consequence": "a robots retry cannot lengthen a transient streak, cannot open a circuit earlier, and cannot reset one. The breaker's frozen threshold of 3 keeps meaning what it meant.",
+    "breakerStateInventedToSupportRetry": "NONE",
+    "afterRetryExhaustionTheRootStillFailsClosed": "the resolution yields unavailable('FETCH_FAILED') -> ROBOTS_UNREADABLE -> the page is BLOCKED, exactly as today",
+    "preExistingObservationRestated": "robots-bootstrap failures bypass the breaker entirely (acquisition-resilience reassessment). V1 does not fix that and does not make it worse; it is a separate, unauthorised question."
+  },
+  "fetchPolicyVersion": {
+    "required": true,
+    "from": "orgunit-fetch-policy-v3",
+    "to": "orgunit-fetch-policy-v4",
+    "why": "v4 may issue a second request where v3 issued one. A row's fetch_policy_version is the column a reader uses to know WHAT NETWORK BEHAVIOUR produced it; a v3 row means 'this build made one attempt and stopped', and the same row stamped v4 would mean 'this build was willing to try again and this is what it settled on'. Those are different facts.",
+    "whatChangedExactly": "ONLY the bounded transport-retry boundary inside robots-policy resolution. Timeouts, byte caps, the header set, the redirect posture, the status set, the port rule, the host policy, the address classification and the redirect-continuation boundary are byte-identical to v3.",
+    "historicalProvenance": {
+      "v1StaysV1": true,
+      "v2StaysV2": true,
+      "v3StaysV3": true,
+      "noHistoricalRowRewritten": true,
+      "noHistoricalObservationReinterpreted": true,
+      "aRunWhoseRecordedVersionThisBuildDoesNotImplementIsRefused": "src/orgunits/web/authority.ts - already landed; v3 runs become readable but unresumable, exactly as v1 and v2 already are"
+    }
+  },
+  "migration": {
+    "required": false,
+    "assessment": "NO NEW SCHEMA IS NEEDED, and this was checked rather than assumed.",
+    "whatTheRetryNeedsToPersist": [
+      "the first attempt - already one orgunit_fetch_observations row",
+      "the retry - already one more row, distinguished by attempt_no",
+      "which transport condition each attempt hit - already error_kind + error_subtype (migration 0012)",
+      "which network behaviour governed them - already fetch_policy_version"
+    ],
+    "whatIsDeliberatelyNotPersisted": [
+      "the retry disposition",
+      "a retry_reason",
+      "an attempts_remaining counter",
+      "a retry_after value"
+    ],
+    "whyNotPersisted": "the disposition is deterministically reconstructible from (discovery_method, error_kind, error_subtype, attempt ordering, fetch_policy_version) by the reconstruction rule above. A stored verdict would freeze a derived conclusion into an immutable evidence row - CLAUDE.md rule 12, and the same reasoning migration 0012 already used to refuse is_retryable / retry_class / should_retry.",
+    "rejectedSchemaShapes": [
+      "retry_of_observation_id",
+      "retry_reason",
+      "is_retry",
+      "attempts_remaining",
+      "retry_after_ms"
+    ],
+    "schemaExtensionOwnerDecisionRequired": false,
+    "migrationRangeAfterImplementation": "0001..0012 (unchanged)"
+  },
+  "governanceImpact": {
+    "methodologyR3": {
+      "changed": false,
+      "why": "R3 governs acceptance/gating arithmetic over classifier outputs. Nothing here touches a denominator, a gate, a cluster bound or a confidence policy."
+    },
+    "corpusPlanV1": {
+      "changed": false,
+      "amendedBy": "a NEW immutable amendment (below) - never an edit"
+    },
+    "optionBAmendment": {
+      "changed": false
+    },
+    "optionCLiteAmendment": {
+      "changed": false
+    },
+    "frame": {
+      "changed": false,
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650"
+    },
+    "draw": {
+      "changed": false
+    },
+    "v2TransitionLedger": {
+      "changed": false
+    },
+    "v3TransitionLedger": {
+      "changed": false
+    },
+    "p5Gate": {
+      "changed": false,
+      "provenBy": "src/test/harness/phase2b2d/acquisitionGate/ contains no reference to fetchPolicy, FETCH_POLICY or policyVersion - the gate reads completed-run page counts and is policy-version-blind"
+    },
+    "reserveState": {
+      "changed": false,
+      "consumed": 0
+    },
+    "acquisitionOfRecord": {
+      "changed": false,
+      "value": "5 success / 4 failure of 9 finalised"
+    },
+    "requiredNewArtifacts": [
+      "an acquisition-plan retry amendment",
+      "an ADR",
+      "the fetch-policy v4 bump"
+    ],
+    "provenNotAssumed": "each 'changed: false' above was checked against the artifact or the code named beside it, not inferred from the absence of an edit"
+  },
+  "acquisitionPlanAmendmentDesign": {
+    "created": false,
+    "whyNotCreatedHere": "section 34 enumerates exactly three artifacts to create, and an amendment binds an IMPLEMENTATION commit that does not yet exist. Its exact content is specified here so that landing it is transcription, not design.",
+    "proposedPath": "docs/evaluation/PHASE_2B_2D_CORPUS_ACQUISITION_PLAN_V1_BOUNDED_TRANSPORT_RETRY_AMENDMENT_V3.json",
+    "proposedRecordKind": "CORPUS_ACQUISITION_PLAN_AMENDMENT_V3",
+    "immutableNotAnEdit": true,
+    "mustBind": {
+      "priorPlan": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json @ 54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "priorAmendmentOptionB": "docs/evaluation/PHASE_2B_2D_CORPUS_ACQUISITION_PLAN_V1_OPTION_B_AMENDMENT_V1.json @ d440afabd68f4a528bdeadb6c45cf6a489e541d33c214e961419f4adaa80cbc3",
+      "priorAmendmentOptionCLite": "docs/evaluation/PHASE_2B_2D_CORPUS_ACQUISITION_PLAN_V1_OPTION_C_LITE_AMENDMENT_V2.json @ 9abc5528da2c96c89b0a2070dd0817a4dc8b83229fbd183ee4a94f495eed886d",
+      "observabilityDesign": "6f184a93e96324d169ad98ffb0e3b7d0b85999604dbb3ff648f4a8dbd74cdaa0",
+      "observabilityImplementation": "120e1507214630e1f11eb405242d2a2973f5cd5eebc85ced3bf85e74e8d76a7b",
+      "thisRetryDesign": "COMPUTED_AT_AMENDMENT_TIME",
+      "newAdr": "docs/adr/0015-bounded-transport-retry.md (proposed number)"
+    },
+    "mustState": {
+      "MAX_PAGE_ATTEMPTS_PER_ROOT": 35,
+      "MAX_TOTAL_REQUESTS_PER_ROOT": 60,
+      "MAX_HOSTS_PER_ROOT": 8,
+      "MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS": 1,
+      "MAX_ROBOTS_TRANSPORT_RETRIES_PER_POLICY_RESOLUTION": 1,
+      "retryContext": "ROBOTS_POLICY_RESOLUTION_ONLY",
+      "newFutureFetchPolicyVersion": "orgunit-fetch-policy-v4",
+      "supersededFetchPolicyVersions": [
+        "orgunit-fetch-policy-v1",
+        "orgunit-fetch-policy-v2",
+        "orgunit-fetch-policy-v3"
+      ],
+      "methodologyChanged": false,
+      "frameChanged": false,
+      "drawChanged": false,
+      "splitChanged": false,
+      "samplingChanged": false,
+      "budgetCeilingsChanged": false,
+      "p5Changed": false,
+      "thisFileAuthorises": []
+    }
+  },
+  "historicalCompatibilityRule": {
+    "classifications": [
+      "V4_TRANSITION_UNAFFECTED",
+      "V4_TRANSITION_AFFECTED",
+      "V4_TRANSITION_CLASSIFICATION_UNAVAILABLE_FROM_HISTORICAL_EVIDENCE"
+    ],
+    "decidedBy": "src/orgunits/web/retryPolicy.ts::retryDispositionFor, applied to persisted evidence",
+    "rules": {
+      "V4_TRANSITION_AFFECTED": "the run's persisted evidence is SUFFICIENT TO PROVE that v4 would have authorised an additional request - i.e. a ROBOTS-context observation whose (error_kind, error_subtype) yields RETRY_ELIGIBLE",
+      "V4_TRANSITION_UNAFFECTED": "the evidence is sufficient to prove v4 would NOT have issued an additional request - every ROBOTS-context failure yields NOT_RETRY_ELIGIBLE, or the run had no transport failure at the policy stage",
+      "V4_TRANSITION_CLASSIFICATION_UNAVAILABLE_FROM_HISTORICAL_EVIDENCE": "at least one ROBOTS-context failure yields INSUFFICIENT_EVIDENCE, so the run cannot be placed in either of the other two classes"
+    },
+    "theThirdClassIsDistinctFromUNAFFECTEDAndThatDistinctionMatters": {
+      "why": "UNAFFECTED is a positive finding that a rerun would change nothing, and is grounds for leaving a run alone. UNAVAILABLE is the absence of a finding. Collapsing them would silently convert 'we cannot tell' into 'we checked and it was fine', which is exactly the class of error this repository's evidence rules exist to prevent.",
+      "everyPreMigration0012TlsOrDnsFailureLandsInTheThirdClass": true
+    },
+    "forbiddenInputs": [
+      "pageYield",
+      "label",
+      "modelResult",
+      "semanticClass",
+      "organisationIdentity"
+    ],
+    "affectedRunStatusMovesOnlyAfterLiveRevalidation": true,
+    "noRunIsSupersededOrRerunByThisDesign": true,
+    "noHistoricalRowAcquiresARetryVerdict": true
+  },
+  "currentFailureCounterfactualAudit": {
+    "performedAfterThePolicyWasFixed": true,
+    "usedToChangeThePolicy": false,
+    "entries": [
+      {
+        "index": 3,
+        "failure": "ROOT_AND_SITEMAP_HTTP_5XX",
+        "errorKind": null,
+        "httpStatus": "5xx",
+        "errorSubtype": "NOT_APPLICABLE",
+        "v4Class": "V4_TRANSITION_UNAFFECTED",
+        "why": "an HTTP response arrived. V1 transport retry does not read http_status as a retry trigger at all, so v4 provably would have issued no additional request. Placed in FUTURE_SERVICE_RESPONSE_RETRY_POLICY.",
+        "wouldSucceed": "NOT CLAIMED"
+      },
+      {
+        "index": 4,
+        "failure": "ROBOTS_DNS_FAILURE",
+        "errorKind": "DNS_FAILURE",
+        "errorSubtype": null,
+        "disposition": "INSUFFICIENT_EVIDENCE",
+        "v4Class": "V4_TRANSITION_CLASSIFICATION_UNAVAILABLE_FROM_HISTORICAL_EVIDENCE",
+        "why": "DNS_FAILURE spans DNS_TEMPORARY_FAILURE (retry-eligible) and DNS_NAME_NOT_FOUND / DNS_NO_ADDRESS_RETURNED (not). The row predates migration 0012 and does not say which.",
+        "wouldSucceed": "NOT CLAIMED"
+      },
+      {
+        "index": 6,
+        "failure": "ROBOTS_TLS_FAILURE",
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": null,
+        "disposition": "INSUFFICIENT_EVIDENCE",
+        "v4Class": "V4_TRANSITION_CLASSIFICATION_UNAVAILABLE_FROM_HISTORICAL_EVIDENCE",
+        "why": "TLS_FAILURE spans TLS_HANDSHAKE_TIMEOUT (retry-eligible) and TLS_CERT_INVALID / TLS_PROTOCOL_INCOMPATIBLE (not). The row does not say which.",
+        "wouldSucceed": "NOT CLAIMED"
+      },
+      {
+        "index": 8,
+        "failure": "ROBOTS_TLS_FAILURE",
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": null,
+        "disposition": "INSUFFICIENT_EVIDENCE",
+        "v4Class": "V4_TRANSITION_CLASSIFICATION_UNAVAILABLE_FROM_HISTORICAL_EVIDENCE",
+        "why": "same as index 6",
+        "wouldSucceed": "NOT CLAIMED"
+      }
+    ],
+    "statusesAltered": 0,
+    "runsSuperseded": 0,
+    "rerunsPerformed": 0,
+    "noWouldSucceedClaimAnywhere": true
+  },
+  "futureTargetedRevalidationStrategy": {
+    "authorised": false,
+    "designedOnly": true,
+    "why": "indices 4, 6 and 8 carry no subtype, so no historical classification is possible. Only a PROSPECTIVE attempt under v4 can produce one.",
+    "shape": [
+      "a v4 revalidation makes ONE fresh initial request per targeted index, under all the ordinary gates",
+      "that attempt prospectively records an error_subtype (or succeeds outright)",
+      "if the recorded evidence is RETRY_ELIGIBLE, v4 issues its ONE bounded retry - inside the same resolution, by the same state machine",
+      "if it is NOT_RETRY_ELIGIBLE or INSUFFICIENT_EVIDENCE, no retry is issued and the failure stands with a SHARPER recorded reason than it had before"
+    ],
+    "valueEvenWhenNoRetryIsIssued": "the run converts an unclassifiable historical failure into a classified prospective one. That alone answers whether the failure was ever retryable.",
+    "noHistoricalRowIsRewritten": true,
+    "oldNullDoesNotPreventAFutureRunFromBenefiting": true,
+    "whetherAllThreeShouldBeTargetedBeforeIndex9": "FUTURE OWNER DECISION - not taken here",
+    "p5InteractionToBeDecidedAtAuthorisationTime": "a targeted revalidation is not a new primary draw position; the Option-B and Option-C-lite revalidations established the pattern and it would be followed rather than reinvented"
+  },
+  "httpServiceRetryScope": {
+    "marker": "HTTP_SERVICE_RETRY_POLICY_NOT_INCLUDED_IN_V4_TRANSPORT_RETRY_V1",
+    "inScopeForV1": false,
+    "statusesDeferred": [500, 502, 503, 504],
+    "retryAfterDeferred": true,
+    "why": "an HTTP response is SERVER/APPLICATION evidence and already has its own column (http_status). Transport failure means no usable response existed at all. These are different policy questions with different evidence, different failure economics and different standards (Retry-After, which this repository does not persist and has no column for).",
+    "index3StaysOutside": true,
+    "oneHistorical500DoesNotExpandTransportV1": true,
+    "prerequisiteIfEverPursued": "Retry-After is read into memory by the gateway and persisted nowhere; a standards-aware 503 retry would need that decision taken first (recorded in the observability design, httpAndRetryAfterScope.retryAfterPersistence)"
+  },
+  "implementationTestPlan": [
+    {
+      "id": "A1",
+      "assertion": "TLS_HANDSHAKE_TIMEOUT in robots-policy context causes EXACTLY ONE retry, and that retry: requests the byte-identical URL; carries attemptNo + 1; produces a SECOND separate observation with the first preserved; passes fresh gateway security validation (URL, root scope, host policy, DNS, address classification, TLS); consumes the one resolution token; and is followed by NO second retry.",
+      "level": "integration",
+      "method": "scripted transport failing with TLS_HANDSHAKE_TIMEOUT on the robots URL, then succeeding; assert exactly two gateway requests, two persisted rows, and the token exhausted"
+    },
+    {
+      "id": "A2",
+      "assertion": "DNS_TEMPORARY_FAILURE in robots-policy context causes EXACTLY ONE retry, and that retry: requests the byte-identical URL; carries attemptNo + 1; produces a SECOND separate observation with the first preserved; passes fresh gateway security validation (URL, root scope, host policy, DNS, address classification, TLS); consumes the one resolution token; and is followed by NO second retry.",
+      "level": "integration",
+      "method": "scripted transport failing with DNS_TEMPORARY_FAILURE on the robots URL, then succeeding; assert exactly two gateway requests, two persisted rows, and the token exhausted"
+    },
+    {
+      "id": "A3",
+      "assertion": "CONNECT_TIMEOUT in robots-policy context causes EXACTLY ONE retry, and that retry: requests the byte-identical URL; carries attemptNo + 1; produces a SECOND separate observation with the first preserved; passes fresh gateway security validation (URL, root scope, host policy, DNS, address classification, TLS); consumes the one resolution token; and is followed by NO second retry.",
+      "level": "integration",
+      "method": "scripted transport failing with CONNECT_TIMEOUT on the robots URL, then succeeding; assert exactly two gateway requests, two persisted rows, and the token exhausted"
+    },
+    {
+      "id": "A4",
+      "assertion": "READ_TIMEOUT in robots-policy context causes EXACTLY ONE retry, and that retry: requests the byte-identical URL; carries attemptNo + 1; produces a SECOND separate observation with the first preserved; passes fresh gateway security validation (URL, root scope, host policy, DNS, address classification, TLS); consumes the one resolution token; and is followed by NO second retry.",
+      "level": "integration",
+      "method": "scripted transport failing with READ_TIMEOUT on the robots URL, then succeeding; assert exactly two gateway requests, two persisted rows, and the token exhausted"
+    },
+    {
+      "id": "A5",
+      "assertion": "CONNECTION_RESET in robots-policy context causes EXACTLY ONE retry, and that retry: requests the byte-identical URL; carries attemptNo + 1; produces a SECOND separate observation with the first preserved; passes fresh gateway security validation (URL, root scope, host policy, DNS, address classification, TLS); consumes the one resolution token; and is followed by NO second retry.",
+      "level": "integration",
+      "method": "scripted transport failing with CONNECTION_RESET on the robots URL, then succeeding; assert exactly two gateway requests, two persisted rows, and the token exhausted"
+    },
+    {
+      "id": "A6",
+      "assertion": "CONNECTION_REFUSED in robots-policy context causes EXACTLY ONE retry, and that retry: requests the byte-identical URL; carries attemptNo + 1; produces a SECOND separate observation with the first preserved; passes fresh gateway security validation (URL, root scope, host policy, DNS, address classification, TLS); consumes the one resolution token; and is followed by NO second retry.",
+      "level": "integration",
+      "method": "scripted transport failing with CONNECTION_REFUSED on the robots URL, then succeeding; assert exactly two gateway requests, two persisted rows, and the token exhausted"
+    },
+    {
+      "id": "B",
+      "assertion": "each non-retryable subtype and kind causes ZERO retry",
+      "level": "unit + integration",
+      "method": "table-driven over the full enumerated taxonomy"
+    },
+    {
+      "id": "C",
+      "assertion": "INSUFFICIENT_EVIDENCE causes zero retry",
+      "level": "unit + integration"
+    },
+    {
+      "id": "D",
+      "assertion": "a historical NULL subtype yields INSUFFICIENT_EVIDENCE and confers no retry eligibility",
+      "level": "unit"
+    },
+    {
+      "id": "E",
+      "assertion": "the retry requests the byte-identical URL",
+      "level": "integration",
+      "method": "assert requestedUrl equality across both observations"
+    },
+    {
+      "id": "F",
+      "assertion": "attemptNo increments (N, N+1) and never repeats",
+      "level": "integration"
+    },
+    {
+      "id": "G",
+      "assertion": "BOTH observations persist; the first is never overwritten or deleted",
+      "level": "integration",
+      "method": "assert two rows and assert the first row's error_kind/error_subtype survive unchanged"
+    },
+    {
+      "id": "H",
+      "assertion": "the retry gets fresh DNS resolution, fresh address classification and fresh TLS validation",
+      "level": "integration",
+      "method": "the scripted transport counts resolver invocations; assert two, not one reused"
+    },
+    {
+      "id": "I",
+      "assertion": "no TLS weakening anywhere on the retry path - rejectUnauthorized is never false, no alternate host, no downgrade, no proxy",
+      "level": "firewall"
+    },
+    {
+      "id": "J",
+      "assertion": "the retry acquires a host pacing slot before issuing",
+      "level": "integration",
+      "method": "fake clock; assert the pacer was consulted for the retry URL's host"
+    },
+    {
+      "id": "K",
+      "assertion": "a retry consumes exactly one unit of the 60-request total budget",
+      "level": "integration",
+      "method": "assert RootSummary.totalRequests and robotsRequests each include the retry"
+    },
+    {
+      "id": "L",
+      "assertion": "no retry is issued when the request budget cannot afford one, and the root reports ROBOTS_UNREADABLE rather than a budget terminal reason",
+      "level": "integration"
+    },
+    {
+      "id": "M",
+      "assertion": "AT MOST ONE retry per full robots-policy resolution, regardless of how many retry-eligible failures occur in it",
+      "level": "integration",
+      "method": "script BOTH the initial and the continuation to fail retry-eligibly; assert exactly three requests"
+    },
+    {
+      "id": "N",
+      "assertion": "retry BEFORE a redirect works (case 1 and case 2)",
+      "level": "integration"
+    },
+    {
+      "id": "O",
+      "assertion": "retry AFTER a redirect works (case 3)",
+      "level": "integration"
+    },
+    {
+      "id": "P",
+      "assertion": "no second retry once the token is consumed (case 4)",
+      "level": "integration"
+    },
+    {
+      "id": "Q",
+      "assertion": "no second redirect continuation beyond MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS = 1, including when the retry itself answers a redirect (case 5)",
+      "level": "integration"
+    },
+    {
+      "id": "R",
+      "assertion": "concurrent callers for one origin share ONE retry budget and one attempt sequence; no retry stampede",
+      "level": "integration",
+      "method": "two concurrent authoriseAndFetchPage calls for one host; assert the total request count is that of a single resolution"
+    },
+    {
+      "id": "S",
+      "assertion": "a retry of a host-changing continuation URL does not populate the target origin's cache entry",
+      "level": "integration"
+    },
+    {
+      "id": "T",
+      "assertion": "a later target-origin lookup is still independently evaluated and gets its own resolution and its own retry token",
+      "level": "integration"
+    },
+    {
+      "id": "U",
+      "assertion": "FETCH_POLICY_VERSION is exactly 'orgunit-fetch-policy-v4', declared exactly once",
+      "level": "firewall",
+      "method": "the existing single-declaration regex, re-pinned"
+    },
+    {
+      "id": "V",
+      "assertion": "ZERO retry in ordinary-page context, and zero in sitemap context - proved at the FUNCTION level (a non-robots context yields NOT_RETRY_ELIGIBLE) and at the ORCHESTRATION level (a page-level transport failure produces exactly one observation)",
+      "level": "unit + integration"
+    },
+    {
+      "id": "W",
+      "assertion": "HTTP 5xx receives zero transport retry at every stage",
+      "level": "integration"
+    },
+    {
+      "id": "X",
+      "assertion": "historical freeze files, the frame, the draw, both transition ledgers and every owner approval record are byte-unchanged",
+      "level": "unit"
+    },
+    {
+      "id": "Y",
+      "assertion": "no existing firewall assertion is weakened; the new production file is acknowledged in the namespace inventory and a NEW repair-scope test bounded to its own commit range carries this repair's assertions",
+      "level": "firewall"
+    },
+    {
+      "id": "Z",
+      "assertion": "full request-count ceiling tests - the worst-case logical policy resolution is exactly 3 requests, the per-root ceiling is still 60, and RequestBudget still refuses the 61st directly",
+      "level": "unit + integration"
+    },
+    {
+      "id": "AA",
+      "assertion": "retryDispositionFor is TOTAL and PURE - every (context, errorKind, errorSubtype) combination returns a value, and the module imports no pg, no node:dns/net/tls/http/https, reads no process.env and calls no Date.now()/Math.random()",
+      "level": "unit + firewall"
+    },
+    {
+      "id": "AB",
+      "assertion": "the reconstruction rule is decidable - given the two persisted rows, 'this was a retry' is derivable without any stored retry field",
+      "level": "unit"
+    }
+  ],
+  "implementationTestPlanCount": 33,
+  "designOutcomeDetail": {
+    "selected": "A",
+    "meaning": "BOUNDED_TRANSPORT_RETRY_POLICY_READY_FOR_IMPLEMENTATION",
+    "ownerDecisionsLeftUnresolved": [],
+    "schemaExtensionRequired": false,
+    "architecturalConflictFound": false,
+    "whyNotB": "Every question section 35 could have escalated was answerable from the code or from an existing frozen artifact. The one genuinely open judgement - how wide the retryable evidence set should be - was raised to the owner as a selection with its reasoning exposed, and the owner CORRECTED it (REVISE_BOUNDED_TRANSPORT_RETRY_POLICY_RETRYABLE_SET_V1). That correction is now incorporated, the withdrawn rationales are recorded in ownerCorrectionV1, and no owner choice remains open.",
+    "whyNotC": "no persisted field is required beyond migration 0012's error_subtype",
+    "whyNotD": "the three properties most likely to conflict - a resolution-scoped token, shared-retry-budget concurrency, and non-colliding attempt numbering - are each already expressible with state the architecture has: the pending IIFE closure, the pre-settlement promise memoisation, and RobotsCache.nextPolicyAttemptNo",
+    "ownerCorrectionsApplied": 1
+  },
+  "findingsForOwnerAwareness": [
+    {
+      "id": "F1",
+      "finding": "Per-host pacing is per attemptUrl call, not per gateway request. One pacing slot already covers up to three same-host requests under v3 (robots bootstrap, same-host continuation, page). robots.ts performs no pacing of its own.",
+      "impactOnThisDesign": "the retry is designed to acquire its OWN slot, so v4 does not widen the existing burst",
+      "preExisting": true,
+      "recommendedSeparateItem": "PACE_EVERY_INTRA_RESOLUTION_GATEWAY_REQUEST",
+      "blocksImplementation": false
+    },
+    {
+      "id": "F2",
+      "finding": "The v3 -> v4 bump permanently ends the ability to re-materialise the v3 transition census (its harness refuses to run when production is not v3) and makes v3 runs unresumable.",
+      "impactOnThisDesign": "none - the v3 census is already materialised and frozen, and nothing pending depends on re-running it",
+      "mustNotBeFixedBy": "weakening that harness guard",
+      "blocksImplementation": false
+    },
+    {
+      "id": "F3",
+      "finding": "Six test locations pin FETCH_POLICY_VERSION at v3 as a CURRENT-BUILD claim. All six must be re-pinned to v4.",
+      "isThisWeakening": false,
+      "why": "the pinning mechanism - one declaration, an exact literal, asserted by regex over the source - is preserved exactly; only the pinned value moves, which is the designed behaviour of a version bump",
+      "blocksImplementation": false
+    },
+    {
+      "id": "F4",
+      "finding": "Robots-bootstrap failures bypass the circuit breaker entirely. V1 deliberately does not change this.",
+      "preExisting": true,
+      "recordedIn": "the acquisition-resilience reassessment",
+      "blocksImplementation": false
+    },
+    {
+      "id": "F5",
+      "finding": "Under the corrected six-class set, the host pacing slot acquired by the retry becomes load-bearing rather than defence in depth, because CONNECTION_RESET and CONNECTION_REFUSED fail in milliseconds.",
+      "impactOnThisDesign": "none structurally - the slot was already designed in - but test J rises in importance and is called out in the test-plan notes",
+      "blocksImplementation": false
+    }
+  ],
+  "thisTaskPerformed": {
+    "productionSourceChanged": false,
+    "testChanged": false,
+    "migrationCreated": false,
+    "schemaMutated": false,
+    "retryImplemented": false,
+    "retryExecuted": false,
+    "institutionHttpRequests": 0,
+    "institutionDnsLookups": 0,
+    "institutionTlsHandshakes": 0,
+    "executeAcquisitionRuns": 0,
+    "index9Started": false,
+    "indicesAtOrAbove10Started": false,
+    "reserveConsumption": 0,
+    "replacementPerformed": false,
+    "frameRegenerated": false,
+    "drawRegenerated": false,
+    "p5Changed": false,
+    "labelsProduced": 0,
+    "providerCalls": 0,
+    "classifierCalls": 0,
+    "holdoutSemanticAccess": false,
+    "phase2eEntered": false
+  },
+  "implementationTestPlanNotes": {
+    "positivePerClassTests": ["A1", "A2", "A3", "A4", "A5", "A6"],
+    "negativeTestsRetained": [
+      "TLS_CERT_INVALID",
+      "TLS_PROTOCOL_INCOMPATIBLE",
+      "TLS_OTHER",
+      "DNS_NAME_NOT_FOUND",
+      "DNS_NO_ADDRESS_RETURNED",
+      "DNS_OTHER",
+      "historical subtype NULL",
+      "OTHER",
+      "every HTTP response including 5xx"
+    ],
+    "negativeTestsCoveredBy": ["B", "C", "D", "W"],
+    "theSingleMostImportantBoundTest": "M - script BOTH the initial request and the continuation to fail retry-eligibly and assert exactly three requests. It is what proves the token, not the class set, is the bound."
+  }
+}
