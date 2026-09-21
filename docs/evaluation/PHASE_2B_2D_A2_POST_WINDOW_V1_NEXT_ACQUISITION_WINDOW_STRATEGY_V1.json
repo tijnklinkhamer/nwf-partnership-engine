@@ -1,0 +1,330 @@
+{
+  "recordId": "phase2b-2d-a2-post-window-v1-next-acquisition-window-strategy-v1",
+  "recordKind": "OFFLINE_ACQUISITION_WINDOW_STRATEGY",
+  "records": "PHASE_2B_2D_A2_POST_WINDOW_V1_NEXT_ACQUISITION_WINDOW_STRATEGY_V1",
+  "recordedAtUtc": "2026-09-21T14:58:51Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "ownerDecision": "AUTHORISE_PHASE_2B_2D_A2_POST_WINDOW_V1_NEXT_ACQUISITION_WINDOW_STRATEGY_V1",
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "startingHead": {
+    "local": "2d95e26b555dd4a35027f2982959665380233da6",
+    "origin": "2d95e26b555dd4a35027f2982959665380233da6",
+    "worktreeClean": true,
+    "concurrentOverlappingA2Commit": false
+  },
+  "bound": {
+    "windowV1EvidenceAdjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_V4_REPLACEMENT_AND_INDEX9_LIVE_WINDOW_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "e535e792dba2b250fc734c8cce39f1375c7ed99f2d3a5e58c7f60fb828aa586c",
+      "bytes": 29385,
+      "commit": "2d95e26b555dd4a35027f2982959665380233da6",
+      "recomputed": true,
+      "edited": false
+    },
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306
+    },
+    "corpusPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "bytes": 45200
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "bytes": 3554080,
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650"
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "bytes": 74047,
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293",
+      "drawHashRecomputes": true
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0",
+      "bytes": 7254,
+      "ledgerHash": "2febfecfe14bc0f6ca709271e33782e2ac2a8a14f09a14ff4ff0bdf608b7e452",
+      "ledgerHashRecomputes": true,
+      "validAgainstDraw": true,
+      "extendsGenesis": true,
+      "entries": 4
+    },
+    "windowPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_V4_REPLACEMENT_AND_INDEX9_WINDOW_PLAN_V1.json",
+      "windowPlanHash": "d33c2e05a9fdeb4dbf409187b64cf20ced0cd27adc0478ec99340829548f4cdc"
+    },
+    "auditedHarness": {
+      "windowGate": {
+        "path": "src/test/harness/phase2b2d/continuationWindow/windowGate.ts",
+        "sha256": "3a747b6cb245e34858d444ea84d0e9cd6042278d2e7d60a3b612ae070796b1be"
+      },
+      "windowPlan": {
+        "path": "src/test/harness/phase2b2d/continuationWindow/windowPlan.ts",
+        "sha256": "02ad8012afc319ca1b512cd957fbf6d5519ef1179c2d63ef8b4b5c196b898df4"
+      },
+      "windowContract": {
+        "path": "src/test/harness/phase2b2d/continuationWindow/windowContract.ts",
+        "sha256": "b35bf4a847d32277423524c4cadf19fbb16c2b484ddc4c397106da82f3bb3a08"
+      }
+    }
+  },
+  "currentGenerationState": {
+    "source": "the Window V1 evidence adjudication (2d95e26) plus the four-entry ledger, re-derived in this step; not memory",
+    "ACQUISITION_SUCCESSFUL": 10,
+    "successfulSelectionIndices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    "CURRENT_ACQUISITION_FAILURE": [],
+    "PENDING": [],
+    "NEVER_STARTED": 100,
+    "neverStartedSelectionIndices": "10..109",
+    "nextNeverStartedSelectionIndex": 10,
+    "replacementLedgerEntries": 4,
+    "reserveConsumed": 4,
+    "reserveUnused": 36,
+    "nextUnusedReservePosition": 4,
+    "currentOccupants": {
+      "reserveReplacementSlots": { "3": 0, "4": 1, "6": 2, "8": 3 },
+      "originalSelectionSlots0To14": [0, 1, 2, 5, 7, 9, 10, 11, 12, 13, 14],
+      "method": "currentOccupantForSelectionIndex over the validated ledger"
+    },
+    "historicalFailures": {
+      "selectionIndices": [3, 4, 6, 8],
+      "status": "immutable history of the ORIGINAL organisations; not current slot state"
+    }
+  },
+  "pendingReplacementWork": {
+    "pendingReplacementObligations": [],
+    "plannerResult": "planPendingReplacementObligations(draw, ledger, []) = []",
+    "reservePosition4Assigned": false,
+    "ledgerChanged": false,
+    "conclusion": "the next work comes from untouched primary selections"
+  },
+  "frozenPrimaryOrdering": {
+    "rule": "untouched primary selection slots are taken in ascending selectionIndex, which is the draw's frozen sha256(echeRowKey)-ascending rank order; each draw selection entry's selectionIndex field equals its array position",
+    "precedent": {
+      "batch01": [0, 1, 2, 3, 4],
+      "batch02": [5, 6, 7, 8, 9],
+      "windowV1Primary": 9
+    },
+    "nextUntouchedPrimary": 10,
+    "anyUntouchedPrimarySkipped": false,
+    "reorderedBy": "nothing: no identity, split, geography, website, expected yield, difficulty or Window V1 result was read to order work",
+    "ambiguous": false
+  },
+  "windowSize": {
+    "plannedWindowSize": 5,
+    "supported": true,
+    "reasons": [
+      "Corpus Plan V1 batchingPlan.recommendedBatchSize = 5",
+      "no methodology amendment changed it",
+      "Window V1 gives no reason to shrink or widen exposure",
+      "the batch remains the bound on live institution contact before a human inspects the result (about 5 x 60 = 300 requests)"
+    ],
+    "notExtrapolatedFromWindowV1": true
+  },
+  "candidateWindowV2": {
+    "workItems": [
+      {
+        "order": 1,
+        "workItemId": "P:10",
+        "kind": "PRIMARY",
+        "selectionIndex": 10,
+        "split": "DEV_CONFIRM",
+        "drawEntrySha256": "a73afb6c8d32a74e0c4c4730bd831b54b38855377550b67b9a7be2edcdd4b8f9"
+      },
+      {
+        "order": 2,
+        "workItemId": "P:11",
+        "kind": "PRIMARY",
+        "selectionIndex": 11,
+        "split": "FINAL_HOLDOUT",
+        "drawEntrySha256": "04744e721d90c7ac77a2f190bb2cee8b7ab8ab5d81b4252bba89dcb7ec458089"
+      },
+      {
+        "order": 3,
+        "workItemId": "P:12",
+        "kind": "PRIMARY",
+        "selectionIndex": 12,
+        "split": "DEV_TRAIN",
+        "drawEntrySha256": "62918025160460de236c6dc48350beb89172a08864cad98b5a2bb44e51393391"
+      },
+      {
+        "order": 4,
+        "workItemId": "P:13",
+        "kind": "PRIMARY",
+        "selectionIndex": 13,
+        "split": "DEV_CONFIRM",
+        "drawEntrySha256": "20f013e1b9c799d8ee4481d398de60322365591df2bfd51c204e1d5a7dde8ad3"
+      },
+      {
+        "order": 5,
+        "workItemId": "P:14",
+        "kind": "PRIMARY",
+        "selectionIndex": 14,
+        "split": "FINAL_HOLDOUT",
+        "drawEntrySha256": "dae515b4e77ede2e49cd5efe26945a57f108d270464546a1db386d2340b0f5b2"
+      }
+    ],
+    "drawEntryDigestMethod": "sha256(canonicalStringify(exact draw SELECTION entry)), the Window V1 plan's method",
+    "splitComposition": { "DEV_TRAIN": 1, "DEV_CONFIRM": 2, "FINAL_HOLDOUT": 2 },
+    "splitsReadFromDrawDirectly": true,
+    "replacementItems": 0,
+    "reservePositions": [],
+    "adaptiveInsertion": false,
+    "institutionIdentityInThisFile": false
+  },
+  "windowV1SuccessDoesNotChangeMethodology": {
+    "statement": "Window V1 produced five accepted successful acquisitions. That does not justify bigger batches, relaxed pause gates, larger request budgets, fewer preflights, retry expansion, reduced sealing or adaptive stopping.",
+    "machineryForNextWindow": "the same frozen acquisition machinery"
+  },
+  "gateReuseAudit": {
+    "evaluateContinuationWindowGate": {
+      "generic": true,
+      "primaryItemsNeedNoReservePosition": true,
+      "acceptsPlannedWindowSize5": true,
+      "p1p2p3p4p5p8WindowLocal": true,
+      "p6GenerationGlobal": true,
+      "fourEntryLedgerAcceptedUnchanged": true,
+      "requiresAReplacementItem": false,
+      "probe": "with all ten P7 invariants true, (successful 10, reserveConsumed 4, completed []) -> CONTINUE_TO_NEXT_WORK_ITEM, next P:10; one low-yield item -> CONTINUE to P:11; two low-yield items -> PAUSE_P5_LOW_RAW_YIELD"
+    },
+    "computeWindowPreflight": {
+      "generic": false,
+      "blocker": "P7_PREFLIGHT_HARD_BOUND_TO_WINDOW_V1",
+      "failingInvariants": {
+        "windowPlanValid": "false: it rebuilds the plan through buildWindowPlan, which maps only the WINDOW_V1_WORK_ITEMS constant and hard-codes the V1 recordId, plannedPrimary 9 and the genesis-ledger binding, so no Window V2 plan can equal its rebuild",
+        "workItemsMatchFrozenPlan": "false: it compares the plan's items to the WINDOW_V1_WORK_ITEMS constant"
+      },
+      "passingInvariants": [
+        "frameBindingValid",
+        "drawBindingValid",
+        "ownerClarificationBindingValid",
+        "replacementLedgerValid",
+        "replacementLedgerExtendsGenesis",
+        "workItemDrawEntriesMatch",
+        "replacementAssignmentsRecorded",
+        "currentOccupantsMatch"
+      ],
+      "controlOnWindowV1Plan": "all ten invariants true against the current four-entry ledger, so the harness is intact; it is only single-window"
+    },
+    "planBuilder": {
+      "buildWindowPlan": "V1-only; no landed code renders or verifies a Window V2 plan",
+      "materialiseContinuationArtifacts": "writes only the genesis ledger and the Window V1 plan paths"
+    },
+    "offlineProbe": {
+      "method": "a scratchpad script outside the repository fed a V2-shaped plan (items P:10..P:14, correct digests, recomputed windowPlanHash) into the landed computeWindowPreflight and then into evaluateContinuationWindowGate",
+      "gateDecision": "PAUSE_P7_INVARIANT_MISMATCH",
+      "triggeredArms": [
+        "preflight invariant windowPlanValid does not hold",
+        "preflight invariant workItemsMatchFrozenPlan does not hold"
+      ],
+      "mayStartP10": false,
+      "committed": false,
+      "institutionNetwork": 0,
+      "databaseAccess": 0
+    },
+    "whyNotBypassedHere": "Setting the invariants by hand, or checking a V2 plan with scratchpad-only code, would make a live P7 depend on unreviewed, uncommitted logic. That is the code change this strategy phase may not make.",
+    "codeChangeMadeHere": false,
+    "conclusion": "the gate can govern an all-PRIMARY window; the landed P7 preflight and plan builder cannot validate one without a code change"
+  },
+  "windowV2StartingPauseState": {
+    "windowLocal": {
+      "completedObservations": [],
+      "p1Streak": 0,
+      "p2Streak": 0,
+      "p2Count": 0,
+      "p3Streak": 0,
+      "p5LowYieldCount": 0,
+      "p8CurrentWindowAnomaly": false
+    },
+    "generationGlobal": {
+      "successfulSelectionSlots": 10,
+      "reserveConsumed": 4,
+      "p6": false
+    },
+    "windowV1ObservationsCarriedIn": false
+  },
+  "windowV2Thresholds": {
+    "plannedWindowSize": 5,
+    "p2": "strictly > 40% -> threshold count 3",
+    "p2ThresholdCount": 3,
+    "p5": "strictly > 30% -> threshold count 2",
+    "p5ThresholdCount": 2,
+    "arithmetic": "strictPercentThresholdCount (windowContract.ts), unchanged"
+  },
+  "failureInsideWindowV2Semantics": {
+    "onPrimaryUnsuccessful": [
+      "preserve its evidence",
+      "after adjudication, create a pending replacement obligation for that selection slot",
+      "assign no reserve inside Window V2",
+      "do not enlarge the five-item window",
+      "continue only if the landed P1-P8 gate says the next precommitted primary may start"
+    ],
+    "dynamicSwapForReservePosition4": false,
+    "replacementAssignment": "only in a later precommitted window, under new owner authority"
+  },
+  "replacementLedgerUnchanged": {
+    "sha256": "6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0",
+    "ledgerHash": "2febfecfe14bc0f6ca709271e33782e2ac2a8a14f09a14ff4ff0bdf608b7e452",
+    "entries": 4,
+    "reserveConsumed": 4,
+    "rowAppended": false,
+    "fileModified": false
+  },
+  "p6": {
+    "threshold": "> 10 replacements consumed before 50 successful organisations",
+    "reserveConsumed": 4,
+    "successfulSelectionSlots": 10,
+    "fires": false
+  },
+  "windowV2Plan": {
+    "created": false,
+    "why": "section 12 allows the plan only if the existing gate needs no code change; the landed P7 preflight cannot validate it"
+  },
+  "strategyOutcome": "C",
+  "strategyOutcomeName": "EXISTING_GATE_CANNOT_GOVERN_PRIMARY_ONLY_WINDOW",
+  "strategyOutcomeDetail": "Everything except gate reuse holds. No replacement work is pending, the frozen primary order is unambiguous at 10..14, the window size is 5 and the splits are 1/2/2. The only blocker is P7_PREFLIGHT_HARD_BOUND_TO_WINDOW_V1.",
+  "minimalRemedyForOwnerConsideration": {
+    "statement": "An OFFLINE code change that lets the landed plan builder and P7 preflight take the precommitted window (work items, record identity, plannedPrimary, ledger binding) as bound, verified input instead of the Window V1 constant. Window V1 must still rebuild byte-identically (windowPlanHash d33c2e05...). Add a new repair-scope test rather than editing old assertions. After that, materialise the Window V2 plan offline and rerun this preflight.",
+    "notImplementedHere": true
+  },
+  "scopeProofs": {
+    "institutionDnsHttpTls": 0,
+    "orgunitsDiscoverInvocations": 0,
+    "index10OrLaterExecuted": false,
+    "reservePosition4Consumed": false,
+    "databaseQueries": 0,
+    "databaseWrites": 0,
+    "productionCodeChanged": false,
+    "harnessCodeChanged": false,
+    "fetchPolicyChanged": false,
+    "migrationCreated": false,
+    "labelsCreated": 0,
+    "classifierOrProviderExecution": 0,
+    "setP": 0,
+    "setR": 0,
+    "semanticHoldoutAccess": 0,
+    "a3": 0,
+    "phase2E": 0,
+    "earlierRecordsEdited": false
+  },
+  "identityDisclosure": {
+    "institutionNames": 0,
+    "organisationUuids": 0,
+    "echeRowKeys": 0,
+    "hostnames": 0,
+    "urls": 0,
+    "publicLinkageIsOnly": ["workItemId", "selectionIndex", "split", "drawEntrySha256"]
+  },
+  "nextOwnerDecision": "A2_CONTINUATION_WINDOW_PREFLIGHT_GENERALISATION_OFFLINE_IMPLEMENTATION",
+  "nextOwnerDecisionNote": "The owner may instead choose another remedy. After any remedy lands, the Window V2 plan is materialised offline and the next decision becomes A2_PRIMARY_10_14_LIVE_WINDOW_AUTHORISATION.",
+  "terminalState": "PHASE_2B_2D_A2_POST_WINDOW_V1_NEXT_ACQUISITION_WINDOW_STRATEGY_COMPLETE_EXISTING_GATE_CANNOT_GOVERN_PRIMARY_ONLY_WINDOW"
+}
