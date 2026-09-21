@@ -13,6 +13,7 @@
  * No test in this file contains real page content, a real hostname or a real
  * institution identifier. The fixtures are invented strings about nothing.
  */
+import { execFileSync } from 'node:child_process';
 import { readFileSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { join, resolve } from 'node:path';
@@ -533,9 +534,61 @@ describe('2D Option-B transition: index 5 keeps everything except which run coun
     expect(draw.reserve).toHaveLength(40);
   });
 
-  it('has no reserve replacement ledger, because nothing was replaced', () => {
-    expect(() => read(RESERVE_REPLACEMENT_LEDGER_PATH)).toThrow();
-  });
+  /**
+   * READ AT THE STEP'S OWN TERMINAL COMMIT, NOT THE WORKING TREE.
+   *
+   * "Option B replaced nothing" is a HISTORICAL claim about this step. It used
+   * to be proved by failing to read the ledger path from the working tree,
+   * which quietly turned it into "no later phase may ever create the reserve
+   * replacement ledger" - a statement nobody approved, and one the post-v4
+   * replacement implementation, which IS approved, necessarily breaks by
+   * creating the (empty) genesis ledger at exactly this path.
+   *
+   * `b0f4efa` is the commit that landed the transition census, the SD7
+   * measurement and the transition ledger - the same terminal commit
+   * `orgunitCorpus2DOptionBTransitionIsolation.test.ts` pins, and the commit
+   * the Batch-02 v2 continuation authority binds the transition ledger to.
+   * At that commit the ledger did not exist, and it still did not exist then
+   * no matter what a later phase adds. The present-day existence of the
+   * ledger is asserted by the continuation-window suite, not here.
+   */
+  const OPTION_B_TERMINAL_COMMIT = 'b0f4efa01d7e861a701e3514afc690a99262f554';
+
+  function commitExists(commit: string): boolean {
+    try {
+      execFileSync('git', ['-C', REPO_ROOT, 'cat-file', '-e', `${commit}^{commit}`], {
+        stdio: 'ignore',
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function existedAtTerminal(path: string): boolean {
+    try {
+      execFileSync(
+        'git',
+        ['-C', REPO_ROOT, 'cat-file', '-e', `${OPTION_B_TERMINAL_COMMIT}:${path}`],
+        {
+          stdio: 'ignore',
+        },
+      );
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  /** A shallow clone may not carry the terminal commit; the check is then skipped rather than guessed. */
+  it.skipIf(!commitExists(OPTION_B_TERMINAL_COMMIT))(
+    'had no reserve replacement ledger at its own terminal commit, because nothing was replaced',
+    () => {
+      expect(existedAtTerminal(RESERVE_REPLACEMENT_LEDGER_PATH)).toBe(false);
+      // Not a vacuous probe: the transition ledger this step DID create is visible there.
+      expect(existedAtTerminal(TRANSITION_LEDGER_PATH)).toBe(true);
+    },
+  );
 });
 
 describe('2D Option-B transition: the ledger is its own thing', () => {
