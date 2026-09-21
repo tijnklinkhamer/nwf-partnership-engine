@@ -8,7 +8,8 @@
  *
  * This file pins the repair and nothing wider:
  *
- *   - REPAIR SCOPE: over REPAIR_BASE_COMMIT..working tree, only `windowPlan.ts`,
+ *   - REPAIR SCOPE: over the HISTORICAL range REPAIR_BASE_COMMIT..
+ *     REPAIR_TERMINAL_COMMIT (never the working tree), only `windowPlan.ts`,
  *     this file and the two new evaluation records change; the gate, ledger,
  *     planner, append, reason modules, the materialiser, production code,
  *     migrations, the CLI, firewalls and every historical record do not;
@@ -98,6 +99,12 @@ const git = (...args: string[]): string =>
 
 /** e6e686a: the post-Window-V1 next-acquisition-window strategy, V1. */
 const REPAIR_BASE_COMMIT = 'e6e686a5dce258a4a69f63cea175f239b6505a28';
+/**
+ * 744fe29: the repair's terminal commit (the precommitted Window V2 plan).
+ * The scope is the completed repair's own range, never -> HEAD or the working
+ * tree, so later unrelated A2 work cannot enter it.
+ */
+const REPAIR_TERMINAL_COMMIT = '744fe29b0a348fdc99a479f43f4c7affb3c80926';
 const THIS_FILE =
   'src/test/unit/orgunitCorpus2DA2ContinuationWindowPreflightGeneralisation.test.ts';
 const IMPLEMENTATION_RECORD_PATH =
@@ -127,14 +134,16 @@ const MUST_NOT_CHANGE = [
   FRAME_PATH,
 ];
 
-function changedSinceBase(): string[] {
-  const tracked = git('diff', '--name-only', REPAIR_BASE_COMMIT).split('\n');
-  const untracked = git('ls-files', '--others', '--exclude-standard').split('\n');
-  return [...new Set([...tracked, ...untracked].filter((line) => line.length > 0))].sort();
+/** The paths the repair itself changed: base -> its own terminal commit. */
+function changedWithinRepair(): string[] {
+  return git('diff', '--name-only', REPAIR_BASE_COMMIT, REPAIR_TERMINAL_COMMIT)
+    .split('\n')
+    .filter((line) => line.length > 0)
+    .sort();
 }
 
 describe('2D-A2 preflight generalisation: the repair scope', () => {
-  const changed = changedSinceBase();
+  const changed = changedWithinRepair();
 
   it('changes only the plan module, this test and the two new evaluation records', () => {
     for (const path of changed) {
@@ -159,7 +168,13 @@ describe('2D-A2 preflight generalisation: the repair scope', () => {
   });
 
   it('adds no module to the continuation-window namespace', () => {
-    const added = git('diff', '--name-only', '--diff-filter=A', REPAIR_BASE_COMMIT)
+    const added = git(
+      'diff',
+      '--name-only',
+      '--diff-filter=A',
+      REPAIR_BASE_COMMIT,
+      REPAIR_TERMINAL_COMMIT,
+    )
       .split('\n')
       .filter((path) => path.startsWith('src/test/harness/'));
     expect(added).toEqual([]);
