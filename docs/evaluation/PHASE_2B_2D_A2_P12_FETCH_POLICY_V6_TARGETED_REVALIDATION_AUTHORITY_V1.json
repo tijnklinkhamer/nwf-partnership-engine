@@ -1,0 +1,209 @@
+{
+  "record": "PHASE_2B_2D_A2_P12_FETCH_POLICY_V6_TARGETED_REVALIDATION_AUTHORITY_V1",
+  "recordKind": "TARGETED_CAPABILITY_REVALIDATION_LIVE_AUTHORITY",
+  "createdBeforeAnyInstitutionNetworkActivity": true,
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "f8923fc961ce2753be723099d633345fbe9011bd",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+
+  "ownerDecision": "AUTHORISE_A2_P12_FETCH_POLICY_V6_TARGETED_REVALIDATION_V1",
+
+  "whatTheOwnerDecisionPermits": [
+    "EXACTLY ONE live `orgunits discover --execute` invocation for selection index 12, against its FROZEN organisation and FROZEN root authority, under orgunit-fetch-policy-v6.",
+    "Normal v6 automatic transport behaviour only; no operator retry.",
+    "Read-only preflight, one network-free dry run, durable postflight, formal read-only SD7, a v4-vs-v6 evidence comparison and a public-safe result record.",
+    "This is NOT a continuation of Window V2, which stays closed at PAUSE_P5_LOW_RAW_YIELD. The run produces evidence only; P:12 stays ACQUISITION_STATUS_PENDING_CAPABILITY_REVIEW until the next owner decision."
+  ],
+
+  "selectionIndex": 12,
+  "workItemId": "P:12",
+  "kind": "PRIMARY",
+  "split": "DEV_TRAIN",
+  "currentOccupant": "ORIGINAL_SELECTION",
+  "reservePosition": null,
+  "drawEntrySha256": "62918025160460de236c6dc48350beb89172a08864cad98b5a2bb44e51393391",
+  "requiredFetchPolicy": "orgunit-fetch-policy-v6",
+  "historicalV4RunRefSha256": "fdc6f64fbdd9b66a93007e28b001675063a59b67f5eb02d38dda7c181d1b10aa",
+  "maximumLiveInvocations": 1,
+  "concurrency": 1,
+
+  "P13P14Authorised": false,
+  "P10P11RerunAuthorised": false,
+  "otherSelectionIndicesAuthorised": false,
+  "secondP12InvocationAuthorised": false,
+  "manualRetryAuthorised": false,
+  "reserveAssignmentAuthorised": false,
+  "reservePosition4Authorised": false,
+  "replacementLedgerMutationAuthorised": false,
+  "finalAorAdjudicationAuthorised": false,
+  "crawlerRepairAuthorised": false,
+  "fetchPolicyV7Authorised": false,
+  "hrefEntityDecodingRepairAuthorised": false,
+  "classifierAuthorised": false,
+  "providerAuthorised": false,
+  "labelsAuthorised": false,
+  "setPSetRAuthorised": false,
+  "a3Authorised": false,
+  "phase2EAuthorised": false,
+
+  "targetBinding": {
+    "resolvedPrivatelyFrom": [
+      "frozen draw SELECTION entry 12",
+      "Window V2 plan work item P:12",
+      "Generation-1 state at the Window V2 evidence adjudication"
+    ],
+    "drawEntryDigestRecomputed": "sha256(canonicalStringify(draw.selection[12])) via src/orgunits/classify/canonical.ts",
+    "drawEntryDigestMatches": true,
+    "windowPlanWorkItemMatches": true,
+    "rootAuthorityCount": 1,
+    "rootAuthorityType": "WEBSITE_CLAIM",
+    "frozenRootIsCurrentStructurallyValidClaim": true,
+    "frozenRootIsTheOrganisationsOnlyValidClaim": true,
+    "frozenRootIsTheHistoricalV4RunRoot": true,
+    "promotionRoots": 0,
+    "replacementOccupant": false,
+    "replacementLedgerTouchesIndex12": false
+  },
+
+  "historicalV4EvidenceIsImmutable": {
+    "runRefSha256": "fdc6f64fbdd9b66a93007e28b001675063a59b67f5eb02d38dda7c181d1b10aa",
+    "fetchPolicy": "orgunit-fetch-policy-v4",
+    "observations": 37,
+    "rawPages": 1,
+    "formalSd7": "1 exact",
+    "diagnosticSd9": "ACQUISITION_UNSUCCESSFUL",
+    "currentStatus": "ACQUISITION_STATUS_PENDING_CAPABILITY_REVIEW",
+    "structuralFinding": "root page 200; 34 LINK-discovered attempted URLs, all 404 (33 generic server 404s, 1 application-rendered 404); no relevant transport failure",
+    "noRowUpdatedDeletedOrReinterpreted": true
+  },
+
+  "boundRecords": {
+    "v6Implementation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_DISCOVERY_RCDATA_V6_IMPLEMENTATION_V1.json",
+      "sha256": "48879c82078f037cb0e04ad26adddc41679877e0393df678c6f8a48fc7a71532",
+      "bytes": 10404,
+      "commit": "f8923fc961ce2753be723099d633345fbe9011bd"
+    },
+    "v6PolicyRepair": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_DISCOVERY_RCDATA_FETCH_POLICY_V6_REPAIR_V1.json",
+      "sha256": "76d6a8bc102313bf844558bc7d78843b7517e43a1fcdf1ce4dfdfe16bc998c93",
+      "bytes": 9861,
+      "commit": "679eb1ad05d3730ddca9334d51fc15217f34b579"
+    },
+    "capabilityReview": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_ANCHOR_DOCUMENT_BASE_CAPABILITY_REVIEW_V1.json",
+      "sha256": "eac03dc122d3e7b8a575e82f1a9509145aec2ac3b00eca3d86ca5b1e3a1e5066",
+      "bytes": 18903,
+      "commit": "69dff793439a8d20d29894100c4b73e064206308"
+    },
+    "windowV2EvidenceAdjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_PRIMARY_10_14_LIVE_WINDOW_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "9503dec328acaae530dd2574b0a7f14c7b2ed67e3f5fa1fdbce0f41830c0e563",
+      "bytes": 18185,
+      "commit": "69dff793439a8d20d29894100c4b73e064206308"
+    },
+    "windowV2Result": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_PRIMARY_10_14_LIVE_WINDOW_RESULT_V1.json",
+      "sha256": "c16ec72e84b938d338d3108291e4d9899c438d9123ab90a80a0674c8eb0e9576",
+      "bytes": 22408,
+      "commit": "575b706d1c33f7b62eb3ac5000780581bc901dbe"
+    },
+    "windowV2Plan": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_PRIMARY_10_14_WINDOW_PLAN_V1.json",
+      "sha256": "f3c3e31c49dfff17c53289d32274e1240330a476ae046544bf8c3516e7c25ef5",
+      "bytes": 6275
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "sha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "bytes": 74047
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0",
+      "ledgerHash": "2febfecfe14bc0f6ca709271e33782e2ac2a8a14f09a14ff4ff0bdf608b7e452",
+      "entries": 4,
+      "mustRemainByteIdentical": true
+    }
+  },
+
+  "verifiedPolicyBoundary": {
+    "FETCH_POLICY_VERSION": "orgunit-fetch-policy-v6",
+    "documentBaseHandling": "FIRST href-bearing live <base>; unusable href falls back to the page URL",
+    "rcdataDiscoveryStripping": "title and textarea text kept out of anchor and base discovery",
+    "automaticRetry": "only the bounded robots-policy transport retry landed in v4, unchanged",
+    "noNewRetryPolicy": true,
+    "frozenCeilingsUnchanged": {
+      "MAX_TOTAL_REQUESTS_PER_ROOT": 60,
+      "MAX_PAGE_ATTEMPTS_PER_ROOT": 35,
+      "MAX_HOSTS_PER_ROOT": 8
+    },
+    "p12HtmlInspectedBeforeRun": false,
+    "baseTagPresencePredicted": false
+  },
+
+  "generation1StateBeforeRun": {
+    "successfulSelectionIndices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11],
+    "failureSelectionIndices": [10],
+    "pendingCapabilityReviewSelectionIndices": [12],
+    "pendingReplacementObligations": [10],
+    "neverStarted": { "from": 13, "to": 109 },
+    "replacementLedgerEntries": 4,
+    "reserveConsumed": 4,
+    "reservePosition4": "UNASSIGNED",
+    "p6": false,
+    "windowV2Terminal": "PAUSE_P5_LOW_RAW_YIELD",
+    "mustNotChangeDuringThisTask": true
+  },
+
+  "databasePreflight": {
+    "verifiedBeforeAuthorityCommit": true,
+    "role": "nwf_readonly",
+    "orgunit_research_runs": 23,
+    "orgunit_research_run_completions": 23,
+    "orgunit_fetch_observations": 483,
+    "orgunit_redirect_observations": 32,
+    "orgunit_page_evidence": 354,
+    "orgunit_page_candidates": 708,
+    "orgunit_root_promotions": 0,
+    "orgunit_root_promotion_revocations": 0,
+    "runsWithoutCompletion": 0,
+    "runPolicyCounts": { "v1": 7, "v2": 2, "v3": 3, "v4": 11, "v5": 0, "v6": 0 },
+    "classifierTablesAllZero": true,
+    "priorRunsForTarget": 1,
+    "unexplainedDrift": false
+  },
+
+  "hostSafety": {
+    "acPowerRequired": false,
+    "battery80PercentRequired": false,
+    "doNotStartAtOrBelowBatteryPercent": 20,
+    "lidOpenRequired": true,
+    "caffeinateDimsuRequired": true,
+    "sleepWakeDuringLiveTarget": "STOP after preserving durable evidence; never rerun P:12",
+    "hostOrProvenanceIssueBeforeRequest": "STOP before network"
+  },
+
+  "stopConditions": [
+    "wrong organisation or wrong frozen root",
+    "more than one CLI --execute invocation",
+    "a new run or observation stamped other than orgunit-fetch-policy-v6",
+    "incomplete persistence",
+    "unexpected replacement-ledger mutation",
+    "unauthorised institution network",
+    "host sleep during the active target",
+    "evidence that cannot be bound to P:12"
+  ],
+  "incidentTerminal": "PHASE_2B_2D_A2_P12_V6_TARGETED_REVALIDATION_PAUSED_AWAITING_INCIDENT_REVIEW",
+
+  "identityDisclosure": {
+    "institutionNamesRecorded": 0,
+    "organisationUuidsRecorded": 0,
+    "echeRowKeysRecorded": 0,
+    "hostnamesRecorded": 0,
+    "urlsRecorded": 0,
+    "publicLinkageIsOnly": ["workItemId", "selectionIndex", "drawEntrySha256", "SHA-256(run UUID)"]
+  }
+}
