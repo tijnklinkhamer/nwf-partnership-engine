@@ -1,0 +1,99 @@
+{
+  "record": "PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER",
+  "recordKind": "RESERVE_REPLACEMENT_LEDGER_V2_GEN1",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "semantics": {
+    "appendOnly": true,
+    "oneLedgerPerGeneration": true,
+    "evolvingArtifact": "Updated over the life of Generation 1 ONLY by appending valid suffix entries. Git preserves every earlier revision; each revision must carry its predecessor as a byte-identical entry prefix.",
+    "forbidden": [
+      "deleting an existing entry",
+      "editing an existing entry",
+      "reordering entries",
+      "reusing a reserve position",
+      "skipping a reserve position or going backwards",
+      "changing an entry's selectionIndex, split, reason, replaced or replacement identity, timestamp or hashes",
+      "a mutable current-occupant, status or counter field"
+    ],
+    "reserveConsumedCount": "the number of VALID entries - never a stored counter",
+    "currentOccupant": "DERIVED: the replacementEcheRowKey of the latest entry for the slot, or the original selection when the slot has no entry",
+    "assignedNotYetExecuted": "an entry whose replacement has no acquisition run yet; execution state lives in the research-run evidence, never here",
+    "assignedReservesAreNeverReturned": "a reserve position, once appended, stays consumed even if its window pauses before the replacement executes",
+    "pendingObligationOrder": "SELECTION_INDEX_ASCENDING, next unused reserve rank position assigned monotonically (Owner Clarification Q1)",
+    "replacementChain": "SAME_SELECTION_SLOT_APPEND_ONLY_ACROSS_PRECOMMITTED_WINDOWS (Owner Clarification Q2); a later entry for a slot replaces that slot’s previous reserve occupant",
+    "whatEntriesMustNotCarry": [
+      "organisationId",
+      "institution name",
+      "hostname",
+      "URL",
+      "page-level or semantic material"
+    ]
+  },
+  "bound": {
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33"
+    },
+    "corpusAcquisitionPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e"
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650"
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    },
+    "ownerClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528"
+    }
+  },
+  "reserveCount": 40,
+  "selectionCount": 110,
+  "reserveExhaustionRefusal": "CORPUS_FREEZE_REFUSED",
+  "frozenEntryFields": [
+    "selectionIndex",
+    "split",
+    "replacedEcheRowKey",
+    "replacementEcheRowKey",
+    "reserveRankPosition",
+    "reason",
+    "recordedAtUtc"
+  ],
+  "integrityFields": [
+    "sequence",
+    "replacedOccupantKind",
+    "previousSequenceForSlot",
+    "previousEntryHash",
+    "entryHash"
+  ],
+  "replacementReasons": [
+    "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+    "ACQUISITION_UNSUCCESSFUL_ROOT_AUTHORITY_FAILURE",
+    "ACQUISITION_UNSUCCESSFUL_ROBOTS_DISALLOWED",
+    "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+  ],
+  "replacementReasonPrecedence": [
+    "ACQUISITION_UNSUCCESSFUL_ROOT_AUTHORITY_FAILURE",
+    "ACQUISITION_UNSUCCESSFUL_ROBOTS_DISALLOWED",
+    "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+    "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+  ],
+  "hashing": {
+    "canonicalizer": "canonicalStringify from src/orgunits/classify/canonical.ts - the canonicalizer of the frame hash and the draw hash",
+    "sequence": "0-based append position; entry k has sequence k and reserveRankPosition k",
+    "previousEntryHash": "null for sequence 0; otherwise the entryHash of entries[sequence - 1]",
+    "entryHash": "sha256(canonicalStringify(entry without entryHash)) - every other entry field, previousEntryHash included",
+    "ledgerHash": "sha256(canonicalStringify(ledger without ledgerHash)); changes on every append by design",
+    "revisionIdentity": "every later revision binds previous ledger file sha, new ledger file sha, and the appended entry hashes"
+  },
+  "entries": [],
+  "ledgerHash": "7e89966722961162067690abf5cf79cebac26e1697de8488f4f7ed0e8d303bda"
+}
