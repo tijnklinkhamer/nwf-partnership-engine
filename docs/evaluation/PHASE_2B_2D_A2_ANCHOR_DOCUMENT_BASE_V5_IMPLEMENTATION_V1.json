@@ -1,0 +1,205 @@
+{
+  "recordId": "phase2b-2d-a2-anchor-document-base-v5-implementation-v1",
+  "recordKind": "OFFLINE_ACQUISITION_CAPABILITY_REPAIR_IMPLEMENTATION",
+  "records": "PHASE_2B_2D_A2_ANCHOR_DOCUMENT_BASE_V5_IMPLEMENTATION_V1",
+  "recordedAtUtc": "2026-09-21T17:35:59Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "startingHead": "69dff793439a8d20d29894100c4b73e064206308",
+  "commits": {
+    "A_policyDecisionRecord": "158072409dd3cc3c781fb63a653b16d64dec448f",
+    "B_implementation": "40477099896856005d3d131bcaeac4d443424ec4",
+    "B2_scopePinAndLiveStampPins": "17fb828ce4bb66c5d2ffbfcceb7e9b9eae5a80ba",
+    "C_thisRecord": "the commit that adds this file"
+  },
+  "policyDecisionRecord": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_ANCHOR_DOCUMENT_BASE_FETCH_POLICY_V5_REPAIR_V1.json",
+    "sha256": "2623e82feb8b21a171340a5399b82c6a174a48bd3b4005843d84c6083ad41467",
+    "bytes": 9176,
+    "commit": "158072409dd3cc3c781fb63a653b16d64dec448f"
+  },
+  "boundRecordsUnchanged": {
+    "capabilityReviewSha256": "eac03dc122d3e7b8a575e82f1a9509145aec2ac3b00eca3d86ca5b1e3a1e5066",
+    "windowV2AdjudicationSha256": "9503dec328acaae530dd2574b0a7f14c7b2ed67e3f5fa1fdbce0f41830c0e563"
+  },
+  "fetchPolicyVersion": {
+    "before": "orgunit-fetch-policy-v4",
+    "after": "orgunit-fetch-policy-v5",
+    "declaredIn": "src/orgunits/web/policy.ts",
+    "onlyNonCommentChangeInPolicyTs": "the version string (asserted by the repair-scope test)",
+    "migration": false
+  },
+  "productionFiles": [
+    {
+      "path": "src/orgunits/orchestrator/anchors.ts",
+      "v4Sha256": "a674e7cfb88ddd12ccd0a16adc1abfa6e59c2f9bedded5c3b684ba3ca9065fa9",
+      "v5Sha256": "548a8f63e1ae211258a9143145dd79face8c3a602b2c0d4613d35e6a34681828",
+      "v5Bytes": 12714,
+      "change": "adds pure extractDocumentBaseHref(html) and resolveDocumentBase(documentUrl, baseHref); extractDiscoveryAnchors and resolveAnchorHref byte-identical to v4; no new import"
+    },
+    {
+      "path": "src/orgunits/orchestrator/rootRunner.ts",
+      "v4Sha256": "ed845292cc654c68cab29f8c34dbbd449d8f5b6344a5bcf9d910fb05c84062d7",
+      "v5Sha256": "2c09c2fe5d462f49485e7f8cb18947182ee053f407e636879273cd8271db1ac4",
+      "v5Bytes": 32201,
+      "change": "ingestFetchedPage computes the document base once per page and resolves each anchor against it; admissibleUrl still runs before frontier.add; discovery parent stays fetch.requestedUrl"
+    },
+    {
+      "path": "src/orgunits/web/policy.ts",
+      "v4Sha256": "95fdc43b5c4d2353a6d368e02f14d8b284619c487ffae286131931b9df0c1e6a",
+      "v5Sha256": "03012e9123966db9ea44ff05fc7ba6239054887fecd537e88543254b7cf15c2a",
+      "v5Bytes": 19002,
+      "change": "FETCH_POLICY_VERSION v4 -> v5 plus a WHY-v4-BECAME-v5 comment"
+    }
+  ],
+  "testFiles": {
+    "added": [
+      "src/test/unit/orgunitAnchorDocumentBase.test.ts (48 tests)",
+      "src/test/integration/orgunitAnchorDocumentBase.test.ts (8 tests, scripted transport, nwf_pe_test)",
+      "src/test/firewall/phase2bAnchorDocumentBase.firewall.test.ts (17 tests, range 158072409..40477099)"
+    ],
+    "historicalPinsReadAtTerminalCommit": [
+      "src/test/firewall/phase2bTransportRetry.firewall.test.ts (U: reads d9c32af only; live import removed)",
+      "src/test/unit/orgunitTransportRetryPolicy.test.ts (v4 bump read at d9c32af)"
+    ],
+    "currentProductionPinsMovedToV5": [
+      "src/test/unit/orgunitClassifyHistoricalFetchPolicyProvenance.test.ts",
+      "src/test/unit/orgunitCorpus2DOptionBTransition.test.ts",
+      "src/test/integration/orgunitRobotsOptionCLite.test.ts",
+      "src/test/integration/orgunitTransportRetry.test.ts"
+    ]
+  },
+  "semanticsImplemented": {
+    "name": "FIRST_BASE_ELEMENT_WITH_HREF_ATTRIBUTE_IN_TREE_ORDER",
+    "firstHrefBearingBaseWins": true,
+    "targetOnlyBaseSkipped": true,
+    "laterBasesIgnored": true,
+    "baseResolvedAgainst": "the fetched document URL",
+    "unusableFirstBase": "unparseable, or not http(s) (javascript:, data:, ...) -> the fetched document URL; the search does NOT continue",
+    "hrefAttributeSyntaxes": "double-quoted, single-quoted, unquoted and valueless; case-insensitive; first duplicate wins; data-href and quoted look-alikes are not href",
+    "nonContent": "searched only over the canonical stripNonContent output (comments, script, style, noscript, svg, template, iframe removed); no second sanitiser",
+    "knownSharedLimitation": "RCDATA elements such as <title>/<textarea> are not stripped by stripNonContent, for anchors and base alike; unchanged by this repair"
+  },
+  "admissibilityPreserved": {
+    "baseFetched": false,
+    "extraRequests": 0,
+    "admissibleUrlAfterBaseResolution": true,
+    "gatewayUnchanged": true,
+    "budgetsUnchanged": "35 page / 60 total / 8 hosts; asserted by a base-resolved 80-link flood test",
+    "provenByTests": [
+      "cross-registrable-domain base: zero DNS for, zero requests to, zero frontier URLs from the foreign host",
+      "service-subdomain base: refused by the host policy, no DNS",
+      "http base under https root: scope refuses the downgrade",
+      "credentialed or explicit-port base: URL validation refuses"
+    ]
+  },
+  "v4CompatibilityProof": {
+    "structural": "extractDiscoveryAnchors, resolveAnchorHref, ANCHOR_PATTERN, DROPPED_SCHEMES and RAW_MARKUP_DELIMITER are byte-identical to 69dff79 (repair-scope test)",
+    "behavioural": "9 fixtures with no usable base (none, target-only, commented, template, invalid-first, javascript-first, empty) produce v5 frontier URLs equal in bytes and order to the v4 composition: 16 URLs",
+    "integration": "no-base root page requests exactly the v4 site-root slugs"
+  },
+  "v5Delta": "a page whose first href-bearing <base> resolves to an http(s) URL different from the page URL: path-relative, ../ and query-only hrefs now resolve against the base; root-relative and absolute hrefs are unaffected",
+  "syntheticP12ClassProof": {
+    "shape": "synthetic page at the site root, <base href=\"/portal/\">, single-segment relative slugs",
+    "v4": "https://www.example.edu/<slug>/ (site-root slugs)",
+    "v5": "https://www.example.edu/portal/<slug>/ (base-relative application paths)",
+    "overlap": 0,
+    "usesP12Identity": false,
+    "provesP12UsedBase": false
+  },
+  "mutationTesting": [
+    { "mutation": "last/second href-bearing base wins", "killed": true, "failingTests": 9 },
+    {
+      "mutation": "skip an invalid first base and use a later valid one",
+      "killed": true,
+      "failingTests": 7
+    },
+    {
+      "mutation": "resolve the base against the origin instead of the page URL",
+      "killed": true,
+      "failingTests": 2
+    },
+    {
+      "mutation": "drop admissibleUrl at anchor intake",
+      "killed": true,
+      "failingTests": 1,
+      "note": "initially survived because the gateway's own scope check is a second layer; the cross-domain test now also pins frontierUrlsObserved = 0"
+    }
+  ],
+  "knownOpenCapabilities": {
+    "ANCHOR_HREF_CHARACTER_REFERENCE_DECODING": "DEFERRED (DEFER_ANCHOR_HREF_CHARACTER_REFERENCE_DECODING_AS_SEPARATE_CAPABILITY_V1)",
+    "BASE_HREF_CHARACTER_REFERENCE_DECODING": "DEFERRED, same decision",
+    "partialEntityDecoderAdded": false,
+    "markerTests": "unit 'KNOWN OPEN CAPABILITY' block pins raw &amp; in an anchor href and raw &#47; in a base href; the repair-scope test forbids a decoder in the base path",
+    "v5IsACompleteHtmlParser": false
+  },
+  "validation": {
+    "focused": {
+      "newTests": 73,
+      "focusedRunTotal": "23 files / 540 tests passed (firewall dir + orchestrator, safety, hygiene and base integration + both anchor unit files)"
+    },
+    "fullValidateRuns": [
+      {
+        "run": 1,
+        "atTree": "40477099 + terminal pin (uncommitted)",
+        "exit": 1,
+        "result": "188 files passed, 2 failed; 4865 tests passed, 8 failed, 75 skipped",
+        "cause": "8 integration assertions still pinned the live row stamp to the v4 literal (orgunitRobotsOptionCLite x3, orgunitTransportRetry x5)",
+        "fix": "moved to v5 in 17fb828, the same edit d9c32af made for v3 -> v4"
+      },
+      {
+        "run": 2,
+        "atTree": "17fb828",
+        "exit": 0,
+        "result": "190 files passed, 5 skipped (195); 4873 tests passed, 75 skipped (4948); 0 failed"
+      }
+    ],
+    "deviation": "the brief asked for exactly one final validate; it was run twice because the first exited 1. Both runs are recorded; only the second is the gate."
+  },
+  "scopeProofs": {
+    "institutionDnsHttpTls": 0,
+    "p12Requests": 0,
+    "workingDatabaseWrites": 0,
+    "workingDatabaseProof": "read-only row counts of all six orgunit evidence tables in nwf_pe identical before and after (23 runs, 483 fetch observations, 0 v5 runs); integration tests write only nwf_pe_test",
+    "migrationCreated": false,
+    "dependencyAdded": false,
+    "classifierOrProviderExecution": 0,
+    "semanticHoldoutAccess": 0
+  },
+  "generationState": {
+    "successfulSelectionIndices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11],
+    "failureSelectionIndices": [10],
+    "pendingCapabilityReviewSelectionIndices": [12],
+    "pendingReplacementObligations": [10],
+    "neverStarted": { "from": 13, "to": 109 },
+    "replacementLedger": {
+      "sha256": "6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0",
+      "entries": 4,
+      "unchangedSince": "69dff793439a8d20d29894100c4b73e064206308"
+    },
+    "reserveConsumed": 4,
+    "reserve4Assigned": false,
+    "p6": false
+  },
+  "historicalEvidence": {
+    "P:10": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+    "P:11": "ACQUISITION_SUCCESSFUL",
+    "P:12": "ACQUISITION_STATUS_PENDING_CAPABILITY_REVIEW",
+    "P:13": "NEVER_STARTED",
+    "P:14": "NEVER_STARTED",
+    "windowV2": "PAUSE_P5_LOW_RAW_YIELD",
+    "reinterpreted": false
+  },
+  "nextOwnerDecision": "A2_P12_FETCH_POLICY_V5_TARGETED_REVALIDATION_AUTHORISATION",
+  "nextOwnerDecisionScopeSuggested": [
+    "exactly one targeted P:12 revalidation under orgunit-fetch-policy-v5",
+    "no P:13 / P:14",
+    "no reserve assignment",
+    "comparison of v4 vs v5 acquisition evidence",
+    "a later, separate final P:12 adjudication"
+  ],
+  "terminalState": "PHASE_2B_2D_A2_ANCHOR_DOCUMENT_BASE_FETCH_POLICY_V5_IMPLEMENTED_AWAITING_P12_TARGETED_REVALIDATION_AUTHORISATION"
+}
