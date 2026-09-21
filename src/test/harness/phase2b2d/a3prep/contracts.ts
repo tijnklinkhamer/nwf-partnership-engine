@@ -7,7 +7,9 @@
  *       or already APPROVED by the Corpus Acquisition Plan V1 owner approval,
  *       each citing where it comes from; and
  *   (b) an explicit OWNER-DECISION MARKER (K1-K4) for a semantic the frozen
- *       bytes do not settle. A marker is a question, never an answer.
+ *       bytes do not settle. A marker is a question, never an answer; K3 has
+ *       since been answered by an append-only owner record, bound in
+ *       section G by path and SHA-256.
  *
  * A fact that already has a canonical home is IMPORTED from it, never restated:
  * `Split` and SD9's `MIN_PAGES_PER_ORGANISATION` come from the SD7 contract,
@@ -177,7 +179,13 @@ export const SET_R_STRUCTURAL_MAXIMUM_PER_GATED_SPLIT =
 export const SET_R_AT_OR_BELOW_STRUCTURAL_MAXIMUM_IS_CONFORMANCE_FAILURE = false;
 
 // ---------------------------------------------------------------------------
-// F. K1-K4 — THE UNRESOLVED OWNER DECISIONS. Questions, never answers.
+// F. K1-K4 — THE OWNER-DECISION MARKERS. A marker names a question; only an
+//    append-only owner record can answer one, and then only by a reviewed
+//    change that moves it from the UNRESOLVED list to the RESOLVED list.
+//
+//    The four marker strings are HISTORY and never change. Which of them is
+//    still open is a separate, explicit fact: never infer "every marker" to
+//    mean "every unresolved decision".
 // ---------------------------------------------------------------------------
 
 export const K1_SET_R_TRACK_REDUCTION = 'A3_PREP_OWNER_DECISION_REQUIRED:SET_R_TRACK_REDUCTION';
@@ -185,29 +193,40 @@ export const K1_SET_R_TRACK_REDUCTION = 'A3_PREP_OWNER_DECISION_REQUIRED:SET_R_T
 export const K2_EXACT_DUPLICATE_REPRESENTATIVE_AND_SCORE =
   'A3_PREP_OWNER_DECISION_REQUIRED:EXACT_DUPLICATE_REPRESENTATIVE_AND_SCORE';
 
+/**
+ * RESOLVED by owner clarification (see `K3_OWNER_DECISION`). The string is
+ * kept byte-for-byte as the stable historical identity of the question.
+ */
 export const K3_SD3_SINGLE_POOL_VS_SD7_PER_SAMPLE_SURVIVOR =
   'A3_PREP_OWNER_DECISION_REQUIRED:SD3_SINGLE_POOL_VS_SD7_PER_SAMPLE_SURVIVOR';
 
 export const K4_SD4_G3_FREEZE_TIME_TRUNCATION =
   'A3_PREP_OWNER_DECISION_REQUIRED:SD4_G3_FREEZE_TIME_TRUNCATION';
 
+/** Every marker ever declared, resolved or not. */
 export type A3PrepOwnerDecisionMarker =
   | typeof K1_SET_R_TRACK_REDUCTION
   | typeof K2_EXACT_DUPLICATE_REPRESENTATIVE_AND_SCORE
   | typeof K3_SD3_SINGLE_POOL_VS_SD7_PER_SAMPLE_SURVIVOR
   | typeof K4_SD4_G3_FREEZE_TIME_TRUNCATION;
 
+export type A3PrepUnresolvedOwnerDecisionMarker = Exclude<
+  A3PrepOwnerDecisionMarker,
+  typeof K3_SD3_SINGLE_POOL_VS_SD7_PER_SAMPLE_SURVIVOR
+>;
+
 export interface A3PrepOwnerDecisionRequirement {
-  readonly id: 'K1' | 'K2' | 'K3' | 'K4';
-  readonly marker: A3PrepOwnerDecisionMarker;
+  readonly id: 'K1' | 'K2' | 'K4';
+  readonly marker: A3PrepUnresolvedOwnerDecisionMarker;
   readonly question: string;
   readonly resolved: false;
 }
 
 /**
- * Stable, ordered K1 -> K4. Every entry is `resolved: false` by TYPE, so a
- * resolution cannot be recorded here by editing a flag: it needs an owner
- * decision record and a reviewed change to this contract.
+ * The STILL-UNRESOLVED decisions, ordered K1, K2, K4. Every entry is
+ * `resolved: false` by TYPE, so a resolution cannot be recorded here by
+ * editing a flag: it needs an owner decision record and a reviewed change
+ * that moves the entry to `A3_PREP_OWNER_DECISIONS_RESOLVED`.
  */
 export const A3_PREP_OWNER_DECISIONS_REQUIRED: readonly A3PrepOwnerDecisionRequirement[] =
   Object.freeze([
@@ -226,13 +245,6 @@ export const A3_PREP_OWNER_DECISIONS_REQUIRED: readonly A3PrepOwnerDecisionRequi
       resolved: false,
     } as const),
     Object.freeze({
-      id: 'K3',
-      marker: K3_SD3_SINGLE_POOL_VS_SD7_PER_SAMPLE_SURVIVOR,
-      question:
-        'Whether SD3 draws from ONE common deduplicated pool or from sample-specific SD7 survivor pools, and so how final SD9 interacts with that choice.',
-      resolved: false,
-    } as const),
-    Object.freeze({
       id: 'K4',
       marker: K4_SD4_G3_FREEZE_TIME_TRUNCATION,
       question:
@@ -241,7 +253,88 @@ export const A3_PREP_OWNER_DECISIONS_REQUIRED: readonly A3PrepOwnerDecisionRequi
     } as const),
   ]);
 
-/** The marker strings alone, in K1 -> K4 order. */
-export const A3_PREP_OWNER_DECISION_MARKERS: readonly A3PrepOwnerDecisionMarker[] = Object.freeze(
-  A3_PREP_OWNER_DECISIONS_REQUIRED.map((requirement) => requirement.marker),
-);
+// ---------------------------------------------------------------------------
+// G. K3 — RESOLVED BY OWNER CLARIFICATION. Owner-bound FACTS, not an
+//    algorithm: nothing here walks a graph or materialises a survivor.
+//
+//    docs/evaluation/PHASE_2B_2D_A3_K3_SD7_SAMPLE_SPECIFIC_SURVIVOR_OWNER_CLARIFICATION_V1.json
+//    interprets R3's ambiguous SD3/SD7/SD9 text for Generation 1. It changes
+//    no R3 or Plan V1 byte, and it authorises no real A3.
+// ---------------------------------------------------------------------------
+
+/** Each sample keeps its OWN SD7 survivor set. */
+export const K3_SD7_SURVIVOR_SCOPE = 'SAMPLE_SPECIFIC';
+
+/**
+ * Walk the sample's frozen total order earliest -> latest; keep a document iff
+ * it has no canonical SD7 edge to a document ALREADY KEPT for that sample.
+ * The owner record's own token, byte-for-byte.
+ */
+export const K3_SD7_SURVIVOR_PROCEDURE = 'GREEDY_SAMPLE_RANK_SURVIVOR_WALK';
+
+/** One `measureNearDuplicateGraph` result per organisation, shared by both samples. */
+export const K3_SD7_GRAPH_SCOPE = 'ONE_CANONICAL_GRAPH_PER_ORGANISATION';
+
+/** SD7's "AT MOST ONE item" applies within one sample, never across SET_P ∪ SET_R. */
+export const K3_SD7_AT_MOST_ONE_SCOPE = 'PER_SAMPLE';
+
+/** SD3's "the same deduplicated pool", as the owner interprets it. */
+export const K3_SD3_SHARED_POOL_INTERPRETATION =
+  'COMMON_EXACT_DISTINCT_POPULATION_PLUS_CANONICAL_GRAPH';
+
+export interface A3PrepResolvedOwnerDecision {
+  readonly id: 'K3';
+  readonly marker: typeof K3_SD3_SINGLE_POOL_VS_SD7_PER_SAMPLE_SURVIVOR;
+  readonly resolved: true;
+  readonly decisionToken: 'K3_SD7_SAMPLE_SPECIFIC_SURVIVOR_CLARIFICATION_V1';
+  readonly decisionRecordPath: string;
+  readonly decisionRecordSha256: string;
+  readonly decisionRecordCommit: string;
+  readonly selectedSemantics: 'SAMPLE_SPECIFIC_GREEDY_SURVIVORS';
+  readonly survivorScope: typeof K3_SD7_SURVIVOR_SCOPE;
+  readonly survivorProcedure: typeof K3_SD7_SURVIVOR_PROCEDURE;
+  readonly graphScope: typeof K3_SD7_GRAPH_SCOPE;
+  readonly atMostOneScope: typeof K3_SD7_AT_MOST_ONE_SCOPE;
+  readonly sharedPoolInterpretation: typeof K3_SD3_SHARED_POOL_INTERPRETATION;
+}
+
+export const K3_OWNER_DECISION: A3PrepResolvedOwnerDecision = Object.freeze({
+  id: 'K3',
+  marker: K3_SD3_SINGLE_POOL_VS_SD7_PER_SAMPLE_SURVIVOR,
+  resolved: true,
+  decisionToken: 'K3_SD7_SAMPLE_SPECIFIC_SURVIVOR_CLARIFICATION_V1',
+  decisionRecordPath:
+    'docs/evaluation/PHASE_2B_2D_A3_K3_SD7_SAMPLE_SPECIFIC_SURVIVOR_OWNER_CLARIFICATION_V1.json',
+  decisionRecordSha256: '987b88a0848a5020605619f24a9accd73a04e886c80f72ab81608fbade765eab',
+  decisionRecordCommit: 'bee142ee601f2dad7f558c15f549d6e33080f3e7',
+  selectedSemantics: 'SAMPLE_SPECIFIC_GREEDY_SURVIVORS',
+  survivorScope: K3_SD7_SURVIVOR_SCOPE,
+  survivorProcedure: K3_SD7_SURVIVOR_PROCEDURE,
+  graphScope: K3_SD7_GRAPH_SCOPE,
+  atMostOneScope: K3_SD7_AT_MOST_ONE_SCOPE,
+  sharedPoolInterpretation: K3_SD3_SHARED_POOL_INTERPRETATION,
+} as const);
+
+/** The RESOLVED decisions: K3 only. */
+export const A3_PREP_OWNER_DECISIONS_RESOLVED: readonly A3PrepResolvedOwnerDecision[] =
+  Object.freeze([K3_OWNER_DECISION]);
+
+// ---------------------------------------------------------------------------
+// H. MARKER ACCOUNTING. Three explicit lists; none is derived from "all".
+// ---------------------------------------------------------------------------
+
+/** HISTORICAL: every marker string ever declared, K1 -> K4, resolved or not. */
+export const A3_PREP_OWNER_DECISION_MARKERS: readonly A3PrepOwnerDecisionMarker[] = Object.freeze([
+  K1_SET_R_TRACK_REDUCTION,
+  K2_EXACT_DUPLICATE_REPRESENTATIVE_AND_SCORE,
+  K3_SD3_SINGLE_POOL_VS_SD7_PER_SAMPLE_SURVIVOR,
+  K4_SD4_G3_FREEZE_TIME_TRUNCATION,
+]);
+
+/** The markers still awaiting an owner decision: K1, K2, K4. */
+export const A3_PREP_UNRESOLVED_OWNER_DECISION_MARKERS: readonly A3PrepUnresolvedOwnerDecisionMarker[] =
+  Object.freeze(A3_PREP_OWNER_DECISIONS_REQUIRED.map((requirement) => requirement.marker));
+
+/** The markers answered by an owner record: K3. */
+export const A3_PREP_RESOLVED_OWNER_DECISION_MARKERS: readonly A3PrepOwnerDecisionMarker[] =
+  Object.freeze(A3_PREP_OWNER_DECISIONS_RESOLVED.map((decision) => decision.marker));

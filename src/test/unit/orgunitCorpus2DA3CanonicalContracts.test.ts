@@ -183,8 +183,20 @@ describe('2D-A3 R1: the bound authority is the frozen bytes on disk', () => {
     expect(contracts.A3_PREP_R1_BOUND_AUTHORITY.corpusPlanApprovalSha256).toBe(
       drawContract.CORPUS_PLAN_APPROVAL_SHA256,
     );
+    // The ONE 64-hex literal is the K3 owner record's hash, which has no other
+    // canonical home. No draw-contract hash is restated.
     const source = readFileSync(join(A3PREP_DIR, 'contracts.ts'), 'utf8');
-    expect(source).not.toMatch(/[0-9a-f]{64}/);
+    expect(source.match(/[0-9a-f]{64}/g)).toEqual([
+      contracts.K3_OWNER_DECISION.decisionRecordSha256,
+    ]);
+    for (const hash of [
+      drawContract.METHODOLOGY_R3_SHA256,
+      drawContract.METHODOLOGY_APPROVAL_SHA256,
+      drawContract.CORPUS_PLAN_SHA256,
+      drawContract.CORPUS_PLAN_APPROVAL_SHA256,
+    ]) {
+      expect(source).not.toContain(hash);
+    }
   });
 });
 
@@ -296,7 +308,7 @@ describe('2D-A3 R1: SD4 gate-share cap', () => {
   });
 
   it('the enforcement is K4, not an implementation', () => {
-    expect(contracts.A3_PREP_OWNER_DECISION_MARKERS).toContain(
+    expect(contracts.A3_PREP_UNRESOLVED_OWNER_DECISION_MARKERS).toContain(
       contracts.K4_SD4_G3_FREEZE_TIME_TRUNCATION,
     );
     const code = readFileSync(join(A3PREP_DIR, 'contracts.ts'), 'utf8');
@@ -344,7 +356,7 @@ describe('2D-A3 R1: planning targets are planning targets', () => {
   });
 });
 
-describe('2D-A3 R1: K1-K4 are exact, ordered, and unanswered', () => {
+describe('2D-A3 R1: K1-K4 markers are exact and ordered; K1, K2, K4 stay unanswered', () => {
   const EXPECTED = [
     'A3_PREP_OWNER_DECISION_REQUIRED:SET_R_TRACK_REDUCTION',
     'A3_PREP_OWNER_DECISION_REQUIRED:EXACT_DUPLICATE_REPRESENTATIVE_AND_SCORE',
@@ -352,14 +364,8 @@ describe('2D-A3 R1: K1-K4 are exact, ordered, and unanswered', () => {
     'A3_PREP_OWNER_DECISION_REQUIRED:SD4_G3_FREEZE_TIME_TRUNCATION',
   ];
 
-  it('lists exactly the four markers, K1 -> K4', () => {
+  it('the HISTORICAL marker list is exactly the four strings, K1 -> K4', () => {
     expect([...contracts.A3_PREP_OWNER_DECISION_MARKERS]).toEqual(EXPECTED);
-    expect(contracts.A3_PREP_OWNER_DECISIONS_REQUIRED.map((k) => k.id)).toEqual([
-      'K1',
-      'K2',
-      'K3',
-      'K4',
-    ]);
     expect([
       contracts.K1_SET_R_TRACK_REDUCTION,
       contracts.K2_EXACT_DUPLICATE_REPRESENTATIVE_AND_SCORE,
@@ -368,13 +374,38 @@ describe('2D-A3 R1: K1-K4 are exact, ordered, and unanswered', () => {
     ]).toEqual(EXPECTED);
   });
 
-  it('every marker is unresolved and the lists are frozen', () => {
+  it('the UNRESOLVED list is exactly K1, K2, K4', () => {
+    expect(contracts.A3_PREP_OWNER_DECISIONS_REQUIRED.map((k) => k.id)).toEqual(['K1', 'K2', 'K4']);
+    expect([...contracts.A3_PREP_UNRESOLVED_OWNER_DECISION_MARKERS]).toEqual([
+      EXPECTED[0],
+      EXPECTED[1],
+      EXPECTED[3],
+    ]);
+  });
+
+  it('the RESOLVED list is exactly K3', () => {
+    expect(contracts.A3_PREP_OWNER_DECISIONS_RESOLVED.map((k) => k.id)).toEqual(['K3']);
+    expect([...contracts.A3_PREP_RESOLVED_OWNER_DECISION_MARKERS]).toEqual([EXPECTED[2]]);
+  });
+
+  it('every unresolved entry is unresolved, the resolved one is resolved, and the lists are frozen', () => {
     for (const requirement of contracts.A3_PREP_OWNER_DECISIONS_REQUIRED) {
       expect(requirement.resolved).toBe(false);
       expect(Object.isFrozen(requirement)).toBe(true);
     }
-    expect(Object.isFrozen(contracts.A3_PREP_OWNER_DECISIONS_REQUIRED)).toBe(true);
-    expect(Object.isFrozen(contracts.A3_PREP_OWNER_DECISION_MARKERS)).toBe(true);
+    for (const decision of contracts.A3_PREP_OWNER_DECISIONS_RESOLVED) {
+      expect(decision.resolved).toBe(true);
+      expect(Object.isFrozen(decision)).toBe(true);
+    }
+    for (const list of [
+      contracts.A3_PREP_OWNER_DECISIONS_REQUIRED,
+      contracts.A3_PREP_OWNER_DECISIONS_RESOLVED,
+      contracts.A3_PREP_OWNER_DECISION_MARKERS,
+      contracts.A3_PREP_UNRESOLVED_OWNER_DECISION_MARKERS,
+      contracts.A3_PREP_RESOLVED_OWNER_DECISION_MARKERS,
+    ]) {
+      expect(Object.isFrozen(list)).toBe(true);
+    }
   });
 
   it('carries no stale or already-resolved blocker', () => {

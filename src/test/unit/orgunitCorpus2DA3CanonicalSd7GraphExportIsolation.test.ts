@@ -221,7 +221,7 @@ describe('2D-A3 R6: K1-K4 stay open', () => {
     expect(source).not.toMatch(/SET_P|SET_R|setP|setR|a3prep|rankPosition|selected/);
   });
 
-  it('the K3 marker is still carried, unresolved, by the R1 contracts', () => {
+  it('the K3 marker string is still carried by the R1 contracts (its resolution is an owner record, never SD7 code)', () => {
     const contracts = readFileSync(join(A3PREP_DIR, 'contracts.ts'), 'utf8');
     expect(contracts).toContain(
       'A3_PREP_OWNER_DECISION_REQUIRED:SD3_SINGLE_POOL_VS_SD7_PER_SAMPLE_SURVIVOR',
