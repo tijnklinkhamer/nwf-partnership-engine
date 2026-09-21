@@ -36,10 +36,10 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import {
-  FETCH_POLICY_VERSION,
-  MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS,
-} from '../../orgunits/web/policy.js';
+// FETCH_POLICY_VERSION is deliberately NOT imported: this file asserts what
+// ADR 0013's repair declared at its own terminal commit, never what production
+// implements now. See `sourceAtTerminal`.
+import { MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS } from '../../orgunits/web/policy.js';
 import { continuationTargetFor } from '../../orgunits/web/robots.js';
 import { deriveRedirectFacts } from '../../orgunits/web/redirect.js';
 import type { WebAttemptResult } from '../../orgunits/web/gateway.js';
@@ -174,6 +174,29 @@ function sourceOf(path: string): string {
   return readFileSync(join(REPO_ROOT, path), 'utf8');
 }
 
+/**
+ * The file's bytes AT THIS REPAIR'S OWN TERMINAL COMMIT - not in the working
+ * tree.
+ *
+ * TEMPORAL CORRECTION (owner decision
+ * AUTHORISE_BOUNDED_TRANSPORT_RETRY_TEMPORAL_TEST_CORRECTION_V1). Every
+ * assertion about "the policy THIS REPAIR declares" is a statement about
+ * `c2e07b8`, and reading it from the working tree quietly restated it as a
+ * claim about whatever production implements today. That held only while
+ * C-lite was the latest repair. The moment a later, separately authorised
+ * phase moves `FETCH_POLICY_VERSION`, a working-tree read would either fail
+ * or - worse - be "fixed" by rewriting this repair's history to name a
+ * version it never introduced.
+ *
+ * A historical phase test asserts facts about its own terminal commit. What
+ * production is NOW is asserted by tests that are about production now.
+ */
+function sourceAtTerminal(path: string): string {
+  return execFileSync('git', ['-C', REPO_ROOT, 'show', `${REPAIR_TERMINAL_COMMIT}:${path}`], {
+    encoding: 'utf8',
+  });
+}
+
 describe('ADR 0013 repair scope: exactly three production files, by exact path', () => {
   it.skipIf(!rangeAvailable)('changed no production file outside the authorised three', () => {
     const production = changedInRepair().filter((file) =>
@@ -260,39 +283,48 @@ describe('ADR 0013 repair scope: exactly three production files, by exact path',
 });
 
 describe('ADR 0013 repair scope: the policy the repair declares', () => {
-  it('names the new fetch policy version, and it is v3', () => {
-    expect(FETCH_POLICY_VERSION).toBe('orgunit-fetch-policy-v3');
+  // EVERY ASSERTION IN THIS BLOCK READS THE TERMINAL COMMIT, not the working
+  // tree - see `sourceAtTerminal`. They are claims about what ADR 0013's
+  // repair declared at `c2e07b8`, and they must stay true for ever, under
+  // every later build.
+  it.skipIf(!rangeAvailable)('named a new fetch policy version, and it was v3', () => {
     expect(
-      sourceOf('src/orgunits/web/policy.ts').match(/FETCH_POLICY_VERSION\s*=\s*'[^']+'/g),
+      sourceAtTerminal('src/orgunits/web/policy.ts').match(/FETCH_POLICY_VERSION\s*=\s*'[^']+'/g),
     ).toEqual(["FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v3'"]);
   });
 
-  it('did NOT raise the continuation bound to RFC 9309’s five', () => {
+  it.skipIf(!rangeAvailable)('did NOT raise the continuation bound to RFC 9309’s five', () => {
+    // The LIVE constant is asserted too: unlike the version string, the hop
+    // bound is one this repair froze and no later phase may move without its
+    // own authorisation, so it is both a historical fact and a current one.
     expect(MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS).toBe(1);
     expect(
-      sourceOf('src/orgunits/web/policy.ts').match(
+      sourceAtTerminal('src/orgunits/web/policy.ts').match(
         /MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS\s*=\s*\d+/g,
       ),
     ).toEqual(['MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS = 1']);
   });
 
-  it('records that the structural two-request argument has expired', () => {
+  it.skipIf(!rangeAvailable)('records that the structural two-request argument has expired', () => {
     // ADR 0012 proved a two-request ceiling from the predicate's own shape.
     // C-lite admits a host change, so that argument is void and the constant
     // is now the whole bound. policy.ts must say so where the constant lives,
     // or a later reader could raise it on an argument that no longer holds.
-    const source = sourceOf('src/orgunits/web/policy.ts');
+    const source = sourceAtTerminal('src/orgunits/web/policy.ts');
     expect(source).toContain('RAISING IT WOULD REQUIRE A VISITED-URL SET');
   });
 
-  it('changed nothing else in the policy: the timeouts, caps and headers are the frozen ones', () => {
-    const source = sourceOf('src/orgunits/web/policy.ts');
-    expect(source).toContain('export const CONNECT_TIMEOUT_MS = 30_000;');
-    expect(source).toContain('export const TOTAL_TIMEOUT_MS = 45_000;');
-    expect(source).toContain('export const MAX_BODY_BYTES = 5 * 1024 * 1024;');
-    expect(source).toContain("'NWFPartnershipEngine-Research/1.0 (+https://newwavefluent.com/)'");
-    expect(source).toContain('new Set([301, 302, 303, 307, 308])');
-  });
+  it.skipIf(!rangeAvailable)(
+    'changed nothing else in the policy: the timeouts, caps and headers were the frozen ones',
+    () => {
+      const source = sourceAtTerminal('src/orgunits/web/policy.ts');
+      expect(source).toContain('export const CONNECT_TIMEOUT_MS = 30_000;');
+      expect(source).toContain('export const TOTAL_TIMEOUT_MS = 45_000;');
+      expect(source).toContain('export const MAX_BODY_BYTES = 5 * 1024 * 1024;');
+      expect(source).toContain("'NWFPartnershipEngine-Research/1.0 (+https://newwavefluent.com/)'");
+      expect(source).toContain('new Set([301, 302, 303, 307, 308])');
+    },
+  );
 
   it.skipIf(!rangeAvailable)('changed no value in policy.ts other than the version string', () => {
     // Every changed CODE line (comments carry the reasoning and are reviewed

@@ -50,13 +50,34 @@ export const SUPERSEDED_POLICY_VERSIONS = [
 ] as const;
 
 /**
- * Read from production, never restated - and asserted to be v3 by this step's
- * own test. Unlike the Option-B step's constant, this one IS current: this
- * step runs in the phase that made it current, so there is no window in which
- * it could quietly describe a different build.
+ * Read from production, never restated. It is whatever version this build
+ * implements RIGHT NOW, and it is deliberately allowed to move.
+ *
+ * TEMPORAL CORRECTION (owner decision
+ * AUTHORISE_BOUNDED_TRANSPORT_RETRY_TEMPORAL_TEST_CORRECTION_V1). The comment
+ * that stood here claimed this constant "IS current ... so there is no window
+ * in which it could quietly describe a different build". That was true only
+ * while v3 WAS production. It is a live read of production, and production is
+ * expected to advance past v3; what must never move is the EXPECTATION below.
  */
 export const PRODUCTION_POLICY_VERSION = FETCH_POLICY_VERSION;
 
+/**
+ * FROZEN AT v3 FOREVER. THIS IS NOT A CLAIM ABOUT WHAT PRODUCTION IS.
+ *
+ * This census measures the v3 predicate against evidence acquired around the
+ * v2 -> v3 transition. Its expectation is therefore a property of the
+ * MEASUREMENT, not of the build: re-pinning it to whatever version happens to
+ * be current would silently re-aim a frozen historical measurement at a
+ * predicate it was never reviewed against.
+ *
+ * IT IS ALSO THE NON-REMATERIALISATION GUARD, AND THAT IS ITS POINT.
+ * `materialiseV3Census` refuses when `PRODUCTION_POLICY_VERSION` differs from
+ * this value. Once production moves beyond v3 that refusal fires, the already
+ * committed v3 census becomes the immutable historical artifact, and nobody
+ * can regenerate it under a build whose predicate has moved. A test asserts
+ * the refusal rather than assuming it.
+ */
 export const EXPECTED_PRODUCTION_POLICY_VERSION = 'orgunit-fetch-policy-v3';
 
 // ---------------------------------------------------------------------------

@@ -1,0 +1,130 @@
+{
+  "record": "PHASE_2B_2D_A2_BOUNDED_TRANSPORT_RETRY_TEMPORAL_TEST_CORRECTION",
+  "recordKind": "OWNER_CORRECTION_OF_TEST_TEMPORAL_SEMANTICS",
+  "version": "V1",
+  "phase": "PHASE_2B_2D",
+  "status": "APPLIED",
+  "ownerDecision": "AUTHORISE_BOUNDED_TRANSPORT_RETRY_TEMPORAL_TEST_CORRECTION_V1",
+  "thisFileAuthorises": [],
+
+  "frozenRetryDesignPath": "docs/evaluation/PHASE_2B_2D_A2_BOUNDED_TRANSPORT_RETRY_POLICY_DESIGN_V1.json",
+  "frozenRetryDesignSha256": "46c3e1ff49db96cc6bb6d84d6088f799cfff6aa8d34d0b4d659be31a6fddc1cd",
+  "frozenRetryDesignBytes": 77776,
+  "frozenRetryDesignEdited": false,
+
+  "correctionKind": "TEMPORAL_TEST_SEMANTICS_ONLY",
+  "retryPolicySemanticsChanged": false,
+  "productionSourceChanged": false,
+  "migrationChanged": false,
+  "historicalRangesMustNotTrackHead": true,
+
+  "theContradiction": {
+    "whereItCameFrom": "the frozen design's rootRunnerAccountingImpact.testsRequiringUpdateForTheVersionBump listed SIX locations as 'must be re-pinned to v4' without distinguishing which of them assert CURRENT production from which assert a PAST phase's own terminal state.",
+    "whyThatWasWrong": "A historical phase test asserts facts about that phase's OWN terminal commit. A current-production test asserts facts about HEAD. Re-pinning the first kind to v4 would have rewritten history - making the Option-C-lite repair claim it introduced a version it never introduced, and making the observability repair claim it moved a request boundary it explicitly did not move.",
+    "theSameDesignAlreadySaidTheOpposite": "the design's own rootRunnerAccountingImpact.consequenceOfTheBumpThatMustBeStatedNotDiscovered records that the v3 census guard is CORRECT and must NOT be weakened. The re-pin list contradicted that.",
+    "whoCaughtIt": "owner, after design freeze",
+    "designBytesLeftUnchanged": "the frozen design is immutable; this append-only record is the correction, and the implementation follows this record where the two differ."
+  },
+
+  "theRule": {
+    "historicalPhaseTest": "asserts facts about its own BASE..TERMINAL commit range, and reads file bytes AT its terminal commit. It must stay true under every later build, for ever.",
+    "currentProductionTest": "asserts facts about HEAD, and moves when production moves.",
+    "neverConflateThem": true,
+    "aHistoricalTestThatReadsTheWorkingTreeIsTheDefect": "it silently converts 'this is what that repair did' into 'this is what production does now', and the conversion is invisible until a later phase makes the two differ."
+  },
+
+  "corrections": [
+    {
+      "id": "C1",
+      "file": "src/test/harness/phase2b2d/v3transition/v3Contract.ts",
+      "what": "EXPECTED_PRODUCTION_POLICY_VERSION stays 'orgunit-fetch-policy-v3'. Its comment now states that it is a FROZEN property of the measurement and simultaneously the non-rematerialisation guard, and the comment on PRODUCTION_POLICY_VERSION no longer claims that constant 'IS current ... so there is no window in which it could quietly describe a different build'.",
+      "valueChanged": false,
+      "onlyCommentAndSemanticsClarified": true
+    },
+    {
+      "id": "C2",
+      "file": "src/test/unit/orgunitRobotsOptionCLiteCensus.test.ts",
+      "what": "the test 'measures production, and production is v3' asserted PRODUCTION_POLICY_VERSION === EXPECTED_PRODUCTION_POLICY_VERSION. It now asserts the two facts separately - production is read live from FETCH_POLICY_VERSION, and the EXPECTATION is pinned at v3 - and a NEW test proves the census REFUSES to materialise once production has moved beyond v3.",
+      "refusalTestBehaviour": "dormant while production is v3 (it records that state explicitly rather than passing silently); live from the moment the v4 bump lands, where it asserts OptionCLiteStop and the exact refusal message."
+    },
+    {
+      "id": "C3",
+      "file": "src/test/unit/orgunitRobotsOptionCLiteRepairScope.test.ts",
+      "what": "added sourceAtTerminal(path) = `git show c2e07b8:<path>`, and moved every assertion in the 'the policy the repair declares' block to read the terminal commit. The current-production assertion expect(FETCH_POLICY_VERSION).toBe('orgunit-fetch-policy-v3') is REMOVED, and FETCH_POLICY_VERSION is no longer imported by this file at all.",
+      "rangeChanged": false,
+      "base": "e860b29853cff308f4a27ac8cd089745d1dd12a3",
+      "terminal": "c2e07b87ab2394287154977580240a5723bf6cbd",
+      "siblingAssertionsMovedToo": "the timeouts/caps/headers, the hop bound and the expired-argument comment were read from the working tree by the same helper and are claims about the same repair. Leaving them would have recreated the identical defect at the next phase. MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS keeps its LIVE assertion as well, because that bound is one this repair froze and no later phase may move without its own authorisation - it is both a historical fact and a current one."
+    },
+    {
+      "id": "C4",
+      "file": "src/test/firewall/phase2bTransportSubtype.firewall.test.ts",
+      "what": "pinned REPAIR_TERMINAL_COMMIT = 6f62b2e87de1f06e0545da8ae9340418d0ec70fc. The range is now BASE..TERMINAL rather than BASE -> working tree; sourceOf reads `git show 6f62b2e:<path>`; file enumeration uses `git ls-tree -r <terminal>` rather than `git ls-files`; the untracked-file scans are gone, because a closed range has no working-tree component. The current-production assertion expect(FETCH_POLICY_VERSION).toBe('orgunit-fetch-policy-v3') is REMOVED and replaced by the historical read at the terminal commit; FETCH_POLICY_VERSION is no longer imported.",
+      "base": "6898a94eee0aca0be273459f01d0da2a7b13df5b",
+      "terminal": "6f62b2e87de1f06e0545da8ae9340418d0ec70fc",
+      "whyThisOneWasLoadBearing": "without it, the v4 implementation's four production files would have fallen INSIDE the observability repair's open range and been reported as an observability scope escape - and 'declares no retry policy function in production' would have failed on the new retryPolicy.ts, which is a file a LATER authorisation created.",
+      "whyItIsNotAWeakening": "the assertions are unchanged in strength and are now evaluated against the exact bytes they were written about. The file enumeration moved from the working-tree index to the terminal commit's tree, which is strictly more precise for a closed range."
+    }
+  ],
+  "correctionCount": 4,
+  "filesChanged": [
+    "src/test/harness/phase2b2d/v3transition/v3Contract.ts",
+    "src/test/unit/orgunitRobotsOptionCLiteCensus.test.ts",
+    "src/test/unit/orgunitRobotsOptionCLiteRepairScope.test.ts",
+    "src/test/firewall/phase2bTransportSubtype.firewall.test.ts"
+  ],
+  "filesChangedCount": 4,
+  "allUnderSrcTest": true,
+  "productionFilesChanged": [],
+
+  "frozenFacts": {
+    "v3CensusExpectedPolicyRemains": "orgunit-fetch-policy-v3",
+    "optionCLiteHistoricalTerminal": "c2e07b87ab2394287154977580240a5723bf6cbd",
+    "optionCLiteHistoricalPolicy": "orgunit-fetch-policy-v3",
+    "transportObservabilityHistoricalTerminal": "6f62b2e87de1f06e0545da8ae9340418d0ec70fc",
+    "transportObservabilityHistoricalPolicy": "orgunit-fetch-policy-v3",
+    "optionBHistoricalTarget": "orgunit-fetch-policy-v2",
+    "currentProductionAtThisCommit": "orgunit-fetch-policy-v3",
+    "currentProductionAfterImplementation": "orgunit-fetch-policy-v4"
+  },
+
+  "testsThatMayMoveToV4WhenTheBumpLands": [
+    {
+      "file": "src/test/unit/orgunitClassifyHistoricalFetchPolicyProvenance.test.ts",
+      "why": "its PRODUCTION constant exists precisely to be COMPARED against a frozen historical value; the point of the test is that they differ. v3 joins v2 in the superseded set.",
+      "historicalLiteralsUntouched": "the freeze's own fetchPolicyVersion stays orgunit-fetch-policy-v1"
+    },
+    {
+      "file": "src/test/unit/orgunitCorpus2DOptionBTransition.test.ts",
+      "why": "its FUTURE_POLICY_VERSION stays the HISTORICAL orgunit-fetch-policy-v2; only its explicit current-production comparison moves, and that comparison exists to prove the step's frozen literal has diverged from production.",
+      "historicalLiteralsUntouched": "orgunit-fetch-policy-v2"
+    },
+    {
+      "file": "src/test/integration/orgunitRobotsOptionCLite.test.ts",
+      "why": "it constructs NEW observations, which must carry whatever version production stamps"
+    }
+  ],
+
+  "validation": {
+    "focusedSuitesRunUnderV3": [
+      "src/test/unit/orgunitRobotsOptionCLiteCensus.test.ts",
+      "src/test/unit/orgunitRobotsOptionCLiteRepairScope.test.ts",
+      "src/test/firewall/phase2bTransportSubtype.firewall.test.ts"
+    ],
+    "fullValidateRunUnderV3": true,
+    "fullValidateExitCodeRecordedInTheCommit": true
+  },
+
+  "institutionNetworkExecuted": false,
+  "institutionHttpRequests": 0,
+  "institutionDnsLookups": 0,
+  "institutionTlsHandshakes": 0,
+  "historicalRowsChanged": false,
+  "acquisitionStatusChanged": false,
+  "reserveConsumption": 0,
+
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A further correction is a NEW record that references this one by SHA-256."
+  }
+}

@@ -26,7 +26,7 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { FETCH_POLICY_VERSION } from '../../orgunits/web/policy.js';
 import {
   censusOfPersistedRuns,
@@ -37,6 +37,7 @@ import {
   type PersistedRedirect,
   type PersistedRun,
 } from '../harness/phase2b2d/v3transition/v3Census.js';
+import { materialiseV3Census } from '../harness/phase2b2d/v3transition/materialiseV3Census.js';
 import {
   EXPECTED_PRODUCTION_POLICY_VERSION,
   IMPLEMENTATION_RECORD_PATH,
@@ -105,9 +106,47 @@ function hostChangingRedirect(overrides: Partial<PersistedRedirect> = {}): Persi
 }
 
 describe('Option C-lite census: the rule is mechanical', () => {
-  it('measures production, and production is v3', () => {
+  it('reads production live, and pins its own EXPECTATION at v3 permanently', () => {
+    // TEMPORAL CORRECTION (owner decision
+    // AUTHORISE_BOUNDED_TRANSPORT_RETRY_TEMPORAL_TEST_CORRECTION_V1). This
+    // used to assert PRODUCTION === EXPECTED, i.e. "production is v3". That
+    // conflated two different facts. The expectation is a property of THIS
+    // MEASUREMENT and is frozen; production is a live read and is expected to
+    // advance. Asserting they are equal turned a historical census into a
+    // claim about every future build.
     expect(PRODUCTION_POLICY_VERSION).toBe(FETCH_POLICY_VERSION);
-    expect(PRODUCTION_POLICY_VERSION).toBe(EXPECTED_PRODUCTION_POLICY_VERSION);
+    expect(EXPECTED_PRODUCTION_POLICY_VERSION).toBe('orgunit-fetch-policy-v3');
+  });
+
+  it('refuses to materialise once production has moved beyond v3', async () => {
+    // THE GUARD IS THE POINT, NOT AN OBSTACLE. Once production advances, the
+    // committed v3 census is the immutable historical artifact and must not be
+    // regenerable under a build whose predicate has moved.
+    //
+    // While production IS v3 the guard is dormant and there is nothing to
+    // prove; the assertion below records that state honestly rather than
+    // silently passing. Once production advances - which the v4 bounded
+    // transport retry does - this becomes a live refusal test.
+    if (PRODUCTION_POLICY_VERSION === EXPECTED_PRODUCTION_POLICY_VERSION) {
+      expect(PRODUCTION_POLICY_VERSION).toBe('orgunit-fetch-policy-v3');
+      return;
+    }
+
+    // The connection string is stubbed only so the version guard is REACHED:
+    // materialiseV3Census checks DATABASE_URL_READONLY first, and this test
+    // must fail on the version, not on configuration. No pool is ever opened,
+    // because the version guard throws before that line.
+    vi.stubEnv('DATABASE_URL_READONLY', 'postgres://unused.invalid/unused');
+    try {
+      await expect(materialiseV3Census(ROOT, { write: false })).rejects.toBeInstanceOf(
+        OptionCLiteStop,
+      );
+      await expect(materialiseV3Census(ROOT, { write: false })).rejects.toThrow(
+        /STOP: production acquisition is ".*", not "orgunit-fetch-policy-v3"/,
+      );
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it('reads the verdict from the LANDED predicate, host-change flag included', () => {

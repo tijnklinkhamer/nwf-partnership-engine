@@ -21,19 +21,20 @@
  *     the same eight tokens as the database CHECK;
  *   - nothing decides retryability, anywhere;
  *   - the request boundary did not move: no retry, no extra lookup, no
- *     orchestrator or circuit-breaker change, and `FETCH_POLICY_VERSION` is
+ *     orchestrator or circuit-breaker change, and `FETCH_POLICY_VERSION` was
  *     still `orgunit-fetch-policy-v3`;
  *   - no new network primitive, no TLS weakening, no new dependency.
  *
- * THE RANGE IS REPAIR_BASE_COMMIT -> THE WORKING TREE, because this IS the
- * current phase. When it becomes history its terminal commit is pinned here,
- * exactly as ADR 0012's and ADR 0013's were.
+ * THE RANGE IS REPAIR_BASE_COMMIT..REPAIR_TERMINAL_COMMIT. It was BASE -> THE
+ * WORKING TREE while this repair WAS the current phase; now that it is
+ * history, its terminal commit is pinned here, exactly as ADR 0012's and ADR
+ * 0013's were.
  */
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { FETCH_POLICY_VERSION } from '../../orgunits/web/policy.js';
+// FETCH_POLICY_VERSION is deliberately NOT imported: every assertion here is
+// about this repair's own terminal commit, never about production now.
 import {
   TRANSPORT_FAILURE_SUBTYPES_BY_ERROR_KIND,
   type TransportFailureSubtype,
@@ -46,6 +47,26 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
  * observability design byte-for-byte before any implementation began.
  */
 const REPAIR_BASE_COMMIT = '6898a94eee0aca0be273459f01d0da2a7b13df5b';
+
+/**
+ * The commit at which this repair ENDED: the observability implementation
+ * record.
+ *
+ * TEMPORAL CORRECTION (owner decision
+ * AUTHORISE_BOUNDED_TRANSPORT_RETRY_TEMPORAL_TEST_CORRECTION_V1). This file
+ * was written with an open upper bound - BASE -> the working tree - because
+ * observability WAS the current repair. That is exactly right while a repair
+ * is in flight and exactly wrong the moment it lands: every later,
+ * separately authorised phase would be swept into this repair's range and
+ * judged against this repair's authorised production surface. The bounded
+ * transport retry (v4) is the first such phase, and it would have been
+ * reported here as an observability scope escape.
+ *
+ * A historical phase test asserts facts about its OWN terminal commit. Pinning
+ * the upper bound is what makes that true, and `sourceOf` below is what
+ * makes the file-content assertions agree with it.
+ */
+const REPAIR_TERMINAL_COMMIT = '6f62b2e87de1f06e0545da8ae9340418d0ec70fc';
 
 /** The exact production surface the committed design authorises. */
 const AUTHORISED_PRODUCTION_FILES = [
@@ -105,25 +126,66 @@ function commitExists(commit: string): boolean {
   }
 }
 
-const rangeAvailable = commitExists(REPAIR_BASE_COMMIT);
+const rangeAvailable = commitExists(REPAIR_BASE_COMMIT) && commitExists(REPAIR_TERMINAL_COMMIT);
 
-/** Every path this repair changed, base -> working tree, tracked and untracked alike. */
+/**
+ * Every path this repair changed, over its own CLOSED range.
+ *
+ * The untracked-file scan the open-ended version needed is gone with it: a
+ * range that ends at a commit has no working-tree component, so nothing
+ * uncommitted can belong to it.
+ */
 function changedInRepair(...paths: readonly string[]): string[] {
   const tracked = execFileSync(
     'git',
-    ['-C', REPO_ROOT, 'diff', '--name-only', REPAIR_BASE_COMMIT, '--', ...paths],
+    [
+      '-C',
+      REPO_ROOT,
+      'diff',
+      '--name-only',
+      REPAIR_BASE_COMMIT,
+      REPAIR_TERMINAL_COMMIT,
+      '--',
+      ...paths,
+    ],
     { encoding: 'utf8' },
   );
-  const untracked = execFileSync(
-    'git',
-    ['-C', REPO_ROOT, 'ls-files', '--others', '--exclude-standard', '--', ...paths],
-    { encoding: 'utf8' },
-  );
-  return [...new Set(`${tracked}\n${untracked}`.split('\n').filter((l) => l.length > 0))].sort();
+  return [...new Set(tracked.split('\n').filter((l) => l.length > 0))].sort();
 }
 
+/**
+ * The file's bytes AT THIS REPAIR'S TERMINAL COMMIT.
+ *
+ * Every content assertion below is a statement about what the observability
+ * repair left behind, so all of them read `6f62b2e`. Reading the working tree
+ * would make them track HEAD, which is the defect this correction removes -
+ * and which would have been "fixed", wrongly, by rewriting this repair's
+ * history to claim it landed a policy version it never introduced.
+ */
 function sourceOf(path: string): string {
-  return readFileSync(join(REPO_ROOT, path), 'utf8');
+  return execFileSync('git', ['-C', REPO_ROOT, 'show', `${REPAIR_TERMINAL_COMMIT}:${path}`], {
+    encoding: 'utf8',
+  });
+}
+
+/**
+ * The tracked files under `paths` AS THEY EXISTED at this repair's terminal
+ * commit.
+ *
+ * The working-tree listing this replaced (`git ls-files`) would enumerate
+ * files a LATER phase added - and `sourceOf` would then fail trying to read
+ * them out of a commit that predates them. Worse, a scope assertion written
+ * over that listing would silently start judging a later phase's files
+ * against this repair's rules.
+ */
+function trackedAtTerminal(...paths: readonly string[]): string[] {
+  return execFileSync(
+    'git',
+    ['-C', REPO_ROOT, 'ls-tree', '-r', '--name-only', REPAIR_TERMINAL_COMMIT, '--', ...paths],
+    { encoding: 'utf8' },
+  )
+    .split('\n')
+    .filter((line) => line.length > 0);
 }
 
 /** SQL with `--` line comments removed: a verb in prose is not a statement. */
@@ -234,10 +296,7 @@ describe('the DB CHECK and the TypeScript vocabulary are the same eight tokens',
 
 describe('H. no raw error detail became durable', () => {
   it('adds no free-text error column, in this or any migration', () => {
-    const files = execFileSync('git', ['-C', REPO_ROOT, 'ls-files', 'migrations'], {
-      encoding: 'utf8',
-    })
-      .split('\n')
+    const files = trackedAtTerminal('migrations')
       .filter((f) => f.endsWith('.sql'))
       .concat(MIGRATION);
     for (const file of [...new Set(files)]) {
@@ -277,11 +336,9 @@ describe('H. no raw error detail became durable', () => {
 
 describe('no retryability is decided or stored, anywhere', () => {
   it('declares no retry policy function in production', () => {
-    const production = execFileSync('git', ['-C', REPO_ROOT, 'ls-files', 'src'], {
-      encoding: 'utf8',
-    })
-      .split('\n')
-      .filter((f) => f.endsWith('.ts') && !f.startsWith('src/test/'));
+    const production = trackedAtTerminal('src').filter(
+      (f) => f.endsWith('.ts') && !f.startsWith('src/test/'),
+    );
     for (const file of production) {
       const code = codeOf(file);
       expect(code, `${file} implements a retry disposition`).not.toMatch(
@@ -349,13 +406,19 @@ describe('I. the request boundary did not move', () => {
   });
 });
 
-describe('J. the fetch policy version is unchanged, and so are the frozen records', () => {
-  it('is still orgunit-fetch-policy-v3', () => {
+describe('J. the fetch policy version was unchanged by this repair, and so are the frozen records', () => {
+  it.skipIf(!rangeAvailable)('left the policy version at orgunit-fetch-policy-v3', () => {
     // Observability changed what is RECORDED, not what is REQUESTED. A bump
-    // would make every run row already written under v3 unexecutable
-    // (RUN_FETCH_POLICY_UNSUPPORTED) and would assert, falsely and durably,
-    // that the request boundary moved. A future RETRY does require v4.
-    expect(FETCH_POLICY_VERSION).toBe('orgunit-fetch-policy-v3');
+    // would have made every run row already written under v3 unexecutable
+    // (RUN_FETCH_POLICY_UNSUPPORTED) and would have asserted, falsely and
+    // durably, that the request boundary moved.
+    //
+    // THIS IS A HISTORICAL ASSERTION, read at this repair's terminal commit.
+    // It does NOT claim production is still v3 - the bounded transport retry
+    // moves production to v4, and that is asserted by the tests that are
+    // about production now. The retry needing v4 was already recorded here as
+    // a future requirement; it is now a landed one, and this line must not be
+    // rewritten to follow it.
     expect(
       sourceOf('src/orgunits/web/policy.ts').match(/FETCH_POLICY_VERSION\s*=\s*'[^']+'/g),
     ).toEqual(["FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v3'"]);
@@ -386,11 +449,7 @@ describe('J. the fetch policy version is unchanged, and so are the frozen record
 
 describe('K. no new network primitive, no TLS weakening, no new dependency', () => {
   it('leaves gateway.ts the only socket under src/orgunits/', () => {
-    const files = execFileSync('git', ['-C', REPO_ROOT, 'ls-files', 'src/orgunits'], {
-      encoding: 'utf8',
-    })
-      .split('\n')
-      .filter((f) => f.endsWith('.ts'));
+    const files = trackedAtTerminal('src/orgunits').filter((f) => f.endsWith('.ts'));
     const owners = files.filter((file) =>
       /node:(http|https|net|tls|dns)|(?<!\w)fetch\s*\(/.test(codeOf(file)),
     );
@@ -404,11 +463,9 @@ describe('K. no new network primitive, no TLS weakening, no new dependency', () 
     // catches its own new neighbour is to stop writing the token — never to
     // widen the firewall.
     const globalOptOut = ['NODE', 'TLS', 'REJECT', 'UNAUTHORIZED'].join('_');
-    const files = execFileSync('git', ['-C', REPO_ROOT, 'ls-files', 'src', 'migrations'], {
-      encoding: 'utf8',
-    })
-      .split('\n')
-      .filter((f) => f.length > 0 && !f.startsWith('src/test/'));
+    const files = trackedAtTerminal('src', 'migrations').filter(
+      (f) => f.length > 0 && !f.startsWith('src/test/'),
+    );
     for (const file of files) {
       const code = file.endsWith('.sql') ? sqlWithoutProse(file) : codeOf(file);
       expect(code, `${file} disables TLS verification`).not.toMatch(
@@ -488,6 +545,7 @@ describe('the repair changed exactly the authorised surface', () => {
           '--name-status',
           '--find-renames',
           REPAIR_BASE_COMMIT,
+          REPAIR_TERMINAL_COMMIT,
           '--',
           'docs/adr',
         ],
@@ -495,17 +553,11 @@ describe('the repair changed exactly the authorised surface', () => {
       )
         .split('\n')
         .filter((l) => l.length > 0);
-      const untracked = execFileSync(
-        'git',
-        ['-C', REPO_ROOT, 'ls-files', '--others', '--exclude-standard', '--', 'docs/adr'],
-        { encoding: 'utf8' },
-      )
-        .split('\n')
-        .filter((l) => l.length > 0)
-        .map((f) => `A\t${f}`);
-      expect([...adrs, ...untracked]).toEqual([
-        'A\tdocs/adr/0014-transport-failure-observability.md',
-      ]);
+      // A CLOSED range has no working-tree component, so the untracked scan
+      // the open-ended version carried is gone with it. A LATER phase's ADR -
+      // 0015, the bounded transport retry - is not part of this repair and
+      // must not appear here.
+      expect(adrs).toEqual(['A\tdocs/adr/0014-transport-failure-observability.md']);
     },
   );
 });
