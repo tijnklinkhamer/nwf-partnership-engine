@@ -1,0 +1,293 @@
+{
+  "record": "PHASE_2B_2D_A2_V4_TARGETED_TRANSPORT_REVALIDATION_RESULT_V1",
+  "recordKind": "TARGETED_V4_REVALIDATION_EVIDENCE_ONLY",
+  "publicSafe": true,
+
+  "boundAuthority": {
+    "ownerDecision": "AUTHORISE_PHASE_2B_2D_A2_V4_TARGETED_TRANSPORT_REVALIDATION_V1",
+    "authorityRecordPath": "docs/evaluation/PHASE_2B_2D_A2_V4_TARGETED_TRANSPORT_REVALIDATION_AUTHORITY_V1.json",
+    "authorityRecordSha256": "1b568b56c7a99ca653fe488faf9be5f80b763728514dbc100773b87f96890c98",
+    "authorityRecordBytes": 8791,
+    "authorityCommit": "0fc581565bbdcc8b49620fa3cac8a332e179c874",
+    "authorityCommittedAndPushedBeforeAnyInstitutionNetworkActivity": true
+  },
+
+  "boundImplementation": {
+    "startingHead": "e5642595da1ac68e3d17c59d5a3348a3557f0e9c",
+    "branch": "feat/phase2b-2d-a2-batch-02",
+    "v4ImplementationRecordSha256": "6d846f4c8a5c5367629e492cd0913b7c3f5e36556c89e65360d4d477d015031f",
+    "semanticImplementationCommit": "d9c32af156d2241151601d6d6b0bf3eb9dafcee2",
+    "acquisitionPlanAmendmentV3Sha256": "30323723d481e1298bc83b5fab10148486db4c3b0132db2cd16113ae8376b30e",
+    "acquisitionPlanAmendmentV3Commit": "f9e988ab3c1183757b4a95c68865bebf59087260",
+    "transitionCensusSha256": "17263c39fd457f906e8bf5bd3d0cba7de04b2f7af0f5d3d70579f3c97f32f669",
+    "fetchPolicyVersion": "orgunit-fetch-policy-v4"
+  },
+
+  "targets": {
+    "authorised": [4, 6, 8],
+    "started": [4, 6, 8],
+    "completed": [4, 6, 8],
+    "executionOrder": [4, 6, 8],
+    "concurrency": 1,
+    "cliExecuteInvocationsPerTarget": 1,
+    "manualRetries": 0
+  },
+
+  "targetSetProof": {
+    "reDerivedFromLiveDatabaseNotCopiedFromArtifact": true,
+    "method": "retryDispositionFor applied read-only to every observation with discovery_method = ROBOTS and error_kind not null, per run",
+    "countsByClass": {
+      "V4_TRANSITION_UNAFFECTED": 9,
+      "V4_TRANSITION_CLASSIFICATION_UNAVAILABLE_FROM_HISTORICAL_EVIDENCE": 3,
+      "V4_TRANSITION_AFFECTED": 0
+    },
+    "unavailableRunRefsAreExactlyTheThreeTargets": true,
+    "index3Class": "V4_TRANSITION_UNAFFECTED",
+    "index3NotAuthorisedBecause": "HTTP 5xx response; retryDispositionFor checks http_status first and V1 transport retry never triggers on a status"
+  },
+
+  "results": [
+    {
+      "selectionIndex": 4,
+      "split": "FINAL_HOLDOUT",
+      "historicalAcquisitionOfRecordRunRefSha256": "210ec71c8b3907fc94024a772e046dfb31028d20f9597004af8b1a9d6a0cca53",
+      "historicalFailure": "ROBOTS_DNS_FAILURE",
+      "historicalErrorKind": "DNS_FAILURE",
+      "historicalErrorSubtype": null,
+      "historicalFetchPolicyVersion": "orgunit-fetch-policy-v1",
+      "v4RunRefSha256": "4e5afe119cc8e70de6abae0110e97fa2fd3ddba60a6285123f0c15472fd6b926",
+      "v4RunTerminalState": "COMPLETED",
+      "v4RootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "firstPolicyAttemptErrorKind": "DNS_FAILURE",
+      "firstPolicyAttemptErrorSubtype": "DNS_NAME_NOT_FOUND",
+      "firstPolicyAttemptHttpStatusClass": null,
+      "retryDisposition": "NOT_RETRY_ELIGIBLE",
+      "retryIssued": false,
+      "retryUrlSameAsFailedUrl": null,
+      "retryAttemptNoIncremented": null,
+      "retryResultBroadClass": null,
+      "redirectContinuationCount": 0,
+      "policyResolutionRequestCount": 1,
+      "logicalPolicyResolutions": 1,
+      "retryPathClassification": "V4_RETRY_NOT_AUTHORISED_NON_RETRYABLE_FAILURE",
+      "rawPages": 0,
+      "formalPostSd7": 0,
+      "postSd7Method": "ZERO_PAGE_PRECEDENT",
+      "threshold4SafelyMet": false,
+      "diagnosticSd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "whatThisResolved": "The historical DNS_FAILURE carried no subtype, so the census could not place it. The v4 run resolves it prospectively: DNS_NAME_NOT_FOUND - an authoritative negative answer, not a failure to obtain one. No transport retry could ever have changed this outcome.",
+      "holdoutPageDetailExposed": false
+    },
+    {
+      "selectionIndex": 6,
+      "split": "DEV_CONFIRM",
+      "historicalAcquisitionOfRecordRunRefSha256": "a5550818fe15b4a058d5daddc55ce283834c7d619730e217919157f88e18046c",
+      "historicalFailure": "ROBOTS_TLS_FAILURE",
+      "historicalErrorKind": "TLS_FAILURE",
+      "historicalErrorSubtype": null,
+      "historicalFetchPolicyVersion": "orgunit-fetch-policy-v1",
+      "v4RunRefSha256": "2410121f51c259a3b8fd939d5749bfcd4206aef8b0fc2a69e625278e84174534",
+      "v4RunTerminalState": "COMPLETED",
+      "v4RootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "firstPolicyAttemptErrorKind": "CONNECTION_RESET",
+      "firstPolicyAttemptErrorSubtype": null,
+      "firstPolicyAttemptHttpStatusClass": null,
+      "retryDisposition": "RETRY_ELIGIBLE",
+      "retryIssued": true,
+      "retryUrlSameAsFailedUrl": true,
+      "retryAttemptNoIncremented": true,
+      "retryResultBroadClass": "CONNECTION_RESET",
+      "redirectContinuationCount": 0,
+      "policyResolutionRequestCount": 2,
+      "logicalPolicyResolutions": 1,
+      "retryPathClassification": "V4_RETRY_EXERCISED_BUT_POLICY_RESOLUTION_STILL_UNREADABLE",
+      "rawPages": 0,
+      "formalPostSd7": 0,
+      "postSd7Method": "ZERO_PAGE_PRECEDENT",
+      "threshold4SafelyMet": false,
+      "diagnosticSd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "currentFailureDiffersFromHistorical": "historical TLS_FAILURE, current CONNECTION_RESET. The actual current outcome is recorded; no attempt was made to reproduce the historical failure.",
+      "subtypeNullIsCorrectHere": "CONNECTION_RESET is not one of the two error kinds migration 0012 refines (TLS_FAILURE, DNS_FAILURE). The database CHECK forbids a subtype beside it, so NULL is the only admissible value and this is NOT a transport-observability provenance failure."
+    },
+    {
+      "selectionIndex": 8,
+      "split": "DEV_CONFIRM",
+      "historicalAcquisitionOfRecordRunRefSha256": "5145934ca138277794e2e426e07e24d34bcf90ad1ec126cf80d1da6c24d05ecc",
+      "historicalFailure": "ROBOTS_TLS_FAILURE",
+      "historicalErrorKind": "TLS_FAILURE",
+      "historicalErrorSubtype": null,
+      "historicalFetchPolicyVersion": "orgunit-fetch-policy-v3",
+      "v4RunRefSha256": "e3eafdb743ea1df62927a98cd0c64dd53369b36fd5f051968d66cad45a595fd8",
+      "v4RunTerminalState": "COMPLETED",
+      "v4RootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "firstPolicyAttemptErrorKind": "CONNECTION_RESET",
+      "firstPolicyAttemptErrorSubtype": null,
+      "firstPolicyAttemptHttpStatusClass": null,
+      "retryDisposition": "RETRY_ELIGIBLE",
+      "retryIssued": true,
+      "retryUrlSameAsFailedUrl": true,
+      "retryAttemptNoIncremented": true,
+      "retryResultBroadClass": "CONNECTION_RESET",
+      "redirectContinuationCount": 0,
+      "policyResolutionRequestCount": 2,
+      "logicalPolicyResolutions": 1,
+      "retryPathClassification": "V4_RETRY_EXERCISED_BUT_POLICY_RESOLUTION_STILL_UNREADABLE",
+      "rawPages": 0,
+      "formalPostSd7": 0,
+      "postSd7Method": "ZERO_PAGE_PRECEDENT",
+      "threshold4SafelyMet": false,
+      "diagnosticSd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "currentFailureDiffersFromHistorical": "historical TLS_FAILURE, current CONNECTION_RESET. The actual current outcome is recorded.",
+      "subtypeNullIsCorrectHere": "as index 6"
+    }
+  ],
+
+  "boundaryProofs": {
+    "everyNewRunStampedV4": true,
+    "everyNewObservationStampedV4": true,
+    "newV1V2V3Observations": 0,
+    "transportRetriesPerLogicalResolution": { "index4": 0, "index6": 1, "index8": 1 },
+    "maxTransportRetriesPerLogicalResolution": 1,
+    "redirectContinuationsPerLogicalResolution": { "index4": 0, "index6": 0, "index8": 0 },
+    "maxRedirectContinuationsPerLogicalResolution": 1,
+    "gatewayRequestsPerLogicalResolution": { "index4": 1, "index6": 2, "index8": 2 },
+    "maxGatewayRequestsPerLogicalResolution": 3,
+    "anyRetryOfANonRetryableClass": false,
+    "anyHttpResponseRetried": false,
+    "anyRetryToADifferentUrl": false,
+    "tlsVerificationWeakened": false,
+    "productionCodeChanged": false,
+    "policyChanged": false,
+    "migrationCreated": false
+  },
+
+  "prospectiveSubtypeObservability": {
+    "firstProspectiveValidationOfMigration0012": true,
+    "newTlsOrDnsFailuresObserved": 1,
+    "newTlsOrDnsFailuresCarryingNonNullSubtype": 1,
+    "newTlsOrDnsFailuresWithNullSubtype": 0,
+    "transportObservabilityProvenanceFailure": false,
+    "observedSubtypes": ["DNS_NAME_NOT_FOUND"],
+    "historicalNullSubtypesUnchanged": true
+  },
+
+  "pacing": {
+    "retriesIssuedThroughV4ProductionPath": true,
+    "admitTransportRetryCallbackPresent": true,
+    "directSecondGatewayCallBypassPathExists": false,
+    "liveIntervalReconstruction": "LIVE_PACING_INTERVAL_NOT_DURABLY_MEASURABLE",
+    "why": "observed_at is stamped in persist() AFTER a request completes, while the pacer stamps its slot BEFORE the request is issued. observed_at deltas therefore equal MIN_HOST_PACING_SECONDS plus the difference of the two attempts' own durations, and cannot measure the interval. Measured deltas were 623 ms (index 6) and 1081 ms (index 8), both consistent with a full 1.2 s slot interval given a slower first attempt that includes DNS resolution.",
+    "pacingIsCoveredByTests": true,
+    "instrumentationAddedOrCodeAltered": false
+  },
+
+  "databaseDeltas": {
+    "orgunit_research_runs": { "before": 12, "after": 15, "delta": 3 },
+    "orgunit_research_run_completions": { "before": 12, "after": 15, "delta": 3 },
+    "orgunit_fetch_observations": { "before": 204, "after": 209, "delta": 5 },
+    "orgunit_redirect_observations": { "before": 11, "after": 11, "delta": 0 },
+    "orgunit_page_evidence": { "before": 160, "after": 160, "delta": 0 },
+    "orgunit_page_candidates": { "before": 320, "after": 320, "delta": 0 },
+    "orgunit_root_promotions": { "before": 0, "after": 0, "delta": 0 },
+    "orgunit_root_promotion_revocations": { "before": 0, "after": 0, "delta": 0 },
+    "newV4Runs": 3,
+    "newV4Observations": 5,
+    "newObservationsWithNonNullErrorSubtype": 1,
+    "retryAttemptPairsObserved": 2,
+    "classifierTablesRemainZero": true
+  },
+
+  "immutabilityProofs": {
+    "historicalRowsWrittenDuringThisSession": 0,
+    "historicalRunsStill": 12,
+    "historicalObservationsStill": 204,
+    "historicalObservationsWithNonNullSubtype": 0,
+    "threeCensusTargetRunsIntact": true,
+    "historicalEvidenceChanged": 0,
+    "acquisitionOfRecordChanged": 0,
+    "historicalExecutionRecordsUpdated": 0,
+    "historicalSd9StatesUpdated": 0,
+    "transitionLedgersUpdated": 0,
+    "generation1CountsMoved": 0,
+    "p5StateChanged": 0
+  },
+
+  "scopeProofs": {
+    "reserveConsumption": 0,
+    "replacementsRecorded": 0,
+    "index9Touched": false,
+    "index9State": "NEVER_STARTED",
+    "index3Touched": false,
+    "indicesGreaterThanOrEqualTo10Touched": false,
+    "labelsCreated": 0,
+    "providerInference": 0,
+    "classifierExecutions": 0,
+    "holdoutSemanticClassifierAccess": 0,
+    "setP": 0,
+    "setR": 0,
+    "phase2E": 0,
+    "p5AppliedBetweenTargets": false
+  },
+
+  "hostSafety": {
+    "index4": {
+      "power": "AC",
+      "batteryPercent": 91,
+      "lidOpen": true,
+      "preventSystemSleepEffective": true,
+      "sleepDuringTarget": false
+    },
+    "interTargetSleepEvent": {
+      "occurred": true,
+      "when": "lid closed 12:57:18 local, approximately 48 seconds AFTER index 4 completed; machine woke 13:30:02 local",
+      "duringAnyTarget": false,
+      "evidenceAffected": false,
+      "ownerAdjudication": "CONTINUE_ON_BATTERY_HONESTLY_RECORDED",
+      "why": "Section 10's stop trigger is a sleep DURING a target, which did not occur; index 4 had already completed and its run and completion rows were durably persisted. The owner was asked rather than the ambiguity being resolved unilaterally."
+    },
+    "index6And8": {
+      "power": "BATTERY",
+      "batteryPercent": 92,
+      "lidOpen": true,
+      "dedicatedIdleSleepPreventionActive": true,
+      "dedicatedIdleSleepPreventionMechanism": "caffeinate -dimsu, holding PreventUserIdleSystemSleep and PreventUserIdleDisplaySleep",
+      "preventSystemSleepEffective": false,
+      "honestNote": "macOS does not make PreventSystemSleep effective on battery power; the assertion read 0 throughout both battery runs. Clamshell sleep cannot be prevented by any assertion. This is recorded rather than presented as full sleep protection.",
+      "sleepDuringTarget": false
+    },
+    "hostSafetyFiction": false
+  },
+
+  "whatThisEvidenceDoesAndDoesNotSay": {
+    "does": [
+      "All three previously-unclassifiable failures are now classifiable from prospective v4 evidence.",
+      "Index 4's failure is resolved to DNS_NAME_NOT_FOUND: a stable, authoritative negative answer that no transport retry could change.",
+      "Indices 6 and 8 both exercised the bounded retry exactly once, at the same URL, and the site-policy document remained unreadable.",
+      "The bounded retry behaved exactly as specified in every observable respect, including its ceilings.",
+      "Migration 0012's subtype observability works prospectively: the one new DNS failure carries a non-null subtype."
+    ],
+    "doesNot": [
+      "It does not show that the retry repair recovers acquisition: zero of the three targets yielded a readable policy document.",
+      "It does not supersede any historical acquisition-of-record run.",
+      "It does not move any Generation-1 count, SD9 state, transition ledger or P5 state.",
+      "It does not claim the current failures are the same conditions as the historical ones: indices 6 and 8 presented CONNECTION_RESET where history recorded TLS_FAILURE."
+    ]
+  },
+
+  "identityDisclosure": {
+    "institutionNamesRecorded": 0,
+    "organisationUuidsRecorded": 0,
+    "echeRowKeysRecorded": 0,
+    "hostnamesRecorded": 0,
+    "urlsRecorded": 0,
+    "redirectTargetsRecorded": 0,
+    "pageTitlesOrTextRecorded": 0,
+    "certificateDetailsRecorded": 0,
+    "rawErrorDetailRecorded": 0,
+    "publicLinkageIsOnly": ["selectionIndex", "SHA-256(run UUID)"],
+    "rawRunJsonLocation": "outside the repository, in the session scratchpad only"
+  },
+
+  "nextOwnerDecision": "A2_V4_TARGETED_TRANSPORT_REVALIDATION_EVIDENCE_ADJUDICATION",
+  "terminalMarker": "PHASE_2B_2D_A2_V4_TARGETED_TRANSPORT_REVALIDATION_COMPLETE_AWAITING_EVIDENCE_ADJUDICATION"
+}
