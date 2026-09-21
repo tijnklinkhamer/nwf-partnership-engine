@@ -43,7 +43,7 @@ const REPAIR_BASE_COMMIT = '05645a619e63ae478a58176a92a78ef45826b292';
  * after it landed, so a later phase is never judged against this repair's
  * authorised surface.
  */
-const REPAIR_TERMINAL_COMMIT: string | null = null;
+const REPAIR_TERMINAL_COMMIT: string | null = 'ec792568fa7ec4764a04499e78a416207d07aa1f';
 
 const AUTHORISED_PRODUCTION_FILES = [
   'src/orgunits/orchestrator/anchors.ts',
