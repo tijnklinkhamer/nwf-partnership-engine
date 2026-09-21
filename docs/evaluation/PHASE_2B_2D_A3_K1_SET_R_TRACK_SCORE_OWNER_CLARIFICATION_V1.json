@@ -1,0 +1,204 @@
+{
+  "recordId": "phase2b-2d-a3-k1-set-r-track-score-owner-clarification-v1",
+  "recordKind": "OWNER_CLARIFICATION",
+  "decisionToken": "K1_SET_R_TRACK_SCORE_MAX_V1",
+  "selectedOption": "RECOMMEND_K1_MAX_TRACK_SCORE",
+  "classification": "OWNER_INTERPRETATION_OF_UNDEFINED_SET_R_TRACK_SCORE_REDUCTION",
+  "explicitlyNotClassifiedAs": [
+    "METHODOLOGY_AMENDMENT",
+    "NEW_METHODOLOGY_VERSION",
+    "R4",
+    "SIGNAL_RULE_CHANGE",
+    "CANDIDATE_SCORE_CHANGE",
+    "EXECUTION_AUTHORITY"
+  ],
+  "recordedAtUtc": "2026-09-21T22:37:40Z",
+  "recordedBy": "claude-code-session, transcribing an exact owner decision",
+  "branch": "feat/phase2b-2d-a3-k1-k2-set-r-score-policy",
+  "canonicalParentCommit": "1a324ba812168332954f5c1a483d4d54f718c2de",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "whatThisRecordIs": "An IMMUTABLE governance record of the owner's interpretation of the SET_R primary order that frozen Methodology V2 R3 names but does not define: how the two persisted per-track candidate scores of ONE source page-evidence row become ONE page-level SET_R score. It adds an interpretation; it changes no frozen methodology byte, no plan byte, no earlier record, no signal rule and no evidence.",
+  "resolvesMarker": {
+    "id": "K1",
+    "marker": "A3_PREP_OWNER_DECISION_REQUIRED:SET_R_TRACK_REDUCTION",
+    "markerDeclaredIn": "src/test/harness/phase2b2d/a3prep/contracts.ts",
+    "markerStringIsRetainedUnchanged": true
+  },
+  "theGapAcknowledged": {
+    "frozenR3SetRText": "SET_R: from the same deduplicated pool, take the first SET_R_MAX_PAGES_PER_ORGANISATION = 4 by the FROZEN deterministic Track A/B signal score descending, tie-broken by sha256(\"SET_R_V2_R2:\" + documentSha256) ascending.",
+    "whatR3Leaves": "R3 names ONE 'Track A/B signal score' per document, but production persists TWO per page (one per track). R3 does not say how two become one.",
+    "frozenR3AlreadyUniquelySpecifiedMax": false,
+    "statement": "MAX is an explicit owner clarification of an undefined reduction. It is NOT claimed to be what R3 already said."
+  },
+  "productionEvidenceVerified": {
+    "signalRuleVersion": "orgunit-signal-rules-v1",
+    "perPersistedPageTracks": ["INTERNATIONAL_OFFICE", "LANGUAGE_CENTRE"],
+    "trackMapping": {
+      "TRACK_A": "INTERNATIONAL_OFFICE",
+      "TRACK_B": "LANGUAGE_CENTRE"
+    },
+    "persistedColumn": "orgunit_page_candidates.candidate_score",
+    "persistedType": "numeric(8,4)",
+    "signed": true,
+    "signedSince": "migrations/0008_signed_candidate_score.sql",
+    "deterministic": true,
+    "pageOwnEvidenceOnly": true,
+    "schemaTrackTaxonomyIsWiderThanProductionWrites": "migration 0007 also admits STUDENT_ASSOCIATION; Generation-1 production writes only the two tracks above, so any other track is UNEXPECTED under this decision"
+  },
+  "ownerDecision": {
+    "pageLevelReducer": "MAX_TRACK_SCORE",
+    "definition": "pageSetRScore = max(trackAScore, trackBScore)",
+    "trackAScore": "the persisted candidate_score of the row's INTERNATIONAL_OFFICE observation under orgunit-signal-rules-v1",
+    "trackBScore": "the persisted candidate_score of the row's LANGUAGE_CENTRE observation under orgunit-signal-rules-v1",
+    "requiredTracks": ["INTERNATIONAL_OFFICE", "LANGUAGE_CENTRE"],
+    "boundSignalRuleVersion": "orgunit-signal-rules-v1",
+    "scope": "ONE source page-evidence row, Generation 1",
+    "rationale": {
+      "tracksAre": "ALTERNATIVE_DETERMINISTIC_ENRICHMENT_MECHANISMS_NOT_MUTUALLY_EXCLUSIVE_SEMANTIC_CLASSES",
+      "sufficiency": "Strong evidence through EITHER mechanism is sufficient for SET_R enrichment.",
+      "weakerTrackCancelsStronger": false,
+      "dualTrackEvidenceIsAdded": false,
+      "newCrossTrackWeightIntroduced": false,
+      "trackPriority": "NONE"
+    },
+    "signedScorePolicy": "PRESERVE_SIGNED_PERSISTED_VALUE",
+    "signedScoreStatement": "Scores stay signed: max(-2, -4) = -2, never 0. The signed persisted ordering is meaningful.",
+    "prohibitedScoreTransforms": [
+      "CLAMP",
+      "FLOOR",
+      "ABSOLUTE_VALUE",
+      "NORMALISATION",
+      "MAX_0_SCORE"
+    ],
+    "decimalSemantics": {
+      "operatesOn": "EXACT_PERSISTED_NUMERIC_VALUE",
+      "binaryFloatingPointMayDecideOrdering": false,
+      "arithmeticRequired": "NONE",
+      "statement": "MAX selects one already-persisted observation. No addition, averaging, rounding, rescaling or widened synthetic score domain is required. The selected value is exactly value-equivalent to the winning persisted candidate_score.",
+      "textualSerializationPinned": false,
+      "textualSerializationNote": "Current authority does not guarantee one exact driver serialization of numeric(8,4). A future implementation may canonicalise or validate the decimal representation mechanically but may not alter the numeric value."
+    },
+    "requiredTrackEvidence": {
+      "resolvableOnlyWhen": "exactly one INTERNATIONAL_OFFICE observation AND exactly one LANGUAGE_CENTRE observation, both under orgunit-signal-rules-v1",
+      "missingTrack": "REFUSE_NOT_SCORE_ZERO",
+      "duplicateExpectedTrackObservation": "REFUSE_NOT_COLLAPSE",
+      "unexpectedTrack": "REFUSE_NOT_SUBSTITUTE",
+      "malformedEvidence": "REFUSE",
+      "classification": "INTEGRITY_REQUIREMENTS_NOT_ALTERNATIVE_SCORE_SEMANTICS"
+    },
+    "rankWithinRootRole": "NOT_A_SET_R_RANK_INPUT",
+    "rankWithinRootStatement": "rank_within_root is a position within (run, root, track, rule_version). It participates in NEITHER the K1 reduction NOR the SET_R primary order NOR the SET_R secondary order.",
+    "hiddenTieBreaksProhibited": [
+      "URL_ASCENDING",
+      "ROOT_RANK",
+      "RANK_WITHIN_ROOT",
+      "CANDIDATE_ROW_POSITION"
+    ]
+  },
+  "rejectedAlternatives": [
+    "SUM_TRACK_SCORES",
+    "TRACK_A_BEFORE_B_PRIORITY",
+    "TRACK_B_BEFORE_A_PRIORITY",
+    "LEXICOGRAPHIC_TWO_DIMENSIONAL_TRACK_ORDER",
+    "ALTERNATING_INTERLEAVED_TRACK_LISTS",
+    "TRACK_B_QUOTA_OR_FLOOR",
+    "CLAMP_TO_ZERO"
+  ],
+  "noAlternativeReducerRemainsImplicitlyAvailable": true,
+  "whatThisDoesNotChange": {
+    "r3Changed": false,
+    "planV1Changed": false,
+    "rankSaltChanged": false,
+    "capChanged": false,
+    "signalRuleVersionChanged": false,
+    "candidateScoreArithmeticChanged": false,
+    "scoreRecomputationAuthorised": false,
+    "realSetRAuthorised": false,
+    "realA3Authorised": false,
+    "newMethodologyVersion": false,
+    "r4Created": false,
+    "statement": "Every value in this object is false in the sense of 'this decision changed or authorised it'. The SET_R_V2_R2: salt, the cap of 4, orgunit-signal-rules-v1 and every persisted candidate_score are untouched."
+  },
+  "boundAuthority": {
+    "canonicalParentCommit": "1a324ba812168332954f5c1a483d4d54f718c2de",
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306
+    },
+    "methodologyFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+      "bytes": 17514
+    },
+    "corpusPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "bytes": 45200
+    },
+    "corpusPlanApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1_OWNER_APPROVAL.json",
+      "sha256": "0ac475031e81a60ae58d70bb83d5f71ee3cc441573dc82cf88145fdf1e8fec14",
+      "bytes": 10949
+    },
+    "k3OwnerClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A3_K3_SD7_SAMPLE_SPECIFIC_SURVIVOR_OWNER_CLARIFICATION_V1.json",
+      "sha256": "987b88a0848a5020605619f24a9accd73a04e886c80f72ab81608fbade765eab",
+      "bytes": 15475
+    },
+    "productionCandidateScoring": {
+      "path": "src/orgunits/signals/score.ts",
+      "sha256": "bf0622370dadaa82c177c10bcde2cda54d2b80ad80979e6533944cd3e19f917c",
+      "bytes": 11511
+    },
+    "productionSignalTypes": {
+      "path": "src/orgunits/signals/types.ts",
+      "sha256": "7a9be5ba66265381213ff4542eff66b3b6a3c80bee812ea1e765766f0f7244b3",
+      "bytes": 8229
+    },
+    "productionCandidatePersistence": {
+      "path": "src/orgunits/orchestrator/candidates.ts",
+      "sha256": "3cb8a57dd1663590a4781b15d0d0a2edfc39a80a75d195a1cc9de36ede27cecc",
+      "bytes": 5639
+    },
+    "candidateSchemaMigration": {
+      "path": "migrations/0007_orgunit_research_foundation.sql",
+      "sha256": "7612401b11fed201cdd6ec8a45db4e14622fc3778170065dc5475d8696e8528c",
+      "bytes": 61978
+    },
+    "signedScoreMigration": {
+      "path": "migrations/0008_signed_candidate_score.sql",
+      "sha256": "fa777cd193c0b97461bfc2167a8bb42cc64a8960ee2817aaa2f74553440df2b5",
+      "bytes": 6886
+    },
+    "canonicalR9Audit": {
+      "path": "docs/audits/PHASE_2B_2D_A3_CANONICAL_PREP_R9_CORPUS_FREEZE_PREFLIGHT_V1.md",
+      "sha256": "f5423992096bbef9cac1964b36f8af694cc0ae6fe7a0c51323c4ee993d19f48d",
+      "bytes": 11901
+    },
+    "a3PrepContracts": {
+      "path": "src/test/harness/phase2b2d/a3prep/contracts.ts",
+      "sha256": "3277b7ccf69c82d4dd5d49aa58124ff908622d672916d2d5813496bc544167d0",
+      "bytes": 20801
+    },
+    "a3PrepTypes": {
+      "path": "src/test/harness/phase2b2d/a3prep/types.ts",
+      "sha256": "d73d41f8e8ab92a788aa74c0ec3ec4455b4b541eba450cbc84362c78dbec38c1",
+      "bytes": 8576
+    }
+  },
+  "whatThisRecordDoesNotDo": [
+    "it does not implement any score reducer, decimal comparator, SET_R hash, SET_R rank or SET_R survivor binding",
+    "it does not decide how an exact-document group of several source rows is scored (K2)",
+    "it does not resolve K4",
+    "it does not change K3 or the short-text membership policy",
+    "it does not authorise real A3, any score recomputation, any real SET_R, any manifest, any corpus freeze, any label or any provider inference",
+    "it does not grant any network, database, sealed-filesystem or reserve authority"
+  ],
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256. This file is never rewritten, re-hashed or re-statused."
+  }
+}
