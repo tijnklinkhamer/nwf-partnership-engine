@@ -1,0 +1,201 @@
+{
+  "recordId": "phase2b-2d-a2-anchor-document-base-fetch-policy-v5-repair-v1",
+  "recordKind": "OFFLINE_ACQUISITION_CAPABILITY_REPAIR_POLICY_DECISION",
+  "records": "PHASE_2B_2D_A2_ANCHOR_DOCUMENT_BASE_FETCH_POLICY_V5_REPAIR_V1",
+  "recordedAtUtc": "2026-09-21T17:13:31Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "ownerDecisions": [
+    "AUTHORISE_A2_ANCHOR_DOCUMENT_BASE_CAPABILITY_REPAIR_IMPLEMENTATION_V1",
+    "APPROVE_HTML_DOCUMENT_BASE_FIRST_HREF_ELEMENT_SEMANTICS_V1",
+    "APPROVE_FETCH_POLICY_V5_FOR_DOCUMENT_BASE_REPAIR_V1",
+    "DEFER_ANCHOR_HREF_CHARACTER_REFERENCE_DECODING_AS_SEPARATE_CAPABILITY_V1"
+  ],
+  "ownerDecisionScope": {
+    "authorised": [
+      "implementation of HTML document-base URL handling for discovered anchors",
+      "introduction of orgunit-fetch-policy-v5 for exactly that behavioural change",
+      "synthetic, unit and integration tests",
+      "append-only governance, policy and implementation records",
+      "validation, commit and push"
+    ],
+    "notAuthorised": [
+      "institution DNS / HTTP / TLS",
+      "rerunning P:12, P:10 or P:11",
+      "starting P:13 or P:14",
+      "assigning reserve position 4",
+      "changing the replacement ledger",
+      "accepting P:12 as success or failure",
+      "classifier or provider execution",
+      "labels",
+      "SET_P / SET_R",
+      "semantic HOLDOUT access",
+      "A3",
+      "Phase 2E",
+      "merging this branch"
+    ]
+  },
+  "startingHead": "69dff793439a8d20d29894100c4b73e064206308",
+  "bound": {
+    "capabilityReview": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_ANCHOR_DOCUMENT_BASE_CAPABILITY_REVIEW_V1.json",
+      "sha256": "eac03dc122d3e7b8a575e82f1a9509145aec2ac3b00eca3d86ca5b1e3a1e5066",
+      "bytes": 18903,
+      "finding": "BASE_HREF_NOT_SUPPORTED",
+      "causality": "P12_CAPABILITY_CAUSALITY_UNRESOLVED"
+    },
+    "windowV2Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_PRIMARY_10_14_LIVE_WINDOW_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "9503dec328acaae530dd2574b0a7f14c7b2ed67e3f5fa1fdbce0f41830c0e563",
+      "bytes": 18185
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0",
+      "ledgerHash": "2febfecfe14bc0f6ca709271e33782e2ac2a8a14f09a14ff4ff0bdf608b7e452",
+      "entries": 4
+    }
+  },
+  "v4SourceBeforeRepair": {
+    "atCommit": "69dff793439a8d20d29894100c4b73e064206308",
+    "fetchPolicyVersion": "orgunit-fetch-policy-v4",
+    "files": [
+      {
+        "path": "src/orgunits/orchestrator/anchors.ts",
+        "sha256": "a674e7cfb88ddd12ccd0a16adc1abfa6e59c2f9bedded5c3b684ba3ca9065fa9",
+        "bytes": 6859,
+        "lastChangedIn": "36d8bd5"
+      },
+      {
+        "path": "src/orgunits/orchestrator/rootRunner.ts",
+        "sha256": "ed845292cc654c68cab29f8c34dbbd449d8f5b6344a5bcf9d910fb05c84062d7",
+        "bytes": 31658,
+        "lastChangedIn": "d9c32af"
+      },
+      {
+        "path": "src/orgunits/web/policy.ts",
+        "sha256": "95fdc43b5c4d2353a6d368e02f14d8b284619c487ffae286131931b9df0c1e6a",
+        "bytes": 17276,
+        "lastChangedIn": "d9c32af"
+      },
+      {
+        "path": "src/orgunits/web/extract.ts",
+        "sha256": "33e3763f1bee6f1243f9f9d8af54f08b886241097a08cb4db7df8347bb4b9a43",
+        "bytes": 13558,
+        "lastChangedIn": "3b677dd",
+        "role": "canonical stripNonContent; REUSED, NOT CHANGED"
+      }
+    ],
+    "identicalToCapabilityReviewBinding": true
+  },
+  "authorisedProductionSurface": [
+    "src/orgunits/orchestrator/anchors.ts",
+    "src/orgunits/orchestrator/rootRunner.ts",
+    "src/orgunits/web/policy.ts"
+  ],
+  "migrationRequired": false,
+  "migrationRequiredReason": "fetch_policy_version is a text column; a string bump needs no schema change (the v2, v3 and v4 bumps needed none)",
+  "preV5Behaviour": "BASE_HREF_NOT_SUPPORTED: every anchor href is resolved against the fetched document URL, new URL(hrefRaw, fetch.requestedUrl)",
+  "documentBaseSemantics": {
+    "name": "FIRST_BASE_ELEMENT_WITH_HREF_ATTRIBUTE_IN_TREE_ORDER",
+    "supersedes": "the earlier brief phrase \"first valid <base href>\", for implementation purposes",
+    "rules": [
+      "find the FIRST <base> element, in document order, that HAS an href attribute (in any attribute syntax)",
+      "a <base> without an href attribute (e.g. target only) does NOT claim the document base",
+      "every later <base href> is ignored once the first href-bearing base is selected",
+      "the selected href is resolved against the fetched document URL (the fallback base)",
+      "if it does not parse, or parses to anything other than an http: or https: URL (javascript:, data:, ...), the document base is the fetched document URL",
+      "the search does NOT continue to a later <base href> after a failed first one"
+    ],
+    "pinnedExamples": {
+      "A": {
+        "markup": "<base href=\"/directory/\"><base href=\"/other/\">",
+        "documentBase": "/directory/"
+      },
+      "B": {
+        "markup": "<base target=\"_blank\"><base href=\"/directory/\">",
+        "documentBase": "/directory/"
+      },
+      "C": {
+        "markup": "<base href=\"http://[invalid\"><base href=\"/later-valid/\">",
+        "documentBase": "FETCHED_DOCUMENT_URL"
+      },
+      "D": {
+        "markup": "<base href=\"javascript:...\"><base href=\"/later-valid/\">",
+        "documentBase": "FETCHED_DOCUMENT_URL"
+      },
+      "E": { "markup": "(no <base href>)", "documentBase": "FETCHED_DOCUMENT_URL" }
+    },
+    "nonContent": "the base is searched for only AFTER the canonical stripNonContent (src/orgunits/web/extract.ts), the same function anchor discovery already uses; a <base> inside a comment, script, style, noscript, svg, template or iframe is not seen. No second sanitiser is written."
+  },
+  "v5BehaviouralBoundary": {
+    "changes": "ONLY the URL each already-extracted anchor href is resolved against: the document base instead of the fetched document URL",
+    "unchanged": [
+      "which anchors are extracted (extractDiscoveryAnchors unchanged)",
+      "fragment stripping before frontier admission",
+      "admissibleUrl: root authority, registrable-domain scope, host policy, URL validation",
+      "gateway checks: SSRF/address policy, pinning, TLS, timeouts, caps",
+      "robots policy and the robots redirect continuation",
+      "transport retry classes (v4)",
+      "request budgets 35 / 60 / 8 hosts, pacing, circuit breaker",
+      "redirect continuation hop bound",
+      "discovery_parent_url (still the fetched page URL)",
+      "page eligibility, SD7, SD9"
+    ],
+    "extraRequests": 0,
+    "baseUrlFetched": false,
+    "baseGrantsAuthority": false,
+    "noBaseCompatibility": "for a document with no href-bearing <base> (or whose first one falls back), the v5 frontier input is byte- and sequence-identical to v4"
+  },
+  "knownOpenCapabilities": [
+    {
+      "id": "ANCHOR_HREF_CHARACTER_REFERENCE_DECODING",
+      "disposition": "DEFER_ANCHOR_HREF_CHARACTER_REFERENCE_DECODING_AS_SEPARATE_CAPABILITY_V1",
+      "status": "KNOWN_OPEN_CAPABILITY",
+      "description": "anchor href attribute values are used raw; HTML character references (e.g. &amp;) are not decoded before URL resolution",
+      "affectsP12": false,
+      "affectsP12Evidence": "0 of P:12's 34 attempted URLs contain & or an entity artifact (capability review)",
+      "implementedHere": false,
+      "partialDecoderAdded": false
+    },
+    {
+      "id": "BASE_HREF_CHARACTER_REFERENCE_DECODING",
+      "disposition": "same deferral; no partial decoder invented for <base href> alone",
+      "status": "KNOWN_OPEN_CAPABILITY",
+      "description": "v5 fixes document-base ELEMENT SELECTION and URL RESOLUTION for attribute values as exposed by the bounded extractor; general HTML character-reference decoding in URL-valued attributes remains a separate capability item",
+      "implementedHere": false
+    }
+  ],
+  "v5IsACompleteHtmlParser": false,
+  "historicalEvidence": {
+    "reinterpreted": false,
+    "v1ToV4RowsRewritten": false,
+    "P:10": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+    "P:11": "ACQUISITION_SUCCESSFUL",
+    "P:12": "ACQUISITION_STATUS_PENDING_CAPABILITY_REVIEW",
+    "P:13": "NEVER_STARTED",
+    "P:14": "NEVER_STARTED",
+    "windowV2": "PAUSE_P5_LOW_RAW_YIELD"
+  },
+  "generationState": {
+    "successfulSelectionIndices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11],
+    "failureSelectionIndices": [10],
+    "pendingCapabilityReviewSelectionIndices": [12],
+    "pendingReplacementObligations": [10],
+    "neverStarted": { "from": 13, "to": 109 },
+    "replacementLedgerEntries": 4,
+    "reserveConsumed": 4,
+    "reservePosition4": "UNASSIGNED",
+    "p6": false,
+    "changedByThisRepair": false
+  },
+  "liveAuthority": {
+    "institutionNetwork": 0,
+    "p12Requests": 0,
+    "workingDatabaseWrites": 0
+  },
+  "nextOwnerDecisionAfterGreenImplementation": "A2_P12_FETCH_POLICY_V5_TARGETED_REVALIDATION_AUTHORISATION"
+}
