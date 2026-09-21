@@ -86,6 +86,12 @@ export function rankSetPFull(pool: readonly A3DistinctDocument[]): readonly A3Se
  * It never re-ranks, class-filters or inspects a score, and it refuses input
  * whose entries are not `SET_P` at positions exactly 0..n-1 in order, so it
  * cannot be handed an unranked, reordered or mid-cut list.
+ *
+ * THIS IS THE ORIGINAL R2 RANK-PREFIX PRIMITIVE, OVER THE PRE-SD7 RANK. It is
+ * NOT the post-SD7 SET_P selection: after K3's greedy survivor walk some
+ * documents are excluded and short-text membership is still open. The
+ * canonical post-K3, post-SD7 document cap is R8's `prepareSetPSd7`
+ * (`setPSd7.ts`), which may instead report the cap as BLOCKED.
  */
 export function selectSetPOrganisationCap(
   fullRank: readonly A3SetPRankedDocument[],
