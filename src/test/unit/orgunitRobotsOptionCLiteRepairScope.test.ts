@@ -471,15 +471,23 @@ describe('ADR 0013 repair scope: rootRunner.ts changed host and request accounti
     expect(added).toEqual([]);
   });
 
-  it('keeps the unchanged 60-request ceiling and its two-request robots prediction', () => {
-    const source = sourceOf('src/orgunits/orchestrator/rootRunner.ts');
-    expect(source).toContain('const predictedCost = (needsRobots ? 2 : 0) + 1;');
-    expect(source).toContain('budget.consume(robotsRequestCount)');
-    const constants = sourceOf('src/orgunits/orchestrator/constants.ts');
-    expect(constants).toContain('export const MAX_TOTAL_REQUESTS_PER_ROOT = 60;');
-    expect(constants).toContain('export const MAX_PAGE_ATTEMPTS_PER_ROOT = 35;');
-    expect(constants).toContain('export const MAX_HOSTS_PER_ROOT = 8;');
-  });
+  it.skipIf(!rangeAvailable)(
+    'kept the 60-request ceiling and predicted two robots requests',
+    () => {
+      // THE PREDICTION IS READ AT THE TERMINAL COMMIT: what C-lite left it at
+      // is a fact about `c2e07b8`. ADR 0015 raises it to 3, and this repair
+      // must not be rewritten to claim it anticipated that.
+      const source = sourceAtTerminal('src/orgunits/orchestrator/rootRunner.ts');
+      expect(source).toContain('const predictedCost = (needsRobots ? 2 : 0) + 1;');
+      expect(source).toContain('budget.consume(robotsRequestCount)');
+      // THE CEILINGS ARE LIVE INVARIANTS: C-lite left all three alone, and so
+      // must every later phase, so these read the current source.
+      const constants = sourceOf('src/orgunits/orchestrator/constants.ts');
+      expect(constants).toContain('export const MAX_TOTAL_REQUESTS_PER_ROOT = 60;');
+      expect(constants).toContain('export const MAX_PAGE_ATTEMPTS_PER_ROOT = 35;');
+      expect(constants).toContain('export const MAX_HOSTS_PER_ROOT = 8;');
+    },
+  );
 
   it('gives a site-policy request no exemption from the host cap', () => {
     const source = sourceOf('src/orgunits/orchestrator/rootRunner.ts');

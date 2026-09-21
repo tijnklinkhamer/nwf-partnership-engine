@@ -19,9 +19,37 @@
  * executing a v2 run under v1 timeouts and stamping "v2" on the row - would
  * make `fetch_policy_version` a label rather than a fact.
  */
-export const FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v3';
+export const FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v4';
 
 /**
+ * WHY v3 BECAME v4 (Phase 2B-2D, ADR 0015 - bounded transport retry).
+ *
+ * WHAT CHANGED, EXACTLY, AND IT IS ONE THING. Under v3, one transport failure
+ * while resolving a host's site policy ended that resolution: the policy stayed
+ * unread (`ROBOTS_UNREADABLE`) and every page under that origin was blocked.
+ * Under v4, a failure inside ONE LOGICAL ROBOTS-POLICY RESOLUTION may produce
+ * AT MOST ONE additional attempt at the EXACT SAME URL, and only when the
+ * persisted transport evidence places it in one of six approved classes
+ * (`retryPolicy.ts`).
+ *
+ * NOTHING ELSE MOVED. TLS verification, the timeouts, the header set, the byte
+ * caps, the redirect posture, the status set, the port rule, the host policy,
+ * the address classification and the robots redirect-continuation boundary are
+ * byte-identical to v3. NO TIMEOUT IS EXTENDED - a retry is a second bounded
+ * attempt, never a longer one. Ordinary pages and sitemap documents retry
+ * ZERO times, exactly as under v3.
+ *
+ * WHY IT MUST BE A NEW VERSION. `fetch_policy_version` is the column a reader
+ * uses to know WHAT NETWORK BEHAVIOUR produced a row. A v3 row means "this
+ * build made one attempt and stopped"; the same row stamped v4 would mean
+ * "this build was willing to try again, and this is what it settled on".
+ * Those are different facts, and a run's ABSENCE of a second row means
+ * different things under each.
+ *
+ * NO v1, v2 OR v3 EVIDENCE IS REINTERPRETED. Every historical run keeps the
+ * version that governed it. The gateway refuses a run whose recorded version
+ * this build does not implement, so a v3 run can be read but never resumed.
+ *
  * WHY v2 BECAME v3 (Phase 2B-2D, ADR 0013 - same-REGISTRABLE-DOMAIN robots
  * redirect continuation, "Option C-lite").
  *
@@ -261,6 +289,39 @@ export const REDIRECT_STATUSES: ReadonlySet<number> = new Set([301, 302, 303, 30
  * argument that used to justify its safety.
  */
 export const MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS = 1;
+
+/**
+ * The bounded transport retries ONE LOGICAL ROBOTS-POLICY RESOLUTION may spend
+ * (ADR 0015).
+ *
+ * THE GRAIN IS THE RESOLUTION, AND THAT IS THE WHOLE SAFETY ARGUMENT. It is
+ * not one retry per URL, per redirect hop, per failure or per caller: it is
+ * ONE TOKEN for the entire logical act of resolving a host's policy, spanning
+ * the initial request AND any ADR 0013 continuation. Once spent, a later
+ * retry-eligible failure in that same resolution is simply not retried.
+ *
+ * THIS IS WHY THE WORST CASE DOES NOT DEPEND ON HOW MANY EVIDENCE CLASSES ARE
+ * RETRYABLE. A resolution costs at most
+ *
+ *     1 initial + (at most 1 from this token) + (at most 1 from the hop bound)
+ *   = 3 gateway requests,
+ *
+ * in every interleaving, whether the retryable set has two members or six.
+ * The retryable SET decides WHICH failures may consume the token; the TOKEN
+ * decides HOW MANY requests can exist. Widening one never widens the other.
+ *
+ * IT IS SEPARATE FROM `MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS` on purpose.
+ * They bound different things - "try the same URL again" and "follow the
+ * policy file to where it says it lives" - and collapsing them into one
+ * number would let either silently pay for the other.
+ *
+ * RAISING IT IS NOT A TUNING EXERCISE. Every increment is another request
+ * against a host that has already failed, and the argument that one retry is
+ * proportionate for one idempotent site-policy GET does not extend to two by
+ * repetition. It would need its own measurement, its own ADR and its own
+ * policy version.
+ */
+export const MAX_ROBOTS_TRANSPORT_RETRIES_PER_POLICY_RESOLUTION = 1;
 
 /** The only ports this gateway will request. A published non-default port is refused, not silently allowed. */
 export const DEFAULT_PORT_FOR_SCHEME: Readonly<Record<string, number>> = Object.freeze({

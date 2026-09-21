@@ -329,16 +329,26 @@ describe('ADR 0012 repair scope: rootRunner.ts changed request accounting and no
     expect(changedInRepair('src/orgunits/orchestrator/constants.ts')).toEqual([]);
   });
 
-  it('predicts TWO robots requests, not one, under the unchanged 60-request ceiling', () => {
-    const source = readFileSync(join(REPO_ROOT, 'src/orgunits/orchestrator/rootRunner.ts'), 'utf8');
-    expect(source).toContain('const predictedCost = (needsRobots ? 2 : 0) + 1;');
-    expect(source).toContain('budget.consume(robotsRequestCount)');
-    const constants = readFileSync(
-      join(REPO_ROOT, 'src/orgunits/orchestrator/constants.ts'),
-      'utf8',
-    );
-    expect(constants).toContain('60');
-  });
+  it.skipIf(!baseAvailable)(
+    'predicted TWO robots requests, not one, under the unchanged 60-request ceiling',
+    () => {
+      // READ AT THE TERMINAL COMMIT. What ADR 0012 raised the prediction TO is
+      // a fact about ADR 0012's commit, not about the working tree: ADR 0015's
+      // bounded transport retry raises it again, to 3. A live read here would
+      // either fail on that or be "fixed" by rewriting this repair's history
+      // to claim it predicted a cost it never predicted.
+      const source = sourceAtTerminal('src/orgunits/orchestrator/rootRunner.ts');
+      expect(source).toContain('const predictedCost = (needsRobots ? 2 : 0) + 1;');
+      expect(source).toContain('budget.consume(robotsRequestCount)');
+      // The CEILING is a live invariant - ADR 0012 left it alone and so must
+      // every later phase - so it is read from the current source.
+      const constants = readFileSync(
+        join(REPO_ROOT, 'src/orgunits/orchestrator/constants.ts'),
+        'utf8',
+      );
+      expect(constants).toContain('export const MAX_TOTAL_REQUESTS_PER_ROOT = 60;');
+    },
+  );
 });
 
 describe('ADR 0012 repair scope: no firewall was weakened', () => {

@@ -340,16 +340,26 @@ export async function runRootAcquisition(
     if (circuitBreaker.isOpen(hostname)) return { status: 'CIRCUIT_OPEN' };
 
     const needsRobots = cache.get(runId, scheme, hostname) === undefined;
-    // THE ROBOTS TERM IS 2, NOT 1, SINCE ADR 0012. A robots bootstrap may now
-    // issue one narrowly-authorised same-host continuation, so an uncached
-    // host can cost two gateway requests before the page request. This is a
-    // PREDICTION, and `RequestBudget.consume` THROWS rather than clamping
-    // when it is exceeded - so under-predicting here would convert a budget
-    // edge into a thrown error mid-root instead of a clean BUDGET_EXCEEDED
-    // refusal. Predicting the worst case costs only headroom, and ADR 0008 §4
-    // already measured the 60-ceiling as mechanically unreachable through the
-    // other three caps.
-    const predictedCost = (needsRobots ? 2 : 0) + 1;
+    // THE ROBOTS TERM IS 3 SINCE ADR 0015, HAVING BEEN 2 SINCE ADR 0012 AND 1
+    // BEFORE THAT. A site-policy resolution may now spend one narrowly
+    // authorised same-registrable-domain continuation AND one bounded
+    // transport retry, so an uncached host can cost three gateway requests
+    // before the page request. Both bounds are 1 and neither can be consumed
+    // twice, so 3 is the exact worst case, not a margin.
+    //
+    // THIS IS A PREDICTION, and `RequestBudget.consume` THROWS rather than
+    // clamping when it is exceeded - so under-predicting here would convert a
+    // budget edge into a thrown error mid-root instead of a clean
+    // BUDGET_EXCEEDED refusal. Predicting the worst case costs only headroom,
+    // and ADR 0008 §4 already measured the 60-ceiling as mechanically
+    // unreachable through the other three caps.
+    //
+    // RESERVING THE WORST CASE UP FRONT IS ALSO WHAT MAKES THE RETRY SAFE TO
+    // ISSUE. Because this check passed, a retry that the policy later
+    // authorises is already affordable; `admitTransportRetry` re-checks
+    // anyway, so a caller that under-predicts degrades to "no retry" rather
+    // than throwing mid-root.
+    const predictedCost = (needsRobots ? 3 : 0) + 1;
     // Checked BEFORE any pacing wait and before authoriseAndFetchPage below -
     // refusal here means zero network activity for this attempt, and the
     // primitive itself (requestBudget.ts) is what a dedicated unit test
@@ -378,6 +388,33 @@ export async function runRootAcquisition(
         // hostname, and this root's distinct-host ledger lives here.
         admitHostChangingContinuation: (continuationUrl) =>
           mayReachContinuationHost(continuationUrl, hostname),
+        // ADR 0015: the bounded transport retry is admitted HERE, because
+        // this is the only layer holding both ledgers it needs - the root's
+        // request budget and the per-host pacer. `robots.ts` decides WHETHER
+        // the evidence justifies a retry; this decides whether this root can
+        // afford one and spaces it.
+        admitTransportRetry: async (retryUrl) => {
+          // AFFORDABILITY, CHECKED AGAIN RATHER THAN ASSUMED. The prediction
+          // above already reserved the worst case, so this should always
+          // pass; it is here so that an unaffordable retry is REFUSED (the
+          // first outcome stands, honestly mapped) instead of reaching
+          // `budget.consume` and throwing mid-root over an OPTIONAL request.
+          if (!budget.canAfford(1)) return false;
+
+          // THE SAME PACING PATH EVERY OTHER REQUEST TAKES, with the same
+          // delay resolution - no new backoff constant, and no bypass. For a
+          // host whose crawl delay is not yet known (the usual case, since the
+          // site policy that would declare one is still being resolved) this
+          // is MIN_HOST_PACING_SECONDS.
+          //
+          // LOAD-BEARING, NOT DECORATIVE: CONNECTION_RESET and
+          // CONNECTION_REFUSED fail in milliseconds, so without this the
+          // retry would follow its own failure almost immediately.
+          const retryHost = hostnameOf(retryUrl) ?? hostname;
+          const retryDelay = hostCrawlDelay.get(retryHost) ?? MIN_HOST_PACING_SECONDS;
+          await pacer.waitForSlot(retryHost, retryDelay);
+          return true;
+        },
       },
       transport,
     );

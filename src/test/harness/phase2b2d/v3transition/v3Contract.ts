@@ -60,7 +60,12 @@ export const SUPERSEDED_POLICY_VERSIONS = [
  * while v3 WAS production. It is a live read of production, and production is
  * expected to advance past v3; what must never move is the EXPECTATION below.
  */
-export const PRODUCTION_POLICY_VERSION = FETCH_POLICY_VERSION;
+// WIDENED TO `string` DELIBERATELY. Both constants are compared at RUNTIME by
+// the non-rematerialisation guard. Left at their literal types, TypeScript now
+// proves the comparison is always false - which is the guard being RIGHT, not
+// the guard being unnecessary - and rejects it as unintentional (TS2367). The
+// annotation keeps the guard expressible; neither VALUE changes.
+export const PRODUCTION_POLICY_VERSION: string = FETCH_POLICY_VERSION;
 
 /**
  * FROZEN AT v3 FOREVER. THIS IS NOT A CLAIM ABOUT WHAT PRODUCTION IS.
@@ -78,7 +83,7 @@ export const PRODUCTION_POLICY_VERSION = FETCH_POLICY_VERSION;
  * can regenerate it under a build whose predicate has moved. A test asserts
  * the refusal rather than assuming it.
  */
-export const EXPECTED_PRODUCTION_POLICY_VERSION = 'orgunit-fetch-policy-v3';
+export const EXPECTED_PRODUCTION_POLICY_VERSION: string = 'orgunit-fetch-policy-v3';
 
 // ---------------------------------------------------------------------------
 // C. The transition rule.

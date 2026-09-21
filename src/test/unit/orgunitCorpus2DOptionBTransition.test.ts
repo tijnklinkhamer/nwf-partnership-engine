@@ -165,7 +165,9 @@ describe('2D Option-B transition: the acquisition policy version it moved to', (
 
   it('has genuinely diverged from production, so the literal cannot be right by accident', () => {
     expect(PRODUCTION_POLICY_VERSION_IS_NOT_THIS_STEPS).toBe(FETCH_POLICY_VERSION);
-    expect(FETCH_POLICY_VERSION).toBe('orgunit-fetch-policy-v3');
+    // CURRENT production, and it moves when production moves. The HISTORICAL
+    // Option-B target above stays v2 for ever.
+    expect(FETCH_POLICY_VERSION).toBe('orgunit-fetch-policy-v4');
     expect(FUTURE_POLICY_VERSION).not.toBe(FETCH_POLICY_VERSION);
   });
 
@@ -177,7 +179,7 @@ describe('2D Option-B transition: the acquisition policy version it moved to', (
   it('admits no future v1 acquisition run, because the build implements exactly one version', () => {
     const source = read('src/orgunits/web/policy.ts');
     expect(source.match(/FETCH_POLICY_VERSION\s*=\s*'[^']+'/g)).toEqual([
-      "FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v3'",
+      "FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v4'",
     ]);
     // No production CODE may name the historical version: a v1 string reachable
     // from production is a v1 run waiting for an argument to select it. Comments

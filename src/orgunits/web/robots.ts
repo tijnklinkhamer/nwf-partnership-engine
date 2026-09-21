@@ -94,7 +94,12 @@ import {
   type WebTransport,
 } from './gateway.js';
 import type { RootAuthorityRef } from './authority.js';
-import { MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS, RESEARCH_USER_AGENT } from './policy.js';
+import {
+  MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS,
+  MAX_ROBOTS_TRANSPORT_RETRIES_PER_POLICY_RESOLUTION,
+  RESEARCH_USER_AGENT,
+} from './policy.js';
+import { retryDispositionFor } from './retryPolicy.js';
 import { RobotsAuthorisation } from './robotsAuthority.js';
 import { EvaluatedRobotsPolicy } from './robotsPolicy.js';
 import { validateRequestUrl } from './url.js';
@@ -229,12 +234,45 @@ export function createRobotsCache(): RobotsCache {
 export type HostChangingContinuationAdmission = (continuationUrl: string) => boolean;
 
 /**
+ * Whether ONE bounded transport retry may be issued to this exact URL, and
+ * the acquisition of the host pacing slot it must wait for (ADR 0015).
+ *
+ * IT ANSWERS AND IT PAYS, deliberately. The orchestrator is the only layer
+ * that holds this root's request ledger AND its per-host pacer, so asking it
+ * "may I?" and having it perform the wait before saying yes keeps both
+ * decisions where the state lives. A predicate that answered without pacing
+ * would leave the caller to pace with a clock this module does not own.
+ *
+ * THIS MODULE STILL OWNS NO CLOCK. It awaits a promise the caller supplies;
+ * it imports no `Clock`, calls no `setTimeout` and reads no time.
+ *
+ * THE PACING IS LOAD-BEARING, NOT BELT-AND-BRACES. Two of the six retryable
+ * classes - `CONNECTION_RESET` and `CONNECTION_REFUSED` - fail in
+ * milliseconds. Without an acquired slot the retry would follow its own
+ * failure almost immediately, which is the exact double-hit per-host pacing
+ * exists to prevent. (`TLS_HANDSHAKE_TIMEOUT` and the two timeout classes have
+ * already spent far more than the minimum interval; the slot costs them
+ * nothing.)
+ */
+export type TransportRetryAdmission = (retryUrl: string) => Promise<boolean>;
+
+/**
  * FAIL CLOSED. A caller that keeps no host ledger cannot honestly charge a
  * new hostname, so it gets exactly ADR 0012's behaviour: same-registrable-
  * domain continuations that DO change host are refused, and the
  * already-authorised same-hostname shapes are unaffected.
  */
 const REFUSE_HOST_CHANGING_CONTINUATION: HostChangingContinuationAdmission = () => false;
+
+/**
+ * FAIL CLOSED. A caller that supplies no admission callback keeps no request
+ * ledger and owns no pacer, so it can neither charge the retry nor space it.
+ * It gets exactly v3's behaviour: one attempt, then the honest mapping.
+ *
+ * The same shape as `REFUSE_HOST_CHANGING_CONTINUATION` above, for the same
+ * reason - an absent authority is a refusal, never a default yes.
+ */
+const REFUSE_TRANSPORT_RETRY: TransportRetryAdmission = () => Promise.resolve(false);
 
 export interface RobotsFetchContext {
   runId: string;
@@ -248,6 +286,12 @@ export interface RobotsFetchContext {
    * `REFUSE_HOST_CHANGING_CONTINUATION`.
    */
   admitHostChangingContinuation?: HostChangingContinuationAdmission | undefined;
+  /**
+   * Consulted ONLY when the bounded transport-retry policy has already found
+   * this resolution's failure RETRY_ELIGIBLE and the resolution's one token is
+   * still unspent. Absent means refuse - see `REFUSE_TRANSPORT_RETRY`.
+   */
+  admitTransportRetry?: TransportRetryAdmission | undefined;
 }
 
 /**
@@ -266,7 +310,9 @@ export interface RobotsFetchOutcome {
   fetchResult: WebAttemptResult | null;
   /**
    * EVERY gateway attempt this call made, in order - 0 (cache hit), 1
-   * (ordinary case) or 2 (one ADR 0012 continuation).
+   * (ordinary case), 2 (one ADR 0012/0013 continuation, or one ADR 0015
+   * bounded transport retry) or 3 (one of each, the worst case a single
+   * logical policy resolution can reach).
    *
    * A COUNT, not a boolean, because a continuation is a REAL gateway request
    * and the caller's request budget must charge for it. `fetchResult !== null`
@@ -371,9 +417,14 @@ export function continuationTargetFor(
  * Gets (fetching if not cached) the evaluated robots policy for the origin
  * implied by `targetUrl`.
  *
- * ONE GET at most, mediated entirely through `executeWebAttempt`, using the
+ * Mediated entirely through `executeWebAttempt`, using the
  * bootstrap authority scoped to exactly that one `/robots.txt` URL. Every
  * fetch outcome maps onto one of `EvaluatedRobotsPolicy`'s honest factories:
+ *
+ * AT MOST THREE GATEWAY REQUESTS (ADR 0015): the initial one, at most one
+ * bounded transport retry of whichever URL failed, and at most one
+ * redirect continuation. The retry token and the hop bound are separate and
+ * each is 1, so no interleaving can exceed three.
  *
  *   200/2xx, non-empty body -> parsed via EvaluatedRobotsPolicy.fromBody
  *   2xx, empty/whitespace body -> noRestrictions()   (empty body: no rules)
@@ -394,6 +445,7 @@ export async function getRobotsPolicy(
   const hostname = target.hostname;
   const admitHostChangingContinuation =
     context.admitHostChangingContinuation ?? REFUSE_HOST_CHANGING_CONTINUATION;
+  const admitTransportRetry = context.admitTransportRetry ?? REFUSE_TRANSPORT_RETRY;
 
   const cached = cache.get(context.runId, scheme, hostname);
   // A cache hit makes ZERO gateway requests, so it charges the caller's
@@ -445,9 +497,80 @@ export async function getRobotsPolicy(
   // it is always non-null by the time the loop below reads it.
   const resolution: { promise: Promise<EvaluatedRobotsPolicy> | null } = { promise: null };
   const pending: Promise<EvaluatedRobotsPolicy> = (async () => {
+    /**
+     * THE ONE BOUNDED TRANSPORT RETRY THIS WHOLE RESOLUTION MAY SPEND
+     * (ADR 0015).
+     *
+     * IT LIVES HERE, IN THIS CLOSURE, AND THAT IS THE DESIGN. This IIFE IS the
+     * logical policy resolution - initial request, continuation loop and final
+     * evaluation - and it is memoised in `RobotsCache` BEFORE it settles. So
+     * one `let` gives the token exactly the two properties it needs, with no
+     * new state anywhere:
+     *
+     *   1. RESOLUTION SCOPE. It is visible to the initial request and to every
+     *      continuation hop, so a retry spent on one is unavailable to the
+     *      other. It is not per URL, per hop, per failure or per caller.
+     *   2. SHARED ACROSS CONCURRENT CALLERS. A second caller for this same
+     *      origin awaits this same promise rather than starting its own
+     *      resolution, so it cannot enter this closure and cannot spend a
+     *      second token. A retry stampede is structurally impossible, not
+     *      merely avoided.
+     */
+    let retryBudget: number = MAX_ROBOTS_TRANSPORT_RETRIES_PER_POLICY_RESOLUTION;
+
+    /**
+     * ONE policy request, plus AT MOST ONE bounded retry of the SAME URL.
+     *
+     * The URL is the one that FAILED, always: called with the initial robots
+     * URL it retries that, called with an approved continuation URL it retries
+     * that. There is no path here that retries the original after a
+     * continuation failed - the parameter is the only URL this function can
+     * see.
+     *
+     * NO RECURSION AND NO LOOP. The second attempt is a straight-line second
+     * call, so "at most one retry" is a property of the control flow rather
+     * than of a counter that a future edit could mis-decrement.
+     *
+     * A RETRY IS NOT A WEAKENED REPEAT. It calls the SAME
+     * `fetchRobotsDocument` with the SAME url, so it mints a fresh URL-scoped
+     * authority and passes every gate again: URL validation, root scope, host
+     * policy, DNS resolution, address classification, connection pinning and
+     * full TLS verification. There is no parameter through which any of those
+     * could be relaxed.
+     */
+    const fetchWithBoundedRetry = async (url: string): Promise<WebAttemptResult> => {
+      const first = await fetchRobotsDocument(url);
+      observed.attempts.push(first);
+
+      if (retryBudget < 1) return first;
+      if (
+        retryDispositionFor({
+          context: 'ROBOTS_POLICY_RESOLUTION',
+          errorKind: first.errorKind,
+          errorSubtype: first.errorSubtype,
+          httpStatus: first.httpStatus,
+        }) !== 'RETRY_ELIGIBLE'
+      )
+        return first;
+
+      // THE ORCHESTRATOR DECIDES AND PAYS: it refuses when this root's
+      // request budget cannot afford one more attempt, and otherwise waits
+      // out the host's pacing interval before answering. Absent, it refuses
+      // (`REFUSE_TRANSPORT_RETRY`) - an unpaced, uncharged retry is never
+      // issued.
+      if (!(await admitTransportRetry(url))) return first;
+
+      // Spent BEFORE the request, so a failure of the retry itself cannot
+      // leave the token available to a later hop.
+      retryBudget -= 1;
+
+      const second = await fetchRobotsDocument(url);
+      observed.attempts.push(second);
+      return second;
+    };
+
     let requestedUrl = robotsUrl;
-    let result = await fetchRobotsDocument(requestedUrl);
-    observed.attempts.push(result);
+    let result = await fetchWithBoundedRetry(requestedUrl);
 
     // THE ADR 0012 CONTINUATION, AND ITS BOUND.
     //
@@ -518,8 +641,7 @@ export async function getRobotsPolicy(
       )
         cache.set(context.runId, target.protocol, target.hostname, memo);
 
-      result = await fetchRobotsDocument(requestedUrl);
-      observed.attempts.push(result);
+      result = await fetchWithBoundedRetry(requestedUrl);
     }
 
     // The LAST response is the decisive one, mapped by exactly the same
@@ -636,6 +758,14 @@ export interface SinglePageAttemptInput {
    * value is forwarded verbatim by `authoriseAndFetchPage`.
    */
   admitHostChangingContinuation?: HostChangingContinuationAdmission | undefined;
+  /**
+   * Passed straight through to the site-policy resolution (ADR 0015).
+   * `undefined` means a bounded transport retry is refused, so a caller that
+   * keeps no request ledger and owns no pacer cannot issue an uncharged,
+   * unpaced retry. Declared as an explicit `| undefined` for the same
+   * `exactOptionalPropertyTypes` reason as the field above.
+   */
+  admitTransportRetry?: TransportRetryAdmission | undefined;
 }
 
 export type SinglePageAttemptResult =
@@ -681,6 +811,7 @@ export async function authoriseAndFetchPage(
       root: input.root,
       targetUrl: input.targetUrl,
       admitHostChangingContinuation: input.admitHostChangingContinuation,
+      admitTransportRetry: input.admitTransportRetry,
     },
     transport,
   );
