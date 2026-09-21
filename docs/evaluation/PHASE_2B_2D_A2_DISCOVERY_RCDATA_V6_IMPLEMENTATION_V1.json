@@ -1,0 +1,187 @@
+{
+  "recordId": "phase2b-2d-a2-discovery-rcdata-v6-implementation-v1",
+  "recordKind": "OFFLINE_ACQUISITION_CAPABILITY_REPAIR_IMPLEMENTATION",
+  "records": "PHASE_2B_2D_A2_DISCOVERY_RCDATA_V6_IMPLEMENTATION_V1",
+  "recordedAtUtc": "2026-09-21T19:00:48Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "startingHead": "05645a619e63ae478a58176a92a78ef45826b292",
+  "commits": {
+    "A_policyDecisionRecord": "679eb1ad05d3730ddca9334d51fc15217f34b579",
+    "B_implementation": "ec792568fa7ec4764a04499e78a416207d07aa1f",
+    "B2_scopePin": "608a3718160051b552908115d97eac989729e8f3",
+    "C_thisRecord": "the commit that adds this file"
+  },
+  "policyDecisionRecord": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_DISCOVERY_RCDATA_FETCH_POLICY_V6_REPAIR_V1.json",
+    "sha256": "76d6a8bc102313bf844558bc7d78843b7517e43a1fcdf1ce4dfdfe16bc998c93",
+    "bytes": 9861,
+    "commit": "679eb1ad05d3730ddca9334d51fc15217f34b579"
+  },
+  "boundRecordsUnchanged": {
+    "v5ImplementationSha256": "70354106d166a4f4e194031b52b25b0b59f5cbb66d2fdaf0e2a63494ae7ce0c4",
+    "v5PolicyDecisionSha256": "2623e82feb8b21a171340a5399b82c6a174a48bd3b4005843d84c6083ad41467",
+    "capabilityReviewSha256": "eac03dc122d3e7b8a575e82f1a9509145aec2ac3b00eca3d86ca5b1e3a1e5066",
+    "windowV2AdjudicationSha256": "9503dec328acaae530dd2574b0a7f14c7b2ed67e3f5fa1fdbce0f41830c0e563"
+  },
+  "fetchPolicyVersion": {
+    "before": "orgunit-fetch-policy-v5",
+    "after": "orgunit-fetch-policy-v6",
+    "declaredIn": "src/orgunits/web/policy.ts",
+    "onlyNonCommentChangeInPolicyTs": "the version string (asserted by the repair-scope test)",
+    "migration": false
+  },
+  "productionFiles": [
+    {
+      "path": "src/orgunits/web/extract.ts",
+      "v5Sha256": "33e3763f1bee6f1243f9f9d8af54f08b886241097a08cb4db7df8347bb4b9a43",
+      "v6Sha256": "bb5d89eba952d51ffc1dba7285302108d0d91f87a5f6fe581c12fcc9fb090ee4",
+      "v6Bytes": 15218,
+      "change": "adds exported pure stripNonNavigableMarkup(html) = stripNonContent(html) then complete <title> and <textarea> elements removed via the existing stripElement; RCDATA_DISCOVERY_TAGS = ['title', 'textarea']; extractPage, stripNonContent, stripElement, extractTitle and REMOVABLE_TAGS byte-identical to v5"
+    },
+    {
+      "path": "src/orgunits/orchestrator/anchors.ts",
+      "v5Sha256": "548a8f63e1ae211258a9143145dd79face8c3a602b2c0d4613d35e6a34681828",
+      "v6Sha256": "1d37b142be857ac11f37b697118a050af51c97646888d92c6f08ed8ca6557bce",
+      "v6Bytes": 13431,
+      "change": "extractDiscoveryAnchors and extractDocumentBaseHref call stripNonNavigableMarkup instead of stripNonContent (their only code change); import swapped; prose updated; every pattern and resolveAnchorHref / resolveDocumentBase / hrefAttributeOf / stripTags byte-identical to v5"
+    },
+    {
+      "path": "src/orgunits/web/policy.ts",
+      "v5Sha256": "03012e9123966db9ea44ff05fc7ba6239054887fecd537e88543254b7cf15c2a",
+      "v6Sha256": "affe97f6736831e8e1a57417c1d6b80f254b9dd71d869fae4d4e8a8ce22d7ea9",
+      "v6Bytes": 20581,
+      "change": "FETCH_POLICY_VERSION v5 -> v6 plus a WHY-v5-BECAME-v6 comment"
+    }
+  ],
+  "rootRunnerChanged": false,
+  "rootRunnerSha256": "2c09c2fe5d462f49485e7f8cb18947182ee053f407e636879273cd8271db1ac4",
+  "testFiles": {
+    "added": [
+      "src/test/unit/orgunitDiscoveryRcdata.test.ts (29 tests, incl. a v5 -> v6 differential loading the REAL v5 modules from git at 05645a6)",
+      "src/test/integration/orgunitDiscoveryRcdata.test.ts (3 tests, scripted transport, nwf_pe_test, title and textarea each)",
+      "src/test/firewall/phase2bDiscoveryRcdata.firewall.test.ts (22 tests, range 05645a6..ec79256)"
+    ],
+    "currentProductionPinsMovedToV6": [
+      "src/test/unit/orgunitCorpus2DOptionBTransition.test.ts (2 literals)",
+      "src/test/unit/orgunitClassifyHistoricalFetchPolicyProvenance.test.ts (PRODUCTION constant; v6 added to the superseded list, 'FOUR' -> 'FIVE' bumps)",
+      "src/test/integration/orgunitRobotsOptionCLite.test.ts (3 literals)",
+      "src/test/integration/orgunitTransportRetry.test.ts (2 literals)",
+      "src/test/integration/orgunitAnchorDocumentBase.test.ts (1 literal: current row stamp)"
+    ],
+    "auditMethod": "every 'orgunit-fetch-policy-v5' literal under src/ classified before editing; only current-row-stamp / current-build assertions moved; no mass replace",
+    "historicalPins": {
+      "v5TerminalCommit": "05645a619e63ae478a58176a92a78ef45826b292",
+      "v5RepairScopeFirewall": "src/test/firewall/phase2bAnchorDocumentBase.firewall.test.ts already reads its own terminal commit 40477099 (production-identical to 05645a6); unedited, still asserts v5",
+      "v6RepairScopeFirewall": "asserts the source at 05645a6 is still v5 and calls stripNonContent in both extractors (v5 did NOT have the fix)",
+      "unitDifferential": "loads policy.ts at 05645a6 and asserts orgunit-fetch-policy-v5"
+    }
+  },
+  "v5ToV6Delta": {
+    "only": "markup-shaped text inside a complete <title> or <textarea> element cannot contribute discovery anchors or the document <base>",
+    "unchanged": [
+      "FIRST_BASE_ELEMENT_WITH_HREF_ATTRIBUTE_IN_TREE_ORDER after RCDATA filtering",
+      "target-only base skipped; later bases ignored; unusable first real href -> document URL, no later-base search",
+      "resolveDocumentBase, resolveAnchorHref, fragment stripping, admissibleUrl",
+      "gateway, robots, redirects, retry, budgets, circuit breaker",
+      "extractPage page-evidence semantics (textarea text still in main_text, title still extracted)"
+    ],
+    "notATokenizer": "an unclosed <title>/<textarea> is left as-is; no other HTML parsing rule added",
+    "newRequests": 0
+  },
+  "focusedResults": {
+    "anchorInTitle": "zero anchors (PASS)",
+    "anchorInTextarea": "zero anchors (PASS)",
+    "baseInTitle": "real later base wins; with no real base -> document URL (PASS)",
+    "baseInTextarea": "real later base wins; with no real base -> document URL (PASS)",
+    "realMarkupImmediatelyAfterSurvives": true,
+    "v5BaseSemanticsPreserved": "first real href-bearing base wins; invalid / javascript: / data: first real base still blocks a later valid one; target-only skipped (PASS)",
+    "nonContentStillStripped": "comments, script, style, noscript, svg, template, iframe (PASS)"
+  },
+  "syntheticDifferentialProof": {
+    "againstRealV5Source": true,
+    "A_fakeBaseInTitle": {
+      "v5": "/fake/admissions/, /fake/library/",
+      "v6": "/admissions/, /library/"
+    },
+    "B_fakeBaseInTextarea": {
+      "v5": "/fake/admissions/, /fake/library/",
+      "v6": "/admissions/, /library/"
+    },
+    "C_fakeAnchorInTitle": { "v5": "/fake", "v6": "none" },
+    "D_fakeAnchorInTextarea": { "v5": "/fake", "v6": "none" },
+    "E_fakeBaseInTitleThenRealBase": { "v5Base": "/fake/", "v6Base": "/real/" },
+    "F_ordinaryDocuments": "6 fixtures: anchors, base href and resolved frontier URLs byte/sequence-identical v5 -> v6",
+    "extractPageIdenticalV5V6": true,
+    "usesP12Identity": false
+  },
+  "mutationTesting": [
+    { "mutation": "remove title from the discovery stripping", "killed": true, "failingTests": 14 },
+    {
+      "mutation": "remove textarea from the discovery stripping",
+      "killed": true,
+      "failingTests": 11
+    },
+    { "mutation": "extractPage uses the discovery stripping", "killed": true, "failingTests": 3 },
+    { "mutation": "last href-bearing base wins", "killed": true, "failingTests": 12 }
+  ],
+  "knownOpenCapabilities": {
+    "ANCHOR_HREF_CHARACTER_REFERENCE_DECODING": "DEFERRED (DEFER_ANCHOR_HREF_CHARACTER_REFERENCE_DECODING_AS_SEPARATE_CAPABILITY_V1; PRESERVE_HREF_CHARACTER_REFERENCE_DECODING_AS_SEPARATE_DEFERRED_CAPABILITY_V1)",
+    "BASE_HREF_CHARACTER_REFERENCE_DECODING": "DEFERRED, same decisions",
+    "partialEntityDecoderAdded": false,
+    "markerTests": "unit 'KNOWN OPEN CAPABILITY is still open' block; repair-scope test forbids a decoder in the discovery path"
+  },
+  "validation": {
+    "focused": "30 files / 758 tests passed before commit B (firewall dir, anchor/extract/orchestrator units, orchestrator + base + RCDATA + Option-C-lite + transport-retry integration, provenance and transition units)",
+    "fullValidateRuns": [
+      {
+        "run": 1,
+        "atTree": "608a3718160051b552908115d97eac989729e8f3",
+        "exit": 0,
+        "result": "193 files passed, 5 skipped (198); 4927 tests passed, 75 skipped (5002); 0 failed; build OK"
+      }
+    ],
+    "exactlyOneFinalValidate": true
+  },
+  "scopeProofs": {
+    "institutionDnsHttpTls": 0,
+    "p12Requests": 0,
+    "workingDatabaseWrites": 0,
+    "workingDatabaseProof": "read-only counts in nwf_pe identical before and after: 23 runs (v1 7, v2 2, v3 3, v4 11, v5 0, v6 0), 23 completions, 483 fetch observations, 32 redirects, 354 page evidence, 708 candidates; integration tests write only nwf_pe_test",
+    "migrationCreated": false,
+    "dependencyAdded": false,
+    "classifierOrProviderExecution": 0,
+    "semanticHoldoutAccess": 0
+  },
+  "generationState": {
+    "successfulSelectionIndices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11],
+    "failureSelectionIndices": [10],
+    "pendingCapabilityReviewSelectionIndices": [12],
+    "pendingReplacementObligations": [10],
+    "neverStarted": { "from": 13, "to": 109 },
+    "replacementLedger": {
+      "sha256": "6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0",
+      "entries": 4,
+      "unchanged": true
+    },
+    "reserveConsumed": 4,
+    "reserve4Assigned": false,
+    "p6": false
+  },
+  "historicalEvidence": {
+    "P:10": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+    "P:11": "ACQUISITION_SUCCESSFUL",
+    "P:12": "ACQUISITION_STATUS_PENDING_CAPABILITY_REVIEW",
+    "P:13": "NEVER_STARTED",
+    "P:14": "NEVER_STARTED",
+    "thisRepairIsPreventive": true,
+    "claimsP12HadRcdataMarkupOrARealBase": false,
+    "reinterpreted": false
+  },
+  "nextOwnerDecision": "A2_P12_FETCH_POLICY_V6_TARGETED_REVALIDATION_AUTHORISATION",
+  "supersedesExpectedDecision": "A2_P12_FETCH_POLICY_V5_TARGETED_REVALIDATION_AUTHORISATION (v5 had zero working-corpus executions; the RCDATA defect was corrected before first live use)",
+  "terminalState": "PHASE_2B_2D_A2_DISCOVERY_RCDATA_FETCH_POLICY_V6_IMPLEMENTED_AWAITING_P12_TARGETED_REVALIDATION_AUTHORISATION"
+}
