@@ -183,11 +183,13 @@ describe('2D-A3 R1: the bound authority is the frozen bytes on disk', () => {
     expect(contracts.A3_PREP_R1_BOUND_AUTHORITY.corpusPlanApprovalSha256).toBe(
       drawContract.CORPUS_PLAN_APPROVAL_SHA256,
     );
-    // The ONE 64-hex literal is the K3 owner record's hash, which has no other
-    // canonical home. No draw-contract hash is restated.
+    // The ONLY 64-hex literals are the two owner records' hashes (K3, then the
+    // short-text membership policy), which have no other canonical home. No
+    // draw-contract hash is restated.
     const source = readFileSync(join(A3PREP_DIR, 'contracts.ts'), 'utf8');
     expect(source.match(/[0-9a-f]{64}/g)).toEqual([
       contracts.K3_OWNER_DECISION.decisionRecordSha256,
+      contracts.SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY.decisionRecordSha256,
     ]);
     for (const hash of [
       drawContract.METHODOLOGY_R3_SHA256,

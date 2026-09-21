@@ -12,7 +12,16 @@
  *      `sourceRankPosition`, copying the frozen salted digest - never
  *      re-hashing, re-sorting or searching;
  *   4. decide whether the SD3 cap-8 document membership is mechanically exact
- *      while `SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP` is still open.
+ *      while each short-text document's `SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP` is
+ *      semantically unresolved.
+ *
+ * The owner has resolved the HANDLING policy
+ * (`SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP_AMBIGUITY_PROPAGATION_V1`,
+ * `contracts.ts` section I): propagate the ambiguity and materialise only
+ * membership invariant across every admissible short-text treatment. R7
+ * partitions the short-text documents; this module materialises the cap only
+ * in the two invariant cases below, which that owner record explicitly
+ * accepts. It does not decide any short-text document's semantic status.
  *
  * The cap is applied only AFTER survivor preparation. SD7 survivor selection
  * is driven by SET_P's own frozen rank, never by graph order.
@@ -135,8 +144,9 @@ export interface A3SetPDocumentCapExact {
 }
 
 /**
- * The cap membership depends on the open short-text decision. There is
- * deliberately NO document list here, under any name.
+ * The cap membership differs across admissible short-text treatments, so the
+ * owner policy forbids materialising it. There is deliberately NO document
+ * list here, under any name.
  */
 export interface A3SetPDocumentCapBlocked {
   readonly status: typeof SET_P_DOCUMENT_CAP_BLOCKED_SHORT_TEXT_SAMPLE_MEMBERSHIP;

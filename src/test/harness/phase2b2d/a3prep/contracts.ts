@@ -338,3 +338,102 @@ export const A3_PREP_UNRESOLVED_OWNER_DECISION_MARKERS: readonly A3PrepUnresolve
 /** The markers answered by an owner record: K3. */
 export const A3_PREP_RESOLVED_OWNER_DECISION_MARKERS: readonly A3PrepOwnerDecisionMarker[] =
   Object.freeze(A3_PREP_OWNER_DECISIONS_RESOLVED.map((decision) => decision.marker));
+
+// ---------------------------------------------------------------------------
+// I. SD7 SHORT-TEXT SAMPLE MEMBERSHIP — OPERATIONAL HANDLING POLICY. Owner-
+//    bound FACTS, not an algorithm: nothing here enumerates treatments, walks
+//    a rank or decides a membership. R9 will implement the propagation.
+//
+//    docs/evaluation/PHASE_2B_2D_A3_SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP_OWNER_POLICY_V1.json
+//    answers the residual `SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP` issue K3 left
+//    open, and ONLY its operational half. What is RESOLVED is how the
+//    uncertainty is carried forward. What stays UNRESOLVED is the semantic
+//    near-duplicate status of every SD7_SHORT_TEXT_UNRESOLVED document and,
+//    wherever membership differs across admissible treatments, that document's
+//    final sample membership. It is not a K marker and adds no K5.
+// ---------------------------------------------------------------------------
+
+/** Carry the ambiguity forward; materialise only treatment-invariant membership. */
+export const SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY_KIND =
+  'PROPAGATE_AMBIGUITY_MATERIALISE_ONLY_INVARIANTS';
+
+/**
+ * An OPERATIONAL uncertainty model for invariance proofs, never a semantic
+ * graph: each unresolved short-text document is independently ABSENT or
+ * PRESENT at its frozen sample-rank position. It assigns no similarity value,
+ * no verdict and no edge, and may over-approximate the real unknown states.
+ */
+export const SHORT_TEXT_ADMISSIBLE_MEMBERSHIP_TREATMENT_SPACE =
+  'SHORT_TEXT_ADMISSIBLE_MEMBERSHIP_TREATMENT_SPACE_V1';
+
+/**
+ * A PRESENT treatment never evicts, alters or reclassifies a canonical
+ * measurable survivor: the same discipline as the owner-ratified SD9 envelope
+ * `[measurableSurvivorMin, measurableSurvivorMax + shortTextCount]`. This is
+ * not a claim that short text is not a near duplicate.
+ */
+export const SHORT_TEXT_PRESENT_TREATMENT_EFFECT_ON_MEASURABLE_SURVIVORS =
+  'NO_EVICTION_OR_RECLASSIFICATION';
+
+/** A BLOCKED sample membership is not an acquisition outcome. */
+export const SHORT_TEXT_BLOCKED_SAMPLE_ACQUISITION_EFFECT = 'NO_ACQUISITION_STATUS_CHANGE';
+
+/** Plan V1's replacement taxonomy is mechanical only; this adds nothing to it. */
+export const SHORT_TEXT_BLOCKED_SAMPLE_REPLACEMENT_EFFECT = 'NO_REPLACEMENT_REASON';
+
+/** A REQUIRED membership still BLOCKED at freeze preflight refuses the freeze. */
+export const SHORT_TEXT_BLOCKED_SAMPLE_FREEZE_EFFECT = 'REFUSE_CORPUS_FREEZE';
+
+/** The owner record's exact refusal token for that case. */
+export const SHORT_TEXT_BLOCKED_SAMPLE_FREEZE_REFUSAL =
+  'CORPUS_FREEZE_REFUSED_SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED';
+
+/** The semantic relation itself is NOT decided by this policy. */
+export const SHORT_TEXT_SEMANTIC_NEAR_DUPLICATE_STATUS = 'UNRESOLVED';
+
+export interface A3PrepShortTextSampleMembershipPolicy {
+  readonly resolved: true;
+  readonly decisionToken: 'SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP_AMBIGUITY_PROPAGATION_V1';
+  readonly selectedOption: 'RECOMMEND_SHORT_TEXT_OPTION_C_PROPAGATE_AMBIGUITY_AND_MATERIALISE_ONLY_INVARIANTS';
+  readonly decisionRecordPath: string;
+  readonly decisionRecordSha256: string;
+  readonly decisionRecordCommit: string;
+  readonly answersResidualIssue: 'SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP';
+  readonly policy: typeof SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY_KIND;
+  readonly materialisationRule: 'MATERIALISE_ONLY_MEMBERSHIP_INVARIANT_ACROSS_ALL_ADMISSIBLE_SHORT_TEXT_TREATMENTS';
+  readonly treatmentSpace: typeof SHORT_TEXT_ADMISSIBLE_MEMBERSHIP_TREATMENT_SPACE;
+  readonly presentTreatmentEffectOnMeasurableSurvivors: typeof SHORT_TEXT_PRESENT_TREATMENT_EFFECT_ON_MEASURABLE_SURVIVORS;
+  readonly acquisitionEffect: typeof SHORT_TEXT_BLOCKED_SAMPLE_ACQUISITION_EFFECT;
+  readonly replacementEffect: typeof SHORT_TEXT_BLOCKED_SAMPLE_REPLACEMENT_EFFECT;
+  readonly freezePolicy: 'REFUSE_IF_REQUIRED_MEMBERSHIP_BLOCKED';
+  readonly freezeEffect: typeof SHORT_TEXT_BLOCKED_SAMPLE_FREEZE_EFFECT;
+  readonly freezeRefusal: typeof SHORT_TEXT_BLOCKED_SAMPLE_FREEZE_REFUSAL;
+  readonly semanticNearDuplicateStatus: 'REMAINS_UNRESOLVED';
+  readonly boundK3Procedure: typeof K3_SD7_SURVIVOR_PROCEDURE;
+}
+
+export const SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY: A3PrepShortTextSampleMembershipPolicy =
+  Object.freeze({
+    resolved: true,
+    decisionToken: 'SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP_AMBIGUITY_PROPAGATION_V1',
+    selectedOption:
+      'RECOMMEND_SHORT_TEXT_OPTION_C_PROPAGATE_AMBIGUITY_AND_MATERIALISE_ONLY_INVARIANTS',
+    decisionRecordPath:
+      'docs/evaluation/PHASE_2B_2D_A3_SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP_OWNER_POLICY_V1.json',
+    decisionRecordSha256: 'b734805bbaddc6890dc7032179b4a639a69a790282923b41641710a060b3d05a',
+    decisionRecordCommit: 'b0fe10cb5b651983ac196a6a266998bf8665c527',
+    answersResidualIssue: 'SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP',
+    policy: SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY_KIND,
+    materialisationRule:
+      'MATERIALISE_ONLY_MEMBERSHIP_INVARIANT_ACROSS_ALL_ADMISSIBLE_SHORT_TEXT_TREATMENTS',
+    treatmentSpace: SHORT_TEXT_ADMISSIBLE_MEMBERSHIP_TREATMENT_SPACE,
+    presentTreatmentEffectOnMeasurableSurvivors:
+      SHORT_TEXT_PRESENT_TREATMENT_EFFECT_ON_MEASURABLE_SURVIVORS,
+    acquisitionEffect: SHORT_TEXT_BLOCKED_SAMPLE_ACQUISITION_EFFECT,
+    replacementEffect: SHORT_TEXT_BLOCKED_SAMPLE_REPLACEMENT_EFFECT,
+    freezePolicy: 'REFUSE_IF_REQUIRED_MEMBERSHIP_BLOCKED',
+    freezeEffect: SHORT_TEXT_BLOCKED_SAMPLE_FREEZE_EFFECT,
+    freezeRefusal: SHORT_TEXT_BLOCKED_SAMPLE_FREEZE_REFUSAL,
+    semanticNearDuplicateStatus: 'REMAINS_UNRESOLVED',
+    boundK3Procedure: K3_SD7_SURVIVOR_PROCEDURE,
+  } as const);

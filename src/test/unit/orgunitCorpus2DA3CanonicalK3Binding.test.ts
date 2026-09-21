@@ -377,6 +377,15 @@ describe('2D-A3 K3: the committed owner record', () => {
     expect(residual.token).toBe('SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP');
     expect(residual.resolved).toBe(false);
     expect(residual.addedAsANumberedK5ContractMarker).toBe(false);
-    expect(Object.keys(contracts).filter((name) => /^K5|SHORT_TEXT/.test(name))).toEqual([]);
+    expect(Object.keys(contracts).filter((name) => /^K5/.test(name))).toEqual([]);
+    // K3 itself exported nothing short-text shaped. The only such exports now
+    // come from the LATER, separate short-text membership owner policy, which
+    // is bound to its own record rather than to K3's.
+    for (const name of Object.keys(contracts).filter((n) => /SHORT_TEXT/.test(n))) {
+      expect(name).toMatch(/^SHORT_TEXT_/);
+    }
+    expect(contracts.SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY.decisionRecordPath).not.toBe(
+      K3.decisionRecordPath,
+    );
   });
 });

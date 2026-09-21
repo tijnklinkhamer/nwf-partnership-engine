@@ -32,7 +32,11 @@
  *   - It decides nothing about SD7_SHORT_TEXT_UNRESOLVED documents. They are
  *     neither kept nor dropped: they are partitioned out, in the caller's
  *     sample order, into a differently-named sequence that carries the
- *     residual `SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP` token, which is still open.
+ *     residual `SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP` token. The owner has since
+ *     resolved the HANDLING policy for that token (ambiguity propagation,
+ *     `SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY` in `contracts.ts` section I); each
+ *     document's semantic near-duplicate status stays unresolved, so this
+ *     partition is exactly what that policy consumes.
  *   - It applies no cap, evaluates no SD9, and answers none of K1, K2 or K4.
  *     Its survivor sequence is a full survivor-aware rank, not a final sample.
  *
@@ -69,7 +73,11 @@ export const A3_SD7_SURVIVOR_ADAPTER_K3_BINDING = Object.freeze({
   atMostOneScope: K3_SD7_AT_MOST_ONE_SCOPE,
 });
 
-/** The residual issue K3 left open, spelled as the K3 owner record spells it. */
+/**
+ * The residual issue K3 left open, spelled as the K3 owner record spells it.
+ * Its handling policy is now owner-resolved (propagate the ambiguity); the
+ * per-document semantic status it names is not.
+ */
 export const SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED = 'SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP';
 
 // ---------------------------------------------------------------------------
@@ -135,7 +143,9 @@ export interface A3Sd7MeasurableExclusion {
  *
  * NOT A MEMBERSHIP DECISION. It is neither a survivor nor an exclusion, and
  * this shape deliberately has no field that could say either: whether it
- * belongs to the sample is `SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP`, still open.
+ * belongs to the sample is `SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP`. The owner
+ * policy propagates that ambiguity rather than answering it, so membership is
+ * materialised only where it is invariant across every admissible treatment.
  */
 export interface A3Sd7ShortTextUnresolvedPosition {
   readonly sample: A3Sample;
