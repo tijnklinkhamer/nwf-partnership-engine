@@ -10,10 +10,13 @@
  *     its historical marker string is unchanged;
  *   - the committed record says what the contract says it says, and binds the
  *     canonical frozen authority by hash;
- *   - no survivor algorithm exists yet: that is R7.
+ *   - no survivor algorithm existed at K3's own terminal commit; R7 then
+ *     added one, in `a3prep/sd7.ts` alone. These are HISTORICAL claims about
+ *     K3, so they read K3's terminal commit rather than HEAD.
  *
  * It checks key fields of the record, never a second copy of it.
  */
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -192,13 +195,53 @@ describe('2D-A3 K3: resolved binding and semantics', () => {
   });
 });
 
-describe('2D-A3 K3: no survivor algorithm exists yet (R7)', () => {
-  it('no a3prep/sd7.ts exists', () => {
-    expect(existsSync(join(A3PREP_DIR, 'sd7.ts'))).toBe(false);
+/** K3's terminal commit: the tip R7 was branched from. */
+const K3_TERMINAL_COMMIT = '91850fb0eceda1d19ef959e952e1d1ce71a8010e';
+const A3PREP_REL = 'src/test/harness/phase2b2d/a3prep';
+
+function git(...args: readonly string[]): string {
+  return execFileSync('git', ['-C', REPO_ROOT, ...args], { encoding: 'utf8' });
+}
+
+function k3CommitAvailable(): boolean {
+  try {
+    git('cat-file', '-e', `${K3_TERMINAL_COMMIT}^{commit}`);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+describe.skipIf(!k3CommitAvailable())(
+  '2D-A3 K3: no survivor algorithm existed at K3 (R7 added it)',
+  () => {
+    const filesAtK3 = git('ls-tree', '--name-only', `${K3_TERMINAL_COMMIT}:${A3PREP_REL}`)
+      .split('\n')
+      .filter(Boolean);
+
+    it('no a3prep/sd7.ts existed at K3', () => {
+      expect(filesAtK3).not.toContain('sd7.ts');
+      expect(filesAtK3.length).toBeGreaterThan(0);
+    });
+
+    it('no a3prep module exported a survivor, greedy or walk function at K3', () => {
+      for (const file of filesAtK3.filter((f) => f.endsWith('.ts'))) {
+        const source = git('show', `${K3_TERMINAL_COMMIT}:${A3PREP_REL}/${file}`);
+        for (const m of source.matchAll(/export\s+(?:async\s+)?function\s+(\w+)/g)) {
+          expect(m[1], `${file}:${m[1]}`).not.toMatch(/survivor|greedy|walk|independent/i);
+        }
+      }
+    });
+  },
+);
+
+describe('2D-A3 K3: after R7, the survivor algorithm lives in a3prep/sd7.ts alone', () => {
+  it('a3prep/sd7.ts exists', () => {
+    expect(existsSync(join(A3PREP_DIR, 'sd7.ts'))).toBe(true);
   });
 
-  it('no a3prep module exports a survivor, greedy or walk function', async () => {
-    for (const file of readdirSync(A3PREP_DIR).filter((f) => f.endsWith('.ts'))) {
+  it('no other a3prep module exports a survivor, greedy or walk function', async () => {
+    for (const file of readdirSync(A3PREP_DIR).filter((f) => f.endsWith('.ts') && f !== 'sd7.ts')) {
       const module = (await import(join(A3PREP_DIR, file))) as Record<string, unknown>;
       for (const [name, value] of Object.entries(module)) {
         if (typeof value === 'function') {

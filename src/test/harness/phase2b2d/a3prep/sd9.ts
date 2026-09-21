@@ -17,8 +17,11 @@
  *
  * WHAT THIS MODULE DOES NOT DO
  *
- *   - it does not run SD7, and it does not decide which SD7 survivor pool is
- *     canonical or whether SET_P and SET_R share one (K3 stays open);
+ *   - it does not run SD7. K3 is resolved (sample-specific greedy survivors),
+ *     but this module still consumes only a caller-supplied exact count or
+ *     admissible bounds: sample survivor counts and unresolved short-text
+ *     bounds are produced elsewhere, and short-text sample membership
+ *     (`SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP`) remains unresolved;
  *   - it does not derive a count or a bound, and it does not verify the
  *     provenance of one - a count is the caller's assertion;
  *   - it reads no A2 evidence, queries no database, touches no filesystem;

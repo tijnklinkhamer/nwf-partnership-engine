@@ -200,9 +200,21 @@ describe('2D-A3 R6: nearDuplicatePass delegates its pair measurement', () => {
   });
 });
 
+/**
+ * A HISTORICAL claim about R6, so it reads R6's OWN code commit, never HEAD:
+ * R7 later added `a3prep/sd7.ts` by exact name (asserted in R1's isolation
+ * test). Before R6 is committed there is no such commit and the working tree
+ * is R6's.
+ */
+function a3prepFilesAtR6(): string[] {
+  const commit = r6CodeCommit();
+  if (commit === null) return readdirSync(A3PREP_DIR).sort();
+  return lines(git('ls-tree', '--name-only', `${commit}:src/test/harness/phase2b2d/a3prep`)).sort();
+}
+
 describe('2D-A3 R6: the a3prep namespace did not grow', () => {
-  it('holds exactly the R5 set', () => {
-    expect(readdirSync(A3PREP_DIR).sort()).toEqual([
+  it('holds exactly the R5 set at R6’s own code commit', () => {
+    expect(a3prepFilesAtR6()).toEqual([
       'contracts.ts',
       'manifestTypes.ts',
       'rank.ts',

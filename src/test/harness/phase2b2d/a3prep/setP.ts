@@ -10,10 +10,12 @@
  *
  * WHAT THIS MODULE DOES NOT DO, AND WHY
  *
- *   - It performs no SD7. The CALLER supplies one slot's already-distinct,
- *     SET_P-eligible pool. Whether that pool is one common deduplicated pool
- *     or a sample-specific SD7 survivor pool is K3, and nothing here chooses.
- *     This module ranks exactly what it receives.
+ *   - It performs no SD7. K3 is resolved to SAMPLE-SPECIFIC GREEDY survivors
+ *     (`GREEDY_SAMPLE_RANK_SURVIVOR_WALK`), but this module still only ranks
+ *     the caller-supplied PRE-SURVIVOR exact-distinct pool of one slot. R8
+ *     will compose this full SET_P rank with R7's `a3prep/sd7.ts` survivor
+ *     walk; nothing here walks a graph. This module ranks exactly what it
+ *     receives.
  *   - It resolves no exact duplicate. A repeated document identity is refused
  *     (K2 decides representatives, not a ranker).
  *   - It reads no class, gold label, candidate track or candidate score: the
