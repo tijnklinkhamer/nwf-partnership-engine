@@ -1,0 +1,386 @@
+{
+  "recordId": "phase2b-2d-a3-sd7-short-text-sample-membership-owner-policy-v1",
+  "recordKind": "OWNER_OPERATIONAL_POLICY_EXTENSION",
+  "decisionToken": "SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP_AMBIGUITY_PROPAGATION_V1",
+  "selectedOption": "RECOMMEND_SHORT_TEXT_OPTION_C_PROPAGATE_AMBIGUITY_AND_MATERIALISE_ONLY_INVARIANTS",
+  "classification": "OWNER_OPERATIONAL_POLICY_EXTENSION_OF_EXISTING_FAIL_CLOSED_SHORT_TEXT_HANDLING",
+  "explicitlyNotClassifiedAs": [
+    "METHODOLOGY_AMENDMENT",
+    "NEW_METHODOLOGY_VERSION",
+    "R4",
+    "SD7_RULE_CHANGE",
+    "NEW_SIMILARITY_RULE",
+    "GLOBAL_SEMANTIC_SHORT_TEXT_VERDICT",
+    "SD9_THRESHOLD_CHANGE",
+    "EXECUTION_AUTHORITY"
+  ],
+  "recordedAtUtc": "2026-09-21T21:20:56Z",
+  "recordedBy": "claude-code-session, transcribing an exact owner decision",
+  "branch": "feat/phase2b-2d-a3-short-text-membership-policy",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "whatThisRecordIs": "An IMMUTABLE governance record of a NEW owner operational policy. It extends the fail-closed uncertainty discipline the owner already ratified for SD9 (SHORT_TEXT_AMBIGUITY_BLOCKS_ONLY_WHEN_IT_CAN_CHANGE_SD9) to sample-membership materialisation and corpus-freeze readiness. It decides HOW unresolved short-text uncertainty is propagated; it does not decide WHAT the unresolved semantic relation is. It changes no frozen methodology byte, no plan byte, no earlier record and no evidence. Every bound record is referenced by SHA-256 and none is edited.",
+  "answersResidualIssue": {
+    "token": "SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP",
+    "leftOpenBy": "docs/evaluation/PHASE_2B_2D_A3_K3_SD7_SAMPLE_SPECIFIC_SURVIVOR_OWNER_CLARIFICATION_V1.json ownerDecision.clause12_whatK3DoesNotDecide.residualAdjacentIssue",
+    "k3DecidedShortTextSampleMembership": false,
+    "thePriorSd9OwnerDecisionDecidedSampleMembership": false,
+    "afterThisRecord": {
+      "operationalHandlingPolicy": "RESOLVED",
+      "semanticNearDuplicateStatus": "UNRESOLVED",
+      "perDocumentSampleMembershipWhereNotInvariant": "UNRESOLVED_BLOCKED"
+    },
+    "addedAsANumberedK5ContractMarker": false,
+    "theResolvedAndUnresolvedPartsAreDistinct": "What is now resolved is only the operational rule for carrying the uncertainty forward. The semantic near-duplicate status of every SD7_SHORT_TEXT_UNRESOLVED document stays unresolved, and wherever sample membership differs across admissible treatments that membership also stays unresolved and BLOCKED."
+  },
+  "analysisRecommendation": {
+    "recommended": "C",
+    "optionsConsidered": {
+      "A": {
+        "summary": "globally ALWAYS INCLUDE short-text documents",
+        "rejected": true,
+        "why": "a global semantic verdict (treats them as unique) chosen without evidence; would make a non-edge mean 'not a near duplicate'"
+      },
+      "B": {
+        "summary": "add a new pre-SD7 minimum-token eligibility filter (globally exclude)",
+        "rejected": true,
+        "why": "introduces a new content-eligibility rule absent from R3; would change the pre-SD7 population and the frozen rank; effectively a methodology amendment"
+      },
+      "C": {
+        "summary": "propagate ambiguity; materialise only memberships invariant across every admissible treatment; otherwise BLOCKED and freeze refuses",
+        "rejected": false,
+        "selected": true
+      },
+      "D": {
+        "summary": "a fallback similarity (smaller n-grams, character shingles, exact normalised text, token-set similarity, or a special Jaccard(empty, empty))",
+        "rejected": true,
+        "why": "a new similarity rule or value; forbidden by the existing short-text owner decision ('do NOT invent Jaccard(empty, empty)') and would constitute a methodology change"
+      },
+      "E": {
+        "summary": "resolve case by case (human judgement, labels or model output)",
+        "rejected": true,
+        "why": "per-case discretion is unauditable and, after labels exist, contaminates the evaluation"
+      }
+    }
+  },
+  "ownerDecision": {
+    "clause1_semanticStatusRemainsUnresolved": {
+      "flag": "SD7_SHORT_TEXT_UNRESOLVED",
+      "semanticStatusRemains": "SD7_SHORT_TEXT_UNRESOLVED",
+      "canonicalSimilarityValueForTheUnresolvedCase": null,
+      "globalVerdictAssigned": null,
+      "verdictsNotAssigned": ["UNIQUE", "NEAR_DUPLICATE", "KEEP", "DROP"],
+      "statement": "This policy resolves HOW uncertainty is propagated. It does not resolve WHAT the unknown semantic relation is."
+    },
+    "clause2_preSd7RankEligibility": {
+      "shortTextExactDistinctDocumentRemainsInThePreSd7Population": true,
+      "shortTextDocumentKeepsItsPositionInTheSamplesFrozenTotalRank": true,
+      "newMinimumTokenEligibilityFilterIntroduced": false,
+      "candidateBImplemented": false,
+      "setPFrozenPosition": "sha256(\"SET_P_V2_R2:\" + documentSha256) ascending",
+      "setRFrozenPosition": "the eventual truthful SET_R total order, once K1 and K2 are resolved"
+    },
+    "clause3_canonicalGraphRemainsMeasurableOnly": {
+      "r6GraphRuleChanged": false,
+      "shortTextUnresolvedDocumentsWithheldFromTheMeasuredRelation": true,
+      "edgesAddedForShortText": 0,
+      "nonEdgeInterpretedSemantically": false
+    },
+    "clause4_admissibleMembershipTreatmentSpace": {
+      "token": "SHORT_TEXT_ADMISSIBLE_MEMBERSHIP_TREATMENT_SPACE_V1",
+      "nature": "OPERATIONAL_UNCERTAINTY_MODEL_FOR_INVARIANCE_PROOFS_ONLY",
+      "isASemanticGraph": false,
+      "isTheTrueSemanticState": false,
+      "perUnresolvedDocumentTreatments": ["ABSENT", "PRESENT_AT_FROZEN_SAMPLE_RANK_POSITION"],
+      "treatmentsAreIndependentPerDocument": true,
+      "admitsArbitrarySubsetsOfUnresolvedDocuments": true,
+      "pairwiseSimilarityAmongShortTextDocumentsDefined": false,
+      "overApproximatesTheRealUnknownSemanticStates": true,
+      "whyOverApproximationIsSafe": "The space is used only for fail-closed invariance proofs: a membership identical across the over-approximation is identical across every real state it contains, so it is safe to materialise; anything else stays BLOCKED.",
+      "presentTreatment": {
+        "occupiesItsFrozenRankPositionForMembershipReasoning": true,
+        "evictsAMeasurableSurvivor": false,
+        "altersAMeasurableSurvivor": false,
+        "reclassifiesAMeasurableSurvivor": false,
+        "createsACanonicalSimilarityEdge": false,
+        "carriesASemanticUniquenessVerdict": false,
+        "meansCanonicalSampleMembership": false,
+        "meansUnique": false,
+        "meansSurvivesInTheFinalCorpus": false
+      },
+      "absentTreatment": {
+        "meansCanonicallyExcluded": false,
+        "meansNearDuplicate": false,
+        "meansFailsContentEligibility": false
+      },
+      "theSpaceMustNot": [
+        "assign a Jaccard value",
+        "assign a near-duplicate verdict",
+        "assign a uniqueness verdict",
+        "create an SD7 edge",
+        "claim an actual semantic relationship"
+      ],
+      "whyThisIsNotAlwaysInclude": "Being one admissible PRESENT treatment does not make a document a canonical sample member, unique, or a survivor of the final corpus; being one admissible ABSENT treatment does not make it excluded, a near duplicate, or ineligible. The uncertainty remains unresolved unless every admissible treatment produces the same required membership outcome."
+    },
+    "clause5_whyMeasurableSurvivorsAreNotEvicted": {
+      "priorRatifiedSd9Envelope": {
+        "lower": "measurableSurvivorMin (measurable survivors only)",
+        "upper": "measurableSurvivorMax + shortTextCount",
+        "ratifiedBy": "docs/evaluation/PHASE_2B_2D_METHOD_V2_SD7_SHORT_TEXT_OWNER_DECISION_V1.json",
+        "implementedIn": "src/test/harness/phase2b2d/sd7/pilotAnalysis.ts (postSd7CountMin / postSd7CountMax)",
+        "ratifiedScope": "SD9_ONLY"
+      },
+      "thatEnvelopeAlreadyOperationallyAssumes": "unresolved short text does not reduce the canonical measurable survivor count for SD9 finalisation",
+      "priorDecisionRewritten": false,
+      "priorDecisionAlreadyDecidedSampleMembership": false,
+      "thisRecordExtendsTheSameDisciplineTo": [
+        "SAMPLE_MEMBERSHIP_MATERIALISATION",
+        "CORPUS_FREEZE_READINESS"
+      ],
+      "treatmentsMay": ["add unresolved member positions", "omit unresolved member positions"],
+      "treatmentsMayNot": ["retroactively remove a known measurable survivor"],
+      "thisIsAClaimThatShortTextIsNotANearDuplicate": false
+    },
+    "clause6_invariantOnlyMaterialisation": {
+      "rule": "MATERIALISE_ONLY_MEMBERSHIP_INVARIANT_ACROSS_ALL_ADMISSIBLE_SHORT_TEXT_TREATMENTS",
+      "policyKind": "PROPAGATE_AMBIGUITY_MATERIALISE_ONLY_INVARIANTS",
+      "treatmentSpace": "SHORT_TEXT_ADMISSIBLE_MEMBERSHIP_TREATMENT_SPACE_V1",
+      "materialisableOnlyIf": "the sample/cap document membership is identical under EVERY treatment in the treatment space",
+      "otherwise": "BLOCKED",
+      "forbiddenResolutions": [
+        "best guess",
+        "most-likely treatment",
+        "per-case judgement",
+        "label-assisted decision",
+        "model-assisted decision"
+      ]
+    },
+    "clause7_acceptR8ExactCapProofs": {
+      "boundK3Procedure": "GREEDY_SAMPLE_RANK_SURVIVOR_WALK",
+      "acceptedMechanicallyExactCases": {
+        "A": {
+          "r8Reason": "NO_UNRESOLVED_SHORT_TEXT",
+          "condition": "no unresolved short-text document exists",
+          "consequence": "the post-SD7 measurable survivor prefix is exact"
+        },
+        "B": {
+          "r8Reason": "EIGHT_MEASURABLE_SURVIVORS_PRECEDE_ALL_UNRESOLVED_SHORT_TEXT",
+          "condition": "at least cap-many measurable survivors exist AND the last capped measurable survivor's source rank is strictly before every unresolved short-text source rank",
+          "setPCap8Condition": "eighthMeasurableSourceRank < earliestUnresolvedShortTextSourceRank",
+          "consequence": "the first 8 document identities are invariant",
+          "reason": "under GREEDY chronology, later documents cannot retroactively remove or displace already-known earlier capped membership"
+        }
+      },
+      "otherwiseR8Returns": "SET_P_DOCUMENT_CAP_BLOCKED_SHORT_TEXT_SAMPLE_MEMBERSHIP",
+      "r8ProofIsConsistentWithThisPolicy": true,
+      "thisIsAMechanicalInvarianceProof": true,
+      "thisIsAShortTextSemanticDecision": false,
+      "r8CodeChangedByThisRecord": false
+    },
+    "clause8_extensionBoundary": {
+      "initialCapExactnessImpliesWholeRankExactness": false,
+      "extensionDownTheFrozenRankIsExactOnlyUntil": "the cursor reaches the first unresolved short-text source-rank position",
+      "atOrBeyondThatPosition": "extension membership is BLOCKED unless invariant by an independently proved condition",
+      "wholeSurvivorAwareRankClaimedSemanticallyExactBeyondTheBoundary": false,
+      "implementationDeferredTo": "R9"
+    },
+    "clause9_acquisitionStatusUnchanged": {
+      "blockedSampleMembershipIsAcquisitionUnsuccessful": false,
+      "blockedSampleMembershipReversesAcquisitionSuccessful": false,
+      "blockedSampleMembershipChangesSd9": false,
+      "blockedSampleMembershipAltersTheSelectedOrganisationSlot": false,
+      "acquisitionAndExactSampleMembershipAreSeparateStates": true,
+      "effectToken": "NO_ACQUISITION_STATUS_CHANGE"
+    },
+    "clause10_noReplacement": {
+      "createsAReplacementReason": false,
+      "consumesAReserve": false,
+      "replacesTheOrganisation": false,
+      "newFailureTaxonomyValue": null,
+      "boundPlanV1Rules": {
+        "replacementReasonTaxonomyIsMechanicalOnly": [
+          "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+          "ACQUISITION_UNSUCCESSFUL_ROOT_AUTHORITY_FAILURE",
+          "ACQUISITION_UNSUCCESSFUL_ROBOTS_DISALLOWED",
+          "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+        ],
+        "noReplacementReasonMayBeSemantic": true
+      },
+      "successfulOrganisationRemainsInItsAssignedSlot": true,
+      "effectToken": "NO_REPLACEMENT_REASON"
+    },
+    "clause11_corpusFreezeConsequence": {
+      "refusalToken": "CORPUS_FREEZE_REFUSED_SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED",
+      "freezePolicy": "REFUSE_IF_REQUIRED_MEMBERSHIP_BLOCKED",
+      "effectToken": "REFUSE_CORPUS_FREEZE",
+      "trigger": "any REQUIRED sample membership remains BLOCKED at corpus-freeze preflight",
+      "thenFreezeStops": true,
+      "forbiddenWorkarounds": [
+        "shrink the corpus",
+        "truncate the sample",
+        "silently omit the document",
+        "replace the organisation",
+        "proceed with a partial rank",
+        "choose a treatment case-by-case"
+      ],
+      "proceedingRequires": "a separate GLOBAL pre-label owner/methodology decision"
+    },
+    "clause12_noPostLabelDiscretion": {
+      "mayNeverBeResolvedUsing": [
+        "human labels",
+        "gold",
+        "model output",
+        "classifier outcome",
+        "observed gate result",
+        "desired class balance",
+        "realised precision/recall",
+        "whether inclusion helps the evaluation"
+      ],
+      "anyFutureGlobalRuleMustBeChosen": "before labels exist and without looking at any of those outcomes",
+      "postLabelDiscretionIntroduced": false
+    },
+    "clause13_sd9Unchanged": {
+      "priorDecision": "SHORT_TEXT_AMBIGUITY_BLOCKS_ONLY_WHEN_IT_CAN_CHANGE_SD9",
+      "priorDecisionRevised": false,
+      "minPagesPerOrganisation": 4,
+      "sd9FinalisesOnlyWhen": "all admissible post-SD7 counts lie on the same side of MIN_PAGES_PER_ORGANISATION = 4",
+      "sampleMembershipBlockedAndSd9PendingAreDistinct": true,
+      "anOrganisationMayBeAcquisitionSuccessfulWhileItsSetPMembershipIsBlocked": true
+    },
+    "clause14_setRFutureApplication": {
+      "appliesToSetROnceItsTruthfulTotalOrderExists": true,
+      "k1Resolved": false,
+      "k2Resolved": false,
+      "makesSetRConstructibleToday": false,
+      "setRImplementationAuthorised": false
+    },
+    "clause15_kState": {
+      "K1": "UNRESOLVED",
+      "K2": "UNRESOLVED",
+      "K3": "RESOLVED",
+      "K4": "UNRESOLVED",
+      "numberedK5Created": false,
+      "residualTokenSD7_SHORT_TEXT_SAMPLE_MEMBERSHIP": {
+        "operationalHandlingPolicy": "RESOLVED",
+        "perDocumentSemanticMembership": "POTENTIALLY_STILL_UNRESOLVED_OR_BLOCKED"
+      }
+    },
+    "clause16_noMethodologyFallbackRule": {
+      "authorises": [],
+      "doesNotAuthorise": [
+        "smaller token n-grams",
+        "character shingles",
+        "exact normalised-text matching",
+        "token-set similarity",
+        "special empty-set Jaccard",
+        "always-include",
+        "always-exclude"
+      ],
+      "anySuchFutureRule": "requires separate review and may constitute a methodology amendment"
+    }
+  },
+  "whatThisDoes": [
+    "extends fail-closed uncertainty propagation from SD9 to sample-membership materialisation and corpus-freeze readiness"
+  ],
+  "whatThisDoesNotChange": {
+    "r3Changed": false,
+    "planV1Changed": false,
+    "similarityValueDefined": false,
+    "shortTextUniquenessDefined": false,
+    "shortTextNearDuplicateStatusDefined": false,
+    "shortTextGloballyIncluded": false,
+    "shortTextGloballyExcluded": false,
+    "shingleSizeChanged": false,
+    "jaccardThresholdChanged": false,
+    "sd9ThresholdChanged": false,
+    "newEligibilityFilterCreated": false,
+    "realA3Authorised": false,
+    "corpusFreezeAuthorised": false,
+    "newMethodologyVersion": false,
+    "r4Created": false,
+    "priorShortTextOwnerDecisionEdited": false,
+    "k3OwnerClarificationEdited": false,
+    "statement": "Every value in this object is false in the sense of 'this decision changed it'. NEAR_DUPLICATE_SHINGLE_SIZE remains 5 tokens, NEAR_DUPLICATE_JACCARD_THRESHOLD remains 0.90 at-or-above inclusive, MIN_PAGES_PER_ORGANISATION remains 4, the SET_P_V2_R2: / SET_R_V2_R2: salts and the 8 / 4 caps are untouched."
+  },
+  "boundAuthority": {
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306
+    },
+    "methodologyFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+      "bytes": 17514
+    },
+    "corpusPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "bytes": 45200
+    },
+    "corpusPlanApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1_OWNER_APPROVAL.json",
+      "sha256": "0ac475031e81a60ae58d70bb83d5f71ee3cc441573dc82cf88145fdf1e8fec14",
+      "bytes": 10949
+    },
+    "a3aAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_AUTHORITY_RECORD_V1.json",
+      "sha256": "f5ccfa65d37223db60ad2935fd5c2ec3032cd76ba2af576fe385a376ab7336dd",
+      "bytes": 12787
+    },
+    "a3aExecutionResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_EXECUTION_RECORD_V1.json",
+      "sha256": "3be65f6e491f46c00a855a06a24167d4fd1d74201942b0240b74dc6a0e4d9ee8",
+      "bytes": 5599
+    },
+    "sd7ShortTextOwnerDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_SD7_SHORT_TEXT_OWNER_DECISION_V1.json",
+      "sha256": "2f41f495322eceae3b675cbe1d227115f3b4292d6e3a711879793af33b466fff",
+      "bytes": 7584
+    },
+    "k3OwnerClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A3_K3_SD7_SAMPLE_SPECIFIC_SURVIVOR_OWNER_CLARIFICATION_V1.json",
+      "sha256": "987b88a0848a5020605619f24a9accd73a04e886c80f72ab81608fbade765eab",
+      "bytes": 15475
+    },
+    "canonicalR6AuditRecord": {
+      "path": "docs/audits/PHASE_2B_2D_A3_CANONICAL_PREP_R6_SD7_GRAPH_EXPORT_V1.md",
+      "sha256": "53163e31af06873c0a3d528cbb863b1c1114bb8fdb7d707776af5c5770f97608",
+      "bytes": 18720
+    },
+    "canonicalR7AuditRecord": {
+      "path": "docs/audits/PHASE_2B_2D_A3_CANONICAL_PREP_R7_SD7_SURVIVOR_ADAPTER_V1.md",
+      "sha256": "04fceed4c43253df16f7f8db5ad079561bac30a5e6d9ce0e5144357fea31e44a",
+      "bytes": 12703
+    },
+    "canonicalR8AuditRecord": {
+      "path": "docs/audits/PHASE_2B_2D_A3_CANONICAL_PREP_R8_SET_P_SD7_BINDING_V1.md",
+      "sha256": "037ff7defe452700e7d96728df9ec1093e18c84f3752fd94731927dd95d2f24c",
+      "bytes": 9484
+    },
+    "sd7ShortTextOwnerDecisionCommit": "d7d686b855489bdb21be95041e4dd165d1acd0a2",
+    "k3OwnerRecordCommit": "bee142ee601f2dad7f558c15f549d6e33080f3e7",
+    "canonicalR7ImplementationCommit": "d513e01655711d7caf7323e12381043e7b20eb91",
+    "canonicalR8ImplementationCommit": "8b636326e65d6a948fda2764b78d013d51e47ea5",
+    "canonicalR8TerminalCommit": "03da163497901d7f53bf1a94c604dee3b0da1a6c",
+    "allHashesRecomputedFromCurrentBytesWhenThisRecordWasWritten": true
+  },
+  "concurrencyObservation": {
+    "a2TipObserved": "99864414ca0d3af6fccca420387648c4dabff75c",
+    "a2CommitsSinceLastObservedTouchedAuthorityOrCanonicalA3": false,
+    "a2Merged": false
+  },
+  "whatThisRecordDoesNotDo": [
+    "it does not implement R9, any ambiguity-propagation machinery, any extension-boundary machinery or any corpus-freeze preflight",
+    "it does not change the R6 graph, the R7 survivor walk or the R8 cap algorithm",
+    "it does not resolve K1, K2 or K4, and creates no K5",
+    "it does not resolve the semantic near-duplicate status of any short-text document",
+    "it does not authorise real A3, real SET_P / SET_R / survivor materialisation, any manifest, any corpus freeze, any label or any provider inference",
+    "it does not grant any network, database, sealed-filesystem, reserve or replacement authority"
+  ],
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256. This file is never rewritten, re-hashed or re-statused."
+  }
+}
