@@ -1,0 +1,297 @@
+{
+  "recordId": "phase2b-2d-a3-k3-sd7-sample-specific-survivor-owner-clarification-v1",
+  "recordKind": "OWNER_CLARIFICATION",
+  "decisionToken": "K3_SD7_SAMPLE_SPECIFIC_SURVIVOR_CLARIFICATION_V1",
+  "selectedOption": "RECOMMEND_K3_OPTION_B_SAMPLE_SPECIFIC_SURVIVORS",
+  "classification": "OWNER_INTERPRETATION_OF_AMBIGUOUS_FROZEN_METHODOLOGY_TEXT",
+  "explicitlyNotClassifiedAs": [
+    "METHODOLOGY_AMENDMENT",
+    "NEW_METHODOLOGY_VERSION",
+    "R4",
+    "SD7_RULE_CHANGE",
+    "SD9_THRESHOLD_CHANGE",
+    "EXECUTION_AUTHORITY"
+  ],
+  "recordedAtUtc": "2026-09-21T17:14:16Z",
+  "recordedBy": "claude-code-session, transcribing an exact owner decision",
+  "branch": "feat/phase2b-2d-a3-canonical-prep-k3",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "whatThisRecordIs": "An IMMUTABLE governance record of the owner's interpretation of frozen Methodology V2 R3 text that the canonical A3 preparation track marked as unresolved (K3). It adds an interpretation; it changes no frozen methodology byte, no plan byte, no earlier record and no evidence. Every bound record is referenced by SHA-256 and none is edited.",
+  "resolvesMarker": {
+    "id": "K3",
+    "marker": "A3_PREP_OWNER_DECISION_REQUIRED:SD3_SINGLE_POOL_VS_SD7_PER_SAMPLE_SURVIVOR",
+    "markerDeclaredIn": "src/test/harness/phase2b2d/a3prep/contracts.ts",
+    "markerStringIsRetainedUnchanged": true
+  },
+  "theAmbiguityAcknowledged": {
+    "thisAmbiguityGenuinelyExisted": true,
+    "theFrozenSentencesInTension": [
+      {
+        "source": "R3 sectionE_samplingContract.rules[2] (SD3)",
+        "text": "SET_R: from the same deduplicated pool, take the first SET_R_MAX_PAGES_PER_ORGANISATION = 4 ..."
+      },
+      {
+        "source": "R3 sectionE_samplingContract.rules[6] (SD7)",
+        "text": "A pair at or above NEAR_DUPLICATE_JACCARD_THRESHOLD = 0.90 contributes AT MOST ONE item - the earlier by the deterministic rank of the sample being drawn."
+      },
+      {
+        "source": "Corpus Acquisition Plan V1 SD3_to_SD12_selection.SD7",
+        "text": "runsBeforeBothSamplesAreDrawn: true"
+      },
+      {
+        "source": "R3 sectionE_samplingContract.rules[8] (SD9)",
+        "text": "An organisation is ACQUISITION_SUCCESSFUL iff, after policy-authorised discovery and after SD7 deduplication, it yields at least MIN_PAGES_PER_ORGANISATION = 4 distinct pages with extractable text."
+      }
+    ],
+    "whyTheyConflict": "SD3 reads as one shared deduplicated pool, while SD7 resolves each near-duplicate pair by the rank of the sample being drawn. SET_P and SET_R have different ranks, so one shared final survivor set cannot honour SD7's per-sample rank for both samples at once. SD9 then counts pages 'after SD7 deduplication' without saying which sample's survivors it counts.",
+    "noneOfTheseSentencesWasAlreadyUnambiguous": true,
+    "staleCrossReferenceNoted": "SD3's SET_P clause cites '(SD6)' for deduplication, but deduplication is rule SD7. The cross-reference is noted here and deliberately NOT edited: R3 bytes are frozen."
+  },
+  "ownerDecision": {
+    "clause1_commonExactDistinctInput": {
+      "statement": "Per organisation, SD7 first performs exact duplicate grouping by documentSha256. The resulting exact-distinct document population is the common document population supplied to BOTH sample procedures.",
+      "exactGroupingKey": "documentSha256",
+      "pageEvidenceRepresentativeChosenByThisDecision": false,
+      "k2Resolved": false,
+      "divergentExtractedTextUnderIdenticalBytes": "The existing canonical fail-closed behaviour is unchanged."
+    },
+    "clause2_oneCanonicalGraph": {
+      "statement": "Exactly ONE canonical near-duplicate relation graph is measured per organisation, using the landed canonical primitive measureNearDuplicateGraph. SET_P and SET_R do NOT build different similarity graphs; only their survivor walks differ.",
+      "graphScope": "ONE_CANONICAL_GRAPH_PER_ORGANISATION",
+      "canonicalPrimitive": "measureNearDuplicateGraph",
+      "canonicalPrimitivePath": "src/test/harness/phase2b2d/sd7/nearDuplicatePairs.ts",
+      "unchangedParameters": {
+        "input": "redacted extracted main_text",
+        "normalisation": "canonical whitespace and case normalisation",
+        "shingleSize": 5,
+        "shingleUnit": "token",
+        "jaccardThreshold": "0.90",
+        "comparison": "AT_OR_ABOVE_INCLUSIVE",
+        "scope": "WITHIN_ONE_ORGANISATION_ONLY",
+        "crossOrganisationNearDuplicates": "RETAINED"
+      }
+    },
+    "clause3_meaningOfSameDeduplicatedPool": {
+      "frozenPhrase": "from the same deduplicated pool",
+      "ownerAcknowledgesThePhraseWasAmbiguous": true,
+      "interpretationForMethodologyV2Generation1": "the same exact-distinct document population plus the same canonical SD7 near-duplicate relation graph",
+      "interpretationToken": "COMMON_EXACT_DISTINCT_POPULATION_PLUS_CANONICAL_GRAPH",
+      "itDoesNotMean": "a byte-identical final near-duplicate survivor set shared by SET_P and SET_R",
+      "basis": "This is the only reading under which the frozen SD7 clause 'the deterministic rank of the sample being drawn' applies truthfully to BOTH frozen samples."
+    },
+    "clause4_sampleSpecificGreedySurvivorWalk": {
+      "procedureToken": "GREEDY_SAMPLE_RANK_SURVIVOR_WALK",
+      "survivorScope": "SAMPLE_SPECIFIC",
+      "stepsPerSampleIndependently": [
+        "obtain that sample's already-frozen TOTAL order",
+        "walk documents from earliest to latest",
+        "keep a document if and only if it has NO canonical SD7 near-duplicate edge to any document already kept for that sample",
+        "otherwise exclude it from that sample"
+      ],
+      "resultingSet": "a maximal independent set of the canonical SD7 graph, induced by the sample's total order",
+      "resolvesUnspokenImplementationAmbiguityBetween": [
+        "GREEDY: keep unless near an already-KEPT document",
+        "PAIRWISE: drop if ANY earlier near-neighbour exists, kept or not"
+      ],
+      "ownerSelects": "GREEDY",
+      "basis": [
+        "it matches the already-landed A3a / R6 maximal-independent-set measurement semantics",
+        "the A3a operational treatment has already been used and was subsequently bound by the SD7 short-text owner decision",
+        "it introduces no new rank"
+      ],
+      "r3ProseAloneUniquelySpecifiedGreedy": false,
+      "thisIsAnExplicitOwnerClarification": true
+    },
+    "clause5_setPSurvivorOrder": {
+      "totalOrder": "sha256(\"SET_P_V2_R2:\" + documentSha256) ascending",
+      "classFiltering": "NONE",
+      "candidateScoreUsed": false,
+      "goldUsed": false,
+      "modelOutputUsed": false,
+      "humanResultUsed": false,
+      "output": "the complete survivor-aware SET_P order, BEFORE the cap-8 view"
+    },
+    "clause6_setRSurvivorOrder": {
+      "totalOrder": [
+        "resolved frozen deterministic Track A/B signal score descending",
+        "tie-break: sha256(\"SET_R_V2_R2:\" + documentSha256) ascending"
+      ],
+      "constructibilityStillDependsOn": ["K1", "K2"],
+      "k3AuthorisesPretendingASetROrderExistsToday": false,
+      "k3ResolvesTrackABScoreReduction": false,
+      "k3ResolvesExactDuplicateScoreOrRepresentative": false,
+      "finalSetRSurvivorIdentityAvailableUntilK1AndK2Resolved": false
+    },
+    "clause7_atMostOneItemScope": {
+      "frozenPhrase": "A pair ... contributes AT MOST ONE item",
+      "interpretation": "AT MOST ONE ITEM PER SAMPLE, under that sample's survivor walk",
+      "scopeToken": "PER_SAMPLE",
+      "interpretedAsGlobalProhibitionAcrossSetPUnionSetR": false,
+      "consequence": "For one canonical near-duplicate pair, SET_P may keep document A and SET_R may keep document B, so both may exist in the later union if they are distinct downstream items.",
+      "consequenceExplicitlyAccepted": true,
+      "frozenWordingCompelledThisInterpretation": false
+    },
+    "clause8_unionConsequence": {
+      "setPAndSetRMayRetainDifferentMembersOfOneNearDuplicateComponent": true,
+      "unchangedRules": [
+        "the same exact item may be in both samples",
+        "eventual evaluation-union handling remains governed by the downstream goldId / double-inference rules",
+        "no item receives double inference merely because it belongs to both samples"
+      ],
+      "differentNearDuplicateDocumentsAreAutomaticallyTheSameGoldId": false,
+      "crossDocumentIdentityCollapseInvented": false,
+      "unionFramedProceduresMayContainBothDocuments": true,
+      "ownerAcceptsThisConsequence": true,
+      "newPublicManifestFieldAdded": false,
+      "newReportingRequirementAdded": false,
+      "laterCrossSampleNearDuplicateExposureReporting": "requires its own reviewed representation decision"
+    },
+    "clause9_sd9": {
+      "minPagesPerOrganisation": 4,
+      "thresholdChanged": false,
+      "admissiblePostSd7CountsInclude": [
+        "the outcomes permitted by the SET_P survivor procedure",
+        "the outcomes permitted by the SET_R survivor procedure",
+        "the outcomes permitted by unresolved short-text handling"
+      ],
+      "mechanicalFinalisation": {
+        "SUCCESS": "only if EVERY admissible post-SD7 count is >= 4",
+        "MIN_PAGES_NOT_MET": "only if EVERY admissible post-SD7 count is < 4",
+        "PENDING": "otherwise: ACQUISITION_STATUS_PENDING_SD7_OWNER_DETAIL"
+      },
+      "pendingStatus": "ACQUISITION_STATUS_PENDING_SD7_OWNER_DETAIL",
+      "existingR3BoundsEvaluatorRemainsMechanicallyValid": true,
+      "beforeATruthfulSetROrderExists": "the canonical A3a all-orders survivor range remains an admissible conservative envelope",
+      "k1K2IndependentExactSetRCountsExist": false,
+      "thisExtendsTheShortTextFailClosedPrincipleToTheSurvivorOrderAxis": true,
+      "theShortTextDecisionHadAlreadyExplicitlyDecidedThis": false,
+      "prospective": true
+    },
+    "clause10_shortTextRemainsUnresolved": {
+      "k3DecidesShortTextSampleMembership": false,
+      "flag": "SD7_SHORT_TEXT_UNRESOLVED",
+      "existingRuleRemains": [
+        "do not invent Jaccard(empty, empty)",
+        "do not silently call it duplicate",
+        "do not silently call it unique",
+        "only finalise SD9 when all admissible treatments remain on the same side of 4"
+      ],
+      "aFutureExplicitShortTextSampleMembershipClarificationMayBeRequired": true
+    },
+    "clause11_freezeAndExtensionOrder": {
+      "completeSurvivorAwareRankFrozenBeforeAnyHumanLabelPerSample": true,
+      "onlyTheCappedPrefixFrozen": false,
+      "setPLaterUses": "its frozen survivor-aware rank",
+      "setRLaterUses": "its frozen survivor-aware rank",
+      "laterSd5Sd6Extension": {
+        "advancesACursorDownTheAlreadyFrozenSampleRank": true,
+        "recomputesSd7": false,
+        "changesOrderingAfterLabels": false,
+        "resurrectsADocumentExcludedBySd7ForThatSample": false,
+        "crossBorrowsBetweenSamplesOrSplits": false,
+        "relaxesOrganisationCaps": false
+      },
+      "postLabelDiscretionIntroduced": false
+    },
+    "clause12_whatK3DoesNotDecide": {
+      "stillUnresolved": [
+        {
+          "id": "K1",
+          "marker": "A3_PREP_OWNER_DECISION_REQUIRED:SET_R_TRACK_REDUCTION"
+        },
+        {
+          "id": "K2",
+          "marker": "A3_PREP_OWNER_DECISION_REQUIRED:EXACT_DUPLICATE_REPRESENTATIVE_AND_SCORE"
+        },
+        {
+          "id": "K4",
+          "marker": "A3_PREP_OWNER_DECISION_REQUIRED:SD4_G3_FREEZE_TIME_TRUNCATION"
+        }
+      ],
+      "residualAdjacentIssue": {
+        "token": "SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP",
+        "resolved": false,
+        "addedAsANumberedK5ContractMarker": false,
+        "nature": "residual implementation / owner clarification issue adjacent to K3"
+      },
+      "staleSd3Sd6CrossReferenceEdited": false
+    }
+  },
+  "whatThisDoesNotChange": {
+    "r3Changed": false,
+    "planV1Changed": false,
+    "rankSaltChanged": false,
+    "capChanged": false,
+    "thresholdChanged": false,
+    "gateChanged": false,
+    "splitAssignmentChanged": false,
+    "realA3Authorised": false,
+    "newMethodologyVersion": false,
+    "r4Created": false,
+    "statement": "Every value in this object is false in the sense of 'this decision changed it'. SET_P_V2_R2: and SET_R_V2_R2: salts, the 8 / 4 per-organisation caps, the 5-gram size, the 0.90 inclusive Jaccard threshold, MIN_PAGES_PER_ORGANISATION = 4, the 1/10 gate-share cap, every gate and the 20 / 45 / 45 split assignment are untouched."
+  },
+  "boundAuthority": {
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306
+    },
+    "methodologyFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+      "bytes": 17514
+    },
+    "corpusPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "bytes": 45200
+    },
+    "corpusPlanApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1_OWNER_APPROVAL.json",
+      "sha256": "0ac475031e81a60ae58d70bb83d5f71ee3cc441573dc82cf88145fdf1e8fec14",
+      "bytes": 10949
+    },
+    "a3aAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_AUTHORITY_RECORD_V1.json",
+      "sha256": "f5ccfa65d37223db60ad2935fd5c2ec3032cd76ba2af576fe385a376ab7336dd",
+      "bytes": 12787
+    },
+    "a3aExecutionResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_EXECUTION_RECORD_V1.json",
+      "sha256": "3be65f6e491f46c00a855a06a24167d4fd1d74201942b0240b74dc6a0e4d9ee8",
+      "bytes": 5599
+    },
+    "sd7ShortTextOwnerDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_SD7_SHORT_TEXT_OWNER_DECISION_V1.json",
+      "sha256": "2f41f495322eceae3b675cbe1d227115f3b4292d6e3a711879793af33b466fff",
+      "bytes": 7584
+    },
+    "canonicalR6AuditRecord": {
+      "path": "docs/audits/PHASE_2B_2D_A3_CANONICAL_PREP_R6_SD7_GRAPH_EXPORT_V1.md",
+      "sha256": "53163e31af06873c0a3d528cbb863b1c1114bb8fdb7d707776af5c5770f97608",
+      "bytes": 18720
+    },
+    "canonicalR6CodeCommit": "0dc40586d9d30613d837b67de2f230c214e46090",
+    "canonicalR6TerminalCommit": "99db70f67dc9c2866d42cd8951a30f9b2cdd075e",
+    "allHashesRecomputedFromCurrentBytesWhenThisRecordWasWritten": true
+  },
+  "concurrencyObservation": {
+    "a2TipObserved": "69dff793439a8d20d29894100c4b73e064206308",
+    "a2CommitsSince575b706TouchedAuthorityOrCanonicalA3": false,
+    "a2Merged": false
+  },
+  "whatThisRecordDoesNotDo": [
+    "it does not implement any survivor walk, survivor materialisation, SET_P binding or SET_R binding",
+    "it does not resolve K1, K2 or K4",
+    "it does not resolve short-text sample membership",
+    "it does not authorise real A3, real SD7 materialisation, any manifest, any corpus freeze, any label or any provider inference",
+    "it does not grant any network, database, sealed-filesystem or reserve authority",
+    "it does not edit the stale SD3 '(SD6)' cross-reference"
+  ],
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256. This file is never rewritten, re-hashed or re-statused."
+  }
+}
