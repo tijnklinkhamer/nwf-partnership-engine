@@ -19,7 +19,8 @@
  *     INDEPENDENT reference that enumerates every admissible treatment;
  *   - the short-text corpus gate refuses with the owner token, carries no
  *     acquisition or replacement effect, and reveals no slot;
- *   - the owner blocker ledger is exactly K1, K2, K4, from contracts alone;
+ *   - the owner blocker ledger is exactly K4, from contracts alone (it was K1,
+ *     K2, K4 at R9; K1 and K2 were later resolved, with no runtime change);
  *   - the overall preflight is necessarily REFUSED today, orders its blockers
  *     deterministically, and even with every R9 blocker cleared is still not
  *     freeze authority;
@@ -31,7 +32,10 @@ import {
   A3_PREP_OWNER_DECISIONS_REQUIRED,
   GENERATION_1_SELECTED_ORGANISATIONS,
   GENERATION_1_SPLIT_ORGANISATION_COUNTS,
+  K1_SET_R_TRACK_REDUCTION,
+  K2_EXACT_DUPLICATE_REPRESENTATIVE_AND_SCORE,
   K3_SD3_SINGLE_POOL_VS_SD7_PER_SAMPLE_SURVIVOR,
+  K4_SD4_G3_FREEZE_TIME_TRUNCATION,
   SET_P_MAX_PAGES_PER_ORGANISATION,
   SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY,
   SPLITS,
@@ -780,10 +784,10 @@ describe('2D-A3 R9: the short-text corpus freeze gate', () => {
 // ---------------------------------------------------------------------------
 
 describe('2D-A3 R9: the owner-decision blocker ledger', () => {
-  it('is exactly K1, K2, K4 - derived from the contract, in contract order', () => {
+  it('is exactly K4 - derived from the contract, in contract order', () => {
     const ledger = deriveCurrentOwnerDecisionBlockers();
-    expect(ledger.map((b) => b.id)).toEqual(['K1', 'K2', 'K4']);
-    expect(ledger).toHaveLength(3);
+    expect(ledger.map((b) => b.id)).toEqual(['K4']);
+    expect(ledger).toHaveLength(1);
     expect(ledger).toEqual(
       A3_PREP_OWNER_DECISIONS_REQUIRED.map((r) => ({
         blockerClass: 'OWNER_DECISION_UNRESOLVED',
@@ -800,6 +804,14 @@ describe('2D-A3 R9: the owner-decision blocker ledger', () => {
     expect(serialised).not.toContain(K3_SD3_SINGLE_POOL_VS_SD7_PER_SAMPLE_SURVIVOR);
   });
 
+  it('K1 and K2 never appear as unresolved once their owner records are bound', () => {
+    const serialised = JSON.stringify(deriveCurrentOwnerDecisionBlockers());
+    expect(serialised).not.toContain('"K1"');
+    expect(serialised).not.toContain('"K2"');
+    expect(serialised).not.toContain(K1_SET_R_TRACK_REDUCTION);
+    expect(serialised).not.toContain(K2_EXACT_DUPLICATE_REPRESENTATIVE_AND_SCORE);
+  });
+
   it('takes no argument: a caller cannot pass approval booleans to hide an entry', () => {
     expect(deriveCurrentOwnerDecisionBlockers.length).toBe(0);
     const withJunk = (
@@ -808,8 +820,9 @@ describe('2D-A3 R9: the owner-decision blocker ledger', () => {
       setRScoreReductionApproved: true,
       organisationShareTruncationApproved: true,
       k1: true,
+      k4: true,
     });
-    expect(withJunk).toHaveLength(3);
+    expect(withJunk).toHaveLength(1);
   });
 
   it('carries no free-form question text', () => {
@@ -823,46 +836,46 @@ describe('2D-A3 R9: the owner-decision blocker ledger', () => {
 // 19 / 33. OVERALL PREFLIGHT
 // ---------------------------------------------------------------------------
 
-const OWNER_TAIL = ['K1', 'K2', 'K4'];
+const OWNER_TAIL = ['K4'];
 
 describe('2D-A3 R9: the overall current preflight', () => {
-  it('Case A: short-text gate clear -> still REFUSED, because K1, K2, K4 remain', () => {
+  it('Case A: short-text gate clear -> still REFUSED, with exactly one owner blocker: K4', () => {
     const result = checkCurrentA3CorpusFreezePreflight(fullCollection());
     expect(result.kind).toBe(A3_CORPUS_FREEZE_PREFLIGHT_KIND);
     expect(result.kind).toBe('A3_CORPUS_FREEZE_PREFLIGHT_NOT_EXECUTION_AUTHORITY');
     expect(result.status).toBe(A3_CORPUS_FREEZE_PREFLIGHT_REFUSED);
-    expect(result.blockers.map((b) => b.blockerClass)).toEqual([
-      'OWNER_DECISION_UNRESOLVED',
-      'OWNER_DECISION_UNRESOLVED',
-      'OWNER_DECISION_UNRESOLVED',
-    ]);
+    expect(result.status).not.toBe(
+      A3_CORPUS_FREEZE_PREFLIGHT_R9_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY,
+    );
+    expect(result.blockers.map((b) => b.blockerClass)).toEqual(['OWNER_DECISION_UNRESOLVED']);
     expect(result.blockers.map((b) => ('id' in b ? b.id : null))).toEqual(OWNER_TAIL);
+    expect(result.blockers.map((b) => ('marker' in b ? b.marker : null))).toEqual([
+      K4_SD4_G3_FREEZE_TIME_TRUNCATION,
+    ]);
+    expect(JSON.stringify(result)).not.toMatch(/READY/);
   });
 
-  it('Case B: short-text gate blocked -> short-text blocker first, then K1, K2, K4', () => {
+  it('Case B: short-text gate blocked -> short-text blocker first, then K4', () => {
     const result = checkCurrentA3CorpusFreezePreflight(fullCollection(new Set([1, 2])));
     expect(result.status).toBe(A3_CORPUS_FREEZE_PREFLIGHT_REFUSED);
     expect(result.blockers.map((b) => b.blockerClass)).toEqual([
       'SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED_AT_FREEZE',
       'OWNER_DECISION_UNRESOLVED',
-      'OWNER_DECISION_UNRESOLVED',
-      'OWNER_DECISION_UNRESOLVED',
     ]);
+    expect(result.blockers.slice(1).map((b) => ('id' in b ? b.id : null))).toEqual(OWNER_TAIL);
     const first = result.blockers[0]!;
     expect(
       first.blockerClass === 'SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED_AT_FREEZE' && first.refusal,
     ).toBe('CORPUS_FREEZE_REFUSED_SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED');
   });
 
-  it('structural input: structural blocker first, no short-text verdict, then K1, K2, K4', () => {
+  it('structural input: structural blocker first, no short-text verdict, then K4', () => {
     const c = fullCollection(new Set([1]));
     c.pop();
     const result = checkCurrentA3CorpusFreezePreflight(c);
     expect(result.status).toBe(A3_CORPUS_FREEZE_PREFLIGHT_REFUSED);
     expect(result.blockers.map((b) => b.blockerClass)).toEqual([
       'STRUCTURAL_PREFLIGHT_INPUT_INVALID',
-      'OWNER_DECISION_UNRESOLVED',
-      'OWNER_DECISION_UNRESOLVED',
       'OWNER_DECISION_UNRESOLVED',
     ]);
   });
@@ -886,7 +899,7 @@ describe('2D-A3 R9: the overall current preflight', () => {
       sd7SampleRankSemanticsApproved: true,
     });
     expect(result.status).toBe(A3_CORPUS_FREEZE_PREFLIGHT_REFUSED);
-    expect(result.blockers).toHaveLength(3);
+    expect(result.blockers).toHaveLength(1);
   });
 
   it('every result names what R9 does not check, and never says READY', () => {

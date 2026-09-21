@@ -148,7 +148,7 @@ type K1K2RecordKeys =
 export type ResolvedScoreRequiresK1AndK2 = Assert<
   K1K2RecordKeys extends keyof A3ExternallyResolvedSetRScore ? true : false
 >;
-// No representative row/URL on the distinct document (K2 is open).
+// No representative row/URL on the distinct document (K2: no row is canonical).
 export type DistinctDocumentHasNoRepresentative = Assert<
   HasNone<A3DistinctDocument, 'representative' | 'Representative'>
 >;
@@ -183,12 +183,15 @@ describe('2D-A3 R1: the bound authority is the frozen bytes on disk', () => {
     expect(contracts.A3_PREP_R1_BOUND_AUTHORITY.corpusPlanApprovalSha256).toBe(
       drawContract.CORPUS_PLAN_APPROVAL_SHA256,
     );
-    // The ONLY 64-hex literals are the two owner records' hashes (K3, then the
-    // short-text membership policy), which have no other canonical home. No
+    // The ONLY 64-hex literals are the owner records' hashes (K3, K1, K2, then
+    // the short-text membership policy), which have no other canonical home.
+    // K2's bound K1 hash is a REFERENCE to K1's, never a second literal. No
     // draw-contract hash is restated.
     const source = readFileSync(join(A3PREP_DIR, 'contracts.ts'), 'utf8');
     expect(source.match(/[0-9a-f]{64}/g)).toEqual([
       contracts.K3_OWNER_DECISION.decisionRecordSha256,
+      contracts.K1_OWNER_DECISION.decisionRecordSha256,
+      contracts.K2_OWNER_DECISION.decisionRecordSha256,
       contracts.SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY.decisionRecordSha256,
     ]);
     for (const hash of [
@@ -358,7 +361,7 @@ describe('2D-A3 R1: planning targets are planning targets', () => {
   });
 });
 
-describe('2D-A3 R1: K1-K4 markers are exact and ordered; K1, K2, K4 stay unanswered', () => {
+describe('2D-A3 R1: K1-K4 markers are exact and ordered; only K4 stays unanswered', () => {
   const EXPECTED = [
     'A3_PREP_OWNER_DECISION_REQUIRED:SET_R_TRACK_REDUCTION',
     'A3_PREP_OWNER_DECISION_REQUIRED:EXACT_DUPLICATE_REPRESENTATIVE_AND_SCORE',
@@ -376,18 +379,18 @@ describe('2D-A3 R1: K1-K4 markers are exact and ordered; K1, K2, K4 stay unanswe
     ]).toEqual(EXPECTED);
   });
 
-  it('the UNRESOLVED list is exactly K1, K2, K4', () => {
-    expect(contracts.A3_PREP_OWNER_DECISIONS_REQUIRED.map((k) => k.id)).toEqual(['K1', 'K2', 'K4']);
-    expect([...contracts.A3_PREP_UNRESOLVED_OWNER_DECISION_MARKERS]).toEqual([
-      EXPECTED[0],
-      EXPECTED[1],
-      EXPECTED[3],
-    ]);
+  it('the UNRESOLVED list is exactly K4', () => {
+    expect(contracts.A3_PREP_OWNER_DECISIONS_REQUIRED.map((k) => k.id)).toEqual(['K4']);
+    expect([...contracts.A3_PREP_UNRESOLVED_OWNER_DECISION_MARKERS]).toEqual([EXPECTED[3]]);
   });
 
-  it('the RESOLVED list is exactly K3', () => {
-    expect(contracts.A3_PREP_OWNER_DECISIONS_RESOLVED.map((k) => k.id)).toEqual(['K3']);
-    expect([...contracts.A3_PREP_RESOLVED_OWNER_DECISION_MARKERS]).toEqual([EXPECTED[2]]);
+  it('the RESOLVED list is exactly K1, K2, K3, in id order', () => {
+    expect(contracts.A3_PREP_OWNER_DECISIONS_RESOLVED.map((k) => k.id)).toEqual(['K1', 'K2', 'K3']);
+    expect([...contracts.A3_PREP_RESOLVED_OWNER_DECISION_MARKERS]).toEqual([
+      EXPECTED[0],
+      EXPECTED[1],
+      EXPECTED[2],
+    ]);
   });
 
   it('every unresolved entry is unresolved, the resolved one is resolved, and the lists are frozen', () => {

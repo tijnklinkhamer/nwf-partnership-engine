@@ -7,9 +7,9 @@
  *       or already APPROVED by the Corpus Acquisition Plan V1 owner approval,
  *       each citing where it comes from; and
  *   (b) an explicit OWNER-DECISION MARKER (K1-K4) for a semantic the frozen
- *       bytes do not settle. A marker is a question, never an answer; K3 has
- *       since been answered by an append-only owner record, bound in
- *       section G by path and SHA-256.
+ *       bytes do not settle. A marker is a question, never an answer; K1, K2
+ *       and K3 have since been answered by append-only owner records, bound
+ *       in section G by path and SHA-256. K4 remains open.
  *
  * A fact that already has a canonical home is IMPORTED from it, never restated:
  * `Split` and SD9's `MIN_PAGES_PER_ORGANISATION` come from the SD7 contract,
@@ -112,8 +112,9 @@ export const SET_R_TIE_BREAK_KEY_PREFIX = 'SET_R_V2_R2:';
 
 /**
  * The primary order, NAMED but not implemented. What "the" Track A/B score of
- * one document IS remains K1 (and, across exact duplicates, K2). No reduction
- * - max, sum, interleave, or Track-B floor - is canonical here.
+ * one document IS was settled by owner clarification, not by R3: K1 (MAX
+ * across the two tracks of one source row) and K2 (MAX across an exact
+ * document's source rows) - see section G. No reducer is implemented here.
  */
 export const SET_R_PRIMARY_ORDER = 'RESOLVED_FROZEN_TRACK_A_B_SIGNAL_SCORE_DESCENDING';
 
@@ -188,8 +189,16 @@ export const SET_R_AT_OR_BELOW_STRUCTURAL_MAXIMUM_IS_CONFORMANCE_FAILURE = false
 //    mean "every unresolved decision".
 // ---------------------------------------------------------------------------
 
+/**
+ * RESOLVED by owner clarification (see `K1_OWNER_DECISION`). The string is
+ * kept byte-for-byte as the stable historical identity of the question.
+ */
 export const K1_SET_R_TRACK_REDUCTION = 'A3_PREP_OWNER_DECISION_REQUIRED:SET_R_TRACK_REDUCTION';
 
+/**
+ * RESOLVED by owner clarification (see `K2_OWNER_DECISION`). The string is
+ * kept byte-for-byte as the stable historical identity of the question.
+ */
 export const K2_EXACT_DUPLICATE_REPRESENTATIVE_AND_SCORE =
   'A3_PREP_OWNER_DECISION_REQUIRED:EXACT_DUPLICATE_REPRESENTATIVE_AND_SCORE';
 
@@ -210,40 +219,23 @@ export type A3PrepOwnerDecisionMarker =
   | typeof K3_SD3_SINGLE_POOL_VS_SD7_PER_SAMPLE_SURVIVOR
   | typeof K4_SD4_G3_FREEZE_TIME_TRUNCATION;
 
-export type A3PrepUnresolvedOwnerDecisionMarker = Exclude<
-  A3PrepOwnerDecisionMarker,
-  typeof K3_SD3_SINGLE_POOL_VS_SD7_PER_SAMPLE_SURVIVOR
->;
+export type A3PrepUnresolvedOwnerDecisionMarker = typeof K4_SD4_G3_FREEZE_TIME_TRUNCATION;
 
 export interface A3PrepOwnerDecisionRequirement {
-  readonly id: 'K1' | 'K2' | 'K4';
+  readonly id: 'K4';
   readonly marker: A3PrepUnresolvedOwnerDecisionMarker;
   readonly question: string;
   readonly resolved: false;
 }
 
 /**
- * The STILL-UNRESOLVED decisions, ordered K1, K2, K4. Every entry is
- * `resolved: false` by TYPE, so a resolution cannot be recorded here by
- * editing a flag: it needs an owner decision record and a reviewed change
- * that moves the entry to `A3_PREP_OWNER_DECISIONS_RESOLVED`.
+ * The STILL-UNRESOLVED decisions: K4 only. Every entry is `resolved: false` by
+ * TYPE, so a resolution cannot be recorded here by editing a flag: it needs an
+ * owner decision record and a reviewed change that moves the entry to
+ * `A3_PREP_OWNER_DECISIONS_RESOLVED`. K1 and K2 left this list that way.
  */
 export const A3_PREP_OWNER_DECISIONS_REQUIRED: readonly A3PrepOwnerDecisionRequirement[] =
   Object.freeze([
-    Object.freeze({
-      id: 'K1',
-      marker: K1_SET_R_TRACK_REDUCTION,
-      question:
-        'How the per-page Track A and Track B candidate scores become the ONE resolved score SET_R ranks by.',
-      resolved: false,
-    } as const),
-    Object.freeze({
-      id: 'K2',
-      marker: K2_EXACT_DUPLICATE_REPRESENTATIVE_AND_SCORE,
-      question:
-        'How an exact-document-SHA group chooses or defines its representative identity and score when its source rows differ.',
-      resolved: false,
-    } as const),
     Object.freeze({
       id: 'K4',
       marker: K4_SD4_G3_FREEZE_TIME_TRUNCATION,
@@ -254,8 +246,24 @@ export const A3_PREP_OWNER_DECISIONS_REQUIRED: readonly A3PrepOwnerDecisionRequi
   ]);
 
 // ---------------------------------------------------------------------------
-// G. K3 — RESOLVED BY OWNER CLARIFICATION. Owner-bound FACTS, not an
-//    algorithm: nothing here walks a graph or materialises a survivor.
+// G. RESOLVED OWNER DECISIONS. Owner-bound FACTS, not algorithms: nothing here
+//    walks a graph, compares a decimal, reduces a score or ranks a document.
+//    Each decision has its OWN typed shape; the resolved collection is their
+//    discriminated union, keyed by `id`.
+// ---------------------------------------------------------------------------
+
+/** What every resolved decision carries: which question, and which record answered it. */
+interface A3PrepResolvedOwnerDecisionBinding<Id extends string, Marker extends string> {
+  readonly id: Id;
+  readonly marker: Marker;
+  readonly resolved: true;
+  readonly decisionRecordPath: string;
+  readonly decisionRecordSha256: string;
+  readonly decisionRecordCommit: string;
+}
+
+// ---------------------------------------------------------------------------
+// G.1 K3 — SD3 / SD7 survivor scope.
 //
 //    docs/evaluation/PHASE_2B_2D_A3_K3_SD7_SAMPLE_SPECIFIC_SURVIVOR_OWNER_CLARIFICATION_V1.json
 //    interprets R3's ambiguous SD3/SD7/SD9 text for Generation 1. It changes
@@ -282,14 +290,11 @@ export const K3_SD7_AT_MOST_ONE_SCOPE = 'PER_SAMPLE';
 export const K3_SD3_SHARED_POOL_INTERPRETATION =
   'COMMON_EXACT_DISTINCT_POPULATION_PLUS_CANONICAL_GRAPH';
 
-export interface A3PrepResolvedOwnerDecision {
-  readonly id: 'K3';
-  readonly marker: typeof K3_SD3_SINGLE_POOL_VS_SD7_PER_SAMPLE_SURVIVOR;
-  readonly resolved: true;
+export interface A3PrepK3ResolvedOwnerDecision extends A3PrepResolvedOwnerDecisionBinding<
+  'K3',
+  typeof K3_SD3_SINGLE_POOL_VS_SD7_PER_SAMPLE_SURVIVOR
+> {
   readonly decisionToken: 'K3_SD7_SAMPLE_SPECIFIC_SURVIVOR_CLARIFICATION_V1';
-  readonly decisionRecordPath: string;
-  readonly decisionRecordSha256: string;
-  readonly decisionRecordCommit: string;
   readonly selectedSemantics: 'SAMPLE_SPECIFIC_GREEDY_SURVIVORS';
   readonly survivorScope: typeof K3_SD7_SURVIVOR_SCOPE;
   readonly survivorProcedure: typeof K3_SD7_SURVIVOR_PROCEDURE;
@@ -298,7 +303,7 @@ export interface A3PrepResolvedOwnerDecision {
   readonly sharedPoolInterpretation: typeof K3_SD3_SHARED_POOL_INTERPRETATION;
 }
 
-export const K3_OWNER_DECISION: A3PrepResolvedOwnerDecision = Object.freeze({
+export const K3_OWNER_DECISION: A3PrepK3ResolvedOwnerDecision = Object.freeze({
   id: 'K3',
   marker: K3_SD3_SINGLE_POOL_VS_SD7_PER_SAMPLE_SURVIVOR,
   resolved: true,
@@ -315,9 +320,140 @@ export const K3_OWNER_DECISION: A3PrepResolvedOwnerDecision = Object.freeze({
   sharedPoolInterpretation: K3_SD3_SHARED_POOL_INTERPRETATION,
 } as const);
 
-/** The RESOLVED decisions: K3 only. */
+// ---------------------------------------------------------------------------
+// G.2 K1 — SET_R TRACK SCORE REDUCTION (one source page-evidence row).
+//
+//    docs/evaluation/PHASE_2B_2D_A3_K1_SET_R_TRACK_SCORE_OWNER_CLARIFICATION_V1.json
+//    interprets a reduction R3 names but never defines:
+//      pageSetRScore = max(trackAScore, trackBScore)
+//    over the row's two persisted `candidate_score` observations. Signed, by
+//    exact persisted value, no clamp. Not R4; nothing authorised.
+// ---------------------------------------------------------------------------
+
+/** K1's reducer, the owner record's own token. */
+export const SET_R_TRACK_REDUCTION_POLICY = 'MAX_TRACK_SCORE';
+
+/**
+ * Exactly one persisted observation of EACH of these tracks is required per
+ * source row; missing, duplicated or unexpected tracks refuse, never repair.
+ * Persisted MECHANISM labels (Track A, Track B), not semantic classes.
+ */
+export const SET_R_REQUIRED_TRACKS: readonly ['INTERNATIONAL_OFFICE', 'LANGUAGE_CENTRE'] =
+  Object.freeze(['INTERNATIONAL_OFFICE', 'LANGUAGE_CENTRE'] as const);
+
+/**
+ * The one signal rule version whose persisted scores K1 binds. Carried as its
+ * own literal rather than imported from `src/orgunits/signals/`: the owner
+ * record binds THIS version, and a future production bump must not silently
+ * move what Generation-1 SET_R means.
+ */
+export const SET_R_BOUND_SIGNAL_RULE_VERSION = 'orgunit-signal-rules-v1';
+
+/** Scores stay signed: max(-2, -4) = -2. No clamp, floor, abs or max(0, score). */
+export const SET_R_SIGNED_SCORE_POLICY = 'PRESERVE_SIGNED_PERSISTED_VALUE';
+
+/** `rank_within_root` is a (run, root, track, rule version) position, never a SET_R key. */
+export const SET_R_RANK_WITHIN_ROOT_ROLE = 'NOT_A_SET_R_RANK_INPUT';
+
+export interface A3PrepK1ResolvedOwnerDecision extends A3PrepResolvedOwnerDecisionBinding<
+  'K1',
+  typeof K1_SET_R_TRACK_REDUCTION
+> {
+  readonly decisionToken: 'K1_SET_R_TRACK_SCORE_MAX_V1';
+  readonly selectedOption: 'RECOMMEND_K1_MAX_TRACK_SCORE';
+  readonly reducer: typeof SET_R_TRACK_REDUCTION_POLICY;
+  readonly requiredTracks: typeof SET_R_REQUIRED_TRACKS;
+  readonly signalRuleVersion: typeof SET_R_BOUND_SIGNAL_RULE_VERSION;
+  readonly signedScorePolicy: typeof SET_R_SIGNED_SCORE_POLICY;
+  readonly rankWithinRootRole: typeof SET_R_RANK_WITHIN_ROOT_ROLE;
+}
+
+export const K1_OWNER_DECISION: A3PrepK1ResolvedOwnerDecision = Object.freeze({
+  id: 'K1',
+  marker: K1_SET_R_TRACK_REDUCTION,
+  resolved: true,
+  decisionToken: 'K1_SET_R_TRACK_SCORE_MAX_V1',
+  selectedOption: 'RECOMMEND_K1_MAX_TRACK_SCORE',
+  decisionRecordPath:
+    'docs/evaluation/PHASE_2B_2D_A3_K1_SET_R_TRACK_SCORE_OWNER_CLARIFICATION_V1.json',
+  decisionRecordSha256: '2437ef4b0bcabc816432c338e02da3b6eaa80fedb561b805232ad906fbbc94be',
+  decisionRecordCommit: 'f48b9a6fbff00c59d93c3a084c7bfdc51b2fb73f',
+  reducer: SET_R_TRACK_REDUCTION_POLICY,
+  requiredTracks: SET_R_REQUIRED_TRACKS,
+  signalRuleVersion: SET_R_BOUND_SIGNAL_RULE_VERSION,
+  signedScorePolicy: SET_R_SIGNED_SCORE_POLICY,
+  rankWithinRootRole: SET_R_RANK_WITHIN_ROOT_ROLE,
+} as const);
+
+// ---------------------------------------------------------------------------
+// G.3 K2 — EXACT-DOCUMENT SET_R SCORE, bound to K1.
+//
+//    docs/evaluation/PHASE_2B_2D_A3_K2_EXACT_DOCUMENT_SCORE_OWNER_CLARIFICATION_V1.json
+//      documentSetRScore = max(K1 pageSetRScore(row) over D's source rows)
+//    which, because K1 is itself MAX, equals the max persisted candidate score
+//    over every (source row, required track) of D. No source row is D's
+//    representative; the row supplying the max is SCORE PROVENANCE only. The
+//    final SET_R order is that score descending, then the SET_R_V2_R2: salted
+//    SHA ascending, and nothing else.
+// ---------------------------------------------------------------------------
+
+/** K2's reducer, the owner record's own token. */
+export const SET_R_EXACT_DOCUMENT_SCORE_POLICY = 'MAX_K1_PAGE_SCORE_ACROSS_SOURCE_ROWS';
+
+/** No page-evidence row is canonical for SET_R; identity stays `documentSha256`. */
+export const SET_R_EXACT_DOCUMENT_REPRESENTATIVE_POLICY =
+  'NO_PAGE_EVIDENCE_REPRESENTATIVE_IS_CANONICAL_FOR_SET_R';
+
+/** K1 + K2 together: MAX over all persisted signal evidence of the document. */
+export const SET_R_DOCUMENT_SCORE_SEMANTICS =
+  'SET_R_DOCUMENT_SCORE_MAX_PERSISTED_SIGNAL_EVIDENCE_V1';
+
+/** A further alias with an already-seen score changes nothing; copies carry no weight. */
+export const SET_R_DUPLICATE_MULTIPLICITY_POLICY = 'IDEMPOTENT_NO_MULTIPLICITY_WEIGHT';
+
+export interface A3PrepK2ResolvedOwnerDecision extends A3PrepResolvedOwnerDecisionBinding<
+  'K2',
+  typeof K2_EXACT_DUPLICATE_REPRESENTATIVE_AND_SCORE
+> {
+  readonly decisionToken: 'K2_EXACT_DOCUMENT_SCORE_MAX_SOURCE_ROW_NO_REPRESENTATIVE_V1';
+  readonly selectedOption: 'RECOMMEND_K2_MAX_SOURCE_ROW_SCORE_NO_REPRESENTATIVE';
+  readonly boundK1DecisionToken: A3PrepK1ResolvedOwnerDecision['decisionToken'];
+  readonly boundK1DecisionRecordSha256: string;
+  readonly reducer: typeof SET_R_EXACT_DOCUMENT_SCORE_POLICY;
+  readonly representativePolicy: typeof SET_R_EXACT_DOCUMENT_REPRESENTATIVE_POLICY;
+  readonly jointSemantics: typeof SET_R_DOCUMENT_SCORE_SEMANTICS;
+  readonly duplicateMultiplicity: typeof SET_R_DUPLICATE_MULTIPLICITY_POLICY;
+}
+
+export const K2_OWNER_DECISION: A3PrepK2ResolvedOwnerDecision = Object.freeze({
+  id: 'K2',
+  marker: K2_EXACT_DUPLICATE_REPRESENTATIVE_AND_SCORE,
+  resolved: true,
+  decisionToken: 'K2_EXACT_DOCUMENT_SCORE_MAX_SOURCE_ROW_NO_REPRESENTATIVE_V1',
+  selectedOption: 'RECOMMEND_K2_MAX_SOURCE_ROW_SCORE_NO_REPRESENTATIVE',
+  decisionRecordPath:
+    'docs/evaluation/PHASE_2B_2D_A3_K2_EXACT_DOCUMENT_SCORE_OWNER_CLARIFICATION_V1.json',
+  decisionRecordSha256: '5fb280c9aae264e59ca80383922d324c1118aa9192e7d9f5fe6e79ca09b75668',
+  decisionRecordCommit: '819eac5f1c01416fe78193f5e1e6e73fd57b430a',
+  boundK1DecisionToken: K1_OWNER_DECISION.decisionToken,
+  boundK1DecisionRecordSha256: K1_OWNER_DECISION.decisionRecordSha256,
+  reducer: SET_R_EXACT_DOCUMENT_SCORE_POLICY,
+  representativePolicy: SET_R_EXACT_DOCUMENT_REPRESENTATIVE_POLICY,
+  jointSemantics: SET_R_DOCUMENT_SCORE_SEMANTICS,
+  duplicateMultiplicity: SET_R_DUPLICATE_MULTIPLICITY_POLICY,
+} as const);
+
+// ---------------------------------------------------------------------------
+// G.4 THE RESOLVED COLLECTION.
+// ---------------------------------------------------------------------------
+
+/** One resolved decision, discriminated by `id`. */
+export type A3PrepResolvedOwnerDecision =
+  A3PrepK1ResolvedOwnerDecision | A3PrepK2ResolvedOwnerDecision | A3PrepK3ResolvedOwnerDecision;
+
+/** The RESOLVED decisions, in id order: K1, K2, K3. */
 export const A3_PREP_OWNER_DECISIONS_RESOLVED: readonly A3PrepResolvedOwnerDecision[] =
-  Object.freeze([K3_OWNER_DECISION]);
+  Object.freeze([K1_OWNER_DECISION, K2_OWNER_DECISION, K3_OWNER_DECISION]);
 
 // ---------------------------------------------------------------------------
 // H. MARKER ACCOUNTING. Three explicit lists; none is derived from "all".
@@ -331,11 +467,11 @@ export const A3_PREP_OWNER_DECISION_MARKERS: readonly A3PrepOwnerDecisionMarker[
   K4_SD4_G3_FREEZE_TIME_TRUNCATION,
 ]);
 
-/** The markers still awaiting an owner decision: K1, K2, K4. */
+/** The markers still awaiting an owner decision: K4 only. */
 export const A3_PREP_UNRESOLVED_OWNER_DECISION_MARKERS: readonly A3PrepUnresolvedOwnerDecisionMarker[] =
   Object.freeze(A3_PREP_OWNER_DECISIONS_REQUIRED.map((requirement) => requirement.marker));
 
-/** The markers answered by an owner record: K3. */
+/** The markers answered by an owner record: K1, K2, K3. */
 export const A3_PREP_RESOLVED_OWNER_DECISION_MARKERS: readonly A3PrepOwnerDecisionMarker[] =
   Object.freeze(A3_PREP_OWNER_DECISIONS_RESOLVED.map((decision) => decision.marker));
 

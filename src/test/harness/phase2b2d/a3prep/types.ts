@@ -1,7 +1,8 @@
 /**
  * PHASE 2B-2D — A3 CANONICAL PREPARATION TYPES (R1).
  *
- * Shapes only. No algorithm lives here, and no shape here answers K1-K4.
+ * Shapes only. No algorithm lives here, and no shape here answers K1-K4:
+ * K1, K2 and K3 were answered by owner records bound in `contracts.ts`.
  *
  * THE BOUNDARIES THESE TYPES MAKE VISIBLE
  *
@@ -17,9 +18,9 @@
  *      are identity-and-position only.
  *
  *   3. SCORE. The persisted per-track candidate observations are carried as
- *      they were persisted. The ONE resolved SET_R score does not exist until
- *      K1 and K2 are decided, so its only shape REQUIRES the owner decision
- *      records that would define it.
+ *      they were persisted. The ONE resolved SET_R score is defined by the K1
+ *      and K2 owner records, so its only shape REQUIRES their hashes. No
+ *      reducer producing it exists yet.
  *
  *   4. VISIBILITY. The sealed splits' public-safe shape is aggregate-only and
  *      is typed to the gated splits alone. There is deliberately no generic
@@ -84,9 +85,10 @@ export type A3PersistedCandidateTrack = 'INTERNATIONAL_OFFICE' | 'LANGUAGE_CENTR
  * One persisted `orgunit_page_candidates` row, reduced to what SET_R could need.
  *
  * `candidateScoreDecimal` is the `numeric(8,4)` value as its decimal TEXT. It is
- * SIGNED (migration 0008) and is not parsed into a float here, because how the
- * two tracks' values combine into one is K1, and a parse would already be a
- * decision about precision.
+ * SIGNED (migration 0008) and is not parsed into a float here: K1 combines the
+ * two tracks by MAX over the EXACT persisted value, so binary floating point
+ * may never decide an ordering, and a parse would already be a decision about
+ * precision.
  */
 export interface A3TrackCandidateObservation {
   readonly pageEvidenceId: A3PageEvidenceId;
@@ -96,12 +98,12 @@ export interface A3TrackCandidateObservation {
 }
 
 /**
- * THE ONLY SHAPE THAT CARRIES A RESOLVED SET_R SCORE, AND IT CANNOT EXIST YET.
+ * THE ONLY SHAPE THAT CARRIES A RESOLVED SET_R SCORE.
  *
- * It is an EXTERNALLY-RESOLVED INPUT: something outside A3 prep produces it
- * under an owner decision, and A3 prep only consumes it. It requires the
- * SHA-256 of the K1 and K2 owner decision records, and no such record exists,
- * so no truthful value of this type can be constructed today.
+ * It is an EXTERNALLY-RESOLVED INPUT: something outside this module produces
+ * it under the K1 and K2 owner decisions, and A3 prep only consumes it. It
+ * requires the SHA-256 of both owner records. Both records now exist, but no
+ * reducer does, so nothing constructs a value of this type yet.
  */
 export interface A3ExternallyResolvedSetRScore {
   readonly documentSha256: A3DocumentSha256;
@@ -147,8 +149,9 @@ export interface A3Sd7PageTextInput {
  * de-duplication by document SHA-256.
  *
  * It carries EVERY source page-evidence row that collapsed into it and no
- * "representative" one: which row (and so which candidate score) speaks for
- * the group is K2. The SHA is the identity.
+ * "representative" one. K2 settles that NO row is canonical for SET_R: the
+ * group's score is the MAX over all of its rows, and every row stays
+ * provenance. The SHA is the identity.
  */
 export interface A3DistinctDocument {
   readonly selectionIndex: A3SelectionIndex;
@@ -165,7 +168,8 @@ export type A3Sample = 'SET_P' | 'SET_R';
  *
  * `saltedRankSha256` is the SD3 salted key digest: SET_P's primary rank key,
  * SET_R's tie-break. No score field exists here - SET_R's primary order is
- * K1/K2-dependent and arrives, if ever, as `A3ExternallyResolvedSetRScore`.
+ * the K1/K2-defined score and arrives, if ever, as
+ * `A3ExternallyResolvedSetRScore`.
  */
 export interface A3RankedDocument {
   readonly sample: A3Sample;

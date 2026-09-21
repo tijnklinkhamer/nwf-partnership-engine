@@ -792,8 +792,8 @@ describe('2D-A3 R5: no finality claim', () => {
 
 // ---------------------------------------------------------------------------
 
-describe('2D-A3 R5: K1, K2, K4 remain unresolved (K3 later bound by owner clarification)', () => {
-  it('all four markers are still present and ordered; only K3 has left the unresolved list', () => {
+describe('2D-A3 R5: only K4 remains unresolved (K3, then K1 and K2, later bound by owner clarification)', () => {
+  it('all four markers are still present and ordered; K1, K2 and K3 have left the unresolved list', () => {
     expect(A3_PREP_OWNER_DECISION_MARKERS).toEqual([
       K1_SET_R_TRACK_REDUCTION,
       K2_EXACT_DUPLICATE_REPRESENTATIVE_AND_SCORE,
@@ -801,8 +801,6 @@ describe('2D-A3 R5: K1, K2, K4 remain unresolved (K3 later bound by owner clarif
       K4_SD4_G3_FREEZE_TIME_TRUNCATION,
     ]);
     expect(A3_PREP_OWNER_DECISIONS_REQUIRED.map((d) => [d.id, d.resolved])).toEqual([
-      ['K1', false],
-      ['K2', false],
       ['K4', false],
     ]);
   });

@@ -5,7 +5,8 @@
  * (`K3_SD7_SAMPLE_SPECIFIC_SURVIVOR_CLARIFICATION_V1`). This file proves the
  * canonical contracts carry that decision truthfully and nothing more:
  *
- *   - K1, K2 and K4 are still unresolved, and gained no semantics;
+ *   - K3 added no K1, K2 or K4 semantics (K1 and K2 were later resolved by
+ *     their own owner records; K4 is still unresolved);
  *   - K3 is resolved, bound to the committed record by path and SHA-256, and
  *     its historical marker string is unchanged;
  *   - the committed record says what the contract says it says, and binds the
@@ -106,21 +107,19 @@ const decision = record.ownerDecision;
 // ---------------------------------------------------------------------------
 
 describe('2D-A3 K3: decision status', () => {
-  it('K1 is unresolved', () => {
-    expect(contracts.A3_PREP_OWNER_DECISIONS_REQUIRED.find((d) => d.id === 'K1')?.resolved).toBe(
-      false,
-    );
+  it('K1 is resolved (later, by its own owner record)', () => {
+    expect(contracts.A3_PREP_OWNER_DECISIONS_REQUIRED.map((d) => d.id)).not.toContain('K1');
+    expect(contracts.K1_OWNER_DECISION.resolved).toBe(true);
   });
 
-  it('K2 is unresolved', () => {
-    expect(contracts.A3_PREP_OWNER_DECISIONS_REQUIRED.find((d) => d.id === 'K2')?.resolved).toBe(
-      false,
-    );
+  it('K2 is resolved (later, by its own owner record)', () => {
+    expect(contracts.A3_PREP_OWNER_DECISIONS_REQUIRED.map((d) => d.id)).not.toContain('K2');
+    expect(contracts.K2_OWNER_DECISION.resolved).toBe(true);
   });
 
   it('K3 is resolved, and absent from the unresolved list', () => {
     expect(K3.resolved).toBe(true);
-    expect(contracts.A3_PREP_OWNER_DECISIONS_RESOLVED).toEqual([K3]);
+    expect(contracts.A3_PREP_OWNER_DECISIONS_RESOLVED).toContain(K3);
     expect(contracts.A3_PREP_OWNER_DECISIONS_REQUIRED.map((d) => d.id)).not.toContain('K3');
     expect(contracts.A3_PREP_UNRESOLVED_OWNER_DECISION_MARKERS).not.toContain(
       contracts.K3_SD3_SINGLE_POOL_VS_SD7_PER_SAMPLE_SURVIVOR,
@@ -141,11 +140,11 @@ describe('2D-A3 K3: decision status', () => {
     expect(contracts.A3_PREP_OWNER_DECISION_MARKERS).toContain(K3.marker);
   });
 
-  it('the old "exactly four unresolved decisions" invariant is gone: 3 unresolved, 1 resolved, 4 historical', () => {
-    expect(contracts.A3_PREP_OWNER_DECISIONS_REQUIRED).toHaveLength(3);
-    expect(contracts.A3_PREP_UNRESOLVED_OWNER_DECISION_MARKERS).toHaveLength(3);
-    expect(contracts.A3_PREP_OWNER_DECISIONS_RESOLVED).toHaveLength(1);
-    expect(contracts.A3_PREP_RESOLVED_OWNER_DECISION_MARKERS).toHaveLength(1);
+  it('the old "exactly four unresolved decisions" invariant is gone: 1 unresolved, 3 resolved, 4 historical', () => {
+    expect(contracts.A3_PREP_OWNER_DECISIONS_REQUIRED).toHaveLength(1);
+    expect(contracts.A3_PREP_UNRESOLVED_OWNER_DECISION_MARKERS).toHaveLength(1);
+    expect(contracts.A3_PREP_OWNER_DECISIONS_RESOLVED).toHaveLength(3);
+    expect(contracts.A3_PREP_RESOLVED_OWNER_DECISION_MARKERS).toHaveLength(3);
     expect(contracts.A3_PREP_OWNER_DECISION_MARKERS).toHaveLength(4);
     expect(
       [
@@ -182,14 +181,16 @@ describe('2D-A3 K3: resolved binding and semantics', () => {
     expect(K3.sharedPoolInterpretation).toBe(contracts.K3_SD3_SHARED_POOL_INTERPRETATION);
   });
 
-  it('adds no K1, K2 or K4 semantics: their only exports are the marker strings', () => {
+  it('adds no K4 semantics; K1 and K2 gained only their own owner-bound decisions', () => {
     expect(
       Object.keys(contracts)
         .filter((name) => /^K[124]_/.test(name))
         .sort(),
     ).toEqual([
+      'K1_OWNER_DECISION',
       'K1_SET_R_TRACK_REDUCTION',
       'K2_EXACT_DUPLICATE_REPRESENTATIVE_AND_SCORE',
+      'K2_OWNER_DECISION',
       'K4_SD4_G3_FREEZE_TIME_TRUNCATION',
     ]);
   });
@@ -314,10 +315,14 @@ describe('2D-A3 K3: the committed owner record', () => {
     expect(record.whatThisDoesNotChange.r4Created).toBe(false);
   });
 
-  it('leaves K1, K2 and K4 explicitly unresolved, matching the contract', () => {
-    expect(decision.clause12_whatK3DoesNotDecide.stillUnresolved).toEqual(
-      contracts.A3_PREP_OWNER_DECISIONS_REQUIRED.map(({ id, marker }) => ({ id, marker })),
-    );
+  it('left K1, K2 and K4 unresolved when it was written (K1 and K2 were resolved later)', () => {
+    // A historical statement of the immutable K3 record, so it is compared with
+    // the marker strings, not with today's unresolved list.
+    expect(decision.clause12_whatK3DoesNotDecide.stillUnresolved).toEqual([
+      { id: 'K1', marker: contracts.K1_SET_R_TRACK_REDUCTION },
+      { id: 'K2', marker: contracts.K2_EXACT_DUPLICATE_REPRESENTATIVE_AND_SCORE },
+      { id: 'K4', marker: contracts.K4_SD4_G3_FREEZE_TIME_TRUNCATION },
+    ]);
     expect(decision.clause6_setRSurvivorOrder.constructibilityStillDependsOn).toEqual(['K1', 'K2']);
     expect(
       decision.clause6_setRSurvivorOrder.finalSetRSurvivorIdentityAvailableUntilK1AndK2Resolved,
