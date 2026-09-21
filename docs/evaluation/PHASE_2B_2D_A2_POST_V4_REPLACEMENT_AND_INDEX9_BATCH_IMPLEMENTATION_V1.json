@@ -1,0 +1,157 @@
+{
+  "recordId": "phase2b-2d-a2-post-v4-replacement-and-index9-batch-implementation-v1",
+  "recordKind": "OFFLINE_IMPLEMENTATION_RESULT",
+  "records": "PHASE_2B_2D_A2_POST_V4_REPLACEMENT_AND_INDEX9_BATCH_IMPLEMENTATION_V1",
+  "recordedAtUtc": "2026-09-21T14:40:00Z",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "ownerDecision": "AUTHORISE_PHASE_2B_2D_A2_POST_V4_REPLACEMENT_AND_INDEX9_BATCH_IMPLEMENTATION_V1",
+  "startingHead": "b17503a2420ff16cc0c71ac94709b54fe1f2ead6",
+  "ownerClarificationPath": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+  "ownerClarificationSha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+  "ownerClarificationBytes": 18443,
+  "strategyPath": "docs/evaluation/PHASE_2B_2D_A2_POST_V4_P5_ACQUISITION_CONTINUATION_STRATEGY_V1.json",
+  "strategySha256": "619f326184c4b91b09a57413a6288356850dad2270e9b0d01c0e288dc76b4097",
+  "strategyBytes": 60326,
+  "strategyAuditSha256": "abf286eeca8bf5c4d51cb6725f95e4e893b3ba123d88b119b3aaf7768630a2c0",
+  "strategyCommit": "512f28306e3659528f566279e858665dfb7419bc",
+  "governanceEdited": false,
+  "commits": {
+    "A_temporalCorrection": "faac3eabd4b956ce934f4532fb9a2ee1f11e3181",
+    "B_machineryLedgerPlanTests": "36bd5316300b396aeb38d347ac4f46f885ccacba",
+    "C_thisRecord": "the commit that adds this file; not self-referenced, per the two-step record pattern"
+  },
+  "temporalCorrectionCommit": "faac3eabd4b956ce934f4532fb9a2ee1f11e3181",
+  "temporalCorrectionRecord": "docs/evaluation/PHASE_2B_2D_A2_REPLACEMENT_LEDGER_TEMPORAL_TEST_CORRECTION_V1.json",
+  "historicalTerminalCommitForOptionBLedgerAbsence": "b0f4efa01d7e861a701e3514afc690a99262f554",
+  "genesisReplacementLedger": {
+    "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+    "sha256": "a80e429059875d1a1aeea1c35092d88ecbf0395cfe8c8efcb278d17dac1e4ee2",
+    "bytes": 4866,
+    "ledgerHash": "7e89966722961162067690abf5cf79cebac26e1697de8488f4f7ed0e8d303bda",
+    "entries": 0,
+    "revision": "GENESIS - not the ledger's permanent sha; every future append changes the bytes and must bind previous sha, new sha and appended entry hashes"
+  },
+  "windowPlan": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_V4_REPLACEMENT_AND_INDEX9_WINDOW_PLAN_V1.json",
+    "sha256": "f7f3dabfee398945f0f4c1750d0c61309b1ab2b048987fe8856545842338d9e1",
+    "bytes": 6458,
+    "windowPlanHash": "d33c2e05a9fdeb4dbf409187b64cf20ced0cd27adc0478ec99340829548f4cdc",
+    "recordKind": "OFFLINE_PRECOMMITTED_WINDOW_PLAN",
+    "workItemIds": ["R:3:0", "R:4:1", "R:6:2", "R:8:3", "P:9"],
+    "splits": ["DEV_CONFIRM", "FINAL_HOLDOUT", "DEV_CONFIRM", "DEV_CONFIRM", "FINAL_HOLDOUT"],
+    "identityBinding": "drawEntrySha256 = sha256(canonicalStringify(exact parsed draw entry)); reserve entry for replacements, selection entry for the primary; no pre-existing per-entry digest convention existed (rankHash binds the row key only)",
+    "institutionIdentityInPlan": false
+  },
+  "continuationHarnessPaths": [
+    "src/test/harness/phase2b2d/continuationWindow/windowContract.ts",
+    "src/test/harness/phase2b2d/continuationWindow/replacementLedger.ts",
+    "src/test/harness/phase2b2d/continuationWindow/replacementPlanner.ts",
+    "src/test/harness/phase2b2d/continuationWindow/replacementAppend.ts",
+    "src/test/harness/phase2b2d/continuationWindow/replacementReason.ts",
+    "src/test/harness/phase2b2d/continuationWindow/windowPlan.ts",
+    "src/test/harness/phase2b2d/continuationWindow/windowGate.ts",
+    "src/test/harness/phase2b2d/continuationWindow/materialiseContinuationArtifacts.ts"
+  ],
+  "testPaths": [
+    "src/test/unit/orgunitCorpus2DA2ContinuationWindow.test.ts",
+    "src/test/unit/orgunitCorpus2DA2ContinuationWindowIsolation.test.ts",
+    "src/test/unit/orgunitCorpus2DOptionBTransition.test.ts (temporal correction only)"
+  ],
+  "ledgerHashChain": {
+    "sequence": "0-based; entry k has sequence k and reserveRankPosition k",
+    "previousEntryHash": "null for sequence 0, else entries[k-1].entryHash",
+    "entryHash": "sha256(canonicalStringify(entry without entryHash)) - previousEntryHash included",
+    "ledgerHash": "sha256(canonicalStringify(ledger without ledgerHash))",
+    "canonicalizer": "the single existing canonicalStringify (src/orgunits/classify/canonical.ts)",
+    "integrityFieldsAdded": [
+      "sequence",
+      "replacedOccupantKind",
+      "previousSequenceForSlot",
+      "previousEntryHash",
+      "entryHash"
+    ],
+    "frozenFieldsKept": [
+      "selectionIndex",
+      "split",
+      "replacedEcheRowKey",
+      "replacementEcheRowKey",
+      "reserveRankPosition",
+      "reason",
+      "recordedAtUtc"
+    ],
+    "deviationFromStrategySketch": "Strategy V1 section15 sketched a GENESIS headEntryHash = sha256(drawHash + ':...') and stored counters; this implementation follows the later owner instruction instead (previousEntryHash null for the first entry, no stored counters). The draw is anchored by the header's bound drawHash inside ledgerHash."
+  },
+  "windowSize": 5,
+  "p2PercentageThresholdCount": 3,
+  "p5LowYieldThresholdCount": 2,
+  "thresholdArithmetic": "count * 100 > plannedWindowSize * percent (integer); P2 40% -> 3 of 5, P5 30% -> 2 of 5; denominator is the frozen planned window size",
+  "p3Note": "production writes error kind ORCHESTRATION_ERROR on every FAILED completion row, so in practice the immediate P3 arm fires on the first FAILED item; the consecutive arm is still implemented and tested as a distinct mechanical arm",
+  "reportingPrecedence": [
+    "P7",
+    "P4",
+    "P8",
+    "P3_ORCHESTRATION_ERROR",
+    "P1",
+    "P2",
+    "P3_CONSECUTIVE",
+    "P6",
+    "P5"
+  ],
+  "currentReplacementReasonsPinned": {
+    "3": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+    "4": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+    "6": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+    "8": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+  },
+  "currentLedgerEntries": 0,
+  "currentReserveConsumed": 0,
+  "plannedFutureAssignments": [
+    { "selectionIndex": 3, "reservePosition": 0 },
+    { "selectionIndex": 4, "reservePosition": 1 },
+    { "selectionIndex": 6, "reservePosition": 2 },
+    { "selectionIndex": 8, "reservePosition": 3 }
+  ],
+  "plannedPrimary": 9,
+  "preflightOnGenesisLedger": "every binding invariant holds; replacementAssignmentsRecorded and currentOccupantsMatch are false, so the gate returns PAUSE_P7_INVARIANT_MISMATCH: the window cannot start until the live authority appends the four rows",
+  "historicalBatch02Gate": {
+    "modified": false,
+    "gateContractSha256": "5ccdb98d90c1d3373e834b8057607bf2bb775c8e4d052854fa98a19f7fcf1067",
+    "betweenRunGateSha256": "43f751b1c695638d542c4e88d55f60b80953385850d5d39ae36fe667fcb35737",
+    "selectionIndices": [5, 6, 7, 8, 9],
+    "recordedStateDecision": "PAUSE_P5_LOW_RAW_YIELD",
+    "mayStartNextOrganisation": false
+  },
+  "focusedTests": {
+    "continuationWindowSuites": "102 passed (2 files)",
+    "optionBTransitionAndIsolation": "81 passed after the temporal correction",
+    "fullUnitRunBeforeCommitB": "145 files passed, 5 skipped; 3727 passed, 75 skipped (a prior identical run reported 1 transient unhandled error with one file not passing; not reproduced on the rerun)",
+    "firewall": "16 files, 399 passed",
+    "mutationChecks": "7 targeted mutations of thresholds, chain, monotonicity, sorting, P6 boundary and completion each turned the suite red"
+  },
+  "fullValidate": "run exactly once on the final committed tree containing this record; its result is reported in the terminal report rather than written here, to avoid a self-referential record",
+  "fetchPolicyVersion": "orgunit-fetch-policy-v4",
+  "migrations": "0001..0012, unchanged",
+  "productionCodeChanged": false,
+  "migrationCreated": false,
+  "cliChanged": false,
+  "dependenciesChanged": false,
+  "firewallFilesChanged": false,
+  "institutionNetworkExecuted": false,
+  "databaseMutated": false,
+  "replacementRowsAppended": false,
+  "reserveConsumedByThisTask": 0,
+  "index9Executed": false,
+  "index9State": "NEVER_STARTED",
+  "generation1State": {
+    "finalised": 9,
+    "success": [0, 1, 2, 5, 7],
+    "failure": [3, 4, 6, 8],
+    "pending": 0
+  },
+  "liveAuthorityGranted": false,
+  "nextOwnerDecision": "A2_POST_V4_REPLACEMENT_AND_INDEX9_LIVE_WINDOW_AUTHORISATION",
+  "terminalState": "PHASE_2B_2D_A2_POST_V4_REPLACEMENT_AND_INDEX9_BATCH_OFFLINE_IMPLEMENTED_AWAITING_LIVE_WINDOW_AUTHORISATION"
+}
