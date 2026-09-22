@@ -1,0 +1,215 @@
+{
+  "recordId": "phase2b-2d-a2-post-p18-second-replacement-and-primary-continuation-prenetwork-assignment-v1",
+  "recordKind": "PRENETWORK_REPLACEMENT_ASSIGNMENT",
+  "records": "PHASE_2B_2D_A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_PRENETWORK_ASSIGNMENT_V1",
+  "recordedAtUtc": "",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "pathNote": "this path is the live authority’s replacementAppendBoundary.expectedPreNetworkAssignmentRecordPath",
+  "precedent": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P18_REPLACEMENT_AND_PRIMARY_CONTINUATION_PRENETWORK_ASSIGNMENT_V1.json",
+    "sha256": "9533f4c2450fac332361210859b6f229c036b5e1f51dfb9262ceaf5d67d0c056",
+    "commit": "b143832",
+    "role": "latest accepted pre-network assignment; schema and field-layout precedent"
+  },
+  "boundLiveAuthority": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_LIVE_AUTHORITY_V1.json",
+    "sha256": "813c4f224ee3e9ebd50c9fce282dc701a1a14a339f1df6e958996b67c0b42bff",
+    "bytes": 38416,
+    "commit": "2907df1e7c2a73639448c96f564446650dad1f6a",
+    "parentCommit": "9800d2028322dd9e98129eb30698d1d0abfef4d5",
+    "ownerDecision": "AUTHORISE_A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_LIVE_EXECUTION_V1",
+    "pushedToOriginBeforeThisAssignment": true,
+    "everyBoundFileRecomputed": true
+  },
+  "batteryAuthority": {
+    "source": "the bound live authority hostSafetyPolicy (acPowerRequired false, batteryExecutionAuthorised true, batteryFinalValidationAuthorised true, separateBatteryOverrideRecordRequired false)",
+    "separateBatteryOverrideCreated": false,
+    "noItemOrValidationStartsAtOrBelowPercent": 20,
+    "powerAtAppend": "AC (not required)",
+    "batteryPercentAtAppend": 100,
+    "lidOpen": true
+  },
+  "boundStrategy": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_STRATEGY_V1.json",
+    "sha256": "28def1d00d165dccd6fcabb0ec7852f8734b99dd4ae2f6faa487779789272940",
+    "bytes": 44825,
+    "commit": "dec6b3e535bad5a4a66bf1e960b289ee8b31267f"
+  },
+  "boundWindowPlan": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_PLAN_V1.json",
+    "sha256": "8f4b62ce84c6ce0d435b7cd7fd396955953eb729f1e41a029515f3a509ea6dca",
+    "bytes": 6363,
+    "windowPlanHash": "6441372aa5407835783651882819f19a506e021abee2b6cdb9ad64144d4dc320",
+    "commit": "9800d2028322dd9e98129eb30698d1d0abfef4d5",
+    "planHashRecomputed": true,
+    "planRebuiltFromStrategySpecEqualsCommittedCanonically": true,
+    "precommittedWindowSpecViolations": 0
+  },
+  "frozenOrder": {
+    "completeOrderedWorkItems": ["R:18:8", "P:24", "P:25", "P:26", "P:27"],
+    "splits": {
+      "R:18:8": "DEV_CONFIRM",
+      "P:24": "FINAL_HOLDOUT",
+      "P:25": "DEV_CONFIRM",
+      "P:26": "FINAL_HOLDOUT",
+      "P:27": "DEV_TRAIN"
+    },
+    "comparedBeforeAppend": {
+      "strategySha256": true,
+      "planSha256": true,
+      "windowPlanHash": true,
+      "orderedList": true
+    },
+    "adapterAloneReliedOnForCrossKindOrder": false
+  },
+  "ledgerPath": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+  "previousLedgerSha256": "72c9af2c2b239a6eecb8e84d5a1139eb0b728b1330465f610e73165d7212f114",
+  "previousLedgerBytes": 9690,
+  "previousLedgerHash": "72177c40421cc87ae180865728f5393f8439dae9b3b60691f824a73ebf55e230",
+  "previousEntries": 8,
+  "previousLedgerCommit": "b1438322bec15c1ffb54c53d1aa6c8d3e9e15bac",
+  "previousLedgerByteIdenticalAt": [
+    "b1438322bec15c1ffb54c53d1aa6c8d3e9e15bac",
+    "9800d2028322dd9e98129eb30698d1d0abfef4d5",
+    "2907df1e7c2a73639448c96f564446650dad1f6a"
+  ],
+  "newLedgerSha256": "1a4c919d61b08c1a8dd7352ffe5e9d481e5db527c3ea82809879ccdfaeb50d4f",
+  "newLedgerBytes": 10300,
+  "newLedgerHash": "cc0aa07db079db2ab911a00484db3dac166d09046ec34964dcd1c376ffe0953d",
+  "newEntries": 9,
+  "appendedEntryHashes": ["7ab799129a2d22a346e491123191473493d0c892e6a9e4fe795f39bdeb1a3093"],
+  "headEntryHash": "7ab799129a2d22a346e491123191473493d0c892e6a9e4fe795f39bdeb1a3093",
+  "previousEntryHashOfAppendedEntry": "4e05ae4bd9d23a79ab832f9b7581c7596d9f45d70ce8172251590e4d1b7b7627",
+  "entryRecordedAtUtc": "2026-09-22T23:12:04Z",
+  "entryRecordedAtUtcSource": "date -u, read immediately before preparing the append and passed explicitly to prepareReplacementAppend; verified not later than the actual UTC at write time",
+  "appendedEntry": {
+    "sequence": 8,
+    "selectionIndex": 18,
+    "reserveRankPosition": 8,
+    "split": "DEV_CONFIRM",
+    "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+    "replacedOccupantKind": "RESERVE_REPLACEMENT",
+    "replacedReserveRankPosition": 7,
+    "previousSequenceForSlot": 7,
+    "chainLink": 2,
+    "occupantChainForSlot18": "ORIGINAL_SELECTION -> reserve 7 (sequence 7) -> reserve 8 (sequence 8)",
+    "reserveDrawEntrySha256": "09c8196c60ac7d202a81f99af281a8be17ffb4b53bd5a1d7cd742e76fec09099",
+    "reserveDrawEntrySha256RecomputedThroughLandedDrawEntrySha256": true,
+    "reserveDrawEntrySha256EqualsAuthorityAndPlan": true,
+    "plannedWorkItem": "R:18:8",
+    "matchesFrozenDraw": true,
+    "matchesStrategyPlanAndLiveAuthorityAuthorisedReplacementAssignment": true
+  },
+  "authorityLevelFieldComparison": {
+    "source": "live authority replacementAppendBoundary.appendedEntry and authorisedReplacementAssignments[0], compared field by field against the prepared entry before the file was written",
+    "fields": {
+      "sequence": true,
+      "selectionIndex": true,
+      "reserveRankPosition": true,
+      "split": true,
+      "reason": true,
+      "replacedOccupantKind": true,
+      "previousSequenceForSlot": true,
+      "previousEntryHash": true,
+      "recordedAtUtc": true
+    },
+    "replacedOccupantIsReserve7Occupant": true,
+    "replacementIsDrawReserve8": true,
+    "splitEqualsDrawSelection18": true,
+    "eightEntryPrefixIdentical": true,
+    "appendedEntryHashRecomputes": true,
+    "allFieldsMatched": true,
+    "appendFunctionTrustedAlone": false
+  },
+  "assignments": ["18->8"],
+  "reserveConsumedBefore": 8,
+  "reserveConsumedAfter": 9,
+  "reserveUnusedAfter": 31,
+  "nextUnusedReservePosition": 9,
+  "reservePosition9Assigned": false,
+  "p6": "reserveConsumed 9 > 10 is false; not triggered",
+  "mechanism": "the landed pure prepareReplacementAppend over the validated eight-entry ledger and the verified frozen draw; identity, split and replaced occupant derived mechanically, rendered with the repository prettier; the eight-entry prefix and the header are byte-semantically identical (the git diff adds exactly the one entry and replaces ledgerHash)",
+  "validationOfPopulatedLedger": {
+    "validatorResult": "validateReplacementLedger: valid, entryCount 9",
+    "ledgerHashRecomputes": true,
+    "entryHashRecomputesForAllNineEntries": true,
+    "extendsGenesisHeader": true,
+    "hashChainValid": true,
+    "reservePositionsExactly": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+    "duplicateReserve": false,
+    "gap": false,
+    "historicalEntryEdited": false,
+    "validAgainstFrozenDraw": true,
+    "currentOccupantsDerived": {
+      "18": "RESERVE_REPLACEMENT position 8 (sequence 8)",
+      "24": "ORIGINAL_SELECTION",
+      "25": "ORIGINAL_SELECTION",
+      "26": "ORIGINAL_SELECTION",
+      "27": "ORIGINAL_SELECTION"
+    }
+  },
+  "p7OnEightEntryLedgerBeforeAppend": {
+    "invariantCount": 13,
+    "falseInvariants": ["replacementAssignmentsRecorded", "currentOccupantsMatch"],
+    "otherElevenInvariantsTrue": true,
+    "gateDecision": "PAUSE_P7_INVARIANT_MISMATCH",
+    "mayStartNextWorkItem": false,
+    "asRequired": true
+  },
+  "windowPreflightP7OnNineEntryWorkingTree": {
+    "preflight": "computePrecommittedWindowPreflight (committed) over the committed plan, this nine-entry ledger and the spec from windowSpecFromAcquisitionWindowStrategy (committed strategy bytes + the eight-entry starting revision read from git at 9800d20)",
+    "invariantCount": 13,
+    "allInvariantsTrue": true,
+    "gateInputs": {
+      "completed": [],
+      "plannedWindowSize": 5,
+      "successfulOrganisationCount": 23,
+      "reserveConsumedCount": 9
+    },
+    "gateDecision": "CONTINUE_TO_NEXT_WORK_ITEM",
+    "mayStartNextWorkItem": true,
+    "nextWorkItemId": "R:18:8",
+    "p6Triggered": false,
+    "note": "re-proved against the committed and pushed ledger before database target resolution and request 1"
+  },
+  "generation1StateBeforeAppend": {
+    "successfulSelectionSlots": 23,
+    "currentAcquisitionFailures": [18],
+    "openObligation": {
+      "selectionIndex": 18,
+      "split": "DEV_CONFIRM",
+      "currentOccupant": "RESERVE_REPLACEMENT",
+      "currentReserveRankPosition": 7,
+      "currentLedgerSequence": 7,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+    },
+    "neverStartedSelectionIndices": {
+      "from": 24,
+      "to": 109,
+      "count": 86
+    },
+    "reserveConsumed": 8,
+    "reserveUnused": 32,
+    "nextUnusedReservePosition": 8,
+    "p6Fires": false
+  },
+  "chronology": {
+    "authorityCommitUtc": "2026-09-22T22:45:56Z",
+    "governedSleepWakeMonitorStartedUtc": "2026-09-22T23:04:41Z",
+    "windowCaffeinateDimsuStartedUtc": "2026-09-22T23:04:41Z",
+    "entryRecordedAtUtc": "2026-09-22T23:12:04Z",
+    "thisRecordWrittenUtc": "",
+    "requiredOrder": "authority push -> ledger-append push -> database target resolution -> institution request 1"
+  },
+  "databaseQueriedBeforeAssignmentCommit": false,
+  "institutionNetworkBeforeAssignmentCommit": false,
+  "institutionRequestPrecededAppend": false,
+  "proofOfNoPriorDatabaseOrInstitutionActivity": "every step of this task before this record (git fetch, authority/binding recomputation, plan rebuild, eight-entry P7, append, nine-entry P7) used only committed repository bytes and pure harness functions; no database pool was opened and no orgunits CLI was invoked",
+  "thisCommitMustBePushedAndRemotelyVerifiedBeforeDatabaseTargetResolutionOrInstitutionRequest1": true,
+  "reserveConsumptionBecomesEffective": "on the push of the commit introducing this record together with the nine-entry ledger; never rolled back, even if the window pauses before the replacement runs",
+  "institutionIdentityInThisRecord": false
+}

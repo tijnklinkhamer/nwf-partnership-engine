@@ -206,7 +206,21 @@
       "previousSequenceForSlot": null,
       "previousEntryHash": "3e36136c205cd98f10aef8bdf53de07169ef8e462a188abfbe0a2aba705d725a",
       "entryHash": "4e05ae4bd9d23a79ab832f9b7581c7596d9f45d70ce8172251590e4d1b7b7627"
+    },
+    {
+      "sequence": 8,
+      "selectionIndex": 18,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "E GIJON17|947309567",
+      "replacementEcheRowKey": "F GRENOBL57|945081380",
+      "reserveRankPosition": 8,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-09-22T23:12:04Z",
+      "replacedOccupantKind": "RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 7,
+      "previousEntryHash": "4e05ae4bd9d23a79ab832f9b7581c7596d9f45d70ce8172251590e4d1b7b7627",
+      "entryHash": "7ab799129a2d22a346e491123191473493d0c892e6a9e4fe795f39bdeb1a3093"
     }
   ],
-  "ledgerHash": "72177c40421cc87ae180865728f5393f8439dae9b3b60691f824a73ebf55e230"
+  "ledgerHash": "cc0aa07db079db2ab911a00484db3dac166d09046ec34964dcd1c376ffe0953d"
 }
