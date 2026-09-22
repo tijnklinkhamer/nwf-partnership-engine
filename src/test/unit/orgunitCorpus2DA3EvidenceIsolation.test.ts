@@ -428,6 +428,22 @@ describe.skipIf(!existsSync(join(REPO_ROOT, R20_CENSUS_PATH)))(
       ? readFileSync(join(REPO_ROOT, R20_CENSUS_PATH), 'utf8')
       : '{}';
 
+    /**
+     * The census DECLARES, in `identityDisclosure`, that it carries no
+     * selection index, organisation id, run reference, document digest and so
+     * on. Those declarations are the promise, not a breach of it, so the
+     * key scan below runs over the PAYLOAD with that block and the
+     * `whatThisIsNot` list removed - exactly the discipline R19's own
+     * isolation test keeps. The declarations are asserted separately, and a
+     * leaked key anywhere else still trips the scan.
+     */
+    const payload = (() => {
+      const parsed = JSON.parse(raw) as Record<string, unknown>;
+      delete parsed['identityDisclosure'];
+      delete parsed['whatThisIsNot'];
+      return JSON.stringify(parsed, null, 2);
+    })();
+
     it('is the derived census record, and authorises nothing', () => {
       const parsed = JSON.parse(raw) as Record<string, unknown>;
       expect(parsed['record']).toBe(R20_PUBLIC_CENSUS_RECORD_KIND);
@@ -458,7 +474,16 @@ describe.skipIf(!existsSync(join(REPO_ROOT, R20_CENSUS_PATH)))(
         'sealed',
       ];
       for (const key of FORBIDDEN_KEYS) {
-        expect(raw, key).not.toMatch(new RegExp(`"${key}"`, 'i'));
+        expect(payload, key).not.toMatch(new RegExp(`"${key}"`, 'i'));
+      }
+    });
+
+    it('declares every identity class absent', () => {
+      const parsed = JSON.parse(raw) as { identityDisclosure?: Record<string, unknown> };
+      const declared = parsed.identityDisclosure ?? {};
+      expect(Object.keys(declared).length).toBeGreaterThanOrEqual(13);
+      for (const [key, value] of Object.entries(declared)) {
+        expect(value, key).toBe(false);
       }
     });
 
