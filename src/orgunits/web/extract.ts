@@ -131,6 +131,42 @@ export function stripNonContent(html: string): string {
 }
 
 /**
+ * The RCDATA elements whose content is TEXT in HTML, never markup. A
+ * `<base href>` or `<a href>` written inside `<title>` or `<textarea>` is
+ * characters a visitor reads (or types over), not an element a browser
+ * builds - so a regex that scans for `<base`/`<a` shapes must not see it.
+ */
+const RCDATA_DISCOVERY_TAGS = ['title', 'textarea'];
+
+/**
+ * THE DISCOVERY-SPECIFIC SANITISER (fetch policy v6): `stripNonContent`,
+ * then every complete `<title>` and `<textarea>` element removed as well.
+ *
+ * EXPORTED for `orchestrator/anchors.ts`, whose anchor and document-base
+ * extractors both read markup SHAPES with regular expressions. Under v1..v5
+ * they read `stripNonContent`'s output, which keeps title and textarea
+ * content, so `<title><base href="/x/"></title>` claimed the document base
+ * and `<textarea><a href="/x">` became a discovered link. Layered on the one
+ * canonical sanitiser rather than beside it: there is still exactly one
+ * comment/script/style/... stripper.
+ *
+ * NOT used by `extractPage`, deliberately. Main-text evidence keeps
+ * `stripNonContent` and its own title handling byte-for-byte; widening
+ * `REMOVABLE_TAGS` instead would have changed persisted page evidence
+ * (textarea text in `main_text`) for a defect that is about link discovery.
+ *
+ * Scope is exactly title and textarea. This is not an HTML tokenizer: an
+ * unclosed `<title>` is left as-is, and no other parsing rule is added here.
+ */
+export function stripNonNavigableMarkup(html: string): string {
+  let result = stripNonContent(html);
+  for (const tag of RCDATA_DISCOVERY_TAGS) {
+    result = stripElement(result, tag);
+  }
+  return result;
+}
+
+/**
  * Turns a fragment of (already non-content-stripped) HTML into normalised
  * text: every remaining tag becomes a word boundary rather than being
  * concatenated with its neighbours, entities are decoded, and whitespace

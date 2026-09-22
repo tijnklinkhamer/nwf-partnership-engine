@@ -1,0 +1,109 @@
+{
+  "recordId": "phase2b-2d-a2-primary-10-14-live-window-authority-v1",
+  "recordKind": "LIVE_WINDOW_AUTHORITY",
+  "records": "PHASE_2B_2D_A2_PRIMARY_10_14_LIVE_WINDOW_AUTHORITY_V1",
+  "recordedAtUtc": "2026-09-21T16:31:54Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "ownerDecision": "AUTHORISE_PHASE_2B_2D_A2_PRIMARY_10_14_LIVE_WINDOW_V1",
+  "hostSafetyOwnerDecision": "AUTHORISE_WINDOW_V2_BATTERY_HOST_SAFETY_POLICY_V1",
+  "startingHead": "744fe29b0a348fdc99a479f43f4c7affb3c80926",
+  "bound": {
+    "repairScopeClosure": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_CONTINUATION_PREFLIGHT_GENERALISATION_REPAIR_SCOPE_CLOSURE_V1.json",
+      "sha256": "6e67b3622c51118656d4947154a1b7f2b1a6b09decccd6a1a2969342e2d93e59",
+      "bytes": 2690,
+      "commit": "798ddd88155704de53d63d4b5b1c07ab693cebf3",
+      "onOriginBeforeThisRecord": true
+    },
+    "nextWindowStrategy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_V1_NEXT_ACQUISITION_WINDOW_STRATEGY_V1.json",
+      "sha256": "52ed4472aba1d943ba67b508562be042bba44934323b8150b17c9e8c869accd0",
+      "bytes": 14756,
+      "commit": "e6e686a5dce258a4a69f63cea175f239b6505a28"
+    },
+    "preflightGeneralisationImplementation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_CONTINUATION_WINDOW_PREFLIGHT_GENERALISATION_IMPLEMENTATION_V1.json",
+      "sha256": "a8ad7dbc0e0995a86b40a7f49d4a5720d95c49b03d0823782f05c6afd2639cfa",
+      "bytes": 15184,
+      "implementationCommit": "18b34c9a24c6a38184c3b643187cb22baa145e04",
+      "recordCommit": "744fe29b0a348fdc99a479f43f4c7affb3c80926"
+    },
+    "windowPlanV2": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_PRIMARY_10_14_WINDOW_PLAN_V1.json",
+      "sha256": "f3c3e31c49dfff17c53289d32274e1240330a476ae046544bf8c3516e7c25ef5",
+      "bytes": 6275,
+      "windowPlanHash": "5db74eed5aa7bd427d824ae066b47817a92f8b806e99aaf12fdec824494feb67",
+      "commit": "744fe29b0a348fdc99a479f43f4c7affb3c80926"
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0",
+      "bytes": 7254,
+      "ledgerHash": "2febfecfe14bc0f6ca709271e33782e2ac2a8a14f09a14ff4ff0bdf608b7e452",
+      "entries": 4,
+      "mustRemainByteIdentical": true
+    }
+  },
+  "currentGenerationState": {
+    "successfulSlots": 10,
+    "reserveConsumed": 4,
+    "pendingReplacementObligations": 0
+  },
+  "workItemIds": ["P:10", "P:11", "P:12", "P:13", "P:14"],
+  "executionOrderIsFrozen": true,
+  "concurrency": 1,
+  "maximumWorkItemsStarted": 5,
+  "maximumReplacementAssignments": 0,
+  "dynamicReplacementAuthorised": false,
+  "reservePosition4Authorised": false,
+  "index15OrHigherAuthorised": false,
+  "fetchPolicyRequired": "orgunit-fetch-policy-v4",
+  "retryPermitted": "the landed automatic v4 robots-policy transport retry only; no manual retry, no HTTP retry, no wider retry",
+  "liveInvocationPerStartedItem": "exactly one: npm run cli -- orgunits discover --organisation-id <private> --execute --json",
+  "continuationOwnedByGate": "the landed evaluateContinuationWindowGate is evaluated after every completed item with generationSuccessfulCount 10 and generationReserveConsumedCount 4 throughout; the next item starts only when mayStartNextWorkItem is true and nextWorkItemId is the next frozen item",
+  "preflight": "the committed computePrecommittedWindowPreflight (all 13 invariants) against the spec from windowSpecFromNextWindowStrategy, never reconstructed in scratch code",
+  "hostSafetyPolicy": {
+    "ownerDecision": "AUTHORISE_WINDOW_V2_BATTERY_HOST_SAFETY_POLICY_V1",
+    "scope": "Window V2 only; does not rewrite Window V1 governance",
+    "acPowerRequired": false,
+    "battery80PercentRequired": false,
+    "lidMustRemainOpen": true,
+    "caffeinateDimsuForEveryActiveItem": true,
+    "batteryCheckedBeforeEveryItem": true,
+    "doNotStartAnotherItemIfBatteryPercentAtOrBelow": 20,
+    "sleepWakeDuringItem": "STOP after preserving durable evidence",
+    "sleepWakeBetweenItems": "rerun full host/DB/ledger/window preflight before continuing"
+  },
+  "unsuccessfulPrimarySemantics": {
+    "preserveEvidence": true,
+    "assignReserve": false,
+    "appendReplacementLedger": false,
+    "dynamicReplacement": false,
+    "expandWindow": false,
+    "manualRetry": false,
+    "pendingReplacementObligationCreatedOnlyAt": "the later evidence adjudication"
+  },
+  "sd7": "formal read-only SD7 via the landed analyseOrganisation per started item; ranges crossing 4 are not forced; detail routed only to the split's established sealed root under new window-specific filenames, never overwriting",
+  "institutionNetworkAuthorised": true,
+  "classifierAuthorised": false,
+  "providerAuthorised": false,
+  "labelsAuthorised": false,
+  "setPSetRAuthorised": false,
+  "semanticHoldoutInspectionAuthorised": false,
+  "phase2EAuthorised": false,
+  "crawlerChangeAuthorised": false,
+  "fetchPolicyV5Authorised": false,
+  "migrationAuthorised": false,
+  "methodologyOrPlanChangeAuthorised": false,
+  "acquisitionOfRecordAdjudicationAuthorised": false,
+  "replacementLedgerMutationAuthorised": false,
+  "thisFileAuthorises": [],
+  "authorityNote": "authority for this window is the owner decision named in ownerDecision, recorded here; this file itself grants nothing",
+  "institutionNetworkExecutedBeforeThisRecord": false,
+  "replacementLedgerMutatedBeforeThisRecord": false,
+  "nextOwnerDecisionOnCompletionOrPause": "A2_PRIMARY_10_14_LIVE_WINDOW_EVIDENCE_ADJUDICATION",
+  "nextOwnerDecisionOnIncident": "A2_PRIMARY_10_14_LIVE_WINDOW_INCIDENT_REVIEW"
+}

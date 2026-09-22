@@ -13,6 +13,7 @@
  * hashes only, so no institution identity can reach a failure message.
  */
 
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -172,8 +173,84 @@ const FOUR = append(GENESIS, [3, 4, 6, 8]);
 
 const DRAW_TEXT = readText(DRAW_PATH);
 const REAL_DRAW = JSON.parse(DRAW_TEXT) as DrawArtifact;
-const LEDGER_TEXT = readText(REPLACEMENT_LEDGER_PATH);
+/**
+ * THE GENESIS REVISION IS READ FROM ITS OWN COMMIT, NOT THE WORKING TREE.
+ *
+ * The ledger is an evolving, append-only artifact. Every assertion below that
+ * names the "committed" ledger is a claim about its GENESIS revision - the
+ * empty ledger `36bd531` introduced and the Window V1 plan binds by file sha -
+ * and that claim stays true after the approved Window V1 live authority
+ * appended four entries (c4396c1). Reading the working tree instead would turn
+ * "the genesis was empty" into "no reserve may ever be assigned".
+ *
+ * CI clones with full history. Without it the working-tree ledger is read,
+ * and these assertions FAIL loudly rather than pass vacuously. The present
+ * four-entry revision is pinned separately, in section 1b.
+ */
+const GENESIS_REVISION_COMMIT = '36bd5316300b396aeb38d347ac4f46f885ccacba';
+function readAtCommit(commit: string, path: string): string | null {
+  try {
+    return execFileSync('git', ['-C', REPO_ROOT, 'show', `${commit}:${path}`], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+  } catch {
+    return null;
+  }
+}
+const LEDGER_TEXT =
+  readAtCommit(GENESIS_REVISION_COMMIT, REPLACEMENT_LEDGER_PATH) ??
+  readText(REPLACEMENT_LEDGER_PATH);
 const COMMITTED_LEDGER = JSON.parse(LEDGER_TEXT) as ReplacementLedger;
+
+/**
+ * EVERY LATER LEDGER REVISION IS ALSO READ FROM ITS OWN COMMIT.
+ *
+ * Section 1b is a claim about Window V1's four pre-network rows, which c4396c1
+ * appended; section 1c is a claim about the post-P:12 mixed window's two
+ * pre-network rows, which 04f1c1d appended. Both claims are HISTORICAL: the
+ * ledger keeps growing by authorised appends, so a working-tree read would
+ * turn "Window V1 appended four rows" into "no later window may append".
+ * That is exactly the drift the post-live validation review at ad7f788
+ * recorded. Unlike the genesis read above there is no working-tree fallback:
+ * a missing commit fails loudly at load.
+ */
+function requireAtCommit(commit: string, path: string): string {
+  const text = readAtCommit(commit, path);
+  if (text === null) throw new Error(`cannot read ${path} at pinned commit ${commit}`);
+  return text;
+}
+const WINDOW_V1_FOUR_ENTRY_REVISION_COMMIT = 'c4396c1bd8324fcff1393d1b7c6163ff857a6346';
+const WINDOW_V1_FOUR_ENTRY_LEDGER_TEXT = requireAtCommit(
+  WINDOW_V1_FOUR_ENTRY_REVISION_COMMIT,
+  REPLACEMENT_LEDGER_PATH,
+);
+const WINDOW_V1_FOUR_ENTRY_LEDGER = JSON.parse(
+  WINDOW_V1_FOUR_ENTRY_LEDGER_TEXT,
+) as ReplacementLedger;
+const WINDOW_V1_FOUR_ENTRY_LEDGER_SHA256 =
+  '6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0';
+const WINDOW_V1_FOUR_ENTRY_LEDGER_HASH =
+  '2febfecfe14bc0f6ca709271e33782e2ac2a8a14f09a14ff4ff0bdf608b7e452';
+
+const POST_P12_SIX_ENTRY_REVISION_COMMIT = '04f1c1db2194ec374f4fcdaaaaaf0e13b18f31e2';
+const POST_P12_SIX_ENTRY_LEDGER_TEXT = requireAtCommit(
+  POST_P12_SIX_ENTRY_REVISION_COMMIT,
+  REPLACEMENT_LEDGER_PATH,
+);
+const POST_P12_SIX_ENTRY_LEDGER = JSON.parse(POST_P12_SIX_ENTRY_LEDGER_TEXT) as ReplacementLedger;
+const POST_P12_SIX_ENTRY_LEDGER_SHA256 =
+  'c06e41a08e51934682fa1bc7621bdc9be8c708aee7278fd9177b03f98d8e17b3';
+const POST_P12_SIX_ENTRY_LEDGER_BYTES = 8473;
+const POST_P12_SIX_ENTRY_LEDGER_HASH =
+  '5c464b2a56412951a9da11a608252584af3abfa6928c43ea22477be8afcd895b';
+
+/**
+ * The working-tree bytes as this module loaded them. Used ONLY by no-write
+ * checks ("preparing an append leaves the file on disk as it was"), which
+ * compare before/after and assume no particular entry count.
+ */
+const WORKING_TREE_LEDGER_TEXT_AT_LOAD = readText(REPLACEMENT_LEDGER_PATH);
 const PLAN_TEXT = readText(WINDOW_PLAN_PATH);
 const COMMITTED_PLAN = JSON.parse(PLAN_TEXT) as WindowPlan;
 
@@ -181,7 +258,7 @@ const COMMITTED_PLAN = JSON.parse(PLAN_TEXT) as WindowPlan;
 // 1. THE GENESIS LEDGER
 // ===========================================================================
 
-describe('2D-A2 continuation: the canonical replacement ledger is the EMPTY genesis', () => {
+describe('2D-A2 continuation: the canonical replacement ledger GENESIS revision (36bd531) is empty', () => {
   it('(A) exists at the one pinned path, is valid against the real draw, and holds zero entries', () => {
     expect(REPLACEMENT_LEDGER_PATH).toBe(
       'docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json',
@@ -238,6 +315,254 @@ describe('2D-A2 continuation: the canonical replacement ledger is the EMPTY gene
     expect(ledgerExtendsGenesis({ ...edited, ledgerHash: recomputeLedgerHash(edited) })).toBe(
       false,
     );
+  });
+});
+
+// ===========================================================================
+// 1b. THE WINDOW V1 REVISION (c4396c1): FOUR PRE-NETWORK ASSIGNMENTS
+// ===========================================================================
+
+describe('2D-A2 continuation: the Window V1 revision (c4396c1) carries exactly Window V1’s four pre-network rows', () => {
+  it('is valid, extends the genesis header, and holds reserves 0-3 for slots 3, 4, 6, 8', () => {
+    expect(validateReplacementLedger(REAL_DRAW, WINDOW_V1_FOUR_ENTRY_LEDGER)).toEqual({
+      valid: true,
+      entryCount: 4,
+    });
+    expect(ledgerExtendsGenesis(WINDOW_V1_FOUR_ENTRY_LEDGER)).toBe(true);
+    expect(sha256(WINDOW_V1_FOUR_ENTRY_LEDGER_TEXT)).toBe(WINDOW_V1_FOUR_ENTRY_LEDGER_SHA256);
+    expect(WINDOW_V1_FOUR_ENTRY_LEDGER.ledgerHash).toBe(WINDOW_V1_FOUR_ENTRY_LEDGER_HASH);
+    expect(recomputeLedgerHash(WINDOW_V1_FOUR_ENTRY_LEDGER)).toBe(WINDOW_V1_FOUR_ENTRY_LEDGER_HASH);
+    expect(
+      WINDOW_V1_FOUR_ENTRY_LEDGER.entries.map((e) => [
+        e.selectionIndex,
+        e.reserveRankPosition,
+        e.reason,
+      ]),
+    ).toEqual([
+      [3, 0, 'ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET'],
+      [4, 1, 'ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE'],
+      [6, 2, 'ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE'],
+      [8, 3, 'ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE'],
+    ]);
+    expect(reserveConsumedCount(REAL_DRAW, WINDOW_V1_FOUR_ENTRY_LEDGER)).toBe(4);
+  });
+
+  it('is exactly what the landed append machinery derives from the genesis revision at its recorded instant', () => {
+    const prepared = prepareReplacementAppend({
+      draw: REAL_DRAW,
+      ledger: COMMITTED_LEDGER,
+      assignments: [3, 4, 6, 8].map((selectionIndex, reserveRankPosition) => ({
+        selectionIndex,
+        reserveRankPosition,
+        reason: CURRENT_REPLACEMENT_REASONS[selectionIndex as 3 | 4 | 6 | 8],
+      })),
+      recordedAtUtc: WINDOW_V1_FOUR_ENTRY_LEDGER.entries[0]!.recordedAtUtc,
+    });
+    expect(canonicalStringify(prepared.nextLedger)).toBe(
+      canonicalStringify(WINDOW_V1_FOUR_ENTRY_LEDGER),
+    );
+  });
+});
+
+// ===========================================================================
+// 1c. THE POST-P:12 REVISION (04f1c1d): TWO FURTHER PRE-NETWORK ASSIGNMENTS
+// ===========================================================================
+
+const POST_P12_APPENDED_ROWS = [
+  [4, 10, 4, 'ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE', 'ORIGINAL_SELECTION'],
+  [5, 12, 5, 'ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET', 'ORIGINAL_SELECTION'],
+] as const;
+
+/**
+ * Every property the six-entry revision must hold, as a list of named
+ * failures. Empty means the revision is exactly the authorised append; each
+ * negative test below proves one property is not vacuous.
+ */
+function postP12RevisionFailures(
+  six: ReplacementLedger,
+  four: ReplacementLedger,
+  sixText: string | null = null,
+): string[] {
+  const failures: string[] = [];
+  const validation = validateReplacementLedger(REAL_DRAW, six);
+  if (!validation.valid || validation.entryCount !== 6) failures.push('not-valid-six');
+  if (!ledgerExtendsGenesis(six)) failures.push('not-extending-genesis');
+  if (
+    four.entries.length !== 4 ||
+    canonicalStringify(four.entries) !== canonicalStringify(WINDOW_V1_FOUR_ENTRY_LEDGER.entries) ||
+    canonicalStringify(six.entries.slice(0, 4)) !== canonicalStringify(four.entries)
+  ) {
+    failures.push('prefix-is-not-window-v1');
+  }
+  const appended = six.entries
+    .slice(4)
+    .map((e) => [
+      e.sequence,
+      e.selectionIndex,
+      e.reserveRankPosition,
+      e.reason,
+      e.replacedOccupantKind,
+    ]);
+  if (canonicalStringify(appended) !== canonicalStringify(POST_P12_APPENDED_ROWS)) {
+    failures.push('appended-rows');
+  }
+  six.entries.slice(4).forEach((e) => {
+    if (e.replacedEcheRowKey !== REAL_DRAW.selection[e.selectionIndex]?.echeRowKey) {
+      failures.push(`replaced-key-${String(e.sequence)}`);
+    }
+    if (e.replacementEcheRowKey !== REAL_DRAW.reserve[e.reserveRankPosition]?.echeRowKey) {
+      failures.push(`replacement-key-${String(e.sequence)}`);
+    }
+    if (e.split !== REAL_DRAW.selection[e.selectionIndex]?.split) {
+      failures.push(`split-${String(e.sequence)}`);
+    }
+  });
+  if (
+    canonicalStringify(six.entries.map((e) => e.reserveRankPosition)) !==
+    canonicalStringify([0, 1, 2, 3, 4, 5])
+  ) {
+    failures.push('reserve-positions');
+  }
+  if (validation.valid) {
+    if (reserveConsumedCount(REAL_DRAW, six) !== 6) failures.push('reserve-consumed');
+    const slot10 = currentOccupantForSelectionIndex(REAL_DRAW, six, 10);
+    const slot12 = currentOccupantForSelectionIndex(REAL_DRAW, six, 12);
+    if (slot10.reserveRankPosition !== 4 || slot10.ledgerSequence !== 4) {
+      failures.push('occupant-10');
+    }
+    if (slot12.reserveRankPosition !== 5 || slot12.ledgerSequence !== 5) {
+      failures.push('occupant-12');
+    }
+  }
+  if (
+    recomputeLedgerHash(six) !== six.ledgerHash ||
+    six.ledgerHash !== POST_P12_SIX_ENTRY_LEDGER_HASH
+  ) {
+    failures.push('ledger-hash');
+  }
+  if (sixText !== null && sha256(sixText) !== POST_P12_SIX_ENTRY_LEDGER_SHA256) {
+    failures.push('file-sha');
+  }
+  return failures;
+}
+
+describe('2D-A2 continuation: the post-P:12 revision (04f1c1d) appends exactly reserves 4-5 to Window V1’s four rows', () => {
+  it('is the six-entry revision, byte-pinned to its append commit', () => {
+    expect(
+      postP12RevisionFailures(
+        POST_P12_SIX_ENTRY_LEDGER,
+        WINDOW_V1_FOUR_ENTRY_LEDGER,
+        POST_P12_SIX_ENTRY_LEDGER_TEXT,
+      ),
+    ).toEqual([]);
+    expect(sha256(POST_P12_SIX_ENTRY_LEDGER_TEXT)).toBe(POST_P12_SIX_ENTRY_LEDGER_SHA256);
+    expect(Buffer.byteLength(POST_P12_SIX_ENTRY_LEDGER_TEXT, 'utf8')).toBe(
+      POST_P12_SIX_ENTRY_LEDGER_BYTES,
+    );
+    expect(POST_P12_SIX_ENTRY_LEDGER.entries.map((e) => e.entryHash.slice(0, 8))).toEqual([
+      '0bd4bf62',
+      '7a3fd539',
+      '4461628a',
+      'e0b0d6ea',
+      '32fd0356',
+      '247c62c9',
+    ]);
+  });
+
+  it('directly succeeds the Window V1 revision: its parent commit holds the four-entry bytes', () => {
+    expect(
+      sha256(requireAtCommit(`${POST_P12_SIX_ENTRY_REVISION_COMMIT}^`, REPLACEMENT_LEDGER_PATH)),
+    ).toBe(WINDOW_V1_FOUR_ENTRY_LEDGER_SHA256);
+  });
+
+  it('is exactly what the landed append machinery derives from the four-entry revision', () => {
+    const prepared = prepareReplacementAppend({
+      draw: REAL_DRAW,
+      ledger: WINDOW_V1_FOUR_ENTRY_LEDGER,
+      assignments: POST_P12_APPENDED_ROWS.map(
+        ([, selectionIndex, reserveRankPosition, reason]) => ({
+          selectionIndex,
+          reserveRankPosition,
+          reason,
+        }),
+      ),
+      recordedAtUtc: POST_P12_SIX_ENTRY_LEDGER.entries[4]!.recordedAtUtc,
+    });
+    expect(prepared.previousLedgerHash).toBe(WINDOW_V1_FOUR_ENTRY_LEDGER_HASH);
+    expect(canonicalStringify(prepared.nextLedger)).toBe(
+      canonicalStringify(POST_P12_SIX_ENTRY_LEDGER),
+    );
+  });
+
+  describe('is not vacuous', () => {
+    const SIX = POST_P12_SIX_ENTRY_LEDGER;
+    const reseal = (entries: ReplacementLedgerEntry[]): ReplacementLedger =>
+      withEntries(SIX, rechain(entries));
+
+    it('a misbound four-entry pin (genesis or the six-entry revision itself) is refused', () => {
+      expect(postP12RevisionFailures(SIX, COMMITTED_LEDGER)).toContain('prefix-is-not-window-v1');
+      expect(postP12RevisionFailures(SIX, SIX)).toContain('prefix-is-not-window-v1');
+    });
+
+    it('losing entry 4 or entry 5 is refused', () => {
+      const withoutFour = reseal([...SIX.entries.slice(0, 4), SIX.entries[5]!]);
+      const withoutFive = reseal(SIX.entries.slice(0, 5));
+      expect(postP12RevisionFailures(withoutFour, WINDOW_V1_FOUR_ENTRY_LEDGER)).toContain(
+        'not-valid-six',
+      );
+      expect(postP12RevisionFailures(withoutFive, WINDOW_V1_FOUR_ENTRY_LEDGER)).toEqual(
+        expect.arrayContaining(['not-valid-six', 'appended-rows', 'reserve-positions']),
+      );
+    });
+
+    it('swapping sequences 4 and 5 is refused, even when re-sequenced into a VALID ledger', () => {
+      const [e4, e5] = [SIX.entries[4]!, SIX.entries[5]!];
+      const reordered = reseal([...SIX.entries.slice(0, 4), e5, e4]);
+      expect(postP12RevisionFailures(reordered, WINDOW_V1_FOUR_ENTRY_LEDGER)).toContain(
+        'not-valid-six',
+      );
+      const slot = (selectionIndex: number): Partial<ReplacementLedgerEntry> => ({
+        selectionIndex,
+        split: REAL_DRAW.selection[selectionIndex]!.split,
+        replacedEcheRowKey: REAL_DRAW.selection[selectionIndex]!.echeRowKey,
+      });
+      const swapped = reseal([
+        ...SIX.entries.slice(0, 4),
+        { ...e4, ...slot(12), reason: e5.reason },
+        { ...e5, ...slot(10), reason: e4.reason },
+      ]);
+      expect(validateReplacementLedger(REAL_DRAW, swapped).valid).toBe(true);
+      expect(postP12RevisionFailures(swapped, WINDOW_V1_FOUR_ENTRY_LEDGER)).toEqual(
+        expect.arrayContaining(['appended-rows', 'occupant-10', 'occupant-12', 'ledger-hash']),
+      );
+    });
+
+    it('changing one of the first four entries is refused, even when re-chained into a VALID ledger', () => {
+      const edited = reseal([
+        { ...SIX.entries[0]!, reason: 'ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE' },
+        ...SIX.entries.slice(1),
+      ]);
+      expect(validateReplacementLedger(REAL_DRAW, edited).valid).toBe(true);
+      expect(postP12RevisionFailures(edited, WINDOW_V1_FOUR_ENTRY_LEDGER)).toContain(
+        'prefix-is-not-window-v1',
+      );
+    });
+
+    it('a wrong ledgerHash or altered file bytes are refused', () => {
+      expect(
+        postP12RevisionFailures(
+          { ...SIX, ledgerHash: '0'.repeat(64) },
+          WINDOW_V1_FOUR_ENTRY_LEDGER,
+        ),
+      ).toContain('ledger-hash');
+      expect(
+        postP12RevisionFailures(
+          SIX,
+          WINDOW_V1_FOUR_ENTRY_LEDGER,
+          `${POST_P12_SIX_ENTRY_LEDGER_TEXT} `,
+        ),
+      ).toEqual(['file-sha']);
+    });
   });
 });
 
@@ -584,10 +909,8 @@ describe('2D-A2 continuation: append preparation (for the later live authority)'
         row.replacementEcheRowKey === REAL_DRAW.reserve[row.reserveRankPosition]!.echeRowKey,
       ).toBe(true);
     });
-    // The canonical file on disk is untouched: still the empty genesis.
-    expect((JSON.parse(readText(REPLACEMENT_LEDGER_PATH)) as ReplacementLedger).entries).toEqual(
-      [],
-    );
+    // Preparing is pure: the canonical file on disk is exactly as it was.
+    expect(readText(REPLACEMENT_LEDGER_PATH)).toBe(WORKING_TREE_LEDGER_TEXT_AT_LOAD);
   });
 
   it('refuses assignments that are not exactly the planner’s (manual reordering)', () => {

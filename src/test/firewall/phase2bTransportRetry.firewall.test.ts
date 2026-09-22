@@ -38,8 +38,10 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
+// FETCH_POLICY_VERSION is deliberately NOT imported: v4 is a fact about this
+// repair's terminal commit, and production moved on to v5 (the anchor
+// document-base repair). `sourceOf` reads the terminal commit.
 import {
-  FETCH_POLICY_VERSION,
   MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS,
   MAX_ROBOTS_TRANSPORT_RETRIES_PER_POLICY_RESOLUTION,
 } from '../../orgunits/web/policy.js';
@@ -276,8 +278,9 @@ describe('ADR 0015 repair scope: the request boundary moved by exactly one bound
     expect(MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS).toBe(1);
   });
 
-  it('U: production is orgunit-fetch-policy-v4, declared exactly once', () => {
-    expect(FETCH_POLICY_VERSION).toBe('orgunit-fetch-policy-v4');
+  it('U: this repair set orgunit-fetch-policy-v4, declared exactly once', () => {
+    // At REPAIR_TERMINAL_COMMIT, not today: production is v5 since the anchor
+    // document-base repair, which carries its own repair-scope test.
     expect(
       sourceOf('src/orgunits/web/policy.ts').match(/FETCH_POLICY_VERSION\s*=\s*'[^']+'/g),
     ).toEqual(["FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v4'"]);

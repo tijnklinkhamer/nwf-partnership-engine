@@ -1,0 +1,91 @@
+{
+  "recordId": "phase2b-2d-a2-post-mixed-window-chain-replacement-and-primary-battery-host-safety-owner-override-v1",
+  "recordKind": "OWNER_HOST_SAFETY_OVERRIDE",
+  "records": "PHASE_2B_2D_A2_POST_MIXED_WINDOW_CHAIN_REPLACEMENT_AND_PRIMARY_BATTERY_HOST_SAFETY_OWNER_OVERRIDE_V1",
+  "recordedAtUtc": "2026-09-22T11:55:11Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "ownerDecision": "AUTHORISE_A2_POST_MIXED_WINDOW_CHAIN_REPLACEMENT_AND_PRIMARY_BATTERY_HOST_SAFETY_OVERRIDE_V1",
+  "ownerConfirmation": "the owner explicitly confirmed, in a separate follow-up message, writing, committing and pushing this override and proceeding with this one live window on battery, acknowledging that it overrides the committed AC-only requirement",
+  "startingHead": "1aa9ffe141984a6d3e2fabf0af1585bbea2f64f5",
+  "boundLiveAuthority": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_MIXED_WINDOW_CHAIN_REPLACEMENT_AND_PRIMARY_LIVE_WINDOW_AUTHORITY_V1.json",
+    "sha256": "4fa7955fab4f58b91242b3181ac254eaaf3d4bd3bf2be40e10476850533d1950",
+    "bytes": 14133,
+    "commit": "1aa9ffe141984a6d3e2fabf0af1585bbea2f64f5",
+    "ownerDecision": "AUTHORISE_A2_POST_MIXED_WINDOW_CHAIN_REPLACEMENT_AND_PRIMARY_LIVE_EXECUTION_V1",
+    "rewrittenByThisRecord": false
+  },
+  "windowPlanHash": "03729058f6e1d9ad0764a1fcc043230a04f1f0ef3afe30509e4da2881b4c33cd",
+  "originalPreconditions": {
+    "hostSafetyPolicy.acPowerRequired": true,
+    "thisRecordValidationHostState.liveExecutionAcPowerRequired": true,
+    "executionTaskStartGateAcPowerRequired": true,
+    "executionTaskFinalValidateAcPowerRequired": true
+  },
+  "originalPreconditionMet": false,
+  "originalPreconditionFailureObservedAt": "the execution task's start gate, before any ledger append, database query or institution request",
+  "observedHostStateAtOverride": {
+    "power": "BATTERY",
+    "batteryPercent": 100,
+    "batteryPercentAtWriteTime": 99,
+    "charging": false,
+    "lidOpen": true,
+    "diskHealthy": true,
+    "databaseContainerHealthy": true,
+    "competingAcquisitionProcess": false,
+    "canonicalReplacementLedgerEntries": 6,
+    "canonicalReplacementLedgerSha256": "c06e41a08e51934682fa1bc7621bdc9be8c708aee7278fd9177b03f98d8e17b3",
+    "reservePosition6Assigned": false,
+    "institutionNetworkSoFar": 0
+  },
+  "override": {
+    "scope": "THIS post-mixed-window chain-replacement-and-primary live window (R:12:6, P:16, P:17, P:18, P:19) and its one final validation ONLY",
+    "overriddenConditions": [
+      "live authority hostSafetyPolicy.acPowerRequired: true",
+      "live authority thisRecordValidationHostState.liveExecutionAcPowerRequired: true",
+      "the execution task's AC start-gate requirement",
+      "the execution task's final validate AC requirement"
+    ],
+    "batteryExecutionAuthorised": true,
+    "acPowerRequired": false,
+    "minimumBatteryPercentAtStartRequired": false,
+    "batteryAtLeast80Required": false,
+    "precedentForFutureWindows": false
+  },
+  "hostRulesForThisWindow": [
+    "the lid must remain open",
+    "caffeinate -dimsu remains active throughout every live item",
+    "battery and power state are checked before every work item",
+    "if battery is <= 20%, STOP before starting another item",
+    "sleep/wake monitoring reads timestamped Sleep/Wake events, not pmset summary lines",
+    "a sleep/wake DURING an active item: STOP after preserving evidence; that item is not rerun; route to incident review",
+    "a sleep/wake BETWEEN items: rerun the complete host/database/ledger/P7 preflight before continuing",
+    "an already-completed item is not invalidated merely because battery percentage decreased",
+    "the final npm run validate may run on battery under the same lid-open, caffeinate and no-sleep/wake rules"
+  ],
+  "unchanged": {
+    "p1ToP8Gate": true,
+    "workItemsAndOrder": ["R:12:6", "P:16", "P:17", "P:18", "P:19"],
+    "sixthItem": false,
+    "dynamicReservePull": false,
+    "reservePosition7OrLater": false,
+    "diskDatabaseConcurrencyScratchLedgerGateAndIntegrityRequirements": true,
+    "retryEvidenceHoldoutValidationAndAdjudicationRestrictions": true,
+    "everyOtherLiveAuthorityCondition": true
+  },
+  "chronologyAdjustment": {
+    "preNetworkLedgerAppendCommitParent": "this override commit, not 1aa9ffe directly",
+    "prenetworkAssignmentAndLiveResultRecordsBindThisOverride": true,
+    "requiredLiveChronology": "authority push -> battery-override push -> ledger-append push -> institution request 1"
+  },
+  "thisFileAuthorises": [
+    "AUTHORISE_A2_POST_MIXED_WINDOW_CHAIN_REPLACEMENT_AND_PRIMARY_BATTERY_HOST_SAFETY_OVERRIDE_V1: the owner authorises starting and continuing this exact live window (R:12:6, P:16, P:17, P:18, P:19) and running its one final npm run validate on battery power, without the AC requirement and without any minimum-percent start requirement, under the host rules above; no other authority condition is altered and no precedent is created"
+  ],
+  "institutionIdentityInThisFile": false,
+  "replacementLedgerMutatedBeforeThisRecord": false,
+  "databaseQueriedBeforeThisRecord": false,
+  "institutionNetworkExecutedBeforeThisRecord": false
+}

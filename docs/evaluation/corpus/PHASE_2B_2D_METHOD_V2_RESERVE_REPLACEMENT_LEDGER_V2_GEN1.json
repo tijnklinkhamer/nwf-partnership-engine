@@ -150,7 +150,63 @@
       "previousSequenceForSlot": null,
       "previousEntryHash": "4461628ac3e3d9cc9aeb2ec22c6f886dcd17e8f2ddd9043d6ac2256f9ad39d76",
       "entryHash": "e0b0d6ea751c4f58d065c1f877fa2d52feed138e6334ce5a9fa137e9fae79854"
+    },
+    {
+      "sequence": 4,
+      "selectionIndex": 10,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "E CADIZ41|938810136",
+      "replacementEcheRowKey": "A WIEN68|996709824",
+      "reserveRankPosition": 4,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-21T22:17:29Z",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "e0b0d6ea751c4f58d065c1f877fa2d52feed138e6334ce5a9fa137e9fae79854",
+      "entryHash": "32fd0356291f27d15fd59ed8be0123e7d71b1ffbc9288ab3349430f00afb0976"
+    },
+    {
+      "sequence": 5,
+      "selectionIndex": 12,
+      "split": "DEV_TRAIN",
+      "replacedEcheRowKey": "F PARIS465|913054211",
+      "replacementEcheRowKey": "E VALENCI26|949461221",
+      "reserveRankPosition": 5,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-09-21T22:17:29Z",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "32fd0356291f27d15fd59ed8be0123e7d71b1ffbc9288ab3349430f00afb0976",
+      "entryHash": "247c62c9c3bf6ae242316b05ef413bbcb76210231085b5d84966724985ef0b36"
+    },
+    {
+      "sequence": 6,
+      "selectionIndex": 12,
+      "split": "DEV_TRAIN",
+      "replacedEcheRowKey": "E VALENCI26|949461221",
+      "replacementEcheRowKey": "I ROMA35|920607116",
+      "reserveRankPosition": 6,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-22T12:08:12Z",
+      "replacedOccupantKind": "RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 5,
+      "previousEntryHash": "247c62c9c3bf6ae242316b05ef413bbcb76210231085b5d84966724985ef0b36",
+      "entryHash": "3e36136c205cd98f10aef8bdf53de07169ef8e462a188abfbe0a2aba705d725a"
+    },
+    {
+      "sequence": 7,
+      "selectionIndex": 18,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "E ZARAGOZ28|945578214",
+      "replacementEcheRowKey": "E GIJON17|947309567",
+      "reserveRankPosition": 7,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-22T15:26:57Z",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "3e36136c205cd98f10aef8bdf53de07169ef8e462a188abfbe0a2aba705d725a",
+      "entryHash": "4e05ae4bd9d23a79ab832f9b7581c7596d9f45d70ce8172251590e4d1b7b7627"
     }
   ],
-  "ledgerHash": "2febfecfe14bc0f6ca709271e33782e2ac2a8a14f09a14ff4ff0bdf608b7e452"
+  "ledgerHash": "72177c40421cc87ae180865728f5393f8439dae9b3b60691f824a73ebf55e230"
 }

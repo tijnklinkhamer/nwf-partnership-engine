@@ -27,9 +27,9 @@
  * assertion cannot leave a fixture process running. Cleanup only ever
  * targets PIDs this file itself caused to exist.
  */
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 import {
@@ -113,12 +113,51 @@ afterEach(async () => {
 });
 
 // ---------------------------------------------------------------------------
-// No harness scratch directory may outlive this file.
+// No harness scratch directory THIS FILE created may outlive it.
+//
+// The OS temp directory is shared by every process of this user, and sibling
+// worktrees run this same suite concurrently: another process can create or
+// remove an `nwf-pe-tier2-batch-*` directory at any moment. So the check is
+// over the exact directories this file's own invocations were handed, never
+// over every prefixed entry in tmpdir() (Window V1 post-live validate).
 // ---------------------------------------------------------------------------
-function harnessScratchEntries(): string[] {
-  return readdirSync(tmpdir()).filter((entry) => entry.startsWith(HARNESS_SCRATCH_PREFIX));
+const ownedScratchDirs = new Set<string>();
+
+/**
+ * The ONLY way this file starts the harness: records each invocation's
+ * scratch directory as soon as the child exists, and again from the result.
+ */
+async function runOwnedBatch(
+  options: ProcessIsolatedBatchOptions,
+): Promise<Awaited<ReturnType<typeof runProcessIsolatedBatch>>> {
+  const result = await runProcessIsolatedBatch({
+    ...options,
+    onChildSpawned: (pid, scratchDir) => {
+      ownedScratchDirs.add(scratchDir);
+      options.onChildSpawned?.(pid, scratchDir);
+    },
+  });
+  ownedScratchDirs.add(result.scratchDir);
+  return result;
 }
-let scratchBefore: string[] = [];
+
+/** Runs `body` with tmpdir() pointed at a fresh directory this file owns. */
+async function withOwnedTmpdir(body: (root: string) => Promise<void>): Promise<void> {
+  const root = mkdtempSync(join(tmpdir(), 'nwf-pe-tier2-owned-tmp-'));
+  const saved = { TMPDIR: process.env.TMPDIR, TMP: process.env.TMP, TEMP: process.env.TEMP };
+  process.env.TMPDIR = root;
+  process.env.TMP = root;
+  process.env.TEMP = root;
+  try {
+    await body(root);
+  } finally {
+    for (const [name, value] of Object.entries(saved)) {
+      if (value === undefined) delete process.env[name];
+      else process.env[name] = value;
+    }
+    rmSync(root, { recursive: true, force: true });
+  }
+}
 // ...nor any timer or child-process handle the harness created.
 const LEAK_CHECKED_RESOURCES = ['Timeout', 'ProcessWrap'];
 function activeResourceCounts(): Record<string, number> {
@@ -132,11 +171,15 @@ function activeResourceCounts(): Record<string, number> {
 }
 let resourcesBefore: Record<string, number> = {};
 beforeAll(() => {
-  scratchBefore = harnessScratchEntries();
   resourcesBefore = activeResourceCounts();
 });
 afterAll(() => {
-  expect(harnessScratchEntries().sort()).toEqual(scratchBefore.sort());
+  // Vacuity guard: the POSIX and F0Z suites always start the harness.
+  expect(ownedScratchDirs.size).toBeGreaterThan(0);
+  for (const dir of ownedScratchDirs) {
+    expect(basename(dir).startsWith(HARNESS_SCRATCH_PREFIX)).toBe(true);
+    expect(existsSync(dir), `owned harness scratch directory survived: ${dir}`).toBe(false);
+  }
   expect(activeResourceCounts()).toEqual(resourcesBefore);
 });
 
@@ -161,7 +204,7 @@ async function runWithRecord(
   let atHardKill: { direct: boolean; descendant: boolean | null } | null = null;
   let spawnedPid: number | null = null;
   let polling: Promise<void> = Promise.resolve();
-  const result = await runProcessIsolatedBatch({
+  const result = await runOwnedBatch({
     ...options,
     beforeHardKill: () => {
       const current = record as PidRecord | null;
@@ -391,18 +434,21 @@ describe('Tier 2 termination contract (pure; executed on every platform)', () =>
   });
 
   it('refuses a non-positive watchdog or grace BEFORE creating any scratch directory', async () => {
-    const before = harnessScratchEntries().length;
-    await expect(
-      runProcessIsolatedBatch({ modulePath: fixture('quickExit.mjs'), watchdogMs: 0, graceMs: 1 }),
-    ).rejects.toThrow(TypeError);
-    await expect(
-      runProcessIsolatedBatch({
-        modulePath: fixture('quickExit.mjs'),
-        watchdogMs: 1,
-        graceMs: Number.NaN,
-      }),
-    ).rejects.toThrow(TypeError);
-    expect(harnessScratchEntries().length).toBe(before);
+    // Observed in a temp root this test owns, so no concurrent process can
+    // add or remove an entry under it.
+    await withOwnedTmpdir(async (root) => {
+      await expect(
+        runOwnedBatch({ modulePath: fixture('quickExit.mjs'), watchdogMs: 0, graceMs: 1 }),
+      ).rejects.toThrow(TypeError);
+      await expect(
+        runOwnedBatch({
+          modulePath: fixture('quickExit.mjs'),
+          watchdogMs: 1,
+          graceMs: Number.NaN,
+        }),
+      ).rejects.toThrow(TypeError);
+      expect(readdirSync(root)).toEqual([]);
+    });
   });
 });
 
@@ -983,7 +1029,7 @@ describe.skipIf(IS_WINDOWS)('Tier 2 on POSIX (real fixture processes)', () => {
     let seenScratch: string | null = null;
     let seenPid: number | null = null;
     await expect(
-      runProcessIsolatedBatch({
+      runOwnedBatch({
         modulePath: fixture('neverExits.mjs'),
         watchdogMs: 200,
         graceMs: 200,
@@ -1082,7 +1128,7 @@ describe.runIf(IS_WINDOWS)('Tier 2 on Windows (real fixture processes)', () => {
 // ---------------------------------------------------------------------------
 describe('2D2C-F0Z parent-side liveness witness', () => {
   it('records the witness on the ordinary COMPLETED path, with no watchdog fire', async () => {
-    const result = await runProcessIsolatedBatch({
+    const result = await runOwnedBatch({
       modulePath: fixture('quickExit.mjs'),
       watchdogMs: 30_000,
       graceMs: 1_000,
@@ -1107,7 +1153,7 @@ describe('2D2C-F0Z parent-side liveness witness', () => {
   });
 
   it('records the watchdog overshoot and the IPC state sampled at the fire', async () => {
-    const result = await runProcessIsolatedBatch({
+    const result = await runOwnedBatch({
       modulePath: fixture('cooperativeShutdown.mjs'),
       watchdogMs: 250,
       graceMs: 5_000,
@@ -1131,7 +1177,7 @@ describe('2D2C-F0Z parent-side liveness witness', () => {
   });
 
   it('EXPLAINS an ipcRequestSent:false: the channel was already closed when the watchdog fired', async () => {
-    const result = await runProcessIsolatedBatch({
+    const result = await runOwnedBatch({
       modulePath: fixture('disconnectsThenLingers.mjs'),
       watchdogMs: 250,
       graceMs: 5_000,
@@ -1154,7 +1200,7 @@ describe('2D2C-F0Z parent-side liveness witness', () => {
   });
 
   it('the witness never names a cause: no field asserts a stall, a suspension or a reason', async () => {
-    const result = await runProcessIsolatedBatch({
+    const result = await runOwnedBatch({
       modulePath: fixture('quickExit.mjs'),
       watchdogMs: 30_000,
       graceMs: 1_000,
@@ -1172,7 +1218,7 @@ describe('2D2C-F0Z parent-side liveness witness', () => {
 // ---------------------------------------------------------------------------
 describe('2D2C-F0Z: grace expiry and the meaning of ipcRequestSent', () => {
   it('records graceExpiredByDeadline when the DEADLINE decided, not an early settle', async () => {
-    const result = await runProcessIsolatedBatch({
+    const result = await runOwnedBatch({
       modulePath: fixture('neverExits.mjs'),
       watchdogMs: 250,
       graceMs: 300,
@@ -1190,7 +1236,7 @@ describe('2D2C-F0Z: grace expiry and the meaning of ipcRequestSent', () => {
   });
 
   it('a cooperative child settles the grace EARLY, so the deadline never decides', async () => {
-    const result = await runProcessIsolatedBatch({
+    const result = await runOwnedBatch({
       modulePath: fixture('cooperativeShutdown.mjs'),
       watchdogMs: 250,
       graceMs: 10_000,
@@ -1218,5 +1264,16 @@ describe('2D2C-F0Z: grace expiry and the meaning of ipcRequestSent', () => {
       verdict: 'CHILD_EXITED_UNCONFIRMED',
       gracefulShutdownConfirmed: false,
     });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The afterAll scratch check is only as complete as the ownership record.
+// ---------------------------------------------------------------------------
+describe('harness scratch ownership', () => {
+  it('every harness invocation in this file goes through runOwnedBatch', () => {
+    const self = readFileSync(fileURLToPath(import.meta.url), 'utf8');
+    // Exactly one direct call: the one inside runOwnedBatch itself.
+    expect(self.match(/runProcessIsolatedBatch\(\s*\{/g)).toHaveLength(1);
   });
 });

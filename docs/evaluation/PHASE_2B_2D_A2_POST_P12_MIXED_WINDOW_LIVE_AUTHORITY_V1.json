@@ -1,0 +1,136 @@
+{
+  "recordId": "phase2b-2d-a2-post-p12-mixed-window-live-authority-v1",
+  "recordKind": "LIVE_WINDOW_AUTHORITY",
+  "records": "PHASE_2B_2D_A2_POST_P12_MIXED_WINDOW_LIVE_AUTHORITY_V1",
+  "recordedAtUtc": "2026-09-21T22:17:10Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "ownerDecision": "AUTHORISE_A2_POST_P12_MIXED_WINDOW_LIVE_EXECUTION_V1",
+  "startingHead": "9122438c9f5d3aaa6cf876a1e81d121ebd92cc9e",
+  "bound": {
+    "selectedStrategy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P12_REPLACEMENT_AND_PRIMARY_CONTINUATION_STRATEGY_V1.json",
+      "sha256": "6e1c6a7291b45b16dd2198477c084636db919abc7747558d0e16c27b99c19778",
+      "bytes": 22321,
+      "commit": "b3db5af9f8b868cb0bd6ac8303abc1514c9810f8"
+    },
+    "adapterImplementation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_STRATEGY_TO_SPEC_ADAPTER_GENERALISATION_IMPLEMENTATION_V1.json",
+      "sha256": "3dad0c40a7193fd48544172b7c7feebf1e425cb36b38ba148d8e31a58e138e71",
+      "bytes": 21700,
+      "implementationCommit": "c099c230fa32d3cca9c1cbc08dc3fdacb5af0f1e",
+      "recordCommit": "9122438c9f5d3aaa6cf876a1e81d121ebd92cc9e"
+    },
+    "mixedWindowPlan": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P12_MIXED_WINDOW_PLAN_V1.json",
+      "sha256": "b794f2577aa5a000ba5ff7eae9467eb3375acdff47bb48d7854bd9a1a298d387",
+      "bytes": 6553,
+      "windowPlanHash": "0ebb51620631660abe886409411827fb2160e28b8c793b4c04ba9b620d4148bc",
+      "commit": "9122438c9f5d3aaa6cf876a1e81d121ebd92cc9e"
+    },
+    "startingReplacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0",
+      "bytes": 7254,
+      "ledgerHash": "2febfecfe14bc0f6ca709271e33782e2ac2a8a14f09a14ff4ff0bdf608b7e452",
+      "entries": 4,
+      "reserveConsumed": 4
+    }
+  },
+  "mixedWindowPlanSha256": "b794f2577aa5a000ba5ff7eae9467eb3375acdff47bb48d7854bd9a1a298d387",
+  "mixedWindowPlanHash": "0ebb51620631660abe886409411827fb2160e28b8c793b4c04ba9b620d4148bc",
+  "requiredFetchPolicy": "orgunit-fetch-policy-v6",
+  "workItems": ["R:10:4", "R:12:5", "P:13", "P:14", "P:15"],
+  "workItemSplits": {
+    "R:10:4": "DEV_CONFIRM",
+    "R:12:5": "DEV_TRAIN",
+    "P:13": "DEV_CONFIRM",
+    "P:14": "FINAL_HOLDOUT",
+    "P:15": "DEV_CONFIRM"
+  },
+  "executionOrderIsFrozen": true,
+  "concurrency": 1,
+  "maximumWorkItemsStarted": 5,
+  "authorisedReplacementAssignments": [
+    { "selectionIndex": 10, "reserveRankPosition": 4 },
+    { "selectionIndex": 12, "reserveRankPosition": 5 }
+  ],
+  "authorisedReplacementAppendReasons": {
+    "10": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+    "12": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+  },
+  "maximumReplacementAssignments": 2,
+  "replacementAppendTiming": "pre-network only: the six-entry ledger is committed and pushed before institution request #1; reserves 4 and 5 are consumed at that durable boundary and are never returned",
+  "dynamicReplacementAuthorised": false,
+  "reservePosition6OrLaterAuthorised": false,
+  "index16OrHigherAuthorised": false,
+  "retryPermitted": "the landed automatic v6 robots-policy transport retry only; no manual retry, no HTTP retry, no wider retry",
+  "liveInvocationPerStartedItem": "exactly one: npm run cli -- orgunits discover --organisation-id <private> --execute --json",
+  "continuationOwnedByGate": "the landed evaluateContinuationWindowGate is evaluated after every completed item with successfulOrganisationCount 11 and reserveConsumedCount 6 throughout; the next item starts only when mayStartNextWorkItem is true and nextWorkItemId is the next frozen item",
+  "preflight": "the committed computePrecommittedWindowPreflight (all 13 invariants) over the committed mixed plan, the actual six-entry ledger and the spec from windowSpecFromAcquisitionWindowStrategy, never reconstructed in scratch code",
+  "pauseThresholds": {
+    "plannedWindowSize": 5,
+    "P1": "3 consecutive INVALID_ROOT_AUTHORITY",
+    "P2": "3 consecutive robots blocked/unreadable, or 3 of 5",
+    "P3": "2 consecutive FAILED, or any orchestration error immediately",
+    "P4": "any persistence anomaly immediately",
+    "P5": "2 of 5 raw page evidence < 4",
+    "P6": "reserveConsumed > 10 and successes < 50 (inputs 6 / 11: false)",
+    "P7": "any frozen/precommit invariant mismatch",
+    "P8": "host-state anomaly",
+    "arithmeticChangedByThisRecord": false
+  },
+  "hostSafetyPolicy": {
+    "acPowerRequired": false,
+    "battery80PercentRequired": false,
+    "doNotStartAnotherItemIfBatteryPercentAtOrBelow": 20,
+    "lidMustRemainOpen": true,
+    "caffeinateDimsuForEveryActiveItem": true,
+    "sufficientDiskRequired": true,
+    "databaseHealthyRequired": true,
+    "noCompetingProcessOnWorkingAcquisitionDatabase": true,
+    "sleepWakeDuringItem": "STOP after preserving durable evidence; do not rerun that target",
+    "sleepWakeBetweenItems": "rerun full host / DB / ledger / P7 preflight before continuing"
+  },
+  "unsuccessfulReplacementSemantics": {
+    "preserveRun": true,
+    "preserveSixEntryLedger": true,
+    "failedReserveRemainsCurrentOccupant": true,
+    "appendReservePosition6": false,
+    "dynamicReplacementChain": false,
+    "sameSlotObligationArisesOnlyAt": "the later evidence adjudication"
+  },
+  "unsuccessfulPrimarySemantics": {
+    "preserveEvidence": true,
+    "assignReserve": false,
+    "appendReplacementLedger": false,
+    "dynamicReplacement": false,
+    "obligationArisesOnlyAt": "the later evidence adjudication"
+  },
+  "earlyPauseSemantics": "a preassigned replacement not yet started stays CONSUMED and CURRENT OCCUPANT with execution status ASSIGNED_NOT_YET_EXECUTED; the ledger is never rolled back; unstarted primaries stay NEVER_STARTED",
+  "historicalWindowsRemainClosed": ["WINDOW_V1", "WINDOW_V2 (PAUSE_P5_LOW_RAW_YIELD)"],
+  "sd7": "formal read-only SD7 via the landed analyseOrganisation per started item; ranges crossing 4 are not forced; detail routed only to the split's established sealed root under new window-specific filenames, never overwriting",
+  "institutionNetworkAuthorised": true,
+  "classifierAuthorised": false,
+  "providerAuthorised": false,
+  "labelsAuthorised": false,
+  "setPSetRAuthorised": false,
+  "semanticHoldoutInspectionAuthorised": false,
+  "finalAorAdjudicationAuthorised": false,
+  "a3Authorised": false,
+  "phase2EAuthorised": false,
+  "crawlerOrParserChangeAuthorised": false,
+  "entityDecodingWorkAuthorised": false,
+  "fetchPolicyV7Authorised": false,
+  "migrationAuthorised": false,
+  "manualRetryAuthorised": false,
+  "sixthWorkItemAuthorised": false,
+  "thisFileAuthorises": [],
+  "authorityNote": "authority for this window is the owner decision named in ownerDecision, recorded here; this file itself grants nothing",
+  "institutionNetworkExecutedBeforeThisRecord": false,
+  "replacementLedgerMutatedBeforeThisRecord": false,
+  "nextOwnerDecisionOnCompletionOrPause": "A2_POST_P12_MIXED_WINDOW_EVIDENCE_ADJUDICATION",
+  "nextOwnerDecisionOnIncident": "A2_POST_P12_MIXED_WINDOW_INCIDENT_REVIEW"
+}

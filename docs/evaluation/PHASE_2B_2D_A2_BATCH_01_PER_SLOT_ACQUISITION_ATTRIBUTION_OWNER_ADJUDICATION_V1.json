@@ -1,0 +1,760 @@
+{
+  "recordId": "phase2b-2d-a2-batch-01-per-slot-acquisition-attribution-owner-adjudication-v1",
+  "recordKind": "OWNER_ADJUDICATION",
+  "adjudicationClassification": "OWNER_EVIDENCE_ATTRIBUTION_ADJUDICATION",
+  "recordKindReuse": "OWNER_ADJUDICATION is the existing generic A2 owner-adjudication kind (PHASE_2B_ROBOTS_OPTION_B_REVALIDATION_EVIDENCE_ADJUDICATION_V1). LIVE_WINDOW_EVIDENCE_ADJUDICATION was not reused because Batch 01 was not a live window; no new competing recordKind is introduced. adjudicationClassification is descriptive only.",
+  "records": "PHASE_2B_2D_A2_BATCH_01_PER_SLOT_ACQUISITION_ATTRIBUTION_OWNER_ADJUDICATION_V1",
+  "recordedAtUtc": "2026-09-22T14:59:09Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "recordedBy": "claude-code-session, under the owner instruction PHASE 2B-2D A2 BATCH-01 PER-SLOT ACQUISITION-OF-RECORD ATTRIBUTION REPAIR - OWNER EVIDENCE ADJUDICATION V1",
+  "branch": "feat/phase2b-2d-a2-batch01-attribution-repair",
+  "startingHead": "9cb242d42dfb6fc4a2162df3a94703858a5e8cc9",
+  "startingHeadEqualsOriginA2Tip": true,
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "ownerTask": "A2_BATCH_01_PER_SLOT_ACQUISITION_OF_RECORD_ATTRIBUTION_REPAIR",
+  "ownerDecisions": [
+    "ATTRIBUTE_BATCH01_SLOT0_ACQUISITION_OF_RECORD_AND_CONFIRM_ACQUISITION_SUCCESSFUL_V1",
+    "ATTRIBUTE_BATCH01_SLOT2_ACQUISITION_OF_RECORD_AND_CONFIRM_ACQUISITION_SUCCESSFUL_V1",
+    "PRESERVE_REPLACEMENT_LEDGER_SEVEN_ENTRY_REVISION_UNCHANGED_V1",
+    "PRESERVE_ACQUISITION_POLICY_TRANSITION_LEDGER_V6_UNCHANGED_V1",
+    "PRESERVE_GENERATION1_STATE_UNCHANGED_V1"
+  ],
+  "purpose": {
+    "thisIs": [
+      "a historical attribution repair",
+      "an owner evidence adjudication",
+      "a per-slot decomposition of already-frozen Batch-01 evidence",
+      "required so that the downstream A3 R17 slot-authority contract can mechanically bind acquisition authority for selection indices 0 and 2"
+    ],
+    "thisIsNot": [
+      "a new acquisition",
+      "a rerun",
+      "a policy transition",
+      "a replacement",
+      "a methodology amendment",
+      "a change to the Batch-01 execution record",
+      "a change to the A3a pilot record",
+      "an A3 run",
+      "an A5 freeze authority"
+    ],
+    "whyOwnerAdjudicationIsRequired": "the public historical record omitted the slot -> opaque-run binding: the A3a pilot record deliberately carries no per-selection-index result (thisRecordCarriesNoPerSelectionIndexResult), and the only public occurrences of these two run references are unlabelled census lists (Option-B measurement-of-record compatibilityCensus.perRun, V4 transport-retry census runs), where reading a slot off an array position is forbidden",
+    "whyThisIsNotMethodologyDiscretion": "the mapping is mechanically reconstructed from the frozen DRAW slot identity plus durable relational provenance in the database (fetch observations bound to the exact eche_row_key, organisation_id and root website claim); exactly one run satisfies it per slot, so nothing was chosen. SD9 is recomputed with the landed SD7 implementation and the existing frozen rule, unmodified."
+  },
+  "scope": {
+    "selectionIndices": [0, 2],
+    "noOtherSlotIsCoveredOrChanged": true
+  },
+  "r18Finding": {
+    "conclusion": "NORMALISATION_GAPS_EXIST",
+    "affectedSuccessfulSlots": [0, 2],
+    "r17Conclusion": "R17_CONTRACT_SUFFICIENT",
+    "canonicalR17Commit": "a2e71b081116f04e41b64b158d24fa020ed05431",
+    "missingPerSlot": [
+      "a per-slot terminal adjudication",
+      "the opaque run reference of the slot's acquisition-of-record run"
+    ]
+  },
+  "bound": {
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306,
+      "commit": "f5f2ded0e14be2310aec221428d51b06925e9c9d"
+    },
+    "methodologyOwnerFreeze": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+      "bytes": 17514,
+      "commit": "5988bebd0aacc21404a72de464e0c3ef033e3ee0"
+    },
+    "corpusAcquisitionPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "bytes": 45200,
+      "commit": "6f2de0fd5a80f050857a14531e74b659f0ff30c1"
+    },
+    "corpusAcquisitionPlanOwnerApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1_OWNER_APPROVAL.json",
+      "sha256": "0ac475031e81a60ae58d70bb83d5f71ee3cc441573dc82cf88145fdf1e8fec14",
+      "bytes": 10949,
+      "commit": "ee7384087979ec74a45668bc9d770963444600cc"
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "sha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "bytes": 3554080,
+      "commit": "c64fad3474499d392d316e35c720310c76e9405b"
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "sha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "bytes": 74047,
+      "commit": "34537caf2308ade014f9f459ca9f97596dc48a17",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    },
+    "drawAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A1B_DRAW_AUTHORITY_RECORD_V1.json",
+      "sha256": "c24656400469cfe98136df4b705fc80b3916dd4fa66d4114305d101a468108d3",
+      "bytes": 11853,
+      "commit": "c691796fb9c6b50e0142ab77de954b9b28a09e45"
+    },
+    "batch01Authority": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_AUTHORITY_RECORD_V1.json",
+      "sha256": "03e1e08054eb381d9be527857ef70d92ae1aade0e5095e7b6507f0c7e8105a46",
+      "bytes": 17425,
+      "commit": "9a5fc10c92e7f0829c07cda8bd04d411fbd51727"
+    },
+    "batch01Execution": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_EXECUTION_RECORD_V1.json",
+      "sha256": "8a1b0f57f1c568e2ac04aced7ba453ad8d7b666f557fd622b3a5e6378309f9cc",
+      "bytes": 23602,
+      "commit": "a0ae27cc30f15537014fa8a4efaae9aa25da542a"
+    },
+    "batch01DeviationAdjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_DEVIATION_ADJUDICATION_V1.json",
+      "sha256": "de49e39b6f3b503526d81243f1c30135f9f7cf1d2b63a11b73d4d065e1913c65",
+      "bytes": 5727,
+      "commit": "b23d929f56fe7cbec4e35575b739a1c02433c9e2"
+    },
+    "a3aSd7PilotAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_AUTHORITY_RECORD_V1.json",
+      "sha256": "f5ccfa65d37223db60ad2935fd5c2ec3032cd76ba2af576fe385a376ab7336dd",
+      "bytes": 12787,
+      "commit": "b23d929f56fe7cbec4e35575b739a1c02433c9e2"
+    },
+    "a3aSd7PilotExecution": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_EXECUTION_RECORD_V1.json",
+      "sha256": "3be65f6e491f46c00a855a06a24167d4fd1d74201942b0240b74dc6a0e4d9ee8",
+      "bytes": 5599,
+      "commit": "013a04d194d7171c8c7319a84987d9e23a618fea"
+    },
+    "sd7ShortTextOwnerDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_SD7_SHORT_TEXT_OWNER_DECISION_V1.json",
+      "sha256": "2f41f495322eceae3b675cbe1d227115f3b4292d6e3a711879793af33b466fff",
+      "bytes": 7584,
+      "commit": "d7d686b855489bdb21be95041e4dd165d1acd0a2",
+      "role": "the owner adjudication that accepted the Batch-01 pilot terminal state (batch01TerminalStateAccepted true) and fixed the short-text SD9 finalisation rule"
+    },
+    "reserveAssignmentOrderOwnerClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "bytes": 18443,
+      "commit": "b17503a2420ff16cc0c71ac94709b54fe1f2ead6"
+    },
+    "currentGeneration1State": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_MIXED_WINDOW_CHAIN_REPLACEMENT_AND_PRIMARY_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "d636f0361b9fad3b32a0aefbcd2de619108a1ccedfde19fb6d00c52fdc7211f6",
+      "bytes": 46704,
+      "commit": "696c52333fe0e16b41eacd6b387cc5f692c2dde9",
+      "role": "the latest A2 adjudication carrying Generation-1 state; it lists 0 and 2 among the successful selection indices"
+    },
+    "unlabelledRunRefCensusesNotUsedForAttribution": [
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_OPTION_B_TRANSITION_SD7_MEASUREMENT_OF_RECORD_V1.json",
+        "sha256": "e5bfae12c86b8661dde9232eddedb3a0a215df11b6438a7768be536725862b7f",
+        "bytes": 11574,
+        "commit": "b0f4efa01d7e861a701e3514afc690a99262f554"
+      },
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_V4_TRANSPORT_RETRY_TRANSITION_CENSUS_V1.json",
+        "sha256": "17263c39fd457f906e8bf5bd3d0cba7de04b2f7af0f5d3d70579f3c97f32f669",
+        "bytes": 11663,
+        "commit": "e5642595da1ac68e3d17c59d5a3348a3557f0e9c"
+      }
+    ],
+    "everyBindingRecomputedFromCommittedBytesInThisStep": true,
+    "everyBindingCommitIsTheCommitThatLastWroteTheseExactBytes": true
+  },
+  "currentOccupantProof": {
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "ee9b187e491756018b9523667d544ccc8523a207eff6e751954bb042a03f5bc3",
+      "bytes": 9079,
+      "commit": "39af382127e2ea7a686cf79eef24ae7cfea310e6",
+      "ledgerHash": "cf55812f1660fa06154d4a1e9a74e5f785cba046da08f52cb933579e5b6f8636",
+      "ledgerHashRecomputes": true,
+      "validatorResult": "valid, entryCount 7 (validateReplacementLedger and requireValidLedger against the frozen draw)",
+      "extendsGenesis": true,
+      "entryCount": 7,
+      "headEntryHash": "3e36136c205cd98f10aef8bdf53de07169ef8e462a188abfbe0a2aba705d725a",
+      "slotsWithEntries": [3, 4, 6, 8, 10, 12],
+      "entriesForSlot0": 0,
+      "entriesForSlot2": 0
+    },
+    "conclusion": "no replacement-ledger entry exists for slot 0 or slot 2, so both current occupants are the ORIGINAL DRAW PRIMARIES (draw.selection[0] and draw.selection[2])"
+  },
+  "noTransitionProof": {
+    "currentTransitionLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_ACQUISITION_POLICY_TRANSITION_LEDGER_V6_GEN1.json",
+      "sha256": "592b17062a601ac21f0525209e133220b90ebd97848790f9da66e22f9391461d",
+      "bytes": 19454,
+      "commit": "3702cf3bf5897f4b614c0806573f3218b130528c",
+      "entryCount": 7,
+      "slotsWithEdges": [1, 4, 5, 6, 7, 8, 12],
+      "predecessorChain": [
+        {
+          "version": "V4_GEN1",
+          "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_ACQUISITION_POLICY_TRANSITION_LEDGER_V4_GEN1.json",
+          "sha256": "ca69abf483bad007419a1bcc8ab0e156901f87abd604ca369e8fa4cc7a965346",
+          "bytes": 17539,
+          "commit": "7a86da7464ab03edb5b04d9f49e44b23443b791a"
+        },
+        {
+          "version": "V3_GEN1",
+          "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_ACQUISITION_POLICY_TRANSITION_LEDGER_V3_GEN1.json",
+          "sha256": "f994ac91863d83b9693f6e9aaf9864a783bcfe234bf117be83ee8d67841d0b2b",
+          "bytes": 8159,
+          "commit": "55dc413a28d169e074ae26cbf791e560e0d99de9"
+        },
+        {
+          "version": "V2_GEN1",
+          "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_ACQUISITION_POLICY_TRANSITION_LEDGER_V2_GEN1.json",
+          "sha256": "e3a2fe6199af4c0859b625b8f2b599e51bf4273a815d50ca8a8527fc28611aaf",
+          "bytes": 3054,
+          "commit": "b0f4efa01d7e861a701e3514afc690a99262f554"
+        }
+      ],
+      "noV5Ledger": true
+    },
+    "edgesForSlot0InAnyVersion": 0,
+    "edgesForSlot2InAnyVersion": 0,
+    "attributedRunRefsAppearingAsOldOrNewRunRefInAnyVersion": 0,
+    "conclusion": "neither slot's run of record was ever reached through, or superseded by, a policy-transition edge; the identified Batch-01 orgunit-fetch-policy-v1 runs are still the current runs of record"
+  },
+  "databaseVerification": {
+    "mode": "nwf_readonly role (no write grant anywhere in the schema), inside BEGIN TRANSACTION READ ONLY (transaction_read_only = on, confirmed), SELECT only, ROLLBACK",
+    "database": "nwf_pe (loopback working database)",
+    "currentUser": "nwf_readonly",
+    "transactionReadOnly": "on",
+    "tablesInspected": [
+      "website_claims",
+      "orgunit_research_runs",
+      "orgunit_research_run_completions",
+      "orgunit_fetch_observations",
+      "orgunit_redirect_observations",
+      "orgunit_page_evidence",
+      "orgunit_page_candidates",
+      "orgunit_root_promotions",
+      "orgunit_root_promotion_revocations",
+      "organisations"
+    ],
+    "querySha256": {
+      "claim": "247276c5d9c9fc2b30e902c338a6b60bcb415295213866e0b15dbefafa32a2a4",
+      "candidateRuns": "c237f22887c78c8669e15fb0a72015fa6fd6eb2534156a2dd83a1e78ec547e21",
+      "anyObsForRowNotOnFrozenRoot": "575f4a63c6e820b51dea72ffaf381fe948ad1cb9e4a7643c0f96edb2b203522e",
+      "anyObsForOrgOrClaimOutsideRow": "892d27c345f170ca82db5d054fad29da62b5e2275ea6a20613bded4e9a7e4343",
+      "run": "7a843cba7ecc4075e5c505f866a11b8ad84ecf3f8f1da0c4aef8c51a7a27e4d2",
+      "completions": "86190096491d146361974d7f36dc9f1738b7f4910222ff6e8e432c26a326cc76",
+      "runObs": "9d7b92796f6ace806b6e949ff59bd11d274f85167f561c29030d3828b1ab812e",
+      "runRedirects": "ed416c1aef4d9b34dc5edf742634f8ee2fab2a0927088350c6b40346d113038a",
+      "runPages": "a158c04761831ff5cc6a86162a492eaf219faae0e90f878fd259c1eb2782ecaa",
+      "pageNon2xxOrNullHash": "65dfea6fcfabe27e984f39f1deb3caf1889810e42e5bdadb456c2c90e2aba400",
+      "candByPage": "64232a5627458ebbba17abb9ffde6591d839af88cad31282d17c572eabadd585",
+      "candByRun": "6324bedd3708a4b237a435bc31b597772ee38f3dd18eb067954fc180f32d2105",
+      "allRunsForRowAnyRoot": "3bd40daf37b27d56be203519ebfb06bcf9788694aa34242f7f2c66fb352e0fdf"
+    },
+    "querySha256Method": "sha256 of the exact UTF-8 SQL text; the texts are reproduced in docs/audits/PHASE_2B_2D_A2_BATCH_01_PER_SLOT_ACQUISITION_ATTRIBUTION_REPAIR_V1.md",
+    "uniquenessCondition": "exactly one DISTINCT run_id among fetch observations matching the frozen eche_row_key, organisation_id and root_website_claim_id with root_promotion_id IS NULL, and that run: dry_run false, orgunit-fetch-policy-v1 on the run and on every observation, orgunit-signal-rules-v1, exactly one completion, COMPLETED, error_kind NULL, every observation on the frozen root",
+    "runRefDerivation": "runRefSha256 = sha256(UTF-8 bytes of the lowercase canonical 8-4-4-4-12 run UUID string), identical to the opaqueRefDerivation \"SHA-256 of the run UUID\" used by every A2 transition ledger and adjudication",
+    "countsBefore": {
+      "organisations": 6139,
+      "website_claims": 6139,
+      "orgunit_research_runs": 34,
+      "orgunit_research_run_completions": 34,
+      "orgunit_fetch_observations": 846,
+      "orgunit_redirect_observations": 44,
+      "orgunit_root_promotions": 0,
+      "orgunit_root_promotion_revocations": 0,
+      "orgunit_page_evidence": 621,
+      "orgunit_page_candidates": 1242
+    },
+    "countsAfter": {
+      "organisations": 6139,
+      "website_claims": 6139,
+      "orgunit_research_runs": 34,
+      "orgunit_research_run_completions": 34,
+      "orgunit_fetch_observations": 846,
+      "orgunit_redirect_observations": 44,
+      "orgunit_root_promotions": 0,
+      "orgunit_root_promotion_revocations": 0,
+      "orgunit_page_evidence": 621,
+      "orgunit_page_candidates": 1242
+    },
+    "countsUnchanged": true,
+    "insertUpdateDeleteDdlOrMigration": 0,
+    "rawRunUuidsPublished": false,
+    "institutionIdentifyingRowsPublished": false
+  },
+  "items": [
+    {
+      "generationId": "METHODOLOGY_V2_GEN1",
+      "selectionIndex": 0,
+      "split": "DEV_TRAIN",
+      "occupantKind": "PRIMARY",
+      "reserveRankPosition": null,
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "e1b78912b0c6a5df5a146db824583662458ba5fc0e51fe5537c39dc92498ddbe",
+      "runRefSha256": "e1685cde6ad43f2f38caebfb5e16f5677faddfca92a00e337cdb53bf13067e40",
+      "acquisitionPolicyVersion": "orgunit-fetch-policy-v1",
+      "disposition": "ACQUISITION_SUCCESSFUL",
+      "finalSd9": "ACQUISITION_SUCCESSFUL",
+      "finalAdjudication": "ACQUISITION_SUCCESSFUL",
+      "ownerDecision": "ATTRIBUTE_BATCH01_SLOT0_ACQUISITION_OF_RECORD_AND_CONFIRM_ACQUISITION_SUCCESSFUL_V1",
+      "currentOccupant": "ORIGINAL_SELECTION",
+      "frozenIdentity": {
+        "source": "draw.selection[0] of the frozen DRAW_V2_GEN1, exact parsed entry",
+        "drawEntrySha256Method": "sha256(canonicalStringify(exact parsed draw entry)), canonicalStringify = src/orgunits/classify/canonical.ts",
+        "entryFieldsBound": [
+          "selectionIndex",
+          "echeRowKey",
+          "organisationId",
+          "rankHash",
+          "split",
+          "rootAuthorityCount",
+          "rootAuthorities"
+        ],
+        "rankHashEqualsSha256OfEcheRowKey": true,
+        "rootAuthorityCount": 1,
+        "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+        "rootIsExactlyOneWebsiteClaim": true,
+        "rootWebsiteClaimInDatabase": {
+          "rows": 1,
+          "echeRowKeyEqualsDrawEntry": true,
+          "organisationIdEqualsDrawEntry": true,
+          "structuralStatus": "STRUCTURALLY_VALID"
+        },
+        "rawIdentityPublishedHere": false
+      },
+      "attribution": {
+        "method": "RELATIONAL_PROVENANCE_FROM_FROZEN_SLOT_IDENTITY",
+        "candidateRunSource": "DISTINCT orgunit_fetch_observations.run_id WHERE eche_row_key, organisation_id and root_website_claim_id equal the frozen draw entry exactly AND root_promotion_id IS NULL",
+        "candidateRunsFromExactSlotIdentity": 1,
+        "distinctRunsTouchingThisEcheRowKeyUnderAnyRoot": 1,
+        "observationsForThisEcheRowKeyNotOnTheFrozenRoot": 0,
+        "observationsForThisOrganisationOrClaimUnderAnotherEcheRowKey": 0,
+        "uniqueRunSatisfyingEveryBatch01Condition": 1,
+        "forbiddenMethodsUsed": [],
+        "forbiddenMethodsNotUsed": [
+          "execution-array order",
+          "run creation order",
+          "database UUID sort order",
+          "observation-count matching alone",
+          "page-count matching alone",
+          "only-two-succeeded elimination",
+          "timestamps alone",
+          "institution name or domain matching",
+          "latest run",
+          "newest row"
+        ],
+        "countsAndTimesUsedOnlyAsCrossChecksAfterUniqueness": true,
+        "verdict": "UNIQUELY_ATTRIBUTED"
+      },
+      "runVerification": {
+        "dryRun": false,
+        "runFetchPolicyVersion": "orgunit-fetch-policy-v1",
+        "runRuleVersion": "orgunit-signal-rules-v1",
+        "completions": 1,
+        "runTerminalState": "COMPLETED",
+        "completionErrorKind": null,
+        "completionErrorSummaryNull": true,
+        "everyObservationV1": true,
+        "everyObservationOnTheFrozenRootForThisSlot": true,
+        "distinctEcheRowKeysInRun": 1,
+        "promotionRootObservations": 0,
+        "runUuidIsLowercaseCanonical": true,
+        "batch01Membership": {
+          "policyIsTheOriginalBatch01Policy": true,
+          "ruleVersionIsTheBatch01Rules": true,
+          "slotWasInsideTheBatch01ExecutedScope": true,
+          "noOtherRunOfAnyPolicyExistsForThisSlotIdentity": true,
+          "noTransitionEdgeOrReplacementEverProducedALaterRunForThisSlot": true,
+          "runCreatedInsideTheBatch01ExecutionWindow": true,
+          "runStartMatchesBatch01PerIndexStartedAtUtcToTheSecond": true,
+          "runFinishMatchesBatch01PerIndexFinishedAtUtcToTheSecond": true,
+          "timestampsAreCorroborationOnlyNotTheAttributionBasis": true
+        },
+        "verdict": "CLEAN"
+      },
+      "durableEvidenceCensus": {
+        "fetchObservations": 39,
+        "robotsRequests": 2,
+        "http2xxResponses": 35,
+        "erroredObservations": 0,
+        "distinctHosts": 2,
+        "maxAttemptNo": 1,
+        "redirectObservations": 1,
+        "rawPageEvidence": 31,
+        "pageEvidenceOnNon2xxOrNullDocumentHash": 0,
+        "candidateRowsByRunId": 62,
+        "candidateRowsViaThisRunsPages": 62,
+        "candidateRowsWhoseRunIdDiffersFromTheirPagesFetchRun": 0,
+        "candidateRowsEqualTwicePages": true,
+        "pageEvidencePersistenceConsistent": true,
+        "crossCheckAgainstBatch01ExecutionRecordPerSelectionIndex": {
+          "fetchObservations": [39, 39],
+          "pageEvidence": [31, 31],
+          "pageCandidates": [62, 62],
+          "redirectObservations": [1, 1],
+          "robotsRequests": [2, 2],
+          "hostsUsed": [2, 2],
+          "pairsAre": "[recomputed from the database now, published in the Batch-01 execution record]",
+          "allEqual": true
+        }
+      },
+      "formalSd7": {
+        "recomputedInThisStep": true,
+        "implementation": "landed analyseOrganisation (src/test/harness/phase2b2d/sd7/pilotAnalysis.ts), exact-duplicate pass first, then 5-gram token shingles, Jaccard >= 0.90 decided as intersection*10 >= union*9, within one organisation only; no new algorithm",
+        "rawPageCount": 31,
+        "exactDistinctDocuments": 29,
+        "exactDuplicateRowsRemoved": 2,
+        "exactDuplicateGroups": 1,
+        "divergentExactGroups": 0,
+        "measurableDocuments": 28,
+        "nearDuplicateEdges": 0,
+        "measurableSurvivorsMin": 28,
+        "measurableSurvivorsMax": 28,
+        "shortTextUnresolved": 1,
+        "nonTransitiveComponents": 0,
+        "unauditableComponents": 0,
+        "postSd7Min": 28,
+        "postSd7Max": 29,
+        "countIsExact": false,
+        "minimumAdmissiblePages": 4,
+        "wholeRangeAtOrAbove4": true,
+        "wholeRangeBelow4": false,
+        "rangeCrosses4": false,
+        "decidedByCase": "B",
+        "sd9DecisionIsOrderDependent": false,
+        "sd9DecisionIsShortTextDependent": false,
+        "sd9Status": "ACQUISITION_SUCCESSFUL",
+        "nonExactRangeDecisionBasis": "the entire admissible range 28..29 lies at or above the frozen minimum of 4, so every admissible short-text treatment gives the same SD9 outcome (Short-Text Owner Decision: SHORT_TEXT_AMBIGUITY_BLOCKS_ONLY_WHEN_IT_CAN_CHANGE_SD9); the range is not resolved further here",
+        "sealedDetail": null,
+        "sealedDetailNullReason": "no per-slot sealed SD7 detail file was ever written for Batch 01; the A3a pilot sealed one file PER SPLIT, not per slot. None is manufactured here.",
+        "historicalCorroboration": {
+          "source": "the A3a pilot sealed split-detail file for this slot's split (A3A_SD7_PILOT_DETAIL_V1.json in the DEV_TRAIN sealed root)",
+          "fileSha256": "a4d0c69a0271efde36420cc50d44ab274fc21ad1739f24043f8200dfed430381",
+          "bytes": 14012,
+          "fileSha256EqualsThePilotExecutionRecordCommitment": true,
+          "recordsForThisSelectionIndexInsideIt": 1,
+          "recomputedSealedOrganisationRecordIsByteIdenticalToThePilotsRecordForThisSlot": true,
+          "everyPageIdThePilotSealedForThisSlotBelongsToTheAttributedRun": true,
+          "birthTimeEqualsModificationTime": false,
+          "birthTimeNote": "not relied on: the file is bound by its SHA-256, which equals the pilot execution record commitment",
+          "contentsDisplayedCopiedOrCommitted": false,
+          "createdOrOverwrittenInThisStep": false,
+          "usedAsTheAttributionBasis": false
+        }
+      },
+      "observationBinding": {
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_EXECUTION_RECORD_V1.json",
+          "sha256": "8a1b0f57f1c568e2ac04aced7ba453ad8d7b666f557fd622b3a5e6378309f9cc",
+          "commit": "a0ae27cc30f15537014fa8a4efaae9aa25da542a"
+        },
+        "mapping": "R17 liveResult = the observation record that was adjudicated. For Batch 01 that is the Batch-01 EXECUTION RECORD (the acquisition observation of this run). The A3a pilot execution record is the historical SD7 aggregate that first finalised this slot inside the 2/3 split; the per-slot SD7 figures above are recomputed here, not copied from it.",
+        "pilotSd7Aggregate": {
+          "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_EXECUTION_RECORD_V1.json",
+          "sha256": "3be65f6e491f46c00a855a06a24167d4fd1d74201942b0240b74dc6a0e4d9ee8",
+          "commit": "013a04d194d7171c8c7319a84987d9e23a618fea"
+        },
+        "noLiveWindowResultFileExistsOrIsInvented": true
+      },
+      "acquisitionPolicyTransitionLedger": null,
+      "acquisitionPolicyTransitionLedgerNullBasis": "slot 0 appears in no entry of transition ledger V2, V3, V4 or V6 (current tip), and this runRefSha256 appears as neither oldRunOpaqueRef nor newRunOpaqueRef in any of them; the run of record was never reached through, nor superseded by, a transition edge",
+      "replacementLedgerEntryForThisSlot": null,
+      "slotConsequence": {
+        "slotStatusBefore": "ACQUISITION_SUCCESSFUL",
+        "slotStatusAfter": "ACQUISITION_SUCCESSFUL",
+        "successCountIncremented": false,
+        "whatChanged": "the slot->runRefSha256 binding and a per-slot terminal adjudication now exist publicly; the terminal status itself did not change"
+      }
+    },
+    {
+      "generationId": "METHODOLOGY_V2_GEN1",
+      "selectionIndex": 2,
+      "split": "FINAL_HOLDOUT",
+      "occupantKind": "PRIMARY",
+      "reserveRankPosition": null,
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "dbb83ca045c57b48330f794e857665efa5973ba66a4cce419e60eb74b7dbf1dd",
+      "runRefSha256": "8817e22d9682c3dd071cc6659973ba634c024ffa1a04accfb4ad2a259ffb7566",
+      "acquisitionPolicyVersion": "orgunit-fetch-policy-v1",
+      "disposition": "ACQUISITION_SUCCESSFUL",
+      "finalSd9": "ACQUISITION_SUCCESSFUL",
+      "finalAdjudication": "ACQUISITION_SUCCESSFUL",
+      "ownerDecision": "ATTRIBUTE_BATCH01_SLOT2_ACQUISITION_OF_RECORD_AND_CONFIRM_ACQUISITION_SUCCESSFUL_V1",
+      "currentOccupant": "ORIGINAL_SELECTION",
+      "frozenIdentity": {
+        "source": "draw.selection[2] of the frozen DRAW_V2_GEN1, exact parsed entry",
+        "drawEntrySha256Method": "sha256(canonicalStringify(exact parsed draw entry)), canonicalStringify = src/orgunits/classify/canonical.ts",
+        "entryFieldsBound": [
+          "selectionIndex",
+          "echeRowKey",
+          "organisationId",
+          "rankHash",
+          "split",
+          "rootAuthorityCount",
+          "rootAuthorities"
+        ],
+        "rankHashEqualsSha256OfEcheRowKey": true,
+        "rootAuthorityCount": 1,
+        "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+        "rootIsExactlyOneWebsiteClaim": true,
+        "rootWebsiteClaimInDatabase": {
+          "rows": 1,
+          "echeRowKeyEqualsDrawEntry": true,
+          "organisationIdEqualsDrawEntry": true,
+          "structuralStatus": "STRUCTURALLY_VALID"
+        },
+        "rawIdentityPublishedHere": false
+      },
+      "attribution": {
+        "method": "RELATIONAL_PROVENANCE_FROM_FROZEN_SLOT_IDENTITY",
+        "candidateRunSource": "DISTINCT orgunit_fetch_observations.run_id WHERE eche_row_key, organisation_id and root_website_claim_id equal the frozen draw entry exactly AND root_promotion_id IS NULL",
+        "candidateRunsFromExactSlotIdentity": 1,
+        "distinctRunsTouchingThisEcheRowKeyUnderAnyRoot": 1,
+        "observationsForThisEcheRowKeyNotOnTheFrozenRoot": 0,
+        "observationsForThisOrganisationOrClaimUnderAnotherEcheRowKey": 0,
+        "uniqueRunSatisfyingEveryBatch01Condition": 1,
+        "forbiddenMethodsUsed": [],
+        "forbiddenMethodsNotUsed": [
+          "execution-array order",
+          "run creation order",
+          "database UUID sort order",
+          "observation-count matching alone",
+          "page-count matching alone",
+          "only-two-succeeded elimination",
+          "timestamps alone",
+          "institution name or domain matching",
+          "latest run",
+          "newest row"
+        ],
+        "countsAndTimesUsedOnlyAsCrossChecksAfterUniqueness": true,
+        "verdict": "UNIQUELY_ATTRIBUTED"
+      },
+      "runVerification": {
+        "dryRun": false,
+        "runFetchPolicyVersion": "orgunit-fetch-policy-v1",
+        "runRuleVersion": "orgunit-signal-rules-v1",
+        "completions": 1,
+        "runTerminalState": "COMPLETED",
+        "completionErrorKind": null,
+        "completionErrorSummaryNull": true,
+        "everyObservationV1": true,
+        "everyObservationOnTheFrozenRootForThisSlot": true,
+        "distinctEcheRowKeysInRun": 1,
+        "promotionRootObservations": 0,
+        "runUuidIsLowercaseCanonical": true,
+        "batch01Membership": {
+          "policyIsTheOriginalBatch01Policy": true,
+          "ruleVersionIsTheBatch01Rules": true,
+          "slotWasInsideTheBatch01ExecutedScope": true,
+          "noOtherRunOfAnyPolicyExistsForThisSlotIdentity": true,
+          "noTransitionEdgeOrReplacementEverProducedALaterRunForThisSlot": true,
+          "runCreatedInsideTheBatch01ExecutionWindow": true,
+          "runStartMatchesBatch01PerIndexStartedAtUtcToTheSecond": true,
+          "runFinishMatchesBatch01PerIndexFinishedAtUtcToTheSecond": true,
+          "timestampsAreCorroborationOnlyNotTheAttributionBasis": true
+        },
+        "verdict": "CLEAN"
+      },
+      "durableEvidenceCensus": {
+        "fetchObservations": 32,
+        "robotsRequests": 2,
+        "http2xxResponses": 31,
+        "erroredObservations": 0,
+        "distinctHosts": 2,
+        "maxAttemptNo": 1,
+        "redirectObservations": 1,
+        "rawPageEvidence": 28,
+        "pageEvidenceOnNon2xxOrNullDocumentHash": 0,
+        "candidateRowsByRunId": 56,
+        "candidateRowsViaThisRunsPages": 56,
+        "candidateRowsWhoseRunIdDiffersFromTheirPagesFetchRun": 0,
+        "candidateRowsEqualTwicePages": true,
+        "pageEvidencePersistenceConsistent": true,
+        "crossCheckAgainstBatch01ExecutionRecordPerSelectionIndex": {
+          "fetchObservations": [32, 32],
+          "pageEvidence": [28, 28],
+          "pageCandidates": [56, 56],
+          "redirectObservations": [1, 1],
+          "robotsRequests": [2, 2],
+          "hostsUsed": [2, 2],
+          "pairsAre": "[recomputed from the database now, published in the Batch-01 execution record]",
+          "allEqual": true
+        }
+      },
+      "formalSd7": {
+        "recomputedInThisStep": true,
+        "implementation": "landed analyseOrganisation (src/test/harness/phase2b2d/sd7/pilotAnalysis.ts), exact-duplicate pass first, then 5-gram token shingles, Jaccard >= 0.90 decided as intersection*10 >= union*9, within one organisation only; no new algorithm",
+        "rawPageCount": 28,
+        "exactDistinctDocuments": 28,
+        "exactDuplicateRowsRemoved": 0,
+        "exactDuplicateGroups": 0,
+        "divergentExactGroups": 0,
+        "measurableDocuments": 28,
+        "nearDuplicateEdges": 0,
+        "measurableSurvivorsMin": 28,
+        "measurableSurvivorsMax": 28,
+        "shortTextUnresolved": 0,
+        "nonTransitiveComponents": 0,
+        "unauditableComponents": 0,
+        "postSd7Min": 28,
+        "postSd7Max": 28,
+        "countIsExact": true,
+        "minimumAdmissiblePages": 4,
+        "wholeRangeAtOrAbove4": true,
+        "wholeRangeBelow4": false,
+        "rangeCrosses4": false,
+        "decidedByCase": "B",
+        "sd9DecisionIsOrderDependent": false,
+        "sd9DecisionIsShortTextDependent": false,
+        "sd9Status": "ACQUISITION_SUCCESSFUL",
+        "sealedDetail": null,
+        "sealedDetailNullReason": "no per-slot sealed SD7 detail file was ever written for Batch 01; the A3a pilot sealed one file PER SPLIT, not per slot. None is manufactured here.",
+        "historicalCorroboration": {
+          "source": "the A3a pilot sealed split-detail file for this slot's split (A3A_SD7_PILOT_DETAIL_V1.json in the FINAL_HOLDOUT sealed root)",
+          "fileSha256": "f00e322b696e8654e6e1ae0be3338217e4a6106e44fc682d42ab68848c4afa28",
+          "bytes": 14217,
+          "fileSha256EqualsThePilotExecutionRecordCommitment": true,
+          "recordsForThisSelectionIndexInsideIt": 1,
+          "recomputedSealedOrganisationRecordIsByteIdenticalToThePilotsRecordForThisSlot": true,
+          "everyPageIdThePilotSealedForThisSlotBelongsToTheAttributedRun": true,
+          "birthTimeEqualsModificationTime": false,
+          "birthTimeNote": "not relied on: the file is bound by its SHA-256, which equals the pilot execution record commitment",
+          "contentsDisplayedCopiedOrCommitted": false,
+          "createdOrOverwrittenInThisStep": false,
+          "usedAsTheAttributionBasis": false
+        }
+      },
+      "observationBinding": {
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_EXECUTION_RECORD_V1.json",
+          "sha256": "8a1b0f57f1c568e2ac04aced7ba453ad8d7b666f557fd622b3a5e6378309f9cc",
+          "commit": "a0ae27cc30f15537014fa8a4efaae9aa25da542a"
+        },
+        "mapping": "R17 liveResult = the observation record that was adjudicated. For Batch 01 that is the Batch-01 EXECUTION RECORD (the acquisition observation of this run). The A3a pilot execution record is the historical SD7 aggregate that first finalised this slot inside the 2/3 split; the per-slot SD7 figures above are recomputed here, not copied from it.",
+        "pilotSd7Aggregate": {
+          "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_EXECUTION_RECORD_V1.json",
+          "sha256": "3be65f6e491f46c00a855a06a24167d4fd1d74201942b0240b74dc6a0e4d9ee8",
+          "commit": "013a04d194d7171c8c7319a84987d9e23a618fea"
+        },
+        "noLiveWindowResultFileExistsOrIsInvented": true
+      },
+      "acquisitionPolicyTransitionLedger": null,
+      "acquisitionPolicyTransitionLedgerNullBasis": "slot 2 appears in no entry of transition ledger V2, V3, V4 or V6 (current tip), and this runRefSha256 appears as neither oldRunOpaqueRef nor newRunOpaqueRef in any of them; the run of record was never reached through, nor superseded by, a transition edge",
+      "replacementLedgerEntryForThisSlot": null,
+      "slotConsequence": {
+        "slotStatusBefore": "ACQUISITION_SUCCESSFUL",
+        "slotStatusAfter": "ACQUISITION_SUCCESSFUL",
+        "successCountIncremented": false,
+        "whatChanged": "the slot->runRefSha256 binding and a per-slot terminal adjudication now exist publicly; the terminal status itself did not change"
+      },
+      "holdout": {
+        "semanticHoldoutInspection": false,
+        "publicExposure": "acquisition-safe counts, ranges, booleans, run-reference hash, draw-entry hash and sealed split-file hash/bytes only",
+        "pageTextTitlesUrlsDocumentHashesLabelsClassDistributionOrIdentityExposed": false
+      }
+    }
+  ],
+  "historicalAggregateCrossCheck": {
+    "frozenHistory": "A3a pilot: sd9MechanicallyFinalisedSuccessCount 2, sd9MechanicallyFinalisedFailureCount 3, exactDuplicateRowsRemoved 2 in 1 group, nearDuplicateEdgeCount 0, shortTextUnresolvedPageCount 1",
+    "thisRecomputation": {
+      "slot0": "ACQUISITION_SUCCESSFUL, 2 exact-duplicate rows removed in 1 group, 0 near-duplicate edges, 1 short-text unresolved",
+      "slot2": "ACQUISITION_SUCCESSFUL, 0 exact-duplicate rows removed, 0 near-duplicate edges, 0 short-text unresolved",
+      "otherThreeBatch01Slots": "each drew 0 raw pages in Batch 01 (execution record), so case A: unsuccessful under every reading"
+    },
+    "successesConsistent": "2 per-slot successes (0 and 2) + 3 zero-page failures = the frozen 2/3",
+    "exactDuplicateAndShortTextTotalsConsistent": "slot 0 carries the whole Batch-01 exact-duplicate group (2 rows) and the one short-text document; slot 2 carries neither; the other three have no pages",
+    "aggregateUsedOnlyAsCrossCheckAfterIndependentRecomputation": true,
+    "contradiction": false
+  },
+  "shortTextFindings": {
+    "slot0": {
+      "shortTextUnresolved": 1,
+      "admissiblePostSd7Range": [28, 29],
+      "sd9MovesUnderAnyTreatment": false
+    },
+    "slot2": {
+      "shortTextUnresolved": 0,
+      "admissiblePostSd7Range": [28, 28],
+      "sd9MovesUnderAnyTreatment": false
+    },
+    "governingOwnerDecision": "SHORT_TEXT_AMBIGUITY_BLOCKS_ONLY_WHEN_IT_CAN_CHANGE_SD9 (docs/evaluation/PHASE_2B_2D_METHOD_V2_SD7_SHORT_TEXT_OWNER_DECISION_V1.json, sha256 2f41f495322eceae3b675cbe1d227115f3b4292d6e3a711879793af33b466fff)",
+    "scope": "ACQUISITION SD9 ONLY. Nothing here interprets, resolves or pre-empts later A3 SET_P / SET_R capped-membership exactness or the short-text membership policies bound on the A3 line; no SET_P or SET_R readiness was run."
+  },
+  "r17Compatibility": {
+    "targetType": "A2AdjudicatedAcquisitionFact (src/test/harness/phase2b2d/a3prep/slotAuthority.ts at a2e71b0)",
+    "fieldMapping": {
+      "factKind": "A2_TERMINAL_EVIDENCE_ADJUDICATION (constant supplied by the R19 family parser)",
+      "generationId": "items[].generationId",
+      "selectionIndex": "items[].selectionIndex",
+      "split": "items[].split",
+      "occupantKind": "items[].occupantKind (PRIMARY)",
+      "reserveRankPosition": "items[].reserveRankPosition (null)",
+      "drawEntrySha256": "items[].drawEntrySha256",
+      "disposition": "items[].disposition (ACQUISITION_SUCCESSFUL, a member of A2_TERMINAL_DISPOSITIONS)",
+      "adjudication": "this file: path, sha256 of its committed bytes, and the commit that introduced them (known only after commit; read from git by the parser, never self-declared)",
+      "liveResult": "items[].observationBinding.liveResult (the Batch-01 execution record)",
+      "runRefSha256": "items[].runRefSha256",
+      "acquisitionPolicyVersion": "items[].acquisitionPolicyVersion (orgunit-fetch-policy-v1)",
+      "acquisitionPolicyTransitionLedger": "items[].acquisitionPolicyTransitionLedger (null, with the mechanical basis recorded beside it)",
+      "sealedSd7Detail": "items[].formalSd7.sealedDetail (null: no per-slot sealed commitment exists)"
+    },
+    "noR19ComponentImplementedHere": true
+  },
+  "generation1State": {
+    "source": "docs/evaluation/PHASE_2B_2D_A2_POST_MIXED_WINDOW_CHAIN_REPLACEMENT_AND_PRIMARY_EVIDENCE_ADJUDICATION_V1.json (696c52333fe0e16b41eacd6b387cc5f692c2dde9)",
+    "ACQUISITION_SUCCESSFUL": 19,
+    "CURRENT_ACQUISITION_FAILURE": 1,
+    "PENDING_CAPABILITY_REVIEW": 0,
+    "NEVER_STARTED": 90,
+    "totalSelectionSlots": 110,
+    "changedByThisRecord": false,
+    "slots0And2WereAlreadyCountedSuccessful": true,
+    "successCountIncremented": false,
+    "reservePosition7": "UNASSIGNED; untouched by this record"
+  },
+  "temporalTruth": {
+    "olderRecordsRemainImmutable": [
+      "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_EXECUTION_RECORD_V1.json",
+      "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_EXECUTION_RECORD_V1.json",
+      "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_AUTHORITY_RECORD_V1.json",
+      "docs/evaluation/PHASE_2B_2D_METHOD_V2_A3A_SD7_PILOT_AUTHORITY_RECORD_V1.json",
+      "docs/evaluation/PHASE_2B_2D_METHOD_V2_SD7_SHORT_TEXT_OWNER_DECISION_V1.json"
+    ],
+    "olderRecordsWereCorrectForWhatTheyRecorded": true,
+    "thisRecordSuppliesInformationTheyOmitted": true,
+    "claimsTheHistoricalFilesContainedPerSlotAttribution": false,
+    "previousGeneration1SummariesEdited": false,
+    "historicalFileEditedInThisStep": 0
+  },
+  "privacy": {
+    "publishedIdentity": "selection indices, splits, draw-entry digests, run-reference digests, counts, ranges and booleans only",
+    "rawRunUuids": false,
+    "echeRowKeysOrganisationIdsOrClaimIds": false,
+    "institutionNamesUrlsDomainsHosts": false,
+    "pageTextTitlesOrDocumentHashes": false,
+    "sealedFileContents": false
+  },
+  "sideEffects": {
+    "databaseWrites": 0,
+    "institutionNetworkRequests": 0,
+    "dnsLookupsOfInstitutions": 0,
+    "providerOrModelCalls": 0,
+    "sealedFilesCreatedOrModified": 0,
+    "ledgersModified": 0,
+    "reserveAssignments": 0,
+    "productionOrHarnessCodeChanged": 0
+  },
+  "remainingBlocker": "A2_TO_A3_GOVERNANCE_INTEGRATION_STRATEGY_OWNER_DECISION_REQUIRED",
+  "terminalState": "PHASE_2B_2D_A2_BATCH01_ATTRIBUTION_REPAIR_COMPLETE_AWAITING_A2_A3_INTEGRATION_DECISION",
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256."
+  }
+}

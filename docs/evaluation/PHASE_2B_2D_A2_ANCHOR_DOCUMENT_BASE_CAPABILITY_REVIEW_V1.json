@@ -1,0 +1,350 @@
+{
+  "recordId": "phase2b-2d-a2-anchor-document-base-capability-review-v1",
+  "recordKind": "ZERO_NETWORK_ACQUISITION_CAPABILITY_REVIEW",
+  "records": "PHASE_2B_2D_A2_ANCHOR_DOCUMENT_BASE_CAPABILITY_REVIEW_V1",
+  "recordedAtUtc": "2026-09-21T16:57:54Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "ownerDecision": "AUTHORISE_PHASE_2B_2D_A2_PRIMARY_10_14_WINDOW_EVIDENCE_ADJUDICATION_AND_P12_CAPABILITY_REVIEW_V1",
+  "startingHead": "575b706d1c33f7b62eb3ac5000780581bc901dbe",
+  "productionCodeChanged": false,
+  "testCodeChanged": false,
+  "boundSource": {
+    "atCommit": "575b706d1c33f7b62eb3ac5000780581bc901dbe",
+    "files": [
+      {
+        "path": "src/orgunits/orchestrator/anchors.ts",
+        "sha256": "a674e7cfb88ddd12ccd0a16adc1abfa6e59c2f9bedded5c3b684ba3ca9065fa9",
+        "lastChangedIn": "36d8bd5"
+      },
+      {
+        "path": "src/orgunits/orchestrator/rootRunner.ts",
+        "sha256": "ed845292cc654c68cab29f8c34dbbd449d8f5b6344a5bcf9d910fb05c84062d7",
+        "lastChangedIn": "d9c32af"
+      },
+      {
+        "path": "src/orgunits/web/policy.ts",
+        "sha256": "95fdc43b5c4d2353a6d368e02f14d8b284619c487ffae286131931b9df0c1e6a",
+        "lastChangedIn": "d9c32af",
+        "fetchPolicyVersion": "orgunit-fetch-policy-v4"
+      },
+      {
+        "path": "src/test/unit/orgunitOrchestratorAnchors.test.ts",
+        "sha256": "1ae366a6b4daf6bb7959f7d07276f1c8cee22591e1a6389c0eabc333e17034ad",
+        "lastChangedIn": "36d8bd5"
+      }
+    ]
+  },
+  "currentResolutionSemantics": {
+    "flow": [
+      "rootRunner.ingestFetchedPage: deriveEligiblePage(fetch) -> decodedHtml (charset-decoded body, in memory only)",
+      "extractDiscoveryAnchors(decodedHtml): stripNonContent first, then the <a ... href> regex; returns { hrefRaw, text } per anchor and NOTHING about the document",
+      "resolveAnchorHref(fetch.requestedUrl, anchor.hrefRaw): new URL(hrefRaw, pageUrl), fragment cleared",
+      "admissibleUrl(resolved) -> frontier.add(resolved, LINK, fetch.requestedUrl, text)"
+    ],
+    "documentBaseExtracted": false,
+    "documentBaseReturnedByAnchorExtractor": false,
+    "resolutionBase": "the fetched document URL (fetch.requestedUrl), always",
+    "hrefCharacterReferencesDecoded": false,
+    "otherResolutionPathsForLinkDiscovery": 0,
+    "otherNewUrlCallsInRootRunner": {
+      "hostnameParsing": "lines 295, 325, 494, 539, 582 parse an already-absolute URL for its hostname; none resolves an href",
+      "sitemapDirective": "resolveSitemapDirective resolves a site-policy Sitemap: value against the root policy-file URL; not HTML"
+    }
+  },
+  "repositorySearch": {
+    "method": "git grep -i over src, scripts, migrations and docs for \"<base\", \"base href\", \"base_href\", \"document base\", \"baseURI\"; plus every importer of extractDiscoveryAnchors / resolveAnchorHref",
+    "productionHits": 0,
+    "onlyHits": "the string \"git diff <base> --\" inside test-file comments (a git revision placeholder, not HTML)",
+    "anchorExtractorImporters": [
+      "src/orgunits/orchestrator/rootRunner.ts",
+      "src/test/unit/orgunitOrchestratorAnchors.test.ts"
+    ],
+    "alternativeAnchorParser": false,
+    "layerApplyingBaseBeforeFrontierAdmission": false
+  },
+  "baseHrefSupportFinding": "BASE_HREF_NOT_SUPPORTED",
+  "syntheticProof": {
+    "method": "scratch-only tsx script outside git that imports the LANDED extractDiscoveryAnchors + resolveAnchorHref and compares them with a reference implementation of the HTML document base URL (first <base> element with an href attribute, resolved against the document URL; parse failure -> document URL). No production or test file was changed; no network.",
+    "documentUrl": "https://example.edu/root/page",
+    "cases": [
+      {
+        "case": "relative href, base with trailing slash",
+        "base": "https://example.edu/subdir/",
+        "href": "child",
+        "current": "https://example.edu/root/child",
+        "documentSemantics": "https://example.edu/subdir/child",
+        "mismatch": true
+      },
+      {
+        "case": "absolute href",
+        "base": "https://example.edu/subdir/",
+        "href": "https://example.edu/abs/x",
+        "current": "https://example.edu/abs/x",
+        "documentSemantics": "https://example.edu/abs/x",
+        "mismatch": false
+      },
+      {
+        "case": "root-relative href",
+        "base": "https://example.edu/subdir/",
+        "href": "/rootrel",
+        "current": "https://example.edu/rootrel",
+        "documentSemantics": "https://example.edu/rootrel",
+        "mismatch": false
+      },
+      {
+        "case": "../ href",
+        "base": "https://example.edu/a/b/",
+        "href": "../up",
+        "current": "https://example.edu/up",
+        "documentSemantics": "https://example.edu/a/up",
+        "mismatch": true
+      },
+      {
+        "case": "relative href, base WITHOUT trailing slash",
+        "base": "https://example.edu/subdir",
+        "href": "child",
+        "current": "https://example.edu/root/child",
+        "documentSemantics": "https://example.edu/child",
+        "mismatch": true
+      },
+      {
+        "case": "relative href, base itself path-relative",
+        "base": "/fr/",
+        "href": "child",
+        "current": "https://example.edu/root/child",
+        "documentSemantics": "https://example.edu/fr/child",
+        "mismatch": true
+      },
+      {
+        "case": "query-only href",
+        "base": "https://example.edu/subdir/",
+        "href": "?page=2",
+        "current": "https://example.edu/root/page?page=2",
+        "documentSemantics": "https://example.edu/subdir/?page=2",
+        "mismatch": true
+      },
+      {
+        "case": "fragment still stripped",
+        "base": "https://example.edu/subdir/",
+        "href": "child#top",
+        "current": "https://example.edu/root/child",
+        "documentSemantics": "https://example.edu/subdir/child",
+        "mismatch": true
+      },
+      {
+        "case": "invalid base href",
+        "base": "http://[bad",
+        "href": "child",
+        "current": "https://example.edu/root/child",
+        "documentSemantics": "https://example.edu/root/child",
+        "mismatch": false
+      },
+      {
+        "case": "two base elements: the first wins",
+        "base": "/one/ then /two/",
+        "href": "child",
+        "current": "https://example.edu/root/child",
+        "documentSemantics": "https://example.edu/one/child",
+        "mismatch": true
+      },
+      {
+        "case": "no base element",
+        "base": null,
+        "href": "child",
+        "current": "https://example.edu/root/child",
+        "documentSemantics": "https://example.edu/root/child",
+        "mismatch": false
+      },
+      {
+        "case": "document at the ORIGIN ROOT, base /fr/ (the P:12 document-URL shape)",
+        "documentUrl": "https://example.edu/",
+        "base": "/fr/",
+        "href": "child/",
+        "current": "https://example.edu/child/",
+        "documentSemantics": "https://example.edu/fr/child/",
+        "mismatch": true
+      }
+    ],
+    "referenceHarnessCaveat": "a naive reference regex also reads a <base> inside an HTML comment; the production extractor strips comments first, so a repair must extract the base AFTER stripNonContent. Recorded as a design requirement, not as a mismatch.",
+    "conclusion": "GENERIC_CAPABILITY_GAP_PROVEN: whenever a document carries a <base href> whose resolved value differs from the document URL, every path-relative, ../ and query-only href is resolved to a URL a browser would never request; absolute and root-relative same-origin hrefs are unaffected.",
+    "provesP12ContainedABase": false
+  },
+  "p12StructuralEvidence": {
+    "source": "read-only SELECTs over orgunit_fetch_observations / orgunit_page_evidence for run SHA-256 fdc6f64fbdd9b66a93007e28b001675063a59b67f5eb02d38dda7c181d1b10aa; no URL, host or identity is recorded here",
+    "documentUrlShape": {
+      "pathIsOriginRoot": true,
+      "query": false,
+      "redirectBeforeRoot": false,
+      "rootHttpStatus": 200,
+      "rootContentType": "text/html",
+      "rootDecodedBytes": 164895,
+      "rootTruncated": false,
+      "rootPageEvidenceRows": 1,
+      "declaredLang": "fr-FR",
+      "extractionMethod": "MAIN_ELEMENT"
+    },
+    "linkAttempts": {
+      "count": 34,
+      "discoveryMethod": "LINK",
+      "distinctDiscoveryParents": 1,
+      "parentIsTheRootDocument": true,
+      "sameHostAsRoot": 34,
+      "httpStatus": {
+        "404": 34
+      },
+      "redirects": 0,
+      "transportErrors": 0,
+      "pathDepth": {
+        "originRootPathWithQuery": 1,
+        "singleSegment": 33
+      },
+      "singleSegmentDistinctFirstSegments": 30,
+      "pairsDifferingOnlyByTrailingSlash": 3,
+      "trailingSlash": 30,
+      "lowerCaseHyphenSlugSegments": 33,
+      "segmentsWithDigits": 0,
+      "percentEncoded": 0,
+      "uppercase": 0,
+      "fileExtensions": 0,
+      "twoLetterSegments": 0,
+      "containsAmpersandOrEntityArtifact": 0,
+      "whitespace": 0
+    },
+    "responseBodyShapes": {
+      "note": "bodies are not stored; only the decoded-byte SHA-256 and length on each observation",
+      "genericServer404": {
+        "bytes": 837,
+        "linkAttempts": 33,
+        "alsoReturnedFor": ["the site-policy file request", "the conventional sitemap request"],
+        "distinctHashes": 1,
+        "trailingSlash": 29
+      },
+      "applicationRendered404": {
+        "bytes": 125084,
+        "linkAttempts": 1,
+        "shape": "the origin-root path with one query parameter (7-character key)"
+      },
+      "identicalToRootDocument": 0
+    },
+    "mechanicalReading": [
+      "Because the document URL is the origin root \"/\", a path-relative href \"x/\", a root-relative href \"/x/\", a same-origin absolute href and even \"../x/\" all resolve to the SAME URL under the current code. The persisted request URLs therefore carry ZERO information about which href form the page used; they cannot confirm or exclude a base element.",
+      "The 33 single-segment 404s are byte-identical to the 404 the server returns for the site-policy file and the sitemap path: they were answered by a layer that never routed them to the application that rendered the root page. The one origin-root-path request WAS routed to the application (a 125,084-byte rendered 404). So the application is reachable at \"/\", and none of the 33 slug paths exists at the root of this origin.",
+      "The root document was served 200 to the same client, IP family and headers, so a blanket client block does not explain the pattern.",
+      "Either the root page publishes 34 links a browser would also fail on, or the crawler constructed paths a browser would not. Within HTML semantics, and with no redirect before the root, a <base href> is the only mechanism by which a browser resolves a relative href differently from new URL(href, documentUrl).",
+      "No successful or non-404 link-discovered page exists in this run, so nothing disproves a systematic resolution issue; equally, nothing proves one."
+    ],
+    "hrefFormDeterminableFromPersistedEvidence": false
+  },
+  "durableBodySearch": {
+    "database": "no column in any migration can hold a response body (rule 17); orgunit_page_evidence holds tag-stripped, redacted main_text + headings + title only, which cannot carry a <base> element or any attribute",
+    "sealedRoots": "the window SD7 detail files (dev-train 1653 bytes, dev-confirm 1061, holdout 15101) hold counts and hashes only",
+    "priorSessionScratchpad": "the Window-V2 operator scratchpad holds CLI run summaries (run-P_12.json 1416 bytes, five top-level keys, no string > 2000 chars), postflight JSON and power logs; zero matches for \"<base\", \"<html\" or \"<a \"",
+    "searchedFor": "any local file of exactly 164895 bytes, any file containing the root decoded-body SHA-256 prefix, any *P_12* artifact, under the sealed roots and /private/tmp/claude-501",
+    "hits": 0,
+    "retainedBodyFound": false,
+    "result": "P12_BASE_ELEMENT_PRESENCE_NOT_OBSERVABLE_FROM_PERSISTED_EVIDENCE",
+    "networkRecoveryAttempted": false
+  },
+  "historicalPatternSearch": {
+    "scope": "every run in the working database (23 runs, all policy versions v1-v4); the 2026-08 shadow-validation and earlier cohort runs are no longer in nwf_pe and could not be searched",
+    "signature": "root document read 2xx (directly or via a same-domain redirect), >= 10 LINK attempts, >= 50% of them 404, zero transport errors, page evidence < 4",
+    "runsMatchingSignature": 1,
+    "matchingRuns": ["S:12 (run SHA-256 fdc6f64f...)"],
+    "similarPatternCountExcludingP12": 0,
+    "highestLink404FractionOutsideP12": {
+      "slot": "S:0 (v1)",
+      "link404": 2,
+      "linkAttempts": 20,
+      "fraction": 0.1
+    },
+    "runsWithAnyLinkAttempts": 12,
+    "runsWithAtLeast10LinkAttempts": 7,
+    "reading": "P:12 is the only run in durable evidence with this fanout. This neither confirms nor refutes a base element; it says the class, if it is one, is rare in the observed sample (1 of 12 runs that attempted any link; 1 of 7 with at least 10 link attempts)."
+  },
+  "causality": {
+    "genericDefectReal": true,
+    "p12StructurallyCompatible": true,
+    "p12CausationProvenFromPersistedEvidence": false,
+    "p12CausationExcludedFromPersistedEvidence": false,
+    "outcome": "P12_CAPABILITY_CAUSALITY_UNRESOLVED",
+    "whyNotA": "the gap is real and P:12 is structurally compatible with it; the 404 body shapes show the requested slug paths do not exist on the origin, which makes a resolution error plausible rather than irrelevant",
+    "whyNotB": "presence of a <base> element in the P:12 root document is not observable from any persisted evidence, and the persisted URLs are uninformative about href form because the document URL is the origin root"
+  },
+  "proposedMinimalRepairDesignNotImplemented": {
+    "status": "DESIGN_ONLY_NOT_IMPLEMENTED_NOT_FROZEN",
+    "boundary": [
+      "anchors.ts gains one PURE export, e.g. extractDocumentBaseHref(decodedHtml): string | null, run over stripNonContent(html) (so a base inside a comment, script, style, template, noscript, svg or iframe is ignored, exactly like anchors)",
+      "rootRunner.ingestFetchedPage computes the document base once per page: base = resolve(firstBaseHref, fetch.requestedUrl), falling back to fetch.requestedUrl when there is no base element or it does not parse; each anchor then resolves against that base",
+      "resolveAnchorHref keeps its signature (its first argument becomes the document base); the fragment is still cleared",
+      "admissibleUrl, the host policy, the frontier, discovery_parent_url (still the page URL), the budgets and the request order logic are untouched; a base on another registrable domain only produces off-scope URLs, which the existing scope gate refuses before any request"
+    ],
+    "htmlSemantics": "HTML uses the FIRST <base> element that HAS an href attribute; if that value fails to parse, the base falls back to the document URL - it does NOT fall through to a later <base>. The owner brief says \"first valid <base href>\"; a repair should follow the spec reading, and the owner should confirm which is intended.",
+    "preserved": [
+      "the one institutional web gateway (gateway.ts) and robots.ts as its one caller",
+      "no browser, DOM or network primitive; regex over already-decoded text, as ADR 0006 requires",
+      "no page text or base value persisted",
+      "no retry and no adaptive behaviour",
+      "no new request budget: 35 page / 60 total / 8 hosts unchanged"
+    ],
+    "separateObservationOutOfScope": "hrefRaw is not HTML-character-reference-decoded (e.g. &amp; in a query stays literal). It does not affect P:12 (0 of 34 URLs contain & or an entity artifact) and is not part of the minimal repair; recorded so the owner can decide separately.",
+    "testsARepairWouldNeed": [
+      "every synthetic case above as a unit test",
+      "base after stripNonContent",
+      "first-base-with-href rule and invalid-base fallback",
+      "cross-registrable-domain base refused by the existing scope gate",
+      "a rootRunner integration test over a scripted transport proving the frontier receives base-resolved URLs and the budgets are unchanged"
+    ]
+  },
+  "fetchPolicyVersionImpact": {
+    "bumpRequired": true,
+    "expectedVersion": "orgunit-fetch-policy-v5",
+    "reason": "the repair changes which URLs the crawler requests from byte-identical HTML. Runs and observations carry exactly two version stamps (fetch_policy_version, rule_version); rule_version is the signal ruleset, so fetch_policy_version is the only durable provenance that can separate pre- and post-repair acquisition. A new discovery-semantics column would need a migration, which is excluded.",
+    "precedentNote": "the 2026-08-27 anchor-hygiene fix (36d8bd5) changed anchor discovery WITHOUT a bump (v1 stayed). That was before any corpus evidence existed; the corpus now depends on per-run provenance, so that precedent should not be followed.",
+    "consequences": [
+      "a v4 run can still be read but not resumed under v5, as for every earlier bump",
+      "a V5 acquisition-policy transition ledger and compatibility census would be needed; the census CANNOT be computed from persisted evidence for successful runs because no body is stored, so their v5 effect is NOT_DETERMINABLE and they stay accepted under their own recorded version"
+    ],
+    "implementedOrFrozenHere": false
+  },
+  "targetedRevalidationScopeCandidates": {
+    "TARGETED_REVALIDATION_SCOPE_CANDIDATES": [
+      "S:12 (run SHA-256 fdc6f64fbdd9b66a93007e28b001675063a59b67f5eb02d38dda7c181d1b10aa)"
+    ],
+    "currentlyFailedAcquisitionsWithSameSignature": 0,
+    "excluded": [
+      {
+        "slot": "S:10",
+        "reason": "TLS_CERT_INVALID on the site-policy request; zero HTML was fetched, so document-base resolution cannot have mattered"
+      },
+      {
+        "slots": "every accepted success",
+        "reason": "already ACQUISITION_SUCCESSFUL; not broadened automatically"
+      }
+    ],
+    "broadenedAutomatically": false
+  },
+  "scopeProofs": {
+    "institutionDnsHttpTls": 0,
+    "databaseWrites": 0,
+    "databaseSession": "owner role inside BEGIN TRANSACTION READ ONLY (transaction_read_only = on, confirmed), SELECT only, always rolled back",
+    "migrationCreated": false,
+    "productionCodeChanged": false,
+    "testCodeChanged": false,
+    "fetchPolicyChanged": false,
+    "semanticHoldoutAccess": 0
+  },
+  "identityDisclosure": {
+    "institutionNames": 0,
+    "organisationUuids": 0,
+    "echeRowKeys": 0,
+    "hostnames": 0,
+    "institutionUrls": 0,
+    "pageTitlesOrText": 0,
+    "syntheticExampleDomainOnly": "example.edu",
+    "publicLinkageIsOnly": ["workItemId", "selectionIndex", "SHA-256(run UUID)"]
+  }
+}

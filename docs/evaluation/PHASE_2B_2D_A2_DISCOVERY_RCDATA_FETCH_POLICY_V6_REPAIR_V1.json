@@ -1,0 +1,214 @@
+{
+  "recordId": "phase2b-2d-a2-discovery-rcdata-fetch-policy-v6-repair-v1",
+  "recordKind": "OFFLINE_ACQUISITION_CAPABILITY_REPAIR_POLICY_DECISION",
+  "records": "PHASE_2B_2D_A2_DISCOVERY_RCDATA_FETCH_POLICY_V6_REPAIR_V1",
+  "recordedAtUtc": "2026-09-21T18:47:41Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "ownerDecisions": [
+    "ACCEPT_FETCH_POLICY_V5_OFFLINE_VALIDATION_DEVIATION_V1",
+    "AUTHORISE_A2_DISCOVERY_RCDATA_MARKUP_HYGIENE_REPAIR_IMPLEMENTATION_V1",
+    "APPROVE_FETCH_POLICY_V6_FOR_RCDATA_DISCOVERY_HYGIENE_V1",
+    "PRESERVE_HREF_CHARACTER_REFERENCE_DECODING_AS_SEPARATE_DEFERRED_CAPABILITY_V1"
+  ],
+  "ownerDecisionScope": {
+    "authorised": [
+      "discovery/base parsing fix so literal markup inside <title> and <textarea> cannot be read as live <a> or <base> elements",
+      "introduction of orgunit-fetch-policy-v6 for exactly that behavioural change",
+      "focused synthetic, unit, integration and firewall tests",
+      "append-only governance and implementation records",
+      "one final validation after implementation",
+      "commit and push"
+    ],
+    "notAuthorised": [
+      "institution DNS / HTTP / TLS",
+      "P:12 revalidation",
+      "P:13 / P:14",
+      "P:10 / P:11 reruns",
+      "reserve assignment",
+      "replacement-ledger mutation",
+      "database migration",
+      "classifier or provider execution",
+      "labels",
+      "SET_P / SET_R",
+      "semantic HOLDOUT access",
+      "A3",
+      "Phase 2E",
+      "merging this branch"
+    ]
+  },
+  "startingHead": "05645a619e63ae478a58176a92a78ef45826b292",
+  "v5ValidationDeviationAdjudication": {
+    "decision": "ACCEPT_FETCH_POLICY_V5_OFFLINE_VALIDATION_DEVIATION_V1",
+    "classification": "OFFLINE_VALIDATION_EXPECTATION_DRIFT_CORRECTED_NO_LIVE_EVIDENCE_IMPACT",
+    "historicalRuns": [
+      {
+        "run": 1,
+        "exit": 1,
+        "cause": "8 integration assertions still pinned the current row stamp to the v4 literal"
+      },
+      {
+        "run": 2,
+        "exit": 0,
+        "result": "190 files passed, 5 skipped; 4873 tests passed, 75 skipped, 0 failed"
+      }
+    ],
+    "reasons": [
+      "institution network = 0",
+      "working acquisition DB writes = 0",
+      "no v5 working-DB runs existed",
+      "the first failure exposed stale test expectations, not production behaviour",
+      "the fix was within the already-authorised v5 version migration",
+      "the second full gate was green",
+      "both runs are already durably recorded"
+    ],
+    "v5ValidationRerun": false,
+    "historicalTruth": "two runs; not rewritten into a one-run history"
+  },
+  "bound": {
+    "v5Implementation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_ANCHOR_DOCUMENT_BASE_V5_IMPLEMENTATION_V1.json",
+      "sha256": "70354106d166a4f4e194031b52b25b0b59f5cbb66d2fdaf0e2a63494ae7ce0c4",
+      "bytes": 10395,
+      "commit": "05645a619e63ae478a58176a92a78ef45826b292"
+    },
+    "v5PolicyDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_ANCHOR_DOCUMENT_BASE_FETCH_POLICY_V5_REPAIR_V1.json",
+      "sha256": "2623e82feb8b21a171340a5399b82c6a174a48bd3b4005843d84c6083ad41467",
+      "bytes": 9176,
+      "commit": "158072409dd3cc3c781fb63a653b16d64dec448f"
+    },
+    "capabilityReview": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_ANCHOR_DOCUMENT_BASE_CAPABILITY_REVIEW_V1.json",
+      "sha256": "eac03dc122d3e7b8a575e82f1a9509145aec2ac3b00eca3d86ca5b1e3a1e5066",
+      "bytes": 18903,
+      "commit": "69dff793439a8d20d29894100c4b73e064206308"
+    },
+    "windowV2Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_PRIMARY_10_14_LIVE_WINDOW_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "9503dec328acaae530dd2574b0a7f14c7b2ed67e3f5fa1fdbce0f41830c0e563",
+      "bytes": 18185
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "6bc21424d191c7f33f00f0018672d2ce45c696c44202f4cb819b4e99cdf556f0",
+      "entries": 4
+    }
+  },
+  "v5SourceBeforeRepair": {
+    "historicalTerminalCommit": "05645a619e63ae478a58176a92a78ef45826b292",
+    "v5ImplementationCommit": "40477099896856005d3d131bcaeac4d443424ec4",
+    "fetchPolicyVersion": "orgunit-fetch-policy-v5",
+    "files": [
+      {
+        "path": "src/orgunits/web/extract.ts",
+        "sha256": "33e3763f1bee6f1243f9f9d8af54f08b886241097a08cb4db7df8347bb4b9a43",
+        "bytes": 13558,
+        "lastChangedIn": "3b677dd"
+      },
+      {
+        "path": "src/orgunits/orchestrator/anchors.ts",
+        "sha256": "548a8f63e1ae211258a9143145dd79face8c3a602b2c0d4613d35e6a34681828",
+        "bytes": 12714,
+        "lastChangedIn": "4047709"
+      },
+      {
+        "path": "src/orgunits/web/policy.ts",
+        "sha256": "03012e9123966db9ea44ff05fc7ba6239054887fecd537e88543254b7cf15c2a",
+        "bytes": 19002,
+        "lastChangedIn": "4047709"
+      },
+      {
+        "path": "src/orgunits/orchestrator/rootRunner.ts",
+        "sha256": "2c09c2fe5d462f49485e7f8cb18947182ee053f407e636879273cd8271db1ac4",
+        "bytes": 32201,
+        "lastChangedIn": "4047709",
+        "expectedToChange": false
+      }
+    ]
+  },
+  "confirmedDefect": {
+    "classification": "CONFIRMED_DISCOVERY_RCDATA_MARKUP_HYGIENE_DEFECT",
+    "mechanism": "stripNonContent (extract.ts) removes comments and script/style/noscript/svg/template/iframe elements but not title or textarea; extractDiscoveryAnchors and extractDocumentBaseHref (anchors.ts) both scan stripNonContent(html) with regular expressions, so markup-shaped TEXT inside <title> or <textarea> is read as live <a> / <base> elements",
+    "htmlSemantics": "title and textarea are RCDATA elements: their content is text, and a '<base ...>' or '<a ...>' inside them never becomes an element",
+    "reproducedOfflineAtV5": {
+      "extractDocumentBaseHref('<title><base href=\"/fake/\"></title><a href=\"child\">c</a>')": "/fake/",
+      "extractDocumentBaseHref('<textarea><base href=\"/fake/\"></textarea><base href=\"/real/\">')": "/fake/",
+      "extractDiscoveryAnchors('<title><a href=\"/fake\">t</a></title>')": "one anchor /fake",
+      "extractDiscoveryAnchors('<textarea><a href=\"/fake\">t</a></textarea>')": "one anchor /fake"
+    },
+    "anchorSideDefectPredatesV5": true,
+    "baseSideDefectIntroducedWithV5": true,
+    "recordedAsKnownLimitationIn": "PHASE_2B_2D_A2_ANCHOR_DOCUMENT_BASE_V5_IMPLEMENTATION_V1.json semanticsImplemented.knownSharedLimitation"
+  },
+  "whyBeforeFirstLiveV5Use": {
+    "reason": "v5 makes the first href-bearing <base> authoritative for resolving EVERY relative link on a page, so one false base captured from title/textarea text would redirect a whole page's relative discovery in one run",
+    "v5WorkingCorpusExecutions": 0,
+    "ownerDecision": "fix before the first live document-base revalidation"
+  },
+  "fetchPolicyVersion": {
+    "before": "orgunit-fetch-policy-v5",
+    "after": "orgunit-fetch-policy-v6",
+    "declaredIn": "src/orgunits/web/policy.ts",
+    "whyANewVersion": "from byte-identical HTML v6 can produce a different frontier than v5 wherever title/textarea carries markup-shaped text; mutating v5 behaviour under an unchanged v5 stamp would make fetch_policy_version a label rather than a fact",
+    "migration": false,
+    "historicalRowsReinterpreted": false,
+    "workingDbRunsAtDecision": { "v1": 7, "v2": 2, "v3": 3, "v4": 11, "v5": 0, "v6": 0 }
+  },
+  "approvedV6Delta": {
+    "only": "markup-shaped text inside <title> or <textarea> cannot contribute discovery anchors or a document <base>",
+    "architecture": "one pure discovery-specific helper in extract.ts that composes the existing stripNonContent and additionally removes complete title and textarea elements; both extractDiscoveryAnchors and extractDocumentBaseHref use it; no second independent pipeline in anchors.ts",
+    "extractPageUnchanged": "extractPage keeps stripNonContent and its own title handling; REMOVABLE_TAGS is not widened",
+    "rcdataScope": ["title", "textarea"],
+    "alreadyStrippedUnchanged": [
+      "comments",
+      "script",
+      "style",
+      "noscript",
+      "svg",
+      "template",
+      "iframe"
+    ],
+    "unchanged": [
+      "FIRST_BASE_ELEMENT_WITH_HREF_ATTRIBUTE_IN_TREE_ORDER after RCDATA filtering",
+      "target-only base skipped; later bases ignored; unusable first href -> document URL, no search for a later base",
+      "resolveDocumentBase",
+      "resolveAnchorHref",
+      "fragment stripping",
+      "admissibleUrl",
+      "gateway, SSRF, host scope, scheme, credential and port rules",
+      "robots, redirects, retry policy",
+      "host / page / total budgets",
+      "circuit breaker"
+    ],
+    "rootRunnerChangeExpected": false,
+    "newRequests": 0
+  },
+  "knownOpenCapabilities": {
+    "ANCHOR_HREF_CHARACTER_REFERENCE_DECODING": "DEFERRED (DEFER_ANCHOR_HREF_CHARACTER_REFERENCE_DECODING_AS_SEPARATE_CAPABILITY_V1, preserved by PRESERVE_HREF_CHARACTER_REFERENCE_DECODING_AS_SEPARATE_DEFERRED_CAPABILITY_V1)",
+    "BASE_HREF_CHARACTER_REFERENCE_DECODING": "DEFERRED, same decisions",
+    "absorbedByThisRepair": false
+  },
+  "p12": {
+    "status": "ACQUISITION_STATUS_PENDING_CAPABILITY_REVIEW",
+    "thisRepairIs": "PREVENTIVE",
+    "claimsP12HadTitleOrTextareaMarkup": false,
+    "claimsP12HadARealBase": false
+  },
+  "generationState": {
+    "successfulSelectionIndices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11],
+    "failureSelectionIndices": [10],
+    "pendingCapabilityReviewSelectionIndices": [12],
+    "pendingReplacementObligations": [10],
+    "neverStarted": { "from": 13, "to": 109 },
+    "replacementLedgerEntries": 4,
+    "reserveConsumed": 4,
+    "reserve4Assigned": false,
+    "p6": false,
+    "changedByThisTask": false
+  },
+  "liveAuthority": "NONE"
+}
