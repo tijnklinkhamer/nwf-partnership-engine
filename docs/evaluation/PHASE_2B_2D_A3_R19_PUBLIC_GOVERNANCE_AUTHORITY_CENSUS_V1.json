@@ -1,0 +1,101 @@
+{
+  "record": "PHASE_2B_2D_A3_R19_PUBLIC_GOVERNANCE_AUTHORITY_CENSUS_V1",
+  "recordKind": "PUBLIC_GOVERNANCE_ONLY_AUTHORITY_CENSUS",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "registryVersion": "CANONICAL_A2_GOVERNANCE_REGISTRY_V1",
+  "governanceBaseCommit": "907d726268ad07fe94fec93f4c6f3ff5ce5f93f9",
+  "thisFileAuthorises": [],
+  "derivation": {
+    "derivedNotAsserted": true,
+    "publicGovernanceOnly": true,
+    "workingDatabaseReads": 0,
+    "sealedRootReads": 0,
+    "institutionNetworkRequests": 0,
+    "registryEntryCount": 26,
+    "registryBindingsVerified": 26,
+    "transitionLedgerVersionsValidated": 4,
+    "normalisedTransitionEdgeCount": 7,
+    "scopedSupersessionChainCount": 7,
+    "replacementLedgerEntriesAudited": 8,
+    "currentTerminalFactCount": 24,
+    "currentPendingEvidenceFactCount": 0,
+    "currentFactsWithTransitionBindingCount": 3,
+    "supersededTerminalItemsExcluded": 0
+  },
+  "slotAuthoritySummary": {
+    "kind": "A3_GENERATION_SLOT_AUTHORITY_SUMMARY",
+    "generationId": "METHODOLOGY_V2_GEN1",
+    "totalSlotCount": 110,
+    "slotCountBySplit": {
+      "DEV_TRAIN": 20,
+      "DEV_CONFIRM": 45,
+      "FINAL_HOLDOUT": 45
+    },
+    "readySlotCount": 23,
+    "notReadySlotCount": 87,
+    "unsuccessfulCurrentOccupantCount": 1,
+    "pendingAdjudicationCount": 0,
+    "noTerminalEvidenceCount": 86,
+    "openReplacementObligationCount": 1,
+    "reserveExhaustedObligationCount": 0,
+    "replacementOccupantCount": 7,
+    "primaryOccupantCount": 103,
+    "reserveConsumedCount": 8,
+    "reserveUnusedCount": 32,
+    "status": "A3_GENERATION_SLOT_AUTHORITY_INCOMPLETE"
+  },
+  "temporalTruth": {
+    "describesGovernanceSnapshotCommit": "907d726268ad07fe94fec93f4c6f3ff5ce5f93f9",
+    "automaticallyUpdatesWhenA2Advances": false,
+    "laterGovernanceRequiresALaterRegistryAndCensusVersion": true
+  },
+  "whatThisIsNot": [
+    "NOT_A2_ACQUISITION_AUTHORITY",
+    "NOT_A3_EVIDENCE_LOADING_AUTHORITY",
+    "NOT_SET_P_OR_SET_R_AUTHORITY",
+    "NOT_AN_A5_CORPUS_FREEZE",
+    "NOT_HOLDOUT_SCORING_AUTHORITY"
+  ],
+  "identityDisclosure": {
+    "selectionIndices": false,
+    "organisationIds": false,
+    "echeRowKeys": false,
+    "runReferences": false,
+    "documentHashes": false,
+    "urlsOrDomains": false,
+    "sealedFilenames": false,
+    "labelsGoldOrClassifierData": false
+  },
+  "r19ImplementationCommit": "90e4ef92b41bf8c5e2adce6d654b801c7e1ad60e",
+  "r17ContractLineage": {
+    "module": "src/test/harness/phase2b2d/a3prep/slotAuthority.ts",
+    "sha256": "deee711b6eac66bccec51afee49615b71b94d0701b110a3abd50c1c12207f165",
+    "byteIdenticalToGovernanceBase": true,
+    "resolverCalled": "resolveGenerationSlotAuthorities",
+    "summaryCalled": "deriveGenerationSlotAuthoritySummary",
+    "reimplementedHere": false
+  },
+  "derivationProvenance": {
+    "generatedBy": "the R19 adapter, from the exact Registry V1 committed bytes",
+    "handEnteredThenMadeToMatch": false,
+    "countsSourcedFrom": "deriveGenerationSlotAuthoritySummary plus the adapter provenance totals",
+    "transitionLedgerTip": "ACQUISITION_POLICY_TRANSITION_LEDGER_V6",
+    "transitionLedgerChain": ["V2_GEN1", "V3_GEN1", "V4_GEN1", "V6_GEN1"],
+    "noV5Ledger": true
+  },
+  "whatIncompleteMeans": {
+    "status": "A3_GENERATION_SLOT_AUTHORITY_INCOMPLETE",
+    "meaning": "23 slots currently have an A2 acquisition of record whose terminal owner adjudication is ACQUISITION_SUCCESSFUL, so that occupant is allowed to feed A3.",
+    "doesNotMean": [
+      "23 A3 corpus organisations are frozen",
+      "SET_P exists",
+      "SET_R exists",
+      "FINAL_HOLDOUT is scored",
+      "A5 corpus freeze is ready"
+    ]
+  },
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A later integrated governance checkpoint creates a LATER registry version and a LATER census. This file is not re-derived in place."
+  }
+}
