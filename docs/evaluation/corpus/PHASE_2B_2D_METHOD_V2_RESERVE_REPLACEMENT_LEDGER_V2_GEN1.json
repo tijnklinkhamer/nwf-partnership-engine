@@ -192,7 +192,21 @@
       "previousSequenceForSlot": 5,
       "previousEntryHash": "247c62c9c3bf6ae242316b05ef413bbcb76210231085b5d84966724985ef0b36",
       "entryHash": "3e36136c205cd98f10aef8bdf53de07169ef8e462a188abfbe0a2aba705d725a"
+    },
+    {
+      "sequence": 7,
+      "selectionIndex": 18,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "E ZARAGOZ28|945578214",
+      "replacementEcheRowKey": "E GIJON17|947309567",
+      "reserveRankPosition": 7,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-22T15:26:57Z",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "3e36136c205cd98f10aef8bdf53de07169ef8e462a188abfbe0a2aba705d725a",
+      "entryHash": "4e05ae4bd9d23a79ab832f9b7581c7596d9f45d70ce8172251590e4d1b7b7627"
     }
   ],
-  "ledgerHash": "cf55812f1660fa06154d4a1e9a74e5f785cba046da08f52cb933579e5b6f8636"
+  "ledgerHash": "72177c40421cc87ae180865728f5393f8439dae9b3b60691f824a73ebf55e230"
 }
