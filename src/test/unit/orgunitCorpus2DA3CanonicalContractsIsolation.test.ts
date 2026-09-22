@@ -62,14 +62,22 @@
  * R12's own boundaries live in
  * `orgunitCorpus2DA3CanonicalSetRSd7Isolation.test.ts`.
  *
+ * R13 WIDENED IT AN ELEVENTH TIME, BY EXACT NAME, for `setRSd7Readiness.ts`
+ * alone. It adds no bare import and no external module: it reads
+ * `contracts.ts`, `sd7.ts` (one token), `setRSd7.ts` and (type-only)
+ * `types.ts`. R13 also changed `corpusFreezePreflight.ts` at run time (it now
+ * reads `setRSd7Readiness.ts`), which adds no file to the namespace. R13's own
+ * boundaries live in
+ * `orgunitCorpus2DA3CanonicalSetRSd7ReadinessIsolation.test.ts`.
+ *
  * By walking the real import graph and source text of
  * `src/test/harness/phase2b2d/a3prep/`, this file proves:
  *
  *   - the namespace holds exactly R1's `contracts.ts` and `types.ts`, R2's
  *     `rank.ts` and `setP.ts`, R3's `sd9.ts`, R4's `splitScope.ts` and R5's
  *     `manifestTypes.ts`, R7's `sd7.ts`, R8's `setPSd7.ts`, R9's
- *     `corpusFreezePreflight.ts`, R10's `setRScore.ts`, R11's `setR.ts` and
- *     R12's `setRSd7.ts`;
+ *     `corpusFreezePreflight.ts`, R10's `setRScore.ts`, R11's `setR.ts`,
+ *     R12's `setRSd7.ts` and R13's `setRSd7Readiness.ts`;
  *     every later-slice module (caps, synthetic fixtures) is absent;
  *   - the whole transitive import closure of R1 is pure: no socket, no
  *     fetch(), no database, no filesystem, no child process, no environment
@@ -125,6 +133,9 @@ const R11_FILES = ['setR.ts'];
 /** R12, added by exact name. */
 const R12_FILES = ['setRSd7.ts'];
 
+/** R13, added by exact name. */
+const R13_FILES = ['setRSd7Readiness.ts'];
+
 const NAMESPACE_FILES = [
   ...R1_FILES,
   ...R2_FILES,
@@ -137,6 +148,7 @@ const NAMESPACE_FILES = [
   ...R10_FILES,
   ...R11_FILES,
   ...R12_FILES,
+  ...R13_FILES,
 ].sort();
 
 /** The one namespace file that may name the SEALED_ROOT_BY_SPLIT identifier. */
@@ -200,8 +212,8 @@ function importClosure(): {
   return { modules: [...seen].sort(), bareSpecifiers: [...bare].sort(), bareImporters };
 }
 
-describe('2D-A3 R1: the a3prep namespace holds exactly R1, R2, R3, R4, R5, R7, R8, R9, R10, R11 and R12', () => {
-  it('contains exactly contracts.ts, types.ts, rank.ts, setP.ts, sd9.ts, splitScope.ts, manifestTypes.ts, sd7.ts, setPSd7.ts, corpusFreezePreflight.ts, setRScore.ts, setR.ts and setRSd7.ts', () => {
+describe('2D-A3 R1: the a3prep namespace holds exactly R1, R2, R3, R4, R5, R7, R8, R9, R10, R11, R12 and R13', () => {
+  it('contains exactly contracts.ts, types.ts, rank.ts, setP.ts, sd9.ts, splitScope.ts, manifestTypes.ts, sd7.ts, setPSd7.ts, corpusFreezePreflight.ts, setRScore.ts, setR.ts, setRSd7.ts and setRSd7Readiness.ts', () => {
     expect(readdirSync(A3PREP_DIR).sort()).toEqual(NAMESPACE_FILES);
   });
 

@@ -25,6 +25,15 @@
  *     deterministically, and even with every R9 blocker cleared is still not
  *     freeze authority;
  *   - the SD9 helper builds the owner envelope and delegates to R3.
+ *
+ * R13 EXTENDED THIS FILE to both frozen samples: the SET_P gate is now named
+ * `checkSetPShortTextCorpusFreezeGate`, a SET_R gate reads R13's sanitised
+ * SET_R readiness, and the overall preflight requires BOTH complete
+ * collections, agreeing slot-for-slot and split-for-split. It proves the
+ * blocker order (SET_P structural, SET_R structural, cross-sample, SET_P short
+ * text, SET_R short text, K4), that a SET_R slot with an EXACT initial cap-4
+ * but a blocked complete rank still refuses the freeze, and that the old
+ * SET_P-only call pattern is refused.
  */
 import { createHash } from 'node:crypto';
 import { describe, expect, it, vi } from 'vitest';
@@ -42,14 +51,15 @@ import {
   type Split,
 } from '../harness/phase2b2d/a3prep/contracts.js';
 import {
+  A3_CORPUS_FREEZE_PREFLIGHT_CURRENT_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY,
   A3_CORPUS_FREEZE_PREFLIGHT_KIND,
-  A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_R9,
-  A3_CORPUS_FREEZE_PREFLIGHT_R9_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY,
+  A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_CURRENT_PREP,
   A3_CORPUS_FREEZE_PREFLIGHT_REFUSED,
   A3CorpusFreezePreflightRefusal,
   checkCurrentA3CorpusFreezePreflight,
   checkSetPExtensionCursorAgainstShortTextBoundary,
-  checkShortTextCorpusFreezeGate,
+  checkSetPShortTextCorpusFreezeGate,
+  checkSetRShortTextCorpusFreezeGate,
   deriveCurrentOwnerDecisionBlockers,
   deriveSd9BoundsUnderShortTextPolicy,
   deriveSetPFreezeSlotReadiness,
@@ -63,6 +73,8 @@ import {
   SHORT_TEXT_CORPUS_FREEZE_GATE_CLEAR,
   SHORT_TEXT_CORPUS_FREEZE_GATE_REFUSED,
   SHORT_TEXT_CORPUS_FREEZE_GATE_STRUCTURAL_REFUSAL,
+  type A3CorpusFreezePreflightResult,
+  type A3CurrentCorpusFreezePreflightInput,
   type A3SetPFreezeSlotReadiness,
 } from '../harness/phase2b2d/a3prep/corpusFreezePreflight.js';
 import { evaluateSd9FromAdmissiblePostSd7Bounds } from '../harness/phase2b2d/a3prep/sd9.js';
@@ -72,6 +84,13 @@ import {
   SET_P_DOCUMENT_CAP_EXACT,
   type A3SetPSd7Preparation,
 } from '../harness/phase2b2d/a3prep/setPSd7.js';
+import {
+  SET_R_FULL_SAMPLE_RANK_MEMBERSHIP_BLOCKED_SHORT_TEXT,
+  SET_R_FULL_SAMPLE_RANK_MEMBERSHIP_EXACT,
+  SET_R_INITIAL_CAP_BLOCKED_SHORT_TEXT_MEMBERSHIP,
+  SET_R_INITIAL_CAP_EXACT,
+  type A3SetRFreezeSlotReadiness,
+} from '../harness/phase2b2d/a3prep/setRSd7Readiness.js';
 import type {
   A3DistinctDocument,
   A3DocumentSha256,
@@ -264,6 +283,96 @@ function fullCollection(
   }
   return out;
 }
+
+// ---------------------------------------------------------------------------
+// R13: synthetic sanitised SET_R summaries, on the SAME slot/split assignment
+// as `fullCollection` (index = position * 3 + 1), so the two agree by default.
+// ---------------------------------------------------------------------------
+
+function exactRSummary(selectionIndex: number, split: Split): A3SetRFreezeSlotReadiness {
+  return {
+    kind: 'A3_SET_R_FREEZE_SLOT_READINESS_SANITISED',
+    selectionIndex: selectionIndex as A3SelectionIndex,
+    split,
+    initialCapReadiness: SET_R_INITIAL_CAP_EXACT,
+    fullRankReadiness: SET_R_FULL_SAMPLE_RANK_MEMBERSHIP_EXACT,
+    measurableSurvivorCount: 6,
+    shortTextUnresolvedCount: 0,
+    firstBlockedSourceRankPosition: null,
+    exactMeasurableSurvivorPrefixCount: 6,
+  };
+}
+
+/** SET_R initial cap-4 EXACT, complete rank BLOCKED: the key R13 case. */
+function capExactRankBlockedRSummary(
+  selectionIndex: number,
+  split: Split,
+): A3SetRFreezeSlotReadiness {
+  return {
+    kind: 'A3_SET_R_FREEZE_SLOT_READINESS_SANITISED',
+    selectionIndex: selectionIndex as A3SelectionIndex,
+    split,
+    initialCapReadiness: SET_R_INITIAL_CAP_EXACT,
+    fullRankReadiness: SET_R_FULL_SAMPLE_RANK_MEMBERSHIP_BLOCKED_SHORT_TEXT,
+    measurableSurvivorCount: 6,
+    shortTextUnresolvedCount: 1,
+    firstBlockedSourceRankPosition: 5,
+    exactMeasurableSurvivorPrefixCount: 5,
+  };
+}
+
+/** SET_R initial cap BLOCKED and complete rank BLOCKED. */
+function capBlockedRSummary(selectionIndex: number, split: Split): A3SetRFreezeSlotReadiness {
+  return {
+    kind: 'A3_SET_R_FREEZE_SLOT_READINESS_SANITISED',
+    selectionIndex: selectionIndex as A3SelectionIndex,
+    split,
+    initialCapReadiness: SET_R_INITIAL_CAP_BLOCKED_SHORT_TEXT_MEMBERSHIP,
+    fullRankReadiness: SET_R_FULL_SAMPLE_RANK_MEMBERSHIP_BLOCKED_SHORT_TEXT,
+    measurableSurvivorCount: 5,
+    shortTextUnresolvedCount: 2,
+    firstBlockedSourceRankPosition: 1,
+    exactMeasurableSurvivorPrefixCount: 1,
+  };
+}
+
+function fullRCollection(
+  capExactRankBlocked: ReadonlySet<number> = new Set(),
+  capBlocked: ReadonlySet<number> = new Set(),
+): A3SetRFreezeSlotReadiness[] {
+  const out: A3SetRFreezeSlotReadiness[] = [];
+  for (const split of SPLITS) {
+    for (let i = 0; i < GENERATION_1_SPLIT_ORGANISATION_COUNTS[split]; i += 1) {
+      const position = out.length;
+      const selectionIndex = position * 3 + 1;
+      out.push(
+        capBlocked.has(position)
+          ? capBlockedRSummary(selectionIndex, split)
+          : capExactRankBlocked.has(position)
+            ? capExactRankBlockedRSummary(selectionIndex, split)
+            : exactRSummary(selectionIndex, split),
+      );
+    }
+  }
+  return out;
+}
+
+/** Both samples, clear unless told otherwise. */
+function bothSamples(
+  setP: A3SetPFreezeSlotReadiness[] = fullCollection(),
+  setR: A3SetRFreezeSlotReadiness[] = fullRCollection(),
+): A3CurrentCorpusFreezePreflightInput {
+  return { setP, setR };
+}
+
+const classesOf = (result: A3CorpusFreezePreflightResult): string[] =>
+  result.blockers.map((b) =>
+    b.blockerClass === 'OWNER_DECISION_UNRESOLVED'
+      ? b.id
+      : b.blockerClass === 'SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED_AT_FREEZE'
+        ? `SHORT_TEXT:${b.sample}`
+        : `STRUCTURAL:${b.sample ?? 'CROSS'}:${b.code}`,
+  );
 
 // ---------------------------------------------------------------------------
 // 28. INITIAL CAP vs FULL-RANK READINESS
@@ -600,7 +709,7 @@ describe('2D-A3 R9: the extension boundary', () => {
 // 12 / 31 / 36. SHORT-TEXT CORPUS FREEZE GATE
 // ---------------------------------------------------------------------------
 
-describe('2D-A3 R9: the short-text corpus freeze gate', () => {
+describe('2D-A3 R9 (SET_P, renamed in R13): the short-text corpus freeze gate', () => {
   it('the synthetic full collection is canonical in size and split counts', () => {
     const c = fullCollection();
     expect(c).toHaveLength(GENERATION_1_SELECTED_ORGANISATIONS);
@@ -612,8 +721,9 @@ describe('2D-A3 R9: the short-text corpus freeze gate', () => {
   });
 
   it('zero blocked slots: gate clear', () => {
-    expect(checkShortTextCorpusFreezeGate(fullCollection())).toEqual({
+    expect(checkSetPShortTextCorpusFreezeGate(fullCollection())).toEqual({
       status: SHORT_TEXT_CORPUS_FREEZE_GATE_CLEAR,
+      sample: 'SET_P',
       totalSlotCount: GENERATION_1_SELECTED_ORGANISATIONS,
       blockedSlotCount: 0,
     });
@@ -622,11 +732,12 @@ describe('2D-A3 R9: the short-text corpus freeze gate', () => {
   it('KEY: one slot with the initial cap EXACT but a later unresolved short text refuses the freeze', () => {
     const collection = fullCollection(new Set([37]));
     expect(collection[37]!.initialCapReadiness).toBe(SET_P_INITIAL_CAP_EXACT);
-    const gate = checkShortTextCorpusFreezeGate(collection);
+    const gate = checkSetPShortTextCorpusFreezeGate(collection);
     expect(gate.status).toBe(SHORT_TEXT_CORPUS_FREEZE_GATE_REFUSED);
     if (gate.status !== SHORT_TEXT_CORPUS_FREEZE_GATE_REFUSED) return;
     expect(gate.blocker).toEqual({
       blockerClass: 'SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED_AT_FREEZE',
+      sample: 'SET_P',
       refusal: 'CORPUS_FREEZE_REFUSED_SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED',
       policyDecisionToken: SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY.decisionToken,
       treatmentSpace: 'SHORT_TEXT_ADMISSIBLE_MEMBERSHIP_TREATMENT_SPACE_V1',
@@ -646,7 +757,7 @@ describe('2D-A3 R9: the short-text corpus freeze gate', () => {
     collection[holder] = { ...collection[holder]!, selectionIndex: 100_000 as A3SelectionIndex };
     const position = collection.findIndex((x) => x.split === SLOT_SPLIT);
     collection[position] = derived;
-    expect(checkShortTextCorpusFreezeGate(collection).status).toBe(
+    expect(checkSetPShortTextCorpusFreezeGate(collection).status).toBe(
       SHORT_TEXT_CORPUS_FREEZE_GATE_REFUSED,
     );
   });
@@ -654,7 +765,7 @@ describe('2D-A3 R9: the short-text corpus freeze gate', () => {
   it('many blocked slots: ONE aggregate refusal carrying the count and no slot identity', () => {
     const blocked = new Set([0, 5, 21, 22, 64, 109]);
     const collection = fullCollection(blocked);
-    const gate = checkShortTextCorpusFreezeGate(collection);
+    const gate = checkSetPShortTextCorpusFreezeGate(collection);
     expect(gate.status).toBe(SHORT_TEXT_CORPUS_FREEZE_GATE_REFUSED);
     if (gate.status !== SHORT_TEXT_CORPUS_FREEZE_GATE_REFUSED) return;
     expect(gate.blocker.blockedSlotCount).toBe(6);
@@ -665,6 +776,7 @@ describe('2D-A3 R9: the short-text corpus freeze gate', () => {
       'policyDecisionToken',
       'refusal',
       'replacementEffect',
+      'sample',
       'totalSlotCount',
       'treatmentSpace',
     ]);
@@ -677,7 +789,9 @@ describe('2D-A3 R9: the short-text corpus freeze gate', () => {
   });
 
   it('carries no acquisition status, reserve action or replacement recommendation', () => {
-    const serialised = JSON.stringify(checkShortTextCorpusFreezeGate(fullCollection(new Set([3]))));
+    const serialised = JSON.stringify(
+      checkSetPShortTextCorpusFreezeGate(fullCollection(new Set([3]))),
+    );
     expect(serialised).toContain('NO_ACQUISITION_STATUS_CHANGE');
     expect(serialised).toContain('NO_REPLACEMENT_REASON');
     expect(serialised).not.toMatch(
@@ -688,12 +802,13 @@ describe('2D-A3 R9: the short-text corpus freeze gate', () => {
   it('duplicate selection index: structural refusal naming array positions only', () => {
     const c = fullCollection();
     c[50] = { ...c[50]!, selectionIndex: c[12]!.selectionIndex };
-    const gate = checkShortTextCorpusFreezeGate(c);
+    const gate = checkSetPShortTextCorpusFreezeGate(c);
     expect(gate).toEqual({
       status: SHORT_TEXT_CORPUS_FREEZE_GATE_STRUCTURAL_REFUSAL,
       blocker: {
         blockerClass: 'STRUCTURAL_PREFLIGHT_INPUT_INVALID',
         code: 'SELECTION_INDEX_DUPLICATE',
+        sample: 'SET_P',
         arrayPosition: 50,
         firstArrayPosition: 12,
         split: null,
@@ -706,7 +821,7 @@ describe('2D-A3 R9: the short-text corpus freeze gate', () => {
   it('malformed split: structural refusal that does not echo the value', () => {
     const c = fullCollection();
     c[4] = { ...c[4]!, split: 'secret-split-value' as Split };
-    const gate = checkShortTextCorpusFreezeGate(c);
+    const gate = checkSetPShortTextCorpusFreezeGate(c);
     expect(gate.status).toBe(SHORT_TEXT_CORPUS_FREEZE_GATE_STRUCTURAL_REFUSAL);
     expect(JSON.stringify(gate)).not.toContain('secret-split-value');
     if (gate.status === SHORT_TEXT_CORPUS_FREEZE_GATE_STRUCTURAL_REFUSAL) {
@@ -755,7 +870,7 @@ describe('2D-A3 R9: the short-text corpus freeze gate', () => {
     cases.push([c2, 'ENTRY_NOT_A_READINESS_SUMMARY']);
 
     for (const [input, code] of cases) {
-      const gate = checkShortTextCorpusFreezeGate(input as A3SetPFreezeSlotReadiness[]);
+      const gate = checkSetPShortTextCorpusFreezeGate(input as A3SetPFreezeSlotReadiness[]);
       expect(gate.status, code).toBe(SHORT_TEXT_CORPUS_FREEZE_GATE_STRUCTURAL_REFUSAL);
       if (gate.status === SHORT_TEXT_CORPUS_FREEZE_GATE_STRUCTURAL_REFUSAL) {
         expect(gate.blocker.code).toBe(code);
@@ -766,14 +881,14 @@ describe('2D-A3 R9: the short-text corpus freeze gate', () => {
   it('does not assume contiguous selection indices', () => {
     const c = fullCollection();
     expect(c.some((x, i) => x.selectionIndex !== i)).toBe(true);
-    expect(checkShortTextCorpusFreezeGate(c).status).toBe(SHORT_TEXT_CORPUS_FREEZE_GATE_CLEAR);
+    expect(checkSetPShortTextCorpusFreezeGate(c).status).toBe(SHORT_TEXT_CORPUS_FREEZE_GATE_CLEAR);
   });
 
   it('is order-independent in its verdict and mutates no input', () => {
     const c = fullCollection(new Set([9, 90]));
     const before = JSON.stringify(c);
-    const forward = checkShortTextCorpusFreezeGate(c);
-    const reversed = checkShortTextCorpusFreezeGate([...c].reverse());
+    const forward = checkSetPShortTextCorpusFreezeGate(c);
+    const reversed = checkSetPShortTextCorpusFreezeGate([...c].reverse());
     expect(reversed).toEqual(forward);
     expect(JSON.stringify(c)).toBe(before);
   });
@@ -833,94 +948,365 @@ describe('2D-A3 R9: the owner-decision blocker ledger', () => {
 });
 
 // ---------------------------------------------------------------------------
-// 19 / 33. OVERALL PREFLIGHT
+// R13. THE SET_R SHORT-TEXT CORPUS FREEZE GATE
+// ---------------------------------------------------------------------------
+
+describe('2D-A3 R13: the SET_R short-text corpus freeze gate', () => {
+  it('zero blocked SET_R slots: gate clear, labelled SET_R', () => {
+    expect(checkSetRShortTextCorpusFreezeGate(fullRCollection())).toEqual({
+      status: SHORT_TEXT_CORPUS_FREEZE_GATE_CLEAR,
+      sample: 'SET_R',
+      totalSlotCount: GENERATION_1_SELECTED_ORGANISATIONS,
+      blockedSlotCount: 0,
+    });
+  });
+
+  it('KEY: a SET_R slot with initial cap-4 EXACT but a blocked complete rank refuses the freeze', () => {
+    const collection = fullRCollection(new Set([40]));
+    expect(collection[40]!.initialCapReadiness).toBe(SET_R_INITIAL_CAP_EXACT);
+    const gate = checkSetRShortTextCorpusFreezeGate(collection);
+    expect(gate).toEqual({
+      status: SHORT_TEXT_CORPUS_FREEZE_GATE_REFUSED,
+      blocker: {
+        blockerClass: 'SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED_AT_FREEZE',
+        sample: 'SET_R',
+        refusal: 'CORPUS_FREEZE_REFUSED_SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED',
+        policyDecisionToken: SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY.decisionToken,
+        treatmentSpace: 'SHORT_TEXT_ADMISSIBLE_MEMBERSHIP_TREATMENT_SPACE_V1',
+        acquisitionEffect: 'NO_ACQUISITION_STATUS_CHANGE',
+        replacementEffect: 'NO_REPLACEMENT_REASON',
+        totalSlotCount: GENERATION_1_SELECTED_ORGANISATIONS,
+        blockedSlotCount: 1,
+      },
+    });
+  });
+
+  it('the gate reads fullRankReadiness, never initialCapReadiness: seven blocked slots, one aggregate count', () => {
+    const gate = checkSetRShortTextCorpusFreezeGate(
+      fullRCollection(new Set([0, 1, 2, 70]), new Set([3, 50, 109])),
+    );
+    expect(gate.status).toBe(SHORT_TEXT_CORPUS_FREEZE_GATE_REFUSED);
+    if (gate.status !== SHORT_TEXT_CORPUS_FREEZE_GATE_REFUSED) return;
+    expect(gate.blocker.blockedSlotCount).toBe(7);
+    expect(Object.values(gate.blocker).filter((v) => typeof v === 'number')).toEqual([
+      GENERATION_1_SELECTED_ORGANISATIONS,
+      7,
+    ]);
+    expect(JSON.stringify(gate)).not.toMatch(
+      /selectionIndex|DEV_TRAIN|DEV_CONFIRM|FINAL_HOLDOUT|split|Position|prefix/i,
+    );
+  });
+
+  it('refuses a SET_P summary in a SET_R collection, and the reverse', () => {
+    const mixedR: unknown[] = fullRCollection();
+    mixedR[6] = fullCollection()[6];
+    const r = checkSetRShortTextCorpusFreezeGate(mixedR as A3SetRFreezeSlotReadiness[]);
+    expect(r).toMatchObject({
+      status: SHORT_TEXT_CORPUS_FREEZE_GATE_STRUCTURAL_REFUSAL,
+      blocker: { code: 'ENTRY_NOT_A_READINESS_SUMMARY', sample: 'SET_R', arrayPosition: 6 },
+    });
+    const mixedP: unknown[] = fullCollection();
+    mixedP[6] = fullRCollection()[6];
+    const p = checkSetPShortTextCorpusFreezeGate(mixedP as A3SetPFreezeSlotReadiness[]);
+    expect(p).toMatchObject({
+      status: SHORT_TEXT_CORPUS_FREEZE_GATE_STRUCTURAL_REFUSAL,
+      blocker: { code: 'ENTRY_NOT_A_READINESS_SUMMARY', sample: 'SET_P', arrayPosition: 6 },
+    });
+  });
+
+  it('every SET_R structural defect is refused, attributed to SET_R, never counted', () => {
+    const cases: [unknown, string][] = [
+      [undefined, 'SLOT_COLLECTION_NOT_AN_ARRAY'],
+      [fullRCollection().slice(1), 'SLOT_COUNT_MISMATCH'],
+    ];
+    const moved = fullRCollection();
+    moved[0] = { ...moved[0]!, split: 'FINAL_HOLDOUT' };
+    cases.push([moved, 'SPLIT_SLOT_COUNT_MISMATCH']);
+    const dup = fullRCollection();
+    dup[9] = { ...dup[9]!, selectionIndex: dup[8]!.selectionIndex };
+    cases.push([dup, 'SELECTION_INDEX_DUPLICATE']);
+    const mutate = (patch: Record<string, unknown>, base = exactRSummary(4, 'DEV_TRAIN')) => {
+      const c: unknown[] = fullRCollection();
+      c[2] = { ...base, selectionIndex: 7, ...patch };
+      return c;
+    };
+    cases.push([mutate({ split: 'secret-split' }), 'SPLIT_NOT_CANONICAL']);
+    cases.push([
+      mutate({ initialCapReadiness: SET_P_INITIAL_CAP_EXACT }),
+      'READINESS_TOKEN_NOT_CANONICAL',
+    ]);
+    cases.push([
+      mutate({ fullRankReadiness: SET_P_FULL_SAMPLE_RANK_MEMBERSHIP_EXACT }),
+      'READINESS_TOKEN_NOT_CANONICAL',
+    ]);
+    cases.push([mutate({ exactMeasurableSurvivorPrefixCount: 1.5 }), 'COUNT_INVALID']);
+    cases.push([mutate({ shortTextUnresolvedCount: 1 }), 'READINESS_INCONSISTENT']);
+    cases.push([
+      mutate({ initialCapReadiness: SET_R_INITIAL_CAP_BLOCKED_SHORT_TEXT_MEMBERSHIP }),
+      'READINESS_INCONSISTENT',
+    ]);
+    // Blocked rank: the cap is exact iff at least four survivors precede the boundary.
+    cases.push([
+      mutate(
+        { exactMeasurableSurvivorPrefixCount: 3 },
+        capExactRankBlockedRSummary(4, 'DEV_TRAIN'),
+      ),
+      'READINESS_INCONSISTENT',
+    ]);
+    cases.push([
+      mutate(
+        { exactMeasurableSurvivorPrefixCount: 4, firstBlockedSourceRankPosition: 4 },
+        capBlockedRSummary(4, 'DEV_TRAIN'),
+      ),
+      'READINESS_INCONSISTENT',
+    ]);
+    cases.push([
+      mutate({ firstBlockedSourceRankPosition: 2 }, capExactRankBlockedRSummary(4, 'DEV_TRAIN')),
+      'READINESS_INCONSISTENT', // five survivors cannot all precede position 2
+    ]);
+    for (const [input, code] of cases) {
+      const gate = checkSetRShortTextCorpusFreezeGate(input as A3SetRFreezeSlotReadiness[]);
+      expect(gate.status, code).toBe(SHORT_TEXT_CORPUS_FREEZE_GATE_STRUCTURAL_REFUSAL);
+      if (gate.status === SHORT_TEXT_CORPUS_FREEZE_GATE_STRUCTURAL_REFUSAL) {
+        expect(gate.blocker.code, code).toBe(code);
+        expect(gate.blocker.sample, code).toBe('SET_R');
+      }
+      expect(JSON.stringify(gate)).not.toContain('secret-split');
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 19 / 33, EXTENDED IN R13. OVERALL PREFLIGHT OVER BOTH SAMPLES
 // ---------------------------------------------------------------------------
 
 const OWNER_TAIL = ['K4'];
 
-describe('2D-A3 R9: the overall current preflight', () => {
-  it('Case A: short-text gate clear -> still REFUSED, with exactly one owner blocker: K4', () => {
-    const result = checkCurrentA3CorpusFreezePreflight(fullCollection());
+describe('2D-A3 R13: the overall current preflight requires both samples', () => {
+  it('both clear -> no short-text blocker, still REFUSED on K4 alone', () => {
+    const result = checkCurrentA3CorpusFreezePreflight(bothSamples());
     expect(result.kind).toBe(A3_CORPUS_FREEZE_PREFLIGHT_KIND);
     expect(result.kind).toBe('A3_CORPUS_FREEZE_PREFLIGHT_NOT_EXECUTION_AUTHORITY');
     expect(result.status).toBe(A3_CORPUS_FREEZE_PREFLIGHT_REFUSED);
     expect(result.status).not.toBe(
-      A3_CORPUS_FREEZE_PREFLIGHT_R9_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY,
+      A3_CORPUS_FREEZE_PREFLIGHT_CURRENT_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY,
     );
-    expect(result.blockers.map((b) => b.blockerClass)).toEqual(['OWNER_DECISION_UNRESOLVED']);
-    expect(result.blockers.map((b) => ('id' in b ? b.id : null))).toEqual(OWNER_TAIL);
+    expect(classesOf(result)).toEqual(OWNER_TAIL);
     expect(result.blockers.map((b) => ('marker' in b ? b.marker : null))).toEqual([
       K4_SD4_G3_FREEZE_TIME_TRUNCATION,
     ]);
     expect(JSON.stringify(result)).not.toMatch(/READY/);
   });
 
-  it('Case B: short-text gate blocked -> short-text blocker first, then K4', () => {
-    const result = checkCurrentA3CorpusFreezePreflight(fullCollection(new Set([1, 2])));
+  it('SET_P blocked only -> SET_P short-text blocker, then K4', () => {
+    const result = checkCurrentA3CorpusFreezePreflight(
+      bothSamples(fullCollection(new Set([1, 2]))),
+    );
     expect(result.status).toBe(A3_CORPUS_FREEZE_PREFLIGHT_REFUSED);
-    expect(result.blockers.map((b) => b.blockerClass)).toEqual([
-      'SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED_AT_FREEZE',
-      'OWNER_DECISION_UNRESOLVED',
-    ]);
-    expect(result.blockers.slice(1).map((b) => ('id' in b ? b.id : null))).toEqual(OWNER_TAIL);
+    expect(classesOf(result)).toEqual(['SHORT_TEXT:SET_P', 'K4']);
     const first = result.blockers[0]!;
     expect(
       first.blockerClass === 'SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED_AT_FREEZE' && first.refusal,
     ).toBe('CORPUS_FREEZE_REFUSED_SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED');
   });
 
-  it('structural input: structural blocker first, no short-text verdict, then K4', () => {
-    const c = fullCollection(new Set([1]));
-    c.pop();
-    const result = checkCurrentA3CorpusFreezePreflight(c);
-    expect(result.status).toBe(A3_CORPUS_FREEZE_PREFLIGHT_REFUSED);
-    expect(result.blockers.map((b) => b.blockerClass)).toEqual([
-      'STRUCTURAL_PREFLIGHT_INPUT_INVALID',
-      'OWNER_DECISION_UNRESOLVED',
+  it('SET_R blocked only -> SET_R short-text blocker, then K4', () => {
+    const result = checkCurrentA3CorpusFreezePreflight(
+      bothSamples(fullCollection(), fullRCollection(new Set(), new Set([9]))),
+    );
+    expect(classesOf(result)).toEqual(['SHORT_TEXT:SET_R', 'K4']);
+  });
+
+  it('both blocked -> SET_P blocker, then SET_R blocker, then K4, each with its own aggregate count', () => {
+    const result = checkCurrentA3CorpusFreezePreflight(
+      bothSamples(fullCollection(new Set([5])), fullRCollection(new Set([1, 2]), new Set([3]))),
+    );
+    expect(classesOf(result)).toEqual(['SHORT_TEXT:SET_P', 'SHORT_TEXT:SET_R', 'K4']);
+    const counts = result.blockers.flatMap((b) =>
+      b.blockerClass === 'SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED_AT_FREEZE'
+        ? [[b.sample, b.totalSlotCount, b.blockedSlotCount]]
+        : [],
+    );
+    expect(counts).toEqual([
+      ['SET_P', 110, 1],
+      ['SET_R', 110, 3],
     ]);
   });
 
-  it('is deterministic', () => {
-    const c = fullCollection(new Set([4]));
-    expect(JSON.stringify(checkCurrentA3CorpusFreezePreflight(c))).toBe(
-      JSON.stringify(checkCurrentA3CorpusFreezePreflight([...c])),
-    );
+  it('KEY: every SET_R initial cap EXACT but one complete SET_R rank blocked -> SET_R blocker still present', () => {
+    const setR = fullRCollection(new Set([77]));
+    expect(setR.every((r) => r.initialCapReadiness === SET_R_INITIAL_CAP_EXACT)).toBe(true);
+    const result = checkCurrentA3CorpusFreezePreflight(bothSamples(fullCollection(), setR));
+    expect(classesOf(result)).toEqual(['SHORT_TEXT:SET_R', 'K4']);
   });
 
-  it('accepts slot summaries only: extra caller flags change nothing', () => {
+  it('a split mismatch between the samples is a structural refusal before any short-text interpretation', () => {
+    const setP = fullCollection(new Set([4]));
+    const setR = fullRCollection(new Set([4]));
+    // Swap the splits of one DEV_TRAIN and one FINAL_HOLDOUT SET_R slot: each
+    // collection stays valid on its own (20/45/45), but they now disagree.
+    const a = setR.findIndex((r) => r.split === 'DEV_TRAIN');
+    const b = setR.findIndex((r) => r.split === 'FINAL_HOLDOUT');
+    setR[a] = { ...setR[a]!, split: 'FINAL_HOLDOUT' };
+    setR[b] = { ...setR[b]!, split: 'DEV_TRAIN' };
+    expect(checkSetRShortTextCorpusFreezeGate(setR).status).toBe(
+      SHORT_TEXT_CORPUS_FREEZE_GATE_REFUSED,
+    );
+    const result = checkCurrentA3CorpusFreezePreflight(bothSamples(setP, setR));
+    expect(classesOf(result)).toEqual(['STRUCTURAL:CROSS:CROSS_SAMPLE_SLOT_SPLIT_MISMATCH', 'K4']);
+    expect(result.blockers[0]).toEqual({
+      blockerClass: 'STRUCTURAL_PREFLIGHT_INPUT_INVALID',
+      code: 'CROSS_SAMPLE_SLOT_SPLIT_MISMATCH',
+      sample: null,
+      arrayPosition: a,
+      firstArrayPosition: null,
+      split: 'DEV_TRAIN',
+      expectedCount: null,
+      receivedCount: null,
+    });
+  });
+
+  it('a slot covered by one sample only is a structural coverage refusal, naming a SET_P array position', () => {
+    const setR = fullRCollection();
+    setR[30] = { ...setR[30]!, selectionIndex: 999_999 as A3SelectionIndex };
+    const result = checkCurrentA3CorpusFreezePreflight(bothSamples(fullCollection(), setR));
+    expect(classesOf(result)).toEqual([
+      'STRUCTURAL:CROSS:CROSS_SAMPLE_SLOT_COVERAGE_MISMATCH',
+      'K4',
+    ]);
+    const first = result.blockers[0]!;
+    expect(first.blockerClass === 'STRUCTURAL_PREFLIGHT_INPUT_INVALID' && first.arrayPosition).toBe(
+      30,
+    );
+    expect(JSON.stringify(result)).not.toContain('999999');
+    expect(JSON.stringify(result)).not.toMatch(/selectionIndex/);
+  });
+
+  it('SET_R order may differ from SET_P order: the join is by slot, not by array position', () => {
+    const result = checkCurrentA3CorpusFreezePreflight(
+      bothSamples(fullCollection(), [...fullRCollection()].reverse()),
+    );
+    expect(classesOf(result)).toEqual(OWNER_TAIL);
+  });
+
+  it('structural ordering: SET_P structural, then SET_R structural; a malformed sample emits no short-text blocker', () => {
+    const setP = fullCollection(new Set([3]));
+    setP.pop();
+    const setR = fullRCollection(new Set([3]));
+    setR[0] = { ...setR[0]!, kind: 'OTHER' as never };
+    expect(classesOf(checkCurrentA3CorpusFreezePreflight(bothSamples(setP, setR)))).toEqual([
+      'STRUCTURAL:SET_P:SLOT_COUNT_MISMATCH',
+      'STRUCTURAL:SET_R:ENTRY_NOT_A_READINESS_SUMMARY',
+      'K4',
+    ]);
+    // Only SET_R malformed: SET_P's short-text verdict is still evaluable; no cross-sample check.
+    expect(
+      classesOf(
+        checkCurrentA3CorpusFreezePreflight(bothSamples(fullCollection(new Set([3])), setR)),
+      ),
+    ).toEqual(['STRUCTURAL:SET_R:ENTRY_NOT_A_READINESS_SUMMARY', 'SHORT_TEXT:SET_P', 'K4']);
+    // Only SET_P malformed: SET_R's short-text verdict is still evaluable.
+    expect(
+      classesOf(
+        checkCurrentA3CorpusFreezePreflight(bothSamples(setP, fullRCollection(new Set([3])))),
+      ),
+    ).toEqual(['STRUCTURAL:SET_P:SLOT_COUNT_MISMATCH', 'SHORT_TEXT:SET_R', 'K4']);
+  });
+
+  it('REGRESSION: the old SET_P-only call pattern is refused, never silently evaluated', () => {
+    const call = checkCurrentA3CorpusFreezePreflight as unknown as (
+      a: unknown,
+    ) => A3CorpusFreezePreflightResult;
+    // A bare SET_P array (the R9 signature): refused as a malformed input shape.
+    expect(classesOf(call(fullCollection()))).toEqual([
+      'STRUCTURAL:CROSS:PREFLIGHT_INPUT_NOT_TWO_SAMPLE_COLLECTIONS',
+      'K4',
+    ]);
+    // SET_P supplied, SET_R omitted: SET_R is structurally missing.
+    expect(classesOf(call({ setP: fullCollection() }))).toEqual([
+      'STRUCTURAL:SET_R:SLOT_COLLECTION_NOT_AN_ARRAY',
+      'K4',
+    ]);
+    expect(classesOf(call(null))).toEqual([
+      'STRUCTURAL:CROSS:PREFLIGHT_INPUT_NOT_TWO_SAMPLE_COLLECTIONS',
+      'K4',
+    ]);
+    // The type system refuses it too.
+    // @ts-expect-error - the overall preflight needs BOTH collections.
+    checkCurrentA3CorpusFreezePreflight(fullCollection());
+  });
+
+  it('is deterministic and mutates neither collection', () => {
+    const input = bothSamples(fullCollection(new Set([4])), fullRCollection(new Set([8])));
+    const before = JSON.stringify(input);
+    expect(JSON.stringify(checkCurrentA3CorpusFreezePreflight(input))).toBe(
+      JSON.stringify(
+        checkCurrentA3CorpusFreezePreflight({ setP: [...input.setP], setR: [...input.setR] }),
+      ),
+    );
+    expect(JSON.stringify(input)).toBe(before);
+  });
+
+  it('accepts the two collections only: extra caller flags change nothing', () => {
     expect(checkCurrentA3CorpusFreezePreflight.length).toBe(1);
     const call = checkCurrentA3CorpusFreezePreflight as unknown as (
       a: unknown,
       b: unknown,
-    ) => ReturnType<typeof checkCurrentA3CorpusFreezePreflight>;
-    const result = call(fullCollection(), {
+    ) => A3CorpusFreezePreflightResult;
+    const withFlags = {
+      ...bothSamples(),
       setRScoreReductionApproved: true,
       organisationShareTruncationApproved: true,
-      sd7SampleRankSemanticsApproved: true,
-    });
+      k4: true,
+    };
+    const result = call(withFlags, { sd7SampleRankSemanticsApproved: true });
     expect(result.status).toBe(A3_CORPUS_FREEZE_PREFLIGHT_REFUSED);
-    expect(result.blockers).toHaveLength(1);
+    expect(classesOf(result)).toEqual(OWNER_TAIL);
   });
 
-  it('every result names what R9 does not check, and never says READY', () => {
-    const result = checkCurrentA3CorpusFreezePreflight(fullCollection());
-    expect(result.notCheckedByR9).toBe(A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_R9);
-    expect(result.notCheckedByR9).toEqual([
+  it('aggregate output never surfaces a selection index, a document identity or a score', () => {
+    const result = checkCurrentA3CorpusFreezePreflight(
+      bothSamples(fullCollection(new Set([10, 20])), fullRCollection(new Set([30]), new Set([40]))),
+    );
+    const serialised = JSON.stringify(result);
+    expect(serialised).not.toMatch(
+      /selectionIndex|documentSha256|saltedRankSha256|[0-9a-f]{64}|score|pageEvidence|url|prefix/i,
+    );
+    for (const b of result.blockers) {
+      if (b.blockerClass === 'SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED_AT_FREEZE') {
+        expect(Object.values(b).filter((v) => typeof v === 'number')).toHaveLength(2);
+      }
+    }
+  });
+
+  it('every result names what the current preparation does not check, and never says READY', () => {
+    const result = checkCurrentA3CorpusFreezePreflight(bothSamples());
+    expect(result.notCheckedByCurrentPrep).toBe(
+      A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_CURRENT_PREP,
+    );
+    expect(result.notCheckedByCurrentPrep).toEqual([
       'REAL_ACQUISITION_COMPLETION',
       'REAL_GENERATION_1_SLOT_MATERIALISATION',
       'REPLACEMENT_LEDGER_FINALITY',
+      'REAL_SET_P_AND_SET_R_PREPARATION_MATERIALISATION',
       'FINAL_ITEM_AND_GOLD_IDENTIFIERS',
       'A4_LABELS',
       'AGREEMENT_AND_KAPPA',
       'FINAL_MANIFEST_HASHES',
       'K4_ENFORCEMENT',
-      'SET_R_RANKING',
       'FINAL_GATE_DENOMINATORS',
+    ]);
+    expect(result.notCheckedByCurrentPrep).not.toContain('SET_R_RANKING');
+    expect(Object.keys(result).sort()).toEqual([
+      'blockers',
+      'kind',
+      'notCheckedByCurrentPrep',
+      'status',
     ]);
     expect(JSON.stringify(result)).not.toMatch(/\bREADY\b|READY_TO_FREEZE/);
   });
 
-  it('with every R9 blocker artificially cleared, the result is still NOT freeze authority', async () => {
+  it('with K4 artificially cleared and both samples clear, the result is still NOT freeze authority', async () => {
     vi.resetModules();
     vi.doMock('../harness/phase2b2d/a3prep/contracts.js', async (importOriginal) => {
       const original = await importOriginal<Record<string, unknown>>();
@@ -928,15 +1314,20 @@ describe('2D-A3 R9: the overall current preflight', () => {
     });
     try {
       const mocked = await import('../harness/phase2b2d/a3prep/corpusFreezePreflight.js');
-      const result = mocked.checkCurrentA3CorpusFreezePreflight(fullCollection());
+      const result = mocked.checkCurrentA3CorpusFreezePreflight(bothSamples());
       expect(result.blockers).toEqual([]);
-      expect(result.status).toBe(A3_CORPUS_FREEZE_PREFLIGHT_R9_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY);
       expect(result.status).toBe(
-        'A3_CORPUS_FREEZE_PREFLIGHT_R9_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY',
+        'A3_CORPUS_FREEZE_PREFLIGHT_CURRENT_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY',
       );
       expect(result.kind).toBe('A3_CORPUS_FREEZE_PREFLIGHT_NOT_EXECUTION_AUTHORITY');
-      expect(result.notCheckedByR9.length).toBeGreaterThan(0);
+      expect(result.notCheckedByCurrentPrep.length).toBeGreaterThan(0);
       expect(JSON.stringify(result)).not.toMatch(/\bREADY\b|READY_TO_FREEZE/);
+      // Clearing K4 does not clear a blocked SET_R rank.
+      const blocked = mocked.checkCurrentA3CorpusFreezePreflight(
+        bothSamples(fullCollection(), fullRCollection(new Set([2]))),
+      );
+      expect(blocked.status).toBe('A3_CORPUS_FREEZE_PREFLIGHT_REFUSED');
+      expect(classesOf(blocked)).toEqual(['SHORT_TEXT:SET_R']);
     } finally {
       vi.doUnmock('../harness/phase2b2d/a3prep/contracts.js');
       vi.resetModules();
@@ -1051,9 +1442,10 @@ describe('2D-A3 R9: no semantic short-text verdict at run time', () => {
       readinessOf(scenario(12, [9, 11])),
       readinessOf(scenario(12)),
       checkSetPExtensionCursorAgainstShortTextBoundary(readinessOf(scenario(12, [9])), 10),
-      checkShortTextCorpusFreezeGate(fullCollection(new Set([2]))),
-      checkShortTextCorpusFreezeGate(fullCollection()),
-      checkCurrentA3CorpusFreezePreflight(fullCollection(new Set([2]))),
+      checkSetPShortTextCorpusFreezeGate(fullCollection(new Set([2]))),
+      checkSetPShortTextCorpusFreezeGate(fullCollection()),
+      checkCurrentA3CorpusFreezePreflight(bothSamples(fullCollection(new Set([2])))),
+      checkSetRShortTextCorpusFreezeGate(fullRCollection(new Set([2]), new Set([3]))),
       deriveCurrentOwnerDecisionBlockers(),
       deriveSd9BoundsUnderShortTextPolicy({
         measurableSurvivorMin: 3,

@@ -1,40 +1,53 @@
 /**
- * PHASE 2B-2D — A3 CANONICAL PREPARATION, R9: SHORT-TEXT AMBIGUITY PROPAGATION
- * TO FREEZE TIME, AND A CURRENT A3 CORPUS-FREEZE PREFLIGHT CONTRACT.
+ * PHASE 2B-2D — A3 CANONICAL PREPARATION, R9 FOUNDATION EXTENDED IN R13 TO
+ * BOTH FROZEN SAMPLES: SHORT-TEXT AMBIGUITY PROPAGATION TO FREEZE TIME, AND
+ * THE CURRENT A3 CORPUS-FREEZE PREFLIGHT CONTRACT.
+ *
+ * HISTORY. R9 built this preflight when SET_P was the only sample with a
+ * canonical rank: its per-slot layer, SD9 envelope and owner ledger are R9's.
+ * R13 added SET_R's per-slot readiness (`setRSd7Readiness.ts`) and made the
+ * overall preflight require BOTH complete sample collections; an overall check
+ * over SET_P alone no longer exists.
  *
  * THIS IS A PARTIAL PREFLIGHT, NOT FREEZE AUTHORITY. Every overall result is of
  * kind `A3_CORPUS_FREEZE_PREFLIGHT_NOT_EXECUTION_AUTHORITY`. It checks only the
- * blocker classes R9 can truthfully know, and its best possible outcome is
- * `A3_CORPUS_FREEZE_PREFLIGHT_R9_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY`: "none of
- * the blocker classes known to R9 remains". That never authorises a freeze and
- * never proves A5 readiness (see `A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_R9`).
- * Under the current contracts K1, K2 and K3 are resolved and K4 is the sole
- * unresolved owner decision, so the current preflight is necessarily REFUSED.
+ * blocker classes the current preparation can truthfully know, and its best
+ * possible outcome is
+ * `A3_CORPUS_FREEZE_PREFLIGHT_CURRENT_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY`:
+ * "none of the blocker classes known to the current preparation remains".
+ * That never authorises a freeze and never proves A5 readiness (see
+ * `A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_CURRENT_PREP`). Under the current
+ * contracts K1, K2 and K3 are resolved and K4 is the sole unresolved owner
+ * decision, so the current preflight is necessarily REFUSED.
  *
  * TWO LAYERS
  *
- *   1. PER-SLOT, from one R8 preparation in memory
- *      (`deriveSetPFreezeSlotReadiness`): a SANITISED summary - counts, source
- *      rank positions and readiness tokens, never a document identity.
- *   2. AGGREGATE (`checkShortTextCorpusFreezeGate`,
- *      `checkCurrentA3CorpusFreezePreflight`): the short-text freeze gate over
- *      a whole Generation-1 slot collection, plus the owner-decision blocker
- *      ledger derived from `contracts.ts` alone.
+ *   1. PER-SLOT, from one preparation in memory: SET_P here
+ *      (`deriveSetPFreezeSlotReadiness`, from R8), SET_R in
+ *      `setRSd7Readiness.ts` (`deriveSetRFreezeSlotReadiness`, from R12). Each
+ *      is a SANITISED summary - counts, source rank positions and readiness
+ *      tokens, never a document identity.
+ *   2. AGGREGATE: one short-text freeze gate PER SAMPLE
+ *      (`checkSetPShortTextCorpusFreezeGate`,
+ *      `checkSetRShortTextCorpusFreezeGate`), a cross-sample slot/split
+ *      agreement check, and the owner-decision blocker ledger derived from
+ *      `contracts.ts` alone, combined by `checkCurrentA3CorpusFreezePreflight`.
  *
  * INITIAL CAP IS NOT THE FULL FREEZE RANK
  *
- *   R8 answers "is the INITIAL SD3 cap-8 membership exact?". R8 is the source of
- *   truth for that answer and it is read, never re-derived. R9 answers a second
- *   question: "is the COMPLETE survivor-aware SET_P rank exact?". Plan V1's
- *   extension rule advances a cursor down the ALREADY-FROZEN rank, and the K3
- *   owner clarification requires the complete survivor-aware rank to be frozen
- *   before any label exists. Under the owner's treatment space
+ *   R8 (SET_P, cap 8) and R13 (SET_R, cap 4) answer "is the INITIAL cap
+ *   membership exact?". The freeze gate answers a second question: "is the
+ *   COMPLETE survivor-aware rank exact?". Plan V1's extension rule advances a
+ *   cursor down the ALREADY-FROZEN rank, and the K3 owner clarification
+ *   requires the complete survivor-aware rank to be frozen before any label
+ *   exists. Under the owner's treatment space
  *   (`SHORT_TEXT_ADMISSIBLE_MEMBERSHIP_TREATMENT_SPACE_V1`) each unresolved
  *   short-text document independently admits two treatments - out of the
  *   sample, or in it at its frozen rank position - and those two treatments
  *   give different complete memberships. So ANY unresolved short text blocks
- *   the complete rank, even when every one of them ranks after the eighth
- *   measurable survivor and the initial cap is exact.
+ *   the complete rank, even when every one of them ranks after the last capped
+ *   measurable survivor and the initial cap is exact. Both gates read
+ *   `fullRankReadiness`, never `initialCapReadiness`.
  *
  * THE INVARIANT PREFIX AND THE EXTENSION BOUNDARY
  *
@@ -53,12 +66,14 @@
  *     membership verdict for one.
  *   - It changes no acquisition status, names no replacement reason and moves
  *     no reserve.
- *   - It implements no extension selection, no SET_R, no organisation cap and
- *     no manifest; it resolves no owner decision (K4, the sole unresolved
- *     one, included) and accepts no caller approval that could hide one.
+ *   - It implements no extension selection, no organisation cap and no
+ *     manifest; it evaluates no real data; it resolves no owner decision (K4,
+ *     the sole unresolved one, included) and accepts no caller approval that
+ *     could hide one.
  *   - No returned value or refusal message carries a document SHA-256, a page
- *     id, a URL, text or an organisation identity. Collection refusals name an
- *     ARRAY POSITION, a count or a canonical split token, never a caller field.
+ *     id, a URL, text, an organisation identity or a selection index.
+ *     Collection refusals name a SAMPLE, an ARRAY POSITION, a count or a
+ *     canonical split token, never a caller field.
  *
  * THIS MODULE IS PURE. No socket, no database, no filesystem, no clock, no
  * randomness, no environment read, no hashing. It mutates no input.
@@ -83,6 +98,11 @@ import {
   SET_P_DOCUMENT_CAP_EXACT,
   type A3SetPSd7Preparation,
 } from './setPSd7.js';
+import {
+  SET_R_FULL_SAMPLE_RANK_MEMBERSHIP_BLOCKED_SHORT_TEXT,
+  structuralIssueOfSetRFreezeSlotReadiness,
+  type A3SetRFreezeSlotReadiness,
+} from './setRSd7Readiness.js';
 import type { A3SelectionIndex } from './types.js';
 
 // ---------------------------------------------------------------------------
@@ -267,6 +287,7 @@ function assertStrictlyAscending(positions: readonly number[], what: string): vo
 // ---------------------------------------------------------------------------
 
 export type A3FreezePreflightStructuralCode =
+  | 'PREFLIGHT_INPUT_NOT_TWO_SAMPLE_COLLECTIONS'
   | 'SLOT_COLLECTION_NOT_AN_ARRAY'
   | 'ENTRY_NOT_A_READINESS_SUMMARY'
   | 'SELECTION_INDEX_INVALID'
@@ -276,9 +297,16 @@ export type A3FreezePreflightStructuralCode =
   | 'COUNT_INVALID'
   | 'READINESS_INCONSISTENT'
   | 'SLOT_COUNT_MISMATCH'
-  | 'SPLIT_SLOT_COUNT_MISMATCH';
+  | 'SPLIT_SLOT_COUNT_MISMATCH'
+  | 'CROSS_SAMPLE_SLOT_COVERAGE_MISMATCH'
+  | 'CROSS_SAMPLE_SLOT_SPLIT_MISMATCH';
 
-function structuralIssueOf(entry: unknown): A3FreezePreflightStructuralCode | null {
+/** The two frozen samples. Aggregate metadata only: it names no slot. */
+export type A3FreezePreflightSample = 'SET_P' | 'SET_R';
+
+function structuralIssueOfSetPFreezeSlotReadiness(
+  entry: unknown,
+): A3FreezePreflightStructuralCode | null {
   if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) {
     return 'ENTRY_NOT_A_READINESS_SUMMARY';
   }
@@ -322,7 +350,7 @@ function structuralIssueOf(entry: unknown): A3FreezePreflightStructuralCode | nu
 }
 
 function requireReadiness(readiness: A3SetPFreezeSlotReadiness): void {
-  if (structuralIssueOf(readiness) !== null) {
+  if (structuralIssueOfSetPFreezeSlotReadiness(readiness) !== null) {
     throw new A3CorpusFreezePreflightRefusal(
       'READINESS_INVALID',
       'the slot readiness summary is structurally invalid.',
@@ -442,7 +470,15 @@ export function deriveSd9BoundsUnderShortTextPolicy(
 export interface A3FreezePreflightStructuralBlocker {
   readonly blockerClass: 'STRUCTURAL_PREFLIGHT_INPUT_INVALID';
   readonly code: A3FreezePreflightStructuralCode;
-  /** Where in the supplied array, never what the entry said. Null for a whole-collection issue. */
+  /**
+   * The sample whose collection is malformed; null for an issue that belongs
+   * to neither alone (the input's shape, or a cross-sample disagreement).
+   */
+  readonly sample: A3FreezePreflightSample | null;
+  /**
+   * Where in the supplied array, never what the entry said. Null for a
+   * whole-collection issue. For a cross-sample issue: the SET_P array position.
+   */
   readonly arrayPosition: number | null;
   /** For SELECTION_INDEX_DUPLICATE: the earlier array position holding the same index. */
   readonly firstArrayPosition: number | null;
@@ -454,6 +490,8 @@ export interface A3FreezePreflightStructuralBlocker {
 
 export interface A3FreezePreflightShortTextBlocker {
   readonly blockerClass: 'SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED_AT_FREEZE';
+  /** Which sample's complete rank is blocked. Never which slot. */
+  readonly sample: A3FreezePreflightSample;
   readonly refusal: typeof SHORT_TEXT_BLOCKED_SAMPLE_FREEZE_REFUSAL;
   readonly policyDecisionToken: typeof SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY.decisionToken;
   readonly treatmentSpace: typeof SHORT_TEXT_ADMISSIBLE_MEMBERSHIP_TREATMENT_SPACE;
@@ -477,11 +515,15 @@ export type A3FreezePreflightBlocker =
 
 function structuralBlocker(
   code: A3FreezePreflightStructuralCode,
-  detail: Partial<Omit<A3FreezePreflightStructuralBlocker, 'blockerClass' | 'code'>> = {},
+  sample: A3FreezePreflightSample | null,
+  detail: Partial<
+    Omit<A3FreezePreflightStructuralBlocker, 'blockerClass' | 'code' | 'sample'>
+  > = {},
 ): A3FreezePreflightStructuralBlocker {
   return Object.freeze({
     blockerClass: 'STRUCTURAL_PREFLIGHT_INPUT_INVALID' as const,
     code,
+    sample,
     arrayPosition: detail.arrayPosition ?? null,
     firstArrayPosition: detail.firstArrayPosition ?? null,
     split: detail.split ?? null,
@@ -491,7 +533,8 @@ function structuralBlocker(
 }
 
 // ---------------------------------------------------------------------------
-// LAYER 2a — THE SHORT-TEXT CORPUS FREEZE GATE. Aggregate-only output.
+// LAYER 2a — ONE SHORT-TEXT CORPUS FREEZE GATE PER SAMPLE. Aggregate-only
+// output. The gates share structure, never a sample's tokens.
 // ---------------------------------------------------------------------------
 
 export const SHORT_TEXT_CORPUS_FREEZE_GATE_CLEAR = 'SHORT_TEXT_CORPUS_FREEZE_GATE_CLEAR';
@@ -502,6 +545,7 @@ export const SHORT_TEXT_CORPUS_FREEZE_GATE_STRUCTURAL_REFUSAL =
 export type A3ShortTextCorpusFreezeGateResult =
   | {
       readonly status: typeof SHORT_TEXT_CORPUS_FREEZE_GATE_CLEAR;
+      readonly sample: A3FreezePreflightSample;
       readonly totalSlotCount: number;
       readonly blockedSlotCount: 0;
     }
@@ -514,30 +558,71 @@ export type A3ShortTextCorpusFreezeGateResult =
       readonly blocker: A3FreezePreflightStructuralBlocker;
     };
 
+/** How one sample's gate reads one of its (already structurally valid) summaries. */
+interface A3SampleGateRules {
+  readonly sample: A3FreezePreflightSample;
+  readonly entryIssue: (entry: unknown) => A3FreezePreflightStructuralCode | null;
+  readonly fullRankBlocked: (entry: unknown) => boolean;
+}
+
+const SET_P_GATE_RULES: A3SampleGateRules = Object.freeze({
+  sample: 'SET_P',
+  entryIssue: structuralIssueOfSetPFreezeSlotReadiness,
+  fullRankBlocked: (entry: unknown) =>
+    (entry as A3SetPFreezeSlotReadiness).fullRankReadiness ===
+    SET_P_FULL_SAMPLE_RANK_MEMBERSHIP_BLOCKED_SHORT_TEXT,
+});
+
+const SET_R_GATE_RULES: A3SampleGateRules = Object.freeze({
+  sample: 'SET_R',
+  entryIssue: structuralIssueOfSetRFreezeSlotReadiness,
+  fullRankBlocked: (entry: unknown) =>
+    (entry as A3SetRFreezeSlotReadiness).fullRankReadiness ===
+    SET_R_FULL_SAMPLE_RANK_MEMBERSHIP_BLOCKED_SHORT_TEXT,
+});
+
 /**
- * Validate a COMPLETE Generation-1 slot collection fail closed, then refuse
- * the freeze if ANY slot's complete SET_P rank is blocked by unresolved short
- * text - initial cap exact or not. Selection indices are not assumed
+ * Validate a COMPLETE Generation-1 SET_P slot collection fail closed, then
+ * refuse the freeze if ANY slot's complete SET_P rank is blocked by unresolved
+ * short text - initial cap exact or not. Selection indices are not assumed
  * contiguous: coverage is the canonical total and per-split counts, with no
  * index repeated. The first structural issue, in array order, is reported.
  */
-export function checkShortTextCorpusFreezeGate(
+export function checkSetPShortTextCorpusFreezeGate(
   slotReadiness: readonly A3SetPFreezeSlotReadiness[],
 ): A3ShortTextCorpusFreezeGateResult {
-  const structural = structuralIssueOfCollection(slotReadiness);
+  return checkSampleShortTextCorpusFreezeGate(SET_P_GATE_RULES, slotReadiness);
+}
+
+/**
+ * The same gate over a COMPLETE Generation-1 SET_R slot collection: refuse the
+ * freeze if ANY slot's complete SET_R rank is blocked by unresolved short text
+ * - SET_R initial cap-4 exact or not.
+ */
+export function checkSetRShortTextCorpusFreezeGate(
+  slotReadiness: readonly A3SetRFreezeSlotReadiness[],
+): A3ShortTextCorpusFreezeGateResult {
+  return checkSampleShortTextCorpusFreezeGate(SET_R_GATE_RULES, slotReadiness);
+}
+
+function checkSampleShortTextCorpusFreezeGate(
+  rules: A3SampleGateRules,
+  slotReadiness: unknown,
+): A3ShortTextCorpusFreezeGateResult {
+  const structural = structuralIssueOfCollection(rules, slotReadiness);
   if (structural !== null) {
     return Object.freeze({
       status: SHORT_TEXT_CORPUS_FREEZE_GATE_STRUCTURAL_REFUSAL,
       blocker: structural,
     });
   }
-  const blockedSlotCount = slotReadiness.filter(
-    (r) => r.fullRankReadiness === SET_P_FULL_SAMPLE_RANK_MEMBERSHIP_BLOCKED_SHORT_TEXT,
-  ).length;
+  const collection = slotReadiness as readonly unknown[];
+  const blockedSlotCount = collection.filter(rules.fullRankBlocked).length;
   if (blockedSlotCount === 0) {
     return Object.freeze({
       status: SHORT_TEXT_CORPUS_FREEZE_GATE_CLEAR,
-      totalSlotCount: slotReadiness.length,
+      sample: rules.sample,
+      totalSlotCount: collection.length,
       blockedSlotCount: 0 as const,
     });
   }
@@ -545,31 +630,36 @@ export function checkShortTextCorpusFreezeGate(
     status: SHORT_TEXT_CORPUS_FREEZE_GATE_REFUSED,
     blocker: Object.freeze({
       blockerClass: 'SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED_AT_FREEZE' as const,
+      sample: rules.sample,
       refusal: SHORT_TEXT_BLOCKED_SAMPLE_FREEZE_REFUSAL,
       policyDecisionToken: SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY.decisionToken,
       treatmentSpace: SHORT_TEXT_ADMISSIBLE_MEMBERSHIP_TREATMENT_SPACE,
       acquisitionEffect: SHORT_TEXT_BLOCKED_SAMPLE_ACQUISITION_EFFECT,
       replacementEffect: SHORT_TEXT_BLOCKED_SAMPLE_REPLACEMENT_EFFECT,
-      totalSlotCount: slotReadiness.length,
+      totalSlotCount: collection.length,
       blockedSlotCount,
     }),
   });
 }
 
 function structuralIssueOfCollection(
+  rules: A3SampleGateRules,
   slotReadiness: unknown,
 ): A3FreezePreflightStructuralBlocker | null {
-  if (!Array.isArray(slotReadiness)) return structuralBlocker('SLOT_COLLECTION_NOT_AN_ARRAY');
+  const { sample } = rules;
+  if (!Array.isArray(slotReadiness)) {
+    return structuralBlocker('SLOT_COLLECTION_NOT_AN_ARRAY', sample);
+  }
   const seen = new Map<number, number>();
   const perSplit = new Map<Split, number>(SPLITS.map((split) => [split, 0]));
   for (let position = 0; position < slotReadiness.length; position += 1) {
     const entry: unknown = slotReadiness[position];
-    const issue = structuralIssueOf(entry);
-    if (issue !== null) return structuralBlocker(issue, { arrayPosition: position });
-    const { selectionIndex, split } = entry as A3SetPFreezeSlotReadiness;
+    const issue = rules.entryIssue(entry);
+    if (issue !== null) return structuralBlocker(issue, sample, { arrayPosition: position });
+    const { selectionIndex, split } = entry as { selectionIndex: number; split: Split };
     const earlier = seen.get(selectionIndex);
     if (earlier !== undefined) {
-      return structuralBlocker('SELECTION_INDEX_DUPLICATE', {
+      return structuralBlocker('SELECTION_INDEX_DUPLICATE', sample, {
         arrayPosition: position,
         firstArrayPosition: earlier,
       });
@@ -578,7 +668,7 @@ function structuralIssueOfCollection(
     perSplit.set(split, (perSplit.get(split) ?? 0) + 1);
   }
   if (slotReadiness.length !== GENERATION_1_SELECTED_ORGANISATIONS) {
-    return structuralBlocker('SLOT_COUNT_MISMATCH', {
+    return structuralBlocker('SLOT_COUNT_MISMATCH', sample, {
       expectedCount: GENERATION_1_SELECTED_ORGANISATIONS,
       receivedCount: slotReadiness.length,
     });
@@ -587,10 +677,40 @@ function structuralIssueOfCollection(
     const expected = GENERATION_1_SPLIT_ORGANISATION_COUNTS[split];
     const received = perSplit.get(split) ?? 0;
     if (received !== expected) {
-      return structuralBlocker('SPLIT_SLOT_COUNT_MISMATCH', {
+      return structuralBlocker('SPLIT_SLOT_COUNT_MISMATCH', sample, {
         split,
         expectedCount: expected,
         receivedCount: received,
+      });
+    }
+  }
+  return null;
+}
+
+/**
+ * SET_P and SET_R must describe the SAME slot/split assignment. Called only
+ * once BOTH collections are individually valid - so each holds exactly the
+ * canonical number of distinct indices, and a SET_P index missing from SET_R
+ * is the whole coverage story. Walks SET_P in array order and reports the
+ * first disagreement by SET_P array position, never by selection index.
+ */
+function structuralIssueOfCrossSampleSlotAssignment(
+  setP: readonly A3SetPFreezeSlotReadiness[],
+  setR: readonly A3SetRFreezeSlotReadiness[],
+): A3FreezePreflightStructuralBlocker | null {
+  const setRSplitByIndex = new Map<number, Split>(setR.map((r) => [r.selectionIndex, r.split]));
+  for (let position = 0; position < setP.length; position += 1) {
+    const { selectionIndex, split } = setP[position]!;
+    const setRSplit = setRSplitByIndex.get(selectionIndex);
+    if (setRSplit === undefined) {
+      return structuralBlocker('CROSS_SAMPLE_SLOT_COVERAGE_MISMATCH', null, {
+        arrayPosition: position,
+      });
+    }
+    if (setRSplit !== split) {
+      return structuralBlocker('CROSS_SAMPLE_SLOT_SPLIT_MISMATCH', null, {
+        arrayPosition: position,
+        split,
       });
     }
   }
@@ -624,65 +744,110 @@ export function deriveCurrentOwnerDecisionBlockers(): readonly A3FreezePreflight
 }
 
 // ---------------------------------------------------------------------------
-// THE OVERALL R9 PREFLIGHT.
+// THE OVERALL CURRENT PREFLIGHT: BOTH SAMPLES, ALWAYS.
 // ---------------------------------------------------------------------------
 
 export const A3_CORPUS_FREEZE_PREFLIGHT_KIND = 'A3_CORPUS_FREEZE_PREFLIGHT_NOT_EXECUTION_AUTHORITY';
 export const A3_CORPUS_FREEZE_PREFLIGHT_REFUSED = 'A3_CORPUS_FREEZE_PREFLIGHT_REFUSED';
-export const A3_CORPUS_FREEZE_PREFLIGHT_R9_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY =
-  'A3_CORPUS_FREEZE_PREFLIGHT_R9_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY';
+/**
+ * "No blocker class the current preparation knows about remains." Not READY,
+ * not freeze authority. (R9 called this `..._R9_BLOCKERS_CLEAR_...`; R13
+ * renamed it because the preflight now checks more than R9 did.)
+ */
+export const A3_CORPUS_FREEZE_PREFLIGHT_CURRENT_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY =
+  'A3_CORPUS_FREEZE_PREFLIGHT_CURRENT_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY';
 
 /**
- * What R9 does NOT check. Present on every result so that even a result with
- * no R9 blocker cannot be read as freeze readiness.
+ * What the current preparation does NOT check. Present on every result so that
+ * even a result with no known blocker cannot be read as freeze readiness. (R9
+ * named this `..._NOT_CHECKED_BY_R9` and listed `SET_R_RANKING`; R13 checks
+ * SET_R readiness over synthetic in-memory preparations, but no real SET_P or
+ * SET_R preparation has been materialised.)
  */
-export const A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_R9 = Object.freeze([
+export const A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_CURRENT_PREP = Object.freeze([
   'REAL_ACQUISITION_COMPLETION',
   'REAL_GENERATION_1_SLOT_MATERIALISATION',
   'REPLACEMENT_LEDGER_FINALITY',
+  'REAL_SET_P_AND_SET_R_PREPARATION_MATERIALISATION',
   'FINAL_ITEM_AND_GOLD_IDENTIFIERS',
   'A4_LABELS',
   'AGREEMENT_AND_KAPPA',
   'FINAL_MANIFEST_HASHES',
   'K4_ENFORCEMENT',
-  'SET_R_RANKING',
   'FINAL_GATE_DENOMINATORS',
 ] as const);
+
+/**
+ * BOTH complete Generation-1 readiness collections. There is no SET_P-only
+ * form: an overall check that silently ignored SET_R would under-report.
+ */
+export interface A3CurrentCorpusFreezePreflightInput {
+  readonly setP: readonly A3SetPFreezeSlotReadiness[];
+  readonly setR: readonly A3SetRFreezeSlotReadiness[];
+}
 
 export interface A3CorpusFreezePreflightResult {
   readonly kind: typeof A3_CORPUS_FREEZE_PREFLIGHT_KIND;
   readonly status:
     | typeof A3_CORPUS_FREEZE_PREFLIGHT_REFUSED
-    | typeof A3_CORPUS_FREEZE_PREFLIGHT_R9_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY;
+    | typeof A3_CORPUS_FREEZE_PREFLIGHT_CURRENT_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY;
   /**
-   * Deterministic order: (1) the structural input blocker, if any - in which
-   * case the short-text gate could not be evaluated and contributes nothing;
-   * (2) the short-text freeze blocker, if any; (3) owner decisions in contract
-   * order (currently K4 alone). Never sorted by locale.
+   * Deterministic order, never sorted by locale:
+   *   1. the SET_P structural blocker, if any;
+   *   2. the SET_R structural blocker, if any;
+   *   3. the cross-sample structural blocker, if any (evaluated only when both
+   *      collections are individually valid);
+   *   4. the SET_P short-text blocker, if SET_P is evaluable;
+   *   5. the SET_R short-text blocker, if SET_R is evaluable;
+   *   6. owner decisions in contract order (currently K4 alone).
+   * A sample is evaluable when its own collection is valid and no cross-sample
+   * disagreement was found. A malformed input shape yields one structural
+   * blocker (sample null) in place of 1-5.
    */
   readonly blockers: readonly A3FreezePreflightBlocker[];
-  readonly notCheckedByR9: typeof A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_R9;
+  readonly notCheckedByCurrentPrep: typeof A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_CURRENT_PREP;
 }
 
 /**
- * Combine the short-text corpus freeze gate with the canonical owner-decision
- * ledger. Accepts slot readiness summaries only: no approval flag, no reason
- * list, no override of any kind.
+ * Combine both samples' short-text corpus freeze gates, the cross-sample slot
+ * agreement and the canonical owner-decision ledger. Accepts the two readiness
+ * collections only: no approval flag, no reason list, no override of any kind.
  */
 export function checkCurrentA3CorpusFreezePreflight(
-  slotReadiness: readonly A3SetPFreezeSlotReadiness[],
+  input: A3CurrentCorpusFreezePreflightInput,
 ): A3CorpusFreezePreflightResult {
-  const gate = checkShortTextCorpusFreezeGate(slotReadiness);
   const blockers: A3FreezePreflightBlocker[] = [];
-  if (gate.status !== SHORT_TEXT_CORPUS_FREEZE_GATE_CLEAR) blockers.push(gate.blocker);
+  const unknownInput: unknown = input;
+  if (typeof unknownInput !== 'object' || unknownInput === null || Array.isArray(unknownInput)) {
+    blockers.push(structuralBlocker('PREFLIGHT_INPUT_NOT_TWO_SAMPLE_COLLECTIONS', null));
+  } else {
+    const setPGate = checkSetPShortTextCorpusFreezeGate(input.setP);
+    const setRGate = checkSetRShortTextCorpusFreezeGate(input.setR);
+    const setPValid = setPGate.status !== SHORT_TEXT_CORPUS_FREEZE_GATE_STRUCTURAL_REFUSAL;
+    const setRValid = setRGate.status !== SHORT_TEXT_CORPUS_FREEZE_GATE_STRUCTURAL_REFUSAL;
+    if (!setPValid) blockers.push(setPGate.blocker);
+    if (!setRValid) blockers.push(setRGate.blocker);
+    const crossSample =
+      setPValid && setRValid
+        ? structuralIssueOfCrossSampleSlotAssignment(input.setP, input.setR)
+        : null;
+    if (crossSample !== null) {
+      blockers.push(crossSample);
+    } else {
+      if (setPGate.status === SHORT_TEXT_CORPUS_FREEZE_GATE_REFUSED)
+        blockers.push(setPGate.blocker);
+      if (setRGate.status === SHORT_TEXT_CORPUS_FREEZE_GATE_REFUSED)
+        blockers.push(setRGate.blocker);
+    }
+  }
   blockers.push(...deriveCurrentOwnerDecisionBlockers());
   return Object.freeze({
     kind: A3_CORPUS_FREEZE_PREFLIGHT_KIND,
     status:
       blockers.length === 0
-        ? A3_CORPUS_FREEZE_PREFLIGHT_R9_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY
+        ? A3_CORPUS_FREEZE_PREFLIGHT_CURRENT_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY
         : A3_CORPUS_FREEZE_PREFLIGHT_REFUSED,
     blockers: Object.freeze(blockers),
-    notCheckedByR9: A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_R9,
+    notCheckedByCurrentPrep: A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_CURRENT_PREP,
   });
 }

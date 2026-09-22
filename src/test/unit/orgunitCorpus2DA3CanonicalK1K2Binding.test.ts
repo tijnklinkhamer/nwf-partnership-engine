@@ -777,7 +777,39 @@ describe('2D-A3 K1/K2: authority binding only — no SET_R implementation', () =
     }
   });
 
-  it('no a3prep module other than R10 setRScore.ts, R11 setR.ts and R12 setRSd7.ts exports a SET_R reducer, comparator or rank', () => {
+  /**
+   * R13 WIDENED IT ONCE MORE, BY EXACT NAME, for SET_R READINESS functions
+   * only: `setRSd7Readiness.ts` (cap-4 membership, slot readiness, its entry
+   * check, the extension boundary) and `corpusFreezePreflight.ts` (the SET_R
+   * short-text corpus gate). Each exported function is pinned by exact name
+   * below, and none reduces, compares or ranks - that is proved in
+   * `orgunitCorpus2DA3CanonicalSetRSd7ReadinessIsolation`.
+   */
+  const R13_AUTHORISED_SET_R_READINESS_EXPORTS: Readonly<Record<string, readonly string[]>> = {
+    'setRSd7Readiness.ts': [
+      'checkSetRExtensionCursorAgainstShortTextBoundary',
+      'deriveSetRFreezeSlotReadiness',
+      'determineSetRDocumentCap',
+      'structuralIssueOfSetRFreezeSlotReadiness',
+    ],
+    'corpusFreezePreflight.ts': ['checkSetRShortTextCorpusFreezeGate'],
+  };
+
+  it('R13 SET_R-named exports are exactly the pinned readiness functions, and no reducer, comparator or rank', () => {
+    for (const [file, pinned] of Object.entries(R13_AUTHORISED_SET_R_READINESS_EXPORTS)) {
+      const source = readFileSync(join(REPO_ROOT, A3PREP_REL, file), 'utf8');
+      const setRNamed = [...source.matchAll(/export\s+(?:async\s+)?function\s+(\w+)/g)]
+        .map((m) => m[1]!)
+        .filter((name) => /setR|reduce|decimal|compareScore|maxTrack/i.test(name))
+        .sort();
+      expect(setRNamed, file).toEqual([...pinned].sort());
+      for (const name of setRNamed) {
+        expect(name).not.toMatch(/reduce|decimal|compareScore|maxTrack|rank/i);
+      }
+    }
+  });
+
+  it('no a3prep module other than R10 setRScore.ts, R11 setR.ts and R12 setRSd7.ts exports a SET_R reducer, comparator or rank (R13 readiness exports excepted by exact name)', () => {
     for (const file of readdirSync(join(REPO_ROOT, A3PREP_REL)).filter(
       (f) =>
         f.endsWith('.ts') &&
@@ -785,8 +817,10 @@ describe('2D-A3 K1/K2: authority binding only — no SET_R implementation', () =
         f !== R11_AUTHORISED_SET_R_RANK_FILE &&
         f !== R12_AUTHORISED_SET_R_SD7_COMPOSITION_FILE,
     )) {
+      const exempt = R13_AUTHORISED_SET_R_READINESS_EXPORTS[file] ?? [];
       const source = readFileSync(join(REPO_ROOT, A3PREP_REL, file), 'utf8');
       for (const m of source.matchAll(/export\s+(?:async\s+)?function\s+(\w+)/g)) {
+        if (exempt.includes(m[1]!)) continue;
         expect(m[1], `${file}:${m[1]}`).not.toMatch(/setR|reduce|decimal|compareScore|maxTrack/i);
       }
     }

@@ -5,8 +5,9 @@
  * By reading the real source of `a3prep/corpusFreezePreflight.ts` and the git
  * history, this file proves:
  *
- *   - it imports exactly `./contracts.js`, `./sd9.js`, `./setPSd7.js` and
- *     (types only) `./types.js` - never `manifestTypes.ts`, the SD7
+ *   - it imports exactly `./contracts.js`, `./sd9.js`, `./setPSd7.js`,
+ *     `./setRSd7Readiness.js` (R13) and (types only) `./types.js` - never
+ *     `manifestTypes.ts`, the SD7
  *     measurement modules, a rank primitive, node:crypto or anything that
  *     touches IO;
  *   - it performs no IO, clock, randomness, environment or console use;
@@ -14,10 +15,18 @@
  *     approval boolean, no free-form reason list, no organisation key, no
  *     naked READY status, no manifest check;
  *   - it emits no semantic short-text verdict token;
- *   - it builds no SET_R and no organisation cap, and adds no K5;
+ *   - it builds no SET_R rank or cap and no organisation cap, and adds no K5 -
+ *     R13 lets it READ SET_R's sanitised readiness, nothing more;
  *   - R9's changed surface, from the short-text policy binding tip to R9's OWN
  *     code commit, is this module, R9's two tests and the R1 namespace
  *     widening; no other a3prep runtime file changes at all.
+ *
+ * R13 WIDENED THIS FILE, BY EXACT NAME: the import graph gained
+ * `./setRSd7Readiness.js` (readiness tokens, the per-entry structural check
+ * and the summary type only); the export list replaced the SET_P-only gate and
+ * the R9-named status/not-checked constants with explicitly sample-named
+ * gates and current-prep names. R9's own lineage assertions below are
+ * unchanged: they read R9's OWN commits, not the working tree.
  *
  * The historical `corpusFreezePreflight.ts` on the non-canonical
  * `feat/phase2b-2d-a3-corpus-prep-sol` branch was INSPECTED AS A NEGATIVE
@@ -127,13 +136,25 @@ const baseAvailable = commitExists(POLICY_TERMINAL_COMMIT);
 // ---------------------------------------------------------------------------
 
 describe('2D-A3 R9: exact import graph', () => {
-  it('imports exactly contracts, sd9, setPSd7 and types', () => {
+  it('imports exactly contracts, sd9, setPSd7, setRSd7Readiness (R13) and types', () => {
     expect(specifiersOf(code())).toEqual([
       './contracts.js',
       './sd9.js',
       './setPSd7.js',
+      './setRSd7Readiness.js',
       './types.js',
     ]);
+  });
+
+  it('R13: takes only SET_R’s blocked full-rank token, its entry check and its summary type from setRSd7Readiness', () => {
+    expect(namedImportsFrom(code(), './setRSd7Readiness.js')).toEqual([
+      'SET_R_FULL_SAMPLE_RANK_MEMBERSHIP_BLOCKED_SHORT_TEXT',
+      'structuralIssueOfSetRFreezeSlotReadiness',
+      'type A3SetRFreezeSlotReadiness',
+    ]);
+    expect(code()).not.toMatch(
+      /deriveSetRFreezeSlotReadiness|determineSetRDocumentCap|checkSetRExtensionCursor|initialCapReadiness\s*===\s*SET_R/,
+    );
   });
 
   it('reads only owner-decision, Generation-1 coverage, split and short-text policy facts from contracts', () => {
@@ -256,9 +277,9 @@ describe('2D-A3 R9: no semantic short-text verdict, no K5, no SET_R, no organisa
     expect(code()).not.toMatch(/'K1'\s*,|'K2'\s*,|'K4'\s*\]/);
   });
 
-  it('builds no SET_R and no organisation cap', () => {
+  it('builds no SET_R rank or cap and no organisation cap (R13: it reads SET_R readiness only)', () => {
     expect(code()).not.toMatch(
-      /rankSetR|SET_R_(MAX|TIE|PRIMARY)|setR\.|organisationCaps|ORGANISATION_GATE_SHARE_CAP/,
+      /rankSetR|prepareSetRSd7|\.\/setR\.js|\.\/setRSd7\.js|SET_R_(MAX|TIE|PRIMARY)|SET_R_DOCUMENT_CAP|organisationCaps|ORGANISATION_GATE_SHARE_CAP/,
     );
     expect(code()).not.toMatch(/resolvedScore|candidateScore|trackReduction/i);
   });
@@ -288,8 +309,10 @@ describe('2D-A3 R9: scope', () => {
         'A3CorpusFreezePreflightRefusal',
         'A3CorpusFreezePreflightRefusalCode',
         'A3CorpusFreezePreflightResult',
+        'A3CurrentCorpusFreezePreflightInput',
         'A3FreezePreflightBlocker',
         'A3FreezePreflightOwnerDecisionBlocker',
+        'A3FreezePreflightSample',
         'A3FreezePreflightShortTextBlocker',
         'A3FreezePreflightStructuralBlocker',
         'A3FreezePreflightStructuralCode',
@@ -301,9 +324,9 @@ describe('2D-A3 R9: scope', () => {
         'A3SetPFullRankReadiness',
         'A3SetPInitialCapReadiness',
         'A3ShortTextCorpusFreezeGateResult',
+        'A3_CORPUS_FREEZE_PREFLIGHT_CURRENT_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY',
         'A3_CORPUS_FREEZE_PREFLIGHT_KIND',
-        'A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_R9',
-        'A3_CORPUS_FREEZE_PREFLIGHT_R9_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY',
+        'A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_CURRENT_PREP',
         'A3_CORPUS_FREEZE_PREFLIGHT_REFUSED',
         'SET_P_EXTENSION_BLOCKED_SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED',
         'SET_P_EXTENSION_POSITION_EXACT',
@@ -317,7 +340,8 @@ describe('2D-A3 R9: scope', () => {
         'SHORT_TEXT_CORPUS_FREEZE_GATE_STRUCTURAL_REFUSAL',
         'checkCurrentA3CorpusFreezePreflight',
         'checkSetPExtensionCursorAgainstShortTextBoundary',
-        'checkShortTextCorpusFreezeGate',
+        'checkSetPShortTextCorpusFreezeGate',
+        'checkSetRShortTextCorpusFreezeGate',
         'deriveCurrentOwnerDecisionBlockers',
         'deriveSd9BoundsUnderShortTextPolicy',
         'deriveSetPFreezeSlotReadiness',
@@ -331,7 +355,8 @@ describe('2D-A3 R9: scope', () => {
       'A3CorpusFreezePreflightRefusal',
       'checkCurrentA3CorpusFreezePreflight',
       'checkSetPExtensionCursorAgainstShortTextBoundary',
-      'checkShortTextCorpusFreezeGate',
+      'checkSetPShortTextCorpusFreezeGate',
+      'checkSetRShortTextCorpusFreezeGate',
       'deriveCurrentOwnerDecisionBlockers',
       'deriveSd9BoundsUnderShortTextPolicy',
       'deriveSetPFreezeSlotReadiness',
@@ -342,8 +367,20 @@ describe('2D-A3 R9: scope', () => {
     expect(preflight.A3_CORPUS_FREEZE_PREFLIGHT_KIND).toBe(
       'A3_CORPUS_FREEZE_PREFLIGHT_NOT_EXECUTION_AUTHORITY',
     );
-    expect(preflight.A3_CORPUS_FREEZE_PREFLIGHT_R9_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY).toMatch(
-      /NOT_FREEZE_AUTHORITY$/,
+    expect(
+      preflight.A3_CORPUS_FREEZE_PREFLIGHT_CURRENT_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY,
+    ).toMatch(/NOT_FREEZE_AUTHORITY$/);
+  });
+
+  it('R13: no R9-only canonical name survives, and no SET_P-only overall entry point exists', () => {
+    expect(code()).not.toMatch(
+      /R9_BLOCKERS_CLEAR|NOT_CHECKED_BY_R9|notCheckedByR9|checkShortTextCorpusFreezeGate\b|'SET_R_RANKING'/,
+    );
+    expect(code()).toMatch(
+      /export function checkCurrentA3CorpusFreezePreflight\(\s*input: A3CurrentCorpusFreezePreflightInput,\s*\)/,
+    );
+    expect(code()).toMatch(
+      /export interface A3CurrentCorpusFreezePreflightInput \{\s*readonly setP: readonly A3SetPFreezeSlotReadiness\[\];\s*readonly setR: readonly A3SetRFreezeSlotReadiness\[\];\s*\}/,
     );
   });
 });
