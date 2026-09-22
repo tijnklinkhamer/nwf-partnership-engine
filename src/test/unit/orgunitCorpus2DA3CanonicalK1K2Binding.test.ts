@@ -726,11 +726,16 @@ describe('2D-A3 K1/K2: authority binding only — no SET_R implementation', () =
     expect(functions).toEqual([]);
   });
 
-  /** R11 moved `setR.ts` from absent to present, by exact name; the rest stay absent. */
-  it('no organisation-cap or synthetic-fixture module exists in a3prep; setR.ts is R11', () => {
+  /**
+   * R11 moved `setR.ts` from absent to present, by exact name; R15 did the same
+   * for `organisationCaps.ts` (SD4 enforcement, no SET_R reducer, comparator or
+   * rank - the export guard below still covers it). The rest stay absent.
+   */
+  it('no synthetic-fixture module exists in a3prep; setR.ts is R11, organisationCaps.ts is R15', () => {
     const files = readdirSync(join(REPO_ROOT, A3PREP_REL));
     expect(files).toContain('setR.ts');
-    for (const absent of ['organisationCaps.ts', 'syntheticFixtures.ts']) {
+    expect(files).toContain('organisationCaps.ts');
+    for (const absent of ['syntheticFixtures.ts']) {
       expect(files).not.toContain(absent);
     }
   });

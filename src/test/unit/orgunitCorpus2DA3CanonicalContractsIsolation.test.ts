@@ -70,6 +70,14 @@
  * boundaries live in
  * `orgunitCorpus2DA3CanonicalSetRSd7ReadinessIsolation.test.ts`.
  *
+ * R15 WIDENED IT A TWELFTH TIME, BY EXACT NAME, for `organisationCaps.ts`
+ * alone, moving it from LATER_SLICE_FILES to R15_FILES. It adds no bare
+ * import and no external module: it reads `contracts.ts` only. R15 also
+ * changed `corpusFreezePreflight.ts` at run time (it now reads
+ * `organisationCaps.ts`), which adds no further file. `syntheticFixtures.ts`
+ * stays a later slice. R15's own boundaries live in
+ * `orgunitCorpus2DA3CanonicalOrganisationCapsIsolation.test.ts`.
+ *
  * By walking the real import graph and source text of
  * `src/test/harness/phase2b2d/a3prep/`, this file proves:
  *
@@ -77,8 +85,8 @@
  *     `rank.ts` and `setP.ts`, R3's `sd9.ts`, R4's `splitScope.ts` and R5's
  *     `manifestTypes.ts`, R7's `sd7.ts`, R8's `setPSd7.ts`, R9's
  *     `corpusFreezePreflight.ts`, R10's `setRScore.ts`, R11's `setR.ts`,
- *     R12's `setRSd7.ts` and R13's `setRSd7Readiness.ts`;
- *     every later-slice module (caps, synthetic fixtures) is absent;
+ *     R12's `setRSd7.ts`, R13's `setRSd7Readiness.ts` and R15's
+ *     `organisationCaps.ts`; the later-slice synthetic fixtures are absent;
  *   - the whole transitive import closure of R1 is pure: no socket, no
  *     fetch(), no database, no filesystem, no child process, no environment
  *     read, no clock, no randomness, no provider or AI SDK;
@@ -136,6 +144,9 @@ const R12_FILES = ['setRSd7.ts'];
 /** R13, added by exact name. */
 const R13_FILES = ['setRSd7Readiness.ts'];
 
+/** R15, added by exact name. */
+const R15_FILES = ['organisationCaps.ts'];
+
 const NAMESPACE_FILES = [
   ...R1_FILES,
   ...R2_FILES,
@@ -149,13 +160,14 @@ const NAMESPACE_FILES = [
   ...R11_FILES,
   ...R12_FILES,
   ...R13_FILES,
+  ...R15_FILES,
 ].sort();
 
 /** The one namespace file that may name the SEALED_ROOT_BY_SPLIT identifier. */
 const ROOT_REFERENCE_FILES = ['splitScope.ts'];
 
 /** Later slices. Their absence is part of what R1 is. */
-const LATER_SLICE_FILES = ['organisationCaps.ts', 'syntheticFixtures.ts'];
+const LATER_SLICE_FILES = ['syntheticFixtures.ts'];
 
 /** The only modules outside a3prep/ that R1 may reach, transitively. */
 const PERMITTED_EXTERNAL_MODULES = [
@@ -212,8 +224,8 @@ function importClosure(): {
   return { modules: [...seen].sort(), bareSpecifiers: [...bare].sort(), bareImporters };
 }
 
-describe('2D-A3 R1: the a3prep namespace holds exactly R1, R2, R3, R4, R5, R7, R8, R9, R10, R11, R12 and R13', () => {
-  it('contains exactly contracts.ts, types.ts, rank.ts, setP.ts, sd9.ts, splitScope.ts, manifestTypes.ts, sd7.ts, setPSd7.ts, corpusFreezePreflight.ts, setRScore.ts, setR.ts, setRSd7.ts and setRSd7Readiness.ts', () => {
+describe('2D-A3 R1: the a3prep namespace holds exactly R1, R2, R3, R4, R5, R7, R8, R9, R10, R11, R12, R13 and R15', () => {
+  it('contains exactly contracts.ts, types.ts, rank.ts, setP.ts, sd9.ts, splitScope.ts, manifestTypes.ts, sd7.ts, setPSd7.ts, corpusFreezePreflight.ts, setRScore.ts, setR.ts, setRSd7.ts, setRSd7Readiness.ts and organisationCaps.ts', () => {
     expect(readdirSync(A3PREP_DIR).sort()).toEqual(NAMESPACE_FILES);
   });
 

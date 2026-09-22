@@ -144,8 +144,8 @@ export const SET_R_MAY_OVERLAP_SET_P = true;
  * This is the PROPORTION only. How it is mechanically enforced was settled by
  * owner clarification K4 (section G.4): the comparison is exactly
  * `10 * contribution <= finalGateDenominator`, over this same rational, and no
- * new numerical parameter exists. The enforcement itself is NOT implemented
- * anywhere yet.
+ * new numerical parameter exists. The enforcement lives in
+ * `organisationCaps.ts` (R15), never here: this module stays algorithm-free.
  */
 export const ORGANISATION_GATE_SHARE_CAP = Object.freeze({
   numerator: 1,
@@ -461,8 +461,10 @@ export const K2_OWNER_DECISION: A3PrepK2ResolvedOwnerDecision = Object.freeze({
 //    order exists to choose. G3's membership is candidate-determined, so at
 //    freeze only the PROCEDURE is committed, never an item mask.
 //
-//    Semantics are resolved; ENFORCEMENT is not implemented (R15). This A3
-//    decision K4 is NOT methodology section-K condition K4 "CLASS MINIMUM".
+//    Semantics are resolved. R15 implements the arithmetic and freeze-time
+//    enforcement in `organisationCaps.ts`; realised scoring-time enforcement
+//    is later. This A3 decision K4 is NOT methodology section-K condition K4
+//    "CLASS MINIMUM".
 // ---------------------------------------------------------------------------
 
 /** SD4 truncates only the offending gate's denominator, never a sample or the union. */

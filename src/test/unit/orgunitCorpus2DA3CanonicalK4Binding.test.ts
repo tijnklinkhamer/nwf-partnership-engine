@@ -16,10 +16,15 @@
  *     section O - and selects none of the rejected alternatives;
  *   - A3 decision K4 is not methodology section-K condition K4 (CLASS MINIMUM);
  *   - marker accounting is 4 historical / 4 resolved / 0 unresolved, no K5;
- *   - K4 ENFORCEMENT is still not implemented: no `organisationCaps.ts`, no
- *     function in the contract, and `K4_ENFORCEMENT` stays not-checked.
+ *   - at the K4 binding's terminal commit, K4 ENFORCEMENT was not
+ *     implemented: no `organisationCaps.ts`, no function in the contract, and
+ *     `K4_ENFORCEMENT` not-checked.
  *
- * It implements no fixed point. R15 will implement and test the mathematics.
+ * It implements no fixed point. R15 implemented and tested the mathematics in
+ * `organisationCaps.ts`; R15 therefore RE-PINNED the "not implemented"
+ * assertions below to the K4 binding's own terminal commit (read through git,
+ * never the working tree), and added the live R15 counterpart beside them. The
+ * contract itself still exports no function.
  */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -41,6 +46,9 @@ const K4 = contracts.K4_OWNER_DECISION;
 
 /** The canonical R13 tip the K4 record names as its parent. */
 const R13_PARENT_COMMIT = '185a3df3c4e35e6943c78ecf3681112665c81af4';
+
+/** The K4 binding's own terminal commit: what "not implemented" was true of. */
+const K4_TERMINAL_COMMIT = '135b7935426999dff14963fa8965599b6419ddda';
 
 function fileSha256(relativePath: string): string {
   return createHash('sha256')
@@ -608,45 +616,70 @@ describe('2D-A3 K4: marker accounting and K-state', () => {
   });
 });
 
-describe('2D-A3 K4: semantics resolved, enforcement NOT implemented', () => {
-  it('K4 enforcement stays in notCheckedByCurrentPrep', () => {
-    expect(A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_CURRENT_PREP).toContain('K4_ENFORCEMENT');
+describe.runIf(commitAvailable(K4_TERMINAL_COMMIT))(
+  '2D-A3 K4: at the K4 binding terminal commit, semantics resolved, enforcement NOT implemented',
+  () => {
+    const atK4 = (path: string): string => git('show', `${K4_TERMINAL_COMMIT}:${path}`);
+    const namespaceAtK4 = (): string[] =>
+      git('ls-tree', '--name-only', `${K4_TERMINAL_COMMIT}:${A3PREP_REL}`)
+        .split('\n')
+        .filter((f) => f.endsWith('.ts'))
+        .sort();
+
+    it('K4 enforcement was listed in notCheckedByCurrentPrep', () => {
+      const preflight = atK4(`${A3PREP_REL}/corpusFreezePreflight.ts`);
+      expect(preflight).toMatch(/^\s*'K4_ENFORCEMENT',$/m);
+      expect(preflight).toMatch(/^\s*'FINAL_GATE_DENOMINATORS',$/m);
+    });
+
+    it('no organisationCaps.ts, no syntheticFixtures.ts, no function in the contract', () => {
+      const files = namespaceAtK4();
+      expect(files).not.toContain('organisationCaps.ts');
+      expect(files).not.toContain('syntheticFixtures.ts');
+      const source = atK4(`${A3PREP_REL}/contracts.ts`);
+      expect(source).not.toMatch(/export function|=>\s*\{|Math\.floor|Math\.min/);
+    });
+
+    it('the canonical a3prep namespace was exactly R13’s', () => {
+      expect(namespaceAtK4()).toEqual([
+        'contracts.ts',
+        'corpusFreezePreflight.ts',
+        'manifestTypes.ts',
+        'rank.ts',
+        'sd7.ts',
+        'sd9.ts',
+        'setP.ts',
+        'setPSd7.ts',
+        'setR.ts',
+        'setRScore.ts',
+        'setRSd7.ts',
+        'setRSd7Readiness.ts',
+        'splitScope.ts',
+        'types.ts',
+      ]);
+    });
+  },
+);
+
+describe('2D-A3 K4: R15 implemented freeze-time enforcement; the contract stayed function-free', () => {
+  it('generic K4_ENFORCEMENT is gone; realised scoring-time SD4 and final gate denominators stay not-checked', () => {
+    expect(A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_CURRENT_PREP).not.toContain('K4_ENFORCEMENT');
+    expect(A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_CURRENT_PREP).toContain(
+      'REALISED_SCORING_TIME_SD4_ENFORCEMENT',
+    );
     expect(A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_CURRENT_PREP).toContain(
       'FINAL_GATE_DENOMINATORS',
     );
   });
 
-  it('no organisationCaps.ts, no syntheticFixtures.ts, no function in the contract', () => {
+  it('organisationCaps.ts exists (R15); syntheticFixtures.ts does not; the contract exports no function', () => {
     const files = readdirSync(join(REPO_ROOT, A3PREP_REL));
-    expect(files).not.toContain('organisationCaps.ts');
+    expect(files).toContain('organisationCaps.ts');
     expect(files).not.toContain('syntheticFixtures.ts');
     const source = readFileSync(join(REPO_ROOT, A3PREP_REL, 'contracts.ts'), 'utf8');
     expect(source).not.toMatch(/export function|=>\s*\{|Math\.floor|Math\.min/);
     for (const [name, value] of Object.entries(contracts)) {
       expect(typeof value, name).not.toBe('function');
     }
-  });
-
-  it('the canonical a3prep namespace is exactly R13’s', () => {
-    expect(
-      readdirSync(join(REPO_ROOT, A3PREP_REL))
-        .filter((f) => f.endsWith('.ts'))
-        .sort(),
-    ).toEqual([
-      'contracts.ts',
-      'corpusFreezePreflight.ts',
-      'manifestTypes.ts',
-      'rank.ts',
-      'sd7.ts',
-      'sd9.ts',
-      'setP.ts',
-      'setPSd7.ts',
-      'setR.ts',
-      'setRScore.ts',
-      'setRSd7.ts',
-      'setRSd7Readiness.ts',
-      'splitScope.ts',
-      'types.ts',
-    ]);
   });
 });

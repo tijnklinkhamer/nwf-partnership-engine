@@ -28,6 +28,16 @@
  * gates and current-prep names. R9's own lineage assertions below are
  * unchanged: they read R9's OWN commits, not the working tree.
  *
+ * R15 WIDENED IT AGAIN, BY EXACT NAME: the import graph gained
+ * `./organisationCaps.js` for the K4 readiness TYPE, the two readiness status
+ * tokens and the non-G3 gate list (whose length is the checked-gate count) -
+ * never the fixed-point solver, prefix retention, the planned identity check
+ * or the readiness derivation, so this module validates K4 readiness and never
+ * becomes a second K4 implementation. Contracts gained the gated splits, the
+ * G3 freeze policy and the K4 decision binding (for the policy-binding check);
+ * the input gained `k4`; the exports gained the K4 blocker shape; and the
+ * organisation-cap guard below now forbids solving rather than naming.
+ *
  * The historical `corpusFreezePreflight.ts` on the non-canonical
  * `feat/phase2b-2d-a3-corpus-prep-sol` branch was INSPECTED AS A NEGATIVE
  * REFERENCE ONLY; nothing was copied or cherry-picked from it.
@@ -136,9 +146,10 @@ const baseAvailable = commitExists(POLICY_TERMINAL_COMMIT);
 // ---------------------------------------------------------------------------
 
 describe('2D-A3 R9: exact import graph', () => {
-  it('imports exactly contracts, sd9, setPSd7, setRSd7Readiness (R13) and types', () => {
+  it('imports exactly contracts, organisationCaps (R15), sd9, setPSd7, setRSd7Readiness (R13) and types', () => {
     expect(specifiersOf(code())).toEqual([
       './contracts.js',
+      './organisationCaps.js',
       './sd9.js',
       './setPSd7.js',
       './setRSd7Readiness.js',
@@ -157,12 +168,27 @@ describe('2D-A3 R9: exact import graph', () => {
     );
   });
 
-  it('reads only owner-decision, Generation-1 coverage, split and short-text policy facts from contracts', () => {
+  it('R15: takes only the K4 readiness type, its two status tokens and the non-G3 gate list from organisationCaps', () => {
+    expect(namedImportsFrom(code(), './organisationCaps.js')).toEqual([
+      'A3_SD4_NON_G3_GATES',
+      'K4_PLANNED_SD4_FREEZE_CLEAR',
+      'K4_PLANNED_SD4_FREEZE_REFUSED',
+      'type A3K4FreezeReadiness',
+    ]);
+    expect(code()).not.toMatch(
+      /solveOrganisationShareGreatestFixedPoint|applyOrganisationSharePrefixRetention|checkPlannedNonG3OrganisationShareIdentity|deriveK4FreezeReadiness|A3_G3_FREEZE_ORGANISATION_SHARE_COMMITMENT|PLANNED_SD4_(IDENTITY|WOULD_TRUNCATE)/,
+    );
+  });
+
+  it('reads only owner-decision, Generation-1 coverage, split, short-text and K4 binding facts from contracts', () => {
     expect(namedImportsFrom(code(), './contracts.js')).toEqual([
+      'A3_GATED_SPLITS',
       'A3_PREP_OWNER_DECISIONS_REQUIRED',
       'A3_PREP_RESOLVED_OWNER_DECISION_MARKERS',
+      'G3_FREEZE_ORGANISATION_SHARE_POLICY',
       'GENERATION_1_SELECTED_ORGANISATIONS',
       'GENERATION_1_SPLIT_ORGANISATION_COUNTS',
+      'K4_OWNER_DECISION',
       'SHORT_TEXT_ADMISSIBLE_MEMBERSHIP_TREATMENT_SPACE',
       'SHORT_TEXT_BLOCKED_SAMPLE_ACQUISITION_EFFECT',
       'SHORT_TEXT_BLOCKED_SAMPLE_FREEZE_REFUSAL',
@@ -277,9 +303,13 @@ describe('2D-A3 R9: no semantic short-text verdict, no K5, no SET_R, no organisa
     expect(code()).not.toMatch(/'K1'\s*,|'K2'\s*,|'K4'\s*\]/);
   });
 
-  it('builds no SET_R rank or cap and no organisation cap (R13: it reads SET_R readiness only)', () => {
+  it('builds no SET_R rank or cap and computes no organisation cap (R13: SET_R readiness only; R15: K4 readiness only)', () => {
     expect(code()).not.toMatch(
-      /rankSetR|prepareSetRSd7|\.\/setR\.js|\.\/setRSd7\.js|SET_R_(MAX|TIE|PRIMARY)|SET_R_DOCUMENT_CAP|organisationCaps|ORGANISATION_GATE_SHARE_CAP/,
+      /rankSetR|prepareSetRSd7|\.\/setR\.js|\.\/setRSd7\.js|SET_R_(MAX|TIE|PRIMARY)|SET_R_DOCUMENT_CAP|ORGANISATION_GATE_SHARE_CAP/,
+    );
+    // No fixed-point arithmetic: no quota, no share ratio, no bigint, no contribution vector.
+    expect(code()).not.toMatch(
+      /\bquota|fixedPoint|\bbigint\b|BigInt|\d+n\b|contribution|retainedCounts/i,
     );
     expect(code()).not.toMatch(/resolvedScore|candidateScore|trackReduction/i);
   });
@@ -311,6 +341,7 @@ describe('2D-A3 R9: scope', () => {
         'A3CorpusFreezePreflightResult',
         'A3CurrentCorpusFreezePreflightInput',
         'A3FreezePreflightBlocker',
+        'A3FreezePreflightK4Blocker',
         'A3FreezePreflightOwnerDecisionBlocker',
         'A3FreezePreflightSample',
         'A3FreezePreflightShortTextBlocker',
@@ -379,9 +410,12 @@ describe('2D-A3 R9: scope', () => {
     expect(code()).toMatch(
       /export function checkCurrentA3CorpusFreezePreflight\(\s*input: A3CurrentCorpusFreezePreflightInput,\s*\)/,
     );
+    // R15: the input is exactly { setP, setR, k4 } - no `{ setP, setR }` form survives.
     expect(code()).toMatch(
-      /export interface A3CurrentCorpusFreezePreflightInput \{\s*readonly setP: readonly A3SetPFreezeSlotReadiness\[\];\s*readonly setR: readonly A3SetRFreezeSlotReadiness\[\];\s*\}/,
+      /export interface A3CurrentCorpusFreezePreflightInput \{\s*readonly setP: readonly A3SetPFreezeSlotReadiness\[\];\s*readonly setR: readonly A3SetRFreezeSlotReadiness\[\];\s*readonly k4: readonly A3K4FreezeReadiness\[\];\s*\}/,
     );
+    expect(code()).not.toMatch(/'K4_ENFORCEMENT'/);
+    expect(code()).toMatch(/'REALISED_SCORING_TIME_SD4_ENFORCEMENT'/);
   });
 });
 

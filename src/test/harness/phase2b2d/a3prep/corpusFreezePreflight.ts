@@ -1,13 +1,15 @@
 /**
  * PHASE 2B-2D — A3 CANONICAL PREPARATION, R9 FOUNDATION EXTENDED IN R13 TO
- * BOTH FROZEN SAMPLES: SHORT-TEXT AMBIGUITY PROPAGATION TO FREEZE TIME, AND
- * THE CURRENT A3 CORPUS-FREEZE PREFLIGHT CONTRACT.
+ * BOTH FROZEN SAMPLES AND IN R15 TO K4 FREEZE READINESS: SHORT-TEXT AMBIGUITY
+ * PROPAGATION TO FREEZE TIME, AND THE CURRENT A3 CORPUS-FREEZE PREFLIGHT
+ * CONTRACT.
  *
  * HISTORY. R9 built this preflight when SET_P was the only sample with a
  * canonical rank: its per-slot layer, SD9 envelope and owner ledger are R9's.
  * R13 added SET_R's per-slot readiness (`setRSd7Readiness.ts`) and made the
  * overall preflight require BOTH complete sample collections; an overall check
- * over SET_P alone no longer exists.
+ * over SET_P alone no longer exists. R15 made it require a third input: one
+ * sanitised K4 freeze readiness per gated split (`organisationCaps.ts`).
  *
  * THIS IS A PARTIAL PREFLIGHT, NOT FREEZE AUTHORITY. Every overall result is of
  * kind `A3_CORPUS_FREEZE_PREFLIGHT_NOT_EXECUTION_AUTHORITY`. It checks only the
@@ -18,8 +20,12 @@
  * That never authorises a freeze and never proves A5 readiness (see
  * `A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_CURRENT_PREP`). Under the current
  * contracts K1, K2, K3 and K4 are all resolved, so no owner-decision blocker
- * remains; K4's SD4 ENFORCEMENT is still unimplemented and is listed there as
- * `K4_ENFORCEMENT`, so even a clear result is not freeze authority.
+ * remains. FREEZE-TIME SD4 enforcement exists since R15: the planned non-G3
+ * gates' identity is checked in `organisationCaps.ts` and arrives here only as
+ * sanitised readiness, and G3 is covered by its pre-semantic procedure
+ * commitment. REALISED, SCORING-TIME SD4 enforcement does not exist yet and is
+ * listed as `REALISED_SCORING_TIME_SD4_ENFORCEMENT`, so even a clear result is
+ * not freeze authority.
  *
  * TWO LAYERS
  *
@@ -31,8 +37,10 @@
  *   2. AGGREGATE: one short-text freeze gate PER SAMPLE
  *      (`checkSetPShortTextCorpusFreezeGate`,
  *      `checkSetRShortTextCorpusFreezeGate`), a cross-sample slot/split
- *      agreement check, and the owner-decision blocker ledger derived from
- *      `contracts.ts` alone, combined by `checkCurrentA3CorpusFreezePreflight`.
+ *      agreement check, the K4 readiness collection check (R15) and the
+ *      owner-decision blocker ledger derived from `contracts.ts` alone,
+ *      combined by `checkCurrentA3CorpusFreezePreflight`. This module never
+ *      solves a fixed point: it reads K4 readiness, it does not derive it.
  *
  * INITIAL CAP IS NOT THE FULL FREEZE RANK
  *
@@ -68,22 +76,26 @@
  *   - It changes no acquisition status, names no replacement reason and moves
  *     no reserve.
  *   - It implements no extension selection, no organisation cap and no
- *     manifest; it evaluates no real data; it resolves no owner decision and
- *     enforces no resolved one (K4's SD4 truncation included), and accepts no
- *     caller approval that could hide an open one.
+ *     manifest; it evaluates no real data; it resolves no owner decision,
+ *     truncates nothing (K4's arithmetic lives in `organisationCaps.ts`), and
+ *     accepts no caller approval that could hide an open one.
  *   - No returned value or refusal message carries a document SHA-256, a page
  *     id, a URL, text, an organisation identity or a selection index.
  *     Collection refusals name a SAMPLE, an ARRAY POSITION, a count or a
- *     canonical split token, never a caller field.
+ *     canonical split token, never a caller field. A K4 blocker names no
+ *     split, gate, count or denominator.
  *
  * THIS MODULE IS PURE. No socket, no database, no filesystem, no clock, no
  * randomness, no environment read, no hashing. It mutates no input.
  */
 import {
+  A3_GATED_SPLITS,
   A3_PREP_OWNER_DECISIONS_REQUIRED,
   A3_PREP_RESOLVED_OWNER_DECISION_MARKERS,
+  G3_FREEZE_ORGANISATION_SHARE_POLICY,
   GENERATION_1_SELECTED_ORGANISATIONS,
   GENERATION_1_SPLIT_ORGANISATION_COUNTS,
+  K4_OWNER_DECISION,
   SHORT_TEXT_ADMISSIBLE_MEMBERSHIP_TREATMENT_SPACE,
   SHORT_TEXT_BLOCKED_SAMPLE_ACQUISITION_EFFECT,
   SHORT_TEXT_BLOCKED_SAMPLE_FREEZE_REFUSAL,
@@ -93,6 +105,12 @@ import {
   type A3PrepUnresolvedOwnerDecisionMarker,
   type Split,
 } from './contracts.js';
+import {
+  A3_SD4_NON_G3_GATES,
+  K4_PLANNED_SD4_FREEZE_CLEAR,
+  K4_PLANNED_SD4_FREEZE_REFUSED,
+  type A3K4FreezeReadiness,
+} from './organisationCaps.js';
 import { evaluateSd9FromAdmissiblePostSd7Bounds, type A3Sd9MechanicalStatus } from './sd9.js';
 import {
   SET_P_DOCUMENT_CAP_BLOCKED_SHORT_TEXT_SAMPLE_MEMBERSHIP,
@@ -300,7 +318,13 @@ export type A3FreezePreflightStructuralCode =
   | 'SLOT_COUNT_MISMATCH'
   | 'SPLIT_SLOT_COUNT_MISMATCH'
   | 'CROSS_SAMPLE_SLOT_COVERAGE_MISMATCH'
-  | 'CROSS_SAMPLE_SLOT_SPLIT_MISMATCH';
+  | 'CROSS_SAMPLE_SLOT_SPLIT_MISMATCH'
+  | 'K4_READINESS_COLLECTION_NOT_AN_ARRAY'
+  | 'K4_READINESS_ENTRY_INVALID'
+  | 'K4_READINESS_POLICY_BINDING_MISMATCH'
+  | 'K4_READINESS_INCONSISTENT'
+  | 'K4_READINESS_SPLIT_DUPLICATE'
+  | 'K4_READINESS_COUNT_MISMATCH';
 
 /** The two frozen samples. Aggregate metadata only: it names no slot. */
 export type A3FreezePreflightSample = 'SET_P' | 'SET_R';
@@ -503,6 +527,20 @@ export interface A3FreezePreflightShortTextBlocker {
   readonly blockedSlotCount: number;
 }
 
+/**
+ * R15. One aggregate blocker for the whole K4 readiness collection: how many
+ * gated splits refused, never which, never which gate, never a count vector,
+ * quota or denominator.
+ */
+export interface A3FreezePreflightK4Blocker {
+  readonly blockerClass: 'K4_PLANNED_SD4_ORGANISATION_SHARE_NOT_IDENTITY_AT_FREEZE';
+  readonly refusal: typeof K4_PLANNED_SD4_FREEZE_REFUSED;
+  readonly blockedGatedSplitCount: number;
+  readonly totalGatedSplitCount: number;
+  readonly policyDecisionToken: typeof K4_OWNER_DECISION.decisionToken;
+  readonly policyDecisionRecordSha256: string;
+}
+
 export interface A3FreezePreflightOwnerDecisionBlocker {
   readonly blockerClass: 'OWNER_DECISION_UNRESOLVED';
   readonly id: 'K1' | 'K2' | 'K4';
@@ -512,6 +550,7 @@ export interface A3FreezePreflightOwnerDecisionBlocker {
 export type A3FreezePreflightBlocker =
   | A3FreezePreflightStructuralBlocker
   | A3FreezePreflightShortTextBlocker
+  | A3FreezePreflightK4Blocker
   | A3FreezePreflightOwnerDecisionBlocker;
 
 function structuralBlocker(
@@ -719,7 +758,92 @@ function structuralIssueOfCrossSampleSlotAssignment(
 }
 
 // ---------------------------------------------------------------------------
-// LAYER 2b — THE CURRENT OWNER-DECISION BLOCKER LEDGER. Derived from
+// LAYER 2b — K4 FREEZE READINESS, ONE SANITISED SUMMARY PER GATED SPLIT (R15).
+// Validated here, derived only in `organisationCaps.ts`: no fixed point is
+// solved and no contribution is seen by this module.
+// ---------------------------------------------------------------------------
+
+function structuralIssueOfK4FreezeReadiness(
+  entry: unknown,
+): A3FreezePreflightStructuralCode | null {
+  if (typeof entry !== 'object' || entry === null || Array.isArray(entry)) {
+    return 'K4_READINESS_ENTRY_INVALID';
+  }
+  const r = entry as Record<string, unknown>;
+  if (
+    r.kind !== 'A3_K4_FREEZE_READINESS_SANITISED' ||
+    typeof r.split !== 'string' ||
+    !(A3_GATED_SPLITS as readonly string[]).includes(r.split) ||
+    (r.status !== K4_PLANNED_SD4_FREEZE_CLEAR && r.status !== K4_PLANNED_SD4_FREEZE_REFUSED)
+  ) {
+    return 'K4_READINESS_ENTRY_INVALID';
+  }
+  if (
+    r.k4DecisionToken !== K4_OWNER_DECISION.decisionToken ||
+    r.k4DecisionRecordSha256 !== K4_OWNER_DECISION.decisionRecordSha256 ||
+    r.g3FreezePolicy !== G3_FREEZE_ORGANISATION_SHARE_POLICY
+  ) {
+    return 'K4_READINESS_POLICY_BINDING_MISMATCH';
+  }
+  const checked = r.checkedNonG3GateCount;
+  const blocked = r.blockedNonG3GateCount;
+  if (
+    checked !== A3_SD4_NON_G3_GATES.length ||
+    !isNonNegativeSafeInteger(blocked) ||
+    blocked > A3_SD4_NON_G3_GATES.length
+  ) {
+    return 'K4_READINESS_INCONSISTENT';
+  }
+  const clear = r.status === K4_PLANNED_SD4_FREEZE_CLEAR;
+  return clear === (blocked === 0) ? null : 'K4_READINESS_INCONSISTENT';
+}
+
+function structuralIssueOfK4ReadinessCollection(
+  k4: unknown,
+): A3FreezePreflightStructuralBlocker | null {
+  if (!Array.isArray(k4)) return structuralBlocker('K4_READINESS_COLLECTION_NOT_AN_ARRAY', null);
+  const seen = new Map<string, number>();
+  for (let position = 0; position < k4.length; position += 1) {
+    const entry: unknown = k4[position];
+    const issue = structuralIssueOfK4FreezeReadiness(entry);
+    if (issue !== null) return structuralBlocker(issue, null, { arrayPosition: position });
+    const { split } = entry as A3K4FreezeReadiness;
+    const earlier = seen.get(split);
+    if (earlier !== undefined) {
+      return structuralBlocker('K4_READINESS_SPLIT_DUPLICATE', null, {
+        arrayPosition: position,
+        firstArrayPosition: earlier,
+      });
+    }
+    seen.set(split, position);
+  }
+  // Every entry is a distinct canonical gated split, so the count is coverage.
+  if (k4.length !== A3_GATED_SPLITS.length) {
+    return structuralBlocker('K4_READINESS_COUNT_MISMATCH', null, {
+      expectedCount: A3_GATED_SPLITS.length,
+      receivedCount: k4.length,
+    });
+  }
+  return null;
+}
+
+function k4BlockerOf(k4: readonly A3K4FreezeReadiness[]): A3FreezePreflightK4Blocker | null {
+  const blockedGatedSplitCount = k4.filter(
+    (r) => r.status === K4_PLANNED_SD4_FREEZE_REFUSED,
+  ).length;
+  if (blockedGatedSplitCount === 0) return null;
+  return Object.freeze({
+    blockerClass: 'K4_PLANNED_SD4_ORGANISATION_SHARE_NOT_IDENTITY_AT_FREEZE' as const,
+    refusal: K4_PLANNED_SD4_FREEZE_REFUSED,
+    blockedGatedSplitCount,
+    totalGatedSplitCount: A3_GATED_SPLITS.length,
+    policyDecisionToken: K4_OWNER_DECISION.decisionToken,
+    policyDecisionRecordSha256: K4_OWNER_DECISION.decisionRecordSha256,
+  });
+}
+
+// ---------------------------------------------------------------------------
+// LAYER 2c — THE CURRENT OWNER-DECISION BLOCKER LEDGER. Derived from
 // contracts.ts alone; it takes no argument, so no caller can hide an entry.
 // ---------------------------------------------------------------------------
 
@@ -763,7 +887,10 @@ export const A3_CORPUS_FREEZE_PREFLIGHT_CURRENT_BLOCKERS_CLEAR_NOT_FREEZE_AUTHOR
  * even a result with no known blocker cannot be read as freeze readiness. (R9
  * named this `..._NOT_CHECKED_BY_R9` and listed `SET_R_RANKING`; R13 checks
  * SET_R readiness over synthetic in-memory preparations, but no real SET_P or
- * SET_R preparation has been materialised.)
+ * SET_R preparation has been materialised. R15 replaced the generic
+ * `K4_ENFORCEMENT` with `REALISED_SCORING_TIME_SD4_ENFORCEMENT`: freeze-time
+ * SD4 is checked through K4 readiness; SD4 over realised, candidate-dependent
+ * gate denominators - and those denominators themselves - are not.)
  */
 export const A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_CURRENT_PREP = Object.freeze([
   'REAL_ACQUISITION_COMPLETION',
@@ -774,17 +901,20 @@ export const A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_CURRENT_PREP = Object.fre
   'A4_LABELS',
   'AGREEMENT_AND_KAPPA',
   'FINAL_MANIFEST_HASHES',
-  'K4_ENFORCEMENT',
+  'REALISED_SCORING_TIME_SD4_ENFORCEMENT',
   'FINAL_GATE_DENOMINATORS',
 ] as const);
 
 /**
- * BOTH complete Generation-1 readiness collections. There is no SET_P-only
- * form: an overall check that silently ignored SET_R would under-report.
+ * BOTH complete Generation-1 readiness collections, and (R15) exactly one K4
+ * freeze readiness per gated split. There is no SET_P-only form and no
+ * `{ setP, setR }` form: an overall check that silently ignored SET_R, or SD4,
+ * would under-report.
  */
 export interface A3CurrentCorpusFreezePreflightInput {
   readonly setP: readonly A3SetPFreezeSlotReadiness[];
   readonly setR: readonly A3SetRFreezeSlotReadiness[];
+  readonly k4: readonly A3K4FreezeReadiness[];
 }
 
 export interface A3CorpusFreezePreflightResult {
@@ -798,12 +928,15 @@ export interface A3CorpusFreezePreflightResult {
    *   2. the SET_R structural blocker, if any;
    *   3. the cross-sample structural blocker, if any (evaluated only when both
    *      collections are individually valid);
-   *   4. the SET_P short-text blocker, if SET_P is evaluable;
-   *   5. the SET_R short-text blocker, if SET_R is evaluable;
-   *   6. owner decisions in contract order (currently none: K1-K4 are resolved).
+   *   4. the K4 readiness structural blocker, if any (R15);
+   *   5. the SET_P short-text blocker, if SET_P is evaluable;
+   *   6. the SET_R short-text blocker, if SET_R is evaluable;
+   *   7. the aggregate K4 planned-SD4 blocker, if the K4 collection is valid
+   *      and any gated split refused (R15);
+   *   8. owner decisions in contract order (currently none: K1-K4 are resolved).
    * A sample is evaluable when its own collection is valid and no cross-sample
    * disagreement was found. A malformed input shape yields one structural
-   * blocker (sample null) in place of 1-5.
+   * blocker (sample null) in place of 1-7.
    */
   readonly blockers: readonly A3FreezePreflightBlocker[];
   readonly notCheckedByCurrentPrep: typeof A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_CURRENT_PREP;
@@ -811,8 +944,9 @@ export interface A3CorpusFreezePreflightResult {
 
 /**
  * Combine both samples' short-text corpus freeze gates, the cross-sample slot
- * agreement and the canonical owner-decision ledger. Accepts the two readiness
- * collections only: no approval flag, no reason list, no override of any kind.
+ * agreement, the K4 readiness collection and the canonical owner-decision
+ * ledger. Accepts the three readiness collections only: no approval flag, no
+ * reason list, no override of any kind.
  */
 export function checkCurrentA3CorpusFreezePreflight(
   input: A3CurrentCorpusFreezePreflightInput,
@@ -832,14 +966,17 @@ export function checkCurrentA3CorpusFreezePreflight(
       setPValid && setRValid
         ? structuralIssueOfCrossSampleSlotAssignment(input.setP, input.setR)
         : null;
-    if (crossSample !== null) {
-      blockers.push(crossSample);
-    } else {
+    if (crossSample !== null) blockers.push(crossSample);
+    const k4Structural = structuralIssueOfK4ReadinessCollection(input.k4);
+    if (k4Structural !== null) blockers.push(k4Structural);
+    if (crossSample === null) {
       if (setPGate.status === SHORT_TEXT_CORPUS_FREEZE_GATE_REFUSED)
         blockers.push(setPGate.blocker);
       if (setRGate.status === SHORT_TEXT_CORPUS_FREEZE_GATE_REFUSED)
         blockers.push(setRGate.blocker);
     }
+    const k4Blocker = k4Structural === null ? k4BlockerOf(input.k4) : null;
+    if (k4Blocker !== null) blockers.push(k4Blocker);
   }
   blockers.push(...deriveCurrentOwnerDecisionBlockers());
   return Object.freeze({
