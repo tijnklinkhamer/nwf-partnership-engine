@@ -1,0 +1,487 @@
+{
+  "recordId": "phase2b-2d-a2-post-mixed-window-next-replacement-and-primary-continuation-strategy-v1",
+  "recordKind": "OFFLINE_ACQUISITION_WINDOW_STRATEGY",
+  "records": "PHASE_2B_2D_A2_POST_MIXED_WINDOW_NEXT_REPLACEMENT_AND_PRIMARY_CONTINUATION_STRATEGY_V1",
+  "recordedAtUtc": "2026-09-22T09:18:50Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "ownerDecision": "A2_POST_MIXED_WINDOW_NEXT_REPLACEMENT_AND_PRIMARY_CONTINUATION_STRATEGY",
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "startingHead": {
+    "local": "156df2ad08c90bbfef02a1187db7cdd73121ecc6",
+    "origin": "156df2ad08c90bbfef02a1187db7cdd73121ecc6",
+    "parent": "b0a8ddf0ae31c265367f7a7a3bba8e4d85a0b554",
+    "worktreeClean": true,
+    "concurrentOverlappingA2Movement": false,
+    "concurrentFullValidate": false
+  },
+  "bound": {
+    "postMixedWindowEvidenceAdjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P12_MIXED_WINDOW_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "92988ac55edafa1dd20f801f17f01405e9be6c26c4c78f4d4c4fde908d5009db",
+      "bytes": 36262,
+      "commit": "156df2ad08c90bbfef02a1187db7cdd73121ecc6",
+      "recomputed": true,
+      "edited": false
+    },
+    "previousStrategy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P12_REPLACEMENT_AND_PRIMARY_CONTINUATION_STRATEGY_V1.json",
+      "sha256": "6e1c6a7291b45b16dd2198477c084636db919abc7747558d0e16c27b99c19778",
+      "bytes": 22321,
+      "role": "precedent only (replacements first, then primaries); not re-used as this window's strategy",
+      "edited": false
+    },
+    "transitionLedgerV6": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_ACQUISITION_POLICY_TRANSITION_LEDGER_V6_GEN1.json",
+      "sha256": "592b17062a601ac21f0525209e133220b90ebd97848790f9da66e22f9391461d",
+      "bytes": 19454,
+      "entryCount": 7,
+      "recomputed": true,
+      "edited": false
+    },
+    "ownerReserveOrderClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "bytes": 18443,
+      "equalsLandedConstant": "OWNER_CLARIFICATION_SHA256 (windowContract.ts)"
+    },
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306
+    },
+    "corpusPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "bytes": 45200
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "bytes": 3554080,
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650"
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "bytes": 74047,
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293",
+      "drawHashRecomputes": true
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "c06e41a08e51934682fa1bc7621bdc9be8c708aee7278fd9177b03f98d8e17b3",
+      "bytes": 8473,
+      "ledgerHash": "5c464b2a56412951a9da11a608252584af3abfa6928c43ea22477be8afcd895b",
+      "ledgerHashRecomputes": true,
+      "validAgainstDraw": true,
+      "extendsGenesis": true,
+      "entries": 6,
+      "lastChangedIn": "04f1c1db2194ec374f4fcdaaaaaf0e13b18f31e2"
+    },
+    "auditedHarness": {
+      "windowPlan": {
+        "path": "src/test/harness/phase2b2d/continuationWindow/windowPlan.ts",
+        "sha256": "8656b025712fd7b2ca13cf7eb156868d465d3f344ed276edfd13687f6309060b",
+        "lastChangedIn": "c099c23"
+      },
+      "replacementLedger": {
+        "path": "src/test/harness/phase2b2d/continuationWindow/replacementLedger.ts",
+        "sha256": "88b9e597bb5b1b0b1e33954057d61ba4be60490dcb1bab88e2924a52d7cb7f25"
+      },
+      "replacementPlanner": {
+        "path": "src/test/harness/phase2b2d/continuationWindow/replacementPlanner.ts",
+        "sha256": "40c5a600a4120cd54eadba2aff74d39506b38609d884faf9efe5c253e00894a2"
+      },
+      "replacementAppend": {
+        "path": "src/test/harness/phase2b2d/continuationWindow/replacementAppend.ts",
+        "sha256": "7ef68094030d22612a0be9a46c15f464c16a262d22cae742154f75f33941dc6a"
+      }
+    }
+  },
+  "currentGenerationState": {
+    "source": "the post-P:12 mixed-window evidence adjudication (156df2a) plus the six-entry replacement ledger, re-derived in this step with the landed harness; not memory",
+    "ACQUISITION_SUCCESSFUL": 15,
+    "successfulSelectionIndices": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15],
+    "CURRENT_ACQUISITION_FAILURE": [12],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "pendingReplacementObligations": [
+      {
+        "selectionIndex": 12,
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "currentOccupant": "RESERVE_REPLACEMENT",
+        "currentReserveRankPosition": 5,
+        "nextReserveAssigned": false
+      }
+    ],
+    "NEVER_STARTED": 94,
+    "neverStartedSelectionIndices": {
+      "from": 16,
+      "to": 109,
+      "count": 94
+    },
+    "nextNeverStartedSelectionIndex": 16,
+    "replacementLedgerEntries": 6,
+    "reserveConsumed": 6,
+    "reserveUnused": 34,
+    "nextUnusedReservePosition": 6,
+    "p6": {
+      "condition": "reserveConsumed > 10 AND successfulSelectionSlots < 50",
+      "reserveConsumed": 6,
+      "successfulSelectionSlots": 15,
+      "evaluation": "6 > 10 is false",
+      "result": "NOT_TRIGGERED"
+    },
+    "sums": "15 + 1 + 0 + 94 = 110",
+    "deviationFromOwnerExpectation": false
+  },
+  "frozenStrategyRules": [
+    "recommended window size remains 5",
+    "pending replacement obligations come before untouched primaries",
+    "multiple obligations are ordered by selectionIndex ascending",
+    "unused reserves are walked monotonically in frozen reserve-rank order",
+    "untouched primaries continue by selectionIndex ascending",
+    "a replacement inherits its slot's split",
+    "a failed reserve creates a same-slot replacement chain",
+    "the next chain link replaces the current reserve occupant, not the original selection",
+    "no dynamic insertion or window enlargement",
+    "strategy selection does not assign or consume a reserve",
+    "reserve consumption occurs only after a future canonical ledger row is appended, committed and pushed before institution network",
+    "no institution identity, website characteristic, expected yield, split composition or past outcome chooses or orders work"
+  ],
+  "windowSize": {
+    "plannedWindowSize": 5,
+    "source": "Corpus Plan V1 batchingPlan.recommendedBatchSize = 5; no amendment changes it",
+    "notEnlarged": true,
+    "notShrunk": true
+  },
+  "strategyOptions": [
+    {
+      "option": "A",
+      "name": "REPLACEMENT_ONLY",
+      "workItems": ["R:12:6"],
+      "methodologicallyAllowed": true,
+      "selected": false,
+      "assessment": "clears the sole owed obligation and preserves reserve order, but uses only one of the recommended five bounded-review positions and advances no untouched primary"
+    },
+    {
+      "option": "B",
+      "name": "PRIMARIES_ONLY",
+      "workItems": ["P:16", "P:17", "P:18", "P:19", "P:20"],
+      "methodologicallyAllowed": true,
+      "selected": false,
+      "assessment": "preserves primary order and size 5, but defers an already-owed same-slot replacement obligation through another complete window"
+    },
+    {
+      "option": "C",
+      "name": "MIXED_ONE_REPLACEMENT_PLUS_FOUR_PRIMARIES",
+      "workItems": ["R:12:6", "P:16", "P:17", "P:18", "P:19"],
+      "methodologicallyAllowed": true,
+      "selected": true,
+      "assessment": "clears every currently owed obligation in the next precommit, advances four untouched primaries, keeps the recommended size 5, preserves reserve and primary order, follows the replacements-first precedent (Window V1, post-P:12 mixed window), is result-blind and needs no adaptive insertion"
+    }
+  ],
+  "comparisonBasis": "methodology and governance fit only; no institution identity, website, expected yield, split preference or prior institution performance was consulted",
+  "selectedOption": "C",
+  "candidateWindow": {
+    "workItems": [
+      {
+        "order": 1,
+        "workItemId": "R:12:6",
+        "kind": "REPLACEMENT",
+        "selectionIndex": 12,
+        "reserveRankPosition": 6,
+        "split": "DEV_TRAIN",
+        "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacesOccupant": "RESERVE_REPLACEMENT",
+        "replacedReserveRankPosition": 5,
+        "plannedLedgerSequence": 6,
+        "drawEntryKind": "RESERVE",
+        "drawEntrySha256": "e9794cda4fb3d1711ae99002bfe77599046fb824b15dbcce2a14d1c94b0d2694"
+      },
+      {
+        "order": 2,
+        "workItemId": "P:16",
+        "kind": "PRIMARY",
+        "selectionIndex": 16,
+        "split": "FINAL_HOLDOUT",
+        "drawEntryKind": "SELECTION",
+        "drawEntrySha256": "e687a3dcfdeeb41449d4ed2f90ca2c0f9165e9a5bad2adf7a11582ca206ebcde"
+      },
+      {
+        "order": 3,
+        "workItemId": "P:17",
+        "kind": "PRIMARY",
+        "selectionIndex": 17,
+        "split": "DEV_TRAIN",
+        "drawEntryKind": "SELECTION",
+        "drawEntrySha256": "1705a37d84d3723ae756b8f4d62a5433943693cd4eedb887c0207d49f289f71b"
+      },
+      {
+        "order": 4,
+        "workItemId": "P:18",
+        "kind": "PRIMARY",
+        "selectionIndex": 18,
+        "split": "DEV_CONFIRM",
+        "drawEntryKind": "SELECTION",
+        "drawEntrySha256": "f46422f637651f5aef4f8fcdc8b7bf280092b5a2ad6b2ea8f79c4596847fab64"
+      },
+      {
+        "order": 5,
+        "workItemId": "P:19",
+        "kind": "PRIMARY",
+        "selectionIndex": 19,
+        "split": "FINAL_HOLDOUT",
+        "drawEntryKind": "SELECTION",
+        "drawEntrySha256": "2585db02c66c2ef6f0a53f70ebc4c893c10e690751de94adba06154984d96a09"
+      }
+    ],
+    "replacementItems": 1,
+    "primaryItems": 4,
+    "orderRationale": [
+      "the one replacement already owed by frozen methodology comes first",
+      "untouched primaries then continue in frozen selection order from 16",
+      "the combined order is also ascending selectionIndex: 12, 16, 17, 18, 19",
+      "no split or identity characteristic is consulted",
+      "all five items are precommitted before any future network execution"
+    ],
+    "splitComposition": {
+      "DEV_TRAIN": 2,
+      "DEV_CONFIRM": 1,
+      "FINAL_HOLDOUT": 2
+    },
+    "splitCompositionIsASelectionTarget": false,
+    "splitCompositionNote": "incidental frozen-draw output",
+    "drawEntryDigestMethod": "drawEntrySha256 = sha256(canonicalStringify(exact parsed draw entry)), landed drawEntrySha256 (windowPlan.ts); the replacement digests draw.reserve[6], primaries digest draw.selection[selectionIndex]",
+    "digestsRecomputed": true,
+    "digestsEqualOwnerPrompt": true
+  },
+  "replacementChain": {
+    "rule": "SAME_SELECTION_SLOT_APPEND_ONLY_ACROSS_PRECOMMITTED_WINDOWS (Owner Clarification Q2)",
+    "proof": {
+      "method": "validateReplacementLedger + currentOccupantForSelectionIndex + planPendingReplacementObligations over the validated six-entry ledger (scratchpad script, not committed)",
+      "slot12LedgerSequences": [5],
+      "slot12LatestSequence": 5,
+      "slot12CurrentOccupantKind": "RESERVE_REPLACEMENT",
+      "slot12CurrentReserveRankPosition": 5,
+      "nextUnusedReservePosition": 6,
+      "reservePosition6InLedger": false,
+      "plannerResultForPendingSlots[12]": [
+        {
+          "selectionIndex": 12,
+          "reserveRankPosition": 6
+        }
+      ],
+      "slot12Split": "DEV_TRAIN",
+      "primarySlots16To19CurrentOccupant": "ORIGINAL_SELECTION"
+    },
+    "futureRowConstraints": {
+      "sequence": 6,
+      "selectionIndex": 12,
+      "reserveRankPosition": 6,
+      "split": "DEV_TRAIN",
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "replacedOccupantKind": "RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 5,
+      "derivation": "prepareReplacementAppend derives replacedOccupantKind and previousSequenceForSlot from the slot's latest entry; validateReplacementLedger enforces both"
+    },
+    "notDoneHere": [
+      "the row is not built",
+      "the row is not appended",
+      "recordedAtUtc is not chosen",
+      "no entryHash is calculated",
+      "the ledger is not mutated",
+      "reserve 6 is not marked consumed"
+    ],
+    "reserve6Status": "STRATEGY_LEVEL_PLANNED_ONLY"
+  },
+  "futureReserveStateIfPrecommitted": {
+    "conditional": true,
+    "thisStrategyAppendsTheLedger": false,
+    "ifTheSequence6RowIsDurablyAppendedBeforeRequest1": {
+      "replacementLedgerEntries": 7,
+      "reserveConsumed": 7,
+      "reserveUnused": 33,
+      "nextUnusedReservePosition": 7,
+      "p6": "7 > 10 is false -> NOT_TRIGGERED"
+    },
+    "p6AtExecutionReadsTheRealLedgerCount": true
+  },
+  "failureSemantics": {
+    "replacementFailure": "the failed reserve stays the slot's current occupant; a further same-slot obligation arises only after adjudication; reserve 7 or later is never assigned inside the same window",
+    "primaryFailure": "evidence preserved; no reserve assigned inside the same window; obligation only after adjudication",
+    "dynamicChainExtension": false,
+    "windowGrowth": false
+  },
+  "toolingAudit": {
+    "readOnly": true,
+    "codeChanged": false,
+    "adapter": {
+      "function": "windowSpecFromAcquisitionWindowStrategy (windowPlan.ts, landed c099c23)",
+      "supports": {
+        "oneReplacementPlusFourPrimaries": "candidate items of both kinds with replacementItems/primaryItems counts",
+        "sixEntryStartingLedger": "re-hashes the supplied ledger bytes, validates against the draw, requires ledgerExtendsGenesis and entries === bound entries",
+        "plannedReplacementSequence6": "reserve positions must equal planPendingReplacementObligations (next unused = entryCount), and precommittedWindowSpecViolations requires position = startingLedger.entryCount + k",
+        "replacesOccupantReserveReplacement": "replacesOccupant is DERIVED from currentOccupantForSelectionIndex; a claim that disagrees is refused",
+        "previousSequenceForSlot5": "not a spec field; derived by prepareReplacementAppend and enforced by validateReplacementLedger and the P7 planned-append match (replacedOccupantKind)",
+        "currentFailuresAndPendingObligations": "accepted; each obligation must be a current failure, and each replacement must discharge one with the same reason",
+        "callerSuppliedPlanIdentity": "WindowPlanIdentity input; refused if it reuses the strategy identity",
+        "specFromStrategyDrawAndLedgerOnly": "inputs are draw, strategy bytes, strategy file facts, starting-ledger bytes and identity; no plan is an input"
+      },
+      "existingCoverage": "orgunitCorpus2DA2ContinuationWindowStrategyAdapterGeneralisation.test.ts 'a replacement chain (synthetic)' derives RESERVE_REPLACEMENT and refuses an ORIGINAL_SELECTION claim",
+      "scratchProbe": {
+        "what": "a scratchpad script outside the repository fed this record's draft bytes, the frozen draw and the six-entry ledger bytes into the landed windowSpecFromAcquisitionWindowStrategy with a probe-only plan identity",
+        "probedDraftSha256": "f16d4b00bd085e5f0e6e46b2772042c1e7f64467c2055e19240d1cb76b313ba0",
+        "probedDraftNote": "the draft differs from the final bytes only in this probe block and the validation block, neither of which the adapter reads",
+        "adapted": true,
+        "specViolations": [],
+        "derivedReplacesOccupantForR:12:6": "RESERVE_REPLACEMENT",
+        "startingLedgerEntryCount": 6,
+        "stateAtPlanTime": {
+          "currentAcquisitionFailures": 1,
+          "pendingReplacementObligations": 1,
+          "nextNeverStartedSelectionIndex": 16,
+          "reserveConsumed": 6,
+          "nextUnusedReservePosition": 6,
+          "p6Fires": false
+        },
+        "negativeCheck": "the same bytes with R:12:6 claiming ORIGINAL_SELECTION were refused: claimed occupant kind is not the ledger's (RESERVE_REPLACEMENT)",
+        "planBuilt": false,
+        "p7Run": false,
+        "committed": false,
+        "probeIdentityIsNotTheFuturePlanIdentity": true
+      }
+    },
+    "p7Preflight": {
+      "function": "computePrecommittedWindowPreflight (windowPlan.ts)",
+      "supports": "binds the starting ledger by prefix hash at entryCount, refuses appends beyond the planned ones, and requires each planned append to match sequence, selectionIndex, reserve position, reason and replacedOccupantKind"
+    },
+    "finding": "GENERIC_ADAPTER_AND_PREFLIGHT_SUPPORT_SAME_SLOT_REPLACEMENT_CHAIN",
+    "blocker": null,
+    "workaroundsNotUsed": [
+      "a hand-built expected spec",
+      "manually set booleans",
+      "a spec derived from a plan",
+      "pretending the current occupant is ORIGINAL_SELECTION",
+      "pretending failures or obligations are empty"
+    ]
+  },
+  "planMaterialisation": {
+    "created": false,
+    "inMemoryPlanBuilt": false,
+    "why": "out of scope; the next owner decision materialises the plan"
+  },
+  "replacementLedgerUnchanged": {
+    "sha256": "c06e41a08e51934682fa1bc7621bdc9be8c708aee7278fd9177b03f98d8e17b3",
+    "ledgerHash": "5c464b2a56412951a9da11a608252584af3abfa6928c43ea22477be8afcd895b",
+    "bytes": 8473,
+    "entries": 6,
+    "reserveConsumed": 6,
+    "reservePosition6": "UNASSIGNED",
+    "rowAppended": false,
+    "fileModified": false
+  },
+  "databaseAccess": {
+    "queries": 0,
+    "writes": 0,
+    "exceptValidateIsolatedTestInfrastructure": true
+  },
+  "scopeProofs": {
+    "institutionDnsHttpTls": 0,
+    "orgunitsDiscoverInvocations": 0,
+    "acquisitionExecuted": false,
+    "reserveConsumed": false,
+    "replacementLedgerAppended": false,
+    "liveAuthorityCreated": false,
+    "windowPlanCreated": false,
+    "evidenceAdjudicated": false,
+    "productionCodeChanged": false,
+    "harnessOrTestCodeChanged": false,
+    "migrationCreated": false,
+    "classifierOrProviderExecution": 0,
+    "labelsCreated": 0,
+    "setP": 0,
+    "setR": 0,
+    "a3": false,
+    "phase2E": false,
+    "semanticHoldoutAccess": 0,
+    "earlierRecordsEdited": false
+  },
+  "identityDisclosure": {
+    "institutionNames": 0,
+    "organisationUuids": 0,
+    "echeRowKeys": 0,
+    "hostnames": 0,
+    "urls": 0,
+    "rootAuthorityIdentifiers": 0,
+    "pageLevelEvidence": 0,
+    "publicLinkageIsOnly": [
+      "workItemId",
+      "selectionIndex",
+      "reserveRankPosition",
+      "split",
+      "drawEntrySha256"
+    ]
+  },
+  "validation": {
+    "command": "caffeinate -dims npm run validate",
+    "runsOfIt": 1,
+    "atHead": "156df2ad08c90bbfef02a1187db7cdd73121ecc6",
+    "workingTreeAtValidate": "HEAD plus exactly this one new untracked record, with this block as a placeholder",
+    "startedUtc": "2026-09-22T09:21:04Z",
+    "finishedUtc": "2026-09-22T09:26:47Z",
+    "exitCode": 0,
+    "stages": {
+      "migrations:check": "PASS",
+      "typecheck": "PASS",
+      "lint": "PASS",
+      "format:check": "PASS",
+      "test": "PASS",
+      "build": "PASS"
+    },
+    "testFiles": {
+      "passed": 195,
+      "skipped": 5,
+      "failed": 0,
+      "total": 200
+    },
+    "tests": {
+      "passed": 5016,
+      "skipped": 75,
+      "failed": 0,
+      "total": 5091
+    },
+    "host": {
+      "power": "AC",
+      "sleepWakeEventsDuringRun": 0,
+      "competingFullValidate": false
+    },
+    "validatedBytesOfThisRecord": {
+      "sha256": "6f57c2ea3fd6c48126e73b98bb9af384ba417aa70c32ac2bcc9bc83dd1cdda69",
+      "note": "validate ran over this record with this block as the placeholder; only this block was then filled, no decision changed, and prettier --check was re-run on the final bytes. No second full validate."
+    },
+    "log": {
+      "location": "outside the repository, in this session's scratchpad",
+      "sha256": "e8cddf4e324c687ea5f8ea3d9d6801ee6dc332f57a797fe83ec6adbacb90968d",
+      "bytes": 40028,
+      "lines": 457,
+      "committedToGit": false
+    }
+  },
+  "terminalState": "PHASE_2B_2D_A2_POST_MIXED_WINDOW_CONTINUATION_STRATEGY_SELECTED_CHAIN_REPLACEMENT_PLUS_FOUR_PRIMARIES_AWAITING_OFFLINE_PLAN_MATERIALISATION",
+  "nextOwnerDecision": "A2_POST_MIXED_WINDOW_CONTINUATION_STRATEGY_TO_PLAN_OFFLINE_MATERIALISATION",
+  "nextOwnerDecisionScope": {
+    "offlineOnly": true,
+    "may": [
+      "reconstruct the independent PrecommittedWindowSpec from this strategy",
+      "materialise the five-item plan",
+      "prove P7 refusal against the real six-entry ledger",
+      "simulate the exact sequence-6 append in memory only",
+      "prove the same plan becomes green after that simulated append"
+    ],
+    "mustNot": ["append the real ledger", "create live authority"]
+  }
+}
