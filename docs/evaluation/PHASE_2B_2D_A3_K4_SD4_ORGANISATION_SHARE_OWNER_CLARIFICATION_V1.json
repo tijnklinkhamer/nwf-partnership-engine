@@ -1,0 +1,552 @@
+{
+  "recordId": "phase2b-2d-a3-k4-sd4-organisation-share-owner-clarification-v1",
+  "recordKind": "OWNER_CLARIFICATION",
+  "a3DecisionId": "K4",
+  "decisionToken": "K4_SD4_GATE_LOCAL_GREATEST_FIXED_POINT_AND_G3_FREEZE_CLARIFICATION_V1",
+  "selectedCoreOption": "RECOMMEND_K4_GREATEST_FIXED_POINT_GATE_LOCAL_PREFIX_TRUNCATION",
+  "selectedG3Option": "RECOMMEND_K4_G3_PRECOMMIT_ALGORITHM_ONLY",
+  "jointSemantics": "K4_GATE_LOCAL_GREATEST_FIXED_POINT_WITH_G3_PRESEMANTIC_PROCEDURE_COMMITMENT_V1",
+  "classification": "OWNER_OPERATIONAL_CLARIFICATION_OF_FROZEN_SD4_EXECUTION_SEMANTICS",
+  "explicitlyNotClassifiedAs": [
+    "METHODOLOGY_V2_R4",
+    "METHODOLOGY_AMENDMENT",
+    "THRESHOLD_CHANGE",
+    "SAMPLE_CAP_CHANGE",
+    "GATE_DEFINITION_CHANGE",
+    "GATE_DENOMINATOR_CHANGE",
+    "EXECUTION_AUTHORITY"
+  ],
+  "notMethodologyV2R4": true,
+  "notAThresholdChange": true,
+  "notASampleCapChange": true,
+  "notAGateDefinitionChange": true,
+  "notAGateDenominatorChange": true,
+  "notAnExecutionAuthority": true,
+  "noCandidateOutcomeInspectedToSelectThisRule": true,
+  "noFrozenR3OrPlanByteChanges": true,
+  "recordedAtUtc": "2026-09-22T11:52:27Z",
+  "recordedBy": "claude-code-session, transcribing an exact owner decision",
+  "branch": "feat/phase2b-2d-a3-k4-organisation-share-policy",
+  "canonicalParentCommit": "185a3df3c4e35e6943c78ecf3681112665c81af4",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "whatThisRecordIs": "An IMMUTABLE governance record of the owner's operational clarification of HOW frozen Methodology V2 R3 rule SD4 (the 1/10 organisation gate-share rule) is executed. It selects a mechanical interpretation of the frozen phrase 'that organisation contribution to the offending gate denominator is TRUNCATED by the same deterministic rank until the condition holds'. It changes no frozen methodology byte, no plan byte, no earlier record, no threshold, no cap, no gate definition and no gate denominator definition, and it authorises nothing.",
+  "resolvesMarker": {
+    "id": "K4",
+    "marker": "A3_PREP_OWNER_DECISION_REQUIRED:SD4_G3_FREEZE_TIME_TRUNCATION",
+    "markerDeclaredIn": "src/test/harness/phase2b2d/a3prep/contracts.ts",
+    "markerStringIsRetainedUnchanged": true
+  },
+  "nameCollisionWarning": {
+    "notMethodologySectionKClassMinimum": true,
+    "a3PrepOwnerDecisionK4": "the A3 canonical-preparation owner decision K4 answered by THIS record (SD4 organisation gate-share enforcement)",
+    "methodologySectionKConditionK4": "R3 sectionK_feasibilityPrecondition.conditions K4 'CLASS MINIMUM' - an unrelated feasibility condition, unchanged by this record",
+    "rule": "The two identifiers share a label only. No contract, test or record may read one as the other. Methodology section-K conditions K1-K5 are likewise unrelated to the A3 preparation owner decisions K1-K4."
+  },
+  "revalidatedFrozenBasis": {
+    "sd4": {
+      "source": "R3 sectionE_samplingContract.rules[3] (SD4)",
+      "text": "Per organisation, per split: at most 8 pages in SET_P and at most 4 in SET_R. In addition, no organisation may contribute more than ORGANISATION_GATE_SHARE_CAP = 1/10 of ANY gate realised denominator. If the per-sample caps alone do not secure the 1/10 condition, that organisation contribution to the offending gate denominator is TRUNCATED by the same deterministic rank until the condition holds, and the truncation is recorded.",
+      "checkedTwice": "mechanically at freeze time on planned denominators, and again at scoring time on realised denominators",
+      "setPMaxPagesPerOrganisation": 8,
+      "setRMaxPagesPerOrganisation": 4
+    },
+    "gateDenominators": {
+      "G1": "SET_P union SET_R, deduplicated by goldId (R3 sectionC theSixGates[0]; sectionD evaluationSetPerGatedSplit)",
+      "G2": "gold UNIT_PAGE items in SET_R",
+      "G3": "items in SET_P answered UNIT_PAGE by a validator-accepted result (denominatorIsCandidateDetermined: true)",
+      "G4": "items whose GOLD verdict is UNIT_PAGE in SET_R",
+      "G5": "gold hard negatives in SET_P",
+      "G6": "all items in SET_P"
+    },
+    "g3MembershipExistsPreSemantically": false,
+    "bindingMinimaPerGatedSplit": {
+      "SET_R_goldUnitPages_minimum": 100,
+      "hardNegativesInSET_P_minimum": 155,
+      "source": "R3 sectionD_D3_corpusOption.perGatedSplitContract"
+    },
+    "expectedG3Denominator66": {
+      "source": "R3 sectionD_D3_corpusOption.derivedGateProfileUnderOptionB.gates[1].denominator",
+      "value": 66,
+      "r3OwnClassification": "Every denominator above is an EXPECTED denominator (planningAssumptionsCarriedForward.consequenceOfTheseBeingAssumptions)"
+    },
+    "noCurrentAuthorityContradictsTheBasis": true
+  },
+  "ownerDecision": {
+    "clause_exactRatio": {
+      "canonicalCondition": "10 * organisationContribution <= finalGateDenominator",
+      "arithmetic": "EXACT_RATIONAL_INTEGER",
+      "floatingPointPermitted": false,
+      "contractRational": {
+        "numerator": 1,
+        "denominator": 10
+      },
+      "newNumericalParameterCreated": false,
+      "policyToken": "TEN_TIMES_CONTRIBUTION_LE_FINAL_GATE_DENOMINATOR"
+    },
+    "clause_gateLocality": {
+      "token": "GATE_LOCAL_DENOMINATOR_TRUNCATION",
+      "scope": "GATE_LOCAL",
+      "frozenPhraseFollowed": "that organisation contribution to the offending gate denominator",
+      "truncationRemovesItemFrom": ["THE_OFFENDING_GATE_DENOMINATOR_ONLY"],
+      "truncationDoesNotRemoveItemFrom": [
+        "SET_P",
+        "SET_R",
+        "THE_FROZEN_EVALUATION_UNION",
+        "ANY_OTHER_GATE_DENOMINATOR_UNLESS_THAT_GATE_INDEPENDENTLY_APPLIES_SD4"
+      ],
+      "itemInferredExactlyOnce": true,
+      "why": "Prevents one candidate-dependent G3 mask from mutating G5/G6 prevalence semantics."
+    },
+    "clause_numerator": {
+      "policyToken": "TRUNCATED_ITEM_EXCLUDED_FROM_GATE_NUMERATOR_AND_DENOMINATOR",
+      "truncatedItemInGateNumerator": false,
+      "denominatorOnlyRemovalPermitted": false,
+      "finalMetricRecomputedOnRetainedGateDenominator": true
+    },
+    "clause_outcomeBlindness": {
+      "permittedInputs": [
+        "GATE_DENOMINATOR_MEMBERSHIP_UNDER_THE_FROZEN_GATE_DEFINITION",
+        "ORGANISATION",
+        "FROZEN_DETERMINISTIC_SAMPLE_RANK",
+        "EXACT_SD4_SHARE_ARITHMETIC"
+      ],
+      "forbiddenInputs": [
+        "CANDIDATE_CORRECTNESS",
+        "GOLD_AGREEMENT_OR_MISMATCH",
+        "ERROR_STATUS",
+        "WHETHER_REMOVAL_HELPS_THE_GATE",
+        "RESULTING_PASS_OR_FAIL",
+        "CONFIDENCE_BOUND_EFFECT",
+        "PROMPT_DEVELOPMENT_PREFERENCE"
+      ]
+    },
+    "clause_sameDeterministicRank": {
+      "retainedItemPolicy": "EARLIEST_GATE_CONTRIBUTING_ITEMS_BY_FROZEN_SAMPLE_RANK",
+      "truncateOnly": "THE_TAIL",
+      "perGate": {
+        "G2": {
+          "sampleRank": "SET_R",
+          "filteredTo": "G2_DENOMINATOR"
+        },
+        "G3": {
+          "sampleRank": "SET_P",
+          "filteredTo": "VALIDATOR_ACCEPTED_PREDICTED_UNIT_PAGE_DENOMINATOR_ITEMS"
+        },
+        "G4": {
+          "sampleRank": "SET_R",
+          "filteredTo": "G4_DENOMINATOR"
+        },
+        "G5": {
+          "sampleRank": "SET_P",
+          "filteredTo": "G5_DENOMINATOR"
+        },
+        "G6": {
+          "sampleRank": "SET_P",
+          "filteredTo": "ALL_SET_P"
+        },
+        "G1": {
+          "sampleRank": null,
+          "filteredTo": null,
+          "see": "clause_g1"
+        }
+      },
+      "secondRankingInvented": false
+    },
+    "clause_g1": {
+      "policy": "G1_SD4_TRUNCATION_PATH_MUST_BE_UNREACHABLE_UNDER_CONFORMANT_INPUT",
+      "contractToken": "TRUNCATION_PATH_MUST_BE_UNREACHABLE_NO_UNION_RANK_INVENTED",
+      "frozenSingleUnionRankExists": false,
+      "unionRankInvented": false,
+      "provedInvariant": {
+        "perOrganisationMaximumUnionContribution": 12,
+        "derivation": "SET_P cap 8 + SET_R cap 4; deduplication can only lower it",
+        "minimumAdmissibleSetPDenominator": 155,
+        "derivation155": "SD6 requires at least 155 gold hard negatives in SET_P, so |SET_P| >= 155 and |SET_P union SET_R| >= 155",
+        "inequality": "10*12 <= 155",
+        "holds": true,
+        "conclusion": "G1 cannot require SD4 truncation in an admissible study."
+      },
+      "ifReached": "REFUSE_STRUCTURAL_INCONSISTENCY",
+      "rejectedTieRules": [
+        "SET_P_FIRST",
+        "SET_R_FIRST",
+        "MIN_RANK",
+        "MAX_RANK",
+        "GOLD_ID_HASH",
+        "INVENTED_UNION_RANK"
+      ]
+    },
+    "clause_nonG3PlannedSafety": {
+      "evaluatedAt": "CORPUS_FREEZE_AFTER_ALL_LABEL_DRIVEN_SAMPLE_EXTENSIONS",
+      "gates": {
+        "G2": {
+          "maxPerOrganisation": 4,
+          "minimumDenominator": 100,
+          "inequality": "40 <= 100"
+        },
+        "G4": {
+          "maxPerOrganisation": 4,
+          "minimumDenominator": 100,
+          "inequality": "40 <= 100"
+        },
+        "G5": {
+          "maxPerOrganisation": 8,
+          "minimumDenominator": 155,
+          "inequality": "80 <= 155"
+        },
+        "G6": {
+          "maxPerOrganisation": 8,
+          "minimumDenominator": 155,
+          "inequality": "80 <= 155",
+          "why": "the frozen SET_P contains at least the 155 G5 hard negatives"
+        },
+        "G1": {
+          "maxPerOrganisation": 12,
+          "minimumDenominator": 155,
+          "inequality": "120 <= 155"
+        }
+      },
+      "greatestFixedPointMustBeIdentityForG1G2G4G5G6AtConformantFreeze": true,
+      "ifNotIdentity": "REFUSE_FREEZE_INCONSISTENT_OR_NON_CONFORMANT_INPUT"
+    },
+    "clause_nonG3RealisedSafety": {
+      "ifExistingS3OrDenominatorMinimumFails": "METRIC_OR_STUDY_ALREADY_INADMISSIBLE_UNDER_FROZEN_R3",
+      "sd4NeverUsedTo": [
+        "RESCUE_A_TOO_SMALL_REALISED_DENOMINATOR",
+        "RELAX_A_MINIMUM",
+        "MANUFACTURE_FEASIBILITY"
+      ],
+      "otherwiseAdmissibleNonG3GateSd4IsIdentity": true,
+      "newResultCategoryAdded": false
+    },
+    "clause_g3Freeze": {
+      "policy": "PRECOMMIT_PROCEDURE_NO_PRESEMANTIC_ITEM_MASK",
+      "whyG3IsSpecial": "G3 is the only gate whose exact denominator membership cannot exist at corpus freeze: it is determined by future candidate outputs.",
+      "forbiddenAtFreeze": [
+        "PREDICT_CANDIDATE_BEHAVIOUR",
+        "USE_GOLD_TO_ESTIMATE_CANDIDATE_UNIT_PAGE_OUTPUTS",
+        "TRUNCATE_SET_P",
+        "CREATE_A_G3_ELIGIBILITY_PREFIX",
+        "USE_EXPECTED_DENOMINATOR_66_AS_A_QUOTA",
+        "REFUSE_MERELY_BECAUSE_AN_ORGANISATION_COULD_EXCEED_ONE_TENTH_UNDER_SOME_FUTURE_CANDIDATE_RESULT"
+      ],
+      "frozenAtFreeze": [
+        "THE_COMPLETE_CANONICAL_SET_P_RANK",
+        "THE_EXACT_K4_POLICY_AND_PROCEDURE",
+        "THE_FACT_THAT_THE_PER_SAMPLE_CAP_ALONE_CANNOT_GUARANTEE_G3_REALISED_ONE_TENTH_SHARE_FOR_ALL_CANDIDATE_OUTCOMES"
+      ],
+      "actualTruncationOccurs": "ONLY_ONCE_THE_G3_REALISED_DENOMINATOR_EXISTS",
+      "realisedPolicyToken": "APPLY_GATE_LOCAL_GREATEST_FIXED_POINT_TO_REALISED_DENOMINATOR"
+    },
+    "clause_expectedDenominator66": {
+      "subject": "R3 Option-B derivedGateProfile G3 denominator 66",
+      "role": "EXPECTED_PLANNING_PROFILE_ONLY_NOT_K4_TRUNCATION_INPUT",
+      "isNot": [
+        "A_PRESEMANTIC_ITEM_MASK_SIZE",
+        "AN_ORGANISATION_QUOTA",
+        "A_REALISED_DENOMINATOR_THRESHOLD",
+        "A_FROZEN_EXACT_G3_COUNT",
+        "A_REASON_TO_RETAIN_SIX_ITEMS_PER_ORGANISATION"
+      ],
+      "usedByAnyK4Algorithm": false
+    },
+    "clause_g3ScoringTimeOrder": {
+      "runsAfter": "SEMANTIC_EXECUTION_AND_EXISTING_INFRASTRUCTURE_AND_MISSINGNESS_HANDLING",
+      "steps": [
+        "1 DETERMINE_ACTUAL_G3_DENOMINATOR_MEMBERSHIP_UNDER_THE_FROZEN_G3_DEFINITION",
+        "2 PARTITION_IT_BY_ORGANISATION",
+        "3 PRESERVE_SET_P_RANK_ORDER_INSIDE_EACH_ORGANISATION",
+        "4 APPLY_THE_UNIQUE_GREATEST_FIXED_POINT_TRUNCATION",
+        "5 REMOVE_TRUNCATED_ITEMS_FROM_BOTH_G3_NUMERATOR_AND_G3_DENOMINATOR",
+        "6 RECOMPUTE_THE_FINAL_REALISED_G3_DENOMINATOR",
+        "7 RECOMPUTE_ORGANISATION_CONTRIBUTIONS",
+        "8 RECOMPUTE_CBAR_AND_CLUSTERING_INPUTS_ON_THE_RETAINED_GATE_DENOMINATOR",
+        "9 RUN_SECTION_K_REALISED_FEASIBILITY",
+        "10 ONLY_THEN_COMPUTE_AND_CERTIFY_G3"
+      ],
+      "candidateCorrectnessConsultedDuringStep4": false
+    },
+    "clause_greatestFixedPoint": {
+      "policyToken": "GREATEST_FIXED_POINT_MAXIMAL_PREFIX_RETENTION",
+      "input": "non-negative integer gate contribution counts c_1 ... c_n, one per organisation with at least one gate-denominator item",
+      "q0": "floor(sum_i c_i / 10)",
+      "recurrence": "q_(t+1) = floor(sum_i min(c_i, q_t) / 10)",
+      "convergence": "stop at the first t with q_(t+1) = q_t; call it q*",
+      "retainedCount": "x_i = min(c_i, q*)",
+      "finalDenominator": "D* = sum_i x_i",
+      "retained": "the first x_i gate-contributing items of organisation i by frozen sample rank",
+      "truncated": "all later gate-contributing items of organisation i, for that gate only",
+      "finalAssertion": "for every organisation i: 10*x_i <= sum_j x_j",
+      "properties": [
+        "DETERMINISTIC",
+        "FINITE",
+        "ORDER_INDEPENDENT",
+        "NO_ORGANISATION_PROCESSING_ORDER_PARAMETER",
+        "UNIQUE_GREATEST_FEASIBLE_RETAINED_VECTOR",
+        "MAXIMAL_RETENTION_MINIMAL_TRUNCATION",
+        "PREFIX_PRESERVING",
+        "EXACT_RATIONAL_FINAL_CONDITION"
+      ],
+      "organisationProcessingOrderParameter": false,
+      "oneOriginalDenominatorApproximationPermitted": false,
+      "canonicalMechanicalInterpretationOfK4": true
+    },
+    "clause_onePassRejected": {
+      "rejectedRule": "ORIGINAL_DENOMINATOR_ONE_PASS_FLOOR_D0_OVER_10",
+      "counterexample": {
+        "contributions": "one organisation contributes 3; seventeen organisations contribute 1 each",
+        "D0": 20,
+        "onePassCap": "floor(20/10) = 2",
+        "denominatorAfterOnePass": 19,
+        "violation": "10*2 = 20 > 19",
+        "greatestFixedPointSequence": [2, 1],
+        "qStar": 1,
+        "retainedVector": "the 3-contributor keeps 1; each 1-contributor keeps 1",
+        "finalDenominator": 18,
+        "finalCheck": "10*1 = 10 <= 18"
+      },
+      "historicalStatus": "MAY_REMAIN_HISTORICAL_EVIDENCE_ONLY_NOT_THE_CANONICAL_ALGORITHM"
+    },
+    "clause_zeroFixedPoint": {
+      "ifQStarIsZeroWithCandidateGateItems": "FINAL_RETAINED_GATE_DENOMINATOR_IS_ZERO",
+      "relaxSd4": false,
+      "retainOneItem": false,
+      "sectionKCondition": "NON-VACUOUS (R3 sectionK K5) fails",
+      "metric": "INADMISSIBLE",
+      "forRealisedG3": "POST_SEMANTIC"
+    },
+    "clause_fewerThanTenContributingOrganisations": {
+      "mathematicalConsequence": "A positive SD4-conformant denominator requires at least ten contributing organisations; with fewer, the greatest fixed point is zero.",
+      "proof": "if n < 10 organisations contribute and q* > 0 then D* <= n*q* < 10*q* <= D*, a contradiction",
+      "thenApply": "EXISTING_SECTION_K_FEASIBILITY_AND_NON_VACUITY",
+      "newSeparateGate": false
+    },
+    "clause_sectionKInteraction": {
+      "runsAfter": "SD4_HAS_PRODUCED_THE_FINAL_GATE_DENOMINATOR",
+      "sd4Waives": [],
+      "conditionsStillApplied": [
+        "FEASIBLE",
+        "NON-DEGENERATE",
+        "CLUSTER-ESTIMABLE",
+        "CLASS MINIMUM",
+        "NON-VACUOUS"
+      ],
+      "ifTruncationMakesOneFail": "FOLLOW_EXISTING_R3_ADMISSIBILITY_SEMANTICS",
+      "thresholdOrMinimumRelaxation": false
+    },
+    "clause_g4ClassMinimum": {
+      "rule": "a gated unit_type class with fewer than 2 retained gold items is REPORTED and NOT GATED under the existing rules",
+      "silentMergeOrRebalance": false,
+      "existingClassMinimumSemanticsRemainAuthoritative": true
+    },
+    "clause_sd5Sd6Minima": {
+      "sd4ChangesSampleFacts": false,
+      "unchangedFacts": [
+        "SET_R contains >= 100 gold UNIT_PAGE items after SD5 extension",
+        "SET_P contains >= 155 hard negatives after SD6 extension"
+      ],
+      "truncatedItemsRemainInTheirSamples": true
+    },
+    "clause_sampleExtensionOrder": {
+      "atCorpusFreeze": [
+        "1 COMPLETE_ALL_FROZEN_SD5_AND_SD6_SAMPLE_EXTENSIONS",
+        "2 SAMPLE_MEMBERSHIP_AND_RANKS_ARE_FINAL",
+        "3 CHECK_PLANNED_NON_G3_SD4_SAFETY",
+        "4 COMMIT_THE_K4_PROCEDURE_FOR_FUTURE_G3_REALISED_ENFORCEMENT"
+      ],
+      "laterExtensionBehindFinalSd4FreezeCheckPermitted": false
+    },
+    "clause_overlapSingleInference": {
+      "setPAndSetRMayOverlap": true,
+      "evaluationUnionDeduplicated": true,
+      "eachItemInferredOnce": true,
+      "gateLocalFilteringReadsTheOneResultPerGate": true,
+      "causesAnotherInference": false,
+      "causesDuplicateScoringExecution": false,
+      "causesDuplicateGoldIdentity": false
+    },
+    "clause_truncationRecord": {
+      "everyActualTruncationRecordedInternally": true,
+      "conceptualFields": [
+        "split",
+        "gate",
+        "phase",
+        "denominatorBefore",
+        "contributionCountsBefore",
+        "qStar",
+        "retainedDenominator",
+        "retainedContributionCounts",
+        "numberTruncated",
+        "deterministicRankPolicyIdentifier",
+        "k4OwnerRecordSha256"
+      ],
+      "phases": ["PLANNED_FREEZE_CHECK", "REALISED_SCORING"],
+      "itemIdentifyingDetailScope": "SEALED_INTERNAL_ONLY",
+      "storageSchemaDesignedHere": false
+    },
+    "clause_disclosure": {
+      "policyToken": "SEALED_INTERNAL_DEFAULT_WITHHOLD_FROM_PROMPT_DEVELOPMENT",
+      "why": "A realised G3 denominator or G3 truncation count reveals aggregate information about how the candidate behaved on sealed items.",
+      "governingRules": "EXISTING_R3_DISCLOSURE_RULES (sectionG_devConfirmInformationBoundary; sectionO disclosureSurface)",
+      "neverSurfacedToPromptAuthorsMerelyBecauseStructural": [
+        "REALISED_G3_DENOMINATOR_BEYOND_AN_EXISTING_AUTHORISED_SURFACE",
+        "WHICH_ORGANISATIONS_CAUSED_TRUNCATION",
+        "TRUNCATION_COUNTS_THAT_REVEAL_CANDIDATE_PREDICTION_CONCENTRATION",
+        "ITEM_IDENTITIES"
+      ],
+      "onlyExistingAuthorisedDisclosureSurfacesRemainAllowed": true,
+      "newFeedbackChannel": false,
+      "note": "R3 sectionG already permits each gate's aggregate numerator/denominator after a DEV_CONFIRM evaluation; K4 neither widens nor narrows that list. Per-organisation truncation detail falls under sectionG forbiddenByExtension (per-organisation breakdowns)."
+    },
+    "clause_attemptConsumption": {
+      "sectionOChanged": false,
+      "realisedG3Sd4OrSubsequentS3FailureIs": "POST_SEMANTIC",
+      "DEV_CONFIRM": "ATTEMPT_CONSUMED",
+      "FINAL_HOLDOUT": "SEMANTIC_ATTEMPT_RETIRES_THE_HOLDOUT_UNDER_THE_FROZEN_SECTION_O_RULE",
+      "k4FailureIsAFreeRetry": false,
+      "exceptionIntroduced": false
+    },
+    "clause_vOrgUnchanged": {
+      "sd4Concerns": "PER_GATE_ITEM_CONCENTRATION",
+      "vOrgConcerns": "ORGANISATION_LEVEL_CATASTROPHE_VETO_ON_COMPLETE_UNIT_PAGE_RECALL_FAILURE",
+      "k4ChangesVOrg": false
+    },
+    "clause_historicalOrganisationCaps": {
+      "path": "src/test/harness/phase2b2d/a3prep/organisationCaps.ts",
+      "observedAtCommit": "869d5c770337ab83bed2d2b1f55ee1bb9640fba2",
+      "observedOnBranch": "origin/feat/phase2b-2d-a3-corpus-prep-sol",
+      "fileSha256AtThatCommit": "50946053a8a3619c482937588bbab97532b55a5b1b88b86e8b34278bdac1dde2",
+      "status": "HISTORICAL_NON_AUTHORITATIVE_PREP",
+      "gateShareIntegerCap": "useful as an exact ONE-DENOMINATOR CHECK (floor(D/10)), insufficient as a truncation algorithm because the denominator changes during truncation",
+      "blessed": false,
+      "presentOnCanonicalLineage": false
+    },
+    "rejectedOptions": [
+      {
+        "token": "ORIGINAL_DENOMINATOR_ONE_PASS",
+        "reason": "counterexample above: violates the exact condition after truncation"
+      },
+      {
+        "token": "FIXED_FLOOR_D0_OVER_10_TRUNCATION",
+        "reason": "same defect: the cap is computed on a denominator that truncation then changes"
+      },
+      {
+        "token": "SUM_OR_AVERAGE_WEIGHTING",
+        "reason": "SD12: no weighting anywhere; SD4 truncates, it never reweights"
+      },
+      {
+        "token": "ARBITRARY_ORGANISATION_PRIORITY",
+        "reason": "the greatest fixed point is order-independent; no ordering parameter exists"
+      },
+      {
+        "token": "G3_SIX_ITEM_PREFIX",
+        "reason": "derived from the expected 66; would redefine the G3 population pre-semantically"
+      },
+      {
+        "token": "G3_PRECOMMITTED_WORST_CASE_GATE_LOCAL_PREFIX",
+        "reason": "a prefix based on an expected denominator would redefine the G3 measured population before the candidate exists; e.g. a candidate predicting UNIT_PAGE on 120 distributed SET_P items would lose valid G3 denominator items with no realised SD4 need. That would be a new methodology rule."
+      },
+      {
+        "token": "G3_MASK_FROM_EXPECTED_DENOMINATOR_66",
+        "reason": "66 is an expected planning-profile number, not a K4 input"
+      },
+      {
+        "token": "G3_FREEZE_REFUSAL_ON_POTENTIAL_VIOLATION",
+        "reason": "SD4 itself specifies truncation as the remedy where the caps do not secure 1/10; refusing every corpus because a future candidate COULD concentrate G3 would make Option B practically unfreezable and replace the frozen remedy"
+      },
+      {
+        "token": "SAMPLE_LEVEL_ITEM_DELETION",
+        "reason": "SD4 acts on the offending gate denominator, never on SET_P/SET_R membership"
+      },
+      {
+        "token": "CORRECTNESS_GUIDED_TRUNCATION",
+        "reason": "outcome-blindness clause"
+      },
+      {
+        "token": "GOLD_GUIDED_G3_TRUNCATION",
+        "reason": "outcome-blindness clause; G3 membership is candidate-determined and gold may not estimate it"
+      },
+      {
+        "token": "CAP_RELAXATION",
+        "reason": "no threshold, cap or minimum is relaxed"
+      },
+      {
+        "token": "G1_INVENTED_UNION_RANK",
+        "reason": "no frozen union rank exists; G1 truncation must be unreachable under conformant input"
+      }
+    ]
+  },
+  "mathematicalRevalidation": {
+    "method": "analytic proof plus exhaustive/random integer brute force in a scratch script (not committed)",
+    "notation": "S(q) = sum_i min(c_i, q); f(q) = floor(S(q)/10); f is monotone non-decreasing in q and f(q) <= q0 for every q",
+    "proofs": {
+      "nonIncreasing": "q1 = f(q0) <= floor(sum c / 10) = q0; if q_(t+1) <= q_t then q_(t+2) = f(q_(t+1)) <= f(q_t) = q_(t+1) by monotonicity",
+      "terminates": "a non-increasing sequence of non-negative integers stabilises in at most q0 + 1 steps",
+      "feasible": "at the fixed point q* = floor(D*/10) with D* = S(q*); x_i <= q* gives 10*x_i <= 10*q* <= D*",
+      "greatest": "for any feasible prefix vector y (y_i <= c_i, 10*y_i <= sum y) let m = max y_i; then m <= floor(sum y / 10) <= f(m) and m <= q0; induction gives m <= q_t for every t, so m <= q* and y_i <= min(c_i, m) <= x_i. Every fixed point in [0, q0] is <= q*, and none exists above q0.",
+      "uniqueGreatestVector": "x dominates every feasible prefix vector componentwise and is itself feasible, so it is the unique greatest feasible retained vector",
+      "sequentialTailRemovalConverges": "invariant y >= x: a current violator i has y_i > x_i (if y_i = x_i then 10*y_i <= sum x <= sum y); removing one tail item preserves y >= x; at the stop y is feasible so y <= x, hence y = x, for every choice sequence",
+      "simultaneousRemovalConverges": "the same invariant holds when every current violator loses one tail item per round, and when every violator is set to floor(sum y / 10) (>= x_i because sum y >= sum x >= 10*x_i)",
+      "noOrderingParameter": "follows from the two convergence results"
+    },
+    "bruteForce": {
+      "casesChecked": 789191,
+      "casesWithExhaustiveFeasibleVectorDominance": 1594,
+      "allEightStatementsHeld": true
+    }
+  },
+  "boundAuthority": {
+    "canonicalParentCommit": "185a3df3c4e35e6943c78ecf3681112665c81af4",
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33"
+    },
+    "methodologyFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e"
+    },
+    "corpusAcquisitionPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e"
+    },
+    "corpusAcquisitionPlanApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1_OWNER_APPROVAL.json",
+      "sha256": "0ac475031e81a60ae58d70bb83d5f71ee3cc441573dc82cf88145fdf1e8fec14"
+    },
+    "r13Audit": {
+      "path": "docs/audits/PHASE_2B_2D_A3_CANONICAL_PREP_R13_SET_R_CAP_FREEZE_READINESS_V1.md",
+      "sha256": "43393021198d0fa810f0f2f951441d63a4a94828b7ee5fa419346a39692f4172"
+    },
+    "canonicalContracts": {
+      "path": "src/test/harness/phase2b2d/a3prep/contracts.ts",
+      "sha256": "b402a51609011742ddff1508b6104febfd8fa4d8ec5530c7e0606cbd9b11ff65",
+      "atCommit": "185a3df3c4e35e6943c78ecf3681112665c81af4"
+    },
+    "canonicalCorpusFreezePreflight": {
+      "path": "src/test/harness/phase2b2d/a3prep/corpusFreezePreflight.ts",
+      "sha256": "2c99ef7ed6b66a429b5c28e70d08cb9e50bc0e2d279c4b402691770f80f6665d",
+      "atCommit": "185a3df3c4e35e6943c78ecf3681112665c81af4"
+    },
+    "priorOwnerRecords": {
+      "K1": "2437ef4b0bcabc816432c338e02da3b6eaa80fedb561b805232ad906fbbc94be",
+      "K2": "5fb280c9aae264e59ca80383922d324c1118aa9192e7d9f5fe6e79ca09b75668",
+      "K3": "987b88a0848a5020605619f24a9accd73a04e886c80f72ab81608fbade765eab",
+      "shortTextPolicy": "b734805bbaddc6890dc7032179b4a639a69a790282923b41641710a060b3d05a"
+    },
+    "observedA2Tip": "1aa9ffe141984a6d3e2fabf0af1585bbea2f64f5",
+    "a2Merged": false
+  },
+  "whatThisRecordDoesNotDo": [
+    "IMPLEMENT_ORGANISATION_CAPS_OR_ANY_FIXED_POINT",
+    "PERFORM_REAL_GATE_TRUNCATION",
+    "ACCESS_REAL_CANDIDATE_OUTPUTS_OR_SEALED_CORPUS_CONTENT",
+    "MATERIALISE_SET_P_OR_SET_R",
+    "RUN_A_REAL_PREFLIGHT_OR_FREEZE_A_CORPUS",
+    "AUTHORISE_ANY_EXECUTION",
+    "ADD_A_K5"
+  ],
+  "nextSlice": "R15 — PURE SD4 GATE-LOCAL GREATEST-FIXED-POINT ORGANISATION-SHARE ENFORCEMENT",
+  "immutability": "Append-only. Never edited; a change requires a new record that references this one by SHA-256."
+}
