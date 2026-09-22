@@ -44,6 +44,22 @@ const A3EVIDENCE_REL = 'src/test/harness/phase2b2d/a3evidence';
 /** The exact R19 branch tip R20 was cut from. */
 const R19_TIP = '6369b28408dd99b0edca86c7fb0e5376bdccf68a';
 
+/**
+ * R20'S OWN TERMINAL COMMIT.
+ *
+ * R20's changed-surface assertions describe R20'S SLICE, so they range over
+ * R20's own commits - `R19_TIP..R20_TERMINAL` - rather than over the working
+ * tree. Once a later slice lands on top, the working tree is no longer R20's
+ * surface, and diffing to it would fail for the honest reason that history
+ * moved on rather than because R20 changed.
+ *
+ * This is the same standing convention R19 applies in
+ * `orgunitCorpus2DA3GovernanceIsolation.test.ts`, and it WEAKENS NOTHING:
+ * R20's range is frozen, its permitted-path list is unchanged, and each later
+ * slice pins the equivalent scope over its own range.
+ */
+const R20_TERMINAL = '4cd917817437bd7c04f29938694e7ba8c1078019';
+
 const R20_CENSUS_PATH =
   'docs/evaluation/PHASE_2B_2D_A3_R20_DEV_TRAIN_DURABLE_EVIDENCE_BINDING_CENSUS_V1.json';
 
@@ -139,7 +155,7 @@ function lines(value: string): string[] {
   return value.split('\n').filter((line) => line.length > 0);
 }
 
-const baseAvailable = commitExists(R19_TIP);
+const baseAvailable = commitExists(R19_TIP) && commitExists(R20_TERMINAL);
 
 // ---------------------------------------------------------------------------
 
@@ -383,12 +399,7 @@ describe.skipIf(!baseAvailable)('2D-A3 R20: lineage and changed surface', () => 
   });
 
   it('changes no a3prep, a3governance, production, migration or A2 record file', () => {
-    const paths = [
-      ...new Set([
-        ...lines(git('diff', '--name-only', R19_TIP)),
-        ...lines(git('ls-files', '--others', '--exclude-standard')),
-      ]),
-    ];
+    const paths = lines(git('diff', '--name-only', R19_TIP, R20_TERMINAL));
     const forbidden = paths.filter(
       (path) =>
         path.startsWith(`${A3PREP_REL}/`) ||
@@ -407,12 +418,7 @@ describe.skipIf(!baseAvailable)('2D-A3 R20: lineage and changed surface', () => 
   });
 
   it('adds only its own derived census under docs/evaluation', () => {
-    const paths = [
-      ...new Set([
-        ...lines(git('diff', '--name-only', R19_TIP, '--', 'docs/evaluation')),
-        ...lines(git('ls-files', '--others', '--exclude-standard', '--', 'docs/evaluation')),
-      ]),
-    ];
+    const paths = lines(git('diff', '--name-only', R19_TIP, R20_TERMINAL, '--', 'docs/evaluation'));
     for (const path of paths) expect(path).toBe(R20_CENSUS_PATH);
   });
 });
