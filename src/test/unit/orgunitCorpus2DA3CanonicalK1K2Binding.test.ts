@@ -755,12 +755,35 @@ describe('2D-A3 K1/K2: authority binding only — no SET_R implementation', () =
     ).toEqual(['rankSetRFull']);
   });
 
-  it('no a3prep module other than R10 setRScore.ts and R11 setR.ts exports a SET_R reducer, comparator or rank', () => {
+  /**
+   * R12 WIDENED IT ONCE MORE, BY EXACT NAME: `setRSd7.ts` exports exactly one
+   * function, the SET_R -> SD7 composition `prepareSetRSd7`. It reduces,
+   * compares and ranks nothing itself - it calls R11's `rankSetRFull` - which
+   * `orgunitCorpus2DA3CanonicalSetRSd7Isolation` proves.
+   */
+  const R12_AUTHORISED_SET_R_SD7_COMPOSITION_FILE = 'setRSd7.ts';
+
+  it('R12 setRSd7.ts exports exactly one function: prepareSetRSd7, and no reducer or comparator', () => {
+    const source = readFileSync(
+      join(REPO_ROOT, A3PREP_REL, R12_AUTHORISED_SET_R_SD7_COMPOSITION_FILE),
+      'utf8',
+    );
+    const functions = [...source.matchAll(/export\s+(?:async\s+)?function\s+(\w+)/g)].map(
+      (m) => m[1],
+    );
+    expect(functions).toEqual(['prepareSetRSd7']);
+    for (const name of functions) {
+      expect(name).not.toMatch(/reduce|decimal|compareScore|maxTrack|rank/i);
+    }
+  });
+
+  it('no a3prep module other than R10 setRScore.ts, R11 setR.ts and R12 setRSd7.ts exports a SET_R reducer, comparator or rank', () => {
     for (const file of readdirSync(join(REPO_ROOT, A3PREP_REL)).filter(
       (f) =>
         f.endsWith('.ts') &&
         f !== R10_AUTHORISED_SCORE_REDUCER_FILE &&
-        f !== R11_AUTHORISED_SET_R_RANK_FILE,
+        f !== R11_AUTHORISED_SET_R_RANK_FILE &&
+        f !== R12_AUTHORISED_SET_R_SD7_COMPOSITION_FILE,
     )) {
       const source = readFileSync(join(REPO_ROOT, A3PREP_REL, file), 'utf8');
       for (const m of source.matchAll(/export\s+(?:async\s+)?function\s+(\w+)/g)) {
