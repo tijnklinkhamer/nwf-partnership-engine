@@ -1,0 +1,377 @@
+{
+  "recordId": "phase2b-2d-a3-short-text-reachable-membership-owner-clarification-v1",
+  "recordKind": "OWNER_CLARIFICATION",
+  "decisionToken": "SHORT_TEXT_REQUIRED_SAMPLE_MEMBERSHIP_LIMITED_TO_REACHABLE_CAPPED_MEMBERSHIP_V1",
+  "selectedOption": "RECOMMEND_LIMIT_REQUIRED_MEMBERSHIP_TO_REACHABLE_CAPPED_MEMBERSHIP",
+  "scopeToken": "ZERO_EXTENSION_HEADROOM_SELECTED_CAP_IS_COMPLETE_REACHABLE_SAMPLE_MEMBERSHIP",
+  "classification": "OWNER_CLARIFICATION_OF_REQUIRED_MEMBERSHIP_SCOPE",
+  "explicitlyNotClassifiedAs": [
+    "METHODOLOGY_AMENDMENT",
+    "METHODOLOGY_V2_R4",
+    "NEW_METHODOLOGY_VERSION",
+    "NEW_SIMILARITY_RULE",
+    "SD7_RULE_CHANGE",
+    "SD9_RULE_CHANGE",
+    "CAP_CHANGE",
+    "RANKING_CHANGE",
+    "SEMANTIC_SHORT_TEXT_VERDICT",
+    "NEW_K_MARKER",
+    "EXECUTION_AUTHORITY"
+  ],
+  "recordedAtUtc": "2026-09-22T13:18:48Z",
+  "recordedBy": "claude-code-session, transcribing an exact owner decision",
+  "branch": "feat/phase2b-2d-a3-short-text-reachable-membership-policy",
+  "canonicalA3Parent": "9478f1d17ed2b6bcff9fcd436650745a2971550b",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "whatThisRecordIs": "An IMMUTABLE, append-only owner clarification of ONE term the existing short-text sample-membership owner policy uses but does not scope: REQUIRED, in its clause 11 freeze rule REFUSE_IF_REQUIRED_MEMBERSHIP_BLOCKED. For Generation 1 it defines REQUIRED selected sample membership as the membership reachable under the already-frozen per-organisation caps (SET_P 8, SET_R 4). It changes no frozen methodology byte, no plan byte, no earlier record and no evidence. Every bound record is referenced by SHA-256 and none is edited.",
+  "clarifiesTerm": {
+    "term": "REQUIRED",
+    "inRule": "REFUSE_IF_REQUIRED_MEMBERSHIP_BLOCKED",
+    "ofRecord": "docs/evaluation/PHASE_2B_2D_A3_SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP_OWNER_POLICY_V1.json",
+    "ofRecordSha256": "b734805bbaddc6890dc7032179b4a639a69a790282923b41641710a060b3d05a",
+    "ofClause": "ownerDecision.clause11_corpusFreezeConsequence",
+    "priorRecordLeftTheScopeOfRequiredUndefined": true,
+    "priorConservativeImplementation": {
+      "implementedBy": ["R9 (1a324ba)", "R13 (185a3df)"],
+      "interpretation": "every position of the complete survivor-aware rank was treated as REQUIRED, so ANY unresolved short-text position anywhere in the rank refused the freeze, even when the initial cap was exact",
+      "freezeTriggerReadField": "fullRankReadiness",
+      "wasAnImplementationChoiceNotAnOwnerDefinition": true
+    },
+    "definitionForGeneration1": "REACHABLE_SELECTED_CAPPED_MEMBERSHIP"
+  },
+  "zeroExtensionHeadroomProof": {
+    "reprovedFromCurrentFrozenBytes": true,
+    "caps": {
+      "SET_P_MAX_PAGES_PER_ORGANISATION": 8,
+      "SET_R_MAX_PAGES_PER_ORGANISATION": 4,
+      "frozenIn": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json sectionE_samplingContract.rules[3] (SD4): 'Per organisation, per split: at most 8 pages in SET_P and at most 4 in SET_R.'",
+      "canonicalCodeHome": "src/test/harness/phase2b2d/a3prep/contracts.ts SET_P_MAX_PAGES_PER_ORGANISATION / SET_R_MAX_PAGES_PER_ORGANISATION"
+    },
+    "extensionMayNotRelaxTheCap": {
+      "sd5": "R3 sectionE_samplingContract.rules[4].shortfallRule: 'SET_R is EXTENDED by continuing down the same frozen Track A/B rank - never by relaxing the per-organisation cap and never by selecting on gold'",
+      "sd6": "R3 sectionE_samplingContract.rules[5].shortfallRule: 'SET_P is EXTENDED by continuing down the same frozen salted rank of SD3'; the SD4 per-organisation cap binds that extension as it binds every SET_P contribution",
+      "planV1": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json SD3_to_SD12_selection.extensionRule: 'A shortfall advances a per-organisation cursor down the ALREADY-FROZEN rank, committed in full at corpus freeze. No new ordering may be chosen after labels exist, no gold-aware cherry-picking, no cross-split borrowing, no relaxation of the per-organisation cap.'"
+    },
+    "perOrganisationStatement": {
+      "variables": {
+        "c": "the sample's frozen per-organisation cap, c in {8 (SET_P), 4 (SET_R)}",
+        "m": "the number of the organisation's survivors in one admissible short-text treatment, a non-negative integer"
+      },
+      "initialSelectedMembership": "min(c, m)",
+      "remainingSurvivors": "m - min(c, m)",
+      "legalCapHeadroom": "c - min(c, m)",
+      "claim": "min(m - min(c, m), c - min(c, m)) = 0 for every non-negative integer m",
+      "proof": "If m <= c then min(c, m) = m and remainingSurvivors = 0. If m > c then min(c, m) = c and legalCapHeadroom = 0. The two cases are exhaustive, so for no m are both positive.",
+      "appliedTo": {
+        "SET_P": { "c": 8, "holds": true },
+        "SET_R": { "c": 4, "holds": true }
+      },
+      "mechanicalCheck": {
+        "method": "exhaustive evaluation of min(m - min(c, m), c - min(c, m)) with c read from the frozen contracts.ts bytes",
+        "range": "m in [0, 100000]",
+        "violationsSetP": 0,
+        "violationsSetR": 0,
+        "note": "the algebraic proof above covers every non-negative integer; the bounded check only confirms the constants read from the frozen bytes"
+      },
+      "consequenceUnderEveryAdmissibleTreatment": "The proof holds for each admissible short-text treatment separately, because each treatment yields SOME non-negative survivor count m."
+    },
+    "splitWideStatement": {
+      "anOrganisationBelowCapHasContributedAllOfItsSurvivors": true,
+      "anOrganisationWithUnselectedSurvivorsIsAlreadyAtCap": true,
+      "therefore": "no organisation in a split holds both an unselected survivor and room under its cap, so no split-wide redistribution or cursor advance can add an item",
+      "crossSplitBorrowing": "FORBIDDEN (Plan V1 extensionRule)",
+      "sd5Sd6ExtensionAdditionStepReachable": false,
+      "sd5Sd6ShortfallCheckReachable": true,
+      "shortfallCheckMayEndIn": "CORPUS_FREEZE_REFUSED"
+    },
+    "whatIsNotDeleted": {
+      "sd5Deleted": false,
+      "sd6Deleted": false,
+      "shortfallChecksRemain": true,
+      "deterministicFullOrderingRemains": true,
+      "extensionProcedureRemains": "HISTORICAL_AND_FROZEN",
+      "extensionAddItemBranchUnderGeneration1Caps": "ZERO_REACHABLE_HEADROOM",
+      "r3BytesChanged": false,
+      "planV1BytesChanged": false
+    }
+  },
+  "ownerDecision": {
+    "clause1_requiredMembershipDefinition": {
+      "token": "REQUIRED_SELECTED_SAMPLE_MEMBERSHIP",
+      "scope": "REACHABLE_SELECTED_CAPPED_MEMBERSHIP",
+      "generation": "METHODOLOGY_V2_GEN1",
+      "meaning": "Only document membership that is reachable under the already-frozen sample caps.",
+      "perOrganisation": {
+        "SET_P": "the reachable selected membership is exactly the cap-8 result",
+        "SET_R": "the reachable selected membership is exactly the cap-4 result"
+      },
+      "postCapPositionsAre": "FULL_ORDER_EVIDENCE",
+      "postCapPositionsAreNot": "REQUIRED_SELECTED_SAMPLE_MEMBERSHIP"
+    },
+    "clause2_fullOrderEvidencePreserved": {
+      "policy": "PRESERVE_FULL_ORDER_EVIDENCE_WITH_UNRESOLVED_UNREACHABLE_TAIL_ALLOWED",
+      "mustStillBeCommittedAndFrozenPreLabel": [
+        "the complete pre-SD7 total order",
+        "the canonical graph",
+        "the measurable survivor sequence",
+        "exclusions",
+        "unresolved short-text positions",
+        "source-rank positions",
+        "sample-specific ordering evidence"
+      ],
+      "tailMayBeDeletedOrHidden": false,
+      "whatChanges": "only the freeze-blocking role of unresolved positions that lie outside the reachable selected membership"
+    },
+    "clause3_exactCapMembershipRemainsMandatory": {
+      "ifShortTextAmbiguityCanAlterSelectedCapMembership": "REFUSE",
+      "setPBlockingFact": "SET_P_DOCUMENT_CAP_BLOCKED_SHORT_TEXT_SAMPLE_MEMBERSHIP",
+      "setPBlockingFactSource": "R8 documentCap (src/test/harness/phase2b2d/a3prep/setPSd7.ts)",
+      "setRBlockingFact": "SET_R_DOCUMENT_CAP_BLOCKED_SHORT_TEXT_SAMPLE_MEMBERSHIP",
+      "setRBlockingFactSource": "R13 determineSetRDocumentCap, surfaced as initialCapReadiness (src/test/harness/phase2b2d/a3prep/setRSd7Readiness.ts)",
+      "forbidden": [
+        "a measurable-only guess",
+        "an inferred keep/drop",
+        "label assistance",
+        "model assistance",
+        "gold assistance"
+      ]
+    },
+    "clause4_postCapAmbiguityDoesNotBlockByItself": {
+      "condition": "the selected cap membership is exact AND the full order still contains unresolved short-text positions after the reachable selected membership",
+      "then": {
+        "selectedMembershipMayMaterialise": true,
+        "tailAmbiguityRemainsRecorded": true,
+        "semanticShortTextStatus": "UNRESOLVED",
+        "corpusFreezeRefusedSolelyBecauseOfUnreachableTailAmbiguity": false
+      },
+      "unreachableTailFreezeEffect": "DOES_NOT_REFUSE_FREEZE_BY_ITSELF",
+      "capBlockedFreezeEffect": "REFUSE_CORPUS_FREEZE"
+    },
+    "clause5_whyThisDoesNotChangeTheSample": {
+      "formalInvariant": "For every admissible short-text treatment under which the selected cap is invariant, the selected document identities are identical; and because extension headroom is zero, no post-cap document can later enter the sample under any treatment. Hence the Generation-1 sample is the same set, in the same order, whether or not post-cap positions are treated as REQUIRED.",
+      "changes": ["FREEZE_CONSEQUENCE"],
+      "doesNotChange": [
+        "selected documents",
+        "document order",
+        "SET_P membership",
+        "SET_R membership",
+        "organisation membership",
+        "weights",
+        "gate universe",
+        "SD4",
+        "SD9"
+      ]
+    },
+    "clause6_priorClause8RemainsTrue": {
+      "priorClause": "ownerDecision.clause8_extensionBoundary of the short-text sample-membership owner policy",
+      "initialCapExactnessImpliesCompleteRankExactness": false,
+      "completeRankMayRemainSemanticallyMultiValued": true,
+      "thisRecordSaysOnly": "complete-rank semantic exactness is not required for freeze when the ambiguous positions are outside the reachable selected membership"
+    },
+    "clause7_priorClause11DefinesRequired": {
+      "existingRule": "REFUSE_IF_REQUIRED_MEMBERSHIP_BLOCKED",
+      "existingRuleChanged": false,
+      "requiredDefinedForGeneration1As": "REACHABLE_SELECTED_CAPPED_MEMBERSHIP",
+      "refusalTokenWhenCapMembershipIsBlocked": "CORPUS_FREEZE_REFUSED_SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED",
+      "newRefusalTokenCreated": false
+    },
+    "clause8_noSemanticShortTextDecision": {
+      "flag": "SD7_SHORT_TEXT_UNRESOLVED",
+      "remains": "EXACTLY_UNRESOLVED",
+      "stillForbidden": [
+        "ALWAYS INCLUDE",
+        "ALWAYS EXCLUDE",
+        "a unique verdict",
+        "a near-duplicate verdict",
+        "a special empty Jaccard",
+        "a smaller n-gram fallback",
+        "character similarity",
+        "label-assisted judgement",
+        "model-assisted judgement"
+      ]
+    },
+    "clause9_sd9Unchanged": {
+      "priorDecision": "SHORT_TEXT_AMBIGUITY_BLOCKS_ONLY_WHEN_IT_CAN_CHANGE_SD9",
+      "priorDecisionRevised": false,
+      "acquisitionStatusStillUses": "the admissible post-SD7 count bounds",
+      "anOrganisationMayBeAcquisitionSuccessfulWhileItsSelectedCapMembershipIsBlocked": true,
+      "changesAcquisitionSuccess": false,
+      "changesReplacement": false
+    },
+    "clause10_noReplacementEffect": {
+      "capBlockedShortTextAcquisitionEffect": "NO_ACQUISITION_STATUS_CHANGE",
+      "capBlockedShortTextReplacementEffect": "NO_REPLACEMENT_REASON",
+      "consumesAReserveForSampleMembershipAmbiguity": false
+    },
+    "clause11_globalPreLabelDecision": {
+      "appliesGlobally": true,
+      "appliesTo": ["SET_P", "SET_R"],
+      "chosenBeforeAnyA4LabelExists": true,
+      "gatedSealedRankPositionInspectedToSelectIt": false,
+      "realCapReadinessComputedToSelectIt": false,
+      "candidateOutputConsulted": false,
+      "goldConsulted": false,
+      "gateResultConsulted": false,
+      "classBalanceObserved": false,
+      "slotBySlotDiscretion": false
+    },
+    "clause12_futureCapRelaxation": {
+      "appliesAutomaticallyToAGenerationWithPostInitialCapExtensionHeadroom": false,
+      "suchAFutureGenerationMustReEstablish": [
+        "which tail positions are reachable",
+        "which exact membership must be known",
+        "whether full-rank ambiguity becomes freeze-blocking again"
+      ]
+    },
+    "clause13_kState": {
+      "historicalMarkers": 4,
+      "resolved": 4,
+      "unresolved": 0,
+      "numberedK5Created": false,
+      "thisIsAnA3KDecision": false,
+      "thisIsAnAdjacentShortTextPolicyClarification": true
+    }
+  },
+  "boundAuthority": {
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306
+    },
+    "methodologyFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+      "bytes": 17514
+    },
+    "corpusPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "bytes": 45200
+    },
+    "corpusPlanApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1_OWNER_APPROVAL.json",
+      "sha256": "0ac475031e81a60ae58d70bb83d5f71ee3cc441573dc82cf88145fdf1e8fec14",
+      "bytes": 10949
+    },
+    "sd7ShortTextOwnerDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_SD7_SHORT_TEXT_OWNER_DECISION_V1.json",
+      "sha256": "2f41f495322eceae3b675cbe1d227115f3b4292d6e3a711879793af33b466fff",
+      "bytes": 7584,
+      "commit": "d7d686b855489bdb21be95041e4dd165d1acd0a2"
+    },
+    "k3OwnerClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A3_K3_SD7_SAMPLE_SPECIFIC_SURVIVOR_OWNER_CLARIFICATION_V1.json",
+      "sha256": "987b88a0848a5020605619f24a9accd73a04e886c80f72ab81608fbade765eab",
+      "bytes": 15475,
+      "commit": "bee142ee601f2dad7f558c15f549d6e33080f3e7"
+    },
+    "shortTextSampleMembershipOwnerPolicy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A3_SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP_OWNER_POLICY_V1.json",
+      "sha256": "b734805bbaddc6890dc7032179b4a639a69a790282923b41641710a060b3d05a",
+      "bytes": 19924,
+      "commit": "b0fe10cb5b651983ac196a6a266998bf8665c527"
+    },
+    "k1OwnerClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A3_K1_SET_R_TRACK_SCORE_OWNER_CLARIFICATION_V1.json",
+      "sha256": "2437ef4b0bcabc816432c338e02da3b6eaa80fedb561b805232ad906fbbc94be",
+      "bytes": 10367
+    },
+    "k2OwnerClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A3_K2_EXACT_DOCUMENT_SCORE_OWNER_CLARIFICATION_V1.json",
+      "sha256": "5fb280c9aae264e59ca80383922d324c1118aa9192e7d9f5fe6e79ca09b75668",
+      "bytes": 11998
+    },
+    "k4OwnerClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A3_K4_SD4_ORGANISATION_SHARE_OWNER_CLARIFICATION_V1.json",
+      "sha256": "714646e24006e89467cca0de3181d287a919a7b876523763259babe9ed2d737c",
+      "bytes": 26474
+    },
+    "canonicalR8AuditRecord": {
+      "path": "docs/audits/PHASE_2B_2D_A3_CANONICAL_PREP_R8_SET_P_SD7_BINDING_V1.md",
+      "sha256": "037ff7defe452700e7d96728df9ec1093e18c84f3752fd94731927dd95d2f24c",
+      "bytes": 9484,
+      "commit": "03da163497901d7f53bf1a94c604dee3b0da1a6c"
+    },
+    "canonicalR9AuditRecord": {
+      "path": "docs/audits/PHASE_2B_2D_A3_CANONICAL_PREP_R9_CORPUS_FREEZE_PREFLIGHT_V1.md",
+      "sha256": "f5423992096bbef9cac1964b36f8af694cc0ae6fe7a0c51323c4ee993d19f48d",
+      "bytes": 11901,
+      "commit": "1a324ba812168332954f5c1a483d4d54f718c2de"
+    },
+    "canonicalR13AuditRecord": {
+      "path": "docs/audits/PHASE_2B_2D_A3_CANONICAL_PREP_R13_SET_R_CAP_FREEZE_READINESS_V1.md",
+      "sha256": "43393021198d0fa810f0f2f951441d63a4a94828b7ee5fa419346a39692f4172",
+      "bytes": 15816,
+      "commit": "185a3df3c4e35e6943c78ecf3681112665c81af4"
+    },
+    "canonicalR15AuditRecord": {
+      "path": "docs/audits/PHASE_2B_2D_A3_CANONICAL_PREP_R15_SD4_ORGANISATION_SHARE_ENFORCEMENT_V1.md",
+      "sha256": "0b3d15c328a0317cfcd28952cac0239a758f63860dc787d0e6d90dd32ecee0ca",
+      "bytes": 19816,
+      "commit": "9478f1d17ed2b6bcff9fcd436650745a2971550b"
+    },
+    "shortTextMembershipPolicyBindingAuditRecord": {
+      "path": "docs/audits/PHASE_2B_2D_A3_SHORT_TEXT_MEMBERSHIP_POLICY_BINDING_V1.md",
+      "sha256": "dfbacea2bd93c4fcd18c775a2e6c60479e42fb81da903925011955e39ae747ef",
+      "bytes": 9324,
+      "commit": "fcecc93e69f4108abff34c0c1b6cbe4f21f81501"
+    },
+    "canonicalRuntimeFilesAtParent": {
+      "setPSd7": {
+        "path": "src/test/harness/phase2b2d/a3prep/setPSd7.ts",
+        "sha256": "b13c047f12ecf27583f07cef28923e3adc1e77ed2b3a1e1655de372cd79fdd4a"
+      },
+      "setRSd7Readiness": {
+        "path": "src/test/harness/phase2b2d/a3prep/setRSd7Readiness.ts",
+        "sha256": "db64388852765e765b1ec485cd481c826a9902cef2eadc844340c5664f665415"
+      },
+      "corpusFreezePreflight": {
+        "path": "src/test/harness/phase2b2d/a3prep/corpusFreezePreflight.ts",
+        "sha256": "81812d572be4d31953c9fe3df927c7f0a7c398968185785e907e8c1b39bae15a"
+      }
+    },
+    "canonicalA3Parent": "9478f1d17ed2b6bcff9fcd436650745a2971550b",
+    "allHashesRecomputedFromCurrentBytesWhenThisRecordWasWritten": true
+  },
+  "concurrencyObservation": {
+    "a2BranchObserved": "origin/feat/phase2b-2d-a2-batch-02",
+    "a2TipObserved": "696c52333fe0e16b41eacd6b387cc5f692c2dde9",
+    "a2MovedSinceLastExternallyObservedTip": false,
+    "a2Merged": false,
+    "a2ActionTaken": false
+  },
+  "whatThisDoesNotChange": {
+    "r3Changed": false,
+    "planV1Changed": false,
+    "priorShortTextOwnerDecisionEdited": false,
+    "priorShortTextSampleMembershipPolicyEdited": false,
+    "k3OwnerClarificationEdited": false,
+    "sd7RuleChanged": false,
+    "sd9RuleChanged": false,
+    "setPCapChanged": false,
+    "setRCapChanged": false,
+    "rankingChanged": false,
+    "r8CapAlgorithmChanged": false,
+    "r13CapAlgorithmChanged": false,
+    "semanticShortTextStatusDecided": false,
+    "newRefusalTokenCreated": false,
+    "k5Created": false,
+    "realA3Authorised": false,
+    "corpusFreezeAuthorised": false,
+    "a2ContinuationOrPauseDecided": false
+  },
+  "whatThisRecordDoesNotDo": [
+    "it does not implement anything; the contract binding and preflight rebinding are a separate, later commit",
+    "it does not inspect any real or sealed rank position and does not compute any real cap readiness",
+    "it does not decide the semantic near-duplicate status of any short-text document",
+    "it does not authorise real A3, any materialisation, any manifest, any corpus freeze, any label or any provider inference",
+    "it does not authorise, continue or pause any A2 live window",
+    "it does not grant any network, database, sealed-filesystem, reserve or replacement authority"
+  ],
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256. This file is never rewritten, re-hashed or re-statused."
+  }
+}
