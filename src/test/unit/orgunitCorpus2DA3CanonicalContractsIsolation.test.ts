@@ -78,6 +78,15 @@
  * stays a later slice. R15's own boundaries live in
  * `orgunitCorpus2DA3CanonicalOrganisationCapsIsolation.test.ts`.
  *
+ * R17 WIDENED IT A THIRTEENTH TIME, BY EXACT NAME, for `slotAuthority.ts`
+ * alone. It adds no bare import and no external module beyond the already
+ * permitted A1b draw contract: it reads `contracts.ts` and
+ * `../draw/drawContract.ts`, and deliberately NOT the A2 continuation
+ * machinery (whose replacement-ledger validator hashes with node:crypto).
+ * No other runtime file changed. `syntheticFixtures.ts` stays a later slice.
+ * R17's own boundaries live in
+ * `orgunitCorpus2DA3CanonicalSlotAuthorityIsolation.test.ts`.
+ *
  * By walking the real import graph and source text of
  * `src/test/harness/phase2b2d/a3prep/`, this file proves:
  *
@@ -85,8 +94,9 @@
  *     `rank.ts` and `setP.ts`, R3's `sd9.ts`, R4's `splitScope.ts` and R5's
  *     `manifestTypes.ts`, R7's `sd7.ts`, R8's `setPSd7.ts`, R9's
  *     `corpusFreezePreflight.ts`, R10's `setRScore.ts`, R11's `setR.ts`,
- *     R12's `setRSd7.ts`, R13's `setRSd7Readiness.ts` and R15's
- *     `organisationCaps.ts`; the later-slice synthetic fixtures are absent;
+ *     R12's `setRSd7.ts`, R13's `setRSd7Readiness.ts`, R15's
+ *     `organisationCaps.ts` and R17's `slotAuthority.ts`; the later-slice
+ *     synthetic fixtures are absent;
  *   - the whole transitive import closure of R1 is pure: no socket, no
  *     fetch(), no database, no filesystem, no child process, no environment
  *     read, no clock, no randomness, no provider or AI SDK;
@@ -147,6 +157,9 @@ const R13_FILES = ['setRSd7Readiness.ts'];
 /** R15, added by exact name. */
 const R15_FILES = ['organisationCaps.ts'];
 
+/** R17, added by exact name. */
+const R17_FILES = ['slotAuthority.ts'];
+
 const NAMESPACE_FILES = [
   ...R1_FILES,
   ...R2_FILES,
@@ -161,6 +174,7 @@ const NAMESPACE_FILES = [
   ...R12_FILES,
   ...R13_FILES,
   ...R15_FILES,
+  ...R17_FILES,
 ].sort();
 
 /** The one namespace file that may name the SEALED_ROOT_BY_SPLIT identifier. */
@@ -224,8 +238,8 @@ function importClosure(): {
   return { modules: [...seen].sort(), bareSpecifiers: [...bare].sort(), bareImporters };
 }
 
-describe('2D-A3 R1: the a3prep namespace holds exactly R1, R2, R3, R4, R5, R7, R8, R9, R10, R11, R12, R13 and R15', () => {
-  it('contains exactly contracts.ts, types.ts, rank.ts, setP.ts, sd9.ts, splitScope.ts, manifestTypes.ts, sd7.ts, setPSd7.ts, corpusFreezePreflight.ts, setRScore.ts, setR.ts, setRSd7.ts, setRSd7Readiness.ts and organisationCaps.ts', () => {
+describe('2D-A3 R1: the a3prep namespace holds exactly R1, R2, R3, R4, R5, R7, R8, R9, R10, R11, R12, R13, R15 and R17', () => {
+  it('contains exactly contracts.ts, types.ts, rank.ts, setP.ts, sd9.ts, splitScope.ts, manifestTypes.ts, sd7.ts, setPSd7.ts, corpusFreezePreflight.ts, setRScore.ts, setR.ts, setRSd7.ts, setRSd7Readiness.ts, organisationCaps.ts and slotAuthority.ts', () => {
     expect(readdirSync(A3PREP_DIR).sort()).toEqual(NAMESPACE_FILES);
   });
 
