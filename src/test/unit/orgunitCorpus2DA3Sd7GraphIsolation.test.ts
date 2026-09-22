@@ -46,6 +46,21 @@ const SD7_REL = 'src/test/harness/phase2b2d/sd7';
 /** The exact canonical R21 tip R22 was cut from. */
 const R21_TERMINAL = 'f2d54f02c810903608678125930929d47fd8aa36';
 
+/**
+ * R22'S OWN TERMINAL COMMIT.
+ *
+ * R22's changed-surface assertion describes R22'S SLICE, so it ranges over
+ * R22's own commits - `R21_TERMINAL..R22_TERMINAL` - rather than over the
+ * working tree. Once a later slice lands on top, the working tree is no
+ * longer R22's surface, and diffing to it would fail for the honest reason
+ * that history moved on rather than because R22 changed.
+ *
+ * This is the same standing convention R19, R20 and R21 apply, and it WEAKENS
+ * NOTHING: R22's range is frozen, its permitted-path list is unchanged, and
+ * each later slice pins the equivalent scope over its own range.
+ */
+const R22_TERMINAL = 'd3c2cd7cc6a72d488b94c5cdcfbd5809f6580b4c';
+
 /** The one commit that pinned R21's own changed-surface test to its range. */
 const R21_SCOPE_PIN_COMMIT = '01491429905aa5a104b01c09607502c2401b5354';
 const R21_ISOLATION_TEST = 'src/test/unit/orgunitCorpus2DA3DocumentSourceIsolation.test.ts';
@@ -188,7 +203,8 @@ function sha256(bytes: Buffer | string): string {
   return createHash('sha256').update(bytes).digest('hex');
 }
 
-const baseAvailable = commitExists(R21_TERMINAL) && commitExists(R21_SCOPE_PIN_COMMIT);
+const baseAvailable =
+  commitExists(R21_TERMINAL) && commitExists(R21_SCOPE_PIN_COMMIT) && commitExists(R22_TERMINAL);
 
 // ---------------------------------------------------------------------------
 
@@ -423,12 +439,7 @@ describe.skipIf(!baseAvailable)('2D-A3 R22: lineage and changed surface', () => 
   });
 
   it('changes nothing outside its own namespace, tests and records', () => {
-    const paths = [
-      ...new Set([
-        ...lines(git('diff', '--name-only', R21_TERMINAL)),
-        ...lines(git('ls-files', '--others', '--exclude-standard')),
-      ]),
-    ];
+    const paths = lines(git('diff', '--name-only', R21_TERMINAL, R22_TERMINAL));
     const permitted = (path: string): boolean =>
       path.startsWith(`${A3GRAPHS_REL}/`) ||
       path === 'src/test/unit/orgunitCorpus2DA3Sd7GraphMeasurement.test.ts' ||
