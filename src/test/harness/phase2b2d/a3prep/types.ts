@@ -19,8 +19,9 @@
  *
  *   3. SCORE. The persisted per-track candidate observations are carried as
  *      they were persisted. The ONE resolved SET_R score is defined by the K1
- *      and K2 owner records, so its only shape REQUIRES their hashes. No
- *      reducer producing it exists yet.
+ *      and K2 owner records, so its only shape REQUIRES their hashes. R10's
+ *      `setRScore.ts` is the reducer that produces it; R11's `setR.ts` ranks
+ *      by it.
  *
  *   4. VISIBILITY. The sealed splits' public-safe shape is aggregate-only and
  *      is typed to the gated splits alone. There is deliberately no generic
@@ -101,9 +102,10 @@ export interface A3TrackCandidateObservation {
  * THE ONLY SHAPE THAT CARRIES A RESOLVED SET_R SCORE.
  *
  * It is an EXTERNALLY-RESOLVED INPUT: something outside this module produces
- * it under the K1 and K2 owner decisions, and A3 prep only consumes it. It
- * requires the SHA-256 of both owner records. Both records now exist, but no
- * reducer does, so nothing constructs a value of this type yet.
+ * it under the K1 and K2 owner decisions, and later ranking only consumes it.
+ * It requires the SHA-256 of both owner records. K1 and K2 are both resolved,
+ * and R10's `prepareSetRDocumentScore` (`setRScore.ts`) is the reducer that
+ * constructs it; R11's `rankSetRFull` (`setR.ts`) consumes it.
  */
 export interface A3ExternallyResolvedSetRScore {
   readonly documentSha256: A3DocumentSha256;
@@ -168,8 +170,8 @@ export type A3Sample = 'SET_P' | 'SET_R';
  *
  * `saltedRankSha256` is the SD3 salted key digest: SET_P's primary rank key,
  * SET_R's tie-break. No score field exists here - SET_R's primary order is
- * the K1/K2-defined score and arrives, if ever, as
- * `A3ExternallyResolvedSetRScore`.
+ * the K1/K2-defined score, which R11 reads from R10's
+ * `A3ExternallyResolvedSetRScore` and never copies into a ranked entry.
  */
 export interface A3RankedDocument {
   readonly sample: A3Sample;

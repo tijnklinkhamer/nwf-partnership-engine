@@ -170,8 +170,14 @@ describe('2D-A3 R10: stops at one score per document', () => {
     );
   });
 
-  it('the SET_R rank module and the other later slices still do not exist', () => {
-    for (const file of ['setR.ts', 'organisationCaps.ts', 'syntheticFixtures.ts']) {
+  /**
+   * R11 NARROWED THIS BY EXACT NAME: `setR.ts` (the SET_R total rank) now
+   * exists, and ranking stays out of THIS module - proved above. The other
+   * later slices are still absent.
+   */
+  it('the SET_R rank is R11 setR.ts, never this module; the other later slices still do not exist', () => {
+    expect(existsSync(join(A3PREP_DIR, 'setR.ts'))).toBe(true);
+    for (const file of ['organisationCaps.ts', 'syntheticFixtures.ts']) {
       expect(existsSync(join(A3PREP_DIR, file)), file).toBe(false);
     }
   });

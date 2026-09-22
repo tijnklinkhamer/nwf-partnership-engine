@@ -721,9 +721,11 @@ describe('2D-A3 K1/K2: authority binding only — no SET_R implementation', () =
     expect(functions).toEqual([]);
   });
 
-  it('no setR, organisation-cap or synthetic-fixture module exists in a3prep', () => {
+  /** R11 moved `setR.ts` from absent to present, by exact name; the rest stay absent. */
+  it('no organisation-cap or synthetic-fixture module exists in a3prep; setR.ts is R11', () => {
     const files = readdirSync(join(REPO_ROOT, A3PREP_REL));
-    for (const absent of ['setR.ts', 'organisationCaps.ts', 'syntheticFixtures.ts']) {
+    expect(files).toContain('setR.ts');
+    for (const absent of ['organisationCaps.ts', 'syntheticFixtures.ts']) {
       expect(files).not.toContain(absent);
     }
   });
@@ -736,9 +738,29 @@ describe('2D-A3 K1/K2: authority binding only — no SET_R implementation', () =
    */
   const R10_AUTHORISED_SCORE_REDUCER_FILE = 'setRScore.ts';
 
-  it('no a3prep module other than R10 setRScore.ts exports a SET_R reducer, comparator or rank', () => {
+  /**
+   * R11 WIDENED IT ONCE MORE, BY EXACT NAME: `setR.ts` exports exactly one
+   * function, the SET_R total rank `rankSetRFull`, and no reducer or
+   * comparator (proved in `orgunitCorpus2DA3CanonicalSetRIsolation`).
+   */
+  const R11_AUTHORISED_SET_R_RANK_FILE = 'setR.ts';
+
+  it('R11 setR.ts exports exactly one function: rankSetRFull', () => {
+    const source = readFileSync(
+      join(REPO_ROOT, A3PREP_REL, R11_AUTHORISED_SET_R_RANK_FILE),
+      'utf8',
+    );
+    expect(
+      [...source.matchAll(/export\s+(?:async\s+)?function\s+(\w+)/g)].map((m) => m[1]),
+    ).toEqual(['rankSetRFull']);
+  });
+
+  it('no a3prep module other than R10 setRScore.ts and R11 setR.ts exports a SET_R reducer, comparator or rank', () => {
     for (const file of readdirSync(join(REPO_ROOT, A3PREP_REL)).filter(
-      (f) => f.endsWith('.ts') && f !== R10_AUTHORISED_SCORE_REDUCER_FILE,
+      (f) =>
+        f.endsWith('.ts') &&
+        f !== R10_AUTHORISED_SCORE_REDUCER_FILE &&
+        f !== R11_AUTHORISED_SET_R_RANK_FILE,
     )) {
       const source = readFileSync(join(REPO_ROOT, A3PREP_REL, file), 'utf8');
       for (const m of source.matchAll(/export\s+(?:async\s+)?function\s+(\w+)/g)) {
