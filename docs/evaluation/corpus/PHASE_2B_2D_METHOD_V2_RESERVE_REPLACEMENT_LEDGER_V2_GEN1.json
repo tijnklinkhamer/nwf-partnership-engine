@@ -178,7 +178,21 @@
       "previousSequenceForSlot": null,
       "previousEntryHash": "32fd0356291f27d15fd59ed8be0123e7d71b1ffbc9288ab3349430f00afb0976",
       "entryHash": "247c62c9c3bf6ae242316b05ef413bbcb76210231085b5d84966724985ef0b36"
+    },
+    {
+      "sequence": 6,
+      "selectionIndex": 12,
+      "split": "DEV_TRAIN",
+      "replacedEcheRowKey": "E VALENCI26|949461221",
+      "replacementEcheRowKey": "I ROMA35|920607116",
+      "reserveRankPosition": 6,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-22T12:08:12Z",
+      "replacedOccupantKind": "RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 5,
+      "previousEntryHash": "247c62c9c3bf6ae242316b05ef413bbcb76210231085b5d84966724985ef0b36",
+      "entryHash": "3e36136c205cd98f10aef8bdf53de07169ef8e462a188abfbe0a2aba705d725a"
     }
   ],
-  "ledgerHash": "5c464b2a56412951a9da11a608252584af3abfa6928c43ea22477be8afcd895b"
+  "ledgerHash": "cf55812f1660fa06154d4a1e9a74e5f785cba046da08f52cb933579e5b6f8636"
 }
