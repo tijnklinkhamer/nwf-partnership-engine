@@ -184,7 +184,9 @@ describe('2D-A3 R1: the bound authority is the frozen bytes on disk', () => {
       drawContract.CORPUS_PLAN_APPROVAL_SHA256,
     );
     // The ONLY 64-hex literals are the owner records' hashes (K3, K1, K2, K4,
-    // then the short-text membership policy), which have no other canonical home.
+    // the short-text membership policy, then its Generation-1 required-membership
+    // scope clarification), which have no other canonical home. The scope
+    // object's reference to the earlier policy's hash is a REFERENCE, not a literal.
     // K2's bound K1 hash is a REFERENCE to K1's, never a second literal. No
     // draw-contract hash is restated.
     const source = readFileSync(join(A3PREP_DIR, 'contracts.ts'), 'utf8');
@@ -194,6 +196,7 @@ describe('2D-A3 R1: the bound authority is the frozen bytes on disk', () => {
       contracts.K2_OWNER_DECISION.decisionRecordSha256,
       contracts.K4_OWNER_DECISION.decisionRecordSha256,
       contracts.SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY.decisionRecordSha256,
+      contracts.SHORT_TEXT_REQUIRED_MEMBERSHIP_SCOPE_POLICY.decisionRecordSha256,
     ]);
     for (const hash of [
       drawContract.METHODOLOGY_R3_SHA256,

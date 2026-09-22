@@ -15,9 +15,12 @@
  *   A. Is the INITIAL cap - the first SET_R_MAX_PAGES_PER_ORGANISATION = 4
  *      document identities - exact? (`determineSetRDocumentCap`)
  *   B. Is the COMPLETE survivor-aware SET_R rank exact? (`fullRankReadiness`)
- *   C. Is every required slot's complete rank exact, corpus-wide? That is the
- *      freeze preflight's question (`corpusFreezePreflight.ts`), which reads B
- *      and never A.
+ *   C. Is every slot's REQUIRED selected membership exact, corpus-wide? That
+ *      is the freeze preflight's question (`corpusFreezePreflight.ts`). R13
+ *      first answered it from B; the later append-only Generation-1 owner
+ *      clarification (`SHORT_TEXT_REQUIRED_MEMBERSHIP_SCOPE_POLICY`) scoped
+ *      REQUIRED to the reachable capped membership, so the preflight now reads
+ *      A, and B remains full-order evidence.
  *
  *   A being exact does NOT make B exact.
  *

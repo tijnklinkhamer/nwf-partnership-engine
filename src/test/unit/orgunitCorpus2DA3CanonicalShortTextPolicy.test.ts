@@ -527,6 +527,9 @@ describe('2D-A3 short-text policy: K-state and scope', () => {
   });
 
   it('the short-text exports are exactly the reviewed policy facts, and are plain frozen data', () => {
+    // The Generation-1 required-membership scope clarification added its own
+    // section-J exports, bound and tested in
+    // orgunitCorpus2DA3CanonicalShortTextReachableMembershipBinding.test.ts.
     expect(
       Object.keys(contracts)
         .filter((name) => /SHORT_TEXT/.test(name))
@@ -537,10 +540,16 @@ describe('2D-A3 short-text policy: K-state and scope', () => {
       'SHORT_TEXT_BLOCKED_SAMPLE_FREEZE_EFFECT',
       'SHORT_TEXT_BLOCKED_SAMPLE_FREEZE_REFUSAL',
       'SHORT_TEXT_BLOCKED_SAMPLE_REPLACEMENT_EFFECT',
+      'SHORT_TEXT_CAP_BLOCKED_FREEZE_EFFECT',
+      'SHORT_TEXT_FULL_ORDER_EVIDENCE_POLICY',
       'SHORT_TEXT_PRESENT_TREATMENT_EFFECT_ON_MEASURABLE_SURVIVORS',
+      'SHORT_TEXT_REQUIRED_MEMBERSHIP_SCOPE',
+      'SHORT_TEXT_REQUIRED_MEMBERSHIP_SCOPE_POLICY',
       'SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY',
       'SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY_KIND',
       'SHORT_TEXT_SEMANTIC_NEAR_DUPLICATE_STATUS',
+      'SHORT_TEXT_UNREACHABLE_TAIL_FREEZE_EFFECT',
+      'SHORT_TEXT_ZERO_EXTENSION_HEADROOM_SCOPE',
     ]);
     expect(Object.isFrozen(POLICY)).toBe(true);
     for (const value of Object.values(POLICY)) expect(typeof value).not.toBe('function');

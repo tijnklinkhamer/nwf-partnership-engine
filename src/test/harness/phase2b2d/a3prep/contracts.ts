@@ -706,3 +706,89 @@ export const SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY: A3PrepShortTextSampleMembershi
     semanticNearDuplicateStatus: 'REMAINS_UNRESOLVED',
     boundK3Procedure: K3_SD7_SURVIVOR_PROCEDURE,
   } as const);
+
+// ---------------------------------------------------------------------------
+// J. SD7 SHORT-TEXT REQUIRED-MEMBERSHIP SCOPE — GENERATION-1 OWNER
+//    CLARIFICATION. A SECOND owner-bound object, beside section I rather than
+//    folded into it: section I is the historical policy exactly as the owner
+//    recorded it, and it is not rewritten to pretend it always carried this.
+//
+//    docs/evaluation/PHASE_2B_2D_A3_SHORT_TEXT_REACHABLE_MEMBERSHIP_OWNER_CLARIFICATION_V1.json
+//    defines the word REQUIRED in section I's `REFUSE_IF_REQUIRED_MEMBERSHIP_BLOCKED`
+//    for Generation 1: the membership REACHABLE under the frozen caps (SET_P
+//    8, SET_R 4). Under those caps extension headroom is zero - an
+//    organisation below cap has contributed every survivor, one with an
+//    unselected survivor is already at cap - so the selected cap IS the
+//    complete reachable sample membership. Post-cap positions are full-order
+//    EVIDENCE, still frozen, no longer a freeze trigger by themselves. Data
+//    only: no algorithm here. Not a K marker; no K5.
+// ---------------------------------------------------------------------------
+
+/** For Generation 1, REQUIRED means the reachable selected capped membership. */
+export const SHORT_TEXT_REQUIRED_MEMBERSHIP_SCOPE = 'REACHABLE_SELECTED_CAPPED_MEMBERSHIP';
+
+/** The complete order, with any unresolved unreachable tail, stays frozen evidence. */
+export const SHORT_TEXT_FULL_ORDER_EVIDENCE_POLICY =
+  'PRESERVE_FULL_ORDER_EVIDENCE_WITH_UNRESOLVED_UNREACHABLE_TAIL_ALLOWED';
+
+/** Why the selected cap is the whole reachable membership under the Generation-1 caps. */
+export const SHORT_TEXT_ZERO_EXTENSION_HEADROOM_SCOPE =
+  'ZERO_EXTENSION_HEADROOM_SELECTED_CAP_IS_COMPLETE_REACHABLE_SAMPLE_MEMBERSHIP';
+
+/** Unresolved short text only AFTER an exact selected cap does not refuse the freeze. */
+export const SHORT_TEXT_UNREACHABLE_TAIL_FREEZE_EFFECT = 'DOES_NOT_REFUSE_FREEZE_BY_ITSELF';
+
+/** Unresolved short text that can change the selected cap still refuses it. */
+export const SHORT_TEXT_CAP_BLOCKED_FREEZE_EFFECT = SHORT_TEXT_BLOCKED_SAMPLE_FREEZE_EFFECT;
+
+export interface A3PrepShortTextRequiredMembershipScopePolicy {
+  readonly resolved: true;
+  readonly decisionToken: 'SHORT_TEXT_REQUIRED_SAMPLE_MEMBERSHIP_LIMITED_TO_REACHABLE_CAPPED_MEMBERSHIP_V1';
+  readonly selectedOption: 'RECOMMEND_LIMIT_REQUIRED_MEMBERSHIP_TO_REACHABLE_CAPPED_MEMBERSHIP';
+  readonly classification: 'OWNER_CLARIFICATION_OF_REQUIRED_MEMBERSHIP_SCOPE';
+  readonly generation: 'METHODOLOGY_V2_GEN1';
+  readonly decisionRecordPath: string;
+  readonly decisionRecordSha256: string;
+  readonly decisionRecordCommit: string;
+  /** Section I's decision, whose word REQUIRED this record defines. */
+  readonly clarifiesPolicyDecisionToken: typeof SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY.decisionToken;
+  readonly clarifiesPolicyDecisionRecordSha256: string;
+  readonly clarifiesFreezePolicy: typeof SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY.freezePolicy;
+  readonly zeroExtensionHeadroomScope: typeof SHORT_TEXT_ZERO_EXTENSION_HEADROOM_SCOPE;
+  readonly requiredMembershipScope: typeof SHORT_TEXT_REQUIRED_MEMBERSHIP_SCOPE;
+  readonly fullOrderEvidencePolicy: typeof SHORT_TEXT_FULL_ORDER_EVIDENCE_POLICY;
+  readonly capBlockedFreezeEffect: typeof SHORT_TEXT_CAP_BLOCKED_FREEZE_EFFECT;
+  readonly capBlockedFreezeRefusal: typeof SHORT_TEXT_BLOCKED_SAMPLE_FREEZE_REFUSAL;
+  readonly unreachableTailFreezeEffect: typeof SHORT_TEXT_UNREACHABLE_TAIL_FREEZE_EFFECT;
+  readonly semanticNearDuplicateStatus: 'REMAINS_UNRESOLVED';
+  readonly sd9: 'UNCHANGED';
+  readonly acquisitionEffect: typeof SHORT_TEXT_BLOCKED_SAMPLE_ACQUISITION_EFFECT;
+  readonly replacementEffect: typeof SHORT_TEXT_BLOCKED_SAMPLE_REPLACEMENT_EFFECT;
+}
+
+export const SHORT_TEXT_REQUIRED_MEMBERSHIP_SCOPE_POLICY: A3PrepShortTextRequiredMembershipScopePolicy =
+  Object.freeze({
+    resolved: true,
+    decisionToken:
+      'SHORT_TEXT_REQUIRED_SAMPLE_MEMBERSHIP_LIMITED_TO_REACHABLE_CAPPED_MEMBERSHIP_V1',
+    selectedOption: 'RECOMMEND_LIMIT_REQUIRED_MEMBERSHIP_TO_REACHABLE_CAPPED_MEMBERSHIP',
+    classification: 'OWNER_CLARIFICATION_OF_REQUIRED_MEMBERSHIP_SCOPE',
+    generation: 'METHODOLOGY_V2_GEN1',
+    decisionRecordPath:
+      'docs/evaluation/PHASE_2B_2D_A3_SHORT_TEXT_REACHABLE_MEMBERSHIP_OWNER_CLARIFICATION_V1.json',
+    decisionRecordSha256: '0d6ddaa6dcc70912e3e19d7cb245fbe7b241dff6c671d874cbd1cd50ec33b49a',
+    decisionRecordCommit: '2ee71744da1f4c3bdd81a8304dd416339f0dd697',
+    clarifiesPolicyDecisionToken: SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY.decisionToken,
+    clarifiesPolicyDecisionRecordSha256: SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY.decisionRecordSha256,
+    clarifiesFreezePolicy: SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY.freezePolicy,
+    zeroExtensionHeadroomScope: SHORT_TEXT_ZERO_EXTENSION_HEADROOM_SCOPE,
+    requiredMembershipScope: SHORT_TEXT_REQUIRED_MEMBERSHIP_SCOPE,
+    fullOrderEvidencePolicy: SHORT_TEXT_FULL_ORDER_EVIDENCE_POLICY,
+    capBlockedFreezeEffect: SHORT_TEXT_CAP_BLOCKED_FREEZE_EFFECT,
+    capBlockedFreezeRefusal: SHORT_TEXT_BLOCKED_SAMPLE_FREEZE_REFUSAL,
+    unreachableTailFreezeEffect: SHORT_TEXT_UNREACHABLE_TAIL_FREEZE_EFFECT,
+    semanticNearDuplicateStatus: 'REMAINS_UNRESOLVED',
+    sd9: 'UNCHANGED',
+    acquisitionEffect: SHORT_TEXT_BLOCKED_SAMPLE_ACQUISITION_EFFECT,
+    replacementEffect: SHORT_TEXT_BLOCKED_SAMPLE_REPLACEMENT_EFFECT,
+  } as const);

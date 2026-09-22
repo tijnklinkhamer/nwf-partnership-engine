@@ -42,21 +42,43 @@
  *      combined by `checkCurrentA3CorpusFreezePreflight`. This module never
  *      solves a fixed point: it reads K4 readiness, it does not derive it.
  *
- * INITIAL CAP IS NOT THE FULL FREEZE RANK
+ * FULL-ORDER EVIDENCE VERSUS REQUIRED SELECTED SAMPLE MEMBERSHIP
  *
  *   R8 (SET_P, cap 8) and R13 (SET_R, cap 4) answer "is the INITIAL cap
- *   membership exact?". The freeze gate answers a second question: "is the
- *   COMPLETE survivor-aware rank exact?". Plan V1's extension rule advances a
- *   cursor down the ALREADY-FROZEN rank, and the K3 owner clarification
- *   requires the complete survivor-aware rank to be frozen before any label
- *   exists. Under the owner's treatment space
- *   (`SHORT_TEXT_ADMISSIBLE_MEMBERSHIP_TREATMENT_SPACE_V1`) each unresolved
- *   short-text document independently admits two treatments - out of the
- *   sample, or in it at its frozen rank position - and those two treatments
- *   give different complete memberships. So ANY unresolved short text blocks
- *   the complete rank, even when every one of them ranks after the last capped
- *   measurable survivor and the initial cap is exact. Both gates read
- *   `fullRankReadiness`, never `initialCapReadiness`.
+ *   membership exact?" (`initialCapReadiness`). A second fact answers "is the
+ *   COMPLETE survivor-aware rank exact?" (`fullRankReadiness`). Under the
+ *   owner's treatment space (`SHORT_TEXT_ADMISSIBLE_MEMBERSHIP_TREATMENT_SPACE_V1`)
+ *   each unresolved short-text document is independently out of the sample or
+ *   in it at its frozen rank position, so ANY unresolved short text makes the
+ *   complete rank multi-valued, even when the initial cap is exact. An exact
+ *   initial cap still does not make the complete rank exact.
+ *
+ *   HISTORY. R9 and R13 read the short-text policy's
+ *   `REFUSE_IF_REQUIRED_MEMBERSHIP_BLOCKED` conservatively: every complete-rank
+ *   position was REQUIRED, so both gates refused on `fullRankReadiness`. The
+ *   append-only owner clarification
+ *   `SHORT_TEXT_REQUIRED_SAMPLE_MEMBERSHIP_LIMITED_TO_REACHABLE_CAPPED_MEMBERSHIP_V1`
+ *   (`SHORT_TEXT_REQUIRED_MEMBERSHIP_SCOPE_POLICY`) later defined REQUIRED for
+ *   Generation 1 as `REACHABLE_SELECTED_CAPPED_MEMBERSHIP`. Under the frozen
+ *   8 / 4 caps extension headroom is zero - an organisation below cap has
+ *   contributed every survivor, one with an unselected survivor is already at
+ *   cap, and cross-split borrowing is forbidden - so no post-cap position can
+ *   ever enter the sample, and the selected cap IS the complete reachable
+ *   membership.
+ *
+ *   So the two facts now play different roles:
+ *
+ *     - REQUIRED SELECTED SAMPLE MEMBERSHIP (`initialCapReadiness`) is the
+ *       freeze trigger. If unresolved short text can change a selected cap
+ *       identity, the freeze is refused, exactly as before.
+ *     - FULL-ORDER EVIDENCE (`fullRankReadiness`, the invariant prefix and the
+ *       extension boundary) is still derived, carried and validated. It is
+ *       still frozen pre-label and still honestly BLOCKED whenever unresolved
+ *       short text exists, but an unresolved tail after an exact cap no longer
+ *       refuses the freeze by itself.
+ *
+ *   A future generation with post-cap extension headroom does not inherit this
+ *   scope; it must re-establish what is reachable.
  *
  * THE INVARIANT PREFIX AND THE EXTENSION BOUNDARY
  *
@@ -96,10 +118,12 @@ import {
   GENERATION_1_SELECTED_ORGANISATIONS,
   GENERATION_1_SPLIT_ORGANISATION_COUNTS,
   K4_OWNER_DECISION,
+  SET_P_MAX_PAGES_PER_ORGANISATION,
   SHORT_TEXT_ADMISSIBLE_MEMBERSHIP_TREATMENT_SPACE,
   SHORT_TEXT_BLOCKED_SAMPLE_ACQUISITION_EFFECT,
   SHORT_TEXT_BLOCKED_SAMPLE_FREEZE_REFUSAL,
   SHORT_TEXT_BLOCKED_SAMPLE_REPLACEMENT_EFFECT,
+  SHORT_TEXT_REQUIRED_MEMBERSHIP_SCOPE_POLICY,
   SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY,
   SPLITS,
   type A3PrepUnresolvedOwnerDecisionMarker,
@@ -118,7 +142,7 @@ import {
   type A3SetPSd7Preparation,
 } from './setPSd7.js';
 import {
-  SET_R_FULL_SAMPLE_RANK_MEMBERSHIP_BLOCKED_SHORT_TEXT,
+  SET_R_INITIAL_CAP_BLOCKED_SHORT_TEXT_MEMBERSHIP,
   structuralIssueOfSetRFreezeSlotReadiness,
   type A3SetRFreezeSlotReadiness,
 } from './setRSd7Readiness.js';
@@ -186,9 +210,15 @@ export interface A3SetPFreezeSlotReadiness {
   readonly kind: 'A3_SET_P_FREEZE_SLOT_READINESS_SANITISED';
   readonly selectionIndex: A3SelectionIndex;
   readonly split: Split;
-  /** R8's `documentCap.status`, restated. Never re-derived here. */
+  /**
+   * R8's `documentCap.status`, restated. Never re-derived here. The REQUIRED
+   * selected sample membership: the short-text freeze trigger.
+   */
   readonly initialCapReadiness: A3SetPInitialCapReadiness;
-  /** EXACT iff no unresolved short text exists anywhere in the sample's rank. */
+  /**
+   * EXACT iff no unresolved short text exists anywhere in the sample's rank.
+   * FULL-ORDER EVIDENCE: carried and validated, not a freeze trigger by itself.
+   */
   readonly fullRankReadiness: A3SetPFullRankReadiness;
   readonly measurableSurvivorCount: number;
   readonly shortTextUnresolvedCount: number;
@@ -370,7 +400,12 @@ function structuralIssueOfSetPFreezeSlotReadiness(
       firstBlocked !== null &&
       prefix <= measurable &&
       // `prefix` survivors hold distinct source positions below the boundary.
-      prefix <= firstBlocked;
+      prefix <= firstBlocked &&
+      // R8 case B: with unresolved short text the cap is exact iff survivor #8
+      // is in the prefix. Since the freeze gate reads `initialCapReadiness`, a
+      // summary may not claim an exact cap its own counts contradict.
+      (r.initialCapReadiness === SET_P_INITIAL_CAP_EXACT) ===
+        prefix >= SET_P_MAX_PAGES_PER_ORGANISATION;
   return consistent ? null : 'READINESS_INCONSISTENT';
 }
 
@@ -513,17 +548,31 @@ export interface A3FreezePreflightStructuralBlocker {
   readonly receivedCount: number | null;
 }
 
+/**
+ * Some slot's REQUIRED selected sample membership - its exact cap - is
+ * blocked by unresolved short text. (Before the Generation-1 scope
+ * clarification this class was `SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED_AT_FREEZE`
+ * and was raised by the complete rank.)
+ */
 export interface A3FreezePreflightShortTextBlocker {
-  readonly blockerClass: 'SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED_AT_FREEZE';
-  /** Which sample's complete rank is blocked. Never which slot. */
+  readonly blockerClass: 'SHORT_TEXT_REQUIRED_SELECTED_MEMBERSHIP_UNRESOLVED_AT_FREEZE';
+  /** Which sample's required selected membership is blocked. Never which slot. */
   readonly sample: A3FreezePreflightSample;
   readonly refusal: typeof SHORT_TEXT_BLOCKED_SAMPLE_FREEZE_REFUSAL;
   readonly policyDecisionToken: typeof SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY.decisionToken;
+  readonly policyDecisionRecordSha256: string;
+  readonly requiredMembershipScopeDecisionToken: typeof SHORT_TEXT_REQUIRED_MEMBERSHIP_SCOPE_POLICY.decisionToken;
+  readonly requiredMembershipScopeDecisionRecordSha256: string;
+  readonly requiredMembershipScope: typeof SHORT_TEXT_REQUIRED_MEMBERSHIP_SCOPE_POLICY.requiredMembershipScope;
   readonly treatmentSpace: typeof SHORT_TEXT_ADMISSIBLE_MEMBERSHIP_TREATMENT_SPACE;
   readonly acquisitionEffect: typeof SHORT_TEXT_BLOCKED_SAMPLE_ACQUISITION_EFFECT;
   readonly replacementEffect: typeof SHORT_TEXT_BLOCKED_SAMPLE_REPLACEMENT_EFFECT;
   /** Aggregate over the whole collection: no split, no slot index. */
   readonly totalSlotCount: number;
+  /**
+   * Slots whose selected cap membership is BLOCKED. A cap-exact slot whose
+   * complete rank is blocked only by an unreachable tail is not counted.
+   */
   readonly blockedSlotCount: number;
 }
 
@@ -602,31 +651,35 @@ export type A3ShortTextCorpusFreezeGateResult =
 interface A3SampleGateRules {
   readonly sample: A3FreezePreflightSample;
   readonly entryIssue: (entry: unknown) => A3FreezePreflightStructuralCode | null;
-  readonly fullRankBlocked: (entry: unknown) => boolean;
+  /** Is this slot's REQUIRED selected (capped) membership blocked? */
+  readonly requiredMembershipBlocked: (entry: unknown) => boolean;
 }
 
 const SET_P_GATE_RULES: A3SampleGateRules = Object.freeze({
   sample: 'SET_P',
   entryIssue: structuralIssueOfSetPFreezeSlotReadiness,
-  fullRankBlocked: (entry: unknown) =>
-    (entry as A3SetPFreezeSlotReadiness).fullRankReadiness ===
-    SET_P_FULL_SAMPLE_RANK_MEMBERSHIP_BLOCKED_SHORT_TEXT,
+  requiredMembershipBlocked: (entry: unknown) =>
+    (entry as A3SetPFreezeSlotReadiness).initialCapReadiness ===
+    SET_P_INITIAL_CAP_BLOCKED_SHORT_TEXT_MEMBERSHIP,
 });
 
 const SET_R_GATE_RULES: A3SampleGateRules = Object.freeze({
   sample: 'SET_R',
   entryIssue: structuralIssueOfSetRFreezeSlotReadiness,
-  fullRankBlocked: (entry: unknown) =>
-    (entry as A3SetRFreezeSlotReadiness).fullRankReadiness ===
-    SET_R_FULL_SAMPLE_RANK_MEMBERSHIP_BLOCKED_SHORT_TEXT,
+  requiredMembershipBlocked: (entry: unknown) =>
+    (entry as A3SetRFreezeSlotReadiness).initialCapReadiness ===
+    SET_R_INITIAL_CAP_BLOCKED_SHORT_TEXT_MEMBERSHIP,
 });
 
 /**
  * Validate a COMPLETE Generation-1 SET_P slot collection fail closed, then
- * refuse the freeze if ANY slot's complete SET_P rank is blocked by unresolved
- * short text - initial cap exact or not. Selection indices are not assumed
- * contiguous: coverage is the canonical total and per-split counts, with no
- * index repeated. The first structural issue, in array order, is reported.
+ * refuse the freeze if ANY slot's REQUIRED selected SET_P membership - its
+ * exact cap-8 result - is blocked by unresolved short text. A slot whose cap
+ * is exact but whose complete rank carries an unresolved tail is clear here:
+ * that tail is full-order evidence, unreachable under zero extension
+ * headroom. Selection indices are not assumed contiguous: coverage is the
+ * canonical total and per-split counts, with no index repeated. The first
+ * structural issue, in array order, is reported.
  */
 export function checkSetPShortTextCorpusFreezeGate(
   slotReadiness: readonly A3SetPFreezeSlotReadiness[],
@@ -636,8 +689,9 @@ export function checkSetPShortTextCorpusFreezeGate(
 
 /**
  * The same gate over a COMPLETE Generation-1 SET_R slot collection: refuse the
- * freeze if ANY slot's complete SET_R rank is blocked by unresolved short text
- * - SET_R initial cap-4 exact or not.
+ * freeze if ANY slot's REQUIRED selected SET_R membership - its exact cap-4
+ * result - is blocked by unresolved short text. An unresolved tail after an
+ * exact cap-4 membership does not refuse by itself.
  */
 export function checkSetRShortTextCorpusFreezeGate(
   slotReadiness: readonly A3SetRFreezeSlotReadiness[],
@@ -657,7 +711,7 @@ function checkSampleShortTextCorpusFreezeGate(
     });
   }
   const collection = slotReadiness as readonly unknown[];
-  const blockedSlotCount = collection.filter(rules.fullRankBlocked).length;
+  const blockedSlotCount = collection.filter(rules.requiredMembershipBlocked).length;
   if (blockedSlotCount === 0) {
     return Object.freeze({
       status: SHORT_TEXT_CORPUS_FREEZE_GATE_CLEAR,
@@ -669,10 +723,16 @@ function checkSampleShortTextCorpusFreezeGate(
   return Object.freeze({
     status: SHORT_TEXT_CORPUS_FREEZE_GATE_REFUSED,
     blocker: Object.freeze({
-      blockerClass: 'SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED_AT_FREEZE' as const,
+      blockerClass: 'SHORT_TEXT_REQUIRED_SELECTED_MEMBERSHIP_UNRESOLVED_AT_FREEZE' as const,
       sample: rules.sample,
       refusal: SHORT_TEXT_BLOCKED_SAMPLE_FREEZE_REFUSAL,
       policyDecisionToken: SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY.decisionToken,
+      policyDecisionRecordSha256: SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY.decisionRecordSha256,
+      requiredMembershipScopeDecisionToken:
+        SHORT_TEXT_REQUIRED_MEMBERSHIP_SCOPE_POLICY.decisionToken,
+      requiredMembershipScopeDecisionRecordSha256:
+        SHORT_TEXT_REQUIRED_MEMBERSHIP_SCOPE_POLICY.decisionRecordSha256,
+      requiredMembershipScope: SHORT_TEXT_REQUIRED_MEMBERSHIP_SCOPE_POLICY.requiredMembershipScope,
       treatmentSpace: SHORT_TEXT_ADMISSIBLE_MEMBERSHIP_TREATMENT_SPACE,
       acquisitionEffect: SHORT_TEXT_BLOCKED_SAMPLE_ACQUISITION_EFFECT,
       replacementEffect: SHORT_TEXT_BLOCKED_SAMPLE_REPLACEMENT_EFFECT,
@@ -929,8 +989,10 @@ export interface A3CorpusFreezePreflightResult {
    *   3. the cross-sample structural blocker, if any (evaluated only when both
    *      collections are individually valid);
    *   4. the K4 readiness structural blocker, if any (R15);
-   *   5. the SET_P short-text blocker, if SET_P is evaluable;
-   *   6. the SET_R short-text blocker, if SET_R is evaluable;
+   *   5. the SET_P short-text required-membership blocker, if SET_P is
+   *      evaluable;
+   *   6. the SET_R short-text required-membership blocker, if SET_R is
+   *      evaluable;
    *   7. the aggregate K4 planned-SD4 blocker, if the K4 collection is valid
    *      and any gated split refused (R15);
    *   8. owner decisions in contract order (currently none: K1-K4 are resolved).

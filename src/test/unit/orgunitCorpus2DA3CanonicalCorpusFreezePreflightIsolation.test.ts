@@ -38,6 +38,16 @@
  * the input gained `k4`; the exports gained the K4 blocker shape; and the
  * organisation-cap guard below now forbids solving rather than naming.
  *
+ * THE GENERATION-1 SHORT-TEXT SCOPE CLARIFICATION WIDENED IT, BY EXACT NAME:
+ * the append-only owner record
+ * `SHORT_TEXT_REQUIRED_SAMPLE_MEMBERSHIP_LIMITED_TO_REACHABLE_CAPPED_MEMBERSHIP_V1`
+ * moved both short-text gates' trigger from the complete rank to the
+ * REQUIRED selected (capped) membership. So the SET_R import is now its
+ * BLOCKED initial-cap token instead of its blocked full-rank token, the gates
+ * must read `initialCapReadiness` and must no longer read a blocked
+ * `fullRankReadiness`, and contracts gained the SET_P cap (for the summary
+ * consistency check) and the scope-policy binding.
+ *
  * The historical `corpusFreezePreflight.ts` on the non-canonical
  * `feat/phase2b-2d-a3-corpus-prep-sol` branch was INSPECTED AS A NEGATIVE
  * REFERENCE ONLY; nothing was copied or cherry-picked from it.
@@ -157,14 +167,28 @@ describe('2D-A3 R9: exact import graph', () => {
     ]);
   });
 
-  it('R13: takes only SET_R’s blocked full-rank token, its entry check and its summary type from setRSd7Readiness', () => {
+  it('R13 + scope clarification: takes only SET_R’s blocked initial-cap token, its entry check and its summary type from setRSd7Readiness', () => {
     expect(namedImportsFrom(code(), './setRSd7Readiness.js')).toEqual([
-      'SET_R_FULL_SAMPLE_RANK_MEMBERSHIP_BLOCKED_SHORT_TEXT',
+      'SET_R_INITIAL_CAP_BLOCKED_SHORT_TEXT_MEMBERSHIP',
       'structuralIssueOfSetRFreezeSlotReadiness',
       'type A3SetRFreezeSlotReadiness',
     ]);
     expect(code()).not.toMatch(
-      /deriveSetRFreezeSlotReadiness|determineSetRDocumentCap|checkSetRExtensionCursor|initialCapReadiness\s*===\s*SET_R/,
+      /deriveSetRFreezeSlotReadiness|determineSetRDocumentCap|checkSetRExtensionCursor/,
+    );
+  });
+
+  it('scope clarification: both gates trigger on the REQUIRED selected membership, never on a blocked full rank', () => {
+    const source = code();
+    expect(source).toMatch(
+      /requiredMembershipBlocked:[^;]*initialCapReadiness\s*===\s*SET_P_INITIAL_CAP_BLOCKED_SHORT_TEXT_MEMBERSHIP/,
+    );
+    expect(source).toMatch(
+      /requiredMembershipBlocked:[^;]*initialCapReadiness\s*===\s*SET_R_INITIAL_CAP_BLOCKED_SHORT_TEXT_MEMBERSHIP/,
+    );
+    expect(source).not.toMatch(/fullRankBlocked/);
+    expect(source).not.toMatch(
+      /fullRankReadiness\s*===\s*SET_[PR]_FULL_SAMPLE_RANK_MEMBERSHIP_BLOCKED/,
     );
   });
 
@@ -189,10 +213,12 @@ describe('2D-A3 R9: exact import graph', () => {
       'GENERATION_1_SELECTED_ORGANISATIONS',
       'GENERATION_1_SPLIT_ORGANISATION_COUNTS',
       'K4_OWNER_DECISION',
+      'SET_P_MAX_PAGES_PER_ORGANISATION',
       'SHORT_TEXT_ADMISSIBLE_MEMBERSHIP_TREATMENT_SPACE',
       'SHORT_TEXT_BLOCKED_SAMPLE_ACQUISITION_EFFECT',
       'SHORT_TEXT_BLOCKED_SAMPLE_FREEZE_REFUSAL',
       'SHORT_TEXT_BLOCKED_SAMPLE_REPLACEMENT_EFFECT',
+      'SHORT_TEXT_REQUIRED_MEMBERSHIP_SCOPE_POLICY',
       'SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY',
       'SPLITS',
       'type A3PrepUnresolvedOwnerDecisionMarker',
