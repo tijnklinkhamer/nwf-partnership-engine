@@ -1,0 +1,88 @@
+{
+  "record": "PHASE_2B_2D_A3_R21_DEV_TRAIN_DOCUMENT_SOURCE_ASSEMBLY_CENSUS_V1",
+  "recordKind": "PUBLIC_AGGREGATE_ONLY_DOCUMENT_SOURCE_ASSEMBLY_CENSUS",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "split": "DEV_TRAIN",
+  "registryVersion": "CANONICAL_A2_GOVERNANCE_REGISTRY_V1",
+  "governanceSnapshotCommit": "907d726268ad07fe94fec93f4c6f3ff5ce5f93f9",
+  "r20Tip": "4cd917817437bd7c04f29938694e7ba8c1078019",
+  "implementationCommit": "a503699d5cd67092132983d6a0be4713d8fe9fc0",
+  "thisFileAuthorises": [],
+  "assembly": {
+    "r20DurableEvidenceItemCount": 5,
+    "mintedSlotAssemblyCount": 5,
+    "pageEvidenceSourceRowCount": 160,
+    "slotLocalDistinctDocumentCount": 156,
+    "exactDuplicateGroupCount": 3,
+    "exactDuplicateRowsRemoved": 4,
+    "documentsWithMultipleSourceRows": 3
+  },
+  "extractionSupport": {
+    "supportedExtractionRuleVersion": "orgunit-extraction-v2",
+    "supportedExtractionSourceRowCount": 160,
+    "unsupportedExtractionSourceRowCount": 0,
+    "multiExtractionVersionDocumentCount": 0,
+    "textDivergenceGroupCount": 0
+  },
+  "scorePreparation": {
+    "r10ScorePreparationCount": 156,
+    "r10SourceRowCoverageCount": 160,
+    "r10CandidateObservationCoverageCount": 320,
+    "candidateObservationsAssembled": 320
+  },
+  "semantics": {
+    "exactGroupingPerSlotOnly": true,
+    "crossOrganisationDocumentsCollapsed": false,
+    "globalDocumentDedupe": false,
+    "pageEvidenceRepresentativeSelected": false,
+    "textRepresentativeSelected": false,
+    "textValueJustifiedByEquality": true,
+    "textTransformationsApplied": 0,
+    "everySourceRowPreservedAsProvenance": true,
+    "canonicalExactDuplicatePassUsed": true,
+    "canonicalR10ScorePreparationUsed": true,
+    "nearDuplicateGraphMeasured": false,
+    "documentsRanked": false,
+    "setPMembershipSelected": false,
+    "setRMembershipSelected": false,
+    "shortTextDecided": false
+  },
+  "access": {
+    "r21SqlStatements": 0,
+    "databaseAccessOnlyThroughCanonicalR20": true,
+    "databaseWrites": 0,
+    "institutionNetworkRequests": 0,
+    "sealedRootReads": 0,
+    "nonDevTrainEvidenceReads": 0
+  },
+  "whatThisIsNot": [
+    "NOT_A2_ACQUISITION_AUTHORITY",
+    "NOT_DATABASE_EVIDENCE_AUTHORITY",
+    "NOT_SET_P",
+    "NOT_SET_R_MEMBERSHIP",
+    "NOT_AN_SD7_NEAR_DUPLICATE_GRAPH",
+    "NOT_AN_SD7_SURVIVOR_DECISION",
+    "NOT_A_RANK",
+    "NOT_A_CAP",
+    "NOT_SHORT_TEXT_AUTHORITY",
+    "NOT_A_FINAL_CORPUS",
+    "NOT_AN_A5_CORPUS_FREEZE"
+  ],
+  "identityDisclosure": {
+    "selectionIndices": false,
+    "reservePositions": false,
+    "organisationIds": false,
+    "echeRowKeys": false,
+    "runIdentifiers": false,
+    "runReferenceDigests": false,
+    "rowIdentifiers": false,
+    "documentDigests": false,
+    "urlsOrHosts": false,
+    "rootIdentifiers": false,
+    "titlesHeadingsOrText": false,
+    "individualScores": false,
+    "candidateSignals": false,
+    "sealedFilenames": false,
+    "gatedSplitData": false
+  }
+}
