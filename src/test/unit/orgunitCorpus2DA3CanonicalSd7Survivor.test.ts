@@ -185,11 +185,12 @@ describe('2D-A3 R7: bound to the landed K3 owner semantics', () => {
     expect(result.kind).toBe('A3_SD7_SAMPLE_SURVIVOR_PREPARATION_NOT_A_FINAL_SAMPLE');
   });
 
-  it('only K4 stays unresolved (K1 and K2 were later resolved by owner records)', () => {
-    expect(contracts.A3_PREP_UNRESOLVED_OWNER_DECISION_MARKERS).toEqual([
+  it('no decision stays unresolved (K1, K2 and then K4 were later resolved by owner records)', () => {
+    expect(contracts.A3_PREP_UNRESOLVED_OWNER_DECISION_MARKERS).toEqual([]);
+    expect(contracts.A3_PREP_OWNER_DECISIONS_REQUIRED.map((d) => d.id)).toEqual([]);
+    expect(contracts.A3_PREP_RESOLVED_OWNER_DECISION_MARKERS).toContain(
       contracts.K4_SD4_G3_FREEZE_TIME_TRUNCATION,
-    ]);
-    expect(contracts.A3_PREP_OWNER_DECISIONS_REQUIRED.map((d) => d.id)).toEqual(['K4']);
+    );
   });
 
   it('SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP remains unresolved in the K3 record, and R7 only names it', () => {

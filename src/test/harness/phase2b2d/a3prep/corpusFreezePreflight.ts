@@ -17,8 +17,9 @@
  * "none of the blocker classes known to the current preparation remains".
  * That never authorises a freeze and never proves A5 readiness (see
  * `A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_CURRENT_PREP`). Under the current
- * contracts K1, K2 and K3 are resolved and K4 is the sole unresolved owner
- * decision, so the current preflight is necessarily REFUSED.
+ * contracts K1, K2, K3 and K4 are all resolved, so no owner-decision blocker
+ * remains; K4's SD4 ENFORCEMENT is still unimplemented and is listed there as
+ * `K4_ENFORCEMENT`, so even a clear result is not freeze authority.
  *
  * TWO LAYERS
  *
@@ -67,9 +68,9 @@
  *   - It changes no acquisition status, names no replacement reason and moves
  *     no reserve.
  *   - It implements no extension selection, no organisation cap and no
- *     manifest; it evaluates no real data; it resolves no owner decision (K4,
- *     the sole unresolved one, included) and accepts no caller approval that
- *     could hide one.
+ *     manifest; it evaluates no real data; it resolves no owner decision and
+ *     enforces no resolved one (K4's SD4 truncation included), and accepts no
+ *     caller approval that could hide an open one.
  *   - No returned value or refusal message carries a document SHA-256, a page
  *     id, a URL, text, an organisation identity or a selection index.
  *     Collection refusals name a SAMPLE, an ARRAY POSITION, a count or a
@@ -799,7 +800,7 @@ export interface A3CorpusFreezePreflightResult {
    *      collections are individually valid);
    *   4. the SET_P short-text blocker, if SET_P is evaluable;
    *   5. the SET_R short-text blocker, if SET_R is evaluable;
-   *   6. owner decisions in contract order (currently K4 alone).
+   *   6. owner decisions in contract order (currently none: K1-K4 are resolved).
    * A sample is evaluable when its own collection is valid and no cross-sample
    * disagreement was found. A malformed input shape yields one structural
    * blocker (sample null) in place of 1-5.

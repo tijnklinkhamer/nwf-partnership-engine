@@ -7,9 +7,9 @@
  *       or already APPROVED by the Corpus Acquisition Plan V1 owner approval,
  *       each citing where it comes from; and
  *   (b) an explicit OWNER-DECISION MARKER (K1-K4) for a semantic the frozen
- *       bytes do not settle. A marker is a question, never an answer; K1, K2
- *       and K3 have since been answered by append-only owner records, bound
- *       in section G by path and SHA-256. K4 remains open.
+ *       bytes do not settle. A marker is a question, never an answer; K1, K2,
+ *       K3 and K4 have since been answered by append-only owner records,
+ *       bound in section G by path and SHA-256. None remains open.
  *
  * A fact that already has a canonical home is IMPORTED from it, never restated:
  * `Split` and SD9's `MIN_PAGES_PER_ORGANISATION` come from the SD7 contract,
@@ -141,9 +141,11 @@ export const SET_R_MAY_OVERLAP_SET_P = true;
  * an EXACT RATIONAL, as the SD7 contract carries its Jaccard threshold, so no
  * later comparison depends on binary floating point.
  *
- * This is the PROPORTION only. How it is mechanically enforced at freeze time,
- * when a gate's realised denominator is not yet known, is K4 and is not
- * implemented anywhere.
+ * This is the PROPORTION only. How it is mechanically enforced was settled by
+ * owner clarification K4 (section G.4): the comparison is exactly
+ * `10 * contribution <= finalGateDenominator`, over this same rational, and no
+ * new numerical parameter exists. The enforcement itself is NOT implemented
+ * anywhere yet.
  */
 export const ORGANISATION_GATE_SHARE_CAP = Object.freeze({
   numerator: 1,
@@ -209,6 +211,10 @@ export const K2_EXACT_DUPLICATE_REPRESENTATIVE_AND_SCORE =
 export const K3_SD3_SINGLE_POOL_VS_SD7_PER_SAMPLE_SURVIVOR =
   'A3_PREP_OWNER_DECISION_REQUIRED:SD3_SINGLE_POOL_VS_SD7_PER_SAMPLE_SURVIVOR';
 
+/**
+ * RESOLVED by owner clarification (see `K4_OWNER_DECISION`). The string is
+ * kept byte-for-byte as the stable historical identity of the question.
+ */
 export const K4_SD4_G3_FREEZE_TIME_TRUNCATION =
   'A3_PREP_OWNER_DECISION_REQUIRED:SD4_G3_FREEZE_TIME_TRUNCATION';
 
@@ -219,31 +225,30 @@ export type A3PrepOwnerDecisionMarker =
   | typeof K3_SD3_SINGLE_POOL_VS_SD7_PER_SAMPLE_SURVIVOR
   | typeof K4_SD4_G3_FREEZE_TIME_TRUNCATION;
 
-export type A3PrepUnresolvedOwnerDecisionMarker = typeof K4_SD4_G3_FREEZE_TIME_TRUNCATION;
+/**
+ * The id and marker of a STILL-UNRESOLVED decision. Every A3 preparation
+ * owner decision (K1-K4) has been answered, so both are `never`: no value of
+ * either type can be written, and a new open question needs a new marker and
+ * a reviewed widening of these types, never a flag edit.
+ */
+export type A3PrepUnresolvedOwnerDecisionId = never;
+export type A3PrepUnresolvedOwnerDecisionMarker = never;
 
 export interface A3PrepOwnerDecisionRequirement {
-  readonly id: 'K4';
+  readonly id: A3PrepUnresolvedOwnerDecisionId;
   readonly marker: A3PrepUnresolvedOwnerDecisionMarker;
   readonly question: string;
   readonly resolved: false;
 }
 
 /**
- * The STILL-UNRESOLVED decisions: K4 only. Every entry is `resolved: false` by
- * TYPE, so a resolution cannot be recorded here by editing a flag: it needs an
- * owner decision record and a reviewed change that moves the entry to
- * `A3_PREP_OWNER_DECISIONS_RESOLVED`. K1 and K2 left this list that way.
+ * The STILL-UNRESOLVED decisions: none. Every entry would be `resolved: false`
+ * by TYPE, so a resolution cannot be recorded here by editing a flag: it needs
+ * an owner decision record and a reviewed change that moves the entry to
+ * `A3_PREP_OWNER_DECISIONS_RESOLVED`. K1, K2 and K4 left this list that way.
  */
 export const A3_PREP_OWNER_DECISIONS_REQUIRED: readonly A3PrepOwnerDecisionRequirement[] =
-  Object.freeze([
-    Object.freeze({
-      id: 'K4',
-      marker: K4_SD4_G3_FREEZE_TIME_TRUNCATION,
-      question:
-        'How the 1/10 organisation gate-share rule is mechanically enforced at freeze time when the scoring denominator is not yet known.',
-      resolved: false,
-    } as const),
-  ]);
+  Object.freeze([]);
 
 // ---------------------------------------------------------------------------
 // G. RESOLVED OWNER DECISIONS. Owner-bound FACTS, not algorithms: nothing here
@@ -444,16 +449,121 @@ export const K2_OWNER_DECISION: A3PrepK2ResolvedOwnerDecision = Object.freeze({
 } as const);
 
 // ---------------------------------------------------------------------------
-// G.4 THE RESOLVED COLLECTION.
+// G.4 K4 — SD4 ORGANISATION GATE-SHARE ENFORCEMENT SEMANTICS.
+//
+//    docs/evaluation/PHASE_2B_2D_A3_K4_SD4_ORGANISATION_SHARE_OWNER_CLARIFICATION_V1.json
+//    clarifies how R3's SD4 truncation is EXECUTED. Per gate, from the
+//    organisations' gate contribution counts c_i:
+//      q0 = floor(sum c_i / 10);  q_(t+1) = floor(sum min(c_i, q_t) / 10)
+//    until q_(t+1) = q_t = q*; each organisation keeps its first
+//    x_i = min(c_i, q*) gate-contributing items by the frozen sample rank.
+//    That is the unique greatest feasible prefix vector, so no organisation
+//    order exists to choose. G3's membership is candidate-determined, so at
+//    freeze only the PROCEDURE is committed, never an item mask.
+//
+//    Semantics are resolved; ENFORCEMENT is not implemented (R15). This A3
+//    decision K4 is NOT methodology section-K condition K4 "CLASS MINIMUM".
+// ---------------------------------------------------------------------------
+
+/** SD4 truncates only the offending gate's denominator, never a sample or the union. */
+export const ORGANISATION_SHARE_TRUNCATION_SCOPE = 'GATE_LOCAL';
+
+/** The unique greatest fixed point: maximal retention, minimal truncation. */
+export const ORGANISATION_SHARE_TRUNCATION_POLICY = 'GREATEST_FIXED_POINT_MAXIMAL_PREFIX_RETENTION';
+
+/** Keep the head, truncate the tail, of the sample's own frozen rank filtered to the gate. */
+export const ORGANISATION_SHARE_RETAINED_ITEM_POLICY =
+  'EARLIEST_GATE_CONTRIBUTING_ITEMS_BY_FROZEN_SAMPLE_RANK';
+
+/** Exact integer comparison over `ORGANISATION_GATE_SHARE_CAP`; never a float 0.1. */
+export const ORGANISATION_SHARE_EXACT_RATIO_POLICY =
+  'TEN_TIMES_CONTRIBUTION_LE_FINAL_GATE_DENOMINATOR';
+
+/** No denominator-only removal: the gate metric is recomputed on what is retained. */
+export const ORGANISATION_SHARE_NUMERATOR_POLICY =
+  'TRUNCATED_ITEM_EXCLUDED_FROM_GATE_NUMERATOR_AND_DENOMINATOR';
+
+/** At freeze G3 has no membership yet: commit the procedure, mask nothing. */
+export const G3_FREEZE_ORGANISATION_SHARE_POLICY = 'PRECOMMIT_PROCEDURE_NO_PRESEMANTIC_ITEM_MASK';
+
+/** R3 Option-B's expected G3 denominator 66 is never a K4 quota, mask size or threshold. */
+export const G3_EXPECTED_DENOMINATOR_66_ROLE =
+  'EXPECTED_PLANNING_PROFILE_ONLY_NOT_K4_TRUNCATION_INPUT';
+
+/** At scoring, the same fixed point runs on G3's realised denominator. */
+export const G3_REALISED_ORGANISATION_SHARE_POLICY =
+  'APPLY_GATE_LOCAL_GREATEST_FIXED_POINT_TO_REALISED_DENOMINATOR';
+
+/** G1 has no frozen union rank; conformant input makes its truncation unreachable. */
+export const G1_ORGANISATION_SHARE_POLICY =
+  'TRUNCATION_PATH_MUST_BE_UNREACHABLE_NO_UNION_RANK_INVENTED';
+
+/** Realised G3 / truncation facts stay sealed; no new feedback channel. */
+export const ORGANISATION_SHARE_DISCLOSURE_POLICY =
+  'SEALED_INTERNAL_DEFAULT_WITHHOLD_FROM_PROMPT_DEVELOPMENT';
+
+export interface A3PrepK4ResolvedOwnerDecision extends A3PrepResolvedOwnerDecisionBinding<
+  'K4',
+  typeof K4_SD4_G3_FREEZE_TIME_TRUNCATION
+> {
+  readonly decisionToken: 'K4_SD4_GATE_LOCAL_GREATEST_FIXED_POINT_AND_G3_FREEZE_CLARIFICATION_V1';
+  readonly selectedCoreOption: 'RECOMMEND_K4_GREATEST_FIXED_POINT_GATE_LOCAL_PREFIX_TRUNCATION';
+  readonly selectedG3Option: 'RECOMMEND_K4_G3_PRECOMMIT_ALGORITHM_ONLY';
+  readonly jointSemantics: 'K4_GATE_LOCAL_GREATEST_FIXED_POINT_WITH_G3_PRESEMANTIC_PROCEDURE_COMMITMENT_V1';
+  readonly notMethodologySectionKClassMinimum: true;
+  readonly shareCap: typeof ORGANISATION_GATE_SHARE_CAP;
+  readonly truncationScope: typeof ORGANISATION_SHARE_TRUNCATION_SCOPE;
+  readonly truncationPolicy: typeof ORGANISATION_SHARE_TRUNCATION_POLICY;
+  readonly retainedItemPolicy: typeof ORGANISATION_SHARE_RETAINED_ITEM_POLICY;
+  readonly exactRatioPolicy: typeof ORGANISATION_SHARE_EXACT_RATIO_POLICY;
+  readonly numeratorPolicy: typeof ORGANISATION_SHARE_NUMERATOR_POLICY;
+  readonly g3FreezePolicy: typeof G3_FREEZE_ORGANISATION_SHARE_POLICY;
+  readonly g3ExpectedDenominator66Role: typeof G3_EXPECTED_DENOMINATOR_66_ROLE;
+  readonly g3RealisedPolicy: typeof G3_REALISED_ORGANISATION_SHARE_POLICY;
+  readonly g1Policy: typeof G1_ORGANISATION_SHARE_POLICY;
+  readonly disclosurePolicy: typeof ORGANISATION_SHARE_DISCLOSURE_POLICY;
+}
+
+export const K4_OWNER_DECISION: A3PrepK4ResolvedOwnerDecision = Object.freeze({
+  id: 'K4',
+  marker: K4_SD4_G3_FREEZE_TIME_TRUNCATION,
+  resolved: true,
+  decisionToken: 'K4_SD4_GATE_LOCAL_GREATEST_FIXED_POINT_AND_G3_FREEZE_CLARIFICATION_V1',
+  selectedCoreOption: 'RECOMMEND_K4_GREATEST_FIXED_POINT_GATE_LOCAL_PREFIX_TRUNCATION',
+  selectedG3Option: 'RECOMMEND_K4_G3_PRECOMMIT_ALGORITHM_ONLY',
+  jointSemantics: 'K4_GATE_LOCAL_GREATEST_FIXED_POINT_WITH_G3_PRESEMANTIC_PROCEDURE_COMMITMENT_V1',
+  decisionRecordPath:
+    'docs/evaluation/PHASE_2B_2D_A3_K4_SD4_ORGANISATION_SHARE_OWNER_CLARIFICATION_V1.json',
+  decisionRecordSha256: '714646e24006e89467cca0de3181d287a919a7b876523763259babe9ed2d737c',
+  decisionRecordCommit: '9a958047037681667fcb60af68fd7972332e0cb6',
+  notMethodologySectionKClassMinimum: true,
+  shareCap: ORGANISATION_GATE_SHARE_CAP,
+  truncationScope: ORGANISATION_SHARE_TRUNCATION_SCOPE,
+  truncationPolicy: ORGANISATION_SHARE_TRUNCATION_POLICY,
+  retainedItemPolicy: ORGANISATION_SHARE_RETAINED_ITEM_POLICY,
+  exactRatioPolicy: ORGANISATION_SHARE_EXACT_RATIO_POLICY,
+  numeratorPolicy: ORGANISATION_SHARE_NUMERATOR_POLICY,
+  g3FreezePolicy: G3_FREEZE_ORGANISATION_SHARE_POLICY,
+  g3ExpectedDenominator66Role: G3_EXPECTED_DENOMINATOR_66_ROLE,
+  g3RealisedPolicy: G3_REALISED_ORGANISATION_SHARE_POLICY,
+  g1Policy: G1_ORGANISATION_SHARE_POLICY,
+  disclosurePolicy: ORGANISATION_SHARE_DISCLOSURE_POLICY,
+} as const);
+
+// ---------------------------------------------------------------------------
+// G.5 THE RESOLVED COLLECTION.
 // ---------------------------------------------------------------------------
 
 /** One resolved decision, discriminated by `id`. */
 export type A3PrepResolvedOwnerDecision =
-  A3PrepK1ResolvedOwnerDecision | A3PrepK2ResolvedOwnerDecision | A3PrepK3ResolvedOwnerDecision;
+  | A3PrepK1ResolvedOwnerDecision
+  | A3PrepK2ResolvedOwnerDecision
+  | A3PrepK3ResolvedOwnerDecision
+  | A3PrepK4ResolvedOwnerDecision;
 
-/** The RESOLVED decisions, in id order: K1, K2, K3. */
+/** The RESOLVED decisions, in id order: K1, K2, K3, K4. */
 export const A3_PREP_OWNER_DECISIONS_RESOLVED: readonly A3PrepResolvedOwnerDecision[] =
-  Object.freeze([K1_OWNER_DECISION, K2_OWNER_DECISION, K3_OWNER_DECISION]);
+  Object.freeze([K1_OWNER_DECISION, K2_OWNER_DECISION, K3_OWNER_DECISION, K4_OWNER_DECISION]);
 
 // ---------------------------------------------------------------------------
 // H. MARKER ACCOUNTING. Three explicit lists; none is derived from "all".
@@ -467,13 +577,34 @@ export const A3_PREP_OWNER_DECISION_MARKERS: readonly A3PrepOwnerDecisionMarker[
   K4_SD4_G3_FREEZE_TIME_TRUNCATION,
 ]);
 
-/** The markers still awaiting an owner decision: K4 only. */
+/** The markers still awaiting an owner decision: none. */
 export const A3_PREP_UNRESOLVED_OWNER_DECISION_MARKERS: readonly A3PrepUnresolvedOwnerDecisionMarker[] =
   Object.freeze(A3_PREP_OWNER_DECISIONS_REQUIRED.map((requirement) => requirement.marker));
 
-/** The markers answered by an owner record: K1, K2, K3. */
+/** The markers answered by an owner record: K1, K2, K3, K4. */
 export const A3_PREP_RESOLVED_OWNER_DECISION_MARKERS: readonly A3PrepOwnerDecisionMarker[] =
   Object.freeze(A3_PREP_OWNER_DECISIONS_RESOLVED.map((decision) => decision.marker));
+
+/**
+ * COMPILE-TIME accounting: every historical marker is either resolved or
+ * unresolved, and none is both. A marker added without a home, or claimed by
+ * both a resolved decision and an open requirement, makes this a type error.
+ */
+export const A3_PREP_OWNER_DECISION_MARKER_ACCOUNTING: {
+  readonly everyMarkerAccounted: [
+    Exclude<
+      A3PrepOwnerDecisionMarker,
+      A3PrepResolvedOwnerDecision['marker'] | A3PrepUnresolvedOwnerDecisionMarker
+    >,
+  ] extends [never]
+    ? true
+    : never;
+  readonly resolvedAndUnresolvedDisjoint: [
+    Extract<A3PrepResolvedOwnerDecision['marker'], A3PrepUnresolvedOwnerDecisionMarker>,
+  ] extends [never]
+    ? true
+    : never;
+} = Object.freeze({ everyMarkerAccounted: true, resolvedAndUnresolvedDisjoint: true } as const);
 
 // ---------------------------------------------------------------------------
 // I. SD7 SHORT-TEXT SAMPLE MEMBERSHIP — OPERATIONAL HANDLING POLICY. Owner-

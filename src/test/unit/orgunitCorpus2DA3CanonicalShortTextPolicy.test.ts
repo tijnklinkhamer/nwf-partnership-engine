@@ -488,13 +488,16 @@ describe('2D-A3 short-text policy: consequences of BLOCKED', () => {
 });
 
 describe('2D-A3 short-text policy: K-state and scope', () => {
-  it('(13) the record left K1, K2, K4 unresolved; K1 and K2 were resolved later, K4 still is not', () => {
-    // Today's contract: only K4 is open. K1 and K2 were answered by their own
-    // owner records after this policy landed.
-    expect(contracts.A3_PREP_OWNER_DECISIONS_REQUIRED.map((d) => [d.id, d.resolved])).toEqual([
-      ['K4', false],
+  it('(13) the record left K1, K2, K4 unresolved; all three were resolved later', () => {
+    // Today's contract: nothing is open. K1, K2 and then K4 were answered by
+    // their own owner records after this policy landed.
+    expect(contracts.A3_PREP_OWNER_DECISIONS_REQUIRED.map((d) => [d.id, d.resolved])).toEqual([]);
+    expect(contracts.A3_PREP_OWNER_DECISIONS_RESOLVED.map((d) => d.id)).toEqual([
+      'K1',
+      'K2',
+      'K3',
+      'K4',
     ]);
-    expect(contracts.A3_PREP_OWNER_DECISIONS_RESOLVED.map((d) => d.id)).toEqual(['K1', 'K2', 'K3']);
     // The immutable policy record's own K state, as of when it was written.
     expect(decision.clause15_kState).toMatchObject({
       K1: 'UNRESOLVED',

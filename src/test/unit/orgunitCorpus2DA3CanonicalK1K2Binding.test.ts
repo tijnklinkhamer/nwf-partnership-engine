@@ -11,7 +11,8 @@
  *   - the selected reducers, policies and final two-key SET_R order are the
  *     exact structured values of the records, and no rejected alternative is
  *     selected anywhere;
- *   - marker accounting is 4 historical / 3 resolved / 1 unresolved (K4);
+ *   - marker accounting is 4 historical / 4 resolved / 0 unresolved (it was
+ *     3 / 1 with K4 open until K4's own owner record was bound);
  *   - K3 and the short-text policy are unchanged, and no K5 exists;
  *   - no SET_R reducer, comparator, rank or survivor binding exists.
  *
@@ -647,18 +648,22 @@ describe('2D-A3 K1/K2: the contract carries the owner-bound tokens', () => {
 });
 
 describe('2D-A3 K1/K2: marker accounting — all markers are NOT all blockers', () => {
-  it('4 historical, 3 resolved (K1, K2, K3), 1 unresolved (K4)', () => {
+  it('4 historical, 4 resolved (K1, K2, K3, K4 - K4 later, by its own record), 0 unresolved', () => {
     expect(contracts.A3_PREP_OWNER_DECISION_MARKERS).toHaveLength(4);
-    expect(contracts.A3_PREP_OWNER_DECISIONS_RESOLVED.map((d) => d.id)).toEqual(['K1', 'K2', 'K3']);
+    expect(contracts.A3_PREP_OWNER_DECISIONS_RESOLVED.map((d) => d.id)).toEqual([
+      'K1',
+      'K2',
+      'K3',
+      'K4',
+    ]);
     expect(contracts.A3_PREP_RESOLVED_OWNER_DECISION_MARKERS).toEqual([
       contracts.K1_SET_R_TRACK_REDUCTION,
       contracts.K2_EXACT_DUPLICATE_REPRESENTATIVE_AND_SCORE,
       contracts.K3_SD3_SINGLE_POOL_VS_SD7_PER_SAMPLE_SURVIVOR,
-    ]);
-    expect(contracts.A3_PREP_OWNER_DECISIONS_REQUIRED.map((d) => d.id)).toEqual(['K4']);
-    expect(contracts.A3_PREP_UNRESOLVED_OWNER_DECISION_MARKERS).toEqual([
       contracts.K4_SD4_G3_FREEZE_TIME_TRUNCATION,
     ]);
+    expect(contracts.A3_PREP_OWNER_DECISIONS_REQUIRED).toEqual([]);
+    expect(contracts.A3_PREP_UNRESOLVED_OWNER_DECISION_MARKERS).toEqual([]);
   });
 
   it('the historical list is strictly larger than the blocker list', () => {

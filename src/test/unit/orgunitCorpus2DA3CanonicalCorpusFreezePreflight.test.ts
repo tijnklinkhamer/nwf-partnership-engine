@@ -19,11 +19,13 @@
  *     INDEPENDENT reference that enumerates every admissible treatment;
  *   - the short-text corpus gate refuses with the owner token, carries no
  *     acquisition or replacement effect, and reveals no slot;
- *   - the owner blocker ledger is exactly K4, from contracts alone (it was K1,
- *     K2, K4 at R9; K1 and K2 were later resolved, with no runtime change);
- *   - the overall preflight is necessarily REFUSED today, orders its blockers
- *     deterministically, and even with every R9 blocker cleared is still not
- *     freeze authority;
+ *   - the owner blocker ledger is derived from contracts alone (it was K1,
+ *     K2, K4 at R9; K1 and K2 were later resolved, then K4, each with no
+ *     runtime change) and is now EMPTY;
+ *   - the overall preflight orders its blockers deterministically, and even
+ *     with every known blocker cleared is still not freeze authority: K4's
+ *     SEMANTICS are resolved, its ENFORCEMENT stays `K4_ENFORCEMENT` in
+ *     `notCheckedByCurrentPrep`;
  *   - the SD9 helper builds the owner envelope and delegates to R3.
  *
  * R13 EXTENDED THIS FILE to both frozen samples: the SET_P gate is now named
@@ -31,7 +33,7 @@
  * SET_R readiness, and the overall preflight requires BOTH complete
  * collections, agreeing slot-for-slot and split-for-split. It proves the
  * blocker order (SET_P structural, SET_R structural, cross-sample, SET_P short
- * text, SET_R short text, K4), that a SET_R slot with an EXACT initial cap-4
+ * text, SET_R short text, owner decisions), that a SET_R slot with an EXACT initial cap-4
  * but a blocked complete rank still refuses the freeze, and that the old
  * SET_P-only call pattern is refused.
  */
@@ -899,10 +901,10 @@ describe('2D-A3 R9 (SET_P, renamed in R13): the short-text corpus freeze gate', 
 // ---------------------------------------------------------------------------
 
 describe('2D-A3 R9: the owner-decision blocker ledger', () => {
-  it('is exactly K4 - derived from the contract, in contract order', () => {
+  it('is exactly empty - derived from the contract, in contract order', () => {
     const ledger = deriveCurrentOwnerDecisionBlockers();
-    expect(ledger.map((b) => b.id)).toEqual(['K4']);
-    expect(ledger).toHaveLength(1);
+    expect(ledger.map((b) => b.id)).toEqual([]);
+    expect(ledger).toHaveLength(0);
     expect(ledger).toEqual(
       A3_PREP_OWNER_DECISIONS_REQUIRED.map((r) => ({
         blockerClass: 'OWNER_DECISION_UNRESOLVED',
@@ -917,6 +919,12 @@ describe('2D-A3 R9: the owner-decision blocker ledger', () => {
     const serialised = JSON.stringify(deriveCurrentOwnerDecisionBlockers());
     expect(serialised).not.toContain('"K3"');
     expect(serialised).not.toContain(K3_SD3_SINGLE_POOL_VS_SD7_PER_SAMPLE_SURVIVOR);
+  });
+
+  it('K4 never appears as unresolved once its owner record is bound', () => {
+    const serialised = JSON.stringify(deriveCurrentOwnerDecisionBlockers());
+    expect(serialised).not.toContain('"K4"');
+    expect(serialised).not.toContain(K4_SD4_G3_FREEZE_TIME_TRUNCATION);
   });
 
   it('K1 and K2 never appear as unresolved once their owner records are bound', () => {
@@ -937,7 +945,8 @@ describe('2D-A3 R9: the owner-decision blocker ledger', () => {
       k1: true,
       k4: true,
     });
-    expect(withJunk).toHaveLength(1);
+    expect(withJunk).toEqual(deriveCurrentOwnerDecisionBlockers());
+    expect(withJunk).toHaveLength(0);
   });
 
   it('carries no free-form question text', () => {
@@ -1080,48 +1089,54 @@ describe('2D-A3 R13: the SET_R short-text corpus freeze gate', () => {
 // 19 / 33, EXTENDED IN R13. OVERALL PREFLIGHT OVER BOTH SAMPLES
 // ---------------------------------------------------------------------------
 
-const OWNER_TAIL = ['K4'];
+/** The owner-decision tail of every blocker list: empty once K1-K4 are all resolved. */
+const OWNER_TAIL: string[] = [];
 
 describe('2D-A3 R13: the overall current preflight requires both samples', () => {
-  it('both clear -> no short-text blocker, still REFUSED on K4 alone', () => {
+  it('both clear -> current blockers clear, NOT freeze authority; K4 enforcement still not checked', () => {
     const result = checkCurrentA3CorpusFreezePreflight(bothSamples());
     expect(result.kind).toBe(A3_CORPUS_FREEZE_PREFLIGHT_KIND);
     expect(result.kind).toBe('A3_CORPUS_FREEZE_PREFLIGHT_NOT_EXECUTION_AUTHORITY');
-    expect(result.status).toBe(A3_CORPUS_FREEZE_PREFLIGHT_REFUSED);
-    expect(result.status).not.toBe(
+    expect(result.status).toBe(
       A3_CORPUS_FREEZE_PREFLIGHT_CURRENT_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY,
     );
+    expect(result.status).toBe(
+      'A3_CORPUS_FREEZE_PREFLIGHT_CURRENT_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY',
+    );
+    expect(result.blockers).toEqual([]);
     expect(classesOf(result)).toEqual(OWNER_TAIL);
-    expect(result.blockers.map((b) => ('marker' in b ? b.marker : null))).toEqual([
-      K4_SD4_G3_FREEZE_TIME_TRUNCATION,
-    ]);
-    expect(JSON.stringify(result)).not.toMatch(/READY/);
+    // The K4 owner DECISION is resolved; K4 / SD4 ENFORCEMENT is not checked.
+    expect(result.notCheckedByCurrentPrep).toContain('K4_ENFORCEMENT');
+    expect(result.notCheckedByCurrentPrep).toContain('FINAL_GATE_DENOMINATORS');
+    expect(JSON.stringify(result)).not.toMatch(/\bREADY\b|READY_TO_FREEZE/);
   });
 
-  it('SET_P blocked only -> SET_P short-text blocker, then K4', () => {
+  it('SET_P blocked only -> SET_P short-text blocker, and no owner blocker', () => {
     const result = checkCurrentA3CorpusFreezePreflight(
       bothSamples(fullCollection(new Set([1, 2]))),
     );
     expect(result.status).toBe(A3_CORPUS_FREEZE_PREFLIGHT_REFUSED);
-    expect(classesOf(result)).toEqual(['SHORT_TEXT:SET_P', 'K4']);
+    expect(result.status).toBe(A3_CORPUS_FREEZE_PREFLIGHT_REFUSED);
+    expect(classesOf(result)).toEqual(['SHORT_TEXT:SET_P']);
     const first = result.blockers[0]!;
     expect(
       first.blockerClass === 'SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED_AT_FREEZE' && first.refusal,
     ).toBe('CORPUS_FREEZE_REFUSED_SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED');
   });
 
-  it('SET_R blocked only -> SET_R short-text blocker, then K4', () => {
+  it('SET_R blocked only -> SET_R short-text blocker, and no owner blocker', () => {
     const result = checkCurrentA3CorpusFreezePreflight(
       bothSamples(fullCollection(), fullRCollection(new Set(), new Set([9]))),
     );
-    expect(classesOf(result)).toEqual(['SHORT_TEXT:SET_R', 'K4']);
+    expect(result.status).toBe(A3_CORPUS_FREEZE_PREFLIGHT_REFUSED);
+    expect(classesOf(result)).toEqual(['SHORT_TEXT:SET_R']);
   });
 
-  it('both blocked -> SET_P blocker, then SET_R blocker, then K4, each with its own aggregate count', () => {
+  it('both blocked -> SET_P blocker, then SET_R blocker, each with its own aggregate count', () => {
     const result = checkCurrentA3CorpusFreezePreflight(
       bothSamples(fullCollection(new Set([5])), fullRCollection(new Set([1, 2]), new Set([3]))),
     );
-    expect(classesOf(result)).toEqual(['SHORT_TEXT:SET_P', 'SHORT_TEXT:SET_R', 'K4']);
+    expect(classesOf(result)).toEqual(['SHORT_TEXT:SET_P', 'SHORT_TEXT:SET_R']);
     const counts = result.blockers.flatMap((b) =>
       b.blockerClass === 'SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED_AT_FREEZE'
         ? [[b.sample, b.totalSlotCount, b.blockedSlotCount]]
@@ -1137,7 +1152,8 @@ describe('2D-A3 R13: the overall current preflight requires both samples', () =>
     const setR = fullRCollection(new Set([77]));
     expect(setR.every((r) => r.initialCapReadiness === SET_R_INITIAL_CAP_EXACT)).toBe(true);
     const result = checkCurrentA3CorpusFreezePreflight(bothSamples(fullCollection(), setR));
-    expect(classesOf(result)).toEqual(['SHORT_TEXT:SET_R', 'K4']);
+    expect(result.status).toBe(A3_CORPUS_FREEZE_PREFLIGHT_REFUSED);
+    expect(classesOf(result)).toEqual(['SHORT_TEXT:SET_R']);
   });
 
   it('a split mismatch between the samples is a structural refusal before any short-text interpretation', () => {
@@ -1153,7 +1169,7 @@ describe('2D-A3 R13: the overall current preflight requires both samples', () =>
       SHORT_TEXT_CORPUS_FREEZE_GATE_REFUSED,
     );
     const result = checkCurrentA3CorpusFreezePreflight(bothSamples(setP, setR));
-    expect(classesOf(result)).toEqual(['STRUCTURAL:CROSS:CROSS_SAMPLE_SLOT_SPLIT_MISMATCH', 'K4']);
+    expect(classesOf(result)).toEqual(['STRUCTURAL:CROSS:CROSS_SAMPLE_SLOT_SPLIT_MISMATCH']);
     expect(result.blockers[0]).toEqual({
       blockerClass: 'STRUCTURAL_PREFLIGHT_INPUT_INVALID',
       code: 'CROSS_SAMPLE_SLOT_SPLIT_MISMATCH',
@@ -1170,10 +1186,7 @@ describe('2D-A3 R13: the overall current preflight requires both samples', () =>
     const setR = fullRCollection();
     setR[30] = { ...setR[30]!, selectionIndex: 999_999 as A3SelectionIndex };
     const result = checkCurrentA3CorpusFreezePreflight(bothSamples(fullCollection(), setR));
-    expect(classesOf(result)).toEqual([
-      'STRUCTURAL:CROSS:CROSS_SAMPLE_SLOT_COVERAGE_MISMATCH',
-      'K4',
-    ]);
+    expect(classesOf(result)).toEqual(['STRUCTURAL:CROSS:CROSS_SAMPLE_SLOT_COVERAGE_MISMATCH']);
     const first = result.blockers[0]!;
     expect(first.blockerClass === 'STRUCTURAL_PREFLIGHT_INPUT_INVALID' && first.arrayPosition).toBe(
       30,
@@ -1197,20 +1210,19 @@ describe('2D-A3 R13: the overall current preflight requires both samples', () =>
     expect(classesOf(checkCurrentA3CorpusFreezePreflight(bothSamples(setP, setR)))).toEqual([
       'STRUCTURAL:SET_P:SLOT_COUNT_MISMATCH',
       'STRUCTURAL:SET_R:ENTRY_NOT_A_READINESS_SUMMARY',
-      'K4',
     ]);
     // Only SET_R malformed: SET_P's short-text verdict is still evaluable; no cross-sample check.
     expect(
       classesOf(
         checkCurrentA3CorpusFreezePreflight(bothSamples(fullCollection(new Set([3])), setR)),
       ),
-    ).toEqual(['STRUCTURAL:SET_R:ENTRY_NOT_A_READINESS_SUMMARY', 'SHORT_TEXT:SET_P', 'K4']);
+    ).toEqual(['STRUCTURAL:SET_R:ENTRY_NOT_A_READINESS_SUMMARY', 'SHORT_TEXT:SET_P']);
     // Only SET_P malformed: SET_R's short-text verdict is still evaluable.
     expect(
       classesOf(
         checkCurrentA3CorpusFreezePreflight(bothSamples(setP, fullRCollection(new Set([3])))),
       ),
-    ).toEqual(['STRUCTURAL:SET_P:SLOT_COUNT_MISMATCH', 'SHORT_TEXT:SET_R', 'K4']);
+    ).toEqual(['STRUCTURAL:SET_P:SLOT_COUNT_MISMATCH', 'SHORT_TEXT:SET_R']);
   });
 
   it('REGRESSION: the old SET_P-only call pattern is refused, never silently evaluated', () => {
@@ -1220,16 +1232,13 @@ describe('2D-A3 R13: the overall current preflight requires both samples', () =>
     // A bare SET_P array (the R9 signature): refused as a malformed input shape.
     expect(classesOf(call(fullCollection()))).toEqual([
       'STRUCTURAL:CROSS:PREFLIGHT_INPUT_NOT_TWO_SAMPLE_COLLECTIONS',
-      'K4',
     ]);
     // SET_P supplied, SET_R omitted: SET_R is structurally missing.
     expect(classesOf(call({ setP: fullCollection() }))).toEqual([
       'STRUCTURAL:SET_R:SLOT_COLLECTION_NOT_AN_ARRAY',
-      'K4',
     ]);
     expect(classesOf(call(null))).toEqual([
       'STRUCTURAL:CROSS:PREFLIGHT_INPUT_NOT_TWO_SAMPLE_COLLECTIONS',
-      'K4',
     ]);
     // The type system refuses it too.
     // @ts-expect-error - the overall preflight needs BOTH collections.
@@ -1260,8 +1269,15 @@ describe('2D-A3 R13: the overall current preflight requires both samples', () =>
       k4: true,
     };
     const result = call(withFlags, { sd7SampleRankSemanticsApproved: true });
-    expect(result.status).toBe(A3_CORPUS_FREEZE_PREFLIGHT_REFUSED);
+    expect(result).toEqual(checkCurrentA3CorpusFreezePreflight(bothSamples()));
     expect(classesOf(result)).toEqual(OWNER_TAIL);
+    // A flag cannot hide a real blocker either.
+    const blocked = call(
+      { ...bothSamples(fullCollection(new Set([2]))), k4: true, shortTextApproved: true },
+      { approved: true },
+    );
+    expect(blocked.status).toBe(A3_CORPUS_FREEZE_PREFLIGHT_REFUSED);
+    expect(classesOf(blocked)).toEqual(['SHORT_TEXT:SET_P']);
   });
 
   it('aggregate output never surfaces a selection index, a document identity or a score', () => {
@@ -1306,28 +1322,39 @@ describe('2D-A3 R13: the overall current preflight requires both samples', () =>
     expect(JSON.stringify(result)).not.toMatch(/\bREADY\b|READY_TO_FREEZE/);
   });
 
-  it('with K4 artificially cleared and both samples clear, the result is still NOT freeze authority', async () => {
+  it('with K4 resolved and both samples clear, the result is still NOT freeze authority', () => {
+    const result = checkCurrentA3CorpusFreezePreflight(bothSamples());
+    expect(result.blockers).toEqual([]);
+    expect(result.status).toBe(
+      'A3_CORPUS_FREEZE_PREFLIGHT_CURRENT_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY',
+    );
+    expect(result.kind).toBe('A3_CORPUS_FREEZE_PREFLIGHT_NOT_EXECUTION_AUTHORITY');
+    expect(result.notCheckedByCurrentPrep).toContain('K4_ENFORCEMENT');
+    expect(JSON.stringify(result)).not.toMatch(/\bREADY\b|READY_TO_FREEZE/);
+    // Resolving K4 does not clear a blocked SET_R rank.
+    const blocked = checkCurrentA3CorpusFreezePreflight(
+      bothSamples(fullCollection(), fullRCollection(new Set([2]))),
+    );
+    expect(blocked.status).toBe('A3_CORPUS_FREEZE_PREFLIGHT_REFUSED');
+    expect(classesOf(blocked)).toEqual(['SHORT_TEXT:SET_R']);
+  });
+
+  it('a contract that re-lists resolved K4 as still required is refused, not silently honoured', async () => {
     vi.resetModules();
     vi.doMock('../harness/phase2b2d/a3prep/contracts.js', async (importOriginal) => {
       const original = await importOriginal<Record<string, unknown>>();
-      return { ...original, A3_PREP_OWNER_DECISIONS_REQUIRED: Object.freeze([]) };
+      return {
+        ...original,
+        A3_PREP_OWNER_DECISIONS_REQUIRED: [
+          { id: 'K4', marker: K4_SD4_G3_FREEZE_TIME_TRUNCATION, question: 'q', resolved: false },
+        ],
+      };
     });
     try {
       const mocked = await import('../harness/phase2b2d/a3prep/corpusFreezePreflight.js');
-      const result = mocked.checkCurrentA3CorpusFreezePreflight(bothSamples());
-      expect(result.blockers).toEqual([]);
-      expect(result.status).toBe(
-        'A3_CORPUS_FREEZE_PREFLIGHT_CURRENT_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY',
+      expect(() => mocked.deriveCurrentOwnerDecisionBlockers()).toThrow(
+        /OWNER_DECISION_CONTRACT_INCONSISTENT/,
       );
-      expect(result.kind).toBe('A3_CORPUS_FREEZE_PREFLIGHT_NOT_EXECUTION_AUTHORITY');
-      expect(result.notCheckedByCurrentPrep.length).toBeGreaterThan(0);
-      expect(JSON.stringify(result)).not.toMatch(/\bREADY\b|READY_TO_FREEZE/);
-      // Clearing K4 does not clear a blocked SET_R rank.
-      const blocked = mocked.checkCurrentA3CorpusFreezePreflight(
-        bothSamples(fullCollection(), fullRCollection(new Set([2]))),
-      );
-      expect(blocked.status).toBe('A3_CORPUS_FREEZE_PREFLIGHT_REFUSED');
-      expect(classesOf(blocked)).toEqual(['SHORT_TEXT:SET_R']);
     } finally {
       vi.doUnmock('../harness/phase2b2d/a3prep/contracts.js');
       vi.resetModules();
@@ -1338,10 +1365,11 @@ describe('2D-A3 R13: the overall current preflight requires both samples', () =>
     vi.resetModules();
     vi.doMock('../harness/phase2b2d/a3prep/contracts.js', async (importOriginal) => {
       const original = await importOriginal<Record<string, unknown>>();
-      const required = original.A3_PREP_OWNER_DECISIONS_REQUIRED as readonly object[];
       return {
         ...original,
-        A3_PREP_OWNER_DECISIONS_REQUIRED: [{ ...required[0], resolved: true }],
+        A3_PREP_OWNER_DECISIONS_REQUIRED: [
+          { id: 'K4', marker: K4_SD4_G3_FREEZE_TIME_TRUNCATION, question: 'q', resolved: true },
+        ],
       };
     });
     try {

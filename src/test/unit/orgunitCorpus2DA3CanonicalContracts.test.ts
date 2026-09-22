@@ -183,8 +183,8 @@ describe('2D-A3 R1: the bound authority is the frozen bytes on disk', () => {
     expect(contracts.A3_PREP_R1_BOUND_AUTHORITY.corpusPlanApprovalSha256).toBe(
       drawContract.CORPUS_PLAN_APPROVAL_SHA256,
     );
-    // The ONLY 64-hex literals are the owner records' hashes (K3, K1, K2, then
-    // the short-text membership policy), which have no other canonical home.
+    // The ONLY 64-hex literals are the owner records' hashes (K3, K1, K2, K4,
+    // then the short-text membership policy), which have no other canonical home.
     // K2's bound K1 hash is a REFERENCE to K1's, never a second literal. No
     // draw-contract hash is restated.
     const source = readFileSync(join(A3PREP_DIR, 'contracts.ts'), 'utf8');
@@ -192,6 +192,7 @@ describe('2D-A3 R1: the bound authority is the frozen bytes on disk', () => {
       contracts.K3_OWNER_DECISION.decisionRecordSha256,
       contracts.K1_OWNER_DECISION.decisionRecordSha256,
       contracts.K2_OWNER_DECISION.decisionRecordSha256,
+      contracts.K4_OWNER_DECISION.decisionRecordSha256,
       contracts.SHORT_TEXT_SAMPLE_MEMBERSHIP_POLICY.decisionRecordSha256,
     ]);
     for (const hash of [
@@ -312,10 +313,14 @@ describe('2D-A3 R1: SD4 gate-share cap', () => {
     );
   });
 
-  it('the enforcement is K4, not an implementation', () => {
-    expect(contracts.A3_PREP_UNRESOLVED_OWNER_DECISION_MARKERS).toContain(
+  it('the enforcement SEMANTICS are resolved by K4; the contract holds no implementation', () => {
+    expect(contracts.A3_PREP_RESOLVED_OWNER_DECISION_MARKERS).toContain(
       contracts.K4_SD4_G3_FREEZE_TIME_TRUNCATION,
     );
+    expect(contracts.A3_PREP_UNRESOLVED_OWNER_DECISION_MARKERS).not.toContain(
+      contracts.K4_SD4_G3_FREEZE_TIME_TRUNCATION,
+    );
+    expect(contracts.K4_OWNER_DECISION.shareCap).toBe(contracts.ORGANISATION_GATE_SHARE_CAP);
     const code = readFileSync(join(A3PREP_DIR, 'contracts.ts'), 'utf8');
     expect(code).not.toMatch(/export function/);
   });
@@ -361,7 +366,7 @@ describe('2D-A3 R1: planning targets are planning targets', () => {
   });
 });
 
-describe('2D-A3 R1: K1-K4 markers are exact and ordered; only K4 stays unanswered', () => {
+describe('2D-A3 R1: K1-K4 markers are exact and ordered; none stays unanswered', () => {
   const EXPECTED = [
     'A3_PREP_OWNER_DECISION_REQUIRED:SET_R_TRACK_REDUCTION',
     'A3_PREP_OWNER_DECISION_REQUIRED:EXACT_DUPLICATE_REPRESENTATIVE_AND_SCORE',
@@ -379,18 +384,30 @@ describe('2D-A3 R1: K1-K4 markers are exact and ordered; only K4 stays unanswere
     ]).toEqual(EXPECTED);
   });
 
-  it('the UNRESOLVED list is exactly K4', () => {
-    expect(contracts.A3_PREP_OWNER_DECISIONS_REQUIRED.map((k) => k.id)).toEqual(['K4']);
-    expect([...contracts.A3_PREP_UNRESOLVED_OWNER_DECISION_MARKERS]).toEqual([EXPECTED[3]]);
+  it('the UNRESOLVED list is exactly empty', () => {
+    expect(contracts.A3_PREP_OWNER_DECISIONS_REQUIRED).toEqual([]);
+    expect([...contracts.A3_PREP_UNRESOLVED_OWNER_DECISION_MARKERS]).toEqual([]);
   });
 
-  it('the RESOLVED list is exactly K1, K2, K3, in id order', () => {
-    expect(contracts.A3_PREP_OWNER_DECISIONS_RESOLVED.map((k) => k.id)).toEqual(['K1', 'K2', 'K3']);
-    expect([...contracts.A3_PREP_RESOLVED_OWNER_DECISION_MARKERS]).toEqual([
-      EXPECTED[0],
-      EXPECTED[1],
-      EXPECTED[2],
+  it('the RESOLVED list is exactly K1, K2, K3, K4, in id order', () => {
+    expect(contracts.A3_PREP_OWNER_DECISIONS_RESOLVED.map((k) => k.id)).toEqual([
+      'K1',
+      'K2',
+      'K3',
+      'K4',
     ]);
+    expect([...contracts.A3_PREP_RESOLVED_OWNER_DECISION_MARKERS]).toEqual(EXPECTED);
+  });
+
+  it('marker accounting: 4 historical, 4 resolved, 0 unresolved, checked at compile time too', () => {
+    expect(contracts.A3_PREP_OWNER_DECISION_MARKERS).toHaveLength(4);
+    expect(contracts.A3_PREP_RESOLVED_OWNER_DECISION_MARKERS).toHaveLength(4);
+    expect(contracts.A3_PREP_UNRESOLVED_OWNER_DECISION_MARKERS).toHaveLength(0);
+    expect(contracts.A3_PREP_OWNER_DECISION_MARKER_ACCOUNTING).toEqual({
+      everyMarkerAccounted: true,
+      resolvedAndUnresolvedDisjoint: true,
+    });
+    expect(Object.isFrozen(contracts.A3_PREP_OWNER_DECISION_MARKER_ACCOUNTING)).toBe(true);
   });
 
   it('every unresolved entry is unresolved, the resolved one is resolved, and the lists are frozen', () => {
