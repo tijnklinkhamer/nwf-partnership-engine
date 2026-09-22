@@ -43,14 +43,20 @@
  * `sd9.ts` only, and never `manifestTypes.ts`. R9's own boundaries live in
  * `orgunitCorpus2DA3CanonicalCorpusFreezePreflightIsolation.test.ts`.
  *
+ * R10 WIDENED IT AN EIGHTH TIME, BY EXACT NAME, for `setRScore.ts` alone. It
+ * adds no bare import and no external module: it reads `contracts.ts` and
+ * (type-only) `types.ts`, and nothing else. `setR.ts` stays a later slice.
+ * R10's own boundaries live in
+ * `orgunitCorpus2DA3CanonicalSetRScoreIsolation.test.ts`.
+ *
  * By walking the real import graph and source text of
  * `src/test/harness/phase2b2d/a3prep/`, this file proves:
  *
  *   - the namespace holds exactly R1's `contracts.ts` and `types.ts`, R2's
  *     `rank.ts` and `setP.ts`, R3's `sd9.ts`, R4's `splitScope.ts` and R5's
- *     `manifestTypes.ts`, R7's `sd7.ts`, R8's `setPSd7.ts` and R9's
- *     `corpusFreezePreflight.ts`; every later-slice module (SET_R, caps,
- *     synthetic fixtures) is absent;
+ *     `manifestTypes.ts`, R7's `sd7.ts`, R8's `setPSd7.ts`, R9's
+ *     `corpusFreezePreflight.ts` and R10's `setRScore.ts`; every later-slice
+ *     module (SET_R rank, caps, synthetic fixtures) is absent;
  *   - the whole transitive import closure of R1 is pure: no socket, no
  *     fetch(), no database, no filesystem, no child process, no environment
  *     read, no clock, no randomness, no provider or AI SDK;
@@ -96,6 +102,9 @@ const R8_FILES = ['setPSd7.ts'];
 /** R9, added by exact name. */
 const R9_FILES = ['corpusFreezePreflight.ts'];
 
+/** R10, added by exact name. */
+const R10_FILES = ['setRScore.ts'];
+
 const NAMESPACE_FILES = [
   ...R1_FILES,
   ...R2_FILES,
@@ -105,6 +114,7 @@ const NAMESPACE_FILES = [
   ...R7_FILES,
   ...R8_FILES,
   ...R9_FILES,
+  ...R10_FILES,
 ].sort();
 
 /** The one namespace file that may name the SEALED_ROOT_BY_SPLIT identifier. */
@@ -168,8 +178,8 @@ function importClosure(): {
   return { modules: [...seen].sort(), bareSpecifiers: [...bare].sort(), bareImporters };
 }
 
-describe('2D-A3 R1: the a3prep namespace holds exactly R1, R2, R3, R4, R5, R7, R8 and R9', () => {
-  it('contains exactly contracts.ts, types.ts, rank.ts, setP.ts, sd9.ts, splitScope.ts, manifestTypes.ts, sd7.ts, setPSd7.ts and corpusFreezePreflight.ts', () => {
+describe('2D-A3 R1: the a3prep namespace holds exactly R1, R2, R3, R4, R5, R7, R8, R9 and R10', () => {
+  it('contains exactly contracts.ts, types.ts, rank.ts, setP.ts, sd9.ts, splitScope.ts, manifestTypes.ts, sd7.ts, setPSd7.ts, corpusFreezePreflight.ts and setRScore.ts', () => {
     expect(readdirSync(A3PREP_DIR).sort()).toEqual(NAMESPACE_FILES);
   });
 
@@ -250,7 +260,7 @@ describe('2D-A3 R1: the import closure is pure and bounded', () => {
     }
   });
 
-  it('R1-R9 name no sealed-split path; only splitScope.ts names the root map', () => {
+  it('R1-R10 name no sealed-split path; only splitScope.ts names the root map', () => {
     for (const file of NAMESPACE_FILES) {
       const code = stripComments(readFileSync(join(A3PREP_DIR, file), 'utf8'));
       if (!ROOT_REFERENCE_FILES.includes(file)) {

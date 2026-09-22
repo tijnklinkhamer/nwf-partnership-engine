@@ -8,8 +8,8 @@
  * `A3_CORPUS_FREEZE_PREFLIGHT_R9_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY`: "none of
  * the blocker classes known to R9 remains". That never authorises a freeze and
  * never proves A5 readiness (see `A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_R9`).
- * Under the current contracts K1, K2 and K4 are unresolved, so the current
- * preflight is necessarily REFUSED.
+ * Under the current contracts K1, K2 and K3 are resolved and K4 is the sole
+ * unresolved owner decision, so the current preflight is necessarily REFUSED.
  *
  * TWO LAYERS
  *
@@ -54,8 +54,8 @@
  *   - It changes no acquisition status, names no replacement reason and moves
  *     no reserve.
  *   - It implements no extension selection, no SET_R, no organisation cap and
- *     no manifest; it resolves none of K1, K2 or K4 and accepts no caller
- *     approval that could hide one.
+ *     no manifest; it resolves no owner decision (K4, the sole unresolved
+ *     one, included) and accepts no caller approval that could hide one.
  *   - No returned value or refusal message carries a document SHA-256, a page
  *     id, a URL, text or an organisation identity. Collection refusals name an
  *     ARRAY POSITION, a count or a canonical split token, never a caller field.
@@ -658,7 +658,7 @@ export interface A3CorpusFreezePreflightResult {
    * Deterministic order: (1) the structural input blocker, if any - in which
    * case the short-text gate could not be evaluated and contributes nothing;
    * (2) the short-text freeze blocker, if any; (3) owner decisions in contract
-   * order, K1, K2, K4. Never sorted by locale.
+   * order (currently K4 alone). Never sorted by locale.
    */
   readonly blockers: readonly A3FreezePreflightBlocker[];
   readonly notCheckedByR9: typeof A3_CORPUS_FREEZE_PREFLIGHT_NOT_CHECKED_BY_R9;

@@ -728,8 +728,18 @@ describe('2D-A3 K1/K2: authority binding only — no SET_R implementation', () =
     }
   });
 
-  it('no a3prep module exports a SET_R reducer, comparator or rank', () => {
-    for (const file of readdirSync(join(REPO_ROOT, A3PREP_REL)).filter((f) => f.endsWith('.ts'))) {
+  /**
+   * R10 WIDENED THIS GUARD BY EXACT NAME: `setRScore.ts` is the one authorised
+   * K1/K2 score reducer and exact-decimal comparator. It still ranks nothing;
+   * that boundary is proved in `orgunitCorpus2DA3CanonicalSetRScoreIsolation`.
+   * Every other a3prep module stays reducer-free.
+   */
+  const R10_AUTHORISED_SCORE_REDUCER_FILE = 'setRScore.ts';
+
+  it('no a3prep module other than R10 setRScore.ts exports a SET_R reducer, comparator or rank', () => {
+    for (const file of readdirSync(join(REPO_ROOT, A3PREP_REL)).filter(
+      (f) => f.endsWith('.ts') && f !== R10_AUTHORISED_SCORE_REDUCER_FILE,
+    )) {
       const source = readFileSync(join(REPO_ROOT, A3PREP_REL, file), 'utf8');
       for (const m of source.matchAll(/export\s+(?:async\s+)?function\s+(\w+)/g)) {
         expect(m[1], `${file}:${m[1]}`).not.toMatch(/setR|reduce|decimal|compareScore|maxTrack/i);
