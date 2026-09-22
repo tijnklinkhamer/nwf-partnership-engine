@@ -38,6 +38,24 @@ const A3GOVERNANCE_REL = 'src/test/harness/phase2b2d/a3governance';
 /** The integrated A2 + A3 governance tip R19 is pinned to. */
 const GOVERNANCE_BASE = '907d726268ad07fe94fec93f4c6f3ff5ce5f93f9';
 
+/**
+ * R19'S OWN TERMINAL COMMIT.
+ *
+ * R19's changed-surface assertions describe R19'S SLICE, so they range over
+ * R19's own commits - `GOVERNANCE_BASE..R19_TERMINAL` - rather than over the
+ * working tree. Once a later slice lands on top, the working tree is no
+ * longer R19's surface, and diffing to it would fail for the honest reason
+ * that history moved on rather than because R19 changed.
+ *
+ * This is the repository's standing convention for a phase-scoped test, and
+ * it WEAKENS NOTHING: R19's range is frozen, so neither assertion can ever
+ * pass by accident again, and each later slice pins the equivalent scope over
+ * its own range - R20 does so in `orgunitCorpus2DA3EvidenceIsolation.test.ts`.
+ * The alternative, widening the forbidden-path list to admit whatever the
+ * newest slice added, is exactly what this convention exists to refuse.
+ */
+const R19_TERMINAL = '6369b28408dd99b0edca86c7fb0e5376bdccf68a';
+
 const A3GOVERNANCE_FILES = [
   'families.ts',
   'loader.ts',
@@ -81,7 +99,7 @@ function specifiersOf(source: string): string[] {
   return found;
 }
 
-const baseAvailable = commitExists(GOVERNANCE_BASE);
+const baseAvailable = commitExists(GOVERNANCE_BASE) && commitExists(R19_TERMINAL);
 
 // ---------------------------------------------------------------------------
 
@@ -234,13 +252,9 @@ describe.skipIf(!baseAvailable)('2D-A3 R19: lineage and changed surface', () => 
   });
 
   it('changes no a3prep file, no A2 record, no ledger, no draw and no production file', () => {
-    const changed = git('diff', '--name-only', GOVERNANCE_BASE)
+    const paths = git('diff', '--name-only', GOVERNANCE_BASE, R19_TERMINAL)
       .split('\n')
       .filter((line) => line.length > 0);
-    const untracked = git('ls-files', '--others', '--exclude-standard')
-      .split('\n')
-      .filter((line) => line.length > 0);
-    const paths = [...new Set([...changed, ...untracked])];
     const forbidden = paths.filter(
       (path) =>
         path.startsWith(`${A3PREP_REL}/`) ||
@@ -263,13 +277,10 @@ describe.skipIf(!baseAvailable)('2D-A3 R19: lineage and changed surface', () => 
    * byte loader long before this test ran.
    */
   it('adds only its own derived census under docs/evaluation, and changes no A2 record', () => {
-    const changed = git('diff', '--name-only', GOVERNANCE_BASE, '--', 'docs/evaluation')
+    const paths = git('diff', '--name-only', GOVERNANCE_BASE, R19_TERMINAL, '--', 'docs/evaluation')
       .split('\n')
       .filter((line) => line.length > 0);
-    const untracked = git('ls-files', '--others', '--exclude-standard', '--', 'docs/evaluation')
-      .split('\n')
-      .filter((line) => line.length > 0);
-    for (const path of [...new Set([...changed, ...untracked])]) {
+    for (const path of paths) {
       expect(path).toBe(
         'docs/evaluation/PHASE_2B_2D_A3_R19_PUBLIC_GOVERNANCE_AUTHORITY_CENSUS_V1.json',
       );
