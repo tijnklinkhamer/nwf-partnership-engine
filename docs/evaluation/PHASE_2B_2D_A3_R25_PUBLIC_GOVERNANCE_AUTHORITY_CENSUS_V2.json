@@ -1,0 +1,111 @@
+{
+  "record": "PHASE_2B_2D_A3_R25_PUBLIC_GOVERNANCE_AUTHORITY_CENSUS_V2",
+  "recordKind": "PUBLIC_GOVERNANCE_ONLY_AUTHORITY_CENSUS",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "registryVersion": "COMMITTED_A2_GOVERNANCE_REGISTRY_V2",
+  "pinnedA2GovernanceCheckpointCommit": "f76b8ae6653f1f8ec9dabd2d7eec3922c2e000f1",
+  "thisFileAuthorises": [],
+  "derivation": {
+    "derivedNotAsserted": true,
+    "publicGovernanceOnly": true,
+    "commitAddressedGovernanceBytes": true,
+    "workingDatabaseReads": 0,
+    "sealedRootReads": 0,
+    "institutionNetworkRequests": 0,
+    "registryEntryCount": 28,
+    "registryEntriesUnchangedFromV1": 25,
+    "registryEntriesReplacedFromV1": 1,
+    "registryEntriesAddedInV2": 2,
+    "registryBindingsVerified": 28,
+    "legacyV1ParserSubviewEntryCount": 26,
+    "replacementLedgerEntryCount": 9,
+    "transitionLedgerVersionsValidated": 4,
+    "normalisedTransitionEdgeCount": 7,
+    "scopedSupersessionChainCount": 7,
+    "replacementLedgerEntriesAudited": 9,
+    "currentTerminalFactCount": 28,
+    "currentPendingEvidenceFactCount": 0,
+    "currentFactsWithTransitionBindingCount": 3,
+    "supersededTerminalItemsExcluded": 0
+  },
+  "slotAuthoritySummary": {
+    "kind": "A3_GENERATION_SLOT_AUTHORITY_SUMMARY",
+    "generationId": "METHODOLOGY_V2_GEN1",
+    "totalSlotCount": 110,
+    "slotCountBySplit": {
+      "DEV_TRAIN": 20,
+      "DEV_CONFIRM": 45,
+      "FINAL_HOLDOUT": 45
+    },
+    "readySlotCount": 27,
+    "notReadySlotCount": 83,
+    "unsuccessfulCurrentOccupantCount": 1,
+    "pendingAdjudicationCount": 0,
+    "noTerminalEvidenceCount": 82,
+    "openReplacementObligationCount": 1,
+    "reserveExhaustedObligationCount": 0,
+    "replacementOccupantCount": 7,
+    "primaryOccupantCount": 103,
+    "reserveConsumedCount": 9,
+    "reserveUnusedCount": 31,
+    "status": "A3_GENERATION_SLOT_AUTHORITY_INCOMPLETE"
+  },
+  "devTrainReadySlotCount": 6,
+  "v1ToV2Delta": {
+    "v1RegistryVersion": "CANONICAL_A2_GOVERNANCE_REGISTRY_V1",
+    "v1GovernanceBaseCommit": "907d726268ad07fe94fec93f4c6f3ff5ce5f93f9",
+    "readyTotal": {
+      "v1": 23,
+      "v2": 27,
+      "delta": 4
+    },
+    "devTrainReady": {
+      "v1": 5,
+      "v2": 6,
+      "delta": 1
+    },
+    "unsuccessfulCurrentOccupants": {
+      "v1": 1,
+      "v2": 1
+    },
+    "noTerminalEvidence": {
+      "v1": 86,
+      "v2": 82
+    },
+    "reservesConsumed": {
+      "v1": 8,
+      "v2": 9
+    },
+    "reservesUnused": {
+      "v1": 32,
+      "v2": 31
+    }
+  },
+  "temporalTruth": {
+    "describesGovernanceCheckpointCommit": "f76b8ae6653f1f8ec9dabd2d7eec3922c2e000f1",
+    "registryV1StillDescribes": "907d726268ad07fe94fec93f4c6f3ff5ce5f93f9",
+    "automaticallyUpdatesWhenA2Advances": false,
+    "laterGovernanceRequiresALaterRegistryAndCensusVersion": true
+  },
+  "whatThisIsNot": [
+    "NOT_A2_ACQUISITION_AUTHORITY",
+    "NOT_A_MERGE_OF_A2_INTO_A3",
+    "NOT_A3_EVIDENCE_LOADING_AUTHORITY",
+    "NOT_SET_P_OR_SET_R_AUTHORITY",
+    "NOT_AN_A5_CORPUS_FREEZE",
+    "NOT_HOLDOUT_SCORING_AUTHORITY"
+  ],
+  "identityDisclosure": {
+    "selectionIndices": false,
+    "reservePositions": false,
+    "organisationIds": false,
+    "echeRowKeys": false,
+    "runReferences": false,
+    "drawEntryDigests": false,
+    "documentHashes": false,
+    "urlsOrDomains": false,
+    "sealedFilenames": false,
+    "perSlotStatus": false,
+    "labelsGoldOrClassifierData": false
+  }
+}
