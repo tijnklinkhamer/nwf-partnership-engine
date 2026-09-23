@@ -46,6 +46,21 @@ const SD7_REL = 'src/test/harness/phase2b2d/sd7';
 /** The exact canonical R22 tip R23 was cut from. */
 const R22_TERMINAL = 'd3c2cd7cc6a72d488b94c5cdcfbd5809f6580b4c';
 
+/**
+ * R23'S OWN TERMINAL COMMIT.
+ *
+ * R23's changed-surface assertion describes R23'S SLICE, so it ranges over
+ * R23's own commits - `R22_TERMINAL..R23_TERMINAL` - rather than over the
+ * working tree. Once a later slice lands on top, the working tree is no
+ * longer R23's surface, and diffing to it would fail for the honest reason
+ * that history moved on rather than because R23 changed.
+ *
+ * This is the same standing convention R19, R20, R21 and R22 apply, and it
+ * WEAKENS NOTHING: R23's range is frozen, its permitted-path list is
+ * unchanged, and each later slice pins the equivalent scope over its own range.
+ */
+const R23_TERMINAL = '45df08e7133f859e57086f2cc2a44d6b5ed584d6';
+
 /** The one commit that pinned R22's own changed-surface test to its range. */
 const R22_SCOPE_PIN_COMMIT = '3aa7f984091e007a902b4aadcfff97c732d3134b';
 const R22_ISOLATION_TEST = 'src/test/unit/orgunitCorpus2DA3Sd7GraphIsolation.test.ts';
@@ -206,7 +221,8 @@ function allCode(): string {
   return A3SAMPLES_FILES.map(code).join('\n');
 }
 
-const baseAvailable = commitExists(R22_TERMINAL) && commitExists(R22_SCOPE_PIN_COMMIT);
+const baseAvailable =
+  commitExists(R22_TERMINAL) && commitExists(R22_SCOPE_PIN_COMMIT) && commitExists(R23_TERMINAL);
 
 // ---------------------------------------------------------------------------
 
@@ -461,12 +477,7 @@ describe.skipIf(!baseAvailable)('2D-A3 R23: lineage and changed surface', () => 
   });
 
   it('changes nothing outside its own namespace, tests and records', () => {
-    const paths = [
-      ...new Set([
-        ...lines(git('diff', '--name-only', R22_TERMINAL)),
-        ...lines(git('ls-files', '--others', '--exclude-standard')),
-      ]),
-    ];
+    const paths = lines(git('diff', '--name-only', R22_TERMINAL, R23_TERMINAL));
     const permitted = (path: string): boolean =>
       path.startsWith(`${A3SAMPLES_REL}/`) ||
       path === 'src/test/unit/orgunitCorpus2DA3SampleSurvivorPreparation.test.ts' ||
