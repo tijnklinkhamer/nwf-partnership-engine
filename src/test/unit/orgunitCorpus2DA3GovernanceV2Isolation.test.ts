@@ -31,6 +31,21 @@ const A3GOVERNANCE_V2_REL = `${HARNESS}/a3governanceV2`;
 /** The exact canonical R24 tip R25 was cut from. */
 const R24_TERMINAL = '3f5b85c0e9d7b30fc65bf77b822a143daabfebee';
 
+/**
+ * R25'S OWN TERMINAL COMMIT.
+ *
+ * R25's changed-surface and docs-scope assertions describe R25'S SLICE, so
+ * they range over R25's own commits - `R24_TERMINAL..R25_TERMINAL` - rather
+ * than over the working tree. Once a later slice lands on top, the working
+ * tree is no longer R25's surface, and diffing to it would fail for the
+ * honest reason that history moved on rather than because R25 changed.
+ *
+ * This is the same standing convention R19 through R24 apply, and it
+ * WEAKENS NOTHING: R25's range is frozen, its permitted-path list is
+ * unchanged, and each later slice pins the equivalent scope over its own range.
+ */
+const R25_TERMINAL = '77883886c1213dbf8cd4cff24009813e7d9e09c9';
+
 /** The one commit that pinned R24's own changed-surface test to its range. */
 const R24_SCOPE_PIN_COMMIT = '9e1214725a0602c8f0f9ad442f63ad4116afbd7c';
 const R24_ISOLATION_TEST = 'src/test/unit/orgunitCorpus2DA3ReachableMembershipSd9Isolation.test.ts';
@@ -128,7 +143,8 @@ function allCode(): string {
   return A3GOVERNANCE_V2_FILES.map(code).join('\n');
 }
 
-const baseAvailable = commitExists(R24_TERMINAL) && commitExists(R24_SCOPE_PIN_COMMIT);
+const baseAvailable =
+  commitExists(R24_TERMINAL) && commitExists(R24_SCOPE_PIN_COMMIT) && commitExists(R25_TERMINAL);
 
 // ---------------------------------------------------------------------------
 
@@ -275,20 +291,14 @@ describe.skipIf(!baseAvailable)('2D-A3 R25: lineage and changed surface', () => 
   });
 
   it('writes no governance record: every docs/evaluation change is the R25 census', () => {
-    const changed = [
-      ...lines(git('diff', '--name-only', R24_TERMINAL, '--', 'docs/evaluation')),
-      ...lines(git('ls-files', '--others', '--exclude-standard', '--', 'docs/evaluation')),
-    ];
+    const changed = lines(
+      git('diff', '--name-only', R24_TERMINAL, R25_TERMINAL, '--', 'docs/evaluation'),
+    );
     expect(changed.filter((path) => path !== R25_CENSUS_PATH)).toEqual([]);
   });
 
   it('changes nothing outside its own namespace, tests and records', () => {
-    const paths = [
-      ...new Set([
-        ...lines(git('diff', '--name-only', R24_TERMINAL)),
-        ...lines(git('ls-files', '--others', '--exclude-standard')),
-      ]),
-    ];
+    const paths = lines(git('diff', '--name-only', R24_TERMINAL, R25_TERMINAL));
     const permitted = (path: string): boolean =>
       path.startsWith(`${A3GOVERNANCE_V2_REL}/`) ||
       R25_TESTS.includes(path) ||
