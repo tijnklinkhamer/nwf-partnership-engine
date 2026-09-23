@@ -1,0 +1,1506 @@
+{
+  "recordId": "phase2b-2d-a2-post-p18-second-replacement-and-primary-continuation-live-result-v1",
+  "recordKind": "LIVE_WINDOW_RESULT_EVIDENCE_PENDING_ADJUDICATION",
+  "records": "PHASE_2B_2D_A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_LIVE_RESULT_V1",
+  "recordedAtUtc": "2026-09-22T23:33:54Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "startingHead": "2907df1e7c2a73639448c96f564446650dad1f6a",
+  "acceptedChain": [
+    "dec6b3e535bad5a4a66bf1e960b289ee8b31267f",
+    "9800d2028322dd9e98129eb30698d1d0abfef4d5",
+    "2907df1e7c2a73639448c96f564446650dad1f6a",
+    "c82f488ab5ad1551f616f08506c57d13087dff3b"
+  ],
+  "bound": {
+    "liveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_LIVE_AUTHORITY_V1.json",
+      "sha256": "813c4f224ee3e9ebd50c9fce282dc701a1a14a339f1df6e958996b67c0b42bff",
+      "bytes": 38416,
+      "commit": "2907df1e7c2a73639448c96f564446650dad1f6a",
+      "ownerDecision": "AUTHORISE_A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_LIVE_EXECUTION_V1",
+      "everyBoundArtifactRecomputed": true,
+      "pushedBeforeInstitutionNetwork": true
+    },
+    "batteryAuthority": {
+      "source": "the bound live authority hostSafetyPolicy: acPowerRequired false, batteryExecutionAuthorised true, batteryFinalValidationAuthorised true, separateBatteryOverrideRecordRequired false",
+      "separateBatteryOverrideCreated": false
+    },
+    "selectedStrategy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_STRATEGY_V1.json",
+      "sha256": "28def1d00d165dccd6fcabb0ec7852f8734b99dd4ae2f6faa487779789272940",
+      "bytes": 44825,
+      "commit": "dec6b3e535bad5a4a66bf1e960b289ee8b31267f"
+    },
+    "windowPlan": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_PLAN_V1.json",
+      "sha256": "8f4b62ce84c6ce0d435b7cd7fd396955953eb729f1e41a029515f3a509ea6dca",
+      "bytes": 6363,
+      "windowPlanHash": "6441372aa5407835783651882819f19a506e021abee2b6cdb9ad64144d4dc320",
+      "commit": "9800d2028322dd9e98129eb30698d1d0abfef4d5",
+      "planRebuiltFromStrategySpecEqualsCommittedCanonically": true
+    },
+    "prenetworkAssignment": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_PRENETWORK_ASSIGNMENT_V1.json",
+      "sha256": "87aa1f75070c530f44571c60f04465568fe7ba90cd9d363785624b1f41a91e7f",
+      "bytes": 10383,
+      "commit": "c82f488ab5ad1551f616f08506c57d13087dff3b",
+      "parentCommit": "2907df1e7c2a73639448c96f564446650dad1f6a",
+      "pushedBeforeInstitutionNetwork": true
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "eightEntryStartingRevision": {
+        "sha256": "72c9af2c2b239a6eecb8e84d5a1139eb0b728b1330465f610e73165d7212f114",
+        "bytes": 9690,
+        "ledgerHash": "72177c40421cc87ae180865728f5393f8439dae9b3b60691f824a73ebf55e230",
+        "entries": 8,
+        "commit": "b1438322bec15c1ffb54c53d1aa6c8d3e9e15bac",
+        "byteIdenticalAt": [
+          "9800d2028322dd9e98129eb30698d1d0abfef4d5",
+          "2907df1e7c2a73639448c96f564446650dad1f6a"
+        ]
+      },
+      "nineEntryPostAssignmentRevision": {
+        "sha256": "1a4c919d61b08c1a8dd7352ffe5e9d481e5db527c3ea82809879ccdfaeb50d4f",
+        "bytes": 10300,
+        "ledgerHash": "cc0aa07db079db2ab911a00484db3dac166d09046ec34964dcd1c376ffe0953d",
+        "entries": 9,
+        "commit": "c82f488ab5ad1551f616f08506c57d13087dff3b",
+        "committedBytesEqualIntendedAppendOutput": true
+      },
+      "appendedEntryHashes": ["7ab799129a2d22a346e491123191473493d0c892e6a9e4fe795f39bdeb1a3093"],
+      "byteIdenticalThroughoutAndAfterNetwork": true
+    }
+  },
+  "chronology": {
+    "authorityCommitUtc": "2026-09-22T22:45:56Z",
+    "authorityPushedBeforeThisTask": true,
+    "governedSleepWakeMonitorStartedUtc": "2026-09-22T23:04:41Z",
+    "windowCaffeinateDimsuStartedUtc": "2026-09-22T23:04:41Z",
+    "ledgerEntryRecordedAtUtc": "2026-09-22T23:12:04Z",
+    "ledgerAppendCommitUtc": "2026-09-22T23:14:56Z",
+    "ledgerAppendPushedUtc": "2026-09-22T23:14:58Z",
+    "ledgerAppendRefetchedAndVerifiedUtc": "2026-09-22T23:14:59Z",
+    "firstDatabaseAccessUtc": "2026-09-22T23:15:59Z",
+    "firstInstitutionRequestNotBeforeUtc": "2026-09-22T23:18:28Z",
+    "itemWindows": [
+      {
+        "workItemId": "R:18:8",
+        "startedUtc": "2026-09-22T23:18:28Z",
+        "finishedUtc": "2026-09-22T23:19:44Z"
+      },
+      {
+        "workItemId": "P:24",
+        "startedUtc": "2026-09-22T23:21:34Z",
+        "finishedUtc": "2026-09-22T23:21:36Z"
+      },
+      {
+        "workItemId": "P:25",
+        "startedUtc": "2026-09-22T23:22:39Z",
+        "finishedUtc": "2026-09-22T23:23:42Z"
+      },
+      {
+        "workItemId": "P:26",
+        "startedUtc": "2026-09-22T23:24:53Z",
+        "finishedUtc": "2026-09-22T23:25:38Z"
+      },
+      {
+        "workItemId": "P:27",
+        "startedUtc": "2026-09-22T23:25:48Z",
+        "finishedUtc": "2026-09-22T23:26:38Z"
+      }
+    ],
+    "lastItemFinishedUtc": "2026-09-22T23:26:38Z",
+    "lastRunCompletionRowUtc": "2026-09-22T23:26:38Z",
+    "order": "authority push -> ledger-append push + refetch (23:14:59Z) -> first read-only database access (23:15:59Z) -> private target resolution + non-executing dry runs -> institution request 1 (not before 2026-09-22T23:18:28Z)",
+    "databaseQueriedBeforeAppendPush": false,
+    "institutionDnsHttpOrTlsBeforeAppendPush": false,
+    "orderHeld": true
+  },
+  "preflight": {
+    "startGate": {
+      "startingHeadEqualsOrigin": "2907df1e7c2a73639448c96f564446650dad1f6a",
+      "parent": "9800d2028322dd9e98129eb30698d1d0abfef4d5",
+      "worktreeClean": true,
+      "power": "AC (not required; battery was authorised)",
+      "batteryPercent": 100,
+      "lidOpen": true,
+      "diskFreeGiB": 655,
+      "databaseContainerHealthy": true,
+      "concurrentValidateOrA2Process": "none from this repository or its worktrees (an unrelated repository’s vitest was running and was not a collision)",
+      "removedPpid1BusyLoopsAbsent": true,
+      "existingPrenetworkAssignmentOrLiveResultForThisWindow": false,
+      "staleAcquisitionScratchOrPrivateResolutionOutput": false,
+      "existingSealedFilesForThisWindow": 0,
+      "sealedRootFilesBeforeWindow": 30,
+      "strategySha256Recomputed": true,
+      "planSha256Recomputed": true,
+      "windowPlanHashRecomputed": true,
+      "authoritySha256Recomputed": true,
+      "authorityBytes": 38416,
+      "planRebuiltFromStrategyCanonicallyEqual": true,
+      "everyAuthorityBindingRecomputed": true
+    },
+    "generation1StateConfirmed": {
+      "successfulSelectionSlots": 23,
+      "onlyFailureAndOpenObligation": 18,
+      "slot18Split": "DEV_CONFIRM",
+      "slot18CurrentOccupantBeforeAppend": "RESERVE_REPLACEMENT position 7 (sequence 7)",
+      "formalReason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "neverStartedPrimaries": "24-109",
+      "reserveConsumedBeforeAppend": 8,
+      "reserveUnusedBeforeAppend": 32,
+      "nextReserveBeforeAppend": 8,
+      "p6": false
+    },
+    "databaseRole": {
+      "role": "nwf_readonly (DATABASE_URL_READONLY)",
+      "privileges": "SELECT only on every table read; no INSERT/UPDATE/DELETE",
+      "defaultTransactionReadOnly": "on",
+      "transactionReadOnly": "on",
+      "writeRefusedByReadOnlyTransactionProbe": true,
+      "provedBeforeEvidenceQueries": true,
+      "note": "stricter than the previous window, which used the admin connection with default_transaction_read_only=on; the CLI itself connects as the research role, as landed"
+    },
+    "databaseBaselineSource": "the accepted previous window live result at 3e9764e (39 / 39 / 1006 / 48 / 757 / 1514)",
+    "databaseBaselineMatchedExpected": true,
+    "databaseBaseline": {
+      "orgunit_research_runs": 39,
+      "orgunit_research_run_completions": 39,
+      "orgunit_fetch_observations": 1006,
+      "orgunit_redirect_observations": 48,
+      "orgunit_page_evidence": 757,
+      "orgunit_page_candidates": 1514,
+      "orgunit_root_promotions": 0,
+      "orgunit_root_promotion_revocations": 0,
+      "orgunit_classification_subjects": 0,
+      "orgunit_classifier_calls": 0,
+      "orgunit_classifier_call_completions": 0,
+      "orgunit_page_classifications": 0
+    },
+    "runsByPolicyBaseline": {
+      "orgunit-fetch-policy-v1": 7,
+      "orgunit-fetch-policy-v2": 2,
+      "orgunit-fetch-policy-v3": 3,
+      "orgunit-fetch-policy-v4": 11,
+      "orgunit-fetch-policy-v6": 16
+    },
+    "observationsByPolicyBaseline": {
+      "orgunit-fetch-policy-v1": 78,
+      "orgunit-fetch-policy-v2": 39,
+      "orgunit-fetch-policy-v3": 87,
+      "orgunit-fetch-policy-v4": 279,
+      "orgunit-fetch-policy-v6": 523
+    },
+    "runsWithoutCompletionBaseline": 0,
+    "competingDatabaseSessions": 0,
+    "lastRunBeforeWindowCreatedUtc": "2026-09-22T15:35:37Z",
+    "p7OnEightEntryLedgerBeforeAppend": {
+      "invariantCount": 13,
+      "falseInvariants": ["replacementAssignmentsRecorded", "currentOccupantsMatch"],
+      "otherElevenTrue": true,
+      "gateDecision": "PAUSE_P7_INVARIANT_MISMATCH",
+      "mayStartNextWorkItem": false,
+      "asRequired": true
+    },
+    "p7OnCommittedNineEntryLedger": {
+      "preflight": "computePrecommittedWindowPreflight (committed) over the committed plan, the committed and pushed nine-entry ledger and windowSpecFromAcquisitionWindowStrategy (committed strategy bytes + the eight-entry starting revision read from git at 9800d20), with independently recomputed frame, draw, owner-clarification and governance hashes",
+      "invariantCount": 13,
+      "allInvariantsTrue": true
+    },
+    "gatePreStart": {
+      "successfulOrganisationCount": 23,
+      "reserveConsumedCount": 9,
+      "completed": [],
+      "plannedWindowSize": 5,
+      "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+      "nextWorkItemId": "R:18:8",
+      "mayStartNextWorkItem": true,
+      "triggeredConditions": [],
+      "p6Triggered": false
+    },
+    "workItemsResolvedPrivately": true,
+    "everyDrawEntryDigestMatchesPlan": true,
+    "everySplitMatches": true,
+    "slot18CurrentOccupant": "RESERVE_REPLACEMENT position 8 (sequence 8)",
+    "primaries24To27OriginalSelections": true,
+    "everyFrozenRootEqualsCurrentValidClaim": true,
+    "promotionRoots": 0,
+    "priorRunsForAnyWindowOrganisation": 0,
+    "dryRuns": {
+      "count": 5,
+      "allDRY_RUN": true,
+      "allBoundToTheirWorkItem": true,
+      "allRootsEqualFrozen": true,
+      "rootsPerItem": 1,
+      "promotionRoots": 0,
+      "databaseWrites": 0,
+      "institutionDnsOrHttp": 0
+    },
+    "preflightRerunBeforeEveryItem": true,
+    "frozenOrderComparedBeforeAppendBeforeEveryItemAndAfterEveryItem": {
+      "strategySha256": true,
+      "planSha256": true,
+      "windowPlanHash": true,
+      "completeOrderedList": ["R:18:8", "P:24", "P:25", "P:26", "P:27"],
+      "completedObservationsAlwaysExactPrefix": true,
+      "gateNextAlwaysEqualsNextFrozenElement": true,
+      "reorderSkipDuplicateOrSubstitutionObserved": false
+    }
+  },
+  "hostSafety": {
+    "acPowerRequired": false,
+    "batteryAuthorisedBy": "the live authority hostSafetyPolicy (2907df1); no separate override",
+    "power": "AC throughout (not required; battery was authorised, AC happened to be connected)",
+    "batteryPercentBeforeFirstItem": 100,
+    "batteryPercentAfterLastItem": 100,
+    "doNotStartThresholdPercent": 20,
+    "thresholdReached": false,
+    "lidOpenBeforeAndAfterEveryItem": true,
+    "caffeinate": "a window-level caffeinate -dimsu held throughout, plus a dedicated caffeinate -dimsu wrapping each item's single CLI execution",
+    "caffeinateDimsuRunningForEveryItem": true,
+    "diskFreeGiB": 653,
+    "sleepWakeMonitoring": "timestamped Sleep / Wake / DarkWake event-type rows of pmset -g log, parsed by event column (Wake Requests and summary lines excluded), plus a 15 s background poll",
+    "sleepWakeDuringAnyItem": 0,
+    "sleepWakeBetweenItems": 0,
+    "sleepWakeFromMonitorStartToWindowEnd": 0,
+    "hostStateAnomaly": false,
+    "lastSleepWakeEventBeforeWindow": "a Wake at 2026-09-22T18:51:21Z, before the governed monitor started (23:04:41Z); it affects no evidence",
+    "sleepWakeCheckedWindow": "2026-09-22T23:04:41Z to 2026-09-22T23:29:45Z: zero Sleep, Wake or DarkWake events"
+  },
+  "execution": {
+    "order": ["R:18:8", "P:24", "P:25", "P:26", "P:27"],
+    "concurrency": 1,
+    "startedWorkItems": ["R:18:8", "P:24", "P:25", "P:26", "P:27"],
+    "unstartedWorkItems": [],
+    "command": "npm run cli -- orgunits discover --organisation-id <private> --execute --json, exactly once per started item",
+    "curlWgetBrowserOrSecondInvocation": 0,
+    "manualRetries": 0,
+    "sixthItem": false,
+    "primary28OrLater": false,
+    "reserve9OrLater": false,
+    "dynamicReplacement": false,
+    "crossKindOrderHeld": true
+  },
+  "items": [
+    {
+      "order": 1,
+      "workItemId": "R:18:8",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 18,
+      "reservePosition": 8,
+      "split": "DEV_CONFIRM",
+      "startedUtc": "2026-09-22T23:18:28Z",
+      "finishedUtc": "2026-09-22T23:19:44Z",
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "manualRetries": 0,
+      "runRefSha256": "aac1745ac2ae49e267342d940cc038f0a282606ff6fae1d082523666dc49b7b4",
+      "newRuns": 1,
+      "completions": 1,
+      "runTerminalState": "COMPLETED",
+      "completionErrorKind": null,
+      "runFetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "everyObservationV6": true,
+      "dryRunFlag": false,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "gatewayRequests": 43,
+      "pageAttempts": 35,
+      "robotsRequests": 3,
+      "sitemapDocumentRequests": 5,
+      "distinctHostsUsed": 2,
+      "circuitOpenHosts": 0,
+      "ceilings": {
+        "totalRequestsAtMost60": true,
+        "pageAttemptsAtMost35": true,
+        "hostsAtMost8": true,
+        "retryCeilingHeld": true,
+        "maxRobotsAttemptNoPerPolicyUrl": 2,
+        "nonRobotsRetryAttempts": 0
+      },
+      "observationsByDiscoveryMethod": {
+        "ROBOTS": 3,
+        "ROOT": 1,
+        "LINK": 15,
+        "SITEMAP": 24
+      },
+      "statusByDiscoveryMethod": {
+        "ROBOTS:301": 1,
+        "ROBOTS:200": 2,
+        "ROOT:301": 1,
+        "LINK:200": 10,
+        "SITEMAP:200": 24,
+        "LINK:301": 5
+      },
+      "observationErrorKinds": {},
+      "robots": {
+        "requests": 3,
+        "outcomes": [
+          {
+            "attemptNo": 1,
+            "httpStatusClass": "3xx",
+            "errorKind": null,
+            "errorSubtype": null
+          },
+          {
+            "attemptNo": 1,
+            "httpStatusClass": "2xx",
+            "errorKind": null,
+            "errorSubtype": null
+          },
+          {
+            "attemptNo": 2,
+            "httpStatusClass": "2xx",
+            "errorKind": null,
+            "errorSubtype": null
+          }
+        ],
+        "robotsRedirectObservations": 1,
+        "redirectContinuations": 1,
+        "crossRegistrableDomainRobotsRedirectsRefused": 0,
+        "transportRetryPairs": 0,
+        "transportRetries": [],
+        "shape": "ROBOTS_3XX_HOST_CHANGING_SAME_REGISTRABLE_DOMAIN_CONTINUED_ONCE_THEN_TARGET_HOST_OWN_POLICY_RESOLVED_ON_LATER_CRAWL_WITH_RUN_SCOPED_ATTEMPT_2"
+      },
+      "redirectObservations": 7,
+      "redirectFacts": [
+        {
+          "discoveryMethod": "ROBOTS",
+          "httpStatus": 301,
+          "hostChanged": true,
+          "registrableDomainChanged": false,
+          "targetMalformed": false
+        },
+        {
+          "discoveryMethod": "ROOT",
+          "httpStatus": 301,
+          "hostChanged": true,
+          "registrableDomainChanged": false,
+          "targetMalformed": false
+        },
+        {
+          "discoveryMethod": "LINK",
+          "httpStatus": 301,
+          "hostChanged": false,
+          "registrableDomainChanged": false,
+          "targetMalformed": false
+        },
+        {
+          "discoveryMethod": "LINK",
+          "httpStatus": 301,
+          "hostChanged": false,
+          "registrableDomainChanged": false,
+          "targetMalformed": false
+        },
+        {
+          "discoveryMethod": "LINK",
+          "httpStatus": 301,
+          "hostChanged": false,
+          "registrableDomainChanged": false,
+          "targetMalformed": false
+        },
+        {
+          "discoveryMethod": "LINK",
+          "httpStatus": 301,
+          "hostChanged": false,
+          "registrableDomainChanged": false,
+          "targetMalformed": false
+        },
+        {
+          "discoveryMethod": "LINK",
+          "httpStatus": 301,
+          "hostChanged": false,
+          "registrableDomainChanged": false,
+          "targetMalformed": false
+        }
+      ],
+      "rawPages": 29,
+      "candidateRows": 58,
+      "persistenceAnomaly": false,
+      "inputOrRootMismatch": false,
+      "sleepWakeDuringItem": 0,
+      "formalSd7": {
+        "method": "analyseOrganisation (src/test/harness/phase2b2d/sd7/), exact-duplicate pass first",
+        "postSd7Min": 29,
+        "postSd7Max": 29,
+        "countIsExact": true,
+        "exactDuplicateRowsRemoved": 0,
+        "nearDuplicateEdges": 0,
+        "shortTextUnresolved": 0,
+        "nonTransitiveComponents": 0,
+        "unauditableComponents": 0,
+        "wholeRangeAtOrAbove4": true,
+        "wholeRangeBelow4": false,
+        "rangeCrosses4": false,
+        "rangeForcedToExactValue": false,
+        "decidedByCase": "B",
+        "sealedDetail": {
+          "root": "~/Developer/phase2b-2d-methodology-v2-sealed/gen1-dev-confirm",
+          "file": "POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_V1_SD7_DETAIL_R_18_8.json",
+          "sha256": "80b0c0568c8bc81783e707d5c0489b695ffa680170ba7879a2a2f146a24d51e4",
+          "bytes": 13284,
+          "committedToGit": false,
+          "overwroteExistingFile": false
+        }
+      },
+      "diagnosticSd9": "ACQUISITION_SUCCESSFUL",
+      "diagnosticSd9IsAdjudicative": false,
+      "host": {
+        "batteryPercentBefore": 100,
+        "batteryPercentAfter": 100,
+        "powerSource": "AC",
+        "lidOpenAfter": true,
+        "caffeinateDimsuRunningAfter": true
+      },
+      "gateObservation": {
+        "workItemId": "R:18:8",
+        "kind": "REPLACEMENT",
+        "selectionIndex": 18,
+        "reserveRankPosition": 8,
+        "rawPageEvidenceCount": 29,
+        "runTerminalState": "COMPLETED",
+        "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+        "orchestrationError": false,
+        "persistenceAnomaly": false,
+        "hostStateAnomaly": false,
+        "inputOrRootMismatch": false
+      },
+      "gateAfterItem": {
+        "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "triggeredConditions": [],
+        "mayStartNextWorkItem": true,
+        "nextWorkItemId": "P:24",
+        "completedCount": 1,
+        "remainingWorkItemIds": ["P:24", "P:25", "P:26", "P:27"],
+        "lowYieldCount": 0,
+        "robotsRefusalCount": 0,
+        "trailingP1": 0,
+        "trailingP2": 0,
+        "trailingP3": 0,
+        "p6Triggered": false,
+        "generationSuccessfulCount": 23,
+        "generationReserveConsumedCount": 9,
+        "allThirteenPreflightInvariantsTrue": true,
+        "ledgerUnchanged": true,
+        "reservePosition9Assigned": false,
+        "frozenOrderBindingHeld": true,
+        "completedPrefixEqualsFrozenOrderPrefix": true,
+        "expectedNextFromFrozenOrder": "P:24",
+        "falseInvariants": []
+      }
+    },
+    {
+      "order": 2,
+      "workItemId": "P:24",
+      "kind": "PRIMARY",
+      "selectionIndex": 24,
+      "reservePosition": null,
+      "split": "FINAL_HOLDOUT",
+      "startedUtc": "2026-09-22T23:21:34Z",
+      "finishedUtc": "2026-09-22T23:21:36Z",
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "manualRetries": 0,
+      "runRefSha256": "b9995d0c50e711c3ea2308c9096cc36ff7ab51a512c99a98871c63b7345a5d63",
+      "newRuns": 1,
+      "completions": 1,
+      "runTerminalState": "COMPLETED",
+      "completionErrorKind": null,
+      "runFetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "everyObservationV6": true,
+      "dryRunFlag": false,
+      "rootTerminalReason": "NO_ELIGIBLE_HTML",
+      "gatewayRequests": 3,
+      "pageAttempts": 1,
+      "robotsRequests": 1,
+      "sitemapDocumentRequests": 1,
+      "distinctHostsUsed": 1,
+      "circuitOpenHosts": 0,
+      "ceilings": {
+        "totalRequestsAtMost60": true,
+        "pageAttemptsAtMost35": true,
+        "hostsAtMost8": true,
+        "retryCeilingHeld": true,
+        "maxRobotsAttemptNoPerPolicyUrl": 1,
+        "nonRobotsRetryAttempts": 0
+      },
+      "observationsByDiscoveryMethod": {
+        "ROBOTS": 1,
+        "ROOT": 1,
+        "SITEMAP": 1
+      },
+      "observationErrorKinds": {},
+      "robots": {
+        "requests": 1,
+        "outcomes": [
+          {
+            "attemptNo": 1,
+            "httpStatusClass": "2xx",
+            "errorKind": null,
+            "errorSubtype": null
+          }
+        ],
+        "robotsRedirectObservations": 0,
+        "redirectContinuations": 0,
+        "crossRegistrableDomainRobotsRedirectsRefused": 0,
+        "transportRetryPairs": 0,
+        "transportRetries": [],
+        "shape": "SINGLE_HOST_READ_DIRECTLY"
+      },
+      "redirectObservations": 2,
+      "redirectFacts": [
+        {
+          "discoveryMethod": "ROOT",
+          "httpStatus": 302,
+          "hostChanged": true,
+          "registrableDomainChanged": false,
+          "targetMalformed": false
+        },
+        {
+          "discoveryMethod": "SITEMAP",
+          "httpStatus": 302,
+          "hostChanged": true,
+          "registrableDomainChanged": false,
+          "targetMalformed": false
+        }
+      ],
+      "rawPages": 0,
+      "candidateRows": 0,
+      "persistenceAnomaly": false,
+      "inputOrRootMismatch": false,
+      "sleepWakeDuringItem": 0,
+      "formalSd7": {
+        "method": "analyseOrganisation (src/test/harness/phase2b2d/sd7/), exact-duplicate pass first",
+        "postSd7Min": 0,
+        "postSd7Max": 0,
+        "countIsExact": true,
+        "exactDuplicateRowsRemoved": 0,
+        "nearDuplicateEdges": 0,
+        "shortTextUnresolved": 0,
+        "nonTransitiveComponents": 0,
+        "unauditableComponents": 0,
+        "wholeRangeAtOrAbove4": false,
+        "wholeRangeBelow4": true,
+        "rangeCrosses4": false,
+        "rangeForcedToExactValue": false,
+        "decidedByCase": "A",
+        "sealedDetail": {
+          "root": "~/Developer/phase2b-2d-methodology-v2-sealed-holdout/gen1-final-holdout",
+          "file": "POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_V1_SD7_DETAIL_P_24.json",
+          "sha256": "11966980a850ef1e0a0c953c7e5441a2b862f248f7e84928092b0076f099f61f",
+          "bytes": 1255,
+          "committedToGit": false,
+          "overwroteExistingFile": false
+        }
+      },
+      "diagnosticSd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "diagnosticSd9IsAdjudicative": false,
+      "host": {
+        "batteryPercentBefore": 100,
+        "batteryPercentAfter": 100,
+        "powerSource": "AC",
+        "lidOpenAfter": true,
+        "caffeinateDimsuRunningAfter": true
+      },
+      "gateObservation": {
+        "workItemId": "P:24",
+        "kind": "PRIMARY",
+        "selectionIndex": 24,
+        "reserveRankPosition": null,
+        "rawPageEvidenceCount": 0,
+        "runTerminalState": "COMPLETED",
+        "rootTerminalReason": "NO_ELIGIBLE_HTML",
+        "orchestrationError": false,
+        "persistenceAnomaly": false,
+        "hostStateAnomaly": false,
+        "inputOrRootMismatch": false
+      },
+      "gateAfterItem": {
+        "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "triggeredConditions": [],
+        "mayStartNextWorkItem": true,
+        "nextWorkItemId": "P:25",
+        "completedCount": 2,
+        "remainingWorkItemIds": ["P:25", "P:26", "P:27"],
+        "lowYieldCount": 1,
+        "robotsRefusalCount": 0,
+        "trailingP1": 0,
+        "trailingP2": 0,
+        "trailingP3": 0,
+        "p6Triggered": false,
+        "generationSuccessfulCount": 23,
+        "generationReserveConsumedCount": 9,
+        "allThirteenPreflightInvariantsTrue": true,
+        "ledgerUnchanged": true,
+        "reservePosition9Assigned": false,
+        "frozenOrderBindingHeld": true,
+        "completedPrefixEqualsFrozenOrderPrefix": true,
+        "expectedNextFromFrozenOrder": "P:25",
+        "falseInvariants": []
+      },
+      "holdoutPageDetailExposed": false,
+      "holdoutPublicExposure": "acquisition-safe counts, ranges, booleans, statuses and hashes of sealed files only"
+    },
+    {
+      "order": 3,
+      "workItemId": "P:25",
+      "kind": "PRIMARY",
+      "selectionIndex": 25,
+      "reservePosition": null,
+      "split": "DEV_CONFIRM",
+      "startedUtc": "2026-09-22T23:22:39Z",
+      "finishedUtc": "2026-09-22T23:23:42Z",
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "manualRetries": 0,
+      "runRefSha256": "feeaec29615a6a98d8c6b9c32a6e7dc44db583723ddf3981ba2c7a299f953adf",
+      "newRuns": 1,
+      "completions": 1,
+      "runTerminalState": "COMPLETED",
+      "completionErrorKind": null,
+      "runFetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "everyObservationV6": true,
+      "dryRunFlag": false,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "gatewayRequests": 42,
+      "pageAttempts": 35,
+      "robotsRequests": 2,
+      "sitemapDocumentRequests": 5,
+      "distinctHostsUsed": 2,
+      "circuitOpenHosts": 0,
+      "ceilings": {
+        "totalRequestsAtMost60": true,
+        "pageAttemptsAtMost35": true,
+        "hostsAtMost8": true,
+        "retryCeilingHeld": true,
+        "maxRobotsAttemptNoPerPolicyUrl": 1,
+        "nonRobotsRetryAttempts": 0
+      },
+      "observationsByDiscoveryMethod": {
+        "ROBOTS": 2,
+        "ROOT": 1,
+        "SITEMAP": 30,
+        "LINK": 9
+      },
+      "statusByDiscoveryMethod": {
+        "ROBOTS:200": 1,
+        "ROOT:200": 1,
+        "SITEMAP:200": 29,
+        "LINK:200": 7,
+        "LINK:301": 2,
+        "SITEMAP:301": 1,
+        "ROBOTS:404": 1
+      },
+      "observationErrorKinds": {},
+      "robots": {
+        "requests": 2,
+        "outcomes": [
+          {
+            "attemptNo": 1,
+            "httpStatusClass": "2xx",
+            "errorKind": null,
+            "errorSubtype": null
+          },
+          {
+            "attemptNo": 1,
+            "httpStatusClass": "4xx",
+            "errorKind": null,
+            "errorSubtype": null
+          }
+        ],
+        "robotsRedirectObservations": 0,
+        "redirectContinuations": 0,
+        "crossRegistrableDomainRobotsRedirectsRefused": 0,
+        "transportRetryPairs": 0,
+        "transportRetries": [],
+        "shape": "2_HOSTS_EACH_READ_DIRECTLY"
+      },
+      "redirectObservations": 3,
+      "redirectFacts": [
+        {
+          "discoveryMethod": "LINK",
+          "httpStatus": 301,
+          "hostChanged": false,
+          "registrableDomainChanged": false,
+          "targetMalformed": false
+        },
+        {
+          "discoveryMethod": "LINK",
+          "httpStatus": 301,
+          "hostChanged": false,
+          "registrableDomainChanged": false,
+          "targetMalformed": false
+        },
+        {
+          "discoveryMethod": "SITEMAP",
+          "httpStatus": 301,
+          "hostChanged": true,
+          "registrableDomainChanged": false,
+          "targetMalformed": false
+        }
+      ],
+      "rawPages": 32,
+      "candidateRows": 64,
+      "persistenceAnomaly": false,
+      "inputOrRootMismatch": false,
+      "sleepWakeDuringItem": 0,
+      "formalSd7": {
+        "method": "analyseOrganisation (src/test/harness/phase2b2d/sd7/), exact-duplicate pass first",
+        "postSd7Min": 31,
+        "postSd7Max": 32,
+        "countIsExact": false,
+        "exactDuplicateRowsRemoved": 0,
+        "nearDuplicateEdges": 0,
+        "shortTextUnresolved": 1,
+        "nonTransitiveComponents": 0,
+        "unauditableComponents": 0,
+        "wholeRangeAtOrAbove4": true,
+        "wholeRangeBelow4": false,
+        "rangeCrosses4": false,
+        "rangeForcedToExactValue": false,
+        "decidedByCase": "B",
+        "sealedDetail": {
+          "root": "~/Developer/phase2b-2d-methodology-v2-sealed/gen1-dev-confirm",
+          "file": "POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_V1_SD7_DETAIL_P_25.json",
+          "sha256": "99140e00aa92d269a07f15c9b13697b5add920d21e95432c37ba29a7c4b920a0",
+          "bytes": 14523,
+          "committedToGit": false,
+          "overwroteExistingFile": false
+        }
+      },
+      "diagnosticSd9": "ACQUISITION_SUCCESSFUL",
+      "diagnosticSd9IsAdjudicative": false,
+      "host": {
+        "batteryPercentBefore": 100,
+        "batteryPercentAfter": 100,
+        "powerSource": "AC",
+        "lidOpenAfter": true,
+        "caffeinateDimsuRunningAfter": true
+      },
+      "gateObservation": {
+        "workItemId": "P:25",
+        "kind": "PRIMARY",
+        "selectionIndex": 25,
+        "reserveRankPosition": null,
+        "rawPageEvidenceCount": 32,
+        "runTerminalState": "COMPLETED",
+        "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+        "orchestrationError": false,
+        "persistenceAnomaly": false,
+        "hostStateAnomaly": false,
+        "inputOrRootMismatch": false
+      },
+      "gateAfterItem": {
+        "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "triggeredConditions": [],
+        "mayStartNextWorkItem": true,
+        "nextWorkItemId": "P:26",
+        "completedCount": 3,
+        "remainingWorkItemIds": ["P:26", "P:27"],
+        "lowYieldCount": 1,
+        "robotsRefusalCount": 0,
+        "trailingP1": 0,
+        "trailingP2": 0,
+        "trailingP3": 0,
+        "p6Triggered": false,
+        "generationSuccessfulCount": 23,
+        "generationReserveConsumedCount": 9,
+        "allThirteenPreflightInvariantsTrue": true,
+        "ledgerUnchanged": true,
+        "reservePosition9Assigned": false,
+        "frozenOrderBindingHeld": true,
+        "completedPrefixEqualsFrozenOrderPrefix": true,
+        "expectedNextFromFrozenOrder": "P:26",
+        "falseInvariants": []
+      }
+    },
+    {
+      "order": 4,
+      "workItemId": "P:26",
+      "kind": "PRIMARY",
+      "selectionIndex": 26,
+      "reservePosition": null,
+      "split": "FINAL_HOLDOUT",
+      "startedUtc": "2026-09-22T23:24:53Z",
+      "finishedUtc": "2026-09-22T23:25:38Z",
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "manualRetries": 0,
+      "runRefSha256": "99d5c339439f3b33d51ea57166c7ddbf8ff9f256136291ae7d7d0275867b997a",
+      "newRuns": 1,
+      "completions": 1,
+      "runTerminalState": "COMPLETED",
+      "completionErrorKind": null,
+      "runFetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "everyObservationV6": true,
+      "dryRunFlag": false,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "gatewayRequests": 39,
+      "pageAttempts": 35,
+      "robotsRequests": 1,
+      "sitemapDocumentRequests": 3,
+      "distinctHostsUsed": 1,
+      "circuitOpenHosts": 0,
+      "ceilings": {
+        "totalRequestsAtMost60": true,
+        "pageAttemptsAtMost35": true,
+        "hostsAtMost8": true,
+        "retryCeilingHeld": true,
+        "maxRobotsAttemptNoPerPolicyUrl": 1,
+        "nonRobotsRetryAttempts": 0
+      },
+      "observationsByDiscoveryMethod": {
+        "ROBOTS": 1,
+        "ROOT": 1,
+        "SITEMAP": 36,
+        "LINK": 1
+      },
+      "observationErrorKinds": {},
+      "robots": {
+        "requests": 1,
+        "outcomes": [
+          {
+            "attemptNo": 1,
+            "httpStatusClass": "2xx",
+            "errorKind": null,
+            "errorSubtype": null
+          }
+        ],
+        "robotsRedirectObservations": 0,
+        "redirectContinuations": 0,
+        "crossRegistrableDomainRobotsRedirectsRefused": 0,
+        "transportRetryPairs": 0,
+        "transportRetries": [],
+        "shape": "SINGLE_HOST_READ_DIRECTLY"
+      },
+      "redirectObservations": 0,
+      "redirectFacts": [],
+      "rawPages": 35,
+      "candidateRows": 70,
+      "persistenceAnomaly": false,
+      "inputOrRootMismatch": false,
+      "sleepWakeDuringItem": 0,
+      "formalSd7": {
+        "method": "analyseOrganisation (src/test/harness/phase2b2d/sd7/), exact-duplicate pass first",
+        "postSd7Min": 35,
+        "postSd7Max": 35,
+        "countIsExact": true,
+        "exactDuplicateRowsRemoved": 0,
+        "nearDuplicateEdges": 0,
+        "shortTextUnresolved": 0,
+        "nonTransitiveComponents": 0,
+        "unauditableComponents": 0,
+        "wholeRangeAtOrAbove4": true,
+        "wholeRangeBelow4": false,
+        "rangeCrosses4": false,
+        "rangeForcedToExactValue": false,
+        "decidedByCase": "B",
+        "sealedDetail": {
+          "root": "~/Developer/phase2b-2d-methodology-v2-sealed-holdout/gen1-final-holdout",
+          "file": "POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_V1_SD7_DETAIL_P_26.json",
+          "sha256": "3355a86a532a8f489923459bd7df0c66fd5d3f3026d4c3d303c6c1d6b35e4a9d",
+          "bytes": 15757,
+          "committedToGit": false,
+          "overwroteExistingFile": false
+        }
+      },
+      "diagnosticSd9": "ACQUISITION_SUCCESSFUL",
+      "diagnosticSd9IsAdjudicative": false,
+      "host": {
+        "batteryPercentBefore": 100,
+        "batteryPercentAfter": 100,
+        "powerSource": "AC",
+        "lidOpenAfter": true,
+        "caffeinateDimsuRunningAfter": true
+      },
+      "gateObservation": {
+        "workItemId": "P:26",
+        "kind": "PRIMARY",
+        "selectionIndex": 26,
+        "reserveRankPosition": null,
+        "rawPageEvidenceCount": 35,
+        "runTerminalState": "COMPLETED",
+        "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+        "orchestrationError": false,
+        "persistenceAnomaly": false,
+        "hostStateAnomaly": false,
+        "inputOrRootMismatch": false
+      },
+      "gateAfterItem": {
+        "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "triggeredConditions": [],
+        "mayStartNextWorkItem": true,
+        "nextWorkItemId": "P:27",
+        "completedCount": 4,
+        "remainingWorkItemIds": ["P:27"],
+        "lowYieldCount": 1,
+        "robotsRefusalCount": 0,
+        "trailingP1": 0,
+        "trailingP2": 0,
+        "trailingP3": 0,
+        "p6Triggered": false,
+        "generationSuccessfulCount": 23,
+        "generationReserveConsumedCount": 9,
+        "allThirteenPreflightInvariantsTrue": true,
+        "ledgerUnchanged": true,
+        "reservePosition9Assigned": false,
+        "frozenOrderBindingHeld": true,
+        "completedPrefixEqualsFrozenOrderPrefix": true,
+        "expectedNextFromFrozenOrder": "P:27",
+        "falseInvariants": []
+      },
+      "holdoutPageDetailExposed": false,
+      "holdoutPublicExposure": "acquisition-safe counts, ranges, booleans, statuses and hashes of sealed files only"
+    },
+    {
+      "order": 5,
+      "workItemId": "P:27",
+      "kind": "PRIMARY",
+      "selectionIndex": 27,
+      "reservePosition": null,
+      "split": "DEV_TRAIN",
+      "startedUtc": "2026-09-22T23:25:48Z",
+      "finishedUtc": "2026-09-22T23:26:38Z",
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "manualRetries": 0,
+      "runRefSha256": "3e0ea00c63022790ab11f8d69aab45afb950046fae9443594a747ed743b81998",
+      "newRuns": 1,
+      "completions": 1,
+      "runTerminalState": "COMPLETED",
+      "completionErrorKind": null,
+      "runFetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "everyObservationV6": true,
+      "dryRunFlag": false,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "gatewayRequests": 41,
+      "pageAttempts": 35,
+      "robotsRequests": 1,
+      "sitemapDocumentRequests": 5,
+      "distinctHostsUsed": 1,
+      "circuitOpenHosts": 0,
+      "ceilings": {
+        "totalRequestsAtMost60": true,
+        "pageAttemptsAtMost35": true,
+        "hostsAtMost8": true,
+        "retryCeilingHeld": true,
+        "maxRobotsAttemptNoPerPolicyUrl": 1,
+        "nonRobotsRetryAttempts": 0
+      },
+      "observationsByDiscoveryMethod": {
+        "ROBOTS": 1,
+        "ROOT": 1,
+        "SITEMAP": 7,
+        "LINK": 32
+      },
+      "statusByDiscoveryMethod": {
+        "ROBOTS:200": 1,
+        "ROOT:200": 1,
+        "SITEMAP:200": 7,
+        "LINK:200": 32
+      },
+      "observationErrorKinds": {},
+      "robots": {
+        "requests": 1,
+        "outcomes": [
+          {
+            "attemptNo": 1,
+            "httpStatusClass": "2xx",
+            "errorKind": null,
+            "errorSubtype": null
+          }
+        ],
+        "robotsRedirectObservations": 0,
+        "redirectContinuations": 0,
+        "crossRegistrableDomainRobotsRedirectsRefused": 0,
+        "transportRetryPairs": 0,
+        "transportRetries": [],
+        "shape": "SINGLE_HOST_READ_DIRECTLY"
+      },
+      "redirectObservations": 0,
+      "redirectFacts": [],
+      "rawPages": 35,
+      "candidateRows": 70,
+      "persistenceAnomaly": false,
+      "inputOrRootMismatch": false,
+      "sleepWakeDuringItem": 0,
+      "formalSd7": {
+        "method": "analyseOrganisation (src/test/harness/phase2b2d/sd7/), exact-duplicate pass first",
+        "postSd7Min": 34,
+        "postSd7Max": 34,
+        "countIsExact": true,
+        "exactDuplicateRowsRemoved": 0,
+        "nearDuplicateEdges": 1,
+        "shortTextUnresolved": 0,
+        "nonTransitiveComponents": 0,
+        "unauditableComponents": 0,
+        "wholeRangeAtOrAbove4": true,
+        "wholeRangeBelow4": false,
+        "rangeCrosses4": false,
+        "rangeForcedToExactValue": false,
+        "decidedByCase": "B",
+        "sealedDetail": {
+          "root": "~/Developer/phase2b-2d-methodology-v2/gen1-dev-train",
+          "file": "POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_V1_SD7_DETAIL_P_27.json",
+          "sha256": "504c811f9efbab06719f88a7dc55c1715468ea206846a40314d661769467548f",
+          "bytes": 15967,
+          "committedToGit": false,
+          "overwroteExistingFile": false
+        }
+      },
+      "diagnosticSd9": "ACQUISITION_SUCCESSFUL",
+      "diagnosticSd9IsAdjudicative": false,
+      "host": {
+        "batteryPercentBefore": 100,
+        "batteryPercentAfter": 100,
+        "powerSource": "AC",
+        "lidOpenAfter": true,
+        "caffeinateDimsuRunningAfter": true
+      },
+      "gateObservation": {
+        "workItemId": "P:27",
+        "kind": "PRIMARY",
+        "selectionIndex": 27,
+        "reserveRankPosition": null,
+        "rawPageEvidenceCount": 35,
+        "runTerminalState": "COMPLETED",
+        "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+        "orchestrationError": false,
+        "persistenceAnomaly": false,
+        "hostStateAnomaly": false,
+        "inputOrRootMismatch": false
+      },
+      "gateAfterItem": {
+        "decision": "WINDOW_COMPLETE",
+        "triggeredConditions": [],
+        "mayStartNextWorkItem": false,
+        "nextWorkItemId": null,
+        "completedCount": 5,
+        "remainingWorkItemIds": [],
+        "lowYieldCount": 1,
+        "robotsRefusalCount": 0,
+        "trailingP1": 0,
+        "trailingP2": 0,
+        "trailingP3": 0,
+        "p6Triggered": false,
+        "generationSuccessfulCount": 23,
+        "generationReserveConsumedCount": 9,
+        "allThirteenPreflightInvariantsTrue": true,
+        "ledgerUnchanged": true,
+        "reservePosition9Assigned": false,
+        "frozenOrderBindingHeld": true,
+        "completedPrefixEqualsFrozenOrderPrefix": true,
+        "expectedNextFromFrozenOrder": null,
+        "falseInvariants": []
+      }
+    }
+  ],
+  "triggeredConditionsAcrossWindow": [],
+  "terminalGateDecision": "WINDOW_COMPLETE",
+  "terminalGateState": {
+    "decision": "WINDOW_COMPLETE",
+    "mayStartNextWorkItem": false,
+    "nextWorkItemId": null,
+    "completedCount": 5,
+    "remainingWorkItemIds": [],
+    "lowYieldCount": 1,
+    "robotsRefusalCount": 0,
+    "trailingP1": 0,
+    "trailingP2": 0,
+    "trailingP3": 0,
+    "p6Triggered": false,
+    "generationSuccessfulCount": 23,
+    "generationReserveConsumedCount": 9
+  },
+  "thresholdsConfirmed": {
+    "plannedWindowSize": 5,
+    "P1Consecutive": 3,
+    "P2Consecutive": 3,
+    "P2PercentageCountOf5": 3,
+    "P3ConsecutiveFailed": 2,
+    "P3OrchestrationError": "any",
+    "P4PersistenceAnomaly": "any",
+    "P5LowRawYieldCountOf5": 2,
+    "P6": "reserveConsumed > 10 while successful < 50; inputs 9 / 23, false",
+    "P7": "all 13 invariants re-proved before and after every item",
+    "P8": "no sleep/wake",
+    "gateModified": false,
+    "thresholdsAlteredByOutcome": false
+  },
+  "retryRedirectSummary": {
+    "landedV6RobotsTransportRetryPairs": 0,
+    "landedV6RobotsTransportRetryItems": [],
+    "httpRetries": 0,
+    "nonRobotsRetryAttempts": 0,
+    "manualRetries": 0,
+    "robotsRedirectObservations": 1,
+    "robotsRedirectContinuations": 1,
+    "robotsRedirectContinuationItems": ["R:18:8"],
+    "crossRegistrableDomainRobotsRedirectsRefused": 0,
+    "crossRegistrableDomainRobotsRedirectRefusedItems": [],
+    "crossRegistrableDomainRobotsRedirectNote": "none occurred in this window",
+    "runScopedPolicyAttempt2WithoutTransportFailure": ["R:18:8"],
+    "runScopedPolicyAttempt2NoteIfAny": "after a host-changing same-registrable-domain robots continuation, the continuation result is not cached as the target origin's own policy; when the run later crawls that host it resolves its own policy under the landed run-scoped policy attempt counter (attempt_no 2 on the same URL, both 2xx). No transport failure preceded it; it is not a retry of a failure.",
+    "redirectObservations": 12,
+    "crossRegistrableDomainRedirects": 0,
+    "malformedRedirectTargets": 0
+  },
+  "boundaryProofs": {
+    "everyNewRunV6": true,
+    "everyNewObservationV6": true,
+    "newV1ToV5RunsOrObservations": 0,
+    "fetchPolicyV7": false,
+    "rootPromotionsCreated": 0,
+    "persistenceAnomalies": 0,
+    "inputOrRootMismatches": 0,
+    "orchestrationErrors": 0,
+    "ceilingBreaches": 0,
+    "productionCodeChanged": false,
+    "testCodeChanged": false,
+    "harnessChanged": false,
+    "migrationCreated": false,
+    "fetchPolicyChanged": false
+  },
+  "databaseDeltas": {
+    "orgunit_research_runs": {
+      "before": 39,
+      "after": 44,
+      "delta": 5
+    },
+    "orgunit_research_run_completions": {
+      "before": 39,
+      "after": 44,
+      "delta": 5
+    },
+    "orgunit_fetch_observations": {
+      "before": 1006,
+      "after": 1174,
+      "delta": 168
+    },
+    "orgunit_redirect_observations": {
+      "before": 48,
+      "after": 60,
+      "delta": 12
+    },
+    "orgunit_page_evidence": {
+      "before": 757,
+      "after": 888,
+      "delta": 131
+    },
+    "orgunit_page_candidates": {
+      "before": 1514,
+      "after": 1776,
+      "delta": 262
+    },
+    "orgunit_root_promotions": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "orgunit_root_promotion_revocations": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "orgunit_classification_subjects": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "orgunit_classifier_calls": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "orgunit_classifier_call_completions": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "orgunit_page_classifications": {
+      "before": 0,
+      "after": 0,
+      "delta": 0
+    },
+    "newV6Runs": 5,
+    "newV6Observations": 168,
+    "runsByPolicyAfter": {
+      "orgunit-fetch-policy-v1": 7,
+      "orgunit-fetch-policy-v2": 2,
+      "orgunit-fetch-policy-v3": 3,
+      "orgunit-fetch-policy-v4": 11,
+      "orgunit-fetch-policy-v6": 21
+    },
+    "observationsByPolicyAfter": {
+      "orgunit-fetch-policy-v1": 78,
+      "orgunit-fetch-policy-v2": 39,
+      "orgunit-fetch-policy-v3": 87,
+      "orgunit-fetch-policy-v4": 279,
+      "orgunit-fetch-policy-v6": 691
+    },
+    "runsWithoutCompletion": 0,
+    "reconcilesWithPerItemSums": true
+  },
+  "ledger": {
+    "entriesBeforeWindow": 8,
+    "entriesAtPrenetworkCommit": 9,
+    "entriesAfterWindow": 9,
+    "fileSha256AfterWindow": "1a4c919d61b08c1a8dd7352ffe5e9d481e5db527c3ea82809879ccdfaeb50d4f",
+    "ledgerHashAfterWindow": "cc0aa07db079db2ab911a00484db3dac166d09046ec34964dcd1c376ffe0953d",
+    "fileSha256UnchangedSincePrenetworkCommit": true,
+    "reserveConsumed": 9,
+    "reserveUnused": 31,
+    "nextUnusedReservePosition": 9,
+    "reservePosition9Assigned": false,
+    "dynamicReserveAssignment": false,
+    "postNetworkAppend": false,
+    "statusFieldAdded": false,
+    "failureChainAppend": false,
+    "index28OrHigherTouched": false,
+    "currentOccupants": {
+      "18": "RESERVE_REPLACEMENT position 8 (sequence 8; executed in this window)",
+      "24": "ORIGINAL_SELECTION",
+      "25": "ORIGINAL_SELECTION",
+      "26": "ORIGINAL_SELECTION",
+      "27": "ORIGINAL_SELECTION"
+    }
+  },
+  "diagnosticSummary": {
+    "startedItems": 5,
+    "diagnosticSd9Successful": 4,
+    "diagnosticSd9Unsuccessful": 1,
+    "diagnosticSd9Unresolved": 0,
+    "byItem": {
+      "R:18:8": "ACQUISITION_SUCCESSFUL",
+      "P:24": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "P:25": "ACQUISITION_SUCCESSFUL",
+      "P:26": "ACQUISITION_SUCCESSFUL",
+      "P:27": "ACQUISITION_SUCCESSFUL"
+    },
+    "note": "diagnostic only, non-adjudicative. Whether the reserve-8 occupant of slot 18 and primaries 24-27 succeed or fail, any new replacement obligation, and the Generation-1 counts are for the evidence adjudication; successfulOrganisationCount stayed 23 and reserveConsumedCount stayed 9 throughout."
+  },
+  "evidenceStatus": {
+    "status": "LIVE_WINDOW_EVIDENCE_PENDING_ADJUDICATION",
+    "acquisitionOfRecordAdjudicated": false,
+    "generationSuccessFailureSetRewritten": false,
+    "pendingReplacementObligationsCreated": false,
+    "acquisitionPolicyTransitionLedgersUpdated": false,
+    "currentAcquisitionOfRecordMappingChanged": false,
+    "corpusFreezeStatusChanged": false,
+    "historicalWindowsReopened": false,
+    "adjudicationPerformed": false
+  },
+  "scopeProofs": {
+    "classifierExecutions": 0,
+    "providerInference": 0,
+    "labelsCreated": 0,
+    "setP": 0,
+    "setR": 0,
+    "semanticHoldoutAccess": 0,
+    "a3": 0,
+    "phase2E": 0,
+    "classifierTablesAllZero": true,
+    "holdoutItemsStarted": ["P:24", "P:26"],
+    "holdoutDetailRoutedOnlyToSealedHoldoutRoot": true,
+    "holdoutPageTextTitlesUrlsDocumentHashesLabelsOrClassDistributionExposed": false,
+    "holdoutSd7RangeForcedToExactValue": false
+  },
+  "operatorNotes": [
+    "Operator scripts lived in the session scratchpad, outside git, adapted from the previous window’s operator scripts; P7 is the committed computePrecommittedWindowPreflight against windowSpecFromAcquisitionWindowStrategy, never reconstructed or forced.",
+    "Because the landed adapter does not guarantee replacement-before-primary cross-kind order, every pre-item and post-item check also compared the strategy sha, plan sha, windowPlanHash and the complete ordered list, required the completed observations to be the exact prefix, and required the next item to be the next frozen element.",
+    "Draw reserve entries carry no split field, so the replacement is checked against its slot split (draw selection 18, plan and ledger entry: DEV_CONFIRM).",
+    "Sealed SD7 detail was written with the landed analyseOrganisation + toSealedRecord under new window-specific filenames with an exclusive-create flag; no existing sealed file was overwritten; after the window every sealed file was rebuilt in memory from the database and byte-compared.",
+    "pageAttempts is the orchestrator root summary figure; it counts ROOT, LINK and sitemap-discovered page fetches, which is why SITEMAP observations exceed sitemapDocumentRequests.",
+    "R:18:8 robots attempt_no 2 is the landed run-scoped policy attempt counter after a same-registrable-domain host-changing robots continuation, not a transport retry (no retry pair).",
+    "P:24 shows a host-changing same-registrable-domain 302 on its root and sitemap requests; ordinary-page redirects are recorded, not followed, and no page evidence resulted. Diagnostic only.",
+    "An initial sealed-root comparison with comm over a column-2 sort reported a spurious difference on one pre-existing file; a path-keyed comparison showed 0 changed, 0 removed and exactly the 5 window files added (30 -> 35). The pre-existing file’s birth and modification time are 2026-09-21.",
+    "The canonical replacement ledger schema itself carries eche row keys in every entry (landed format, unchanged since genesis); no other file of this window carries institution identity."
+  ],
+  "identityDisclosure": {
+    "institutionNames": 0,
+    "organisationUuids": 0,
+    "echeRowKeys": 0,
+    "hostnames": 0,
+    "urls": 0,
+    "pageTitlesOrText": 0,
+    "publicLinkageIsOnly": ["workItemId", "selectionIndex", "reservePosition", "SHA-256(run UUID)"],
+    "rawRunJsonLocation": "outside the repository, in the session scratchpad only",
+    "scanResult": "ZERO_HITS: this live result and the pre-network assignment were scanned case-insensitively against 481 private needles (5 organisation UUIDs, 5 eche row keys, 5 root ids, 5 names, 5 Erasmus codes, 5 PICs, 5 run UUIDs, 7 hosts, 167 URLs, 117 page titles, 155 document hashes) read from the private resolution map and the database; zero hits",
+    "needlesByKind": {
+      "orgUuid": 5,
+      "echeRowKey": 5,
+      "rootId": 5,
+      "name": 5,
+      "erasmusCode": 5,
+      "pic": 5,
+      "runUuid": 5,
+      "host": 7,
+      "url": 167,
+      "pageTitle": 117,
+      "documentHash": 155
+    }
+  },
+  "validation": {
+    "command": "caffeinate -dimsu npm run validate",
+    "runs": 1,
+    "status": "PASSED",
+    "startedUtc": "2026-09-23T11:49:58Z",
+    "finishedUtc": "2026-09-23T11:55:13Z",
+    "wallClockSeconds": 315,
+    "exitCode": 0,
+    "testFiles": {
+      "passed": 195,
+      "skipped": 5,
+      "total": 200
+    },
+    "tests": {
+      "passed": 5016,
+      "skipped": 75,
+      "total": 5091
+    },
+    "vitestDurationSeconds": 281.78,
+    "preGate": {
+      "voidedQuietInterval": "a first 120 s sampling (2026-09-23T11:40:38Z -> 11:42:36Z) was voided because another session started its own npm run validate in a sibling worktree (not this one) at about 11:40:49Z; this run was not started until that process exited at 11:47:19Z",
+      "stableIntervalNoValidateOrVitest": "2026-09-23T11:47:33Z -> 11:49:30Z (24 samples at 5 s, zero validate or vitest processes, no orphaned node busy loop)",
+      "immediateRecheckClean": true,
+      "immediateRecheckUtc": "2026-09-23T11:49:52Z",
+      "lidOpen": true,
+      "headEqualsOrigin": "c82f488",
+      "ledgerByteIdentical": true,
+      "ledgerEntries": 9,
+      "ledgerSha256": "1a4c919d61b08c1a8dd7352ffe5e9d481e5db527c3ea82809879ccdfaeb50d4f",
+      "onlyUncommittedFileWasThisRecord": true,
+      "thisRecordBeforeValidation": {
+        "sha256": "c4972f9db12d3d24c089c5369692b74b08475ed84926636139d96334ca0f7f26",
+        "bytes": 53340
+      },
+      "caffeinateDimsuHeld": true
+    },
+    "hostDuringValidation": {
+      "power": "BATTERY (permitted by the live authority hostSafetyPolicy, 2907df1)",
+      "batteryPercentBefore": 99,
+      "batteryPercentAfter": 97,
+      "doNotStartThresholdPercent": 20,
+      "lidOpen": true,
+      "sleepWake": 0,
+      "concurrentValidate": false
+    },
+    "postWindowHostSleep": {
+      "windowEndUtc": "2026-09-22T23:29:45Z",
+      "firstSleepAfterWindowUtc": "2026-09-22T23:39:21Z",
+      "lastWakeBeforeValidationUtc": "2026-09-23T11:36:32Z",
+      "eventsBetween": {
+        "sleep": 29,
+        "wake": 32,
+        "darkWake": 24
+      },
+      "classification": "NON_CONTAMINATING: every event lies after the last acquisition item closed and before this validation started; it falls outside all acquisition items and outside the validation run, and no evidence in this record was produced during it"
+    },
+    "rerun": false,
+    "recordStateDuringValidation": "this record was present in the working tree, untracked, with only this validation block and the terminal fields as placeholders"
+  },
+  "implementationOrProvenanceIncident": false,
+  "sealedEvidenceVerification": {
+    "method": "after the window, each item’s SD7 detail was rebuilt in memory from its run’s persisted page evidence through the landed analyseOrganisation + toSealedRecord and byte-compared with the sealed file",
+    "items": [
+      {
+        "workItemId": "R:18:8",
+        "split": "DEV_CONFIRM",
+        "rebuiltEqualsSealed": true,
+        "sha256": "80b0c0568c8bc81783e707d5c0489b695ffa680170ba7879a2a2f146a24d51e4",
+        "bytes": 13284,
+        "sha256EqualsRecordedAtItem": true,
+        "createdDuringItem": true,
+        "neverRewritten": true,
+        "inCorrectSplitRootOnly": true
+      },
+      {
+        "workItemId": "P:24",
+        "split": "FINAL_HOLDOUT",
+        "rebuiltEqualsSealed": true,
+        "sha256": "11966980a850ef1e0a0c953c7e5441a2b862f248f7e84928092b0076f099f61f",
+        "bytes": 1255,
+        "sha256EqualsRecordedAtItem": true,
+        "createdDuringItem": true,
+        "neverRewritten": true,
+        "inCorrectSplitRootOnly": true
+      },
+      {
+        "workItemId": "P:25",
+        "split": "DEV_CONFIRM",
+        "rebuiltEqualsSealed": true,
+        "sha256": "99140e00aa92d269a07f15c9b13697b5add920d21e95432c37ba29a7c4b920a0",
+        "bytes": 14523,
+        "sha256EqualsRecordedAtItem": true,
+        "createdDuringItem": true,
+        "neverRewritten": true,
+        "inCorrectSplitRootOnly": true
+      },
+      {
+        "workItemId": "P:26",
+        "split": "FINAL_HOLDOUT",
+        "rebuiltEqualsSealed": true,
+        "sha256": "3355a86a532a8f489923459bd7df0c66fd5d3f3026d4c3d303c6c1d6b35e4a9d",
+        "bytes": 15757,
+        "sha256EqualsRecordedAtItem": true,
+        "createdDuringItem": true,
+        "neverRewritten": true,
+        "inCorrectSplitRootOnly": true
+      },
+      {
+        "workItemId": "P:27",
+        "split": "DEV_TRAIN",
+        "rebuiltEqualsSealed": true,
+        "sha256": "504c811f9efbab06719f88a7dc55c1715468ea206846a40314d661769467548f",
+        "bytes": 15967,
+        "sha256EqualsRecordedAtItem": true,
+        "createdDuringItem": true,
+        "neverRewritten": true,
+        "inCorrectSplitRootOnly": true
+      }
+    ],
+    "sealedRootFilesBefore": 30,
+    "sealedRootFilesAfter": 35,
+    "preexistingFilesChanged": 0,
+    "preexistingFilesRemoved": 0,
+    "filesAdded": 5,
+    "unexpectedFilesAdded": 0,
+    "holdoutFilesOnlyInHoldoutRoot": true
+  },
+  "databaseReconciliation": {
+    "role": "nwf_readonly, read-only transactions",
+    "runsSinceLedgerPush": 5,
+    "runsSinceLedgerPushAreExactlyTheFiveWindowRuns": true,
+    "allWindowRunsV6NonDry": true,
+    "completions": 5,
+    "allCompleted": true,
+    "runsWithoutCompletion": 0,
+    "rowsAfterLastCompletion": {
+      "runs": 0,
+      "observations": 0
+    },
+    "windowObservationsNotV6": 0,
+    "perItemSums": {
+      "runs": 5,
+      "completions": 5,
+      "observations": 168,
+      "redirects": 12,
+      "pages": 131,
+      "candidates": 262
+    },
+    "deltasReconcileWithPerItemSums": true,
+    "classifierLabelPromotionProviderSetPSetRRows": 0,
+    "finalGate": "WINDOW_COMPLETE",
+    "finalAllThirteenInvariantsTrue": true,
+    "finalFrozenOrderBindingHeld": true,
+    "finalLedgerSha256": "1a4c919d61b08c1a8dd7352ffe5e9d481e5db527c3ea82809879ccdfaeb50d4f",
+    "finalLedgerEntries": 9,
+    "databaseWritesByOperator": 0
+  },
+  "terminal": "PHASE_2B_2D_A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_LIVE_WINDOW_COMPLETE_EVIDENCE_PENDING_ADJUDICATION",
+  "nextOwnerDecision": "A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_EVIDENCE_ADJUDICATION"
+}
