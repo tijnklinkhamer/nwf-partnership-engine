@@ -1,0 +1,197 @@
+{
+  "record": "PHASE_2B_2D_A3_R29_DEV_TRAIN_INCREMENTAL_SAMPLE_SURVIVOR_PREPARATION_CENSUS_V1",
+  "recordKind": "PUBLIC_AGGREGATE_ONLY_INCREMENTAL_SAMPLE_SURVIVOR_PREPARATION_CENSUS",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "split": "DEV_TRAIN",
+  "r28Tip": "761806d5d1670694c54d8b696f6cfb5289330d0f",
+  "implementationCommit": "2e45bc672448720a2e94ca07ce78da74217b495b",
+  "thisFileAuthorises": [],
+  "delta": {
+    "deltaSlotPreparations": 1,
+    "setP": {
+      "preSd7RankEntryCount": 35,
+      "measurableDocumentCount": 35,
+      "measurableSurvivorCount": 34,
+      "measurableExclusionCount": 1,
+      "unresolvedShortTextOccurrenceCount": 0,
+      "initialCapExactSlotCount": 1,
+      "initialCapBlockedSlotCount": 0,
+      "exactCapDocumentCountAcrossExactSlots": 8
+    },
+    "setR": {
+      "preSd7RankEntryCount": 35,
+      "measurableDocumentCount": 35,
+      "measurableSurvivorCount": 34,
+      "measurableExclusionCount": 1,
+      "unresolvedShortTextOccurrenceCount": 0,
+      "initialCapExactSlotCount": 1,
+      "initialCapBlockedSlotCount": 0,
+      "exactCapDocumentCountAcrossExactSlots": 4,
+      "fullRankExactSlotCount": 1,
+      "fullRankShortTextBlockedSlotCount": 0
+    },
+    "divergence": {
+      "measurableDocumentCount": 35,
+      "survivingBothSamples": 34,
+      "survivingSetPOnly": 0,
+      "survivingSetROnly": 0,
+      "excludedInBothSamples": 1
+    },
+    "singleEdgeSlotsSameExcludedEndpoint": 1,
+    "singleEdgeSlotsOppositeExcludedEndpoints": 0
+  },
+  "canonicalConstants": {
+    "setPMaxPagesPerOrganisation": 8,
+    "setRMaxPagesPerOrganisation": 4,
+    "k3SurvivorProcedure": "GREEDY_SAMPLE_RANK_SURVIVOR_WALK",
+    "k3SurvivorScope": "SAMPLE_SPECIFIC",
+    "k3GraphScope": "ONE_CANONICAL_GRAPH_PER_ORGANISATION",
+    "setPDocumentCapExact": "SET_P_DOCUMENT_CAP_EXACT",
+    "setRDocumentCapExact": "SET_R_DOCUMENT_CAP_EXACT",
+    "setRInitialCapExact": "SET_R_INITIAL_CAP_EXACT",
+    "setRFullSampleRankMembershipExact": "SET_R_FULL_SAMPLE_RANK_MEMBERSHIP_EXACT"
+  },
+  "coverage": {
+    "historicalCanonicalR23SlotPreparations": 5,
+    "newR29SlotPreparations": 1,
+    "coverageSlotPreparations": 6,
+    "historical": {
+      "setP": {
+        "preSd7RankEntryCount": 156,
+        "measurableDocumentCount": 155,
+        "measurableSurvivorCount": 142,
+        "measurableExclusionCount": 13,
+        "unresolvedShortTextOccurrenceCount": 1,
+        "initialCapExactSlotCount": 5,
+        "initialCapBlockedSlotCount": 0,
+        "exactCapDocumentCountAcrossExactSlots": 40
+      },
+      "setR": {
+        "preSd7RankEntryCount": 156,
+        "measurableDocumentCount": 155,
+        "measurableSurvivorCount": 142,
+        "measurableExclusionCount": 13,
+        "unresolvedShortTextOccurrenceCount": 1,
+        "initialCapExactSlotCount": 5,
+        "initialCapBlockedSlotCount": 0,
+        "exactCapDocumentCountAcrossExactSlots": 20,
+        "fullRankExactSlotCount": 4,
+        "fullRankShortTextBlockedSlotCount": 1
+      },
+      "divergence": {
+        "measurableDocumentCount": 155,
+        "survivingBothSamples": 137,
+        "survivingSetPOnly": 5,
+        "survivingSetROnly": 5,
+        "excludedInBothSamples": 8
+      }
+    },
+    "coverage": {
+      "setP": {
+        "preSd7RankEntryCount": 191,
+        "measurableDocumentCount": 190,
+        "measurableSurvivorCount": 176,
+        "measurableExclusionCount": 14,
+        "unresolvedShortTextOccurrenceCount": 1,
+        "initialCapExactSlotCount": 6,
+        "initialCapBlockedSlotCount": 0,
+        "exactCapDocumentCountAcrossExactSlots": 48
+      },
+      "setR": {
+        "preSd7RankEntryCount": 191,
+        "measurableDocumentCount": 190,
+        "measurableSurvivorCount": 176,
+        "measurableExclusionCount": 14,
+        "unresolvedShortTextOccurrenceCount": 1,
+        "initialCapExactSlotCount": 6,
+        "initialCapBlockedSlotCount": 0,
+        "exactCapDocumentCountAcrossExactSlots": 24,
+        "fullRankExactSlotCount": 5,
+        "fullRankShortTextBlockedSlotCount": 1
+      },
+      "divergence": {
+        "measurableDocumentCount": 190,
+        "survivingBothSamples": 171,
+        "survivingSetPOnly": 5,
+        "survivingSetROnly": 5,
+        "excludedInBothSamples": 9
+      }
+    },
+    "coverageIsSumOfPerSlotCounts": true,
+    "sixSlotBatchMinted": false
+  },
+  "semantics": {
+    "historicalR23PreparationsRecomputed": false,
+    "historicalR23ObjectsReminted": false,
+    "deltaOnlySamplePreparation": true,
+    "canonicalR23PurePreparationUsed": true,
+    "canonicalR23CallsPerDeltaSlot": 1,
+    "canonicalR23DivergenceHelperUsed": true,
+    "sameCanonicalR28GraphUsedForBothSamples": true,
+    "sampleSpecificOrdersPreserved": true,
+    "rankReimplemented": false,
+    "survivorWalkReimplemented": false,
+    "capAlgorithmReimplemented": false,
+    "scoresCopied": false,
+    "edgesCopied": false,
+    "shortTextResolved": false,
+    "r24ReachableMembershipBound": false,
+    "extensionPerformed": false,
+    "sd9Evaluated": false,
+    "sd4Applied": false,
+    "k4Applied": false,
+    "labelsRead": false,
+    "classifierCalled": false,
+    "finalDevTrainCorpusMaterialised": false
+  },
+  "access": {
+    "r29SqlStatements": 0,
+    "databaseAccessOnlyThroughCanonicalR26": true,
+    "legacyAuthorityEvidenceQueries": 0,
+    "deltaAuthorityEvidenceQueries": 1,
+    "oldFiveDocumentReassembly": 0,
+    "oldFiveGraphRemeasurement": 0,
+    "oldFiveSamplePreparation": 0,
+    "databaseWrites": 0,
+    "institutionNetworkRequests": 0,
+    "sealedRootReads": 0,
+    "devConfirmEvidenceReads": 0,
+    "finalHoldoutEvidenceReads": 0
+  },
+  "whatThisIsNot": [
+    "NOT_A_SIX_SLOT_SAMPLE_BATCH",
+    "NOT_A_REPREPARATION_OF_R23_CANONICAL_HISTORY",
+    "NOT_A2_ACQUISITION_AUTHORITY",
+    "NOT_DATABASE_EVIDENCE_AUTHORITY",
+    "NOT_R24_REACHABLE_MEMBERSHIP",
+    "NOT_SHORT_TEXT_AUTHORITY",
+    "NOT_AN_EXTENSION",
+    "NOT_SD4_OR_K4",
+    "NOT_SD9",
+    "NOT_A_FINAL_SET_P",
+    "NOT_A_FINAL_SET_R",
+    "NOT_A_LABEL_OR_CLASSIFICATION",
+    "NOT_R30_AUTHORITY",
+    "NOT_AN_A5_CORPUS_FREEZE"
+  ],
+  "identityDisclosure": {
+    "selectionIndices": false,
+    "organisationIds": false,
+    "echeRowKeys": false,
+    "runIdentifiers": false,
+    "runReferenceDigests": false,
+    "documentDigests": false,
+    "saltedRankDigests": false,
+    "rankPositions": false,
+    "survivorPositions": false,
+    "exclusionPositions": false,
+    "blockingSurvivorPositions": false,
+    "edgeEndpoints": false,
+    "excludedDocumentIdentities": false,
+    "scoresOrScoreDistributions": false,
+    "urlsOrHosts": false,
+    "titlesHeadingsOrText": false,
+    "labels": false,
+    "perSlotIdentities": false
+  }
+}
