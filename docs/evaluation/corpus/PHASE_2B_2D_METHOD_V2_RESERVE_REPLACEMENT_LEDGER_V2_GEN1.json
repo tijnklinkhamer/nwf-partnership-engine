@@ -220,7 +220,21 @@
       "previousSequenceForSlot": 7,
       "previousEntryHash": "4e05ae4bd9d23a79ab832f9b7581c7596d9f45d70ce8172251590e4d1b7b7627",
       "entryHash": "7ab799129a2d22a346e491123191473493d0c892e6a9e4fe795f39bdeb1a3093"
+    },
+    {
+      "sequence": 9,
+      "selectionIndex": 24,
+      "split": "FINAL_HOLDOUT",
+      "replacedEcheRowKey": "F DOUAI15|948581431",
+      "replacementEcheRowKey": "E JAEN13|949626218",
+      "reserveRankPosition": 9,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-09-23T21:45:32Z",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "7ab799129a2d22a346e491123191473493d0c892e6a9e4fe795f39bdeb1a3093",
+      "entryHash": "79b1135570aad5d3456715c9699c396475bf64e6115a72312a45a9bb2c410084"
     }
   ],
-  "ledgerHash": "cc0aa07db079db2ab911a00484db3dac166d09046ec34964dcd1c376ffe0953d"
+  "ledgerHash": "d71035336ed6b5e7d23f499a4349b6cb5c963c299319e4c7ba60dd3ca6c7e158"
 }

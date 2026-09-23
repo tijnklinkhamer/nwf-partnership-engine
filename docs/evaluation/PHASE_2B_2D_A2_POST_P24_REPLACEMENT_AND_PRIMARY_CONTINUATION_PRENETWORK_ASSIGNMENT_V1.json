@@ -1,0 +1,304 @@
+{
+  "recordId": "phase2b-2d-a2-post-p24-replacement-and-primary-continuation-prenetwork-assignment-v1",
+  "recordKind": "PRENETWORK_REPLACEMENT_ASSIGNMENT",
+  "records": "PHASE_2B_2D_A2_POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_PRENETWORK_ASSIGNMENT_V1",
+  "recordedAtUtc": "2026-09-23T21:48:55Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "pathNote": "this path is the live authority's replacementAppendBoundary.expectedPreNetworkAssignmentRecordPath",
+  "precedent": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_PRENETWORK_ASSIGNMENT_V1.json",
+    "sha256": "87aa1f75070c530f44571c60f04465568fe7ba90cd9d363785624b1f41a91e7f",
+    "commit": "c82f488ab5ad1551f616f08506c57d13087dff3b",
+    "role": "latest accepted pre-network assignment; schema and field-layout precedent"
+  },
+  "boundLiveAuthority": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_LIVE_AUTHORITY_V1.json",
+    "sha256": "2cb9adfd321fdc5170d8754060c9ed180b70daab6f3a67c424218db5954260cb",
+    "bytes": 43474,
+    "commit": "24ac76326284e4acedeebd187bf054396d2dcd6c",
+    "parentCommit": "d63a0274c756ac26a5e42823ceac7465e1ff427d",
+    "ownerDecision": "AUTHORISE_A2_POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_LIVE_EXECUTION_V1",
+    "terminal": "PHASE_2B_2D_A2_POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_LIVE_AUTHORITY_RECORDED",
+    "nextAuthorisedAction": "A2_POST_P24_REPLACEMENT_AND_PRIMARY_PRE_NETWORK_LEDGER_APPEND_AND_LIVE_EXECUTION",
+    "pushedToOriginBeforeThisAssignment": true,
+    "everyBoundFileRecomputed": true
+  },
+  "batteryAuthority": {
+    "source": "the bound live authority hostSafetyPolicy (acPowerRequired false, batteryExecutionAuthorised true, batteryFinalValidationAuthorised true, separateBatteryOverrideRecordRequired false)",
+    "separateBatteryOverrideCreated": false,
+    "noItemOrValidationStartsAtOrBelowPercent": 20,
+    "powerAtAppend": "AC (not required)",
+    "batteryPercentAtAppend": 100,
+    "lidOpen": true
+  },
+  "boundStrategy": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_STRATEGY_V1.json",
+    "sha256": "5e185453b2eacf223ac6208bb6c905e866a356ca279b4bbfa2f07626a8b02e4f",
+    "bytes": 41392,
+    "commit": "34174f92d1c80dc12b5027181a441339dd71408d"
+  },
+  "boundWindowPlan": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_PLAN_V1.json",
+    "sha256": "544947f9313165ae0e81c4138bd9666aa86c9cf3e08ed9d8d243d4c70d5922f2",
+    "bytes": 6338,
+    "windowPlanHash": "98f6fc9fb049da6c701a253d4a0c2be01e201f0de565a650b5b9ec24823b7f19",
+    "commit": "d63a0274c756ac26a5e42823ceac7465e1ff427d",
+    "planHashRecomputed": true,
+    "planRebuiltFromStrategySpecEqualsCommittedCanonically": true,
+    "precommittedWindowSpecViolations": 0,
+    "rebuildPath": [
+      "windowSpecFromAcquisitionWindowStrategy over the committed strategy bytes, the frozen draw and the committed nine-entry starting-ledger bytes read from git at d63a027",
+      "buildPrecommittedWindowPlan over the frozen draw and that spec"
+    ]
+  },
+  "boundGovernance": {
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "sha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "bytes": 3554080,
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650"
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "sha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "bytes": 74047,
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    },
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306
+    },
+    "ownerFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+      "bytes": 17514
+    },
+    "corpusAcquisitionPlan": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "bytes": 45200
+    },
+    "ownerClarificationQ1ToQ3": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "bytes": 18443
+    },
+    "acquisitionPolicyTransitionLedgerV6": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_ACQUISITION_POLICY_TRANSITION_LEDGER_V6_GEN1.json",
+      "sha256": "592b17062a601ac21f0525209e133220b90ebd97848790f9da66e22f9391461d",
+      "bytes": 19454
+    },
+    "evidenceAdjudicationOpeningTheObligation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "2a5f90fb0a998bec0eb9e94caef6ab7cf98522fb99411d0c48b076310e2d58ee",
+      "bytes": 72561
+    },
+    "allRecomputedFromCommittedBytes": true,
+    "noAbbreviatedValueFromPromptOrMemoryTrusted": true
+  },
+  "frozenOrder": {
+    "completeOrderedWorkItems": ["R:24:9", "P:28", "P:29", "P:30", "P:31"],
+    "splits": {
+      "R:24:9": "FINAL_HOLDOUT",
+      "P:28": "DEV_CONFIRM",
+      "P:29": "FINAL_HOLDOUT",
+      "P:30": "DEV_CONFIRM",
+      "P:31": "FINAL_HOLDOUT"
+    },
+    "splitCompositionIsIncidentalFrozenDrawOutput": true,
+    "comparedBeforeAppend": {
+      "strategySha256": true,
+      "planSha256": true,
+      "windowPlanHash": true,
+      "orderedList": true
+    },
+    "crossKindReplacementPrecedesEveryPrimary": true,
+    "adapterAloneReliedOnForCrossKindOrder": false
+  },
+  "ledgerPath": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+  "previousLedgerSha256": "1a4c919d61b08c1a8dd7352ffe5e9d481e5db527c3ea82809879ccdfaeb50d4f",
+  "previousLedgerBytes": 10300,
+  "previousLedgerHash": "cc0aa07db079db2ab911a00484db3dac166d09046ec34964dcd1c376ffe0953d",
+  "previousEntries": 9,
+  "previousLedgerCommit": "c82f488ab5ad1551f616f08506c57d13087dff3b",
+  "previousLedgerByteIdenticalAt": [
+    "c82f488ab5ad1551f616f08506c57d13087dff3b",
+    "117e1ea9367b0bc5608e4873f3460db79fa0dc31",
+    "f76b8ae6653f1f8ec9dabd2d7eec3922c2e000f1",
+    "34174f92d1c80dc12b5027181a441339dd71408d",
+    "d63a0274c756ac26a5e42823ceac7465e1ff427d",
+    "24ac76326284e4acedeebd187bf054396d2dcd6c"
+  ],
+  "newLedgerSha256": "5d67a8f83506852cb745557dfe4e0ff0b9b037e59dc2c5a67fdbd16dbe0d666d",
+  "newLedgerBytes": 10911,
+  "newLedgerHash": "d71035336ed6b5e7d23f499a4349b6cb5c963c299319e4c7ba60dd3ca6c7e158",
+  "newEntries": 10,
+  "appendedEntryHashes": ["79b1135570aad5d3456715c9699c396475bf64e6115a72312a45a9bb2c410084"],
+  "headEntryHash": "79b1135570aad5d3456715c9699c396475bf64e6115a72312a45a9bb2c410084",
+  "previousEntryHashOfAppendedEntry": "7ab799129a2d22a346e491123191473493d0c892e6a9e4fe795f39bdeb1a3093",
+  "entryRecordedAtUtc": "2026-09-23T21:45:32Z",
+  "entryRecordedAtUtcSource": "date -u, read immediately before preparing the append and passed explicitly to prepareReplacementAppend; verified not later than the actual UTC at write time",
+  "appendedEntry": {
+    "sequence": 9,
+    "selectionIndex": 24,
+    "reserveRankPosition": 9,
+    "split": "FINAL_HOLDOUT",
+    "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+    "replacedOccupantKind": "ORIGINAL_SELECTION",
+    "replacedReserveRankPosition": null,
+    "previousSequenceForSlot": null,
+    "chainLink": 1,
+    "occupantChainForSlot24": "ORIGINAL_SELECTION -> reserve 9 (sequence 9)",
+    "reserveDrawEntrySha256": "23b41911143339ef6c636429ee64703c64570014a6a68c31348b34190e0e904d",
+    "reserveDrawEntrySha256RecomputedThroughLandedDrawEntrySha256": true,
+    "reserveDrawEntrySha256EqualsAuthorityAndPlan": true,
+    "plannedWorkItem": "R:24:9",
+    "matchesFrozenDraw": true,
+    "matchesStrategyPlanAndLiveAuthorityAuthorisedReplacementAssignment": true
+  },
+  "authorityLevelFieldComparison": {
+    "source": "live authority replacementAppendBoundary.appendedEntry and authorisedReplacementAssignments[0], the committed plan's plannedReplacementAssignments[0] and workItems[0], and the committed strategy's candidateWindow.workItems[0], all compared field by field against the prepared entry before the file was written",
+    "reasonForThisComparison": "prepareReplacementAppend is NOT governance authority: a landed offline probe proved it produces a self-valid ledger for a selection slot carrying no replacement obligation at all",
+    "fields": {
+      "maximumReplacementAssignmentsIsOne": true,
+      "planHasExactlyOneAssignment": true,
+      "authorityHasExactlyOneAssignment": true,
+      "sequence": true,
+      "selectionIndex": true,
+      "reserveRankPosition": true,
+      "split": true,
+      "reason": true,
+      "replacedOccupantKind": true,
+      "replacedReserveRankPosition": true,
+      "previousSequenceForSlot": true,
+      "previousEntryHash": true,
+      "recordedAtUtcIsCallerSupplied": true,
+      "replacementIsDrawReserve9": true,
+      "replacedIsDrawSelection24": true,
+      "splitEqualsDrawSelection24Split": true,
+      "reserveDrawEntryDigestMatchesPlanAndAuthority": true,
+      "workItemIdAgrees": true
+    },
+    "comparisonCount": 18,
+    "allFieldsMatched": true,
+    "nineEntryPrefixIdentical": true,
+    "ledgerHeaderIdentical": true,
+    "appendedEntryHashRecomputes": true,
+    "appendFunctionTrustedAlone": false,
+    "manualFixUpApplied": false
+  },
+  "assignments": ["24->9"],
+  "reserveConsumedBefore": 9,
+  "reserveConsumedAfter": 10,
+  "reserveUnusedAfter": 30,
+  "nextUnusedReservePosition": 10,
+  "reservePosition10Assigned": false,
+  "p6": "reserveConsumed 10 > 10 is false, and successfulOrganisationCount is 27; NOT_TRIGGERED",
+  "mechanism": "the landed pure prepareReplacementAppend over the validated nine-entry ledger and the verified frozen draw; sequence, identity, split, replaced occupant and previous sequence derived mechanically, rendered with the repository prettier (which reported the rendered bytes unchanged); the nine-entry prefix and the ledger header are byte-semantically identical and the git diff adds exactly the one entry and replaces ledgerHash",
+  "validationOfPopulatedLedger": {
+    "validatorResult": "validateReplacementLedger: valid, entryCount 10",
+    "ledgerHashRecomputes": true,
+    "entryHashRecomputesForAllTenEntries": true,
+    "extendsGenesisHeader": true,
+    "hashChainValid": true,
+    "reservePositionsExactly": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+    "duplicateReserve": false,
+    "gap": false,
+    "historicalEntryEdited": false,
+    "validAgainstFrozenDraw": true,
+    "currentOccupantsDerived": {
+      "24": "RESERVE_REPLACEMENT position 9 (sequence 9)",
+      "28": "ORIGINAL_SELECTION",
+      "29": "ORIGINAL_SELECTION",
+      "30": "ORIGINAL_SELECTION",
+      "31": "ORIGINAL_SELECTION"
+    },
+    "allOtherOccupantsUnchanged": true
+  },
+  "p7OnNineEntryLedgerBeforeAppend": {
+    "invariantCount": 13,
+    "falseInvariants": ["replacementAssignmentsRecorded", "currentOccupantsMatch"],
+    "otherElevenInvariantsTrue": true,
+    "gateDecision": "PAUSE_P7_INVARIANT_MISMATCH",
+    "mayStartNextWorkItem": false,
+    "nextWorkItemId": null,
+    "asRequired": true
+  },
+  "windowPreflightP7OnTenEntryWorkingTree": {
+    "preflight": "computePrecommittedWindowPreflight (committed) over the committed plan, this ten-entry ledger, the frozen draw and frame, and the spec from windowSpecFromAcquisitionWindowStrategy (committed strategy bytes + the nine-entry starting revision read from git at d63a027)",
+    "specDerivedFromPlan": false,
+    "invariantCount": 13,
+    "allInvariantsTrue": true,
+    "falseInvariants": [],
+    "gateInputs": {
+      "completed": [],
+      "plannedWindowSize": 5,
+      "successfulOrganisationCount": 27,
+      "reserveConsumedCount": 10
+    },
+    "gateDecision": "CONTINUE_TO_NEXT_WORK_ITEM",
+    "mayStartNextWorkItem": true,
+    "nextWorkItemId": "R:24:9",
+    "p6Triggered": false,
+    "p2PercentageThresholdCount": 3,
+    "p5LowYieldThresholdCount": 2,
+    "remainingWorkItemIds": ["R:24:9", "P:28", "P:29", "P:30", "P:31"],
+    "note": "to be re-proved against the committed and pushed ledger before database target resolution and request 1"
+  },
+  "generation1StateBeforeAppend": {
+    "successfulSelectionSlots": 27,
+    "currentAcquisitionFailures": [24],
+    "pendingCapabilityReview": [],
+    "openObligation": {
+      "selectionIndex": 24,
+      "split": "FINAL_HOLDOUT",
+      "currentOccupant": "ORIGINAL_SELECTION",
+      "currentReserveRankPosition": null,
+      "currentLedgerSequence": null,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+    },
+    "neverStartedSelectionIndices": {
+      "from": 28,
+      "to": 109,
+      "count": 82
+    },
+    "sums": "27 + 1 + 0 + 82 = 110",
+    "replacementLedgerEntries": 9,
+    "reserveConsumed": 9,
+    "reserveUnused": 31,
+    "nextUnusedReservePosition": 9,
+    "p6Fires": false
+  },
+  "generation1StateAfterAppend": {
+    "successfulSelectionSlots": 27,
+    "replacementLedgerEntries": 10,
+    "reserveConsumed": 10,
+    "reserveUnused": 30,
+    "nextUnusedReservePosition": 10,
+    "slot24Occupant": "RESERVE_REPLACEMENT at reserve rank position 9, ledger sequence 9",
+    "p6Fires": false,
+    "p6Evaluation": "10 > 10 is false",
+    "adjudicatedSuccessOrFailureCountChanged": false
+  },
+  "chronology": {
+    "authorityCommitUtc": "2026-09-23T21:12:59Z",
+    "governedSleepWakeMonitorStartedUtc": "2026-09-23T21:43:21Z",
+    "windowCaffeinateDimsuStartedUtc": "2026-09-23T21:43:21Z",
+    "entryRecordedAtUtc": "2026-09-23T21:45:32Z",
+    "thisRecordWrittenUtc": "2026-09-23T21:48:55Z",
+    "requiredOrder": "authority push -> ledger-append push -> database target resolution -> institution request 1"
+  },
+  "databaseQueriedBeforeAssignmentCommit": false,
+  "institutionNetworkBeforeAssignmentCommit": false,
+  "institutionRequestPrecededAppend": false,
+  "targetResolutionBeforeAssignmentCommit": false,
+  "proofOfNoPriorDatabaseOrInstitutionActivity": "every step of this task before this record (git fetch, authority and binding recomputation, plan rebuild through the landed adapter and plan builder, the nine-entry P7, the append preparation, the authority-level field comparison and the ten-entry P7) used only committed repository bytes, the frozen draw and pure harness functions; no database pool was opened, no orgunits CLI was invoked, and no DNS, HTTP or TLS request was issued",
+  "thisCommitMustBePushedAndRemotelyVerifiedBeforeDatabaseTargetResolutionOrInstitutionRequest1": true,
+  "reserveConsumptionBecomesEffective": "on the push of the commit introducing this record together with the ten-entry ledger; never rolled back, even if the window pauses before the replacement executes",
+  "institutionIdentityInThisRecord": false
+}
