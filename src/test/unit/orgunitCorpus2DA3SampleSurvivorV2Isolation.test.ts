@@ -34,6 +34,21 @@ const A3SAMPLES_V2_REL = `${HARNESS}/a3samplesV2`;
 /** The exact canonical R28 tip R29 was cut from. */
 const R28_TERMINAL = '761806d5d1670694c54d8b696f6cfb5289330d0f';
 
+/**
+ * R29'S OWN TERMINAL COMMIT.
+ *
+ * R29's changed-surface and docs-scope assertions describe R29'S SLICE, so
+ * they range over R29's own commits - `R28_TERMINAL..R29_TERMINAL` - rather
+ * than over the working tree. Once a later slice lands on top, the working
+ * tree is no longer R29's surface, and diffing to it would fail for the
+ * honest reason that history moved on rather than because R29 changed.
+ *
+ * This is the same standing convention R19 through R28 apply, and it
+ * WEAKENS NOTHING: R29's range is frozen, its permitted-path list is
+ * unchanged, and each later slice pins the equivalent scope over its own range.
+ */
+const R29_TERMINAL = '566a1bd2d4848e5319326a86453e5db9cdc5d77e';
+
 /** The one commit that pinned R28's own changed-surface test to its range. */
 const R28_SCOPE_PIN_COMMIT = '03db724d08856ef1978729767102b23e56a9affd';
 const R28_ISOLATION_TEST = 'src/test/unit/orgunitCorpus2DA3Sd7GraphV2Isolation.test.ts';
@@ -366,7 +381,8 @@ function allCodeWithoutStrings(): string {
   return allCode().replace(/'[^'\n]*'/g, "''");
 }
 
-const baseAvailable = commitExists(R28_TERMINAL) && commitExists(R28_SCOPE_PIN_COMMIT);
+const baseAvailable =
+  commitExists(R28_TERMINAL) && commitExists(R28_SCOPE_PIN_COMMIT) && commitExists(R29_TERMINAL);
 
 // ---------------------------------------------------------------------------
 
@@ -636,20 +652,14 @@ describe.skipIf(!baseAvailable)('2D-A3 R29: lineage and changed surface', () => 
   });
 
   it('writes no governance record: every docs/evaluation change is the R29 census', () => {
-    const changed = [
-      ...lines(git('diff', '--name-only', R28_TERMINAL, '--', 'docs/evaluation')),
-      ...lines(git('ls-files', '--others', '--exclude-standard', '--', 'docs/evaluation')),
-    ];
+    const changed = lines(
+      git('diff', '--name-only', R28_TERMINAL, R29_TERMINAL, '--', 'docs/evaluation'),
+    );
     expect(changed.filter((path) => path !== R29_CENSUS_PATH)).toEqual([]);
   });
 
   it('changes nothing outside its own namespace, tests, records and the R28 scope pin', () => {
-    const paths = [
-      ...new Set([
-        ...lines(git('diff', '--name-only', R28_TERMINAL)),
-        ...lines(git('ls-files', '--others', '--exclude-standard')),
-      ]),
-    ];
+    const paths = lines(git('diff', '--name-only', R28_TERMINAL, R29_TERMINAL));
     const permitted = (path: string): boolean =>
       path.startsWith(`${A3SAMPLES_V2_REL}/`) ||
       R29_TESTS.includes(path) ||
