@@ -1,0 +1,1770 @@
+{
+  "recordId": "phase2b-2d-a2-post-p24-replacement-and-primary-continuation-evidence-adjudication-v1",
+  "recordKind": "LIVE_WINDOW_EVIDENCE_ADJUDICATION",
+  "records": "PHASE_2B_2D_A2_POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_EVIDENCE_ADJUDICATION_V1",
+  "recordedAtUtc": "2026-09-24T10:38:59Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "ownerTask": "A2_POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_EVIDENCE_ADJUDICATION",
+  "ownerDecisions": [
+    "ACCEPT_POST_P24_WINDOW_LIVE_VALIDATION_AS_RECORDED_V1",
+    "ACCEPT_POST_P24_WINDOW_LIVE_EVIDENCE_AS_VALID_CURRENT_EVIDENCE_V1",
+    "ADJUDICATE_R24_9_ACQUISITION_SUCCESSFUL_ACQUISITION_SAFE_ONLY_V1",
+    "CLOSE_SLOT24_REPLACEMENT_OBLIGATION_BY_RESERVE9_SUCCESS_V1",
+    "ADJUDICATE_P28_ACQUISITION_SUCCESSFUL_V1",
+    "ADJUDICATE_P29_ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE_ACQUISITION_SAFE_ONLY_V1",
+    "CREATE_SLOT29_PENDING_REPLACEMENT_OBLIGATION_HOST_UNREACHABLE_V1",
+    "ADJUDICATE_P30_ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE_V1",
+    "CREATE_SLOT30_PENDING_REPLACEMENT_OBLIGATION_HOST_UNREACHABLE_V1",
+    "CONFIRM_P31_NEVER_STARTED_AND_NOT_ADJUDICATED_V1",
+    "CLASSIFY_POST_TERMINAL_CLAMSHELL_SLEEP_AS_NON_CONTAMINATING_V1",
+    "PRESERVE_REPLACEMENT_LEDGER_TEN_ENTRY_REVISION_UNCHANGED_V1",
+    "PRESERVE_ACQUISITION_POLICY_TRANSITION_LEDGER_V6_UNCHANGED_V1"
+  ],
+  "startingHead": "bb64cc6e851b4e9c9a5d8c1f2d73620ac71c2108",
+  "startingState": {
+    "freshFetch": true,
+    "worktreeClean": true,
+    "localEqualsOrigin": true,
+    "parentOfStartingHead": "3eb2733ccceea9db6eace652eae3000a91f759d4",
+    "parentIsThePrenetworkReserve9AppendCommit": true,
+    "ancestryVerified": [
+      "34174f92d1c80dc12b5027181a441339dd71408d",
+      "d63a0274c756ac26a5e42823ceac7465e1ff427d",
+      "24ac76326284e4acedeebd187bf054396d2dcd6c",
+      "3eb2733ccceea9db6eace652eae3000a91f759d4",
+      "bb64cc6e851b4e9c9a5d8c1f2d73620ac71c2108"
+    ],
+    "ancestryNote": "linear: each commit is the single parent of the next, proved with git rev-list --parents; no merge commit anywhere in the chain. 34174f9's parent is f76b8ae, the accepted previous adjudication",
+    "concurrentA2AcquisitionAdjudicationOrValidate": 0,
+    "orphanedLiveSessionHelpersObserved": "none from this repository or its worktrees; one unrelated short-lived caffeinate -i -t 300 owned by another session was observed and left untouched. No PPID-1 polling loop was running",
+    "staleScratchStateMistakableForEvidence": "none: this step used a fresh scratchpad outside git; the live session's scratchpad was not read or written",
+    "previousAdjudicationOfThisWindow": false,
+    "laterA2AdjudicationOrStrategyOnThisLineage": false,
+    "ledgerUnchangedSince3eb2733": true,
+    "reservePosition10Assigned": false
+  },
+  "liveResultStatusAtStart": {
+    "terminal": "PHASE_2B_2D_A2_POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_LIVE_WINDOW_PAUSED_P5_AWAITING_EVIDENCE_ADJUDICATION",
+    "nextOwnerDecision": "A2_POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_EVIDENCE_ADJUDICATION",
+    "finalGate": "PAUSE_P5_LOW_RAW_YIELD",
+    "asRequired": true
+  },
+  "bound": {
+    "liveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_LIVE_RESULT_V1.json",
+      "sha256": "f0c1ca745e16eda85d8b9457ba5b1d1513658071f231feaa68d6ee88daecacb4",
+      "bytes": 52004,
+      "commit": "bb64cc6e851b4e9c9a5d8c1f2d73620ac71c2108",
+      "edited": false
+    },
+    "prenetworkAssignment": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_PRENETWORK_ASSIGNMENT_V1.json",
+      "sha256": "692795f2c8768e0f13b0ab5a79f614965b71eed037a93cc442f0261a7e96f277",
+      "bytes": 15294,
+      "commit": "3eb2733ccceea9db6eace652eae3000a91f759d4",
+      "appendedEntry": "sequence 9, selection 24, reserve 9, FINAL_HOLDOUT, reason ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET, replaced ORIGINAL_SELECTION, no previous sequence for the slot",
+      "edited": false
+    },
+    "liveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_LIVE_AUTHORITY_V1.json",
+      "sha256": "2cb9adfd321fdc5170d8754060c9ed180b70daab6f3a67c424218db5954260cb",
+      "bytes": 43474,
+      "commit": "24ac76326284e4acedeebd187bf054396d2dcd6c",
+      "ownerDecision": "AUTHORISE_A2_POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_LIVE_EXECUTION_V1"
+    },
+    "windowPlan": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_PLAN_V1.json",
+      "sha256": "544947f9313165ae0e81c4138bd9666aa86c9cf3e08ed9d8d243d4c70d5922f2",
+      "bytes": 6338,
+      "commit": "d63a0274c756ac26a5e42823ceac7465e1ff427d",
+      "windowPlanHash": "98f6fc9fb049da6c701a253d4a0c2be01e201f0de565a650b5b9ec24823b7f19",
+      "windowPlanHashRecomputes": true,
+      "workItemOrder": ["R:24:9", "P:28", "P:29", "P:30", "P:31"],
+      "plannedWindowSize": 5
+    },
+    "selectedStrategy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_STRATEGY_V1.json",
+      "sha256": "5e185453b2eacf223ac6208bb6c905e866a356ca279b4bbfa2f07626a8b02e4f",
+      "bytes": 41392,
+      "commit": "34174f92d1c80dc12b5027181a441339dd71408d"
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "5d67a8f83506852cb745557dfe4e0ff0b9b037e59dc2c5a67fdbd16dbe0d666d",
+      "bytes": 10911,
+      "ledgerHash": "d71035336ed6b5e7d23f499a4349b6cb5c963c299319e4c7ba60dd3ca6c7e158",
+      "ledgerHashRecomputes": true,
+      "validatorResult": "valid, entryCount 10",
+      "extendsGenesis": true,
+      "entries": 10,
+      "entryHashesRecomputedIndividually": [
+        "0bd4bf62f761d28db2f3b743cd9550c14f8fda4168971a10c5fc3c108ecb4443",
+        "7a3fd5395b48b38a914afacde1dcb0d441bec831ade04f2576c31b7016035365",
+        "4461628ac3e3d9cc9aeb2ec22c6f886dcd17e8f2ddd9043d6ac2256f9ad39d76",
+        "e0b0d6ea751c4f58d065c1f877fa2d52feed138e6334ce5a9fa137e9fae79854",
+        "32fd0356291f27d15fd59ed8be0123e7d71b1ffbc9288ab3349430f00afb0976",
+        "247c62c9c3bf6ae242316b05ef413bbcb76210231085b5d84966724985ef0b36",
+        "3e36136c205cd98f10aef8bdf53de07169ef8e462a188abfbe0a2aba705d725a",
+        "4e05ae4bd9d23a79ab832f9b7581c7596d9f45d70ce8172251590e4d1b7b7627",
+        "7ab799129a2d22a346e491123191473493d0c892e6a9e4fe795f39bdeb1a3093",
+        "79b1135570aad5d3456715c9699c396475bf64e6115a72312a45a9bb2c410084"
+      ],
+      "everyEntryHashRecomputesFromItsPayload": true,
+      "previousEntryHashChainIntact": true,
+      "reservePositions": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      "slotToReserveMapping": [
+        "3->0",
+        "4->1",
+        "6->2",
+        "8->3",
+        "10->4",
+        "12->5",
+        "12->6",
+        "18->7",
+        "18->8",
+        "24->9"
+      ],
+      "commit": "3eb2733ccceea9db6eace652eae3000a91f759d4",
+      "byteIdenticalAt3eb2733": true,
+      "byteIdenticalAtBb64cc6": true,
+      "byteIdenticalNow": true,
+      "sequence9": {
+        "selectionIndex": 24,
+        "split": "FINAL_HOLDOUT",
+        "reserveRankPosition": 9,
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "replacedOccupantKind": "ORIGINAL_SELECTION",
+        "previousSequenceForSlot": null,
+        "previousEntryHash": "7ab799129a2d22a346e491123191473493d0c892e6a9e4fe795f39bdeb1a3093",
+        "entryHash": "79b1135570aad5d3456715c9699c396475bf64e6115a72312a45a9bb2c410084",
+        "recordedAtUtc": "2026-09-23T21:45:32Z",
+        "replacementIsTheFrozenReserve9": true,
+        "reserveDrawEntrySha256": "23b41911143339ef6c636429ee64703c64570014a6a68c31348b34190e0e904d",
+        "inheritedSplitMatchesDrawSelection24": true,
+        "reasonIsThePreviousAdjudicationsSlot24Obligation": true
+      },
+      "nineEntryPredecessor": {
+        "sha256": "1a4c919d61b08c1a8dd7352ffe5e9d481e5db527c3ea82809879ccdfaeb50d4f",
+        "bytes": 10300,
+        "ledgerHash": "cc0aa07db079db2ab911a00484db3dac166d09046ec34964dcd1c376ffe0953d",
+        "commit": "c82f488ab5ad1551f616f08506c57d13087dff3b",
+        "boundByStrategyPlanAndAuthorityAsTheStartingRevision": true,
+        "nineEntryPrefixUnchangedInTheTenEntryRevision": true,
+        "note": "the strategy, plan and live authority bind this nine-entry revision as the window's starting ledger; it differs from the current ledger bytes exactly because 3eb2733 appended sequence 9, and the P7 preflight proves the live ledger is that revision plus only the planned assignment"
+      }
+    },
+    "acquisitionPolicyTransitionLedgerV6": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_ACQUISITION_POLICY_TRANSITION_LEDGER_V6_GEN1.json",
+      "sha256": "592b17062a601ac21f0525209e133220b90ebd97848790f9da66e22f9391461d",
+      "bytes": 19454,
+      "commit": "3702cf3bf5897f4b614c0806573f3218b130528c",
+      "entries": 7
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "bytes": 74047,
+      "commit": "34537caf2308ade014f9f459ca9f97596dc48a17",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293",
+      "drawHashRecomputes": true,
+      "drawEntryDigests": {
+        "selectionEntries": 110,
+        "reserveEntries": 40,
+        "allDistinct": true,
+        "digestSetSha256": "6f573e72bc472710222ed98eb098bdf9fef536f15afcb383c822b05b088638ef",
+        "digestSetSha256Formula": "SHA-256 of canonicalStringify({selection: [110 drawEntrySha256], reserve: [40 drawEntrySha256]}), recomputed in this step; this is this record's own formulation, not a value carried over from an earlier record",
+        "everyWindowItemDigestEqualsThePlan": true,
+        "reservePosition10DrawEntrySha256": "2e657cf58faf66428778039d504269dc302c41d509a4967d7a59e7fd0e9a2dd1",
+        "reservePosition10Note": "the frozen next unused reserve's digest, recorded for binding only; its identity is not resolved and it is NOT assigned here"
+      }
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "bytes": 3554080,
+      "commit": "c64fad3474499d392d316e35c720310c76e9405b",
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650",
+      "frameHashRecomputes": true
+    },
+    "methodologyFreeze": {
+      "proposalR3": {
+        "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+        "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+        "bytes": 142306,
+        "commit": "f5f2ded0e14be2310aec221428d51b06925e9c9d"
+      },
+      "ownerFreezeApproval": {
+        "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+        "sha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+        "bytes": 17514,
+        "commit": "5988bebd0aacc21404a72de464e0c3ef033e3ee0"
+      }
+    },
+    "corpusAcquisitionPlan": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "bytes": 45200,
+      "commit": "6f2de0fd5a80f050857a14531e74b659f0ff30c1"
+    },
+    "ownerClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "bytes": 18443,
+      "commit": "b17503a2420ff16cc0c71ac94709b54fe1f2ead6",
+      "governs": [
+        "Q1 reserve assignment order",
+        "Q2 same-slot append-only replacement chain",
+        "Q3 replacement reason precedence",
+        "Q4 as recorded"
+      ]
+    },
+    "previousAdjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "2a5f90fb0a998bec0eb9e94caef6ab7cf98522fb99411d0c48b076310e2d58ee",
+      "bytes": 72561,
+      "commit": "f76b8ae6653f1f8ec9dabd2d7eec3922c2e000f1",
+      "role": "the Generation-1 state this record starts from, and the schema precedent"
+    },
+    "hostUnreachablePrecedentAdjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_MIXED_WINDOW_CHAIN_REPLACEMENT_AND_PRIMARY_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "d636f0361b9fad3b32a0aefbcd2de619108a1ccedfde19fb6d00c52fdc7211f6",
+      "bytes": 46704,
+      "commit": "696c52333fe0e16b41eacd6b387cc5f692c2dde9",
+      "role": "the landed precedent for a Q3 rank-3 HOST_UNREACHABLE derivation (selection index 18)"
+    },
+    "batch01AttributionAdjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_BATCH_01_PER_SLOT_ACQUISITION_ATTRIBUTION_OWNER_ADJUDICATION_V1.json",
+      "sha256": "7b63c3ea6fa03f624891d971f7a1c0ae3030a724d57521abcb1a5812e58c3e47",
+      "bytes": 40391,
+      "commit": "3d177f04e78785cdf97b7605b886156165f5fc4e",
+      "role": "per-slot attribution of Batch-01 slots 0 and 2, carried unchanged inside the starting successful set"
+    },
+    "previousWindowRecords": {
+      "liveResult": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_LIVE_RESULT_V1.json",
+        "sha256": "3df8d1a3c385083278bcd3740e95c445c82d77db7800d5462ba80ccc27c3baee",
+        "bytes": 55900,
+        "commit": "117e1ea9367b0bc5608e4873f3460db79fa0dc31"
+      },
+      "liveAuthority": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_LIVE_AUTHORITY_V1.json",
+        "sha256": "813c4f224ee3e9ebd50c9fce282dc701a1a14a339f1df6e958996b67c0b42bff",
+        "bytes": 38416,
+        "commit": "2907df1e7c2a73639448c96f564446650dad1f6a"
+      },
+      "windowPlan": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_PLAN_V1.json",
+        "sha256": "8f4b62ce84c6ce0d435b7cd7fd396955953eb729f1e41a029515f3a509ea6dca",
+        "bytes": 6363,
+        "commit": "9800d2028322dd9e98129eb30698d1d0abfef4d5"
+      },
+      "strategy": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_STRATEGY_V1.json",
+        "sha256": "28def1d00d165dccd6fcabb0ec7852f8734b99dd4ae2f6faa487779789272940",
+        "bytes": 44825,
+        "commit": "dec6b3e535bad5a4a66bf1e960b289ee8b31267f"
+      },
+      "prenetworkAssignment": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_PRENETWORK_ASSIGNMENT_V1.json",
+        "sha256": "87aa1f75070c530f44571c60f04465568fe7ba90cd9d363785624b1f41a91e7f",
+        "bytes": 10383,
+        "commit": "c82f488ab5ad1551f616f08506c57d13087dff3b"
+      }
+    },
+    "everyBoundFileEqualsItsHeadBlob": true,
+    "boundFilesRecomputed": 21,
+    "boundFilesRecomputedNote": "every file bound above (live result, pre-network assignment, live authority, plan, strategy, ledger, V6 transition ledger, draw, frame, methodology R3, freeze approval, corpus plan, owner clarification, previous adjudication, Batch-01 attribution adjudication and the five previous-window records) re-hashed from disk and byte-compared with its blob at HEAD; plus the frame hash, draw hash, window-plan hash, ledger hash and all ten ledger entry hashes recomputed through the landed functions",
+    "declaredBindingsDifferingFromCurrentBytes": [
+      "the replacement ledger's nine-entry starting revision (expected; see replacementLedger.nineEntryPredecessor)"
+    ],
+    "adjudicationRuleVersion": "Methodology V2 R3 Generation-1 acquisition success rule (formal SD7 post-SD7 count, whole admissible range >= 4 => ACQUISITION_SUCCESSFUL, whole range < 4 => ACQUISITION_UNSUCCESSFUL, SD9 decided by case A/B) with Owner Clarification Q1-Q3; applied exactly as in the post-P18-second adjudication (f76b8ae), unmodified",
+    "allRecomputedInThisStep": true
+  },
+  "p7PreflightNow": {
+    "preflight": "computePrecommittedWindowPreflight (committed) over the committed plan, the committed and pushed ten-entry ledger and windowSpecFromAcquisitionWindowStrategy (committed strategy bytes + the nine-entry starting revision read from git at c82f488), with independently recomputed frame, draw, owner-clarification and strategy hashes",
+    "invariantCount": 13,
+    "allInvariantsTrue": true,
+    "invariants": {
+      "frameBindingValid": true,
+      "drawBindingValid": true,
+      "ownerClarificationBindingValid": true,
+      "governanceBindingsValid": true,
+      "replacementLedgerValid": true,
+      "replacementLedgerExtendsGenesis": true,
+      "startingLedgerRevisionMatchesPrecommit": true,
+      "noUnexpectedReplacementAssignments": true,
+      "windowPlanValid": true,
+      "workItemsMatchFrozenPlan": true,
+      "workItemDrawEntriesMatch": true,
+      "replacementAssignmentsRecorded": true,
+      "currentOccupantsMatch": true
+    },
+    "ledgerEntryCount": 10,
+    "specViolations": 0,
+    "planRebuiltFromStrategyCanonicallyEqualToTheCommittedPlan": true,
+    "frozenOrderBinding": {
+      "strategySha256": true,
+      "planSha256": true,
+      "windowPlanHash": true,
+      "completeOrderedList": true
+    },
+    "specDerivedFromPlan": false
+  },
+  "chronology": {
+    "strategyCommitUtc": "2026-09-23T16:32:12Z",
+    "planCommitUtc": "2026-09-23T20:56:07Z",
+    "liveAuthorityCommitUtc": "2026-09-23T21:12:59Z",
+    "liveAuthorityPushUtc": "2026-09-23T21:13:09Z",
+    "governedSleepWakeMonitorStartedUtc": "2026-09-23T21:43:21Z",
+    "ledgerEntryRecordedAtUtc": "2026-09-23T21:45:32Z",
+    "prenetworkAppendCommitUtc": "2026-09-23T21:49:18Z",
+    "prenetworkAppendPushUtc": "2026-09-23T21:49:28Z",
+    "firstDatabaseAccessUtc": "2026-09-23T21:52:00Z",
+    "firstRunCreatedUtc": "2026-09-23T21:57:07.198Z",
+    "firstInstitutionObservationUtc": "2026-09-23T21:57:15.639Z",
+    "lastInstitutionObservationUtc": "2026-09-23T22:03:45.611Z",
+    "lastCompletionUtc": "2026-09-23T22:03:46.709Z",
+    "lastSealedSd7FileBirthUtc": "2026-09-23T22:04:01.925Z",
+    "windowStoppedUtc": "2026-09-23T22:04:13Z",
+    "postTerminalClamshellSleepUtc": "2026-09-23T22:06:44Z",
+    "lidReopenedUtc": "2026-09-24T10:09:47Z",
+    "liveValidationFinishedUtc": "2026-09-24T10:14:03Z",
+    "liveResultCommitUtc": "2026-09-24T10:19:09Z",
+    "liveResultPushUtc": "2026-09-24T10:19:23Z",
+    "source": "git committer dates and the origin remote-tracking reflog for commit/push times; orgunit_research_runs.created_at, orgunit_fetch_observations.observed_at and orgunit_research_run_completions.finished_at read read-only in this step; sealed-file birth times; pmset -g log; the live result for the operator-recorded minute-precision markers (first database access, window stop)",
+    "appendPushedBeforeFirstDatabaseRead": true,
+    "appendPushedBeforeFirstInstitutionRequest": true,
+    "ledgerAppendAfterInstitutionActivity": false,
+    "orderHeld": true,
+    "orderHeldNote": "authority commit+push -> ledger entry recorded -> pre-network append commit+push -> first database read -> first institution request -> four items in frozen order -> terminal P5 gate -> last sealed write -> window stop -> (post-terminal host sleep) -> governed validation -> live result commit+push"
+  },
+  "postTerminalHostEvent": {
+    "event": "Sleep - Entering DarkWake state due to 'Clamshell Sleep': TCPKeepAlive=active, Using AC (Charge:100%)",
+    "eventUtc": "2026-09-23T22:06:44Z",
+    "eventSource": "pmset -g log, the single timestamped Sleep event row in the interval",
+    "sleepWakeOrDarkWakeEventsFromTheGovernedMonitorStartToTheWindowStop": 0,
+    "eventsSinceTheGovernedMonitorStart": 2,
+    "theTwoEvents": [
+      "2026-09-23T22:06:44Z Sleep (Clamshell Sleep), 2 min 58 s after the terminal P5 gate and 2 min 31 s after the window stop",
+      "2026-09-24T10:09:47Z Wake (DarkWake to FullWake, lid open / UserActivity), before the governed validation started"
+    ],
+    "afterTheTerminalP5Gate": true,
+    "afterTheLastDatabaseWrite": true,
+    "afterTheLastSealedWrite": true,
+    "acquisitionItemInFlight": false,
+    "databaseWriteInFlight": false,
+    "sealedWriteInFlight": false,
+    "validationInFlight": false,
+    "databaseChangedDuringThePause": false,
+    "databaseChangedDuringThePauseProof": "the newest run, completion, observation, page-evidence and candidate timestamps read in this step are all at or before 2026-09-23T22:03:46.709Z; nothing was created after the terminal gate",
+    "sealedFilesChangedDuringThePause": false,
+    "sealedFilesChangedDuringThePauseProof": "the only files in the three sealed roots modified after the ledger append are this window's own four, each with a modification time at or before 2026-09-23T22:04:01.925Z",
+    "contaminatesAcquisitionEvidence": false,
+    "contaminatesValidation": false,
+    "classification": "NON_CONTAMINATING_POST_TERMINAL_HOST_EVENT",
+    "acquisitionRerunAuthorised": false,
+    "itemEvidenceInvalidatedByThisEvent": 0
+  },
+  "databaseReverification": {
+    "mode": "nwf_readonly connection (DATABASE_URL_READONLY) inside BEGIN TRANSACTION READ ONLY, SELECT only, rolled back; a CREATE TEMPORARY TABLE probe inside a savepoint was refused",
+    "role": "nwf_readonly",
+    "transactionReadOnly": "on",
+    "writeProbeRefused": true,
+    "counts": {
+      "orgunit_research_runs": 48,
+      "orgunit_research_run_completions": 48,
+      "orgunit_fetch_observations": 1257,
+      "orgunit_redirect_observations": 67,
+      "orgunit_page_evidence": 952,
+      "orgunit_page_candidates": 1904,
+      "orgunit_root_promotions": 0,
+      "orgunit_root_promotion_revocations": 0,
+      "orgunit_classification_subjects": 0,
+      "orgunit_classifier_calls": 0,
+      "orgunit_classifier_call_completions": 0,
+      "orgunit_page_classifications": 0
+    },
+    "runsByPolicy": {
+      "orgunit-fetch-policy-v1": 7,
+      "orgunit-fetch-policy-v2": 2,
+      "orgunit-fetch-policy-v3": 3,
+      "orgunit-fetch-policy-v4": 11,
+      "orgunit-fetch-policy-v6": 25
+    },
+    "observationsByPolicy": {
+      "orgunit-fetch-policy-v1": 78,
+      "orgunit-fetch-policy-v2": 39,
+      "orgunit-fetch-policy-v3": 87,
+      "orgunit-fetch-policy-v4": 279,
+      "orgunit-fetch-policy-v6": 774
+    },
+    "reconciliation": {
+      "baseline": {
+        "orgunit_research_runs": 44,
+        "orgunit_research_run_completions": 44,
+        "orgunit_fetch_observations": 1174,
+        "orgunit_redirect_observations": 60,
+        "orgunit_page_evidence": 888,
+        "orgunit_page_candidates": 1776
+      },
+      "baselineSource": "the accepted previous adjudication (f76b8ae) database re-verification: 44 / 44 / 1174 / 60 / 888 / 1776",
+      "delta": {
+        "orgunit_research_runs": 4,
+        "orgunit_research_run_completions": 4,
+        "orgunit_fetch_observations": 83,
+        "orgunit_redirect_observations": 7,
+        "orgunit_page_evidence": 64,
+        "orgunit_page_candidates": 128
+      },
+      "perItemSumsRecomputedFromTheFourRuns": {
+        "runs": 4,
+        "completions": 4,
+        "observations": 83,
+        "redirects": 7,
+        "pages": 64,
+        "candidates": 128
+      },
+      "perItemObservationArithmetic": "40 + 41 + 1 + 1 = 83",
+      "perItemRedirectArithmetic": "7 + 0 + 0 + 0 = 7",
+      "perItemPageArithmetic": "29 + 35 + 0 + 0 = 64",
+      "perItemCandidateArithmetic": "58 + 70 + 0 + 0 = 128",
+      "newV6Runs": 4,
+      "newV6Observations": 83,
+      "otherPolicyCountsUnchanged": true,
+      "matchesReportedMovement": true,
+      "reconciles": true
+    },
+    "runsWithoutCompletion": 0,
+    "runsWithMoreThanOneCompletion": 0,
+    "runsWithoutAnyObservation": 0,
+    "runsCreatedSinceTheLedgerPushAreExactlyTheFourWindowRuns": true,
+    "executionOrderByRunCreation": ["R:24:9", "P:28", "P:29", "P:30"],
+    "eachRunCreatedAfterThePreviousRunsCompletion": true,
+    "runsCreatedAfterTheWindow": 0,
+    "observationsAfterTheWindow": 0,
+    "rowsCreatedAfterTheTerminalGate": {
+      "runs": 0,
+      "completions": 0,
+      "observations": 0,
+      "pageEvidence": 0,
+      "candidates": 0
+    },
+    "latestRunCreatedUtc": "2026-09-23T22:03:45.500Z",
+    "latestCompletionUtc": "2026-09-23T22:03:46.709Z",
+    "latestObservationUtc": "2026-09-23T22:03:45.611Z",
+    "latestPageEvidenceUtc": "2026-09-23T22:00:36.474Z",
+    "latestPageCandidateUtc": "2026-09-23T22:00:36.549Z",
+    "matchesLiveResultAfterState": true,
+    "driftSinceLiveResult": "none",
+    "rootPromotionsOrRevocations": 0,
+    "promotionRootObservationsAnywhere": 0,
+    "classifierRows": 0,
+    "insertUpdateDeleteDdlOrMigration": 0,
+    "institutionDnsHttpOrTls": 0,
+    "privateIdentityFieldsReported": 0
+  },
+  "evidenceIntegrityStandard": {
+    "checked": [
+      "draw-entry digest = plan (RESERVE entry for R:24:9, SELECTION entry for each P:), recomputed with the landed drawEntrySha256",
+      "plan kind, reserve rank position and split for all five planned items; the reserve draw entry carries no split of its own and inherits slot 24's FINAL_HOLDOUT, which equals the plan and ledger sequence 9",
+      "current ledger occupant derived from the ten-entry ledger with the landed currentOccupantForSelectionIndex: slot 24 = RESERVE_REPLACEMENT position 9 (sequence 9); slots 28, 29, 30 and 31 = ORIGINAL_SELECTION",
+      "exactly one run per window organisation; SHA-256(run id) = the live-result runRefSha256 for all four; exactly one organisation and one eche row key per run",
+      "dry_run false; exactly one COMPLETED completion with a null error kind on each of the four runs",
+      "orgunit-fetch-policy-v6 on every run and on every one of the 83 observations",
+      "every observation bound to a single claim-kind root key; the frozen root is the organisation's STRUCTURALLY_VALID website claim; zero promotion roots",
+      "budgets: total gateway requests 40 / 41 / 1 / 1 (<= 60), page attempts 35 / 35 / 0 / 0 (<= 35), distinct hosts 3 / 1 / 1 / 1 (<= 8); attempt_no 1 everywhere except R:24:9's run-scoped robots policy counter (attempt_no 2 on one policy URL after a host-changing same-registrable-domain robots 307 continuation, the attempt-1 read having succeeded); zero non-robots retries",
+      "gateway, robots, sitemap, redirect, host, raw-page and candidate counts equal the live result; candidate rows = 2 x page rows on every item; no page-evidence row with zero extracted characters",
+      "formal SD7 recomputed in memory with the landed analyseOrganisation (exact-duplicate pass first) and toSealedRecord; each rebuilt sealed payload is byte-identical to its sealed file, and its sha256 and byte count equal the live result",
+      "each sealed file: created during its own item and before the next item started, present in no other split root; exactly four files created in the three sealed roots since the ledger append (39 total, 35 before), none after 2026-09-23T22:04:01.925Z, and no pre-existing sealed file modified",
+      "the continuation gate replayed independently through the landed evaluateContinuationWindowGate over the frozen plan, the recomputed P7 preflight and the four observations"
+    ],
+    "hostStateVerification": "pmset -g log: no Sleep/Wake/DarkWake event row between the governed monitor start (2026-09-23T21:43:21Z) and the window stop (2026-09-23T22:04:13Z); exactly two event rows exist after the monitor start, both outside every item (see postTerminalHostEvent)",
+    "defectsFound": 0,
+    "nonMaterialRecordDiscrepancies": [
+      "the live result reports P:28 sitemapDocumentRequests 5 and sitemapUrlsAccepted 4 while the database shows 8 observations with discovery_method SITEMAP on that run. They agree: 4 of those 8 answered text/xml and 1 answered text/html with no sitemap URL extracted (5 document requests), and the remaining 3 are page attempts on sitemap-discovered URLs, 3 of which produced page evidence. The live result's own arithmetic then holds: 1 ROOT + 31 LINK + 3 SITEMAP page attempts = 35 page attempts and 35 raw pages, and 1 + 1 + 8 + 31 = 41 gateway requests. A discovery_method value alone does not separate a sitemap DOCUMENT request from a page attempt on a sitemap-discovered URL; the content type does"
+    ],
+    "sealedEvidence": {
+      "sealedRootFilesBefore": 35,
+      "sealedRootFilesAfter": 39,
+      "perRoot": {
+        "gen1-dev-confirm": 17,
+        "gen1-final-holdout": 13,
+        "gen1-dev-train": 9
+      },
+      "filesAddedThisWindow": 4,
+      "devTrainFilesAddedThisWindow": 0,
+      "preexistingFilesChanged": 0,
+      "preexistingFilesRemoved": 0,
+      "unexpectedFilesAdded": 0,
+      "filesCreatedOrOverwrittenInThisAdjudication": 0,
+      "birthTimeEqualsModificationTime": "true to millisecond resolution on all four; at microsecond resolution each modification time is 0.1-0.2 ms after its birth time, which is the single write-then-close, not a later edit"
+    }
+  },
+  "validationHistory": {
+    "liveWindowValidation": {
+      "command": "caffeinate -dimsu npm run validate",
+      "runs": 1,
+      "rerun": false,
+      "startedUtc": "2026-09-24T10:14:03Z",
+      "finishedUtc": "2026-09-24T10:17:23Z",
+      "exitCode": 0,
+      "testFiles": {
+        "passed": 195,
+        "skipped": 5,
+        "failed": 0,
+        "total": 200
+      },
+      "tests": {
+        "passed": 5016,
+        "skipped": 75,
+        "failed": 0,
+        "total": 5091
+      },
+      "vitestDurationSeconds": 188.71,
+      "quietInterval": {
+        "fromUtc": "2026-09-24T10:11:27Z",
+        "toUtc": "2026-09-24T10:13:39Z",
+        "seconds": 132,
+        "requiredSeconds": 120,
+        "samples": 27,
+        "samplesWithValidateOrVitest": 0,
+        "recheckImmediatelyBeforeStart": true
+      },
+      "competingValidateOverlapped": false,
+      "startedAfterLidReopenedAndStateReproved": true,
+      "sleepWakeEventsDuringRun": 0,
+      "power": "AC, battery 100%, lid open, caffeinate -dimsu active",
+      "placeholderReconstruction": {
+        "asRecorded": "the live result's own validated bytes were sha256 08fdf1c44b9313c18e2b9253b4d5c4d34bf743ec408445f5de747454fb39f333 / 50322 bytes, with its validation block as {command, status PENDING, runCount 0} and chronology.finalValidationUtc null",
+        "reproducedInThisStep": true,
+        "method": "restoring exactly those two values in the committed live-result bytes and re-rendering with this repository's prettier reproduces the declared validated sha256 and byte count"
+      },
+      "acceptedAsTheCompletedLiveWindowValidation": true
+    },
+    "hostEventsBetweenTheWindowAndTheValidation": {
+      "sleep": 1,
+      "wake": 1,
+      "darkWake": 0,
+      "eventSource": "pmset -g log, timestamped Sleep/Wake/DarkWake event-type rows only (Wake Requests and Assertions rows excluded)",
+      "allOutsideEveryItemAndOutsideTheValidationRun": true,
+      "classification": "NON_CONTAMINATING"
+    },
+    "sleepWakeEventsSinceTheLiveValidationEnded": 0
+  },
+  "liveWindowIntegrity": {
+    "plannedWindowSize": 5,
+    "startedItems": 4,
+    "unstartedItems": 1,
+    "startedWorkItemIds": ["R:24:9", "P:28", "P:29", "P:30"],
+    "unstartedWorkItemIds": ["P:31"],
+    "everyStartedItemStartedExactlyOnce": true,
+    "eachStartedItemOneNonDryRunAndOneCompletion": true,
+    "executionOrder": ["R:24:9", "P:28", "P:29", "P:30"],
+    "orderIsTheFrozenPlansExactPrefix": true,
+    "sequentialNoOverlap": true,
+    "everyRunV6": true,
+    "everyRunMatchesFrozenRootDrawEntrySplitAndWorkItem": true,
+    "ceilingsHeld": true,
+    "manualRetriesHttpOrWider": 0,
+    "cliRerunOfAnItem": 0,
+    "secondAcquisitionAttemptForAnyItem": false,
+    "landedV6AutomaticTransportRetryItems": [],
+    "runScopedPolicyCounterAttempt2Items": ["R:24:9"],
+    "robotsRedirectContinuations": 1,
+    "robotsRedirectContinuationItems": ["R:24:9"],
+    "crossRegistrableDomainRobotsRedirectsRefused": [],
+    "redirectsFollowedByTheGateway": 0,
+    "redirectObservationsRecorded": 7,
+    "crossRegistrableDomainRedirectPromoted": 0,
+    "sealedSd7FilesExclusivelyCreatedNotOverwritten": 4,
+    "holdoutSd7OnlyInHoldoutRoot": true,
+    "r249AndP29ConfinedToFinalHoldout": true,
+    "persistenceInputRootOrRunAnomalies": 0,
+    "classifierProviderLabelPromotionSetPOrSetRActivity": 0,
+    "sleepWakeOrDarkWakeDuringTheGovernedInterval": 0,
+    "ledgerByteIdenticalAfterThePrenetworkAppend": true,
+    "reserve10AssignmentOrPostNetworkLedgerAppend": false,
+    "windowEnlargementSixthItemSkipOrReorder": false,
+    "runningAroundThePause": false,
+    "finalGate": "PAUSE_P5_LOW_RAW_YIELD",
+    "previousAdjudicationOfThisWindow": false
+  },
+  "continuationGateRecomputation": {
+    "method": "the landed evaluateContinuationWindowGate replayed in this step over workItemsOf(the committed plan), the P7 preflight recomputed here, plannedWindowSize 5 and the pre-window generation state (27 successful, 10 reserve consumed), feeding the four completed observations one at a time",
+    "frozenThresholds": {
+      "P5_MIN_RAW_PAGE_EVIDENCE": 4,
+      "P5_BATCH_PERCENT_STRICTLY_ABOVE": 30,
+      "P5_lowYieldThresholdCountForAWindowOfFive": 2,
+      "P2_CONSECUTIVE_ROBOTS_REFUSALS": 3,
+      "P2_BATCH_PERCENT_STRICTLY_ABOVE": 40,
+      "P2_percentageThresholdCountForAWindowOfFive": 3
+    },
+    "replay": [
+      {
+        "afterItem": 0,
+        "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "nextWorkItemId": "R:24:9",
+        "lowYieldCount": 0,
+        "robotsRefusalCount": 0,
+        "triggers": []
+      },
+      {
+        "afterItem": 1,
+        "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "nextWorkItemId": "P:28",
+        "lowYieldCount": 0,
+        "robotsRefusalCount": 0,
+        "triggers": []
+      },
+      {
+        "afterItem": 2,
+        "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "nextWorkItemId": "P:29",
+        "lowYieldCount": 0,
+        "robotsRefusalCount": 0,
+        "triggers": []
+      },
+      {
+        "afterItem": 3,
+        "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "nextWorkItemId": "P:30",
+        "lowYieldCount": 1,
+        "robotsRefusalCount": 1,
+        "triggers": []
+      },
+      {
+        "afterItem": 4,
+        "decision": "PAUSE_P5_LOW_RAW_YIELD",
+        "nextWorkItemId": null,
+        "lowYieldCount": 2,
+        "robotsRefusalCount": 2,
+        "triggers": [
+          {
+            "condition": "P5",
+            "decision": "PAUSE_P5_LOW_RAW_YIELD",
+            "arm": "raw pages < 4 on 2 of 5 planned items (> 30%)"
+          }
+        ]
+      }
+    ],
+    "p5Arithmetic": "P:29 raw pages 0 and P:30 raw pages 0 are the two low-yield items; 2 / 5 planned items = 40%, and 40% is strictly above the frozen 30%, so P5 fires after item 4 and not after item 3 (1 / 5 = 20%)",
+    "p2DidNotFire": "both zero-yield items carry rootTerminalReason ROBOTS_UNREADABLE_ROOT, so the P2 arm counted 2 consecutive and 2 of 5 against thresholds of 3 and 3. P2 was not triggered; P5 fired first at its own lower threshold",
+    "denominatorWasAlwaysTheFrozenPlannedWindowSize": true,
+    "thresholdArithmeticChangedDuringTheWindow": false,
+    "replayReproducesTheLiveResultGateExactly": true,
+    "terminalGateDecision": "PAUSE_P5_LOW_RAW_YIELD",
+    "p31NotAuthorised": true,
+    "p31NotAuthorisedNote": "the gate returned mayStartNextWorkItem false and nextWorkItemId null after item 4, so P:31 was never authorised and was never started. It is NOT adjudicated here"
+  },
+  "items": [
+    {
+      "workItemId": "R:24:9",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 24,
+      "reserveRankPosition": 9,
+      "split": "FINAL_HOLDOUT",
+      "drawEntryKind": "RESERVE",
+      "drawEntrySha256": "23b41911143339ef6c636429ee64703c64570014a6a68c31348b34190e0e904d",
+      "runRefSha256": "cf037f070b5a6656d86bc0dfd6da73c5489252f8f22624553b36811f323b7e75",
+      "integrity": {
+        "drawEntryDigestMatchesPlan": true,
+        "planKindPositionAndSplitMatch": true,
+        "currentLedgerOccupantMatches": true,
+        "runRefSha256RecomputesFromDatabaseRun": true,
+        "runsForThisOrganisation": 1,
+        "nonDryRunsEverForThisTarget": 1,
+        "priorRunUnderAnyOtherFetchPolicy": false,
+        "completions": 1,
+        "dryRun": false,
+        "runTerminalState": "COMPLETED",
+        "completionErrorKind": null,
+        "runFetchPolicyVersion": "orgunit-fetch-policy-v6",
+        "runRuleVersion": "orgunit-signal-rules-v1",
+        "everyObservationV6": true,
+        "everyObservationBoundToThisOrganisation": true,
+        "distinctEcheRowKeysOnTheRun": 1,
+        "frozenRootEqualsCurrentValidClaim": true,
+        "everyObservationOnTheFrozenRoot": true,
+        "distinctRootKeys": 1,
+        "rootKeyKind": "claim",
+        "promotionRootObservations": 0,
+        "manualRetries": 0,
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "ceilingsRespected": true,
+        "persistenceAnomaly": false,
+        "inputOrRootMismatch": false,
+        "orchestrationError": false,
+        "hostStateAnomaly": false,
+        "sleepWakeDuringItem": 0,
+        "everyFigureMatchesLiveResult": true,
+        "verdict": "CLEAN",
+        "splitBinding": {
+          "plan": "FINAL_HOLDOUT",
+          "drawSelectionOfSlot": "FINAL_HOLDOUT",
+          "drawEntryOwnSplit": null,
+          "ledgerEntry": "FINAL_HOLDOUT",
+          "executedRunSealedRoot": "FINAL_HOLDOUT"
+        },
+        "currentLedgerOccupant": "RESERVE_REPLACEMENT position 9 (sequence 9)",
+        "itemIntervalUtc": ["2026-09-23T21:57:07.198Z", "2026-09-23T21:57:51.601Z"],
+        "gatewayRequests": 40,
+        "pageAttempts": 35,
+        "robotsRequests": 4,
+        "sitemapDocumentRequests": 1,
+        "distinctHosts": 3,
+        "circuitOpenHosts": 0,
+        "maxAttemptNoPerRobotsUrl": 2,
+        "maxNonRobotsAttemptNo": 1,
+        "robotsAttemptNo2Classification": [
+          "RUN_SCOPED_POLICY_COUNTER_AFTER_A_HOST-CHANGING SAME-REGISTRABLE-DOMAIN ROBOTS 307 CONTINUATION (the attempt-1 read of that URL answered 2xx with no error; not a transport retry)"
+        ],
+        "observationsByDiscoveryMethod": {
+          "ROBOTS": 4,
+          "ROOT": 1,
+          "SITEMAP": 1,
+          "LINK": 34
+        },
+        "statusByDiscoveryMethod": {
+          "ROBOTS:200": 3,
+          "ROBOTS:307": 1,
+          "ROOT:200": 1,
+          "SITEMAP:404": 1,
+          "LINK:200": 28,
+          "LINK:307": 6
+        },
+        "observationErrorKinds": {},
+        "observationErrorSubtypes": {},
+        "redirectObservations": 7,
+        "redirectFactSummary": "7 recorded 3xx facts, all HTTP 307, all host-changed inside the SAME registrable domain, none malformed, none a scheme downgrade; the gateway followed none of them",
+        "rawPages": 29,
+        "candidateRows": 58,
+        "candidateRowsEqualTwicePages": true,
+        "pagesWithZeroExtractedCharacters": 0,
+        "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED"
+      },
+      "formalSd7": {
+        "recomputedInThisStep": true,
+        "rawPageCount": 29,
+        "postSd7Min": 20,
+        "postSd7Max": 22,
+        "countIsExact": false,
+        "exactDuplicateRowsRemoved": 0,
+        "distinctDocumentCount": 29,
+        "divergentGroupCount": 0,
+        "measurableDocumentCount": 27,
+        "nearDuplicateEdges": 28,
+        "comparedPairCount": 351,
+        "shortTextUnresolved": 2,
+        "nonTransitiveComponentCount": 0,
+        "unauditableComponentCount": 0,
+        "minimumAdmissiblePages": 4,
+        "wholeRangeAtOrAbove4": true,
+        "wholeRangeBelow4": false,
+        "rangeCrosses4": false,
+        "rangeForcedToExactValue": false,
+        "decidedByCase": "B",
+        "matchesLiveResult": true,
+        "sealedDetail": {
+          "file": "POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_V1_SD7_DETAIL_R_24_9.json",
+          "splitScopedRoot": "~/Developer/phase2b-2d-methodology-v2-sealed-holdout/gen1-final-holdout",
+          "sha256": "4b858a9d9fff3463fed3b8f0c908457c8bd8516058dd34883e218b59048c8fa6",
+          "bytes": 13463,
+          "shaAndBytesMatchLiveResult": true,
+          "recomputedSealedPayloadByteIdentical": true,
+          "birthUtc": "2026-09-23T21:58:11.975Z",
+          "writtenByItsOwnItemBeforeTheNextItemStarted": true,
+          "presentInAnyOtherSplitRoot": false,
+          "createdOrOverwrittenInThisStep": false,
+          "contentsDisplayedOrCopied": false
+        },
+        "decisionBasis": "the WHOLE admissible post-SD7 range [20, 22] is at or above the frozen minimum of 4 (case B); the range needs no collapse and none was made"
+      },
+      "finalSd9": "ACQUISITION_SUCCESSFUL",
+      "diagnosticSd9InLiveResult": "ACQUISITION_SUCCESSFUL",
+      "diagnosticWasNotItselfTheAdjudication": true,
+      "finalAdjudication": "ACQUISITION_SUCCESSFUL",
+      "ownerDecision": "ADJUDICATE_R24_9_ACQUISITION_SUCCESSFUL_ACQUISITION_SAFE_ONLY_V1",
+      "replacementReasonDerivation": {
+        "applicable": false,
+        "why": "Q3 derives a REPLACEMENT REASON for an unsuccessful acquisition; this one succeeded, so no reason is derived and no obligation is created"
+      },
+      "slotConsequence": {
+        "selectionIndex": 24,
+        "split": "FINAL_HOLDOUT",
+        "currentOccupantRemains": "RESERVE_REPLACEMENT position 9 (sequence 9)",
+        "slotStatusBefore": "CURRENT_ACQUISITION_FAILURE",
+        "slotStatusAfter": "ACQUISITION_SUCCESSFUL",
+        "servedObligation": {
+          "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+          "againstOccupant": "ORIGINAL_SELECTION",
+          "servedBy": "ledger sequence 9 (reserve position 9), appended pre-network at 3eb2733",
+          "servedOccupantOutcome": "ACQUISITION_SUCCESSFUL"
+        },
+        "obligationClosed": true,
+        "newReplacementObligationCreated": false,
+        "occupantChainForSlot24": "ORIGINAL_SELECTION -> reserve 9 (sequence 9, successful)",
+        "ledgerRowAppended": false
+      },
+      "holdout": {
+        "split": "FINAL_HOLDOUT",
+        "semanticContentsInspectedOrDisclosed": false,
+        "exposedHere": "work item id, selection index, reserve position, split, counts, ranges, HTTP status classes, robots-decision tokens, run-reference hash, draw-entry hash, sealed-file hash and bytes"
+      },
+      "acceptedAs": "REPLACEMENT_ACQUISITION_FOR_CURRENT_SLOT_OCCUPANT"
+    },
+    {
+      "workItemId": "P:28",
+      "kind": "PRIMARY",
+      "selectionIndex": 28,
+      "reserveRankPosition": null,
+      "split": "DEV_CONFIRM",
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "6d2bc5b0e5c6e4667627975fe7a77a939597a075dae8a2a801d77bc762c8e00a",
+      "runRefSha256": "a0187c81345006e2c9197f19617a9ffabdb0639fe455ff79cfb27fc72d3eae24",
+      "integrity": {
+        "drawEntryDigestMatchesPlan": true,
+        "planKindPositionAndSplitMatch": true,
+        "currentLedgerOccupantMatches": true,
+        "runRefSha256RecomputesFromDatabaseRun": true,
+        "runsForThisOrganisation": 1,
+        "nonDryRunsEverForThisTarget": 1,
+        "priorRunUnderAnyOtherFetchPolicy": false,
+        "completions": 1,
+        "dryRun": false,
+        "runTerminalState": "COMPLETED",
+        "completionErrorKind": null,
+        "runFetchPolicyVersion": "orgunit-fetch-policy-v6",
+        "runRuleVersion": "orgunit-signal-rules-v1",
+        "everyObservationV6": true,
+        "everyObservationBoundToThisOrganisation": true,
+        "distinctEcheRowKeysOnTheRun": 1,
+        "frozenRootEqualsCurrentValidClaim": true,
+        "everyObservationOnTheFrozenRoot": true,
+        "distinctRootKeys": 1,
+        "rootKeyKind": "claim",
+        "promotionRootObservations": 0,
+        "manualRetries": 0,
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "ceilingsRespected": true,
+        "persistenceAnomaly": false,
+        "inputOrRootMismatch": false,
+        "orchestrationError": false,
+        "hostStateAnomaly": false,
+        "sleepWakeDuringItem": 0,
+        "everyFigureMatchesLiveResult": true,
+        "verdict": "CLEAN",
+        "splitBinding": {
+          "plan": "DEV_CONFIRM",
+          "drawSelectionOfSlot": "DEV_CONFIRM",
+          "drawEntryOwnSplit": "DEV_CONFIRM",
+          "ledgerEntry": null,
+          "executedRunSealedRoot": "DEV_CONFIRM"
+        },
+        "currentLedgerOccupant": "ORIGINAL_SELECTION",
+        "itemIntervalUtc": ["2026-09-23T21:59:18.671Z", "2026-09-23T22:00:36.549Z"],
+        "gatewayRequests": 41,
+        "pageAttempts": 35,
+        "robotsRequests": 1,
+        "sitemapDocumentRequests": 5,
+        "distinctHosts": 1,
+        "circuitOpenHosts": 0,
+        "maxAttemptNoPerRobotsUrl": 1,
+        "maxNonRobotsAttemptNo": 1,
+        "robotsAttemptNo2Classification": [],
+        "observationsByDiscoveryMethod": {
+          "ROBOTS": 1,
+          "ROOT": 1,
+          "SITEMAP": 8,
+          "LINK": 31
+        },
+        "statusByDiscoveryMethod": {
+          "ROBOTS:200": 1,
+          "ROOT:200": 1,
+          "SITEMAP:200": 8,
+          "LINK:200": 31
+        },
+        "observationErrorKinds": {},
+        "observationErrorSubtypes": {},
+        "redirectObservations": 0,
+        "redirectFactSummary": "none",
+        "rawPages": 35,
+        "candidateRows": 70,
+        "candidateRowsEqualTwicePages": true,
+        "pagesWithZeroExtractedCharacters": 0,
+        "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+        "sitemapAccounting": "of the 8 SITEMAP-method observations, 5 were sitemap DOCUMENT requests (4 answered text/xml, 1 answered text/html and yielded no sitemap URL) and 3 were page attempts on sitemap-discovered URLs; 1 ROOT + 31 LINK + 3 SITEMAP page attempts = 35"
+      },
+      "formalSd7": {
+        "recomputedInThisStep": true,
+        "rawPageCount": 35,
+        "postSd7Min": 28,
+        "postSd7Max": 29,
+        "countIsExact": false,
+        "exactDuplicateRowsRemoved": 0,
+        "distinctDocumentCount": 35,
+        "divergentGroupCount": 0,
+        "measurableDocumentCount": 34,
+        "nearDuplicateEdges": 9,
+        "comparedPairCount": 561,
+        "shortTextUnresolved": 1,
+        "nonTransitiveComponentCount": 0,
+        "unauditableComponentCount": 0,
+        "minimumAdmissiblePages": 4,
+        "wholeRangeAtOrAbove4": true,
+        "wholeRangeBelow4": false,
+        "rangeCrosses4": false,
+        "rangeForcedToExactValue": false,
+        "decidedByCase": "B",
+        "matchesLiveResult": true,
+        "sealedDetail": {
+          "file": "POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_V1_SD7_DETAIL_P_28.json",
+          "splitScopedRoot": "~/Developer/phase2b-2d-methodology-v2-sealed/gen1-dev-confirm",
+          "sha256": "a350bd1ef58cf96a56bea8729e7ebb9413d388f3388dd72cc13fdf60a77cec5a",
+          "bytes": 16566,
+          "shaAndBytesMatchLiveResult": true,
+          "recomputedSealedPayloadByteIdentical": true,
+          "birthUtc": "2026-09-23T22:01:10.848Z",
+          "writtenByItsOwnItemBeforeTheNextItemStarted": true,
+          "presentInAnyOtherSplitRoot": false,
+          "createdOrOverwrittenInThisStep": false,
+          "contentsDisplayedOrCopied": false
+        },
+        "decisionBasis": "the WHOLE admissible post-SD7 range [28, 29] is at or above the frozen minimum of 4 (case B)"
+      },
+      "finalSd9": "ACQUISITION_SUCCESSFUL",
+      "diagnosticSd9InLiveResult": "ACQUISITION_SUCCESSFUL",
+      "diagnosticWasNotItselfTheAdjudication": true,
+      "finalAdjudication": "ACQUISITION_SUCCESSFUL",
+      "ownerDecision": "ADJUDICATE_P28_ACQUISITION_SUCCESSFUL_V1",
+      "replacementReasonDerivation": {
+        "applicable": false,
+        "why": "Q3 derives a REPLACEMENT REASON for an unsuccessful acquisition; this one succeeded, so no reason is derived and no obligation is created"
+      },
+      "slotConsequence": {
+        "selectionIndex": 28,
+        "split": "DEV_CONFIRM",
+        "currentOccupantRemains": "ORIGINAL_SELECTION",
+        "slotStatusBefore": "NEVER_STARTED",
+        "slotStatusAfter": "ACQUISITION_SUCCESSFUL",
+        "newReplacementObligation": false,
+        "ledgerRowAppended": false
+      },
+      "holdout": {
+        "split": "DEV_CONFIRM",
+        "semanticContentsInspectedOrDisclosed": false
+      },
+      "acceptedAs": "PRIMARY_ACQUISITION_FOR_ITS_ORIGINAL_SELECTION"
+    },
+    {
+      "workItemId": "P:29",
+      "kind": "PRIMARY",
+      "selectionIndex": 29,
+      "reserveRankPosition": null,
+      "split": "FINAL_HOLDOUT",
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "380734e62c1b1f5ebd3ec5f7b787dc4fe9ec757713bd258476a448055ac18c11",
+      "runRefSha256": "fc135a1311202370a18a1ef382f6ddac0a1007a4a9bb51d67144e72f2e944efa",
+      "integrity": {
+        "drawEntryDigestMatchesPlan": true,
+        "planKindPositionAndSplitMatch": true,
+        "splitBinding": {
+          "plan": "FINAL_HOLDOUT",
+          "drawSelectionOfSlot": "FINAL_HOLDOUT",
+          "drawEntryOwnSplit": "FINAL_HOLDOUT",
+          "ledgerEntry": null,
+          "executedRunSealedRoot": "FINAL_HOLDOUT"
+        },
+        "currentLedgerOccupantMatches": true,
+        "currentLedgerOccupant": "ORIGINAL_SELECTION",
+        "runRefSha256RecomputesFromDatabaseRun": true,
+        "runsForThisOrganisation": 1,
+        "nonDryRunsEverForThisTarget": 1,
+        "priorRunUnderAnyOtherFetchPolicy": false,
+        "completions": 1,
+        "dryRun": false,
+        "runTerminalState": "COMPLETED",
+        "completionErrorKind": null,
+        "runFetchPolicyVersion": "orgunit-fetch-policy-v6",
+        "runRuleVersion": "orgunit-signal-rules-v1",
+        "everyObservationV6": true,
+        "everyObservationBoundToThisOrganisation": true,
+        "distinctEcheRowKeysOnTheRun": 1,
+        "frozenRootEqualsCurrentValidClaim": true,
+        "everyObservationOnTheFrozenRoot": true,
+        "distinctRootKeys": 1,
+        "rootKeyKind": "claim",
+        "promotionRootObservations": 0,
+        "itemIntervalUtc": ["2026-09-23T22:02:40.468Z", "2026-09-23T22:02:41.679Z"],
+        "manualRetries": 0,
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "gatewayRequests": 1,
+        "pageAttempts": 0,
+        "robotsRequests": 1,
+        "sitemapDocumentRequests": 0,
+        "distinctHosts": 1,
+        "circuitOpenHosts": 0,
+        "maxAttemptNoPerRobotsUrl": 1,
+        "maxNonRobotsAttemptNo": 0,
+        "robotsTransportRetryIssued": false,
+        "robotsTransportRetryNote": "DNS_FAILURE with subtype DNS_NAME_NOT_FOUND is NOT retry-eligible under the landed v4 bounded transport retry policy, so no retry was issued and none was due; the single policy request is the whole of this run's network activity",
+        "ceilingsRespected": true,
+        "observationsByDiscoveryMethod": {
+          "ROBOTS": 1
+        },
+        "statusByDiscoveryMethod": {
+          "ROBOTS:<no HTTP response>": 1
+        },
+        "observationErrorKinds": {
+          "DNS_FAILURE": 1
+        },
+        "observationErrorSubtypes": {
+          "DNS_NAME_NOT_FOUND": 1
+        },
+        "redirectObservations": 0,
+        "redirectFactSummary": "none",
+        "rawPages": 0,
+        "candidateRows": 0,
+        "candidateRowsEqualTwicePages": true,
+        "pagesWithZeroExtractedCharacters": 0,
+        "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+        "persistenceAnomaly": false,
+        "inputOrRootMismatch": false,
+        "orchestrationError": false,
+        "hostStateAnomaly": false,
+        "sleepWakeDuringItem": 0,
+        "everyFigureMatchesLiveResult": true,
+        "verdict": "CLEAN"
+      },
+      "formalSd7": {
+        "recomputedInThisStep": true,
+        "rawPageCount": 0,
+        "postSd7Min": 0,
+        "postSd7Max": 0,
+        "countIsExact": true,
+        "exactDuplicateRowsRemoved": 0,
+        "distinctDocumentCount": 0,
+        "divergentGroupCount": 0,
+        "measurableDocumentCount": 0,
+        "nearDuplicateEdges": 0,
+        "comparedPairCount": 0,
+        "shortTextUnresolved": 0,
+        "nonTransitiveComponentCount": 0,
+        "unauditableComponentCount": 0,
+        "minimumAdmissiblePages": 4,
+        "wholeRangeAtOrAbove4": false,
+        "wholeRangeBelow4": true,
+        "rangeCrosses4": false,
+        "rangeForcedToExactValue": false,
+        "decidedByCase": "A",
+        "matchesLiveResult": true,
+        "sealedDetail": {
+          "file": "POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_V1_SD7_DETAIL_P_29.json",
+          "splitScopedRoot": "~/Developer/phase2b-2d-methodology-v2-sealed-holdout/gen1-final-holdout",
+          "sha256": "c429144c7b7f57ba8dd7edb90baf7081e992c03a8c5e8175f5eebaeff8468eae",
+          "bytes": 1243,
+          "shaAndBytesMatchLiveResult": true,
+          "recomputedSealedPayloadByteIdentical": true,
+          "birthUtc": "2026-09-23T22:03:14.543Z",
+          "writtenByItsOwnItemBeforeTheNextItemStarted": true,
+          "presentInAnyOtherSplitRoot": false,
+          "createdOrOverwrittenInThisStep": false,
+          "contentsDisplayedOrCopied": false
+        },
+        "decisionBasis": "exact post-SD7 count 0 is below the frozen minimum of 4 (case A); SD9 is determinate with no SD7 assumption at all, because deduplication has no branch that produces a page"
+      },
+      "finalSd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "diagnosticSd9InLiveResult": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "diagnosticWasNotItselfTheAdjudication": true,
+      "finalAdjudication": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "ownerDecision": "ADJUDICATE_P29_ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE_ACQUISITION_SAFE_ONLY_V1",
+      "replacementReasonDerivation": {
+        "governingRule": "Owner Clarification Q3 (APPROVE_MECHANICAL_REPLACEMENT_REASON_PRECEDENCE_V1), docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json, sha256 d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528; ranks applied in order, first applicable wins",
+        "observed": {
+          "totalGatewayRequests": 1,
+          "requestSequence": [
+            {
+              "discoveryMethod": "ROBOTS",
+              "attemptNo": 1,
+              "httpStatus": null,
+              "errorKind": "DNS_FAILURE",
+              "errorSubtype": "DNS_NAME_NOT_FOUND",
+              "robotsDecision": "NOT_APPLICABLE",
+              "contentTypeClass": null
+            }
+          ],
+          "everyRequestObtainedAnHttpResponse": false,
+          "anyUsableHttpResponse": false,
+          "anyTransportOrResolutionError": true,
+          "anyDisallowedDecision": false,
+          "policyResolution": "no site policy was retrieved or evaluated: the single robots.txt request never reached a server, so the run's root terminal reason is ROBOTS_UNREADABLE_ROOT and robots_decision carries the bootstrap value NOT_APPLICABLE, which is not a verdict",
+          "pageAttempts": 0,
+          "rawPages": 0,
+          "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT"
+        },
+        "rank1RootAuthorityFailure": {
+          "applies": false,
+          "evidence": "the frozen root is the organisation's single STRUCTURALLY_VALID website claim, equal to the current valid claim read in this step; no promotion, no revocation, no root mismatch, one claim-kind root key on the observation. The root authority was structurally valid and matched, and the request was validly issued under it - what failed was name resolution, not the authority contract"
+        },
+        "rank2RobotsDisallowed": {
+          "applies": false,
+          "evidence": "there was no readable or evaluable policy at all, so nothing explicitly disallowed the authorised crawl. The single observation carries robots_decision NOT_APPLICABLE (the bootstrap value pinned to the policy-retrieval request itself, not a verdict); no observation anywhere on this run carries DISALLOWED or BLOCKED_BY_POLICY"
+        },
+        "rank3HostUnreachable": {
+          "applies": true,
+          "evidence": "acquisition was prevented before obtaining the required usable web policy resource by a RESOLUTION failure: error kind DNS_FAILURE, error subtype DNS_NAME_NOT_FOUND, HTTP status null. No usable HTTP response established any application-level page outcome. Q3 rank 3 names 'DNS failure' explicitly and first in its list"
+        },
+        "rank4MinPagesNotMet": {
+          "applies": "superseded by rank 3",
+          "note": "MIN_PAGES_NOT_MET is rank 4, the fallback for a determinate SD9 failure to which none of ranks 1-3 applies. It is this item's SD9 STATUS (formal post-SD7 count 0 < 4) but it is NOT its replacement reason, because rank 3 applies first"
+        },
+        "firstApplicableRank": 3,
+        "derivedReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "precedentUnderQ3": "the same mechanical shape as selection index 4, which Owner Clarification Q3 itself records as ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE: firstPolicyAttemptErrorKind DNS_FAILURE, firstPolicyAttemptErrorSubtype DNS_NAME_NOT_FOUND, httpStatusClass null, no retry (NOT_RETRY_ELIGIBLE), rootTerminalReason ROBOTS_UNREADABLE_ROOT, 0 raw pages. The landed post-mixed-window adjudication (696c523) applied the same rank-3 derivation to selection index 18 on CONNECTION_RESET evidence",
+        "diagnosticReasonCopied": false,
+        "diagnosticReasonNote": "the live result's diagnostic SD9 value for this item is ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET. That is the SD7 pass's own yield status and it is NOT the canonical replacement reason; the reason is derived here from Q3 and is HOST_UNREACHABLE",
+        "reasonIsNotARetryPolicy": true,
+        "reasonIsNotARetryPolicyNote": "HOST_UNREACHABLE is a coarse mechanical replacement reason. It does not mean permanent, globally unreachable, or anything about operator or server intent, and it authorises no retry and no capability change here",
+        "capabilityReviewWarranted": false,
+        "capabilityReviewWarrantedNote": "a name that does not resolve is not a gap in this repository's acquisition capability; nothing in the landed fetch policy could have turned it into a readable policy. No PENDING_CAPABILITY_REVIEW state is created"
+      },
+      "slotConsequence": {
+        "selectionIndex": 29,
+        "split": "FINAL_HOLDOUT",
+        "currentOccupantRemains": "ORIGINAL_SELECTION",
+        "slotStatusBefore": "NEVER_STARTED",
+        "slotStatusAfter": "CURRENT_ACQUISITION_FAILURE",
+        "newReplacementObligation": true,
+        "newObligationReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "aFutureSlot29ReplacementReplaces": "ORIGINAL_SELECTION",
+        "aFutureSlot29ReplacementInheritsSplit": "FINAL_HOLDOUT",
+        "aFutureSlot29ReplacementPreviousSequenceForSlot": null,
+        "ledgerRowAppended": false,
+        "reservePosition10Assigned": false,
+        "reservePosition10Planned": false,
+        "reservePosition10IdentityResolved": false,
+        "windowExtended": false
+      },
+      "holdout": {
+        "split": "FINAL_HOLDOUT",
+        "semanticContentsInspectedOrDisclosed": false,
+        "note": "this item produced no page evidence at all, so there was nothing semantic to inspect even in memory"
+      },
+      "acceptedAs": "PRIMARY_ACQUISITION_FOR_ITS_ORIGINAL_SELECTION"
+    },
+    {
+      "workItemId": "P:30",
+      "kind": "PRIMARY",
+      "selectionIndex": 30,
+      "reserveRankPosition": null,
+      "split": "DEV_CONFIRM",
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "0dd9ad5f5bd469dc2cde3bc71ccde09b053f29977c91736bf8b759360804c91d",
+      "runRefSha256": "56865afcc0bddf654dab324a88a93dd40fbe917aa7ae33f05a42011e0afd5bf0",
+      "integrity": {
+        "drawEntryDigestMatchesPlan": true,
+        "planKindPositionAndSplitMatch": true,
+        "splitBinding": {
+          "plan": "DEV_CONFIRM",
+          "drawSelectionOfSlot": "DEV_CONFIRM",
+          "drawEntryOwnSplit": "DEV_CONFIRM",
+          "ledgerEntry": null,
+          "executedRunSealedRoot": "DEV_CONFIRM"
+        },
+        "currentLedgerOccupantMatches": true,
+        "currentLedgerOccupant": "ORIGINAL_SELECTION",
+        "runRefSha256RecomputesFromDatabaseRun": true,
+        "runsForThisOrganisation": 1,
+        "nonDryRunsEverForThisTarget": 1,
+        "priorRunUnderAnyOtherFetchPolicy": false,
+        "completions": 1,
+        "dryRun": false,
+        "runTerminalState": "COMPLETED",
+        "completionErrorKind": null,
+        "runFetchPolicyVersion": "orgunit-fetch-policy-v6",
+        "runRuleVersion": "orgunit-signal-rules-v1",
+        "everyObservationV6": true,
+        "everyObservationBoundToThisOrganisation": true,
+        "distinctEcheRowKeysOnTheRun": 1,
+        "frozenRootEqualsCurrentValidClaim": true,
+        "everyObservationOnTheFrozenRoot": true,
+        "distinctRootKeys": 1,
+        "rootKeyKind": "claim",
+        "promotionRootObservations": 0,
+        "itemIntervalUtc": ["2026-09-23T22:03:45.500Z", "2026-09-23T22:03:46.709Z"],
+        "manualRetries": 0,
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "gatewayRequests": 1,
+        "pageAttempts": 0,
+        "robotsRequests": 1,
+        "sitemapDocumentRequests": 0,
+        "distinctHosts": 1,
+        "circuitOpenHosts": 0,
+        "maxAttemptNoPerRobotsUrl": 1,
+        "maxNonRobotsAttemptNo": 0,
+        "robotsTransportRetryIssued": false,
+        "robotsTransportRetryNote": "DNS_FAILURE with subtype DNS_NAME_NOT_FOUND is NOT retry-eligible under the landed v4 bounded transport retry policy, so no retry was issued and none was due; the single policy request is the whole of this run's network activity",
+        "ceilingsRespected": true,
+        "observationsByDiscoveryMethod": {
+          "ROBOTS": 1
+        },
+        "statusByDiscoveryMethod": {
+          "ROBOTS:<no HTTP response>": 1
+        },
+        "observationErrorKinds": {
+          "DNS_FAILURE": 1
+        },
+        "observationErrorSubtypes": {
+          "DNS_NAME_NOT_FOUND": 1
+        },
+        "redirectObservations": 0,
+        "redirectFactSummary": "none",
+        "rawPages": 0,
+        "candidateRows": 0,
+        "candidateRowsEqualTwicePages": true,
+        "pagesWithZeroExtractedCharacters": 0,
+        "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+        "persistenceAnomaly": false,
+        "inputOrRootMismatch": false,
+        "orchestrationError": false,
+        "hostStateAnomaly": false,
+        "sleepWakeDuringItem": 0,
+        "everyFigureMatchesLiveResult": true,
+        "verdict": "CLEAN"
+      },
+      "formalSd7": {
+        "recomputedInThisStep": true,
+        "rawPageCount": 0,
+        "postSd7Min": 0,
+        "postSd7Max": 0,
+        "countIsExact": true,
+        "exactDuplicateRowsRemoved": 0,
+        "distinctDocumentCount": 0,
+        "divergentGroupCount": 0,
+        "measurableDocumentCount": 0,
+        "nearDuplicateEdges": 0,
+        "comparedPairCount": 0,
+        "shortTextUnresolved": 0,
+        "nonTransitiveComponentCount": 0,
+        "unauditableComponentCount": 0,
+        "minimumAdmissiblePages": 4,
+        "wholeRangeAtOrAbove4": false,
+        "wholeRangeBelow4": true,
+        "rangeCrosses4": false,
+        "rangeForcedToExactValue": false,
+        "decidedByCase": "A",
+        "matchesLiveResult": true,
+        "sealedDetail": {
+          "file": "POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_V1_SD7_DETAIL_P_30.json",
+          "splitScopedRoot": "~/Developer/phase2b-2d-methodology-v2-sealed/gen1-dev-confirm",
+          "sha256": "bade516165e23ed87a5a1b62faf0e851782785dfc5ccf498a7195f918d5ca7ac",
+          "bytes": 1236,
+          "shaAndBytesMatchLiveResult": true,
+          "recomputedSealedPayloadByteIdentical": true,
+          "birthUtc": "2026-09-23T22:04:01.925Z",
+          "writtenByItsOwnItemBeforeTheWindowStopped": true,
+          "presentInAnyOtherSplitRoot": false,
+          "createdOrOverwrittenInThisStep": false,
+          "contentsDisplayedOrCopied": false
+        },
+        "decisionBasis": "exact post-SD7 count 0 is below the frozen minimum of 4 (case A)"
+      },
+      "finalSd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "diagnosticSd9InLiveResult": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "diagnosticWasNotItselfTheAdjudication": true,
+      "finalAdjudication": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "ownerDecision": "ADJUDICATE_P30_ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE_V1",
+      "replacementReasonDerivation": {
+        "governingRule": "Owner Clarification Q3 (APPROVE_MECHANICAL_REPLACEMENT_REASON_PRECEDENCE_V1), docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json, sha256 d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528; ranks applied in order, first applicable wins",
+        "observed": {
+          "totalGatewayRequests": 1,
+          "requestSequence": [
+            {
+              "discoveryMethod": "ROBOTS",
+              "attemptNo": 1,
+              "httpStatus": null,
+              "errorKind": "DNS_FAILURE",
+              "errorSubtype": "DNS_NAME_NOT_FOUND",
+              "robotsDecision": "NOT_APPLICABLE",
+              "contentTypeClass": null
+            }
+          ],
+          "everyRequestObtainedAnHttpResponse": false,
+          "anyUsableHttpResponse": false,
+          "anyTransportOrResolutionError": true,
+          "anyDisallowedDecision": false,
+          "policyResolution": "no site policy was retrieved or evaluated: the single robots.txt request never reached a server, so the run's root terminal reason is ROBOTS_UNREADABLE_ROOT and robots_decision carries the bootstrap value NOT_APPLICABLE, which is not a verdict",
+          "pageAttempts": 0,
+          "rawPages": 0,
+          "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT"
+        },
+        "rank1RootAuthorityFailure": {
+          "applies": false,
+          "evidence": "the frozen root is the organisation's single STRUCTURALLY_VALID website claim, equal to the current valid claim read in this step; no promotion, no revocation, no root mismatch, one claim-kind root key on the observation. The root authority was structurally valid and matched, and the request was validly issued under it - what failed was name resolution, not the authority contract"
+        },
+        "rank2RobotsDisallowed": {
+          "applies": false,
+          "evidence": "there was no readable or evaluable policy at all, so nothing explicitly disallowed the authorised crawl. The single observation carries robots_decision NOT_APPLICABLE (the bootstrap value pinned to the policy-retrieval request itself, not a verdict); no observation anywhere on this run carries DISALLOWED or BLOCKED_BY_POLICY"
+        },
+        "rank3HostUnreachable": {
+          "applies": true,
+          "evidence": "acquisition was prevented before obtaining the required usable web policy resource by a RESOLUTION failure: error kind DNS_FAILURE, error subtype DNS_NAME_NOT_FOUND, HTTP status null. No usable HTTP response established any application-level page outcome. Q3 rank 3 names 'DNS failure' explicitly and first in its list"
+        },
+        "rank4MinPagesNotMet": {
+          "applies": "superseded by rank 3",
+          "note": "MIN_PAGES_NOT_MET is rank 4, the fallback for a determinate SD9 failure to which none of ranks 1-3 applies. It is this item's SD9 STATUS (formal post-SD7 count 0 < 4) but it is NOT its replacement reason, because rank 3 applies first"
+        },
+        "firstApplicableRank": 3,
+        "derivedReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "precedentUnderQ3": "the same mechanical shape as selection index 4, which Owner Clarification Q3 itself records as ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE: firstPolicyAttemptErrorKind DNS_FAILURE, firstPolicyAttemptErrorSubtype DNS_NAME_NOT_FOUND, httpStatusClass null, no retry (NOT_RETRY_ELIGIBLE), rootTerminalReason ROBOTS_UNREADABLE_ROOT, 0 raw pages. The landed post-mixed-window adjudication (696c523) applied the same rank-3 derivation to selection index 18 on CONNECTION_RESET evidence",
+        "diagnosticReasonCopied": false,
+        "diagnosticReasonNote": "the live result's diagnostic SD9 value for this item is ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET. That is the SD7 pass's own yield status and it is NOT the canonical replacement reason; the reason is derived here from Q3 and is HOST_UNREACHABLE",
+        "reasonIsNotARetryPolicy": true,
+        "reasonIsNotARetryPolicyNote": "HOST_UNREACHABLE is a coarse mechanical replacement reason. It does not mean permanent, globally unreachable, or anything about operator or server intent, and it authorises no retry and no capability change here",
+        "capabilityReviewWarranted": false,
+        "capabilityReviewWarrantedNote": "a name that does not resolve is not a gap in this repository's acquisition capability; nothing in the landed fetch policy could have turned it into a readable policy. No PENDING_CAPABILITY_REVIEW state is created"
+      },
+      "slotConsequence": {
+        "selectionIndex": 30,
+        "split": "DEV_CONFIRM",
+        "currentOccupantRemains": "ORIGINAL_SELECTION",
+        "slotStatusBefore": "NEVER_STARTED",
+        "slotStatusAfter": "CURRENT_ACQUISITION_FAILURE",
+        "newReplacementObligation": true,
+        "newObligationReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "aFutureSlot30ReplacementReplaces": "ORIGINAL_SELECTION",
+        "aFutureSlot30ReplacementInheritsSplit": "DEV_CONFIRM",
+        "aFutureSlot30ReplacementPreviousSequenceForSlot": null,
+        "ledgerRowAppended": false,
+        "reservePosition10Assigned": false,
+        "reservePosition10Planned": false,
+        "reservePosition10IdentityResolved": false,
+        "windowExtended": false
+      },
+      "holdout": {
+        "split": "DEV_CONFIRM",
+        "semanticContentsInspectedOrDisclosed": false
+      },
+      "acceptedAs": "PRIMARY_ACQUISITION_FOR_ITS_ORIGINAL_SELECTION"
+    }
+  ],
+  "unstartedItem": {
+    "workItemId": "P:31",
+    "kind": "PRIMARY",
+    "selectionIndex": 31,
+    "split": "FINAL_HOLDOUT",
+    "drawEntrySha256": "fcfe80444949e75b28e8154123211001558e6caeab69f36c0a322608a5ec2ca0",
+    "state": "NEVER_STARTED",
+    "nonDryRunsForThisTarget": 0,
+    "databaseRowsForThisTarget": 0,
+    "sealedFilesForThisTarget": 0,
+    "adjudicatedHere": false,
+    "isNot": [
+      "ACQUISITION_SUCCESSFUL",
+      "CURRENT_ACQUISITION_FAILURE",
+      "PENDING_CAPABILITY_REVIEW",
+      "a replacement obligation"
+    ],
+    "why": "the terminal P5 gate returned mayStartNextWorkItem false and nextWorkItemId null after item 4, so P:31 was never authorised. An item that was never attempted has produced no evidence, and an absence of evidence is not an unsuccessful acquisition",
+    "currentOccupant": "ORIGINAL_SELECTION",
+    "untouchedPrimaryPositionRemainsAvailable": true,
+    "availableTo": "a later, separately authorised owner continuation; this record neither plans nor authorises it"
+  },
+  "generation1StateBeforeAdjudication": {
+    "ACQUISITION_SUCCESSFUL": 27,
+    "CURRENT_ACQUISITION_FAILURE": 1,
+    "PENDING_CAPABILITY_REVIEW": 0,
+    "NEVER_STARTED": 82,
+    "totalSelectionSlots": 110,
+    "successfulSelectionIndices": [
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 25, 26,
+      27
+    ],
+    "failureSelectionIndices": [24],
+    "neverStarted": {
+      "from": 28,
+      "to": 109,
+      "count": 82
+    },
+    "reserveConsumedBeforeTheWindow": 9,
+    "reserveConsumedAfterThePrenetworkAppend": 10,
+    "openReplacementObligations": [
+      {
+        "selectionIndex": 24,
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "currentOccupantAtThatTime": "ORIGINAL_SELECTION",
+        "occupantAfterThePrenetworkAppend": "RESERVE_REPLACEMENT position 9 (sequence 9)"
+      }
+    ],
+    "source": "PHASE_2B_2D_A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_EVIDENCE_ADJUDICATION_V1 (f76b8ae)",
+    "verifiedAgainstSource": true
+  },
+  "transition": {
+    "R:24:9": "slot 24 CURRENT_ACQUISITION_FAILURE -> ACQUISITION_SUCCESSFUL (occupant reserve 9, sequence 9); its MIN_PAGES_NOT_MET obligation is closed and no further slot-24 replacement obligation exists",
+    "P:28": "NEVER_STARTED -> ACQUISITION_SUCCESSFUL",
+    "P:29": "NEVER_STARTED -> CURRENT_ACQUISITION_FAILURE (ORIGINAL_SELECTION; new HOST_UNREACHABLE obligation)",
+    "P:30": "NEVER_STARTED -> CURRENT_ACQUISITION_FAILURE (ORIGINAL_SELECTION; new HOST_UNREACHABLE obligation)",
+    "P:31": "NEVER_STARTED -> NEVER_STARTED (no transition; it was never authorised and is not adjudicated)",
+    "rules": "Methodology V2 R3 SD9 per slot occupant; Owner Clarification Q2 (same-slot append-only chain: a successful replacement closes its slot's obligation; a failed original selection opens a same-slot obligation against the CURRENT occupant) and Q3 (reason precedence)",
+    "derivedNotCopied": "the counts below were derived from the four formal outcomes applied to the f76b8ae state and then compared with the expected arithmetic; they agree"
+  },
+  "generation1StateAfterAdjudication": {
+    "ACQUISITION_SUCCESSFUL": 29,
+    "CURRENT_ACQUISITION_FAILURE": 2,
+    "PENDING_CAPABILITY_REVIEW": 0,
+    "NEVER_STARTED": 79,
+    "totalSelectionSlots": 110,
+    "accounting": "29 + 2 + 0 + 79 = 110",
+    "doNotExtrapolate": "29 successful slots of 110; not a population success rate"
+  },
+  "generationSuccessfulSelectionIndices": [
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+    26, 27, 28
+  ],
+  "generationSuccessfulSelectionIndicesNote": "a contiguous 0..28 for the first time: slot 24, the only gap in the previous state, closed on its reserve-9 replacement, and P:28 succeeded",
+  "generationSuccessfulBySplitInThisWindow": {
+    "FINAL_HOLDOUT": ["R:24:9"],
+    "DEV_CONFIRM": ["P:28"],
+    "DEV_TRAIN": []
+  },
+  "generationFailureSelectionIndices": [29, 30],
+  "pendingCapabilityReviewSelectionIndices": [],
+  "neverStartedSelectionIndices": {
+    "from": 31,
+    "to": 109,
+    "count": 79
+  },
+  "nextUntouchedPrimarySelectionIndex": 31,
+  "pendingReplacementObligations": [
+    {
+      "selectionIndex": 29,
+      "split": "FINAL_HOLDOUT",
+      "splitInheritedFrom": "the frozen draw selection entry for slot 29",
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "currentOccupant": "ORIGINAL_SELECTION",
+      "currentReserveRankPosition": null,
+      "currentLedgerSequence": null,
+      "nextReserveAssigned": false
+    },
+    {
+      "selectionIndex": 30,
+      "split": "DEV_CONFIRM",
+      "splitInheritedFrom": "the frozen draw selection entry for slot 30",
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "currentOccupant": "ORIGINAL_SELECTION",
+      "currentReserveRankPosition": null,
+      "currentLedgerSequence": null,
+      "nextReserveAssigned": false
+    }
+  ],
+  "openReplacementObligationCount": 2,
+  "pendingReplacementObligationOrdering": {
+    "rule": "Owner Clarification Q1: reserves are assigned in frozen ascending rank order, and obligations are served in ascending selectionIndex order",
+    "order": [29, 30],
+    "note": "29 before 30. This is the ORDER a later authorised window would serve them in; nothing is assigned or served here"
+  },
+  "closedReplacementObligations": [
+    {
+      "selectionIndex": 24,
+      "split": "FINAL_HOLDOUT",
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "closedBy": "RESERVE_REPLACEMENT position 9, ledger sequence 9, adjudicated ACQUISITION_SUCCESSFUL here",
+      "slotChainComplete": true
+    }
+  ],
+  "futureChainSemantics": {
+    "slot24": "successful; no further replacement for slot 24",
+    "slot28": "successful on its original selection; no replacement",
+    "slot29CurrentOccupant": "ORIGINAL_SELECTION",
+    "aFutureSlot29ReplacementReplaces": "ORIGINAL_SELECTION",
+    "aFutureSlot29ReplacementPreviousSequenceForSlot": null,
+    "aFutureSlot29ReplacementSplit": "FINAL_HOLDOUT",
+    "slot30CurrentOccupant": "ORIGINAL_SELECTION",
+    "aFutureSlot30ReplacementReplaces": "ORIGINAL_SELECTION",
+    "aFutureSlot30ReplacementPreviousSequenceForSlot": null,
+    "aFutureSlot30ReplacementSplit": "DEV_CONFIRM",
+    "replacementChain": "SAME_SELECTION_SLOT_APPEND_ONLY_ACROSS_PRECOMMITTED_WINDOWS (Owner Clarification Q2)",
+    "reserveOrder": "next unused reserve in frozen ascending rank order (Owner Clarification Q1)",
+    "reservePosition10": "UNASSIGNED and its identity unresolved until a later, separately authorised pre-network ledger append",
+    "reservePosition11": "UNASSIGNED and its identity unresolved",
+    "p6Caveat": "serving either obligation consumes a reserve, and the first such append crosses the P6 boundary; see the p6 block"
+  },
+  "stateChangesOutsideTheIntendedTransition": 0,
+  "replacementLedger": {
+    "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+    "revision": "the ten-entry revision produced at 3eb2733",
+    "sha256": "5d67a8f83506852cb745557dfe4e0ff0b9b037e59dc2c5a67fdbd16dbe0d666d",
+    "bytes": 10911,
+    "ledgerHash": "d71035336ed6b5e7d23f499a4349b6cb5c963c299319e4c7ba60dd3ca6c7e158",
+    "entries": 10,
+    "head": {
+      "sequence": 9,
+      "reserveRankPosition": 9,
+      "selectionIndex": 24,
+      "split": "FINAL_HOLDOUT",
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "entryHash": "79b1135570aad5d3456715c9699c396475bf64e6115a72312a45a9bb2c410084"
+    },
+    "everyValueRecomputedInThisStep": true,
+    "ledgerHashRecomputes": true,
+    "allTenEntryHashesRecompute": true,
+    "previousEntryHashChainIntact": true,
+    "validatorResult": "valid, entryCount 10",
+    "byteIdenticalAtWindowStart": true,
+    "byteIdenticalAtWindowStop": true,
+    "byteIdenticalNow": true,
+    "mutatedDuringExecution": false,
+    "mutatedByThisAdjudication": false,
+    "rowAppendedByThisAdjudication": false,
+    "reserveConsumed": 10,
+    "reserveUnused": 30,
+    "nextUnusedReservePosition": 10,
+    "reservePosition10": "UNASSIGNED",
+    "reservePosition11": "UNASSIGNED",
+    "reservePosition9RemainsConsumedAndCurrentForSlot24": true,
+    "slot24OccupantAfterAdjudication": "RESERVE_REPLACEMENT position 9 (sequence 9), now ACQUISITION_SUCCESSFUL",
+    "note": "an adjudication records outcomes; it never appends a ledger row. A replacement is assigned only by a later, separately authorised PRE-NETWORK append"
+  },
+  "p6": {
+    "rule": "reserveConsumed > 10 while successfulOrganisationCount < 50 (P6_MAX_REPLACEMENTS_BEFORE_SUCCESS_FLOOR = 10, P6_SUCCESS_FLOOR = 50, both frozen in windowContract.ts)",
+    "inputsAfterThisAdjudication": {
+      "reserveConsumed": 10,
+      "successfulOrganisationCount": 29
+    },
+    "evaluation": "10 > 10 is false",
+    "status": "NOT_TRIGGERED",
+    "statusVerifiedBy": "the landed evaluateContinuationWindowGate replayed in this step with generation {successfulOrganisationCount: 29, reserveConsumedCount: 10} and no completed observations returns CONTINUE_TO_NEXT_WORK_ITEM with an empty triggeredConditions list",
+    "notTriggeredDuringTheWindowEither": true,
+    "amendedOrBypassedHere": false,
+    "thresholdChangedHere": false,
+    "forwardGovernanceConsequence": {
+      "isAnObservationNotATrigger": true,
+      "statement": "the NEXT replacement assignment - for slot 29 or slot 30 - would consume reserve position 10 and raise canonical reserveConsumed from 10 to 11. With successfulOrganisationCount still 29, the continuation gate would then satisfy P6",
+      "arithmetic": "11 > 10 is true AND 29 < 50 is true",
+      "demonstratedMechanically": "the landed evaluateContinuationWindowGate, replayed in this step with an eleven-entry ledger count and generation {successfulOrganisationCount: 29, reserveConsumedCount: 11}, returns PAUSE_P6_UNEXPECTED_RESERVE_USAGE with the arm '11 replacements consumed with 29 successful organisations (> 10 before 50)'",
+      "whenItWouldFire": "at the PRE-START gate of the next window, before its first work item, because P6 is generation-global and the gate also requires reserveConsumedCount to equal the validated ledger entry count",
+      "consequence": "no later execution step may blindly append reserve 10 and expect the next window to be executable; the next strategy or owner decision must explicitly account for the P6 boundary BEFORE any reserve-10 append is authorised",
+      "notSolvedAmendedOrBypassedHere": true,
+      "noP6BypassIsProposed": true,
+      "runningPrimariesFirstIsNotABypass": "a window of untouched primaries only would consume no reserve and so would not cross the boundary, but whether that is the right sequencing is an owner strategy decision, not something this adjudication may decide or assume",
+      "dedicatedP6OwnerReviewDecisionExistsInGovernance": false,
+      "dedicatedP6OwnerReviewDecisionSearch": "searched the landed evaluation records and the continuation-window harness: governance defines the P6 CONDITION and the PAUSE_P6_UNEXPECTED_RESERVE_USAGE gate decision, but no dedicated P6 owner-review DECISION LABEL. The ordinary next-strategy decision is therefore recorded, with the P6 constraint stated on it"
+    }
+  },
+  "acquisitionPolicyTransitionLedger": {
+    "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_ACQUISITION_POLICY_TRANSITION_LEDGER_V6_GEN1.json",
+    "sha256": "592b17062a601ac21f0525209e133220b90ebd97848790f9da66e22f9391461d",
+    "bytes": 19454,
+    "entries": 7,
+    "byteIdentical": true,
+    "mutated": false,
+    "v7Created": false,
+    "priorRunsUnderAnotherPolicyForAnyWindowOrganisation": 0,
+    "everyWindowRunIsItsOrganisationsFirstAndOnlyRun": true,
+    "everyWindowRunIsV6": true,
+    "sameOrganisationPolicyTransitionOccurred": false,
+    "verifiedBy": "a read-only query over every run ever recorded for each of the four window organisations' eche row keys: one run each, orgunit-fetch-policy-v6, dry_run false"
+  },
+  "canonicalStateMechanism": "as in the post-P18-second adjudication (f76b8ae), the Generation-1 success/failure/obligation state is carried by the adjudication record itself; no separate canonical state file exists or was created, and no alternative state format was introduced",
+  "holdoutNonDisclosure": {
+    "holdoutItems": ["R:24:9", "P:29"],
+    "exposedHere": "work item id, selection index, reserve rank position, split, counts, ranges, booleans, HTTP status codes and classes, error-kind and error-subtype tokens, robots-decision tokens, the canonical failure reason, run-reference hash, draw-entry hash, sealed-file hash and bytes",
+    "pageTextTitlesUrlsHostsRedirectTargetsDocumentHashesSemanticLabelsClassDistributionOrIdentity": false,
+    "sealedFileContentsDisplayedCopiedOrCommitted": false,
+    "semanticHoldoutAccess": 0,
+    "mainTextUsedOnlyInMemoryForTheAcquisitionSafeSd7Recount": true,
+    "mainTextNote": "R:24:9's extracted page text was read into memory ONLY to re-run the landed analyseOrganisation and byte-compare the rebuilt sealed payload; no excerpt, title, URL, shingle or document hash left that process. P:29 produced no page evidence at all, so there was nothing to read",
+    "rangeCollapsed": false,
+    "rangeCollapsedNote": "R:24:9's admissible post-SD7 range [20, 22] is reported as a range; it was not collapsed to a single value, because the whole range being at or above 4 is what decides SD9 and nothing here needs a point estimate",
+    "disclosureScan": {
+      "result": "ZERO_HITS",
+      "needles": 327,
+      "needlesByKind": {
+        "echeRowKey": 8,
+        "orgUuid": 8,
+        "drawRankHash": 8,
+        "rootId": 8,
+        "ledgerEcheRowKey": 16,
+        "frameField": 2,
+        "runUuid": 4,
+        "host": 6,
+        "url": 82,
+        "documentHash": 74,
+        "pageTitle": 55,
+        "claimRawValue": 11,
+        "name": 8,
+        "erasmusCode": 8,
+        "pic": 8,
+        "oid": 8,
+        "websiteUrl": 5,
+        "city": 8
+      },
+      "needleKindCountsNote": "needles are de-duplicated and each value is counted under the first kind that supplied it, so a redirect target or canonical domain already present as a requested URL or a website claim value is counted there",
+      "scope": "selection slots 24, 28, 29, 30 and 31 and reserve positions 9, 10 and 11: organisation UUIDs, eche row keys, draw rank hashes and root authority ids; every string field of their frame entries; their legal names, Erasmus codes, PICs, OIDs, legacy website and canonical domain, and city; every website-claim raw value, hostname and registrable domain; every eche row key in the ten-entry ledger; the four run UUIDs; every requested host and URL, every redirect target raw and resolved, every decoded-response hash and every page title of 12+ characters of the four window runs",
+      "scannedFile": "this record, case-insensitive substring match, needles of 4+ characters",
+      "genericPatternScan": "no UUID-shaped, eche-row-key-shaped, URL-shaped or registrable-domain-shaped string anywhere in this record",
+      "scannerLocation": "this session's scratchpad scan script, read-only database role, outside git; the needle file was never written into the repository"
+    }
+  },
+  "identityDisclosure": {
+    "institutionNames": 0,
+    "organisationUuids": 0,
+    "echeRowKeys": 0,
+    "hostnames": 0,
+    "urls": 0,
+    "redirectTargets": 0,
+    "pageTitlesOrText": 0,
+    "documentHashes": 0,
+    "semanticLabels": 0,
+    "classDistributions": 0,
+    "publicLinkageIsOnly": [
+      "workItemId",
+      "selectionIndex",
+      "reserveRankPosition",
+      "split",
+      "SHA-256(run id)",
+      "drawEntrySha256",
+      "sealed-file sha256"
+    ],
+    "note": "the canonical replacement ledger carries eche row keys in every entry (landed format since genesis); this record binds the ledger by hash only and repeats none of them"
+  },
+  "scopeProofs": {
+    "institutionNetwork": 0,
+    "dnsHttpOrTls": 0,
+    "orgunitsDiscover": 0,
+    "acquisitionReruns": 0,
+    "retries": 0,
+    "databaseWrites": 0,
+    "replacementLedgerAppendOrEdit": 0,
+    "reserve10AssignedOrConsumed": false,
+    "reserve10IdentityResolved": false,
+    "reserve11AssignedOrConsumed": false,
+    "newPrenetworkAssignment": false,
+    "newStrategyOrWindowPlan": false,
+    "newLiveAuthority": false,
+    "p31Started": false,
+    "productionHarnessTestOrMigrationChanged": false,
+    "methodologyStrategyPlanAuthorityAssignmentOrLiveResultEdited": false,
+    "transitionLedgerEdited": false,
+    "drawOrFrameEdited": false,
+    "classifierOrProviderExecution": 0,
+    "labels": 0,
+    "setP": 0,
+    "setR": 0,
+    "a3": 0,
+    "phase2E": 0,
+    "sealedFilesCreatedOverwrittenOrRemoved": 0,
+    "p6SolvedAmendedOrBypassed": false,
+    "memoryEdited": false,
+    "filesChangedByThisStep": [
+      "docs/evaluation/PHASE_2B_2D_A2_POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_EVIDENCE_ADJUDICATION_V1.json"
+    ]
+  },
+  "validation": {
+    "command": "caffeinate -dimsu npm run validate",
+    "runsOfIt": 1,
+    "rerun": false,
+    "atHead": "bb64cc6e851b4e9c9a5d8c1f2d73620ac71c2108",
+    "workingTreeAtValidate": "HEAD plus exactly this one new untracked record, with this block as the placeholder",
+    "preGate": {
+      "quietIntervalNoValidateOrVitestProcessUtc": ["2026-09-24T10:48:32Z", "2026-09-24T10:50:48Z"],
+      "quietIntervalSeconds": 136,
+      "quietIntervalSamples": 27,
+      "samplesWithValidateOrVitest": 0,
+      "voidedQuietIntervals": 0,
+      "competingValidateObservedBeforeTheGate": "none, from this repository or any of its worktrees",
+      "immediateRecheckClean": true,
+      "immediateRecheckUtc": "2026-09-24T10:51:00Z",
+      "headEqualsStartingHeadAndOrigin": true,
+      "worktreeOnlyThisRecord": true,
+      "lidOpen": true
+    },
+    "startedUtc": "2026-09-24T10:51:01Z",
+    "finishedUtc": "2026-09-24T10:54:34Z",
+    "wallClockSeconds": 213,
+    "exitCode": 0,
+    "stages": {
+      "migrations:check": "PASS",
+      "typecheck": "PASS",
+      "lint": "PASS",
+      "format:check": "PASS",
+      "test": "PASS",
+      "build": "PASS"
+    },
+    "testFiles": {
+      "passed": 195,
+      "skipped": 5,
+      "failed": 0,
+      "total": 200
+    },
+    "tests": {
+      "passed": 5016,
+      "skipped": 75,
+      "failed": 0,
+      "total": 5091
+    },
+    "vitestDurationSeconds": 201.29,
+    "host": {
+      "power": "AC, battery 100%",
+      "lidOpen": true,
+      "caffeinate": "caffeinate -dimsu wrapping the single validate",
+      "sleepWakeOrDarkWakeEventsDuringRun": 0,
+      "concurrentValidateOrVitest": false,
+      "anotherValidateStartedDuringTheRun": false
+    },
+    "codeTestsHarnessOrMigrationsChangedToMakeItPass": false,
+    "adjudicationConclusionsAlteredAfterValidation": false,
+    "validatedBytesOfThisRecord": {
+      "sha256": "2eeb6bdda78615dacd4a2c0df5b61a4aada704470c916934f62cce88335d1132",
+      "bytes": 89211,
+      "note": "validate ran over this record with this block as {command, status PENDING, runsOfIt 0}; only this block was then filled, no conclusion changed, and the placeholder reconstruction below reproduces those exact bytes"
+    },
+    "placeholderReconstruction": {
+      "method": "restoring this block to {command: 'caffeinate -dimsu npm run validate', status: 'PENDING', runsOfIt: 0} in the final committed bytes and re-rendering with this repository's prettier reproduces the validated bytes",
+      "reconstructedSha256": "2eeb6bdda78615dacd4a2c0df5b61a4aada704470c916934f62cce88335d1132",
+      "reconstructedBytes": 89211,
+      "reconstructionMatchesValidatedBytes": true
+    },
+    "log": {
+      "location": "outside the repository, in this session's scratchpad",
+      "sha256": "2bcd7b750dc218f28734a7931d131abedd077cc79db77e7e04dd194c7120bb49",
+      "bytes": 28526,
+      "lines": 348,
+      "committedToGit": false,
+      "exitSource": "the log's own first and last lines: START 2026-09-24T10:51:01Z / END 2026-09-24T10:54:34Z EXIT 0"
+    },
+    "prettierRecheckedOnFinalBytes": true,
+    "disclosureScanRerunOnFinalBytes": "ZERO_HITS"
+  },
+  "terminalState": "PHASE_2B_2D_A2_POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_EVIDENCE_ADJUDICATED",
+  "nextOwnerDecision": "A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_STRATEGY",
+  "nextOwnerDecisionDerivation": {
+    "convention": "the landed A2 naming convention names the next strategy after the failing slot(s) whose replacement obligation it must serve: ...POST_P12..., ...POST_P18..., ...POST_P18_SECOND..., ...POST_P24...",
+    "twoObligationsSoTwoSlotsAreNamed": true,
+    "dedicatedP6OwnerReviewDecisionExists": false,
+    "consequence": "no dedicated P6 owner-review decision label exists in governance, so the ordinary next-strategy decision is recorded here with the P6 constraint stated explicitly on it rather than a new label being invented"
+  },
+  "nextOwnerDecisionScope": {
+    "mustAcknowledge": [
+      "two pending replacement obligations, selection indices 29 (FINAL_HOLDOUT) and 30 (DEV_CONFIRM), both ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE, both currently occupied by their ORIGINAL_SELECTION, served in ascending selectionIndex order (29 before 30) under Owner Clarification Q1",
+      "untouched primaries beginning at selection index 31, which is NEVER_STARTED and available",
+      "the P6 boundary: reserveConsumed is exactly 10 and successfulOrganisationCount is 29, so ANY new reserve append moves reserveConsumed above 10 while successes remain below 50 and the next window's pre-start gate would return PAUSE_P6_UNEXPECTED_RESERVE_USAGE"
+    ],
+    "mayNot": [
+      "authorise a reserve-10 append or a live window that depends on one without first resolving the P6 consequence",
+      "invent a P6 bypass, amend the P6 threshold, or treat P6 as already triggered"
+    ],
+    "notDecidedHere": "whether the next window should serve the obligations, run untouched primaries, or do something else is an owner strategy decision; this record neither selects nor precommits one"
+  },
+  "nextWindowSelectedAssignedOrPrecommittedHere": false
+}
