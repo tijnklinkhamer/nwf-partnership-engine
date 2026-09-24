@@ -1,0 +1,158 @@
+{
+  "recordId": "phase2b-2d-a2-post-p29-p30-replacement-and-primary-continuation-next-plan-v1",
+  "recordKind": "OFFLINE_PRECOMMITTED_WINDOW_PLAN",
+  "records": "PHASE_2B_2D_A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_NEXT_PLAN_V1",
+  "planSchema": "PRECOMMITTED_WINDOW_PLAN_GENERIC_V1",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "liveAuthorityGranted": false,
+  "bound": {
+    "governance": {
+      "strategy": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_NEXT_STRATEGY_V1.json",
+        "sha256": "3dd3b1c8bab8b4ac50de8efcc90c59a1a8dd3ab64c940ef902a30c928f396873",
+        "bytes": 64546
+      }
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650"
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    },
+    "startingReplacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "artifactFileSha256": "5d67a8f83506852cb745557dfe4e0ff0b9b037e59dc2c5a67fdbd16dbe0d666d",
+      "bytes": 10911,
+      "ledgerHash": "d71035336ed6b5e7d23f499a4349b6cb5c963c299319e4c7ba60dd3ca6c7e158",
+      "entryCount": 10,
+      "note": "the revision this window was planned against; the preflight proves the live ledger has exactly this prefix plus the planned assignments"
+    }
+  },
+  "windowName": "A2 post-P29/P30 next primary continuation window",
+  "plannedWindowSize": 5,
+  "workItemIdFormat": {
+    "PRIMARY": "P:<selectionIndex>",
+    "REPLACEMENT": "R:<selectionIndex>:<reserveRankPosition>",
+    "neverUses": "an organisation UUID or an eche row key"
+  },
+  "identityBinding": {
+    "method": "drawEntrySha256 = sha256(canonicalStringify(exact parsed draw entry))",
+    "canonicalizer": "canonicalStringify (src/orgunits/classify/canonical.ts), as the frame and draw hashes",
+    "replacementItemsDigest": "the draw RESERVE entry at reserveRankPosition",
+    "primaryItemsDigest": "the draw SELECTION entry at selectionIndex",
+    "institutionIdentityInThisFile": false
+  },
+  "workItems": [
+    {
+      "order": 1,
+      "workItemId": "P:36",
+      "kind": "PRIMARY",
+      "selectionIndex": 36,
+      "reserveRankPosition": null,
+      "split": "FINAL_HOLDOUT",
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "f29bc5f480aff807885bef246961168db68d1a9d8ee50ed3fb679f45c5e738c9",
+      "plannedLedgerSequence": null,
+      "replacesOccupant": null,
+      "replacementReason": null
+    },
+    {
+      "order": 2,
+      "workItemId": "P:37",
+      "kind": "PRIMARY",
+      "selectionIndex": 37,
+      "reserveRankPosition": null,
+      "split": "DEV_CONFIRM",
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "0c52ed3c2097cfba0dbae764994fba1036c1b4288aa92f3fd6b4bc6d65b4a7af",
+      "plannedLedgerSequence": null,
+      "replacesOccupant": null,
+      "replacementReason": null
+    },
+    {
+      "order": 3,
+      "workItemId": "P:38",
+      "kind": "PRIMARY",
+      "selectionIndex": 38,
+      "reserveRankPosition": null,
+      "split": "FINAL_HOLDOUT",
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "3a7f4896cec0095325e7d6101016cc0c7ab86f63619687343278ba0acec63193",
+      "plannedLedgerSequence": null,
+      "replacesOccupant": null,
+      "replacementReason": null
+    },
+    {
+      "order": 4,
+      "workItemId": "P:39",
+      "kind": "PRIMARY",
+      "selectionIndex": 39,
+      "reserveRankPosition": null,
+      "split": "DEV_TRAIN",
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "ec6eed9f6166367038f63237b17f46860b8dbd824695c039939e2fac74914dfd",
+      "plannedLedgerSequence": null,
+      "replacesOccupant": null,
+      "replacementReason": null
+    },
+    {
+      "order": 5,
+      "workItemId": "P:40",
+      "kind": "PRIMARY",
+      "selectionIndex": 40,
+      "reserveRankPosition": null,
+      "split": "DEV_CONFIRM",
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "44d58f74341c83f880b24774334e916105f3104e50b8bca8156471f892334d37",
+      "plannedLedgerSequence": null,
+      "replacesOccupant": null,
+      "replacementReason": null
+    }
+  ],
+  "plannedPrimarySelectionIndices": [36, 37, 38, 39, 40],
+  "plannedReplacementAssignments": [],
+  "splitComposition": {
+    "DEV_TRAIN": 1,
+    "DEV_CONFIRM": 2,
+    "FINAL_HOLDOUT": 2
+  },
+  "pauseThresholdsForThisWindow": {
+    "p2PercentageArm": "> 40% of the planned window size",
+    "p2PercentageThresholdCount": 3,
+    "p5PercentageArm": "> 30% of the planned window size",
+    "p5LowYieldThresholdCount": 2,
+    "denominator": "the frozen planned window size, never the completed count"
+  },
+  "stateAtPlanTime": {
+    "successfulSelectionSlots": 34,
+    "currentAcquisitionFailures": 2,
+    "pendingReplacementObligations": 2,
+    "nextNeverStartedSelectionIndex": 36,
+    "replacementLedgerEntries": 10,
+    "reserveConsumed": 10,
+    "reserveUnused": 30,
+    "nextUnusedReservePosition": 10,
+    "p6Fires": false,
+    "liveAuthorityGranted": false
+  },
+  "failureSemantics": {
+    "onUnsuccessfulWorkItem": [
+      "preserve its evidence",
+      "assign no reserve inside this window",
+      "do not enlarge the window",
+      "a pending replacement obligation arises only after adjudication",
+      "a replacement assignment requires another precommitted window under new owner authority"
+    ],
+    "dynamicReserveAssignment": false,
+    "windowGrowth": false
+  },
+  "orderIsFrozen": "The work items execute in exactly this order. Nothing is sorted, inserted or skipped at run time.",
+  "windowPlanHash": "8771dd60c5513b96e024bd2ca0faae3a67376c2eb29e9030410199413c142679"
+}
