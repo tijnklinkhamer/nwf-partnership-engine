@@ -1,0 +1,481 @@
+{
+  "recordId": "phase2b-2d-a2-primary-only-p6-stabilisation-autopilot-governance-v1",
+  "recordKind": "OFFLINE_ACQUISITION_CADENCE_GOVERNANCE",
+  "records": "PHASE_2B_2D_A2_PRIMARY_ONLY_P6_STABILISATION_AUTOPILOT_GOVERNANCE_V1",
+  "recordedAtUtc": "2026-09-24T23:35:00Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "appendOnly": true,
+  "isLiveAuthority": false,
+  "isLiveAuthorityNote": "this record governs a CADENCE, not a request. It grants no institution network authority of its own. Every child window still requires its own committed strategy, plan and LIVE_WINDOW_AUTHORITY before any institution network activity, and that per-window authority is the only thing that ever authorises a fetch.",
+  "thisFileAuthorises": ["PRIMARY_ONLY_P6_STABILISATION_AUTOPILOT_V1"],
+  "startingHead": "c05bba9e48b7c5bc1d574b997cff68fefd62260a",
+
+  "ownerDecision": {
+    "name": "PRIMARY_ONLY_P6_STABILISATION_AUTOPILOT_V1",
+    "grantedBy": "the owner, in the task that produced this record",
+    "whatItChanges": "PROCESS CADENCE ONLY: it removes the owner round-trip between mechanically-decidable stages, and reduces full-repository validation to one run per child live window",
+    "whatItDoesNotChange": [
+      "Methodology V2 success criteria",
+      "the frozen frame",
+      "the frozen draw",
+      "split assignment",
+      "fetch policy",
+      "page, request and host budgets",
+      "P1-P8 semantics",
+      "P2 and P5 denominator semantics",
+      "replacement-ledger rules",
+      "Owner Clarification Q1, Q2, Q3 and Q4",
+      "SD7",
+      "HOLDOUT secrecy",
+      "sequential execution",
+      "retry policy",
+      "acquisition adjudication rules"
+    ],
+    "preserved": [
+      "5-item windows",
+      "concurrency = 1",
+      "P1-P8 evaluated after every item",
+      "a durable Git boundary before any institution network activity"
+    ],
+    "replacesCadence": "the former human-between-every-clean-batch cadence is replaced, for this bounded scope only, by: durable mechanical checkpoint + independent evidence adjudication + fail-closed continuation",
+    "windowSizeRemainsFive": "the frozen Corpus Acquisition Plan recommended size is 5 and is unchanged. NO 20-item gate window is created. Every subwindow is exactly 5 items so the P2 denominator stays 5, the P5 denominator stays 5, the P2 count threshold stays 3 and the P5 count threshold stays 2",
+    "boundedTo": "a maximum of FOUR additional primary-only windows",
+    "isNotAuthorityFor": "an unbounded cohort sweep"
+  },
+
+  "bound": {
+    "evidenceAdjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_NEXT_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "f16b667d38c3b1afec09ede9a40320b9d8491b07a8ce039e565afb13344fc895",
+      "bytes": 51309,
+      "commit": "c05bba9e48b7c5bc1d574b997cff68fefd62260a",
+      "role": "the canonical state this cadence starts from: 38 successful, failures [29,30,38], never started 41..109, ledger 10 entries, P6 NOT_TRIGGERED"
+    },
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306,
+      "role": "Methodology V2 R3, the frozen acceptance methodology"
+    },
+    "methodologyFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+      "bytes": 17514,
+      "role": "the owner freeze approval of R3"
+    },
+    "corpusAcquisitionPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "bytes": 45200,
+      "role": "the frozen corpus acquisition plan; its recommended window size of 5 is preserved here"
+    },
+    "corpusAcquisitionPlanV1OwnerApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1_OWNER_APPROVAL.json",
+      "sha256": "0ac475031e81a60ae58d70bb83d5f71ee3cc441573dc82cf88145fdf1e8fec14",
+      "bytes": 10949
+    },
+    "ownerClarificationQ1ToQ4": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "contains": [
+        "Q1_reserveAssignmentOrder",
+        "Q2_replacementChain",
+        "Q3_replacementReasonPrecedence",
+        "Q4_windowLocalPauseSemantics"
+      ],
+      "role": "Q1 obligation ordering and Q3 replacement-reason precedence govern every child adjudication; Q4 governs window-local pause semantics"
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650"
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293",
+      "role": "splits and per-item draw digests are always derived from this frozen draw, never from any semantic property"
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "5d67a8f83506852cb745557dfe4e0ff0b9b037e59dc2c5a67fdbd16dbe0d666d",
+      "bytes": 10911,
+      "ledgerHash": "d71035336ed6b5e7d23f499a4349b6cb5c963c299319e4c7ba60dd3ca6c7e158",
+      "entryCount": 10,
+      "reserveConsumed": 10,
+      "mustRemainUnchangedThroughout": true
+    },
+    "acquisitionPolicyTransitionLedgerV6": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_ACQUISITION_POLICY_TRANSITION_LEDGER_V6_GEN1.json",
+      "sha256": "592b17062a601ac21f0525209e133220b90ebd97848790f9da66e22f9391461d",
+      "bytes": 19454,
+      "role": "the current acquisition policy lineage; every child window executes under orgunit-fetch-policy-v6 and appends nothing here"
+    },
+    "p1ToP8Implementation": [
+      {
+        "path": "src/test/harness/phase2b2d/continuationWindow/windowContract.ts",
+        "sha256": "b35bf4a847d32277423524c4cadf19fbb16c2b484ddc4c397106da82f3bb3a08",
+        "bytes": 17796,
+        "role": "the frozen P1-P8 thresholds and the completed-work observation contract"
+      },
+      {
+        "path": "src/test/harness/phase2b2d/continuationWindow/windowGate.ts",
+        "sha256": "3a747b6cb245e34858d444ea84d0e9cd6042278d2e7d60a3b612ae070796b1be",
+        "bytes": 12589,
+        "role": "evaluateContinuationWindowGate, the pause evaluator"
+      }
+    ],
+    "genericStrategyPlanAndP7Builders": [
+      {
+        "path": "src/test/harness/phase2b2d/continuationWindow/windowPlan.ts",
+        "sha256": "8656b025712fd7b2ca13cf7eb156868d465d3f344ed276edfd13687f6309060b",
+        "bytes": 67848,
+        "role": "windowSpecFromAcquisitionWindowStrategy, buildPrecommittedWindowPlan, recomputeWindowPlanHash and computePrecommittedWindowPreflight (P7)"
+      },
+      {
+        "path": "src/test/harness/phase2b2d/continuationWindow/replacementLedger.ts",
+        "sha256": "88b9e597bb5b1b0b1e33954057d61ba4be60490dcb1bab88e2924a52d7cb7f25",
+        "bytes": 19613,
+        "role": "validateReplacementLedger, reserveConsumedCount and currentOccupantForSelectionIndex"
+      }
+    ],
+    "sd7Implementation": [
+      {
+        "path": "src/test/harness/phase2b2d/sd7/pilotAnalysis.ts",
+        "sha256": "7edfb2b2f0e13abebf651a93433fc49139f2b9b0db603a88bde15682d3c77010",
+        "bytes": 12360,
+        "role": "analyseOrganisation, the formal SD7 measurement"
+      },
+      {
+        "path": "src/test/harness/phase2b2d/sd7/pilotArtifact.ts",
+        "sha256": "50f18d08a2c37b8666086dfb6e79f9b54d9af1d8e7040bab11a40e58c91b983a",
+        "bytes": 9038,
+        "role": "toSealedRecord, the sealed detail projection"
+      }
+    ]
+  },
+
+  "startingCanonicalState": {
+    "ACQUISITION_SUCCESSFUL": 38,
+    "successfulSelectionIndices": "0..28 plus 31..37 plus 39..40",
+    "CURRENT_ACQUISITION_FAILURE": [29, 30, 38],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "NEVER_STARTED": { "from": 41, "to": 109, "count": 69 },
+    "accounting": "38 + 3 + 0 + 69 = 110",
+    "openReplacementObligationsInQ1Order": [29, 30, 38],
+    "replacementLedgerEntryCount": 10,
+    "reserveConsumed": 10,
+    "reservePosition10": "UNASSIGNED",
+    "p6": { "status": "NOT_TRIGGERED", "evaluation": "10 > 10 is false" },
+    "nextUntouchedPrimarySelectionIndex": 41
+  },
+
+  "scope": {
+    "maxChildWindows": 4,
+    "maxFuturePrimaryAttempts": 20,
+    "potentialPrimaryRange": "P41..P60",
+    "executableOnlyThroughItsOwnCommittedFiveItemChildWindow": true,
+    "childWindows": [
+      { "window": "A", "primaries": [41, 42, 43, 44, 45] },
+      { "window": "B", "primaries": [46, 47, 48, 49, 50] },
+      { "window": "C", "primaries": [51, 52, 53, 54, 55] },
+      {
+        "window": "D",
+        "primaries": [56, 57, 58, 59, 60],
+        "role": "bounded slack for failures only"
+      }
+    ],
+    "orderingIsFixed": "windows run in the listed order and items in ascending selectionIndex. No reordering by split, organisation identity, expected accessibility, robots likelihood, prior outcomes, geography, language or any semantic property",
+    "ifAWindowPausesBeforeCompleting": "the cadence STOPS. It does not skip to the next listed range",
+    "reserveItemsAuthorised": 0,
+    "replacementsAuthorised": 0,
+    "ledgerMutationsAuthorised": 0,
+    "concurrentLiveAcquisitionsAuthorised": 0,
+    "p61OrBeyondAuthorised": false,
+    "secondGenerationAuthorised": false
+  },
+
+  "stopConditions": {
+    "A": {
+      "name": "P6_SUCCESS_FLOOR_REACHED",
+      "when": "canonical successfulOrganisationCount >= 50 after a child adjudication",
+      "consequence": "stop successfully. Do NOT begin another primary-only child window, do NOT assign reserve 10, do NOT begin replacement service. At >= 50 the P6 second arm is false, so resuming Q1 replacement service is a NEW owner decision"
+    },
+    "B": {
+      "name": "AUTOPILOT_PRIMARY_ATTEMPT_CAP_REACHED_BELOW_P6_SUCCESS_FLOOR",
+      "when": "all four child windows are fully adjudicated but canonical successes remain below 50",
+      "consequence": "stop; do not execute P61; owner decision required"
+    },
+    "C": {
+      "name": "FAIL_CLOSED_CONDITION",
+      "conditions": [
+        "canonical Git tip differs unexpectedly",
+        "another canonical A2 writer appears",
+        "another A2 live acquisition appears",
+        "the replacement ledger changes",
+        "reserve count becomes other than 10",
+        "reserve 10 or 11 is assigned",
+        "a methodology, frame or draw hash mismatch",
+        "a strategy, plan or P7 mismatch",
+        "a Q1 ordering mismatch",
+        "unexplained database rows",
+        "an orphan run or completion mismatch",
+        "any P1-P8 pause",
+        "an SD7 range that crosses 4",
+        "an adjudication reason that is ambiguous under frozen governance",
+        "host sleep, wake or DarkWake",
+        "lid closed",
+        "AC lost during an active unattended child window",
+        "live-result full validation failure or contamination",
+        "any code, test, harness, fetch-policy or migration change becoming necessary",
+        "a sealed-file collision",
+        "a HOLDOUT disclosure risk",
+        "a session or tool limit that threatens completion of the current durable stage"
+      ],
+      "onSessionOrToolLimit": "finish only the current safe durable boundary if possible. Never start a live item that cannot be responsibly finished and recorded. Report the exact continuation point"
+    }
+  },
+
+  "validationPolicy": {
+    "activeOnlyAfterThisRecordIsCommittedAndPushed": true,
+    "fullValidationRequired": "exactly once per CHILD LIVE WINDOW, after live acquisition terminates and the LIVE_RESULT draft is complete",
+    "fullValidationNotRequiredSeparatelyFor": [
+      "strategy",
+      "plan",
+      "live authority",
+      "evidence adjudication"
+    ],
+    "why": "those four records change no executable code",
+    "offlineRecordsStillRequire": [
+      "JSON parse",
+      "deterministic rendering",
+      "Prettier",
+      "exact hash and byte bindings",
+      "canonical builder reproduction where applicable",
+      "P7 where applicable",
+      "independent Generation-state derivation",
+      "Q1-order derivation",
+      "a disclosure scan",
+      "the relevant negative probes"
+    ],
+    "fullValidationProcedure": "a 120-second correctness-critical quiet gate chained directly into one caffeinate -dimsu npm run validate, in a single process",
+    "blocksOn": "real shared-state conflicts only",
+    "doesNotBlockOn": "unrelated CPU or container load from other projects",
+    "onFailureOrContamination": "STOP; no automatic rerun; the owner must explicitly decide any rerun",
+    "revokedIf": "any code, test, harness, fetch policy, migration or methodology implementation changes - the cadence then STOPS and this optimisation no longer applies",
+    "noCodeChangesAuthorisedByThisRecord": true
+  },
+
+  "childWindowAlgorithm": {
+    "canonicalStateIsDerivedIndependentlyAfterEveryAdjudication": true,
+    "neverTrust": [
+      "the strategy adapter's success count",
+      "planPendingReplacementObligations for Q1 ordering"
+    ],
+    "why": "at ledger entryCount 10 the adapter's P6 arm (entryCount > 10) is false at any success count, so a forged success count passes that layer. Success count and Q1 obligation ordering remain governance-held",
+    "steps": [
+      "determine the next untouched primary",
+      "require it to equal the first item of the next authorised range",
+      "select exactly five consecutive untouched primaries",
+      "no replacements",
+      "no reserve assignments",
+      "no ledger append",
+      "generate the child strategy",
+      "generate the child plan through the landed builders",
+      "generate the child live authority",
+      "commit, push and refetch each durable boundary",
+      "execute exactly five items sequentially unless a pause fires",
+      "full-validate the LIVE_RESULT exactly once",
+      "commit and push the live result",
+      "adjudicate mechanically and independently",
+      "commit and push the adjudication",
+      "recompute canonical successes, failures, obligations and never-started",
+      "check the stop conditions",
+      "if none apply, begin the next child window"
+    ],
+    "ownerIsNotConsultedBetweenCleanChildWindows": true,
+    "generationSuccessCountUsedByTheLiveGate": "the canonical count AT WINDOW START; it is never incremented from live diagnostics within that window"
+  },
+
+  "p1ToP8RemainFailClosed": {
+    "evaluatedPerIndependentFiveItemChildWindow": true,
+    "P1": "at least 3 consecutive INVALID_ROOT_AUTHORITY",
+    "P2": "at least 3 consecutive robots refusals, or more than 40 percent of the five-item window; count threshold 3",
+    "P3": "at least 2 consecutive FAILED, or any ORCHESTRATION_ERROR",
+    "P4": "any persistence anomaly",
+    "P5": "raw pages below 4 on more than 30 percent of the five-item window; count threshold 2",
+    "P6": "reserveConsumed above 10 AND canonical successes below 50; because no reserve is consumed here, reserveConsumed must remain 10",
+    "P7": "any binding or invariant mismatch",
+    "P8": "any host anomaly",
+    "onAnyPause": "STOP THE ENTIRE CADENCE. Do not merely start the next five-item child window"
+  },
+
+  "hostRequirements": {
+    "lidMustRemainOpenThroughout": true,
+    "acPowerRequiredBeforeEachChildLiveWindowAndBeforeFullValidation": true,
+    "batteryOnlyContinuationAuthorised": false,
+    "batteryOnlyNote": "AC is REQUIRED here even though older authorities permitted battery operation",
+    "dedicatedCaffeinateDimsuPerActiveLiveItemAndValidation": true,
+    "sleepWakeOrDarkWakeDuringAnItem": "preserve evidence, STOP, no target rerun, no next item, route to incident review",
+    "sleepWakeOrDarkWakeBetweenItems": "STOP; do not resume unattended",
+    "sleepWakeOrDarkWakeDuringFullValidation": "the validation is contaminated; STOP; no automatic rerun; the owner must explicitly decide a rerun"
+  },
+
+  "concurrency": {
+    "canonicalGitWriters": 1,
+    "liveA2Acquisitions": 1,
+    "databaseWritingAcquisitionProcesses": 1,
+    "childLiveItems": "sequential",
+    "parallelWindows": 0,
+    "readOnlyHelperProcessesPermittedFor": [
+      "hash recomputation",
+      "artifact inspection",
+      "disclosure checks",
+      "deterministic comparison"
+    ],
+    "correctnessIsNeverTradedForCpuParallelism": true
+  },
+
+  "publicAndHoldoutSafety": {
+    "finalHoldoutDataStaysSealed": true,
+    "neverCommittedOrPubliclyExposed": [
+      "institution identity",
+      "organisationId",
+      "echeRowKey",
+      "root URL",
+      "hostname",
+      "page URL",
+      "page title or text",
+      "semantic labels",
+      "class distribution",
+      "document hash lists"
+    ],
+    "publicRecordsMayUse": [
+      "workItemId",
+      "selectionIndex",
+      "split",
+      "opaque draw digest",
+      "opaque run-ref hash",
+      "generic counts and ranges",
+      "generic diagnostic and final acquisition status",
+      "sealed artifact sha256 and bytes"
+    ],
+    "disclosureScanEveryPublicRecord": true
+  },
+
+  "artifactAndCommitDiscipline": {
+    "priorCanonicalArtifactsAreNeverEdited": true,
+    "governanceIsAppendOnly": true,
+    "everyStageCommittedAndPushedBeforeAnyDependentStage": true,
+    "perChildWindowCommitOrder": ["strategy", "plan", "authority", "live result", "adjudication"],
+    "noSquash": true,
+    "noAmend": true,
+    "noForcePush": true,
+    "noMergeCommit": true,
+    "refetchAfterEveryPush": true,
+    "requireLocalEqualsOriginBeforeContinuing": true,
+    "ownerDoesNotApproveEachCommitIndividuallyUnderThisAuthority": true
+  },
+
+  "absoluteProhibitions": [
+    "replacement execution",
+    "reserve assignment",
+    "ledger append",
+    "concurrency above 1",
+    "P61 or beyond",
+    "retrying a completed or failed institution target",
+    "changing orgunit-fetch-policy-v6",
+    "widening budgets",
+    "modifying frozen methodology",
+    "classifier work",
+    "provider work",
+    "labels",
+    "SET_P",
+    "SET_R",
+    "A3",
+    "Phase 2E",
+    "code, test or harness changes",
+    "migration changes"
+  ],
+
+  "expectedProgress": {
+    "startingSuccesses": 38,
+    "successFloor": 50,
+    "minimumAdditionalSuccessfulPrimariesNeeded": 12,
+    "potentialIfClean": {
+      "afterWindowA": "up to 43",
+      "afterWindowB": "up to 48",
+      "afterWindowC": "potentially at or above 50"
+    },
+    "windowDIsBoundedSlackOnly": true,
+    "doNotAssumeTheseSuccessesInAdvance": true,
+    "onlyCommittedAdjudicationsCount": true
+  },
+
+  "scopeProofs": {
+    "codeTestHarnessOrMigrationChangedByThisRecord": false,
+    "methodologyFrameDrawOrLedgerChangedByThisRecord": false,
+    "networkActivityByThisRecord": "none",
+    "databaseWritesByThisRecord": 0,
+    "reserveAssignedByThisRecord": false,
+    "ledgerAppendedByThisRecord": false,
+    "institutionNetworkAuthorityGrantedByThisRecord": false,
+    "priorCanonicalArtifactsEdited": 0,
+    "filesAddedByThisRecord": 1
+  },
+
+  "validation": {
+    "standard": "the one full validation this governance record requires, after the normal correctness-critical 120-second quiet gate",
+    "command": "caffeinate -dimsu npm run validate",
+    "runs": 1,
+    "chainedDirectlyFromTheQuietGateInOneProcess": true,
+    "quietGateSeconds": 120,
+    "quietGateSatisfied": true,
+    "quietGateResets": 0,
+    "recheckImmediatelyBeforeStart": true,
+    "recheckResult": 0,
+    "startedUtc": "2026-09-24T23:37:37Z",
+    "finishedUtc": "2026-09-24T23:41:05Z",
+    "elapsedSeconds": 208,
+    "exitCode": 0,
+    "testFiles": "195 passed | 5 skipped (200)",
+    "tests": "5016 passed | 75 skipped (5091)",
+    "stages": "migrations:check, typecheck, lint, format:check, test, build - all passed",
+    "hostAtStart": { "power": "AC", "batteryPercent": 100, "lidOpen": true },
+    "hostAtEnd": { "power": "AC", "batteryPercent": 100, "lidOpen": true },
+    "lidOpenThroughout": true,
+    "sleepOrWakeDuringValidation": false,
+    "lastSleepWakeTransitionBeforeValidation": "2026-09-24T19:24:36Z, about four hours before the run",
+    "correctnessCriticalConcurrentValidation": false,
+    "unrelatedCpuOrContainerLoadTreatedAsBlocking": false,
+    "governanceRecordSha256DuringValidation": "51e6aafbc5da1e5e1c44175b4d5fc29449d4cec96048b1d64f058701df488660",
+    "governanceRecordBytesDuringValidation": 19810,
+    "governanceRecordUnchangedByValidation": true,
+    "ledgerSha256BeforeValidation": "5d67a8f83506852cb745557dfe4e0ff0b9b037e59dc2c5a67fdbd16dbe0d666d",
+    "ledgerSha256AfterValidation": "5d67a8f83506852cb745557dfe4e0ff0b9b037e59dc2c5a67fdbd16dbe0d666d",
+    "ledgerUnchanged": true,
+    "reserveStateUnchanged": true,
+    "workingTreeDuringValidation": "exactly one untracked file: this governance record; nothing else added, modified or deleted, before or after",
+    "automaticRerunPerformed": false,
+    "prettierClean": true,
+    "deterministicJson": true,
+    "disclosureScanClean": true,
+    "everyBoundHashRecomputedFromDisk": {
+      "bindingsChecked": 16,
+      "mismatches": 0
+    },
+    "postValidationEdit": {
+      "whatChanged": "only this validation block, filled from the completed run",
+      "scopeChanged": false,
+      "bindingsChanged": false,
+      "revalidated": "not re-run: the edit adds a record of the validation to a file that changes no executable code"
+    }
+  },
+
+  "terminalState": "PHASE_2B_2D_A2_PRIMARY_ONLY_P6_STABILISATION_AUTOPILOT_GOVERNANCE_ACTIVE",
+  "nextOwnerDecision": "NONE_UNTIL_A_STOP_CONDITION_IS_REACHED",
+  "nextStep": "A2 child window A strategy, primaries P:41 through P:45"
+}
