@@ -1,0 +1,288 @@
+{
+  "recordId": "phase2b-2d-a2-post-p29-p30-replacement-and-primary-continuation-validation-incident-adjudication-v1",
+  "recordKind": "VALIDATION_INCIDENT_ADJUDICATION",
+  "records": "PHASE_2B_2D_A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_VALIDATION_INCIDENT_ADJUDICATION_V1",
+  "recordedAtUtc": "2026-09-24T19:34:09Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "startingHead": "f5dadaf61f53064bbba473423c91946361d038d2",
+  "publicSafe": true,
+  "thisFileAuthorises": ["AUTHORISE_ONE_POST_INCIDENT_FULL_VALIDATE_RERUN_V1"],
+  "adjudicatesLiveAcquisitionEvidence": false,
+  "ownerDecisions": [
+    "ACCEPT_POST_P29_P30_LIVE_WINDOW_EVIDENCE_PENDING_VALIDATION_CLOSURE_V1",
+    "RETAIN_FIRST_VALIDATION_ATTEMPT_AS_CONTAMINATED_FAILURE_EVIDENCE_V1",
+    "AUTHORISE_ONE_POST_INCIDENT_FULL_VALIDATE_RERUN_V1"
+  ],
+  "scope": "This record concerns ONLY the failed post-live validation attempt. The acquisition window is complete and is not rerun, reopened or re-adjudicated here.",
+  "precedent": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_WINDOW_V1_POST_LIVE_VALIDATION_INCIDENT_ADJUDICATION_V1.json",
+    "sha256": "24ede5bbdf8641e2b710f76e9be65e8c6109e8374983730bb6d60e17fd25a6c1",
+    "bytes": 8681,
+    "commit": "bf3a8eef7a2e86f3f9416fba51782f91e10d00c9",
+    "role": "the landed VALIDATION_INCIDENT_ADJUDICATION schema and the durable owner-decision structure that authorised exactly one new full validate after a post-live validation incident with no live-evidence impact",
+    "differenceFromPrecedent": "the Window-V1 incident was a shared-tmpdir ownership race in a test and required a TEST_ONLY correction. This incident has an EXTERNAL cause - the host suspended the process - and requires no code, test, timeout or configuration change of any kind."
+  },
+  "boundLiveWindow": {
+    "liveAuthorityPath": "docs/evaluation/PHASE_2B_2D_A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_LIVE_AUTHORITY_V1.json",
+    "liveAuthoritySha256": "39bf556c75e297ce0b44d1ce1372a69ea73d46c1f8db18e4676df1c03f14a267",
+    "liveAuthorityBytes": 51971,
+    "liveAuthorityCommit": "f5dadaf61f53064bbba473423c91946361d038d2",
+    "strategySha256": "a17089db1d9193340a5bac1503db0a01d7c7fb816688613d4030cee720a42333",
+    "planSha256": "e8ec194c92d4eb5300401bcf117abf99b4e10f046b3fcb8ab764b5b6553f3ceb",
+    "windowPlanHash": "15c54151794a400283189bd0a8f1a8f9ddf8d786c4befb2a1f47bdbced0e527f",
+    "replacementLedgerSha256": "5d67a8f83506852cb745557dfe4e0ff0b9b037e59dc2c5a67fdbd16dbe0d666d",
+    "replacementLedgerEntries": 10,
+    "terminalGateDecision": "WINDOW_COMPLETE",
+    "startedWorkItems": ["P:31", "P:32", "P:33", "P:34", "P:35"],
+    "allBindingsRecomputedAtThisRecord": true
+  },
+  "boundLiveResultDraft": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_LIVE_RESULT_V1.json",
+    "state": "UNCOMMITTED_EVIDENCE_IN_PROGRESS",
+    "committedByThisRecord": false,
+    "editedByThisRecord": false,
+    "sha256AtThisRecord": "12e574043fb34cb6ebb712c083e5352d7565e6036bca9e4e4df9e15347aeda14",
+    "bytesAtThisRecord": 70643,
+    "shaWillChangeBeforeAttempt2": true,
+    "whyShaWillChange": "before the authorised second attempt the draft must be extended to record, honestly, the post-terminal clamshell sleep that preceded attempt 1, attempt 1's EXIT 1 / CONTAMINATED_BY_CLAMSHELL_SLEEP disposition, and this incident record as the authority for attempt 2. Only validation-history fields change; no acquisition fact is altered.",
+    "acquisitionFactsAlteredByThisRecord": false
+  },
+  "firstValidate": {
+    "attemptNumber": 1,
+    "command": "caffeinate -dimsu npm run validate",
+    "invocations": 1,
+    "exitCode": 1,
+    "disposition": "FAILED_CONTAMINATED",
+    "acceptedAsGreen": false,
+    "consumedItsOriginalSingleRunAuthority": true,
+    "gate": {
+      "model": "correctness-critical-only quiet gate, chained directly into the single validate command in one process",
+      "quietIntervalSeconds": 120,
+      "samples": 24,
+      "nonZeroSamples": 0,
+      "intervalFromUtc": "2026-09-24T15:54:41Z",
+      "intervalToUtc": "2026-09-24T15:57:36Z",
+      "recheckImmediatelyBeforeStart": true,
+      "recheckClean": true,
+      "gateWasValid": true,
+      "competingValidateOrVitestFromThisRepositoryOrItsWorktrees": 0,
+      "acquisitionDatabaseHealthy": true,
+      "lidOpenAtStart": true,
+      "batteryPercentAtStart": 100,
+      "powerSourceAtStart": "Battery"
+    },
+    "startedUtc": "2026-09-24T15:57:38Z",
+    "vitestStartLocal": "2026-09-24T17:58:01+02:00",
+    "vitestStartUtc": "2026-09-24T15:58:01Z",
+    "exitedUtc": "2026-09-24T16:18:44Z",
+    "totalWallClockSeconds": 1266,
+    "vitestDurationSeconds": 1243.57,
+    "testFiles": {
+      "failed": 1,
+      "passed": 194,
+      "skipped": 5,
+      "total": 200
+    },
+    "tests": {
+      "failed": 1,
+      "passed": 5015,
+      "skipped": 75,
+      "total": 5091
+    },
+    "assertionFailures": 0,
+    "failureShape": "SINGLE_TEST_TIMEOUT_NO_ASSERTION_FAILURE",
+    "failingFile": "src/test/unit/orgunitClassify2D2CF0XExecutor.test.ts",
+    "failingTest": "2D2C-F0X executor: all-ten-before-first-child and frozen order (fake launcher) > dispatches all ten slots in the frozen order and completes the whole study ONLY when every slot leaves real Class C evidence",
+    "failureMessage": "Error: Test timed out in 30000ms.",
+    "reportedTestWallClockMs": 1005926,
+    "testBudgetMs": 30000,
+    "subsequentBuildStep": "not reached (validate stops at the first failing step)",
+    "preservedEvidence": {
+      "location": "outside the repository, in this session's scratchpad only",
+      "committedToGit": false,
+      "files": [
+        {
+          "file": "validate_attempt1_FAILED.log",
+          "sha256": "b50a4b0bfa7af590d7220233e7c229d3912abfe050ca25af3e0763463a049e7b",
+          "bytes": 34294,
+          "what": "the complete vitest/validate output of attempt 1"
+        },
+        {
+          "file": "validate_gate2_attempt1.log",
+          "sha256": "1edde292a46a9d5c85524f7541a5210330c9d3630b05d27ce2ec30e7e0981339",
+          "bytes": 614,
+          "what": "the quiet-gate log: baseline, release, pre-start recheck, VALIDATE_START, VALIDATE_EXIT"
+        },
+        {
+          "file": "validate_attempt1.rc",
+          "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+          "bytes": 2,
+          "what": "the exit code, recorded by the gate process as '1'"
+        },
+        {
+          "file": "sleepwake_2026-09-24.log",
+          "sha256": "3811aad01f27f91a3055803932e9609f1527676522313110d207a75503081923",
+          "bytes": 9371,
+          "what": "every Sleep/Wake/DarkWake event of 2026-09-24 from pmset -g log"
+        }
+      ],
+      "hashesIndependentlyRecomputedAtThisRecord": true,
+      "retainedPermanently": true
+    }
+  },
+  "classification": "POST_LIVE_VALIDATION_HOST_SLEEP_CONTAMINATION",
+  "rootCause": {
+    "mechanism": "the machine entered Clamshell Sleep 92 seconds into the validation run. macOS suspends process execution across sleep while the wall clock keeps advancing, so a vitest testTimeout measured in wall-clock time expires without the test body having been given any CPU.",
+    "external": true,
+    "inRepository": false,
+    "caffeinateDoesNotPreventClamshellSleep": "the run was launched under caffeinate -dimsu. That assertion prevents IDLE system sleep; it does not prevent the sleep caused by closing the lid. Closing the lid on battery sleeps the machine regardless, which is why a pre-start lid check - which samples one instant - cannot by itself protect a multi-minute run.",
+    "clamshellSleep": {
+      "beganUtc": "2026-09-24T15:59:10Z",
+      "beganLocal": "2026-09-24T17:59:10+02:00",
+      "pmsetLine": "Entering Sleep state due to 'Clamshell Sleep':TCPKeepAlive=active Using Batt (Charge:100%) 993 secs",
+      "durationSeconds": 993,
+      "secondsAfterValidateStarted": 92,
+      "secondsAfterVitestStarted": 69,
+      "nextDarkWakeUtc": "2026-09-24T16:15:43Z",
+      "durationCorroborated": "17:59:10 + 993 s = 18:15:43 local, exactly the next DarkWake, so the trailing 'N secs' is the true suspension length",
+      "powerSourceDuringSleep": "Battery"
+    }
+  },
+  "mechanicalProof": {
+    "1_sleepOccurredDuringValidation": "the Clamshell Sleep at 15:59:10Z lies strictly between VALIDATE_START 15:57:38Z and VALIDATE_EXIT 16:18:44Z",
+    "2_executionWasSuspended": "a 993-second suspension inside a 1266-second run; the gate's own post-run probe recorded the last Sleep/Wake event moving from '2026-09-24 17:35:54' to '2026-09-24 18:18:43', i.e. unchanged=no",
+    "3_timeoutIsIncompatibleWithAnUninterruptedRun": {
+      "reportedTestWallClockMs": 1005926,
+      "testBudgetMs": 30000,
+      "ratio": 33.53,
+      "reportedMinusSleepMs": 12926,
+      "withinBudgetAfterSubtractingSleep": true,
+      "statement": "1,005,926 ms of wall clock against a 30,000 ms budget is only reachable if the process was not running. Subtracting the 993,000 ms suspension leaves 12,926 ms of awake time, comfortably inside the budget."
+    },
+    "4_zeroAssertionFailures": {
+      "assertionFailures": 0,
+      "method": "the Failed Tests block of the preserved log contains no AssertionError, no 'expected ... to be/equal' and no toBe(/toEqual( occurrence; the sole failure line is 'Error: Test timed out in 30000ms.'",
+      "testsPassed": 5015,
+      "testsFailed": 1
+    },
+    "5_runLevelCorroboration": {
+      "vitestDurationSeconds": 1243.57,
+      "sleepInsideRunSeconds": 993,
+      "awakeRuntimeSeconds": 250.57,
+      "healthyAwakeBandSeconds": "210-327",
+      "insideHealthyBand": true,
+      "statement": "sleep-adjusted, the whole run took 250.57 awake seconds, squarely inside this host's measured healthy band. The host was not slow and the suite was not failing; suspension was inserted into its clock."
+    },
+    "6_afterWindowComplete": {
+      "terminalGateUtc": "2026-09-24T13:24:07Z",
+      "validateStartedUtc": "2026-09-24T15:57:38Z",
+      "secondsAfterTerminalGate": 9211,
+      "acquisitionItemInFlight": false,
+      "databaseWriteInFlight": false,
+      "sealedWriteInFlight": false
+    },
+    "7_acquisitionEvidenceUnchanged": {
+      "reprovedAtThisRecord": true,
+      "databaseCounts": "53 / 53 / 1452 / 79 / 1092 / 2184",
+      "runsWithoutCompletion": 0,
+      "lastAcquisitionRunRemains": "the P:35 run started 2026-09-24T13:23:25Z",
+      "newRunsSinceWindowStop": 0,
+      "replacementLedgerSha256Unchanged": true,
+      "replacementLedgerEntries": 10,
+      "reservePosition10Assigned": false,
+      "reservePosition11Assigned": false,
+      "replacementObligations29And30Unchanged": true,
+      "allFiveSealedFilesByteIdentical": true,
+      "failingFileIsUnrelatedToA2Acquisition": "src/test/unit/orgunitClassify2D2CF0XExecutor.test.ts exercises the 2D2C classifier study executor against a fake launcher; it opens no acquisition database connection and issues no institution request"
+    }
+  },
+  "liveEvidenceAffected": false,
+  "liveAcquisitionRerunRequired": false,
+  "codeFailureEstablished": false,
+  "validationResultAcceptedAsGreen": false,
+  "firstValidationAttemptDisposition": "FAILED_CONTAMINATED_RETAINED_PERMANENTLY",
+  "exitCodeReinterpreted": false,
+  "exitCodeErased": false,
+  "reasons": [
+    "the failure occurred 9,211 s after the terminal WINDOW_COMPLETE gate, with no acquisition item, database write or sealed write in flight",
+    "the sole failure is a wall-clock timeout with zero assertion failures, inside a run that was suspended for 993 of its 1,266 seconds",
+    "subtracting the suspension leaves 12,926 ms of awake time against a 30,000 ms budget, so the test had not exceeded its budget in any sense the budget is meant to measure",
+    "sleep-adjusted, the whole run took 250.57 awake seconds, inside this host's measured healthy band",
+    "the failing file is a 2D2C classifier-executor test unrelated to A2 acquisition, and holds no acquisition database connection",
+    "the acquisition database, the replacement ledger, the five sealed SD7 files and every governance binding were re-proved unchanged at this record",
+    "the cause is external host suspension, so there is nothing in this repository to correct"
+  ],
+  "noCodeOrTestFix": {
+    "required": false,
+    "why": "the cause is external host suspension, not a defect. Raising the timeout, retrying the test, serialising the suite or changing the validation configuration would each hide an environmental event behind a capability change - the precise failure mode the Window-V1 record warned about when it corrected a misattributed diagnosis.",
+    "productionCodeChanged": false,
+    "testsChanged": false,
+    "timeoutChanged": false,
+    "validationConfigurationChanged": false,
+    "acquisitionCodeChanged": false,
+    "methodologyChanged": false,
+    "ledgerChanged": false,
+    "evidenceChanged": false,
+    "drawOrFrameChanged": false,
+    "migrationCreated": false
+  },
+  "fullValidateRerun": {
+    "authorised": "exactly one",
+    "attemptNumber": 2,
+    "command": "caffeinate -dimsu npm run validate",
+    "status": "PENDING_AT_RECORD_CONSTRUCTION",
+    "preconditions": [
+      "this incident record committed, pushed and re-fetched with local HEAD equal to origin",
+      "lid OPEN and kept open for the whole run",
+      "AC power (required for this rerun, not merely preferred)",
+      "a dedicated caffeinate -dimsu active, while recognising it does not prevent Clamshell Sleep",
+      "the complete live-window state re-proved unchanged: database, ledger, sealed files, bindings, P7 13/13, completed prefix exactly P:31..P:35, terminal gate WINDOW_COMPLETE",
+      "the correctness-critical-only 120-second quiet gate, chained directly into the single validate command"
+    ],
+    "unrelatedLoadRule": "unrelated CPU load and unrelated compose projects are informational and do not block, unless proven to share a correctness-critical database, volume, bind mount, tmpdir or validation state",
+    "resultRecordedIn": "docs/evaluation/PHASE_2B_2D_A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_LIVE_RESULT_V1.json",
+    "onFailureOrContamination": [
+      "STOP immediately",
+      "no third attempt is authorised, implicitly or otherwise",
+      "do not commit the live result",
+      "preserve the evidence and report for a new owner decision"
+    ],
+    "thirdAttemptImplicitlyAuthorised": false,
+    "automaticRerunAuthorised": false
+  },
+  "finalClassificationOnGreenRerun": "ACCEPTED_POST_LIVE_VALIDATION_HOST_SLEEP_CONTAMINATION_NO_LIVE_EVIDENCE_IMPACT",
+  "onGreenRerunTheLiveResultMust": [
+    "record both attempts honestly",
+    "carry PASS only against the explicitly authorised second attempt",
+    "retain attempt 1 permanently as contaminated failure evidence, with its exit code 1 intact",
+    "prove placeholder reconstruction against the attempt-2 validated bytes",
+    "leave every acquisition fact unchanged"
+  ],
+  "scopeProofs": {
+    "institutionDnsHttpTls": 0,
+    "orgunitsDiscoverInvocations": 0,
+    "databaseWrites": 0,
+    "acquisitionItemRerun": false,
+    "replacementLedgerChanged": false,
+    "liveResultEditedByThisRecord": false,
+    "liveResultCommittedByThisRecord": false,
+    "sealedEvidenceChanged": false,
+    "productionCodeChanged": false,
+    "testsChanged": false,
+    "migrationCreated": false,
+    "adjudicationOfAcquisitionOutcomes": false,
+    "memoryEdited": false
+  },
+  "identityDisclosure": {
+    "institutionIdentityInThisRecord": false,
+    "organisationUuid": false,
+    "echeRowKey": false,
+    "hostnameOrUrl": false,
+    "holdoutSemanticContent": false
+  },
+  "terminalState": "PHASE_2B_2D_A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_VALIDATION_INCIDENT_ADJUDICATED",
+  "nextAuthorisedAction": "ONE_POST_INCIDENT_FULL_VALIDATE_RERUN_THEN_LIVE_RESULT_COMMIT",
+  "nextOwnerDecision": "A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_EVIDENCE_ADJUDICATION"
+}
