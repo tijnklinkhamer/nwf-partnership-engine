@@ -1,0 +1,1100 @@
+{
+  "recordId": "phase2b-2d-a2-post-p29-p30-replacement-and-primary-continuation-next-evidence-adjudication-v1",
+  "recordKind": "LIVE_WINDOW_EVIDENCE_ADJUDICATION",
+  "records": "PHASE_2B_2D_A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_NEXT_EVIDENCE_ADJUDICATION_V1",
+  "recordedAtUtc": "2026-09-24T23:21:46Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "ownerTask": "A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_NEXT_EVIDENCE_ADJUDICATION",
+  "ownerDecisions": [
+    "ACCEPT_POST_P29_P30_NEXT_WINDOW_LIVE_VALIDATION_AS_RECORDED_V1",
+    "ACCEPT_POST_P29_P30_NEXT_WINDOW_LIVE_EVIDENCE_AS_VALID_CURRENT_EVIDENCE_V1",
+    "ADJUDICATE_P36_ACQUISITION_SUCCESSFUL_ACQUISITION_SAFE_ONLY_V1",
+    "ADJUDICATE_P37_ACQUISITION_SUCCESSFUL_V1",
+    "ADJUDICATE_P38_ACQUISITION_UNSUCCESSFUL_ROBOTS_DISALLOWED_ACQUISITION_SAFE_ONLY_V1",
+    "ADJUDICATE_P39_ACQUISITION_SUCCESSFUL_V1",
+    "ADJUDICATE_P40_ACQUISITION_SUCCESSFUL_V1",
+    "CREATE_SLOT38_PENDING_REPLACEMENT_OBLIGATION_V1",
+    "PRESERVE_SLOT29_AND_SLOT30_PENDING_REPLACEMENT_OBLIGATIONS_UNCHANGED_V1",
+    "PRESERVE_REPLACEMENT_LEDGER_TEN_ENTRY_REVISION_UNCHANGED_V1",
+    "PRESERVE_ACQUISITION_POLICY_TRANSITION_LEDGER_V6_UNCHANGED_V1",
+    "RECORD_P6_NOT_TRIGGERED_AND_ITS_FORWARD_CROSSING_CONSEQUENCE_V1"
+  ],
+  "startingHead": "6f52db74bf8e9bc9bc51b4fcc55a6ebb5edf0e75",
+  "startingState": {
+    "freshFetch": true,
+    "worktreeClean": true,
+    "localEqualsOrigin": true,
+    "parentOfStartingHead": "02835f2cda950fafb7dc024fdcc4af1bf306b08a",
+    "parentIsTheLiveAuthorityCommit": true,
+    "ancestryVerified": [
+      "c99c86fb4b2211c49f2db35a819ea2ddad69d90e",
+      "74303d8add1cef9bf5ac15e84427294f3b07fab1",
+      "02835f2cda950fafb7dc024fdcc4af1bf306b08a",
+      "6f52db74bf8e9bc9bc51b4fcc55a6ebb5edf0e75"
+    ],
+    "ancestryNote": "linear: each commit is the single parent of the next, with no merge commit in the chain. c99c86f is the accepted strategy, 74303d8 the precommitted plan, 02835f2 the live authority and 6f52db7 the live result",
+    "expectedLineageHeld": "c99c86f STRATEGY -> 74303d8 PLAN -> 02835f2 LIVE_AUTHORITY -> 6f52db7 LIVE_RESULT",
+    "concurrentA2AcquisitionAdjudicationOrValidate": 0,
+    "concurrentProcessNote": "node processes belonging to two unrelated projects (a separate repository’s database gate and a UI dev server) were observed; they share no correctness-critical state with this repository, and no acquisition, validate or vitest process of this repository or any sibling worktree was running",
+    "canonicalBranchCheckedOutInASiblingWorktree": "the canonical A2 branch is checked out at ~/Developer/wt-phase2b-2d2c-f0k-attempt-3-dispatch-repair (a historically-named worktree), at the expected head and clean; this is the established multi-worktree pattern and is not a second writer",
+    "previousAdjudicationOfThisWindow": false,
+    "laterA2AdjudicationOrStrategyOnThisLineage": false,
+    "ledgerUnchangedSince3eb2733": true,
+    "reservePosition10Assigned": false,
+    "databaseActivityAfterTheWindowTerminal": "none: the newest run in orgunit_research_runs is this window’s own P:40 run"
+  },
+  "liveResultStatusAtStart": {
+    "terminal": "PHASE_2B_2D_A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_NEXT_LIVE_WINDOW_COMPLETE_EVIDENCE_PENDING_ADJUDICATION",
+    "nextOwnerDecision": "A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_NEXT_EVIDENCE_ADJUDICATION",
+    "finalGate": "WINDOW_COMPLETE",
+    "evidenceState": "EVIDENCE_PENDING_ADJUDICATION",
+    "asRequired": true
+  },
+  "items": [
+    {
+      "workItemId": "P:36",
+      "kind": "PRIMARY",
+      "selectionIndex": 36,
+      "reserveRankPosition": null,
+      "split": "FINAL_HOLDOUT",
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "f29bc5f480aff807885bef246961168db68d1a9d8ee50ed3fb679f45c5e738c9",
+      "integrity": {
+        "drawEntryDigestMatchesPlan": true,
+        "planKindPositionAndSplitMatch": true,
+        "currentLedgerOccupantMatches": true,
+        "currentLedgerOccupant": "ORIGINAL_SELECTION",
+        "runResolvedFromDatabaseByRunRefPrefix": true,
+        "runRefDerivation": "runRefSha256 = sha256(UTF-8 bytes of 'run:' + the lowercase canonical 8-4-4-4-12 run UUID); the live result publishes its first 16 hex characters, and every one of the five resolved to exactly one run among the 58 in orgunit_research_runs",
+        "runsForThisOrganisationInThisWindow": 1,
+        "completions": 1,
+        "dryRun": false,
+        "runTerminalState": "COMPLETED",
+        "completionErrorKind": null,
+        "runFetchPolicyVersion": "orgunit-fetch-policy-v6",
+        "runRuleVersion": "orgunit-signal-rules-v1",
+        "everyObservationV6": true,
+        "distinctEcheRowKeysOnTheRun": 1,
+        "distinctRootKeys": 1,
+        "rootKeyKind": "claim",
+        "promotionRootObservations": 0,
+        "gatewayObservations": 43,
+        "distinctHosts": 2,
+        "maxAttemptNo": 2,
+        "observationsByDiscoveryMethodAndStatus": [
+          "LINK:200=5",
+          "LINK:301=2",
+          "ROBOTS:200=2",
+          "ROBOTS:301=1",
+          "ROOT:301=1",
+          "SITEMAP:200=31",
+          "SITEMAP:301=1"
+        ],
+        "observationErrorKinds": [],
+        "redirectObservations": 5,
+        "rawPages": 31,
+        "candidateRows": 62,
+        "candidateRowsEqualTwicePages": true,
+        "candidateTypeHintNullOnEveryRow": true,
+        "candidateTracksPersisted": {
+          "LANGUAGE_CENTRE": 31,
+          "INTERNATIONAL_OFFICE": 31
+        },
+        "rootTerminalReason": null,
+        "manualRetries": 0,
+        "secondAcquisitionAttempt": false,
+        "ceilingsRespected": true,
+        "persistenceAnomaly": false,
+        "orchestrationError": false,
+        "inputOrRootMismatch": false,
+        "hostStateAnomaly": false,
+        "sleepWakeDuringItem": 0,
+        "everyFigureMatchesLiveResult": true,
+        "verdict": "CLEAN"
+      },
+      "formalSd7": {
+        "recomputedInThisStep": true,
+        "method": "the landed analyseOrganisation (src/test/harness/phase2b2d/sd7/pilotAnalysis.ts) over this run's persisted orgunit_page_evidence, read through the same projection readPilotPages uses, scoped to this run's fetch observations",
+        "rawPageCount": 31,
+        "postSd7Min": 30,
+        "postSd7Max": 31,
+        "countIsExact": false,
+        "exactDuplicateGroups": 0,
+        "exactDuplicateRowsRemoved": 0,
+        "nearDuplicateEdges": 0,
+        "comparedPairCount": 435,
+        "shortTextUnresolved": 1,
+        "nonTransitiveComponentCount": 0,
+        "unauditableComponentCount": 0,
+        "minimumAdmissiblePages": 4,
+        "wholeRangeAtOrAbove4": true,
+        "wholeRangeBelow4": false,
+        "rangeCrosses4": false,
+        "rangeForcedToExactValue": false,
+        "decidedByCase": "B",
+        "matchesLiveResult": true,
+        "sealedDetail": {
+          "file": "POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_NEXT_V1_SD7_DETAIL_P_36.json",
+          "splitScopedRoot": "~/Developer/phase2b-2d-methodology-v2-sealed-holdout/gen1-final-holdout",
+          "sha256": "38bdfed608fdce82560973e7ee516c0395c642d4efa39a2d106e855fb46760cb",
+          "bytes": 13899,
+          "shaAndBytesMatchLiveResult": true,
+          "recomputedSealedPayloadByteIdentical": true,
+          "rebuildMethod": "toSealedRecord(analyseOrganisation(this run’s persisted pages)) wrapped in the landed PHASE_2B_2D_A2_SD7_SEALED_WORK_ITEM_DETAIL_V1 envelope and rendered as JSON.stringify(payload, null, 2) + \"\\n\"; the resulting bytes are identical to the file on disk",
+          "committedToGit": false
+        }
+      },
+      "diagnosticSd9": {
+        "status": "ACQUISITION_SUCCESSFUL",
+        "isAnAdjudication": false,
+        "isNonBindingObservation": true
+      },
+      "adjudication": {
+        "finalAcquisitionOutcome": "ACQUISITION_SUCCESSFUL",
+        "decidedBy": "the frozen success rule: the WHOLE formal post-SD7 range is at or above the minimum of 4 admissible pages",
+        "q3PrecedenceApplied": false,
+        "agreesWithDiagnosticSd9": true,
+        "createsReplacementObligation": false
+      },
+      "runRefSha256Prefix": "117adc22a3d22065"
+    },
+    {
+      "workItemId": "P:37",
+      "kind": "PRIMARY",
+      "selectionIndex": 37,
+      "reserveRankPosition": null,
+      "split": "DEV_CONFIRM",
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "0c52ed3c2097cfba0dbae764994fba1036c1b4288aa92f3fd6b4bc6d65b4a7af",
+      "integrity": {
+        "drawEntryDigestMatchesPlan": true,
+        "planKindPositionAndSplitMatch": true,
+        "currentLedgerOccupantMatches": true,
+        "currentLedgerOccupant": "ORIGINAL_SELECTION",
+        "runResolvedFromDatabaseByRunRefPrefix": true,
+        "runRefDerivation": "runRefSha256 = sha256(UTF-8 bytes of 'run:' + the lowercase canonical 8-4-4-4-12 run UUID); the live result publishes its first 16 hex characters, and every one of the five resolved to exactly one run among the 58 in orgunit_research_runs",
+        "runsForThisOrganisationInThisWindow": 1,
+        "completions": 1,
+        "dryRun": false,
+        "runTerminalState": "COMPLETED",
+        "completionErrorKind": null,
+        "runFetchPolicyVersion": "orgunit-fetch-policy-v6",
+        "runRuleVersion": "orgunit-signal-rules-v1",
+        "everyObservationV6": true,
+        "distinctEcheRowKeysOnTheRun": 1,
+        "distinctRootKeys": 1,
+        "rootKeyKind": "claim",
+        "promotionRootObservations": 0,
+        "gatewayObservations": 37,
+        "distinctHosts": 1,
+        "maxAttemptNo": 1,
+        "observationsByDiscoveryMethodAndStatus": [
+          "LINK:200=34",
+          "ROBOTS:200=1",
+          "ROOT:200=1",
+          "SITEMAP:404=1"
+        ],
+        "observationErrorKinds": [],
+        "redirectObservations": 0,
+        "rawPages": 35,
+        "candidateRows": 70,
+        "candidateRowsEqualTwicePages": true,
+        "candidateTypeHintNullOnEveryRow": true,
+        "candidateTracksPersisted": {
+          "INTERNATIONAL_OFFICE": 35,
+          "LANGUAGE_CENTRE": 35
+        },
+        "rootTerminalReason": null,
+        "manualRetries": 0,
+        "secondAcquisitionAttempt": false,
+        "ceilingsRespected": true,
+        "persistenceAnomaly": false,
+        "orchestrationError": false,
+        "inputOrRootMismatch": false,
+        "hostStateAnomaly": false,
+        "sleepWakeDuringItem": 0,
+        "everyFigureMatchesLiveResult": true,
+        "verdict": "CLEAN"
+      },
+      "formalSd7": {
+        "recomputedInThisStep": true,
+        "method": "the landed analyseOrganisation (src/test/harness/phase2b2d/sd7/pilotAnalysis.ts) over this run's persisted orgunit_page_evidence, read through the same projection readPilotPages uses, scoped to this run's fetch observations",
+        "rawPageCount": 35,
+        "postSd7Min": 33,
+        "postSd7Max": 33,
+        "countIsExact": true,
+        "exactDuplicateGroups": 0,
+        "exactDuplicateRowsRemoved": 0,
+        "nearDuplicateEdges": 2,
+        "comparedPairCount": 595,
+        "shortTextUnresolved": 0,
+        "nonTransitiveComponentCount": 0,
+        "unauditableComponentCount": 0,
+        "minimumAdmissiblePages": 4,
+        "wholeRangeAtOrAbove4": true,
+        "wholeRangeBelow4": false,
+        "rangeCrosses4": false,
+        "rangeForcedToExactValue": false,
+        "decidedByCase": "B",
+        "matchesLiveResult": true,
+        "sealedDetail": {
+          "file": "POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_NEXT_V1_SD7_DETAIL_P_37.json",
+          "splitScopedRoot": "~/Developer/phase2b-2d-methodology-v2-sealed/gen1-dev-confirm",
+          "sha256": "9b73c9149ae08279e0e7e0f5b44b4449b24dc97dc762103043d9dd17080bba8f",
+          "bytes": 15946,
+          "shaAndBytesMatchLiveResult": true,
+          "recomputedSealedPayloadByteIdentical": true,
+          "rebuildMethod": "toSealedRecord(analyseOrganisation(this run’s persisted pages)) wrapped in the landed PHASE_2B_2D_A2_SD7_SEALED_WORK_ITEM_DETAIL_V1 envelope and rendered as JSON.stringify(payload, null, 2) + \"\\n\"; the resulting bytes are identical to the file on disk",
+          "committedToGit": false
+        }
+      },
+      "diagnosticSd9": {
+        "status": "ACQUISITION_SUCCESSFUL",
+        "isAnAdjudication": false,
+        "isNonBindingObservation": true
+      },
+      "adjudication": {
+        "finalAcquisitionOutcome": "ACQUISITION_SUCCESSFUL",
+        "decidedBy": "the frozen success rule: the WHOLE formal post-SD7 range is at or above the minimum of 4 admissible pages",
+        "q3PrecedenceApplied": false,
+        "agreesWithDiagnosticSd9": true,
+        "createsReplacementObligation": false
+      },
+      "runRefSha256Prefix": "29dfa23aed4d6fd1"
+    },
+    {
+      "workItemId": "P:38",
+      "kind": "PRIMARY",
+      "selectionIndex": 38,
+      "reserveRankPosition": null,
+      "split": "FINAL_HOLDOUT",
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "3a7f4896cec0095325e7d6101016cc0c7ab86f63619687343278ba0acec63193",
+      "integrity": {
+        "drawEntryDigestMatchesPlan": true,
+        "planKindPositionAndSplitMatch": true,
+        "currentLedgerOccupantMatches": true,
+        "currentLedgerOccupant": "ORIGINAL_SELECTION",
+        "runResolvedFromDatabaseByRunRefPrefix": true,
+        "runRefDerivation": "runRefSha256 = sha256(UTF-8 bytes of 'run:' + the lowercase canonical 8-4-4-4-12 run UUID); the live result publishes its first 16 hex characters, and every one of the five resolved to exactly one run among the 58 in orgunit_research_runs",
+        "runsForThisOrganisationInThisWindow": 1,
+        "completions": 1,
+        "dryRun": false,
+        "runTerminalState": "COMPLETED",
+        "completionErrorKind": null,
+        "runFetchPolicyVersion": "orgunit-fetch-policy-v6",
+        "runRuleVersion": "orgunit-signal-rules-v1",
+        "everyObservationV6": true,
+        "distinctEcheRowKeysOnTheRun": 1,
+        "distinctRootKeys": 1,
+        "rootKeyKind": "claim",
+        "promotionRootObservations": 0,
+        "gatewayObservations": 1,
+        "distinctHosts": 1,
+        "maxAttemptNo": 1,
+        "observationsByDiscoveryMethodAndStatus": ["ROBOTS:200=1"],
+        "observationErrorKinds": [],
+        "redirectObservations": 0,
+        "rawPages": 0,
+        "candidateRows": 0,
+        "candidateRowsEqualTwicePages": true,
+        "candidateTypeHintNullOnEveryRow": true,
+        "candidateTracksPersisted": {},
+        "rootTerminalReason": null,
+        "manualRetries": 0,
+        "secondAcquisitionAttempt": false,
+        "ceilingsRespected": true,
+        "persistenceAnomaly": false,
+        "orchestrationError": false,
+        "inputOrRootMismatch": false,
+        "hostStateAnomaly": false,
+        "sleepWakeDuringItem": 0,
+        "everyFigureMatchesLiveResult": true,
+        "verdict": "CLEAN"
+      },
+      "formalSd7": {
+        "recomputedInThisStep": true,
+        "method": "the landed analyseOrganisation (src/test/harness/phase2b2d/sd7/pilotAnalysis.ts) over this run's persisted orgunit_page_evidence, read through the same projection readPilotPages uses, scoped to this run's fetch observations",
+        "rawPageCount": 0,
+        "postSd7Min": 0,
+        "postSd7Max": 0,
+        "countIsExact": true,
+        "exactDuplicateGroups": 0,
+        "exactDuplicateRowsRemoved": 0,
+        "nearDuplicateEdges": null,
+        "comparedPairCount": null,
+        "shortTextUnresolved": 0,
+        "nonTransitiveComponentCount": 0,
+        "unauditableComponentCount": 0,
+        "minimumAdmissiblePages": 4,
+        "wholeRangeAtOrAbove4": false,
+        "wholeRangeBelow4": true,
+        "rangeCrosses4": false,
+        "rangeForcedToExactValue": false,
+        "decidedByCase": "A",
+        "matchesLiveResult": true,
+        "sealedDetail": {
+          "file": "POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_NEXT_V1_SD7_DETAIL_P_38.json",
+          "splitScopedRoot": "~/Developer/phase2b-2d-methodology-v2-sealed-holdout/gen1-final-holdout",
+          "sha256": "3431e2e0c254a29c185123999ee9f38bee8fc6fb6e8132cd38d6930b395f6c2c",
+          "bytes": 1049,
+          "shaAndBytesMatchLiveResult": true,
+          "recomputedSealedPayloadByteIdentical": true,
+          "rebuildMethod": "toSealedRecord(analyseOrganisation(this run’s persisted pages)) wrapped in the landed PHASE_2B_2D_A2_SD7_SEALED_WORK_ITEM_DETAIL_V1 envelope and rendered as JSON.stringify(payload, null, 2) + \"\\n\"; the resulting bytes are identical to the file on disk",
+          "committedToGit": false
+        }
+      },
+      "diagnosticSd9": {
+        "status": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "isAnAdjudication": false,
+        "isNonBindingObservation": true
+      },
+      "adjudication": {
+        "finalAcquisitionOutcome": "ACQUISITION_UNSUCCESSFUL_ROBOTS_DISALLOWED",
+        "decidedBy": "the frozen success rule failed (whole formal post-SD7 range below 4), then Owner Clarification Q3 rank 2",
+        "q3PrecedenceApplied": true,
+        "agreesWithDiagnosticSd9": false,
+        "createsReplacementObligation": true,
+        "q3Derivation": {
+          "rank1RootAuthorityFailure": {
+            "applies": false,
+            "why": "the root authority was a single STRUCTURALLY_VALID website claim and the run began from it; no authority was invalid, revoked or mismatched"
+          },
+          "rank2RobotsDisallowed": {
+            "applies": true,
+            "why": "the robots policy was READ AND EVALUABLE - exactly one gateway observation exists for this run, it is the robots.txt retrieval itself, it answered HTTP 200 with a 194-byte body, it carries no error kind and was not truncated - and the evaluated policy blocked the authorised root, which the run recorded as rootTerminalReason ROBOTS_BLOCKED_ROOT"
+          },
+          "rank3HostUnreachable": {
+            "applies": false,
+            "why": "no transport or resolution failure occurred: there is no DNS failure, no TLS failure, no timeout, no refusal and no reset on this run, and a usable HTTP response was obtained"
+          },
+          "rank4MinPagesNotMet": {
+            "applies": false,
+            "why": "it is the fallback reason for determinate SD9 failures to which none of ranks 1-3 applies; rank 2 applies here, so rank 4 is displaced"
+          },
+          "whyTheDiagnosticDiffers": "the diagnostic SD9 status is computed by analyseOrganisation from the page count alone, which is 0, so it reports MIN_PAGES_NOT_MET. SD9 has no access to the robots evidence and is explicitly non-binding. Q3 is applied here, at adjudication, exactly as the frozen precedence requires",
+          "noPageRequestWasEverIssued": "the run holds one observation and it is the robots.txt fetch; there is no ROOT, LINK or SITEMAP observation, so no institution page was requested after the policy was read"
+        }
+      },
+      "runRefSha256Prefix": "dd1c30809dd87a4a"
+    },
+    {
+      "workItemId": "P:39",
+      "kind": "PRIMARY",
+      "selectionIndex": 39,
+      "reserveRankPosition": null,
+      "split": "DEV_TRAIN",
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "ec6eed9f6166367038f63237b17f46860b8dbd824695c039939e2fac74914dfd",
+      "integrity": {
+        "drawEntryDigestMatchesPlan": true,
+        "planKindPositionAndSplitMatch": true,
+        "currentLedgerOccupantMatches": true,
+        "currentLedgerOccupant": "ORIGINAL_SELECTION",
+        "runResolvedFromDatabaseByRunRefPrefix": true,
+        "runRefDerivation": "runRefSha256 = sha256(UTF-8 bytes of 'run:' + the lowercase canonical 8-4-4-4-12 run UUID); the live result publishes its first 16 hex characters, and every one of the five resolved to exactly one run among the 58 in orgunit_research_runs",
+        "runsForThisOrganisationInThisWindow": 1,
+        "completions": 1,
+        "dryRun": false,
+        "runTerminalState": "COMPLETED",
+        "completionErrorKind": null,
+        "runFetchPolicyVersion": "orgunit-fetch-policy-v6",
+        "runRuleVersion": "orgunit-signal-rules-v1",
+        "everyObservationV6": true,
+        "distinctEcheRowKeysOnTheRun": 1,
+        "distinctRootKeys": 1,
+        "rootKeyKind": "claim",
+        "promotionRootObservations": 0,
+        "gatewayObservations": 41,
+        "distinctHosts": 4,
+        "maxAttemptNo": 2,
+        "observationsByDiscoveryMethodAndStatus": [
+          "LINK:200=30",
+          "LINK:301=1",
+          "LINK:404=2",
+          "LINK:503=1",
+          "ROBOTS:200=2",
+          "ROBOTS:301=1",
+          "ROBOTS:404=2",
+          "ROOT:301=1",
+          "SITEMAP:301=1"
+        ],
+        "observationErrorKinds": [],
+        "redirectObservations": 4,
+        "rawPages": 30,
+        "candidateRows": 60,
+        "candidateRowsEqualTwicePages": true,
+        "candidateTypeHintNullOnEveryRow": true,
+        "candidateTracksPersisted": {
+          "INTERNATIONAL_OFFICE": 30,
+          "LANGUAGE_CENTRE": 30
+        },
+        "rootTerminalReason": null,
+        "manualRetries": 0,
+        "secondAcquisitionAttempt": false,
+        "ceilingsRespected": true,
+        "persistenceAnomaly": false,
+        "orchestrationError": false,
+        "inputOrRootMismatch": false,
+        "hostStateAnomaly": false,
+        "sleepWakeDuringItem": 0,
+        "everyFigureMatchesLiveResult": true,
+        "verdict": "CLEAN"
+      },
+      "formalSd7": {
+        "recomputedInThisStep": true,
+        "method": "the landed analyseOrganisation (src/test/harness/phase2b2d/sd7/pilotAnalysis.ts) over this run's persisted orgunit_page_evidence, read through the same projection readPilotPages uses, scoped to this run's fetch observations",
+        "rawPageCount": 30,
+        "postSd7Min": 24,
+        "postSd7Max": 24,
+        "countIsExact": true,
+        "exactDuplicateGroups": 0,
+        "exactDuplicateRowsRemoved": 0,
+        "nearDuplicateEdges": 9,
+        "comparedPairCount": 435,
+        "shortTextUnresolved": 0,
+        "nonTransitiveComponentCount": 0,
+        "unauditableComponentCount": 0,
+        "minimumAdmissiblePages": 4,
+        "wholeRangeAtOrAbove4": true,
+        "wholeRangeBelow4": false,
+        "rangeCrosses4": false,
+        "rangeForcedToExactValue": false,
+        "decidedByCase": "B",
+        "matchesLiveResult": true,
+        "sealedDetail": {
+          "file": "POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_NEXT_V1_SD7_DETAIL_P_39.json",
+          "splitScopedRoot": "~/Developer/phase2b-2d-methodology-v2/gen1-dev-train",
+          "sha256": "e55eb6e96e92516fe8367cc3d89c13c6df951c88b0a3431dc6f15fb9a9f5dfea",
+          "bytes": 14153,
+          "shaAndBytesMatchLiveResult": true,
+          "recomputedSealedPayloadByteIdentical": true,
+          "rebuildMethod": "toSealedRecord(analyseOrganisation(this run’s persisted pages)) wrapped in the landed PHASE_2B_2D_A2_SD7_SEALED_WORK_ITEM_DETAIL_V1 envelope and rendered as JSON.stringify(payload, null, 2) + \"\\n\"; the resulting bytes are identical to the file on disk",
+          "committedToGit": false
+        }
+      },
+      "diagnosticSd9": {
+        "status": "ACQUISITION_SUCCESSFUL",
+        "isAnAdjudication": false,
+        "isNonBindingObservation": true
+      },
+      "adjudication": {
+        "finalAcquisitionOutcome": "ACQUISITION_SUCCESSFUL",
+        "decidedBy": "the frozen success rule: the WHOLE formal post-SD7 range is at or above the minimum of 4 admissible pages",
+        "q3PrecedenceApplied": false,
+        "agreesWithDiagnosticSd9": true,
+        "createsReplacementObligation": false
+      },
+      "runRefSha256Prefix": "489a43cbfab57ddd"
+    },
+    {
+      "workItemId": "P:40",
+      "kind": "PRIMARY",
+      "selectionIndex": 40,
+      "reserveRankPosition": null,
+      "split": "DEV_CONFIRM",
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "44d58f74341c83f880b24774334e916105f3104e50b8bca8156471f892334d37",
+      "integrity": {
+        "drawEntryDigestMatchesPlan": true,
+        "planKindPositionAndSplitMatch": true,
+        "currentLedgerOccupantMatches": true,
+        "currentLedgerOccupant": "ORIGINAL_SELECTION",
+        "runResolvedFromDatabaseByRunRefPrefix": true,
+        "runRefDerivation": "runRefSha256 = sha256(UTF-8 bytes of 'run:' + the lowercase canonical 8-4-4-4-12 run UUID); the live result publishes its first 16 hex characters, and every one of the five resolved to exactly one run among the 58 in orgunit_research_runs",
+        "runsForThisOrganisationInThisWindow": 1,
+        "completions": 1,
+        "dryRun": false,
+        "runTerminalState": "COMPLETED",
+        "completionErrorKind": null,
+        "runFetchPolicyVersion": "orgunit-fetch-policy-v6",
+        "runRuleVersion": "orgunit-signal-rules-v1",
+        "everyObservationV6": true,
+        "distinctEcheRowKeysOnTheRun": 1,
+        "distinctRootKeys": 1,
+        "rootKeyKind": "claim",
+        "promotionRootObservations": 0,
+        "gatewayObservations": 41,
+        "distinctHosts": 1,
+        "maxAttemptNo": 1,
+        "observationsByDiscoveryMethodAndStatus": [
+          "LINK:200=7",
+          "ROBOTS:200=1",
+          "ROOT:200=1",
+          "SITEMAP:200=32"
+        ],
+        "observationErrorKinds": [],
+        "redirectObservations": 0,
+        "rawPages": 35,
+        "candidateRows": 70,
+        "candidateRowsEqualTwicePages": true,
+        "candidateTypeHintNullOnEveryRow": true,
+        "candidateTracksPersisted": {
+          "INTERNATIONAL_OFFICE": 35,
+          "LANGUAGE_CENTRE": 35
+        },
+        "rootTerminalReason": null,
+        "manualRetries": 0,
+        "secondAcquisitionAttempt": false,
+        "ceilingsRespected": true,
+        "persistenceAnomaly": false,
+        "orchestrationError": false,
+        "inputOrRootMismatch": false,
+        "hostStateAnomaly": false,
+        "sleepWakeDuringItem": 0,
+        "everyFigureMatchesLiveResult": true,
+        "verdict": "CLEAN"
+      },
+      "formalSd7": {
+        "recomputedInThisStep": true,
+        "method": "the landed analyseOrganisation (src/test/harness/phase2b2d/sd7/pilotAnalysis.ts) over this run's persisted orgunit_page_evidence, read through the same projection readPilotPages uses, scoped to this run's fetch observations",
+        "rawPageCount": 35,
+        "postSd7Min": 17,
+        "postSd7Max": 34,
+        "countIsExact": false,
+        "exactDuplicateGroups": 0,
+        "exactDuplicateRowsRemoved": 0,
+        "nearDuplicateEdges": 1,
+        "comparedPairCount": 153,
+        "shortTextUnresolved": 17,
+        "nonTransitiveComponentCount": 0,
+        "unauditableComponentCount": 0,
+        "minimumAdmissiblePages": 4,
+        "wholeRangeAtOrAbove4": true,
+        "wholeRangeBelow4": false,
+        "rangeCrosses4": false,
+        "rangeForcedToExactValue": false,
+        "decidedByCase": "B",
+        "matchesLiveResult": true,
+        "sealedDetail": {
+          "file": "POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_NEXT_V1_SD7_DETAIL_P_40.json",
+          "splitScopedRoot": "~/Developer/phase2b-2d-methodology-v2-sealed/gen1-dev-confirm",
+          "sha256": "572f2dd6aef20c5765f2a557d7f51f9d040234ce00ad5345227ecba66d7c5b51",
+          "bytes": 15687,
+          "shaAndBytesMatchLiveResult": true,
+          "recomputedSealedPayloadByteIdentical": true,
+          "rebuildMethod": "toSealedRecord(analyseOrganisation(this run’s persisted pages)) wrapped in the landed PHASE_2B_2D_A2_SD7_SEALED_WORK_ITEM_DETAIL_V1 envelope and rendered as JSON.stringify(payload, null, 2) + \"\\n\"; the resulting bytes are identical to the file on disk",
+          "committedToGit": false
+        }
+      },
+      "diagnosticSd9": {
+        "status": "ACQUISITION_SUCCESSFUL",
+        "isAnAdjudication": false,
+        "isNonBindingObservation": true
+      },
+      "adjudication": {
+        "finalAcquisitionOutcome": "ACQUISITION_SUCCESSFUL",
+        "decidedBy": "the frozen success rule: the WHOLE formal post-SD7 range is at or above the minimum of 4 admissible pages",
+        "q3PrecedenceApplied": false,
+        "agreesWithDiagnosticSd9": true,
+        "createsReplacementObligation": false
+      },
+      "runRefSha256Prefix": "f2f7d038a32838c9"
+    }
+  ],
+  "bound": {
+    "liveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_NEXT_LIVE_RESULT_V1.json",
+      "sha256": "be1ea66065e2ee6d68c381dc795bfaddd633475a20236f2da4d2e778eafd19c2",
+      "bytes": 49078,
+      "commit": "6f52db74bf8e9bc9bc51b4fcc55a6ebb5edf0e75",
+      "edited": false
+    },
+    "liveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_NEXT_LIVE_AUTHORITY_V1.json",
+      "sha256": "9b04c1910c5d79411407075cb19b734c3d8dc30f728a9708a1f892b295aef480",
+      "bytes": 72365,
+      "commit": "02835f2cda950fafb7dc024fdcc4af1bf306b08a",
+      "ownerDecision": "AUTHORISE_A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_NEXT_LIVE_EXECUTION_V1"
+    },
+    "windowPlan": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_NEXT_PLAN_V1.json",
+      "sha256": "9a4170feeaf5fc29d795b0741f523ee274beb8eae9a0922085a389fb295a028a",
+      "bytes": 6092,
+      "commit": "74303d8add1cef9bf5ac15e84427294f3b07fab1",
+      "windowPlanHash": "8771dd60c5513b96e024bd2ca0faae3a67376c2eb29e9030410199413c142679",
+      "windowPlanHashRecomputes": true,
+      "workItemOrder": ["P:36", "P:37", "P:38", "P:39", "P:40"],
+      "plannedWindowSize": 5,
+      "plannedReplacementAssignments": 0,
+      "windowKind": "PRIMARIES_ONLY"
+    },
+    "selectedStrategy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_NEXT_STRATEGY_V1.json",
+      "sha256": "3dd3b1c8bab8b4ac50de8efcc90c59a1a8dd3ab64c940ef902a30c928f396873",
+      "bytes": 64546,
+      "commit": "c99c86fb4b2211c49f2db35a819ea2ddad69d90e",
+      "recordKind": "OFFLINE_ACQUISITION_WINDOW_STRATEGY",
+      "selectedOption": "PRIMARIES_ONLY_P6_STABILISATION"
+    },
+    "previousEvidenceAdjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "bf6219ac649241b8234c684ea97a3f3441a09c81216daeaabf4aa058c682aed8",
+      "bytes": 83865,
+      "commit": "bbe7ddcf91b8d68d45d1f822fc8ccde4534e9bf9",
+      "role": "the immediately preceding canonical state this adjudication advances: 34 successful, failures [29,30], never started 36..109"
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "5d67a8f83506852cb745557dfe4e0ff0b9b037e59dc2c5a67fdbd16dbe0d666d",
+      "bytes": 10911,
+      "commit": "3eb2733ccceea9db6eace652eae3000a91f759d4",
+      "ledgerHash": "d71035336ed6b5e7d23f499a4349b6cb5c963c299319e4c7ba60dd3ca6c7e158",
+      "ledgerHashRecomputes": true,
+      "validatorResult": "valid, entryCount 10",
+      "extendsGenesis": true,
+      "entries": 10,
+      "reservePositions": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+      "slotToReserveMapping": [
+        "3->0",
+        "4->1",
+        "6->2",
+        "8->3",
+        "10->4",
+        "12->5",
+        "12->6",
+        "18->7",
+        "18->8",
+        "24->9"
+      ],
+      "boundAsTheStartingRevisionByStrategyPlanAndAuthority": true,
+      "startingRevisionEqualsCurrentBytes": true,
+      "unchangedByThisAdjudication": true
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650",
+      "recomputes": true
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293",
+      "recomputes": true
+    },
+    "ownerReserveOrderClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "role": "Q1 obligation ordering and Q3 replacement-reason precedence, both applied mechanically in this record"
+    }
+  },
+  "databaseReverification": {
+    "role": "the read-only role; this step issued no write of any kind",
+    "method": "each item's run was resolved from the database independently, by recomputing sha256('run:' + the lowercase canonical run UUID) over every run in orgunit_research_runs and matching the live result's published 16-character prefix - never by trusting a run id the live result named",
+    "runsResolvedByRunRef": 5,
+    "runsNotResolved": 0,
+    "countsNow": {
+      "orgunit_research_runs": 58,
+      "orgunit_research_run_completions": 58,
+      "orgunit_fetch_observations": 1615,
+      "orgunit_redirect_observations": 88,
+      "orgunit_page_evidence": 1223,
+      "orgunit_page_candidates": 2446,
+      "orgunit_root_promotions": 0,
+      "orgunit_root_promotion_revocations": 0,
+      "orgunit_classification_subjects": 0,
+      "orgunit_classifier_calls": 0,
+      "orgunit_classifier_call_completions": 0,
+      "organisations": 6139,
+      "website_claims": 6139
+    },
+    "expectedBefore": {
+      "runs": 53,
+      "completions": 53,
+      "observations": 1452,
+      "redirects": 79,
+      "pages": 1092,
+      "candidates": 2184
+    },
+    "expectedAfter": {
+      "runs": 58,
+      "completions": 58,
+      "observations": 1615,
+      "redirects": 88,
+      "pages": 1223,
+      "candidates": 2446
+    },
+    "countsNowEqualExpectedAfter": true,
+    "deltas": {
+      "runs": 5,
+      "completions": 5,
+      "observations": 163,
+      "redirects": 9,
+      "pages": 131,
+      "candidates": 262
+    },
+    "deltasEqualLiveResult": true,
+    "deltasAttributedToTheFiveRuns": {
+      "observations": 163,
+      "redirects": 9,
+      "pages": 131,
+      "candidates": 262,
+      "note": "summing the five runs alone reproduces every delta exactly (43+37+1+41+41=163 observations, 5+0+0+4+0=9 redirects, 31+35+0+30+35=131 pages, 62+70+0+60+70=262 candidates), so no row in any delta came from anything other than these five runs"
+    },
+    "promotionsAndRevocationsRemainZero": true,
+    "classifierTablesRemainZero": true,
+    "runsWithoutCompletion": 0,
+    "dryRunsAmongTheFive": 0,
+    "nonV6ObservationsAmongTheFive": 0,
+    "runsStartedAfterTheWindow": 0,
+    "databaseWritesByThisStep": 0,
+    "phase1TruthTablesUntouched": "organisations and website_claims still hold 6139 rows each, exactly as Phase 1 left them"
+  },
+  "evidenceIntegrityStandard": {
+    "diagnosticSd9IsNeverTheAdjudication": true,
+    "everyItemRecomputedFromPersistedEvidence": true,
+    "sealedPayloadsRebuiltByteIdentically": 5,
+    "sealedPayloadsCompared": 5,
+    "sealedFilesEachInTheirOwnSplitRoot": true,
+    "sealedFileCollision": false,
+    "sealedRebuildNote": "each sealed file was rebuilt from the database alone - analyseOrganisation over that run’s persisted page evidence, wrapped in the landed work-item envelope - and the resulting bytes were compared to the file on disk. All five are byte-identical, and all five sha256/byte figures match the live result",
+    "rangeCrossingFour": 0,
+    "ambiguousReason": 0
+  },
+  "p7PreflightNow": {
+    "preflight": "computePrecommittedWindowPreflight (committed) over the committed plan, the committed ten-entry ledger and windowSpecFromAcquisitionWindowStrategy(committed strategy bytes + the same ten-entry revision), with independently recomputed frame, draw, owner-clarification and strategy hashes",
+    "invariantCount": 13,
+    "allInvariantsTrue": true,
+    "invariants": {
+      "frameBindingValid": true,
+      "drawBindingValid": true,
+      "ownerClarificationBindingValid": true,
+      "governanceBindingsValid": true,
+      "replacementLedgerValid": true,
+      "replacementLedgerExtendsGenesis": true,
+      "startingLedgerRevisionMatchesPrecommit": true,
+      "noUnexpectedReplacementAssignments": true,
+      "windowPlanValid": true,
+      "workItemsMatchFrozenPlan": true,
+      "workItemDrawEntriesMatch": true,
+      "replacementAssignmentsRecorded": true,
+      "currentOccupantsMatch": true
+    },
+    "ledgerEntryCount": 10,
+    "specViolations": 0,
+    "planRebuiltFromStrategyCanonicallyEqualToTheCommittedPlan": true,
+    "planRebuildMethod": "windowSpecFromAcquisitionWindowStrategy(strategy bytes, ten-entry ledger bytes, frozen draw) -> buildPrecommittedWindowPlan(draw, spec); canonicalStringify of the rebuilt plan equals canonicalStringify of the committed plan, and recomputeWindowPlanHash returns 8771dd60c5513b96e024bd2ca0faae3a67376c2eb29e9030410199413c142679 from both",
+    "specDerivedFromPlan": false
+  },
+  "continuationGateRecomputation": {
+    "method": "the landed evaluateContinuationWindowGate replayed in this step over workItemsOf(the committed plan), the P7 preflight recomputed here, plannedWindowSize 5 and the PRE-window generation state (34 successful, 10 reserve consumed), feeding the five completed observations one at a time",
+    "frozenThresholds": {
+      "P1_CONSECUTIVE_ROOT_AUTHORITY_FAILURES": 3,
+      "P2_CONSECUTIVE_ROBOTS_REFUSALS": 3,
+      "P2_BATCH_PERCENT_STRICTLY_ABOVE": 40,
+      "P2_percentageThresholdCountForAWindowOfFive": 3,
+      "P3_CONSECUTIVE_FAILED_RUNS": 2,
+      "P5_MIN_RAW_PAGE_EVIDENCE": 4,
+      "P5_BATCH_PERCENT_STRICTLY_ABOVE": 30,
+      "P5_lowYieldThresholdCountForAWindowOfFive": 2,
+      "P6_MAX_REPLACEMENTS_BEFORE_SUCCESS_FLOOR": 10,
+      "P6_SUCCESS_FLOOR": 50
+    },
+    "replay": [
+      {
+        "afterItem": 0,
+        "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "nextWorkItemId": "P:36",
+        "triggers": []
+      },
+      {
+        "afterItem": 1,
+        "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "nextWorkItemId": "P:37",
+        "triggers": []
+      },
+      {
+        "afterItem": 2,
+        "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "nextWorkItemId": "P:38",
+        "triggers": []
+      },
+      {
+        "afterItem": 3,
+        "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "nextWorkItemId": "P:39",
+        "triggers": []
+      },
+      {
+        "afterItem": 4,
+        "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "nextWorkItemId": "P:40",
+        "triggers": []
+      },
+      {
+        "afterItem": 5,
+        "decision": "WINDOW_COMPLETE",
+        "nextWorkItemId": null,
+        "triggers": []
+      }
+    ],
+    "windowCounters": {
+      "lowYieldCount": 1,
+      "p5ThresholdCount": 2,
+      "robotsRefusalCount": 1,
+      "p2ThresholdCount": 3,
+      "note": "P:38 is the single low-yield item (0 raw pages) and the single robots-refusal item (ROBOTS_BLOCKED_ROOT). One of five is below both thresholds, so neither P5 nor P2 fired - and neither is weakened by this adjudication recording that same item as a replacement obligation"
+    },
+    "denominatorWasAlwaysTheFrozenPlannedWindowSize": true,
+    "thresholdArithmeticChangedDuringTheWindow": false,
+    "replayReproducesTheLiveResultGateExactly": true,
+    "terminalGateDecision": "WINDOW_COMPLETE",
+    "everyPlannedItemWasStartedAndCompleted": true
+  },
+  "transition": {
+    "method": "each item’s canonical slot state is set from its final adjudicated outcome in this record, and from nothing else",
+    "slotStateChanges": [
+      {
+        "selectionIndex": 36,
+        "from": "NEVER_STARTED",
+        "to": "ACQUISITION_SUCCESSFUL"
+      },
+      {
+        "selectionIndex": 37,
+        "from": "NEVER_STARTED",
+        "to": "ACQUISITION_SUCCESSFUL"
+      },
+      {
+        "selectionIndex": 38,
+        "from": "NEVER_STARTED",
+        "to": "CURRENT_ACQUISITION_FAILURE"
+      },
+      {
+        "selectionIndex": 39,
+        "from": "NEVER_STARTED",
+        "to": "ACQUISITION_SUCCESSFUL"
+      },
+      {
+        "selectionIndex": 40,
+        "from": "NEVER_STARTED",
+        "to": "ACQUISITION_SUCCESSFUL"
+      }
+    ],
+    "slotsChanged": 5,
+    "slotsOutsideThisWindowChanged": 0
+  },
+  "generation1StateBeforeAdjudication": {
+    "ACQUISITION_SUCCESSFUL": 34,
+    "CURRENT_ACQUISITION_FAILURE": 2,
+    "PENDING_CAPABILITY_REVIEW": 0,
+    "NEVER_STARTED": 74,
+    "totalSelectionSlots": 110,
+    "accounting": "34 + 2 + 0 + 74 = 110"
+  },
+  "generation1StateAfterAdjudication": {
+    "ACQUISITION_SUCCESSFUL": 38,
+    "CURRENT_ACQUISITION_FAILURE": 3,
+    "PENDING_CAPABILITY_REVIEW": 0,
+    "NEVER_STARTED": 69,
+    "totalSelectionSlots": 110,
+    "accounting": "38 + 3 + 0 + 69 = 110",
+    "setsAreDisjoint": true,
+    "setsCoverExactly0To109": true,
+    "doNotExtrapolate": "38 successful slots of 110; not a population success rate"
+  },
+  "generationSuccessfulSelectionIndices": [
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+    26, 27, 28, 31, 32, 33, 34, 35, 36, 37, 39, 40
+  ],
+  "generationSuccessfulSelectionIndicesNote": "0..28 plus 31..37 plus 39..40",
+  "generationSuccessfulBySplitInThisWindow": {
+    "FINAL_HOLDOUT": 1,
+    "DEV_CONFIRM": 2,
+    "DEV_TRAIN": 1,
+    "note": "P:36 FINAL_HOLDOUT, P:37 and P:40 DEV_CONFIRM, P:39 DEV_TRAIN; P:38 FINAL_HOLDOUT was unsuccessful"
+  },
+  "generationFailureSelectionIndices": [29, 30, 38],
+  "pendingCapabilityReviewSelectionIndices": [],
+  "neverStartedSelectionIndices": {
+    "from": 41,
+    "to": 109,
+    "count": 69,
+    "contiguous": true
+  },
+  "nextUntouchedPrimarySelectionIndex": 41,
+  "pendingReplacementObligations": [
+    {
+      "selectionIndex": 29,
+      "split": "FINAL_HOLDOUT",
+      "splitInheritedFrom": "the frozen draw selection entry for slot 29",
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "currentOccupant": "ORIGINAL_SELECTION",
+      "currentReserveRankPosition": null,
+      "currentLedgerSequence": null,
+      "nextReserveAssigned": false,
+      "changedByThisAdjudication": false
+    },
+    {
+      "selectionIndex": 30,
+      "split": "DEV_CONFIRM",
+      "splitInheritedFrom": "the frozen draw selection entry for slot 30",
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "currentOccupant": "ORIGINAL_SELECTION",
+      "currentReserveRankPosition": null,
+      "currentLedgerSequence": null,
+      "nextReserveAssigned": false,
+      "changedByThisAdjudication": false
+    },
+    {
+      "selectionIndex": 38,
+      "split": "FINAL_HOLDOUT",
+      "splitInheritedFrom": "the frozen draw selection entry for slot 38",
+      "reason": "ACQUISITION_UNSUCCESSFUL_ROBOTS_DISALLOWED",
+      "currentOccupant": "ORIGINAL_SELECTION",
+      "currentReserveRankPosition": null,
+      "currentLedgerSequence": null,
+      "nextReserveAssigned": false,
+      "changedByThisAdjudication": true
+    }
+  ],
+  "openReplacementObligationCount": 3,
+  "pendingReplacementObligationOrdering": {
+    "rule": "Owner Clarification Q1: reserves are assigned in frozen ascending rank order, and obligations are served in ascending selectionIndex order",
+    "order": [29, 30, 38],
+    "derivedIndependently": true,
+    "derivationNote": "sorted here by selectionIndex ascending from the three failure slots; planPendingReplacementObligations was NOT used as the ordering authority",
+    "note": "29 before 30 before 38. This is the ORDER a later authorised window would serve them in; nothing is assigned or served here"
+  },
+  "closedReplacementObligations": [],
+  "newReplacementObligationsCreatedHere": [38],
+  "replacementLedger": {
+    "entries": 10,
+    "unchangedByThisAdjudication": true,
+    "ledgerHash": "d71035336ed6b5e7d23f499a4349b6cb5c963c299319e4c7ba60dd3ca6c7e158",
+    "sha256": "5d67a8f83506852cb745557dfe4e0ff0b9b037e59dc2c5a67fdbd16dbe0d666d",
+    "bytes": 10911,
+    "reserveConsumed": 10,
+    "nextUnusedReservePosition": 10,
+    "reservePosition10": "UNASSIGNED",
+    "appendedByThisAdjudication": false,
+    "why": "an adjudication records outcomes and obligations; it never assigns a reserve. The slot-38 obligation created here is an OBLIGATION, not an assignment, and no ledger entry exists for it"
+  },
+  "p6": {
+    "rule": "reserveConsumed > P6_MAX_REPLACEMENTS_BEFORE_SUCCESS_FLOOR AND successfulOrganisationCount < P6_SUCCESS_FLOOR (both frozen in windowContract.ts at 10 and 50)",
+    "inputsAfterThisAdjudication": {
+      "reserveConsumed": 10,
+      "successfulOrganisationCount": 38
+    },
+    "evaluation": "10 > 10 is false",
+    "status": "NOT_TRIGGERED",
+    "notTriggeredDuringTheWindowEither": true,
+    "amendedOrBypassedHere": false,
+    "thresholdChangedHere": false,
+    "forwardGovernanceConsequence": {
+      "isAnObservationNotATrigger": true,
+      "statement": "the NEXT replacement assignment - for slot 29, 30 or 38 - would consume reserve position 10 and raise canonical reserveConsumed from 10 to 11. With successfulOrganisationCount at 38, the continuation gate would then satisfy P6",
+      "arithmetic": "11 > 10 is true AND 38 < 50 is true",
+      "consequence": "no later execution step may blindly append reserve 10 and expect the next window to be executable; a primaries-only window is the shape that does not trip it",
+      "unchangedFromThePreviousAdjudication": "the same crossing was recorded at 34 successes; raising the count to 38 does not clear it, because 38 is still below the floor of 50"
+    }
+  },
+  "p6StabilisationConsequence": {
+    "successFloor": 50,
+    "currentSuccessful": 38,
+    "shortfall": 12,
+    "primariesRemaining": 69,
+    "statement": "twelve further successful primaries would reach the floor; 69 untouched primaries remain, so the floor is reachable without serving any replacement obligation"
+  },
+  "acquisitionPolicyTransitionLedger": {
+    "unchanged": true,
+    "version": "v6",
+    "note": "every run in this window recorded fetch policy orgunit-fetch-policy-v6; no transition occurred and the transition ledger is untouched"
+  },
+  "holdoutNonDisclosure": {
+    "finalHoldoutItemsInThisWindow": ["P:36", "P:38"],
+    "institutionIdentityInThisFile": false,
+    "organisationIdInThisFile": false,
+    "echeRowKeyInThisFile": false,
+    "rootUrlHostnameOrPageUrlInThisFile": false,
+    "pageTitleOrTextInThisFile": false,
+    "semanticLabelsOrClassDistributionInThisFile": false,
+    "documentHashListInThisFile": false,
+    "sealedDetailRemainsSealed": true,
+    "publicSurface": "workItemId, selectionIndex, split, opaque draw digest, opaque run-ref prefix, generic counts and ranges, generic acquisition status, and sealed artifact sha256/bytes"
+  },
+  "identityDisclosure": {
+    "runReferencesAreOpaqueHashes": true,
+    "runReferenceMethod": "sha256('run:' + run uuid), first 16 hex characters",
+    "drawEntryReferencesAreOpaqueDigests": true,
+    "disclosureScanClean": true
+  },
+  "scopeProofs": {
+    "codeTestHarnessOrMigrationChanged": false,
+    "methodologyFrameDrawOrLedgerChanged": false,
+    "fetchPolicyChanged": false,
+    "reserveAssigned": false,
+    "ledgerAppended": false,
+    "replacementExecuted": false,
+    "networkActivityByThisStep": "none: this step opened no socket and issued no institution request",
+    "databaseWritesByThisStep": 0,
+    "filesAddedByThisStep": 1,
+    "priorCanonicalArtifactsEdited": 0
+  },
+  "validation": {
+    "standard": "the pre-autopilot full-validation standard, retained deliberately for this adjudication: a 120-second correctness-critical quiet gate chained directly into exactly one caffeinate -dimsu npm run validate, with no automatic rerun",
+    "command": "caffeinate -dimsu npm run validate",
+    "runs": 1,
+    "chainedDirectlyFromTheQuietGateInOneProcess": true,
+    "quietGateSeconds": 120,
+    "quietGateSatisfied": true,
+    "quietGateResets": 0,
+    "quietGateEvidence": "no vitest, npm run validate or orgunits discover process belonging to this repository or any sibling worktree was observed for 120 consecutive seconds (polled every 5 s), and the check was repeated immediately before start",
+    "recheckImmediatelyBeforeStart": true,
+    "recheckResult": 0,
+    "startedUtc": "2026-09-24T23:27:16Z",
+    "finishedUtc": "2026-09-24T23:30:38Z",
+    "elapsedSeconds": 202,
+    "exitCode": 0,
+    "testFiles": "195 passed | 5 skipped (200)",
+    "tests": "5016 passed | 75 skipped (5091)",
+    "stages": "migrations:check, typecheck, lint, format:check, test, build - all passed",
+    "hostAtStart": {
+      "power": "AC",
+      "batteryPercent": 100,
+      "lidOpen": true
+    },
+    "hostAtEnd": {
+      "power": "AC",
+      "batteryPercent": 100,
+      "lidOpen": true
+    },
+    "lidOpenThroughout": true,
+    "sleepOrWakeDuringValidation": false,
+    "lastSleepWakeTransitionBeforeValidation": "2026-09-24T19:24:36Z, about four hours before the run",
+    "correctnessCriticalConcurrentValidation": false,
+    "unrelatedCpuOrContainerLoadTreatedAsBlocking": false,
+    "adjudicationSha256DuringValidation": "3eb679dc49633976dcde9d923a5c7464c3a9605f2de8ceab639f0c5cb57ae06a",
+    "adjudicationBytesDuringValidation": 48021,
+    "adjudicationUnchangedByValidation": true,
+    "adjudicationUnchangedEvidence": "hashed immediately before the validate command and immediately after it exited, inside the same chained process; both reads are 3eb679dc... / 48021 bytes",
+    "ledgerSha256BeforeValidation": "5d67a8f83506852cb745557dfe4e0ff0b9b037e59dc2c5a67fdbd16dbe0d666d",
+    "ledgerSha256AfterValidation": "5d67a8f83506852cb745557dfe4e0ff0b9b037e59dc2c5a67fdbd16dbe0d666d",
+    "ledgerUnchanged": true,
+    "reserveStateUnchanged": true,
+    "workingTreeDuringValidation": "exactly one untracked file: this adjudication record; nothing else added, modified or deleted, before or after",
+    "databaseWritesDuringValidation": "none by this step; the integration suite writes only to nwf_pe_test",
+    "automaticRerunPerformed": false,
+    "prettierClean": true,
+    "deterministicJson": true,
+    "disclosureScanClean": true,
+    "disclosureScanMethod": "the rendered bytes were scanned for UUIDs, http(s) URLs, eche-row-key shapes, bare institution domains and email/phone shapes; all five scans returned nothing",
+    "postValidationEdit": {
+      "whatChanged": "only this validation block, filled from the completed run",
+      "adjudicatedOutcomesChanged": false,
+      "bindingsChanged": false,
+      "canonicalStateChanged": false,
+      "revalidated": "not re-run: the edit adds a record of the validation to a file that changes no executable code, which is the same treatment the bound live result applied to its own validation block"
+    }
+  },
+  "terminalState": "PHASE_2B_2D_A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_NEXT_EVIDENCE_ADJUDICATED",
+  "nextOwnerDecision": "A2_PRIMARY_ONLY_P6_STABILISATION_AUTOPILOT_GOVERNANCE",
+  "nextOwnerDecisionDerivation": "four of five items were adjudicated successful and one created a new replacement obligation; canonical successes stand at 38 with reserveConsumed 10, so P6 remains NOT_TRIGGERED and a further primaries-only window is the only shape that does not trip it",
+  "nextWindowSelectedAssignedOrPrecommittedHere": false
+}
