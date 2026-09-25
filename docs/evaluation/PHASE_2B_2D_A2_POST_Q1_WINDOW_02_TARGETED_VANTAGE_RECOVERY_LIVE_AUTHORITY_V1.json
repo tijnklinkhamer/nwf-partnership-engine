@@ -1,0 +1,319 @@
+{
+  "recordId": "phase2b-2d-a2-post-q1-window-02-targeted-vantage-recovery-live-authority-v1",
+  "recordKind": "LIVE_ACQUISITION_AUTHORITY",
+  "records": "PHASE_2B_2D_A2_POST_Q1_WINDOW_02_TARGETED_VANTAGE_RECOVERY_LIVE_AUTHORITY_V1",
+  "recordedAtUtc": "2026-09-25T22:29:23Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "GEN1",
+  "publicSafe": true,
+  "isLiveAuthority": true,
+  "createdBeforeAnyInstitutionNetworkActivity": true,
+  "grantsNoAuthorityBeforeCommittedAndPushed": true,
+  "startingHead": "d1afd083f6fbcfdad3a01a6e878ca80bfd4d4715",
+
+  "ownerDecision": "AUTHORISE_TARGETED_VANTAGE_RECOVERY_AND_ASSIGNED_OCCUPANT_ACQUISITION_V1",
+
+  "thisFileAuthorises": "EXACTLY three targeted live acquisitions, one per target below, each a single `orgunits discover --execute` invocation against that target's CURRENT OCCUPANT and FROZEN root authority under orgunit-fetch-policy-v6, in the stated order, at concurrency 1. Nothing else. Every run it permits is TARGETED_VANTAGE_RECOVERY_EVIDENCE_ONLY until a separate owner evidence adjudication says otherwise",
+
+  "isNotAContinuationWindow": {
+    "statement": "this is a targeted recovery series following the V4 targeted-revalidation precedent, not an ordinary continuation window",
+    "genericContinuationPlannerUsed": false,
+    "strategyToSpecAdapterUsed": false,
+    "windowPlanHashExists": false,
+    "denominatorThreeWindowManufactured": false,
+    "why": "the landed planner derives the next unused reserve for a slot with an open obligation. For slot 54 that would derive reserve 19 and waste the already-spent reserve 18. Rather than change the planner or fabricate a strategy to satisfy the adapter, the targets are named here explicitly and read directly from frozen artifacts"
+  },
+
+  "bound": {
+    "ownerRecoveryDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_NAT64_VANTAGE_AND_ASSIGNED_OCCUPANT_RECOVERY_DECISION_V1.json",
+      "sha256": "67331d2017e0dd3266408ca10a1fe5ffce2c7a8724c2e0c5167eba6d4206acb0"
+    },
+    "networkPrecondition": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_RECOVERY_NETWORK_PRECONDITION_V1.json",
+      "sha256": "dfdb4d6b628e5684347472457f3c912b29c77ac4ded1a10e865317bf3a8a767d",
+      "outcome": "NETWORK_PRECONDITION_PROVED",
+      "thisAuthorityIsVoidWithoutIt": true
+    },
+    "window02Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "d42bcc8ddaec933246ae319aa49a15e872a209eff959ad6aa2d006d2f5248836",
+      "commit": "d1afd083f6fbcfdad3a01a6e878ca80bfd4d4715"
+    },
+    "window02LiveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_LIVE_RESULT_V1.json",
+      "sha256": "c83c4dba0252fe42ca7e643d814075f26da22ece24da43be3623538f21ed9d9c",
+      "commit": "ae25bab3efe744a468c74f07252a96fb0d6cc637"
+    },
+    "frozenDraw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "sha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3"
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "08f720636daaa42fa92419f11f8401c49f785d0fa5ecc4eaf5f41bb8cf291ffc",
+      "ledgerHash": "e215c1945dda8f4d79e10d775729290f7cf8ed3475e6849db2470d0381662e81",
+      "entries": 19
+    },
+    "targetedRevalidationPrecedent": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_V4_TARGETED_TRANSPORT_REVALIDATION_AUTHORITY_V1.json",
+      "sha256": "1b568b56c7a99ca653fe488faf9be5f80b763728514dbc100773b87f96890c98"
+    }
+  },
+
+  "targetDerivation": {
+    "method": "currentOccupantForSelectionIndex(frozen draw, the committed nineteen-entry ledger, selectionIndex), run here through the landed replacementLedger implementation. The ledger was revalidated by the landed validateReplacementLedger before any target was read",
+    "ledgerHashRecomputedHere": "e215c1945dda8f4d79e10d775729290f7cf8ed3475e6849db2470d0381662e81",
+    "ledgerHashMatchesTheCommittedFile": true,
+    "reserveConsumedRecomputedHere": 19,
+    "drawEntryDigestMethod": "drawEntrySha256 = sha256(canonicalStringify(exact parsed draw entry)), through the landed drawEntrySha256; a REPLACEMENT target digests the RESERVE entry at its reserveRankPosition, exactly as the Window-02 plan did",
+    "everyDigestReproducesTheWindow02PlanExactly": true,
+    "noTargetWasCopiedFromTheTaskOrFromMemory": true,
+    "rootAuthorityPerTargetVerifiedInTheDatabase": "each target's ECHE row key carries exactly one STRUCTURALLY_VALID website claim and there are zero root promotions in the database, so each run has exactly one WEBSITE_CLAIM root"
+  },
+
+  "executionOrder": ["R:45:16", "R:51:17", "R:54:18"],
+
+  "targets": [
+    {
+      "order": 1,
+      "workItemId": "R:45:16",
+      "targetType": "TARGETED_VANTAGE_REVALIDATION",
+      "selectionIndex": 45,
+      "split": "DEV_CONFIRM",
+      "occupantKind": "RESERVE_REPLACEMENT",
+      "reserveRankPosition": 16,
+      "ledgerSequence": 16,
+      "drawEntryKind": "RESERVE",
+      "drawEntrySha256": "761050592cb572c83031393f812689517735aaeff6e7184a460c834f086939f9",
+      "historicalRunRefSha256": "f0af710add42ea45f7adcf8e683ac3678145491f5edaabc96e733b68d70967a7",
+      "historicalFetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "historicalRootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "historicalErrorKind": "BLOCKED_BY_POLICY",
+      "historicalHttpStatus": null,
+      "historicalPagesWithEvidence": 0,
+      "historicalRunIsImmutable": true,
+      "rootAuthorityCount": 1,
+      "rootAuthorityType": "WEBSITE_CLAIM",
+      "detailedEvidenceRoutingRequirement": "SEALED_DEV_CONFIRM_ROOT"
+    },
+    {
+      "order": 2,
+      "workItemId": "R:51:17",
+      "targetType": "TARGETED_VANTAGE_REVALIDATION",
+      "selectionIndex": 51,
+      "split": "FINAL_HOLDOUT",
+      "occupantKind": "RESERVE_REPLACEMENT",
+      "reserveRankPosition": 17,
+      "ledgerSequence": 17,
+      "drawEntryKind": "RESERVE",
+      "drawEntrySha256": "3a86f43160fbeb0f4eec6df4f8b365ba4d57442fff91e022fdbf3e6470b9f337",
+      "historicalRunRefSha256": "843725eb3ea054d916e79caae1a3be79bc322f424956067797216c7ecdf15aca",
+      "historicalFetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "historicalRootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "historicalErrorKind": "BLOCKED_BY_POLICY",
+      "historicalHttpStatus": null,
+      "historicalPagesWithEvidence": 0,
+      "historicalRunIsImmutable": true,
+      "rootAuthorityCount": 1,
+      "rootAuthorityType": "WEBSITE_CLAIM",
+      "detailedEvidenceRoutingRequirement": "SEALED_HOLDOUT_ROOT; no page detail may be exposed publicly"
+    },
+    {
+      "order": 3,
+      "workItemId": "R:54:18",
+      "targetType": "FIRST_ACQUISITION_OF_ALREADY_ASSIGNED_CURRENT_OCCUPANT",
+      "selectionIndex": 54,
+      "split": "DEV_CONFIRM",
+      "occupantKind": "RESERVE_REPLACEMENT",
+      "reserveRankPosition": 18,
+      "ledgerSequence": 18,
+      "drawEntryKind": "RESERVE",
+      "drawEntrySha256": "8e20ab7a97d583514c8a9b031abfce1eb428568fee13fea97993bed53668a4ed",
+      "historicalRunRefSha256": null,
+      "priorAcquisitionRunsForThisOccupant": 0,
+      "priorFetchObservationsForThisOccupant": 0,
+      "whyThisIsNotLabelledRevalidation": "there is nothing to revalidate. Reserve 18 was assigned to slot 54 by ledger sequence 18 before the network began and Window 02 paused on P5 before reaching it. This is the FIRST acquisition of that occupant, and mislabelling it a revalidation would misstate what the evidence is",
+      "rootAuthorityCount": 1,
+      "rootAuthorityType": "WEBSITE_CLAIM",
+      "detailedEvidenceRoutingRequirement": "SEALED_DEV_CONFIRM_ROOT"
+    }
+  ],
+
+  "targetTypesAreDistinguished": true,
+  "r18LabelledAsRevalidation": false,
+
+  "limits": {
+    "maximumLiveRuns": 3,
+    "maximumLiveOrganisations": 3,
+    "maximumAcquisitionInvocationsPerTarget": 1,
+    "concurrency": 1,
+    "requiredFetchPolicyVersion": "orgunit-fetch-policy-v6",
+    "reserveConsumptionAuthorised": 0,
+    "ledgerMutationAuthorised": false,
+    "replacementAuthorised": false,
+    "primaryP60Authorised": false,
+    "reserve19Authorised": false,
+    "p59Authorised": false,
+    "codeOrPolicyChangeAuthorised": false
+  },
+
+  "negativeAuthority": {
+    "window03Authorised": false,
+    "fourthTargetAuthorised": false,
+    "dynamicTargetInsertionAuthorised": false,
+    "targetReorderingOrSkippingAuthorised": false,
+    "manualRetryAuthorised": false,
+    "hiddenRetryAuthorised": false,
+    "cliRerunOfATargetAuthorised": false,
+    "secondAcquisitionInvocationPerTargetAuthorised": false,
+    "alternateRootAuthorised": false,
+    "adaptiveRootChangeAuthorised": false,
+    "curlWgetOrBrowserInstitutionAccessAuthorised": false,
+    "timeoutWideningAuthorised": false,
+    "tlsBypassOrWeakeningAuthorised": false,
+    "addressGuardBypassAuthorised": false,
+    "translationPrefixAllowlistAuthorised": false,
+    "proxyOrTunnelInterpositionAuthorised": false,
+    "dnsOverrideOrHostsFileEditAuthorised": false,
+    "budgetWideningAuthorised": false,
+    "crawlerOrParserChangeAuthorised": false,
+    "plannerOrAdapterChangeAuthorised": false,
+    "methodologyChangeAuthorised": false,
+    "q3TaxonomyChangeAuthorised": false,
+    "migrationAuthorised": false,
+    "productionCodeChangeAuthorised": false,
+    "harnessChangeAuthorised": false,
+    "testChangeAuthorised": false,
+    "classifierExecutionAuthorised": false,
+    "providerAuthorised": false,
+    "labelsAuthorised": false,
+    "setPSetRAuthorised": false,
+    "a3Authorised": false,
+    "phase2EAuthorised": false,
+    "historicalRunMutationOrDeletionAuthorised": false,
+    "window02RecordRewriteAuthorised": false,
+    "acquisitionOfRecordMutationAuthorised": false,
+    "finalAcquisitionAdjudicationAuthorisedHere": false
+  },
+
+  "frozenCeilingsUnchanged": {
+    "MAX_TOTAL_REQUESTS_PER_ROOT": 60,
+    "MAX_PAGE_ATTEMPTS_PER_ROOT": 35,
+    "MAX_HOSTS_PER_ROOT": 8,
+    "MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS": 1,
+    "MAX_ROBOTS_TRANSPORT_RETRIES_PER_POLICY_RESOLUTION": 1
+  },
+
+  "p5Suspension": {
+    "p5AppliesBetweenTheseThreeTargets": false,
+    "why": "targeted recovery of already-adjudicated or already-assigned slots, not new primary draw positions. This follows the V4 and Option-C-lite revalidation precedent. P5 is recomputed prospectively only after evidence adjudication",
+    "aNormalAcquisitionOutcomeStopsTheSeries": false,
+    "doNotStopOn": [
+      "direct success",
+      "MIN_PAGES_NOT_MET under a proved-compliant network",
+      "DNS_NAME_NOT_FOUND",
+      "TLS_CERT_INVALID",
+      "ROBOTS_DISALLOWED by the site itself",
+      "an HTTP error response",
+      "a retryable failure followed by a failed in-policy retry"
+    ]
+  },
+
+  "beforeEveryTarget": {
+    "reMeasureNetworkPrecondition": ["condition 1", "condition 2", "condition 4"],
+    "reReadHostState": ["AC/battery", "clamshell", "sleep count"],
+    "reReadLedgerEntryCount": 19,
+    "reCheckCompetingAcquisition": 0
+  },
+
+  "stopBeforeTheNextTargetOn": [
+    "the network precondition becoming false - terminal RECOVERY_NETWORK_PRECONDITION_VIOLATED_DURING_EXECUTION",
+    "sleep/wake contamination during a target",
+    "a persistence anomaly - a run without a completion, more than one completion, or an unexpected table delta",
+    "an unexpected production exception",
+    "any change to the replacement ledger",
+    "a target, root or draw mismatch",
+    "a fetch policy version mismatch",
+    "any address-policy weakening",
+    "an unexpected reserve assignment",
+    "a concurrency violation",
+    "a HOLDOUT disclosure issue"
+  ],
+
+  "nat64RefusalIfItRecurs": {
+    "rule": "if a new run again produces only BLOCKED_BY_POLICY because the machine has reverted to a translation-prefix-only DNS64/NAT64 vantage, that is NOT an institution failure",
+    "terminal": "RECOVERY_NETWORK_PRECONDITION_VIOLATED_DURING_EXECUTION",
+    "runIsRetainedAs": "ENVIRONMENT evidence",
+    "replacementObligationCreatedFromIt": false,
+    "reserveConsumedFromIt": 0,
+    "theDistinctCase": "if the suitable-network precondition still holds and the target itself authoritatively resolves only to genuinely non-public addresses unrelated to NAT64 synthesis, that is a DIFFERENT evidence shape: apply existing Q3 mechanically and do not conflate it with the operator NAT64 condition"
+  },
+
+  "historicalEvidenceIsImmutable": {
+    "statement": "the Window-02 NAT64-vantage runs for slots 45 and 51 remain in the database forever. No row of theirs is updated, deleted, reinterpreted or back-filled",
+    "newRunsAreSeparateRows": true,
+    "window02RecordsRewritten": false,
+    "onlyALaterEvidenceAdjudicationMayDecideWhetherANewRunBecomesTheCurrentGeneration1AcquisitionOfRecord": true
+  },
+
+  "evidencePerStartedTarget": {
+    "sealedSd7DetailWritten": true,
+    "sealedFilenameConvention": "POST_Q1_WINDOW_02_RECOVERY_V1_SD7_DETAIL_<workItemId with colons as underscores>.json",
+    "sealedRootBySplit": {
+      "DEV_CONFIRM": "the DEV_CONFIRM sealed root",
+      "FINAL_HOLDOUT": "the FINAL_HOLDOUT sealed root"
+    },
+    "sealedFilesCommittedToGit": false,
+    "existingSealedFileOverwriteAuthorised": false,
+    "exclusiveCreateSemanticsRequired": true
+  },
+
+  "liveResultRequirements": {
+    "oneRecordForTheWholeSeries": true,
+    "perTargetFieldsRequired": [
+      "exact run reference",
+      "whether the target was TARGETED_VANTAGE_REVALIDATION or FIRST_ACQUISITION_OF_ALREADY_ASSIGNED_CURRENT_OCCUPANT",
+      "network precondition at that target's start",
+      "request count",
+      "terminal reason",
+      "persisted evidence",
+      "raw page count",
+      "formal SD7",
+      "fetch policy version",
+      "address-policy observations",
+      "whether any translation-prefix-only refusal occurred"
+    ],
+    "adjudicationInsideTheResult": false,
+    "fullRepositoryValidation": "exactly one `caffeinate -dimsu npm run validate`, after a 120-second corrected self-excluding quiet gate, before the result is committed"
+  },
+
+  "validation": {
+    "fullRepositoryValidationRun": false,
+    "fullRepositoryValidationRequiredHere": false,
+    "whyNot": "a live authority changes no executable code; the single full validation is spent at the LIVE_RESULT stage",
+    "executableCodeChanged": false,
+    "testsChanged": false,
+    "harnessChanged": false,
+    "migrationsChanged": false,
+    "methodologyChanged": false,
+    "fetchPolicyChanged": false
+  },
+
+  "institutionNetworkExecutedBeforeThisRecord": false,
+  "databaseWrittenByThisRecord": "none",
+  "institutionIdentityInThisFile": "none. Targets are named by selection index, reserve rank position, split and frozen draw-entry digest only. No ECHE row key, organisation id, hostname or URL appears anywhere in this record",
+
+  "terminal": "TARGETED_VANTAGE_RECOVERY_AUTHORISED_PENDING_EXECUTION",
+  "nextAuthorisedActionSequence": [
+    "commit and push this authority",
+    "execute R:45:16, then R:51:17, then R:54:18, one invocation each",
+    "write the targeted recovery LIVE_RESULT",
+    "quiet gate, then exactly one full validation",
+    "commit, push, refetch",
+    "then, separately, the recovery evidence adjudication",
+    "then STOP - no Window 03 is created automatically"
+  ],
+  "immutability": "append-only. This authority is never edited and expires with its three targets"
+}
