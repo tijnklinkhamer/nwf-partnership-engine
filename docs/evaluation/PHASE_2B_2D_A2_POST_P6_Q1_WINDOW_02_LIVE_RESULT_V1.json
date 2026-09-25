@@ -1,0 +1,812 @@
+{
+  "recordId": "phase2b-2d-a2-post-p6-q1-window-02-live-result-v1",
+  "recordKind": "LIVE_WINDOW_RESULT_EVIDENCE_PENDING_ADJUDICATION",
+  "records": "PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_LIVE_RESULT_V1",
+  "recordedAtUtc": "2026-09-25T22:03:37Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "networkUsed": true,
+  "adjudicationPerformedHere": false,
+  "adjudicationPerformedHereNote": "every SD9 status below is DIAGNOSTIC. Acquisition success, replacement obligations and Q3 reasons are decided in a separate adjudication record",
+  "startingHead": "aa5824f5ff6ecb715c22177196fcccd01c693a40",
+  "bound": {
+    "liveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_LIVE_AUTHORITY_V1.json",
+      "sha256": "1684e4019c0b309414df373fd627c73ee5fce66006b6f874bb88e09d30714a51",
+      "bytes": 32463,
+      "commit": "dce3891c454233ac050b9ef892625a9d8d7892d1"
+    },
+    "preNetworkAssignment": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_PRENETWORK_ASSIGNMENT_V1.json",
+      "sha256": "844879e4000013fad6e87462620a2b4d71dbb89ce35268f996304de84976357c",
+      "commit": "aa5824f5ff6ecb715c22177196fcccd01c693a40"
+    },
+    "plan": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_PLAN_V1.json",
+      "sha256": "44d08a9e56492932032dec7cf2375689d7511af2a3a50ba1075a669cbb3b34f1",
+      "bytes": 7079,
+      "windowPlanHash": "ab1a674ce6d6fa56e547770a63429cda3bfbf64fc8fabdafee9ed674270c9fe7",
+      "commit": "0add4e877dfabd33e62bec436750b132655dd72e"
+    },
+    "strategy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_STRATEGY_V1.json",
+      "sha256": "0a7778065af21aec061634d66c83d42a99d8c3dd8dad82c3cf0535ce48cac7d9",
+      "bytes": 49116,
+      "commit": "8a7392a003a0d8cc28cc73172d8c99f93a43816f"
+    },
+    "p5ReviewAndResumeDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_P5_REVIEW_AND_AUTOPILOT_RESUME_V1.json",
+      "sha256": "54de2382d758078786e1de117dcb174cdaabd142c81b57eabea691a53851404a",
+      "bytes": 23592,
+      "commit": "1d851421b5f0018ed072e5f92bf9f1b4611a1883"
+    },
+    "postP6OwnerDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_REPLACEMENT_AND_PRIMARY_COMPLETION_AUTOPILOT_V1.json",
+      "sha256": "017f8422263b1ee13b58fa99ab7c44ec9acb50c3e079e8681ffd0af5aa19f2ef",
+      "bytes": 35547,
+      "commit": "d3700180cc501aef3d42455d7dff7e46ce8c42a1"
+    },
+    "startingReplacementLedgerFifteenEntries": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "5d3302368bf8ed077ac581a8577d2fc4212eebb9aeda6c1581a0f3bcd1661d0a",
+      "bytes": 13982,
+      "ledgerHash": "62939b3a06887053004a5b0e23ad3c79d55d0e90a29b9d8e151669a406de7fa0",
+      "readFrom": "git show 0add4e8:<path>"
+    },
+    "postAssignmentReplacementLedgerNineteenEntries": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "08f720636daaa42fa92419f11f8401c49f785d0fa5ecc4eaf5f41bb8cf291ffc",
+      "bytes": 16444,
+      "ledgerHash": "e215c1945dda8f4d79e10d775729290f7cf8ed3475e6849db2470d0381662e81",
+      "entries": 19,
+      "byteIdenticalThroughoutTheWindow": true,
+      "reVerifiedBeforeEveryItem": true
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650"
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    }
+  },
+  "chronology": {
+    "liveAuthorityCommitUtc": "2026-09-25T21:41:40Z",
+    "ledgerAppendEntryRecordedAtUtc": "2026-09-25T21:42:44Z",
+    "preNetworkAssignmentCommitUtc": "2026-09-25T21:45:46Z",
+    "preNetworkAssignmentPushedUtc": "2026-09-25T21:45:49Z",
+    "firstInstitutionRequestUtc": "2026-09-25T21:49:39Z",
+    "lastInstitutionRequestEndUtc": "2026-09-25T21:50:53Z",
+    "ledgerPushPrecededRequestOne": true,
+    "marginSeconds": 230,
+    "requiredOrder": "authority push -> ledger-append push -> database target resolution -> institution request 1",
+    "orderHeld": true
+  },
+  "hostState": {
+    "acPower": false,
+    "batteryOnlyAuthorisedBy": "the bound post-P6 owner decision and the live authority's ownerPowerSourcePolicy",
+    "batteryPercentAtEachItemStart": {
+      "R:29:15": 40,
+      "R:45:16": 40,
+      "R:51:17": 40
+    },
+    "batteryFloor": 20,
+    "batteryNeverAtOrBelowFloor": true,
+    "lidOpenThroughout": true,
+    "clamshellStateObserved": "No, before every item",
+    "caffeinateDimsuPerItem": true,
+    "sleepWakeOrDarkWakeEventCount": 0,
+    "sleepWakeBaselineBefore": 709,
+    "sleepWakeAfter": 709,
+    "hostStateAnomaly": false,
+    "competingValidateOrVitestProcesses": 0,
+    "competingA2Acquisitions": 0,
+    "networkVantage": {
+      "declaredHere": true,
+      "whatItWas": "an IPv6-only cellular/hotspot uplink with DNS64 and NAT64. The active interface is marked 'constrained', carries a CLAT46 address and the well-known CLAT IPv4 address 192.0.0.2, and the RFC 7050 well-known name ipv4only.arpa resolves to 64:ff9b::c000:aa and 64:ff9b::c000:ab - the canonical NAT64 prefix",
+      "howItWasDetermined": "ifconfig and an RFC 7050 resolution of ipv4only.arpa. No institution was contacted to establish this",
+      "whyItMatters": "on this vantage DNS64 synthesises an AAAA record inside 64:ff9b::/96 for every IPv4-only host. src/orgunits/web/address.ts classifies 64:ff9b::/96 as relay_or_translation and therefore NON-PUBLIC, so the gateway refuses the whole host BLOCKED_BY_POLICY before opening a socket. An institution served only over IPv4 is structurally unreachable from here, and one with native IPv6 is not",
+      "thisIsAVantagePropertyNotAnInstitutionProperty": true,
+      "nothingWasChangedInResponse": "no policy, timeout, address rule or TLS setting was altered, and no target was retried. The finding is recorded for owner review"
+    }
+  },
+  "p7BeforeAndBetweenEveryItem": {
+    "invariantCount": 13,
+    "evaluatedBefore": ["R:29:15", "R:45:16", "R:51:17"],
+    "evaluatedAfterEveryCompletion": true,
+    "allThirteenTrueEveryTime": true,
+    "ledgerEntryCountEveryTime": 19,
+    "specSource": "windowSpecFromAcquisitionWindowStrategy over the committed strategy bytes, the frozen draw and the FIFTEEN-entry starting-ledger bytes read from git at 0add4e8",
+    "preflightLedger": "the committed nineteen-entry revision on disk, re-hashed before every item",
+    "exactComparisonAgainst": "strategy 0a777806, plan 44d08a9e, windowPlanHash ab1a674c and the ordered list R:29:15 R:45:16 R:51:17 R:54:18 P:60",
+    "anyMismatch": false,
+    "specReconstructedFromThePlan": false,
+    "invariantBooleanForcedManually": false
+  },
+  "executionOrder": {
+    "planned": ["R:29:15", "R:45:16", "R:51:17", "R:54:18", "P:60"],
+    "executed": ["R:29:15", "R:45:16", "R:51:17"],
+    "unstarted": ["R:54:18", "P:60"],
+    "matchesThePlanPrefixExactly": true,
+    "itemsStarted": 3,
+    "itemsUnstarted": 2,
+    "fourthItemStarted": false,
+    "whyTheLastTwoWereNotStarted": "the gate returned PAUSE_P5_LOW_RAW_YIELD after item 3. The bound authority requires an immediate stop on any pause decision, and the gate's mayStartNextWorkItem was false",
+    "reordered": false,
+    "skipped": false,
+    "concurrency": 1,
+    "liveInvocationPerItem": "exactly one caffeinate -dimsu npm run cli -- orgunits discover --organisation-id <private> --execute --json"
+  },
+  "runReferenceDerivation": {
+    "declaredHere": true,
+    "derivation": "runRefSha256 = sha256(utf8(the run's UUID text, lower-case, hyphenated, with no surrounding whitespace))",
+    "whyHashed": "a run id joins directly to the institution's evidence rows. The hash is stable, checkable by anyone with database access, and discloses nothing on its own",
+    "appliedUniformlyToAllThreeItems": true
+  },
+  "items": [
+    {
+      "workItemId": "R:29:15",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 29,
+      "reserveRankPosition": 15,
+      "split": "FINAL_HOLDOUT",
+      "drawEntrySha256": "70244569cde4f0f12b77f133a4bb163baa206d120aef70c38d3cfe9b71af5f99",
+      "runRefSha256": "2f641edeb1a1822d9dcab0dde1cb49b0cad04b5f87cd3776e8e0a9dc3eb7058e",
+      "startedUtc": "2026-09-25T21:49:39Z",
+      "endedUtc": "2026-09-25T21:50:23Z",
+      "elapsedSeconds": 44,
+      "cliExitCode": 0,
+      "stderrBytes": 0,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootCount": 1,
+      "rootKind": "WEBSITE_CLAIM",
+      "rootSourceLabel": "claim:ECHE_PUBLISHED",
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "refusalDetail": null,
+      "rootKeyCount": 1,
+      "totalRequests": 39,
+      "pageAttempts": 35,
+      "robotsRequests": 3,
+      "sitemapRequests": 1,
+      "sitemapUrlsAccepted": 0,
+      "distinctHostsUsed": 2,
+      "frontierUrlsObserved": 172,
+      "pagesWithEvidence": 31,
+      "candidateEvaluations": 62,
+      "trackASelected": 2,
+      "trackBSelected": 0,
+      "circuitOpenHosts": 0,
+      "redirectObservations": 5,
+      "redirectFacts": {
+        "statuses": {
+          "301": 4,
+          "302": 1
+        },
+        "malformed": 0,
+        "hostChanged": 0,
+        "domainChanged": 0
+      },
+      "errorKinds": {
+        "(none)": 38,
+        "BLOCKED_BY_POLICY": 1
+      },
+      "errorSubtypes": {
+        "(none)": 39
+      },
+      "attemptNoDistribution": {
+        "1": 39
+      },
+      "discoveryMethods": {
+        "ROBOTS": 3,
+        "ROOT": 1,
+        "LINK": 34,
+        "SITEMAP": 1
+      },
+      "robotsDecisions": {
+        "NOT_APPLICABLE": 3,
+        "ALLOWED": 36
+      },
+      "httpStatuses": {
+        "200": 33,
+        "301": 4,
+        "302": 1,
+        "(none)": 1
+      },
+      "inPolicyTransportRetryUsed": false,
+      "whatHappened": "the root was reachable: robots.txt was read, the frontier observed 172 URLs across two hosts and the run spent the full 35-page budget, terminating PAGE_BUDGET_EXHAUSTED with 31 pages of evidence. One page-level request was refused BLOCKED_BY_POLICY because the host it named resolved only to a non-public IPv6 address",
+      "rawPageEvidenceCount": 31,
+      "candidateRows": 62,
+      "candidateTracks": {
+        "INTERNATIONAL_OFFICE": 31,
+        "LANGUAGE_CENTRE": 31
+      },
+      "candidateTypeHintNonNull": 0,
+      "candidateScoreMin": 0,
+      "candidateScoreMax": 2,
+      "candidateNegativeRows": 0,
+      "maxMainTextChars": 5791,
+      "mainTextTruncatedRows": 0,
+      "sd7": {
+        "postSd7CountMin": 30,
+        "postSd7CountMax": 30,
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "survivorCountIsOrderDependent": false,
+        "decidedByCase": "B",
+        "rangeCrossesFour": false,
+        "exactDuplicateRowsRemoved": 0,
+        "nearEdgeCount": 1
+      },
+      "sd9Diagnostic": "ACQUISITION_SUCCESSFUL",
+      "sd9IsDiagnosticOnly": true,
+      "sealedFile": "POST_P6_Q1_WINDOW_02_V1_SD7_DETAIL_R_29_15.json",
+      "sealedRoot": "FINAL_HOLDOUT",
+      "sealedFileSha256": "2961fb9c2931afffb7eb59839e514fb6460ef060594899156c2e1af35d70cd51",
+      "sealedFileBytes": 14231,
+      "hostAtItemStart": {
+        "battery": 40,
+        "acPower": false,
+        "clamshell": "No",
+        "sleepCount": 709,
+        "competing": 0
+      },
+      "gateAfterThisItem": "CONTINUE_TO_NEXT_WORK_ITEM",
+      "gateNextWorkItemId": "R:45:16",
+      "gateTriggeredConditions": [],
+      "gateWindowLowYieldCount": 0,
+      "gateWindowRobotsRefusalCount": 0,
+      "p7AfterThisItem": "13/13"
+    },
+    {
+      "workItemId": "R:45:16",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 45,
+      "reserveRankPosition": 16,
+      "split": "DEV_CONFIRM",
+      "drawEntrySha256": "761050592cb572c83031393f812689517735aaeff6e7184a460c834f086939f9",
+      "runRefSha256": "f0af710add42ea45f7adcf8e683ac3678145491f5edaabc96e733b68d70967a7",
+      "startedUtc": "2026-09-25T21:50:36Z",
+      "endedUtc": "2026-09-25T21:50:38Z",
+      "elapsedSeconds": 2,
+      "cliExitCode": 0,
+      "stderrBytes": 0,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootCount": 1,
+      "rootKind": "WEBSITE_CLAIM",
+      "rootSourceLabel": "claim:ECHE_PUBLISHED",
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "refusalDetail": null,
+      "rootKeyCount": 1,
+      "totalRequests": 1,
+      "pageAttempts": 0,
+      "robotsRequests": 1,
+      "sitemapRequests": 0,
+      "sitemapUrlsAccepted": 0,
+      "distinctHostsUsed": 1,
+      "frontierUrlsObserved": 0,
+      "pagesWithEvidence": 0,
+      "candidateEvaluations": 0,
+      "trackASelected": 0,
+      "trackBSelected": 0,
+      "circuitOpenHosts": 0,
+      "redirectObservations": 0,
+      "redirectFacts": {
+        "statuses": {},
+        "malformed": 0,
+        "hostChanged": 0,
+        "domainChanged": 0
+      },
+      "errorKinds": {
+        "BLOCKED_BY_POLICY": 1
+      },
+      "errorSubtypes": {
+        "(none)": 1
+      },
+      "attemptNoDistribution": {
+        "1": 1
+      },
+      "discoveryMethods": {
+        "ROBOTS": 1
+      },
+      "robotsDecisions": {
+        "NOT_APPLICABLE": 1
+      },
+      "httpStatuses": {
+        "(none)": 1
+      },
+      "inPolicyTransportRetryUsed": false,
+      "whatHappened": "the single robots.txt request was refused BLOCKED_BY_POLICY before any socket was opened: every address the host resolved to was a non-public IPv6 address. No HTTP response of any kind was obtained, so the site policy was never read and the root terminated ROBOTS_UNREADABLE_ROOT with zero page attempts. This is an ADDRESS-POLICY refusal, not a transport failure and not a policy refusal by the site",
+      "rawPageEvidenceCount": 0,
+      "candidateRows": 0,
+      "candidateTracks": {},
+      "candidateTypeHintNonNull": 0,
+      "candidateScoreMin": null,
+      "candidateScoreMax": null,
+      "candidateNegativeRows": 0,
+      "maxMainTextChars": 0,
+      "mainTextTruncatedRows": 0,
+      "sd7": {
+        "postSd7CountMin": 0,
+        "postSd7CountMax": 0,
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "survivorCountIsOrderDependent": false,
+        "decidedByCase": "A",
+        "rangeCrossesFour": false,
+        "exactDuplicateRowsRemoved": 0,
+        "nearEdgeCount": null
+      },
+      "sd9Diagnostic": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "sd9IsDiagnosticOnly": true,
+      "sealedFile": "POST_P6_Q1_WINDOW_02_V1_SD7_DETAIL_R_45_16.json",
+      "sealedRoot": "DEV_CONFIRM",
+      "sealedFileSha256": "d1dabe246d6b54fa1dcbf730bc41bc457cf2dad79a13ae5b007f698f4d33aab5",
+      "sealedFileBytes": 1190,
+      "hostAtItemStart": {
+        "battery": 40,
+        "acPower": false,
+        "clamshell": "No",
+        "sleepCount": 709,
+        "competing": 0
+      },
+      "gateAfterThisItem": "CONTINUE_TO_NEXT_WORK_ITEM",
+      "gateNextWorkItemId": "R:51:17",
+      "gateTriggeredConditions": [],
+      "gateWindowLowYieldCount": 1,
+      "gateWindowRobotsRefusalCount": 1,
+      "p7AfterThisItem": "13/13"
+    },
+    {
+      "workItemId": "R:51:17",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 51,
+      "reserveRankPosition": 17,
+      "split": "FINAL_HOLDOUT",
+      "drawEntrySha256": "3a86f43160fbeb0f4eec6df4f8b365ba4d57442fff91e022fdbf3e6470b9f337",
+      "runRefSha256": "843725eb3ea054d916e79caae1a3be79bc322f424956067797216c7ecdf15aca",
+      "startedUtc": "2026-09-25T21:50:52Z",
+      "endedUtc": "2026-09-25T21:50:53Z",
+      "elapsedSeconds": 2,
+      "cliExitCode": 0,
+      "stderrBytes": 0,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootCount": 1,
+      "rootKind": "WEBSITE_CLAIM",
+      "rootSourceLabel": "claim:ECHE_PUBLISHED",
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "refusalDetail": null,
+      "rootKeyCount": 1,
+      "totalRequests": 1,
+      "pageAttempts": 0,
+      "robotsRequests": 1,
+      "sitemapRequests": 0,
+      "sitemapUrlsAccepted": 0,
+      "distinctHostsUsed": 1,
+      "frontierUrlsObserved": 0,
+      "pagesWithEvidence": 0,
+      "candidateEvaluations": 0,
+      "trackASelected": 0,
+      "trackBSelected": 0,
+      "circuitOpenHosts": 0,
+      "redirectObservations": 0,
+      "redirectFacts": {
+        "statuses": {},
+        "malformed": 0,
+        "hostChanged": 0,
+        "domainChanged": 0
+      },
+      "errorKinds": {
+        "BLOCKED_BY_POLICY": 1
+      },
+      "errorSubtypes": {
+        "(none)": 1
+      },
+      "attemptNoDistribution": {
+        "1": 1
+      },
+      "discoveryMethods": {
+        "ROBOTS": 1
+      },
+      "robotsDecisions": {
+        "NOT_APPLICABLE": 1
+      },
+      "httpStatuses": {
+        "(none)": 1
+      },
+      "inPolicyTransportRetryUsed": false,
+      "whatHappened": "identical shape to R:45:16: the single robots.txt request was refused BLOCKED_BY_POLICY on a non-public IPv6 address, no HTTP response was obtained, and the root terminated ROBOTS_UNREADABLE_ROOT with zero page attempts",
+      "rawPageEvidenceCount": 0,
+      "candidateRows": 0,
+      "candidateTracks": {},
+      "candidateTypeHintNonNull": 0,
+      "candidateScoreMin": null,
+      "candidateScoreMax": null,
+      "candidateNegativeRows": 0,
+      "maxMainTextChars": 0,
+      "mainTextTruncatedRows": 0,
+      "sd7": {
+        "postSd7CountMin": 0,
+        "postSd7CountMax": 0,
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "survivorCountIsOrderDependent": false,
+        "decidedByCase": "A",
+        "rangeCrossesFour": false,
+        "exactDuplicateRowsRemoved": 0,
+        "nearEdgeCount": null
+      },
+      "sd9Diagnostic": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "sd9IsDiagnosticOnly": true,
+      "sealedFile": "POST_P6_Q1_WINDOW_02_V1_SD7_DETAIL_R_51_17.json",
+      "sealedRoot": "FINAL_HOLDOUT",
+      "sealedFileSha256": "ab6c7700ce0d806ef3b5328234e63735d43d4fc0847e1b561b8ae9825ee7e477",
+      "sealedFileBytes": 1195,
+      "hostAtItemStart": {
+        "battery": 40,
+        "acPower": false,
+        "clamshell": "No",
+        "sleepCount": 709,
+        "competing": 0
+      },
+      "gateAfterThisItem": "PAUSE_P5_LOW_RAW_YIELD",
+      "gateNextWorkItemId": null,
+      "gateTriggeredConditions": [
+        {
+          "condition": "P5",
+          "decision": "PAUSE_P5_LOW_RAW_YIELD",
+          "arm": "raw pages < 4 on 2 of 5 planned items (> 30%)"
+        }
+      ],
+      "gateWindowLowYieldCount": 2,
+      "gateWindowRobotsRefusalCount": 2,
+      "p7AfterThisItem": "13/13"
+    }
+  ],
+  "unstartedItems": [
+    {
+      "workItemId": "R:54:18",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 54,
+      "reserveRankPosition": 18,
+      "split": "DEV_CONFIRM",
+      "started": false,
+      "runsCreated": 0,
+      "evidenceRows": 0,
+      "sealedFileWritten": false,
+      "reserveIsNeverthelessASSIGNED": "ledger sequence 18 assigned reserve 18 to slot 54 before the network began, and that assignment is committed and immutable. The reserve is SPENT and slot 54's current occupant is now reserve 18 - but reserve 18 was never acquired",
+      "thisIsANewStateForThisCorpus": "every previous window either ran all of its items or never appended for the ones it did not run. An ASSIGNED-BUT-UNACQUIRED reserve has not occurred before, and how the next window serves slot 54 is an owner question, not one this record answers",
+      "whatMustNotHappen": "planPendingReplacementObligations would derive reserve 19 for slot 54 at the next planning point, which would silently waste reserve 18. No such assignment is made or implied here"
+    },
+    {
+      "workItemId": "P:60",
+      "kind": "PRIMARY",
+      "selectionIndex": 60,
+      "split": "FINAL_HOLDOUT",
+      "started": false,
+      "runsCreated": 0,
+      "evidenceRows": 0,
+      "sealedFileWritten": false,
+      "consumesNoReserve": true,
+      "slotStateUnchanged": "slot 60 remains NEVER_STARTED. Nothing was assigned to it and nothing is owed for it"
+    }
+  ],
+  "terminalGate": {
+    "decision": "PAUSE_P5_LOW_RAW_YIELD",
+    "mayStartNextWorkItem": false,
+    "nextWorkItemId": null,
+    "triggeredConditions": [
+      {
+        "condition": "P5",
+        "decision": "PAUSE_P5_LOW_RAW_YIELD",
+        "arm": "raw pages < 4 on 2 of 5 planned items (> 30%)"
+      }
+    ],
+    "completedCount": 3,
+    "remainingWorkItemIds": ["R:54:18", "P:60"],
+    "plannedWindowSize": 5,
+    "p2PercentageThresholdCount": 3,
+    "p5LowYieldThresholdCount": 2,
+    "windowLowYieldCount": 2,
+    "windowRobotsRefusalCount": 2,
+    "maxConsecutiveRootAuthorityFailures": 0,
+    "maxConsecutiveRobotsRefusals": 2,
+    "maxConsecutiveFailedRuns": 0,
+    "generationSuccessfulCount": 55,
+    "generationReserveConsumedCount": 19,
+    "windowLocalCountersStartedAtZero": true,
+    "window01CountersWereNotCarriedIn": "Owner Clarification Q4 and the bound P5 review record. This window's P5 counter reached 2 on its own two low-yield items",
+    "theDenominatorIsTheFrozenFive": "P5 divides by the planned window size, never by the completed count. Two of five is strictly more than 30%, so the threshold was reached on item 3 and two planned items went unstarted",
+    "consequence": "the resumed autopilot STOPS again. Its stop condition E lists any P1-P8 pause, and no further child window may be planned without owner review"
+  },
+  "windowOutcomeSummary": {
+    "itemsStarted": 3,
+    "itemsCompleted": 3,
+    "runsFailed": 0,
+    "lowRawYieldItems": ["R:45:16", "R:51:17"],
+    "lowRawYieldCause": "both are ADDRESS-POLICY refusals on the robots.txt request: every address their host resolved to was a non-public IPv6 address, so the gateway refused the host before opening a socket. Neither is a transport failure and neither site refused anything - no HTTP response was obtained at all. On this vantage that outcome is what an IPv4-only host produces",
+    "highYieldItems": ["R:29:15"],
+    "rawPagesPerItem": {
+      "R:29:15": 31,
+      "R:45:16": 0,
+      "R:51:17": 0
+    },
+    "rawPagesTotal": 31,
+    "doNotExtrapolate": "one of three started items carried evidence. That is this window's outcome under this vantage, not a rate"
+  },
+  "addressPolicyFinding": {
+    "whatWasObserved": "all three BLOCKED_BY_POLICY fetch observations produced by this window carry resolved_ip_family IPV6 and resolved_ip_is_public false, with no HTTP status. Two of them were the only request their run made",
+    "corpusWideCount": "the whole database holds exactly six BLOCKED_BY_POLICY rows, all IPV6 and all non-public: three at about 14:5x UTC on 2026-09-25, which are the refusals that created the slot-51 and slot-54 obligations, and the three from this window at about 21:5x UTC on the same day",
+    "theMechanism": "src/orgunits/web/address.ts refuses 64:ff9b::/96 as relay_or_translation, which is correct: a NAT64 prefix is not a public address. Under DNS64 an IPv4-only host resolves ONLY into that prefix, so the whole host is refused before DNS-to-socket",
+    "whyThisIsNotAPolicyDefect": "the address rule is a network-scope guard and rule 18 forbids weakening it. Refusing a translation prefix is the gateway behaving as designed",
+    "whyItIsStillAFinding": "a refusal caused by the operator's uplink is not evidence about the institution. Adjudicating it as an acquisition failure and spending the next frozen reserve on the same slot would consume a finite, non-renewable resource against a condition that would refuse ANY IPv4-only host from here",
+    "whatThisRecordDoesNotDo": [
+      "change the address policy",
+      "change any timeout",
+      "retry any target",
+      "reclassify any earlier refusal",
+      "assert that any of these institutions is unreachable from a dual-stack vantage",
+      "assert that any of them is reachable from one"
+    ],
+    "openQuestionForTheOwner": "whether an address-policy refusal caused by the local vantage's NAT64 translation creates a replacement obligation at all. The earlier address-policy capability review answered a DIFFERENT question - which Q3 rank an address-policy refusal maps to - without this vantage evidence in view"
+  },
+  "databaseDeltas": {
+    "before": {
+      "orgunit_research_runs": 82,
+      "orgunit_research_run_completions": 82,
+      "orgunit_fetch_observations": 2323,
+      "orgunit_redirect_observations": 169,
+      "orgunit_page_evidence": 1722,
+      "orgunit_page_candidates": 3444
+    },
+    "beforeMatchesTheWindow01LiveResultsRecordedAfterState": true,
+    "after": {
+      "orgunit_research_runs": 85,
+      "orgunit_research_run_completions": 85,
+      "orgunit_fetch_observations": 2364,
+      "orgunit_redirect_observations": 174,
+      "orgunit_page_evidence": 1753,
+      "orgunit_page_candidates": 3506,
+      "orgunit_root_promotions": 0,
+      "orgunit_root_promotion_revocations": 0,
+      "runsWithoutCompletion": 0,
+      "runsWithMoreThanOneCompletion": 0,
+      "dryRunRuns": 0
+    },
+    "delta": {
+      "orgunit_research_runs": 3,
+      "orgunit_research_run_completions": 3,
+      "orgunit_fetch_observations": 41,
+      "orgunit_redirect_observations": 5,
+      "orgunit_page_evidence": 31,
+      "orgunit_page_candidates": 62
+    },
+    "everyDeltaExplainedByTheThreeRuns": true
+  },
+  "databaseReconciliation": {
+    "newRunsCreated": 3,
+    "oneRunPerStartedItem": true,
+    "oneCompletionPerRun": true,
+    "runsWithoutCompletionAfter": 0,
+    "runsWithMoreThanOneCompletionAfter": 0,
+    "everyNewRunFetchPolicyVersion": "orgunit-fetch-policy-v6",
+    "everyNewRunRuleVersion": "orgunit-signal-rules-v1",
+    "everyNewRunDryRunFalse": true,
+    "everyNewRunTouchedExactlyOneOrganisation": true,
+    "everyNewRunTouchedExactlyOneEcheRowKeyAndOneRootKey": true,
+    "everyNewRunEcheRowKeyIsItsAuthorisedDrawEntry": true,
+    "everyRootKeyIsAClaimRoot": true,
+    "noPromotionRootWasUsed": true,
+    "perItemObservationSum": {
+      "R:29:15": 39,
+      "R:45:16": 1,
+      "R:51:17": 1,
+      "total": 41
+    },
+    "perItemRedirectSum": {
+      "R:29:15": 5,
+      "R:45:16": 0,
+      "R:51:17": 0,
+      "total": 5
+    },
+    "perItemPageSum": {
+      "R:29:15": 31,
+      "R:45:16": 0,
+      "R:51:17": 0,
+      "total": 31
+    },
+    "perItemCandidateSum": {
+      "R:29:15": 62,
+      "R:45:16": 0,
+      "R:51:17": 0,
+      "total": 62
+    },
+    "perItemSumsEqualDatabaseDeltas": true,
+    "candidateRowsAreExactlyTwoPerPage": true,
+    "candidateTrackBreakdownAcrossWindow": {
+      "INTERNATIONAL_OFFICE": 31,
+      "LANGUAGE_CENTRE": 31
+    },
+    "candidateTypeHintNonNullRows": 0,
+    "candidateScoreRangeAcrossWindow": {
+      "min": 0,
+      "max": 2
+    },
+    "candidateNegativeScoreRows": 0,
+    "discoveryMethodBreakdown": {
+      "ROBOTS": 5,
+      "ROOT": 1,
+      "LINK": 34,
+      "SITEMAP": 1
+    },
+    "robotsDecisionBreakdown": {
+      "NOT_APPLICABLE": 5,
+      "ALLOWED": 36
+    },
+    "errorKindBreakdown": {
+      "(none)": 38,
+      "BLOCKED_BY_POLICY": 3
+    },
+    "attemptNoBreakdown": {
+      "1": 41
+    },
+    "mainTextTruncatedRows": 0,
+    "maxMainTextChars": 5791,
+    "mainTextCap": 40000,
+    "unexplainedRowAfterTerminal": false,
+    "classifierTablesRemainZero": true,
+    "promotionTablesRemainZero": true,
+    "dryRunRowsInDatabase": 0
+  },
+  "retryAndCeilingFacts": {
+    "fetchPolicy": "orgunit-fetch-policy-v6",
+    "inPolicyTransportRetriesUsed": 0,
+    "everyObservationIsAttemptNo1": true,
+    "manualRetries": 0,
+    "cliRerunsOfAnItem": 0,
+    "alternateRootsUsed": 0,
+    "timeoutsWidened": false,
+    "tlsRelaxed": false,
+    "curlWgetOrBrowserUsed": false,
+    "pageBudgetCeilingReached": ["R:29:15"],
+    "totalRequestBudgetCeilingReached": [],
+    "hostCeilingReached": [],
+    "circuitBreakersOpened": 0
+  },
+  "sealedEvidenceVerification": {
+    "method": "after each item, that item's SD7 detail was produced from that run's persisted page evidence through the landed analyseOrganisation, serialised with the landed toSealedRecord into a PHASE_2B_2D_A2_SD7_SEALED_WORK_ITEM_DETAIL_V1 envelope and written with exclusive-create semantics (openSync 'wx') into the split's OWN root via the landed sealedRootFor; the file was then re-read from disk and byte-compared with what was written",
+    "filesCreated": 3,
+    "namingConvention": "POST_P6_Q1_WINDOW_02_V1_SD7_DETAIL_<workItemId with colons as underscores>.json",
+    "perRootBefore": {
+      "DEV_TRAIN": 14,
+      "DEV_CONFIRM": 32,
+      "FINAL_HOLDOUT": 27
+    },
+    "perRootAfter": {
+      "DEV_TRAIN": 14,
+      "DEV_CONFIRM": 33,
+      "FINAL_HOLDOUT": 29
+    },
+    "filesPerSplit": {
+      "DEV_TRAIN": 0,
+      "DEV_CONFIRM": 1,
+      "FINAL_HOLDOUT": 2
+    },
+    "filesPerSplitMatchesTheSTARTEDItemsSplits": true,
+    "noFileWasWrittenForAnUnstartedItem": true,
+    "preexistingFilesChanged": 0,
+    "preexistingFilesRemoved": 0,
+    "unexpectedFilesAdded": 0,
+    "exclusiveCreateSemanticsUsed": true,
+    "existingFileOverwritten": false,
+    "anyTargetFileExistedBefore": false,
+    "holdoutFilesOnlyInHoldoutRoot": true,
+    "everyOnDiskEqualsWritten": true,
+    "carriesNoPageTextOrShingles": true,
+    "committedToGit": false
+  },
+  "finalLedgerFacts": {
+    "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+    "sha256": "08f720636daaa42fa92419f11f8401c49f785d0fa5ecc4eaf5f41bb8cf291ffc",
+    "ledgerHash": "e215c1945dda8f4d79e10d775729290f7cf8ed3475e6849db2470d0381662e81",
+    "entries": 19,
+    "reserveConsumed": 19,
+    "reserveUnused": 21,
+    "nextUnusedReservePosition": 19,
+    "unchangedSinceThePreNetworkAppend": true,
+    "postNetworkAppendMade": false,
+    "anyLedgerRowEdited": false,
+    "reserve18IsSpentButUnacquired": "sequence 18 assigned reserve 18 to slot 54 and the window paused before that item ran. The assignment stands; the acquisition did not happen",
+    "p6AfterTheWindow": "19 > 10 is TRUE and 55 < 50 is FALSE; the conjunction is false; NOT_TRIGGERED"
+  },
+  "zeroActivityProofs": {
+    "classifierInvocations": 0,
+    "providerCalls": 0,
+    "labelsWritten": 0,
+    "setPOrSetRActivity": 0,
+    "migrationsRun": 0,
+    "productionCodeChanged": false,
+    "harnessChanged": false,
+    "testsChanged": false,
+    "methodologyChanged": false,
+    "fetchPolicyChanged": false,
+    "postNetworkLedgerAppend": false,
+    "adjudicationPerformed": false,
+    "priorRecordsEdited": false,
+    "priorLedgerRowsEdited": false,
+    "sixthItemStarted": false,
+    "fourthOrFifthItemStarted": false,
+    "reservePosition19OrLaterAssigned": false
+  },
+  "identityDisclosureScan": {
+    "institutionNameInThisFile": false,
+    "echeRowKeyInThisFile": false,
+    "organisationIdInThisFile": false,
+    "hostnameOrUrlInThisFile": false,
+    "runUuidInThisFile": false,
+    "onlyHashedRunReferences": true,
+    "holdoutSplitLabelsDisclosed": "split labels attached to selection indices only, as every predecessor record in this chain does",
+    "sealedHoldoutPayloadsRemainSealedOutsideGit": true
+  },
+  "validation": {
+    "fullRepositoryValidationRunsExactlyOnceForThisWindow": true,
+    "orderFollowed": "the LIVE_RESULT was written and formatted with Prettier BEFORE the quiet gate and the single validation started",
+    "d1MistakeNotRepeated": "the D1 window began its one validation on an unformatted LIVE_RESULT and lost it to format:check",
+    "cheapChecksBeforeSpendingIt": {
+      "jsonParses": true,
+      "prettierClean": true,
+      "prettierIdempotent": true,
+      "deterministicRendering": true,
+      "disclosureScanRun": true,
+      "p7Recomputed": true,
+      "ledgerIntegrityRecomputed": true,
+      "everyBoundHashRecomputedFromDisk": true
+    },
+    "quietGateSeconds": 120,
+    "quietGateSelfExcluding": true,
+    "quietGateSelfExclusionMethod": "the gate ran as a script file, so its own argv is the script path and a detector matching 'vitest' or 'npm run validate' cannot match the waiting wrapper. It additionally excluded its own pid and every descendant pid",
+    "command": "caffeinate -dimsu npm run validate",
+    "chainedInOneProcess": true,
+    "exitCode": 0,
+    "result": "PASSED",
+    "validateEndedUtc": "2026-09-25T22:11:08Z",
+    "vitestStartedUtc": "2026-09-25T22:07:43Z",
+    "vitestDurationSeconds": 204.45,
+    "testFiles": "195 passed, 5 skipped (200)",
+    "tests": "5016 passed, 75 skipped (5091)",
+    "stepsRun": ["migrations:check", "typecheck", "lint", "format:check", "test", "build"],
+    "quietGateStartAndValidateStartTimestampsWerePrintedButNotRetained": "the gate printed both, and only the tail of its output was captured. They are therefore not stated here rather than reconstructed. The end timestamp, the exit code, the step list and the test counts are all read directly from the captured output",
+    "competingProcessesAtStart": 0,
+    "batteryPercentBeforeStart": 37,
+    "sleepEventsBefore": 709,
+    "sleepEventsAfter": 709,
+    "sleepWakeDuringValidation": false,
+    "contaminated": false,
+    "rerunRequired": false,
+    "rerunPerformed": false,
+    "ranOnce": true,
+    "whatChangedInThisFileAfterTheValidation": "only this validation block, which could not have held its own result beforehand. Every other byte of the record is exactly what format:check saw, and the file was re-formatted and re-checked after the update"
+  },
+  "terminal": "PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_PAUSED_ON_P5_AFTER_THREE_OF_FIVE_ITEMS",
+  "nextAuthorisedAction": "adjudicate the three started items independently, then STOP: the bounded autopilot's stop condition E covers any P1-P8 pause, and the address-policy vantage finding is a separate new capability question for the owner",
+  "immutability": "this record is append-only and is never edited"
+}
