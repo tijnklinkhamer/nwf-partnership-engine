@@ -1,0 +1,840 @@
+{
+  "recordId": "phase2b-2d-a2-post-p6-q1-window-01-strategy-v1",
+  "recordKind": "OFFLINE_ACQUISITION_WINDOW_STRATEGY",
+  "records": "PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_STRATEGY_V1",
+  "recordedAtUtc": "2026-09-25T20:02:53Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "ownerDecision": "BEGIN_Q1_REPLACEMENT_AND_PRIMARY_COMPLETION_AUTOPILOT_V1",
+  "ownerDecisionSource": "the durable post-P6 Q1 replacement and primary completion autopilot decision committed at d3700180cc501aef3d42455d7dff7e46ce8c42a1. This record is the FIRST window that decision authorises",
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "strategyOnly": true,
+  "approvesStructureOnly": true,
+  "startingHead": "d3700180cc501aef3d42455d7dff7e46ce8c42a1",
+  "continuationWindow": {
+    "window": "POST_P6_Q1_WINDOW_01",
+    "name": "POST_P6_Q1_WINDOW_01",
+    "replacementSlots": [29, 30, 38, 42, 45],
+    "primaries": [],
+    "ordinalWithinTheAuthorisedScope": 1,
+    "windowsAuthorised": 4,
+    "windowsExecutedBeforeThisOneUnderThisDecision": 0,
+    "maxLiveAttemptsAuthorised": 20,
+    "liveAttemptsConsumedBeforeThisOneUnderThisDecision": 0,
+    "liveAttemptsThisWindowWouldConsume": 5,
+    "isTheFirstReplacementServiceSinceTheP6BarrierCleared": true,
+    "isTheFirstReplacementWindowSinceThePostP24Window": true
+  },
+  "bound": {
+    "postP6OwnerDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_REPLACEMENT_AND_PRIMARY_COMPLETION_AUTOPILOT_V1.json",
+      "sha256": "017f8422263b1ee13b58fa99ab7c44ec9acb50c3e079e8681ffd0af5aa19f2ef",
+      "bytes": 35547,
+      "commit": "d3700180cc501aef3d42455d7dff7e46ce8c42a1",
+      "role": "the owner decision this window executes under: BEGIN_Q1_REPLACEMENT_AND_PRIMARY_COMPLETION_AUTOPILOT_V1, at most four windows and twenty live attempts, determinate Q1 replacements before new primaries, P:59 deferred"
+    },
+    "d1Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_CHILD_WINDOW_C_RECOVERY_WINDOW_D1_P55_P59_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "b042a8798ec47037e694b5c2b0176e7ee8f2f044063e259a5a245365722f4b73",
+      "bytes": 57858,
+      "commit": "ef0820f84c4e668c427b9750a0fbd34c70e74cdc",
+      "terminalState": "P6_SUCCESS_FLOOR_REACHED_WITH_P59_PENDING_SD7_OWNER_DETAIL",
+      "role": "the Generation-1 authority this window continues from; its 110-slot partition is re-derived here rather than restated"
+    },
+    "capabilityReviewResolution": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_CHILD_WINDOW_C_ADDRESS_POLICY_REFUSAL_CAPABILITY_REVIEW_RESOLUTION_V1.json",
+      "sha256": "72ae3ed8e4c4c790650c674482c75b976e3bcd848f9e07feb339d48a11c2b6ad",
+      "bytes": 33363,
+      "role": "the record that created the slot-51 and slot-54 obligations under Q3 rank 4. Neither is served in this window; both remain open"
+    },
+    "previousAutopilotGovernance": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_PRIMARY_ONLY_P6_STABILISATION_AUTOPILOT_GOVERNANCE_V1.json",
+      "sha256": "d6014a54d590640dfd5e604526c68b2642fe31985b5495a27a4543eb162ebb35",
+      "bytes": 22171,
+      "role": "the superseded cadence. Its window algorithm skeleton, concurrency rules and public/holdout safety rules continue to apply; its absolute prohibition on replacement service and its AC requirement are what the post-P6 decision changes"
+    },
+    "ownerReserveOrderClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "bytes": 18443,
+      "contains": [
+        "Q1_reserveAssignmentOrder",
+        "Q2_replacementChain",
+        "Q3_replacementReasonPrecedence",
+        "Q4_windowLocalPauseSemantics"
+      ]
+    },
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306
+    },
+    "methodologyFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+      "bytes": 17514
+    },
+    "corpusAcquisitionPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "bytes": 45200
+    },
+    "corpusAcquisitionPlanV1OwnerApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1_OWNER_APPROVAL.json",
+      "sha256": "0ac475031e81a60ae58d70bb83d5f71ee3cc441573dc82cf88145fdf1e8fec14",
+      "bytes": 10949
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650"
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "5d67a8f83506852cb745557dfe4e0ff0b9b037e59dc2c5a67fdbd16dbe0d666d",
+      "bytes": 10911,
+      "ledgerHash": "d71035336ed6b5e7d23f499a4349b6cb5c963c299319e4c7ba60dd3ca6c7e158",
+      "entries": 10,
+      "isTheSTARTINGRevision": true,
+      "whyTheStartingRevisionAndNotThePostAppendOne": "the landed adapter derives a replacement's reserve position from planPendingReplacementObligations against the ledger THIS RECORD BINDS, and that planner returns entryCount + offset. Bound to a 15-entry ledger it would derive positions 15..19; bound to this 10-entry revision it derives exactly 10..14. The post-append revision is proved at the live P7 preflight, which reads the LIVE ledger and requires this 10-entry prefix plus exactly the five planned assignments"
+    },
+    "acquisitionPolicyTransitionLedgerV6": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_ACQUISITION_POLICY_TRANSITION_LEDGER_V6_GEN1.json",
+      "sha256": "592b17062a601ac21f0525209e133220b90ebd97848790f9da66e22f9391461d",
+      "bytes": 19454,
+      "entryCount": 7,
+      "role": "this window executes under orgunit-fetch-policy-v6 and appends nothing here"
+    },
+    "bindingRecomputation": "every sha256, byte count and derived hash above was recomputed from the committed bytes at startingHead in this step; no abbreviated value from any prompt, session note or memory was trusted; no mismatch"
+  },
+  "currentGenerationState": {
+    "source": "independently derived in this step. The successful index set was rebuilt as {0..59} minus the seven CURRENT_ACQUISITION_FAILURE slots minus the one PENDING_CAPABILITY_REVIEW slot, and compared element-by-element with the D1 adjudication's own list; identical at all 52 positions. The ledger was read and validated with the landed harness. Not taken from any adapter-held success count, and not from the owner task text",
+    "derivationIsIndependentOfTheAdapter": true,
+    "ACQUISITION_SUCCESSFUL": 52,
+    "successfulSelectionIndicesShape": "0..28 plus 31..37 plus 39..41 plus 43..44 plus 46..50 plus 52..53 plus 55..58",
+    "CURRENT_ACQUISITION_FAILURE": [29, 30, 38, 42, 45, 51, 54],
+    "PENDING_CAPABILITY_REVIEW": [59],
+    "pendingCapabilityReviewNote": "P:59 is deferred by the bound owner decision pending an SD7 owner detail. It is not a failure, not a success, not an obligation and not never-started. No replacement obligation exists for it and none is created here",
+    "pendingReplacementObligations": [
+      {
+        "selectionIndex": 29,
+        "split": "FINAL_HOLDOUT",
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "currentOccupant": "ORIGINAL_SELECTION",
+        "currentReserveRankPosition": null,
+        "currentLedgerSequence": null,
+        "servedInThisWindow": true,
+        "occupantDerivedFrom": "currentOccupantForSelectionIndex(draw, ten-entry ledger, 29) - no ledger entry names 29"
+      },
+      {
+        "selectionIndex": 30,
+        "split": "DEV_CONFIRM",
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "currentOccupant": "ORIGINAL_SELECTION",
+        "currentReserveRankPosition": null,
+        "currentLedgerSequence": null,
+        "servedInThisWindow": true,
+        "occupantDerivedFrom": "currentOccupantForSelectionIndex(draw, ten-entry ledger, 30) - no ledger entry names 30"
+      },
+      {
+        "selectionIndex": 38,
+        "split": "FINAL_HOLDOUT",
+        "reason": "ACQUISITION_UNSUCCESSFUL_ROBOTS_DISALLOWED",
+        "currentOccupant": "ORIGINAL_SELECTION",
+        "currentReserveRankPosition": null,
+        "currentLedgerSequence": null,
+        "servedInThisWindow": true,
+        "occupantDerivedFrom": "currentOccupantForSelectionIndex(draw, ten-entry ledger, 38) - no ledger entry names 38"
+      },
+      {
+        "selectionIndex": 42,
+        "split": "DEV_CONFIRM",
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "currentOccupant": "ORIGINAL_SELECTION",
+        "currentReserveRankPosition": null,
+        "currentLedgerSequence": null,
+        "servedInThisWindow": true,
+        "occupantDerivedFrom": "currentOccupantForSelectionIndex(draw, ten-entry ledger, 42) - no ledger entry names 42"
+      },
+      {
+        "selectionIndex": 45,
+        "split": "DEV_CONFIRM",
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "currentOccupant": "ORIGINAL_SELECTION",
+        "currentReserveRankPosition": null,
+        "currentLedgerSequence": null,
+        "servedInThisWindow": true,
+        "occupantDerivedFrom": "currentOccupantForSelectionIndex(draw, ten-entry ledger, 45) - no ledger entry names 45"
+      },
+      {
+        "selectionIndex": 51,
+        "split": "FINAL_HOLDOUT",
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "currentOccupant": "ORIGINAL_SELECTION",
+        "currentReserveRankPosition": null,
+        "currentLedgerSequence": null,
+        "servedInThisWindow": false,
+        "whyNotServed": "the window size is five and slot 51 is sixth in the ascending Q1 order",
+        "occupantDerivedFrom": "currentOccupantForSelectionIndex(draw, ten-entry ledger, 51) - no ledger entry names 51"
+      },
+      {
+        "selectionIndex": 54,
+        "split": "DEV_CONFIRM",
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "currentOccupant": "ORIGINAL_SELECTION",
+        "currentReserveRankPosition": null,
+        "currentLedgerSequence": null,
+        "servedInThisWindow": false,
+        "whyNotServed": "the window size is five and slot 54 is seventh in the ascending Q1 order",
+        "occupantDerivedFrom": "currentOccupantForSelectionIndex(draw, ten-entry ledger, 54) - no ledger entry names 54"
+      }
+    ],
+    "openReplacementObligationCount": 7,
+    "nextNeverStartedSelectionIndex": 60,
+    "neverStartedRange": {
+      "from": 60,
+      "to": 109,
+      "count": 50,
+      "contiguous": true
+    },
+    "totalSelectionSlots": 110,
+    "accounting": "52 + 7 + 1 + 50 = 110",
+    "setsAreDisjoint": true,
+    "setsCoverExactly0To109": true,
+    "replacementLedgerEntries": 10,
+    "reserveConsumed": 10,
+    "reserveUnused": 30,
+    "nextUnusedReservePosition": 10,
+    "p6": {
+      "rule": "reserveConsumed > 10 AND ACQUISITION_SUCCESSFUL < 50",
+      "inputs": {
+        "reserveConsumed": 10,
+        "ACQUISITION_SUCCESSFUL": 52
+      },
+      "evaluation": "10 > 10 is false AND 52 < 50 is false",
+      "result": "NOT_TRIGGERED"
+    },
+    "doNotExtrapolate": "52 successful slots of 110; not a population success rate"
+  },
+  "q1Derivation": {
+    "rule": "Owner Clarification Q1: obligations are served in ascending selectionIndex order; reserves are assigned in ascending frozen rank order",
+    "derivedIndependently": true,
+    "derivationNote": "sorted here by selectionIndex ascending over the seven CURRENT_ACQUISITION_FAILURE slots. planPendingReplacementObligations was NOT used as the ordering authority; it was used only to derive reserve POSITIONS once the order was fixed, and its output was compared against the independently derived order",
+    "order": [29, 30, 38, 42, 45, 51, 54],
+    "orderRendered": "29 -> 30 -> 38 -> 42 -> 45 -> 51 -> 54",
+    "firstFiveTaken": [29, 30, 38, 42, 45],
+    "remainingUnserved": [51, 54],
+    "slot59NotInTheQueue": true,
+    "whyNoSlot59Obligation": "P:59 has not been adjudicated unsuccessful. An obligation carries a Q3 reason, and creating one would decide the question the bound owner decision deliberately leaves open",
+    "ifP59IsLaterAdjudicatedUnsuccessful": "a slot-59 obligation would enter the queue at that later point and would sort AFTER 51 and 54. It could not retroactively disturb this window",
+    "nothingOtherThanSelectionIndexWasConsulted": true,
+    "notConsulted": [
+      "institution identity",
+      "country",
+      "split",
+      "failure type",
+      "expected yield",
+      "semantic evidence",
+      "hostname",
+      "prior robots behaviour"
+    ]
+  },
+  "reserveAssignmentDerivation": {
+    "function": "planPendingReplacementObligations(draw, ten-entry ledger, [29, 30, 38, 42, 45])",
+    "nextUnusedReservePositionBefore": 10,
+    "derived": [
+      {
+        "selectionIndex": 29,
+        "reserveRankPosition": 10
+      },
+      {
+        "selectionIndex": 30,
+        "reserveRankPosition": 11
+      },
+      {
+        "selectionIndex": 38,
+        "reserveRankPosition": 12
+      },
+      {
+        "selectionIndex": 42,
+        "reserveRankPosition": 13
+      },
+      {
+        "selectionIndex": 45,
+        "reserveRankPosition": 14
+      }
+    ],
+    "monotonic": true,
+    "noPositionReused": true,
+    "everyPositionPreviouslyUnassigned": "ledger entry k consumes position k for k in 0..9; positions 10..14 appear in no committed entry",
+    "matchesTheOwnerTasksStatedAssignments": true,
+    "ownerTaskIsNotTheAuthority": "the assignments above were derived from the validated ledger and the frozen draw. The owner task's list agreed on all five, but the derivation - not the task text - is what this record binds",
+    "positionsAreIndependentOfIdentity": "a position was assigned before any reserve draw entry was read. Only after each position was fixed was draw.reserve[position] looked up, mechanically"
+  },
+  "windowSize": {
+    "plannedWindowSize": 5,
+    "source": "Corpus Plan V1 batchingPlan.recommendedBatchSize = 5; the post-P6 owner decision carries it forward unchanged and requires exactly 5 whenever at least five executable work items remain",
+    "atLeastFiveExecutableWorkItemsRemain": true,
+    "executableWorkItemsAvailable": "7 determinate replacement obligations plus 50 never-started primaries",
+    "notEnlarged": true,
+    "notShrunk": true
+  },
+  "selectedOption": {
+    "name": "FIVE_REPLACEMENTS_ZERO_PRIMARIES",
+    "why": "the bound owner decision's window-construction algorithm takes up to FIVE replacement work items first, and fills with primaries only if fewer than five determinate obligations exist. Seven exist, so STEP 5 does not run and no primary is scheduled",
+    "rejectedAlternatives": [
+      {
+        "option": "serve all seven obligations in one window",
+        "rejectedBecause": "the frozen window size is 5. Enlarging it would change the P2 and P5 denominators, which are fixed at 5 and 2 for a five-item window"
+      },
+      {
+        "option": "mix replacements with primaries from 60",
+        "rejectedBecause": "DETERMINATE_Q1_REPLACEMENTS_BEFORE_NEW_PRIMARIES is explicit: primaries fill only the positions replacements do not"
+      },
+      {
+        "option": "serve the two MIN_PAGES_NOT_MET obligations first because they are likelier to yield",
+        "rejectedBecause": "failure type and expected yield are both on the not-consulted list. Ordering is selectionIndex ascending, full stop"
+      },
+      {
+        "option": "include a slot-59 replacement",
+        "rejectedBecause": "P:59 is not adjudicated unsuccessful, so it has no obligation. Creating one would silently resolve what the owner deferred"
+      }
+    ]
+  },
+  "candidateWindow": {
+    "workItems": [
+      {
+        "order": 1,
+        "workItemId": "R:29:10",
+        "kind": "REPLACEMENT",
+        "selectionIndex": 29,
+        "reserveRankPosition": 10,
+        "split": "FINAL_HOLDOUT",
+        "drawEntryKind": "RESERVE",
+        "drawEntrySha256": "2e657cf58faf66428778039d504269dc302c41d509a4967d7a59e7fd0e9a2dd1",
+        "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacesOccupant": "ORIGINAL_SELECTION"
+      },
+      {
+        "order": 2,
+        "workItemId": "R:30:11",
+        "kind": "REPLACEMENT",
+        "selectionIndex": 30,
+        "reserveRankPosition": 11,
+        "split": "DEV_CONFIRM",
+        "drawEntryKind": "RESERVE",
+        "drawEntrySha256": "85e5815c0ffd44c8520cba165017e9f7f656783a070d34c5ee7925099c8b2dcb",
+        "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacesOccupant": "ORIGINAL_SELECTION"
+      },
+      {
+        "order": 3,
+        "workItemId": "R:38:12",
+        "kind": "REPLACEMENT",
+        "selectionIndex": 38,
+        "reserveRankPosition": 12,
+        "split": "FINAL_HOLDOUT",
+        "drawEntryKind": "RESERVE",
+        "drawEntrySha256": "e061c6407966e73559affd2556baa26bc4deda2e09b7f91ec7f5337777aa7c62",
+        "replacementReason": "ACQUISITION_UNSUCCESSFUL_ROBOTS_DISALLOWED",
+        "replacesOccupant": "ORIGINAL_SELECTION"
+      },
+      {
+        "order": 4,
+        "workItemId": "R:42:13",
+        "kind": "REPLACEMENT",
+        "selectionIndex": 42,
+        "reserveRankPosition": 13,
+        "split": "DEV_CONFIRM",
+        "drawEntryKind": "RESERVE",
+        "drawEntrySha256": "c924e44d1be1b908f0b8d352d6695b14aec8cfcd179deefbce1c43d5778cff5a",
+        "replacementReason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "replacesOccupant": "ORIGINAL_SELECTION"
+      },
+      {
+        "order": 5,
+        "workItemId": "R:45:14",
+        "kind": "REPLACEMENT",
+        "selectionIndex": 45,
+        "reserveRankPosition": 14,
+        "split": "DEV_CONFIRM",
+        "drawEntryKind": "RESERVE",
+        "drawEntrySha256": "6896164a7519dab53421b2bd6168f46691c2fdaf774406d70ee19bbf3cc14e5d",
+        "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacesOccupant": "ORIGINAL_SELECTION"
+      }
+    ],
+    "replacementItems": 5,
+    "primaryItems": 0,
+    "workItemReferencesUnique": true,
+    "orderRationale": [
+      "the replacement-first rule takes every position: seven determinate obligations exist and only five fit",
+      "obligations are taken in ascending selectionIndex: 29, 30, 38, 42, 45",
+      "reserve positions follow the frozen rank order monotonically from the first unused position, 10",
+      "no primary is scheduled, so the primaries-in-frozen-order rule applies vacuously",
+      "no split, identity, failure-type or yield characteristic was consulted"
+    ],
+    "splitComposition": {
+      "DEV_TRAIN": 0,
+      "DEV_CONFIRM": 3,
+      "FINAL_HOLDOUT": 2
+    },
+    "splitCompositionIsASelectionTarget": false,
+    "splitCompositionNote": "incidental frozen-draw output. A replacement INHERITS the split of the selection slot it fills, read from draw.selection[i].split for i in {29, 30, 38, 42, 45}; a reserve draw entry carries no split of its own. It neither chose nor reordered any item",
+    "splitInheritanceCrossCheck": {
+      "29": "FINAL_HOLDOUT",
+      "30": "DEV_CONFIRM",
+      "38": "FINAL_HOLDOUT",
+      "42": "DEV_CONFIRM",
+      "45": "DEV_CONFIRM"
+    },
+    "splitsRecomputedFromTheFrozenDrawNotCopiedFromTheOwnerTask": true,
+    "crossCheckMatchesPerItem": true,
+    "drawEntryDigestMethod": "drawEntrySha256 = sha256(canonicalStringify(exact parsed draw entry)), landed drawEntrySha256 (windowPlan.ts). Every item digests draw.reserve[reserveRankPosition] - a RESERVE entry, never the selection slot it fills - recomputed directly from the frozen draw file in this step and copied from no other artifact and from no prompt",
+    "digestsRecomputed": true,
+    "digestsDistinct": true,
+    "positionalIntegrityChecked": "for each reserve position r, draw.reserve[r].reserveRankPosition === r was asserted before the entry was digested, and for each slot i, draw.selection[i].selectionIndex === i was asserted before its split was read",
+    "noStaleValueReused": "reserve positions 10 to 14 have never appeared in any committed record; these five digests are new to the corpus"
+  },
+  "derivedThresholds": {
+    "source": "windowContract.ts frozen constants and strictPercentThresholdCount(plannedSize, percent), imported in this step; not guessed, not restated from memory",
+    "plannedWindowSize": 5,
+    "P1_CONSECUTIVE_ROOT_AUTHORITY_FAILURES": 3,
+    "P2_CONSECUTIVE_ROBOTS_REFUSALS": 3,
+    "P2_BATCH_PERCENT_STRICTLY_ABOVE": 40,
+    "P2_BATCH_COUNT_AT_SIZE_5": 3,
+    "P3_CONSECUTIVE_FAILED_RUNS": 2,
+    "P5_BATCH_PERCENT_STRICTLY_ABOVE": 30,
+    "P5_BATCH_COUNT_AT_SIZE_5": 2,
+    "P5_MIN_RAW_PAGE_EVIDENCE": 4,
+    "SD9_MIN_PAGES_PER_ORGANISATION": 4,
+    "P6_MAX_REPLACEMENTS_BEFORE_SUCCESS_FLOOR": 10,
+    "P6_SUCCESS_FLOOR": 50,
+    "denominatorRemainsFive": true,
+    "withinWindowConditionsEvaluatedAtExecutionNotHere": true
+  },
+  "p6AfterTheWindowsAppend": {
+    "rule": "reserveConsumed > 10 AND ACQUISITION_SUCCESSFUL < 50",
+    "afterOneAppend": {
+      "reserveConsumed": 11,
+      "successes": 52,
+      "arms": "11 > 10 TRUE, 52 < 50 FALSE",
+      "fires": false
+    },
+    "afterAllFive": {
+      "reserveConsumed": 15,
+      "successes": 52,
+      "arms": "15 > 10 TRUE, 52 < 50 FALSE",
+      "fires": false
+    },
+    "thresholdUnchanged": true,
+    "notWaived": "the rule is evaluated unchanged; its second arm is simply false at 52 successes",
+    "mustBeReEvaluatedAfterEveryLedgerChange": true
+  },
+  "plannedLedgerTransition": {
+    "preparedInMemoryOnly": true,
+    "writtenHere": false,
+    "function": "prepareReplacementAppend(draw, ten-entry ledger, the five derived assignments, an explicit recordedAtUtc)",
+    "entriesBefore": 10,
+    "entriesAfter": 15,
+    "reserveConsumedBefore": 10,
+    "reserveConsumedAfter": 15,
+    "nextUnusedReservePositionAfter": 15,
+    "transitions": [
+      {
+        "sequence": 10,
+        "selectionIndex": 29,
+        "reserveRankPosition": 10,
+        "split": "FINAL_HOLDOUT",
+        "replacedOccupantKind": "ORIGINAL_SELECTION",
+        "previousSequenceForSlot": null
+      },
+      {
+        "sequence": 11,
+        "selectionIndex": 30,
+        "reserveRankPosition": 11,
+        "split": "DEV_CONFIRM",
+        "replacedOccupantKind": "ORIGINAL_SELECTION",
+        "previousSequenceForSlot": null
+      },
+      {
+        "sequence": 12,
+        "selectionIndex": 38,
+        "reserveRankPosition": 12,
+        "split": "FINAL_HOLDOUT",
+        "replacedOccupantKind": "ORIGINAL_SELECTION",
+        "previousSequenceForSlot": null
+      },
+      {
+        "sequence": 13,
+        "selectionIndex": 42,
+        "reserveRankPosition": 13,
+        "split": "DEV_CONFIRM",
+        "replacedOccupantKind": "ORIGINAL_SELECTION",
+        "previousSequenceForSlot": null
+      },
+      {
+        "sequence": 14,
+        "selectionIndex": 45,
+        "reserveRankPosition": 14,
+        "split": "DEV_CONFIRM",
+        "replacedOccupantKind": "ORIGINAL_SELECTION",
+        "previousSequenceForSlot": null
+      }
+    ],
+    "tenEntryPrefixUnchangedByThePreparedAppend": true,
+    "ledgerHashNotStatedHere": "the appended entries' hashes and the next ledgerHash depend on the recordedAtUtc the append itself reads from the shell. Stating them now would either fix that clock in advance or record a value the real append will not produce. They belong in the pre-network assignment record",
+    "helperAcceptanceIsNotSufficient": "prepareReplacementAppend checks the planner's ordering and the reason vocabulary. It does NOT check that a slot has a determinate obligation - a known tooling finding. Each of the five was therefore compared, one at a time, against the independently derived obligation set before being prepared",
+    "perAssignmentProof": [
+      "slot 29 has a determinate obligation (CURRENT_ACQUISITION_FAILURE, HOST_UNREACHABLE); current occupant ORIGINAL_SELECTION; reserve 10 is the next unused; split FINAL_HOLDOUT inherited from draw.selection[29]",
+      "slot 30 has a determinate obligation (CURRENT_ACQUISITION_FAILURE, HOST_UNREACHABLE); current occupant ORIGINAL_SELECTION; reserve 11 is the next unused; split DEV_CONFIRM inherited from draw.selection[30]",
+      "slot 38 has a determinate obligation (CURRENT_ACQUISITION_FAILURE, ROBOTS_DISALLOWED); current occupant ORIGINAL_SELECTION; reserve 12 is the next unused; split FINAL_HOLDOUT inherited from draw.selection[38]",
+      "slot 42 has a determinate obligation (CURRENT_ACQUISITION_FAILURE, MIN_PAGES_NOT_MET); current occupant ORIGINAL_SELECTION; reserve 13 is the next unused; split DEV_CONFIRM inherited from draw.selection[42]",
+      "slot 45 has a determinate obligation (CURRENT_ACQUISITION_FAILURE, HOST_UNREACHABLE); current occupant ORIGINAL_SELECTION; reserve 14 is the next unused; split DEV_CONFIRM inherited from draw.selection[45]"
+    ],
+    "noLedgerRowEdited": true,
+    "noReservePositionReused": true,
+    "whenItIsWritten": "at the pre-network assignment stage, after this window's plan and live authority are committed and pushed, and before any institution socket is opened"
+  },
+  "replacementChain": {
+    "authority": "Owner Clarification Q2",
+    "ifAReserveInThisWindowIsUnsuccessful": [
+      "preserve that reserve's evidence immutably",
+      "the selection slot remains unfilled",
+      "a NEW replacement obligation is created for the SAME slot",
+      "no second reserve is inserted into this window",
+      "the next assignment happens only at a NEW precommitted window",
+      "Q1 is recomputed globally"
+    ],
+    "consequenceForTheNextWindow": "a failed slot-29, -30, -38, -42 or -45 obligation would sort AHEAD of 51 and 54. The next window's composition is therefore not precommitted here",
+    "reasonForAnyNewObligation": "derived under Q3's precedence from that reserve's own evidence, never inherited from the original occupant's failure"
+  },
+  "failureSemantics": {
+    "onUnsuccessfulWorkItem": [
+      "preserve its evidence",
+      "assign no reserve inside this window",
+      "do not enlarge the window",
+      "a pending replacement obligation arises only after adjudication",
+      "a replacement assignment requires another precommitted window"
+    ],
+    "dynamicReserveAssignment": false,
+    "windowGrowth": false
+  },
+  "thisStrategyDoesNot": [
+    "open a socket",
+    "write a database row",
+    "append a ledger row",
+    "name an institution, an eche row key, an organisation id, a hostname or a URL",
+    "materialise a plan",
+    "grant live authority",
+    "precommit any later window",
+    "resolve P:59",
+    "create a slot-59 obligation",
+    "change any threshold, budget, policy, migration or test"
+  ],
+  "scopeProofs": {
+    "networkUsed": false,
+    "databaseWritten": false,
+    "ledgerChanged": false,
+    "reserveStateChanged": false,
+    "executableCodeChanged": false,
+    "testsChanged": false,
+    "harnessChanged": false,
+    "migrationsChanged": false,
+    "methodologyChanged": false,
+    "fetchPolicyChanged": false,
+    "priorRecordsEdited": false
+  },
+  "identityDisclosure": {
+    "institutionIdentityInThisFile": false,
+    "echeRowKeyInThisFile": false,
+    "organisationIdInThisFile": false,
+    "hostnameOrUrlInThisFile": false,
+    "holdoutSplitLabelsDisclosed": "split LABELS attached to selection indices, as every predecessor record in this chain does. A split label on an index is frozen-draw structure; it names no institution",
+    "sealedHoldoutPayloadsRemainSealed": true
+  },
+  "validation": {
+    "cadence": "ACCELERATED_UNDER_THE_POST_P6_OWNER_DECISION",
+    "fullRepositoryValidationRun": false,
+    "fullRepositoryValidationRequiredHere": false,
+    "whyNot": "the bound owner decision's validationPolicy requires full validation exactly once per live window, at the LIVE_RESULT stage, because a strategy record changes no executable code",
+    "whenThisWindowIsFullyValidated": "once, at this window's LIVE_RESULT stage, after the LIVE_RESULT is FORMATTED, as a 120-second self-excluding correctness-critical quiet gate chained directly into one caffeinate -dimsu npm run validate in a single process",
+    "revokedIf": "any code, test, harness, fetch policy, migration or methodology implementation change becomes necessary; none did here",
+    "focusedChecksPerformed": {
+      "jsonParses": true,
+      "prettierClean": true,
+      "prettierIdempotent": true,
+      "everyBoundHashRecomputedFromDisk": {
+        "bindingsChecked": 11,
+        "mismatches": 0
+      },
+      "canonicalGitStateVerified": true,
+      "generationStateDerivedIndependently": true,
+      "q1OrderDerivedIndependently": true,
+      "reserveAssignmentsDerivedFromTheValidatedLedger": true,
+      "splitsAndDigestsRecomputedFromTheFrozenDraw": true,
+      "appendProvedInMemoryOnly": true,
+      "p6RecomputedAtTenElevenAndFifteen": true,
+      "adapterRunOnTheFinalBytes": true,
+      "disclosureScanRun": true
+    }
+  },
+  "planMaterialisation": {
+    "created": false,
+    "inMemoryPlanBuilt": false,
+    "why": "out of scope; the next stage of this window materialises the plan through the landed builders from these exact bytes and the ten-entry ledger bytes"
+  },
+  "terminalState": "PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_STRATEGY_RECORDED",
+  "nextStep": "precommit the POST_P6_Q1_WINDOW_01 plan through windowSpecFromAcquisitionWindowStrategy and buildPrecommittedWindowPlan, fed these exact final strategy bytes and the ten-entry ledger bytes",
+  "immutability": "this record is append-only and is never edited. Once its window is executed it is SPENT and must never be replayed: the landed adapter would accept a spent strategy against an unchanged ledger, so spentness is governance-held, not adapter-held",
+  "adapterConformance": {
+    "function": "windowSpecFromAcquisitionWindowStrategy (windowPlan.ts, landed c099c23)",
+    "ranAgainst": "the exact draft strategy bytes, then the exact FINAL strategy bytes, both with the frozen draw and the current ten-entry ledger",
+    "nextStagePath": "the plan stage feeds these exact final strategy bytes and the ten-entry ledger bytes into the adapter, then buildPrecommittedWindowPlan; no intermediate record is needed",
+    "adapterIsNotTheGovernanceAuthority": "see negativeProbes; the adapter accepted three shapes this record refuses on its own authority",
+    "aDraftWasRefusedAndTheRefusalWasRealWork": {
+      "what": "the first draft of this record carried ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET on work item R:45:14",
+      "theTruth": "slot 45 failed HOST_UNREACHABLE. MIN_PAGES_NOT_MET is slot 42 s reason, one item earlier in the same window",
+      "caughtBy": "the adapter, which cross-checks every replacement item s stated reason against the obligation the generation state declares for that slot",
+      "refusalMessage": "R:45:14: wrong replacement reason",
+      "fixedBy": "correcting the work item to the reason the D1 adjudication records for slot 45. No obligation, no assignment and no ordering changed",
+      "recordedBecause": "a reason mismatch would have travelled into the ledger row and become the permanent explanation of why reserve 14 was spent"
+    },
+    "requiredOutcomes": {
+      "zeroViolations": true,
+      "plannedWindowSize": 5,
+      "exactOrder": ["R:29:10", "R:30:11", "R:38:12", "R:42:13", "R:45:14"],
+      "replacementItems": 5,
+      "primaryItems": 0,
+      "derivedReserveRankPositions": [10, 11, 12, 13, 14],
+      "derivedReplacesOccupant": [
+        "ORIGINAL_SELECTION",
+        "ORIGINAL_SELECTION",
+        "ORIGINAL_SELECTION",
+        "ORIGINAL_SELECTION",
+        "ORIGINAL_SELECTION"
+      ],
+      "derivedSplits": {
+        "R:29:10": "FINAL_HOLDOUT",
+        "R:30:11": "DEV_CONFIRM",
+        "R:38:12": "FINAL_HOLDOUT",
+        "R:42:13": "DEV_CONFIRM",
+        "R:45:14": "DEV_CONFIRM"
+      },
+      "startingLedgerEntryCount": 10,
+      "startingLedgerSha256AsTheAdapterDerivedIt": "5d67a8f83506852cb745557dfe4e0ff0b9b037e59dc2c5a67fdbd16dbe0d666d",
+      "startingLedgerHashAsTheAdapterDerivedIt": "d71035336ed6b5e7d23f499a4349b6cb5c963c299319e4c7ba60dd3ca6c7e158",
+      "stateAtPlanTime": {
+        "successfulSelectionSlots": 52,
+        "currentAcquisitionFailures": 7,
+        "pendingReplacementObligations": 7,
+        "nextNeverStartedSelectionIndex": 60,
+        "replacementLedgerEntries": 10,
+        "reserveConsumed": 10,
+        "reserveUnused": 30,
+        "nextUnusedReservePosition": 10,
+        "p6Fires": false,
+        "liveAuthorityGranted": false
+      },
+      "everyRequiredOutcomeMet": true
+    },
+    "probeIdentityIsTheFuturePlanIdentity": true,
+    "planBuiltInMemoryForTheP7AndGateReplayOnly": true,
+    "inMemoryPlanHashIsNotAPrecommitment": "the plan hash depends on this record s own sha256 through the spec s governance binding, so it changes with these conformance blocks. The plan stage recomputes it from the FINAL committed strategy bytes, and the plan record is where it becomes binding"
+  },
+  "p7Replay": {
+    "function": "computePrecommittedWindowPreflight (windowPlan.ts)",
+    "invariantCount": 13,
+    "againstTheTenEntryStartingLedger": {
+      "ledgerEntryCount": 10,
+      "invariantsTrue": 11,
+      "invariantsFalse": ["replacementAssignmentsRecorded", "currentOccupantsMatch"],
+      "interpretation": "EXPECTED AND CORRECT. Both false invariants are satisfiable only after the five reserve positions are appended: one requires the planned assignments to exist as ledger rows, the other requires each replacement slot s current occupant to already be RESERVE_REPLACEMENT at its assigned position. This is the mechanical proof that the pre-network append is not optional"
+    },
+    "againstThePreparedFifteenEntryLedger": {
+      "ledgerEntryCount": 15,
+      "invariantsTrue": 13,
+      "invariantsFalse": [],
+      "note": "the prepared ledger is an in-memory value built by prepareReplacementAppend. Nothing was written"
+    }
+  },
+  "continuationGateReplay": {
+    "function": "evaluateContinuationWindowGate (windowGate.ts)",
+    "initialGateAsItWillBeAtLiveStart": {
+      "inputs": {
+        "completed": [],
+        "plannedWindowSize": 5,
+        "reserveConsumedCount": 15,
+        "successfulOrganisationCount": 52
+      },
+      "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+      "mayStartNextWorkItem": true,
+      "nextWorkItemId": "R:29:10",
+      "triggeredConditions": [],
+      "p2PercentageThresholdCount": 3,
+      "p5LowYieldThresholdCount": 2,
+      "windowLowYieldCount": 0
+    },
+    "sameGateBeforeTheAppend": {
+      "inputs": {
+        "reserveConsumedCount": 10,
+        "successfulOrganisationCount": 52
+      },
+      "decision": "PAUSE_P7_INVARIANT_MISMATCH",
+      "arms": [
+        "preflight invariant replacementAssignmentsRecorded does not hold",
+        "preflight invariant currentOccupantsMatch does not hold"
+      ],
+      "interpretation": "the window CANNOT start before its append is durable. The gate refuses it mechanically"
+    },
+    "sameGateWithAForgedLowSuccessCount": {
+      "inputs": {
+        "reserveConsumedCount": 15,
+        "successfulOrganisationCount": 49
+      },
+      "decision": "PAUSE_P6_UNEXPECTED_RESERVE_USAGE",
+      "arm": "15 replacements consumed with 49 successful organisations (> 10 before 50)",
+      "interpretation": "P6 is live and unchanged at fifteen consumed reserves. It does not fire at 52 because 52 < 50 is false, not because anything was waived"
+    },
+    "sameGateWithReserveConsumedCountStatedAsTen": {
+      "inputs": {
+        "reserveConsumedCount": 10,
+        "successfulOrganisationCount": 52,
+        "ledgerEntryCount": 15
+      },
+      "decision": "PAUSE_P7_INVARIANT_MISMATCH",
+      "arm": "reserveConsumedCount is not the validated ledger entry count",
+      "interpretation": "the gate compares the declared reserve count against the validated ledger itself; a stale declaration cannot pass"
+    },
+    "windowLocalCountersAreZeroAtTheStart": true,
+    "d1CountersNotCarriedIn": "Owner Clarification Q4: this is a new owner-authorised window, so window-local counters reset. Generation-global P6 does not"
+  },
+  "negativeProbes": {
+    "method": "a scratchpad script outside the repository mutated this record s bytes one property at a time and fed each mutation through the landed adapter",
+    "refused": [
+      {
+        "probe": "wrong slot: R:29:10 retargeted to slot 31, a SUCCESSFUL slot",
+        "refusal": "R:31:10: no pending obligation for its slot"
+      },
+      {
+        "probe": "wrong reserve: slot 29 assigned position 20",
+        "refusal": "R:29:20: not the planner s slot/reserve assignment at replacement 0"
+      },
+      {
+        "probe": "swapped reserve order: positions 10 and 11 exchanged between slots 29 and 30",
+        "refusal": "R:29:11: not the planner s slot/reserve assignment at replacement 0"
+      },
+      {
+        "probe": "reversed Q1 order: 45, 42, 38, 30, 29 with positions still ascending",
+        "refusal": "R:45:10: not the planner s slot/reserve assignment at replacement 0"
+      },
+      {
+        "probe": "P:59 inserted as a sixth replacement at reserve 15",
+        "refusal": "R:59:15: no pending obligation for its slot"
+      },
+      {
+        "probe": "P:59 declared a pending obligation so that it could be served",
+        "refusal": "a pending replacement obligation is malformed, duplicated or not a current failure - because 59 is in PENDING_CAPABILITY_REVIEW, which the adapter requires to be disjoint from the obligation set"
+      },
+      {
+        "probe": "stale original occupant: R:29:10 claims to replace a RESERVE_REPLACEMENT",
+        "refusal": "R:29:10: claimed occupant kind is not the ledger s (ORIGINAL_SELECTION)"
+      },
+      {
+        "probe": "a reserve position already consumed: slot 29 assigned position 9",
+        "refusal": "R:29:9: not the planner s slot/reserve assignment at replacement 0"
+      },
+      {
+        "probe": "slot 29 served twice in one window",
+        "refusal": "the replacement slots cannot be planned against the starting ledger"
+      },
+      {
+        "probe": "wrong inherited split: slot 29 relabelled DEV_TRAIN",
+        "refusal": "spec item 0: split is not the frozen draw slot s split"
+      },
+      {
+        "probe": "forged success count 49 with P6 restated as TRIGGERED",
+        "refusal": "the stated P6 result disagrees with the ledger and the success count"
+      },
+      {
+        "probe": "ledger state restated as 15 entries against the bound 10-entry bytes",
+        "refusal": "the generation state disagrees with the bound ledger"
+      },
+      {
+        "probe": "the plan identity reuses the strategy recordId",
+        "refusal": "the plan identity reuses the strategy identity"
+      },
+      {
+        "probe": "the plan identity reuses the strategy records token",
+        "refusal": "the plan identity reuses the strategy identity"
+      },
+      {
+        "probe": "the strategy claims live authority",
+        "refusal": "the strategy claims live authority"
+      },
+      {
+        "probe": "the strategy claims an authorisation",
+        "refusal": "the strategy claims authority"
+      }
+    ],
+    "acceptedByTheAdapterAndRefusedHereInstead": [
+      {
+        "probe": "forged success count 49, with P6 left stated as NOT_TRIGGERED",
+        "adapterOutcome": "ACCEPTED",
+        "why": "at ledger entryCount 10 the adapter s P6 first arm (10 > 10) is false at ANY success count, so the derived result is NOT_TRIGGERED and the stated value agrees. The adapter checks internal consistency, not truth",
+        "governanceAnswer": "the success count is derived independently in currentGenerationState from the committed adjudication chain, not read from this record and not read from the owner task"
+      },
+      {
+        "probe": "forged success count 80",
+        "adapterOutcome": "ACCEPTED",
+        "why": "same arm; a success count above the floor is equally invisible to it",
+        "governanceAnswer": "same. This is the already-recorded finding that the adapter cannot detect ANY forged success count at a ten-entry ledger"
+      },
+      {
+        "probe": "a sixth work item appended - either primary P:60 with its correct frozen digest, or a replacement for slot 51 at reserve 15",
+        "adapterOutcome": "ACCEPTED",
+        "why": "the adapter validates COMPOSITION - obligations, ordering, positions, occupants, digests - not window SIZE. A six-item window is structurally consistent",
+        "governanceAnswer": "window size 5 is frozen by the Corpus Acquisition Plan and re-affirmed by the bound post-P6 owner decision. Enlarging it would change the P2 and P5 denominators. The five-item bound is governance-held, and this record holds it"
+      },
+      {
+        "probe": "the SPENT D1 strategy (P:55-P:59) and the SPENT child-window-C strategy (P:51-P:55) replayed against the unchanged ten-entry ledger",
+        "adapterOutcome": "ACCEPTED - both regenerate all five of their original work items",
+        "why": "neither strategy records its own spentness, and the ledger is unchanged because both were primaries-only windows that appended nothing",
+        "governanceAnswer": "spentness is governance-held. Both are marked SPENT in their own binding records and must never be replayed. This record will be SPENT the moment its window executes"
+      }
+    ],
+    "conclusion": "the adapter is a necessary structural check and is not sufficient. Three classes escape it: the success count, the window size, and spentness. All three are held here and were derived or fixed independently"
+  },
+  "independentFreshStateCheck": {
+    "gitTipVerifiedAtWriteTime": true,
+    "expectedTip": "d3700180cc501aef3d42455d7dff7e46ce8c42a1",
+    "localEqualsOrigin": true,
+    "worktreeClean": true,
+    "ancestryLinear": true,
+    "noCompetingCanonicalA2Writer": true,
+    "noCompetingA2Acquisition": true,
+    "databaseBaselineUnchangedSinceD1": true,
+    "databaseBaseline": {
+      "orgunit_research_runs": 77,
+      "orgunit_research_run_completions": 77,
+      "orgunit_fetch_observations": 2206,
+      "orgunit_redirect_observations": 136,
+      "orgunit_page_evidence": 1655,
+      "orgunit_page_candidates": 3310,
+      "orgunit_root_promotions": 0,
+      "orgunit_root_promotion_revocations": 0,
+      "runsWithoutCompletion": 0
+    },
+    "matchesTheD1LiveResultsRecordedAfterState": true,
+    "noNewerA2StrategyPlanOrAuthorityExists": true
+  }
+}
