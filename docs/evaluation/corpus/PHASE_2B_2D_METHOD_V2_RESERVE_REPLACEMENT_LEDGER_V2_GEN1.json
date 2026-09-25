@@ -304,7 +304,63 @@
       "previousSequenceForSlot": null,
       "previousEntryHash": "d57ffd8f1bd99a3bccd24d36fc6e6dbd6a176f7fdbbae5b13502eb63a1beac16",
       "entryHash": "73e5c1faa1486794afe843334f9ce0e0dabc6742c532fa557326a6be297a78b7"
+    },
+    {
+      "sequence": 15,
+      "selectionIndex": 29,
+      "split": "FINAL_HOLDOUT",
+      "replacedEcheRowKey": "I CALTANI01|938981826",
+      "replacementEcheRowKey": "F MARSEIL59|949467914",
+      "reserveRankPosition": 15,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-25T21:42:44Z",
+      "replacedOccupantKind": "RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 10,
+      "previousEntryHash": "73e5c1faa1486794afe843334f9ce0e0dabc6742c532fa557326a6be297a78b7",
+      "entryHash": "8fe3e0a08ab048790ba9eadddbeed011f3fab79328fc50244633709c6b63129f"
+    },
+    {
+      "sequence": 16,
+      "selectionIndex": 45,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "E TUDELA01|948981556",
+      "replacementEcheRowKey": "SI KOPER03|998802793",
+      "reserveRankPosition": 16,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-25T21:42:44Z",
+      "replacedOccupantKind": "RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 14,
+      "previousEntryHash": "8fe3e0a08ab048790ba9eadddbeed011f3fab79328fc50244633709c6b63129f",
+      "entryHash": "b4678b1bf9ca28b383d66834254d47b8d0c4aed9dddf31ce9c76873668beb619"
+    },
+    {
+      "sequence": 17,
+      "selectionIndex": 51,
+      "split": "FINAL_HOLDOUT",
+      "replacedEcheRowKey": "E TOLEDO19|939310753",
+      "replacementEcheRowKey": "F LAROCHE01|949453267",
+      "reserveRankPosition": 17,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-09-25T21:42:44Z",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "b4678b1bf9ca28b383d66834254d47b8d0c4aed9dddf31ce9c76873668beb619",
+      "entryHash": "48c77957ce6b19f51bb346cda1e48e0fb5db2cc1f4e7dc72508bec74b67b7b20"
+    },
+    {
+      "sequence": 18,
+      "selectionIndex": 54,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "PL TARNOBR01|930222241",
+      "replacementEcheRowKey": "E LA-CORU07|949201164",
+      "reserveRankPosition": 18,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-09-25T21:42:44Z",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "48c77957ce6b19f51bb346cda1e48e0fb5db2cc1f4e7dc72508bec74b67b7b20",
+      "entryHash": "55c1636a919d1d9f32f7c09350ac2635dbb5538b44806034a3cd5f8754d60bd0"
     }
   ],
-  "ledgerHash": "62939b3a06887053004a5b0e23ad3c79d55d0e90a29b9d8e151669a406de7fa0"
+  "ledgerHash": "e215c1945dda8f4d79e10d775729290f7cf8ed3475e6849db2470d0381662e81"
 }
