@@ -1,0 +1,233 @@
+{
+  "recordId": "phase2b-2d-a2-post-q1-window-02-nat64-vantage-and-assigned-occupant-recovery-decision-v1",
+  "recordKind": "OPERATIONAL_OWNER_DECISION",
+  "records": "PHASE_2B_2D_A2_POST_Q1_WINDOW_02_NAT64_VANTAGE_AND_ASSIGNED_OCCUPANT_RECOVERY_DECISION_V1",
+  "recordedAtUtc": "2026-09-25T22:29:23Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "GEN1",
+  "publicSafe": true,
+  "isLiveAuthority": false,
+  "thisRecordExecutesNothing": true,
+  "networkUsed": false,
+  "startingHead": "d1afd083f6fbcfdad3a01a6e878ca80bfd4d4715",
+  "ownerDecision": "AUTHORISE_TARGETED_VANTAGE_RECOVERY_AND_ASSIGNED_OCCUPANT_ACQUISITION_V1",
+  "thisFileAuthorises": "the SHAPE of one bounded three-target recovery series - two targeted vantage revalidations and one first acquisition of an already-assigned current occupant - and nothing else. It opens no socket, assigns no reserve, appends no ledger entry, creates no obligation and adjudicates nothing. A separate LIVE_ACQUISITION_AUTHORITY, itself gated on a proved network precondition, is what may be executed",
+
+  "bound": {
+    "window02Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "d42bcc8ddaec933246ae319aa49a15e872a209eff959ad6aa2d006d2f5248836",
+      "commit": "d1afd083f6fbcfdad3a01a6e878ca80bfd4d4715",
+      "terminalState": "PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_ADJUDICATED_AUTOPILOT_STOPPED_ON_P5_AND_ADDRESS_POLICY_VANTAGE_AMBIGUITY"
+    },
+    "window02LiveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_LIVE_RESULT_V1.json",
+      "sha256": "c83c4dba0252fe42ca7e643d814075f26da22ece24da43be3623538f21ed9d9c",
+      "commit": "ae25bab3efe744a468c74f07252a96fb0d6cc637"
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "08f720636daaa42fa92419f11f8401c49f785d0fa5ecc4eaf5f41bb8cf291ffc",
+      "ledgerHash": "e215c1945dda8f4d79e10d775729290f7cf8ed3475e6849db2470d0381662e81",
+      "entries": 19,
+      "reserveConsumed": 19,
+      "nextUnusedReservePosition": 19
+    },
+    "frozenDraw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "sha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3"
+    },
+    "revalidationPrecedents": [
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_V4_TARGETED_TRANSPORT_REVALIDATION_AUTHORITY_V1.json",
+        "sha256": "1b568b56c7a99ca653fe488faf9be5f80b763728514dbc100773b87f96890c98",
+        "role": "the authority shape a targeted, non-window, reserve-free revalidation series takes: an explicit target list, a maximum-run ceiling, P5 suspended between targets, and EVIDENCE_ONLY status until a separate adjudication acts"
+      },
+      {
+        "path": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_C_LITE_REVALIDATION_EVIDENCE_ADJUDICATION_V1.json",
+        "sha256": "3fcafa8ae20beb481e0b4446cc8b9681caad56915e231b71bb98567304cf96c0",
+        "role": "the adjudication shape: a compliant new run may become the current-generation acquisition-of-record for the SAME slot and SAME occupant, while the historical run stays immutable evidence of the old condition"
+      }
+    ],
+    "addressPolicyCapabilityReviewResolution": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_CHILD_WINDOW_C_ADDRESS_POLICY_REFUSAL_CAPABILITY_REVIEW_RESOLUTION_V1.json",
+      "sha256": "72ae3ed8e4c4c790650c674482c75b976e3bcd848f9e07feb339d48a11c2b6ad",
+      "role": "the record that mapped an address-policy refusal onto Q3 rank 4. It answered WHICH RANK; it did not consider whether such a refusal, caused by the operator's own uplink, is evidence about the institution at all. This decision answers that second question and does not disturb the first"
+    }
+  },
+
+  "theFindings": {
+    "whatWasObserved": [
+      "the Window-02 items R:45:16 and R:51:17 each issued exactly ONE robots.txt request and each was refused BLOCKED_BY_POLICY before any socket was opened",
+      "each refusal carries resolved_ip_family IPV6 and resolved_ip_is_public false, with no HTTP status of any kind",
+      "each root therefore terminated ROBOTS_UNREADABLE_ROOT with zero page attempts and zero page evidence"
+    ],
+    "theVantageAtThatTime": [
+      "an IPv6-only cellular uplink was the sole egress",
+      "DNS64 was in force: ipv4only.arpa resolved to 64:ff9b::c000:aa and 64:ff9b::c000:ab",
+      "NAT64 translation was therefore how any IPv4-only destination was reached",
+      "CLAT46 was active and the well-known CLAT address 192.0.0.2 was present",
+      "the active interface was marked constrained",
+      "every address resolved for the affected targets was represented through the 64:ff9b::/96 translation prefix"
+    ],
+    "whatTheCodeDid": [
+      "src/orgunits/web/address.ts classifies 64:ff9b::/96 as relay_or_translation and therefore non-public",
+      "the gateway refuses the whole host when every resolved address is forbidden, before any DNS-to-socket transition",
+      "no socket was opened, no packet reached any institution, and no HTTP response was obtained"
+    ],
+    "theOwnerFinding": "the Window-02 R16 and R17 runs are VALID EVIDENCE OF BEHAVIOUR FROM THAT OPERATOR VANTAGE, and are NOT sufficient to create further replacement obligations, because a known operator-network condition prevented the gateway from ever attempting the institutions' ordinary IPv4 path. A refusal caused by the acquisition vantage is not an established property of the institution",
+    "theAddressGuardWasCorrect": "refusing a translation prefix is the gateway behaving exactly as designed. CLAUDE.md rule 18 requires every returned address to be classified and the whole host refused if any is forbidden. Nothing here is a defect in address.ts"
+  },
+
+  "whatIsExplicitlyRefused": {
+    "weakenTheAddressGuard": false,
+    "allow64ff9b96": false,
+    "addAnyTranslationPrefixException": false,
+    "addAVantageAwareBypassFlag": false,
+    "changeFetchPolicy": false,
+    "changeDnsHandling": false,
+    "changeTimeoutPolicy": false,
+    "changeTlsHandling": false,
+    "changePlannerCode": false,
+    "changeMethodology": false,
+    "why": "the guard is a network-scope control, not a ranking preference. The correct response to a vantage that cannot reach IPv4 is to acquire from a vantage that can, not to teach the gateway to accept a translated address"
+  },
+
+  "theDecision": {
+    "name": "AUTHORISE_TARGETED_VANTAGE_RECOVERY_AND_ASSIGNED_OCCUPANT_ACQUISITION_V1",
+    "relationToTheOwnerOptionsWindow02Offered": "this is option B, extended: hold both address-policy-refused slots rather than creating obligations from them, AND rerun them from a proved-compliant vantage rather than leaving them held indefinitely. Option C is NOT taken: nothing is refunded, reserves 16 and 17 stay spent, and the slots keep their current occupants",
+    "series": [
+      {
+        "order": 1,
+        "selectionIndex": 45,
+        "occupantReserveRankPosition": 16,
+        "targetType": "TARGETED_VANTAGE_REVALIDATION"
+      },
+      {
+        "order": 2,
+        "selectionIndex": 51,
+        "occupantReserveRankPosition": 17,
+        "targetType": "TARGETED_VANTAGE_REVALIDATION"
+      },
+      {
+        "order": 3,
+        "selectionIndex": 54,
+        "occupantReserveRankPosition": 18,
+        "targetType": "FIRST_ACQUISITION_OF_ALREADY_ASSIGNED_CURRENT_OCCUPANT"
+      }
+    ],
+    "newReserveConsumed": 0,
+    "ledgerAppendAuthorised": false,
+    "window03Authorised": false,
+    "p60Authorised": false,
+    "reserve19Authorised": false,
+    "p59Authorised": false
+  },
+
+  "whyRevalidationIsPermittedAtAll": {
+    "precedentEstablishes": [
+      "historical runs remain immutable and are never deleted, edited or reinterpreted",
+      "the same drawn organisation may receive ONE bounded new acquisition run after a capability, policy or environment correction",
+      "no reserve is consumed merely because the same occupant is measured again",
+      "if accepted, the new run may supersede the historical run FOR THE CURRENT-GENERATION ACQUISITION DECISION only",
+      "the historical evidence remains valid evidence of the OLD condition",
+      "this is not a replacement, because organisation, slot and split do not change"
+    ],
+    "howThisCaseDiffersFromThePrecedents": "the V4 and Option-C-lite revalidations followed a FETCH-POLICY revision - the repository's own behaviour changed and the code was different on the second run. Here NOTHING in the repository changes. The correction is to the ACQUISITION VANTAGE: the same commit, the same policy version and the same frozen root, run from a network that can reach IPv4",
+    "consequenceOfThatDifference": "there is no transition census to compute and no policy-version bump to record. What must instead be proved, before any request, is that the vantage actually changed - which is why this decision is inert until a separate network-precondition record establishes it"
+  },
+
+  "slot45": {
+    "selectionIndex": 45,
+    "currentOccupantKind": "RESERVE_REPLACEMENT",
+    "currentOccupantReserveRankPosition": 16,
+    "ledgerSequence": 16,
+    "historicalWindow02RunRefSha256": "f0af710add42ea45f7adcf8e683ac3678145491f5edaabc96e733b68d70967a7",
+    "historicalOutcome": "ROBOTS_UNREADABLE_ROOT, 1 request, BLOCKED_BY_POLICY, zero pages",
+    "historicalRunIsImmutable": true,
+    "generation1StatusUntilRevalidated": "PENDING_CAPABILITY_REVIEW",
+    "recoveryRunUses": [
+      "the SAME selection index 45",
+      "the SAME reserve rank position 16",
+      "the SAME split DEV_CONFIRM",
+      "the SAME frozen root authority",
+      "the SAME orgunit-fetch-policy-v6"
+    ],
+    "newReserveConsumed": 0
+  },
+
+  "slot51": {
+    "selectionIndex": 51,
+    "currentOccupantKind": "RESERVE_REPLACEMENT",
+    "currentOccupantReserveRankPosition": 17,
+    "ledgerSequence": 17,
+    "historicalWindow02RunRefSha256": "843725eb3ea054d916e79caae1a3be79bc322f424956067797216c7ecdf15aca",
+    "historicalOutcome": "ROBOTS_UNREADABLE_ROOT, 1 request, BLOCKED_BY_POLICY, zero pages",
+    "historicalRunIsImmutable": true,
+    "generation1StatusUntilRevalidated": "PENDING_CAPABILITY_REVIEW",
+    "recoveryRunUses": [
+      "the SAME selection index 51",
+      "the SAME reserve rank position 17",
+      "the SAME split FINAL_HOLDOUT",
+      "the SAME frozen root authority",
+      "the SAME orgunit-fetch-policy-v6"
+    ],
+    "reserve18Or19SubstitutionAuthorised": false,
+    "newReserveConsumed": 0
+  },
+
+  "slot54": {
+    "selectionIndex": 54,
+    "currentOccupantKind": "RESERVE_REPLACEMENT",
+    "currentOccupantReserveRankPosition": 18,
+    "ledgerSequence": 18,
+    "priorAcquisitionRunsForThisOccupant": 0,
+    "thisIsNotARevalidation": "reserve 18 was durably assigned to slot 54 by ledger sequence 18 BEFORE the network began, and Window 02 paused on P5 before reaching it. There is no historical acquisition of reserve 18 to revalidate",
+    "targetType": "FIRST_ACQUISITION_OF_ALREADY_ASSIGNED_CURRENT_OCCUPANT",
+    "howTheTargetIsDerived": "mechanically, from currentOccupantForSelectionIndex(frozen draw, the committed nineteen-entry ledger, 54). It is not chosen, and it is not re-planned",
+    "planPendingReplacementObligationsMayBeCalledForThisSlot": false,
+    "whyNot": "the landed planner derives the NEXT UNUSED reserve for a slot with an open obligation. Called here it would derive reserve 19 and silently waste reserve 18, which is already spent. The planner is not wrong; it simply does not express 'execute the occupant that is already assigned'",
+    "reserve19AssignmentAuthorised": false,
+    "sequence18EditAuthorised": false,
+    "reserve18RefundAuthorised": false,
+    "newLedgerRowAuthorised": false,
+    "plannerCodeChangeAuthorised": false,
+    "thisDecisionIsTheAuthorityForThatDirectExecution": "a bounded recovery from an interrupted precommitted window, not a change to replacement ordering"
+  },
+
+  "noGenericWindowPlannerForTheseThree": {
+    "genericContinuationPlannerUsed": false,
+    "genericStrategyFabricatedToSatisfyTheAdapter": false,
+    "plannerOrAdapterCodeChanged": false,
+    "insteadUse": "a targeted LIVE_ACQUISITION_AUTHORITY following the V4 targeted-revalidation precedent, whose targets are read directly from the frozen draw, the committed nineteen-entry ledger, currentOccupantForSelectionIndex and the Window-02 evidence",
+    "why": "forcing an assigned-but-unacquired occupant through a planner that derives the next unused reserve would either waste a spent reserve or require changing the planner. Both are worse than a narrow, explicit authority that names its three targets and expires with them"
+  },
+
+  "p5DuringTheSeries": {
+    "appliesBetweenTheseThreeTargets": false,
+    "why": "this is not an ordinary continuation window and must not be turned into a denominator-3 one. It follows the V4 and Option-C-lite targeted-revalidation precedent, where P5 is recomputed prospectively only after evidence adjudication",
+    "aNormalAcquisitionOutcomeStopsTheSeries": false
+  },
+
+  "whatRemainsUntouched": {
+    "p59": "PENDING_CAPABILITY_REVIEW, formal range [1,24], not resolved, no obligation created, not part of this series",
+    "ledgerEntries": 19,
+    "nextUnusedReservePosition": 19,
+    "window03": "not created, not planned, not implied",
+    "p60": "slot 60 remains NEVER_STARTED and is not authorised here",
+    "autopilot": "STOPPED. This decision does not resume it"
+  },
+
+  "afterTheRecoveryAdjudication": {
+    "autopilotAutoResumes": false,
+    "why": "the recovery may materially change Q1, which reserves are owed, whether slot 54 needs a new reserve at all, and how much primary space the next window has. A fresh owner continuation decision must use the recovered canonical state",
+    "nextStepIsAnOwnerDecision": true
+  },
+
+  "institutionIdentityInThisFile": "none. Targets are named by selection index and reserve rank position only; no ECHE row key, organisation id, hostname or URL appears anywhere in this record",
+  "networkAccessByThisRecord": "none",
+  "databaseWrittenByThisRecord": "none",
+  "productionCodeChangedByThisRecord": "none",
+  "immutability": "append-only. This record is never edited. A later decision supersedes it by its own new record"
+}
