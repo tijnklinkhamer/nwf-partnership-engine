@@ -1,0 +1,470 @@
+{
+  "recordId": "phase2b-2d-a2-post-p6-q1-window-01-p5-review-and-autopilot-resume-v1",
+  "recordKind": "OWNER_DECISION_RECORD",
+  "records": "PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_P5_REVIEW_AND_AUTOPILOT_RESUME_V1",
+  "recordedAtUtc": "2026-09-25T21:08:48Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "appendOnly": true,
+  "isLiveAuthority": false,
+  "isLiveAuthorityNote": "this record reviews a pause and resumes a bounded cadence. It authorises no socket, assigns no reserve, appends no ledger row and precommits no window. The next window's own strategy, plan, authority and pre-network append remain required",
+  "thisFileAuthorises": [],
+  "startingHead": "72bdfbe075cf856fa77f42e083ca7a594c2f99a8",
+  "startingHeadIsTheWindow01AdjudicationCommit": true,
+  "ownerDecision": {
+    "name": "RESUME_POST_P6_Q1_REPLACEMENT_AND_PRIMARY_COMPLETION_AUTOPILOT",
+    "grantedBy": "the owner, in the task that produced this record",
+    "reviewConclusion": "P5_REVIEWED_EXTERNAL_TRANSPORT_FAILURES_NO_COMMON_REPOSITORY_DEFECT_ESTABLISHED_CONTINUATION_ALLOWED",
+    "whatTheConclusionMeans": [
+      "R:29:10 genuinely failed acquisition",
+      "R:45:14 genuinely failed acquisition",
+      "both remain legitimate replacement failures",
+      "no failure is erased",
+      "no retry of either same reserve is authorised",
+      "no fetch-policy change is authorised",
+      "no robots-policy change is authorised",
+      "no network timeout widening is authorised",
+      "no TLS repair is authorised"
+    ],
+    "whatTheConclusionDoesNotMean": [
+      "it does not say either institution would succeed under another attempt",
+      "it does not reclassify either failure",
+      "it does not revise the Window 01 adjudication, which stays immutable",
+      "it does not waive P5 for the next window, which begins with fresh window-local counters",
+      "it does not extend the bounded authority's window or attempt caps"
+    ],
+    "itMeansOnly": "the required human review has occurred and no evidence requires a code or policy freeze before a new independently precommitted window"
+  },
+  "theHistoricalPauseRemainsTrue": {
+    "pause": "PAUSE_P5_LOW_RAW_YIELD",
+    "firedOn": "2 of 5 planned items below the 4-raw-page surrogate, which is strictly more than 30% of the frozen five-item denominator",
+    "immutable": true,
+    "erasedHere": false,
+    "reclassifiedHere": false,
+    "theWindow01RecordsAreUnchanged": true,
+    "whyItIsNotContradictedByThisResumption": "P5 is a PAUSE, not a verdict. It stops a cadence so a person looks at it. The look has now happened; the pause stays on the record exactly as it fired"
+  },
+  "p5Review": {
+    "reviewedBy": "the owner",
+    "reviewedAgainst": "the Window 01 LIVE_RESULT and evidence adjudication, both committed and both re-hashed from disk in this step",
+    "theTwoLowYieldItems": [
+      {
+        "workItemId": "R:29:10",
+        "selectionIndex": 29,
+        "reserveRankPosition": 10,
+        "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+        "concreteTransportFailure": "CONNECT_TIMEOUT on both the first robots.txt request and its one bounded in-policy retry",
+        "policyRefusal": false,
+        "rawPageEvidenceCount": 0,
+        "q3Rank": 3,
+        "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+      },
+      {
+        "workItemId": "R:45:14",
+        "selectionIndex": 45,
+        "reserveRankPosition": 14,
+        "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+        "concreteTransportFailure": "TLS_FAILURE on the single robots.txt attempt",
+        "policyRefusal": false,
+        "rawPageEvidenceCount": 0,
+        "q3Rank": 3,
+        "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+      }
+    ],
+    "whatTheyShare": "a broad category only: a transport failure before a readable robots policy. A policy that was never read cannot authorise a page request, so both roots terminated with zero page attempts",
+    "whatTheyDoNotShare": "their concrete failure. CONNECT_TIMEOUT and TLS_FAILURE are different failures at different layers against different hosts",
+    "noEvidenceEstablishes": [
+      "a shared crawler defect",
+      "a user-agent defect",
+      "a robots evaluator defect",
+      "a persistence failure",
+      "a database failure",
+      "an orchestration error",
+      "a host sleep problem",
+      "a common code repair that should precede further acquisition"
+    ],
+    "positiveEvidenceAgainstARepositoryDefect": [
+      "the other three items in the same window, under the same build, the same fetch policy and the same user agent, returned 13, 27 and 27 raw pages",
+      "both failing runs completed normally (cliExitCode 0, runTerminalState COMPLETED) and each wrote exactly one run and one completion row",
+      "no ORCHESTRATION_ERROR, no persistence anomaly and no host sleep/wake event occurred during the window",
+      "TLS verification was never weakened: rejectUnauthorized stayed true, so a TLS_FAILURE is the gateway refusing an unverifiable certificate, which is correct behaviour"
+    ],
+    "whatWasNotConcludedFromThat": "that the two hosts are permanently or globally unreachable. A fetch result is a function of the vantage as much as of the site, and this review makes no claim about either institution",
+    "conclusion": "P5_REVIEWED_EXTERNAL_TRANSPORT_FAILURES_NO_COMMON_REPOSITORY_DEFECT_ESTABLISHED_CONTINUATION_ALLOWED"
+  },
+  "whatIsNotAuthorisedByThisResumption": [
+    "retrying reserve 10 against slot 29",
+    "retrying reserve 14 against slot 45",
+    "retrying any completed or failed institution target",
+    "any change to orgunit-fetch-policy-v6",
+    "any change to robots evaluation or robots continuation",
+    "widening any connect, read or total timeout",
+    "any TLS relaxation, certificate exception or rejectUnauthorized change",
+    "any code, test, harness, methodology or migration change",
+    "enlarging the five-item window",
+    "raising the window or attempt caps",
+    "resolving P:59",
+    "creating a slot-59 obligation"
+  ],
+  "remainingBoundedAuthority": {
+    "boundDecision": "BEGIN_Q1_REPLACEMENT_AND_PRIMARY_COMPLETION_AUTOPILOT_V1 at d3700180cc501aef3d42455d7dff7e46ce8c42a1",
+    "maxChildWindowsUnderThatDecision": 4,
+    "childWindowsAdjudicatedSoFar": 1,
+    "remainingLiveWindowCap": 3,
+    "maxLiveAttemptsUnderThatDecision": 20,
+    "liveAttemptsConsumedSoFar": 5,
+    "remainingAttemptCap": 15,
+    "windowSizeUnchanged": 5,
+    "concurrencyUnchanged": 1,
+    "everyOtherClauseOfTheBoundDecisionContinuesUnchanged": true,
+    "stopConditionEStillApplies": "any P1-P8 pause in a later window stops the cadence again and needs owner review again. This record is not a standing waiver"
+  },
+  "windowLocalCountersReset": {
+    "authority": "Owner Clarification Q4",
+    "resetForTheNextWindow": ["P1", "P2", "P3", "P5"],
+    "notReset": ["P6"],
+    "p6IsGenerationGlobal": true,
+    "window01P5LowYieldCountIsNotCarriedForward": true,
+    "why": "the next window is a NEW owner-authorised window with its own frozen five-item denominator. Carrying two low-yield observations into it would make its P5 fire on the first low-yield item of a window that has not had one"
+  },
+  "p59": {
+    "status": "PENDING_CAPABILITY_REVIEW",
+    "unchangedByThisRecord": true,
+    "formalSd7Range": [1, 24],
+    "rangeCrossesFour": true,
+    "notASuccess": true,
+    "notAFailure": true,
+    "notAReplacementObligation": true,
+    "notNeverStarted": true,
+    "noSlot59ObligationCreatedHere": true,
+    "noReserveAssignedToSlot59": true,
+    "notIncludedInQ1": true,
+    "sd7Unchanged": true,
+    "decisionRelevanceNow": "none. All four determinate Q1 obligations carry indices below 59, and the next NEVER_STARTED primary is P:60, so no ordering or assignment question in the next window depends on resolving it",
+    "ifItEverBecomesDecisionRelevant": "stop condition C of the bound decision fires: STOP and return to the owner"
+  },
+  "bound": {
+    "postP6OwnerDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_REPLACEMENT_AND_PRIMARY_COMPLETION_AUTOPILOT_V1.json",
+      "sha256": "017f8422263b1ee13b58fa99ab7c44ec9acb50c3e079e8681ffd0af5aa19f2ef",
+      "bytes": 35547,
+      "commit": "d3700180cc501aef3d42455d7dff7e46ce8c42a1",
+      "role": "the bounded authority this record resumes; every clause of it other than the cadence stop continues unchanged"
+    },
+    "window01Strategy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_STRATEGY_V1.json",
+      "sha256": "3652ba546672c4fb031de4cda4cc0847bdd2a5227f4d91b93747822f0d8cba18",
+      "bytes": 43328,
+      "commit": "36e3c7cf4a6bcbb33a6a0af3f90a808002f29732",
+      "status": "SPENT"
+    },
+    "window01Plan": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_PLAN_V1.json",
+      "sha256": "0256f5fe44c4f9204c2ea88d11e52223148099191caeb2cf0567f47a6345f36c",
+      "bytes": 7332,
+      "windowPlanHash": "4deaa92bffd3b5a0305868f5effcb8279caa8e804ad4ce45e5b4687c9d92fa88",
+      "commit": "9cf902713e3ec8ae25e223a3da07695ee30a1971",
+      "status": "SPENT"
+    },
+    "window01LiveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_LIVE_AUTHORITY_V1.json",
+      "sha256": "0fec574cec998cc9a4c8fe0af87101bdfa4396424ca2d5f29d71aa22e0c750a8",
+      "bytes": 29361,
+      "commit": "865ceaf439aaa37d0fe9c74da42b461b7ee4189b",
+      "status": "SPENT"
+    },
+    "window01PreNetworkLedgerAppend": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_PRENETWORK_ASSIGNMENT_V1.json",
+      "sha256": "c1f6509521b5d59d227a82f165d3af13b1c1afaca725363bf748493438b72a5c",
+      "bytes": 16840,
+      "commit": "d21366d074337ccd438ab3d7d95c22ea6608c6dc",
+      "appendedSequences": [10, 11, 12, 13, 14]
+    },
+    "window01LiveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_LIVE_RESULT_V1.json",
+      "sha256": "3612e2bf373d55c3d52d1cb1216d8cd7430e836be8dc793e9a86b7ee7da45e1a",
+      "bytes": 29521,
+      "commit": "973bbfc8655cabed88ec2ffa43e74035bc30eaa5",
+      "terminal": "PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_WINDOW_COMPLETE_WITH_TERMINAL_P5_PAUSE"
+    },
+    "window01Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "3fdb09dafa0a1d01543ae09884bb022c632af8b7e89431a4d7150896a4dbb403",
+      "bytes": 25358,
+      "commit": "72bdfbe075cf856fa77f42e083ca7a594c2f99a8",
+      "terminalState": "PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_ADJUDICATED_AUTOPILOT_STOPPED_ON_P5"
+    },
+    "currentReplacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "5d3302368bf8ed077ac581a8577d2fc4212eebb9aeda6c1581a0f3bcd1661d0a",
+      "bytes": 13982,
+      "ledgerHash": "62939b3a06887053004a5b0e23ad3c79d55d0e90a29b9d8e151669a406de7fa0",
+      "entries": 15,
+      "unchangedByThisRecord": true
+    },
+    "ownerReserveOrderClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "bytes": 18443,
+      "contains": [
+        "Q1_reserveAssignmentOrder",
+        "Q2_replacementChain",
+        "Q3_replacementReasonPrecedence",
+        "Q4_windowLocalPauseSemantics"
+      ]
+    },
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306
+    },
+    "methodologyFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+      "bytes": 17514
+    },
+    "corpusAcquisitionPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "bytes": 45200
+    },
+    "corpusAcquisitionPlanV1OwnerApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1_OWNER_APPROVAL.json",
+      "sha256": "0ac475031e81a60ae58d70bb83d5f71ee3cc441573dc82cf88145fdf1e8fec14",
+      "bytes": 10949
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650"
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    },
+    "acquisitionPolicyTransitionLedgerV6": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_ACQUISITION_POLICY_TRANSITION_LEDGER_V6_GEN1.json",
+      "sha256": "592b17062a601ac21f0525209e133220b90ebd97848790f9da66e22f9391461d",
+      "bytes": 19454,
+      "role": "acquisition continues under orgunit-fetch-policy-v6; this record appends nothing to it and changes nothing in it"
+    },
+    "p1ToP8Implementation": {
+      "role": "the landed, unchanged pause-condition and window machinery this cadence runs on. Hashed here so a later change to any of it is visible rather than assumed away",
+      "files": [
+        {
+          "path": "src/test/harness/phase2b2d/continuationWindow/windowContract.ts",
+          "sha256": "b35bf4a847d32277423524c4cadf19fbb16c2b484ddc4c397106da82f3bb3a08",
+          "bytes": 17796
+        },
+        {
+          "path": "src/test/harness/phase2b2d/continuationWindow/windowGate.ts",
+          "sha256": "3a747b6cb245e34858d444ea84d0e9cd6042278d2e7d60a3b612ae070796b1be",
+          "bytes": 12589
+        },
+        {
+          "path": "src/test/harness/phase2b2d/continuationWindow/windowPlan.ts",
+          "sha256": "8656b025712fd7b2ca13cf7eb156868d465d3f344ed276edfd13687f6309060b",
+          "bytes": 67848
+        },
+        {
+          "path": "src/test/harness/phase2b2d/continuationWindow/replacementLedger.ts",
+          "sha256": "88b9e597bb5b1b0b1e33954057d61ba4be60490dcb1bab88e2924a52d7cb7f25",
+          "bytes": 19613
+        },
+        {
+          "path": "src/test/harness/phase2b2d/continuationWindow/replacementPlanner.ts",
+          "sha256": "40c5a600a4120cd54eadba2aff74d39506b38609d884faf9efe5c253e00894a2",
+          "bytes": 2656
+        },
+        {
+          "path": "src/test/harness/phase2b2d/continuationWindow/replacementAppend.ts",
+          "sha256": "7ef68094030d22612a0be9a46c15f464c16a262d22cae742154f75f33941dc6a",
+          "bytes": 4918
+        },
+        {
+          "path": "src/test/harness/phase2b2d/continuationWindow/replacementReason.ts",
+          "sha256": "9eca9d049b9f6cfeabfa48c1f6b43d7e6f5d53ac590eed70f36d4bef0cbb3c4a",
+          "bytes": 2953
+        }
+      ],
+      "unchangedByThisRecord": true
+    },
+    "bindingRecomputation": "every sha256 and byte count above was recomputed from the committed bytes at startingHead in this step. No abbreviated value from the owner task, a session note or a memory was trusted. No mismatch"
+  },
+  "currentCanonicalGenerationState": {
+    "derivedIndependentlyInThisStep": true,
+    "derivation": "the successful index set was rebuilt as {0..59} minus the four CURRENT_ACQUISITION_FAILURE slots minus the one PENDING_CAPABILITY_REVIEW slot and counted element by element; the four failures and the one pending slot were read from the committed Window 01 adjudication and the address-policy capability review resolution; the never-started range was taken as the complement above the highest touched index. The strategy adapter's success count was not consulted",
+    "ACQUISITION_SUCCESSFUL": 55,
+    "successfulSelectionIndicesRanges": ["0..28", "30..44", "46..50", "52..53", "55..58"],
+    "CURRENT_ACQUISITION_FAILURE": [29, 45, 51, 54],
+    "PENDING_CAPABILITY_REVIEW": [59],
+    "NEVER_STARTED": {
+      "from": 60,
+      "to": 109,
+      "count": 50,
+      "contiguous": true
+    },
+    "totalSelectionSlots": 110,
+    "accounting": "55 + 4 + 1 + 50 = 110",
+    "setsAreDisjoint": true,
+    "setsCoverExactly0To109": true,
+    "nextUntouchedPrimarySelectionIndex": 60,
+    "doNotExtrapolate": "55 successful slots of 110; not a population success rate"
+  },
+  "currentQ1Queue": {
+    "rule": "Owner Clarification Q1: obligations are served in ascending selectionIndex order",
+    "derivedIndependently": true,
+    "derivationNote": "sorted here by selectionIndex ascending over the four CURRENT_ACQUISITION_FAILURE slots. planPendingReplacementObligations was not used as the ordering authority",
+    "order": [29, 45, 51, 54],
+    "orderRendered": "29 -> 45 -> 51 -> 54",
+    "occupantsDerivedFromTheValidatedLedger": [
+      {
+        "selectionIndex": 29,
+        "currentOccupant": "RESERVE_REPLACEMENT",
+        "currentReserveRankPosition": 10,
+        "currentLedgerSequence": 10,
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "chainLength": 1
+      },
+      {
+        "selectionIndex": 45,
+        "currentOccupant": "RESERVE_REPLACEMENT",
+        "currentReserveRankPosition": 14,
+        "currentLedgerSequence": 14,
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "chainLength": 1
+      },
+      {
+        "selectionIndex": 51,
+        "currentOccupant": "ORIGINAL_SELECTION",
+        "currentReserveRankPosition": null,
+        "currentLedgerSequence": null,
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "chainLength": 0
+      },
+      {
+        "selectionIndex": 54,
+        "currentOccupant": "ORIGINAL_SELECTION",
+        "currentReserveRankPosition": null,
+        "currentLedgerSequence": null,
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "chainLength": 0
+      }
+    ],
+    "occupantDerivation": "currentOccupantForSelectionIndex(draw, the validated fifteen-entry ledger, i) for each i, run in this step",
+    "slots29And45AreQ2ReplacementChains": "their original selections were already replaced; the next assignment to either is a SAME-SLOT chain from its current reserve occupant, not from its original selection",
+    "slot59NotInTheQueue": true,
+    "noReserveAssignedHere": true
+  },
+  "currentLedgerState": {
+    "entries": 15,
+    "ledgerHash": "62939b3a06887053004a5b0e23ad3c79d55d0e90a29b9d8e151669a406de7fa0",
+    "artifactFileSha256": "5d3302368bf8ed077ac581a8577d2fc4212eebb9aeda6c1581a0f3bcd1661d0a",
+    "bytes": 13982,
+    "reserveConsumed": 15,
+    "reserveUnused": 25,
+    "nextUnusedReservePosition": 15,
+    "reservePosition15": "UNASSIGNED",
+    "noReservePositionAtOrAbove15IsAssigned": true,
+    "validatedWith": "validateReplacementLedger(draw, ledger) and requireValidLedger(draw, ledger), both run in this step against the frozen draw",
+    "appendedByThisRecord": false,
+    "anyLedgerRowEdited": false
+  },
+  "p6": {
+    "rule": "reserveConsumed > 10 AND successfulOrganisationCount < 50",
+    "inputs": {
+      "reserveConsumed": 15,
+      "successfulOrganisationCount": 55
+    },
+    "evaluation": "15 > 10 is TRUE and 55 < 50 is FALSE; the conjunction is false",
+    "status": "NOT_TRIGGERED",
+    "amendedOrWaivedHere": false,
+    "thresholdChangedHere": false,
+    "mustBeReEvaluatedAfterEveryLedgerChange": true
+  },
+  "databaseBaselineObserved": {
+    "readAt": "2026-09-25T21:08:48Z",
+    "role": "orgunit tables read with the readonly credentials; no write was made and none is authorised by this record",
+    "orgunit_research_runs": 82,
+    "orgunit_research_run_completions": 82,
+    "orgunit_fetch_observations": 2323,
+    "orgunit_redirect_observations": 169,
+    "orgunit_page_evidence": 1722,
+    "orgunit_page_candidates": 3444,
+    "orgunit_root_promotions": 0,
+    "orgunit_root_promotion_revocations": 0,
+    "matchesTheWindow01LiveResultsRecordedAfterState": true,
+    "noUnexplainedActivitySinceWindow01": true
+  },
+  "thisRecordDoesNot": [
+    "open a socket",
+    "write a database row",
+    "append a ledger row",
+    "assign a reserve position",
+    "precommit a window",
+    "name an institution, an eche row key, an organisation id, a hostname or a URL",
+    "grant live authority",
+    "resolve P:59",
+    "create a slot-59 obligation",
+    "retry any target",
+    "change any threshold, budget, policy, migration, harness or test"
+  ],
+  "scopeProofs": {
+    "networkUsed": false,
+    "databaseWritten": false,
+    "ledgerChanged": false,
+    "reserveStateChanged": false,
+    "executableCodeChanged": false,
+    "testsChanged": false,
+    "harnessChanged": false,
+    "migrationsChanged": false,
+    "methodologyChanged": false,
+    "fetchPolicyChanged": false,
+    "priorRecordsEdited": false
+  },
+  "identityDisclosure": {
+    "institutionIdentityInThisFile": false,
+    "echeRowKeyInThisFile": false,
+    "organisationIdInThisFile": false,
+    "hostnameOrUrlInThisFile": false,
+    "holdoutSplitLabelsDisclosed": "split labels attached to selection indices only, as every predecessor record in this chain does. A split label on an index is frozen-draw structure and names no institution",
+    "sealedHoldoutPayloadsRemainSealed": true
+  },
+  "validation": {
+    "cadence": "ACCELERATED_UNDER_THE_BOUND_POST_P6_OWNER_DECISION",
+    "fullRepositoryValidationRun": false,
+    "fullRepositoryValidationRequiredHere": false,
+    "whyNot": "the bound decision's validationPolicy requires full validation exactly once per LIVE window, at the LIVE_RESULT stage. This record changes no executable code",
+    "whenTheNextWindowIsFullyValidated": "once, at that window's LIVE_RESULT stage, after the LIVE_RESULT is formatted, as a 120-second self-excluding correctness-critical quiet gate chained directly into one caffeinate -dimsu npm run validate in a single process",
+    "focusedChecksPerformed": {
+      "jsonParses": true,
+      "prettierClean": true,
+      "prettierIdempotent": true,
+      "everyBoundHashRecomputedFromDisk": true,
+      "canonicalGitStateVerified": true,
+      "ledgerValidatedAgainstTheFrozenDraw": true,
+      "generationStateDerivedIndependently": true,
+      "q1OrderDerivedIndependently": true,
+      "occupantsDerivedFromTheLedger": true,
+      "databaseBaselineRead": true,
+      "disclosureScanRun": true
+    }
+  },
+  "independentFreshStateCheck": {
+    "gitTipVerifiedAtWriteTime": true,
+    "expectedTip": "72bdfbe075cf856fa77f42e083ca7a594c2f99a8",
+    "localEqualsOrigin": true,
+    "worktreeClean": true,
+    "ancestryLinear": true,
+    "noNewerPostP6Window02Artifact": true,
+    "noCompetingCanonicalA2Writer": true,
+    "noCompetingA2Acquisition": true,
+    "noUnexplainedDatabaseActivity": true
+  },
+  "terminalState": "PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_P5_REVIEWED_AND_AUTOPILOT_RESUMED",
+  "nextStep": "record the POST_P6_Q1_WINDOW_02 strategy: the four determinate Q1 obligations 29, 45, 51 and 54 taking reserve positions 15, 16, 17 and 18, plus primary P:60 in the fifth position, bound to the CURRENT PRE-APPEND fifteen-entry ledger",
+  "immutability": "this record is append-only and is never edited. It reviews one pause and resumes one bounded cadence; it is not a standing waiver of P5 and confers no authority a later window does not separately obtain"
+}
