@@ -1,0 +1,188 @@
+{
+  "recordId": "phase2b-2d-a2-post-q1-window-02-recovery-network-precondition-v1",
+  "recordKind": "ACQUISITION_NETWORK_PRECONDITION_EVIDENCE",
+  "records": "PHASE_2B_2D_A2_POST_Q1_WINDOW_02_RECOVERY_NETWORK_PRECONDITION_V1",
+  "recordedAtUtc": "2026-09-25T22:29:23Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "GEN1",
+  "publicSafe": true,
+  "isLiveAuthority": false,
+  "thisRecordExecutesNothing": true,
+  "startingHead": "d1afd083f6fbcfdad3a01a6e878ca80bfd4d4715",
+  "thisFileAuthorises": "nothing. It is the EVIDENCE that the load-bearing network precondition of the targeted vantage-recovery series is met. The live authority may not be created or activated unless this record's outcome is PROVED",
+
+  "institutionNetworkAccessByThisRecord": "none. Every measurement below was made against the machine's own configuration or against non-institution public canaries. No drawn organisation was resolved, contacted or named",
+
+  "disclosurePolicy": {
+    "institutionHostnamesRecorded": false,
+    "institutionAddressesRecorded": false,
+    "organisationIdentitiesRecorded": false,
+    "localPublicIpv4AddressRecorded": false,
+    "whatIsRecorded": "structural facts about the egress path, plus two IANA-operated public canaries that are not part of any draw",
+    "canariesUsed": [
+      "ipv4only.arpa - the IETF well-known name whose AAAA answer is precisely how DNS64 announces itself",
+      "example.com - IANA special-use documentation domain",
+      "www.iana.org"
+    ],
+    "whyTheseCanaries": "none of them is an educational institution, none is in the frame, and ipv4only.arpa exists for exactly this test"
+  },
+
+  "theConditionBeingRuledOut": {
+    "name": "IPV6_ONLY_CELLULAR_DNS64_NAT64_TRANSLATION_PREFIX_ONLY_VANTAGE",
+    "asObservedDuringWindow02": [
+      "IPv6-only cellular uplink as the sole egress",
+      "DNS64 in force - ipv4only.arpa answered 64:ff9b::c000:aa and 64:ff9b::c000:ab",
+      "NAT64 translation used for every IPv4-only destination",
+      "CLAT46 active, well-known CLAT address 192.0.0.2 present",
+      "active interface marked constrained"
+    ]
+  },
+
+  "measurements": {
+    "defaultRoute": {
+      "family": "IPV4",
+      "interfaceClass": "WIRED_OR_WIFI_LAN",
+      "gatewayIsPrivateLan": true,
+      "localAddressIsPrivateLanIpv4": true,
+      "nativeIpv4RoutePresent": true,
+      "ipv6DefaultRoutePresent": false,
+      "rawGatewayOrAddressRecorded": false,
+      "note": "a private LAN IPv4 with ordinary public IPv4 egress is the normal and acceptable shape; the local interface does not need a public IPv4 address"
+    },
+    "cellularAndTranslationIndicators": {
+      "cellularPdpInterfacesPresent": 0,
+      "clatWellKnownAddress192_0_0_2Present": false,
+      "constrainedInterfacesPresent": 0,
+      "systemReportsAnyIpv6NetworkState": false,
+      "activeNetworkInterfacesReportedByTheSystem": 1,
+      "activeInterfaceFamilies": ["IPv4", "DNS"]
+    },
+    "dns64Probe": {
+      "name": "ipv4only.arpa",
+      "aRecordsReturned": ["192.0.0.170", "192.0.0.171"],
+      "aaaaRecordsReturned": [],
+      "translationPrefixSynthesisObserved": false,
+      "dns64Present": false,
+      "why": "under DNS64 this name's AAAA answer is synthesised into the operator's translation prefix. An EMPTY AAAA answer alongside the real A records is the direct negative"
+    },
+    "resolverPath": {
+      "systemResolverIsTheLanGateway": true,
+      "resolverAddressRecorded": false,
+      "resolverReturnsOnlyTranslationPrefixAddressesForAnIpv4OnlyCanary": false
+    },
+    "ipv4ConnectivityCanary": {
+      "method": "curl --ipv4, HTTPS, non-institution public hosts",
+      "results": [
+        { "host": "example.com", "httpStatus": 200, "remoteAddressFamily": "IPV4" },
+        { "host": "www.iana.org", "httpStatus": 200, "remoteAddressFamily": "IPV4" }
+      ],
+      "ipv4EgressProved": true
+    },
+    "gatewayOwnResolverPathProbe": {
+      "why": "the strongest available proof is not curl's resolver but the EXACT call the landed gateway makes. src/orgunits/web/gateway.ts resolves with dnsPromises.lookup(hostname, { all: true, verbatim: true }); that same call was made here against the non-institution canaries",
+      "callUsed": "dns.promises.lookup(host, { all: true, verbatim: true })",
+      "classifierUsed": "the landed, unmodified classifyIpAddress from src/orgunits/web/address.ts",
+      "classifierModifiedForThisProbe": false,
+      "results": [
+        {
+          "host": "example.com",
+          "addressesReturned": 2,
+          "familiesReturned": ["IPV4"],
+          "classifiedPublic": 2,
+          "classifiedForbidden": 0,
+          "translationPrefixAddressesReturned": 0
+        },
+        {
+          "host": "www.iana.org",
+          "addressesReturned": 2,
+          "familiesReturned": ["IPV4"],
+          "classifiedPublic": 2,
+          "classifiedForbidden": 0,
+          "translationPrefixAddressesReturned": 0
+        },
+        {
+          "host": "ipv4only.arpa",
+          "addressesReturned": 2,
+          "familiesReturned": ["IPV4"],
+          "classifiedPublic": 0,
+          "classifiedForbidden": 2,
+          "forbiddenReason": "ietf_protocol_assignment",
+          "translationPrefixAddressesReturned": 0,
+          "note": "this name is SUPPOSED to be refused by the guard - 192.0.0.0/24 is an IETF protocol assignment. It is used here as a DNS64 detector, never as a connectivity canary"
+        }
+      ],
+      "atLeastOneOrdinaryPublicIpv4AddressIdentifiedByTheLandedClassifier": true
+    },
+    "guardStillRefusesTranslationPrefixes": {
+      "probeInput": ["64:ff9b::c000:aa", "64:ff9b::c000:ab", "192.0.0.2"],
+      "classifiedPublic": 0,
+      "reasons": ["relay_or_translation", "relay_or_translation", "ietf_protocol_assignment"],
+      "why": "proving the vantage changed must not be confused with proving the guard was loosened. The same unmodified classifier that now accepts ordinary public IPv4 still refuses every address that caused the Window-02 refusals"
+    },
+    "addressPolicyRuleDisabledToPassThisTest": false,
+    "addressPolicyFileModified": false,
+    "gitDiffOfAddressPolicyFileAgainstHead": "empty"
+  },
+
+  "requiredConditions": [
+    {
+      "id": 1,
+      "condition": "the previous IPv6-only constrained cellular/CLAT-only condition is no longer the sole egress",
+      "met": true,
+      "evidence": "no cellular PDP interface is present, no CLAT 192.0.0.2 address exists, no interface is marked constrained, and the system reports no IPv6 network state at all"
+    },
+    {
+      "id": 2,
+      "condition": "native IPv4 egress is available OR a normal dual-stack path is available",
+      "met": true,
+      "evidence": "the default route is IPv4 over a LAN interface behind an ordinary private gateway, and two public HTTPS canaries answered 200 over forced IPv4"
+    },
+    {
+      "id": 3,
+      "condition": "a non-institution public connectivity canary can be reached over IPv4",
+      "met": true,
+      "evidence": "example.com and www.iana.org both returned HTTP 200 with an IPv4 remote address"
+    },
+    {
+      "id": 4,
+      "condition": "the resolver path does not return ONLY NAT64 translation-prefix IPv6 addresses for an IPv4-only canary",
+      "met": true,
+      "evidence": "ipv4only.arpa returns its two A records and an EMPTY AAAA answer; no 64:ff9b::/96 address was synthesised by any probe"
+    },
+    {
+      "id": 5,
+      "condition": "the same landed address-classification logic used by the gateway can identify at least one ordinary public IPv4 route/address rather than only translation addresses",
+      "met": true,
+      "evidence": "the gateway's own dns.lookup call, fed to the unmodified classifyIpAddress, returned four IPv4 addresses across two canaries, all classified isPublic true, and zero translation-prefix addresses"
+    },
+    {
+      "id": 6,
+      "condition": "no address-policy rule is disabled to make this test pass",
+      "met": true,
+      "evidence": "src/orgunits/web/address.ts is byte-identical to HEAD, and the same classifier still refuses 64:ff9b::c000:aa, 64:ff9b::c000:ab and 192.0.0.2"
+    }
+  ],
+
+  "hostState": {
+    "acPower": true,
+    "batteryPercent": 59,
+    "batteryCharging": true,
+    "clamshell": "No",
+    "lidOpen": true
+  },
+
+  "outcome": "NETWORK_PRECONDITION_PROVED",
+  "allSixRequiredConditionsMet": true,
+  "blockedTerminalApplies": false,
+  "blockedTerminalWouldHaveBeen": "RECOVERY_BLOCKED_UNSUITABLE_NETWORK_VANTAGE",
+
+  "reassertionDuringExecution": {
+    "requirement": "conditions 1, 2 and 4 are re-measured before EVERY target of the recovery series, not only once here",
+    "ifTheyEverFail": "STOP before the next target with RECOVERY_NETWORK_PRECONDITION_VIOLATED_DURING_EXECUTION; retain whatever ran as ENVIRONMENT evidence; create no replacement obligation from it; consume no reserve"
+  },
+
+  "databaseWrittenByThisRecord": "none",
+  "productionCodeChangedByThisRecord": "none",
+  "immutability": "append-only. This record states what the network was at this instant and is never edited"
+}
