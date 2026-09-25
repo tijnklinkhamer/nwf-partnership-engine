@@ -1,0 +1,500 @@
+{
+  "recordId": "phase2b-2d-a2-post-p6-q1-window-01-evidence-adjudication-v1",
+  "recordKind": "OFFLINE_EVIDENCE_ADJUDICATION",
+  "records": "PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_EVIDENCE_ADJUDICATION_V1",
+  "adjudicationClassification": "COMPLETE",
+  "adjudicationClassificationNote": "all five started work items are resolved. Nothing in this window is left pending",
+  "recordedAtUtc": "2026-09-25T20:48:50Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "networkUsed": false,
+  "startingHead": "973bbfc8655cabed88ec2ffa43e74035bc30eaa5",
+  "startingHeadIsTheValidatedLiveResultCommit": true,
+
+  "ownerTask": "BEGIN_Q1_REPLACEMENT_AND_PRIMARY_COMPLETION_AUTOPILOT_V1",
+  "ownerDecisionsThisRecordApplies": [
+    "the post-P6 Q1 replacement autopilot decision at d370018",
+    "Owner Clarification Q1 for obligation ordering",
+    "Owner Clarification Q2 for the replacement chain",
+    "Owner Clarification Q3 for the reason a new obligation carries",
+    "Owner Clarification Q4 for window-local counter semantics",
+    "the frozen SD7 rule SHORT_TEXT_AMBIGUITY_BLOCKS_ONLY_WHEN_IT_CAN_CHANGE_SD9"
+  ],
+
+  "bound": {
+    "liveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_LIVE_RESULT_V1.json",
+      "sha256": "3612e2bf373d55c3d52d1cb1216d8cd7430e836be8dc793e9a86b7ee7da45e1a",
+      "bytes": 29521,
+      "commit": "973bbfc8655cabed88ec2ffa43e74035bc30eaa5",
+      "terminalGateDecision": "PAUSE_P5_LOW_RAW_YIELD",
+      "validationExitCode": 0
+    },
+    "liveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_LIVE_AUTHORITY_V1.json",
+      "sha256": "0fec574cec998cc9a4c8fe0af87101bdfa4396424ca2d5f29d71aa22e0c750a8",
+      "bytes": 29361,
+      "commit": "865ceaf439aaa37d0fe9c74da42b461b7ee4189b"
+    },
+    "preNetworkAssignment": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_PRENETWORK_ASSIGNMENT_V1.json",
+      "sha256": "c1f6509521b5d59d227a82f165d3af13b1c1afaca725363bf748493438b72a5c",
+      "bytes": 16840,
+      "commit": "d21366d074337ccd438ab3d7d95c22ea6608c6dc"
+    },
+    "plan": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_PLAN_V1.json",
+      "sha256": "0256f5fe44c4f9204c2ea88d11e52223148099191caeb2cf0567f47a6345f36c",
+      "bytes": 7332,
+      "windowPlanHash": "4deaa92bffd3b5a0305868f5effcb8279caa8e804ad4ce45e5b4687c9d92fa88"
+    },
+    "strategy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_STRATEGY_V1.json",
+      "sha256": "3652ba546672c4fb031de4cda4cc0847bdd2a5227f4d91b93747822f0d8cba18",
+      "bytes": 43328,
+      "spent": true,
+      "spentNote": "this strategy is now SPENT. All five of its items were started and all five are resolved here. The landed adapter would accept it replayed against an unchanged ledger and would regenerate all five items; spentness is governance-held and this is where it is recorded"
+    },
+    "ownerDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_REPLACEMENT_AND_PRIMARY_COMPLETION_AUTOPILOT_V1.json",
+      "sha256": "017f8422263b1ee13b58fa99ab7c44ec9acb50c3e079e8681ffd0af5aa19f2ef",
+      "bytes": 35547,
+      "commit": "d3700180cc501aef3d42455d7dff7e46ce8c42a1"
+    },
+    "d1Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_CHILD_WINDOW_C_RECOVERY_WINDOW_D1_P55_P59_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "b042a8798ec47037e694b5c2b0176e7ee8f2f044063e259a5a245365722f4b73",
+      "bytes": 57858,
+      "role": "the predecessor Generation-1 authority this record folds forward"
+    },
+    "ownerReserveOrderClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "bytes": 18443
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "5d3302368bf8ed077ac581a8577d2fc4212eebb9aeda6c1581a0f3bcd1661d0a",
+      "bytes": 13982,
+      "ledgerHash": "62939b3a06887053004a5b0e23ad3c79d55d0e90a29b9d8e151669a406de7fa0",
+      "entries": 15
+    },
+    "bindingRecomputation": "every sha256 and byte count above was recomputed from the committed bytes at startingHead in this step"
+  },
+
+  "evidenceIntegrityStandard": {
+    "method": "for every started item this record re-read that run's page evidence from the database as the READONLY role, re-ran the landed analyseOrganisation over it, rebuilt the sealed payload byte-for-byte and compared it with the file on disk, and then applied the frozen success rule to the recomputed range - never to a number copied from the live result",
+    "liveResultNumbersWereNotTrusted": true,
+    "sealedPayloadsRebuiltAndByteCompared": 5,
+    "sealedPayloadMismatches": 0,
+    "sealedFileSha256Mismatches": 0,
+    "recomputedVerdictsDisagreeingWithTheHarnessSd9Status": 0,
+    "databaseQueriedAs": "READONLY, SELECT only",
+    "networkUsed": false
+  },
+
+  "frozenSuccessRuleReadVerbatim": {
+    "rule": "post-SD7 page count >= 4 is ACQUISITION_SUCCESSFUL; < 4 is ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET; a range that STRADDLES 4 is ACQUISITION_STATUS_PENDING_SD7_OWNER_DETAIL",
+    "minPagesPerOrganisation": 4,
+    "appliedToTheWholeRangeNotToAPickedNumber": true,
+    "noRangeWasCollapsed": true
+  },
+
+  "items": [
+    {
+      "workItemId": "R:29:10",
+      "selectionIndex": 29,
+      "reserveRankPosition": 10,
+      "split": "FINAL_HOLDOUT",
+      "runRefSha256": "f59826c351327ed98f4ffb631b29cfc54b17b64acda41b1be48a160bc6d2bf13",
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "rawPageEvidenceCount": 0,
+      "recomputedPostSd7Range": [0, 0],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "A",
+      "rangeCrossesFour": false,
+      "verdict": "ACQUISITION_UNSUCCESSFUL",
+      "verdictReasonToken": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "whyDecidableDespiteZeroEvidence": "case A: deduplication only removes, so zero raw pages means zero post-SD7 pages under every reading of every unresolved detail. This needs no SD7 assumption at all",
+      "sealedRebuildMatched": true,
+      "slotOutcome": "slot 29 remains UNFILLED. Reserve 10's evidence is preserved immutably and is never reused",
+      "newObligationCreated": true,
+      "newObligationReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "newObligationReasonDerivation": "Owner Clarification Q3 rank 3: both robots.txt attempts - the first and its one bounded in-policy retry - failed CONNECT_TIMEOUT, and no usable HTTP response ever established an application-level page outcome. Rank 1 does not apply (the root authority was a valid STRUCTURALLY_VALID claim), and rank 2 does not apply (no readable policy disallowed anything - the policy was never read). Rank 3 names CONNECT_TIMEOUT explicitly, so rank 4 is not reached",
+      "reasonIsNotARetryPolicy": "HOST_UNREACHABLE is a coarse mechanical replacement reason. It does not mean permanent, globally unreachable, or that any future attempt is authorised"
+    },
+    {
+      "workItemId": "R:30:11",
+      "selectionIndex": 30,
+      "reserveRankPosition": 11,
+      "split": "DEV_CONFIRM",
+      "runRefSha256": "0aabb83bba3b98f13bb2c71061ee19364d85ea7488cdee084b097fc5184e20b3",
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "rawPageEvidenceCount": 13,
+      "recomputedPostSd7Range": [13, 13],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "B",
+      "rangeCrossesFour": false,
+      "verdict": "ACQUISITION_SUCCESSFUL",
+      "sealedRebuildMatched": true,
+      "slotOutcome": "slot 30 is now SUCCESSFUL with reserve 11 as its current occupant",
+      "newObligationCreated": false
+    },
+    {
+      "workItemId": "R:38:12",
+      "selectionIndex": 38,
+      "reserveRankPosition": 12,
+      "split": "FINAL_HOLDOUT",
+      "runRefSha256": "0cebec04c0489674c01abcaeced305af0fd9d4dca33dc6cc6fa2d94d5b2c1a70",
+      "rootTerminalReason": "COMPLETED_WITH_CANDIDATES",
+      "rawPageEvidenceCount": 27,
+      "recomputedPostSd7Range": [26, 26],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "B",
+      "rangeCrossesFour": false,
+      "verdict": "ACQUISITION_SUCCESSFUL",
+      "sealedRebuildMatched": true,
+      "slotOutcome": "slot 38 is now SUCCESSFUL with reserve 12 as its current occupant",
+      "newObligationCreated": false,
+      "note": "the original occupant of slot 38 failed ROBOTS_DISALLOWED. The reserve's own host published no such refusal. That is a fact about two different institutions, not evidence about either one's policy"
+    },
+    {
+      "workItemId": "R:42:13",
+      "selectionIndex": 42,
+      "reserveRankPosition": 13,
+      "split": "DEV_CONFIRM",
+      "runRefSha256": "1c10a53c862b606962d604adc30e3f77cdc8a60b41c36ea9838e150f5dd3a648",
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "rawPageEvidenceCount": 27,
+      "recomputedPostSd7Range": [22, 23],
+      "countIsExact": false,
+      "shortTextUnresolvedCount": 1,
+      "decidedByCase": "B",
+      "rangeCrossesFour": false,
+      "verdict": "ACQUISITION_SUCCESSFUL",
+      "sealedRebuildMatched": true,
+      "slotOutcome": "slot 42 is now SUCCESSFUL with reserve 13 as its current occupant",
+      "newObligationCreated": false,
+      "inexactRangeHandling": {
+        "rangeWasPreservedComplete": true,
+        "rangeWasCollapsed": false,
+        "aNumberWasPickedFromTheRange": false,
+        "why": "one document is SD7_SHORT_TEXT_UNRESOLVED and contributes between 0 and 1 survivors, so the post-SD7 count is genuinely [22,23] and not a single number",
+        "whyItIsStillDecidable": "the frozen rule asks whether the WHOLE range falls on one side of 4. 22 >= 4 and 23 >= 4, so every reading of the unresolved detail gives the same verdict. The ambiguity exists and cannot change the answer",
+        "contrastWithP59": "P:59's range is [1,24], which straddles 4. There the same rule gives PENDING, and this record does not touch it"
+      }
+    },
+    {
+      "workItemId": "R:45:14",
+      "selectionIndex": 45,
+      "reserveRankPosition": 14,
+      "split": "DEV_CONFIRM",
+      "runRefSha256": "3717ef3c1731d3bcda958dc3972491a008bc8d3758c31f0e67eba409793417ea",
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "rawPageEvidenceCount": 0,
+      "recomputedPostSd7Range": [0, 0],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "A",
+      "rangeCrossesFour": false,
+      "verdict": "ACQUISITION_UNSUCCESSFUL",
+      "verdictReasonToken": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "sealedRebuildMatched": true,
+      "slotOutcome": "slot 45 remains UNFILLED. Reserve 14's evidence is preserved immutably and is never reused",
+      "newObligationCreated": true,
+      "newObligationReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "newObligationReasonDerivation": "Owner Clarification Q3 rank 3, which names TLS transport failure explicitly. The single robots.txt attempt failed TLS_FAILURE and no usable HTTP response followed. Rank 1 does not apply (valid claim root), rank 2 does not apply (no policy was readable, so none disallowed anything), so rank 4 is not reached",
+      "tlsWasNotWeakened": "rejectUnauthorized was never anything but true. A TLS failure here is a refusal to proceed on an unverifiable certificate, which is the gateway behaving correctly"
+    }
+  ],
+
+  "itemOutcomeSummary": {
+    "resolved": 5,
+    "successful": 3,
+    "unsuccessful": 2,
+    "pendingCapabilityReview": 0,
+    "successfulItems": ["R:30:11", "R:38:12", "R:42:13"],
+    "unsuccessfulItems": ["R:29:10", "R:45:14"],
+    "bothFailuresAreRobotsTransportFailures": true,
+    "neitherFailureIsAPolicyRefusal": "ROBOTS_UNREADABLE_ROOT means the policy could not be read. No host in this window disallowed anything",
+    "doNotExtrapolate": "three of five is this window's outcome, not a rate"
+  },
+
+  "databaseReverification": {
+    "readAs": "READONLY, SELECT only",
+    "orgunit_research_runs": 82,
+    "orgunit_research_run_completions": 82,
+    "orgunit_fetch_observations": 2323,
+    "orgunit_redirect_observations": 169,
+    "orgunit_page_evidence": 1722,
+    "orgunit_page_candidates": 3444,
+    "orgunit_root_promotions": 0,
+    "orgunit_root_promotion_revocations": 0,
+    "runsWithoutCompletion": 0,
+    "dryRunRuns": 0,
+    "matchesTheLiveResultsRecordedAfterState": true,
+    "unexplainedRowSinceTheLiveResult": false
+  },
+
+  "p7PreflightNow": {
+    "invariantCount": 13,
+    "allTrue": true,
+    "ledgerEntryCount": 15,
+    "ledgerUnchangedSinceThePreNetworkAppend": true,
+    "noPostNetworkAppendWasMade": true
+  },
+
+  "transition": {
+    "successesBefore": 52,
+    "successesAfter": 55,
+    "delta": "+3 (slots 30, 38 and 42)",
+    "failureSetBefore": [29, 30, 38, 42, 45, 51, 54],
+    "failureSetAfter": [29, 45, 51, 54],
+    "slotsThatLeftTheFailureSet": [30, 38, 42],
+    "slotsThatStayedInTheFailureSet": [29, 45],
+    "slotsThatStayedNote": "29 and 45 stay, but their obligations are NEW ones created under Q2 by their reserves' own failures. The original occupants' obligations are closed",
+    "slotsUntouchedByThisWindow": [51, 54],
+    "pendingCapabilityReviewBefore": [59],
+    "pendingCapabilityReviewAfter": [59],
+    "pendingUnchanged": true,
+    "neverStartedBefore": { "from": 60, "to": 109, "count": 50 },
+    "neverStartedAfter": { "from": 60, "to": 109, "count": 50 },
+    "neverStartedUnchanged": "this was a replacement-only window; no primary was started"
+  },
+
+  "generation1StateBeforeAdjudication": {
+    "ACQUISITION_SUCCESSFUL": 52,
+    "CURRENT_ACQUISITION_FAILURE": 7,
+    "PENDING_CAPABILITY_REVIEW": 1,
+    "NEVER_STARTED": 50,
+    "accounting": "52 + 7 + 1 + 50 = 110"
+  },
+  "generation1StateAfterAdjudication": {
+    "ACQUISITION_SUCCESSFUL": 55,
+    "CURRENT_ACQUISITION_FAILURE": 4,
+    "PENDING_CAPABILITY_REVIEW": 1,
+    "NEVER_STARTED": 50,
+    "totalSelectionSlots": 110,
+    "accounting": "55 + 4 + 1 + 50 = 110",
+    "setsAreDisjoint": true,
+    "setsCoverExactly0To109": true,
+    "recomputedInThisStep": true,
+    "recomputedFromScratchNotByArithmetic": "the successful index set was rebuilt as {0..59} minus the four failures minus the one pending slot and counted independently; it came to 55 and matched",
+    "doNotExtrapolate": "55 successful slots of 110; not a population success rate"
+  },
+
+  "generationSuccessfulSelectionIndicesRanges": ["0..28", "30..44", "46..50", "52..53", "55..58"],
+  "generationSuccessfulSelectionIndicesCount": 55,
+  "generationFailureSelectionIndices": [29, 45, 51, 54],
+  "pendingCapabilityReviewSelectionIndices": [59],
+  "pendingCapabilityReviewIsNotAFailure": true,
+  "neverStartedSelectionIndices": { "from": 60, "to": 109, "count": 50, "contiguous": true },
+  "nextUntouchedPrimarySelectionIndex": 60,
+
+  "currentSlotOccupants": {
+    "29": "RESERVE_REPLACEMENT at reserve position 10 - which FAILED. The slot is unfilled and owes a new replacement",
+    "30": "RESERVE_REPLACEMENT at reserve position 11 - successful",
+    "38": "RESERVE_REPLACEMENT at reserve position 12 - successful",
+    "42": "RESERVE_REPLACEMENT at reserve position 13 - successful",
+    "45": "RESERVE_REPLACEMENT at reserve position 14 - which FAILED. The slot is unfilled and owes a new replacement",
+    "51": "ORIGINAL_SELECTION - never replaced",
+    "54": "ORIGINAL_SELECTION - never replaced",
+    "59": "ORIGINAL_SELECTION - pending capability review, no obligation",
+    "occupantIsNotOutcome": "the ledger records WHO currently occupies a slot. It does not record whether that occupant succeeded. Slots 29 and 45 carry a reserve occupant AND an open obligation, which is exactly what Q2 describes"
+  },
+
+  "pendingReplacementObligations": [
+    {
+      "selectionIndex": 29,
+      "split": "FINAL_HOLDOUT",
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "currentOccupant": "RESERVE_REPLACEMENT",
+      "currentReserveRankPosition": 10,
+      "currentLedgerSequence": 10,
+      "chainLength": 1,
+      "createdBy": "this adjudication, under Owner Clarification Q2",
+      "isANewObligationNotTheOldOne": true
+    },
+    {
+      "selectionIndex": 45,
+      "split": "DEV_CONFIRM",
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "currentOccupant": "RESERVE_REPLACEMENT",
+      "currentReserveRankPosition": 14,
+      "currentLedgerSequence": 14,
+      "chainLength": 1,
+      "createdBy": "this adjudication, under Owner Clarification Q2",
+      "isANewObligationNotTheOldOne": true
+    },
+    {
+      "selectionIndex": 51,
+      "split": "FINAL_HOLDOUT",
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "currentOccupant": "ORIGINAL_SELECTION",
+      "currentReserveRankPosition": null,
+      "currentLedgerSequence": null,
+      "chainLength": 0,
+      "createdBy": "the address-policy capability review resolution (Q3 rank 4)",
+      "carriedForwardUnchanged": true
+    },
+    {
+      "selectionIndex": 54,
+      "split": "DEV_CONFIRM",
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "currentOccupant": "ORIGINAL_SELECTION",
+      "currentReserveRankPosition": null,
+      "currentLedgerSequence": null,
+      "chainLength": 0,
+      "createdBy": "the address-policy capability review resolution (Q3 rank 4)",
+      "carriedForwardUnchanged": true
+    }
+  ],
+  "openReplacementObligationCount": 4,
+  "closedReplacementObligations": [30, 38, 42],
+  "newReplacementObligationsCreatedHere": [29, 45],
+
+  "pendingReplacementObligationOrdering": {
+    "rule": "Owner Clarification Q1: obligations are served in ascending selectionIndex order",
+    "order": [29, 45, 51, 54],
+    "orderRendered": "29 -> 45 -> 51 -> 54",
+    "derivedIndependently": true,
+    "derivationNote": "sorted here by selectionIndex ascending over the four CURRENT_ACQUISITION_FAILURE slots. planPendingReplacementObligations was not used as the ordering authority",
+    "theExactSituationTheOwnerTaskWarnedAbout": "the post-P6 decision's laterWindowsAreNotPrecommittedHere block said that if any Window 01 replacement failed, its same-slot obligation could sort ahead of 51 and 54 and change the next composition. That is what happened: 29 and 45 both sort ahead of 51 and 54, and the illustrative 'next window begins with 51 and 54' reading is now wrong. This is why no later composition was precommitted",
+    "slot59ObligationPresent": false,
+    "reserveAssignedHere": false,
+    "reserveAssignedHereNote": "an adjudication records outcomes and obligations; it never assigns a reserve"
+  },
+
+  "replacementLedger": {
+    "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+    "sha256": "5d3302368bf8ed077ac581a8577d2fc4212eebb9aeda6c1581a0f3bcd1661d0a",
+    "ledgerHash": "62939b3a06887053004a5b0e23ad3c79d55d0e90a29b9d8e151669a406de7fa0",
+    "entriesBefore": 15,
+    "entriesAfter": 15,
+    "appendedByThisRecord": false,
+    "reserveConsumed": 15,
+    "reserveUnused": 25,
+    "nextUnusedReservePosition": 15,
+    "reservePosition15": "UNASSIGNED",
+    "byteIdenticalBeforeAndAfterThisRecord": true,
+    "whyNoAppend": "an adjudication records outcomes and obligations; it never assigns a reserve. The next assignment belongs to the next precommitted window under new owner authority"
+  },
+
+  "p6": {
+    "rule": "reserveConsumed > 10 AND successfulOrganisationCount < 50",
+    "inputsAfterThisAdjudication": { "reserveConsumed": 15, "successfulOrganisationCount": 55 },
+    "evaluation": "15 > 10 is TRUE and 55 < 50 is FALSE. The conjunction is false",
+    "status": "NOT_TRIGGERED",
+    "notTriggeredDuringTheWindowEither": true,
+    "amendedOrBypassedHere": false,
+    "thresholdChangedHere": false,
+    "successFloorStillMet": "55 >= 50, with more headroom than before",
+    "forwardNote": "the next replacement assignment would raise reserveConsumed to 16. 16 > 10 is true and 55 < 50 is false, so P6 would still not fire"
+  },
+
+  "p59": {
+    "statusBefore": "PENDING_CAPABILITY_REVIEW",
+    "statusAfter": "PENDING_CAPABILITY_REVIEW",
+    "unchanged": true,
+    "touchedByThisRecord": false,
+    "formalRange": [1, 24],
+    "rangeStillCrossesFour": true,
+    "didThisWindowMakeItDecisionRelevant": false,
+    "why": "P:59 is not an obligation, so it never entered the Q1 queue this window served. The four open obligations are 29, 45, 51 and 54, all below 59, so a slot-59 obligation - if one is ever created - would still sort last. No assignment made or contemplated here depends on deciding it",
+    "noSemanticResolutionPerformed": true,
+    "noValueAssignedToJaccardOfEmptySets": true,
+    "noSlot59ObligationCreated": true
+  },
+
+  "sd7RangeCrossingFinding": {
+    "anyItemWithARangeStraddlingFour": false,
+    "itemsWithAnInexactRange": ["R:42:13"],
+    "inexactButDecidable": true,
+    "automationStopTriggeredBySd7": false
+  },
+
+  "zeroYieldFinding": {
+    "zeroYieldItems": ["R:29:10", "R:45:14"],
+    "cause": "robots.txt transport failure in both cases - CONNECT_TIMEOUT twice on one, TLS_FAILURE once on the other",
+    "isThisTheAlreadyKnownRobotsCapabilityLimit": false,
+    "whyNot": "the known limit is a robots.txt 3xx REDIRECT, which the v3 continuation repair addressed. Neither item here saw a redirect: one host never completed a connection and the other failed TLS. There is no policy to continue to",
+    "wouldAFurtherCapabilityRepairHelp": "UNKNOWN, and deliberately not decided here. A repair would be a code change, which this window's authority forbids and which stop condition E routes to owner review",
+    "noRepairAttempted": true,
+    "noRetryAuthorisedByThisFinding": true
+  },
+
+  "holdoutNonDisclosure": {
+    "holdoutItemsInThisWindow": ["R:29:10", "R:38:12"],
+    "semanticInspectionPerformed": false,
+    "labelOrClassDerived": false,
+    "institutionNameInThisFile": false,
+    "echeRowKeyInThisFile": false,
+    "organisationIdInThisFile": false,
+    "hostnameOrUrlInThisFile": false,
+    "sealedHoldoutDetailRemainsInTheHoldoutRootOnly": true
+  },
+
+  "scopeProofs": {
+    "networkUsed": false,
+    "databaseWritten": false,
+    "ledgerChanged": false,
+    "reserveStateChanged": false,
+    "executableCodeChanged": false,
+    "testsChanged": false,
+    "harnessChanged": false,
+    "migrationsChanged": false,
+    "methodologyChanged": false,
+    "fetchPolicyChanged": false,
+    "priorRecordsEdited": false,
+    "nextWindowSelectedAssignedOrPrecommittedHere": false
+  },
+
+  "validation": {
+    "fullRepositoryValidationRun": false,
+    "fullRepositoryValidationRequiredHere": false,
+    "whyNot": "the bound owner decision requires full validation exactly once per live window, spent at the LIVE_RESULT stage, which exited 0 at 973bbfc. An adjudication changes no executable code",
+    "focusedChecksPerformed": {
+      "jsonParses": true,
+      "prettierClean": true,
+      "prettierIdempotent": true,
+      "everyBoundHashRecomputedFromDisk": true,
+      "sealedPayloadsRebuiltAndByteCompared": true,
+      "generationStateRecomputedFromScratch": true,
+      "q1OrderDerivedIndependently": true,
+      "p6RecomputedAtFifteenAndFiftyFive": true,
+      "p7Recomputed": true,
+      "databaseReverified": true,
+      "disclosureScanRun": true
+    }
+  },
+
+  "continuationStatus": "STOPPED",
+  "terminalState": "PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_ADJUDICATED_AUTOPILOT_STOPPED_ON_P5",
+  "terminalStateLongForm": "POST_P6_Q1_WINDOW_01 fully adjudicated: 3 successful, 2 unsuccessful, canonical successes 52 -> 55, four open obligations ordered 29 -> 45 -> 51 -> 54, and the bounded autopilot STOPPED because the window's terminal gate fired PAUSE_P5_LOW_RAW_YIELD",
+  "whyTheAutopilotStopped": {
+    "condition": "the bound owner decision's stop condition E, which lists any P1-P8 pause",
+    "pause": "PAUSE_P5_LOW_RAW_YIELD on 2 of 5 planned items",
+    "windowsExecutedUnderThisAuthority": 1,
+    "windowsRemainingUnderThisAuthority": 3,
+    "liveAttemptsConsumed": 5,
+    "liveAttemptsRemaining": 15,
+    "theCapWasNotReached": "this is not stop condition A or B. The authority still has three windows and fifteen attempts in it; the P5 pause is what stops the cadence, and resuming requires owner review",
+    "nothingWasSuppressed": "all five planned items ran. P5's denominator is the frozen window size, so the threshold could only be reached on the last item"
+  },
+  "nextOwnerDecision": [
+    "review the P5 low-yield pause: two of five reserves were unreachable at robots.txt, one on CONNECT_TIMEOUT and one on TLS_FAILURE, and decide whether to resume the bounded autopilot for its remaining three windows",
+    "if resumed, the next window's Q1 composition begins 29 -> 45 -> 51 -> 54 with reserve positions 15, 16, 17 and 18, plus one primary from 60 to fill the fifth position - but that must be recomputed at the time, not read from here",
+    "separately and still open: resolve P:59's SD7 owner-detail ambiguity"
+  ],
+  "nextWindowSelectedAssignedOrPrecommittedHere": false,
+  "immutability": "this record is append-only and is never edited"
+}
