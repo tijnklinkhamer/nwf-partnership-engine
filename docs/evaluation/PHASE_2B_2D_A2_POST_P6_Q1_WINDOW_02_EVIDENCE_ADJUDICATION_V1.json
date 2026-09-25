@@ -1,0 +1,434 @@
+{
+  "recordId": "phase2b-2d-a2-post-p6-q1-window-02-evidence-adjudication-v1",
+  "recordKind": "ACQUISITION_EVIDENCE_ADJUDICATION",
+  "records": "PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_EVIDENCE_ADJUDICATION_V1",
+  "recordedAtUtc": "2026-09-25T22:15:48Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "networkUsed": false,
+  "startingHead": "ae25bab3efe744a468c74f07252a96fb0d6cc637",
+  "startingHeadIsTheValidatedLiveResultCommit": true,
+  "ownerTask": "A2_POST_P6_Q1_WINDOW_01_P5_REVIEW_AND_AUTOPILOT_RESUME",
+  "bound": {
+    "liveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_LIVE_RESULT_V1.json",
+      "sha256": "c83c4dba0252fe42ca7e643d814075f26da22ece24da43be3623538f21ed9d9c",
+      "bytes": 34523,
+      "commit": "ae25bab3efe744a468c74f07252a96fb0d6cc637"
+    },
+    "preNetworkAssignment": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_PRENETWORK_ASSIGNMENT_V1.json",
+      "sha256": "844879e4000013fad6e87462620a2b4d71dbb89ce35268f996304de84976357c",
+      "commit": "aa5824f5ff6ecb715c22177196fcccd01c693a40"
+    },
+    "liveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_LIVE_AUTHORITY_V1.json",
+      "sha256": "1684e4019c0b309414df373fd627c73ee5fce66006b6f874bb88e09d30714a51",
+      "commit": "dce3891c454233ac050b9ef892625a9d8d7892d1"
+    },
+    "plan": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_PLAN_V1.json",
+      "sha256": "44d08a9e56492932032dec7cf2375689d7511af2a3a50ba1075a669cbb3b34f1",
+      "windowPlanHash": "ab1a674ce6d6fa56e547770a63429cda3bfbf64fc8fabdafee9ed674270c9fe7",
+      "commit": "0add4e877dfabd33e62bec436750b132655dd72e"
+    },
+    "strategy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_STRATEGY_V1.json",
+      "sha256": "0a7778065af21aec061634d66c83d42a99d8c3dd8dad82c3cf0535ce48cac7d9",
+      "commit": "8a7392a003a0d8cc28cc73172d8c99f93a43816f"
+    },
+    "p5ReviewAndResumeDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_P5_REVIEW_AND_AUTOPILOT_RESUME_V1.json",
+      "sha256": "54de2382d758078786e1de117dcb174cdaabd142c81b57eabea691a53851404a",
+      "commit": "1d851421b5f0018ed072e5f92bf9f1b4611a1883"
+    },
+    "postP6OwnerDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_REPLACEMENT_AND_PRIMARY_COMPLETION_AUTOPILOT_V1.json",
+      "sha256": "017f8422263b1ee13b58fa99ab7c44ec9acb50c3e079e8681ffd0af5aa19f2ef",
+      "commit": "d3700180cc501aef3d42455d7dff7e46ce8c42a1"
+    },
+    "window01Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "3fdb09dafa0a1d01543ae09884bb022c632af8b7e89431a4d7150896a4dbb403",
+      "commit": "72bdfbe075cf856fa77f42e083ca7a594c2f99a8"
+    },
+    "addressPolicyCapabilityReviewResolution": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_CHILD_WINDOW_C_ADDRESS_POLICY_REFUSAL_CAPABILITY_REVIEW_RESOLUTION_V1.json",
+      "sha256": "72ae3ed8e4c4c790650c674482c75b976e3bcd848f9e07feb339d48a11c2b6ad",
+      "role": "the record that mapped an address-policy refusal onto Q3 rank 4 and created the slot-51 and slot-54 obligations. It is bound here because this window's evidence bears on a question it did not consider"
+    },
+    "ownerReserveOrderClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528"
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "08f720636daaa42fa92419f11f8401c49f785d0fa5ecc4eaf5f41bb8cf291ffc",
+      "ledgerHash": "e215c1945dda8f4d79e10d775729290f7cf8ed3475e6849db2470d0381662e81",
+      "entries": 19
+    },
+    "bindingRecomputation": "every sha256 above was recomputed from the committed bytes at startingHead in this step; no mismatch"
+  },
+  "evidenceIntegrityStandard": {
+    "runsResolvedThrough": "THIS live result's own declared derivation - runRefSha256 = sha256(utf8(the run's UUID text)). Every run id in the database was hashed and matched; all three items resolved to exactly one run each",
+    "sd7RecomputedFromTheDatabase": true,
+    "sealedPayloadsRebuiltAndByteCompared": true,
+    "noValueWasCopiedFromTheLiveResultWithoutRederivation": "the per-item counts, SD7 ranges, verdicts and Q3 reasons below were all recomputed here from the database and the landed pure functions. The live result was used for its declared derivation and its bindings, not as a source of answers",
+    "frozenSuccessRuleReadVerbatim": "an organisation is ACQUISITION_SUCCESSFUL when its FORMAL post-SD7 page count is at least SD9_MIN_PAGES_PER_ORGANISATION = 4. A range that straddles 4 is not decidable and goes to capability review"
+  },
+  "items": [
+    {
+      "workItemId": "R:29:15",
+      "selectionIndex": 29,
+      "reserveRankPosition": 15,
+      "split": "FINAL_HOLDOUT",
+      "runRefSha256": "2f641edeb1a1822d9dcab0dde1cb49b0cad04b5f87cd3776e8e0a9dc3eb7058e",
+      "runResolvedViaTheDeclaredDerivation": true,
+      "echeRowKeyMatchesItsAuthorisedDrawEntry": true,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "completionRows": 1,
+      "orchestrationError": false,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "rawPageEvidenceCount": 31,
+      "recomputedPostSd7Range": [30, 30],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "B",
+      "rangeCrossesFour": false,
+      "verdict": "ACQUISITION_SUCCESSFUL",
+      "sealedRebuildMatched": true,
+      "slotOutcome": "slot 29 is now SUCCESSFUL with reserve 15 as its current occupant",
+      "newObligationCreated": false,
+      "note": "this slot's original selection and then reserve 10 both failed. Reserve 15 succeeded with 31 raw pages and 30 after SD7, well above the four-page floor. The chain closes here"
+    },
+    {
+      "workItemId": "R:45:16",
+      "selectionIndex": 45,
+      "reserveRankPosition": 16,
+      "split": "DEV_CONFIRM",
+      "runRefSha256": "f0af710add42ea45f7adcf8e683ac3678145491f5edaabc96e733b68d70967a7",
+      "runResolvedViaTheDeclaredDerivation": true,
+      "echeRowKeyMatchesItsAuthorisedDrawEntry": true,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "completionRows": 1,
+      "orchestrationError": false,
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "rawPageEvidenceCount": 0,
+      "recomputedPostSd7Range": [0, 0],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "A",
+      "rangeCrossesFour": false,
+      "verdict": "ACQUISITION_UNSUCCESSFUL",
+      "whyDecidableDespiteZeroEvidence": "case A: deduplication only removes, so zero raw pages means zero post-SD7 pages under every reading of every unresolved detail. This needs no SD7 assumption at all",
+      "sealedRebuildMatched": true,
+      "mechanicalQ3Derivation": {
+        "function": "replacementReasonFor, run here over this run's own facts",
+        "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+        "blockingTransportErrorKind": null,
+        "usableHttpResponseObtained": false,
+        "postSd7PageCount": 0,
+        "rank1": "does not apply - the root authority was valid",
+        "rank2": "does not apply - no readable policy disallowed anything; the policy was never read",
+        "rank3": "does not apply - BLOCKED_BY_POLICY is not one of the six transport kinds rank 3 recognises. The gateway never opened a socket, so there was no transport failure to have",
+        "rank4": "applies by fallback",
+        "derivedReason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+      },
+      "addressPolicyFacts": {
+        "blockedByPolicyRows": 1,
+        "allNonPublicIpv6": true,
+        "anyUsableHttpResponse": false,
+        "requestsMade": 1
+      },
+      "slotOutcome": "slot 45 remains UNFILLED. Reserve 16's evidence is preserved immutably and is never reused",
+      "newObligationCreated": false,
+      "newObligationHELDPendingOwnerReview": true,
+      "whyHeld": "see addressPolicyVantageAmbiguity below. The verdict above is mechanical and final; whether this refusal creates a replacement obligation is the new question"
+    },
+    {
+      "workItemId": "R:51:17",
+      "selectionIndex": 51,
+      "reserveRankPosition": 17,
+      "split": "FINAL_HOLDOUT",
+      "runRefSha256": "843725eb3ea054d916e79caae1a3be79bc322f424956067797216c7ecdf15aca",
+      "runResolvedViaTheDeclaredDerivation": true,
+      "echeRowKeyMatchesItsAuthorisedDrawEntry": true,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "completionRows": 1,
+      "orchestrationError": false,
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "rawPageEvidenceCount": 0,
+      "recomputedPostSd7Range": [0, 0],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "A",
+      "rangeCrossesFour": false,
+      "verdict": "ACQUISITION_UNSUCCESSFUL",
+      "sealedRebuildMatched": true,
+      "mechanicalQ3Derivation": {
+        "function": "replacementReasonFor, run here over this run's own facts",
+        "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+        "blockingTransportErrorKind": null,
+        "usableHttpResponseObtained": false,
+        "postSd7PageCount": 0,
+        "rank3": "does not apply - BLOCKED_BY_POLICY is not a rank 3 transport kind",
+        "rank4": "applies by fallback",
+        "derivedReason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+      },
+      "addressPolicyFacts": {
+        "blockedByPolicyRows": 1,
+        "allNonPublicIpv6": true,
+        "anyUsableHttpResponse": false,
+        "requestsMade": 1
+      },
+      "slotOutcome": "slot 51 remains UNFILLED. Reserve 17's evidence is preserved immutably and is never reused",
+      "newObligationCreated": false,
+      "newObligationHELDPendingOwnerReview": true,
+      "secondFailureOfThisKindForThisSlot": "slot 51's ORIGINAL selection also failed on an address-policy refusal, in the 14:5x cluster. Reserve 17 has now failed the same way. Both refusals happened from this machine"
+    }
+  ],
+  "itemOutcomeSummary": {
+    "resolved": 3,
+    "successful": 1,
+    "unsuccessful": 2,
+    "pendingCapabilityReview": 0,
+    "successfulItems": ["R:29:15"],
+    "unsuccessfulItems": ["R:45:16", "R:51:17"],
+    "bothFailuresAreAddressPolicyRefusals": true,
+    "neitherFailureIsAPolicyRefusalByTheSite": "ROBOTS_UNREADABLE_ROOT here means the gateway refused the HOST before opening a socket. No site disallowed anything and no HTTP response was obtained",
+    "neitherFailureIsATransportFailure": "no DNS failure, no TLS failure, no timeout, no reset. The refusal is the address rule, applied correctly",
+    "doNotExtrapolate": "one of three started items is this window's outcome under this vantage, not a rate"
+  },
+  "addressPolicyVantageAmbiguity": {
+    "name": "ADDRESS_POLICY_REFUSAL_CAUSED_BY_THE_OPERATOR_VANTAGE",
+    "status": "OPEN - owner decision required",
+    "theFacts": [
+      "all three BLOCKED_BY_POLICY observations this window produced carry resolved_ip_family IPV6 and resolved_ip_is_public false, with no HTTP status",
+      "the whole database holds exactly six such rows, all IPv6 and all non-public, in two clusters on this same machine on 2026-09-25: three at about 14:5x UTC and three at about 21:5x UTC",
+      "the acquisition vantage is an IPv6-only cellular uplink running DNS64 and NAT64. ipv4only.arpa resolves to 64:ff9b::c000:aa and 64:ff9b::c000:ab, the active interface is marked constrained and carries a CLAT46 address and the well-known CLAT address 192.0.0.2",
+      "src/orgunits/web/address.ts classifies 64:ff9b::/96 as relay_or_translation and therefore non-public, and the gateway refuses the whole host when every resolved address is forbidden",
+      "under DNS64 an IPv4-only host resolves ONLY into that prefix"
+    ],
+    "theInference": "from this vantage an institution served only over IPv4 is structurally unreachable, and one with native IPv6 is not. R:29:15 returned 31 pages from the same build, the same policy and the same minute",
+    "whatIsNOTClaimed": [
+      "that any of these institutions is unreachable from a dual-stack vantage",
+      "that any of them is reachable from one",
+      "that the address policy is defective - refusing a translation prefix is the gateway behaving as designed, and rule 18 forbids weakening it",
+      "that any earlier adjudication was wrong"
+    ],
+    "whyTheObligationsAreHELD": "the mechanical Q3 derivation for both items is rank 4, MIN_PAGES_NOT_MET, and it is stated in full above so the owner can simply confirm it. What is held is the CONSEQUENCE: creating those obligations leads the next window to spend reserves 19 and 20 against a condition that would refuse ANY IPv4-only host from here. The frozen reserve is finite - 21 of 40 remain - and a reserve spent is never returned. A refusal caused by the operator's uplink is not evidence about the institution, which is the standard this corpus exists to hold",
+    "whyThisIsNewRatherThanAlreadyResolved": "the address-policy capability review resolution answered which Q3 RANK an address-policy refusal maps to. It did not have the vantage evidence and did not consider whether such a refusal should create an obligation at all. This is a different question about the same mechanism",
+    "precedentForHolding": "slots 51 and 54 were themselves held at PENDING_CAPABILITY_REVIEW after their original refusals, until an owner resolution created their obligations. The same shape is used here",
+    "theOwnerOptions": [
+      "A - confirm the mechanical path: create both obligations at rank 4 and serve them from the next window, accepting that reserves may be spent against the vantage",
+      "B - hold both slots until acquisition can run from a dual-stack vantage, and create no obligation now",
+      "C - treat an address-policy refusal on a translation prefix as a NON-EVIDENCE outcome that returns the slot to its prior state without consuming the reserve - which would require a governance decision about reserves 16 and 17, already spent",
+      "D - something else entirely. This record proposes nothing and decides nothing"
+    ],
+    "nothingWasChangedInResponse": "no policy, timeout, address rule or TLS setting was altered, no target was retried, and no earlier record was edited"
+  },
+  "slot54AssignedButUnacquired": {
+    "status": "OPEN - owner decision required",
+    "whatHappened": "ledger sequence 18 assigned reserve 18 to slot 54 before the network began. The gate paused on P5 after item 3 and R:54:18 was never started",
+    "consequence": "reserve 18 is SPENT and slot 54's current occupant is reserve 18, but no acquisition evidence for it exists. Slot 54 remains CURRENT_ACQUISITION_FAILURE, and what it is owed is an ACQUISITION, not a new assignment",
+    "thisStateIsNewToThisCorpus": "every earlier window either ran all of its items or appended nothing for the ones it did not run",
+    "theToolingProblem": "planPendingReplacementObligations derives a replacement's position as entryCount + offset, so against the nineteen-entry ledger it would derive reserve 19 for slot 54, and windowSpecFromAcquisitionWindowStrategy refuses any other position by name. There is therefore NO way to express 'acquire the already-assigned reserve 18 on slot 54' through the landed adapter. A next window cannot be planned for slot 54 without either wasting reserve 18 or changing the tooling",
+    "noToolingChangeIsAuthorised": "the bound decision authorises no code, test or harness change. This record makes none and proposes none",
+    "theOwnerOptions": [
+      "A - authorise acquiring reserve 18 on slot 54 through a path that does not go through the planner's next-unused rule",
+      "B - accept the loss of reserve 18 and let slot 54 take reserve 19 at the next window",
+      "C - authorise a bounded tooling change so an already-assigned, unacquired reserve can be planned",
+      "D - something else. This record decides nothing"
+    ]
+  },
+  "databaseReverification": {
+    "readOnly": true,
+    "runs": 85,
+    "completions": 85,
+    "fetchObservations": 2364,
+    "redirectObservations": 174,
+    "pageEvidence": 1753,
+    "pageCandidates": 3506,
+    "rootPromotions": 0,
+    "rootPromotionRevocations": 0,
+    "runsWithoutCompletion": 0,
+    "runsWithMoreThanOneCompletion": 0,
+    "dryRunRuns": 0,
+    "matchesTheLiveResultsRecordedAfterState": true,
+    "noRowAddedSinceTheWindowTerminated": true
+  },
+  "p7PreflightNow": {
+    "invariantCount": 13,
+    "allTrue": true,
+    "ledgerEntryCount": 19,
+    "note": "re-run in this step against the committed nineteen-entry ledger, the committed plan and a spec rebuilt from the committed strategy bytes"
+  },
+  "transition": {
+    "slot29": "CURRENT_ACQUISITION_FAILURE -> ACQUISITION_SUCCESSFUL (occupant reserve 15)",
+    "slot45": "CURRENT_ACQUISITION_FAILURE -> PENDING_CAPABILITY_REVIEW (occupant reserve 16, unsuccessful; obligation HELD)",
+    "slot51": "CURRENT_ACQUISITION_FAILURE -> PENDING_CAPABILITY_REVIEW (occupant reserve 17, unsuccessful; obligation HELD)",
+    "slot54": "CURRENT_ACQUISITION_FAILURE -> CURRENT_ACQUISITION_FAILURE (occupant reserve 18, ASSIGNED BUT UNACQUIRED)",
+    "slot59": "PENDING_CAPABILITY_REVIEW -> PENDING_CAPABILITY_REVIEW (untouched)",
+    "slot60": "NEVER_STARTED -> NEVER_STARTED (never started)"
+  },
+  "generation1StateBeforeAdjudication": {
+    "ACQUISITION_SUCCESSFUL": 55,
+    "CURRENT_ACQUISITION_FAILURE": [29, 45, 51, 54],
+    "PENDING_CAPABILITY_REVIEW": [59],
+    "NEVER_STARTED": 50,
+    "accounting": "55 + 4 + 1 + 50 = 110"
+  },
+  "generation1StateAfterAdjudication": {
+    "ACQUISITION_SUCCESSFUL": 56,
+    "CURRENT_ACQUISITION_FAILURE": 1,
+    "PENDING_CAPABILITY_REVIEW": 3,
+    "NEVER_STARTED": 50,
+    "totalSelectionSlots": 110,
+    "accounting": "56 + 1 + 3 + 50 = 110",
+    "setsAreDisjoint": true,
+    "setsCoverExactly0To109": true,
+    "recomputedFromScratchNotByArithmetic": "the successful index set was rebuilt as {0..59} minus the one current failure minus the three pending slots and counted independently; it came to 56",
+    "doNotExtrapolate": "56 successful slots of 110; not a population success rate"
+  },
+  "generationSuccessfulSelectionIndicesRanges": ["0..44", "46..50", "52..53", "55..58"],
+  "generationSuccessfulSelectionIndicesCount": 56,
+  "generationFailureSelectionIndices": [54],
+  "pendingCapabilityReviewSelectionIndices": [45, 51, 59],
+  "pendingCapabilityReviewIsNotAFailure": "a pending slot is neither a success, a failure, a replacement obligation nor never-started. It is a slot whose next step needs an owner decision",
+  "neverStartedSelectionIndices": {
+    "from": 60,
+    "to": 109,
+    "count": 50,
+    "contiguous": true
+  },
+  "nextUntouchedPrimarySelectionIndex": 60,
+  "currentSlotOccupants": {
+    "29": "RESERVE_REPLACEMENT at position 15 (sequence 15) - SUCCESSFUL",
+    "45": "RESERVE_REPLACEMENT at position 16 (sequence 16) - unsuccessful, obligation held",
+    "51": "RESERVE_REPLACEMENT at position 17 (sequence 17) - unsuccessful, obligation held",
+    "54": "RESERVE_REPLACEMENT at position 18 (sequence 18) - assigned, never acquired",
+    "59": "ORIGINAL_SELECTION - pending SD7 owner detail",
+    "60": "ORIGINAL_SELECTION - never started",
+    "derivedWith": "currentOccupantForSelectionIndex(draw, the validated nineteen-entry ledger, i)"
+  },
+  "pendingReplacementObligations": [],
+  "openReplacementObligationCount": 0,
+  "openReplacementObligationNote": "the Q1 ASSIGNMENT queue is empty. That does not mean nothing is owed: slot 54 owes an ACQUISITION of its already-assigned reserve 18, and slots 45 and 51 have held obligations awaiting the owner's address-policy decision. None of the three can be served by assigning the next unused reserve, which is why no Q1 queue is stated",
+  "newReplacementObligationsCreatedHere": 0,
+  "reserveAssignedHere": false,
+  "replacementLedger": {
+    "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+    "sha256": "08f720636daaa42fa92419f11f8401c49f785d0fa5ecc4eaf5f41bb8cf291ffc",
+    "ledgerHash": "e215c1945dda8f4d79e10d775729290f7cf8ed3475e6849db2470d0381662e81",
+    "entriesBefore": 19,
+    "entriesAfter": 19,
+    "appendedByThisRecord": false,
+    "reserveConsumed": 19,
+    "reserveUnused": 21,
+    "nextUnusedReservePosition": 19,
+    "reservePosition19": "UNASSIGNED",
+    "byteIdenticalBeforeAndAfterThisRecord": true,
+    "whyNoAppend": "an adjudication records outcomes and obligations; it never assigns a reserve"
+  },
+  "p6": {
+    "rule": "reserveConsumed > 10 AND successfulOrganisationCount < 50",
+    "inputsAfterThisAdjudication": {
+      "reserveConsumed": 19,
+      "successfulOrganisationCount": 56
+    },
+    "evaluation": "19 > 10 is TRUE and 56 < 50 is FALSE; the conjunction is false",
+    "status": "NOT_TRIGGERED",
+    "amendedOrBypassedHere": false,
+    "thresholdChangedHere": false
+  },
+  "p59": {
+    "statusBefore": "PENDING_CAPABILITY_REVIEW",
+    "statusAfter": "PENDING_CAPABILITY_REVIEW",
+    "unchanged": true,
+    "touchedByThisRecord": false,
+    "formalRange": [1, 24],
+    "rangeStillCrossesFour": true,
+    "didThisWindowMakeItDecisionRelevant": false,
+    "why": "P:59 is not an obligation and did not enter this window. It is now one of three pending slots rather than one, which changes nothing about it",
+    "noSemanticResolutionPerformed": true,
+    "noSlot59ObligationCreated": true
+  },
+  "sd7RangeCrossingFinding": "no item's post-SD7 range crossed four. Both zero-yield items are case A, which is exact by construction, and R:29:15's range is exact at 30",
+  "holdoutNonDisclosure": {
+    "finalHoldoutItemsAdjudicatedHere": ["R:29:15", "R:51:17"],
+    "semanticInspectionPerformed": false,
+    "labelOrClassDerived": false,
+    "noTitleUrlExcerptOrHostnameInThisRecord": true,
+    "sealedPayloadsRemainInTheirOwnSplitRootsOutsideGit": true
+  },
+  "scopeProofs": {
+    "networkUsed": false,
+    "databaseWritten": false,
+    "ledgerChanged": false,
+    "reserveStateChanged": false,
+    "executableCodeChanged": false,
+    "testsChanged": false,
+    "harnessChanged": false,
+    "migrationsChanged": false,
+    "methodologyChanged": false,
+    "fetchPolicyChanged": false,
+    "priorRecordsEdited": false,
+    "nextWindowSelectedAssignedOrPrecommittedHere": false
+  },
+  "validation": {
+    "fullRepositoryValidationRun": false,
+    "fullRepositoryValidationRequiredHere": false,
+    "whyNot": "the bound decision's validationPolicy requires full validation exactly once per LIVE window, and this window's was spent at the LIVE_RESULT stage with exit 0. An adjudication changes no executable code",
+    "focusedChecksPerformed": {
+      "jsonParses": true,
+      "prettierClean": true,
+      "everyBoundHashRecomputedFromDisk": true,
+      "runsResolvedIndependently": true,
+      "sd7Recomputed": true,
+      "sealedPayloadsRebuiltAndCompared": true,
+      "databaseReverified": true,
+      "p7Recomputed": true,
+      "disclosureScanRun": true
+    }
+  },
+  "continuationStatus": "STOPPED",
+  "terminalState": "PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_ADJUDICATED_AUTOPILOT_STOPPED_ON_P5_AND_ADDRESS_POLICY_VANTAGE_AMBIGUITY",
+  "terminalStateLongForm": "POST_P6_Q1_WINDOW_02 fully adjudicated over its three started items: 1 successful, 2 unsuccessful, canonical successes 55 -> 56. The bounded autopilot STOPPED for two independent reasons - the window's terminal gate fired PAUSE_P5_LOW_RAW_YIELD, and a NEW capability ambiguity was found in the cause of both failures",
+  "whyTheAutopilotStopped": {
+    "conditions": [
+      {
+        "condition": "the bound decision's stop condition E - any P1-P8 pause",
+        "detail": "PAUSE_P5_LOW_RAW_YIELD on 2 of 5 planned items, which also left R:54:18 and P:60 unstarted"
+      },
+      {
+        "condition": "the bound decision's stop condition E - a new capability ambiguity",
+        "detail": "both failures are address-policy refusals caused by the operator's NAT64 vantage, and reserve 18 is assigned but unacquired with no way to express its acquisition through the landed adapter"
+      }
+    ],
+    "windowsExecutedUnderTheResumedAuthority": 1,
+    "windowsRemainingUnderTheResumedAuthority": 2,
+    "liveAttemptsConsumedThisWindow": 3,
+    "liveAttemptsRemaining": 12,
+    "theCapWasNotReached": "this is not stop condition A or B. Two windows and twelve attempts remain; the pause and the ambiguity are what stop the cadence"
+  },
+  "nextOwnerDecision": [
+    "decide the address-policy vantage question: whether a BLOCKED_BY_POLICY refusal on a NAT64-translated address creates a replacement obligation, and whether acquisition should continue from this uplink at all",
+    "decide what happens to slot 54, whose reserve 18 is assigned but was never acquired, and which the landed adapter cannot re-plan without either wasting that reserve or changing the tooling",
+    "only then decide whether to resume the remaining two windows",
+    "separately and still open: resolve P:59's SD7 owner-detail ambiguity"
+  ],
+  "nextWindowSelectedAssignedOrPrecommittedHere": false,
+  "immutability": "this record is append-only and is never edited"
+}
