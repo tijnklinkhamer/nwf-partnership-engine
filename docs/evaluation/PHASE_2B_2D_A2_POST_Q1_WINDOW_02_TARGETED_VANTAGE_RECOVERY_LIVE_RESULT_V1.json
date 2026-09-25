@@ -1,0 +1,588 @@
+{
+  "recordId": "phase2b-2d-a2-post-q1-window-02-targeted-vantage-recovery-live-result-v1",
+  "recordKind": "LIVE_ACQUISITION_RESULT",
+  "records": "PHASE_2B_2D_A2_POST_Q1_WINDOW_02_TARGETED_VANTAGE_RECOVERY_LIVE_RESULT_V1",
+  "recordedAtUtc": "2026-09-25T22:49:59Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "GEN1",
+  "publicSafe": true,
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "networkUsed": true,
+  "adjudicationPerformedHere": false,
+  "adjudicationPerformedHereNote": "this record states WHAT HAPPENED. Whether a new run becomes the current Generation-1 acquisition-of-record, and whether any replacement obligation follows, is decided only by the separate recovery evidence adjudication",
+  "startingHead": "6eb14d418d0aa720b1fc3c0749fa48402c217621",
+  "bound": {
+    "liveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_TARGETED_VANTAGE_RECOVERY_LIVE_AUTHORITY_V1.json",
+      "sha256": "1aebeb30ef81345e849da665a7a8dedc63439073592b317b7fc1822cf72bb823",
+      "commit": "6eb14d418d0aa720b1fc3c0749fa48402c217621"
+    },
+    "networkPrecondition": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_RECOVERY_NETWORK_PRECONDITION_V1.json",
+      "sha256": "dfdb4d6b628e5684347472457f3c912b29c77ac4ded1a10e865317bf3a8a767d",
+      "commit": "f5cc01c896ae1ed9e97740825ec6a4438624aba3"
+    },
+    "ownerRecoveryDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_NAT64_VANTAGE_AND_ASSIGNED_OCCUPANT_RECOVERY_DECISION_V1.json",
+      "sha256": "67331d2017e0dd3266408ca10a1fe5ffce2c7a8724c2e0c5167eba6d4206acb0",
+      "commit": "c4b1830279b1db004f23d43606beef40f30aaf81"
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "08f720636daaa42fa92419f11f8401c49f785d0fa5ecc4eaf5f41bb8cf291ffc",
+      "ledgerHash": "e215c1945dda8f4d79e10d775729290f7cf8ed3475e6849db2470d0381662e81",
+      "entries": 19,
+      "byteIdenticalToThePreNetworkRevision": true
+    }
+  },
+  "chronology": {
+    "firstTargetStartedUtc": "2026-09-25T22:42:06Z",
+    "lastTargetEndedUtc": "2026-09-25T22:45:05Z",
+    "targetsAuthorised": 3,
+    "targetsStarted": 3,
+    "targetsCompleted": 3,
+    "targetsUnstarted": 0,
+    "concurrencyObserved": 1,
+    "acquisitionInvocationsIssued": 3,
+    "acquisitionInvocationsPerTarget": 1,
+    "manualRetriesIssued": 0,
+    "seriesStoppedEarly": false
+  },
+  "hostState": {
+    "acPowerThroughout": true,
+    "batteryPercentRange": [74, 76],
+    "batteryCharging": true,
+    "clamshellThroughout": "No",
+    "lidOpenThroughout": true,
+    "dedicatedCaffeinatePerTarget": true,
+    "lastSystemSleepUtc": "2026-09-25T21:11:38Z",
+    "lastSystemWakeUtc": "2026-09-25T21:12:09Z",
+    "sleepOrWakeDuringTheSeries": false,
+    "sleepWakeContamination": "NONE - the last sleep/wake pair precedes the first target by about ninety minutes",
+    "datedSleepEventCountBeforeAndAfter": [239, 239]
+  },
+  "networkPreconditionDuringExecution": {
+    "reMeasuredBeforeEveryTarget": true,
+    "conditionsReMeasured": [
+      "no cellular PDP interface",
+      "no CLAT 192.0.0.2 address",
+      "no constrained interface",
+      "IPv4 default route present",
+      "ipv4only.arpa AAAA answer empty (no DNS64 synthesis)",
+      "IPv4 public canary reachable"
+    ],
+    "resultBeforeTarget1": "PROVED",
+    "resultBeforeTarget2": "PROVED",
+    "resultBeforeTarget3": "PROVED",
+    "everBecameFalse": false,
+    "recoveryNetworkPreconditionViolatedDuringExecution": false
+  },
+  "runReferenceDerivation": {
+    "declaredHere": true,
+    "derivation": "runRefSha256 = sha256(utf8(the run's UUID text, lower-case, hyphenated, with no surrounding whitespace))",
+    "identicalToTheDerivationWindow02Declared": true,
+    "appliedUniformlyToAllThreeTargets": true
+  },
+  "executionOrder": ["R:45:16", "R:51:17", "R:54:18"],
+  "executionOrderMatchedTheAuthorityExactly": true,
+  "items": [
+    {
+      "order": 1,
+      "workItemId": "R:45:16",
+      "targetType": "TARGETED_VANTAGE_REVALIDATION",
+      "selectionIndex": 45,
+      "reserveRankPosition": 16,
+      "split": "DEV_CONFIRM",
+      "drawEntrySha256": "761050592cb572c83031393f812689517735aaeff6e7184a460c834f086939f9",
+      "runRefSha256": "784e342cba4a012d2023acbdfed8e41ae2ce7ef48a08d2eeab669a7aabdddc60",
+      "historicalRunRefSha256": "f0af710add42ea45f7adcf8e683ac3678145491f5edaabc96e733b68d70967a7",
+      "historicalRunRetainedUnchanged": true,
+      "networkPreconditionAtStart": "PROVED",
+      "startedUtc": "2026-09-25T22:42:06Z",
+      "endedUtc": "2026-09-25T22:42:12Z",
+      "elapsedSeconds": 6,
+      "cliExitCode": 0,
+      "stderrBytes": 0,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootCount": 1,
+      "rootKind": "WEBSITE_CLAIM",
+      "rootSourceLabel": "claim:ECHE_PUBLISHED",
+      "rootTerminalReason": "ROBOTS_BLOCKED_ROOT",
+      "refusalDetail": null,
+      "totalRequests": 1,
+      "pageAttempts": 0,
+      "robotsRequests": 1,
+      "sitemapRequests": 0,
+      "distinctHostsUsed": 1,
+      "frontierUrlsObserved": 0,
+      "pagesWithEvidence": 0,
+      "candidateEvaluations": 0,
+      "trackASelected": 0,
+      "trackBSelected": 0,
+      "circuitOpenHosts": 0,
+      "redirectObservations": 0,
+      "errorKinds": {
+        "(none)": 1
+      },
+      "errorSubtypes": {
+        "(none)": 1
+      },
+      "httpStatuses": {
+        "200": 1
+      },
+      "robotsDecisions": {
+        "NOT_APPLICABLE": 1
+      },
+      "discoveryMethods": {
+        "ROBOTS": 1
+      },
+      "attemptNoDistribution": {
+        "1": 1
+      },
+      "inPolicyTransportRetryUsed": false,
+      "addressPolicyObservations": {
+        "resolvedIpFamilies": {
+          "IPV4": 1
+        },
+        "resolvedIpIsPublic": {
+          "true": 1
+        },
+        "blockedByPolicyRows": 0,
+        "nonPublicAddressRows": 0,
+        "translationPrefixOnlyRefusalOccurred": false
+      },
+      "whatHappened": "the host was REACHED over an ordinary public IPv4 address and its robots.txt was genuinely READ - HTTP 200, 151 decoded bytes. The site's OWN policy then disallowed the root, so the run terminated ROBOTS_BLOCKED_ROOT with zero page attempts. This is a completely different evidence shape from the Window-02 run for the same occupant, which never opened a socket at all",
+      "differenceFromTheHistoricalRun": "Window-02: one robots.txt request refused BLOCKED_BY_POLICY pre-socket, resolved_ip_family IPV6, resolved_ip_is_public false, no HTTP status. Here: same single robots.txt request, resolved_ip_family IPV4, resolved_ip_is_public true, HTTP 200. The address policy played no part in this run",
+      "rawPageEvidenceCount": 0,
+      "candidateRows": 0,
+      "sd7": {
+        "postSd7CountMin": 0,
+        "postSd7CountMax": 0,
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "survivorCountIsOrderDependent": false,
+        "decidedByCase": "A",
+        "rangeCrossesFour": false,
+        "exactDuplicateRowsRemoved": 0,
+        "nearEdgeCount": null
+      },
+      "sd9Diagnostic": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "sd9IsDiagnosticOnly": true,
+      "sealedFile": "POST_Q1_WINDOW_02_RECOVERY_V1_SD7_DETAIL_R_45_16.json",
+      "sealedRoot": "DEV_CONFIRM",
+      "sealedFileSha256": "3dcb53e04b224cd4ad213ef7dafee067118709a79ca9af2ecd18b5ed098194ed",
+      "sealedFileBytes": 1222,
+      "hostAtItemStart": {
+        "battery": 74,
+        "acPower": true,
+        "clamshell": "No",
+        "competing": 0
+      }
+    },
+    {
+      "order": 2,
+      "workItemId": "R:51:17",
+      "targetType": "TARGETED_VANTAGE_REVALIDATION",
+      "selectionIndex": 51,
+      "reserveRankPosition": 17,
+      "split": "FINAL_HOLDOUT",
+      "drawEntrySha256": "3a86f43160fbeb0f4eec6df4f8b365ba4d57442fff91e022fdbf3e6470b9f337",
+      "runRefSha256": "8ea5afd1fad3d0f54105d124a970a70403adbf26f300bebe60295cd0810b0576",
+      "historicalRunRefSha256": "843725eb3ea054d916e79caae1a3be79bc322f424956067797216c7ecdf15aca",
+      "historicalRunRetainedUnchanged": true,
+      "networkPreconditionAtStart": "PROVED",
+      "startedUtc": "2026-09-25T22:43:35Z",
+      "endedUtc": "2026-09-25T22:44:22Z",
+      "elapsedSeconds": 47,
+      "cliExitCode": 0,
+      "stderrBytes": 0,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootCount": 1,
+      "rootKind": "WEBSITE_CLAIM",
+      "rootSourceLabel": "claim:ECHE_PUBLISHED",
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "refusalDetail": null,
+      "totalRequests": 39,
+      "pageAttempts": 35,
+      "robotsRequests": 3,
+      "sitemapRequests": 1,
+      "sitemapUrlsAccepted": 0,
+      "distinctHostsUsed": 3,
+      "frontierUrlsObserved": 204,
+      "pagesWithEvidence": 24,
+      "candidateEvaluations": 48,
+      "trackASelected": 8,
+      "trackBSelected": 0,
+      "circuitOpenHosts": 0,
+      "redirectObservations": 12,
+      "redirectFacts": {
+        "statuses": {
+          "301": 2,
+          "302": 10
+        },
+        "malformed": 0,
+        "hostChanged": 5,
+        "domainChanged": 3
+      },
+      "errorKinds": {
+        "(none)": 39
+      },
+      "errorSubtypes": {
+        "(none)": 39
+      },
+      "httpStatuses": {
+        "200": 27,
+        "301": 2,
+        "302": 10
+      },
+      "robotsDecisions": {
+        "ALLOWED": 36,
+        "NOT_APPLICABLE": 3
+      },
+      "discoveryMethods": {
+        "ROBOTS": 3,
+        "ROOT": 1,
+        "LINK": 34,
+        "SITEMAP": 1
+      },
+      "attemptNoDistribution": {
+        "1": 39
+      },
+      "inPolicyTransportRetryUsed": false,
+      "addressPolicyObservations": {
+        "resolvedIpFamilies": {
+          "IPV4": 39
+        },
+        "resolvedIpIsPublic": {
+          "true": 39
+        },
+        "blockedByPolicyRows": 0,
+        "nonPublicAddressRows": 0,
+        "translationPrefixOnlyRefusalOccurred": false
+      },
+      "whatHappened": "the root was fully reachable: robots.txt was read, the frontier observed 204 URLs across three hosts, and the run spent the entire 35-page budget, terminating PAGE_BUDGET_EXHAUSTED with 24 pages of evidence and 48 candidate rows. Not one request in this run was refused for any reason",
+      "differenceFromTheHistoricalRun": "Window-02 produced ONE request, refused BLOCKED_BY_POLICY on a non-public IPv6 address, and zero pages. Here the same occupant, same root, same policy version and same build produced 39 requests and 24 pages. The only variable that changed is the acquisition vantage",
+      "rawPageEvidenceCount": 24,
+      "candidateRows": 48,
+      "candidateTracks": {
+        "INTERNATIONAL_OFFICE": 24,
+        "LANGUAGE_CENTRE": 24
+      },
+      "candidateTypeHintNonNull": 0,
+      "candidateScoreMin": -3,
+      "candidateScoreMax": 18,
+      "candidateNegativeRows": 4,
+      "maxMainTextChars": 12591,
+      "mainTextTruncatedRows": 0,
+      "sd7": {
+        "postSd7CountMin": 21,
+        "postSd7CountMax": 23,
+        "countIsExact": false,
+        "shortTextUnresolvedCount": 2,
+        "survivorCountIsOrderDependent": false,
+        "decidedByCase": "B",
+        "rangeCrossesFour": false,
+        "exactDuplicateRowsRemoved": 1,
+        "nearEdgeCount": 0
+      },
+      "sd9Diagnostic": "ACQUISITION_SUCCESSFUL",
+      "sd9IsDiagnosticOnly": true,
+      "sealedFile": "POST_Q1_WINDOW_02_RECOVERY_V1_SD7_DETAIL_R_51_17.json",
+      "sealedRoot": "FINAL_HOLDOUT",
+      "sealedFileSha256": "cdba35788f0a07275024bddddebf8caf2d5e924bab450f59799756451a43e8e0",
+      "sealedFileBytes": 10859,
+      "hostAtItemStart": {
+        "battery": 75,
+        "acPower": true,
+        "clamshell": "No",
+        "competing": 0
+      }
+    },
+    {
+      "order": 3,
+      "workItemId": "R:54:18",
+      "targetType": "FIRST_ACQUISITION_OF_ALREADY_ASSIGNED_CURRENT_OCCUPANT",
+      "selectionIndex": 54,
+      "reserveRankPosition": 18,
+      "split": "DEV_CONFIRM",
+      "drawEntrySha256": "8e20ab7a97d583514c8a9b031abfce1eb428568fee13fea97993bed53668a4ed",
+      "runRefSha256": "3fe676092015cca94af3a44d033b4a9156e3ee8e19c4b8cb206403c4558b37c6",
+      "historicalRunRefSha256": null,
+      "historicalRunRetainedUnchanged": "not applicable - this occupant had no prior acquisition run",
+      "networkPreconditionAtStart": "PROVED",
+      "startedUtc": "2026-09-25T22:45:03Z",
+      "endedUtc": "2026-09-25T22:45:05Z",
+      "elapsedSeconds": 2,
+      "cliExitCode": 0,
+      "stderrBytes": 0,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootCount": 1,
+      "rootKind": "WEBSITE_CLAIM",
+      "rootSourceLabel": "claim:ECHE_PUBLISHED",
+      "rootTerminalReason": "COMPLETED_WITH_NO_PROMISING_CANDIDATES",
+      "refusalDetail": null,
+      "totalRequests": 3,
+      "pageAttempts": 1,
+      "robotsRequests": 1,
+      "sitemapRequests": 1,
+      "sitemapUrlsAccepted": 0,
+      "distinctHostsUsed": 1,
+      "frontierUrlsObserved": 0,
+      "pagesWithEvidence": 1,
+      "candidateEvaluations": 2,
+      "trackASelected": 0,
+      "trackBSelected": 0,
+      "circuitOpenHosts": 0,
+      "redirectObservations": 0,
+      "errorKinds": {
+        "(none)": 3
+      },
+      "errorSubtypes": {
+        "(none)": 3
+      },
+      "httpStatuses": {
+        "200": 3
+      },
+      "robotsDecisions": {
+        "NOT_APPLICABLE": 1,
+        "NO_ROBOTS_FILE": 2
+      },
+      "discoveryMethods": {
+        "ROBOTS": 1,
+        "ROOT": 1,
+        "SITEMAP": 1
+      },
+      "attemptNoDistribution": {
+        "1": 3
+      },
+      "inPolicyTransportRetryUsed": false,
+      "addressPolicyObservations": {
+        "resolvedIpFamilies": {
+          "IPV4": 3
+        },
+        "resolvedIpIsPublic": {
+          "true": 3
+        },
+        "blockedByPolicyRows": 0,
+        "nonPublicAddressRows": 0,
+        "translationPrefixOnlyRefusalOccurred": false
+      },
+      "whatHappened": "the host was reachable and every one of the three requests answered HTTP 200. There is no robots.txt, the sitemap request yielded no usable URL, and the root page itself produced a page-evidence row whose extracted main text is EMPTY (main_text_chars 0), so the frontier observed no URL at all and the run terminated COMPLETED_WITH_NO_PROMISING_CANDIDATES after a single page attempt. This is a thin or script-rendered root, not an unreachable one",
+      "thisWasTheFirstEverAcquisitionOfThisOccupant": true,
+      "rawPageEvidenceCount": 1,
+      "candidateRows": 2,
+      "candidateTracks": {
+        "INTERNATIONAL_OFFICE": 1,
+        "LANGUAGE_CENTRE": 1
+      },
+      "candidateTypeHintNonNull": 0,
+      "candidateScoreMin": 0,
+      "candidateScoreMax": 0,
+      "candidateNegativeRows": 0,
+      "maxMainTextChars": 0,
+      "mainTextTruncatedRows": 0,
+      "sd7": {
+        "postSd7CountMin": 0,
+        "postSd7CountMax": 1,
+        "countIsExact": false,
+        "shortTextUnresolvedCount": 1,
+        "survivorCountIsOrderDependent": false,
+        "decidedByCase": "B",
+        "rangeCrossesFour": false,
+        "exactDuplicateRowsRemoved": 0,
+        "nearEdgeCount": 0
+      },
+      "sd9Diagnostic": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "sd9IsDiagnosticOnly": true,
+      "sealedFile": "POST_Q1_WINDOW_02_RECOVERY_V1_SD7_DETAIL_R_54_18.json",
+      "sealedRoot": "DEV_CONFIRM",
+      "sealedFileSha256": "64afcd1b74fb9f0fbd441a0fa5424cd447c888bfa838b39184a5ab4d6ca0ab94",
+      "sealedFileBytes": 1816,
+      "hostAtItemStart": {
+        "battery": 76,
+        "acPower": true,
+        "clamshell": "No",
+        "competing": 0
+      }
+    }
+  ],
+  "unstartedTargets": [],
+  "seriesOutcomeSummary": {
+    "targetsStarted": 3,
+    "runsCreated": 3,
+    "rawPageYield": {
+      "R:45:16": 0,
+      "R:51:17": 24,
+      "R:54:18": 1
+    },
+    "sd7RangeCrossesFourAnywhere": false,
+    "everySd7VerdictIsMechanicallyUnambiguous": true,
+    "noSilentZero": "every target produced an explicit outcome; none was skipped, and none returned an unexplained empty result"
+  },
+  "theAddressPolicyFinding": {
+    "headline": "NOT ONE address-policy refusal occurred anywhere in this series",
+    "blockedByPolicyRowsAcrossTheThreeRecoveryRuns": 0,
+    "nonPublicAddressRowsAcrossTheThreeRecoveryRuns": 0,
+    "ipv6AddressRowsAcrossTheThreeRecoveryRuns": 0,
+    "everyResolvedAddressWasOrdinaryPublicIpv4": true,
+    "blockedByPolicyRowsInTheWholeDatabase": 6,
+    "thoseSixAreUnchanged": "the six pre-existing rows are exactly the two Window-02 clusters on 2026-09-25 and are untouched. This series added none",
+    "whatThisEstablishes": "under a proved-compliant vantage, all three hosts resolved to ordinary public IPv4 and were contacted. The Window-02 refusals for slots 45 and 51 are therefore confirmed to have been a property of the OPERATOR NETWORK, not of the institutions",
+    "whatThisDoesNotEstablish": [
+      "that the address guard was ever wrong - it was not, and it was not changed",
+      "that any of these institutions would be reachable from any other vantage",
+      "any conclusion about the three institutions' content, quality or relevance"
+    ]
+  },
+  "databaseDeltas": {
+    "before": {
+      "runs": 85,
+      "completions": 85,
+      "fetchObservations": 2364,
+      "redirectObservations": 174,
+      "pageEvidence": 1753,
+      "pageCandidates": 3506,
+      "rootPromotions": 0,
+      "rootPromotionRevocations": 0
+    },
+    "after": {
+      "runs": 88,
+      "completions": 88,
+      "fetchObservations": 2407,
+      "redirectObservations": 186,
+      "pageEvidence": 1778,
+      "pageCandidates": 3556,
+      "rootPromotions": 0,
+      "rootPromotionRevocations": 0
+    },
+    "delta": {
+      "runs": 3,
+      "completions": 3,
+      "fetchObservations": 43,
+      "redirectObservations": 12,
+      "pageEvidence": 25,
+      "pageCandidates": 50,
+      "rootPromotions": 0,
+      "rootPromotionRevocations": 0
+    },
+    "deltaReconciliation": {
+      "fetchObservations": "1 + 39 + 3 = 43",
+      "redirectObservations": "0 + 12 + 0 = 12",
+      "pageEvidence": "0 + 24 + 1 = 25",
+      "pageCandidates": "0 + 48 + 2 = 50",
+      "everyDeltaIsAccountedForByTheThreeAuthorisedRuns": true
+    },
+    "runsWithoutCompletion": 0,
+    "runsWithMoreThanOneCompletion": 0,
+    "dryRunRuns": 0,
+    "historicalRowsUpdatedOrDeleted": 0
+  },
+  "sealedEvidenceVerification": {
+    "method": "after each target, that target's SD7 detail was produced from that RUN's persisted page evidence through the landed analyseOrganisation, serialised with the landed toSealedRecord into a PHASE_2B_2D_A2_SD7_SEALED_WORK_ITEM_DETAIL_V1 envelope and written with exclusive-create semantics (openSync 'wx') into the split's OWN root via the landed sealedRootFor; the file was then re-read from disk and byte-compared with what was written",
+    "pagesWereSelectedByRunIdNotByOrganisation": "essential here: two of the three occupants now have MORE THAN ONE run. Selecting by organisation would have mixed the Window-02 evidence into the new measurement and silently changed both",
+    "filesCreated": 3,
+    "namingConvention": "POST_Q1_WINDOW_02_RECOVERY_V1_SD7_DETAIL_<workItemId with colons as underscores>.json",
+    "perRootBefore": {
+      "DEV_TRAIN": 14,
+      "DEV_CONFIRM": 33,
+      "FINAL_HOLDOUT": 29
+    },
+    "perRootAfter": {
+      "DEV_TRAIN": 14,
+      "DEV_CONFIRM": 35,
+      "FINAL_HOLDOUT": 30
+    },
+    "filesPerSplit": {
+      "DEV_TRAIN": 0,
+      "DEV_CONFIRM": 2,
+      "FINAL_HOLDOUT": 1
+    },
+    "filesPerSplitMatchesTheStartedTargetsSplits": true,
+    "preexistingFilesChanged": 0,
+    "preexistingFilesRemoved": 0,
+    "unexpectedFilesAdded": 0,
+    "exclusiveCreateSemanticsUsed": true,
+    "existingFileOverwritten": false,
+    "anyTargetFileExistedBefore": false,
+    "holdoutFilesOnlyInHoldoutRoot": true,
+    "everyOnDiskEqualsWritten": true,
+    "carriesNoPageTextOrShingles": true,
+    "committedToGit": false
+  },
+  "finalLedgerFacts": {
+    "entriesBefore": 19,
+    "entriesAfter": 19,
+    "appendedByThisSeries": false,
+    "ledgerHash": "e215c1945dda8f4d79e10d775729290f7cf8ed3475e6849db2470d0381662e81",
+    "ledgerFileByteIdenticalBeforeAndAfter": true,
+    "reserveConsumed": 19,
+    "nextUnusedReservePosition": 19,
+    "reservePosition19": "UNASSIGNED",
+    "reserveConsumedByThisSeries": 0
+  },
+  "zeroActivityProofs": {
+    "window03Created": false,
+    "fourthTargetStarted": false,
+    "p60Started": false,
+    "p59Touched": false,
+    "reserve19Assigned": false,
+    "ledgerAppended": false,
+    "replacementObligationCreatedHere": false,
+    "acquisitionOfRecordChangedHere": false,
+    "historicalRunMutatedOrDeleted": false,
+    "window02RecordRewritten": false,
+    "productionCodeChanged": false,
+    "policyOrTimeoutOrTlsOrDnsOrAddressRuleChanged": false,
+    "plannerOrAdapterChanged": false,
+    "migrationAdded": false,
+    "classifierRun": false,
+    "manualRetryIssued": false,
+    "curlWgetOrBrowserUsedAgainstAnInstitution": false,
+    "proxyOrTunnelUsed": false,
+    "dnsOverrideOrHostsFileEdited": false
+  },
+  "identityDisclosureScan": {
+    "echeRowKeysInThisFile": 0,
+    "organisationIdsInThisFile": 0,
+    "hostnamesInThisFile": 0,
+    "urlsInThisFile": 0,
+    "ipAddressesOfInstitutionsInThisFile": 0,
+    "holdoutPageDetailInThisFile": 0,
+    "holdoutIdentityInThisFile": 0,
+    "targetsAreNamedBy": "selection index, reserve rank position, split, frozen draw-entry digest and run reference hash only"
+  },
+  "validation": {
+    "quietGateSeconds": 120,
+    "quietGateSelfExcluding": true,
+    "quietGateOutcome": "QUIET - no competing validate, vitest or acquisition process",
+    "fullRepositoryValidationRuns": 1,
+    "command": "caffeinate -dimsu npm run validate",
+    "startedUtc": "2026-09-25T22:53:02Z",
+    "endedUtc": "2026-09-25T22:56:56Z",
+    "elapsedSeconds": 234,
+    "exitCode": 0,
+    "outcome": "PASS",
+    "testFiles": "195 passed | 5 skipped (200)",
+    "tests": "5016 passed | 75 skipped (5091)",
+    "rerunAfterFailure": false,
+    "sleepDuringValidation": false,
+    "datedSleepEventCountUnchanged": true
+  },
+  "terminal": "PHASE_2B_2D_A2_POST_Q1_WINDOW_02_TARGETED_VANTAGE_RECOVERY_EXECUTED_PENDING_EVIDENCE_ADJUDICATION",
+  "nextAuthorisedAction": "the separate recovery evidence adjudication, which independently re-exports page evidence, recomputes formal SD7, rebuilds sealed payloads and decides each slot. After that, STOP - no Window 03 is created automatically",
+  "immutability": "append-only. This result is never edited; a correction is a new record"
+}
