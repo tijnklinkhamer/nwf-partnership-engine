@@ -1,0 +1,187 @@
+{
+  "recordId": "phase2b-2d-a2-post-p6-q1-window-02-plan-v1",
+  "recordKind": "OFFLINE_PRECOMMITTED_WINDOW_PLAN",
+  "records": "PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_PLAN_V1",
+  "planSchema": "PRECOMMITTED_WINDOW_PLAN_GENERIC_V1",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "liveAuthorityGranted": false,
+  "bound": {
+    "governance": {
+      "strategy": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_STRATEGY_V1.json",
+        "sha256": "0a7778065af21aec061634d66c83d42a99d8c3dd8dad82c3cf0535ce48cac7d9",
+        "bytes": 49116
+      }
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650"
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    },
+    "startingReplacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "artifactFileSha256": "5d3302368bf8ed077ac581a8577d2fc4212eebb9aeda6c1581a0f3bcd1661d0a",
+      "bytes": 13982,
+      "ledgerHash": "62939b3a06887053004a5b0e23ad3c79d55d0e90a29b9d8e151669a406de7fa0",
+      "entryCount": 15,
+      "note": "the revision this window was planned against; the preflight proves the live ledger has exactly this prefix plus the planned assignments"
+    }
+  },
+  "windowName": "A2 post-P6 Q1 replacement and primary window 02",
+  "plannedWindowSize": 5,
+  "workItemIdFormat": {
+    "PRIMARY": "P:<selectionIndex>",
+    "REPLACEMENT": "R:<selectionIndex>:<reserveRankPosition>",
+    "neverUses": "an organisation UUID or an eche row key"
+  },
+  "identityBinding": {
+    "method": "drawEntrySha256 = sha256(canonicalStringify(exact parsed draw entry))",
+    "canonicalizer": "canonicalStringify (src/orgunits/classify/canonical.ts), as the frame and draw hashes",
+    "replacementItemsDigest": "the draw RESERVE entry at reserveRankPosition",
+    "primaryItemsDigest": "the draw SELECTION entry at selectionIndex",
+    "institutionIdentityInThisFile": false
+  },
+  "workItems": [
+    {
+      "order": 1,
+      "workItemId": "R:29:15",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 29,
+      "reserveRankPosition": 15,
+      "split": "FINAL_HOLDOUT",
+      "drawEntryKind": "RESERVE",
+      "drawEntrySha256": "70244569cde4f0f12b77f133a4bb163baa206d120aef70c38d3cfe9b71af5f99",
+      "plannedLedgerSequence": 15,
+      "replacesOccupant": "RESERVE_REPLACEMENT",
+      "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    },
+    {
+      "order": 2,
+      "workItemId": "R:45:16",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 45,
+      "reserveRankPosition": 16,
+      "split": "DEV_CONFIRM",
+      "drawEntryKind": "RESERVE",
+      "drawEntrySha256": "761050592cb572c83031393f812689517735aaeff6e7184a460c834f086939f9",
+      "plannedLedgerSequence": 16,
+      "replacesOccupant": "RESERVE_REPLACEMENT",
+      "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    },
+    {
+      "order": 3,
+      "workItemId": "R:51:17",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 51,
+      "reserveRankPosition": 17,
+      "split": "FINAL_HOLDOUT",
+      "drawEntryKind": "RESERVE",
+      "drawEntrySha256": "3a86f43160fbeb0f4eec6df4f8b365ba4d57442fff91e022fdbf3e6470b9f337",
+      "plannedLedgerSequence": 17,
+      "replacesOccupant": "ORIGINAL_SELECTION",
+      "replacementReason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+    },
+    {
+      "order": 4,
+      "workItemId": "R:54:18",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 54,
+      "reserveRankPosition": 18,
+      "split": "DEV_CONFIRM",
+      "drawEntryKind": "RESERVE",
+      "drawEntrySha256": "8e20ab7a97d583514c8a9b031abfce1eb428568fee13fea97993bed53668a4ed",
+      "plannedLedgerSequence": 18,
+      "replacesOccupant": "ORIGINAL_SELECTION",
+      "replacementReason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+    },
+    {
+      "order": 5,
+      "workItemId": "P:60",
+      "kind": "PRIMARY",
+      "selectionIndex": 60,
+      "reserveRankPosition": null,
+      "split": "FINAL_HOLDOUT",
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "569cde467255f49ce635769062c61736e9adce803e5e5024110ce5a00992b922",
+      "plannedLedgerSequence": null,
+      "replacesOccupant": null,
+      "replacementReason": null
+    }
+  ],
+  "plannedPrimarySelectionIndices": [60],
+  "plannedReplacementAssignments": [
+    {
+      "selectionIndex": 29,
+      "reserveRankPosition": 15,
+      "plannedLedgerSequence": 15,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "replacesOccupant": "RESERVE_REPLACEMENT"
+    },
+    {
+      "selectionIndex": 45,
+      "reserveRankPosition": 16,
+      "plannedLedgerSequence": 16,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "replacesOccupant": "RESERVE_REPLACEMENT"
+    },
+    {
+      "selectionIndex": 51,
+      "reserveRankPosition": 17,
+      "plannedLedgerSequence": 17,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "replacesOccupant": "ORIGINAL_SELECTION"
+    },
+    {
+      "selectionIndex": 54,
+      "reserveRankPosition": 18,
+      "plannedLedgerSequence": 18,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "replacesOccupant": "ORIGINAL_SELECTION"
+    }
+  ],
+  "splitComposition": {
+    "DEV_TRAIN": 0,
+    "DEV_CONFIRM": 2,
+    "FINAL_HOLDOUT": 3
+  },
+  "pauseThresholdsForThisWindow": {
+    "p2PercentageArm": "> 40% of the planned window size",
+    "p2PercentageThresholdCount": 3,
+    "p5PercentageArm": "> 30% of the planned window size",
+    "p5LowYieldThresholdCount": 2,
+    "denominator": "the frozen planned window size, never the completed count"
+  },
+  "stateAtPlanTime": {
+    "successfulSelectionSlots": 55,
+    "currentAcquisitionFailures": 4,
+    "pendingReplacementObligations": 4,
+    "nextNeverStartedSelectionIndex": 60,
+    "replacementLedgerEntries": 15,
+    "reserveConsumed": 15,
+    "reserveUnused": 25,
+    "nextUnusedReservePosition": 15,
+    "p6Fires": false,
+    "liveAuthorityGranted": false
+  },
+  "failureSemantics": {
+    "onUnsuccessfulWorkItem": [
+      "preserve its evidence",
+      "assign no reserve inside this window",
+      "do not enlarge the window",
+      "a pending replacement obligation arises only after adjudication",
+      "a replacement assignment requires another precommitted window under new owner authority"
+    ],
+    "dynamicReserveAssignment": false,
+    "windowGrowth": false
+  },
+  "orderIsFrozen": "The work items execute in exactly this order. Nothing is sorted, inserted or skipped at run time.",
+  "windowPlanHash": "ab1a674ce6d6fa56e547770a63429cda3bfbf64fc8fabdafee9ed674270c9fe7"
+}
