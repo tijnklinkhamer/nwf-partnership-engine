@@ -1,0 +1,272 @@
+{
+  "recordId": "phase2b-2d-a2-post-window-05-p5-review-and-remaining-authority-resume-v1",
+  "recordKind": "P5_PAUSE_REVIEW_AND_REMAINING_AUTHORITY_RESUME",
+  "records": "PHASE_2B_2D_A2_POST_WINDOW_05_P5_REVIEW_AND_REMAINING_AUTHORITY_RESUME_V1",
+  "recordedAtUtc": "2026-09-26T17:45:29Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "startingHead": "7938e87c2c12e86aae8d2d64a8400da7a687545f",
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "networkUsed": "none. Read-only reads of committed records and of the working database.",
+  "databaseWrittenByThisRecord": "none",
+  "productionCodeChangedByThisRecord": "none",
+  "methodologyChangedByThisRecord": "none",
+  "reserveAssignedByThisRecord": "none",
+  "ledgerAppendedByThisRecord": false,
+
+  "ownerDecision": "P5_REVIEWED_AFTER_GENERATION_TRANSPORT_CENSUS_NO_COMMON_SYSTEMIC_DEFECT_CONTINUATION_ALLOWED",
+
+  "thisFileAuthorises": [
+    "the RESUMPTION of the UNSPENT REMAINDER of the bounded authority granted at b9248ab00be140217a6e4e144a6bdf334f33b411, and nothing more: 3 ordinary child windows and 15 live attempts",
+    "the construction of the next window's strategy, plan and live authority as separate records, each subject to its own governance"
+  ],
+  "thisFileDoesNotAuthorise": [
+    "any institution network request - a live authority record is still required per window",
+    "any reserve assignment - the pre-network ledger append is a separate record",
+    "any additional window or attempt beyond the 3 / 15 remainder",
+    "a retry of any failed occupant",
+    "a timeout widening, a TLS weakening, a DNS workaround, an address-rule bypass or any fetch-policy change",
+    "any methodology change, any SD7 decision, any NAT64 rule promotion and any strategy-adapter repair"
+  ],
+  "isLiveAuthority": false,
+
+  "bound": {
+    "ownerAuthorityBeingResumed": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_04_P5_REVIEW_AND_CORPUS_ACQUISITION_RESUME_V1.json",
+      "sha256": "31482acb1daac08fc15b7de5e9b92c4d2e054a9182de2e87eb18e4c7c730d2f8",
+      "bytes": 24447,
+      "commit": "b9248ab00be140217a6e4e144a6bdf334f33b411",
+      "grantName": "RESUME_BOUNDED_Q1_REPLACEMENT_AND_PRIMARY_ACQUISITION_V1",
+      "grantedOrdinaryChildWindows": 4,
+      "grantedLiveAttempts": 20
+    },
+    "generationTransportReview": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION1_TRANSPORT_FAILURE_REVIEW_AFTER_WINDOW_05_V1.json",
+      "sha256": "8c1bcfd510cc424d0353c7cb25292fb15e5954659fbfe0565f3d6fe25a7a22c3",
+      "bytes": 35646,
+      "commit": "7938e87c2c12e86aae8d2d64a8400da7a687545f",
+      "conclusion": "GENERATION_TRANSPORT_REVIEW_NO_COMMON_SYSTEMIC_DEFECT_ESTABLISHED",
+      "roleHere": "the load-bearing precondition. Had it concluded anything else, this record could not exist."
+    },
+    "window05Chain": {
+      "strategy": "fa4a274f5264129ab997b4afbe3e7a8257863387",
+      "plan": "9f88257f8d43e8ab5a8dff5352009a10b000bbf7",
+      "liveAuthority": "8867a8173de7507acd7aa34fc8f3e28b9e860ee3",
+      "preNetworkLedgerAppend": "faec23d621156a482769d1f7f2e1e5fcfce197c4",
+      "liveResult": "c088d9ed08aeddea9310b2ed7a8b478fe1d1427b",
+      "adjudication": "b5a06b4332b379b46c19bf976b6413a30966363d",
+      "adjudicationSha256": "0a04e88ecfb2a9d2c357563cf3b2c32908ddbf07ca26d56af25ec90ede7e765b",
+      "everyCommitVerifiedToExistAndToCarryTheExpectedSubject": true
+    },
+    "operationalVantageRule": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_DNS64_NAT64_OPERATOR_VANTAGE_EVIDENCE_INTEGRITY_ADJUDICATION_V1.json",
+      "sha256": "5f901c1c5e0f2248e7e50887187dc1bcce06ace8b852b8c65d0be35547f655bc",
+      "appliedUnchanged": true,
+      "promotedIntoMethodology": false
+    },
+    "reserveReplacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "3ca6c9eff072b17afac1c6adc5c36c162a84e7017ac1bf42257a0abb7bca6c67",
+      "ledgerHash": "c9fdb2e3ce19f53d55bf45d7ebb0c74db29a5b43334264d80f10cd9c98861234",
+      "entries": 24
+    },
+    "frozenDraw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "sha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    }
+  },
+
+  "window05P5Review": {
+    "theHistoricalPauseRemainsTrue": true,
+    "whatIsNotErased": [
+      "R:64:23 ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE on TLS_FAILURE / TLS_PROTOCOL_INCOMPATIBLE",
+      "P:65 ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE on DNS_FAILURE / DNS_NAME_NOT_FOUND",
+      "the Window-05 P5 pause itself, and the two items it correctly refused to start (P:66, P:67)",
+      "the Window-04 pause",
+      "every earlier pause in this generation",
+      "the six DNS64/NAT64 address-policy observations"
+    ],
+    "nothingAboveWasReclassified": true,
+    "theP5MechanismDidItsJob": "it forced a review before more reserves were spent. That is what it is for, and it worked.",
+    "whatTheReviewFound": "no common current operator, implementation or persistence defect. The two Window-05 failures are stated refusals by two different targets at two different layers; a third item in the same window, under the same runtime and the same compliant vantage, produced 34 post-SD7 pages.",
+    "whatTheReviewDidNotFind": "a repair that must occur before further acquisition.",
+    "whatTheReviewDidSurfaceHonestly": [
+      "29 of 31 zero-page runs in the whole generation failed at the SITE-POLICY step without a page attempt. That is a shared stage, not a shared cause - the first request to any host is the only place a host-level condition can surface - and its recoverable sub-cases have already been repaired three times under separate owner decisions (v2, v3, v4).",
+      "per-host pacing compliance is not decidable from persisted evidence, because observed_at is stamped at persist time while pacing is enforced between slot grants. No observation contradicts the policy; the limitation is recorded rather than resolved by assumption."
+    ],
+    "neitherIsTreatedAsClearanceNorAsABlocker": true,
+    "noRetryOfFailedOccupants": true,
+    "noTimeoutWidening": true,
+    "noTlsWeakening": true,
+    "noDnsWorkaround": true,
+    "noFetchPolicyChange": true,
+    "noMethodologyChange": true,
+    "noAdapterRepair": true
+  },
+
+  "remainingAuthorityArithmetic": {
+    "grantedAtB9248ab": { "ordinaryChildWindows": 4, "liveAttempts": 20 },
+    "consumedByWindow05": { "ordinaryChildWindows": 1, "liveAttempts": 5 },
+    "whyFiveAttemptsAndNotThree": "a window's authorised size is charged in full. Window 05 authorised five items; P5 stopped it after three. The two unstarted items are NOT refunded as attempts, and they are NOT owed anything either - they remain NEVER_STARTED and available to any future authority.",
+    "remainingNow": { "ordinaryChildWindows": 3, "liveAttempts": 15 },
+    "thisResumeDoesNotRefillTheCap": true,
+    "capIsAbsolute": "after the third resumed child window's adjudication, STOP regardless of state. No self-extension, no fresh grant, no borrowing against a future authority.",
+    "windowSize": "5 whenever at least five executable items remain",
+    "concurrency": 1,
+    "anyPauseInAnyResumedWindow": "STOP and return to the owner"
+  },
+
+  "currentCanonicalState": {
+    "derivation": "rederived independently here, NOT read from the Window-05 adjudication. Each slot's current occupant was resolved from the frozen draw plus the 24-entry ledger, each occupant's latest run was read from the working database, and slot 59 was held out as pending because its formal SD7 range [1,24] straddles the threshold.",
+    "ACQUISITION_SUCCESSFUL": {
+      "count": 63,
+      "ranges": ["0..58", "60..63"]
+    },
+    "CURRENT_ACQUISITION_FAILURE": [64, 65],
+    "PENDING_CAPABILITY_REVIEW": [59],
+    "NEVER_STARTED": { "from": 66, "to": 109, "count": 44, "contiguous": true },
+    "accounting": "63 + 2 + 1 + 44 = 110",
+    "setsAreDisjoint": true,
+    "setsCoverExactly0To109": true,
+    "agreesWithTheWindow05Adjudication": true
+  },
+
+  "p59": {
+    "status": "PENDING_CAPABILITY_REVIEW",
+    "formalSd7Range": [1, 24],
+    "createsNoReplacementObligation": true,
+    "classifiedHere": false,
+    "rerunHere": false,
+    "replacedHere": false,
+    "sd7AlteredHere": false,
+    "methodologyR3AmendedHere": false,
+    "doesItReorderQ1": "NO. Q1 sorts ACTUAL obligations ascending, and slot 59 has none, so 59 < 64 is irrelevant. If it is later adjudicated unsuccessful its new obligation enters Q1 at the next FUTURE planning point; no historical reserve assignment is reordered retroactively.",
+    "ifItBecomesRequiredToDecideWhetherTheCorpusCanClose": "STOP and return to the owner. It is a separate decision."
+  },
+
+  "currentQ1": {
+    "derivation": "rederived from the state above, not copied",
+    "order": [64, 65],
+    "rule": "SELECTION_INDEX_ASCENDING over actual obligations only",
+    "obligations": [
+      {
+        "selectionIndex": 64,
+        "split": "DEV_CONFIRM",
+        "currentOccupantKind": "RESERVE_REPLACEMENT",
+        "currentOccupantReserveRankPosition": 23,
+        "outcome": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "reasonEvidence": "TLS_FAILURE / TLS_PROTOCOL_INCOMPATIBLE",
+        "q3Rank": 3,
+        "occupantChain": ["ORIGINAL_SELECTION", "RESERVE_REPLACEMENT@23"]
+      },
+      {
+        "selectionIndex": 65,
+        "split": "FINAL_HOLDOUT",
+        "currentOccupantKind": "ORIGINAL_SELECTION",
+        "currentOccupantReserveRankPosition": null,
+        "outcome": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "reasonEvidence": "DNS_FAILURE / DNS_NAME_NOT_FOUND",
+        "q3Rank": 3,
+        "occupantChain": ["ORIGINAL_SELECTION"]
+      }
+    ],
+    "noOtherCurrentReplacementObligationExists": true
+  },
+
+  "currentLedgerState": {
+    "entries": 24,
+    "ledgerHash": "c9fdb2e3ce19f53d55bf45d7ebb0c74db29a5b43334264d80f10cd9c98861234",
+    "ledgerHashRecomputedWithTheLandedCanonicalizer": true,
+    "everyEntryHashRecomputed": true,
+    "previousEntryHashChainIntact": true,
+    "entryHashMismatches": 0,
+    "reserveConsumed": 24,
+    "reserveUnused": 16,
+    "nextUnusedReservePosition": 24,
+    "reservePosition24": "UNASSIGNED",
+    "reservePosition25": "UNASSIGNED",
+    "reserveConsumedIsDerivedNotStored": "it is the number of valid entries"
+  },
+
+  "p6": {
+    "rule": "reserveConsumed > 10 AND successfulOrganisationCount < 50",
+    "inputs": { "reserveConsumed": 24, "successfulOrganisationCount": 63 },
+    "evaluation": "24 > 10 is TRUE; 63 < 50 is FALSE; the conjunction is FALSE",
+    "status": "NOT_TRIGGERED",
+    "amendedOrBypassedHere": false,
+    "remainsGenerationGlobal": true
+  },
+
+  "nextWindowCompositionAsMechanicallyDerived": {
+    "constructionRule": "replacements first, in ascending selection-index order, each taking the next unused reserve monotonically; then untouched primaries from the next untouched primary index, filling the remaining positions",
+    "windowSize": 5,
+    "items": [
+      {
+        "position": 1,
+        "workItemId": "R:64:24",
+        "kind": "REPLACEMENT",
+        "selectionIndex": 64,
+        "reserveRankPosition": 24,
+        "split": "DEV_CONFIRM"
+      },
+      {
+        "position": 2,
+        "workItemId": "R:65:25",
+        "kind": "REPLACEMENT",
+        "selectionIndex": 65,
+        "reserveRankPosition": 25,
+        "split": "FINAL_HOLDOUT"
+      },
+      {
+        "position": 3,
+        "workItemId": "P:66",
+        "kind": "PRIMARY",
+        "selectionIndex": 66,
+        "reserveRankPosition": null,
+        "split": "DEV_TRAIN"
+      },
+      {
+        "position": 4,
+        "workItemId": "P:67",
+        "kind": "PRIMARY",
+        "selectionIndex": 67,
+        "reserveRankPosition": null,
+        "split": "DEV_CONFIRM"
+      },
+      {
+        "position": 5,
+        "workItemId": "P:68",
+        "kind": "PRIMARY",
+        "selectionIndex": 68,
+        "reserveRankPosition": null,
+        "split": "FINAL_HOLDOUT"
+      }
+    ],
+    "exactOrder": "R:64:24 -> R:65:25 -> P:66 -> P:67 -> P:68",
+    "replacementCount": 2,
+    "primaryCount": 3,
+    "splitsRecomputedFromTheFrozenDrawNotCopied": true,
+    "reservesCarryNoSplitOfTheirOwn": "a reserve inherits the split of the slot it is assigned to, which is why reserve 24 is DEV_CONFIRM and reserve 25 is FINAL_HOLDOUT here and could be something else in another slot",
+    "p59IsExcludedWhilePending": true,
+    "noOtherCompositionIsAuthorised": true,
+    "thisCompositionIsNotYetAPlan": "it is the mechanical derivation. The strategy, the plan, the live authority and the pre-network ledger append are each still required, in that order, each with its own governance."
+  },
+
+  "constraintsThatSurviveThisResume": [
+    "one invocation per item, concurrency 1, no manual retry, no alternate root, no dynamic reserve insertion",
+    "fetch policy orgunit-fetch-policy-v6, unchanged",
+    "the network vantage is re-proved with the landed structural checks BEFORE EVERY live item; the known unsuitable vantage returning means STOP before consuming another item, and creates no institution failure",
+    "window-local P1, P2, P3 and P5 state is FRESH for each resumed window under Q4; Window-05 lowYieldCount is not carried forward; P6 stays generation-global; P7 is immediate; P8 is live-window immediate",
+    "for size 5: P2 threshold 3, P5 threshold 2, evaluated after every completed item",
+    "no ledger append during adjudication",
+    "a threshold-crossing SD7 range yields pending review, no obligation, and a STOP"
+  ],
+
+  "terminalState": "PHASE_2B_2D_A2_WINDOW_05_P5_REVIEWED_AND_REMAINING_AUTHORITY_RESUMED_3_WINDOWS_15_ATTEMPTS",
+  "nextAuthorisedAction": "build the next window's strategy against the PRE-append 24-entry ledger, under independent current-state governance.",
+  "immutability": "append-only. This record is never edited."
+}
