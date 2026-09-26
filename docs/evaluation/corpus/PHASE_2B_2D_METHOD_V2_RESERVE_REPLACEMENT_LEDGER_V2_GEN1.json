@@ -360,7 +360,35 @@
       "previousSequenceForSlot": null,
       "previousEntryHash": "48c77957ce6b19f51bb346cda1e48e0fb5db2cc1f4e7dc72508bec74b67b7b20",
       "entryHash": "55c1636a919d1d9f32f7c09350ac2635dbb5538b44806034a3cd5f8754d60bd0"
+    },
+    {
+      "sequence": 19,
+      "selectionIndex": 45,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "SI KOPER03|998802793",
+      "replacementEcheRowKey": "F TOULON21|937437004",
+      "reserveRankPosition": 19,
+      "reason": "ACQUISITION_UNSUCCESSFUL_ROBOTS_DISALLOWED",
+      "recordedAtUtc": "2026-09-26T11:57:45Z",
+      "replacedOccupantKind": "RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 16,
+      "previousEntryHash": "55c1636a919d1d9f32f7c09350ac2635dbb5538b44806034a3cd5f8754d60bd0",
+      "entryHash": "a34ec9e5a4f219c3ca4428c74f6b05597bc13784105f6da717fd4d91cd9c8dcd"
+    },
+    {
+      "sequence": 20,
+      "selectionIndex": 54,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "E LA-CORU07|949201164",
+      "replacementEcheRowKey": "F ARRAS14|928442776",
+      "reserveRankPosition": 20,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-09-26T11:57:45Z",
+      "replacedOccupantKind": "RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 18,
+      "previousEntryHash": "a34ec9e5a4f219c3ca4428c74f6b05597bc13784105f6da717fd4d91cd9c8dcd",
+      "entryHash": "c8871b0aa066a54ea1697520ce6b3b9de68861a4eadd7e5796c398084f4c0ede"
     }
   ],
-  "ledgerHash": "e215c1945dda8f4d79e10d775729290f7cf8ed3475e6849db2470d0381662e81"
+  "ledgerHash": "95bff880382ddd6776d7da46ba6a957d02722e8e90242cf8dfacc9a261705ff5"
 }

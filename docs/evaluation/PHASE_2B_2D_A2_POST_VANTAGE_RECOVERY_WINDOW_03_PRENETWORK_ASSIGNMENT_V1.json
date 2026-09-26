@@ -1,0 +1,235 @@
+{
+  "recordId": "phase2b-2d-a2-post-vantage-recovery-window-03-prenetwork-assignment-v1",
+  "recordKind": "OFFLINE_PRENETWORK_RESERVE_ASSIGNMENT",
+  "records": "PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_03_PRENETWORK_ASSIGNMENT_V1",
+  "recordedAtUtc": "2026-09-26T11:59:42Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "startingHead": "f4fc015f32bb1e5b8f37441df2bd180ecb159997",
+
+  "institutionIdentityInThisRecord": "none. Selection indices, reserve rank positions, splits, reasons, chain links, entry hashes and frozen draw-entry digests only",
+  "institutionIdentityInTheLedgerItself": "the ledger's frozen entry fields include replacedEcheRowKey and replacementEcheRowKey by design, because a replacement event is only auditable if it names which row key replaced which. That is a property of the ledger artifact, not of this record, and this record reproduces neither",
+
+  "boundRecords": {
+    "liveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_03_LIVE_AUTHORITY_V1.json",
+      "sha256": "c9975cb7db205052283fdae12ba22e370428ab67c9c3f70c6b60955785eb2544",
+      "bytes": 32109,
+      "commit": "f4fc015f32bb1e5b8f37441df2bd180ecb159997",
+      "authorisedReplacementAssignments": 2
+    },
+    "plan": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_03_PLAN_V1.json",
+      "sha256": "3b721e702f7ca261de0b703ac9af0ed1cae205af7dd7332f1f9437b212b76bb4",
+      "bytes": 6555,
+      "windowPlanHash": "69ae791786f4ae45c9d46f645611ff30b7d9b0f7e296932f70df4a86831cc670"
+    },
+    "strategy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_03_STRATEGY_V1.json",
+      "sha256": "d2af8fcf1dbbb31d79b1469afff4cd3fe1644dbe3a6cc928608ff4a707a3c82e",
+      "bytes": 30937
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    }
+  },
+
+  "ledgerPath": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+  "previousLedgerSha256": "08f720636daaa42fa92419f11f8401c49f785d0fa5ecc4eaf5f41bb8cf291ffc",
+  "previousLedgerBytes": 16444,
+  "previousLedgerHash": "e215c1945dda8f4d79e10d775729290f7cf8ed3475e6849db2470d0381662e81",
+  "previousEntries": 19,
+  "previousLedgerByteIdenticalAt": "cdda77d0653db460898d806bfe0667d5aeb7c09c",
+  "previousLedgerBytesReadFromGitNotFromDisk": "the 19-entry revision was read with git show cdda77d:<path> and its prefix compared canonically against the new file, so the comparison cannot be satisfied by the same bytes being read twice from a working tree this step is editing",
+
+  "newLedgerSha256": "e58956d1eb13b350062f1fd3579d5caf05d626f70a020c2f8ef33dd34b1cba9c",
+  "newLedgerBytes": 17670,
+  "newLedgerHash": "95bff880382ddd6776d7da46ba6a957d02722e8e90242cf8dfacc9a261705ff5",
+  "newEntries": 21,
+
+  "entryRecordedAtUtc": "2026-09-26T11:57:45Z",
+  "entryRecordedAtUtcSource": "date -u, read from the shell at append time and passed explicitly to prepareReplacementAppend, which refuses an absent or malformed instant",
+  "bothAppendedEntriesShareOneRecordedAtUtc": true,
+  "whyOneInstant": "the two assignments are ONE governance act. Two instants would imply two decisions and would let a reader infer an ordering the ascending-selectionIndex rule already fixes",
+
+  "appendedEntries": [
+    {
+      "sequence": 19,
+      "selectionIndex": 45,
+      "reserveRankPosition": 19,
+      "split": "DEV_CONFIRM",
+      "reason": "ACQUISITION_UNSUCCESSFUL_ROBOTS_DISALLOWED",
+      "replacedOccupantKind": "RESERVE_REPLACEMENT",
+      "replacedReserveRankPosition": 16,
+      "previousSequenceForSlot": 16,
+      "chainLink": 3,
+      "occupantChainForSlot": "ORIGINAL_SELECTION -> reserve 14 (sequence 14) -> reserve 16 (sequence 16) -> reserve 19 (sequence 19)",
+      "previousEntryHash": "55c1636a919d1d9f32f7c09350ac2635dbb5538b44806034a3cd5f8754d60bd0",
+      "entryHash": "a34ec9e5a4f219c3ca4428c74f6b05597bc13784105f6da717fd4d91cd9c8dcd",
+      "reserveDrawEntrySha256": "d55fd17d156f8a3e078d4c54fa5ae7f511faf9497c9198d44cec1c9dd329ca78",
+      "plannedWorkItem": "R:45:19"
+    },
+    {
+      "sequence": 20,
+      "selectionIndex": 54,
+      "reserveRankPosition": 20,
+      "split": "DEV_CONFIRM",
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "replacedOccupantKind": "RESERVE_REPLACEMENT",
+      "replacedReserveRankPosition": 18,
+      "previousSequenceForSlot": 18,
+      "chainLink": 2,
+      "occupantChainForSlot": "ORIGINAL_SELECTION -> reserve 18 (sequence 18) -> reserve 20 (sequence 20)",
+      "previousEntryHash": "a34ec9e5a4f219c3ca4428c74f6b05597bc13784105f6da717fd4d91cd9c8dcd",
+      "entryHash": "c8871b0aa066a54ea1697520ce6b3b9de68861a4eadd7e5796c398084f4c0ede",
+      "reserveDrawEntrySha256": "d822af82fa49783c56bfa7328ba5f7ceea128529944ea192f0e13d2dbb792840",
+      "plannedWorkItem": "R:54:20"
+    }
+  ],
+  "headEntryHash": "c8871b0aa066a54ea1697520ce6b3b9de68861a4eadd7e5796c398084f4c0ede",
+  "bothAppendedEntriesAreSameSlotChainLinks": true,
+  "neitherAppendedEntryIsAFirstReplacement": "both slots already held a reserve occupant, so both entries carry replacedOccupantKind RESERVE_REPLACEMENT and a non-null previousSequenceForSlot. This is the Q2 same-slot chain, appended across precommitted windows",
+
+  "reserveConsumedBefore": 19,
+  "reserveConsumedAfter": 21,
+  "reserveUnusedAfter": 19,
+  "nextUnusedReservePosition": 21,
+  "reservePositionsNowConsumed": "0..20 contiguously, one per entry, verified position k on entry k for every k",
+  "reservePosition21Assigned": false,
+
+  "mechanism": {
+    "builder": "prepareReplacementAppend over the frozen draw, the committed 19-entry ledger, exactly the two authorised assignments, and one explicit recordedAtUtc",
+    "whatTheBuilderDerivedRatherThanAccepted": [
+      "replacedEcheRowKey - taken from the prior entry's replacement for each slot",
+      "replacementEcheRowKey - taken from draw.reserve[position]",
+      "split - taken from the frozen draw SELECTION slot",
+      "replacedOccupantKind",
+      "previousSequenceForSlot",
+      "previousEntryHash",
+      "entryHash",
+      "the new ledgerHash"
+    ],
+    "whatWasSupplied": "two (selectionIndex, reserveRankPosition, reason) triples and one instant. Nothing else",
+    "builderAlsoRevalidated": "prepareReplacementAppend re-derives the assignments through planPendingReplacementObligations and refuses any triple that is not the planner's own, then revalidates the resulting ledger against the draw"
+  },
+
+  "helperAcceptanceIsNotSufficient": "prepareReplacementAppend does not check that an obligation EXISTS. Both assignments were therefore compared against independently derived obligation state before the write: slot 45's occupant was confirmed RESERVE_REPLACEMENT at reserve 16 / sequence 16, and slot 54's RESERVE_REPLACEMENT at reserve 18 / sequence 18, both via currentOccupantForSelectionIndex against the 19-entry ledger, and both reasons confirmed against the recovery adjudication's obligation list",
+
+  "proofsPerformedBeforeWriting": [
+    {
+      "proof": "the 19-entry prefix is canonically unchanged against the git revision at cdda77d",
+      "held": true
+    },
+    {
+      "proof": "every one of the 21 entry hashes chains to its predecessor and recomputes",
+      "held": true
+    },
+    { "proof": "the new ledgerHash recomputes from the new object", "held": true },
+    {
+      "proof": "the new ledger validates against the frozen draw",
+      "held": true,
+      "result": "{ valid: true, entryCount: 21 }"
+    },
+    { "proof": "the new ledger still extends genesis", "held": true },
+    {
+      "proof": "reserveConsumed goes 19 -> 21 and nextUnusedReservePosition becomes 21",
+      "held": true
+    },
+    {
+      "proof": "reserve positions 19 and 20 appear in no earlier entry, and position k sits on entry k for all k in 0..20",
+      "held": true
+    },
+    {
+      "proof": "each appended selectionIndex has a determinate obligation, derived independently of the builder",
+      "held": true
+    },
+    { "proof": "each appended split is the frozen draw selection slot's split", "held": true },
+    { "proof": "each appended reason is that obligation's own reason", "held": true },
+    {
+      "proof": "sequence 19 carries RESERVE_REPLACEMENT with previousSequenceForSlot 16, and sequence 16 is canonically unchanged",
+      "held": true
+    },
+    {
+      "proof": "sequence 20 carries RESERVE_REPLACEMENT with previousSequenceForSlot 18, and sequence 18 is canonically unchanged",
+      "held": true
+    },
+    {
+      "proof": "each appended replacementEcheRowKey is exactly draw.reserve[position]'s key",
+      "held": true
+    },
+    { "proof": "P6 re-evaluated at 21 and 57 does not fire", "held": true }
+  ],
+  "gitDiffShape": "29 lines added, 1 removed. The single removed line is the old ledgerHash. No existing entry line was deleted or modified",
+
+  "occupantsAfterTheAppend": {
+    "slot45": {
+      "occupantKind": "RESERVE_REPLACEMENT",
+      "reserveRankPosition": 19,
+      "ledgerSequence": 19
+    },
+    "slot54": {
+      "occupantKind": "RESERVE_REPLACEMENT",
+      "reserveRankPosition": 20,
+      "ledgerSequence": 20
+    }
+  },
+
+  "p6": {
+    "rule": "reserveConsumed > 10 AND ACQUISITION_SUCCESSFUL < 50",
+    "inputsAfterTheAppend": { "reserveConsumed": 21, "ACQUISITION_SUCCESSFUL": 57 },
+    "evaluation": "21 > 10 is TRUE and 57 < 50 is FALSE",
+    "result": "NOT_TRIGGERED"
+  },
+  "p6ThresholdChangedHere": false,
+  "p6WaivedHere": false,
+
+  "generation1StateBeforeAppend": {
+    "ACQUISITION_SUCCESSFUL": 57,
+    "CURRENT_ACQUISITION_FAILURE": [45, 54],
+    "PENDING_CAPABILITY_REVIEW": [59],
+    "NEVER_STARTED": 50,
+    "replacementLedgerEntries": 19
+  },
+  "generation1StateAfterAppend": {
+    "ACQUISITION_SUCCESSFUL": 57,
+    "CURRENT_ACQUISITION_FAILURE": [45, 54],
+    "PENDING_CAPABILITY_REVIEW": [59],
+    "NEVER_STARTED": 50,
+    "replacementLedgerEntries": 21,
+    "whyTheOutcomeClassesDidNotMove": "an assignment is not an acquisition. Slots 45 and 54 remain CURRENT_ACQUISITION_FAILURE until their new occupants are executed and adjudicated. The ledger records WHO will be tried next, never whether it worked"
+  },
+
+  "chronology": {
+    "ledgerAppendInstant": "2026-09-26T11:57:45Z",
+    "assignmentRecordWrittenAt": "2026-09-26T11:59:42Z",
+    "databaseQueriedBeforeAssignmentCommit": "read-only baseline counts only, at the live-authority stage",
+    "institutionNetworkBeforeAssignmentCommit": "none. The only network at this stage was the non-institution vantage canaries",
+    "institutionRequestPrecededAppend": false,
+    "targetResolutionBeforeAssignmentCommit": "none. No organisation id has been resolved from the draw yet",
+    "thisCommitMustBePushedAndRemotelyVerifiedBeforeTargetResolutionOrInstitutionRequest1": true,
+    "theLedgerPushTimestampMustPrecedeTheFirstInstitutionRequestAndIsRecordedInTheLiveResult": true
+  },
+
+  "reserveConsumptionBecomesEffective": "on this commit. Positions 19 and 20 are spent whether or not their acquisitions succeed, and are never returned - including if this window pauses before either item runs",
+
+  "scopeProofs": {
+    "networkRequestsToInstitutionsByThisRecord": 0,
+    "databaseRowsWrittenByThisRecord": 0,
+    "productionSourceFilesChangedByThisRecord": 0,
+    "ledgerRowsEditedOrDeletedByThisRecord": 0,
+    "ledgerRowsAppendedByThisRecord": 2,
+    "governanceFilesEditedByThisRecord": 0,
+    "methodologyBytesChangedByThisRecord": 0
+  },
+
+  "terminal": "PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_03_RESERVES_19_AND_20_ASSIGNED_PRE_NETWORK",
+  "nextAuthorisedAction": "commit, push and refetch this record with the updated ledger, re-measure the network-vantage precondition, then re-run P7 against the committed 21-entry ledger and require all 13 invariants with CONTINUE at R:45:19",
+  "immutability": "append-only. Neither this record nor any ledger row it appended is ever edited."
+}
