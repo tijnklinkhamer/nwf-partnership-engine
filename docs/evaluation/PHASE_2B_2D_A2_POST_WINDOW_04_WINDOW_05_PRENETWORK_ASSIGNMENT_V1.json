@@ -1,0 +1,218 @@
+{
+  "recordId": "phase2b-2d-a2-post-window-04-window-05-prenetwork-assignment-v1",
+  "recordKind": "OFFLINE_PRENETWORK_RESERVE_ASSIGNMENT",
+  "records": "PHASE_2B_2D_A2_POST_WINDOW_04_WINDOW_05_PRENETWORK_ASSIGNMENT_V1",
+  "recordedAtUtc": "2026-09-26T16:16:34Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "startingHead": "8867a8173de7507acd7aa34fc8f3e28b9e860ee3",
+  "institutionIdentityInThisRecord": "none. Selection index, reserve rank position, split, reason, chain link, entry hashes and frozen draw-entry digest only",
+  "institutionIdentityInTheLedgerItself": "the ledger's frozen entry fields include replacedEcheRowKey and replacementEcheRowKey by design. That is a property of the ledger artifact, not of this record, and this record reproduces neither",
+  "boundRecords": {
+    "liveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_04_WINDOW_05_LIVE_AUTHORITY_V1.json",
+      "sha256": "14bae5363a45571c4870f188fff2c16657887b8f79c72e4089170a6505feeb0f",
+      "bytes": 27674,
+      "commit": "8867a8173de7507acd7aa34fc8f3e28b9e860ee3",
+      "authorisedReplacementAssignments": 2
+    },
+    "plan": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_04_WINDOW_05_PLAN_V1.json",
+      "sha256": "c0f08cf31096fdac504582514a069e84c0db41cccd4c6cbc094ba1bde53cc091",
+      "bytes": 6523,
+      "windowPlanHash": "84f7129ade642ebc77d23180352e3cbdea47bba0281fec392bb9b661890057bd"
+    },
+    "strategy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_04_WINDOW_05_STRATEGY_V1.json",
+      "sha256": "8036e84d9b10fd13b4ddd50e865f691184609c046304fe4990a9192f86023706",
+      "bytes": 34145
+    },
+    "ownerContinuationDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_04_P5_REVIEW_AND_CORPUS_ACQUISITION_RESUME_V1.json",
+      "sha256": "31482acb1daac08fc15b7de5e9b92c4d2e054a9182de2e87eb18e4c7c730d2f8",
+      "bytes": 24447
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    }
+  },
+  "ledgerPath": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+  "previousLedgerSha256": "589b6eb51589413b66d2859fe4de8560ae787457c306eb0ac17d960c89842441",
+  "previousLedgerBytes": 18282,
+  "previousLedgerHash": "c181e20f45a3d6fe61e270dfe1a735bc1fa4f39a853d6a753d9267400329f301",
+  "previousEntries": 22,
+  "previousLedgerByteIdenticalAt": "fe5d7a10f2c789242568b125f330f10a76f1b87a, and unchanged through 8867a8173de7507acd7aa34fc8f3e28b9e860ee3",
+  "previousLedgerBytesReadFromGitNotFromDisk": "the 22-entry revision was read with git show 8867a81:<path> and its entries compared canonically against the new file's 22-entry prefix, so the comparison cannot be satisfied by reading the same bytes twice from a working tree this step is editing",
+  "newLedgerSha256": "3ca6c9eff072b17afac1c6adc5c36c162a84e7017ac1bf42257a0abb7bca6c67",
+  "newLedgerBytes": 19516,
+  "newLedgerHash": "c9fdb2e3ce19f53d55bf45d7ebb0c74db29a5b43334264d80f10cd9c98861234",
+  "newEntries": 24,
+  "entryRecordedAtUtc": "2026-09-26T16:11:23Z",
+  "entryRecordedAtUtcSource": "date -u, read from the shell at append time and passed explicitly to prepareReplacementAppend, which refuses an absent or malformed instant",
+  "bothEntriesCarryTheSameInstant": "they were prepared in one prepareReplacementAppend call, so they share one recordedAtUtc. Sequence, not timestamp, is what orders the ledger",
+  "appendedEntries": [
+    {
+      "sequence": 22,
+      "selectionIndex": 63,
+      "reserveRankPosition": 22,
+      "split": "FINAL_HOLDOUT",
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "replacedReserveRankPosition": null,
+      "previousSequenceForSlot": null,
+      "chainLink": 1,
+      "occupantChainForSlot": "ORIGINAL_SELECTION -> reserve 22 (sequence 22)",
+      "previousEntryHash": "073c9499a2a1def253b8637251a32e01fd142557b4ad8de6cd3fe430bc49f17b",
+      "entryHash": "0dd9832be88a763e7adc91fa38ecff21f2b89cb20bb91c7eaeab4f26d1a7cced",
+      "reserveDrawEntrySha256": "4482c3de8de041da7fe9ccbc66d209abd20582712a6b5ac5fb68aae18fadeae4",
+      "plannedWorkItem": "R:63:22"
+    },
+    {
+      "sequence": 23,
+      "selectionIndex": 64,
+      "reserveRankPosition": 23,
+      "split": "DEV_CONFIRM",
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "replacedReserveRankPosition": null,
+      "previousSequenceForSlot": null,
+      "chainLink": 1,
+      "occupantChainForSlot": "ORIGINAL_SELECTION -> reserve 23 (sequence 23)",
+      "previousEntryHash": "0dd9832be88a763e7adc91fa38ecff21f2b89cb20bb91c7eaeab4f26d1a7cced",
+      "entryHash": "c8e94cdd1fd3e0274e8e8d3b3b3d2edbc649d63593fcbcc2db41d2b031fee960",
+      "reserveDrawEntrySha256": "05e0efaf9c14bd533a4337d9ba43dae01413b0dd9268c03448f25539053b8f9c",
+      "plannedWorkItem": "R:64:23"
+    }
+  ],
+  "headEntryHash": "c8e94cdd1fd3e0274e8e8d3b3b3d2edbc649d63593fcbcc2db41d2b031fee960",
+  "bothAppendedEntriesAreFirstReplacements": true,
+  "whyChainLinkIsOne": "neither slot 63 nor slot 64 had any prior ledger entry, so each carries replacedOccupantKind ORIGINAL_SELECTION and previousSequenceForSlot null. These are the first links of two NEW Q2 chains, not extensions of existing ones",
+  "reserveConsumedBefore": 22,
+  "reserveConsumedAfter": 24,
+  "reserveUnusedAfter": 16,
+  "nextUnusedReservePosition": 24,
+  "reservePositionsNowConsumed": "0..23 contiguously, verified position k on entry k for every k",
+  "reservePosition24Assigned": false,
+  "mechanism": {
+    "builder": "prepareReplacementAppend over the frozen draw, the committed 22-entry ledger, exactly the two authorised assignments, and one explicit recordedAtUtc",
+    "whatTheBuilderDerivedRatherThanAccepted": [
+      "replacedEcheRowKey - taken from the frozen draw SELECTION entry, because each slot was still on its original occupant",
+      "replacementEcheRowKey - taken from draw.reserve[22] and draw.reserve[23]",
+      "split - taken from the frozen draw SELECTION slot",
+      "replacedOccupantKind",
+      "previousSequenceForSlot",
+      "previousEntryHash",
+      "entryHash",
+      "the new ledgerHash"
+    ],
+    "whatWasSupplied": "two (selectionIndex, reserveRankPosition, reason) triples and one instant. Nothing else",
+    "builderAlsoRevalidated": "prepareReplacementAppend re-derives the assignments through planPendingReplacementObligations and refuses any triple that is not the planner own, then revalidates the resulting ledger against the draw"
+  },
+  "helperAcceptanceIsNotSufficient": "prepareReplacementAppend does not check that an obligation EXISTS, and the strategy adapter cannot either. The assignments were therefore compared against INDEPENDENTLY derived obligation state before the write: the derived CURRENT_ACQUISITION_FAILURE set from the whole adjudication chain is exactly [63, 64]; neither slot appears in the derived ACQUISITION_SUCCESSFUL, PENDING_CAPABILITY_REVIEW or NEVER_STARTED sets; both occupants were confirmed ORIGINAL_SELECTION via currentOccupantForSelectionIndex against the 22-entry ledger; and each reason was confirmed against the committed Window-04 adjudication",
+  "proofsPerformedBeforeAndAfterWriting": [
+    {
+      "proof": "the derived failure set from the adjudication chain is exactly the two authorised slots",
+      "held": true
+    },
+    {
+      "proof": "neither authorised slot is successful, pending or never-started in the derived state",
+      "held": true
+    },
+    {
+      "proof": "both occupants are ORIGINAL_SELECTION per currentOccupantForSelectionIndex",
+      "held": true
+    },
+    {
+      "proof": "reserve positions 22 and 23 appear in no committed entry, and 24 appears in none either",
+      "held": true
+    },
+    {
+      "proof": "the 22-entry prefix is canonically unchanged against the git revision at 8867a81",
+      "held": true
+    },
+    {
+      "proof": "the ledger header is canonically unchanged",
+      "held": true
+    },
+    {
+      "proof": "every one of the 24 entry hashes chains to its predecessor and recomputes",
+      "held": true
+    },
+    {
+      "proof": "the new ledgerHash recomputes from the new object",
+      "held": true
+    },
+    {
+      "proof": "the new ledger validates against the frozen draw",
+      "held": true,
+      "result": "{ valid: true, entryCount: 24 }"
+    },
+    {
+      "proof": "the new ledger still extends genesis",
+      "held": true
+    },
+    {
+      "proof": "reserveConsumed goes 22 -> 24 and nextUnusedReservePosition becomes 24",
+      "held": true
+    },
+    {
+      "proof": "no prior entry was edited, reordered or deleted",
+      "held": true
+    },
+    {
+      "proof": "exactly two entries were added",
+      "held": true
+    },
+    {
+      "proof": "slot 63 now resolves to reserve 22 / sequence 22 and slot 64 to reserve 23 / sequence 23",
+      "held": true
+    }
+  ],
+  "p7BeforeThisAppend": {
+    "invariantsHeld": 11,
+    "invariantCount": 13,
+    "failing": ["replacementAssignmentsRecorded", "currentOccupantsMatch"],
+    "interpretation": "P7 correctly REFUSED before the append: the plan names two assignments the ledger did not yet carry. This is the expected pre-append outcome recorded by the live authority"
+  },
+  "p7AfterThisAppend": {
+    "invariantsHeld": 13,
+    "invariantCount": 13,
+    "allHold": true,
+    "ledgerEntryCount": 24,
+    "note": "the strategy binds the PRE-APPEND 22-entry revision, so the expected spec is rebuilt from the git bytes at 8867a81 while the preflight reads the live 24-entry ledger. That is the design: the precommit and the live state are deliberately different objects"
+  },
+  "gateAfterThisAppend": {
+    "completed": 0,
+    "plannedWindowSize": 5,
+    "successfulOrganisationCount": 62,
+    "reserveConsumedCount": 24,
+    "triggeredConditions": [],
+    "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+    "mayStartNextWorkItem": true,
+    "nextWorkItemId": "R:63:22",
+    "remainingWorkItemIds": ["R:63:22", "R:64:23", "P:65", "P:66", "P:67"]
+  },
+  "p6AfterThisAppend": {
+    "rule": "reserveConsumed > 10 AND ACQUISITION_SUCCESSFUL < 50",
+    "inputs": {
+      "reserveConsumed": 24,
+      "ACQUISITION_SUCCESSFUL": 62
+    },
+    "evaluation": "24 > 10 is TRUE and 62 < 50 is FALSE",
+    "result": "NOT_TRIGGERED"
+  },
+  "networkIssuedByThisRecord": "none. No institution socket has been opened for this window",
+  "databaseWrittenByThisRecord": "none",
+  "thirdAppendAuthorised": false,
+  "postNetworkAppendAuthorised": false,
+  "nextStep": "validate, commit, push and refetch this record and the updated ledger; then re-prove the network vantage and execute R:63:22",
+  "terminalState": "PHASE_2B_2D_A2_POST_WINDOW_04_WINDOW_05_RESERVES_22_AND_23_APPENDED_PRE_NETWORK",
+  "immutability": "append-only. This record is never edited."
+}

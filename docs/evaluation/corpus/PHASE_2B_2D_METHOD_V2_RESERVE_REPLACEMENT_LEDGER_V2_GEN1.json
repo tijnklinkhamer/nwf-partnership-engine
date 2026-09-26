@@ -402,7 +402,35 @@
       "previousSequenceForSlot": 20,
       "previousEntryHash": "c8871b0aa066a54ea1697520ce6b3b9de68861a4eadd7e5796c398084f4c0ede",
       "entryHash": "073c9499a2a1def253b8637251a32e01fd142557b4ad8de6cd3fe430bc49f17b"
+    },
+    {
+      "sequence": 22,
+      "selectionIndex": 63,
+      "split": "FINAL_HOLDOUT",
+      "replacedEcheRowKey": "TR KIRSEHI01|970848460",
+      "replacementEcheRowKey": "I GROSSETO01|912782029",
+      "reserveRankPosition": 22,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-09-26T16:11:23Z",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "073c9499a2a1def253b8637251a32e01fd142557b4ad8de6cd3fe430bc49f17b",
+      "entryHash": "0dd9832be88a763e7adc91fa38ecff21f2b89cb20bb91c7eaeab4f26d1a7cced"
+    },
+    {
+      "sequence": 23,
+      "selectionIndex": 64,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "HR POZEGA01|949648916",
+      "replacementEcheRowKey": "E MADRID63|942358784",
+      "reserveRankPosition": 23,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-26T16:11:23Z",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "0dd9832be88a763e7adc91fa38ecff21f2b89cb20bb91c7eaeab4f26d1a7cced",
+      "entryHash": "c8e94cdd1fd3e0274e8e8d3b3b3d2edbc649d63593fcbcc2db41d2b031fee960"
     }
   ],
-  "ledgerHash": "c181e20f45a3d6fe61e270dfe1a735bc1fa4f39a853d6a753d9267400329f301"
+  "ledgerHash": "c9fdb2e3ce19f53d55bf45d7ebb0c74db29a5b43334264d80f10cd9c98861234"
 }
