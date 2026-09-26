@@ -1,0 +1,448 @@
+{
+  "recordId": "phase2b-2d-a2-post-window-06-window-07-strategy-v1",
+  "recordKind": "OFFLINE_ACQUISITION_WINDOW_STRATEGY",
+  "records": "PHASE_2B_2D_A2_POST_WINDOW_06_WINDOW_07_STRATEGY_V1",
+  "recordedAtUtc": "2026-09-26T19:33:07Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "ownerDecision": "RESUME_REMAINING_BOUNDED_Q1_REPLACEMENT_AND_PRIMARY_ACQUISITION_V1",
+  "ownerDecisionSource": "the post-Window-06 P5 review and final remaining-authority resume record at 20eb14814de790534c2b990a26aab722d95042a9",
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "strategyOnly": true,
+  "approvesStructureOnly": true,
+  "networkUsedByThisRecord": "none",
+  "databaseWrittenByThisRecord": "none. Read-only reconciliation only",
+  "startingHead": "20eb14814de790534c2b990a26aab722d95042a9",
+
+  "continuationWindow": {
+    "windowOrdinal": 7,
+    "isTheFirstOrdinaryWindowUnderTheFinalResumedRemainder": true,
+    "ordinaryChildWindowsRemainingBeforeThisOne": 2,
+    "liveAttemptsRemainingBeforeThisOne": 10,
+    "ordinaryChildWindowsRemainingAfterThisOne": 1,
+    "liveAttemptsRemainingAfterThisOne": 5,
+    "plannedWindowSize": 5,
+    "concurrency": 1,
+    "capIsNotRefilledHere": true,
+    "noNewFourWindowAuthorityIsCreated": true,
+    "anyPauseMeansStop": true,
+    "windowIsChargedInFullEvenIfPaused": true,
+    "afterTheFinalWindowsAdjudicationStopRegardlessOfState": true
+  },
+
+  "bound": {
+    "ownerContinuationDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_06_P5_REVIEW_AND_FINAL_REMAINING_AUTHORITY_RESUME_V1.json",
+      "sha256": "dd9a07e881166b8d8f104de712e5167b9f4ba957fdea5e184ad36a62e186f704",
+      "bytes": 16311,
+      "commit": "20eb14814de790534c2b990a26aab722d95042a9",
+      "terminalState": "PHASE_2B_2D_A2_WINDOW_06_P5_REVIEWED_AND_FINAL_REMAINDER_RESUMED_2_WINDOWS_10_ATTEMPTS"
+    },
+    "dnsNameNotFoundInterpretation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_DNS_NAME_NOT_FOUND_FRAME_AND_REPLACEMENT_INTERPRETATION_V1.json",
+      "sha256": "b1df9d476db30600f6eff94bba6acccd5a52098253b915ec218564731a4449c7",
+      "bytes": 14711,
+      "commit": "818934647d8b73730d6e51ccb0149c47f5a78e73",
+      "ownerDecision": "DNS_NAME_NOT_FOUND_REMAINS_ACQUISITION_FAILURE_AND_REPLACEMENT_ELIGIBLE_UNDER_FROZEN_R3",
+      "roleHere": "it is why both Q1 obligations are ordinary replacement obligations rather than an open capability question"
+    },
+    "generationTransportReview": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION1_TRANSPORT_FAILURE_REVIEW_AFTER_WINDOW_05_V1.json",
+      "sha256": "8c1bcfd510cc424d0353c7cb25292fb15e5954659fbfe0565f3d6fe25a7a22c3",
+      "commit": "7938e87c2c12e86aae8d2d64a8400da7a687545f",
+      "conclusion": "GENERATION_TRANSPORT_REVIEW_NO_COMMON_SYSTEMIC_DEFECT_ESTABLISHED"
+    },
+    "window06Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_05_WINDOW_06_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "463cf5e76b56029998a53a07256829e305e734554536bd767cd6deaf82ba89aa",
+      "commit": "c208fde6b17f457f12be5ec54cc5d84877be4015",
+      "role": "the source of the two current obligations this window serves"
+    },
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33"
+    },
+    "corpusAcquisitionPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e"
+    },
+    "ownerReserveOrderClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "bytes": 18443
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650"
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "6982e6c91b0b057bd294a75f23ac193a3f3a37760db0c4020346b38203b971f5",
+      "bytes": 20746,
+      "ledgerHash": "a624675b865500878aaa00731717d8a7d05c03efb6d637d5eaf3b1d826bbff17",
+      "entries": 26,
+      "thisIsThePreAppendRevision": true,
+      "whyPreAppend": "a strategy is built against the ledger AS IT STANDS. The two assignments it derives are appended later, under the window's own live authority and before any institution network activity - never here"
+    }
+  },
+
+  "currentGenerationState": {
+    "ACQUISITION_SUCCESSFUL": 64,
+    "CURRENT_ACQUISITION_FAILURE": [65, 66],
+    "PENDING_CAPABILITY_REVIEW": [59],
+    "pendingReplacementObligations": [
+      { "selectionIndex": 65, "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE" },
+      { "selectionIndex": 66, "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE" }
+    ],
+    "nextNeverStartedSelectionIndex": 67,
+    "replacementLedgerEntries": 26,
+    "reserveConsumed": 26,
+    "reserveUnused": 14,
+    "nextUnusedReservePosition": 26,
+    "p6": { "result": "NOT_TRIGGERED" },
+    "neverStartedCount": 43,
+    "accounting": "64 + 2 + 1 + 43 = 110",
+    "successfulSelectionIndexRanges": ["0..58", "60..64"],
+    "rederivedIndependently": "current occupants were re-resolved from the frozen draw plus the committed 26-entry ledger, and each occupant's latest run was re-read from the working database. Not copied from the prior record",
+    "doNotExtrapolate": "64 successful slots of 110; not a population success rate"
+  },
+
+  "q1Derivation": {
+    "rule": "Q1 orders ACTUAL current replacement obligations by ascending selection index",
+    "queue": [65, 66],
+    "derivedIndependentlyOfThePriorRecord": true,
+    "p59IsNotInQ1": "index 59 is PENDING_CAPABILITY_REVIEW, owes nothing, and is excluded while pending. Its index being lower than 65 is irrelevant because Q1 sorts obligations, not indices",
+    "slot64IsNotInQ1": "it closed successfully in Window 06 on its second reserve and owes nothing further",
+    "noOtherCurrentObligationExists": true
+  },
+
+  "reserveAssignmentDerivation": {
+    "rule": "Q2 assigns the next unused reserve positions monotonically, in Q1 order",
+    "nextUnusedReservePositionBeforeThisWindow": 26,
+    "assignments": [
+      { "selectionIndex": 65, "reserveRankPosition": 26 },
+      { "selectionIndex": 66, "reserveRankPosition": 27 }
+    ],
+    "reserve27MayNotPrecedeReserve26": true,
+    "noReserveIsAssignedByThisRecord": "this is a derivation. The pre-network append under the window's live authority performs the assignment",
+    "nextUnusedReservePositionAfterThePlannedAppend": 28
+  },
+
+  "windowSize": { "plannedWindowSize": 5 },
+
+  "selectedOption": {
+    "option": "REPLACEMENT_FIRST_THEN_NEXT_UNTOUCHED_PRIMARIES",
+    "why": "the owner decision fixes it, and it is also the only composition the landed planner and adapter accept: replacements discharge Q1 in ascending order with monotonic reserves, then primaries fill the remaining positions from the next NEVER_STARTED index in frozen order",
+    "replacementsFirst": true,
+    "primariesFillTheRemainder": true,
+    "p59Excluded": true,
+    "noAlternativeWasAvailableToChoose": "with 2 obligations and a window size of 5, the composition is fully determined"
+  },
+
+  "candidateWindow": {
+    "workItems": [
+      {
+        "order": 1,
+        "workItemId": "R:65:26",
+        "kind": "REPLACEMENT",
+        "selectionIndex": 65,
+        "split": "FINAL_HOLDOUT",
+        "drawEntryKind": "RESERVE",
+        "drawEntrySha256": "bd44116380528aefd44c8776595667a4eedaada96bafc3a81351d733bfe2d29b",
+        "reserveRankPosition": 26,
+        "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacesOccupant": "RESERVE_REPLACEMENT"
+      },
+      {
+        "order": 2,
+        "workItemId": "R:66:27",
+        "kind": "REPLACEMENT",
+        "selectionIndex": 66,
+        "split": "DEV_TRAIN",
+        "drawEntryKind": "RESERVE",
+        "drawEntrySha256": "8f28c4c3d591fa32d97fde573fb62a1b0d7661ac8bc82d276728a57f37a309d6",
+        "reserveRankPosition": 27,
+        "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacesOccupant": "ORIGINAL_SELECTION"
+      },
+      {
+        "order": 3,
+        "workItemId": "P:67",
+        "kind": "PRIMARY",
+        "selectionIndex": 67,
+        "split": "DEV_CONFIRM",
+        "drawEntryKind": "SELECTION",
+        "drawEntrySha256": "635d55080aedf676ce2bf74e34b4093ad510561e9112781005a92ae66f857815",
+        "reserveRankPosition": null,
+        "replacementReason": null,
+        "replacesOccupant": null
+      },
+      {
+        "order": 4,
+        "workItemId": "P:68",
+        "kind": "PRIMARY",
+        "selectionIndex": 68,
+        "split": "FINAL_HOLDOUT",
+        "drawEntryKind": "SELECTION",
+        "drawEntrySha256": "9a4a95216ebd95d7b8b075833f9b6703bcf88723fccd039b3c8442eff0b97316",
+        "reserveRankPosition": null,
+        "replacementReason": null,
+        "replacesOccupant": null
+      },
+      {
+        "order": 5,
+        "workItemId": "P:69",
+        "kind": "PRIMARY",
+        "selectionIndex": 69,
+        "split": "DEV_CONFIRM",
+        "drawEntryKind": "SELECTION",
+        "drawEntrySha256": "c463d3aa135d4c80ffb82fc36db8f330c45b45a70003b66239aa512ca6d886df",
+        "reserveRankPosition": null,
+        "replacementReason": null,
+        "replacesOccupant": null
+      }
+    ],
+    "replacementItems": 2,
+    "primaryItems": 3,
+    "exactOrderRendered": "R:65:26 -> R:66:27 -> P:67 -> P:68 -> P:69",
+    "noOtherCompositionIsAuthorised": true,
+    "everyDrawEntrySha256RecomputedHere": "each digest was recomputed with the landed drawEntrySha256 over the frozen draw bytes, not copied from the owner task text and not copied from any earlier record. The computation was cross-validated by reproducing five digests Window 06 had already committed - reserve[24], reserve[25], selection[66], selection[67] and selection[68] - all five matching",
+    "splitsAreTheSELECTIONSLOTSSplits": "a replacement inherits the SELECTION SLOT's split, never a split of its own. Reserve entries carry no split in the frozen draw",
+    "twoDigestsAreReusedFromWindow06AndThatIsCorrect": "P:67 and P:68 are the same frozen draw entries Window 06 planned but never started, so their digests are necessarily identical. A different digest would mean the draw had changed"
+  },
+
+  "frozenSplitCrossCheck": {
+    "method": "recomputed from the frozen draw as SPLIT_ASSIGNMENT_CYCLE_V2_R2[i mod 22], independently of the draw's own split field, and then compared against it",
+    "cycleReproducesAll110DrawSplits": true,
+    "slot65": "65 mod 22 = 21 -> FINAL_HOLDOUT",
+    "slot66": "66 mod 22 = 0 -> DEV_TRAIN",
+    "slot67": "67 mod 22 = 1 -> DEV_CONFIRM",
+    "slot68": "68 mod 22 = 2 -> FINAL_HOLDOUT",
+    "slot69": "69 mod 22 = 3 -> DEV_CONFIRM",
+    "allFiveAgreeWithTheFrozenDraw": true,
+    "replacementsInheritTheSelectionSlotSplit": true,
+    "windowSplitComposition": { "DEV_TRAIN": 1, "DEV_CONFIRM": 2, "FINAL_HOLDOUT": 2 },
+    "finalHoldoutItemsInThisWindow": ["R:65:26", "P:68"],
+    "holdoutHandling": "no semantic inspection, no title, url, excerpt or hostname of a FINAL_HOLDOUT item is written to any record"
+  },
+
+  "derivedThresholds": {
+    "plannedWindowSize": 5,
+    "frozenDenominator": 5,
+    "p2Threshold": 3,
+    "p2Arm": "acquisition-unsuccessful outcomes reaching 3 of the frozen denominator 5",
+    "p5Threshold": 2,
+    "p5Arm": "raw pages < 4 on 2 of the frozen denominator 5",
+    "evaluatedAfterEveryCompletedItem": true,
+    "windowLocalStateIsFresh": "P1, P2, P3 and P5 begin fresh for this window under Q4. Window-06 counts are not carried forward",
+    "p6IsGenerationGlobal": true,
+    "p7IsImmediate": true,
+    "p8IsCurrentLiveWindowImmediate": true,
+    "historicalP5PausesDoNotPreTriggerThisWindow": true,
+    "anyPauseMeansStartNoLaterItem": true,
+    "thresholdsAreNotChangedHere": true
+  },
+
+  "p6AfterTheWindowsAppend": {
+    "rule": "reserveConsumed > 10 AND successfulOrganisationCount < 50",
+    "inputsAfterThePlannedAppend": { "reserveConsumed": 28, "successfulOrganisationCount": 64 },
+    "evaluation": "28 > 10 is TRUE and 64 < 50 is FALSE; the conjunction is false",
+    "status": "REMAINS_NOT_TRIGGERED",
+    "successFloorRemainsReached": true
+  },
+
+  "plannedLedgerTransition": {
+    "entriesBefore": 26,
+    "entriesAfter": 28,
+    "appendedSequences": [26, 27],
+    "sequence26": {
+      "selectionIndex": 65,
+      "reserveRankPosition": 26,
+      "priorOccupantKind": "RESERVE_REPLACEMENT",
+      "priorOccupantReserveRankPosition": 25,
+      "previousSequenceForSlot": 25,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    },
+    "sequence27": {
+      "selectionIndex": 66,
+      "reserveRankPosition": 27,
+      "priorOccupantKind": "ORIGINAL_SELECTION",
+      "priorOccupantReserveRankPosition": null,
+      "previousSequenceForSlot": null,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    },
+    "reserveConsumedAfter": 28,
+    "reserveUnusedAfter": 12,
+    "nextUnusedReservePositionAfter": 28,
+    "appendHappensBeforeAnyInstitutionNetworkActivity": true,
+    "noAppendOccursDuringAdjudication": true
+  },
+
+  "replacementChain": {
+    "slot65": "ORIGINAL_SELECTION -> reserve25 -> (planned) reserve26",
+    "slot66": "ORIGINAL_SELECTION -> (planned) reserve27",
+    "derivedFromTheLedgerNotClaimed": "each chain was rebuilt by replaying the 26 committed entries against the frozen draw, checking at every step that the entry's replacedEcheRowKey equals the occupant the replay had reached",
+    "occupantKindsTheAdapterMustDerive": {
+      "slot65": "RESERVE_REPLACEMENT",
+      "slot66": "ORIGINAL_SELECTION"
+    }
+  },
+
+  "failureSemantics": {
+    "bothObligationsAreHostUnreachable": true,
+    "evidence": "DNS_FAILURE / DNS_NAME_NOT_FOUND, Q3 rank 3, on two distinct registrable domains",
+    "reasonIsMechanicalNotSemantic": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE is a coarse replacement reason. It does not mean permanent, globally unreachable, or that any future network could not connect, and it authorises no retry",
+    "noRetryOfTheFailedOccupantsIsPlannedOrPermitted": true
+  },
+
+  "thisStrategyDoesNot": [
+    "authorise any network activity",
+    "append to the replacement ledger",
+    "assign a reserve",
+    "write to the database",
+    "create or modify a plan",
+    "refill, extend or borrow against the cap",
+    "retry a failed occupant, substitute a hostname or widen a root authority",
+    "insert reserve 28, index 59 or index 70",
+    "resolve, retry or replace selection index 59",
+    "change Methodology R3 or any frozen SD/Q rule",
+    "change any pause threshold"
+  ],
+
+  "negativeProbes": {
+    "purpose": "the landed strategy adapter is a STRUCTURAL check. It has no access to acquisition outcomes, so it cannot by itself refuse every invalid state. These probes record exactly where the boundary lies, and are run so the boundary is measured rather than assumed",
+    "probesAreRunAgainstTheLandedAdapterUnmodified": true,
+    "noCodeFixIsMadeHere": true,
+    "adapterAcceptanceOfAnInvalidStateIsRecordedButNeverTreatedAsAuthority": true,
+    "independentCurrentStateGovernanceRemainsLoadBearing": "the composition above is authorised by the independently re-derived current state, not by the adapter's acceptance",
+    "probes": [
+      "an already-successful slot offered as a replacement, with correct digests throughout",
+      "a forged ACQUISITION_SUCCESSFUL count",
+      "Q1 served out of order",
+      "slot 65 claimed as ORIGINAL_SELECTION",
+      "slot 66 claimed as a prior reserve occupant",
+      "index 59 inserted into the window",
+      "reserve 27 assigned before reserve 26",
+      "P:70 offered in place of P:67",
+      "a spent strategy replayed against a later ledger"
+    ],
+    "resultsAreRecordedInTheAdapterProbeResultsSectionBelow": true
+  },
+
+  "adapterProbeResults": {
+    "adapterUnderTest": "windowSpecFromAcquisitionWindowStrategy, src/test/harness/phase2b2d/continuationWindow/windowPlan.ts, landed and unmodified",
+    "runAgainstTheseExactStrategyBytes": "the probes were run against this record's bytes as finally committed; the baseline was re-run after this results section was added, so the accepted bytes ARE the committed bytes",
+    "baseline": {
+      "outcome": "ACCEPT",
+      "boundComposition": "R:65:26 -> R:66:27 -> P:67 -> P:68 -> P:69",
+      "plannedWindowSize": 5
+    },
+    "probes": [
+      {
+        "probe": "an already-successful slot (64) offered as a replacement, with correct digests throughout",
+        "expected": "ACCEPT",
+        "actual": "ACCEPT",
+        "adapterBoundComposition": "R:64:26 -> R:65:27 -> P:67 -> P:68 -> P:69",
+        "isThisADefect": "it is a KNOWN STRUCTURAL LIMIT, re-proved here for the fourth consecutive window. The adapter reads the frozen draw, the ledger and the strategy's own asserted state - it has NO access to acquisition outcomes, so it cannot know slot 64 succeeded. It checks that a claimed obligation is internally consistent, not that it is true",
+        "whatActuallyRefusesIt": "the independently re-derived current state in this record, which reads the working database and finds slot 64's latest run yielding 34 pages",
+        "codeFixMadeHere": false
+      },
+      {
+        "probe": "a forged ACQUISITION_SUCCESSFUL count (64 -> 99)",
+        "expected": "ACCEPT",
+        "actual": "ACCEPT",
+        "isThisADefect": "no, and this probe is narrower than it looks. The adapter uses the success count for exactly one thing - the P6 conjunction - and both 64 and 99 are above the floor of 50, so P6 is false either way and nothing downstream changes. A forged count that CROSSED the floor would change the P6 verdict and be caught by the stated-vs-derived comparison",
+        "whatActuallyRefusesIt": "the independently re-derived count of 64",
+        "codeFixMadeHere": false
+      },
+      {
+        "probe": "Q1 served out of order (66 before 65)",
+        "expected": "REFUSE",
+        "actual": "REFUSE",
+        "refusal": "R:66:26: not the planner's slot/reserve assignment at replacement 0"
+      },
+      {
+        "probe": "slot 65 claimed as ORIGINAL_SELECTION",
+        "expected": "REFUSE",
+        "actual": "REFUSE",
+        "refusal": "R:65:26: claimed occupant kind is not the ledger's (RESERVE_REPLACEMENT)"
+      },
+      {
+        "probe": "slot 66 claimed as a prior reserve occupant",
+        "expected": "REFUSE",
+        "actual": "REFUSE",
+        "refusal": "R:66:27: claimed occupant kind is not the ledger's (ORIGINAL_SELECTION)"
+      },
+      {
+        "probe": "index 59 inserted into the window",
+        "expected": "REFUSE",
+        "actual": "REFUSE",
+        "refusal": "P:59: primaries must be the next never-started slots in frozen order"
+      },
+      {
+        "probe": "reserve 27 assigned before reserve 26",
+        "expected": "REFUSE",
+        "actual": "REFUSE",
+        "refusal": "R:65:27: not the planner's slot/reserve assignment at replacement 0"
+      },
+      {
+        "probe": "P:70 offered in place of P:67",
+        "expected": "REFUSE",
+        "actual": "REFUSE",
+        "refusal": "P:70: primaries must be the next never-started slots in frozen order"
+      },
+      {
+        "probe": "spent-strategy replay, part A: this strategy replayed against a DIFFERENT ledger revision's bytes",
+        "expected": "REFUSE",
+        "actual": "REFUSE",
+        "refusal": "the supplied ledger bytes are not the bound starting revision",
+        "whatThisEstablishes": "the starting-ledger binding is BYTE-EXACT, not semantic. A strategy cannot be re-pointed at another revision"
+      },
+      {
+        "probe": "spent-strategy replay, part B: this strategy replayed, after its own append has landed, against the SUPERSEDED 26-entry bytes it names",
+        "expected": "ACCEPT",
+        "actual": "DEFERRED_UNTIL_AFTER_THE_APPEND",
+        "whyDeferred": "the 26-entry revision is still CURRENT at strategy time, so the replay cannot yet be distinguished from an ordinary first use. It is re-run after the pre-network append, when those bytes are genuinely superseded, and the result is recorded in the live-authority record",
+        "expectedFinding": "ACCEPT - the adapter's only ledger input is the bytes the caller supplies, and nothing in it records that a window already consumed this strategy. This is the same class of limit as probe 1: absent, not defective"
+      }
+    ],
+    "conclusion": "the adapter refuses every ORDERING, OCCUPANT, RESERVE-MONOTONICITY, FROZEN-ORDER and LEDGER-BINDING violation, and accepts states whose falsity is only visible in acquisition OUTCOMES, which it cannot see. That boundary is unchanged from the previous windows and is recorded, not relied upon",
+    "adapterAcceptanceIsNeverAuthority": true,
+    "noProductionOrHarnessCodeWasChanged": true
+  },
+
+  "scopeProofs": {
+    "noInstitutionWasContacted": true,
+    "noDnsQueryWasIssued": true,
+    "noDatabaseWriteOccurred": true,
+    "noProductionCodeChanged": true,
+    "noMigrationChanged": true,
+    "noPriorRecordEdited": true,
+    "noLedgerAppendOccurred": true,
+    "onlyNewFileIsThisStrategyRecord": true
+  },
+
+  "identityDisclosure": {
+    "institutionNames": 0,
+    "hostnames": 0,
+    "registrableDomains": 0,
+    "urls": 0,
+    "echeRowKeys": 0,
+    "organisationUuids": 0,
+    "whatIdentifiesAnItem": "a work item id, a selection index, a reserve rank position and an opaque draw-entry digest"
+  },
+
+  "nextStep": "build the Window-07 plan through the landed generic builders against these exact strategy bytes, then the live authority, then the pre-network append",
+  "terminalState": "PHASE_2B_2D_A2_POST_WINDOW_06_WINDOW_07_STRATEGY_RECORDED",
+  "immutability": "append-only. Once committed these bytes are the spec the plan is checked against and are never edited."
+}
