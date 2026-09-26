@@ -1,0 +1,285 @@
+{
+  "recordId": "phase2b-2d-a2-post-window-06-p5-review-and-final-remaining-authority-resume-v1",
+  "recordKind": "P5_PAUSE_REVIEW_AND_FINAL_REMAINING_AUTHORITY_RESUME",
+  "records": "PHASE_2B_2D_A2_POST_WINDOW_06_P5_REVIEW_AND_FINAL_REMAINING_AUTHORITY_RESUME_V1",
+  "recordedAtUtc": "2026-09-26T19:29:33Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "startingHead": "818934647d8b73730d6e51ccb0149c47f5a78e73",
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "networkUsed": "no institution was contacted, resolved or named. Read-only queries against the working database, read-only reads of committed records, and a read of the local power-management log",
+  "databaseWrittenByThisRecord": "none",
+  "productionCodeChangedByThisRecord": "none",
+  "methodologyChangedByThisRecord": "none",
+  "reserveAssignedByThisRecord": "none",
+  "ledgerAppendedByThisRecord": false,
+
+  "ownerDecision": "RESUME_REMAINING_BOUNDED_Q1_REPLACEMENT_AND_PRIMARY_ACQUISITION_V1",
+  "p5ReviewConclusion": "P5_REVIEWED_REPEATED_TARGET_DNS_NEGATIVES_NO_COMMON_SYSTEMIC_DEFECT_CONTINUATION_ALLOWED",
+
+  "thisFileAuthorises": [
+    "the RESUMPTION of the UNSPENT REMAINDER of the bounded authority resumed at bff76032c0bbe26de797aea061551c76d222511b, and nothing more: 2 ordinary child windows and 10 live attempts",
+    "the construction of the next window's strategy, plan and live authority as separate records, each subject to its own governance"
+  ],
+  "thisFileDoesNotAuthorise": [
+    "any refill, extension or fresh grant of the cap",
+    "a third ordinary child window",
+    "any retry, alternate root, hostname substitution or dynamic reserve insertion",
+    "any change to Methodology R3 or to any frozen SD/Q rule",
+    "any resolution, retry or replacement of selection index 59"
+  ],
+  "isLiveAuthority": false,
+
+  "bound": {
+    "window06Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_05_WINDOW_06_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "463cf5e76b56029998a53a07256829e305e734554536bd767cd6deaf82ba89aa",
+      "commit": "c208fde6b17f457f12be5ec54cc5d84877be4015",
+      "terminalState": "PHASE_2B_2D_A2_POST_WINDOW_05_WINDOW_06_ADJUDICATED_P5_PAUSE_AUTOPILOT_STOPPED"
+    },
+    "window06LiveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_05_WINDOW_06_LIVE_RESULT_V1.json",
+      "sha256": "9a496f5727b0054b93f4ca00a465e79eb92810848053e4df2a9056ad34049e3f"
+    },
+    "generation1TransportReview": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION1_TRANSPORT_FAILURE_REVIEW_AFTER_WINDOW_05_V1.json",
+      "sha256": "8c1bcfd510cc424d0353c7cb25292fb15e5954659fbfe0565f3d6fe25a7a22c3",
+      "commit": "7938e87c2c12e86aae8d2d64a8400da7a687545f",
+      "conclusion": "GENERATION_TRANSPORT_REVIEW_NO_COMMON_SYSTEMIC_DEFECT_ESTABLISHED",
+      "populationAtThatTime": 99
+    },
+    "postWindow05Resume": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_05_P5_REVIEW_AND_REMAINING_AUTHORITY_RESUME_V1.json",
+      "sha256": "95dd29e09a3cde55e88cd28a0553bc5016631da457dbcf8145d8f202be455c16",
+      "commit": "bff76032c0bbe26de797aea061551c76d222511b",
+      "resumed": { "ordinaryChildWindows": 3, "liveAttempts": 15 }
+    },
+    "dnsInterpretation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_DNS_NAME_NOT_FOUND_FRAME_AND_REPLACEMENT_INTERPRETATION_V1.json",
+      "sha256": "b1df9d476db30600f6eff94bba6acccd5a52098253b915ec218564731a4449c7",
+      "bytes": 14711,
+      "commit": "818934647d8b73730d6e51ccb0149c47f5a78e73",
+      "ownerDecision": "DNS_NAME_NOT_FOUND_REMAINS_ACQUISITION_FAILURE_AND_REPLACEMENT_ELIGIBLE_UNDER_FROZEN_R3"
+    },
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "unchangedByThisRecord": true
+    },
+    "nat64OperationalRule": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_NAT64_VANTAGE_AND_ASSIGNED_OCCUPANT_RECOVERY_DECISION_V1.json",
+      "stillInForce": true
+    }
+  },
+
+  "window06P5PauseRemainsHistoricallyCorrect": {
+    "pauseWasLegitimate": true,
+    "condition": "P5",
+    "arm": "raw pages < 4 on 2 of the frozen denominator 5 planned items",
+    "firedAfterItem": 3,
+    "itemsNotStarted": ["P:67", "P:68"],
+    "thisRecordDoesNotReverseIt": "a pause that fired correctly stays fired. What is reviewed here is whether the evidence behind it indicates a common defect, not whether the gate should have triggered",
+    "bothLowYieldItemsCarriedTheSameFailureSubtype": "DNS_FAILURE / DNS_NAME_NOT_FOUND",
+    "thatSimilarityIsRealAndIsRecordedHere": true,
+    "itIsTheThirdConsecutiveWindowToEndOnP5": true
+  },
+
+  "focusedCensusDelta": {
+    "whyADeltaAndNotASecondFullCensus": "the Generation-1 transport census at 7938e87 answered the general question over 99 runs and concluded no common systemic defect. Rerunning it from scratch to obtain the same answer would consume the same evidence twice. What is genuinely new is Window 06's three runs, so exactly those are verified against the earlier census's conclusions",
+    "populationArithmetic": {
+      "priorCensusPopulation": 99,
+      "window06AddedRuns": 3,
+      "newTotal": 102,
+      "liveDatabaseAgrees": true
+    },
+    "databaseCrossCheckAtReadTime": {
+      "runs": 102,
+      "completions": 102,
+      "fetchObservations": 2690,
+      "redirectObservations": 199,
+      "pageEvidence": 2005,
+      "pageCandidates": 4010,
+      "blockedByPolicy": 6,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0,
+      "allNineExpectedValuesMatched": true
+    },
+    "theTwoNewDnsNegatives": {
+      "areOnDistinctRegistrableDomains": true,
+      "distinctRegistrableDomainCountAmongTheTwo": 2,
+      "areNat64OrAddressPolicyArtifacts": false,
+      "evidenceTheyAreNotNat64OrAddressPolicy": "both rows carry a NULL resolved_ip_family and a NULL resolved_ip_is_public - the lookup returned an authoritative negative, so no address was ever classified. Zero BLOCKED_BY_POLICY rows exist in Window 06, and all 6 such rows in the entire generation are confined to 2026-09-25, the known DNS64/NAT64 day",
+      "areCausedByALocalResolverWideOutage": false,
+      "evidenceTheyAreNotAResolverOutage": "within the same eleven-minute window 40 of the 42 observations resolved to PUBLIC IPv4 addresses across 3 distinct hosts, and 0 resolved to IPv6. A resolver that answers 40 queries correctly and returns an authoritative negative for two unrelated names is behaving as a resolver, not failing",
+      "carryTheExpectedSubtype": true,
+      "subtype": "DNS_NAME_NOT_FOUND",
+      "haveNoHttpResponse": true,
+      "evidenceOfNoHttpResponse": "http_status IS NULL on both rows, so no application-level page outcome was ever established - which is exactly the condition Q3 rank 3 names",
+      "areCompletePersistedRuns": true,
+      "evidenceOfCompletePersistence": "3 runs, 3 completions, 0 completions carrying an error_kind, terminal state COMPLETED on all three, fetch policy orgunit-fetch-policy-v6 on all three",
+      "introduceANewSystemicFailureMechanism": false
+    },
+    "generationWideDnsPositionAfterTheDelta": {
+      "dnsFailureObservationRowsTotal": 10,
+      "ofWhichSubtypeDnsNameNotFound": 9,
+      "ofWhichPreObservabilityNullSubtype": 1,
+      "distinctRegistrableDomainsAmongTheNineNameNotFoundRows": 9,
+      "distinctCalendarDays": 4,
+      "oneDomainPerFailure": "nine failures, nine distinct registrable domains. No domain recurs",
+      "asAShareOfObservations": "10 DNS failure rows in 2690 observations",
+      "noRateWasComputedOrApplied": "no significance test, acceptable-failure percentage, expected-failure rate or population success rate was defined or used anywhere in this review. The question is causal, not statistical"
+    },
+    "hostSleepContamination": {
+      "method": "timestamp predicate - does any Sleep, Wake or DarkWake event fall inside a run's started_at..finished_at interval. An event-count difference was NOT used, because the log rotates",
+      "logCoverageUtc": "2026-09-19T19:29:21Z to 2026-09-26T19:29:22Z",
+      "allThreeWindow06RunsLieInsideCoverage": true,
+      "sleepWakeDarkWakeEventsInsideAnyWindow06RunInterval": 0,
+      "sleepWakeDarkWakeEventsAnywhereOn20260926": 0,
+      "readerFailsClosed": "had coverage not spanned the run intervals, the result would have been reported UNDETERMINED rather than clean"
+    },
+    "deltaContradictsTheEarlierCensus": false,
+    "ifItHadContradictedIt": "the instruction was to STOP. It did not, so the review continues"
+  },
+
+  "systemicDefectQuestionForWindow06": {
+    "question": "DO THE TWO REPEATED DNS NEGATIVES ESTABLISH A COMMON RESOLVER, OPERATOR OR ENGINE DEFECT?",
+    "answer": "NOT_ESTABLISHED",
+    "evidenceRelied": [
+      "the pre-Window-06 census over 99 runs found no common systemic defect and is unrefuted by this window",
+      "all known DNS_NAME_NOT_FOUND failures are distributed across distinct target domains - nine failures on nine domains over four days",
+      "the Window-06 acquisition vantage was re-proved compliant before each live item",
+      "zero address-policy refusals occurred in Window 06",
+      "40 of 42 Window-06 observations resolved normally across other hosts",
+      "R:64:24 in the same window returned 34 raw pages",
+      "there was no persistence anomaly",
+      "there was no orphan run",
+      "there was no orchestration exception",
+      "fetch-policy provenance remained correct - orgunit-fetch-policy-v6 throughout"
+    ],
+    "whatThisDoesNotMean": "it does NOT mean DNS_NAME_NOT_FOUND is ignored. It means precisely the opposite: each affected occupant remains an honest acquisition failure and therefore consumes the normal reserve mechanism, as the bound DNS interpretation record states",
+    "whatRemainsTrueAndUnresolvedByEngineering": "a published hostname that does not resolve cannot be repaired without guessing another hostname, which is forbidden. That is a property of the target, not a defect in this system"
+  },
+
+  "remainingAuthorityArithmetic": {
+    "resumedAtBff7603": { "ordinaryChildWindows": 3, "liveAttempts": 15 },
+    "consumedByWindow06": { "ordinaryChildWindows": 1, "liveAttempts": 5 },
+    "whyFiveAttemptsAndNotThree": "a window's authorised size is charged in full. Window 06 authorised five items; P5 stopped it after three. The two unstarted items are NOT refunded as attempts, and they are owed nothing either - they remain NEVER_STARTED and available to any future authority",
+    "remainingNow": { "ordinaryChildWindows": 2, "liveAttempts": 10 },
+    "thisResumeDoesNotRefillTheCap": true,
+    "noNewFourWindowAuthorityIsCreated": true,
+    "capIsAbsolute": "after the second resumed child window's adjudication, STOP regardless of state. No self-extension, no fresh grant, no borrowing against a future authority",
+    "windowSize": "5 whenever at least five executable items remain",
+    "concurrency": 1,
+    "anyPauseInAnyResumedWindow": "STOP and return to the owner. The final unused ordinary window is NOT self-authorised through a pause"
+  },
+
+  "currentCanonicalStateAsIndependentlyRederived": {
+    "method": "current occupants re-resolved from the frozen draw plus the committed 26-entry ledger, then each occupant's latest run re-read from the working database. Not copied from the prior record",
+    "ACQUISITION_SUCCESSFUL": 64,
+    "successfulSelectionIndexRanges": ["0..58", "60..64"],
+    "CURRENT_ACQUISITION_FAILURE": [65, 66],
+    "PENDING_CAPABILITY_REVIEW": [59],
+    "NEVER_STARTED": { "from": 67, "to": 109, "count": 43, "contiguous": true },
+    "accounting": "64 + 2 + 1 + 43 = 110",
+    "setsAreDisjoint": true,
+    "setsCoverExactly0To109": true,
+    "doNotExtrapolate": "64 successful slots of 110; not a population success rate"
+  },
+
+  "currentQ1": {
+    "derivedIndependently": true,
+    "queue": [65, 66],
+    "obligations": [
+      {
+        "selectionIndex": 65,
+        "split": "FINAL_HOLDOUT",
+        "currentOccupantKind": "RESERVE_REPLACEMENT",
+        "currentReserveRankPosition": 25,
+        "occupantChain": "ORIGINAL_SELECTION -> reserve25",
+        "currentFailure": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "q3Rank": 3,
+        "evidence": "DNS_FAILURE / DNS_NAME_NOT_FOUND"
+      },
+      {
+        "selectionIndex": 66,
+        "split": "DEV_TRAIN",
+        "currentOccupantKind": "ORIGINAL_SELECTION",
+        "currentReserveRankPosition": null,
+        "occupantChain": "ORIGINAL_SELECTION",
+        "currentFailure": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "q3Rank": 3,
+        "evidence": "DNS_FAILURE / DNS_NAME_NOT_FOUND"
+      }
+    ],
+    "noOtherCurrentObligationExists": true,
+    "p59IsExcluded": "Q1 sorts ACTUAL obligations only. Index 59 is pending capability review, owes nothing, and its index being lower than 65 is irrelevant"
+  },
+
+  "currentLedgerState": {
+    "entries": 26,
+    "ledgerHash": "a624675b865500878aaa00731717d8a7d05c03efb6d637d5eaf3b1d826bbff17",
+    "ledgerHashRecomputedIndependentlyFromCommittedBytes": true,
+    "entryHashChainVerified": true,
+    "reserveConsumed": 26,
+    "reserveUnused": 14,
+    "nextUnusedReservePosition": 26,
+    "reservePosition26": "UNASSIGNED",
+    "reservePosition27": "UNASSIGNED",
+    "appendedByThisRecord": false
+  },
+
+  "p6": {
+    "rule": "reserveConsumed > 10 AND successfulOrganisationCount < 50",
+    "inputs": { "reserveConsumed": 26, "successfulOrganisationCount": 64 },
+    "evaluation": "26 > 10 is TRUE and 64 < 50 is FALSE; the conjunction is false",
+    "status": "NOT_TRIGGERED",
+    "thresholdChangedHere": false
+  },
+
+  "p59": {
+    "status": "PENDING_CAPABILITY_REVIEW",
+    "formalRange": [1, 24],
+    "touchedHere": false,
+    "excludedFromQ1": true,
+    "note": "unchanged and still pending an owner SD7 detail. Not resolved, retried, replaced or reclassified by this record"
+  },
+
+  "nextWindowCompositionAsMechanicallyDerived": {
+    "constructionRule": "actual Q1 obligations ascending, served by the next unused reserves monotonically; replacements first; then the next NEVER_STARTED primaries fill the remaining positions; index 59 excluded while pending",
+    "order": ["R:65:26", "R:66:27", "P:67", "P:68", "P:69"],
+    "replacementItems": 2,
+    "primaryItems": 3,
+    "plannedWindowSize": 5,
+    "noOtherCompositionIsAuthorised": true,
+    "thisIsADerivationNotAnAssignment": "no reserve is assigned by this record. The pre-network append under the window's own live authority is what assigns positions 26 and 27"
+  },
+
+  "constraintsThatSurviveThisResume": [
+    "one invocation per item, concurrency 1, no manual retry, no alternate root, no hostname substitution, no dynamic reserve insertion",
+    "fetch policy orgunit-fetch-policy-v6, unchanged",
+    "the network vantage is re-proved with the landed structural checks BEFORE live execution; the known unsuitable vantage returning means STOP before consuming another item, and creates no institution failure",
+    "window-local P1, P2, P3 and P5 state is FRESH for each resumed window under Q4; Window-06 lowYieldCount is not carried forward; P6 stays generation-global; P7 is immediate; P8 is live-window immediate",
+    "for size 5: P2 threshold 3, P5 threshold 2, evaluated after every completed item",
+    "no ledger append during adjudication",
+    "a threshold-crossing SD7 range yields pending review, no obligation, and a STOP",
+    "no frame member is removed and no frozen rule is changed"
+  ],
+
+  "identityDisclosure": {
+    "institutionNames": 0,
+    "hostnames": 0,
+    "registrableDomains": 0,
+    "urls": 0,
+    "echeRowKeys": 0,
+    "organisationUuids": 0,
+    "runUuids": 0,
+    "whatIdentifiesAnItem": "a work item id, a selection index and a reserve rank position"
+  },
+
+  "terminalState": "PHASE_2B_2D_A2_WINDOW_06_P5_REVIEWED_AND_FINAL_REMAINDER_RESUMED_2_WINDOWS_10_ATTEMPTS",
+  "nextAuthorisedAction": "build the Window-07 strategy against the PRE-append 26-entry ledger, then its plan, then its live authority, then the pre-network append, then the pre-live gates, then live execution",
+  "immutability": "append-only. Once committed these bytes are never edited."
+}
