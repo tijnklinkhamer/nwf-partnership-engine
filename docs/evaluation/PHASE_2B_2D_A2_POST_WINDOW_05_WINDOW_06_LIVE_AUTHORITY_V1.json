@@ -1,0 +1,525 @@
+{
+  "recordId": "phase2b-2d-a2-post-window-05-window-06-live-authority-v1",
+  "recordKind": "LIVE_ACQUISITION_WINDOW_AUTHORITY",
+  "records": "PHASE_2B_2D_A2_POST_WINDOW_05_WINDOW_06_LIVE_AUTHORITY_V1",
+  "recordedAtUtc": "2026-09-26T17:59:13Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "isLiveAuthority": true,
+  "thisRecordExecutesNothing": true,
+  "grantsNoAuthorityBeforeCommittedAndPushed": true,
+  "startingHead": "47af645077eafafc16ad3e8a5770f1f5df425760",
+  "acceptedAncestry": [
+    "7938e87c2c12e86aae8d2d64a8400da7a687545f - the Generation-1 transport-failure review",
+    "bff76032c0bbe26de797aea061551c76d222511b - the Window-05 P5 review and remaining-authority resume",
+    "ca963e820604a7a1dce7cab72b3cb8027595c671 - the Window-06 strategy",
+    "47af645077eafafc16ad3e8a5770f1f5df425760 - the Window-06 plan"
+  ],
+  "acceptedAncestryVerified": true,
+  "acceptedAncestryIsLinear": "each commit names exactly one parent, and each introduced exactly one file",
+  "ownerDecision": "P5_REVIEWED_AFTER_GENERATION_TRANSPORT_CENSUS_NO_COMMON_SYSTEMIC_DEFECT_CONTINUATION_ALLOWED",
+  "ownerDecisionScope": "this is the FIRST of at most THREE remaining ordinary windows under the RESUMED REMAINDER of the authority granted at b9248ab. The cap was not refilled. If this window ends cleanly the next is constructed mechanically from freshly recomputed state; on any pause, STOP.",
+
+  "thisFileAuthorises": "the bounded live execution of exactly five work items R:64:24, R:65:25, P:66, P:67 and P:68, sequentially, at concurrency 1, under orgunit-fetch-policy-v6, each preceded by a re-proved network vantage and a satisfied start gate; plus exactly two replacement-ledger appends, made BEFORE any institution socket.",
+
+  "continuationWindow": {
+    "window": "POST_WINDOW_05_WINDOW_06",
+    "ordinalWithinTheRemainder": 1,
+    "windowsRemainingAfterThisOne": 2,
+    "liveAttemptsThisWindowConsumes": 5,
+    "liveAttemptsRemainingAfterThisOne": 10,
+    "isTheFinalOrdinaryWindowUnderTheRemainder": false,
+    "capExtensionAuthorised": false
+  },
+
+  "bound": {
+    "ownerContinuationDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_05_P5_REVIEW_AND_REMAINING_AUTHORITY_RESUME_V1.json",
+      "sha256": "95dd29e09a3cde55e88cd28a0553bc5016631da457dbcf8145d8f202be455c16",
+      "bytes": 14039,
+      "commit": "bff76032c0bbe26de797aea061551c76d222511b"
+    },
+    "generationTransportReview": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION1_TRANSPORT_FAILURE_REVIEW_AFTER_WINDOW_05_V1.json",
+      "sha256": "8c1bcfd510cc424d0353c7cb25292fb15e5954659fbfe0565f3d6fe25a7a22c3",
+      "bytes": 35646,
+      "commit": "7938e87c2c12e86aae8d2d64a8400da7a687545f",
+      "conclusion": "GENERATION_TRANSPORT_REVIEW_NO_COMMON_SYSTEMIC_DEFECT_ESTABLISHED",
+      "role": "the precondition of the resume this authority stands on"
+    },
+    "strategy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_05_WINDOW_06_STRATEGY_V1.json",
+      "sha256": "d29526eebb497c230e7319f6899364dcd5be57c94031905cc18b958efa0149c9",
+      "bytes": 33642,
+      "commit": "ca963e820604a7a1dce7cab72b3cb8027595c671"
+    },
+    "plan": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_05_WINDOW_06_PLAN_V1.json",
+      "sha256": "0559fb64b40d5edc92c303dc6345d560d87fbac7dd2d0c60e2e644865f86b055",
+      "bytes": 6523,
+      "commit": "47af645077eafafc16ad3e8a5770f1f5df425760",
+      "windowPlanHash": "57ae483a16f119ffb4a9c799b1fbb8aa23e82fd004784db9f95ee8b7516e3ce5"
+    },
+    "operationalVantageRule": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_DNS64_NAT64_OPERATOR_VANTAGE_EVIDENCE_INTEGRITY_ADJUDICATION_V1.json",
+      "sha256": "5f901c1c5e0f2248e7e50887187dc1bcce06ace8b852b8c65d0be35547f655bc",
+      "ruleId": "DNS64_NAT64_OPERATOR_VANTAGE_REFUSAL_DOES_NOT_CREATE_REPLACEMENT_OBLIGATION_V1",
+      "carriedForward": true,
+      "broadenedHere": false
+    },
+    "ownerReserveOrderClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528"
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650"
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    },
+    "startingReplacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "3ca6c9eff072b17afac1c6adc5c36c162a84e7017ac1bf42257a0abb7bca6c67",
+      "bytes": 19516,
+      "ledgerHash": "c9fdb2e3ce19f53d55bf45d7ebb0c74db29a5b43334264d80f10cd9c98861234",
+      "entries": 24
+    },
+    "boundedTransportRetryDesign": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_BOUNDED_TRANSPORT_RETRY_POLICY_DESIGN_V1.json",
+      "sha256": "46c3e1ff49db96cc6bb6d84d6088f799cfff6aa8d34d0b4d659be31a6fddc1cd",
+      "widenedHere": false
+    }
+  },
+
+  "startGate": {
+    "localHeadEqualsOriginAfterFetch": true,
+    "worktreeClean": true,
+    "ancestryLinear": true,
+    "transportReviewCommitIntroducedExactlyOneFile": true,
+    "ownerDecisionCommitIntroducedExactlyOneFile": true,
+    "strategyCommitIntroducedExactlyOneFile": true,
+    "planCommitIntroducedExactlyOneFile": true,
+    "planReproducesFromTheCommittedStrategyBytes": "rebuilt through windowSpecFromAcquisitionWindowStrategy + buildPrecommittedWindowPlan and byte-compared UNCHANGED; windowPlanHash recomputed from the written bytes and matched",
+    "replacementLedgerByteIdenticalToHead": "git diff against HEAD is empty",
+    "addressPolicyByteIdenticalToHead": "git diff against HEAD is empty",
+    "reservePosition24Assigned": false,
+    "reservePosition25Assigned": false,
+    "reservePosition26Assigned": false,
+    "liveAuthorityForThisWindowAlreadyExisted": false,
+    "newerA2AuthorityAssignmentLiveResultOrAdjudicationExisted": false,
+    "concurrentA2TaskModifyingThisLineage": false,
+    "acquisitionOrValidationProcessRunning": false,
+    "quietGateMethod": "a self-excluding process scan that also excludes log READERS and other projects' trees, restricted to this repository's own paths",
+    "quietGatePositiveControl": "MEASURED. With the repository quiet the detector reported 0 competing processes. A genuine vitest run was then started in this repository and the detector reported 1; when it exited the detector returned to 0. The gate therefore fires on a real competing execution rather than being vacuously quiet.",
+    "databaseBaselineUnchangedSinceWindow05": true,
+    "databaseBaseline": {
+      "runs": 99,
+      "completions": 99,
+      "fetchObservations": 2648,
+      "redirectObservations": 197,
+      "pageEvidence": 1971,
+      "pageCandidates": 3942,
+      "rootPromotions": 0,
+      "rootPromotionRevocations": 0,
+      "runsWithoutCompletion": 0,
+      "dryRunRuns": 0,
+      "blockedByPolicyRows": 6,
+      "mostRecentRunStartedAtUtc": "2026-09-26T16:35:22.716Z"
+    },
+    "unrelatedProcessesObserved": "a database-auth gate script and Supabase containers belonging to OTHER project trees. None touches this repository, its worktree, its database or its tmp resources, and the quiet gate excludes them by path."
+  },
+
+  "networkVantagePrecondition": {
+    "requiredBeforeTheFirstRequestAndReassertedBeforeEveryItem": true,
+    "outcomeAtThisRecord": "NETWORK_PRECONDITION_PROVED",
+    "conditionBeingRuledOut": "IPV6_ONLY_CELLULAR_DNS64_NAT64_TRANSLATION_PREFIX_ONLY_VANTAGE",
+    "measuredAtThisRecord": {
+      "nativeIpv4DefaultRoutePresent": true,
+      "interfaceClass": "WIRED_OR_WIFI_LAN",
+      "gatewayIsPrivateLan": true,
+      "ipv6DefaultRoutePresent": false,
+      "cellularPdpInterfacesPresent": 0,
+      "clatWellKnownAddressPresent": false,
+      "constrainedInterfacesPresent": 0,
+      "ipv4onlyArpaARecords": 2,
+      "ipv4onlyArpaAaaaRecords": 0,
+      "dns64SynthesisObserved": false,
+      "canaryFamiliesReturned": "IPV4 only on both non-institution canaries; each remote address classified PUBLIC by the landed classifier",
+      "canaryTranslationPrefixAddressesReturned": 0,
+      "ipv4HttpsCanaryStatuses": [200, 200],
+      "guardStillRefusesTranslationPrefixes": "0 of 3 probe inputs classified public; reasons relay_or_translation, relay_or_translation, ietf_protocol_assignment",
+      "addressPolicyFileModified": false,
+      "gitDiffOfAddressPolicyAgainstHead": "empty"
+    },
+    "method": "public-safe non-institution canaries (example.com, www.iana.org, ipv4only.arpa) plus the gateway's own resolution path - dns.promises.lookup(host, { all: true, verbatim: true }) fed to the unmodified classifyIpAddress from src/orgunits/web/address.ts",
+    "institutionHostnamesExposedByTheCheck": "none",
+    "localPublicIpv4AddressRecorded": false,
+    "addressPolicyRuleDisabledToPassTheCheck": false,
+    "ifTheVantageIsUnsuitableAtAnyPoint": "STOP before the next item with RECOVERY_NETWORK_PRECONDITION_VIOLATED_DURING_EXECUTION. Retain what ran as ENVIRONMENT evidence, create no replacement obligation from it and consume no reserve"
+  },
+
+  "requiredFetchPolicy": "orgunit-fetch-policy-v6",
+  "fetchPolicyV7Authorised": false,
+  "policyUpgradeAuthorised": false,
+  "uncommittedPolicyChangeAuthorised": false,
+
+  "workItems": [
+    {
+      "order": 1,
+      "workItemId": "R:64:24",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 64,
+      "reserveRankPosition": 24,
+      "split": "DEV_CONFIRM",
+      "drawEntryKind": "RESERVE",
+      "drawEntrySha256": "c01d75ff5a1d7d57aeca25c1ffd97d1fb21c860d3cb56043f6b6cc3c7651a211",
+      "plannedLedgerSequence": 24,
+      "replacesOccupant": "RESERVE_REPLACEMENT",
+      "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    },
+    {
+      "order": 2,
+      "workItemId": "R:65:25",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 65,
+      "reserveRankPosition": 25,
+      "split": "FINAL_HOLDOUT",
+      "drawEntryKind": "RESERVE",
+      "drawEntrySha256": "2ca4c3dbfaaef88fa8eef521873f3fd1ab7ea05ac17b8fff83823e92737963af",
+      "plannedLedgerSequence": 25,
+      "replacesOccupant": "ORIGINAL_SELECTION",
+      "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    },
+    {
+      "order": 3,
+      "workItemId": "P:66",
+      "kind": "PRIMARY",
+      "selectionIndex": 66,
+      "reserveRankPosition": null,
+      "split": "DEV_TRAIN",
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "f8f055832b9267b25212a820b08f535e7bed92caf66f5ba3a2f8dd73e4d8b7fc",
+      "plannedLedgerSequence": null,
+      "replacesOccupant": null,
+      "replacementReason": null
+    },
+    {
+      "order": 4,
+      "workItemId": "P:67",
+      "kind": "PRIMARY",
+      "selectionIndex": 67,
+      "reserveRankPosition": null,
+      "split": "DEV_CONFIRM",
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "635d55080aedf676ce2bf74e34b4093ad510561e9112781005a92ae66f857815",
+      "plannedLedgerSequence": null,
+      "replacesOccupant": null,
+      "replacementReason": null
+    },
+    {
+      "order": 5,
+      "workItemId": "P:68",
+      "kind": "PRIMARY",
+      "selectionIndex": 68,
+      "reserveRankPosition": null,
+      "split": "FINAL_HOLDOUT",
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "9a4a95216ebd95d7b8b075833f9b6703bcf88723fccd039b3c8442eff0b97316",
+      "plannedLedgerSequence": null,
+      "replacesOccupant": null,
+      "replacementReason": null
+    }
+  ],
+  "workItemDigestsRecomputedFromFrozenDraw": true,
+  "workItemDigestsDistinct": true,
+  "workItemDigestsMatchThePlanExactly": true,
+  "incidentalSplitComposition": { "DEV_CONFIRM": 2, "FINAL_HOLDOUT": 2, "DEV_TRAIN": 1 },
+  "splitCompositionIsASelectionTarget": false,
+  "splitCompositionNote": "an OUTCOME of Q1 ordering and the next-untouched-primary rule. Two holdout items in one window follows from the frozen draw at slots 65 and 68",
+  "noItemOfThisWindowHasAnyPriorAcquisitionRun": "true for the five OCCUPANTS authorised here. Reserve 24, reserve 25, and the original selections of 66, 67 and 68 have never been acquired",
+  "theOccupantsBeingReplacedWereAlreadyAcquiredAndFailed": "slot 64's reserve-23 occupant failed the TLS handshake with subtype TLS_PROTOCOL_INCOMPATIBLE in Window 05; slot 65's original selection failed name resolution with subtype DNS_NAME_NOT_FOUND in the same window. Both are ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE at Q3 rank 3",
+  "slot64IsASecondGenerationReplacement": "its chain is ORIGINAL_SELECTION then RESERVE_REPLACEMENT@23, so reserve 24 is its SECOND replacement and its ledger entry carries previousSequenceForSlot 23, not null. This is the first such case in this window series",
+
+  "executionOrderIsFrozen": "R:64:24 -> R:65:25 -> P:66 -> P:67 -> P:68",
+  "orderHardening": "the order is the plan's own. It is re-compared against the committed plan before every item and is never derived at runtime",
+  "concurrency": 1,
+  "maximumWorkItemsStarted": 5,
+  "sixthWorkItemAuthorised": false,
+  "maximumReplacementAssignments": 2,
+  "dynamicInsertionAuthorised": false,
+  "dynamicReplacementAuthorised": false,
+  "windowEnlargementAuthorised": false,
+  "runtimeSkippingOrSortingAuthorised": false,
+  "strategyRegenerationAuthorised": false,
+  "planRegenerationAuthorised": false,
+
+  "authorisedReplacementAssignments": [
+    {
+      "sequence": 24,
+      "selectionIndex": 64,
+      "reserveRankPosition": 24,
+      "replacedOccupantKind": "RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 23,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    },
+    {
+      "sequence": 25,
+      "selectionIndex": 65,
+      "reserveRankPosition": 25,
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "previousSequenceForSlot": null,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    }
+  ],
+  "replacementLedgerMutationAuthorised": "exactly the two appends above, once, in that order, before any institution socket",
+  "reservePosition26OrLaterAuthorised": false,
+  "reservePositionReuseAuthorised": false,
+  "ledgerRowEditOrDeleteAuthorised": false,
+  "sequence23OrEarlierMayBeEdited": false,
+  "thirdAppendAuthorised": false,
+  "postNetworkLedgerAppendAuthorised": false,
+  "p59ReplacementAuthorised": false,
+  "p59AdjudicationAuthorised": false,
+  "p69OrHigherAuthorisedByThisAuthority": false,
+  "slot63OrAnyOtherSuccessfulSlotReServiceAuthorised": false,
+  "aSecondReplacementForAnySlotInsideThisWindowAuthorised": false,
+  "window07Authorised": false,
+
+  "preNetworkAssignmentStage": {
+    "required": true,
+    "expectedPath": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_05_WINDOW_06_PRENETWORK_ASSIGNMENT_V1.json",
+    "recordKind": "PRENETWORK_RESERVE_ASSIGNMENT",
+    "producedBy": "prepareReplacementAppend, twice, from the landed harness",
+    "mustAlsoUpdate": "the replacement ledger artifact, by appending exactly sequences 24 and 25 and recomputing ledgerHash",
+    "mustProveBeforeWriting": [
+      "the obligation for slot 64 exists and is HOST_UNREACHABLE",
+      "the obligation for slot 65 exists and is HOST_UNREACHABLE",
+      "slot 64's current occupant is RESERVE_REPLACEMENT and slot 65's is ORIGINAL_SELECTION, per currentOccupantForSelectionIndex",
+      "reserve positions 24 and 25 appear in no committed entry",
+      "the resulting ledger validates with the landed harness and carries the 24-entry prefix byte-identically"
+    ],
+    "helperAcceptanceIsNotSufficient": "the obligation existence is proved independently from the adjudication chain, not from the planner and not from the adapter",
+    "mustBeCommittedPushedAndRefetchedBeforeRequestOne": true,
+    "chronologyMustBeRecordedInTheLiveResult": true,
+    "theCommitMayBeNecessaryForLedgerCleanlinessValidation": "as Window 05 established, the canonical ledger append may need to be COMMITTED before the repository's ledger-cleanliness validation can pass. That required ordering is not a repository defect and must not be recorded as one"
+  },
+
+  "p7ExecutionBoundary": {
+    "invariantCount": 13,
+    "beforeTheAppendOnTheActualTwentyFourEntryLedger": "MEASURED at this record: 11 of 13 true, refusing on replacementAssignmentsRecorded and currentOccupantsMatch, and the gate returned PAUSE_P7_INVARIANT_MISMATCH with mayStartNextWorkItem false and nextWorkItemId null. That is the correct refusal and is exactly why the append must precede execution",
+    "afterTheCommittedAndPushedTwoEntryAppend": "all 13 invariants must be true, with completed = [] and the first item R:64:24",
+    "reRunBeforeEveryLaterItem": true
+  },
+
+  "liveInvocationPerStartedItem": "exactly one: npm run cli -- orgunits discover --organisation-id <private> --execute --json",
+  "rawOutputLocation": "the private session scratchpad outside Git only",
+  "organisationIdResolution": "each replacement organisationId is read from the frozen draw RESERVE entry at its authorised reserve rank position, and each primary from the frozen draw SELECTION entry at its selection index. No other source is consulted",
+
+  "beforeEveryItem": [
+    "the network-vantage precondition re-measured and PROVED",
+    "battery strictly above 20%",
+    "lid open",
+    "a dedicated caffeinate -dimsu active for the item",
+    "no competing A2 acquisition",
+    "no competing validate or vitest sharing this repository's database, worktree or tmp resources",
+    "the host-event TIMESTAMP PREDICATE over the governed interval - NOT an event-count delta - with a proved successful pmset log read",
+    "adequate disk",
+    "acquisition database healthy",
+    "clean scratch and sealed-evidence baseline",
+    "the committed TWENTY-SIX-entry ledger byte-identical to the post-append revision",
+    "strategy sha, plan sha, windowPlanHash and the complete ordered list re-compared",
+    "all 13 P7 invariants true",
+    "gate nextWorkItemId equals the exact intended next frozen item"
+  ],
+
+  "hostStatePolicy": {
+    "acPowerRequired": true,
+    "batteryMustBeStrictlyAbovePercent": 20,
+    "hostStateAtThisRecord": {
+      "acPower": true,
+      "batteryPercent": 100,
+      "batteryCharging": false,
+      "clamshell": "No",
+      "lidOpen": true
+    },
+    "sleepDetector": "HOST_EVENT_TIMESTAMP_PREDICATE_OVER_GOVERNED_INTERVAL_V1 - a timestamp predicate over the governed interval, which FAILS CLOSED to UNDETERMINED when the pmset log cannot be read",
+    "sleepEvidenceAtThisRecord": {
+      "pmsetLogBytesRead": 8644094,
+      "timestampedLinesParsed": 36616,
+      "coverageFromUtc": "2026-09-19T17:59:26Z",
+      "coverageToUtc": "2026-09-26T17:58:33Z",
+      "totalSleepWakeDarkWakeEventsInTheLog": 639,
+      "eventsInsideTheGovernedIntervalSince2026_09_26T17_00_00Z": 0,
+      "mostRecentEventAnywhereInTheLog": "2026-09-25T21:12:09Z Wake"
+    },
+    "whyTheCountMethodWasRetired": "the pmset log rotates at its tail, so an absolute count can fall without any new event. A count delta is not a sound predicate",
+    "readerBufferIsLargeEnoughAndTheReadIsProved": "the reader consumes the complete log with a 64 MiB buffer and refuses to report 'no event' from a short read",
+    "requirementForTheRestOfThisWindow": "no qualifying Sleep, Wake or DarkWake timestamp inside any governed interval",
+    "caffeinateDoesNotStopClamshellSleep": true
+  },
+
+  "retryPermitted": false,
+  "manualRetryAuthorised": false,
+  "hiddenRetryAuthorised": false,
+  "cliRerunOfAnItemAuthorised": false,
+  "rerunOfCompletedOrFailedTargetAuthorised": false,
+  "generalHttpRetryAuthorised": false,
+  "secondAcquisitionAttemptAuthorised": false,
+  "curlWgetOrBrowserInstitutionAccessAuthorised": false,
+  "adaptiveRootChangeAuthorised": false,
+  "alternateRootAuthorised": false,
+  "widenedBudgetAuthorised": false,
+  "timeoutWideningAuthorised": false,
+  "tlsBypassAuthorised": false,
+  "addressPolicyExceptionAuthorised": false,
+  "nat64AllowanceAuthorised": false,
+  "crawlerOrParserChangeAuthorised": false,
+  "boundedTransportRetryNote": "the landed v4 bounded transport retry inside robots acquisition is part of orgunit-fetch-policy-v6 and is not a manual retry. Nothing here widens it. Its frozen non-retryable set - TLS_CERT_INVALID, TLS_PROTOCOL_INCOMPATIBLE, DNS_NAME_NOT_FOUND, DNS_NO_ADDRESS_RETURNED - stays exactly as landed, which is why the two Window-05 failures received one attempt each and why a repeat of either would again receive one",
+
+  "evidencePerStartedItem": [
+    "the raw CLI JSON, in the private scratchpad only",
+    "an opaque runRef = sha256 of the run id as its lower-case canonical UUID text, UTF-8, no salt",
+    "a database reconcile of that run's own rows",
+    "a per-RUN formal SD7 computation, never organisation-scoped",
+    "one sealed SD7 record written exclusive-create into that split's own root",
+    "a ledger re-validation",
+    "the 13 P7 invariants",
+    "the between-run gate decision"
+  ],
+  "sealedFilenames": {
+    "convention": "POST_WINDOW_05_WINDOW_06_V1_SD7_DETAIL_<workItemId with colons as underscores>.json",
+    "root": "the landed sealedRootFor(split) only, with exclusive-create semantics into that split's own root"
+  },
+  "sealedFilesCommittedToGit": false,
+  "existingSealedFileOverwriteAuthorised": false,
+
+  "finalHoldoutConstraints": {
+    "finalHoldoutItemsInThisWindow": ["R:65:25", "P:68"],
+    "semanticInspectionAuthorised": false,
+    "labelOrClassDerivationAuthorised": false,
+    "sealedSd7DetailWrittenOnlyToTheHoldoutRoot": true,
+    "noTitleUrlExcerptOrHostnameMayEnterAnyPublicRecord": true
+  },
+
+  "pauseThresholds": {
+    "plannedWindowSize": 5,
+    "p1ConsecutiveRootAuthorityFailures": 3,
+    "p2ConsecutiveRobotsRefusals": 3,
+    "p2PercentageThresholdCount": 3,
+    "p3ConsecutiveFailedRuns": 2,
+    "p5LowYieldThresholdCount": 2,
+    "p5MinRawPageEvidence": 4,
+    "denominator": "the frozen planned window size of 5, never the completed count"
+  },
+  "q4FreshWindowLocalCounters": "P1, P2, P3 and P5 counters start at zero. The Window-05 P5 count of 2 is NOT carried, per the bound owner review",
+  "p6Boundary": "generation-global and does not reset. Re-evaluated at 26 and 63 after the append: 26 > 10 is true, 63 < 50 is false, so the conjunction is false",
+  "continuationOwnedByGate": "the landed between-run gate decides continuation after every item. This authority never overrides it",
+  "onAnyPauseDecision": "STOP immediately. Preserve all evidence. Start no further item. Write the LIVE_RESULT with the pause recorded, adjudicate what is mechanically decidable, and return to the owner",
+  "requiredDecisionAfterItem5": "WINDOW_COMPLETE, or the pause that fired",
+
+  "unsuccessfulItemSemantics": {
+    "aFailedReplacementCreatesAQ2SameSlotObligation": "if reserve 24 or reserve 25 fails, its SELECTION SLOT owes another replacement at a LATER planning point",
+    "aFailedPrimaryCreatesAnObligationForItsOwnSelectionSlot": true,
+    "anAddressPolicyRefusalIsTestedAgainstTheVantageRuleFirst": "and the rule applies only when all of its conjunctive conditions hold. A DNS resolution failure is NOT such a refusal, and neither is a TLS protocol refusal",
+    "anSD7RangeStraddlingTheThresholdIsPendingReviewNotAFailure": true,
+    "noObligationIsServedInsideThisWindow": true,
+    "anyObligationThisWindowCreatesIsCarriedToTheNextPlanningPoint": true
+  },
+
+  "databaseMutationAuthorised": "only the append-only research evidence the landed orchestrator writes for the five authorised runs, as the research role, which holds SELECT and INSERT and nothing else",
+  "classifierAuthorised": false,
+  "providerAuthorised": false,
+  "labelsAuthorised": false,
+  "setPSetRAuthorised": false,
+  "migrationAuthorised": false,
+  "productionCodeChangeAuthorised": false,
+  "harnessChangeAuthorised": false,
+  "testChangeAuthorised": false,
+  "methodologyOrPlanChangeAuthorised": false,
+  "q3TaxonomyChangeAuthorised": false,
+  "addressGuardChangeAuthorised": false,
+  "strategyAdapterLimitationFixAuthorised": false,
+  "governanceFileEditAuthorised": false,
+  "finalAcquisitionAdjudicationAuthorised": false,
+  "a3Authorised": false,
+  "phase2EAuthorised": false,
+
+  "liveResultRequirements": {
+    "requiredAfter": "the window terminates, whether complete or paused",
+    "expectedPath": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_05_WINDOW_06_LIVE_RESULT_V1.json",
+    "recordKind": "LIVE_WINDOW_RESULT_EVIDENCE_PENDING_ADJUDICATION",
+    "mustBeFormattedBeforeValidationStarts": true
+  },
+
+  "finalValidationRules": {
+    "command": "caffeinate -dimsu npm run validate",
+    "runsExactlyOnce": true,
+    "after": "JSON parse, Prettier, deterministic rendering, disclosure scan, P7, ledger and host evidence all pass",
+    "cheapChecksFirst": true,
+    "batteryExecutionAuthorised": false,
+    "acPowerRequired": true,
+    "batteryMustBeAbovePercent": 20,
+    "lidOpen": true,
+    "caffeinateDimsuActive": true,
+    "stableConcurrencyIntervalSeconds": 120,
+    "quietGateMustExcludeItself": "and must also exclude log readers and other projects' trees, with a positive control proving it still fires on a genuine competing execution",
+    "recheckImmediatelyBeforeStart": true,
+    "onFailureAfterStart": "STOP. No automatic rerun",
+    "onSleepDuringValidation": "STOP. The governed interval is contaminated"
+  },
+
+  "negativeAuthorityProbes": [
+    "a sixth work item: REFUSED",
+    "P:69 or any higher primary: REFUSED",
+    "P:59 in any role: REFUSED",
+    "re-serving slot 63 or any other successful slot: REFUSED - and note the strategy's probe 1 proved the landed adapter would ACCEPT exactly that, so the refusal rests on independent current-state governance, run again before the append",
+    "reserve position 26 or later: REFUSED",
+    "reusing reserve 24 or 25: REFUSED",
+    "a third ledger append: REFUSED",
+    "a ledger append after any institution request: REFUSED",
+    "a second replacement for a slot inside this window: REFUSED",
+    "a manual retry, a second acquisition attempt or a curl/wget/browser request to an institution: REFUSED",
+    "an alternate root, a widened budget, a longer timeout, a weakened TLS setting, a DNS workaround or an address-policy exception: REFUSED",
+    "a production, harness, test, methodology or governance file edit: REFUSED"
+  ],
+
+  "knownOpenGovernanceFindingsCarriedForward": [
+    "STRATEGY_ADAPTER_HAS_NO_ACQUISITION_OUTCOME_ACCESS_V1 - reproved by this window's strategy probe 1 with every digest correct. Defence is the independent current-state check, not the adapter. No fix is authorised",
+    "the adapter cannot detect a forged success count above the P6 floor - reproved by probe 2. Same defence",
+    "the adapter would accept a SPENT strategy replayed against a ledger revision that still matches its own binding. Defence is procedural plus the independent check",
+    "P:59 remains PENDING_CAPABILITY_REVIEW with formal SD7 range [1,24] and holds no obligation",
+    "per-host pacing compliance is not decidable from persisted evidence, because observed_at is stamped at persist time while pacing is enforced between slot grants. Recorded as a limitation by the transport review; no repair is authorised and none is required"
+  ],
+
+  "institutionNetworkExecutedBeforeThisRecord": "none for this window. The last institution requests in this lineage were Window 05, which terminated at 2026-09-26T16:35:22Z",
+  "networkAccessForTargetAcquisitionByThisRecordTask": "none. Only non-institution canaries for the vantage precondition",
+  "databaseWrittenByThisRecordTask": "none",
+  "replacementLedgerAppendedByThisRecordTask": "none",
+  "preNetworkAssignmentFileCreatedByThisRecordTask": "none",
+  "sealedEvidenceCreatedByThisRecordTask": "none",
+  "liveResultCreatedByThisRecordTask": "none",
+  "adjudicationPerformedByThisRecordTask": "none",
+  "earlierEvidenceAlteredByThisRecordTask": "none",
+  "institutionIdentityInThisFile": "none. Selection indices, reserve positions, splits, draw-entry digests and replacement reasons only",
+
+  "terminal": "PHASE_2B_2D_A2_POST_WINDOW_05_WINDOW_06_LIVE_AUTHORITY_RECORDED",
+  "nextAuthorisedActionSequence": [
+    "commit, push and refetch this authority",
+    "prove the two obligations and the two occupants independently, then append ledger sequences 24 and 25 through prepareReplacementAppend",
+    "write the PRENETWORK_RESERVE_ASSIGNMENT record and the updated 26-entry ledger, commit, push and refetch",
+    "recompute P7: require 13 of 13, completed = [], next item R:64:24",
+    "re-prove the vantage and the host state",
+    "execute the five items once each, sequentially, evaluating the gate after every one",
+    "write the LIVE_RESULT",
+    "run the single governed validation",
+    "adjudicate every started run independently, per run"
+  ],
+  "nextOwnerDecisionOnCompletionOrPause": "if this window ends cleanly, recompute canonical state from scratch and construct Window 07 mechanically within the remaining cap of 2 windows and 10 attempts. On any pause, STOP",
+  "immutability": "append-only. This record is never edited."
+}
