@@ -1,0 +1,224 @@
+{
+  "recordId": "phase2b-2d-a2-dns-name-not-found-frame-and-replacement-interpretation-v1",
+  "recordKind": "OWNER_OPERATIONAL_INTERPRETATION_OF_EXISTING_FROZEN_RULES",
+  "records": "PHASE_2B_2D_A2_DNS_NAME_NOT_FOUND_FRAME_AND_REPLACEMENT_INTERPRETATION_V1",
+  "recordedAtUtc": "2026-09-26T19:25:55Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "startingHead": "c208fde6b17f457f12be5ec54cc5d84877be4015",
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "networkUsed": "none. No institution was contacted, resolved or named. No DNS query was issued by this record",
+  "databaseWrittenByThisRecord": "none",
+  "databaseReadByThisRecord": "read-only, role nwf_readonly, for the census delta reported in the companion P5 review record",
+  "productionCodeChangedByThisRecord": "none",
+  "methodologyChangedByThisRecord": "none",
+  "reserveAssignedByThisRecord": "none",
+  "ledgerAppendedByThisRecord": false,
+
+  "ownerDecision": "DNS_NAME_NOT_FOUND_REMAINS_ACQUISITION_FAILURE_AND_REPLACEMENT_ELIGIBLE_UNDER_FROZEN_R3",
+
+  "question": "WHEN THE WEBSITE HOSTNAME AN OFFICIAL REGISTER PUBLISHES RETURNS AN AUTHORITATIVE DNS NEGATIVE, WHICH ALREADY-FROZEN RULE APPLIES?",
+
+  "whyThisRecordExists": {
+    "trigger": "Window 06 produced two items whose only transport evidence was DNS_FAILURE / DNS_NAME_NOT_FOUND on the website hostname the frozen root authority publishes. Across Generation-1 nine such rows now exist. The Window-06 adjudication recorded that whether such a slot should be replaced from reserve, marked structurally unreachable, or excluded from the frame at A1 had never been asked of the owner",
+    "whatWasGenuinelyOpen": "not WHAT the evidence says - the evidence is unambiguous and was already adjudicated - but WHICH frozen rule governs a slot whose published hostname does not resolve",
+    "whatThisRecordDoes": "resolves that question by naming the already-frozen rule that applies. It writes no new rule",
+    "whyItIsNotAMethodologyChange": "every rule cited below is quoted from bytes that existed before this record and are unchanged by it. Choosing among existing rules is interpretation; adding, removing or re-wording one would be revision. Only the former happens here"
+  },
+
+  "decision": {
+    "statement": "An authoritative DNS_NAME_NOT_FOUND on the frozen root authority's published hostname means THE CURRENT OCCUPANT OF THAT SELECTION SLOT FAILED ACQUISITION. It is an ordinary ACQUISITION_UNSUCCESSFUL outcome, classified ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE by the existing Q3 precedence, and it makes that occupant replacement-eligible through the existing SD2 reserve mechanism",
+    "theSlotRemains": true,
+    "theFrameIsUnchanged": true,
+    "theOccupantIsReplaced": true,
+    "replacementMechanism": "SD2, served in Q1/Q2 order at a later planning point by the next unused reserve in rank order",
+    "thisIsNotAnIgnoreRule": "the opposite. Treating the failure as honest is precisely what makes it consume a reserve. An outcome that were merely ignored would consume nothing and would silently shrink the denominator"
+  },
+
+  "frozenRulesThisRecordAppliesAndDoesNotChange": {
+    "SD1": {
+      "source": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json, SD1_frame",
+      "eligibilityVerbatim": "at least one STRUCTURALLY_VALID website_claims row OR at least one live un-revoked orgunit_root_promotions row; AND contributes no item to the historical 49-item DEVELOPMENT set; AND appears in no earlier Methodology V2 generation corpus",
+      "enumeratedInFullBeforeAnyDrawAndAnyAcquisition": true,
+      "dnsReachabilityIsNotAnSD1Criterion": true,
+      "whyThatSettlesTheFrameQuestion": "SD1's eligibility test is a property of the DATABASE ROW that carries the claim, evaluated BEFORE the draw and BEFORE any acquisition. Nothing in it consults the network, resolves a hostname, or could have. A frame committed before acquisition cannot be retroactively wrong because acquisition later produced a transport outcome - the frame never claimed reachability in the first place",
+      "changedByThisRecord": false
+    },
+    "SD2": {
+      "source": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json, SD2_draw",
+      "replacementRuleVerbatim": "A selected organisation that is not ACQUISITION_SUCCESSFUL is replaced by the next unused RESERVE organisation in rank order; the replacement inherits the replaced organisation's selection index and therefore its split. No reshuffle.",
+      "theTriggerIsNotAcquisitionSuccessful": "SD2's condition is the NEGATION of SD9 success. It is deliberately not a list of failure causes, so a cause SD2 never enumerated is still covered by it",
+      "changedByThisRecord": false
+    },
+    "SD9": {
+      "source": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json, SD3_to_SD12_selection.SD9",
+      "MIN_PAGES_PER_ORGANISATION": 4,
+      "appliedAfterDeduplication": true,
+      "howItDecidesADnsNegative": "a run that never obtained a readable site policy yields zero pages. Zero is less than four at both ends of any SD7 range, so SD9 decides the item determinately and without needing the near-duplicate analysis at all",
+      "changedByThisRecord": false
+    },
+    "Q3": {
+      "source": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json, Q3_replacementReasonPrecedence",
+      "rankApplied": 3,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "whenVerbatim": "acquisition was prevented before obtaining the required usable web policy/resource by a transport or resolution failure - DNS failure, TLS transport failure, CONNECT_TIMEOUT, READ_TIMEOUT before usable response completion, CONNECTION_REFUSED, CONNECTION_RESET - where no usable HTTP response established an application-level page outcome",
+      "dnsFailureIsNamedExplicitlyInThatText": true,
+      "soNoNewClassificationWasNeeded": "Q3 rank 3 already names DNS failure by name. The vocabulary had the answer before the question was asked",
+      "vocabularyUnchanged": [
+        "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "ACQUISITION_UNSUCCESSFUL_ROOT_AUTHORITY_FAILURE",
+        "ACQUISITION_UNSUCCESSFUL_ROBOTS_DISALLOWED",
+        "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+      ],
+      "changedByThisRecord": false
+    }
+  },
+
+  "requiredAssertions": {
+    "sd1IsUnchanged": true,
+    "sd2IsUnchanged": true,
+    "sd9IsUnchanged": true,
+    "q3IsUnchanged": true,
+    "noNewEligibilityRuleExists": true,
+    "noNewFailureClassExists": true,
+    "noFrameMemberIsRemoved": true,
+    "noReserveOrderingChanges": true,
+    "thisRecordMerelyResolvesWhichAlreadyFrozenRuleApplies": true
+  },
+
+  "rejectedAlternatives": [
+    {
+      "alternative": "introduce a new acquisition state such as STRUCTURALLY_UNREACHABLE",
+      "rejected": true,
+      "why": "SD9's states are frozen and a new member would be a methodology revision, not an interpretation. It would also be a distinction without an operational difference: the slot would still need an occupant, and the only mechanism that supplies one is SD2's reserve"
+    },
+    {
+      "alternative": "retroactively remove the affected organisations from the A1 frame",
+      "rejected": true,
+      "why": "SD1 commits the full frame BEFORE the draw and BEFORE acquisition. Removing a member after acquisition would make the frame a function of acquisition outcomes, which would change the denominator, invalidate the frozen draw's rank positions, and make every earlier selection index unreproducible. The frame hash is committed precisely so this cannot happen"
+    },
+    {
+      "alternative": "treat the slot as vacant and shrink the corpus",
+      "rejected": true,
+      "why": "R3 already fixes the terminal rule for insufficient successful organisations: if the reserve list is exhausted before 110 successful organisations exist the outcome is CORPUS_FREEZE_REFUSED. A smaller corpus is not an available outcome, so a vacant slot is not either"
+    },
+    {
+      "alternative": "rerun the draw",
+      "rejected": true,
+      "why": "the draw is frozen and its rank key is sha256(eche_row_key) over a committed frame. A redraw would discard 64 successful acquisitions and every replacement decision already taken"
+    },
+    {
+      "alternative": "repair the target by guessing another hostname",
+      "rejected": true,
+      "why": "see hostnameGuessingIsForbidden below"
+    }
+  ],
+
+  "hostnameGuessingIsForbidden": {
+    "rule": "the official/frozen website claim IS the acquisition authority. If its hostname authoritatively does not exist, that occupant is acquisition-unsuccessful under the current methodology",
+    "specificallyForbidden": [
+      "stripping or adding a www label",
+      "searching the web for the institution",
+      "inferring a replacement domain",
+      "using institution identity knowledge from outside the frozen root authority",
+      "inspecting names to find an alternate website",
+      "manually substituting a domain",
+      "broadening root authority"
+    ],
+    "whyThisIsNotMerelyCautious": "rule 2 of this repository forbids guessing a value at all, and rule 18 requires the caller to pass a ROOT ID rather than a root URL precisely so that no caller can pair a real claim with a URL of its own choosing. A substituted hostname would be an unevidenced claim about which institution a page belongs to, manufactured by the engine and then recorded as corpus truth",
+    "andItWouldCorruptTheMeasurement": "the corpus exists to measure a classifier against evidence acquired from authorities the official registers publish. A guessed host would silently change what the corpus is a sample OF",
+    "theReserveSystemIsTheAlreadyFrozenAnswer": "SD2 exists for exactly the condition where a selected organisation cannot be acquired. It needs no extension to cover this cause"
+  },
+
+  "whatThisImpliesForTheAffectedSlots": {
+    "theSlotRemainsInTheFrameAndInTheDenominator": true,
+    "theSelectionIndexDoesNotDisappear": true,
+    "theSplitDoesNotChange": "a replacement inherits the replaced organisation's selection index and therefore its split, by SD2",
+    "theOccupantIsReplacedInQ1Q2Order": true,
+    "eachFailureConsumesOneReservePosition": true,
+    "noRetryIsAuthorised": "the Q3 clarification states that ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE does not mean permanent, globally unreachable, or that no future network could connect - and explicitly that it authorises no further retry. It is a coarse mechanical replacement reason, not a prediction",
+    "currentlyAffectedSelectionIndices": [65, 66],
+    "thoseTwoWereAlreadyAdjudicatedAtC208fde": "this record creates no new outcome for them. It states which rule their already-recorded outcome falls under"
+  },
+
+  "whatThisRecordDoesNotDo": [
+    "it does not change SD1, SD2, SD7, SD9, Q1, Q2, Q3, Q4 or any other frozen rule",
+    "it does not add, remove or re-word any acquisition state or replacement reason",
+    "it does not remove, add or reorder any frame member",
+    "it does not change reserve ordering or assign any reserve",
+    "it does not append to the replacement ledger",
+    "it does not resolve, retry, replace or reclassify selection index 59",
+    "it does not authorise a network request, a window, or an attempt",
+    "it does not compute or imply an acceptable reserve burn rate",
+    "it does not edit any prior record"
+  ],
+
+  "boundBytes": {
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306,
+      "unchangedByThisRecord": true,
+      "shaMatchesTheHarnessPin": "src/test/harness/phase2b2d/continuationWindow/windowContract.ts METHODOLOGY_R3_SHA256"
+    },
+    "corpusAcquisitionPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "unchangedByThisRecord": true,
+      "carries": "SD1_frame, SD2_draw, SD3_to_SD12_selection.SD7, SD3_to_SD12_selection.SD9"
+    },
+    "ownerClarificationQ1ToQ4": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "bytes": 18443,
+      "unchangedByThisRecord": true,
+      "carries": "Q3_replacementReasonPrecedence"
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "fileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650",
+      "membershipUnchangedByThisRecord": true
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "fileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293",
+      "unchangedByThisRecord": true
+    },
+    "window06Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_05_WINDOW_06_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "463cf5e76b56029998a53a07256829e305e734554536bd767cd6deaf82ba89aa",
+      "commit": "c208fde6b17f457f12be5ec54cc5d84877be4015",
+      "editedHere": false
+    }
+  },
+
+  "verificationPerformedForThisRecord": {
+    "everyBoundShaRecomputedFromWorkingTreeBytes": true,
+    "r3ShaMatchesTheIndependentlyPinnedHarnessConstant": true,
+    "noFileUnderDocsEvaluationWasModifiedExceptThisNewOne": true,
+    "noFileUnderMigrationsOrSrcWasModified": true,
+    "focusedChecksOnly": "this is a documentation record that changes no code path. Full validation is not required for it and was not run for it alone"
+  },
+
+  "identityDisclosure": {
+    "institutionNames": 0,
+    "hostnames": 0,
+    "registrableDomains": 0,
+    "urls": 0,
+    "echeRowKeys": 0,
+    "organisationUuids": 0,
+    "runUuids": 0,
+    "whatIdentifiesAnItem": "a selection index only"
+  },
+
+  "terminalState": "PHASE_2B_2D_A2_DNS_NAME_NOT_FOUND_INTERPRETATION_RECORDED_NO_FROZEN_RULE_CHANGED",
+  "nextAuthorisedAction": "record the Window-06 P5 review and the final remaining-authority resume as a separate immutable record",
+  "immutability": "append-only. These bytes are never edited. A later owner view is a NEW record that supersedes this one by reference."
+}
