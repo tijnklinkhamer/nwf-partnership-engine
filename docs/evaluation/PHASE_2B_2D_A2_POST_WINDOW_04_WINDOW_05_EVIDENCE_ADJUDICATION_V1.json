@@ -1,0 +1,451 @@
+{
+  "recordId": "phase2b-2d-a2-post-window-04-window-05-evidence-adjudication-v1",
+  "recordKind": "LIVE_WINDOW_EVIDENCE_ADJUDICATION",
+  "records": "PHASE_2B_2D_A2_POST_WINDOW_04_WINDOW_05_EVIDENCE_ADJUDICATION_V1",
+  "recordedAtUtc": "2026-09-26T16:46:35Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "networkUsed": "none. Read-only database queries only",
+  "startingHead": "c088d9ed08aeddea9310b2ed7a8b478fe1d1427b",
+  "startingHeadIsTheValidatedLiveResultCommit": true,
+  "thisIsTheFirstOrdinaryWindowUnderTheAuthority": true,
+  "bound": {
+    "liveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_04_WINDOW_05_LIVE_RESULT_V1.json",
+      "sha256": "51981b7c1af454a96f6160fc7df6734df035c9833922f88c79a191e8a8d0f0a3",
+      "bytes": 23936,
+      "commit": "c088d9ed08aeddea9310b2ed7a8b478fe1d1427b",
+      "windowOutcome": "PAUSED_ON_P5_AFTER_THREE_OF_FIVE_ITEMS"
+    },
+    "liveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_04_WINDOW_05_LIVE_AUTHORITY_V1.json",
+      "sha256": "14bae5363a45571c4870f188fff2c16657887b8f79c72e4089170a6505feeb0f",
+      "bytes": 27674
+    },
+    "strategy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_04_WINDOW_05_STRATEGY_V1.json",
+      "sha256": "8036e84d9b10fd13b4ddd50e865f691184609c046304fe4990a9192f86023706",
+      "bytes": 34145
+    },
+    "plan": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_04_WINDOW_05_PLAN_V1.json",
+      "sha256": "c0f08cf31096fdac504582514a069e84c0db41cccd4c6cbc094ba1bde53cc091",
+      "bytes": 6523
+    },
+    "preNetworkAssignment": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_04_WINDOW_05_PRENETWORK_ASSIGNMENT_V1.json",
+      "sha256": "81ed9a19b66fb92018e8956cabde4bbc36718b5aa1cdac1e7e0b514ae4dbafe5",
+      "bytes": 11246,
+      "commit": "faec23d621156a482769d1f7f2e1e5fcfce197c4"
+    },
+    "ownerContinuationDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_04_P5_REVIEW_AND_CORPUS_ACQUISITION_RESUME_V1.json",
+      "sha256": "31482acb1daac08fc15b7de5e9b92c4d2e054a9182de2e87eb18e4c7c730d2f8",
+      "bytes": 24447,
+      "commit": "b9248ab00be140217a6e4e144a6bdf334f33b411"
+    },
+    "window04Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_04_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "58f9fe2b1ea57754bc20247875b9e44951808ccf622c3044bf113f2c1403f70a"
+    },
+    "operationalVantageRule": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_DNS64_NAT64_OPERATOR_VANTAGE_EVIDENCE_INTEGRITY_ADJUDICATION_V1.json",
+      "sha256": "5f901c1c5e0f2248e7e50887187dc1bcce06ace8b852b8c65d0be35547f655bc"
+    },
+    "ownerReserveOrderClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "role": "Q3 precedence, applied unchanged"
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "3ca6c9eff072b17afac1c6adc5c36c162a84e7017ac1bf42257a0abb7bca6c67",
+      "bytes": 19516,
+      "ledgerHash": "c9fdb2e3ce19f53d55bf45d7ebb0c74db29a5b43334264d80f10cd9c98861234",
+      "entries": 24
+    }
+  },
+  "evidenceIntegrityStandard": {
+    "everyStartedRunResolvedIndependently": true,
+    "runRefDerivationUsed": "the derivation DECLARED by this window LIVE_RESULT: sha256 of the run id as its lower-case canonical UUID text, UTF-8, no salt. All three hashes recomputed and compared",
+    "allThreeRunRefsMatchedTheLiveResult": true,
+    "sd7RecomputedPerRun": true,
+    "sd7ScopedByRunIdNotByOrganisation": "the page-evidence query filters on orgunit_fetch_observations.run_id. Load-bearing for R:63:22 and R:64:23, whose slots each carry an EARLIER failed run from the discarded original occupant - an organisation-scoped read would have mixed a new occupant evidence with an old one",
+    "everySealedPayloadRebuiltAndByteCompared": true,
+    "allThreeSealedPayloadsByteIdentical": true,
+    "databaseReadOnly": true,
+    "noEarlierEvidenceAltered": true,
+    "unstartedItemsAreNotAdjudicated": "P:66 and P:67 were never started, produced no run, no evidence and no sealed file, and are adjudicated NOT AT ALL. They remain NEVER_STARTED"
+  },
+  "items": [
+    {
+      "workItemId": "R:63:22",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 63,
+      "reserveRankPosition": 22,
+      "split": "FINAL_HOLDOUT",
+      "runRefSha256": "3b85f9a148087916478f7104cd93a6c814598475460e6bb018958526890bf9e2",
+      "runRefMatchesLiveResult": true,
+      "dryRun": false,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "runTerminalState": "COMPLETED",
+      "completionErrorKind": null,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "blockedByPolicyRows": 0,
+      "anyUsableHttpResponse": true,
+      "transportErrorKinds": [],
+      "rawPageCount": 34,
+      "postSd7CountMin": 34,
+      "postSd7CountMax": 34,
+      "countIsExact": true,
+      "decidedByCase": "B",
+      "thresholdMetAtMin": true,
+      "thresholdMetAtMax": true,
+      "rangeStraddlesThreshold": false,
+      "verdict": "ACQUISITION_SUCCESSFUL",
+      "q3Reason": null,
+      "q3Rank": null,
+      "q3Rationale": "successful at both ends of the range; no obligation",
+      "sealedPayloadRebuiltAndByteCompared": true,
+      "sd7RecomputedFromScratchPerRun": true
+    },
+    {
+      "workItemId": "R:64:23",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 64,
+      "reserveRankPosition": 23,
+      "split": "DEV_CONFIRM",
+      "runRefSha256": "9be894c98505d7a0b33191ba3cacfc0ff6dcc9d384b94ada01cad3a15e8ccde5",
+      "runRefMatchesLiveResult": true,
+      "dryRun": false,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "runTerminalState": "COMPLETED",
+      "completionErrorKind": null,
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "blockedByPolicyRows": 0,
+      "anyUsableHttpResponse": false,
+      "transportErrorKinds": ["TLS_FAILURE"],
+      "rawPageCount": 0,
+      "postSd7CountMin": 0,
+      "postSd7CountMax": 0,
+      "countIsExact": true,
+      "decidedByCase": "A",
+      "thresholdMetAtMin": false,
+      "thresholdMetAtMax": false,
+      "rangeStraddlesThreshold": false,
+      "verdict": "ACQUISITION_UNSUCCESSFUL",
+      "q3Reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "q3Rank": 3,
+      "q3Rationale": "rank 3: transport failure (TLS_FAILURE) with NO usable HTTP response establishing an application-level page outcome",
+      "sealedPayloadRebuiltAndByteCompared": true,
+      "sd7RecomputedFromScratchPerRun": true
+    },
+    {
+      "workItemId": "P:65",
+      "kind": "PRIMARY",
+      "selectionIndex": 65,
+      "reserveRankPosition": null,
+      "split": "FINAL_HOLDOUT",
+      "runRefSha256": "1adddebd903351d2a5efaac799b3a0154dcf05908dc697949ac2d809f0a169c8",
+      "runRefMatchesLiveResult": true,
+      "dryRun": false,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "runTerminalState": "COMPLETED",
+      "completionErrorKind": null,
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "blockedByPolicyRows": 0,
+      "anyUsableHttpResponse": false,
+      "transportErrorKinds": ["DNS_FAILURE"],
+      "rawPageCount": 0,
+      "postSd7CountMin": 0,
+      "postSd7CountMax": 0,
+      "countIsExact": true,
+      "decidedByCase": "A",
+      "thresholdMetAtMin": false,
+      "thresholdMetAtMax": false,
+      "rangeStraddlesThreshold": false,
+      "verdict": "ACQUISITION_UNSUCCESSFUL",
+      "q3Reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "q3Rank": 3,
+      "q3Rationale": "rank 3: transport failure (DNS_FAILURE) with NO usable HTTP response establishing an application-level page outcome",
+      "sealedPayloadRebuiltAndByteCompared": true,
+      "sd7RecomputedFromScratchPerRun": true
+    }
+  ],
+  "itemOutcomeSummary": {
+    "started": 3,
+    "adjudicated": 3,
+    "successful": 1,
+    "unsuccessful": 2,
+    "pendingCapabilityReview": 0,
+    "successfulItems": ["R:63:22"],
+    "unsuccessfulItems": ["R:64:23", "P:65"],
+    "unstartedAndNotAdjudicated": ["P:66", "P:67"],
+    "sd7RangeStraddledTheThresholdOnAnyItem": false,
+    "everyCountWasExact": true,
+    "everyVerdictHeldAtBothEndsOfItsRange": true
+  },
+  "successThreshold": {
+    "value": 4,
+    "source": "SD9_MIN_PAGES_PER_ORGANISATION in the landed window contract",
+    "appliedTo": "the formal post-SD7 page count, at BOTH ends of the range",
+    "changedHere": false
+  },
+  "q3Application": {
+    "precedenceUnchanged": true,
+    "obligationsCreated": 2,
+    "R:64:23": {
+      "verdict": "ACQUISITION_UNSUCCESSFUL",
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "rank": 3,
+      "evidence": "1 fetch observation, error_kind TLS_FAILURE, error_subtype TLS_PROTOCOL_INCOMPATIBLE, no HTTP status, rootTerminalReason ROBOTS_UNREADABLE_ROOT, 0 raw pages, 0 BLOCKED_BY_POLICY rows",
+      "whyRank3": "the TLS handshake never completed, so no usable HTTP response established an application-level page outcome. Q3 rank 3 governs a transport failure of exactly this shape",
+      "whyNotRank4": "rank 4 is the fallback for a determinate SD9 failure to which ranks 1-3 do not apply. Rank 3 applies here, so the fallback does not govern",
+      "noRetryWasIssued": "TLS_PROTOCOL_INCOMPATIBLE is classified NOT_RETRY_ELIGIBLE by the landed v4 bounded transport retry. A protocol mismatch cannot be repaired by repeating the same handshake",
+      "slotConsequence": "slot 64 owes ANOTHER replacement. Its Q2 same-slot chain becomes two links long at the next planning point",
+      "split": "DEV_CONFIRM"
+    },
+    "P:65": {
+      "verdict": "ACQUISITION_UNSUCCESSFUL",
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "rank": 3,
+      "evidence": "1 fetch observation, error_kind DNS_FAILURE, error_subtype DNS_NAME_NOT_FOUND, no HTTP status, rootTerminalReason ROBOTS_UNREADABLE_ROOT, 0 raw pages, 0 BLOCKED_BY_POLICY rows",
+      "whyRank3": "Q3 rank 3 names DNS failure explicitly, for a transport or resolution failure that prevented obtaining the required usable web policy where no usable HTTP response established an application-level page outcome",
+      "precedentItIsIdenticalTo": "the owner clarification records index 4 with exactly this shape, and Window 04 adjudicated P:64 the same way",
+      "noRetryWasIssued": "DNS_NAME_NOT_FOUND is an authoritative negative answer and is classified NOT_RETRY_ELIGIBLE",
+      "slotConsequence": "slot 65 owes its FIRST replacement",
+      "split": "FINAL_HOLDOUT"
+    },
+    "R:63:22": {
+      "verdict": "ACQUISITION_SUCCESSFUL",
+      "reason": null,
+      "rank": null,
+      "evidence": "42 fetch observations - 40 HTTP 200 and 2 HTTP 301 - rootTerminalReason PAGE_BUDGET_EXHAUSTED at exactly the 35-attempt ceiling, 34 raw pages, post-SD7 exactly 34, 0 BLOCKED_BY_POLICY rows",
+      "whyNoObligation": "the WHOLE formal post-SD7 range lies at or above the minimum of 4, so the frozen success rule governs and Q3 is not reached",
+      "slotConsequence": "slot 63 CLOSES. Its chain ORIGINAL_SELECTION -> reserve 22 ends here after a single replacement",
+      "split": "FINAL_HOLDOUT"
+    }
+  },
+  "vantageRuleApplication": {
+    "ruleId": "DNS64_NAT64_OPERATOR_VANTAGE_REFUSAL_DOES_NOT_CREATE_REPLACEMENT_OBLIGATION_V1",
+    "invoked": false,
+    "preSocketAddressPolicyRefusalsAcrossTheWindow": 0,
+    "clause1Met": false,
+    "whyTheRuleDoesNotApplyToEitherFailure": "clause 1 requires a pre-socket BLOCKED_BY_POLICY refusal by the landed address classifier over an address that resolution DID return. Neither failure produced one. R:64:23 resolved its host and then failed the TLS handshake; P:65 failed to RESOLVE its target name at all. A resolution failure and a handshake failure are both categorically different from the classifier refusing a translated address",
+    "aTlsFailureIsNotANat64Refusal": "TLS_PROTOCOL_INCOMPATIBLE is a property of the peer server TLS configuration, observed after a successful connect. Nothing about it is an environment artefact of this vantage",
+    "aDnsFailureIsNotANat64Refusal": "this distinction is the reason the rule enumerates five conjunctive clauses rather than keying on zero-yield",
+    "databaseBlockedByPolicyTotalUnchanged": 6,
+    "blockedByPolicyRowsAddedByThisWindow": 0,
+    "vantageWasProvedBeforeAllThreeItems": true
+  },
+  "p5PauseAdjudication": {
+    "pauseWasLegitimate": true,
+    "condition": "P5",
+    "arm": "raw pages < 4 on 2 of 5 planned items (> 30%)",
+    "firedAfterItem": 3,
+    "itemsNotStarted": ["P:66", "P:67"],
+    "noEvidenceWasDiscarded": true,
+    "noReserveWasSpentOnAnUnstartedItem": true,
+    "theUnstartedItemsCreateNoObligation": "they were never attempted, so there is nothing to adjudicate and nothing is owed. They stay NEVER_STARTED and remain available to any future authority",
+    "bothLowYieldItemsShareACAUSECLASSThisTime": "both are transport failures with no HTTP response at all - one TLS, one DNS. That is a narrower coincidence than Window 04, whose two low-yield items were one answered-but-thin host and one unresolvable host",
+    "doesThatMakeItSystematic": "UNKNOWN on this evidence. Two transport failures out of three started items is a small sample; the vantage was proved compliant before each, the failure subtypes are different (TLS_PROTOCOL_INCOMPATIBLE and DNS_NAME_NOT_FOUND), and a third item in the same window succeeded outright with 34 pages. Nothing here establishes a shared engine, policy or persistence defect, and nothing here rules one out either",
+    "whatWouldSettleIt": "a deliberate owner review of the transport-failure rate across the whole generation, not an inference from one window"
+  },
+  "databaseReverification": {
+    "readOnly": true,
+    "runs": 99,
+    "completions": 99,
+    "fetchObservations": 2648,
+    "redirectObservations": 197,
+    "pageEvidence": 1971,
+    "pageCandidates": 3942,
+    "rootPromotions": 0,
+    "rootPromotionRevocations": 0,
+    "runsWithoutCompletion": 0,
+    "runsWithMoreThanOneCompletion": 0,
+    "dryRunRuns": 0,
+    "blockedByPolicyRowsInTheWholeDatabase": 6,
+    "blockedByPolicyRowsAddedByThisWindow": 0,
+    "matchesTheLiveResultsRecordedAfterState": true,
+    "noRowAddedSinceTheWindowTerminated": true,
+    "historicalRowsUpdatedOrDeleted": 0
+  },
+  "generation1StateBeforeThisAdjudication": {
+    "ACQUISITION_SUCCESSFUL": 62,
+    "CURRENT_ACQUISITION_FAILURE": 2,
+    "PENDING_CAPABILITY_REVIEW": 1,
+    "NEVER_STARTED": 45,
+    "accounting": "62 + 2 + 1 + 45 = 110"
+  },
+  "generation1StateAfterThisAdjudication": {
+    "ACQUISITION_SUCCESSFUL": 63,
+    "CURRENT_ACQUISITION_FAILURE": 2,
+    "PENDING_CAPABILITY_REVIEW": 1,
+    "NEVER_STARTED": 44,
+    "totalSelectionSlots": 110,
+    "accounting": "63 + 2 + 1 + 44 = 110",
+    "setsAreDisjoint": true,
+    "setsCoverExactly0To109": true,
+    "recomputedFromScratchNotByArithmetic": "the BEFORE map itself was re-derived from the WHOLE committed adjudication chain rather than read from the Window-04 record: every A2 record carrying a per-slot verdict was parsed, applied in recordedAtUtc order, and an unclassifiable verdict would have aborted the derivation. This window three verdicts were then applied to a copy and every class counted independently",
+    "doNotExtrapolate": "63 successful slots of 110; not a population success rate"
+  },
+  "generationSuccessfulSelectionIndicesRanges": ["0..58", "60..63"],
+  "generationSuccessfulSelectionIndicesCount": 63,
+  "generationFailureSelectionIndices": [64, 65],
+  "pendingCapabilityReviewSelectionIndices": [59],
+  "pendingCapabilityReviewIsNotAFailure": true,
+  "neverStartedSelectionIndices": {
+    "from": 66,
+    "to": 109,
+    "count": 44,
+    "contiguous": true
+  },
+  "nextUntouchedPrimarySelectionIndex": 66,
+  "whatChangedInThisWindow": {
+    "slot63": "CURRENT_ACQUISITION_FAILURE -> ACQUISITION_SUCCESSFUL. Its first replacement, reserve 22, yielded 34 raw and 34 post-SD7 pages. The chain ORIGINAL -> R22 closes here",
+    "slot64": "CURRENT_ACQUISITION_FAILURE -> CURRENT_ACQUISITION_FAILURE, still open, now on its reserve-23 occupant, reason HOST_UNREACHABLE. The obligation is NOT discharged, it is re-created against a new occupant",
+    "slot65": "NEVER_STARTED -> CURRENT_ACQUISITION_FAILURE, on its original selection, reason HOST_UNREACHABLE",
+    "slots66and67": "unchanged, NEVER_STARTED. They were planned but never attempted",
+    "slot59": "untouched"
+  },
+  "currentSlotOccupants": {
+    "slot64": {
+      "occupantKind": "RESERVE_REPLACEMENT",
+      "reserveRankPosition": 23,
+      "ledgerSequence": 23,
+      "split": "DEV_CONFIRM",
+      "chainLength": 1
+    },
+    "slot65": {
+      "occupantKind": "ORIGINAL_SELECTION",
+      "reserveRankPosition": null,
+      "ledgerSequence": null,
+      "split": "FINAL_HOLDOUT",
+      "chainLength": 0
+    },
+    "slot63": {
+      "occupantKind": "RESERVE_REPLACEMENT",
+      "reserveRankPosition": 22,
+      "ledgerSequence": 22,
+      "split": "FINAL_HOLDOUT",
+      "closed": true
+    }
+  },
+  "q1ReplacementObligationQueue": {
+    "recomputedNotAssumed": "re-derived from the state above. The previous queue was [63, 64]: 63 closed successfully here and 64 re-opened against its new occupant",
+    "previousQ1": [63, 64],
+    "currentQ1": [64, 65],
+    "openReplacementObligationCount": 2,
+    "obligations": [
+      {
+        "selectionIndex": 64,
+        "split": "DEV_CONFIRM",
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "q3Rank": 3,
+        "occupantToBeReplaced": "RESERVE_REPLACEMENT",
+        "currentReserveRankPosition": 23,
+        "createdBy": "this adjudication",
+        "servedHere": false
+      },
+      {
+        "selectionIndex": 65,
+        "split": "FINAL_HOLDOUT",
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "q3Rank": 3,
+        "occupantToBeReplaced": "ORIGINAL_SELECTION",
+        "currentReserveRankPosition": null,
+        "createdBy": "this adjudication",
+        "servedHere": false
+      }
+    ],
+    "reservesThatWouldServeThemAtTheNextPlanningPoint": "positions 24 and 25, in ascending selection-index order, as planPendingReplacementObligations confirms. NEITHER is assigned here, and no authority exists to assign them",
+    "slot63NoLongerOwesAnything": true
+  },
+  "replacementLedger": {
+    "entriesBefore": 24,
+    "entriesAfter": 24,
+    "appendedByThisRecord": false,
+    "reserveConsumed": 24,
+    "reserveUnused": 16,
+    "nextUnusedReservePosition": 24,
+    "reservePosition24": "UNASSIGNED",
+    "reservePosition25": "UNASSIGNED",
+    "whyNoAppend": "an adjudication records outcomes and obligations; it never assigns a reserve"
+  },
+  "p6": {
+    "rule": "reserveConsumed > 10 AND successfulOrganisationCount < 50",
+    "inputsAfterThisAdjudication": {
+      "reserveConsumed": 24,
+      "successfulOrganisationCount": 63
+    },
+    "evaluation": "24 > 10 is TRUE and 63 < 50 is FALSE; the conjunction is false",
+    "status": "NOT_TRIGGERED",
+    "successFloorRemainsReached": true,
+    "amendedOrBypassedHere": false,
+    "thresholdChangedHere": false
+  },
+  "p59": {
+    "status": "PENDING_CAPABILITY_REVIEW",
+    "formalRange": [1, 24],
+    "touchedHere": false,
+    "rerunHere": false,
+    "replacedHere": false,
+    "classifiedHere": false,
+    "excludedFromQ1": true,
+    "note": "unchanged and still pending an owner SD7 detail",
+    "itIsStillNotAnObligation": "and so it still does not enter Q1, even though 59 < 64. Q1 sorts actual obligations"
+  },
+  "holdoutNonDisclosure": {
+    "finalHoldoutItemsAdjudicatedHere": ["R:63:22", "P:65"],
+    "finalHoldoutItemsPlannedButNotStarted": [],
+    "institutionNamed": false,
+    "hostnameNamed": false,
+    "organisationIdNamed": false,
+    "echeRowKeyNamed": false,
+    "urlOrTitleOrExcerptRecorded": false,
+    "semanticInspectionPerformed": false,
+    "labelOrClassDerived": false
+  },
+  "scopeProofs": {
+    "networkRequestsByThisRecord": 0,
+    "databaseRowsWrittenByThisRecord": 0,
+    "ledgerEntriesAppendedByThisRecord": 0,
+    "productionSourceFilesChangedByThisRecord": 0,
+    "methodologyBytesChangedByThisRecord": 0,
+    "q3AlteredByThisRecord": 0,
+    "successThresholdChangedByThisRecord": 0,
+    "sealedFilesModifiedByThisRecord": 0,
+    "p59TouchedByThisRecord": false,
+    "reservesAssignedByThisRecord": 0,
+    "unstartedItemsAdjudicatedByThisRecord": 0,
+    "strategyAdapterChangedByThisRecord": 0
+  },
+  "continuationStatus": {
+    "windowCompletedCleanly": false,
+    "pauseFiredDuringTheWindow": true,
+    "pauseCondition": "P5",
+    "ordinaryChildWindowsConsumedUnderTheAuthority": 1,
+    "ordinaryChildWindowsRemainingUnderTheAuthority": 3,
+    "ordinaryLiveAttemptsChargedSoFar": 5,
+    "ordinaryLiveAttemptsRemainingUnderTheAuthority": 15,
+    "autopilotStatus": "STOPPED",
+    "whyStopped": "the P5 pause inside this window. The owner authority requires STOP on any P1-P8 pause, and the automatic-continuation clause applies only to a window that ends CLEANLY. Three windows and fifteen attempts remain unspent but are NOT self-authorised after a pause",
+    "furtherWindowsAuthorised": false,
+    "nextActionRequiresANewOwnerDecision": true
+  },
+  "terminalState": "PHASE_2B_2D_A2_POST_WINDOW_04_WINDOW_05_ADJUDICATED_P5_PAUSE_AUTOPILOT_STOPPED",
+  "nextOwnerDecision": [
+    "decide whether to review the P5 pause and resume. If resumed, the mechanically derived next window would begin with the two open obligations in ascending order - slot 64 by reserve 24 and slot 65 by reserve 25 - then continue with untouched primaries from index 66",
+    "decide whether TWO consecutive P5 pauses, in Window 04 and Window 05, warrant a deliberate review of the transport-failure rate across the whole generation before more slots are spent. This adjudication draws NO conclusion from them and notes only that this window two low-yield items were BOTH transport failures with no HTTP response, which Window 04 two were not",
+    "still open: resolve P:59 SD7 owner-detail ambiguity, formal range [1,24]",
+    "still open: whether the operational DNS64/NAT64 vantage rule should be incorporated into a future methodology version rather than living in governance",
+    "still open: the strategy-adapter limitation. Re-proved at this window strategy with correct digests throughout - the adapter accepted a candidate re-serving the successful slot 62 and only the independent current-state check refused it. A fix remains a code change and remains unauthorised"
+  ],
+  "immutability": "append-only. This record is never edited."
+}
