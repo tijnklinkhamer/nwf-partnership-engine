@@ -430,7 +430,35 @@
       "previousSequenceForSlot": null,
       "previousEntryHash": "0dd9832be88a763e7adc91fa38ecff21f2b89cb20bb91c7eaeab4f26d1a7cced",
       "entryHash": "c8e94cdd1fd3e0274e8e8d3b3b3d2edbc649d63593fcbcc2db41d2b031fee960"
+    },
+    {
+      "sequence": 24,
+      "selectionIndex": 64,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "E MADRID63|942358784",
+      "replacementEcheRowKey": "RS BELGRAD01|968338294",
+      "reserveRankPosition": 24,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-26T18:03:50Z",
+      "replacedOccupantKind": "RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 23,
+      "previousEntryHash": "c8e94cdd1fd3e0274e8e8d3b3b3d2edbc649d63593fcbcc2db41d2b031fee960",
+      "entryHash": "72956707e27be74bd120ef50285b63457380bb83b01c7474e1b51a0be582d7b6"
+    },
+    {
+      "sequence": 25,
+      "selectionIndex": 65,
+      "split": "FINAL_HOLDOUT",
+      "replacedEcheRowKey": "E HUESCA18|938757756",
+      "replacementEcheRowKey": "MK SKOPJE11|948987376",
+      "reserveRankPosition": 25,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-26T18:03:50Z",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "72956707e27be74bd120ef50285b63457380bb83b01c7474e1b51a0be582d7b6",
+      "entryHash": "b86985c1b7178aab40a943ac01ba2129c9a48c83f65d44be66c28e86aae25a63"
     }
   ],
-  "ledgerHash": "c9fdb2e3ce19f53d55bf45d7ebb0c74db29a5b43334264d80f10cd9c98861234"
+  "ledgerHash": "a624675b865500878aaa00731717d8a7d05c03efb6d637d5eaf3b1d826bbff17"
 }
