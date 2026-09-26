@@ -1,0 +1,422 @@
+{
+  "recordId": "phase2b-2d-a2-post-window-04-p5-review-and-corpus-acquisition-resume-v1",
+  "recordKind": "OWNER_CONTINUATION_DECISION",
+  "records": "PHASE_2B_2D_A2_POST_WINDOW_04_P5_REVIEW_AND_CORPUS_ACQUISITION_RESUME_V1",
+  "recordedAtUtc": "2026-09-26T15:28:23Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "isLiveAuthority": false,
+  "isLiveAuthorityNote": "this record REVIEWS the Window-04 P5 pause and grants a NEW bounded acquisition authority with its own caps. It authorises no request by itself: each ordinary window still needs its own committed strategy, plan and live authority",
+  "thisRecordExecutesNothing": true,
+  "networkUsedByThisRecord": "none",
+  "databaseWrittenByThisRecord": "none. Read-only reconciliation queries only",
+  "productionCodeChangedByThisRecord": "none",
+  "testOrHarnessCodeChangedByThisRecord": "none",
+  "methodologyBytesChangedByThisRecord": "none",
+  "ledgerEntriesAppendedByThisRecord": 0,
+  "reservesAssignedByThisRecord": 0,
+  "startingHead": "f44689b7e01f35aae4979172d12c474cc18dcd69",
+  "startingHeadEqualsOrigin": true,
+
+  "ownerTask": "A2_POST_WINDOW_04_P5_REVIEW_AND_CONTINUED_CORPUS_ACQUISITION",
+  "selectedDecision": "RESUME_BOUNDED_Q1_REPLACEMENT_AND_PRIMARY_ACQUISITION_V1",
+  "supersedesScopeOf": "PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_Q1_AUTOPILOT_RESUME_V1",
+  "supersedesScopeOfNote": "that resumption's two-window / ten-attempt budget is EXHAUSTED and is not extended. This record grants a NEW budget. The earlier record's window-construction algorithm, stage ordering, validation policy, artifact discipline, evidence-integrity standard and public/holdout safety rules are all carried forward unchanged",
+
+  "bound": {
+    "window04Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_04_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "58f9fe2b1ea57754bc20247875b9e44951808ccf622c3044bf113f2c1403f70a",
+      "bytes": 19977,
+      "commit": "f44689b7e01f35aae4979172d12c474cc18dcd69",
+      "terminalState": "PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_04_ADJUDICATED_P5_PAUSE_RESUMPTION_EXHAUSTED_AUTOPILOT_STOPPED",
+      "role": "the terminal evidence this review is built on"
+    },
+    "window04LiveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_04_LIVE_RESULT_V1.json",
+      "sha256": "fd07cbd949e0c7db87b1bbc76f3190d44fb0a93fd9218ed674f3e97c7effba64",
+      "bytes": 24916,
+      "commit": "e9a99c3434f09b3cadc0700a84a47cda26fd2e80",
+      "windowOutcome": "PAUSED_ON_P5_AFTER_THREE_OF_FIVE_ITEMS"
+    },
+    "window04LiveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_04_LIVE_AUTHORITY_V1.json",
+      "sha256": "608443adda65373ebcf712a70aac036f4cdc408747cdeefd059e88e11a5abf77",
+      "bytes": 28013
+    },
+    "exhaustedResumption": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_Q1_AUTOPILOT_RESUME_V1.json",
+      "sha256": "cb77080d851ecd5b3d11adb2b364af1167a37cf8dff63655d0e55e8778270898",
+      "bytes": 15853,
+      "commit": "bb515909ca80b7a76bece3362beb74fad9c46d7b",
+      "scopeGranted": { "ordinaryChildWindows": 2, "ordinaryLiveAttempts": 10 },
+      "scopeConsumed": { "ordinaryChildWindows": 2, "ordinaryLiveAttempts": 10 },
+      "scopeRemaining": { "ordinaryChildWindows": 0, "ordinaryLiveAttempts": 0 }
+    },
+    "parentAutopilotAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_REPLACEMENT_AND_PRIMARY_COMPLETION_AUTOPILOT_V1.json",
+      "sha256": "017f8422263b1ee13b58fa99ab7c44ec9acb50c3e079e8681ffd0af5aa19f2ef",
+      "bytes": 35547,
+      "commit": "d3700180cc501aef3d42455d7dff7e46ce8c42a1",
+      "role": "the authority whose window-construction algorithm, concurrency rules, stage ordering, validation policy and artifact discipline this record carries forward verbatim. Its own 4-window / 20-attempt budget is fully spent"
+    },
+    "operationalVantageRule": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_DNS64_NAT64_OPERATOR_VANTAGE_EVIDENCE_INTEGRITY_ADJUDICATION_V1.json",
+      "sha256": "5f901c1c5e0f2248e7e50887187dc1bcce06ace8b852b8c65d0be35547f655bc",
+      "bytes": 16719,
+      "ruleId": "DNS64_NAT64_OPERATOR_VANTAGE_REFUSAL_DOES_NOT_CREATE_REPLACEMENT_OBLIGATION_V1",
+      "carriedForward": true,
+      "broadenedHere": false
+    },
+    "ownerReserveOrderClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "bytes": 18443,
+      "role": "Q1 obligation ordering and Q3 failure-reason precedence, applied unchanged"
+    },
+    "strategyAdapterImplementation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_STRATEGY_TO_SPEC_ADAPTER_GENERALISATION_IMPLEMENTATION_V1.json",
+      "sha256": "3dad0c40a7193fd48544172b7c7feebf1e425cb36b38ba148d8e31a58e138e71",
+      "bytes": 21700,
+      "role": "the landed generic adapter whose newly demonstrated limitation this record records and constrains. NOT changed here"
+    },
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306,
+      "amendedHere": false
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "589b6eb51589413b66d2859fe4de8560ae787457c306eb0ac17d960c89842441",
+      "bytes": 18282,
+      "ledgerHash": "c181e20f45a3d6fe61e270dfe1a735bc1fa4f39a853d6a753d9267400329f301",
+      "entries": 22,
+      "commit": "fe5d7a10f2c789242568b125f330f10a76f1b87a"
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650"
+    }
+  },
+
+  "window04P5Review": {
+    "theHistoricalP5PauseRemainsTrue": true,
+    "pauseWasLegitimate": true,
+    "condition": "P5",
+    "arm": "raw page count < 4 on 2 of the frozen denominator 5 planned items, which is strictly above 30%",
+    "firedAfterItem": 3,
+    "itemsNotStarted": ["P:65", "P:66"],
+    "theTwoCausesAreMateriallyDifferent": true,
+    "p63": {
+      "institutionResponded": true,
+      "httpOrApplicationEvidenceExists": true,
+      "rawPagesAcquired": 1,
+      "q3Ranks1To3Apply": false,
+      "q3RankApplied": 4,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "character": "an application-level low-yield outcome from a host that was reached and answered"
+    },
+    "p64": {
+      "transportErrorKind": "DNS_FAILURE",
+      "anyUsableHttpResponse": false,
+      "rawPagesAcquired": 0,
+      "q3RankApplied": 3,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "character": "the hostname itself failed to RESOLVE; no application-level page outcome was ever established"
+    },
+    "nat64RuleDoesNotApplyToP64": {
+      "applies": false,
+      "why": "the rule's clause 1 requires a pre-socket BLOCKED_BY_POLICY refusal by the landed address classifier over an address that resolution DID return. P:64 returned no address at all. A resolution failure and a refusal of a translated address are different observations, and conflating them would let an ordinary unreachable host be written off as an environment artefact",
+      "preSocketAddressPolicyRefusalsAcrossWindow04": 0,
+      "databaseBlockedByPolicyTotalUnchanged": 6
+    },
+    "ownerReviewConclusion": "P5_REVIEWED_HETEROGENEOUS_LOW_YIELD_NO_COMMON_SYSTEMATIC_DEFECT_CONTINUATION_ALLOWED",
+    "whatThatConclusionMeans": [
+      "human review of the pause occurred",
+      "no shared engine, policy or persistence defect is established by these two items",
+      "a NEW window may start with fresh window-local P1/P2/P3/P5 state"
+    ],
+    "whatThatConclusionDoesNotMean": [
+      "it does NOT mean either failure is ignored - both created Q1 obligations and both are served first in the next window",
+      "it does NOT mean P5 was false - the pause was correct and is not retroactively reclassified",
+      "it does NOT mean either target should be retried - neither is retried; each slot is served by its next frozen reserve",
+      "it does NOT predict that the remaining corpus performs similarly - 2 low-yield items of 5 supports no such inference, and none is drawn"
+    ]
+  },
+
+  "stateThisContinuationStartsFrom": {
+    "recomputedIndependently": true,
+    "recomputationMethod": "every committed A2 record carrying a per-slot acquisition verdict was parsed, its verdicts applied to a 110-entry status map in recordedAtUtc order, and the map counted per class with disjointness and full coverage asserted. Heterogeneous verdict fields were handled explicitly (verdict, finalAdjudication, adjudication.finalAcquisitionOutcome, finalCurrentStatus, finalSd9, newAcquisitionOfRecord.sd9, resolution.pNN.finalAcquisitionOutcome) and an item whose verdict could not be classified would have ABORTED the derivation rather than been skipped. The replacement ledger was validated with the landed harness and every Q1 occupant derived with currentOccupantForSelectionIndex. Nothing was taken from the owner task text and nothing from an adapter-held count",
+    "recomputationAgreesWithTheWindow04Adjudication": true,
+    "ACQUISITION_SUCCESSFUL": 62,
+    "successfulSelectionIndexRanges": ["0..58", "60..62"],
+    "CURRENT_ACQUISITION_FAILURE": [63, 64],
+    "PENDING_CAPABILITY_REVIEW": [59],
+    "NEVER_STARTED": { "from": 65, "to": 109, "count": 45, "contiguous": true },
+    "totalSelectionSlots": 110,
+    "accounting": "62 + 2 + 1 + 45 = 110",
+    "setsAreDisjoint": true,
+    "setsCoverExactly0To109": true,
+    "q1ReplacementObligationQueue": [63, 64],
+    "q1Order": "63 -> 64, by ascending selectionIndex per Owner Clarification Q1",
+    "currentOccupants": {
+      "slot63": {
+        "occupantKind": "ORIGINAL_SELECTION",
+        "reserveRankPosition": null,
+        "ledgerSequence": null,
+        "split": "FINAL_HOLDOUT",
+        "outstandingReason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "q3Rank": 4
+      },
+      "slot64": {
+        "occupantKind": "ORIGINAL_SELECTION",
+        "reserveRankPosition": null,
+        "ledgerSequence": null,
+        "split": "DEV_CONFIRM",
+        "outstandingReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "q3Rank": 3
+      }
+    },
+    "replacementLedgerEntries": 22,
+    "reserveConsumed": 22,
+    "reserveUnused": 18,
+    "nextUnusedReservePosition": 22,
+    "reservePosition22": "UNASSIGNED",
+    "reservePosition23": "UNASSIGNED",
+    "reservePosition24": "UNASSIGNED",
+    "p6": {
+      "rule": "reserveConsumed > 10 AND ACQUISITION_SUCCESSFUL < 50",
+      "inputs": { "reserveConsumed": 22, "successfulOrganisationCount": 62 },
+      "evaluation": "22 > 10 is TRUE and 62 < 50 is FALSE; the conjunction is false",
+      "result": "NOT_TRIGGERED",
+      "thresholdChangedHere": false
+    },
+    "databaseReconciliation": {
+      "readOnly": true,
+      "runs": 96,
+      "completions": 96,
+      "fetchObservations": 2604,
+      "redirectObservations": 195,
+      "pageEvidence": 1937,
+      "pageCandidates": 3874,
+      "rootPromotions": 0,
+      "rootPromotionRevocations": 0,
+      "runsWithoutCompletion": 0,
+      "dryRunRuns": 0,
+      "blockedByPolicyRows": 6,
+      "mostRecentRunStartedAtUtc": "2026-09-26T13:19:15.559Z",
+      "matchesTheWindow04AdjudicationReverification": true,
+      "noRowAddedSinceWindow04Terminated": true
+    },
+    "doNotExtrapolate": "62 successful slots of 110; not a population success rate"
+  },
+
+  "p59DoesNotEnterQ1Now": {
+    "status": "PENDING_CAPABILITY_REVIEW",
+    "formalRange": [1, 24],
+    "governingFrozenRule": "SHORT_TEXT_AMBIGUITY_BLOCKS_ONLY_WHEN_IT_CAN_CHANGE_SD9",
+    "isNotAcquisitionSuccessful": true,
+    "isNotACurrentAcquisitionFailure": true,
+    "isNotAReplacementObligation": true,
+    "isNotNeverStarted": true,
+    "whyItIsExcluded": "frozen Q1 says: at a bounded-window planning point, collect the PENDING REPLACEMENT OBLIGATIONS, sort those ACTUAL obligations by selectionIndex ascending, and assign the next unused reserves monotonically. P:59 holds no obligation, so there is nothing for Q1 to sort or serve",
+    "theCounterfactualIsRefusedExplicitly": {
+      "counterfactual": "if P:59 later fails, 59 < 63, so it should be queued ahead of 63 now",
+      "refused": true,
+      "why": "that obligation does not yet exist. Q1 orders obligations, not hypotheses, and inserting a slot on the strength of a failure it has not received would manufacture an obligation the evidence does not support"
+    },
+    "ifItLaterReceivesAnOwnerFailureAdjudication": [
+      "create its obligation THEN",
+      "include it in the Q1 queue at the NEXT planning point",
+      "do NOT retroactively reorder or revoke an already-consumed reserve"
+    ],
+    "consistentWithAppendOnlyQ1Q2Governance": true,
+    "authorisedActionsUnderThisRecord": "none. P:59 is not rerun, not replaced, not classified, and no Jaccard-on-empty treatment, minimum token count, short-text uniqueness rule, short-text duplicate status or forced survivor count is invented for it",
+    "ifItBecomesNecessaryToDetermineCorpusClosure": "STOP and return to the owner"
+  },
+
+  "newBoundedAuthority": {
+    "maxOrdinaryChildWindows": 4,
+    "maxLiveAttempts": 20,
+    "windowSize": "5 whenever at least five executable items remain",
+    "concurrency": 1,
+    "dynamicInsertionPermitted": false,
+    "attemptsAreChargedAtFullPlannedWindowSize": true,
+    "whyFullSizeIsCharged": "the cap bounds AUTHORISED exposure, not items actually executed. A window that pauses on P5 after three items still spends its authorised five",
+    "methodologyR3ChangedByThisGrant": false,
+    "p59ActionAuthorisedByThisGrant": false,
+    "adapterFixAuthorisedByThisGrant": false,
+    "afterTheFourthOrdinaryWindowIsAdjudicated": "STOP for owner review regardless of state. There is no fifth window under this record",
+    "afterTwentyLiveAttemptsAreCharged": "STOP for owner review regardless of state, even if fewer than four windows have run"
+  },
+
+  "windowConstructionAlgorithm": {
+    "name": "DETERMINATE_Q1_REPLACEMENTS_BEFORE_NEW_PRIMARIES",
+    "carriedForwardUnchanged": true,
+    "steps": [
+      "STEP 1 - independently recompute the ACTUAL current pending replacement obligations from the committed adjudication chain and the database, never from a carried-forward total and never from the adapter",
+      "STEP 2 - sort those actual obligations by selectionIndex ASCENDING, per Owner Clarification Q1",
+      "STEP 3 - assign the next unused reserve positions monotonically in frozen reserve-rank order",
+      "STEP 4 - take the replacement work items FIRST",
+      "STEP 5 - fill any remaining positions with NEVER_STARTED primaries in ascending selectionIndex order, excluding P:59",
+      "STEP 6 - use five items whenever at least five executable items remain"
+    ],
+    "nextWindowComposition": {
+      "derivedHere": true,
+      "window": "WINDOW_05",
+      "exactOrder": ["R:63:22", "R:64:23", "P:65", "P:66", "P:67"],
+      "replacementItems": 2,
+      "primaryItems": 3,
+      "plannedWindowSize": 5,
+      "ledgerAppendsPlanned": 2,
+      "splitsCrossChecked": {
+        "slot63": "FINAL_HOLDOUT",
+        "slot64": "DEV_CONFIRM",
+        "slot65": "FINAL_HOLDOUT",
+        "slot66": "DEV_TRAIN",
+        "slot67": "DEV_CONFIRM",
+        "source": "recomputed directly from the frozen draw bytes, not copied from the owner task text"
+      },
+      "noOtherCompositionIsAuthorised": true
+    },
+    "laterWindowsAreNotPrecommittedHere": {
+      "precommitted": false,
+      "why": "each window's own outcomes decide the next window's obligations. Precommitting a later composition now would repeat the error the Window-01 adjudication warned about, when a failed replacement sorted ahead of the slots an illustrative 'next window' had named",
+      "eachIsConstructedMechanicallyAfterItsPredecessorIsAdjudicated": true
+    }
+  },
+
+  "strategyAdapterLimitation": {
+    "findingId": "STRATEGY_ADAPTER_HAS_NO_ACQUISITION_OUTCOME_ACCESS_V1",
+    "finding": "the landed strategy-to-spec adapter does not know acquisition outcomes. It validates structure, digests, split agreement, reserve ordering and ledger binding, and it will ACCEPT a structurally valid strategy that re-serves an already-SUCCESSFUL selection slot",
+    "fixedHere": false,
+    "codeChangeAuthorisedHere": false,
+    "consequence": "ADAPTER ACCEPTANCE IS NEVER SUFFICIENT STRATEGY AUTHORITY",
+    "mandatoryIndependentGovernanceForEveryStrategyUnderThisAuthority": [
+      "independently derive the current ACQUISITION_SUCCESSFUL set from the adjudication chain",
+      "independently derive the current CURRENT_ACQUISITION_FAILURE set",
+      "independently derive the current PENDING_CAPABILITY_REVIEW set",
+      "independently derive the current NEVER_STARTED set",
+      "independently derive the current Q1 pending replacement obligations",
+      "require every replacement selectionIndex to be an ACTUAL current pending replacement obligation",
+      "require every primary selectionIndex to be an ACTUAL current NEVER_STARTED slot"
+    ],
+    "aCandidateReferencingAnAlreadySuccessfulSlotMustBeRefusedByGovernance": {
+      "evenIf": [
+        "all digests are correct",
+        "splits are correct",
+        "reserve ordering is correct",
+        "the adapter accepts it"
+      ],
+      "andTheRefusalMustBeProvedForTheRightReason": "a negative probe must use CORRECT draw-entry digests for at least one already-successful slot, so that the refusal is demonstrably a current-state refusal and not an incidental digest mismatch"
+    }
+  },
+
+  "hostEventMonitoringMethodCorrection": {
+    "correctionId": "HOST_EVENT_TIMESTAMP_PREDICATE_OVER_GOVERNED_INTERVAL_V1",
+    "whatIsNowForbidden": "using absolute pmset event-count monotonicity as evidence that no Sleep/Wake/DarkWake event occurred",
+    "why": "the pmset log may rotate or truncate at its tail, so the TOTAL event count can DECREASE without any new event. A count delta is therefore not a sound predicate over a governed interval",
+    "canonicalTestFromNowOn": [
+      "capture the governed interval START timestamp before the governed work begins",
+      "inspect the ACTUAL Sleep / Wake / DarkWake event timestamps in the pmset log",
+      "ask whether any qualifying event timestamp lies INSIDE the governed interval [start, end]"
+    ],
+    "predicateNotCountDelta": true,
+    "failClosed": "an event whose type field begins Sleep, Wake or DarkWake counts, including 'Wake Requests'. Matching conservatively is deliberate: a false alarm costs a review, a missed wake costs evidence integrity",
+    "thisIsAnObservationMethodCorrectionOnly": true,
+    "itDoesNotWeaken": [
+      "the lid-open requirement",
+      "sleep/wake fail-closed behaviour",
+      "the battery rules",
+      "the caffeinate requirement"
+    ]
+  },
+
+  "networkPreconditionPersists": {
+    "requirement": "before EVERY ordinary live window under this authority, and again before EVERY live item inside it, prove the active acquisition vantage is not the previously identified unsuitable DNS64/NAT64-only condition",
+    "method": "public-safe non-institution canaries plus the gateway's own resolution and classification path - dns.promises.lookup(host, { all: true, verbatim: true }) fed to the unmodified classifyIpAddress from src/orgunits/web/address.ts",
+    "prohibited": [
+      "exposing institution hostnames during structural checks",
+      "disabling or special-casing any address-policy rule to make the check pass",
+      "treating the absence of contrary evidence as proof of a compliant vantage"
+    ],
+    "ifTheMachineIsAgainOnTheUnsuitableVantage": "STOP before live execution. Consume no reserve and create no institution failure from that environment",
+    "ifItFailsMidWindow": "STOP before the next item, retain what ran as ENVIRONMENT evidence, create no replacement obligation from it and consume no reserve"
+  },
+
+  "windowLocalGateState": {
+    "underQ4EveryNewWindowStartsFresh": ["P1", "P2", "P3", "P5"],
+    "historicalWindow04P5CountDoesNotCarry": true,
+    "p6RemainsGenerationGlobal": true,
+    "p7RemainsImmediate": true,
+    "p8RemainsCurrentLiveWindowImmediate": true,
+    "fiveItemThresholds": { "P2": 3, "P5": 2 },
+    "thresholdSource": "strictPercentThresholdCount(5, 40) and strictPercentThresholdCount(5, 30) from the landed window contract, recomputed here rather than asserted"
+  },
+
+  "overallAcquisitionTarget": {
+    "doNotStopMerelyBecauseSuccessCountExceeds50": true,
+    "p6FloorIsNotCorpusCompletion": true,
+    "target": "110 ACQUISITION_SUCCESSFUL selection slots, with failed occupants replaced from the frozen reserve list in frozen rank order",
+    "ifReservePositions0To39AreExhaustedBeforeThat": "CORPUS_FREEZE_REFUSED",
+    "noNewReserveList": true,
+    "noRedraw": true
+  },
+
+  "stopConditions": [
+    "any P1-P8 pause inside a window: preserve started evidence, start no later item, produce a LIVE_RESULT, adjudicate the mechanically decidable items, and STOP this autopilot",
+    "an SD7 range that straddles the success threshold: PENDING_CAPABILITY_REVIEW, no replacement obligation, STOP",
+    "an unsuitable network vantage detected before or during live execution",
+    "a ledger or P7 mismatch",
+    "a Q1 mismatch between the independently derived queue and any artifact",
+    "reserve reuse, or a reserve taken out of monotonic order",
+    "unexpected database activity, or an orphan run",
+    "a validation failure after validation has started - no automatic rerun",
+    "a host sleep/wake event inside a governed interval, by the timestamp predicate above",
+    "any HOLDOUT disclosure risk",
+    "a code, test, harness or methodology change becoming necessary",
+    "reserve exhaustion",
+    "the four-window cap",
+    "the twenty-attempt cap",
+    "P:59 becoming necessary to determine corpus closure",
+    "an unexpected Git tip"
+  ],
+
+  "absoluteProhibitions": [
+    "amending Methodology R3 or editing any frozen methodology bytes",
+    "resolving, rerunning, replacing or classifying P:59",
+    "fixing the strategy adapter under this authority",
+    "altering the address guard, the fetch policy, any timeout or any TLS setting",
+    "altering Q3 or any replacement-reason precedence",
+    "a manual retry, an alternate root, or a browser/curl/wget substitution for a work item",
+    "dynamic reserve insertion or dynamic replacement inside a precommitted window",
+    "a second reserve for a failure observed live inside the same window",
+    "a ledger mutation other than the appends a committed window authority plans",
+    "broadening the DNS64/NAT64 vantage rule beyond its established conjunctive conditions",
+    "a fifth ordinary window under this record"
+  ],
+
+  "holdoutNonDisclosure": {
+    "institutionNamed": false,
+    "hostnameNamed": false,
+    "organisationIdNamed": false,
+    "echeRowKeyNamed": false,
+    "urlOrTitleOrExcerptRecorded": false,
+    "semanticInspectionPerformed": false,
+    "splitOfEachWindowItemRecorded": true,
+    "note": "splits are structural corpus coordinates. No holdout institution identity appears here, and none may appear in any window record under this authority"
+  },
+
+  "nextStep": "create the Window-05 strategy against the current PRE-APPEND 22-entry ledger, including the adapter-limitation negative probe with CORRECT digests for an already-successful slot; then its plan; then its live authority; then append reserves 22 and 23; then re-prove the vantage; then execute",
+  "terminalState": "PHASE_2B_2D_A2_POST_WINDOW_04_P5_REVIEWED_NEW_BOUNDED_AUTHORITY_GRANTED_WINDOW_05_NOT_YET_CREATED",
+  "immutability": "append-only. This record is never edited. A later change of scope is a NEW owner decision that supersedes it by name."
+}
