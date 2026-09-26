@@ -1,0 +1,546 @@
+{
+  "recordId": "phase2b-2d-a2-generation1-transport-failure-review-after-window-05-v1",
+  "recordKind": "GENERATION_WIDE_TRANSPORT_FAILURE_REVIEW",
+  "records": "PHASE_2B_2D_A2_GENERATION1_TRANSPORT_FAILURE_REVIEW_AFTER_WINDOW_05_V1",
+  "recordedAtUtc": "2026-09-26T17:37:47Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "startingHead": "b5a06b4332b379b46c19bf976b6413a30966363d",
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "networkUsed": "no institution was contacted, resolved or named. Read-only queries against the working database, read-only reads of committed records, read-only reads of the machine's own network configuration, and two non-institution IANA canaries (example.com, www.iana.org) plus the IETF well-known name ipv4only.arpa - the same three canaries the landed network-precondition protocol uses, none of which is in the frame",
+  "databaseWrittenByThisRecord": "none",
+  "productionCodeChangedByThisRecord": "none",
+  "methodologyChangedByThisRecord": "none",
+  "reserveAssignedByThisRecord": "none",
+
+  "question": "IS_THERE_EVIDENCE_OF_ONE_COMMON_OPERATOR_OR_SYSTEM_DEFECT_CAUSING_THE_RECENT_LOW_YIELD_TRANSPORT_FAILURES?",
+  "whyNow": "Window 04 and Window 05 both ended on the P5 low-raw-yield gate. Neither that fact alone nor its negation was treated as evidence. The owner required a descriptive Generation-1 census before any further reserve is spent.",
+  "noStatisticalThresholdWasInvented": {
+    "statement": "No significance test, no acceptable-failure percentage, no expected-failure rate and no population success rate was defined, computed or applied anywhere in this record.",
+    "whyItWouldBeWrong": "the question is whether ONE mechanism explains the failures, which is a causal question about durable evidence. A rate would answer a different question and would need a calibrated expectation this generation does not have.",
+    "successCountsAreNotRates": "63 successful slots of 110 is a count over a partially-executed frame, never a success rate for the population."
+  },
+
+  "sourceBoundaries": {
+    "workingDatabase": {
+      "database": "nwf_pe",
+      "role": "readonly",
+      "readAtUtc": "2026-09-26T17:20Z-17:35Z",
+      "authoritative": true,
+      "tablesRead": [
+        "orgunit_research_runs",
+        "orgunit_research_run_completions",
+        "orgunit_fetch_observations",
+        "orgunit_redirect_observations",
+        "orgunit_page_evidence",
+        "orgunit_page_candidates"
+      ],
+      "crossCheckCountsAtReadTime": {
+        "runs": 99,
+        "completions": 99,
+        "fetchObservations": 2648,
+        "redirectObservations": 197,
+        "pageEvidence": 1971,
+        "pageCandidates": 3942,
+        "blockedByPolicyObservations": 6,
+        "runsWithoutCompletion": 0,
+        "dryRunRows": 0,
+        "allEightExpectedCrossCheckValuesMatched": true
+      }
+    },
+    "committedRecords": {
+      "scanned": "every JSON file under docs/evaluation/ including docs/evaluation/corpus/, 212 files, parsed in full; no file failed to parse",
+      "runIdentityDerivations": [
+        "sha256(UTF-8 bytes of the lower-case canonical 8-4-4-4-12 run UUID) - the derivation most A2 live results declare",
+        "sha256(UTF-8 bytes of 'run:' + that same UUID) - the second derivation some A2 records declare, and the one the 16-hex runRefSha256Prefix values resolve under"
+      ],
+      "bothDerivationsWereTried": "because two coexist in the committed chain. Every run reference in every committed record resolved under one of them; none was left unresolved.",
+      "runsCoveredByAtLeastOneCommittedReference": 95,
+      "runsNotCoveredByAnyCommittedRunReference": 4,
+      "whyFourAreUncovered": "four early 2026-09-21 runs (three orgunit-fetch-policy-v4, one v6) are identified in their own records by organisation and window rather than by a run reference. None is a current acquisition of record and none is a current failure, so VIEW B does not depend on them; VIEW A reads them from the database directly, so nothing is lost."
+    },
+    "boundRecords": [
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_04_WINDOW_05_EVIDENCE_ADJUDICATION_V1.json",
+        "sha256": "0a04e88ecfb2a9d2c357563cf3b2c32908ddbf07ca26d56af25ec90ede7e765b",
+        "bytes": 22867,
+        "commit": "b5a06b4332b379b46c19bf976b6413a30966363d"
+      },
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_04_WINDOW_05_LIVE_RESULT_V1.json",
+        "sha256": "51981b7c1af454a96f6160fc7df6734df035c9833922f88c79a191e8a8d0f0a3",
+        "bytes": 23936,
+        "commit": "c088d9ed08aeddea9310b2ed7a8b478fe1d1427b"
+      },
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_04_P5_REVIEW_AND_CORPUS_ACQUISITION_RESUME_V1.json",
+        "sha256": "31482acb1daac08fc15b7de5e9b92c4d2e054a9182de2e87eb18e4c7c730d2f8",
+        "bytes": 24447,
+        "commit": "b9248ab00be140217a6e4e144a6bdf334f33b411",
+        "role": "the owner authority whose remainder this review gates"
+      },
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_DNS64_NAT64_OPERATOR_VANTAGE_EVIDENCE_INTEGRITY_ADJUDICATION_V1.json",
+        "sha256": "5f901c1c5e0f2248e7e50887187dc1bcce06ace8b852b8c65d0be35547f655bc",
+        "bytes": 16719,
+        "role": "the operational environment-integrity rule, applied unchanged"
+      },
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_RECOVERY_NETWORK_PRECONDITION_V1.json",
+        "sha256": "dfdb4d6b628e5684347472457f3c912b29c77ac4ded1a10e865317bf3a8a767d",
+        "bytes": 9118,
+        "role": "the landed structural vantage-measurement protocol, reused verbatim here"
+      },
+      {
+        "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+        "sha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+        "bytes": 74047,
+        "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+      },
+      {
+        "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+        "sha256": "3ca6c9eff072b17afac1c6adc5c36c162a84e7017ac1bf42257a0abb7bca6c67",
+        "bytes": 19516,
+        "ledgerHash": "c9fdb2e3ce19f53d55bf45d7ebb0c74db29a5b43334264d80f10cd9c98861234",
+        "entries": 24
+      },
+      {
+        "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_ACQUISITION_POLICY_TRANSITION_LEDGER_V6_GEN1.json",
+        "sha256": "592b17062a601ac21f0525209e133220b90ebd97848790f9da66e22f9391461d",
+        "bytes": 19454,
+        "entryCount": 7,
+        "role": "why some current acquisitions of record carry a pre-v6 fetch-policy version"
+      },
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_BOUNDED_TRANSPORT_RETRY_POLICY_DESIGN_V1.json",
+        "sha256": "46c3e1ff49db96cc6bb6d84d6088f799cfff6aa8d34d0b4d659be31a6fddc1cd",
+        "bytes": 77776,
+        "role": "the frozen retryable/non-retryable set the observed attempt counts are checked against"
+      }
+    ],
+    "productionSourceState": {
+      "headCommit": "b5a06b4332b379b46c19bf976b6413a30966363d",
+      "lastCommitTouchingSrc": "b0a8ddf - a test-scope pin, not production behaviour",
+      "lastCommitTouchingProductionAcquisitionCode": "ec79256 - fetch policy v6 (discovery RCDATA hygiene)",
+      "implementedFetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "addressGuard": {
+        "path": "src/orgunits/web/address.ts",
+        "sha256": "80a83996a9b54aded569c39626a0d3297f20844960f10ba2cabe8afdcaa77628",
+        "commitsInItsEntireHistory": 1,
+        "onlyCommit": "320cc77 - the original bounded gateway",
+        "changedSinceItLanded": false
+      },
+      "gatewaySha256": "77f2018e164afda190e1271bd3e3400b45c0f75c88ac29719533feaf789156eb",
+      "policySha256": "affe97f6736831e8e1a57417c1d6b80f254b9dd71d869fae4d4e8a8ce22d7ea9",
+      "robotsSha256": "4748984b29c19d8bef8c2d5fea1b168c6a6030f35f4af4118ab4bd1f10c2d481"
+    }
+  },
+
+  "viewA": {
+    "scope": "every actual Generation-1 institution acquisition or revalidation run recorded in the working database. 99 runs. Dry runs are excluded and none exists: dry_run is false on all 99 rows, because a dry run writes no row at all.",
+    "classificationIsDescriptive": "these classes are STRUCTURAL descriptions of what the persisted evidence shows, derived here from the database. They are NOT adjudications and they do not restate, replace or contradict any committed per-slot verdict. In particular ACQUISITION_SUCCESSFUL below means only 'four or more raw page-evidence rows', which is the raw-yield shape of the frozen threshold, not a post-SD7 verdict.",
+    "totalLiveRuns": 99,
+    "primaryStructuralClass": {
+      "ACQUISITION_SUCCESSFUL": 64,
+      "ROBOTS_UNREADABLE_TRANSPORT": 18,
+      "ROBOTS_UNREADABLE_REDIRECT": 5,
+      "MIN_PAGES_NOT_MET_PARTIAL_YIELD": 4,
+      "BLOCKED_BY_POLICY": 4,
+      "MIN_PAGES_NOT_MET_NON_2XX_ONLY": 2,
+      "ROBOTS_DISALLOWED": 2,
+      "orchestrationOrPersistenceAnomaly": 0,
+      "other": 0,
+      "total": 99,
+      "classesAreDisjointAndExhaustive": true
+    },
+    "whyTheClassListDiffersFromTheOneInTheTask": "the task's list mixes run-level outcomes with transport tokens. Every transport token it names is reported, but nested under the run-level class it actually produced, because in this generation every transport failure that ended a root ended it at the site-policy step. Flattening the two levels would have double-counted.",
+    "transportSubtypeWithinRobotsUnreadableTransport": {
+      "DNS_FAILURE/DNS_NAME_NOT_FOUND": 7,
+      "CONNECTION_RESET/subtype-null": 4,
+      "TLS_FAILURE/TLS_PROTOCOL_INCOMPATIBLE": 2,
+      "TLS_FAILURE/subtype-null": 2,
+      "CONNECT_TIMEOUT/subtype-null": 1,
+      "DNS_FAILURE/subtype-null": 1,
+      "TLS_FAILURE/TLS_CERT_INVALID": 1,
+      "total": 18,
+      "whySomeSubtypesAreNull": "error_subtype arrived with the transport-observability work. Rows recorded before it carry NULL, which means 'this build did not refine the kind', never 'no subtype applied'."
+    },
+    "observationLevelErrorCensus": {
+      "totalObservations": 2648,
+      "observationsWithNoError": 2608,
+      "observationsWithAnError": 40,
+      "byKindAndSubtype": [
+        {
+          "errorKind": "CONNECTION_RESET",
+          "errorSubtype": null,
+          "rows": 10,
+          "distinctRegistrableDomains": 5,
+          "distinctCalendarDays": 3,
+          "distinctFetchPolicyVersions": 2
+        },
+        {
+          "errorKind": "DNS_FAILURE",
+          "errorSubtype": "DNS_NAME_NOT_FOUND",
+          "rows": 7,
+          "distinctRegistrableDomains": 7,
+          "distinctCalendarDays": 4,
+          "distinctFetchPolicyVersions": 2
+        },
+        {
+          "errorKind": "CONNECT_TIMEOUT",
+          "errorSubtype": null,
+          "rows": 6,
+          "distinctRegistrableDomains": 3,
+          "distinctCalendarDays": 2,
+          "distinctFetchPolicyVersions": 1
+        },
+        {
+          "errorKind": "BLOCKED_BY_POLICY",
+          "errorSubtype": null,
+          "rows": 6,
+          "distinctRegistrableDomains": 6,
+          "distinctCalendarDays": 1,
+          "distinctFetchPolicyVersions": 1,
+          "note": "the environment artifacts; see environmentArtifacts below"
+        },
+        {
+          "errorKind": "TLS_FAILURE",
+          "errorSubtype": "TLS_CERT_INVALID",
+          "rows": 4,
+          "distinctRegistrableDomains": 4,
+          "distinctCalendarDays": 2,
+          "distinctFetchPolicyVersions": 2
+        },
+        {
+          "errorKind": "TLS_FAILURE",
+          "errorSubtype": "TLS_PROTOCOL_INCOMPATIBLE",
+          "rows": 2,
+          "distinctRegistrableDomains": 2,
+          "distinctCalendarDays": 2,
+          "distinctFetchPolicyVersions": 1
+        },
+        {
+          "errorKind": "TLS_FAILURE",
+          "errorSubtype": null,
+          "rows": 2,
+          "distinctRegistrableDomains": 2,
+          "distinctCalendarDays": 2,
+          "distinctFetchPolicyVersions": 2
+        },
+        {
+          "errorKind": "DNS_FAILURE",
+          "errorSubtype": null,
+          "rows": 1,
+          "distinctRegistrableDomains": 1,
+          "distinctCalendarDays": 1,
+          "distinctFetchPolicyVersions": 1
+        },
+        {
+          "errorKind": "READ_TIMEOUT",
+          "errorSubtype": null,
+          "rows": 1,
+          "distinctRegistrableDomains": 1,
+          "distinctCalendarDays": 1,
+          "distinctFetchPolicyVersions": 1
+        },
+        {
+          "errorKind": "RESPONSE_TOO_LARGE",
+          "errorSubtype": null,
+          "rows": 1,
+          "distinctRegistrableDomains": 1,
+          "distinctCalendarDays": 1,
+          "distinctFetchPolicyVersions": 1
+        }
+      ],
+      "notObservedAtAll": [
+        "CONNECTION_REFUSED",
+        "MALFORMED_URL",
+        "TOO_MANY_REDIRECTS",
+        "UNSUPPORTED_CONTENT_TYPE",
+        "TLS_HANDSHAKE_TIMEOUT",
+        "DNS_TEMPORARY_FAILURE",
+        "DNS_NO_ADDRESS_RETURNED",
+        "TLS_OTHER",
+        "DNS_OTHER"
+      ],
+      "robotsDecisionCensus": {
+        "ALLOWED": 2273,
+        "NOT_APPLICABLE": 192,
+        "NO_ROBOTS_FILE": 183,
+        "DISALLOWED": 0,
+        "whyZeroDisallowedRows": "a DISALLOWED page verdict refuses the page BEFORE any request, so it leaves no fetch observation. A ROBOTS_DISALLOWED run is therefore visible as a root that read its policy and made no page attempt, which is how the two such runs were classified - not as an absent row."
+      }
+    },
+    "perDayOutcome": [
+      { "dayUtc": "2026-09-18", "observations": 76, "clean": 75, "errors": 1, "runs": 5 },
+      { "dayUtc": "2026-09-19", "observations": 40, "clean": 38, "errors": 2, "runs": 3 },
+      { "dayUtc": "2026-09-20", "observations": 88, "clean": 87, "errors": 1, "runs": 4 },
+      { "dayUtc": "2026-09-21", "observations": 475, "clean": 463, "errors": 12, "runs": 17 },
+      { "dayUtc": "2026-09-22", "observations": 495, "clean": 493, "errors": 2, "runs": 15 },
+      { "dayUtc": "2026-09-23", "observations": 83, "clean": 81, "errors": 2, "runs": 4 },
+      { "dayUtc": "2026-09-24", "observations": 358, "clean": 358, "errors": 0, "runs": 10 },
+      { "dayUtc": "2026-09-25", "observations": 792, "clean": 777, "errors": 15, "runs": 30 },
+      { "dayUtc": "2026-09-26", "observations": 241, "clean": 236, "errors": 5, "runs": 11 }
+    ],
+    "theStructuralFindingWorthStatingPlainly": {
+      "observation": "31 of 99 runs produced zero page evidence, and 29 of those 31 never made a single page attempt: they failed or were refused at the SITE-POLICY step, before any page could be requested.",
+      "isThatACommonCause": "NO. It is a common STAGE, not a common cause. The site-policy request is by construction the FIRST request to any host, so any host-level condition - a name that does not resolve, a TLS endpoint that will not negotiate, a connection that is reset - necessarily surfaces there and nowhere else. Attributing those 29 to one defect because they share a stage would be attributing them to the architecture of the first request.",
+      "whatTheCausesActuallyAre": "seven distinct mechanisms, spread over 22 distinct registrable domains, nine calendar days and five fetch-policy versions.",
+      "andThisStageHasAlreadyBeenRepairedThreeTimes": "Option B (v2, same-host robots redirect continuation), Option C-lite (v3, same-registrable-domain robots redirect continuation) and the bounded transport retry (v4, robots-only, one token) each addressed a RECOVERABLE sub-case of exactly this stage, each under its own owner decision, and each was revalidated. What remains at this stage is the non-recoverable residue, which is what the next section is about."
+    }
+  },
+
+  "viewB": {
+    "scope": "for every one of the 110 selection slots, only the CURRENTLY ACCEPTED acquisition-of-record evidence. Derived by resolving each slot's current occupant from the frozen draw plus the 24-entry reserve replacement ledger, then taking that occupant's latest run in the database.",
+    "totalSlots": 110,
+    "currentAcquisitionOfRecordClass": {
+      "ACQUISITION_SUCCESSFUL": 64,
+      "NEVER_STARTED": 44,
+      "ROBOTS_UNREADABLE_TRANSPORT": 2,
+      "total": 110
+    },
+    "howThat64RelatesToTheCanonical63": {
+      "statement": "64 slots hold four or more raw page-evidence rows. Exactly one of them - slot 59 - is NOT a canonical success: its formal SD7 range is [1,24], which straddles the threshold of 4, so it is PENDING_CAPABILITY_REVIEW rather than successful. 64 minus that one is the canonical 63.",
+      "rawYieldIsNotAVerdict": true
+    },
+    "currentAcquisitionOfRecordFailures": [
+      {
+        "selectionIndex": 64,
+        "occupantKind": "RESERVE_REPLACEMENT",
+        "reserveRankPosition": 23,
+        "mechanism": "TLS_FAILURE / TLS_PROTOCOL_INCOMPATIBLE",
+        "pageAttempts": 0,
+        "rawPageEvidence": 0,
+        "fetchPolicyVersion": "orgunit-fetch-policy-v6",
+        "attemptsMade": 1
+      },
+      {
+        "selectionIndex": 65,
+        "occupantKind": "ORIGINAL_SELECTION",
+        "reserveRankPosition": null,
+        "mechanism": "DNS_FAILURE / DNS_NAME_NOT_FOUND",
+        "pageAttempts": 0,
+        "rawPageEvidence": 0,
+        "fetchPolicyVersion": "orgunit-fetch-policy-v6",
+        "attemptsMade": 1
+      }
+    ],
+    "theTwoCurrentFailuresDoNotShareAMechanism": "one is a TLS endpoint that declined to negotiate a protocol this runtime will accept; the other is an authoritative negative DNS answer. They are different layers, different hosts and different registrable domains.",
+    "runAccounting": {
+      "runsThatAreACurrentAcquisitionOfRecord": 66,
+      "runsSupersededBecauseTheirOccupantWasReplaced": 29,
+      "runsSupersededByALaterRunAgainstTheSameOccupant": 4,
+      "total": 99,
+      "reconciles": "66 + 29 + 4 = 99"
+    },
+    "fetchPolicyProvenanceOfCurrentAcquisitionsOfRecord": {
+      "orgunit-fetch-policy-v6": 55,
+      "orgunit-fetch-policy-v4": 6,
+      "orgunit-fetch-policy-v3": 2,
+      "orgunit-fetch-policy-v1": 2,
+      "orgunit-fetch-policy-v2": 1,
+      "isThatAMismatchDefect": "NO. fetch_policy_version on a run row is historical RUN PROVENANCE: it says which implemented policy that run executed under, not which policy is current. The 11 pre-v6 current acquisitions of record are slots 0-9 and 11, all successful, and every acquisition-of-record move between policy versions is recorded in the acquisition-policy transition ledger - 7 entries, 0 reserves consumed, 0 rows rewritten. No CURRENT FAILURE carries a pre-v6 run: both are v6.",
+      "everyRunFrom2026_09_24OnwardsIsV6": true
+    }
+  },
+
+  "environmentArtifacts": {
+    "whatTheyAre": "the six BLOCKED_BY_POLICY fetch observations produced while the operator vantage was an IPv6-only DNS64/NAT64 uplink. The landed address classifier refused a translated address that resolution DID return. They are ENVIRONMENT evidence about the vantage, not evidence about an institution.",
+    "count": 6,
+    "allSixRemainIdentifiable": true,
+    "allSixRemainImmutableAndWereNotErased": true,
+    "noneIsCountedAsSuccessful": true,
+    "distinctRuns": 6,
+    "distinctRegistrableDomains": 6,
+    "observedOnCalendarDaysUtc": ["2026-09-25"],
+    "earliest": "2026-09-25T14:54:06.464Z",
+    "latest": "2026-09-25T21:50:52.585Z",
+    "everyOneHasResolvedIpFamilyIPV6AndResolvedIpIsPublicFalse": true,
+    "dispositionOfTheirRuns": {
+      "runsWhoseWholeOutcomeWasTheRefusal": 4,
+      "ofThoseRunsStillACurrentAcquisitionOfRecord": 0,
+      "whySuperseded": "each of those four slots was afterwards either re-acquired from a compliant vantage against the SAME occupant, or replaced by a reserve that was then acquired from a compliant vantage. Slot 51 is the clearest case: the same occupant went from 0 pages under the NAT64 vantage to 24 pages under the compliant one.",
+      "runsThatContainedOneRefusedSubRequestButSucceededAnyway": 2,
+      "ofThoseRunsStillACurrentAcquisitionOfRecord": 2,
+      "whyThatIsFine": "in each the refusal applied to ONE sibling host's site-policy request; the root's own host resolved and answered normally and the run produced 31 and 34 raw pages. The refusal is recorded, is not a success, and did not decide the run."
+    },
+    "noNewNat64ArtifactAppearedInWindow05": {
+      "databaseTotalBeforeWindow05": 6,
+      "databaseTotalAfterWindow05": 6,
+      "newestArtifactTimestamp": "2026-09-25T21:50:52.585Z",
+      "window05FirstRunStarted": "2026-09-26T16:31:49.544Z",
+      "everyArtifactPredatesWindow05": true
+    },
+    "window05RanFromACompliantVantage": {
+      "resolvedAddressFamiliesAcrossAll241ObservationsOn2026_09_26": {
+        "IPV4_public": 239,
+        "IPV6_any": 0,
+        "notRecorded": 2,
+        "whyTwoAreNotRecorded": "an attempt that fails before or during address resolution records no resolved address - the DNS_NAME_NOT_FOUND and the TLS failure of that day."
+      },
+      "preSocketAddressPolicyRefusalsOn2026_09_26": 0
+    },
+    "landedAddressGuardUnchanged": {
+      "path": "src/orgunits/web/address.ts",
+      "sha256": "80a83996a9b54aded569c39626a0d3297f20844960f10ba2cabe8afdcaa77628",
+      "commitsInItsEntireHistory": 1,
+      "changedSinceItLanded": false
+    },
+    "vantageAsMeasuredWhileWritingThisRecord": {
+      "protocol": "the landed structural checks from PHASE_2B_2D_A2_POST_Q1_WINDOW_02_RECOVERY_NETWORK_PRECONDITION_V1, reused verbatim",
+      "ipv4DefaultRoutePresent": true,
+      "gatewayIsPrivateLan": true,
+      "ipv6DefaultRoutePresent": false,
+      "cellularPdpInterfaces": 0,
+      "clatWellKnownAddress192_0_0_2Present": false,
+      "constrainedInterfaces": 0,
+      "systemReportsAnyIpv6GlobalState": false,
+      "dns64Probe": {
+        "name": "ipv4only.arpa",
+        "aRecordsReturned": ["192.0.0.171", "192.0.0.170"],
+        "aaaaRecordsReturned": [],
+        "translationPrefixSynthesisObserved": false,
+        "dns64Present": false
+      },
+      "nonInstitutionIpv4Canaries": [
+        { "name": "example.com", "httpStatus": 200, "remoteAddressFamily": "IPV4" },
+        { "name": "www.iana.org", "httpStatus": 200, "remoteAddressFamily": "IPV4" }
+      ],
+      "outcome": "COMPLIANT_VANTAGE",
+      "thisMeasurementDoesNotAuthoriseAnything": "it is evidence at this instant. Conditions 1, 2 and 4 are re-measured before EVERY live item, as the bound protocol requires."
+    },
+    "noNat64RulePromotionHappenedHere": "the operational vantage rule stays in governance. This record does not move it into Methodology R3 and does not amend it."
+  },
+
+  "systemicDefectReview": {
+    "howEachCandidateCauseWasTested": [
+      {
+        "candidate": "operator network / vantage",
+        "verdict": "NOT_ESTABLISHED_AS_A_CURRENT_CAUSE",
+        "evidence": "the one vantage condition this generation ever suffered is the DNS64/NAT64 one, confined to 2026-09-25, six immutable artifacts, all superseded as current evidence. On 2026-09-26 all 239 recorded resolutions were public IPv4 and zero addresses were refused. The vantage measured while writing this record is compliant on all six landed conditions."
+      },
+      {
+        "candidate": "DNS64 / NAT64-only egress",
+        "verdict": "ABSENT",
+        "evidence": "ipv4only.arpa returns A records and no AAAA; no CLAT address; no cellular interface; no IPv6 default route."
+      },
+      {
+        "candidate": "address-classification malfunction",
+        "verdict": "NOT_ESTABLISHED",
+        "evidence": "address.ts has exactly one commit in its entire history and is byte-unchanged. It refused 6 addresses in the whole generation, all IPv6 non-public, all on one day, all under a translation-prefix uplink - which is the behaviour it exists to produce. It refused nothing on 2026-09-26."
+      },
+      {
+        "candidate": "common local DNS resolver malfunction",
+        "verdict": "NOT_ESTABLISHED",
+        "evidence": "8 DNS failure rows in 2648 observations. The 7 DNS_NAME_NOT_FOUND rows are on 7 DISTINCT registrable domains across 4 calendar days and 2 policy versions; ENOTFOUND is an authoritative negative ANSWER, not a failure to obtain one. A malfunctioning resolver does not answer 2640 queries correctly and then return NXDOMAIN for seven unrelated names on four different days."
+      },
+      {
+        "candidate": "common TLS configuration introduced by our runtime",
+        "verdict": "NOT_ESTABLISHED",
+        "evidence": "8 TLS failure rows in 2648 observations, spread over 3 subtypes (4 TLS_CERT_INVALID, 2 TLS_PROTOCOL_INCOMPATIBLE, 2 pre-subtype) and 8 distinct registrable domains and 4 calendar days. No production TLS setting changed at any point: the gateway is byte-unchanged since the transport-observability commit and rejectUnauthorized is not configurable anywhere. 2273 requests completed TLS successfully against 90 registrable domains under that same configuration."
+      },
+      {
+        "candidate": "fetch-policy provenance mismatch",
+        "verdict": "NOT_ESTABLISHED",
+        "evidence": "the build implements orgunit-fetch-policy-v6 and every run from 2026-09-24 onward recorded v6. The 11 pre-v6 current acquisitions of record are governed by the acquisition-policy transition ledger; both current failures are v6."
+      },
+      {
+        "candidate": "shared gateway implementation exception",
+        "verdict": "NOT_ESTABLISHED",
+        "evidence": "99 of 99 runs reached terminal state COMPLETED, 0 completion rows carry an error_kind, and 0 runs lack a completion. An exception escaping the gateway would show as a run whose completion carried an error or as a run with none."
+      },
+      {
+        "candidate": "persistence anomaly",
+        "verdict": "NOT_ESTABLISHED",
+        "evidence": "0 page-evidence rows without a parent fetch observation; 0 candidate rows without a parent page-evidence row; 0 page-evidence rows attached to a non-2xx fetch; candidate rows equal exactly 2x page-evidence rows in every one of the 99 runs; main_text_chars maxes at exactly 40000 with 8 rows flagged truncated; one rule_version throughout (orgunit-signal-rules-v1); 53 candidate rows carry a negative score, which is migration 0008 behaving as designed rather than a defect."
+      },
+      {
+        "candidate": "orphan / incomplete runs",
+        "verdict": "NONE",
+        "evidence": "runs 99, completions 99, runs without completion 0."
+      },
+      {
+        "candidate": "shared database write failure",
+        "verdict": "NOT_ESTABLISHED",
+        "evidence": "all eight expected cross-check counts matched the live database exactly before any work here, and every committed item that asserts observationRowsEqualTotalRequests asserts it true, with no record asserting it false."
+      },
+      {
+        "candidate": "host sleep / wake contamination",
+        "verdict": "NOT_ESTABLISHED_WHERE_EVIDENCE_EXISTS, UNDETERMINED_FOR_SEVEN_EARLY_RUNS",
+        "evidence": "pmset -g log was consumed in full (8637460 bytes, 36592 timestamped lines, 639 Sleep/Wake/DarkWake events), timestamps were converted to UTC, and the predicate was 'does any Sleep, Wake or DarkWake event fall inside this run's started_at..finished_at interval'. Coverage is 2026-09-19T17:33:50Z to 2026-09-26T17:33:41Z. Of the 92 runs inside coverage, 0 contain such an event. There are 0 such events anywhere on 2026-09-26, so Windows 04 and 05 are clean. 7 runs start before coverage begins and are reported UNDETERMINED rather than clean - an event-count difference was NOT used, because the log rotates.",
+        "ofTheSevenUndeterminedRunsHowManyAreCurrentAcquisitionsOfRecord": 2,
+        "andAreThoseFailures": "no - both are successful v1-era runs on slots 0 and 2."
+      },
+      {
+        "candidate": "pacing defect",
+        "verdict": "NOT_ESTABLISHED, AND NOT DECIDABLE FROM PERSISTED EVIDENCE",
+        "evidence": "MIN_HOST_PACING_SECONDS is 1.2 and is pinned by two test files; the pacer is unchanged. It is NOT decidable from the database whether a given pair of requests honoured it, because observed_at is stamped when the observation is PERSISTED - after the response - while pacing is enforced between SLOT GRANTS, before the request, and per-attempt duration is deliberately not persisted. Consequently a same-host observed_at gap below 1.2 s is expected whenever the preceding request itself took longer than the remaining interval, and no observed gap is INCONSISTENT with the policy. This is recorded as a limitation, not as a clean bill of health and not as a defect.",
+        "whatWasActuallyMeasured": "2488 same-host consecutive pairs within a run, mean gap 1.877 s, minimum 0.089 s; the minimum was traced to a case where the preceding request's own duration accounts for it."
+      },
+      {
+        "candidate": "concurrency violation",
+        "verdict": "NONE",
+        "evidence": "0 pairs of runs have overlapping started_at..finished_at intervals across all 99 runs. Concurrency 1 held throughout the generation."
+      },
+      {
+        "candidate": "policy-version mismatch",
+        "verdict": "NONE",
+        "evidence": "no run recorded a policy version this build does not implement; a run that had would have been REFUSED before any request."
+      },
+      {
+        "candidate": "an implementation behaviour affecting otherwise unrelated targets in the same way",
+        "verdict": "ONE SHARED STAGE, NO SHARED CAUSE",
+        "evidence": "29 of 31 zero-page runs failed at the site-policy step without a single page attempt. That is a shared STAGE and a necessary consequence of the site-policy request being the first request to any host: any host-level condition can only surface there. The causes underneath are 7 distinct mechanisms over 22 distinct registrable domains, 9 calendar days and 5 policy versions. Three separate owner-approved repairs (v2, v3, v4) have already addressed the recoverable sub-cases of this stage; the residue is stated refusals from the targets themselves.",
+        "thisIsReportedAsAFindingNotDismissed": true
+      },
+      {
+        "candidate": "retry behaviour wrong for the recent failures",
+        "verdict": "CORRECT_AS_FROZEN",
+        "evidence": "the observed attempt counts match the frozen retryable set exactly. CONNECT_TIMEOUT and CONNECTION_RESET rows appear at attempt_no 2, so the bounded retry did fire where authorised. Window 05's two failures carry TLS_PROTOCOL_INCOMPATIBLE and DNS_NAME_NOT_FOUND, both members of the frozen NON_RETRYABLE_SUBTYPES set because each is a stated, stable refusal that a second identical attempt must find unchanged, and both received exactly one attempt. Retrying either would require weakening verification, downgrading a protocol or substituting a name - all absolutely forbidden."
+      },
+      {
+        "candidate": "budget or ceiling breach",
+        "verdict": "NONE_WHERE_DECIDABLE",
+        "evidence": "max total requests in any run is 44 against a ceiling of 60; max distinct hosts is 7 against a ceiling of 8. Per-run PAGE-ATTEMPT accounting is not reconstructible from persisted evidence because discovery_method 'SITEMAP' labels both a sitemap document fetch and a page discovered through a sitemap, and the budget class is not persisted - so that ceiling was checked against the committed records instead: 24 items assert withinPageAttemptCeiling35, withinTotalRequestCeiling60 and withinHostCeiling8, and no committed record asserts any of the three false."
+      }
+    ],
+    "evidenceAgainstABlanketOutage": {
+      "sameDayContrast2026_09_26": "11 runs: 6 successful with 27 to 34 raw pages each, 1 with a single page, 4 with none. The successes and the failures ran in the same process shape, from the same compliant vantage, under the same v6 policy, within four hours of each other.",
+      "window05Contrast": "R:63:22 produced 34 post-SD7 pages minutes before R:64:23 and P:65 failed at their first request.",
+      "butThisDoesNotProveEveryFailureIsTargetSpecific": "correct, and it is not claimed to. It rules out a blanket acquisition outage. What rules out a shared mechanism is the spread of the failures across subtypes, domains, days and policy versions, plus the per-candidate checks above."
+    },
+    "conclusion": "GENERATION_TRANSPORT_REVIEW_NO_COMMON_SYSTEMIC_DEFECT_ESTABLISHED",
+    "conclusionWasNotForced": "every candidate cause in the owner's list was tested against durable evidence and each result is recorded with the evidence that produced it, including the two that did NOT come back clean - a shared failure STAGE, and pacing being undecidable from persisted evidence. Neither is a repair that must occur before further acquisition, and neither was smoothed over.",
+    "noRepairIsIdentifiedAsRequiredBeforeFurtherAcquisition": true
+  },
+
+  "limitations": [
+    "This is a DESCRIPTIVE census. It adjudicates nothing, re-opens nothing and changes no verdict, no obligation and no SD7 measurement.",
+    "The structural classes in VIEW A were derived here from the database for the purpose of this review. They are not the frozen SD9 taxonomy and must never be cited as per-slot outcomes; the committed adjudications remain the only source of those.",
+    "VIEW A's ACQUISITION_SUCCESSFUL class means four or more RAW page-evidence rows. Post-SD7 survivor counts can be lower, which is exactly why slot 59 is pending rather than successful. Raw yield is not a verdict.",
+    "Four early 2026-09-21 runs carry no committed run reference under either declared derivation. They are read from the database in VIEW A; none is a current acquisition of record, so VIEW B does not rest on them.",
+    "Per-attempt duration is not persisted, so per-host pacing compliance cannot be proved or disproved from the evidence. No observation contradicts it.",
+    "Per-run page-attempt accounting is not reconstructible from discovery_method alone. The ceiling was checked against committed assertions instead of re-derived.",
+    "Sleep/wake evidence begins at 2026-09-19T17:33:50Z. Seven runs that started earlier are UNDETERMINED, not clean. The pmset log rotates, so no conclusion was drawn from an event count.",
+    "Nothing here measures whether the acquisition CAPABILITY could be improved. It measures only whether one common current defect explains the recent low-yield failures. 'No common defect established' is not 'the capability is as good as it could be', and it is not a prediction about the next window.",
+    "No statistical threshold, significance test or acceptable-failure percentage was invented, computed or applied."
+  ],
+
+  "whatThisRecordDoesNotDo": [
+    "it does not authorise a window, an attempt, a reserve assignment or a ledger append",
+    "it does not retry any failed occupant",
+    "it does not widen a timeout, weaken TLS, work around DNS or change the fetch policy",
+    "it does not classify, rerun, replace or alter slot 59, and does not touch SD7 or amend methodology R3",
+    "it does not repair the strategy adapter",
+    "it does not erase, re-status or re-hash any NAT64 artifact or any prior pause"
+  ],
+
+  "terminalState": "GENERATION_TRANSPORT_REVIEW_NO_COMMON_SYSTEMIC_DEFECT_ESTABLISHED",
+  "nextAuthorisedAction": "record the Window-05 P5 owner review and resume ONLY the remainder of the authority at b9248ab00be140217a6e4e144a6bdf334f33b411: 3 ordinary child windows and 15 live attempts. This record does not itself resume anything.",
+  "immutability": "append-only. This record states what the evidence showed at this instant and is never edited."
+}
