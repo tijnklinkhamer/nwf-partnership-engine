@@ -388,7 +388,21 @@
       "previousSequenceForSlot": 18,
       "previousEntryHash": "a34ec9e5a4f219c3ca4428c74f6b05597bc13784105f6da717fd4d91cd9c8dcd",
       "entryHash": "c8871b0aa066a54ea1697520ce6b3b9de68861a4eadd7e5796c398084f4c0ede"
+    },
+    {
+      "sequence": 21,
+      "selectionIndex": 54,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "F ARRAS14|928442776",
+      "replacementEcheRowKey": "HR ZAGREB01|999933231",
+      "reserveRankPosition": 21,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-26T13:14:45Z",
+      "replacedOccupantKind": "RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 20,
+      "previousEntryHash": "c8871b0aa066a54ea1697520ce6b3b9de68861a4eadd7e5796c398084f4c0ede",
+      "entryHash": "073c9499a2a1def253b8637251a32e01fd142557b4ad8de6cd3fe430bc49f17b"
     }
   ],
-  "ledgerHash": "95bff880382ddd6776d7da46ba6a957d02722e8e90242cf8dfacc9a261705ff5"
+  "ledgerHash": "c181e20f45a3d6fe61e270dfe1a735bc1fa4f39a853d6a753d9267400329f301"
 }
