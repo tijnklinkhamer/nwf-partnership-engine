@@ -1,0 +1,235 @@
+{
+  "recordId": "phase2b-2d-a2-dns64-nat64-operator-vantage-evidence-integrity-adjudication-v1",
+  "recordKind": "OWNER_OPERATIONAL_EVIDENCE_INTEGRITY_ADJUDICATION",
+  "records": "PHASE_2B_2D_A2_DNS64_NAT64_OPERATOR_VANTAGE_EVIDENCE_INTEGRITY_ADJUDICATION_V1",
+  "recordedAtUtc": "2026-09-26T11:14:55Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "isLiveAuthority": false,
+  "thisRecordExecutesNothing": true,
+  "networkUsedByThisRecord": "none",
+  "databaseWrittenByThisRecord": "none",
+  "productionCodeChangedByThisRecord": "none",
+  "startingHead": "cdda77d0653db460898d806bfe0667d5aeb7c09c",
+
+  "whatThisRecordIs": "an OPERATIONAL evidence-integrity rule for the CURRENT methodology generation. It states when a pre-socket address-policy refusal is evidence about the OPERATOR'S NETWORK VANTAGE rather than evidence about an institution, and what follows for the replacement ledger when it is",
+  "whatThisRecordIsNot": [
+    "a methodology amendment",
+    "Methodology R4, or any revision of the frozen R3 bytes",
+    "a fetch-policy change",
+    "an address-policy change",
+    "a change to Q3 or to any replacement-reason precedence",
+    "a change to any SD7 or SD9 threshold",
+    "a change to any sampling, draw or reserve-order rule",
+    "a broadening of the address guard, or a licence to admit any address the guard refuses"
+  ],
+  "methodologyR3AmendedHere": false,
+  "frozenMethodologyBytesEditedHere": false,
+  "addressGuardAlteredHere": false,
+  "q3AlteredHere": false,
+
+  "bound": {
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306,
+      "role": "the frozen methodology this rule does NOT amend. Cited to fix exactly which generation the rule is operational for"
+    },
+    "methodologyFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+      "bytes": 17514
+    },
+    "ownerReserveOrderClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "bytes": 18443,
+      "role": "holds Q3, the replacement-reason precedence this rule leaves untouched. This rule decides WHETHER an obligation exists at all; Q3 decides which reason an obligation that DOES exist carries"
+    },
+    "recoveryDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_NAT64_VANTAGE_AND_ASSIGNED_OCCUPANT_RECOVERY_DECISION_V1.json",
+      "sha256": "67331d2017e0dd3266408ca10a1fe5ffce2c7a8724c2e0c5167eba6d4206acb0",
+      "bytes": 14364,
+      "commit": "c4b1830279b1db004f23d43606beef40f30aaf81",
+      "role": "the owner decision that ordered the targeted recovery instead of spending reserves on the Window-02 refusals"
+    },
+    "recoveryNetworkPrecondition": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_RECOVERY_NETWORK_PRECONDITION_V1.json",
+      "sha256": "dfdb4d6b628e5684347472457f3c912b29c77ac4ded1a10e865317bf3a8a767d",
+      "bytes": 9118,
+      "commit": "f5cc01c896ae1ed9e97740825ec6a4438624aba3",
+      "outcome": "NETWORK_PRECONDITION_PROVED",
+      "role": "the six-condition structural proof that the recovery ran from a compliant vantage. Its condition list is the template this rule's clause 5 requires a revalidation to satisfy"
+    },
+    "recoveryLiveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_TARGETED_VANTAGE_RECOVERY_LIVE_AUTHORITY_V1.json",
+      "sha256": "1aebeb30ef81345e849da665a7a8dedc63439073592b317b7fc1822cf72bb823",
+      "bytes": 15467,
+      "commit": "6eb14d418d0aa720b1fc3c0749fa48402c217621",
+      "role": "the targeted three-run authority. It consumed no reserve and changed no organisation, slot, split, root authority or fetch policy - which is what made clause 5 satisfiable"
+    },
+    "recoveryLiveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_TARGETED_VANTAGE_RECOVERY_LIVE_RESULT_V1.json",
+      "sha256": "97c6e1bef26cc36be9ffa23c2fab6e7eef113a6caf41cfa30ddcdd04fb09296c",
+      "bytes": 22957,
+      "commit": "5d4f4becf5c5dd5d1d06994e3af531d211c5fa94",
+      "role": "the measured outcome: 43 fetch observations, every resolved address ordinary public IPv4, ZERO new address-policy refusals"
+    },
+    "recoveryAdjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_TARGETED_VANTAGE_RECOVERY_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "236b71f45b1127ff6569c0c7339ee5859e180913ac2fd2aedcbe8087f8326681",
+      "bytes": 29114,
+      "commit": "cdda77d0653db460898d806bfe0667d5aeb7c09c",
+      "terminalState": "PHASE_2B_2D_A2_POST_Q1_WINDOW_02_TARGETED_VANTAGE_RECOVERY_ADJUDICATED_VANTAGE_AMBIGUITY_CLOSED_AUTOPILOT_REMAINS_STOPPED",
+      "role": "the canonical state this rule is written against, and the record whose own nextOwnerDecision asked whether this rule should be written down"
+    },
+    "window02Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "d42bcc8ddaec933246ae319aa49a15e872a209eff959ad6aa2d006d2f5248836",
+      "bytes": 25755,
+      "commit": "d1afd083f6fbcfdad3a01a6e878ca80bfd4d4715",
+      "role": "the record that HELD the slot-45 and slot-51 obligations rather than spending reserves on them. This rule is the generalisation of that hold, written down after the recovery proved it correct"
+    },
+    "capabilityReviewResolution": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_CHILD_WINDOW_C_ADDRESS_POLICY_REFUSAL_CAPABILITY_REVIEW_RESOLUTION_V1.json",
+      "sha256": "72ae3ed8e4c4c790650c674482c75b976e3bcd848f9e07feb339d48a11c2b6ad",
+      "bytes": 33363,
+      "role": "the earlier record that first placed address-policy refusals under Q3 rank 4. This rule does not reopen its Q3 mapping; it narrows the set of refusals that reach Q3 at all"
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "08f720636daaa42fa92419f11f8401c49f785d0fa5ecc4eaf5f41bb8cf291ffc",
+      "bytes": 16444,
+      "ledgerHash": "e215c1945dda8f4d79e10d775729290f7cf8ed3475e6849db2470d0381662e81",
+      "entries": 19,
+      "role": "the artifact this rule protects from a spurious append. It is not modified by this record"
+    }
+  },
+
+  "theRule": {
+    "id": "DNS64_NAT64_OPERATOR_VANTAGE_REFUSAL_DOES_NOT_CREATE_REPLACEMENT_OBLIGATION_V1",
+    "scope": "OPERATIONAL_EVIDENCE_INTEGRITY_FOR_METHODOLOGY_V2_GEN1",
+    "statement": "A pre-socket address-policy refusal that durable evidence shows was caused by the OPERATOR'S OWN network vantage - specifically an IPv6-only DNS64/NAT64 path whose resolver returns only translation-prefix representations of the target - is evidence about the measuring environment, not about the institution. It does not create a replacement obligation, does not consume a reserve, and does not displace the slot's current occupant. The slot is HELD and a targeted compliant-vantage revalidation is required before any institution-level adjudication of that slot.",
+    "whatItDecides": "WHETHER a refusal reaches Q3 at all",
+    "whatItDoesNotDecide": "which reason an obligation carries once one exists - that remains Q3, unchanged",
+
+    "appliesOnlyWhenAllFiveAreProvedByDurableEvidence": [
+      {
+        "clause": 1,
+        "requirement": "the acquisition run was blocked PRE-SOCKET by the landed address classifier",
+        "howItIsProved": "an orgunit_fetch_observations row with error_kind BLOCKED_BY_POLICY whose refusal precedes any connection, produced by the unmodified classifyIpAddress in src/orgunits/web/address.ts",
+        "notSatisfiedBy": [
+          "a connect timeout",
+          "a TLS failure",
+          "a DNS failure",
+          "an HTTP error status",
+          "a robots refusal",
+          "any post-socket outcome whatsoever"
+        ]
+      },
+      {
+        "clause": 2,
+        "requirement": "the target addresses OBSERVED BY THE GATEWAY were NAT64/DNS64 translation-prefix representations rather than ordinary reachable public target addresses",
+        "howItIsProved": "the recorded resolved addresses for the refused host are translation-prefix addresses (for example 64:ff9b::/96) or CLAT/protocol-assignment addresses standing in for an IPv4 destination, and NOT ordinary public addresses the institution actually publishes",
+        "notSatisfiedBy": [
+          "a private or loopback address genuinely published by the institution",
+          "a public address the guard refuses for an unrelated reason",
+          "an address set containing at least one ordinary public address that was itself reachable"
+        ]
+      },
+      {
+        "clause": 3,
+        "requirement": "the machine's active operator network was itself an IPv6-only DNS64/NAT64 vantage at the time of the run",
+        "howItIsProved": "contemporaneous structural evidence of the vantage: a DNS64 detector (ipv4only.arpa answering with synthesised AAAA records in the translation prefix), an IPv6-only default route, an active CLAT address, a cellular PDP or constrained interface - recorded independently of any institution",
+        "notSatisfiedBy": [
+          "an inference from the refusal itself",
+          "a recollection that the network 'was probably' cellular",
+          "the absence of contrary evidence"
+        ]
+      },
+      {
+        "clause": 4,
+        "requirement": "NO institution-level HTTP/TLS/robots evidence was obtained for that target",
+        "howItIsProved": "the run produced no readable robots policy, no HTTP status and no page evidence for the host in question - there is genuinely nothing about the institution to adjudicate",
+        "notSatisfiedBy": [
+          "a run that read robots.txt successfully and was then disallowed",
+          "a run that obtained any HTTP status from the institution",
+          "a run that yielded page evidence below the success threshold - that is a MIN_PAGES question, not a vantage question"
+        ]
+      },
+      {
+        "clause": 5,
+        "requirement": "a compliant-vantage revalidation is MECHANICALLY POSSIBLE without changing organisation, slot, split, root authority or fetch policy",
+        "howItIsProved": "the same occupant can be re-measured by the landed code from a compliant vantage, with no reserve consumed and no artifact rewritten - as the targeted recovery series demonstrated",
+        "notSatisfiedBy": [
+          "a revalidation that would require a policy change, a code change or a migration",
+          "a revalidation that would require assigning a different occupant"
+        ]
+      }
+    ],
+    "allFiveAreConjunctive": true,
+    "anySingleClauseUnprovedMeans": "the rule DOES NOT APPLY and ordinary frozen Q3 governs the refusal exactly as before",
+
+    "consequencesWhenItApplies": [
+      "PRESERVE the original run immutably as ENVIRONMENT evidence - it is never deleted, never rewritten and never reclassified as an institution failure",
+      "DO NOT create a replacement obligation from that run",
+      "HOLD the slot's current occupant - no reserve is assigned and the replacement ledger does not grow",
+      "REQUIRE a targeted compliant-vantage revalidation before any institution-level adjudication of that slot",
+      "record the hold explicitly, so that a later reader can see the obligation was withheld deliberately rather than overlooked"
+    ],
+
+    "empiricalValidation": {
+      "alreadyValidated": true,
+      "byWhat": "the landed targeted vantage recovery series (authority 6eb14d418d0aa720b1fc3c0749fa48402c217621, result 5d4f4becf5c5dd5d1d06994e3af531d211c5fa94, adjudication cdda77d0653db460898d806bfe0667d5aeb7c09c)",
+      "whatItShowed": [
+        "slot 51, whose Window-02 evidence was a pre-socket address refusal, went from 0 pages to 24 pages from a compliant vantage and is now ACQUISITION_SUCCESSFUL - had a reserve been spent on it, an occupant that in fact yields 24 pages would have been discarded",
+        "slot 45, whose Window-02 evidence was also a pre-socket address refusal, was REACHED from a compliant vantage and its robots.txt genuinely READ (HTTP 200, 151 bytes); the site's own policy then disallowed the root, which is a DIFFERENT and better-evidenced finding carrying Q3 rank 2 rather than the rank-4 fallback the NAT64 run produced",
+        "not one address-policy refusal occurred anywhere in the 43 fetch observations of the recovery series, and the database's six BLOCKED_BY_POLICY rows are still exactly the two Window-02 clusters"
+      ],
+      "thisIsWhyTheRuleIsWrittenDownRatherThanAssumed": "the hold was a judgement call when Window 02 made it. The recovery turned it into a measured fact: the refusals carried no information about either institution, and one of the two occupants was in fact good"
+    },
+
+    "explicitNonGeneralisations": [
+      "do NOT generalise this rule to arbitrary BLOCKED_BY_POLICY. Most address-policy refusals are genuine and belong to the institution's own published addresses",
+      "do NOT treat genuinely non-public institution addresses as operator-vantage failures. An institution that publishes a private or unroutable address has been correctly refused, and that IS institution-level evidence",
+      "do NOT weaken, bypass or special-case the address guard. The rule changes how a refusal is INTERPRETED afterwards; the guard's behaviour at the moment of refusal is unchanged and must stay unchanged",
+      "do NOT use this rule to retry a target from the same unsuitable vantage. The remedy is a compliant vantage, not a repeated attempt",
+      "do NOT use this rule to hold a slot indefinitely. It requires a revalidation, and a slot held without one is an open obligation on the operator, not a resolved slot"
+    ],
+
+    "relationshipToQ3": {
+      "q3AlteredHere": false,
+      "howTheyCompose": "this rule is a GATE in front of Q3, not a member of it. When the rule applies, no obligation is created and Q3 is never consulted. When the rule does not apply, Q3 governs unchanged, including the rank-4 treatment of an ordinary address-policy refusal",
+      "whyThisIsNotAQ3Amendment": "Q3 is a precedence ordering over replacement REASONS. It presupposes that a replacement is owed. The question this rule answers - whether the evidence was about the institution at all - is upstream of that ordering and cannot be expressed as a reordering of it"
+    },
+
+    "whyThisIsOperationalRatherThanMethodological": [
+      "it changes no SD7 or SD9 threshold",
+      "it changes no sampling, frame, draw or reserve-order rule",
+      "it changes no fetch policy and no timeout",
+      "it changes no success threshold and no pause condition",
+      "it controls only whether evidence was generated from a VALID acquisition vantage - a property of the measuring environment, not of the measurement design"
+    ],
+    "aFutureMethodologyVersionMayIncorporateIt": true,
+    "incorporationIsNotAuthorisedHere": true,
+
+    "operationalObligationItCreates": {
+      "requirement": "before every ordinary live acquisition window under the current authority, prove the active vantage is not the identified unsuitable DNS64/NAT64-only condition, using public-safe non-institution canaries and the gateway's own resolution and classification path",
+      "ifTheVantageIsUnsuitable": "STOP before live execution. Consume no reserve and create no institution failure from that environment",
+      "whyTheObligationIsPreventiveRatherThanCorrective": "the cheapest moment to avoid contaminated evidence is before the first request. This rule exists because the corrective path - a targeted recovery series - cost three extra live runs and a full adjudication cycle to undo two refusals"
+    }
+  },
+
+  "holdoutNonDisclosure": {
+    "institutionNamed": false,
+    "hostnameNamed": false,
+    "organisationIdNamed": false,
+    "echeRowKeyNamed": false,
+    "note": "slot indices and splits are structural corpus coordinates and are recorded throughout this generation's governance. No institution identity appears here"
+  },
+
+  "terminalState": "PHASE_2B_2D_A2_DNS64_NAT64_OPERATOR_VANTAGE_EVIDENCE_INTEGRITY_RULE_RECORDED",
+  "immutability": "append-only. This record is never edited. A later correction is a NEW record that supersedes it by name and says so."
+}

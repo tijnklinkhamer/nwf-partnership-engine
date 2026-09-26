@@ -1,0 +1,266 @@
+{
+  "recordId": "phase2b-2d-a2-post-vantage-recovery-q1-autopilot-resume-v1",
+  "recordKind": "OWNER_CONTINUATION_DECISION",
+  "records": "PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_Q1_AUTOPILOT_RESUME_V1",
+  "recordedAtUtc": "2026-09-26T11:14:55Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "isLiveAuthority": false,
+  "isLiveAuthorityNote": "this record RESUMES a bounded authority and fixes its remaining caps. It authorises no request by itself: each ordinary window still needs its own committed strategy, plan and live authority",
+  "thisRecordExecutesNothing": true,
+  "networkUsedByThisRecord": "none",
+  "databaseWrittenByThisRecord": "none",
+  "productionCodeChangedByThisRecord": "none",
+  "startingHead": "cdda77d0653db460898d806bfe0667d5aeb7c09c",
+
+  "selectedDecision": "RESUME_Q1_REPLACEMENT_AND_PRIMARY_COMPLETION_FROM_RECOVERED_STATE_V1",
+  "resumesAuthority": "BEGIN_Q1_REPLACEMENT_AND_PRIMARY_COMPLETION_AUTOPILOT_V1",
+  "whyResumptionIsNowAppropriate": "the Window-02 stop rested on an ambiguity about whether two refusals were evidence about institutions or about this machine's uplink. The targeted recovery series closed that ambiguity empirically, from a proved compliant vantage, without consuming a reserve or changing any policy. The state the autopilot would resume from is therefore measured rather than assumed",
+
+  "bound": {
+    "resumedAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_REPLACEMENT_AND_PRIMARY_COMPLETION_AUTOPILOT_V1.json",
+      "sha256": "017f8422263b1ee13b58fa99ab7c44ec9acb50c3e079e8681ffd0af5aa19f2ef",
+      "bytes": 35547,
+      "commit": "d3700180cc501aef3d42455d7dff7e46ce8c42a1",
+      "scope": { "maxChildWindows": 4, "maxLiveAttempts": 20, "windowSize": 5, "concurrency": 1 },
+      "role": "the bounded authority this record resumes. Its window-construction algorithm, concurrency rules, stage ordering, validation policy, artifact discipline and public/holdout safety rules all continue to apply unchanged"
+    },
+    "window01P5ReviewAndResume": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_P5_REVIEW_AND_AUTOPILOT_RESUME_V1.json",
+      "sha256": "54de2382d758078786e1de117dcb174cdaabd142c81b57eabea691a53851404a",
+      "bytes": 23592,
+      "role": "the earlier review that lifted the Window-01 P5 stop. Cited to establish that TWO ordinary windows have now run under the resumed authority"
+    },
+    "window02Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "d42bcc8ddaec933246ae319aa49a15e872a209eff959ad6aa2d006d2f5248836",
+      "bytes": 25755,
+      "commit": "d1afd083f6fbcfdad3a01a6e878ca80bfd4d4715",
+      "role": "the second ordinary window's adjudication, which stopped the cadence on P5 and HELD two obligations rather than spending reserves on them"
+    },
+    "recoveryDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_NAT64_VANTAGE_AND_ASSIGNED_OCCUPANT_RECOVERY_DECISION_V1.json",
+      "sha256": "67331d2017e0dd3266408ca10a1fe5ffce2c7a8724c2e0c5167eba6d4206acb0",
+      "bytes": 14364,
+      "commit": "c4b1830279b1db004f23d43606beef40f30aaf81"
+    },
+    "recoveryNetworkPrecondition": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_RECOVERY_NETWORK_PRECONDITION_V1.json",
+      "sha256": "dfdb4d6b628e5684347472457f3c912b29c77ac4ded1a10e865317bf3a8a767d",
+      "bytes": 9118,
+      "commit": "f5cc01c896ae1ed9e97740825ec6a4438624aba3",
+      "outcome": "NETWORK_PRECONDITION_PROVED"
+    },
+    "recoveryLiveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_TARGETED_VANTAGE_RECOVERY_LIVE_AUTHORITY_V1.json",
+      "sha256": "1aebeb30ef81345e849da665a7a8dedc63439073592b317b7fc1822cf72bb823",
+      "bytes": 15467,
+      "commit": "6eb14d418d0aa720b1fc3c0749fa48402c217621"
+    },
+    "recoveryLiveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_TARGETED_VANTAGE_RECOVERY_LIVE_RESULT_V1.json",
+      "sha256": "97c6e1bef26cc36be9ffa23c2fab6e7eef113a6caf41cfa30ddcdd04fb09296c",
+      "bytes": 22957,
+      "commit": "5d4f4becf5c5dd5d1d06994e3af531d211c5fa94"
+    },
+    "recoveryAdjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_TARGETED_VANTAGE_RECOVERY_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "236b71f45b1127ff6569c0c7339ee5859e180913ac2fd2aedcbe8087f8326681",
+      "bytes": 29114,
+      "commit": "cdda77d0653db460898d806bfe0667d5aeb7c09c",
+      "terminalState": "PHASE_2B_2D_A2_POST_Q1_WINDOW_02_TARGETED_VANTAGE_RECOVERY_ADJUDICATED_VANTAGE_AMBIGUITY_CLOSED_AUTOPILOT_REMAINS_STOPPED",
+      "role": "the canonical state this resumption starts from"
+    },
+    "operationalVantageRule": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_DNS64_NAT64_OPERATOR_VANTAGE_EVIDENCE_INTEGRITY_ADJUDICATION_V1.json",
+      "sha256": "5f901c1c5e0f2248e7e50887187dc1bcce06ace8b852b8c65d0be35547f655bc",
+      "bytes": 16719,
+      "ruleId": "DNS64_NAT64_OPERATOR_VANTAGE_REFUSAL_DOES_NOT_CREATE_REPLACEMENT_OBLIGATION_V1",
+      "role": "the evidence-integrity rule every window under this resumed authority must apply, and whose pre-window network precondition every such window must satisfy. Written in the same commit as this record"
+    },
+    "ownerReserveOrderClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "bytes": 18443
+    },
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306,
+      "amendedHere": false
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "08f720636daaa42fa92419f11f8401c49f785d0fa5ecc4eaf5f41bb8cf291ffc",
+      "bytes": 16444,
+      "ledgerHash": "e215c1945dda8f4d79e10d775729290f7cf8ed3475e6849db2470d0381662e81",
+      "entries": 19
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650"
+    }
+  },
+
+  "stateThisResumptionStartsFrom": {
+    "recomputedIndependently": true,
+    "recomputationMethod": "a 110-entry status map was built explicitly from the committed adjudication chain, every slot assigned exactly one status, disjointness and full coverage asserted, and each class counted independently. The replacement ledger was read and validated with the landed harness and every slot occupant derived with currentOccupantForSelectionIndex. Not taken from the owner task text and not from any adapter-held count",
+    "ACQUISITION_SUCCESSFUL": 57,
+    "successfulSelectionIndexRanges": ["0..44", "46..53", "55..58"],
+    "CURRENT_ACQUISITION_FAILURE": [45, 54],
+    "PENDING_CAPABILITY_REVIEW": [59],
+    "NEVER_STARTED": { "from": 60, "to": 109, "count": 50, "contiguous": true },
+    "totalSelectionSlots": 110,
+    "accounting": "57 + 2 + 1 + 50 = 110",
+    "setsAreDisjoint": true,
+    "setsCoverExactly0To109": true,
+    "replacementLedgerEntries": 19,
+    "reserveConsumed": 19,
+    "reserveUnused": 21,
+    "nextUnusedReservePosition": 19,
+    "reservePosition19": "UNASSIGNED",
+    "reservePosition20": "UNASSIGNED",
+    "q1ReplacementObligationQueue": [45, 54],
+    "q1Order": "45 -> 54, by ascending selectionIndex per Owner Clarification Q1",
+    "currentOccupants": {
+      "slot45": {
+        "occupantKind": "RESERVE_REPLACEMENT",
+        "reserveRankPosition": 16,
+        "ledgerSequence": 16,
+        "split": "DEV_CONFIRM",
+        "outstandingReason": "ACQUISITION_UNSUCCESSFUL_ROBOTS_DISALLOWED",
+        "q3Rank": 2
+      },
+      "slot54": {
+        "occupantKind": "RESERVE_REPLACEMENT",
+        "reserveRankPosition": 18,
+        "ledgerSequence": 18,
+        "split": "DEV_CONFIRM",
+        "outstandingReason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "q3Rank": 4
+      }
+    },
+    "p6": {
+      "rule": "reserveConsumed > 10 AND ACQUISITION_SUCCESSFUL < 50",
+      "evaluation": "19 > 10 is TRUE and 57 < 50 is FALSE; the conjunction is false",
+      "result": "NOT_TRIGGERED"
+    },
+    "doNotExtrapolate": "57 successful slots of 110; not a population success rate"
+  },
+
+  "remainingCapsUnderThisResumedAuthority": {
+    "ordinaryChildWindowCap": 2,
+    "ordinaryLiveAttemptCap": 10,
+    "derivation": "the resumed authority authorises 4 child windows and 20 live attempts at window size 5. Two ordinary windows have run under it - Window 01 and Window 02 - charging 2 windows and 10 attempts. 4 - 2 = 2 windows and 20 - 10 = 10 attempts remain",
+    "attemptsAreChargedAtFullPlannedWindowSize": true,
+    "whyFullSizeIsCharged": "both Window 01 and Window 02 stopped on P5 after three of five items. The cap is a bound on authorised exposure, not a meter of items actually executed, so a window that pauses still spends its authorised five",
+    "theTargetedRecoveryDidNotConsumeAnOrdinaryWindowSlot": {
+      "consumed": false,
+      "why": "the three-run recovery ran under its own separate recovery authority (6eb14d418d0aa720b1fc3c0749fa48402c217621), not under the autopilot's child-window budget. It assigned no reserve, appended no ledger entry, started no new selection slot and served no obligation - it re-measured occupants that were already assigned",
+      "itIsThereforeNotAWindow03": true
+    },
+    "noMoreThanTwoNormalLiveWindowsMayRunUnderThisResumedAuthority": true,
+    "afterTheSecondOfThemIsAdjudicated": "STOP for owner review regardless of state. There is no third window under this record"
+  },
+
+  "p59": {
+    "status": "PENDING_CAPABILITY_REVIEW",
+    "formalRange": [1, 24],
+    "excludedFromEveryWindowUnderThisResumption": true,
+    "excludedFromQ1": true,
+    "isNotAFailure": true,
+    "isNotASuccess": true,
+    "isNotAnObligation": true,
+    "isNotNeverStarted": true,
+    "authorisedActions": "none. P:59 is not rerun, not replaced, not classified, and no Jaccard treatment is invented for it",
+    "ifItBecomesNecessaryToDetermineCorpusClosure": "STOP and return to the owner"
+  },
+
+  "networkPreconditionNowPersists": {
+    "requirement": "before EVERY ordinary live window under this resumed authority, prove the active acquisition vantage is not the previously identified unsuitable DNS64/NAT64-only condition",
+    "method": "public-safe non-institution canaries plus the gateway's own resolution and classification path - dns.promises.lookup(host, { all: true, verbatim: true }) fed to the unmodified classifyIpAddress from src/orgunits/web/address.ts",
+    "required": [
+      "ordinary public IPv4 egress, or a normal dual-stack path",
+      "not translation-prefix-only resolution for an IPv4-only canary",
+      "the landed address classifier unchanged and still refusing translation prefixes"
+    ],
+    "notRequired": [
+      "the exact same Wi-Fi network as the recovery used",
+      "any particular ISP, SSID or interface name"
+    ],
+    "prohibited": [
+      "exposing institution hostnames during structural checks",
+      "disabling or special-casing any address-policy rule to make the check pass",
+      "treating the absence of contrary evidence as proof of a compliant vantage"
+    ],
+    "ifTheMachineIsAgainOnTheUnsuitableVantage": "STOP before live execution. Consume no reserve and create no institution failure from that environment",
+    "reassertionDuringExecution": "the same check is re-measured before each live item, not only once per window. If it ever fails mid-window, STOP before the next item, retain what ran as ENVIRONMENT evidence, create no replacement obligation from it and consume no reserve"
+  },
+
+  "windowConstructionForTheRemainingWindows": {
+    "algorithm": "DETERMINATE_Q1_REPLACEMENTS_BEFORE_NEW_PRIMARIES, carried forward unchanged from the resumed authority",
+    "steps": [
+      "STEP 1 - independently recompute every current determinate replacement obligation from the committed adjudication chain and the database, never from a carried-forward total",
+      "STEP 2 - sort them by selectionIndex ASCENDING, per Owner Clarification Q1",
+      "STEP 3 - assign unused reserve positions monotonically in frozen reserve-rank order",
+      "STEP 4 - take up to FIVE replacement work items first",
+      "STEP 5 - fill any remaining positions with NEVER_STARTED primaries in ascending selectionIndex order, excluding P:59"
+    ],
+    "nextWindowComposition": {
+      "derivedHere": true,
+      "window": "WINDOW_03",
+      "exactOrder": ["R:45:19", "R:54:20", "P:60", "P:61", "P:62"],
+      "replacementItems": 2,
+      "primaryItems": 3,
+      "plannedWindowSize": 5,
+      "ledgerAppendsPlanned": 2,
+      "noOtherCompositionIsAuthorised": true
+    },
+    "window04IsNotPrecommittedHere": {
+      "precommitted": false,
+      "why": "Window 03's own outcomes decide Window 04's obligations. Precommitting it now would repeat exactly the error the Window-01 adjudication warned about, when a failed replacement sorted ahead of the slots an illustrative 'next window' had named",
+      "itIsConstructedMechanicallyAfterWindow03IsAdjudicated": true
+    }
+  },
+
+  "stopConditions": [
+    "any P1-P8 pause inside a window: preserve evidence, finish only what is already started, start no later work, produce a LIVE_RESULT, adjudicate what is mechanically decidable, and STOP ordinary autopilot",
+    "an unsuitable network vantage detected before or during live execution",
+    "an SD7 range that straddles the success threshold: pending review, no replacement obligation, STOP",
+    "P:59 becoming necessary to determine corpus closure",
+    "the second of the two remaining ordinary windows being adjudicated, regardless of state"
+  ],
+
+  "absoluteProhibitions": [
+    "amending Methodology R3 or editing any frozen methodology bytes",
+    "altering the address guard, the fetch policy, any timeout or any TLS setting",
+    "altering Q3 or any replacement-reason precedence",
+    "a manual retry, an alternate root, a browser/curl/wget substitution for a work item",
+    "dynamic reserve insertion or dynamic replacement inside a precommitted window",
+    "a ledger mutation other than the appends a committed window authority plans",
+    "a third ordinary window under this record",
+    "serving, rerunning, replacing or classifying P:59"
+  ],
+
+  "holdoutNonDisclosure": {
+    "institutionNamed": false,
+    "hostnameNamed": false,
+    "organisationIdNamed": false,
+    "echeRowKeyNamed": false,
+    "splitOfEachWindowItemRecorded": true,
+    "note": "splits are structural corpus coordinates. No holdout institution identity appears here, and none may appear in any window record under this resumption"
+  },
+
+  "nextStep": "create the Window-03 strategy against the current PRE-APPEND 19-entry ledger, then its plan, then its live authority, then append reserves 19 and 20, then re-prove the vantage, then execute",
+  "terminalState": "PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_Q1_AUTOPILOT_RESUMED_WINDOW_03_NOT_YET_CREATED",
+  "immutability": "append-only. This record is never edited. A later change of scope is a NEW owner decision that supersedes it by name."
+}
