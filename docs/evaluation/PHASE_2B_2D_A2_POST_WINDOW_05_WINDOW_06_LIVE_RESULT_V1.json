@@ -1,0 +1,624 @@
+{
+  "recordId": "phase2b-2d-a2-post-window-05-window-06-live-result-v1",
+  "recordKind": "LIVE_WINDOW_RESULT_EVIDENCE_PENDING_ADJUDICATION",
+  "records": "PHASE_2B_2D_A2_POST_WINDOW_05_WINDOW_06_LIVE_RESULT_V1",
+  "recordedAtUtc": "2026-09-26T18:13:37Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "isLiveAuthority": false,
+  "thisFileAuthorises": [],
+  "adjudicationPerformedHere": false,
+  "adjudicationNote": "this record is EVIDENCE. Every SD9 status below is DIAGNOSTIC and NON-ADJUDICATIVE",
+  "startingHead": "daff5a603e23880d3e58d83eeaf129ec63e45749",
+  "windowOutcome": "PAUSED_ON_P5_AFTER_THREE_OF_FIVE_ITEMS",
+
+  "bound": {
+    "liveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_05_WINDOW_06_LIVE_AUTHORITY_V1.json",
+      "sha256": "132fa9e04f1dcb2f03924e53e67417095c1f42ccad53475207c0de4b1ce1ffc0",
+      "bytes": 29389,
+      "commit": "4c928f6a017a99400a628c486622f9ed1d05f2d8"
+    },
+    "plan": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_05_WINDOW_06_PLAN_V1.json",
+      "sha256": "0559fb64b40d5edc92c303dc6345d560d87fbac7dd2d0c60e2e644865f86b055",
+      "windowPlanHash": "57ae483a16f119ffb4a9c799b1fbb8aa23e82fd004784db9f95ee8b7516e3ce5"
+    },
+    "strategy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_05_WINDOW_06_STRATEGY_V1.json",
+      "sha256": "d29526eebb497c230e7319f6899364dcd5be57c94031905cc18b958efa0149c9"
+    },
+    "preNetworkAssignment": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_05_WINDOW_06_PRENETWORK_ASSIGNMENT_V1.json",
+      "commit": "daff5a603e23880d3e58d83eeaf129ec63e45749",
+      "newLedgerHash": "a624675b865500878aaa00731717d8a7d05c03efb6d637d5eaf3b1d826bbff17",
+      "newEntries": 26
+    },
+    "generationTransportReview": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION1_TRANSPORT_FAILURE_REVIEW_AFTER_WINDOW_05_V1.json",
+      "sha256": "8c1bcfd510cc424d0353c7cb25292fb15e5954659fbfe0565f3d6fe25a7a22c3"
+    },
+    "ownerContinuationDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_05_P5_REVIEW_AND_REMAINING_AUTHORITY_RESUME_V1.json",
+      "sha256": "95dd29e09a3cde55e88cd28a0553bc5016631da457dbcf8145d8f202be455c16"
+    }
+  },
+
+  "chronology": {
+    "ledgerAppendCommitted": "daff5a603e23880d3e58d83eeaf129ec63e45749, pushed and refetched BEFORE the first institution request",
+    "firstInstitutionRequestAfterTheAppend": true,
+    "dryRunsBeforeTheLiveWindow": "all five authorised items were dry-run first, network-free. Each returned exactly one WEBSITE_CLAIM root whose id equals the frozen draw's root-authority id for that occupant. The dry runs wrote no row: runs stayed at 99 and fetch observations at 2648 across all five",
+    "firstItemStartedAtUtc": "2026-09-26T18:09:32Z",
+    "lastItemFinishedAtUtc": "2026-09-26T18:12:34Z"
+  },
+
+  "runOrder": {
+    "frozenOrder": ["R:64:24", "R:65:25", "P:66", "P:67", "P:68"],
+    "executedOrder": ["R:64:24", "R:65:25", "P:66"],
+    "executedIsAnExactPrefixOfTheFrozenOrder": true,
+    "itemsStarted": 3,
+    "itemsUnstarted": 2,
+    "unstartedItems": ["P:67", "P:68"],
+    "whyUnstarted": "P5 fired after item 3. The between-run gate returned mayStartNextWorkItem false and nextWorkItemId null, so neither was started. Neither produced a run, evidence or a sealed file",
+    "concurrency": 1,
+    "invocationsPerItem": 1,
+    "manualRetries": 0,
+    "alternateRoots": 0,
+    "browserCurlWgetRequests": 0
+  },
+
+  "networkVantageProof": {
+    "reMeasuredBeforeEveryStartedItem": true,
+    "outcomeBeforeEachOfTheThree": "NETWORK_PRECONDITION_PROVED",
+    "measuredEachTime": {
+      "nativeIpv4DefaultRoutePresent": true,
+      "gatewayIsPrivateLan": true,
+      "ipv6DefaultRoutePresent": false,
+      "cellularPdpInterfacesPresent": 0,
+      "clatWellKnownAddressPresent": false,
+      "constrainedInterfacesPresent": 0,
+      "ipv4onlyArpaARecords": 2,
+      "ipv4onlyArpaAaaaRecords": 0,
+      "dns64SynthesisObserved": false,
+      "ipv4HttpsCanaryStatuses": [200, 200],
+      "canaryRemoteFamilies": "IPV4 on both, each classified PUBLIC by the landed classifier",
+      "guardProbeInputsClassifiedPublic": "0 of 3"
+    },
+    "addressPolicyFileModified": false,
+    "vantageRuleInvoked": false,
+    "whyNotInvoked": "clause 1 of DNS64_NAT64_OPERATOR_VANTAGE_REFUSAL_DOES_NOT_CREATE_REPLACEMENT_OBLIGATION_V1 requires a pre-socket BLOCKED_BY_POLICY refusal by the landed address classifier. There was none: the database total stayed 6, unchanged from before this window",
+    "theTwoLowYieldItemsAreNotEnvironmentRefusals": "both failed NAME RESOLUTION with subtype DNS_NAME_NOT_FOUND - an authoritative negative answer. That is categorically not the classifier refusing a translated address that resolution DID return"
+  },
+
+  "items": [
+    {
+      "order": 1,
+      "workItemId": "R:64:24",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 64,
+      "reserveRankPosition": 24,
+      "split": "DEV_CONFIRM",
+      "started": true,
+      "cliExitCode": 0,
+      "invocations": 1,
+      "startedAtUtc": "2026-09-26T18:09:32Z",
+      "finishedAtUtc": "2026-09-26T18:10:21Z",
+      "runRefSha256": "f2a818d3d8aeadb6ab23d0118d6720b88ef8ed966b38ecdbed99c6509a7caa0b",
+      "runRefDerivation": "sha256(the run id as its lower-case canonical UUID text, UTF-8, no separator, no salt)",
+      "runRows": 1,
+      "completionRows": 1,
+      "dryRun": false,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "runTerminalState": "COMPLETED",
+      "completionErrorKind": null,
+      "rootCount": 1,
+      "rootAuthorityKind": "WEBSITE_CLAIM",
+      "rootAuthorityIdMatchedFrozenDraw": true,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "totalRequests": 40,
+      "pageAttempts": 35,
+      "robotsRequests": 4,
+      "sitemapRequests": 1,
+      "sitemapUrlsAccepted": 0,
+      "distinctHostsUsed": 3,
+      "frontierUrlsObserved": 340,
+      "maxAttemptNo": 2,
+      "redirectObservations": 2,
+      "blockedByPolicyRowsForThisRun": 0,
+      "truncatedBodies": 0,
+      "circuitOpenHosts": 0,
+      "withinTotalRequestCeiling60": true,
+      "withinPageAttemptCeiling35": true,
+      "withinHostCeiling8": true,
+      "fetchObservationBreakdown": [
+        {
+          "error_kind": "none",
+          "http_status": 200,
+          "discovery_method": "LINK",
+          "robots_decision": "ALLOWED",
+          "attempt_no": 1,
+          "n": 33
+        },
+        {
+          "error_kind": "none",
+          "http_status": 200,
+          "discovery_method": "ROBOTS",
+          "robots_decision": "NOT_APPLICABLE",
+          "attempt_no": 1,
+          "n": 2
+        },
+        {
+          "error_kind": "none",
+          "http_status": 200,
+          "discovery_method": "ROBOTS",
+          "robots_decision": "NOT_APPLICABLE",
+          "attempt_no": 2,
+          "n": 1
+        },
+        {
+          "error_kind": "none",
+          "http_status": 200,
+          "discovery_method": "ROOT",
+          "robots_decision": "ALLOWED",
+          "attempt_no": 1,
+          "n": 1
+        },
+        {
+          "error_kind": "none",
+          "http_status": 301,
+          "discovery_method": "LINK",
+          "robots_decision": "ALLOWED",
+          "attempt_no": 1,
+          "n": 1
+        },
+        {
+          "error_kind": "none",
+          "http_status": 301,
+          "discovery_method": "ROBOTS",
+          "robots_decision": "NOT_APPLICABLE",
+          "attempt_no": 1,
+          "n": 1
+        },
+        {
+          "error_kind": "none",
+          "http_status": 404,
+          "discovery_method": "SITEMAP",
+          "robots_decision": "ALLOWED",
+          "attempt_no": 1,
+          "n": 1
+        }
+      ],
+      "transportErrorRows": 0,
+      "whyMaxAttemptNoIsTwo": "the robots.txt resolution used its ONE landed v4 bounded-retry token on a site-policy request that did answer; no page was retried and no manual retry occurred",
+      "rawPageEvidenceCount": 34,
+      "candidateRows": 68,
+      "candidateRowsEqualTwicePageEvidence": true,
+      "candidateTypeHintAllNull": true,
+      "candidateScoreRange": ["0.0000", "21.0000"],
+      "trackASelected": 17,
+      "trackBSelected": 0,
+      "formalSd7": {
+        "rawPageCount": 34,
+        "postSd7CountMin": 34,
+        "postSd7CountMax": 34,
+        "countIsExact": true,
+        "decidedByCase": "B",
+        "exactDuplicateGroups": 0,
+        "exactDuplicateRowsRemoved": 0,
+        "distinctDocumentCount": 34,
+        "nearMeasurableDocumentCount": 34,
+        "nearShortTextUnresolvedCount": 0,
+        "nearComparedPairCount": 561,
+        "nearEdgeCount": 0,
+        "nonTransitiveComponentCount": 0,
+        "unauditableComponentCount": 0,
+        "survivorCountIsOrderDependent": false,
+        "rangeStraddlesFour": false
+      },
+      "diagnosticSd9": "ACQUISITION_SUCCESSFUL",
+      "diagnosticSd9IsNotAnAdjudication": true,
+      "sealed": {
+        "filename": "POST_WINDOW_05_WINDOW_06_V1_SD7_DETAIL_R_64_24.json",
+        "splitRoot": "DEV_CONFIRM",
+        "sha256": "1ddc21fb7dea0de4c7a95bdfa5691efd3e010c278e9709cfc368051c2521e21c",
+        "bytes": 8762,
+        "exclusiveCreate": true,
+        "rereadAndByteCompared": true,
+        "committedToGit": false
+      },
+      "p7AfterThisItem": { "invariantsTrue": 13, "invariantCount": 13 },
+      "gateAfterThisItem": "CONTINUE_TO_NEXT_WORK_ITEM, next R:65:25"
+    },
+    {
+      "order": 2,
+      "workItemId": "R:65:25",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 65,
+      "reserveRankPosition": 25,
+      "split": "FINAL_HOLDOUT",
+      "started": true,
+      "cliExitCode": 0,
+      "invocations": 1,
+      "startedAtUtc": "2026-09-26T18:12:12Z",
+      "finishedAtUtc": "2026-09-26T18:12:14Z",
+      "runRefSha256": "68e7b15ed9b32c10079a59be71fdbc19efa7f877edeb20e794abb32243f9d873",
+      "runRefDerivation": "sha256(the run id as its lower-case canonical UUID text, UTF-8, no separator, no salt)",
+      "runRows": 1,
+      "completionRows": 1,
+      "dryRun": false,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "runTerminalState": "COMPLETED",
+      "completionErrorKind": null,
+      "rootCount": 1,
+      "rootAuthorityKind": "WEBSITE_CLAIM",
+      "rootAuthorityIdMatchedFrozenDraw": true,
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "totalRequests": 1,
+      "pageAttempts": 0,
+      "robotsRequests": 1,
+      "sitemapRequests": 0,
+      "sitemapUrlsAccepted": 0,
+      "distinctHostsUsed": 1,
+      "frontierUrlsObserved": 0,
+      "maxAttemptNo": 1,
+      "redirectObservations": 0,
+      "blockedByPolicyRowsForThisRun": 0,
+      "truncatedBodies": 0,
+      "fetchObservationBreakdown": [
+        {
+          "error_kind": "DNS_FAILURE",
+          "error_subtype": "DNS_NAME_NOT_FOUND",
+          "http_status": null,
+          "discovery_method": "ROBOTS",
+          "robots_decision": "NOT_APPLICABLE",
+          "attempt_no": 1,
+          "n": 1
+        }
+      ],
+      "transportErrorRows": 1,
+      "whyOnlyOneAttempt": "DNS_NAME_NOT_FOUND is a member of the frozen NON_RETRYABLE_SUBTYPES set - an authoritative negative answer, not an interrupted attempt - so the landed bounded retry correctly issued none",
+      "rawPageEvidenceCount": 0,
+      "candidateRows": 0,
+      "formalSd7": {
+        "rawPageCount": 0,
+        "postSd7CountMin": 0,
+        "postSd7CountMax": 0,
+        "countIsExact": true,
+        "decidedByCase": "A",
+        "exactDuplicateGroups": 0,
+        "exactDuplicateRowsRemoved": 0,
+        "distinctDocumentCount": 0,
+        "nearMeasurableDocumentCount": null,
+        "nearShortTextUnresolvedCount": null,
+        "nearComparedPairCount": null,
+        "nearEdgeCount": null,
+        "nonTransitiveComponentCount": 0,
+        "unauditableComponentCount": 0,
+        "survivorCountIsOrderDependent": false,
+        "rangeStraddlesFour": false
+      },
+      "diagnosticSd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "diagnosticSd9IsNotAnAdjudication": true,
+      "sealed": {
+        "filename": "POST_WINDOW_05_WINDOW_06_V1_SD7_DETAIL_R_65_25.json",
+        "splitRoot": "FINAL_HOLDOUT",
+        "sha256": "bb337d0d0ce0fef24996b9400fcd6eb9f86e69355690d69abd92a9fa7dcc082d",
+        "bytes": 778,
+        "exclusiveCreate": true,
+        "rereadAndByteCompared": true,
+        "committedToGit": false
+      },
+      "p7AfterThisItem": { "invariantsTrue": 13, "invariantCount": 13 },
+      "gateAfterThisItem": "CONTINUE_TO_NEXT_WORK_ITEM, next P:66, windowLowYieldCount 1"
+    },
+    {
+      "order": 3,
+      "workItemId": "P:66",
+      "kind": "PRIMARY",
+      "selectionIndex": 66,
+      "reserveRankPosition": null,
+      "split": "DEV_TRAIN",
+      "started": true,
+      "cliExitCode": 0,
+      "invocations": 1,
+      "startedAtUtc": "2026-09-26T18:12:31Z",
+      "finishedAtUtc": "2026-09-26T18:12:34Z",
+      "runRefSha256": "d46bc80cb981b1bf4a53e8b354bcc84ba77e357f95cab094b06d4a634290419d",
+      "runRefDerivation": "sha256(the run id as its lower-case canonical UUID text, UTF-8, no separator, no salt)",
+      "runRows": 1,
+      "completionRows": 1,
+      "dryRun": false,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "runTerminalState": "COMPLETED",
+      "completionErrorKind": null,
+      "rootCount": 1,
+      "rootAuthorityKind": "WEBSITE_CLAIM",
+      "rootAuthorityIdMatchedFrozenDraw": true,
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "totalRequests": 1,
+      "pageAttempts": 0,
+      "robotsRequests": 1,
+      "sitemapRequests": 0,
+      "sitemapUrlsAccepted": 0,
+      "distinctHostsUsed": 1,
+      "frontierUrlsObserved": 0,
+      "maxAttemptNo": 1,
+      "redirectObservations": 0,
+      "blockedByPolicyRowsForThisRun": 0,
+      "truncatedBodies": 0,
+      "fetchObservationBreakdown": [
+        {
+          "error_kind": "DNS_FAILURE",
+          "error_subtype": "DNS_NAME_NOT_FOUND",
+          "http_status": null,
+          "discovery_method": "ROBOTS",
+          "robots_decision": "NOT_APPLICABLE",
+          "attempt_no": 1,
+          "n": 1
+        }
+      ],
+      "transportErrorRows": 1,
+      "whyOnlyOneAttempt": "DNS_NAME_NOT_FOUND is in the frozen non-retryable set; the landed bounded retry correctly issued none",
+      "rawPageEvidenceCount": 0,
+      "candidateRows": 0,
+      "formalSd7": {
+        "rawPageCount": 0,
+        "postSd7CountMin": 0,
+        "postSd7CountMax": 0,
+        "countIsExact": true,
+        "decidedByCase": "A",
+        "exactDuplicateGroups": 0,
+        "exactDuplicateRowsRemoved": 0,
+        "distinctDocumentCount": 0,
+        "nearMeasurableDocumentCount": null,
+        "nearShortTextUnresolvedCount": null,
+        "nearComparedPairCount": null,
+        "nearEdgeCount": null,
+        "nonTransitiveComponentCount": 0,
+        "unauditableComponentCount": 0,
+        "survivorCountIsOrderDependent": false,
+        "rangeStraddlesFour": false
+      },
+      "diagnosticSd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "diagnosticSd9IsNotAnAdjudication": true,
+      "sealed": {
+        "filename": "POST_WINDOW_05_WINDOW_06_V1_SD7_DETAIL_P_66.json",
+        "splitRoot": "DEV_TRAIN",
+        "sha256": "c79578896a3deb5548fd33dc43509d813268ec70faaf2accdd4d9be4f7abdaba",
+        "bytes": 771,
+        "exclusiveCreate": true,
+        "rereadAndByteCompared": true,
+        "committedToGit": false
+      },
+      "p7AfterThisItem": { "invariantsTrue": 13, "invariantCount": 13 },
+      "gateAfterThisItem": "PAUSE_P5_LOW_RAW_YIELD, mayStartNextWorkItem false, nextWorkItemId null, windowLowYieldCount 2"
+    }
+  ],
+
+  "itemOutcomeSummary": {
+    "started": 3,
+    "diagnosticallySuccessful": 1,
+    "diagnosticallyUnsuccessful": 2,
+    "successfulItems": ["R:64:24"],
+    "unsuccessfulItems": ["R:65:25", "P:66"],
+    "unstartedAndNotAdjudicated": ["P:67", "P:68"],
+    "sd7RangeStraddledTheThresholdOnAnyItem": false,
+    "everyCountWasExact": true
+  },
+
+  "pauseFired": true,
+  "pause": {
+    "condition": "P5",
+    "decision": "PAUSE_P5_LOW_RAW_YIELD",
+    "arm": "raw pages < 4 on 2 of 5 planned items (> 30%)",
+    "firedAfterItem": 3,
+    "denominator": "the frozen planned window size of 5, never the completed count",
+    "thresholdCount": 2,
+    "mayStartNextWorkItem": false,
+    "nextWorkItemId": null,
+    "noEvidenceWasDiscarded": true,
+    "noReserveWasSpentOnAnUnstartedItem": true
+  },
+  "howCloseOtherPausesCame": {
+    "p1ConsecutiveRootAuthorityFailures": 0,
+    "p2ConsecutiveRobotsRefusals": 2,
+    "p2ThresholdCount": 3,
+    "p2WindowRobotsRefusalCount": 2,
+    "p2DidNotFire": "the two ROBOTS_UNREADABLE_ROOT items are 2 of 5, and the P2 percentage arm needs 3. Its consecutive arm needs 3 as well, and only 2 consecutive occurred",
+    "p3ConsecutiveFailedRuns": 0,
+    "p3Note": "no run FAILED; all three completed. P3 counts failed RUNS, not unsuccessful acquisitions",
+    "p4PersistenceAnomaly": false,
+    "p7": "13 of 13 before and after every item",
+    "p8HostStateAnomaly": false
+  },
+
+  "harnessDefectFoundAndClosedDuringThisWindow": {
+    "whatHappened": "the first computation of the between-run gate after item 1 returned PAUSE_P7_INVARIANT_MISMATCH with the arm 'observation 0 is not precommitted work item 0'. The cause was in THIS TASK'S offline driver, not in the window: the completed-work observation it built omitted kind, selectionIndex, reserveRankPosition and the four anomaly flags the landed CompletedWorkObservation contract requires, and its accumulation loop also double-counted the current item.",
+    "whyItIsNotAWindowPause": "the gate was fed a malformed observation. Once the observation was built to the landed contract and the loop fixed, the same preflight and the same run evidence produced CONTINUE_TO_NEXT_WORK_ITEM with nextWorkItemId R:65:25.",
+    "whatWasNotDone": "no run was repeated, no evidence was rewritten, no sealed file was overwritten, and no landed harness or production file was changed. The correction was to this task's own driver only, and item 1's CLI output and database rows are the originals",
+    "recordedRatherThanSuppressed": "the spurious verdict is recorded here because an unexplained PAUSE in a transcript is worse than a documented driver defect",
+    "p7InvariantsThemselvesWereAlwaysThirteenOfThirteen": true
+  },
+
+  "addressPolicyRefusalHandling": {
+    "preSocketAddressPolicyRefusalsThisWindow": 0,
+    "databaseBlockedByPolicyTotalBefore": 6,
+    "databaseBlockedByPolicyTotalAfter": 6,
+    "vantageRuleInvoked": false
+  },
+
+  "v6AndRetryFacts": {
+    "everyRunRecordedPolicy": "orgunit-fetch-policy-v6",
+    "everyRunRecordedRuleVersion": "orgunit-signal-rules-v1",
+    "manualRetries": 0,
+    "boundedTransportRetriesObserved": 1,
+    "whereThatRetryWas": "R:64:24's site-policy resolution, attempt_no 2, which answered 200. That is the landed v4 robots-only token",
+    "retriesOnTheTwoDnsFailures": 0,
+    "whyNone": "DNS_NAME_NOT_FOUND is in the frozen NON_RETRYABLE_SUBTYPES set. Retrying it would ask an identical question of an authoritative negative answer",
+    "timeoutWidened": false,
+    "tlsWeakened": false,
+    "dnsWorkaroundUsed": false,
+    "addressRuleBypassed": false
+  },
+
+  "theTwoDnsFailuresAreNotOneMechanismOnOneTarget": {
+    "distinctRegistrableDomains": 2,
+    "distinctHosts": 2,
+    "distinctOrganisations": 2,
+    "resolutionsThatSUCCEEDEDInThisSameWindow": "40 of 42 observations were clean and every one of those 40 resolved to a PUBLIC IPv4 address, across 5 distinct hosts, in the same process shape and within three minutes of the two failures",
+    "generationWideContext": "all 9 DNS_NAME_NOT_FOUND rows in the whole generation are on 9 DISTINCT registrable domains and 9 distinct hosts, across 4 calendar days",
+    "whatThisRecordDoesNotClaim": "it does not adjudicate either item and it does not conclude anything about the resolver, the vantage or the engine. It records that the two failures are on different targets and that resolution worked for five other hosts in the same window"
+  },
+
+  "databaseReconciliation": {
+    "before": {
+      "runs": 99,
+      "completions": 99,
+      "fetchObservations": 2648,
+      "redirectObservations": 197,
+      "pageEvidence": 1971,
+      "pageCandidates": 3942,
+      "blockedByPolicy": 6,
+      "dryRunRuns": 0
+    },
+    "after": {
+      "runs": 102,
+      "completions": 102,
+      "fetchObservations": 2690,
+      "redirectObservations": 199,
+      "pageEvidence": 2005,
+      "pageCandidates": 4010,
+      "blockedByPolicy": 6,
+      "dryRunRuns": 0
+    },
+    "delta": {
+      "runs": 3,
+      "completions": 3,
+      "fetchObservations": 42,
+      "redirectObservations": 2,
+      "pageEvidence": 34,
+      "pageCandidates": 68,
+      "blockedByPolicy": 0,
+      "dryRunRuns": 0
+    },
+    "deltaMatchesTheThreeRuns": true,
+    "runsWithoutCompletion": 0,
+    "pageCandidatesAreExactlyTwicePageEvidence": true,
+    "noRowWasUpdatedOrDeleted": "the research role holds SELECT and INSERT only"
+  },
+
+  "gateAfterEveryItem": [
+    {
+      "afterItem": 1,
+      "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+      "nextWorkItemId": "R:65:25",
+      "windowLowYieldCount": 0,
+      "triggeredConditions": []
+    },
+    {
+      "afterItem": 2,
+      "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+      "nextWorkItemId": "P:66",
+      "windowLowYieldCount": 1,
+      "triggeredConditions": []
+    },
+    {
+      "afterItem": 3,
+      "decision": "PAUSE_P5_LOW_RAW_YIELD",
+      "nextWorkItemId": null,
+      "windowLowYieldCount": 2,
+      "triggeredConditions": ["P5"]
+    }
+  ],
+  "finalGateDecision": "PAUSE_P5_LOW_RAW_YIELD",
+  "pauseThresholdsForThisWindow": {
+    "plannedWindowSize": 5,
+    "p2PercentageThresholdCount": 3,
+    "p5LowYieldThresholdCount": 2,
+    "p5MinRawPageEvidence": 4,
+    "q4FreshCounters": "P1, P2, P3 and P5 started at zero for this window; Window-05's P5 count was not carried"
+  },
+
+  "p7": {
+    "invariantCount": 13,
+    "beforeTheAppend": { "invariantsTrue": 11, "gateDecision": "PAUSE_P7_INVARIANT_MISMATCH" },
+    "afterTheAppendAndBeforeEveryItem": { "invariantsTrue": 13, "allTrue": true },
+    "ledgerEntryCount": 26
+  },
+
+  "ledgerFacts": {
+    "entriesBeforeTheWindow": 24,
+    "appendsMade": 2,
+    "entriesNow": 26,
+    "ledgerHashNow": "a624675b865500878aaa00731717d8a7d05c03efb6d637d5eaf3b1d826bbff17",
+    "recomputesFromItsOwnBytes": true,
+    "appendsMadeAfterAnyInstitutionRequest": 0,
+    "appendsMadeDuringOrAfterThisResult": 0,
+    "reserveConsumed": 26,
+    "nextUnusedReservePosition": 26,
+    "reservePosition26Assigned": false
+  },
+
+  "hostState": {
+    "acPowerThroughout": true,
+    "batteryPercentAtEveryCheck": 100,
+    "lidOpen": true,
+    "caffeinateDimsuActivePerItem": true,
+    "sleepDetector": "HOST_EVENT_TIMESTAMP_PREDICATE_OVER_GOVERNED_INTERVAL_V1",
+    "pmsetLogReadProvedAtEveryCheck": true,
+    "pmsetLogBytesAtLastCheck": 8645730,
+    "sleepWakeDarkWakeEventsInsideAnyGovernedInterval": 0,
+    "mostRecentSuchEventAnywhereInTheLog": "2026-09-25T21:12:09Z Wake, which is before this window began",
+    "quietGateCompetingProcessesAtEveryCheck": 0,
+    "quietGatePositiveControlMeasured": true
+  },
+
+  "zeroActivityProofs": {
+    "institutionRequestsOutsideTheGateway": 0,
+    "curlWgetOrBrowserInstitutionRequests": 0,
+    "productionFilesChanged": 0,
+    "landedHarnessFilesChanged": 0,
+    "migrationsAdded": 0,
+    "classifierInvocations": 0,
+    "modelCalls": 0,
+    "itemsStartedBeyondTheAuthorisedFive": 0,
+    "reservesAssignedBeyond24And25": 0
+  },
+
+  "sealedEvidenceVerification": {
+    "method": "exclusive-create (wx) into the split's own root resolved by the landed sealedRootFor, then re-read and byte-compared",
+    "filesCreated": 3,
+    "namingConvention": "POST_WINDOW_05_WINDOW_06_V1_SD7_DETAIL_<workItemId with colons as underscores>.json",
+    "anyExistingFileOverwritten": false,
+    "perSplit": { "DEV_CONFIRM": 1, "FINAL_HOLDOUT": 1, "DEV_TRAIN": 1 },
+    "noSealedFileWasCreatedForAnUnstartedItem": true,
+    "committedToGit": false,
+    "sd7ComputedPerRunNotPerOrganisation": "the page-evidence query filters on orgunit_fetch_observations.run_id. Load-bearing for R:64:24 and R:65:25, whose slots carry earlier failed runs from discarded occupants - an organisation-scoped read would have mixed them"
+  },
+
+  "finalHoldoutHandling": {
+    "finalHoldoutItemsStarted": ["R:65:25"],
+    "finalHoldoutItemsNotStarted": ["P:68"],
+    "semanticInspectionPerformed": false,
+    "titleUrlExcerptOrHostnameInThisRecord": "none",
+    "sealedDetailWrittenOnlyToTheHoldoutRoot": true
+  },
+  "identityDisclosureScan": {
+    "institutionNames": 0,
+    "hostnames": 0,
+    "urls": 0,
+    "echeRowKeys": 0,
+    "organisationUuids": 0,
+    "runUuids": 0,
+    "whatIdentifiesAnItem": "a work item id, a selection index, a reserve rank position and an opaque runRef"
+  },
+
+  "terminal": "PHASE_2B_2D_A2_POST_WINDOW_05_WINDOW_06_PAUSED_ON_P5_PENDING_ADJUDICATION",
+  "nextAuthorisedAction": "adjudicate the three STARTED items independently, per run, then STOP for owner review. P:67 and P:68 were never started, are adjudicated NOT AT ALL, and remain NEVER_STARTED",
+  "immutability": "append-only. This record is never edited."
+}
