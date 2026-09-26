@@ -1,0 +1,534 @@
+{
+  "recordId": "phase2b-2d-a2-post-vantage-recovery-window-04-strategy-v1",
+  "recordKind": "OFFLINE_ACQUISITION_WINDOW_STRATEGY",
+  "records": "PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_04_STRATEGY_V1",
+  "recordedAtUtc": "2026-09-26T12:58:49Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "ownerDecision": "RESUME_Q1_REPLACEMENT_AND_PRIMARY_COMPLETION_FROM_RECOVERED_STATE_V1",
+  "ownerDecisionSource": "the post-vantage-recovery resume record at bb515909ca80b7a76bece3362beb74fad9c46d7b. This record is the SECOND and FINAL ordinary window that resumption authorises",
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "strategyOnly": true,
+  "approvesStructureOnly": true,
+  "networkUsedByThisRecord": "none",
+  "databaseWrittenByThisRecord": "none",
+  "startingHead": "63d95cd1b2fd96e915cb3400cd3931c78221ca64",
+  "continuationWindow": {
+    "window": "POST_VANTAGE_RECOVERY_WINDOW_04",
+    "name": "POST_VANTAGE_RECOVERY_WINDOW_04",
+    "replacementSlots": [54],
+    "primaries": [63, 64, 65, 66],
+    "ordinalWithinTheResumedScope": 2,
+    "windowsAuthorisedByTheResumption": 2,
+    "windowsExecutedBeforeThisOneUnderTheResumption": 1,
+    "maxLiveAttemptsAuthorisedByTheResumption": 10,
+    "liveAttemptsConsumedBeforeThisOneUnderTheResumption": 5,
+    "liveAttemptsThisWindowWouldConsume": 5,
+    "isTheFinalOrdinaryWindowUnderThisOwnerAuthority": true,
+    "afterItsAdjudication": "STOP for owner review regardless of state. There is no Window 05 under this resumption",
+    "wasNotPrecommittedBeforeWindow03": "deliberately. Window 03's own outcomes decided this composition: had R:45:19 failed, slot 45 would have sorted AHEAD of 54 and this window would have begun differently"
+  },
+  "bound": {
+    "window03Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_03_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "6273166d91ac4ed07d937411b72de2a791cf60e9ab05fd6c7ac7e5e40b8e2fc8",
+      "bytes": 19534,
+      "commit": "63d95cd1b2fd96e915cb3400cd3931c78221ca64",
+      "terminalState": "PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_03_ADJUDICATED_ONE_ORDINARY_WINDOW_REMAINS",
+      "role": "the immediate predecessor authority. It created the single obligation this window serves, closed slot 45, and its 110-slot partition is re-derived here rather than restated"
+    },
+    "window03LiveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_03_LIVE_RESULT_V1.json",
+      "sha256": "b72e8557f3fc5090565624fba242028c3bdfe8205a2a1d1748c9aeacd85de391",
+      "bytes": 33629,
+      "role": "the database baseline this window starts from was cross-checked against this record's recorded after-state"
+    },
+    "window03Strategy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_03_STRATEGY_V1.json",
+      "sha256": "d2af8fcf1dbbb31d79b1469afff4cd3fe1644dbe3a6cc928608ff4a707a3c82e",
+      "bytes": 30937,
+      "spent": true,
+      "spentNote": "SPENT. All five of its items were started and adjudicated, and its two ledger appends are committed. It must never be replayed"
+    },
+    "resumeDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_Q1_AUTOPILOT_RESUME_V1.json",
+      "sha256": "cb77080d851ecd5b3d11adb2b364af1167a37cf8dff63655d0e55e8778270898",
+      "bytes": 15853,
+      "commit": "bb515909ca80b7a76bece3362beb74fad9c46d7b"
+    },
+    "operationalVantageRule": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_DNS64_NAT64_OPERATOR_VANTAGE_EVIDENCE_INTEGRITY_ADJUDICATION_V1.json",
+      "sha256": "5f901c1c5e0f2248e7e50887187dc1bcce06ace8b852b8c65d0be35547f655bc",
+      "bytes": 16719,
+      "ruleId": "DNS64_NAT64_OPERATOR_VANTAGE_REFUSAL_DOES_NOT_CREATE_REPLACEMENT_OBLIGATION_V1"
+    },
+    "resumedAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_REPLACEMENT_AND_PRIMARY_COMPLETION_AUTOPILOT_V1.json",
+      "sha256": "017f8422263b1ee13b58fa99ab7c44ec9acb50c3e079e8681ffd0af5aa19f2ef",
+      "bytes": 35547
+    },
+    "ownerReserveOrderClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "bytes": 18443,
+      "contains": [
+        "Q1_reserveAssignmentOrder",
+        "Q2_replacementChain",
+        "Q3_replacementReasonPrecedence",
+        "Q4_windowLocalPauseSemantics"
+      ]
+    },
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306,
+      "amendedHere": false
+    },
+    "corpusAcquisitionPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "bytes": 45200
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650"
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "e58956d1eb13b350062f1fd3579d5caf05d626f70a020c2f8ef33dd34b1cba9c",
+      "bytes": 17670,
+      "ledgerHash": "95bff880382ddd6776d7da46ba6a957d02722e8e90242cf8dfacc9a261705ff5",
+      "entries": 21,
+      "isThePreAppendRevision": true,
+      "note": "this strategy binds the CURRENT PRE-APPEND revision. The single append this window plans is made AFTER its live authority is committed, never here"
+    }
+  },
+  "currentGenerationState": {
+    "source": "independently derived in this step. A 110-entry status map was built for the pre-Window-03 state, Window 03's five adjudicated verdicts were applied to a copy of it, and every class was then counted element by element; the successful class came to 61. The ledger was read and validated with the landed harness (valid, 21 entries) and slot 54's occupant derived with currentOccupantForSelectionIndex. Not taken from any adapter-held success count, and not from any task text",
+    "derivationIsIndependentOfTheAdapter": true,
+    "ACQUISITION_SUCCESSFUL": 61,
+    "successfulSelectionIndicesShape": "0..53 plus 55..58 plus 60..62",
+    "successfulRangeCounts": "54 + 4 + 3 = 61",
+    "CURRENT_ACQUISITION_FAILURE": [54],
+    "PENDING_CAPABILITY_REVIEW": [59],
+    "pendingCapabilityReviewNote": "P:59 is deferred pending an SD7 owner detail, formal range [1,24]. It is not a failure, not a success, not an obligation and not never-started. No replacement obligation exists for it and none is created here",
+    "pendingReplacementObligations": [
+      {
+        "selectionIndex": 54,
+        "split": "DEV_CONFIRM",
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "q3Rank": 3,
+        "currentOccupant": "RESERVE_REPLACEMENT",
+        "currentReserveRankPosition": 20,
+        "currentLedgerSequence": 20,
+        "chainLength": 2,
+        "servedInThisWindow": true,
+        "occupantDerivedFrom": "currentOccupantForSelectionIndex(draw, twenty-one-entry ledger, 54) - ledger sequence 20 names slot 54 at reserve position 20",
+        "reasonProvenance": "created by the Window-03 adjudication. Both of reserve 20's fetch observations carried error_kind CONNECTION_RESET with no HTTP status, so no usable HTTP response established an application-level page outcome - Q3 rank 3, not the rank-4 fallback"
+      }
+    ],
+    "openReplacementObligationCount": 1,
+    "everyOpenObligationIsServedInThisWindow": true,
+    "nextNeverStartedSelectionIndex": 63,
+    "neverStartedRange": {
+      "from": 63,
+      "to": 109,
+      "count": 47,
+      "contiguous": true
+    },
+    "totalSelectionSlots": 110,
+    "accounting": "61 + 1 + 1 + 47 = 110",
+    "setsAreDisjoint": true,
+    "setsCoverExactly0To109": true,
+    "replacementLedgerEntries": 21,
+    "reserveConsumed": 21,
+    "reserveUnused": 19,
+    "nextUnusedReservePosition": 21,
+    "p6": {
+      "rule": "reserveConsumed > 10 AND ACQUISITION_SUCCESSFUL < 50",
+      "inputs": {
+        "reserveConsumed": 21,
+        "ACQUISITION_SUCCESSFUL": 61
+      },
+      "evaluation": "21 > 10 is TRUE and 61 < 50 is FALSE",
+      "result": "NOT_TRIGGERED"
+    },
+    "doNotExtrapolate": "61 successful slots of 110; not a population success rate"
+  },
+  "q1Derivation": {
+    "rule": "Owner Clarification Q1: obligations are served in ascending selectionIndex order; reserves are assigned in ascending frozen rank order",
+    "derivedIndependently": true,
+    "derivationNote": "the single CURRENT_ACQUISITION_FAILURE slot was taken from the recomputed status map. planPendingReplacementObligations was NOT used as the ordering authority; it was used only to derive the reserve POSITION once the order was fixed",
+    "order": [54],
+    "orderRendered": "54",
+    "previousQ1IsNotCarriedForward": {
+      "previousQ1": "45 -> 54",
+      "whyItIsStale": "slot 45 closed successfully in Window 03 with reserve 19. Replaying the old queue would spend a reserve on a slot that owes nothing",
+      "recomputedFromTheCommittedChain": true
+    },
+    "slot59NotInTheQueue": true,
+    "whyNoSlot59Obligation": "P:59 has not been adjudicated unsuccessful. An obligation carries a Q3 reason, and creating one would decide the question the bound owner decision deliberately leaves open",
+    "nothingOtherThanSelectionIndexWasConsulted": true,
+    "notConsulted": [
+      "institution identity",
+      "country",
+      "split",
+      "failure type",
+      "expected yield",
+      "semantic evidence",
+      "hostname",
+      "prior robots behaviour",
+      "how many times a slot has already been replaced"
+    ]
+  },
+  "reserveAssignmentDerivation": {
+    "function": "planPendingReplacementObligations(draw, twenty-one-entry ledger, [54])",
+    "nextUnusedReservePositionBefore": 21,
+    "derived": [
+      {
+        "selectionIndex": 54,
+        "reserveRankPosition": 21
+      }
+    ],
+    "monotonic": true,
+    "noPositionReused": true,
+    "everyPositionPreviouslyUnassigned": "ledger entry k consumes position k for k in 0..20; position 21 appears in no committed entry",
+    "positionsAreIndependentOfIdentity": "the position was assigned before any reserve draw entry was read. Only after it was fixed was draw.reserve[21] looked up, mechanically",
+    "chainLengthDoesNotAffectPosition": "slot 54 is on its THIRD occupant. Ascending selectionIndex still decides the order and the next unused position still follows monotonically"
+  },
+  "windowSize": {
+    "plannedWindowSize": 5
+  },
+  "selectedOption": {
+    "option": "REPLACEMENTS_FIRST_THEN_NEXT_UNTOUCHED_PRIMARIES",
+    "derivation": "STEP 1-5 of the resumed authority's DETERMINATE_Q1_REPLACEMENTS_BEFORE_NEW_PRIMARIES algorithm. One determinate obligation exists, so it takes position 1; the remaining four positions are filled with the next never-started primaries in ascending order from 63, skipping nothing",
+    "whyFourPrimariesRatherThanFewer": "the window size is exactly 5 whenever at least five executable work items remain, and 47 never-started primaries remain",
+    "eachPrimarySlotWasCheckedUnreplaced": "currentOccupantForSelectionIndex was evaluated for 63, 64, 65 and 66; every one is ORIGINAL_SELECTION, so none has been replaced and none is a disguised repeat"
+  },
+  "candidateWindow": {
+    "workItems": [
+      {
+        "order": 1,
+        "workItemId": "R:54:21",
+        "kind": "REPLACEMENT",
+        "selectionIndex": 54,
+        "split": "DEV_CONFIRM",
+        "drawEntryKind": "RESERVE",
+        "drawEntrySha256": "a359e9b935bf682aaa0deb8e65edc56bc17d30c84c8f67bb7b230ad1c4f7f4f8",
+        "reserveRankPosition": 21,
+        "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacesOccupant": "RESERVE_REPLACEMENT"
+      },
+      {
+        "order": 2,
+        "workItemId": "P:63",
+        "kind": "PRIMARY",
+        "selectionIndex": 63,
+        "split": "FINAL_HOLDOUT",
+        "drawEntryKind": "SELECTION",
+        "drawEntrySha256": "b6677b18f5c4cb71c38159f7a9a4c828144554b7976238d5539aba4eefee5ec1",
+        "reserveRankPosition": null,
+        "replacementReason": null,
+        "replacesOccupant": null
+      },
+      {
+        "order": 3,
+        "workItemId": "P:64",
+        "kind": "PRIMARY",
+        "selectionIndex": 64,
+        "split": "DEV_CONFIRM",
+        "drawEntryKind": "SELECTION",
+        "drawEntrySha256": "f4d17a46fa46f2693b95802a980c2c3426bfdbd0a7ea034b7068dfbf39daad2f",
+        "reserveRankPosition": null,
+        "replacementReason": null,
+        "replacesOccupant": null
+      },
+      {
+        "order": 4,
+        "workItemId": "P:65",
+        "kind": "PRIMARY",
+        "selectionIndex": 65,
+        "split": "FINAL_HOLDOUT",
+        "drawEntryKind": "SELECTION",
+        "drawEntrySha256": "d9a19dafd67e621a3290c792ab72bbf0deed1eea92dc267309d19e481587821a",
+        "reserveRankPosition": null,
+        "replacementReason": null,
+        "replacesOccupant": null
+      },
+      {
+        "order": 5,
+        "workItemId": "P:66",
+        "kind": "PRIMARY",
+        "selectionIndex": 66,
+        "split": "DEV_TRAIN",
+        "drawEntryKind": "SELECTION",
+        "drawEntrySha256": "f8f055832b9267b25212a820b08f535e7bed92caf66f5ba3a2f8dd73e4d8b7fc",
+        "reserveRankPosition": null,
+        "replacementReason": null,
+        "replacesOccupant": null
+      }
+    ],
+    "replacementItems": 1,
+    "primaryItems": 4,
+    "exactOrderRendered": "R:54:21 -> P:63 -> P:64 -> P:65 -> P:66",
+    "noOtherCompositionIsAuthorised": true,
+    "everyDrawEntrySha256RecomputedHere": "each digest is drawEntrySha256 of the frozen draw entry itself - draw.reserve[21] for the replacement, draw.selection[63..66] for the primaries. Recomputed in this step from the bound draw file, not copied from any earlier record",
+    "splitsAreTheSELECTIONSLOTSSplits": "a replacement inherits the SLOT's split, not a split of its own: the reserve occupies slot 54, which is DEV_CONFIRM"
+  },
+  "frozenSplitCrossCheck": {
+    "recomputedFromTheFrozenDrawDirectly": true,
+    "slot54": "DEV_CONFIRM",
+    "slot63": "FINAL_HOLDOUT",
+    "slot64": "DEV_CONFIRM",
+    "slot65": "FINAL_HOLDOUT",
+    "slot66": "DEV_TRAIN",
+    "splitComposition": {
+      "DEV_CONFIRM": 2,
+      "FINAL_HOLDOUT": 2,
+      "DEV_TRAIN": 1
+    },
+    "splitCompositionIsASelectionTarget": false,
+    "splitCompositionNote": "an OUTCOME of Q1 ordering and the next-untouched-primary rule. No split was balanced, preferred or avoided",
+    "holdoutInThisWindow": [63, 65],
+    "holdoutHandling": "P:63 and P:65 are FINAL_HOLDOUT. Their acquisition proceeds exactly as any other item, and their page evidence is never inspected, summarised or described in any record. Only structural counts appear, and their sealed SD7 detail goes only to the holdout root",
+    "twoHoldoutItemsInOneWindowIsIncidental": "it follows from the frozen draw at slots 63 and 65. Nothing balanced or avoided it"
+  },
+  "derivedThresholds": {
+    "plannedWindowSize": 5,
+    "p1ConsecutiveRootAuthorityFailures": 3,
+    "p2ConsecutiveRobotsRefusals": 3,
+    "p2BatchPercentStrictlyAbove": 40,
+    "p2ThresholdCount": 3,
+    "p2Derivation": "strictPercentThresholdCount(5, 40) = 3 - the smallest count strictly above 40% of 5",
+    "p3ConsecutiveFailedRuns": 2,
+    "p5BatchPercentStrictlyAbove": 30,
+    "p5ThresholdCount": 2,
+    "p5Derivation": "strictPercentThresholdCount(5, 30) = 2 - the smallest count strictly above 30% of 5",
+    "p5MinRawPageEvidence": 4,
+    "sd9MinPagesPerOrganisation": 4,
+    "computedFromTheLandedContractNotRestated": true,
+    "windowLocalCountersStartAtZero": "P1, P2, P3 and P5 counters are FRESH for this window. Window 03's P5 count of 1 and robots-refusal count of 1 are NOT carried forward (Owner Clarification Q4). P6 remains generation-global and P7 remains immediate"
+  },
+  "p6AfterTheWindowsAppend": {
+    "reserveConsumedAfterOneAppend": 22,
+    "successfulOrganisationCountAtAppendTime": 61,
+    "rule": "reserveConsumed > 10 AND ACQUISITION_SUCCESSFUL < 50",
+    "evaluation": "22 > 10 is TRUE and 61 < 50 is FALSE",
+    "result": "NOT_TRIGGERED",
+    "p6CannotFireFromThisAppend": true
+  },
+  "plannedLedgerTransition": {
+    "startingEntries": 21,
+    "plannedAppends": 1,
+    "entriesAfter": 22,
+    "reserveConsumedAfter": 22,
+    "nextUnusedReservePositionAfter": 22,
+    "appendsInExactOrder": [
+      {
+        "sequence": 21,
+        "selectionIndex": 54,
+        "reserveRankPosition": 21,
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "priorOccupantMustBe": "RESERVE_REPLACEMENT at reserve position 20",
+        "previousSequenceForSlotMustBe": 20
+      }
+    ],
+    "appendHappensAfterTheLiveAuthorityIsCommittedAndBeforeAnyNetwork": true,
+    "noExistingRowIsTouched": true,
+    "everyFieldIsDerivedByPrepareReplacementAppend": "the replaced occupant, previousSequenceForSlot, previousEntryHash and split are all derived by the landed builder from the ledger and the draw. This record states what the builder MUST produce so that a disagreement is visible"
+  },
+  "replacementChain": {
+    "rule": "Owner Clarification Q2: SAME_SELECTION_SLOT_APPEND_ONLY_ACROSS_PRECOMMITTED_WINDOWS",
+    "slot54": {
+      "chainBefore": "ORIGINAL_SELECTION -> R18 -> R20",
+      "chainAfter": "ORIGINAL_SELECTION -> R18 -> R20 -> R21",
+      "thirdReplacementForThisSlot": true,
+      "isThisConcerning": "it is recorded, not concealed. Slot 54 has now been refused by three occupants: the original and reserve 18 on page count, and reserve 20 on transport. Slot 45 needed three occupants too and its third succeeded with 26 pages, so a long chain is not evidence that the slot is hopeless. No rule caps chain length and 19 reserve positions remain unused. If this slot fails again it becomes an owner question, but it is not one yet"
+    },
+    "noOtherSlotsChainIsTouched": true
+  },
+  "failureSemantics": {
+    "aFailedReplacementCreatesAQ2SameSlotObligation": "if R:54:21 is adjudicated unsuccessful, slot 54 owes a fourth occupant. Under this resumption there is NO further ordinary window to serve it, so that obligation would be carried to owner review rather than served",
+    "aFailedPrimaryCreatesAnObligationForItsOwnSelectionSlot": "if any of P:63 to P:66 fails, that selection slot owes a replacement, likewise carried to owner review",
+    "anAddressPolicyRefusalIsNotAutomaticallyAFailure": "the bound operational vantage rule is applied FIRST. If all five of its clauses are proved, the run is preserved as environment evidence, the occupant is HELD, no obligation is created, no reserve is assigned, and the window STOPS for review. If any clause is unproved, ordinary frozen Q3 governs - as it did for R:54:20 in Window 03, whose CONNECTION_RESET met clause 1 not at all",
+    "anSD7RangeStraddlingTheThresholdIsNotAFailure": "it is PENDING_CAPABILITY_REVIEW: no replacement obligation, and a stop"
+  },
+  "thisStrategyDoesNot": [
+    "authorise any network request",
+    "append to the replacement ledger",
+    "assign a reserve",
+    "build the plan",
+    "grant live authority",
+    "amend Methodology R3 or edit any frozen methodology bytes",
+    "alter the address guard, the fetch policy, Q3, or any pause threshold",
+    "serve, rerun, replace or classify P:59",
+    "authorise a Window 05",
+    "inspect or describe any holdout page evidence"
+  ],
+  "negativeProbes": {
+    "purpose": "each probe constructs a WRONG strategy variant and requires the landed adapter to REFUSE it",
+    "probes": [
+      {
+        "id": 1,
+        "name": "SLOT54_AS_ORIGINAL_SELECTION",
+        "variant": "replacesOccupant on R:54:21 claims ORIGINAL_SELECTION",
+        "mustRefuseBecause": "the ledger derives RESERVE_REPLACEMENT at sequence 20",
+        "measuredOutcome": "REFUSED",
+        "adapterMessage": "R:54:21: claimed occupant kind is not the ledger's (RESERVE_REPLACEMENT)"
+      },
+      {
+        "id": 2,
+        "name": "SLOT45_SERVED_AGAIN",
+        "variant": "a replacement work item for slot 45 is added",
+        "mustRefuseBecause": "slot 45 is ACQUISITION_SUCCESSFUL and holds no pending obligation",
+        "measuredOutcome": "REFUSED",
+        "adapterMessage": "R:45:22: no pending obligation for its slot"
+      },
+      {
+        "id": 3,
+        "name": "R22_USED_EARLY",
+        "variant": "the replacement claims reserve position 22",
+        "mustRefuseBecause": "22 is beyond the next unused position the planner derives from a 21-entry ledger",
+        "measuredOutcome": "REFUSED",
+        "adapterMessage": "R:54:22: not the planner's slot/reserve assignment at replacement 0"
+      },
+      {
+        "id": 4,
+        "name": "P59_INCLUDED",
+        "variant": "P:59 appears as a primary work item",
+        "mustRefuseBecause": "primaries must be the next never-started slots from index 63; 59 is under capability review",
+        "measuredOutcome": "REFUSED",
+        "adapterMessage": "P:59: primaries must be the next never-started slots in frozen order"
+      },
+      {
+        "id": 5,
+        "name": "P63_SKIPPED",
+        "variant": "primaries are P:64, P:65, P:66, P:67",
+        "mustRefuseBecause": "primaries must start at nextNeverStartedSelectionIndex = 63",
+        "measuredOutcome": "REFUSED",
+        "adapterMessage": "P:64: primaries must be the next never-started slots in frozen order"
+      },
+      {
+        "id": 6,
+        "name": "P67_INSTEAD_OF_P66",
+        "variant": "primaries are P:63, P:64, P:65, P:67",
+        "mustRefuseBecause": "primaries must be contiguous from 63 in frozen order",
+        "measuredOutcome": "REFUSED",
+        "adapterMessage": "P:67: primaries must be the next never-started slots in frozen order"
+      },
+      {
+        "id": 7,
+        "name": "STALE_PRE_WINDOW_03_Q1",
+        "variant": "the candidate window serves 45 -> 54",
+        "mustRefuseBecause": "slot 45 is not a current failure and holds no pending obligation",
+        "measuredOutcome": "ACCEPTED_NEW_LIMITATION",
+        "adapterMessage": "the adapter accepted a strategy declaring slot 45 as a current failure with a pending obligation, although slot 45 was adjudicated ACQUISITION_SUCCESSFUL in Window 03"
+      },
+      {
+        "id": 8,
+        "name": "WRONG_Q3_REASON",
+        "variant": "R:54:21 carries MIN_PAGES_NOT_MET instead of HOST_UNREACHABLE",
+        "mustRefuseBecause": "the reason must equal the pending obligation's own reason",
+        "measuredOutcome": "REFUSED",
+        "adapterMessage": "R:54:21: wrong replacement reason"
+      },
+      {
+        "id": 9,
+        "name": "FORGED_SUCCESS_COUNT",
+        "variant": "ACQUISITION_SUCCESSFUL is overstated",
+        "mustRefuseBecause": "the state must agree with the bound ledger and its own P6 evaluation. NOTE the known limitation recorded below",
+        "measuredOutcome": "ACCEPTED_KNOWN_LIMITATION",
+        "adapterMessage": "the adapter accepted ACQUISITION_SUCCESSFUL = 95. At a 21-entry ledger P6 is NOT_TRIGGERED for any value >= 50, so P6 consistency cannot detect an overstatement above the floor"
+      },
+      {
+        "id": 10,
+        "name": "SPENT_STRATEGY_REPLAY",
+        "variant": "the Window-03 strategy bytes are fed to the adapter against this 21-entry ledger",
+        "mustRefuseBecause": "its bound ledger revision is the nineteen-entry one, so the ledger binding will not match",
+        "measuredOutcome": "REFUSED",
+        "adapterMessage": "the supplied ledger bytes are not the bound starting revision"
+      }
+    ],
+    "knownAdapterLimitations": {
+      "forgedSuccessCount": "the adapter checks the success count only through P6 consistency. At a 21-entry ledger P6 is NOT_TRIGGERED for any value at or above 50, so a forged value above the floor passes. Landed limitation; the defence is that the count is derived independently here and re-derived at adjudication, never read from an adapter",
+      "spentStrategyReplay": "the adapter would accept a spent strategy replayed against a ledger revision that still matches its own binding. Window 03's strategy binds the nineteen-entry ledger and so cannot bind here; the general defence is procedural"
+    },
+    "executed": true,
+    "executedAgainst": "the exact committed strategy bytes, mutated one probe at a time, fed to the landed windowSpecFromAcquisitionWindowStrategy against the real 21-entry ledger",
+    "totalProbes": 10,
+    "refusedCount": 8,
+    "acceptedCount": 2,
+    "positiveControl": {
+      "bound": true,
+      "order": "R:54:21 -> P:63 -> P:64 -> P:65 -> P:66",
+      "plannedWindowSize": 5,
+      "replacementItems": 1,
+      "primaryItems": 4,
+      "startingLedgerEntryCount": 21,
+      "stateAtPlanTime": {
+        "successfulSelectionSlots": 61,
+        "currentAcquisitionFailures": 1,
+        "pendingReplacementObligations": 1,
+        "nextNeverStartedSelectionIndex": 63,
+        "reserveConsumed": 21,
+        "nextUnusedReservePosition": 21,
+        "p6Fires": false
+      }
+    },
+    "probe7IsANEWLYSURFACEDLIMITATION": {
+      "whatWasExpected": "probe 7 was written expecting a REFUSAL, on the assumption that the adapter would notice a stale failure set",
+      "whatActuallyHappened": "it was ACCEPTED, and three follow-up probes were run to find the real boundary rather than leaving the surprise unexplained",
+      "followUpProbes": [
+        {
+          "id": "7b",
+          "variant": "actually SERVES the stale queue as R:45:21 -> R:54:22, with both obligations declared and the CORRECT frozen reserve digests for positions 21 and 22",
+          "measuredOutcome": "ACCEPTED",
+          "note": "a first attempt was refused, but only because it reused reserve 21 digest for position 22. With the correct digests the adapter accepts it, so that refusal was incidental and must not be read as the guard working"
+        },
+        {
+          "id": "7c",
+          "variant": "declares the stale obligation for slot 45 but still serves only slot 54",
+          "measuredOutcome": "ACCEPTED"
+        },
+        {
+          "id": "7d",
+          "variant": "declares slot 45 as the ONLY current failure and serves R:45:21 alone",
+          "measuredOutcome": "ACCEPTED"
+        }
+      ],
+      "theRealLimitation": "the strategy adapter has NO access to acquisition outcomes. It validates the declared CURRENT_ACQUISITION_FAILURE set and pendingReplacementObligations only for internal consistency against the ledger and the frozen draw - that a served slot has a declared obligation, that its occupant kind matches the ledger, that reserve positions are the planner own, that reasons match the declared obligation, and that primaries are contiguous from the declared nextNeverStartedSelectionIndex. It never asks whether those slots actually failed, because nothing in its inputs records an outcome",
+      "whatProbe2ActuallyProves": "probe 2 was refused because it served slot 45 while the declared obligations still listed only slot 54. The guard it exercises is \"a served replacement must carry a DECLARED obligation\", NOT \"a served replacement must really be failing\". Those are different guarantees and only the first exists",
+      "whyThisIsNotAnOpenDefectInThisWindow": "this window served exactly the one slot that the committed Window-03 adjudication recorded as failing, and the strategy derived that set from a 110-slot status map rebuilt from the committed adjudication chain rather than declaring it. The limitation would matter to a strategy whose state section was wrong; it does not make this strategy wrong",
+      "sameFamilyAs": "the forged success count in probe 9. Both are declared-state fields the adapter cross-checks loosely and cannot falsify",
+      "defence": "entirely upstream and downstream of the adapter: the state is derived independently when the strategy is written, and recomputed from scratch at adjudication. No step reads an outcome from the adapter. Closing it inside the adapter would mean giving it a source of adjudicated outcomes, which is a code change and is not authorised under this resumption",
+      "recordedForOwnerReview": true
+    }
+  },
+  "scopeProofs": {
+    "networkRequestsIssuedByThisRecord": 0,
+    "databaseRowsWrittenByThisRecord": 0,
+    "productionSourceFilesChangedByThisRecord": 0,
+    "ledgerEntriesAppendedByThisRecord": 0,
+    "methodologyBytesChangedByThisRecord": 0
+  },
+  "identityDisclosure": {
+    "institutionNamed": false,
+    "hostnameNamed": false,
+    "organisationIdNamed": false,
+    "echeRowKeyNamed": false,
+    "whatIsRecorded": "selection indices, reserve rank positions, splits, frozen draw-entry digests and replacement reasons"
+  },
+  "nextStep": "build the Window-04 plan through the landed generic builders against these exact strategy bytes, then the live authority, then append reserve 21, then re-prove the network vantage, then execute",
+  "terminalState": "PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_04_STRATEGY_RECORDED",
+  "immutability": "append-only. Once committed these bytes are the spec the plan is checked against and are never edited."
+}
