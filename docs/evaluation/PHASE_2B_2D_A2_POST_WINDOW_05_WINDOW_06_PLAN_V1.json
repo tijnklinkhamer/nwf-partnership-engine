@@ -1,0 +1,173 @@
+{
+  "recordId": "phase2b-2d-a2-post-window-05-window-06-plan-v1",
+  "recordKind": "OFFLINE_PRECOMMITTED_WINDOW_PLAN",
+  "records": "PHASE_2B_2D_A2_POST_WINDOW_05_WINDOW_06_PLAN_V1",
+  "planSchema": "PRECOMMITTED_WINDOW_PLAN_GENERIC_V1",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "liveAuthorityGranted": false,
+  "bound": {
+    "governance": {
+      "strategy": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_05_WINDOW_06_STRATEGY_V1.json",
+        "sha256": "d29526eebb497c230e7319f6899364dcd5be57c94031905cc18b958efa0149c9",
+        "bytes": 33642
+      }
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650"
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    },
+    "startingReplacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "artifactFileSha256": "3ca6c9eff072b17afac1c6adc5c36c162a84e7017ac1bf42257a0abb7bca6c67",
+      "bytes": 19516,
+      "ledgerHash": "c9fdb2e3ce19f53d55bf45d7ebb0c74db29a5b43334264d80f10cd9c98861234",
+      "entryCount": 24,
+      "note": "the revision this window was planned against; the preflight proves the live ledger has exactly this prefix plus the planned assignments"
+    }
+  },
+  "windowName": "A2 post-Window-05 Window 06",
+  "plannedWindowSize": 5,
+  "workItemIdFormat": {
+    "PRIMARY": "P:<selectionIndex>",
+    "REPLACEMENT": "R:<selectionIndex>:<reserveRankPosition>",
+    "neverUses": "an organisation UUID or an eche row key"
+  },
+  "identityBinding": {
+    "method": "drawEntrySha256 = sha256(canonicalStringify(exact parsed draw entry))",
+    "canonicalizer": "canonicalStringify (src/orgunits/classify/canonical.ts), as the frame and draw hashes",
+    "replacementItemsDigest": "the draw RESERVE entry at reserveRankPosition",
+    "primaryItemsDigest": "the draw SELECTION entry at selectionIndex",
+    "institutionIdentityInThisFile": false
+  },
+  "workItems": [
+    {
+      "order": 1,
+      "workItemId": "R:64:24",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 64,
+      "reserveRankPosition": 24,
+      "split": "DEV_CONFIRM",
+      "drawEntryKind": "RESERVE",
+      "drawEntrySha256": "c01d75ff5a1d7d57aeca25c1ffd97d1fb21c860d3cb56043f6b6cc3c7651a211",
+      "plannedLedgerSequence": 24,
+      "replacesOccupant": "RESERVE_REPLACEMENT",
+      "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    },
+    {
+      "order": 2,
+      "workItemId": "R:65:25",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 65,
+      "reserveRankPosition": 25,
+      "split": "FINAL_HOLDOUT",
+      "drawEntryKind": "RESERVE",
+      "drawEntrySha256": "2ca4c3dbfaaef88fa8eef521873f3fd1ab7ea05ac17b8fff83823e92737963af",
+      "plannedLedgerSequence": 25,
+      "replacesOccupant": "ORIGINAL_SELECTION",
+      "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    },
+    {
+      "order": 3,
+      "workItemId": "P:66",
+      "kind": "PRIMARY",
+      "selectionIndex": 66,
+      "reserveRankPosition": null,
+      "split": "DEV_TRAIN",
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "f8f055832b9267b25212a820b08f535e7bed92caf66f5ba3a2f8dd73e4d8b7fc",
+      "plannedLedgerSequence": null,
+      "replacesOccupant": null,
+      "replacementReason": null
+    },
+    {
+      "order": 4,
+      "workItemId": "P:67",
+      "kind": "PRIMARY",
+      "selectionIndex": 67,
+      "reserveRankPosition": null,
+      "split": "DEV_CONFIRM",
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "635d55080aedf676ce2bf74e34b4093ad510561e9112781005a92ae66f857815",
+      "plannedLedgerSequence": null,
+      "replacesOccupant": null,
+      "replacementReason": null
+    },
+    {
+      "order": 5,
+      "workItemId": "P:68",
+      "kind": "PRIMARY",
+      "selectionIndex": 68,
+      "reserveRankPosition": null,
+      "split": "FINAL_HOLDOUT",
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "9a4a95216ebd95d7b8b075833f9b6703bcf88723fccd039b3c8442eff0b97316",
+      "plannedLedgerSequence": null,
+      "replacesOccupant": null,
+      "replacementReason": null
+    }
+  ],
+  "plannedPrimarySelectionIndices": [66, 67, 68],
+  "plannedReplacementAssignments": [
+    {
+      "selectionIndex": 64,
+      "reserveRankPosition": 24,
+      "plannedLedgerSequence": 24,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "replacesOccupant": "RESERVE_REPLACEMENT"
+    },
+    {
+      "selectionIndex": 65,
+      "reserveRankPosition": 25,
+      "plannedLedgerSequence": 25,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "replacesOccupant": "ORIGINAL_SELECTION"
+    }
+  ],
+  "splitComposition": {
+    "DEV_TRAIN": 1,
+    "DEV_CONFIRM": 2,
+    "FINAL_HOLDOUT": 2
+  },
+  "pauseThresholdsForThisWindow": {
+    "p2PercentageArm": "> 40% of the planned window size",
+    "p2PercentageThresholdCount": 3,
+    "p5PercentageArm": "> 30% of the planned window size",
+    "p5LowYieldThresholdCount": 2,
+    "denominator": "the frozen planned window size, never the completed count"
+  },
+  "stateAtPlanTime": {
+    "successfulSelectionSlots": 63,
+    "currentAcquisitionFailures": 2,
+    "pendingReplacementObligations": 2,
+    "nextNeverStartedSelectionIndex": 66,
+    "replacementLedgerEntries": 24,
+    "reserveConsumed": 24,
+    "reserveUnused": 16,
+    "nextUnusedReservePosition": 24,
+    "p6Fires": false,
+    "liveAuthorityGranted": false
+  },
+  "failureSemantics": {
+    "onUnsuccessfulWorkItem": [
+      "preserve its evidence",
+      "assign no reserve inside this window",
+      "do not enlarge the window",
+      "a pending replacement obligation arises only after adjudication",
+      "a replacement assignment requires another precommitted window under new owner authority"
+    ],
+    "dynamicReserveAssignment": false,
+    "windowGrowth": false
+  },
+  "orderIsFrozen": "The work items execute in exactly this order. Nothing is sorted, inserted or skipped at run time.",
+  "windowPlanHash": "57ae483a16f119ffb4a9c799b1fbb8aa23e82fd004784db9f95ee8b7516e3ce5"
+}
