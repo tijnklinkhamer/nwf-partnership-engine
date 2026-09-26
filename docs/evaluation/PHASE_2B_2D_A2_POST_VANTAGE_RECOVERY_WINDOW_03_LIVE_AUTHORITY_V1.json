@@ -1,0 +1,607 @@
+{
+  "recordId": "phase2b-2d-a2-post-vantage-recovery-window-03-live-authority-v1",
+  "recordKind": "LIVE_ACQUISITION_WINDOW_AUTHORITY",
+  "records": "PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_03_LIVE_AUTHORITY_V1",
+  "recordedAtUtc": "2026-09-26T11:53:04Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "isLiveAuthority": true,
+  "thisRecordExecutesNothing": true,
+  "grantsNoAuthorityBeforeCommittedAndPushed": true,
+  "startingHead": "5e722c4db4ccc3b50388ddb0e2b53a6fa87a0e3e",
+  "acceptedAncestry": [
+    "cdda77d0653db460898d806bfe0667d5aeb7c09c - the targeted vantage recovery adjudication",
+    "bb515909ca80b7a76bece3362beb74fad9c46d7b - the operational vantage rule and the resume decision",
+    "10782a0e376cd99abc39b2485c782c69fa033aff - the Window-03 strategy",
+    "5e722c4db4ccc3b50388ddb0e2b53a6fa87a0e3e - the Window-03 plan"
+  ],
+  "acceptedAncestryVerified": true,
+
+  "ownerDecision": "RESUME_Q1_REPLACEMENT_AND_PRIMARY_COMPLETION_FROM_RECOVERED_STATE_V1",
+  "ownerDecisionScope": "two ordinary child windows and ten live attempts remaining. This is the FIRST of the two",
+
+  "thisFileAuthorises": "the bounded live execution of exactly five work items R:45:19, R:54:20, P:60, P:61 and P:62, sequentially, at concurrency 1, under orgunit-fetch-policy-v6, preceded by exactly one pre-network append of reserve positions 19 and 20 to the replacement ledger, followed by one LIVE_RESULT with exactly one full repository validation",
+
+  "continuationWindow": {
+    "window": "POST_VANTAGE_RECOVERY_WINDOW_03",
+    "ordinalWithinTheResumedScope": 1,
+    "windowsAuthorisedByTheResumption": 2,
+    "liveAttemptsThisWindowConsumes": 5,
+    "liveAttemptsRemainingAfterThisWindow": 5,
+    "windowsRemainingAfterThisWindow": 1
+  },
+
+  "bound": {
+    "resumeDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_Q1_AUTOPILOT_RESUME_V1.json",
+      "sha256": "cb77080d851ecd5b3d11adb2b364af1167a37cf8dff63655d0e55e8778270898",
+      "bytes": 15853,
+      "commit": "bb515909ca80b7a76bece3362beb74fad9c46d7b"
+    },
+    "operationalVantageRule": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_DNS64_NAT64_OPERATOR_VANTAGE_EVIDENCE_INTEGRITY_ADJUDICATION_V1.json",
+      "sha256": "5f901c1c5e0f2248e7e50887187dc1bcce06ace8b852b8c65d0be35547f655bc",
+      "bytes": 16719,
+      "commit": "bb515909ca80b7a76bece3362beb74fad9c46d7b",
+      "ruleId": "DNS64_NAT64_OPERATOR_VANTAGE_REFUSAL_DOES_NOT_CREATE_REPLACEMENT_OBLIGATION_V1",
+      "howThisWindowIsBoundByIt": "a pre-socket address-policy refusal on any started item is tested against the rule's five clauses BEFORE any obligation is considered. If all five hold, the run is preserved as environment evidence, the occupant is HELD, no reserve is assigned, and the window STOPS for environment-vantage review. If any clause fails, ordinary frozen Q3 governs"
+    },
+    "strategy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_03_STRATEGY_V1.json",
+      "sha256": "d2af8fcf1dbbb31d79b1469afff4cd3fe1644dbe3a6cc928608ff4a707a3c82e",
+      "bytes": 30937,
+      "commit": "10782a0e376cd99abc39b2485c782c69fa033aff"
+    },
+    "plan": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_03_PLAN_V1.json",
+      "sha256": "3b721e702f7ca261de0b703ac9af0ed1cae205af7dd7332f1f9437b212b76bb4",
+      "bytes": 6555,
+      "commit": "5e722c4db4ccc3b50388ddb0e2b53a6fa87a0e3e",
+      "windowPlanHash": "69ae791786f4ae45c9d46f645611ff30b7d9b0f7e296932f70df4a86831cc670",
+      "planSchema": "PRECOMMITTED_WINDOW_PLAN_GENERIC_V1"
+    },
+    "startingReplacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "08f720636daaa42fa92419f11f8401c49f785d0fa5ecc4eaf5f41bb8cf291ffc",
+      "bytes": 16444,
+      "ledgerHash": "e215c1945dda8f4d79e10d775729290f7cf8ed3475e6849db2470d0381662e81",
+      "entries": 19,
+      "byteIdenticalToTheRevisionAt": "cdda77d0653db460898d806bfe0667d5aeb7c09c"
+    },
+    "recoveryAdjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_TARGETED_VANTAGE_RECOVERY_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "236b71f45b1127ff6569c0c7339ee5859e180913ac2fd2aedcbe8087f8326681",
+      "bytes": 29114,
+      "commit": "cdda77d0653db460898d806bfe0667d5aeb7c09c"
+    },
+    "resumedAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_REPLACEMENT_AND_PRIMARY_COMPLETION_AUTOPILOT_V1.json",
+      "sha256": "017f8422263b1ee13b58fa99ab7c44ec9acb50c3e079e8681ffd0af5aa19f2ef",
+      "bytes": 35547
+    },
+    "ownerReserveOrderClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "bytes": 18443
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650"
+    }
+  },
+
+  "startGate": {
+    "localHeadEqualsOriginAfterFetch": true,
+    "worktreeClean": true,
+    "ancestryLinear": true,
+    "governanceCommitIntroducedExactlyTwoFiles": true,
+    "governanceCommitFileCountNote": "bb51590 introduced the operational vantage rule AND the resume decision together, deliberately: the resume decision binds the rule by sha, so splitting them would have produced a commit whose binding pointed at an uncommitted file. Earlier windows' one-file-per-commit pattern is preserved for the strategy and plan commits",
+    "strategyCommitIntroducedExactlyOneFile": true,
+    "planCommitIntroducedExactlyOneFile": true,
+    "planReproducesFromTheCommittedStrategyBytes": true,
+    "planReproductionMethod": "windowSpecFromAcquisitionWindowStrategy over the committed strategy bytes, the frozen draw and the committed 19-entry ledger, then buildPrecommittedWindowPlan; rendered twice and byte-compared, and windowPlanHash recomputed from the committed file",
+    "replacementLedgerByteIdenticalToTheRevisionAt": "cdda77d0653db460898d806bfe0667d5aeb7c09c",
+    "reservePosition19Assigned": false,
+    "reservePosition20Assigned": false,
+    "liveAuthorityForThisWindowAlreadyExisted": false,
+    "newerA2AuthorityAssignmentLiveResultOrAdjudicationExisted": false,
+    "concurrentA2TaskModifyingThisLineage": false,
+    "acquisitionOrValidationProcessRunning": false,
+    "databaseBaselineUnchangedSinceTheRecoverySeries": true,
+    "databaseBaseline": {
+      "orgunit_research_runs": 88,
+      "orgunit_research_run_completions": 88,
+      "orgunit_fetch_observations": 2407,
+      "orgunit_redirect_observations": 186,
+      "orgunit_page_evidence": 1778,
+      "orgunit_page_candidates": 3556,
+      "orgunit_root_promotions": 0,
+      "orgunit_root_promotion_revocations": 0,
+      "runsWithoutCompletion": 0,
+      "runsWithMoreThanOneCompletion": 0,
+      "blockedByPolicyRowsInTheWholeDatabase": 6,
+      "matchesTheRecoveryLiveResultsRecordedAfterState": true,
+      "latestRunStartedAt": "2026-09-25T22:45:03Z"
+    },
+    "unrelatedProcessesObserved": "supabase containers belonging to other projects in this workspace. They share no database, worktree, scratch or test resource with this repository and are not a governance conflict"
+  },
+
+  "networkVantagePrecondition": {
+    "requiredBeforeTheFirstRequestAndReassertedBeforeEveryItem": true,
+    "outcomeAtThisRecord": "NETWORK_PRECONDITION_PROVED",
+    "conditionBeingRuledOut": "IPV6_ONLY_CELLULAR_DNS64_NAT64_TRANSLATION_PREFIX_ONLY_VANTAGE",
+    "measuredAtThisRecord": {
+      "defaultRouteFamily": "IPV4",
+      "interfaceClass": "WIRED_OR_WIFI_LAN",
+      "gatewayIsPrivateLan": true,
+      "ipv6DefaultRoutePresent": false,
+      "cellularPdpInterfacesPresent": 0,
+      "clatWellKnownAddress192_0_0_2Present": false,
+      "constrainedInterfacesPresent": 0,
+      "systemReportsAnyIpv6NetworkState": false,
+      "dns64DetectorName": "ipv4only.arpa",
+      "dns64DetectorARecordsReturned": 2,
+      "dns64DetectorAaaaRecordsReturned": 0,
+      "translationPrefixSynthesisObserved": false,
+      "gatewayOwnLookupCanaries": ["example.com", "www.iana.org"],
+      "canaryAddressesClassifiedPublicIpv4": 4,
+      "canaryAddressesClassifiedForbidden": 0,
+      "canaryTranslationPrefixAddressesReturned": 0,
+      "ipv4HttpsCanaryStatuses": [200, 200],
+      "guardStillRefusesTranslationPrefixes": true,
+      "guardRefusalReasons": [
+        "relay_or_translation",
+        "relay_or_translation",
+        "ietf_protocol_assignment"
+      ],
+      "addressPolicyFileModified": false,
+      "gitDiffOfAddressPolicyFileAgainstHead": "empty"
+    },
+    "method": "the gateway's own call - dns.promises.lookup(host, { all: true, verbatim: true }) - fed to the unmodified classifyIpAddress from src/orgunits/web/address.ts, plus forced-IPv4 HTTPS canaries. Non-institution canaries only",
+    "institutionHostnamesExposedByTheCheck": false,
+    "localPublicIpv4AddressRecorded": false,
+    "addressPolicyRuleDisabledToPassTheCheck": false,
+    "ifTheVantageIsUnsuitableAtAnyPoint": "STOP before the next item with the environment-vantage terminal. Consume no reserve, create no institution failure, preserve whatever ran as environment evidence"
+  },
+
+  "requiredFetchPolicy": "orgunit-fetch-policy-v6",
+  "fetchPolicyV7Authorised": false,
+  "policyUpgradeAuthorised": false,
+  "uncommittedPolicyChangeAuthorised": false,
+
+  "workItems": [
+    {
+      "order": 1,
+      "workItemId": "R:45:19",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 45,
+      "reserveRankPosition": 19,
+      "split": "DEV_CONFIRM",
+      "drawEntryKind": "RESERVE",
+      "drawEntrySha256": "d55fd17d156f8a3e078d4c54fa5ae7f511faf9497c9198d44cec1c9dd329ca78",
+      "replacementReason": "ACQUISITION_UNSUCCESSFUL_ROBOTS_DISALLOWED",
+      "replacesOccupant": "RESERVE_REPLACEMENT"
+    },
+    {
+      "order": 2,
+      "workItemId": "R:54:20",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 54,
+      "reserveRankPosition": 20,
+      "split": "DEV_CONFIRM",
+      "drawEntryKind": "RESERVE",
+      "drawEntrySha256": "d822af82fa49783c56bfa7328ba5f7ceea128529944ea192f0e13d2dbb792840",
+      "replacementReason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "replacesOccupant": "RESERVE_REPLACEMENT"
+    },
+    {
+      "order": 3,
+      "workItemId": "P:60",
+      "kind": "PRIMARY",
+      "selectionIndex": 60,
+      "reserveRankPosition": null,
+      "split": "FINAL_HOLDOUT",
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "569cde467255f49ce635769062c61736e9adce803e5e5024110ce5a00992b922",
+      "replacementReason": null,
+      "replacesOccupant": null
+    },
+    {
+      "order": 4,
+      "workItemId": "P:61",
+      "kind": "PRIMARY",
+      "selectionIndex": 61,
+      "reserveRankPosition": null,
+      "split": "DEV_TRAIN",
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "bec48f818c9e82c3c4cad5865f328ebe04b82edb28ce07ad2f0f96c8c7d943ed",
+      "replacementReason": null,
+      "replacesOccupant": null
+    },
+    {
+      "order": 5,
+      "workItemId": "P:62",
+      "kind": "PRIMARY",
+      "selectionIndex": 62,
+      "reserveRankPosition": null,
+      "split": "DEV_CONFIRM",
+      "drawEntryKind": "SELECTION",
+      "drawEntrySha256": "41d72011550b68b0429351128e5eb779e91b2a27e707e47de022455eb5a6fc6d",
+      "replacementReason": null,
+      "replacesOccupant": null
+    }
+  ],
+  "workItemDigestsRecomputedFromFrozenDraw": true,
+  "workItemDigestsDistinct": true,
+  "workItemDigestsMatchThePlanExactly": true,
+
+  "incidentalSplitComposition": { "DEV_TRAIN": 1, "DEV_CONFIRM": 3, "FINAL_HOLDOUT": 1 },
+  "splitCompositionIsASelectionTarget": false,
+  "splitCompositionNote": "an OUTCOME of Q1 ordering and the next-untouched-primary rule. No split was balanced, preferred or avoided",
+
+  "noItemOfThisWindowHasAnyPriorAcquisitionRun": true,
+  "noItemOfThisWindowHasBeenAdjudicated": true,
+  "theOccupantsBeingReplacedWereAlreadyAcquiredAndFailed": "slot 45's reserve-16 occupant and slot 54's reserve-18 occupant were both measured from a compliant vantage during the recovery series and both failed there. Reserve 19 and reserve 20 have never been acquired",
+
+  "executionOrderIsFrozen": "R:45:19 -> R:54:20 -> P:60 -> P:61 -> P:62",
+  "orderHardening": "the order is the plan's. It is re-compared against the committed plan before every item and is never derived at run time from any property of an organisation",
+  "concurrency": 1,
+  "maximumWorkItemsStarted": 5,
+  "sixthWorkItemAuthorised": false,
+  "maximumReplacementAssignments": 2,
+  "dynamicInsertionAuthorised": false,
+  "dynamicReplacementAuthorised": false,
+  "windowEnlargementAuthorised": false,
+  "runtimeSkippingOrSortingAuthorised": false,
+  "strategyRegenerationAuthorised": false,
+  "planRegenerationAuthorised": false,
+
+  "authorisedReplacementAssignments": [
+    {
+      "sequence": 19,
+      "selectionIndex": 45,
+      "reserveRankPosition": 19,
+      "reason": "ACQUISITION_UNSUCCESSFUL_ROBOTS_DISALLOWED",
+      "priorOccupantMustBe": "RESERVE_REPLACEMENT",
+      "previousSequenceForSlotMustBe": 16
+    },
+    {
+      "sequence": 20,
+      "selectionIndex": 54,
+      "reserveRankPosition": 20,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "priorOccupantMustBe": "RESERVE_REPLACEMENT",
+      "previousSequenceForSlotMustBe": 18
+    }
+  ],
+  "replacementLedgerMutationAuthorised": "exactly the two appends above, once, before any institution socket",
+  "reservePosition21OrLaterAuthorised": false,
+  "reservePositionReuseAuthorised": false,
+  "ledgerRowEditOrDeleteAuthorised": false,
+  "sequences16And18MayBeEdited": false,
+  "secondAppendAuthorised": false,
+  "postNetworkLedgerAppendAuthorised": false,
+  "p59ReplacementAuthorised": false,
+  "p59AdjudicationAuthorised": false,
+  "p63OrHigherAuthorisedByThisAuthority": false,
+  "aSecondReplacementForAnySlotInsideThisWindowAuthorised": false,
+
+  "preNetworkAssignmentStage": {
+    "required": true,
+    "expectedPath": "docs/evaluation/PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_03_PRENETWORK_ASSIGNMENT_V1.json",
+    "recordKind": "OFFLINE_PRENETWORK_RESERVE_ASSIGNMENT",
+    "producedBy": "prepareReplacementAppend over the frozen draw, the committed nineteen-entry ledger, exactly the two authorised assignments above, and one explicit recordedAtUtc read from the shell at append time",
+    "mustAlsoUpdate": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json, from 19 entries to 21",
+    "mustProveBeforeWriting": [
+      "the nineteen-entry prefix is canonically unchanged",
+      "every appended entry hash chains to its predecessor",
+      "the new ledgerHash recomputes from the new bytes",
+      "the new ledger validates against the frozen draw",
+      "reserveConsumed goes 19 -> 21 and nextUnusedReservePosition becomes 21",
+      "every appended reserveRankPosition is 19 or 20 and appears in no earlier entry",
+      "every appended selectionIndex has a determinate obligation, independently derived",
+      "every appended split is the frozen draw selection slot's split",
+      "every appended reason is the obligation's own reason",
+      "sequence 19 carries replacedOccupantKind RESERVE_REPLACEMENT with previousSequenceForSlot 16, and sequence 16 is canonically unchanged",
+      "sequence 20 carries replacedOccupantKind RESERVE_REPLACEMENT with previousSequenceForSlot 18, and sequence 18 is canonically unchanged",
+      "P6 is re-evaluated at 21 and 57 and does not fire"
+    ],
+    "helperAcceptanceIsNotSufficient": "prepareReplacementAppend does not check obligation existence. Both assignments are compared against canonical obligation state independently before the write",
+    "mustBeCommittedPushedAndRefetchedBeforeRequestOne": true,
+    "chronologyMustBeRecordedInTheLiveResult": "the ledger push timestamp must precede the first institution request"
+  },
+
+  "p7ExecutionBoundary": {
+    "invariantCount": 13,
+    "beforeTheAppendOnTheActualNineteenEntryLedger": {
+      "replacementAssignmentsRecorded": false,
+      "currentOccupantsMatch": false,
+      "otherElevenInvariants": true,
+      "observedAtThisRecord": true,
+      "gateDecisionWouldBe": "PAUSE_P7_INVARIANT_MISMATCH",
+      "mayStartNextWorkItem": false,
+      "whyThisIsCorrectRatherThanAFailure": "both invariants compare the ledger against assignments the plan has only PLANNED. They are satisfiable only after the append, which is exactly the staged ordering this authority requires"
+    },
+    "afterTheCommittedAndPushedTwoEntryAppend": {
+      "specSource": "windowSpecFromAcquisitionWindowStrategy over the committed strategy bytes, the frozen draw and the committed NINETEEN-entry starting-ledger bytes",
+      "preflight": "the landed computePrecommittedWindowPreflight against the committed plan, the real committed TWENTY-ONE-entry ledger, the frozen draw and frame, and independently recomputed governance bindings",
+      "allThirteenInvariantsMustBeTrue": true,
+      "requiredGateDecision": "CONTINUE_TO_NEXT_WORK_ITEM",
+      "requiredMayStartNextWorkItem": true,
+      "requiredNextWorkItemId": "R:45:19",
+      "gateInputs": {
+        "completed": [],
+        "plannedWindowSize": 5,
+        "successfulOrganisationCount": 57,
+        "reserveConsumedCount": 21
+      },
+      "ifAnyInvariantIsFalse": "STOP. Do not start any item"
+    },
+    "reRunBeforeEveryLaterItem": true
+  },
+
+  "liveInvocationPerStartedItem": "exactly one: npm run cli -- orgunits discover --organisation-id <private> --execute --json",
+  "rawOutputLocation": "the private session scratchpad outside Git only",
+  "organisationIdResolution": "each replacement's organisationId is read from the frozen draw RESERVE entry at its authorised reserveRankPosition, and each primary's from the frozen draw SELECTION entry at its slot, mechanically, after the position is fixed. No identity characteristic selected or ordered anything, and no organisation id appears in this or any public record",
+
+  "beforeEveryItem": [
+    "the network-vantage precondition re-measured and PROVED",
+    "battery strictly above 20%",
+    "lid open",
+    "a dedicated caffeinate -dimsu active for the item",
+    "no competing A2 acquisition",
+    "no competing validate or vitest sharing this repository's database, worktree or tmp resources",
+    "no sleep, wake or DarkWake incident since the declared baseline",
+    "adequate disk",
+    "acquisition database healthy",
+    "clean scratch and sealed-evidence baseline",
+    "the committed TWENTY-ONE-entry ledger byte-identical to the pre-network revision",
+    "strategy sha, plan sha, windowPlanHash and the complete ordered list re-compared",
+    "all 13 P7 invariants true",
+    "gate nextWorkItemId equals the exact intended next frozen item"
+  ],
+
+  "ownerPowerSourcePolicy": {
+    "acPowerRequired": false,
+    "batteryMustBeStrictlyAbovePercent": 20,
+    "hostStateAtThisRecord": {
+      "acPower": true,
+      "batteryPercent": 100,
+      "lidOpen": true,
+      "clamshell": "No"
+    },
+    "sleepWakeDarkWakeBaseline": 660,
+    "baselineMethod": "pmset -g log, counting rows whose fourth field is Sleep, Wake or DarkWake. The absolute number is not comparable across windows because the log rotates",
+    "requirementForTheRestOfThisWindow": "zero further Sleep, Wake or DarkWake events from this baseline until the LIVE_RESULT validation has finished. Any such event during a live item or the validation is a fail-closed stop",
+    "caffeinateDoesNotStopClamshellSleep": "a closed lid sleeps the host regardless of caffeinate -dimsu. The lid stays open"
+  },
+
+  "retryPermitted": false,
+  "manualRetryAuthorised": false,
+  "hiddenRetryAuthorised": false,
+  "cliRerunOfAnItemAuthorised": false,
+  "rerunOfCompletedOrFailedTargetAuthorised": false,
+  "generalHttpRetryAuthorised": false,
+  "secondAcquisitionAttemptAuthorised": false,
+  "curlWgetOrBrowserInstitutionAccessAuthorised": false,
+  "adaptiveRootChangeAuthorised": false,
+  "alternateRootAuthorised": false,
+  "widenedBudgetAuthorised": false,
+  "timeoutWideningAuthorised": false,
+  "tlsBypassAuthorised": false,
+  "addressPolicyExceptionAuthorised": false,
+  "nat64AllowanceAuthorised": false,
+  "crawlerOrParserChangeAuthorised": false,
+  "boundedTransportRetryNote": "the landed v4 bounded transport retry inside robots acquisition is part of orgunit-fetch-policy-v6 and is not a manual retry. It is permitted because it is the policy; nothing here widens it",
+
+  "evidencePerStartedItem": [
+    "exactly one non-dry run and exactly one completion row",
+    "the run reference as an opaque hash, with the derivation DECLARED in the live result's own bytes",
+    "formal read-only SD7 exactly once, with any range preserved complete and never collapsed",
+    "diagnostic, non-adjudicative SD9",
+    "one sealed SD7 detail file, exclusive-create, written only into that item's own split-scoped sealed root outside Git",
+    "host state during the item",
+    "the network-vantage re-measurement before the item",
+    "the full recomputed gate after the item"
+  ],
+  "sealedFilenames": {
+    "R:45:19": "POST_VANTAGE_RECOVERY_WINDOW_03_V1_SD7_DETAIL_R_45_19.json",
+    "R:54:20": "POST_VANTAGE_RECOVERY_WINDOW_03_V1_SD7_DETAIL_R_54_20.json",
+    "P:60": "POST_VANTAGE_RECOVERY_WINDOW_03_V1_SD7_DETAIL_P_60.json",
+    "P:61": "POST_VANTAGE_RECOVERY_WINDOW_03_V1_SD7_DETAIL_P_61.json",
+    "P:62": "POST_VANTAGE_RECOVERY_WINDOW_03_V1_SD7_DETAIL_P_62.json"
+  },
+  "sealedRootBySplit": {
+    "R:45:19": "DEV_CONFIRM",
+    "R:54:20": "DEV_CONFIRM",
+    "P:60": "FINAL_HOLDOUT",
+    "P:61": "DEV_TRAIN",
+    "P:62": "DEV_CONFIRM"
+  },
+  "sealedRootResolution": "the landed sealedRootFor(split) only. A file is written with exclusive-create semantics into that split's OWN root and never into another split's",
+  "sealedFilesCommittedToGit": false,
+  "existingSealedFileOverwriteAuthorised": false,
+
+  "finalHoldoutConstraints": {
+    "finalHoldoutItemsInThisWindow": ["P:60"],
+    "semanticInspectionAuthorised": false,
+    "labelOrClassDerivationAuthorised": false,
+    "sealedSd7DetailWrittenOnlyToTheHoldoutRoot": true,
+    "noTitleUrlExcerptOrHostnameMayEnterAnyPublicRecord": true
+  },
+
+  "pauseThresholds": {
+    "plannedWindowSize": 5,
+    "p1ConsecutiveRootAuthorityFailures": 3,
+    "p2ConsecutiveRobotsRefusals": 3,
+    "p2PercentageThresholdCount": 3,
+    "p3ConsecutiveFailedRuns": 2,
+    "p5LowYieldThresholdCount": 2,
+    "p5MinRawPageEvidence": 4,
+    "denominator": "the frozen planned window size, never the completed count"
+  },
+  "q4FreshWindowLocalCounters": "P1, P2, P3 and P5 counters start at zero for this window. Window 02's P5 count is NOT carried forward",
+  "p6Boundary": "generation-global and does not reset. Re-evaluated at 21 and 57 after the append: 21 > 10 is true, 57 < 50 is false, so it does not fire",
+  "continuationOwnedByGate": "the landed between-run gate decides continuation after every item. This authority never overrides it",
+  "onAnyPauseDecision": "STOP immediately. Preserve all evidence. Start no further item. Write the LIVE_RESULT with the pause recorded and route to owner review",
+  "requiredDecisionAfterItem5": "WINDOW_COMPLETE, or the pause that fired",
+
+  "unsuccessfulItemSemantics": {
+    "aFailedReplacementCreatesAQ2SameSlotObligation": true,
+    "aFailedPrimaryCreatesAnObligationForItsOwnSelectionSlot": true,
+    "anAddressPolicyRefusalIsTestedAgainstTheVantageRuleFirst": true,
+    "anSD7RangeStraddlingTheThresholdIsPendingReviewNotAFailure": true,
+    "noObligationIsServedInsideThisWindow": true
+  },
+
+  "databaseMutationAuthorised": "only the append-only research evidence the landed orchestrator writes for the five authorised runs, as the research role",
+  "classifierAuthorised": false,
+  "providerAuthorised": false,
+  "labelsAuthorised": false,
+  "setPSetRAuthorised": false,
+  "migrationAuthorised": false,
+  "productionCodeChangeAuthorised": false,
+  "harnessChangeAuthorised": false,
+  "testChangeAuthorised": false,
+  "methodologyOrPlanChangeAuthorised": false,
+  "q3TaxonomyChangeAuthorised": false,
+  "addressGuardChangeAuthorised": false,
+  "strategyAdapterLimitationFixAuthorised": false,
+  "replacementPlannerLimitationFixAuthorised": false,
+  "governanceFileEditAuthorised": false,
+  "finalAcquisitionAdjudicationAuthorised": false,
+  "a3Authorised": false,
+  "phase2EAuthorised": false,
+
+  "liveResultRequirements": {
+    "requiredAfter": "WINDOW_COMPLETE or a legitimate pause",
+    "expectedPath": "docs/evaluation/PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_03_LIVE_RESULT_V1.json",
+    "recordKind": "LIVE_WINDOW_RESULT_EVIDENCE_PENDING_ADJUDICATION",
+    "mustBind": [
+      "this live authority and its commit",
+      "the strategy",
+      "the plan",
+      "the nineteen-entry starting ledger",
+      "the twenty-one-entry post-assignment ledger",
+      "the pre-network assignment record and its commit",
+      "chronology proving the ledger push preceded request 1",
+      "the network-vantage proof before every item",
+      "the exact-plan order comparison before and between every item",
+      "the host state authorising each item",
+      "database baseline and deltas",
+      "started and unstarted items",
+      "per-item acquisition-safe facts",
+      "hashed private run references with the derivation declared",
+      "v6, retry and ceiling facts",
+      "SD7 exact counts or complete ranges",
+      "sealed-file hashes",
+      "SD9 explicitly diagnostic and non-adjudicative",
+      "the gate result after every item",
+      "final ledger facts",
+      "zero classifier, provider, label, SET_P and SET_R activity",
+      "zero post-network ledger append",
+      "zero adjudication",
+      "an identity-disclosure scan"
+    ],
+    "mustBeFormattedBeforeValidationStarts": "the D1 window spent its single full validation on an unformatted LIVE_RESULT and failed on format:check. Prettier runs first here"
+  },
+
+  "finalValidationRules": {
+    "command": "caffeinate -dimsu npm run validate",
+    "runsExactlyOnce": true,
+    "after": "the LIVE_RESULT record is complete AND formatted",
+    "cheapChecksFirst": [
+      "JSON parse",
+      "Prettier",
+      "deterministic rendering",
+      "disclosure scan",
+      "P7",
+      "ledger integrity",
+      "network-vantage evidence"
+    ],
+    "requiresCleanRepositoryExceptTheIntendedLiveResultDraft": true,
+    "batteryExecutionAuthorised": true,
+    "acPowerRequired": false,
+    "batteryMustBeAbovePercent": 20,
+    "lidOpen": true,
+    "caffeinateDimsuActive": true,
+    "noConcurrentValidateOrVitestFromThisRepositoryOrSiblingWorktrees": true,
+    "stableConcurrencyIntervalSeconds": 120,
+    "quietGateMustExcludeItself": "a detector that greps for its own wrapper command matches itself and never settles. The self-excluding detector is the one to use",
+    "recheckImmediatelyBeforeStart": true,
+    "onFailureAfterStart": "STOP. No automatic rerun. The owner decides",
+    "onSleepDuringValidation": "contaminated. STOP. No automatic rerun"
+  },
+
+  "negativeAuthorityProbes": [
+    { "probe": "start a sixth item", "authorised": false },
+    { "probe": "start P:63", "authorised": false },
+    { "probe": "start or adjudicate P:59", "authorised": false },
+    { "probe": "assign reserve 21", "authorised": false },
+    { "probe": "append to the ledger after the first request", "authorised": false },
+    { "probe": "retry a failed item", "authorised": false },
+    { "probe": "substitute an alternate root for an unreachable host", "authorised": false },
+    { "probe": "admit a NAT64 translation address to get past a refusal", "authorised": false },
+    { "probe": "reorder items by expected yield", "authorised": false },
+    { "probe": "run a second window under this authority", "authorised": false }
+  ],
+
+  "knownOpenGovernanceFindingsCarriedForward": [
+    "the strategy adapter cannot detect a success count forged at or above the P6 floor. Mitigated by deriving the count independently in the strategy and re-deriving it at adjudication",
+    "the strategy adapter would accept a SPENT strategy replayed against a ledger revision that still matches its own binding. Mitigated procedurally: a spent strategy is marked spent and never re-fed",
+    "the replacement planner does not itself verify that an obligation exists; obligation existence is checked independently before every append"
+  ],
+
+  "institutionNetworkExecutedBeforeThisRecord": "none for this window. The last institution requests in this lineage were the targeted recovery series, which terminated at 2026-09-25T22:45:03Z",
+  "networkAccessForTargetAcquisitionByThisRecordTask": "none. Only non-institution canaries for the vantage precondition",
+  "databaseWrittenByThisRecordTask": "none",
+  "replacementLedgerAppendedByThisRecordTask": "none",
+  "preNetworkAssignmentFileCreatedByThisRecordTask": "none",
+  "sealedEvidenceCreatedByThisRecordTask": "none",
+  "liveResultCreatedByThisRecordTask": "none",
+  "adjudicationPerformedByThisRecordTask": "none",
+  "earlierEvidenceAlteredByThisRecordTask": "none",
+  "institutionIdentityInThisFile": "none. Selection indices, reserve positions, splits, draw-entry digests and replacement reasons only",
+
+  "offlineChecksPerformedAtThisRecord": [
+    "fresh fetch, local HEAD equals origin, worktree clean, ancestry linear",
+    "the recovery chain's five commits verified present and unmodified",
+    "canonical state recomputed from a 110-slot status map: 57 / [45,54] / [59] / 60..109",
+    "the ledger validated with the landed harness at 19 entries, every entryHash and the ledgerHash recomputed",
+    "Q1 re-derived as 45 -> 54 and the planner's positions 19 and 20 confirmed",
+    "all five splits recomputed from the frozen draw",
+    "the plan reproduced from the committed strategy bytes and byte-compared",
+    "windowPlanHash recomputed from the committed plan file",
+    "ten negative strategy probes executed against the landed adapter",
+    "the pre-append P7 preflight observed at 11 of 13 with exactly the two staged-semantics invariants false",
+    "the database baseline read and compared against the recovery live result's recorded after-state",
+    "the network-vantage precondition proved with non-institution canaries and the unmodified classifier"
+  ],
+
+  "validation": {
+    "fullValidationRunAtThisRecord": false,
+    "why": "this record changes no executable code. The window's single full validation belongs to its LIVE_RESULT",
+    "validationsRunEarlierInThisTask": "three, one after each of the governance, strategy and plan commits, each EXIT 0 with zero sleep events"
+  },
+
+  "terminal": "PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_03_LIVE_AUTHORITY_RECORDED",
+  "nextAuthorisedActionSequence": [
+    "commit, push and refetch this authority",
+    "append reserve positions 19 and 20 to the replacement ledger and commit, push and refetch the pre-network assignment record with it",
+    "re-measure the network-vantage precondition",
+    "re-run P7 against the committed twenty-one-entry ledger and require all 13 invariants and CONTINUE at R:45:19",
+    "execute R:45:19, R:54:20, P:60, P:61 and P:62 sequentially, with the full between-item checks",
+    "write, format and validate the LIVE_RESULT exactly once",
+    "adjudicate independently"
+  ],
+  "nextOwnerDecisionOnCompletionOrPause": "if this window completes cleanly, one ordinary window remains under the resumption and is built mechanically from the recomputed state. If it pauses, STOP for owner review",
+  "immutability": "append-only. This record is never edited. A change of scope is a NEW authority."
+}
