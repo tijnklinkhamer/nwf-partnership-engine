@@ -458,7 +458,35 @@
       "previousSequenceForSlot": null,
       "previousEntryHash": "72956707e27be74bd120ef50285b63457380bb83b01c7474e1b51a0be582d7b6",
       "entryHash": "b86985c1b7178aab40a943ac01ba2129c9a48c83f65d44be66c28e86aae25a63"
+    },
+    {
+      "sequence": 26,
+      "selectionIndex": 65,
+      "split": "FINAL_HOLDOUT",
+      "replacedEcheRowKey": "MK SKOPJE11|948987376",
+      "replacementEcheRowKey": "E BARCELO133|949147426",
+      "reserveRankPosition": 26,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-26T19:45:34Z",
+      "replacedOccupantKind": "RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 25,
+      "previousEntryHash": "b86985c1b7178aab40a943ac01ba2129c9a48c83f65d44be66c28e86aae25a63",
+      "entryHash": "59bad6312190b906d88a18a74413e5601539144c63cb66ce826dd0c86aba1b15"
+    },
+    {
+      "sequence": 27,
+      "selectionIndex": 66,
+      "split": "DEV_TRAIN",
+      "replacedEcheRowKey": "E SANTAND12|949656385",
+      "replacementEcheRowKey": "I MILANO27|894242613",
+      "reserveRankPosition": 27,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-26T19:45:34Z",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "59bad6312190b906d88a18a74413e5601539144c63cb66ce826dd0c86aba1b15",
+      "entryHash": "f122780a4b0de9721d419b40c0ddc1486b0bdcde4e2580898d05c476198c4174"
     }
   ],
-  "ledgerHash": "a624675b865500878aaa00731717d8a7d05c03efb6d637d5eaf3b1d826bbff17"
+  "ledgerHash": "6f65c4fbeac78a2578dd7f3b8007964e78fd28bec8e7709992bcbe7f082ca2d0"
 }
