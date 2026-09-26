@@ -1,0 +1,582 @@
+{
+  "recordId": "phase2b-2d-a2-post-window-05-window-06-strategy-v1",
+  "recordKind": "OFFLINE_ACQUISITION_WINDOW_STRATEGY",
+  "records": "PHASE_2B_2D_A2_POST_WINDOW_05_WINDOW_06_STRATEGY_V1",
+  "recordedAtUtc": "2026-09-26T17:52:00Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "ownerDecision": "P5_REVIEWED_AFTER_GENERATION_TRANSPORT_CENSUS_NO_COMMON_SYSTEMIC_DEFECT_CONTINUATION_ALLOWED",
+  "ownerDecisionSource": "the post-Window-05 P5 review and remaining-authority resume record at bff76032c0bbe26de797aea061551c76d222511b, which resumes the UNSPENT REMAINDER of the authority granted at b9248ab00be140217a6e4e144a6bdf334f33b411 and refills nothing. This record is the FIRST of at most three remaining ordinary windows.",
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "strategyOnly": true,
+  "approvesStructureOnly": true,
+  "networkUsedByThisRecord": "none",
+  "databaseWrittenByThisRecord": "none. Read-only reconciliation only",
+  "startingHead": "bff76032c0bbe26de797aea061551c76d222511b",
+  "continuationWindow": {
+    "window": "POST_WINDOW_05_WINDOW_06",
+    "name": "POST_WINDOW_05_WINDOW_06",
+    "replacementSlots": [64, 65],
+    "primaries": [66, 67, 68],
+    "ordinalWithinTheRemainder": 1,
+    "windowsRemainingUnderTheResumedRemainder": 3,
+    "windowsExecutedUnderTheResumedRemainder": 0,
+    "maxLiveAttemptsRemainingUnderTheResumedRemainder": 15,
+    "liveAttemptsConsumedUnderTheResumedRemainder": 0,
+    "liveAttemptsThisWindowWouldConsume": 5,
+    "isTheFinalOrdinaryWindowUnderTheRemainder": false,
+    "afterItsAdjudication": "if it ends cleanly, recompute canonical state FROM SCRATCH and construct the next window mechanically, within the remaining cap. If any pause fires, STOP",
+    "wasNotPrecommittedBeforeWindow05": "deliberately. Window 05's own outcomes decided this composition: had R:64:23 and P:65 both succeeded, this window would have begun at P:66 with no replacements at all"
+  },
+  "bound": {
+    "ownerContinuationDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_05_P5_REVIEW_AND_REMAINING_AUTHORITY_RESUME_V1.json",
+      "sha256": "95dd29e09a3cde55e88cd28a0553bc5016631da457dbcf8145d8f202be455c16",
+      "bytes": 14039,
+      "commit": "bff76032c0bbe26de797aea061551c76d222511b",
+      "terminalState": "PHASE_2B_2D_A2_WINDOW_05_P5_REVIEWED_AND_REMAINING_AUTHORITY_RESUMED_3_WINDOWS_15_ATTEMPTS"
+    },
+    "originalOwnerAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_04_P5_REVIEW_AND_CORPUS_ACQUISITION_RESUME_V1.json",
+      "sha256": "31482acb1daac08fc15b7de5e9b92c4d2e054a9182de2e87eb18e4c7c730d2f8",
+      "bytes": 24447,
+      "commit": "b9248ab00be140217a6e4e144a6bdf334f33b411",
+      "grantName": "RESUME_BOUNDED_Q1_REPLACEMENT_AND_PRIMARY_ACQUISITION_V1",
+      "capIsNotRefilled": true
+    },
+    "generationTransportReview": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION1_TRANSPORT_FAILURE_REVIEW_AFTER_WINDOW_05_V1.json",
+      "sha256": "8c1bcfd510cc424d0353c7cb25292fb15e5954659fbfe0565f3d6fe25a7a22c3",
+      "bytes": 35646,
+      "commit": "7938e87c2c12e86aae8d2d64a8400da7a687545f",
+      "conclusion": "GENERATION_TRANSPORT_REVIEW_NO_COMMON_SYSTEMIC_DEFECT_ESTABLISHED"
+    },
+    "window05Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_04_WINDOW_05_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "0a04e88ecfb2a9d2c357563cf3b2c32908ddbf07ca26d56af25ec90ede7e765b",
+      "bytes": 22867,
+      "commit": "b5a06b4332b379b46c19bf976b6413a30966363d",
+      "role": "the source of the two obligations this window serves"
+    },
+    "window05LiveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_04_WINDOW_05_LIVE_RESULT_V1.json",
+      "sha256": "51981b7c1af454a96f6160fc7df6734df035c9833922f88c79a191e8a8d0f0a3",
+      "bytes": 23936
+    },
+    "window05Strategy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_04_WINDOW_05_STRATEGY_V1.json",
+      "sha256": "8036e84d9b10fd13b4ddd50e865f691184609c046304fe4990a9192f86023706",
+      "bytes": 34145,
+      "role": "the immediately preceding strategy, cited so its replay can be probed against this ledger revision"
+    },
+    "operationalVantageRule": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_DNS64_NAT64_OPERATOR_VANTAGE_EVIDENCE_INTEGRITY_ADJUDICATION_V1.json",
+      "sha256": "5f901c1c5e0f2248e7e50887187dc1bcce06ace8b852b8c65d0be35547f655bc",
+      "bytes": 16719,
+      "ruleId": "DNS64_NAT64_OPERATOR_VANTAGE_REFUSAL_DOES_NOT_CREATE_REPLACEMENT_OBLIGATION_V1",
+      "carriedForward": true,
+      "broadenedHere": false
+    },
+    "ownerReserveOrderClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "bytes": 18443
+    },
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306,
+      "amendedHere": false
+    },
+    "corpusAcquisitionPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e"
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650"
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "3ca6c9eff072b17afac1c6adc5c36c162a84e7017ac1bf42257a0abb7bca6c67",
+      "bytes": 19516,
+      "ledgerHash": "c9fdb2e3ce19f53d55bf45d7ebb0c74db29a5b43334264d80f10cd9c98861234",
+      "entries": 24,
+      "isThePreAppendRevision": true
+    }
+  },
+  "currentGenerationState": {
+    "recomputedFromScratch": "every slot's current occupant was resolved from the frozen draw plus the 24-entry ledger, each occupant's latest run was read from the working database, and the class map was counted independently. The Window-05 adjudication was NOT the source; it agrees.",
+    "ACQUISITION_SUCCESSFUL": 63,
+    "ACQUISITION_SUCCESSFUL_RANGES": ["0..58", "60..63"],
+    "CURRENT_ACQUISITION_FAILURE": [64, 65],
+    "PENDING_CAPABILITY_REVIEW": [59],
+    "NEVER_STARTED_FROM": 66,
+    "NEVER_STARTED_TO": 109,
+    "NEVER_STARTED_COUNT": 44,
+    "totalSelectionSlots": 110,
+    "accounting": "63 + 2 + 1 + 44 = 110",
+    "setsAreDisjoint": true,
+    "setsCoverExactly0To109": true,
+    "pendingReplacementObligations": [
+      {
+        "selectionIndex": 64,
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+      },
+      {
+        "selectionIndex": 65,
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+      }
+    ],
+    "nextNeverStartedSelectionIndex": 66,
+    "replacementLedgerEntries": 24,
+    "reserveConsumed": 24,
+    "reserveUnused": 16,
+    "nextUnusedReservePosition": 24,
+    "p6": {
+      "result": "NOT_TRIGGERED"
+    },
+    "databaseCrossCheckAtStrategyTime": {
+      "runs": 99,
+      "completions": 99,
+      "fetchObservations": 2648,
+      "redirectObservations": 197,
+      "pageEvidence": 1971,
+      "pageCandidates": 3942,
+      "blockedByPolicyObservations": 6,
+      "runsWithoutCompletion": 0,
+      "unchangedSinceWindow05": true
+    }
+  },
+  "q1Derivation": {
+    "rule": "Owner Clarification Q1: obligations are served in ascending selectionIndex order; reserves are assigned in ascending frozen rank order",
+    "derivedIndependently": true,
+    "derivationNote": "the two CURRENT_ACQUISITION_FAILURE slots were taken from the recomputed status map. planPendingReplacementObligations was NOT used as the ordering authority; it was used only to derive the reserve POSITIONS once the order was fixed",
+    "order": [64, 65],
+    "orderRendered": "64 -> 65",
+    "previousQ1IsNotCarriedForward": {
+      "previousQ1": "63 -> 64",
+      "whyItIsStale": "slot 63 closed successfully in Window 05 with reserve 22, and slot 65 newly failed. Replaying the old queue would spend a reserve on a slot that owes nothing and would leave slot 65 unserved",
+      "recomputedFromTheCommittedChain": true
+    },
+    "slot59NotInTheQueue": true,
+    "whyNoSlot59Obligation": "P:59 has not been adjudicated unsuccessful. An obligation carries a Q3 reason, and creating one would decide the question the bound owner decision deliberately leaves open",
+    "theOrderingCounterfactualIsRefused": {
+      "counterfactual": "if P:59 later fails, 59 < 64, so it should be queued ahead of 64 now",
+      "refused": true,
+      "why": "Q1 sorts ACTUAL obligations. P:59 holds none, so there is nothing to sort. If it later receives a failure adjudication its obligation enters Q1 at that future planning point, and reserves 24 and 25 - already consumed by then - are not retroactively reordered or revoked"
+    },
+    "nothingOtherThanSelectionIndexWasConsulted": true,
+    "notConsulted": [
+      "institution identity",
+      "country",
+      "split",
+      "failure type",
+      "expected yield",
+      "semantic evidence",
+      "hostname",
+      "prior robots behaviour",
+      "how many times a slot has already been replaced"
+    ]
+  },
+  "reserveAssignmentDerivation": {
+    "function": "planPendingReplacementObligations(draw, twenty-four-entry ledger, [64, 65])",
+    "nextUnusedReservePositionBefore": 24,
+    "derived": [
+      {
+        "selectionIndex": 64,
+        "reserveRankPosition": 24
+      },
+      {
+        "selectionIndex": 65,
+        "reserveRankPosition": 25
+      }
+    ],
+    "monotonic": true,
+    "noPositionReused": true,
+    "everyPositionPreviouslyUnassigned": "ledger entry k consumes position k for k in 0..23; positions 24 and 25 appear in no committed entry",
+    "positionsAreIndependentOfIdentity": "the positions were assigned before any reserve draw entry was read. Only after they were fixed were draw.reserve[24] and draw.reserve[25] looked up, mechanically",
+    "reserve26IsNotAssignedHere": "position 26 stays UNASSIGNED. It is not held in reserve for a failure this window might produce - a live failure creates an obligation for a LATER planning point, never a second reserve inside the same window"
+  },
+  "windowSize": {
+    "plannedWindowSize": 5
+  },
+  "selectedOption": {
+    "option": "REPLACEMENTS_FIRST_THEN_NEXT_UNTOUCHED_PRIMARIES",
+    "derivation": "two determinate obligations exist, so they take positions 1 and 2 in ascending selectionIndex order; the remaining three positions are filled with the next never-started primaries in ascending order from 66, skipping nothing",
+    "whyThreePrimariesRatherThanFewer": "the window size is exactly 5 whenever at least five executable work items remain, and 2 obligations plus 44 never-started primaries leaves far more than five",
+    "eachPrimarySlotWasCheckedUnreplaced": "the current occupant was evaluated for 66, 67 and 68; every one is ORIGINAL_SELECTION and NEVER_STARTED, so none has been replaced and none is a disguised repeat",
+    "slot64IsOnItsSecondOccupant": "slot 64's chain is ORIGINAL_SELECTION then RESERVE_REPLACEMENT at position 23. Reserve 24 is therefore its SECOND replacement, and replacesOccupant is RESERVE_REPLACEMENT - not ORIGINAL_SELECTION",
+    "slot65IsOnItsFirst": "slot 65 appears in no committed ledger entry, so its occupant is ORIGINAL_SELECTION and reserve 25 is its first replacement"
+  },
+  "candidateWindow": {
+    "workItems": [
+      {
+        "order": 1,
+        "workItemId": "R:64:24",
+        "kind": "REPLACEMENT",
+        "selectionIndex": 64,
+        "split": "DEV_CONFIRM",
+        "drawEntryKind": "RESERVE",
+        "drawEntrySha256": "c01d75ff5a1d7d57aeca25c1ffd97d1fb21c860d3cb56043f6b6cc3c7651a211",
+        "reserveRankPosition": 24,
+        "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacesOccupant": "RESERVE_REPLACEMENT"
+      },
+      {
+        "order": 2,
+        "workItemId": "R:65:25",
+        "kind": "REPLACEMENT",
+        "selectionIndex": 65,
+        "split": "FINAL_HOLDOUT",
+        "drawEntryKind": "RESERVE",
+        "drawEntrySha256": "2ca4c3dbfaaef88fa8eef521873f3fd1ab7ea05ac17b8fff83823e92737963af",
+        "reserveRankPosition": 25,
+        "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacesOccupant": "ORIGINAL_SELECTION"
+      },
+      {
+        "order": 3,
+        "workItemId": "P:66",
+        "kind": "PRIMARY",
+        "selectionIndex": 66,
+        "split": "DEV_TRAIN",
+        "drawEntryKind": "SELECTION",
+        "drawEntrySha256": "f8f055832b9267b25212a820b08f535e7bed92caf66f5ba3a2f8dd73e4d8b7fc",
+        "reserveRankPosition": null,
+        "replacementReason": null,
+        "replacesOccupant": null
+      },
+      {
+        "order": 4,
+        "workItemId": "P:67",
+        "kind": "PRIMARY",
+        "selectionIndex": 67,
+        "split": "DEV_CONFIRM",
+        "drawEntryKind": "SELECTION",
+        "drawEntrySha256": "635d55080aedf676ce2bf74e34b4093ad510561e9112781005a92ae66f857815",
+        "reserveRankPosition": null,
+        "replacementReason": null,
+        "replacesOccupant": null
+      },
+      {
+        "order": 5,
+        "workItemId": "P:68",
+        "kind": "PRIMARY",
+        "selectionIndex": 68,
+        "split": "FINAL_HOLDOUT",
+        "drawEntryKind": "SELECTION",
+        "drawEntrySha256": "9a4a95216ebd95d7b8b075833f9b6703bcf88723fccd039b3c8442eff0b97316",
+        "reserveRankPosition": null,
+        "replacementReason": null,
+        "replacesOccupant": null
+      }
+    ],
+    "replacementItems": 2,
+    "primaryItems": 3,
+    "exactOrderRendered": "R:64:24 -> R:65:25 -> P:66 -> P:67 -> P:68",
+    "noOtherCompositionIsAuthorised": true,
+    "everyDrawEntrySha256RecomputedHere": "each digest was recomputed with the landed drawEntrySha256 over the frozen draw bytes, not copied from the owner task text and not copied from any earlier record",
+    "splitsAreTheSELECTIONSLOTSSplits": "a replacement inherits the SELECTION SLOT's split, never a split of its own. Reserve entries carry no split in the frozen draw"
+  },
+  "frozenSplitCrossCheck": {
+    "recomputedFromTheFrozenDrawDirectly": true,
+    "slot64": "DEV_CONFIRM",
+    "slot65": "FINAL_HOLDOUT",
+    "slot66": "DEV_TRAIN",
+    "slot67": "DEV_CONFIRM",
+    "slot68": "FINAL_HOLDOUT",
+    "splitComposition": {
+      "DEV_CONFIRM": 2,
+      "FINAL_HOLDOUT": 2,
+      "DEV_TRAIN": 1
+    },
+    "splitCompositionIsASelectionTarget": false,
+    "splitCompositionNote": "an OUTCOME of Q1 ordering and the next-untouched-primary rule. No split was balanced, preferred or avoided",
+    "holdoutInThisWindow": [65, 68],
+    "holdoutHandling": "slot 65 (served by reserve 25) and P:68 are FINAL_HOLDOUT. Their acquisition proceeds exactly as any other item, and their page evidence is never inspected, summarised or described in any record. Only structural counts appear, and their sealed SD7 detail goes only to the holdout root",
+    "twoHoldoutItemsInOneWindowIsIncidental": "it follows from the frozen draw at slots 65 and 68. Nothing balanced or avoided it"
+  },
+  "derivedThresholds": {
+    "plannedWindowSize": 5,
+    "p1ConsecutiveRootAuthorityFailures": 3,
+    "p2ConsecutiveRobotsRefusals": 3,
+    "p2BatchPercentStrictlyAbove": 40,
+    "p2ThresholdCount": 3,
+    "p2Derivation": "strictPercentThresholdCount(5, 40) = 3",
+    "p3ConsecutiveFailedRuns": 2,
+    "p5BatchPercentStrictlyAbove": 30,
+    "p5ThresholdCount": 2,
+    "p5Derivation": "strictPercentThresholdCount(5, 30) = 2",
+    "p5MinRawPageEvidence": 4,
+    "sd9MinPagesPerOrganisation": 4,
+    "computedFromTheLandedContractNotRestated": true,
+    "windowLocalCountersStartAtZero": "under Q4 this window starts with fresh P1/P2/P3/P5 state. The Window-05 P5 count does NOT carry"
+  },
+  "p6AfterTheWindowsAppend": {
+    "rule": "reserveConsumed > 10 AND successfulOrganisationCount < 50",
+    "reserveConsumedAfterAppendingTwo": 26,
+    "successfulOrganisationCountAtAppendTime": 63,
+    "evaluation": "26 > 10 is TRUE; 63 < 50 is FALSE; the conjunction is FALSE",
+    "fires": false,
+    "thresholdChangedHere": false
+  },
+  "plannedLedgerTransition": {
+    "entriesBefore": 24,
+    "appendsPlanned": 2,
+    "entriesAfter": 26,
+    "plannedSequence24": {
+      "selectionIndex": 64,
+      "reserveRankPosition": 24,
+      "replacedOccupantKind": "RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 23,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    },
+    "plannedSequence25": {
+      "selectionIndex": 65,
+      "reserveRankPosition": 25,
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "previousSequenceForSlot": null,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    },
+    "reserveConsumedAfter": 26,
+    "nextUnusedReservePositionAfter": 26,
+    "theAppendIsNotMadeHere": "it is a separate pre-network record, made under the live authority and committed BEFORE any institution request",
+    "whyTheAppendMustFollowTheAuthority": "the strategy and plan bind the PRE-append 24-entry revision. Appending first would make the strategy's own ledger binding unverifiable"
+  },
+  "replacementChain": {
+    "slot64": ["ORIGINAL_SELECTION", "RESERVE_REPLACEMENT@23", "RESERVE_REPLACEMENT@24 (planned)"],
+    "slot65": ["ORIGINAL_SELECTION", "RESERVE_REPLACEMENT@25 (planned)"],
+    "rule": "SAME_SELECTION_SLOT_APPEND_ONLY_ACROSS_PRECOMMITTED_WINDOWS (Owner Clarification Q2)",
+    "slot64IsTheFirstSecondGenerationReplacementInThisWindowSeries": "its previousSequenceForSlot is 23, not null, which is exactly the field that records a chain rather than a first replacement"
+  },
+  "failureSemantics": {
+    "aFailedReplacementCreatesANewSameSlotObligation": true,
+    "aFailedPrimaryCreatesAnObligationForItsOwnSlot": true,
+    "noObligationIsCreatedByThisRecord": true,
+    "anUnstartedItemOwesNothing": "an item a pause prevents from starting stays NEVER_STARTED, consumes no reserve and creates no obligation"
+  },
+  "thisStrategyDoesNot": [
+    "authorise any institution network request",
+    "append to the replacement ledger",
+    "assign a reserve",
+    "create or discharge any obligation",
+    "touch, classify, rerun or replace slot 59",
+    "alter SD7 or amend methodology R3",
+    "promote the operational vantage rule into methodology",
+    "repair the strategy adapter",
+    "retry any failed occupant",
+    "change any budget, timeout, TLS setting, DNS behaviour or fetch-policy version",
+    "extend the remaining cap of 3 windows and 15 attempts"
+  ],
+  "negativeProbes": {
+    "purpose": "each probe constructs a WRONG strategy variant and requires either the landed adapter or the independent current-state governance check to REFUSE it. Adapter acceptance alone is never sufficient authority",
+    "twoLayerModel": {
+      "layer1": "the landed windowSpecFromAcquisitionWindowStrategy adapter - structure, digests, splits, reserve ordering, ledger binding, occupant kind, and internal consistency with the strategy’s OWN declared state",
+      "layer2": "an INDEPENDENT current-state governance check, run here, whose only inputs are the independently derived ACQUISITION_SUCCESSFUL / CURRENT_ACQUISITION_FAILURE / PENDING_CAPABILITY_REVIEW / NEVER_STARTED sets and the committed ledger",
+      "whyLayer2Exists": "the adapter has no access to acquisition outcomes, so it cannot tell whether the state a strategy DECLARES is the state that actually holds. Layer 2 is the only layer that can"
+    },
+    "probes": [
+      {
+        "id": 1,
+        "name": "SUCCESSFUL_SLOT_RESERVED_WITH_CORRECT_DIGESTS",
+        "layer": 2,
+        "variant": "slot 63 - adjudicated ACQUISITION_SUCCESSFUL in Window 05 - is served as R:63:24 with the CORRECT reserve-24 draw-entry digest, slot 63’s own split, correct monotonic reserve ordering, the ledger-derived occupant kind, and the strategy’s own declared state edited so every internal consistency check still passes",
+        "mustRefuseBecause": "slot 63 is ACQUISITION_SUCCESSFUL in the independently derived state. It owes nothing, and re-serving it would spend a reserve on a closed slot and discard a good acquisition of record",
+        "expectedAdapterBehaviour": "ACCEPT - this is the recorded adapter limitation, not a defect introduced here",
+        "requiredGovernanceBehaviour": "REFUSE",
+        "whyThisProbeMatters": "it is constructed so that NO digest, split, ordering or ledger-binding check at layer 1 can catch it: the reserve-24 digest is byte-correct, the split is slot 63’s own from the frozen draw, the reserve ordering is monotonic, the occupant kind is the one the ledger derives, and the strategy’s OWN declared state was edited so every internal consistency check still passes. If the refusal happens, it is demonstrably a CURRENT-STATE refusal",
+        "measuredAdapterOutcome": "ACCEPTED",
+        "measuredAdapterMessage": "",
+        "measuredGovernanceOutcome": "REFUSED",
+        "measuredGovernanceMessage": "declared CURRENT_ACQUISITION_FAILURE [63,65] != independently derived [64,65] | R:63:24: slot 63 holds no current obligation in the derived state (it is ACQUISITION_SUCCESSFUL or pending) | replacement order [63,65] != Q1 ascending obligations [64,65] | R:63:24: not the planner's assignment at replacement 0 (expected slot 64 / reserve 24)",
+        "refusedByAtLeastOneLayer": true
+      },
+      {
+        "id": 2,
+        "name": "FORGED_SUCCESS_COUNT",
+        "layer": 2,
+        "variant": "ACQUISITION_SUCCESSFUL is overstated to 96, with every other field left internally consistent",
+        "mustRefuseBecause": "the declared count must equal the independently derived count of 63",
+        "expectedAdapterBehaviour": "ACCEPT - at a 24-entry ledger P6 is NOT_TRIGGERED for any value at or above 50, so P6 consistency cannot detect an overstatement above the floor. Landed limitation",
+        "requiredGovernanceBehaviour": "REFUSE",
+        "measuredAdapterOutcome": "ACCEPTED",
+        "measuredAdapterMessage": "",
+        "measuredGovernanceOutcome": "REFUSED",
+        "measuredGovernanceMessage": "declared ACQUISITION_SUCCESSFUL 96 != independently derived 63",
+        "refusedByAtLeastOneLayer": true
+      },
+      {
+        "id": 3,
+        "name": "WRONG_Q1_ORDER",
+        "layer": 1,
+        "variant": "the two replacements are served 65 then 64, so slot 65 takes reserve 24 and slot 64 takes reserve 25",
+        "mustRefuseBecause": "Q1 orders obligations by ascending selectionIndex and assigns reserves monotonically, so 64 must be served first and must take reserve 24",
+        "measuredAdapterOutcome": "REFUSED",
+        "measuredAdapterMessage": "the acquisition-window strategy cannot bind a spec: R:65:24: not the planner's slot/reserve assignment at replacement 0",
+        "measuredGovernanceOutcome": "REFUSED",
+        "measuredGovernanceMessage": "declared CURRENT_ACQUISITION_FAILURE [65,64] != independently derived [64,65] | replacement order [65,64] != Q1 ascending obligations [64,65] | R:65:24: not the planner's assignment at replacement 0 (expected slot 64 / reserve 24) | R:64:25: not the planner's assignment at replacement 1 (expected slot 65 / reserve 25)",
+        "refusedByAtLeastOneLayer": true
+      },
+      {
+        "id": 4,
+        "name": "WRONG_CURRENT_OCCUPANT",
+        "layer": 1,
+        "variant": "R:64:24 claims replacesOccupant ORIGINAL_SELECTION, although slot 64 already holds reserve 23",
+        "mustRefuseBecause": "slot 64 carries ledger entry 23, so its current occupant is RESERVE_REPLACEMENT and reserve 24 is its SECOND replacement",
+        "measuredAdapterOutcome": "REFUSED",
+        "measuredAdapterMessage": "the acquisition-window strategy cannot bind a spec: R:64:24: claimed occupant kind is not the ledger's (RESERVE_REPLACEMENT)",
+        "measuredGovernanceOutcome": "REFUSED",
+        "measuredGovernanceMessage": "R:64:24: declared replacesOccupant ORIGINAL_SELECTION != ledger-derived RESERVE_REPLACEMENT",
+        "refusedByAtLeastOneLayer": true
+      },
+      {
+        "id": 5,
+        "name": "P59_INSERTED",
+        "layer": 1,
+        "variant": "P:59 replaces P:66 as the first primary",
+        "mustRefuseBecause": "primaries must be the next never-started slots from index 66; slot 59 is under capability review and is not never-started",
+        "measuredAdapterOutcome": "REFUSED",
+        "measuredAdapterMessage": "the acquisition-window strategy cannot bind a spec: P:59: primaries must be the next never-started slots in frozen order",
+        "measuredGovernanceOutcome": "REFUSED",
+        "measuredGovernanceMessage": "P:59: slot 59 is not an actual current NEVER_STARTED slot | primary indices [59,67,68] are not the next never-started slots [66,67,68]",
+        "refusedByAtLeastOneLayer": true
+      },
+      {
+        "id": 6,
+        "name": "R25_BEFORE_R24",
+        "layer": 1,
+        "variant": "the order stays 64 then 65 but the reserve positions are exchanged, so slot 64 claims reserve 25 and slot 65 claims reserve 24",
+        "mustRefuseBecause": "the planner's assignment is 64 to 24 and 65 to 25; nothing else binds",
+        "measuredAdapterOutcome": "REFUSED",
+        "measuredAdapterMessage": "the acquisition-window strategy cannot bind a spec: R:64:25: not the planner's slot/reserve assignment at replacement 0",
+        "measuredGovernanceOutcome": "REFUSED",
+        "measuredGovernanceMessage": "R:64:25: not the planner's assignment at replacement 0 (expected slot 64 / reserve 24) | R:65:24: not the planner's assignment at replacement 1 (expected slot 65 / reserve 25)",
+        "refusedByAtLeastOneLayer": true
+      },
+      {
+        "id": 7,
+        "name": "P69_INSTEAD_OF_P66",
+        "layer": 1,
+        "variant": "the primaries are P:69, P:67, P:68 - a never-started slot, but not the NEXT one",
+        "mustRefuseBecause": "primaries must be CONTIGUOUS from nextNeverStartedSelectionIndex = 66 in frozen order, so skipping 66 is refused even though 69 is itself never-started",
+        "measuredAdapterOutcome": "REFUSED",
+        "measuredAdapterMessage": "the acquisition-window strategy cannot bind a spec: P:69: primaries must be the next never-started slots in frozen order",
+        "measuredGovernanceOutcome": "REFUSED",
+        "measuredGovernanceMessage": "primary indices [69,67,68] are not the next never-started slots [66,67,68]",
+        "refusedByAtLeastOneLayer": true
+      },
+      {
+        "id": 8,
+        "name": "SPENT_STRATEGY_REPLAY",
+        "layer": 1,
+        "variant": "the Window-05 strategy bytes, already spent, are fed to the adapter against this 24-entry ledger",
+        "mustRefuseBecause": "its bound ledger revision is the twenty-two-entry one, so the ledger binding will not match",
+        "measuredAdapterOutcome": "REFUSED",
+        "measuredAdapterMessage": "the acquisition-window strategy cannot bind a spec: the supplied ledger bytes are not the bound starting revision",
+        "measuredGovernanceOutcome": "NOT_APPLICABLE",
+        "measuredGovernanceMessage": "the variant is a different file’s bytes, not a mutation of this candidate, so layer 2 has no candidate window of this record to check",
+        "refusedByAtLeastOneLayer": true
+      }
+    ],
+    "executed": true,
+    "executedAgainst": "the exact committed strategy bytes, mutated one probe at a time, fed BOTH to the landed windowSpecFromAcquisitionWindowStrategy against the real 24-entry ledger AND to the independent current-state governance check",
+    "totalProbes": 8,
+    "refusedByAtLeastOneLayerCount": 8,
+    "acceptedByBothLayersCount": 0,
+    "refusedByTheAdapterCount": 6,
+    "refusedByGovernanceCount": 7,
+    "probesTheAdapterAcceptedAndGovernanceCaught": [1, 2],
+    "everyProbeTheOwnerTaskNamedWasRun": {
+      "already-successful slot with CORRECT digest": 1,
+      "forged success count with internally consistent fields": 2,
+      "wrong Q1 order": 3,
+      "wrong current occupant": 4,
+      "P59 insertion": 5,
+      "R25 before R24": 6,
+      "P69 instead of P66": 7,
+      "spent strategy replay": 8
+    },
+    "positiveControl": {
+      "layer1Bound": true,
+      "layer1Order": "R:64:24 -> R:65:25 -> P:66 -> P:67 -> P:68",
+      "layer1PlannedWindowSize": 5,
+      "layer1ReplacementItems": 2,
+      "layer1PrimaryItems": 3,
+      "layer1StartingLedgerEntryCount": 24,
+      "layer1StateAtPlanTime": {
+        "successfulSelectionSlots": 63,
+        "currentAcquisitionFailures": 2,
+        "pendingReplacementObligations": 2,
+        "nextNeverStartedSelectionIndex": 66,
+        "replacementLedgerEntries": 24,
+        "reserveConsumed": 24,
+        "reserveUnused": 16,
+        "nextUnusedReservePosition": 24,
+        "p6Fires": false,
+        "liveAuthorityGranted": false
+      },
+      "layer2Violations": 0,
+      "layer2Note": "the committed candidate agrees with the independently derived state on every class and every work item",
+      "positiveControlWasReRunAgainstTheFINALCommittedBytes": "yes - the adapter re-hashes whatever bytes it is handed, so it was run again after this probe block was inserted, and it bound the same spec"
+    },
+    "adapterLimitationProofForTheRightReason": {
+      "probe": 1,
+      "constructedSoThatNoDigestCheckCouldCatchIt": true,
+      "whatWasCorrectInTheVariant": [
+        "the reserve-24 draw-entry digest, byte-for-byte",
+        "slot 63's own split, read from the frozen draw (FINAL_HOLDOUT)",
+        "monotonic reserve ordering 24 then 25",
+        "the ledger binding to the real 24-entry revision",
+        "replacesOccupant RESERVE_REPLACEMENT, which the ledger does derive for slot 63",
+        "the strategy's OWN declared state, edited to list 63 as a current failure with a pending obligation so every internal consistency check still passed"
+      ],
+      "adapterOutcome": "ACCEPTED",
+      "adapterAcceptanceIsTheRecordedLimitation": "STRATEGY_ADAPTER_HAS_NO_ACQUISITION_OUTCOME_ACCESS_V1. It is not a defect introduced here and it is not fixed here",
+      "governanceOutcome": "REFUSED",
+      "governanceReason": "slot 63 is ACQUISITION_SUCCESSFUL in the independently derived state and owes nothing",
+      "theRefusalIsDemonstrablyACurrentStateRefusal": "the adapter - which owns every digest, split, ordering and ledger-binding check - accepted it. The only thing that refused it was the comparison against the derived acquisition outcomes"
+    },
+    "knownAdapterLimitations": {
+      "noAcquisitionOutcomeAccess": "proved again by probe 1 with every digest correct. Defence: layer 2, run here and again at every later planning point",
+      "forgedSuccessCount": "proved again by probe 2. At a 24-entry ledger P6 is NOT_TRIGGERED for any value at or above 50, so a forged value above the floor passes layer 1. Defence: layer 2 compares the declared count with the independently derived 63",
+      "spentStrategyReplay": "probe 8 refused here only because Window 05 binds the twenty-two-entry ledger revision. The adapter WOULD accept a spent strategy replayed against a ledger revision that still matches its own binding, because the ledger records no acquisition success. That general defence is procedural plus layer 2"
+    },
+    "newAdapterFindingFromThisWindow": {
+      "finding": "none. No previously unrecorded adapter weakness was found by these eight probes.",
+      "whatWasNewInTHISWindowsShape": "slot 64 is the first obligation in this series whose occupant is already a RESERVE_REPLACEMENT rather than an ORIGINAL_SELECTION. Probe 4 confirms the adapter DOES derive and enforce the occupant kind from the ledger at layer 1, so a second-generation replacement is not a gap."
+    },
+    "noProductionOrHarnessCodeWasChangedToMakeAnyProbeRefuse": true,
+    "layer2IsGovernanceNotCode": "the independent check is an offline governance step executed in this task. It is deliberately NOT landed as harness code, because the bound owner decision authorises no code change"
+  },
+  "scopeProofs": {
+    "networkRequestsByThisRecord": 0,
+    "databaseRowsWrittenByThisRecord": 0,
+    "productionFilesChangedByThisRecord": 0,
+    "harnessFilesChangedByThisRecord": 0,
+    "migrationsAddedByThisRecord": 0,
+    "ledgerEntriesAppendedByThisRecord": 0,
+    "reservesAssignedByThisRecord": 0,
+    "sealedEvidenceFilesCreatedByThisRecord": 0
+  },
+  "identityDisclosure": {
+    "institutionNamesInThisRecord": false,
+    "hostnamesInThisRecord": false,
+    "echeRowKeysInThisRecord": false,
+    "organisationUuidsInThisRecord": false,
+    "whatIdentifiesAWorkItem": "a selection index, a reserve rank position and a draw-entry sha256 - nothing else"
+  },
+  "nextStep": "build the Window-06 plan through the landed generic builders against these exact strategy bytes, then the live authority, then append reserves 24 and 25, then re-prove the vantage, then execute.",
+  "terminalState": "PHASE_2B_2D_A2_POST_WINDOW_05_WINDOW_06_STRATEGY_RECORDED",
+  "immutability": "append-only. Once committed these bytes are the spec the plan is checked against and are never edited."
+}
