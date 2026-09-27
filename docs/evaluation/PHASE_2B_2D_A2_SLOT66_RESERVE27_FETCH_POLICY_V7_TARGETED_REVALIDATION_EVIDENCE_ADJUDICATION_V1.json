@@ -1,0 +1,341 @@
+{
+  "recordId": "phase2b-2d-a2-slot66-reserve27-fetch-policy-v7-targeted-revalidation-evidence-adjudication-v1",
+  "recordKind": "TARGETED_CAPABILITY_REVALIDATION_EVIDENCE_ADJUDICATION",
+  "records": "PHASE_2B_2D_A2_SLOT66_RESERVE27_FETCH_POLICY_V7_TARGETED_REVALIDATION_EVIDENCE_ADJUDICATION_V1",
+  "recordedAtUtc": "2026-09-27T14:26:06Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "networkUsed": "none. Read-only queries against the working database and read-only reads of committed records",
+  "databaseWrittenByThisRecord": "none",
+  "ledgerAppendedByThisRecord": false,
+  "reserveConsumedByThisRecord": 0,
+  "startingHead": "4e1e967b66ec042c9b8cea23ac0c627259667d44",
+  "startingHeadIsTheValidatedLiveResultCommit": true,
+
+  "bound": {
+    "liveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_SLOT66_RESERVE27_FETCH_POLICY_V7_TARGETED_REVALIDATION_AUTHORITY_V1.json",
+      "sha256": "288d822c47bd1152f9e916d8eb6ecac68829bb58f5c2fa2d9af402110e7640dc",
+      "bytes": 15435,
+      "commit": "4a7e3b494ca957d4fff5192f1312c61980b775b6",
+      "providesTheAdjudicationRulesFixedInAdvance": true
+    },
+    "liveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_SLOT66_RESERVE27_FETCH_POLICY_V7_TARGETED_REVALIDATION_RESULT_V1.json",
+      "sha256": "16f8a6af9b95c603b6df3b9fe3ddf8d2a5b73f9e337a4b64d65544dc8feff9de",
+      "bytes": 14070,
+      "commit": "4e1e967b66ec042c9b8cea23ac0c627259667d44"
+    },
+    "v7PolicyRepair": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_ROBOTS_TRAILING_SLASH_FETCH_POLICY_V7_REPAIR_V1.json",
+      "sha256": "4231660bd5eb5ce0f20e8a235b5d687b544b18ca595e92979c01a2f19ae92a49"
+    },
+    "adr0016": {
+      "path": "docs/adr/0016-trailing-slash-robots-redirect-continuation.md",
+      "sha256": "7067466be7755ab46501ec0da73b72b6931e6f6bcc546aea7fce62c444396391"
+    },
+    "window07Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_06_WINDOW_07_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "3b77909986fa8c7fd8f3c3d7829f6c4f7a46a55fa9d2aca02d452bd4cef728a5",
+      "terminalState": "PHASE_2B_2D_A2_POST_WINDOW_06_WINDOW_07_ADJUDICATED_P5_PAUSE_FINAL_WINDOW_NOT_SELF_AUTHORISED"
+    },
+    "ownerReserveOrderClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "providesQ3": true
+    },
+    "shortTextOwnerDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_SD7_SHORT_TEXT_OWNER_DECISION_V1.json",
+      "decision": "SHORT_TEXT_AMBIGUITY_BLOCKS_ONLY_WHEN_IT_CAN_CHANGE_SD9",
+      "loadBearingHere": "no - this run's post-SD7 count is 0 EXACT, decided by case A, with no short-text ambiguity to resolve"
+    },
+    "replacementLedgerAtAdjudicationTime": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "entries": 28,
+      "ledgerHash": "6f65c4fbeac78a2578dd7f3b8007964e78fd28bec8e7709992bcbe7f082ca2d0",
+      "unchangedByThisRecord": true
+    }
+  },
+
+  "evidenceIntegrityStandard": {
+    "runRefDerivationUsed": "this LIVE_RESULT's own declared derivation: sha256(the run id as its lower-case canonical UUID text, UTF-8, no separator, no salt)",
+    "runRefMatchesTheLiveResult": true,
+    "runResolvedViaTheDeclaredDerivation": true,
+    "echeRowKeyMatchesItsAuthorisedDrawEntry": true,
+    "drawEntryDigestMatchesTheWindow07Plan": true,
+    "sd7ComputedPerRunNeverPerOrganisation": true,
+    "oldAndNewOccupantRunsWereNeverMerged": "the page-evidence query filters on the fetch observation's run_id. This slot carries the earlier v6 run for the SAME occupant, and that run's rows did not enter these counts - nor could they have, since both runs produced zero page rows",
+    "sd7RecomputedFromScratch": "with the landed analyseOrganisation over rows read fresh from the working database, not copied from the live result",
+    "q3DerivedMechanically": "with the landed replacementReasonFor over this run's own facts, not chosen by hand",
+    "operationalEnvironmentIntegrityGate": {
+      "ruleId": "DNS64_NAT64_OPERATOR_VANTAGE_REFUSAL_DOES_NOT_CREATE_REPLACEMENT_OBLIGATION_V1",
+      "applies": false,
+      "why": "its first clause requires a pre-socket BLOCKED_BY_POLICY refusal by the landed address classifier. This run produced none: the database total stayed at 6, and both observations resolved to public IPv4 with zero IPv6",
+      "broadenedHere": false
+    },
+    "frozenSuccessThreshold": 4,
+    "thresholdChangedHere": false,
+    "adjudicationRulesWereFixedBeforeTheResultExisted": true,
+    "evaluationSequence": [
+      "1. the exact environment-vantage gate - passed, so the item is not excused",
+      "2. did the v7 capability actually fire? - a mechanical question about request counts, answered before any verdict",
+      "3. the success threshold - SD9 MIN_PAGES_PER_ORGANISATION = 4 over the formal post-SD7 count",
+      "4. Q3, because this is a determinate failure"
+    ]
+  },
+
+  "capabilityVerdict": {
+    "question": "did the ADR 0016 repair do what it was built to do?",
+    "answer": "YES, MECHANICALLY AND COMPLETELY",
+    "v6RobotsRequests": 1,
+    "v7RobotsRequests": 2,
+    "urlInputWasByteIdentical": true,
+    "continuationIssued": true,
+    "continuationTargetPathShape": "/robots.txt/",
+    "continuationIndependentlyValidated": true,
+    "continuationAuthorityWasTheAdr0016Factory": true,
+    "hostBudgetConsumedByTheContinuation": 0,
+    "transportRetryTokenSpent": 0,
+    "theCapabilityLimitIsCLOSED": "the question v6 could not ask has been asked and answered. A future occurrence of this redirect shape will be continued rather than refused",
+    "butTheSLOTDIDNOTRECOVER": true,
+    "andThoseAreDIFFERENTFINDINGS": "a repair is validated by whether it performs the act it authorises, not by whether that act happens to yield pages on the first origin it meets. Conflating the two would make every capability's worth hostage to one institution's server configuration"
+  },
+
+  "originVerdict": {
+    "finding": "THE ORIGIN IS IN A TWO-URL SITE-POLICY REDIRECT LOOP",
+    "edge1": { "fromPathShape": "/robots.txt", "httpStatus": 301, "toPathShape": "/robots.txt/" },
+    "edge2": { "fromPathShape": "/robots.txt/", "httpStatus": 301, "toPathShape": "/robots.txt" },
+    "loopPeriod": 2,
+    "bothEdgesWellFormed": true,
+    "bothEdgesSameHost": true,
+    "bothEdgesSameRegistrableDomain": true,
+    "neitherEdgeDowngraded": true,
+    "policyIsUnreadableByANYBoundedRetrieval": true,
+    "wouldFiveHopsHaveHelped": "NO. RFC 9309 s2.3.1.2 permits assuming unavailability beyond five consecutive redirects, and a period-2 loop reaches the same two URLs however many hops are allowed. The verdict is unavailable either way",
+    "wouldAVisitedUrlSetHaveHelped": "it would detect the cycle one hop earlier and reach the SAME verdict. It changes nothing about this outcome",
+    "isThisTheInstitutionsFault": "it is a fact about the origin's configuration, recorded without judgement. It is not a transport failure, not a Disallow, and not a statement about the institution's website as a whole",
+    "isThisAPhase2BDefect": false
+  },
+
+  "itemAdjudication": {
+    "workItemId": "R:66:27",
+    "selectionIndex": 66,
+    "reserveRankPosition": 27,
+    "split": "DEV_TRAIN",
+    "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+    "runTerminalState": "COMPLETED",
+    "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+    "rawPageCount": 0,
+    "postSd7CountMin": 0,
+    "postSd7CountMax": 0,
+    "countIsExact": true,
+    "rangeStraddlesTheThreshold": false,
+    "decidedByCase": "A",
+    "sd9Status": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+    "determinate": true,
+    "outcome": "ACQUISITION_UNSUCCESSFUL",
+    "q3Reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+    "q3Rank": 4,
+    "becomesTheAcquisitionOfRecordForSlot66": true,
+    "whyItIsTheAcquisitionOfRecord": "it is the LATEST run for slot 66's current occupant. Being the acquisition of record does not mean being a success - it means it is the run that decides this slot's current status",
+    "historicalV6RunRetained": true
+  },
+
+  "branchTaken": {
+    "branch": "B",
+    "branchBCondition": "the v7 run yielded a determinate failure",
+    "branchAWasNotTaken": "post-SD7 0 is below the frozen minimum of 4, so slot 66 did not close",
+    "pendingCapabilityReviewWasNotTriggered": "the post-SD7 count is EXACT, so no admissible treatment straddles the threshold",
+    "slot66Status": "CURRENT_ACQUISITION_FAILURE",
+    "slot66RetainsAnOpenQ1Obligation": true,
+    "slot66OccupantUnchangedByThisAdjudication": "RESERVE_REPLACEMENT at reserve rank 27",
+    "reserveAssignedByThisAdjudication": "none - an adjudication records outcomes and obligations; it never assigns a reserve"
+  },
+
+  "databaseReverification": {
+    "readIndependentlyAtAdjudicationTime": true,
+    "runs": 107,
+    "completions": 107,
+    "fetchObservations": 2780,
+    "redirectObservations": 217,
+    "pageEvidence": 2061,
+    "pageCandidates": 4122,
+    "blockedByPolicy": 6,
+    "dryRunRuns": 0,
+    "runsWithoutCompletion": 0,
+    "orphanPageEvidenceRows": 0,
+    "rootPromotions": 0,
+    "candidateRowsAreExactlyTwicePageEvidenceRows": true,
+    "v7Runs": 1,
+    "v7Observations": 2,
+    "historicalPolicyCountsUnchanged": { "v1": 7, "v2": 2, "v3": 3, "v4": 11, "v5": 0, "v6": 83 },
+    "matchesTheLiveResult": true
+  },
+
+  "generation1StateBeforeThisAdjudication": {
+    "ACQUISITION_SUCCESSFUL": 66,
+    "CURRENT_ACQUISITION_FAILURE": [66, 68],
+    "PENDING_CAPABILITY_REVIEW": [59],
+    "NEVER_STARTED": { "from": 69, "to": 109, "count": 41 },
+    "accounting": "66 + 2 + 1 + 41 = 110"
+  },
+  "generation1StateAfterThisAdjudication": {
+    "ACQUISITION_SUCCESSFUL": 66,
+    "CURRENT_ACQUISITION_FAILURE": 2,
+    "PENDING_CAPABILITY_REVIEW": 1,
+    "NEVER_STARTED": 41,
+    "totalSelectionSlots": 110,
+    "accounting": "66 + 2 + 1 + 41 = 110",
+    "setsAreDisjoint": true,
+    "setsCoverExactly0To109": true,
+    "recomputedFromScratchNotByArithmetic": "every slot's current occupant was re-resolved from the frozen draw plus the 28-entry ledger in sequence order, each occupant's LATEST run was re-read from the working database, SD7 was recomputed per run with the landed analyser, and each class was counted independently. Slot 59 was held out as pending because its formal SD7 range straddles the threshold",
+    "netSuccessfulChange": 0,
+    "doNotExtrapolate": "66 successful slots of 110; not a population success rate"
+  },
+  "generationSuccessfulSelectionIndicesRanges": ["0..58", "60..65", "67"],
+  "generationSuccessfulSelectionIndicesCount": 66,
+  "generationFailureSelectionIndices": [66, 68],
+  "pendingCapabilityReviewSelectionIndices": [59],
+  "pendingCapabilityReviewIsNotAFailure": true,
+  "newStraddlingRangesFoundAnywhere": [],
+  "neverStartedSelectionIndices": { "from": 69, "to": 109, "count": 41, "contiguous": true },
+  "nextUntouchedPrimarySelectionIndex": 69,
+
+  "q1ReplacementObligationQueue": {
+    "recomputedNotAssumed": "re-derived from the state above",
+    "previousQ1": [66, 68],
+    "currentQ1": [66, 68],
+    "unchanged": true,
+    "openReplacementObligationCount": 2,
+    "obligations": [
+      {
+        "selectionIndex": 66,
+        "split": "DEV_TRAIN",
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "q3Rank": 4,
+        "occupantToBeReplaced": "RESERVE_REPLACEMENT",
+        "currentReserveRankPosition": 27,
+        "obligationRenewedBy": "this adjudication, against the v7 acquisition of record",
+        "servedHere": false
+      },
+      {
+        "selectionIndex": 68,
+        "split": "FINAL_HOLDOUT",
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "q3Rank": 4,
+        "occupantToBeReplaced": "ORIGINAL_SELECTION",
+        "currentReserveRankPosition": null,
+        "createdBy": "the Window-07 adjudication",
+        "servedHere": false
+      }
+    ],
+    "reservesThatWouldServeThemAtTheNextPlanningPoint": "positions 28 and 29, in ascending selection-index order. NEITHER is assigned here, and this file grants no authority to assign them",
+    "slot59StillOwesNothing": true
+  },
+
+  "replacementLedger": {
+    "entriesBefore": 28,
+    "entriesAfter": 28,
+    "appendedByThisRecord": false,
+    "reserveConsumed": 28,
+    "reserveUnused": 12,
+    "nextUnusedReservePosition": 28,
+    "reservePosition28": "UNASSIGNED",
+    "reservePosition29": "UNASSIGNED",
+    "whyNoAppend": "an adjudication records outcomes and obligations; it never assigns a reserve. A targeted revalidation consumes no reserve at all"
+  },
+
+  "p6": {
+    "rule": "reserveConsumed > 10 AND successfulOrganisationCount < 50",
+    "inputsAfterThisAdjudication": { "reserveConsumed": 28, "successfulOrganisationCount": 66 },
+    "evaluation": "28 > 10 is TRUE and 66 < 50 is FALSE; the conjunction is false",
+    "status": "NOT_TRIGGERED",
+    "successFloorRemainsReached": true,
+    "amendedOrBypassedHere": false
+  },
+
+  "p5": {
+    "appliesToThisTargetedItem": false,
+    "why": "P5 divides a five-item window denominator. One targeted revalidation is not a window and has no denominator",
+    "thresholdChangedAnywhere": false,
+    "window07HistoricalPauseRemainsTrue": true,
+    "theFinalOrdinaryWindowStillOwesItsOwnP5": true
+  },
+
+  "reserveExhaustionOutlook": {
+    "reserveCount": 40,
+    "consumed": 28,
+    "unused": 12,
+    "unusedPositions": "28..39",
+    "successfulOrganisations": 66,
+    "slotsStillNeedingASuccess": 44,
+    "terminalRuleIfExhaustedBefore110Successes": "CORPUS_FREEZE_REFUSED",
+    "noBurnRateWasComputedOrInvented": true,
+    "noSmallerCorpusNoRedrawNoExtraReserves": true
+  },
+
+  "p59": {
+    "status": "PENDING_CAPABILITY_REVIEW",
+    "formalRange": [1, 24],
+    "touchedHere": false,
+    "rerunHere": false,
+    "replacedHere": false,
+    "classifiedHere": false,
+    "excludedFromQ1": true,
+    "note": "unchanged and still pending an owner SD7 detail. The v7 repair is unrelated to it: P:59's ambiguity is a short-text SD7 question, not a site-policy one"
+  },
+
+  "holdoutNonDisclosure": {
+    "finalHoldoutItemsAdjudicatedHere": [],
+    "targetSplit": "DEV_TRAIN",
+    "semanticInspectionPerformed": false,
+    "titleUrlExcerptOrHostnameInThisRecord": "none",
+    "pathShapesOnly": true,
+    "countsAndHashesOnly": true
+  },
+
+  "scopeProofs": {
+    "networkUsed": "none",
+    "databaseWritten": "none",
+    "ledgerAppended": false,
+    "reserveAssigned": "none",
+    "productionCodeChanged": "none",
+    "harnessChanged": "none",
+    "methodologyChanged": "none",
+    "q3TaxonomyChanged": "none",
+    "sd7RuleChanged": "none",
+    "sd9ThresholdChanged": "none",
+    "p5ThresholdChanged": "none",
+    "hopBoundChanged": "none",
+    "visitedUrlSetAdded": false,
+    "priorRecordsEdited": "none",
+    "p59Touched": false
+  },
+
+  "continuationStatus": {
+    "targetedRevalidationComplete": true,
+    "stopConditionsFired": 0,
+    "ordinaryChildWindowsConsumedUnderTheFinalRemainder": 1,
+    "ordinaryChildWindowsRemainingUnderTheFinalRemainder": 1,
+    "ordinaryLiveAttemptsRemainingUnderTheRemainder": 5,
+    "targetedRevalidationChargedAnOrdinaryWindow": false,
+    "whyNot": "it was authorised by its own targeted authority outside the ordinary-window cap, consumed no reserve and appended nothing. The one remaining ordinary window and its five attempts are untouched",
+    "finalWindowReleasedByThisRecord": false,
+    "nextActionRequiresTheOwnerRelease": true
+  },
+
+  "terminalState": "PHASE_2B_2D_A2_SLOT66_RESERVE27_V7_TARGETED_REVALIDATION_ADJUDICATED_CAPABILITY_CONFIRMED_SLOT_STILL_UNSUCCESSFUL",
+  "nextOwnerDecision": [
+    "RELEASE_FINAL_REMAINING_ORDINARY_WINDOW_AFTER_V7_REVALIDATION_V1 - the ONE remaining ordinary child window and five attempts. Branch B applies, so the mechanically derived composition is R:66:28 -> R:68:29 -> P:69 -> P:70 -> P:71, appending reserves 28 and 29 only",
+    "still open: resolve P:59's SD7 owner-detail ambiguity, formal range [1,24]",
+    "still open: whether the P5 instrument is correctly tuned for this population - deferred beyond this bounded acquisition step",
+    "still open: the strategy-adapter limitation, which a fix would make a code change and remains unauthorised",
+    "noted for any future hop-bound change: this run is measured evidence of a real period-2 site-policy redirect cycle, so raising MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS would require a visited-URL set"
+  ],
+  "immutability": "append-only. This record is never edited."
+}
