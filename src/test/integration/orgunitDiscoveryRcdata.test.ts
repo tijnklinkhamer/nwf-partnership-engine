@@ -171,7 +171,7 @@ describeIf('bounded discovery orchestration - RCDATA markup hygiene (fetch polic
         expect(requested, tag).toContain(`${ORIGIN}/${slug}`);
         expect(requested, tag).not.toContain(`${ORIGIN}/portal/${slug}`);
       }
-      for (const row of rows) expect(row.fetch_policy_version).toBe('orgunit-fetch-policy-v6');
+      for (const row of rows) expect(row.fetch_policy_version).toBe('orgunit-fetch-policy-v7');
     }
   });
 

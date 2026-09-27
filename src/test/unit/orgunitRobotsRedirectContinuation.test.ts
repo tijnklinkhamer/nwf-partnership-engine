@@ -14,6 +14,13 @@
  * repository holds tighter than RFC 9309 s2.3.1.2's "even across
  * authorities".
  *
+ * WHAT MOVED FROM ADR 0013, AND ONLY IT: the admissible TARGET PATH set went
+ * from the single canonical `/robots.txt` to exactly `/robots.txt` OR
+ * `/robots.txt/`. One case below that used to assert a refusal -
+ * `/robots.txt/` - now asserts a continuation, and says so. Every child path
+ * is still refused, because the set is a two-member LIST rather than a prefix
+ * or a normaliser.
+ *
  * THE PREDICATE ALSO REPORTS WHETHER THE HOST CHANGED, because two things
  * downstream turn on it and neither may recompute it: the distinct-host
  * budget, and whether the resulting policy may be memoised under the target
@@ -165,19 +172,78 @@ describe('ADR 0013: the continuable robots.txt redirect shapes', () => {
     expect(continuationTargetFor(HTTPS, redirected(HTTPS, apexHttp)), 'cross-host').toBeNull();
   });
 
-  it('REFUSES any path other than exactly /robots.txt', () => {
+  it('CONTINUES the bare trailing-slash policy path on the same origin (ADR 0016)', () => {
+    // THE ADR 0016 CASE, AND THE MEASUREMENT BEHIND IT. Generation-1 work
+    // item R:66:27 met an origin answering its canonical policy request with
+    // a same-origin 301 to exactly this shape. Under v6 this assertion read
+    // `toBeNull()` and the policy went unread, costing a whole root. The
+    // edit is deliberate and visible.
+    expect(continuationTargetFor(HTTPS, redirected(HTTPS, `${HTTPS}/`))).toEqual({
+      url: 'https://www.example.ac.uk/robots.txt/',
+      hostChanged: false,
+    });
+  });
+
+  it('CONTINUES back from the trailing-slash form to the canonical one', () => {
+    // Symmetric by construction, because the admissible set is a two-member
+    // LIST rather than a directional rule. It is reachable only as a first
+    // hop from a bootstrap that was itself minted for `/robots.txt/`, which
+    // no production path can do - and at one hop it can never be a second
+    // hop either. Asserted so the set's symmetry is a stated property rather
+    // than an accident nobody looked at.
+    const SLASHED = `${HTTPS}/`;
+    expect(continuationTargetFor(SLASHED, redirected(SLASHED, HTTPS))).toEqual({
+      url: HTTPS,
+      hostChanged: false,
+    });
+  });
+
+  it('CONTINUES the trailing-slash form across a registrable-domain sibling too', () => {
+    // ADR 0016 widened the PATH set and nothing else: every other condition
+    // keeps applying to the new member exactly as it does to the canonical
+    // one.
+    expect(
+      continuationTargetFor(HTTPS, redirected(HTTPS, 'https://example.ac.uk/robots.txt/')),
+    ).toEqual({ url: 'https://example.ac.uk/robots.txt/', hostChanged: true });
+  });
+
+  it('REFUSES any path outside the exact two-member policy-path set', () => {
+    // No prefix matching and no normalisation: `startsWith('/robots.txt')`
+    // would admit every one of the child paths below.
     for (const path of [
       '/robots-policy.txt',
-      '/robots.txt/',
+      '/robots.txt//',
+      '/robots.txt/index',
+      '/robots.txt/robots.txt',
       '/ROBOTS.TXT',
+      '/ROBOTS.TXT/',
       '/',
       '/a/robots.txt',
+      '/a/robots.txt/',
+      '/robots.txt.',
     ]) {
       expect(
         continuationTargetFor(HTTP, redirected(HTTP, `https://www.example.ac.uk${path}`)),
         path,
       ).toBeNull();
     }
+  });
+
+  it('REFUSES a query or a fragment on the TRAILING-SLASH form as well', () => {
+    expect(continuationTargetFor(HTTP, redirected(HTTP, `${HTTPS}/?v=2`))).toBeNull();
+    expect(continuationTargetFor(HTTP, redirected(HTTP, `${HTTPS}/#top`))).toBeNull();
+  });
+
+  it('REFUSES a downgrade and an explicit port on the TRAILING-SLASH form', () => {
+    expect(
+      continuationTargetFor(HTTPS, redirected(HTTPS, 'http://www.example.ac.uk/robots.txt/')),
+    ).toBeNull();
+    expect(
+      continuationTargetFor(HTTP, redirected(HTTP, 'https://www.example.ac.uk:8443/robots.txt/')),
+    ).toBeNull();
+    expect(
+      continuationTargetFor(HTTPS, redirected(HTTPS, 'https://other-university.edu/robots.txt/')),
+    ).toBeNull();
   });
 
   it('REFUSES a query or a fragment on the target', () => {
@@ -239,6 +305,13 @@ describe('ADR 0013: the continuable robots.txt redirect shapes', () => {
     // Not ADR 0008's five, and not RFC 9309 s2.3.1.2's "at least five"
     // either. A policy resource has no multi-hop journey to make, and the
     // second response is final whatever it says.
+    //
+    // THIS CONSTANT IS NOW THE WHOLE BOUND. ADR 0013 voided ADR 0012's
+    // structural two-request argument by admitting a host change; ADR 0016
+    // voids what remained of it on a single origin, because
+    // `/robots.txt -> /robots.txt/ -> /robots.txt` is expressible. At 1 no
+    // second hop exists for a cycle to close; raising it would require a
+    // visited-URL set, which policy.ts says where the constant is declared.
     expect(MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS).toBe(1);
   });
 });

@@ -1,0 +1,442 @@
+{
+  "recordId": "phase2b-2d-a2-robots-trailing-slash-fetch-policy-v7-repair-v1",
+  "recordKind": "OFFLINE_ACQUISITION_CAPABILITY_REPAIR_POLICY_DECISION",
+  "records": "PHASE_2B_2D_A2_ROBOTS_TRAILING_SLASH_FETCH_POLICY_V7_REPAIR_V1",
+  "recordedAtUtc": "2026-09-27T13:56:42Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "networkUsed": "none. Read-only queries against the working database, read-only reads of committed records, and offline tests against nwf_pe_test with a scripted transport",
+  "databaseWrittenByThisRecord": "none in nwf_pe. The offline test suite writes to nwf_pe_test only",
+  "ledgerAppendedByThisRecord": false,
+  "reserveConsumedByThisRecord": 0,
+  "startingHead": "a1ef1e2dda57d66848052914a36508a5dd5999b4",
+
+  "ownerDecisions": [
+    "APPROVE_FETCH_POLICY_V7_FOR_BARE_ROBOTS_TRAILING_SLASH_REDIRECT_CONTINUATION_V1",
+    "P5_REVIEWED_FOUR_CONSECUTIVE_PAUSES_HETEROGENEOUS_UNUSABLE_ROOT_BASE_RATE_OBSERVED_NO_THRESHOLD_CHANGE_MID_GENERATION"
+  ],
+  "ownerDecisionScope": {
+    "authorised": [
+      "a bounded site-policy redirect-continuation capability whose admissible target path set is exactly the canonical policy path OR that same path with one trailing slash appended, and nothing else",
+      "a SEPARATE production authority factory for a redirect continuation, distinct from the initial bootstrap factory",
+      "introduction of orgunit-fetch-policy-v7 for exactly that behavioural change",
+      "ADR 0016, tests, and this evaluation record"
+    ],
+    "notAuthorised": [
+      "institution DNS / HTTP / TLS under this record",
+      "widening the INITIAL bootstrap factory",
+      "any other redirect target path",
+      "a second continuation hop",
+      "full RFC 9309 redirect following",
+      "cross-registrable-domain widening beyond ADR 0013's existing line",
+      "root promotion, root-claim canonicalisation, hostname inference",
+      "gateway, address classifier, root scope, host policy, robots parser semantics, retry policy, timeouts, budgets, frontier, SD7, Q1/Q2/Q3/Q4, Methodology R3",
+      "P5 retune",
+      "any action on P:59",
+      "reserve assignment, replacement-ledger mutation",
+      "database migration",
+      "classifier or provider execution"
+    ]
+  },
+
+  "bound": {
+    "window07LiveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_06_WINDOW_07_LIVE_RESULT_V1.json",
+      "sha256": "13748f6151359cdac40523cbe116fbb747906340ad1dd87dea7e0d0e76916f9b",
+      "bytes": 19014,
+      "commit": "5fbbe9bf1e0e3bceeb9491e63f9150d1b9b981ef"
+    },
+    "window07Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_06_WINDOW_07_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "3b77909986fa8c7fd8f3c3d7829f6c4f7a46a55fa9d2aca02d452bd4cef728a5",
+      "bytes": 26682,
+      "commit": "a1ef1e2dda57d66848052914a36508a5dd5999b4",
+      "terminalState": "PHASE_2B_2D_A2_POST_WINDOW_06_WINDOW_07_ADJUDICATED_P5_PAUSE_FINAL_WINDOW_NOT_SELF_AUTHORISED"
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "0627fc3408da2a830a4a195f4b57bdb06637f08104e0b4a59536b2f12cce8d56",
+      "bytes": 21975,
+      "entries": 28,
+      "ledgerHash": "6f65c4fbeac78a2578dd7f3b8007964e78fd28bec8e7709992bcbe7f082ca2d0",
+      "unchangedByThisRecord": true
+    },
+    "precedents": {
+      "adr0012": "docs/adr/0012-same-host-robots-redirect-continuation.md",
+      "adr0013": "docs/adr/0013-same-registrable-domain-robots-redirect-continuation.md",
+      "adr0015": "docs/adr/0015-bounded-transport-retry.md",
+      "v5PolicyDecision": "docs/evaluation/PHASE_2B_2D_A2_ANCHOR_DOCUMENT_BASE_FETCH_POLICY_V5_REPAIR_V1.json",
+      "v6PolicyDecision": "docs/evaluation/PHASE_2B_2D_A2_DISCOVERY_RCDATA_FETCH_POLICY_V6_REPAIR_V1.json"
+    }
+  },
+
+  "p5Review": {
+    "decision": "P5_REVIEWED_FOUR_CONSECUTIVE_PAUSES_HETEROGENEOUS_UNUSABLE_ROOT_BASE_RATE_OBSERVED_NO_THRESHOLD_CHANGE_MID_GENERATION",
+    "historicalPauseRemainsTrue": true,
+    "pauseErasedOrWeakened": false,
+    "consecutivePauses": ["Window 04", "Window 05", "Window 06", "Window 07"],
+    "window07LowYieldItems": [
+      {
+        "workItemId": "R:66:27",
+        "mechanism": "reachable host; canonical site-policy request answered a same-origin 301 to the same path plus a trailing slash; the v6 continuation predicate refused the target on its exact-path condition alone; no transport failure",
+        "q3Rank": 4
+      },
+      {
+        "workItemId": "P:68",
+        "mechanism": "reachable acquisition; NO_ELIGIBLE_HTML / zero usable pages; no rank-1/2/3 condition",
+        "q3Rank": 4
+      }
+    ],
+    "theTwoShareNoMechanism": true,
+    "causesAcrossFourWindows": [
+      "authoritative DNS negatives",
+      "TLS failure",
+      "reachable low yield",
+      "site-policy continuation capability limit",
+      "empty or unusable roots"
+    ],
+    "interpretation": "P5 is firing frequently, the underlying causes are heterogeneous, and no single engine or operator defect explains all four pauses. The recurring pause is driven by the BASE RATE of unusable institution roots in the frame rather than by one mechanism.",
+    "p5ThresholdChangedHere": false,
+    "p5DenominatorChangedHere": false,
+    "p5RemainsAHumanReviewTrigger": true,
+    "whyNotRetunedNow": "changing the threshold now would be a mid-generation governance change informed by realised outcomes. The question of whether a five-item window with a two-item low-yield trigger is the right instrument for this population is DEFERRED to a future governance/methodology revision after this bounded acquisition work.",
+    "carriedForwardUnchanged": {
+      "windowSize": 5,
+      "p2Threshold": 3,
+      "p5Threshold": 2
+    }
+  },
+
+  "confirmedDefect": {
+    "classification": "CONFIRMED_SITE_POLICY_REDIRECT_CONTINUATION_CAPABILITY_LIMIT",
+    "isNotATransportFailure": "the host resolved to a public IPv4 address and answered in about one second. Nothing was unreachable, nothing timed out, no TLS handshake failed, and the ADR 0015 bounded retry correctly declined because there was no transport failure to retry",
+    "q3RankStaysCorrect": "rank 4 MIN_PAGES_NOT_MET, not rank 3 HOST_UNREACHABLE. This repair does not reclassify it",
+    "loadBearingCodeAtV6": "continuationTargetFor (src/orgunits/web/robots.ts), condition 3: if (target.value.requestPath !== '/robots.txt') return null;",
+    "measuredAtV6": {
+      "workItemId": "R:66:27",
+      "selectionIndex": 66,
+      "reserveRankPosition": 27,
+      "split": "DEV_TRAIN",
+      "executedAtUtc": "2026-09-26T19:51:43Z",
+      "fetchPolicyVersion": "orgunit-fetch-policy-v6",
+      "runTerminalState": "COMPLETED",
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "totalRequests": 1,
+      "robotsRequests": 1,
+      "pageAttempts": 0,
+      "httpStatusHistogram": "301x1",
+      "transportErrorRows": 0,
+      "resolvedPublicIpv4Observations": 1,
+      "resolvedIpv6Observations": 0,
+      "rawPageEvidenceCount": 0,
+      "redirectObservations": 1,
+      "requestedPathShape": "<origin>/robots.txt",
+      "redirectTargetPathShape": "<origin>/robots.txt/",
+      "hostChanged": false,
+      "registrableDomainChanged": false,
+      "schemeDowngraded": false,
+      "targetMalformed": false,
+      "credentialBearing": false,
+      "queryOrFragmentPresent": false,
+      "explicitPortPresent": false,
+      "selfRedirect": false,
+      "conditionsPassed": "every condition continuationTargetFor tests EXCEPT the exact-path one",
+      "refusedSolelyBy": "the exact-path predicate"
+    },
+    "whatThisDoesNotClaim": [
+      "that the shape is common - it is one origin out of the 69 selection slots Generation-1 has started",
+      "that the slot would have succeeded with a readable policy - an origin may answer the trailing-slash form with a Disallow, a 404, a 5xx or another redirect, and each is a legitimate outcome",
+      "that v7 will change this slot's status - only a separately authorised live revalidation can produce that evidence"
+    ]
+  },
+
+  "approvedV7Delta": {
+    "only": "the admissible target path set for a site-policy REDIRECT CONTINUATION went from the single canonical policy path to exactly that path OR that same path with one trailing slash appended",
+    "pathSetDeclaredAt": "RobotsAuthorisation.CONTINUATION_PATHS",
+    "pathSetForm": "an explicit Object.freeze two-member list, read by the predicate rather than restated",
+    "noPrefixTest": true,
+    "noRegularExpression": true,
+    "noTrailingSlashNormaliser": true,
+    "stillRefused": [
+      "/robots.txt//",
+      "/robots.txt/index",
+      "/robots.txt/robots.txt",
+      "/robots.txt?x=1",
+      "/robots.txt/?x=1",
+      "/robots.txt#frag",
+      "/robots.txt/#frag",
+      "/robots.txt.",
+      "/policy/robots.txt",
+      "/robots",
+      "/ROBOTS.TXT",
+      "/ROBOTS.TXT/",
+      "/a/robots.txt",
+      "/a/robots.txt/",
+      "/"
+    ],
+    "unchangedContinuationConditions": [
+      "usable redirect facts from redirect.ts (which is what makes a credential-bearing target structurally unrequestable)",
+      "both URLs through validateRequestUrl",
+      "same registrable domain",
+      "same scheme or http -> https upgrade; downgrade refused",
+      "target is not the URL just requested",
+      "one continuation hop only",
+      "host budget, request budget, root scope, host policy, DNS, address validation, connection pinning, full TLS verification"
+    ],
+    "initialBootstrapWidened": false,
+    "initialBootstrapFunctionByteIdenticalToV6": true,
+    "newProductionFactory": "RobotsAuthorisation.forRobotsTxtRedirectContinuation",
+    "newFactoryDecision": "NOT_APPLICABLE",
+    "newFactoryRule": null,
+    "newFactoryIsUrlScoped": true,
+    "newFactoryHasOrdinaryPageCapability": false,
+    "roleSelector": "PolicyRequestRole = 'BOOTSTRAP' | 'REDIRECT_CONTINUATION' - a closed two-member union, not a boolean",
+    "retryKeepsItsRequestsRole": true,
+    "executeWebAttemptCallSitesInRobotsTs": 2,
+    "rootRunnerChangeExpected": false,
+    "rootRunnerChanged": false,
+    "budgetAccountingChanged": false,
+    "whyNoBudgetChange": "rootRunner already predicts (needsRobots ? 3 : 0) + 1 and charges attempts.length. A same-origin continuation consumes no distinct-host slot, so admitHostChangingContinuation is not consulted at all",
+    "newRequestsPerResolutionWorstCase": 3
+  },
+
+  "whyASeparateFactoryAndNotAWiderBootstrap": {
+    "theOneLineFixRefused": "adding the trailing-slash form to forRobotsTxtBootstrap would have been three characters",
+    "whyRefused": "site-policy discovery would then have TWO admissible starting points, and a caller could decide on its own authority to begin discovery at the trailing-slash form on a host that never redirected there - the caller-manufactured-capability failure mode robotsAuthority.ts exists to prevent, arriving by a different door",
+    "theTwoActs": {
+      "bootstrap": "where may policy discovery START? Path set: the canonical policy path",
+      "redirectContinuation": "where may a host's own 3xx SEND it? Path set: the canonical policy path or that path with one trailing slash"
+    },
+    "trustDistinctionIsMechanicallyProvable": "from WHICH factory a call site names, not from a comment about intent. Each factory enforces its own path set, and executeWebAttempt verifies scopedToUrl byte-for-byte before any DNS lookup"
+  },
+
+  "standardsPosition": {
+    "fact": "RFC 9309 s2.3.1.2 permits robots policy retrieval through redirects, recommends following at least five 'even across authorities', and requires the rules be followed in the context of the INITIAL authority",
+    "rfcSaysNothingAboutTheTrailingSlashForm": true,
+    "whyThatMatters": "the RFC names one resource path and does not enumerate admissible redirect TARGETS at all. This repository is deliberately stricter, so every admissible target shape is a LOCAL decision taken one at a time",
+    "thisIsNotClaimedAsRfcRequired": "it is a local interoperability decision inside the broader RFC redirect posture, about one observed real-world shape",
+    "repositoryRemainsStricterThanTheRfc": [
+      "one hop, not five",
+      "same registrable domain only, never across authorities",
+      "two admissible target paths, never an arbitrary redirected path"
+    ]
+  },
+
+  "fetchPolicyVersion": {
+    "before": "orgunit-fetch-policy-v6",
+    "after": "orgunit-fetch-policy-v7",
+    "declaredIn": "src/orgunits/web/policy.ts",
+    "declaredExactlyOnce": true,
+    "whyANewVersion": "from byte-identical live evidence v7 can issue a SECOND site-policy request where v6 issued none. A v6 row reading ROBOTS_UNREADABLE after such a 301 means 'this build would not have continued'; the same row stamped v7 would mean 'this build examined the target and refused it for some other reason'. Only the version string can tell those apart",
+    "migration": false,
+    "migrationCheckedNotAssumed": "migration 0007 constrains fetch_policy_version only as <> '' AND length(...) <= 64 on both orgunit_research_runs and orgunit_fetch_observations. Verified against the live PostgreSQL 16 pg_constraint catalogue before the version was changed. 'orgunit-fetch-policy-v7' is 23 characters",
+    "historicalRowsReinterpreted": false,
+    "historicalRowsRewritten": false,
+    "supersededRunsCannotBeResumed": "assertRunIsExecutable refuses a run whose recorded version this build does not implement. Pinned by test for all six superseded versions, v6 included",
+    "workingDbRunsAtDecision": {
+      "v1": 7,
+      "v2": 2,
+      "v3": 3,
+      "v4": 11,
+      "v5": 0,
+      "v6": 83,
+      "v7": 0
+    },
+    "otherPolicyValuesChanged": "none. A comment-stripped, whitespace-normalised comparison of policy.ts against v6 differs only in the version assignment, asserted by test",
+    "frozenValuesReasserted": {
+      "CONNECT_TIMEOUT_MS": 30000,
+      "TOTAL_TIMEOUT_MS": 45000,
+      "MAX_BODY_BYTES": 5242880,
+      "MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS": 1,
+      "MAX_ROBOTS_TRANSPORT_RETRIES_PER_POLICY_RESOLUTION": 1
+    }
+  },
+
+  "hopBoundArgument": {
+    "constant": 1,
+    "changed": false,
+    "adr0012StructuralArgument": "proved a two-request ceiling independently of the constant, because the host was fixed and the only admissible target from an https policy URL was the identical URL that the self-redirect condition refuses",
+    "adr0013VoidedItForAHostChange": true,
+    "adr0016VoidsWhatRemainedOnASingleOrigin": "with the trailing-slash form admissible, canonical -> trailing-slash -> canonical is expressible on one origin",
+    "consequence": "MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS is now the WHOLE chain bound. Sufficient at 1 - one hop cannot cycle - but raising it would require a visited-URL set",
+    "warningRecordedIn": [
+      "src/orgunits/web/policy.ts at the constant",
+      "src/orgunits/web/robots.ts at the loop"
+    ],
+    "visitedUrlSetAddedHere": false
+  },
+
+  "productionFilesChanged": [
+    {
+      "path": "src/orgunits/web/policy.ts",
+      "sha256Before": "affe97f6736831e8e1a57417c1d6b80f254b9dd71d869fae4d4e8a8ce22d7ea9",
+      "sha256After": "e7f274e3c1ddcb0433fcaeec9aebaafa37f2623603d5d241588bedfe73de7b3c",
+      "bytesAfter": 24532,
+      "change": "the version string, plus the v6 -> v7 rationale and a corrected hop-bound argument. No value moved"
+    },
+    {
+      "path": "src/orgunits/web/robots.ts",
+      "sha256Before": "4748984b29c19d8bef8c2d5fea1b168c6a6030f35f4af4118ab4bd1f10c2d481",
+      "sha256After": "5e89503c00a80d33c9c341a774a9b46a837e46ddce18dbf6d41e857e24a4e0c4",
+      "bytesAfter": 44548,
+      "change": "continuationTargetFor's path condition now reads CONTINUATION_PATHS; PolicyRequestRole declared; fetchRobotsDocument and fetchWithBoundedRetry thread the role; header and loop comments corrected"
+    },
+    {
+      "path": "src/orgunits/web/robotsAuthority.ts",
+      "sha256Before": "5057ca454e92abcb41d32eda878733431a7e4a9d67513d4ea73f91ab5d7051e9",
+      "sha256After": "061ba7efeca1d63538bb557b9b18ef146146f791724c99c92013b15a8c84a14b",
+      "bytesAfter": 15415,
+      "change": "CONTINUATION_PATHS and forRobotsTxtRedirectContinuation added; the test seam's message names all three production factories; forRobotsTxtBootstrap byte-identical"
+    }
+  ],
+  "productionFilesDeliberatelyUnchanged": [
+    "src/orgunits/web/gateway.ts",
+    "src/orgunits/web/redirect.ts",
+    "src/orgunits/web/retryPolicy.ts",
+    "src/orgunits/web/robotsPolicy.ts",
+    "src/orgunits/web/url.ts",
+    "src/orgunits/web/hostPolicy.ts",
+    "src/orgunits/web/address.ts",
+    "src/orgunits/web/authority.ts",
+    "src/orgunits/web/observations.ts",
+    "src/orgunits/web/pageEvidence.ts",
+    "src/orgunits/web/charset.ts",
+    "src/orgunits/web/extract.ts",
+    "src/orgunits/web/redact.ts",
+    "src/orgunits/sitemap.ts",
+    "every file under src/orgunits/orchestrator/",
+    "every file under src/orgunits/signals/",
+    "every file under src/orgunits/classify/",
+    "every file under src/cli/",
+    "every migration"
+  ],
+  "newDocumentation": [
+    {
+      "path": "docs/adr/0016-trailing-slash-robots-redirect-continuation.md",
+      "sha256": "7067466be7755ab46501ec0da73b72b6931e6f6bcc546aea7fce62c444396391",
+      "bytes": 18853
+    }
+  ],
+
+  "tests": {
+    "newFiles": [
+      "src/test/integration/orgunitRobotsTrailingSlash.test.ts",
+      "src/test/firewall/phase2bRobotsTrailingSlash.firewall.test.ts"
+    ],
+    "amendedFiles": [
+      "src/test/unit/orgunitRobotsAuthority.test.ts",
+      "src/test/unit/orgunitRobotsRedirectContinuation.test.ts",
+      "src/test/unit/orgunitClassifyHistoricalFetchPolicyProvenance.test.ts",
+      "src/test/unit/orgunitCorpus2DOptionBTransition.test.ts",
+      "src/test/unit/orgunitDiscoveryRcdata.test.ts",
+      "src/test/integration/orgunitRobotsOptionCLite.test.ts",
+      "src/test/integration/orgunitDiscoveryRcdata.test.ts",
+      "src/test/integration/orgunitAnchorDocumentBase.test.ts",
+      "src/test/integration/orgunitTransportRetry.test.ts"
+    ],
+    "deliberateAssertionInversions": [
+      "orgunitRobotsRedirectContinuation.test.ts previously asserted /robots.txt/ toBeNull() in its refusal list. That case now asserts a continuation, and the file's header records what moved and why"
+    ],
+    "requiredCoverage": {
+      "A_initialBootstrapStillCanonicalOnly": "orgunitRobotsAuthority.test.ts 'refuses a URL that is not exactly /robots.txt' + the firewall's byte-identical-function assertion + orgunitRobotsTrailingSlash.test.ts 'cannot be used to START policy discovery at the trailing-slash form'",
+      "B_continuationAcceptsTheShapeAndMakesOneSecondRequest": "orgunitRobotsTrailingSlash.test.ts 'CONTINUES to the trailing-slash form and makes EXACTLY ONE second request'",
+      "C_bytesGovernTheInitialOrigin": "orgunitRobotsTrailingSlash.test.ts 'applies the retrieved policy to the INITIAL authority'",
+      "D_secondRequestIndependentlyValidated": "orgunitRobotsTrailingSlash.test.ts 'validates the second request INDEPENDENTLY, down to its own DNS lookup' and 'refuses a continuation to a SERVICE subdomain's trailing-slash policy path'",
+      "E_queryAndFragmentRefused": "orgunitRobotsAuthority.test.ts + orgunitRobotsRedirectContinuation.test.ts + orgunitRobotsTrailingSlash.test.ts",
+      "F_doubleSlashRefused": "all three of the same files",
+      "G_arbitraryChildPathsRefused": "all three of the same files",
+      "H_crossRegistrableDomainRefused": "orgunitRobotsRedirectContinuation.test.ts + orgunitRobotsTrailingSlash.test.ts",
+      "I_downgradeRefused": "orgunitRobotsRedirectContinuation.test.ts + orgunitRobotsTrailingSlash.test.ts",
+      "J_secondHopRefused": "orgunitRobotsTrailingSlash.test.ts 'STOPS at one hop: a second 3xx makes no third request'",
+      "K_authorityExactScoped": "orgunitRobotsAuthority.test.ts scopedToUrl assertions + orgunitRobotsTrailingSlash.test.ts 'mints the continuation authority from the ADR 0016 factory, not the bootstrap'",
+      "L_noOrdinaryPageReuse": "orgunitRobotsTrailingSlash.test.ts 'lets NO ordinary page reuse a redirect-continuation authority' - the gateway refuses ROBOTS_AUTHORISATION_SCOPE_MISMATCH before DNS, with zero observation rows",
+      "M_historicalV6ProvenanceRemainsHistorical": "orgunitClassifyHistoricalFetchPolicyProvenance.test.ts (six bumps, freeze untouched) + orgunitRobotsTrailingSlash.test.ts 'refuses to execute a run recorded under ANY superseded version, v6 included'",
+      "N_newObservationsUseV7": "orgunitRobotsTrailingSlash.test.ts 'stamps every new observation v7' + the amended integration row assertions",
+      "O_gatewayFollowsZeroRedirects": "orgunitRobotsTrailingSlash.test.ts 'opened no redirect-following, proxy or TLS-disabling capability in the gateway' + the unchanged phase2b firewall",
+      "P_productionFactoryCallerSetPinned": "phase2bRobotsTrailingSlash.firewall.test.ts 'constructs its authorities ONLY from the three production factories', 'is STILL the only production file that calls the gateway', 'has exactly two executeWebAttempt call sites and owns no socket' + the unchanged phase2b.firewall.test.ts assertions"
+    },
+    "firewallsWeakened": "none",
+    "firewallsWidened": "none. Every earlier repair-scope file reads its own pinned terminal commit, so no older firewall needed to move. Two phase2b.firewall.test.ts boundaries FIRED during this work and were obeyed rather than relaxed: policy.ts may not name the site-policy resource literally (its prose was reworded), and no Phase 2B file may spell the TLS-disabling pattern (the new test asserts TLS verification positively instead)"
+  },
+
+  "validation": {
+    "focusedRunsFirst": true,
+    "fullValidate": "npm run validate",
+    "wrapper": "caffeinate -dimsu",
+    "runs": 1,
+    "exitCode": 0,
+    "testFiles": "197 passed, 5 skipped (202)",
+    "tests": "5077 passed, 75 skipped (5152)",
+    "durationSeconds": 220,
+    "rerunAfterFailure": false,
+    "networkDuringValidation": "none against any institution. Every acquisition test uses a scripted transport against nwf_pe_test"
+  },
+
+  "immutableEvidenceRule": {
+    "historicalR66Reserve27V6RunRetained": true,
+    "rewritten": false,
+    "reinterpreted": false,
+    "recounted": false,
+    "aV7RunWouldBe": "NEW evidence for the SAME selectionIndex 66, reserve occupant 27, DEV_TRAIN split, frozen organisation and frozen root authority - never a correction of the v6 run",
+    "v6AndV7PageRowsNeverCombined": true,
+    "sd7ComputedPerRun": true,
+    "reserveConsumedByARevalidation": 0,
+    "ledgerAppendForARevalidation": false,
+    "occupantChangesBeforeAdjudication": false,
+    "slot66StatusChangedHere": false
+  },
+
+  "generation1StateUnchangedByThisRecord": {
+    "ACQUISITION_SUCCESSFUL": 66,
+    "successfulSelectionIndexRanges": ["0..58", "60..65", "67"],
+    "CURRENT_ACQUISITION_FAILURE": [66, 68],
+    "PENDING_CAPABILITY_REVIEW": [59],
+    "NEVER_STARTED": { "from": 69, "to": 109, "count": 41 },
+    "accounting": "66 + 2 + 1 + 41 = 110",
+    "currentQ1": [66, 68],
+    "replacementLedgerEntries": 28,
+    "nextUnusedReservePosition": 28,
+    "p6": false,
+    "ordinaryChildWindowsRemainingUnderTheFinalRemainder": 1,
+    "ordinaryLiveAttemptsRemainingUnderTheRemainder": 5
+  },
+
+  "p59": {
+    "status": "PENDING_CAPABILITY_REVIEW",
+    "formalRange": [1, 24],
+    "touchedHere": false,
+    "rerunHere": false,
+    "replacedHere": false,
+    "methodologyR3ChangedHere": false
+  },
+
+  "scopeProofs": {
+    "networkAgainstAnyInstitution": "none",
+    "workingDatabaseWritten": "none",
+    "ledgerAppended": false,
+    "reserveAssigned": "none",
+    "migrationAddedOrChanged": "none",
+    "dependencyAdded": "none",
+    "lockfileChanged": "none",
+    "priorRecordsEdited": "none",
+    "p5ThresholdChanged": false,
+    "q3TaxonomyChanged": false,
+    "sd7RuleChanged": false,
+    "sd9ThresholdChanged": false,
+    "frontierChanged": false,
+    "classifierChanged": false,
+    "cliChanged": false
+  },
+
+  "nextOwnerDecision": [
+    "A2_TARGETED_FETCH_POLICY_V7_REVALIDATION_AUTHORISATION for slot 66 / reserve 27: exactly one live run under orgunit-fetch-policy-v7, concurrency 1, reserve consumption 0, no ledger mutation, no primary acquisition, P:68 / P:69+ / P:59 not authorised",
+    "after that adjudication, RELEASE_FINAL_REMAINING_ORDINARY_WINDOW_AFTER_V7_REVALIDATION_V1 - the ONE remaining ordinary child window and five attempts, composed mechanically from the then-current Q1"
+  ],
+  "immutability": "append-only. This record is never edited."
+}

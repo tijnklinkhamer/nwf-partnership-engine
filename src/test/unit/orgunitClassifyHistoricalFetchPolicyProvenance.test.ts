@@ -5,8 +5,9 @@
  * ADR 0012 moved production acquisition to `orgunit-fetch-policy-v2`, and ADR
  * 0013 moved it again to `orgunit-fetch-policy-v3`, ADR 0015 to
  * `orgunit-fetch-policy-v4`, the anchor document-base repair to
- * `orgunit-fetch-policy-v5`, and the discovery RCDATA repair to
- * `orgunit-fetch-policy-v6`. Every
+ * `orgunit-fetch-policy-v5`, the discovery RCDATA repair to
+ * `orgunit-fetch-policy-v6`, and the bare trailing-slash robots redirect
+ * continuation (ADR 0016) to `orgunit-fetch-policy-v7`. Every
  * historical 2D2C freeze binds `orgunit-fetch-policy-v1` inside its frozen
  * `ClassifierBatchContext`, and therefore inside its frozen canonical bytes,
  * `assemblyInputSha256` and `finalInputSha256`. Those experiments really did
@@ -79,22 +80,23 @@ const ALGORITHMS = {
 };
 
 const HISTORICAL = 'orgunit-fetch-policy-v1';
-const PRODUCTION = 'orgunit-fetch-policy-v6';
+const PRODUCTION = 'orgunit-fetch-policy-v7';
 
 /** A deep structural copy, so a mutation can never reach the loaded freeze or the file. */
 const cloneFreeze = (): Freeze => JSON.parse(JSON.stringify(freeze)) as Freeze;
 
 describe('the two fetch-policy versions are genuinely different right now', () => {
-  it('production acquisition is v6', () => {
+  it('production acquisition is v7', () => {
     expect(FETCH_POLICY_VERSION).toBe(PRODUCTION);
   });
 
-  it('has moved FIVE TIMES since the freeze, and the freeze followed none of them', () => {
+  it('has moved SIX TIMES since the freeze, and the freeze followed none of them', () => {
     // ADR 0012 (v1 -> v2), ADR 0013 (v2 -> v3), ADR 0015 (v3 -> v4), the
-    // anchor document-base repair (v4 -> v5) and the discovery RCDATA repair
-    // (v5 -> v6). None required a single byte of a historical freeze to
+    // anchor document-base repair (v4 -> v5), the discovery RCDATA repair
+    // (v5 -> v6) and ADR 0016's trailing-slash robots continuation
+    // (v6 -> v7). None required a single byte of a historical freeze to
     // change, and this is what proves it: the frozen value is still the FIRST
-    // version, unchanged across all five bumps.
+    // version, unchanged across all six bumps.
     expect(freeze.inputConstruction.context.fetchPolicyVersion).toBe('orgunit-fetch-policy-v1');
     for (const superseded of [
       'orgunit-fetch-policy-v2',
@@ -102,6 +104,7 @@ describe('the two fetch-policy versions are genuinely different right now', () =
       'orgunit-fetch-policy-v4',
       'orgunit-fetch-policy-v5',
       'orgunit-fetch-policy-v6',
+      'orgunit-fetch-policy-v7',
     ]) {
       expect(freeze.inputConstruction.context.fetchPolicyVersion, superseded).not.toBe(superseded);
     }

@@ -19,7 +19,70 @@
  * executing a v2 run under v1 timeouts and stamping "v2" on the row - would
  * make `fetch_policy_version` a label rather than a fact.
  */
-export const FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v6';
+export const FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v7';
+
+/**
+ * WHY v6 BECAME v7 (Phase 2B-2D A2 - the bare trailing-slash robots redirect
+ * continuation, ADR 0016; owner decision
+ * APPROVE_FETCH_POLICY_V7_FOR_BARE_ROBOTS_TRAILING_SLASH_REDIRECT_CONTINUATION_V1;
+ * docs/evaluation/PHASE_2B_2D_A2_ROBOTS_TRAILING_SLASH_FETCH_POLICY_V7_REPAIR_V1.json).
+ *
+ * THE RESOURCE IS NAMED NOWHERE IN THIS FILE, DELIBERATELY. The firewall
+ * confines the site-policy resource's literal path to the five modules
+ * approved to name it, and this file - which holds constants and their
+ * reasoning and owns no request path of its own - is not one of them. So the
+ * paths below are described rather than spelled. The literal two-member set
+ * lives at `RobotsAuthorisation.CONTINUATION_PATHS`, and ADR 0016 spells
+ * every case out.
+ *
+ * WHAT CHANGED, EXACTLY, AND IT IS ONE THING. The set of request paths a
+ * site-policy REDIRECT CONTINUATION may target went from the single canonical
+ * policy path to exactly that path OR that same path with one trailing slash
+ * appended - two literals, frozen at `CONTINUATION_PATHS`, and no prefix test
+ * or normaliser anywhere near them. Every other condition on a continuation
+ * is byte-identical to v6: usable redirect facts, both URLs through
+ * `validateRequestUrl`, the same registrable domain, same scheme or
+ * http -> https, not a self-redirect, the host budget, the request budget,
+ * root scope, host policy, DNS, address classification and TLS.
+ *
+ * THE MEASUREMENT THAT FORCED IT. Generation-1 work item `R:66:27` met an
+ * origin that answers its canonical site-policy request with a same-origin
+ * `301` to that same path plus a trailing slash - well formed, same
+ * registrable domain, no credential, no query, no fragment, no explicit port,
+ * no scheme downgrade, not a self-redirect, and reachable. v6 refused it on
+ * the exact-path predicate ALONE. The policy was therefore genuinely unread,
+ * the root terminated `ROBOTS_UNREADABLE_ROOT`, and the slot yielded zero
+ * pages. That is a capability limit of this repository, not a transport
+ * failure of the institution.
+ *
+ * WHY THE INITIAL BOOTSTRAP DID NOT MOVE. `forRobotsTxtBootstrap` still
+ * accepts only the canonical path, so site-policy discovery may still START
+ * in exactly one place per origin. The trailing-slash form is reachable only
+ * as a REDIRECT CONTINUATION target, through the separate
+ * `forRobotsTxtRedirectContinuation` factory, from a `Location` the host
+ * itself sent. Widening the bootstrap instead would have let a caller decide,
+ * on its own authority, to begin policy discovery at the trailing-slash form
+ * on a host that never redirected there.
+ *
+ * WHY IT MUST BE A NEW VERSION. From byte-identical live evidence v7 can
+ * issue a SECOND site-policy request where v6 issued none. A v6 row reading
+ * `ROBOTS_UNREADABLE` after such a 301 means "this build would not have
+ * continued"; the same row stamped v7 would mean "this build examined the
+ * target and refused it for some other reason". Those are different findings
+ * about the same institution, and only the version string can tell them
+ * apart.
+ *
+ * NO HISTORICAL ROW IS REWRITTEN OR REINTERPRETED. Every v1-v6 run keeps its
+ * own version on its run row and on all of its observations, forever.
+ * `assertRunIsExecutable` (authority.ts) refuses to execute a run whose
+ * recorded version this build does not implement, so a v6 run cannot be
+ * resumed under v7 - it can only be read. No migration: migration 0007 puts
+ * no enumeration on `fetch_policy_version`.
+ *
+ * NOTHING ELSE MOVED: not a value in this file, not the gateway, not the
+ * redirect module, not the robots parser's own semantics, not the retry
+ * policy, not the hop bound, not a budget, not the frontier, not extraction.
+ */
 
 /**
  * WHY v5 BECAME v6 (Phase 2B-2D A2 - discovery RCDATA markup hygiene, owner
@@ -342,10 +405,14 @@ export const REDIRECT_STATUSES: ReadonlySet<number> = new Set([301, 302, 303, 30
  * permitted, the only reachable target from an `https` policy URL was the
  * identical URL, which the self-redirect condition refuses. Option C-lite
  * admits a host change, so `a -> b -> a` is expressible and that structural
- * argument no longer holds. It is not needed while this is 1 - one hop cannot
- * cycle - but RAISING IT WOULD REQUIRE A VISITED-URL SET, and this sentence
- * is here so that a later reader does not raise it on the strength of the
- * argument that used to justify its safety.
+ * argument no longer holds. ADR 0016 removes the last of it on a SINGLE host
+ * as well: with the trailing-slash variant of the policy path admissible,
+ * `canonical -> trailing-slash -> canonical` is expressible on one origin.
+ * It is not needed while this is 1 - one hop cannot cycle.
+ *
+ * RAISING IT WOULD REQUIRE A VISITED-URL SET,
+ * and this sentence is here so that a later reader does not raise it on the
+ * strength of the argument that used to justify its safety.
  */
 export const MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS = 1;
 
