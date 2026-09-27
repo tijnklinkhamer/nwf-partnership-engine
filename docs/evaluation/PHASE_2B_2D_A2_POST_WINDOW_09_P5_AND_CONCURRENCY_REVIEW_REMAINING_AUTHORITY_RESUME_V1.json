@@ -1,0 +1,358 @@
+{
+  "recordId": "phase2b-2d-a2-post-window-09-p5-and-concurrency-review-remaining-authority-resume-v1",
+  "recordKind": "CONCURRENCY_DEVIATION_REVIEW_AND_P5_PAUSE_REVIEW_AND_REMAINING_AUTHORITY_RESUME",
+  "records": "PHASE_2B_2D_A2_POST_WINDOW_09_P5_AND_CONCURRENCY_REVIEW_REMAINING_AUTHORITY_RESUME_V1",
+  "recordedAtUtc": "2026-09-27T20:50:31Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "startingHead": "da187d4f80f0f9ec2c205d1b1da86c475cdc7d45",
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "supplementsWithoutRewriting": [
+    "the Window-09 LIVE_RESULT (ba1d755)",
+    "the Window-09 adjudication (da187d4)"
+  ],
+  "networkUsed": "none. Read-only reads of committed records and of the working database.",
+  "databaseWrittenByThisRecord": "none",
+  "productionCodeChangedByThisRecord": "none",
+  "methodologyChangedByThisRecord": "none",
+  "reserveAssignedByThisRecord": "none",
+  "ledgerAppendedByThisRecord": false,
+  "ownerDecisions": [
+    "WINDOW_09_CONCURRENCY_DEVIATION_REVIEWED_NO_EVIDENCE_INVALIDATION_NO_RETRY_V1",
+    "P5_REVIEWED_WINDOW_09_HETEROGENEOUS_TARGET_FAILURES_NO_COMMON_SYSTEMIC_DEFECT_CONTINUATION_ALLOWED"
+  ],
+  "thisFileAuthorises": [
+    "the RESUMPTION of the UNSPENT REMAINDER of the bounded authority granted at ecbc4e0b79b91b6c9567beff51a357bb82c0e336, and nothing more: 2 ordinary windows and 10 live attempts",
+    "the construction of the next window's strategy, plan and live authority as separate records, each subject to its own governance"
+  ],
+  "thisFileDoesNotAuthorise": [
+    "any institution network request - a live authority record is still required per window",
+    "any reserve assignment - the pre-network ledger append is a separate record",
+    "any additional window or attempt beyond the 2 / 10 remainder",
+    "a refill of the capacity Window 08 or Window 09 consumed (P:76 never started, the whole Window-09 allocation stays charged)",
+    "a new global authority",
+    "a retry of R:72:33, of R:73:34 (reserve 34) or of P:75 as original occupant",
+    "deletion, invalidation or rollback of any Window-09 evidence",
+    "a general exception allowing mid-item test or validation overlap",
+    "a timeout widening, a TLS weakening, a DNS workaround, an address-rule bypass, a NAT64 bypass or any fetch-policy change",
+    "a P5 retune, a P8 broadening, a Q3 change, a DNS_NAME_NOT_FOUND reinterpretation, a Methodology R3 change or a strategy-adapter repair"
+  ],
+  "isLiveAuthority": false,
+  "bound": {
+    "standingAuthorityBeingResumed": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_SD9_RECONCILIATION_RESERVE_SCARCITY_AND_ACQUISITION_RESUME_V1.json",
+      "sha256": "b8258ac7a0e82950b89b95e450f9a8e9128c151c16e96570fd31b2072bce38cf",
+      "bytes": 17391,
+      "commit": "ecbc4e0b79b91b6c9567beff51a357bb82c0e336",
+      "grantedOrdinaryWindows": 4,
+      "grantedLiveAttempts": 20
+    },
+    "window08P5Review": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_08_P5_REVIEW_AND_REMAINING_AUTHORITY_RESUME_V1.json",
+      "sha256": "3127afa7cb6e09c88b338610ebb930df90eb12585fb7d8c3d4c96a7fd7cf69db",
+      "bytes": 12965,
+      "commit": "c33baf82a974bfaff1d0322c527de24d75dee8c6"
+    },
+    "window09LiveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_09_LIVE_RESULT_V1.json",
+      "sha256": "7b5e7f16567e467c64572986d4c2d0601309f78cfd5630a2ab1b96c09f636654",
+      "bytes": 16815,
+      "commit": "ba1d755381c77f708284783af91b5c34a49b8ab2"
+    },
+    "window09Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_09_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "9f2434a0eb59b17ded9ffcbe4c4545c9a04eb7a34aacf13261cf689099317443",
+      "bytes": 15764,
+      "commit": "da187d4f80f0f9ec2c205d1b1da86c475cdc7d45",
+      "terminalState": "PHASE_2B_2D_A2_WINDOW_09_ADJUDICATED_STOPPED_ON_P5"
+    },
+    "window09Chain": {
+      "strategy": "ff9cfbc56874b20186deffa20f8a0d349156b15b",
+      "plan": "74191b1b4ddfa3bbaa77b2b0eadd5b3531419e1b",
+      "liveAuthority": "650d9456349155d015d7959c1e127fb379b32b43",
+      "preNetworkLedgerAppend": "caf2bf45452497eecbf9081c76fd307b2e31f490",
+      "liveResult": "ba1d755381c77f708284783af91b5c34a49b8ab2",
+      "adjudication": "da187d4f80f0f9ec2c205d1b1da86c475cdc7d45",
+      "everyCommitVerifiedToExistAndToTouchOnlyItsOwnRecord": true
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "46fd1bba944a8c1ff8a212baae06128e9d708b12f6d05b2f4354708d83dd0d82",
+      "bytes": 26276,
+      "ledgerHash": "b3ccb447bfa4fcaac237bcef0d2a684e5753cfc29422c66f62404cbb24cca806",
+      "entries": 35,
+      "reserveConsumed": 35
+    },
+    "repairedSd9Bridge": {
+      "harnessRepairCommit": "417ac85dee79b01b2f17df0f28a96b1250c800ba",
+      "interpretation": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_SD9_EXTRACTABLE_TEXT_INTERPRETATION_V1.json",
+        "sha256": "2a8b043cd5f813547bebba2d1a2c798bb0bfc482787f586b8c932365c3c4bf5a",
+        "bytes": 10384,
+        "commit": "cff2947cef0d8f289a08942544e45b336123c64b",
+        "decision": "SD9_EXTRACTABLE_TEXT_REQUIRES_NONEMPTY_EXTRACTED_MAIN_TEXT_V1"
+      }
+    },
+    "dnsNameNotFoundInterpretation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_DNS_NAME_NOT_FOUND_FRAME_AND_REPLACEMENT_INTERPRETATION_V1.json",
+      "sha256": "b1df9d476db30600f6eff94bba6acccd5a52098253b915ec218564731a4449c7",
+      "bytes": 14711,
+      "commit": "818934647d8b73730d6e51ccb0149c47f5a78e73",
+      "decision": "DNS_NAME_NOT_FOUND_REMAINS_ACQUISITION_FAILURE_AND_REPLACEMENT_ELIGIBLE_UNDER_FROZEN_R3",
+      "appliedUnchanged": true
+    },
+    "fetchPolicyV7": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_ROBOTS_TRAILING_SLASH_FETCH_POLICY_V7_REPAIR_V1.json",
+      "sha256": "4231660bd5eb5ce0f20e8a235b5d687b544b18ca595e92979c01a2f19ae92a49",
+      "bytes": 24734,
+      "version": "orgunit-fetch-policy-v7",
+      "unchanged": true
+    },
+    "nat64OperationalIntegrityRule": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_DNS64_NAT64_OPERATOR_VANTAGE_EVIDENCE_INTEGRITY_ADJUDICATION_V1.json",
+      "sha256": "5f901c1c5e0f2248e7e50887187dc1bcce06ace8b852b8c65d0be35547f655bc",
+      "bytes": 16719,
+      "appliedUnchanged": true
+    },
+    "frozenDraw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "sha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    },
+    "hostAndConcurrencyEvidence": {
+      "source": "the operator scratch evidence gathered during Window 09 (gitignored; its facts are restated here, not referenced as a committed file)",
+      "facts": {
+        "workItemId": "R:72:33",
+        "preItemQuietGate": "120 consecutive clean wall-clock seconds, passed 2026-09-27T20:04:25Z",
+        "itemIntervalUtc": ["2026-09-27T20:04:29Z", "2026-09-27T20:08:19Z"],
+        "a3R33ValidateStartedUtc": "2026-09-27T20:06:49Z",
+        "startedMidItemAfterTheGatePassed": true,
+        "postItemQuietCheck": "RED (A3 R33 npm run validate / vitest)",
+        "hostStateLines": "all clean: 0 sleep events, battery 57, lid open, no DNS64, native IPv4",
+        "transportErrorsAllBeganBeforeA3ValidateStart": "CONNECTION_RESET persisted 20:04:40; CONNECT_TIMEOUTs persisted 20:05:11 and 20:06:59 (30 s connect timeout => second attempt began ~20:06:29, before 20:06:49)",
+        "evidenceImpact": "none established; the item succeeded with post-SD7 [23,23]",
+        "classifiedAs": "DISCLOSED_CONCURRENCY_DEVIATION, not a P8 host-state anomaly (P8 is sleep/wake or a pacing-clock gap)"
+      }
+    }
+  },
+  "concurrencyReview": {
+    "ownerDecision": "WINDOW_09_CONCURRENCY_DEVIATION_REVIEWED_NO_EVIDENCE_INVALIDATION_NO_RETRY_V1",
+    "classification": "PROCEDURAL_CONCURRENCY_INTEGRITY_DEVIATION",
+    "isP8": false,
+    "p8ScopeUnchanged": ["Sleep", "Wake", "DarkWake", "pacing-clock anomaly"],
+    "p8BroadenedRetroactively": false,
+    "theIntendedNoOverlapDisciplineWasViolated": true,
+    "historyRewritten": false,
+    "facts": {
+      "workItemId": "R:72:33",
+      "preItemQuietGate": "PASSED - at least 120 consecutive clean wall-clock seconds, passed 2026-09-27T20:04:25Z",
+      "itemIntervalUtc": ["2026-09-27T20:04:29Z", "2026-09-27T20:08:19Z"],
+      "competingProcess": "A3 R33 npm run validate, in a separate A3 worktree",
+      "competingProcessStartedUtc": "2026-09-27T20:06:49Z",
+      "competingProcessStartedAfterItemStart": true,
+      "postItemProcessCheck": "RED (A3 validation active)"
+    },
+    "whyR72RemainsValid": [
+      "the item passed its required clean pre-start gate",
+      "the competing process began only after item start",
+      "no A2 writer or competing acquisition ran",
+      "A3 did not modify the A2 worktree",
+      "the overlapping A3 activity was validation/test execution",
+      "no A3 institution-network request occurred",
+      "no A3 working-database write occurred",
+      "R:72:33 completed normally (COMPLETED, exactly one completion row)",
+      "post-SD7 was exactly 23, far from the threshold of 4",
+      "the run's transport errors began before the A3 validation process started",
+      "no sleep/wake/pacing anomaly occurred",
+      "DB persistence reconciled exactly"
+    ],
+    "r72EvidenceRetained": true,
+    "r72CommittedSuccessUnchanged": true,
+    "retryAuthorised": false,
+    "evidenceDeleted": false,
+    "slotRolledBack": false,
+    "replacementObligationFor72": false,
+    "newRunAuthorisedForThatOccupant": false,
+    "laterWindow09Items": {
+      "items": ["R:73:34", "P:74", "P:75"],
+      "eachBeganAfterItsOwnCleanQuietGate": true,
+      "competingCorrectnessCriticalProcessAtTheirStarts": false,
+      "evidenceRemainsValid": true,
+      "reRun": false
+    },
+    "isAGeneralException": false,
+    "scope": "a one-time owner adjudication of an already-completed incident; mid-run test overlap is NOT allowed",
+    "strongerFutureGuard": {
+      "name": "CONTINUOUS_IN_ITEM_CONCURRENCY_WATCH",
+      "preItemGate": "at least 120 CONSECUTIVE clean wall-clock seconds before every live item; a conflict resets the interval; no check-count arithmetic",
+      "inItemWatch": "a read-only process-table monitor polling at most every 5 seconds throughout each governed live item; it touches no DB, network, acquisition state or temp test state",
+      "onDetection": [
+        "do not kill the competing process",
+        "let the already-running single A2 acquisition invocation terminate cleanly",
+        "mark CONCURRENCY_INTEGRITY_DEVIATION_DETECTED_DURING_ITEM and preserve its evidence",
+        "STOP immediately after that item: no later work item, no automatic continuation, return for owner review"
+      ],
+      "isP8": false,
+      "a3PassiveWorkAllowed": ["editing", "git reads", "commit creation", "file inspection"],
+      "a3NotAllowedDuringGovernedA2LiveIntervals": [
+        "full validate",
+        "vitest",
+        "other correctness-critical execution"
+      ]
+    }
+  },
+  "window09P5Review": {
+    "ownerDecision": "P5_REVIEWED_WINDOW_09_HETEROGENEOUS_TARGET_FAILURES_NO_COMMON_SYSTEMIC_DEFECT_CONTINUATION_ALLOWED",
+    "theHistoricalPauseRemainsTrue": true,
+    "pauseDecision": "PAUSE_P5_LOW_RAW_YIELD",
+    "firedAfterItem": "P:75 (item 4 of 5); P:76 NEVER_STARTED",
+    "nothingWasReclassified": true,
+    "lowYieldItem1": {
+      "workItemId": "R:73:34",
+      "occupant": "current replacement occupant, reserve 34",
+      "evidence": [
+        "public IPv4",
+        "CONNECTION_RESET then CONNECT_TIMEOUT on robots.txt",
+        "no usable HTTP response"
+      ],
+      "q3": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE, rank 3"
+    },
+    "lowYieldItem2": {
+      "workItemId": "P:75",
+      "occupant": "ORIGINAL_SELECTION",
+      "evidence": [
+        "authoritative DNS_NAME_NOT_FOUND",
+        "no resolved address",
+        "normal native IPv4 vantage"
+      ],
+      "q3": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE, rank 3"
+    },
+    "theTwoMechanismsAreDifferentAndTargetSpecific": true,
+    "sameWindowSuccesses": ["R:72:33", "P:74"],
+    "commonSystemicDefectEstablished": false,
+    "checkedAndNotEstablished": [
+      "operator network defect",
+      "DNS resolver outage",
+      "NAT64 artefact",
+      "TLS-system defect",
+      "fetch-policy defect",
+      "persistence defect",
+      "host sleep issue",
+      "pacing issue"
+    ],
+    "doesNot": [
+      "retry reserve 34",
+      "retry P:75 original",
+      "alter the DNS_NAME_NOT_FOUND interpretation",
+      "alter Q3",
+      "alter P5",
+      "change fetch policy"
+    ],
+    "effect": "each failed current occupant creates only the ordinary frozen replacement obligation"
+  },
+  "p5": {
+    "unchanged": true,
+    "retuned": false,
+    "plannedDenominator": 5,
+    "pauseThresholdItemsWithRawPagesBelow4": 2,
+    "frequentPausesAreNotAuthorityToChangeTheThresholdMidGeneration": true
+  },
+  "standingAuthorityConsumption": {
+    "originalOrdinaryWindows": 4,
+    "originalLiveAttempts": 20,
+    "consumedByWindow08": {
+      "windows": 1,
+      "attempts": 5
+    },
+    "consumedByWindow09": {
+      "windows": 1,
+      "attempts": 5,
+      "note": "charged in full although only 4 items ran"
+    },
+    "remainingOrdinaryWindows": 2,
+    "remainingLiveAttempts": 10,
+    "arithmetic": "4 - 2 = 2 windows; 20 - 10 = 10 attempts",
+    "noNewGlobalAuthorityIsCreated": true,
+    "window09CapacityIsNotRefilled": true,
+    "selfExtension": false,
+    "afterTheSecondResumedWindowAdjudicationStopRegardlessOfState": true,
+    "anyInterveningPauseStops": true
+  },
+  "currentCanonicalState": {
+    "ACQUISITION_SUCCESSFUL": 74,
+    "CURRENT_ACQUISITION_FAILURE": [73, 75],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "NEVER_STARTED": {
+      "from": 76,
+      "to": 109,
+      "count": 34,
+      "contiguous": true
+    },
+    "accounting": "74 + 2 + 0 + 34 = 110",
+    "disjointAndExhaustive": true,
+    "rederivedIndependently": "frozen draw re-verified by file sha and recomputed drawHash; the committed 35-entry ledger re-validated; currentOccupantForSelectionIndex replayed for 0..109; each occupant's LATEST run by started_at; page evidence filtered by run_id; analyseOrganisation (repaired bridge) per occupant",
+    "q1": [
+      {
+        "selectionIndex": 73,
+        "currentOccupant": "RESERVE_REPLACEMENT reserve34",
+        "split": "FINAL_HOLDOUT",
+        "currentDisposition": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacementReason": "HOST_UNREACHABLE"
+      },
+      {
+        "selectionIndex": 75,
+        "currentOccupant": "ORIGINAL_SELECTION",
+        "split": "FINAL_HOLDOUT",
+        "currentDisposition": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacementReason": "HOST_UNREACHABLE"
+      }
+    ],
+    "noOtherObligation": true,
+    "ledger": {
+      "entries": 35,
+      "ledgerHash": "b3ccb447bfa4fcaac237bcef0d2a684e5753cfc29422c66f62404cbb24cca806",
+      "reserveConsumed": 35,
+      "nextUnusedReserve": 35,
+      "unusedReserves": 5,
+      "unusedPositions": "35..39"
+    },
+    "p6": {
+      "rule": "reserveConsumed > 10 AND successfulOrganisationCount < 50",
+      "evaluation": "35 > 10 TRUE and 74 < 50 FALSE",
+      "result": "NOT_TRIGGERED"
+    },
+    "workingDatabase": {
+      "readAs": "readonly",
+      "runs": 121,
+      "completions": 121,
+      "fetchObservations": 3130,
+      "redirectObservations": 243,
+      "pageEvidence": 2337,
+      "pageCandidates": 4674,
+      "BLOCKED_BY_POLICY": 6,
+      "rootPromotions": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0,
+      "equalsWindow09LiveResultAfter": true,
+      "unexplainedMovement": false
+    }
+  },
+  "reserveScarcityGate": {
+    "rule": "at EVERY later planning point: if current Q1 obligation count > remaining unused reserve count, or the reserve list reaches zero before 110 successes, the terminal is CORPUS_FREEZE_REFUSED",
+    "noPartialServicing": true,
+    "noRedraw": true,
+    "noAdditionalReserves": true,
+    "noSmallerCorpus": true,
+    "unusedAfterTheNextWindowsPlannedAppend": 3
+  },
+  "nextWindowMechanicallyDerived": {
+    "composition": "R:73:35 -> R:75:36 -> P:76 -> P:77 -> P:78",
+    "precommittedHere": false,
+    "note": "derived by Q1 ascending, monotonic reserves, then next NEVER_STARTED primaries; it is precommitted only by its own strategy, plan and live authority records"
+  },
+  "terminalState": "PHASE_2B_2D_A2_WINDOW_09_CONCURRENCY_AND_P5_REVIEWED_REMAINING_AUTHORITY_RESUMED_2_WINDOWS_10_ATTEMPTS",
+  "immutability": "append-only. This record is never edited."
+}
