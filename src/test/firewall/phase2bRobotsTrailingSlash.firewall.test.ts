@@ -49,7 +49,7 @@ const REPAIR_BASE_COMMIT = 'a1ef1e2dda57d66848052914a36508a5dd5999b4';
  * the implementation is being written, and pinned immediately after it lands,
  * so a later phase is never judged against this repair's authorised surface.
  */
-const REPAIR_TERMINAL_COMMIT: string | null = null;
+const REPAIR_TERMINAL_COMMIT: string | null = 'e0166e0f787e3bba00b35271cab6717eb65a202c';
 
 const AUTHORISED_PRODUCTION_FILES = [
   'src/orgunits/web/policy.ts',
