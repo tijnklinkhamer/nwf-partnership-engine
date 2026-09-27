@@ -1,0 +1,193 @@
+{
+  "record": "PHASE_2B_2D_A3_R32_PUBLIC_GOVERNANCE_AUTHORITY_CENSUS_V4",
+  "recordKind": "PUBLIC_GOVERNANCE_ONLY_AUTHORITY_CENSUS",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "registryVersion": "COMMITTED_A2_GOVERNANCE_REGISTRY_V4",
+  "pinnedA2GovernanceCheckpointCommit": "67ae047fb7de079bcba0eec83ca4f4baee77cc3e",
+  "thisFileAuthorises": [],
+  "derivation": {
+    "derivedNotAsserted": true,
+    "publicGovernanceOnly": true,
+    "commitAddressedGovernanceBytes": true,
+    "workingDatabaseReads": 0,
+    "sealedRootReads": 0,
+    "institutionNetworkRequests": 0,
+    "registryEntryCount": 64,
+    "registryEntriesUnchangedFromV3": 29,
+    "registryEntriesReplacedFromV3": 1,
+    "registryEntriesAddedInV4": 34,
+    "registryBindingsVerified": 64,
+    "v3CompatibleParserSubviewEntryCount": 30,
+    "v2CompatibleParserSubviewEntryCount": 28,
+    "legacyV1ParserSubviewEntryCount": 26,
+    "replacementLedgerEntryCount": 30,
+    "replacementLedgerEntriesAudited": 30,
+    "transitionLedgerVersionsValidated": 4,
+    "normalisedTransitionEdgeCount": 7,
+    "scopedSupersessionChainCount": 7,
+    "currentTerminalFactCount": 72,
+    "currentPendingEvidenceFactCount": 0,
+    "currentFactsWithTransitionBindingCount": 3,
+    "supersededTerminalItemsExcluded": 0
+  },
+  "runReferenceProvenance": {
+    "canonicalA3RunReference": "A3_CANONICAL_RUN_REF_V1",
+    "canonicalA3RunReferenceDerivation": "sha256(canonical lowercase run UUID)",
+    "sameAsR20DurableEvidenceMatcher": true,
+    "r17Modified": false,
+    "r20RunMatchingModified": false,
+    "provenanceClosureConsumed": true,
+    "closureCurrentSlotsExamined": 110,
+    "closureCurrentTerminalEpisodes": 72,
+    "closureAlreadyFullProvenanceCount": 59,
+    "closurePrefixOnlyProvenanceCount": 13,
+    "closureMissingRunReferenceCount": 0,
+    "closureEntryCount": 13,
+    "closureUnresolvedEntryCount": 0,
+    "closureEntriesConsumed": 13,
+    "mixedConventionSlotsListedByClosure": 5,
+    "mixedConventionSlotsConsumed": 5,
+    "prefixEraTerminalFactsParsed": 21,
+    "prefixEraTerminalFactsLeftAsAuditHistoryOnly": 3,
+    "closureAloneMintedAuthority": false,
+    "prefixCompletedByInference": false,
+    "currentFactsByProvenance": {
+      "fullRunReferenceSource": 52,
+      "provenanceClosureBridge": 13,
+      "mixedConventionBridge": 5,
+      "reconciliationCorrection": 2
+    }
+  },
+  "nonTerminalItems": {
+    "executedItemsLeftPendingOrHeldByTheirOwnRecord": 6,
+    "resolvedByOwnerCapabilityReviewResolution": 2,
+    "resolvedBySd9ReconciliationCorrection": 2,
+    "resolvedByCompliantVantageSupersession": 2,
+    "unresolved": 0,
+    "reconciliationAggregateUsedAsTerminalFact": false
+  },
+  "slotAuthoritySummary": {
+    "kind": "A3_GENERATION_SLOT_AUTHORITY_SUMMARY",
+    "generationId": "METHODOLOGY_V2_GEN1",
+    "totalSlotCount": 110,
+    "slotCountBySplit": {
+      "DEV_TRAIN": 20,
+      "DEV_CONFIRM": 45,
+      "FINAL_HOLDOUT": 45
+    },
+    "readySlotCount": 69,
+    "notReadySlotCount": 41,
+    "unsuccessfulCurrentOccupantCount": 3,
+    "pendingAdjudicationCount": 0,
+    "noTerminalEvidenceCount": 38,
+    "openReplacementObligationCount": 3,
+    "reserveExhaustedObligationCount": 0,
+    "replacementOccupantCount": 20,
+    "primaryOccupantCount": 90,
+    "reserveConsumedCount": 30,
+    "reserveUnusedCount": 10,
+    "status": "A3_GENERATION_SLOT_AUTHORITY_INCOMPLETE"
+  },
+  "v3ToV4Delta": {
+    "v3RegistryVersion": "COMMITTED_A2_GOVERNANCE_REGISTRY_V3",
+    "v3PinnedA2GovernanceCheckpointCommit": "58f756453bdc19168b584b5994379e05f0281781",
+    "readyTotal": {
+      "v3": 29,
+      "v4": 69,
+      "delta": 40
+    },
+    "unsuccessfulCurrentOccupants": {
+      "v3": 2,
+      "v4": 3
+    },
+    "pendingAdjudication": {
+      "v3": 0,
+      "v4": 0
+    },
+    "noTerminalEvidence": {
+      "v3": 79,
+      "v4": 38
+    },
+    "openReplacementObligations": {
+      "v3": 2,
+      "v4": 3
+    },
+    "reserveExhaustedObligations": {
+      "v3": 0,
+      "v4": 0
+    },
+    "replacementCurrentOccupants": {
+      "v3": 8,
+      "v4": 20
+    },
+    "primaryCurrentOccupants": {
+      "v3": 102,
+      "v4": 90
+    },
+    "reservesConsumed": {
+      "v3": 10,
+      "v4": 30
+    },
+    "reservesUnused": {
+      "v3": 30,
+      "v4": 10
+    }
+  },
+  "devTrainAuthorityDelta": {
+    "split": "DEV_TRAIN",
+    "v3ReadyCount": 6,
+    "v4ReadyCount": 13,
+    "unchangedCount": 6,
+    "newCount": 7,
+    "changedExistingCount": 0,
+    "removedCount": 0,
+    "unchangedWithGlobalLedgerRevisionDifferenceCount": 6,
+    "comparedBy": "R26_PURE_compareDevTrainReadyAuthorities",
+    "existingCanonicalCoverageStillCoversEveryUnchangedAuthority": true,
+    "newAuthoritiesRequiringIncrementalEvidenceBinding": 7
+  },
+  "semantics": {
+    "registryV3Mutated": false,
+    "registryV4CommitAddressed": true,
+    "a2MergedIntoA3": false,
+    "a2ActionPerformed": false,
+    "r17Reimplemented": false,
+    "replacementHistoryAuditComplete": true,
+    "unusedAcquisitionAuthorityRegistered": false,
+    "devTrainAuthorityCountChanged": true,
+    "existingDevTrainAuthoritySemanticsChanged": false,
+    "devTrainEvidenceDeltaExists": true,
+    "databaseReadPerformed": false,
+    "sealedRootReadPerformed": false,
+    "r20ToR30Recomputed": false
+  },
+  "temporalTruth": {
+    "describesGovernanceCheckpointCommit": "67ae047fb7de079bcba0eec83ca4f4baee77cc3e",
+    "registryV3StillDescribes": "58f756453bdc19168b584b5994379e05f0281781",
+    "automaticallyUpdatesWhenA2Advances": false,
+    "laterGovernanceRequiresALaterRegistryAndCensusVersion": true
+  },
+  "whatThisIsNot": [
+    "NOT_A2_ACQUISITION_AUTHORITY",
+    "NOT_A_MERGE_OF_A2_INTO_A3",
+    "NOT_AN_A2_REPLACEMENT_OR_RESERVE_DECISION",
+    "NOT_AN_A2_CONTINUATION_GATE_DECISION",
+    "NOT_A3_EVIDENCE_LOADING_AUTHORITY",
+    "NOT_SET_P_OR_SET_R_AUTHORITY",
+    "NOT_AN_A5_CORPUS_FREEZE",
+    "NOT_HOLDOUT_SCORING_AUTHORITY"
+  ],
+  "identityDisclosure": {
+    "selectionIndices": false,
+    "reservePositions": false,
+    "organisationIds": false,
+    "echeRowKeys": false,
+    "runReferences": false,
+    "drawEntryDigests": false,
+    "documentHashes": false,
+    "urlsOrDomains": false,
+    "sealedFilenames": false,
+    "perSlotStatus": false,
+    "labelsGoldOrClassifierData": false
+  }
+}
