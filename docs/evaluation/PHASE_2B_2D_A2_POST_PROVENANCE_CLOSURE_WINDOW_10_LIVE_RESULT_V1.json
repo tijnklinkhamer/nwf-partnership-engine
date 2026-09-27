@@ -1,0 +1,361 @@
+{
+  "record": "PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_10_LIVE_RESULT_V1",
+  "recordKind": "LIVE_WINDOW_RESULT",
+  "recordedAtUtc": "2026-09-27T21:03:01Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "c6eac6589cae2df19be3a5808ad53f9bad7b8f0c",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "boundAuthority": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_10_LIVE_AUTHORITY_V1.json",
+    "sha256": "b738c54ae589dbb0a5ace3e389ac06014f9690dbba89b3bde1888eaf6d27f323",
+    "bytes": 11954,
+    "commit": "5ae4b5a15b27128524ce350a5fbe269d76a49a75"
+  },
+  "boundPrenetworkAssignment": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_10_PRENETWORK_ASSIGNMENT_V1.json",
+    "sha256": "0163f24d82098ccb0f28f33c543c238b59e94e33dd47bfa268855ea4642d1250",
+    "bytes": 6147,
+    "commit": "c6eac6589cae2df19be3a5808ad53f9bad7b8f0c"
+  },
+  "boundPlan": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_10_PLAN_V1.json",
+    "sha256": "ea195c860a986900fd3282a8d1306518142700f871a25d9a01d1c5328e75ec49",
+    "bytes": 6560,
+    "windowPlanHash": "4a4f27a6d9bbc1b816760897d6f1f0bc270c0e6d8c87862f92f784e238fc6d49"
+  },
+  "boundP5AndConcurrencyReviewAndResume": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_09_P5_AND_CONCURRENCY_REVIEW_REMAINING_AUTHORITY_RESUME_V1.json",
+    "sha256": "b6a8b9f26eee1a13d87450c651bd5e46ebdcbeec090b8c1cf59aca8188bf6ad3",
+    "bytes": 16788,
+    "commit": "db5c5b1f652101ae6f93089d5d47cf0cdaddfff5"
+  },
+  "ledgerDuringTheWindow": {
+    "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+    "sha256": "9673ab712a2de776df8a2751cd5489d7504f2d1ddc11132e7ee60d9208ba1930",
+    "bytes": 27507,
+    "entries": 37,
+    "ledgerHash": "87d8c89d77ac12317bc9430e9ee917e01e31ef5fc718229266dcff6ca2bf9c9c",
+    "unchangedSinceThePreNetworkAppend": true,
+    "noAppendDuringOrAfterTheLiveWindow": true
+  },
+  "windowOutcome": "WINDOW_EXECUTED_2_OF_5_STOPPED_AFTER_ITEM_2_CONCURRENCY_INTEGRITY_DEVIATION_AND_P5",
+  "stops": {
+    "concurrencyStop": {
+      "fired": true,
+      "marker": "CONCURRENCY_INTEGRITY_DEVIATION_DETECTED_DURING_ITEM",
+      "item": "R:75:36",
+      "isP8": false,
+      "detail": "see items[R:75:36].structuralFailureDetail.concurrencyDeviation",
+      "effect": "the running invocation was allowed to terminate cleanly; the competing process was not killed; no later item started; returned for owner review"
+    },
+    "p5": {
+      "fired": true,
+      "condition": "P5",
+      "decision": "PAUSE_P5_LOW_RAW_YIELD",
+      "arm": "raw pages < 4 on 2 of 5 planned items (> 30%)",
+      "firedAfterItem": "R:75:36",
+      "why": "R:73:35 (0 raw) and R:75:36 (0 raw) both fell below 4 raw pages",
+      "p5NotRetuned": true
+    },
+    "bothFiredAfterTheSameItemIndependently": true,
+    "itemsNotStarted": ["P:76", "P:77", "P:78"],
+    "windowChargedInFull": true,
+    "automaticContinuationStopped": true
+  },
+  "items": [
+    {
+      "order": 1,
+      "workItemId": "R:73:35",
+      "split": "FINAL_HOLDOUT",
+      "drawEntrySha256": "888395d18610c9a962f29e33db2038a125a20e2e62b6d996dcb683c45113c170",
+      "itemPreflight": {
+        "occupantIsThisDrawEntry": true,
+        "organisationRowMatchesDraw": true,
+        "neverStarted": true,
+        "dryRunWasNetworkFree": true,
+        "rootsEqualFrozenRootAuthorities": true
+      },
+      "itemIntervalUtc": ["2026-09-27T20:58:28Z", "2026-09-27T20:58:31Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "5f314209c79cffc9dd01b95aa70e218e893c25e14da5e88afbbae8099c262e16",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "pageAttempts": 0,
+      "gatewayRequests": 1,
+      "fetchObservationsByErrorKind": {
+        "DNS_FAILURE": 1
+      },
+      "candidateRows": 0,
+      "rawPageEvidenceCount": 0,
+      "sd9EligiblePageCount": 0,
+      "zeroExtractedTextPageCount": 0,
+      "postSd7Range": [0, 0],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "A",
+      "sd9StatusMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "postItemHostStateClean": true,
+      "postItemQuietCheckGreen": true,
+      "sleepEventsDuringItem": 0,
+      "structuralFailureDetail": {
+        "robotsAttempts": 1,
+        "errorKind": "DNS_FAILURE",
+        "errorSubtype": "DNS_NAME_NOT_FOUND",
+        "authoritativeNegativeNoRetryUnderV4": true,
+        "noAddressResolved": true,
+        "vantage": "native IPv4, ipv4only.arpa AAAA empty, no DNS64/NAT64"
+      }
+    },
+    {
+      "order": 2,
+      "workItemId": "R:75:36",
+      "split": "FINAL_HOLDOUT",
+      "drawEntrySha256": "ce9377ae7fbfe972d11eb04efd93e8657408183e9cce9169993e458dc4f9ac4e",
+      "itemPreflight": {
+        "occupantIsThisDrawEntry": true,
+        "organisationRowMatchesDraw": true,
+        "neverStarted": true,
+        "dryRunWasNetworkFree": true,
+        "rootsEqualFrozenRootAuthorities": true
+      },
+      "itemIntervalUtc": ["2026-09-27T21:00:57Z", "2026-09-27T21:01:03Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "7fec833a28cbf4301ada2afd78d4d3080a514a46a8ea7ac80f803a42791b79fa",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "pageAttempts": 0,
+      "gatewayRequests": 1,
+      "fetchObservationsByErrorKind": {
+        "TLS_FAILURE": 1
+      },
+      "candidateRows": 0,
+      "rawPageEvidenceCount": 0,
+      "sd9EligiblePageCount": 0,
+      "zeroExtractedTextPageCount": 0,
+      "postSd7Range": [0, 0],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "A",
+      "sd9StatusMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "postItemHostStateClean": true,
+      "postItemQuietCheckGreen": false,
+      "sleepEventsDuringItem": 0,
+      "structuralFailureDetail": {
+        "robotsAttempts": 1,
+        "errorKind": "TLS_FAILURE",
+        "errorSubtype": "TLS_PROTOCOL_INCOMPATIBLE",
+        "resolvedIpFamily": "IPV4",
+        "resolvedIpIsPublic": true,
+        "noManualRetry": true,
+        "concurrencyDeviation": {
+          "workItemId": "R:75:36",
+          "preItemQuietGate": "120 consecutive clean wall-clock seconds, passed 2026-09-27T21:00:53Z, resets 0",
+          "immediatePreLaunchCompetingCheck": "clean",
+          "itemIntervalUtc": ["2026-09-27T21:00:57Z", "2026-09-27T21:01:03Z"],
+          "inItemWatch": {
+            "pollSeconds": 2,
+            "polls": 4,
+            "cleanPolls": 3,
+            "lastCleanPollApproxUtc": "2026-09-27T21:01:01Z",
+            "detection": "DETECTED-AT-END 2026-09-27T21:01:03Z - the final poll, taken as the acquisition invocation terminated"
+          },
+          "competingProcess": "an A3 worktree (R35 incremental SD7 graph V4) launched a single-file vitest run (a shell wrapper, then npm exec vitest, then the vitest node process)",
+          "competingProcessKilled": false,
+          "competingProcessStartBoundedTo": "after ~21:01:01Z and at or before 21:01:03Z; its exact start is not recoverable from the process table (the process has since exited)",
+          "itemNetworkObservations": [
+            {
+              "errorKind": "TLS_FAILURE",
+              "errorSubtype": "TLS_PROTOCOL_INCOMPATIBLE",
+              "persistedAtUtc": "2026-09-27T21:01:02.301Z",
+              "resolvedIpFamily": "IPV4",
+              "resolvedIpIsPublic": true
+            }
+          ],
+          "overlapWithTheItemCannotBeExcluded": true,
+          "a2InvocationAllowedToTerminateCleanly": true,
+          "runTerminalState": "COMPLETED",
+          "completionRows": 1,
+          "hostStateLines": "all clean: 0 sleep events, battery 41, lid open, no DNS64, native IPv4",
+          "postItemProcessCheck": "RED (the A3 vitest processes)",
+          "classifiedAs": "CONCURRENCY_INTEGRITY_DEVIATION_DETECTED_DURING_ITEM - an operational stop, NOT P8",
+          "evidenceValidityDecision": "RESERVED FOR THE OWNER - not decided by the executing agent"
+        }
+      }
+    }
+  ],
+  "gateAfterEveryItem": [
+    {
+      "afterItem": "R:73:35",
+      "p7": "13/13",
+      "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+      "triggeredConditions": [],
+      "windowLowYieldCount": 1,
+      "windowRobotsRefusalCount": 1,
+      "maxConsecutiveFailedRuns": 0,
+      "maxConsecutiveRootAuthorityFailures": 0,
+      "nextWorkItemId": "R:75:36"
+    },
+    {
+      "afterItem": "R:75:36",
+      "p7": "13/13",
+      "decision": "PAUSE_P5_LOW_RAW_YIELD",
+      "triggeredConditions": [
+        {
+          "condition": "P5",
+          "decision": "PAUSE_P5_LOW_RAW_YIELD",
+          "arm": "raw pages < 4 on 2 of 5 planned items (> 30%)"
+        }
+      ],
+      "windowLowYieldCount": 2,
+      "windowRobotsRefusalCount": 2,
+      "maxConsecutiveFailedRuns": 0,
+      "maxConsecutiveRootAuthorityFailures": 0,
+      "nextWorkItemId": null
+    }
+  ],
+  "runReferenceProvenance": {
+    "everyRunRefSha256IsAFull64HexDigest": true,
+    "derivation": "sha256(lowercase run UUID), no prefix - the modern A2 convention, unchanged",
+    "noPrefixOnlyField": true,
+    "noRawRunUuidPublished": true
+  },
+  "sd9Bridge": {
+    "rawAndEligibleCountsReportedSeparately": true,
+    "onlyRowsWithMainTextCharsAboveZeroEnteredDedupe": true,
+    "zeroExtractedTextRowsInThisWindow": 0,
+    "analyser": "analyseOrganisation (the repaired bridge at 417ac85), unmodified"
+  },
+  "mechanicalSd9ReadingIsNotTheAdjudication": "sd9StatusMechanical is the landed analyser's output over each run's own page evidence. The adjudication record, not this one, binds it to Q3 and the canonical state",
+  "databaseReconciliation": {
+    "readAs": "readonly",
+    "before": {
+      "runs": 121,
+      "completions": 121,
+      "fetchObservations": 3130,
+      "redirectObservations": 243,
+      "pageEvidence": 2337,
+      "pageCandidates": 4674,
+      "BLOCKED_BY_POLICY": 6,
+      "rootPromotions": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "after": {
+      "runs": 123,
+      "completions": 123,
+      "fetchObservations": 3132,
+      "redirectObservations": 243,
+      "pageEvidence": 2337,
+      "pageCandidates": 4674,
+      "BLOCKED_BY_POLICY": 6,
+      "rootPromotions": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "delta": {
+      "runs": 2,
+      "completions": 2,
+      "fetchObservations": 2,
+      "redirectObservations": 0,
+      "pageEvidence": 0,
+      "pageCandidates": 0,
+      "BLOCKED_BY_POLICY": 0,
+      "rootPromotions": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "fetchObservationDeltaEqualsSumOfItemRequests": true,
+    "pageEvidenceDeltaEqualsSumOfItemRawPages": true,
+    "candidateDeltaEqualsTwicePageDelta": true,
+    "runsDelta2CompletionsDelta2": true,
+    "noNewBlockedByPolicy": true,
+    "noRootPromotion": true,
+    "unexplainedMovement": false
+  },
+  "networkVantage": {
+    "provedBeforeEveryItemAndAfterEveryItem": true,
+    "ipv4DefaultRouteOnEn0": true,
+    "nativeIpv4AddressNotClat": true,
+    "ipv4onlyArpaAaaaAnswer": "empty - no DNS64 synthesis",
+    "nat64Condition": false,
+    "everyResolvedAddressThisWindowWasPublicIpv4": true,
+    "addressClassifierUnchanged": true
+  },
+  "hostSafety": {
+    "windowGovernedSinceLocal": "2026-09-27 22:56:18",
+    "sleepWakeDarkWakeEventsInTheGovernedInterval": 0,
+    "predicate": "timestamp predicate over pmset -g log; the script fails closed if the log is unavailable",
+    "batteryAlwaysAbove20Percent": true,
+    "lidOpenThroughout": true,
+    "caffeinateDimsuWrappedEveryExecute": true
+  },
+  "concurrency": {
+    "preItemQuietGate": ">= 120 consecutive clean WALL-CLOCK seconds before every item; any conflict reset the interval",
+    "preItemQuietGateResets": {
+      "R:73:35": 0,
+      "R:75:36": 0
+    },
+    "immediatePreLaunchCheckClean": true,
+    "continuousInItemWatch": {
+      "pollSeconds": 2,
+      "readOnly": true,
+      "excludesOnlyTheGovernedInvocationAndItsDescendants": true,
+      "selfTest": "before the window, a fake competing npm test in the A2 worktree was detected within 2 s while a descendant of the watched pid was correctly excluded",
+      "R:73:35": "CLEAN (2 polls, 0 detections)",
+      "R:75:36": "DETECTED at the final poll (4 polls, 1 detection)"
+    },
+    "deviation": "an A3 worktree single-file vitest run appeared between ~21:01:01Z and 21:01:03Z, overlapping or immediately abutting the end of R:75:36; overlap cannot be excluded",
+    "a3WorktreeNotTouchedReadOrMerged": true,
+    "itemsRanSequentiallyConcurrency1": true
+  },
+  "forbiddenActions": {
+    "manualRetries": 0,
+    "alternateRoots": 0,
+    "hostnameGuesses": 0,
+    "crossDomainRobotsRedirectFollowed": false,
+    "rootPromotions": 0,
+    "timeoutWidening": false,
+    "tlsWeakening": false,
+    "nat64Bypass": false,
+    "browserCurlWgetInstitutionFetch": 0,
+    "extractionChange": false,
+    "dynamicReserveInsertion": false,
+    "reserve37Used": false,
+    "p76Started": false,
+    "p77Started": false,
+    "p78Started": false
+  },
+  "identityDisclosure": {
+    "institutionNamesRecorded": 0,
+    "organisationUuidsRecorded": 0,
+    "echeRowKeysRecorded": 0,
+    "hostnamesRecorded": 0,
+    "urlsRecorded": 0,
+    "finalHoldoutItems": ["R:73:35", "R:75:36"],
+    "holdoutHandling": "structural counts only; no title, url, excerpt, hostname or page text read or recorded"
+  },
+  "adjudicationDeferred": "the executing agent does NOT adjudicate this window: the concurrency deviation on R:75:36 is reserved for owner review before any Q3 disposition or obligation is recorded",
+  "terminalState": "PHASE_2B_2D_A2_WINDOW_10_STOPPED_CONCURRENCY_INTEGRITY_DEVIATION_AND_P5_AWAITING_OWNER_REVIEW",
+  "immutability": "append-only. This record is never edited."
+}
