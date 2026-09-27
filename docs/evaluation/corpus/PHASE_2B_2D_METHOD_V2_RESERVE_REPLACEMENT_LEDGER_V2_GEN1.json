@@ -514,7 +514,49 @@
       "previousSequenceForSlot": null,
       "previousEntryHash": "db2966a70efb6d6448cddf471524aff3a6d9a5287fc2e9848567d99aaa55a84a",
       "entryHash": "f03fc6845300b64f543370394cea0ed408b2ad6de088842d2bd3993e5f8aa655"
+    },
+    {
+      "sequence": 30,
+      "selectionIndex": 59,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "LV RIGA44|880036769",
+      "replacementEcheRowKey": "E CUENCA02|949600707",
+      "reserveRankPosition": 30,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-09-27T19:10:42Z",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "f03fc6845300b64f543370394cea0ed408b2ad6de088842d2bd3993e5f8aa655",
+      "entryHash": "07404de32e37d622220cc8c24e8753451bd7dec73b3d1ac1a9295d66d1e57c28"
+    },
+    {
+      "sequence": 31,
+      "selectionIndex": 66,
+      "split": "DEV_TRAIN",
+      "replacedEcheRowKey": "BA TUZLA02|995904045",
+      "replacementEcheRowKey": "E CUENCA15|921706805",
+      "reserveRankPosition": 31,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-09-27T19:10:42Z",
+      "replacedOccupantKind": "RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 28,
+      "previousEntryHash": "07404de32e37d622220cc8c24e8753451bd7dec73b3d1ac1a9295d66d1e57c28",
+      "entryHash": "654406e9d538ccc5e9df7d89ed10ac0086b66504e650b1dd2fe8d227880d7656"
+    },
+    {
+      "sequence": 32,
+      "selectionIndex": 70,
+      "split": "FINAL_HOLDOUT",
+      "replacedEcheRowKey": "F MORLAIX02|886276391",
+      "replacementEcheRowKey": "PL SIEDLCE03|936684866",
+      "reserveRankPosition": 32,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-09-27T19:10:42Z",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "654406e9d538ccc5e9df7d89ed10ac0086b66504e650b1dd2fe8d227880d7656",
+      "entryHash": "bf9edb2b62bee581b69acbc12a23cb714601526f173a2a86459db365a3bb3e2a"
     }
   ],
-  "ledgerHash": "64e9848427baf8ed7d3329becb4fcca66b1f581e5bc6d91a409f4c0139e9cff0"
+  "ledgerHash": "f31730bc40faa76be59c47d010120a95853dd9170349f58e234f7d19efec74e0"
 }
