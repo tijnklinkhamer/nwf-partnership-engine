@@ -32,6 +32,21 @@ const A3GOVERNANCE_V4_REL = `${HARNESS}/a3governanceV4`;
 /** The exact canonical R31 tip R32 was cut from. */
 const R31_TERMINAL = 'a11bad6f5e74b777e377962035e0d15d5aa605bd';
 
+/**
+ * R32'S OWN TERMINAL COMMIT.
+ *
+ * R32's changed-surface and docs-scope assertions describe R32'S SLICE, so
+ * they range over R32's own commits - `R31_TERMINAL..R32_TERMINAL` - rather
+ * than over the working tree. Once a later slice lands on top, the working
+ * tree is no longer R32's surface, and diffing to it would fail for the
+ * honest reason that history moved on rather than because R32 changed.
+ *
+ * This is the same standing convention R19 through R31 apply, and it
+ * WEAKENS NOTHING: R32's range is frozen, its permitted-path list is
+ * unchanged, and each later slice pins the equivalent scope over its own range.
+ */
+const R32_TERMINAL = '747b64fa40c93e4b871ea1675682fb1531b21341';
+
 /** The one commit that pinned R31's own changed-surface test to its range. */
 const R31_SCOPE_PIN_COMMIT = '834a3e07c1c27d8e1b2387143a24c9905c4a9f19';
 const R31_ISOLATION_TEST = 'src/test/unit/orgunitCorpus2DA3GovernanceV3Isolation.test.ts';
@@ -432,7 +447,8 @@ function allCodeWithoutStrings(): string {
     .replace(/"[^"\n]*"/g, '""');
 }
 
-const baseAvailable = commitExists(R31_TERMINAL) && commitExists(R31_SCOPE_PIN_COMMIT);
+const baseAvailable =
+  commitExists(R31_TERMINAL) && commitExists(R31_SCOPE_PIN_COMMIT) && commitExists(R32_TERMINAL);
 
 // ---------------------------------------------------------------------------
 
@@ -631,20 +647,14 @@ describe.skipIf(!baseAvailable)('2D-A3 R32: lineage and changed surface', () => 
   });
 
   it('writes no governance record: every docs/evaluation change is the R32 census', () => {
-    const changed = [
-      ...lines(git('diff', '--name-only', R31_TERMINAL, '--', 'docs/evaluation')),
-      ...lines(git('ls-files', '--others', '--exclude-standard', '--', 'docs/evaluation')),
-    ];
+    const changed = lines(
+      git('diff', '--name-only', R31_TERMINAL, R32_TERMINAL, '--', 'docs/evaluation'),
+    );
     expect(changed.filter((path) => path !== R32_CENSUS_PATH)).toEqual([]);
   });
 
   it('changes nothing outside its own namespace, tests, records and the R31 scope pin', () => {
-    const paths = [
-      ...new Set([
-        ...lines(git('diff', '--name-only', R31_TERMINAL)),
-        ...lines(git('ls-files', '--others', '--exclude-standard')),
-      ]),
-    ];
+    const paths = lines(git('diff', '--name-only', R31_TERMINAL, R32_TERMINAL));
     const permitted = (path: string): boolean =>
       path.startsWith(`${A3GOVERNANCE_V4_REL}/`) ||
       R32_TESTS.includes(path) ||
