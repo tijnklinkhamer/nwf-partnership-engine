@@ -60,7 +60,12 @@ export interface SealedOrganisationRecord {
   readonly split: Split;
   readonly selectionIndex: number;
   readonly echeRowKey: string;
+  /** EVERY persisted page-evidence row, including zero-extracted-text ones. */
   readonly rawPageCount: number;
+  /** The subset with `mainTextChars > 0`: the only rows SD7 deduplicated. */
+  readonly sd9ExtractableTextPageCount: number;
+  /** `rawPageCount - sd9ExtractableTextPageCount`. Recorded, never erased. */
+  readonly zeroExtractedTextPageCount: number;
   readonly exact: {
     readonly rowCount: number;
     readonly distinctDocumentCount: number;
@@ -110,6 +115,8 @@ export function toSealedRecord(analysis: OrganisationAnalysis): SealedOrganisati
     selectionIndex: analysis.selectionIndex,
     echeRowKey: analysis.echeRowKey,
     rawPageCount: analysis.rawPageCount,
+    sd9ExtractableTextPageCount: analysis.sd9ExtractableTextPageCount,
+    zeroExtractedTextPageCount: analysis.zeroExtractedTextPageCount,
     exact: {
       rowCount: analysis.exact.rowCount,
       distinctDocumentCount: analysis.exact.distinctDocumentCount,

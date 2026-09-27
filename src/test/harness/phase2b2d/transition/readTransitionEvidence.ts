@@ -145,6 +145,8 @@ export interface TransitionPageRow {
   readonly pageId: string;
   readonly documentSha256: string;
   readonly mainText: string;
+  /** `orgunit_page_evidence.main_text_chars`, as persisted. */
+  readonly mainTextChars: number;
 }
 
 /**
@@ -164,12 +166,14 @@ export async function readOrganisationPages(
     page_id: string;
     response_sha256: string | null;
     main_text: string;
+    main_text_chars: number;
   }>(
     `SELECT fo.run_id,
             fo.eche_row_key,
             pe.id AS page_id,
             fo.response_sha256,
-            pe.main_text
+            pe.main_text,
+            pe.main_text_chars
        FROM orgunit_page_evidence pe
        JOIN orgunit_fetch_observations fo ON fo.id = pe.fetch_observation_id
       WHERE fo.eche_row_key = $1
@@ -193,6 +197,7 @@ export async function readOrganisationPages(
       pageId: row.page_id,
       documentSha256: row.response_sha256,
       mainText: row.main_text,
+      mainTextChars: row.main_text_chars,
     };
   });
 }

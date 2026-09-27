@@ -275,6 +275,8 @@ export async function materialiseTransition(
         pageId: page.pageId,
         documentSha256: page.documentSha256,
         mainText: page.mainText,
+        // Carried RAW: SD9 eligibility is decided inside `analyseOrganisation`.
+        mainTextChars: page.mainTextChars,
       })),
     });
 

@@ -84,6 +84,11 @@ const A1B_FILES = [
   'readFrozenFrame.ts',
 ];
 const SD7_FILES = [
+  // Added by the SD9 extractable-text bridge repair: a DELIBERATE, reviewed
+  // widening of this list, by exact name, for the module that makes SD9's own
+  // "with extractable text" prerequisite structural. See
+  // SD9_EXTRACTABLE_TEXT_REQUIRES_NONEMPTY_EXTRACTED_MAIN_TEXT_V1.
+  'extractableText.ts',
   'jaccard.ts',
   'materialisePilot.ts',
   'nearDuplicatePairs.ts',
@@ -231,7 +236,7 @@ describe('2D Option-B transition: the directory holds exactly the reviewed modul
     ).toEqual(A1B_FILES);
   });
 
-  it('leaves A3a’s sd7 directory at exactly its nine modules', () => {
+  it('leaves A3a’s sd7 directory at exactly its ten modules', () => {
     expect(
       readdirSync(SD7_DIR)
         .filter((name) => !name.startsWith('.'))

@@ -6,11 +6,16 @@
  *
  * THE THREE SD9 CASES, EXACTLY AS THE OWNER SPECIFIED THEM
  *
- *   A. RAW PAGE COUNT = 0. The post-SD7 count is necessarily 0, because
- *      deduplication cannot create pages. This needs no dedupe assumption at
- *      all, so it is finalised outright as
+ *   A. SD9-ELIGIBLE PAGE COUNT = 0. The post-SD7 count is necessarily 0,
+ *      because deduplication cannot create pages. This needs no dedupe
+ *      assumption at all, so it is finalised outright as
  *      ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET - and notably it stays
  *      decidable even though SD7 carries unresolved detail elsewhere.
+ *
+ *      It covers TWO shapes: an organisation that produced no page-evidence
+ *      row at all, and one whose every persisted row extracted to zero
+ *      characters. Both yield zero pages WITH EXTRACTABLE TEXT, which is the
+ *      population SD9's threshold ranges over.
  *
  *   B. NO UNRESOLVED AMBIGUITY, AND THE EXACT POST-SD7 COUNT IS KNOWN.
  *      >= 4 is ACQUISITION_SUCCESSFUL; < 4 is
@@ -29,7 +34,10 @@
  *       whenever every near-duplicate component is a clique.
  *     - short text. Each SD7_SHORT_TEXT_UNRESOLVED document either survives or
  *       does not, and R3 gives no rule to say which, so it contributes between
- *       0 and 1.
+ *       0 and 1. A ZERO-CHARACTER page is NOT one of these: it never reaches
+ *       the near-duplicate pass, because SD9 excludes it by its own wording
+ *       (see `extractableText.ts`). Widening a range with it would assert that
+ *       a page with no extracted text might be a page with extractable text.
  *
  *   The verdict is certain exactly when the WHOLE range falls on one side of
  *   MIN_PAGES_PER_ORGANISATION. If the range straddles it, case C applies. This
@@ -41,8 +49,8 @@ import {
   nearDuplicatePass,
   type ExactDuplicatePass,
   type NearDuplicatePass,
-  type PageForSd7,
 } from './nearDuplicatePairs.js';
+import { partitionByExtractableText, type PageForSd7 } from './extractableText.js';
 import {
   MIN_PAGES_PER_ORGANISATION,
   Sd7PilotStop,
@@ -54,6 +62,15 @@ export interface OrganisationInput {
   readonly echeRowKey: string;
   readonly selectionIndex: number;
   readonly split: Split;
+  /**
+   * EVERY persisted `orgunit_page_evidence` row for this organisation's run,
+   * RAW - including rows whose extraction yielded zero characters.
+   *
+   * The caller hands over the whole set and does not pre-filter it. Eligibility
+   * for SD9 is decided HERE, by `partitionByExtractableText`, so that the raw
+   * count and the eligible count are both derived from one reading of one set
+   * and a caller cannot apply a different rule on the way in.
+   */
   readonly pages: readonly PageForSd7[];
 }
 
@@ -61,7 +78,23 @@ export interface OrganisationAnalysis {
   readonly echeRowKey: string;
   readonly selectionIndex: number;
   readonly split: Split;
+  /**
+   * EVERY persisted page-evidence row, including zero-extracted-text ones.
+   *
+   * The name and the meaning are unchanged from every record already written
+   * with it: "how many `orgunit_page_evidence` rows this run produced". It is
+   * NOT the SD9 population and must not be read as one.
+   */
   readonly rawPageCount: number;
+  /** The same number under an unambiguous name. */
+  readonly rawPageEvidenceCount: number;
+  /**
+   * The rows with `mainTextChars > 0` - SD9's "pages with extractable text",
+   * and the ONLY rows that enter deduplication.
+   */
+  readonly sd9ExtractableTextPageCount: number;
+  /** `rawPageEvidenceCount - sd9ExtractableTextPageCount`. Recorded, never erased. */
+  readonly zeroExtractedTextPageCount: number;
   readonly exact: ExactDuplicatePass;
   /** Absent when the organisation produced no page at all: case A needs no pass. */
   readonly near: NearDuplicatePass | null;
@@ -82,17 +115,30 @@ export interface OrganisationAnalysis {
 export function analyseOrganisation(input: OrganisationInput): OrganisationAnalysis {
   const rawPageCount = input.pages.length;
 
+  // ---- SD9'S OWN PREREQUISITE, APPLIED BEFORE ANYTHING ELSE --------------
+  // SD9 counts "distinct pages WITH EXTRACTABLE TEXT". A persisted row whose
+  // extraction is zero characters long is not one, so it is removed from the
+  // population here - and counted, never erased. See `extractableText.ts` and
+  // SD9_EXTRACTABLE_TEXT_REQUIRES_NONEMPTY_EXTRACTED_MAIN_TEXT_V1.
+  const partition = partitionByExtractableText(input.pages);
+  const eligiblePages = partition.eligible;
+
   // ---- CASE A -----------------------------------------------------------
   // Deduplication is a removal operation. It has no branch that produces a
-  // page, so zero pages in means zero pages out under every possible reading
-  // of every unresolved detail. This is the one verdict A3a can finalise with
-  // no SD7 assumption whatsoever.
-  if (rawPageCount === 0) {
+  // page, so zero ELIGIBLE pages in means zero pages out under every possible
+  // reading of every unresolved detail. This is the one verdict A3a can
+  // finalise with no SD7 assumption whatsoever, and it covers both an
+  // organisation that produced no page at all and one whose every page
+  // extracted to nothing.
+  if (partition.sd9ExtractableTextPageCount === 0) {
     return {
       echeRowKey: input.echeRowKey,
       selectionIndex: input.selectionIndex,
       split: input.split,
-      rawPageCount: 0,
+      rawPageCount,
+      rawPageEvidenceCount: partition.rawPageEvidenceCount,
+      sd9ExtractableTextPageCount: 0,
+      zeroExtractedTextPageCount: partition.zeroExtractedTextPageCount,
       exact: exactDuplicatePass([]),
       near: null,
       postSd7CountMin: 0,
@@ -110,13 +156,13 @@ export function analyseOrganisation(input: OrganisationInput): OrganisationAnaly
     };
   }
 
-  const exact = exactDuplicatePass(input.pages);
+  const exact = exactDuplicatePass(eligiblePages);
 
   // The text lookup exists so that page bytes reach the shingler and nothing
   // else. Every member of an exact-duplicate group is byte-identical, so the
   // first member's text represents the group; divergence is refused upstream.
   const textByHash = new Map<string, string>();
-  for (const page of input.pages) {
+  for (const page of eligiblePages) {
     if (!textByHash.has(page.documentSha256)) textByHash.set(page.documentSha256, page.mainText);
   }
   const near = nearDuplicatePass(exact.groups, (hash) => {
@@ -165,6 +211,9 @@ export function analyseOrganisation(input: OrganisationInput): OrganisationAnaly
     selectionIndex: input.selectionIndex,
     split: input.split,
     rawPageCount,
+    rawPageEvidenceCount: partition.rawPageEvidenceCount,
+    sd9ExtractableTextPageCount: partition.sd9ExtractableTextPageCount,
+    zeroExtractedTextPageCount: partition.zeroExtractedTextPageCount,
     exact,
     near,
     postSd7CountMin,
@@ -188,7 +237,15 @@ export function analyseOrganisation(input: OrganisationInput): OrganisationAnaly
 
 export interface PilotAggregate {
   readonly organisationsAnalysed: number;
+  /** EVERY persisted page-evidence row, including zero-extracted-text ones. */
   readonly rawPageEvidenceRows: number;
+  /** The subset with `mainTextChars > 0`: SD9's population. */
+  readonly sd9ExtractableTextPageRows: number;
+  /** `rawPageEvidenceRows - sd9ExtractableTextPageRows`. */
+  readonly zeroExtractedTextPageRows: number;
+  readonly organisationsWithZeroExtractedTextPages: number;
+  /** Organisations whose every persisted page extracted to nothing. */
+  readonly organisationsWithNoExtractableTextPageAtAll: number;
   readonly exactDuplicateRowsRemoved: number;
   readonly exactDuplicateGroupCount: number;
   readonly distinctDocumentCount: number;
@@ -229,10 +286,15 @@ export function analysePilot(inputs: readonly OrganisationInput[]): PilotResult 
 
   const withNearDuplicates = count((a) => (a.near?.edgeCount ?? 0) > 0);
   const zeroRawPage = count((a) => a.rawPageCount === 0);
+  const zeroEligiblePage = count((a) => a.sd9ExtractableTextPageCount === 0);
 
   const aggregate: PilotAggregate = {
     organisationsAnalysed: organisations.length,
-    rawPageEvidenceRows: sum((a) => a.rawPageCount),
+    rawPageEvidenceRows: sum((a) => a.rawPageEvidenceCount),
+    sd9ExtractableTextPageRows: sum((a) => a.sd9ExtractableTextPageCount),
+    zeroExtractedTextPageRows: sum((a) => a.zeroExtractedTextPageCount),
+    organisationsWithZeroExtractedTextPages: count((a) => a.zeroExtractedTextPageCount > 0),
+    organisationsWithNoExtractableTextPageAtAll: zeroEligiblePage,
     exactDuplicateRowsRemoved: sum((a) => a.exact.duplicateRowsRemoved),
     exactDuplicateGroupCount: sum((a) => a.exact.duplicateGroupCount),
     distinctDocumentCount: sum((a) => a.exact.distinctDocumentCount),
@@ -255,9 +317,12 @@ export function analysePilot(inputs: readonly OrganisationInput[]): PilotResult 
       (a) => a.sd9Status === 'ACQUISITION_STATUS_PENDING_SD7_OWNER_DETAIL',
     ),
     zeroRawPageOrganisationCount: zeroRawPage,
-    // A zero-page organisation cannot become a success under any reading, so
-    // the ceiling on this batch is everything that is not one of them.
-    maximumPossibleSuccessesInThisBatch: organisations.length - zeroRawPage,
+    // An organisation with no SD9-ELIGIBLE page cannot become a success under
+    // any reading, so the ceiling on this batch is everything that is not one
+    // of them. That set contains every zero-raw-page organisation and, since
+    // SD9_EXTRACTABLE_TEXT_REQUIRES_NONEMPTY_EXTRACTED_MAIN_TEXT_V1, every
+    // organisation whose pages all extracted to nothing as well.
+    maximumPossibleSuccessesInThisBatch: organisations.length - zeroEligiblePage,
   };
 
   const survivorAmbiguityCanAffectSd9 =

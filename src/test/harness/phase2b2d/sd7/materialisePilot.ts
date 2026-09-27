@@ -232,6 +232,10 @@ export async function materialisePilot(
           pageId: page.pageId,
           documentSha256: page.documentSha256,
           mainText: page.mainText,
+          // Carried RAW. Eligibility for SD9 is decided inside
+          // `analyseOrganisation`, never here, so the raw row count and the
+          // SD9-eligible count are both derived from one reading of one set.
+          mainTextChars: page.mainTextChars,
         })),
     }));
 

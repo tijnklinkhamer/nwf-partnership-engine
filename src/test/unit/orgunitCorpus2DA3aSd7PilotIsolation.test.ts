@@ -40,6 +40,11 @@ const A1_DIR = join(REPO_ROOT, HARNESS_2D, 'corpus');
 const A1B_DIR = join(REPO_ROOT, HARNESS_2D, 'draw');
 
 const SD7_FILES = [
+  // Added by the SD9 extractable-text bridge repair: a DELIBERATE, reviewed
+  // widening of this list, by exact name, for the module that makes SD9's own
+  // "with extractable text" prerequisite structural. See
+  // SD9_EXTRACTABLE_TEXT_REQUIRES_NONEMPTY_EXTRACTED_MAIN_TEXT_V1.
+  'extractableText.ts',
   'jaccard.ts',
   'materialisePilot.ts',
   'nearDuplicatePairs.ts',
@@ -73,6 +78,7 @@ const A1B_FILES = [
 /** Modules with no IO of any kind at all. */
 const PURE_MODULES = [
   'sd7Contract.ts',
+  'extractableText.ts',
   'normaliseText.ts',
   'tokenShingles.ts',
   'jaccard.ts',
@@ -197,7 +203,7 @@ function graphFrom(entries: readonly string[]): {
 const GRAPH = graphFrom(SD7_FILES);
 
 describe('2D-A3a: the sd7 directory holds exactly the reviewed modules', () => {
-  it('has no file beyond the nine reviewed ones', () => {
+  it('has no file beyond the ten reviewed ones', () => {
     expect(
       readdirSync(SD7_DIR)
         .filter((name) => !name.startsWith('.'))

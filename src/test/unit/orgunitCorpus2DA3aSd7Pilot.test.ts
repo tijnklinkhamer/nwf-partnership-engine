@@ -41,8 +41,12 @@ import {
 import {
   exactDuplicatePass,
   nearDuplicatePass,
-  type PageForSd7,
 } from '../harness/phase2b2d/sd7/nearDuplicatePairs.js';
+import {
+  partitionByExtractableText,
+  type PageForSd7,
+  type Sd9EligiblePage,
+} from '../harness/phase2b2d/sd7/extractableText.js';
 import {
   analyseOrganisation,
   analysePilot,
@@ -50,9 +54,27 @@ import {
 } from '../harness/phase2b2d/sd7/pilotAnalysis.js';
 import { toSealedRecord, writeSealedSplitFile } from '../harness/phase2b2d/sd7/pilotArtifact.js';
 
-/** A page of invented filler, long enough to shingle. */
+/**
+ * A page of invented filler, as the database would hold it.
+ *
+ * `mainTextChars` is derived from the text by CODE POINT, which is what
+ * PostgreSQL's `length()` counts and therefore what the landed column holds.
+ * Passing it separately would let a fixture assert an invariant the schema
+ * forbids; deriving it keeps every fixture schema-consistent by construction.
+ */
 function page(pageId: string, documentSha256: string, mainText: string): PageForSd7 {
-  return { pageId, documentSha256, mainText };
+  return { pageId, documentSha256, mainText, mainTextChars: [...mainText].length };
+}
+
+/**
+ * The same page, minted through the SD9 eligibility gate.
+ *
+ * The deduplication passes accept ONLY branded eligible pages, so a test that
+ * calls one directly has to go through the gate exactly as production does -
+ * which is the point of the brand.
+ */
+function eligible(...pages: readonly PageForSd7[]): readonly Sd9EligiblePage[] {
+  return partitionByExtractableText(pages).eligible;
 }
 
 /** `n` distinct invented tokens, so a page's shingles are controllable. */
@@ -219,12 +241,14 @@ describe('2D-A3a: Jaccard is exact, and the 0.90 threshold is INCLUSIVE', () => 
 
 describe('2D-A3a: exact duplicates are grouped by the landed document SHA', () => {
   it('collapses byte-identical rows into one distinct document', () => {
-    const pass = exactDuplicatePass([
-      page('p1', 'sha-a', 'one'),
-      page('p2', 'sha-a', 'one'),
-      page('p3', 'sha-a', 'one'),
-      page('p4', 'sha-b', 'two'),
-    ]);
+    const pass = exactDuplicatePass(
+      eligible(
+        page('p1', 'sha-a', 'one'),
+        page('p2', 'sha-a', 'one'),
+        page('p3', 'sha-a', 'one'),
+        page('p4', 'sha-b', 'two'),
+      ),
+    );
     expect(pass.rowCount).toBe(4);
     expect(pass.distinctDocumentCount).toBe(2);
     expect(pass.duplicateGroupCount).toBe(1);
@@ -232,15 +256,14 @@ describe('2D-A3a: exact duplicates are grouped by the landed document SHA', () =
   });
 
   it('keeps every member page id - the group IS the document, no survivor is picked', () => {
-    const pass = exactDuplicatePass([page('p1', 'sha-a', 'x'), page('p2', 'sha-a', 'x')]);
+    const pass = exactDuplicatePass(eligible(page('p1', 'sha-a', 'x'), page('p2', 'sha-a', 'x')));
     expect(pass.groups[0]!.pageIds).toEqual(['p1', 'p2']);
   });
 
   it('records divergent extraction rather than choosing which text represents it', () => {
-    const pass = exactDuplicatePass([
-      page('p1', 'sha-a', 'one text'),
-      page('p2', 'sha-a', 'a different text'),
-    ]);
+    const pass = exactDuplicatePass(
+      eligible(page('p1', 'sha-a', 'one text'), page('p2', 'sha-a', 'a different text')),
+    );
     expect(pass.groups[0]!.extractedTextDiverged).toBe(true);
     expect(pass.divergentGroupCount).toBe(1);
     // And it refuses to proceed, because picking one would be a survivor
@@ -249,7 +272,7 @@ describe('2D-A3a: exact duplicates are grouped by the landed document SHA', () =
   });
 
   it('has nowhere to put page text, so an artifact built from it cannot leak one', () => {
-    const pass = exactDuplicatePass([page('p1', 'sha-a', 'secret page body')]);
+    const pass = exactDuplicatePass(eligible(page('p1', 'sha-a', 'secret page body')));
     expect(JSON.stringify(pass.groups)).not.toContain('secret');
   });
 });
@@ -310,10 +333,18 @@ describe('2D-A3a: short text becomes UNRESOLVED, and is never guessed', () => {
         page('p1', 'sha-a', filler(1, 60)),
         page('p2', 'sha-b', filler(100, 60)),
         page('p3', 'sha-c', 'too short'),
+        // A page with NO extracted text at all. It is not short text: SD9's
+        // own wording excludes it, so it never reaches the near-duplicate
+        // pass and is accounted for separately.
         page('p4', 'sha-d', ''),
       ],
     });
-    expect(analysis.near!.shortTextUnresolvedCount).toBe(2);
+    expect(analysis.rawPageEvidenceCount).toBe(4);
+    expect(analysis.sd9ExtractableTextPageCount).toBe(3);
+    expect(analysis.zeroExtractedTextPageCount).toBe(1);
+    // ONE short-text document - 'too short' - not two. The empty page is not
+    // an unresolved near-duplicate question; it is not a page SD9 counts.
+    expect(analysis.near!.shortTextUnresolvedCount).toBe(1);
     expect(analysis.near!.measurableDocumentCount).toBe(2);
     // Only the two measurable documents were ever compared.
     expect(analysis.near!.comparedPairCount).toBe(1);

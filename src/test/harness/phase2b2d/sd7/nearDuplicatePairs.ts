@@ -50,21 +50,24 @@ import { jaccard, type JaccardMeasurement } from './jaccard.js';
 import { hasEnoughTokensToShingle, tokenise } from './normaliseText.js';
 import { shingleSet } from './tokenShingles.js';
 import { MAX_COMPONENT_SIZE_FOR_EXACT_ORDER_AUDIT, Sd7PilotStop } from './sd7Contract.js';
+import type { Sd9EligiblePage } from './extractableText.js';
 
 // ---------------------------------------------------------------------------
 // Inputs
 // ---------------------------------------------------------------------------
 
-/** One `orgunit_page_evidence` row, joined to its fetch's document hash. */
-export interface PageForSd7 {
-  readonly pageId: string;
-  /**
-   * `orgunit_fetch_observations.response_sha256` - the SHA-256 of the DECODED
-   * response bytes, and the only document hash the landed schema has.
-   */
-  readonly documentSha256: string;
-  readonly mainText: string;
-}
+/**
+ * WHAT THIS MODULE WILL ACCEPT, AND WHY IT IS NOT A RAW PAGE ROW.
+ *
+ * SD7 deduplicates the population SD9 counts, and SD9 counts "distinct pages
+ * WITH EXTRACTABLE TEXT". A persisted page-evidence row with zero extracted
+ * characters is not one of those, so it must never reach either pass here.
+ *
+ * That is enforced by TYPE rather than by convention: `Sd9EligiblePage` carries
+ * a brand only `partitionByExtractableText` can attach, so there is no route -
+ * old or new - by which a zero-character row enters deduplication.
+ */
+export type { Sd9EligiblePage, PageForSd7 } from './extractableText.js';
 
 // ---------------------------------------------------------------------------
 // Pass 1 - exact duplicates
@@ -113,8 +116,8 @@ export interface ExactDuplicatePass {
  * the group would be a survivor choice by semantic content - exactly what the
  * owner forbade - so it is escalated instead.
  */
-export function exactDuplicatePass(pages: readonly PageForSd7[]): ExactDuplicatePass {
-  const byHash = new Map<string, PageForSd7[]>();
+export function exactDuplicatePass(pages: readonly Sd9EligiblePage[]): ExactDuplicatePass {
+  const byHash = new Map<string, Sd9EligiblePage[]>();
   for (const page of pages) {
     const existing = byHash.get(page.documentSha256);
     if (existing === undefined) byHash.set(page.documentSha256, [page]);
