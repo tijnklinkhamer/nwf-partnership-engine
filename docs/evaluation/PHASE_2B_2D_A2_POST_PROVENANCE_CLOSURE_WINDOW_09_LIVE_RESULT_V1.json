@@ -1,0 +1,440 @@
+{
+  "record": "PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_09_LIVE_RESULT_V1",
+  "recordKind": "LIVE_WINDOW_RESULT",
+  "recordedAtUtc": "2026-09-27T20:27:34Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "caf2bf45452497eecbf9081c76fd307b2e31f490",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "boundAuthority": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_09_LIVE_AUTHORITY_V1.json",
+    "sha256": "f8f52d2615ec1be097a72c3a4f198ba37b73499452ce89cbfd4cc362516a36bf",
+    "bytes": 9803,
+    "commit": "650d9456349155d015d7959c1e127fb379b32b43"
+  },
+  "boundPrenetworkAssignment": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_09_PRENETWORK_ASSIGNMENT_V1.json",
+    "sha256": "0c2b7c3bcf101c6a83afc3523b49be5b7555cd84923131993a84dedb569a0c59",
+    "bytes": 5723,
+    "commit": "caf2bf45452497eecbf9081c76fd307b2e31f490"
+  },
+  "boundPlan": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_09_PLAN_V1.json",
+    "sha256": "a353104ae030b0675433e04037d114f29ecb9922d35f7c9feed5789e8befa726",
+    "bytes": 6560,
+    "windowPlanHash": "1c038ac2530ca44bd15a6bbbbe506e65033ab84ad46b5d4519724417287b4acd"
+  },
+  "boundP5ReviewAndResume": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_08_P5_REVIEW_AND_REMAINING_AUTHORITY_RESUME_V1.json",
+    "sha256": "3127afa7cb6e09c88b338610ebb930df90eb12585fb7d8c3d4c96a7fd7cf69db",
+    "bytes": 12965,
+    "commit": "c33baf82a974bfaff1d0322c527de24d75dee8c6"
+  },
+  "ledgerDuringTheWindow": {
+    "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+    "sha256": "46fd1bba944a8c1ff8a212baae06128e9d708b12f6d05b2f4354708d83dd0d82",
+    "bytes": 26276,
+    "entries": 35,
+    "ledgerHash": "b3ccb447bfa4fcaac237bcef0d2a684e5753cfc29422c66f62404cbb24cca806",
+    "unchangedSinceThePreNetworkAppend": true,
+    "noAppendDuringOrAfterTheLiveWindow": true
+  },
+  "windowOutcome": "WINDOW_EXECUTED_4_OF_5_PAUSED_P5_AFTER_ITEM_4",
+  "pause": {
+    "fired": true,
+    "condition": "P5",
+    "decision": "PAUSE_P5_LOW_RAW_YIELD",
+    "arm": "raw pages < 4 on 2 of 5 planned items (> 30%)",
+    "firedAfterItem": "P:75",
+    "itemsNotStartedBecauseOfThePause": ["P:76"],
+    "why": "R:73:34 (0 raw) and P:75 (0 raw) both fell below 4 raw pages; 2 of the frozen denominator 5 is the threshold",
+    "effect": "P:76 was NOT started. The pause stops AUTOMATIC CONTINUATION under the standing authority even though 2 windows / 10 attempts remain",
+    "p5NotRetuned": true,
+    "windowChargedInFull": true
+  },
+  "items": [
+    {
+      "order": 1,
+      "workItemId": "R:72:33",
+      "split": "DEV_CONFIRM",
+      "drawEntrySha256": "06377a972ff8bc2dedfaa377f25b300f4d4973cd2015c391850fad501959ca1b",
+      "itemPreflight": {
+        "occupantIsThisDrawEntry": true,
+        "organisationRowMatchesDraw": true,
+        "neverStarted": true,
+        "dryRunWasNetworkFree": true,
+        "rootsEqualFrozenRootAuthorities": true
+      },
+      "itemIntervalUtc": ["2026-09-27T20:04:29Z", "2026-09-27T20:08:19Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "e7cf36c84319303631aa272fedf281ea1a2eb1168cbb8733e2759d195d71d49e",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "pageAttempts": 35,
+      "gatewayRequests": 37,
+      "fetchObservationsByErrorKind": {
+        "NONE": 34,
+        "CONNECTION_RESET": 1,
+        "CONNECT_TIMEOUT": 2
+      },
+      "candidateRows": 46,
+      "rawPageEvidenceCount": 23,
+      "sd9EligiblePageCount": 23,
+      "zeroExtractedTextPageCount": 0,
+      "postSd7Range": [23, 23],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "B",
+      "sd9StatusMechanical": "ACQUISITION_SUCCESSFUL",
+      "postItemHostStateClean": true,
+      "postItemQuietCheckGreen": false,
+      "sleepEventsDuringItem": 0,
+      "structuralFailureDetail": {
+        "concurrencyDeviation": {
+          "workItemId": "R:72:33",
+          "preItemQuietGate": "120 consecutive clean wall-clock seconds, passed 2026-09-27T20:04:25Z",
+          "itemIntervalUtc": ["2026-09-27T20:04:29Z", "2026-09-27T20:08:19Z"],
+          "a3R33ValidateStartedUtc": "2026-09-27T20:06:49Z",
+          "startedMidItemAfterTheGatePassed": true,
+          "postItemQuietCheck": "RED (A3 R33 npm run validate / vitest)",
+          "hostStateLines": "all clean: 0 sleep events, battery 57, lid open, no DNS64, native IPv4",
+          "transportErrorsAllBeganBeforeA3ValidateStart": "CONNECTION_RESET persisted 20:04:40; CONNECT_TIMEOUTs persisted 20:05:11 and 20:06:59 (30 s connect timeout => second attempt began ~20:06:29, before 20:06:49)",
+          "evidenceImpact": "none established; the item succeeded with post-SD7 [23,23]",
+          "classifiedAs": "DISCLOSED_CONCURRENCY_DEVIATION, not a P8 host-state anomaly (P8 is sleep/wake or a pacing-clock gap)"
+        }
+      }
+    },
+    {
+      "order": 2,
+      "workItemId": "R:73:34",
+      "split": "FINAL_HOLDOUT",
+      "drawEntrySha256": "f57e9fb7314960bc8ede44734667a867f4f45f36250589d4778fac845ea4b0ce",
+      "itemPreflight": {
+        "occupantIsThisDrawEntry": true,
+        "organisationRowMatchesDraw": true,
+        "neverStarted": true,
+        "dryRunWasNetworkFree": true,
+        "rootsEqualFrozenRootAuthorities": true
+      },
+      "itemIntervalUtc": ["2026-09-27T20:15:45Z", "2026-09-27T20:16:17Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "a960f3b05c10d91106fa896da08f3ae27760c44ca34841e385b8319fbf8fb568",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "pageAttempts": 0,
+      "gatewayRequests": 2,
+      "fetchObservationsByErrorKind": {
+        "CONNECTION_RESET": 1,
+        "CONNECT_TIMEOUT": 1
+      },
+      "candidateRows": 0,
+      "rawPageEvidenceCount": 0,
+      "sd9EligiblePageCount": 0,
+      "zeroExtractedTextPageCount": 0,
+      "postSd7Range": [0, 0],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "A",
+      "sd9StatusMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "postItemHostStateClean": true,
+      "postItemQuietCheckGreen": true,
+      "sleepEventsDuringItem": 0,
+      "structuralFailureDetail": {
+        "robotsAttempts": 2,
+        "attempt1": "CONNECTION_RESET",
+        "attempt2": "CONNECT_TIMEOUT",
+        "resolvedIpFamily": "IPV4",
+        "resolvedIpIsPublic": true,
+        "secondAttemptIsTheLandedV4BoundedRobotsRetry": true,
+        "noManualRetry": true
+      }
+    },
+    {
+      "order": 3,
+      "workItemId": "P:74",
+      "split": "DEV_CONFIRM",
+      "drawEntrySha256": "849669ca8393229adb56e1f422861d68fb3f6a1b23ad79943536f400ffb2f84e",
+      "itemPreflight": {
+        "occupantIsThisDrawEntry": true,
+        "organisationRowMatchesDraw": true,
+        "neverStarted": true,
+        "dryRunWasNetworkFree": true,
+        "rootsEqualFrozenRootAuthorities": true
+      },
+      "itemIntervalUtc": ["2026-09-27T20:19:04Z", "2026-09-27T20:23:30Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "f9cb2b126428c2d7431beade4a484a9d9377ce8f96da4b778a7f986553393942",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "pageAttempts": 35,
+      "gatewayRequests": 39,
+      "fetchObservationsByErrorKind": {
+        "NONE": 33,
+        "CONNECTION_RESET": 5,
+        "CONNECT_TIMEOUT": 1
+      },
+      "candidateRows": 56,
+      "rawPageEvidenceCount": 28,
+      "sd9EligiblePageCount": 27,
+      "zeroExtractedTextPageCount": 1,
+      "postSd7Range": [24, 24],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "B",
+      "sd9StatusMechanical": "ACQUISITION_SUCCESSFUL",
+      "postItemHostStateClean": true,
+      "postItemQuietCheckGreen": true,
+      "sleepEventsDuringItem": 0
+    },
+    {
+      "order": 4,
+      "workItemId": "P:75",
+      "split": "FINAL_HOLDOUT",
+      "drawEntrySha256": "e903be2ff9e56f0feb1c0dc6181f31a348fdae48235e42a7496702b2f30e2cbe",
+      "itemPreflight": {
+        "occupantIsThisDrawEntry": true,
+        "organisationRowMatchesDraw": true,
+        "neverStarted": true,
+        "dryRunWasNetworkFree": true,
+        "rootsEqualFrozenRootAuthorities": true
+      },
+      "itemIntervalUtc": ["2026-09-27T20:26:05Z", "2026-09-27T20:26:06Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "b0580f0e5896a87a090a98d9aa0a6adc3730b9f2a2395125522db8eeaea91ea6",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "pageAttempts": 0,
+      "gatewayRequests": 1,
+      "fetchObservationsByErrorKind": {
+        "DNS_FAILURE": 1
+      },
+      "candidateRows": 0,
+      "rawPageEvidenceCount": 0,
+      "sd9EligiblePageCount": 0,
+      "zeroExtractedTextPageCount": 0,
+      "postSd7Range": [0, 0],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "A",
+      "sd9StatusMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "postItemHostStateClean": true,
+      "postItemQuietCheckGreen": true,
+      "sleepEventsDuringItem": 0,
+      "structuralFailureDetail": {
+        "robotsAttempts": 1,
+        "errorKind": "DNS_FAILURE",
+        "errorSubtype": "DNS_NAME_NOT_FOUND",
+        "authoritativeNegativeNoRetryUnderV4": true,
+        "noAddressResolved": true,
+        "vantage": "native IPv4, ipv4only.arpa AAAA empty, no DNS64/NAT64"
+      }
+    }
+  ],
+  "gateAfterEveryItem": [
+    {
+      "afterItem": "R:72:33",
+      "p7": "13/13",
+      "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+      "triggeredConditions": [],
+      "windowLowYieldCount": 0,
+      "windowRobotsRefusalCount": 0,
+      "maxConsecutiveFailedRuns": 0,
+      "maxConsecutiveRootAuthorityFailures": 0,
+      "nextWorkItemId": "R:73:34"
+    },
+    {
+      "afterItem": "R:73:34",
+      "p7": "13/13",
+      "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+      "triggeredConditions": [],
+      "windowLowYieldCount": 1,
+      "windowRobotsRefusalCount": 1,
+      "maxConsecutiveFailedRuns": 0,
+      "maxConsecutiveRootAuthorityFailures": 0,
+      "nextWorkItemId": "P:74"
+    },
+    {
+      "afterItem": "P:74",
+      "p7": "13/13",
+      "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+      "triggeredConditions": [],
+      "windowLowYieldCount": 1,
+      "windowRobotsRefusalCount": 1,
+      "maxConsecutiveFailedRuns": 0,
+      "maxConsecutiveRootAuthorityFailures": 0,
+      "nextWorkItemId": "P:75"
+    },
+    {
+      "afterItem": "P:75",
+      "p7": "13/13",
+      "decision": "PAUSE_P5_LOW_RAW_YIELD",
+      "triggeredConditions": [
+        {
+          "condition": "P5",
+          "decision": "PAUSE_P5_LOW_RAW_YIELD",
+          "arm": "raw pages < 4 on 2 of 5 planned items (> 30%)"
+        }
+      ],
+      "windowLowYieldCount": 2,
+      "windowRobotsRefusalCount": 2,
+      "maxConsecutiveFailedRuns": 0,
+      "maxConsecutiveRootAuthorityFailures": 0,
+      "nextWorkItemId": null
+    }
+  ],
+  "runReferenceProvenance": {
+    "everyRunRefSha256IsAFull64HexDigest": true,
+    "derivation": "sha256(lowercase run UUID), no prefix - the modern A2 convention, unchanged",
+    "noPrefixOnlyField": true,
+    "noRawRunUuidPublished": true
+  },
+  "sd9Bridge": {
+    "rawAndEligibleCountsReportedSeparately": true,
+    "onlyRowsWithMainTextCharsAboveZeroEnteredDedupe": true,
+    "zeroExtractedTextRowsInThisWindow": 1,
+    "analyser": "analyseOrganisation (the repaired bridge at 417ac85), unmodified"
+  },
+  "mechanicalSd9ReadingIsNotTheAdjudication": "sd9StatusMechanical is the landed analyser's output over each run's own page evidence. The adjudication record, not this one, binds it to Q3 and the canonical state",
+  "databaseReconciliation": {
+    "readAs": "readonly",
+    "before": {
+      "runs": 117,
+      "completions": 117,
+      "fetchObservations": 3051,
+      "redirectObservations": 231,
+      "pageEvidence": 2286,
+      "pageCandidates": 4572,
+      "BLOCKED_BY_POLICY": 6,
+      "rootPromotions": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "after": {
+      "runs": 121,
+      "completions": 121,
+      "fetchObservations": 3130,
+      "redirectObservations": 243,
+      "pageEvidence": 2337,
+      "pageCandidates": 4674,
+      "BLOCKED_BY_POLICY": 6,
+      "rootPromotions": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "delta": {
+      "runs": 4,
+      "completions": 4,
+      "fetchObservations": 79,
+      "redirectObservations": 12,
+      "pageEvidence": 51,
+      "pageCandidates": 102,
+      "BLOCKED_BY_POLICY": 0,
+      "rootPromotions": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "fetchObservationDeltaEqualsSumOfItemRequests": true,
+    "pageEvidenceDeltaEqualsSumOfItemRawPages": true,
+    "candidateDeltaEqualsTwicePageDelta": true,
+    "runsDelta4CompletionsDelta4": true,
+    "noNewBlockedByPolicy": true,
+    "noRootPromotion": true,
+    "unexplainedMovement": false
+  },
+  "networkVantage": {
+    "provedBeforeEveryItemAndAfterEveryItem": true,
+    "ipv4DefaultRouteOnEn0": true,
+    "nativeIpv4AddressNotClat": true,
+    "ipv4onlyArpaAaaaAnswer": "empty - no DNS64 synthesis",
+    "nat64Condition": false,
+    "everyResolvedAddressThisWindowWasPublicIpv4": true,
+    "addressClassifierUnchanged": true
+  },
+  "hostSafety": {
+    "windowGovernedSinceLocal": "2026-09-27 21:57:52",
+    "sleepWakeDarkWakeEventsInTheGovernedInterval": 0,
+    "predicate": "timestamp predicate over pmset -g log; the script fails closed if the log is unavailable",
+    "batteryAlwaysAbove20Percent": true,
+    "lidOpenThroughout": true,
+    "caffeinateDimsuWrappedEveryExecute": true
+  },
+  "concurrency": {
+    "a3WorktreesExisted": ["R32 (pinned to 67ae047)", "R33 (active during this window)"],
+    "preItemQuietGate": ">= 120 consecutive clean WALL-CLOCK seconds before every item (not a check count); any conflict reset the interval",
+    "preItemQuietGateResets": {
+      "R:72:33": 18,
+      "R:73:34": 26,
+      "P:74": 0,
+      "P:75": 0
+    },
+    "correctnessCriticalCompetingProcessesAtEveryItemStart": 0,
+    "deviation": "an A3 R33 npm run validate started at 20:06:49Z, mid-way through R:72:33, after its pre-item gate had passed. Disclosed on that item; no evidence impact established",
+    "postItemQuietCheckRed": ["R:72:33"],
+    "quietGatePositiveControl": "a reparented needle-carrying process in this worktree was detected (RED) and, once killed, the gate returned GREEN",
+    "a3WorktreeNotTouchedReadOrMerged": true,
+    "itemsRanSequentiallyConcurrency1": true
+  },
+  "forbiddenActions": {
+    "manualRetries": 0,
+    "alternateRoots": 0,
+    "hostnameGuesses": 0,
+    "crossDomainRobotsRedirectFollowed": false,
+    "rootPromotions": 0,
+    "timeoutWidening": false,
+    "tlsWeakening": false,
+    "nat64Bypass": false,
+    "browserCurlWgetInstitutionFetch": 0,
+    "extractionChange": false,
+    "dynamicReserveInsertion": false,
+    "reserve35Used": false,
+    "p76Started": false,
+    "index77Started": false
+  },
+  "identityDisclosure": {
+    "institutionNamesRecorded": 0,
+    "organisationUuidsRecorded": 0,
+    "echeRowKeysRecorded": 0,
+    "hostnamesRecorded": 0,
+    "urlsRecorded": 0,
+    "finalHoldoutItems": ["R:73:34", "P:75"],
+    "holdoutHandling": "structural counts only; no title, url, excerpt, hostname or page text read or recorded"
+  },
+  "terminalState": "PHASE_2B_2D_A2_WINDOW_09_EXECUTED_PAUSED_ON_P5_AWAITING_ADJUDICATION",
+  "immutability": "append-only. This record is never edited."
+}
