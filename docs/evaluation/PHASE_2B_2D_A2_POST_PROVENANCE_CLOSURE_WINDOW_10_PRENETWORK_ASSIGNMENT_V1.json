@@ -1,0 +1,137 @@
+{
+  "record": "PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_10_PRENETWORK_ASSIGNMENT_V1",
+  "recordKind": "PRENETWORK_RESERVE_ASSIGNMENT",
+  "recordedAtUtc": "2026-09-27T20:54:31Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "5ae4b5a15b27128524ce350a5fbe269d76a49a75",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "networkUsedByThisRecord": "none",
+  "databaseWrittenByThisRecord": "none",
+  "createdBeforeAnyInstitutionNetworkActivityForThisWindow": true,
+  "boundAuthority": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_10_LIVE_AUTHORITY_V1.json",
+    "sha256": "b738c54ae589dbb0a5ace3e389ac06014f9690dbba89b3bde1888eaf6d27f323",
+    "bytes": 11954,
+    "commit": "5ae4b5a15b27128524ce350a5fbe269d76a49a75"
+  },
+  "boundPlan": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_10_PLAN_V1.json",
+    "sha256": "ea195c860a986900fd3282a8d1306518142700f871a25d9a01d1c5328e75ec49",
+    "bytes": 6560,
+    "windowPlanHash": "4a4f27a6d9bbc1b816760897d6f1f0bc270c0e6d8c87862f92f784e238fc6d49"
+  },
+  "append": {
+    "performedWith": "the landed prepareReplacementAppend, which re-derives the assignment from planPendingReplacementObligations and refuses anything that is not the planner's own slot/position pairing",
+    "assignmentsWereNotHandWritten": true,
+    "entriesBefore": 35,
+    "entriesAfter": 37,
+    "previousLedgerHash": "b3ccb447bfa4fcaac237bcef0d2a684e5753cfc29422c66f62404cbb24cca806",
+    "nextLedgerHash": "87d8c89d77ac12317bc9430e9ee917e01e31ef5fc718229266dcff6ca2bf9c9c",
+    "reserveConsumedBefore": 35,
+    "reserveConsumedAfter": 37,
+    "reserveUnusedAfter": 3,
+    "nextUnusedReservePositionAfter": 37,
+    "unusedReservePositionsAfter": "37..39",
+    "appendedSequences": [35, 36],
+    "entries": [
+      {
+        "sequence": 35,
+        "selectionIndex": 73,
+        "split": "FINAL_HOLDOUT",
+        "reserveRankPosition": 35,
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacedOccupantKind": "RESERVE_REPLACEMENT",
+        "previousSequenceForSlot": 34,
+        "previousEntryHash": "0901cdbff985e5d2791fcfc48d71f64e4501ab8062059ac2130363996af4f32d",
+        "entryHash": "a36d9781f1077844706ba304da4a8859c986f838a0ee44c1f348b26c58393ce3"
+      },
+      {
+        "sequence": 36,
+        "selectionIndex": 75,
+        "split": "FINAL_HOLDOUT",
+        "reserveRankPosition": 36,
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacedOccupantKind": "ORIGINAL_SELECTION",
+        "previousSequenceForSlot": null,
+        "previousEntryHash": "a36d9781f1077844706ba304da4a8859c986f838a0ee44c1f348b26c58393ce3",
+        "entryHash": "8203672d9a0625de9e3469dafada3171eac268c2f7bc917c8b03124377a313d7"
+      }
+    ],
+    "appendOnly": {
+      "the35EntryPrefixIsIdentical": true,
+      "provedBy": "a deep comparison of the new ledger's first 35 entries against the committed 35-entry revision's entries",
+      "noPriorEntryWasEditedOrRemoved": true,
+      "sequence35ChainsToSequence34": true,
+      "sequence36ChainsToSequence35": true,
+      "previousSequenceForSlot": {
+        "sequence35": 34,
+        "sequence36": null
+      },
+      "why": "slot 73 was occupied by reserve 34 (ledger sequence 34), so its new entry chains to it; slot 75 was an ORIGINAL_SELECTION occupant. Every earlier run remains in the database untouched"
+    },
+    "ledgerFileAfterAppend": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "9673ab712a2de776df8a2751cd5489d7504f2d1ddc11132e7ee60d9208ba1930",
+      "bytes": 27507
+    },
+    "noOtherRowWasAppended": true
+  },
+  "occupantChainsAfterTheAppend": {
+    "slot73": "ORIGINAL_SELECTION -> reserve34 -> reserve35 (reason ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE)",
+    "slot75": "ORIGINAL_SELECTION -> reserve36 (reason ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE)",
+    "derivedWith": "the landed currentOccupantForSelectionIndex, which replays every entry against the frozen draw"
+  },
+  "p6": "NOT_TRIGGERED - 37 > 10 is TRUE and 74 < 50 is FALSE",
+  "reserveScarcityAfterTheAppend": {
+    "unusedReserves": 3,
+    "unusedPositions": "37..39",
+    "note": "the gate is re-applied at every later planning point: Q1 obligations > unused reserves, or zero reserves before 110 successes -> CORPUS_FREEZE_REFUSED"
+  },
+  "p7AfterTheAppend": {
+    "allGreen": true,
+    "totalChecks": "13/13",
+    "invariants": {
+      "frameBindingValid": true,
+      "drawBindingValid": true,
+      "ownerClarificationBindingValid": true,
+      "governanceBindingsValid": true,
+      "replacementLedgerValid": true,
+      "replacementLedgerExtendsGenesis": true,
+      "startingLedgerRevisionMatchesPrecommit": true,
+      "noUnexpectedReplacementAssignments": true,
+      "windowPlanValid": true,
+      "workItemsMatchFrozenPlan": true,
+      "workItemDrawEntriesMatch": true,
+      "replacementAssignmentsRecorded": true,
+      "currentOccupantsMatch": true
+    },
+    "gateDecision": "CONTINUE_TO_NEXT_WORK_ITEM",
+    "triggeredConditions": [],
+    "nextWorkItemId": "R:73:35",
+    "mayStartNextWorkItem": true,
+    "evaluatedWith": "the landed computePrecommittedWindowPreflight and evaluateContinuationWindowGate, unmodified; the expected spec was re-derived from the committed strategy and the committed 35-entry starting revision, never from the plan",
+    "generationInputs": {
+      "successfulOrganisationCount": 74,
+      "reserveConsumedCount": 37
+    },
+    "completed": [],
+    "plannedWindowSize": 5,
+    "p2ThresholdCountAtSize5": 3,
+    "p5ThresholdCountAtSize5": 2,
+    "thresholdsUnchanged": true
+  },
+  "whatThisRecordDoesNotDo": [
+    "issue any institution request",
+    "write to the database",
+    "append any row beyond sequences 35 and 36",
+    "assign reserve 37 or later",
+    "edit the provenance closure"
+  ],
+  "immutability": "append-only. This record is never edited."
+}

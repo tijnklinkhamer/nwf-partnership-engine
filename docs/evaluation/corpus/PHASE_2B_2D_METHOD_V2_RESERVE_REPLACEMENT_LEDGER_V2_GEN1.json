@@ -584,7 +584,35 @@
       "previousSequenceForSlot": null,
       "previousEntryHash": "7579bdc3fb812ae9d45b28ad7a2fd2b7a41b2e33f1c13a481e0d6b7071026257",
       "entryHash": "0901cdbff985e5d2791fcfc48d71f64e4501ab8062059ac2130363996af4f32d"
+    },
+    {
+      "sequence": 35,
+      "selectionIndex": 73,
+      "split": "FINAL_HOLDOUT",
+      "replacedEcheRowKey": "F PARIS341|939333548",
+      "replacementEcheRowKey": "E LAS-PAL11|949607206",
+      "reserveRankPosition": 35,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-27T20:54:04Z",
+      "replacedOccupantKind": "RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 34,
+      "previousEntryHash": "0901cdbff985e5d2791fcfc48d71f64e4501ab8062059ac2130363996af4f32d",
+      "entryHash": "a36d9781f1077844706ba304da4a8859c986f838a0ee44c1f348b26c58393ce3"
+    },
+    {
+      "sequence": 36,
+      "selectionIndex": 75,
+      "split": "FINAL_HOLDOUT",
+      "replacedEcheRowKey": "F TOULOUS142|946278651",
+      "replacementEcheRowKey": "E PALMA45|944773793",
+      "reserveRankPosition": 36,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-27T20:54:04Z",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "a36d9781f1077844706ba304da4a8859c986f838a0ee44c1f348b26c58393ce3",
+      "entryHash": "8203672d9a0625de9e3469dafada3171eac268c2f7bc917c8b03124377a313d7"
     }
   ],
-  "ledgerHash": "b3ccb447bfa4fcaac237bcef0d2a684e5753cfc29422c66f62404cbb24cca806"
+  "ledgerHash": "87d8c89d77ac12317bc9430e9ee917e01e31ef5fc718229266dcff6ca2bf9c9c"
 }
