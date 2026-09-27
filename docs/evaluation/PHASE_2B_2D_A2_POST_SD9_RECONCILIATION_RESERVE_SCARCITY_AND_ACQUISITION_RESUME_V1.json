@@ -1,0 +1,392 @@
+{
+  "recordId": "phase2b-2d-a2-post-sd9-reconciliation-reserve-scarcity-and-acquisition-resume-v1",
+  "recordKind": "OWNER_DECISION_AND_BOUNDED_ACQUISITION_AUTHORITY",
+  "records": "PHASE_2B_2D_A2_POST_SD9_RECONCILIATION_RESERVE_SCARCITY_AND_ACQUISITION_RESUME_V1",
+  "recordedAtUtc": "2026-09-27T16:59:45Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "startingHead": "d6f783cbee4389242a3ab43624062fcf4a04f367",
+  "startingHeadWasLocalAndOriginIdentical": true,
+  "startingWorktreeClean": true,
+  "networkUsedByThisRecord": "none",
+  "databaseWrittenByThisRecord": "none. Read-only reconciliation only",
+  "ledgerAppendedByThisRecord": "none",
+  "reserveAssignedByThisRecord": "none",
+
+  "ownerDecisions": {
+    "selectedDecision": "CONTINUE_ALL_CURRENT_Q1_REPLACEMENT_CHAINS_UNDER_FROZEN_SD2_Q2",
+    "p70ExtractionDecision": "DEFER_P70_EXTRACTION_CAPABILITY_INVESTIGATION_UNTIL_AFTER_GENERATION1",
+    "bothAreOwnerDecisions": true,
+    "neitherModifiesAFrozenRule": true,
+    "modifiedByThisRecord": [],
+    "notModifiedByThisRecord": [
+      "Methodology V2 R3",
+      "SD2",
+      "SD7",
+      "SD9",
+      "the short-text owner decision",
+      "Q1, Q2, Q3, Q4",
+      "P1-P8 and every pause threshold",
+      "the extractor (src/orgunits/web/extract.ts) and the boilerplate-differencing primitive",
+      "the frozen frame",
+      "the frozen draw",
+      "the frozen reserve order",
+      "fetch policy v7",
+      "the strategy adapter"
+    ]
+  },
+
+  "decisionOneContinueAllCurrentQ1Chains": {
+    "decision": "CONTINUE_ALL_CURRENT_Q1_REPLACEMENT_CHAINS_UNDER_FROZEN_SD2_Q2",
+    "appliesTo": [59, 66, 70],
+    "slot59": {
+      "currentOccupant": "ORIGINAL_SELECTION",
+      "split": "DEV_CONFIRM",
+      "currentOutcome": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "repairedPostSd7Range": [1, 2],
+      "q3Rank": 4,
+      "isNoLongerPending": true,
+      "why": "the repaired SD7 -> SD9 bridge made its result determinate. 22 of its 34 persisted page rows carry zero extracted characters and never belonged in deduplication; the remaining 12 yield a survivor range of [1,2], whose WHOLE extent sits below SD9's minimum of 4",
+      "theOld1to24AmbiguityIsNotReopened": "that range was produced by the pre-repair bridge, which let zero-character rows contribute 0..1 each. It is historical and immutable. The current canonical range is [1,2]",
+      "specialHandling": "none. Under frozen SD2/Q1 it receives the next applicable reserve in global Q1 order"
+    },
+    "slot66": {
+      "currentOccupant": "RESERVE_REPLACEMENT reserve28",
+      "split": "DEV_TRAIN",
+      "currentOutcome": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "latestRun": "R:66:28",
+      "repairedPostSd7Range": [0, 0],
+      "q3Rank": 4,
+      "chainSoFar": "ORIGINAL_SELECTION -> reserve27 -> reserve28",
+      "itsLongHistoryIsRealAndImmutable": true,
+      "andChangesNothing": "frozen SD2/Q2 contains NO per-selection-index failure-count escape hatch",
+      "notInvented": [
+        "SLOT_EXHAUSTED",
+        "STRUCTURALLY_BAD_SLOT",
+        "MAX_REPLACEMENTS_PER_SLOT",
+        "skip-slot behaviour"
+      ],
+      "selectionIndex66IsNotRemoved": true,
+      "noPrimaryAdvancesInItsPlace": true,
+      "theNextReserveChainLinkIsMechanicallyRequired": "unless the global reserve list exhausts"
+    },
+    "slot70": {
+      "currentOccupant": "ORIGINAL_SELECTION",
+      "split": "FINAL_HOLDOUT",
+      "currentOutcome": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "repairedPostSd7Range": [0, 0],
+      "q3Rank": 4,
+      "isNoLongerPending": true,
+      "why": "31 genuine 2xx HTML page-evidence rows, every one of them zero extracted characters, so zero SD9-eligible pages. Case A: deduplication has no branch that produces a page"
+    },
+    "q1IsTheAscendingOrderOfActualObligations": [59, 66, 70],
+    "noObligationIsDeferredBecauseOfItsHistory": true
+  },
+
+  "decisionTwoDeferP70ExtractionInvestigation": {
+    "decision": "DEFER_P70_EXTRACTION_CAPABILITY_INVESTIGATION_UNTIL_AFTER_GENERATION1",
+    "whatTheStructuralEvidenceProves": [
+      "31 genuine 2xx HTML page-evidence rows existed",
+      "all 31 had main_text_chars = 0",
+      "extraction-v2 therefore yielded zero SD9-eligible pages"
+    ],
+    "thatIsSufficientFor": "the current SD9 verdict, which is determinate",
+    "thatDoesNotEstablishWhichOfTheseIsTrue": [
+      "client-rendered content",
+      "legitimate shell pages",
+      "intentionally repeated chrome",
+      "an extraction-capability limitation",
+      "an extraction defect"
+    ],
+    "whyTheInvestigationIsDeferredRatherThanRun": "P:70 is FINAL_HOLDOUT. Determining the cause from P:70 specifically would make future extractor behaviour responsive to realised FINAL_HOLDOUT evidence, which is exactly the contamination the sealed-holdout discipline exists to prevent",
+    "futureExtractorResearchMustUse": [
+      "synthetic fixtures",
+      "DEV_TRAIN evidence",
+      "independently authorised development measurements"
+    ],
+    "futureExtractorResearchMustNotUse": ["semantic inspection of P:70", "tuning against P:70"],
+    "extractChangeMadeHere": false,
+    "differencingChangeMadeHere": false,
+    "thisDefersTheINVESTIGATIONNotTheVERDICT": true
+  },
+
+  "whyP70StillGetsAReserve": {
+    "principle": "deferring extractor tuning does not defer the acquisition verdict",
+    "underCurrentFrozenExtractionAndFrozenSd9": "P:70 is determinate unsuccessful",
+    "thereforeItIsARealReplacementObligation": true,
+    "theReserveMechanismIsTheFrozenMechanism": "for an occupant that cannot supply four qualifying pages under the current approved pipeline",
+    "slot70IsNotLeftPending": true,
+    "itsOriginalOccupantIsNotRetriedUnderUnchangedExtractionRules": true,
+    "aReserveIsAssignedThroughQ1": true
+  },
+
+  "reserveScarcityGovernance": {
+    "unusedReservesBeforeThisAuthority": 10,
+    "unusedReservePositions": "30..39",
+    "currentObligations": 3,
+    "neverStartedPrimaries": 38,
+    "scarcityIsMaterial": true,
+    "andIsNotGroundsForANewRule": true,
+    "notInvented": [
+      "a reserve-burn target",
+      "a reserve-success-rate threshold",
+      "a per-slot reserve cap",
+      "an early smaller-corpus fallback"
+    ],
+    "frozenTerminalRemains": {
+      "condition": "the frozen reserve list is exhausted before 110 ACQUISITION_SUCCESSFUL organisations exist",
+      "terminal": "CORPUS_FREEZE_REFUSED",
+      "noRedraw": true,
+      "noAdditionalReserves": true,
+      "noSmallerCorpus": true,
+      "noSkippedFailedSlot": true
+    },
+    "arithmeticIsStatedNotActedOn": "3 obligations and 38 never-started primaries against 10 reserves is recorded so the owner sees it. It authorises no deviation"
+  },
+
+  "newBoundedAcquisitionAuthority": {
+    "priorAuthorityState": "EXHAUSTED at ba8b8720447803f826c0abce352ca22d228ac381 (0 windows, 0 attempts remaining)",
+    "maximumOrdinaryWindows": 4,
+    "maximumLiveAttempts": 20,
+    "windowSize": 5,
+    "windowSizeRule": "5 whenever at least five executable work items remain",
+    "concurrency": 1,
+    "p5": "unchanged",
+    "p2": "unchanged",
+    "p6": "generation-global, never reset at a window boundary",
+    "noDynamicInsertion": true,
+    "noDynamicReserveInsertion": true,
+    "noRetries": true,
+    "noAlternateRoots": true,
+    "noSelfExtension": true,
+    "aPauseStopsAutomaticContinuationEvenIfCapRemains": true,
+    "afterTheFourthAdjudicatedWindowStopRegardlessOfState": true,
+    "aWindowIsChargedInFullEvenIfPaused": true
+  },
+
+  "carriedOperationalSafety": {
+    "everyOneRemainsInForceUnrelaxed": true,
+    "items": [
+      "the DNS64/NAT64 environment-integrity rule",
+      "the DNS_NAME_NOT_FOUND owner interpretation",
+      "fetch policy v7 (orgunit-fetch-policy-v7)",
+      "the corrected sleep timestamp predicate",
+      "the corrected quiet-gate logic (excludes passive readers, unrelated projects and the gate's own wrapper)",
+      "the repaired SD7 -> SD9 bridge",
+      "the strategy-adapter independent-governance requirement"
+    ],
+    "noHistoricalOperationalDecisionIsRelaxed": true
+  },
+
+  "strategyAdapterLimitation": {
+    "theAdapterStillDoesNotKnowAcquisitionOutcomes": true,
+    "thereforeAdapterAcceptanceIsInsufficient": true,
+    "everyPlannedWindowMustIndependentlyDerive": [
+      "current successes",
+      "current failures",
+      "pending",
+      "never-started",
+      "current occupants",
+      "Q1"
+    ],
+    "required": {
+      "replacementSelectionIndexMustBeInActualCurrentQ1": true,
+      "primarySelectionIndexMustBeInActualCurrentNeverStartedSet": true
+    },
+    "independentGovernanceMustRefuseEvenIfTheAdapterAccepts": true,
+    "noAdapterCodeChangeIsAuthorisedHere": true
+  },
+
+  "bound": {
+    "sd9Interpretation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_SD9_EXTRACTABLE_TEXT_INTERPRETATION_V1.json",
+      "sha256": "2a8b043cd5f813547bebba2d1a2c798bb0bfc482787f586b8c932365c3c4bf5a",
+      "bytes": 10384,
+      "commit": "cff2947",
+      "decision": "SD9_EXTRACTABLE_TEXT_REQUIRES_NONEMPTY_EXTRACTED_MAIN_TEXT_V1"
+    },
+    "harnessRepair": {
+      "commit": "417ac85dee79b01b2f17df0f28a96b1250c800ba",
+      "role": "the repaired SD7 -> SD9 bridge; zero-character page evidence can no longer reach deduplication by any route"
+    },
+    "generationWideReconciliation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_SD9_EXTRACTABLE_TEXT_GENERATION1_RECONCILIATION_V1.json",
+      "sha256": "66bff9882d78c2369898b0b646d79dffdef4d623fd5a21a3948c8e1248a397a1",
+      "bytes": 29160,
+      "commit": "d6f783cbee4389242a3ab43624062fcf4a04f367",
+      "role": "the CURRENT canonical acquisition classification"
+    },
+    "prePairClassificationIsNotCurrentState": {
+      "supersededRecord": "docs/evaluation/PHASE_2B_2D_A2_FINAL_ORDINARY_WINDOW_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "4283edee2355a886b50f1a5aba88de5ec2e010884f36f5105b6c1c535874ce35",
+      "remainsImmutableAndUnedited": true,
+      "mustNotBeUsedAsCurrentState": true,
+      "whatItSaid": "69 successful, CURRENT_ACQUISITION_FAILURE [66], PENDING_CAPABILITY_REVIEW [59, 70]",
+      "whatSupersededIt": "the reconciliation, which found [59] and [70] determinate"
+    },
+    "v7PolicyRepair": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_ROBOTS_TRAILING_SLASH_FETCH_POLICY_V7_REPAIR_V1.json",
+      "sha256": "4231660bd5eb5ce0f20e8a235b5d687b544b18ca595e92979c01a2f19ae92a49",
+      "bytes": 24734
+    },
+    "dnsNameNotFoundInterpretation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_DNS_NAME_NOT_FOUND_FRAME_AND_REPLACEMENT_INTERPRETATION_V1.json",
+      "sha256": "b1df9d476db30600f6eff94bba6acccd5a52098253b915ec218564731a4449c7",
+      "bytes": 14711,
+      "appliedHere": false,
+      "why": "none of the three current obligations rests on a DNS negative. All three are rank-4 MIN_PAGES_NOT_MET outcomes. The record remains in force and simply does not need to be applied"
+    },
+    "shortTextOwnerDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_SD7_SHORT_TEXT_OWNER_DECISION_V1.json",
+      "sha256": "2f41f495322eceae3b675cbe1d227115f3b4292d6e3a711879793af33b466fff",
+      "bytes": 7584,
+      "role": "the rule under which slot 59's one remaining short-text document stays UNRESOLVED and its whole range still sits below the minimum"
+    },
+    "ownerReserveOrderClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "bytes": 18443
+    },
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33"
+    },
+    "corpusAcquisitionPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e"
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650"
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "40775b28745f25edd0132c6142495c79f2fdaa6357f1575f963eea640d84c893",
+      "bytes": 23205,
+      "ledgerHash": "64e9848427baf8ed7d3329becb4fcca66b1f581e5bc6d91a409f4c0139e9cff0",
+      "entries": 30
+    }
+  },
+
+  "databaseBaseline": {
+    "readAs": "the readonly role",
+    "everyStatementWasASelect": true,
+    "expectedAndObserved": {
+      "runs": 112,
+      "completions": 112,
+      "fetchObservations": 2932,
+      "redirectObservations": 227,
+      "pageEvidence": 2188,
+      "pageCandidates": 4376,
+      "BLOCKED_BY_POLICY": 6,
+      "rootPromotions": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "allTenMatchedExactly": true,
+    "noUnexplainedMovement": true
+  },
+
+  "independentlyReproducedCanonicalState": {
+    "method": "the frozen draw was re-verified by file sha and recomputed drawHash; the committed ledger was re-validated and its hash recomputed; currentOccupantForSelectionIndex was replayed for every selection index 0..109; each occupant's LATEST run was selected by orgunit_research_runs.started_at; page evidence was filtered on the fetch observation's run_id so no occupant's runs were merged; analyseOrganisation (the REPAIRED bridge) was run per occupant",
+    "notCopiedFromTheReconciliationRecord": true,
+    "ACQUISITION_SUCCESSFUL": 69,
+    "CURRENT_ACQUISITION_FAILURE": [59, 66, 70],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "NEVER_STARTED": { "from": 72, "to": 109, "count": 38 },
+    "neverStartedIsContiguous": true,
+    "accounting": "69 + 3 + 0 + 38 = 110",
+    "disjointAndExhaustive": true,
+    "noSlotIsPending": true,
+    "obligationDetail": {
+      "59": {
+        "occupantKind": "ORIGINAL_SELECTION",
+        "raw": 34,
+        "sd9Eligible": 12,
+        "zeroExtractedText": 22,
+        "postSd7Range": [1, 2],
+        "countIsExact": false,
+        "decidedByCase": "B",
+        "status": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+      },
+      "66": {
+        "occupantKind": "RESERVE_REPLACEMENT",
+        "reserveRankPosition": 28,
+        "raw": 0,
+        "sd9Eligible": 0,
+        "zeroExtractedText": 0,
+        "postSd7Range": [0, 0],
+        "countIsExact": true,
+        "decidedByCase": "A",
+        "status": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+      },
+      "70": {
+        "occupantKind": "ORIGINAL_SELECTION",
+        "raw": 31,
+        "sd9Eligible": 0,
+        "zeroExtractedText": 31,
+        "postSd7Range": [0, 0],
+        "countIsExact": true,
+        "decidedByCase": "A",
+        "status": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+      }
+    },
+    "noHoldoutSemanticContentWasRead": "slot 70 is FINAL_HOLDOUT. Only structural counts were computed; no title, heading, excerpt, URL or hostname was read or recorded"
+  },
+
+  "ledgerStateAtThisRecord": {
+    "entries": 30,
+    "ledgerHash": "64e9848427baf8ed7d3329becb4fcca66b1f581e5bc6d91a409f4c0139e9cff0",
+    "fileSha256": "40775b28745f25edd0132c6142495c79f2fdaa6357f1575f963eea640d84c893",
+    "reserveConsumed": 30,
+    "nextUnusedReservePosition": 30,
+    "unusedReservePositions": "30..39",
+    "unusedReserveCount": 10,
+    "noReserve30IsAlreadyAssigned": true,
+    "p6": {
+      "rule": "reserveConsumed > 10 AND successfulOrganisationCount < 50",
+      "evaluation": "30 > 10 is TRUE and 69 < 50 is FALSE; the conjunction is false",
+      "result": "NOT_TRIGGERED"
+    }
+  },
+
+  "firstAuthorisedWindowComposition": {
+    "windowOrdinal": 8,
+    "construction": "REPLACEMENT_FIRST_THEN_NEXT_UNTOUCHED_PRIMARIES",
+    "replacements": [
+      { "selectionIndex": 59, "reserveRankPosition": 30 },
+      { "selectionIndex": 66, "reserveRankPosition": 31 },
+      { "selectionIndex": 70, "reserveRankPosition": 32 }
+    ],
+    "primaries": [72, 73],
+    "exactOrder": "R:59:30 -> R:66:31 -> R:70:32 -> P:72 -> P:73",
+    "noOtherCompositionIsAuthorised": true,
+    "laterWindowCompositionsAreNotPrecommittedHere": true
+  },
+
+  "thisRecordDoesNot": [
+    "authorise any network activity by itself",
+    "append to the replacement ledger",
+    "assign a reserve",
+    "write to the database",
+    "create or modify a window plan",
+    "change Methodology R3, SD2, SD7, SD9, the short-text decision or any Q rule",
+    "change any pause threshold",
+    "change the extractor or the boilerplate-differencing primitive",
+    "inspect P:70's semantic content",
+    "invent a slot-exhaustion, reserve-burn or smaller-corpus rule",
+    "repair the strategy adapter",
+    "precommit any window after Window 08"
+  ],
+
+  "terminalState": "PHASE_2B_2D_A2_ACQUISITION_RESUMED_4_WINDOWS_20_ATTEMPTS",
+  "immutability": "append-only. This record is never edited."
+}
