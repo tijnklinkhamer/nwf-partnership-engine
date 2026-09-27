@@ -1,0 +1,141 @@
+{
+  "record": "PHASE_2B_2D_A3_R33_DEV_TRAIN_INCREMENTAL_DURABLE_EVIDENCE_CENSUS_V1",
+  "recordKind": "PUBLIC_AGGREGATE_ONLY_INCREMENTAL_EVIDENCE_CENSUS",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "split": "DEV_TRAIN",
+  "r32Tip": "747b64fa40c93e4b871ea1675682fb1531b21341",
+  "r32ScopePinCommit": "52262d45dfa48e052534aff2afdb41fb69330e2c",
+  "implementationCommit": "21198ebd722666f56c9841f39da204806b424bbc",
+  "thisFileAuthorises": [],
+  "governanceDelta": {
+    "registryV3Version": "COMMITTED_A2_GOVERNANCE_REGISTRY_V3",
+    "registryV3CheckpointCommit": "58f756453bdc19168b584b5994379e05f0281781",
+    "registryV4Version": "COMMITTED_A2_GOVERNANCE_REGISTRY_V4",
+    "registryV4CheckpointCommit": "67ae047fb7de079bcba0eec83ca4f4baee77cc3e",
+    "v3ReadyTotal": 29,
+    "v4ReadyTotal": 69,
+    "v4UnsuccessfulCurrentOccupants": 3,
+    "v4PendingAdjudication": 0,
+    "v4NoTerminalEvidence": 38,
+    "v4ReservesConsumed": 30,
+    "v4ReservesUnused": 10,
+    "v3DevTrainReadyCount": 6,
+    "v4DevTrainReadyCount": 13,
+    "unchangedAuthorityCount": 6,
+    "newAuthorityCount": 7,
+    "changedExistingAuthorityCount": 0,
+    "removedAuthorityCount": 0,
+    "derivedBy": "R32_deriveDevTrainAuthorityContinuityV3ToV4",
+    "r32CensusSemanticsUnchanged": true
+  },
+  "canonicalHistory": {
+    "r20BoundAuthorityCount": 5,
+    "r26NewlyBoundAuthorityCount": 1,
+    "r26CoverageAfterExpansionCount": 6,
+    "r30CoverageReadinessSlotCount": 6,
+    "r31UnchangedV2ToV3DevTrainAuthorityCount": 6,
+    "historicalCanonicalCoverageCount": 6,
+    "readFromCommittedAggregateRecordsOnly": true,
+    "historicalAuthoritiesReReadFromDatabase": false
+  },
+  "coverage": {
+    "historicalCanonicalCoverageCount": 6,
+    "r33NewlyBoundEvidenceCount": 7,
+    "totalAuthorityCoverageAfterExpansion": 13,
+    "v4DevTrainReadyCount": 13,
+    "coverageEqualsV4DevTrainReady": true,
+    "thirteenItemEvidenceBatchMinted": false
+  },
+  "deltaEvidence": {
+    "matchedRuns": 7,
+    "validCompletions": 7,
+    "fetchObservationRows": 279,
+    "pageEvidenceSourceRows": 198,
+    "distinctResponseSha256Documents": 197,
+    "candidateRows": 396,
+    "runsWithCandidateRowsEqualToTwicePages": 7,
+    "duplicateDocumentSourceRows": 2,
+    "multipleExtractionVersionDocuments": 0
+  },
+  "versionBreakdown": {
+    "acquisitionPolicyVersionCounts": {
+      "orgunit-fetch-policy-v6": 6,
+      "orgunit-fetch-policy-v7": 1
+    },
+    "pageExtractionRuleVersionCounts": {
+      "orgunit-extraction-v2": 198
+    },
+    "candidateSignalRuleVersionCounts": {
+      "orgunit-signal-rules-v1": 396
+    },
+    "candidateTrackCounts": {
+      "INTERNATIONAL_OFFICE": 198,
+      "LANGUAGE_CENTRE": 198
+    }
+  },
+  "integrity": {
+    "identityContaminationCount": 0,
+    "fetchPolicyMismatchCount": 0,
+    "relationalOrphanCount": 0,
+    "sameDocumentSameExtractionConflictCount": 0,
+    "candidateTrackPairViolationCount": 0
+  },
+  "databaseAccess": {
+    "role": "nwf_readonly",
+    "database": "nwf_pe",
+    "transactionReadOnly": true,
+    "transactionIsolation": "repeatable read",
+    "readOnlySnapshotTransactions": 1,
+    "legacyAuthorityEvidenceQueries": 0,
+    "deltaAuthorityEvidenceQueries": 7,
+    "devConfirmEvidenceReads": 0,
+    "finalHoldoutEvidenceReads": 0,
+    "writes": 0,
+    "institutionNetworkRequests": 0,
+    "sealedRootReads": 0
+  },
+  "semantics": {
+    "canonicalHistoryReRead": false,
+    "unchangedAuthoritiesRebound": false,
+    "deltaDerivedFromMintedGovernanceSnapshots": true,
+    "deltaProvedAdditiveBeforeDatabaseConnection": true,
+    "newEvidenceMintedOnlyForV4Delta": true,
+    "runReferenceConvention": "A3_CANONICAL_RUN_REF_V1",
+    "r20RunMatcherModified": false,
+    "r20LowerEvidenceLayerModified": false,
+    "newerA2GovernanceConsumed": false,
+    "adjudicatedCountCrossCheckPerformed": false,
+    "corpusSelectionPerformed": false,
+    "documentAssemblyPerformed": false,
+    "sd7Performed": false,
+    "sealedEvidenceOpened": false
+  },
+  "whatThisIsNot": [
+    "NOT_A_THIRTEEN_ITEM_EVIDENCE_BATCH",
+    "NOT_A_REREAD_OF_R20_OR_R26_CANONICAL_EVIDENCE",
+    "NOT_A_GOVERNANCE_V5",
+    "NOT_A2_ACQUISITION_AUTHORITY",
+    "NOT_CORPUS_SAMPLING_AUTHORITY",
+    "NOT_A_DOCUMENT_ASSEMBLY_DECISION",
+    "NOT_AN_SD7_CORPUS_GRAPH",
+    "NOT_SET_P_OR_SET_R_AUTHORITY",
+    "NOT_HOLDOUT_SCORING_AUTHORITY",
+    "NOT_AN_A5_CORPUS_FREEZE"
+  ],
+  "identityDisclosure": {
+    "selectionIndices": false,
+    "reservePositions": false,
+    "organisationIds": false,
+    "echeRowKeys": false,
+    "runIdentifiers": false,
+    "runReferenceDigests": false,
+    "drawEntryDigests": false,
+    "rowIdentifiers": false,
+    "documentDigests": false,
+    "urlsOrHosts": false,
+    "titlesOrText": false,
+    "scoresOrSignals": false,
+    "sealedFilenames": false,
+    "perAuthorityBreakdown": false
+  }
+}
