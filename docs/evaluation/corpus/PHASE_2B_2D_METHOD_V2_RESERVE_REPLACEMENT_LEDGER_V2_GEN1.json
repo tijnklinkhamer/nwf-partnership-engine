@@ -486,7 +486,35 @@
       "previousSequenceForSlot": null,
       "previousEntryHash": "59bad6312190b906d88a18a74413e5601539144c63cb66ce826dd0c86aba1b15",
       "entryHash": "f122780a4b0de9721d419b40c0ddc1486b0bdcde4e2580898d05c476198c4174"
+    },
+    {
+      "sequence": 28,
+      "selectionIndex": 66,
+      "split": "DEV_TRAIN",
+      "replacedEcheRowKey": "I MILANO27|894242613",
+      "replacementEcheRowKey": "BA TUZLA02|995904045",
+      "reserveRankPosition": 28,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-09-27T14:50:39Z",
+      "replacedOccupantKind": "RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 27,
+      "previousEntryHash": "f122780a4b0de9721d419b40c0ddc1486b0bdcde4e2580898d05c476198c4174",
+      "entryHash": "db2966a70efb6d6448cddf471524aff3a6d9a5287fc2e9848567d99aaa55a84a"
+    },
+    {
+      "sequence": 29,
+      "selectionIndex": 68,
+      "split": "FINAL_HOLDOUT",
+      "replacedEcheRowKey": "F MARSEIL115|909904427",
+      "replacementEcheRowKey": "I MACERAT01|960068462",
+      "reserveRankPosition": 29,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-09-27T14:50:39Z",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "db2966a70efb6d6448cddf471524aff3a6d9a5287fc2e9848567d99aaa55a84a",
+      "entryHash": "f03fc6845300b64f543370394cea0ed408b2ad6de088842d2bd3993e5f8aa655"
     }
   ],
-  "ledgerHash": "6f65c4fbeac78a2578dd7f3b8007964e78fd28bec8e7709992bcbe7f082ca2d0"
+  "ledgerHash": "64e9848427baf8ed7d3329becb4fcca66b1f581e5bc6d91a409f4c0139e9cff0"
 }

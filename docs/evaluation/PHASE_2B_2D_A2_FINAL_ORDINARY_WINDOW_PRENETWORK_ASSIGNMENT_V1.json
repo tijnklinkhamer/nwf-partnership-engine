@@ -1,0 +1,139 @@
+{
+  "record": "PHASE_2B_2D_A2_FINAL_ORDINARY_WINDOW_PRENETWORK_ASSIGNMENT_V1",
+  "recordKind": "PRE_NETWORK_RESERVE_ASSIGNMENT",
+  "recordedAtUtc": "2026-09-27T14:53:21Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "84176b31c0c32289e08e519ca14d6c4dfdc2da64",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "networkUsedByThisRecord": "none. This record exists so the assignment is durable BEFORE any institution request",
+  "databaseWrittenByThisRecord": "none",
+  "createdBeforeAnyInstitutionNetworkActivityForThisWindow": true,
+
+  "boundAuthority": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_FINAL_ORDINARY_WINDOW_LIVE_AUTHORITY_V1.json",
+    "sha256": "ff15a417278e529ac738bcbb5bb788ad8407ee142fe3e5874b9850f5824afa57",
+    "bytes": 8447,
+    "commit": "84176b31c0c32289e08e519ca14d6c4dfdc2da64"
+  },
+  "boundPlan": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_FINAL_ORDINARY_WINDOW_PLAN_V1.json",
+    "sha256": "4f5b435d8c33641af080b42db90e68b20c1d2be1859d5b94332bc3306978ca1b",
+    "windowPlanHash": "22a4bc430c5bb31ee06c426e3a3b0fd5bf11ed36ea242c8abe624a9cba82907c"
+  },
+
+  "append": {
+    "performedWith": "the landed prepareReplacementAppend (src/test/harness/phase2b2d/continuationWindow/replacementAppend.ts), which re-derives the assignment from planPendingReplacementObligations and REFUSES anything that is not the planner's own slot/position pairing",
+    "assignmentsWereNotHandWritten": true,
+    "recordedAtUtcSuppliedByTheCaller": "2026-09-27T14:50:39Z",
+    "entriesBefore": 28,
+    "entriesAfter": 30,
+    "previousLedgerHash": "6f65c4fbeac78a2578dd7f3b8007964e78fd28bec8e7709992bcbe7f082ca2d0",
+    "nextLedgerHash": "64e9848427baf8ed7d3329becb4fcca66b1f581e5bc6d91a409f4c0139e9cff0",
+    "reserveConsumedBefore": 28,
+    "reserveConsumedAfter": 30,
+    "reserveUnusedAfter": 10,
+    "nextUnusedReservePositionAfter": 30,
+    "appendedSequences": [28, 29],
+    "appendedEntryHashes": [
+      "db2966a70efb6d6448cddf471524aff3a6d9a5287fc2e9848567d99aaa55a84a",
+      "f03fc6845300b64f543370394cea0ed408b2ad6de088842d2bd3993e5f8aa655"
+    ],
+    "entries": [
+      {
+        "sequence": 28,
+        "selectionIndex": 66,
+        "split": "DEV_TRAIN",
+        "reserveRankPosition": 28,
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "replacedOccupantKind": "RESERVE_REPLACEMENT",
+        "previousSequenceForSlot": 27,
+        "entryHash": "db2966a70efb6d6448cddf471524aff3a6d9a5287fc2e9848567d99aaa55a84a"
+      },
+      {
+        "sequence": 29,
+        "selectionIndex": 68,
+        "split": "FINAL_HOLDOUT",
+        "reserveRankPosition": 29,
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "replacedOccupantKind": "ORIGINAL_SELECTION",
+        "previousSequenceForSlot": null,
+        "entryHash": "f03fc6845300b64f543370394cea0ed408b2ad6de088842d2bd3993e5f8aa655"
+      }
+    ],
+    "appendOnly": {
+      "the28EntryPrefixIsByteIdentical": true,
+      "provedBy": "a deep comparison of the new ledger's first 28 entries against the previous revision's entries",
+      "noPriorEntryWasEditedOrRemoved": true,
+      "sequence28ChainsToSequence27": true,
+      "sequence29ChainsToSequence28": true,
+      "slot66sPreviousSequenceForSlotIs27": "its reserve-27 occupant, which the v7 targeted revalidation ran and which failed. That occupant's v6 AND v7 runs both remain in the database untouched",
+      "slot68HasNoPreviousSequenceForSlot": "its original selection failed in Window 07 and it had never been replaced"
+    },
+    "ledgerFileAfterAppend": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "40775b28745f25edd0132c6142495c79f2fdaa6357f1575f963eea640d84c893",
+      "bytes": 23205
+    },
+    "validatedAfterAppend": {
+      "requireValidLedger": 30,
+      "recomputedLedgerHashMatches": true,
+      "extendsGenesis": true
+    }
+  },
+
+  "occupantChainsAfterTheAppend": {
+    "slot66": "ORIGINAL_SELECTION -> reserve27 -> reserve28",
+    "slot68": "ORIGINAL_SELECTION -> reserve29",
+    "derivedWith": "the landed currentOccupantForSelectionIndex, which replays every entry against the frozen draw"
+  },
+
+  "p7AfterTheAppend": {
+    "allGreen": true,
+    "namedInvariantsTrue": "10 of 10",
+    "namedInvariants": {
+      "frameBindingValid": true,
+      "drawBindingValid": true,
+      "ownerClarificationBindingValid": true,
+      "replacementLedgerValid": true,
+      "replacementLedgerExtendsGenesis": true,
+      "windowPlanValid": true,
+      "workItemsMatchFrozenPlan": true,
+      "workItemDrawEntriesMatch": true,
+      "replacementAssignmentsRecorded": true,
+      "currentOccupantsMatch": true
+    },
+    "additionalGateChecks": {
+      "plannedWindowSizeIsTheWindowsOwnLength": true,
+      "noRepeatedWorkItem": true,
+      "reserveConsumedCountEqualsTheValidatedLedgerEntryCount": true
+    },
+    "totalChecks": "13 of 13",
+    "gateDecision": "CONTINUE_TO_NEXT_WORK_ITEM",
+    "triggeredConditions": [],
+    "nextWorkItemId": "R:66:28",
+    "mayStartNextWorkItem": true,
+    "evaluatedWith": "the landed evaluateContinuationWindowGate, unmodified",
+    "generationInputs": { "successfulOrganisationCount": 66, "reserveConsumedCount": 30 },
+    "p6": "NOT_TRIGGERED - 30 > 10 is TRUE and 66 < 50 is FALSE",
+    "p2ThresholdCountAtSize5": 3,
+    "p5ThresholdCountAtSize5": 2,
+    "thresholdsUnchanged": true,
+    "aPreflightHelperBugWasFoundAndFixedBeforeThisProof": "an earlier run of the preflight helper read drawEntrySha256, plannedLedgerSequence, replacementReason and replacesOccupant off the GATE'S PROJECTED work-item shape, which deliberately drops them, and reported two invariants false. That was a defect in the helper, not in the ledger or the plan: it was corrected to read those fields from the plan's own work items, and the proof above is the corrected run. Recorded rather than quietly re-run, because a false P7 is exactly the kind of result that must not be explained away"
+  },
+
+  "whatThisRecordDoesNotDo": [
+    "authorise network activity - the live authority does that",
+    "assign any reserve beyond positions 28 and 29",
+    "start any work item",
+    "write to the database",
+    "change a pause threshold",
+    "touch selection index 59"
+  ],
+  "immutability": "append-only. This record is never edited."
+}
