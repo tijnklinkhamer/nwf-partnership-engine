@@ -1,0 +1,139 @@
+{
+  "recordId": "phase2b-2d-a2-final-remaining-ordinary-window-release-v1",
+  "recordKind": "OWNER_CONTINUATION_RELEASE",
+  "records": "PHASE_2B_2D_A2_FINAL_REMAINING_ORDINARY_WINDOW_RELEASE_V1",
+  "recordedAtUtc": "2026-09-27T14:37:18Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "networkUsedByThisRecord": "none",
+  "databaseWrittenByThisRecord": "none",
+  "ledgerAppendedByThisRecord": false,
+  "startingHead": "7ffe80b9d434e4d93c6077dbfb16aa93fa2f161f",
+
+  "ownerDecision": "RELEASE_FINAL_REMAINING_ORDINARY_WINDOW_AFTER_V7_REVALIDATION_V1",
+  "whatIsReleased": {
+    "ordinaryChildWindows": 1,
+    "ordinaryLiveAttempts": 5,
+    "source": "the previously granted bounded authority, NOT a new grant",
+    "capRefilled": false,
+    "capExtended": false,
+    "borrowedAgainst": false,
+    "moreThanOneWindowAuthorised": false,
+    "afterItsAdjudicationStopRegardlessOfState": true
+  },
+
+  "whyReleaseIsNowInOrder": {
+    "window07EndedOnP5": true,
+    "theResumeRecordRequiredAStop": "the bound resume states explicitly that the final unused ordinary window is NOT self-authorised through a pause. The automatic-continuation clause applies only to a window that ends CLEANLY",
+    "soANewOwnerDecisionWasRequired": true,
+    "theP5ReviewWasCarriedOut": "P5_REVIEWED_FOUR_CONSECUTIVE_PAUSES_HETEROGENEOUS_UNUSABLE_ROOT_BASE_RATE_OBSERVED_NO_THRESHOLD_CHANGE_MID_GENERATION",
+    "theCapabilityGapWasRepairedFirst": "ADR 0016 / orgunit-fetch-policy-v7, landed and validated before any network activity",
+    "theCapabilityWasRevalidatedFirst": "the slot-66 / reserve-27 targeted revalidation ran, was adjudicated, and consumed no reserve",
+    "soTheFinalWindowIsPlannedFromRECOMPUTEDStateRatherThanFromAStaleQueue": true
+  },
+
+  "p5IsNOTRetuned": {
+    "thresholdBefore": 2,
+    "thresholdAfter": 2,
+    "denominatorBefore": 5,
+    "denominatorAfter": 5,
+    "p2ThresholdBefore": 3,
+    "p2ThresholdAfter": 3,
+    "windowSizeBefore": 5,
+    "windowSizeAfter": 5,
+    "changedHere": false,
+    "why": "changing a pause threshold mid-generation, informed by realised outcomes, would make the instrument a function of the results it is supposed to judge. Four consecutive pauses are recorded as a finding, not used as an argument for raising the bar",
+    "theFinalWindowOwesItsOwnP5": true,
+    "ifP5FiresAgainStopImmediately": "before starting any later item, and do NOT argue that four previous pauses justify ignoring the fifth",
+    "theInstrumentDesignQuestionIsDeferred": "whether a five-item window with a two-item low-yield trigger is correctly tuned for this population is a governance/methodology question for after this bounded acquisition step"
+  },
+
+  "p59IsNotTouched": {
+    "status": "PENDING_CAPABILITY_REVIEW",
+    "formalRange": [1, 24],
+    "includedInThisWindow": false,
+    "includedInQ1": false,
+    "methodologyR3ChangedHere": false
+  },
+
+  "bound": {
+    "targetedRevalidationAdjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_SLOT66_RESERVE27_FETCH_POLICY_V7_TARGETED_REVALIDATION_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "61409f62cc0d3fa0b2fff1d618968956815ceb4812e68e189f24e6fd7a263387",
+      "bytes": 16682,
+      "commit": "7ffe80b9d434e4d93c6077dbfb16aa93fa2f161f",
+      "terminalState": "PHASE_2B_2D_A2_SLOT66_RESERVE27_V7_TARGETED_REVALIDATION_ADJUDICATED_CAPABILITY_CONFIRMED_SLOT_STILL_UNSUCCESSFUL"
+    },
+    "window07Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_06_WINDOW_07_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "3b77909986fa8c7fd8f3c3d7829f6c4f7a46a55fa9d2aca02d452bd4cef728a5",
+      "role": "the record that charged the previous ordinary window in full and left exactly one unspent"
+    },
+    "v7PolicyRepair": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_ROBOTS_TRAILING_SLASH_FETCH_POLICY_V7_REPAIR_V1.json",
+      "sha256": "4231660bd5eb5ce0f20e8a235b5d687b544b18ca595e92979c01a2f19ae92a49",
+      "carriesTheP5Review": true
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "0627fc3408da2a830a4a195f4b57bdb06637f08104e0b4a59536b2f12cce8d56",
+      "entries": 28,
+      "ledgerHash": "6f65c4fbeac78a2578dd7f3b8007964e78fd28bec8e7709992bcbe7f082ca2d0",
+      "thisIsThePreAppendRevision": true
+    }
+  },
+
+  "currentStateTheWindowMustBePlannedFrom": {
+    "ACQUISITION_SUCCESSFUL": 66,
+    "successfulSelectionIndexRanges": ["0..58", "60..65", "67"],
+    "CURRENT_ACQUISITION_FAILURE": [66, 68],
+    "PENDING_CAPABILITY_REVIEW": [59],
+    "NEVER_STARTED": { "from": 69, "to": 109, "count": 41 },
+    "accounting": "66 + 2 + 1 + 41 = 110",
+    "currentQ1": [66, 68],
+    "replacementLedgerEntries": 28,
+    "nextUnusedReservePosition": 28,
+    "p6": "NOT_TRIGGERED",
+    "branch": "B",
+    "whyBranchB": "the v7 revalidation confirmed the capability and produced a determinate failure, so slot 66 did NOT close and remains a current obligation"
+  },
+
+  "mechanicallyDerivedComposition": {
+    "rule": "replacements discharge Q1 in ascending selection index with monotonically assigned next unused reserves, then primaries fill the remaining positions from the next NEVER_STARTED index in frozen order",
+    "exactOrder": "R:66:28 -> R:68:29 -> P:69 -> P:70 -> P:71",
+    "replacementItems": 2,
+    "primaryItems": 3,
+    "reservesAppended": [28, 29],
+    "reserve30AndBeyondStayUnused": true,
+    "slot66IsIncludedBECAUSEItRemainsAnObligation": "omitting it would silently drop a current Q1 obligation",
+    "slot66IsNotReservedAwayBecauseTheV7RunClosedIt": "it did not close it",
+    "p59Excluded": true,
+    "noAlternativeCompositionIsAuthorised": true,
+    "theTwoBranchesAreNeverMixed": true
+  },
+
+  "thisReleaseDoesNot": [
+    "authorise any network activity by itself - the window's own live authority does that",
+    "append to the replacement ledger",
+    "assign a reserve",
+    "write to the database",
+    "create or modify a plan",
+    "authorise a second window, or any window after this one",
+    "refill, extend or borrow against the cap",
+    "retry the slot-66 v7 occupant, substitute a hostname or widen a root authority",
+    "change any pause threshold",
+    "touch selection index 59",
+    "change Methodology R3 or any frozen SD/Q rule",
+    "authorise A3, labels, the classifier, a provider or Phase 2E"
+  ],
+
+  "terminalState": "PHASE_2B_2D_A2_FINAL_REMAINING_ORDINARY_WINDOW_RELEASED_1_WINDOW_5_ATTEMPTS",
+  "nextStep": "build the final window's strategy against the PRE-append 28-entry ledger, then its plan, then its live authority, then the pre-network ledger append of reserves 28 and 29, then execute exactly five items sequentially under orgunit-fetch-policy-v7",
+  "immutability": "append-only. This record is never edited."
+}
