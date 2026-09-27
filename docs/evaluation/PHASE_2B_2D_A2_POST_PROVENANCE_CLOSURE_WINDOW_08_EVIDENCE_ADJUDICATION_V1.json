@@ -1,0 +1,391 @@
+{
+  "recordId": "phase2b-2d-a2-post-provenance-closure-window-08-evidence-adjudication-v1",
+  "recordKind": "LIVE_WINDOW_EVIDENCE_ADJUDICATION",
+  "records": "PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_08_EVIDENCE_ADJUDICATION_V1",
+  "recordedAtUtc": "2026-09-27T19:40:27Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "startingHead": "b94ec006e3cfcbea620b1b9fd36ac50e4a51e11b",
+  "networkUsedByThisRecord": "none",
+  "databaseWrittenByThisRecord": "none. readonly SELECTs only",
+  "ledgerAppendedByThisRecord": "none - no post-adjudication append",
+  "reserveAssignedByThisRecord": "none",
+  "bound": {
+    "liveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_08_LIVE_RESULT_V1.json",
+      "sha256": "a62db60785d78a5ec1827e77588b1022215efebea1d65417dac1d4ad9ed03dad",
+      "bytes": 16612,
+      "commit": "b94ec006e3cfcbea620b1b9fd36ac50e4a51e11b"
+    },
+    "liveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_08_LIVE_AUTHORITY_V1.json",
+      "sha256": "9519f288ba59f1a5516f314a9bb31e9fea904bc0041763c7829c34dda97ba8da",
+      "bytes": 9052
+    },
+    "strategy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_08_STRATEGY_V1.json",
+      "sha256": "4748f9747ada7c045dd79fd10c26f5da3167a6bbedcbd1ba0b7921c0be34465a",
+      "bytes": 30006
+    },
+    "standingAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_SD9_RECONCILIATION_RESERVE_SCARCITY_AND_ACQUISITION_RESUME_V1.json",
+      "sha256": "b8258ac7a0e82950b89b95e450f9a8e9128c151c16e96570fd31b2072bce38cf",
+      "bytes": 17391,
+      "commit": "ecbc4e0b79b91b6c9567beff51a357bb82c0e336"
+    },
+    "provenanceClosure": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_CURRENT_TERMINAL_RUN_PROVENANCE_CLOSURE_V1.json",
+      "sha256": "9da26f676f7cf461843c7a007a76af253b6f8b1d2a47cb1e4ce3e4abde872540",
+      "bytes": 64352,
+      "commit": "67ae047fb7de079bcba0eec83ca4f4baee77cc3e",
+      "notEdited": true
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "c1ca6a4c49d5884657f53e72ca661b8af3e4a275eff60e22546f536ccc44be71",
+      "bytes": 25048,
+      "entries": 33,
+      "ledgerHash": "f31730bc40faa76be59c47d010120a95853dd9170349f58e234f7d19efec74e0"
+    }
+  },
+  "orderOfRules": [
+    "environment-vantage integrity rule",
+    "SD9 via the repaired SD7 bridge (raw -> SD9-eligible -> exact dedupe -> near dedupe -> threshold)",
+    "Q3"
+  ],
+  "items": [
+    {
+      "workItemId": "R:59:30",
+      "split": "DEV_CONFIRM",
+      "drawEntrySha256": "1a548277aa863b1fbc188d56cdfc18e3e1b104948c76bc8edb06c895f4123ef7",
+      "runRefSha256": "c305dd3664045e451b5a59125411fdde710f47b3c16273eedb4620949fc4b571",
+      "integrity": {
+        "itemPreflightAllGreen": true,
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostGuardGreen": true,
+        "sleepEventsDuringItem": 0,
+        "verdict": "CLEAN"
+      },
+      "bridge": {
+        "rawPageEvidenceCount": 31,
+        "sd9EligiblePageCount": 30,
+        "zeroExtractedTextPageCount": 1,
+        "postSd7Range": [29, 30],
+        "countIsExact": false,
+        "shortTextUnresolvedCount": 1,
+        "decidedByCase": "B",
+        "recomputedFromTheDatabaseInThisStep": true,
+        "matchesLiveResult": true
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_SUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "sd9": "whole post-SD7 range [29,30] at or above 4",
+        "q3": "not applicable",
+        "slotEffect": "slot 59 CLOSED on reserve 30; its Q1 obligation is discharged"
+      }
+    },
+    {
+      "workItemId": "R:66:31",
+      "split": "DEV_TRAIN",
+      "drawEntrySha256": "8a88efa576ff011024518e52699ff7fe690c356456c7ce922051c452e613ed13",
+      "runRefSha256": "d196f8997bd651e6e1f112e352d3604dc58fb4797cb822b3e03e2d146cb1df62",
+      "integrity": {
+        "itemPreflightAllGreen": true,
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostGuardGreen": true,
+        "sleepEventsDuringItem": 0,
+        "verdict": "CLEAN"
+      },
+      "bridge": {
+        "rawPageEvidenceCount": 32,
+        "sd9EligiblePageCount": 32,
+        "zeroExtractedTextPageCount": 0,
+        "postSd7Range": [29, 30],
+        "countIsExact": false,
+        "shortTextUnresolvedCount": 0,
+        "decidedByCase": "B",
+        "recomputedFromTheDatabaseInThisStep": true,
+        "matchesLiveResult": true
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_SUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "sd9": "whole post-SD7 range [29,30] at or above 4",
+        "q3": "not applicable",
+        "slotEffect": "slot 66 CLOSED on reserve 31 after ORIGINAL -> r27 -> r28 -> r31; its Q1 obligation is discharged",
+        "oneTlsFailureObservationDidNotAffectTheVerdict": true
+      }
+    },
+    {
+      "workItemId": "R:70:32",
+      "split": "FINAL_HOLDOUT",
+      "drawEntrySha256": "4b043422447982f25446c0374f756701252b7c44c2cbe6be14e3a994a8bfe5db",
+      "runRefSha256": "c2f5d85250e863ae0fee058ff7d366de0403e76df0f1bb5f7f6dc60bbed063a4",
+      "integrity": {
+        "itemPreflightAllGreen": true,
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostGuardGreen": true,
+        "sleepEventsDuringItem": 0,
+        "verdict": "CLEAN"
+      },
+      "bridge": {
+        "rawPageEvidenceCount": 35,
+        "sd9EligiblePageCount": 34,
+        "zeroExtractedTextPageCount": 1,
+        "postSd7Range": [19, 34],
+        "countIsExact": false,
+        "shortTextUnresolvedCount": 15,
+        "decidedByCase": "B",
+        "recomputedFromTheDatabaseInThisStep": true,
+        "matchesLiveResult": true
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_SUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "sd9": "whole post-SD7 range [19,34] at or above 4 (case B, order- and short-text-independent at the threshold)",
+        "q3": "not applicable",
+        "slotEffect": "slot 70 CLOSED on reserve 32; its Q1 obligation is discharged",
+        "p70ExtractionInvestigationStillDeferred": true
+      }
+    },
+    {
+      "workItemId": "P:72",
+      "split": "DEV_CONFIRM",
+      "drawEntrySha256": "1e5b8789bde57764cb19f3acb9f763d22fb6f5c5b99597af7855e1a40bf1fecd",
+      "runRefSha256": "dc04999c6cfc2bd817ba973f4570479cef7b049be9b9018c25fe152429647b5a",
+      "integrity": {
+        "itemPreflightAllGreen": true,
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostGuardGreen": true,
+        "sleepEventsDuringItem": 0,
+        "verdict": "CLEAN"
+      },
+      "bridge": {
+        "rawPageEvidenceCount": 0,
+        "sd9EligiblePageCount": 0,
+        "zeroExtractedTextPageCount": 0,
+        "postSd7Range": [0, 0],
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "decidedByCase": "A",
+        "recomputedFromTheDatabaseInThisStep": true,
+        "matchesLiveResult": true
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "vantageIntegrity": "CLEAN - the host answered over public IPv4 from a compliant vantage",
+        "sd9": "case A: zero page evidence, [0,0] exact",
+        "q3Rank": 4,
+        "q3Reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "why": "a RESPONSIVE host whose robots.txt answered 301 to a different registrable domain. Not a transport failure (rank 3 needs a transport kind) and not ROOT_AUTHORITY or ROBOTS_DISALLOWED: the policy was never read, and a cross-domain target needs a stored owner promotion (rule 16) that does not exist. Same structural class and same reason as the adjudicated R:18:7",
+        "slotEffect": "NEW original-slot obligation for selection index 72 (ORIGINAL_SELECTION)"
+      }
+    },
+    {
+      "workItemId": "P:73",
+      "split": "FINAL_HOLDOUT",
+      "drawEntrySha256": "1a7f560b9cef534d8ae953ed9ee92e842658bddc1ffa70a8356bc046a28bc4fd",
+      "runRefSha256": "da2e35a32831f916756cc832172bfe4f38a5264438b90c5b0df504b471bed286",
+      "integrity": {
+        "itemPreflightAllGreen": true,
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostGuardGreen": true,
+        "sleepEventsDuringItem": 0,
+        "verdict": "CLEAN"
+      },
+      "bridge": {
+        "rawPageEvidenceCount": 0,
+        "sd9EligiblePageCount": 0,
+        "zeroExtractedTextPageCount": 0,
+        "postSd7Range": [0, 0],
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "decidedByCase": "A",
+        "recomputedFromTheDatabaseInThisStep": true,
+        "matchesLiveResult": true
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "vantageIntegrity": "CLEAN - both attempts resolved to a public IPv4 address from a native IPv4 vantage with no DNS64/NAT64; the environment-vantage rule does NOT discount this failure",
+        "sd9": "case A: zero page evidence, [0,0] exact",
+        "q3Rank": 3,
+        "q3Reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "why": "two CONNECT_TIMEOUT observations on robots.txt (the landed v4 bounded robots retry, attempt_no 1 and 2), zero responses. A transport kind with no response ranks 3",
+        "slotEffect": "NEW original-slot obligation for selection index 73 (ORIGINAL_SELECTION)"
+      }
+    }
+  ],
+  "windowSummary": {
+    "executed": 5,
+    "successful": 3,
+    "unsuccessful": 2,
+    "pendingCapabilityReview": 0,
+    "thresholdStraddlingAmbiguity": 0,
+    "replacementsSucceeded": 3,
+    "primariesFailed": 2,
+    "rawPages": 98,
+    "sd9EligiblePages": 96
+  },
+  "generation1StateBefore": {
+    "ACQUISITION_SUCCESSFUL": 69,
+    "CURRENT_ACQUISITION_FAILURE": [59, 66, 70],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "NEVER_STARTED": {
+      "from": 72,
+      "to": 109,
+      "count": 38
+    }
+  },
+  "generation1StateAfter": {
+    "ACQUISITION_SUCCESSFUL": 72,
+    "CURRENT_ACQUISITION_FAILURE": [72, 73],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "NEVER_STARTED": {
+      "from": 74,
+      "to": 109,
+      "count": 36,
+      "contiguous": true
+    },
+    "accounting": "72 + 2 + 0 + 36 = 110",
+    "replacementLedgerEntries": 33,
+    "ledgerHash": "f31730bc40faa76be59c47d010120a95853dd9170349f58e234f7d19efec74e0",
+    "reserveConsumed": 33,
+    "sd9DetailOfCurrentFailures": {
+      "72": {
+        "occupantKind": "ORIGINAL_SELECTION",
+        "reserveRankPosition": null,
+        "ledgerSequence": null,
+        "split": "DEV_CONFIRM",
+        "runsForOccupant": 1,
+        "raw": 0,
+        "sd9Eligible": 0,
+        "zeroExtractedText": 0,
+        "postSd7Range": [0, 0],
+        "countIsExact": true,
+        "decidedByCase": "A",
+        "status": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+      },
+      "73": {
+        "occupantKind": "ORIGINAL_SELECTION",
+        "reserveRankPosition": null,
+        "ledgerSequence": null,
+        "split": "FINAL_HOLDOUT",
+        "runsForOccupant": 1,
+        "raw": 0,
+        "sd9Eligible": 0,
+        "zeroExtractedText": 0,
+        "postSd7Range": [0, 0],
+        "countIsExact": true,
+        "decidedByCase": "A",
+        "status": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+      }
+    },
+    "sd9DetailNote": "status here is the SD9 verdict; the REPLACEMENT reason after Q3 is in pendingReplacementObligations (P:73 is HOST_UNREACHABLE)",
+    "rederivedIndependentlyFromScratch": "state.mts re-run: frozen draw re-verified, committed 33-entry ledger replayed for every index 0..109, each occupant's LATEST run by started_at, page evidence filtered by run_id, analyseOrganisation per occupant"
+  },
+  "q1After": [72, 73],
+  "pendingReplacementObligations": [
+    {
+      "selectionIndex": 72,
+      "split": "DEV_CONFIRM",
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "currentOccupant": "ORIGINAL_SELECTION",
+      "nextReserveAssigned": false
+    },
+    {
+      "selectionIndex": 73,
+      "split": "FINAL_HOLDOUT",
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "currentOccupant": "ORIGINAL_SELECTION",
+      "nextReserveAssigned": false
+    }
+  ],
+  "closedReplacementObligations": [59, 66, 70],
+  "currentOccupantsOfTheWindowSlots": {
+    "59": "RESERVE_REPLACEMENT reserve30 (seq 30) - SUCCESSFUL",
+    "66": "RESERVE_REPLACEMENT reserve31 (seq 31) - SUCCESSFUL",
+    "70": "RESERVE_REPLACEMENT reserve32 (seq 32) - SUCCESSFUL",
+    "72": "ORIGINAL_SELECTION - FAILED",
+    "73": "ORIGINAL_SELECTION - FAILED"
+  },
+  "newDevTrainSuccesses": {
+    "slots": [66],
+    "note": "slot 66 is DEV_TRAIN. It belongs to a FUTURE A3 governance checkpoint; A3 R32 is pinned to 67ae047 and is not drifted by it. No A3 record is written from A2"
+  },
+  "reserves": {
+    "consumed": 33,
+    "nextUnused": 33,
+    "unusedPositions": "33..39",
+    "unused": 7
+  },
+  "p6": {
+    "rule": "reserveConsumed > 10 AND successfulOrganisationCount < 50",
+    "evaluation": "33 > 10 TRUE and 72 < 50 FALSE",
+    "result": "NOT_TRIGGERED"
+  },
+  "pauseDisposition": {
+    "p5Fired": true,
+    "afterItem": "P:73",
+    "windowFullyExecuted": true,
+    "automaticContinuationStopped": true,
+    "why": "the standing authority and the owner task both say a pause stops automatic continuation even though cap remains. The next window is NOT planned, assigned or precommitted here",
+    "p5NotRetuned": true
+  },
+  "standingAuthorityConsumption": {
+    "windowsUsed": 1,
+    "windowsRemaining": 3,
+    "attemptsUsed": 5,
+    "attemptsRemaining": 15,
+    "chargedInFull": true
+  },
+  "holdoutNonDisclosure": {
+    "finalHoldoutItems": ["R:70:32", "P:73"],
+    "onlyStructuralCountsRead": true
+  },
+  "identityDisclosure": {
+    "institutionNamesRecorded": 0,
+    "organisationUuidsRecorded": 0,
+    "echeRowKeysRecorded": 0,
+    "hostnamesRecorded": 0,
+    "urlsRecorded": 0
+  },
+  "terminalState": "PHASE_2B_2D_A2_WINDOW_08_ADJUDICATED_STOPPED_ON_P5",
+  "nextOwnerDecision": "review the Window-08 P5 pause (P:72 cross-domain robots 301, P:73 connect timeouts from a compliant IPv4 vantage) and decide whether to resume the remaining 3 windows / 15 attempts of the ecbc4e0 authority; the next composition would mechanically be R:72:33 -> R:73:34 -> P:74 -> P:75 -> P:76 but is NOT precommitted here",
+  "immutability": "append-only. This record is never edited."
+}
