@@ -1,0 +1,334 @@
+{
+  "record": "PHASE_2B_2D_A2_SLOT66_RESERVE27_FETCH_POLICY_V7_TARGETED_REVALIDATION_AUTHORITY_V1",
+  "recordKind": "TARGETED_CAPABILITY_REVALIDATION_LIVE_AUTHORITY",
+  "createdBeforeAnyInstitutionNetworkActivity": true,
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "6301e95b60d78adbc4f71d9354b2c2f5b794ea96",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+
+  "ownerDecision": "A2_TARGETED_FETCH_POLICY_V7_REVALIDATION_AUTHORISATION",
+  "authorityType": "TARGETED_FETCH_POLICY_V7_REVALIDATION",
+  "whatTheOwnerDecisionPermits": [
+    "EXACTLY ONE live `orgunits discover --execute` invocation for selection index 66 against its CURRENT occupant - reserve rank position 27 - its FROZEN organisation and its FROZEN root authority, under orgunit-fetch-policy-v7.",
+    "Normal v7 automatic transport behaviour only; no operator retry, no alternate root, no hostname guessing, no browser/curl/wget substitute.",
+    "Read-only preflight, one network-free dry run, durable evidence records, SD7 per run, and one governed full validation."
+  ],
+
+  "target": {
+    "selectionIndex": 66,
+    "workItemId": "R:66:27",
+    "kind": "REPLACEMENT",
+    "split": "DEV_TRAIN",
+    "currentOccupant": "RESERVE_REPLACEMENT",
+    "reserveRankPosition": 27,
+    "drawEntryKind": "RESERVE",
+    "drawEntrySha256": "8f28c4c3d591fa32d97fde573fb62a1b0d7661ac8bc82d276728a57f37a309d6",
+    "requiredFetchPolicy": "orgunit-fetch-policy-v7",
+    "historicalV6RunRefSha256": "d375e1ca2864e681e9b224b9f09e883d226e309a580edcb88bd17e81ee6cd63a"
+  },
+
+  "maximumLiveInvocations": 1,
+  "concurrency": 1,
+  "reserveConsumptionAuthorised": 0,
+  "ledgerMutationAuthorised": false,
+  "primaryAcquisitionAuthorised": false,
+  "P68Authorised": false,
+  "P69PlusAuthorised": false,
+  "P59Authorised": false,
+  "otherSelectionIndicesAuthorised": false,
+  "secondInvocationForThisTargetAuthorised": false,
+  "manualRetryAuthorised": false,
+  "alternateRootAuthorised": false,
+  "reserveAssignmentAuthorised": false,
+  "reservePosition28Authorised": false,
+  "reservePosition29Authorised": false,
+  "replacementLedgerMutationAuthorised": false,
+  "finalOrdinaryWindowAuthorisedByThisFile": false,
+  "crawlerRepairAuthorised": false,
+  "fetchPolicyV8Authorised": false,
+  "p5RetuneAuthorised": false,
+  "methodologyR3ChangeAuthorised": false,
+  "classifierAuthorised": false,
+  "providerAuthorised": false,
+  "labelsAuthorised": false,
+  "setPSetRAuthorised": false,
+  "a3Authorised": false,
+  "phase2EAuthorised": false,
+
+  "ordinaryWindowSemanticsDoNotApply": {
+    "reason": "this is ONE targeted revalidation of one already-occupied slot, not a five-item ordinary child window. There is no five-item denominator here, so P5 has nothing to divide.",
+    "p5AppliesHere": false,
+    "p2AppliesHere": false,
+    "p5ThresholdChangedAnywhere": false,
+    "theFinalOrdinaryWindowStillOwesItsOwnP5": true,
+    "failClosedGatesThatSTILLApply": [
+      "integrity: wrong organisation or wrong frozen root -> STOP",
+      "provenance: any new run or observation stamped other than orgunit-fetch-policy-v7 -> STOP",
+      "persistence: a run without a completion row -> STOP",
+      "ledger: any replacement-ledger mutation -> STOP",
+      "network: any institution request beyond this one target -> STOP",
+      "host: sleep/wake during the active target -> STOP after preserving durable evidence, and never rerun",
+      "binding: evidence that cannot be bound to R:66:27 -> STOP"
+    ]
+  },
+
+  "targetBinding": {
+    "resolvedPrivatelyFrom": [
+      "frozen draw RESERVE entry at reserveRankPosition 27",
+      "replacement-ledger entry sequence 27 (selectionIndex 66, DEV_TRAIN, ORIGINAL_SELECTION replaced)",
+      "Window-07 plan work item R:66:27",
+      "Generation-1 state at the Window-07 evidence adjudication"
+    ],
+    "drawEntryDigestRecomputed": "sha256(canonicalStringify(draw.reserve[reserveRankPosition=27])) via src/orgunits/classify/canonical.ts",
+    "drawEntryDigestMatchesWindow07Plan": true,
+    "ledgerEntryForSlot66": {
+      "sequence": 27,
+      "isTheLastLedgerEntry": true,
+      "selectionIndex": 66,
+      "split": "DEV_TRAIN",
+      "reserveRankPosition": 27,
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "entryHash": "f122780a4b0de9721d419b40c0ddc1486b0bdcde4e2580898d05c476198c4174"
+    },
+    "splitAgreesWithTheFrozenSelectionSplit": true,
+    "rootAuthorityCount": 1,
+    "rootAuthorityType": "WEBSITE_CLAIM",
+    "frozenRootIsCurrentStructurallyValidClaim": true,
+    "frozenRootIsTheOrganisationsONLYClaimOfANYStatus": true,
+    "frozenRootIsTheHistoricalV6RunRoot": true,
+    "promotionRoots": 0,
+    "dryRunRootsMatchTheFrozenDrawEntryExactly": true,
+    "institutionIdentityInThisFile": false
+  },
+
+  "historicalV6EvidenceIsImmutable": {
+    "runRefSha256": "d375e1ca2864e681e9b224b9f09e883d226e309a580edcb88bd17e81ee6cd63a",
+    "fetchPolicy": "orgunit-fetch-policy-v6",
+    "executedAtUtc": "2026-09-26T19:51:43Z",
+    "runTerminalState": "COMPLETED",
+    "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+    "observations": 1,
+    "redirectObservations": 1,
+    "rawPages": 0,
+    "pageCandidates": 0,
+    "formalSd7": "0 exact",
+    "diagnosticSd9": "ACQUISITION_UNSUCCESSFUL",
+    "q3Rank": 4,
+    "q3Reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+    "currentStatus": "CURRENT_ACQUISITION_FAILURE, with an open Q1 obligation",
+    "structuralFindingReverifiedFromTheDatabase": {
+      "requestedPathShape": "/robots.txt",
+      "redirectTargetPathShape": "/robots.txt/",
+      "httpStatus": 301,
+      "robotsDecision": "NOT_APPLICABLE",
+      "targetMalformed": false,
+      "schemeDowngraded": false,
+      "hostChanged": false,
+      "registrableDomainChanged": false,
+      "resolvedIpFamily": "IPV4",
+      "resolvedIpIsPublic": true,
+      "errorKind": null,
+      "targetIsTheRequestedPathPlusOneTrailingSlash": true
+    },
+    "noRowUpdatedDeletedOrReinterpreted": true,
+    "thisRunIsRetainedForEver": true,
+    "v6AndV7PageRowsWillNeverBeCombined": true
+  },
+
+  "boundRecords": {
+    "v7PolicyRepair": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_ROBOTS_TRAILING_SLASH_FETCH_POLICY_V7_REPAIR_V1.json",
+      "sha256": "4231660bd5eb5ce0f20e8a235b5d687b544b18ca595e92979c01a2f19ae92a49",
+      "bytes": 24734,
+      "commit": "e0166e0f787e3bba00b35271cab6717eb65a202c"
+    },
+    "adr0016": {
+      "path": "docs/adr/0016-trailing-slash-robots-redirect-continuation.md",
+      "sha256": "7067466be7755ab46501ec0da73b72b6931e6f6bcc546aea7fce62c444396391",
+      "bytes": 18853,
+      "commit": "e0166e0f787e3bba00b35271cab6717eb65a202c"
+    },
+    "window07Result": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_06_WINDOW_07_LIVE_RESULT_V1.json",
+      "sha256": "13748f6151359cdac40523cbe116fbb747906340ad1dd87dea7e0d0e76916f9b",
+      "bytes": 19014
+    },
+    "window07Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_06_WINDOW_07_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "3b77909986fa8c7fd8f3c3d7829f6c4f7a46a55fa9d2aca02d452bd4cef728a5",
+      "bytes": 26682,
+      "terminalState": "PHASE_2B_2D_A2_POST_WINDOW_06_WINDOW_07_ADJUDICATED_P5_PAUSE_FINAL_WINDOW_NOT_SELF_AUTHORISED"
+    },
+    "window07Plan": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_06_WINDOW_07_PLAN_V1.json",
+      "providesTheR6627DrawDigest": true
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "sha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "bytes": 74047,
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293",
+      "mustRemainByteIdentical": true
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "0627fc3408da2a830a4a195f4b57bdb06637f08104e0b4a59536b2f12cce8d56",
+      "bytes": 21975,
+      "ledgerHash": "6f65c4fbeac78a2578dd7f3b8007964e78fd28bec8e7709992bcbe7f082ca2d0",
+      "entries": 28,
+      "mustRemainByteIdentical": true
+    },
+    "precedents": {
+      "optionBTargetedRevalidation": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_B_TARGETED_REVALIDATION_AUTHORITY_V1.json",
+      "optionCLiteTargetedRevalidation": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_C_LITE_TARGETED_REVALIDATION_AUTHORITY_V1.json",
+      "optionCLiteRevalidationAdjudication": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_C_LITE_REVALIDATION_EVIDENCE_ADJUDICATION_V1.json",
+      "v4TargetedTransportRevalidation": "docs/evaluation/PHASE_2B_2D_A2_V4_TARGETED_TRANSPORT_REVALIDATION_AUTHORITY_V1.json",
+      "p12V6TargetedRevalidation": "docs/evaluation/PHASE_2B_2D_A2_P12_FETCH_POLICY_V6_TARGETED_REVALIDATION_AUTHORITY_V1.json",
+      "postWindow02VantageRecovery": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_TARGETED_VANTAGE_RECOVERY_LIVE_AUTHORITY_V1.json",
+      "adr0013": "docs/adr/0013-same-registrable-domain-robots-redirect-continuation.md"
+    }
+  },
+
+  "verifiedPolicyBoundary": {
+    "FETCH_POLICY_VERSION": "orgunit-fetch-policy-v7",
+    "declaredExactlyOnce": true,
+    "continuationTargetPathSet": "exactly two literals, frozen at RobotsAuthorisation.CONTINUATION_PATHS",
+    "initialBootstrapPathSet": "the canonical policy path only; its function body is byte-identical to v6",
+    "continuationAuthorityFactory": "forRobotsTxtRedirectContinuation, URL-scoped, NOT_APPLICABLE, no ordinary-page capability",
+    "redirectHops": 1,
+    "automaticRetry": "only the ADR 0015 bounded robots-policy transport retry, unchanged",
+    "noNewRetryPolicy": true,
+    "gatewayFollowsRedirects": false,
+    "frozenCeilingsUnchanged": {
+      "MAX_TOTAL_REQUESTS_PER_ROOT": 60,
+      "MAX_PAGE_ATTEMPTS_PER_ROOT": 35,
+      "MAX_HOSTS_PER_ROOT": 8,
+      "CONNECT_TIMEOUT_MS": 30000,
+      "TOTAL_TIMEOUT_MS": 45000
+    },
+    "migrationRequired": false,
+    "migrationAdded": false,
+    "targetHtmlInspectedBeforeRun": false,
+    "outcomePredicted": false,
+    "whyNoPrediction": "the origin may answer the trailing-slash form with rules, a 404, a 5xx or another redirect, and each is a legitimate and different outcome. This authority permits ASKING the question; it does not expect an answer."
+  },
+
+  "engineeringValidationBeforeNetwork": {
+    "focusedTestsFirst": true,
+    "fullValidate": "npm run validate",
+    "runs": 1,
+    "exitCode": 0,
+    "tests": "5077 passed, 75 skipped",
+    "buildGreen": true,
+    "committed": true,
+    "pushed": true,
+    "localEqualsOrigin": true,
+    "headAtAuthorityCommitTime": "6301e95b60d78adbc4f71d9354b2c2f5b794ea96"
+  },
+
+  "generation1StateBeforeRun": {
+    "ACQUISITION_SUCCESSFUL": 66,
+    "successfulSelectionIndexRanges": ["0..58", "60..65", "67"],
+    "CURRENT_ACQUISITION_FAILURE": [66, 68],
+    "PENDING_CAPABILITY_REVIEW": [59],
+    "NEVER_STARTED": { "from": 69, "to": 109, "count": 41 },
+    "accounting": "66 + 2 + 1 + 41 = 110",
+    "currentQ1": [66, 68],
+    "replacementLedgerEntries": 28,
+    "reserveConsumed": 28,
+    "nextUnusedReservePosition": 28,
+    "reservePosition28": "UNASSIGNED",
+    "reservePosition29": "UNASSIGNED",
+    "p6": false,
+    "window07Terminal": "PAUSE_P5_LOW_RAW_YIELD",
+    "ordinaryChildWindowsRemainingUnderTheFinalRemainder": 1,
+    "ordinaryLiveAttemptsRemainingUnderTheRemainder": 5,
+    "mustNotChangeDuringThisTask": true
+  },
+
+  "databasePreflight": {
+    "verifiedBeforeAuthorityCommit": true,
+    "database": "nwf_pe",
+    "orgunit_research_runs": 106,
+    "orgunit_research_run_completions": 106,
+    "orgunit_fetch_observations": 2778,
+    "orgunit_redirect_observations": 215,
+    "orgunit_page_evidence": 2061,
+    "orgunit_page_candidates": 4122,
+    "orgunit_root_promotions": 0,
+    "blockedByPolicyObservations": 6,
+    "runsWithoutCompletion": 0,
+    "dryRunRuns": 0,
+    "runPolicyCounts": { "v1": 7, "v2": 2, "v3": 3, "v4": 11, "v5": 0, "v6": 83, "v7": 0 },
+    "priorRunsForTarget": 1,
+    "priorRunsForTargetPolicy": "orgunit-fetch-policy-v6",
+    "matchesTheWindow07Adjudication": true,
+    "dryRunWroteNothing": true,
+    "unexplainedDrift": false
+  },
+
+  "networkVantagePreflight": {
+    "ipv4AddressPresent": true,
+    "defaultRouteIsIpv4": true,
+    "dns64Nat64Detected": false,
+    "dns64ProbeUsed": "AAAA lookup of ipv4only.arpa returned no synthesized address",
+    "resolverIsTheLocalGateway": true,
+    "addressClassifierUnchanged": true,
+    "whyThisMatters": "DNS64_NAT64_OPERATOR_VANTAGE_REFUSAL_DOES_NOT_CREATE_REPLACEMENT_OBLIGATION_V1 exists because an earlier window ran from a NAT64-only uplink and produced pre-socket BLOCKED_BY_POLICY refusals that were the operator's vantage, not the institution's. This vantage is not that one, and the check was made BEFORE the request rather than invoked afterwards.",
+    "competingCorrectnessCriticalExecution": "none"
+  },
+
+  "hostSafety": {
+    "acPowerRequired": false,
+    "doNotStartAtOrBelowBatteryPercent": 20,
+    "batteryAtAuthorityTimePercent": 100,
+    "onAcPower": true,
+    "lidOpenRequired": true,
+    "lidOpenVerified": "AppleClamshellState = No",
+    "caffeinateDimsuRequired": true,
+    "sleepDetectionMethod": "timestamp comparison against the pmset log, because that log rotates and a bare tail can silently look clean",
+    "sleepWakeDuringLiveTarget": "STOP after preserving durable evidence; never rerun R:66:27",
+    "hostOrProvenanceIssueBeforeRequest": "STOP before network"
+  },
+
+  "stopConditions": [
+    "wrong organisation or wrong frozen root",
+    "more than one CLI --execute invocation",
+    "a new run or observation stamped other than orgunit-fetch-policy-v7",
+    "incomplete persistence (a run without a completion row)",
+    "any replacement-ledger mutation",
+    "any institution network activity beyond this one target",
+    "host sleep or wake during the active target",
+    "evidence that cannot be bound to R:66:27",
+    "a post-SD7 count whose admissible range STRADDLES the MIN_PAGES_PER_ORGANISATION = 4 boundary -> PENDING_CAPABILITY_REVIEW and STOP before the final ordinary window"
+  ],
+  "incidentTerminal": "PHASE_2B_2D_A2_SLOT66_RESERVE27_V7_TARGETED_REVALIDATION_PAUSED_AWAITING_INCIDENT_REVIEW",
+
+  "adjudicationRulesFixedInAdvance": {
+    "successThreshold": "SD9 MIN_PAGES_PER_ORGANISATION = 4 over the formal post-SD7 count, frozen and unchanged",
+    "ifMechanicallySuccessful": "slot 66 becomes ACQUISITION_SUCCESSFUL with reserve 27 remaining its current occupant; the v7 run becomes the Generation-1 acquisition-of-record for that slot; no Q1 obligation for 66; NO reserve is consumed",
+    "ifDeterminateFailure": "apply the current Q3 precedence unchanged; slot 66 remains unsuccessful; a NEW Q2 same-slot obligation is created or retained; no reserve is assigned by the adjudication",
+    "ifSd7RangeStraddlesFour": "PENDING_CAPABILITY_REVIEW, and STOP before the final ordinary window",
+    "thresholdMayNotMoveAfterSeeingTheResult": true,
+    "q3TaxonomyMayNotMove": true
+  },
+
+  "identityDisclosure": {
+    "institutionNamesRecorded": 0,
+    "organisationUuidsRecorded": 0,
+    "echeRowKeysRecorded": 0,
+    "hostnamesRecorded": 0,
+    "urlsRecorded": 0,
+    "publicLinkageIsOnly": [
+      "workItemId",
+      "selectionIndex",
+      "reserveRankPosition",
+      "drawEntrySha256",
+      "SHA-256(run UUID)"
+    ]
+  },
+  "immutability": "append-only. This record is never edited."
+}
