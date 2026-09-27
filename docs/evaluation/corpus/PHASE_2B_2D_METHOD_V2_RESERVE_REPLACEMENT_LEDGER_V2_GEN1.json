@@ -556,7 +556,35 @@
       "previousSequenceForSlot": null,
       "previousEntryHash": "654406e9d538ccc5e9df7d89ed10ac0086b66504e650b1dd2fe8d227880d7656",
       "entryHash": "bf9edb2b62bee581b69acbc12a23cb714601526f173a2a86459db365a3bb3e2a"
+    },
+    {
+      "sequence": 33,
+      "selectionIndex": 72,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "E CORDOBA36|913560163",
+      "replacementEcheRowKey": "F ALES06|946114139",
+      "reserveRankPosition": 33,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-09-27T19:56:10Z",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "bf9edb2b62bee581b69acbc12a23cb714601526f173a2a86459db365a3bb3e2a",
+      "entryHash": "7579bdc3fb812ae9d45b28ad7a2fd2b7a41b2e33f1c13a481e0d6b7071026257"
+    },
+    {
+      "sequence": 34,
+      "selectionIndex": 73,
+      "split": "FINAL_HOLDOUT",
+      "replacedEcheRowKey": "E GIRONA24|911927653",
+      "replacementEcheRowKey": "F PARIS341|939333548",
+      "reserveRankPosition": 34,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-27T19:56:10Z",
+      "replacedOccupantKind": "ORIGINAL_SELECTION",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "7579bdc3fb812ae9d45b28ad7a2fd2b7a41b2e33f1c13a481e0d6b7071026257",
+      "entryHash": "0901cdbff985e5d2791fcfc48d71f64e4501ab8062059ac2130363996af4f32d"
     }
   ],
-  "ledgerHash": "f31730bc40faa76be59c47d010120a95853dd9170349f58e234f7d19efec74e0"
+  "ledgerHash": "b3ccb447bfa4fcaac237bcef0d2a684e5753cfc29422c66f62404cbb24cca806"
 }

@@ -1,0 +1,128 @@
+{
+  "record": "PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_09_PRENETWORK_ASSIGNMENT_V1",
+  "recordKind": "PRENETWORK_RESERVE_ASSIGNMENT",
+  "recordedAtUtc": "2026-09-27T19:56:45Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "650d9456349155d015d7959c1e127fb379b32b43",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "networkUsedByThisRecord": "none",
+  "databaseWrittenByThisRecord": "none",
+  "createdBeforeAnyInstitutionNetworkActivityForThisWindow": true,
+  "boundAuthority": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_09_LIVE_AUTHORITY_V1.json",
+    "sha256": "f8f52d2615ec1be097a72c3a4f198ba37b73499452ce89cbfd4cc362516a36bf",
+    "bytes": 9803,
+    "commit": "650d9456349155d015d7959c1e127fb379b32b43"
+  },
+  "boundPlan": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_09_PLAN_V1.json",
+    "sha256": "a353104ae030b0675433e04037d114f29ecb9922d35f7c9feed5789e8befa726",
+    "bytes": 6560,
+    "windowPlanHash": "1c038ac2530ca44bd15a6bbbbe506e65033ab84ad46b5d4519724417287b4acd"
+  },
+  "append": {
+    "performedWith": "the landed prepareReplacementAppend, which re-derives the assignment from planPendingReplacementObligations and refuses anything that is not the planner's own slot/position pairing",
+    "assignmentsWereNotHandWritten": true,
+    "entriesBefore": 33,
+    "entriesAfter": 35,
+    "previousLedgerHash": "f31730bc40faa76be59c47d010120a95853dd9170349f58e234f7d19efec74e0",
+    "nextLedgerHash": "b3ccb447bfa4fcaac237bcef0d2a684e5753cfc29422c66f62404cbb24cca806",
+    "reserveConsumedBefore": 33,
+    "reserveConsumedAfter": 35,
+    "reserveUnusedAfter": 5,
+    "nextUnusedReservePositionAfter": 35,
+    "unusedReservePositionsAfter": "35..39",
+    "appendedSequences": [33, 34],
+    "entries": [
+      {
+        "sequence": 33,
+        "selectionIndex": 72,
+        "split": "DEV_CONFIRM",
+        "reserveRankPosition": 33,
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "replacedOccupantKind": "ORIGINAL_SELECTION",
+        "previousSequenceForSlot": null,
+        "previousEntryHash": "bf9edb2b62bee581b69acbc12a23cb714601526f173a2a86459db365a3bb3e2a",
+        "entryHash": "7579bdc3fb812ae9d45b28ad7a2fd2b7a41b2e33f1c13a481e0d6b7071026257"
+      },
+      {
+        "sequence": 34,
+        "selectionIndex": 73,
+        "split": "FINAL_HOLDOUT",
+        "reserveRankPosition": 34,
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacedOccupantKind": "ORIGINAL_SELECTION",
+        "previousSequenceForSlot": null,
+        "previousEntryHash": "7579bdc3fb812ae9d45b28ad7a2fd2b7a41b2e33f1c13a481e0d6b7071026257",
+        "entryHash": "0901cdbff985e5d2791fcfc48d71f64e4501ab8062059ac2130363996af4f32d"
+      }
+    ],
+    "appendOnly": {
+      "the33EntryPrefixIsIdentical": true,
+      "provedBy": "a deep comparison of the new ledger's first 33 entries against the committed 33-entry revision's entries",
+      "noPriorEntryWasEditedOrRemoved": true,
+      "sequence33ChainsToSequence32": true,
+      "sequence34ChainsToSequence33": true,
+      "bothPreviousSequenceForSlotAreNull": "slots 72 and 73 were ORIGINAL_SELECTION occupants; their original runs remain in the database untouched"
+    },
+    "ledgerFileAfterAppend": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "46fd1bba944a8c1ff8a212baae06128e9d708b12f6d05b2f4354708d83dd0d82",
+      "bytes": 26276
+    },
+    "noOtherRowWasAppended": true
+  },
+  "occupantChainsAfterTheAppend": {
+    "slot72": "ORIGINAL_SELECTION -> reserve33 (reason ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET)",
+    "slot73": "ORIGINAL_SELECTION -> reserve34 (reason ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE)",
+    "derivedWith": "the landed currentOccupantForSelectionIndex, which replays every entry against the frozen draw"
+  },
+  "p6": "NOT_TRIGGERED - 35 > 10 is TRUE and 72 < 50 is FALSE",
+  "p7AfterTheAppend": {
+    "allGreen": true,
+    "totalChecks": "13/13",
+    "invariants": {
+      "frameBindingValid": true,
+      "drawBindingValid": true,
+      "ownerClarificationBindingValid": true,
+      "governanceBindingsValid": true,
+      "replacementLedgerValid": true,
+      "replacementLedgerExtendsGenesis": true,
+      "startingLedgerRevisionMatchesPrecommit": true,
+      "noUnexpectedReplacementAssignments": true,
+      "windowPlanValid": true,
+      "workItemsMatchFrozenPlan": true,
+      "workItemDrawEntriesMatch": true,
+      "replacementAssignmentsRecorded": true,
+      "currentOccupantsMatch": true
+    },
+    "gateDecision": "CONTINUE_TO_NEXT_WORK_ITEM",
+    "triggeredConditions": [],
+    "nextWorkItemId": "R:72:33",
+    "mayStartNextWorkItem": true,
+    "evaluatedWith": "the landed computePrecommittedWindowPreflight and evaluateContinuationWindowGate, unmodified; the expected spec was re-derived from the committed strategy and the committed 33-entry starting revision, never from the plan",
+    "generationInputs": {
+      "successfulOrganisationCount": 72,
+      "reserveConsumedCount": 35
+    },
+    "completed": [],
+    "plannedWindowSize": 5,
+    "p2ThresholdCountAtSize5": 3,
+    "p5ThresholdCountAtSize5": 2,
+    "thresholdsUnchanged": true
+  },
+  "whatThisRecordDoesNotDo": [
+    "issue any institution request",
+    "write to the database",
+    "append any row beyond sequences 33 and 34",
+    "assign reserve 35 or later",
+    "edit the provenance closure"
+  ],
+  "immutability": "append-only. This record is never edited."
+}
