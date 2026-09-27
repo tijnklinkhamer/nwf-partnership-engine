@@ -1,0 +1,321 @@
+{
+  "record": "PHASE_2B_2D_A2_SLOT66_RESERVE27_FETCH_POLICY_V7_TARGETED_REVALIDATION_RESULT_V1",
+  "recordKind": "TARGETED_CAPABILITY_REVALIDATION_LIVE_RESULT",
+  "recordedAtUtc": "2026-09-27T14:13:39Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "4a7e3b494ca957d4fff5192f1312c61980b775b6",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "ledgerAppendedByThisRecord": false,
+  "reserveConsumedByThisRecord": 0,
+
+  "boundAuthority": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_SLOT66_RESERVE27_FETCH_POLICY_V7_TARGETED_REVALIDATION_AUTHORITY_V1.json",
+    "sha256": "288d822c47bd1152f9e916d8eb6ecac68829bb58f5c2fa2d9af402110e7640dc",
+    "bytes": 15435,
+    "commit": "4a7e3b494ca957d4fff5192f1312c61980b775b6",
+    "ownerDecision": "A2_TARGETED_FETCH_POLICY_V7_REVALIDATION_AUTHORISATION",
+    "authorisedInvocations": 1
+  },
+
+  "execution": {
+    "workItemId": "R:66:27",
+    "selectionIndex": 66,
+    "kind": "REPLACEMENT",
+    "reserveRankPosition": 27,
+    "split": "DEV_TRAIN",
+    "drawEntrySha256": "8f28c4c3d591fa32d97fde573fb62a1b0d7661ac8bc82d276728a57f37a309d6",
+    "invocations": 1,
+    "cliExitCode": 0,
+    "cliCommand": "orgunits discover --organisation-id <redacted> --execute --json",
+    "wrapper": "caffeinate -dimsu",
+    "startedAtUtc": "2026-09-27T14:10:51Z",
+    "finishedAtUtc": "2026-09-27T14:10:53Z",
+    "manualRetryPerformed": false,
+    "alternateRootUsed": false,
+    "hostnameGuessed": false,
+    "browserCurlOrWgetUsed": false,
+    "policyWorkaroundUsed": false
+  },
+
+  "runIdentity": {
+    "runRefSha256": "49d8be7888c7ff18c123169087ee34db1b3b647ed45b40b5776eaf4af483eab4",
+    "runRefDerivation": "sha256(the run id as its lower-case canonical UUID text, UTF-8, no separator, no salt)",
+    "runRefIsNotTheHistoricalV6RunRef": true,
+    "historicalV6RunRefSha256": "d375e1ca2864e681e9b224b9f09e883d226e309a580edcb88bd17e81ee6cd63a",
+    "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+    "ruleVersion": "orgunit-signal-rules-v1",
+    "dryRun": false,
+    "networkVantage": "cli",
+    "runRows": 1,
+    "completionRows": 1,
+    "runTerminalState": "COMPLETED",
+    "completionErrorKind": null,
+    "rootAuthorityIdMatchedFrozenDraw": true,
+    "echeRowKeyMatchedItsAuthorisedDrawEntry": true,
+    "rootCount": 1,
+    "rootAuthorityKind": "WEBSITE_CLAIM"
+  },
+
+  "rootSummary": {
+    "terminalReason": "ROBOTS_UNREADABLE_ROOT",
+    "totalRequests": 2,
+    "robotsRequests": 2,
+    "pageAttempts": 0,
+    "sitemapRequests": 0,
+    "sitemapUrlsAccepted": 0,
+    "distinctHostsUsed": 1,
+    "frontierUrlsObserved": 0,
+    "pagesWithEvidence": 0,
+    "candidateEvaluations": 0,
+    "trackASelected": 0,
+    "trackBSelected": 0,
+    "circuitOpenHosts": 0,
+    "refusalDetail": null,
+    "observationRows": 2,
+    "redirectObservations": 2,
+    "rawPageEvidenceCount": 0,
+    "pageCandidateRows": 0,
+    "transportErrorRows": 0,
+    "transportErrorKinds": [],
+    "httpStatusHistogram": "301x2",
+    "anyUsableHttpResponse": false,
+    "anyHttpResponseAtAll": true,
+    "truncatedBodies": 0,
+    "blockedByPolicyRowsForThisRun": 0,
+    "resolvedPublicIpv4Observations": 2,
+    "resolvedIpv6Observations": 0,
+    "maxAttemptNo": 1
+  },
+
+  "theV7CapabilityDIDFIRE": {
+    "question": "did v7 issue the one authorised redirect continuation that v6 refused?",
+    "answer": "YES",
+    "proof": "robotsRequests went from 1 under v6 to 2 under v7 against byte-identical URL input, and the second observation's own requested path is the trailing-slash form",
+    "observedRedirectShapeWasTheExpectedOne": true,
+    "requestSequenceByPathShape": ["/robots.txt", "/robots.txt/"],
+    "secondRequestWasIndependentlyValidated": "its own DNS resolution, its own address classification, its own public-IPv4 answer, its own freshly minted URL-scoped authority, and its own observation row",
+    "secondRequestRobotsDecision": "NOT_APPLICABLE",
+    "attemptNoOfEachRequest": 1,
+    "hostChangedOnEitherHop": false,
+    "distinctHostSlotConsumedByTheContinuation": 0,
+    "transportRetryTokenSpent": 0
+  },
+
+  "whyTheROOTSTILLYIELDEDNOTHING": {
+    "finding": "THE ORIGIN IS IN A TWO-URL REDIRECT LOOP",
+    "observedEdges": [
+      { "fromPathShape": "/robots.txt", "httpStatus": 301, "toPathShape": "/robots.txt/" },
+      { "fromPathShape": "/robots.txt/", "httpStatus": 301, "toPathShape": "/robots.txt" }
+    ],
+    "bothEdgesSameHost": true,
+    "bothEdgesSameRegistrableDomain": true,
+    "neitherEdgeMalformed": true,
+    "neitherEdgeDowngraded": true,
+    "firstResponseContentType": "text/html; charset=iso-8859-1",
+    "firstResponseByteCount": 281,
+    "secondResponseContentType": "text/html; charset=UTF-8",
+    "secondResponseByteCount": 0,
+    "whatStoppedIt": "MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS = 1. The second response was itself a 3xx, which EvaluatedRobotsPolicy maps to unavailable('REDIRECTED') with no third request - exactly the honest mapping ADR 0016 s12 describes, with no special case for having been reached by a continuation",
+    "policyGenuinelyUnread": true,
+    "thisIsNoLongerARepositoryCapabilityLimit": "the question v6 could not ask has now been asked and answered. The origin does not serve its policy file at either member of the admissible path set - it bounces between them",
+    "wouldAFullRfcPostureHaveHelped": "NO. RFC 9309 s2.3.1.2 recommends following at least five consecutive redirects and then states that beyond five a crawler MAY assume the policy file is unavailable. This loop has period 2, so five hops reach the same two URLs and terminate in exactly the same verdict: unavailable. A visited-URL set would detect the cycle one hop earlier and reach the same answer.",
+    "operatorWorkaroundConsidered": "none. Requesting a third URL, rewriting the path, or treating an unread policy as permissive are each unauthorised and each would be a worse answer than the honest one"
+  },
+
+  "measuredConsequenceForTheHOPBOUNDARGUMENT": {
+    "adr0016Section7PredictedThis": "ADR 0016 s7 records that the trailing-slash member makes `canonical -> trailing-slash -> canonical` EXPRESSIBLE on a single origin, so MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS is now the WHOLE chain bound and raising it would require a visited-URL set",
+    "thatIsNoLongerHypothetical": "this origin exhibits exactly that cycle, measured, on the first live v7 run",
+    "constantChangedHere": false,
+    "visitedUrlSetAddedHere": false,
+    "whyNeither": "at 1 hop the bound is already sufficient and the verdict is already correct. A visited-URL set would change nothing about this outcome, and adding one now would be unauthorised work justified by a defect that does not exist",
+    "recommendationIfTheConstantIsEVERRAISED": "a visited-URL set becomes mandatory, not advisable, and this run is the evidence"
+  },
+
+  "sd7": {
+    "computedPerRun": true,
+    "computedFromScratchAtResultTime": "with the landed analyseOrganisation over rows read fresh from the working database, not copied from the CLI output",
+    "v6AndV7PageRowsCombined": false,
+    "whyNoCombination": "the page-evidence query filters on the fetch observation's run_id, and this run produced zero page rows in any case",
+    "rawPageCount": 0,
+    "postSd7CountMin": 0,
+    "postSd7CountMax": 0,
+    "countIsExact": true,
+    "rangeStraddlesTheThreshold": false,
+    "decidedByCase": "A",
+    "shortTextUnresolvedCount": 0,
+    "sd9DecisionIsOrderDependent": false,
+    "sd9DecisionIsShortTextDependent": false,
+    "sd9Status": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+    "frozenThreshold": 4,
+    "thresholdChangedHere": false
+  },
+
+  "q3": {
+    "derivedMechanically": "with the landed replacementReasonFor over this run's own facts, not chosen by hand",
+    "inputs": {
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "blockingTransportErrorKind": null,
+      "usableHttpResponseObtained": true,
+      "postSd7PageCount": 0
+    },
+    "precedenceUsed": "ROOT_AUTHORITY_FAILURE, then ROBOTS_DISALLOWED, then HOST_UNREACHABLE, then MIN_PAGES_NOT_MET",
+    "result": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+    "rank": 4,
+    "whyNotRank1": "the root authority is a valid STRUCTURALLY_VALID claim and it was used; the root terminal reason is not INVALID_ROOT_AUTHORITY",
+    "whyNotRank2": "no readable policy disallowed anything. The policy was never read at all, which is ROBOTS_UNREADABLE_ROOT and not ROBOTS_BLOCKED_ROOT. Treating an unread policy as a Disallow would invent a statement the site never made",
+    "whyNotRank3": "no transport or resolution failure occurred. Both requests resolved to a public IPv4 address and both received an HTTP response. Rank 3 recognises exactly six transport kinds and none occurred",
+    "taxonomyChangedHere": false,
+    "noV4SubtypeEnteredTheVocabulary": true,
+    "sameRankAsTheHistoricalV6Run": true,
+    "butNotTheSameFinding": "under v6 the rank-4 label sat on top of an UNASKED question; under v7 it sits on top of an ANSWERED one. The label is coarse by design and does not distinguish them - the evidence does"
+  },
+
+  "immutableEvidence": {
+    "historicalV6RunRetained": true,
+    "historicalV6RowsUpdated": 0,
+    "historicalV6RowsDeleted": 0,
+    "historicalV6RowsReinterpreted": false,
+    "thisV7RunIsNewEvidenceBesideIt": true,
+    "sameSelectionIndex": 66,
+    "sameReserveOccupant": 27,
+    "sameSplit": "DEV_TRAIN",
+    "sameFrozenOrganisation": true,
+    "sameFrozenRootAuthority": true,
+    "reserveConsumed": 0,
+    "ledgerAppended": false,
+    "occupantChanged": false
+  },
+
+  "databaseReconciliation": {
+    "database": "nwf_pe",
+    "readIndependentlyAtResultTime": true,
+    "before": {
+      "runs": 106,
+      "completions": 106,
+      "fetchObservations": 2778,
+      "redirectObservations": 215,
+      "pageEvidence": 2061,
+      "pageCandidates": 4122,
+      "blockedByPolicy": 6,
+      "rootPromotions": 0,
+      "v7Runs": 0,
+      "v7Observations": 0
+    },
+    "after": {
+      "runs": 107,
+      "completions": 107,
+      "fetchObservations": 2780,
+      "redirectObservations": 217,
+      "pageEvidence": 2061,
+      "pageCandidates": 4122,
+      "blockedByPolicy": 6,
+      "rootPromotions": 0,
+      "v7Runs": 1,
+      "v7Observations": 2
+    },
+    "delta": {
+      "runs": 1,
+      "completions": 1,
+      "fetchObservations": 2,
+      "redirectObservations": 2,
+      "pageEvidence": 0,
+      "pageCandidates": 0,
+      "blockedByPolicy": 0,
+      "rootPromotions": 0
+    },
+    "deltaIsExactlyOneTwoRequestRoot": true,
+    "runsWithoutCompletion": 0,
+    "orphanPageEvidenceRows": 0,
+    "dryRunRuns": 0,
+    "everyNewRowStampedV7": true,
+    "noRowStampedAnythingElse": true,
+    "historicalPolicyCountsUnchanged": { "v1": 7, "v2": 2, "v3": 3, "v4": 11, "v5": 0, "v6": 83 },
+    "matchesTheCliOutput": true,
+    "unexplainedDrift": false
+  },
+
+  "committedArtifactIntegrity": {
+    "drawByteIdentical": true,
+    "drawSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+    "replacementLedgerByteIdentical": true,
+    "replacementLedgerSha256": "0627fc3408da2a830a4a195f4b57bdb06637f08104e0b4a59536b2f12cce8d56",
+    "ledgerEntries": 28,
+    "ledgerHash": "6f65c4fbeac78a2578dd7f3b8007964e78fd28bec8e7709992bcbe7f082ca2d0",
+    "priorRecordsEdited": "none",
+    "productionCodeChangedByThisRecord": "none"
+  },
+
+  "environmentIntegrity": {
+    "vantageCheckedBeforeTheRequest": true,
+    "ipv4AddressPresent": true,
+    "dns64Nat64Detected": false,
+    "blockedByPolicyRowsCreatedByThisRun": 0,
+    "dns64VantageRuleApplies": false,
+    "whyNot": "its first clause requires a pre-socket BLOCKED_BY_POLICY refusal by the landed address classifier. This run produced none: the database total stayed at 6, and both observations resolved to public IPv4 with zero IPv6",
+    "ruleBroadenedHere": false,
+    "lidOpenDuringRun": true,
+    "onAcPower": true,
+    "batteryPercent": 100,
+    "hostSleptOrWokeDuringTheTarget": false,
+    "sleepDetectionMethod": "pmset log filtered to today and compared by TIMESTAMP against the run window, because that log rotates and a bare tail can look clean",
+    "lastWakeBeforeRunUtc": "2026-09-27T12:44:30Z",
+    "runWindowUtc": "2026-09-27T14:10:51Z .. 2026-09-27T14:10:53Z",
+    "noSleepWakeEventInsideTheRunWindow": true,
+    "competingCorrectnessCriticalExecution": "none"
+  },
+
+  "stopConditionsEvaluated": {
+    "wrongOrganisationOrRoot": false,
+    "moreThanOneExecuteInvocation": false,
+    "anyRowStampedOtherThanV7": false,
+    "incompletePersistence": false,
+    "replacementLedgerMutation": false,
+    "unauthorisedInstitutionNetwork": false,
+    "hostSleepDuringTheTarget": false,
+    "evidenceNotBindableToR6627": false,
+    "sd7RangeStraddlesFour": false,
+    "anyStopConditionFired": false
+  },
+
+  "validation": {
+    "prettierBeforeValidation": true,
+    "fullValidate": "npm run validate",
+    "runs": 1,
+    "exitCode": 0,
+    "rerunAfterFailure": false,
+    "ledgerCommittedBeforeItsValidate": "not applicable - no ledger append was authorised or performed"
+  },
+
+  "holdoutNonDisclosure": {
+    "targetSplit": "DEV_TRAIN",
+    "finalHoldoutItemsTouched": 0,
+    "semanticInspectionPerformed": false,
+    "titleUrlExcerptOrHostnameInThisRecord": "none",
+    "pathShapesOnly": true,
+    "countsAndHashesOnly": true
+  },
+
+  "scopeProofs": {
+    "institutionNetwork": "exactly the two site-policy requests this authority permitted, both to the frozen root's own origin",
+    "otherSelectionIndicesTouched": "none",
+    "reserveAssigned": "none",
+    "ledgerAppended": false,
+    "productionCodeChanged": "none",
+    "migrationAddedOrChanged": "none",
+    "methodologyChanged": "none",
+    "q3TaxonomyChanged": "none",
+    "sd7RuleChanged": "none",
+    "sd9ThresholdChanged": "none",
+    "p5ThresholdChanged": "none",
+    "p59Touched": false,
+    "finalOrdinaryWindowStartedHere": false
+  },
+
+  "immutability": "append-only. This record is never edited."
+}
