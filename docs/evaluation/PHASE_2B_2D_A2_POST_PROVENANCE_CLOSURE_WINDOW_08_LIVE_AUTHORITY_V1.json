@@ -1,0 +1,223 @@
+{
+  "record": "PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_08_LIVE_AUTHORITY_V1",
+  "recordKind": "LIVE_WINDOW_AUTHORITY",
+  "createdBeforeAnyInstitutionNetworkActivity": true,
+  "recordedAtUtc": "2026-09-27T19:09:39Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "66df20800d95ff3e3bfcff4bf8cc86eaa9e7fece",
+  "publicSafe": true,
+  "thisFileAuthorises": [
+    "the exact five precommitted work items of PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_08_PLAN_V1, sequentially, one CLI --execute invocation each, under orgunit-fetch-policy-v7",
+    "the pre-network append of replacement-ledger sequences 30, 31 and 32 exactly as the plan derives them"
+  ],
+  "isLiveAuthority": true,
+  "ownerDecision": "CONTINUE_ALL_CURRENT_Q1_REPLACEMENT_CHAINS_UNDER_FROZEN_SD2_Q2",
+  "standingAuthority": {
+    "commit": "ecbc4e0b79b91b6c9567beff51a357bb82c0e336",
+    "record": "PHASE_2B_2D_A2_POST_SD9_RECONCILIATION_RESERVE_SCARCITY_AND_ACQUISITION_RESUME_V1",
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_SD9_RECONCILIATION_RESERVE_SCARCITY_AND_ACQUISITION_RESUME_V1.json",
+    "sha256": "b8258ac7a0e82950b89b95e450f9a8e9128c151c16e96570fd31b2072bce38cf",
+    "bytes": 17391,
+    "windowsBefore": 4,
+    "attemptsBefore": 20,
+    "thisWindowChargesWindows": 1,
+    "thisWindowChargesAttempts": 5,
+    "windowsAfter": 3,
+    "attemptsAfter": 15,
+    "noNewAuthorityCreated": true
+  },
+  "boundProvenanceClosure": {
+    "commit": "67ae047fb7de079bcba0eec83ca4f4baee77cc3e",
+    "path": "docs/evaluation/PHASE_2B_2D_A2_CURRENT_TERMINAL_RUN_PROVENANCE_CLOSURE_V1.json",
+    "sha256": "9da26f676f7cf461843c7a007a76af253b6f8b1d2a47cb1e4ce3e4abde872540",
+    "bytes": 64352,
+    "scope": "RUN_REFERENCE_ONLY",
+    "notEdited": true
+  },
+  "windowOrdinal": 8,
+  "plannedWindowSize": 5,
+  "concurrency": 1,
+  "maximumLiveInvocationsPerWorkItem": 1,
+  "maximumWorkItems": 5,
+  "plannedLedgerAppends": 3,
+  "noSixthItem": true,
+  "noDynamicInsertion": true,
+  "noDynamicReserve": true,
+  "capRefilled": false,
+  "capExtended": false,
+  "boundPlan": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_08_PLAN_V1.json",
+    "sha256": "f67d9900343c4d6ee318e0f4d0ff252337a13b9aeacf19d2f08ac4da81397f50",
+    "bytes": 6834,
+    "commit": "66df20800d95ff3e3bfcff4bf8cc86eaa9e7fece",
+    "windowPlanHash": "1c2c564ddcf7edb179984c4b0ef81e56c1e9ffca76986599daa6695d2fd78cf8",
+    "hashRecomputedFromTheCommittedBytes": true,
+    "planSchema": "PRECOMMITTED_WINDOW_PLAN_GENERIC_V1"
+  },
+  "boundStrategy": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_08_STRATEGY_V1.json",
+    "sha256": "4748f9747ada7c045dd79fd10c26f5da3167a6bbedcbd1ba0b7921c0be34465a",
+    "bytes": 30006,
+    "commit": "47eeef2286825df8395d6d48fde13cc065fb0e03"
+  },
+  "boundStartingLedger": {
+    "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+    "sha256": "40775b28745f25edd0132c6142495c79f2fdaa6357f1575f963eea640d84c893",
+    "bytes": 23205,
+    "entries": 30,
+    "ledgerHash": "64e9848427baf8ed7d3329becb4fcca66b1f581e5bc6d91a409f4c0139e9cff0",
+    "thePreNetworkAppendMustTakeItTo": 33,
+    "appendedSequences": [30, 31, 32],
+    "appendMustPrecedeAnyInstitutionNetworkActivity": true,
+    "appendMustBeCommittedBeforeAnyInstitutionNetworkActivity": true
+  },
+  "authorisedWorkItems": [
+    {
+      "order": 1,
+      "workItemId": "R:59:30",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 59,
+      "reserveRankPosition": 30,
+      "split": "DEV_CONFIRM",
+      "drawEntrySha256": "1a548277aa863b1fbc188d56cdfc18e3e1b104948c76bc8edb06c895f4123ef7"
+    },
+    {
+      "order": 2,
+      "workItemId": "R:66:31",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 66,
+      "reserveRankPosition": 31,
+      "split": "DEV_TRAIN",
+      "drawEntrySha256": "8a88efa576ff011024518e52699ff7fe690c356456c7ce922051c452e613ed13"
+    },
+    {
+      "order": 3,
+      "workItemId": "R:70:32",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 70,
+      "reserveRankPosition": 32,
+      "split": "FINAL_HOLDOUT",
+      "drawEntrySha256": "4b043422447982f25446c0374f756701252b7c44c2cbe6be14e3a994a8bfe5db"
+    },
+    {
+      "order": 4,
+      "workItemId": "P:72",
+      "kind": "PRIMARY",
+      "selectionIndex": 72,
+      "reserveRankPosition": null,
+      "split": "DEV_CONFIRM",
+      "drawEntrySha256": "1e5b8789bde57764cb19f3acb9f763d22fb6f5c5b99597af7855e1a40bf1fecd"
+    },
+    {
+      "order": 5,
+      "workItemId": "P:73",
+      "kind": "PRIMARY",
+      "selectionIndex": 73,
+      "reserveRankPosition": null,
+      "split": "FINAL_HOLDOUT",
+      "drawEntrySha256": "1a7f560b9cef534d8ae953ed9ee92e842658bddc1ffa70a8356bc046a28bc4fd"
+    }
+  ],
+  "exactOrder": "R:59:30 -> R:66:31 -> R:70:32 -> P:72 -> P:73",
+  "requiredFetchPolicy": "orgunit-fetch-policy-v7",
+  "requiredRuleVersion": "orgunit-signal-rules-v1",
+  "manualRetryAuthorised": false,
+  "alternateRootAuthorised": false,
+  "hostnameGuessingAuthorised": false,
+  "timeoutWideningAuthorised": false,
+  "tlsWeakeningAuthorised": false,
+  "nat64BypassAuthorised": false,
+  "policyWorkaroundAuthorised": false,
+  "browserCurlOrWgetAuthorised": false,
+  "reserve33PlusAuthorised": false,
+  "index74PlusAuthorised": false,
+  "extractionChangeAuthorised": false,
+  "adapterRepairAuthorised": false,
+  "p5RetuneAuthorised": false,
+  "methodologyR3ChangeAuthorised": false,
+  "migrationAuthorised": false,
+  "a3WriteAuthorised": false,
+  "pauseConditions": {
+    "frozenDenominator": 5,
+    "p2Threshold": 3,
+    "p2Arm": "acquisition-unsuccessful outcomes reaching 3 of the frozen denominator 5",
+    "p5Threshold": 2,
+    "p5Arm": "raw pages < 4 on 2 of the frozen denominator 5",
+    "p1": "consecutive root-authority failures",
+    "p3": "consecutive FAILED runs",
+    "p6": "generation-global: reserveConsumed > 10 AND successfulOrganisationCount < 50",
+    "p7": "immediate invariant mismatch; must be all-green (13/13) after the append",
+    "p8": "current-live-window immediate",
+    "evaluatedAfterEveryCompletedItem": true,
+    "windowLocalStateIsFresh": true,
+    "thresholdsUnchanged": true,
+    "anyPauseMeansStartNoLaterItem": true,
+    "windowChargedInFullEvenIfPaused": true
+  },
+  "sd9Bridge": {
+    "rawAndEligibleCountsKeptSeparate": true,
+    "onlyMainTextCharsAboveZeroEntersDedupe": true,
+    "shortTextOwnerDecisionUnchanged": true
+  },
+  "databasePreflight": {
+    "verifiedBeforeAuthorityCommit": true,
+    "readAs": "readonly",
+    "runs": 112,
+    "completions": 112,
+    "fetchObservations": 2932,
+    "redirectObservations": 227,
+    "pageEvidence": 2188,
+    "pageCandidates": 4376,
+    "BLOCKED_BY_POLICY": 6,
+    "rootPromotions": 0,
+    "dryRunRuns": 0,
+    "runsWithoutCompletion": 0,
+    "unexplainedDrift": false
+  },
+  "hostSafety": {
+    "doNotStartAtOrBelowBatteryPercent": 20,
+    "lidOpenRequired": true,
+    "caffeinateDimsuRequired": true,
+    "sleepDetectionMethod": "timestamp predicate over the governed interval against the pmset log; fail closed if the log cannot be read",
+    "quietGate": "no competing validate, vitest, acquisition runner or DB-integrity test from any worktree (A3 R32 included) before each item and before validation; passive readers and unrelated project trees are ignored; the gate excludes its own wrapper",
+    "compliantVantageRequired": "IPv4 / dual stack, no DNS64/NAT64-only condition, re-proved immediately before every item"
+  },
+  "runReferenceProvenance": {
+    "fullRunRefSha256Only": true,
+    "derivation": "sha256(lowercase run UUID), unchanged modern A2 convention",
+    "noPrefixOnlyRecord": true
+  },
+  "stopConditions": [
+    "any pause condition firing - start no later item",
+    "wrong organisation or wrong frozen root for any item",
+    "more than one CLI --execute invocation for any item",
+    "any new run or observation stamped other than orgunit-fetch-policy-v7",
+    "a run without a completion row",
+    "any replacement-ledger mutation beyond the three authorised appends",
+    "any institution network activity outside the five authorised items",
+    "host sleep or wake during an active item",
+    "unsuitable network vantage",
+    "evidence that cannot be bound to its work item",
+    "P7 not all-green after the append"
+  ],
+  "incidentTerminal": "PHASE_2B_2D_A2_WINDOW_08_PAUSED_AWAITING_INCIDENT_REVIEW",
+  "identityDisclosure": {
+    "institutionNamesRecorded": 0,
+    "organisationUuidsRecorded": 0,
+    "echeRowKeysRecorded": 0,
+    "hostnamesRecorded": 0,
+    "urlsRecorded": 0,
+    "finalHoldoutItemsInThisWindow": ["R:70:32", "P:73"],
+    "holdoutHandling": "no semantic inspection, and no title, url, excerpt or hostname of any item is written to any record",
+    "publicLinkageIsOnly": [
+      "workItemId",
+      "selectionIndex",
+      "reserveRankPosition",
+      "drawEntrySha256",
+      "SHA-256(run UUID)"
+    ]
+  },
+  "immutability": "append-only. This record is never edited."
+}
