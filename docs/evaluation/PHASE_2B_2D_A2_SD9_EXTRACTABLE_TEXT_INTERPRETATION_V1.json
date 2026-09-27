@@ -1,0 +1,165 @@
+{
+  "recordId": "phase2b-2d-a2-sd9-extractable-text-interpretation-v1",
+  "recordKind": "OWNER_OPERATIONAL_INTERPRETATION_RECORD",
+  "records": "PHASE_2B_2D_A2_SD9_EXTRACTABLE_TEXT_INTERPRETATION_V1",
+  "interprets": "SD9_EXTRACTABLE_TEXT_REQUIRES_NONEMPTY_EXTRACTED_MAIN_TEXT_V1",
+  "recordedAtUtc": "2026-09-27T15:45:50Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "recordedBy": "claude-code-session, transcribing an exact owner decision",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "networkUsed": "none",
+  "databaseWrittenByThisRecord": "none",
+  "ledgerAppendedByThisRecord": false,
+
+  "whatThisRecordIs": "An IMMUTABLE governance record of the owner's operational INTERPRETATION of a prerequisite the frozen SD9 rule already carries in its own words. It adds no rule, moves no threshold and edits no earlier record. It states which persisted page-evidence rows are eligible to enter the SD7 deduplication pipeline whose output SD9 counts.",
+
+  "startingHead": "ba8b8720447803f826c0abce352ca22d228ac381",
+
+  "boundMethodology": {
+    "proposalPath": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+    "proposalSha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+    "proposalBytes": 142306,
+    "hashReverifiedOnDiskWhenThisRecordWasWritten": true,
+    "ownerFreezeApprovalPath": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+    "ownerFreezeApprovalSha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+    "ownerFreezeApprovalBytes": 17514,
+    "methodologyIsFrozenAndNotReopenedHere": true,
+    "noR4Created": true,
+    "r3BytesUnchangedByThisRecord": true
+  },
+
+  "boundRelatedDecisions": {
+    "shortTextOwnerDecisionPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_SD7_SHORT_TEXT_OWNER_DECISION_V1.json",
+    "shortTextOwnerDecisionSha256": "2f41f495322eceae3b675cbe1d227115f3b4292d6e3a711879793af33b466fff",
+    "shortTextOwnerDecisionBytes": 7584,
+    "shortTextRuleId": "SD7_SHORT_TEXT_UNRESOLVED_HANDLING_V1",
+    "shortTextRuleUnchangedByThisRecord": true,
+    "relationshipBetweenTheTwo": "They govern DIFFERENT rows and do not overlap. The short-text rule governs a page that DID extract text but too little to form a token 5-gram. This interpretation governs a page that extracted NO text at all. A page that extracts even one character is never touched by this record and remains subject to the short-text rule exactly as before."
+  },
+
+  "boundFinalOrdinaryWindowAdjudication": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_FINAL_ORDINARY_WINDOW_EVIDENCE_ADJUDICATION_V1.json",
+    "sha256": "4283edee2355a886b50f1a5aba88de5ec2e010884f36f5105b6c1c535874ce35",
+    "bytes": 21656,
+    "commit": "ba8b8720447803f826c0abce352ca22d228ac381",
+    "thisRecordDoesNotEditIt": true,
+    "correctionMechanism": "a NEW record that references it by SHA-256, never a rewrite"
+  },
+
+  "theFrozenWordingThisInterprets": {
+    "rule": "SD9",
+    "verbatim": "An organisation is ACQUISITION_SUCCESSFUL iff, after policy-authorised discovery and after SD7 deduplication, it yields at least MIN_PAGES_PER_ORGANISATION = 4 distinct pages with extractable text.",
+    "theLoadBearingPhrase": "distinct pages with extractable text",
+    "thePhraseIsAPrerequisiteNotADescription": "SD9 does not say 'at least 4 distinct pages'. It says 'at least 4 distinct pages WITH EXTRACTABLE TEXT'. A page whose persisted extraction is zero characters long has no extractable text on the only measurement this repository holds, so it was never inside SD9's denominator to begin with."
+  },
+
+  "theImplementationDiscrepancy": {
+    "whatProductionLegitimatelyPersists": "orgunit_page_evidence rows are persisted for a genuine 2xx HTML response with a resolvable charset. persistPageEvidence does NOT reject an empty extraction, so main_text = '' with main_text_chars = 0 is legal, intended production evidence and is NOT a bug.",
+    "whereTheBugWas": "DOWNSTREAM, in the SD7 analysis bridge. The bridge passed EVERY persisted page-evidence row into SD7 deduplication. A zero-character main_text produces no token 5-gram shingles at all, so the bridge classified it SD7_SHORT_TEXT_UNRESOLVED and allowed it to contribute 0..1 to the post-SD7 survivor count.",
+    "whyThatIsIncompatibleWithSD9": "The upper end of that contribution asserts that a page with zero extracted characters MIGHT be a page with extractable text. It cannot be. SD9's own prerequisite excludes it with certainty, so a range that admits it is not an honest range - it is a range widened by a row SD9 never admitted.",
+    "theConcreteConsequenceObserved": "An organisation whose acquisition-of-record run persisted 31 zero-character pages was reported as post-SD7 [0, 31] - a range straddling the threshold of 4 - and therefore held PENDING_CAPABILITY_REVIEW, when the truthful post-SD7 count under SD9's own wording is exactly 0."
+  },
+
+  "ownerDecision": {
+    "decision": "SD9_EXTRACTABLE_TEXT_REQUIRES_NONEMPTY_EXTRACTED_MAIN_TEXT_V1",
+    "classification": "IMPLEMENTATION_CLARIFICATION_OF_AN_ALREADY_FROZEN_RULE",
+    "explicitlyNotClassifiedAs": [
+      "METHODOLOGY_AMENDMENT",
+      "SD7_RULE_CHANGE",
+      "SD9_THRESHOLD_CHANGE",
+      "SHORT_TEXT_RULE_CHANGE",
+      "R4"
+    ],
+    "operationalRule": "A persisted page-evidence row is eligible for the SD7 to SD9 organisation page-count pipeline iff main_text_chars > 0.",
+    "canonicalMechanicalPredicate": "main_text_chars > 0",
+    "equivalentUnderTheLandedSchemaInvariant": "main_text !== ''",
+    "whyThePredicateIsTheCharacterCountAndNotTheString": "main_text_chars is the column the landed schema maintains alongside the text and the one every downstream count already speaks in. The generation-wide audit independently verified that main_text_chars equals the code-point length of main_text on all 2188 persisted rows, so the two predicates are the same predicate on the evidence that exists; the character count is named canonical so a future reader has one answer, not two.",
+    "recordedAppendOnly": true
+  },
+
+  "whatIsExplicitlyNOTImposed": [
+    "no five-token minimum",
+    "no word-count minimum",
+    "no language requirement",
+    "no heading requirement",
+    "no title requirement",
+    "no semantic-quality requirement",
+    "no minimum character count above zero"
+  ],
+
+  "theShortTextBoundaryIsUnmoved": {
+    "aNonEmptyTextShorterThanFiveTokensRemains": "SD7_SHORT_TEXT_UNRESOLVED",
+    "underTheExistingRule": "SD7_SHORT_TEXT_UNRESOLVED_HANDLING_V1",
+    "onlyZeroCharacterRowsAreExcludedHere": true,
+    "aPageWithOneCharacterIsEligible": true,
+    "thisRecordDoesNotClassifyShortTextAsEmpty": "A page that produces no five-gram shingle is NOT thereby a page with no extractable text. The two conditions were conflated by the defective bridge and are separated by this interpretation."
+  },
+
+  "whyThisIsNotAMethodologyChange": {
+    "sd7BytesUnchanged": true,
+    "sd9BytesUnchanged": true,
+    "minPagesPerOrganisationThresholdUnchanged": 4,
+    "nearDuplicateShingleSizeUnchanged": 5,
+    "nearDuplicateJaccardThresholdUnchanged": 0.9,
+    "nearDuplicateComparisonScopeUnchanged": "WITHIN_ONE_ORGANISATION_ONLY",
+    "exactDuplicateKeyUnchanged": "documentSha256",
+    "shortTextAmbiguityRuleUnchanged": true,
+    "acquisitionBudgetsUnchanged": true,
+    "noNetworkRuleChanged": true,
+    "noSamplingRuleChanged": true,
+    "noFrameRuleChanged": true,
+    "noDrawRuleChanged": true,
+    "noLedgerRuleChanged": true,
+    "noReplacementReasonAdded": true,
+    "noQ1Q2Q3RuleChanged": true,
+    "noP5RuleChanged": true,
+    "statement": "The repair REMOVES rows that fail a prerequisite SD9 already states in its own frozen wording - 'with extractable text' - before SD7 survivor counting. It adds no rule to SD7, no bound to SD9 and no value to any constant."
+  },
+
+  "rawEvidenceIsPreserved": {
+    "twoSeparateConceptsAreKeptApart": true,
+    "rawPageEvidenceCount": "every persisted orgunit_page_evidence row for the run or organisation in question, INCLUDING zero-character rows",
+    "sd9ExtractableTextPageCount": "the subset with main_text_chars > 0",
+    "onlyTheSecondEntersDeduplication": [
+      "exact deduplication by documentSha256",
+      "near-duplicate analysis",
+      "post-SD7 minimum and maximum survivor counts",
+      "the SD9 >= 4 decision"
+    ],
+    "historicalLiveResultRawPageCountsRemainImmutable": true,
+    "p5HistoricalRawYieldGatesRemainImmutable": true,
+    "noRecordIsRewritten": true,
+    "noDatabaseRowIsRewritten": true,
+    "whatChanged": "adjudication ELIGIBILITY, not what was fetched, not what was persisted and not what any prior record says was fetched or persisted."
+  },
+
+  "theExtractorItselfIsUntouched": {
+    "productionExtractChangedHere": false,
+    "extractionRuleVersionChangedHere": false,
+    "newExtractionCapabilityAddedHere": false,
+    "browserRenderingIntroduced": false,
+    "whyNot": "Zero extracted characters is consistent with a client-rendered site, with markup this deliberately narrow extractor cannot read, and with a future extraction-capability opportunity. None of those readings changes the immediate SD9 fact: the persisted extraction yielded zero characters. Whether the extractor should be widened is a separate owner decision with its own measurement, its own ADR and its own rule version."
+  },
+
+  "whatThisRecordDoesNotDo": [
+    "it does not authorise any acquisition, retry or network request",
+    "it does not assign, consume or reserve any replacement organisation",
+    "it does not append to the replacement ledger",
+    "it does not write, update or delete any database row",
+    "it does not edit, re-hash or re-status any prior evaluation record",
+    "it does not change the frozen methodology, including SD7, SD9, the 5-gram size, the Jaccard threshold, P5's threshold or SD9's minimum of 4",
+    "it does not change production extraction",
+    "it does not inspect or disclose any FINAL_HOLDOUT semantic content"
+  ],
+
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256. This file is never rewritten, re-hashed or re-statused."
+  }
+}
