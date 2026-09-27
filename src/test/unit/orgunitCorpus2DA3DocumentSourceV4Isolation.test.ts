@@ -37,6 +37,20 @@ const A3DOCUMENTS_V4_REL = `${HARNESS}/a3documentsV4`;
 
 /** The exact canonical R33 tip R34 was cut from. */
 const R33_TERMINAL = '31f389c8e1b6338d45a533b01feb6a2f6d932678';
+/**
+ * R34'S OWN TERMINAL COMMIT.
+ *
+ * R34's changed-surface and docs-scope assertions describe R34'S SLICE, so
+ * they range over R34's own commits - `R33_TERMINAL..R34_TERMINAL` - rather
+ * than over the working tree. Once a later slice lands on top, the working
+ * tree is no longer R34's surface, and diffing to it would fail for the
+ * honest reason that history moved on rather than because R34 changed.
+ *
+ * This is the same standing convention R19 through R33 apply, and it
+ * WEAKENS NOTHING: R34's range is frozen, its permitted-path list is
+ * unchanged, and each later slice pins the equivalent scope over its own range.
+ */
+const R34_TERMINAL = '6075ec8b79dd35b820a5086da89f18ca975eb039';
 /** The exact canonical R32 tip, R33's own base. */
 const R32_TERMINAL = '747b64fa40c93e4b871ea1675682fb1531b21341';
 
@@ -189,7 +203,10 @@ function allCodeWithoutStrings(): string {
 }
 
 const baseAvailable =
-  commitExists(R33_TERMINAL) && commitExists(R32_TERMINAL) && commitExists(R33_SCOPE_PIN_COMMIT);
+  commitExists(R33_TERMINAL) &&
+  commitExists(R32_TERMINAL) &&
+  commitExists(R33_SCOPE_PIN_COMMIT) &&
+  commitExists(R34_TERMINAL);
 
 // ---------------------------------------------------------------------------
 
@@ -433,20 +450,14 @@ describe.skipIf(!baseAvailable)('2D-A3 R34: lineage and changed surface', () => 
   });
 
   it('writes no other record: every docs/evaluation change is the R34 census', () => {
-    const changed = [
-      ...lines(git('diff', '--name-only', R33_TERMINAL, '--', 'docs/evaluation')),
-      ...lines(git('ls-files', '--others', '--exclude-standard', '--', 'docs/evaluation')),
-    ];
+    const changed = lines(
+      git('diff', '--name-only', R33_TERMINAL, R34_TERMINAL, '--', 'docs/evaluation'),
+    );
     expect(changed.filter((path) => path !== R34_CENSUS_PATH)).toEqual([]);
   });
 
   it('changes nothing outside its own namespace, tests, records and the R33 scope pin', () => {
-    const paths = [
-      ...new Set([
-        ...lines(git('diff', '--name-only', R33_TERMINAL)),
-        ...lines(git('ls-files', '--others', '--exclude-standard')),
-      ]),
-    ];
+    const paths = lines(git('diff', '--name-only', R33_TERMINAL, R34_TERMINAL));
     const permitted = (path: string): boolean =>
       path.startsWith(`${A3DOCUMENTS_V4_REL}/`) ||
       R34_TESTS.includes(path) ||
