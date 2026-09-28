@@ -1,0 +1,324 @@
+{
+  "recordId": "phase2b-2d-a2-post-provenance-closure-window-10-evidence-adjudication-v1",
+  "recordKind": "LIVE_WINDOW_EVIDENCE_ADJUDICATION",
+  "records": "PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_10_EVIDENCE_ADJUDICATION_V1",
+  "recordedAtUtc": "2026-09-28T07:29:51Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "startingHead": "9f9e985392a8372ff795247a6d3d4ae8b7d41e11",
+  "networkUsedByThisRecord": "none",
+  "databaseWrittenByThisRecord": "none. readonly SELECTs only",
+  "ledgerAppendedByThisRecord": "none - no post-adjudication append",
+  "reserveAssignedByThisRecord": "none",
+  "bound": {
+    "liveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_10_LIVE_RESULT_V1.json",
+      "sha256": "7b386cab2a977d0767a1d9ccd052bb9d90e2cee36da48956c16038e1fd2accce",
+      "bytes": 14534,
+      "commit": "cc7fb42d51a8ce49dac6d1bb534c2a0e376a7199"
+    },
+    "liveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_10_LIVE_AUTHORITY_V1.json",
+      "sha256": "b738c54ae589dbb0a5ace3e389ac06014f9690dbba89b3bde1888eaf6d27f323",
+      "bytes": 11954,
+      "commit": "5ae4b5a15b27128524ce350a5fbe269d76a49a75"
+    },
+    "strategy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_10_STRATEGY_V1.json",
+      "sha256": "128d37e20233aaae82c4a6a79a14e8e068959c9e1ac03e74ed6f06cfc587ddf9",
+      "bytes": 27247,
+      "commit": "d37e071ee0136b7fd443ea95d92039c0d385e9b0"
+    },
+    "ownerReviewAndReplacementValidation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_10_CONCURRENCY_REVIEW_AND_REPLACEMENT_VALIDATION_V1.json",
+      "sha256": "55fa5fa57563ceeeff73fa342cfadc1566f520a6fbd15dfed64885c3c9293b68",
+      "bytes": 9219,
+      "commit": "9f9e985392a8372ff795247a6d3d4ae8b7d41e11"
+    },
+    "standingAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_SD9_RECONCILIATION_RESERVE_SCARCITY_AND_ACQUISITION_RESUME_V1.json",
+      "sha256": "b8258ac7a0e82950b89b95e450f9a8e9128c151c16e96570fd31b2072bce38cf",
+      "bytes": 17391,
+      "commit": "ecbc4e0b79b91b6c9567beff51a357bb82c0e336"
+    },
+    "dnsNameNotFoundInterpretation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_DNS_NAME_NOT_FOUND_FRAME_AND_REPLACEMENT_INTERPRETATION_V1.json",
+      "sha256": "b1df9d476db30600f6eff94bba6acccd5a52098253b915ec218564731a4449c7",
+      "bytes": 14711,
+      "appliedTo": ["R:73:35"]
+    },
+    "nat64OperationalIntegrityRule": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_DNS64_NAT64_OPERATOR_VANTAGE_EVIDENCE_INTEGRITY_ADJUDICATION_V1.json",
+      "sha256": "5f901c1c5e0f2248e7e50887187dc1bcce06ace8b852b8c65d0be35547f655bc",
+      "bytes": 16719,
+      "discountedAnyFailure": false
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "9673ab712a2de776df8a2751cd5489d7504f2d1ddc11132e7ee60d9208ba1930",
+      "bytes": 27507,
+      "entries": 37,
+      "ledgerHash": "87d8c89d77ac12317bc9430e9ee917e01e31ef5fc718229266dcff6ca2bf9c9c"
+    }
+  },
+  "validation": {
+    "governedValidation": "WINDOW_10_REPLACEMENT_VALIDATION_ACCEPTED",
+    "command": "caffeinate -dimsu npm run validate",
+    "runs": 1,
+    "result": "exit 0, 5108 passed, endUtc 2026-09-28T07:26:49Z, 0 competing-process detections",
+    "precededBy": ">= 120 consecutive clean wall-clock seconds with A3 execution agents explicitly quiesced",
+    "originalWindow10Validation": "VALIDATION_EXECUTED_SUCCESSFULLY_BUT_EXECUTION_EXCLUSIVITY_NOT_PROVED - history only, not the governed validation"
+  },
+  "orderOfRules": [
+    "owner R75 concurrency ruling (evidence retained)",
+    "environment-vantage integrity rule",
+    "SD9 via the repaired SD7 bridge (raw -> SD9-eligible -> exact dedupe -> near dedupe -> threshold)",
+    "Q3"
+  ],
+  "items": [
+    {
+      "workItemId": "R:73:35",
+      "split": "FINAL_HOLDOUT",
+      "drawEntrySha256": "888395d18610c9a962f29e33db2038a125a20e2e62b6d996dcb683c45113c170",
+      "runRefSha256": "5f314209c79cffc9dd01b95aa70e218e893c25e14da5e88afbbae8099c262e16",
+      "integrity": {
+        "itemPreflightAllGreen": true,
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "postItemQuietCheckGreen": true,
+        "sleepEventsDuringItem": 0,
+        "verdict": "CLEAN"
+      },
+      "bridge": {
+        "rawPageEvidenceCount": 0,
+        "sd9EligiblePageCount": 0,
+        "zeroExtractedTextPageCount": 0,
+        "postSd7Range": [0, 0],
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "decidedByCase": "A",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "formalSd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "vantageIntegrity": "CLEAN - native IPv4 vantage, ipv4only.arpa AAAA empty; an authoritative NXDOMAIN is not a vantage artefact",
+        "sd9": "case A: zero page evidence, [0,0] exact",
+        "q3Rank": 3,
+        "q3Reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "why": "DNS_FAILURE / DNS_NAME_NOT_FOUND on the published hostname; classified under the standing DNS_NAME_NOT_FOUND_REMAINS_ACQUISITION_FAILURE_AND_REPLACEMENT_ELIGIBLE_UNDER_FROZEN_R3 interpretation",
+        "slotEffect": "the replacement FAILED: a NEW Q2 same-slot obligation for selection index 73, current occupant RESERVE_REPLACEMENT reserve35"
+      }
+    },
+    {
+      "workItemId": "R:75:36",
+      "split": "FINAL_HOLDOUT",
+      "drawEntrySha256": "ce9377ae7fbfe972d11eb04efd93e8657408183e9cce9169993e458dc4f9ac4e",
+      "runRefSha256": "7fec833a28cbf4301ada2afd78d4d3080a514a46a8ea7ac80f803a42791b79fa",
+      "integrity": {
+        "itemPreflightAllGreen": true,
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "postItemQuietCheckGreen": false,
+        "sleepEventsDuringItem": 0,
+        "verdict": "PROCEDURAL_CONCURRENCY_INTEGRITY_DEVIATION - EVIDENCE RETAINED BY OWNER RULING WINDOW_10_R75_CONCURRENCY_DEVIATION_REVIEWED_EVIDENCE_RETAINED_NO_RETRY_V1"
+      },
+      "bridge": {
+        "rawPageEvidenceCount": 0,
+        "sd9EligiblePageCount": 0,
+        "zeroExtractedTextPageCount": 0,
+        "postSd7Range": [0, 0],
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "decidedByCase": "A",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "formalSd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "vantageIntegrity": "CLEAN - the robots attempt resolved to a public IPv4 address from a native IPv4 vantage with no DNS64/NAT64",
+        "sd9": "case A: zero page evidence, [0,0] exact",
+        "q3Rank": 3,
+        "q3Reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "why": "TLS_FAILURE / TLS_PROTOCOL_INCOMPATIBLE on robots.txt: a transport failure before any usable application response. A transport kind with no response ranks 3",
+        "slotEffect": "the replacement FAILED: a NEW Q2 same-slot obligation for selection index 75, current occupant RESERVE_REPLACEMENT reserve36",
+        "concurrencyDeviationDisclosed": "an A3 single-file vitest appeared between ~21:01:01Z and 21:01:03Z; the only network observation was persisted at 21:01:02.301Z; overlap of about one second cannot be excluded; the owner retained the evidence with no retry"
+      }
+    }
+  ],
+  "notStarted": [
+    {
+      "workItemId": "P:76",
+      "why": "the concurrency stop and P5 both fired after R:75:36; no later item starts",
+      "stateOfSlot": "NEVER_STARTED",
+      "adjudicated": false
+    },
+    {
+      "workItemId": "P:77",
+      "why": "the concurrency stop and P5 both fired after R:75:36; no later item starts",
+      "stateOfSlot": "NEVER_STARTED",
+      "adjudicated": false
+    },
+    {
+      "workItemId": "P:78",
+      "why": "the concurrency stop and P5 both fired after R:75:36; no later item starts",
+      "stateOfSlot": "NEVER_STARTED",
+      "adjudicated": false
+    }
+  ],
+  "windowSummary": {
+    "planned": 5,
+    "executed": 2,
+    "successful": 0,
+    "unsuccessful": 2,
+    "pendingCapabilityReview": 0,
+    "thresholdStraddlingAmbiguity": 0,
+    "replacementsSucceeded": 0,
+    "replacementsFailed": 2,
+    "primariesSucceeded": 0,
+    "primariesFailed": 0,
+    "rawPages": 0,
+    "sd9EligiblePages": 0
+  },
+  "generation1StateBefore": {
+    "ACQUISITION_SUCCESSFUL": 74,
+    "CURRENT_ACQUISITION_FAILURE": [73, 75],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "NEVER_STARTED": {
+      "from": 76,
+      "to": 109,
+      "count": 34
+    }
+  },
+  "generation1StateAfter": {
+    "ACQUISITION_SUCCESSFUL": 74,
+    "CURRENT_ACQUISITION_FAILURE": [73, 75],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "NEVER_STARTED": {
+      "from": 76,
+      "to": 109,
+      "count": 34,
+      "contiguous": true
+    },
+    "accounting": "74 + 2 + 0 + 34 = 110",
+    "replacementLedgerEntries": 37,
+    "ledgerHash": "87d8c89d77ac12317bc9430e9ee917e01e31ef5fc718229266dcff6ca2bf9c9c",
+    "reserveConsumed": 37,
+    "sd9DetailOfCurrentFailures": {
+      "73": {
+        "occupantKind": "RESERVE_REPLACEMENT",
+        "reserveRankPosition": 35,
+        "ledgerSequence": 35,
+        "split": "FINAL_HOLDOUT",
+        "runsForOccupant": 1,
+        "raw": 0,
+        "sd9Eligible": 0,
+        "zeroExtractedText": 0,
+        "postSd7Range": [0, 0],
+        "countIsExact": true,
+        "decidedByCase": "A",
+        "status": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+      },
+      "75": {
+        "occupantKind": "RESERVE_REPLACEMENT",
+        "reserveRankPosition": 36,
+        "ledgerSequence": 36,
+        "split": "FINAL_HOLDOUT",
+        "runsForOccupant": 1,
+        "raw": 0,
+        "sd9Eligible": 0,
+        "zeroExtractedText": 0,
+        "postSd7Range": [0, 0],
+        "countIsExact": true,
+        "decidedByCase": "A",
+        "status": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+      }
+    },
+    "rederivedIndependentlyFromScratch": "frozen draw re-verified; committed 37-entry ledger validated and its hash recomputed; currentOccupantForSelectionIndex replayed for every index 0..109; each occupant's LATEST run by started_at; page evidence filtered by run_id; analyseOrganisation (the repaired bridge) per occupant; readonly role",
+    "disjointAndExhaustive": true
+  },
+  "q1After": [73, 75],
+  "pendingReplacementObligations": [
+    {
+      "selectionIndex": 73,
+      "split": "FINAL_HOLDOUT",
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "q3Rank": 3,
+      "currentOccupant": "RESERVE_REPLACEMENT reserve35 (seq 35)",
+      "chain": "ORIGINAL_SELECTION -> reserve34 -> reserve35",
+      "nextReserveAssigned": false
+    },
+    {
+      "selectionIndex": 75,
+      "split": "FINAL_HOLDOUT",
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "q3Rank": 3,
+      "currentOccupant": "RESERVE_REPLACEMENT reserve36 (seq 36)",
+      "chain": "ORIGINAL_SELECTION -> reserve36",
+      "nextReserveAssigned": false
+    }
+  ],
+  "closedReplacementObligations": [],
+  "reserves": {
+    "consumed": 37,
+    "nextUnused": 37,
+    "unusedPositions": [37, 38, 39],
+    "unused": 3,
+    "scarcity": "critical: 2 current obligations against 3 unused reserves and 34 never-started primaries. No deviation is authorised; the frozen terminal remains CORPUS_FREEZE_REFUSED on exhaustion"
+  },
+  "p6": {
+    "rule": "reserveConsumed > 10 AND successfulOrganisationCount < 50",
+    "evaluation": "37 > 10 TRUE and 74 < 50 FALSE",
+    "result": "NOT_TRIGGERED"
+  },
+  "pauseDisposition": {
+    "p5Fired": true,
+    "concurrencyStopFired": true,
+    "afterItem": "R:75:36",
+    "itemsNotStarted": ["P:76", "P:77", "P:78"],
+    "p5Reviewed": "P5_REVIEWED_WINDOW_10_HETEROGENEOUS_TARGET_FAILURES_NO_COMMON_SYSTEMIC_DEFECT_FINAL_WINDOW_MAY_RESUME_V1",
+    "p5NotRetuned": true,
+    "lowYieldMechanisms": {
+      "R:73:35": "authoritative DNS_NAME_NOT_FOUND",
+      "R:75:36": "TLS_PROTOCOL_INCOMPATIBLE from a compliant public-IPv4 vantage"
+    },
+    "commonSystemicDefectEvident": false
+  },
+  "standingAuthorityConsumption": {
+    "original": "4 windows / 20 attempts",
+    "consumedBefore": "2 windows / 10 attempts (Windows 08, 09)",
+    "thisWindowCharged": "1 window / 5 attempts (charged in full although only 2 items ran)",
+    "remaining": "1 ordinary window / 5 attempts"
+  },
+  "holdoutNonDisclosure": {
+    "finalHoldoutItems": ["R:73:35", "R:75:36"],
+    "onlyStructuralCountsRead": true
+  },
+  "identityDisclosure": {
+    "institutionNamesRecorded": 0,
+    "organisationUuidsRecorded": 0,
+    "echeRowKeysRecorded": 0,
+    "hostnamesRecorded": 0,
+    "urlsRecorded": 0
+  },
+  "terminalState": "PHASE_2B_2D_A2_WINDOW_10_ADJUDICATED",
+  "nextStep": "under the owner's P5 review, the ONE final ordinary window of the ecbc4e0 authority may be released: R:73:37 -> R:75:38 -> P:76 -> P:77 -> P:78. It is NOT precommitted here",
+  "immutability": "append-only. This record is never edited."
+}
