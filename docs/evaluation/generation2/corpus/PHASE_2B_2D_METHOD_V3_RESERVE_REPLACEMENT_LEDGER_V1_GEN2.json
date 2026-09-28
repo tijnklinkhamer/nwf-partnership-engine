@@ -116,7 +116,35 @@
       "previousSequenceForSlot": null,
       "previousEntryHash": "4781c1c048b6d1b5c529decebd25f548e4e9fc5af2dafb9001f1c21dd93367d6",
       "entryHash": "007bdfd90b1c8b8476cdbf9595d5f204d8ee218c76556a5a2c2050a5096fe838"
+    },
+    {
+      "sequence": 3,
+      "selectionIndex": 82,
+      "split": "FINAL_HOLDOUT",
+      "replacedEcheRowKey": "PL GNIEZNO01|949436389",
+      "replacementEcheRowKey": "F TOULON32|888119585",
+      "generation2ReserveRankPosition": 3,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-28T23:09:16Z",
+      "replacedOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "007bdfd90b1c8b8476cdbf9595d5f204d8ee218c76556a5a2c2050a5096fe838",
+      "entryHash": "7552cf4151ad139933002e68ecfe7edb346564c45eee4a33f3f26777fcee9dea"
+    },
+    {
+      "sequence": 4,
+      "selectionIndex": 83,
+      "split": "DEV_TRAIN",
+      "replacedEcheRowKey": "E MADRID214|907423943",
+      "replacementEcheRowKey": "LT VILNIUS24|951445938",
+      "generation2ReserveRankPosition": 4,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-28T23:09:16Z",
+      "replacedOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "7552cf4151ad139933002e68ecfe7edb346564c45eee4a33f3f26777fcee9dea",
+      "entryHash": "40db9595f3d5baf09461423a11b9084295a5d1cef342fcfc960ab0916c18b26b"
     }
   ],
-  "ledgerHash": "11c931e8172cc81a7516ad57a1a8f12e733b2f72ccfc7fc8809cb1ee7c174a21"
+  "ledgerHash": "e58f872e22f3794ac3af2ed34ee802f0b140ffc95d94dc19a1b28db1a7b00a72"
 }
