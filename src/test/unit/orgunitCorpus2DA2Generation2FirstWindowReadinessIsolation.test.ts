@@ -30,6 +30,22 @@ const git = (...args: string[]): string =>
   execFileSync('git', ['-C', REPO, ...args], { encoding: 'utf8' }).trim();
 
 const BASE_COMMIT = '218cd69daaaf43b8eef718cd7a96a4cf35d62044';
+/**
+ * The commit that ended readiness V1 (its audit). The lifecycle claims below
+ * (frozen bytes, zero-entry canonical ledger, no Generation-2 live authority)
+ * are about the state readiness LEFT, so they are read from this commit's own
+ * tree: the later, owner-authorised Window-01 authority and its pre-network
+ * ledger append legitimately changed the working tree afterwards.
+ */
+const READINESS_TERMINAL_COMMIT = 'cbbdc711de26b5a1dff4321a5cb5a213a2631824';
+/** Exact committed bytes at `commit` (throws if the commit or path is missing). */
+const readAt = (commit: string, path: string): string =>
+  execFileSync('git', ['-C', REPO, 'show', `${commit}:${path}`], {
+    encoding: 'utf8',
+    maxBuffer: 256 * 1024 * 1024,
+  });
+const namesAt = (commit: string, dir: string): string[] =>
+  git('ls-tree', '--name-only', `${commit}:${dir}`).split('\n').filter(Boolean);
 const AUDIT_PATH =
   'docs/audits/PHASE_2B_2D_A2_GENERATION2_FIRST_WINDOW_OPERATIONAL_READINESS_V1.md';
 const HARNESS_DIR = 'src/test/harness/phase2b2d/generation2Acquisition';
@@ -124,26 +140,34 @@ describe('Phase 2B-2D A2 Generation-2 first-window readiness isolation', () => {
   });
 
   it('every frozen artifact keeps its bytes and the canonical Generation-2 ledger is still zero-entry', () => {
+    expect(terminalCommit()).toBe(READINESS_TERMINAL_COMMIT);
     for (const [path, pinned] of Object.entries(PINNED)) {
-      expect({ path, sha256: sha256(read(path)) }).toEqual({ path, sha256: pinned });
+      expect({ path, sha256: sha256(readAt(READINESS_TERMINAL_COMMIT, path)) }).toEqual({
+        path,
+        sha256: pinned,
+      });
     }
     const ledger = JSON.parse(
-      read(
+      readAt(
+        READINESS_TERMINAL_COMMIT,
         'docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json',
       ),
     ) as { entries: unknown[]; status: string };
     expect(ledger.entries).toEqual([]);
     expect(ledger.status).toBe('FROZEN');
-    expect(readdirSync(join(REPO, 'docs/evaluation/generation2/corpus')).sort()).toEqual([
-      'PHASE_2B_2D_METHOD_V3_GEN2_RESERVE_SCHEDULE_V1.json',
-      'PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json',
-    ]);
+    expect(namesAt(READINESS_TERMINAL_COMMIT, 'docs/evaluation/generation2/corpus').sort()).toEqual(
+      [
+        'PHASE_2B_2D_METHOD_V3_GEN2_RESERVE_SCHEDULE_V1.json',
+        'PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json',
+      ],
+    );
   });
 
   it('no strategy, live plan or live authority exists for Generation 2', () => {
-    const names = readdirSync(join(REPO, 'docs/evaluation')).filter((name) =>
+    const names = namesAt(READINESS_TERMINAL_COMMIT, 'docs/evaluation').filter((name) =>
       /GENERATION2|GEN2|METHOD_V3/i.test(name),
     );
+    expect(names.length).toBeGreaterThan(0);
     for (const name of names) {
       expect(name).not.toMatch(/STRATEGY|ASSIGNMENT|LIVE|AUTHORITY|RESULT|ADJUDICATION/i);
       expect(name).not.toMatch(/authorisation|consumption/i);

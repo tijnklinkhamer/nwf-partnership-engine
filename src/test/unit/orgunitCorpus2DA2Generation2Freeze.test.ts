@@ -80,6 +80,18 @@ const REPO = resolve(import.meta.dirname, '../../..');
 /** The commit that ended the Methodology V3 / Generation-2 freeze (its audit). */
 const FREEZE_TERMINAL_COMMIT = '218cd69daaaf43b8eef718cd7a96a4cf35d62044';
 const read = (path: string): string => readFileSync(join(REPO, path), 'utf8');
+/**
+ * The committed bytes of `path` at `commit`, read from Git history (throws if
+ * the commit or the path is missing). A claim about what the freeze CREATED is
+ * evaluated over the freeze terminal's own tree: the later, owner-authorised
+ * Generation-2 Window-01 pre-network append legitimately grew the working-tree
+ * ledger from zero entries to two, and that must not rewrite this history.
+ */
+const readAt = (commit: string, path: string): string =>
+  execFileSync('git', ['-C', REPO, 'show', `${commit}:${path}`], {
+    encoding: 'utf8',
+    maxBuffer: 256 * 1024 * 1024,
+  });
 const sha256 = (text: string): string => createHash('sha256').update(text, 'utf8').digest('hex');
 const range = (from: number, to: number): number[] =>
   Array.from({ length: to - from + 1 }, (_, offset) => from + offset);
@@ -109,7 +121,10 @@ const APPROVAL = JSON.parse(read(OWNER_FREEZE_APPROVAL_PATH)) as Record<string, 
   p6: { rule: string };
 };
 const SCHEDULE = JSON.parse(read(FROZEN_SCHEDULE_PATH)) as FrozenScheduleArtifact;
-const GENESIS = JSON.parse(read(GENESIS_LEDGER_PATH)) as FrozenGenesisLedger;
+// The genesis ledger AS THE FREEZE CREATED IT (zero entries), not today's revision.
+const GENESIS = JSON.parse(
+  readAt(FREEZE_TERMINAL_COMMIT, GENESIS_LEDGER_PATH),
+) as FrozenGenesisLedger;
 const CARRY = JSON.parse(read(CARRY_FORWARD_BASELINE_PATH)) as Record<string, unknown>;
 const BASELINE = JSON.parse(read(FROZEN_BASELINE_PATH)) as {
   report: Record<string, unknown>;
@@ -133,8 +148,12 @@ describe('Phase 2B-2D A2 Methodology V3 / Generation-2 owner freeze', () => {
   it('re-materialises all five frozen records byte-for-byte from committed inputs', async () => {
     const rendered = await renderGeneration2Freeze(REPO);
     expect(rendered.map((file) => file.path)).toEqual([...FROZEN_OUTPUT_PATHS]);
+    // Compared with the bytes the freeze committed, at its own terminal.
     for (const file of rendered) {
-      expect({ path: file.path, sha256: sha256(read(file.path)) }).toEqual({
+      expect({
+        path: file.path,
+        sha256: sha256(readAt(FREEZE_TERMINAL_COMMIT, file.path)),
+      }).toEqual({
         path: file.path,
         sha256: sha256(file.bytes),
       });
@@ -361,7 +380,7 @@ describe('Phase 2B-2D A2 Methodology V3 / Generation-2 owner freeze', () => {
 
   it('(19) no live acquisition authority exists: every new record authorises nothing', () => {
     for (const path of FROZEN_OUTPUT_PATHS) {
-      const record = JSON.parse(read(path)) as Record<string, unknown>;
+      const record = JSON.parse(readAt(FREEZE_TERMINAL_COMMIT, path)) as Record<string, unknown>;
       expect({ path, a: record.thisFileAuthorises, l: record.isLiveAuthority }).toEqual({
         path,
         a: [],
@@ -371,10 +390,10 @@ describe('Phase 2B-2D A2 Methodology V3 / Generation-2 owner freeze', () => {
       expect(record.acquisitionRunCreated).toBe(false);
     }
     // The filename claim is TEMPORAL: it is about what the freeze created, so it
-    // is evaluated over the freeze terminal's own tree. A later, separately
-    // authorised task (the first-window operational readiness record, whose
-    // name the owner fixed and which contains WINDOW) may add a Generation-2
-    // record; any such record must still authorise nothing, checked below.
+    // is evaluated over the freeze terminal's own tree. Later, separately
+    // authorised tasks (the first-window operational readiness record, and the
+    // owner's Window-01 live authority) add Generation-2 records; they are
+    // proved by their own tests, never by this historical one.
     const namesAt = (commit: string): string[] =>
       execFileSync('git', ['-C', REPO, 'ls-tree', '--name-only', `${commit}:docs/evaluation`], {
         encoding: 'utf8',
@@ -387,10 +406,12 @@ describe('Phase 2B-2D A2 Methodology V3 / Generation-2 owner freeze', () => {
     for (const name of generation2NamesAtFreeze) {
       expect(name).not.toMatch(/STRATEGY|PLAN|ASSIGNMENT|LIVE|AUTHORITY|RESULT|WINDOW/i);
     }
-    for (const name of readdirSync(join(REPO, 'docs/evaluation')).filter(
+    for (const name of namesAt(FREEZE_TERMINAL_COMMIT).filter(
       (entry) => /GENERATION2|GEN2|METHOD_V3/i.test(entry) && entry.endsWith('.json'),
     )) {
-      const record = JSON.parse(read(`docs/evaluation/${name}`)) as Record<string, unknown>;
+      const record = JSON.parse(
+        readAt(FREEZE_TERMINAL_COMMIT, `docs/evaluation/${name}`),
+      ) as Record<string, unknown>;
       expect({ name, a: record.thisFileAuthorises, l: record.isLiveAuthority }).toEqual({
         name,
         a: [],

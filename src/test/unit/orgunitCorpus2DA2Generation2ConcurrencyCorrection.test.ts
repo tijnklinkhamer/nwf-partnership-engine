@@ -29,6 +29,20 @@ const git = (...args: string[]): string =>
   execFileSync('git', ['-C', REPO, ...args], { encoding: 'utf8' }).trim();
 
 const BASE_COMMIT = 'cbbdc711de26b5a1dff4321a5cb5a213a2631824';
+/**
+ * The commit that ended this correction (its audit). The lifecycle claims
+ * below (zero-entry canonical ledger, no Window-01 authority) are about the
+ * state this task LEFT, so they are read from this commit's own tree: the
+ * later, owner-authorised Window-01 authority and its pre-network ledger
+ * append legitimately changed the working tree afterwards.
+ */
+const CORRECTION_TERMINAL_COMMIT = '40b6b0f40a7ae13b00fbf064ed8143996c926f1d';
+/** Exact committed bytes at `commit` (throws if the commit or path is missing). */
+const readAt = (commit: string, path: string): string =>
+  execFileSync('git', ['-C', REPO, 'show', `${commit}:${path}`], {
+    encoding: 'utf8',
+    maxBuffer: 256 * 1024 * 1024,
+  });
 const RECORD_PATH =
   'docs/evaluation/PHASE_2B_2D_A2_GENERATION2_FIRST_WINDOW_OPERATIONAL_READINESS_CONCURRENCY_CORRECTION_V1.json';
 const AUDIT_PATH =
@@ -178,12 +192,35 @@ describe('Phase 2B-2D A2 Generation-2 concurrency classification correction', ()
       'G2P:78',
       'G2P:79',
     ]);
-    const ledger = JSON.parse(read(GENESIS_LEDGER)) as { entries: unknown[]; status: string };
+    expect(terminalCommit()).toBe(CORRECTION_TERMINAL_COMMIT);
+    const ledger = JSON.parse(readAt(CORRECTION_TERMINAL_COMMIT, GENESIS_LEDGER)) as {
+      entries: unknown[];
+      status: string;
+    };
     expect(ledger.entries).toEqual([]);
     expect(ledger.status).toBe('FROZEN');
     expect(RECORD.readinessFactsUnchanged.canonicalGeneration2LedgerEntryCount).toBe(0);
     expect(
-      git('diff', '--name-only', BASE_COMMIT, 'HEAD', '--', 'docs/evaluation/generation2'),
+      git(
+        'diff',
+        '--name-only',
+        BASE_COMMIT,
+        CORRECTION_TERMINAL_COMMIT,
+        '--',
+        'docs/evaluation/generation2',
+      ),
     ).toBe('');
+    // No Window-01 (or any) live authority existed when this correction ended.
+    const namesAtTerminal = git(
+      'ls-tree',
+      '--name-only',
+      `${CORRECTION_TERMINAL_COMMIT}:docs/evaluation`,
+    )
+      .split('\n')
+      .filter((name) => /GENERATION2|GEN2|METHOD_V3/i.test(name));
+    expect(namesAtTerminal.length).toBeGreaterThan(0);
+    for (const name of namesAtTerminal) {
+      expect(name).not.toMatch(/LIVE|AUTHORITY|RESULT/i);
+    }
   });
 });

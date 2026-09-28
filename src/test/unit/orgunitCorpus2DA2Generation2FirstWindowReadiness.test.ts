@@ -6,9 +6,11 @@
  * prospective two-entry append exists in memory only.
  */
 
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
+import { format, resolveConfig } from 'prettier';
 import { describe, expect, it } from 'vitest';
 import { canonicalStringify } from '../../orgunits/classify/canonical.js';
 import {
@@ -44,10 +46,7 @@ import {
   evaluatePreItemQuietPeriod,
 } from '../harness/phase2b2d/generation2Acquisition/gateAdapter.js';
 import { prepareGeneration2ReplacementAppend } from '../harness/phase2b2d/generation2Acquisition/ledgerAppend.js';
-import {
-  readCommittedInputs,
-  renderReadiness,
-} from '../harness/phase2b2d/generation2Acquisition/materialiseReadiness.js';
+import { COMMITTED_JSON_DIRECTORIES } from '../harness/phase2b2d/generation2Acquisition/materialiseReadiness.js';
 import {
   EXPECTED_FIRST_WINDOW,
   FIRST_WINDOW_PLANNED_SIZE,
@@ -73,12 +72,16 @@ import {
   computeGeneration2PreflightWithAssessment,
   type Generation2Preflight,
 } from '../harness/phase2b2d/generation2Acquisition/preflight.js';
-import { READINESS_PATH } from '../harness/phase2b2d/generation2Acquisition/readiness.js';
+import {
+  READINESS_PATH,
+  buildFirstWindowReadiness,
+} from '../harness/phase2b2d/generation2Acquisition/readiness.js';
 import {
   assessCommittedInputs,
   deriveGeneration2CurrentState,
   planCompleteQ1,
   type CommittedInputAssessment,
+  type CommittedTexts,
 } from '../harness/phase2b2d/generation2Acquisition/state.js';
 import {
   buildGeneration2WindowSpec,
@@ -94,13 +97,51 @@ const PINNED_METHODOLOGY_PROPOSAL =
   'docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_PROPOSAL_R1.json';
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
-const COMMITTED = readCommittedInputs(REPO);
+/**
+ * The commit that ended readiness V1 (its audit). This suite proves what
+ * readiness V1 established, so every committed RECORD it reads (docs/) comes
+ * from this commit's own tree, through Git: at that terminal the canonical
+ * Generation-2 ledger was zero-entry, the append was prospective and in
+ * memory only, and no Window-01 live authority existed. The later,
+ * owner-authorised Window-01 authority and its pre-network append legitimately
+ * changed the working tree; they are proved by the current-state test, never
+ * fed into this historical basis. Harness SOURCE is still read from the
+ * working tree, because that is the code under test.
+ */
+const READINESS_TERMINAL_COMMIT = 'cbbdc711de26b5a1dff4321a5cb5a213a2631824';
+const git = (...args: string[]): string =>
+  execFileSync('git', ['-C', REPO, ...args], {
+    encoding: 'utf8',
+    maxBuffer: 256 * 1024 * 1024,
+  });
+/** Exact committed bytes at the readiness terminal (throws if the commit or path is missing). */
+const readHistorical = (path: string): string =>
+  git('show', `${READINESS_TERMINAL_COMMIT}:${path}`);
+/** The same committed-JSON map `readCommittedInputs` builds, over the readiness terminal's tree. */
+function readHistoricalCommittedInputs(): CommittedTexts {
+  const committed = new Map<string, string>();
+  for (const dir of COMMITTED_JSON_DIRECTORIES) {
+    for (const line of git('ls-tree', `${READINESS_TERMINAL_COMMIT}:${dir}`).split('\n')) {
+      if (line === '') continue;
+      const [meta, name] = line.split('\t') as [string, string];
+      if (meta.split(' ')[1] === 'blob' && name.endsWith('.json')) {
+        committed.set(`${dir}/${name}`, readHistorical(`${dir}/${name}`));
+      }
+    }
+  }
+  if (committed.size === 0) throw new Error('no committed inputs at the readiness terminal');
+  return committed;
+}
+
+const COMMITTED = readHistoricalCommittedInputs();
 const ASSESSMENT = assessCommittedInputs(COMMITTED);
 const BASIS = ASSESSMENT.basis!;
-const GENESIS_TEXT = read(PINNED.genesisLedger.path);
+const GENESIS_TEXT = readHistorical(PINNED.genesisLedger.path);
 const GENESIS = BASIS.genesis;
-const GEN1_LEDGER = JSON.parse(read(PINNED.generation1Ledger.path)) as ReplacementLedger;
-const FRAME = JSON.parse(read(PINNED.frame.path)) as { entries: Record<string, unknown>[] };
+const GEN1_LEDGER = JSON.parse(readHistorical(PINNED.generation1Ledger.path)) as ReplacementLedger;
+const FRAME = JSON.parse(readHistorical(PINNED.frame.path)) as {
+  entries: Record<string, unknown>[];
+};
 const SPEC = buildGeneration2WindowSpec({
   basis: BASIS,
   startingLedger: GENESIS,
@@ -226,7 +267,7 @@ describe('Generation-2 first window: canonical inputs', () => {
     expect(ASSESSMENT.failures).toEqual([]);
     expect(Object.values(ASSESSMENT.checks).every(Boolean)).toBe(true);
     for (const pinned of Object.values(PINNED)) {
-      expect({ path: pinned.path, sha256: sha256(read(pinned.path)) }).toEqual(pinned);
+      expect({ path: pinned.path, sha256: sha256(readHistorical(pinned.path)) }).toEqual(pinned);
     }
   });
 
@@ -502,17 +543,19 @@ describe('(E-J) Q1 and the prospective in-memory append', () => {
   });
 
   it('(K, L) the Generation-1 ledger is untouched and the committed Generation-2 ledger is still zero-entry', () => {
-    expect(sha256(read(PINNED.generation1Ledger.path))).toBe(PINNED.generation1Ledger.sha256);
+    expect(sha256(readHistorical(PINNED.generation1Ledger.path))).toBe(
+      PINNED.generation1Ledger.sha256,
+    );
     expect(recomputeLedgerHash(GEN1_LEDGER)).toBe(
       'a5a60d7e02faa831d38bab131a42e94f80203989989276393216fdc814623e18',
     );
     expect(requireValidLedger(BASIS.draw, GEN1_LEDGER)).toBe(39);
-    expect(sha256(read(PINNED.genesisLedger.path))).toBe(
+    expect(sha256(readHistorical(PINNED.genesisLedger.path))).toBe(
       'b16a6ba8ec879c6f06008849aa3a79d79fc24e6de054180bc0d1b27a18d74a01',
     );
-    expect((JSON.parse(read(PINNED.genesisLedger.path)) as { entries: unknown[] }).entries).toEqual(
-      [],
-    );
+    expect(
+      (JSON.parse(readHistorical(PINNED.genesisLedger.path)) as { entries: unknown[] }).entries,
+    ).toEqual([]);
   });
 });
 
@@ -834,7 +877,7 @@ describe('(U) every negative probe refuses', () => {
   });
 
   it('Generation-1 ledger substituted for the Generation-2 ledger', () => {
-    const text = read(PINNED.generation1Ledger.path);
+    const text = readHistorical(PINNED.generation1Ledger.path);
     expect(refusal(() => parseOperationalGeneration2Ledger(JSON.parse(text), GENESIS))).toBe(
       'LEDGER_SHAPE',
     );
@@ -1160,8 +1203,8 @@ describe('concurrency integrity is DISTINCT from the frozen P8', () => {
       '3a747b6cb245e34858d444ea84d0e9cd6042278d2e7d60a3b612ae070796b1be',
     );
     // Methodology V3 carries P1..P8 forward unchanged; the approval carries them forward.
-    expect(read(PINNED_METHODOLOGY_PROPOSAL)).toContain('P1..P8 of Plan V1 unchanged');
-    expect(read(PINNED.methodologyV3Approval.path)).toContain(
+    expect(readHistorical(PINNED_METHODOLOGY_PROPOSAL)).toContain('P1..P8 of Plan V1 unchanged');
+    expect(readHistorical(PINNED.methodologyV3Approval.path)).toContain(
       'carried forward exactly as Methodology V3 Proposal R1 specifies; no threshold changed',
     );
   });
@@ -1343,10 +1386,18 @@ describe('(12) the genesis header flag is never read as current assignment state
 
 describe('the readiness record', () => {
   it('V1 is pinned, and re-materialises identically except the one superseded gates.p8 field', async () => {
-    const committed = read(READINESS_PATH);
+    const committed = readHistorical(READINESS_PATH);
     expect(sha256(committed)).toBe(READINESS_V1_SHA256);
     const v1 = JSON.parse(committed) as { gates: Record<string, unknown> };
-    const rebuilt = JSON.parse(await renderReadiness(REPO)) as { gates: Record<string, unknown> };
+    // Re-rendered exactly as renderReadiness does, but over the readiness
+    // terminal's committed inputs rather than today's working tree.
+    const { record } = buildFirstWindowReadiness(COMMITTED);
+    const rendered = await format(JSON.stringify(record, null, 2), {
+      ...(await resolveConfig(READINESS_PATH)),
+      filepath: READINESS_PATH,
+      parser: 'json',
+    });
+    const rebuilt = JSON.parse(rendered) as { gates: Record<string, unknown> };
     expect(v1.gates.p8).toMatchObject({ competingValidateOrVitestMidItemIsP8: true });
     expect(rebuilt.gates.p8).toEqual(FROZEN_P8_DEFINITION);
     expect(rebuilt.gates.operationalConcurrencyIntegrity).toEqual(LIVE_CRITICAL_SECTION_POLICY);
@@ -1356,7 +1407,7 @@ describe('the readiness record', () => {
   });
 
   it('authorises nothing and exposes no institution identity', () => {
-    const text = read(READINESS_PATH);
+    const text = readHistorical(READINESS_PATH);
     const record = JSON.parse(text) as Record<string, unknown>;
     expect(record).toMatchObject({
       recordKind: 'GENERATION2_FIRST_WINDOW_OPERATIONAL_READINESS',
