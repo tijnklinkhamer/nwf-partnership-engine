@@ -1,0 +1,198 @@
+{
+  "recordId": "phase2b-2d-a2-post-window-10-concurrency-review-and-replacement-validation-v1",
+  "recordKind": "OWNER_REVIEW_AND_REPLACEMENT_VALIDATION",
+  "records": "PHASE_2B_2D_A2_POST_WINDOW_10_CONCURRENCY_REVIEW_AND_REPLACEMENT_VALIDATION_V1",
+  "recordedAtUtc": "2026-09-28T07:28:07Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "startingHead": "cc7fb42d51a8ce49dac6d1bb534c2a0e376a7199",
+  "startingHeadWasLocalAndOriginIdentical": true,
+  "startingWorktreeClean": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "networkUsedByThisRecord": "none",
+  "databaseWrittenByThisRecord": "none. readonly SELECTs only",
+  "ledgerAppendedByThisRecord": "none",
+  "reserveAssignedByThisRecord": "none",
+  "bound": {
+    "window10LiveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_10_LIVE_RESULT_V1.json",
+      "sha256": "7b386cab2a977d0767a1d9ccd052bb9d90e2cee36da48956c16038e1fd2accce",
+      "bytes": 14534,
+      "commit": "cc7fb42d51a8ce49dac6d1bb534c2a0e376a7199"
+    },
+    "window10Chain": {
+      "strategy": "d37e071",
+      "plan": "712fc75",
+      "liveAuthority": "5ae4b5a",
+      "prenetworkAppend": "c6eac65",
+      "liveResult": "cc7fb42d51a8ce49dac6d1bb534c2a0e376a7199"
+    },
+    "standingAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_SD9_RECONCILIATION_RESERVE_SCARCITY_AND_ACQUISITION_RESUME_V1.json",
+      "sha256": "b8258ac7a0e82950b89b95e450f9a8e9128c151c16e96570fd31b2072bce38cf",
+      "bytes": 17391,
+      "commit": "ecbc4e0b79b91b6c9567beff51a357bb82c0e336"
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "9673ab712a2de776df8a2751cd5489d7504f2d1ddc11132e7ee60d9208ba1930",
+      "bytes": 27507,
+      "entries": 37,
+      "ledgerHash": "87d8c89d77ac12317bc9430e9ee917e01e31ef5fc718229266dcff6ca2bf9c9c"
+    }
+  },
+  "ownerDecisions": [
+    "WINDOW_10_R75_CONCURRENCY_DEVIATION_REVIEWED_EVIDENCE_RETAINED_NO_RETRY_V1",
+    "WINDOW_10_ORIGINAL_VALIDATION_CONCURRENCY_CONTAMINATED_REPLACEMENT_VALIDATION_REQUIRED_V1",
+    "P5_REVIEWED_WINDOW_10_HETEROGENEOUS_TARGET_FAILURES_NO_COMMON_SYSTEMIC_DEFECT_FINAL_WINDOW_MAY_RESUME_V1"
+  ],
+  "ownerDecisionSource": "the owner's instruction for task A2_WINDOW_10_CONCURRENCY_REVIEW_REPLACEMENT_VALIDATION_ADJUDICATION_AND_FINAL_WINDOW, recorded here verbatim by decision token",
+  "r75ConcurrencyRuling": {
+    "decision": "WINDOW_10_R75_CONCURRENCY_DEVIATION_REVIEWED_EVIDENCE_RETAINED_NO_RETRY_V1",
+    "classification": "PROCEDURAL_CONCURRENCY_INTEGRITY_DEVIATION",
+    "workItem": "R:75:36",
+    "evidenceValid": true,
+    "facts": {
+      "onlyPersistedNetworkObservationAtUtc": "2026-09-27T21:01:02.301Z",
+      "errorKind": "TLS_FAILURE",
+      "errorSubtype": "TLS_PROTOCOL_INCOMPATIBLE",
+      "resolvedIpFamily": "IPV4",
+      "resolvedIpIsPublic": true,
+      "lastCleanPollApproxUtc": "2026-09-27T21:01:01Z",
+      "a3VitestDetectedUtc": "2026-09-27T21:01:03Z",
+      "overlapOfAboutOneSecondCannotBeExcluded": true,
+      "reVerifiedHereReadOnly": "the observation timestamp, error kind/subtype, IP family and publicness were re-read from the working database and match the LIVE_RESULT"
+    },
+    "reasons": [
+      "clean 120-second pre-item gate passed",
+      "immediate pre-launch process check was clean",
+      "host sleep/wake state was clean",
+      "normal native IPv4 vantage",
+      "the only persisted network result is TLS_PROTOCOL_INCOMPATIBLE, which is not a timeout or pacing classification",
+      "the run completed normally with exactly one completion",
+      "the DB delta reconciles exactly",
+      "no competing A2 writer, no competing acquisition, no A3 institution request and no A3 DB write",
+      "no concrete causal mechanism is established by which a local single-file vitest changes a remote TLS protocol negotiation result"
+    ],
+    "retry": false,
+    "delete": false,
+    "rollback": false,
+    "secondR75R36Acquisition": false,
+    "notAGeneralConcurrencyException": "this adjudicates already-created evidence only. The future concurrency rule is NOT weakened; any future overlap remains prohibited"
+  },
+  "r73Evidence": {
+    "workItem": "R:73:35",
+    "acceptedWithoutQualification": true,
+    "errorKind": "DNS_FAILURE",
+    "errorSubtype": "DNS_NAME_NOT_FOUND",
+    "continuousConcurrencyWatch": "CLEAN",
+    "vantage": "native IPv4, no DNS64/NAT64"
+  },
+  "originalValidationIntegrityRuling": {
+    "decision": "WINDOW_10_ORIGINAL_VALIDATION_CONCURRENCY_CONTAMINATED_REPLACEMENT_VALIDATION_REQUIRED_V1",
+    "originalResult": "npm run validate exit 0, 5108 passed",
+    "status": "VALIDATION_EXECUTED_SUCCESSFULLY_BUT_EXECUTION_EXCLUSIVITY_NOT_PROVED",
+    "notDescribedAsFailed": true,
+    "why": "the A3 R35 worktree launched single-file vitest executions at about 21:08:58Z and 21:09:14Z during it",
+    "retainedAsHistory": true,
+    "acceptedAsTheGovernedWindow10Validation": false
+  },
+  "a3Quiescence": {
+    "state": "A3_EXECUTION_AGENTS_QUIESCED_FOR_A2_FINAL_CRITICAL_SECTION",
+    "establishedBy": "explicit operator confirmation in this session, obtained before the replacement validation, after the agent reported that peer sessions were visible and that a process-table absence alone was insufficient",
+    "confirmedAtUtcApprox": "2026-09-28T07:19Z",
+    "a3WorktreesRemainOnDiskPassively": true,
+    "mustRemainQuiescedUntil": "after the final window's LIVE_RESULT, final validation and final adjudication commit"
+  },
+  "replacementValidation": {
+    "authority": "WINDOW_10_ORIGINAL_VALIDATION_CONCURRENCY_CONTAMINATED_REPLACEMENT_VALIDATION_REQUIRED_V1",
+    "isNot": [
+      "an automatic retry after a validation failure",
+      "an acquisition retry",
+      "a second live window",
+      "an attempt charge"
+    ],
+    "runs": 1,
+    "command": "caffeinate -dimsu npm run validate",
+    "headValidated": "cc7fb42d51a8ce49dac6d1bb534c2a0e376a7199",
+    "worktreeCleanDuringValidation": true,
+    "exclusivePrecondition": {
+      "quietGate": "120 consecutive clean wall-clock seconds, started 2026-09-28T07:20:24Z, passed 2026-09-28T07:22:26Z, resets 0",
+      "immediatePreLaunchCheck": "clean at 2026-09-28T07:22:26Z"
+    },
+    "startUtc": "2026-09-28T07:22:26Z",
+    "endUtc": "2026-09-28T07:26:49Z",
+    "continuousWatch": {
+      "pollSeconds": 2,
+      "readOnly": true,
+      "polls": 129,
+      "detections": 0,
+      "excludes": "only the governed validate process tree and the watcher itself",
+      "predicate": "vitest, npm run validate / npm test, npm exec vitest, tsc, eslint, prettier, orgunits discover or the A2 CLI, in any engine repo or worktree (A3 worktrees included)",
+      "selfTest": "before use, a fake vitest-named process in the A2 worktree was detected, and a vitest-named descendant of the watched pid was correctly excluded"
+    },
+    "stagesPassed": ["migrations:check", "typecheck", "lint", "format:check", "test", "build"],
+    "tests": "198 test files passed, 5 skipped; 5108 tests passed, 75 skipped",
+    "exitCode": 0,
+    "hostSleepEventsDuringValidation": 0,
+    "battery": "100%",
+    "lidOpen": true,
+    "productionOrEvidenceBytesChangedToMakeItPass": false,
+    "result": "WINDOW_10_REPLACEMENT_VALIDATION_ACCEPTED",
+    "role": "the governed validation supporting the Window-10 adjudication"
+  },
+  "p5Review": {
+    "decision": "P5_REVIEWED_WINDOW_10_HETEROGENEOUS_TARGET_FAILURES_NO_COMMON_SYSTEMIC_DEFECT_FINAL_WINDOW_MAY_RESUME_V1",
+    "historicalP5Fired": true,
+    "lowYieldItems": {
+      "R:73:35": "authoritative DNS_NAME_NOT_FOUND",
+      "R:75:36": "TLS_PROTOCOL_INCOMPATIBLE"
+    },
+    "bothTargetSideReachabilityFailuresThroughDistinctMechanisms": true,
+    "noEvidenceOfCommon": [
+      "local resolver failure",
+      "NAT64 artifact",
+      "general outbound networking outage",
+      "TLS stack outage",
+      "operator-host problem",
+      "persistence problem",
+      "pacing anomaly"
+    ],
+    "p5Changed": false,
+    "q3Changed": false,
+    "fetchPolicyChanged": false
+  },
+  "databaseStateReadOnly": {
+    "runs": 123,
+    "completions": 123,
+    "fetchObservations": 3132,
+    "redirectObservations": 243,
+    "pageEvidence": 2337,
+    "pageCandidates": 4674,
+    "BLOCKED_BY_POLICY": 6,
+    "rootPromotions": 0,
+    "dryRunRuns": 0,
+    "runsWithoutCompletion": 0,
+    "latestRunStartUtc": "2026-09-27T21:00:57Z",
+    "noAcquisitionSinceCc7fb42": true,
+    "unexplainedMovement": false
+  },
+  "standingAuthority": {
+    "original": "4 windows / 20 attempts",
+    "consumed": "Window 08, Window 09, Window 10 (Window 10 charged in full despite 2 live runs)",
+    "remaining": "1 ordinary window / 5 attempts"
+  },
+  "nextStep": "Window-10 adjudication, which this record's accepted replacement validation supports",
+  "identityDisclosure": {
+    "institutionNamesRecorded": 0,
+    "organisationUuidsRecorded": 0,
+    "echeRowKeysRecorded": 0,
+    "hostnamesRecorded": 0,
+    "urlsRecorded": 0
+  },
+  "immutability": "append-only. This record is never edited."
+}
