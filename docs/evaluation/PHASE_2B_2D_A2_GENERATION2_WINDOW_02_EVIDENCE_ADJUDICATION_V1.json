@@ -1,0 +1,400 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_02_EVIDENCE_ADJUDICATION_V1",
+  "recordKind": "GENERATION2_WINDOW_EVIDENCE_ADJUDICATION",
+  "recordedAtUtc": "2026-09-28T22:10:29Z",
+  "recordedAtUtcSource": "date -u, read from the shell after the clean validation re-proof",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "startingHead": "0dfe05cb8139e68ba5f01763d4f054443f95aab3",
+  "networkUsedByThisRecord": false,
+  "databaseWrittenByThisRecord": false,
+  "ledgerAppendedByThisRecord": false,
+  "reserveAssignedByThisRecord": false,
+  "bound": {
+    "liveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_RESULT_V1.json",
+      "sha256": "68852cbca3de127bb0a5442863cc99d2c3b72a5a69700c5fc5ac619fbc29b4ae",
+      "bytes": 20909,
+      "commit": "d074c0647136b45ee094b2d46a98ee2110db5102"
+    },
+    "authority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_AUTHORITY_V1.json",
+      "sha256": "e2cb65b5a7d3b35391718e255fef4db926bcfe88020f392ac93f79981392bba2",
+      "bytes": 22304,
+      "commit": "da659b586c05870f08f5af56d8816365a5203fa0",
+      "ownerDecision": "APPROVE_GENERATION2_WINDOW_02_EXACTLY_ONE_FIVE_ITEM_LIVE_WINDOW_V1"
+    },
+    "ownerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_VALIDATION_EXCLUSIVITY_OWNER_RULING_V1.json",
+      "sha256": "6e4ec4f56c40584e4441610ef68cec9812d71293220791acca4b216ad1204eaf",
+      "bytes": 8052,
+      "commit": "ef3056e73a87b4fe53dc5ab28f9a4b9a354ee3ea"
+    },
+    "validationReproof": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_VALIDATION_EXCLUSIVITY_REPROOF_V1.json",
+      "sha256": "009eb574f6a08e3206fc23df226979f6b6bce87297b5a632394c2331c6aa2b2e",
+      "bytes": 258251,
+      "commit": "0dfe05cb8139e68ba5f01763d4f054443f95aab3"
+    },
+    "ledger": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "fileSha256": "68762e9df208dfbff296ab5ec953b76fe931f030bd82cf17632165dbae80f26c",
+      "bytes": 6374,
+      "ledgerHash": "11c931e8172cc81a7516ad57a1a8f12e733b2f72ccfc7fc8809cb1ee7c174a21",
+      "entryCount": 3,
+      "nextGeneration2ReservePosition": 3,
+      "unchangedByTheWindow": true,
+      "appendCommit": "0ad42da8751ea5d18b88860dd3f764d4c655dce5"
+    },
+    "startingLedgerRevision": {
+      "commit": "a768cf9b632ceaa76ccd3781d4554b5e92820981",
+      "fileSha256": "cb36ba532e5fed379cebfa52bd22e6ce2e7b5fe70a28dab85f0c5e8ffe36a387",
+      "ledgerHash": "ce56b07efbf7fdfd0ba56dc473ef9c4465fd3852a2c012f1c24271612465ab82",
+      "entryCount": 2
+    },
+    "adjudicationHistoryBefore": {
+      "windows": [
+        {
+          "windowOrdinal": 1,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_AUTHORITY_V1.json",
+            "commit": "219f6d4a1cb869e9253a9701d48543a88f80f0ab",
+            "sha256": "e4874f7e84a184bd473b75f15dba0fd90700d4bb33ec0093593de90f4dea38ba"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_RESULT_V1.json",
+            "commit": "41bbedad759c26f1cb1e110bfdd07e1599809178",
+            "sha256": "7162938e6f8ba5f7808075f58021b540244b2b5a0b05d61db0812cfd4d8102d0"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_EVIDENCE_ADJUDICATION_V1.json",
+            "commit": "b281bf3b1dfc25c4540c6b17c1e8b97db468a77d",
+            "sha256": "89e4f166e56292374d3cf1aa2fe8037225770d48193ae619a32a1d4c7f1df5df"
+          },
+          "startingLedgerRevisionCommit": "40b6b0f40a7ae13b00fbf064ed8143996c926f1d"
+        }
+      ],
+      "passedExplicitlyToEveryStateSpecAndReplayCall": true,
+      "noDirectoryScanGlobOrLatest": true
+    }
+  },
+  "validation": {
+    "command": "caffeinate -dimsu npm run validate",
+    "runs": 1,
+    "headValidated": "ef3056e73a87b4fe53dc5ab28f9a4b9a354ee3ea",
+    "precededBy": ">= 120 consecutive clean seconds (121.3 s, landed evaluatePreItemQuietPeriod) with A3 execution agents explicitly re-confirmed quiesced by the owner and the ancestry sampler active from before launch",
+    "startUtc": "2026-09-28T22:02:07.094Z",
+    "endUtc": "2026-09-28T22:07:07.380Z",
+    "exitCode": 0,
+    "tests": "209 files passed, 5 skipped; 5267 tests passed, 75 skipped",
+    "continuousWatch": "evaluateFullValidationMonitoring over ancestry-classified samples: 596 polls, max gap 0.518 s, 0 external competing, 0 ancestry-unproved",
+    "hostSleepEvents": 0,
+    "result": "WINDOW_02_VALIDATION_ACCEPTED",
+    "basis": "WINDOW_02_VALIDATION_EXCLUSIVITY_REPROVED_CLEAN (the single owner-authorised re-proof)",
+    "originalValidationPreserved": "the first governed validation (d074c06, exit 0, 5267 passed, 3 competing-shaped detections) stays VALIDATION_EXECUTION_EXCLUSIVITY_NOT_PROVED as historical evidence; it is not reclassified"
+  },
+  "orderOfRules": "integrity first (CLEAN on every item), then SD9 eligibility (main_text_chars > 0), exact SD7 -> near SD7, the frozen SD9 minimum of 4 distinct post-SD7 pages on the exact or determinate count, then (failures only) the landed Q3 precedence",
+  "items": [
+    {
+      "workItemId": "G2R:78:2",
+      "selectionIndex": 78,
+      "split": "DEV_TRAIN",
+      "kind": "REPLACEMENT",
+      "generation2ReserveRankPosition": 2,
+      "identityDigest": "5e89b65d4e012605ad6064a594fca281efb424520964e78783cdf141e3fe70a1",
+      "runRefSha256": "07e7530fc84abcca112cb4b861659da2b5dd4cba93f0e8aea3091d8f2c335ced",
+      "integrity": {
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "sleepEventsDuringItem": 0,
+        "itemPreflightAllGreen": true,
+        "inItemConcurrencyWatch": "CLEAN (31 polls, 0 detections)",
+        "verdict": "CLEAN"
+      },
+      "bridge": {
+        "rawPageEvidenceCount": 35,
+        "sd9EligiblePageCount": 35,
+        "zeroExtractedTextPageCount": 0,
+        "postSd7Range": [35, 35],
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "decidedByCase": "B",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_SUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "q3Reason": null,
+        "sd9": "post-SD7 [35,35] exact, at or above 4"
+      }
+    },
+    {
+      "workItemId": "G2P:80",
+      "selectionIndex": 80,
+      "split": "FINAL_HOLDOUT",
+      "kind": "PRIMARY",
+      "generation2ReserveRankPosition": null,
+      "identityDigest": "540f59d816e90f115ca9aaa2bc3f6aaf720746af40549b30eec8ee8e7ece50ca",
+      "runRefSha256": "cb2fbf331e754a41552b1f020b1b15e30571433e05454cac981c8d19ceb254ec",
+      "integrity": {
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "sleepEventsDuringItem": 0,
+        "itemPreflightAllGreen": true,
+        "inItemConcurrencyWatch": "CLEAN (26 polls, 0 detections)",
+        "verdict": "CLEAN"
+      },
+      "bridge": {
+        "rawPageEvidenceCount": 34,
+        "sd9EligiblePageCount": 34,
+        "zeroExtractedTextPageCount": 0,
+        "postSd7Range": [34, 34],
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "decidedByCase": "B",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_SUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "q3Reason": null,
+        "sd9": "post-SD7 [34,34] exact, at or above 4"
+      }
+    },
+    {
+      "workItemId": "G2P:81",
+      "selectionIndex": 81,
+      "split": "DEV_CONFIRM",
+      "kind": "PRIMARY",
+      "generation2ReserveRankPosition": null,
+      "identityDigest": "601cf158ada1ed5f62c29245a1ca8af5fc967ed5e6828efbee5afcc7229dfc4f",
+      "runRefSha256": "8bdda6cb2cf846c9b1f025adbd6d51ccb33c32ddfaafb12a8666444911cc5aca",
+      "integrity": {
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "sleepEventsDuringItem": 0,
+        "itemPreflightAllGreen": true,
+        "inItemConcurrencyWatch": "CLEAN (32 polls, 0 detections)",
+        "verdict": "CLEAN"
+      },
+      "bridge": {
+        "rawPageEvidenceCount": 33,
+        "sd9EligiblePageCount": 33,
+        "zeroExtractedTextPageCount": 0,
+        "postSd7Range": [33, 33],
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "decidedByCase": "B",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_SUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "q3Reason": null,
+        "sd9": "post-SD7 [33,33] exact, at or above 4"
+      }
+    },
+    {
+      "workItemId": "G2P:82",
+      "selectionIndex": 82,
+      "split": "FINAL_HOLDOUT",
+      "kind": "PRIMARY",
+      "generation2ReserveRankPosition": null,
+      "identityDigest": "1e1dbf905c452a04abccfaebf9fcec52ca501268a92a6f0d90061bcd37e4a6c1",
+      "runRefSha256": "3483c4067691f75d0f7841276314862fa09563b01da7c6fa996d9bab357e226c",
+      "integrity": {
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "sleepEventsDuringItem": 0,
+        "itemPreflightAllGreen": true,
+        "inItemConcurrencyWatch": "CLEAN (1 polls, 0 detections)",
+        "verdict": "CLEAN"
+      },
+      "bridge": {
+        "rawPageEvidenceCount": 0,
+        "sd9EligiblePageCount": 0,
+        "zeroExtractedTextPageCount": 0,
+        "postSd7Range": [0, 0],
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "decidedByCase": "A",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_UNSUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "q3Reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "sd9": "post-SD7 [0,0] exact, below 4",
+        "q3Basis": "landed replacementReasonFor: root ROBOTS_UNREADABLE_ROOT, blocking transport kind DNS_FAILURE (DNS_NAME_NOT_FOUND) on the single robots.txt request, no usable HTTP response, post-SD7 0 -> rank 3 HOST_UNREACHABLE. A coarse replacement label from vantage 192.168.0.100 (native IPv4, no DNS64); not a claim that the host is down, and it authorises no retry"
+      }
+    },
+    {
+      "workItemId": "G2P:83",
+      "selectionIndex": 83,
+      "split": "DEV_TRAIN",
+      "kind": "PRIMARY",
+      "generation2ReserveRankPosition": null,
+      "identityDigest": "f1623a4db476d43a3d09aea6716f089c833960d36ce7e677c656e11965ea9a25",
+      "runRefSha256": "0877843efca4edcc60bfdf217c87a425dd09785b038f7d3b9da9f9ffd8046b52",
+      "integrity": {
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "sleepEventsDuringItem": 0,
+        "itemPreflightAllGreen": true,
+        "inItemConcurrencyWatch": "CLEAN (1 polls, 0 detections)",
+        "verdict": "CLEAN"
+      },
+      "bridge": {
+        "rawPageEvidenceCount": 0,
+        "sd9EligiblePageCount": 0,
+        "zeroExtractedTextPageCount": 0,
+        "postSd7Range": [0, 0],
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "decidedByCase": "A",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_UNSUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "q3Reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "sd9": "post-SD7 [0,0] exact, below 4",
+        "q3Basis": "landed replacementReasonFor: root ROBOTS_UNREADABLE_ROOT, blocking transport kind TLS_FAILURE (TLS_CERT_INVALID) on the single robots.txt request, no usable HTTP response, post-SD7 0 -> rank 3 HOST_UNREACHABLE. A coarse replacement label from vantage 192.168.0.100 (native IPv4, no DNS64); not a claim that the host is down, and it authorises no retry"
+      }
+    }
+  ],
+  "windowSummary": {
+    "executed": 5,
+    "authorised": 5,
+    "acquisitionSuccessful": [78, 80, 81],
+    "acquisitionUnsuccessful": [82, 83],
+    "pauseFired": true,
+    "finalGateDecision": "PAUSE_P5_LOW_RAW_YIELD"
+  },
+  "generation2StateBefore": {
+    "ACQUISITION_SUCCESSFUL": 79,
+    "CURRENT_ACQUISITION_FAILURE": [],
+    "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION": [78],
+    "NEVER_STARTED": {
+      "from": 80,
+      "to": 109,
+      "count": 30
+    },
+    "q1": [],
+    "ledgerEntryCount": 3,
+    "nextGeneration2ReservePosition": 3
+  },
+  "generation2StateAfter": {
+    "ACQUISITION_SUCCESSFUL": 82,
+    "acquisitionSuccessfulBySplit": {
+      "DEV_TRAIN": 15,
+      "DEV_CONFIRM": 34,
+      "FINAL_HOLDOUT": 33
+    },
+    "CURRENT_ACQUISITION_FAILURE": [82, 83],
+    "currentFailureBySplit": {
+      "DEV_TRAIN": 1,
+      "DEV_CONFIRM": 0,
+      "FINAL_HOLDOUT": 1
+    },
+    "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION": [],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "CARRY_FORWARD_REFUSED": [],
+    "NEVER_STARTED": {
+      "from": 84,
+      "to": 109,
+      "count": 26,
+      "bySplit": {
+        "DEV_TRAIN": 4,
+        "DEV_CONFIRM": 11,
+        "FINAL_HOLDOUT": 11
+      }
+    },
+    "accounting": "82 successful + 2 failed + 0 assigned + 0 pending + 26 never started = 110",
+    "derivation": "COMPARISON TARGET only: replayGeneration2History over the explicit two-window history (Window 01 then Window 02) and the committed three-entry ledger re-derives every field and refuses on any difference (requireSummaryAgreement); deriveGeneration2CurrentState over the same history was checked equal before commit"
+  },
+  "q1After": [82, 83],
+  "q1AfterReasons": [
+    {
+      "selectionIndex": 82,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    },
+    {
+      "selectionIndex": 83,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    }
+  ],
+  "pendingReplacementObligations": [82, 83],
+  "ledgerAfter": {
+    "entryCount": 3,
+    "ledgerHash": "11c931e8172cc81a7516ad57a1a8f12e733b2f72ccfc7fc8809cb1ee7c174a21",
+    "nextGeneration2ReservePosition": 3,
+    "unchanged": true
+  },
+  "reserves": {
+    "generation2Consumed": 3,
+    "nextGeneration2ReservePosition": 3,
+    "reserve3Assigned": false,
+    "reserve4Assigned": false,
+    "scheduleSize": 5670
+  },
+  "p6": {
+    "rule": "reserveConsumed > 10 AND successfulOrganisationCount < 50",
+    "reserveConsumed": 3,
+    "successfulOrganisationCount": 82,
+    "fires": false
+  },
+  "p5": {
+    "decision": "PAUSE_P5_LOW_RAW_YIELD",
+    "arm": "raw pages < 4 on 2 of 5 planned items (> 30%)",
+    "firedAfter": "G2P:83",
+    "record": "VALID_FROZEN_GATE_PAUSE_REVIEWED_BY_OWNER_AFTER_WINDOW_COMPLETION",
+    "ownerRuling": "ACCEPT_WINDOW_02_P5_AS_VALID_POST_FINAL_ITEM_PAUSE_NO_EVIDENCE_INVALIDATION_V1",
+    "preservedNotWeakenedNotReinterpreted": true,
+    "retrospectiveEvidenceInvalidation": false,
+    "retriesRequired": false,
+    "futureAcquisitionStillRequiresSeparateOwnerDecision": true
+  },
+  "pauseDisposition": "P5 (PAUSE_P5_LOW_RAW_YIELD, raw pages < 4 on 2 of 5 planned items) fired after G2P:83, the fifth and last authorised item, so it prevented no item. It is preserved as a valid frozen-gate pause, reviewed by the owner after window completion; it invalidates no item or evidence, requires no retry, and changes no verdict: each item is adjudicated on its own evidence",
+  "sameSlotNote": "slot 78 is now SUCCESSFUL through its Generation-2 reserve-2 occupant (G2R:78:2); no slot-78 Q2 obligation arises",
+  "authorityConsumption": "the Window-02 authority is fully consumed (5 of 5 invocations, 0 retries); it authorises nothing further",
+  "a3": "A3_EXECUTION_AGENTS_QUIESCED_FOR_WINDOW_02_VALIDATION_REPROOF held from 2026-09-28T22:00:05Z through the re-proof and this adjudication; A3 may resume at the owner's discretion",
+  "identityDisclosure": "slot numbers, work item ids, digests, run-reference hashes and aggregates only; no organisation id, echeRowKey, URL, hostname, root-authority id or page text",
+  "terminalState": "PHASE_2B_2D_A2_GENERATION2_WINDOW_02_ADJUDICATED_AUTHORITY_CONSUMED_STOPPED",
+  "nextOwnerDecision": "Generation 2 stands at 82 / 110 successful with Q1 [82, 83] and 26 never-started primaries (84..109). The next Generation-2 reserve is 3. No Window-03 strategy, plan, authority or reserve assignment exists or is precommitted here; any further acquisition needs a new owner decision",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
