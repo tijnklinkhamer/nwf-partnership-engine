@@ -612,7 +612,35 @@
       "previousSequenceForSlot": null,
       "previousEntryHash": "a36d9781f1077844706ba304da4a8859c986f838a0ee44c1f348b26c58393ce3",
       "entryHash": "8203672d9a0625de9e3469dafada3171eac268c2f7bc917c8b03124377a313d7"
+    },
+    {
+      "sequence": 37,
+      "selectionIndex": 73,
+      "split": "FINAL_HOLDOUT",
+      "replacedEcheRowKey": "E LAS-PAL11|949607206",
+      "replacementEcheRowKey": "D TRIER02|998087418",
+      "reserveRankPosition": 37,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-28T07:32:22Z",
+      "replacedOccupantKind": "RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 35,
+      "previousEntryHash": "8203672d9a0625de9e3469dafada3171eac268c2f7bc917c8b03124377a313d7",
+      "entryHash": "59a93fe4beec70f814156f07a6f2be3d620db913cedefcf3941ceda782e758d7"
+    },
+    {
+      "sequence": 38,
+      "selectionIndex": 75,
+      "split": "FINAL_HOLDOUT",
+      "replacedEcheRowKey": "E PALMA45|944773793",
+      "replacementEcheRowKey": "F BESANCO35|914191245",
+      "reserveRankPosition": 38,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-28T07:32:22Z",
+      "replacedOccupantKind": "RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 36,
+      "previousEntryHash": "59a93fe4beec70f814156f07a6f2be3d620db913cedefcf3941ceda782e758d7",
+      "entryHash": "6482b4de59c6a750d9ba715ee1704b4db5c0e40f66770833fb8e4f9a229c1def"
     }
   ],
-  "ledgerHash": "87d8c89d77ac12317bc9430e9ee917e01e31ef5fc718229266dcff6ca2bf9c9c"
+  "ledgerHash": "a5a60d7e02faa831d38bab131a42e94f80203989989276393216fdc814623e18"
 }
