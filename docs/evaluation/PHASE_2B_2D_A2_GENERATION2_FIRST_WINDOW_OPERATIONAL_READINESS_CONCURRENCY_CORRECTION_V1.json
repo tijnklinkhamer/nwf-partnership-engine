@@ -1,0 +1,218 @@
+{
+  "recordId": "phase2b-2d-a2-generation2-first-window-operational-readiness-concurrency-correction-v1",
+  "recordKind": "GENERATION2_OPERATIONAL_READINESS_CORRECTION",
+  "records": "PHASE_2B_2D_A2_GENERATION2_FIRST_WINDOW_OPERATIONAL_READINESS_CONCURRENCY_CORRECTION_V1",
+  "status": "OFFLINE_CORRECTION",
+  "task": "A2_GENERATION2_FIRST_WINDOW_OPERATIONAL_READINESS_CONCURRENCY_CLASSIFICATION_CORRECTION",
+  "terminalState": "GENERATION2_FIRST_WINDOW_OPERATIONAL_READINESS_CORRECTED_READY_FOR_OWNER_LIVE_AUTHORITY_DECISION",
+  "recordedAtUtc": "2026-09-28T12:03:13Z",
+  "recordedAtUtcSource": "date -u, read from the shell when this correction was written",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "cbbdc711de26b5a1dff4321a5cb5a213a2631824",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "networkAuthorised": false,
+  "databaseAuthorised": false,
+  "ledgerMutationAuthorised": false,
+  "reserveAssigned": false,
+  "networkUsed": false,
+  "databaseRead": false,
+  "acquisitionRunCreated": false,
+  "ownerRulings": [
+    "GENERATION2_CONCURRENCY_INTEGRITY_STOP_IS_DISTINCT_FROM_FROZEN_P8_V1",
+    "P8_REMAINS_HOST_SLEEP_WAKE_OR_PACING_CLOCK_ANOMALY_ONLY_V1"
+  ],
+  "bound": {
+    "readinessV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_FIRST_WINDOW_OPERATIONAL_READINESS_V1.json",
+      "sha256": "22f6c5fd2f850a02e1416d0042dda897be3af75c57dc223342aea861f8672cd3",
+      "bytes": 17782
+    },
+    "readinessV1Audit": {
+      "path": "docs/audits/PHASE_2B_2D_A2_GENERATION2_FIRST_WINDOW_OPERATIONAL_READINESS_V1.md",
+      "sha256": "14a313d3deecdf0769607c6ac8e6987b4ebf20e24e2fe715e7d3e3f3903046f0",
+      "bytes": 12498
+    },
+    "methodologyV3ProposalR1": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_PROPOSAL_R1.json",
+      "sha256": "4bfbfb5f2ec1958b77ecc13ac5a37ba8b21c7ee69a2c07cd6cd9b8fb76a6239d",
+      "bytes": 16594,
+      "pauseGatesClause": "P1..P8 of Plan V1 unchanged (P7 read per V3-A7)"
+    },
+    "methodologyV3OwnerFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "36e8071738e1842ad03a9b51cf5820d58015305191c48490ef515e1cd1c34f9c",
+      "bytes": 12318,
+      "carryForwardClause": "P1_P5_P7_P8: carried forward exactly as Methodology V3 Proposal R1 specifies; no threshold changed"
+    },
+    "frozenP8Contract": {
+      "path": "src/test/harness/phase2b2d/continuationWindow/windowContract.ts",
+      "sha256": "b35bf4a847d32277423524c4cadf19fbb16c2b484ddc4c397106da82f3bb3a08",
+      "bytes": 17796,
+      "landedAt": "36bd531",
+      "field": "CompletedWorkObservation.hostStateAnomaly",
+      "definition": "host sleep/wake, or a wall-clock gap inconsistent with the pacing clock",
+      "decision": "PAUSE_P8_HOST_STATE_ANOMALY"
+    },
+    "frozenGate": {
+      "path": "src/test/harness/phase2b2d/continuationWindow/windowGate.ts",
+      "sha256": "3a747b6cb245e34858d444ea84d0e9cd6042278d2e7d60a3b612ae070796b1be",
+      "bytes": 12589,
+      "landedAt": "36bd531"
+    },
+    "correctionCode": {
+      "commit": "f9609a85e0de3eb0346776864275a049ddda0fa0",
+      "files": [
+        {
+          "path": "src/test/harness/phase2b2d/generation2Acquisition/gateAdapter.ts",
+          "sha256": "4a8fbc2fc9a69b264b9f25e3e9467e7680021313cc291b0a4098c34eb782d925",
+          "bytes": 15203
+        },
+        {
+          "path": "src/test/harness/phase2b2d/generation2Acquisition/operationalContract.ts",
+          "sha256": "1037f57b26348168575d2a7b189e783e1305944c4d1b3350fdb8e85983bb770c",
+          "bytes": 12151
+        },
+        {
+          "path": "src/test/harness/phase2b2d/generation2Acquisition/readiness.ts",
+          "sha256": "cd3b2c699fc7a8caca599170eb7a16ba35f1ab52d4c2def345ace01824675b8a",
+          "bytes": 17295
+        },
+        {
+          "path": "src/test/unit/orgunitCorpus2DA2Generation2FirstWindowReadiness.test.ts",
+          "sha256": "5a8814e5fef1b0b41bb03ee53c0bef607f1c34719d990ed0e018cb4750a629e3",
+          "bytes": 57040
+        }
+      ]
+    }
+  },
+  "defect": {
+    "readinessV1Field": "gates.p8.competingValidateOrVitestMidItemIsP8 = true",
+    "code": "evaluateInItemMonitoring returned hostStateAnomaly = true for a competing process or a process-monitor gap; the V1 unit test asserted it as 'a host-state anomaly (P8)'",
+    "why": "Methodology V3 carries P1..P8 forward unchanged; the frozen P8 is host sleep/wake or a pacing-clock discontinuity only. Classifying process concurrency as P8 silently widened a frozen gate"
+  },
+  "supersedes": {
+    "only": [
+      "readiness V1 gates.p8 concurrency classification",
+      "any prose or code describing competing process execution as P8",
+      "any pure helper mapping a competing process (or a process-monitor gap) to hostStateAnomaly"
+    ],
+    "readinessV1Edited": false,
+    "allOtherReadinessFindingsRemainAccepted": true,
+    "provedBy": "the rebuilt readiness record equals V1 at every path except gates.p8 (now the frozen P8 definition) and the added gates.operationalConcurrencyIntegrity"
+  },
+  "correction": {
+    "policy": {
+      "version": "GENERATION2_LIVE_CRITICAL_SECTION_POLICY_V2",
+      "supersedes": "GENERATION2_LIVE_CRITICAL_SECTION_POLICY_V1",
+      "removed": ["competingValidateOrVitestMidItemIsP8"],
+      "added": [
+        "competingValidateOrVitestMidItemRequiresOperationalIntegrityStop: true",
+        "doesNotSetP8ByItself: true",
+        "runningInvocationIsAllowedToFinish: true",
+        "evidenceIsNotAutomaticallyInvalidated: true",
+        "automaticValidationRerunAuthorised: false"
+      ],
+      "kept": {
+        "a3ExecutionAgentsMustBeQuiesced": true,
+        "consecutiveCleanSecondsBeforeEachItem": 120,
+        "maxProcessMonitoringIntervalSeconds": 5,
+        "monitorContinuouslyDuringEachItem": true,
+        "monitorContinuouslyDuringFullValidation": true
+      }
+    },
+    "monitorApi": "OperationalConcurrencyVerdict {integritySatisfied, deviationDetected, monitorCoverageSufficient, operationalStop, classifications, reasons}; carries no hostStateAnomaly",
+    "classifications": {
+      "preItem": {
+        "code": "CONCURRENCY_INTEGRITY_PRECONDITION_NOT_SATISFIED",
+        "effect": "the item does not start; the gate is not consulted; no observation exists, so no P1-P8 condition is manufactured"
+      },
+      "midItemCompetingProcess": {
+        "code": "CONCURRENCY_INTEGRITY_DEVIATION_DETECTED_DURING_ITEM",
+        "effect": "the running invocation finishes cleanly, its evidence is preserved, no later item starts, STOP for owner review; evidence validity is decided by the owner, not by this event"
+      },
+      "processMonitorGap": {
+        "code": "CONCURRENCY_MONITOR_COVERAGE_INSUFFICIENT",
+        "effect": "STOP operational continuation; an absence of process samples is not evidence of sleep or of a clock discontinuity"
+      },
+      "fullValidation": {
+        "code": "VALIDATION_EXECUTION_EXCLUSIVITY_NOT_PROVED",
+        "effect": "the running validate finishes and its exit code stays historical evidence; STOP; no automatic rerun without explicit owner authority"
+      }
+    },
+    "p8Input": "CompletedWorkObservation.hostStateAnomaly is unchanged and is populated by a future live driver ONLY from governed host / pacing-clock evidence",
+    "gateOrdering": {
+      "beforeItem": [
+        "explicit A3 quiescence",
+        "process exclusivity / 120-second clean gate",
+        "Generation-2 P7",
+        "frozen P1-P8",
+        "start the item"
+      ],
+      "afterItem": [
+        "finish and persist the already-running item",
+        "inspect concurrency-monitor integrity",
+        "inspect host / pacing evidence separately",
+        "construct the completed observation",
+        "evaluate the frozen P1-P8",
+        "if concurrency integrity failed, STOP regardless of an otherwise clean P1-P8 result"
+      ],
+      "concurrencyStopIs": "an OUTER operational stop, not a P1-P8 condition"
+    },
+    "untouched": [
+      "continuationWindow/windowContract.ts",
+      "continuationWindow/windowGate.ts",
+      "every P1-P8 decision name"
+    ]
+  },
+  "notAMethodologyAmendment": "P8's frozen meaning is restored, not changed, and no threshold moves. The concurrency rules are the same operational safety requirements readiness V1 recorded; only their classification changes, from P8 to a separate outer stop",
+  "acceptedDecisions": {
+    "freezeTestTemporalScoping": {
+      "file": "src/test/unit/orgunitCorpus2DA2Generation2Freeze.test.ts",
+      "evaluatedAt": "218cd69daaaf43b8eef718cd7a96a4cf35d62044",
+      "decision": "ACCEPTED; not reverted, not broadened. The freeze-time filename assertion and the present-day 'every Generation-2 record authorises nothing' assertion are both kept"
+    },
+    "genesisHeaderReserveAssignedFalse": {
+      "decision": "ACCEPTED as immutable genesis metadata only. Current assignment state is derived exclusively from the validated entries; a valid non-empty ledger keeps reserveAssigned:false and derives reserveConsumed and occupants from its entries (proved in memory)",
+      "genesisHeaderEdited": false
+    }
+  },
+  "readinessFactsUnchanged": {
+    "successfulOrganisationCount": 75,
+    "q1": [75, 76],
+    "canonicalGeneration2LedgerEntryCount": 0,
+    "q1Assignment": {
+      "75": 0,
+      "76": 1
+    },
+    "prospectiveAppendEntries": 2,
+    "firstWindow": ["G2R:75:0", "G2R:76:1", "G2P:77", "G2P:78", "G2P:79"],
+    "p2ThresholdForPlannedSize": 3,
+    "p5ThresholdForPlannedSize": 2,
+    "p6": {
+      "firesBefore": false,
+      "firesAfter": false
+    },
+    "generation2P7": {
+      "invariantCount": 18,
+      "allTrueOnProspectivePostAppendLedger": true
+    },
+    "negativeProbesAllRefuse": true,
+    "rootAuthorityBinding": "unchanged",
+    "noDatabaseNoNetwork": true
+  },
+  "sideEffects": {
+    "institutionNetworkRequests": 0,
+    "databaseConnections": 0,
+    "ledgerWrites": 0,
+    "reserveAssignments": 0,
+    "strategiesCreated": 0,
+    "livePlansCreated": 0,
+    "liveAuthoritiesCreated": 0,
+    "acquisitionRuns": 0
+  },
+  "nextOwnerDecision": "whether to grant EXACTLY ONE bounded five-item Generation-2 live acquisition window: G2R:75:0 -> G2R:76:1 -> G2P:77 -> G2P:78 -> G2P:79. Not granted here",
+  "immutability": "append-only. This record is never edited; a further correction is a new record"
+}
