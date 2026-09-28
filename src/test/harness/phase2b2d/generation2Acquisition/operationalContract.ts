@@ -176,19 +176,57 @@ export const SUPPORTED_ROOT_AUTHORITY_TYPES: readonly RootAuthorityType[] = [
 export const FIRST_WINDOW_PLANNED_SIZE = 5;
 
 // ---------------------------------------------------------------------------
-// P8 / concurrency: the final Generation-1 operational learning, carried
-// forward as a pure REPRESENTATION. This task performs no live action.
+// P8: the FROZEN definition, carried forward unchanged by Methodology V3
+// ("P1..P8 of Plan V1 unchanged"). Quoted from the landed
+// `CompletedWorkObservation.hostStateAnomaly` field comment and decision.
+// ---------------------------------------------------------------------------
+
+export const FROZEN_P8_DEFINITION = {
+  condition: 'P8',
+  observationField: 'hostStateAnomaly',
+  meaning: 'host sleep/wake, or a wall-clock gap inconsistent with the pacing clock',
+  decision: 'PAUSE_P8_HOST_STATE_ANOMALY',
+  source: 'src/test/harness/phase2b2d/continuationWindow/windowContract.ts',
+  ruling: 'P8_REMAINS_HOST_SLEEP_WAKE_OR_PACING_CLOCK_ANOMALY_ONLY_V1',
+} as const;
+
+// ---------------------------------------------------------------------------
+// Operational concurrency integrity: the final Generation-1 operational
+// learning, carried forward as a pure REPRESENTATION. It is an OUTER
+// operational stop, DISTINCT from P1-P8 (owner ruling
+// GENERATION2_CONCURRENCY_INTEGRITY_STOP_IS_DISTINCT_FROM_FROZEN_P8_V1): a
+// competing validate / vitest / A3 execution process, or a process-monitor
+// gap, never sets `hostStateAnomaly` by itself. Only independently
+// established host / pacing-clock evidence does. This task performs no live
+// action.
 // ---------------------------------------------------------------------------
 
 export const LIVE_CRITICAL_SECTION_POLICY = {
-  version: 'GENERATION2_LIVE_CRITICAL_SECTION_POLICY_V1',
+  version: 'GENERATION2_LIVE_CRITICAL_SECTION_POLICY_V2',
+  supersedes: 'GENERATION2_LIVE_CRITICAL_SECTION_POLICY_V1',
+  ruling: 'GENERATION2_CONCURRENCY_INTEGRITY_STOP_IS_DISTINCT_FROM_FROZEN_P8_V1',
   a3ExecutionAgentsMustBeQuiesced: true,
   consecutiveCleanSecondsBeforeEachItem: 120,
   maxProcessMonitoringIntervalSeconds: 5,
   monitorContinuouslyDuringEachItem: true,
   monitorContinuouslyDuringFullValidation: true,
-  competingValidateOrVitestMidItemIsP8: true,
+  competingValidateOrVitestMidItemRequiresOperationalIntegrityStop: true,
+  doesNotSetP8ByItself: true,
+  runningInvocationIsAllowedToFinish: true,
+  evidenceIsNotAutomaticallyInvalidated: true,
+  automaticValidationRerunAuthorised: false,
 } as const;
+
+/** The outer operational stop classifications. None of them is P1-P8. */
+export const CONCURRENCY_CLASSIFICATIONS = {
+  preItem: 'CONCURRENCY_INTEGRITY_PRECONDITION_NOT_SATISFIED',
+  midItem: 'CONCURRENCY_INTEGRITY_DEVIATION_DETECTED_DURING_ITEM',
+  monitorGap: 'CONCURRENCY_MONITOR_COVERAGE_INSUFFICIENT',
+  validation: 'VALIDATION_EXECUTION_EXCLUSIVITY_NOT_PROVED',
+} as const;
+
+export type ConcurrencyClassification =
+  (typeof CONCURRENCY_CLASSIFICATIONS)[keyof typeof CONCURRENCY_CLASSIFICATIONS];
 
 // ---------------------------------------------------------------------------
 // Refusal.

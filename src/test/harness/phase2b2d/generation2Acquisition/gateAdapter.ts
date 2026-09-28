@@ -1,5 +1,6 @@
 /**
- * THE GENERATION-2 GATE ADAPTER, AND THE P8 LIVE-CRITICAL-SECTION CHECKS. PURE.
+ * THE GENERATION-2 GATE ADAPTER, AND THE OPERATIONAL CONCURRENCY-INTEGRITY
+ * CHECKS. PURE.
  *
  * P1-P6 AND P8: THE LANDED GATE, UNCHANGED
  *
@@ -34,12 +35,19 @@
  *   P7 is the gate's highest reporting precedence, so a Generation-2 P7
  *   trigger always names the decision and always stops.
  *
- * P8 / CONCURRENCY
+ * P8 IS FROZEN; CONCURRENCY IS A SEPARATE OUTER STOP
  *
- *   `evaluatePreItemQuietPeriod` and `evaluateInItemMonitoring` represent the
- *   final Generation-1 operational learning as pure checks over process-
- *   monitor samples a future live driver would collect. They perform no
- *   monitoring themselves.
+ *   P8 means exactly what Plan V1 froze: host sleep/wake, or a wall-clock gap
+ *   inconsistent with the pacing clock. A future live driver sets
+ *   `CompletedWorkObservation.hostStateAnomaly` ONLY from that host / pacing
+ *   evidence. `evaluatePreItemQuietPeriod`, `evaluateInItemMonitoring` and
+ *   `evaluateFullValidationMonitoring` are OPERATIONAL CONCURRENCY-INTEGRITY
+ *   checks over process-monitor samples: none returns `hostStateAnomaly`, and
+ *   a competing process or a monitor gap never becomes P8 by itself
+ *   (GENERATION2_CONCURRENCY_INTEGRITY_STOP_IS_DISTINCT_FROM_FROZEN_P8_V1).
+ *   `decideAfterItem` combines the two: the frozen gate is evaluated on its
+ *   own inputs, and a failed integrity check stops continuation regardless of
+ *   an otherwise clean P1-P8 result. They perform no monitoring themselves.
  */
 
 import type {
@@ -50,7 +58,11 @@ import type {
   WindowPreflightInvariants,
 } from '../continuationWindow/windowContract.js';
 import { evaluateContinuationWindowGate } from '../continuationWindow/windowGate.js';
-import { LIVE_CRITICAL_SECTION_POLICY } from './operationalContract.js';
+import {
+  CONCURRENCY_CLASSIFICATIONS,
+  LIVE_CRITICAL_SECTION_POLICY,
+  type ConcurrencyClassification,
+} from './operationalContract.js';
 import { GENERATION2_P7_INVARIANT_NAMES, type Generation2Preflight } from './preflight.js';
 import type { Generation2WindowSpec } from './windowSpec.js';
 
@@ -144,7 +156,8 @@ export function evaluateGeneration2WindowGate(
 }
 
 // ---------------------------------------------------------------------------
-// P8 / concurrency, as pure checks over monitor samples.
+// Operational concurrency integrity, as pure checks over monitor samples.
+// DISTINCT from P1-P8: nothing here reads or produces `hostStateAnomaly`.
 // ---------------------------------------------------------------------------
 
 export interface ProcessMonitorSample {
@@ -157,6 +170,8 @@ export interface ProcessMonitorSample {
 export interface QuietPeriodVerdict {
   readonly mayStartItem: boolean;
   readonly consecutiveCleanSeconds: number;
+  /** Null when the item may start; never a P1-P8 condition. */
+  readonly classification: typeof CONCURRENCY_CLASSIFICATIONS.preItem | null;
   readonly reasons: readonly string[];
 }
 
@@ -164,6 +179,8 @@ export interface QuietPeriodVerdict {
  * Before each live item: A3 execution agents quiesced, and the samples
  * immediately preceding the start show >= 120 consecutive clean seconds with
  * no gap above 5 seconds (and the last sample within 5 seconds of the start).
+ * A failure means the item does not start - there is no completed
+ * observation, so there is nothing P8 could be attached to.
  */
 export function evaluatePreItemQuietPeriod(input: {
   readonly a3ExecutionAgentsQuiesced: boolean;
@@ -190,37 +207,173 @@ export function evaluatePreItemQuietPeriod(input: {
       `${String(clean)} consecutive clean seconds before the item, ${String(policy.consecutiveCleanSecondsBeforeEachItem)} required`,
     );
   }
-  return { mayStartItem: reasons.length === 0, consecutiveCleanSeconds: clean, reasons };
+  const mayStartItem = reasons.length === 0;
+  return {
+    mayStartItem,
+    consecutiveCleanSeconds: clean,
+    classification: mayStartItem ? null : CONCURRENCY_CLASSIFICATIONS.preItem,
+    reasons,
+  };
 }
 
-export interface InItemMonitoringVerdict {
-  /** True means P8: the item's observation must carry hostStateAnomaly. */
-  readonly hostStateAnomaly: boolean;
+/**
+ * The verdict of continuous process monitoring over one bounded interval.
+ * Deliberately carries NO `hostStateAnomaly`: concurrency is not P8.
+ */
+export interface OperationalConcurrencyVerdict {
+  /** No competing process AND sufficient monitor coverage. */
+  readonly integritySatisfied: boolean;
+  /** A competing correctness-critical process was observed. */
+  readonly deviationDetected: boolean;
+  /** Every monitor gap (including to the interval's ends) was <= 5 seconds. */
+  readonly monitorCoverageSufficient: boolean;
+  /** True whenever integrity is not satisfied: STOP operational continuation. */
+  readonly operationalStop: boolean;
+  readonly classifications: readonly ConcurrencyClassification[];
   readonly reasons: readonly string[];
 }
 
-/** During each live item: continuous <= 5 s monitoring, and no competing process at all. */
+function scanInterval(
+  samples: readonly ProcessMonitorSample[],
+  startEpochSeconds: number,
+  endEpochSeconds: number,
+): { competing: boolean; gap: boolean } {
+  const limit = LIVE_CRITICAL_SECTION_POLICY.maxProcessMonitoringIntervalSeconds;
+  const within = samples
+    .filter(
+      (sample) =>
+        sample.atEpochSeconds >= startEpochSeconds && sample.atEpochSeconds <= endEpochSeconds,
+    )
+    .sort((a, b) => a.atEpochSeconds - b.atEpochSeconds);
+  let competing = false;
+  let gap = false;
+  let previous = startEpochSeconds;
+  for (const sample of within) {
+    if (sample.atEpochSeconds - previous > limit) gap = true;
+    if (sample.competingProcessCount !== 0) competing = true;
+    previous = sample.atEpochSeconds;
+  }
+  if (endEpochSeconds - previous > limit) gap = true;
+  return { competing, gap };
+}
+
+/**
+ * During each live item: continuous <= 5 s monitoring, and no competing
+ * process. A competing process is CONCURRENCY_INTEGRITY_DEVIATION_DETECTED_
+ * DURING_ITEM; a monitor gap is CONCURRENCY_MONITOR_COVERAGE_INSUFFICIENT -
+ * an absence of process samples is not evidence of sleep or of a clock
+ * discontinuity. Either stops continuation for owner review; the running
+ * invocation is allowed to finish and its evidence is preserved, never
+ * automatically invalidated.
+ */
 export function evaluateInItemMonitoring(input: {
   readonly samples: readonly ProcessMonitorSample[];
   readonly itemStartEpochSeconds: number;
   readonly itemEndEpochSeconds: number;
-}): InItemMonitoringVerdict {
-  const limit = LIVE_CRITICAL_SECTION_POLICY.maxProcessMonitoringIntervalSeconds;
+}): OperationalConcurrencyVerdict {
+  const { competing, gap } = scanInterval(
+    input.samples,
+    input.itemStartEpochSeconds,
+    input.itemEndEpochSeconds,
+  );
+  const classifications: ConcurrencyClassification[] = [];
   const reasons: string[] = [];
-  const within = input.samples
-    .filter(
-      (sample) =>
-        sample.atEpochSeconds >= input.itemStartEpochSeconds &&
-        sample.atEpochSeconds <= input.itemEndEpochSeconds,
-    )
-    .sort((a, b) => a.atEpochSeconds - b.atEpochSeconds);
-  let previous = input.itemStartEpochSeconds;
-  for (const sample of within) {
-    if (sample.atEpochSeconds - previous > limit) reasons.push('a monitoring gap above 5 seconds');
-    if (sample.competingProcessCount !== 0) reasons.push('a competing process ran mid-item');
-    previous = sample.atEpochSeconds;
+  if (competing) {
+    classifications.push(CONCURRENCY_CLASSIFICATIONS.midItem);
+    reasons.push('a competing process ran mid-item');
   }
-  if (input.itemEndEpochSeconds - previous > limit)
-    reasons.push('a monitoring gap above 5 seconds');
-  return { hostStateAnomaly: reasons.length > 0, reasons: [...new Set(reasons)] };
+  if (gap) {
+    classifications.push(CONCURRENCY_CLASSIFICATIONS.monitorGap);
+    reasons.push('a process-monitor gap above 5 seconds');
+  }
+  return {
+    integritySatisfied: !competing && !gap,
+    deviationDetected: competing,
+    monitorCoverageSufficient: !gap,
+    operationalStop: competing || gap,
+    classifications,
+    reasons,
+  };
+}
+
+/**
+ * During a full validation: the same distinction. A competing process or a
+ * monitor gap means VALIDATION_EXECUTION_EXCLUSIVITY_NOT_PROVED. The
+ * already-running validate finishes and its exit code stays historical
+ * evidence; no automatic rerun is authorised.
+ */
+export function evaluateFullValidationMonitoring(input: {
+  readonly samples: readonly ProcessMonitorSample[];
+  readonly validationStartEpochSeconds: number;
+  readonly validationEndEpochSeconds: number;
+}): OperationalConcurrencyVerdict {
+  const { competing, gap } = scanInterval(
+    input.samples,
+    input.validationStartEpochSeconds,
+    input.validationEndEpochSeconds,
+  );
+  const reasons: string[] = [];
+  if (competing) reasons.push('a competing process ran during full validation');
+  if (gap) reasons.push('a process-monitor gap above 5 seconds during full validation');
+  return {
+    integritySatisfied: !competing && !gap,
+    deviationDetected: competing,
+    monitorCoverageSufficient: !gap,
+    operationalStop: competing || gap,
+    classifications: competing || gap ? [CONCURRENCY_CLASSIFICATIONS.validation] : [],
+    reasons,
+  };
+}
+
+export interface AfterItemDecision {
+  /** The frozen P1-P8 verdict, computed from its own inputs only. */
+  readonly gate: ContinuationWindowVerdict;
+  /** The outer operational concurrency verdict, reported separately. */
+  readonly concurrency: OperationalConcurrencyVerdict;
+  /** Both must allow it: an integrity failure stops even a clean P1-P8 result. */
+  readonly mayStartNextWorkItem: boolean;
+  readonly requiresOwnerReview: boolean;
+}
+
+/**
+ * After an item: the frozen gate and the concurrency check are evaluated
+ * independently and never mixed - the concurrency verdict does not reach
+ * `hostStateAnomaly`, and the gate verdict is returned exactly as computed.
+ */
+export function decideAfterItem(input: {
+  readonly gate: ContinuationWindowVerdict;
+  readonly concurrency: OperationalConcurrencyVerdict;
+}): AfterItemDecision {
+  const mayStartNextWorkItem =
+    input.gate.mayStartNextWorkItem && input.concurrency.integritySatisfied;
+  return {
+    gate: input.gate,
+    concurrency: input.concurrency,
+    mayStartNextWorkItem,
+    requiresOwnerReview: input.concurrency.operationalStop,
+  };
+}
+
+export interface BeforeItemDecision {
+  readonly quietPeriod: QuietPeriodVerdict;
+  /** Null when the concurrency precondition failed: the gate is not consulted. */
+  readonly gate: ContinuationWindowVerdict | null;
+  readonly mayStartItem: boolean;
+}
+
+/**
+ * Before an item, in order: A3 quiescence and the 120-second clean gate
+ * FIRST; only then the Generation-2 gate (P7, then the frozen P1-P8). A
+ * failed precondition means the item never starts and no P1-P8 condition is
+ * manufactured for it.
+ */
+export function decideBeforeItem(input: {
+  readonly quietPeriod: QuietPeriodVerdict;
+  readonly evaluateGate: () => ContinuationWindowVerdict;
+}): BeforeItemDecision {
+  if (!input.quietPeriod.mayStartItem) {
+    return { quietPeriod: input.quietPeriod, gate: null, mayStartItem: false };
+  }
+  const gate = input.evaluateGate();
+  return { quietPeriod: input.quietPeriod, gate, mayStartItem: gate.mayStartNextWorkItem };
 }

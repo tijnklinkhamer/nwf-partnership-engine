@@ -36,6 +36,9 @@ import {
   type FrozenFrameIndex,
 } from '../harness/phase2b2d/generation2Acquisition/executionBinding.js';
 import {
+  decideAfterItem,
+  decideBeforeItem,
+  evaluateFullValidationMonitoring,
   evaluateGeneration2WindowGate,
   evaluateInItemMonitoring,
   evaluatePreItemQuietPeriod,
@@ -48,7 +51,9 @@ import {
 import {
   EXPECTED_FIRST_WINDOW,
   FIRST_WINDOW_PLANNED_SIZE,
+  FROZEN_P8_DEFINITION,
   Generation2OperationalRefusal,
+  LIVE_CRITICAL_SECTION_POLICY,
   PINNED,
   PROSPECTIVE_APPEND_RECORDED_AT_UTC,
   parseGeneration2WorkItemId,
@@ -84,6 +89,9 @@ import {
 const REPO = resolve(import.meta.dirname, '../../..');
 const read = (path: string): string => readFileSync(join(REPO, path), 'utf8');
 const sha256 = (text: string): string => createHash('sha256').update(text, 'utf8').digest('hex');
+const READINESS_V1_SHA256 = '22f6c5fd2f850a02e1416d0042dda897be3af75c57dc223342aea861f8672cd3';
+const PINNED_METHODOLOGY_PROPOSAL =
+  'docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_PROPOSAL_R1.json';
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
 const COMMITTED = readCommittedInputs(REPO);
@@ -1051,13 +1059,13 @@ describe('(U) every negative probe refuses', () => {
   });
 });
 
-describe('P8 / concurrency representation', () => {
-  const quiet = (seconds: number, step = 5, competing = 0) =>
-    Array.from({ length: Math.floor(seconds / step) + 1 }, (_, k) => ({
-      atEpochSeconds: 1000 - seconds + k * step,
-      competingProcessCount: k === 0 ? competing : 0,
-    }));
+const quiet = (seconds: number, step = 5, competing = 0) =>
+  Array.from({ length: Math.floor(seconds / step) + 1 }, (_, k) => ({
+    atEpochSeconds: 1000 - seconds + k * step,
+    competingProcessCount: k === 0 ? competing : 0,
+  }));
 
+describe('operational concurrency: the pre-item quiet period', () => {
   it('requires A3 quiesced and 120 consecutive clean seconds sampled at <= 5 s', () => {
     expect(
       evaluatePreItemQuietPeriod({
@@ -1098,45 +1106,253 @@ describe('P8 / concurrency representation', () => {
     ).toBe(false);
   });
 
-  it('a competing process or a monitoring gap during an item is a host-state anomaly (P8)', () => {
-    const during = Array.from({ length: 13 }, (_, k) => ({
-      atEpochSeconds: 2000 + k * 5,
-      competingProcessCount: 0,
-    }));
-    expect(
-      evaluateInItemMonitoring({
-        samples: during,
-        itemStartEpochSeconds: 2000,
-        itemEndEpochSeconds: 2060,
-      }).hostStateAnomaly,
-    ).toBe(false);
-    expect(
-      evaluateInItemMonitoring({
-        samples: during.filter((_, k) => k !== 6),
-        itemStartEpochSeconds: 2000,
-        itemEndEpochSeconds: 2060,
-      }).hostStateAnomaly,
-    ).toBe(true);
-    expect(
-      evaluateInItemMonitoring({
-        samples: during.map((s, k) => (k === 3 ? { ...s, competingProcessCount: 1 } : s)),
-        itemStartEpochSeconds: 2000,
-        itemEndEpochSeconds: 2060,
-      }).hostStateAnomaly,
-    ).toBe(true);
-    const anomaly = evaluateGeneration2WindowGate({
+  it('reports a failed pre-item precondition as a concurrency classification, never P8', () => {
+    const dirty = quiet(120).map((sample, k) =>
+      k === 20 ? { ...sample, competingProcessCount: 1 } : sample,
+    );
+    const refused = evaluatePreItemQuietPeriod({
+      a3ExecutionAgentsQuiesced: true,
+      samples: dirty,
+      itemStartEpochSeconds: 1000,
+    });
+    expect(refused).toMatchObject({
+      mayStartItem: false,
+      classification: 'CONCURRENCY_INTEGRITY_PRECONDITION_NOT_SATISFIED',
+    });
+    expect(refused).not.toHaveProperty('hostStateAnomaly');
+    expect(JSON.stringify(refused)).not.toMatch(/P8|hostStateAnomaly/);
+  });
+});
+
+describe('concurrency integrity is DISTINCT from the frozen P8', () => {
+  const during = Array.from({ length: 13 }, (_, k) => ({
+    atEpochSeconds: 2000 + k * 5,
+    competingProcessCount: 0,
+  }));
+  const item = { itemStartEpochSeconds: 2000, itemEndEpochSeconds: 2060 };
+  const cleanGate = (completed: CompletedWorkObservation[]) =>
+    evaluateGeneration2WindowGate({
       spec: SPEC,
       preflight: PROSPECTIVE_PREFLIGHT,
       generation: GENERATION,
-      completed: [observation('G2R:75:0', 20, { hostStateAnomaly: true })],
+      completed,
     });
-    expect(anomaly.decision).toBe('PAUSE_P8_HOST_STATE_ANOMALY');
+
+  it('(1) the frozen P8 still means host sleep/wake or a pacing-clock gap only', () => {
+    const contract = read('src/test/harness/phase2b2d/continuationWindow/windowContract.ts');
+    expect(contract).toContain(
+      '/** P8: host sleep/wake, or a wall-clock gap inconsistent with the pacing clock. */\n  readonly hostStateAnomaly: boolean;',
+    );
+    expect(contract).toContain("'PAUSE_P8_HOST_STATE_ANOMALY'");
+    expect(FROZEN_P8_DEFINITION).toEqual({
+      condition: 'P8',
+      observationField: 'hostStateAnomaly',
+      meaning: 'host sleep/wake, or a wall-clock gap inconsistent with the pacing clock',
+      decision: 'PAUSE_P8_HOST_STATE_ANOMALY',
+      source: 'src/test/harness/phase2b2d/continuationWindow/windowContract.ts',
+      ruling: 'P8_REMAINS_HOST_SLEEP_WAKE_OR_PACING_CLOCK_ANOMALY_ONLY_V1',
+    });
+    // The generic contract and gate are untouched since they landed.
+    expect(sha256(contract)).toBe(
+      'b35bf4a847d32277423524c4cadf19fbb16c2b484ddc4c397106da82f3bb3a08',
+    );
+    expect(sha256(read('src/test/harness/phase2b2d/continuationWindow/windowGate.ts'))).toBe(
+      '3a747b6cb245e34858d444ea84d0e9cd6042278d2e7d60a3b612ae070796b1be',
+    );
+    // Methodology V3 carries P1..P8 forward unchanged; the approval carries them forward.
+    expect(read(PINNED_METHODOLOGY_PROPOSAL)).toContain('P1..P8 of Plan V1 unchanged');
+    expect(read(PINNED.methodologyV3Approval.path)).toContain(
+      'carried forward exactly as Methodology V3 Proposal R1 specifies; no threshold changed',
+    );
+  });
+
+  it('the policy no longer classifies a competing process as P8', () => {
+    expect(LIVE_CRITICAL_SECTION_POLICY).toMatchObject({
+      version: 'GENERATION2_LIVE_CRITICAL_SECTION_POLICY_V2',
+      a3ExecutionAgentsMustBeQuiesced: true,
+      consecutiveCleanSecondsBeforeEachItem: 120,
+      maxProcessMonitoringIntervalSeconds: 5,
+      monitorContinuouslyDuringEachItem: true,
+      monitorContinuouslyDuringFullValidation: true,
+      competingValidateOrVitestMidItemRequiresOperationalIntegrityStop: true,
+      doesNotSetP8ByItself: true,
+    });
+    expect(LIVE_CRITICAL_SECTION_POLICY).not.toHaveProperty('competingValidateOrVitestMidItemIsP8');
+    for (const file of ['gateAdapter.ts', 'operationalContract.ts', 'readiness.ts']) {
+      expect(read(`src/test/harness/phase2b2d/generation2Acquisition/${file}`), file).not.toMatch(
+        /competingValidateOrVitestMidItemIsP8|hostStateAnomaly: (reasons|competing|gap)/,
+      );
+    }
+  });
+
+  it('(2) a competing process before the start: the item does not start and no P8 is manufactured', () => {
+    const dirty = [...during.map((s) => ({ ...s, atEpochSeconds: s.atEpochSeconds - 120 }))];
+    dirty[12] = { ...dirty[12]!, competingProcessCount: 1 };
+    let gateConsulted = false;
+    const decision = decideBeforeItem({
+      quietPeriod: evaluatePreItemQuietPeriod({
+        a3ExecutionAgentsQuiesced: true,
+        samples: [...dirty, ...during.slice(0, 1)],
+        itemStartEpochSeconds: 2000,
+      }),
+      evaluateGate: () => {
+        gateConsulted = true;
+        return cleanGate([]);
+      },
+    });
+    expect(decision.mayStartItem).toBe(false);
+    expect(decision.gate).toBeNull();
+    expect(gateConsulted).toBe(false);
+    expect(decision.quietPeriod.classification).toBe(
+      'CONCURRENCY_INTEGRITY_PRECONDITION_NOT_SATISFIED',
+    );
+    // A clean quiet period hands over to the gate, which alone decides.
+    const clean = decideBeforeItem({
+      quietPeriod: evaluatePreItemQuietPeriod({
+        a3ExecutionAgentsQuiesced: true,
+        samples: quiet(120),
+        itemStartEpochSeconds: 1000,
+      }),
+      evaluateGate: () => cleanGate([]),
+    });
+    expect(clean.mayStartItem).toBe(true);
+    expect(clean.gate?.nextWorkItemId).toBe('G2R:75:0');
+  });
+
+  it('(3) a competing process mid-item is an operational integrity stop, NOT a host-state anomaly', () => {
+    const verdict = evaluateInItemMonitoring({
+      ...item,
+      samples: during.map((s, k) => (k === 3 ? { ...s, competingProcessCount: 1 } : s)),
+    });
+    expect(verdict).toEqual({
+      integritySatisfied: false,
+      deviationDetected: true,
+      monitorCoverageSufficient: true,
+      operationalStop: true,
+      classifications: ['CONCURRENCY_INTEGRITY_DEVIATION_DETECTED_DURING_ITEM'],
+      reasons: ['a competing process ran mid-item'],
+    });
+    expect(verdict).not.toHaveProperty('hostStateAnomaly');
+    // The item's observation carries no host anomaly, so the frozen gate stays clean...
+    const gate = cleanGate([observation('G2R:75:0', 20)]);
+    expect(gate.decision).toBe('CONTINUE_TO_NEXT_WORK_ITEM');
+    expect(gate.triggeredConditions.map((t) => t.condition)).not.toContain('P8');
+    // ...and the outer stop still halts the window regardless, for owner review.
+    const after = decideAfterItem({ gate, concurrency: verdict });
+    expect(after).toMatchObject({ mayStartNextWorkItem: false, requiresOwnerReview: true });
+    expect(after.gate).toBe(gate);
+  });
+
+  it('(4) a process-monitor gap is insufficient coverage, NOT P8 by itself', () => {
+    const verdict = evaluateInItemMonitoring({
+      ...item,
+      samples: during.filter((_, k) => k !== 6),
+    });
+    expect(verdict).toEqual({
+      integritySatisfied: false,
+      deviationDetected: false,
+      monitorCoverageSufficient: false,
+      operationalStop: true,
+      classifications: ['CONCURRENCY_MONITOR_COVERAGE_INSUFFICIENT'],
+      reasons: ['a process-monitor gap above 5 seconds'],
+    });
+    expect(verdict).not.toHaveProperty('hostStateAnomaly');
+    const after = decideAfterItem({
+      gate: cleanGate([observation('G2R:75:0', 20)]),
+      concurrency: verdict,
+    });
+    expect(after.gate.decision).toBe('CONTINUE_TO_NEXT_WORK_ITEM');
+    expect(after.mayStartNextWorkItem).toBe(false);
+    // clean monitoring is integrity-satisfied and does not stop anything
+    const clean = evaluateInItemMonitoring({ ...item, samples: during });
+    expect(clean).toMatchObject({ integritySatisfied: true, operationalStop: false });
+    expect(clean.classifications).toEqual([]);
+    expect(
+      decideAfterItem({ gate: cleanGate([observation('G2R:75:0', 20)]), concurrency: clean })
+        .mayStartNextWorkItem,
+    ).toBe(true);
+  });
+
+  it('(5) an explicit host-state anomaly still fires the frozen P8, with or without clean monitoring', () => {
+    const gate = cleanGate([observation('G2R:75:0', 20, { hostStateAnomaly: true })]);
+    expect(gate.decision).toBe('PAUSE_P8_HOST_STATE_ANOMALY');
+    const after = decideAfterItem({
+      gate,
+      concurrency: evaluateInItemMonitoring({ ...item, samples: during }),
+    });
+    expect(after.gate.decision).toBe('PAUSE_P8_HOST_STATE_ANOMALY');
+    expect(after).toMatchObject({ mayStartNextWorkItem: false, requiresOwnerReview: false });
+  });
+
+  it('(6) a concurrent process during full validation is VALIDATION_EXECUTION_EXCLUSIVITY_NOT_PROVED, not P8', () => {
+    const run = { validationStartEpochSeconds: 2000, validationEndEpochSeconds: 2060 };
+    for (const samples of [
+      during.map((s, k) => (k === 8 ? { ...s, competingProcessCount: 2 } : s)),
+      during.filter((_, k) => k !== 4),
+    ]) {
+      const verdict = evaluateFullValidationMonitoring({ ...run, samples });
+      expect(verdict.classifications).toEqual(['VALIDATION_EXECUTION_EXCLUSIVITY_NOT_PROVED']);
+      expect(verdict.operationalStop).toBe(true);
+      expect(verdict).not.toHaveProperty('hostStateAnomaly');
+      expect(JSON.stringify(verdict)).not.toMatch(/P8/);
+    }
+    expect(evaluateFullValidationMonitoring({ ...run, samples: during }).integritySatisfied).toBe(
+      true,
+    );
+    expect(LIVE_CRITICAL_SECTION_POLICY.automaticValidationRerunAuthorised).toBe(false);
+  });
+});
+
+describe('(12) the genesis header flag is never read as current assignment state', () => {
+  it('a valid non-empty operational ledger keeps header reserveAssigned:false and derives state from entries', () => {
+    expect(GENESIS.reserveAssigned).toBe(false);
+    expect(PROSPECTIVE.reserveAssigned).toBe(false);
+    expect(PROSPECTIVE.entries).toHaveLength(2);
+    const reparsed = parseOperationalGeneration2Ledger(JSON.parse(PROSPECTIVE_TEXT), GENESIS);
+    expect(reparsed.reserveAssigned).toBe(false);
+    const state = deriveGeneration2CurrentState(BASIS, reparsed);
+    expect(state).toMatchObject({
+      generation2ReserveConsumed: 2,
+      nextGeneration2ReservePosition: 2,
+      ledgerEntryCount: 2,
+      q1: [],
+      replacementAssignedAwaitingExecution: [75, 76],
+    });
+    for (const [slot, position] of [
+      [75, 0],
+      [76, 1],
+    ] as const) {
+      expect(resolveCrossGenerationOccupant(BASIS, reparsed, slot)).toMatchObject({
+        kind: 'GENERATION2_RESERVE_REPLACEMENT',
+        generation2ReserveRankPosition: position,
+      });
+    }
+    // The genesis, with the same header flag, is the zero-assignment state.
+    expect(deriveGeneration2CurrentState(BASIS, GENESIS)).toMatchObject({
+      generation2ReserveConsumed: 0,
+      q1: [75, 76],
+    });
+    // No module in the namespace branches on the header flag.
+    for (const file of ['state.ts', 'preflight.ts', 'gateAdapter.ts', 'windowSpec.ts']) {
+      expect(read(`src/test/harness/phase2b2d/generation2Acquisition/${file}`), file).not.toMatch(
+        /\.reserveAssigned/,
+      );
+    }
   });
 });
 
 describe('the readiness record', () => {
-  it('re-materialises byte-for-byte from committed inputs', async () => {
-    expect(sha256(await renderReadiness(REPO))).toBe(sha256(read(READINESS_PATH)));
+  it('V1 is pinned, and re-materialises identically except the one superseded gates.p8 field', async () => {
+    const committed = read(READINESS_PATH);
+    expect(sha256(committed)).toBe(READINESS_V1_SHA256);
+    const v1 = JSON.parse(committed) as { gates: Record<string, unknown> };
+    const rebuilt = JSON.parse(await renderReadiness(REPO)) as { gates: Record<string, unknown> };
+    expect(v1.gates.p8).toMatchObject({ competingValidateOrVitestMidItemIsP8: true });
+    expect(rebuilt.gates.p8).toEqual(FROZEN_P8_DEFINITION);
+    expect(rebuilt.gates.operationalConcurrencyIntegrity).toEqual(LIVE_CRITICAL_SECTION_POLICY);
+    const { p8: _v1P8, ...v1Gates } = v1.gates;
+    const { p8: _p8, operationalConcurrencyIntegrity: _oci, ...rebuiltGates } = rebuilt.gates;
+    expect({ ...rebuilt, gates: rebuiltGates }).toEqual({ ...v1, gates: v1Gates });
   });
 
   it('authorises nothing and exposes no institution identity', () => {

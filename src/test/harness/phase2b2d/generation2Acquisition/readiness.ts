@@ -10,6 +10,15 @@
  * The record carries aggregates, positions and digests only - no echeRowKey,
  * organisation id, root-authority id, hostname or URL. It authorises nothing,
  * and the prospective append it describes exists in memory only.
+ *
+ * CONCURRENCY CORRECTION. The committed V1 record (READINESS_PATH) is
+ * append-only history and carries the superseded `gates.p8` concurrency
+ * classification. This builder now emits the FROZEN P8 definition under
+ * `gates.p8` and the concurrency policy under its own
+ * `gates.operationalConcurrencyIntegrity`; every other field is unchanged, so
+ * its output differs from V1 at exactly that one place, and the materialiser
+ * refuses to overwrite V1. The correction record binds V1 plus that narrow
+ * difference.
  */
 
 import { createHash } from 'node:crypto';
@@ -26,6 +35,7 @@ import {
   EXPECTED_FIRST_WINDOW,
   FIRST_WINDOW_PLANNED_SIZE,
   FREEZE_TIP_COMMIT,
+  FROZEN_P8_DEFINITION,
   GENERATION2_ID,
   LIVE_CRITICAL_SECTION_POLICY,
   OPERATIONAL_BRANCH,
@@ -331,7 +341,8 @@ export function buildFirstWindowReadiness(committed: CommittedTexts): FirstWindo
             'the window cannot start until its Q1 append is persisted, committed and pushed before any institution network',
         },
       },
-      p8: LIVE_CRITICAL_SECTION_POLICY,
+      p8: FROZEN_P8_DEFINITION,
+      operationalConcurrencyIntegrity: LIVE_CRITICAL_SECTION_POLICY,
     },
     negativeProbes: {
       provedBy: 'src/test/unit/orgunitCorpus2DA2Generation2FirstWindowReadiness.test.ts',
