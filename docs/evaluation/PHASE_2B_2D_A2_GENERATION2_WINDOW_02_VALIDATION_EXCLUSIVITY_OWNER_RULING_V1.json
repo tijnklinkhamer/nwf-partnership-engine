@@ -1,0 +1,145 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_02_VALIDATION_EXCLUSIVITY_OWNER_RULING_V1",
+  "recordKind": "GENERATION2_WINDOW_OWNER_RULING",
+  "recordedAtUtc": "2026-09-28T21:58:10Z",
+  "recordedAtUtcSource": "date -u, read from the shell before any re-proof step",
+  "task": "A2_GENERATION2_WINDOW_02_VALIDATION_EXCLUSIVITY_REPROOF_AND_ADJUDICATION_CLOSURE",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "canonicalStart": "6258c04153fd61eb531b9000a7d0af4279a84d2e",
+  "publicSafe": true,
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "bound": {
+    "window02Authority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_AUTHORITY_V1.json",
+      "sha256": "e2cb65b5a7d3b35391718e255fef4db926bcfe88020f392ac93f79981392bba2",
+      "bytes": 22304,
+      "commit": "da659b586c05870f08f5af56d8816365a5203fa0",
+      "consumed": "5 of 5 invocations"
+    },
+    "window02LiveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_RESULT_V1.json",
+      "sha256": "68852cbca3de127bb0a5442863cc99d2c3b72a5a69700c5fc5ac619fbc29b4ae",
+      "bytes": 20909,
+      "commit": "d074c0647136b45ee094b2d46a98ee2110db5102"
+    },
+    "window02StopAudit": {
+      "path": "docs/audits/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_ACQUISITION_AND_ADJUDICATION_V1.md",
+      "sha256": "a41544f45acb5290c420f6193a291cba07be9040c501fe706347fa4c25e216b7",
+      "bytes": 6609,
+      "commit": "6258c04153fd61eb531b9000a7d0af4279a84d2e"
+    },
+    "generation2Ledger": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "fileSha256": "68762e9df208dfbff296ab5ec953b76fe931f030bd82cf17632165dbae80f26c",
+      "bytes": 6374,
+      "ledgerHash": "11c931e8172cc81a7516ad57a1a8f12e733b2f72ccfc7fc8809cb1ee7c174a21",
+      "entryCount": 3,
+      "nextGeneration2ReservePosition": 3,
+      "lastAppendCommit": "0ad42da8751ea5d18b88860dd3f764d4c655dce5"
+    },
+    "window01History": {
+      "authority": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_AUTHORITY_V1.json",
+        "sha256": "e4874f7e84a184bd473b75f15dba0fd90700d4bb33ec0093593de90f4dea38ba",
+        "commit": "219f6d4a1cb869e9253a9701d48543a88f80f0ab"
+      },
+      "liveResult": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_RESULT_V1.json",
+        "sha256": "7162938e6f8ba5f7808075f58021b540244b2b5a0b05d61db0812cfd4d8102d0",
+        "commit": "41bbedad759c26f1cb1e110bfdd07e1599809178"
+      },
+      "adjudication": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_EVIDENCE_ADJUDICATION_V1.json",
+        "sha256": "89e4f166e56292374d3cf1aa2fe8037225770d48193ae619a32a1d4c7f1df5df",
+        "commit": "b281bf3b1dfc25c4540c6b17c1e8b97db468a77d"
+      }
+    }
+  },
+  "originalValidation": {
+    "preservedAsHistoricalEvidence": true,
+    "neverOverwrittenNeverReclassified": true,
+    "command": "caffeinate -dimsu npm run validate",
+    "headValidated": "d074c0647136b45ee094b2d46a98ee2110db5102",
+    "startEpochSeconds": 1790631176,
+    "endEpochSeconds": 1790631456,
+    "startUtc": "2026-09-28T21:32:56Z",
+    "endUtc": "2026-09-28T21:37:36Z",
+    "exitCode": 0,
+    "tests": "209 files passed, 5 skipped; 5267 tests passed, 75 skipped",
+    "monitorPolls": 133,
+    "monitorCoverageSufficient": true,
+    "competingShapedDetections": 3,
+    "detections": "three short-lived node processes started with --require <this worktree>/node_modules/vitest/suppress-warnings.cjs, at +260 s, +273 s and +277 s, not reached from the governed PID by monitor v3's per-hop parent walk; they exited before any ancestry capture",
+    "formalVerdict": "VALIDATION_EXECUTION_EXCLUSIVITY_NOT_PROVED",
+    "localEvidence": {
+      "note": "gitignored operator files, hashed here so the preserved first result is pinned; not governance authority",
+      "monitorLog": {
+        "path": "data/g2w02/monitor.log",
+        "sha256": "29391ce884d0bf5381f224e72278baa1a7a1b07370a1a691e158ec3784263a4c",
+        "bytes": 14746
+      },
+      "validateLog": {
+        "path": "data/g2w02/postval.log",
+        "sha256": "d9d0c459c25b2d2ef15860e880767236d96d778050a893390ca2e397415885da",
+        "bytes": 31359
+      }
+    }
+  },
+  "ownerDecisions": [
+    {
+      "decision": "ACCEPT_WINDOW_02_P5_AS_VALID_POST_FINAL_ITEM_PAUSE_NO_EVIDENCE_INVALIDATION_V1",
+      "p5Decision": "PAUSE_P5_LOW_RAW_YIELD",
+      "p5Arm": "raw pages < 4 on 2 of 5 planned items",
+      "p5FiredAfter": "G2P:83",
+      "p5Record": "VALID_FROZEN_GATE_PAUSE_REVIEWED_BY_OWNER_AFTER_WINDOW_COMPLETION",
+      "p5Preserved": true,
+      "p5WeakenedOrReinterpreted": false,
+      "rulings": [
+        "P5 fired only after the fifth and final authorised item; no later Window-02 item existed for it to prevent",
+        "it does not retrospectively invalidate items 1-5 or their persisted evidence",
+        "it requires no retry",
+        "it does not prevent adjudication once validation integrity is resolved",
+        "any acquisition after Window 02 still requires a separate owner decision"
+      ]
+    },
+    {
+      "decision": "APPROVE_EXACTLY_ONE_WINDOW_02_VALIDATION_EXCLUSIVITY_REPROOF_V1",
+      "notAnAutomaticRerun": "the live authority forbade an AUTOMATIC rerun; this is a new explicit owner decision after review of the preserved first result",
+      "fullValidationRunsAuthorised": 1,
+      "thirdValidationAuthorised": false,
+      "concurrencyPolicyUnchanged": "GENERATION2_LIVE_CRITICAL_SECTION_POLICY_V2; a genuinely separate validate / vitest / A3 execution process during full validation still means VALIDATION_EXECUTION_EXCLUSIVITY_NOT_PROVED; no process is whitelisted by command text",
+      "defectAddressed": "evidence capture around ancestry, not the classification policy",
+      "requirements": [
+        "A3_EXECUTION_AGENTS_QUIESCED_FOR_WINDOW_02_VALIDATION_REPROOF established anew, explicitly, before the quiet period",
+        "an ancestry sampler active BEFORE launch through process exit, capturing PID, PPID, start time, PGID, SID, cwd, argv and observation time at every poll",
+        ">= 120 consecutive clean seconds at a process-monitor interval <= 5 s before launch",
+        "continuous monitoring with no gap above 5 s through the whole validation",
+        "a candidate is excluded ONLY when captured process-graph evidence positively connects it to the governed validation root; PGID, SID, cwd, command and timing support but never alone prove ancestry",
+        "candidate classifications: GOVERNED_VALIDATION_DESCENDANT_PROVED | EXTERNAL_COMPETING_PROCESS | ANCESTRY_NOT_PROVED; only the first is excluded from the competing count"
+      ],
+      "successTerminal": "WINDOW_02_VALIDATION_EXCLUSIVITY_REPROVED_CLEAN",
+      "failureTerminal": "WINDOW_02_VALIDATION_EXCLUSIVITY_REPROOF_FAILED_STOPPED_BEFORE_ADJUDICATION"
+    },
+    {
+      "decision": "APPROVE_WINDOW_02_ADJUDICATION_AFTER_CLEAN_EXCLUSIVE_REPROOF_V1",
+      "conditional": true,
+      "condition": "the single re-proof exits 0 with sufficient monitor coverage, zero external competing processes and zero ancestry-unproved candidates, and no A3 execution occurred",
+      "scope": "adjudicate the five Window-02 items under frozen Methodology V3 and replay the explicit ordered history Window 01 then Window 02; no directory scan, glob or latest lookup"
+    }
+  ],
+  "thisFileAuthorises": [
+    "exactly one full validation re-proof (caffeinate -dimsu npm run validate)",
+    "Window-02 adjudication only if that re-proof is clean, exclusive and exit 0"
+  ],
+  "thisFileDoesNotAuthorise": [
+    "institution network access",
+    "acquisition of any item, including a rerun of any Window-02 item",
+    "ledger mutation",
+    "reserve assignment (reserve 3 stays unassigned)",
+    "Window 03 or any P84 acquisition",
+    "a second re-proof or any third validation"
+  ],
+  "immutability": "append-only. This record is never edited; the re-proof and the adjudication are separate records"
+}
