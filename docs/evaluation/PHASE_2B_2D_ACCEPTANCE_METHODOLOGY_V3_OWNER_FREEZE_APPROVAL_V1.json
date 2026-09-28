@@ -1,0 +1,221 @@
+{
+  "recordId": "phase2b-2d-acceptance-methodology-v3-owner-freeze-approval-v1",
+  "recordKind": "OWNER_FREEZE_APPROVAL",
+  "records": "PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_OWNER_FREEZE_APPROVAL_V1",
+  "approves": "PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_PROPOSAL_R1_EXACT_BYTES",
+  "task": "A2_FREEZE_METHODOLOGY_V3_R1_AND_GENERATION2_CONTINUATION_BASELINE",
+  "recordedAtUtc": "2026-09-28T09:38:57Z",
+  "recordedAtUtcSource": "date -u, read from the shell when the freeze was materialised",
+  "recordedBy": "claude-code-session under explicit owner instruction; the approval itself is the owner’s",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "approvedProposalTip": "80c389c00b52a4e87179362e91a276e94cf8300a",
+  "ownerDecisions": [
+    "APPROVE_FREEZE_METHODOLOGY_V3_R1_AND_GENERATION2_CONTINUATION_V1",
+    "APPROVE_GENERATION2_SAME_SELECTION_COHORT_WITH_FULL_UNDRAWN_FRAME_SUFFIX_RESERVE_V1",
+    "APPROVE_SD1_CLAUSE_D_GENERATION2_CONTINUATION_READING_V1",
+    "APPROVE_GENERATION2_DEDICATED_CORPUS_NAMESPACE_V1",
+    "KEEP_P6_UNCHANGED_AND_INERT_UNDER_INHERITED_SUCCESS_STATE_V1",
+    "APPROVE_ALL_75_GENERATION1_SUCCESSFUL_OCCUPANTS_FOR_GENERATION2_CARRY_FORWARD_V1",
+    "NO_GENERATION2_LIVE_ACQUISITION_AUTHORITY_IN_THIS_FREEZE_TASK_V1"
+  ],
+  "ownerDecisionSource": "the owner's instruction for task A2_FREEZE_METHODOLOGY_V3_R1_AND_GENERATION2_CONTINUATION_BASELINE, recorded here by decision token",
+  "methodologyFrozen": true,
+  "approvalIsMethodologyAndGeneration2StructureFreezeOnly": true,
+  "freezeApprovalIsNotAcquisitionAuthority": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "networkUsed": false,
+  "databaseRead": false,
+  "reserveAssigned": false,
+  "acquisitionRunCreated": false,
+  "approvedProposal": {
+    "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_PROPOSAL_R1.json",
+    "sha256": "4bfbfb5f2ec1958b77ecc13ac5a37ba8b21c7ee69a2c07cd6cd9b8fb76a6239d",
+    "bytes": 16594,
+    "commit": "2eb5ff94fc169909e12b0ce33e90957f9aae924e",
+    "statusInsideTheBytes": "PROPOSED",
+    "amendmentsApproved": ["V3-A1", "V3-A2", "V3-A3", "V3-A4", "V3-A5", "V3-A6", "V3-A7"],
+    "bytesNeverChangeOnApproval": "the approved proposal is not edited, reformatted, re-hashed or re-statused by this record. Its status field remains PROPOSED by design; approval lives HERE, exactly as the Methodology V2 freeze separated approval bytes from proposal bytes"
+  },
+  "approvedScheduleProposal": {
+    "path": "docs/evaluation/PHASE_2B_2D_METHOD_V3_GEN2_RESERVE_SCHEDULE_PROPOSAL_V1.json",
+    "sha256": "647507db46aa57983403f16f5841ba3fc139c255028b91106f39be9274311011",
+    "bytes": 2737703,
+    "commit": "2eb5ff94fc169909e12b0ce33e90957f9aae924e",
+    "scheduleHash": "024fe88f5dcd0b781ba87e114f4acd6e8f587f0a49525c7660fde465b7264367",
+    "statusInsideTheBytes": "PROPOSAL",
+    "entries": 5670,
+    "frozenAs": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_GEN2_RESERVE_SCHEDULE_V1.json",
+    "proposalBytesUnchanged": true
+  },
+  "approvedCarryForwardFeasibility": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_CARRY_FORWARD_FEASIBILITY_V1.json",
+    "sha256": "7467435b816c2b97c34af7e8da23bcd1575956477fe3cc6fa59a30600a43c38d",
+    "bytes": 143780,
+    "commit": "2eb5ff94fc169909e12b0ce33e90957f9aae924e",
+    "verdict": "CARRY_FORWARD_FEASIBLE_ALL_75_SUCCESSFUL_OCCUPANTS",
+    "checked": 75,
+    "accepted": 75,
+    "refused": 0,
+    "noInstitutionAcquisitionToReconfirm": true
+  },
+  "effectiveMethodology": {
+    "composition": [
+      {
+        "layer": "Methodology V2 R3",
+        "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+        "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+        "ownerFreezeApproval": {
+          "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+          "sha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+          "commit": "5988bebd0aacc21404a72de464e0c3ef033e3ee0"
+        }
+      },
+      {
+        "layer": "Methodology V3 Proposal R1 amendments",
+        "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_PROPOSAL_R1.json",
+        "sha256": "4bfbfb5f2ec1958b77ecc13ac5a37ba8b21c7ee69a2c07cd6cd9b8fb76a6239d",
+        "amendments": ["V3-A1", "V3-A2", "V3-A3", "V3-A4", "V3-A5", "V3-A6", "V3-A7"]
+      },
+      {
+        "layer": "this owner freeze approval: resolutions of the proposal’s open decisions",
+        "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_OWNER_FREEZE_APPROVAL_V1.json"
+      }
+    ],
+    "rule": "additive and commit-addressed. V2 R3 is not rewritten; V3 Proposal R1 is not rewritten; an amendment changes only its named clause",
+    "acquisitionPlan": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e"
+    }
+  },
+  "resolutionsOfOpenOwnerDecisions": [
+    {
+      "question": "APPROVE / FREEZE Methodology V3 R1 and the Generation-2 continuation design (or request changes)",
+      "resolution": "APPROVE_FREEZE_METHODOLOGY_V3_R1_AND_GENERATION2_CONTINUATION_V1: approved and frozen without changes"
+    },
+    {
+      "question": "accept the V3-A5 continuity reading of SD1 clause D",
+      "resolution": "APPROVE_SD1_CLAUSE_D_GENERATION2_CONTINUATION_READING_V1: accepted (see sd1ClauseD)"
+    },
+    {
+      "question": "at freeze: where frozen Generation-2 artifacts live (outside docs/evaluation/corpus/, or scope the A1 clause-D scanner to earlier generations) - see V3-A3 corpusDirectoryCollision",
+      "resolution": "APPROVE_GENERATION2_DEDICATED_CORPUS_NAMESPACE_V1: frozen Generation-2 corpus-state artifacts live under docs/evaluation/generation2/corpus/; the A1 clause-D scanner is NOT modified (see generation2CorpusNamespace)"
+    },
+    {
+      "question": "note P6 being inert in Generation 2 (unchanged, not retuned)",
+      "resolution": "KEEP_P6_UNCHANGED_AND_INERT_UNDER_INHERITED_SUCCESS_STATE_V1: P6 kept exactly as written and accepted as inert (see p6)"
+    },
+    {
+      "question": "after a freeze: whether to issue the first bounded Generation-2 acquisition authority (not requested here)",
+      "resolution": "NO_GENERATION2_LIVE_ACQUISITION_AUTHORITY_IN_THIS_FREEZE_TASK_V1: not granted here; it is the next, separate owner question"
+    }
+  ],
+  "generation": {
+    "generationId": "METHODOLOGY_V3_GEN2",
+    "architecture": "GENERATION2_SAME_SELECTION_COHORT_WITH_FRESH_UNDRAWN_FRAME_RESERVE_NAMESPACE_V1",
+    "generation1": {
+      "generationId": "METHODOLOGY_V2_GEN1",
+      "status": "CORPUS_FREEZE_REFUSED",
+      "terminalCommit": "7c3d24f8db72bf5401c4bfc176700c1d50e25cc0",
+      "permanent": true,
+      "generation2DoesNotSupersedeItsTruth": true
+    }
+  },
+  "selectionCohort": {
+    "rule": "exactly the 110 Generation-1 selection slots (source frame ranks 0..109), preserved entry for entry: selectionIndex, echeRowKey, organisationId, draw-entry digest and split",
+    "splits": {
+      "DEV_TRAIN": 20,
+      "DEV_CONFIRM": 45,
+      "FINAL_HOLDOUT": 45
+    },
+    "noNewPrimaryDraw": true,
+    "noRandomSeed": true
+  },
+  "reserveSource": {
+    "rule": "every previously-undrawn frame rank, 150..5819 inclusive, in the frozen rank order",
+    "count": 5670,
+    "noAlternativeCount": true,
+    "noSubset": true,
+    "generation1ReservesRemainGeneration1History": "source ranks 110..149 are Generation-1 reserves forever, including the never-assigned Generation-1 reserve 39; none is moved into Generation 2 and frame rank 149 is not Generation-2 reserve 0"
+  },
+  "sd1ClauseD": {
+    "decision": "APPROVE_SD1_CLAUSE_D_GENERATION2_CONTINUATION_READING_V1",
+    "reading": "Generation 2 is a CONTINUATION generation of the same pre-outcome 110-slot cohort. Generation 1 froze no accepted corpus, so its failed corpus-freeze attempt does not exclude the same 110 selection slots from continuation",
+    "notAClaimThat": "no Generation-1 acquisition occurred",
+    "scope": "authorises continuity of THIS already-selected cohort only. It may not be used by an unrelated future fresh generation to ignore prior-corpus contamination"
+  },
+  "generation2CorpusNamespace": {
+    "decision": "APPROVE_GENERATION2_DEDICATED_CORPUS_NAMESPACE_V1",
+    "directory": "docs/evaluation/generation2/corpus/",
+    "notUnder": "docs/evaluation/corpus/",
+    "why": "docs/evaluation/corpus/ is part of the legacy Generation-1/A1 artifact-discovery contract: its clause-D scanner reads every JSON there whose generationId differs from the one being built as a prior-generation frame",
+    "legacyScannerUnchanged": {
+      "path": "src/test/harness/phase2b2d/corpus/priorGenerationExclusion.ts",
+      "sha256": "828243ee9fb67e8f34c246883721de4bd45e63a800ed8a41c0aaaf27d7e71233",
+      "scans": "docs/evaluation/corpus/ (non-recursive)"
+    },
+    "isVersionIsolationNotAWorkaround": true,
+    "supersedesProposalLedgerFuturePath": "V3-A3 named docs/evaluation/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json as a future path and flagged its collision; this decision places the ledger in the dedicated namespace instead, under the same filename"
+  },
+  "carryForward": {
+    "decision": "APPROVE_ALL_75_GENERATION1_SUCCESSFUL_OCCUPANTS_FOR_GENERATION2_CARRY_FORWARD_V1",
+    "historicalAcquisitionsRetainTheirPolicyVersion": "the 75 carried successes keep their own historical acquisition policy (66 predate v7); fetchPolicyVersion is run provenance (PIN_HISTORICAL_FETCH_POLICY_VERSION). No re-acquisition for version uniformity",
+    "slot72": "carries its committed owner ruling WINDOW_09_CONCURRENCY_DEVIATION_REVIEWED_NO_EVIDENCE_INVALIDATION_NO_RETRY_V1; not reopened"
+  },
+  "p6": {
+    "decision": "KEEP_P6_UNCHANGED_AND_INERT_UNDER_INHERITED_SUCCESS_STATE_V1",
+    "rule": "reserveConsumed > 10 AND successfulOrganisationCount < 50",
+    "generation2GenesisSuccessfulOrganisationCount": 75,
+    "inert": "the second conjunct is false from genesis and cannot become true, because the success count never decreases. This inertness is known and accepted",
+    "doesNot": [
+      "reset its success counter to zero",
+      "reinterpret it as new Generation-2 successes",
+      "invent another threshold",
+      "replace it with a failure-rate gate"
+    ]
+  },
+  "pauseGates": {
+    "P1_P5_P7_P8": "carried forward exactly as Methodology V3 Proposal R1 specifies; no threshold changed",
+    "p7Generation2HashSurface": [
+      "frozen frame binding",
+      "original draw binding",
+      "immutable Generation-1 ledger",
+      "frozen Generation-2 reserve schedule",
+      "Generation-2 ledger"
+    ]
+  },
+  "futureNewAcquisition": {
+    "fetchPolicy": "orgunit-fetch-policy-v7",
+    "runReferenceConvention": "sha256(canonical lowercase run UUID)",
+    "sd9": "SD9_EXTRACTABLE_TEXT_REQUIRES_NONEMPTY_EXTRACTED_MAIN_TEXT_V1: main_text_chars > 0",
+    "minimumPagesAfterSd7": 4,
+    "sd7": "exact / near-duplicate logic unchanged",
+    "noNewExtractionCapability": true,
+    "noP70SpecificTuning": true
+  },
+  "a3Reuse": {
+    "governanceV4RemainsPinnedTo": "67ae047fb7de079bcba0eec83ca4f4baee77cc3e",
+    "existingA3EvidenceRemainsValidForUnchangedAuthorities": true,
+    "a3ModifiedHere": false
+  },
+  "optionBTemporalCorrection": {
+    "path": "docs/evaluation/PHASE_2B_2D_OPTION_B_V3_ABSENCE_TEMPORAL_TEST_CORRECTION_V1.json",
+    "sha256": "520f342e00bff8ad30a427f738683b85b8a4932071c8dc44a143807ce5d4de8d",
+    "record": "PHASE_2B_2D_OPTION_B_V3_ABSENCE_TEMPORAL_TEST_CORRECTION_V1",
+    "testPath": "src/test/unit/orgunitCorpus2DOptionBTransition.test.ts",
+    "testSha256": "e623b11e7e8555d2b0e03f32c8d985bf45fd0b677474343a69a8c142ac5508d6",
+    "rangeScopedTo": "b0f4efa01d7e861a701e3514afc690a99262f554",
+    "accepted": true,
+    "meaning": "historical: Option B itself created no Methodology V3. It does not forbid a later, separately authorised methodology from existing",
+    "modifiedByThisFreeze": false
+  },
+  "notCreatedByThisFreeze": [
+    "a strategy",
+    "a window plan",
+    "a pre-network assignment",
+    "a live acquisition authority",
+    "a Generation-2 reserve assignment",
+    "an acquisition run"
+  ],
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
