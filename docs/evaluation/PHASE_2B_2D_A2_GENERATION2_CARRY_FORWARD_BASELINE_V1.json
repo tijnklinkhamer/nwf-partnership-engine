@@ -1,0 +1,440 @@
+{
+  "recordId": "phase2b-2d-a2-generation2-carry-forward-baseline-v1",
+  "recordKind": "GENERATION2_CARRY_FORWARD_BASELINE",
+  "records": "PHASE_2B_2D_A2_GENERATION2_CARRY_FORWARD_BASELINE_V1",
+  "status": "FROZEN",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "fromGenerationId": "METHODOLOGY_V2_GEN1",
+  "recordedAtUtc": "2026-09-28T09:38:57Z",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "networkUsed": false,
+  "databaseRead": false,
+  "reserveAssigned": false,
+  "acquisitionRunCreated": false,
+  "ownerDecision": "APPROVE_ALL_75_GENERATION1_SUCCESSFUL_OCCUPANTS_FOR_GENERATION2_CARRY_FORWARD_V1",
+  "bound": {
+    "ownerFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "36e8071738e1842ad03a9b51cf5820d58015305191c48490ef515e1cd1c34f9c",
+      "bytes": 12318
+    },
+    "feasibilityAudit": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_CARRY_FORWARD_FEASIBILITY_V1.json",
+      "sha256": "7467435b816c2b97c34af7e8da23bcd1575956477fe3cc6fa59a30600a43c38d",
+      "bytes": 143780,
+      "verdict": "CARRY_FORWARD_FEASIBLE_ALL_75_SUCCESSFUL_OCCUPANTS"
+    },
+    "generation1TerminalRecord": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION1_CORPUS_FREEZE_REFUSAL_V1.json",
+      "sha256": "6e37f7970ef6d222c3e775da3e9d629efa2645374fbda39e53e570041c82a1b5",
+      "bytes": 9720,
+      "commit": "7c3d24f8db72bf5401c4bfc176700c1d50e25cc0",
+      "status": "CORPUS_FREEZE_REFUSED"
+    },
+    "generation1Ledger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "90febac7b3e7c6ecb84ff879f948cf8e52de9731590b1720993f80557f3a0c2d",
+      "bytes": 28735,
+      "ledgerHash": "a5a60d7e02faa831d38bab131a42e94f80203989989276393216fdc814623e18",
+      "entries": 39
+    },
+    "originalDraw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "sha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "bytes": 74047,
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    },
+    "runProvenanceClosure": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_CURRENT_TERMINAL_RUN_PROVENANCE_CLOSURE_V1.json",
+      "sha256": "9da26f676f7cf461843c7a007a76af253b6f8b1d2a47cb1e4ce3e4abde872540",
+      "bytes": 64352
+    },
+    "sd9Reconciliation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_SD9_EXTRACTABLE_TEXT_GENERATION1_RECONCILIATION_V1.json",
+      "sha256": "66bff9882d78c2369898b0b646d79dffdef4d623fd5a21a3948c8e1248a397a1",
+      "bytes": 29160
+    },
+    "sd9Interpretation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_SD9_EXTRACTABLE_TEXT_INTERPRETATION_V1.json",
+      "sha256": "2a8b043cd5f813547bebba2d1a2c798bb0bfc482787f586b8c932365c3c4bf5a",
+      "bytes": 10384
+    },
+    "window09ConcurrencyReview": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_09_P5_AND_CONCURRENCY_REVIEW_REMAINING_AUTHORITY_RESUME_V1.json",
+      "sha256": "b6a8b9f26eee1a13d87450c651bd5e46ebdcbeec090b8c1cf59aca8188bf6ad3",
+      "bytes": 16788
+    },
+    "slotGovernance": {
+      "rule": "every disposition authority, live result and acquisition-policy transition ledger any of the 110 slot records binds (including the Window 08, 09 and 11 adjudications behind the post-V4 successes and the two current failures), each re-verified here by SHA-256 against committed bytes",
+      "files": [
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_AUTOPILOT_CHILD_WINDOW_A_P41_P45_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "95161e6d4845ba94912fdb9feeb1de2bb2848e01273e19118949e236728f19a8",
+          "bytes": 49068
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_AUTOPILOT_CHILD_WINDOW_A_P41_P45_LIVE_RESULT_V1.json",
+          "sha256": "53730c93fce69194ac1ec4b7db94ed6bd9f8fef7386d6822ab4747f5d4e01067",
+          "bytes": 64840
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_BATCH_01_PER_SLOT_ACQUISITION_ATTRIBUTION_OWNER_ADJUDICATION_V1.json",
+          "sha256": "7b63c3ea6fa03f624891d971f7a1c0ae3030a724d57521abcb1a5812e58c3e47",
+          "bytes": 40391
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_FINAL_ORDINARY_WINDOW_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "4283edee2355a886b50f1a5aba88de5ec2e010884f36f5105b6c1c535874ce35",
+          "bytes": 21656
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_FINAL_ORDINARY_WINDOW_LIVE_RESULT_V1.json",
+          "sha256": "8fece71a6139e0d1905aff659e1071110e3cb62c8021081e9982277552797c1d",
+          "bytes": 19133
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_CHILD_WINDOW_C_RECOVERY_WINDOW_D1_P55_P59_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "b042a8798ec47037e694b5c2b0176e7ee8f2f044063e259a5a245365722f4b73",
+          "bytes": 57858
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_CHILD_WINDOW_C_RECOVERY_WINDOW_D1_P55_P59_LIVE_RESULT_V1.json",
+          "sha256": "fb9336dc200b8e8e69ac44dc6ed575828bcaf95e61582a2d03266a77e8bf9e54",
+          "bytes": 61954
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_MIXED_WINDOW_CHAIN_REPLACEMENT_AND_PRIMARY_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "d636f0361b9fad3b32a0aefbcd2de619108a1ccedfde19fb6d00c52fdc7211f6",
+          "bytes": 46704
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_MIXED_WINDOW_CHAIN_REPLACEMENT_AND_PRIMARY_LIVE_RESULT_V1.json",
+          "sha256": "3aad9d175467f4f1ff760906ff6b5cb85f2ae1f7cafb63750b19824441f6cbad",
+          "bytes": 43248
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P12_MIXED_WINDOW_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "92988ac55edafa1dd20f801f17f01405e9be6c26c4c78f4d4c4fde908d5009db",
+          "bytes": 36262
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P12_MIXED_WINDOW_LIVE_RESULT_V1.json",
+          "sha256": "d743096a53e2b55cbc3dd717eea4e50a768cf401db43eb86023c35e140b453f5",
+          "bytes": 40390
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P18_REPLACEMENT_AND_PRIMARY_CONTINUATION_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "1cd0634e2c7c68e0596d3275bbb5bbf94a4dd1ff01ddfa1fcdb4aff691c46108",
+          "bytes": 63980
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P18_REPLACEMENT_AND_PRIMARY_CONTINUATION_LIVE_RESULT_V1.json",
+          "sha256": "05f4766934914b78f78203fb06e6f2a16fc4b449934602ad8ab8603a7805be49",
+          "bytes": 46460
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "2a5f90fb0a998bec0eb9e94caef6ab7cf98522fb99411d0c48b076310e2d58ee",
+          "bytes": 72561
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P18_SECOND_REPLACEMENT_AND_PRIMARY_CONTINUATION_LIVE_RESULT_V1.json",
+          "sha256": "3df8d1a3c385083278bcd3740e95c445c82d77db7800d5462ba80ccc27c3baee",
+          "bytes": 55900
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "8d6e48d8a98028f36f961f53a9ab98980b59b1352910f64df1471a45a6e30577",
+          "bytes": 92216
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P24_REPLACEMENT_AND_PRIMARY_CONTINUATION_LIVE_RESULT_V1.json",
+          "sha256": "f0c1ca745e16eda85d8b9457ba5b1d1513658071f231feaa68d6ee88daecacb4",
+          "bytes": 52004
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "bf6219ac649241b8234c684ea97a3f3441a09c81216daeaabf4aa058c682aed8",
+          "bytes": 83865
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_LIVE_RESULT_V1.json",
+          "sha256": "349f44235bfb69b9def23d6c5d0b98def0d3fc409ed44ea97722962bc72b0e23",
+          "bytes": 76705
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_NEXT_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "f16b667d38c3b1afec09ede9a40320b9d8491b07a8ce039e565afb13344fc895",
+          "bytes": 51309
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P29_P30_REPLACEMENT_AND_PRIMARY_CONTINUATION_NEXT_LIVE_RESULT_V1.json",
+          "sha256": "be1ea66065e2ee6d68c381dc795bfaddd633475a20236f2da4d2e778eafd19c2",
+          "bytes": 49078
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P5_CONTINUATION_CHILD_WINDOW_B_P46_P50_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "47e3c1c119fc534e8caa5b45b7f2ea02f3dbbb5e2bbea3d9a27c6fcb2dfbd801",
+          "bytes": 46467
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P5_CONTINUATION_CHILD_WINDOW_B_P46_P50_LIVE_RESULT_V1.json",
+          "sha256": "bfa95a3ca67190259f48ac03540b8157fd771506a8bcdb666b26e6aa13e2c3a1",
+          "bytes": 61339
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P5_CONTINUATION_CHILD_WINDOW_C_P51_P55_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "936dd38c1ed16c6580d44d50d1d2a36d6760999c455c3d22937e42dc3b7c4520",
+          "bytes": 48349
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P5_CONTINUATION_CHILD_WINDOW_C_P51_P55_LIVE_RESULT_V1.json",
+          "sha256": "7f93c1c4da2b9c37562bbeed6fbf853af9fef774adf7939171822c499dd9a3ca",
+          "bytes": 60721
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "3fdb09dafa0a1d01543ae09884bb022c632af8b7e89431a4d7150896a4dbb403",
+          "bytes": 25358
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_01_LIVE_RESULT_V1.json",
+          "sha256": "3612e2bf373d55c3d52d1cb1216d8cd7430e836be8dc793e9a86b7ee7da45e1a",
+          "bytes": 29521
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "d42bcc8ddaec933246ae319aa49a15e872a209eff959ad6aa2d006d2f5248836",
+          "bytes": 25755
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_P6_Q1_WINDOW_02_LIVE_RESULT_V1.json",
+          "sha256": "c83c4dba0252fe42ca7e643d814075f26da22ece24da43be3623538f21ed9d9c",
+          "bytes": 34523
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_08_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "f93469742fbddf1598bc2f423c3ecd84c1e3cc768520181583a91a358a721a91",
+          "bytes": 15404
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_08_LIVE_RESULT_V1.json",
+          "sha256": "a62db60785d78a5ec1827e77588b1022215efebea1d65417dac1d4ad9ed03dad",
+          "bytes": 16612
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_09_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "9f2434a0eb59b17ded9ffcbe4c4545c9a04eb7a34aacf13261cf689099317443",
+          "bytes": 15764
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_09_LIVE_RESULT_V1.json",
+          "sha256": "7b5e7f16567e467c64572986d4c2d0601309f78cfd5630a2ab1b96c09f636654",
+          "bytes": 16815
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_11_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "46e9db6e0f74e65176d074a487c5cfc1dced4b95c1875edda303f140af288bce",
+          "bytes": 14961
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_11_LIVE_RESULT_V1.json",
+          "sha256": "53830d5d48a4d11e2369f89b8bad4b092a4a60e50219e5fc9e5352aa95438368",
+          "bytes": 14271
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_TARGETED_VANTAGE_RECOVERY_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "236b71f45b1127ff6569c0c7339ee5859e180913ac2fd2aedcbe8087f8326681",
+          "bytes": 29114
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_TARGETED_VANTAGE_RECOVERY_LIVE_RESULT_V1.json",
+          "sha256": "97c6e1bef26cc36be9ffa23c2fab6e7eef113a6caf41cfa30ddcdd04fb09296c",
+          "bytes": 22957
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_V4_REPLACEMENT_AND_INDEX9_LIVE_WINDOW_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "e535e792dba2b250fc734c8cce39f1375c7ed99f2d3a5e58c7f60fb828aa586c",
+          "bytes": 29385
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_V4_REPLACEMENT_AND_INDEX9_LIVE_WINDOW_RESULT_V1.json",
+          "sha256": "b8b2ad20905a3e36585aa157d819a3929f732a3fadd76f6143619214f8f5f4d8",
+          "bytes": 29878
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_03_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "6273166d91ac4ed07d937411b72de2a791cf60e9ab05fd6c7ac7e5e40b8e2fc8",
+          "bytes": 19534
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_03_LIVE_RESULT_V1.json",
+          "sha256": "b72e8557f3fc5090565624fba242028c3bdfe8205a2a1d1748c9aeacd85de391",
+          "bytes": 33629
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_04_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "58f9fe2b1ea57754bc20247875b9e44951808ccf622c3044bf113f2c1403f70a",
+          "bytes": 19977
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_04_LIVE_RESULT_V1.json",
+          "sha256": "fd07cbd949e0c7db87b1bbc76f3190d44fb0a93fd9218ed674f3e97c7effba64",
+          "bytes": 24916
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_04_WINDOW_05_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "0a04e88ecfb2a9d2c357563cf3b2c32908ddbf07ca26d56af25ec90ede7e765b",
+          "bytes": 22867
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_04_WINDOW_05_LIVE_RESULT_V1.json",
+          "sha256": "51981b7c1af454a96f6160fc7df6734df035c9833922f88c79a191e8a8d0f0a3",
+          "bytes": 23936
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_05_WINDOW_06_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "463cf5e76b56029998a53a07256829e305e734554536bd767cd6deaf82ba89aa",
+          "bytes": 21444
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_05_WINDOW_06_LIVE_RESULT_V1.json",
+          "sha256": "9a496f5727b0054b93f4ca00a465e79eb92810848053e4df2a9056ad34049e3f",
+          "bytes": 25392
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_06_WINDOW_07_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "3b77909986fa8c7fd8f3c3d7829f6c4f7a46a55fa9d2aca02d452bd4cef728a5",
+          "bytes": 26682
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_06_WINDOW_07_LIVE_RESULT_V1.json",
+          "sha256": "13748f6151359cdac40523cbe116fbb747906340ad1dd87dea7e0d0e76916f9b",
+          "bytes": 19014
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_PRIMARY_10_14_LIVE_WINDOW_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "9503dec328acaae530dd2574b0a7f14c7b2ed67e3f5fa1fdbce0f41830c0e563",
+          "bytes": 18185
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_PRIMARY_10_14_LIVE_WINDOW_RESULT_V1.json",
+          "sha256": "c16ec72e84b938d338d3108291e4d9899c438d9123ab90a80a0674c8eb0e9576",
+          "bytes": 22408
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_A2_BATCH_01_EXECUTION_RECORD_V1.json",
+          "sha256": "8a1b0f57f1c568e2ac04aced7ba453ad8d7b666f557fd622b3a5e6378309f9cc",
+          "bytes": 23602
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_B_REVALIDATION_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "2f42765263b375e939881c0f408aab246ceee0ab1a59f70401adfb4ec2daca1c",
+          "bytes": 5467
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_B_TARGETED_REVALIDATION_RESULT_V1.json",
+          "sha256": "5f232cf5ba0746c65b9bbbc69d0310614cd1162e0aa61fc3e0cbec5960ef187a",
+          "bytes": 11365
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_C_LITE_REVALIDATION_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "3fcafa8ae20beb481e0b4446cc8b9681caad56915e231b71bb98567304cf96c0",
+          "bytes": 12865
+        },
+        {
+          "path": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_C_LITE_TARGETED_REVALIDATION_RESULT_V1.json",
+          "sha256": "dfee9e7770bdd1c385c112708d7b3cbb0efcaf0da43c5e7286b52fd24af2dae1",
+          "bytes": 16811
+        },
+        {
+          "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_ACQUISITION_POLICY_TRANSITION_LEDGER_V6_GEN1.json",
+          "sha256": "592b17062a601ac21f0525209e133220b90ebd97848790f9da66e22f9391461d",
+          "bytes": 19454
+        }
+      ]
+    },
+    "carryForwardRequirementHolders": [
+      "docs/evaluation/PHASE_2B_2D_A2_CURRENT_TERMINAL_RUN_PROVENANCE_CLOSURE_V1.json",
+      "docs/evaluation/PHASE_2B_2D_A2_SD9_EXTRACTABLE_TEXT_GENERATION1_RECONCILIATION_V1.json"
+    ],
+    "noDependencyOn": ["a live A3 worktree", "the current A3 HEAD", "the database", "the network"]
+  },
+  "recomputation": {
+    "method": "deriveGeneration2StartingState (src/test/harness/phase2b2d/generation2/carryForward.ts, unchanged) re-run over the committed feasibility slot records and committed governance bytes: every requirement R1..R10 recomputed, never read back from a boolean",
+    "successfulOccupantsChecked": 75,
+    "accepted": 75,
+    "refused": 0,
+    "requirementPassCountsOverSuccessfulSlots": {
+      "R1": 75,
+      "R2": 75,
+      "R3": 75,
+      "R4": 75,
+      "R5": 75,
+      "R6": 75,
+      "R7": 75,
+      "R8": 75,
+      "R9": 75,
+      "R10": 75
+    },
+    "everyNonSuccessAuditPassed": true
+  },
+  "startingState": {
+    "ACQUISITION_SUCCESSFUL": 75,
+    "CURRENT_ACQUISITION_FAILURE": [75, 76],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "NEVER_STARTED": {
+      "from": 77,
+      "to": 109,
+      "count": 33,
+      "contiguous": true
+    },
+    "CARRY_FORWARD_REFUSED": [],
+    "accounting": "75 + 2 + 0 + 33 = 110",
+    "bySplit": {
+      "ACQUISITION_SUCCESSFUL": {
+        "DEV_TRAIN": 14,
+        "DEV_CONFIRM": 31,
+        "FINAL_HOLDOUT": 30
+      },
+      "CURRENT_ACQUISITION_FAILURE": {
+        "DEV_TRAIN": 0,
+        "DEV_CONFIRM": 1,
+        "FINAL_HOLDOUT": 1
+      },
+      "NEVER_STARTED": {
+        "DEV_TRAIN": 6,
+        "DEV_CONFIRM": 13,
+        "FINAL_HOLDOUT": 14
+      }
+    },
+    "firstGeneration2Q1": [75, 76],
+    "q1ConsumesGeneration2ReservesAtFreeze": 0,
+    "nextGeneration2ReservePosition": 0,
+    "noMappingFromQ1ToReservePositionsIsWritten": "assigning slots 75/76 to Generation-2 positions belongs to a future acquisition-planning authority"
+  },
+  "historicalAcquisitionPolicy": {
+    "rule": "carried successes keep their own historical acquisition policy version (PIN_HISTORICAL_FETCH_POLICY_VERSION); v7 is required only for NEW acquisition",
+    "carriedSuccessesPredatingV7": 66,
+    "distribution": {
+      "orgunit-fetch-policy-v1": 2,
+      "orgunit-fetch-policy-v3": 2,
+      "orgunit-fetch-policy-v4": 6,
+      "orgunit-fetch-policy-v2": 1,
+      "orgunit-fetch-policy-v6": 55,
+      "orgunit-fetch-policy-v7": 9
+    },
+    "noReAcquisitionForVersionUniformity": true
+  },
+  "slot72": "carried with its committed owner ruling WINDOW_09_CONCURRENCY_DEVIATION_REVIEWED_NO_EVIDENCE_INVALIDATION_NO_RETRY_V1; not reopened in Generation 2",
+  "a3Reuse": {
+    "governanceV4RemainsPinnedTo": "67ae047fb7de079bcba0eec83ca4f4baee77cc3e",
+    "carriedDevTrainSuccesses": 14,
+    "devTrainAlreadyInGovernanceV4": 13,
+    "devTrainOutsideGovernanceV4": [66],
+    "note": "the DEV_TRAIN success decided after 67ae047 (Window 08) is a future A3 incremental authority. A3 is not modified here"
+  },
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}

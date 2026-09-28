@@ -1,0 +1,131 @@
+{
+  "recordId": "phase2b-2d-a2-generation2-frozen-baseline-v1",
+  "recordKind": "GENERATION2_FROZEN_BASELINE",
+  "records": "PHASE_2B_2D_A2_GENERATION2_FROZEN_BASELINE_V1",
+  "status": "FROZEN",
+  "recordedAtUtc": "2026-09-28T09:38:57Z",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "networkUsed": false,
+  "databaseRead": false,
+  "reserveAssigned": false,
+  "acquisitionRunCreated": false,
+  "terminalState": "METHODOLOGY_V3_GEN2_FROZEN_READY_FOR_BOUNDED_ACQUISITION_AUTHORITY_OWNER_DECISION",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "architecture": "GENERATION2_SAME_SELECTION_COHORT_WITH_FRESH_UNDRAWN_FRAME_RESERVE_NAMESPACE_V1",
+  "generation1": {
+    "generationId": "METHODOLOGY_V2_GEN1",
+    "status": "CORPUS_FREEZE_REFUSED",
+    "permanent": true
+  },
+  "bound": {
+    "methodologyV3OwnerFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "36e8071738e1842ad03a9b51cf5820d58015305191c48490ef515e1cd1c34f9c",
+      "bytes": 12318
+    },
+    "originalFrame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "sha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "bytes": 3554080,
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650",
+      "commit": "c64fad3474499d392d316e35c720310c76e9405b",
+      "eligible": 5820,
+      "reusedNotRematerialised": true
+    },
+    "originalDraw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "sha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "bytes": 74047,
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293",
+      "selection": 110,
+      "generation1Reserves": 40,
+      "neverDrawn": 5670,
+      "generation2SelectionAuthority": "the original selection portion ONLY"
+    },
+    "generation1Terminal": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION1_CORPUS_FREEZE_REFUSAL_V1.json",
+      "sha256": "6e37f7970ef6d222c3e775da3e9d629efa2645374fbda39e53e570041c82a1b5",
+      "bytes": 9720,
+      "commit": "7c3d24f8db72bf5401c4bfc176700c1d50e25cc0"
+    },
+    "generation1Ledger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "90febac7b3e7c6ecb84ff879f948cf8e52de9731590b1720993f80557f3a0c2d",
+      "bytes": 28735,
+      "ledgerHash": "a5a60d7e02faa831d38bab131a42e94f80203989989276393216fdc814623e18",
+      "entries": 39,
+      "reserve39Assigned": false,
+      "sequence39Exists": false
+    },
+    "frozenGeneration2ReserveSchedule": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_GEN2_RESERVE_SCHEDULE_V1.json",
+      "sha256": "ee5ce57f90dd59453f9354bc81c32d98f3390a5d42cd0317d91f4ec1d181e594",
+      "bytes": 2739585,
+      "frozenScheduleHash": "4ab6295f624b1312f2c4c2a1316a32b9bff46967e15588cd6f73579bd91b68c7",
+      "count": 5670,
+      "canonicalScheduleHash": "024fe88f5dcd0b781ba87e114f4acd6e8f587f0a49525c7660fde465b7264367"
+    },
+    "generation2GenesisLedger": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "sha256": "b16a6ba8ec879c6f06008849aa3a79d79fc24e6de054180bc0d1b27a18d74a01",
+      "bytes": 4529,
+      "ledgerHash": "4089b6b4490db972f278d738f3269a73845c1a8161b379c155d21f719867b4d9",
+      "entryCount": 0
+    },
+    "carryForwardBaseline": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_CARRY_FORWARD_BASELINE_V1.json",
+      "sha256": "739d40466f8fbc95085ea5467164a2672fa4f102677e22d4b89847eeaa6e205f",
+      "bytes": 20650
+    }
+  },
+  "selectionPreservation": {
+    "selectionCount": 110,
+    "splits": {
+      "DEV_TRAIN": 20,
+      "DEV_CONFIRM": 45,
+      "FINAL_HOLDOUT": 45
+    },
+    "selectionDigest": "3f12d6f63a22f43f6ba9a69209370babdf45a068ca56b429d33b9e7e7c8062d3",
+    "selectionDigestRule": "sha256(canonicalStringify([{selectionIndex, drawEntrySha256, split}] over selection 0..109)); drawEntrySha256 covers echeRowKey and organisationId"
+  },
+  "report": {
+    "generationId": "METHODOLOGY_V3_GEN2",
+    "selectionCount": 110,
+    "reserveScheduleCount": 5670,
+    "reserveScheduleSourceRanks": "150..5819",
+    "carriedSuccessful": 75,
+    "currentFailures": 2,
+    "pending": 0,
+    "neverStarted": 33,
+    "generation2ReserveConsumed": 0,
+    "generation2NextReserve": 0,
+    "firstQ1": [75, 76],
+    "firstQ1Count": 2,
+    "generation1UnusedReservePosition": 39
+  },
+  "p6": {
+    "decision": "KEEP_P6_UNCHANGED_AND_INERT_UNDER_INHERITED_SUCCESS_STATE_V1",
+    "firesAtGeneration2Genesis": false,
+    "firesEvenCountingAllGeneration1Replacements": false,
+    "canNeverFire": "successfulOrganisationCount starts at 75 >= 50 and never decreases, so the second conjunct is false for the whole generation"
+  },
+  "p7Generation2HashSurface": {
+    "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650",
+    "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293",
+    "generation1LedgerHash": "a5a60d7e02faa831d38bab131a42e94f80203989989276393216fdc814623e18",
+    "generation2ScheduleHash": "024fe88f5dcd0b781ba87e114f4acd6e8f587f0a49525c7660fde465b7264367",
+    "generation2FrozenScheduleHash": "4ab6295f624b1312f2c4c2a1316a32b9bff46967e15588cd6f73579bd91b68c7",
+    "generation2GenesisLedgerHash": "4089b6b4490db972f278d738f3269a73845c1a8161b379c155d21f719867b4d9"
+  },
+  "futureNewAcquisition": {
+    "fetchPolicy": "orgunit-fetch-policy-v7",
+    "runReferenceConvention": "sha256(canonical lowercase run UUID)",
+    "sd9": "SD9_EXTRACTABLE_TEXT_REQUIRES_NONEMPTY_EXTRACTED_MAIN_TEXT_V1: main_text_chars > 0",
+    "minimumPagesAfterSd7": 4
+  },
+  "thisRecordAuthorisesNoNetworkAction": true,
+  "nextOwnerQuestion": "whether to grant the FIRST bounded Generation-2 acquisition authority for inherited Q1 [75,76] plus subsequent never-started primaries. Not granted here",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}

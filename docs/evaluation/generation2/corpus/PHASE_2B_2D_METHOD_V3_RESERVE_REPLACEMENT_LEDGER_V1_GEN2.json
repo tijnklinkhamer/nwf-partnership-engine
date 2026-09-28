@@ -1,0 +1,79 @@
+{
+  "record": "PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2",
+  "recordKind": "RESERVE_REPLACEMENT_LEDGER_V1_GEN2_FROZEN",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "status": "FROZEN",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "networkUsed": false,
+  "databaseRead": false,
+  "reserveAssigned": false,
+  "acquisitionRunCreated": false,
+  "appendOnly": true,
+  "ownerFreezeApproval": {
+    "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_OWNER_FREEZE_APPROVAL_V1.json",
+    "sha256": "36e8071738e1842ad03a9b51cf5820d58015305191c48490ef515e1cd1c34f9c",
+    "bytes": 12318
+  },
+  "generation1StartingState": {
+    "generationId": "METHODOLOGY_V2_GEN1",
+    "terminalStatus": "CORPUS_FREEZE_REFUSED",
+    "terminalCommit": "7c3d24f8db72bf5401c4bfc176700c1d50e25cc0",
+    "terminalRecordPath": "docs/evaluation/PHASE_2B_2D_A2_GENERATION1_CORPUS_FREEZE_REFUSAL_V1.json",
+    "terminalRecordSha256": "6e37f7970ef6d222c3e775da3e9d629efa2645374fbda39e53e570041c82a1b5",
+    "ledgerPath": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+    "ledgerFileSha256": "90febac7b3e7c6ecb84ff879f948cf8e52de9731590b1720993f80557f3a0c2d",
+    "ledgerHash": "a5a60d7e02faa831d38bab131a42e94f80203989989276393216fdc814623e18",
+    "ledgerEntryCount": 39,
+    "drawPath": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+    "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293",
+    "currentOccupantDerivation": "landed Generation-1 currentOccupantForSelectionIndex over the frozen draw plus the committed 39-entry Generation-1 ledger, for every selection index 0..109"
+  },
+  "generation1HistoryIsNotFlattened": "the 39 Generation-1 transitions stay ONLY in the immutable Generation-1 ledger. This ledger never duplicates, rewrites or re-sequences them; current occupant = immutable Generation-1 terminal occupant + this ledger’s tail",
+  "selectionDraw": {
+    "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+    "sha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+    "bytes": 74047,
+    "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293",
+    "authority": "selection portion only (110 slots)"
+  },
+  "reserveSchedule": {
+    "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_GEN2_RESERVE_SCHEDULE_V1.json",
+    "scheduleHash": "024fe88f5dcd0b781ba87e114f4acd6e8f587f0a49525c7660fde465b7264367",
+    "fileSha256": "ee5ce57f90dd59453f9354bc81c32d98f3390a5d42cd0317d91f4ec1d181e594",
+    "frozenScheduleHash": "4ab6295f624b1312f2c4c2a1316a32b9bff46967e15588cd6f73579bd91b68c7"
+  },
+  "carryForwardBaseline": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_CARRY_FORWARD_BASELINE_V1.json",
+    "sha256": "739d40466f8fbc95085ea5467164a2672fa4f102677e22d4b89847eeaa6e205f",
+    "bytes": 20650
+  },
+  "currentOccupantDerivation": {
+    "version": "GENERATION2_CROSS_GENERATION_OCCUPANT_RESOLUTION_V1",
+    "resolver": "src/test/harness/phase2b2d/generation2/generation2Ledger.ts resolveGeneration2Occupant",
+    "chain": "original selection -> Generation-1 replacement chain -> Generation-1 terminal current occupant -> Generation-2 replacement chain"
+  },
+  "reserveCount": 5670,
+  "selectionCount": 110,
+  "reserveExhaustionRefusal": "CORPUS_FREEZE_REFUSED",
+  "replacementReasons": [
+    "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+    "ACQUISITION_UNSUCCESSFUL_ROOT_AUTHORITY_FAILURE",
+    "ACQUISITION_UNSUCCESSFUL_ROBOTS_DISALLOWED",
+    "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+  ],
+  "replacementReasonPrecedence": [
+    "ACQUISITION_UNSUCCESSFUL_ROOT_AUTHORITY_FAILURE",
+    "ACQUISITION_UNSUCCESSFUL_ROBOTS_DISALLOWED",
+    "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+    "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+  ],
+  "hashing": {
+    "entryHash": "sha256(canonicalStringify(entry without entryHash)), chained by previousEntryHash",
+    "ledgerHash": "sha256(canonicalStringify(this ledger without ledgerHash)): generation identity, the immutable Generation-1 starting-state bindings, the frozen schedule binding and the entries array. It is never the Generation-1 ledgerHash",
+    "derivedNotStored": "entryCount and the next Generation-2 reserve position are derived from entries (at genesis: 0 and 0); no mutable counter, status or current-occupant field is stored"
+  },
+  "entries": [],
+  "ledgerHash": "4089b6b4490db972f278d738f3269a73845c1a8161b379c155d21f719867b4d9"
+}
