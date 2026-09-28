@@ -1,0 +1,259 @@
+{
+  "record": "PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_11_LIVE_AUTHORITY_V1",
+  "recordKind": "LIVE_WINDOW_AUTHORITY",
+  "createdBeforeAnyInstitutionNetworkActivity": true,
+  "recordedAtUtc": "2026-09-28T07:32:11Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "14cfedffd80366dd109887f79376d7a1c7d7389d",
+  "publicSafe": true,
+  "thisFileAuthorises": [
+    "the exact five precommitted work items of PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_11_PLAN_V1, sequentially, one CLI --execute invocation each, under orgunit-fetch-policy-v7",
+    "the pre-network append of replacement-ledger sequences 37 and 38 exactly as the plan derives them"
+  ],
+  "isLiveAuthority": true,
+  "isTheFinalWindowOfTheStandingAuthority": true,
+  "ownerDecision": "CONTINUE_ALL_CURRENT_Q1_REPLACEMENT_CHAINS_UNDER_FROZEN_SD2_Q2",
+  "standingAuthority": {
+    "commit": "ecbc4e0b79b91b6c9567beff51a357bb82c0e336",
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_SD9_RECONCILIATION_RESERVE_SCARCITY_AND_ACQUISITION_RESUME_V1.json",
+    "sha256": "b8258ac7a0e82950b89b95e450f9a8e9128c151c16e96570fd31b2072bce38cf",
+    "bytes": 17391,
+    "originalWindows": 4,
+    "originalAttempts": 20,
+    "windowsBefore": 1,
+    "attemptsBefore": 5,
+    "thisWindowChargesWindows": 1,
+    "thisWindowChargesAttempts": 5,
+    "windowsAfter": 0,
+    "attemptsAfter": 0,
+    "releasedBy": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_10_CONCURRENCY_REVIEW_AND_REPLACEMENT_VALIDATION_V1.json",
+      "commit": "9f9e985392a8372ff795247a6d3d4ae8b7d41e11",
+      "ownerDecision": "P5_REVIEWED_WINDOW_10_HETEROGENEOUS_TARGET_FAILURES_NO_COMMON_SYSTEMIC_DEFECT_FINAL_WINDOW_MAY_RESUME_V1"
+    },
+    "window10Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_10_EVIDENCE_ADJUDICATION_V1.json",
+      "commit": "c02e4f456b95a627edbb51b5d299a952918b778e"
+    },
+    "noFifthWindow": true,
+    "noNewAuthorityCreated": true,
+    "capRefilled": false,
+    "capExtended": false
+  },
+  "windowOrdinal": 11,
+  "plannedWindowSize": 5,
+  "concurrency": 1,
+  "maximumLiveInvocationsPerWorkItem": 1,
+  "maximumWorkItems": 5,
+  "plannedLedgerAppends": 2,
+  "noSixthItem": true,
+  "noDynamicInsertion": true,
+  "noDynamicReserve": true,
+  "boundPlan": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_11_PLAN_V1.json",
+    "sha256": "5ec886a185cc38ed0f2c0653dbb15dcf6c8968ba98e3e7834e7637201b291791",
+    "bytes": 6611,
+    "commit": "14cfedffd80366dd109887f79376d7a1c7d7389d",
+    "windowPlanHash": "48881ce4f106af2e80742aef09f7f092793c72eaa95abf6def65f763ae2c2b63",
+    "hashRecomputedFromTheCommittedBytes": true,
+    "planSchema": "PRECOMMITTED_WINDOW_PLAN_GENERIC_V1"
+  },
+  "boundStrategy": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_11_STRATEGY_V1.json",
+    "sha256": "a0f332a9a03858940c9c196a6d136018d2d2bec3b713bd30d42b5e270dd66ef2",
+    "bytes": 22957,
+    "commit": "34575c0"
+  },
+  "boundStartingLedger": {
+    "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+    "sha256": "9673ab712a2de776df8a2751cd5489d7504f2d1ddc11132e7ee60d9208ba1930",
+    "bytes": 27507,
+    "entries": 37,
+    "ledgerHash": "87d8c89d77ac12317bc9430e9ee917e01e31ef5fc718229266dcff6ca2bf9c9c",
+    "thePreNetworkAppendMustTakeItTo": 39,
+    "appendedSequences": [37, 38],
+    "sequence37": {
+      "selectionIndex": 73,
+      "reserveRankPosition": 37,
+      "priorOccupant": "RESERVE_REPLACEMENT reserve35",
+      "previousSequenceForSlot": 35,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    },
+    "sequence38": {
+      "selectionIndex": 75,
+      "reserveRankPosition": 38,
+      "priorOccupant": "RESERVE_REPLACEMENT reserve36",
+      "previousSequenceForSlot": 36,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    },
+    "reservesRemainingAfterAppend": 1,
+    "unusedPositionsAfterAppend": [39],
+    "reserve39AssignedInAdvance": false,
+    "appendMustBeCommittedBeforeAnyInstitutionNetworkActivity": true
+  },
+  "authorisedWorkItems": [
+    {
+      "order": 1,
+      "workItemId": "R:73:37",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 73,
+      "reserveRankPosition": 37,
+      "split": "FINAL_HOLDOUT",
+      "drawEntrySha256": "311c0ed671f87b93ef3cd80251bf14dd68e82c09ea9bef7b71923adbc1c1901e"
+    },
+    {
+      "order": 2,
+      "workItemId": "R:75:38",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 75,
+      "reserveRankPosition": 38,
+      "split": "FINAL_HOLDOUT",
+      "drawEntrySha256": "d8784b006bac50ce3bfb9c95b12226865e0acb42686866cc316d1cb4654912bf"
+    },
+    {
+      "order": 3,
+      "workItemId": "P:76",
+      "kind": "PRIMARY",
+      "selectionIndex": 76,
+      "reserveRankPosition": null,
+      "split": "DEV_CONFIRM",
+      "drawEntrySha256": "c6e4f1ae9c1271172925e8cb36ca4683661b047eec8654630c2405b340b7d39e"
+    },
+    {
+      "order": 4,
+      "workItemId": "P:77",
+      "kind": "PRIMARY",
+      "selectionIndex": 77,
+      "reserveRankPosition": null,
+      "split": "FINAL_HOLDOUT",
+      "drawEntrySha256": "3c8321fdc0fef79c4f1a3033000421fd2af59487a2c5e9cbebcce58baa7fb89d"
+    },
+    {
+      "order": 5,
+      "workItemId": "P:78",
+      "kind": "PRIMARY",
+      "selectionIndex": 78,
+      "reserveRankPosition": null,
+      "split": "DEV_TRAIN",
+      "drawEntrySha256": "d0ef0211785c67caafe177746294574e40e7977529e76c4e425bff8832225a31"
+    }
+  ],
+  "exactOrder": "R:73:37 -> R:75:38 -> P:76 -> P:77 -> P:78",
+  "requiredFetchPolicy": "orgunit-fetch-policy-v7",
+  "requiredRuleVersion": "orgunit-signal-rules-v1",
+  "manualRetryAuthorised": false,
+  "alternateRootAuthorised": false,
+  "hostnameGuessingAuthorised": false,
+  "timeoutWideningAuthorised": false,
+  "tlsWeakeningAuthorised": false,
+  "nat64BypassAuthorised": false,
+  "policyWorkaroundAuthorised": false,
+  "browserCurlOrWgetAuthorised": false,
+  "reserve39AssignmentAuthorised": false,
+  "index79PlusAuthorised": false,
+  "r73r35RetryAuthorised": false,
+  "r75r36RetryAuthorised": false,
+  "crossDomainRobotsRedirectFollowAuthorised": false,
+  "rootPromotionAuthorised": false,
+  "extractionChangeAuthorised": false,
+  "adapterRepairAuthorised": false,
+  "p5RetuneAuthorised": false,
+  "dnsInterpretationChangeAuthorised": false,
+  "methodologyR3ChangeAuthorised": false,
+  "migrationAuthorised": false,
+  "a3WriteAuthorised": false,
+  "a3ExecutionDuringCriticalSectionAuthorised": false,
+  "pauseConditions": {
+    "frozenDenominator": 5,
+    "p2Threshold": 3,
+    "p5Threshold": 2,
+    "p5Arm": "raw pages < 4 on 2 of the frozen denominator 5",
+    "p6": "generation-global: reserveConsumed > 10 AND successfulOrganisationCount < 50",
+    "p7": "must be all-green (13/13) after the append and before every item",
+    "p8": "Sleep / Wake / DarkWake / pacing-clock anomaly",
+    "evaluatedAfterEveryCompletedItem": true,
+    "anyPauseMeansStartNoLaterItem": true,
+    "windowChargedInFullEvenIfPaused": true,
+    "thresholdsUnchanged": true
+  },
+  "databasePreflight": {
+    "verifiedBeforeAuthorityCommit": true,
+    "readAs": "readonly",
+    "runs": 123,
+    "completions": 123,
+    "fetchObservations": 3132,
+    "redirectObservations": 243,
+    "pageEvidence": 2337,
+    "pageCandidates": 4674,
+    "BLOCKED_BY_POLICY": 6,
+    "rootPromotions": 0,
+    "dryRunRuns": 0,
+    "runsWithoutCompletion": 0,
+    "unexplainedDrift": false
+  },
+  "exclusiveCriticalSection": {
+    "a3State": "A3_EXECUTION_AGENTS_QUIESCED_FOR_A2_FINAL_CRITICAL_SECTION",
+    "from": "before the first item's 120-second quiet gate",
+    "until": "after the final LIVE_RESULT, the final validation and the final adjudication commit",
+    "a3NotRestartedBetweenItems": true,
+    "forbidden": [
+      "A3 validate",
+      "A3 vitest",
+      "A3 database read task",
+      "another acquisition",
+      "correctness-critical sibling execution"
+    ]
+  },
+  "hostSafety": {
+    "doNotStartAtOrBelowBatteryPercent": 20,
+    "lidOpenRequired": true,
+    "caffeinateDimsuRequired": true,
+    "sleepDetectionMethod": "timestamp predicate over pmset -g log for Sleep / Wake / DarkWake (scheduling 'Wake Requests' lines excluded); fail closed if unreadable",
+    "quietGate": ">= 120 consecutive wall-clock seconds with no competing validate, vitest, acquisition runner or correctness-critical engine-repo execution before each item and before validation",
+    "compliantVantageRequired": "IPv4 default route, native non-CLAT IPv4 address, ipv4only.arpa AAAA empty; re-proved before and after every item"
+  },
+  "continuousConcurrencyWatch": {
+    "required": true,
+    "pollSeconds": 2,
+    "scope": "every live item and the final validation",
+    "onDetectionDuringItem": "let that invocation terminate, mark CONCURRENCY_INTEGRITY_DEVIATION_DETECTED_DURING_ITEM, STOP - no later item",
+    "onDetectionDuringValidation": "let validation terminate, mark EXECUTION_EXCLUSIVITY_NOT_PROVED, STOP - no rerun"
+  },
+  "reserveScarcityGate": "after adjudication: if current Q1 obligations exceed the single unused reserve, record the exact state and STOP; CORPUS_FREEZE_REFUSED only if the frozen exhaustion condition mechanically occurs",
+  "runReferenceProvenance": {
+    "fullRunRefSha256Only": true,
+    "derivation": "sha256(lowercase run UUID), no prefix"
+  },
+  "stopConditions": [
+    "any pause condition firing - start no later item",
+    "wrong organisation or wrong frozen root for any item",
+    "more than one CLI --execute invocation for any item",
+    "any new run or observation stamped other than orgunit-fetch-policy-v7",
+    "a run without a completion row",
+    "any replacement-ledger mutation beyond sequences 37 and 38",
+    "any institution network activity outside the five authorised items",
+    "host sleep or wake during an active item",
+    "unsuitable network vantage",
+    "P7 not all-green",
+    "CONCURRENCY_INTEGRITY_DEVIATION_DETECTED_DURING_ITEM"
+  ],
+  "afterThisWindowsAdjudication": "STOP. The ecbc4e0 authority is exhausted: 4 / 4 windows, 20 / 20 attempt capacity charged. No fifth window, no self-extension",
+  "identityDisclosure": {
+    "institutionNamesRecorded": 0,
+    "organisationUuidsRecorded": 0,
+    "echeRowKeysRecorded": 0,
+    "hostnamesRecorded": 0,
+    "urlsRecorded": 0,
+    "finalHoldoutItemsInThisWindow": ["R:73:37", "R:75:38", "P:77"],
+    "publicLinkageIsOnly": [
+      "workItemId",
+      "selectionIndex",
+      "reserveRankPosition",
+      "drawEntrySha256",
+      "SHA-256(run UUID)"
+    ]
+  },
+  "immutability": "append-only. This record is never edited."
+}
