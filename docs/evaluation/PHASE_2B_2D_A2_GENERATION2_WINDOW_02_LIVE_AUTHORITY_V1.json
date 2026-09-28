@@ -1,0 +1,493 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_AUTHORITY_V1",
+  "recordKind": "GENERATION2_OWNER_LIVE_AUTHORITY",
+  "task": "A2_GENERATION2_WINDOW_02_SINGLE_BOUNDED_LIVE_ACQUISITION",
+  "createdBeforeAnyInstitutionNetworkActivity": true,
+  "recordedAtUtc": "2026-09-28T21:00:36Z",
+  "recordedAtUtcSource": "date -u, read from the shell when this authority was written",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "a768cf9b632ceaa76ccd3781d4554b5e92820981",
+  "publicSafe": true,
+  "ownerDecision": "APPROVE_GENERATION2_WINDOW_02_EXACTLY_ONE_FIVE_ITEM_LIVE_WINDOW_V1",
+  "isLiveAuthority": true,
+  "thisFileAuthorises": [
+    "EXACTLY ONE pre-network Generation-2 ledger append of ONE entry (Q1: slot 78 -> Generation-2 reserve 2), built by prepareGeneration2ReplacementAppend with the explicit Window-01 adjudication history, committed and pushed BEFORE any institution network",
+    "EXACTLY ONE bounded five-item Generation-2 live acquisition window: G2R:78:2 -> G2P:80 -> G2P:81 -> G2P:82 -> G2P:83, sequential, concurrency 1, each at most once"
+  ],
+  "networkAuthorised": "ONLY the five work items above, through the landed orgunits discover --execute path (src/orgunits/web/gateway.ts)",
+  "databaseAuthorised": "ONLY the append-only writes the landed acquisition path makes for those five invocations, plus read-only baseline and reconciliation",
+  "ledgerMutationAuthorised": "ONLY the one-entry append above; never a rollback",
+  "windowOrdinal": 2,
+  "ordinaryWindows": 1,
+  "plannedWindowSize": 5,
+  "maximumLiveInvocations": 5,
+  "maximumLiveInvocationsPerWorkItem": 1,
+  "concurrency": 1,
+  "preNetworkLedgerAppends": 1,
+  "ledgerEntriesInThatAppend": 1,
+  "exactOrder": ["G2R:78:2", "G2P:80", "G2P:81", "G2P:82", "G2P:83"],
+  "authorisedWorkItems": [
+    {
+      "order": 1,
+      "workItemId": "G2R:78:2",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 78,
+      "generation2ReserveRankPosition": 2,
+      "split": "DEV_TRAIN",
+      "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "replacesOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+      "identityDigestKind": "GENERATION2_EXECUTION_ENTRY_SHA256",
+      "identityDigest": "5e89b65d4e012605ad6064a594fca281efb424520964e78783cdf141e3fe70a1",
+      "rootAuthorityCount": 1
+    },
+    {
+      "order": 2,
+      "workItemId": "G2P:80",
+      "kind": "PRIMARY",
+      "selectionIndex": 80,
+      "generation2ReserveRankPosition": null,
+      "split": "FINAL_HOLDOUT",
+      "replacementReason": null,
+      "replacesOccupantKind": null,
+      "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+      "identityDigest": "540f59d816e90f115ca9aaa2bc3f6aaf720746af40549b30eec8ee8e7ece50ca",
+      "rootAuthorityCount": 1
+    },
+    {
+      "order": 3,
+      "workItemId": "G2P:81",
+      "kind": "PRIMARY",
+      "selectionIndex": 81,
+      "generation2ReserveRankPosition": null,
+      "split": "DEV_CONFIRM",
+      "replacementReason": null,
+      "replacesOccupantKind": null,
+      "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+      "identityDigest": "601cf158ada1ed5f62c29245a1ca8af5fc967ed5e6828efbee5afcc7229dfc4f",
+      "rootAuthorityCount": 1
+    },
+    {
+      "order": 4,
+      "workItemId": "G2P:82",
+      "kind": "PRIMARY",
+      "selectionIndex": 82,
+      "generation2ReserveRankPosition": null,
+      "split": "FINAL_HOLDOUT",
+      "replacementReason": null,
+      "replacesOccupantKind": null,
+      "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+      "identityDigest": "1e1dbf905c452a04abccfaebf9fcec52ca501268a92a6f0d90061bcd37e4a6c1",
+      "rootAuthorityCount": 1
+    },
+    {
+      "order": 5,
+      "workItemId": "G2P:83",
+      "kind": "PRIMARY",
+      "selectionIndex": 83,
+      "generation2ReserveRankPosition": null,
+      "split": "DEV_TRAIN",
+      "replacementReason": null,
+      "replacesOccupantKind": null,
+      "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+      "identityDigest": "f1623a4db476d43a3d09aea6716f089c833960d36ce7e677c656e11965ea9a25",
+      "rootAuthorityCount": 1
+    }
+  ],
+  "composition": {
+    "DEV_TRAIN": 2,
+    "DEV_CONFIRM": 1,
+    "FINAL_HOLDOUT": 2
+  },
+  "plannedLedgerAppend": [
+    {
+      "sequence": 2,
+      "selectionIndex": 78,
+      "generation2ReserveRankPosition": 2,
+      "split": "DEV_TRAIN",
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "replacedOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+      "previousSequenceForSlot": null
+    }
+  ],
+  "plannedAppendExpectation": {
+    "previousEntryHashMustEqualCanonicalEntry1": "4781c1c048b6d1b5c529decebd25f548e4e9fc5af2dafb9001f1c21dd93367d6",
+    "previousLedgerHash": "ce56b07efbf7fdfd0ba56dc473ef9c4465fd3852a2c012f1c24271612465ab82",
+    "recordedAtUtc": "an actual operator-observed UTC timestamp at append time; NOT the readiness illustrative timestamp, entryHash or ledgerHash"
+  },
+  "boundWindowSpec": {
+    "schema": "GENERATION2_BOUNDED_WINDOW_SPEC_V1",
+    "windowSpecHash": "59bb957942e6f06e8c530bb5dffcd3118f9e3ff5b4a3fc9e1af8ea7e03297b9c",
+    "equalsWindow02OfflineReadinessV1SpecHash": true,
+    "precommittedAgainst": "the committed two-entry revision at the canonical start, with the explicit Window-01 adjudication history"
+  },
+  "boundStartingLedger": {
+    "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+    "fileSha256": "cb36ba532e5fed379cebfa52bd22e6ce2e7b5fe70a28dab85f0c5e8ffe36a387",
+    "bytes": 5743,
+    "ledgerHash": "ce56b07efbf7fdfd0ba56dc473ef9c4465fd3852a2c012f1c24271612465ab82",
+    "entryCount": 2,
+    "revisionCommit": "a768cf9b632ceaa76ccd3781d4554b5e92820981"
+  },
+  "boundAdjudicationHistory": {
+    "explicitOrderedBindingsOnly": true,
+    "directoryDiscovery": false,
+    "latestLookup": false,
+    "windows": [
+      {
+        "windowOrdinal": 1,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_AUTHORITY_V1.json",
+          "commit": "219f6d4a1cb869e9253a9701d48543a88f80f0ab",
+          "sha256": "e4874f7e84a184bd473b75f15dba0fd90700d4bb33ec0093593de90f4dea38ba"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_RESULT_V1.json",
+          "commit": "41bbedad759c26f1cb1e110bfdd07e1599809178",
+          "sha256": "7162938e6f8ba5f7808075f58021b540244b2b5a0b05d61db0812cfd4d8102d0"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "b281bf3b1dfc25c4540c6b17c1e8b97db468a77d",
+          "sha256": "89e4f166e56292374d3cf1aa2fe8037225770d48193ae619a32a1d4c7f1df5df"
+        },
+        "startingLedgerRevision": {
+          "commit": "40b6b0f40a7ae13b00fbf064ed8143996c926f1d",
+          "fileSha256": "b16a6ba8ec879c6f06008849aa3a79d79fc24e6de054180bc0d1b27a18d74a01"
+        }
+      }
+    ]
+  },
+  "operationalPrerequisites": {
+    "ADJUDICATION_HISTORY_INTEGRITY": {
+      "holds": true,
+      "isFrozenP7": false,
+      "isP1P8": false,
+      "requiredBeforeEveryWindow02MutationAndItem": true,
+      "rebuiltWindowSpecHashes": [
+        "af9eafe58251a9dbb6a0af5baae0258b2a82a1f1183554d45f3b2dd14898fb23"
+      ]
+    }
+  },
+  "bound": {
+    "canonicalStartCommit": "a768cf9b632ceaa76ccd3781d4554b5e92820981",
+    "methodologyV3OwnerFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "36e8071738e1842ad03a9b51cf5820d58015305191c48490ef515e1cd1c34f9c",
+      "bytes": 12318
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "sha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "bytes": 3554080
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "sha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "bytes": 74047
+    },
+    "generation1Terminal": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION1_CORPUS_FREEZE_REFUSAL_V1.json",
+      "sha256": "6e37f7970ef6d222c3e775da3e9d629efa2645374fbda39e53e570041c82a1b5",
+      "bytes": 9720
+    },
+    "generation1Ledger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "90febac7b3e7c6ecb84ff879f948cf8e52de9731590b1720993f80557f3a0c2d",
+      "bytes": 28735
+    },
+    "frozenGeneration2ReserveSchedule": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_GEN2_RESERVE_SCHEDULE_V1.json",
+      "sha256": "ee5ce57f90dd59453f9354bc81c32d98f3390a5d42cd0317d91f4ec1d181e594",
+      "bytes": 2739585
+    },
+    "generation2GenesisLedger": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "sha256": "b16a6ba8ec879c6f06008849aa3a79d79fc24e6de054180bc0d1b27a18d74a01",
+      "bytes": 4529,
+      "revisionCommit": "40b6b0f40a7ae13b00fbf064ed8143996c926f1d"
+    },
+    "carryForwardFeasibility": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_CARRY_FORWARD_FEASIBILITY_V1.json",
+      "sha256": "7467435b816c2b97c34af7e8da23bcd1575956477fe3cc6fa59a30600a43c38d",
+      "bytes": 143780
+    },
+    "carryForwardBaseline": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_CARRY_FORWARD_BASELINE_V1.json",
+      "sha256": "739d40466f8fbc95085ea5467164a2672fa4f102677e22d4b89847eeaa6e205f",
+      "bytes": 20650
+    },
+    "generation2FrozenBaseline": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_FROZEN_BASELINE_V1.json",
+      "sha256": "edf056fe3338d06ed9390d97a51c18bced4f9edf2f098a11abeddca573220b90",
+      "bytes": 6146
+    },
+    "window02OfflineReadinessV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_OFFLINE_READINESS_V1.json",
+      "sha256": "fe9d4f055652bb186fff54527e40667ce10673539a315bd305840926cc31d198",
+      "bytes": 27088,
+      "terminalState": "GENERATION2_WINDOW_02_OFFLINE_READINESS_READY_FOR_OWNER_LIVE_AUTHORITY_DECISION"
+    }
+  },
+  "frozenHashes": {
+    "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650",
+    "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293",
+    "generation1LedgerHash": "a5a60d7e02faa831d38bab131a42e94f80203989989276393216fdc814623e18",
+    "canonicalScheduleHash": "024fe88f5dcd0b781ba87e114f4acd6e8f587f0a49525c7660fde465b7264367",
+    "frozenScheduleHash": "4ab6295f624b1312f2c4c2a1316a32b9bff46967e15588cd6f73579bd91b68c7",
+    "genesisLedgerHash": "4089b6b4490db972f278d738f3269a73845c1a8161b379c155d21f719867b4d9"
+  },
+  "committedInputChecks": {
+    "methodologyV3ApprovalExact": true,
+    "frozenFrameExact": true,
+    "originalDrawExact": true,
+    "generation1TerminalExact": true,
+    "generation1LedgerExactAndValid": true,
+    "frozenReserveScheduleExact": true,
+    "canonicalScheduleHashExact": true,
+    "carryForwardBaselineExact": true
+  },
+  "startingState": {
+    "ACQUISITION_SUCCESSFUL": 79,
+    "acquisitionSuccessfulBySplit": {
+      "DEV_TRAIN": 14,
+      "DEV_CONFIRM": 33,
+      "FINAL_HOLDOUT": 32
+    },
+    "CURRENT_ACQUISITION_FAILURE": [78],
+    "failureReasons": [
+      {
+        "selectionIndex": 78,
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+      }
+    ],
+    "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION": [],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "CARRY_FORWARD_REFUSED": [],
+    "NEVER_STARTED": {
+      "from": 80,
+      "to": 109,
+      "count": 30
+    },
+    "accounting": "79 successful + 1 failed + 0 assigned + 0 pending + 30 never started = 110",
+    "q1": [78],
+    "q1Assignments": [
+      {
+        "selectionIndex": 78,
+        "generation2ReserveRankPosition": 2,
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+      }
+    ],
+    "generation2ReserveConsumed": 2,
+    "nextGeneration2ReservePosition": 2,
+    "derivedBy": "deriveGeneration2CurrentState / planCompleteQ1 with the explicit Window-01 history"
+  },
+  "preAppendP7": {
+    "expected": "16/18",
+    "observed": "16/18",
+    "falseInvariants": [
+      "plannedReplacementAppendRecorded",
+      "postAppendOccupantsMatchAssignedReserves"
+    ],
+    "meaning": "the authorised pre-network append is not yet persisted; not a P7 defect"
+  },
+  "executionBindings": [
+    {
+      "workItemId": "G2R:78:2",
+      "kind": "REPLACEMENT",
+      "source": "frozen Generation-2 reserve schedule entry -> exact frozen frame entry",
+      "generation2ReserveRankPosition": 2,
+      "sourceFrameRankPosition": 152,
+      "scheduleEntrySha256": "6a7e9872778de2ebf6624f8eb79ae989b51fc7a3237afdbcbe74e44147b05cf0",
+      "rootAuthorityCount": 1,
+      "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+      "identityDigestKind": "GENERATION2_EXECUTION_ENTRY_SHA256",
+      "identityDigest": "5e89b65d4e012605ad6064a594fca281efb424520964e78783cdf141e3fe70a1"
+    },
+    {
+      "workItemId": "G2P:80",
+      "kind": "PRIMARY",
+      "source": "exact frozen original draw selection entry, cross-checked against the frozen frame",
+      "selectionIndex": 80,
+      "rootAuthorityCount": 1,
+      "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+      "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+      "identityDigest": "540f59d816e90f115ca9aaa2bc3f6aaf720746af40549b30eec8ee8e7ece50ca"
+    },
+    {
+      "workItemId": "G2P:81",
+      "kind": "PRIMARY",
+      "source": "exact frozen original draw selection entry, cross-checked against the frozen frame",
+      "selectionIndex": 81,
+      "rootAuthorityCount": 1,
+      "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+      "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+      "identityDigest": "601cf158ada1ed5f62c29245a1ca8af5fc967ed5e6828efbee5afcc7229dfc4f"
+    },
+    {
+      "workItemId": "G2P:82",
+      "kind": "PRIMARY",
+      "source": "exact frozen original draw selection entry, cross-checked against the frozen frame",
+      "selectionIndex": 82,
+      "rootAuthorityCount": 1,
+      "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+      "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+      "identityDigest": "1e1dbf905c452a04abccfaebf9fcec52ca501268a92a6f0d90061bcd37e4a6c1"
+    },
+    {
+      "workItemId": "G2P:83",
+      "kind": "PRIMARY",
+      "source": "exact frozen original draw selection entry, cross-checked against the frozen frame",
+      "selectionIndex": 83,
+      "rootAuthorityCount": 1,
+      "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+      "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+      "identityDigest": "f1623a4db476d43a3d09aea6716f089c833960d36ce7e677c656e11965ea9a25"
+    }
+  ],
+  "requiredFetchPolicy": "orgunit-fetch-policy-v7",
+  "requiredRuleVersion": "orgunit-signal-rules-v1",
+  "executionPath": "npm CLI orgunits discover --organisation-id <bound organisation> --execute --json, UNCHANGED production code; the organisation and its ordered root authorities come ONLY from the pure Generation-2 execution binding (reserve: frozen schedule position 2 -> exact frozen frame entry; primaries: exact original draw selection entry cross-checked to the frame); a network-free dry run must resolve exactly those authorities before each item",
+  "pauseConditions": {
+    "frozenDenominator": 5,
+    "p1": ">= 3 consecutive INVALID_ROOT_AUTHORITY",
+    "p2Threshold": 3,
+    "p2Arm": ">= 3 consecutive robots blocked/unreadable OR more than 40% of the planned window (3 of 5)",
+    "p3": ">= 2 consecutive FAILED OR any ORCHESTRATION_ERROR",
+    "p4": "persistence anomaly",
+    "p5Threshold": 2,
+    "p5Arm": "raw page evidence < 4 on more than 30% of the planned window (2 of 5); the denominator stays 5 even if execution stops early",
+    "p6": "Generation-2 reserveConsumed > 10 AND successfulOrganisationCount < 50 (false before and after this append: 2 -> 3 consumed, 79 successes)",
+    "p7": "history-aware Generation-2 preflight, 18/18 invariants true after the append and before every item",
+    "p7Invariants": [
+      "methodologyV3ApprovalExact",
+      "frozenFrameExact",
+      "originalDrawExact",
+      "generation1TerminalExact",
+      "generation1LedgerExactAndValid",
+      "frozenReserveScheduleExact",
+      "canonicalScheduleHashExact",
+      "carryForwardBaselineExact",
+      "currentGeneration2LedgerExactAndValid",
+      "startingLedgerRevisionMatchesPrecommit",
+      "recomputedStateEqualsPlanningState",
+      "completeQ1EqualsPlanningQ1",
+      "windowSpecHashValid",
+      "workItemsMatchGovernance",
+      "executionEntryIdentitiesMatch",
+      "plannedReplacementAppendRecorded",
+      "noUnexpectedGeneration2Assignments",
+      "postAppendOccupantsMatchAssignedReserves"
+    ],
+    "p8": {
+      "condition": "P8",
+      "observationField": "hostStateAnomaly",
+      "meaning": "host sleep/wake, or a wall-clock gap inconsistent with the pacing clock",
+      "decision": "PAUSE_P8_HOST_STATE_ANOMALY",
+      "source": "src/test/harness/phase2b2d/continuationWindow/windowContract.ts",
+      "ruling": "P8_REMAINS_HOST_SLEEP_WAKE_OR_PACING_CLOCK_ANOMALY_ONLY_V1"
+    },
+    "evaluatedAfterEveryCleanCompletedItem": true,
+    "anyPauseMeansStartNoLaterItem": true,
+    "thresholdsUnchanged": true
+  },
+  "operationalConcurrencyIntegrity": {
+    "policy": {
+      "version": "GENERATION2_LIVE_CRITICAL_SECTION_POLICY_V2",
+      "supersedes": "GENERATION2_LIVE_CRITICAL_SECTION_POLICY_V1",
+      "ruling": "GENERATION2_CONCURRENCY_INTEGRITY_STOP_IS_DISTINCT_FROM_FROZEN_P8_V1",
+      "a3ExecutionAgentsMustBeQuiesced": true,
+      "consecutiveCleanSecondsBeforeEachItem": 120,
+      "maxProcessMonitoringIntervalSeconds": 5,
+      "monitorContinuouslyDuringEachItem": true,
+      "monitorContinuouslyDuringFullValidation": true,
+      "competingValidateOrVitestMidItemRequiresOperationalIntegrityStop": true,
+      "doesNotSetP8ByItself": true,
+      "runningInvocationIsAllowedToFinish": true,
+      "evidenceIsNotAutomaticallyInvalidated": true,
+      "automaticValidationRerunAuthorised": false
+    },
+    "classifications": {
+      "preItem": "CONCURRENCY_INTEGRITY_PRECONDITION_NOT_SATISFIED",
+      "midItem": "CONCURRENCY_INTEGRITY_DEVIATION_DETECTED_DURING_ITEM",
+      "monitorGap": "CONCURRENCY_MONITOR_COVERAGE_INSUFFICIENT",
+      "validation": "VALIDATION_EXECUTION_EXCLUSIVITY_NOT_PROVED"
+    },
+    "notP8": true,
+    "a3ExecutionAgentsQuiescedRequirement": "A3_EXECUTION_AGENTS_QUIESCED_FOR_GENERATION2_WINDOW_02 must be established ANEW (Window-01 evidence is not reused) before the live critical section and hold through accepted full validation",
+    "operatorExecutionChannelFailure": "OPERATOR_EXECUTION_CHANNEL_FAILURE_DURING_LIVE_ITEM: let the running invocation finish if observable, preserve evidence, start no next item, STOP; not P8, no retry authority"
+  },
+  "hostSafety": {
+    "doNotStartAtOrBelowBatteryPercent": 20,
+    "lidOpenRequired": true,
+    "caffeinateDimsuRequired": true,
+    "sleepDetectionMethod": "timestamp predicate over pmset -g log for Sleep / Wake / DarkWake; fail closed if unreadable",
+    "compliantVantageRequired": "IPv4 default route, native non-CLAT IPv4 address, ipv4only.arpa AAAA empty (no DNS64/NAT64); re-proved before and after every item"
+  },
+  "databasePreflight": {
+    "verifiedBeforeAuthorityCommit": true,
+    "runs": 131,
+    "completions": 131,
+    "fetchObservations": 3332,
+    "redirectObservations": 254,
+    "pageEvidence": 2500,
+    "pageCandidates": 5000,
+    "BLOCKED_BY_POLICY": 6,
+    "rootPromotions": 0,
+    "rootPromotionRevocations": 0,
+    "dryRunRuns": 0,
+    "runsWithoutCompletion": 0,
+    "latestRunStartedAt": "2026-09-28T16:01:14.340Z",
+    "atUtc": "2026-09-28T20:59:32.806Z",
+    "expectedFromWindow01AdjudicatedEndpoint": {
+      "runs": 131,
+      "completions": 131,
+      "fetchObservations": 3332,
+      "redirectObservations": 254,
+      "pageEvidence": 2500,
+      "pageCandidates": 5000,
+      "BLOCKED_BY_POLICY": 6,
+      "rootPromotions": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "window02OccupantsWithPriorRuns": 0,
+    "unexplainedDrift": false
+  },
+  "runReferenceProvenance": {
+    "fullRunRefSha256Only": true,
+    "derivation": "sha256(canonical lowercase run UUID), no prefix, no historical \"run:\" convention"
+  },
+  "sd9": "raw persisted page evidence and SD9-eligible rows (main_text_chars > 0) recorded separately; only eligible rows enter exact SD7 -> near SD7 -> SD9 minimum of 4 distinct post-SD7 pages; frozen SD7, no extractor tuning",
+  "q3": ["ROOT_AUTHORITY_FAILURE", "ROBOTS_DISALLOWED", "HOST_UNREACHABLE", "MIN_PAGES_NOT_MET"],
+  "sameSlotRule": "if G2R:78:2 fails, a later owner-authorised Q2 append would be slot 78 -> reserve 3 with replacedOccupantKind GENERATION2_RESERVE_REPLACEMENT and previousSequenceForSlot 2; NOT authorised here",
+  "notAuthorised": {
+    "window03": true,
+    "reserve3OrLaterAssignment": true,
+    "p84OrLaterPrimary": true,
+    "dynamicQ2Append": true,
+    "retries": true,
+    "anotherFiveItemWindow": true,
+    "automaticContinuation": true,
+    "reordering": true,
+    "parallelism": true,
+    "ledgerRollback": true,
+    "productionAcquisitionCodeChange": true,
+    "hostnameGuessing": true,
+    "timeoutWidening": true,
+    "tlsWeakening": true,
+    "nat64Bypass": true,
+    "policyWorkaround": true,
+    "extractionChange": true,
+    "rootPromotion": true,
+    "migration": true,
+    "a3Write": true,
+    "a3ExecutionDuringCriticalSection": true,
+    "automaticValidationRerun": true
+  },
+  "unusedInvocationsAreNotTransferable": true,
+  "reserveAccounting": "reserve 2 is consumed once the append is committed; its acquisition outcome never makes it reusable; the next Generation-2 reserve after the append is 3",
+  "afterThisWindow": "STOP after Window-02 adjudication (or an owner-review stop). No Window-03 strategy, plan, authority, reserve assignment or execution. Return to the owner",
+  "identityDisclosure": "slot numbers, Generation-2 reserve positions, work item ids, digests and aggregates only; no organisation id, echeRowKey, URL, hostname, root-authority id or page text",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
