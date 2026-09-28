@@ -1,0 +1,484 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_RESULT_V1",
+  "recordKind": "GENERATION2_WINDOW_LIVE_RESULT",
+  "recordedAtUtc": "2026-09-28T16:04:25Z",
+  "recordedAtUtcSource": "date -u, read from the shell after the last item and before this record was written",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "8bda67bb9b174086cef0e2dd129b69277e83aede",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "boundAuthority": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_AUTHORITY_V1.json",
+    "sha256": "e4874f7e84a184bd473b75f15dba0fd90700d4bb33ec0093593de90f4dea38ba",
+    "bytes": 17563,
+    "commit": "219f6d4a1cb869e9253a9701d48543a88f80f0ab",
+    "ownerDecision": "APPROVE_GENERATION2_WINDOW_01_EXACTLY_ONE_FIVE_ITEM_LIVE_WINDOW_V1"
+  },
+  "boundResumeDecision": {
+    "ownerDecision": "APPROVE_WINDOW_01_TEMPORAL_TEST_SCOPING_CORRECTION_AND_RESUME_EXISTING_AUTHORITY_V1",
+    "correctionRecord": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_TEMPORAL_TEST_SCOPING_CORRECTION_V1.json",
+    "correctionCommit": "8bda67bb9b174086cef0e2dd129b69277e83aede",
+    "preLiveValidate": {
+      "exitCode": 0,
+      "testsPassed": 5227,
+      "testsSkipped": 75,
+      "intervalUtc": ["2026-09-28T15:10:42Z", "2026-09-28T15:15:11Z"]
+    }
+  },
+  "ledgerDuringTheWindow": {
+    "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+    "fileSha256": "cb36ba532e5fed379cebfa52bd22e6ce2e7b5fe70a28dab85f0c5e8ffe36a387",
+    "bytes": 5743,
+    "ledgerHash": "ce56b07efbf7fdfd0ba56dc473ef9c4465fd3852a2c012f1c24271612465ab82",
+    "entryCount": 2,
+    "nextGeneration2ReservePosition": 2,
+    "unchangedByTheWindow": true,
+    "appendCommit": "bbed7d25b742c3b205a593e05ee5a770399ea3a6"
+  },
+  "windowSpecHash": "af9eafe58251a9dbb6a0af5baae0258b2a82a1f1183554d45f3b2dd14898fb23",
+  "windowOutcome": "WINDOW_EXECUTED_5_OF_5_WINDOW_COMPLETE",
+  "stops": {
+    "anyPauseFired": false,
+    "finalGateDecision": "WINDOW_COMPLETE",
+    "itemsNotStarted": [],
+    "concurrencyStop": {
+      "fired": false
+    },
+    "executionChannelFailure": {
+      "fired": false
+    }
+  },
+  "liveInvocations": {
+    "authorisedMaximum": 5,
+    "used": 5,
+    "retries": 0,
+    "perItem": 1
+  },
+  "items": [
+    {
+      "order": 1,
+      "workItemId": "G2R:75:0",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 75,
+      "generation2ReserveRankPosition": 0,
+      "split": "FINAL_HOLDOUT",
+      "identityDigest": "94823630c119fce292d16537db00c77f35a94e8e6754b14b1e8e0bbff4f0992f",
+      "itemPreflight": {
+        "identityDigestMatchesAuthority": true,
+        "dryRunWasNetworkFree": true,
+        "dryRunRootsEqualFrozenRootAuthorities": true,
+        "rootAuthorityCount": 1
+      },
+      "itemIntervalUtc": ["2026-09-28T15:50:23Z", "2026-09-28T15:51:13Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "01ef938f6acde6d4b6fe916ad619b0dc84238a2545d609b0dc34bc062f380eba",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "pageAttempts": 35,
+      "gatewayRequests": 41,
+      "fetchObservationsByErrorKind": {
+        "NONE": 41
+      },
+      "redirectObservations": 0,
+      "candidateRows": 70,
+      "rawPageEvidenceCount": 35,
+      "sd9EligiblePageCount": 35,
+      "zeroExtractedTextPageCount": 0,
+      "postSd7Range": [35, 35],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "B",
+      "sd9StatusMechanical": "ACQUISITION_SUCCESSFUL",
+      "q3ReasonMechanical": null,
+      "postItemHostStateClean": true,
+      "sleepEventsDuringItem": 0,
+      "inItemConcurrencyWatch": "CLEAN (24 polls, 0 detections)"
+    },
+    {
+      "order": 2,
+      "workItemId": "G2R:76:1",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 76,
+      "generation2ReserveRankPosition": 1,
+      "split": "DEV_CONFIRM",
+      "identityDigest": "b3b96573bf683c70bc3fb528dd1812dab21b98b478614b4681a6bbc0477a6bcb",
+      "itemPreflight": {
+        "identityDigestMatchesAuthority": true,
+        "dryRunWasNetworkFree": true,
+        "dryRunRootsEqualFrozenRootAuthorities": true,
+        "rootAuthorityCount": 1
+      },
+      "itemIntervalUtc": ["2026-09-28T15:54:51Z", "2026-09-28T15:56:49Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "3f535c82deae722518e514b7bae458eb323ded53fcced9d90912e7374d055cf0",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "pageAttempts": 35,
+      "gatewayRequests": 43,
+      "fetchObservationsByErrorKind": {
+        "NONE": 43
+      },
+      "redirectObservations": 3,
+      "candidateRows": 66,
+      "rawPageEvidenceCount": 33,
+      "sd9EligiblePageCount": 12,
+      "zeroExtractedTextPageCount": 21,
+      "postSd7Range": [12, 12],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "B",
+      "sd9StatusMechanical": "ACQUISITION_SUCCESSFUL",
+      "q3ReasonMechanical": null,
+      "postItemHostStateClean": true,
+      "sleepEventsDuringItem": 0,
+      "inItemConcurrencyWatch": "CLEAN (58 polls, 0 detections)"
+    },
+    {
+      "order": 3,
+      "workItemId": "G2P:77",
+      "kind": "PRIMARY",
+      "selectionIndex": 77,
+      "generation2ReserveRankPosition": null,
+      "split": "FINAL_HOLDOUT",
+      "identityDigest": "3c8321fdc0fef79c4f1a3033000421fd2af59487a2c5e9cbebcce58baa7fb89d",
+      "itemPreflight": {
+        "identityDigestMatchesAuthority": true,
+        "dryRunWasNetworkFree": true,
+        "dryRunRootsEqualFrozenRootAuthorities": true,
+        "rootAuthorityCount": 1
+      },
+      "itemIntervalUtc": ["2026-09-28T15:58:32Z", "2026-09-28T15:59:18Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "a7a90bef0b7eb1bbc597aec952a93575dc5772ce00e4f33bd4119aae5c8dda74",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "pageAttempts": 35,
+      "gatewayRequests": 38,
+      "fetchObservationsByErrorKind": {
+        "NONE": 38
+      },
+      "redirectObservations": 4,
+      "candidateRows": 62,
+      "rawPageEvidenceCount": 31,
+      "sd9EligiblePageCount": 31,
+      "zeroExtractedTextPageCount": 0,
+      "postSd7Range": [10, 30],
+      "countIsExact": false,
+      "shortTextUnresolvedCount": 20,
+      "decidedByCase": "B",
+      "sd9StatusMechanical": "ACQUISITION_SUCCESSFUL",
+      "q3ReasonMechanical": null,
+      "postItemHostStateClean": true,
+      "sleepEventsDuringItem": 0,
+      "inItemConcurrencyWatch": "CLEAN (23 polls, 0 detections)"
+    },
+    {
+      "order": 4,
+      "workItemId": "G2P:78",
+      "kind": "PRIMARY",
+      "selectionIndex": 78,
+      "generation2ReserveRankPosition": null,
+      "split": "DEV_TRAIN",
+      "identityDigest": "d0ef0211785c67caafe177746294574e40e7977529e76c4e425bff8832225a31",
+      "itemPreflight": {
+        "identityDigestMatchesAuthority": true,
+        "dryRunWasNetworkFree": true,
+        "dryRunRootsEqualFrozenRootAuthorities": true,
+        "rootAuthorityCount": 1
+      },
+      "itemIntervalUtc": ["2026-09-28T15:59:51Z", "2026-09-28T15:59:53Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "4bcb382ec50c89b6f019d12ac88c7cebb268b92fbed0a3c495f33764c632859b",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "pageAttempts": 0,
+      "gatewayRequests": 1,
+      "fetchObservationsByErrorKind": {
+        "TLS_FAILURE": 1
+      },
+      "redirectObservations": 0,
+      "candidateRows": 0,
+      "rawPageEvidenceCount": 0,
+      "sd9EligiblePageCount": 0,
+      "zeroExtractedTextPageCount": 0,
+      "postSd7Range": [0, 0],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "A",
+      "sd9StatusMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "q3ReasonMechanical": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "postItemHostStateClean": true,
+      "sleepEventsDuringItem": 0,
+      "inItemConcurrencyWatch": "CLEAN (2 polls, 0 detections)"
+    },
+    {
+      "order": 5,
+      "workItemId": "G2P:79",
+      "kind": "PRIMARY",
+      "selectionIndex": 79,
+      "generation2ReserveRankPosition": null,
+      "split": "DEV_CONFIRM",
+      "identityDigest": "a93cd6b4fc17d4448269651f11ae956b851e3ae2f5d6f9ee83e366b6bd74e0cc",
+      "itemPreflight": {
+        "identityDigestMatchesAuthority": true,
+        "dryRunWasNetworkFree": true,
+        "dryRunRootsEqualFrozenRootAuthorities": true,
+        "rootAuthorityCount": 1
+      },
+      "itemIntervalUtc": ["2026-09-28T16:01:13Z", "2026-09-28T16:02:00Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "0abe16c5033c7a7d8a7f715f855b4875bd647b138117cb4ac695781562cae241",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "pageAttempts": 35,
+      "gatewayRequests": 37,
+      "fetchObservationsByErrorKind": {
+        "NONE": 37
+      },
+      "redirectObservations": 2,
+      "candidateRows": 62,
+      "rawPageEvidenceCount": 31,
+      "sd9EligiblePageCount": 30,
+      "zeroExtractedTextPageCount": 1,
+      "postSd7Range": [30, 30],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "B",
+      "sd9StatusMechanical": "ACQUISITION_SUCCESSFUL",
+      "q3ReasonMechanical": null,
+      "postItemHostStateClean": true,
+      "sleepEventsDuringItem": 0,
+      "inItemConcurrencyWatch": "CLEAN (23 polls, 0 detections)"
+    }
+  ],
+  "gateAfterEveryItem": [
+    {
+      "afterItem": "G2R:75:0",
+      "p7": "18/18",
+      "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+      "triggeredConditions": [],
+      "windowLowYieldCount": 0,
+      "windowRobotsRefusalCount": 0,
+      "maxConsecutiveFailedRuns": 0,
+      "maxConsecutiveRootAuthorityFailures": 0,
+      "nextWorkItemId": "G2R:76:1"
+    },
+    {
+      "afterItem": "G2R:76:1",
+      "p7": "18/18",
+      "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+      "triggeredConditions": [],
+      "windowLowYieldCount": 0,
+      "windowRobotsRefusalCount": 0,
+      "maxConsecutiveFailedRuns": 0,
+      "maxConsecutiveRootAuthorityFailures": 0,
+      "nextWorkItemId": "G2P:77"
+    },
+    {
+      "afterItem": "G2P:77",
+      "p7": "18/18",
+      "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+      "triggeredConditions": [],
+      "windowLowYieldCount": 0,
+      "windowRobotsRefusalCount": 0,
+      "maxConsecutiveFailedRuns": 0,
+      "maxConsecutiveRootAuthorityFailures": 0,
+      "nextWorkItemId": "G2P:78"
+    },
+    {
+      "afterItem": "G2P:78",
+      "p7": "18/18",
+      "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+      "triggeredConditions": [],
+      "windowLowYieldCount": 1,
+      "windowRobotsRefusalCount": 1,
+      "maxConsecutiveFailedRuns": 0,
+      "maxConsecutiveRootAuthorityFailures": 0,
+      "nextWorkItemId": "G2P:79"
+    },
+    {
+      "afterItem": "G2P:79",
+      "p7": "18/18",
+      "decision": "WINDOW_COMPLETE",
+      "triggeredConditions": [],
+      "windowLowYieldCount": 1,
+      "windowRobotsRefusalCount": 1,
+      "maxConsecutiveFailedRuns": 0,
+      "maxConsecutiveRootAuthorityFailures": 0,
+      "nextWorkItemId": null
+    }
+  ],
+  "mechanicalSummary": {
+    "acquisitionSuccessfulMechanical": ["G2R:75:0", "G2R:76:1", "G2P:77", "G2P:79"],
+    "acquisitionUnsuccessfulMechanical": [
+      {
+        "workItemId": "G2P:78",
+        "selectionIndex": 78,
+        "q3ReasonMechanical": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "why": "ROBOTS_UNREADABLE_ROOT after one robots.txt request ended TLS_FAILURE; no usable HTTP response; post-SD7 0 (exact); landed replacementReasonFor"
+      }
+    ],
+    "rangeNotExact": [
+      {
+        "workItemId": "G2P:77",
+        "postSd7Range": [10, 30],
+        "lowerBoundMeetsMinimum": true
+      }
+    ]
+  },
+  "mechanicalSd9ReadingIsNotTheAdjudication": true,
+  "runReferenceProvenance": {
+    "everyRunRefSha256IsAFull64HexDigest": true,
+    "derivation": "sha256(lowercase run UUID), no prefix",
+    "noRawRunUuidPublished": true
+  },
+  "sd9Bridge": {
+    "rawAndEligibleCountsReportedSeparately": true,
+    "onlyRowsWithMainTextCharsAboveZeroEnteredDedupe": true,
+    "zeroExtractedTextRowsInThisWindow": 22,
+    "analyser": "analyseOrganisation (src/test/harness/phase2b2d/sd7/pilotAnalysis.ts), unmodified"
+  },
+  "databaseReconciliation": {
+    "readAs": "readonly",
+    "before": {
+      "runs": 126,
+      "completions": 126,
+      "fetchObservations": 3172,
+      "redirectObservations": 245,
+      "pageEvidence": 2370,
+      "pageCandidates": 4740,
+      "BLOCKED_BY_POLICY": 6,
+      "rootPromotions": 0,
+      "rootPromotionRevocations": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "after": {
+      "runs": 131,
+      "completions": 131,
+      "fetchObservations": 3332,
+      "redirectObservations": 254,
+      "pageEvidence": 2500,
+      "pageCandidates": 5000,
+      "BLOCKED_BY_POLICY": 6,
+      "rootPromotions": 0,
+      "rootPromotionRevocations": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "delta": {
+      "runs": 5,
+      "completions": 5,
+      "fetchObservations": 160,
+      "redirectObservations": 9,
+      "pageEvidence": 130,
+      "pageCandidates": 260,
+      "BLOCKED_BY_POLICY": 0,
+      "rootPromotions": 0,
+      "rootPromotionRevocations": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "fetchObservationDeltaEqualsSumOfItemRequests": "41 + 43 + 38 + 1 + 37 = 160",
+    "pageEvidenceDeltaEqualsSumOfItemRawPages": "35 + 33 + 31 + 0 + 31 = 130",
+    "redirectDeltaEqualsSumOfItemRedirects": "0 + 3 + 4 + 0 + 2 = 9",
+    "candidateDeltaEqualsTwicePageDelta": true,
+    "unexplainedMovement": false
+  },
+  "networkVantage": {
+    "provedBeforeEveryItemAndAfterEveryItem": true,
+    "ipv4DefaultRouteOnEn0": true,
+    "nativeIpv4AddressNotClat": true,
+    "ipv4onlyArpaAaaaAnswer": "empty - no DNS64 synthesis",
+    "nat64Condition": false
+  },
+  "hostSafety": {
+    "windowGovernedSinceLocal": "2026-09-28 17:41:27",
+    "sleepWakeDarkWakeEventsInTheGovernedInterval": 0,
+    "predicate": "timestamp predicate over pmset -g log (Sleep / Wake / DarkWake lines; Wake Requests excluded)",
+    "batteryAlwaysAbove20Percent": true,
+    "batteryObserved": "69% -> 85%, AC",
+    "lidOpenThroughout": true,
+    "caffeinateDimsuWrappedEveryExecute": true
+  },
+  "concurrency": {
+    "a3State": "A3_EXECUTION_AGENTS_QUIESCED_FOR_GENERATION2_WINDOW_01 (explicit owner confirmation at 2026-09-28T15:24:59Z, before the live critical section)",
+    "preItemQuietGate": ">= 120 consecutive clean seconds before every item, evaluated by evaluatePreItemQuietPeriod and re-checked immediately before each launch",
+    "preItemConsecutiveCleanSeconds": {
+      "G2R:75:0": 122,
+      "G2R:76:1": 391,
+      "G2P:77": 613,
+      "G2P:78": 692,
+      "G2P:79": 774
+    },
+    "continuousMonitor": {
+      "pollSecondsNominal": 2,
+      "maxObservedGapSecondsBound": 5,
+      "readOnly": true,
+      "inItemVerdict": "evaluateInItemMonitoring: integritySatisfied for every item"
+    },
+    "monitorDefinition": "v2: a process competes when it is a vitest / validate / test / A3 process whose cwd or command lies inside this engine repository or one of its worktrees (they share nwf_pe / nwf_pe_test). v1 matched by command name alone and was replaced BEFORE the first item, after it matched the process below; no item ran under v1.",
+    "informationalOnly": "a separate NWF application repository (worktree outside every engine path) ran an npm db-auth-gate test against its own Supabase containers (host port 55322), never nwf_pe_postgres (127.0.0.1:55432); isolation was shown by cwd, repository remote, container and port, and the owner confirmed it is not a concern",
+    "deviation": null,
+    "itemsRanSequentiallyConcurrency1": true
+  },
+  "forbiddenActions": {
+    "window02": false,
+    "reserve2Assignment": false,
+    "p80OrLater": false,
+    "retries": false,
+    "reordering": false,
+    "ledgerMutation": false,
+    "rootPromotion": false,
+    "productionCodeChange": false,
+    "timeoutWidening": false,
+    "tlsWeakening": false,
+    "hostnameGuessing": false
+  },
+  "identityDisclosure": "slot numbers, work item ids, digests, run-reference hashes and aggregates only; no organisation id, echeRowKey, URL, hostname, root-authority id or page text",
+  "terminalState": "PHASE_2B_2D_A2_GENERATION2_WINDOW_01_COMPLETE_AWAITING_VALIDATION_AND_ADJUDICATION",
+  "immutability": "append-only. This record is never edited; adjudication is a separate record"
+}
