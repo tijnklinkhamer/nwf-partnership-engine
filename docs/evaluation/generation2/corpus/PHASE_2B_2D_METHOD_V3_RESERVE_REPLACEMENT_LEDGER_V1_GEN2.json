@@ -74,6 +74,35 @@
     "ledgerHash": "sha256(canonicalStringify(this ledger without ledgerHash)): generation identity, the immutable Generation-1 starting-state bindings, the frozen schedule binding and the entries array. It is never the Generation-1 ledgerHash",
     "derivedNotStored": "entryCount and the next Generation-2 reserve position are derived from entries (at genesis: 0 and 0); no mutable counter, status or current-occupant field is stored"
   },
-  "entries": [],
-  "ledgerHash": "4089b6b4490db972f278d738f3269a73845c1a8161b379c155d21f719867b4d9"
+  "entries": [
+    {
+      "sequence": 0,
+      "selectionIndex": 75,
+      "split": "FINAL_HOLDOUT",
+      "replacedEcheRowKey": "F BESANCO35|914191245",
+      "replacementEcheRowKey": "SI DUTOVLJ02|945116882",
+      "generation2ReserveRankPosition": 0,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-28T12:20:43Z",
+      "replacedOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": null,
+      "entryHash": "da8d2657c17e68a49faadd59443d5fe10eab5f4169ca191b23ceecaf8bd25da0"
+    },
+    {
+      "sequence": 1,
+      "selectionIndex": 76,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "F SARREGU03|912895713",
+      "replacementEcheRowKey": "E SANTIAG09|884230370",
+      "generation2ReserveRankPosition": 1,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-09-28T12:20:43Z",
+      "replacedOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "da8d2657c17e68a49faadd59443d5fe10eab5f4169ca191b23ceecaf8bd25da0",
+      "entryHash": "4781c1c048b6d1b5c529decebd25f548e4e9fc5af2dafb9001f1c21dd93367d6"
+    }
+  ],
+  "ledgerHash": "ce56b07efbf7fdfd0ba56dc473ef9c4465fd3852a2c012f1c24271612465ab82"
 }
