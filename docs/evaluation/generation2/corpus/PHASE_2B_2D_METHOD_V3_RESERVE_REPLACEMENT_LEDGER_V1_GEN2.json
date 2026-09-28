@@ -102,7 +102,21 @@
       "previousSequenceForSlot": null,
       "previousEntryHash": "da8d2657c17e68a49faadd59443d5fe10eab5f4169ca191b23ceecaf8bd25da0",
       "entryHash": "4781c1c048b6d1b5c529decebd25f548e4e9fc5af2dafb9001f1c21dd93367d6"
+    },
+    {
+      "sequence": 2,
+      "selectionIndex": 78,
+      "split": "DEV_TRAIN",
+      "replacedEcheRowKey": "F REIMS01|999888708",
+      "replacementEcheRowKey": "F LEVALLO01|949484210",
+      "generation2ReserveRankPosition": 2,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-28T21:02:21Z",
+      "replacedOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "4781c1c048b6d1b5c529decebd25f548e4e9fc5af2dafb9001f1c21dd93367d6",
+      "entryHash": "007bdfd90b1c8b8476cdbf9595d5f204d8ee218c76556a5a2c2050a5096fe838"
     }
   ],
-  "ledgerHash": "ce56b07efbf7fdfd0ba56dc473ef9c4465fd3852a2c012f1c24271612465ab82"
+  "ledgerHash": "11c931e8172cc81a7516ad57a1a8f12e733b2f72ccfc7fc8809cb1ee7c174a21"
 }
