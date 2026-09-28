@@ -1,0 +1,493 @@
+{
+  "recordId": "phase2b-2d-a2-post-provenance-closure-window-11-strategy-v1",
+  "recordKind": "OFFLINE_ACQUISITION_WINDOW_STRATEGY",
+  "records": "PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_11_STRATEGY_V1",
+  "recordedAtUtc": "2026-09-28T07:30:07Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "ownerDecision": "CONTINUE_ALL_CURRENT_Q1_REPLACEMENT_CHAINS_UNDER_FROZEN_SD2_Q2",
+  "ownerDecisionSource": "the standing authority at ecbc4e0b79b91b6c9567beff51a357bb82c0e336; its final window released by the owner's Window-10 review recorded at 9f9e985392a8372ff795247a6d3d4ae8b7d41e11",
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "strategyOnly": true,
+  "approvesStructureOnly": true,
+  "networkUsedByThisRecord": "none",
+  "databaseWrittenByThisRecord": "none. Read-only reconciliation only",
+  "startingHead": "c02e4f456b95a627edbb51b5d299a952918b778e",
+  "standingAuthority": {
+    "boundAt": "ecbc4e0b79b91b6c9567beff51a357bb82c0e336",
+    "maximumOrdinaryWindows": 4,
+    "maximumLiveAttempts": 20,
+    "windowsConsumedBeforeThisOne": 3,
+    "liveAttemptsConsumedBeforeThisOne": 15,
+    "windowsRemainingBeforeThisOne": 1,
+    "liveAttemptsRemainingBeforeThisOne": 5,
+    "thisIsTheFinalWindow": true,
+    "noFifthWindow": true,
+    "noNewAuthorityIsCreatedHere": true
+  },
+  "continuationWindow": {
+    "windowOrdinal": 11,
+    "plannedWindowSize": 5,
+    "concurrency": 1,
+    "windowsRemainingAfterThisOne": 0,
+    "liveAttemptsRemainingAfterThisOne": 0,
+    "windowIsChargedInFullEvenIfPaused": true,
+    "anyPauseMeansStartNoLaterItem": true,
+    "afterThisWindowsAdjudicationStopRegardlessOfState": true,
+    "a3ExecutionAgentsQuiescedThroughout": "A3_EXECUTION_AGENTS_QUIESCED_FOR_A2_FINAL_CRITICAL_SECTION - from before the first quiet gate until after the final adjudication commit",
+    "continuousInItemConcurrencyWatch": "a read-only process-table monitor polls every 2 s throughout every live item and the final validation; a detection lets the running process terminate, then STOPS. No replacement-validation loop",
+    "noSixthItem": true,
+    "noDynamicInsertion": true,
+    "noDynamicReserve": true
+  },
+  "bound": {
+    "window10Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_10_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "5a0183ff8e57824fe5a80cebcc252b05bf7dcf376c7b7f1d98011b8f75f0374d",
+      "bytes": 13634,
+      "commit": "c02e4f456b95a627edbb51b5d299a952918b778e",
+      "role": "the source of the Q3 reasons for slots 73 and 75"
+    },
+    "ownerReviewAndReplacementValidation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_10_CONCURRENCY_REVIEW_AND_REPLACEMENT_VALIDATION_V1.json",
+      "sha256": "55fa5fa57563ceeeff73fa342cfadc1566f520a6fbd15dfed64885c3c9293b68",
+      "bytes": 9219,
+      "commit": "9f9e985392a8372ff795247a6d3d4ae8b7d41e11",
+      "ownerDecisions": [
+        "WINDOW_10_R75_CONCURRENCY_DEVIATION_REVIEWED_EVIDENCE_RETAINED_NO_RETRY_V1",
+        "WINDOW_10_ORIGINAL_VALIDATION_CONCURRENCY_CONTAMINATED_REPLACEMENT_VALIDATION_REQUIRED_V1",
+        "P5_REVIEWED_WINDOW_10_HETEROGENEOUS_TARGET_FAILURES_NO_COMMON_SYSTEMIC_DEFECT_FINAL_WINDOW_MAY_RESUME_V1"
+      ],
+      "role": "releases the final window of the standing authority"
+    },
+    "ownerContinuationDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_SD9_RECONCILIATION_RESERVE_SCARCITY_AND_ACQUISITION_RESUME_V1.json",
+      "sha256": "b8258ac7a0e82950b89b95e450f9a8e9128c151c16e96570fd31b2072bce38cf",
+      "bytes": 17391,
+      "commit": "ecbc4e0b79b91b6c9567beff51a357bb82c0e336",
+      "role": "the standing bounded acquisition authority"
+    },
+    "dnsNameNotFoundInterpretation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_DNS_NAME_NOT_FOUND_FRAME_AND_REPLACEMENT_INTERPRETATION_V1.json",
+      "sha256": "b1df9d476db30600f6eff94bba6acccd5a52098253b915ec218564731a4449c7",
+      "bytes": 14711,
+      "commit": "818934647d8b73730d6e51ccb0149c47f5a78e73",
+      "decision": "DNS_NAME_NOT_FOUND_REMAINS_ACQUISITION_FAILURE_AND_REPLACEMENT_ELIGIBLE_UNDER_FROZEN_R3"
+    },
+    "runProvenanceClosure": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_CURRENT_TERMINAL_RUN_PROVENANCE_CLOSURE_V1.json",
+      "sha256": "9da26f676f7cf461843c7a007a76af253b6f8b1d2a47cb1e4ce3e4abde872540",
+      "bytes": 64352,
+      "commit": "67ae047fb7de079bcba0eec83ca4f4baee77cc3e",
+      "scope": "RUN_REFERENCE_ONLY",
+      "isLiveAuthority": false,
+      "mustNotBeEdited": true
+    },
+    "sd9Interpretation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_SD9_EXTRACTABLE_TEXT_INTERPRETATION_V1.json",
+      "sha256": "2a8b043cd5f813547bebba2d1a2c798bb0bfc482787f586b8c932365c3c4bf5a",
+      "bytes": 10384,
+      "decision": "SD9_EXTRACTABLE_TEXT_REQUIRES_NONEMPTY_EXTRACTED_MAIN_TEXT_V1"
+    },
+    "harnessRepair": {
+      "commit": "417ac85dee79b01b2f17df0f28a96b1250c800ba",
+      "role": "the repaired SD7 -> SD9 bridge"
+    },
+    "v7PolicyRepair": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_ROBOTS_TRAILING_SLASH_FETCH_POLICY_V7_REPAIR_V1.json",
+      "sha256": "4231660bd5eb5ce0f20e8a235b5d687b544b18ca595e92979c01a2f19ae92a49",
+      "bytes": 24734,
+      "role": "orgunit-fetch-policy-v7"
+    },
+    "adr0013": {
+      "path": "docs/adr/0013-same-registrable-domain-robots-redirect-continuation.md",
+      "sha256": "d7c51025759664cb4d4fdcdea00e5da509c39d03fc9e40302baebf0f119a9b1a",
+      "bytes": 22316,
+      "reopened": false
+    },
+    "nat64OperationalIntegrityRule": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_DNS64_NAT64_OPERATOR_VANTAGE_EVIDENCE_INTEGRITY_ADJUDICATION_V1.json",
+      "sha256": "5f901c1c5e0f2248e7e50887187dc1bcce06ace8b852b8c65d0be35547f655bc",
+      "bytes": 16719
+    },
+    "shortTextOwnerDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_SD7_SHORT_TEXT_OWNER_DECISION_V1.json",
+      "sha256": "2f41f495322eceae3b675cbe1d227115f3b4292d6e3a711879793af33b466fff",
+      "bytes": 7584
+    },
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306
+    },
+    "corpusAcquisitionPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "bytes": 45200
+    },
+    "ownerReserveOrderClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "bytes": 18443
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650"
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293"
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "9673ab712a2de776df8a2751cd5489d7504f2d1ddc11132e7ee60d9208ba1930",
+      "bytes": 27507,
+      "ledgerHash": "87d8c89d77ac12317bc9430e9ee917e01e31ef5fc718229266dcff6ca2bf9c9c",
+      "entries": 37,
+      "thisIsThePreAppendRevision": true
+    }
+  },
+  "currentGenerationState": {
+    "ACQUISITION_SUCCESSFUL": 74,
+    "CURRENT_ACQUISITION_FAILURE": [73, 75],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "pendingReplacementObligations": [
+      {
+        "selectionIndex": 73,
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+      },
+      {
+        "selectionIndex": 75,
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+      }
+    ],
+    "nextNeverStartedSelectionIndex": 76,
+    "replacementLedgerEntries": 37,
+    "reserveConsumed": 37,
+    "reserveUnused": 3,
+    "nextUnusedReservePosition": 37,
+    "p6": {
+      "result": "NOT_TRIGGERED"
+    }
+  },
+  "windowSize": {
+    "plannedWindowSize": 5
+  },
+  "candidateWindow": {
+    "workItems": [
+      {
+        "order": 1,
+        "workItemId": "R:73:37",
+        "kind": "REPLACEMENT",
+        "selectionIndex": 73,
+        "split": "FINAL_HOLDOUT",
+        "drawEntryKind": "RESERVE",
+        "drawEntrySha256": "311c0ed671f87b93ef3cd80251bf14dd68e82c09ea9bef7b71923adbc1c1901e",
+        "reserveRankPosition": 37,
+        "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacesOccupant": "RESERVE_REPLACEMENT"
+      },
+      {
+        "order": 2,
+        "workItemId": "R:75:38",
+        "kind": "REPLACEMENT",
+        "selectionIndex": 75,
+        "split": "FINAL_HOLDOUT",
+        "drawEntryKind": "RESERVE",
+        "drawEntrySha256": "d8784b006bac50ce3bfb9c95b12226865e0acb42686866cc316d1cb4654912bf",
+        "reserveRankPosition": 38,
+        "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacesOccupant": "RESERVE_REPLACEMENT"
+      },
+      {
+        "order": 3,
+        "workItemId": "P:76",
+        "kind": "PRIMARY",
+        "selectionIndex": 76,
+        "split": "DEV_CONFIRM",
+        "drawEntryKind": "SELECTION",
+        "drawEntrySha256": "c6e4f1ae9c1271172925e8cb36ca4683661b047eec8654630c2405b340b7d39e",
+        "reserveRankPosition": null,
+        "replacementReason": null,
+        "replacesOccupant": null
+      },
+      {
+        "order": 4,
+        "workItemId": "P:77",
+        "kind": "PRIMARY",
+        "selectionIndex": 77,
+        "split": "FINAL_HOLDOUT",
+        "drawEntryKind": "SELECTION",
+        "drawEntrySha256": "3c8321fdc0fef79c4f1a3033000421fd2af59487a2c5e9cbebcce58baa7fb89d",
+        "reserveRankPosition": null,
+        "replacementReason": null,
+        "replacesOccupant": null
+      },
+      {
+        "order": 5,
+        "workItemId": "P:78",
+        "kind": "PRIMARY",
+        "selectionIndex": 78,
+        "split": "DEV_TRAIN",
+        "drawEntryKind": "SELECTION",
+        "drawEntrySha256": "d0ef0211785c67caafe177746294574e40e7977529e76c4e425bff8832225a31",
+        "reserveRankPosition": null,
+        "replacementReason": null,
+        "replacesOccupant": null
+      }
+    ],
+    "replacementItems": 2,
+    "primaryItems": 3
+  },
+  "q1Derivation": {
+    "rule": "Q1 orders ACTUAL current replacement obligations by ascending selection index",
+    "queue": [73, 75],
+    "slot73": "RESERVE_REPLACEMENT reserve35 (ledger sequence 35), FINAL_HOLDOUT; authoritative DNS_NAME_NOT_FOUND; case A [0,0]; Q3 rank 3 ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE; a NEW Q2 same-slot obligation",
+    "slot75": "RESERVE_REPLACEMENT reserve36 (ledger sequence 36), FINAL_HOLDOUT; TLS_PROTOCOL_INCOMPATIBLE from a compliant public-IPv4 vantage (evidence retained by owner ruling); case A [0,0]; Q3 rank 3 ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE; a NEW Q2 same-slot obligation",
+    "successfulSlotsMayNotBeReServed": [72, 74],
+    "noSlotIsPendingCapabilityReview": true,
+    "noOtherCurrentObligationExists": true
+  },
+  "reserveAssignmentDerivation": {
+    "rule": "Q2 assigns the next unused reserve positions monotonically, in Q1 order",
+    "nextUnusedReservePositionBeforeThisWindow": 37,
+    "assignments": [
+      {
+        "selectionIndex": 73,
+        "reserveRankPosition": 37
+      },
+      {
+        "selectionIndex": 75,
+        "reserveRankPosition": 38
+      }
+    ],
+    "reserve38MayNotPrecedeReserve37": true,
+    "reserve39IsNotAssigned": true,
+    "nextUnusedReservePositionAfterThePlannedAppend": 39
+  },
+  "selectedOption": {
+    "option": "REPLACEMENT_FIRST_THEN_NEXT_UNTOUCHED_PRIMARIES",
+    "noAlternativeWasAvailableToChoose": "with 2 obligations and a window size of 5, the composition is fully determined",
+    "exactOrderRendered": "R:73:37 -> R:75:38 -> P:76 -> P:77 -> P:78",
+    "noOtherCompositionIsAuthorised": true
+  },
+  "frozenSplitCrossCheck": {
+    "method": "recomputed from SPLIT_ASSIGNMENT_CYCLE_V2_R2[i mod 22] and compared against the frozen draw",
+    "slot73": "73 mod 22 = 7 -> FINAL_HOLDOUT",
+    "slot75": "75 mod 22 = 9 -> FINAL_HOLDOUT",
+    "slot76": "76 mod 22 = 10 -> DEV_CONFIRM",
+    "slot77": "77 mod 22 = 11 -> FINAL_HOLDOUT",
+    "slot78": "78 mod 22 = 12 -> DEV_TRAIN",
+    "windowSplitComposition": {
+      "DEV_TRAIN": 1,
+      "DEV_CONFIRM": 1,
+      "FINAL_HOLDOUT": 3
+    },
+    "finalHoldoutItemsInThisWindow": ["R:73:37", "R:75:38", "P:77"],
+    "splitsAreTheSELECTIONSLOTSSplits": "a replacement inherits the selection slot's split"
+  },
+  "derivedThresholds": {
+    "plannedWindowSize": 5,
+    "frozenDenominator": 5,
+    "p2Threshold": 3,
+    "p5Threshold": 2,
+    "windowLocalStateIsFresh": true,
+    "p6IsGenerationGlobal": true,
+    "thresholdsAreNotChangedHere": true
+  },
+  "p6AfterTheWindowsAppend": {
+    "inputsAfterThePlannedAppend": {
+      "reserveConsumed": 39,
+      "successfulOrganisationCount": 74
+    },
+    "evaluation": "39 > 10 TRUE and 74 < 50 FALSE",
+    "status": "REMAINS_NOT_TRIGGERED"
+  },
+  "plannedLedgerTransition": {
+    "entriesBefore": 37,
+    "entriesAfter": 39,
+    "appendedSequences": [37, 38],
+    "sequence37": {
+      "selectionIndex": 73,
+      "reserveRankPosition": 37,
+      "priorOccupantKind": "RESERVE_REPLACEMENT",
+      "priorReserveRankPosition": 35,
+      "previousSequenceForSlot": 35,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    },
+    "sequence38": {
+      "selectionIndex": 75,
+      "reserveRankPosition": 38,
+      "priorOccupantKind": "RESERVE_REPLACEMENT",
+      "priorReserveRankPosition": 36,
+      "previousSequenceForSlot": 36,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    },
+    "reserveConsumedAfter": 39,
+    "reserveUnusedAfter": 1,
+    "nextUnusedReservePositionAfter": 39,
+    "unusedReservePositionsAfter": [39],
+    "appendHappensBeforeAnyInstitutionNetworkActivity": true,
+    "noAppendOccursDuringAdjudication": true
+  },
+  "reserveScarcity": {
+    "unusedBeforeThisWindow": 3,
+    "consumedByThisWindowsPreNetworkAppend": 2,
+    "unusedAfter": 1,
+    "scarcityGateAtThisPlanningPoint": {
+      "currentQ1ObligationCount": 2,
+      "remainingUnusedReserveCount": 3,
+      "obligationsExceedReserves": false,
+      "result": "PASS - every current obligation can be served"
+    },
+    "critical": true,
+    "afterTheAppendOnlyReserve39Remains": true,
+    "notInvented": [
+      "skipping a Q1 obligation",
+      "dynamic assignment of reserve 39",
+      "a redraw",
+      "additional reserves",
+      "a redefinition of acquisition success"
+    ],
+    "ifAdjudicationLeavesMoreObligationsThanUnusedReserves": "record the exact state and STOP after adjudication; a terminal is declared only if the frozen reserve-exhaustion condition has mechanically occurred",
+    "frozenTerminalRemains": "reserve list exhausted before 110 successes -> CORPUS_FREEZE_REFUSED"
+  },
+  "runReferenceProvenanceGoingForward": {
+    "derivation": "sha256(UTF-8 bytes of the lowercase canonical run UUID), no prefix",
+    "fullDigestOnly": true,
+    "noRawRunUuidIsPublished": true
+  },
+  "thisStrategyDoesNot": [
+    "authorise any network activity",
+    "append to the replacement ledger",
+    "assign a reserve",
+    "write to the database",
+    "authorise any window after this one",
+    "retry R:73:35 or R:75:36",
+    "insert reserve 39, index 79 or any re-served closed slot",
+    "change Methodology R3, Q3, P5, the fetch policy or the DNS_NAME_NOT_FOUND interpretation",
+    "repair the strategy adapter",
+    "read, merge or wait for any A3 worktree"
+  ],
+  "negativeProbes": {
+    "purpose": "the landed strategy adapter is a STRUCTURAL check with no access to acquisition outcomes. Every probe runs against BOTH the unmodified adapter AND an independent governance check comparing the candidate with the independently re-derived current state; only the latter is authority",
+    "probesAreRunAgainstTheLandedAdapterUnmodified": true,
+    "noCodeFixIsMadeHere": true,
+    "adapterAcceptanceOfAnInvalidStateIsRecordedButNeverTreatedAsAuthority": true,
+    "probes": [
+      "successful slot 72 re-served ahead of Q1: R:72:37 -> R:73:38 -> R:75:39 -> P:76 -> P:77",
+      "successful slot 74 re-served in place of slot 73: R:74:37 -> R:75:38 -> P:76 -> P:77 -> P:78, with a matching asserted state",
+      "slot 73 claimed as ORIGINAL_SELECTION instead of RESERVE_REPLACEMENT reserve35",
+      "slot 75 claimed as ORIGINAL_SELECTION instead of RESERVE_REPLACEMENT reserve36",
+      "reserve 38 before reserve 37: R:73:38 -> R:75:37",
+      "reserve 39 used early: R:73:37 -> R:75:39",
+      "P:79 before P:76 (primaries shifted): R:73:37 -> R:75:38 -> P:79 -> P:77 -> P:78",
+      "a forged ACQUISITION_SUCCESSFUL count (74 -> 99)",
+      "a stale strategy bound to the pre-Window-10 35-entry ledger: R:73:35 -> R:75:36 -> P:76 -> P:77 -> P:78, supplied with the 35-entry ledger bytes",
+      "replay of the SPENT Window-10 strategy (bound to the 35-entry ledger) against the current 37-entry ledger"
+    ]
+  },
+  "probeResults": {
+    "adapterUnderTest": "windowSpecFromAcquisitionWindowStrategy, src/test/harness/phase2b2d/continuationWindow/windowPlan.ts, landed and unmodified",
+    "independentGovernance": "a separate check in the build tool comparing the candidate, the asserted state and the bound ledger with the state re-derived from the database and the committed ledger; it never calls the adapter",
+    "baseline": {
+      "adapter": "ACCEPT",
+      "independentGovernance": "ACCEPT",
+      "boundComposition": "R:73:37 -> R:75:38 -> P:76 -> P:77 -> P:78"
+    },
+    "probes": [
+      {
+        "probe": "successful slot 72 re-served ahead of Q1: R:72:37 -> R:73:38 -> R:75:39 -> P:76 -> P:77",
+        "adapter": "ACCEPT",
+        "adapterBoundComposition": "R:72:37 -> R:73:38 -> R:75:39 -> P:76 -> P:77",
+        "independentGovernance": "REFUSE",
+        "independentRefusal": "asserted failure set differs from the derived Q1"
+      },
+      {
+        "probe": "successful slot 74 re-served in place of slot 73: R:74:37 -> R:75:38 -> P:76 -> P:77 -> P:78, with a matching asserted state",
+        "adapter": "ACCEPT",
+        "adapterBoundComposition": "R:74:37 -> R:75:38 -> P:76 -> P:77 -> P:78",
+        "independentGovernance": "REFUSE",
+        "independentRefusal": "asserted failure set differs from the derived Q1"
+      },
+      {
+        "probe": "slot 73 claimed as ORIGINAL_SELECTION instead of RESERVE_REPLACEMENT reserve35",
+        "adapter": "REFUSE",
+        "adapterRefusal": "the acquisition-window strategy cannot bind a spec: R:73:37: claimed occupant kind is not the ledger's (RESERVE_REPLACEMENT)",
+        "independentGovernance": "REFUSE",
+        "independentRefusal": "slot 73 occupant claimed ORIGINAL_SELECTION, ledger says RESERVE_REPLACEMENT"
+      },
+      {
+        "probe": "slot 75 claimed as ORIGINAL_SELECTION instead of RESERVE_REPLACEMENT reserve36",
+        "adapter": "REFUSE",
+        "adapterRefusal": "the acquisition-window strategy cannot bind a spec: R:75:38: claimed occupant kind is not the ledger's (RESERVE_REPLACEMENT)",
+        "independentGovernance": "REFUSE",
+        "independentRefusal": "slot 75 occupant claimed ORIGINAL_SELECTION, ledger says RESERVE_REPLACEMENT"
+      },
+      {
+        "probe": "reserve 38 before reserve 37: R:73:38 -> R:75:37",
+        "adapter": "REFUSE",
+        "adapterRefusal": "the acquisition-window strategy cannot bind a spec: R:73:38: not the planner's slot/reserve assignment at replacement 0",
+        "independentGovernance": "REFUSE",
+        "independentRefusal": "replacement 0 uses reserve 38, next-unused monotonic requires 37"
+      },
+      {
+        "probe": "reserve 39 used early: R:73:37 -> R:75:39",
+        "adapter": "REFUSE",
+        "adapterRefusal": "the acquisition-window strategy cannot bind a spec: R:75:39: not the planner's slot/reserve assignment at replacement 1",
+        "independentGovernance": "REFUSE",
+        "independentRefusal": "replacement 1 uses reserve 39, next-unused monotonic requires 38"
+      },
+      {
+        "probe": "P:79 before P:76 (primaries shifted): R:73:37 -> R:75:38 -> P:79 -> P:77 -> P:78",
+        "adapter": "REFUSE",
+        "adapterRefusal": "the acquisition-window strategy cannot bind a spec: P:79: primaries must be the next never-started slots in frozen order",
+        "independentGovernance": "REFUSE",
+        "independentRefusal": "primary 0 is P:79, derived next never-started requires P:76"
+      },
+      {
+        "probe": "a forged ACQUISITION_SUCCESSFUL count (74 -> 99)",
+        "adapter": "ACCEPT",
+        "adapterBoundComposition": "R:73:37 -> R:75:38 -> P:76 -> P:77 -> P:78",
+        "independentGovernance": "REFUSE",
+        "independentRefusal": "asserted success count differs from the independently derived count"
+      },
+      {
+        "probe": "a stale strategy bound to the pre-Window-10 35-entry ledger: R:73:35 -> R:75:36 -> P:76 -> P:77 -> P:78, supplied with the 35-entry ledger bytes",
+        "adapter": "ACCEPT",
+        "adapterBoundComposition": "R:73:35 -> R:75:36 -> P:76 -> P:77 -> P:78",
+        "independentGovernance": "REFUSE",
+        "independentRefusal": "strategy is not bound to the CURRENT committed 37-entry ledger"
+      },
+      {
+        "probe": "replay of the SPENT Window-10 strategy (bound to the 35-entry ledger) against the current 37-entry ledger",
+        "adapter": "REFUSE",
+        "adapterRefusal": "the acquisition-window strategy cannot bind a spec: the supplied ledger bytes are not the bound starting revision",
+        "independentGovernance": "REFUSE",
+        "independentRefusal": "strategy is not bound to the CURRENT committed 37-entry ledger"
+      }
+    ],
+    "summary": {
+      "total": 10,
+      "independentGovernanceRefused": 10,
+      "adapterRefused": 6,
+      "adapterAccepted": 4,
+      "adapterAcceptedProbes": [
+        "successful slot 72 re-served ahead of Q1: R:72:37 -> R:73:38 -> R:75:39 -> P:76 -> P:77",
+        "successful slot 74 re-served in place of slot 73: R:74:37 -> R:75:38 -> P:76 -> P:77 -> P:78, with a matching asserted state",
+        "a forged ACQUISITION_SUCCESSFUL count (74 -> 99)",
+        "a stale strategy bound to the pre-Window-10 35-entry ledger: R:73:35 -> R:75:36 -> P:76 -> P:77 -> P:78, supplied with the 35-entry ledger bytes"
+      ],
+      "theAdapterIsAStructuralCHECKNotAnAUTHORITY": true,
+      "compositionWasNotChosenFromAdapterAcceptance": true,
+      "codeFixMadeHere": false
+    }
+  },
+  "immutability": "append-only. This record is never edited."
+}
