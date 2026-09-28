@@ -8,6 +8,7 @@
  * not read back.
  */
 
+import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -76,6 +77,8 @@ import {
 } from '../harness/phase2b2d/generation2Freeze/materialiseFreeze.js';
 
 const REPO = resolve(import.meta.dirname, '../../..');
+/** The commit that ended the Methodology V3 / Generation-2 freeze (its audit). */
+const FREEZE_TERMINAL_COMMIT = '218cd69daaaf43b8eef718cd7a96a4cf35d62044';
 const read = (path: string): string => readFileSync(join(REPO, path), 'utf8');
 const sha256 = (text: string): string => createHash('sha256').update(text, 'utf8').digest('hex');
 const range = (from: number, to: number): number[] =>
@@ -367,11 +370,32 @@ describe('Phase 2B-2D A2 Methodology V3 / Generation-2 owner freeze', () => {
       expect(record.reserveAssigned).toBe(false);
       expect(record.acquisitionRunCreated).toBe(false);
     }
-    const generation2Names = readdirSync(join(REPO, 'docs/evaluation')).filter((name) =>
+    // The filename claim is TEMPORAL: it is about what the freeze created, so it
+    // is evaluated over the freeze terminal's own tree. A later, separately
+    // authorised task (the first-window operational readiness record, whose
+    // name the owner fixed and which contains WINDOW) may add a Generation-2
+    // record; any such record must still authorise nothing, checked below.
+    const namesAt = (commit: string): string[] =>
+      execFileSync('git', ['-C', REPO, 'ls-tree', '--name-only', `${commit}:docs/evaluation`], {
+        encoding: 'utf8',
+      })
+        .split('\n')
+        .filter(Boolean);
+    const generation2NamesAtFreeze = namesAt(FREEZE_TERMINAL_COMMIT).filter((name) =>
       /GENERATION2|GEN2|METHOD_V3/i.test(name),
     );
-    for (const name of generation2Names) {
+    for (const name of generation2NamesAtFreeze) {
       expect(name).not.toMatch(/STRATEGY|PLAN|ASSIGNMENT|LIVE|AUTHORITY|RESULT|WINDOW/i);
+    }
+    for (const name of readdirSync(join(REPO, 'docs/evaluation')).filter(
+      (entry) => /GENERATION2|GEN2|METHOD_V3/i.test(entry) && entry.endsWith('.json'),
+    )) {
+      const record = JSON.parse(read(`docs/evaluation/${name}`)) as Record<string, unknown>;
+      expect({ name, a: record.thisFileAuthorises, l: record.isLiveAuthority }).toEqual({
+        name,
+        a: [],
+        l: false,
+      });
     }
     expect(readdirSync(join(REPO, GENERATION2_CORPUS_NAMESPACE)).sort()).toEqual([
       'PHASE_2B_2D_METHOD_V3_GEN2_RESERVE_SCHEDULE_V1.json',
