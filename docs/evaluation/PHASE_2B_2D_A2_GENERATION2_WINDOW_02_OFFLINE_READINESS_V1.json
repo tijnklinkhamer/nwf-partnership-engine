@@ -1,0 +1,613 @@
+{
+  "recordId": "phase2b-2d-a2-generation2-window-02-offline-readiness-v1",
+  "recordKind": "GENERATION2_WINDOW_OFFLINE_READINESS",
+  "records": "PHASE_2B_2D_A2_GENERATION2_WINDOW_02_OFFLINE_READINESS_V1",
+  "status": "OFFLINE_READINESS",
+  "task": "A2_GENERATION2_POST_WINDOW_01_STATE_BRIDGE_AND_WINDOW_02_OFFLINE_READINESS",
+  "ownerDecision": "APPROVE_GENERATION2_ADJUDICATION_AWARE_STATE_BRIDGE_AND_WINDOW_02_OFFLINE_READINESS_V1",
+  "terminalState": "GENERATION2_WINDOW_02_OFFLINE_READINESS_READY_FOR_OWNER_LIVE_AUTHORITY_DECISION",
+  "recordedAtUtc": "2026-09-28T20:20:57Z",
+  "recordedAtUtcSource": "date -u, read from the shell when this readiness was built",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "b281bf3b1dfc25c4540c6b17c1e8b97db468a77d",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "networkAuthorised": false,
+  "databaseAuthorised": false,
+  "ledgerMutationAuthorised": false,
+  "reserveAssigned": false,
+  "networkUsed": false,
+  "databaseRead": false,
+  "acquisitionRunCreated": false,
+  "bound": {
+    "frozenMethodologyV3AuthorityChain": {
+      "methodologyV3Approval": {
+        "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_OWNER_FREEZE_APPROVAL_V1.json",
+        "sha256": "36e8071738e1842ad03a9b51cf5820d58015305191c48490ef515e1cd1c34f9c",
+        "bytes": 12318
+      },
+      "frame": {
+        "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+        "sha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+        "bytes": 3554080
+      },
+      "draw": {
+        "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+        "sha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+        "bytes": 74047
+      },
+      "generation1Terminal": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION1_CORPUS_FREEZE_REFUSAL_V1.json",
+        "sha256": "6e37f7970ef6d222c3e775da3e9d629efa2645374fbda39e53e570041c82a1b5",
+        "bytes": 9720
+      },
+      "generation1Ledger": {
+        "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+        "sha256": "90febac7b3e7c6ecb84ff879f948cf8e52de9731590b1720993f80557f3a0c2d",
+        "bytes": 28735
+      },
+      "frozenSchedule": {
+        "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_GEN2_RESERVE_SCHEDULE_V1.json",
+        "sha256": "ee5ce57f90dd59453f9354bc81c32d98f3390a5d42cd0317d91f4ec1d181e594",
+        "bytes": 2739585
+      },
+      "carryForwardFeasibility": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_CARRY_FORWARD_FEASIBILITY_V1.json",
+        "sha256": "7467435b816c2b97c34af7e8da23bcd1575956477fe3cc6fa59a30600a43c38d",
+        "bytes": 143780
+      },
+      "carryForwardBaseline": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_CARRY_FORWARD_BASELINE_V1.json",
+        "sha256": "739d40466f8fbc95085ea5467164a2672fa4f102677e22d4b89847eeaa6e205f",
+        "bytes": 20650
+      },
+      "genesisLedger": {
+        "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+        "sha256": "b16a6ba8ec879c6f06008849aa3a79d79fc24e6de054180bc0d1b27a18d74a01",
+        "bytes": 4529
+      },
+      "frozenBaseline": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_FROZEN_BASELINE_V1.json",
+        "sha256": "edf056fe3338d06ed9390d97a51c18bced4f9edf2f098a11abeddca573220b90",
+        "bytes": 6146
+      }
+    },
+    "frozenHashes": {
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293",
+      "generation1LedgerHash": "a5a60d7e02faa831d38bab131a42e94f80203989989276393216fdc814623e18",
+      "canonicalScheduleHash": "024fe88f5dcd0b781ba87e114f4acd6e8f587f0a49525c7660fde465b7264367",
+      "frozenScheduleHash": "4ab6295f624b1312f2c4c2a1316a32b9bff46967e15588cd6f73579bd91b68c7",
+      "genesisLedgerHash": "4089b6b4490db972f278d738f3269a73845c1a8161b379c155d21f719867b4d9"
+    },
+    "currentGeneration2Ledger": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "fileSha256": "cb36ba532e5fed379cebfa52bd22e6ce2e7b5fe70a28dab85f0c5e8ffe36a387",
+      "bytes": 5743,
+      "ledgerHash": "ce56b07efbf7fdfd0ba56dc473ef9c4465fd3852a2c012f1c24271612465ab82",
+      "entryCount": 2,
+      "appendCommit": "bbed7d25b742c3b205a593e05ee5a770399ea3a6",
+      "nextGeneration2ReservePosition": 2
+    },
+    "window01": {
+      "authority": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_AUTHORITY_V1.json",
+        "sha256": "e4874f7e84a184bd473b75f15dba0fd90700d4bb33ec0093593de90f4dea38ba",
+        "commit": "219f6d4a1cb869e9253a9701d48543a88f80f0ab"
+      },
+      "liveResult": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_RESULT_V1.json",
+        "sha256": "7162938e6f8ba5f7808075f58021b540244b2b5a0b05d61db0812cfd4d8102d0",
+        "commit": "41bbedad759c26f1cb1e110bfdd07e1599809178"
+      },
+      "adjudication": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_EVIDENCE_ADJUDICATION_V1.json",
+        "sha256": "89e4f166e56292374d3cf1aa2fe8037225770d48193ae619a32a1d4c7f1df5df",
+        "commit": "b281bf3b1dfc25c4540c6b17c1e8b97db468a77d",
+        "terminalState": "PHASE_2B_2D_A2_GENERATION2_WINDOW_01_ADJUDICATED_AUTHORITY_CONSUMED_STOPPED"
+      },
+      "startingLedgerRevisionCommit": "40b6b0f40a7ae13b00fbf064ed8143996c926f1d",
+      "startingLedgerFileSha256": "b16a6ba8ec879c6f06008849aa3a79d79fc24e6de054180bc0d1b27a18d74a01"
+    },
+    "stateBridge": {
+      "version": "GENERATION2_ADJUDICATION_HISTORY_BRIDGE_V1",
+      "implementation": [
+        "src/test/harness/phase2b2d/generation2History/adjudicationHistory.ts",
+        "src/test/harness/phase2b2d/generation2History/historyIntegrity.ts"
+      ],
+      "evolvedApi": [
+        "deriveGeneration2CurrentState(basis, ledger, history?)",
+        "planCompleteQ1(basis, ledger, history?)",
+        "buildGeneration2WindowSpec({..., history?})",
+        "prepareGeneration2ReplacementAppend({..., history?})",
+        "computeGeneration2Preflight({..., adjudicationHistory?})"
+      ]
+    },
+    "derivedWindow02SpecHash": "59bb957942e6f06e8c530bb5dffcd3118f9e3ff5b4a3fc9e1af8ea7e03297b9c"
+  },
+  "defectInTheFirstWindowStateModel": {
+    "model": "carried start + Generation-2 ledger: every ledger entry is REPLACEMENT_ASSIGNED_AWAITING_EXECUTION",
+    "zeroHistoryReadingOfTheCurrentLedger": {
+      "ACQUISITION_SUCCESSFUL": 75,
+      "CURRENT_ACQUISITION_FAILURE": [],
+      "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION": [75, 76],
+      "NEVER_STARTED": {
+        "from": 77,
+        "to": 109,
+        "count": 33
+      },
+      "q1": []
+    },
+    "why": "it has no input for committed adjudications, so after Window 01 it still reports 75 / [] / [75,76] / 77..109: it cannot see that G2R:75:0, G2R:76:1, G2P:77 and G2P:79 succeeded or that G2P:78 failed, and it can never open the slot-78 obligation"
+  },
+  "historicalFirstWindowSemanticsPreserved": {
+    "history": "EMPTY",
+    "ACQUISITION_SUCCESSFUL": 75,
+    "CURRENT_ACQUISITION_FAILURE": [75, 76],
+    "NEVER_STARTED": {
+      "from": 77,
+      "to": 109,
+      "count": 33
+    },
+    "q1": [75, 76],
+    "window01SpecRebuiltWithEmptyHistory": "af9eafe58251a9dbb6a0af5baae0258b2a82a1f1183554d45f3b2dd14898fb23",
+    "equalsWindow01AuthorityBoundSpecHash": true
+  },
+  "adjudicationHistory": {
+    "explicitOrderedBindingsOnly": true,
+    "directoryDiscovery": false,
+    "binding": {
+      "bridgeVersion": "GENERATION2_ADJUDICATION_HISTORY_BRIDGE_V1",
+      "windowCount": 1,
+      "consumedLedgerEntryCount": 2,
+      "windows": [
+        {
+          "windowOrdinal": 1,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_AUTHORITY_V1.json",
+            "sha256": "e4874f7e84a184bd473b75f15dba0fd90700d4bb33ec0093593de90f4dea38ba"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_RESULT_V1.json",
+            "sha256": "7162938e6f8ba5f7808075f58021b540244b2b5a0b05d61db0812cfd4d8102d0"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_EVIDENCE_ADJUDICATION_V1.json",
+            "sha256": "89e4f166e56292374d3cf1aa2fe8037225770d48193ae619a32a1d4c7f1df5df"
+          },
+          "windowSpecHash": "af9eafe58251a9dbb6a0af5baae0258b2a82a1f1183554d45f3b2dd14898fb23",
+          "startingLedger": {
+            "fileSha256": "b16a6ba8ec879c6f06008849aa3a79d79fc24e6de054180bc0d1b27a18d74a01",
+            "ledgerHash": "4089b6b4490db972f278d738f3269a73845c1a8161b379c155d21f719867b4d9",
+            "entryCount": 0
+          },
+          "ledgerHashAfterAppend": "ce56b07efbf7fdfd0ba56dc473ef9c4465fd3852a2c012f1c24271612465ab82"
+        }
+      ]
+    },
+    "window01Replay": {
+      "stateBeforeItems": {
+        "ACQUISITION_SUCCESSFUL": 75,
+        "CURRENT_ACQUISITION_FAILURE": [],
+        "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION": [75, 76],
+        "NEVER_STARTED": {
+          "from": 77,
+          "to": 109,
+          "count": 33
+        }
+      },
+      "items": [
+        {
+          "workItemId": "G2R:75:0",
+          "selectionIndex": 75,
+          "verdict": "ACQUISITION_SUCCESSFUL",
+          "q3Reason": null,
+          "runRefSha256": "01ef938f6acde6d4b6fe916ad619b0dc84238a2545d609b0dc34bc062f380eba"
+        },
+        {
+          "workItemId": "G2R:76:1",
+          "selectionIndex": 76,
+          "verdict": "ACQUISITION_SUCCESSFUL",
+          "q3Reason": null,
+          "runRefSha256": "3f535c82deae722518e514b7bae458eb323ded53fcced9d90912e7374d055cf0"
+        },
+        {
+          "workItemId": "G2P:77",
+          "selectionIndex": 77,
+          "verdict": "ACQUISITION_SUCCESSFUL",
+          "q3Reason": null,
+          "runRefSha256": "a7a90bef0b7eb1bbc597aec952a93575dc5772ce00e4f33bd4119aae5c8dda74"
+        },
+        {
+          "workItemId": "G2P:78",
+          "selectionIndex": 78,
+          "verdict": "ACQUISITION_UNSUCCESSFUL",
+          "q3Reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+          "runRefSha256": "4bcb382ec50c89b6f019d12ac88c7cebb268b92fbed0a3c495f33764c632859b"
+        },
+        {
+          "workItemId": "G2P:79",
+          "selectionIndex": 79,
+          "verdict": "ACQUISITION_SUCCESSFUL",
+          "q3Reason": null,
+          "runRefSha256": "0abe16c5033c7a7d8a7f715f855b4875bd647b138117cb4ac695781562cae241"
+        }
+      ],
+      "consumedLedgerSequences": [0, 1],
+      "summaryComparedAndEqual": true
+    },
+    "checks": [
+      "every record re-hashed against its pin; authority -> LIVE_RESULT -> adjudication cross-bindings exact (path, sha256, bytes)",
+      "authority: live, Generation 2, windowOrdinal = history position, one window, per-item 1, concurrency 1, exact order",
+      "authority starting revision = this ledger prefix; planned append = the ledger entries at those sequences; Q1 ascending and discharged",
+      "authorised items = the window rule over the replayed state; digests re-bound from the frozen schedule/frame/draw",
+      "LIVE_RESULT: same authority and spec; executed items a prefix of the authorised order, each exactly once, one clean completed run, unique run references",
+      "adjudication: bound LIVE_RESULT, authority and ledger revision; validation accepted; one verdict per executed item with identical identity and run reference; integrity CLEAN",
+      "verdicts in the frozen vocabulary; failures carry a frozen Q3 reason; successes carry none",
+      "the record summaries (state before/after, by split, Q1, obligations, ledger, reserves, P6, window summary) equal the replay",
+      "each authority equals the spec the unchanged builder rebuilds over its starting revision and prior history"
+    ],
+    "rebuiltWindowSpecHashes": ["af9eafe58251a9dbb6a0af5baae0258b2a82a1f1183554d45f3b2dd14898fb23"]
+  },
+  "operationalPrerequisite": {
+    "name": "ADJUDICATION_HISTORY_INTEGRITY",
+    "isFrozenP7": false,
+    "holds": true,
+    "onCurrentLedgerPreflight": true,
+    "onProspectiveLedgerPreflight": true,
+    "liveDriverRule": "a future live Window-02 driver must require it before every item, as an operational stop OUTSIDE P1-P8; frozen P7 is unchanged"
+  },
+  "currentState": {
+    "ACQUISITION_SUCCESSFUL": 79,
+    "acquisitionSuccessfulBySplit": {
+      "DEV_TRAIN": 14,
+      "DEV_CONFIRM": 33,
+      "FINAL_HOLDOUT": 32
+    },
+    "CURRENT_ACQUISITION_FAILURE": [78],
+    "failureReasons": [
+      {
+        "selectionIndex": 78,
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+      }
+    ],
+    "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION": [],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "CARRY_FORWARD_REFUSED": [],
+    "NEVER_STARTED": {
+      "from": 80,
+      "to": 109,
+      "count": 30,
+      "bySplit": {
+        "DEV_TRAIN": 5,
+        "DEV_CONFIRM": 12,
+        "FINAL_HOLDOUT": 13
+      }
+    },
+    "q1": [78],
+    "ledgerEntryCount": 2,
+    "ledgerHash": "ce56b07efbf7fdfd0ba56dc473ef9c4465fd3852a2c012f1c24271612465ab82",
+    "nextGeneration2ReservePosition": 2,
+    "accounting": "79 successful + 1 failed + 0 assigned + 0 pending + 30 never started = 110",
+    "p6": {
+      "rule": "reserveConsumed > 10 AND successfulOrganisationCount < 50",
+      "reserveConsumed": 2,
+      "successfulOrganisationCount": 79,
+      "fires": false
+    }
+  },
+  "q1": {
+    "rule": "APPROVE_ASCENDING_SELECTION_INDEX_RESERVE_ASSIGNMENT_V1: every current failed-slot obligation, ascending, next unused Generation-2 positions monotonically; recomputed here and by the landed planner, which agree",
+    "assignments": [
+      {
+        "selectionIndex": 78,
+        "generation2ReserveRankPosition": 2,
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+      }
+    ]
+  },
+  "prospectiveAppend": {
+    "inMemoryOnly": true,
+    "persisted": false,
+    "recordedAtUtc": "2026-09-28T20:20:57Z",
+    "recordedAtUtcIsIllustrative": "a live authority supplies its own recordedAtUtc, so the live entry hash and ledgerHash will differ from these by construction",
+    "sameSlotRule": "APPROVE_SAME_SLOT_APPEND_ONLY_REPLACEMENT_CHAIN_V1: slot 78 has never held a Generation-2 reserve, so it replaces the Generation-1 terminal (original-selection) occupant and previousSequenceForSlot is null",
+    "entries": [
+      {
+        "sequence": 2,
+        "selectionIndex": 78,
+        "generation2ReserveRankPosition": 2,
+        "split": "DEV_TRAIN",
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacedOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+        "previousSequenceForSlot": null,
+        "previousEntryHash": "4781c1c048b6d1b5c529decebd25f548e4e9fc5af2dafb9001f1c21dd93367d6",
+        "previousEntryHashIsCanonicalEntry1": true,
+        "entryHash": "df5616e12b25b75bfae1c7e35b7137b1d7eec1c2cc4779fa9d7c4fa612dbe43c"
+      }
+    ],
+    "previousLedgerHash": "ce56b07efbf7fdfd0ba56dc473ef9c4465fd3852a2c012f1c24271612465ab82",
+    "nextLedgerHash": "6224a28451c58e11f5f447da4cdd9e32f2d7efe59a7c4dbb657e34ab661dff38",
+    "entryCountBefore": 2,
+    "entryCountAfter": 3,
+    "stateAfter": {
+      "ACQUISITION_SUCCESSFUL": 79,
+      "CURRENT_ACQUISITION_FAILURE": [],
+      "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION": [78],
+      "NEVER_STARTED": {
+        "from": 80,
+        "to": 109,
+        "count": 30
+      },
+      "q1": [],
+      "ledgerEntryCount": 3,
+      "nextGeneration2ReservePosition": 3,
+      "accounting": "79 successful + 0 failed + 1 assigned + 0 pending + 30 never started = 110"
+    },
+    "unadjudicatedSuffix": "after the append, entry 2 is beyond every adjudicated window, so the bridge reads it as REPLACEMENT_ASSIGNED_AWAITING_EXECUTION - never success or failure"
+  },
+  "window02": {
+    "windowSpecHash": "59bb957942e6f06e8c530bb5dffcd3118f9e3ff5b4a3fc9e1af8ea7e03297b9c",
+    "plannedWindowSize": 5,
+    "rule": "every Q1 replacement first, then the lowest NEVER_STARTED original primaries ascending, to the planned size (the unchanged builder)",
+    "order": ["G2R:78:2", "G2P:80", "G2P:81", "G2P:82", "G2P:83"],
+    "composition": {
+      "DEV_TRAIN": 2,
+      "DEV_CONFIRM": 1,
+      "FINAL_HOLDOUT": 2
+    },
+    "workItems": [
+      {
+        "order": 1,
+        "kind": "REPLACEMENT",
+        "workItemId": "G2R:78:2",
+        "selectionIndex": 78,
+        "generation2ReserveRankPosition": 2,
+        "split": "DEV_TRAIN",
+        "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacesOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+        "identityDigestKind": "GENERATION2_EXECUTION_ENTRY_SHA256",
+        "identityDigest": "5e89b65d4e012605ad6064a594fca281efb424520964e78783cdf141e3fe70a1",
+        "rootAuthorityCount": 1
+      },
+      {
+        "order": 2,
+        "kind": "PRIMARY",
+        "workItemId": "G2P:80",
+        "selectionIndex": 80,
+        "generation2ReserveRankPosition": null,
+        "split": "FINAL_HOLDOUT",
+        "replacementReason": null,
+        "replacesOccupantKind": null,
+        "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+        "identityDigest": "540f59d816e90f115ca9aaa2bc3f6aaf720746af40549b30eec8ee8e7ece50ca",
+        "rootAuthorityCount": 1
+      },
+      {
+        "order": 3,
+        "kind": "PRIMARY",
+        "workItemId": "G2P:81",
+        "selectionIndex": 81,
+        "generation2ReserveRankPosition": null,
+        "split": "DEV_CONFIRM",
+        "replacementReason": null,
+        "replacesOccupantKind": null,
+        "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+        "identityDigest": "601cf158ada1ed5f62c29245a1ca8af5fc967ed5e6828efbee5afcc7229dfc4f",
+        "rootAuthorityCount": 1
+      },
+      {
+        "order": 4,
+        "kind": "PRIMARY",
+        "workItemId": "G2P:82",
+        "selectionIndex": 82,
+        "generation2ReserveRankPosition": null,
+        "split": "FINAL_HOLDOUT",
+        "replacementReason": null,
+        "replacesOccupantKind": null,
+        "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+        "identityDigest": "1e1dbf905c452a04abccfaebf9fcec52ca501268a92a6f0d90061bcd37e4a6c1",
+        "rootAuthorityCount": 1
+      },
+      {
+        "order": 5,
+        "kind": "PRIMARY",
+        "workItemId": "G2P:83",
+        "selectionIndex": 83,
+        "generation2ReserveRankPosition": null,
+        "split": "DEV_TRAIN",
+        "replacementReason": null,
+        "replacesOccupantKind": null,
+        "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+        "identityDigest": "f1623a4db476d43a3d09aea6716f089c833960d36ce7e677c656e11965ea9a25",
+        "rootAuthorityCount": 1
+      }
+    ],
+    "executionBindings": [
+      {
+        "workItemId": "G2R:78:2",
+        "kind": "REPLACEMENT",
+        "source": "frozen Generation-2 reserve schedule entry -> exact frozen frame entry",
+        "generation2ReserveRankPosition": 2,
+        "sourceFrameRankPosition": 152,
+        "frameEntrySha256RecomputedAndEqual": true,
+        "scheduleEntrySha256": "6a7e9872778de2ebf6624f8eb79ae989b51fc7a3237afdbcbe74e44147b05cf0",
+        "rootAuthorityCount": 1,
+        "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+        "identityDigestKind": "GENERATION2_EXECUTION_ENTRY_SHA256",
+        "identityDigest": "5e89b65d4e012605ad6064a594fca281efb424520964e78783cdf141e3fe70a1",
+        "equalsSpecIdentityDigest": true
+      },
+      {
+        "workItemId": "G2P:80",
+        "kind": "PRIMARY",
+        "source": "exact frozen original draw selection entry, cross-checked against the frozen frame",
+        "selectionIndex": 80,
+        "split": "FINAL_HOLDOUT",
+        "rootAuthorityCount": 1,
+        "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+        "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+        "identityDigest": "540f59d816e90f115ca9aaa2bc3f6aaf720746af40549b30eec8ee8e7ece50ca",
+        "equalsSpecIdentityDigest": true
+      },
+      {
+        "workItemId": "G2P:81",
+        "kind": "PRIMARY",
+        "source": "exact frozen original draw selection entry, cross-checked against the frozen frame",
+        "selectionIndex": 81,
+        "split": "DEV_CONFIRM",
+        "rootAuthorityCount": 1,
+        "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+        "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+        "identityDigest": "601cf158ada1ed5f62c29245a1ca8af5fc967ed5e6828efbee5afcc7229dfc4f",
+        "equalsSpecIdentityDigest": true
+      },
+      {
+        "workItemId": "G2P:82",
+        "kind": "PRIMARY",
+        "source": "exact frozen original draw selection entry, cross-checked against the frozen frame",
+        "selectionIndex": 82,
+        "split": "FINAL_HOLDOUT",
+        "rootAuthorityCount": 1,
+        "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+        "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+        "identityDigest": "1e1dbf905c452a04abccfaebf9fcec52ca501268a92a6f0d90061bcd37e4a6c1",
+        "equalsSpecIdentityDigest": true
+      },
+      {
+        "workItemId": "G2P:83",
+        "kind": "PRIMARY",
+        "source": "exact frozen original draw selection entry, cross-checked against the frozen frame",
+        "selectionIndex": 83,
+        "split": "DEV_TRAIN",
+        "rootAuthorityCount": 1,
+        "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+        "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+        "identityDigest": "f1623a4db476d43a3d09aea6716f089c833960d36ce7e677c656e11965ea9a25",
+        "equalsSpecIdentityDigest": true
+      }
+    ],
+    "noDatabaseNoHostnameNoUrl": true
+  },
+  "gates": {
+    "P1_P6_P8": "the landed evaluateContinuationWindowGate, unchanged; P7 is the Generation-2 preflight",
+    "p2ThresholdForPlannedSize": 3,
+    "p5ThresholdForPlannedSize": 2,
+    "p6": {
+      "successfulOrganisationCount": 79,
+      "reserveConsumedBeforeAppend": 2,
+      "reserveConsumedAfterAppend": 3,
+      "firesBefore": false,
+      "firesAfter": false
+    },
+    "p7": {
+      "frozenDefinitionUnchanged": "frame, draw, immutable Generation-1 ledger, Generation-2 reserve schedule, Generation-2 ledger; adjudication files are NOT a P7 input",
+      "invariantCount": 18,
+      "invariants": [
+        "methodologyV3ApprovalExact",
+        "frozenFrameExact",
+        "originalDrawExact",
+        "generation1TerminalExact",
+        "generation1LedgerExactAndValid",
+        "frozenReserveScheduleExact",
+        "canonicalScheduleHashExact",
+        "carryForwardBaselineExact",
+        "currentGeneration2LedgerExactAndValid",
+        "startingLedgerRevisionMatchesPrecommit",
+        "recomputedStateEqualsPlanningState",
+        "completeQ1EqualsPlanningQ1",
+        "windowSpecHashValid",
+        "workItemsMatchGovernance",
+        "executionEntryIdentitiesMatch",
+        "plannedReplacementAppendRecorded",
+        "noUnexpectedGeneration2Assignments",
+        "postAppendOccupantsMatchAssignedReserves"
+      ],
+      "onProspectivePostAppendLedger": {
+        "allTrue": true,
+        "falseInvariants": [],
+        "gateDecisionWithZeroCompleted": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "nextWorkItemId": "G2R:78:2"
+      },
+      "onCurrentCommittedLedger": {
+        "allTrue": false,
+        "falseInvariants": [
+          "plannedReplacementAppendRecorded",
+          "postAppendOccupantsMatchAssignedReserves"
+        ],
+        "gateDecisionWithZeroCompleted": "PAUSE_P7_INVARIANT_MISMATCH",
+        "meaning": "Window 02 cannot start until its Q1 append (slot 78 -> Generation-2 reserve 2) is persisted, committed and pushed before any institution network"
+      }
+    },
+    "p8": {
+      "condition": "P8",
+      "observationField": "hostStateAnomaly",
+      "meaning": "host sleep/wake, or a wall-clock gap inconsistent with the pacing clock",
+      "decision": "PAUSE_P8_HOST_STATE_ANOMALY",
+      "source": "src/test/harness/phase2b2d/continuationWindow/windowContract.ts",
+      "ruling": "P8_REMAINS_HOST_SLEEP_WAKE_OR_PACING_CLOCK_ANOMALY_ONLY_V1"
+    },
+    "operationalConcurrencyIntegrity": {
+      "version": "GENERATION2_LIVE_CRITICAL_SECTION_POLICY_V2",
+      "supersedes": "GENERATION2_LIVE_CRITICAL_SECTION_POLICY_V1",
+      "ruling": "GENERATION2_CONCURRENCY_INTEGRITY_STOP_IS_DISTINCT_FROM_FROZEN_P8_V1",
+      "a3ExecutionAgentsMustBeQuiesced": true,
+      "consecutiveCleanSecondsBeforeEachItem": 120,
+      "maxProcessMonitoringIntervalSeconds": 5,
+      "monitorContinuouslyDuringEachItem": true,
+      "monitorContinuouslyDuringFullValidation": true,
+      "competingValidateOrVitestMidItemRequiresOperationalIntegrityStop": true,
+      "doesNotSetP8ByItself": true,
+      "runningInvocationIsAllowedToFinish": true,
+      "evidenceIsNotAutomaticallyInvalidated": true,
+      "automaticValidationRerunAuthorised": false
+    }
+  },
+  "negativeHistoryAttacks": {
+    "provedBy": "src/test/unit/orgunitCorpus2DA2Generation2Window02Readiness.test.ts",
+    "allRefuse": true,
+    "attacks": [
+      "missing adjudication item",
+      "duplicate adjudication item",
+      "reordered adjudication items",
+      "wrong workItemId",
+      "wrong slot",
+      "wrong reserve position",
+      "wrong split",
+      "wrong identity digest",
+      "wrong runRefSha256",
+      "successful item changed to unsuccessful",
+      "unsuccessful item changed to successful",
+      "changed Q3 reason",
+      "invalid Q3 reason",
+      "adjudication bound to the wrong LIVE_RESULT",
+      "LIVE_RESULT bound to the wrong authority",
+      "consumed replacement lacking its ledger entry",
+      "replacement pointing at the wrong ledger sequence",
+      "double adjudication",
+      "adjudicating a never-authorised primary",
+      "history records supplied out of order",
+      "summary disagreeing with the replayed state"
+    ]
+  },
+  "canonicalGeneration2Ledger": {
+    "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+    "entryCountStill": 2,
+    "ledgerHashStill": "ce56b07efbf7fdfd0ba56dc473ef9c4465fd3852a2c012f1c24271612465ab82",
+    "nextGeneration2ReserveStill": 2,
+    "mutatedByThisTask": false
+  },
+  "sideEffects": {
+    "institutionNetworkRequests": 0,
+    "databaseConnections": 0,
+    "ledgerWrites": 0,
+    "reserveAssignments": 0,
+    "liveAuthoritiesCreated": 0,
+    "acquisitionRuns": 0
+  },
+  "identityDisclosure": "slot numbers, positions, work item ids, digests, run-reference hashes and aggregates only; no echeRowKey, organisation id, root-authority id, hostname or URL",
+  "nextOwnerDecision": "whether to authorise EXACTLY ONE bounded live Window 02: G2R:78:2 -> G2P:80 -> G2P:81 -> G2P:82 -> G2P:83, with the prospective reserve-2 assignment (slot 78) committed and pushed BEFORE any institution network. Not granted here",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}

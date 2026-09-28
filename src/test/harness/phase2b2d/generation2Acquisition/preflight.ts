@@ -36,6 +36,14 @@
  *
  * On the committed genesis ledger 16 and 18 are false by design: a window
  * cannot start until its Q1 append is persisted before any network.
+ *
+ * ADJUDICATION HISTORY. From the second window on, the state is planned over
+ * an explicit committed adjudication history (`adjudicationHistory`). It is
+ * threaded through every state, Q1 and spec derivation above - the eighteen
+ * invariants keep their meaning - and its own integrity is reported
+ * SEPARATELY as `operationalPrerequisites.adjudicationHistoryIntegrity`
+ * (ADJUDICATION_HISTORY_INTEGRITY). It is not a P7 invariant: frozen P7 does
+ * not mention adjudication files and is not redefined to.
  */
 
 import { createHash } from 'node:crypto';
@@ -45,6 +53,11 @@ import {
   buildReserveExecutionBinding,
   executionEntrySha256,
 } from './executionBinding.js';
+import {
+  EMPTY_GENERATION2_HISTORY,
+  type Generation2AdjudicationHistory,
+} from '../generation2History/adjudicationHistory.js';
+import { assessAdjudicationHistoryIntegrity } from '../generation2History/historyIntegrity.js';
 import { parseGeneration2WorkItemId } from './operationalContract.js';
 import {
   parseOperationalGeneration2Ledger,
@@ -109,6 +122,12 @@ export interface Generation2Preflight {
   /** The VALID current ledger's entry count (Generation-2 reserves consumed), or -1. */
   readonly currentLedgerEntryCount: number;
   readonly failures: readonly string[];
+  /** Operational prerequisites OUTSIDE the frozen P7. */
+  readonly operationalPrerequisites: {
+    /** ADJUDICATION_HISTORY_INTEGRITY; trivially true for an empty history. */
+    readonly adjudicationHistoryIntegrity: boolean;
+    readonly adjudicationHistoryFailures: readonly string[];
+  };
 }
 
 export interface Generation2PreflightInput {
@@ -120,6 +139,8 @@ export interface Generation2PreflightInput {
   readonly startingLedgerText: string;
   /** Governance-supplied. NEVER derived from the ledger it is checked against. */
   readonly expectedWindowSpec: Generation2WindowSpec;
+  /** The committed adjudicated windows, in order. Default: none (the first window). */
+  readonly adjudicationHistory?: Generation2AdjudicationHistory;
 }
 
 function holds(failures: string[], name: string, check: () => boolean): boolean {
@@ -158,6 +179,7 @@ export function computeGeneration2PreflightWithAssessment(
   const failures: string[] = [...assessment.failures];
   const basis = assessment.basis;
   const spec = input.expectedWindowSpec;
+  const history = input.adjudicationHistory ?? EMPTY_GENERATION2_HISTORY;
   const need = (): Generation2OperationalBasis => {
     if (basis === null) throw new Error('the committed inputs are not exact');
     return basis;
@@ -168,7 +190,7 @@ export function computeGeneration2PreflightWithAssessment(
     const b = need();
     current = parseLedgerText(b, input.currentLedgerText);
     if (!validateOperationalGeneration2Ledger(b, current).valid) return false;
-    deriveGeneration2CurrentState(b, current); // landed validator + state rules must agree
+    deriveGeneration2CurrentState(b, current, history); // landed validator + state rules must agree
     return true;
   });
 
@@ -202,6 +224,7 @@ export function computeGeneration2PreflightWithAssessment(
           bytes: Buffer.byteLength(input.startingLedgerText, 'utf8'),
         },
         plannedWindowSize: spec.plannedWindowSize,
+        history,
       });
     }
     return rebuilt;
@@ -217,7 +240,7 @@ export function computeGeneration2PreflightWithAssessment(
 
   const completeQ1EqualsPlanningQ1 = holds(failures, 'q1', () => {
     if (!startingLedgerRevisionMatchesPrecommit || starting === null) return false;
-    const plan = planCompleteQ1(need(), starting);
+    const plan = planCompleteQ1(need(), starting, history);
     return (
       canonicalStringify(plan.map((a) => a.selectionIndex)) ===
         canonicalStringify(spec.planningState.q1) &&
@@ -391,10 +414,20 @@ export function computeGeneration2PreflightWithAssessment(
     postAppendOccupantsMatchAssignedReserves,
   };
   const cur = current as OperationalGeneration2Ledger | null;
+  const historyIntegrity =
+    history.windows.length === 0
+      ? { holds: true, failures: [] as readonly string[] }
+      : basis === null || cur === null
+        ? { holds: false, failures: ['the committed inputs or the current ledger are not exact'] }
+        : assessAdjudicationHistoryIntegrity(basis, cur, history);
   return {
     invariants,
     currentLedgerEntryCount:
       currentGeneration2LedgerExactAndValid && cur !== null ? cur.entries.length : -1,
     failures,
+    operationalPrerequisites: {
+      adjudicationHistoryIntegrity: historyIntegrity.holds,
+      adjudicationHistoryFailures: historyIntegrity.failures,
+    },
   };
 }

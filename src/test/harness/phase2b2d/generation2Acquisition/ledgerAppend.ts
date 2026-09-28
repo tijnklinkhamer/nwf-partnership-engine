@@ -11,7 +11,8 @@
  * IT DOES NOT TRUST THE ASSIGNMENT LIST
  *
  *   The Q1 plan is recomputed here over the COMPLETE current obligation set
- *   (the carried failures no Generation-2 entry has assigned), by this
+ *   (every current failure - carried, or produced by a committed adjudicated
+ *   window - that no unadjudicated entry has assigned), by this
  *   namespace AND by the landed frozen Generation-2 planner, which must agree.
  *   The approved assignments must then be EXACTLY that plan: same length (a
  *   partial assignment refuses), same order (a reversed one refuses), same
@@ -21,6 +22,10 @@
 
 import type { ReplacementReason } from '../continuationWindow/windowContract.js';
 import type { Generation2LedgerEntry } from '../generation2/generation2Ledger.js';
+import {
+  EMPTY_GENERATION2_HISTORY,
+  type Generation2AdjudicationHistory,
+} from '../generation2History/adjudicationHistory.js';
 import { buildReserveExecutionBinding, executionEntrySha256 } from './executionBinding.js';
 import { refuse } from './operationalContract.js';
 import {
@@ -65,8 +70,11 @@ export function prepareGeneration2ReplacementAppend(input: {
   readonly ledger: OperationalGeneration2Ledger;
   readonly assignments: readonly ApprovedGeneration2Assignment[];
   readonly recordedAtUtc: string;
+  /** The committed adjudicated windows so far, in order. Default: none. */
+  readonly history?: Generation2AdjudicationHistory;
 }): PreparedGeneration2Append {
   const { basis, ledger, assignments, recordedAtUtc } = input;
+  const history = input.history ?? EMPTY_GENERATION2_HISTORY;
   const before = requireValidOperationalLedger(basis, ledger);
   if (typeof recordedAtUtc !== 'string' || !ISO_UTC.test(recordedAtUtc)) {
     refuse('RECORDED_AT_NOT_EXPLICIT', 'recordedAtUtc must be an explicit ISO-8601 UTC instant');
@@ -76,8 +84,8 @@ export function prepareGeneration2ReplacementAppend(input: {
     refuse('RECORDED_AT_BACKWARDS', 'recordedAtUtc precedes the last ledger entry');
   }
 
-  const stateBefore = deriveGeneration2CurrentState(basis, ledger);
-  const planned = planCompleteQ1(basis, ledger);
+  const stateBefore = deriveGeneration2CurrentState(basis, ledger, history);
+  const planned = planCompleteQ1(basis, ledger, history);
   if (planned.length === 0) refuse('NOTHING_TO_APPEND', 'Q1 is empty');
   if (assignments.length !== planned.length) {
     refuse(
@@ -140,7 +148,7 @@ export function prepareGeneration2ReplacementAppend(input: {
 
   const nextLedger = withEntries(basis.genesis, entries);
   const after = requireValidOperationalLedger(basis, nextLedger);
-  const stateAfter = deriveGeneration2CurrentState(basis, nextLedger);
+  const stateAfter = deriveGeneration2CurrentState(basis, nextLedger, history);
   if (stateAfter.q1.length !== 0) refuse('Q1_NOT_DISCHARGED', 'the append left an obligation');
   return {
     previousLedgerHash: ledger.ledgerHash,

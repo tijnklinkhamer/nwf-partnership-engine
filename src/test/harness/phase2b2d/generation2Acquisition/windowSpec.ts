@@ -31,6 +31,12 @@ import {
 import type { Split } from '../draw/drawContract.js';
 import type { Generation2ReplacedOccupantKind } from '../generation2/generation2Ledger.js';
 import {
+  EMPTY_GENERATION2_HISTORY,
+  historyBindingOf,
+  replayGeneration2History,
+  type Generation2AdjudicationHistory,
+} from '../generation2History/adjudicationHistory.js';
+import {
   buildPrimaryExecutionBinding,
   buildReserveExecutionBinding,
   executionEntrySha256,
@@ -66,6 +72,8 @@ const sha256 = (text: string): string => createHash('sha256').update(text, 'utf8
 export const WINDOW_SPEC_SCHEMA = 'GENERATION2_BOUNDED_WINDOW_SPEC_V1';
 export const REPLACEMENT_IDENTITY_KIND = 'GENERATION2_EXECUTION_ENTRY_SHA256';
 export const PRIMARY_IDENTITY_KIND = 'ORIGINAL_DRAW_SELECTION_ENTRY_SHA256';
+
+export type Generation2HistoryBinding = ReturnType<typeof historyBindingOf>;
 
 export interface Generation2WindowWorkItem {
   readonly order: number;
@@ -129,6 +137,12 @@ export interface Generation2WindowSpec {
     readonly p2RobotsRefusalWindowCount: number;
     readonly p5LowRawYieldWindowCount: number;
   };
+  /**
+   * Present ONLY when the spec was planned over a non-empty committed
+   * adjudication history: its public-safe identity (paths, hashes, ordinals).
+   * Absent for the first window, whose spec is unchanged byte for byte.
+   */
+  readonly adjudicationHistory?: Generation2HistoryBinding;
   readonly windowSpecHash: string;
 }
 
@@ -144,13 +158,16 @@ export function buildGeneration2WindowSpec(input: {
   /** SHA-256 and byte length of the starting revision's committed bytes. */
   readonly startingLedgerFile: { readonly sha256: string; readonly bytes: number };
   readonly plannedWindowSize: number;
+  /** The committed adjudicated windows before this one, in order. Default: none. */
+  readonly history?: Generation2AdjudicationHistory;
 }): Generation2WindowSpec {
   const { basis, startingLedger, plannedWindowSize } = input;
+  const history = input.history ?? EMPTY_GENERATION2_HISTORY;
   if (!Number.isInteger(plannedWindowSize) || plannedWindowSize < 1) {
     refuse('WINDOW_SIZE_INVALID', 'the planned window size is not a positive integer');
   }
-  const state = deriveGeneration2CurrentState(basis, startingLedger);
-  const q1 = planCompleteQ1(basis, startingLedger);
+  const state = deriveGeneration2CurrentState(basis, startingLedger, history);
+  const q1 = planCompleteQ1(basis, startingLedger, history);
   if (q1.length > plannedWindowSize) {
     refuse(
       'Q1_EXCEEDS_WINDOW',
@@ -291,6 +308,13 @@ export function buildGeneration2WindowSpec(input: {
         P5_BATCH_PERCENT_STRICTLY_ABOVE,
       ),
     },
+    ...(history.windows.length === 0
+      ? {}
+      : {
+          adjudicationHistory: historyBindingOf(
+            replayGeneration2History(basis, startingLedger, history),
+          ),
+        }),
   };
   if (
     input.startingLedgerFile.sha256.length !== 64 ||

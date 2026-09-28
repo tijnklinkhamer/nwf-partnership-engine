@@ -12,15 +12,18 @@
  *
  * THE CURRENT STATE
  *
- *   carried start (75 / [75,76] / [] / 77..109)  +  the Generation-2 ledger
+ *   carried start (75 / [75,76] / [] / 77..109)
+ *     + the committed Generation-2 adjudication HISTORY, supplied explicitly
+ *       and replayed item by item (`../generation2History/adjudicationHistory.ts`)
+ *     + the unadjudicated suffix of the Generation-2 ledger
  *
- *   A slot with a Generation-2 ledger entry is REPLACEMENT_ASSIGNED: its
- *   reserve holds the slot, not yet executed. No Generation-2 adjudication
- *   exists yet, so the state refuses - rather than guesses - whenever a
- *   ledger would need one: an entry for a slot that is not a carried current
- *   failure (e.g. a successful slot re-served), or a second entry for the
- *   same slot. Q1 is the ascending list of carried failures that no
- *   Generation-2 entry has yet assigned.
+ *   With an EMPTY history (the default) this is exactly the first-window
+ *   model: every ledger entry is REPLACEMENT_ASSIGNED, and the state refuses -
+ *   rather than guesses - whenever a ledger would need an adjudication: an
+ *   entry for a slot that is not a current failure (e.g. a successful slot
+ *   re-served), or a second entry for a slot whose assigned replacement was
+ *   never adjudicated. Q1 is the ascending list of current failures that no
+ *   unadjudicated entry has yet assigned.
  *
  * No filesystem, no database, no network, no clock.
  */
@@ -56,6 +59,12 @@ import {
   verifyFrozenSchedule,
   type FrozenScheduleArtifact,
 } from '../generation2Freeze/freezeArtifacts.js';
+import {
+  EMPTY_GENERATION2_HISTORY,
+  accountingOf,
+  replayGeneration2History,
+  type Generation2AdjudicationHistory,
+} from '../generation2History/adjudicationHistory.js';
 import { indexFrozenFrame, type FrozenFrameIndex } from './executionBinding.js';
 import {
   CANONICAL_SCHEDULE_HASH,
@@ -79,7 +88,6 @@ import {
 } from './operationalLedger.js';
 
 const sha256 = (text: string): string => createHash('sha256').update(text, 'utf8').digest('hex');
-const SELECTION_COUNT = 110;
 const GENERATION2_RESERVE_COUNT = 5670;
 
 export type CommittedTexts = ReadonlyMap<string, string>;
@@ -413,6 +421,7 @@ export interface Generation2CurrentState {
 export function deriveGeneration2CurrentState(
   basis: Generation2OperationalBasis,
   ledger: OperationalGeneration2Ledger,
+  history: Generation2AdjudicationHistory = EMPTY_GENERATION2_HISTORY,
 ): Generation2CurrentState {
   const consumed = requireValidOperationalLedger(basis, ledger);
   // Second, independent opinion: the landed validator must agree.
@@ -420,58 +429,26 @@ export function deriveGeneration2CurrentState(
   if (!landed.valid || landed.entryCount !== consumed) {
     refuse('LANDED_VALIDATOR_DISAGREES', 'the landed Generation-2 validator rejects this ledger');
   }
-  const start = basis.carriedForward;
-  if (start.refused.length !== 0)
-    refuse('CARRY_FORWARD_REFUSED', 'a slot was refused carry-forward');
-
-  const assigned = new Set<number>();
-  for (const entry of ledger.entries) {
-    if (!start.failures.includes(entry.selectionIndex)) {
-      refuse(
-        'LEDGER_ENTRY_FOR_NON_FAILED_SLOT',
-        `a Generation-2 entry replaces slot ${String(entry.selectionIndex)}, which is not a carried current failure`,
-      );
-    }
-    if (assigned.has(entry.selectionIndex)) {
-      refuse(
-        'GENERATION2_ADJUDICATION_REQUIRED',
-        `slot ${String(entry.selectionIndex)} is re-assigned, but no Generation-2 adjudication exists`,
-      );
-    }
-    const reason = start.failureReasons.find(
-      (r) => r.selectionIndex === entry.selectionIndex,
-    )?.reason;
-    if (entry.reason !== reason) {
-      refuse(
-        'LEDGER_REASON_MISMATCH',
-        `slot ${String(entry.selectionIndex)}: reason differs from its evidence`,
-      );
-    }
-    assigned.add(entry.selectionIndex);
-  }
-  const q1 = start.failures.filter((index) => !assigned.has(index)).sort((a, b) => a - b);
-  const failures = [...q1];
-  const awaiting = [...assigned].sort((a, b) => a - b);
-  const total =
-    start.successful.length + failures.length + awaiting.length + start.neverStarted.length;
-  if (total !== SELECTION_COUNT)
-    refuse('STATE_ACCOUNTING', `${String(total)} slots accounted, not 110`);
+  // One state machine: carried start -> committed windows -> unadjudicated suffix.
+  const replay = replayGeneration2History(basis, ledger, history);
+  const state = replay.final;
+  const q1 = [...state.currentAcquisitionFailure];
   return {
     generationId: GENERATION2_ID,
-    successfulOrganisationCount: start.successful.length,
-    acquisitionSuccessful: [...start.successful],
-    currentAcquisitionFailure: failures,
-    replacementAssignedAwaitingExecution: awaiting,
+    successfulOrganisationCount: state.acquisitionSuccessful.length,
+    acquisitionSuccessful: [...state.acquisitionSuccessful],
+    currentAcquisitionFailure: [...state.currentAcquisitionFailure],
+    replacementAssignedAwaitingExecution: [...state.replacementAssignedAwaitingExecution],
     pendingCapabilityReview: [],
-    neverStarted: [...start.neverStarted],
-    carryForwardRefused: [...start.refused],
+    neverStarted: [...state.neverStarted],
+    carryForwardRefused: [...basis.carriedForward.refused],
     q1,
-    q1Reasons: start.failureReasons.filter((r) => q1.includes(r.selectionIndex)),
+    q1Reasons: state.failureReasons.filter((r) => q1.includes(r.selectionIndex)),
     generation2ReserveConsumed: consumed,
     nextGeneration2ReservePosition: consumed,
     ledgerEntryCount: consumed,
     ledgerHash: ledger.ledgerHash,
-    accounting: `${String(start.successful.length)} successful + ${String(failures.length)} failed + ${String(awaiting.length)} assigned + 0 pending + ${String(start.neverStarted.length)} never started = ${String(total)}`,
+    accounting: accountingOf(state),
   };
 }
 
@@ -493,8 +470,9 @@ export interface PlannedGeneration2Assignment {
 export function planCompleteQ1(
   basis: Generation2OperationalBasis,
   ledger: OperationalGeneration2Ledger,
+  history: Generation2AdjudicationHistory = EMPTY_GENERATION2_HISTORY,
 ): readonly PlannedGeneration2Assignment[] {
-  const state = deriveGeneration2CurrentState(basis, ledger);
+  const state = deriveGeneration2CurrentState(basis, ledger, history);
   if (state.generation2ReserveConsumed + state.q1.length > GENERATION2_RESERVE_COUNT) {
     refuse('CORPUS_FREEZE_REFUSED', 'the Generation-2 reserve would be exhausted');
   }
