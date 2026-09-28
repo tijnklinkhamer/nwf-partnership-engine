@@ -116,9 +116,64 @@ describe('2D Option-B transition: the frozen inputs are byte-for-byte unchanged'
     expectBound(ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL);
   });
 
-  it('creates no Methodology V3 and no second methodology owner freeze approval', () => {
+  /**
+   * READ AT THE STEP'S OWN TERMINAL COMMIT, NOT THE WORKING TREE.
+   *
+   * "Option B created no Methodology V3" is a HISTORICAL claim about this
+   * step. Listing today's docs/evaluation turned it into "no later phase may
+   * ever propose a Methodology V3" - which the Generation-2 continuation
+   * proposal (after Generation 1's CORPUS_FREEZE_REFUSED) necessarily breaks.
+   * Same correction, same terminal commit (b0f4efa, the one the ledger-absence
+   * claim below pins) as faac3ea; record:
+   * docs/evaluation/PHASE_2B_2D_OPTION_B_V3_ABSENCE_TEMPORAL_TEST_CORRECTION_V1.json.
+   * Skipped, not guessed, on a shallow clone.
+   */
+  const V3_ABSENCE_TERMINAL_COMMIT = 'b0f4efa01d7e861a701e3514afc690a99262f554';
+  const terminalCommitPresent = ((): boolean => {
+    try {
+      execFileSync(
+        'git',
+        ['-C', REPO_ROOT, 'cat-file', '-e', `${V3_ABSENCE_TERMINAL_COMMIT}^{commit}`],
+        {
+          stdio: 'ignore',
+        },
+      );
+      return true;
+    } catch {
+      return false;
+    }
+  })();
+
+  it.skipIf(!terminalCommitPresent)(
+    'created no Methodology V3 and no second methodology owner freeze approval, at its own terminal commit',
+    () => {
+      const names = execFileSync(
+        'git',
+        [
+          '-C',
+          REPO_ROOT,
+          'ls-tree',
+          '--name-only',
+          `${V3_ABSENCE_TERMINAL_COMMIT}:docs/evaluation`,
+        ],
+        { encoding: 'utf8' },
+      )
+        .split('\n')
+        .filter(Boolean);
+      // Not a vacuous listing: the adjudication this step DID create is there.
+      expect(names).toContain(
+        'PHASE_2B_ROBOTS_OPTION_B_REVALIDATION_EVIDENCE_ADJUDICATION_V1.json',
+      );
+      expect(names.filter((name) => /METHODOLOGY_V3/i.test(name))).toEqual([]);
+      expect(
+        names.filter((name) => /ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL/i.test(name)),
+      ).toEqual(['PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json']);
+      expect(names.filter((name) => /PROPOSAL_R4/i.test(name))).toEqual([]);
+    },
+  );
+
+  it('still has exactly one Methodology V2 owner freeze approval and no R4 today', () => {
     const names = readdirSync(join(REPO_ROOT, 'docs/evaluation'));
-    expect(names.filter((name) => /METHODOLOGY_V3/i.test(name))).toEqual([]);
     expect(
       names.filter((name) => /ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL/i.test(name)),
     ).toEqual(['PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json']);

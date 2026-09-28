@@ -1,0 +1,194 @@
+{
+  "version": "PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_PROPOSAL_R1",
+  "status": "PROPOSED",
+  "isOwnerFreeze": false,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "createdInPhase": "Phase 2B-2D A2 Generation-2 continuation design",
+  "createdOn": "2026-09-28",
+  "architecture": "GENERATION2_SAME_SELECTION_COHORT_WITH_FRESH_UNDRAWN_FRAME_RESERVE_NAMESPACE_V1",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "generationIdNaming": "METHODOLOGY_V3_GEN2 follows the landed METHODOLOGY_V2_GEN1 convention (methodology major version + generation ordinal). No adjustment was needed",
+  "inherits": {
+    "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+    "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+    "bytes": 142306,
+    "ownerFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+      "commit": "5988bebd0aacc21404a72de464e0c3ef033e3ee0"
+    },
+    "rule": "Every R3 section, rule, constant, gate and owner decision applies to Generation 2 UNCHANGED, except the amendments listed below. An amendment changes only the named clause; it never reaches an unrelated section",
+    "r3IsNotEdited": true
+  },
+  "whyANewMethodologyVersion": "R3 SD2 froze ACQUISITION_RESERVE_ORGANISATIONS = 40, and Generation 1 exhausted that frozen capacity (CORPUS_FREEZE_REFUSED at 7c3d24f: complete Q1 [75,76] needs positions 39..40, only 39 remained). Changing the reserve design is a material change, so Generation 2 cannot honestly be called another execution of unchanged V2 R3. It is also not an extension of Generation 1: no reserve is appended to Generation 1, its draw is not extended, its ledger is not appended, and its terminal is not undone",
+  "generation1": {
+    "generationId": "METHODOLOGY_V2_GEN1",
+    "status": "CORPUS_FREEZE_REFUSED",
+    "terminalCommit": "7c3d24f8db72bf5401c4bfc176700c1d50e25cc0",
+    "terminalRecord": "docs/evaluation/PHASE_2B_2D_A2_GENERATION1_CORPUS_FREEZE_REFUSAL_V1.json",
+    "immutableForever": true,
+    "reserve39": "unused in Generation 1, and it stays unused: not reassigned, not migrated, not Generation-2 reserve 0, not appended anywhere",
+    "notRelabelledSuccessful": true
+  },
+  "amendments": [
+    {
+      "id": "V3-A1",
+      "amends": "R3 sectionE_samplingContract SD2 (selection + reserve lists)",
+      "r3Clause": "continue walking to admit a further ACQUISITION_RESERVE_ORGANISATIONS = 40 entries to the RESERVE LIST",
+      "v3Rule": "The SELECTION LIST is exactly the Generation-1 DRAW_V2_GEN1 selection (source frame ranks 0..109), preserved entry for entry: selectionIndex, echeRowKey, organisationId, drawEntrySha256 and split. The Generation-2 RESERVE SCHEDULE is the entire never-drawn suffix of the same frozen frame, source frame ranks 150..5819, in the same SHA256_EXACT_UTF8_ECHE_ROW_KEY_ASC_V1 order: Generation-2 reserve position p <-> source frame rank 150 + p, p = 0..5669. Source ranks 110..149 remain Generation-1 reserves, historical only",
+      "reserveCount": "5820 - 150 = 5670, mechanically; not a chosen number",
+      "whyTheWholeSuffix": "any fixed count (80, 100, 200, 500) would be chosen after observing the Generation-1 failure rate and would embed result-aware tuning. The whole untouched suffix of the already-frozen frame has no threshold to choose",
+      "splitCycleUnchanged": "SPLIT_ASSIGNMENT_CYCLE_V2_R2[i mod 22]; 20 / 45 / 45",
+      "artifact": {
+        "path": "docs/evaluation/PHASE_2B_2D_METHOD_V3_GEN2_RESERVE_SCHEDULE_PROPOSAL_V1.json",
+        "sha256": "647507db46aa57983403f16f5841ba3fc139c255028b91106f39be9274311011",
+        "status": "PROPOSAL",
+        "whyNotUnderCorpus": "the A1 SD1-clause-D scanner reads every docs/evaluation/corpus/ artifact whose generationId differs from the generation being built as an earlier-generation FRAME; a proposal is not a frozen corpus artifact and would be misread there"
+      }
+    },
+    {
+      "id": "V3-A2",
+      "amends": "R3 SD2 replacementRule + reserveExhaustionIsARefusal, and SD9 stop condition",
+      "r3Clause": "replaced by the next unused RESERVE organisation in rank order ... If the reserve is exhausted before 110 successful organisations exist, the corpus freeze is REFUSED",
+      "v3Rule": "'the next unused RESERVE organisation' means the next unused Generation-2 schedule position. If the Generation-2 schedule is exhausted - for the landed Q1 contract: if the complete current set of mandatory obligations cannot be assigned from the remaining schedule - before 110 slots hold successful occupants, Generation 2 is CORPUS_FREEZE_REFUSED. No automatic Generation 3, no recycling of a consumed position, no organisation from outside the frozen frame, no smaller corpus",
+      "executionCapsAreNotReserveCaps": "owner-authorised live windows may still be small and bounded; a window cap limits what runs next, never the size of the reserve pool"
+    },
+    {
+      "id": "V3-A3",
+      "amends": "generation continuity (new; R3 has a single generation)",
+      "v3Rule": "Generation 2 starts from the Generation-1 TERMINAL CURRENT-OCCUPANT state, not from the original primaries. A slot's inherited occupant is derived by the landed Generation-1 currentOccupantForSelectionIndex over the frozen draw plus the immutable 39-entry Generation-1 ledger. Generation 2 keeps its OWN append-only replacement ledger, starting at 0 entries, whose header binds generation1StartingState (terminal commit, terminal record, Generation-1 ledger path / file sha / ledgerHash / 39 entries, occupant derivation). A Generation-2 entry records 'inherited or earlier Generation-2 occupant -> Generation-2 reserve N'. Provenance of a slot is original selection -> Generation-1 replacements -> Generation-1 terminal occupant -> Generation-2 replacements, and the two ledgers stay separately auditable; the Generation-1 chain is never flattened or rewritten",
+      "ledgerFuturePath": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "ledgerFileNotCreatedByThisProposal": "an empty ledger file would look like a live generation; the genesis ledger exists in the harness only until the owner freezes V3",
+      "corpusDirectoryCollision": "a frozen Generation-2 ledger or schedule at docs/evaluation/corpus/ (e.g. the ledgerFuturePath above) would be listed by the A1 clause-D scanner as a prior generation of Generation 1. The V3 freeze must choose either a location outside corpus/ or a scanner scoped to generations EARLIER than the one being built; this proposal chooses neither"
+    },
+    {
+      "id": "V3-A4",
+      "amends": "carry-forward authority (new)",
+      "v3Rule": "A Generation-1 terminal occupant enters Generation 2 as ACQUISITION_SUCCESSFUL only if all ten carry-forward requirements R1..R10 recompute true from committed governance (see the feasibility audit). A slot failing any requirement is CARRY_FORWARD_REFUSED - never silently successful. Inherited CURRENT_ACQUISITION_FAILURE slots are inherited OPEN replacement obligations; inherited never-started slots stay NEVER_STARTED primaries under the unchanged selection authority, never failed and never pre-emptively replaced. A carried success is not re-acquired merely because the generation id changed; re-acquisition needs a specific invalidated authority",
+      "feasibility": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_CARRY_FORWARD_FEASIBILITY_V1.json",
+        "sha256": "7467435b816c2b97c34af7e8da23bcd1575956477fe3cc6fa59a30600a43c38d",
+        "verdict": "CARRY_FORWARD_FEASIBLE_ALL_75_SUCCESSFUL_OCCUPANTS"
+      },
+      "proposedStartingState": {
+        "ACQUISITION_SUCCESSFUL": 75,
+        "CURRENT_ACQUISITION_FAILURE": [75, 76],
+        "PENDING_CAPABILITY_REVIEW": [],
+        "NEVER_STARTED": "77..109 (33)",
+        "accounting": "75 + 2 + 0 + 33 = 110",
+        "firstProspectiveQ1": [75, 76],
+        "nextGeneration2ReservePosition": 0
+      }
+    },
+    {
+      "id": "V3-A5",
+      "amends": "R3 sectionE SD1 clause D (continuity reading only)",
+      "r3Clause": "AND it appears in no earlier Methodology V2 generation corpus",
+      "v3Rule": "Generation 2 re-uses the FRAME_V2_GEN1 bytes as frozen; the frame is not rematerialised. Generation 1 froze NO corpus (CORPUS_FREEZE_REFUSED), so clause D excludes nothing on account of Generation 1, and Generation-1 selection slots continue into Generation 2 by design. Every Generation-2 reserve entry is by construction disjoint from all 150 Generation-1 draw entries, by eche row key and by organisation id",
+      "ownerReviewPoint": "whether the owner accepts this continuity reading of clause D; it is stated rather than assumed"
+    },
+    {
+      "id": "V3-A6",
+      "amends": "R3 sectionG burnRule reserve source (continuity reading only)",
+      "r3Clause": "it must be replaced from reserve before the next scoring; the replacement is drawn by the same frozen deterministic rank",
+      "v3Rule": "in Generation 2 'from reserve' means the next unused Generation-2 schedule position, assigned through the same Generation-2 ledger cursor as acquisition replacements (one monotonic cursor, no second pool). No burn has occurred; nothing is assigned by this proposal"
+    },
+    {
+      "id": "V3-A7",
+      "amends": "Plan V1 pause gate P7 (hash scope, continuity reading only)",
+      "r3Clause": "frame, draw or replacement-ledger hash does not recompute",
+      "v3Rule": "in Generation 2 the recomputed hashes are the frame, the draw, the immutable Generation-1 ledger, the Generation-2 reserve schedule and the Generation-2 ledger. Threshold unchanged"
+    }
+  ],
+  "unchanged": {
+    "rankAlgorithm": "SHA256_EXACT_UTF8_ECHE_ROW_KEY_ASC_V1: sha256 of the exact UTF-8 echeRowKey bytes, no trim/case/normalisation/prefix/salt/seed, ascending lower-hex order, collision = STOP_FAIL_CLOSED",
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650",
+      "artifactFileSha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "bytes": 3554080,
+      "commit": "c64fad3474499d392d316e35c720310c76e9405b",
+      "eligible": 5820
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293",
+      "artifactFileSha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "selection": 110,
+      "reserve": 40,
+      "rankedButUndrawn": 5670
+    },
+    "selectionSlotsAndSplits": "the same 110 slots and splits, 20 / 45 / 45; no primary re-selection, no re-ranking, no failed primary swapped out of the cohort",
+    "q1": "APPROVE_ASCENDING_SELECTION_INDEX_RESERVE_ASSIGNMENT_V1: at every planning point collect ALL pending obligations, sort ascending by selectionIndex, assign the next unused position monotonically to EACH",
+    "q2": "APPROVE_SAME_SLOT_APPEND_ONLY_REPLACEMENT_CHAIN_V1: a failed replacement opens a new obligation for the SAME slot",
+    "q3": "the same four replacement reasons and precedence: ROOT_AUTHORITY_FAILURE, ROBOTS_DISALLOWED, HOST_UNREACHABLE, MIN_PAGES_NOT_MET",
+    "ownerClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528"
+    },
+    "pauseGates": "P1..P8 of Plan V1 unchanged (P7 read per V3-A7). P5 remains an operational review trigger and is NOT retuned because it fired often in Generation 1",
+    "p6Observation": "P6 ('> 10 replacements consumed before 50 successful organisations') is unchanged. With 75 inherited successes its premise is already past, so as written it cannot fire in Generation 2. This is recorded, not retuned; the owner may leave it inert or ask for a separate proposal",
+    "fetchPolicyForNewAcquisition": "orgunit-fetch-policy-v7",
+    "inheritedSuccessesKeepTheirOwnPolicyVersion": "fetchPolicyVersion is historical run provenance (PIN_HISTORICAL_FETCH_POLICY_VERSION)",
+    "runReferenceConvention": "sha256(canonical lowercase run UUID)",
+    "sd9": "SD9_EXTRACTABLE_TEXT_REQUIRES_NONEMPTY_EXTRACTED_MAIN_TEXT_V1: main_text_chars > 0; MIN_PAGES_PER_ORGANISATION = 4 after SD7",
+    "sd7": "exact / near-duplicate rules unchanged; P70 extractor tuning not reopened",
+    "acquisitionEngine": "unchanged; no production code change is proposed",
+    "sectionsCToP": "D1..D7 owner decisions, certification design, splits, gates, holdout rules, attempt accounting and firewall repair apply unchanged"
+  },
+  "whySameSelectionContinuationIsPermitted": [
+    "the 110 primary slots were selected before any acquisition outcome existed, by a content hash that cannot encode an outcome",
+    "keeping the same slots therefore selects no primary on Generation-1 success or failure",
+    "the change concerns only the capacity available to fill acquisition-unsuccessful slots",
+    "no slot is removed because it proved hard to acquire: all original obligations are retained, including 75 and 76 and never-started 77..109",
+    "the reserve source is every never-drawn frame entry in the frozen order, so no identity is chosen or rejected by outcome, hostname, country, yield, split, semantics, preference or A3 result"
+  ],
+  "alternatives": {
+    "A_fullRedraw": {
+      "description": "draw a brand-new 110-slot cohort (new frame exclusion or new salt)",
+      "resultAwareness": "the decision to redraw is itself triggered by Generation-1 outcomes; a new salt or exclusion adds a methodological choice made after seeing results",
+      "preOutcomeSelection": "discarded - the original pre-outcome selection is thrown away",
+      "determinism": "achievable, but needs a new frozen salt or exclusion rule",
+      "wastedEvidence": "discards 75 valid current acquisitions",
+      "a3Reuse": "none - every A3 evidence, document and SD7-graph binding would be rebuilt",
+      "complexity": "conceptually simple, operationally the most expensive",
+      "antiBiasBenefit": "none visible when the continuation is already mechanically result-blind"
+    },
+    "B_sameSelectionFixedLargerReserve": {
+      "description": "same slots, but a new fixed reserve count such as 80 / 100 / 200 / 500",
+      "resultAwareness": "the count is chosen after observing the Generation-1 failure rate - a post-hoc threshold",
+      "preOutcomeSelection": "preserved",
+      "determinism": "achievable",
+      "wastedEvidence": "none",
+      "a3Reuse": "full",
+      "complexity": "low, plus a new exhaustion boundary that could be hit again and invite another extension"
+    },
+    "C_sameSelectionWholeUntouchedSuffix": {
+      "description": "same slots; reserve = every never-drawn frame entry (source ranks 150..5819)",
+      "resultAwareness": "none in the pool: the count is 5820 - 150 and the order is the frozen rank",
+      "preOutcomeSelection": "preserved",
+      "determinism": "fully reproducible from the committed frame and the unchanged rank function",
+      "wastedEvidence": "none",
+      "a3Reuse": "full for unchanged authorities",
+      "complexity": "moderate: a second ledger and a cross-generation occupant resolver"
+    },
+    "choice": "C, compared qualitatively - no numeric score was used. B shares C's reuse but adds a post-hoc threshold; A discards pre-outcome selection and valid evidence for no anti-bias gain"
+  },
+  "openOwnerDecisions": [
+    "APPROVE / FREEZE Methodology V3 R1 and the Generation-2 continuation design (or request changes)",
+    "accept the V3-A5 continuity reading of SD1 clause D",
+    "at freeze: where frozen Generation-2 artifacts live (outside docs/evaluation/corpus/, or scope the A1 clause-D scanner to earlier generations) - see V3-A3 corpusDirectoryCollision",
+    "note P6 being inert in Generation 2 (unchanged, not retuned)",
+    "after a freeze: whether to issue the first bounded Generation-2 acquisition authority (not requested here)"
+  ],
+  "notCreatedByThisProposal": [
+    "a Methodology V3 owner freeze approval",
+    "a final Generation-2 draw freeze",
+    "a Generation-2 ledger file",
+    "any Generation-2 reserve assignment",
+    "any live acquisition authority"
+  ],
+  "harness": "src/test/harness/phase2b2d/generation2/ (pure; proposal support only)",
+  "terminalState": "GENERATION2_CONTINUATION_PROPOSAL_READY_FOR_OWNER_REVIEW"
+}

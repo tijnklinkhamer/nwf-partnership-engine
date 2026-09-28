@@ -1,0 +1,34 @@
+{
+  "recordId": "phase2b-2d-option-b-v3-absence-temporal-test-correction-v1",
+  "recordKind": "HISTORICAL_TEST_RANGE_CORRECTION",
+  "records": "PHASE_2B_2D_OPTION_B_V3_ABSENCE_TEMPORAL_TEST_CORRECTION_V1",
+  "recordedOn": "2026-09-28",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "7c3d24f8db72bf5401c4bfc176700c1d50e25cc0",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "ownerDecision": "RANGE_SCOPE_OPTION_B_METHODOLOGY_V3_ABSENCE_ASSERTION_V1",
+  "ownerDecisionSource": "the owner's answer during task A2_GENERATION2_CONTINUATION_METHODOLOGY_DESIGN_AND_CARRY_FORWARD_FEASIBILITY_AUDIT, choosing 'Range-scope that assertion' over renaming the requested proposal file or stopping",
+  "file": "src/test/unit/orgunitCorpus2DOptionBTransition.test.ts",
+  "assertion": "creates no Methodology V3 and no second methodology owner freeze approval",
+  "defect": "a HISTORICAL claim about the Option-B transition step was proved by listing TODAY's docs/evaluation, which turned 'Option B created no Methodology V3' into 'no later phase may ever propose a Methodology V3'. The Generation-2 continuation proposal (docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_PROPOSAL_R1.json, the owner-requested name) necessarily breaks that unapproved reading",
+  "sameDefectClassAs": [
+    "01658bf (AUTHORISE_HISTORICAL_PHASE_RANGE_SCOPING_CORRECTION_V1, eight assertions)",
+    "faac3ea (the Option-B ledger-absence claim in this same file)"
+  ],
+  "correction": {
+    "historicalClaim": "read at the Option-B terminal commit b0f4efa01d7e861a701e3514afc690a99262f554 with git ls-tree: no METHODOLOGY_V3 name, exactly one V2 owner freeze approval, no PROPOSAL_R4; plus a non-vacuity probe that the step's own revalidation adjudication is listed there",
+    "terminalCommitIsTheOneAlreadyPinnedBy": "the ledger-absence claim in the same file (faac3ea) and orgunitCorpus2DOptionBTransitionIsolation.test.ts",
+    "presentDayChecksKept": "exactly one Methodology V2 owner freeze approval and no PROPOSAL_R4 are still asserted against today's tree, because both remain true and this proposal changes neither",
+    "shallowClone": "skipped, not guessed",
+    "onlyThisAssertionChanged": true,
+    "noOtherFileInTheOptionBSuiteChanged": true
+  },
+  "doesNot": [
+    "approve or freeze Methodology V3",
+    "weaken any firewall",
+    "change production code",
+    "change any Generation-1 record"
+  ],
+  "immutability": "append-only. This record is never edited."
+}
