@@ -1,0 +1,209 @@
+{
+  "recordId": "phase2b-2d-a2-generation1-corpus-freeze-refusal-v1",
+  "recordKind": "GENERATION1_CORPUS_FREEZE_REFUSAL",
+  "records": "PHASE_2B_2D_A2_GENERATION1_CORPUS_FREEZE_REFUSAL_V1",
+  "recordedAtUtc": "2026-09-28T08:05:43Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "publicSafe": true,
+  "startingHead": "684dfb46ad1ab60f4a8e4af3da802eb58396cb76",
+  "startingHeadWasLocalAndOriginIdentical": true,
+  "startingWorktreeClean": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "networkUsedByThisRecord": "none",
+  "databaseWrittenByThisRecord": "none",
+  "ledgerAppendedByThisRecord": "none",
+  "reserveAssignedByThisRecord": "none",
+  "ownerDecisions": [
+    "CURRENT_Q1_REQUIRES_MORE_RESERVES_THAN_REMAIN_FROZEN_RESERVE_CAPACITY_CORPUS_FREEZE_REFUSED_V1",
+    "NO_FURTHER_GENERATION1_ACQUISITION_AUTHORITY_V1"
+  ],
+  "ownerDecisionSource": "the owner's instruction for task A2_GENERATION1_RESERVE_SCARCITY_TERMINAL_CORPUS_FREEZE_REFUSAL, recorded here by decision token",
+  "bound": {
+    "methodologyR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306,
+      "edited": false
+    },
+    "ownerReserveOrderClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "bytes": 18443,
+      "q1": "APPROVE_ASCENDING_SELECTION_INDEX_RESERVE_ASSIGNMENT_V1",
+      "q2": "APPROVE_SAME_SLOT_APPEND_ONLY_REPLACEMENT_CHAIN_V1"
+    },
+    "finalWindow11Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_11_EVIDENCE_ADJUDICATION_V1.json",
+      "sha256": "46e9db6e0f74e65176d074a487c5cfc1dced4b95c1875edda303f140af288bce",
+      "bytes": 14961,
+      "commit": "684dfb46ad1ab60f4a8e4af3da802eb58396cb76"
+    },
+    "replacementLedger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "90febac7b3e7c6ecb84ff879f948cf8e52de9731590b1720993f80557f3a0c2d",
+      "bytes": 28735,
+      "entries": 39,
+      "ledgerHash": "a5a60d7e02faa831d38bab131a42e94f80203989989276393216fdc814623e18",
+      "unchangedByThisRecord": true
+    },
+    "replacementPlanner": {
+      "path": "src/test/harness/phase2b2d/continuationWindow/replacementPlanner.ts",
+      "sha256": "40c5a600a4120cd54eadba2aff74d39506b38609d884faf9efe5c253e00894a2",
+      "bytes": 2656,
+      "unchanged": true
+    },
+    "exhaustedStandingAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_POST_SD9_RECONCILIATION_RESERVE_SCARCITY_AND_ACQUISITION_RESUME_V1.json",
+      "sha256": "b8258ac7a0e82950b89b95e450f9a8e9128c151c16e96570fd31b2072bce38cf",
+      "bytes": 17391,
+      "commit": "ecbc4e0b79b91b6c9567beff51a357bb82c0e336",
+      "windowsCharged": "4 / 4",
+      "attemptCapacityCharged": "20 / 20"
+    }
+  },
+  "finalGeneration1State": {
+    "ACQUISITION_SUCCESSFUL": 75,
+    "CURRENT_ACQUISITION_FAILURE": [75, 76],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "NEVER_STARTED": {
+      "from": 77,
+      "to": 109,
+      "count": 33,
+      "contiguous": true
+    },
+    "accounting": "75 + 2 + 0 + 33 = 110",
+    "q1": [75, 76],
+    "confirmedBy": "the committed Window-11 adjudication, re-derived read-only from the working database with the landed analyser (no writes) at this record's start"
+  },
+  "frozenR3ReserveRule": [
+    "a selected organisation that is not ACQUISITION_SUCCESSFUL is replaced by the next unused RESERVE in rank order",
+    "every replacement inherits the selection slot and its split",
+    "if the reserve is exhausted before 110 successful organisations exist: CORPUS_FREEZE_REFUSED",
+    "acquisition stops when 110 successful organisations exist OR the reserve list is exhausted, in which case freeze is refused",
+    "a smaller corpus is never accepted after reserve exhaustion"
+  ],
+  "q1q2": {
+    "q1": "at every planning point collect ALL pending obligations, sort ascending by selectionIndex, assign the next unused reserve monotonically to EACH; no omission, no reordering by failure type or split, no yield optimisation, no deferral to preserve a reserve",
+    "q2": "a failed replacement opens a new obligation for the SAME slot; a chain ends only on ACQUISITION_SUCCESSFUL or on reserve exhaustion (CORPUS_FREEZE_REFUSED); no third termination state"
+  },
+  "ownerInterpretation": {
+    "decision": "CURRENT_Q1_REQUIRES_MORE_RESERVES_THAN_REMAIN_FROZEN_RESERVE_CAPACITY_CORPUS_FREEZE_REFUSED_V1",
+    "interpretation": "for the frozen Q1/Q2 planning contract, reserve exhaustion occurs when the current complete set of mandatory replacement obligations cannot be assigned from the remaining frozen reserve suffix. It is not necessary first to consume the final physical reserve if doing so would require omitting another simultaneously mandatory Q1 obligation",
+    "isAnOperationalInterpretationOf": [
+      "the landed Q1 planner",
+      "the R3 reserve-exhaustion refusal"
+    ],
+    "doesNot": [
+      "add reserves",
+      "remove reserves",
+      "reorder reserves",
+      "alter the draw",
+      "alter R3",
+      "redefine acquisition success",
+      "accept a smaller corpus"
+    ]
+  },
+  "plannerProof": {
+    "function": "planPendingReplacementObligations",
+    "failClosedCondition": "consumed + sorted.length > RESERVE_COUNT -> ReserveExhausted (CORPUS_FREEZE_REFUSED)",
+    "consumed": 39,
+    "pendingObligations": [75, 76],
+    "requiredReservePositions": [39, 40],
+    "highestFrozenReservePosition": 39,
+    "reserveCount": 40,
+    "arithmetic": "39 + 2 = 41 > 40",
+    "observedRefusal": "ReserveExhausted: CORPUS_FREEZE_REFUSED: 2 obligations need positions 39..40, beyond the last reserve position 39",
+    "contrastQ1Only75": "39 consumed + [75] would be assignable to reserve 39 - the refusal is specifically a complete-current-Q1 capacity failure",
+    "pinnedByTest": "src/test/unit/orgunitCorpus2DA2Generation1CorpusFreezeRefusal.test.ts"
+  },
+  "whyReserve39IsNotAssignedAlone": "Q1 at this planning point is [75,76]. Serving slot 75 with reserve 39 while leaving slot 76 unplanned would intentionally omit an existing mandatory obligation for lack of capacity - a new operator-selected partial-planning rule that does not exist. Its possible outcome is irrelevant: even a success on slot 75 would leave slot 76 unsuccessful with zero reserves and far fewer than 110 successes, so the 110-success target is already unreachable under the frozen reserve schedule",
+  "terminal": {
+    "generation1AcquisitionOutcome": "CORPUS_FREEZE_REFUSED",
+    "reason": "FROZEN_RESERVE_CAPACITY_INSUFFICIENT_FOR_CURRENT_MANDATORY_REPLACEMENT_OBLIGATIONS",
+    "corpusFreezeStatus": "REFUSED",
+    "notPartialSuccess": true,
+    "notA75SlotFreeze": true,
+    "denominatorNotReduced": true,
+    "no110SuccessCorpusExistsUnderThisGeneration": true
+  },
+  "successfulOrganisationCount": 75,
+  "target": 110,
+  "currentReplacementObligations": 2,
+  "currentQ1Count": 2,
+  "unusedReserveCount": 1,
+  "unusedReservePositions": [39],
+  "nextUnusedReservePosition": 39,
+  "highestFrozenReservePosition": 39,
+  "plannerResult": "CORPUS_FREEZE_REFUSED",
+  "corpusFreezeStatus": "REFUSED",
+  "reserve39Assigned": false,
+  "ledgerSequence39Exists": false,
+  "newAcquisitionAuthorityGranted": false,
+  "neverStartedPrimaries": {
+    "slots": "77..109",
+    "count": 33,
+    "remainNeverStarted": true,
+    "notAcquired": "continuing primaries cannot repair the missing reserve capacity"
+  },
+  "noFurtherAcquisitionAuthority": {
+    "decision": "NO_FURTHER_GENERATION1_ACQUISITION_AUTHORITY_V1",
+    "notIssued": [
+      "another bounded window",
+      "a reserve-39 singleton authority",
+      "a primary-only authority",
+      "a retry authority",
+      "a targeted slot-75 authority",
+      "a targeted slot-76 authority"
+    ],
+    "generation1AcquisitionIsTerminal": true
+  },
+  "noDrawOrReserveExtension": [
+    "no frame organisation promoted to reserve 40",
+    "no redraw",
+    "no reserve list beyond 40",
+    "no failed or consumed reserve recycled",
+    "no never-started primary used as a replacement",
+    "no split change"
+  ],
+  "futureWork": "a future owner task may propose a PROSPECTIVE new methodology / generation that preserves Generation-1 history and never relabels it as successful or appends reserves to it. Not designed here",
+  "a3": {
+    "mayResume": true,
+    "governanceV4RemainsPinnedTo": "67ae047fb7de079bcba0eec83ca4f4baee77cc3e",
+    "modifiedHere": false
+  },
+  "sideEffects": {
+    "institutionRequests": 0,
+    "newRuns": 0,
+    "newCompletions": 0,
+    "newFetchObservations": 0,
+    "newPageEvidence": 0,
+    "newCandidates": 0,
+    "databaseWrites": 0,
+    "readOnlyDatabaseBaseline": {
+      "runs": 126,
+      "completions": 126,
+      "fetchObservations": 3172,
+      "redirectObservations": 245,
+      "pageEvidence": 2370,
+      "pageCandidates": 4740,
+      "BLOCKED_BY_POLICY": 6,
+      "rootPromotions": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    }
+  },
+  "identityDisclosure": {
+    "institutionNamesRecorded": 0,
+    "organisationUuidsRecorded": 0,
+    "echeRowKeysRecorded": 0,
+    "hostnamesRecorded": 0,
+    "urlsRecorded": 0
+  },
+  "terminalState": "PHASE_2B_2D_A2_GENERATION1_CORPUS_FREEZE_REFUSED",
+  "nextOwnerQuestion": "whether to design a prospective Generation 2 / methodology revision. Not started",
+  "immutability": "append-only. This record is never edited."
+}
