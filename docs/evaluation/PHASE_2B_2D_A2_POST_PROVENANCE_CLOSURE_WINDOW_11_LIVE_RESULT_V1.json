@@ -1,0 +1,382 @@
+{
+  "record": "PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_11_LIVE_RESULT_V1",
+  "recordKind": "LIVE_WINDOW_RESULT",
+  "recordedAtUtc": "2026-09-28T07:45:41Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "generationId": "METHODOLOGY_V2_GEN1",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "8931d78e53372c2265139e7a60d90e5d2a8f01d4",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "boundAuthority": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_11_LIVE_AUTHORITY_V1.json",
+    "sha256": "1a6ea49bacdb6fc40c3a14e649778ca773cde6a9a2883de6b6ce7eaaca1fddb9",
+    "bytes": 10673,
+    "commit": "9129bd621eead6db43738fb92266c2471ef830c1"
+  },
+  "boundPrenetworkAssignment": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_11_PRENETWORK_ASSIGNMENT_V1.json",
+    "sha256": "f7e5c384f98222ee74353a2c4f90f9e1ca65964777ff5a4bce2a43ca77c9a63b",
+    "bytes": 5847,
+    "commit": "8931d78e53372c2265139e7a60d90e5d2a8f01d4"
+  },
+  "boundPlan": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_POST_PROVENANCE_CLOSURE_WINDOW_11_PLAN_V1.json",
+    "sha256": "5ec886a185cc38ed0f2c0653dbb15dcf6c8968ba98e3e7834e7637201b291791",
+    "bytes": 6611,
+    "windowPlanHash": "48881ce4f106af2e80742aef09f7f092793c72eaa95abf6def65f763ae2c2b63"
+  },
+  "ledgerDuringTheWindow": {
+    "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+    "sha256": "90febac7b3e7c6ecb84ff879f948cf8e52de9731590b1720993f80557f3a0c2d",
+    "bytes": 28735,
+    "entries": 39,
+    "ledgerHash": "a5a60d7e02faa831d38bab131a42e94f80203989989276393216fdc814623e18",
+    "unchangedSinceThePreNetworkAppend": true,
+    "noAppendDuringOrAfterTheLiveWindow": true
+  },
+  "windowOutcome": "WINDOW_EXECUTED_3_OF_5_STOPPED_ON_P5_AFTER_ITEM_3",
+  "stops": {
+    "p5": {
+      "fired": true,
+      "condition": "P5",
+      "decision": "PAUSE_P5_LOW_RAW_YIELD",
+      "arm": "raw pages < 4 on 2 of 5 planned items (> 30%)",
+      "firedAfterItem": "P:76",
+      "why": "R:75:38 (0 raw) and P:76 (0 raw) both fell below 4 raw pages",
+      "p5NotRetuned": true
+    },
+    "concurrencyStop": {
+      "fired": false
+    },
+    "itemsNotStarted": ["P:77", "P:78"],
+    "windowChargedInFull": true,
+    "automaticContinuationStopped": true
+  },
+  "items": [
+    {
+      "order": 1,
+      "workItemId": "R:73:37",
+      "split": "FINAL_HOLDOUT",
+      "drawEntrySha256": "311c0ed671f87b93ef3cd80251bf14dd68e82c09ea9bef7b71923adbc1c1901e",
+      "itemPreflight": {
+        "occupantIsThisDrawEntry": true,
+        "organisationRowMatchesDraw": true,
+        "neverStarted": true,
+        "dryRunWasNetworkFree": true,
+        "rootsEqualFrozenRootAuthorities": true
+      },
+      "itemIntervalUtc": ["2026-09-28T07:35:39Z", "2026-09-28T07:36:22Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "a7d8ebf9a0231f7edfb7c62c8646a9f853a0a5c98bc0503e319b2914c45a74f4",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "pageAttempts": 35,
+      "gatewayRequests": 37,
+      "fetchObservationsByErrorKind": {
+        "NONE": 37
+      },
+      "candidateRows": 66,
+      "rawPageEvidenceCount": 33,
+      "sd9EligiblePageCount": 32,
+      "zeroExtractedTextPageCount": 1,
+      "postSd7Range": [32, 32],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "B",
+      "sd9StatusMechanical": "ACQUISITION_SUCCESSFUL",
+      "postItemHostStateClean": true,
+      "postItemQuietCheckGreen": true,
+      "sleepEventsDuringItem": 0,
+      "inItemConcurrencyWatch": "CLEAN (0 detections)",
+      "structuralDetail": {
+        "errorKinds": "37 observations, none carrying an error kind"
+      }
+    },
+    {
+      "order": 2,
+      "workItemId": "R:75:38",
+      "split": "FINAL_HOLDOUT",
+      "drawEntrySha256": "d8784b006bac50ce3bfb9c95b12226865e0acb42686866cc316d1cb4654912bf",
+      "itemPreflight": {
+        "occupantIsThisDrawEntry": true,
+        "organisationRowMatchesDraw": true,
+        "neverStarted": true,
+        "dryRunWasNetworkFree": true,
+        "rootsEqualFrozenRootAuthorities": true
+      },
+      "itemIntervalUtc": ["2026-09-28T07:38:53Z", "2026-09-28T07:38:55Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "e6eb7249b2feaa11827471001857c25d2bfb6235493e3b2ea844edbb8f837723",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "pageAttempts": 0,
+      "gatewayRequests": 1,
+      "fetchObservationsByErrorKind": {
+        "DNS_FAILURE": 1
+      },
+      "candidateRows": 0,
+      "rawPageEvidenceCount": 0,
+      "sd9EligiblePageCount": 0,
+      "zeroExtractedTextPageCount": 0,
+      "postSd7Range": [0, 0],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "A",
+      "sd9StatusMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "postItemHostStateClean": true,
+      "postItemQuietCheckGreen": true,
+      "sleepEventsDuringItem": 0,
+      "inItemConcurrencyWatch": "CLEAN (0 detections)",
+      "structuralDetail": {
+        "robotsAttempts": 1,
+        "errorKind": "DNS_FAILURE",
+        "errorSubtype": "DNS_NAME_NOT_FOUND",
+        "authoritativeNegativeNoRetryUnderV4": true,
+        "noAddressResolved": true,
+        "vantage": "native IPv4, ipv4only.arpa AAAA empty, no DNS64/NAT64"
+      }
+    },
+    {
+      "order": 3,
+      "workItemId": "P:76",
+      "split": "DEV_CONFIRM",
+      "drawEntrySha256": "c6e4f1ae9c1271172925e8cb36ca4683661b047eec8654630c2405b340b7d39e",
+      "itemPreflight": {
+        "occupantIsThisDrawEntry": true,
+        "organisationRowMatchesDraw": true,
+        "neverStarted": true,
+        "dryRunWasNetworkFree": true,
+        "rootsEqualFrozenRootAuthorities": true
+      },
+      "itemIntervalUtc": ["2026-09-28T07:41:31Z", "2026-09-28T07:41:33Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "b2b31f9b3070b7034f792803d13a7091e5bc46fc1f2f83edd47f3312062bce2a",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "pageAttempts": 0,
+      "gatewayRequests": 2,
+      "fetchObservationsByErrorKind": {
+        "NONE": 2
+      },
+      "candidateRows": 0,
+      "rawPageEvidenceCount": 0,
+      "sd9EligiblePageCount": 0,
+      "zeroExtractedTextPageCount": 0,
+      "postSd7Range": [0, 0],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "A",
+      "sd9StatusMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "postItemHostStateClean": true,
+      "postItemQuietCheckGreen": true,
+      "sleepEventsDuringItem": 0,
+      "inItemConcurrencyWatch": "CLEAN (0 detections)",
+      "structuralDetail": {
+        "robotsAttempts": 2,
+        "errorKind": null,
+        "usableHttpResponseObtained": true,
+        "robotsResponses": [
+          "301 on robots.txt: same host, same registrable domain, target is a /robots.txt path, not malformed, no scheme downgrade (followed by the landed v7 continuation)",
+          "301 on the continuation robots.txt: host changed within the same registrable domain, target is a /robots.txt path, not malformed, no scheme downgrade (not continued under v7)"
+        ],
+        "resolvedIpFamily": "IPV4",
+        "resolvedIpIsPublic": true,
+        "noManualRetry": true,
+        "noHostnameGuess": true,
+        "crossHostContinuationNotAttempted": true,
+        "note": "structural facts only; the robots continuation bound of the landed fetch policy was applied unmodified"
+      }
+    }
+  ],
+  "gateAfterEveryItem": [
+    {
+      "afterItem": "R:73:37",
+      "p7": "13/13",
+      "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+      "triggeredConditions": [],
+      "windowLowYieldCount": 0,
+      "windowRobotsRefusalCount": 0,
+      "maxConsecutiveFailedRuns": 0,
+      "maxConsecutiveRootAuthorityFailures": 0,
+      "nextWorkItemId": "R:75:38"
+    },
+    {
+      "afterItem": "R:75:38",
+      "p7": "13/13",
+      "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+      "triggeredConditions": [],
+      "windowLowYieldCount": 1,
+      "windowRobotsRefusalCount": 1,
+      "maxConsecutiveFailedRuns": 0,
+      "maxConsecutiveRootAuthorityFailures": 0,
+      "nextWorkItemId": "P:76"
+    },
+    {
+      "afterItem": "P:76",
+      "p7": "13/13",
+      "decision": "PAUSE_P5_LOW_RAW_YIELD",
+      "triggeredConditions": [
+        {
+          "condition": "P5",
+          "decision": "PAUSE_P5_LOW_RAW_YIELD",
+          "arm": "raw pages < 4 on 2 of 5 planned items (> 30%)"
+        }
+      ],
+      "windowLowYieldCount": 2,
+      "windowRobotsRefusalCount": 2,
+      "maxConsecutiveFailedRuns": 0,
+      "maxConsecutiveRootAuthorityFailures": 0,
+      "nextWorkItemId": null
+    }
+  ],
+  "runReferenceProvenance": {
+    "everyRunRefSha256IsAFull64HexDigest": true,
+    "derivation": "sha256(lowercase run UUID), no prefix - the modern A2 convention, unchanged",
+    "noRawRunUuidPublished": true
+  },
+  "sd9Bridge": {
+    "rawAndEligibleCountsReportedSeparately": true,
+    "onlyRowsWithMainTextCharsAboveZeroEnteredDedupe": true,
+    "zeroExtractedTextRowsInThisWindow": 1,
+    "analyser": "analyseOrganisation (the repaired bridge at 417ac85), unmodified"
+  },
+  "mechanicalSd9ReadingIsNotTheAdjudication": "sd9StatusMechanical is the landed analyser's output over each run's own page evidence. The adjudication record binds it to Q3 and the canonical state",
+  "databaseReconciliation": {
+    "readAs": "readonly",
+    "before": {
+      "runs": 123,
+      "completions": 123,
+      "fetchObservations": 3132,
+      "redirectObservations": 243,
+      "pageEvidence": 2337,
+      "pageCandidates": 4674,
+      "BLOCKED_BY_POLICY": 6,
+      "rootPromotions": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "after": {
+      "runs": 126,
+      "completions": 126,
+      "fetchObservations": 3172,
+      "redirectObservations": 245,
+      "pageEvidence": 2370,
+      "pageCandidates": 4740,
+      "BLOCKED_BY_POLICY": 6,
+      "rootPromotions": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "delta": {
+      "runs": 3,
+      "completions": 3,
+      "fetchObservations": 40,
+      "redirectObservations": 2,
+      "pageEvidence": 33,
+      "pageCandidates": 66,
+      "BLOCKED_BY_POLICY": 0,
+      "rootPromotions": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "fetchObservationDeltaEqualsSumOfItemRequests": "37 + 1 + 2 = 40",
+    "pageEvidenceDeltaEqualsSumOfItemRawPages": "33 + 0 + 0 = 33",
+    "candidateDeltaEqualsTwicePageDelta": true,
+    "redirectDeltaEqualsP76Redirects": true,
+    "unexplainedMovement": false
+  },
+  "networkVantage": {
+    "provedBeforeEveryItemAndAfterEveryItem": true,
+    "ipv4DefaultRouteOnEn0": true,
+    "nativeIpv4AddressNotClat": true,
+    "ipv4onlyArpaAaaaAnswer": "empty - no DNS64 synthesis",
+    "nat64Condition": false,
+    "everyResolvedAddressThisWindowWasPublicIpv4": true,
+    "addressClassifierUnchanged": true
+  },
+  "hostSafety": {
+    "windowGovernedSinceLocal": "2026-09-28 09:33:33",
+    "sleepWakeDarkWakeEventsInTheGovernedInterval": 0,
+    "predicate": "timestamp predicate over pmset -g log (Sleep / Wake / DarkWake; scheduling 'Wake Requests' lines excluded); fails closed if unreadable",
+    "batteryAlwaysAbove20Percent": true,
+    "batteryObserved": "100%",
+    "lidOpenThroughout": true,
+    "caffeinateDimsuWrappedEveryExecute": true
+  },
+  "concurrency": {
+    "a3State": "A3_EXECUTION_AGENTS_QUIESCED_FOR_A2_FINAL_CRITICAL_SECTION (explicit operator confirmation, not restarted between items)",
+    "preItemQuietGate": ">= 120 consecutive clean WALL-CLOCK seconds before every item",
+    "preItemQuietGateResets": {
+      "R:73:37": 0,
+      "R:75:38": 0,
+      "P:76": 0
+    },
+    "immediatePreLaunchCheckClean": true,
+    "continuousInItemWatch": {
+      "pollSeconds": 2,
+      "readOnly": true,
+      "excludesOnlyTheGovernedInvocationAndItsDescendants": true,
+      "R:73:37": "CLEAN (22 polls, 0 detections)",
+      "R:75:38": "CLEAN (2 polls, 0 detections)",
+      "P:76": "CLEAN (2 polls, 0 detections)"
+    },
+    "informationalOnly": "eslint / tsc processes of an unrelated project outside every engine repo and worktree were observed and logged as informational; none was correctness-critical to this repository",
+    "deviation": null,
+    "itemsRanSequentiallyConcurrency1": true
+  },
+  "forbiddenActions": {
+    "manualRetries": 0,
+    "alternateRoots": 0,
+    "hostnameGuesses": 0,
+    "crossDomainRobotsRedirectFollowed": false,
+    "rootPromotions": 0,
+    "timeoutWidening": false,
+    "tlsWeakening": false,
+    "nat64Bypass": false,
+    "browserCurlWgetInstitutionFetch": 0,
+    "extractionChange": false,
+    "dynamicReserveInsertion": false,
+    "reserve39Used": false,
+    "p77Started": false,
+    "p78Started": false,
+    "p79Started": false
+  },
+  "identityDisclosure": {
+    "institutionNamesRecorded": 0,
+    "organisationUuidsRecorded": 0,
+    "echeRowKeysRecorded": 0,
+    "hostnamesRecorded": 0,
+    "urlsRecorded": 0,
+    "finalHoldoutItemsStarted": ["R:73:37", "R:75:38"],
+    "holdoutHandling": "structural counts only; no title, url, excerpt, hostname or page text read or recorded"
+  },
+  "terminalState": "PHASE_2B_2D_A2_WINDOW_11_STOPPED_ON_P5_AWAITING_VALIDATION_AND_ADJUDICATION",
+  "immutability": "append-only. This record is never edited."
+}
