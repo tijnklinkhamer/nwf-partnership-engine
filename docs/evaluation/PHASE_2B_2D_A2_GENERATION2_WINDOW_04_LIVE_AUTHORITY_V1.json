@@ -1,0 +1,655 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_AUTHORITY_V1",
+  "recordKind": "GENERATION2_OWNER_LIVE_AUTHORITY",
+  "task": "A2_GENERATION2_WINDOW_04_SINGLE_BOUNDED_LIVE_ACQUISITION",
+  "createdBeforeAnyInstitutionNetworkActivity": true,
+  "recordedAtUtc": "2026-09-29T11:05:51Z",
+  "recordedAtUtcSource": "date -u, read from the shell when this authority was written",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "dba0b60496a2f5cf26a7974e60add8f5c35e93f7",
+  "publicSafe": true,
+  "ownerDecision": "APPROVE_GENERATION2_WINDOW_04_EXACTLY_ONE_FIVE_PRIMARY_LIVE_WINDOW_V1",
+  "isLiveAuthority": true,
+  "thisFileAuthorises": [
+    "EXACTLY ONE bounded five-primary Generation-2 live acquisition window: G2P:87 -> G2P:88 -> G2P:89 -> G2P:90 -> G2P:91, sequential, concurrency 1, each at most once, at most five live invocations"
+  ],
+  "networkAuthorised": "ONLY the five work items above, through the landed orgunits discover --execute path (src/orgunits/web/gateway.ts)",
+  "databaseAuthorised": "ONLY the append-only writes the landed acquisition path makes for those five invocations, plus read-only baseline and reconciliation",
+  "ledgerMutationAuthorised": false,
+  "reserveAssignmentAuthorised": false,
+  "windowOrdinal": 4,
+  "ordinaryWindows": 1,
+  "plannedWindowSize": 5,
+  "maximumLiveInvocations": 5,
+  "maximumLiveInvocationsPerWorkItem": 1,
+  "concurrency": 1,
+  "preNetworkLedgerAppends": 0,
+  "q1AtAuthority": [],
+  "emptyQ1AppendAttempt": "NOTHING_TO_APPEND",
+  "exactOrder": ["G2P:87", "G2P:88", "G2P:89", "G2P:90", "G2P:91"],
+  "authorisedWorkItems": [
+    {
+      "order": 1,
+      "workItemId": "G2P:87",
+      "kind": "PRIMARY",
+      "selectionIndex": 87,
+      "generation2ReserveRankPosition": null,
+      "split": "FINAL_HOLDOUT",
+      "replacementReason": null,
+      "replacesOccupantKind": null,
+      "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+      "identityDigest": "5ce8f5168f58509d4277786321afb45f9452b8aee2f615d13073f435a37a726a",
+      "rootAuthorityCount": 1
+    },
+    {
+      "order": 2,
+      "workItemId": "G2P:88",
+      "kind": "PRIMARY",
+      "selectionIndex": 88,
+      "generation2ReserveRankPosition": null,
+      "split": "DEV_TRAIN",
+      "replacementReason": null,
+      "replacesOccupantKind": null,
+      "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+      "identityDigest": "389f21a5bdcfb94a91aa780570b7587d9a367bfa6d51c7b7cbfc2fe618562160",
+      "rootAuthorityCount": 1
+    },
+    {
+      "order": 3,
+      "workItemId": "G2P:89",
+      "kind": "PRIMARY",
+      "selectionIndex": 89,
+      "generation2ReserveRankPosition": null,
+      "split": "DEV_CONFIRM",
+      "replacementReason": null,
+      "replacesOccupantKind": null,
+      "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+      "identityDigest": "e600ca18d932711ef86627e1d58a4ed64121b5937f7219890d901e8682dc8cf1",
+      "rootAuthorityCount": 1
+    },
+    {
+      "order": 4,
+      "workItemId": "G2P:90",
+      "kind": "PRIMARY",
+      "selectionIndex": 90,
+      "generation2ReserveRankPosition": null,
+      "split": "FINAL_HOLDOUT",
+      "replacementReason": null,
+      "replacesOccupantKind": null,
+      "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+      "identityDigest": "2be628d9fedc350c82b2b022cd29ad2f1e55e879153ec96b0207c77e201fbfe7",
+      "rootAuthorityCount": 1
+    },
+    {
+      "order": 5,
+      "workItemId": "G2P:91",
+      "kind": "PRIMARY",
+      "selectionIndex": 91,
+      "generation2ReserveRankPosition": null,
+      "split": "DEV_CONFIRM",
+      "replacementReason": null,
+      "replacesOccupantKind": null,
+      "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+      "identityDigest": "aa413b1081a7a504887635d6445fe6e9bdab0ad9c65778dddfd6c8a3ae7e6f8c",
+      "rootAuthorityCount": 1
+    }
+  ],
+  "composition": {
+    "DEV_TRAIN": 1,
+    "DEV_CONFIRM": 2,
+    "FINAL_HOLDOUT": 2
+  },
+  "replacementItems": 0,
+  "primaryItems": 5,
+  "plannedLedgerAppend": [],
+  "boundWindowSpec": {
+    "schema": "GENERATION2_BOUNDED_WINDOW_SPEC_V1",
+    "windowSpecHash": "8f8b4eef73b433d37bb8cae84836285eea0fb03d668c9ab068bad4745882a9da",
+    "equalsWindow04OfflineReadinessV1SpecHash": true,
+    "precommittedAgainst": "the committed five-entry canonical revision at the canonical start (unchanged: Q1 empty), with the explicit Window-01 -> Window-02 -> Window-03 adjudication history"
+  },
+  "boundLedger": {
+    "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+    "fileSha256": "4e731cc7bd377416a83fda10d30ec04feb03b0663c7265f84b7dce935c6b203d",
+    "bytes": 7645,
+    "ledgerHash": "e58f872e22f3794ac3af2ed34ee802f0b140ffc95d94dc19a1b28db1a7b00a72",
+    "entryCount": 5,
+    "nextGeneration2ReservePosition": 5,
+    "appendCommit": "29a521e9cfbda84f17b0d1fd9429148daa5e889a",
+    "identicalAtCanonicalStart": true,
+    "mustRemainUnchangedThroughTheWindowAndAdjudication": true
+  },
+  "boundAdjudicationHistory": {
+    "explicitOrderedBindingsOnly": true,
+    "directoryDiscovery": false,
+    "latestLookup": false,
+    "glob": false,
+    "windows": [
+      {
+        "windowOrdinal": 1,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_AUTHORITY_V1.json",
+          "commit": "219f6d4a1cb869e9253a9701d48543a88f80f0ab",
+          "sha256": "e4874f7e84a184bd473b75f15dba0fd90700d4bb33ec0093593de90f4dea38ba"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_RESULT_V1.json",
+          "commit": "41bbedad759c26f1cb1e110bfdd07e1599809178",
+          "sha256": "7162938e6f8ba5f7808075f58021b540244b2b5a0b05d61db0812cfd4d8102d0"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "b281bf3b1dfc25c4540c6b17c1e8b97db468a77d",
+          "sha256": "89e4f166e56292374d3cf1aa2fe8037225770d48193ae619a32a1d4c7f1df5df"
+        },
+        "startingLedgerRevision": {
+          "commit": "40b6b0f40a7ae13b00fbf064ed8143996c926f1d",
+          "fileSha256": "b16a6ba8ec879c6f06008849aa3a79d79fc24e6de054180bc0d1b27a18d74a01"
+        }
+      },
+      {
+        "windowOrdinal": 2,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_AUTHORITY_V1.json",
+          "commit": "da659b586c05870f08f5af56d8816365a5203fa0",
+          "sha256": "e2cb65b5a7d3b35391718e255fef4db926bcfe88020f392ac93f79981392bba2"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_RESULT_V1.json",
+          "commit": "d074c0647136b45ee094b2d46a98ee2110db5102",
+          "sha256": "68852cbca3de127bb0a5442863cc99d2c3b72a5a69700c5fc5ac619fbc29b4ae"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "c6f6cf6dd1609115858a7dc039d1919bdb4153e4",
+          "sha256": "2e35cad7951aed780151b97400ea3b7e9fd78d4bfdec252f83d0652702bbdc8d"
+        },
+        "startingLedgerRevision": {
+          "commit": "a768cf9b632ceaa76ccd3781d4554b5e92820981",
+          "fileSha256": "cb36ba532e5fed379cebfa52bd22e6ce2e7b5fe70a28dab85f0c5e8ffe36a387"
+        },
+        "ledgerAppendCommit": "0ad42da8751ea5d18b88860dd3f764d4c655dce5"
+      },
+      {
+        "windowOrdinal": 3,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_AUTHORITY_V1.json",
+          "commit": "a39309f489aef60ae43ff4d179b9150dc5caf6c0",
+          "sha256": "aaa61ce72b9a5b943928f879f68daa06ea612aacfd5117310d54bd14cfa65478"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_RESULT_V1.json",
+          "commit": "17398aaf44b33d831ab9fb8c23b17b0d529da160",
+          "sha256": "c9654a837dde1c7c86a90c505b8cc1d5e6fcae1edc8a593981328576944e42ec"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "8f4bc2185ce7b0010b1dd96fe22b016c9500b9b0",
+          "sha256": "8d59cb2a1e2d6f3b447767a8c56078111658dbd07818e098fd363c153fe33ef0"
+        },
+        "startingLedgerRevision": {
+          "commit": "0ad42da8751ea5d18b88860dd3f764d4c655dce5",
+          "fileSha256": "68762e9df208dfbff296ab5ec953b76fe931f030bd82cf17632165dbae80f26c"
+        },
+        "ledgerAppendCommit": "29a521e9cfbda84f17b0d1fd9429148daa5e889a"
+      }
+    ],
+    "builtBy": "threeWindowHistory (src/test/harness/phase2b2d/generation2Window04/window04Readiness.ts), each record re-hashed against its pin",
+    "passedExplicitlyTo": [
+      "state derivation",
+      "Q1 planning",
+      "window-spec construction",
+      "empty-Q1 append attempt",
+      "P7 preflight",
+      "history-integrity evaluation"
+    ]
+  },
+  "boundWindow02ValidationChain": {
+    "stopAudit": {
+      "path": "docs/audits/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_ACQUISITION_AND_ADJUDICATION_V1.md",
+      "commit": "6258c04153fd61eb531b9000a7d0af4279a84d2e",
+      "sha256": "a41544f45acb5290c420f6193a291cba07be9040c501fe706347fa4c25e216b7"
+    },
+    "originalValidationVerdict": "VALIDATION_EXECUTION_EXCLUSIVITY_NOT_PROVED",
+    "originalValidationReclassified": false,
+    "ownerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_VALIDATION_EXCLUSIVITY_OWNER_RULING_V1.json",
+      "commit": "ef3056e73a87b4fe53dc5ab28f9a4b9a354ee3ea",
+      "sha256": "6e4ec4f56c40584e4441610ef68cec9812d71293220791acca4b216ad1204eaf"
+    },
+    "ownerRulingDecisions": [
+      "ACCEPT_WINDOW_02_P5_AS_VALID_POST_FINAL_ITEM_PAUSE_NO_EVIDENCE_INVALIDATION_V1",
+      "APPROVE_EXACTLY_ONE_WINDOW_02_VALIDATION_EXCLUSIVITY_REPROOF_V1",
+      "APPROVE_WINDOW_02_ADJUDICATION_AFTER_CLEAN_EXCLUSIVE_REPROOF_V1"
+    ],
+    "reproof": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_VALIDATION_EXCLUSIVITY_REPROOF_V1.json",
+      "commit": "0dfe05cb8139e68ba5f01763d4f054443f95aab3",
+      "sha256": "009eb574f6a08e3206fc23df226979f6b6bce87297b5a632394c2331c6aa2b2e"
+    },
+    "reproofVerdict": "WINDOW_02_VALIDATION_EXCLUSIVITY_REPROVED_CLEAN",
+    "reproofExitCode": 0,
+    "closureAudit": {
+      "path": "docs/audits/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_VALIDATION_REPROOF_AND_ADJUDICATION_CLOSURE_V1.md",
+      "commit": "c6f6cf6dd1609115858a7dc039d1919bdb4153e4",
+      "sha256": "122dc38b441359f12af714767b51d3aa0990eab42e4685c48e5dffef645acbbf"
+    },
+    "adjudicationValidationResult": "WINDOW_02_VALIDATION_ACCEPTED",
+    "verifiedBy": "verifyWindow02ValidationChain (landed, unchanged)",
+    "window02P5RulingIsWindowSpecific": true,
+    "window02P5RulingReusableForWindow04": false,
+    "window02ReproofRulingReusableForWindow04": false
+  },
+  "boundWindow03Validation": {
+    "exitCode": 0,
+    "runs": 1,
+    "exclusivityVerdict": "VALIDATION_EXECUTION_EXCLUSIVITY_PROVED",
+    "result": "WINDOW_03_VALIDATION_ACCEPTED",
+    "p5Fired": false,
+    "window02P5RulingReused": false,
+    "verifiedBy": "verifyWindow03Validation (landed, unchanged)"
+  },
+  "operationalPrerequisites": {
+    "ADJUDICATION_HISTORY_INTEGRITY": {
+      "holds": true,
+      "isFrozenP7": false,
+      "isP1P8": false,
+      "windowCount": 3,
+      "requiredBeforeEveryWindow04Item": true,
+      "rebuiltWindowSpecHashes": [
+        "af9eafe58251a9dbb6a0af5baae0258b2a82a1f1183554d45f3b2dd14898fb23",
+        "59bb957942e6f06e8c530bb5dffcd3118f9e3ff5b4a3fc9e1af8ea7e03297b9c",
+        "012f983bd0b59b5fe20cf628cf765418ea8046d3f28c1eaafc70d2e679d30418"
+      ],
+      "implementation": "assessAdjudicationHistoryIntegrity (src/test/harness/phase2b2d/generation2History/historyIntegrity.ts), generic, unchanged at the canonical start",
+      "includesRule": "GENERATION2_HISTORICAL_RUN_REFERENCE_IS_GLOBALLY_UNIQUE_ACROSS_ALL_ADJUDICATED_WINDOWS_V1",
+      "globalRunReferenceUniqueness": {
+        "holds": true,
+        "historicalRunReferenceCount": 15,
+        "historicalRunReferences": [
+          "01ef938f6acde6d4b6fe916ad619b0dc84238a2545d609b0dc34bc062f380eba",
+          "3f535c82deae722518e514b7bae458eb323ded53fcced9d90912e7374d055cf0",
+          "a7a90bef0b7eb1bbc597aec952a93575dc5772ce00e4f33bd4119aae5c8dda74",
+          "4bcb382ec50c89b6f019d12ac88c7cebb268b92fbed0a3c495f33764c632859b",
+          "0abe16c5033c7a7d8a7f715f855b4875bd647b138117cb4ac695781562cae241",
+          "07e7530fc84abcca112cb4b861659da2b5dd4cba93f0e8aea3091d8f2c335ced",
+          "cb2fbf331e754a41552b1f020b1b15e30571433e05454cac981c8d19ceb254ec",
+          "8bdda6cb2cf846c9b1f025adbd6d51ccb33c32ddfaafb12a8666444911cc5aca",
+          "3483c4067691f75d0f7841276314862fa09563b01da7c6fa996d9bab357e226c",
+          "0877843efca4edcc60bfdf217c87a425dd09785b038f7d3b9da9f9ffd8046b52",
+          "2759fc9432cf1ada87a486c11f1f3c5afaf45421ff571fc75729c01b8a6338c1",
+          "317b293e4041e1f801ad6371dad478052bee12a5bea4b1213a98cb9dbbe1c152",
+          "a0d4f159ef9cc27313eba4dda3d8980f69852ab6e287c1b43fd6a7dcac23de5f",
+          "703c9722f4137961ba6e2b836f2e29ac3cf964faa72e88d683aa93ab7e51c9c3",
+          "bf92cdbd3e7be48d6a1f79e6144fc7ce6f2e90062c1429491e771937c6b3c53d"
+        ],
+        "source": "the generic integrity assessment itself (HISTORY_DUPLICATE_RUN_REFERENCE); no Window-04-local substitute",
+        "newRunReferencesMustBeUniqueAgainst": "all 15 Window-01/02/03 run references and every earlier Window-04 run reference"
+      }
+    },
+    "separateFromP7": "P7 18/18 and ADJUDICATION_HISTORY_INTEGRITY are two distinct gates, both required before every item"
+  },
+  "bound": {
+    "canonicalStartCommit": "dba0b60496a2f5cf26a7974e60add8f5c35e93f7",
+    "methodologyV3OwnerFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "36e8071738e1842ad03a9b51cf5820d58015305191c48490ef515e1cd1c34f9c",
+      "bytes": 12318
+    },
+    "frame": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_FRAME_V2_GEN1.json",
+      "sha256": "c16b31c9c18e368bbf99e2d45fc2de1a284dd42c9a483ed34c30187e77b18878",
+      "bytes": 3554080
+    },
+    "draw": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_DRAW_V2_GEN1.json",
+      "sha256": "b7021416894b7547cfe53d0d5f5e34b4e9c35843f8be35f0d2844bc67683b7b3",
+      "bytes": 74047
+    },
+    "generation1Terminal": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION1_CORPUS_FREEZE_REFUSAL_V1.json",
+      "sha256": "6e37f7970ef6d222c3e775da3e9d629efa2645374fbda39e53e570041c82a1b5",
+      "bytes": 9720
+    },
+    "generation1Ledger": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_METHOD_V2_RESERVE_REPLACEMENT_LEDGER_V2_GEN1.json",
+      "sha256": "90febac7b3e7c6ecb84ff879f948cf8e52de9731590b1720993f80557f3a0c2d",
+      "bytes": 28735
+    },
+    "frozenGeneration2ReserveSchedule": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_GEN2_RESERVE_SCHEDULE_V1.json",
+      "sha256": "ee5ce57f90dd59453f9354bc81c32d98f3390a5d42cd0317d91f4ec1d181e594",
+      "bytes": 2739585
+    },
+    "generation2GenesisLedger": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "sha256": "b16a6ba8ec879c6f06008849aa3a79d79fc24e6de054180bc0d1b27a18d74a01",
+      "revisionCommit": "40b6b0f40a7ae13b00fbf064ed8143996c926f1d"
+    },
+    "carryForwardFeasibility": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_CARRY_FORWARD_FEASIBILITY_V1.json",
+      "sha256": "7467435b816c2b97c34af7e8da23bcd1575956477fe3cc6fa59a30600a43c38d",
+      "bytes": 143780
+    },
+    "carryForwardBaseline": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_CARRY_FORWARD_BASELINE_V1.json",
+      "sha256": "739d40466f8fbc95085ea5467164a2672fa4f102677e22d4b89847eeaa6e205f",
+      "bytes": 20650
+    },
+    "generation2FrozenBaseline": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_FROZEN_BASELINE_V1.json",
+      "sha256": "edf056fe3338d06ed9390d97a51c18bced4f9edf2f098a11abeddca573220b90",
+      "bytes": 6146
+    },
+    "window04OfflineReadinessV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_OFFLINE_READINESS_V1.json",
+      "sha256": "4c60b09e3d11e41274be12bc8ef421c6f6a1d0fde18a768ccee1c1d609876287",
+      "gitBlobSha1": "205b86d0518030685fb0fc5b34885065dadaf4e6",
+      "bytes": 42430,
+      "commit": "dba0b60496a2f5cf26a7974e60add8f5c35e93f7",
+      "terminalState": "GENERATION2_WINDOW_04_OFFLINE_READINESS_READY_FOR_OWNER_LIVE_AUTHORITY_DECISION",
+      "thisFileAuthorises": [],
+      "reDerivedByteIdenticallyByLandedMaterialiser": true
+    }
+  },
+  "frozenHashes": {
+    "frameHash": "302dccd8250919213dc329d0b84093f04ff3cc68a1cafe07f844044f94cae650",
+    "drawHash": "79c9eec906bc9d74f2213722b8addb61cd7c4acd02ce466ab0f8f97137542293",
+    "generation1LedgerHash": "a5a60d7e02faa831d38bab131a42e94f80203989989276393216fdc814623e18",
+    "canonicalScheduleHash": "024fe88f5dcd0b781ba87e114f4acd6e8f587f0a49525c7660fde465b7264367",
+    "frozenScheduleHash": "4ab6295f624b1312f2c4c2a1316a32b9bff46967e15588cd6f73579bd91b68c7",
+    "genesisLedgerHash": "4089b6b4490db972f278d738f3269a73845c1a8161b379c155d21f719867b4d9"
+  },
+  "committedInputChecks": {
+    "methodologyV3ApprovalExact": true,
+    "frozenFrameExact": true,
+    "originalDrawExact": true,
+    "generation1TerminalExact": true,
+    "generation1LedgerExactAndValid": true,
+    "frozenReserveScheduleExact": true,
+    "canonicalScheduleHashExact": true,
+    "carryForwardBaselineExact": true
+  },
+  "startingState": {
+    "ACQUISITION_SUCCESSFUL": 87,
+    "acquisitionSuccessfulBySplit": {
+      "DEV_TRAIN": 16,
+      "DEV_CONFIRM": 36,
+      "FINAL_HOLDOUT": 35
+    },
+    "CURRENT_ACQUISITION_FAILURE": [],
+    "failureReasons": [],
+    "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION": [],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "CARRY_FORWARD_REFUSED": [],
+    "NEVER_STARTED": {
+      "from": 87,
+      "to": 109,
+      "count": 23
+    },
+    "accounting": "87 successful + 0 failed + 0 assigned + 0 pending + 23 never started = 110",
+    "q1": [],
+    "q1Assignments": [],
+    "generation2ReserveConsumed": 5,
+    "nextGeneration2ReservePosition": 5,
+    "ledgerEntryCount": 5,
+    "ledgerHash": "e58f872e22f3794ac3af2ed34ee802f0b140ffc95d94dc19a1b28db1a7b00a72",
+    "derivedBy": "deriveGeneration2CurrentState / planCompleteQ1 with the explicit Window-01 -> 02 -> 03 history"
+  },
+  "p7AtStart": {
+    "expected": "18/18",
+    "observed": "18/18",
+    "falseInvariants": [],
+    "startingLedgerRevisionIsCurrent": true,
+    "noProspectiveAppendState": true,
+    "gateDecision": "CONTINUE_TO_NEXT_WORK_ITEM",
+    "nextWorkItemId": "G2P:87"
+  },
+  "executionBindings": [
+    {
+      "workItemId": "G2P:87",
+      "kind": "PRIMARY",
+      "source": "exact frozen original draw selection entry, cross-checked against the frozen frame",
+      "selectionIndex": 87,
+      "selectionIndexExact": true,
+      "split": "FINAL_HOLDOUT",
+      "splitExact": true,
+      "frameRankPosition": 87,
+      "frameEntrySha256": "e423789da4b66fc0606ceac038a2d935488a6a90608f9a954d716da6166534ab",
+      "identityEqualsDrawAndFrame": true,
+      "rootAuthorityCount": 1,
+      "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+      "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+      "identityDigest": "5ce8f5168f58509d4277786321afb45f9452b8aee2f615d13073f435a37a726a",
+      "equalsReadinessBinding": true
+    },
+    {
+      "workItemId": "G2P:88",
+      "kind": "PRIMARY",
+      "source": "exact frozen original draw selection entry, cross-checked against the frozen frame",
+      "selectionIndex": 88,
+      "selectionIndexExact": true,
+      "split": "DEV_TRAIN",
+      "splitExact": true,
+      "frameRankPosition": 88,
+      "frameEntrySha256": "ce27041659a62ebd04e39f3033da7878cdb00f6fc3b223c66119ff3647858419",
+      "identityEqualsDrawAndFrame": true,
+      "rootAuthorityCount": 1,
+      "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+      "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+      "identityDigest": "389f21a5bdcfb94a91aa780570b7587d9a367bfa6d51c7b7cbfc2fe618562160",
+      "equalsReadinessBinding": true
+    },
+    {
+      "workItemId": "G2P:89",
+      "kind": "PRIMARY",
+      "source": "exact frozen original draw selection entry, cross-checked against the frozen frame",
+      "selectionIndex": 89,
+      "selectionIndexExact": true,
+      "split": "DEV_CONFIRM",
+      "splitExact": true,
+      "frameRankPosition": 89,
+      "frameEntrySha256": "cc253347df83e9f1920ddd5a7db8bf8b58de7bb4c5242d6cb246ae23ec5608bc",
+      "identityEqualsDrawAndFrame": true,
+      "rootAuthorityCount": 1,
+      "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+      "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+      "identityDigest": "e600ca18d932711ef86627e1d58a4ed64121b5937f7219890d901e8682dc8cf1",
+      "equalsReadinessBinding": true
+    },
+    {
+      "workItemId": "G2P:90",
+      "kind": "PRIMARY",
+      "source": "exact frozen original draw selection entry, cross-checked against the frozen frame",
+      "selectionIndex": 90,
+      "selectionIndexExact": true,
+      "split": "FINAL_HOLDOUT",
+      "splitExact": true,
+      "frameRankPosition": 90,
+      "frameEntrySha256": "a1892bd0b8003481f9489f4ceaebee87ad367e5346174471309826abf3a9f51a",
+      "identityEqualsDrawAndFrame": true,
+      "rootAuthorityCount": 1,
+      "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+      "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+      "identityDigest": "2be628d9fedc350c82b2b022cd29ad2f1e55e879153ec96b0207c77e201fbfe7",
+      "equalsReadinessBinding": true
+    },
+    {
+      "workItemId": "G2P:91",
+      "kind": "PRIMARY",
+      "source": "exact frozen original draw selection entry, cross-checked against the frozen frame",
+      "selectionIndex": 91,
+      "selectionIndexExact": true,
+      "split": "DEV_CONFIRM",
+      "splitExact": true,
+      "frameRankPosition": 91,
+      "frameEntrySha256": "d7a0a0d5b21426efb2eb6195b5a9f44b2e3239316688311c7e24090dd6c04e99",
+      "identityEqualsDrawAndFrame": true,
+      "rootAuthorityCount": 1,
+      "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+      "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+      "identityDigest": "aa413b1081a7a504887635d6445fe6e9bdab0ad9c65778dddfd6c8a3ae7e6f8c",
+      "equalsReadinessBinding": true
+    }
+  ],
+  "requiredFetchPolicy": "orgunit-fetch-policy-v7",
+  "requiredRuleVersion": "orgunit-signal-rules-v1",
+  "executionPath": "npm CLI orgunits discover --organisation-id <bound organisation> --execute --json, UNCHANGED production code; the organisation and its ordered root authorities come ONLY from the pure Generation-2 execution binding (exact original draw selection entries cross-checked to the exact frozen frame entries); a network-free dry run must resolve exactly those authorities before each item; no DB identity discovery, no hostname guessing, no alternative root",
+  "pauseConditions": {
+    "frozenDenominator": 5,
+    "p1": ">= 3 consecutive INVALID_ROOT_AUTHORITY",
+    "p2Threshold": 3,
+    "p2Arm": ">= 3 consecutive robots blocked/unreadable OR more than 40% of the planned window (3 of 5)",
+    "p3": ">= 2 consecutive FAILED OR any ORCHESTRATION_ERROR",
+    "p4": "persistence anomaly",
+    "p5Threshold": 2,
+    "p5Arm": "raw page evidence < 4 on more than 30% of the planned window (2 of 5); the denominator stays 5 even if execution stops early",
+    "p5NotWeakenedByWindow02Ruling": "ACCEPT_WINDOW_02_P5_AS_VALID_POST_FINAL_ITEM_PAUSE_NO_EVIDENCE_INVALIDATION_V1 belongs to Window 02 only; if P5 fires before the fifth item, start no later item; if it first fires after the fifth item, record LIVE_RESULT and STOP before adjudication for owner review; a clean validation never erases it",
+    "p6": "Generation-2 reserveConsumed > 10 AND successfulOrganisationCount < 50 (at start: 5 consumed, 87 successes; fires false)",
+    "p7": "history-aware Generation-2 preflight, 18/18 invariants true before every item",
+    "p7Invariants": [
+      "methodologyV3ApprovalExact",
+      "frozenFrameExact",
+      "originalDrawExact",
+      "generation1TerminalExact",
+      "generation1LedgerExactAndValid",
+      "frozenReserveScheduleExact",
+      "canonicalScheduleHashExact",
+      "carryForwardBaselineExact",
+      "currentGeneration2LedgerExactAndValid",
+      "startingLedgerRevisionMatchesPrecommit",
+      "recomputedStateEqualsPlanningState",
+      "completeQ1EqualsPlanningQ1",
+      "windowSpecHashValid",
+      "workItemsMatchGovernance",
+      "executionEntryIdentitiesMatch",
+      "plannedReplacementAppendRecorded",
+      "noUnexpectedGeneration2Assignments",
+      "postAppendOccupantsMatchAssignedReserves"
+    ],
+    "p8": {
+      "condition": "P8",
+      "observationField": "hostStateAnomaly",
+      "meaning": "host sleep/wake, or a wall-clock gap inconsistent with the pacing clock",
+      "decision": "PAUSE_P8_HOST_STATE_ANOMALY",
+      "source": "src/test/harness/phase2b2d/continuationWindow/windowContract.ts",
+      "ruling": "P8_REMAINS_HOST_SLEEP_WAKE_OR_PACING_CLOCK_ANOMALY_ONLY_V1"
+    },
+    "evaluatedAfterEveryCleanCompletedItem": true,
+    "anyPauseMeansStartNoLaterItem": true,
+    "thresholdsUnchanged": true
+  },
+  "operationalConcurrencyIntegrity": {
+    "policy": {
+      "version": "GENERATION2_LIVE_CRITICAL_SECTION_POLICY_V2",
+      "supersedes": "GENERATION2_LIVE_CRITICAL_SECTION_POLICY_V1",
+      "ruling": "GENERATION2_CONCURRENCY_INTEGRITY_STOP_IS_DISTINCT_FROM_FROZEN_P8_V1",
+      "a3ExecutionAgentsMustBeQuiesced": true,
+      "consecutiveCleanSecondsBeforeEachItem": 120,
+      "maxProcessMonitoringIntervalSeconds": 5,
+      "monitorContinuouslyDuringEachItem": true,
+      "monitorContinuouslyDuringFullValidation": true,
+      "competingValidateOrVitestMidItemRequiresOperationalIntegrityStop": true,
+      "doesNotSetP8ByItself": true,
+      "runningInvocationIsAllowedToFinish": true,
+      "evidenceIsNotAutomaticallyInvalidated": true,
+      "automaticValidationRerunAuthorised": false
+    },
+    "classifications": {
+      "preItem": "CONCURRENCY_INTEGRITY_PRECONDITION_NOT_SATISFIED",
+      "midItem": "CONCURRENCY_INTEGRITY_DEVIATION_DETECTED_DURING_ITEM",
+      "monitorGap": "CONCURRENCY_MONITOR_COVERAGE_INSUFFICIENT",
+      "validation": "VALIDATION_EXECUTION_EXCLUSIVITY_NOT_PROVED"
+    },
+    "notP8": true,
+    "a3ExecutionAgentsQuiescedRequirement": "A3_EXECUTION_AGENTS_QUIESCED_FOR_GENERATION2_WINDOW_04 must be established ANEW (no Window-03 evidence reused) before the live critical section and hold through LIVE_RESULT and governed validation",
+    "preItemFailure": "CONCURRENCY_INTEGRITY_PRECONDITION_NOT_SATISFIED: the item does not start; not P8",
+    "inItemDeviation": "CONCURRENCY_INTEGRITY_DEVIATION_DETECTED_DURING_ITEM: let the running invocation finish, preserve evidence, start no next item, STOP; not P8; no automatic evidence invalidation",
+    "monitorGap": "CONCURRENCY_MONITOR_COVERAGE_INSUFFICIENT: a gap > 5 s during an item; let it finish, preserve evidence, STOP; not P8",
+    "operatorExecutionChannelFailure": "OPERATOR_EXECUTION_CHANNEL_FAILURE_DURING_LIVE_ITEM: let the running invocation finish if observable, preserve evidence, start no next item, STOP; not P8, no retry authority",
+    "governedValidationWatcher": "atomic whole-process-table snapshots (PID, PPID, start identity, PGID, session, argv) begun BEFORE the governed root exists; governed root = PID + start identity; a competing-shaped process counts as governed ONLY if its parent chain IN THE SAME SNAPSHOT reaches the governed root (no stale ancestry inheritance); EXTERNAL_COMPETING_PROCESS or ANCESTRY_UNPROVED => VALIDATION_EXECUTION_EXCLUSIVITY_NOT_PROVED, no adjudication, no automatic rerun; a local self-test (governed child resolves; detached orphan does not) must pass first"
+  },
+  "hostSafety": {
+    "doNotStartAtOrBelowBatteryPercent": 20,
+    "lidOpenRequired": true,
+    "caffeinateDimsuRequired": true,
+    "sleepDetectionMethod": "timestamp predicate over pmset -g log for Sleep / Wake / DarkWake; fail closed if unreadable",
+    "compliantVantageRequired": "IPv4 default route, native non-CLAT IPv4 address, ipv4only.arpa AAAA empty (no DNS64/NAT64); re-proved before and after every item"
+  },
+  "databasePreflight": {
+    "verifiedBeforeAuthorityCommit": true,
+    "readAs": "readonly",
+    "runs": 141,
+    "completions": 141,
+    "fetchObservations": 3654,
+    "redirectObservations": 277,
+    "pageEvidence": 2764,
+    "pageCandidates": 5528,
+    "BLOCKED_BY_POLICY": 6,
+    "rootPromotions": 0,
+    "rootPromotionRevocations": 0,
+    "dryRunRuns": 0,
+    "runsWithoutCompletion": 0,
+    "latestRunStartedAt": "2026-09-28T23:22:50.518Z",
+    "atUtc": "2026-09-29T11:03:52.333Z",
+    "expectedFromWindow03ReconciledEndpoint": {
+      "runs": 141,
+      "completions": 141,
+      "fetchObservations": 3654,
+      "redirectObservations": 277,
+      "pageEvidence": 2764,
+      "pageCandidates": 5528,
+      "BLOCKED_BY_POLICY": 6,
+      "rootPromotions": 0,
+      "rootPromotionRevocations": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "window04OccupantsWithPriorRuns": 0,
+    "unexplainedDrift": false
+  },
+  "runReferenceProvenance": {
+    "fullRunRefSha256Only": true,
+    "derivation": "sha256(canonical lowercase run UUID), no prefix, no historical \"run:\" convention",
+    "uniqueWithinWindow04AndAgainstAllHistoricalWindows": "required before LIVE_RESULT is accepted; any duplicate => STOP"
+  },
+  "sd9": "raw persisted page evidence and SD9-eligible rows (main_text_chars > 0) recorded separately; only eligible rows enter exact SD7 -> near SD7 (overlapping token 5-gram Jaccard >= 0.90) -> SD9 minimum of 4 distinct post-SD7 pages; frozen SD7, short-text unresolved handling unchanged, no extractor tuning",
+  "q3": ["ROOT_AUTHORITY_FAILURE", "ROBOTS_DISALLOWED", "HOST_UNREACHABLE", "MIN_PAGES_NOT_MET"],
+  "failedPrimaryRule": "a failed Window-04 primary becomes CURRENT_ACQUISITION_FAILURE and enters a FUTURE Q1 only; no reserve is assigned and no ledger entry is appended by this authority or by the Window-04 adjudication",
+  "attemptAccounting": "only actual acquisition invocations consume attempts (validation, dry runs and quiet gates do not); unused capacity is not transferable and never becomes Window 05",
+  "notAuthorised": {
+    "window05": true,
+    "window05Readiness": true,
+    "window05Authority": true,
+    "reserve5OrLaterAssignment": true,
+    "ledgerAppend": true,
+    "g2p92OrLaterPrimary": true,
+    "replacementExecution": true,
+    "automaticQ1Resolution": true,
+    "retries": true,
+    "automaticContinuation": true,
+    "reordering": true,
+    "parallelism": true,
+    "ledgerRollback": true,
+    "headerMutation": true,
+    "productionAcquisitionCodeChange": true,
+    "genericHistoryBridgeChange": true,
+    "hostnameGuessing": true,
+    "timeoutWidening": true,
+    "tlsWeakening": true,
+    "nat64Bypass": true,
+    "policyWorkaround": true,
+    "extractionChange": true,
+    "rootPromotion": true,
+    "migration": true,
+    "a3Write": true,
+    "a3ExecutionDuringCriticalSection": true,
+    "automaticValidationRerun": true,
+    "window02RulingReuse": true
+  },
+  "unusedInvocationsAreNotTransferable": true,
+  "afterThisWindow": "STOP after Window-04 adjudication (or an owner-review stop). No Window-05 readiness, authority, reserve assignment or execution. Return to the owner",
+  "identityDisclosure": "slot numbers, work item ids, digests and aggregates only; no organisation id, echeRowKey, URL, hostname, root-authority id or page text",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
