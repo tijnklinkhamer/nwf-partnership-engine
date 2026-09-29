@@ -1,0 +1,130 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_06_POST_FINAL_P5_OWNER_RULING_V1",
+  "recordKind": "GENERATION2_OWNER_RULING",
+  "task": "A2_GENERATION2_WINDOW_06_POST_FINAL_P5_OWNER_RULING_VALIDATION_AND_ADJUDICATION",
+  "createdBeforeAnyFurtherInstitutionNetworkActivity": true,
+  "recordedAtUtc": "2026-09-29T21:46:42Z",
+  "recordedAtUtcSource": "date -u, read from the shell when this ruling was written",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "3905bc27a3a54bb425d91813ed6e6e641d283d0c",
+  "publicSafe": true,
+  "appendOnly": true,
+  "isLiveAuthority": false,
+  "scope": "WINDOW_06_ONLY",
+  "ownerDecisions": [
+    "ACCEPT_WINDOW_06_P5_AS_VALID_POST_FINAL_ITEM_PAUSE_NO_EVIDENCE_INVALIDATION_V1",
+    "PRESERVE_WINDOW_06_P5_AS_FROZEN_GATE_PAUSE_AFTER_WINDOW_COMPLETION_V1",
+    "APPROVE_EXACTLY_ONE_WINDOW_06_POST_FINAL_P5_GOVERNED_VALIDATION_V1",
+    "APPROVE_WINDOW_06_ADJUDICATION_AFTER_CLEAN_EXCLUSIVE_VALIDATION_WITH_P5_AND_G2P98_DEVIATION_PRESERVED_V1"
+  ],
+  "thisFileAuthorises": [
+    "Exactly ONE governed full validation (caffeinate -dimsu npm run validate) at THIS new owner-ruling tip",
+    "Window-06 adjudication only if that validation is clean and exclusive and the six-window replay using LIVE_RESULT V3 is exact"
+  ],
+  "authorisesNothingElse": {
+    "institutionNetwork": false,
+    "databaseWrite": false,
+    "ledgerWrite": false,
+    "reserveAssignment": false,
+    "retry": false,
+    "window07": false,
+    "secondValidation": false
+  },
+  "p5": {
+    "fired": true,
+    "decision": "PAUSE_P5_LOW_RAW_YIELD",
+    "threshold": 2,
+    "windowLowYieldCount": 2,
+    "lowYieldItems": ["G2R:96:6", "G2P:99"],
+    "firstFiredAfter": "G2P:99",
+    "firedAfterTheFinalItem": true,
+    "preservation": "P5 fired after the final item of a completed 5-of-5 window. It is not weakened, not waived and not reinterpreted. It did not retrospectively invalidate any already-completed item. No retry is authorised for slot 96 or slot 99.",
+    "ownerDisposition": "ACCEPT_WINDOW_06_P5_AS_VALID_POST_FINAL_ITEM_PAUSE_NO_EVIDENCE_INVALIDATION_V1"
+  },
+  "g2p98": {
+    "deviation": "CONCURRENCY_INTEGRITY_DEVIATION_DETECTED_DURING_ITEM",
+    "inItemExecutionExclusivity": "NOT_PROVED",
+    "monitorCoverage": "SATISFIED",
+    "ancestryUnprovedCandidates": 61,
+    "mechanicalAcquisitionResult": "SUCCESSFUL",
+    "status": "remains permanent; nothing in this ruling or in a clean validation makes G2P:98 exclusive",
+    "governedBy": "the Window-06 concurrency-deviation owner ruling"
+  },
+  "precedent": {
+    "windowOrdinal": 2,
+    "decision": "ACCEPT_WINDOW_02_P5_AS_VALID_POST_FINAL_ITEM_PAUSE_NO_EVIDENCE_INVALIDATION_V1",
+    "status": "historical governance precedent ONLY; it is NOT reused as Window-06 authority. This ruling is a new, Window-06-scoped decision."
+  },
+  "bound": {
+    "window06OfflineReadiness": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_OFFLINE_READINESS_V1.json",
+      "commit": "35beff7c80c14c5198a9cc9bb22ec7d5f9fd53ac",
+      "sha256": "eb0907c73512c9b9e6ddfbb65d65eae52f945d200e0f5463ec171182f5838cc8",
+      "bytes": 63763
+    },
+    "window06LiveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_AUTHORITY_V1.json",
+      "commit": "c3f6c223de48625976f52da1ce110133f0d01afb",
+      "sha256": "6d847d8175054ecf7f09e45b5ab8ba8e488e9f8ca99553e9ca2c420b4dc977e3",
+      "bytes": 43944,
+      "ownerDecision": "APPROVE_GENERATION2_WINDOW_06_EXACTLY_ONE_FIVE_ITEM_LIVE_WINDOW_V1"
+    },
+    "ledgerSevenEntries": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "commit": "f3c02276b91ab2daa06763c2ae30c9c601c6cf35",
+      "sha256": "557df594ba55998fddb1f3881210f8cc6205fdfb118cc138bd49a40a4f84f9b9",
+      "bytes": 8917,
+      "ledgerHash": "02ab72faa20ce846df8ac40cd21f62f8814fa0e1e56d1b990b234ca5c814b65e",
+      "entryCount": 7,
+      "nextGeneration2ReservePosition": 7
+    },
+    "liveResultV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_RESULT_V1.json",
+      "commit": "2b831d67ea973e4dfd30a9ab6b1f68d29ef4602e",
+      "sha256": "1e9e2827717c3d30d8c5ff73aeb2b03108411795e3e3bbdf1e7ba2670c85eff8",
+      "bytes": 28617,
+      "status": "immutable historical evidence"
+    },
+    "concurrencyDeviationOwnerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_CONCURRENCY_DEVIATION_OWNER_RULING_V1.json",
+      "commit": "8d20725ff7395dfe367d8f51f050b8d443725272",
+      "sha256": "d97fd3b47b1579e99aa6097a377e9d8778692e9338ce5573990ca6aab854994f",
+      "bytes": 8311
+    },
+    "liveResultV2": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_RESULT_V2.json",
+      "commit": "f7ad412ce774d42d2060d79b38492e7c41353d79",
+      "sha256": "e08713de85ee960960045a64688f75c420b5c385e703ea1427a42ec76d60647e",
+      "bytes": 35345,
+      "status": "immutable historical evidence"
+    },
+    "liveResultV3CorrectionOwnerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_RESULT_V3_CORRECTION_OWNER_RULING_V1.json",
+      "commit": "d52c7041c7ac7acdb54b67c7bb5574027b0ec861",
+      "sha256": "b81d06a8905be7e8ade4d765b50aa95932f77cb071220c085f639e72b3bcf883",
+      "bytes": 3477
+    },
+    "liveResultV3": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_RESULT_V3.json",
+      "commit": "3905bc27a3a54bb425d91813ed6e6e641d283d0c",
+      "sha256": "9dee6861dabc5c997ed2d458fad7d346f6b7aa9a019d421439f8c2b242cb1af6",
+      "bytes": 37590,
+      "status": "the canonical adjudication binding for Window 06"
+    }
+  },
+  "doesNot": [
+    "weaken, waive or reinterpret P5",
+    "invalidate any completed item",
+    "make G2P:98 exclusive",
+    "authorise any retry",
+    "authorise any institution acquisition network activity",
+    "authorise any database write",
+    "mutate the ledger",
+    "assign reserve 7 or any later reserve",
+    "authorise, prepare or create Window 07",
+    "authorise G2P:100 or any slot 100..109",
+    "authorise a second validation"
+  ],
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
