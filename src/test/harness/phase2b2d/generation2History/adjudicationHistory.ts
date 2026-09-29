@@ -539,6 +539,152 @@ function identityOf(item: Json): Record<string, unknown> {
   return Object.fromEntries(WORK_ITEM_IDENTITY_FIELDS.map((field) => [field, item[field]]));
 }
 
+/** identityOf, refusing an absent field instead of letting canonicalStringify throw on it. */
+function requiredIdentityOf(item: Json, what: string): Record<string, unknown> {
+  for (const field of WORK_ITEM_IDENTITY_FIELDS) {
+    if (item[field] === undefined) refuse('HISTORY_RECORD_SHAPE', `${what}.${field} is absent`);
+  }
+  return identityOf(item);
+}
+
+// ---------------------------------------------------------------------------
+// The LIVE_RESULT contract (the one implementation; replayWindow calls it).
+// ---------------------------------------------------------------------------
+
+/**
+ * What a window's LIVE_RESULT is checked against. Every value comes from the
+ * window's authority and the ledger revision it ran against - never from the
+ * LIVE_RESULT itself - so a caller can check a LIVE_RESULT before it is
+ * committed, exactly as the replay later will.
+ */
+export interface Generation2LiveResultExpectation {
+  readonly windowOrdinal: number;
+  /** The authority binding the LIVE_RESULT's boundAuthority must name exactly. */
+  readonly authority: CommittedRecordBinding;
+  /** The authority's boundWindowSpec.windowSpecHash. */
+  readonly windowSpecHash: string;
+  /** The authority's authorisedWorkItems, in authorised order. */
+  readonly authorisedWorkItems: readonly Readonly<Record<string, unknown>>[];
+  /** The authority's exactOrder. */
+  readonly exactOrder: readonly string[];
+  /** The ledger revision during the window: after the pre-network append. */
+  readonly ledgerHash: string;
+  readonly ledgerEntryCount: number;
+}
+
+/**
+ * Validates one Generation-2 LIVE_RESULT against its expectation and returns
+ * its executed items. PURE. Refuses (Generation2OperationalRefusal) on:
+ * wrong kind / generation / live-authority flag, an inexact boundAuthority
+ * {path, sha256, bytes}, another window spec, another ledger revision,
+ * executed items that are not an exact prefix of the authorised order,
+ * duplicated items or run references, a malformed run reference, anything
+ * but one clean completed non-dry run per item, invocation accounting that
+ * does not match, and a top-level stops.itemsNotStarted that is absent, not
+ * an array of strings, or not the authorised order's unexecuted suffix.
+ * A malformed record is a HISTORY_RECORD_SHAPE refusal, never a raw error.
+ */
+export function validateGeneration2LiveResultForHistory(
+  liveResult: CommittedRecordBinding,
+  expected: Generation2LiveResultExpectation,
+): readonly Readonly<Record<string, unknown>>[] {
+  const ordinal = String(expected.windowOrdinal);
+  const size = expected.exactOrder.length;
+  if (expected.authorisedWorkItems.length !== size) {
+    refuse('HISTORY_AUTHORITY_ORDER', `window ${ordinal}: the authorised order is not exact`);
+  }
+  const live = parseBound(liveResult, `window ${ordinal} LIVE_RESULT`);
+  if (
+    live.recordKind !== 'GENERATION2_WINDOW_LIVE_RESULT' ||
+    live.generationId !== GENERATION2_ID ||
+    live.isLiveAuthority !== false
+  ) {
+    refuse('HISTORY_LIVE_RESULT_KIND', `window ${ordinal}: not a Generation-2 LIVE_RESULT`);
+  }
+  requireRef(
+    live.boundAuthority,
+    expected.authority,
+    'HISTORY_LIVE_RESULT_AUTHORITY',
+    `window ${ordinal} LIVE_RESULT.boundAuthority`,
+  );
+  if (live.windowSpecHash !== expected.windowSpecHash) {
+    refuse(
+      'HISTORY_LIVE_RESULT_AUTHORITY',
+      `window ${ordinal}: the LIVE_RESULT names another window spec`,
+    );
+  }
+  const liveLedger = asObject(live.ledgerDuringTheWindow, 'ledgerDuringTheWindow');
+  if (
+    liveLedger.ledgerHash !== expected.ledgerHash ||
+    liveLedger.entryCount !== expected.ledgerEntryCount
+  ) {
+    refuse(
+      'HISTORY_LEDGER_NOT_A_PREFIX',
+      `window ${ordinal}: the LIVE_RESULT ran against another ledger revision`,
+    );
+  }
+  const liveItems = asArray(live.items, 'LIVE_RESULT.items').map((v) =>
+    asObject(v, 'LIVE_RESULT.items[]'),
+  );
+  const liveIds = liveItems.map((item) => item.workItemId);
+  if (liveItems.length > size || new Set(liveIds).size !== liveIds.length) {
+    refuse(
+      'HISTORY_LIVE_RESULT_ITEMS',
+      `window ${ordinal}: executed items are duplicated or exceed the authority`,
+    );
+  }
+  const runRefs = new Set<string>();
+  liveItems.forEach((item, k) => {
+    const authorisedItem = asObject(expected.authorisedWorkItems[k], 'authorisedWorkItems[]');
+    if (
+      !same(
+        requiredIdentityOf(item, `LIVE_RESULT.items[${String(k)}]`),
+        requiredIdentityOf(authorisedItem, `authorisedWorkItems[${String(k)}]`),
+      )
+    ) {
+      refuse(
+        'HISTORY_UNAUTHORISED_ITEM',
+        `window ${ordinal}: executed item ${String(k + 1)} is not the authority's item ${String(k + 1)}`,
+      );
+    }
+    const runRef = asString(item.runRefSha256, 'runRefSha256');
+    if (
+      item.order !== k + 1 ||
+      !HEX64.test(runRef) ||
+      runRefs.has(runRef) ||
+      item.cliExecuteInvocations !== 1 ||
+      item.runsForOccupant !== 1 ||
+      item.completionRows !== 1 ||
+      item.runTerminalState !== 'COMPLETED' ||
+      item.dryRun !== false
+    ) {
+      refuse(
+        'HISTORY_LIVE_RESULT_ITEMS',
+        `window ${ordinal}: executed item ${String(k + 1)} is not one clean completed run`,
+      );
+    }
+    runRefs.add(runRef);
+  });
+  const invocations = asObject(live.liveInvocations, 'liveInvocations');
+  const stops = asObject(live.stops, 'stops');
+  // The canonical field is TOP-LEVEL stops.itemsNotStarted; its shape is
+  // required before it is compared, so an absent field is a refusal.
+  const itemsNotStarted = asArray(stops.itemsNotStarted, 'LIVE_RESULT.stops.itemsNotStarted').map(
+    (v) => asString(v, 'LIVE_RESULT.stops.itemsNotStarted[]'),
+  );
+  if (
+    invocations.used !== liveItems.length ||
+    invocations.retries !== 0 ||
+    !same(itemsNotStarted, expected.exactOrder.slice(liveItems.length))
+  ) {
+    refuse(
+      'HISTORY_LIVE_RESULT_ITEMS',
+      `window ${ordinal}: invocation accounting does not match the executed items`,
+    );
+  }
+  return liveItems;
+}
+
 // ---------------------------------------------------------------------------
 // One window.
 // ---------------------------------------------------------------------------
@@ -773,82 +919,15 @@ function replayWindow(
   );
 
   // ---- LIVE_RESULT ---------------------------------------------------------------
-  const live = parseBound(binding.liveResult, `window ${ordinal} LIVE_RESULT`);
-  if (
-    live.recordKind !== 'GENERATION2_WINDOW_LIVE_RESULT' ||
-    live.generationId !== GENERATION2_ID ||
-    live.isLiveAuthority !== false
-  ) {
-    refuse('HISTORY_LIVE_RESULT_KIND', `window ${ordinal}: not a Generation-2 LIVE_RESULT`);
-  }
-  requireRef(
-    live.boundAuthority,
-    binding.authority,
-    'HISTORY_LIVE_RESULT_AUTHORITY',
-    `window ${ordinal} LIVE_RESULT.boundAuthority`,
-  );
-  if (live.windowSpecHash !== windowSpecHash) {
-    refuse(
-      'HISTORY_LIVE_RESULT_AUTHORITY',
-      `window ${ordinal}: the LIVE_RESULT names another window spec`,
-    );
-  }
-  const liveLedger = asObject(live.ledgerDuringTheWindow, 'ledgerDuringTheWindow');
-  if (liveLedger.ledgerHash !== ledgerHashAfterAppend || liveLedger.entryCount !== afterAppend) {
-    refuse(
-      'HISTORY_LEDGER_NOT_A_PREFIX',
-      `window ${ordinal}: the LIVE_RESULT ran against another ledger revision`,
-    );
-  }
-  const liveItems = asArray(live.items, 'LIVE_RESULT.items').map((v) =>
-    asObject(v, 'LIVE_RESULT.items[]'),
-  );
-  const liveIds = liveItems.map((item) => item.workItemId);
-  if (liveItems.length > size || new Set(liveIds).size !== liveIds.length) {
-    refuse(
-      'HISTORY_LIVE_RESULT_ITEMS',
-      `window ${ordinal}: executed items are duplicated or exceed the authority`,
-    );
-  }
-  const runRefs = new Set<string>();
-  liveItems.forEach((item, k) => {
-    const authorisedItem = authorised[k]!;
-    if (!same(identityOf(item), identityOf(authorisedItem))) {
-      refuse(
-        'HISTORY_UNAUTHORISED_ITEM',
-        `window ${ordinal}: executed item ${String(k + 1)} is not the authority's item ${String(k + 1)}`,
-      );
-    }
-    const runRef = asString(item.runRefSha256, 'runRefSha256');
-    if (
-      item.order !== k + 1 ||
-      !HEX64.test(runRef) ||
-      runRefs.has(runRef) ||
-      item.cliExecuteInvocations !== 1 ||
-      item.runsForOccupant !== 1 ||
-      item.completionRows !== 1 ||
-      item.runTerminalState !== 'COMPLETED' ||
-      item.dryRun !== false
-    ) {
-      refuse(
-        'HISTORY_LIVE_RESULT_ITEMS',
-        `window ${ordinal}: executed item ${String(k + 1)} is not one clean completed run`,
-      );
-    }
-    runRefs.add(runRef);
+  const liveItems = validateGeneration2LiveResultForHistory(binding.liveResult, {
+    windowOrdinal: expectedOrdinal,
+    authority: binding.authority,
+    windowSpecHash,
+    authorisedWorkItems: authorised,
+    exactOrder,
+    ledgerHash: ledgerHashAfterAppend,
+    ledgerEntryCount: afterAppend,
   });
-  const invocations = asObject(live.liveInvocations, 'liveInvocations');
-  const stops = asObject(live.stops, 'stops');
-  if (
-    invocations.used !== liveItems.length ||
-    invocations.retries !== 0 ||
-    !same(stops.itemsNotStarted, exactOrder.slice(liveItems.length))
-  ) {
-    refuse(
-      'HISTORY_LIVE_RESULT_ITEMS',
-      `window ${ordinal}: invocation accounting does not match the executed items`,
-    );
-  }
 
   // ---- adjudication ----------------------------------------------------------------
   const adjudication = parseBound(binding.adjudication, `window ${ordinal} adjudication`);

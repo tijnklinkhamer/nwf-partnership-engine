@@ -418,7 +418,25 @@ describe('Phase 2B-2D A2 Methodology V3 / Generation-2 owner freeze', () => {
         l: false,
       });
     }
-    expect(readdirSync(join(REPO, GENERATION2_CORPUS_NAMESPACE)).sort()).toEqual([
+    // The namespace claim is TEMPORAL too: what the freeze left there, read at
+    // its own terminal, so a later authorised Generation-2 corpus artifact
+    // cannot turn it red.
+    expect(
+      execFileSync(
+        'git',
+        [
+          '-C',
+          REPO,
+          'ls-tree',
+          '--name-only',
+          `${FREEZE_TERMINAL_COMMIT}:${GENERATION2_CORPUS_NAMESPACE}`,
+        ],
+        { encoding: 'utf8' },
+      )
+        .split('\n')
+        .filter(Boolean)
+        .sort(),
+    ).toEqual([
       'PHASE_2B_2D_METHOD_V3_GEN2_RESERVE_SCHEDULE_V1.json',
       'PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json',
     ]);
