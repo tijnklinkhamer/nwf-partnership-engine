@@ -29,6 +29,17 @@
  *   own summaries (state before/after, Q1, obligations, ledger, P6) are only
  *   COMPARED against the replay, never used to compute it.
  *
+ * AUTHORITY-SHAPE CORRECTIONS
+ *
+ *   An authority is read by its canonical field names. The one exception is
+ *   a window whose binding EXPLICITLY carries a committed, owner-approved
+ *   correction record pinned to that authority's exact path, commit and
+ *   bytes; only then may one approved field alias (APPROVED_AUTHORITY_SHAPE_
+ *   CORRECTIONS) supply the canonical value, and only its exact, hash-pinned
+ *   stored object. There is no fallback: an authority lacking a canonical
+ *   field and a correction is refused, and a correction is never consulted
+ *   for a canonically shaped authority.
+ *
  * THE STATE MACHINE (the only one; `deriveGeneration2CurrentState` uses it)
  *
  *   carried start: SUCCESSFUL / FAILURE(reason) / NEVER_STARTED
@@ -96,6 +107,17 @@ export interface CommittedRecordBinding {
   readonly text: string;
 }
 
+/**
+ * A committed, owner-approved correction of how ONE pinned authority's SHAPE
+ * is read. It never edits the authority: it names the exact bytes it applies
+ * to and the one field it lets the replay read under its canonical name.
+ */
+export interface AuthorityShapeCorrectionBinding {
+  readonly record: CommittedRecordBinding;
+  /** The commit the caller read the authority bytes at; the record must bind exactly it. */
+  readonly authorityCommit: string;
+}
+
 /** One adjudicated window, supplied explicitly by the caller. */
 export interface Generation2WindowHistoryBinding {
   readonly windowOrdinal: number;
@@ -104,6 +126,8 @@ export interface Generation2WindowHistoryBinding {
   readonly adjudication: CommittedRecordBinding;
   /** The bytes of the ledger revision the authority precommitted its window against. */
   readonly startingLedgerText: string;
+  /** Absent for every canonically shaped authority. Never looked up: supplied or not. */
+  readonly authorityShapeCorrection?: AuthorityShapeCorrectionBinding;
 }
 
 /** Ordered: windows[k] is window k+1. Empty means the historical first-window model. */
@@ -328,6 +352,180 @@ function requireRef(value: unknown, binding: CommittedRecordBinding, code: strin
   }
 }
 
+// ---------------------------------------------------------------------------
+// The starting-ledger binding, and the one approved authority-shape correction.
+// ---------------------------------------------------------------------------
+
+export const AUTHORITY_SHAPE_CORRECTION_RECORD_KIND =
+  'GENERATION2_WINDOW_AUTHORITY_SHAPE_CORRECTION_AND_ADJUDICATION_RULING';
+
+/**
+ * Every authority-shape correction an owner has approved, each under its own
+ * ruling and pinned to the ONE authority (window ordinal + exact SHA-256) it
+ * was issued for. Adding one is a reviewed code change, never data: a record
+ * naming any other ruling, field pair, window or authority is refused, so
+ * `boundLedger` never becomes a second spelling of `boundStartingLedger`.
+ */
+export const APPROVED_AUTHORITY_SHAPE_CORRECTIONS = [
+  {
+    ownerRuling: 'APPROVE_PINNED_WINDOW04_AUTHORITY_STARTING_LEDGER_FIELD_ALIAS_CORRECTION_V1',
+    windowOrdinal: 4,
+    authoritySha256: 'bb24c26a8f2816a2cba584edb3726254bd72b1a8b979ca3cf9348effae1802a5',
+    sourceField: 'boundLedger',
+    canonicalField: 'boundStartingLedger',
+  },
+] as const;
+
+const CORRECTION_BLOCK_FIELDS = [
+  'canonicalField',
+  'originalBytesRemainAuthoritative',
+  'otherFieldsRemapped',
+  'ownerRuling',
+  'scope',
+  'sourceField',
+  'sourceValueCanonicalSha256',
+  'valuesAltered',
+] as const;
+
+/** Keys that would read as an override of the window itself; a correction may carry none. */
+const CORRECTION_FORBIDDEN_KEYS = [
+  'authorisedWorkItems',
+  'boundLedger',
+  'boundStartingLedger',
+  'boundWindowSpec',
+  'concurrency',
+  'exactOrder',
+  'items',
+  'ledgerAfter',
+  'maximumLiveInvocations',
+  'maximumLiveInvocationsPerWorkItem',
+  'plannedLedgerAppend',
+  'plannedWindowSize',
+  'validation',
+  'windowSpecHash',
+] as const;
+
+const has = (value: Json, key: string): boolean => Object.hasOwn(value, key);
+
+/**
+ * The authority's starting-ledger binding. A canonically shaped authority is
+ * read exactly as before and a correction is never consulted for it; only an
+ * authority WITHOUT `boundStartingLedger` may be read through a correction,
+ * and only one supplied explicitly and validated in full. The authority object
+ * is not mutated: the exact stored object is returned.
+ */
+function resolveBoundStartingLedger(
+  authority: Json,
+  binding: Generation2WindowHistoryBinding,
+  expectedOrdinal: number,
+): Json {
+  const correction = binding.authorityShapeCorrection;
+  if (correction === undefined) {
+    if (
+      has(authority, 'boundStartingLedger') &&
+      has(authority, 'boundLedger') &&
+      !same(authority.boundStartingLedger, authority.boundLedger)
+    ) {
+      refuse(
+        'HISTORY_AUTHORITY_SHAPE_CONFLICT',
+        `window ${String(expectedOrdinal)}: the authority carries two different starting-ledger bindings`,
+      );
+    }
+    return asObject(authority.boundStartingLedger, 'boundStartingLedger');
+  }
+  const mapping = validateAuthorityShapeCorrection(authority, binding, correction, expectedOrdinal);
+  if (has(authority, mapping.canonicalField)) {
+    refuse(
+      'HISTORY_AUTHORITY_SHAPE_CORRECTION_NOT_APPLICABLE',
+      `window ${String(expectedOrdinal)}: the authority carries the canonical ${mapping.canonicalField}; a correction is never consulted for it`,
+    );
+  }
+  return asObject(authority[mapping.sourceField], mapping.sourceField);
+}
+
+function validateAuthorityShapeCorrection(
+  authority: Json,
+  binding: Generation2WindowHistoryBinding,
+  correction: AuthorityShapeCorrectionBinding,
+  expectedOrdinal: number,
+): (typeof APPROVED_AUTHORITY_SHAPE_CORRECTIONS)[number] {
+  const ordinal = String(expectedOrdinal);
+  const record = parseBound(correction.record, `window ${ordinal} authority-shape correction`);
+  if (
+    record.recordKind !== AUTHORITY_SHAPE_CORRECTION_RECORD_KIND ||
+    record.generationId !== GENERATION2_ID ||
+    record.windowOrdinal !== expectedOrdinal
+  ) {
+    refuse(
+      'HISTORY_AUTHORITY_SHAPE_CORRECTION_KIND',
+      `window ${ordinal}: the correction is not a Generation-2 authority-shape correction for this window`,
+    );
+  }
+  const grants = Object.keys(record).filter(
+    (key) => /Authori[sz]ed$/.test(key) && record[key] !== false,
+  );
+  if (record.isLiveAuthority !== false || !same(record.thisFileAuthorises, []) || grants.length) {
+    refuse(
+      'HISTORY_AUTHORITY_SHAPE_CORRECTION_GRANTS_AUTHORITY',
+      `window ${ordinal}: the correction grants authority (${grants.join(', ') || 'live'})`,
+    );
+  }
+  const bound = asObject(record.boundAuthority, 'correction.boundAuthority');
+  const windowSpec = asObject(authority.boundWindowSpec, 'boundWindowSpec');
+  if (
+    bound.path !== binding.authority.path ||
+    bound.sha256 !== binding.authority.sha256 ||
+    bound.bytes !== Buffer.byteLength(binding.authority.text, 'utf8') ||
+    !/^[0-9a-f]{40}$/.test(correction.authorityCommit) ||
+    bound.commit !== correction.authorityCommit ||
+    record.boundWindowSpecHash !== windowSpec.windowSpecHash
+  ) {
+    refuse(
+      'HISTORY_AUTHORITY_SHAPE_CORRECTION_NOT_FOR_THIS_AUTHORITY',
+      `window ${ordinal}: the correction does not bind this authority's exact path, commit, bytes and window spec`,
+    );
+  }
+  const overrides = CORRECTION_FORBIDDEN_KEYS.filter((key) => has(record, key));
+  const block = asObject(record.authorityShapeCorrection, 'authorityShapeCorrection');
+  const mapping = APPROVED_AUTHORITY_SHAPE_CORRECTIONS.find(
+    (approved) =>
+      approved.ownerRuling === block.ownerRuling &&
+      approved.windowOrdinal === expectedOrdinal &&
+      approved.authoritySha256 === binding.authority.sha256 &&
+      approved.sourceField === block.sourceField &&
+      approved.canonicalField === block.canonicalField,
+  );
+  if (
+    overrides.length !== 0 ||
+    !same(Object.keys(block).sort(), [...CORRECTION_BLOCK_FIELDS]) ||
+    mapping === undefined ||
+    !asArray(record.ownerRulings, 'ownerRulings').includes(mapping.ownerRuling) ||
+    block.valuesAltered !== false ||
+    block.otherFieldsRemapped !== false ||
+    block.originalBytesRemainAuthoritative !== true ||
+    block.scope !== `EXACT_PINNED_WINDOW_${ordinal.padStart(2, '0')}_AUTHORITY_ONLY`
+  ) {
+    refuse(
+      'HISTORY_AUTHORITY_SHAPE_CORRECTION_NOT_APPROVED',
+      `window ${ordinal}: the correction is not exactly one approved, value-preserving field alias${overrides.length ? ` (it carries ${overrides.join(', ')})` : ''}`,
+    );
+  }
+  if (!has(authority, mapping.sourceField)) {
+    refuse(
+      'HISTORY_AUTHORITY_SHAPE_CORRECTION_NOT_APPLICABLE',
+      `window ${ordinal}: the authority has no ${mapping.sourceField}`,
+    );
+  }
+  const source = asObject(authority[mapping.sourceField], mapping.sourceField);
+  if (sha256(canonicalStringify(source)) !== block.sourceValueCanonicalSha256) {
+    refuse(
+      'HISTORY_AUTHORITY_SHAPE_CORRECTION_VALUE_MISMATCH',
+      `window ${ordinal}: the authority's ${mapping.sourceField} is not the value the correction pinned`,
+    );
+  }
+  return mapping;
+}
+
 const WORK_ITEM_IDENTITY_FIELDS = [
   'workItemId',
   'kind',
@@ -350,6 +548,8 @@ export interface ReplayedWindow {
   readonly authority: { readonly path: string; readonly sha256: string };
   readonly liveResult: { readonly path: string; readonly sha256: string };
   readonly adjudication: { readonly path: string; readonly sha256: string };
+  /** Present only when the window's authority was read through an explicit correction. */
+  readonly authorityShapeCorrection?: { readonly path: string; readonly sha256: string };
   readonly authorisedWorkItemIds: readonly string[];
   readonly windowSpecHash: string;
   readonly startingLedger: {
@@ -423,7 +623,7 @@ function replayWindow(
   }
 
   // ---- the starting revision and the pre-network append ------------------------
-  const start = asObject(authority.boundStartingLedger, 'boundStartingLedger');
+  const start = resolveBoundStartingLedger(authority, binding, expectedOrdinal);
   if (
     start.entryCount !== cursor ||
     ledger.entries.length < cursor ||
@@ -794,6 +994,14 @@ function replayWindow(
       authority: { path: binding.authority.path, sha256: binding.authority.sha256 },
       liveResult: { path: binding.liveResult.path, sha256: binding.liveResult.sha256 },
       adjudication: { path: binding.adjudication.path, sha256: binding.adjudication.sha256 },
+      ...(binding.authorityShapeCorrection === undefined
+        ? {}
+        : {
+            authorityShapeCorrection: {
+              path: binding.authorityShapeCorrection.record.path,
+              sha256: binding.authorityShapeCorrection.record.sha256,
+            },
+          }),
       authorisedWorkItemIds: exactOrder,
       windowSpecHash,
       startingLedger: {
@@ -1005,6 +1213,9 @@ export function historyBindingOf(replay: Generation2HistoryReplay) {
       authority: window.authority,
       liveResult: window.liveResult,
       adjudication: window.adjudication,
+      ...(window.authorityShapeCorrection === undefined
+        ? {}
+        : { authorityShapeCorrection: window.authorityShapeCorrection }),
       windowSpecHash: window.windowSpecHash,
       startingLedger: window.startingLedger,
       ledgerHashAfterAppend: window.ledgerHashAfterAppend,
