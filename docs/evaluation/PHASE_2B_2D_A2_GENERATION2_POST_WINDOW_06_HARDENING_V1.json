@@ -1,0 +1,298 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_POST_WINDOW_06_HARDENING_V1",
+  "recordKind": "GENERATION2_GOVERNANCE_HARDENING",
+  "task": "GENERATION2_POST_WINDOW_06_GOVERNANCE_AND_LIFECYCLE_HARDENING_ONLY",
+  "recordedAtUtc": "2026-09-29T22:34:28Z",
+  "recordedAtUtcSource": "date -u, read from the shell immediately after the hardening code commit",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "47389c54b98aa1088a1e686f3592280e22046308",
+  "hardeningCodeCommit": "f21eeacf0e68a945ef82b7e91cf86d9c7dfbe8f7",
+  "publicSafe": true,
+  "appendOnly": true,
+  "isLiveAuthority": false,
+  "thisFileAuthorises": [],
+  "bound": {
+    "window06Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_EVIDENCE_ADJUDICATION_V1.json",
+      "commit": "47389c54b98aa1088a1e686f3592280e22046308",
+      "sha256": "845ca3a4bcd13409ac00dfc8b2a4224e9aee8ab08749aab523a8b7d478f5f340",
+      "bytes": 29965
+    },
+    "ledgerSevenEntries": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "commit": "f3c02276b91ab2daa06763c2ae30c9c601c6cf35",
+      "sha256": "557df594ba55998fddb1f3881210f8cc6205fdfb118cc138bd49a40a4f84f9b9",
+      "bytes": 8917,
+      "ledgerHash": "02ab72faa20ce846df8ac40cd21f62f8814fa0e1e56d1b990b234ca5c814b65e",
+      "entryCount": 7,
+      "nextGeneration2ReservePosition": 7,
+      "unchangedByThisTask": true
+    },
+    "changedFiles": [
+      {
+        "path": "src/test/harness/phase2b2d/generation2History/adjudicationHistory.ts",
+        "status": "MODIFIED",
+        "commit": "f21eeacf0e68a945ef82b7e91cf86d9c7dfbe8f7",
+        "sha256": "40a49734dde9be9d3649801547c657886d3dcd0181fb633c843460c25f1d8bc5",
+        "bytes": 50268
+      },
+      {
+        "path": "src/test/unit/orgunitCorpus2DA2Generation2Freeze.test.ts",
+        "status": "MODIFIED",
+        "commit": "f21eeacf0e68a945ef82b7e91cf86d9c7dfbe8f7",
+        "sha256": "21717486277fee95860ec53adc36c465dbefc9e3fe70c1c480827b577085bb1d",
+        "bytes": 21219
+      },
+      {
+        "path": "src/test/unit/orgunitCorpus2DA2Generation2LiveResultContract.test.ts",
+        "status": "ADDED",
+        "commit": "f21eeacf0e68a945ef82b7e91cf86d9c7dfbe8f7",
+        "sha256": "71e39dfe7e7a94a598e65175ae1a37fe8c074972664aad690b80810a3df9bc01",
+        "bytes": 21286
+      }
+    ]
+  },
+  "canonicalStartingState": {
+    "replay": "pure explicit six-window replay (Window 01 -> 06) over exact committed bytes",
+    "windows": [1, 2, 3, 4, 5, 6],
+    "runReferences": 30,
+    "distinctRunReferences": 30,
+    "ACQUISITION_SUCCESSFUL": 98,
+    "acquisitionSuccessfulBySplit": { "DEV_TRAIN": 18, "DEV_CONFIRM": 40, "FINAL_HOLDOUT": 40 },
+    "CURRENT_ACQUISITION_FAILURE": [96, 99],
+    "failureReasons": [
+      { "selectionIndex": 96, "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE" },
+      { "selectionIndex": 99, "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE" }
+    ],
+    "q1": [96, 99],
+    "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION": [],
+    "NEVER_STARTED": { "from": 100, "to": 109, "count": 10 },
+    "accounting": "98 successful + 2 failed + 0 assigned + 0 pending + 10 never started = 110",
+    "ledgerEntryCount": 7,
+    "nextGeneration2ReservePosition": 7,
+    "reserve7Assigned": false
+  },
+  "areaA_temporalScopingCensus": {
+    "scope": "every src/test/unit/*Generation2*.test.ts on the canonical branch (22 files at the start; 234 matched lines for HEAD, working-tree readFileSync/readdirSync/existsSync, git diff, git ls-files, git ls-tree and terminal-commit discovery)",
+    "rule": "a HISTORICAL fact is evaluated at its own lifecycle task's terminal commit; a CURRENT invariant may read HEAD or the working tree",
+    "precedents": [
+      "8bda67bb9b174086cef0e2dd129b69277e83aede (Window-01 lifecycle temporal scoping)",
+      "b01a9eec8199c93c8b24eef2b707632f057b4e0b (Window-06 readiness ledger-diff scoping)"
+    ],
+    "classes": [
+      {
+        "pattern": "git merge-base --is-ancestor <historical commit> HEAD",
+        "files": "ConcurrencyCorrection, FirstWindowReadinessIsolation, FreezeIsolation, Isolation, Window02..06Readiness, Window02..06ReadinessIsolation",
+        "classification": "CURRENT",
+        "verdict": "SAFE - the historical commit stays an ancestor of every later tip",
+        "correction": null
+      },
+      {
+        "pattern": "terminalCommit() discovery + readState/namesState via git show / git ls-tree at TERMINAL (working tree only while uncommitted)",
+        "files": "HistoryIntegrity, Window01TemporalScopingCorrection, Window02Adjudication, Window02..06Readiness, Window03..06ReadinessIsolation, Window04Adjudication, Window04AuthorityShapeCorrection",
+        "classification": "HISTORICAL",
+        "verdict": "SAFE - already bounded to each task's own terminal",
+        "correction": null
+      },
+      {
+        "pattern": "git diff --name-status / --name-only over [BASE, TERMINAL] (RANGE), plus ls-files --others only while TERMINAL is null",
+        "files": "ConcurrencyCorrection, FirstWindowReadinessIsolation, FreezeIsolation, Isolation, Window01TemporalScopingCorrection, Window02..06ReadinessIsolation",
+        "classification": "HISTORICAL",
+        "verdict": "SAFE - range-bounded to the task terminal",
+        "correction": null
+      },
+      {
+        "pattern": "fixed historical reads: git show / ls-tree at a pinned commit (FREEZE_TERMINAL_COMMIT, READINESS_TERMINAL_COMMIT, CORRECTION_TERMINAL_COMMIT, PRE_CORRECTION_HEAD, pin.commit)",
+        "files": "ConcurrencyCorrection, FirstWindowReadiness, FirstWindowReadinessIsolation, Freeze, Window01TemporalScopingCorrection, Window02..06Readiness",
+        "classification": "HISTORICAL",
+        "verdict": "SAFE",
+        "correction": null
+      },
+      {
+        "pattern": "git diff <record commit> HEAD -- <immutable record> must be empty (ConcurrencyCorrection:160 readiness V1; Window06Readiness:364 pinned Window-05 records)",
+        "classification": "CURRENT",
+        "verdict": "SAFE - an append-only record must never be edited at any later tip; this is a live immutability invariant, not a lifecycle snapshot",
+        "correction": null
+      },
+      {
+        "pattern": "working-tree readFileSync of SHA-pinned frozen or immutable artifacts (Generation-1 ledger/terminal/frame/draw, frozen schedule, proposals, approvals, windowContract.ts, windowGate.ts, correction records)",
+        "files": "ConcurrencyCorrection, Continuation, FirstWindowReadiness, Freeze, FreezeIsolation, Isolation",
+        "classification": "CURRENT",
+        "verdict": "SAFE - frozen bytes must hold at every tip",
+        "correction": null
+      },
+      {
+        "pattern": "working-tree readdirSync(docs/evaluation, docs/evaluation/corpus) feeding the carry-forward context",
+        "files": "Continuation:88",
+        "classification": "CURRENT",
+        "verdict": "SAFE - carryForward.ts resolves records by explicit bound path; later Generation-2 records are never consulted",
+        "correction": null
+      },
+      {
+        "pattern": "working-tree purity / closed-namespace scans of harness directories (exact file list + forbidden imports)",
+        "files": "FirstWindowReadiness:1225/1380, FirstWindowReadinessIsolation:178, FreezeIsolation:156, Isolation:186, Window02ReadinessIsolation:119/146",
+        "classification": "CURRENT",
+        "verdict": "SAFE - deliberate architectural guards on the harness as it exists now; this task added no file to any guarded directory (the LIVE_RESULT contract lives inside adjudicationHistory.ts for that reason)",
+        "correction": null
+      },
+      {
+        "pattern": "working-tree readdirSync(docs/evaluation/corpus) / existsSync: no Generation-2 artifact in the legacy namespace",
+        "files": "Freeze (20), FreezeIsolation:148, Isolation:175",
+        "classification": "CURRENT",
+        "verdict": "SAFE - namespace separation is a live invariant",
+        "correction": null
+      },
+      {
+        "pattern": "working-tree readdirSync(docs/evaluation/generation2/corpus) must equal exactly [reserve schedule, ledger]",
+        "files": "Freeze (19), line 421",
+        "classification": "HISTORICAL",
+        "verdict": "LATENT_DEFECT - a freeze-time filename claim inside a test whose own comment says the claim is TEMPORAL and evaluated at the freeze terminal; any later separately authorised Generation-2 corpus artifact would have turned it red",
+        "correction": "now read with git ls-tree at FREEZE_TERMINAL_COMMIT 218cd69daaaf43b8eef718cd7a96a4cf35d62044; expected list unchanged"
+      }
+    ],
+    "latentDefectsFound": 1,
+    "latentDefectsFixed": 1,
+    "otherLatentDefects": "none found"
+  },
+  "areaB_liveResultContract": {
+    "helper": "validateGeneration2LiveResultForHistory(liveResult: CommittedRecordBinding, expected: Generation2LiveResultExpectation)",
+    "location": "src/test/harness/phase2b2d/generation2History/adjudicationHistory.ts (exported; PURE)",
+    "extraction": "the LIVE_RESULT block moved out of replayWindow verbatim; replayWindow now calls the helper with the expectation it already derived (authority binding, boundWindowSpec.windowSpecHash, authorisedWorkItems, exactOrder, ledger hash and entry count after the pre-network append)",
+    "oneSourceOfTruth": "replayWindow contains no LIVE_RESULT check of its own; the literal 'GENERATION2_WINDOW_LIVE_RESULT' appears once in the file; proved by the contract test's source check and by 23 negative cases refusing with the same code through the helper and through replayGeneration2History",
+    "checks": [
+      "recordKind GENERATION2_WINDOW_LIVE_RESULT, generationId METHODOLOGY_V3_GEN2, isLiveAuthority false",
+      "boundAuthority {path, sha256, bytes} names the authority binding exactly",
+      "windowSpecHash equals the authority-bound spec",
+      "ledgerDuringTheWindow ledgerHash and entryCount exact",
+      "executed items an exact prefix of the authorised order, no duplicate work item, identity equal to the authorised identity",
+      "each runRefSha256 a full 64-hex string, no duplicate inside the window",
+      "per item: order, one execute invocation, one run, one completion, COMPLETED, dryRun false",
+      "liveInvocations.used === items.length, retries === 0",
+      "top-level stops.itemsNotStarted an array of strings equal to exactOrder.slice(items.length)"
+    ],
+    "failClosed": "a missing or non-array stops.itemsNotStarted (or a non-string entry) and an absent executed-item identity field refuse HISTORY_RECORD_SHAPE before any canonical comparison; canonicalStringify is unchanged",
+    "noCheckWeakened": true,
+    "noRequiredFieldMadeOptional": true,
+    "additionalGuard": "an expectation whose authorisedWorkItems and exactOrder differ in length refuses HISTORY_AUTHORITY_ORDER (unreachable from the replay, which already requires it)",
+    "canonicalReplayBehaviourChanged": false
+  },
+  "negativeTests": {
+    "file": "src/test/unit/orgunitCorpus2DA2Generation2LiveResultContract.test.ts",
+    "method": "mutate committed Window-06 V3, reseal (new SHA-256), assert the code through the helper AND through the six-window replay",
+    "cases": [
+      { "case": "missing boundAuthority.bytes", "refusal": "HISTORY_LIVE_RESULT_AUTHORITY" },
+      { "case": "wrong boundAuthority.bytes", "refusal": "HISTORY_LIVE_RESULT_AUTHORITY" },
+      { "case": "missing top-level stops.itemsNotStarted", "refusal": "HISTORY_RECORD_SHAPE" },
+      { "case": "non-array stops.itemsNotStarted", "refusal": "HISTORY_RECORD_SHAPE" },
+      { "case": "non-string stops.itemsNotStarted entry", "refusal": "HISTORY_RECORD_SHAPE" },
+      { "case": "wrong unstarted suffix", "refusal": "HISTORY_LIVE_RESULT_ITEMS" },
+      {
+        "case": "executed item not an authority-prefix item",
+        "refusal": "HISTORY_UNAUTHORISED_ITEM"
+      },
+      { "case": "reordered executed items", "refusal": "HISTORY_UNAUTHORISED_ITEM" },
+      { "case": "duplicated work item", "refusal": "HISTORY_LIVE_RESULT_ITEMS" },
+      { "case": "liveInvocations.used mismatch", "refusal": "HISTORY_LIVE_RESULT_ITEMS" },
+      { "case": "nonzero retry count", "refusal": "HISTORY_LIVE_RESULT_ITEMS" },
+      {
+        "case": "duplicate run reference inside the window",
+        "refusal": "HISTORY_LIVE_RESULT_ITEMS"
+      },
+      { "case": "malformed run reference", "refusal": "HISTORY_LIVE_RESULT_ITEMS" },
+      { "case": "non-string run reference", "refusal": "HISTORY_RECORD_SHAPE" },
+      { "case": "wrong windowSpecHash", "refusal": "HISTORY_LIVE_RESULT_AUTHORITY" },
+      { "case": "wrong ledgerHash", "refusal": "HISTORY_LEDGER_NOT_A_PREFIX" },
+      { "case": "wrong ledger entryCount", "refusal": "HISTORY_LEDGER_NOT_A_PREFIX" },
+      { "case": "absent executed-item identity field", "refusal": "HISTORY_RECORD_SHAPE" },
+      { "case": "a second execute invocation", "refusal": "HISTORY_LIVE_RESULT_ITEMS" },
+      { "case": "a dry run", "refusal": "HISTORY_LIVE_RESULT_ITEMS" },
+      { "case": "not COMPLETED", "refusal": "HISTORY_LIVE_RESULT_ITEMS" },
+      { "case": "wrong record kind", "refusal": "HISTORY_LIVE_RESULT_KIND" },
+      { "case": "a live authority flag", "refusal": "HISTORY_LIVE_RESULT_KIND" },
+      { "case": "unresealed mutation (outer pin)", "refusal": "HISTORY_RECORD_NOT_PINNED" },
+      { "case": "expectation order/items length mismatch", "refusal": "HISTORY_AUTHORITY_ORDER" }
+    ],
+    "window06V2Regression": {
+      "window06V2": "HISTORY_RECORD_SHAPE through the helper (three identical deterministic refusals, each a Generation2OperationalRefusal, none a TypeError, no canonicalStringify message) and through the generic replay",
+      "window06V3": "passes the helper and the six-window replay",
+      "mutationCheck": "with the shape guard temporarily removed, 7 tests fail with the raw 'canonicalStringify: undefined is not a representable value.'; the guard was restored before commit"
+    }
+  },
+  "canonicalLiveResultPositiveChecks": {
+    "bindings": "explicit, read at pinned commits; no scan, glob or latest",
+    "expectationSource": "the authority record and the replayed window's ledger values, never the LIVE_RESULT",
+    "results": [
+      {
+        "window": 1,
+        "liveResult": "PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_RESULT_V1.json",
+        "result": "PASS",
+        "items": 5
+      },
+      {
+        "window": 2,
+        "liveResult": "PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_RESULT_V1.json",
+        "result": "PASS",
+        "items": 5
+      },
+      {
+        "window": 3,
+        "liveResult": "PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_RESULT_V1.json",
+        "result": "PASS",
+        "items": 5
+      },
+      {
+        "window": 4,
+        "liveResult": "PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_RESULT_V1.json",
+        "result": "PASS",
+        "items": 5
+      },
+      {
+        "window": 5,
+        "liveResult": "PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_RESULT_V2.json",
+        "result": "PASS",
+        "items": 5
+      },
+      {
+        "window": 6,
+        "liveResult": "PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_RESULT_V3.json",
+        "result": "PASS",
+        "items": 5
+      }
+    ],
+    "nonCanonicalStayNonCanonical": {
+      "window05V1": "HISTORY_LIVE_RESULT_AUTHORITY (no boundAuthority.bytes)",
+      "window06V1": "HISTORY_RECORD_SHAPE (four-item stop record, no top-level stops.itemsNotStarted)",
+      "window06V2": "HISTORY_RECORD_SHAPE (no top-level stops.itemsNotStarted)"
+    },
+    "window04AuthorityShapeCorrection": "unchanged; still consumed only by the authority path of the replay, never by the LIVE_RESULT contract"
+  },
+  "historicalAnomaliesPreserved": {
+    "recordsEdited": 0,
+    "window04": "pinned authority-shape correction unchanged",
+    "window05": "V1 -> V2 correction history, monitor-coverage deviations, first validation / re-proof chain unchanged",
+    "window06": "V1 -> V2 -> V3 provenance, G2P:98 concurrency deviation, post-final P5, failed first validation and the accepted post-fix re-proof unchanged",
+    "noRecordUnderDocsEvaluationChangedExceptThisOneAdded": true
+  },
+  "sideEffects": {
+    "institutionNetworkRequests": 0,
+    "acquisitionRuns": 0,
+    "databaseConnections": 0,
+    "databaseWrites": 0,
+    "reserveAssignments": 0,
+    "ledgerWrites": 0,
+    "window07Authority": false,
+    "window07Execution": false,
+    "g2p100Execution": false,
+    "retries": 0,
+    "frozenMethodologyChanged": false,
+    "productionAcquisitionChanged": false,
+    "srcOrgunitsChanged": false
+  },
+  "validation": {
+    "plan": "exactly ONE ordinary npm run validate at the tip carrying this record, after all focused checks passed; it is not a live-window governed validation and its outcome is reported to the owner, not written back into this append-only record"
+  },
+  "nextOwnerAction": "prepare Window-07 OFFLINE READINESS. Under the unchanged complete-Q1 rule the expected prefix is slot 96 -> Generation-2 reserve 7, slot 99 -> Generation-2 reserve 8, then G2P:100, G2P:101, G2P:102; none of this is persisted or authorised here",
+  "terminalState": "GENERATION2_POST_WINDOW_06_HARDENING_COMPLETE_READY_FOR_WINDOW_07_OFFLINE_READINESS",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
