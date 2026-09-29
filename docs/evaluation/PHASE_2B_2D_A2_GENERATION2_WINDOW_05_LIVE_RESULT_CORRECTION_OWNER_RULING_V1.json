@@ -1,0 +1,91 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_RESULT_CORRECTION_OWNER_RULING_V1",
+  "recordKind": "GENERATION2_OWNER_RULING",
+  "task": "A2_GENERATION2_WINDOW_05_LIVE_RESULT_V2_CORRECTION_AND_ADJUDICATION_CLOSURE",
+  "createdBeforeLiveResultV2": true,
+  "recordedAtUtc": "2026-09-29T15:13:03Z",
+  "recordedAtUtcSource": "date -u, read from the shell when this ruling was written",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "5759318e09e7cf5628cadd46ece8b99e2ea2407f",
+  "publicSafe": true,
+  "ownerDecision": "APPROVE_APPEND_ONLY_WINDOW05_LIVE_RESULT_V2_CORRECTION_AND_SINGLE_REVALIDATION_FOR_ADJUDICATION_CLOSURE_V1",
+  "ownerDecisions": [
+    "APPROVE_APPEND_ONLY_WINDOW05_LIVE_RESULT_V2_BOUND_AUTHORITY_BYTES_CORRECTION_V1",
+    "CORRECT_WINDOW05_P2_ROBOTS_REFUSAL_COUNT_TO_ONE_WITHOUT_CHANGING_GATE_OUTCOME_V1",
+    "APPROVE_EXACTLY_ONE_GOVERNED_VALIDATION_AT_CORRECTED_WINDOW05_LIVE_RESULT_V2_TIP_V1",
+    "APPROVE_WINDOW05_ADJUDICATION_ONLY_AFTER_CLEAN_V2_VALIDATION_AND_FIVE_WINDOW_REPLAY_V1"
+  ],
+  "scope": "WINDOW_05_ONLY",
+  "isLiveAuthority": false,
+  "thisFileAuthorises": [
+    "Creating exactly one new append-only Window-05 LIVE_RESULT V2 and one governed validation at its tip, then Window-05 adjudication only if that validation and the five-window replay are clean"
+  ],
+  "networkAuthorised": "NONE - no institution acquisition network activity",
+  "databaseAuthorised": "NONE - no write",
+  "ledgerMutationAuthorised": false,
+  "reserveAssignmentAuthorised": false,
+  "window06Authorised": false,
+  "boundV1LiveResult": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_RESULT_V1.json",
+    "sha256": "b2b23ce40d9507279a31adf1fdf790e75ff4fe0a601533c96b266d4587b60119",
+    "bytes": 25667,
+    "commit": "5759318e09e7cf5628cadd46ece8b99e2ea2407f",
+    "status": "REMAINS AUTHORITATIVE HISTORICAL EVIDENCE OF WHAT WAS INITIALLY RECORDED; it is never edited, amended, replaced or force-pushed over"
+  },
+  "corrections": {
+    "c1_recordIdentity": "V2 carries the V2 record identifier; recordKind stays GENERATION2_WINDOW_LIVE_RESULT",
+    "c2_boundAuthorityBytes": {
+      "reason": "the generic history bridge requireRef needs {path, sha256, bytes} on LIVE_RESULT.boundAuthority; V1 omitted bytes",
+      "add": "boundAuthority.bytes = 37600",
+      "authorityPath": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_AUTHORITY_V1.json",
+      "authoritySha256": "d88f741162bf27f6c290b2875edbeba522908c5545d6608b8d79b820ff701807",
+      "authorityCommit": "c1b1a56fb6401d20f191b84e07b8f7508ba4b08c",
+      "pathAndShaUnchanged": true
+    },
+    "c3_p2Reporting": {
+      "reason": "the frozen continuation gate counts a robots refusal as ROBOTS_BLOCKED_ROOT or ROBOTS_UNREADABLE_ROOT; G2P:96 carries ROBOTS_UNREADABLE_ROOT",
+      "stopsP2RobotsRefusalCount": {
+        "from": 0,
+        "to": 1
+      },
+      "gateAfterEveryItemG2P96WindowRobotsRefusalCount": {
+        "from": 0,
+        "to": 1
+      },
+      "earlierGateEntriesUnchanged": true,
+      "p2Threshold": 3,
+      "p2Fires": false,
+      "finalGateDecision": "WINDOW_COMPLETE",
+      "triggeredConditionsAdded": []
+    }
+  },
+  "q3ExplanationForG2P96": "G2P:96 is a P2 robots-refusal OBSERVATION (count 1 of threshold 3, P2 does not fire) yet its Q3 reason stays ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET: under the landed replacementReasonFor precedence ROBOTS_DISALLOWED requires ROBOTS_BLOCKED_ROOT; G2P:96 has ROBOTS_UNREADABLE_ROOT, a usable HTTP response existed, and the exact post-SD7 count (0) is below four. The two rules answer different questions and do not conflict.",
+  "doesNotChange": [
+    "any acquisition invocation",
+    "any database evidence",
+    "any run reference",
+    "any item mechanical result",
+    "any SD7 or SD9 result",
+    "any Q3 result",
+    "any of P1, P3, P4, P5, P6, P7 or P8",
+    "the Window-05 authority",
+    "the Window-05 monitor-coverage owner ruling",
+    "the Generation-2 ledger",
+    "the number of attempts (5 used of 5, 0 retries, 0 remaining)",
+    "the Window-05 terminal decision WINDOW_COMPLETE",
+    "the G2P:92 and G2P:93 CONCURRENCY_MONITOR_COVERAGE_INSUFFICIENT / executionExclusivity NOT_PROVED record",
+    "the G2P:93 next-item-start procedural deviation"
+  ],
+  "doesNot": [
+    "authorise any institution acquisition network activity",
+    "mutate the ledger",
+    "assign reserve 5 or any later reserve",
+    "authorise, prepare or create Window 06",
+    "change the generic history bridge or add an alias",
+    "change production acquisition code",
+    "declare the earlier governed validation at 5759318 invalid (it validated V1, not V2)"
+  ],
+  "priorValidationAt5759318": "remains historical evidence; it validated V1",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
