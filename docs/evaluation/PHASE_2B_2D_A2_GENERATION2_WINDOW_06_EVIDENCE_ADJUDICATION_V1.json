@@ -1,0 +1,645 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_06_EVIDENCE_ADJUDICATION_V1",
+  "recordKind": "GENERATION2_WINDOW_EVIDENCE_ADJUDICATION",
+  "recordedAtUtc": "2026-09-29T22:14:56Z",
+  "recordedAtUtcSource": "date -u, read from the shell after the governed validation",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "startingHead": "b01a9eec8199c93c8b24eef2b707632f057b4e0b",
+  "networkUsedByThisRecord": false,
+  "databaseWrittenByThisRecord": false,
+  "ledgerAppendedByThisRecord": false,
+  "reserveAssignedByThisRecord": false,
+  "bound": {
+    "liveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_RESULT_V3.json",
+      "sha256": "9dee6861dabc5c997ed2d458fad7d346f6b7aa9a019d421439f8c2b242cb1af6",
+      "bytes": 37590,
+      "commit": "3905bc27a3a54bb425d91813ed6e6e641d283d0c",
+      "canonicalAdjudicationBinding": true,
+      "supersedesImmutableV2": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_RESULT_V2.json",
+        "sha256": "e08713de85ee960960045a64688f75c420b5c385e703ea1427a42ec76d60647e",
+        "bytes": 35345,
+        "commit": "f7ad412ce774d42d2060d79b38492e7c41353d79"
+      },
+      "supersedesImmutableV1": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_RESULT_V1.json",
+        "sha256": "1e9e2827717c3d30d8c5ff73aeb2b03108411795e3e3bbdf1e7ba2670c85eff8",
+        "bytes": 28617,
+        "commit": "2b831d67ea973e4dfd30a9ab6b1f68d29ef4602e"
+      },
+      "v1AndV2RemainImmutableHistoricalEvidence": true,
+      "v3DiffersFromV2Only": [
+        "record",
+        "stops.itemsNotStarted = []",
+        "correction (provenance block)"
+      ]
+    },
+    "liveResultV3CorrectionOwnerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_RESULT_V3_CORRECTION_OWNER_RULING_V1.json",
+      "sha256": "b81d06a8905be7e8ade4d765b50aa95932f77cb071220c085f639e72b3bcf883",
+      "bytes": 3477,
+      "commit": "d52c7041c7ac7acdb54b67c7bb5574027b0ec861",
+      "decision": "APPROVE_APPEND_ONLY_WINDOW06_LIVE_RESULT_V3_ITEMS_NOT_STARTED_SHAPE_CORRECTION_V1",
+      "scope": "WINDOW_06_ONLY",
+      "recordedAtUtc": "2026-09-29T21:46:30Z",
+      "recordedAtUtcSourceAsCommitted": "date -u, read from the shell when this ruling was written",
+      "recordedAtUtcSourceCorrected": "operator estimate bounded by shell observations 21:45:21Z and 21:46:42Z",
+      "recordedAtUtcSourceCorrectedBy": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_VALIDATION_FAILURE_AND_TEMPORAL_TEST_SCOPING_OWNER_RULING_V1.json",
+      "bytesUnchanged": true
+    },
+    "authority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_AUTHORITY_V1.json",
+      "sha256": "6d847d8175054ecf7f09e45b5ab8ba8e488e9f8ca99553e9ca2c420b4dc977e3",
+      "bytes": 43944,
+      "commit": "c3f6c223de48625976f52da1ce110133f0d01afb",
+      "ownerDecision": "APPROVE_GENERATION2_WINDOW_06_EXACTLY_ONE_FIVE_ITEM_LIVE_WINDOW_V1"
+    },
+    "offlineReadiness": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_OFFLINE_READINESS_V1.json",
+      "sha256": "eb0907c73512c9b9e6ddfbb65d65eae52f945d200e0f5463ec171182f5838cc8",
+      "bytes": 63763,
+      "commit": "35beff7c80c14c5198a9cc9bb22ec7d5f9fd53ac"
+    },
+    "concurrencyDeviationOwnerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_CONCURRENCY_DEVIATION_OWNER_RULING_V1.json",
+      "sha256": "d97fd3b47b1579e99aa6097a377e9d8778692e9338ce5573990ca6aab854994f",
+      "bytes": 8311,
+      "commit": "8d20725ff7395dfe367d8f51f050b8d443725272",
+      "decisions": [
+        "ACCEPT_WINDOW_06_G2P98_ACQUISITION_EVIDENCE_DESPITE_CONCURRENCY_INTEGRITY_DEVIATION_V1",
+        "PRESERVE_WINDOW_06_G2P98_CONCURRENCY_DEVIATION_WITH_EXECUTION_EXCLUSIVITY_NOT_PROVED_V1",
+        "APPROVE_WINDOW_06_RESIDUAL_CONTINUATION_G2P99_ONLY_V1",
+        "APPROVE_WINDOW_06_POST_RESIDUAL_VALIDATION_AND_ADJUDICATION_WITH_G2P98_DEVIATION_PRESERVED_V1"
+      ],
+      "scope": "WINDOW_06_ONLY"
+    },
+    "postFinalP5OwnerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_POST_FINAL_P5_OWNER_RULING_V1.json",
+      "sha256": "14615438c891be000c866e13cf4a2a811af03182cffb8800a1cd2783015fc85b",
+      "bytes": 6243,
+      "commit": "526ef50be8fe93a98c1193074096f23df5d2efef",
+      "decisions": [
+        "ACCEPT_WINDOW_06_P5_AS_VALID_POST_FINAL_ITEM_PAUSE_NO_EVIDENCE_INVALIDATION_V1",
+        "PRESERVE_WINDOW_06_P5_AS_FROZEN_GATE_PAUSE_AFTER_WINDOW_COMPLETION_V1",
+        "APPROVE_EXACTLY_ONE_WINDOW_06_POST_FINAL_P5_GOVERNED_VALIDATION_V1",
+        "APPROVE_WINDOW_06_ADJUDICATION_AFTER_CLEAN_EXCLUSIVE_VALIDATION_WITH_P5_AND_G2P98_DEVIATION_PRESERVED_V1"
+      ],
+      "scope": "WINDOW_06_ONLY"
+    },
+    "validationFailureAndTemporalTestScopingOwnerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_VALIDATION_FAILURE_AND_TEMPORAL_TEST_SCOPING_OWNER_RULING_V1.json",
+      "sha256": "abd978b67dce9ea9bdd973ed5cd909fe9899856b00f3c79d460c4e2ae1d94a2a",
+      "bytes": 8717,
+      "commit": "6d8851de5bc65e475481084df78bc1cebc3dfadc",
+      "decisions": [
+        "PRESERVE_WINDOW_06_FIRST_POST_FINAL_P5_VALIDATION_AS_EXCLUSIVE_EXIT1_NOT_ACCEPTED_V1",
+        "APPROVE_WINDOW_06_READINESS_TEMPORAL_TEST_SCOPING_CORRECTION_V1",
+        "CORRECT_WINDOW_06_V3_CORRECTION_RULING_TIMESTAMP_SOURCE_PROVENANCE_V1",
+        "APPROVE_EXACTLY_ONE_WINDOW_06_POST_FIX_VALIDATION_REPROOF_V1",
+        "APPROVE_WINDOW_06_ADJUDICATION_AFTER_CLEAN_POST_FIX_VALIDATION_AND_SIX_WINDOW_REPLAY_V1"
+      ],
+      "scope": "WINDOW_06_ONLY"
+    },
+    "ledger": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "fileSha256": "557df594ba55998fddb1f3881210f8cc6205fdfb118cc138bd49a40a4f84f9b9",
+      "bytes": 8917,
+      "ledgerHash": "02ab72faa20ce846df8ac40cd21f62f8814fa0e1e56d1b990b234ca5c814b65e",
+      "entryCount": 7,
+      "nextGeneration2ReservePosition": 7,
+      "commit": "f3c02276b91ab2daa06763c2ae30c9c601c6cf35",
+      "unchangedByTheWindow": true,
+      "noAppendByThisRecord": true
+    },
+    "adjudicationHistoryBefore": {
+      "windowCount": 5,
+      "windows": [
+        {
+          "windowOrdinal": 1,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_AUTHORITY_V1.json",
+            "sha256": "e4874f7e84a184bd473b75f15dba0fd90700d4bb33ec0093593de90f4dea38ba"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_RESULT_V1.json",
+            "sha256": "7162938e6f8ba5f7808075f58021b540244b2b5a0b05d61db0812cfd4d8102d0"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_EVIDENCE_ADJUDICATION_V1.json",
+            "sha256": "89e4f166e56292374d3cf1aa2fe8037225770d48193ae619a32a1d4c7f1df5df"
+          }
+        },
+        {
+          "windowOrdinal": 2,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_AUTHORITY_V1.json",
+            "sha256": "e2cb65b5a7d3b35391718e255fef4db926bcfe88020f392ac93f79981392bba2"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_RESULT_V1.json",
+            "sha256": "68852cbca3de127bb0a5442863cc99d2c3b72a5a69700c5fc5ac619fbc29b4ae"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_EVIDENCE_ADJUDICATION_V1.json",
+            "sha256": "2e35cad7951aed780151b97400ea3b7e9fd78d4bfdec252f83d0652702bbdc8d"
+          }
+        },
+        {
+          "windowOrdinal": 3,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_AUTHORITY_V1.json",
+            "sha256": "aaa61ce72b9a5b943928f879f68daa06ea612aacfd5117310d54bd14cfa65478"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_RESULT_V1.json",
+            "sha256": "c9654a837dde1c7c86a90c505b8cc1d5e6fcae1edc8a593981328576944e42ec"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_EVIDENCE_ADJUDICATION_V1.json",
+            "sha256": "8d59cb2a1e2d6f3b447767a8c56078111658dbd07818e098fd363c153fe33ef0"
+          }
+        },
+        {
+          "windowOrdinal": 4,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_AUTHORITY_V1.json",
+            "sha256": "bb24c26a8f2816a2cba584edb3726254bd72b1a8b979ca3cf9348effae1802a5"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_RESULT_V1.json",
+            "sha256": "89b2aac217502133e7cbd75a9144f81637a03ef3be906cdebd03d1edb30e22f4"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_EVIDENCE_ADJUDICATION_V1.json",
+            "sha256": "826f11851a6c000d3a314da2b6a4c31081014d29fdbdeb6012d157dae58b3dd8"
+          },
+          "authorityShapeCorrection": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_OWNER_SHAPE_CORRECTION_AND_ADJUDICATION_RULING_V1.json",
+            "sha256": "0635507f90bd4c928de4ccf1a4fd0535ed74731d5e7471e69ad7c18b5bd73640"
+          }
+        },
+        {
+          "windowOrdinal": 5,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_AUTHORITY_V1.json",
+            "sha256": "d88f741162bf27f6c290b2875edbeba522908c5545d6608b8d79b820ff701807"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_RESULT_V2.json",
+            "sha256": "6914f564726029ebf82ef9ea142279f9697d9adb68bf42bfad0ba359df748d26"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_EVIDENCE_ADJUDICATION_V1.json",
+            "sha256": "187eef89ed37f86e2f96c95e8772d9681ddcd944d04cff21961e4aaa63358642"
+          }
+        }
+      ],
+      "directoryDiscovery": false,
+      "latestLookup": false
+    }
+  },
+  "validation": {
+    "exitCode": 0,
+    "result": "WINDOW_06_VALIDATION_ACCEPTED",
+    "resultDerivedFrom": "ownerAuthorisedPostFixReproof ONLY; firstPostFinalP5Validation is not accepted (exit 1)",
+    "firstPostFinalP5Validation": {
+      "authorisedBy": "PHASE_2B_2D_A2_GENERATION2_WINDOW_06_POST_FINAL_P5_OWNER_RULING_V1",
+      "preservedAsHistoricalEvidence": true,
+      "reclassified": false,
+      "headValidated": "526ef50be8fe93a98c1193074096f23df5d2efef",
+      "command": "caffeinate -dimsu npm run validate",
+      "startUtc": "2026-09-29T21:50:03Z",
+      "durationSecondsApprox": 268,
+      "exitCode": 1,
+      "testFiles": "220 passed | 1 failed | 5 skipped",
+      "tests": "5576 passed | 1 failed | 76 skipped",
+      "soleFailure": "orgunitCorpus2DA2Generation2Window06Readiness.test.ts > the canonical ledger is untouched: still the committed five-entry revision, reserve 5 unassigned",
+      "failureCause": "stale historical test assertion (ledger diff against the moving HEAD instead of the readiness terminal 35beff7); a temporal test-scoping defect",
+      "monitorSamples": 534,
+      "maxMonitorGapSecondsApprox": 0.52,
+      "EXTERNAL_COMPETING_PROCESS": 0,
+      "ANCESTRY_UNPROVED": 0,
+      "executionExclusivity": "PROVED for this validation interval",
+      "formalVerdict": "WINDOW_06_VALIDATION_NOT_ACCEPTED",
+      "acceptedForAdjudication": false,
+      "note": "operationally clean and exclusive, but the software validation did not pass; it is neither invalid nor rewritten as exit 0"
+    },
+    "ownerAuthorisedPostFixReproof": {
+      "authorisedBy": "PHASE_2B_2D_A2_GENERATION2_WINDOW_06_VALIDATION_FAILURE_AND_TEMPORAL_TEST_SCOPING_OWNER_RULING_V1",
+      "command": "caffeinate -dimsu npm run validate",
+      "runs": 1,
+      "secondAttempt": false,
+      "headValidated": "b01a9eec8199c93c8b24eef2b707632f057b4e0b",
+      "testCorrectionCommit": "b01a9eec8199c93c8b24eef2b707632f057b4e0b",
+      "worktreeCleanAtLaunch": true,
+      "worktreeCleanAfter": true,
+      "freshQuiescence": "ALL_EXTERNAL_CORRECTNESS_CRITICAL_EXECUTION_QUIESCED_FOR_GENERATION2_WINDOW_06_POST_TEST_FIX_VALIDATION_REPROOF (121.3 consecutive clean seconds, 242 samples, interval 0.5 s)",
+      "startUtc": "2026-09-29T22:08:30Z",
+      "endUtc": "2026-09-29T22:14:10Z",
+      "exitCode": 0,
+      "testFiles": "221 passed | 5 skipped (226)",
+      "tests": "5577 passed | 76 skipped (5653)",
+      "vitestDuration": "318.33s (transform 4.06s, setup 0ms, import 84.95s, tests 213.62s, environment 14ms)",
+      "samplesWithinValidation": 677,
+      "maxGapSecondsWithinValidation": 0.507,
+      "GOVERNED_VALIDATION_DESCENDANT_PROVED": 3903,
+      "EXTERNAL_COMPETING_PROCESS": 0,
+      "ANCESTRY_UNPROVED": 0,
+      "hostSleepWakeEventsDuringValidation": 0,
+      "exclusivityVerdict": "WINDOW_06_POST_FIX_VALIDATION_EXCLUSIVITY_PROVED",
+      "provesOnlyItsOwnSoftwareSnapshotAndExecutionInterval": true,
+      "doesNotRewriteTheFirstValidation": true
+    },
+    "acceptedValidationResult": "WINDOW_06_VALIDATION_ACCEPTED_FROM_THE_OWNER_AUTHORISED_POST_FIX_REPROOF_ONLY",
+    "basis": "derived from the second run only, under the explicit owner ruling APPROVE_WINDOW_06_ADJUDICATION_AFTER_CLEAN_POST_FIX_VALIDATION_AND_SIX_WINDOW_REPLAY_V1",
+    "fullValidationRunsAfterThisRecord": 0
+  },
+  "orderOfRules": "integrity first (acquisition evidence integrity CLEAN on every item; G2P:98 under the Window-06 owner ruling with execution exclusivity NOT proved), then SD9 eligibility (main_text_chars > 0), exact SD7 -> near SD7, the frozen SD9 minimum of 4 distinct post-SD7 pages on the exact or determinate count, then (failures only) the landed Q3 precedence. A concurrency deviation is not a Q3 reason.",
+  "items": [
+    {
+      "workItemId": "G2R:94:5",
+      "selectionIndex": 94,
+      "split": "DEV_CONFIRM",
+      "kind": "REPLACEMENT",
+      "generation2ReserveRankPosition": 5,
+      "identityDigest": "12a469373d3807f51e848d1b8b2fb1b37d6e3c45ff9c99868ad2b61108f95a9c",
+      "replacementReason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "replacesOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+      "runRefSha256": "6e7bcc6f54ab86098d7efda2676e598a637a8322f44a9267cfcafdffe71e24f2",
+      "integrity": {
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "sleepEventsDuringItem": 0,
+        "itemPreflightAllGreen": true,
+        "inItemConcurrencyWatch": "CLEAN (624 samples, 0 external detections)",
+        "verdict": "CLEAN",
+        "verdictScope": "ACQUISITION_AND_EXECUTION_INTEGRITY",
+        "inItemExecutionExclusivity": "PROVED_BY_CONTINUOUS_INDEPENDENT_MONITORING",
+        "monitorCoverage": "SATISFIED"
+      },
+      "bridge": {
+        "rawPageEvidenceCount": 25,
+        "sd9EligiblePageCount": 23,
+        "zeroExtractedTextPageCount": 2,
+        "postSd7Range": [22, 22],
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "decidedByCase": "B",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_SUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "q3Reason": null,
+        "sd9": "post-SD7 [22,22] exact, at or above 4"
+      }
+    },
+    {
+      "workItemId": "G2R:96:6",
+      "selectionIndex": 96,
+      "split": "DEV_CONFIRM",
+      "kind": "REPLACEMENT",
+      "generation2ReserveRankPosition": 6,
+      "identityDigest": "62ccdd9d4502d0b18391bc02154cd89d799e7dcc29ea0309bd1ae66fffd9153a",
+      "replacementReason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "replacesOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+      "runRefSha256": "6da35d317373f80028cbe0a42429cffe1b9d455cb3c28ae9b4d57143ead8cdcc",
+      "integrity": {
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "sleepEventsDuringItem": 0,
+        "itemPreflightAllGreen": true,
+        "inItemConcurrencyWatch": "CLEAN (11 samples, 0 external detections)",
+        "verdict": "CLEAN",
+        "verdictScope": "ACQUISITION_AND_EXECUTION_INTEGRITY",
+        "inItemExecutionExclusivity": "PROVED_BY_CONTINUOUS_INDEPENDENT_MONITORING",
+        "monitorCoverage": "SATISFIED"
+      },
+      "bridge": {
+        "rawPageEvidenceCount": 0,
+        "sd9EligiblePageCount": 0,
+        "zeroExtractedTextPageCount": 0,
+        "postSd7Range": [0, 0],
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "decidedByCase": "A",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_UNSUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "q3Reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "sd9": "post-SD7 [0,0], below 4",
+        "q3Basis": "landed replacementReasonFor over root ROBOTS_UNREADABLE_ROOT, blocking transport CONNECTION_RESET, no usable HTTP response"
+      }
+    },
+    {
+      "workItemId": "G2P:97",
+      "selectionIndex": 97,
+      "split": "FINAL_HOLDOUT",
+      "kind": "PRIMARY",
+      "generation2ReserveRankPosition": null,
+      "identityDigest": "d89e543feaeb590db3dde14db8f590dd716663af06167c2300e398c76a60a556",
+      "runRefSha256": "272caa6f99bc39303b9754aa35e52947794ad68f9394fc21df0e780df9e87d17",
+      "integrity": {
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "sleepEventsDuringItem": 0,
+        "itemPreflightAllGreen": true,
+        "inItemConcurrencyWatch": "CLEAN (559 samples, 0 external detections)",
+        "verdict": "CLEAN",
+        "verdictScope": "ACQUISITION_AND_EXECUTION_INTEGRITY",
+        "inItemExecutionExclusivity": "PROVED_BY_CONTINUOUS_INDEPENDENT_MONITORING",
+        "monitorCoverage": "SATISFIED"
+      },
+      "bridge": {
+        "rawPageEvidenceCount": 27,
+        "sd9EligiblePageCount": 27,
+        "zeroExtractedTextPageCount": 0,
+        "postSd7Range": [26, 26],
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "decidedByCase": "B",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_SUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "q3Reason": null,
+        "sd9": "post-SD7 [26,26] exact, at or above 4"
+      }
+    },
+    {
+      "workItemId": "G2P:98",
+      "selectionIndex": 98,
+      "split": "DEV_CONFIRM",
+      "kind": "PRIMARY",
+      "generation2ReserveRankPosition": null,
+      "identityDigest": "ef5b222ae4158c14d040c0b0d9a18f42096e2fc348de411651d56de72d943e12",
+      "runRefSha256": "744ed9e00b0a171d3bf91d7b49a21067cdd6e7fc28c3ece0b3faded2d365a4d3",
+      "integrity": {
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "sleepEventsDuringItem": 0,
+        "itemPreflightAllGreen": true,
+        "inItemConcurrencyWatch": "DEVIATION (61 ANCESTRY_UNPROVED candidate identities, 18 competing polls, 0 EXTERNAL_COMPETING_PROCESS)",
+        "verdict": "CLEAN",
+        "verdictScope": "ACQUISITION_EVIDENCE_INTEGRITY_UNDER_WINDOW_06_OWNER_RULING",
+        "inItemExecutionExclusivity": "NOT_PROVED",
+        "monitorCoverage": "SATISFIED",
+        "operationalConcurrencyVerdict": "CONCURRENCY_INTEGRITY_DEVIATION_DETECTED_DURING_ITEM",
+        "ancestryUnprovedCandidates": 61,
+        "retryPermitted": false,
+        "integrityVerdictMeaning": "CLEAN here means ONLY: the acquisition evidence is accepted for adjudication under the explicit Window-06 owner ruling. It does NOT mean in-item execution exclusivity was proved; that remains NOT_PROVED and the concurrency deviation remains CONCURRENCY_INTEGRITY_DEVIATION_DETECTED_DURING_ITEM.",
+        "ownerRuling": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_CONCURRENCY_DEVIATION_OWNER_RULING_V1.json",
+          "commit": "8d20725ff7395dfe367d8f51f050b8d443725272",
+          "sha256": "d97fd3b47b1579e99aa6097a377e9d8778692e9338ce5573990ca6aab854994f",
+          "bytes": 8311,
+          "decision": "ACCEPT_WINDOW_06_G2P98_ACQUISITION_EVIDENCE_DESPITE_CONCURRENCY_INTEGRITY_DEVIATION_V1"
+        },
+        "deviationIsQ3Reason": false
+      },
+      "bridge": {
+        "rawPageEvidenceCount": 34,
+        "sd9EligiblePageCount": 34,
+        "zeroExtractedTextPageCount": 0,
+        "postSd7Range": [31, 34],
+        "countIsExact": false,
+        "shortTextUnresolvedCount": 3,
+        "decidedByCase": "B",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_SUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "q3Reason": null,
+        "sd9": "post-SD7 [31,34] not exact; the lower bound already meets the minimum, so the SD9 decision is determinate, at or above 4"
+      }
+    },
+    {
+      "workItemId": "G2P:99",
+      "selectionIndex": 99,
+      "split": "FINAL_HOLDOUT",
+      "kind": "PRIMARY",
+      "generation2ReserveRankPosition": null,
+      "identityDigest": "06336ffbbdfb5f7f6ea1224d9de97c4efe1d3ba59c7a29bf670f2e82964ce56d",
+      "runRefSha256": "259730854155b2e729d4c22eaa34ff71dc894d3831a2c826714852e8a2ddc07f",
+      "integrity": {
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "sleepEventsDuringItem": 0,
+        "itemPreflightAllGreen": true,
+        "inItemConcurrencyWatch": "CLEAN (3 samples, 0 external detections)",
+        "verdict": "CLEAN",
+        "verdictScope": "ACQUISITION_AND_EXECUTION_INTEGRITY",
+        "inItemExecutionExclusivity": "PROVED_BY_CONTINUOUS_INDEPENDENT_MONITORING",
+        "monitorCoverage": "SATISFIED"
+      },
+      "bridge": {
+        "rawPageEvidenceCount": 0,
+        "sd9EligiblePageCount": 0,
+        "zeroExtractedTextPageCount": 0,
+        "postSd7Range": [0, 0],
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "decidedByCase": "A",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_UNSUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "q3Reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "sd9": "post-SD7 [0,0], below 4",
+        "q3Basis": "landed replacementReasonFor over root ROBOTS_UNREADABLE_ROOT, blocking transport DNS_FAILURE, no usable HTTP response"
+      }
+    }
+  ],
+  "windowSummary": {
+    "executed": 5,
+    "authorised": 5,
+    "acquisitionSuccessful": [94, 97, 98],
+    "acquisitionUnsuccessful": [96, 99],
+    "pauseFired": true,
+    "finalGateDecision": "PAUSE_P5_LOW_RAW_YIELD",
+    "pauseFirstFiredAfterItem": "G2P:99",
+    "allAuthorisedItemsFinishedBeforePauseFired": true
+  },
+  "generation2StateBefore": {
+    "ACQUISITION_SUCCESSFUL": 95,
+    "CURRENT_ACQUISITION_FAILURE": [],
+    "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION": [94, 96],
+    "NEVER_STARTED": {
+      "from": 97,
+      "to": 109,
+      "count": 13
+    },
+    "q1": [],
+    "ledgerEntryCount": 7,
+    "nextGeneration2ReservePosition": 7,
+    "note": "the state AFTER the pre-network append of sequences 5 and 6 and BEFORE any Window-06 item was adjudicated: slots 94 and 96 are assigned, awaiting execution"
+  },
+  "generation2StateAfter": {
+    "ACQUISITION_SUCCESSFUL": 98,
+    "acquisitionSuccessfulBySplit": {
+      "DEV_TRAIN": 18,
+      "DEV_CONFIRM": 40,
+      "FINAL_HOLDOUT": 40
+    },
+    "CURRENT_ACQUISITION_FAILURE": [96, 99],
+    "currentFailureBySplit": {
+      "DEV_TRAIN": 0,
+      "DEV_CONFIRM": 1,
+      "FINAL_HOLDOUT": 1
+    },
+    "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION": [],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "CARRY_FORWARD_REFUSED": [],
+    "NEVER_STARTED": {
+      "from": 100,
+      "to": 109,
+      "count": 10,
+      "bySplit": {
+        "DEV_TRAIN": 2,
+        "DEV_CONFIRM": 4,
+        "FINAL_HOLDOUT": 4
+      }
+    },
+    "accounting": "98 successful + 2 failed + 0 assigned + 0 pending + 10 never started = 110",
+    "derivation": "COMPARISON TARGET only: replayGeneration2History over the explicit six-window history re-derives every field and refuses on any difference"
+  },
+  "q1After": [96, 99],
+  "q1AfterReasons": [
+    {
+      "selectionIndex": 96,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    },
+    {
+      "selectionIndex": 99,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    }
+  ],
+  "pendingReplacementObligations": [96, 99],
+  "ledgerAfter": {
+    "entryCount": 7,
+    "ledgerHash": "02ab72faa20ce846df8ac40cd21f62f8814fa0e1e56d1b990b234ca5c814b65e",
+    "nextGeneration2ReservePosition": 7,
+    "unchanged": true
+  },
+  "reserves": {
+    "generation2Consumed": 7,
+    "nextGeneration2ReservePosition": 7,
+    "reserve7Assigned": false,
+    "reserves5And6": "consumed when sequences 5 and 6 were committed; the failed replacement at reserve position 6 is not reusable",
+    "scheduleSize": 5670
+  },
+  "p6": {
+    "rule": "reserveConsumed > 10 AND successfulOrganisationCount < 50",
+    "reserveConsumed": 7,
+    "successfulOrganisationCount": 98,
+    "fires": false
+  },
+  "p2": {
+    "fired": false,
+    "threshold": 3,
+    "robotsRefusalCount": 2,
+    "note": "G2R:96:6 and G2P:99 both ended ROBOTS_UNREADABLE_ROOT and count as robots refusals; Q3 for both is HOST_UNREACHABLE because a blocking transport error and no usable HTTP response were observed"
+  },
+  "p5": {
+    "fired": true,
+    "decision": "PAUSE_P5_LOW_RAW_YIELD",
+    "arm": "raw pages < 4 on 2 of 5 planned items (> 30%)",
+    "firstFiredAfterItem": "G2P:99",
+    "windowLowYieldCount": 2,
+    "threshold": 2,
+    "denominator": 5,
+    "lowYieldItems": ["G2R:96:6", "G2P:99"],
+    "inheritedWaivers": [],
+    "priorWindowPostFinalWaiverApplied": false,
+    "ownerDisposition": "ACCEPT_WINDOW_06_P5_AS_VALID_POST_FINAL_ITEM_PAUSE_NO_EVIDENCE_INVALIDATION_V1",
+    "ownerDispositionAlso": "PRESERVE_WINDOW_06_P5_AS_FROZEN_GATE_PAUSE_AFTER_WINDOW_COMPLETION_V1",
+    "stillFired": true,
+    "weakened": false,
+    "waived": false,
+    "reinterpreted": false,
+    "retrospectivelyInvalidatesItems1To5": false,
+    "noLaterWindow06ItemExisted": true,
+    "ownerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_POST_FINAL_P5_OWNER_RULING_V1.json",
+      "sha256": "14615438c891be000c866e13cf4a2a811af03182cffb8800a1cd2783015fc85b",
+      "bytes": 6243,
+      "commit": "526ef50be8fe93a98c1193074096f23df5d2efef"
+    }
+  },
+  "operationalDeviations": {
+    "concurrency": {
+      "item": "G2P:98",
+      "classification": "CONCURRENCY_INTEGRITY_DEVIATION_DETECTED_DURING_ITEM",
+      "inItemExecutionExclusivity": "NOT_PROVED",
+      "monitorCoverage": "SATISFIED",
+      "ancestryUnprovedCandidates": 61,
+      "notP8": true,
+      "retryPermitted": false,
+      "ownerRuling": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_CONCURRENCY_DEVIATION_OWNER_RULING_V1.json",
+        "commit": "8d20725ff7395dfe367d8f51f050b8d443725272"
+      },
+      "evidenceInvalidated": false,
+      "notRewrittenAsClean": true,
+      "convertsItemToFailure": false,
+      "scope": "WINDOW_06_ONLY"
+    }
+  },
+  "pauseDisposition": "the frozen final gate decided PAUSE_P5_LOW_RAW_YIELD after G2P:99, the fifth and final authorised item, so no Window-06 item could be prevented and none is retroactively invalidated; the pause was reviewed by the owner (Window-06-specific ruling; the Window-02 P5 ruling is historical precedent only and is not reused); G2P:98 carries its Window-06 concurrency-deviation ruling, evidence retained, exclusivity NOT proved; no acquisition after Window 06 is authorised by this record",
+  "runReferences": {
+    "historicalBeforeWindow06": 25,
+    "window06": 5,
+    "total": 30,
+    "distinct": 30,
+    "globallyUnique": true,
+    "rule": "GENERATION2_HISTORICAL_RUN_REFERENCE_IS_GLOBALLY_UNIQUE_ACROSS_ALL_ADJUDICATED_WINDOWS_V1",
+    "gate": "the generic assessAdjudicationHistoryIntegrity over the explicit six-window history",
+    "notTheDatabaseRunRowCount": true
+  },
+  "authorityConsumption": "the Window-06 authority is fully consumed (5 of 5 invocations, 0 retries); it authorises nothing further",
+  "identityDisclosure": "slot numbers, work item ids, digests, run-reference hashes and aggregates only; no organisation id, echeRowKey, URL, hostname, root-authority id or page text",
+  "terminalState": "PHASE_2B_2D_A2_GENERATION2_WINDOW_06_ADJUDICATED_AUTHORITY_CONSUMED_STOPPED",
+  "nextOwnerDecision": "Generation 2 stands at 98 / 110 successful with Q1 [96, 99] and 10 never-started primaries (100..109). The next Generation-2 reserve is 7, unassigned. No Window-07 readiness, authority, ledger append or reserve assignment exists here; any further acquisition (including a reserve append for the Q1 obligations) needs a separate explicit owner decision.",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
