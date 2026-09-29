@@ -144,7 +144,35 @@
       "previousSequenceForSlot": null,
       "previousEntryHash": "7552cf4151ad139933002e68ecfe7edb346564c45eee4a33f3f26777fcee9dea",
       "entryHash": "40db9595f3d5baf09461423a11b9084295a5d1cef342fcfc960ab0916c18b26b"
+    },
+    {
+      "sequence": 5,
+      "selectionIndex": 94,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "BA SARAJEV03|949759496",
+      "replacementEcheRowKey": "F PARIS270|949658034",
+      "generation2ReserveRankPosition": 5,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-09-29T18:48:56Z",
+      "replacedOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "40db9595f3d5baf09461423a11b9084295a5d1cef342fcfc960ab0916c18b26b",
+      "entryHash": "62e97eda403406df436a962e99a19dcd3c36edfa5d532f0f3c524fb3f9fd3b6b"
+    },
+    {
+      "sequence": 6,
+      "selectionIndex": 96,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "F PERPIGN13|949648140",
+      "replacementEcheRowKey": "D KONSTAN01|999866204",
+      "generation2ReserveRankPosition": 6,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-09-29T18:48:56Z",
+      "replacedOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "62e97eda403406df436a962e99a19dcd3c36edfa5d532f0f3c524fb3f9fd3b6b",
+      "entryHash": "b0504309ebf0d599ea7113f552f9d93450cb9f4705e6d53601aa4b3d3d7e9bd7"
     }
   ],
-  "ledgerHash": "e58f872e22f3794ac3af2ed34ee802f0b140ffc95d94dc19a1b28db1a7b00a72"
+  "ledgerHash": "02ab72faa20ce846df8ac40cd21f62f8814fa0e1e56d1b990b234ca5c814b65e"
 }
