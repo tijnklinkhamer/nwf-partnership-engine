@@ -1,0 +1,675 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_RESULT_V1",
+  "recordKind": "GENERATION2_WINDOW_LIVE_RESULT",
+  "recordedAtUtc": "2026-09-29T14:11:45Z",
+  "recordedAtUtcSource": "date -u, read from the shell after the last item and before this record was written",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "d76d251a90292ba44988dfda9b7d9d0a861e4a44",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "boundAuthority": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_AUTHORITY_V1.json",
+    "commit": "c1b1a56fb6401d20f191b84e07b8f7508ba4b08c",
+    "sha256": "d88f741162bf27f6c290b2875edbeba522908c5545d6608b8d79b820ff701807",
+    "ownerDecision": "APPROVE_GENERATION2_WINDOW_05_EXACTLY_ONE_FIVE_ITEM_LIVE_WINDOW_V1",
+    "boundStartingLedgerField": "boundStartingLedger"
+  },
+  "boundOwnerRuling": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_MONITOR_COVERAGE_OWNER_RULING_V1.json",
+    "commit": "d76d251a90292ba44988dfda9b7d9d0a861e4a44",
+    "sha256": "874d7afbfa6c5db23f6ef14d560edbc6c6f81ed0cfeaa8aa59c8172ad7a4951b",
+    "decisions": [
+      "ACCEPT_WINDOW_05_G2P92_AND_G2P93_ACQUISITION_EVIDENCE_DESPITE_UNPROVED_IN_ITEM_EXECUTION_EXCLUSIVITY_V1",
+      "PRESERVE_WINDOW_05_G2P92_AND_G2P93_MONITOR_COVERAGE_FAILURE_AS_OPERATIONAL_INTEGRITY_DEVIATION_V1",
+      "ACCEPT_WINDOW_05_G2P93_PROCEDURAL_STOP_VIOLATION_WITHOUT_AUTOMATIC_EVIDENCE_INVALIDATION_V1",
+      "APPROVE_WINDOW_05_RESIDUAL_CONTINUATION_G2P94_G2P95_G2P96_ONLY_V1"
+    ],
+    "scope": "WINDOW_05_ONLY",
+    "coversItems": ["G2P:92", "G2P:93"],
+    "residualContinuation": ["G2P:94", "G2P:95", "G2P:96"]
+  },
+  "ledgerDuringTheWindow": {
+    "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+    "fileSha256": "4e731cc7bd377416a83fda10d30ec04feb03b0663c7265f84b7dce935c6b203d",
+    "ledgerHash": "e58f872e22f3794ac3af2ed34ee802f0b140ffc95d94dc19a1b28db1a7b00a72",
+    "entryCount": 5,
+    "nextGeneration2ReservePosition": 5,
+    "unchangedByTheWindow": true,
+    "appendedEntries": [],
+    "preNetworkAppend": "none: Q1 was empty (NOTHING_TO_APPEND)",
+    "nextReserveUnassigned": 5
+  },
+  "windowSpecHash": "1714e3c9f9cd175cc6650e8cde150dee0f1c18ae742cc4508235291bee061cad",
+  "windowOutcome": "WINDOW_EXECUTED_5_OF_5_NO_PAUSE_WITH_OWNER_ACCEPTED_MONITOR_COVERAGE_DEVIATION_ON_ITEMS_1_AND_2",
+  "stops": {
+    "anyFrozenPauseFired": false,
+    "finalGateDecision": "WINDOW_COMPLETE",
+    "finalGateTriggeredConditions": [],
+    "itemsNotStarted": [],
+    "p1": {
+      "fired": false
+    },
+    "p2": {
+      "fired": false,
+      "threshold": 3,
+      "robotsRefusalCount": 0
+    },
+    "p3": {
+      "fired": false
+    },
+    "p4": {
+      "fired": false
+    },
+    "p5": {
+      "fired": false,
+      "threshold": 2,
+      "windowLowYieldCount": 1,
+      "denominator": 5,
+      "lowYieldItems": ["G2P:96"],
+      "inheritedWaivers": []
+    },
+    "p6": {
+      "fired": false,
+      "reserveConsumed": 5,
+      "successfulOrganisationCountAtStart": 92
+    },
+    "p7": {
+      "fired": false,
+      "each": "18/18 before every item and re-derived after the last"
+    },
+    "p8": {
+      "fired": false
+    },
+    "concurrencyStop": {
+      "fired": true,
+      "item": "G2P:92",
+      "classification": "CONCURRENCY_MONITOR_COVERAGE_INSUFFICIENT",
+      "appliesToItems": ["G2P:92", "G2P:93"],
+      "ownerReviewed": true,
+      "detail": "see monitorCoverageDeviation"
+    }
+  },
+  "monitorCoverageDeviation": {
+    "items": ["G2P:92", "G2P:93"],
+    "pollsRecorded": [0, 0],
+    "cause": "operator sampler ran on a timer inside the process that blocked on spawnSync, so no callback executed; the maxGap field printed 0 from an empty list",
+    "classification": "CONCURRENCY_MONITOR_COVERAGE_INSUFFICIENT",
+    "executionExclusivity": "NOT_PROVED",
+    "notP8": true,
+    "proceduralDeviation": {
+      "item": "G2P:93",
+      "name": "WINDOW_05_NEXT_ITEM_STARTED_BEFORE_PRIOR_ITEM_MONITOR_COVERAGE_VERDICT_WAS_CHECKED"
+    },
+    "ownerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_MONITOR_COVERAGE_OWNER_RULING_V1.json",
+      "commit": "d76d251a90292ba44988dfda9b7d9d0a861e4a44"
+    },
+    "evidenceInvalidated": false,
+    "notRewrittenAsClean": true,
+    "monitorFixedBefore": "G2P:94",
+    "fix": "independent watcher process (separate PID) sampling every 1 s with same-snapshot ancestry classification; network-free self-test before G2P:94: 12 samples during a 12 s blocking workload, max gap 1.03 s, watcher started first, governed descendant classified governed and unrelated process classified external, clean termination"
+  },
+  "liveInvocations": {
+    "authorisedMaximum": 5,
+    "used": 5,
+    "retries": 0,
+    "perItem": 1,
+    "g2p92": 1,
+    "g2p93": 1,
+    "g2p94": 1,
+    "g2p95": 1,
+    "g2p96": 1
+  },
+  "gateAfterEveryItem": [
+    {
+      "afterItem": "G2P:92",
+      "p7": "18/18",
+      "adjudicationHistoryIntegrity": true,
+      "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+      "triggeredConditions": [],
+      "windowLowYieldCount": 0,
+      "windowRobotsRefusalCount": 0,
+      "nextWorkItemId": "G2P:93",
+      "computedAt": "recomputed after the fact from the recorded observations (the live driver then evaluated the next item's pre-gate; no post-item verdict existed - see monitorCoverageDeviation)"
+    },
+    {
+      "afterItem": "G2P:93",
+      "p7": "18/18",
+      "adjudicationHistoryIntegrity": true,
+      "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+      "triggeredConditions": [],
+      "windowLowYieldCount": 0,
+      "windowRobotsRefusalCount": 0,
+      "nextWorkItemId": "G2P:94",
+      "computedAt": "recomputed after the fact from the recorded observations (the live driver then evaluated the next item's pre-gate; no post-item verdict existed - see monitorCoverageDeviation)"
+    },
+    {
+      "afterItem": "G2P:94",
+      "p7": "18/18",
+      "adjudicationHistoryIntegrity": true,
+      "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+      "triggeredConditions": [],
+      "windowLowYieldCount": 0,
+      "windowRobotsRefusalCount": 0,
+      "nextWorkItemId": "G2P:95",
+      "computedAt": "immediately after the item, before any next item was considered"
+    },
+    {
+      "afterItem": "G2P:95",
+      "p7": "18/18",
+      "adjudicationHistoryIntegrity": true,
+      "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+      "triggeredConditions": [],
+      "windowLowYieldCount": 0,
+      "windowRobotsRefusalCount": 0,
+      "nextWorkItemId": "G2P:96",
+      "computedAt": "immediately after the item, before any next item was considered"
+    },
+    {
+      "afterItem": "G2P:96",
+      "p7": "18/18",
+      "adjudicationHistoryIntegrity": true,
+      "decision": "WINDOW_COMPLETE",
+      "triggeredConditions": [],
+      "windowLowYieldCount": 1,
+      "windowRobotsRefusalCount": 0,
+      "nextWorkItemId": null,
+      "computedAt": "immediately after the item, before any next item was considered"
+    }
+  ],
+  "postItemVerdictsG2P94toG2P96": [
+    {
+      "workItemId": "G2P:94",
+      "monitorCoverage": "SATISFIED",
+      "concurrency": "CLEAN",
+      "p8HostState": "CLEAR",
+      "dbReconciled": true,
+      "runRefUnique": true,
+      "p7": "18/18",
+      "historyIntegrity": true,
+      "frozenGate": {
+        "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "triggered": [],
+        "next": "G2P:95"
+      },
+      "mayStartNextItem": true
+    },
+    {
+      "workItemId": "G2P:95",
+      "monitorCoverage": "SATISFIED",
+      "concurrency": "CLEAN",
+      "p8HostState": "CLEAR",
+      "dbReconciled": true,
+      "runRefUnique": true,
+      "p7": "18/18",
+      "historyIntegrity": true,
+      "frozenGate": {
+        "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "triggered": [],
+        "next": "G2P:96"
+      },
+      "mayStartNextItem": true
+    },
+    {
+      "workItemId": "G2P:96",
+      "monitorCoverage": "SATISFIED",
+      "concurrency": "CLEAN",
+      "p8HostState": "CLEAR",
+      "dbReconciled": true,
+      "runRefUnique": true,
+      "p7": "18/18",
+      "historyIntegrity": true,
+      "frozenGate": {
+        "decision": "WINDOW_COMPLETE",
+        "triggered": [],
+        "next": null
+      },
+      "mayStartNextItem": false
+    }
+  ],
+  "historyIntegrityAndP7BeforeEveryItem": "every item: ADJUDICATION_HISTORY_INTEGRITY true and history-aware P7 18/18 with the gate naming that item next; all known run references distinct before each item",
+  "mechanicalSummary": {
+    "acquisitionSuccessfulMechanical": ["G2P:92", "G2P:93", "G2P:95"],
+    "acquisitionUnsuccessfulMechanical": ["G2P:94", "G2P:96"],
+    "rangeNotExact": ["G2P:92", "G2P:93"],
+    "q3ForUnsuccessful": "MIN_PAGES_NOT_MET for both (G2P:94: 1 eligible page; G2P:96: robots.txt answered with a usable HTTP response and no page followed), by the landed replacementReasonFor rules"
+  },
+  "mechanicalSd9ReadingIsNotTheAdjudication": true,
+  "sd9Bridge": {
+    "rawAndEligibleCountsReportedSeparately": true,
+    "onlyRowsWithMainTextCharsAboveZeroEnteredDedupe": true,
+    "zeroExtractedTextRowsInThisWindow": 5,
+    "analyser": "analyseOrganisation (src/test/harness/phase2b2d/sd7/pilotAnalysis.ts), unmodified"
+  },
+  "databaseReconciliation": {
+    "before": {
+      "runs": 146,
+      "completions": 146,
+      "fetchObservations": 3816,
+      "redirectObservations": 285,
+      "pageEvidence": 2894,
+      "pageCandidates": 5788,
+      "BLOCKED_BY_POLICY": 6,
+      "rootPromotions": 0,
+      "rootPromotionRevocations": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0,
+      "latestRunStartedAt": "2026-09-29T11:33:35.511Z",
+      "atUtc": "2026-09-29T12:58:36.250Z"
+    },
+    "after": {
+      "runs": 151,
+      "completions": 151,
+      "fetchObservations": 3974,
+      "redirectObservations": 294,
+      "pageEvidence": 3015,
+      "pageCandidates": 6030,
+      "BLOCKED_BY_POLICY": 6,
+      "rootPromotions": 0,
+      "rootPromotionRevocations": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0,
+      "latestRunStartedAt": "2026-09-29T14:08:14.030Z",
+      "atUtc": "2026-09-29T14:08:27.352Z"
+    },
+    "delta": {
+      "runs": 5,
+      "completions": 5,
+      "fetchObservations": 158,
+      "redirectObservations": 9,
+      "pageEvidence": 121,
+      "pageCandidates": 242
+    },
+    "unexplainedMovement": false,
+    "perItemDeltasReconciledAfterEveryItem": "yes for G2P:92-G2P:93 in the re-baseline record, and by the driver for G2P:94-G2P:96"
+  },
+  "runReferenceProvenance": {
+    "everyRunRefSha256IsAFull64HexDigest": true,
+    "derivation": "sha256(lowercase run UUID), no prefix",
+    "noRawRunUuidPublished": true,
+    "historical": 20,
+    "window05": 5,
+    "allUnique": true,
+    "rule": "GENERATION2_HISTORICAL_RUN_REFERENCE_IS_GLOBALLY_UNIQUE_ACROSS_ALL_ADJUDICATED_WINDOWS_V1"
+  },
+  "networkVantage": {
+    "provedBeforeEveryItem": true,
+    "ipv4DefaultRouteOnEn0": true,
+    "ipv4onlyArpaAaaaAnswer": "empty - no DNS64 synthesis",
+    "nat64Condition": false,
+    "transportFailuresInThisWindow": 1,
+    "note": "the single DNS_FAILURE observation is G2P:92 sitemap/page-level and did not prevent acquisition"
+  },
+  "hostSafety": {
+    "sleepWakeDarkWakeEventsDuringAnyItem": 0,
+    "batteryAlwaysAbove20Percent": true,
+    "powerSource": "AC Power",
+    "lidOpenThroughout": "asserted by the owner; not verifiable by the agent",
+    "caffeinateDimsuWrappedEveryExecute": true,
+    "p8": "not fired"
+  },
+  "concurrency": {
+    "a3State": [
+      "A3_EXECUTION_AGENTS_QUIESCED_FOR_GENERATION2_WINDOW_05 (owner confirmation for G2P:92-G2P:93)",
+      "A3_EXECUTION_AGENTS_QUIESCED_FOR_GENERATION2_WINDOW_05_RESIDUAL_CONTINUATION (owner reply \"proceed\" to the explicit confirmation request, for G2P:94-G2P:96)"
+    ],
+    "preItemQuietGate": ">= 120 consecutive clean seconds before every item (122 s observed)",
+    "itemsRanSequentiallyConcurrency1": true,
+    "monitorDefinition": "competing = vitest / npm validate / npm test / orgunits discover shaped process not in the governed tree; note the operator monitor pattern is command-text based, not the earlier repository-cwd based v3 definition",
+    "deviation": "CONCURRENCY_MONITOR_COVERAGE_INSUFFICIENT on G2P:92 and G2P:93 (owner-reviewed, evidence retained, exclusivity unproved)"
+  },
+  "authorityPreflightNote": "The Window-05 authority recorded window05OccupantsWithPriorRuns: 0 by carrying the Window-04 template value; it was verified only after the window: each of the five occupants has exactly one run and one completion.",
+  "forbiddenActions": {
+    "window06": false,
+    "reserve5OrLaterAssignment": false,
+    "ledgerAppend": false,
+    "g2p97": false,
+    "retries": false,
+    "reordering": false,
+    "ledgerMutationDuringWindow": false,
+    "rootPromotion": false,
+    "productionCodeChange": false,
+    "genericHistoryBridgeChange": false,
+    "timeoutWidening": false,
+    "tlsWeakening": false,
+    "hostnameGuessing": false
+  },
+  "identityDisclosure": "slot numbers, work item ids, digests, run-reference hashes and aggregates only; no organisation id, echeRowKey, URL, hostname, root-authority id or page text",
+  "items": [
+    {
+      "order": 1,
+      "workItemId": "G2P:92",
+      "kind": "PRIMARY",
+      "selectionIndex": 92,
+      "generation2ReserveRankPosition": null,
+      "split": "FINAL_HOLDOUT",
+      "identityDigest": "32a4bcb154dad84faa553968c891c8fca688e1475af1f4c8c12587818d72fcab",
+      "itemPreflight": {
+        "identityDigestMatchesAuthority": true,
+        "dryRunWasNetworkFree": true,
+        "dryRunRootsEqualFrozenRootAuthorities": true,
+        "rootAuthorityCount": 1
+      },
+      "itemIntervalUtc": ["2026-09-29T13:23:27Z", "2026-09-29T13:24:14Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "b1fbb77e38fc497f249064e6a001c14263f7a37b06e95b30d8c9d8a42ae5b2d9",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "pageAttempts": 35,
+      "gatewayRequests": 39,
+      "fetchObservationsByErrorKind": {
+        "DNS_FAILURE": 1,
+        "NONE": 38
+      },
+      "transportErrorSubtypes": null,
+      "usableHttpResponseObtained": true,
+      "redirectObservations": 6,
+      "candidateRows": 42,
+      "rawPageEvidenceCount": 21,
+      "sd9EligiblePageCount": 21,
+      "zeroExtractedTextPageCount": 0,
+      "postSd7Range": [19, 20],
+      "countIsExact": false,
+      "shortTextUnresolvedCount": 1,
+      "decidedByCase": "B",
+      "sd9StatusMechanical": "ACQUISITION_SUCCESSFUL",
+      "q3ReasonMechanical": null,
+      "postItemHostStateClean": true,
+      "sleepEventsDuringItem": 0,
+      "preItemQuietGate": {
+        "consecutiveCleanSeconds": 122,
+        "maxGapSeconds": 3,
+        "monitor": "driver-embedded sampler (same as the in-item one, see the defect note)"
+      },
+      "inItemConcurrencyWatch": "UNPROVED (0 polls)",
+      "inItemMonitor": {
+        "polls": 0,
+        "verdict": "CONCURRENCY_MONITOR_COVERAGE_INSUFFICIENT",
+        "executionExclusivity": "NOT_PROVED"
+      },
+      "ownerRulingBinding": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_MONITOR_COVERAGE_OWNER_RULING_V1.json",
+        "commit": "d76d251a90292ba44988dfda9b7d9d0a861e4a44",
+        "acquisitionEvidenceAccepted": true,
+        "retryPermitted": false
+      }
+    },
+    {
+      "order": 2,
+      "workItemId": "G2P:93",
+      "kind": "PRIMARY",
+      "selectionIndex": 93,
+      "generation2ReserveRankPosition": null,
+      "split": "DEV_TRAIN",
+      "identityDigest": "f22e6ecd64893eb74e5fbf422cb8537419959a70e18db91e9aeff8a68a7e1761",
+      "itemPreflight": {
+        "identityDigestMatchesAuthority": true,
+        "dryRunWasNetworkFree": true,
+        "dryRunRootsEqualFrozenRootAuthorities": true,
+        "rootAuthorityCount": 1
+      },
+      "itemIntervalUtc": ["2026-09-29T13:27:03Z", "2026-09-29T13:40:03Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "b3095845f47a6895215a6cb0481d6967130d67ae2ba36a07fac9f46f4b478b1f",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "pageAttempts": 35,
+      "gatewayRequests": 43,
+      "fetchObservationsByErrorKind": {
+        "NONE": 43
+      },
+      "transportErrorSubtypes": null,
+      "usableHttpResponseObtained": true,
+      "redirectObservations": 2,
+      "candidateRows": 68,
+      "rawPageEvidenceCount": 34,
+      "sd9EligiblePageCount": 34,
+      "zeroExtractedTextPageCount": 0,
+      "postSd7Range": [30, 33],
+      "countIsExact": false,
+      "shortTextUnresolvedCount": 3,
+      "decidedByCase": "B",
+      "sd9StatusMechanical": "ACQUISITION_SUCCESSFUL",
+      "q3ReasonMechanical": null,
+      "postItemHostStateClean": true,
+      "sleepEventsDuringItem": 0,
+      "preItemQuietGate": {
+        "consecutiveCleanSeconds": 122,
+        "maxGapSeconds": 3,
+        "monitor": "driver-embedded sampler (same as the in-item one, see the defect note)"
+      },
+      "inItemConcurrencyWatch": "UNPROVED (0 polls)",
+      "inItemMonitor": {
+        "polls": 0,
+        "verdict": "CONCURRENCY_MONITOR_COVERAGE_INSUFFICIENT",
+        "executionExclusivity": "NOT_PROVED"
+      },
+      "ownerRulingBinding": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_MONITOR_COVERAGE_OWNER_RULING_V1.json",
+        "commit": "d76d251a90292ba44988dfda9b7d9d0a861e4a44",
+        "acquisitionEvidenceAccepted": true,
+        "retryPermitted": false,
+        "proceduralDeviation": "WINDOW_05_NEXT_ITEM_STARTED_BEFORE_PRIOR_ITEM_MONITOR_COVERAGE_VERDICT_WAS_CHECKED"
+      }
+    },
+    {
+      "order": 3,
+      "workItemId": "G2P:94",
+      "kind": "PRIMARY",
+      "selectionIndex": 94,
+      "generation2ReserveRankPosition": null,
+      "split": "DEV_CONFIRM",
+      "identityDigest": "f2f50de02c145ded084fc334a235d74ee7875c6adabb7f4eed5169ef6206fc56",
+      "itemPreflight": {
+        "identityDigestMatchesAuthority": true,
+        "dryRunWasNetworkFree": true,
+        "dryRunRootsEqualFrozenRootAuthorities": true,
+        "rootAuthorityCount": 1
+      },
+      "itemIntervalUtc": ["2026-09-29T14:01:42Z", "2026-09-29T14:02:27Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "8595ef649cac5613e535176ca0ba2efb50feca7f71030e0bc48fa1b84e113224",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "pageAttempts": 35,
+      "gatewayRequests": 38,
+      "fetchObservationsByErrorKind": {
+        "NONE": 38
+      },
+      "transportErrorSubtypes": null,
+      "usableHttpResponseObtained": true,
+      "redirectObservations": 0,
+      "candidateRows": 70,
+      "rawPageEvidenceCount": 35,
+      "sd9EligiblePageCount": 1,
+      "zeroExtractedTextPageCount": 34,
+      "postSd7Range": [1, 1],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "B",
+      "sd9StatusMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "q3ReasonMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "postItemHostStateClean": true,
+      "sleepEventsDuringItem": 0,
+      "preItemQuietGate": {
+        "consecutiveCleanSeconds": 121.997,
+        "maxGapSeconds": 1.04,
+        "monitor": "independent watcher process"
+      },
+      "inItemConcurrencyWatch": "CLEAN (45 samples, 0 external detections)",
+      "inItemMonitor": {
+        "watcher": "independent process",
+        "samples": 45,
+        "maxGapSeconds": 1.27,
+        "firstSampleBeforeStart": true,
+        "watcherFinalLine": true,
+        "externalSampleCount": 0,
+        "verdict": "SATISFIED",
+        "concurrency": "CLEAN",
+        "executionExclusivity": "PROVED_BY_CONTINUOUS_INDEPENDENT_MONITORING"
+      },
+      "postItemVerdictComputedBeforeNextItem": true
+    },
+    {
+      "order": 4,
+      "workItemId": "G2P:95",
+      "kind": "PRIMARY",
+      "selectionIndex": 95,
+      "generation2ReserveRankPosition": null,
+      "split": "FINAL_HOLDOUT",
+      "identityDigest": "af2d5cb5d742189e19b92ab263aa591f286e1e051da30a6446176c8df83574ea",
+      "itemPreflight": {
+        "identityDigestMatchesAuthority": true,
+        "dryRunWasNetworkFree": true,
+        "dryRunRootsEqualFrozenRootAuthorities": true,
+        "rootAuthorityCount": 1
+      },
+      "itemIntervalUtc": ["2026-09-29T14:04:59Z", "2026-09-29T14:05:43Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "907a36f673401a5ed867c7c9c5bf6e5c229701ecaf85b0ae60da394b89edbbd0",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "pageAttempts": 35,
+      "gatewayRequests": 37,
+      "fetchObservationsByErrorKind": {
+        "NONE": 37
+      },
+      "transportErrorSubtypes": null,
+      "usableHttpResponseObtained": true,
+      "redirectObservations": 1,
+      "candidateRows": 62,
+      "rawPageEvidenceCount": 31,
+      "sd9EligiblePageCount": 30,
+      "zeroExtractedTextPageCount": 1,
+      "postSd7Range": [29, 29],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "B",
+      "sd9StatusMechanical": "ACQUISITION_SUCCESSFUL",
+      "q3ReasonMechanical": null,
+      "postItemHostStateClean": true,
+      "sleepEventsDuringItem": 0,
+      "preItemQuietGate": {
+        "consecutiveCleanSeconds": 121.997,
+        "maxGapSeconds": 1.04,
+        "monitor": "independent watcher process"
+      },
+      "inItemConcurrencyWatch": "CLEAN (44 samples, 0 external detections)",
+      "inItemMonitor": {
+        "watcher": "independent process",
+        "samples": 44,
+        "maxGapSeconds": 1.05,
+        "firstSampleBeforeStart": true,
+        "watcherFinalLine": true,
+        "externalSampleCount": 0,
+        "verdict": "SATISFIED",
+        "concurrency": "CLEAN",
+        "executionExclusivity": "PROVED_BY_CONTINUOUS_INDEPENDENT_MONITORING"
+      },
+      "postItemVerdictComputedBeforeNextItem": true
+    },
+    {
+      "order": 5,
+      "workItemId": "G2P:96",
+      "kind": "PRIMARY",
+      "selectionIndex": 96,
+      "generation2ReserveRankPosition": null,
+      "split": "DEV_CONFIRM",
+      "identityDigest": "f4d54292046284cfb40eb4dc28d2f4e66dfa7ec735f58fd1ac2e7b76050c7be4",
+      "itemPreflight": {
+        "identityDigestMatchesAuthority": true,
+        "dryRunWasNetworkFree": true,
+        "dryRunRootsEqualFrozenRootAuthorities": true,
+        "rootAuthorityCount": 1
+      },
+      "itemIntervalUtc": ["2026-09-29T14:08:13Z", "2026-09-29T14:08:19Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "c6d5e8980076f767945de0e706937a8e7899ea2dcfba6d9b26f95de9f993355c",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "pageAttempts": 0,
+      "gatewayRequests": 1,
+      "fetchObservationsByErrorKind": {
+        "NONE": 1
+      },
+      "transportErrorSubtypes": null,
+      "usableHttpResponseObtained": true,
+      "redirectObservations": 0,
+      "candidateRows": 0,
+      "rawPageEvidenceCount": 0,
+      "sd9EligiblePageCount": 0,
+      "zeroExtractedTextPageCount": 0,
+      "postSd7Range": [0, 0],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "A",
+      "sd9StatusMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "q3ReasonMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "postItemHostStateClean": true,
+      "sleepEventsDuringItem": 0,
+      "preItemQuietGate": {
+        "consecutiveCleanSeconds": 121.997,
+        "maxGapSeconds": 1.07,
+        "monitor": "independent watcher process"
+      },
+      "inItemConcurrencyWatch": "CLEAN (6 samples, 0 external detections)",
+      "inItemMonitor": {
+        "watcher": "independent process",
+        "samples": 6,
+        "maxGapSeconds": 1.05,
+        "firstSampleBeforeStart": true,
+        "watcherFinalLine": true,
+        "externalSampleCount": 0,
+        "verdict": "SATISFIED",
+        "concurrency": "CLEAN",
+        "executionExclusivity": "PROVED_BY_CONTINUOUS_INDEPENDENT_MONITORING"
+      },
+      "postItemVerdictComputedBeforeNextItem": true
+    }
+  ],
+  "terminalState": "PHASE_2B_2D_A2_GENERATION2_WINDOW_05_COMPLETE_AWAITING_VALIDATION_AND_ADJUDICATION",
+  "immutability": "append-only. This record is never edited; adjudication is a separate record"
+}
