@@ -1,0 +1,184 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_05_VALIDATION_EXCLUSIVITY_OWNER_RULING_V1",
+  "recordKind": "GENERATION2_WINDOW_OWNER_RULING",
+  "recordedAtUtc": "2026-09-29T15:41:00Z",
+  "recordedAtUtcSource": "date -u, read from the shell before any re-proof step",
+  "task": "A2_GENERATION2_WINDOW_05_VALIDATION_EXCLUSIVITY_REPROOF_AND_ADJUDICATION_CLOSURE",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "windowOrdinal": 5,
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "canonicalStart": "dbc7f0b4bb34ba1572ad2b59c3c0381807dbb0c6",
+  "publicSafe": true,
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "bound": {
+    "window05LiveResultV2": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_RESULT_V2.json",
+      "commit": "dbc7f0b4bb34ba1572ad2b59c3c0381807dbb0c6",
+      "sha256": "6914f564726029ebf82ef9ea142279f9697d9adb68bf42bfad0ba359df748d26",
+      "bytes": 26819,
+      "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_RESULT_V2",
+      "correctsLiveResultV1": true
+    },
+    "window05LiveResultV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_RESULT_V1.json",
+      "commit": "5759318e09e7cf5628cadd46ece8b99e2ea2407f",
+      "sha256": "b2b23ce40d9507279a31adf1fdf790e75ff4fe0a601533c96b266d4587b60119",
+      "bytes": 25667,
+      "immutable": true,
+      "byteIdenticalToCommittedAt5759318": true,
+      "neverEdited": true
+    },
+    "window05LiveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_AUTHORITY_V1.json",
+      "commit": "c1b1a56fb6401d20f191b84e07b8f7508ba4b08c",
+      "sha256": "d88f741162bf27f6c290b2875edbeba522908c5545d6608b8d79b820ff701807",
+      "bytes": 37600,
+      "consumed": "5 of 5 invocations"
+    },
+    "window05MonitorCoverageOwnerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_MONITOR_COVERAGE_OWNER_RULING_V1.json",
+      "commit": "d76d251a90292ba44988dfda9b7d9d0a861e4a44",
+      "sha256": "874d7afbfa6c5db23f6ef14d560edbc6c6f81ed0cfeaa8aa59c8172ad7a4951b",
+      "bytes": 13433
+    },
+    "window05LiveResultCorrectionOwnerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_RESULT_CORRECTION_OWNER_RULING_V1.json",
+      "commit": "cb46d556ad92ad5d852e5b94fafaad789fd75705",
+      "sha256": "f531600c0fcc17a1ec9cb762480e5b70c6d9acca723b0642039d16b3e6a74a3a",
+      "bytes": 4874
+    },
+    "generation2Ledger": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "fileSha256": "4e731cc7bd377416a83fda10d30ec04feb03b0663c7265f84b7dce935c6b203d",
+      "bytes": 7645,
+      "ledgerHash": "e58f872e22f3794ac3af2ed34ee802f0b140ffc95d94dc19a1b28db1a7b00a72",
+      "entryCount": 5,
+      "nextGeneration2ReservePosition": 5,
+      "lastAppendCommit": "29a521e9cfbda84f17b0d1fd9429148daa5e889a",
+      "reserve5": "UNASSIGNED",
+      "unchangedByWindow05": true
+    },
+    "windowSpecHash": "1714e3c9f9cd175cc6650e8cde150dee0f1c18ae742cc4508235291bee061cad",
+    "p2": {
+      "robotsRefusalCount": 1,
+      "threshold": 3,
+      "fired": false
+    },
+    "finalGate": "WINDOW_COMPLETE"
+  },
+  "originalValidation": {
+    "preservedAsHistoricalEvidence": true,
+    "neverOverwrittenNeverReclassified": true,
+    "reclassified": false,
+    "command": "caffeinate -dimsu npm run validate",
+    "headValidated": "dbc7f0b4bb34ba1572ad2b59c3c0381807dbb0c6",
+    "runs": 1,
+    "startUtc": "2026-09-29T15:16:47.537Z",
+    "endUtc": "2026-09-29T15:21:12.665Z",
+    "exitCode": 0,
+    "tests": "219 files passed, 5 skipped; 5510 tests passed, 76 skipped",
+    "vitestDurationSeconds": 251.4,
+    "overallDurationSeconds": 265,
+    "quietGateBeforeLaunch": {
+      "consecutiveCleanSecondsObserved": 122,
+      "samples": 122,
+      "maxGapSeconds": 1.03
+    },
+    "monitorSamples": 265,
+    "maxMonitorGapSeconds": 1.08,
+    "coverageSufficient": true,
+    "externalCompetingDetections": {
+      "sampledDetections": 10,
+      "distinctProcessIdentities": 3,
+      "classification": "EXTERNAL_COMPETING_PROCESS_FROM_OTHER_PROJECT_OBSERVED",
+      "attributionNote": "the captured evidence shows work whose command line or working directory named ~/newwavefluent; no attribution beyond that (for example to any particular agent session) is recorded or asserted",
+      "captured": [
+        {
+          "pid": 82272,
+          "cmd": "/bin/zsh -c source /Users/tijnklinkhamer/.claude/shell-snapshots/snapshot-zsh-1790367751167-vg0zta.sh 2>/dev/n"
+        },
+        {
+          "pid": 82318,
+          "cmd": "npm exec vitest run src/test/smoke/curriculumDutch --reporter=basic"
+        },
+        {
+          "pid": 82781,
+          "cmd": "/usr/bin/env node /private/tmp/claude-501/-Users-tijnklinkhamer-newwavefluent/83e9121b-df82-4284-ab65-8a4a28a4"
+        },
+        {
+          "pid": 82272,
+          "cmd": "/bin/zsh -c source /Users/tijnklinkhamer/.claude/shell-snapshots/snapshot-zsh-1790367751167-vg0zta.sh 2>/dev/n"
+        },
+        {
+          "pid": 82318,
+          "cmd": "npm exec vitest run src/test/smoke/curriculumDutch --reporter=basic"
+        }
+      ],
+      "capturedNote": "command text as captured by the operator monitor, already truncated by that monitor; the wrapper, the npm exec vitest process and its node helper"
+    },
+    "formalVerdict": "VALIDATION_EXECUTION_EXCLUSIVITY_NOT_PROVED",
+    "localEvidence": {
+      "note": "operator scratch files outside the repository, hashed here so the preserved first result is pinned; not governance authority",
+      "validationSummary": {
+        "sha256": "746fee72c392cc30932ed014a628c718f14eff9aa3622951cec4cc9a4d9230c6",
+        "bytes": 2852
+      },
+      "validateLog": {
+        "sha256": "2b5c567b9fb74377ed2285475a58558e686a6d5bfdaa226761faa903830dbab4",
+        "bytes": 30639
+      }
+    },
+    "exit0Meaning": "historical evidence of software correctness under interference; it does NOT permit adjudication"
+  },
+  "ownerDecisions": [
+    {
+      "decision": "PRESERVE_FIRST_WINDOW_05_V2_VALIDATION_AS_VALID_EXIT0_BUT_EXECUTION_EXCLUSIVITY_NOT_PROVED_V1",
+      "firstValidationNeverReclassified": true
+    },
+    {
+      "decision": "APPROVE_EXACTLY_ONE_WINDOW_05_VALIDATION_EXCLUSIVITY_REPROOF_AFTER_EXTERNAL_COMPETITOR_STOP_V1",
+      "notAnAutomaticRerun": "a separate explicit owner-authorised re-proof after review of the preserved first result, not an automatic rerun",
+      "fullValidationRunsAuthorised": 1,
+      "thirdV2ValidationAuthorised": false,
+      "newValidationProvesOnlyItsOwnExecutionInterval": true,
+      "cleanReproofDoesNotProveTheFirstValidationWasExclusive": true,
+      "concurrencyPolicyUnchanged": "GENERATION2_LIVE_CRITICAL_SECTION_POLICY_V2; a genuinely separate validate / vitest / A3 execution process during full validation still means VALIDATION_EXECUTION_EXCLUSIVITY_NOT_PROVED; no process is whitelisted by command text",
+      "externalProcessesRemainDisqualifying": "regardless of repository, project or command purpose",
+      "mustRunAt": "the commit that adds THIS ruling record, not at dbc7f0b; no code, frozen governance, LIVE_RESULT or acquisition evidence changes between dbc7f0b and that commit",
+      "requirements": [
+        "ALL_EXTERNAL_CORRECTNESS_CRITICAL_EXECUTION_QUIESCED_FOR_WINDOW_05_VALIDATION_REPROOF established anew before the quiet period; unrelated processes are not killed or altered",
+        ">= 120 consecutive clean seconds at a monitor interval <= 5 s before launch, the clean-period clock reset by any competing-shaped process",
+        "an independent watcher process active BEFORE the governed validation root exists and until it and its descendants terminate, each poll one atomic whole-process-table snapshot capturing PID, PPID, process start identity, PGID, SID, argv and observation time (cwd only as supporting evidence)",
+        "the watcher is self-tested network-free beforehand: governed child governed, unrelated process external, detached orphan not accepted, empty sample set cannot pass, watcher death cannot pass, gap > 5 s cannot pass",
+        "a candidate is GOVERNED_VALIDATION_DESCENDANT_PROVED only when its CURRENT same-snapshot PPID ancestry reaches the governed root (PID + start identity); historical membership, cwd, PGID, SID, command text and timing never prove ancestry",
+        "every other candidate is EXTERNAL_COMPETING_PROCESS or ANCESTRY_UNPROVED and either makes exclusivity unproved",
+        "success requires exit 0, coverage sufficient, max gap <= 5 s, external = 0, ancestry-unproved = 0, no A3 execution, no host sleep/integrity anomaly, worktree clean"
+      ],
+      "successTerminal": "WINDOW_05_VALIDATION_EXCLUSIVITY_REPROVED_CLEAN",
+      "failureTerminal": "WINDOW_05_VALIDATION_EXCLUSIVITY_REPROOF_FAILED_STOPPED_BEFORE_ADJUDICATION",
+      "onFailure": "STOP; no adjudication; no further validation; return to owner"
+    },
+    {
+      "decision": "APPROVE_WINDOW_05_ADJUDICATION_AFTER_CLEAN_EXCLUSIVE_REPROOF_AND_FIVE_WINDOW_REPLAY_V1",
+      "conditional": true,
+      "condition": "the single re-proof exits 0 with sufficient monitor coverage, zero external competing processes and zero ancestry-unproved candidates, and the subsequent five-window pure replay is exact",
+      "scope": "adjudicate G2P:92..G2P:96 once each under frozen Methodology V3 and replay the explicit ordered history Window 01, 02, 03, 04 (with its pinned authority-shape correction), 05 using LIVE_RESULT V2; no directory scan, glob, \"latest\" or filename inference"
+    }
+  ],
+  "thisFileAuthorises": [
+    "exactly one further governed full validation re-proof (caffeinate -dimsu npm run validate)",
+    "Window-05 adjudication only if that re-proof is exit 0, monitor coverage is sufficient, external competitors = 0, ancestry-unproved = 0, and the subsequent five-window replay is exact"
+  ],
+  "thisFileDoesNotAuthorise": [
+    "institution network access or any acquisition activity",
+    "database writes",
+    "any acquisition retry",
+    "ledger mutation",
+    "reserve assignment (reserve 5 stays unassigned)",
+    "Window 06 in any form",
+    "a second re-proof or any third V2 validation",
+    "weakening the process classifier"
+  ],
+  "immutability": "append-only. This record is never edited; the re-proof and the adjudication are separate records"
+}
