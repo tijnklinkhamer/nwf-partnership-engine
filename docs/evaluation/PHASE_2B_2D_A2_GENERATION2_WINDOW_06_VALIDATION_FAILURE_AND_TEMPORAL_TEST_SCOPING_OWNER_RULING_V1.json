@@ -1,0 +1,165 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_06_VALIDATION_FAILURE_AND_TEMPORAL_TEST_SCOPING_OWNER_RULING_V1",
+  "recordKind": "GENERATION2_OWNER_RULING",
+  "task": "A2_GENERATION2_WINDOW_06_VALIDATION_FAILURE_TEMPORAL_TEST_SCOPING_REPROOF_AND_ADJUDICATION",
+  "createdBeforeAnyFurtherInstitutionNetworkActivity": true,
+  "recordedAtUtc": "2026-09-29T22:02:55Z",
+  "recordedAtUtcSource": "date -u, read from the shell immediately before this ruling was written",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "526ef50be8fe93a98c1193074096f23df5d2efef",
+  "publicSafe": true,
+  "appendOnly": true,
+  "isLiveAuthority": false,
+  "scope": "WINDOW_06_ONLY",
+  "ownerDecisions": [
+    "PRESERVE_WINDOW_06_FIRST_POST_FINAL_P5_VALIDATION_AS_EXCLUSIVE_EXIT1_NOT_ACCEPTED_V1",
+    "APPROVE_WINDOW_06_READINESS_TEMPORAL_TEST_SCOPING_CORRECTION_V1",
+    "CORRECT_WINDOW_06_V3_CORRECTION_RULING_TIMESTAMP_SOURCE_PROVENANCE_V1",
+    "APPROVE_EXACTLY_ONE_WINDOW_06_POST_FIX_VALIDATION_REPROOF_V1",
+    "APPROVE_WINDOW_06_ADJUDICATION_AFTER_CLEAN_POST_FIX_VALIDATION_AND_SIX_WINDOW_REPLAY_V1"
+  ],
+  "firstValidation": {
+    "authorisedBy": "PHASE_2B_2D_A2_GENERATION2_WINDOW_06_POST_FINAL_P5_OWNER_RULING_V1 (the ONE validation it authorised; it ran once)",
+    "command": "caffeinate -dimsu npm run validate",
+    "softwareSnapshot": "526ef50be8fe93a98c1193074096f23df5d2efef",
+    "governedRootStartUtc": "2026-09-29T21:50:03Z",
+    "vitestStartUtc": "2026-09-29T21:50:16Z",
+    "durationSecondsApprox": 268,
+    "exitCode": 1,
+    "testFiles": { "passed": 220, "failed": 1, "skipped": 5 },
+    "tests": { "passed": 5576, "failed": 1, "skipped": 76 },
+    "soleFailure": {
+      "file": "src/test/unit/orgunitCorpus2DA2Generation2Window06Readiness.test.ts",
+      "test": "the canonical ledger is untouched: still the committed five-entry revision, reserve 5 unassigned"
+    },
+    "watcher": {
+      "ownerStatedSamples": 534,
+      "ownerStatedMaxGapSecondsApprox": 0.52,
+      "recomputedOverIntegerSecondRootWindow": {
+        "samples": 532,
+        "maxGapSeconds": 0.521,
+        "note": "the 2-sample difference is only where the window boundary is drawn; every candidate in the window classified GOVERNED_VALIDATION_DESCENDANT_PROVED"
+      },
+      "EXTERNAL_COMPETING_PROCESS": 0,
+      "ANCESTRY_UNPROVED": 0,
+      "classification": "current same-snapshot PPID ancestry"
+    },
+    "executionExclusivity": "PROVED for this validation interval",
+    "worktree": "remained clean apart from ignored watcher evidence",
+    "formalMeaning": "the validation run itself was operationally clean and exclusive; the software validation did NOT pass",
+    "result": "WINDOW_06_VALIDATION_NOT_ACCEPTED",
+    "preservation": "never erased, never called invalid, never reclassified as exit 0; a later post-fix validation does not rewrite it"
+  },
+  "rootCause": {
+    "kind": "TEMPORAL_TEST_SCOPING_DEFECT",
+    "assertion": "git diff --name-only WINDOW06_READINESS_STARTING_HEAD HEAD -- GENERATION2_LEDGER_PATH is empty",
+    "readinessStartingHead": "df3dddde6d9365da436e64c67e3b044df2f2cc42",
+    "readinessTerminalCommit": "35beff7c80c14c5198a9cc9bb22ec7d5f9fd53ac",
+    "laterAuthorisedLedgerAppend": "f3c02276b91ab2daa06763c2ae30c9c601c6cf35",
+    "explanation": "the suite already reads historical bytes at its own terminal through terminalCommit()/readState(); this one assertion still compared the pre-readiness start to the moving HEAD, so the separately authorised Window-06 pre-network ledger append made a true historical readiness claim red. The readiness task itself changed no ledger.",
+    "precedent": {
+      "commit": "8bda67bb9b174086cef0e2dd129b69277e83aede",
+      "title": "test(2d): scope Generation-2 lifecycle tests to their own terminal commits",
+      "principle": "historical lifecycle/readiness tests prove facts at THEIR OWN terminal commit; later separately authorised lifecycle progress must not turn them red",
+      "status": "architectural precedent only; not reused as Window-06 authority"
+    }
+  },
+  "timestampProvenanceCorrection": {
+    "target": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_RESULT_V3_CORRECTION_OWNER_RULING_V1.json",
+      "commit": "d52c7041c7ac7acdb54b67c7bb5574027b0ec861",
+      "sha256": "b81d06a8905be7e8ade4d765b50aa95932f77cb071220c085f639e72b3bcf883",
+      "bytes": 3477
+    },
+    "recordedAtUtc": "2026-09-29T21:46:30Z",
+    "committedSourceDescription": "date -u, read from the shell when this ruling was written",
+    "correctSourceDescription": "operator estimate bounded by shell observations 21:45:21Z and 21:46:42Z",
+    "shellObservationBefore": "2026-09-29T21:45:21Z",
+    "shellObservationAfter": "2026-09-29T21:46:42Z",
+    "supersedes": "ONLY the provenance description of that one timestamp",
+    "targetBytesPreserved": true,
+    "changesNothingElse": [
+      "authority",
+      "acquisition evidence",
+      "gate results",
+      "record ordering",
+      "replay semantics",
+      "the recordedAtUtc value itself"
+    ]
+  },
+  "thisFileAuthorises": [
+    "One bounded temporal-scoping correction to src/test/unit/orgunitCorpus2DA2Generation2Window06Readiness.test.ts",
+    "Focused local testing of that correction",
+    "Exactly ONE new governed full validation (caffeinate -dimsu npm run validate) after the correction is committed and pushed",
+    "Window-06 adjudication only if that new validation exits 0, has sufficient monitor coverage (max gap <= 5 s), has zero EXTERNAL_COMPETING_PROCESS, has zero ANCESTRY_UNPROVED, and the six-window replay is exact"
+  ],
+  "authorisesNothingElse": {
+    "institutionNetwork": false,
+    "window06Retry": false,
+    "databaseWrite": false,
+    "ledgerWrite": false,
+    "reserveAssignment": false,
+    "genericHistoryModification": false,
+    "productionAcquisitionModification": false,
+    "harnessModification": false,
+    "liveResultV4": false,
+    "window07": false,
+    "g2p100": false,
+    "moreThanOnePostFixValidation": false
+  },
+  "bound": {
+    "liveResultV3CorrectionOwnerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_RESULT_V3_CORRECTION_OWNER_RULING_V1.json",
+      "commit": "d52c7041c7ac7acdb54b67c7bb5574027b0ec861",
+      "sha256": "b81d06a8905be7e8ade4d765b50aa95932f77cb071220c085f639e72b3bcf883",
+      "bytes": 3477
+    },
+    "liveResultV3": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_RESULT_V3.json",
+      "commit": "3905bc27a3a54bb425d91813ed6e6e641d283d0c",
+      "sha256": "9dee6861dabc5c997ed2d458fad7d346f6b7aa9a019d421439f8c2b242cb1af6",
+      "bytes": 37590,
+      "status": "the canonical adjudication binding for Window 06"
+    },
+    "postFinalP5OwnerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_POST_FINAL_P5_OWNER_RULING_V1.json",
+      "commit": "526ef50be8fe93a98c1193074096f23df5d2efef",
+      "sha256": "14615438c891be000c866e13cf4a2a811af03182cffb8800a1cd2783015fc85b",
+      "bytes": 6243
+    },
+    "ledgerSevenEntries": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "commit": "f3c02276b91ab2daa06763c2ae30c9c601c6cf35",
+      "sha256": "557df594ba55998fddb1f3881210f8cc6205fdfb118cc138bd49a40a4f84f9b9",
+      "bytes": 8917,
+      "ledgerHash": "02ab72faa20ce846df8ac40cd21f62f8814fa0e1e56d1b990b234ca5c814b65e",
+      "entryCount": 7,
+      "nextGeneration2ReservePosition": 7
+    },
+    "window06OfflineReadiness": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_OFFLINE_READINESS_V1.json",
+      "commit": "35beff7c80c14c5198a9cc9bb22ec7d5f9fd53ac",
+      "sha256": "eb0907c73512c9b9e6ddfbb65d65eae52f945d200e0f5463ec171182f5838cc8",
+      "bytes": 63763
+    },
+    "window06ReadinessTerminalCommit": "35beff7c80c14c5198a9cc9bb22ec7d5f9fd53ac"
+  },
+  "doesNot": [
+    "rewrite the first validation as successful",
+    "delete or weaken any assertion, or change any expected value",
+    "modify harness, production, generic-history, frozen-methodology or authority code or records",
+    "edit LIVE_RESULT V1, V2 or V3, or the V3 correction ruling",
+    "weaken, waive or reinterpret P5",
+    "make G2P:98 exclusive",
+    "authorise any retry",
+    "authorise any institution acquisition network activity",
+    "authorise any database write",
+    "mutate the ledger",
+    "assign reserve 7 or any later reserve",
+    "authorise, prepare or create Window 07",
+    "authorise G2P:100 or any slot 100..109",
+    "authorise more than one post-fix full validation"
+  ],
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
