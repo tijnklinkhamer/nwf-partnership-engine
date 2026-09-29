@@ -1,0 +1,76 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_RESULT_V3_CORRECTION_OWNER_RULING_V1",
+  "recordKind": "GENERATION2_OWNER_RULING",
+  "task": "A2_GENERATION2_WINDOW_06_LIVE_RESULT_V3_ITEMS_NOT_STARTED_SHAPE_CORRECTION",
+  "createdBeforeLiveResultV3": true,
+  "recordedAtUtc": "2026-09-29T21:46:30Z",
+  "recordedAtUtcSource": "date -u, read from the shell when this ruling was written",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "f7ad412ce774d42d2060d79b38492e7c41353d79",
+  "publicSafe": true,
+  "appendOnly": true,
+  "isLiveAuthority": false,
+  "scope": "WINDOW_06_ONLY",
+  "ownerDecision": "APPROVE_APPEND_ONLY_WINDOW06_LIVE_RESULT_V3_ITEMS_NOT_STARTED_SHAPE_CORRECTION_V1",
+  "thisFileAuthorises": [
+    "Creating exactly one new append-only Window-06 LIVE_RESULT V3 that adds the top-level field stops.itemsNotStarted = [] and a correction/provenance block, and nothing else"
+  ],
+  "authorisesNothingElse": {
+    "validation": false,
+    "adjudication": false,
+    "network": false,
+    "databaseWrite": false,
+    "ledgerWrite": false,
+    "retry": false,
+    "window07": false
+  },
+  "boundLiveResultV2": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_RESULT_V2.json",
+    "commit": "f7ad412ce774d42d2060d79b38492e7c41353d79",
+    "sha256": "e08713de85ee960960045a64688f75c420b5c385e703ea1427a42ec76d60647e",
+    "bytes": 35345,
+    "status": "REMAINS IMMUTABLE HISTORICAL EVIDENCE of the completed 5-of-5 post-final-P5 stop; it is never edited, amended, replaced or force-pushed over"
+  },
+  "correction": {
+    "add": "stops.itemsNotStarted = []",
+    "reason": "the generic history bridge requires the canonical top-level field stops.itemsNotStarted to canonical-equal exactOrder.slice(liveItems.length); Window 06 executed 5 of 5 authorised items, so that suffix is uniquely []; V2 already records the same substantive value at stops.concurrencyStop.itemsNotStarted = []",
+    "bridgeInvariant": "src/test/harness/phase2b2d/generation2History/adjudicationHistory.ts: same(stops.itemsNotStarted, exactOrder.slice(liveItems.length))",
+    "valuePreserving": true,
+    "changedFieldsInV3": ["record", "stops.itemsNotStarted", "correction (provenance block)"],
+    "v3SupersedesV2": "ONLY as the canonical adjudication binding; V2 stays immutable historical evidence"
+  },
+  "doesNotChange": [
+    "any acquisition invocation",
+    "any run reference",
+    "any work-item identity",
+    "any raw page count",
+    "any eligible page count",
+    "any SD7 result",
+    "any SD9 result",
+    "any Q3 result",
+    "any database evidence",
+    "the concurrency observation",
+    "the G2P:98 concurrency-integrity deviation",
+    "any of P1-P8 result",
+    "the P5 pause",
+    "the Window-06 authority",
+    "the Generation-2 ledger",
+    "reserve accounting",
+    "attempt accounting (5 used of 5, 0 retries)"
+  ],
+  "doesNot": [
+    "authorise any validation",
+    "authorise any adjudication",
+    "authorise any institution acquisition network activity",
+    "authorise any database write",
+    "mutate the ledger",
+    "assign reserve 7 or any later reserve",
+    "authorise any retry",
+    "authorise, prepare or create Window 07",
+    "change the generic history bridge or add an alias",
+    "add a Window-06-specific exception to generic code",
+    "edit LIVE_RESULT V1 or V2"
+  ],
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
