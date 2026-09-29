@@ -80,12 +80,12 @@ import {
   historyBindingOf,
   type CommittedRecordBinding,
   type Generation2AdjudicationHistory,
-  type Generation2HistoryReplay,
 } from '../generation2History/adjudicationHistory.js';
 import { CURRENT_LEDGER_REVISION as WINDOW02_STARTING_LEDGER_REVISION } from '../generation2History/historyContract.js';
 import {
   ADJUDICATION_HISTORY_INTEGRITY,
   assessAdjudicationHistoryIntegrity,
+  requireUniqueHistoricalRunReferences,
 } from '../generation2History/historyIntegrity.js';
 import { synthesiseAdjudicatedWindow } from './synthesiseWindow.js';
 import {
@@ -350,19 +350,11 @@ export function verifyWindow02ValidationChain(
 // ---------------------------------------------------------------------------
 
 /**
- * The generic bridge refuses a run reference repeated WITHIN a window; one
- * repeated ACROSS windows would also mean one run counted twice, so it is
- * refused here, over the replayed history, before any state is used.
+ * Promoted into the generic ADJUDICATION_HISTORY_INTEGRITY
+ * (generation2History/historyIntegrity.ts), which now enforces it itself;
+ * re-exported so this layer keeps one implementation, not a copy.
  */
-export function requireUniqueHistoricalRunReferences(
-  replay: Generation2HistoryReplay,
-): readonly string[] {
-  const runRefs = replay.windows.flatMap((w) => w.executed.map((item) => item.runRefSha256));
-  if (new Set(runRefs).size !== runRefs.length) {
-    refuse('HISTORY_DUPLICATE_RUN_REFERENCE', 'a run reference appears in more than one window');
-  }
-  return runRefs;
-}
+export { requireUniqueHistoricalRunReferences };
 
 // ---------------------------------------------------------------------------
 // The readiness.
@@ -447,7 +439,8 @@ export function buildWindow03Readiness(inputs: Window03Inputs): Window03Readines
     refuse('ADJUDICATION_HISTORY_INTEGRITY', integrity.failures.join(' | '));
   }
   const replay = integrity.replay;
-  const runRefs = requireUniqueHistoricalRunReferences(replay);
+  // Global uniqueness is now part of the generic integrity just asserted.
+  const runRefs = integrity.historicalRunReferences;
 
   // 4. The replayed state, Q1, the prospective append.
   const state = deriveGeneration2CurrentState(basis, current, history);
