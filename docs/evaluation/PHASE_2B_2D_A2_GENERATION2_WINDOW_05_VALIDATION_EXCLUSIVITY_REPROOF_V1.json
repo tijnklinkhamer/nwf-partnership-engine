@@ -1,0 +1,151 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_05_VALIDATION_EXCLUSIVITY_REPROOF_V1",
+  "recordKind": "GENERATION2_WINDOW_VALIDATION_EXCLUSIVITY_REPROOF",
+  "recordedAtUtc": "2026-09-29T17:03:11Z",
+  "recordedAtUtcSource": "system clock read by the operator tooling after the re-proof ended",
+  "task": "A2_GENERATION2_WINDOW_05_VALIDATION_EXCLUSIVITY_REPROOF_AND_ADJUDICATION_CLOSURE",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "windowOrdinal": 5,
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "publicSafe": true,
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "thisFileAuthorises": [],
+  "boundOwnerRuling": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_VALIDATION_EXCLUSIVITY_OWNER_RULING_V1.json",
+    "commit": "f3e88a50c670e582d2bdd6c4558f09886dce0d3c",
+    "sha256": "915a104b3025426535829bce4a0152ec32644030d90b4e9a5d0f0e979adc7402",
+    "bytes": 10342
+  },
+  "boundLiveResult": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_RESULT_V2.json",
+    "commit": "dbc7f0b4bb34ba1572ad2b59c3c0381807dbb0c6",
+    "sha256": "6914f564726029ebf82ef9ea142279f9697d9adb68bf42bfad0ba359df748d26",
+    "bytes": 26819
+  },
+  "firstValidation": {
+    "formalVerdict": "VALIDATION_EXECUTION_EXCLUSIVITY_NOT_PROVED",
+    "reclassified": false,
+    "headValidated": "dbc7f0b4bb34ba1572ad2b59c3c0381807dbb0c6",
+    "exitCode": 0,
+    "externalObservation": "EXTERNAL_COMPETING_PROCESS_FROM_OTHER_PROJECT_OBSERVED",
+    "note": "preserved verbatim in the owner ruling. This re-proof proves nothing retrospectively about the external processes observed during the first validation, and its own result does not make the first validation exclusive."
+  },
+  "reproof": {
+    "command": "caffeinate -dimsu npm run validate",
+    "runs": 1,
+    "secondAttempt": false,
+    "headValidated": "f3e88a50c670e582d2bdd6c4558f09886dce0d3c",
+    "worktreeCleanAtLaunch": true,
+    "worktreeCleanAfter": true,
+    "localEqualsOriginAtLaunch": true,
+    "startUtc": "2026-09-29T16:58:13Z",
+    "endUtc": "2026-09-29T17:02:31Z",
+    "exitCode": 0,
+    "testFiles": "219 passed | 5 skipped (224)",
+    "tests": "5510 passed | 76 skipped (5586)",
+    "vitestDuration": "244.85s (transform 2.42s, setup 0ms, import 47.98s, tests 185.07s, environment 8ms)",
+    "overallDurationSeconds": 258.1,
+    "a3AndExternalExecutionQuiesced": {
+      "state": "ALL_EXTERNAL_CORRECTNESS_CRITICAL_EXECUTION_QUIESCED_FOR_WINDOW_05_VALIDATION_REPROOF",
+      "establishedBy": "explicit owner confirmation via an interactive question before the quiet gate",
+      "recordedAtUtc": "2026-09-29T16:56:11Z",
+      "unrelatedProcessesKilledOrAltered": false
+    },
+    "watcherSelfTest": {
+      "directGovernedChild": "GOVERNED_VALIDATION_DESCENDANT_PROVED (32 polls)",
+      "unrelatedExternal": "EXTERNAL_COMPETING_PROCESS (24 polls)",
+      "detachedOrphan": "ANCESTRY_UNPROVED (16 polls)",
+      "externalOutsideRepoCounted": true,
+      "samples": 24,
+      "maxGapSeconds": 0.506,
+      "watcherRanBeforeGovernedRoot": true,
+      "verdict": "PASS",
+      "evaluatorChecks": "empty sample set, gap > 5 s, watcher death mid-validation, an external count and a short/empty quiet period were each refused by the landed evaluators; a clean series passed"
+    },
+    "watcher": {
+      "architecture": "independent process (sampler.py), atomic whole-process-table ps snapshot per poll, started before the governed root existed and stopped after it exited",
+      "pollIntervalSeconds": 0.5,
+      "capturedPerPoll": [
+        "pid",
+        "ppid",
+        "process start identity",
+        "pgid",
+        "sid",
+        "argv",
+        "observation time",
+        "cwd (supporting only)"
+      ],
+      "repositoryFilter": "NONE: any competing-shaped process anywhere counts",
+      "governedRoot": {
+        "pid": 92648,
+        "lstart": "Tue Sep 29 18:56:21 2026",
+        "startEpoch": 1790700982,
+        "role": "governed Window-05 validation re-proof wrapper (validate.sh)"
+      },
+      "ancestryRule": "GOVERNED only if the CURRENT same-snapshot PPID chain reaches the governed root (pid + start identity); no historical membership, cwd, pgid, sid, command or timing evidence"
+    },
+    "quietGate": {
+      "cleanSecondsBeforeLaunch": 122.24597501754761,
+      "mayStart": true,
+      "monitorIntervalSeconds": 0.5
+    },
+    "monitoring": {
+      "samplesTotal": 763,
+      "samplesWithinValidation": 512,
+      "maxGapSecondsWithinValidation": 0.507,
+      "coverageSufficient": true,
+      "rootAliveThroughValidation": true,
+      "competingPolls": 0,
+      "maxGovernedTreeSize": 9
+    },
+    "classification": {
+      "candidateIdentities": 98,
+      "GOVERNED_VALIDATION_DESCENDANT_PROVED": 98,
+      "EXTERNAL_COMPETING_PROCESS": 0,
+      "ANCESTRY_UNPROVED": 0
+    },
+    "landedEvaluator": {
+      "integritySatisfied": true,
+      "deviationDetected": false,
+      "monitorCoverageSufficient": true,
+      "operationalStop": false,
+      "classifications": [],
+      "reasons": []
+    },
+    "hostSleepWakeEvents": 0,
+    "hostSleepEvidence": "no monitor gap above 0.51 s across the validation and no sleep/wake entries in the power log for the interval",
+    "localEvidence": {
+      "note": "gitignored operator files, hashed so the run is pinned; not governance authority",
+      "samples": {
+        "file": "data/g2w05v/samples.jsonl",
+        "sha256": "3224d576127890905805637260b24d931bf9bf129a13712ba9fc593702f11d16",
+        "bytes": 6291510
+      },
+      "analysis": {
+        "file": "data/g2w05v/analysis.json",
+        "sha256": "2f4a87a8dd7251cd77478e16bd2470aba5e8caef0d332a06cc1ab1326e279314",
+        "bytes": 525857
+      },
+      "validateLog": {
+        "file": "data/g2w05v/validate.log",
+        "sha256": "23954adc6105c6c40a54212a070d54e1cb51a8aebf319d3658d2d85b624fdede",
+        "bytes": 30613
+      },
+      "governed": {
+        "file": "data/g2w05v/governed.json",
+        "sha256": "692452bf62fb7db25a58af234fa31fad62eb1ec523d6fed35956f159b844f680",
+        "bytes": 151
+      },
+      "selftest": {
+        "file": "data/g2w05v/selftest.json",
+        "sha256": "fbd01523b7d09995479f06ecafb639ff4358b281ff3458e236e2bba56cc206ec",
+        "bytes": 319
+      }
+    },
+    "verdict": "WINDOW_05_VALIDATION_EXCLUSIVITY_REPROVED_CLEAN"
+  },
+  "terminalVerdict": "WINDOW_05_VALIDATION_EXCLUSIVITY_REPROVED_CLEAN",
+  "furtherValidationAuthorised": false,
+  "immutability": "append-only. Evidence record of the run made at the owner-ruling tip; never edited"
+}
