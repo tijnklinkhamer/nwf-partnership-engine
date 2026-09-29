@@ -1,0 +1,283 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_05_MONITOR_COVERAGE_OWNER_RULING_V1",
+  "recordKind": "GENERATION2_OWNER_RULING",
+  "task": "A2_GENERATION2_WINDOW_05_MONITOR_COVERAGE_OWNER_RULING_AND_RESIDUAL_RESUME",
+  "createdBeforeAnyFurtherInstitutionNetworkActivity": true,
+  "recordedAtUtc": "2026-09-29T13:50:10Z",
+  "recordedAtUtcSource": "date -u, read from the shell when this ruling was written",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "c1b1a56fb6401d20f191b84e07b8f7508ba4b08c",
+  "publicSafe": true,
+  "ownerDecisions": [
+    "ACCEPT_WINDOW_05_G2P92_AND_G2P93_ACQUISITION_EVIDENCE_DESPITE_UNPROVED_IN_ITEM_EXECUTION_EXCLUSIVITY_V1",
+    "PRESERVE_WINDOW_05_G2P92_AND_G2P93_MONITOR_COVERAGE_FAILURE_AS_OPERATIONAL_INTEGRITY_DEVIATION_V1",
+    "ACCEPT_WINDOW_05_G2P93_PROCEDURAL_STOP_VIOLATION_WITHOUT_AUTOMATIC_EVIDENCE_INVALIDATION_V1",
+    "APPROVE_WINDOW_05_RESIDUAL_CONTINUATION_G2P94_G2P95_G2P96_ONLY_V1"
+  ],
+  "scope": "WINDOW_05_ONLY",
+  "isLiveAuthority": false,
+  "thisFileAuthorises": [
+    "Residual continuation of the EXISTING Window-05 live authority: G2P:94 -> G2P:95 -> G2P:96 only, each at most once, sequential, concurrency 1, at most three further live invocations, each only after the prior item's complete post-item verdict exists"
+  ],
+  "networkAuthorised": "ONLY G2P:94, G2P:95, G2P:96 under the existing Window-05 authority, through the landed orgunits discover --execute path",
+  "databaseAuthorised": "ONLY the append-only writes those three invocations make, plus read-only baseline and reconciliation",
+  "ledgerMutationAuthorised": false,
+  "reserveAssignmentAuthorised": false,
+  "doesNot": [
+    "weaken the generic concurrency policy",
+    "redefine CONCURRENCY_MONITOR_COVERAGE_INSUFFICIENT",
+    "declare execution exclusivity proved for G2P:92 or G2P:93",
+    "establish a generic precedent that pre/post scans substitute for continuous monitoring",
+    "authorise a retry of G2P:92 or G2P:93",
+    "create another five-item window",
+    "authorise Window 06",
+    "reset the existing Window-05 authority",
+    "authorise a fourth new invocation"
+  ],
+  "bound": {
+    "window05OfflineReadiness": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_OFFLINE_READINESS_V1.json",
+      "sha256": "3f20623df66ad0477101a9dc7e4f5a8150197d8d1ad152ab71ae9318e1be6867",
+      "commit": "66ce963c1fcfb9c4c4b178441c9c3c9b870060fa"
+    },
+    "window05LiveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_AUTHORITY_V1.json",
+      "sha256": "d88f741162bf27f6c290b2875edbeba522908c5545d6608b8d79b820ff701807",
+      "commit": "c1b1a56fb6401d20f191b84e07b8f7508ba4b08c",
+      "boundStartingLedgerField": "boundStartingLedger"
+    },
+    "windowSpecHash": "1714e3c9f9cd175cc6650e8cde150dee0f1c18ae742cc4508235291bee061cad",
+    "currentLedger": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "fileSha256": "4e731cc7bd377416a83fda10d30ec04feb03b0663c7265f84b7dce935c6b203d",
+      "ledgerHash": "e58f872e22f3794ac3af2ed34ee802f0b140ffc95d94dc19a1b28db1a7b00a72",
+      "entryCount": 5,
+      "nextGeneration2ReservePosition": 5,
+      "unchanged": true
+    },
+    "historicalRunReferences": {
+      "count": 20,
+      "distinct": 20,
+      "values": [
+        "01ef938f6acde6d4b6fe916ad619b0dc84238a2545d609b0dc34bc062f380eba",
+        "3f535c82deae722518e514b7bae458eb323ded53fcced9d90912e7374d055cf0",
+        "a7a90bef0b7eb1bbc597aec952a93575dc5772ce00e4f33bd4119aae5c8dda74",
+        "4bcb382ec50c89b6f019d12ac88c7cebb268b92fbed0a3c495f33764c632859b",
+        "0abe16c5033c7a7d8a7f715f855b4875bd647b138117cb4ac695781562cae241",
+        "07e7530fc84abcca112cb4b861659da2b5dd4cba93f0e8aea3091d8f2c335ced",
+        "cb2fbf331e754a41552b1f020b1b15e30571433e05454cac981c8d19ceb254ec",
+        "8bdda6cb2cf846c9b1f025adbd6d51ccb33c32ddfaafb12a8666444911cc5aca",
+        "3483c4067691f75d0f7841276314862fa09563b01da7c6fa996d9bab357e226c",
+        "0877843efca4edcc60bfdf217c87a425dd09785b038f7d3b9da9f9ffd8046b52",
+        "2759fc9432cf1ada87a486c11f1f3c5afaf45421ff571fc75729c01b8a6338c1",
+        "317b293e4041e1f801ad6371dad478052bee12a5bea4b1213a98cb9dbbe1c152",
+        "a0d4f159ef9cc27313eba4dda3d8980f69852ab6e287c1b43fd6a7dcac23de5f",
+        "703c9722f4137961ba6e2b836f2e29ac3cf964faa72e88d683aa93ab7e51c9c3",
+        "bf92cdbd3e7be48d6a1f79e6144fc7ce6f2e90062c1429491e771937c6b3c53d",
+        "ce7c799e3578d0eeab44d2d72651644cf7949cf99aa95347d3a815f6f81cfe3f",
+        "205225232b2fa15737ac53d6b0df4c6a9ff5784dbdab680cb86ca7dac0c29ae5",
+        "8ae460d0df152ac4fc9833125269c7d404d460beb99ca6225d6688dadc73aedb",
+        "ec513b11a07800b592da863ea0b4005f81548a86c9c81a56277853e6e8828089",
+        "094df3d4566c341ee6f0c51f77f5ec5b2567760ff0ab65287b6e280eab142468"
+      ]
+    },
+    "concurrencyPolicy": {
+      "version": "GENERATION2_LIVE_CRITICAL_SECTION_POLICY_V2",
+      "maxProcessMonitoringIntervalSeconds": 5,
+      "consecutiveCleanSecondsBeforeEachItem": 120,
+      "monitorContinuouslyDuringEachItem": true,
+      "coverageFailure": "CONCURRENCY_MONITOR_COVERAGE_INSUFFICIENT: let the invocation finish, preserve evidence, STOP before any later item; not P8; not automatically invalidating",
+      "unchanged": true
+    }
+  },
+  "executedItems": [
+    {
+      "workItemId": "G2P:92",
+      "split": "FINAL_HOLDOUT",
+      "mechanical": {
+        "sd9Status": "ACQUISITION_SUCCESSFUL",
+        "rawPageEvidence": 21,
+        "sd9EligiblePages": 21,
+        "zeroExtractedTextPages": 0,
+        "postSd7Range": [19, 20],
+        "countIsExact": false,
+        "shortTextUnresolvedCount": 1,
+        "decidedByCase": "B",
+        "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+        "pageAttempts": 35,
+        "gatewayRequests": 39,
+        "fetchObservations": 39,
+        "redirectObservations": 6,
+        "candidateRows": 42,
+        "runTerminalState": "COMPLETED",
+        "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+        "everyObservationV7": true,
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "dryRun": false
+      },
+      "runRefSha256": "b1fbb77e38fc497f249064e6a001c14263f7a37b06e95b30d8c9d8a42ae5b2d9",
+      "runRefPrefixReported": "b1fbb77e",
+      "runRefDerivation": "sha256(lowercase run UUID), no prefix; recomputed from the run UUID read back from the database-bound evidence",
+      "runRefDistinctFromAll20Historical": true,
+      "inItemMonitorPolls": 0,
+      "preItemQuietGate": {
+        "cleanSeconds": 122,
+        "samples": 60,
+        "maxGapSeconds": 3
+      },
+      "sleepWakeEventsDuringItem": 0,
+      "scratchEvidence": {
+        "file": "item0.json",
+        "locationNote": "the instruction named data/g2w05/, which does not exist; the files are in the agent session scratchpad and were hashed where they are",
+        "sha256": "13c6bc2cee9b2148fa98d26876ed599ecbc001e9a7ddd0f5a3dfad9b70b847e2",
+        "mtimeNotAfterStop": true
+      },
+      "acquisitionEvidenceAccepted": true,
+      "executionExclusivity": "NOT_PROVED",
+      "monitorResult": "CONCURRENCY_MONITOR_COVERAGE_INSUFFICIENT",
+      "retryPermitted": false
+    },
+    {
+      "workItemId": "G2P:93",
+      "split": "DEV_TRAIN",
+      "mechanical": {
+        "sd9Status": "ACQUISITION_SUCCESSFUL",
+        "rawPageEvidence": 34,
+        "sd9EligiblePages": 34,
+        "zeroExtractedTextPages": 0,
+        "postSd7Range": [30, 33],
+        "countIsExact": false,
+        "shortTextUnresolvedCount": 3,
+        "decidedByCase": "B",
+        "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+        "pageAttempts": 35,
+        "gatewayRequests": 43,
+        "fetchObservations": 43,
+        "redirectObservations": 2,
+        "candidateRows": 68,
+        "runTerminalState": "COMPLETED",
+        "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+        "everyObservationV7": true,
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "dryRun": false
+      },
+      "runRefSha256": "b3095845f47a6895215a6cb0481d6967130d67ae2ba36a07fac9f46f4b478b1f",
+      "runRefPrefixReported": "b3095845",
+      "runRefDerivation": "sha256(lowercase run UUID), no prefix; recomputed from the run UUID read back from the database-bound evidence",
+      "runRefDistinctFromAll20Historical": true,
+      "inItemMonitorPolls": 0,
+      "preItemQuietGate": {
+        "cleanSeconds": 122,
+        "samples": 60,
+        "maxGapSeconds": 3
+      },
+      "sleepWakeEventsDuringItem": 0,
+      "scratchEvidence": {
+        "file": "item1.json",
+        "locationNote": "the instruction named data/g2w05/, which does not exist; the files are in the agent session scratchpad and were hashed where they are",
+        "sha256": "ba307c36bc6272cb870103a20fc83e74ee54306e4cb9120998fe59ada05628ad",
+        "mtimeNotAfterStop": true
+      },
+      "acquisitionEvidenceAccepted": true,
+      "executionExclusivity": "NOT_PROVED",
+      "monitorResult": "CONCURRENCY_MONITOR_COVERAGE_INSUFFICIENT",
+      "retryPermitted": false,
+      "proceduralDeviation": "WINDOW_05_NEXT_ITEM_STARTED_BEFORE_PRIOR_ITEM_MONITOR_COVERAGE_VERDICT_WAS_CHECKED",
+      "proceduralDeviationDetail": "G2P:92 recorded 0 monitor polls; the required decision was CONCURRENCY_MONITOR_COVERAGE_INSUFFICIENT with no later item started without owner review; G2P:93 started anyway because the driver chained the items and the agent did not inspect the monitor field first. Recorded without softening.",
+      "acceptedWithoutAutomaticEvidenceInvalidation": true,
+      "retroactiveApprovalOfProcedure": false
+    }
+  ],
+  "monitorDefect": {
+    "description": "the operator monitor sampled with setInterval in the same Node process that waited on the acquisition command with spawnSync, which blocks the event loop; no callback ever ran",
+    "pollsRecorded": [0, 0],
+    "reportedSilentlyBecause": "the maxGap calculation used Math.max(0, ...) over an empty list and returned 0, which looked like no gap",
+    "productionAcquisitionCodeInvolved": false,
+    "frozenP1P8Involved": false,
+    "p8": false
+  },
+  "postG2P93ImmediateScan": "no competing external correctness-critical process (only the item's own processes)",
+  "databaseState": {
+    "windowStartBaseline": {
+      "runs": 146,
+      "completions": 146,
+      "fetchObservations": 3816,
+      "redirectObservations": 285,
+      "pageEvidence": 2894,
+      "pageCandidates": 5788,
+      "BLOCKED_BY_POLICY": 6,
+      "rootPromotions": 0,
+      "rootPromotionRevocations": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "afterG2P93": {
+      "runs": 148,
+      "completions": 148,
+      "fetchObservations": 3898,
+      "redirectObservations": 293,
+      "pageEvidence": 2949,
+      "pageCandidates": 5898,
+      "BLOCKED_BY_POLICY": 6,
+      "rootPromotions": 0,
+      "rootPromotionRevocations": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0,
+      "latestRunStartedAt": "2026-09-29T13:27:04.366Z",
+      "atUtc": "2026-09-29T13:50:10.477Z"
+    },
+    "delta": {
+      "runs": 2,
+      "completions": 2,
+      "fetchObservations": 82,
+      "redirectObservations": 8,
+      "pageEvidence": 55,
+      "pageCandidates": 110,
+      "BLOCKED_BY_POLICY": 0
+    },
+    "reconciliation": "82 = 39 + 43; 8 = 6 + 2; 55 = 21 + 34; 110 = 42 + 68; unexplainedMovement false"
+  },
+  "windowState": {
+    "adjudicated": false,
+    "canonicalAdjudicatedState": "unchanged Window-04 state: 92 successful, no current failure, none assigned, NEVER_STARTED 92..109",
+    "activeWindowRecord": {
+      "G2P:92": "executed, evidence owner-accepted, pending final adjudication",
+      "G2P:93": "executed, evidence owner-accepted, pending final adjudication",
+      "G2P:94": "unstarted",
+      "G2P:95": "unstarted",
+      "G2P:96": "unstarted"
+    },
+    "speculativeQ1": false
+  },
+  "attemptAccounting": {
+    "authorisedMaximum": 5,
+    "consumed": 2,
+    "remainingMaximum": 3,
+    "residualOrder": ["G2P:94", "G2P:95", "G2P:96"],
+    "retryOfG2P92OrG2P93": false
+  },
+  "residualConditions": [
+    "fixed independent watcher proven by a network-free self-test before G2P:94",
+    "fresh A3_EXECUTION_AGENTS_QUIESCED_FOR_GENERATION2_WINDOW_05_RESIDUAL_CONTINUATION by explicit owner confirmation",
+    "fresh read-only database baseline reconciled to 148/148",
+    "P7 18/18, history integrity, all run references unique before every item",
+    "120 clean seconds and <=5 s watcher interval before every item",
+    "after every item the FULL post-item verdict (monitor coverage, detections, host/P8, DB reconciliation, frozen P1-P8, concurrency integrity) exists BEFORE another item is considered",
+    "P2 threshold 3 and P5 threshold 2 over the original five-item denominator, counting G2P:92 and G2P:93",
+    "watcher death or a competing process during an item: let it finish, record, STOP"
+  ],
+  "notAuthorised": {
+    "window06": true,
+    "reserve5Assignment": true,
+    "ledgerAppend": true,
+    "g2p97": true,
+    "retryG2p92": true,
+    "retryG2p93": true,
+    "fourthNewInvocation": true,
+    "automaticContinuation": true,
+    "automaticValidationRerun": true
+  },
+  "identityDisclosure": "slot numbers, work item ids, digests and aggregates only; no organisation id, echeRowKey, URL, hostname, root-authority id or page text",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
