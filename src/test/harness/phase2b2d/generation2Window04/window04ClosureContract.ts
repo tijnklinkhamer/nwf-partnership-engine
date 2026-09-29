@@ -81,10 +81,20 @@ export const WINDOW04_POST_CORRECTION_VALIDATION: {
   readonly exitCode: number;
   readonly testFiles: string;
   readonly tests: string;
-} | null = null;
+} | null = {
+  kind: 'POST_CORRECTION_REPOSITORY_SOFTWARE_INTEGRITY_VALIDATION',
+  command: 'caffeinate -dimsu npm run validate',
+  headValidated: 'e2a38dac1c42419c65feaa5d4d6c267b2ca4d381',
+  worktreeCleanAtLaunch: true,
+  startUtc: '2026-09-29T12:09:45Z',
+  endUtc: '2026-09-29T12:13:56Z',
+  exitCode: 0,
+  testFiles: '217 passed | 5 skipped (222)',
+  tests: '5427 passed | 81 skipped (5508)',
+};
 
 /** `date -u` when the adjudication was rendered; `null` until then. */
-export const WINDOW04_ADJUDICATION_RECORDED_AT_UTC: string | null = null;
+export const WINDOW04_ADJUDICATION_RECORDED_AT_UTC: string | null = '2026-09-29T12:14:08Z';
 
 /** Asserted ONLY after independent derivation; the builders never read it to compute. */
 export const EXPECTED_WINDOW_04_CLOSURE = {

@@ -1,0 +1,487 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_04_EVIDENCE_ADJUDICATION_V1",
+  "recordKind": "GENERATION2_WINDOW_EVIDENCE_ADJUDICATION",
+  "recordedAtUtc": "2026-09-29T12:14:08Z",
+  "recordedAtUtcSource": "date -u, read from the shell after the post-correction software-integrity validation",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "startingHead": "e2a38dac1c42419c65feaa5d4d6c267b2ca4d381",
+  "networkUsedByThisRecord": false,
+  "databaseWrittenByThisRecord": false,
+  "ledgerAppendedByThisRecord": false,
+  "reserveAssignedByThisRecord": false,
+  "bound": {
+    "liveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_RESULT_V1.json",
+      "sha256": "89b2aac217502133e7cbd75a9144f81637a03ef3be906cdebd03d1edb30e22f4",
+      "bytes": 24090,
+      "commit": "8efe11c290b24d17bde24f61914a19698986f108"
+    },
+    "authority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_AUTHORITY_V1.json",
+      "sha256": "bb24c26a8f2816a2cba584edb3726254bd72b1a8b979ca3cf9348effae1802a5",
+      "bytes": 31894,
+      "commit": "05ffde6e8bcbbd2456ae1ccf69f43a7a41c2fcba",
+      "ownerDecision": "APPROVE_GENERATION2_WINDOW_04_EXACTLY_ONE_FIVE_PRIMARY_LIVE_WINDOW_V1",
+      "originalBytesUnchanged": true
+    },
+    "authorityShapeCorrection": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_OWNER_SHAPE_CORRECTION_AND_ADJUDICATION_RULING_V1.json",
+      "sha256": "0635507f90bd4c928de4ccf1a4fd0535ed74731d5e7471e69ad7c18b5bd73640",
+      "bytes": 8690,
+      "commit": "cb0e19612ad77eb4c70821ad98281dff62d08b93",
+      "ownerRuling": "APPROVE_PINNED_WINDOW04_AUTHORITY_STARTING_LEDGER_FIELD_ALIAS_CORRECTION_V1",
+      "sourceField": "boundLedger",
+      "canonicalField": "boundStartingLedger",
+      "suppliedExplicitlyWithWindow04": true,
+      "validatedByTheGenericBridge": true
+    },
+    "offlineReadiness": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_OFFLINE_READINESS_V1.json",
+      "sha256": "4c60b09e3d11e41274be12bc8ef421c6f6a1d0fde18a768ccee1c1d609876287",
+      "commit": "dba0b60496a2f5cf26a7974e60add8f5c35e93f7"
+    },
+    "stopAudit": {
+      "path": "docs/audits/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_ACQUISITION_AND_ADJUDICATION_V1.md",
+      "sha256": "fa59265262e5ba7c71850b8489eac92a803cc28c26ede4f748e8ca1aaa49dd05",
+      "commit": "e63f500c36e6b38e04807cf1b4fe43eab72a8388"
+    },
+    "ledger": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "fileSha256": "4e731cc7bd377416a83fda10d30ec04feb03b0663c7265f84b7dce935c6b203d",
+      "bytes": 7645,
+      "ledgerHash": "e58f872e22f3794ac3af2ed34ee802f0b140ffc95d94dc19a1b28db1a7b00a72",
+      "entryCount": 5,
+      "nextGeneration2ReservePosition": 5,
+      "unchangedByTheWindow": true,
+      "noAppendByThisWindow": true,
+      "appendCommit": "29a521e9cfbda84f17b0d1fd9429148daa5e889a"
+    },
+    "startingLedgerRevision": {
+      "commit": "29a521e9cfbda84f17b0d1fd9429148daa5e889a",
+      "fileSha256": "4e731cc7bd377416a83fda10d30ec04feb03b0663c7265f84b7dce935c6b203d",
+      "ledgerHash": "e58f872e22f3794ac3af2ed34ee802f0b140ffc95d94dc19a1b28db1a7b00a72",
+      "entryCount": 5,
+      "identicalToCurrent": true,
+      "readFromAuthorityField": "boundLedger (through the pinned correction)"
+    },
+    "adjudicationHistoryBefore": {
+      "windows": [
+        {
+          "windowOrdinal": 1,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_AUTHORITY_V1.json",
+            "commit": "219f6d4a1cb869e9253a9701d48543a88f80f0ab",
+            "sha256": "e4874f7e84a184bd473b75f15dba0fd90700d4bb33ec0093593de90f4dea38ba"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_RESULT_V1.json",
+            "commit": "41bbedad759c26f1cb1e110bfdd07e1599809178",
+            "sha256": "7162938e6f8ba5f7808075f58021b540244b2b5a0b05d61db0812cfd4d8102d0"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_EVIDENCE_ADJUDICATION_V1.json",
+            "commit": "b281bf3b1dfc25c4540c6b17c1e8b97db468a77d",
+            "sha256": "89e4f166e56292374d3cf1aa2fe8037225770d48193ae619a32a1d4c7f1df5df"
+          },
+          "startingLedgerRevision": {
+            "commit": "40b6b0f40a7ae13b00fbf064ed8143996c926f1d",
+            "fileSha256": "b16a6ba8ec879c6f06008849aa3a79d79fc24e6de054180bc0d1b27a18d74a01"
+          }
+        },
+        {
+          "windowOrdinal": 2,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_AUTHORITY_V1.json",
+            "commit": "da659b586c05870f08f5af56d8816365a5203fa0",
+            "sha256": "e2cb65b5a7d3b35391718e255fef4db926bcfe88020f392ac93f79981392bba2"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_RESULT_V1.json",
+            "commit": "d074c0647136b45ee094b2d46a98ee2110db5102",
+            "sha256": "68852cbca3de127bb0a5442863cc99d2c3b72a5a69700c5fc5ac619fbc29b4ae"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_EVIDENCE_ADJUDICATION_V1.json",
+            "commit": "c6f6cf6dd1609115858a7dc039d1919bdb4153e4",
+            "sha256": "2e35cad7951aed780151b97400ea3b7e9fd78d4bfdec252f83d0652702bbdc8d"
+          },
+          "startingLedgerRevision": {
+            "commit": "a768cf9b632ceaa76ccd3781d4554b5e92820981",
+            "fileSha256": "cb36ba532e5fed379cebfa52bd22e6ce2e7b5fe70a28dab85f0c5e8ffe36a387"
+          },
+          "ledgerAppendCommit": "0ad42da8751ea5d18b88860dd3f764d4c655dce5"
+        },
+        {
+          "windowOrdinal": 3,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_AUTHORITY_V1.json",
+            "commit": "a39309f489aef60ae43ff4d179b9150dc5caf6c0",
+            "sha256": "aaa61ce72b9a5b943928f879f68daa06ea612aacfd5117310d54bd14cfa65478"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_RESULT_V1.json",
+            "commit": "17398aaf44b33d831ab9fb8c23b17b0d529da160",
+            "sha256": "c9654a837dde1c7c86a90c505b8cc1d5e6fcae1edc8a593981328576944e42ec"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_EVIDENCE_ADJUDICATION_V1.json",
+            "commit": "8f4bc2185ce7b0010b1dd96fe22b016c9500b9b0",
+            "sha256": "8d59cb2a1e2d6f3b447767a8c56078111658dbd07818e098fd363c153fe33ef0"
+          },
+          "startingLedgerRevision": {
+            "commit": "0ad42da8751ea5d18b88860dd3f764d4c655dce5",
+            "fileSha256": "68762e9df208dfbff296ab5ec953b76fe931f030bd82cf17632165dbae80f26c"
+          },
+          "ledgerAppendCommit": "29a521e9cfbda84f17b0d1fd9429148daa5e889a"
+        }
+      ],
+      "passedExplicitlyToEveryStateSpecAndReplayCall": true,
+      "noDirectoryScanGlobOrLatest": true
+    }
+  },
+  "validation": {
+    "ownerRuling": "ACCEPT_WINDOW04_EXISTING_EXCLUSIVE_VALIDATION_FOR_ADJUDICATION_V1",
+    "carriedOverFrom": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_OWNER_SHAPE_CORRECTION_AND_ADJUDICATION_RULING_V1.json (governedValidationCarryOver)",
+    "command": "caffeinate -dimsu npm run validate",
+    "runs": 1,
+    "automaticRerun": false,
+    "headValidated": "8efe11c290b24d17bde24f61914a19698986f108",
+    "worktreeCleanAtLaunch": true,
+    "startUtc": "2026-09-29T11:38:57Z",
+    "endUtc": "2026-09-29T11:43:30Z",
+    "exitCode": 0,
+    "testFiles": "215 passed | 5 skipped (220)",
+    "tests": "5375 passed | 75 skipped (5450)",
+    "ancestrySamplerSelfTest": "PASS",
+    "samplesTotal": 870,
+    "samplesWithinValidation": 542,
+    "maxGapSecondsWithinValidation": 0.527,
+    "competingShapedIdentities": 99,
+    "GOVERNED_VALIDATION_DESCENDANT_PROVED": 99,
+    "EXTERNAL_COMPETING_PROCESS": 0,
+    "ANCESTRY_UNPROVED": 0,
+    "exclusivityVerdict": "VALIDATION_EXECUTION_EXCLUSIVITY_PROVED",
+    "secondGovernedValidationRun": false,
+    "result": "WINDOW_04_VALIDATION_ACCEPTED",
+    "basis": "the one governed validate at the LIVE_RESULT commit, exit 0, execution exclusivity proved by same-snapshot ancestry; carried over unchanged under the owner ruling, never replaced or reclassified"
+  },
+  "postCorrectionSoftwareIntegrityValidation": {
+    "kind": "POST_CORRECTION_REPOSITORY_SOFTWARE_INTEGRITY_VALIDATION",
+    "command": "caffeinate -dimsu npm run validate",
+    "headValidated": "e2a38dac1c42419c65feaa5d4d6c267b2ca4d381",
+    "worktreeCleanAtLaunch": true,
+    "startUtc": "2026-09-29T12:09:45Z",
+    "endUtc": "2026-09-29T12:13:56Z",
+    "exitCode": 0,
+    "testFiles": "217 passed | 5 skipped (222)",
+    "tests": "5427 passed | 81 skipped (5508)",
+    "isGovernedWindow04Validation": false,
+    "provesOnly": "the generic-bridge correction code and its tests are green"
+  },
+  "orderOfRules": "integrity first (CLEAN on every item), then SD9 eligibility (main_text_chars > 0), exact SD7 -> near SD7, the frozen SD9 minimum of 4 distinct post-SD7 pages on the exact or determinate count, then (failures only) the landed Q3 precedence",
+  "items": [
+    {
+      "workItemId": "G2P:87",
+      "selectionIndex": 87,
+      "split": "FINAL_HOLDOUT",
+      "kind": "PRIMARY",
+      "generation2ReserveRankPosition": null,
+      "identityDigest": "5ce8f5168f58509d4277786321afb45f9452b8aee2f615d13073f435a37a726a",
+      "runRefSha256": "ce7c799e3578d0eeab44d2d72651644cf7949cf99aa95347d3a815f6f81cfe3f",
+      "integrity": {
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "sleepEventsDuringItem": 0,
+        "itemPreflightAllGreen": true,
+        "inItemConcurrencyWatch": "CLEAN (20 polls, 0 detections)",
+        "verdict": "CLEAN"
+      },
+      "bridge": {
+        "rawPageEvidenceCount": 20,
+        "sd9EligiblePageCount": 18,
+        "zeroExtractedTextPageCount": 2,
+        "postSd7Range": [14, 14],
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "decidedByCase": "B",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_SUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "q3Reason": null,
+        "sd9": "post-SD7 [14,14] exact, at or above 4"
+      }
+    },
+    {
+      "workItemId": "G2P:88",
+      "selectionIndex": 88,
+      "split": "DEV_TRAIN",
+      "kind": "PRIMARY",
+      "generation2ReserveRankPosition": null,
+      "identityDigest": "389f21a5bdcfb94a91aa780570b7587d9a367bfa6d51c7b7cbfc2fe618562160",
+      "runRefSha256": "205225232b2fa15737ac53d6b0df4c6a9ff5784dbdab680cb86ca7dac0c29ae5",
+      "integrity": {
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "sleepEventsDuringItem": 0,
+        "itemPreflightAllGreen": true,
+        "inItemConcurrencyWatch": "CLEAN (40 polls, 0 detections)",
+        "verdict": "CLEAN"
+      },
+      "bridge": {
+        "rawPageEvidenceCount": 35,
+        "sd9EligiblePageCount": 35,
+        "zeroExtractedTextPageCount": 0,
+        "postSd7Range": [34, 35],
+        "countIsExact": false,
+        "shortTextUnresolvedCount": 1,
+        "decidedByCase": "B",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_SUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "q3Reason": null,
+        "sd9": "post-SD7 [34,35] not exact; the lower bound already meets the minimum, so the SD9 decision is determinate, at or above 4"
+      }
+    },
+    {
+      "workItemId": "G2P:89",
+      "selectionIndex": 89,
+      "split": "DEV_CONFIRM",
+      "kind": "PRIMARY",
+      "generation2ReserveRankPosition": null,
+      "identityDigest": "e600ca18d932711ef86627e1d58a4ed64121b5937f7219890d901e8682dc8cf1",
+      "runRefSha256": "8ae460d0df152ac4fc9833125269c7d404d460beb99ca6225d6688dadc73aedb",
+      "integrity": {
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "sleepEventsDuringItem": 0,
+        "itemPreflightAllGreen": true,
+        "inItemConcurrencyWatch": "CLEAN (21 polls, 0 detections)",
+        "verdict": "CLEAN"
+      },
+      "bridge": {
+        "rawPageEvidenceCount": 34,
+        "sd9EligiblePageCount": 34,
+        "zeroExtractedTextPageCount": 0,
+        "postSd7Range": [34, 34],
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "decidedByCase": "B",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_SUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "q3Reason": null,
+        "sd9": "post-SD7 [34,34] exact, at or above 4"
+      }
+    },
+    {
+      "workItemId": "G2P:90",
+      "selectionIndex": 90,
+      "split": "FINAL_HOLDOUT",
+      "kind": "PRIMARY",
+      "generation2ReserveRankPosition": null,
+      "identityDigest": "2be628d9fedc350c82b2b022cd29ad2f1e55e879153ec96b0207c77e201fbfe7",
+      "runRefSha256": "ec513b11a07800b592da863ea0b4005f81548a86c9c81a56277853e6e8828089",
+      "integrity": {
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "sleepEventsDuringItem": 0,
+        "itemPreflightAllGreen": true,
+        "inItemConcurrencyWatch": "CLEAN (9 polls, 0 detections)",
+        "verdict": "CLEAN"
+      },
+      "bridge": {
+        "rawPageEvidenceCount": 8,
+        "sd9EligiblePageCount": 5,
+        "zeroExtractedTextPageCount": 3,
+        "postSd7Range": [4, 4],
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "decidedByCase": "B",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_SUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "q3Reason": null,
+        "sd9": "post-SD7 [4,4] exact, at or above 4"
+      }
+    },
+    {
+      "workItemId": "G2P:91",
+      "selectionIndex": 91,
+      "split": "DEV_CONFIRM",
+      "kind": "PRIMARY",
+      "generation2ReserveRankPosition": null,
+      "identityDigest": "aa413b1081a7a504887635d6445fe6e9bdab0ad9c65778dddfd6c8a3ae7e6f8c",
+      "runRefSha256": "094df3d4566c341ee6f0c51f77f5ec5b2567760ff0ab65287b6e280eab142468",
+      "integrity": {
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "sleepEventsDuringItem": 0,
+        "itemPreflightAllGreen": true,
+        "inItemConcurrencyWatch": "CLEAN (21 polls, 0 detections)",
+        "verdict": "CLEAN"
+      },
+      "bridge": {
+        "rawPageEvidenceCount": 33,
+        "sd9EligiblePageCount": 33,
+        "zeroExtractedTextPageCount": 0,
+        "postSd7Range": [30, 30],
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "decidedByCase": "B",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_SUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "q3Reason": null,
+        "sd9": "post-SD7 [30,30] exact, at or above 4"
+      }
+    }
+  ],
+  "windowSummary": {
+    "executed": 5,
+    "authorised": 5,
+    "acquisitionSuccessful": [87, 88, 89, 90, 91],
+    "acquisitionUnsuccessful": [],
+    "pauseFired": false,
+    "finalGateDecision": "WINDOW_COMPLETE"
+  },
+  "generation2StateBefore": {
+    "ACQUISITION_SUCCESSFUL": 87,
+    "CURRENT_ACQUISITION_FAILURE": [],
+    "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION": [],
+    "NEVER_STARTED": {
+      "from": 87,
+      "to": 109,
+      "count": 23
+    },
+    "q1": [],
+    "ledgerEntryCount": 5,
+    "nextGeneration2ReservePosition": 5
+  },
+  "generation2StateAfter": {
+    "ACQUISITION_SUCCESSFUL": 92,
+    "acquisitionSuccessfulBySplit": {
+      "DEV_TRAIN": 17,
+      "DEV_CONFIRM": 38,
+      "FINAL_HOLDOUT": 37
+    },
+    "CURRENT_ACQUISITION_FAILURE": [],
+    "currentFailureBySplit": {
+      "DEV_TRAIN": 0,
+      "DEV_CONFIRM": 0,
+      "FINAL_HOLDOUT": 0
+    },
+    "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION": [],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "CARRY_FORWARD_REFUSED": [],
+    "NEVER_STARTED": {
+      "from": 92,
+      "to": 109,
+      "count": 18,
+      "bySplit": {
+        "DEV_TRAIN": 3,
+        "DEV_CONFIRM": 7,
+        "FINAL_HOLDOUT": 8
+      }
+    },
+    "accounting": "92 successful + 0 failed + 0 assigned + 0 pending + 18 never started = 110",
+    "derivation": "COMPARISON TARGET only: replayGeneration2History over the explicit four-window history (Window 01 -> 02 -> 03 -> 04 with its pinned authority-shape correction) and the committed five-entry ledger re-derives every field and refuses on any difference (requireSummaryAgreement)"
+  },
+  "q1After": [],
+  "q1AfterReasons": [],
+  "pendingReplacementObligations": [],
+  "ledgerAfter": {
+    "entryCount": 5,
+    "ledgerHash": "e58f872e22f3794ac3af2ed34ee802f0b140ffc95d94dc19a1b28db1a7b00a72",
+    "nextGeneration2ReservePosition": 5,
+    "unchanged": true
+  },
+  "reserves": {
+    "generation2Consumed": 5,
+    "nextGeneration2ReservePosition": 5,
+    "reserve5Assigned": false,
+    "scheduleSize": 5670
+  },
+  "p6": {
+    "rule": "reserveConsumed > 10 AND successfulOrganisationCount < 50",
+    "reserveConsumed": 5,
+    "successfulOrganisationCount": 92,
+    "fires": false
+  },
+  "p5": {
+    "fired": false,
+    "windowLowYieldCount": 0,
+    "threshold": 2,
+    "window02RulingNotReused": true
+  },
+  "operatorExecutionChannelAnomaly": {
+    "item": "G2P:88",
+    "classification": "OPERATOR_EXECUTION_CHANNEL_FAILURE_DURING_LIVE_ITEM",
+    "ownerRuling": "CONFIRM_WINDOW04_G2P88_CONTINUE_MITIGATED_NOTIFICATION_ONLY_V1",
+    "confirms": "CONTINUE_MITIGATED",
+    "ownerRulingScope": "Window-04-specific; not a precedent",
+    "effectOnTheInvocation": "none: never interrupted, retried or duplicated; one CLI invocation, exit 0, one run, one completion row; DB delta reconciles exactly; in-item monitor clean",
+    "laterItemMitigation": "each item completion proven ONLY by its own end/exit marker AND the absence of its wrapper and CLI in the process table (await.sh), before any post-item evaluation",
+    "evidenceInvalidated": false,
+    "convertsItemToFailure": false,
+    "requiresRetry": false,
+    "isP8": false
+  },
+  "pauseDisposition": "no frozen pause fired (final gate WINDOW_COMPLETE); no concurrency-integrity, monitor-coverage or P8 event; one notification-only operator execution-channel anomaly during G2P:88, ruled CONTINUE_MITIGATED and confirmed by the owner (Window-04-specific, not a precedent)",
+  "runReferences": {
+    "historicalWindow01To03": 15,
+    "window04": 5,
+    "globallyUnique": true,
+    "rule": "GENERATION2_HISTORICAL_RUN_REFERENCE_IS_GLOBALLY_UNIQUE_ACROSS_ALL_ADJUDICATED_WINDOWS_V1",
+    "gate": "the generic assessAdjudicationHistoryIntegrity over the explicit history (three windows before, four after)"
+  },
+  "authorityConsumption": "the Window-04 authority is fully consumed (5 of 5 invocations, 0 retries); it authorises nothing further",
+  "identityDisclosure": "slot numbers, work item ids, digests, run-reference hashes and aggregates only; no organisation id, echeRowKey, URL, hostname, root-authority id or page text",
+  "terminalState": "PHASE_2B_2D_A2_GENERATION2_WINDOW_04_ADJUDICATED_AUTHORITY_CONSUMED_STOPPED",
+  "nextOwnerDecision": "Generation 2 stands at 92 / 110 successful with Q1 [] and 18 never-started primaries (92..109). The next Generation-2 reserve is 5, unassigned. No Window-05 readiness, authority or reserve assignment exists or is precommitted here; any further acquisition needs a new owner decision",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
