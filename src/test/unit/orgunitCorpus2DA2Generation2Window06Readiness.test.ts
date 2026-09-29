@@ -111,6 +111,8 @@ function terminalCommit(): string | null {
   return commits.length === 0 ? null : commits[commits.length - 1]!;
 }
 const TERMINAL = terminalCommit();
+/** The commit that landed this readiness task; its historical claims are bounded to it. */
+const WINDOW06_READINESS_TERMINAL_COMMIT = '35beff7c80c14c5198a9cc9bb22ec7d5f9fd53ac';
 /** Bytes as this task left them: its terminal commit, else the working tree. */
 const readState = (path: string): string =>
   TERMINAL === null ? readFileSync(join(REPO, path), 'utf8') : git('show', `${TERMINAL}:${path}`);
@@ -568,12 +570,15 @@ describe('Generation-2 Window 06 offline readiness: replayed state', () => {
     expect(CURRENT_TEXT).toBe(at(WINDOW06_READINESS_STARTING_HEAD));
     expect(READINESS.prospectiveLedgerText).not.toBe(CURRENT_TEXT);
     expect(READINESS.prospectiveLedgerText.startsWith('{')).toBe(true);
+    // Bounded to the readiness terminal: the later, separately authorised
+    // pre-network append (f3c0227) must not turn this historical claim red.
+    expect(TERMINAL).toBe(WINDOW06_READINESS_TERMINAL_COMMIT);
     expect(
       git(
         'diff',
         '--name-only',
         WINDOW06_READINESS_STARTING_HEAD,
-        'HEAD',
+        WINDOW06_READINESS_TERMINAL_COMMIT,
         '--',
         GENERATION2_LEDGER_PATH,
       ),
