@@ -1,0 +1,259 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_07_MID_WINDOW_P5_OWNER_RULING_V1",
+  "recordKind": "GENERATION2_OWNER_RULING",
+  "scope": "WINDOW_07_ONLY",
+  "recordedAtUtc": "2026-09-30T09:57:50Z",
+  "recordedAtUtcSource": "date -u, read from the shell when this ruling was written",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "003a9afd1720f858f721957dc029cd1a95e1c6c2",
+  "publicSafe": true,
+  "isLiveAuthority": false,
+  "ownerDecisions": [
+    "ACCEPT_WINDOW_07_P5_AS_VALID_MID_WINDOW_PAUSE_V1",
+    "PRESERVE_WINDOW_07_EXECUTED_PREFIX_TWO_OF_FIVE_AND_UNSTARTED_SUFFIX_V1",
+    "TERMINATE_WINDOW_07_LIVE_AUTHORITY_WITH_THREE_UNUSED_INVOCATIONS_FORFEITED_V1",
+    "APPROVE_EXACTLY_ONE_WINDOW_07_POST_P5_GOVERNED_VALIDATION_V1",
+    "APPROVE_WINDOW_07_PARTIAL_ADJUDICATION_AFTER_CLEAN_EXCLUSIVE_VALIDATION_V1"
+  ],
+  "thisFileAuthorises": [
+    "APPROVE_EXACTLY_ONE_WINDOW_07_POST_P5_GOVERNED_VALIDATION_V1: exactly ONE governed closure validation (caffeinate -dimsu npm run validate) at the commit that adds this ruling, after a fresh >= 120 s clean quiescence (ALL_EXTERNAL_CORRECTNESS_CRITICAL_EXECUTION_QUIESCED_FOR_GENERATION2_WINDOW_07_PARTIAL_P5_CLOSURE_VALIDATION) under an independent watcher; no rerun",
+    "APPROVE_WINDOW_07_PARTIAL_ADJUDICATION_AFTER_CLEAN_EXCLUSIVE_VALIDATION_V1: the partial Window-07 adjudication of exactly G2R:96:7 and G2R:99:8, ONLY if that validation is accepted (exit 0 and execution exclusivity proved) and the explicit seven-window replay is clean"
+  ],
+  "networkAuthorised": false,
+  "acquisitionAuthorised": false,
+  "continuationAcquisitionAuthorised": false,
+  "ledgerMutationAuthorised": false,
+  "reserveAssignmentAuthorised": false,
+  "bound": {
+    "window07OfflineReadiness": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_OFFLINE_READINESS_V1.json",
+      "commit": "01bdf99cb159c374314eefe94a8de0996ec9c0b4",
+      "sha256": "9dae703707d2863344ae449d0a873f8898bc19eee782b5ef3c9f197792ed2595",
+      "bytes": 76680
+    },
+    "window07LiveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_LIVE_AUTHORITY_V1.json",
+      "commit": "73fc2c8b3e2f14def6ba7861cb7d2ba49ef402a6",
+      "sha256": "726f78369af5fa5bb177a934c8c81e1bb317c04026dbf30575be4bb613db6020",
+      "bytes": 61160,
+      "ownerDecisions": [
+        "APPROVE_GENERATION2_WINDOW_07_COMPLETE_Q1_PRE_NETWORK_APPEND_V1",
+        "APPROVE_GENERATION2_WINDOW_07_EXACTLY_ONE_FIVE_ITEM_LIVE_WINDOW_V1",
+        "APPROVE_GENERATION2_WINDOW_07_ONE_POST_WINDOW_VALIDATION_AND_CONDITIONAL_ADJUDICATION_V1"
+      ]
+    },
+    "nineEntryLedger": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "commit": "987086b2ddc5164ce704728d360abe99e7e84e55",
+      "sha256": "196c85c4c3655900cc3f5330af7ca8d28365df8407883c60ccb35436c445dca8",
+      "bytes": 10185,
+      "ledgerHash": "3aac5a5e809e831c8131c59ad34120248cbf3df294ca417daf36742bc254c621",
+      "entryCount": 9,
+      "nextGeneration2ReservePosition": 9,
+      "reserve9Assigned": false
+    },
+    "window07LiveResultV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_LIVE_RESULT_V1.json",
+      "commit": "003a9afd1720f858f721957dc029cd1a95e1c6c2",
+      "sha256": "41614f01a213a22203fbb655ead9df888727b4f7740e96e74389156cc9582734",
+      "bytes": 22592,
+      "terminalState": "PHASE_2B_2D_A2_GENERATION2_WINDOW_07_PAUSED_P5_AFTER_2_OF_5_AWAITING_OWNER_REVIEW_NO_VALIDATION_RUN",
+      "hardenedContract": "PASS (validateGeneration2LiveResultForHistory, 2 executed items, itemsNotStarted = the exact unexecuted suffix)"
+    },
+    "postWindow06Hardening": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_POST_WINDOW_06_HARDENING_V1.json",
+      "commit": "58815855173d3b246ddc04b408cade7ac2056567",
+      "sha256": "e15ce8f00898c507dbcefae9dbf6808b6e1aad0d7a1f4566de756dc6412a0274",
+      "bytes": 17351
+    },
+    "commitChain": [
+      "01bdf99cb159c374314eefe94a8de0996ec9c0b4 (readiness)",
+      "73fc2c8b3e2f14def6ba7861cb7d2ba49ef402a6 (authority only)",
+      "987086b2ddc5164ce704728d360abe99e7e84e55 (canonical Generation-2 ledger only)",
+      "003a9afd1720f858f721957dc029cd1a95e1c6c2 (LIVE_RESULT V1 only)"
+    ]
+  },
+  "p5Review": {
+    "fired": true,
+    "decision": "PAUSE_P5_LOW_RAW_YIELD",
+    "firedAfterItemOrdinal": 2,
+    "firedAfterWorkItem": "G2R:99:8",
+    "arm": "raw pages < 4 on 2 of 5 planned items (> 30%)",
+    "denominator": 5,
+    "denominatorRule": "the frozen planned window size 5; P5 is NOT recalculated over the 2 completed items",
+    "threshold": 2,
+    "lowYieldCount": 2,
+    "lowYieldItems": ["G2R:96:7", "G2R:99:8"],
+    "executedPrefix": ["G2R:96:7", "G2R:99:8"],
+    "unstartedSuffix": ["G2P:100", "G2P:101", "G2P:102"],
+    "remainsTrue": true,
+    "waived": false,
+    "weakened": false,
+    "retroactivelyReclassified": false,
+    "treatedAsEngineDefect": false,
+    "inferenceAboutRemainingCorpus": "NONE: no inference is made that the remaining corpus shares this low-yield pattern",
+    "lowYieldCausesAreMateriallyDifferent": {
+      "G2R:96:7": "host / transport reachability failure: ROBOTS_UNREADABLE_ROOT after one gateway request that ended TLS_FAILURE, no usable HTTP response; Q3 ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "G2R:99:8": "reachable and fetched (3 successful observations) but NO_ELIGIBLE_HTML: zero raw page evidence; Q3 ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+    }
+  },
+  "executedItems": [
+    {
+      "workItemId": "G2R:96:7",
+      "invocations": 1,
+      "cliExitCode": 0,
+      "runTerminalState": "COMPLETED",
+      "runRefSha256": "4b588bec767e5a3ca124973522478a36f39b5f038b6c52ded452caf13eb41daa",
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "fetchObservationsByErrorKind": {
+        "TLS_FAILURE": 1
+      },
+      "rawPageEvidenceCount": 0,
+      "sd9EligiblePageCount": 0,
+      "postSd7Range": [0, 0],
+      "mechanicalVerdict": "ACQUISITION_UNSUCCESSFUL",
+      "q3ReasonMechanical": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "databaseDelta": {
+        "runs": 1,
+        "completions": 1,
+        "fetchObservations": 1
+      },
+      "executionExclusivity": "PROVED",
+      "external": 0,
+      "ancestryUnproved": 0,
+      "maxWatcherGapSeconds": 0.51,
+      "monitorCoverage": "SATISFIED",
+      "remainsValidEvidence": true
+    },
+    {
+      "workItemId": "G2R:99:8",
+      "invocations": 1,
+      "cliExitCode": 0,
+      "runTerminalState": "COMPLETED",
+      "runRefSha256": "b76c70766435f78e5034a98e7340e49d6c73f0278de960ca028f0723d878b708",
+      "rootTerminalReason": "NO_ELIGIBLE_HTML",
+      "fetchObservationsByErrorKind": {
+        "NONE": 3
+      },
+      "rawPageEvidenceCount": 0,
+      "sd9EligiblePageCount": 0,
+      "postSd7Range": [0, 0],
+      "mechanicalVerdict": "ACQUISITION_UNSUCCESSFUL",
+      "q3ReasonMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "databaseDelta": {
+        "runs": 1,
+        "completions": 1,
+        "fetchObservations": 3
+      },
+      "executionExclusivity": "PROVED",
+      "external": 0,
+      "ancestryUnproved": 0,
+      "maxWatcherGapSeconds": 0.505,
+      "monitorCoverage": "SATISFIED",
+      "remainsValidEvidence": true
+    }
+  ],
+  "authorityTermination": {
+    "window07LiveAuthorityTerminated": true,
+    "invocationsAuthorised": 5,
+    "used": 2,
+    "retries": 0,
+    "unused": 3,
+    "unusedForfeited": true,
+    "unusedTransferable": false,
+    "forfeitedWorkItems": ["G2P:100", "G2P:101", "G2P:102"],
+    "sameWindowResume": false,
+    "theseItemsRemain": "NEVER_STARTED: not success, not failure, not assigned, not pending; being named in the Window-07 authority does not consume them"
+  },
+  "databaseReconciliation": {
+    "database": "nwf_pe (acquisition)",
+    "before": {
+      "runs": 156,
+      "completions": 156,
+      "fetchObservations": 4097,
+      "redirectObservations": 299,
+      "pageEvidence": 3101,
+      "pageCandidates": 6202,
+      "BLOCKED_BY_POLICY": 6
+    },
+    "after": {
+      "runs": 158,
+      "completions": 158,
+      "fetchObservations": 4101,
+      "redirectObservations": 299,
+      "pageEvidence": 3101,
+      "pageCandidates": 6202,
+      "BLOCKED_BY_POLICY": 6
+    },
+    "delta": {
+      "runs": 2,
+      "completions": 2,
+      "fetchObservations": 4,
+      "redirectObservations": 0,
+      "pageEvidence": 0,
+      "pageCandidates": 0,
+      "BLOCKED_BY_POLICY": 0
+    },
+    "unexplainedMovement": false,
+    "testDatabaseNotAcquisitionEvidence": "nwf_pe_test counts are never acquisition evidence"
+  },
+  "databaseRestartEvent": {
+    "facts": [
+      "before the Window-07 authority was written, the acquisition database container nwf_pe_postgres was found stopped",
+      "the owner explicitly authorised restarting it on its existing volume",
+      "after the restart the acquisition database baseline was verified read-only (nwf_readonly on nwf_pe)",
+      "that baseline exactly matched the canonical Window-06 endpoint (156 / 156 / 4097 / 299 / 3101 / 6202 / 6)",
+      "therefore no unexplained acquisition-state movement was observed"
+    ],
+    "causeEstablished": false,
+    "causeStatement": "UNKNOWN: the cause of the stop is not independently evidenced (docker events returned no stop event for the container; only its FinishedAt 2026-09-30T09:01:34Z was observed)",
+    "priorWordingCorrection": "the committed Window-07 authority (databasePreflight.note) and LIVE_RESULT V1 (concurrency.acquisitionDatabaseContainerNote) describe the container as stopped \"by another local session\"; that causal attribution is NOT evidenced and is NOT canonical. Those records stay byte-immutable; this ruling supersedes only that phrase",
+    "reclassifiesP5": false
+  },
+  "historicalPrecedent": {
+    "precedentOnly": true,
+    "isWindow07Authority": false,
+    "records": {
+      "liveResult": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_04_LIVE_RESULT_V1.json",
+        "commit": "e9a99c3434f09b3cadc0700a84a47cda26fd2e80",
+        "sha256": "fd07cbd949e0c7db87b1bbc76f3190d44fb0a93fd9218ed674f3e97c7effba64",
+        "bytes": 24916
+      },
+      "adjudication": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_POST_VANTAGE_RECOVERY_WINDOW_04_EVIDENCE_ADJUDICATION_V1.json",
+        "commit": "f44689b7e01f35aae4979172d12c474cc18dcd69",
+        "sha256": "58f9fe2b1ea57754bc20247875b9e44951808ccf622c3044bf113f2c1403f70a",
+        "bytes": 19977
+      },
+      "p5ReviewAndResume": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_POST_WINDOW_04_P5_REVIEW_AND_CORPUS_ACQUISITION_RESUME_V1.json",
+        "commit": "b9248ab00be140217a6e4e144a6bdf334f33b411",
+        "sha256": "31482acb1daac08fc15b7de5e9b92c4d2e054a9182de2e87eb18e4c7c730d2f8",
+        "bytes": 24447
+      }
+    },
+    "facts": "Generation-1 post-vantage-recovery Window 04: planned 5, stopped after 3 on P5 (denominator 5), the 2 remaining items were never started and created no acquisition outcome, the 3 started items were adjudicated, the old live authority was not resumed, and a later owner decision created NEW bounded continuation authority",
+    "carriedPrinciple": "a mid-window P5 pause closes the current live window at the executed prefix; continuation, if any, requires a NEW owner decision after adjudication"
+  },
+  "notAuthorised": {
+    "continuationAcquisition": true,
+    "window07Resume": true,
+    "g2p100": true,
+    "g2p101": true,
+    "g2p102": true,
+    "retry": true,
+    "q1Append": true,
+    "reserve9Assignment": true,
+    "reserve10Assignment": true,
+    "window08Readiness": true,
+    "window08Authority": true,
+    "p5Waiver": true,
+    "secondValidation": true,
+    "automaticValidationRerun": true
+  },
+  "nextOwnerTask": "WINDOW_07_P5_REVIEW_AND_CONTINUATION_DECISION, after the committed partial adjudication; any cadence change (for example primary-only continuation) needs its own explicit owner decision",
+  "identityDisclosure": "slot numbers, work item ids, digests, run-reference hashes and aggregates only; no organisation id, echeRowKey, URL, hostname, root-authority id or page text",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
