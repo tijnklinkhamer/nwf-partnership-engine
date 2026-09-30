@@ -1,0 +1,109 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_09_CONCURRENCY_SCOPE_OWNER_CLARIFICATION_V1",
+  "recordKind": "GENERATION2_OWNER_RULING",
+  "task": "GENERATION2_WINDOW_09_RESIDUAL_CONTINUATION_AFTER_PREITEM_CONCURRENCY_STOP",
+  "createdBeforeAnyFurtherInstitutionNetworkActivity": true,
+  "recordedAtUtc": "2026-09-30T14:02:49Z",
+  "recordedAtUtcSource": "date -u, read from the shell when this clarification was written",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "ea084b984bce47964d624c0f0adde36f82298b6e",
+  "publicSafe": true,
+  "appendOnly": true,
+  "isLiveAuthority": false,
+  "scope": "WINDOW_09_RESIDUAL_CONTINUATION_ONLY",
+  "supplements": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_CONCURRENCY_PRECONDITION_OWNER_RULING_V1.json",
+    "commit": "ea084b984bce47964d624c0f0adde36f82298b6e",
+    "sha256": "0d4279961e8b8e4472070f0d6bc87f68946406e241424e1e6d5deec107c6b118",
+    "bytes": 15039,
+    "edited": false,
+    "note": "the precondition owner ruling stays byte-identical; this record narrows only the concurrency SCOPE used by its residual quiet gate and in-item monitoring"
+  },
+  "ownerDecisions": [
+    "CLARIFY_WINDOW_09_CONCURRENCY_SCOPE_TO_ENGINE_AND_SHARED_ACQUISITION_STATE_V1",
+    "CLASSIFY_NWF_REPOSITORY_TEST_ACTIVITY_AS_NON_BLOCKING_ISOLATED_EXTERNAL_ACTIVITY_V1",
+    "APPROVE_WINDOW_09_RESIDUAL_CONTINUATION_WITH_ENGINE_SCOPED_QUIET_GATE_V1"
+  ],
+  "priorInterpretation": "machine-wide: any vitest / npm test / npm validate shaped process in any repository disqualified the quiet gate",
+  "priorInterpretationWasTooBroad": true,
+  "correctedScope": {
+    "blockingDefinition": "a process blocks the Window-09 quiet gate or in-item exclusivity only if it can affect the correctness boundary of this Engine task",
+    "blockingCriteria": [
+      "its cwd is inside the NWF Partnership Engine repository or any of its worktrees",
+      "it reads or writes Engine task artifacts in a correctness-critical way",
+      "it starts an Engine acquisition, evaluation, validation or other Engine correctness-critical command",
+      "it accesses or mutates the live acquisition database nwf_pe outside the governed Window-09 execution",
+      "it is a descendant or ancestor of another competing Engine correctness-critical process",
+      "it otherwise demonstrably shares mutable state on which this Window-09 live execution depends"
+    ],
+    "unknownOrSharedStateEngineActivity": "FAILS_CLOSED",
+    "unrelatedRepositoryTestsAreNotBlockersMerelyForRunningTests": true
+  },
+  "knownIsolatedExternalActivity": {
+    "classification": "KNOWN_ISOLATED_EXTERNAL_ACTIVITY",
+    "blocking": false,
+    "identity": "npm test / vitest process trees whose cwd is the worktree wt-dutch-v2-db-impl of the separate NewWave Fluent application repository (git common dir newwavefluent/.git), launched by a separate interactive Claude session",
+    "mayRunInParallel": true,
+    "mustNotBeClassifiedAs": [
+      "EXTERNAL_COMPETING_PROCESS",
+      "ANCESTRY_UNPROVED",
+      "CONCURRENCY_INTEGRITY_PRECONDITION_NOT_SATISFIED"
+    ],
+    "isolationConditionsCheckedEveryPoll": [
+      "cwd inside that worktree and outside every Engine repository/worktree path",
+      "command references no Engine repository/worktree path",
+      "same-snapshot process chain contains no Engine correctness-critical process",
+      "no open TCP connection to the local Engine PostgreSQL listener (127.0.0.1:55432, which serves nwf_pe)"
+    ],
+    "ifAnyIsolationConditionFails": "the process is counted as competing (fail closed)",
+    "doNotStopPauseSignalOrInterfere": true
+  },
+  "operationalApplication": {
+    "where": "the local Window-09 operator watcher only (gitignored kit); no generic concurrency code, gate adapter or architecture change",
+    "watcherSelfTestExtendedWith": "an isolated-shaped probe in that worktree must classify KNOWN_ISOLATED_EXTERNAL_ACTIVITY and not count, while governed/orphan/external probes keep their prior verdicts",
+    "quietGate": {
+      "consecutiveCleanSecondsMin": 120,
+      "monitorIntervalSecondsMax": 5,
+      "shortened": false,
+      "freshPerItem": true
+    },
+    "permissionToRunInParallelIsNotProofOfCleanGate": true
+  },
+  "priorBlockerIntervention": "before this clarification, under an owner authorisation limited to the blocker TEST tree, SIGTERM was sent to one npm test / vitest run in that worktree; it exited and the separate session relaunched a new run about 8 s later; the separate session itself was never signalled; no further intervention is authorised",
+  "unchanged": {
+    "window09LiveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_LIVE_AUTHORITY_V1.json",
+      "commit": "38f14d98d6242be4f8e9560fc91bb8b258117cee",
+      "sha256": "97841c9a2c679b5adcd6673128353e4aa6e20b54d6474fb957bc9e2e63c61e51",
+      "bytes": 77058,
+      "windowSpecHash": "e2c7837660243dfb0420d97e2f72a59de7eb6b147fecba336a360029f8a8abdb"
+    },
+    "window09LiveResultV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_LIVE_RESULT_V1.json",
+      "commit": "be7dfc4b4810b8203c6c89e832dd79fe4b02c477",
+      "sha256": "15929837c73433bd338aba5028729e42e3f208f089dccf2220d3f0867a0a76f0",
+      "bytes": 28239
+    },
+    "ledger": {
+      "entryCount": 13,
+      "ledgerHash": "5a27fb02ddca755af5c7712c0de650028b0e7ef18b5b752cfd2170da0b7dd768",
+      "nextGeneration2ReservePosition": 13,
+      "reserve13": "UNASSIGNED",
+      "secondAppend": false
+    },
+    "executedPrefix": ["G2P:103", "G2P:104"],
+    "residualSuffix": ["G2P:105", "G2R:96:11", "G2R:99:12"],
+    "g2p105EverInvoked": false,
+    "p5": {
+      "denominator": 5,
+      "threshold": 2,
+      "windowLowYieldCount": 1,
+      "lowYieldItems": ["G2P:103"],
+      "reset": false
+    },
+    "retriesOfG2P103OrG2P104": false
+  },
+  "identityDisclosure": "work item ids, digests and aggregates only; no organisation id, echeRowKey, URL or hostname",
+  "immutability": "append-only. This record is never edited; a correction or ruling is a new record"
+}
