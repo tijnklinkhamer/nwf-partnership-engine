@@ -54,6 +54,7 @@ import {
   DEFAULT_WINDOW_EXECUTION_CADENCE,
   WINDOW_EXECUTION_CADENCES,
   cadenceOfAuthority,
+  orderByCadence,
   verifyWindowCadenceAuthority,
   type ApprovedWindowCadenceAuthority,
   type WindowCadenceAuthorityBinding,
@@ -246,7 +247,7 @@ describe('Generation-2 window execution cadence: historical non-regression', () 
       'PRIMARIES_THEN_Q1_REPLACEMENTS',
     ]);
     expect(DEFAULT_WINDOW_EXECUTION_CADENCE).toBe('Q1_REPLACEMENTS_THEN_PRIMARIES');
-    expect(APPROVED_WINDOW_CADENCE_AUTHORITIES.map((a) => a.windowOrdinal)).toEqual([8, 9, 10]);
+    expect(APPROVED_WINDOW_CADENCE_AUTHORITIES.map((a) => a.windowOrdinal)).toEqual([8, 9, 10, 12]);
     expect(DECISION.windowOrdinal).toBe(8);
   });
 
@@ -911,7 +912,11 @@ describe('Generation-2 window execution cadence: the separate Window-10 pin', ()
   };
 
   it('is exactly one more pin; the Window-08 and Window-09 pins are unchanged', () => {
-    expect(APPROVED_WINDOW_CADENCE_AUTHORITIES.map((a) => a.windowOrdinal)).toEqual([8, 9, 10]);
+    expect(
+      APPROVED_WINDOW_CADENCE_AUTHORITIES.filter((a) => a.windowOrdinal <= 10).map(
+        (a) => a.windowOrdinal,
+      ),
+    ).toEqual([8, 9, 10]);
     expect(W10).toEqual({
       windowOrdinal: 10,
       mode: 'PRIMARIES_THEN_Q1_REPLACEMENTS',
@@ -953,11 +958,15 @@ describe('Generation-2 window execution cadence: the separate Window-10 pin', ()
     expect(codeOf(() => verifyWindowCadenceAuthority(decision, 10))).toBe(
       'CADENCE_AUTHORITY_NOT_PINNED',
     );
-    for (const ordinal of [1, 2, 3, 4, 5, 6, 7, 11, 12]) {
+    for (const ordinal of [1, 2, 3, 4, 5, 6, 7, 11, 13]) {
       expect(codeOf(() => verifyWindowCadenceAuthority(w10(), ordinal))).toBe(
         'CADENCE_AUTHORITY_NOT_APPROVED',
       );
     }
+    // Window 12 has its own pin, so the Window-10 bytes are simply not it.
+    expect(codeOf(() => verifyWindowCadenceAuthority(w10(), 12))).toBe(
+      'CADENCE_AUTHORITY_NOT_PINNED',
+    );
     const b = w10();
     expect(codeOf(() => verifyWindowCadenceAuthority({ ...b, sha256: '0'.repeat(64) }, 10))).toBe(
       'CADENCE_AUTHORITY_NOT_PINNED',
@@ -1004,5 +1013,140 @@ describe('Generation-2 window execution cadence: the separate Window-10 pin', ()
     ]) {
       expect(forged(mutate)).toBe('CADENCE_AUTHORITY_NOT_ACCEPTED');
     }
+  });
+});
+
+describe('Generation-2 window execution cadence: the separate Window-12 pin', () => {
+  const W12 = APPROVED_WINDOW_CADENCE_AUTHORITIES.find((a) => a.windowOrdinal === 12)!;
+  const W10 = APPROVED_WINDOW_CADENCE_AUTHORITIES.find((a) => a.windowOrdinal === 10)!;
+  const w12Text = () => show(W12.commit, W12.path);
+  const w12 = (): WindowCadenceAuthorityBinding => {
+    const text = w12Text();
+    return { path: W12.path, commit: W12.commit, sha256: sha256(text), text };
+  };
+  const w10 = (): WindowCadenceAuthorityBinding => {
+    const text = show(W10.commit, W10.path);
+    return { path: W10.path, commit: W10.commit, sha256: sha256(text), text };
+  };
+
+  it('is exactly one more pin; no Window-11 pin; the 08/09/10 pins are unchanged', () => {
+    expect(APPROVED_WINDOW_CADENCE_AUTHORITIES.map((a) => a.windowOrdinal)).toEqual([8, 9, 10, 12]);
+    expect(APPROVED_WINDOW_CADENCE_AUTHORITIES.some((a) => a.windowOrdinal === 11)).toBe(false);
+    expect(W12).toEqual({
+      windowOrdinal: 12,
+      mode: 'PRIMARIES_THEN_Q1_REPLACEMENTS',
+      path: 'docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_P5_REVIEW_AND_WINDOW_12_CONTINUATION_DECISION_V1.json',
+      commit: '6dd2f7c737ebb016ffc6429cc9c85040a1312f66',
+      sha256: 'cdb755868e2887feeb12f3df63faad00ca861b36723fb6213e29bb0017c19008',
+      bytes: 11656,
+      ownerDecision: 'APPROVE_WINDOW_12_PRIMARY_FIRST_MIXED_EXECUTION_CADENCE_V1',
+      scope: 'WINDOW_12_CADENCE_ONLY',
+    });
+    expect(
+      APPROVED_WINDOW_CADENCE_AUTHORITIES.slice(0, 3).map((a) => [a.windowOrdinal, a.commit]),
+    ).toEqual([
+      [8, '2c20af702c3a9aed93e41f61c28d274f01c8351a'],
+      [9, '9deb681e6cb7f19ad4af0f677655f278ece6c149'],
+      [10, '7b226de931752dc70028b5e20e37fa5d7a925ca5'],
+    ]);
+    expect(sha256(w12Text())).toBe(W12.sha256);
+    expect(Buffer.byteLength(w12Text(), 'utf8')).toBe(W12.bytes);
+    expect(git('diff-tree', '--no-commit-id', '--name-only', '-r', W12.commit).trim()).toBe(
+      W12.path,
+    );
+    expect([...WINDOW_EXECUTION_CADENCES]).toHaveLength(2);
+    expect(DEFAULT_WINDOW_EXECUTION_CADENCE).toBe('Q1_REPLACEMENTS_THEN_PRIMARIES');
+  });
+
+  it('verifies only for window 12; Window 11 stays default and needs no decision', () => {
+    expect(verifyWindowCadenceAuthority(w12(), 12)).toEqual({
+      mode: 'PRIMARIES_THEN_Q1_REPLACEMENTS',
+      windowOrdinal: 12,
+      authority: {
+        path: W12.path,
+        commit: W12.commit,
+        sha256: W12.sha256,
+        bytes: W12.bytes,
+        ownerDecision: W12.ownerDecision,
+      },
+    });
+    for (const ordinal of [8, 9, 10]) {
+      expect(codeOf(() => verifyWindowCadenceAuthority(w12(), ordinal))).toBe(
+        'CADENCE_AUTHORITY_NOT_PINNED',
+      );
+    }
+    expect(codeOf(() => verifyWindowCadenceAuthority(w10(), 12))).toBe(
+      'CADENCE_AUTHORITY_NOT_PINNED',
+    );
+    for (const ordinal of [1, 2, 3, 4, 5, 6, 7, 11, 13, 14]) {
+      expect(codeOf(() => verifyWindowCadenceAuthority(w12(), ordinal))).toBe(
+        'CADENCE_AUTHORITY_NOT_APPROVED',
+      );
+    }
+    expect(cadenceOfAuthority({}, undefined, 11)).toBe(DEFAULT_WINDOW_EXECUTION_CADENCE);
+    expect(codeOf(() => cadenceOfAuthority({}, w12(), 11))).toBe(
+      'CADENCE_AUTHORITY_NOT_APPLICABLE',
+    );
+    const b = w12();
+    expect(codeOf(() => verifyWindowCadenceAuthority({ ...b, sha256: '0'.repeat(64) }, 12))).toBe(
+      'CADENCE_AUTHORITY_NOT_PINNED',
+    );
+    expect(
+      codeOf(() =>
+        verifyWindowCadenceAuthority(
+          { ...b, text: `${b.text} `, sha256: sha256(`${b.text} `) },
+          12,
+        ),
+      ),
+    ).toBe('CADENCE_AUTHORITY_NOT_PINNED');
+  });
+
+  it('the Window-12 decision cannot alter Q1, P5, membership or its own window', () => {
+    const forged = (mutate: (record: Json) => void) => {
+      const record = JSON.parse(w12Text()) as Json;
+      mutate(record);
+      const text = `${JSON.stringify(record, null, 2)}\n`;
+      const binding = { ...w12(), text, sha256: sha256(text) };
+      const approved = [{ ...W12, sha256: binding.sha256, bytes: Buffer.byteLength(text, 'utf8') }];
+      return codeOf(() => verifyWindowCadenceAuthority(binding, 12, approved));
+    };
+    expect(forged(() => undefined)).toBe('NO_REFUSAL');
+    for (const mutate of [
+      (r: Json) => {
+        r.executionCadence.isQ1Change = true;
+      },
+      (r: Json) => {
+        r.executionCadence.preserves.windowMembership = false;
+      },
+      (r: Json) => {
+        r.executionCadence.isP5Change = true;
+      },
+      (r: Json) => {
+        r.executionCadence.appliesToWindowOrdinals = [11, 12];
+      },
+      (r: Json) => {
+        r.scope = 'WINDOW_11_CADENCE_ONLY';
+      },
+      (r: Json) => {
+        r.liveAuthorityAuthorised = true;
+      },
+    ]) {
+      expect(forged(mutate)).toBe('CADENCE_AUTHORITY_NOT_ACCEPTED');
+    }
+  });
+
+  it('orders the same members primaries-first; the default order is unchanged', () => {
+    const replacements = ['G2R:107:16', 'G2R:103:17', 'G2R:106:18'];
+    const primaries = ['G2P:108', 'G2P:109'];
+    expect(
+      orderByCadence(replacements, primaries, verifyWindowCadenceAuthority(w12(), 12).mode),
+    ).toEqual(['G2P:108', 'G2P:109', 'G2R:107:16', 'G2R:103:17', 'G2R:106:18']);
+    expect(orderByCadence(replacements, primaries, DEFAULT_WINDOW_EXECUTION_CADENCE)).toEqual([
+      'G2R:107:16',
+      'G2R:103:17',
+      'G2R:106:18',
+      'G2P:108',
+      'G2P:109',
+    ]);
   });
 });

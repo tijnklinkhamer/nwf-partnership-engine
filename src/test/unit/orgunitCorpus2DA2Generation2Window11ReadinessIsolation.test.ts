@@ -155,7 +155,12 @@ describe('Phase 2B-2D A2 Generation-2 Window-11 offline readiness isolation', ()
   });
 
   it('the cadence table is still exactly Windows 08, 09 and 10; the default is unchanged', () => {
-    expect(APPROVED_WINDOW_CADENCE_AUTHORITIES.map((a) => [a.windowOrdinal, a.scope])).toEqual([
+    expect(
+      APPROVED_WINDOW_CADENCE_AUTHORITIES.filter((a) => a.windowOrdinal <= 11).map((a) => [
+        a.windowOrdinal,
+        a.scope,
+      ]),
+    ).toEqual([
       [8, 'WINDOW_08_CADENCE_ONLY'],
       [9, 'WINDOW_09_CADENCE_ONLY'],
       [10, 'WINDOW_10_CADENCE_ONLY'],

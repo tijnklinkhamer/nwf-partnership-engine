@@ -343,7 +343,11 @@ describe('Phase 2B-2D A2 Generation-2 Window-11 offline readiness', () => {
       window11CadenceAuthorityExists: false,
       window11CadencePinExists: false,
     });
-    expect(APPROVED_WINDOW_CADENCE_AUTHORITIES.map((a) => a.windowOrdinal)).toEqual([8, 9, 10]);
+    expect(
+      APPROVED_WINDOW_CADENCE_AUTHORITIES.filter((a) => a.windowOrdinal <= 11).map(
+        (a) => a.windowOrdinal,
+      ),
+    ).toEqual([8, 9, 10]);
     expect([record.bound.window11CadenceDecision, record.bound.window11CadencePin]).toEqual([
       null,
       null,

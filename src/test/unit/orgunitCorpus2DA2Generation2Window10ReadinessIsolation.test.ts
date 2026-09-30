@@ -217,7 +217,12 @@ describe('Phase 2B-2D A2 Generation-2 Window-10 offline readiness isolation', ()
 
   it('the cadence table: Windows 08, 09 and 10 pinned separately, no range, default unchanged', () => {
     expect(
-      APPROVED_WINDOW_CADENCE_AUTHORITIES.map((a) => [a.windowOrdinal, a.mode, a.commit, a.scope]),
+      APPROVED_WINDOW_CADENCE_AUTHORITIES.filter((a) => a.windowOrdinal <= 10).map((a) => [
+        a.windowOrdinal,
+        a.mode,
+        a.commit,
+        a.scope,
+      ]),
     ).toEqual([
       [
         8,
