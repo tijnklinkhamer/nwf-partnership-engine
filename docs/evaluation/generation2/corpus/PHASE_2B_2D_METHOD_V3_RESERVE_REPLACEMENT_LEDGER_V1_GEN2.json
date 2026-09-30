@@ -172,7 +172,35 @@
       "previousSequenceForSlot": null,
       "previousEntryHash": "62e97eda403406df436a962e99a19dcd3c36edfa5d532f0f3c524fb3f9fd3b6b",
       "entryHash": "b0504309ebf0d599ea7113f552f9d93450cb9f4705e6d53601aa4b3d3d7e9bd7"
+    },
+    {
+      "sequence": 7,
+      "selectionIndex": 96,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "D KONSTAN01|999866204",
+      "replacementEcheRowKey": "P VIANA-D01|998454563",
+      "generation2ReserveRankPosition": 7,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-30T09:08:52Z",
+      "replacedOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 6,
+      "previousEntryHash": "b0504309ebf0d599ea7113f552f9d93450cb9f4705e6d53601aa4b3d3d7e9bd7",
+      "entryHash": "dfa19916d76f572d65485cd073d337b5a552935ef49a9e38eaff1ecfca5ecc75"
+    },
+    {
+      "sequence": 8,
+      "selectionIndex": 99,
+      "split": "FINAL_HOLDOUT",
+      "replacedEcheRowKey": "E VIGO14|948992808",
+      "replacementEcheRowKey": "E LOGRONO16|956152281",
+      "generation2ReserveRankPosition": 8,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-30T09:08:52Z",
+      "replacedOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "dfa19916d76f572d65485cd073d337b5a552935ef49a9e38eaff1ecfca5ecc75",
+      "entryHash": "de7b2c7ed92ca7e253fd60955148135239611db1f10f8b698684eedb649de653"
     }
   ],
-  "ledgerHash": "02ab72faa20ce846df8ac40cd21f62f8814fa0e1e56d1b990b234ca5c814b65e"
+  "ledgerHash": "3aac5a5e809e831c8131c59ad34120248cbf3df294ca417daf36742bc254c621"
 }
