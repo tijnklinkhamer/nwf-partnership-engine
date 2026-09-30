@@ -1,0 +1,465 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_07_EVIDENCE_ADJUDICATION_V1",
+  "recordKind": "GENERATION2_WINDOW_EVIDENCE_ADJUDICATION",
+  "recordedAtUtc": "2026-09-30T10:07:22Z",
+  "recordedAtUtcSource": "date -u, read from the shell after the governed validation",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "startingHead": "adc0ec1f9c1e88bebe9f40385fe7753aff95a229",
+  "adjudicationScope": "PARTIAL_WINDOW_EXECUTED_PREFIX_ONLY",
+  "networkUsedByThisRecord": false,
+  "databaseWrittenByThisRecord": false,
+  "ledgerAppendedByThisRecord": false,
+  "reserveAssignedByThisRecord": false,
+  "bound": {
+    "liveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_LIVE_RESULT_V1.json",
+      "commit": "003a9afd1720f858f721957dc029cd1a95e1c6c2",
+      "sha256": "41614f01a213a22203fbb655ead9df888727b4f7740e96e74389156cc9582734",
+      "bytes": 22592,
+      "canonicalAdjudicationBinding": true,
+      "terminalState": "PHASE_2B_2D_A2_GENERATION2_WINDOW_07_PAUSED_P5_AFTER_2_OF_5_AWAITING_OWNER_REVIEW_NO_VALIDATION_RUN",
+      "hardenedContract": "PASS (validateGeneration2LiveResultForHistory, 2 executed items, stops.itemsNotStarted exact)"
+    },
+    "authority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_LIVE_AUTHORITY_V1.json",
+      "commit": "73fc2c8b3e2f14def6ba7861cb7d2ba49ef402a6",
+      "sha256": "726f78369af5fa5bb177a934c8c81e1bb317c04026dbf30575be4bb613db6020",
+      "bytes": 61160,
+      "ownerDecision": "APPROVE_GENERATION2_WINDOW_07_EXACTLY_ONE_FIVE_ITEM_LIVE_WINDOW_V1",
+      "ownerDecisions": [
+        "APPROVE_GENERATION2_WINDOW_07_COMPLETE_Q1_PRE_NETWORK_APPEND_V1",
+        "APPROVE_GENERATION2_WINDOW_07_EXACTLY_ONE_FIVE_ITEM_LIVE_WINDOW_V1",
+        "APPROVE_GENERATION2_WINDOW_07_ONE_POST_WINDOW_VALIDATION_AND_CONDITIONAL_ADJUDICATION_V1"
+      ],
+      "terminatedByOwnerRuling": true
+    },
+    "offlineReadiness": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_OFFLINE_READINESS_V1.json",
+      "commit": "01bdf99cb159c374314eefe94a8de0996ec9c0b4",
+      "sha256": "9dae703707d2863344ae449d0a873f8898bc19eee782b5ef3c9f197792ed2595",
+      "bytes": 76680
+    },
+    "midWindowP5OwnerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_MID_WINDOW_P5_OWNER_RULING_V1.json",
+      "commit": "adc0ec1f9c1e88bebe9f40385fe7753aff95a229",
+      "sha256": "dc1b6c3dcf8037f184e29d23613e6c3aa48c382119ceb9c9e1ab8633216192dd",
+      "bytes": 12276,
+      "decisions": [
+        "ACCEPT_WINDOW_07_P5_AS_VALID_MID_WINDOW_PAUSE_V1",
+        "PRESERVE_WINDOW_07_EXECUTED_PREFIX_TWO_OF_FIVE_AND_UNSTARTED_SUFFIX_V1",
+        "TERMINATE_WINDOW_07_LIVE_AUTHORITY_WITH_THREE_UNUSED_INVOCATIONS_FORFEITED_V1",
+        "APPROVE_EXACTLY_ONE_WINDOW_07_POST_P5_GOVERNED_VALIDATION_V1",
+        "APPROVE_WINDOW_07_PARTIAL_ADJUDICATION_AFTER_CLEAN_EXCLUSIVE_VALIDATION_V1"
+      ],
+      "scope": "WINDOW_07_ONLY"
+    },
+    "ledger": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "fileSha256": "196c85c4c3655900cc3f5330af7ca8d28365df8407883c60ccb35436c445dca8",
+      "bytes": 10185,
+      "ledgerHash": "3aac5a5e809e831c8131c59ad34120248cbf3df294ca417daf36742bc254c621",
+      "entryCount": 9,
+      "nextGeneration2ReservePosition": 9,
+      "commit": "987086b2ddc5164ce704728d360abe99e7e84e55",
+      "unchangedByTheWindow": true,
+      "noAppendByThisRecord": true
+    },
+    "adjudicationHistoryBefore": {
+      "windowCount": 6,
+      "windows": [
+        {
+          "windowOrdinal": 1,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_AUTHORITY_V1.json",
+            "sha256": "e4874f7e84a184bd473b75f15dba0fd90700d4bb33ec0093593de90f4dea38ba"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_RESULT_V1.json",
+            "sha256": "7162938e6f8ba5f7808075f58021b540244b2b5a0b05d61db0812cfd4d8102d0"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_EVIDENCE_ADJUDICATION_V1.json",
+            "sha256": "89e4f166e56292374d3cf1aa2fe8037225770d48193ae619a32a1d4c7f1df5df"
+          }
+        },
+        {
+          "windowOrdinal": 2,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_AUTHORITY_V1.json",
+            "sha256": "e2cb65b5a7d3b35391718e255fef4db926bcfe88020f392ac93f79981392bba2"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_RESULT_V1.json",
+            "sha256": "68852cbca3de127bb0a5442863cc99d2c3b72a5a69700c5fc5ac619fbc29b4ae"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_EVIDENCE_ADJUDICATION_V1.json",
+            "sha256": "2e35cad7951aed780151b97400ea3b7e9fd78d4bfdec252f83d0652702bbdc8d"
+          }
+        },
+        {
+          "windowOrdinal": 3,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_AUTHORITY_V1.json",
+            "sha256": "aaa61ce72b9a5b943928f879f68daa06ea612aacfd5117310d54bd14cfa65478"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_RESULT_V1.json",
+            "sha256": "c9654a837dde1c7c86a90c505b8cc1d5e6fcae1edc8a593981328576944e42ec"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_EVIDENCE_ADJUDICATION_V1.json",
+            "sha256": "8d59cb2a1e2d6f3b447767a8c56078111658dbd07818e098fd363c153fe33ef0"
+          }
+        },
+        {
+          "windowOrdinal": 4,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_AUTHORITY_V1.json",
+            "sha256": "bb24c26a8f2816a2cba584edb3726254bd72b1a8b979ca3cf9348effae1802a5"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_RESULT_V1.json",
+            "sha256": "89b2aac217502133e7cbd75a9144f81637a03ef3be906cdebd03d1edb30e22f4"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_EVIDENCE_ADJUDICATION_V1.json",
+            "sha256": "826f11851a6c000d3a314da2b6a4c31081014d29fdbdeb6012d157dae58b3dd8"
+          },
+          "authorityShapeCorrection": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_OWNER_SHAPE_CORRECTION_AND_ADJUDICATION_RULING_V1.json",
+            "sha256": "0635507f90bd4c928de4ccf1a4fd0535ed74731d5e7471e69ad7c18b5bd73640"
+          }
+        },
+        {
+          "windowOrdinal": 5,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_AUTHORITY_V1.json",
+            "sha256": "d88f741162bf27f6c290b2875edbeba522908c5545d6608b8d79b820ff701807"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_RESULT_V2.json",
+            "sha256": "6914f564726029ebf82ef9ea142279f9697d9adb68bf42bfad0ba359df748d26"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_EVIDENCE_ADJUDICATION_V1.json",
+            "sha256": "187eef89ed37f86e2f96c95e8772d9681ddcd944d04cff21961e4aaa63358642"
+          }
+        },
+        {
+          "windowOrdinal": 6,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_AUTHORITY_V1.json",
+            "sha256": "6d847d8175054ecf7f09e45b5ab8ba8e488e9f8ca99553e9ca2c420b4dc977e3"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_RESULT_V3.json",
+            "sha256": "9dee6861dabc5c997ed2d458fad7d346f6b7aa9a019d421439f8c2b242cb1af6"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_EVIDENCE_ADJUDICATION_V1.json",
+            "sha256": "845ca3a4bcd13409ac00dfc8b2a4224e9aee8ab08749aab523a8b7d478f5f340"
+          }
+        }
+      ],
+      "directoryDiscovery": false,
+      "latestLookup": false,
+      "glob": false
+    }
+  },
+  "validation": {
+    "exitCode": 0,
+    "result": "WINDOW_07_PARTIAL_P5_CLOSURE_VALIDATION_ACCEPTED",
+    "authorisedBy": "PHASE_2B_2D_A2_GENERATION2_WINDOW_07_MID_WINDOW_P5_OWNER_RULING_V1 (APPROVE_EXACTLY_ONE_WINDOW_07_POST_P5_GOVERNED_VALIDATION_V1)",
+    "command": "caffeinate -dimsu npm run validate",
+    "runs": 1,
+    "secondAttempt": false,
+    "headValidated": "adc0ec1f9c1e88bebe9f40385fe7753aff95a229",
+    "worktreeCleanAtLaunch": true,
+    "worktreeCleanAfter": true,
+    "freshQuiescence": "ALL_EXTERNAL_CORRECTNESS_CRITICAL_EXECUTION_QUIESCED_FOR_GENERATION2_WINDOW_07_PARTIAL_P5_CLOSURE_VALIDATION (consecutiveCleanSeconds=121.7 samples=243, interval 0.5 s, not reusing either item's pre-item gate)",
+    "startUtc": "2026-09-30T10:00:32Z",
+    "endUtc": "2026-09-30T10:06:34Z",
+    "durationSecondsWallClock": 362,
+    "testFiles": "224 passed | 5 skipped (229)",
+    "tests": "5679 passed | 76 skipped (5755)",
+    "vitestDuration": "337.03s (transform 3.67s, setup 0ms, import 92.33s, tests 228.00s, environment 13ms)",
+    "watcherSelfTest": "PASS (governed child proved; unrelated external and detached orphan detected; max gap 0.505 s)",
+    "samplesWithinValidation": 721,
+    "maxGapSecondsWithinValidation": 0.511,
+    "GOVERNED_VALIDATION_DESCENDANT_PROVED": 118,
+    "EXTERNAL_COMPETING_PROCESS": 0,
+    "ANCESTRY_UNPROVED": 0,
+    "competingPollsWithinValidation": 0,
+    "rootAbsentSamples": "1 (the first sample, 0.02 s after the whole-second start marker and before the root wrote its identity; 0 candidates, 0 competing)",
+    "hostSleepWakeEventsDuringValidation": 0,
+    "testDatabase": "integration suites use the configured *_TEST URLs (nwf_pe_test)",
+    "acquisitionDatabaseUnchanged": "nwf_pe read-only after validation: 158 / 158 / 4101 / 299 / 3101 / 6202 / 6, latest run 2026-09-30T09:15:12Z (the G2R:99:8 run)",
+    "exclusivityVerdict": "WINDOW_07_PARTIAL_P5_CLOSURE_VALIDATION_EXCLUSIVITY_PROVED",
+    "fullValidationRunsAfterThisRecord": 0
+  },
+  "orderOfRules": "integrity first (acquisition and execution integrity CLEAN on both executed items, exclusivity proved), then SD9 eligibility (main_text_chars > 0), exact SD7 -> near SD7, the frozen SD9 minimum of 4 distinct post-SD7 pages on the exact count, then (failures only) the landed Q3 precedence",
+  "items": [
+    {
+      "workItemId": "G2R:96:7",
+      "selectionIndex": 96,
+      "split": "DEV_CONFIRM",
+      "kind": "REPLACEMENT",
+      "generation2ReserveRankPosition": 7,
+      "identityDigest": "7c64217e9e26f199103a4a982f8de93c7ca0446cc02cfe804fb7880a68cebbcb",
+      "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "replacesOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+      "runRefSha256": "4b588bec767e5a3ca124973522478a36f39b5f038b6c52ded452caf13eb41daa",
+      "integrity": {
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "sleepEventsDuringItem": 0,
+        "itemPreflightAllGreen": true,
+        "inItemConcurrencyWatch": "CLEAN (4 samples, 0 external, 0 ancestry-unproved, max gap 0.51 s)",
+        "verdict": "CLEAN",
+        "verdictScope": "ACQUISITION_AND_EXECUTION_INTEGRITY",
+        "inItemExecutionExclusivity": "PROVED_BY_CONTINUOUS_INDEPENDENT_MONITORING",
+        "monitorCoverage": "SATISFIED"
+      },
+      "bridge": {
+        "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+        "fetchObservationsByErrorKind": {
+          "TLS_FAILURE": 1
+        },
+        "usableHttpResponseObtained": false,
+        "rawPageEvidenceCount": 0,
+        "sd9EligiblePageCount": 0,
+        "zeroExtractedTextPageCount": 0,
+        "postSd7Range": [0, 0],
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "decidedByCase": "A",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_UNSUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "q3Reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "sd9": "post-SD7 [0,0] exact, below 4",
+        "q3Basis": "landed replacementReasonFor over root ROBOTS_UNREADABLE_ROOT, blocking transport TLS_FAILURE, usable HTTP response false, post-SD7 0"
+      }
+    },
+    {
+      "workItemId": "G2R:99:8",
+      "selectionIndex": 99,
+      "split": "FINAL_HOLDOUT",
+      "kind": "REPLACEMENT",
+      "generation2ReserveRankPosition": 8,
+      "identityDigest": "a17768fa7390d3d3a9eccf46fc97a92472740add91a95b89d1aa9ebba9013de6",
+      "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "replacesOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+      "runRefSha256": "b76c70766435f78e5034a98e7340e49d6c73f0278de960ca028f0723d878b708",
+      "integrity": {
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "sleepEventsDuringItem": 0,
+        "itemPreflightAllGreen": true,
+        "inItemConcurrencyWatch": "CLEAN (3 samples, 0 external, 0 ancestry-unproved, max gap 0.505 s)",
+        "verdict": "CLEAN",
+        "verdictScope": "ACQUISITION_AND_EXECUTION_INTEGRITY",
+        "inItemExecutionExclusivity": "PROVED_BY_CONTINUOUS_INDEPENDENT_MONITORING",
+        "monitorCoverage": "SATISFIED"
+      },
+      "bridge": {
+        "rootTerminalReason": "NO_ELIGIBLE_HTML",
+        "fetchObservationsByErrorKind": {
+          "NONE": 3
+        },
+        "usableHttpResponseObtained": true,
+        "rawPageEvidenceCount": 0,
+        "sd9EligiblePageCount": 0,
+        "zeroExtractedTextPageCount": 0,
+        "postSd7Range": [0, 0],
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "decidedByCase": "A",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_UNSUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "q3Reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "sd9": "post-SD7 [0,0] exact, below 4",
+        "q3Basis": "landed replacementReasonFor over root NO_ELIGIBLE_HTML, blocking transport null, usable HTTP response true, post-SD7 0"
+      }
+    }
+  ],
+  "notAdjudicated": {
+    "workItems": ["G2P:100", "G2P:101", "G2P:102"],
+    "status": "NEVER_STARTED",
+    "notSuccess": true,
+    "notFailure": true,
+    "notAssigned": true,
+    "notPending": true,
+    "reason": "never run: the frozen P5 pause fired after item 2 and the owner terminated the Window-07 authority with three unused invocations forfeited; being named in the authority does not consume them"
+  },
+  "windowSummary": {
+    "executed": 2,
+    "authorised": 5,
+    "notStarted": 3,
+    "acquisitionSuccessful": [],
+    "acquisitionUnsuccessful": [96, 99],
+    "pauseFired": true,
+    "finalGateDecision": "PAUSE_P5_LOW_RAW_YIELD",
+    "pauseFirstFiredAfterItem": "G2R:99:8",
+    "allAuthorisedItemsFinishedBeforePauseFired": false
+  },
+  "generation2StateBefore": {
+    "ACQUISITION_SUCCESSFUL": 98,
+    "CURRENT_ACQUISITION_FAILURE": [],
+    "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION": [96, 99],
+    "NEVER_STARTED": {
+      "from": 100,
+      "to": 109,
+      "count": 10
+    },
+    "q1": [],
+    "ledgerEntryCount": 9,
+    "nextGeneration2ReservePosition": 9,
+    "note": "the state AFTER the pre-network append of sequences 7 and 8 and BEFORE any Window-07 item was adjudicated: slots 96 and 99 are assigned, awaiting execution"
+  },
+  "generation2StateAfter": {
+    "ACQUISITION_SUCCESSFUL": 98,
+    "acquisitionSuccessfulBySplit": {
+      "DEV_TRAIN": 18,
+      "DEV_CONFIRM": 40,
+      "FINAL_HOLDOUT": 40
+    },
+    "CURRENT_ACQUISITION_FAILURE": [96, 99],
+    "currentFailureBySplit": {
+      "DEV_TRAIN": 0,
+      "DEV_CONFIRM": 1,
+      "FINAL_HOLDOUT": 1
+    },
+    "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION": [],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "CARRY_FORWARD_REFUSED": [],
+    "NEVER_STARTED": {
+      "from": 100,
+      "to": 109,
+      "count": 10,
+      "bySplit": {
+        "DEV_TRAIN": 2,
+        "DEV_CONFIRM": 4,
+        "FINAL_HOLDOUT": 4
+      }
+    },
+    "accounting": "98 successful + 2 failed + 0 assigned + 0 pending + 10 never started = 110",
+    "derivation": "COMPARISON TARGET only: replayGeneration2History over the explicit seven-window history re-derives every field and refuses on any difference"
+  },
+  "q1After": [96, 99],
+  "q1AfterReasons": [
+    {
+      "selectionIndex": 96,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    },
+    {
+      "selectionIndex": 99,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+    }
+  ],
+  "pendingReplacementObligations": [96, 99],
+  "ledgerAfter": {
+    "entryCount": 9,
+    "ledgerHash": "3aac5a5e809e831c8131c59ad34120248cbf3df294ca417daf36742bc254c621",
+    "nextGeneration2ReservePosition": 9,
+    "unchanged": true
+  },
+  "reserves": {
+    "generation2Consumed": 9,
+    "nextGeneration2ReservePosition": 9,
+    "reserve9Assigned": false,
+    "reserves7And8": "consumed when sequences 7 and 8 were committed; the failed replacements at reserve positions 7 and 8 are not reusable"
+  },
+  "p6": {
+    "rule": "reserveConsumed > 10 AND successfulOrganisationCount < 50",
+    "reserveConsumed": 9,
+    "successfulOrganisationCount": 98,
+    "fires": false
+  },
+  "p2": {
+    "fired": false,
+    "threshold": 3,
+    "robotsRefusalCount": 1
+  },
+  "p5": {
+    "fired": true,
+    "decision": "PAUSE_P5_LOW_RAW_YIELD",
+    "arm": "raw pages < 4 on 2 of 5 planned items (> 30%)",
+    "firedAfterItem": 2,
+    "firstFiredAfterItem": "G2R:99:8",
+    "windowLowYieldCount": 2,
+    "threshold": 2,
+    "denominator": 5,
+    "lowYieldItems": ["G2R:96:7", "G2R:99:8"],
+    "remainingSuffixNeverStarted": ["G2P:100", "G2P:101", "G2P:102"],
+    "inheritedWaivers": [],
+    "ownerDisposition": "ACCEPT_WINDOW_07_P5_AS_VALID_MID_WINDOW_PAUSE_V1",
+    "stillFired": true,
+    "weakened": false,
+    "waived": false,
+    "reinterpreted": false,
+    "retrospectiveInvalidation": false,
+    "sameWindowResume": false,
+    "ownerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_MID_WINDOW_P5_OWNER_RULING_V1.json",
+      "commit": "adc0ec1f9c1e88bebe9f40385fe7753aff95a229",
+      "sha256": "dc1b6c3dcf8037f184e29d23613e6c3aa48c382119ceb9c9e1ab8633216192dd",
+      "bytes": 12276
+    }
+  },
+  "derivedNextQ1ComparisonOnly": {
+    "q1": [96, 99],
+    "plan": [
+      {
+        "selectionIndex": 96,
+        "generation2ReserveRankPosition": 9,
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+      },
+      {
+        "selectionIndex": 99,
+        "generation2ReserveRankPosition": 10,
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+      }
+    ],
+    "persisted": false,
+    "appended": false,
+    "note": "derived only; NOT appended; reserve 9 remains unassigned"
+  },
+  "runReferences": {
+    "historicalBeforeWindow07": 30,
+    "window07": 2,
+    "total": 32,
+    "distinct": 32,
+    "globallyUnique": true,
+    "rule": "GENERATION2_HISTORICAL_RUN_REFERENCE_IS_GLOBALLY_UNIQUE_ACROSS_ALL_ADJUDICATED_WINDOWS_V1",
+    "gate": "the generic assessAdjudicationHistoryIntegrity over the explicit seven-window history"
+  },
+  "authorityConsumption": "the Window-07 authority is TERMINATED by the owner ruling: 2 of 5 invocations used, 0 retries, 3 unused and forfeited; it authorises nothing further",
+  "identityDisclosure": "slot numbers, work item ids, digests, run-reference hashes and aggregates only; no organisation id, echeRowKey, URL, hostname, root-authority id or page text",
+  "terminalState": "PHASE_2B_2D_A2_GENERATION2_WINDOW_07_ADJUDICATED_PARTIAL_P5_AUTHORITY_TERMINATED_STOPPED",
+  "nextOwnerDecision": "WINDOW_07_P5_REVIEW_AND_CONTINUATION_DECISION: no Q1 append, reserve assignment, Window-08 readiness or authority, and no G2P:100 exists here; any continuation or cadence change needs a separate explicit owner decision",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
