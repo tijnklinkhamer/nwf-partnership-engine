@@ -256,7 +256,35 @@
       "previousSequenceForSlot": 10,
       "previousEntryHash": "0e63603a5a15593076ce1640945a6ab28a35f4bdfe179c305a405b2933bd0864",
       "entryHash": "38a7c89747854296901fc227cd5a54fab705a08f51337079a0934268821d44a6"
+    },
+    {
+      "sequence": 13,
+      "selectionIndex": 96,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "F CHOLET13|932004907",
+      "replacementEcheRowKey": "I MESSINA01|999662601",
+      "generation2ReserveRankPosition": 13,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-30T16:49:48Z",
+      "replacedOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 11,
+      "previousEntryHash": "38a7c89747854296901fc227cd5a54fab705a08f51337079a0934268821d44a6",
+      "entryHash": "cc964e95927ebe9a215975d573808d6becfb5f90d8597fad58d48e8fee377342"
+    },
+    {
+      "sequence": 14,
+      "selectionIndex": 103,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "E BARCELO31|945958842",
+      "replacementEcheRowKey": "E BARCELO29|953604188",
+      "generation2ReserveRankPosition": 14,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-09-30T16:49:48Z",
+      "replacedOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "cc964e95927ebe9a215975d573808d6becfb5f90d8597fad58d48e8fee377342",
+      "entryHash": "9e8bc5e23c26932dcd2c5cfa1ee536f93daaf09dbc813dae56547fc45b226f43"
     }
   ],
-  "ledgerHash": "5a27fb02ddca755af5c7712c0de650028b0e7ef18b5b752cfd2170da0b7dd768"
+  "ledgerHash": "14ede23eaadaa24e5b2de3c211f9da09456a2b300cae629fa12781beee76ff33"
 }
