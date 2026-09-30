@@ -1,0 +1,805 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_12_EVIDENCE_ADJUDICATION_V1",
+  "recordKind": "GENERATION2_WINDOW_EVIDENCE_ADJUDICATION",
+  "recordedAtUtc": "2026-09-30T21:58:54Z",
+  "recordedAtUtcSource": "date -u, read from the shell after the closure validation",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "startingHead": "793e0a6f512e4791a9b4ea5fb344e8c5086cf5df",
+  "adjudicationScope": "FULL_WINDOW_ALL_FIVE_EXECUTED_ITEMS",
+  "networkUsedByThisRecord": false,
+  "databaseWrittenByThisRecord": false,
+  "ledgerAppendedByThisRecord": false,
+  "reserveAssignedByThisRecord": false,
+  "executionCadence": {
+    "mode": "PRIMARIES_THEN_Q1_REPLACEMENTS",
+    "windowOrdinal": 12,
+    "authority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_P5_REVIEW_AND_WINDOW_12_CONTINUATION_DECISION_V1.json",
+      "commit": "6dd2f7c737ebb016ffc6429cc9c85040a1312f66",
+      "sha256": "cdb755868e2887feeb12f3df63faad00ca861b36723fb6213e29bb0017c19008",
+      "bytes": 11656,
+      "ownerDecision": "APPROVE_WINDOW_12_PRIMARY_FIRST_MIXED_EXECUTION_CADENCE_V1"
+    },
+    "pinCommit": "03407f112c052e52dd517256ff78658b74bb876b",
+    "verifyWindowCadenceAuthority": "PASS (window 12)",
+    "exactOrder": ["G2P:108", "G2P:109", "G2R:107:16", "G2R:103:17", "G2R:106:18"],
+    "executedOrder": ["G2P:108", "G2P:109", "G2R:107:16", "G2R:103:17", "G2R:106:18"],
+    "preserved": true,
+    "historicalCadenceAuthoritiesOnlyFor": [8, 9, 10, 12],
+    "window11": "DEFAULT (no cadence authority)"
+  },
+  "bound": {
+    "liveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_LIVE_RESULT_V1.json",
+      "commit": "b302438289fedf4b457fc21873e0c1fc3d4aa388",
+      "sha256": "c3be5776739f9d3135d877b70d175c06319a255d0c91968524451749e7b8ee2f",
+      "bytes": 46769,
+      "canonicalAdjudicationBinding": true,
+      "version": "V1",
+      "terminalState": "PHASE_2B_2D_A2_GENERATION2_WINDOW_12_STOPPED_AFTER_5_OF_5_AWAITING_OWNER_REVIEW_NO_VALIDATION_RUN",
+      "hardenedContract": "PASS (validateGeneration2LiveResultForHistory, 5 executed items, primary-first authority prefix = full order, stops.itemsNotStarted = [], no duplicate run refs, 0 retries)"
+    },
+    "authority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_LIVE_AUTHORITY_V1.json",
+      "commit": "5ee2afe80ac750e762243335c3c5097ac92a66aa",
+      "sha256": "522cb1c99b99b8d968fb2a8943f0e88b8a40e4096f39211adfa46cec951be009",
+      "bytes": 107052,
+      "ownerDecision": "APPROVE_GENERATION2_WINDOW_12_PRIMARY_FIRST_EXACTLY_ONE_FIVE_ITEM_LIVE_WINDOW_V1",
+      "ownerDecisions": [
+        "APPROVE_GENERATION2_WINDOW_12_TWO_ENTRY_Q1_PRE_NETWORK_APPEND_V1",
+        "PRESERVE_WINDOW_12_CARRY_IN_G2R107_16_WITHOUT_SECOND_ASSIGNMENT_V1",
+        "APPROVE_GENERATION2_WINDOW_12_PRIMARY_FIRST_EXACTLY_ONE_FIVE_ITEM_LIVE_WINDOW_V1",
+        "APPLY_WINDOW_12_ENGINE_AND_SHARED_ACQUISITION_STATE_CONCURRENCY_SCOPE_V1",
+        "APPROVE_GENERATION2_WINDOW_12_ONE_POST_WINDOW_VALIDATION_AND_CONDITIONAL_ADJUDICATION_V1"
+      ],
+      "fullyConsumed": true
+    },
+    "offlineReadiness": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_OFFLINE_READINESS_V1.json",
+      "commit": "7960b9d91ab8aefc1d7eb56d91fb3881dc9631c3",
+      "sha256": "055da8fb23c0a5193c32c2c4390cf0e0ae6b2e8971b64e7bf2bc36aaf7f2bf70",
+      "bytes": 40456
+    },
+    "cadenceDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_P5_REVIEW_AND_WINDOW_12_CONTINUATION_DECISION_V1.json",
+      "commit": "6dd2f7c737ebb016ffc6429cc9c85040a1312f66",
+      "sha256": "cdb755868e2887feeb12f3df63faad00ca861b36723fb6213e29bb0017c19008",
+      "bytes": 11656,
+      "scope": "WINDOW_12_CADENCE_ONLY"
+    },
+    "cadencePinCommit": "03407f112c052e52dd517256ff78658b74bb876b",
+    "carryInOwnerSemanticDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_CARRY_IN_ASSIGNED_REPLACEMENT_OWNER_SEMANTIC_DECISION_V1.json",
+      "commit": "c64a6c392c355c89003c7f3a41de2757473c5fd7",
+      "sha256": "a3c6aa018b39d78ce74b9bf077ce011d91a32dc19ae3bb78fb1a6f36b7d1f8a8",
+      "bytes": 7046
+    },
+    "carryInGenericRepairCommit": "020c5ed32759787442c21bf5a96cad8089caec70",
+    "postFinalP5OwnerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_POST_FINAL_P5_OWNER_RULING_V1.json",
+      "commit": "793e0a6f512e4791a9b4ea5fb344e8c5086cf5df",
+      "sha256": "234932f352d32ad884a506a64226a970ee9777724c6589ec7515c0607e5ed33a",
+      "bytes": 28846,
+      "decisions": [
+        "ACCEPT_WINDOW_12_P5_AS_VALID_POST_FINAL_ITEM_PAUSE_NO_EVIDENCE_INVALIDATION_V1",
+        "PRESERVE_WINDOW_12_P5_AS_FROZEN_GATE_PAUSE_AFTER_WINDOW_COMPLETION_V1",
+        "APPROVE_EXACTLY_ONE_WINDOW_12_POST_FINAL_P5_GOVERNED_VALIDATION_V1",
+        "APPROVE_WINDOW_12_ADJUDICATION_AFTER_CLEAN_EXCLUSIVE_VALIDATION_WITH_PRIMARY_FIRST_CADENCE_PRESERVED_V1"
+      ],
+      "scope": "WINDOW_12_ONLY"
+    },
+    "ledger": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "fileSha256": "73bfb3e488f3fbfa8c63bf763f818a65ad38b737ad250b014cdf0e5be726e33a",
+      "bytes": 16565,
+      "ledgerHash": "16d46662d015e3529f0b225d686e74233faeb8e0e05d94b44de58e7e5ca942a9",
+      "entryCount": 19,
+      "nextGeneration2ReservePosition": 19,
+      "commit": "51b865a58e23fb2ff5a1ab032f87b20417d75124",
+      "unchangedByTheWindow": true,
+      "noAppendByThisRecord": true
+    },
+    "adjudicationHistoryBefore": {
+      "windowCount": 11,
+      "windows": [
+        {
+          "windowOrdinal": 1,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_AUTHORITY_V1.json",
+            "sha256": "e4874f7e84a184bd473b75f15dba0fd90700d4bb33ec0093593de90f4dea38ba"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_RESULT_V1.json",
+            "sha256": "7162938e6f8ba5f7808075f58021b540244b2b5a0b05d61db0812cfd4d8102d0"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_EVIDENCE_ADJUDICATION_V1.json",
+            "sha256": "89e4f166e56292374d3cf1aa2fe8037225770d48193ae619a32a1d4c7f1df5df"
+          }
+        },
+        {
+          "windowOrdinal": 2,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_AUTHORITY_V1.json",
+            "sha256": "e2cb65b5a7d3b35391718e255fef4db926bcfe88020f392ac93f79981392bba2"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_RESULT_V1.json",
+            "sha256": "68852cbca3de127bb0a5442863cc99d2c3b72a5a69700c5fc5ac619fbc29b4ae"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_EVIDENCE_ADJUDICATION_V1.json",
+            "sha256": "2e35cad7951aed780151b97400ea3b7e9fd78d4bfdec252f83d0652702bbdc8d"
+          }
+        },
+        {
+          "windowOrdinal": 3,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_AUTHORITY_V1.json",
+            "sha256": "aaa61ce72b9a5b943928f879f68daa06ea612aacfd5117310d54bd14cfa65478"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_RESULT_V1.json",
+            "sha256": "c9654a837dde1c7c86a90c505b8cc1d5e6fcae1edc8a593981328576944e42ec"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_EVIDENCE_ADJUDICATION_V1.json",
+            "sha256": "8d59cb2a1e2d6f3b447767a8c56078111658dbd07818e098fd363c153fe33ef0"
+          }
+        },
+        {
+          "windowOrdinal": 4,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_AUTHORITY_V1.json",
+            "sha256": "bb24c26a8f2816a2cba584edb3726254bd72b1a8b979ca3cf9348effae1802a5"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_RESULT_V1.json",
+            "sha256": "89b2aac217502133e7cbd75a9144f81637a03ef3be906cdebd03d1edb30e22f4"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_EVIDENCE_ADJUDICATION_V1.json",
+            "sha256": "826f11851a6c000d3a314da2b6a4c31081014d29fdbdeb6012d157dae58b3dd8"
+          },
+          "authorityShapeCorrection": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_OWNER_SHAPE_CORRECTION_AND_ADJUDICATION_RULING_V1.json",
+            "sha256": "0635507f90bd4c928de4ccf1a4fd0535ed74731d5e7471e69ad7c18b5bd73640"
+          }
+        },
+        {
+          "windowOrdinal": 5,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_AUTHORITY_V1.json",
+            "sha256": "d88f741162bf27f6c290b2875edbeba522908c5545d6608b8d79b820ff701807"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_RESULT_V2.json",
+            "sha256": "6914f564726029ebf82ef9ea142279f9697d9adb68bf42bfad0ba359df748d26"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_EVIDENCE_ADJUDICATION_V1.json",
+            "sha256": "187eef89ed37f86e2f96c95e8772d9681ddcd944d04cff21961e4aaa63358642"
+          }
+        },
+        {
+          "windowOrdinal": 6,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_AUTHORITY_V1.json",
+            "sha256": "6d847d8175054ecf7f09e45b5ab8ba8e488e9f8ca99553e9ca2c420b4dc977e3"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_RESULT_V3.json",
+            "sha256": "9dee6861dabc5c997ed2d458fad7d346f6b7aa9a019d421439f8c2b242cb1af6"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_EVIDENCE_ADJUDICATION_V1.json",
+            "sha256": "845ca3a4bcd13409ac00dfc8b2a4224e9aee8ab08749aab523a8b7d478f5f340"
+          }
+        },
+        {
+          "windowOrdinal": 7,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_LIVE_AUTHORITY_V1.json",
+            "sha256": "726f78369af5fa5bb177a934c8c81e1bb317c04026dbf30575be4bb613db6020"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_LIVE_RESULT_V1.json",
+            "sha256": "41614f01a213a22203fbb655ead9df888727b4f7740e96e74389156cc9582734"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_EVIDENCE_ADJUDICATION_V1.json",
+            "sha256": "d138c9618b2919d79b3468eb27f034bd11b64daf09a6c01ef733e474aa57d2fb"
+          }
+        },
+        {
+          "windowOrdinal": 8,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_LIVE_AUTHORITY_V1.json",
+            "sha256": "f77aa0cf6d232a070d348dcd36a74932f078a64f79e1ddf737ec2e3f35b69a61"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_LIVE_RESULT_V1.json",
+            "sha256": "0a32d0d3e0c120e9b498046ea4df76d65ba85be22681f73e815c3dfc02cdc187"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_EVIDENCE_ADJUDICATION_V1.json",
+            "sha256": "2fb0b230d92b30746b2b62e3a598795cf4840011b710953df344774b9b8032da"
+          },
+          "cadenceAuthority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_P5_REVIEW_AND_CONTINUATION_DECISION_V1.json",
+            "commit": "2c20af702c3a9aed93e41f61c28d274f01c8351a",
+            "sha256": "2cfa5931946b8c71729a17ca98291df2a8f0fa6768a24ef3362b24f689c28b85"
+          }
+        },
+        {
+          "windowOrdinal": 9,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_LIVE_AUTHORITY_V1.json",
+            "sha256": "97841c9a2c679b5adcd6673128353e4aa6e20b54d6474fb957bc9e2e63c61e51"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_LIVE_RESULT_V2.json",
+            "sha256": "e7d384ad58a03090ecdfc3130ef2eb5b4e9966b784aa1cc2f36bc2ed7825c0f1"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_EVIDENCE_ADJUDICATION_V1.json",
+            "sha256": "9cf694e5caf0f1c6d403d045b6939cae7bd57964372c9002ce22fc44ee739fa3"
+          },
+          "cadenceAuthority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_P5_REVIEW_AND_WINDOW_09_CONTINUATION_DECISION_V1.json",
+            "commit": "9deb681e6cb7f19ad4af0f677655f278ece6c149",
+            "sha256": "316e6f9aa90c977ac1f43cf8155a297980b94f93c4935d33c378e1dec9a141e2"
+          }
+        },
+        {
+          "windowOrdinal": 10,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_10_LIVE_AUTHORITY_V1.json",
+            "sha256": "30dcbb6713aec1de2c12ac1c77db35ecbb4d29a84b5bf0568251d3471dc58145"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_10_LIVE_RESULT_V1.json",
+            "sha256": "fb95f08928198d6c31107b292ccb142cda95f3c171ddd24b262f527fcecce50f"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_10_EVIDENCE_ADJUDICATION_V1.json",
+            "sha256": "6c27a6b5c0db88ca792367551ed134509affb4cc36a488e0f7387364ecdf1bae"
+          },
+          "cadenceAuthority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_P5_REVIEW_AND_WINDOW_10_CONTINUATION_DECISION_V1.json",
+            "commit": "7b226de931752dc70028b5e20e37fa5d7a925ca5",
+            "sha256": "ceff378d1147b4d43ac754c368c6311543f673f37f4190a9840d6ef926238752"
+          }
+        },
+        {
+          "windowOrdinal": 11,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_LIVE_AUTHORITY_V1.json",
+            "sha256": "99be494d50d72b2630f121aedec8d1b472b9e1e416e681661f8fe4efe7b8df21"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_LIVE_RESULT_V1.json",
+            "sha256": "9d7219e97c372141be75bfc49c795cc8d543709383424107542d15c35a15fec3"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_EVIDENCE_ADJUDICATION_V1.json",
+            "sha256": "99f3de0bb9fd85e2e3d5d919ee73addd73627a383bc95874df1098e2fa90e027"
+          }
+        }
+      ],
+      "window12CadenceAuthority": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_P5_REVIEW_AND_WINDOW_12_CONTINUATION_DECISION_V1.json",
+        "commit": "6dd2f7c737ebb016ffc6429cc9c85040a1312f66",
+        "sha256": "cdb755868e2887feeb12f3df63faad00ca861b36723fb6213e29bb0017c19008"
+      },
+      "directoryDiscovery": false,
+      "latestLookup": false,
+      "glob": false
+    }
+  },
+  "validation": {
+    "exitCode": 0,
+    "result": "WINDOW_12_POST_FINAL_P5_CLOSURE_VALIDATION_ACCEPTED",
+    "authorisedBy": "PHASE_2B_2D_A2_GENERATION2_WINDOW_12_POST_FINAL_P5_OWNER_RULING_V1 (APPROVE_EXACTLY_ONE_WINDOW_12_POST_FINAL_P5_GOVERNED_VALIDATION_V1)",
+    "command": "caffeinate -dimsu npm run validate",
+    "runs": 1,
+    "secondAttempt": false,
+    "headValidated": "793e0a6f512e4791a9b4ea5fb344e8c5086cf5df",
+    "worktreeCleanAtLaunch": true,
+    "worktreeCleanAfter": true,
+    "hostPowerBeforeValidation": "Battery Power (AC not connected), battery 74% (floor 20% preserved), lid open, native IPv4 on en0, no DNS64; host check GREEN",
+    "hostAfterValidation": "Battery Power, battery 70%, lid open, native IPv4 on en0, no DNS64, 0 sleep/wake/darkwake events since validation start; host check GREEN",
+    "concurrencyScope": "ENGINE_AND_SHARED_ACQUISITION_STATE (APPLY_WINDOW_12_ENGINE_AND_SHARED_ACQUISITION_STATE_CONCURRENCY_SCOPE_V1); known isolated NWF-application activity non-blocking only when proved isolated; anything unproved fails closed",
+    "freshQuiescence": "ENGINE_SCOPED_CORRECTNESS_CRITICAL_EXECUTION_QUIESCED_FOR_GENERATION2_WINDOW_12_POST_FINAL_P5_CLOSURE_VALIDATION (consecutiveCleanSeconds=120.6 samples=240, interval 0.5 s, fresh; no item quiet period reused)",
+    "startUtc": "2026-09-30T21:49:32Z",
+    "endUtc": "2026-09-30T21:58:12Z",
+    "durationSecondsWallClock": 520,
+    "testFiles": "236 passed | 5 skipped (241)",
+    "tests": "5832 passed | 76 skipped (5908)",
+    "vitestDuration": "487.46s (transform 5.58s, setup 0ms, import 125.42s, tests 337.42s, environment 17ms)",
+    "watcherSelfTest": "PASS (governed child proved; detached orphan ANCESTRY_UNPROVED; unrelated external and Engine-cwd probes EXTERNAL_COMPETING_PROCESS; probes in two NewWave Fluent application worktrees KNOWN_ISOLATED_EXTERNAL_ACTIVITY and never counted; an NWF-worktree probe holding an Engine DB connection EXTERNAL_COMPETING_PROCESS; max gap 0.506 s)",
+    "samplesWithinValidation": 1035,
+    "maxGapSecondsWithinValidation": 0.769,
+    "EXTERNAL_COMPETING_PROCESS": 0,
+    "ANCESTRY_UNPROVED": 0,
+    "KNOWN_ISOLATED_EXTERNAL_ACTIVITY": 0,
+    "GOVERNED_VALIDATION_DESCENDANT_PROVED": 144,
+    "isolatedNwfActivityObserved": "none: no NWF-application test process was a candidate during the validation window",
+    "competingPollsWithinValidation": 0,
+    "landedFullValidationEvaluator": "evaluateFullValidationMonitoring: integritySatisfied true, deviationDetected false, monitorCoverageSufficient true, operationalStop false, 0 reasons",
+    "rootAbsentSamples": "4 (two within 0.85 s after the whole-second start marker, before the root identity was readable, and two within 0.66 s after the end marker, after the root exited; 0 candidates, 0 competing in each)",
+    "hostSleepWakeEventsDuringValidation": 0,
+    "testDatabase": "integration suites use the configured *_TEST URLs (nwf_pe_test)",
+    "acquisitionDatabaseUnchanged": "nwf_pe read-only after validation: 178 / 178 / 4485 / 329 / 3375 / 6750 / 6, latest run 2026-09-30T21:33:06Z (the G2R:106:18 run); identical to the reading before the ruling and to the Window-12 LIVE_RESULT endpoint",
+    "exclusivityVerdict": "WINDOW_12_POST_FINAL_P5_CLOSURE_VALIDATION_ENGINE_SCOPED_EXCLUSIVITY_PROVED",
+    "fullValidationRunsAfterThisRecord": 0
+  },
+  "orderOfRules": "integrity first (acquisition and execution integrity CLEAN on all five executed items, exclusivity proved), then SD9 eligibility (main_text_chars > 0), exact SD7 -> near SD7, the frozen SD9 minimum of 4 distinct post-SD7 pages on the lower bound, then (failures only) the landed Q3 precedence",
+  "items": [
+    {
+      "order": 1,
+      "workItemId": "G2P:108",
+      "selectionIndex": 108,
+      "split": "DEV_CONFIRM",
+      "kind": "PRIMARY",
+      "generation2ReserveRankPosition": null,
+      "identityDigest": "6b6d2d2c9bc8f6180f3df869e2fcba64686d91a008e2100a773ca78a82d85962",
+      "replacementReason": null,
+      "replacesOccupantKind": null,
+      "carryIn": false,
+      "originalPrimary": true,
+      "runRefSha256": "c1875eb7e48c3ef2edc051a573d309762c5306fe3ae3b7dc9b8d7c9e5d67ca71",
+      "integrity": {
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "sleepEventsDuringItem": 0,
+        "itemPreflightAllGreen": true,
+        "concurrencyScope": "ENGINE_AND_SHARED_ACQUISITION_STATE (APPLY_WINDOW_12_ENGINE_AND_SHARED_ACQUISITION_STATE_CONCURRENCY_SCOPE_V1)",
+        "inItemConcurrencyWatch": "CLEAN (124 samples, 0 external, 0 ancestry-unproved, max gap 0.506 s, 0 known-isolated NWF identities non-blocking)",
+        "verdict": "CLEAN",
+        "verdictScope": "ACQUISITION_AND_EXECUTION_INTEGRITY",
+        "inItemExecutionExclusivity": "PROVED_BY_CONTINUOUS_INDEPENDENT_MONITORING",
+        "monitorCoverage": "SATISFIED"
+      },
+      "bridge": {
+        "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+        "fetchObservationsByErrorKind": {
+          "NONE": 38
+        },
+        "usableHttpResponseObtained": true,
+        "rawPageEvidenceCount": 28,
+        "sd9EligiblePageCount": 28,
+        "zeroExtractedTextPageCount": 0,
+        "postSd7Range": [24, 28],
+        "countIsExact": false,
+        "shortTextUnresolvedCount": 4,
+        "decidedByCase": "B",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_SUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "q3Reason": null,
+        "sd9": "post-SD7 [24,28], lower bound 24 >= 4"
+      },
+      "p5LowYieldContribution": false
+    },
+    {
+      "order": 2,
+      "workItemId": "G2P:109",
+      "selectionIndex": 109,
+      "split": "FINAL_HOLDOUT",
+      "kind": "PRIMARY",
+      "generation2ReserveRankPosition": null,
+      "identityDigest": "8f11c9998f893d8ebb83be1e68e58170d8a94ba278e3678303827039c0b65092",
+      "replacementReason": null,
+      "replacesOccupantKind": null,
+      "carryIn": false,
+      "originalPrimary": true,
+      "runRefSha256": "c6e9afb5209f19c40868917e9dae97e181b901ae0b3b60b3585ba3df8c3d3690",
+      "integrity": {
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "sleepEventsDuringItem": 0,
+        "itemPreflightAllGreen": true,
+        "concurrencyScope": "ENGINE_AND_SHARED_ACQUISITION_STATE (APPLY_WINDOW_12_ENGINE_AND_SHARED_ACQUISITION_STATE_CONCURRENCY_SCOPE_V1)",
+        "inItemConcurrencyWatch": "CLEAN (7 samples, 0 external, 0 ancestry-unproved, max gap 0.506 s, 0 known-isolated NWF identities non-blocking)",
+        "verdict": "CLEAN",
+        "verdictScope": "ACQUISITION_AND_EXECUTION_INTEGRITY",
+        "inItemExecutionExclusivity": "PROVED_BY_CONTINUOUS_INDEPENDENT_MONITORING",
+        "monitorCoverage": "SATISFIED"
+      },
+      "bridge": {
+        "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+        "fetchObservationsByErrorKind": {
+          "NONE": 1
+        },
+        "usableHttpResponseObtained": true,
+        "rawPageEvidenceCount": 0,
+        "sd9EligiblePageCount": 0,
+        "zeroExtractedTextPageCount": 0,
+        "postSd7Range": [0, 0],
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "decidedByCase": "A",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_UNSUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "q3Reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "sd9": "post-SD7 [0,0] exact, below 4",
+        "q3Basis": "landed replacementReasonFor over root ROBOTS_UNREADABLE_ROOT, blocking transport null, usable HTTP response true, post-SD7 0"
+      },
+      "p5LowYieldContribution": true
+    },
+    {
+      "order": 3,
+      "workItemId": "G2R:107:16",
+      "selectionIndex": 107,
+      "split": "FINAL_HOLDOUT",
+      "kind": "REPLACEMENT",
+      "generation2ReserveRankPosition": 16,
+      "identityDigest": "964b38c8af815bea7778b3228c8ac231ea378afdc2a267222e63d1fe7ad3c33e",
+      "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "replacesOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+      "carryIn": true,
+      "originalPrimary": false,
+      "runRefSha256": "801aac0b7d6681a6b284b7730928f86de6a65c7a56e7b93b36fdb0f3b30f6d37",
+      "integrity": {
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "sleepEventsDuringItem": 0,
+        "itemPreflightAllGreen": true,
+        "concurrencyScope": "ENGINE_AND_SHARED_ACQUISITION_STATE (APPLY_WINDOW_12_ENGINE_AND_SHARED_ACQUISITION_STATE_CONCURRENCY_SCOPE_V1)",
+        "inItemConcurrencyWatch": "CLEAN (100 samples, 0 external, 0 ancestry-unproved, max gap 0.506 s, 0 known-isolated NWF identities non-blocking)",
+        "verdict": "CLEAN",
+        "verdictScope": "ACQUISITION_AND_EXECUTION_INTEGRITY",
+        "inItemExecutionExclusivity": "PROVED_BY_CONTINUOUS_INDEPENDENT_MONITORING",
+        "monitorCoverage": "SATISFIED"
+      },
+      "bridge": {
+        "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+        "fetchObservationsByErrorKind": {
+          "NONE": 43
+        },
+        "usableHttpResponseObtained": true,
+        "rawPageEvidenceCount": 34,
+        "sd9EligiblePageCount": 34,
+        "zeroExtractedTextPageCount": 0,
+        "postSd7Range": [32, 32],
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "decidedByCase": "B",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_SUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "q3Reason": null,
+        "sd9": "post-SD7 [32,32] exact, lower bound 32 >= 4"
+      },
+      "p5LowYieldContribution": false
+    },
+    {
+      "order": 4,
+      "workItemId": "G2R:103:17",
+      "selectionIndex": 103,
+      "split": "DEV_CONFIRM",
+      "kind": "REPLACEMENT",
+      "generation2ReserveRankPosition": 17,
+      "identityDigest": "417218ef9e5252c81a3822e697c2c6f013b20de72a27748ad877e752f338f4f3",
+      "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "replacesOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+      "carryIn": false,
+      "originalPrimary": false,
+      "runRefSha256": "9ef02b963e4c33da40fa4b193c7b5be035c0f72f4f45d93312caa5c3f3cc46f3",
+      "integrity": {
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "sleepEventsDuringItem": 0,
+        "itemPreflightAllGreen": true,
+        "concurrencyScope": "ENGINE_AND_SHARED_ACQUISITION_STATE (APPLY_WINDOW_12_ENGINE_AND_SHARED_ACQUISITION_STATE_CONCURRENCY_SCOPE_V1)",
+        "inItemConcurrencyWatch": "CLEAN (107 samples, 0 external, 0 ancestry-unproved, max gap 0.623 s, 0 known-isolated NWF identities non-blocking)",
+        "verdict": "CLEAN",
+        "verdictScope": "ACQUISITION_AND_EXECUTION_INTEGRITY",
+        "inItemExecutionExclusivity": "PROVED_BY_CONTINUOUS_INDEPENDENT_MONITORING",
+        "monitorCoverage": "SATISFIED"
+      },
+      "bridge": {
+        "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+        "fetchObservationsByErrorKind": {
+          "NONE": 44
+        },
+        "usableHttpResponseObtained": true,
+        "rawPageEvidenceCount": 34,
+        "sd9EligiblePageCount": 26,
+        "zeroExtractedTextPageCount": 8,
+        "postSd7Range": [23, 25],
+        "countIsExact": false,
+        "shortTextUnresolvedCount": 2,
+        "decidedByCase": "B",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_SUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "q3Reason": null,
+        "sd9": "post-SD7 [23,25], lower bound 23 >= 4"
+      },
+      "p5LowYieldContribution": false
+    },
+    {
+      "order": 5,
+      "workItemId": "G2R:106:18",
+      "selectionIndex": 106,
+      "split": "DEV_CONFIRM",
+      "kind": "REPLACEMENT",
+      "generation2ReserveRankPosition": 18,
+      "identityDigest": "b0a17ad0e0f08bc713b0487e30ea768554166144b68b43b78daeb21d16a78e47",
+      "replacementReason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "replacesOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+      "carryIn": false,
+      "originalPrimary": false,
+      "runRefSha256": "9f8ac17159f13b4d1719a8f9844fb694f02311cc647e7970338db460b5f34049",
+      "integrity": {
+        "cliExecuteInvocations": 1,
+        "cliExitCode": 0,
+        "runsForOccupant": 1,
+        "completionRows": 1,
+        "runTerminalState": "COMPLETED",
+        "everyObservationV7": true,
+        "dryRun": false,
+        "postItemHostStateClean": true,
+        "sleepEventsDuringItem": 0,
+        "itemPreflightAllGreen": true,
+        "concurrencyScope": "ENGINE_AND_SHARED_ACQUISITION_STATE (APPLY_WINDOW_12_ENGINE_AND_SHARED_ACQUISITION_STATE_CONCURRENCY_SCOPE_V1)",
+        "inItemConcurrencyWatch": "CLEAN (5 samples, 0 external, 0 ancestry-unproved, max gap 0.505 s, 0 known-isolated NWF identities non-blocking)",
+        "verdict": "CLEAN",
+        "verdictScope": "ACQUISITION_AND_EXECUTION_INTEGRITY",
+        "inItemExecutionExclusivity": "PROVED_BY_CONTINUOUS_INDEPENDENT_MONITORING",
+        "monitorCoverage": "SATISFIED"
+      },
+      "bridge": {
+        "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+        "fetchObservationsByErrorKind": {
+          "NONE": 1
+        },
+        "usableHttpResponseObtained": true,
+        "rawPageEvidenceCount": 0,
+        "sd9EligiblePageCount": 0,
+        "zeroExtractedTextPageCount": 0,
+        "postSd7Range": [0, 0],
+        "countIsExact": true,
+        "shortTextUnresolvedCount": 0,
+        "decidedByCase": "A",
+        "thresholdAmbiguity": false
+      },
+      "adjudication": {
+        "verdict": "ACQUISITION_UNSUCCESSFUL",
+        "vantageIntegrity": "CLEAN",
+        "q3Reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "sd9": "post-SD7 [0,0] exact, below 4",
+        "q3Basis": "landed replacementReasonFor over root ROBOTS_UNREADABLE_ROOT, blocking transport null, usable HTTP response true, post-SD7 0"
+      },
+      "p5LowYieldContribution": true
+    }
+  ],
+  "windowSummary": {
+    "executed": 5,
+    "authorised": 5,
+    "notStarted": 0,
+    "notStartedItems": [],
+    "acquisitionSuccessful": [103, 107, 108],
+    "acquisitionUnsuccessful": [106, 109],
+    "pauseFired": true,
+    "finalGateDecision": "PAUSE_P5_LOW_RAW_YIELD",
+    "pauseType": "POST_FINAL",
+    "pauseFirstFiredAfterItem": "G2R:106:18",
+    "allAuthorisedItemsFinishedBeforePauseFired": true,
+    "executionCadence": "PRIMARIES_THEN_Q1_REPLACEMENTS",
+    "executedOrder": ["G2P:108", "G2P:109", "G2R:107:16", "G2R:103:17", "G2R:106:18"]
+  },
+  "generation2StateBefore": {
+    "ACQUISITION_SUCCESSFUL": 105,
+    "CURRENT_ACQUISITION_FAILURE": [],
+    "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION": [103, 106, 107],
+    "NEVER_STARTED": {
+      "from": 108,
+      "to": 109,
+      "count": 2
+    },
+    "q1": [],
+    "ledgerEntryCount": 19,
+    "nextGeneration2ReservePosition": 19,
+    "note": "the state AFTER the pre-network append of sequences 17 and 18 and BEFORE any Window-12 item was adjudicated: slots 103, 106 and 107 are assigned, awaiting execution; 108 and 109 never started"
+  },
+  "generation2StateAfter": {
+    "ACQUISITION_SUCCESSFUL": 108,
+    "acquisitionSuccessfulBySplit": {
+      "DEV_TRAIN": 20,
+      "DEV_CONFIRM": 44,
+      "FINAL_HOLDOUT": 44
+    },
+    "CURRENT_ACQUISITION_FAILURE": [106, 109],
+    "currentFailureBySplit": {
+      "DEV_TRAIN": 0,
+      "DEV_CONFIRM": 1,
+      "FINAL_HOLDOUT": 1
+    },
+    "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION": [],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "CARRY_FORWARD_REFUSED": [],
+    "NEVER_STARTED": {
+      "from": null,
+      "to": null,
+      "count": 0,
+      "bySplit": {
+        "DEV_TRAIN": 0,
+        "DEV_CONFIRM": 0,
+        "FINAL_HOLDOUT": 0
+      }
+    },
+    "accounting": "108 successful + 2 failed + 0 assigned + 0 pending + 0 never started = 110",
+    "derivation": "COMPARISON TARGET only: replayGeneration2History over the explicit twelve-window history re-derives every field and refuses on any difference"
+  },
+  "allOriginalPrimariesComplete": {
+    "holds": true,
+    "selectionIndexRange": "0..109",
+    "originalSlotCount": 110,
+    "neverStartedCount": 0,
+    "finalTwoNeverStartedOriginals": ["G2P:108", "G2P:109"],
+    "g2p110Exists": false,
+    "statement": "every original selectionIndex 0..109 has left NEVER_STARTED; G2P:108 and G2P:109 were the last two. There is no G2P:110. From this point onward any acquisition continuation is replacement-only."
+  },
+  "q1After": [106, 109],
+  "q1AfterReasons": [
+    {
+      "selectionIndex": 106,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+    },
+    {
+      "selectionIndex": 109,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+    }
+  ],
+  "q1Note": "Q1 holds current failures only; no carry-in assigned slot remains after this adjudication",
+  "pendingReplacementObligations": [106, 109],
+  "ledgerAfter": {
+    "entryCount": 19,
+    "ledgerHash": "16d46662d015e3529f0b225d686e74233faeb8e0e05d94b44de58e7e5ca942a9",
+    "nextGeneration2ReservePosition": 19,
+    "unchanged": true,
+    "reserve19Assigned": false,
+    "lastEntries": [
+      {
+        "sequence": 16,
+        "selectionIndex": 107,
+        "generation2ReserveRankPosition": 16,
+        "executed": true,
+        "executedInWindow": 12
+      },
+      {
+        "sequence": 17,
+        "selectionIndex": 103,
+        "generation2ReserveRankPosition": 17,
+        "executed": true,
+        "executedInWindow": 12
+      },
+      {
+        "sequence": 18,
+        "selectionIndex": 106,
+        "generation2ReserveRankPosition": 18,
+        "executed": true,
+        "executedInWindow": 12
+      }
+    ]
+  },
+  "reserves": {
+    "generation2Consumed": 19,
+    "nextGeneration2ReservePosition": 19,
+    "reserve19Assigned": false
+  },
+  "p6": {
+    "rule": "reserveConsumed > 10 AND successfulOrganisationCount < 50",
+    "reserveConsumed": 19,
+    "successfulOrganisationCount": 108,
+    "fires": false
+  },
+  "p2": {
+    "fired": false,
+    "threshold": 3,
+    "robotsRefusalCount": 2
+  },
+  "p5": {
+    "fired": true,
+    "decision": "PAUSE_P5_LOW_RAW_YIELD",
+    "type": "POST_FINAL",
+    "arm": "raw pages < 4 on 2 of 5 planned items (> 30%)",
+    "firedAfterItem": 5,
+    "itemPosition": "5 of 5",
+    "firstFiredAfterItem": "G2R:106:18",
+    "windowLowYieldCount": 2,
+    "threshold": 2,
+    "denominator": 5,
+    "lowYieldItems": ["G2P:109", "G2R:106:18"],
+    "laterAuthorisedItemLeftToBlock": false,
+    "inheritedWaivers": [],
+    "ownerDisposition": "ACCEPT_WINDOW_12_P5_AS_VALID_POST_FINAL_ITEM_PAUSE_NO_EVIDENCE_INVALIDATION_V1",
+    "frozenGatePreservation": "PRESERVE_WINDOW_12_P5_AS_FROZEN_GATE_PAUSE_AFTER_WINDOW_COMPLETION_V1",
+    "stillFired": true,
+    "notAbsentMerelyBecauseAllItemsExecuted": true,
+    "weakened": false,
+    "waived": false,
+    "reinterpreted": false,
+    "retrospectiveInvalidation": false,
+    "liveContinuation": false,
+    "ownerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_POST_FINAL_P5_OWNER_RULING_V1.json",
+      "commit": "793e0a6f512e4791a9b4ea5fb344e8c5086cf5df",
+      "sha256": "234932f352d32ad884a506a64226a970ee9777724c6589ec7515c0607e5ed33a",
+      "bytes": 28846
+    }
+  },
+  "derivedNextQ1ComparisonOnly": {
+    "q1": [106, 109],
+    "plan": [
+      {
+        "selectionIndex": 106,
+        "generation2ReserveRankPosition": 19,
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+      },
+      {
+        "selectionIndex": 109,
+        "generation2ReserveRankPosition": 20,
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+      }
+    ],
+    "persisted": false,
+    "appended": false,
+    "note": "derived only; NOT appended; reserves 19 and 20 remain unassigned"
+  },
+  "runReferences": {
+    "historicalBeforeWindow12": 47,
+    "window12": 5,
+    "total": 52,
+    "distinct": 52,
+    "globallyUnique": true,
+    "rule": "GENERATION2_HISTORICAL_RUN_REFERENCE_IS_GLOBALLY_UNIQUE_ACROSS_ALL_ADJUDICATED_WINDOWS_V1",
+    "gate": "the generic assessAdjudicationHistoryIntegrity over the explicit twelve-window history"
+  },
+  "authorityConsumption": "the Window-12 authority is fully consumed: 5 of 5 invocations used, 0 retries, 0 unused; it authorises nothing further",
+  "identityDisclosure": "slot numbers, work item ids, digests, run-reference hashes and aggregates only; no organisation id, echeRowKey, URL, hostname, root-authority id or page text",
+  "terminalState": "PHASE_2B_2D_A2_GENERATION2_WINDOW_12_ADJUDICATED_POST_FINAL_P5_PRESERVED_STOPPED",
+  "nextOwnerDecision": "owner review after Window 12: no Q1 append, reserve 19/20 assignment, Window-13 readiness or authority, retry, cadence, carry-in or concurrency change exists here; each needs a separate explicit owner decision. Any continuation is replacement-only.",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
