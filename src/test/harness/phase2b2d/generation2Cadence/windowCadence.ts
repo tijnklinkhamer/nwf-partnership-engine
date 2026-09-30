@@ -101,6 +101,16 @@ export const APPROVED_WINDOW_CADENCE_AUTHORITIES: readonly ApprovedWindowCadence
     ownerDecision: 'APPROVE_WINDOW_09_PRIMARY_FIRST_MIXED_EXECUTION_CADENCE_V1',
     scope: 'WINDOW_09_CADENCE_ONLY',
   },
+  {
+    windowOrdinal: 10,
+    mode: 'PRIMARIES_THEN_Q1_REPLACEMENTS',
+    path: 'docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_P5_REVIEW_AND_WINDOW_10_CONTINUATION_DECISION_V1.json',
+    commit: '7b226de931752dc70028b5e20e37fa5d7a925ca5',
+    sha256: 'ceff378d1147b4d43ac754c368c6311543f673f37f4190a9840d6ef926238752',
+    bytes: 11347,
+    ownerDecision: 'APPROVE_WINDOW_10_PRIMARY_FIRST_MIXED_EXECUTION_CADENCE_V1',
+    scope: 'WINDOW_10_CADENCE_ONLY',
+  },
 ];
 
 /** What a non-default spec and its live authority carry: the verified decision's identity. */
