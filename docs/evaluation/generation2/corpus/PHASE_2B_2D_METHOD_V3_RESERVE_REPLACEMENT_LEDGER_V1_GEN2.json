@@ -200,7 +200,35 @@
       "previousSequenceForSlot": null,
       "previousEntryHash": "dfa19916d76f572d65485cd073d337b5a552935ef49a9e38eaff1ecfca5ecc75",
       "entryHash": "de7b2c7ed92ca7e253fd60955148135239611db1f10f8b698684eedb649de653"
+    },
+    {
+      "sequence": 9,
+      "selectionIndex": 96,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "P VIANA-D01|998454563",
+      "replacementEcheRowKey": "F VENDOME01|948661747",
+      "generation2ReserveRankPosition": 9,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-30T11:40:56Z",
+      "replacedOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 7,
+      "previousEntryHash": "de7b2c7ed92ca7e253fd60955148135239611db1f10f8b698684eedb649de653",
+      "entryHash": "80bcbcddd4195968923e79f6cda39818f0bc1f333845f82db305d2bf6c964a86"
+    },
+    {
+      "sequence": 10,
+      "selectionIndex": 99,
+      "split": "FINAL_HOLDOUT",
+      "replacedEcheRowKey": "E LOGRONO16|956152281",
+      "replacementEcheRowKey": "E BADAJOZ43|879298308",
+      "generation2ReserveRankPosition": 10,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-09-30T11:40:56Z",
+      "replacedOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 8,
+      "previousEntryHash": "80bcbcddd4195968923e79f6cda39818f0bc1f333845f82db305d2bf6c964a86",
+      "entryHash": "ee23890b4eb82abc1008d5ed1dc5db918275ff4852b4a4c8ae9ea46d9a239159"
     }
   ],
-  "ledgerHash": "3aac5a5e809e831c8131c59ad34120248cbf3df294ca417daf36742bc254c621"
+  "ledgerHash": "0a658a6769dcfb58d35316cb36ba2d43cb5112e56f6a765b13d969d232eaee14"
 }
