@@ -52,6 +52,12 @@
  *   (same-slot Q2). Ledger entries that no adjudicated window consumed are the
  *   unadjudicated suffix: they stay ASSIGNED, never success or failure.
  *
+ *   A consumed entry whose work item a window did not execute also stays
+ *   ASSIGNED (CARRY-IN). The next window takes it in as a required member on
+ *   the same entry - never a Q1 obligation, never a second reserve - so a
+ *   window's replacements are every slot ASSIGNED after its append, in
+ *   ledger-sequence order. Ledger consumption is unchanged by this.
+ *
  * Frozen P7 is not redefined here. History integrity is an ADDITIONAL
  * operational prerequisite.
  *
@@ -804,12 +810,9 @@ function replayWindow(
       `window ${ordinal}: the starting revision bytes are not that revision`,
     );
   }
-  if (statusList(slots, 'ASSIGNED').length !== 0) {
-    refuse(
-      'HISTORY_UNEXECUTED_ASSIGNMENT',
-      `window ${ordinal}: an earlier assigned replacement was never adjudicated`,
-    );
-  }
+  // A window may begin with ASSIGNED slots (an earlier window's unexecuted
+  // occupants). They are not Q1 and take no new entry: `applyLedgerEntry`
+  // refuses re-assigning one. They are required members below.
   const planned = asArray(authority.plannedLedgerAppend, 'plannedLedgerAppend').map((v) =>
     asObject(v, 'plannedLedgerAppend[]'),
   );
@@ -859,25 +862,51 @@ function replayWindow(
   const stateBefore = snapshot(slots);
 
   // ---- the authorised work items are the window rule over the replayed state ---
-  // Membership is the unchanged rule; only a verified cadence decision moves
-  // the SAME replacements behind the primaries. The ledger append above is
-  // replayed first either way.
+  // Replacement members are EVERY slot assigned after the append - carry-in
+  // occupants and this window's new Q1 entries alike - on its exact ledger
+  // entry, in ledger-sequence order; primaries fill the rest. Only a verified
+  // cadence decision moves the SAME replacements behind the primaries. The
+  // ledger append above is replayed first either way.
+  const replacementGroup = stateBefore.replacementAssignedAwaitingExecution
+    .map((index) => {
+      const slot = slots.get(index)!;
+      const entry = ledger.entries[slot.assignedSequence!];
+      if (
+        entry === undefined ||
+        slot.assignedSequence! >= afterAppend ||
+        entry.selectionIndex !== index ||
+        entry.generation2ReserveRankPosition !== slot.assignedPosition
+      ) {
+        refuse(
+          'HISTORY_ASSIGNED_OCCUPANT_NOT_IN_LEDGER',
+          `window ${ordinal}: assigned slot ${String(index)} is not its ledger entry`,
+        );
+      }
+      return entry;
+    })
+    .sort((a, b) => a.sequence - b.sequence);
   const cadence = cadenceOfAuthority(authority, binding.cadenceAuthority, expectedOrdinal);
-  const primaryCount = size - planned.length;
+  const replacementCount = replacementGroup.length;
+  const primaryCount = size - replacementCount;
+  if (primaryCount < 0) {
+    refuse(
+      'REPLACEMENT_OBLIGATIONS_EXCEED_WINDOW',
+      `window ${ordinal}: ${String(replacementCount)} replacement obligations exceed ${String(size)} items`,
+    );
+  }
   const replacementsLead = cadence === 'Q1_REPLACEMENTS_THEN_PRIMARIES';
   const expectedPrimaries = stateBefore.neverStarted.slice(0, primaryCount);
   authorised.forEach((item, k) => {
     const replacementIndex = replacementsLead
-      ? k < planned.length
+      ? k < replacementCount
         ? k
         : null
       : k >= primaryCount
         ? k - primaryCount
         : null;
-    const replacement =
-      replacementIndex === null ? null : ledger.entries[cursor + replacementIndex]!;
+    const replacement = replacementIndex === null ? null : replacementGroup[replacementIndex]!;
     const slotIndex =
-      replacement?.selectionIndex ?? expectedPrimaries[replacementsLead ? k - planned.length : k];
+      replacement?.selectionIndex ?? expectedPrimaries[replacementsLead ? k - replacementCount : k];
     if (slotIndex === undefined) {
       refuse(
         'HISTORY_AUTHORITY_WORK_ITEM',

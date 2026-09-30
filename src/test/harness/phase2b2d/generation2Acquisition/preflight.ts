@@ -48,10 +48,17 @@
  * EXECUTION CADENCE. A window planned under a verified owner cadence decision
  * (generation2Cadence/windowCadence.ts) orders the SAME members primaries-
  * first. The eighteen invariants keep their names and meaning:
- * workItemsMatchGovernance requires the order of the spec's own cadence (and,
- * for a non-default cadence, that every complete-Q1 replacement is still a
- * member); the Q1, append and occupant invariants are unchanged, so a
- * primary-first window still needs its complete Q1 append persisted first.
+ * workItemsMatchGovernance requires the order of the spec's own cadence; the
+ * Q1, append and occupant invariants are unchanged, so a primary-first window
+ * still needs its complete Q1 append persisted first.
+ *
+ * CARRY-IN. A slot already ASSIGNED in the starting revision (an earlier
+ * window's unexecuted occupant) is a replacement member but NOT part of the
+ * new append: completeQ1EqualsPlanningQ1, plannedReplacementAppendRecorded
+ * and noUnexpectedGeneration2Assignments concern ONLY the new Q1 entries;
+ * postAppendOccupantsMatchAssignedReserves checks EVERY replacement work
+ * item, carry-in included; workItemsMatchGovernance requires every carry-in
+ * and every planned Q1 replacement as members, in ledger-sequence order.
  * The decision's own integrity is reported SEPARATELY, only when a cadence is
  * involved, as `operationalPrerequisites.windowCadenceAuthorityIntegrity`.
  */
@@ -299,20 +306,33 @@ export function computeGeneration2PreflightWithAssessment(
     const leading = primaryFirst ? items.length - replacements.length : replacements.length;
     const leadingKind = primaryFirst ? 'PRIMARY' : 'REPLACEMENT';
     const trailingKind = primaryFirst ? 'REPLACEMENT' : 'PRIMARY';
-    // Non-default cadence: every complete-Q1 replacement is still a member, in append order.
-    const q1StillMembers =
-      !primaryFirst ||
+    // Every carry-in assigned occupant of the starting revision AND every
+    // planned Q1 replacement is a member, the group in ledger-sequence order.
+    const start = starting as OperationalGeneration2Ledger | null;
+    if (start === null) return false;
+    const carryIn = deriveGeneration2CurrentState(
+      b,
+      start,
+      history,
+    ).replacementAssignedAwaitingExecution.map((slot) => {
+      const entry = start.entries.findLast((e) => e.selectionIndex === slot);
+      if (entry === undefined) throw new Error(`assigned slot ${String(slot)} has no entry`);
+      return [entry.sequence, slot, entry.generation2ReserveRankPosition] as const;
+    });
+    const replacementGroup = [
+      ...carryIn,
+      ...spec.plannedReplacementAppend.map(
+        (p) => [p.sequence, p.selectionIndex, p.generation2ReserveRankPosition] as const,
+      ),
+    ]
+      .sort((x, y) => x[0] - y[0])
+      .map(([, slot, position]) => [slot, position]);
+    const replacementsAreTheGroup =
       canonicalStringify(
         replacements.map((item) => [item.selectionIndex, item.generation2ReserveRankPosition]),
-      ) ===
-        canonicalStringify(
-          spec.plannedReplacementAppend.map((p) => [
-            p.selectionIndex,
-            p.generation2ReserveRankPosition,
-          ]),
-        );
+      ) === canonicalStringify(replacementGroup);
     const structural =
-      q1StillMembers &&
+      replacementsAreTheGroup &&
       items.length === spec.plannedWindowSize &&
       items.every((item, position) => item.order === position + 1) &&
       new Set(items.map((item) => item.workItemId)).size === items.length &&

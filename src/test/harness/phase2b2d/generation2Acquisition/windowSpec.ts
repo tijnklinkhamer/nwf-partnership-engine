@@ -5,9 +5,15 @@
  *   inputs   the operational basis (frozen frame, draw, Generation-1 terminal
  *            and ledger, frozen schedule, re-derived carry-forward) and the
  *            STARTING Generation-2 ledger revision
- *   members  every Q1 replacement (ascending slot, positions from the
- *            ledger's next unused one) and the lowest-index NEVER_STARTED
- *            original primaries, ascending, until the planned size is reached
+ *   members  every CARRY-IN replacement (a slot already ASSIGNED in the
+ *            starting revision, on its exact ledger occupant: no Q1, no new
+ *            entry), every Q1 replacement (ascending slot, positions from the
+ *            ledger's next unused one) - the whole group in ledger-sequence
+ *            order - and the lowest-index NEVER_STARTED original primaries,
+ *            ascending, until the planned size is reached. Every replacement
+ *            obligation must fit (REPLACEMENT_OBLIGATIONS_EXCEED_WINDOW); the
+ *            append holds ONLY the Q1 entries. With no carry-in the spec is
+ *            unchanged byte for byte
  *   order    by default every replacement first, then the primaries; ONLY a
  *            verified, pinned owner cadence decision for this exact window
  *            (generation2Cadence/windowCadence.ts) puts the SAME members in
@@ -163,6 +169,11 @@ export interface Generation2WindowSpec {
   readonly windowSpecHash: string;
 }
 
+interface SequencedItem {
+  readonly sequence: number;
+  readonly item: Generation2WindowWorkItem;
+}
+
 export function recomputeWindowSpecHash(spec: Generation2WindowSpec): string {
   const clone = { ...spec } as Record<string, unknown>;
   delete clone.windowSpecHash;
@@ -197,10 +208,62 @@ export function buildGeneration2WindowSpec(input: {
     );
   }
 
-  // Replacements: exactly Q1, sequenced as the append would record them.
+  // Carry-in: every slot already ASSIGNED in the starting revision keeps its
+  // exact ledger occupant - no Q1, no second reserve, no new entry - and stays
+  // a work item until that occupant is executed and adjudicated.
+  const carryIn = state.replacementAssignedAwaitingExecution.map((selectionIndex) => {
+    const entry = startingLedger.entries.findLast((e) => e.selectionIndex === selectionIndex);
+    const occupant = resolveCrossGenerationOccupant(basis, startingLedger, selectionIndex);
+    if (
+      entry === undefined ||
+      occupant.kind !== 'GENERATION2_RESERVE_REPLACEMENT' ||
+      occupant.generation2LedgerSequence !== entry.sequence ||
+      occupant.generation2ReserveRankPosition !== entry.generation2ReserveRankPosition
+    ) {
+      refuse(
+        'CARRY_IN_OCCUPANT_NOT_IN_LEDGER',
+        `assigned slot ${String(selectionIndex)} has no current Generation-2 ledger occupant`,
+      );
+    }
+    return entry;
+  });
+  if (carryIn.length + q1.length > plannedWindowSize) {
+    refuse(
+      'REPLACEMENT_OBLIGATIONS_EXCEED_WINDOW',
+      'every carry-in assigned replacement and every Q1 obligation must be in the window',
+    );
+  }
+  const carryInItems = carryIn.map((entry): SequencedItem => {
+    const binding = buildReserveExecutionBinding(
+      basis.frameIndex,
+      basis.schedule,
+      entry.generation2ReserveRankPosition,
+    );
+    return {
+      sequence: entry.sequence,
+      item: {
+        order: 0,
+        kind: 'REPLACEMENT',
+        workItemId: generation2ReplacementWorkItemId(
+          entry.selectionIndex,
+          entry.generation2ReserveRankPosition,
+        ),
+        selectionIndex: entry.selectionIndex,
+        generation2ReserveRankPosition: entry.generation2ReserveRankPosition,
+        split: entry.split,
+        replacementReason: entry.reason,
+        replacesOccupantKind: entry.replacedOccupantKind,
+        identityDigestKind: REPLACEMENT_IDENTITY_KIND,
+        identityDigest: executionEntrySha256(binding),
+        rootAuthorityCount: binding.rootAuthorityCount,
+      },
+    };
+  });
+
+  // New replacements: exactly Q1, sequenced as the append would record them.
   const entries = [...startingLedger.entries];
   const plannedReplacementAppend: PlannedReplacementEntry[] = [];
-  const replacementItems: Generation2WindowWorkItem[] = q1.map((assignment) => {
+  const q1Items: Generation2WindowWorkItem[] = q1.map((assignment) => {
     const occupant = resolveCrossGenerationOccupant(
       basis,
       withEntries(basis.genesis, entries),
@@ -238,6 +301,16 @@ export function buildGeneration2WindowSpec(input: {
       rootAuthorityCount: binding.rootAuthorityCount,
     };
   });
+  // The complete replacement group, in canonical ledger-assignment sequence.
+  const replacementItems = [
+    ...carryInItems,
+    ...q1Items.map((item, k): SequencedItem => ({
+      sequence: plannedReplacementAppend[k]!.sequence,
+      item,
+    })),
+  ]
+    .sort((a, b) => a.sequence - b.sequence)
+    .map(({ item }) => item);
 
   // Primaries: the lowest never-started ORIGINAL selections, ascending.
   const primaryCount = plannedWindowSize - replacementItems.length;
