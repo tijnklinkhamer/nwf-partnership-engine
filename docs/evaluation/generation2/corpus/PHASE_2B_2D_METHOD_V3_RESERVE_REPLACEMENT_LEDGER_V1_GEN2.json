@@ -284,7 +284,35 @@
       "previousSequenceForSlot": null,
       "previousEntryHash": "cc964e95927ebe9a215975d573808d6becfb5f90d8597fad58d48e8fee377342",
       "entryHash": "9e8bc5e23c26932dcd2c5cfa1ee536f93daaf09dbc813dae56547fc45b226f43"
+    },
+    {
+      "sequence": 15,
+      "selectionIndex": 106,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "PL KIELCE08|949406125",
+      "replacementEcheRowKey": "E SANTAND01|999880075",
+      "generation2ReserveRankPosition": 15,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-09-30T19:16:37Z",
+      "replacedOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "9e8bc5e23c26932dcd2c5cfa1ee536f93daaf09dbc813dae56547fc45b226f43",
+      "entryHash": "223ccb0be3cb8b9d745d44acc2dba76c1817e22c3a752a676508caa7a31672ec"
+    },
+    {
+      "sequence": 16,
+      "selectionIndex": 107,
+      "split": "FINAL_HOLDOUT",
+      "replacedEcheRowKey": "E BARCELO208|928145859",
+      "replacementEcheRowKey": "F ANGOULE21|949497402",
+      "generation2ReserveRankPosition": 16,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-30T19:16:37Z",
+      "replacedOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "223ccb0be3cb8b9d745d44acc2dba76c1817e22c3a752a676508caa7a31672ec",
+      "entryHash": "79263ef41b1aff7fa027fb92920397ce4dd0122b5066b75823a4e26ff50aee1d"
     }
   ],
-  "ledgerHash": "14ede23eaadaa24e5b2de3c211f9da09456a2b300cae629fa12781beee76ff33"
+  "ledgerHash": "9edbb98aa6114c06902c7a6420dd4a60f970d039868d17e0ba5c87d473ee7abc"
 }
