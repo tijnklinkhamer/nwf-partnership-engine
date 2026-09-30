@@ -1,0 +1,928 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_12_OFFLINE_READINESS_V1",
+  "recordKind": "GENERATION2_WINDOW_OFFLINE_READINESS",
+  "task": "GENERATION2_WINDOW_12_PRIMARY_FIRST_MIXED_OFFLINE_READINESS",
+  "ownerDecisions": [
+    "PRESERVE_WINDOW_11_MID_WINDOW_P5_AND_PARTIAL_ADJUDICATION_V1",
+    "APPROVE_WINDOW_12_PRIMARY_FIRST_MIXED_EXECUTION_CADENCE_V1",
+    "APPROVE_WINDOW_12_OFFLINE_READINESS_UNDER_PRIMARY_FIRST_CADENCE_ONLY_V1"
+  ],
+  "terminalState": "GENERATION2_WINDOW_12_OFFLINE_READINESS_READY_FOR_OWNER_LIVE_AUTHORITY_DECISION",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "2e014b1dcd61ab567ef21141a2fb664456f375e4",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "networkAuthorised": false,
+  "databaseAuthorised": false,
+  "ledgerMutationAuthorised": false,
+  "reserveAssignmentAuthorised": false,
+  "networkUsed": false,
+  "databaseUsed": false,
+  "ledgerMutated": false,
+  "reserveAssigned": false,
+  "acquisitionRunCreated": false,
+  "bound": {
+    "window11": {
+      "readiness": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_OFFLINE_READINESS_V1.json",
+        "commit": "13cd4f10ddf871916108e0ca615541080162e201",
+        "sha256": "6feb2d2bf5bf3a69fce73617b45c68667bda9cf01f98713cebea5f61bbe65aa4",
+        "bytes": 38716
+      },
+      "authority": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_LIVE_AUTHORITY_V1.json",
+        "commit": "fdd3f740c8f05468fd926252599f48aa426b146d",
+        "sha256": "99be494d50d72b2630f121aedec8d1b472b9e1e416e681661f8fe4efe7b8df21",
+        "bytes": 101078
+      },
+      "liveResult": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_LIVE_RESULT_V1.json",
+        "commit": "32bcda7fe7d0d03108a58d7ebb262228233b0a98",
+        "sha256": "9d7219e97c372141be75bfc49c795cc8d543709383424107542d15c35a15fec3",
+        "bytes": 41019
+      },
+      "midWindowP5Ruling": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_MID_WINDOW_P5_OWNER_RULING_V1.json",
+        "commit": "0b8636c188eccb2ae533f02a92ff4837910a87fe",
+        "sha256": "b0581af66352aae287663e12df4dfa2bf2ea32fab148b34be9351b8e90aa46cb",
+        "bytes": 26691
+      },
+      "adjudication": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_EVIDENCE_ADJUDICATION_V1.json",
+        "commit": "2e014b1dcd61ab567ef21141a2fb664456f375e4",
+        "sha256": "99f3de0bb9fd85e2e3d5d919ee73addd73627a383bc95874df1098e2fa90e027",
+        "bytes": 33809
+      }
+    },
+    "window11StartingLedgerRevision": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "fileSha256": "3f7054e6067e96e8a86ce076a7a08c0100c9f255971a7eb7ec72277c2b65a349",
+      "bytes": 14008,
+      "ledgerHash": "14ede23eaadaa24e5b2de3c211f9da09456a2b300cae629fa12781beee76ff33",
+      "entryCount": 15,
+      "appendCommit": "3ed669db71656fb175ee054a54713386b7dee6fb",
+      "lastEntryHash": "9e8bc5e23c26932dcd2c5cfa1ee536f93daaf09dbc813dae56547fc45b226f43"
+    },
+    "window11CadenceDecision": null,
+    "window11CadencePin": null,
+    "carryInOwnerSemanticDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_CARRY_IN_ASSIGNED_REPLACEMENT_OWNER_SEMANTIC_DECISION_V1.json",
+      "commit": "c64a6c392c355c89003c7f3a41de2757473c5fd7",
+      "sha256": "a3c6aa018b39d78ce74b9bf077ce011d91a32dc19ae3bb78fb1a6f36b7d1f8a8",
+      "bytes": 7046,
+      "ownerDecisions": [
+        "ACCEPT_WINDOW_09_SLOT99_RESERVE12_AS_CANONICAL_CARRY_IN_ASSIGNED_OCCUPANT_V1",
+        "APPROVE_GENERIC_GENERATION2_CARRY_IN_ASSIGNED_REPLACEMENT_WINDOW_MEMBERSHIP_REPAIR_V1",
+        "PRESERVE_Q1_AS_CURRENT_FAILURES_NOT_YET_ASSIGNED_ONLY_V1",
+        "PRESERVE_LEDGER_APPEND_AS_NEW_Q1_ASSIGNMENTS_ONLY_V1",
+        "PRESERVE_ASSIGNED_REPLACEMENT_LEDGER_SEQUENCE_AND_RESERVE_IDENTITY_ACROSS_WINDOWS_V1",
+        "APPROVE_WINDOW_10_OFFLINE_READINESS_AFTER_ASSIGNED_CARRY_FORWARD_REPAIR_V1"
+      ],
+      "scope": "GENERATION2_GENERIC_WINDOW_MEMBERSHIP_SEMANTICS",
+      "recordKind": "GENERATION2_OWNER_SEMANTIC_DECISION"
+    },
+    "carryInGenericRepairCommit": "020c5ed32759787442c21bf5a96cad8089caec70",
+    "continuationDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_P5_REVIEW_AND_WINDOW_12_CONTINUATION_DECISION_V1.json",
+      "commit": "6dd2f7c737ebb016ffc6429cc9c85040a1312f66",
+      "sha256": "cdb755868e2887feeb12f3df63faad00ca861b36723fb6213e29bb0017c19008",
+      "bytes": 11656,
+      "ownerDecisions": [
+        "PRESERVE_WINDOW_11_MID_WINDOW_P5_AND_PARTIAL_ADJUDICATION_V1",
+        "APPROVE_WINDOW_12_PRIMARY_FIRST_MIXED_EXECUTION_CADENCE_V1",
+        "APPROVE_WINDOW_12_OFFLINE_READINESS_UNDER_PRIMARY_FIRST_CADENCE_ONLY_V1"
+      ],
+      "scope": "WINDOW_12_CADENCE_ONLY",
+      "recordKind": "GENERATION2_OWNER_CONTINUATION_DECISION"
+    },
+    "cadencePinCommit": "03407f112c052e52dd517256ff78658b74bb876b",
+    "cadencePin": "one added entry (window 12) in APPROVED_WINDOW_CADENCE_AUTHORITIES, src/test/harness/phase2b2d/generation2Cadence/windowCadence.ts; no other cadence change",
+    "approvedCadenceWindowOrdinals": [8, 9, 10, 12],
+    "currentGeneration2Ledger": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "fileSha256": "9576e92b02c80bfee58862c445847059d4d3242e1e82e1e8603e13fedb8bf55e",
+      "bytes": 15288,
+      "ledgerHash": "9edbb98aa6114c06902c7a6420dd4a60f970d039868d17e0ba5c87d473ee7abc",
+      "entryCount": 17,
+      "appendCommit": "df405ccebf4983657a241007a98495e223669d3d",
+      "lastEntryHash": "79263ef41b1aff7fa027fb92920397ce4dd0122b5066b75823a4e26ff50aee1d"
+    },
+    "methodologyV3Approval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_OWNER_FREEZE_APPROVAL_V1.json",
+      "commit": "13dcdbed94fea08a833664948ac238737cf44c8e",
+      "sha256": "36e8071738e1842ad03a9b51cf5820d58015305191c48490ef515e1cd1c34f9c",
+      "bytes": 12318
+    },
+    "reserveAssignmentOrderClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "commit": "b17503a2420ff16cc0c71ac94709b54fe1f2ead6",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "bytes": 18443
+    },
+    "postWindow06Hardening": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_POST_WINDOW_06_HARDENING_V1.json",
+      "commit": "58815855173d3b246ddc04b408cade7ac2056567",
+      "sha256": "e15ce8f00898c507dbcefae9dbf6808b6e1aad0d7a1f4566de756dc6412a0274",
+      "bytes": 17351
+    }
+  },
+  "adjudicationHistory": {
+    "explicitOrderedBindingsOnly": true,
+    "directoryDiscovery": false,
+    "latestLookup": false,
+    "glob": false,
+    "windows": [
+      {
+        "windowOrdinal": 1,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_AUTHORITY_V1.json",
+          "sha256": "e4874f7e84a184bd473b75f15dba0fd90700d4bb33ec0093593de90f4dea38ba"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_RESULT_V1.json",
+          "sha256": "7162938e6f8ba5f7808075f58021b540244b2b5a0b05d61db0812cfd4d8102d0"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "89e4f166e56292374d3cf1aa2fe8037225770d48193ae619a32a1d4c7f1df5df"
+        },
+        "rebuiltWindowSpecHash": "af9eafe58251a9dbb6a0af5baae0258b2a82a1f1183554d45f3b2dd14898fb23",
+        "executed": 5
+      },
+      {
+        "windowOrdinal": 2,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_AUTHORITY_V1.json",
+          "sha256": "e2cb65b5a7d3b35391718e255fef4db926bcfe88020f392ac93f79981392bba2"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_RESULT_V1.json",
+          "sha256": "68852cbca3de127bb0a5442863cc99d2c3b72a5a69700c5fc5ac619fbc29b4ae"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "2e35cad7951aed780151b97400ea3b7e9fd78d4bfdec252f83d0652702bbdc8d"
+        },
+        "rebuiltWindowSpecHash": "59bb957942e6f06e8c530bb5dffcd3118f9e3ff5b4a3fc9e1af8ea7e03297b9c",
+        "executed": 5
+      },
+      {
+        "windowOrdinal": 3,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_AUTHORITY_V1.json",
+          "sha256": "aaa61ce72b9a5b943928f879f68daa06ea612aacfd5117310d54bd14cfa65478"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_RESULT_V1.json",
+          "sha256": "c9654a837dde1c7c86a90c505b8cc1d5e6fcae1edc8a593981328576944e42ec"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "8d59cb2a1e2d6f3b447767a8c56078111658dbd07818e098fd363c153fe33ef0"
+        },
+        "rebuiltWindowSpecHash": "012f983bd0b59b5fe20cf628cf765418ea8046d3f28c1eaafc70d2e679d30418",
+        "executed": 5
+      },
+      {
+        "windowOrdinal": 4,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_AUTHORITY_V1.json",
+          "sha256": "bb24c26a8f2816a2cba584edb3726254bd72b1a8b979ca3cf9348effae1802a5"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_RESULT_V1.json",
+          "sha256": "89b2aac217502133e7cbd75a9144f81637a03ef3be906cdebd03d1edb30e22f4"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "826f11851a6c000d3a314da2b6a4c31081014d29fdbdeb6012d157dae58b3dd8"
+        },
+        "rebuiltWindowSpecHash": "8f8b4eef73b433d37bb8cae84836285eea0fb03d668c9ab068bad4745882a9da",
+        "executed": 5,
+        "authorityShapeCorrection": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_OWNER_SHAPE_CORRECTION_AND_ADJUDICATION_RULING_V1.json"
+      },
+      {
+        "windowOrdinal": 5,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_AUTHORITY_V1.json",
+          "sha256": "d88f741162bf27f6c290b2875edbeba522908c5545d6608b8d79b820ff701807"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_RESULT_V2.json",
+          "sha256": "6914f564726029ebf82ef9ea142279f9697d9adb68bf42bfad0ba359df748d26"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "187eef89ed37f86e2f96c95e8772d9681ddcd944d04cff21961e4aaa63358642"
+        },
+        "rebuiltWindowSpecHash": "1714e3c9f9cd175cc6650e8cde150dee0f1c18ae742cc4508235291bee061cad",
+        "executed": 5
+      },
+      {
+        "windowOrdinal": 6,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_AUTHORITY_V1.json",
+          "sha256": "6d847d8175054ecf7f09e45b5ab8ba8e488e9f8ca99553e9ca2c420b4dc977e3"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_RESULT_V3.json",
+          "sha256": "9dee6861dabc5c997ed2d458fad7d346f6b7aa9a019d421439f8c2b242cb1af6"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "845ca3a4bcd13409ac00dfc8b2a4224e9aee8ab08749aab523a8b7d478f5f340"
+        },
+        "rebuiltWindowSpecHash": "470f0d281d104b2d099b8e8c62ff65ef4f58678adbba8e422c167a7398935ac0",
+        "executed": 5
+      },
+      {
+        "windowOrdinal": 7,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_LIVE_AUTHORITY_V1.json",
+          "sha256": "726f78369af5fa5bb177a934c8c81e1bb317c04026dbf30575be4bb613db6020"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_LIVE_RESULT_V1.json",
+          "sha256": "41614f01a213a22203fbb655ead9df888727b4f7740e96e74389156cc9582734"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "d138c9618b2919d79b3468eb27f034bd11b64daf09a6c01ef733e474aa57d2fb"
+        },
+        "rebuiltWindowSpecHash": "6a52a37a49b5b48a158a8a6535fdb6355f7b5e1225c902f841de9b261197cce3",
+        "executed": 2
+      },
+      {
+        "windowOrdinal": 8,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_LIVE_AUTHORITY_V1.json",
+          "sha256": "f77aa0cf6d232a070d348dcd36a74932f078a64f79e1ddf737ec2e3f35b69a61"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_LIVE_RESULT_V1.json",
+          "sha256": "0a32d0d3e0c120e9b498046ea4df76d65ba85be22681f73e815c3dfc02cdc187"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "2fb0b230d92b30746b2b62e3a598795cf4840011b710953df344774b9b8032da"
+        },
+        "rebuiltWindowSpecHash": "a5cf6eeec7067eeadd94266d972a8ecd16130bab184d0ba76b39adaf530b8131",
+        "executed": 5,
+        "cadenceAuthority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_P5_REVIEW_AND_CONTINUATION_DECISION_V1.json",
+          "commit": "2c20af702c3a9aed93e41f61c28d274f01c8351a",
+          "sha256": "2cfa5931946b8c71729a17ca98291df2a8f0fa6768a24ef3362b24f689c28b85"
+        }
+      },
+      {
+        "windowOrdinal": 9,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_LIVE_AUTHORITY_V1.json",
+          "sha256": "97841c9a2c679b5adcd6673128353e4aa6e20b54d6474fb957bc9e2e63c61e51"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_LIVE_RESULT_V2.json",
+          "sha256": "e7d384ad58a03090ecdfc3130ef2eb5b4e9966b784aa1cc2f36bc2ed7825c0f1"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "9cf694e5caf0f1c6d403d045b6939cae7bd57964372c9002ce22fc44ee739fa3"
+        },
+        "rebuiltWindowSpecHash": "e2c7837660243dfb0420d97e2f72a59de7eb6b147fecba336a360029f8a8abdb",
+        "executed": 4,
+        "cadenceAuthority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_P5_REVIEW_AND_WINDOW_09_CONTINUATION_DECISION_V1.json",
+          "commit": "9deb681e6cb7f19ad4af0f677655f278ece6c149",
+          "sha256": "316e6f9aa90c977ac1f43cf8155a297980b94f93c4935d33c378e1dec9a141e2"
+        }
+      },
+      {
+        "windowOrdinal": 10,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_10_LIVE_AUTHORITY_V1.json",
+          "sha256": "30dcbb6713aec1de2c12ac1c77db35ecbb4d29a84b5bf0568251d3471dc58145"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_10_LIVE_RESULT_V1.json",
+          "sha256": "fb95f08928198d6c31107b292ccb142cda95f3c171ddd24b262f527fcecce50f"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_10_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "6c27a6b5c0db88ca792367551ed134509affb4cc36a488e0f7387364ecdf1bae"
+        },
+        "rebuiltWindowSpecHash": "9ab4edc800d1e5ba629b5bc4fb7844fa3e886f7de33bc49065094c65bf5c68a5",
+        "executed": 2,
+        "cadenceAuthority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_P5_REVIEW_AND_WINDOW_10_CONTINUATION_DECISION_V1.json",
+          "commit": "7b226de931752dc70028b5e20e37fa5d7a925ca5",
+          "sha256": "ceff378d1147b4d43ac754c368c6311543f673f37f4190a9840d6ef926238752"
+        }
+      },
+      {
+        "windowOrdinal": 11,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_LIVE_AUTHORITY_V1.json",
+          "sha256": "99be494d50d72b2630f121aedec8d1b472b9e1e416e681661f8fe4efe7b8df21"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_LIVE_RESULT_V1.json",
+          "sha256": "9d7219e97c372141be75bfc49c795cc8d543709383424107542d15c35a15fec3"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "99f3de0bb9fd85e2e3d5d919ee73addd73627a383bc95874df1098e2fa90e027"
+        },
+        "rebuiltWindowSpecHash": "df50897eb8d273fd0af753b06cf8266e1b7e34490ed8cd31fd69ebea9a391752",
+        "executed": 4
+      }
+    ],
+    "window11": {
+      "executed": [
+        ["G2R:99:12", "ACQUISITION_SUCCESSFUL", null],
+        ["G2R:96:13", "ACQUISITION_SUCCESSFUL", null],
+        ["G2R:103:14", "ACQUISITION_UNSUCCESSFUL", "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"],
+        ["G2R:106:15", "ACQUISITION_UNSUCCESSFUL", "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"]
+      ],
+      "executionCadence": "Q1_REPLACEMENTS_THEN_PRIMARIES",
+      "authorisedOrder": ["G2R:99:12", "G2R:96:13", "G2R:103:14", "G2R:106:15", "G2R:107:16"],
+      "consumedLedgerSequences": [15, 16],
+      "notExecuted": ["G2R:107:16"]
+    },
+    "consumedLedgerEntryCount": 17,
+    "integrity": {
+      "holds": true,
+      "isFrozenP7": false,
+      "historicalRunReferences": 47,
+      "distinct": 47
+    },
+    "hardenedLiveResultContract": [
+      {
+        "window": 1,
+        "liveResult": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_RESULT_V1.json",
+        "sha256": "7162938e6f8ba5f7808075f58021b540244b2b5a0b05d61db0812cfd4d8102d0",
+        "result": "PASS",
+        "items": 5
+      },
+      {
+        "window": 2,
+        "liveResult": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_RESULT_V1.json",
+        "sha256": "68852cbca3de127bb0a5442863cc99d2c3b72a5a69700c5fc5ac619fbc29b4ae",
+        "result": "PASS",
+        "items": 5
+      },
+      {
+        "window": 3,
+        "liveResult": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_RESULT_V1.json",
+        "sha256": "c9654a837dde1c7c86a90c505b8cc1d5e6fcae1edc8a593981328576944e42ec",
+        "result": "PASS",
+        "items": 5
+      },
+      {
+        "window": 4,
+        "liveResult": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_RESULT_V1.json",
+        "sha256": "89b2aac217502133e7cbd75a9144f81637a03ef3be906cdebd03d1edb30e22f4",
+        "result": "PASS",
+        "items": 5
+      },
+      {
+        "window": 5,
+        "liveResult": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_RESULT_V2.json",
+        "sha256": "6914f564726029ebf82ef9ea142279f9697d9adb68bf42bfad0ba359df748d26",
+        "result": "PASS",
+        "items": 5
+      },
+      {
+        "window": 6,
+        "liveResult": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_RESULT_V3.json",
+        "sha256": "9dee6861dabc5c997ed2d458fad7d346f6b7aa9a019d421439f8c2b242cb1af6",
+        "result": "PASS",
+        "items": 5
+      },
+      {
+        "window": 7,
+        "liveResult": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_LIVE_RESULT_V1.json",
+        "sha256": "41614f01a213a22203fbb655ead9df888727b4f7740e96e74389156cc9582734",
+        "result": "PASS",
+        "items": 2
+      },
+      {
+        "window": 8,
+        "liveResult": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_LIVE_RESULT_V1.json",
+        "sha256": "0a32d0d3e0c120e9b498046ea4df76d65ba85be22681f73e815c3dfc02cdc187",
+        "result": "PASS",
+        "items": 5
+      },
+      {
+        "window": 9,
+        "liveResult": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_LIVE_RESULT_V2.json",
+        "sha256": "e7d384ad58a03090ecdfc3130ef2eb5b4e9966b784aa1cc2f36bc2ed7825c0f1",
+        "result": "PASS",
+        "items": 4
+      },
+      {
+        "window": 10,
+        "liveResult": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_10_LIVE_RESULT_V1.json",
+        "sha256": "fb95f08928198d6c31107b292ccb142cda95f3c171ddd24b262f527fcecce50f",
+        "result": "PASS",
+        "items": 2
+      },
+      {
+        "window": 11,
+        "liveResult": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_LIVE_RESULT_V1.json",
+        "sha256": "9d7219e97c372141be75bfc49c795cc8d543709383424107542d15c35a15fec3",
+        "result": "PASS",
+        "items": 4
+      }
+    ]
+  },
+  "currentState": {
+    "ACQUISITION_SUCCESSFUL": 105,
+    "acquisitionSuccessfulBySplit": {
+      "DEV_TRAIN": 20,
+      "DEV_CONFIRM": 42,
+      "FINAL_HOLDOUT": 43
+    },
+    "CURRENT_ACQUISITION_FAILURE": [103, 106],
+    "failureReasons": [
+      {
+        "selectionIndex": 103,
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+      },
+      {
+        "selectionIndex": 106,
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+      }
+    ],
+    "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION": [107],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "CARRY_FORWARD_REFUSED": [],
+    "NEVER_STARTED": {
+      "from": 108,
+      "to": 109,
+      "count": 2
+    },
+    "q1": [103, 106],
+    "accounting": "105 successful + 2 failed + 1 assigned + 0 pending + 2 never started = 110",
+    "generation2ReserveConsumed": 17,
+    "nextGeneration2ReservePosition": 17
+  },
+  "carryIn": {
+    "rule": "every slot already ASSIGNED in the starting revision stays a work-item obligation on its exact ledger occupant until executed and adjudicated: no Q1, no second reserve, no new ledger entry (generic, 020c5ed)",
+    "order": "existing ledger sequence ascending",
+    "occupants": [
+      {
+        "workItemId": "G2R:107:16",
+        "selectionIndex": 107,
+        "split": "FINAL_HOLDOUT",
+        "generation2ReserveRankPosition": 16,
+        "ledgerSequence": 16,
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacedOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+        "previousSequenceForSlot": null,
+        "entryHash": "79263ef41b1aff7fa027fb92920397ce4dd0122b5066b75823a4e26ff50aee1d",
+        "identityDigest": "964b38c8af815bea7778b3228c8ac231ea378afdc2a267222e63d1fe7ad3c33e",
+        "newLedgerEntry": false,
+        "inQ1": false
+      }
+    ],
+    "reserves": [
+      {
+        "generation2ReserveRankPosition": 16,
+        "sourceFrameRankPosition": 166,
+        "rankHash": "06c8e606d2d241d6a78e652592ce9ffc9a1b8ebedfba1c7f528e1c4350ae6219",
+        "frameEntrySha256": "227e183f6a346eacf0056d34831960fe77decc5466ce25f9096f232ad2d286e1",
+        "scheduleEntrySha256": "4b2ec81163d9fe1acea000ff87486df7dd4fd0cc8e205b719f0ddff2cef6e818",
+        "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+        "rootAuthorityCount": 1
+      }
+    ]
+  },
+  "q1": {
+    "rule": "every current replacement obligation (failures not yet assigned), selectionIndex ascending, the next unused Generation-2 reserves monotonically (unchanged)",
+    "assignments": [
+      {
+        "selectionIndex": 103,
+        "generation2ReserveRankPosition": 17,
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+      },
+      {
+        "selectionIndex": 106,
+        "generation2ReserveRankPosition": 18,
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+      }
+    ],
+    "occupantsReplaced": [
+      {
+        "selectionIndex": 103,
+        "kind": "GENERATION2_RESERVE_REPLACEMENT",
+        "generation2ReserveRankPosition": 14,
+        "generation2LedgerSequence": 14
+      },
+      {
+        "selectionIndex": 106,
+        "kind": "GENERATION2_RESERVE_REPLACEMENT",
+        "generation2ReserveRankPosition": 15,
+        "generation2LedgerSequence": 15
+      }
+    ],
+    "newReserves": [
+      {
+        "generation2ReserveRankPosition": 17,
+        "sourceFrameRankPosition": 167,
+        "rankHash": "06cabfc863fd4ae425adfbfc88bbeb75efc47ee9737c4e486bd60f8ea2cfe2c3",
+        "frameEntrySha256": "e12683c37eea73c2031a5686f4b65b11e9e4e0a09caac96515f13cb126d2608c",
+        "scheduleEntrySha256": "155e4d71a7f9babdb84c822ffe40697d162939c7e1394efacc37b7031064c9d9",
+        "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+        "rootAuthorityCount": 1
+      },
+      {
+        "generation2ReserveRankPosition": 18,
+        "sourceFrameRankPosition": 168,
+        "rankHash": "06ce62f0779e3d33c800b7b5cf2971625ebaadee0e677cd441d319529bfac679",
+        "frameEntrySha256": "85149d2f623d70f95ac2b236e804032c3dc018223929fb3b41a2cc2fba008127",
+        "scheduleEntrySha256": "406eaf009703c4d3daf9b62958785f58cbf205752162b5c73dd99eae628ad277",
+        "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+        "rootAuthorityCount": 1
+      }
+    ]
+  },
+  "prospectiveAppend": {
+    "inMemoryOnly": true,
+    "recordedAtUtc": "2026-09-30T20:30:00Z",
+    "recordedAtUtcIsReadinessOnly": "illustrative; a live authority must stamp its own shell-observed timestamp, so its entry hashes and ledger hash will differ",
+    "previousLedgerHash": "9edbb98aa6114c06902c7a6420dd4a60f970d039868d17e0ba5c87d473ee7abc",
+    "entries": [
+      {
+        "sequence": 17,
+        "selectionIndex": 103,
+        "generation2ReserveRankPosition": 17,
+        "split": "DEV_CONFIRM",
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacedOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+        "previousSequenceForSlot": 14,
+        "recordedAtUtc": "2026-09-30T20:30:00Z",
+        "previousEntryHash": "79263ef41b1aff7fa027fb92920397ce4dd0122b5066b75823a4e26ff50aee1d",
+        "entryHash": "457e80c5282974a067f99bb7578bf342bba6a12e96625e878d88bba7d50fcd1e"
+      },
+      {
+        "sequence": 18,
+        "selectionIndex": 106,
+        "generation2ReserveRankPosition": 18,
+        "split": "DEV_CONFIRM",
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "replacedOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+        "previousSequenceForSlot": 15,
+        "recordedAtUtc": "2026-09-30T20:30:00Z",
+        "previousEntryHash": "457e80c5282974a067f99bb7578bf342bba6a12e96625e878d88bba7d50fcd1e",
+        "entryHash": "45600519425c92cf7fc23c12229d37f174d5dd3962eaddd33ce8306fb1faa81e"
+      }
+    ],
+    "carryInEntriesAppended": 0,
+    "prospectiveLedgerHash": "2080d8925d208f0af53a45b388f139fb547a0125333890d6ff0ecc83d65e6374",
+    "prospectiveEntryCount": 19,
+    "nextGeneration2ReservePosition": 19,
+    "prospectiveLedgerFile": {
+      "sha256": "26782145c2c6a5f130ea244030092729fe3e656f2e4f0e2dc80e3f4461a9bc8f",
+      "bytes": 16565,
+      "materialisedInMemoryOnly": true
+    },
+    "written": false
+  },
+  "prospectiveState": {
+    "ACQUISITION_SUCCESSFUL": 105,
+    "CURRENT_ACQUISITION_FAILURE": [],
+    "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION": [103, 106, 107],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "NEVER_STARTED": {
+      "from": 108,
+      "to": 109,
+      "count": 2
+    },
+    "q1": [],
+    "accounting": "105 successful + 0 failed + 3 assigned + 0 pending + 2 never started = 110"
+  },
+  "window12": {
+    "windowSpecHash": "699133f76a0e203d0e311ab4d90c8911b6e2a902dd0b4ae06bf03eb73fb314c2",
+    "plannedWindowSize": 5,
+    "executionCadence": {
+      "mode": "PRIMARIES_THEN_Q1_REPLACEMENTS",
+      "windowOrdinal": 12,
+      "authority": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_P5_REVIEW_AND_WINDOW_12_CONTINUATION_DECISION_V1.json",
+        "commit": "6dd2f7c737ebb016ffc6429cc9c85040a1312f66",
+        "sha256": "cdb755868e2887feeb12f3df63faad00ca861b36723fb6213e29bb0017c19008",
+        "bytes": 11656,
+        "ownerDecision": "APPROVE_WINDOW_12_PRIMARY_FIRST_MIXED_EXECUTION_CADENCE_V1"
+      }
+    },
+    "cadenceIntegrity": {
+      "verifiedBy": "verifyWindowCadenceAuthority (generic)",
+      "windowOrdinal": 12,
+      "mode": "PRIMARIES_THEN_Q1_REPLACEMENTS",
+      "defaultMode": "Q1_REPLACEMENTS_THEN_PRIMARIES",
+      "separateFromWindow08And09And10Pins": true,
+      "window11PinExists": false
+    },
+    "membership": ["G2R:107:16", "G2R:103:17", "G2R:106:18", "G2P:108", "G2P:109"],
+    "membershipRule": "carry-in assigned replacements + complete Q1 replacements (the group in ledger-sequence order) + the lowest never-started original primaries (repaired generic builder)",
+    "replacementGroup": [
+      {
+        "workItemId": "G2R:107:16",
+        "ledgerSequence": 16,
+        "carryIn": true
+      },
+      {
+        "workItemId": "G2R:103:17",
+        "ledgerSequence": 17,
+        "carryIn": false
+      },
+      {
+        "workItemId": "G2R:106:18",
+        "ledgerSequence": 18,
+        "carryIn": false
+      }
+    ],
+    "membershipEqualsDefaultCadence": true,
+    "defaultCadenceOrder": ["G2R:107:16", "G2R:103:17", "G2R:106:18", "G2P:108", "G2P:109"],
+    "defaultCadenceSpecHash": "aa560486c75a09bab636fccbd3c3b8f823082d534c73b74e26c3ae938b260e50",
+    "order": ["G2P:108", "G2P:109", "G2R:107:16", "G2R:103:17", "G2R:106:18"],
+    "composition": {
+      "DEV_TRAIN": 0,
+      "DEV_CONFIRM": 3,
+      "FINAL_HOLDOUT": 2
+    },
+    "replacementItems": 3,
+    "carryInReplacementItems": 1,
+    "newQ1ReplacementItems": 2,
+    "primaryItems": 2,
+    "primaries": [
+      {
+        "workItemId": "G2P:108",
+        "selectionIndex": 108,
+        "split": "DEV_CONFIRM",
+        "rankHash": "04ac9e34fc71beffd3b6593845e1034a6c90d98b8ef386a67eaf5919ba79ccb7",
+        "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+        "rootAuthorityCount": 1,
+        "identityDigest": "6b6d2d2c9bc8f6180f3df869e2fcba64686d91a008e2100a773ca78a82d85962"
+      },
+      {
+        "workItemId": "G2P:109",
+        "selectionIndex": 109,
+        "split": "FINAL_HOLDOUT",
+        "rankHash": "04ae505e1d46c605c1e86943d9bf2aa388375fa3612707a15e32cfbbe1397107",
+        "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+        "rootAuthorityCount": 1,
+        "identityDigest": "8f11c9998f893d8ebb83be1e68e58170d8a94ba278e3678303827039c0b65092"
+      }
+    ],
+    "neverStartedPrimariesAfterThisWindow": {
+      "from": null,
+      "to": null,
+      "count": 0
+    },
+    "plannedReplacementAppend": [
+      {
+        "sequence": 17,
+        "selectionIndex": 103,
+        "generation2ReserveRankPosition": 17,
+        "split": "DEV_CONFIRM",
+        "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacedOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+        "previousSequenceForSlot": 14
+      },
+      {
+        "sequence": 18,
+        "selectionIndex": 106,
+        "generation2ReserveRankPosition": 18,
+        "split": "DEV_CONFIRM",
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "replacedOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+        "previousSequenceForSlot": 15
+      }
+    ],
+    "workItems": [
+      {
+        "order": 1,
+        "kind": "PRIMARY",
+        "workItemId": "G2P:108",
+        "selectionIndex": 108,
+        "generation2ReserveRankPosition": null,
+        "split": "DEV_CONFIRM",
+        "replacementReason": null,
+        "replacesOccupantKind": null,
+        "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+        "identityDigest": "6b6d2d2c9bc8f6180f3df869e2fcba64686d91a008e2100a773ca78a82d85962",
+        "rootAuthorityCount": 1
+      },
+      {
+        "order": 2,
+        "kind": "PRIMARY",
+        "workItemId": "G2P:109",
+        "selectionIndex": 109,
+        "generation2ReserveRankPosition": null,
+        "split": "FINAL_HOLDOUT",
+        "replacementReason": null,
+        "replacesOccupantKind": null,
+        "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+        "identityDigest": "8f11c9998f893d8ebb83be1e68e58170d8a94ba278e3678303827039c0b65092",
+        "rootAuthorityCount": 1
+      },
+      {
+        "order": 3,
+        "kind": "REPLACEMENT",
+        "workItemId": "G2R:107:16",
+        "selectionIndex": 107,
+        "generation2ReserveRankPosition": 16,
+        "split": "FINAL_HOLDOUT",
+        "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacesOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+        "identityDigestKind": "GENERATION2_EXECUTION_ENTRY_SHA256",
+        "identityDigest": "964b38c8af815bea7778b3228c8ac231ea378afdc2a267222e63d1fe7ad3c33e",
+        "rootAuthorityCount": 1
+      },
+      {
+        "order": 4,
+        "kind": "REPLACEMENT",
+        "workItemId": "G2R:103:17",
+        "selectionIndex": 103,
+        "generation2ReserveRankPosition": 17,
+        "split": "DEV_CONFIRM",
+        "replacementReason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "replacesOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+        "identityDigestKind": "GENERATION2_EXECUTION_ENTRY_SHA256",
+        "identityDigest": "417218ef9e5252c81a3822e697c2c6f013b20de72a27748ad877e752f338f4f3",
+        "rootAuthorityCount": 1
+      },
+      {
+        "order": 5,
+        "kind": "REPLACEMENT",
+        "workItemId": "G2R:106:18",
+        "selectionIndex": 106,
+        "generation2ReserveRankPosition": 18,
+        "split": "DEV_CONFIRM",
+        "replacementReason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "replacesOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+        "identityDigestKind": "GENERATION2_EXECUTION_ENTRY_SHA256",
+        "identityDigest": "b0a17ad0e0f08bc713b0487e30ea768554166144b68b43b78daeb21d16a78e47",
+        "rootAuthorityCount": 1
+      }
+    ],
+    "executionIdentities": [
+      {
+        "workItemId": "G2P:108",
+        "kind": "PRIMARY",
+        "split": "DEV_CONFIRM",
+        "selectionIndex": 108,
+        "rankHash": "04ac9e34fc71beffd3b6593845e1034a6c90d98b8ef386a67eaf5919ba79ccb7",
+        "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+        "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+        "identityDigest": "6b6d2d2c9bc8f6180f3df869e2fcba64686d91a008e2100a773ca78a82d85962",
+        "rebuiltEqualsSpec": true
+      },
+      {
+        "workItemId": "G2P:109",
+        "kind": "PRIMARY",
+        "split": "FINAL_HOLDOUT",
+        "selectionIndex": 109,
+        "rankHash": "04ae505e1d46c605c1e86943d9bf2aa388375fa3612707a15e32cfbbe1397107",
+        "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+        "identityDigestKind": "ORIGINAL_DRAW_SELECTION_ENTRY_SHA256",
+        "identityDigest": "8f11c9998f893d8ebb83be1e68e58170d8a94ba278e3678303827039c0b65092",
+        "rebuiltEqualsSpec": true
+      },
+      {
+        "workItemId": "G2R:107:16",
+        "kind": "REPLACEMENT",
+        "split": "FINAL_HOLDOUT",
+        "generation2ReserveRankPosition": 16,
+        "sourceFrameRankPosition": 166,
+        "rankHash": "06c8e606d2d241d6a78e652592ce9ffc9a1b8ebedfba1c7f528e1c4350ae6219",
+        "frameEntrySha256": "227e183f6a346eacf0056d34831960fe77decc5466ce25f9096f232ad2d286e1",
+        "scheduleEntrySha256": "4b2ec81163d9fe1acea000ff87486df7dd4fd0cc8e205b719f0ddff2cef6e818",
+        "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+        "identityDigestKind": "GENERATION2_EXECUTION_ENTRY_SHA256",
+        "identityDigest": "964b38c8af815bea7778b3228c8ac231ea378afdc2a267222e63d1fe7ad3c33e",
+        "rebuiltEqualsSpec": true
+      },
+      {
+        "workItemId": "G2R:103:17",
+        "kind": "REPLACEMENT",
+        "split": "DEV_CONFIRM",
+        "generation2ReserveRankPosition": 17,
+        "sourceFrameRankPosition": 167,
+        "rankHash": "06cabfc863fd4ae425adfbfc88bbeb75efc47ee9737c4e486bd60f8ea2cfe2c3",
+        "frameEntrySha256": "e12683c37eea73c2031a5686f4b65b11e9e4e0a09caac96515f13cb126d2608c",
+        "scheduleEntrySha256": "155e4d71a7f9babdb84c822ffe40697d162939c7e1394efacc37b7031064c9d9",
+        "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+        "identityDigestKind": "GENERATION2_EXECUTION_ENTRY_SHA256",
+        "identityDigest": "417218ef9e5252c81a3822e697c2c6f013b20de72a27748ad877e752f338f4f3",
+        "rebuiltEqualsSpec": true
+      },
+      {
+        "workItemId": "G2R:106:18",
+        "kind": "REPLACEMENT",
+        "split": "DEV_CONFIRM",
+        "generation2ReserveRankPosition": 18,
+        "sourceFrameRankPosition": 168,
+        "rankHash": "06ce62f0779e3d33c800b7b5cf2971625ebaadee0e677cd441d319529bfac679",
+        "frameEntrySha256": "85149d2f623d70f95ac2b236e804032c3dc018223929fb3b41a2cc2fba008127",
+        "scheduleEntrySha256": "406eaf009703c4d3daf9b62958785f58cbf205752162b5c73dd99eae628ad277",
+        "rootAuthorityTypes": ["WEBSITE_CLAIM"],
+        "identityDigestKind": "GENERATION2_EXECUTION_ENTRY_SHA256",
+        "identityDigest": "b0a17ad0e0f08bc713b0487e30ea768554166144b68b43b78daeb21d16a78e47",
+        "rebuiltEqualsSpec": true
+      }
+    ],
+    "precommittedBeforeNetwork": true,
+    "adaptsToResults": false
+  },
+  "gates": {
+    "p2": {
+      "threshold": 3,
+      "unchanged": true,
+      "counts": ["ROBOTS_BLOCKED_ROOT", "ROBOTS_UNREADABLE_ROOT"]
+    },
+    "p5": {
+      "threshold": 2,
+      "denominator": 5,
+      "scope": "CURRENT_WINDOW",
+      "lowYieldCountAtWindowStart": 0,
+      "evaluatedAfterEveryCompletedItem": true,
+      "sticky": true,
+      "exemptForPrimaries": false,
+      "carriedFromWindow11": 0,
+      "window11P5Preserved": true,
+      "meaning": "if G2P:108 and G2P:109 are both low-yield, P5 fires after item 2 and Window 12 stops"
+    },
+    "p6": {
+      "rule": "reserveConsumed > 10 AND successfulOrganisationCount < 50",
+      "beforeAppend": {
+        "reserveConsumed": 17,
+        "successful": 105,
+        "fires": false
+      },
+      "afterAppend": {
+        "reserveConsumed": 19,
+        "successful": 105,
+        "fires": false
+      }
+    },
+    "p7": {
+      "invariants": 18,
+      "onCurrentLedger": {
+        "held": "16/18",
+        "falseInvariants": [
+          "plannedReplacementAppendRecorded",
+          "postAppendOccupantsMatchAssignedReserves"
+        ],
+        "meaning": "the new Q1 append is not yet persisted; expected before the append"
+      },
+      "onProspectiveLedger": {
+        "held": "18/18",
+        "falseInvariants": []
+      },
+      "withoutTheCadenceDecision": {
+        "held": "16/18",
+        "windowCadenceAuthorityIntegrity": false
+      }
+    },
+    "operationalPrerequisites": {
+      "adjudicationHistoryIntegrity": true,
+      "windowCadenceAuthorityIntegrity": true,
+      "bothOutsideFrozenP7": true
+    },
+    "zeroCompletedGate": {
+      "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+      "nextWorkItemId": "G2P:108",
+      "mayStartNextWorkItem": true
+    },
+    "p8": "unchanged: host sleep/wake or a wall-clock gap inconsistent with the pacing clock only; process concurrency stays the separate GENERATION2_LIVE_CRITICAL_SECTION_POLICY_V2 control",
+    "intendedLiveConcurrencyPolicy": "offline prerequisite only: Window-12 live execution uses the existing Engine / shared-nwf_pe concurrency scope; unrelated NWF application tests are not machine-wide blockers when proven isolated, and anything unproved fails closed; no concurrency code changed and no watcher ran"
+  },
+  "canonicalGeneration2Ledger": {
+    "unchanged": true,
+    "entryCount": 17,
+    "ledgerHash": "9edbb98aa6114c06902c7a6420dd4a60f970d039868d17e0ba5c87d473ee7abc",
+    "reserve17Assigned": false,
+    "reserve18Assigned": false
+  },
+  "sideEffects": {
+    "institutionNetworkRequests": 0,
+    "databaseConnections": 0,
+    "databaseWrites": 0,
+    "acquisitionRuns": 0,
+    "ledgerWrites": 0,
+    "reserveAssignments": 0,
+    "liveAuthoritiesCreated": 0,
+    "window12Executions": 0,
+    "g2p108Execution": false,
+    "g2p109Execution": false,
+    "g2r107_16Execution": false,
+    "window13Created": false
+  },
+  "identityDisclosure": "slot numbers, Generation-2 reserve positions, ledger sequences, work item ids, digests and aggregates only; no organisation id, echeRowKey, URL, hostname or page text",
+  "nextOwnerDecision": "whether to authorise, separately: (1) one two-entry pre-network Q1 append (slot 103 -> reserve 17, slot 106 -> reserve 18; slot 107 keeps reserve 16 and takes no entry) with its own shell-observed timestamp; and (2) exactly one bounded live Window 12 in the precommitted primary-first order G2P:108 -> G2P:109 -> G2R:107:16 -> G2R:103:17 -> G2R:106:18. This readiness grants neither",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
