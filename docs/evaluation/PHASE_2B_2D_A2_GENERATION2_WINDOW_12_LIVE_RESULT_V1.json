@@ -1,0 +1,1153 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_12_LIVE_RESULT_V1",
+  "recordKind": "GENERATION2_WINDOW_LIVE_RESULT",
+  "recordedAtUtc": "2026-09-30T21:33:50Z",
+  "recordedAtUtcSource": "date -u, read from the shell after the last executed item and before this record was written",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "51b865a58e23fb2ff5a1ab032f87b20417d75124",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "boundAuthority": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_LIVE_AUTHORITY_V1.json",
+    "commit": "5ee2afe80ac750e762243335c3c5097ac92a66aa",
+    "sha256": "522cb1c99b99b8d968fb2a8943f0e88b8a40e4096f39211adfa46cec951be009",
+    "bytes": 107052,
+    "ownerDecision": "APPROVE_GENERATION2_WINDOW_12_PRIMARY_FIRST_EXACTLY_ONE_FIVE_ITEM_LIVE_WINDOW_V1",
+    "ownerDecisions": [
+      "APPROVE_GENERATION2_WINDOW_12_TWO_ENTRY_Q1_PRE_NETWORK_APPEND_V1",
+      "PRESERVE_WINDOW_12_CARRY_IN_G2R107_16_WITHOUT_SECOND_ASSIGNMENT_V1",
+      "APPROVE_GENERATION2_WINDOW_12_PRIMARY_FIRST_EXACTLY_ONE_FIVE_ITEM_LIVE_WINDOW_V1",
+      "APPLY_WINDOW_12_ENGINE_AND_SHARED_ACQUISITION_STATE_CONCURRENCY_SCOPE_V1",
+      "APPROVE_GENERATION2_WINDOW_12_ONE_POST_WINDOW_VALIDATION_AND_CONDITIONAL_ADJUDICATION_V1"
+    ]
+  },
+  "governingCadenceDecision": "APPROVE_WINDOW_12_PRIMARY_FIRST_MIXED_EXECUTION_CADENCE_V1",
+  "boundCadenceDecision": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_P5_REVIEW_AND_WINDOW_12_CONTINUATION_DECISION_V1.json",
+    "commit": "6dd2f7c737ebb016ffc6429cc9c85040a1312f66",
+    "sha256": "cdb755868e2887feeb12f3df63faad00ca861b36723fb6213e29bb0017c19008",
+    "bytes": 11656,
+    "ownerDecision": "APPROVE_WINDOW_12_PRIMARY_FIRST_MIXED_EXECUTION_CADENCE_V1",
+    "pinCommit": "03407f112c052e52dd517256ff78658b74bb876b"
+  },
+  "executionCadence": {
+    "mode": "PRIMARIES_THEN_Q1_REPLACEMENTS",
+    "windowOrdinal": 12,
+    "authority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_P5_REVIEW_AND_WINDOW_12_CONTINUATION_DECISION_V1.json",
+      "commit": "6dd2f7c737ebb016ffc6429cc9c85040a1312f66",
+      "sha256": "cdb755868e2887feeb12f3df63faad00ca861b36723fb6213e29bb0017c19008",
+      "bytes": 11656,
+      "ownerDecision": "APPROVE_WINDOW_12_PRIMARY_FIRST_MIXED_EXECUTION_CADENCE_V1"
+    }
+  },
+  "boundCarryInSemantics": {
+    "ownerSemanticDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_CARRY_IN_ASSIGNED_REPLACEMENT_OWNER_SEMANTIC_DECISION_V1.json",
+      "commit": "c64a6c392c355c89003c7f3a41de2757473c5fd7",
+      "sha256": "a3c6aa018b39d78ce74b9bf077ce011d91a32dc19ae3bb78fb1a6f36b7d1f8a8",
+      "bytes": 7046
+    },
+    "genericRepairCommit": "020c5ed32759787442c21bf5a96cad8089caec70"
+  },
+  "boundAdjudicationHistory": {
+    "windows": [
+      {
+        "windowOrdinal": 1,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_AUTHORITY_V1.json",
+          "commit": "219f6d4a1cb869e9253a9701d48543a88f80f0ab",
+          "sha256": "e4874f7e84a184bd473b75f15dba0fd90700d4bb33ec0093593de90f4dea38ba"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_RESULT_V1.json",
+          "commit": "41bbedad759c26f1cb1e110bfdd07e1599809178",
+          "sha256": "7162938e6f8ba5f7808075f58021b540244b2b5a0b05d61db0812cfd4d8102d0"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "b281bf3b1dfc25c4540c6b17c1e8b97db468a77d",
+          "sha256": "89e4f166e56292374d3cf1aa2fe8037225770d48193ae619a32a1d4c7f1df5df"
+        }
+      },
+      {
+        "windowOrdinal": 2,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_AUTHORITY_V1.json",
+          "commit": "da659b586c05870f08f5af56d8816365a5203fa0",
+          "sha256": "e2cb65b5a7d3b35391718e255fef4db926bcfe88020f392ac93f79981392bba2"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_RESULT_V1.json",
+          "commit": "d074c0647136b45ee094b2d46a98ee2110db5102",
+          "sha256": "68852cbca3de127bb0a5442863cc99d2c3b72a5a69700c5fc5ac619fbc29b4ae"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "c6f6cf6dd1609115858a7dc039d1919bdb4153e4",
+          "sha256": "2e35cad7951aed780151b97400ea3b7e9fd78d4bfdec252f83d0652702bbdc8d"
+        }
+      },
+      {
+        "windowOrdinal": 3,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_AUTHORITY_V1.json",
+          "commit": "a39309f489aef60ae43ff4d179b9150dc5caf6c0",
+          "sha256": "aaa61ce72b9a5b943928f879f68daa06ea612aacfd5117310d54bd14cfa65478"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_RESULT_V1.json",
+          "commit": "17398aaf44b33d831ab9fb8c23b17b0d529da160",
+          "sha256": "c9654a837dde1c7c86a90c505b8cc1d5e6fcae1edc8a593981328576944e42ec"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "8f4bc2185ce7b0010b1dd96fe22b016c9500b9b0",
+          "sha256": "8d59cb2a1e2d6f3b447767a8c56078111658dbd07818e098fd363c153fe33ef0"
+        }
+      },
+      {
+        "windowOrdinal": 4,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_AUTHORITY_V1.json",
+          "commit": "05ffde6e8bcbbd2456ae1ccf69f43a7a41c2fcba",
+          "sha256": "bb24c26a8f2816a2cba584edb3726254bd72b1a8b979ca3cf9348effae1802a5"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_RESULT_V1.json",
+          "commit": "8efe11c290b24d17bde24f61914a19698986f108",
+          "sha256": "89b2aac217502133e7cbd75a9144f81637a03ef3be906cdebd03d1edb30e22f4"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "d023645a9c7e7a2afae92096e6b2c1bfd6daf861",
+          "sha256": "826f11851a6c000d3a314da2b6a4c31081014d29fdbdeb6012d157dae58b3dd8"
+        }
+      },
+      {
+        "windowOrdinal": 5,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_AUTHORITY_V1.json",
+          "commit": "c1b1a56fb6401d20f191b84e07b8f7508ba4b08c",
+          "sha256": "d88f741162bf27f6c290b2875edbeba522908c5545d6608b8d79b820ff701807"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_RESULT_V2.json",
+          "commit": "dbc7f0b4bb34ba1572ad2b59c3c0381807dbb0c6",
+          "sha256": "6914f564726029ebf82ef9ea142279f9697d9adb68bf42bfad0ba359df748d26"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "df3dddde6d9365da436e64c67e3b044df2f2cc42",
+          "sha256": "187eef89ed37f86e2f96c95e8772d9681ddcd944d04cff21961e4aaa63358642"
+        }
+      },
+      {
+        "windowOrdinal": 6,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_AUTHORITY_V1.json",
+          "commit": "c3f6c223de48625976f52da1ce110133f0d01afb",
+          "sha256": "6d847d8175054ecf7f09e45b5ab8ba8e488e9f8ca99553e9ca2c420b4dc977e3"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_RESULT_V3.json",
+          "commit": "3905bc27a3a54bb425d91813ed6e6e641d283d0c",
+          "sha256": "9dee6861dabc5c997ed2d458fad7d346f6b7aa9a019d421439f8c2b242cb1af6"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "47389c54b98aa1088a1e686f3592280e22046308",
+          "sha256": "845ca3a4bcd13409ac00dfc8b2a4224e9aee8ab08749aab523a8b7d478f5f340"
+        }
+      },
+      {
+        "windowOrdinal": 7,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_LIVE_AUTHORITY_V1.json",
+          "commit": "73fc2c8b3e2f14def6ba7861cb7d2ba49ef402a6",
+          "sha256": "726f78369af5fa5bb177a934c8c81e1bb317c04026dbf30575be4bb613db6020"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_LIVE_RESULT_V1.json",
+          "commit": "003a9afd1720f858f721957dc029cd1a95e1c6c2",
+          "sha256": "41614f01a213a22203fbb655ead9df888727b4f7740e96e74389156cc9582734"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "2e814487cff6c8dcf5bcb9c6f8a7639e84d7e7db",
+          "sha256": "d138c9618b2919d79b3468eb27f034bd11b64daf09a6c01ef733e474aa57d2fb"
+        }
+      },
+      {
+        "windowOrdinal": 8,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_LIVE_AUTHORITY_V1.json",
+          "commit": "202dbd57924080b54ac28e92efd001fc7dbae7a6",
+          "sha256": "f77aa0cf6d232a070d348dcd36a74932f078a64f79e1ddf737ec2e3f35b69a61"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_LIVE_RESULT_V1.json",
+          "commit": "1645ce2d11c4a55c5cbb629de54b43353ea17de0",
+          "sha256": "0a32d0d3e0c120e9b498046ea4df76d65ba85be22681f73e815c3dfc02cdc187"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "d4e450398b3435d97a2bf6a0cabcf416ac7205af",
+          "sha256": "2fb0b230d92b30746b2b62e3a598795cf4840011b710953df344774b9b8032da"
+        },
+        "cadenceAuthority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_P5_REVIEW_AND_CONTINUATION_DECISION_V1.json",
+          "commit": "2c20af702c3a9aed93e41f61c28d274f01c8351a",
+          "sha256": "2cfa5931946b8c71729a17ca98291df2a8f0fa6768a24ef3362b24f689c28b85"
+        }
+      },
+      {
+        "windowOrdinal": 9,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_LIVE_AUTHORITY_V1.json",
+          "commit": "38f14d98d6242be4f8e9560fc91bb8b258117cee",
+          "sha256": "97841c9a2c679b5adcd6673128353e4aa6e20b54d6474fb957bc9e2e63c61e51"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_LIVE_RESULT_V2.json",
+          "commit": "e5c3bf8ab93dabfc008862c108f1d68a32c7772b",
+          "sha256": "e7d384ad58a03090ecdfc3130ef2eb5b4e9966b784aa1cc2f36bc2ed7825c0f1"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "ce139ff44df9248b35ceec0b04719e51371b0436",
+          "sha256": "9cf694e5caf0f1c6d403d045b6939cae7bd57964372c9002ce22fc44ee739fa3"
+        },
+        "cadenceAuthority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_P5_REVIEW_AND_WINDOW_09_CONTINUATION_DECISION_V1.json",
+          "commit": "9deb681e6cb7f19ad4af0f677655f278ece6c149",
+          "sha256": "316e6f9aa90c977ac1f43cf8155a297980b94f93c4935d33c378e1dec9a141e2"
+        }
+      },
+      {
+        "windowOrdinal": 10,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_10_LIVE_AUTHORITY_V1.json",
+          "commit": "a3a6297015a195e887f2240a0730118aad6ac0ca",
+          "sha256": "30dcbb6713aec1de2c12ac1c77db35ecbb4d29a84b5bf0568251d3471dc58145"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_10_LIVE_RESULT_V1.json",
+          "commit": "5af3ec75adcaad744d0c934ecedbed8c1c8b752e",
+          "sha256": "fb95f08928198d6c31107b292ccb142cda95f3c171ddd24b262f527fcecce50f"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_10_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "cd4a346648fda84dc334556165afeb91fa7d475a",
+          "sha256": "6c27a6b5c0db88ca792367551ed134509affb4cc36a488e0f7387364ecdf1bae"
+        },
+        "cadenceAuthority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_P5_REVIEW_AND_WINDOW_10_CONTINUATION_DECISION_V1.json",
+          "commit": "7b226de931752dc70028b5e20e37fa5d7a925ca5",
+          "sha256": "ceff378d1147b4d43ac754c368c6311543f673f37f4190a9840d6ef926238752"
+        }
+      },
+      {
+        "windowOrdinal": 11,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_LIVE_AUTHORITY_V1.json",
+          "commit": "fdd3f740c8f05468fd926252599f48aa426b146d",
+          "sha256": "99be494d50d72b2630f121aedec8d1b472b9e1e416e681661f8fe4efe7b8df21"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_LIVE_RESULT_V1.json",
+          "commit": "32bcda7fe7d0d03108a58d7ebb262228233b0a98",
+          "sha256": "9d7219e97c372141be75bfc49c795cc8d543709383424107542d15c35a15fec3"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "2e014b1dcd61ab567ef21141a2fb664456f375e4",
+          "sha256": "99f3de0bb9fd85e2e3d5d919ee73addd73627a383bc95874df1098e2fa90e027"
+        }
+      }
+    ],
+    "window08CadenceAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_P5_REVIEW_AND_CONTINUATION_DECISION_V1.json",
+      "commit": "2c20af702c3a9aed93e41f61c28d274f01c8351a",
+      "sha256": "2cfa5931946b8c71729a17ca98291df2a8f0fa6768a24ef3362b24f689c28b85"
+    },
+    "window09CadenceAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_P5_REVIEW_AND_WINDOW_09_CONTINUATION_DECISION_V1.json",
+      "commit": "9deb681e6cb7f19ad4af0f677655f278ece6c149",
+      "sha256": "316e6f9aa90c977ac1f43cf8155a297980b94f93c4935d33c378e1dec9a141e2"
+    },
+    "window10CadenceAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_P5_REVIEW_AND_WINDOW_10_CONTINUATION_DECISION_V1.json",
+      "commit": "7b226de931752dc70028b5e20e37fa5d7a925ca5",
+      "sha256": "ceff378d1147b4d43ac754c368c6311543f673f37f4190a9840d6ef926238752",
+      "bytes": 11347
+    },
+    "window11CadenceAuthority": null,
+    "window12CadenceAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_P5_REVIEW_AND_WINDOW_12_CONTINUATION_DECISION_V1.json",
+      "commit": "6dd2f7c737ebb016ffc6429cc9c85040a1312f66",
+      "sha256": "cdb755868e2887feeb12f3df63faad00ca861b36723fb6213e29bb0017c19008",
+      "bytes": 11656
+    },
+    "passedToEveryStateSpecAppendAndPreflightCall": true,
+    "emptyHistoryDefaultNeverUsed": true,
+    "directoryDiscovery": false,
+    "latestLookup": false
+  },
+  "ledgerDuringTheWindow": {
+    "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+    "fileSha256": "73bfb3e488f3fbfa8c63bf763f818a65ad38b737ad250b014cdf0e5be726e33a",
+    "bytes": 16565,
+    "ledgerHash": "16d46662d015e3529f0b225d686e74233faeb8e0e05d94b44de58e7e5ca942a9",
+    "entryCount": 19,
+    "nextGeneration2ReservePosition": 19,
+    "unchangedByTheWindow": true,
+    "appendCommit": "51b865a58e23fb2ff5a1ab032f87b20417d75124",
+    "appendedEntries": [
+      {
+        "sequence": 17,
+        "selectionIndex": 103,
+        "generation2ReserveRankPosition": 17,
+        "replacedOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+        "previousSequenceForSlot": 14,
+        "recordedAtUtc": "2026-09-30T21:14:01Z",
+        "previousEntryHash": "79263ef41b1aff7fa027fb92920397ce4dd0122b5066b75823a4e26ff50aee1d",
+        "entryHash": "132a7aad3bde488a7ab51dca2c652e61ea9a4c36ee1a7893317dd9193e1d33f1"
+      },
+      {
+        "sequence": 18,
+        "selectionIndex": 106,
+        "generation2ReserveRankPosition": 18,
+        "replacedOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+        "previousSequenceForSlot": 15,
+        "recordedAtUtc": "2026-09-30T21:14:01Z",
+        "previousEntryHash": "132a7aad3bde488a7ab51dca2c652e61ea9a4c36ee1a7893317dd9193e1d33f1",
+        "entryHash": "87115be685f69a7bb2c150a2e6a1792413008e039989905589c56aa5faaf762c"
+      }
+    ],
+    "carryIn": [
+      {
+        "workItemId": "G2R:107:16",
+        "selectionIndex": 107,
+        "generation2ReserveRankPosition": 16,
+        "ledgerSequence": 16,
+        "entryHash": "79263ef41b1aff7fa027fb92920397ce4dd0122b5066b75823a4e26ff50aee1d",
+        "newLedgerEntry": false,
+        "executedInThisWindow": true
+      }
+    ],
+    "preNetworkAppend": "two entries (sequences 17 and 18), committed and pushed before any institution network; slot 107 received no second assignment; reserve 19 unassigned"
+  },
+  "windowSpecHash": "699133f76a0e203d0e311ab4d90c8911b6e2a902dd0b4ae06bf03eb73fb314c2",
+  "exactOrder": ["G2P:108", "G2P:109", "G2R:107:16", "G2R:103:17", "G2R:106:18"],
+  "windowOutcome": "WINDOW_EXECUTED_5_OF_5_POST_FINAL_PAUSE_P5_LOW_RAW_YIELD",
+  "stops": {
+    "itemsNotStarted": [],
+    "anyFrozenPauseP1toP8Fired": true,
+    "finalGateDecisionMechanical": "PAUSE_P5_LOW_RAW_YIELD",
+    "p5": {
+      "fired": true,
+      "firstFiredAfterItem": "G2R:106:18",
+      "arm": "raw pages < 4 on 2 of 5 planned items (> 30%)",
+      "denominator": 5,
+      "windowLowYieldCount": 2,
+      "threshold": 2,
+      "lowYieldItems": ["G2P:109", "G2R:106:18"],
+      "windowLocalStartCount": 0,
+      "exemptForPrimaries": false,
+      "exemptForReplacements": false,
+      "priorWindowWaiverApplied": false,
+      "inheritedAnomalyWaivers": 0,
+      "window11P5CarriedIn": false,
+      "ownerReviewRequired": true
+    },
+    "allOtherPausesFired": [],
+    "concurrencyStop": {
+      "fired": false,
+      "classification": null
+    },
+    "monitorCoverageStop": {
+      "fired": false
+    },
+    "p8": {
+      "fired": false
+    },
+    "ownerReviewRequired": true,
+    "handling": "a stop fired after G2R:106:18; its evidence is preserved; no later item was started; no retry; no item remained; no validation and no adjudication without owner review",
+    "unstartedReplacementsRemainAssigned": [],
+    "unstartedPrimariesRemainNeverStarted": []
+  },
+  "liveInvocations": {
+    "authorisedMaximum": 5,
+    "used": 5,
+    "retries": 0,
+    "perItem": 1,
+    "unused": 0,
+    "unusedNotTransferable": true,
+    "unusedItems": []
+  },
+  "items": [
+    {
+      "order": 1,
+      "workItemId": "G2P:108",
+      "kind": "PRIMARY",
+      "carryIn": false,
+      "selectionIndex": 108,
+      "generation2ReserveRankPosition": null,
+      "split": "DEV_CONFIRM",
+      "identityDigest": "6b6d2d2c9bc8f6180f3df869e2fcba64686d91a008e2100a773ca78a82d85962",
+      "itemPreflight": {
+        "identityDigestMatchesAuthority": true,
+        "dryRunWasNetworkFree": true,
+        "dryRunRootsEqualFrozenRootAuthorities": true,
+        "rootAuthorityCount": 1,
+        "p7": "18/18",
+        "adjudicationHistoryIntegrity": true,
+        "windowCadenceAuthorityIntegrity": true,
+        "carryInMembershipIntegrity": true,
+        "dbEqualsExpectedEndpoint": true,
+        "allChecksGreen": true
+      },
+      "itemIntervalUtc": ["2026-09-30T21:17:41Z", "2026-09-30T21:18:43Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "c1875eb7e48c3ef2edc051a573d309762c5306fe3ae3b7dc9b8d7c9e5d67ca71",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "pageAttempts": 35,
+      "gatewayRequests": 38,
+      "fetchObservationsByErrorKind": {
+        "NONE": 38
+      },
+      "usableHttpResponseObtained": true,
+      "redirectObservations": 5,
+      "candidateRows": 56,
+      "rawPageEvidenceCount": 28,
+      "sd9EligiblePageCount": 28,
+      "zeroExtractedTextPageCount": 0,
+      "postSd7Range": [24, 28],
+      "countIsExact": false,
+      "shortTextUnresolvedCount": 4,
+      "decidedByCase": "B",
+      "sd9StatusMechanical": "ACQUISITION_SUCCESSFUL",
+      "q3ReasonMechanical": null,
+      "q3BlockingTransportErrorKind": null,
+      "databaseDelta": {
+        "runs": 1,
+        "completions": 1,
+        "fetchObservations": 38,
+        "redirectObservations": 5,
+        "pageEvidence": 28,
+        "pageCandidates": 56,
+        "BLOCKED_BY_POLICY": 0,
+        "rootPromotions": 0,
+        "rootPromotionRevocations": 0,
+        "dryRunRuns": 0,
+        "runsWithoutCompletion": 0
+      },
+      "reconciliation": {
+        "oneRunOneCompletion": true,
+        "fetchDeltaEqualsGatewayRequests": true,
+        "pageDeltaEqualsRaw": true,
+        "redirectDeltaEqualsRedirects": true,
+        "candidatesTwicePages": true,
+        "noBlockedOrDryRunOrPromotionMovement": true,
+        "echeKeyMatchesBinding": true,
+        "runsForOccupantIsOne": true,
+        "notDryRun": true,
+        "cliExitZero": true,
+        "oneRoot": true,
+        "fetchPolicyCanonical": true
+      },
+      "hostAndVantage": {
+        "preItem": true,
+        "postItem": true,
+        "sleepWakeDarkWakeEventsDuringItem": 0,
+        "batteryPercentPre": 83,
+        "ipv4DefaultIfaceEn0": true,
+        "nativeIpv4NotClat": true,
+        "ipv4onlyArpaAaaaEmpty": true,
+        "p8": false
+      },
+      "preItemQuietGate": {
+        "consecutiveCleanSeconds": 121.6,
+        "freshForThisItem": true,
+        "concurrencyScope": "ENGINE_AND_SHARED_ACQUISITION_STATE (APPLY_WINDOW_12_ENGINE_AND_SHARED_ACQUISITION_STATE_CONCURRENCY_SCOPE_V1)"
+      },
+      "independentWatcher": {
+        "startedBeforeGovernedRoot": true,
+        "knownIsolatedExternalIdentities": 0,
+        "isolatedPollsWithinItem": 0,
+        "samplesWithinItem": 124,
+        "maxGapSeconds": 0.506,
+        "byFinalClassification": {
+          "GOVERNED_ACQUISITION_DESCENDANT_PROVED": 3,
+          "EXTERNAL_COMPETING_PROCESS": 0,
+          "ANCESTRY_UNPROVED": 0
+        },
+        "competingPollsWithinItem": 0,
+        "monitorCoverageSufficient": true
+      },
+      "executionExclusivityVerdict": "EXCLUSIVE_PROVED_FOR_THIS_ITEM",
+      "postItemGate": {
+        "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "triggeredConditions": [],
+        "windowLowYieldCount": 0,
+        "windowRobotsRefusalCount": 0,
+        "maxConsecutiveFailedRuns": 0,
+        "maxConsecutiveRootAuthorityFailures": 0,
+        "maxConsecutiveRobotsRefusals": 0,
+        "nextWorkItemId": "G2P:109",
+        "mayStartNextWorkItem": true,
+        "p7": "18/18",
+        "adjudicationHistoryIntegrity": true,
+        "windowCadenceAuthorityIntegrity": true
+      }
+    },
+    {
+      "order": 2,
+      "workItemId": "G2P:109",
+      "kind": "PRIMARY",
+      "carryIn": false,
+      "selectionIndex": 109,
+      "generation2ReserveRankPosition": null,
+      "split": "FINAL_HOLDOUT",
+      "identityDigest": "8f11c9998f893d8ebb83be1e68e58170d8a94ba278e3678303827039c0b65092",
+      "itemPreflight": {
+        "identityDigestMatchesAuthority": true,
+        "dryRunWasNetworkFree": true,
+        "dryRunRootsEqualFrozenRootAuthorities": true,
+        "rootAuthorityCount": 1,
+        "p7": "18/18",
+        "adjudicationHistoryIntegrity": true,
+        "windowCadenceAuthorityIntegrity": true,
+        "carryInMembershipIntegrity": true,
+        "dbEqualsExpectedEndpoint": true,
+        "allChecksGreen": true
+      },
+      "itemIntervalUtc": ["2026-09-30T21:21:55Z", "2026-09-30T21:21:59Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "c6e9afb5209f19c40868917e9dae97e181b901ae0b3b60b3585ba3df8c3d3690",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "pageAttempts": 0,
+      "gatewayRequests": 1,
+      "fetchObservationsByErrorKind": {
+        "NONE": 1
+      },
+      "usableHttpResponseObtained": true,
+      "redirectObservations": 1,
+      "candidateRows": 0,
+      "rawPageEvidenceCount": 0,
+      "sd9EligiblePageCount": 0,
+      "zeroExtractedTextPageCount": 0,
+      "postSd7Range": [0, 0],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "A",
+      "sd9StatusMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "q3ReasonMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "q3BlockingTransportErrorKind": null,
+      "databaseDelta": {
+        "runs": 1,
+        "completions": 1,
+        "fetchObservations": 1,
+        "redirectObservations": 1,
+        "pageEvidence": 0,
+        "pageCandidates": 0,
+        "BLOCKED_BY_POLICY": 0,
+        "rootPromotions": 0,
+        "rootPromotionRevocations": 0,
+        "dryRunRuns": 0,
+        "runsWithoutCompletion": 0
+      },
+      "reconciliation": {
+        "oneRunOneCompletion": true,
+        "fetchDeltaEqualsGatewayRequests": true,
+        "pageDeltaEqualsRaw": true,
+        "redirectDeltaEqualsRedirects": true,
+        "candidatesTwicePages": true,
+        "noBlockedOrDryRunOrPromotionMovement": true,
+        "echeKeyMatchesBinding": true,
+        "runsForOccupantIsOne": true,
+        "notDryRun": true,
+        "cliExitZero": true,
+        "oneRoot": true,
+        "fetchPolicyCanonical": true
+      },
+      "hostAndVantage": {
+        "preItem": true,
+        "postItem": true,
+        "sleepWakeDarkWakeEventsDuringItem": 0,
+        "batteryPercentPre": 82,
+        "ipv4DefaultIfaceEn0": true,
+        "nativeIpv4NotClat": true,
+        "ipv4onlyArpaAaaaEmpty": true,
+        "p8": false
+      },
+      "preItemQuietGate": {
+        "consecutiveCleanSeconds": 121.4,
+        "freshForThisItem": true,
+        "concurrencyScope": "ENGINE_AND_SHARED_ACQUISITION_STATE (APPLY_WINDOW_12_ENGINE_AND_SHARED_ACQUISITION_STATE_CONCURRENCY_SCOPE_V1)"
+      },
+      "independentWatcher": {
+        "startedBeforeGovernedRoot": true,
+        "knownIsolatedExternalIdentities": 0,
+        "isolatedPollsWithinItem": 0,
+        "samplesWithinItem": 7,
+        "maxGapSeconds": 0.506,
+        "byFinalClassification": {
+          "GOVERNED_ACQUISITION_DESCENDANT_PROVED": 3,
+          "EXTERNAL_COMPETING_PROCESS": 0,
+          "ANCESTRY_UNPROVED": 0
+        },
+        "competingPollsWithinItem": 0,
+        "monitorCoverageSufficient": true
+      },
+      "executionExclusivityVerdict": "EXCLUSIVE_PROVED_FOR_THIS_ITEM",
+      "postItemGate": {
+        "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "triggeredConditions": [],
+        "windowLowYieldCount": 1,
+        "windowRobotsRefusalCount": 1,
+        "maxConsecutiveFailedRuns": 0,
+        "maxConsecutiveRootAuthorityFailures": 0,
+        "maxConsecutiveRobotsRefusals": 1,
+        "nextWorkItemId": "G2R:107:16",
+        "mayStartNextWorkItem": true,
+        "p7": "18/18",
+        "adjudicationHistoryIntegrity": true,
+        "windowCadenceAuthorityIntegrity": true
+      }
+    },
+    {
+      "order": 3,
+      "workItemId": "G2R:107:16",
+      "kind": "REPLACEMENT",
+      "carryIn": true,
+      "selectionIndex": 107,
+      "generation2ReserveRankPosition": 16,
+      "split": "FINAL_HOLDOUT",
+      "identityDigest": "964b38c8af815bea7778b3228c8ac231ea378afdc2a267222e63d1fe7ad3c33e",
+      "itemPreflight": {
+        "identityDigestMatchesAuthority": true,
+        "dryRunWasNetworkFree": true,
+        "dryRunRootsEqualFrozenRootAuthorities": true,
+        "rootAuthorityCount": 1,
+        "p7": "18/18",
+        "adjudicationHistoryIntegrity": true,
+        "windowCadenceAuthorityIntegrity": true,
+        "carryInMembershipIntegrity": true,
+        "dbEqualsExpectedEndpoint": true,
+        "allChecksGreen": true
+      },
+      "itemIntervalUtc": ["2026-09-30T21:25:11Z", "2026-09-30T21:26:02Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "801aac0b7d6681a6b284b7730928f86de6a65c7a56e7b93b36fdb0f3b30f6d37",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "pageAttempts": 35,
+      "gatewayRequests": 43,
+      "fetchObservationsByErrorKind": {
+        "NONE": 43
+      },
+      "usableHttpResponseObtained": true,
+      "redirectObservations": 2,
+      "candidateRows": 68,
+      "rawPageEvidenceCount": 34,
+      "sd9EligiblePageCount": 34,
+      "zeroExtractedTextPageCount": 0,
+      "postSd7Range": [32, 32],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "B",
+      "sd9StatusMechanical": "ACQUISITION_SUCCESSFUL",
+      "q3ReasonMechanical": null,
+      "q3BlockingTransportErrorKind": null,
+      "databaseDelta": {
+        "runs": 1,
+        "completions": 1,
+        "fetchObservations": 43,
+        "redirectObservations": 2,
+        "pageEvidence": 34,
+        "pageCandidates": 68,
+        "BLOCKED_BY_POLICY": 0,
+        "rootPromotions": 0,
+        "rootPromotionRevocations": 0,
+        "dryRunRuns": 0,
+        "runsWithoutCompletion": 0
+      },
+      "reconciliation": {
+        "oneRunOneCompletion": true,
+        "fetchDeltaEqualsGatewayRequests": true,
+        "pageDeltaEqualsRaw": true,
+        "redirectDeltaEqualsRedirects": true,
+        "candidatesTwicePages": true,
+        "noBlockedOrDryRunOrPromotionMovement": true,
+        "echeKeyMatchesBinding": true,
+        "runsForOccupantIsOne": true,
+        "notDryRun": true,
+        "cliExitZero": true,
+        "oneRoot": true,
+        "fetchPolicyCanonical": true
+      },
+      "hostAndVantage": {
+        "preItem": true,
+        "postItem": true,
+        "sleepWakeDarkWakeEventsDuringItem": 0,
+        "batteryPercentPre": 81,
+        "ipv4DefaultIfaceEn0": true,
+        "nativeIpv4NotClat": true,
+        "ipv4onlyArpaAaaaEmpty": true,
+        "p8": false
+      },
+      "preItemQuietGate": {
+        "consecutiveCleanSeconds": 121,
+        "freshForThisItem": true,
+        "concurrencyScope": "ENGINE_AND_SHARED_ACQUISITION_STATE (APPLY_WINDOW_12_ENGINE_AND_SHARED_ACQUISITION_STATE_CONCURRENCY_SCOPE_V1)"
+      },
+      "independentWatcher": {
+        "startedBeforeGovernedRoot": true,
+        "knownIsolatedExternalIdentities": 0,
+        "isolatedPollsWithinItem": 0,
+        "samplesWithinItem": 100,
+        "maxGapSeconds": 0.506,
+        "byFinalClassification": {
+          "GOVERNED_ACQUISITION_DESCENDANT_PROVED": 3,
+          "EXTERNAL_COMPETING_PROCESS": 0,
+          "ANCESTRY_UNPROVED": 0
+        },
+        "competingPollsWithinItem": 0,
+        "monitorCoverageSufficient": true
+      },
+      "executionExclusivityVerdict": "EXCLUSIVE_PROVED_FOR_THIS_ITEM",
+      "postItemGate": {
+        "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "triggeredConditions": [],
+        "windowLowYieldCount": 1,
+        "windowRobotsRefusalCount": 1,
+        "maxConsecutiveFailedRuns": 0,
+        "maxConsecutiveRootAuthorityFailures": 0,
+        "maxConsecutiveRobotsRefusals": 1,
+        "nextWorkItemId": "G2R:103:17",
+        "mayStartNextWorkItem": true,
+        "p7": "18/18",
+        "adjudicationHistoryIntegrity": true,
+        "windowCadenceAuthorityIntegrity": true
+      }
+    },
+    {
+      "order": 4,
+      "workItemId": "G2R:103:17",
+      "kind": "REPLACEMENT",
+      "carryIn": false,
+      "selectionIndex": 103,
+      "generation2ReserveRankPosition": 17,
+      "split": "DEV_CONFIRM",
+      "identityDigest": "417218ef9e5252c81a3822e697c2c6f013b20de72a27748ad877e752f338f4f3",
+      "itemPreflight": {
+        "identityDigestMatchesAuthority": true,
+        "dryRunWasNetworkFree": true,
+        "dryRunRootsEqualFrozenRootAuthorities": true,
+        "rootAuthorityCount": 1,
+        "p7": "18/18",
+        "adjudicationHistoryIntegrity": true,
+        "windowCadenceAuthorityIntegrity": true,
+        "carryInMembershipIntegrity": true,
+        "dbEqualsExpectedEndpoint": true,
+        "allChecksGreen": true
+      },
+      "itemIntervalUtc": ["2026-09-30T21:29:04Z", "2026-09-30T21:29:57Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "9ef02b963e4c33da40fa4b193c7b5be035c0f72f4f45d93312caa5c3f3cc46f3",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "pageAttempts": 35,
+      "gatewayRequests": 44,
+      "fetchObservationsByErrorKind": {
+        "NONE": 44
+      },
+      "usableHttpResponseObtained": true,
+      "redirectObservations": 2,
+      "candidateRows": 68,
+      "rawPageEvidenceCount": 34,
+      "sd9EligiblePageCount": 26,
+      "zeroExtractedTextPageCount": 8,
+      "postSd7Range": [23, 25],
+      "countIsExact": false,
+      "shortTextUnresolvedCount": 2,
+      "decidedByCase": "B",
+      "sd9StatusMechanical": "ACQUISITION_SUCCESSFUL",
+      "q3ReasonMechanical": null,
+      "q3BlockingTransportErrorKind": null,
+      "databaseDelta": {
+        "runs": 1,
+        "completions": 1,
+        "fetchObservations": 44,
+        "redirectObservations": 2,
+        "pageEvidence": 34,
+        "pageCandidates": 68,
+        "BLOCKED_BY_POLICY": 0,
+        "rootPromotions": 0,
+        "rootPromotionRevocations": 0,
+        "dryRunRuns": 0,
+        "runsWithoutCompletion": 0
+      },
+      "reconciliation": {
+        "oneRunOneCompletion": true,
+        "fetchDeltaEqualsGatewayRequests": true,
+        "pageDeltaEqualsRaw": true,
+        "redirectDeltaEqualsRedirects": true,
+        "candidatesTwicePages": true,
+        "noBlockedOrDryRunOrPromotionMovement": true,
+        "echeKeyMatchesBinding": true,
+        "runsForOccupantIsOne": true,
+        "notDryRun": true,
+        "cliExitZero": true,
+        "oneRoot": true,
+        "fetchPolicyCanonical": true
+      },
+      "hostAndVantage": {
+        "preItem": true,
+        "postItem": true,
+        "sleepWakeDarkWakeEventsDuringItem": 0,
+        "batteryPercentPre": 80,
+        "ipv4DefaultIfaceEn0": true,
+        "nativeIpv4NotClat": true,
+        "ipv4onlyArpaAaaaEmpty": true,
+        "p8": false
+      },
+      "preItemQuietGate": {
+        "consecutiveCleanSeconds": 121,
+        "freshForThisItem": true,
+        "concurrencyScope": "ENGINE_AND_SHARED_ACQUISITION_STATE (APPLY_WINDOW_12_ENGINE_AND_SHARED_ACQUISITION_STATE_CONCURRENCY_SCOPE_V1)"
+      },
+      "independentWatcher": {
+        "startedBeforeGovernedRoot": true,
+        "knownIsolatedExternalIdentities": 0,
+        "isolatedPollsWithinItem": 0,
+        "samplesWithinItem": 107,
+        "maxGapSeconds": 0.623,
+        "byFinalClassification": {
+          "GOVERNED_ACQUISITION_DESCENDANT_PROVED": 3,
+          "EXTERNAL_COMPETING_PROCESS": 0,
+          "ANCESTRY_UNPROVED": 0
+        },
+        "competingPollsWithinItem": 0,
+        "monitorCoverageSufficient": true
+      },
+      "executionExclusivityVerdict": "EXCLUSIVE_PROVED_FOR_THIS_ITEM",
+      "postItemGate": {
+        "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "triggeredConditions": [],
+        "windowLowYieldCount": 1,
+        "windowRobotsRefusalCount": 1,
+        "maxConsecutiveFailedRuns": 0,
+        "maxConsecutiveRootAuthorityFailures": 0,
+        "maxConsecutiveRobotsRefusals": 1,
+        "nextWorkItemId": "G2R:106:18",
+        "mayStartNextWorkItem": true,
+        "p7": "18/18",
+        "adjudicationHistoryIntegrity": true,
+        "windowCadenceAuthorityIntegrity": true
+      }
+    },
+    {
+      "order": 5,
+      "workItemId": "G2R:106:18",
+      "kind": "REPLACEMENT",
+      "carryIn": false,
+      "selectionIndex": 106,
+      "generation2ReserveRankPosition": 18,
+      "split": "DEV_CONFIRM",
+      "identityDigest": "b0a17ad0e0f08bc713b0487e30ea768554166144b68b43b78daeb21d16a78e47",
+      "itemPreflight": {
+        "identityDigestMatchesAuthority": true,
+        "dryRunWasNetworkFree": true,
+        "dryRunRootsEqualFrozenRootAuthorities": true,
+        "rootAuthorityCount": 1,
+        "p7": "18/18",
+        "adjudicationHistoryIntegrity": true,
+        "windowCadenceAuthorityIntegrity": true,
+        "carryInMembershipIntegrity": true,
+        "dbEqualsExpectedEndpoint": true,
+        "allChecksGreen": true
+      },
+      "itemIntervalUtc": ["2026-09-30T21:33:05Z", "2026-09-30T21:33:07Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "9f8ac17159f13b4d1719a8f9844fb694f02311cc647e7970338db460b5f34049",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "pageAttempts": 0,
+      "gatewayRequests": 1,
+      "fetchObservationsByErrorKind": {
+        "NONE": 1
+      },
+      "usableHttpResponseObtained": true,
+      "redirectObservations": 1,
+      "candidateRows": 0,
+      "rawPageEvidenceCount": 0,
+      "sd9EligiblePageCount": 0,
+      "zeroExtractedTextPageCount": 0,
+      "postSd7Range": [0, 0],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "A",
+      "sd9StatusMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "q3ReasonMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "q3BlockingTransportErrorKind": null,
+      "databaseDelta": {
+        "runs": 1,
+        "completions": 1,
+        "fetchObservations": 1,
+        "redirectObservations": 1,
+        "pageEvidence": 0,
+        "pageCandidates": 0,
+        "BLOCKED_BY_POLICY": 0,
+        "rootPromotions": 0,
+        "rootPromotionRevocations": 0,
+        "dryRunRuns": 0,
+        "runsWithoutCompletion": 0
+      },
+      "reconciliation": {
+        "oneRunOneCompletion": true,
+        "fetchDeltaEqualsGatewayRequests": true,
+        "pageDeltaEqualsRaw": true,
+        "redirectDeltaEqualsRedirects": true,
+        "candidatesTwicePages": true,
+        "noBlockedOrDryRunOrPromotionMovement": true,
+        "echeKeyMatchesBinding": true,
+        "runsForOccupantIsOne": true,
+        "notDryRun": true,
+        "cliExitZero": true,
+        "oneRoot": true,
+        "fetchPolicyCanonical": true
+      },
+      "hostAndVantage": {
+        "preItem": true,
+        "postItem": true,
+        "sleepWakeDarkWakeEventsDuringItem": 0,
+        "batteryPercentPre": 78,
+        "ipv4DefaultIfaceEn0": true,
+        "nativeIpv4NotClat": true,
+        "ipv4onlyArpaAaaaEmpty": true,
+        "p8": false
+      },
+      "preItemQuietGate": {
+        "consecutiveCleanSeconds": 121,
+        "freshForThisItem": true,
+        "concurrencyScope": "ENGINE_AND_SHARED_ACQUISITION_STATE (APPLY_WINDOW_12_ENGINE_AND_SHARED_ACQUISITION_STATE_CONCURRENCY_SCOPE_V1)"
+      },
+      "independentWatcher": {
+        "startedBeforeGovernedRoot": true,
+        "knownIsolatedExternalIdentities": 0,
+        "isolatedPollsWithinItem": 0,
+        "samplesWithinItem": 5,
+        "maxGapSeconds": 0.505,
+        "byFinalClassification": {
+          "GOVERNED_ACQUISITION_DESCENDANT_PROVED": 3,
+          "EXTERNAL_COMPETING_PROCESS": 0,
+          "ANCESTRY_UNPROVED": 0
+        },
+        "competingPollsWithinItem": 0,
+        "monitorCoverageSufficient": true
+      },
+      "executionExclusivityVerdict": "EXCLUSIVE_PROVED_FOR_THIS_ITEM",
+      "postItemGate": {
+        "decision": "PAUSE_P5_LOW_RAW_YIELD",
+        "triggeredConditions": [
+          {
+            "condition": "P5",
+            "decision": "PAUSE_P5_LOW_RAW_YIELD",
+            "arm": "raw pages < 4 on 2 of 5 planned items (> 30%)"
+          }
+        ],
+        "windowLowYieldCount": 2,
+        "windowRobotsRefusalCount": 2,
+        "maxConsecutiveFailedRuns": 0,
+        "maxConsecutiveRootAuthorityFailures": 0,
+        "maxConsecutiveRobotsRefusals": 1,
+        "nextWorkItemId": null,
+        "mayStartNextWorkItem": false,
+        "p7": "18/18",
+        "adjudicationHistoryIntegrity": true,
+        "windowCadenceAuthorityIntegrity": true
+      }
+    }
+  ],
+  "mechanicalSummary": {
+    "acquisitionSuccessfulMechanical": ["G2P:108", "G2R:107:16", "G2R:103:17"],
+    "acquisitionUnsuccessfulMechanical": [
+      {
+        "workItemId": "G2P:109",
+        "selectionIndex": 109,
+        "q3ReasonMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+      },
+      {
+        "workItemId": "G2R:106:18",
+        "selectionIndex": 106,
+        "q3ReasonMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+      }
+    ],
+    "rangeNotExact": ["G2P:108", "G2R:103:17"]
+  },
+  "mechanicalSd9ReadingIsNotTheAdjudication": true,
+  "noReplacementAppendedDuringWindow": true,
+  "p2Accounting": {
+    "robotsBlockedRootCount": 0,
+    "robotsUnreadableRootCount": 2,
+    "gateWindowRobotsRefusalCount": 2,
+    "threshold": 3,
+    "countsBothReasons": true
+  },
+  "runReferenceProvenance": {
+    "everyRunRefSha256IsAFull64HexDigest": true,
+    "derivation": "sha256(lowercase run UUID), no prefix",
+    "noRawRunUuidPublished": true,
+    "historicalCount": 47,
+    "window12ExecutedCount": 5,
+    "totalDistinct": 52,
+    "allUnique": true,
+    "rule": "GENERATION2_HISTORICAL_RUN_REFERENCE_IS_GLOBALLY_UNIQUE_ACROSS_ALL_ADJUDICATED_WINDOWS_V1"
+  },
+  "sd9Bridge": {
+    "rawAndEligibleCountsReportedSeparately": true,
+    "onlyRowsWithMainTextCharsAboveZeroEnteredDedupe": true,
+    "zeroExtractedTextRowsInThisPrefix": 8,
+    "analyser": "analyseOrganisation (src/test/harness/phase2b2d/sd7/pilotAnalysis.ts), unmodified"
+  },
+  "databaseReconciliation": {
+    "database": "nwf_pe (acquisition)",
+    "readAs": "readonly",
+    "before": {
+      "runs": 173,
+      "completions": 173,
+      "fetchObservations": 4358,
+      "redirectObservations": 318,
+      "pageEvidence": 3279,
+      "pageCandidates": 6558,
+      "BLOCKED_BY_POLICY": 6,
+      "rootPromotions": 0,
+      "rootPromotionRevocations": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "beforeEqualsCanonicalWindow11Endpoint": true,
+    "after": {
+      "runs": 178,
+      "completions": 178,
+      "fetchObservations": 4485,
+      "redirectObservations": 329,
+      "pageEvidence": 3375,
+      "pageCandidates": 6750,
+      "BLOCKED_BY_POLICY": 6,
+      "rootPromotions": 0,
+      "rootPromotionRevocations": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "delta": {
+      "runs": 5,
+      "completions": 5,
+      "fetchObservations": 127,
+      "redirectObservations": 11,
+      "pageEvidence": 96,
+      "pageCandidates": 192,
+      "BLOCKED_BY_POLICY": 0,
+      "rootPromotions": 0,
+      "rootPromotionRevocations": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "fetchObservationDeltaEqualsSumOfItemRequests": "38 + 1 + 43 + 44 + 1 = 127",
+    "pageEvidenceDeltaEqualsSumOfItemRawPages": "28 + 0 + 34 + 34 + 0 = 96",
+    "redirectDeltaEqualsSumOfItemRedirects": "5 + 1 + 2 + 2 + 1 = 11",
+    "candidateDeltaEqualsTwicePageDelta": true,
+    "unexplainedMovement": false,
+    "testDatabaseNotConsulted": "nwf_pe_test counters were never compared with acquisition counters"
+  },
+  "concurrency": {
+    "scope": "APPLY_WINDOW_12_ENGINE_AND_SHARED_ACQUISITION_STATE_CONCURRENCY_SCOPE_V1",
+    "inheritedAnomalyWaivers": 0,
+    "preItemQuietGate": ">= 120 consecutive seconds with zero blocking Engine/shared-state processes before every executed item, fresh per item (121.6 / 121.4 / 121.0 / 121.0 / 121.0 s)",
+    "watcherSelfTest": "PASS before the first item: governed child proved; detached orphan ANCESTRY_UNPROVED; unrelated external and an Engine-cwd probe EXTERNAL_COMPETING_PROCESS; probes in two enumerated NewWave Fluent application worktrees KNOWN_ISOLATED_EXTERNAL_ACTIVITY and never counted; an NWF-worktree probe holding a TCP connection to the Engine PostgreSQL listener NOT isolated; max gap <= 5 s; gate-adapter self-test PASS",
+    "monitorDefinition": "command-shaped candidate predicate (vitest / npm validate|test / a3prep / orgunits discover); ancestry proved only from the same-snapshot PPID chain to the governed root; KNOWN_ISOLATED_EXTERNAL_ACTIVITY only if cwd is inside a worktree enumerated from the NewWave Fluent application repositories and outside every Engine path, no Engine path in command or chain, and no TCP connection to 127.0.0.1:55432; anything else counts (fail closed)",
+    "unrelatedSessionsStoppedOrSignalled": false,
+    "itemsRanSequentiallyConcurrency1": true,
+    "perItemVerdicts": [
+      "G2P:108: EXCLUSIVE_PROVED_FOR_THIS_ITEM",
+      "G2P:109: EXCLUSIVE_PROVED_FOR_THIS_ITEM",
+      "G2R:107:16: EXCLUSIVE_PROVED_FOR_THIS_ITEM",
+      "G2R:103:17: EXCLUSIVE_PROVED_FOR_THIS_ITEM",
+      "G2R:106:18: EXCLUSIVE_PROVED_FOR_THIS_ITEM"
+    ]
+  },
+  "forbiddenActions": {
+    "secondLedgerAppend": false,
+    "carryInSecondAssignment": false,
+    "reserve19Assignment": false,
+    "dynamicReplacement": false,
+    "dynamicInsertion": false,
+    "retries": false,
+    "reordering": false,
+    "replacementFirstExecution": false,
+    "sixthItem": false,
+    "g2p110": false,
+    "window13": false,
+    "cadenceChange": false,
+    "cadenceDecision": false,
+    "cadencePin": false,
+    "carryInCodeChange": false,
+    "concurrencyCodeChange": false,
+    "genericCodeChange": false,
+    "validationRun": false,
+    "adjudication": false,
+    "productionCodeChange": false,
+    "rootPromotion": false
+  },
+  "identityDisclosure": "slot numbers, work item ids, digests, run-reference hashes and aggregates only; no organisation id, echeRowKey, URL, hostname, root-authority id or page text",
+  "terminalState": "PHASE_2B_2D_A2_GENERATION2_WINDOW_12_STOPPED_AFTER_5_OF_5_AWAITING_OWNER_REVIEW_NO_VALIDATION_RUN",
+  "immutability": "append-only. This record is never edited; a correction or ruling is a new record"
+}
