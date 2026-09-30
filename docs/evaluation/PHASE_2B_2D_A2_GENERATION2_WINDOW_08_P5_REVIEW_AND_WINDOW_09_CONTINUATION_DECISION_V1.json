@@ -1,0 +1,217 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_08_P5_REVIEW_AND_WINDOW_09_CONTINUATION_DECISION_V1",
+  "recordKind": "GENERATION2_OWNER_CONTINUATION_DECISION",
+  "scope": "WINDOW_09_CADENCE_ONLY",
+  "recordedAtUtc": "2026-09-30T12:34:44Z",
+  "recordedAtUtcSource": "date -u, read from the shell when this decision was written",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "d4e450398b3435d97a2bf6a0cabcf416ac7205af",
+  "publicSafe": true,
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "ownerDecisions": [
+    "PRESERVE_WINDOW_08_ADJUDICATION_AND_POST_FINAL_P5_CLOSURE_V1",
+    "APPROVE_WINDOW_09_PRIMARY_FIRST_MIXED_EXECUTION_CADENCE_V1",
+    "APPROVE_WINDOW_09_OFFLINE_READINESS_UNDER_PRIMARY_FIRST_CADENCE_ONLY_V1"
+  ],
+  "thisFileAuthorises": [
+    "adding exactly one approved cadence pin (Window 09, PRIMARIES_THEN_Q1_REPLACEMENTS, this decision's path, commit, SHA-256 and bytes) to APPROVED_WINDOW_CADENCE_AUTHORITIES in the existing generic cadence machinery, with focused tests; no other generic change",
+    "Window-09 OFFLINE readiness under the primary-first cadence"
+  ],
+  "ledgerWriteAuthorised": false,
+  "reserveAssignmentAuthorised": false,
+  "networkAuthorised": false,
+  "databaseAcquisitionAuthorised": false,
+  "liveAuthorityAuthorised": false,
+  "liveInvocationAuthorised": false,
+  "executionCadence": {
+    "windowOrdinal": 9,
+    "appliesToWindowOrdinals": [9],
+    "mode": "PRIMARIES_THEN_Q1_REPLACEMENTS",
+    "replacesDefaultMode": "Q1_REPLACEMENTS_THEN_PRIMARIES",
+    "changes": ["WORK_ITEM_EXECUTION_ORDER"],
+    "preserves": {
+      "completeQ1": true,
+      "frozenP1ToP8": true,
+      "methodologyV3": true,
+      "p5DenominatorAndThreshold": true,
+      "preNetworkAppend": true,
+      "reserveAssignmentOrder": true,
+      "windowMembership": true
+    },
+    "membershipRule": "complete Q1 replacements + the lowest never-started original primaries, to the planned size 5 (unchanged)",
+    "orderRule": "the same members: primaries ascending by selectionIndex, then the complete-Q1 replacements ascending by selectionIndex (in their ledger-append order)",
+    "ledgerAppendOrderUnchanged": "the complete Q1 append is still persisted before any Window-09 institution network, slot 96 -> reserve 11 then slot 99 -> reserve 12",
+    "defaultForEveryOtherWindow": "Q1_REPLACEMENTS_THEN_PRIMARIES: Windows 01-07 and any future window without its own explicit, pinned cadence authority; Window 08 keeps its own separate pin; this decision is not a range and not a new default",
+    "isMethodologyV4": false,
+    "isReservePolicyChange": false,
+    "isQ1Change": false,
+    "isP5Change": false,
+    "isSplitDrawOrSamplingChange": false
+  },
+  "window08Review": {
+    "adjudicationPreserved": true,
+    "reopened": false,
+    "validationRerun": false,
+    "p5RemainsTrue": true,
+    "p5FiredAfter": "G2R:99:10",
+    "p5ItemPosition": "5 of 5",
+    "p5Waived": false,
+    "p5Weakened": false,
+    "p5Reinterpreted": false,
+    "acceptedValidationUnchanged": "the committed Window-08 validation evidence records exit 0, 0 EXTERNAL_COMPETING_PROCESS, 0 ANCESTRY_UNPROVED and no captured non-governed candidate; an operator status command whose own command line contained the grep pattern 'vitest|npm run validate' is not a competing process and is no reason to reconsider it",
+    "outcome": "G2P:100, G2P:101, G2P:102 ACQUISITION_SUCCESSFUL; G2R:96:9 and G2R:99:10 low-yield (0 raw pages each)"
+  },
+  "whyPrimaryFirstContinues": {
+    "basis": "observed Generation-2 evidence, not a hypothetical concern",
+    "window07": "replacement-first: G2R:96:7 and G2R:99:8 were items 1 and 2, both yielded 0 raw pages, P5 fired after item 2 of 5, and G2P:100, G2P:101 and G2P:102 were never reached",
+    "window08": "the same membership rule and complete-Q1 semantics, primary-first: G2P:100, G2P:101 and G2P:102 were all ACQUISITION_SUCCESSFUL, then both replacements were low-yield and P5 fired after item 5 of 5",
+    "effect": "primary-first let three never-started primaries be evaluated without weakening P5 and without dropping any replacement obligation",
+    "window09": "the same bounded execution-order policy is preserved for Window 09 only; no cadence machinery is redesigned",
+    "p5UnderPrimaryFirst": "CURRENT_WINDOW, planned denominator 5, threshold 2, evaluated after every completed item, sticky, starting at 0; no exemption for primaries and no low-yield count carried from Window 08: if G2P:103 and G2P:104 are both low-yield, P5 fires after item 2 and Window 09 stops"
+  },
+  "currentReplacementObligations": [
+    {
+      "selectionIndex": 96,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+    },
+    {
+      "selectionIndex": 99,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+    }
+  ],
+  "nextAssignmentsUnderUnchangedQ1": [
+    {
+      "selectionIndex": 96,
+      "generation2ReserveRankPosition": 11
+    },
+    {
+      "selectionIndex": 99,
+      "generation2ReserveRankPosition": 12
+    }
+  ],
+  "window09PlannedOrderUnderThisDecision": [
+    "G2P:103",
+    "G2P:104",
+    "G2P:105",
+    "G2R:96:11",
+    "G2R:99:12"
+  ],
+  "bound": {
+    "window08CadenceDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_P5_REVIEW_AND_CONTINUATION_DECISION_V1.json",
+      "commit": "2c20af702c3a9aed93e41f61c28d274f01c8351a",
+      "sha256": "2cfa5931946b8c71729a17ca98291df2a8f0fa6768a24ef3362b24f689c28b85",
+      "bytes": 10845,
+      "scope": "WINDOW_08_CADENCE_ONLY",
+      "ownerDecision": "APPROVE_WINDOW_08_PRIMARY_FIRST_MIXED_EXECUTION_CADENCE_V1",
+      "broadenedByThisRecord": false
+    },
+    "window08CadenceImplementationCommit": "83edb4ef8cef8e3878d760215cccc1bde6f995dc",
+    "window08OfflineReadiness": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_OFFLINE_READINESS_V1.json",
+      "commit": "02dc6e518d86adadb4e4c679e4de2613530f8ccf",
+      "sha256": "960e96ec19ae4e5bd0a4a294426695c252b8986d3691246b5b63b0dad3b3a110",
+      "bytes": 28836
+    },
+    "window08LiveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_LIVE_AUTHORITY_V1.json",
+      "commit": "202dbd57924080b54ac28e92efd001fc7dbae7a6",
+      "sha256": "f77aa0cf6d232a070d348dcd36a74932f078a64f79e1ddf737ec2e3f35b69a61",
+      "bytes": 69312,
+      "consumed": true
+    },
+    "window08LiveResultV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_LIVE_RESULT_V1.json",
+      "commit": "1645ce2d11c4a55c5cbb629de54b43353ea17de0",
+      "sha256": "0a32d0d3e0c120e9b498046ea4df76d65ba85be22681f73e815c3dfc02cdc187",
+      "bytes": 37576
+    },
+    "window08PostFinalP5OwnerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_POST_FINAL_P5_OWNER_RULING_V1.json",
+      "commit": "210c50a474861858b092a6ffa74f57a3a0dca67d",
+      "sha256": "9cb5acd8ee4aae90ade5471083a6615e119f9f3614b401008c9ccf206453b478",
+      "bytes": 20415
+    },
+    "window08Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_EVIDENCE_ADJUDICATION_V1.json",
+      "commit": "d4e450398b3435d97a2bf6a0cabcf416ac7205af",
+      "sha256": "2fb0b230d92b30746b2b62e3a598795cf4840011b710953df344774b9b8032da",
+      "bytes": 28467,
+      "terminalState": "PHASE_2B_2D_A2_GENERATION2_WINDOW_08_ADJUDICATED_POST_FINAL_P5_PRESERVED_STOPPED"
+    },
+    "elevenEntryLedger": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "commit": "b106a016d1195b7b8ef51a6cef4b34bb1485fcf1",
+      "sha256": "d2aad15170647ddc1e3dd793a8b9a27c676d0fea70d43d3dd2a34db21ccd4b84",
+      "bytes": 11458,
+      "ledgerHash": "0a658a6769dcfb58d35316cb36ba2d43cb5112e56f6a765b13d969d232eaee14",
+      "entryCount": 11,
+      "lastEntry": {
+        "sequence": 10,
+        "selectionIndex": 99,
+        "generation2ReserveRankPosition": 10,
+        "entryHash": "ee23890b4eb82abc1008d5ed1dc5db918275ff4852b4a4c8ae9ea46d9a239159"
+      },
+      "nextGeneration2ReservePosition": 11,
+      "reserve11Assigned": false
+    },
+    "methodologyV3OwnerFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_OWNER_FREEZE_APPROVAL_V1.json",
+      "commit": "13dcdbed94fea08a833664948ac238737cf44c8e",
+      "sha256": "36e8071738e1842ad03a9b51cf5820d58015305191c48490ef515e1cd1c34f9c",
+      "bytes": 12318
+    },
+    "reserveAssignmentOrderOwnerClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "commit": "b17503a2420ff16cc0c71ac94709b54fe1f2ead6",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "bytes": 18443
+    },
+    "postWindow06Hardening": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_POST_WINDOW_06_HARDENING_V1.json",
+      "commit": "58815855173d3b246ddc04b408cade7ac2056567",
+      "sha256": "e15ce8f00898c507dbcefae9dbf6808b6e1aad0d7a1f4566de756dc6412a0274",
+      "bytes": 17351
+    }
+  },
+  "currentState": {
+    "ACQUISITION_SUCCESSFUL": 101,
+    "acquisitionSuccessfulBySplit": {
+      "DEV_TRAIN": 19,
+      "DEV_CONFIRM": 41,
+      "FINAL_HOLDOUT": 41
+    },
+    "CURRENT_ACQUISITION_FAILURE": [96, 99],
+    "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION": [],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "NEVER_STARTED": {
+      "from": 103,
+      "to": 109,
+      "count": 7
+    },
+    "q1": [96, 99],
+    "accounting": "101 successful + 2 failed + 0 assigned + 0 pending + 7 never started = 110",
+    "runReferences": "37 / 37 distinct",
+    "derivedBy": "explicit eight-window replay (Window 01 -> 08, Window 08 with its pinned cadence decision), no scan, no glob, no latest"
+  },
+  "notAuthorised": {
+    "ledgerWrite": true,
+    "reserve11Or12Assignment": true,
+    "window09LiveAuthority": true,
+    "institutionNetwork": true,
+    "acquisition": true,
+    "g2p103": true,
+    "replacementExecution": true,
+    "window10": true,
+    "globalCadenceDefaultChange": true,
+    "cadenceRange": true,
+    "window08PinBroadening": true,
+    "p5Change": true,
+    "q1Change": true
+  },
+  "identityDisclosure": "slot numbers, work item ids, digests and aggregates only; no organisation id, echeRowKey, URL, hostname or page text",
+  "terminalState": "PHASE_2B_2D_A2_GENERATION2_WINDOW_08_REVIEWED_WINDOW_09_PRIMARY_FIRST_CADENCE_APPROVED_OFFLINE_ONLY",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
