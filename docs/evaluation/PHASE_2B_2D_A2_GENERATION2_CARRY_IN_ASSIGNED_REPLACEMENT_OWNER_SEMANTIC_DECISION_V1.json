@@ -1,0 +1,124 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_CARRY_IN_ASSIGNED_REPLACEMENT_OWNER_SEMANTIC_DECISION_V1",
+  "recordKind": "GENERATION2_OWNER_SEMANTIC_DECISION",
+  "task": "GENERATION2_CARRY_IN_ASSIGNED_REPLACEMENT_REPAIR_AND_WINDOW_10_OFFLINE_READINESS",
+  "recordedAtUtc": "2026-09-30T15:12:11Z",
+  "recordedAtUtcSource": "date -u, read from the shell when this decision was written",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "ce139ff44df9248b35ceec0b04719e51371b0436",
+  "publicSafe": true,
+  "appendOnly": true,
+  "isLiveAuthority": false,
+  "scope": "GENERATION2_GENERIC_WINDOW_MEMBERSHIP_SEMANTICS",
+  "ownerDecisions": [
+    "ACCEPT_WINDOW_09_SLOT99_RESERVE12_AS_CANONICAL_CARRY_IN_ASSIGNED_OCCUPANT_V1",
+    "APPROVE_GENERIC_GENERATION2_CARRY_IN_ASSIGNED_REPLACEMENT_WINDOW_MEMBERSHIP_REPAIR_V1",
+    "PRESERVE_Q1_AS_CURRENT_FAILURES_NOT_YET_ASSIGNED_ONLY_V1",
+    "PRESERVE_LEDGER_APPEND_AS_NEW_Q1_ASSIGNMENTS_ONLY_V1",
+    "PRESERVE_ASSIGNED_REPLACEMENT_LEDGER_SEQUENCE_AND_RESERVE_IDENTITY_ACROSS_WINDOWS_V1",
+    "APPROVE_WINDOW_10_OFFLINE_READINESS_AFTER_ASSIGNED_CARRY_FORWARD_REPAIR_V1"
+  ],
+  "thisFileAuthorises": [],
+  "networkAuthorised": false,
+  "databaseAuthorised": false,
+  "acquisitionAuthorised": false,
+  "ledgerMutationAuthorised": false,
+  "reserveAssignmentAuthorised": false,
+  "liveAuthorityAuthorised": false,
+  "defect": {
+    "observedAfter": "the valid partial Window-09 adjudication (ce139ff44df9248b35ceec0b04719e51371b0436)",
+    "assumption": "the generic next-window planner and the history replay assumed that a window begins with zero already-assigned-but-unexecuted replacements",
+    "planner": "buildGeneration2WindowSpec made the replacement members exactly the NEW complete-Q1 assignments, so an assigned, unexecuted occupant was silently left out of the next window",
+    "replay": "replayWindow refused HISTORY_UNEXECUTED_ASSIGNMENT whenever any slot was still ASSIGNED at the start of a window",
+    "window09State": "correct as adjudicated; it is not altered: slot 99 stays REPLACEMENT_ASSIGNED_AWAITING_EXECUTION, occupied by Generation-2 reserve 12 at ledger sequence 12"
+  },
+  "semantics": {
+    "CURRENT_ACQUISITION_FAILURE": "the slot needs a NEW replacement assignment (a Q1 obligation)",
+    "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION": "the slot ALREADY has its replacement occupant in the canonical ledger",
+    "assignedOccupant": {
+      "reentersQ1": false,
+      "receivesAnotherReserve": false,
+      "createsAnotherLedgerEntry": false,
+      "remainsAWorkItemObligationInTheNextBoundedWindow": true,
+      "untilThatExactOccupantIsExecutedAndAdjudicated": true
+    },
+    "windowReplacementMembership": "carry-in assigned replacements + new complete-Q1 replacements",
+    "replacementGroupOrder": "canonical ledger-assignment sequence ascending; independent of slot number and of the window that created the assignment",
+    "cadence": "may move the complete replacement group before or after the primaries; never alters its membership or its internal ledger order",
+    "windowSize": "every current replacement execution obligation (carry-in + complete Q1) must fit; otherwise the planner fails closed before planning primaries (REPLACEMENT_OBLIGATIONS_EXCEED_WINDOW); primaries fill only the remaining places",
+    "ledgerConsumption": "unchanged: a pre-network append consumes its sequences whether or not their work items are later executed; ledger consumption and replacement execution/adjudication stay distinct concepts",
+    "q1": "unchanged: the ascending current failures not yet assigned",
+    "ledgerAppend": "unchanged: exactly the new complete-Q1 assignments",
+    "p7": "unchanged eighteen invariants; completeQ1EqualsPlanningQ1, plannedReplacementAppendRecorded and noUnexpectedGeneration2Assignments still concern ONLY the new append; postAppendOccupantsMatchAssignedReserves covers every replacement work item including carry-in; workItemsMatchGovernance requires every carry-in and every planned Q1 replacement as members, in ledger-sequence order"
+  },
+  "slot99": {
+    "ownerDecision": "ACCEPT_WINDOW_09_SLOT99_RESERVE12_AS_CANONICAL_CARRY_IN_ASSIGNED_OCCUPANT_V1",
+    "selectionIndex": 99,
+    "split": "FINAL_HOLDOUT",
+    "status": "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION",
+    "occupant": {
+      "generation2ReserveRankPosition": 12,
+      "ledgerSequence": 12,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "replacedOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 10,
+      "entryHash": "38a7c89747854296901fc227cd5a54fab705a08f51337079a0934268821d44a6",
+      "ledgerCommit": "8e65dd744d1933c5824c09f856de62f63f21b0c1"
+    },
+    "inQ1": false,
+    "carryInWorkItemId": "G2R:99:12"
+  },
+  "bound": {
+    "window09MidWindowP5OwnerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_MID_WINDOW_P5_OWNER_RULING_V1.json",
+      "commit": "b5ad72dce9f8ae36be4cca04bed6cb6733eb70c4",
+      "sha256": "7ba219449434f6a7cec4a666e0c4da47e40f1eee9dbc755f709d9709f3e0b89c",
+      "bytes": 17328
+    },
+    "window09Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_EVIDENCE_ADJUDICATION_V1.json",
+      "commit": "ce139ff44df9248b35ceec0b04719e51371b0436",
+      "sha256": "9cf694e5caf0f1c6d403d045b6939cae7bd57964372c9002ce22fc44ee739fa3",
+      "bytes": 31507
+    },
+    "canonicalGeneration2Ledger": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "commit": "8e65dd744d1933c5824c09f856de62f63f21b0c1",
+      "sha256": "bdbb1b7beecf715b9e6f0e94b63e9046507c3605e2c662701606207db7919bf7",
+      "bytes": 12733,
+      "ledgerHash": "5a27fb02ddca755af5c7712c0de650028b0e7ef18b5b752cfd2170da0b7dd768",
+      "entryCount": 13,
+      "nextGeneration2ReservePosition": 13
+    }
+  },
+  "repairSurface": [
+    "src/test/harness/phase2b2d/generation2Acquisition/windowSpec.ts",
+    "src/test/harness/phase2b2d/generation2History/adjudicationHistory.ts",
+    "src/test/harness/phase2b2d/generation2Acquisition/preflight.ts"
+  ],
+  "doesNotChange": [
+    "the ledger format",
+    "the state categories",
+    "the Q1 definition",
+    "the reserve assignment policy or order",
+    "Methodology V3",
+    "P1-P8",
+    "the P5 threshold or denominator",
+    "the run-reference rules",
+    "the LIVE_RESULT contract semantics",
+    "the cadence vocabulary or the default cadence",
+    "any historical record"
+  ],
+  "doesNot": [
+    "alter Window 09",
+    "rewrite the ledger",
+    "convert slot 99 back to Q1",
+    "append sequences 13 or 14",
+    "assign reserve 13 or 14",
+    "create a Window-10 live authority",
+    "execute G2R:99:12 or G2P:106"
+  ],
+  "identityDisclosure": "slot numbers, reserve positions, ledger sequences, work item ids, digests and aggregates only; no organisation id, echeRowKey, URL, hostname or page text",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
