@@ -44,6 +44,16 @@
  * SEPARATELY as `operationalPrerequisites.adjudicationHistoryIntegrity`
  * (ADJUDICATION_HISTORY_INTEGRITY). It is not a P7 invariant: frozen P7 does
  * not mention adjudication files and is not redefined to.
+ *
+ * EXECUTION CADENCE. A window planned under a verified owner cadence decision
+ * (generation2Cadence/windowCadence.ts) orders the SAME members primaries-
+ * first. The eighteen invariants keep their names and meaning:
+ * workItemsMatchGovernance requires the order of the spec's own cadence (and,
+ * for a non-default cadence, that every complete-Q1 replacement is still a
+ * member); the Q1, append and occupant invariants are unchanged, so a
+ * primary-first window still needs its complete Q1 append persisted first.
+ * The decision's own integrity is reported SEPARATELY, only when a cadence is
+ * involved, as `operationalPrerequisites.windowCadenceAuthorityIntegrity`.
  */
 
 import { createHash } from 'node:crypto';
@@ -58,6 +68,11 @@ import {
   type Generation2AdjudicationHistory,
 } from '../generation2History/adjudicationHistory.js';
 import { assessAdjudicationHistoryIntegrity } from '../generation2History/historyIntegrity.js';
+import {
+  DEFAULT_WINDOW_EXECUTION_CADENCE,
+  verifyWindowCadenceAuthority,
+  type WindowCadenceAuthorityBinding,
+} from '../generation2Cadence/windowCadence.js';
 import { parseGeneration2WorkItemId } from './operationalContract.js';
 import {
   parseOperationalGeneration2Ledger,
@@ -127,6 +142,9 @@ export interface Generation2Preflight {
     /** ADJUDICATION_HISTORY_INTEGRITY; trivially true for an empty history. */
     readonly adjudicationHistoryIntegrity: boolean;
     readonly adjudicationHistoryFailures: readonly string[];
+    /** Present ONLY when the spec carries a cadence block or a decision was supplied. */
+    readonly windowCadenceAuthorityIntegrity?: boolean;
+    readonly windowCadenceAuthorityFailures?: readonly string[];
   };
 }
 
@@ -141,6 +159,8 @@ export interface Generation2PreflightInput {
   readonly expectedWindowSpec: Generation2WindowSpec;
   /** The committed adjudicated windows, in order. Default: none (the first window). */
   readonly adjudicationHistory?: Generation2AdjudicationHistory;
+  /** The committed owner cadence decision for this window. Absent: legacy default. */
+  readonly cadenceAuthority?: WindowCadenceAuthorityBinding;
 }
 
 function holds(failures: string[], name: string, check: () => boolean): boolean {
@@ -225,6 +245,9 @@ export function computeGeneration2PreflightWithAssessment(
         },
         plannedWindowSize: spec.plannedWindowSize,
         history,
+        ...(input.cadenceAuthority === undefined
+          ? {}
+          : { cadenceAuthority: input.cadenceAuthority }),
       });
     }
     return rebuilt;
@@ -270,14 +293,32 @@ export function computeGeneration2PreflightWithAssessment(
     const b = need();
     const items = spec.workItems;
     const replacements = items.filter((item) => item.kind === 'REPLACEMENT');
+    const primaryFirst =
+      (spec.executionCadence?.mode ?? DEFAULT_WINDOW_EXECUTION_CADENCE) !==
+      DEFAULT_WINDOW_EXECUTION_CADENCE;
+    const leading = primaryFirst ? items.length - replacements.length : replacements.length;
+    const leadingKind = primaryFirst ? 'PRIMARY' : 'REPLACEMENT';
+    const trailingKind = primaryFirst ? 'REPLACEMENT' : 'PRIMARY';
+    // Non-default cadence: every complete-Q1 replacement is still a member, in append order.
+    const q1StillMembers =
+      !primaryFirst ||
+      canonicalStringify(
+        replacements.map((item) => [item.selectionIndex, item.generation2ReserveRankPosition]),
+      ) ===
+        canonicalStringify(
+          spec.plannedReplacementAppend.map((p) => [
+            p.selectionIndex,
+            p.generation2ReserveRankPosition,
+          ]),
+        );
     const structural =
+      q1StillMembers &&
       items.length === spec.plannedWindowSize &&
       items.every((item, position) => item.order === position + 1) &&
       new Set(items.map((item) => item.workItemId)).size === items.length &&
-      // every replacement strictly precedes every primary
-      items.every(
-        (item, k) => item.kind === (k < replacements.length ? 'REPLACEMENT' : 'PRIMARY'),
-      ) &&
+      // default: every replacement strictly precedes every primary;
+      // a verified primary-first cadence: every primary strictly precedes every replacement
+      items.every((item, k) => item.kind === (k < leading ? leadingKind : trailingKind)) &&
       items.every((item) => {
         const parsed = parseGeneration2WorkItemId(item.workItemId);
         if (
@@ -420,6 +461,25 @@ export function computeGeneration2PreflightWithAssessment(
       : basis === null || cur === null
         ? { holds: false, failures: ['the committed inputs or the current ledger are not exact'] }
         : assessAdjudicationHistoryIntegrity(basis, cur, history);
+  const cadenceInvolved =
+    spec.executionCadence !== undefined || input.cadenceAuthority !== undefined;
+  const cadenceFailures: string[] = [];
+  if (cadenceInvolved) {
+    try {
+      if (input.cadenceAuthority === undefined) {
+        throw new Error('the spec names a non-default cadence but no decision was supplied');
+      }
+      const verified = verifyWindowCadenceAuthority(
+        input.cadenceAuthority,
+        history.windows.length + 1,
+      );
+      if (canonicalStringify(verified) !== canonicalStringify(spec.executionCadence)) {
+        cadenceFailures.push("the spec's cadence block is not the verified decision");
+      }
+    } catch (error) {
+      cadenceFailures.push(error instanceof Error ? error.message : String(error));
+    }
+  }
   return {
     invariants,
     currentLedgerEntryCount:
@@ -428,6 +488,12 @@ export function computeGeneration2PreflightWithAssessment(
     operationalPrerequisites: {
       adjudicationHistoryIntegrity: historyIntegrity.holds,
       adjudicationHistoryFailures: historyIntegrity.failures,
+      ...(cadenceInvolved
+        ? {
+            windowCadenceAuthorityIntegrity: cadenceFailures.length === 0,
+            windowCadenceAuthorityFailures: cadenceFailures,
+          }
+        : {}),
     },
   };
 }

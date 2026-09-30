@@ -67,6 +67,10 @@ import {
 import type { Split } from '../draw/drawContract.js';
 import type { Generation2LedgerEntry } from '../generation2/generation2Ledger.js';
 import {
+  cadenceOfAuthority,
+  type WindowCadenceAuthorityBinding,
+} from '../generation2Cadence/windowCadence.js';
+import {
   buildPrimaryExecutionBinding,
   buildReserveExecutionBinding,
   executionEntrySha256,
@@ -128,6 +132,12 @@ export interface Generation2WindowHistoryBinding {
   readonly startingLedgerText: string;
   /** Absent for every canonically shaped authority. Never looked up: supplied or not. */
   readonly authorityShapeCorrection?: AuthorityShapeCorrectionBinding;
+  /**
+   * The committed owner cadence decision, supplied ONLY for a window whose
+   * authority carries an `executionCadence` block. Absent: the legacy
+   * replacement-first default. Never looked up: supplied or not.
+   */
+  readonly cadenceAuthority?: WindowCadenceAuthorityBinding;
 }
 
 /** Ordered: windows[k] is window k+1. Empty means the historical first-window model. */
@@ -696,6 +706,8 @@ export interface ReplayedWindow {
   readonly adjudication: { readonly path: string; readonly sha256: string };
   /** Present only when the window's authority was read through an explicit correction. */
   readonly authorityShapeCorrection?: { readonly path: string; readonly sha256: string };
+  /** Present only when the window ran under a verified non-default cadence decision. */
+  readonly cadenceAuthority?: { readonly path: string; readonly sha256: string };
   readonly authorisedWorkItemIds: readonly string[];
   readonly windowSpecHash: string;
   readonly startingLedger: {
@@ -847,10 +859,25 @@ function replayWindow(
   const stateBefore = snapshot(slots);
 
   // ---- the authorised work items are the window rule over the replayed state ---
-  const expectedPrimaries = stateBefore.neverStarted.slice(0, size - planned.length);
+  // Membership is the unchanged rule; only a verified cadence decision moves
+  // the SAME replacements behind the primaries. The ledger append above is
+  // replayed first either way.
+  const cadence = cadenceOfAuthority(authority, binding.cadenceAuthority, expectedOrdinal);
+  const primaryCount = size - planned.length;
+  const replacementsLead = cadence === 'Q1_REPLACEMENTS_THEN_PRIMARIES';
+  const expectedPrimaries = stateBefore.neverStarted.slice(0, primaryCount);
   authorised.forEach((item, k) => {
-    const replacement = k < planned.length ? ledger.entries[cursor + k]! : null;
-    const slotIndex = replacement?.selectionIndex ?? expectedPrimaries[k - planned.length];
+    const replacementIndex = replacementsLead
+      ? k < planned.length
+        ? k
+        : null
+      : k >= primaryCount
+        ? k - primaryCount
+        : null;
+    const replacement =
+      replacementIndex === null ? null : ledger.entries[cursor + replacementIndex]!;
+    const slotIndex =
+      replacement?.selectionIndex ?? expectedPrimaries[replacementsLead ? k - planned.length : k];
     if (slotIndex === undefined) {
       refuse(
         'HISTORY_AUTHORITY_WORK_ITEM',
@@ -1081,6 +1108,14 @@ function replayWindow(
               sha256: binding.authorityShapeCorrection.record.sha256,
             },
           }),
+      ...(binding.cadenceAuthority === undefined
+        ? {}
+        : {
+            cadenceAuthority: {
+              path: binding.cadenceAuthority.path,
+              sha256: binding.cadenceAuthority.sha256,
+            },
+          }),
       authorisedWorkItemIds: exactOrder,
       windowSpecHash,
       startingLedger: {
@@ -1295,6 +1330,9 @@ export function historyBindingOf(replay: Generation2HistoryReplay) {
       ...(window.authorityShapeCorrection === undefined
         ? {}
         : { authorityShapeCorrection: window.authorityShapeCorrection }),
+      ...(window.cadenceAuthority === undefined
+        ? {}
+        : { cadenceAuthority: window.cadenceAuthority }),
       windowSpecHash: window.windowSpecHash,
       startingLedger: window.startingLedger,
       ledgerHashAfterAppend: window.ledgerHashAfterAppend,

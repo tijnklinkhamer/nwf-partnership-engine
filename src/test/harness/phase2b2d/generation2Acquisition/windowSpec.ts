@@ -5,9 +5,14 @@
  *   inputs   the operational basis (frozen frame, draw, Generation-1 terminal
  *            and ledger, frozen schedule, re-derived carry-forward) and the
  *            STARTING Generation-2 ledger revision
- *   order    every Q1 replacement first (ascending slot, positions from the
- *            ledger's next unused one), then the lowest-index NEVER_STARTED
+ *   members  every Q1 replacement (ascending slot, positions from the
+ *            ledger's next unused one) and the lowest-index NEVER_STARTED
  *            original primaries, ascending, until the planned size is reached
+ *   order    by default every replacement first, then the primaries; ONLY a
+ *            verified, pinned owner cadence decision for this exact window
+ *            (generation2Cadence/windowCadence.ts) puts the SAME members in
+ *            primaries-first order, and only then does the spec carry an
+ *            `executionCadence` block - a default spec is unchanged byte for byte
  *   ids      `G2R:<slot>:<Gen-2 position>` / `G2P:<slot>`
  *   identity a replacement binds `executionEntrySha256` of its frozen-frame
  *            execution binding; a primary binds `drawEntrySha256` of its
@@ -36,6 +41,13 @@ import {
   replayGeneration2History,
   type Generation2AdjudicationHistory,
 } from '../generation2History/adjudicationHistory.js';
+import {
+  DEFAULT_WINDOW_EXECUTION_CADENCE,
+  orderByCadence,
+  verifyWindowCadenceAuthority,
+  type WindowCadenceAuthorityBinding,
+  type WindowExecutionCadenceBlock,
+} from '../generation2Cadence/windowCadence.js';
 import {
   buildPrimaryExecutionBinding,
   buildReserveExecutionBinding,
@@ -143,6 +155,11 @@ export interface Generation2WindowSpec {
    * Absent for the first window, whose spec is unchanged byte for byte.
    */
   readonly adjudicationHistory?: Generation2HistoryBinding;
+  /**
+   * Present ONLY for a non-default cadence: the verified owner decision that
+   * ordered this window's members primaries-first. Absent = legacy default.
+   */
+  readonly executionCadence?: WindowExecutionCadenceBlock;
   readonly windowSpecHash: string;
 }
 
@@ -160,6 +177,11 @@ export function buildGeneration2WindowSpec(input: {
   readonly plannedWindowSize: number;
   /** The committed adjudicated windows before this one, in order. Default: none. */
   readonly history?: Generation2AdjudicationHistory;
+  /**
+   * The committed owner cadence decision for THIS window (its ordinal is the
+   * history length + 1). Absent: the legacy replacement-first default.
+   */
+  readonly cadenceAuthority?: WindowCadenceAuthorityBinding;
 }): Generation2WindowSpec {
   const { basis, startingLedger, plannedWindowSize } = input;
   const history = input.history ?? EMPTY_GENERATION2_HISTORY;
@@ -257,7 +279,15 @@ export function buildGeneration2WindowSpec(input: {
     };
   });
 
-  const workItems = [...replacementItems, ...primaryItems].map((item, position) => ({
+  const cadence =
+    input.cadenceAuthority === undefined
+      ? null
+      : verifyWindowCadenceAuthority(input.cadenceAuthority, history.windows.length + 1);
+  const workItems = orderByCadence(
+    replacementItems,
+    primaryItems,
+    cadence?.mode ?? DEFAULT_WINDOW_EXECUTION_CADENCE,
+  ).map((item, position) => ({
     ...item,
     order: position + 1,
   }));
@@ -315,6 +345,7 @@ export function buildGeneration2WindowSpec(input: {
             replayGeneration2History(basis, startingLedger, history),
           ),
         }),
+    ...(cadence === null ? {} : { executionCadence: cadence }),
   };
   if (
     input.startingLedgerFile.sha256.length !== 64 ||

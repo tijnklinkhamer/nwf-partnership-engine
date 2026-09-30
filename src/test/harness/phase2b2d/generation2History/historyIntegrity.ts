@@ -111,6 +111,9 @@ export function assessAdjudicationHistoryIntegrity(
         },
         plannedWindowSize: window.plannedWindowSize,
         history: { windows: history.windows.slice(0, k) },
+        ...(binding.cadenceAuthority === undefined
+          ? {}
+          : { cadenceAuthority: binding.cadenceAuthority }),
       });
       rebuilt.push(spec.windowSpecHash);
       const authority = JSON.parse(binding.authority.text) as {
