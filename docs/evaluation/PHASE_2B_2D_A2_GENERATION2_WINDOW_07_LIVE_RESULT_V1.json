@@ -1,0 +1,570 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_07_LIVE_RESULT_V1",
+  "recordKind": "GENERATION2_WINDOW_LIVE_RESULT",
+  "recordedAtUtc": "2026-09-30T09:16:40Z",
+  "recordedAtUtcSource": "date -u, read from the shell after the last executed item and before this record was written",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "987086b2ddc5164ce704728d360abe99e7e84e55",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "boundAuthority": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_LIVE_AUTHORITY_V1.json",
+    "commit": "73fc2c8b3e2f14def6ba7861cb7d2ba49ef402a6",
+    "sha256": "726f78369af5fa5bb177a934c8c81e1bb317c04026dbf30575be4bb613db6020",
+    "bytes": 61160,
+    "ownerDecision": "APPROVE_GENERATION2_WINDOW_07_EXACTLY_ONE_FIVE_ITEM_LIVE_WINDOW_V1",
+    "ownerDecisions": [
+      "APPROVE_GENERATION2_WINDOW_07_COMPLETE_Q1_PRE_NETWORK_APPEND_V1",
+      "APPROVE_GENERATION2_WINDOW_07_EXACTLY_ONE_FIVE_ITEM_LIVE_WINDOW_V1",
+      "APPROVE_GENERATION2_WINDOW_07_ONE_POST_WINDOW_VALIDATION_AND_CONDITIONAL_ADJUDICATION_V1"
+    ]
+  },
+  "boundAdjudicationHistory": {
+    "windows": [
+      {
+        "windowOrdinal": 1,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_AUTHORITY_V1.json",
+          "commit": "219f6d4a1cb869e9253a9701d48543a88f80f0ab",
+          "sha256": "e4874f7e84a184bd473b75f15dba0fd90700d4bb33ec0093593de90f4dea38ba"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_RESULT_V1.json",
+          "commit": "41bbedad759c26f1cb1e110bfdd07e1599809178",
+          "sha256": "7162938e6f8ba5f7808075f58021b540244b2b5a0b05d61db0812cfd4d8102d0"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "b281bf3b1dfc25c4540c6b17c1e8b97db468a77d",
+          "sha256": "89e4f166e56292374d3cf1aa2fe8037225770d48193ae619a32a1d4c7f1df5df"
+        }
+      },
+      {
+        "windowOrdinal": 2,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_AUTHORITY_V1.json",
+          "commit": "da659b586c05870f08f5af56d8816365a5203fa0",
+          "sha256": "e2cb65b5a7d3b35391718e255fef4db926bcfe88020f392ac93f79981392bba2"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_RESULT_V1.json",
+          "commit": "d074c0647136b45ee094b2d46a98ee2110db5102",
+          "sha256": "68852cbca3de127bb0a5442863cc99d2c3b72a5a69700c5fc5ac619fbc29b4ae"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "c6f6cf6dd1609115858a7dc039d1919bdb4153e4",
+          "sha256": "2e35cad7951aed780151b97400ea3b7e9fd78d4bfdec252f83d0652702bbdc8d"
+        }
+      },
+      {
+        "windowOrdinal": 3,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_AUTHORITY_V1.json",
+          "commit": "a39309f489aef60ae43ff4d179b9150dc5caf6c0",
+          "sha256": "aaa61ce72b9a5b943928f879f68daa06ea612aacfd5117310d54bd14cfa65478"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_RESULT_V1.json",
+          "commit": "17398aaf44b33d831ab9fb8c23b17b0d529da160",
+          "sha256": "c9654a837dde1c7c86a90c505b8cc1d5e6fcae1edc8a593981328576944e42ec"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "8f4bc2185ce7b0010b1dd96fe22b016c9500b9b0",
+          "sha256": "8d59cb2a1e2d6f3b447767a8c56078111658dbd07818e098fd363c153fe33ef0"
+        }
+      },
+      {
+        "windowOrdinal": 4,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_AUTHORITY_V1.json",
+          "commit": "05ffde6e8bcbbd2456ae1ccf69f43a7a41c2fcba",
+          "sha256": "bb24c26a8f2816a2cba584edb3726254bd72b1a8b979ca3cf9348effae1802a5"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_RESULT_V1.json",
+          "commit": "8efe11c290b24d17bde24f61914a19698986f108",
+          "sha256": "89b2aac217502133e7cbd75a9144f81637a03ef3be906cdebd03d1edb30e22f4"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "d023645a9c7e7a2afae92096e6b2c1bfd6daf861",
+          "sha256": "826f11851a6c000d3a314da2b6a4c31081014d29fdbdeb6012d157dae58b3dd8"
+        }
+      },
+      {
+        "windowOrdinal": 5,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_AUTHORITY_V1.json",
+          "commit": "c1b1a56fb6401d20f191b84e07b8f7508ba4b08c",
+          "sha256": "d88f741162bf27f6c290b2875edbeba522908c5545d6608b8d79b820ff701807"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_RESULT_V2.json",
+          "commit": "dbc7f0b4bb34ba1572ad2b59c3c0381807dbb0c6",
+          "sha256": "6914f564726029ebf82ef9ea142279f9697d9adb68bf42bfad0ba359df748d26"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "df3dddde6d9365da436e64c67e3b044df2f2cc42",
+          "sha256": "187eef89ed37f86e2f96c95e8772d9681ddcd944d04cff21961e4aaa63358642"
+        }
+      },
+      {
+        "windowOrdinal": 6,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_AUTHORITY_V1.json",
+          "commit": "c3f6c223de48625976f52da1ce110133f0d01afb",
+          "sha256": "6d847d8175054ecf7f09e45b5ab8ba8e488e9f8ca99553e9ca2c420b4dc977e3"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_RESULT_V3.json",
+          "commit": "3905bc27a3a54bb425d91813ed6e6e641d283d0c",
+          "sha256": "9dee6861dabc5c997ed2d458fad7d346f6b7aa9a019d421439f8c2b242cb1af6"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "47389c54b98aa1088a1e686f3592280e22046308",
+          "sha256": "845ca3a4bcd13409ac00dfc8b2a4224e9aee8ab08749aab523a8b7d478f5f340"
+        }
+      }
+    ],
+    "passedToEveryStateSpecAppendAndPreflightCall": true,
+    "emptyHistoryDefaultNeverUsed": true,
+    "directoryDiscovery": false,
+    "latestLookup": false
+  },
+  "ledgerDuringTheWindow": {
+    "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+    "fileSha256": "196c85c4c3655900cc3f5330af7ca8d28365df8407883c60ccb35436c445dca8",
+    "bytes": 10185,
+    "ledgerHash": "3aac5a5e809e831c8131c59ad34120248cbf3df294ca417daf36742bc254c621",
+    "entryCount": 9,
+    "nextGeneration2ReservePosition": 9,
+    "unchangedByTheWindow": true,
+    "appendCommit": "987086b2ddc5164ce704728d360abe99e7e84e55",
+    "appendedEntries": [
+      {
+        "sequence": 7,
+        "selectionIndex": 96,
+        "generation2ReserveRankPosition": 7,
+        "replacedOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+        "previousSequenceForSlot": 6,
+        "recordedAtUtc": "2026-09-30T09:08:52Z",
+        "previousEntryHash": "b0504309ebf0d599ea7113f552f9d93450cb9f4705e6d53601aa4b3d3d7e9bd7",
+        "entryHash": "dfa19916d76f572d65485cd073d337b5a552935ef49a9e38eaff1ecfca5ecc75"
+      },
+      {
+        "sequence": 8,
+        "selectionIndex": 99,
+        "generation2ReserveRankPosition": 8,
+        "replacedOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+        "previousSequenceForSlot": null,
+        "recordedAtUtc": "2026-09-30T09:08:52Z",
+        "previousEntryHash": "dfa19916d76f572d65485cd073d337b5a552935ef49a9e38eaff1ecfca5ecc75",
+        "entryHash": "de7b2c7ed92ca7e253fd60955148135239611db1f10f8b698684eedb649de653"
+      }
+    ],
+    "preNetworkAppend": "two entries, committed and pushed before any institution network; reserve 9 unassigned"
+  },
+  "windowSpecHash": "6a52a37a49b5b48a158a8a6535fdb6355f7b5e1225c902f841de9b261197cce3",
+  "windowOutcome": "WINDOW_EXECUTED_2_OF_5_PAUSED_P5_AFTER_G2R_99_8",
+  "stops": {
+    "itemsNotStarted": ["G2P:100", "G2P:101", "G2P:102"],
+    "anyFrozenPauseP1toP8Fired": true,
+    "finalGateDecisionMechanical": "PAUSE_P5_LOW_RAW_YIELD",
+    "p5": {
+      "firstFiredAfterItem": "G2R:99:8",
+      "arm": "raw pages < 4 on 2 of 5 planned items (> 30%)",
+      "denominator": 5,
+      "windowLowYieldCount": 2,
+      "threshold": 2,
+      "lowYieldItems": ["G2R:96:7", "G2R:99:8"],
+      "priorWindowWaiverApplied": false,
+      "inheritedAnomalyWaivers": 0,
+      "ownerReviewRequired": true
+    },
+    "allOtherPausesFired": false,
+    "concurrencyStop": {
+      "fired": false
+    },
+    "monitorCoverageStop": {
+      "fired": false
+    },
+    "p8": {
+      "fired": false
+    },
+    "handling": "the P5 pause fired on the post-item gate after G2R:99:8; its evidence is preserved; no later item was started; no retry; G2P:100, G2P:101 and G2P:102 were never started and their invocations are unused and NOT transferable"
+  },
+  "liveInvocations": {
+    "authorisedMaximum": 5,
+    "used": 2,
+    "retries": 0,
+    "perItem": 1,
+    "unused": 3,
+    "unusedNotTransferable": true,
+    "unusedItems": ["G2P:100", "G2P:101", "G2P:102"]
+  },
+  "items": [
+    {
+      "order": 1,
+      "workItemId": "G2R:96:7",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 96,
+      "generation2ReserveRankPosition": 7,
+      "split": "DEV_CONFIRM",
+      "identityDigest": "7c64217e9e26f199103a4a982f8de93c7ca0446cc02cfe804fb7880a68cebbcb",
+      "itemPreflight": {
+        "identityDigestMatchesAuthority": true,
+        "dryRunWasNetworkFree": true,
+        "dryRunRootsEqualFrozenRootAuthorities": true,
+        "rootAuthorityCount": 1,
+        "p7": "18/18",
+        "adjudicationHistoryIntegrity": true,
+        "dbEqualsExpectedEndpoint": true,
+        "allChecksGreen": true
+      },
+      "itemIntervalUtc": ["2026-09-30T09:12:45Z", "2026-09-30T09:12:47Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "4b588bec767e5a3ca124973522478a36f39b5f038b6c52ded452caf13eb41daa",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "pageAttempts": 0,
+      "gatewayRequests": 1,
+      "fetchObservationsByErrorKind": {
+        "TLS_FAILURE": 1
+      },
+      "usableHttpResponseObtained": false,
+      "redirectObservations": 0,
+      "candidateRows": 0,
+      "rawPageEvidenceCount": 0,
+      "sd9EligiblePageCount": 0,
+      "zeroExtractedTextPageCount": 0,
+      "postSd7Range": [0, 0],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "A",
+      "sd9StatusMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "q3ReasonMechanical": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "q3BlockingTransportErrorKind": "TLS_FAILURE",
+      "databaseDelta": {
+        "runs": 1,
+        "completions": 1,
+        "fetchObservations": 1,
+        "redirectObservations": 0,
+        "pageEvidence": 0,
+        "pageCandidates": 0,
+        "BLOCKED_BY_POLICY": 0,
+        "rootPromotions": 0,
+        "rootPromotionRevocations": 0,
+        "dryRunRuns": 0,
+        "runsWithoutCompletion": 0
+      },
+      "reconciliation": {
+        "oneRunOneCompletion": true,
+        "fetchDeltaEqualsGatewayRequests": true,
+        "pageDeltaEqualsRaw": true,
+        "redirectDeltaEqualsRedirects": true,
+        "candidatesTwicePages": true,
+        "noBlockedOrDryRunOrPromotionMovement": true,
+        "echeKeyMatchesBinding": true,
+        "runsForOccupantIsOne": true,
+        "notDryRun": true,
+        "cliExitZero": true,
+        "oneRoot": true,
+        "fetchPolicyCanonical": true
+      },
+      "hostAndVantage": {
+        "preItem": true,
+        "postItem": true,
+        "sleepWakeDarkWakeEventsDuringItem": 0,
+        "batteryPercentPre": 100,
+        "ipv4DefaultIfaceEn0": true,
+        "nativeIpv4NotClat": true,
+        "ipv4onlyArpaAaaaEmpty": true,
+        "p8": false
+      },
+      "preItemQuietGate": {
+        "consecutiveCleanSeconds": 121,
+        "freshForThisItem": true
+      },
+      "independentWatcher": {
+        "startedBeforeGovernedRoot": true,
+        "samplesWithinItem": 4,
+        "maxGapSeconds": 0.51,
+        "byFinalClassification": {
+          "GOVERNED_ACQUISITION_DESCENDANT_PROVED": 3,
+          "EXTERNAL_COMPETING_PROCESS": 0,
+          "ANCESTRY_UNPROVED": 0
+        },
+        "competingPollsWithinItem": 0,
+        "monitorCoverageSufficient": true
+      },
+      "executionExclusivityVerdict": "EXCLUSIVE_PROVED_FOR_THIS_ITEM",
+      "postItemGate": {
+        "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "triggeredConditions": [],
+        "windowLowYieldCount": 1,
+        "windowRobotsRefusalCount": 1,
+        "maxConsecutiveFailedRuns": 0,
+        "maxConsecutiveRootAuthorityFailures": 0,
+        "maxConsecutiveRobotsRefusals": 1,
+        "nextWorkItemId": "G2R:99:8",
+        "mayStartNextWorkItem": true,
+        "p7": "18/18"
+      }
+    },
+    {
+      "order": 2,
+      "workItemId": "G2R:99:8",
+      "kind": "REPLACEMENT",
+      "selectionIndex": 99,
+      "generation2ReserveRankPosition": 8,
+      "split": "FINAL_HOLDOUT",
+      "identityDigest": "a17768fa7390d3d3a9eccf46fc97a92472740add91a95b89d1aa9ebba9013de6",
+      "itemPreflight": {
+        "identityDigestMatchesAuthority": true,
+        "dryRunWasNetworkFree": true,
+        "dryRunRootsEqualFrozenRootAuthorities": true,
+        "rootAuthorityCount": 1,
+        "p7": "18/18",
+        "adjudicationHistoryIntegrity": true,
+        "dbEqualsExpectedEndpoint": true,
+        "allChecksGreen": true
+      },
+      "itemIntervalUtc": ["2026-09-30T09:15:12Z", "2026-09-30T09:15:14Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "b76c70766435f78e5034a98e7340e49d6c73f0278de960ca028f0723d878b708",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "NO_ELIGIBLE_HTML",
+      "pageAttempts": 1,
+      "gatewayRequests": 3,
+      "fetchObservationsByErrorKind": {
+        "NONE": 3
+      },
+      "usableHttpResponseObtained": true,
+      "redirectObservations": 0,
+      "candidateRows": 0,
+      "rawPageEvidenceCount": 0,
+      "sd9EligiblePageCount": 0,
+      "zeroExtractedTextPageCount": 0,
+      "postSd7Range": [0, 0],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "A",
+      "sd9StatusMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "q3ReasonMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "q3BlockingTransportErrorKind": null,
+      "databaseDelta": {
+        "runs": 1,
+        "completions": 1,
+        "fetchObservations": 3,
+        "redirectObservations": 0,
+        "pageEvidence": 0,
+        "pageCandidates": 0,
+        "BLOCKED_BY_POLICY": 0,
+        "rootPromotions": 0,
+        "rootPromotionRevocations": 0,
+        "dryRunRuns": 0,
+        "runsWithoutCompletion": 0
+      },
+      "reconciliation": {
+        "oneRunOneCompletion": true,
+        "fetchDeltaEqualsGatewayRequests": true,
+        "pageDeltaEqualsRaw": true,
+        "redirectDeltaEqualsRedirects": true,
+        "candidatesTwicePages": true,
+        "noBlockedOrDryRunOrPromotionMovement": true,
+        "echeKeyMatchesBinding": true,
+        "runsForOccupantIsOne": true,
+        "notDryRun": true,
+        "cliExitZero": true,
+        "oneRoot": true,
+        "fetchPolicyCanonical": true
+      },
+      "hostAndVantage": {
+        "preItem": true,
+        "postItem": true,
+        "sleepWakeDarkWakeEventsDuringItem": 0,
+        "batteryPercentPre": 100,
+        "ipv4DefaultIfaceEn0": true,
+        "nativeIpv4NotClat": true,
+        "ipv4onlyArpaAaaaEmpty": true,
+        "p8": false
+      },
+      "preItemQuietGate": {
+        "consecutiveCleanSeconds": 120.7,
+        "freshForThisItem": true
+      },
+      "independentWatcher": {
+        "startedBeforeGovernedRoot": true,
+        "samplesWithinItem": 3,
+        "maxGapSeconds": 0.505,
+        "byFinalClassification": {
+          "GOVERNED_ACQUISITION_DESCENDANT_PROVED": 3,
+          "EXTERNAL_COMPETING_PROCESS": 0,
+          "ANCESTRY_UNPROVED": 0
+        },
+        "competingPollsWithinItem": 0,
+        "monitorCoverageSufficient": true
+      },
+      "executionExclusivityVerdict": "EXCLUSIVE_PROVED_FOR_THIS_ITEM",
+      "postItemGate": {
+        "decision": "PAUSE_P5_LOW_RAW_YIELD",
+        "triggeredConditions": [
+          {
+            "condition": "P5",
+            "decision": "PAUSE_P5_LOW_RAW_YIELD",
+            "arm": "raw pages < 4 on 2 of 5 planned items (> 30%)"
+          }
+        ],
+        "windowLowYieldCount": 2,
+        "windowRobotsRefusalCount": 1,
+        "maxConsecutiveFailedRuns": 0,
+        "maxConsecutiveRootAuthorityFailures": 0,
+        "maxConsecutiveRobotsRefusals": 1,
+        "nextWorkItemId": null,
+        "mayStartNextWorkItem": false,
+        "p7": "18/18"
+      }
+    }
+  ],
+  "mechanicalSummary": {
+    "acquisitionSuccessfulMechanical": [],
+    "acquisitionUnsuccessfulMechanical": [
+      {
+        "workItemId": "G2R:96:7",
+        "selectionIndex": 96,
+        "q3ReasonMechanical": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+      },
+      {
+        "workItemId": "G2R:99:8",
+        "selectionIndex": 99,
+        "q3ReasonMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+      }
+    ],
+    "rangeNotExact": []
+  },
+  "mechanicalSd9ReadingIsNotTheAdjudication": true,
+  "noReplacementAppendedDuringWindow": true,
+  "p2Accounting": {
+    "robotsBlockedRootCount": 0,
+    "robotsUnreadableRootCount": 1,
+    "gateWindowRobotsRefusalCount": 1,
+    "threshold": 3,
+    "countsBothReasons": true
+  },
+  "runReferenceProvenance": {
+    "everyRunRefSha256IsAFull64HexDigest": true,
+    "derivation": "sha256(lowercase run UUID), no prefix",
+    "noRawRunUuidPublished": true,
+    "historicalCount": 30,
+    "window07ExecutedCount": 2,
+    "totalDistinct": 32,
+    "allUnique": true,
+    "rule": "GENERATION2_HISTORICAL_RUN_REFERENCE_IS_GLOBALLY_UNIQUE_ACROSS_ALL_ADJUDICATED_WINDOWS_V1"
+  },
+  "sd9Bridge": {
+    "rawAndEligibleCountsReportedSeparately": true,
+    "onlyRowsWithMainTextCharsAboveZeroEnteredDedupe": true,
+    "zeroExtractedTextRowsInThisPrefix": 0,
+    "analyser": "analyseOrganisation (src/test/harness/phase2b2d/sd7/pilotAnalysis.ts), unmodified"
+  },
+  "databaseReconciliation": {
+    "database": "nwf_pe (acquisition)",
+    "readAs": "readonly",
+    "before": {
+      "runs": 156,
+      "completions": 156,
+      "fetchObservations": 4097,
+      "redirectObservations": 299,
+      "pageEvidence": 3101,
+      "pageCandidates": 6202,
+      "BLOCKED_BY_POLICY": 6,
+      "rootPromotions": 0,
+      "rootPromotionRevocations": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "beforeEqualsCanonicalWindow06Endpoint": true,
+    "after": {
+      "runs": 158,
+      "completions": 158,
+      "fetchObservations": 4101,
+      "redirectObservations": 299,
+      "pageEvidence": 3101,
+      "pageCandidates": 6202,
+      "BLOCKED_BY_POLICY": 6,
+      "rootPromotions": 0,
+      "rootPromotionRevocations": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "delta": {
+      "runs": 2,
+      "completions": 2,
+      "fetchObservations": 4,
+      "redirectObservations": 0,
+      "pageEvidence": 0,
+      "pageCandidates": 0,
+      "BLOCKED_BY_POLICY": 0,
+      "rootPromotions": 0,
+      "rootPromotionRevocations": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "fetchObservationDeltaEqualsSumOfItemRequests": "1 + 3 = 4",
+    "pageEvidenceDeltaEqualsSumOfItemRawPages": "0 + 0 = 0",
+    "redirectDeltaEqualsSumOfItemRedirects": "0 + 0 = 0",
+    "candidateDeltaEqualsTwicePageDelta": true,
+    "unexplainedMovement": false,
+    "testDatabaseNotConsulted": "nwf_pe_test counters were never compared with acquisition counters"
+  },
+  "concurrency": {
+    "inheritedAnomalyWaivers": 0,
+    "preItemQuietGate": ">= 120 consecutive clean seconds before every executed item, fresh per item (121.0 / 120.7 s)",
+    "watcherSelfTest": "PASS before the first item (governed child proved; unrelated external and detached orphan not accepted; empty/gap/death/external cannot pass)",
+    "itemsRanSequentiallyConcurrency1": true,
+    "deviation": "none: every executed item EXCLUSIVE_PROVED_FOR_THIS_ITEM (0 external, 0 ancestry-unproved, max gap <= 0.51 s)",
+    "monitorDefinition": "command-shaped candidate predicate over vitest / npm validate|test / a3prep / orgunits discover, any repository; ancestry proved only from the same-snapshot PPID chain to the governed root",
+    "acquisitionDatabaseContainerNote": "the acquisition database container had been stopped by another local session before the authority; it was restarted with owner approval before any Window-07 write; counts equal the canonical Window-06 endpoint"
+  },
+  "forbiddenActions": {
+    "secondLedgerAppend": false,
+    "reserve9Assignment": false,
+    "dynamicReplacement": false,
+    "retries": false,
+    "reordering": false,
+    "sixthItem": false,
+    "g2p100Started": false,
+    "g2p103": false,
+    "window08": false,
+    "validationRun": false,
+    "adjudication": false,
+    "productionCodeChange": false,
+    "rootPromotion": false
+  },
+  "identityDisclosure": "slot numbers, work item ids, digests, run-reference hashes and aggregates only; no organisation id, echeRowKey, URL, hostname, root-authority id or page text",
+  "terminalState": "PHASE_2B_2D_A2_GENERATION2_WINDOW_07_PAUSED_P5_AFTER_2_OF_5_AWAITING_OWNER_REVIEW_NO_VALIDATION_RUN",
+  "immutability": "append-only. This record is never edited; a correction or ruling is a new record"
+}
