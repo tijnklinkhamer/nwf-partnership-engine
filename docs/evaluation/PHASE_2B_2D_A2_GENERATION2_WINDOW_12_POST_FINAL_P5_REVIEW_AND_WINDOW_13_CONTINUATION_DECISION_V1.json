@@ -1,0 +1,259 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_12_POST_FINAL_P5_REVIEW_AND_WINDOW_13_CONTINUATION_DECISION_V1",
+  "recordKind": "GENERATION2_OWNER_CONTINUATION_DECISION",
+  "scope": "WINDOW_13_SIZE_ONLY",
+  "recordedAtUtc": "2026-09-30T22:15:57Z",
+  "recordedAtUtcSource": "date -u, read from the shell when this decision was written",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "1cb1a21dbb79585abc8518852bf69856fd59576d",
+  "publicSafe": true,
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "ownerDecisions": [
+    "PRESERVE_WINDOW_12_POST_FINAL_P5_AND_FULL_ADJUDICATION_V1",
+    "APPROVE_WINDOW_13_TWO_ITEM_REPLACEMENT_ONLY_CLEANUP_WINDOW_V1",
+    "APPROVE_WINDOW_13_OFFLINE_READINESS_UNDER_DEFAULT_REPLACEMENT_FIRST_CADENCE_V1"
+  ],
+  "thisFileAuthorises": [
+    "Window-13 OFFLINE readiness at plannedWindowSize 2 under the default cadence"
+  ],
+  "ledgerWriteAuthorised": false,
+  "reserveAssignmentAuthorised": false,
+  "networkAuthorised": false,
+  "databaseAcquisitionAuthorised": false,
+  "liveAuthorityAuthorised": false,
+  "liveInvocationAuthorised": false,
+  "executionAuthorised": false,
+  "window12Review": {
+    "fullAdjudicationPreserved": true,
+    "reopened": false,
+    "validationRerun": false,
+    "postFinalP5RemainsTrue": true,
+    "p5Waived": false,
+    "p5Weakened": false,
+    "p5Reinterpreted": false,
+    "executed": "5 of 5 in the pinned primary-first order G2P:108 -> G2P:109 -> G2R:107:16 -> G2R:103:17 -> G2R:106:18",
+    "outcome": "108 ACQUISITION_SUCCESSFUL (20/44/44); slots 106 and 109 CURRENT_ACQUISITION_FAILURE (MIN_PAGES_NOT_MET); nothing assigned, nothing pending, nothing never-started"
+  },
+  "originalCorpusExhausted": {
+    "originalSelectionIndexes": { "from": 0, "to": 109, "count": 110 },
+    "neverStarted": [],
+    "neverStartedFrom": null,
+    "neverStartedTo": null,
+    "validOriginalSelectionIndex110Exists": false,
+    "consequence": "every further Generation-2 work item is a replacement; no G2P:110 or any other primary exists or may be invented"
+  },
+  "currentReplacementObligations": {
+    "carryInAssigned": [],
+    "pendingCapabilityReview": [],
+    "q1": [
+      {
+        "selectionIndex": 106,
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+      },
+      {
+        "selectionIndex": 109,
+        "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET"
+      }
+    ],
+    "actionableWorkItemCount": 2
+  },
+  "nextAssignmentsUnderUnchangedQ1": [
+    {
+      "selectionIndex": 106,
+      "generation2ReserveRankPosition": 19
+    },
+    {
+      "selectionIndex": 109,
+      "generation2ReserveRankPosition": 20
+    }
+  ],
+  "window13Size": {
+    "plannedWindowSize": 2,
+    "source": "Corpus Plan V1 batchingPlan.recommendedBatchSize = 5 is a RECOMMENDATION, not a required cardinality: the plan names no requiredBatchSize, and states that batch size bounds 'how much live institution contact happens before a human inspects the result'. The earlier post-P6 owner decisions required exactly 5 only 'whenever at least five executable work items remain'",
+    "atLeastFiveExecutableWorkItemsRemain": false,
+    "executableWorkItemsAvailable": "2 complete-Q1 replacement obligations, 0 carry-in assignments, 0 never-started primaries",
+    "whyTwo": "the window is exactly the actionable work: 2 replacement items + 0 primaries. Size 5 would require placeholder items, a replay of already-successful items, an invented primary or a non-Q1 reserve assignment - none of which exists or is permitted",
+    "noPlaceholderItems": true,
+    "noReplayOfSuccessfulItems": true,
+    "noInventedPrimary": true,
+    "noNonQ1ReserveAssignment": true,
+    "genericBuilderChanged": false
+  },
+  "frozenGateThresholdsAtPlannedSize2": {
+    "rule": "unchanged frozen definitions strictPercentThresholdCount(plannedWindowSize, percent) = floor(plannedWindowSize * percent / 100) + 1, applied to the actual planned size",
+    "p2": {
+      "percentStrictlyAbove": 40,
+      "percentThresholdCount": 1,
+      "derivation": "floor(2 * 40 / 100) + 1 = 0 + 1 = 1",
+      "consecutiveArmUnchanged": ">= 3 consecutive robots refusals"
+    },
+    "p5": {
+      "percentStrictlyAbove": 30,
+      "thresholdCount": 1,
+      "derivation": "floor(2 * 30 / 100) + 1 = 0 + 1 = 1",
+      "denominator": 2,
+      "scope": "CURRENT_WINDOW"
+    },
+    "fiveItemThresholdsNotPreserved": "P2 = 3 and P5 = 2 belonged to planned size 5 and are not carried over",
+    "practicalConsequence": "if the first item has raw page evidence < 4, P5 fires after item 1 and item 2 does not start; if the first item terminates ROBOTS_BLOCKED_ROOT or ROBOTS_UNREADABLE_ROOT, P2 also fires after item 1; the reporting precedence names one decision and every fired condition is recorded; a gate first firing after item 2 is a post-final pause",
+    "gateSemanticsChanged": false,
+    "gateWaiver": false,
+    "denominatorOverride": false
+  },
+  "executionCadence": {
+    "mode": "Q1_REPLACEMENTS_THEN_PRIMARIES",
+    "source": "the generic default; no Window-13 cadence authority, no cadence pin and no executionCadence field",
+    "window13CadenceDecision": false,
+    "window13CadencePin": false,
+    "approvedCadenceWindowOrdinalsUnchanged": [8, 9, 10, 12],
+    "plannedOrder": ["G2R:106:19", "G2R:109:20"]
+  },
+  "window13PlannedMembership": ["G2R:106:19", "G2R:109:20"],
+  "preserves": {
+    "methodologyV3": true,
+    "sampling": true,
+    "splits": true,
+    "reserveAssignmentOrder": true,
+    "completeQ1": true,
+    "preNetworkAppend": true,
+    "frozenP1ToP8": true,
+    "genericMachinery": true
+  },
+  "isMethodologyV4": false,
+  "isReservePolicyChange": false,
+  "isQ1Change": false,
+  "isGateChange": false,
+  "isCadenceOverride": false,
+  "bound": {
+    "window12OfflineReadiness": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_OFFLINE_READINESS_V1.json",
+      "commit": "7960b9d91ab8aefc1d7eb56d91fb3881dc9631c3",
+      "sha256": "055da8fb23c0a5193c32c2c4390cf0e0ae6b2e8971b64e7bf2bc36aaf7f2bf70",
+      "bytes": 40456
+    },
+    "window12CadenceDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_P5_REVIEW_AND_WINDOW_12_CONTINUATION_DECISION_V1.json",
+      "commit": "6dd2f7c737ebb016ffc6429cc9c85040a1312f66",
+      "sha256": "cdb755868e2887feeb12f3df63faad00ca861b36723fb6213e29bb0017c19008",
+      "bytes": 11656,
+      "broadenedByThisRecord": false
+    },
+    "window12CadencePinCommit": "03407f112c052e52dd517256ff78658b74bb876b",
+    "window12LiveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_LIVE_AUTHORITY_V1.json",
+      "commit": "5ee2afe80ac750e762243335c3c5097ac92a66aa",
+      "sha256": "522cb1c99b99b8d968fb2a8943f0e88b8a40e4096f39211adfa46cec951be009",
+      "bytes": 107052,
+      "terminated": true
+    },
+    "window12LiveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_LIVE_RESULT_V1.json",
+      "commit": "b302438289fedf4b457fc21873e0c1fc3d4aa388",
+      "sha256": "c3be5776739f9d3135d877b70d175c06319a255d0c91968524451749e7b8ee2f",
+      "bytes": 46769
+    },
+    "window12PostFinalP5OwnerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_POST_FINAL_P5_OWNER_RULING_V1.json",
+      "commit": "793e0a6f512e4791a9b4ea5fb344e8c5086cf5df",
+      "sha256": "234932f352d32ad884a506a64226a970ee9777724c6589ec7515c0607e5ed33a",
+      "bytes": 28846
+    },
+    "window12Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_EVIDENCE_ADJUDICATION_V1.json",
+      "commit": "1cb1a21dbb79585abc8518852bf69856fd59576d",
+      "sha256": "ecb063c42c80f81583a78509587ccb0182350e71222b781075224801ef02fd2b",
+      "bytes": 37091,
+      "terminalState": "PHASE_2B_2D_A2_GENERATION2_WINDOW_12_ADJUDICATED_POST_FINAL_P5_PRESERVED_STOPPED"
+    },
+    "nineteenEntryLedger": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "commit": "51b865a58e23fb2ff5a1ab032f87b20417d75124",
+      "sha256": "73bfb3e488f3fbfa8c63bf763f818a65ad38b737ad250b014cdf0e5be726e33a",
+      "bytes": 16565,
+      "ledgerHash": "16d46662d015e3529f0b225d686e74233faeb8e0e05d94b44de58e7e5ca942a9",
+      "entryCount": 19,
+      "lastEntry": {
+        "sequence": 18,
+        "selectionIndex": 106,
+        "generation2ReserveRankPosition": 18,
+        "entryHash": "87115be685f69a7bb2c150a2e6a1792413008e039989905589c56aa5faaf762c"
+      },
+      "nextGeneration2ReservePosition": 19,
+      "reserve19Assigned": false
+    },
+    "corpusAcquisitionPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "commit": "6f2de0fd5a80f050857a14531e74b659f0ff30c1",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "bytes": 45200,
+      "batchingPlanRecommendedBatchSize": 5
+    },
+    "carryInOwnerSemanticDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_CARRY_IN_ASSIGNED_REPLACEMENT_OWNER_SEMANTIC_DECISION_V1.json",
+      "commit": "c64a6c392c355c89003c7f3a41de2757473c5fd7",
+      "sha256": "a3c6aa018b39d78ce74b9bf077ce011d91a32dc19ae3bb78fb1a6f36b7d1f8a8",
+      "bytes": 7046
+    },
+    "carryInGenericRepairCommit": "020c5ed32759787442c21bf5a96cad8089caec70",
+    "methodologyV3OwnerFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_OWNER_FREEZE_APPROVAL_V1.json",
+      "commit": "13dcdbed94fea08a833664948ac238737cf44c8e",
+      "sha256": "36e8071738e1842ad03a9b51cf5820d58015305191c48490ef515e1cd1c34f9c",
+      "bytes": 12318
+    },
+    "reserveAssignmentOrderOwnerClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_RESERVE_ASSIGNMENT_ORDER_OWNER_CLARIFICATION_V1.json",
+      "commit": "b17503a2420ff16cc0c71ac94709b54fe1f2ead6",
+      "sha256": "d999f9f3a54119b875717cb1b25f6b544e334eccb86cda0ebd67fd3f79fb3528",
+      "bytes": 18443
+    },
+    "postWindow06Hardening": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_POST_WINDOW_06_HARDENING_V1.json",
+      "commit": "58815855173d3b246ddc04b408cade7ac2056567",
+      "sha256": "e15ce8f00898c507dbcefae9dbf6808b6e1aad0d7a1f4566de756dc6412a0274",
+      "bytes": 17351
+    }
+  },
+  "currentState": {
+    "ACQUISITION_SUCCESSFUL": 108,
+    "acquisitionSuccessfulBySplit": {
+      "DEV_TRAIN": 20,
+      "DEV_CONFIRM": 44,
+      "FINAL_HOLDOUT": 44
+    },
+    "CURRENT_ACQUISITION_FAILURE": [106, 109],
+    "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION": [],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "CARRY_FORWARD_REFUSED": [],
+    "NEVER_STARTED": {
+      "from": null,
+      "to": null,
+      "count": 0
+    },
+    "q1": [106, 109],
+    "accounting": "108 successful + 2 failed + 0 assigned + 0 pending + 0 never started = 110",
+    "runReferences": "52 / 52 distinct",
+    "derivedBy": "explicit twelve-window replay (Window 01 -> 12; Windows 08, 09, 10 and 12 each with their own pinned cadence decision, Windows 01-07 and 11 default), no scan, no glob, no latest"
+  },
+  "notAuthorised": {
+    "ledgerWrite": true,
+    "reserve19Or20Assignment": true,
+    "window13LiveAuthority": true,
+    "institutionNetwork": true,
+    "acquisition": true,
+    "replacementExecution": true,
+    "window14": true,
+    "inventedPrimary": true,
+    "window13CadenceDecision": true,
+    "window13CadencePin": true,
+    "genericMachineryChange": true,
+    "p2Change": true,
+    "p5Change": true,
+    "q1Change": true
+  },
+  "identityDisclosure": "slot numbers, reserve positions, work item ids, digests and aggregates only; no organisation id, echeRowKey, URL, hostname or page text",
+  "terminalState": "PHASE_2B_2D_A2_GENERATION2_WINDOW_12_REVIEWED_WINDOW_13_TWO_ITEM_SIZE_APPROVED_OFFLINE_ONLY",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
