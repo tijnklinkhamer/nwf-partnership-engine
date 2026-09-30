@@ -312,7 +312,35 @@
       "previousSequenceForSlot": null,
       "previousEntryHash": "223ccb0be3cb8b9d745d44acc2dba76c1817e22c3a752a676508caa7a31672ec",
       "entryHash": "79263ef41b1aff7fa027fb92920397ce4dd0122b5066b75823a4e26ff50aee1d"
+    },
+    {
+      "sequence": 17,
+      "selectionIndex": 103,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "E BARCELO29|953604188",
+      "replacementEcheRowKey": "E GRANADA13|894147165",
+      "generation2ReserveRankPosition": 17,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-30T21:14:01Z",
+      "replacedOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 14,
+      "previousEntryHash": "79263ef41b1aff7fa027fb92920397ce4dd0122b5066b75823a4e26ff50aee1d",
+      "entryHash": "132a7aad3bde488a7ab51dca2c652e61ea9a4c36ee1a7893317dd9193e1d33f1"
+    },
+    {
+      "sequence": 18,
+      "selectionIndex": 106,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "E SANTAND01|999880075",
+      "replacementEcheRowKey": "F JOUY-JO02|948986115",
+      "generation2ReserveRankPosition": 18,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-09-30T21:14:01Z",
+      "replacedOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 15,
+      "previousEntryHash": "132a7aad3bde488a7ab51dca2c652e61ea9a4c36ee1a7893317dd9193e1d33f1",
+      "entryHash": "87115be685f69a7bb2c150a2e6a1792413008e039989905589c56aa5faaf762c"
     }
   ],
-  "ledgerHash": "9edbb98aa6114c06902c7a6420dd4a60f970d039868d17e0ba5c87d473ee7abc"
+  "ledgerHash": "16d46662d015e3529f0b225d686e74233faeb8e0e05d94b44de58e7e5ca942a9"
 }
