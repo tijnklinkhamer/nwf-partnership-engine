@@ -246,7 +246,7 @@ describe('Generation-2 window execution cadence: historical non-regression', () 
       'PRIMARIES_THEN_Q1_REPLACEMENTS',
     ]);
     expect(DEFAULT_WINDOW_EXECUTION_CADENCE).toBe('Q1_REPLACEMENTS_THEN_PRIMARIES');
-    expect(APPROVED_WINDOW_CADENCE_AUTHORITIES).toHaveLength(1);
+    expect(APPROVED_WINDOW_CADENCE_AUTHORITIES.map((a) => a.windowOrdinal)).toEqual([8, 9]);
     expect(DECISION.windowOrdinal).toBe(8);
   });
 
@@ -444,8 +444,9 @@ describe('Generation-2 window execution cadence: the decision verifier (negative
     ).toBe('CADENCE_AUTHORITY_NOT_PINNED');
   });
   it('refuses the decision for another window, and a decision naming another window (4)', () => {
+    // Window 09 has its own, different pin, so the Window-08 bytes are not it.
     expect(codeOf(() => verifyWindowCadenceAuthority(decision, 9))).toBe(
-      'CADENCE_AUTHORITY_NOT_APPROVED',
+      'CADENCE_AUTHORITY_NOT_PINNED',
     );
     expect(codeOf(() => verifyWindowCadenceAuthority(decision, 7))).toBe(
       'CADENCE_AUTHORITY_NOT_APPROVED',
@@ -762,5 +763,137 @@ describe('Generation-2 window execution cadence: P5 semantics are unchanged (O)'
     expect(canonicalStringify(spec.gateThresholds)).toBe(
       canonicalStringify(defaultSpec.gateThresholds),
     );
+  });
+});
+
+describe('Generation-2 window execution cadence: the separate Window-09 pin', () => {
+  const W09 = APPROVED_WINDOW_CADENCE_AUTHORITIES.find((a) => a.windowOrdinal === 9)!;
+  const w09Text = () => show(W09.commit, W09.path);
+  const w09 = (): WindowCadenceAuthorityBinding => {
+    const text = w09Text();
+    return { path: W09.path, commit: W09.commit, sha256: sha256(text), text };
+  };
+
+  it('is exactly one extra pin, and Window 08 keeps its own unchanged pin', () => {
+    expect(APPROVED_WINDOW_CADENCE_AUTHORITIES).toEqual([
+      DECISION,
+      {
+        windowOrdinal: 9,
+        mode: 'PRIMARIES_THEN_Q1_REPLACEMENTS',
+        path: 'docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_P5_REVIEW_AND_WINDOW_09_CONTINUATION_DECISION_V1.json',
+        commit: '9deb681e6cb7f19ad4af0f677655f278ece6c149',
+        sha256: '316e6f9aa90c977ac1f43cf8155a297980b94f93c4935d33c378e1dec9a141e2',
+        bytes: 10497,
+        ownerDecision: 'APPROVE_WINDOW_09_PRIMARY_FIRST_MIXED_EXECUTION_CADENCE_V1',
+        scope: 'WINDOW_09_CADENCE_ONLY',
+      },
+    ]);
+    expect(DECISION).toMatchObject({
+      windowOrdinal: 8,
+      commit: '2c20af702c3a9aed93e41f61c28d274f01c8351a',
+      sha256: '2cfa5931946b8c71729a17ca98291df2a8f0fa6768a24ef3362b24f689c28b85',
+      scope: 'WINDOW_08_CADENCE_ONLY',
+    });
+    expect(sha256(w09Text())).toBe(W09.sha256);
+    expect(Buffer.byteLength(w09Text(), 'utf8')).toBe(W09.bytes);
+    expect(git('diff-tree', '--no-commit-id', '--name-only', '-r', W09.commit).trim()).toBe(
+      W09.path,
+    );
+  });
+
+  it('no wildcard or range authority exists: one integer window per pin, each distinct', () => {
+    const ordinals = APPROVED_WINDOW_CADENCE_AUTHORITIES.map((a) => a.windowOrdinal);
+    expect(ordinals.every((n) => Number.isInteger(n) && n > 0)).toBe(true);
+    expect(new Set(ordinals).size).toBe(ordinals.length);
+    for (const pin of APPROVED_WINDOW_CADENCE_AUTHORITIES) {
+      expect(pin.scope).toBe(`WINDOW_${String(pin.windowOrdinal).padStart(2, '0')}_CADENCE_ONLY`);
+      const cadence = (JSON.parse(show(pin.commit, pin.path)) as Json).executionCadence;
+      expect(cadence.appliesToWindowOrdinals).toEqual([pin.windowOrdinal]);
+    }
+  });
+
+  it('each decision verifies only for its own window; default windows need none', () => {
+    expect(verifyWindowCadenceAuthority(w09(), 9)).toEqual({
+      mode: 'PRIMARIES_THEN_Q1_REPLACEMENTS',
+      windowOrdinal: 9,
+      authority: {
+        path: W09.path,
+        commit: W09.commit,
+        sha256: W09.sha256,
+        bytes: W09.bytes,
+        ownerDecision: W09.ownerDecision,
+      },
+    });
+    expect(verifyWindowCadenceAuthority(decision, 8).windowOrdinal).toBe(8);
+    expect(codeOf(() => verifyWindowCadenceAuthority(w09(), 8))).toBe(
+      'CADENCE_AUTHORITY_NOT_PINNED',
+    );
+    expect(codeOf(() => verifyWindowCadenceAuthority(decision, 9))).toBe(
+      'CADENCE_AUTHORITY_NOT_PINNED',
+    );
+    for (const ordinal of [1, 2, 3, 4, 5, 6, 7, 10, 11]) {
+      expect(codeOf(() => verifyWindowCadenceAuthority(w09(), ordinal))).toBe(
+        'CADENCE_AUTHORITY_NOT_APPROVED',
+      );
+      expect(cadenceOfAuthority({}, undefined, ordinal)).toBe(DEFAULT_WINDOW_EXECUTION_CADENCE);
+    }
+  });
+
+  it('refuses altered bytes, path, commit or SHA-256 of the Window-09 decision', () => {
+    const b = w09();
+    const v = (x: WindowCadenceAuthorityBinding) =>
+      codeOf(() => verifyWindowCadenceAuthority(x, 9));
+    expect(v({ ...b, sha256: '0'.repeat(64) })).toBe('CADENCE_AUTHORITY_NOT_PINNED');
+    expect(v({ ...b, commit: DECISION.commit })).toBe('CADENCE_AUTHORITY_NOT_PINNED');
+    expect(v({ ...b, path: DECISION.path })).toBe('CADENCE_AUTHORITY_NOT_PINNED');
+    expect(v({ ...b, text: `${b.text} `, sha256: sha256(`${b.text} `) })).toBe(
+      'CADENCE_AUTHORITY_NOT_PINNED',
+    );
+  });
+
+  it('the Window-09 decision cannot alter Q1, P5, Methodology V3 or membership', () => {
+    const forged = (mutate: (record: Json) => void) => {
+      const record = JSON.parse(w09Text()) as Json;
+      mutate(record);
+      const text = `${JSON.stringify(record, null, 2)}\n`;
+      const binding = { ...w09(), text, sha256: sha256(text) };
+      const approved = [{ ...W09, sha256: binding.sha256, bytes: Buffer.byteLength(text, 'utf8') }];
+      return codeOf(() => verifyWindowCadenceAuthority(binding, 9, approved));
+    };
+    expect(forged(() => undefined)).toBe('NO_REFUSAL');
+    for (const mutate of [
+      (r: Json) => {
+        r.executionCadence.isQ1Change = true;
+      },
+      (r: Json) => {
+        r.executionCadence.preserves.completeQ1 = false;
+      },
+      (r: Json) => {
+        r.executionCadence.isP5Change = true;
+      },
+      (r: Json) => {
+        r.executionCadence.preserves.p5DenominatorAndThreshold = false;
+      },
+      (r: Json) => {
+        r.executionCadence.isMethodologyV4 = true;
+      },
+      (r: Json) => {
+        r.executionCadence.preserves.methodologyV3 = false;
+      },
+      (r: Json) => {
+        r.executionCadence.preserves.windowMembership = false;
+      },
+      (r: Json) => {
+        r.executionCadence.changes = ['WORK_ITEM_EXECUTION_ORDER', 'WINDOW_MEMBERSHIP'];
+      },
+      (r: Json) => {
+        r.executionCadence.appliesToWindowOrdinals = [9, 10];
+      },
+      (r: Json) => {
+        r.liveAuthorityAuthorised = true;
+      },
+    ]) {
+      expect(forged(mutate)).toBe('CADENCE_AUTHORITY_NOT_ACCEPTED');
+    }
   });
 });

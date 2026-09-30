@@ -210,7 +210,11 @@ describe('Phase 2B-2D A2 Generation-2 Window-08 offline readiness isolation', ()
       expect(source, path).not.toMatch(/2cfa5931|2c20af70|APPROVE_WINDOW_08/);
     }
     expect(
-      APPROVED_WINDOW_CADENCE_AUTHORITIES.map((a) => [a.windowOrdinal, a.mode, a.commit]),
+      APPROVED_WINDOW_CADENCE_AUTHORITIES.filter((a) => a.windowOrdinal <= 8).map((a) => [
+        a.windowOrdinal,
+        a.mode,
+        a.commit,
+      ]),
     ).toEqual([[8, 'PRIMARIES_THEN_Q1_REPLACEMENTS', DECISION_COMMIT]]);
     expect(APPROVED_AUTHORITY_SHAPE_CORRECTIONS).toHaveLength(1);
   });
