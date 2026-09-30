@@ -1,0 +1,371 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_09_MID_WINDOW_P5_OWNER_RULING_V1",
+  "recordKind": "GENERATION2_OWNER_RULING",
+  "task": "GENERATION2_WINDOW_09_MID_WINDOW_P5_CLOSURE_AND_PARTIAL_ADJUDICATION",
+  "createdBeforeAnyFurtherInstitutionNetworkActivity": true,
+  "recordedAtUtc": "2026-09-30T14:27:01Z",
+  "recordedAtUtcSource": "date -u, read from the shell when this ruling was written",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "e5c3bf8ab93dabfc008862c108f1d68a32c7772b",
+  "publicSafe": true,
+  "appendOnly": true,
+  "isLiveAuthority": false,
+  "scope": "WINDOW_09_ONLY",
+  "ownerDecisions": [
+    "ACCEPT_WINDOW_09_P5_AS_VALID_MID_WINDOW_PAUSE_AFTER_4_OF_5_V1",
+    "PRESERVE_WINDOW_09_EXECUTED_PREFIX_FOUR_OF_FIVE_WITHOUT_EVIDENCE_INVALIDATION_V1",
+    "TERMINATE_WINDOW_09_LIVE_AUTHORITY_WITH_G2R99_12_UNUSED_INVOCATION_FORFEITED_V1",
+    "PRESERVE_SLOT99_RESERVE12_AS_REPLACEMENT_ASSIGNED_AWAITING_EXECUTION_V1",
+    "APPROVE_EXACTLY_ONE_WINDOW_09_POST_P5_CLOSURE_VALIDATION_V1",
+    "APPROVE_WINDOW_09_PARTIAL_ADJUDICATION_AFTER_CLEAN_EXCLUSIVE_VALIDATION_V1"
+  ],
+  "thisFileAuthorises": [
+    "APPROVE_EXACTLY_ONE_WINDOW_09_POST_P5_CLOSURE_VALIDATION_V1: exactly ONE closure validation (caffeinate -dimsu npm run validate) at the commit that adds this ruling, after a fresh >= 120 s ENGINE-SCOPED clean quiescence (watcher interval <= 5 s, scoped self-test first) under an independent ENGINE-SCOPED watcher; no rerun",
+    "APPROVE_WINDOW_09_PARTIAL_ADJUDICATION_AFTER_CLEAN_EXCLUSIVE_VALIDATION_V1: the partial Window-09 adjudication of exactly G2P:103, G2P:104, G2P:105 and G2R:96:11, bound to LIVE_RESULT V2, ONLY if that validation is accepted and the explicit nine-window replay is exact; G2R:99:12 is NOT adjudicated"
+  ],
+  "authorisesNothingElse": {
+    "institutionNetwork": false,
+    "databaseWrite": false,
+    "ledgerWrite": false,
+    "reserveAssignment": false,
+    "retry": false,
+    "sameWindowResume": false,
+    "g2r99_12Execution": false,
+    "window10": false,
+    "g2p106": false,
+    "secondValidation": false,
+    "cadenceChange": false,
+    "concurrencyCodeChange": false
+  },
+  "networkAuthorised": false,
+  "acquisitionAuthorised": false,
+  "ledgerMutationAuthorised": false,
+  "reserveAssignmentAuthorised": false,
+  "p5Review": {
+    "fired": true,
+    "decision": "PAUSE_P5_LOW_RAW_YIELD",
+    "arm": "raw pages < 4 on 2 of 5 planned items (> 30%)",
+    "denominator": 5,
+    "threshold": 2,
+    "windowLowYieldCount": 2,
+    "lowYieldItems": ["G2P:103", "G2R:96:11"],
+    "firstFiredAfter": "G2R:96:11",
+    "firedAfterItemOrdinal": 4,
+    "position": "4 of 5",
+    "midWindow": true,
+    "laterAuthorisedItemBlocked": "G2R:99:12",
+    "allOtherPausesFired": [],
+    "concurrencyStopFiredInV2": false,
+    "monitorCoverageStopFired": false,
+    "p8Fired": false,
+    "remainsTrue": true,
+    "waived": false,
+    "weakened": false,
+    "reinterpreted": false,
+    "retroactivelyErased": false,
+    "ownerDisposition": "ACCEPT_WINDOW_09_P5_AS_VALID_MID_WINDOW_PAUSE_AFTER_4_OF_5_V1",
+    "preservation": "P5 fired correctly after item 4 of 5 and remains fired. It is not waived. It blocked the fifth authorised item, which therefore was never invoked."
+  },
+  "executedPrefix": {
+    "ownerDecision": "PRESERVE_WINDOW_09_EXECUTED_PREFIX_FOUR_OF_FIVE_WITHOUT_EVIDENCE_INVALIDATION_V1",
+    "executedOrder": ["G2P:103", "G2P:104", "G2P:105", "G2R:96:11"],
+    "evidenceInvalidated": false,
+    "items": [
+      {
+        "order": 1,
+        "workItemId": "G2P:103",
+        "kind": "PRIMARY",
+        "selectionIndex": 103,
+        "split": "DEV_CONFIRM",
+        "runRefSha256": "e0bb677fb18ad017dc7b614546af5fe94feeea249fed483157be33bb3393feaf",
+        "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+        "rawPageEvidenceCount": 0,
+        "sd9EligiblePageCount": 0,
+        "postSd7Range": [0, 0],
+        "sd9StatusMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "q3ReasonMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "q3BlockingTransportErrorKind": null,
+        "usableHttpResponseObtained": true,
+        "executionExclusivity": "PROVED",
+        "remainsAdmissibleEvidence": true
+      },
+      {
+        "order": 2,
+        "workItemId": "G2P:104",
+        "kind": "PRIMARY",
+        "selectionIndex": 104,
+        "split": "FINAL_HOLDOUT",
+        "runRefSha256": "a756e2b75dd1fb7f1d07e6e6ef7b4adfd8ed525f3e9ecbd168173b68c18a1bfd",
+        "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+        "rawPageEvidenceCount": 35,
+        "sd9EligiblePageCount": 35,
+        "postSd7Range": [35, 35],
+        "sd9StatusMechanical": "ACQUISITION_SUCCESSFUL",
+        "q3ReasonMechanical": null,
+        "q3BlockingTransportErrorKind": null,
+        "usableHttpResponseObtained": true,
+        "executionExclusivity": "PROVED",
+        "remainsAdmissibleEvidence": true
+      },
+      {
+        "order": 3,
+        "workItemId": "G2P:105",
+        "kind": "PRIMARY",
+        "selectionIndex": 105,
+        "split": "DEV_TRAIN",
+        "runRefSha256": "30f931fa3aa57a5e0db584eb1c83b4a7b6dddf33b2d88ba5d1f69a6791962082",
+        "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+        "rawPageEvidenceCount": 35,
+        "sd9EligiblePageCount": 18,
+        "postSd7Range": [17, 18],
+        "sd9StatusMechanical": "ACQUISITION_SUCCESSFUL",
+        "q3ReasonMechanical": null,
+        "q3BlockingTransportErrorKind": null,
+        "usableHttpResponseObtained": true,
+        "executionExclusivity": "PROVED",
+        "remainsAdmissibleEvidence": true
+      },
+      {
+        "order": 4,
+        "workItemId": "G2R:96:11",
+        "kind": "REPLACEMENT",
+        "selectionIndex": 96,
+        "split": "DEV_CONFIRM",
+        "runRefSha256": "24bc7aa86bb1cee2b6cb8c9a6f575d27e137db33003e216a4e1b9dfecfc110f6",
+        "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+        "rawPageEvidenceCount": 0,
+        "sd9EligiblePageCount": 0,
+        "postSd7Range": [0, 0],
+        "sd9StatusMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "q3ReasonMechanical": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "q3BlockingTransportErrorKind": "TLS_FAILURE",
+        "usableHttpResponseObtained": false,
+        "executionExclusivity": "PROVED",
+        "remainsAdmissibleEvidence": true
+      }
+    ]
+  },
+  "authorityTermination": {
+    "ownerDecision": "TERMINATE_WINDOW_09_LIVE_AUTHORITY_WITH_G2R99_12_UNUSED_INVOCATION_FORFEITED_V1",
+    "window09LiveAuthorityTerminated": true,
+    "invocationsAuthorised": 5,
+    "used": 4,
+    "retries": 0,
+    "unused": 1,
+    "unusedForfeited": true,
+    "unusedTransferable": false,
+    "forfeitedInvocations": ["G2R:99:12"],
+    "sameWindowContinuation": false,
+    "g2r99_12NeverInvoked": {
+      "liveResultV2ItemsNotStarted": ["G2R:99:12"],
+      "liveInvocationsUnusedItems": ["G2R:99:12"],
+      "absentFromV1Items": true,
+      "absentFromV2Items": true,
+      "noRunReference": true,
+      "nwfPeRunDeltaEqualsFourExecutedItems": true
+    }
+  },
+  "slot99": {
+    "ownerDecision": "PRESERVE_SLOT99_RESERVE12_AS_REPLACEMENT_ASSIGNED_AWAITING_EXECUTION_V1",
+    "selectionIndex": 99,
+    "split": "FINAL_HOLDOUT",
+    "occupant": {
+      "generation2ReserveRankPosition": 12,
+      "ledgerSequence": 12,
+      "ledgerCommit": "8e65dd744d1933c5824c09f856de62f63f21b0c1",
+      "entryHash": "38a7c89747854296901fc227cd5a54fab705a08f51337079a0934268821d44a6",
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "replacedOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 10
+    },
+    "statusAfterThisRuling": "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION",
+    "notSuccessful": true,
+    "notFailure": true,
+    "notNeverStarted": true,
+    "notPending": true,
+    "notANewQ1Obligation": true,
+    "invocationForfeitedAssignmentPreserved": "the unused Window-09 INVOCATION is forfeited; the ledger ASSIGNMENT slot 99 -> reserve 12 (sequence 12) is NOT forfeited and remains canonical",
+    "historySemantics": "ledger entries not consumed (executed) by an adjudicated window stay ASSIGNED (GENERATION2_ADJUDICATION_HISTORY_BRIDGE_V1)",
+    "futureExecution": "a future NEW window may authorise execution of this already-assigned occupant; nothing here authorises it"
+  },
+  "window01To09Semantics": {
+    "itemsFromEarlierWindowsTouched": false
+  },
+  "concurrencyScopeForClosureValidation": {
+    "definition": "ENGINE_AND_SHARED_ACQUISITION_STATE (the corrected Window-09 scope, 4d99532)",
+    "appliedHereByOwnerToTheWindow09ClosureValidation": true,
+    "scopeClarificationOriginalScope": "WINDOW_09_RESIDUAL_CONTINUATION_ONLY",
+    "nonBlocking": "activity in the separate NWF repository is KNOWN_ISOLATED_EXTERNAL_ACTIVITY only when its cwd is outside every Partnership Engine worktree, neither its command nor its process chain references an Engine path, it holds no connection to the Engine PostgreSQL listener, and it shares no correctness-critical Engine state",
+    "failClosed": "any other ungoverned candidate, or unknown activity that may affect Engine/shared state, still blocks",
+    "wholeMachineIdleRequired": false,
+    "otherNwfSessionStopped": false
+  },
+  "ledger": {
+    "entryCount": 13,
+    "ledgerHash": "5a27fb02ddca755af5c7712c0de650028b0e7ef18b5b752cfd2170da0b7dd768",
+    "lastEntry": {
+      "sequence": 12,
+      "selectionIndex": 99,
+      "generation2ReserveRankPosition": 12
+    },
+    "nextGeneration2ReservePosition": 13,
+    "reserve13Assigned": false,
+    "writtenByThisRuling": false
+  },
+  "cadence": {
+    "mode": "PRIMARIES_THEN_Q1_REPLACEMENTS",
+    "verifyWindowCadenceAuthority": "PASS (window 9)",
+    "decision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_P5_REVIEW_AND_WINDOW_09_CONTINUATION_DECISION_V1.json",
+      "commit": "9deb681e6cb7f19ad4af0f677655f278ece6c149",
+      "sha256": "316e6f9aa90c977ac1f43cf8155a297980b94f93c4935d33c378e1dec9a141e2",
+      "bytes": 10497,
+      "ownerDecision": "APPROVE_WINDOW_09_PRIMARY_FIRST_MIXED_EXECUTION_CADENCE_V1"
+    },
+    "implementationCommit": "8a90e74fe39a78868f4470b2c6396d107fe5ea0d",
+    "changedHere": false,
+    "generalisedHere": false
+  },
+  "precedent": {
+    "window07MidWindowP5OwnerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_MID_WINDOW_P5_OWNER_RULING_V1.json",
+      "commit": "adc0ec1f9c1e88bebe9f40385fe7753aff95a229",
+      "sha256": "dc1b6c3dcf8037f184e29d23613e6c3aa48c382119ceb9c9e1ab8633216192dd",
+      "bytes": 12276,
+      "decision": "ACCEPT_WINDOW_07_P5_AS_VALID_MID_WINDOW_PAUSE_V1"
+    },
+    "difference": "in Window 07 the unstarted suffix was primaries, which returned to NEVER_STARTED; in Window 09 the unstarted item is a replacement whose ledger assignment already exists, so its slot stays ASSIGNED",
+    "status": "historical governance precedent ONLY; not Window-09 authority"
+  },
+  "bound": {
+    "window09OfflineReadiness": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_OFFLINE_READINESS_V1.json",
+      "commit": "c1c5e1f96cfc97ff4d6114a9a7f0f5f52095266e",
+      "sha256": "3e3d7a9a18f064fe58beaa393df4d037498223ac2496200049b6ccc5225847b5",
+      "bytes": 31566
+    },
+    "cadenceDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_P5_REVIEW_AND_WINDOW_09_CONTINUATION_DECISION_V1.json",
+      "commit": "9deb681e6cb7f19ad4af0f677655f278ece6c149",
+      "sha256": "316e6f9aa90c977ac1f43cf8155a297980b94f93c4935d33c378e1dec9a141e2",
+      "bytes": 10497
+    },
+    "window09LiveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_LIVE_AUTHORITY_V1.json",
+      "commit": "38f14d98d6242be4f8e9560fc91bb8b258117cee",
+      "sha256": "97841c9a2c679b5adcd6673128353e4aa6e20b54d6474fb957bc9e2e63c61e51",
+      "bytes": 77058,
+      "ownerDecision": "APPROVE_GENERATION2_WINDOW_09_PRIMARY_FIRST_EXACTLY_ONE_FIVE_ITEM_LIVE_WINDOW_V1",
+      "ownerDecisions": [
+        "APPROVE_GENERATION2_WINDOW_09_COMPLETE_Q1_PRE_NETWORK_APPEND_V1",
+        "APPROVE_GENERATION2_WINDOW_09_PRIMARY_FIRST_EXACTLY_ONE_FIVE_ITEM_LIVE_WINDOW_V1",
+        "APPROVE_GENERATION2_WINDOW_09_ONE_POST_WINDOW_VALIDATION_AND_CONDITIONAL_ADJUDICATION_V1"
+      ]
+    },
+    "thirteenEntryLedger": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "commit": "8e65dd744d1933c5824c09f856de62f63f21b0c1",
+      "sha256": "bdbb1b7beecf715b9e6f0e94b63e9046507c3605e2c662701606207db7919bf7",
+      "bytes": 12733,
+      "ledgerHash": "5a27fb02ddca755af5c7712c0de650028b0e7ef18b5b752cfd2170da0b7dd768",
+      "entryCount": 13
+    },
+    "window09LiveResultV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_LIVE_RESULT_V1.json",
+      "commit": "be7dfc4b4810b8203c6c89e832dd79fe4b02c477",
+      "sha256": "15929837c73433bd338aba5028729e42e3f208f089dccf2220d3f0867a0a76f0",
+      "bytes": 28239,
+      "terminalState": "PHASE_2B_2D_A2_GENERATION2_WINDOW_09_STOPPED_AFTER_2_OF_5_AWAITING_OWNER_REVIEW_NO_VALIDATION_RUN",
+      "status": "immutable provenance (2-of-5 pre-item concurrency-precondition stop before G2P:105)"
+    },
+    "concurrencyPreconditionOwnerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_CONCURRENCY_PRECONDITION_OWNER_RULING_V1.json",
+      "commit": "ea084b984bce47964d624c0f0adde36f82298b6e",
+      "sha256": "0d4279961e8b8e4472070f0d6bc87f68946406e241424e1e6d5deec107c6b118",
+      "bytes": 15039,
+      "decisions": [
+        "ACCEPT_WINDOW_09_PREITEM_CONCURRENCY_STOP_AS_CLEAN_STOP_BEFORE_G2P105_V1",
+        "PRESERVE_WINDOW_09_EXECUTED_PREFIX_G2P103_G2P104_WITHOUT_EVIDENCE_INVALIDATION_V1",
+        "ACCEPT_WINDOW_09_SINGLE_AUTHORISED_Q1_LEDGER_APPEND_AS_CANONICAL_DESPITE_OPERATOR_DRY_MODE_COMMAND_CHAIN_ERROR_V1",
+        "APPROVE_WINDOW_09_RESIDUAL_CONTINUATION_G2P105_G2R96_11_G2R99_12_ONLY_V1",
+        "APPROVE_WINDOW_09_POST_RESIDUAL_VALIDATION_AND_ADJUDICATION_ONLY_IF_FULL_WINDOW_COMPLETES_WITHOUT_PAUSE_V1"
+      ]
+    },
+    "concurrencyScopeClarification": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_CONCURRENCY_SCOPE_OWNER_CLARIFICATION_V1.json",
+      "commit": "4d9953256d17d387f4b2fc4037c0c6d9fbb339d1",
+      "sha256": "724ddc078d3f68a8b72b10ac2a4ffcf726a2ef008a407f1bbfffa7454643d52d",
+      "bytes": 6099,
+      "decisions": [
+        "CLARIFY_WINDOW_09_CONCURRENCY_SCOPE_TO_ENGINE_AND_SHARED_ACQUISITION_STATE_V1",
+        "CLASSIFY_NWF_REPOSITORY_TEST_ACTIVITY_AS_NON_BLOCKING_ISOLATED_EXTERNAL_ACTIVITY_V1",
+        "APPROVE_WINDOW_09_RESIDUAL_CONTINUATION_WITH_ENGINE_SCOPED_QUIET_GATE_V1"
+      ]
+    },
+    "window09LiveResultV2": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_LIVE_RESULT_V2.json",
+      "commit": "e5c3bf8ab93dabfc008862c108f1d68a32c7772b",
+      "sha256": "e7d384ad58a03090ecdfc3130ef2eb5b4e9966b784aa1cc2f36bc2ed7825c0f1",
+      "bytes": 41297,
+      "terminalState": "PHASE_2B_2D_A2_GENERATION2_WINDOW_09_STOPPED_AFTER_4_OF_5_AWAITING_OWNER_REVIEW_NO_VALIDATION_RUN",
+      "status": "CANONICAL Window-09 result and the adjudication binding",
+      "hardenedContract": "PASS (validateGeneration2LiveResultForHistory, 4 executed items, stops.itemsNotStarted = [G2R:99:12], 13-entry ledger)"
+    },
+    "commitChain": [
+      "c1c5e1f96cfc97ff4d6114a9a7f0f5f52095266e (readiness)",
+      "38f14d98d6242be4f8e9560fc91bb8b258117cee (live authority)",
+      "8e65dd744d1933c5824c09f856de62f63f21b0c1 (ledger append, 13 entries)",
+      "be7dfc4b4810b8203c6c89e832dd79fe4b02c477 (LIVE_RESULT V1)",
+      "ea084b984bce47964d624c0f0adde36f82298b6e (concurrency-precondition ruling)",
+      "4d9953256d17d387f4b2fc4037c0c6d9fbb339d1 (concurrency-scope clarification)",
+      "e5c3bf8ab93dabfc008862c108f1d68a32c7772b (LIVE_RESULT V2)"
+    ]
+  },
+  "databaseReconciliation": {
+    "database": "nwf_pe (acquisition)",
+    "readAs": "nwf_readonly",
+    "v2After": {
+      "runs": 167,
+      "completions": 167,
+      "fetchObservations": 4272,
+      "redirectObservations": 302,
+      "pageEvidence": 3235,
+      "pageCandidates": 6470,
+      "BLOCKED_BY_POLICY": 6
+    },
+    "v2Delta": {
+      "runs": 4,
+      "completions": 4,
+      "fetchObservations": 80,
+      "redirectObservations": 1,
+      "pageEvidence": 70,
+      "pageCandidates": 140,
+      "BLOCKED_BY_POLICY": 0
+    },
+    "readAtRuling": {
+      "runs": 167,
+      "completions": 167,
+      "fetchObservations": 4272,
+      "redirectObservations": 302,
+      "pageEvidence": 3235,
+      "pageCandidates": 6470,
+      "BLOCKED_BY_POLICY": 6
+    },
+    "unexplainedMovement": false
+  },
+  "doesNot": [
+    "waive, weaken or reinterpret P5",
+    "invalidate any of items 1-4",
+    "resume Window 09",
+    "execute G2R:99:12",
+    "append to the ledger",
+    "assign reserve 13 or 14",
+    "create Window-10 readiness or authority",
+    "authorise G2P:106",
+    "change cadence or concurrency code",
+    "authorise a second validation"
+  ],
+  "identityDisclosure": "slot numbers, work item ids, digests, run-reference hashes and aggregates only; no organisation id, echeRowKey, URL, hostname, root-authority id or page text",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
