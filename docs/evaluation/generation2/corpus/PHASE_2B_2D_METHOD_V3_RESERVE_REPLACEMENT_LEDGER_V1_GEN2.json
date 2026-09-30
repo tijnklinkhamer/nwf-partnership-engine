@@ -228,7 +228,35 @@
       "previousSequenceForSlot": 8,
       "previousEntryHash": "80bcbcddd4195968923e79f6cda39818f0bc1f333845f82db305d2bf6c964a86",
       "entryHash": "ee23890b4eb82abc1008d5ed1dc5db918275ff4852b4a4c8ae9ea46d9a239159"
+    },
+    {
+      "sequence": 11,
+      "selectionIndex": 96,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "F VENDOME01|948661747",
+      "replacementEcheRowKey": "F CHOLET13|932004907",
+      "generation2ReserveRankPosition": 11,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-09-30T13:15:02Z",
+      "replacedOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 9,
+      "previousEntryHash": "ee23890b4eb82abc1008d5ed1dc5db918275ff4852b4a4c8ae9ea46d9a239159",
+      "entryHash": "0e63603a5a15593076ce1640945a6ab28a35f4bdfe179c305a405b2933bd0864"
+    },
+    {
+      "sequence": 12,
+      "selectionIndex": 99,
+      "split": "FINAL_HOLDOUT",
+      "replacedEcheRowKey": "E BADAJOZ43|879298308",
+      "replacementEcheRowKey": "E TENERIF29|942150331",
+      "generation2ReserveRankPosition": 12,
+      "reason": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "recordedAtUtc": "2026-09-30T13:15:02Z",
+      "replacedOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 10,
+      "previousEntryHash": "0e63603a5a15593076ce1640945a6ab28a35f4bdfe179c305a405b2933bd0864",
+      "entryHash": "38a7c89747854296901fc227cd5a54fab705a08f51337079a0934268821d44a6"
     }
   ],
-  "ledgerHash": "0a658a6769dcfb58d35316cb36ba2d43cb5112e56f6a765b13d969d232eaee14"
+  "ledgerHash": "5a27fb02ddca755af5c7712c0de650028b0e7ef18b5b752cfd2170da0b7dd768"
 }
