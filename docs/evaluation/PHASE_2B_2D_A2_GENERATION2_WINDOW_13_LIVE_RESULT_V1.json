@@ -1,0 +1,814 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_13_LIVE_RESULT_V1",
+  "recordKind": "GENERATION2_WINDOW_LIVE_RESULT",
+  "recordedAtUtc": "2026-10-01T10:19:39Z",
+  "recordedAtUtcSource": "date -u, read from the shell after the last executed item and before this record was written",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "ac19cb8ca4538237be49e03e0c19ce46cf6f4ecb",
+  "publicSafe": true,
+  "thisFileAuthorises": [],
+  "isLiveAuthority": false,
+  "appendOnly": true,
+  "boundAuthority": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_LIVE_AUTHORITY_V1.json",
+    "commit": "0b9a7dabe5e720b18fcb41830fb687787b47b93f",
+    "sha256": "5333451e3c8b9287a92fbab26d66571866700958a9caf54a083cda924a237669",
+    "bytes": 107914,
+    "ownerDecision": "APPROVE_GENERATION2_WINDOW_13_EXACTLY_ONE_TWO_ITEM_REPLACEMENT_ONLY_LIVE_WINDOW_V1",
+    "ownerDecisions": [
+      "APPROVE_GENERATION2_WINDOW_13_ONE_LIVE_AUTHORITY_V1",
+      "APPROVE_GENERATION2_WINDOW_13_TWO_ENTRY_Q1_PRE_NETWORK_APPEND_V1",
+      "APPROVE_GENERATION2_WINDOW_13_EXACTLY_ONE_TWO_ITEM_REPLACEMENT_ONLY_LIVE_WINDOW_V1",
+      "APPLY_WINDOW_13_ENGINE_AND_SHARED_ACQUISITION_STATE_CONCURRENCY_SCOPE_V1",
+      "APPROVE_GENERATION2_WINDOW_13_ONE_POST_WINDOW_VALIDATION_AND_CONDITIONAL_ADJUDICATION_V1"
+    ]
+  },
+  "boundReadiness": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_OFFLINE_READINESS_V1.json",
+    "commit": "c1dd7cad505f9d52a19d448e1db620eb9d7afd0e",
+    "sha256": "d9f5d16687f746376ced4b77a2c2a45393af44f361b6429885767dd0d00d8a07",
+    "bytes": 37619
+  },
+  "boundSizeDecision": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_POST_FINAL_P5_REVIEW_AND_WINDOW_13_CONTINUATION_DECISION_V1.json",
+    "commit": "f56d72709ed93a7108aa3de3965f75a2f57cfbb5",
+    "sha256": "9d0e2ec4b77e2a3f7e04e32ef62d26fb8d3ac41eb44881dbbb7406fdf07380c3",
+    "bytes": 11842,
+    "scope": "WINDOW_13_SIZE_ONLY",
+    "isCadenceAuthority": false
+  },
+  "governingCadence": {
+    "mode": "Q1_REPLACEMENTS_THEN_PRIMARIES",
+    "source": "generic default: no cadence decision, no cadence pin and no executionCadence field for Window 13",
+    "window13CadenceDecision": null,
+    "window13CadencePin": null
+  },
+  "boundAdjudicationHistory": {
+    "windows": [
+      {
+        "windowOrdinal": 1,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_AUTHORITY_V1.json",
+          "commit": "219f6d4a1cb869e9253a9701d48543a88f80f0ab",
+          "sha256": "e4874f7e84a184bd473b75f15dba0fd90700d4bb33ec0093593de90f4dea38ba"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_RESULT_V1.json",
+          "commit": "41bbedad759c26f1cb1e110bfdd07e1599809178",
+          "sha256": "7162938e6f8ba5f7808075f58021b540244b2b5a0b05d61db0812cfd4d8102d0"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "b281bf3b1dfc25c4540c6b17c1e8b97db468a77d",
+          "sha256": "89e4f166e56292374d3cf1aa2fe8037225770d48193ae619a32a1d4c7f1df5df"
+        }
+      },
+      {
+        "windowOrdinal": 2,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_AUTHORITY_V1.json",
+          "commit": "da659b586c05870f08f5af56d8816365a5203fa0",
+          "sha256": "e2cb65b5a7d3b35391718e255fef4db926bcfe88020f392ac93f79981392bba2"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_RESULT_V1.json",
+          "commit": "d074c0647136b45ee094b2d46a98ee2110db5102",
+          "sha256": "68852cbca3de127bb0a5442863cc99d2c3b72a5a69700c5fc5ac619fbc29b4ae"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "c6f6cf6dd1609115858a7dc039d1919bdb4153e4",
+          "sha256": "2e35cad7951aed780151b97400ea3b7e9fd78d4bfdec252f83d0652702bbdc8d"
+        }
+      },
+      {
+        "windowOrdinal": 3,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_AUTHORITY_V1.json",
+          "commit": "a39309f489aef60ae43ff4d179b9150dc5caf6c0",
+          "sha256": "aaa61ce72b9a5b943928f879f68daa06ea612aacfd5117310d54bd14cfa65478"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_RESULT_V1.json",
+          "commit": "17398aaf44b33d831ab9fb8c23b17b0d529da160",
+          "sha256": "c9654a837dde1c7c86a90c505b8cc1d5e6fcae1edc8a593981328576944e42ec"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "8f4bc2185ce7b0010b1dd96fe22b016c9500b9b0",
+          "sha256": "8d59cb2a1e2d6f3b447767a8c56078111658dbd07818e098fd363c153fe33ef0"
+        }
+      },
+      {
+        "windowOrdinal": 4,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_AUTHORITY_V1.json",
+          "commit": "05ffde6e8bcbbd2456ae1ccf69f43a7a41c2fcba",
+          "sha256": "bb24c26a8f2816a2cba584edb3726254bd72b1a8b979ca3cf9348effae1802a5"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_RESULT_V1.json",
+          "commit": "8efe11c290b24d17bde24f61914a19698986f108",
+          "sha256": "89b2aac217502133e7cbd75a9144f81637a03ef3be906cdebd03d1edb30e22f4"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "d023645a9c7e7a2afae92096e6b2c1bfd6daf861",
+          "sha256": "826f11851a6c000d3a314da2b6a4c31081014d29fdbdeb6012d157dae58b3dd8"
+        }
+      },
+      {
+        "windowOrdinal": 5,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_AUTHORITY_V1.json",
+          "commit": "c1b1a56fb6401d20f191b84e07b8f7508ba4b08c",
+          "sha256": "d88f741162bf27f6c290b2875edbeba522908c5545d6608b8d79b820ff701807"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_RESULT_V2.json",
+          "commit": "dbc7f0b4bb34ba1572ad2b59c3c0381807dbb0c6",
+          "sha256": "6914f564726029ebf82ef9ea142279f9697d9adb68bf42bfad0ba359df748d26"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "df3dddde6d9365da436e64c67e3b044df2f2cc42",
+          "sha256": "187eef89ed37f86e2f96c95e8772d9681ddcd944d04cff21961e4aaa63358642"
+        }
+      },
+      {
+        "windowOrdinal": 6,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_AUTHORITY_V1.json",
+          "commit": "c3f6c223de48625976f52da1ce110133f0d01afb",
+          "sha256": "6d847d8175054ecf7f09e45b5ab8ba8e488e9f8ca99553e9ca2c420b4dc977e3"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_RESULT_V3.json",
+          "commit": "3905bc27a3a54bb425d91813ed6e6e641d283d0c",
+          "sha256": "9dee6861dabc5c997ed2d458fad7d346f6b7aa9a019d421439f8c2b242cb1af6"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "47389c54b98aa1088a1e686f3592280e22046308",
+          "sha256": "845ca3a4bcd13409ac00dfc8b2a4224e9aee8ab08749aab523a8b7d478f5f340"
+        }
+      },
+      {
+        "windowOrdinal": 7,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_LIVE_AUTHORITY_V1.json",
+          "commit": "73fc2c8b3e2f14def6ba7861cb7d2ba49ef402a6",
+          "sha256": "726f78369af5fa5bb177a934c8c81e1bb317c04026dbf30575be4bb613db6020"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_LIVE_RESULT_V1.json",
+          "commit": "003a9afd1720f858f721957dc029cd1a95e1c6c2",
+          "sha256": "41614f01a213a22203fbb655ead9df888727b4f7740e96e74389156cc9582734"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "2e814487cff6c8dcf5bcb9c6f8a7639e84d7e7db",
+          "sha256": "d138c9618b2919d79b3468eb27f034bd11b64daf09a6c01ef733e474aa57d2fb"
+        }
+      },
+      {
+        "windowOrdinal": 8,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_LIVE_AUTHORITY_V1.json",
+          "commit": "202dbd57924080b54ac28e92efd001fc7dbae7a6",
+          "sha256": "f77aa0cf6d232a070d348dcd36a74932f078a64f79e1ddf737ec2e3f35b69a61"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_LIVE_RESULT_V1.json",
+          "commit": "1645ce2d11c4a55c5cbb629de54b43353ea17de0",
+          "sha256": "0a32d0d3e0c120e9b498046ea4df76d65ba85be22681f73e815c3dfc02cdc187"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "d4e450398b3435d97a2bf6a0cabcf416ac7205af",
+          "sha256": "2fb0b230d92b30746b2b62e3a598795cf4840011b710953df344774b9b8032da"
+        },
+        "cadenceAuthority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_P5_REVIEW_AND_CONTINUATION_DECISION_V1.json",
+          "commit": "2c20af702c3a9aed93e41f61c28d274f01c8351a",
+          "sha256": "2cfa5931946b8c71729a17ca98291df2a8f0fa6768a24ef3362b24f689c28b85"
+        }
+      },
+      {
+        "windowOrdinal": 9,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_LIVE_AUTHORITY_V1.json",
+          "commit": "38f14d98d6242be4f8e9560fc91bb8b258117cee",
+          "sha256": "97841c9a2c679b5adcd6673128353e4aa6e20b54d6474fb957bc9e2e63c61e51"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_LIVE_RESULT_V2.json",
+          "commit": "e5c3bf8ab93dabfc008862c108f1d68a32c7772b",
+          "sha256": "e7d384ad58a03090ecdfc3130ef2eb5b4e9966b784aa1cc2f36bc2ed7825c0f1"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "ce139ff44df9248b35ceec0b04719e51371b0436",
+          "sha256": "9cf694e5caf0f1c6d403d045b6939cae7bd57964372c9002ce22fc44ee739fa3"
+        },
+        "cadenceAuthority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_P5_REVIEW_AND_WINDOW_09_CONTINUATION_DECISION_V1.json",
+          "commit": "9deb681e6cb7f19ad4af0f677655f278ece6c149",
+          "sha256": "316e6f9aa90c977ac1f43cf8155a297980b94f93c4935d33c378e1dec9a141e2"
+        }
+      },
+      {
+        "windowOrdinal": 10,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_10_LIVE_AUTHORITY_V1.json",
+          "commit": "a3a6297015a195e887f2240a0730118aad6ac0ca",
+          "sha256": "30dcbb6713aec1de2c12ac1c77db35ecbb4d29a84b5bf0568251d3471dc58145"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_10_LIVE_RESULT_V1.json",
+          "commit": "5af3ec75adcaad744d0c934ecedbed8c1c8b752e",
+          "sha256": "fb95f08928198d6c31107b292ccb142cda95f3c171ddd24b262f527fcecce50f"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_10_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "cd4a346648fda84dc334556165afeb91fa7d475a",
+          "sha256": "6c27a6b5c0db88ca792367551ed134509affb4cc36a488e0f7387364ecdf1bae"
+        },
+        "cadenceAuthority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_P5_REVIEW_AND_WINDOW_10_CONTINUATION_DECISION_V1.json",
+          "commit": "7b226de931752dc70028b5e20e37fa5d7a925ca5",
+          "sha256": "ceff378d1147b4d43ac754c368c6311543f673f37f4190a9840d6ef926238752"
+        }
+      },
+      {
+        "windowOrdinal": 11,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_LIVE_AUTHORITY_V1.json",
+          "commit": "fdd3f740c8f05468fd926252599f48aa426b146d",
+          "sha256": "99be494d50d72b2630f121aedec8d1b472b9e1e416e681661f8fe4efe7b8df21"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_LIVE_RESULT_V1.json",
+          "commit": "32bcda7fe7d0d03108a58d7ebb262228233b0a98",
+          "sha256": "9d7219e97c372141be75bfc49c795cc8d543709383424107542d15c35a15fec3"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "2e014b1dcd61ab567ef21141a2fb664456f375e4",
+          "sha256": "99f3de0bb9fd85e2e3d5d919ee73addd73627a383bc95874df1098e2fa90e027"
+        }
+      },
+      {
+        "windowOrdinal": 12,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_LIVE_AUTHORITY_V1.json",
+          "commit": "5ee2afe80ac750e762243335c3c5097ac92a66aa",
+          "sha256": "522cb1c99b99b8d968fb2a8943f0e88b8a40e4096f39211adfa46cec951be009"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_LIVE_RESULT_V1.json",
+          "commit": "b302438289fedf4b457fc21873e0c1fc3d4aa388",
+          "sha256": "c3be5776739f9d3135d877b70d175c06319a255d0c91968524451749e7b8ee2f"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_EVIDENCE_ADJUDICATION_V1.json",
+          "commit": "1cb1a21dbb79585abc8518852bf69856fd59576d",
+          "sha256": "ecb063c42c80f81583a78509587ccb0182350e71222b781075224801ef02fd2b"
+        },
+        "cadenceAuthority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_P5_REVIEW_AND_WINDOW_12_CONTINUATION_DECISION_V1.json",
+          "commit": "6dd2f7c737ebb016ffc6429cc9c85040a1312f66",
+          "sha256": "cdb755868e2887feeb12f3df63faad00ca861b36723fb6213e29bb0017c19008"
+        }
+      }
+    ],
+    "cadenceAuthorityWindowOrdinals": [8, 9, 10, 12],
+    "window13CadenceAuthority": null,
+    "passedToEveryStateSpecAppendAndPreflightCall": true,
+    "emptyHistoryDefaultNeverUsed": true,
+    "directoryDiscovery": false,
+    "latestLookup": false
+  },
+  "ledgerDuringTheWindow": {
+    "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+    "fileSha256": "07cf86644940bab23fcfe74ab1b28f2a1629d0a0ee7478ac57ce7c79ce33bafe",
+    "bytes": 17842,
+    "ledgerHash": "c02e37ac42515cb689512b12425c41560fffeb32592e4e15f864892f63208ec8",
+    "entryCount": 21,
+    "nextGeneration2ReservePosition": 21,
+    "unchangedByTheWindow": true,
+    "appendCommit": "ac19cb8ca4538237be49e03e0c19ce46cf6f4ecb",
+    "appendedEntries": [
+      {
+        "sequence": 19,
+        "selectionIndex": 106,
+        "generation2ReserveRankPosition": 19,
+        "replacedOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+        "previousSequenceForSlot": 18,
+        "recordedAtUtc": "2026-10-01T09:45:04Z",
+        "previousEntryHash": "87115be685f69a7bb2c150a2e6a1792413008e039989905589c56aa5faaf762c",
+        "entryHash": "48e3efc793703ea546b6f29b50fd7ea6354d54c7b64b991a2d224c7a612b430e"
+      },
+      {
+        "sequence": 20,
+        "selectionIndex": 109,
+        "generation2ReserveRankPosition": 20,
+        "replacedOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+        "previousSequenceForSlot": null,
+        "recordedAtUtc": "2026-10-01T09:45:04Z",
+        "previousEntryHash": "48e3efc793703ea546b6f29b50fd7ea6354d54c7b64b991a2d224c7a612b430e",
+        "entryHash": "7f4a6d39175caaf61249c3dab6d5c7a4661b3d8131ae6f60829d2a1a5330b0a6"
+      }
+    ],
+    "preNetworkAppend": "two entries (sequences 19 and 20), committed and pushed before any institution network; reserve 21 unassigned"
+  },
+  "windowSpecHash": "4e97902edefa9ba6c78a3a2a600c0451710b057e56b7bf8e0e7efbe9144e21c4",
+  "plannedWindowSize": 2,
+  "exactOrder": ["G2R:106:19", "G2R:109:20"],
+  "windowOutcome": "WINDOW_EXECUTED_2_OF_2_POST_FINAL_PAUSE_P8_HOST_STATE_ANOMALY",
+  "stops": {
+    "itemsNotStarted": [],
+    "anyFrozenPauseP1toP8Fired": true,
+    "finalGateDecisionMechanical": "PAUSE_P8_HOST_STATE_ANOMALY",
+    "everyFiredConditionAfterLastItem": [
+      {
+        "condition": "P8",
+        "decision": "PAUSE_P8_HOST_STATE_ANOMALY",
+        "arm": "host-state anomaly on observation 1"
+      },
+      {
+        "condition": "P2",
+        "decision": "PAUSE_P2_ROBOTS_REFUSAL",
+        "arm": "robots refusal/unreadability on 1 of 2 planned items (> 40%)"
+      },
+      {
+        "condition": "P5",
+        "decision": "PAUSE_P5_LOW_RAW_YIELD",
+        "arm": "raw pages < 4 on 1 of 2 planned items (> 30%)"
+      }
+    ],
+    "p5": {
+      "fired": true,
+      "firstFiredAfterItem": "G2R:109:20",
+      "arm": "raw pages < 4 on more than 30% of the planned window: strictPercentThresholdCount(2, 30) = 1 of 2",
+      "denominator": 2,
+      "windowLowYieldCount": 1,
+      "threshold": 1,
+      "lowYieldItems": ["G2R:109:20"],
+      "windowLocalStartCount": 0,
+      "exemptForReplacements": false,
+      "priorWindowWaiverApplied": false,
+      "inheritedAnomalyWaivers": 0,
+      "window12P5CarriedIn": false,
+      "ownerReviewRequired": true
+    },
+    "p2": {
+      "fired": true,
+      "firstFiredAfterItem": "G2R:109:20",
+      "arm": ">= 3 consecutive robots refusals OR more than 40% of the planned window: strictPercentThresholdCount(2, 40) = 1 of 2",
+      "windowThreshold": 1,
+      "consecutiveThreshold": 3,
+      "windowRobotsRefusalCount": 1,
+      "maxConsecutiveRobotsRefusals": 1,
+      "robotsRefusalItems": ["G2R:109:20"],
+      "countsBothReasons": true,
+      "ownerReviewRequired": true
+    },
+    "allOtherPausesFired": ["P8"],
+    "reportingPrecedence": "the gate adapter names ONE decision by its existing precedence; every fired condition is listed above and preserved",
+    "concurrencyStop": {
+      "fired": false,
+      "classification": null
+    },
+    "hostIntegrityStop": {
+      "fired": true,
+      "classification": "HOST_INTEGRITY_NOT_PROVED_DURING_ITEM",
+      "affectedItems": ["G2R:109:20"],
+      "evidence": [
+        {
+          "workItemId": "G2R:109:20",
+          "preItemHostCheck": "GREEN",
+          "postItemHostCheck": "RED",
+          "postItemFailedProbe": "the post-item ipv4only.arpa AAAA probe could not reach any DNS server (local resolver unreachable from this vantage); not an empty answer, so the compliant-vantage proof failed",
+          "sleepWakeDarkWakeEventsDuringItem": 0,
+          "itemOnlyRequestErrorKind": "DNS_FAILURE",
+          "consequence": "the item's own DNS_FAILURE cannot be distinguished from a host-local resolver outage; the observation was recorded with hostStateAnomaly = true and its evidence is preserved, NOT invalidated automatically; owner review decides its adjudication"
+        }
+      ],
+      "hostCheckGreenAgainAfterStop": true
+    },
+    "monitorCoverageStop": {
+      "fired": false
+    },
+    "p8": {
+      "fired": true
+    },
+    "ownerReviewRequired": true,
+    "handling": "a stop fired after G2R:109:20 (POST-FINAL); its evidence is preserved; no later item was started; no retry; no item remained; no validation and no adjudication without owner review",
+    "unstartedReplacementsRemainAssigned": []
+  },
+  "liveInvocations": {
+    "authorisedMaximum": 2,
+    "used": 2,
+    "retries": 0,
+    "perItem": 1,
+    "unused": 0,
+    "unusedNotTransferable": true,
+    "unusedItems": []
+  },
+  "items": [
+    {
+      "order": 1,
+      "workItemId": "G2R:106:19",
+      "kind": "REPLACEMENT",
+      "carryIn": false,
+      "selectionIndex": 106,
+      "generation2ReserveRankPosition": 19,
+      "split": "DEV_CONFIRM",
+      "identityDigest": "3f4e6099f2d1f7ebd68e509c4b0cc560a3ad79ea2ad2cf72fc61853dae55e68b",
+      "itemPreflight": {
+        "identityDigestMatchesAuthority": true,
+        "dryRunWasNetworkFree": true,
+        "dryRunRootsEqualFrozenRootAuthorities": true,
+        "rootAuthorityCount": 1,
+        "p7": "18/18",
+        "adjudicationHistoryIntegrity": true,
+        "defaultCadenceNoCadencePrerequisite": true,
+        "membershipIntegrity": true,
+        "dbEqualsExpectedEndpoint": true,
+        "allChecksGreen": true
+      },
+      "itemIntervalUtc": ["2026-10-01T09:49:17Z", "2026-10-01T10:03:01Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "0f54c20250396e33d1da34866baa3f62ae8e1ecb72021c6bea0b563f3d2f753a",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+      "pageAttempts": 35,
+      "gatewayRequests": 43,
+      "fetchObservationsByErrorKind": {
+        "NONE": 42,
+        "READ_TIMEOUT": 1
+      },
+      "usableHttpResponseObtained": true,
+      "redirectObservations": 2,
+      "candidateRows": 68,
+      "rawPageEvidenceCount": 34,
+      "sd9EligiblePageCount": 34,
+      "zeroExtractedTextPageCount": 0,
+      "postSd7Range": [34, 34],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "B",
+      "sd9StatusMechanical": "ACQUISITION_SUCCESSFUL",
+      "q3ReasonMechanical": null,
+      "q3BlockingTransportErrorKind": null,
+      "databaseDelta": {
+        "runs": 1,
+        "completions": 1,
+        "fetchObservations": 43,
+        "redirectObservations": 2,
+        "pageEvidence": 34,
+        "pageCandidates": 68,
+        "BLOCKED_BY_POLICY": 0,
+        "rootPromotions": 0,
+        "rootPromotionRevocations": 0,
+        "dryRunRuns": 0,
+        "runsWithoutCompletion": 0
+      },
+      "reconciliation": {
+        "oneRunOneCompletion": true,
+        "fetchDeltaEqualsGatewayRequests": true,
+        "pageDeltaEqualsRaw": true,
+        "redirectDeltaEqualsRedirects": true,
+        "candidatesTwicePages": true,
+        "noBlockedOrDryRunOrPromotionMovement": true,
+        "echeKeyMatchesBinding": true,
+        "runsForOccupantIsOne": true,
+        "notDryRun": true,
+        "cliExitZero": true,
+        "oneRoot": true,
+        "fetchPolicyCanonical": true
+      },
+      "hostAndVantage": {
+        "preItem": true,
+        "postItem": true,
+        "sleepWakeDarkWakeEventsDuringItem": 0,
+        "batteryPercentPre": 100,
+        "powerSourcePre": "AC Power",
+        "ipv4DefaultIfaceEn0": true,
+        "nativeIpv4NotClat": true,
+        "ipv4onlyArpaAaaaEmpty": true,
+        "p8": false
+      },
+      "preItemQuietGate": {
+        "consecutiveCleanSeconds": 121.6,
+        "freshForThisItem": true,
+        "concurrencyScope": "ENGINE_AND_SHARED_ACQUISITION_STATE (APPLY_WINDOW_13_ENGINE_AND_SHARED_ACQUISITION_STATE_CONCURRENCY_SCOPE_V1)"
+      },
+      "independentWatcher": {
+        "startedBeforeGovernedRoot": true,
+        "knownIsolatedExternalIdentities": 0,
+        "isolatedPollsWithinItem": 0,
+        "samplesWithinItem": 1635,
+        "maxGapSeconds": 0.71,
+        "byFinalClassification": {
+          "GOVERNED_ACQUISITION_DESCENDANT_PROVED": 3,
+          "EXTERNAL_COMPETING_PROCESS": 0,
+          "ANCESTRY_UNPROVED": 0
+        },
+        "competingPollsWithinItem": 0,
+        "monitorCoverageSufficient": true
+      },
+      "executionExclusivityVerdict": "EXCLUSIVE_PROVED_FOR_THIS_ITEM",
+      "postItemGate": {
+        "decision": "CONTINUE_TO_NEXT_WORK_ITEM",
+        "triggeredConditions": [],
+        "windowLowYieldCount": 0,
+        "windowRobotsRefusalCount": 0,
+        "maxConsecutiveFailedRuns": 0,
+        "maxConsecutiveRootAuthorityFailures": 0,
+        "maxConsecutiveRobotsRefusals": 0,
+        "nextWorkItemId": "G2R:109:20",
+        "mayStartNextWorkItem": true,
+        "p7": "18/18",
+        "adjudicationHistoryIntegrity": true,
+        "cadencePrerequisitePresent": false
+      }
+    },
+    {
+      "order": 2,
+      "workItemId": "G2R:109:20",
+      "kind": "REPLACEMENT",
+      "carryIn": false,
+      "selectionIndex": 109,
+      "generation2ReserveRankPosition": 20,
+      "split": "FINAL_HOLDOUT",
+      "identityDigest": "927eb875b4c77347bb15a8181fabb93a3d379558f8d935b08468d86e0318dc33",
+      "itemPreflight": {
+        "identityDigestMatchesAuthority": true,
+        "dryRunWasNetworkFree": true,
+        "dryRunRootsEqualFrozenRootAuthorities": true,
+        "rootAuthorityCount": 1,
+        "p7": "18/18",
+        "adjudicationHistoryIntegrity": true,
+        "defaultCadenceNoCadencePrerequisite": true,
+        "membershipIntegrity": true,
+        "dbEqualsExpectedEndpoint": true,
+        "allChecksGreen": true
+      },
+      "itemIntervalUtc": ["2026-10-01T10:06:18Z", "2026-10-01T10:06:49Z"],
+      "cliExecuteInvocations": 1,
+      "cliExitCode": 0,
+      "runRefSha256": "5bf76c8d6d158fd4d5deec70797af68002a11dc66917c2c6f30642932246fe7f",
+      "runsForOccupant": 1,
+      "runTerminalState": "COMPLETED",
+      "completionRows": 1,
+      "completionErrorKind": null,
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "everyObservationV7": true,
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "dryRun": false,
+      "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+      "pageAttempts": 0,
+      "gatewayRequests": 1,
+      "fetchObservationsByErrorKind": {
+        "DNS_FAILURE": 1
+      },
+      "usableHttpResponseObtained": false,
+      "redirectObservations": 0,
+      "candidateRows": 0,
+      "rawPageEvidenceCount": 0,
+      "sd9EligiblePageCount": 0,
+      "zeroExtractedTextPageCount": 0,
+      "postSd7Range": [0, 0],
+      "countIsExact": true,
+      "shortTextUnresolvedCount": 0,
+      "decidedByCase": "A",
+      "sd9StatusMechanical": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "q3ReasonMechanical": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+      "q3BlockingTransportErrorKind": "DNS_FAILURE",
+      "databaseDelta": {
+        "runs": 1,
+        "completions": 1,
+        "fetchObservations": 1,
+        "redirectObservations": 0,
+        "pageEvidence": 0,
+        "pageCandidates": 0,
+        "BLOCKED_BY_POLICY": 0,
+        "rootPromotions": 0,
+        "rootPromotionRevocations": 0,
+        "dryRunRuns": 0,
+        "runsWithoutCompletion": 0
+      },
+      "reconciliation": {
+        "oneRunOneCompletion": true,
+        "fetchDeltaEqualsGatewayRequests": true,
+        "pageDeltaEqualsRaw": true,
+        "redirectDeltaEqualsRedirects": true,
+        "candidatesTwicePages": true,
+        "noBlockedOrDryRunOrPromotionMovement": true,
+        "echeKeyMatchesBinding": true,
+        "runsForOccupantIsOne": true,
+        "notDryRun": true,
+        "cliExitZero": true,
+        "oneRoot": true,
+        "fetchPolicyCanonical": true
+      },
+      "hostAndVantage": {
+        "preItem": true,
+        "postItem": false,
+        "sleepWakeDarkWakeEventsDuringItem": 0,
+        "batteryPercentPre": 100,
+        "powerSourcePre": "AC Power",
+        "ipv4DefaultIfaceEn0": true,
+        "nativeIpv4NotClat": true,
+        "ipv4onlyArpaAaaaEmpty": false,
+        "p8": true
+      },
+      "preItemQuietGate": {
+        "consecutiveCleanSeconds": 121.6,
+        "freshForThisItem": true,
+        "concurrencyScope": "ENGINE_AND_SHARED_ACQUISITION_STATE (APPLY_WINDOW_13_ENGINE_AND_SHARED_ACQUISITION_STATE_CONCURRENCY_SCOPE_V1)"
+      },
+      "independentWatcher": {
+        "startedBeforeGovernedRoot": true,
+        "knownIsolatedExternalIdentities": 0,
+        "isolatedPollsWithinItem": 0,
+        "samplesWithinItem": 61,
+        "maxGapSeconds": 0.506,
+        "byFinalClassification": {
+          "GOVERNED_ACQUISITION_DESCENDANT_PROVED": 3,
+          "EXTERNAL_COMPETING_PROCESS": 0,
+          "ANCESTRY_UNPROVED": 0
+        },
+        "competingPollsWithinItem": 0,
+        "monitorCoverageSufficient": true
+      },
+      "executionExclusivityVerdict": "EXCLUSIVE_PROVED_FOR_THIS_ITEM",
+      "postItemGate": {
+        "decision": "PAUSE_P8_HOST_STATE_ANOMALY",
+        "triggeredConditions": [
+          {
+            "condition": "P8",
+            "decision": "PAUSE_P8_HOST_STATE_ANOMALY",
+            "arm": "host-state anomaly on observation 1"
+          },
+          {
+            "condition": "P2",
+            "decision": "PAUSE_P2_ROBOTS_REFUSAL",
+            "arm": "robots refusal/unreadability on 1 of 2 planned items (> 40%)"
+          },
+          {
+            "condition": "P5",
+            "decision": "PAUSE_P5_LOW_RAW_YIELD",
+            "arm": "raw pages < 4 on 1 of 2 planned items (> 30%)"
+          }
+        ],
+        "windowLowYieldCount": 1,
+        "windowRobotsRefusalCount": 1,
+        "maxConsecutiveFailedRuns": 0,
+        "maxConsecutiveRootAuthorityFailures": 0,
+        "maxConsecutiveRobotsRefusals": 1,
+        "nextWorkItemId": null,
+        "mayStartNextWorkItem": false,
+        "p7": "18/18",
+        "adjudicationHistoryIntegrity": true,
+        "cadencePrerequisitePresent": false
+      }
+    }
+  ],
+  "mechanicalSummary": {
+    "acquisitionSuccessfulMechanical": ["G2R:106:19"],
+    "acquisitionUnsuccessfulMechanical": [
+      {
+        "workItemId": "G2R:109:20",
+        "selectionIndex": 109,
+        "q3ReasonMechanical": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE"
+      }
+    ],
+    "rangeNotExact": []
+  },
+  "mechanicalSd9ReadingIsNotTheAdjudication": true,
+  "noReplacementAppendedDuringWindow": true,
+  "p2Accounting": {
+    "robotsBlockedRootCount": 0,
+    "robotsUnreadableRootCount": 1,
+    "gateWindowRobotsRefusalCount": 1,
+    "windowThreshold": 1,
+    "consecutiveThreshold": 3,
+    "countsBothReasons": true
+  },
+  "runReferenceProvenance": {
+    "everyRunRefSha256IsAFull64HexDigest": true,
+    "derivation": "sha256(lowercase run UUID), no prefix",
+    "noRawRunUuidPublished": true,
+    "historicalCount": 52,
+    "window13ExecutedCount": 2,
+    "totalDistinct": 54,
+    "allUnique": true,
+    "rule": "GENERATION2_HISTORICAL_RUN_REFERENCE_IS_GLOBALLY_UNIQUE_ACROSS_ALL_ADJUDICATED_WINDOWS_V1"
+  },
+  "sd9Bridge": {
+    "rawAndEligibleCountsReportedSeparately": true,
+    "onlyRowsWithMainTextCharsAboveZeroEnteredDedupe": true,
+    "zeroExtractedTextRowsInThisPrefix": 0,
+    "analyser": "analyseOrganisation (src/test/harness/phase2b2d/sd7/pilotAnalysis.ts), unmodified"
+  },
+  "databaseReconciliation": {
+    "database": "nwf_pe (acquisition)",
+    "readAs": "readonly",
+    "before": {
+      "runs": 178,
+      "completions": 178,
+      "fetchObservations": 4485,
+      "redirectObservations": 329,
+      "pageEvidence": 3375,
+      "pageCandidates": 6750,
+      "BLOCKED_BY_POLICY": 6,
+      "rootPromotions": 0,
+      "rootPromotionRevocations": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "beforeEqualsCanonicalWindow12Endpoint": true,
+    "after": {
+      "runs": 180,
+      "completions": 180,
+      "fetchObservations": 4529,
+      "redirectObservations": 331,
+      "pageEvidence": 3409,
+      "pageCandidates": 6818,
+      "BLOCKED_BY_POLICY": 6,
+      "rootPromotions": 0,
+      "rootPromotionRevocations": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "delta": {
+      "runs": 2,
+      "completions": 2,
+      "fetchObservations": 44,
+      "redirectObservations": 2,
+      "pageEvidence": 34,
+      "pageCandidates": 68,
+      "BLOCKED_BY_POLICY": 0,
+      "rootPromotions": 0,
+      "rootPromotionRevocations": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    },
+    "fetchObservationDeltaEqualsSumOfItemRequests": "43 + 1 = 44",
+    "pageEvidenceDeltaEqualsSumOfItemRawPages": "34 + 0 = 34",
+    "redirectDeltaEqualsSumOfItemRedirects": "2 + 0 = 2",
+    "candidateDeltaEqualsTwicePageDelta": true,
+    "unexplainedMovement": false,
+    "testDatabaseNotConsulted": "nwf_pe_test counters were never compared with acquisition counters"
+  },
+  "concurrency": {
+    "scope": "APPLY_WINDOW_13_ENGINE_AND_SHARED_ACQUISITION_STATE_CONCURRENCY_SCOPE_V1",
+    "inheritedAnomalyWaivers": 0,
+    "preItemQuietGate": ">= 120 consecutive seconds with zero blocking Engine/shared-state processes before every executed item, fresh per item (121.6 / 121.6 s)",
+    "watcherSelfTest": "PASS before the first item: governed child proved; detached orphan ANCESTRY_UNPROVED; unrelated external and an Engine-cwd probe EXTERNAL_COMPETING_PROCESS; probes in two enumerated NewWave Fluent application worktrees KNOWN_ISOLATED_EXTERNAL_ACTIVITY and never counted; an NWF-worktree probe holding a TCP connection to the Engine PostgreSQL listener NOT isolated; max gap <= 5 s; gate-adapter self-test PASS",
+    "monitorDefinition": "command-shaped candidate predicate (vitest / npm validate|test / a3prep / orgunits discover); ancestry proved only from the same-snapshot PPID chain to the governed root; KNOWN_ISOLATED_EXTERNAL_ACTIVITY only if cwd is inside a worktree enumerated from the NewWave Fluent application repositories and outside every Engine path, no Engine path in command or chain, and no TCP connection to 127.0.0.1:55432; anything else counts (fail closed)",
+    "unrelatedSessionsStoppedOrSignalled": false,
+    "itemsRanSequentiallyConcurrency1": true,
+    "perItemVerdicts": [
+      "G2R:106:19: EXCLUSIVE_PROVED_FOR_THIS_ITEM",
+      "G2R:109:20: EXCLUSIVE_PROVED_FOR_THIS_ITEM"
+    ]
+  },
+  "forbiddenActions": {
+    "secondLedgerAppend": false,
+    "reserve21Assignment": false,
+    "dynamicReplacement": false,
+    "dynamicInsertion": false,
+    "retries": false,
+    "reordering": false,
+    "thirdItem": false,
+    "primaryExecution": false,
+    "window14": false,
+    "corpusFreeze": false,
+    "cadenceChange": false,
+    "cadenceDecision": false,
+    "cadencePin": false,
+    "gateChange": false,
+    "concurrencyCodeChange": false,
+    "genericCodeChange": false,
+    "validationRun": false,
+    "adjudication": false,
+    "productionCodeChange": false,
+    "rootPromotion": false
+  },
+  "identityDisclosure": "slot numbers, work item ids, digests, run-reference hashes and aggregates only; no organisation id, echeRowKey, URL, hostname, root-authority id or page text",
+  "terminalState": "PHASE_2B_2D_A2_GENERATION2_WINDOW_13_STOPPED_AFTER_2_OF_2_AWAITING_OWNER_REVIEW_NO_VALIDATION_RUN",
+  "immutability": "append-only. This record is never edited; a correction or ruling is a new record"
+}
