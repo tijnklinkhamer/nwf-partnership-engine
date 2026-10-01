@@ -340,7 +340,35 @@
       "previousSequenceForSlot": 15,
       "previousEntryHash": "132a7aad3bde488a7ab51dca2c652e61ea9a4c36ee1a7893317dd9193e1d33f1",
       "entryHash": "87115be685f69a7bb2c150a2e6a1792413008e039989905589c56aa5faaf762c"
+    },
+    {
+      "sequence": 19,
+      "selectionIndex": 106,
+      "split": "DEV_CONFIRM",
+      "replacedEcheRowKey": "F JOUY-JO02|948986115",
+      "replacementEcheRowKey": "E BILBAO28|949650662",
+      "generation2ReserveRankPosition": 19,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-10-01T09:45:04Z",
+      "replacedOccupantKind": "GENERATION2_RESERVE_REPLACEMENT",
+      "previousSequenceForSlot": 18,
+      "previousEntryHash": "87115be685f69a7bb2c150a2e6a1792413008e039989905589c56aa5faaf762c",
+      "entryHash": "48e3efc793703ea546b6f29b50fd7ea6354d54c7b64b991a2d224c7a612b430e"
+    },
+    {
+      "sequence": 20,
+      "selectionIndex": 109,
+      "split": "FINAL_HOLDOUT",
+      "replacedEcheRowKey": "E JAEN09|944922300",
+      "replacementEcheRowKey": "PL CZESTOC05|949604781",
+      "generation2ReserveRankPosition": 20,
+      "reason": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+      "recordedAtUtc": "2026-10-01T09:45:04Z",
+      "replacedOccupantKind": "GENERATION1_TERMINAL_OCCUPANT",
+      "previousSequenceForSlot": null,
+      "previousEntryHash": "48e3efc793703ea546b6f29b50fd7ea6354d54c7b64b991a2d224c7a612b430e",
+      "entryHash": "7f4a6d39175caaf61249c3dab6d5c7a4661b3d8131ae6f60829d2a1a5330b0a6"
     }
   ],
-  "ledgerHash": "16d46662d015e3529f0b225d686e74233faeb8e0e05d94b44de58e7e5ca942a9"
+  "ledgerHash": "c02e37ac42515cb689512b12425c41560fffeb32592e4e15f864892f63208ec8"
 }
