@@ -35,6 +35,20 @@ const HARNESS = 'src/test/harness/phase2b2d';
 
 /** The exact canonical R37 tip R38 was cut from. */
 const R37_TERMINAL = '9bfaa0ec2ec6f7c7c6eb18bce55e324505262064';
+/**
+ * R38'S OWN TERMINAL COMMIT.
+ *
+ * R38's changed-surface and harness-scope assertions describe R38'S SLICE, so
+ * they range over R38's own commits - `R37_TERMINAL..R38_TERMINAL` - rather
+ * than over the working tree. Once a later slice lands on top, the working
+ * tree is no longer R38's surface, and diffing to it would fail for the
+ * honest reason that history moved on rather than because R38 changed.
+ *
+ * This is the same standing convention R19 through R37 apply, and it
+ * WEAKENS NOTHING: R38's range is frozen, its permitted-path list is
+ * unchanged, and each later slice pins the equivalent scope over its own range.
+ */
+const R38_TERMINAL = '960856bb4e503fcc6961843f88761f66ebffcd27';
 /** The one commit that pinned R37's own changed-surface test to its range. */
 const R37_SCOPE_PIN_COMMIT = '3795d0677f832d39d83655e8aeea44cd1a130915';
 const R37_ISOLATION_TEST =
@@ -141,7 +155,8 @@ function validateLedger(ledger: Json): LedgerCheck {
 }
 
 const a2Available = commitExists(A2_CHECKPOINT) && commitExists(GEN1_TERMINAL_COMMIT);
-const baseAvailable = commitExists(R37_TERMINAL) && commitExists(R37_SCOPE_PIN_COMMIT);
+const baseAvailable =
+  commitExists(R37_TERMINAL) && commitExists(R37_SCOPE_PIN_COMMIT) && commitExists(R38_TERMINAL);
 
 const refusal = JSON.parse(readFileSync(join(REPO_ROOT, REFUSAL_PATH), 'utf8')) as Record<
   string,
@@ -419,8 +434,9 @@ describe.skipIf(!baseAvailable)('2D-A3 R38: lineage and changed surface', () => 
   });
 
   it('leaves every harness namespace and every earlier A3 record untouched', () => {
-    expect(lines(git('diff', '--name-only', R37_TERMINAL, '--', HARNESS))).toEqual([]);
-    expect(lines(git('ls-files', '--others', '--exclude-standard', '--', HARNESS))).toEqual([]);
+    expect(lines(git('diff', '--name-only', R37_TERMINAL, R38_TERMINAL, '--', HARNESS))).toEqual(
+      [],
+    );
     const prior = lines(
       git('ls-tree', '-r', '--name-only', R37_TERMINAL, '--', 'docs/evaluation', 'docs/audits'),
     ).filter((path) => /PHASE_2B_2D_A3_R\d+_/.test(path));
@@ -432,12 +448,7 @@ describe.skipIf(!baseAvailable)('2D-A3 R38: lineage and changed surface', () => 
   });
 
   it('changes nothing but the R37 pin, this test, the refusal record and its audit', () => {
-    const paths = [
-      ...new Set([
-        ...lines(git('diff', '--name-only', R37_TERMINAL)),
-        ...lines(git('ls-files', '--others', '--exclude-standard')),
-      ]),
-    ];
+    const paths = lines(git('diff', '--name-only', R37_TERMINAL, R38_TERMINAL));
     const permitted = new Set([R37_ISOLATION_TEST, THIS_TEST, REFUSAL_PATH, AUDIT_PATH]);
     expect(paths.filter((path) => !permitted.has(path))).toEqual([]);
   });
