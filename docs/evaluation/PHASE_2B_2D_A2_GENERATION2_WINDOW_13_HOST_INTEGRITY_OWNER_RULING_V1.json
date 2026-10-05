@@ -1,0 +1,651 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_13_HOST_INTEGRITY_OWNER_RULING_V1",
+  "recordKind": "GENERATION2_OWNER_RULING",
+  "task": "GENERATION2_WINDOW_13_HOST_CONFOUNDED_INCIDENT_REVIEW_AND_RECOVERY_DECISION",
+  "createdBeforeAnyFurtherInstitutionNetworkActivity": true,
+  "recordedAtUtc": "2026-10-05T11:32:10Z",
+  "recordedAtUtcSource": "date -u, read from the shell when this ruling was written",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "bf15fe3b9e16ffbe0a075d4464f7363a2c88b008",
+  "publicSafe": true,
+  "appendOnly": true,
+  "isLiveAuthority": false,
+  "scope": "WINDOW_13_HOST_INCIDENT_ONLY",
+  "ownerDecisions": [
+    "PRESERVE_WINDOW_13_BOTH_EXECUTED_RUNS_AND_ALL_RAW_EVIDENCE_V1",
+    "PRESERVE_WINDOW_13_POST_FINAL_P2_AND_P5_PAUSES_V1",
+    "CLASSIFY_WINDOW_13_ITEM2_HOST_ATTRIBUTION_AS_INDETERMINATE_V1",
+    "REQUIRE_INDEPENDENT_WINDOW_13_P8_SEMANTICS_VERIFICATION_V1",
+    "APPROVE_WINDOW_13_OFFLINE_RECOVERY_FEASIBILITY_REVIEW_V1"
+  ],
+  "thisFileAuthorises": [
+    "APPROVE_WINDOW_13_OFFLINE_RECOVERY_FEASIBILITY_REVIEW_V1: this offline review record only (read-only inspection of committed records, local gitignored Window-13 evidence, timestamped pmset history and nwf_pe inside READ ONLY transactions; pure offline gate reproduction)"
+  ],
+  "authorisesNothingElse": true,
+  "doesNotAuthorise": {
+    "acquisition": true,
+    "institutionNetwork": true,
+    "revalidation": true,
+    "retry": true,
+    "rerunOfG2R10920": true,
+    "adjudication": true,
+    "window13Adjudication": true,
+    "governedClosureValidation": true,
+    "npmRunValidate": true,
+    "reserveAssignment": true,
+    "reserve21Assignment": true,
+    "ledgerMutation": true,
+    "ledgerAppend": true,
+    "window14": true,
+    "corpusFreeze": true,
+    "genericCodeChange": true,
+    "historyContractChange": true,
+    "newIntegrityVerdict": true,
+    "historyBypass": true,
+    "p1P8SemanticsChange": true,
+    "liveResultEdit": true,
+    "databaseWrite": true
+  },
+  "networkAuthorised": false,
+  "acquisitionAuthorised": false,
+  "ledgerMutationAuthorised": false,
+  "reserveAssignmentAuthorised": false,
+  "postRepairEnvironment": {
+    "context": "the operator laptop returned from repair before this review",
+    "startGate": {
+      "localHead": "bf15fe3b9e16ffbe0a075d4464f7363a2c88b008",
+      "originHead": "bf15fe3b9e16ffbe0a075d4464f7363a2c88b008",
+      "freshFetch": true,
+      "branch": "feat/phase2b-2d-a2-batch-02",
+      "trackedTreeClean": true,
+      "unexpectedCommits": false,
+      "window13AdjudicationPresent": false,
+      "window14ArtifactPresent": false
+    },
+    "nwfPeSurvived": true,
+    "nwfPeEqualsWindow13LiveResultEndpoint": {
+      "runs": 180,
+      "completions": 180,
+      "fetchObservations": 4529,
+      "redirectObservations": 331,
+      "pageEvidence": 3409,
+      "pageCandidates": 6818,
+      "readOnlyTransactionOnly": true
+    },
+    "localWindow13ExecutionEvidenceSurvived": true,
+    "localWindow13OperatorKitSurvived": true,
+    "timestampedPmsetHistoryCoversWindow13": true,
+    "missingEvidence": [],
+    "nothingWasReset": true
+  },
+  "lineage": {
+    "window12Adjudication": "1cb1a21dbb79585abc8518852bf69856fd59576d",
+    "window13SizeDecision": "f56d72709ed93a7108aa3de3965f75a2f57cfbb5",
+    "window13Readiness": "c1dd7cad505f9d52a19d448e1db620eb9d7afd0e",
+    "window13Authority": "0b9a7dabe5e720b18fcb41830fb687787b47b93f",
+    "window13LedgerAppend": "ac19cb8ca4538237be49e03e0c19ce46cf6f4ecb",
+    "window13LiveResult": "bf15fe3b9e16ffbe0a075d4464f7363a2c88b008",
+    "linear": true,
+    "liveStageCommitsBoundedToIntendedFiles": true
+  },
+  "bound": {
+    "window13OfflineReadiness": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_OFFLINE_READINESS_V1.json",
+      "commit": "c1dd7cad505f9d52a19d448e1db620eb9d7afd0e",
+      "sha256": "d9f5d16687f746376ced4b77a2c2a45393af44f361b6429885767dd0d00d8a07",
+      "bytes": 37619,
+      "windowSpecHash": "4e97902edefa9ba6c78a3a2a600c0451710b057e56b7bf8e0e7efbe9144e21c4"
+    },
+    "window13SizeDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_POST_FINAL_P5_REVIEW_AND_WINDOW_13_CONTINUATION_DECISION_V1.json",
+      "commit": "f56d72709ed93a7108aa3de3965f75a2f57cfbb5",
+      "sha256": "9d0e2ec4b77e2a3f7e04e32ef62d26fb8d3ac41eb44881dbbb7406fdf07380c3",
+      "bytes": 11842,
+      "scope": "WINDOW_13_SIZE_ONLY"
+    },
+    "window13LiveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_LIVE_AUTHORITY_V1.json",
+      "commit": "0b9a7dabe5e720b18fcb41830fb687787b47b93f",
+      "sha256": "5333451e3c8b9287a92fbab26d66571866700958a9caf54a083cda924a237669",
+      "bytes": 107914
+    },
+    "generation2Ledger": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "commit": "ac19cb8ca4538237be49e03e0c19ce46cf6f4ecb",
+      "sha256": "07cf86644940bab23fcfe74ab1b28f2a1629d0a0ee7478ac57ce7c79ce33bafe",
+      "bytes": 17842,
+      "entryCount": 21,
+      "ledgerHash": "c02e37ac42515cb689512b12425c41560fffeb32592e4e15f864892f63208ec8",
+      "ledgerHashIndependentlyRecomputed": true,
+      "entryChainIndependentlyRecomputed": true,
+      "nextGeneration2ReservePosition": 21,
+      "reserve21": "UNASSIGNED"
+    },
+    "window13LiveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_LIVE_RESULT_V1.json",
+      "commit": "bf15fe3b9e16ffbe0a075d4464f7363a2c88b008",
+      "sha256": "a4ac8291544647bd5d740275949677858baa6239a0182c0a4fd0ed83f67b294a",
+      "bytes": 34707
+    },
+    "explicitTwelveWindowAdjudicationHistory": {
+      "windows": [
+        {
+          "windowOrdinal": 1,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_AUTHORITY_V1.json",
+            "commit": "219f6d4a1cb869e9253a9701d48543a88f80f0ab",
+            "sha256": "e4874f7e84a184bd473b75f15dba0fd90700d4bb33ec0093593de90f4dea38ba"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_RESULT_V1.json",
+            "commit": "41bbedad759c26f1cb1e110bfdd07e1599809178",
+            "sha256": "7162938e6f8ba5f7808075f58021b540244b2b5a0b05d61db0812cfd4d8102d0"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_EVIDENCE_ADJUDICATION_V1.json",
+            "commit": "b281bf3b1dfc25c4540c6b17c1e8b97db468a77d",
+            "sha256": "89e4f166e56292374d3cf1aa2fe8037225770d48193ae619a32a1d4c7f1df5df"
+          }
+        },
+        {
+          "windowOrdinal": 2,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_AUTHORITY_V1.json",
+            "commit": "da659b586c05870f08f5af56d8816365a5203fa0",
+            "sha256": "e2cb65b5a7d3b35391718e255fef4db926bcfe88020f392ac93f79981392bba2"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_RESULT_V1.json",
+            "commit": "d074c0647136b45ee094b2d46a98ee2110db5102",
+            "sha256": "68852cbca3de127bb0a5442863cc99d2c3b72a5a69700c5fc5ac619fbc29b4ae"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_EVIDENCE_ADJUDICATION_V1.json",
+            "commit": "c6f6cf6dd1609115858a7dc039d1919bdb4153e4",
+            "sha256": "2e35cad7951aed780151b97400ea3b7e9fd78d4bfdec252f83d0652702bbdc8d"
+          }
+        },
+        {
+          "windowOrdinal": 3,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_AUTHORITY_V1.json",
+            "commit": "a39309f489aef60ae43ff4d179b9150dc5caf6c0",
+            "sha256": "aaa61ce72b9a5b943928f879f68daa06ea612aacfd5117310d54bd14cfa65478"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_RESULT_V1.json",
+            "commit": "17398aaf44b33d831ab9fb8c23b17b0d529da160",
+            "sha256": "c9654a837dde1c7c86a90c505b8cc1d5e6fcae1edc8a593981328576944e42ec"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_EVIDENCE_ADJUDICATION_V1.json",
+            "commit": "8f4bc2185ce7b0010b1dd96fe22b016c9500b9b0",
+            "sha256": "8d59cb2a1e2d6f3b447767a8c56078111658dbd07818e098fd363c153fe33ef0"
+          }
+        },
+        {
+          "windowOrdinal": 4,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_AUTHORITY_V1.json",
+            "commit": "05ffde6e8bcbbd2456ae1ccf69f43a7a41c2fcba",
+            "sha256": "bb24c26a8f2816a2cba584edb3726254bd72b1a8b979ca3cf9348effae1802a5"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_RESULT_V1.json",
+            "commit": "8efe11c290b24d17bde24f61914a19698986f108",
+            "sha256": "89b2aac217502133e7cbd75a9144f81637a03ef3be906cdebd03d1edb30e22f4"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_EVIDENCE_ADJUDICATION_V1.json",
+            "commit": "d023645a9c7e7a2afae92096e6b2c1bfd6daf861",
+            "sha256": "826f11851a6c000d3a314da2b6a4c31081014d29fdbdeb6012d157dae58b3dd8"
+          }
+        },
+        {
+          "windowOrdinal": 5,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_AUTHORITY_V1.json",
+            "commit": "c1b1a56fb6401d20f191b84e07b8f7508ba4b08c",
+            "sha256": "d88f741162bf27f6c290b2875edbeba522908c5545d6608b8d79b820ff701807"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_RESULT_V2.json",
+            "commit": "dbc7f0b4bb34ba1572ad2b59c3c0381807dbb0c6",
+            "sha256": "6914f564726029ebf82ef9ea142279f9697d9adb68bf42bfad0ba359df748d26"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_EVIDENCE_ADJUDICATION_V1.json",
+            "commit": "df3dddde6d9365da436e64c67e3b044df2f2cc42",
+            "sha256": "187eef89ed37f86e2f96c95e8772d9681ddcd944d04cff21961e4aaa63358642"
+          }
+        },
+        {
+          "windowOrdinal": 6,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_AUTHORITY_V1.json",
+            "commit": "c3f6c223de48625976f52da1ce110133f0d01afb",
+            "sha256": "6d847d8175054ecf7f09e45b5ab8ba8e488e9f8ca99553e9ca2c420b4dc977e3"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_RESULT_V3.json",
+            "commit": "3905bc27a3a54bb425d91813ed6e6e641d283d0c",
+            "sha256": "9dee6861dabc5c997ed2d458fad7d346f6b7aa9a019d421439f8c2b242cb1af6"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_EVIDENCE_ADJUDICATION_V1.json",
+            "commit": "47389c54b98aa1088a1e686f3592280e22046308",
+            "sha256": "845ca3a4bcd13409ac00dfc8b2a4224e9aee8ab08749aab523a8b7d478f5f340"
+          }
+        },
+        {
+          "windowOrdinal": 7,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_LIVE_AUTHORITY_V1.json",
+            "commit": "73fc2c8b3e2f14def6ba7861cb7d2ba49ef402a6",
+            "sha256": "726f78369af5fa5bb177a934c8c81e1bb317c04026dbf30575be4bb613db6020"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_LIVE_RESULT_V1.json",
+            "commit": "003a9afd1720f858f721957dc029cd1a95e1c6c2",
+            "sha256": "41614f01a213a22203fbb655ead9df888727b4f7740e96e74389156cc9582734"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_EVIDENCE_ADJUDICATION_V1.json",
+            "commit": "2e814487cff6c8dcf5bcb9c6f8a7639e84d7e7db",
+            "sha256": "d138c9618b2919d79b3468eb27f034bd11b64daf09a6c01ef733e474aa57d2fb"
+          }
+        },
+        {
+          "windowOrdinal": 8,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_LIVE_AUTHORITY_V1.json",
+            "commit": "202dbd57924080b54ac28e92efd001fc7dbae7a6",
+            "sha256": "f77aa0cf6d232a070d348dcd36a74932f078a64f79e1ddf737ec2e3f35b69a61"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_LIVE_RESULT_V1.json",
+            "commit": "1645ce2d11c4a55c5cbb629de54b43353ea17de0",
+            "sha256": "0a32d0d3e0c120e9b498046ea4df76d65ba85be22681f73e815c3dfc02cdc187"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_EVIDENCE_ADJUDICATION_V1.json",
+            "commit": "d4e450398b3435d97a2bf6a0cabcf416ac7205af",
+            "sha256": "2fb0b230d92b30746b2b62e3a598795cf4840011b710953df344774b9b8032da"
+          },
+          "cadenceAuthority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_P5_REVIEW_AND_CONTINUATION_DECISION_V1.json",
+            "commit": "2c20af702c3a9aed93e41f61c28d274f01c8351a",
+            "sha256": "2cfa5931946b8c71729a17ca98291df2a8f0fa6768a24ef3362b24f689c28b85"
+          }
+        },
+        {
+          "windowOrdinal": 9,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_LIVE_AUTHORITY_V1.json",
+            "commit": "38f14d98d6242be4f8e9560fc91bb8b258117cee",
+            "sha256": "97841c9a2c679b5adcd6673128353e4aa6e20b54d6474fb957bc9e2e63c61e51"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_LIVE_RESULT_V2.json",
+            "commit": "e5c3bf8ab93dabfc008862c108f1d68a32c7772b",
+            "sha256": "e7d384ad58a03090ecdfc3130ef2eb5b4e9966b784aa1cc2f36bc2ed7825c0f1"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_EVIDENCE_ADJUDICATION_V1.json",
+            "commit": "ce139ff44df9248b35ceec0b04719e51371b0436",
+            "sha256": "9cf694e5caf0f1c6d403d045b6939cae7bd57964372c9002ce22fc44ee739fa3"
+          },
+          "cadenceAuthority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_P5_REVIEW_AND_WINDOW_09_CONTINUATION_DECISION_V1.json",
+            "commit": "9deb681e6cb7f19ad4af0f677655f278ece6c149",
+            "sha256": "316e6f9aa90c977ac1f43cf8155a297980b94f93c4935d33c378e1dec9a141e2"
+          }
+        },
+        {
+          "windowOrdinal": 10,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_10_LIVE_AUTHORITY_V1.json",
+            "commit": "a3a6297015a195e887f2240a0730118aad6ac0ca",
+            "sha256": "30dcbb6713aec1de2c12ac1c77db35ecbb4d29a84b5bf0568251d3471dc58145"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_10_LIVE_RESULT_V1.json",
+            "commit": "5af3ec75adcaad744d0c934ecedbed8c1c8b752e",
+            "sha256": "fb95f08928198d6c31107b292ccb142cda95f3c171ddd24b262f527fcecce50f"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_10_EVIDENCE_ADJUDICATION_V1.json",
+            "commit": "cd4a346648fda84dc334556165afeb91fa7d475a",
+            "sha256": "6c27a6b5c0db88ca792367551ed134509affb4cc36a488e0f7387364ecdf1bae"
+          },
+          "cadenceAuthority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_P5_REVIEW_AND_WINDOW_10_CONTINUATION_DECISION_V1.json",
+            "commit": "7b226de931752dc70028b5e20e37fa5d7a925ca5",
+            "sha256": "ceff378d1147b4d43ac754c368c6311543f673f37f4190a9840d6ef926238752"
+          }
+        },
+        {
+          "windowOrdinal": 11,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_LIVE_AUTHORITY_V1.json",
+            "commit": "fdd3f740c8f05468fd926252599f48aa426b146d",
+            "sha256": "99be494d50d72b2630f121aedec8d1b472b9e1e416e681661f8fe4efe7b8df21"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_LIVE_RESULT_V1.json",
+            "commit": "32bcda7fe7d0d03108a58d7ebb262228233b0a98",
+            "sha256": "9d7219e97c372141be75bfc49c795cc8d543709383424107542d15c35a15fec3"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_EVIDENCE_ADJUDICATION_V1.json",
+            "commit": "2e014b1dcd61ab567ef21141a2fb664456f375e4",
+            "sha256": "99f3de0bb9fd85e2e3d5d919ee73addd73627a383bc95874df1098e2fa90e027"
+          }
+        },
+        {
+          "windowOrdinal": 12,
+          "authority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_LIVE_AUTHORITY_V1.json",
+            "commit": "5ee2afe80ac750e762243335c3c5097ac92a66aa",
+            "sha256": "522cb1c99b99b8d968fb2a8943f0e88b8a40e4096f39211adfa46cec951be009"
+          },
+          "liveResult": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_LIVE_RESULT_V1.json",
+            "commit": "b302438289fedf4b457fc21873e0c1fc3d4aa388",
+            "sha256": "c3be5776739f9d3135d877b70d175c06319a255d0c91968524451749e7b8ee2f"
+          },
+          "adjudication": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_EVIDENCE_ADJUDICATION_V1.json",
+            "commit": "1cb1a21dbb79585abc8518852bf69856fd59576d",
+            "sha256": "ecb063c42c80f81583a78509587ccb0182350e71222b781075224801ef02fd2b"
+          },
+          "cadenceAuthority": {
+            "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_P5_REVIEW_AND_WINDOW_12_CONTINUATION_DECISION_V1.json",
+            "commit": "6dd2f7c737ebb016ffc6429cc9c85040a1312f66",
+            "sha256": "cdb755868e2887feeb12f3df63faad00ca861b36723fb6213e29bb0017c19008"
+          }
+        }
+      ],
+      "cadenceAuthorityWindowOrdinals": [8, 9, 10, 12],
+      "window13CadenceAuthority": null,
+      "passedToEveryStateSpecAppendAndPreflightCall": true,
+      "emptyHistoryDefaultNeverUsed": true,
+      "directoryDiscovery": false,
+      "latestLookup": false
+    },
+    "frozenCorpusAcquisitionPlan": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "commit": "6f2de0fd5a80f050857a14531e74b659f0ff30c1",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "bytes": 45200
+    },
+    "frozenCorpusAcquisitionPlanOwnerApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1_OWNER_APPROVAL.json",
+      "commit": "ee7384087979ec74a45668bc9d770963444600cc",
+      "sha256": "0ac475031e81a60ae58d70bb83d5f71ee3cc441573dc82cf88145fdf1e8fec14",
+      "bytes": 10949
+    },
+    "continuationWindowGate": {
+      "path": "src/test/harness/phase2b2d/continuationWindow/windowGate.ts",
+      "commit": "36bd5316300b396aeb38d347ac4f46f885ccacba",
+      "sha256": "3a747b6cb245e34858d444ea84d0e9cd6042278d2e7d60a3b612ae070796b1be",
+      "bytes": 12589
+    },
+    "continuationWindowContract": {
+      "path": "src/test/harness/phase2b2d/continuationWindow/windowContract.ts",
+      "commit": "36bd5316300b396aeb38d347ac4f46f885ccacba",
+      "sha256": "b35bf4a847d32277423524c4cadf19fbb16c2b484ddc4c397106da82f3bb3a08",
+      "bytes": 17796
+    },
+    "generation2AdjudicationHistoryContract": {
+      "path": "src/test/harness/phase2b2d/generation2History/adjudicationHistory.ts",
+      "commit": "020c5ed32759787442c21bf5a96cad8089caec70",
+      "sha256": "33dc4dc71afea79942ad2db080dc5b509f5ddc08da545c0393a7a129bd87eeda",
+      "bytes": 53292
+    }
+  },
+  "executedItems": {
+    "exactOrder": ["G2R:106:19", "G2R:109:20"],
+    "runRefsTotal": 54,
+    "runRefsDistinct": 54,
+    "retries": 0,
+    "runRefDerivation": "sha256(lowercase run UUID), no prefix; both Window-13 run refs independently recomputed from nwf_pe",
+    "item1": {
+      "workItemId": "G2R:106:19",
+      "runRefSha256": "0f54c20250396e33d1da34866baa3f62ae8e1ecb72021c6bea0b563f3d2f753a",
+      "observed": {
+        "runTerminalState": "COMPLETED",
+        "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+        "gatewayRequests": 43,
+        "requestErrorKinds": {
+          "OK": 42,
+          "READ_TIMEOUT": 1
+        },
+        "dnsFailures": 0,
+        "rawPageEvidenceCount": 34,
+        "sd9EligiblePageCount": 34,
+        "postSd7Range": [34, 34]
+      },
+      "mechanical": {
+        "sd9": "ACQUISITION_SUCCESSFUL",
+        "q3": null
+      },
+      "host": {
+        "preItemHostCheck": "GREEN",
+        "postItemHostCheck": "GREEN",
+        "sleepWakeDarkWakeEventsDuringItem": 0,
+        "executionExclusivity": "PROVED"
+      },
+      "timeline": {
+        "lastFetchObservedAtUtc": "2026-10-01T10:03:00.743Z",
+        "runFinishedAtUtc": "2026-10-01T10:03:01.134Z",
+        "postItemHostCheckGreenAtUtc": "2026-10-01T10:03:04Z",
+        "item2PreItemHostCheckGreenAtUtc": "2026-10-01T10:03:44Z",
+        "earliestItem2ActivityUtc": "2026-10-01T10:06:18Z"
+      },
+      "laterIncidentCouldHaveCorruptedThisItem": false,
+      "why": "every item-1 row was written and its run completed before the incident window, two independent host/vantage checks were GREEN after it, and the evidence tables are append-only under a role holding no UPDATE/DELETE",
+      "disposition": "ACQUISITION_EVIDENCE_INDEPENDENTLY_INTACT"
+    },
+    "item2": {
+      "workItemId": "G2R:109:20",
+      "runRefSha256": "5bf76c8d6d158fd4d5deec70797af68002a11dc66917c2c6f30642932246fe7f",
+      "A_observedAcquisitionResult": {
+        "runTerminalState": "COMPLETED",
+        "requests": 1,
+        "requestKind": "robots policy file of the one frozen website-claim root",
+        "errorKind": "DNS_FAILURE",
+        "errorSubtypeInNwfPe": "DNS_NAME_NOT_FOUND",
+        "errorSubtypeMeaning": "exactly 'Node reported ENOTFOUND' and no more (src/orgunits/web/gateway.ts)",
+        "usableHttpResponse": false,
+        "rootTerminalReason": "ROBOTS_UNREADABLE_ROOT",
+        "rawPageEvidenceCount": 0,
+        "sd9EligiblePageCount": 0,
+        "postSd7Range": [0, 0],
+        "runStartedAtUtc": "2026-10-01T10:06:19.070Z",
+        "fetchObservedAtUtc": "2026-10-01T10:06:49.127Z",
+        "observedAtStampedAfterTheAttempt": true,
+        "lookupDurationUpperBoundSeconds": 30.06
+      },
+      "B_mechanical": {
+        "sd9": "ACQUISITION_UNSUCCESSFUL_MIN_PAGES_NOT_MET",
+        "q3": "ACQUISITION_UNSUCCESSFUL_HOST_UNREACHABLE",
+        "q3BlockingTransportErrorKind": "DNS_FAILURE",
+        "mechanicalIsNotAdjudication": true
+      },
+      "C_hostIntegrity": {
+        "preItemHostCheck": "GREEN",
+        "preItemHostCheckAtUtc": "2026-10-01T10:03:44Z",
+        "postItemHostCheck": "RED",
+        "postItemHostCheckAtUtc": "2026-10-01T10:07:07Z",
+        "postItemFailedProbe": "ipv4only.arpa AAAA probe: ';; connection timed out; no servers could be reached'",
+        "onlyFailingComponent": "compliant-vantage DNS probe",
+        "sleepWakeDarkWakeEventsDuringItem": 0,
+        "independentPmsetRecheck": "zero Sleep/Wake/DarkWake and zero non-assertion power events between 11:46 and 12:25 local (09:46-10:25 UTC) on 2026-10-01, re-read after the repair",
+        "batteryPercent": 100,
+        "powerSource": "AC Power",
+        "lidOpen": true,
+        "nativeIpv4NotClat": true,
+        "executionExclusivity": "PROVED",
+        "monitorMaxGapSecondsWithinItem": 0.506,
+        "monitorPollsWithinItem": 61,
+        "hostCheckGreenAgainAfterStop": {
+          "asRecordedInLiveResult": true,
+          "reproducibleFromLocalArtifact": false,
+          "note": "the operator kit wrote this value as a literal; no persisted later host check exists in the local evidence, so it is an operator assertion, not a reproducible observation"
+        }
+      },
+      "D_causalAttribution": {
+        "classification": "INDETERMINATE_HOST_VS_INSTITUTION_DNS_FAILURE",
+        "pointsTowardHostLocalResolver": [
+          "the vantage probe could not reach ANY DNS server 18 s after the observation",
+          "the lookup ran for up to ~30 s before ENOTFOUND; a prompt authoritative negative answer would not normally take that long"
+        ],
+        "pointsTowardInstitution": [
+          "the recorded subtype is DNS_NAME_NOT_FOUND (ENOTFOUND), which this repository treats as an authoritative negative answer",
+          "the host check 40 s before the run started was GREEN"
+        ],
+        "notProved": [
+          "that the resolver outage overlapped the lookup",
+          "that the name genuinely does not resolve",
+          "whether this runtime surfaces an unreachable resolver as ENOTFOUND: UNKNOWN"
+        ],
+        "q3HostUnreachableIsNotAFindingAboutTheInstitution": true,
+        "noFurtherOfflineEvidenceCanResolveIt": true
+      }
+    }
+  },
+  "p8": {
+    "frozenDefinition": "host sleep/wake, or a wall-clock gap inconsistent with the pacing clock",
+    "frozenDefinitionSources": [
+      "Corpus Acquisition Plan V1 pause condition P8",
+      "windowContract.ts CompletedWorkObservation.hostStateAnomaly",
+      "Window-13 authority pauseConditions.p8.ruling P8_REMAINS_HOST_SLEEP_WAKE_OR_PACING_CLOCK_ANOMALY_ONLY_V1"
+    ],
+    "compliantVantageIsAHostSafetyRequirementNotP8": "the authority places the ipv4only.arpa proof under hostSafety.compliantVantageRequired and never routes it into P8",
+    "evidence": {
+      "sleepWakeDarkWake": 0,
+      "wallClockGapWithinItemSeconds": 0.506,
+      "pacingClockAnomaly": "none: the item issued one request, so no inter-request pacing interval existed; the ~30 s was the lookup inside that single request, not a clock discontinuity"
+    },
+    "howTheRecordedP8Arose": "the local operator kit (gitignored post.mts) computed hostStateAnomaly = !hostOk || sleepEvents !== 0, folding the failed DNS/vantage probe into the frozen P8 field; the gate itself is input-faithful",
+    "offlineGateReproduction": {
+      "function": "evaluateContinuationWindowGate (pure)",
+      "asRecorded": {
+        "decision": "PAUSE_P8_HOST_STATE_ANOMALY",
+        "fired": ["P8", "P2", "P5"]
+      },
+      "underFrozenP8Meaning": {
+        "decision": "PAUSE_P2_ROBOTS_REFUSAL",
+        "fired": ["P2", "P5"]
+      }
+    },
+    "frozenP8Fired": false,
+    "recordedP8InLiveResult": true,
+    "discrepancy": "the LIVE_RESULT's P8 = fired and finalGateDecisionMechanical = PAUSE_P8_HOST_STATE_ANOMALY do not satisfy frozen P8; the LIVE_RESULT is NOT edited and remains the historical record; this ruling is the correction of reading",
+    "namedFrozenGateDecisionByPrecedence": "PAUSE_P2_ROBOTS_REFUSAL",
+    "separateHostIntegrityStopFired": true
+  },
+  "p2": {
+    "fired": true,
+    "preserved": true,
+    "waived": false,
+    "threshold": "strictPercentThresholdCount(2, 40) = 1 of 2",
+    "windowRobotsRefusalCount": 1,
+    "items": ["G2R:109:20"],
+    "reason": "ROBOTS_UNREADABLE_ROOT"
+  },
+  "p5": {
+    "fired": true,
+    "preserved": true,
+    "waived": false,
+    "threshold": "strictPercentThresholdCount(2, 30) = 1 of 2",
+    "windowLowYieldCount": 1,
+    "items": ["G2R:109:20"],
+    "rawPages": 0
+  },
+  "frozenSignalsRemainHistoricallyRealRegardlessOfCause": true,
+  "hostIntegrityStop": {
+    "classification": "HOST_INTEGRITY_NOT_PROVED_DURING_ITEM",
+    "affectedItems": ["G2R:109:20"],
+    "preserved": true,
+    "isFrozenP8": false,
+    "erasesTheExecutedRun": false,
+    "meaning": "acquisition causality for this item is confounded; the run and its evidence stand as observed"
+  },
+  "historyContract": {
+    "source": "src/test/harness/phase2b2d/generation2History/adjudicationHistory.ts @ 020c5ed",
+    "everyExecutedLiveResultItemMustBeAdjudicated": true,
+    "integrityVerdictMustEqualClean": true,
+    "allowedVerdicts": ["ACQUISITION_SUCCESSFUL", "ACQUISITION_UNSUCCESSFUL"],
+    "unsuccessfulRequiresQ3Reason": true,
+    "adjudicatedRunRefMustEqualExecutedRunRef": true,
+    "eachExecutedItemMustBeExactlyOneRunForItsOccupant": true,
+    "noPendingOrHeldSlotState": "after.PENDING_CAPABILITY_REVIEW must equal []",
+    "noAcquisitionOfRecordOrRevalidationMechanism": true,
+    "consequence": "no item-1-only adjudication; item 2 cannot be called CLEAN to satisfy replay; no new verdict or bypass is introduced here"
+  },
+  "routeA": {
+    "route": "adjudicate the existing G2R:109:20 run as ACQUISITION_UNSUCCESSFUL / HOST_UNREACHABLE",
+    "assessment": "INADMISSIBLE_ON_CURRENT_EVIDENCE",
+    "why": [
+      "replay requires integrity.verdict CLEAN and the item's host/vantage integrity is not proved",
+      "the only Generation-2 precedent for adjudicating unproved integrity (Window-06 owner ruling, 8d20725) rested on 'host/vantage integrity remained clean', which is exactly what fails here",
+      "every precedent that treated a DNS failure as an ordinary HOST_UNREACHABLE (Generation-1 Windows 09/10; Generation-2 Window 02, c6f6cf6) required a clean native-IPv4 vantage",
+      "a CLEAN verdict here would assert something the evidence does not show"
+    ],
+    "wouldBecomeAdmissibleOnlyIf": "independent evidence later proves the resolver was healthy during the lookup; none exists offline"
+  },
+  "routeB": {
+    "route": "separately authorised single-target evidence-only revalidation of the exact reserve-20 occupant and frozen root",
+    "isARetryUnderWindow13Authority": false,
+    "conceptualPrecedent": {
+      "record": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_NAT64_VANTAGE_AND_ASSIGNED_OCCUPANT_RECOVERY_DECISION_V1.json",
+      "commit": "c4b1830279b1db004f23d43606beef40f30aaf81",
+      "sha256": "67331d2017e0dd3266408ca10a1fe5ffce2c7a8724c2e0c5167eba6d4206acb0",
+      "generation": "GENERATION_1_ONLY",
+      "shape": "same commit, same fetch policy, same frozen organisation/root, same selection index and reserve position; zero reserve consumed; historical run immutable; acquisition-of-record moved only by a separate owner evidence adjudication"
+    },
+    "whatItWouldRequire": {
+      "separateAuthority": "a new owner live authority naming exactly G2R:109:20's occupant, one invocation, zero retries, from a re-proved compliant vantage, recorded as evidence-only",
+      "sameFrozenOrganisationRootAndPolicy": "yes: the same occupant, the same frozen website-claim root and orgunit-fetch-policy-v7",
+      "reserveConsumption": "unchanged; reserve 21 stays UNASSIGNED",
+      "originalRunImmutable": "yes",
+      "acquisitionOfRecordResolution": "no Generation-2 mechanism exists; Methodology V3 did not carry the Generation-1 AOR/revalidation rules",
+      "window13AdjudicationExactness": "cannot stay exact today: the Window-13 adjudication must adjudicate item 2's OWN run ref with integrity CLEAN, so a revalidation run's outcome cannot be substituted, and a second run of the same occupant cannot enter the replay"
+    },
+    "assessment": "PRECEDENT_EXISTS_IN_GENERATION_1_ONLY_NOT_EXECUTABLE_IN_GENERATION_2_WITHOUT_GOVERNANCE_AND_HISTORY_CHANGES"
+  },
+  "routeC": {
+    "applies": true,
+    "exactBlockers": [
+      "GOVERNANCE: Methodology V3 / Generation-2 contains no host-confounded revalidation or acquisition-of-record rule; importing the Generation-1 pattern is an owner methodology decision",
+      "IMPLEMENTATION: adjudicationHistory.ts admits only integrity CLEAN, one run per executed item, adjudicated run ref = executed run ref, no held slot, no AOR transition; adjudicating Window 13 truthfully needs a reviewed generic history-contract change (forbidden in this task)"
+    ],
+    "noWorkaroundInvented": true
+  },
+  "exactNextPermissibleAction": "an OWNER DECISION, offline only: whether to commission an offline design (no network, no adjudication) of a Generation-2 host-confounded single-occupant evidence-revalidation and acquisition-of-record amendment (Methodology V3 governance record plus a reviewed adjudicationHistory.ts extension), modelled on the Generation-1 vantage-recovery precedent; until then Window 13 stays unadjudicated, reserve 21 stays UNASSIGNED and no live action is permitted",
+  "ledger": {
+    "entryCount": 21,
+    "ledgerHash": "c02e37ac42515cb689512b12425c41560fffeb32592e4e15f864892f63208ec8",
+    "fileSha256": "07cf86644940bab23fcfe74ab1b28f2a1629d0a0ee7478ac57ce7c79ce33bafe",
+    "nextReserve": 21,
+    "reserve21": "UNASSIGNED",
+    "mutated": false
+  },
+  "thisReview": {
+    "network": false,
+    "acquisition": false,
+    "validation": false,
+    "adjudication": false,
+    "retry": false,
+    "ledgerChange": false,
+    "reserve21Assignment": false,
+    "window14": false,
+    "databaseWrites": false,
+    "localEvidenceModified": false
+  },
+  "identityDisclosure": "slot numbers, work item ids, run-reference hashes, digests, timestamps and aggregates only; no organisation id, echeRowKey, URL, hostname, root-authority id, run UUID or page text",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
