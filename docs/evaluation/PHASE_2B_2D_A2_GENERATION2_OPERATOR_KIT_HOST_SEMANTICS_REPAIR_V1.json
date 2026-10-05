@@ -1,0 +1,104 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_OPERATOR_KIT_HOST_SEMANTICS_REPAIR_V1",
+  "recordKind": "GENERATION2_OPERATOR_KIT_HOST_SEMANTICS_REPAIR",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "task": "GENERATION2_OPERATOR_KIT_HOST_SEMANTICS_REPAIR_IMPLEMENTATION_AND_REVIEW_V1",
+  "ownerDecision": "AUTHORISE_GENERATION2_OPERATOR_KIT_HOST_SEMANTICS_REPAIR_IMPLEMENTATION_AND_SEPARATE_REVIEW_V1",
+  "recordedAtUtc": "2026-10-05T14:40:16Z",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "publicSafe": true,
+  "appendOnly": true,
+  "isLiveAuthority": false,
+  "thisFileAuthorises": [],
+  "proves": {
+    "frozenP8InputSemantics": "SLEEP_WAKE_OR_PACING_CLOCK_ANOMALY_ONLY",
+    "hostVantageIntegrityRepresentedSeparately": true,
+    "hardCodedHostHealthClaims": 0,
+    "hostObservationsPersistedAndReproducible": true,
+    "repairTestsCommitted": true,
+    "separatelyReviewed": true
+  },
+  "review": {
+    "reviewed": true,
+    "reviewRecord": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_OPERATOR_KIT_HOST_SEMANTICS_REPAIR_REVIEW_V1.json",
+      "commit": "63230933481d1e8be95973f5baeeeffde3044009",
+      "sha256": "64d5c67d1b766b6fb92f62741238988e1ef98bb1928b9a125ab6c082bf4b9aa7",
+      "bytes": 11398
+    },
+    "verdict": "PASS",
+    "openNonBlockingObservations": [
+      "O1",
+      "O2",
+      "O3",
+      "O4",
+      "O5",
+      "O6"
+    ]
+  },
+  "repairImplementation": {
+    "commit": "3e4f6063fdecacd17678c4574735e4c559e4f1d5",
+    "tree": "d5f6bbc577444859cf29e05e9107c753e8219c98",
+    "module": {
+      "path": "src/test/harness/phase2b2d/generation2Recovery/operatorKitHostSemantics.ts",
+      "sha256": "67fd951da150fbc213281b6697ecb682f37e5dbb8dfdd4d6d1f9f870ea21a197",
+      "bytes": 33783
+    },
+    "tests": {
+      "path": "src/test/unit/orgunitCorpus2DA2Generation2OperatorKitHostSemantics.test.ts",
+      "sha256": "4f9d32eeaece730db8777d7c5ffb9cfd81a1a5e6043f27600b4ca21f7f26fbc1",
+      "bytes": 31621,
+      "tests": 74
+    },
+    "semanticsVersion": "GENERATION2_OPERATOR_KIT_HOST_SEMANTICS_V1"
+  },
+  "codeValidation": {
+    "kind": "OFFLINE_CODE_VALIDATION_NOT_WINDOW13_LIVE_EVIDENCE_CLOSURE",
+    "command": "caffeinate -dimsu npm run validate",
+    "atCommit": "3e4f6063fdecacd17678c4574735e4c559e4f1d5",
+    "exitCode": 0,
+    "tests": {
+      "passed": 6056,
+      "skipped": 76
+    },
+    "sleepWakeDarkWakeEventsDuring": 0,
+    "accepted": true
+  },
+  "bound": {
+    "approvedAmendmentOwnerApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_HOST_CONFOUNDED_REVALIDATION_AMENDMENT_OWNER_APPROVAL_V1.json",
+      "commit": "639851a423026b917c93eaed4194979ced8a08b6",
+      "sha256": "e0a3c97386089e7ff862ea21a53f441506c1fe5812590ac083a4e6c11876847c",
+      "bytes": 11520
+    },
+    "genericAmendmentImplementationCommit": "5499cb160dc73dd9b9ee4f51d241b722b7a199b4",
+    "genericAmendmentImplementationRecord": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_HOST_CONFOUNDED_REVALIDATION_AMENDMENT_IMPLEMENTATION_V1.json",
+      "commit": "dd3057633209cd6e5524118badd931a1a17e4460",
+      "sha256": "6fed1b53f87f724140cae8105b59659057146380ed9d7fa0f4e8df2596f76d2b",
+      "bytes": 14383
+    }
+  },
+  "operatorKitRepairCompleted": true,
+  "liveRecoveryImplemented": false,
+  "nextRequiredOwnerAuthorisedStep": "the separate resolver precondition (6/6 GREEN probes over >= 10 minutes); not started here",
+  "nothingLive": {
+    "networkUsed": false,
+    "institutionNetworkUsed": false,
+    "nwfPeOpened": false,
+    "ledgerMutated": false,
+    "reserveAssigned": false,
+    "window13Adjudicated": false,
+    "window14Created": false,
+    "recoveryPreconditionCreated": false,
+    "recoveryAuthorityCreated": false,
+    "recoveryRunCreated": false,
+    "recoveryResultCreated": false,
+    "historicalIncidentKitEdited": false
+  },
+  "finalState": {
+    "window13": "UNADJUDICATED",
+    "ledgerEntries": 21,
+    "reserve21": "UNASSIGNED"
+  }
+}
