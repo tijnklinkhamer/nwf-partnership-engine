@@ -27,14 +27,7 @@
       "bytes": 11398
     },
     "verdict": "PASS",
-    "openNonBlockingObservations": [
-      "O1",
-      "O2",
-      "O3",
-      "O4",
-      "O5",
-      "O6"
-    ]
+    "openNonBlockingObservations": ["O1", "O2", "O3", "O4", "O5", "O6"]
   },
   "repairImplementation": {
     "commit": "3e4f6063fdecacd17678c4574735e4c559e4f1d5",
