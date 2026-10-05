@@ -1,0 +1,358 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_13_TARGETED_HOST_RECOVERY_OWNER_RULING_V1",
+  "recordKind": "GENERATION2_OWNER_RULING",
+  "task": "GENERATION2_WINDOW_13_TARGETED_HOST_RECOVERY_CLOSURE_VALIDATION_AND_ADJUDICATION_V1",
+  "recordedAtUtc": "2026-10-05T16:28:10Z",
+  "recordedAtUtcSource": "date -u, read from the shell when this ruling was built",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "1a11e45a4197bf888bd629112c35de5645fc199c",
+  "publicSafe": true,
+  "appendOnly": true,
+  "isLiveAuthority": false,
+  "scope": "WINDOW_13_TARGETED_HOST_RECOVERY_CLOSURE_ONLY",
+  "ownerDecisions": [
+    "ACCEPT_WINDOW_13_PRE_GOVERNED_LAUNCH_EXIT126_AS_NON_INVOCATION_UNDER_UQ5_V1",
+    "ACCEPT_WINDOW_13_TARGETED_HOST_RECOVERY_RESULT_AS_CLEAN_EVIDENCE_ONLY_V1",
+    "PRESERVE_WINDOW_13_ORIGINAL_P2_P5_P8_AND_HOST_INTEGRITY_HISTORY_V1",
+    "APPROVE_EXACTLY_ONE_WINDOW_13_RECOVERY_CLOSURE_VALIDATION_V1",
+    "APPROVE_WINDOW_13_ADJUDICATION_WITH_ACCEPTED_HOST_RECOVERY_ACQUISITION_OF_RECORD_AFTER_VALIDATION_V1"
+  ],
+  "thisFileAuthorises": [
+    "APPROVE_EXACTLY_ONE_WINDOW_13_RECOVERY_CLOSURE_VALIDATION_V1: exactly ONE governed live-evidence closure validation (caffeinate -dimsu npm run validate) at the commit that adds this ruling, after a scoped watcher self-test and a fresh >= 120 s Engine/shared-state-scoped quiescence (poll interval <= 5 s) under an independent scoped watcher; nwf_pe must stay unchanged at the post-recovery endpoint recorded here; no rerun",
+    "APPROVE_WINDOW_13_ADJUDICATION_WITH_ACCEPTED_HOST_RECOVERY_ACQUISITION_OF_RECORD_AFTER_VALIDATION_V1: the Window-13 adjudication of BOTH executed items (G2R:106:19 ordinary CLEAN; G2R:109:20 original HOST_CONFOUNDED with an acquisitionOfRecord naming the accepted CLEAN recovery), with exactly one targetedHostRecoveries binding, ONLY if that validation is accepted and the explicit thirteen-window replay is exact"
+  ],
+  "authorisesNothingElse": true,
+  "networkAuthorised": false,
+  "acquisitionAuthorised": false,
+  "ledgerMutationAuthorised": false,
+  "reserveAssignmentAuthorised": false,
+  "recoveryInvocationAuthorised": false,
+  "bound": {
+    "window13OfflineReadiness": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_OFFLINE_READINESS_V1.json",
+      "commit": "c1dd7cad505f9d52a19d448e1db620eb9d7afd0e",
+      "sha256": "d9f5d16687f746376ced4b77a2c2a45393af44f361b6429885767dd0d00d8a07",
+      "bytes": 37619
+    },
+    "window13OrdinaryLiveAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_LIVE_AUTHORITY_V1.json",
+      "commit": "0b9a7dabe5e720b18fcb41830fb687787b47b93f",
+      "sha256": "5333451e3c8b9287a92fbab26d66571866700958a9caf54a083cda924a237669",
+      "bytes": 107914
+    },
+    "window13PreNetworkLedgerAppend": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "commit": "ac19cb8ca4538237be49e03e0c19ce46cf6f4ecb",
+      "sha256": "07cf86644940bab23fcfe74ab1b28f2a1629d0a0ee7478ac57ce7c79ce33bafe",
+      "bytes": 17842,
+      "ledgerHash": "c02e37ac42515cb689512b12425c41560fffeb32592e4e15f864892f63208ec8",
+      "entryCount": 21
+    },
+    "window13OrdinaryLiveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_LIVE_RESULT_V1.json",
+      "commit": "bf15fe3b9e16ffbe0a075d4464f7363a2c88b008",
+      "sha256": "a4ac8291544647bd5d740275949677858baa6239a0182c0a4fd0ed83f67b294a",
+      "bytes": 34707
+    },
+    "window13HostIntegrityOwnerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_HOST_INTEGRITY_OWNER_RULING_V1.json",
+      "commit": "1baeaa4380c28e16646f7d4164eb6418ed835d59",
+      "sha256": "fc4316749f901a4f9d448f37cfd0c077a455f1809c509a65e9bc09b628b6b656",
+      "bytes": 33257
+    },
+    "approvedAmendment": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_HOST_CONFOUNDED_REVALIDATION_AMENDMENT_OWNER_APPROVAL_V1.json",
+      "commit": "639851a423026b917c93eaed4194979ced8a08b6",
+      "sha256": "e0a3c97386089e7ff862ea21a53f441506c1fe5812590ac083a4e6c11876847c",
+      "bytes": 11520
+    },
+    "amendmentImplementation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_HOST_CONFOUNDED_REVALIDATION_AMENDMENT_IMPLEMENTATION_V1.json",
+      "commit": "dd3057633209cd6e5524118badd931a1a17e4460",
+      "sha256": "6fed1b53f87f724140cae8105b59659057146380ed9d7fa0f4e8df2596f76d2b",
+      "bytes": 14383
+    },
+    "canonicalOperatorKitHostSemanticsRepair": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_OPERATOR_KIT_HOST_SEMANTICS_REPAIR_V1.json",
+      "commit": "3b0b79474d1b3f7aa7d57d05498bdbc57b66b09d",
+      "sha256": "a7139a1c5286825acbdb12a1f394c186b788a5adca76070d29db209f3d63bd4c",
+      "bytes": 3888,
+      "note": "the canonical formatted bytes at 3b0b794 only; the obsolete 892e52d bytes are not bound"
+    },
+    "recoveryPrecondition": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_TARGETED_HOST_RECOVERY_PRECONDITION_V1.json",
+      "commit": "a92e8ef722490cde0edabe461ce75fa42741bc27",
+      "sha256": "569b7a1ca377f686413044557f896a80179325da9d3fc696936454d0807b8a8a",
+      "bytes": 11905
+    },
+    "recoveryAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_TARGETED_HOST_RECOVERY_REVALIDATION_AUTHORITY_V1.json",
+      "commit": "0ba04ab6a5431ee6d5725b3912708e40951e53f9",
+      "sha256": "e0029caf48494d1ab46e6318cb851fad31c925d94893dce76de5d9a74483226e",
+      "bytes": 8197
+    },
+    "recoveryResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_TARGETED_HOST_RECOVERY_REVALIDATION_RESULT_V1.json",
+      "commit": "1a11e45a4197bf888bd629112c35de5645fc199c",
+      "sha256": "2692001e426bb81649c89e6e291bfac74484c1e9da318f8c8b22df2745195bdb",
+      "bytes": 16528
+    },
+    "canonicalLedger": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "commit": "ac19cb8ca4538237be49e03e0c19ce46cf6f4ecb",
+      "fileSha256": "07cf86644940bab23fcfe74ab1b28f2a1629d0a0ee7478ac57ce7c79ce33bafe",
+      "bytes": 17842,
+      "ledgerHash": "c02e37ac42515cb689512b12425c41560fffeb32592e4e15f864892f63208ec8",
+      "entryCount": 21
+    }
+  },
+  "originalWindow13": {
+    "items": [
+      {
+        "order": 1,
+        "workItemId": "G2R:106:19",
+        "runRefSha256": "0f54c20250396e33d1da34866baa3f62ae8e1ecb72021c6bea0b563f3d2f753a",
+        "integrity": "CLEAN (unaffected by the host incident)"
+      },
+      {
+        "order": 2,
+        "workItemId": "G2R:109:20",
+        "runRefSha256": "5bf76c8d6d158fd4d5deec70797af68002a11dc66917c2c6f30642932246fe7f",
+        "integrity": "HOST_CONFOUNDED (host-integrity ruling 1baeaa4); the original run is retained and immutable"
+      }
+    ],
+    "historicalRunReferencesBeforeWindow13": 52,
+    "window13RunReferences": 2,
+    "ordinaryRunReferencesTotal": 54,
+    "ordinaryRunReferencesDistinct": 54
+  },
+  "launcherFaultBeforeGovernedRoot": {
+    "disposition": "UNSPENT",
+    "landedDispositionToken": "RECOVERY_INVOCATION_UNSPENT_PRECONDITION_NOT_HELD_AT_EXECUTION",
+    "landedDispositionTokenNote": "recoveryInvocationDisposition({cliExecuteIssued:false, runCreated:false}) returns the generic UQ5 unspent token; its name refers to the T-0 case, but the rule is cliExecuteIssued || runCreated and both were false; the cause here was a launcher fault, not a T-0 failure",
+    "cause": "the gitignored operator wrapper item.sh was not executable: run.sh line 14 \"Permission denied\", exit 126",
+    "atUtc": "2026-10-05T15:30Z",
+    "rule": "GENERATION2_HOST_RECOVERY_INVOCATION_CONSUMED_ON_CLI_EXECUTE_ISSUANCE_OR_RUN_CREATION_V1",
+    "cliExecuteIssued": false,
+    "runCreated": false,
+    "governedRootCreated": false,
+    "quietGatePerformed": false,
+    "t0Performed": false,
+    "acquisitionDbStateChanged": false,
+    "evidence": {
+      "preservedAt": "data/g2w13rec/launch-failure-1-item-sh-not-executable/ (gitignored)",
+      "itemShPermissionDenied": true,
+      "itemShExit126": true,
+      "wrapperLoggedCliNotIssued": true,
+      "noGovernedJsonNoQuietFileNoT0FileNoItemStart": true,
+      "watcherSamples": 16,
+      "watcherSamplesWithGovernedRoot": 0,
+      "dbAtFailure": {
+        "runs": 180,
+        "completions": 180,
+        "atUtc": "2026-10-05T15:30:52.051Z"
+      },
+      "dbAfterFailureBeforeGovernedLaunch": {
+        "runs": 180,
+        "completions": 180,
+        "latestRunStartedAt": "2026-10-01T10:06:19.070Z",
+        "atUtc": "2026-10-05T15:32:04.812Z"
+      },
+      "windowThirteenEndpoint": {
+        "runs": 180,
+        "completions": 180
+      }
+    },
+    "classifiedAsRetry": false,
+    "classifiedAsRecoveryInvocation": false,
+    "classifiedAsSecondAcquisitionAttempt": false
+  },
+  "recoveryInvocation": {
+    "consumedInvocations": 1,
+    "disposition": "RECOVERY_INVOCATION_CONSUMED",
+    "cliExecuteIssued": true,
+    "runCreated": true,
+    "automaticReplacementInvocation": false,
+    "retries": 0,
+    "cliExecuteInvocations": 1,
+    "runsForTarget": 1,
+    "completionRows": 1,
+    "runTerminalState": "COMPLETED",
+    "recoveryRunRefSha256": "a2f6c68ec50208e73bcd7149cee73e2fa5c4debd3b56c4f8d2881ff349b0d1f2",
+    "differsFromOriginalRunRef": true
+  },
+  "recoveryResultAcceptance": {
+    "status": "TARGETED_HOST_RECOVERY_EVIDENCE_ONLY",
+    "evidenceOnlyUntilAdjudication": true,
+    "integrityVerdict": "CLEAN",
+    "deriveRecoveryIntegrity": "CLEAN",
+    "validateHostRecoveryPrecondition": "PASS",
+    "validateHostRecoveryAuthority": "PASS",
+    "validateHostRecoveryResult": "PASS",
+    "validateTargetedHostRecovery": "PASS (eligibility E1-E14 and every hop, over the explicit twelve-window replay and the canonical 21-entry ledger)",
+    "defectClass": "RESOLVER_VANTAGE",
+    "hostVantageIntegrity": {
+      "t0": "HOST_VANTAGE_INTEGRITY_GREEN",
+      "postInvocation": "HOST_VANTAGE_INTEGRITY_GREEN",
+      "sleepWakeDarkWakeEvents": 0,
+      "frozenP8": false
+    },
+    "executionExclusivity": "EXCLUSIVE_PROVED_FOR_THIS_ITEM",
+    "monitor": {
+      "polls": 81,
+      "maxGapSeconds": 0.509,
+      "competing": 0,
+      "ancestryUnproved": 0,
+      "coverageSufficient": true
+    },
+    "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+    "requests": 40,
+    "requestsWithHttpResponse": 40,
+    "redirects": 1,
+    "pages": {
+      "rawPageEvidenceCount": 33,
+      "sd9EligiblePageCount": 28,
+      "zeroExtractedTextPageCount": 5,
+      "postSd7Range": [26, 28],
+      "countIsExact": false,
+      "shortTextUnresolvedCount": 2,
+      "decidedByCase": "B"
+    },
+    "mechanicalSd9": "ACQUISITION_SUCCESSFUL",
+    "mechanicalQ3": null,
+    "mechanicallySuccessful": true,
+    "databaseDelta": {
+      "runs": 1,
+      "completions": 1,
+      "fetchObservations": 40,
+      "redirectObservations": 1,
+      "pageEvidence": 33,
+      "pageCandidates": 66,
+      "BLOCKED_BY_POLICY": 0,
+      "rootPromotions": 0,
+      "rootPromotionRevocations": 0,
+      "dryRunRuns": 0,
+      "runsWithoutCompletion": 0
+    }
+  },
+  "originalRun": {
+    "runRefSha256": "5bf76c8d6d158fd4d5deec70797af68002a11dc66917c2c6f30642932246fe7f",
+    "immutable": true,
+    "retained": true,
+    "deleted": false,
+    "executionRecordEdited": false,
+    "acquisitionOfRecordMovedByThisRuling": false
+  },
+  "originalWindowStopHistory": {
+    "preservedAsHistoricalFact": true,
+    "recomputedFromRecoveryEvidence": false,
+    "p2": {
+      "fired": true,
+      "windowRobotsRefusalCount": 1
+    },
+    "p5": {
+      "fired": true,
+      "windowLowYieldCount": 1,
+      "denominator": 2
+    },
+    "p8": {
+      "recordedInLiveResult": true,
+      "frozenP8Fired": false,
+      "correctedBy": "host-integrity owner ruling 1baeaa4"
+    },
+    "hostIntegrityStop": {
+      "fired": true,
+      "classification": "HOST_INTEGRITY_NOT_PROVED_DURING_ITEM",
+      "affectedItems": ["G2R:109:20"]
+    },
+    "liveResultEdited": false,
+    "hostIntegrityRulingEdited": false
+  },
+  "runReferences": {
+    "historicalBeforeWindow13": 52,
+    "originalWindow13": 2,
+    "acceptedRecovery": 1,
+    "total": 55,
+    "distinct": 55
+  },
+  "databaseReconciliation": {
+    "database": "nwf_pe (acquisition)",
+    "readAs": "nwf_readonly",
+    "window13OrdinaryEndpoint": {
+      "runs": 180,
+      "completions": 180,
+      "fetchObservations": 4529,
+      "redirectObservations": 331,
+      "pageEvidence": 3409,
+      "pageCandidates": 6818,
+      "BLOCKED_BY_POLICY": 6
+    },
+    "acceptedRecoveryDelta": {
+      "runs": 1,
+      "completions": 1,
+      "fetchObservations": 40,
+      "redirectObservations": 1,
+      "pageEvidence": 33,
+      "pageCandidates": 66,
+      "BLOCKED_BY_POLICY": 0
+    },
+    "expected": {
+      "runs": 181,
+      "completions": 181,
+      "fetchObservations": 4569,
+      "redirectObservations": 332,
+      "pageEvidence": 3442,
+      "pageCandidates": 6884,
+      "BLOCKED_BY_POLICY": 6
+    },
+    "readAtRuling": {
+      "runs": 181,
+      "completions": 181,
+      "fetchObservations": 4569,
+      "redirectObservations": 332,
+      "pageEvidence": 3442,
+      "pageCandidates": 6884,
+      "BLOCKED_BY_POLICY": 6
+    },
+    "readAtUtc": "2026-10-05T16:25:35.355Z",
+    "dryRunRuns": 0,
+    "runsWithoutCompletion": 0,
+    "unexplainedMovement": false
+  },
+  "concurrencyScopeForClosureValidation": {
+    "definition": "ENGINE_AND_SHARED_ACQUISITION_STATE (the existing Engine/shared-nwf_pe scope)",
+    "nonBlocking": "test activity whose cwd is inside an enumerated NewWave Fluent application worktree and outside every Engine worktree, with no Engine path in its command or process chain, no Engine shared mutable state and no connection to the Engine PostgreSQL listener (nwf_pe) is KNOWN_ISOLATED_EXTERNAL_ACTIVITY",
+    "failClosed": "any other ungoverned candidate, or unknown activity that may affect Engine/shared state, blocks",
+    "distinctFrom": "the earlier amendment-implementation validation; this is a LIVE-EVIDENCE closure validation"
+  },
+  "hostSafetyForClosureValidation": {
+    "acPreferred": true,
+    "doNotStartAtOrBelowBatteryPercent": 20,
+    "lidOpenRequired": true,
+    "awakeRequired": true,
+    "noSleepWakeDarkWakeAnomaly": true,
+    "powerStateUnreadableMeansStop": true
+  },
+  "ledger": {
+    "entryCount": 21,
+    "ledgerHash": "c02e37ac42515cb689512b12425c41560fffeb32592e4e15f864892f63208ec8",
+    "reserve21": "UNASSIGNED",
+    "mutatedByThisRuling": false,
+    "recoveryConsumedAReserve": false
+  },
+  "doesNot": [
+    "execute, retry or authorise another recovery invocation",
+    "create an acquisition run or authorise any institution network activity",
+    "append to the ledger or assign reserve 21",
+    "create Window 14",
+    "edit the original Window-13 LIVE_RESULT or the host-integrity owner ruling",
+    "alter or recompute P2, P5, P8 or the host-integrity stop history",
+    "alter the recovery implementation or the operator kit",
+    "move acquisition-of-record (only the later adjudication may)",
+    "freeze the corpus or change A3",
+    "authorise a second validation"
+  ],
+  "identityDisclosure": "slot numbers, reserve positions, work item ids, digests, run-reference hashes and aggregates only; no organisation id, echeRowKey, URL, hostname, root-authority id, run UUID or page text",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
