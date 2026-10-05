@@ -58,6 +58,20 @@
  *   window's replacements are every slot ASSIGNED after its append, in
  *   ledger-sequence order. Ledger consumption is unchanged by this.
  *
+ * TARGETED HOST RECOVERY (Methodology-V3 amendment V3-H1..V3-H10, Design A)
+ *
+ *   A window's binding may EXPLICITLY carry committed targeted-host-recovery
+ *   chains (never looked up). An adjudication item that carries an
+ *   `acquisitionOfRecord` block must then be original integrity exactly
+ *   HOST_CONFOUNDED, match exactly one supplied chain for its (window, work
+ *   item, original run) incident, pass eligibility E1-E14 and every hop of the
+ *   chain, and name a CLEAN recovery; its adjudicated verdict is then the one
+ *   applied to the slot. The item still appears exactly once, at its position,
+ *   with its ORIGINAL run reference. Without the block the ordinary path is
+ *   unchanged: integrity must be CLEAN. Every supplied chain must be consumed,
+ *   and a recovered window must record its original stop history unchanged.
+ *   Recovery-free windows replay, and bind, byte-identically.
+ *
  * Frozen P7 is not redefined here. History integrity is an ADDITIONAL
  * operational prerequisite.
  *
@@ -93,6 +107,15 @@ import {
   type OperationalGeneration2Ledger,
 } from '../generation2Acquisition/operationalLedger.js';
 import type { Generation2OperationalBasis } from '../generation2Acquisition/state.js';
+import { HOST_RECOVERY_EXTENSION_VERSION } from '../generation2Recovery/hostRecoveryContract.js';
+import {
+  incidentOfBinding,
+  requireOriginalWindowStopHistoryPreserved,
+  validateAcquisitionOfRecord,
+  validateTargetedHostRecovery,
+  type ReplayedAcquisitionOfRecord,
+  type TargetedHostRecoveryBinding,
+} from '../generation2Recovery/hostRecoveryProvenance.js';
 
 const sha256 = (text: string): string => createHash('sha256').update(text, 'utf8').digest('hex');
 const HEX64 = /^[0-9a-f]{64}$/;
@@ -144,6 +167,12 @@ export interface Generation2WindowHistoryBinding {
    * replacement-first default. Never looked up: supplied or not.
    */
   readonly cadenceAuthority?: WindowCadenceAuthorityBinding;
+  /**
+   * Committed targeted-host-recovery chains, supplied ONLY for a window whose
+   * adjudication accepts a recovery. Absent for every ordinary window. Never
+   * looked up: supplied or not.
+   */
+  readonly targetedHostRecoveries?: readonly TargetedHostRecoveryBinding[];
 }
 
 /** Ordered: windows[k] is window k+1. Empty means the historical first-window model. */
@@ -730,8 +759,14 @@ export interface ReplayedWindow {
     readonly selectionIndex: number;
     readonly verdict: AdjudicationVerdict;
     readonly q3Reason: ReplacementReason | null;
+    /** Always the ORIGINAL ordinary run reference, recovered or not. */
     readonly runRefSha256: string;
+    /** Present only when the item's verdict comes from an accepted host recovery. */
+    readonly acquisitionOfRecord?: ReplayedAcquisitionOfRecord;
   }[];
+  /** Present only when the window's binding carries targeted host recoveries. */
+  readonly recoveryExtension?: typeof HOST_RECOVERY_EXTENSION_VERSION;
+  readonly targetedHostRecoveries?: readonly ReplayedAcquisitionOfRecord[];
   readonly stateBefore: Generation2SlotSnapshot;
   readonly stateAfter: Generation2SlotSnapshot;
 }
@@ -743,6 +778,7 @@ function replayWindow(
   cursor: number,
   binding: Generation2WindowHistoryBinding,
   expectedOrdinal: number,
+  priorWindows: readonly ReplayedWindow[],
 ): { window: ReplayedWindow; cursor: number } {
   const ordinal = String(expectedOrdinal);
   if (binding.windowOrdinal !== expectedOrdinal) {
@@ -1045,6 +1081,9 @@ function replayWindow(
       `window ${ordinal}: ${String(adjudicatedItems.length)} adjudicated items for ${String(liveItems.length)} executed`,
     );
   }
+  const recoveries = supplyRecoveries(binding, expectedOrdinal);
+  const consumedRecoveries = new Set<TargetedHostRecoveryBinding>();
+  const recoveredHere: ReplayedAcquisitionOfRecord[] = [];
   const executed: ReplayedWindow['executed'][number][] = [];
   adjudicatedItems.forEach((item, k) => {
     const liveItem = liveItems[k]!;
@@ -1064,7 +1103,23 @@ function replayWindow(
       );
     }
     const integrity = asObject(item.integrity, 'integrity');
-    if (integrity.verdict !== 'CLEAN') {
+    let acquisitionOfRecord: ReplayedAcquisitionOfRecord | undefined;
+    if (has(item, 'acquisitionOfRecord')) {
+      acquisitionOfRecord = acceptRecoveredItem(item, integrity, liveItem, {
+        ordinal,
+        expectedOrdinal,
+        binding,
+        recoveries,
+        consumedRecoveries,
+        recoveredHere,
+        liveItems,
+        priorWindows,
+        ledger,
+        afterAppend,
+        ledgerHashAfterAppend,
+      });
+      recoveredHere.push(acquisitionOfRecord);
+    } else if (integrity.verdict !== 'CLEAN') {
       refuse(
         'HISTORY_INTEGRITY_NOT_CLEAN',
         `window ${ordinal}: item ${String(k + 1)} integrity does not permit adjudication`,
@@ -1108,9 +1163,25 @@ function replayWindow(
       verdict: replayed.verdict,
       q3Reason: replayed.q3Reason,
       runRefSha256: liveItem.runRefSha256 as string,
+      ...(acquisitionOfRecord === undefined ? {} : { acquisitionOfRecord }),
     });
   });
   const stateAfter = snapshot(slots);
+  if (recoveries !== undefined) {
+    const unused = recoveries.filter((recovery) => !consumedRecoveries.has(recovery));
+    if (unused.length !== 0) {
+      refuse(
+        'HOST_RECOVERY_BINDING_UNUSED',
+        `window ${ordinal}: ${String(unused.length)} supplied recovery chain(s) accepted by no adjudicated item`,
+      );
+    }
+    requireOriginalWindowStopHistoryPreserved(
+      adjudication,
+      binding.liveResult,
+      recoveries.map((recovery) => recovery.incidentRuling),
+      recoveredHere.map((aor) => aor.incident.workItemId),
+    );
+  }
 
   requireSummaryAgreement(basis, adjudication, {
     ordinal,
@@ -1120,6 +1191,7 @@ function replayWindow(
     ledgerHash: ledgerHashAfterAppend,
     executed,
     size,
+    recovered: executed.filter((e) => e.acquisitionOfRecord !== undefined).map((e) => e.workItemId),
   });
 
   return {
@@ -1157,10 +1229,110 @@ function replayWindow(
       consumedLedgerSequences: consumed,
       ledgerHashAfterAppend,
       executed,
+      ...(recoveries === undefined
+        ? {}
+        : {
+            recoveryExtension: HOST_RECOVERY_EXTENSION_VERSION,
+            targetedHostRecoveries: recoveredHere,
+          }),
       stateBefore,
       stateAfter,
     },
   };
+}
+
+/** The window's supplied recovery chains: absent, or a non-empty list of distinct incidents. */
+function supplyRecoveries(
+  binding: Generation2WindowHistoryBinding,
+  expectedOrdinal: number,
+): readonly TargetedHostRecoveryBinding[] | undefined {
+  const recoveries = binding.targetedHostRecoveries;
+  if (recoveries === undefined) return undefined;
+  if (recoveries.length === 0) {
+    refuse(
+      'HOST_RECOVERY_BINDING_UNUSED',
+      `window ${String(expectedOrdinal)}: an empty recovery list is not "no recovery"; omit it`,
+    );
+  }
+  const incidents = recoveries.map((recovery) => canonicalStringify(incidentOfBinding(recovery)));
+  if (new Set(incidents).size !== incidents.length) {
+    refuse(
+      'HOST_RECOVERY_ALREADY_EXISTS_FOR_INCIDENT',
+      `window ${String(expectedOrdinal)}: two recovery chains for one incident`,
+    );
+  }
+  return recoveries;
+}
+
+/**
+ * One adjudicated item that claims an acquisition of record: exactly one
+ * supplied chain for its incident, validated in full (eligibility E1-E14 and
+ * every hop), and an acquisitionOfRecord block naming that chain. PURE.
+ */
+function acceptRecoveredItem(
+  item: Json,
+  integrity: Json,
+  liveItem: Readonly<Record<string, unknown>>,
+  ctx: {
+    readonly ordinal: string;
+    readonly expectedOrdinal: number;
+    readonly binding: Generation2WindowHistoryBinding;
+    readonly recoveries: readonly TargetedHostRecoveryBinding[] | undefined;
+    readonly consumedRecoveries: Set<TargetedHostRecoveryBinding>;
+    readonly recoveredHere: readonly ReplayedAcquisitionOfRecord[];
+    readonly liveItems: readonly Readonly<Record<string, unknown>>[];
+    readonly priorWindows: readonly ReplayedWindow[];
+    readonly ledger: OperationalGeneration2Ledger;
+    readonly afterAppend: number;
+    readonly ledgerHashAfterAppend: string;
+  },
+): ReplayedAcquisitionOfRecord {
+  const workItemId = liveItem.workItemId as string;
+  if (integrity.verdict === 'CLEAN') {
+    refuse(
+      'HOST_RECOVERY_TARGET_WAS_CLEAN',
+      `window ${ctx.ordinal}: ${workItemId} is CLEAN; a clean item never carries an acquisition of record`,
+    );
+  }
+  const incident = {
+    windowOrdinal: ctx.expectedOrdinal,
+    workItemId,
+    originalRunRefSha256: liveItem.runRefSha256 as string,
+  };
+  const matching = (ctx.recoveries ?? []).filter((recovery) =>
+    same(incidentOfBinding(recovery), incident),
+  );
+  if (matching.length !== 1) {
+    refuse(
+      'HOST_RECOVERY_BINDING_MISSING',
+      `window ${ctx.ordinal}: ${workItemId} claims an acquisition of record but no supplied recovery chain is for its incident`,
+    );
+  }
+  const recovery = matching[0]!;
+  const prior = ctx.priorWindows.flatMap((w) => w.executed);
+  const priorAors = [
+    ...prior.flatMap((e) => (e.acquisitionOfRecord === undefined ? [] : [e.acquisitionOfRecord])),
+    ...ctx.recoveredHere,
+  ];
+  const validated = validateTargetedHostRecovery(recovery, {
+    windowOrdinal: ctx.expectedOrdinal,
+    authority: ctx.binding.authority,
+    liveResult: ctx.binding.liveResult,
+    validatedLiveItems: ctx.liveItems,
+    incident,
+    ledgerEntries: ctx.ledger.entries.slice(0, ctx.afterAppend),
+    ledgerDuringWindow: { entryCount: ctx.afterAppend, ledgerHash: ctx.ledgerHashAfterAppend },
+    priorAdjudicatedWorkItemIds: prior.map((e) => e.workItemId),
+    ordinaryRunRefs: [
+      ...prior.map((e) => e.runRefSha256),
+      ...ctx.liveItems.map((live) => live.runRefSha256 as string),
+    ],
+    priorRecoveryRunRefs: priorAors.map((aor) => aor.runRefSha256),
+    priorRecoveryIncidents: priorAors.map((aor) => aor.incident),
+  });
+  const accepted = validateAcquisitionOfRecord(item, recovery, validated);
+  ctx.consumedRecoveries.add(recovery);
+  return accepted;
 }
 
 /** The record's summaries are the COMPARISON TARGET: each must equal the replay. */
@@ -1175,6 +1347,7 @@ function requireSummaryAgreement(
     ledgerHash: string;
     executed: ReplayedWindow['executed'];
     size: number;
+    recovered: readonly string[];
   },
 ): void {
   const { stateBefore: b, stateAfter: a } = replay;
@@ -1294,6 +1467,16 @@ function requireSummaryAgreement(
     summary.acquisitionUnsuccessful,
     slotsWith('ACQUISITION_UNSUCCESSFUL'),
   );
+  // Only a window that accepted a recovery names its recovered items; any other omits the key.
+  if (replay.recovered.length !== 0) {
+    check(
+      'windowSummary.acquisitionOfRecordRecovered',
+      summary.acquisitionOfRecordRecovered,
+      replay.recovered,
+    );
+  } else if (Object.hasOwn(summary, 'acquisitionOfRecordRecovered')) {
+    mismatches.push('windowSummary.acquisitionOfRecordRecovered');
+  }
 
   if (mismatches.length !== 0) {
     refuse(
@@ -1309,6 +1492,8 @@ function requireSummaryAgreement(
 
 export interface Generation2HistoryReplay {
   readonly bridgeVersion: typeof HISTORY_BRIDGE_VERSION;
+  /** Present only when some window accepted a targeted host recovery. */
+  readonly recoveryExtension?: typeof HOST_RECOVERY_EXTENSION_VERSION;
   readonly windows: readonly ReplayedWindow[];
   /** Ledger entries consumed (and executed) by adjudicated windows: a ledger prefix. */
   readonly consumedLedgerEntryCount: number;
@@ -1330,7 +1515,7 @@ export function replayGeneration2History(
   let cursor = 0;
   const windows: ReplayedWindow[] = [];
   history.windows.forEach((binding, k) => {
-    const next = replayWindow(basis, ledger, slots, cursor, binding, k + 1);
+    const next = replayWindow(basis, ledger, slots, cursor, binding, k + 1, windows);
     windows.push(next.window);
     cursor = next.cursor;
   });
@@ -1339,6 +1524,9 @@ export function replayGeneration2History(
   accountingOf(final);
   return {
     bridgeVersion: HISTORY_BRIDGE_VERSION,
+    ...(windows.some((window) => window.recoveryExtension !== undefined)
+      ? { recoveryExtension: HOST_RECOVERY_EXTENSION_VERSION }
+      : {}),
     windows,
     consumedLedgerEntryCount: cursor,
     final,
@@ -1349,6 +1537,9 @@ export function replayGeneration2History(
 export function historyBindingOf(replay: Generation2HistoryReplay) {
   return {
     bridgeVersion: replay.bridgeVersion,
+    ...(replay.recoveryExtension === undefined
+      ? {}
+      : { recoveryExtension: replay.recoveryExtension }),
     windowCount: replay.windows.length,
     consumedLedgerEntryCount: replay.consumedLedgerEntryCount,
     windows: replay.windows.map((window) => ({
@@ -1362,6 +1553,9 @@ export function historyBindingOf(replay: Generation2HistoryReplay) {
       ...(window.cadenceAuthority === undefined
         ? {}
         : { cadenceAuthority: window.cadenceAuthority }),
+      ...(window.targetedHostRecoveries === undefined
+        ? {}
+        : { targetedHostRecoveries: window.targetedHostRecoveries }),
       windowSpecHash: window.windowSpecHash,
       startingLedger: window.startingLedger,
       ledgerHashAfterAppend: window.ledgerHashAfterAppend,

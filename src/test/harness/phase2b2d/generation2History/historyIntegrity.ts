@@ -23,6 +23,11 @@
  *      one window; a repeat across two windows would count one acquisition
  *      run twice, so it is refused here - by this assessment itself, never by
  *      a window-specific caller that has to remember to ask.
+ *   4. GENERATION2_RECOVERY_RUN_REFERENCE_IS_GLOBALLY_UNIQUE_V1: an accepted
+ *      targeted-host-recovery run reference shares that ONE set with every
+ *      ordinary executed reference - it never equals its own original, an
+ *      ordinary reference of any window, or another recovery. A history with
+ *      no recovery checks exactly the ordinary set, as before.
  *
  * No filesystem, no database, no network, no clock.
  */
@@ -45,11 +50,24 @@ const sha256 = (text: string): string => createHash('sha256').update(text, 'utf8
 export const ADJUDICATION_HISTORY_INTEGRITY = 'ADJUDICATION_HISTORY_INTEGRITY';
 export const GLOBAL_RUN_REFERENCE_UNIQUENESS_RULE =
   'GENERATION2_HISTORICAL_RUN_REFERENCE_IS_GLOBALLY_UNIQUE_ACROSS_ALL_ADJUDICATED_WINDOWS_V1';
+export const GLOBAL_RECOVERY_RUN_REFERENCE_UNIQUENESS_RULE =
+  'GENERATION2_RECOVERY_RUN_REFERENCE_IS_GLOBALLY_UNIQUE_V1';
+
+/** Every accepted recovery run reference of the replayed history, in history order. */
+export function recoveryRunReferencesOf(replay: Generation2HistoryReplay): readonly string[] {
+  return replay.windows.flatMap((window) =>
+    window.executed.flatMap((item) =>
+      item.acquisitionOfRecord === undefined ? [] : [item.acquisitionOfRecord.runRefSha256],
+    ),
+  );
+}
 
 /**
  * Every executed run reference of the replayed history, in history order,
  * refused (HISTORY_DUPLICATE_RUN_REFERENCE) if any value occurs twice ANYWHERE
- * in it. Per-item validity is the replay's; this adds only global uniqueness.
+ * in it - ordinary references and accepted recovery references alike, in one
+ * set. Per-item validity is the replay's; this adds only global uniqueness.
+ * The returned list is the ORDINARY references, exactly as before.
  */
 export function requireUniqueHistoricalRunReferences(
   replay: Generation2HistoryReplay,
@@ -67,6 +85,20 @@ export function requireUniqueHistoricalRunReferences(
       }
       seen.set(item.runRefSha256, window.windowOrdinal);
       runRefs.push(item.runRefSha256);
+    }
+  }
+  for (const window of replay.windows) {
+    for (const item of window.executed) {
+      if (item.acquisitionOfRecord === undefined) continue;
+      const ref = item.acquisitionOfRecord.runRefSha256;
+      const first = seen.get(ref);
+      if (first !== undefined) {
+        refuse(
+          'HISTORY_DUPLICATE_RUN_REFERENCE',
+          `the recovery run of ${item.workItemId} (window ${String(window.windowOrdinal)}) repeats a run reference of window ${String(first)}; one run is never counted twice`,
+        );
+      }
+      seen.set(ref, window.windowOrdinal);
     }
   }
   return runRefs;
