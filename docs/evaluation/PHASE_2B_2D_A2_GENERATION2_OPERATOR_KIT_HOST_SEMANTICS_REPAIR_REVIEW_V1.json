@@ -1,0 +1,241 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_OPERATOR_KIT_HOST_SEMANTICS_REPAIR_REVIEW_V1",
+  "recordKind": "GENERATION2_OPERATOR_KIT_HOST_SEMANTICS_REPAIR_REVIEW",
+  "task": "GENERATION2_OPERATOR_KIT_HOST_SEMANTICS_REPAIR_IMPLEMENTATION_AND_REVIEW_V1",
+  "ownerDecision": "AUTHORISE_GENERATION2_OPERATOR_KIT_HOST_SEMANTICS_REPAIR_IMPLEMENTATION_AND_SEPARATE_REVIEW_V1",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "recordedAtUtc": "2026-10-05T14:39:39Z",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "publicSafe": true,
+  "appendOnly": true,
+  "isLiveAuthority": false,
+  "thisFileAuthorises": [],
+  "bound": {
+    "approvedAmendmentOwnerApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_HOST_CONFOUNDED_REVALIDATION_AMENDMENT_OWNER_APPROVAL_V1.json",
+      "commit": "639851a423026b917c93eaed4194979ced8a08b6",
+      "sha256": "e0a3c97386089e7ff862ea21a53f441506c1fe5812590ac083a4e6c11876847c",
+      "bytes": 11520
+    },
+    "genericAmendmentImplementationCommit": "5499cb160dc73dd9b9ee4f51d241b722b7a199b4",
+    "genericAmendmentImplementationRecord": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_HOST_CONFOUNDED_REVALIDATION_AMENDMENT_IMPLEMENTATION_V1.json",
+      "commit": "dd3057633209cd6e5524118badd931a1a17e4460",
+      "sha256": "6fed1b53f87f724140cae8105b59659057146380ed9d7fa0f4e8df2596f76d2b",
+      "bytes": 14383
+    },
+    "window13HostIntegrityOwnerRulingCommit": "1baeaa4380c28e16646f7d4164eb6418ed835d59",
+    "uq4Requirement": {
+      "contract": "src/test/harness/phase2b2d/generation2Recovery/hostRecoveryContract.ts",
+      "constant": "OPERATOR_KIT_REPAIR_REQUIRED_PROOFS",
+      "frozenP8InputSemantics": "SLEEP_WAKE_OR_PACING_CLOCK_ANOMALY_ONLY",
+      "refusal": "HOST_RECOVERY_OPERATOR_KIT_REPAIR_NOT_PROVED"
+    }
+  },
+  "historicalIncidentKit": {
+    "location": "data/g2w13l (gitignored, local)",
+    "treatedAs": "IMMUTABLE_INCIDENT_EVIDENCE_READ_ONLY",
+    "edited": false,
+    "defectsReverified": [
+      {
+        "id": "A",
+        "file": "post.mts",
+        "line": 49,
+        "pattern": "hostStateAnomaly: !hostOk || sleepEvents !== 0",
+        "effect": "hostOk is the whole HOSTCHECK verdict (sleep log, battery, lid, ipv4only.arpa AAAA, route, native IPv4); item 2's post-item check was RED solely because the ipv4only.arpa query reached no DNS server, with 0 sleep/wake events, yet P8 fired"
+      },
+      {
+        "id": "B",
+        "file": "liveresult.mts",
+        "line": 111,
+        "pattern": "hostCheckGreenAgainAfterStop: true",
+        "effect": "literal claim; no after-stop host-check observation file exists in the kit (only per-item pre/post host files)"
+      }
+    ],
+    "unchangedProof": "sha256 of every .mts/.sh file in the kit snapshotted before implementation and re-checked after: 0 differences"
+  },
+  "implementation": {
+    "commit": "3e4f6063fdecacd17678c4574735e4c559e4f1d5",
+    "tree": "d5f6bbc577444859cf29e05e9107c753e8219c98",
+    "parent": "dd3057633209cd6e5524118badd931a1a17e4460",
+    "pushed": true,
+    "changedFiles": [
+      {
+        "path": "src/test/harness/phase2b2d/generation2Recovery/operatorKitHostSemantics.ts",
+        "change": "added",
+        "sha256": "67fd951da150fbc213281b6697ecb682f37e5dbb8dfdd4d6d1f9f870ea21a197",
+        "bytes": 33783
+      },
+      {
+        "path": "src/test/unit/orgunitCorpus2DA2Generation2OperatorKitHostSemantics.test.ts",
+        "change": "added",
+        "sha256": "4f9d32eeaece730db8777d7c5ffb9cfd81a1a5e6043f27600b4ca21f7f26fbc1",
+        "bytes": 31621
+      },
+      {
+        "path": "src/test/unit/orgunitCorpus2DA2Generation2HostRecoveryEligibility.test.ts",
+        "change": "namespace file-list assertion widened by exactly operatorKitHostSemantics.ts",
+        "sha256": "bcf1fa380b096d2e753710bfd1aa0ba4b03776db932e251a2ce165bbb80ffeeb",
+        "bytes": 33087
+      }
+    ],
+    "untouched": [
+      "src/orgunits/",
+      "src/cli/",
+      "migrations/",
+      "docs/",
+      "Generation-2 ledger",
+      "window specs",
+      "Window-13 authority / LIVE_RESULT / ruling"
+    ],
+    "architecture": "one PURE generic module in the existing generation2Recovery namespace, beside the contract and provenance validator it serves, so the namespace genericity scan covers it",
+    "semantics": {
+      "version": "GENERATION2_OPERATOR_KIT_HOST_SEMANTICS_V1",
+      "frozenP8": "deriveFrozenP8HostStateAnomaly(FrozenP8Evidence{sleepWake,pacingClock}): true only for a Sleep/Wake/DarkWake event within the observed span, or |wallElapsed - monotonicElapsed| > PACING_CLOCK_TOLERANCE_MS (5000, uncalibrated version-bound mechanical bound); the input type has no other field",
+      "hostVantageIntegrity": "deriveHostVantageIntegrity: nine independent channels IPV4_ROUTE, NATIVE_IPV4, RESOLVER_HEALTH, CONTROL_NAME_RESOLUTION, DNS64_NAT64, LID_STATE, POWER_STATE, SLEEP_WAKE, PACING_CLOCK; RED or MISSING => HOST_VANTAGE_INTEGRITY_NOT_PROVED; never writes the P8 input",
+      "persistedObservations": "{kind, recordedAtUtc, measurement, outcome, verdict}; verdict and summaries derived mechanically (sealObservation / buildHostObservationRecord); replayHostObservationRecord re-derives and refuses mismatch, missing observations and unknown keys",
+      "hostHealthClaims": "validateHostHealthClaim: a claim names exact persisted bytes (path, sha256, bytes); every observation must postdate the event; claimed verdict must equal the replayed one",
+      "uq1": "buildRecoveryLocalGateReadout: RECOVERY_GATE_READOUT_RULE + fired condition names + decision + both host channels side by side; no window counter",
+      "uq5": "deriveOperatorInvocationBoundary: disposition from recoveryInvocationDisposition (unspent only when cliExecuteIssued == false AND runCreated == false); institutionRequestCount recorded, never an input",
+      "refusals": [
+        "OPERATOR_KIT_HOST_OBSERVATION_SHAPE",
+        "OPERATOR_KIT_HOST_OBSERVATION_REPLAY_MISMATCH",
+        "OPERATOR_KIT_HOST_HEALTH_CLAIM_WITHOUT_OBSERVATION",
+        "OPERATOR_KIT_HOST_HEALTH_CLAIM_NOT_SUPPORTED",
+        "OPERATOR_KIT_RECOVERY_READOUT_INCONSISTENT"
+      ]
+    }
+  },
+  "focusedChecks": {
+    "newSuite": {
+      "file": "src/test/unit/orgunitCorpus2DA2Generation2OperatorKitHostSemantics.test.ts",
+      "tests": 74,
+      "passed": 74,
+      "covers": "required cases 1-20, the validateOperatorKitHostSemanticsRepair accept/refuse matrix, the static defect regression"
+    },
+    "relevantSuites": {
+      "files": 28,
+      "tests": 848,
+      "passed": 848,
+      "included": [
+        "OperatorKitHostSemantics",
+        "HostRecoveryEligibility",
+        "HostRecoveryHistory",
+        "HistoryIntegrity",
+        "Window13Readiness",
+        "Window13ReadinessIsolation",
+        "AcquisitionGate",
+        "ContinuationWindow",
+        "ContinuationWindowIsolation",
+        "src/test/firewall/* (19 files)"
+      ]
+    },
+    "staticRegexProof": "the static-regression patterns were confirmed to match the historical defect lines (hostStateAnomaly: !hostOk ..., hostStateAnomaly = !vantageOk, hostCheckGreenAgainAfterStop: true) in memory, without reading the kit as current implementation",
+    "prettier": "PASS",
+    "eslint": "PASS",
+    "typecheck": "PASS (tsc --noEmit exit 0)"
+  },
+  "fullCodeValidation": {
+    "kind": "OFFLINE_CODE_VALIDATION_NOT_WINDOW13_LIVE_EVIDENCE_CLOSURE",
+    "command": "caffeinate -dimsu npm run validate",
+    "atCommit": "3e4f6063fdecacd17678c4574735e4c559e4f1d5",
+    "runs": 1,
+    "startedAtUtc": "2026-10-05T14:19:36Z",
+    "endedAtUtc": "2026-10-05T14:34:18Z",
+    "exitCode": 0,
+    "testFiles": {
+      "passed": 241,
+      "skipped": 5,
+      "total": 246
+    },
+    "tests": {
+      "passed": 6056,
+      "skipped": 76,
+      "total": 6132
+    },
+    "sleepWakeDarkWakeEventsDuring": 0,
+    "lidOpen": true,
+    "preRunCompetingVitestOrValidate": 0,
+    "logSha256": "d3d486720d4d64de0a0c5160ac9daab23c7a625d91fc522298b004833c4c4eab",
+    "logPersisted": "session scratchpad only (not committed)",
+    "accepted": true
+  },
+  "review": {
+    "reviewed": true,
+    "procedure": "separate read-only reviewer (independent agent context) on a fresh detached git worktree at the pushed implementation commit; HEAD and clean tree proved at start and end; no implementation edits; focused suites and tsc rerun there; adversarial probes written only to a scratch directory outside the repository",
+    "worktreeHead": "3e4f6063fdecacd17678c4574735e4c559e4f1d5",
+    "worktreeTree": "d5f6bbc577444859cf29e05e9107c753e8219c98",
+    "testsObserved": {
+      "files": 2,
+      "tests": 130,
+      "passed": 130
+    },
+    "checks": {
+      "approvedScopeOnly": "PASS",
+      "frozenP8DerivationExact": "PASS",
+      "hostVantageIntegritySeparate": "PASS",
+      "noHardCodedHostHealthSuccessClaims": "PASS",
+      "healthSummariesObservationDerived": "PASS",
+      "replayDeterministic": "PASS",
+      "uq5ConsumptionRuleExact": "PASS",
+      "noLiveCapabilityAdded": "PASS",
+      "noTargetSpecificLiteral": "PASS",
+      "testsCoverRequiredAttacks": "PASS"
+    },
+    "defects": [],
+    "nonBlockingObservations": [
+      {
+        "id": "O1",
+        "severity": "MODERATE",
+        "finding": "buildRecoveryLocalGateReadout and deriveOperatorInvocationBoundary replay without expectedRequirements, so they grade against the requirements stored in the record; a record with self-chosen lax requirements replays GREEN there (UQ5 disposition is unaffected; validateHostHealthClaim requires requirements)",
+        "requiredOfFutureLiveRunner": "pin expectedRequirements to the governing authority's hostSafety on every replay, or extend these paths to require it, in the later bounded task"
+      },
+      {
+        "id": "O2",
+        "severity": "LOW",
+        "finding": "the SLEEP_WAKE span (sinceUtc/untilUtc) is chosen by the record and is not tied to the item or pacing interval",
+        "requiredOfFutureLiveRunner": "bind the span to the item start/end it covers"
+      },
+      {
+        "id": "O3",
+        "severity": "LOW",
+        "finding": "deriveFrozenP8HostStateAnomaly called directly does not validate recordedAtUtc, stored verdict or an unavailable log with events; the builder/replay path refuses these"
+      },
+      {
+        "id": "O4",
+        "severity": "LOW",
+        "finding": "impossible calendar dates (e.g. Feb 31) pass the UTC check via Date.parse rollover"
+      },
+      {
+        "id": "O5",
+        "severity": "INFO",
+        "finding": "DNS_FAILURE / concurrency / monitor-coverage exclusion from P8 is proved by type shape and static scan rather than behavioural tests"
+      },
+      {
+        "id": "O6",
+        "severity": "INFO",
+        "finding": "test 18 exercises zero requests after execute; runCreated with zero requests is covered by test 17"
+      }
+    ],
+    "verdict": "PASS"
+  },
+  "nothingLive": {
+    "networkUsed": false,
+    "institutionNetworkUsed": false,
+    "nwfPeOpened": false,
+    "ledgerMutated": false,
+    "reserveAssigned": false,
+    "window13Adjudicated": false,
+    "window13LiveEvidenceClosureValidationRun": false,
+    "window14Created": false,
+    "recoveryPreconditionCreated": false,
+    "recoveryAuthorityCreated": false,
+    "recoveryRunCreated": false,
+    "recoveryResultCreated": false
+  },
+  "finalState": {
+    "window13": "UNADJUDICATED",
+    "ledgerEntries": 21,
+    "reserve21": "UNASSIGNED"
+  }
+}
