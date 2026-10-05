@@ -36,6 +36,20 @@ const A3SAMPLES_V4_REL = `${HARNESS}/a3samplesV4`;
 
 /** The exact canonical R35 tip R36 was cut from. */
 const R35_TERMINAL = 'e1428c35dad2e74313b58391386e65d54330d3b2';
+/**
+ * R36'S OWN TERMINAL COMMIT.
+ *
+ * R36's changed-surface and docs-scope assertions describe R36'S SLICE, so
+ * they range over R36's own commits - `R35_TERMINAL..R36_TERMINAL` - rather
+ * than over the working tree. Once a later slice lands on top, the working
+ * tree is no longer R36's surface, and diffing to it would fail for the
+ * honest reason that history moved on rather than because R36 changed.
+ *
+ * This is the same standing convention R19 through R35 apply, and it
+ * WEAKENS NOTHING: R36's range is frozen, its permitted-path list is
+ * unchanged, and each later slice pins the equivalent scope over its own range.
+ */
+const R36_TERMINAL = '20bfa9082f406587bb401e85edfc4ea6fe33acc3';
 /** The exact canonical R34 tip, R35's own base. */
 const R34_TERMINAL = '6075ec8b79dd35b820a5086da89f18ca975eb039';
 
@@ -198,7 +212,10 @@ function allCodeWithoutStrings(): string {
 }
 
 const baseAvailable =
-  commitExists(R35_TERMINAL) && commitExists(R34_TERMINAL) && commitExists(R35_SCOPE_PIN_COMMIT);
+  commitExists(R35_TERMINAL) &&
+  commitExists(R34_TERMINAL) &&
+  commitExists(R35_SCOPE_PIN_COMMIT) &&
+  commitExists(R36_TERMINAL);
 
 // ---------------------------------------------------------------------------
 
@@ -514,20 +531,14 @@ describe.skipIf(!baseAvailable)('2D-A3 R36: lineage and changed surface', () => 
   });
 
   it('writes no other record: every docs/evaluation change is the R36 census', () => {
-    const changed = [
-      ...lines(git('diff', '--name-only', R35_TERMINAL, '--', 'docs/evaluation')),
-      ...lines(git('ls-files', '--others', '--exclude-standard', '--', 'docs/evaluation')),
-    ];
+    const changed = lines(
+      git('diff', '--name-only', R35_TERMINAL, R36_TERMINAL, '--', 'docs/evaluation'),
+    );
     expect(changed.filter((path) => path !== R36_CENSUS_PATH)).toEqual([]);
   });
 
   it('changes nothing outside its own namespace, tests, records and the R35 scope pin', () => {
-    const paths = [
-      ...new Set([
-        ...lines(git('diff', '--name-only', R35_TERMINAL)),
-        ...lines(git('ls-files', '--others', '--exclude-standard')),
-      ]),
-    ];
+    const paths = lines(git('diff', '--name-only', R35_TERMINAL, R36_TERMINAL));
     const permitted = (path: string): boolean =>
       path.startsWith(`${A3SAMPLES_V4_REL}/`) ||
       R36_TESTS.includes(path) ||
