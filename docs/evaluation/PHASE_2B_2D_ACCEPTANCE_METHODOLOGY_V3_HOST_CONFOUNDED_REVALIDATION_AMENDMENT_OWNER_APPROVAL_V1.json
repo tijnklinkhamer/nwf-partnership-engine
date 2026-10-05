@@ -1,0 +1,210 @@
+{
+  "record": "PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_HOST_CONFOUNDED_REVALIDATION_AMENDMENT_OWNER_APPROVAL_V1",
+  "recordKind": "METHODOLOGY_AMENDMENT_OWNER_APPROVAL",
+  "task": "GENERATION2_HOST_CONFOUNDED_REVALIDATION_AMENDMENT_APPROVAL_AND_OFFLINE_IMPLEMENTATION_V1",
+  "recordedAtUtc": "2026-10-05T12:48:32Z",
+  "recordedAtUtcSource": "date -u, read from the shell when this approval was written",
+  "recordedBy": "claude-code-session under explicit owner instruction; the approval itself is the owner's",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "fbbc1a6be5697416e57c7b912e8cf18b9fb16064",
+  "publicSafe": true,
+  "appendOnly": true,
+  "isLiveAuthority": false,
+  "methodologyAmendmentApproved": true,
+  "approvedDesign": "A",
+  "ownerDecision": "APPROVE_GENERATION2_HOST_CONFOUNDED_REVALIDATION_DESIGN_A_AND_METHODOLOGY_V3_AMENDMENT_V1",
+  "ownerDecisionSource": "the owner's instruction for task GENERATION2_HOST_CONFOUNDED_REVALIDATION_AMENDMENT_APPROVAL_AND_OFFLINE_IMPLEMENTATION_V1, recorded here by decision token",
+  "startGate": {
+    "freshFetch": true,
+    "localHead": "fbbc1a6be5697416e57c7b912e8cf18b9fb16064",
+    "originHead": "fbbc1a6be5697416e57c7b912e8cf18b9fb16064",
+    "trackedTreeClean": true,
+    "window13HostIntegrityRulingIsAncestor": true,
+    "window13AdjudicationPresent": false,
+    "recoveryPreconditionPresent": false,
+    "recoveryAuthorityPresent": false,
+    "recoveryResultPresent": false,
+    "window14ArtifactPresent": false,
+    "ledgerEntryCount": 21,
+    "reserve21": "UNASSIGNED"
+  },
+  "bound": {
+    "methodologyV3OwnerFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_OWNER_FREEZE_APPROVAL_V1.json",
+      "commit": "13dcdbed94fea08a833664948ac238737cf44c8e",
+      "sha256": "36e8071738e1842ad03a9b51cf5820d58015305191c48490ef515e1cd1c34f9c",
+      "bytes": 12318,
+      "recordKind": "OWNER_FREEZE_APPROVAL"
+    },
+    "amendmentProposal": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_HOST_CONFOUNDED_REVALIDATION_AMENDMENT_PROPOSAL_V1.json",
+      "commit": "fbbc1a6be5697416e57c7b912e8cf18b9fb16064",
+      "sha256": "20cb395e7b4540593da8e2a32d6a3323f85d085aa9d70b2f05b0004e7b89394d",
+      "bytes": 33778,
+      "recordKind": "METHODOLOGY_AMENDMENT_PROPOSAL",
+      "statusInsideTheBytes": {
+        "methodologyAmendmentProposed": true,
+        "methodologyAmendmentApproved": false,
+        "thisFileAuthorises": []
+      },
+      "clausesApproved": [
+        "V3-H1",
+        "V3-H2",
+        "V3-H3",
+        "V3-H4",
+        "V3-H5",
+        "V3-H6",
+        "V3-H7",
+        "V3-H8",
+        "V3-H9",
+        "V3-H10"
+      ],
+      "bytesNeverChangeOnApproval": "the approved proposal is not edited, reformatted, re-hashed or re-statused by this record; its methodologyAmendmentApproved field stays false by design and approval lives HERE, exactly as the Methodology V3 freeze separated approval bytes from proposal bytes"
+    },
+    "amendmentDesign": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_HOST_CONFOUNDED_REVALIDATION_AMENDMENT_DESIGN_V1.json",
+      "commit": "fbbc1a6be5697416e57c7b912e8cf18b9fb16064",
+      "sha256": "c8be492f251aa7be133f5c465476b7cd422754f48b00ea1a0a9057355899e619",
+      "bytes": 63458,
+      "recordKind": "GENERATION2_OFFLINE_AMENDMENT_DESIGN",
+      "chosenDesign": "A",
+      "thisFileAuthorisesInsideTheBytes": [],
+      "codeModifiedByThatCommit": false
+    },
+    "window13HostIntegrityOwnerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_HOST_INTEGRITY_OWNER_RULING_V1.json",
+      "commit": "1baeaa4380c28e16646f7d4164eb6418ed835d59",
+      "sha256": "fc4316749f901a4f9d448f37cfd0c077a455f1809c509a65e9bc09b628b6b656",
+      "bytes": 33257,
+      "recordKind": "GENERATION2_OWNER_RULING",
+      "scope": "WINDOW_13_HOST_INCIDENT_ONLY"
+    },
+    "generation2LedgerAtApproval": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "commit": "ac19cb8ca4538237be49e03e0c19ce46cf6f4ecb",
+      "sha256": "07cf86644940bab23fcfe74ab1b28f2a1629d0a0ee7478ac57ce7c79ce33bafe",
+      "bytes": 17842,
+      "entryCount": 21,
+      "reserve21": "UNASSIGNED"
+    }
+  },
+  "unresolvedQuestionResolutions": {
+    "UQ1": {
+      "decision": "RECOVERY_IS_NOT_AN_ORDINARY_WINDOW_AND_DOES_NOT_ACQUIRE_A_P1_TO_P8_WINDOW_DENOMINATOR_V1",
+      "rules": [
+        "a GENERATION2_TARGETED_HOST_RECOVERY_REVALIDATION is not an ordinary Generation-2 bounded acquisition window",
+        "it does not join the original window's P1-P8 accounting",
+        "it does not recompute the original window's P2/P5 history",
+        "it has no new P2/P5 denominator of its own",
+        "frozen P1-P8 are not used to create an ordinary-window pause sequence for a single recovery measurement",
+        "the recovery RESULT must still record the mechanical P1-P8 readout the same observation would imply; that readout is evidence only, never silently waived and never rewritten into the original window",
+        "recovery adjudicability is blocked instead by the separate integrity controls: host/vantage, recovery precondition, Engine/shared-state concurrency, monitor coverage, persistence, target identity and provenance integrity",
+        "a CLEAN but acquisition-unsuccessful recovery remains adjudicable and is not automatically repeated",
+        "no frozen P1-P8 rule itself is changed"
+      ]
+    },
+    "UQ2": {
+      "decision": "APPROVE_GENERATION2_HOST_RECOVERY_RESOLVER_PRECONDITION_6_OF_6_OVER_10_MINUTES_WITH_60_MINUTE_VALIDITY_V1",
+      "appliesTo": "a resolver/vantage-class incident",
+      "minimumProbes": 6,
+      "minimumSpanMinutes": 10,
+      "everyProbeGreen": true,
+      "controlNames": "a fixed committed CONTROL-name set defined by the future implementation / precondition contract",
+      "targetNeverProbed": "never the target organisation, its hostname or its root",
+      "eachProbeProves": [
+        "native IPv4 default route",
+        "native non-CLAT IPv4",
+        "system resolver functioning",
+        "fixed control names resolve",
+        "ipv4only.arpa A response available",
+        "ipv4only.arpa AAAA empty where the existing compliant-vantage rule requires no DNS64/NAT64",
+        "frozen host-safety conditions green",
+        "no relevant Sleep/Wake/DarkWake anomaly"
+      ],
+      "validityMinutes": 60,
+      "validityRule": "the future recovery LIVE authority must be committed no later than 60 minutes after the final successful sustained-series probe; an upper bound, not a recommendation to wait",
+      "t0": "immediately before CLI execution, T-0 must re-prove the full critical subset",
+      "postInvocation": "immediately after the recovery invocation, the relevant host/vantage checks must again be recorded",
+      "expiry": "if the 60-minute validity expires before authority creation, a NEW precondition series is required; the old precondition is never reused",
+      "supersedesDesignProposalValue": "the design's proposed 24 h validity is replaced by 60 minutes"
+    },
+    "UQ3": {
+      "decision": "ENOTFOUND_RUNTIME_CAUSAL_SEMANTICS_REMAIN_UNKNOWN_AND_DO_NOT_BLOCK_THE_GENERIC_AMENDMENT_V1",
+      "rules": [
+        "the historical Window-13 causal ambiguity is not resolved by assuming what Node/runtime ENOTFOUND means under an unreachable local resolver",
+        "amendment eligibility does not depend on proving that ENOTFOUND means local or remote failure",
+        "eligibility depends on the independently observed host-integrity failure plus a plausible causal channel and the committed host-incident owner ruling",
+        "the original Window-13 incident keeps INDETERMINATE_HOST_VS_INSTITUTION_DNS_FAILURE",
+        "no special ENOTFOUND rule is introduced",
+        "an optional future offline transport study may investigate runtime behaviour; it is not a prerequisite to implementation or recovery"
+      ],
+      "preservedClassification": "INDETERMINATE_HOST_VS_INSTITUTION_DNS_FAILURE"
+    },
+    "UQ4": {
+      "decision": "REQUIRE_OPERATOR_KIT_HOST_SEMANTICS_REPAIR_BEFORE_ANY_GENERATION2_HOST_RECOVERY_LIVE_AUTHORITY_V1",
+      "defectsAcknowledged": [
+        "failed generic host/vantage checks were folded into frozen P8's hostStateAnomaly input although frozen P8 means only sleep/wake or pacing-clock anomaly",
+        "hostCheckGreenAgainAfterStop: true was a hard-coded, non-reproducible claim"
+      ],
+      "rule": "these defects MUST be repaired, tested and separately reviewed before ANY targeted Generation-2 host recovery LIVE authority can be issued",
+      "repairMustProve": [
+        "frozen P8 input includes only frozen P8 semantics",
+        "host/vantage integrity is represented separately",
+        "no hard-coded later host-health claims",
+        "host observations are persisted and reproducible"
+      ],
+      "thisTaskPerformsTheRepair": false,
+      "window13OperatorKitModifiedByThisTask": false,
+      "genericImplementationDependsOnAWindow13OperatorKitFile": false
+    },
+    "UQ5": {
+      "decision": "GENERATION2_HOST_RECOVERY_INVOCATION_CONSUMED_ON_CLI_EXECUTE_ISSUANCE_OR_RUN_CREATION_V1",
+      "unspentOnlyIfBoth": [
+        "no recovery CLI execute invocation was issued / spawned",
+        "no acquisition run row was created"
+      ],
+      "unspentOutcome": "RECOVERY_PRECONDITION_NOT_HELD_AT_EXECUTION is recorded and owner review is required before any later authority/execution",
+      "consumedIfEither": [
+        "the recovery execute process has been issued / spawned",
+        "a run row exists"
+      ],
+      "consumedRegardlessOfInstitutionNetworkRequest": true,
+      "automaticReplacementRecoveryInvocation": false,
+      "secondRecoveryMeasurementRequires": "a NEW owner governance amendment"
+    }
+  },
+  "thisFileAuthorises": [
+    "offline implementation of the generic Generation-2 host-confounded revalidation/history mechanism (Design A; V3-H1..V3-H10 under the UQ1-UQ5 resolutions above)",
+    "focused and full offline repository validation of that implementation"
+  ],
+  "authorisesNothingElse": true,
+  "doesNotAuthorise": {
+    "recoveryPreconditionMeasurement": true,
+    "institutionNetwork": true,
+    "recoveryLiveAuthority": true,
+    "recoveryInvocation": true,
+    "executionOfAnyTarget": true,
+    "databaseMutation": true,
+    "window13Adjudication": true,
+    "window13ClosureValidation": true,
+    "ledgerMutation": true,
+    "reserveAssignment": true,
+    "reserve21Assignment": true,
+    "window14": true,
+    "operatorKitRepair": true,
+    "window13OperatorKitExecution": true,
+    "p1P8SemanticsChange": true,
+    "productionCodeChange": true,
+    "migration": true
+  },
+  "networkAuthorised": false,
+  "acquisitionAuthorised": false,
+  "databaseAuthorised": false,
+  "ledgerMutationAuthorised": false,
+  "reserveAssignmentAuthorised": false,
+  "adjudicationAuthorised": false,
+  "implementationMustPinThisRecord": "the generic recovery contract binds this record's exact path, commit, sha256 and bytes as the approved-amendment governance anchor (E13); a recovery chain naming any other bytes is refused",
+  "identityDisclosure": "slot numbers, work item ids, reserve positions, digests, run-reference hashes, timestamps and aggregates only; no organisation id, echeRowKey, URL, hostname, root-authority id, run UUID or page text",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
