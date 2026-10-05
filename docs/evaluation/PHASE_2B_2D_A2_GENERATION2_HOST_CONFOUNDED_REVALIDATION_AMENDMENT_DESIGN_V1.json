@@ -1,0 +1,894 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_HOST_CONFOUNDED_REVALIDATION_AMENDMENT_DESIGN_V1",
+  "recordKind": "GENERATION2_OFFLINE_AMENDMENT_DESIGN",
+  "task": "GENERATION2_HOST_CONFOUNDED_SINGLE_OCCUPANT_REVALIDATION_AMENDMENT_DESIGN_V1",
+  "commission": "COMMISSION_GENERATION2_HOST_CONFOUNDED_SINGLE_OCCUPANT_REVALIDATION_AMENDMENT_DESIGN_V1",
+  "recordedAtUtc": "2026-10-05T11:45:42Z",
+  "recordedAtUtcSource": "date -u, read from the shell when this design was written",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "1baeaa4380c28e16646f7d4164eb6418ed835d59",
+  "publicSafe": true,
+  "appendOnly": true,
+  "isLiveAuthority": false,
+  "isMethodologyApproval": false,
+  "thisFileAuthorises": [],
+  "networkUsed": false,
+  "databaseRead": false,
+  "databaseWritten": false,
+  "codeModified": false,
+  "ledgerMutated": false,
+  "reserveAssigned": false,
+  "window13Adjudicated": false,
+  "window14Created": false,
+  "npmRunValidateRun": false,
+  "startGate": {
+    "freshFetch": true,
+    "localHead": "1baeaa4380c28e16646f7d4164eb6418ed835d59",
+    "originHead": "1baeaa4380c28e16646f7d4164eb6418ed835d59",
+    "trackedTreeClean": true,
+    "window13AdjudicationPresent": false,
+    "window14ArtifactPresent": false,
+    "ledgerEntryCount": 21,
+    "reserve21": "UNASSIGNED",
+    "ledgerUnchangedSince": "ac19cb8ca4538237be49e03e0c19ce46cf6f4ecb"
+  },
+  "boundWindow13Chain": {
+    "window12Adjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_EVIDENCE_ADJUDICATION_V1.json",
+      "commit": "1cb1a21dbb79585abc8518852bf69856fd59576d",
+      "sha256": "ecb063c42c80f81583a78509587ccb0182350e71222b781075224801ef02fd2b",
+      "bytes": 37091
+    },
+    "window13SizeDecision": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_POST_FINAL_P5_REVIEW_AND_WINDOW_13_CONTINUATION_DECISION_V1.json",
+      "commit": "f56d72709ed93a7108aa3de3965f75a2f57cfbb5",
+      "sha256": "9d0e2ec4b77e2a3f7e04e32ef62d26fb8d3ac41eb44881dbbb7406fdf07380c3",
+      "bytes": 11842
+    },
+    "window13Readiness": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_OFFLINE_READINESS_V1.json",
+      "commit": "c1dd7cad505f9d52a19d448e1db620eb9d7afd0e",
+      "sha256": "d9f5d16687f746376ced4b77a2c2a45393af44f361b6429885767dd0d00d8a07",
+      "bytes": 37619
+    },
+    "window13Authority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_LIVE_AUTHORITY_V1.json",
+      "commit": "0b9a7dabe5e720b18fcb41830fb687787b47b93f",
+      "sha256": "5333451e3c8b9287a92fbab26d66571866700958a9caf54a083cda924a237669",
+      "bytes": 107914
+    },
+    "window13LedgerAppend": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "commit": "ac19cb8ca4538237be49e03e0c19ce46cf6f4ecb",
+      "sha256": "07cf86644940bab23fcfe74ab1b28f2a1629d0a0ee7478ac57ce7c79ce33bafe",
+      "bytes": 17842,
+      "entryCount": 21,
+      "ledgerHash": "c02e37ac42515cb689512b12425c41560fffeb32592e4e15f864892f63208ec8",
+      "nextGeneration2ReservePosition": 21,
+      "reserve21": "UNASSIGNED"
+    },
+    "window13LiveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_LIVE_RESULT_V1.json",
+      "commit": "bf15fe3b9e16ffbe0a075d4464f7363a2c88b008",
+      "sha256": "a4ac8291544647bd5d740275949677858baa6239a0182c0a4fd0ed83f67b294a",
+      "bytes": 34707
+    },
+    "window13HostIntegrityOwnerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_HOST_INTEGRITY_OWNER_RULING_V1.json",
+      "commit": "1baeaa4380c28e16646f7d4164eb6418ed835d59",
+      "sha256": "fc4316749f901a4f9d448f37cfd0c077a455f1809c509a65e9bc09b628b6b656",
+      "bytes": 33257,
+      "recordKind": "GENERATION2_OWNER_RULING",
+      "scope": "WINDOW_13_HOST_INCIDENT_ONLY"
+    }
+  },
+  "incidentRulingChecks": {
+    "scope": "WINDOW_13_HOST_INCIDENT_ONLY",
+    "ownerDecisionsRequiredAndPresent": [
+      "PRESERVE_WINDOW_13_BOTH_EXECUTED_RUNS_AND_ALL_RAW_EVIDENCE_V1",
+      "PRESERVE_WINDOW_13_POST_FINAL_P2_AND_P5_PAUSES_V1",
+      "CLASSIFY_WINDOW_13_ITEM2_HOST_ATTRIBUTION_AS_INDETERMINATE_V1",
+      "REQUIRE_INDEPENDENT_WINDOW_13_P8_SEMANTICS_VERIFICATION_V1",
+      "APPROVE_WINDOW_13_OFFLINE_RECOVERY_FEASIBILITY_REVIEW_V1"
+    ],
+    "doesNotAuthorise": [
+      "acquisition",
+      "retry",
+      "revalidation",
+      "npmRunValidate / governedClosureValidation",
+      "adjudication",
+      "reserveAssignment",
+      "ledgerMutation",
+      "window14"
+    ],
+    "committedBytesMatch": true
+  },
+  "methodologyV3Freeze": {
+    "binding": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_OWNER_FREEZE_APPROVAL_V1.json",
+      "commit": "13dcdbed94fea08a833664948ac238737cf44c8e",
+      "sha256": "36e8071738e1842ad03a9b51cf5820d58015305191c48490ef515e1cd1c34f9c",
+      "bytes": 12318,
+      "recordKind": "OWNER_FREEZE_APPROVAL",
+      "methodologyFrozen": true,
+      "isLiveAuthority": false,
+      "thisFileAuthorises": [],
+      "appendOnly": "immutability: \"append-only. This record is never edited; a correction is a new record\""
+    },
+    "proposalBound": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_PROPOSAL_R1.json",
+      "commit": "2eb5ff94fc169909e12b0ce33e90957f9aae924e",
+      "sha256": "4bfbfb5f2ec1958b77ecc13ac5a37ba8b21c7ee69a2c07cd6cd9b8fb76a6239d",
+      "bytes": 16594
+    },
+    "constraints": [
+      "methodologyFrozen true; append-only; not live authority; thisFileAuthorises []",
+      "effectiveMethodology = V2 R3 + V3 R1 amendments, additive",
+      "pauseGates: P1/P5/P7/P8 carried forward exactly; no threshold changed",
+      "no revalidation / acquisition-of-record / integrity rule exists in V3 (zero word hits)",
+      "V3-A4: \"re-acquisition needs a specific invalidated authority\" (carried successes only)"
+    ],
+    "needsAdditiveAmendment": [
+      "the host-confounded classification and eligibility (V3-H1)",
+      "the targeted host recovery as a distinct non-retry measurement (V3-H2, H5)",
+      "exact target binding and proved precondition (V3-H3, H4)",
+      "acquisition-of-record supersession for Gen-2 (V3-H7)",
+      "admitting HOST_CONFOUNDED as the original integrity disposition paired with a CLEAN recovery (V3-H8)",
+      "ledger/Q1 timing of a recovered slot (V3-H9)"
+    ],
+    "notNeeded": [
+      "no change to P1-P8, SD7/SD9, Q1/Q3, adjudication verdicts, replacement reasons, reserve schedule, split or draw"
+    ],
+    "existingFreezeAuthorisesRevalidation": false
+  },
+  "currentGeneration2Blocker": {
+    "source": {
+      "path": "src/test/harness/phase2b2d/generation2History/adjudicationHistory.ts",
+      "commit": "020c5ed32759787442c21bf5a96cad8089caec70",
+      "sha256": "33dc4dc71afea79942ad2db080dc5b509f5ddc08da545c0393a7a129bd87eeda",
+      "bytes": 53292
+    },
+    "provedByStaticInspection": {
+      "A_everyExecutedItemAdjudicated": "adjudicationHistory.ts:1042-1047 refuses HISTORY_ADJUDICATION_ITEMS when adjudicated count != executed count; items are walked positionally against liveItems[k] (1049-1050)",
+      "B_countEquality": "same lines: adjudicatedItems.length !== liveItems.length",
+      "C_identityEquality": "adjudicationHistory.ts:1057-1065: same(identityOf(item), identityOf(liveItem)) over workItemId, kind, selectionIndex, generation2ReserveRankPosition, split, identityDigest",
+      "D_runRefEquality": "adjudicationHistory.ts:1059: item.runRefSha256 !== liveItem.runRefSha256 refuses",
+      "E_integrityClean": "adjudicationHistory.ts:1066-1072: integrity.verdict !== CLEAN refuses HISTORY_INTEGRITY_NOT_CLEAN",
+      "F_oneFrozenVerdict": "adjudicationHistory.ts:1073-1112: verdict in ADJUDICATION_VERDICTS, Q3 rules, then exactly one applyAdjudicatedItem per item",
+      "liveResultSide": "validateGeneration2LiveResultForHistory (603-702) requires runsForOccupant = 1 per item, so a second run of the same occupant cannot enter through a LIVE_RESULT either",
+      "noHeldState": "requireSummaryAgreement requires after.PENDING_CAPABILITY_REVIEW = [] (1241)",
+      "globalUniqueness": "historyIntegrity.ts requireUniqueHistoricalRunReferences covers executed refs only; a recovery ref has no place in it"
+    },
+    "consequence": "a later revalidation run cannot become acquisition-of-record for G2R:109:20 without a reviewed generic contract change: substituting its ref fails D, calling item 2 CLEAN would be untrue (E), and omitting item 2 fails A/B",
+    "focusedExistingTestsRun": {
+      "command": "npx vitest run src/test/unit/orgunitCorpus2DA2Generation2Window02Readiness.test.ts src/test/unit/orgunitCorpus2DA2Generation2HistoryIntegrity.test.ts src/test/unit/orgunitCorpus2DA2Generation2LiveResultContract.test.ts",
+      "result": "3 files, 89 tests passed",
+      "relevantCases": [
+        "Window02Readiness: missing adjudication item; duplicate/double adjudication; reordered items; wrong runRefSha256; integrity or validation that does not permit adjudication -> HISTORY_INTEGRITY_NOT_CLEAN",
+        "HistoryIntegrity: HISTORY_DUPLICATE_RUN_REFERENCE across windows"
+      ],
+      "codeModified": false
+    }
+  },
+  "generation1Precedents": {
+    "bindings": {
+      "nat64VantageRecoveryDecision": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_NAT64_VANTAGE_AND_ASSIGNED_OCCUPANT_RECOVERY_DECISION_V1.json",
+        "commit": "c4b1830279b1db004f23d43606beef40f30aaf81",
+        "sha256": "67331d2017e0dd3266408ca10a1fe5ffce2c7a8724c2e0c5167eba6d4206acb0",
+        "bytes": 14364
+      },
+      "recoveryNetworkPrecondition": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_RECOVERY_NETWORK_PRECONDITION_V1.json",
+        "commit": "f5cc01c896ae1ed9e97740825ec6a4438624aba3",
+        "sha256": "dfdb4d6b628e5684347472457f3c912b29c77ac4ded1a10e865317bf3a8a767d",
+        "bytes": 9118
+      },
+      "targetedVantageRecoveryLiveAuthority": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_TARGETED_VANTAGE_RECOVERY_LIVE_AUTHORITY_V1.json",
+        "commit": "6eb14d418d0aa720b1fc3c0749fa48402c217621",
+        "sha256": "1aebeb30ef81345e849da665a7a8dedc63439073592b317b7fc1822cf72bb823",
+        "bytes": 15467
+      },
+      "targetedVantageRecoveryLiveResult": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_TARGETED_VANTAGE_RECOVERY_LIVE_RESULT_V1.json",
+        "commit": "5d4f4becf5c5dd5d1d06994e3af531d211c5fa94",
+        "sha256": "97c6e1bef26cc36be9ffa23c2fab6e7eef113a6caf41cfa30ddcdd04fb09296c",
+        "bytes": 22957
+      },
+      "targetedVantageRecoveryEvidenceAdjudication": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_POST_Q1_WINDOW_02_TARGETED_VANTAGE_RECOVERY_EVIDENCE_ADJUDICATION_V1.json",
+        "commit": "cdda77d0653db460898d806bfe0667d5aeb7c09c",
+        "sha256": "236b71f45b1127ff6569c0c7339ee5859e180913ac2fd2aedcbe8087f8326681",
+        "bytes": 29114
+      },
+      "v4TargetedTransportRevalidationAuthority": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_V4_TARGETED_TRANSPORT_REVALIDATION_AUTHORITY_V1.json",
+        "commit": "0fc581565bbdcc8b49620fa3cac8a332e179c874",
+        "sha256": "1b568b56c7a99ca653fe488faf9be5f80b763728514dbc100773b87f96890c98",
+        "bytes": 8791
+      },
+      "v4TargetedTransportRevalidationResult": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_V4_TARGETED_TRANSPORT_REVALIDATION_RESULT_V1.json",
+        "commit": "18105a561800b3902d75e2caa981f5259ec5f541",
+        "sha256": "2ee08e19c6968710b0a3b52df4f9c4e7ef5ae553a88adba9e342d7b4e1378dc1",
+        "bytes": 14220
+      },
+      "v4TargetedTransportRevalidationEvidenceAdjudication": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_V4_TARGETED_TRANSPORT_REVALIDATION_EVIDENCE_ADJUDICATION_V1.json",
+        "commit": "7a86da7464ab03edb5b04d9f49e44b23443b791a",
+        "sha256": "1aec378daa5f1e35834ec3be44de765f2f841c7f6076996a75c7f243fdef4f3c",
+        "bytes": 35365
+      },
+      "optionCLiteRevalidationEvidenceAdjudication": {
+        "path": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_C_LITE_REVALIDATION_EVIDENCE_ADJUDICATION_V1.json",
+        "commit": "55dc413a28d169e074ae26cbf791e560e0d99de9",
+        "sha256": "3fcafa8ae20beb481e0b4446cc8b9681caad56915e231b71bb98567304cf96c0",
+        "bytes": 12865
+      },
+      "p12V6TargetedRevalidationEvidenceAdjudication": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_P12_FETCH_POLICY_V6_TARGETED_REVALIDATION_EVIDENCE_ADJUDICATION_V1.json",
+        "commit": "99864414ca0d3af6fccca420387648c4dabff75c",
+        "sha256": "5da293dabcbd0b33d7d3c88788f1435983cd2ce1d88622fabb0bcea8809faef8",
+        "bytes": 20056
+      },
+      "slot66V7TargetedRevalidationEvidenceAdjudication": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_SLOT66_RESERVE27_FETCH_POLICY_V7_TARGETED_REVALIDATION_EVIDENCE_ADJUDICATION_V1.json",
+        "commit": "7ffe80b9d434e4d93c6077dbfb16aa93fa2f161f",
+        "sha256": "61409f62cc0d3fa0b2fff1d618968956815ceb4812e68e189f24e6fd7a263387",
+        "bytes": 16682
+      }
+    },
+    "principles": [
+      "historical runs remain immutable and are never deleted, edited or reinterpreted (NAT64 decision whyRevalidationIsPermittedAtAll)",
+      "the same drawn organisation may receive ONE bounded new acquisition run after a capability, policy or environment correction",
+      "no reserve is consumed merely because the same occupant is measured again; not a replacement (organisation, slot, split unchanged)",
+      "same frozen root and policy (vantage case: same commit, same policy version) unless a separate policy amendment says otherwise",
+      "the new run may supersede the historical run FOR THE CURRENT-GENERATION ACQUISITION DECISION only, and only through a separate evidence adjudication (vantage authority: onlyALaterEvidenceAdjudicationMayDecide...)",
+      "the historical run remains valid evidence of the old condition; historical stops are not rewritten (historicalStopsRewritten false; thisDoesNotRetroactivelyMakeTheOriginalStopWrong)",
+      "the vantage change had to be PROVED by a separate network-precondition record before any request, and re-measured before every target",
+      "P5 was not applied between targeted revalidations; gates are applied prospectively after adjudication"
+    ],
+    "supersessionTokenGen1": "SUPERSEDED_FOR_GENERATION_ACQUISITION_DECISION_BY_POLICY_REPAIR (transitionContract.ts:188)",
+    "mustNotBeCopied": [
+      "Gen-1 \"AOR = latest run by started_at\" convention: Gen-2 must bind the AOR run explicitly by hash, never by recency",
+      "Gen-1 PENDING_CAPABILITY_REVIEW slot status: the Gen-2 replay has no held state and requires PENDING_CAPABILITY_REVIEW = []; the open-window (unadjudicated suffix, ASSIGNED) already expresses \"awaiting\" without a new status",
+      "Gen-1 multi-target recovery series (three targets under one authority, including a first acquisition of an assigned occupant): Gen-2 recovery is single-incident, single-target",
+      "Gen-1 separate transition ledgers / standalone revalidation adjudications: Gen-2 history is window-structured; a standalone adjudication would half-close a window",
+      "the Gen-1 policy-repair token itself: the trigger here is a host incident, not a policy repair",
+      "Gen-1 had no generic AOR code or one-AOR-per-slot invariant (only authority limits); Gen-2 must enforce these in the replay"
+    ]
+  },
+  "eligibility": {
+    "name": "GENERATION2_HOST_CONFOUNDED_REVALIDATION_ELIGIBLE",
+    "evaluatedBy": "a pure function over committed records only (no network, no database, no clock); never an operator label",
+    "allRequired": true,
+    "conditions": [
+      {
+        "id": "E1",
+        "fact": "the item is an authorised work item of a committed Generation-2 ordinary window authority and appears in that window's committed LIVE_RESULT",
+        "refusal": "HOST_RECOVERY_ITEM_NOT_AN_EXECUTED_ORDINARY_ITEM"
+      },
+      {
+        "id": "E2",
+        "fact": "the LIVE_RESULT passes validateGeneration2LiveResultForHistory unchanged: cliExecuteInvocations = 1, runsForOccupant = 1, completionRows = 1, runTerminalState COMPLETED, dryRun false, liveInvocations.retries = 0",
+        "refusal": "HOST_RECOVERY_ORIGINAL_NOT_ONE_CLEAN_COMPLETED_RUN"
+      },
+      {
+        "id": "E3",
+        "fact": "the ordinary invocation right is exhausted: the window authority's maximumLiveInvocationsPerWorkItem = 1 and that item's one invocation is recorded as used; unused capacity of the window is never a recovery source",
+        "refusal": "HOST_RECOVERY_ORDINARY_INVOCATION_NOT_EXHAUSTED"
+      },
+      {
+        "id": "E4",
+        "fact": "the original run reference is a full 64-hex value present exactly once across the explicit history plus the window being closed",
+        "refusal": "HOST_RECOVERY_ORIGINAL_RUN_REFERENCE_INVALID"
+      },
+      {
+        "id": "E5",
+        "fact": "a committed owner ruling, recordKind GENERATION2_OWNER_RULING, isLiveAuthority false, names this exact window ordinal, workItemId and original runRefSha256, classifies its causal attribution as host-confounded (a classification whose token begins INDETERMINATE_HOST_VS_ or an equivalent token listed in the approved amendment), records hostIntegrityStop.classification = HOST_INTEGRITY_NOT_PROVED_DURING_ITEM for that item, and records that frozen P1-P8 history is preserved",
+        "refusal": "HOST_RECOVERY_NO_INCIDENT_RULING"
+      },
+      {
+        "id": "E6",
+        "fact": "the incident ruling cites a contemporaneous host/vantage integrity failure that is OBSERVED, not inferred: a frozen host-safety check (authority.hostSafety, e.g. compliantVantageRequired) recorded RED at the post-item check of THIS item, or a pre-item check of THIS item recorded GREEN and an in-item host/vantage observation recorded RED; the failing check must be one the authority made a precondition of executing the window",
+        "refusal": "HOST_RECOVERY_NO_OBSERVED_HOST_INTEGRITY_FAILURE"
+      },
+      {
+        "id": "E7",
+        "fact": "the ruling records that the observed host failure could have produced the observed acquisition outcome (a causal channel exists: e.g. local resolver failure vs DNS_FAILURE; route loss vs CONNECT_TIMEOUT) and that the item cannot honestly carry integrity.verdict CLEAN",
+        "refusal": "HOST_RECOVERY_NO_CAUSAL_CHANNEL"
+      },
+      {
+        "id": "E8",
+        "fact": "the confounding is not merely an unfavourable outcome: eligibility is refused when the only grounds are institutional unreachability without a host-side observation, low page yield alone, robots refusal alone, a mechanical Q3 reason alone, or operator dissatisfaction",
+        "refusal": "HOST_RECOVERY_GROUNDS_ARE_OUTCOME_ONLY"
+      },
+      {
+        "id": "E9",
+        "fact": "the item's original integrity block in any record says CLEAN nowhere (a CLEAN item is never recoverable; recovery of a clean result would be result shopping)",
+        "refusal": "HOST_RECOVERY_TARGET_WAS_CLEAN"
+      },
+      {
+        "id": "E10",
+        "fact": "the ledger revision at recovery time has no entry for the slot with sequence greater than the entry that assigned the original occupant (the same occupant still holds the slot); for a primary item, no ledger entry for the slot exists at all",
+        "refusal": "HOST_RECOVERY_OCCUPANT_SUPERSEDED"
+      },
+      {
+        "id": "E11",
+        "fact": "no adjudication in the explicit history has adjudicated this work item, and the window being closed is the LAST committed window (unadjudicated); a recovery can only close the open window",
+        "refusal": "HOST_RECOVERY_ITEM_ALREADY_ADJUDICATED"
+      },
+      {
+        "id": "E12",
+        "fact": "no other recovery authority, recovery result or accepted recovery exists for the same (windowOrdinal, workItemId, originalRunRefSha256) incident",
+        "refusal": "HOST_RECOVERY_ALREADY_EXISTS_FOR_INCIDENT"
+      },
+      {
+        "id": "E13",
+        "fact": "the approved Methodology-V3 host-confounded amendment is present and pinned by sha256 (the governance anchor); without it no recovery path exists",
+        "refusal": "HOST_RECOVERY_AMENDMENT_NOT_APPROVED"
+      },
+      {
+        "id": "E14",
+        "fact": "purpose is evidence recovery: the recovery target is fixed by E1-E5 before any recovery evidence exists; nothing about the target (organisation, root, policy, rules, slot, split, reserve position) is chosen, widened or adapted by the recovery",
+        "refusal": "HOST_RECOVERY_TARGET_NOT_FIXED_BY_COMMITTED_EVIDENCE"
+      }
+    ],
+    "window13Application": {
+      "G2R:106:19": "NOT_ELIGIBLE (E6/E9: clean, post-item host check GREEN; adjudicated from its original run)",
+      "G2R:109:20": "PROSPECTIVELY_ELIGIBLE once the amendment is approved and implemented (E13); every other condition is satisfied by committed records: E5/E6/E7 by the ruling (D_causalAttribution INDETERMINATE_HOST_VS_INSTITUTION_DNS_FAILURE; postItemHostCheck RED on the compliant-vantage DNS probe; ENOTFOUND channel), E10 by ledger entry 20 being the last entry for slot 109, E11 because Window 13 is unadjudicated, E12 because no recovery record exists"
+    }
+  },
+  "revalidationVersusRetry": {
+    "ordinaryWindowInvocation": [
+      "one-shot per work item",
+      "exhausted once used",
+      "never reopened",
+      "original run immutable",
+      "counted in the window authority's maximumLiveInvocations and LIVE_RESULT.liveInvocations"
+    ],
+    "targetedHostRecoveryRevalidation": [
+      "requires a NEW separate owner live authority of its own recordKind (GENERATION2_TARGETED_HOST_RECOVERY_REVALIDATION_AUTHORITY), never the window authority",
+      "accounted outside the exhausted ordinary invocation: the window LIVE_RESULT.liveInvocations stays exactly as committed",
+      "at most ONE per incident (windowOrdinal, workItemId, originalRunRefSha256); a second requires a later governance amendment, never a second authority under this one",
+      "evidence-only until a separate owner adjudication accepts it",
+      "no adaptive settings, no alternate root, no widened budget, no changed fetch policy or rules version, no changed acquisition code",
+      "no result-dependent second attempt: an unfavourable but clean recovery is adjudicated, never re-run"
+    ],
+    "terminology": {
+      "conceptName": "GENERATION2_TARGETED_HOST_RECOVERY_REVALIDATION",
+      "forbiddenSynonyms": ["retry", "rerun", "second attempt", "attemptNo 2", "replacement"],
+      "whyNotRetry": "a retry is a second invocation under the SAME authority, decided by the outcome of the first; a targeted host recovery is a separate authority whose target and trigger are fixed by a committed host-integrity ruling that exists independently of the acquisition outcome",
+      "structuralSeparation": "distinct recordKinds for authority, precondition and result; the LIVE_RESULT validator never accepts them; the ordinary window authority validator never accepts a recovery authority; the recovery validators never accept a window authority",
+      "attemptCounterIsNotUsed": "the gateway attemptNo is unchanged and unrelated: the recovery is a new research run with a new run id; nothing increments any attempt counter of the original run"
+    }
+  },
+  "targetBinding": {
+    "mustEqualTheOriginalExactly": {
+      "windowOrdinal": "original window ordinal",
+      "workItemId": "original work item id (e.g. G2R:<slot>:<position> or G2P:<slot>)",
+      "kind": "REPLACEMENT | PRIMARY, as original",
+      "selectionIndex": "as original",
+      "generation2ReserveRankPosition": "as original (null for a primary)",
+      "split": "as original",
+      "identityDigest": "as original AND re-derived from the frozen frame/schedule/draw by buildReserveExecutionBinding/executionEntrySha256 or buildPrimaryExecutionBinding",
+      "rootAuthorityCount": "as original authorised item",
+      "frozenOrganisationAndRoot": "the same execution binding (no organisation id or root id in public-safe records; only the identity digest)",
+      "fetchPolicyVersion": "the original item's fetchPolicyVersion (orgunit-fetch-policy-v7 for Window 13)",
+      "ruleVersion": "the original item's ruleVersion (orgunit-signal-rules-v1 for Window 13)",
+      "executionPath": "the original authority's executionPath, byte-identical CLI invocation shape",
+      "acquisitionCodeTree": "git tree hashes of src/orgunits/ and src/cli/ at the recovery execution HEAD equal those at the original window authority commit (refusal HOST_RECOVERY_ACQUISITION_CODE_CHANGED)"
+    },
+    "neverChanges": [
+      "no reserve consumption",
+      "no ledger append",
+      "no replacement-chain advancement",
+      "no change to Q1 before accepted recovery adjudication",
+      "no other selection index",
+      "no window continuation"
+    ],
+    "window13Conceptual": {
+      "workItemId": "G2R:109:20",
+      "selectionIndex": 109,
+      "generation2ReserveRankPosition": 20,
+      "split": "FINAL_HOLDOUT",
+      "identityDigest": "927eb875b4c77347bb15a8181fabb93a3d379558f8d935b08468d86e0318dc33",
+      "originalRunRefSha256": "5bf76c8d6d158fd4d5deec70797af68002a11dc66917c2c6f30642932246fe7f",
+      "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+      "ruleVersion": "orgunit-signal-rules-v1",
+      "note": "illustrative only; the design and code are generic and name no slot"
+    }
+  },
+  "recoveryPrecondition": {
+    "recordKind": "GENERATION2_TARGETED_HOST_RECOVERY_PRECONDITION",
+    "isLiveAuthority": false,
+    "thisFileAuthorises": [],
+    "committedBeforeTheRecoveryAuthority": true,
+    "binds": [
+      "the incident ruling",
+      "the approved amendment",
+      "the exact target identity",
+      "the ledger revision (must be unchanged since the incident)"
+    ],
+    "mustNameTheDefectClass": "the ruling's observed failure class, e.g. LOCAL_RESOLVER_UNREACHABLE for Window 13 (vantage probe: no servers could be reached)",
+    "mustDemonstrateTheDefectAbsent": [
+      "IPv4 default route present; native non-CLAT IPv4 address",
+      "ipv4only.arpa AAAA empty (no DNS64/NAT64) and A answered",
+      "resolver health proved independently: the system resolver answers a fixed, committed set of CONTROL names (never the target's hostname) on every probe of a sustained series (proposal: at least 6 probes spanning at least 10 minutes, every one GREEN, timestamps recorded)",
+      "the frozen host-safety checks all GREEN: battery floor, lid open, caffeinate available, pmset Sleep/Wake/DarkWake = 0 over the series (timestamp predicate)",
+      "execution exclusivity and Engine/shared-acquisition-state quiescence per GENERATION2_LIVE_CRITICAL_SECTION_POLICY_V2",
+      "the operator kit records host checks as persisted, reproducible observations (no literal operator assertions such as the Window-13 hostCheckGreenAgainAfterStop) and keeps host-safety outcomes OUT of the frozen P8 field"
+    ],
+    "targetIsNeverProbed": "no DNS lookup, HTTP request or any other contact with the target organisation's names or hosts is part of the precondition; probing the target would let its outcome select whether to run",
+    "freshness": "the recovery authority must be recorded within the precondition's stated validity window and the same proofs are re-measured immediately before the one invocation (T-0) and immediately after it; a T-0 failure aborts with zero network (RECOVERY_PRECONDITION_NOT_HELD_AT_EXECUTION)",
+    "itsAbsenceIsTerminal": "without a committed precondition record whose outcome is PRECONDITION_PROVED, no recovery authority may be created (HOST_RECOVERY_PRECONDITION_NOT_PROVED)"
+  },
+  "recoveryAuthorityShape": {
+    "recordKind": "GENERATION2_TARGETED_HOST_RECOVERY_REVALIDATION_AUTHORITY",
+    "isLiveAuthority": true,
+    "binds": {
+      "originalWindowAuthority": "{path, commit, sha256, bytes}",
+      "originalLiveResult": "{path, commit, sha256, bytes}",
+      "incidentRuling": "{path, commit, sha256, bytes}",
+      "approvedAmendment": "{path, commit, sha256, bytes} - the methodology amendment APPROVAL record",
+      "recoveryPrecondition": "{path, commit, sha256, bytes}",
+      "currentLedger": "{path, commit, sha256, bytes, entryCount, ledgerHash} - must equal the ledger revision the original LIVE_RESULT ran against",
+      "explicitHistoryThroughTheIncident": "every adjudicated window binding (as boundAdjudicationHistory) plus the open window's authority and LIVE_RESULT; no discovery, no latest lookup"
+    },
+    "originalItem": {
+      "windowOrdinal": "int",
+      "workItemId": "str",
+      "originalRunRefSha256": "hex64"
+    },
+    "target": "TARGET_BINDING.mustEqualTheOriginalExactly, re-derived and compared",
+    "limits": {
+      "maximumLiveInvocations": 1,
+      "retries": 0,
+      "concurrency": 1,
+      "otherSelectionIndices": [],
+      "windowContinuation": false
+    },
+    "flags": {
+      "ledgerMutationAuthorised": false,
+      "reserveAssignmentAuthorised": false,
+      "acquisitionOfRecordMutationAuthorised": false,
+      "historicalRunMutationAuthorised": false,
+      "adjudicationAuthorised": false,
+      "validationAuthorised": false,
+      "windowAuthorised": false
+    },
+    "runReference": "the recovery run gets its own run UUID; recoveryRunRefSha256 = sha256(lowercase run UUID), no prefix; it must differ from every historical run reference including the original (refusal HOST_RECOVERY_RUN_REFERENCE_DUPLICATE)",
+    "hostSafety": "the original authority's hostSafety block, verbatim, plus the precondition re-measurement at T-0 and post-item",
+    "stopRule": "exactly one invocation; whatever happens, write the RESULT and STOP for owner review"
+  },
+  "recoveryResultShape": {
+    "recordKind": "GENERATION2_TARGETED_HOST_RECOVERY_REVALIDATION_RESULT",
+    "isLiveAuthority": false,
+    "thisFileAuthorises": [],
+    "status": "TARGETED_HOST_RECOVERY_EVIDENCE_ONLY",
+    "theNewRunDoesNotYetSupersedeAnything": true,
+    "fields": [
+      "boundRecoveryAuthority {path, sha256, bytes}",
+      "boundPrecondition",
+      "boundIncidentRuling",
+      "originalRunRefSha256",
+      "recoveryRunRefSha256",
+      "runRefDerivation",
+      "target (exact identity, compared to the authority)",
+      "hostAndVantage: T-0 proofs, post-item proofs, pmset events, monitor coverage",
+      "executionExclusivityVerdict and in-item concurrency watch",
+      "databaseDelta (exact per-table row deltas for exactly one run)",
+      "cliExecuteInvocations = 1, runsForTarget = 1, completionRows = 1, runTerminalState, dryRun false, retries 0",
+      "fetchPolicyVersion, everyObservation<policy>, ruleVersion",
+      "rootTerminalReason, gatewayRequests, fetchObservationsByErrorKind, usableHttpResponseObtained",
+      "rawPageEvidenceCount, sd9EligiblePageCount, postSd7Range, countIsExact",
+      "sd9StatusMechanical, q3ReasonMechanical, q3BlockingTransportErrorKind (mechanical, not adjudication)",
+      "recoveryLocalGateReadout: frozen P1-P8 evaluated over this ONE observation, RECORDED ONLY (see pauseConditionSemantics)",
+      "integrityVerdict: CLEAN | HOST_INTEGRITY_NOT_PROVED_DURING_RECOVERY | CONCURRENCY_INTEGRITY_STOP | MONITOR_COVERAGE_INSUFFICIENT | PRECONDITION_NOT_HELD_AT_EXECUTION",
+      "ledgerDuringRecovery {entryCount, ledgerHash} unchanged; ledgerMovement 0; reserveConsumed 0",
+      "runReferenceUniqueness: recovery ref checked against all historical refs and the open window's refs"
+    ],
+    "resultDoesNotMutateAcquisitionOfRecord": true
+  },
+  "pauseConditionSemanticsForTheRecovery": {
+    "recoveryIsNotAWindow": "frozen P1-P8 are window pause conditions; a single-target recovery has no further items to pause, no denominator of its own and never joins the original window's denominator (Gen-1 precedent: NAT64 decision p5DuringTheSeries.appliesBetweenTheseThreeTargets = false; slot-66 v7: \"One targeted revalidation is not a window\")",
+    "recorded": "the recovery result records the mechanical P1-P8 readout over its one observation, never waived, never applied retroactively to the original window",
+    "integrityStopsBlock": "host/vantage, concurrency, monitor-coverage and precondition integrity failures block adjudication of the recovery and return to the owner",
+    "prospective": "P5/P2 and every other gate are applied prospectively by the NEXT ordinary window only, over the state the accepted adjudication produces"
+  },
+  "candidateDesigns": [
+    {
+      "id": "A",
+      "name": "WINDOW_ADJUDICATION_WITH_OPTIONAL_PINNED_RECOVERY_PROVENANCE",
+      "shape": [
+        "Generation2WindowHistoryBinding gains ONE optional field targetedHostRecoveries?: readonly TargetedHostRecoveryBinding[], supplied explicitly (never looked up), exactly like authorityShapeCorrection and cadenceAuthority today",
+        "each TargetedHostRecoveryBinding carries the committed bytes of: incidentRuling, approvedAmendment, precondition, recoveryAuthority, recoveryResult",
+        "the ordinary window adjudication (same recordKind GENERATION2_WINDOW_EVIDENCE_ADJUDICATION) still lists EVERY executed LIVE_RESULT item in order with its ORIGINAL runRefSha256; a recovered item additionally carries an acquisitionOfRecord block naming the recovery",
+        "replay: for an item WITHOUT acquisitionOfRecord, the existing path is unchanged byte for byte (integrity.verdict must be CLEAN); for an item WITH it, integrity.verdict must be exactly HOST_CONFOUNDED, the recovery chain is validated in full, recoveryIntegrity.verdict must be CLEAN, and the verdict applied to the slot is the adjudicated verdict of the recovery run"
+      ],
+      "replayComplexity": "LOW-MEDIUM: one branch inside the existing per-item loop plus one new pure validator module; window ordering, ledger append, Q1 and spec rebuild untouched",
+      "backwardCompatibility": "STRONG: absent field => identical code path and identical ReplayedWindow/historyBindingOf output (conditional spreads), so every rebuilt windowSpecHash for Windows 01-13 is unchanged",
+      "retryLaunderingRisk": "LOW: recovery only admitted when the original integrity is HOST_CONFOUNDED with a matching incident ruling; CLEAN + acquisitionOfRecord is refused; one recovery per incident; the recovery authority recordKind is never accepted as a window authority",
+      "runReferenceUniqueness": "original refs stay in executed[].runRefSha256; recovery refs are added to the global-uniqueness set; neither may repeat",
+      "stateMachineClarity": "HIGH: still one verdict applied per executed item, at the item's position; no new slot status, no held state",
+      "liveResultImmutable": true,
+      "ordinaryWindowsUnchanged": true,
+      "partialAdjudicationAvoided": "YES: the window is adjudicated exactly once, in one record, covering every executed item; the recovery acceptance and the window closure are the same atomic owner act",
+      "aorProvenanceExplicit": "YES: acquisitionOfRecord block + supersession token per recovered item; ReplayedWindow exposes it"
+    },
+    {
+      "id": "B",
+      "name": "SEPARATE_RECOVERY_ADJUDICATION_RECORD_CONSUMED_BEFORE_THE_WINDOW_ADJUDICATION",
+      "shape": [
+        "a new recordKind GENERATION2_TARGETED_HOST_RECOVERY_EVIDENCE_ADJUDICATION adjudicates the recovery run alone",
+        "the history binding of the window carries it; replay validates it first, producing an AOR override map {workItemId -> recovery verdict}",
+        "the ordinary window adjudication then refers to the recovery adjudication and copies its verdict for the item"
+      ],
+      "replayComplexity": "MEDIUM-HIGH: a second adjudication record kind with its own summary/validation fields, an ordering rule between two adjudications of one window, and an override map threaded into the per-item loop",
+      "backwardCompatibility": "STRONG for absent records (same conditional pattern)",
+      "retryLaunderingRisk": "MEDIUM: a free-standing recovery adjudication is a second place where a verdict for a slot can be stated; two records must be kept consistent, and a committed recovery adjudication without a window adjudication is a half-closed window",
+      "runReferenceUniqueness": "same as A",
+      "stateMachineClarity": "MEDIUM: verdict for one item comes from a different record than the rest; precedence must be specified",
+      "liveResultImmutable": true,
+      "ordinaryWindowsUnchanged": true,
+      "partialAdjudicationAvoided": "ONLY BY CONVENTION: the recovery adjudication is committed before the window adjudication, so for an interval the item is adjudicated and the window is not - exactly the partial adjudication the owner forbids",
+      "aorProvenanceExplicit": "YES, but split across two records"
+    },
+    {
+      "id": "C",
+      "name": "RECOVERY_AS_A_SYNTHETIC_HISTORY_WINDOW",
+      "shape": ["model the recovery as window N+1 with one work item in the explicit history list"],
+      "rejectedBecause": [
+        "the window rule would re-derive its work items from the replayed state and require a ledger append / primaries, which a recovery must not have",
+        "it would count as an ordinary invocation and enter P2/P5 denominators",
+        "it would occupy a window ordinal, shifting every later window and its cadence/size bindings",
+        "the original window would have to be adjudicated first without its item 2 - partial adjudication",
+        "highest retry-laundering risk: a recovery would look exactly like an ordinary one-item window"
+      ]
+    }
+  ],
+  "comparison": {
+    "criteria": [
+      "append-only governance",
+      "exact history replay",
+      "backward compatibility",
+      "ease of misuse",
+      "implementation surface",
+      "provenance clarity",
+      "generic applicability"
+    ],
+    "A": [
+      "yes",
+      "yes, single record per window",
+      "strong",
+      "low",
+      "smallest (1 new module + 1 branch)",
+      "explicit on the item",
+      "any window/item satisfying eligibility"
+    ],
+    "B": [
+      "yes",
+      "yes, two records per affected window",
+      "strong",
+      "medium (two verdict sources)",
+      "larger (new adjudication kind + ordering)",
+      "explicit but split",
+      "same"
+    ],
+    "C": [
+      "yes",
+      "breaks window derivation",
+      "weak (ordinals shift)",
+      "high",
+      "large and invasive",
+      "misleading (looks like a window)",
+      "rejected"
+    ],
+    "recommended": "A",
+    "why": "A keeps \"one window, one adjudication, every executed item exactly once\" as the invariant, which is what forbids partial adjudication; it reuses the established optional-pinned-binding pattern (authorityShapeCorrection, cadenceAuthority) so the absent case is provably byte-identical; and it introduces exactly one new verdict SOURCE (the recovery run) gated by exactly one new original-integrity token, instead of a second adjudication record kind"
+  },
+  "chosenDesign": "A",
+  "acquisitionOfRecordModel": {
+    "principle": "acquisition-of-record identifies WHICH RUN the current Generation-2 state reads for an executed item; it does not assert that the original execution did not happen, was wrong, retracted or invalid (Gen-1 V4 adjudication whatSupersededMeans; Option C-lite whatItDoesNotMean)",
+    "supersessionToken": "SUPERSEDED_FOR_GENERATION_ACQUISITION_DECISION_BY_ACCEPTED_HOST_RECOVERY",
+    "tokenRationale": "outcome-neutral like the Gen-1 SUPERSEDED_FOR_GENERATION_ACQUISITION_DECISION_BY_POLICY_REPAIR token, but naming the actual cause class (accepted host recovery, not policy repair) so Gen-1 policy-repair semantics are not borrowed for a different trigger",
+    "perRecoveredItemBlock": {
+      "acquisitionOfRecord": {
+        "source": "ACCEPTED_TARGETED_HOST_RECOVERY_REVALIDATION",
+        "runRefSha256": "<recovery run ref>",
+        "recoveryAuthority": "{path, sha256, bytes}",
+        "recoveryResult": "{path, sha256, bytes}",
+        "precondition": "{path, sha256, bytes}",
+        "incidentRuling": "{path, sha256, bytes}",
+        "approvedAmendment": "{path, sha256, bytes}",
+        "originalRun": {
+          "runRefSha256": "<original, = LIVE_RESULT item runRefSha256>",
+          "disposition": "SUPERSEDED_FOR_GENERATION_ACQUISITION_DECISION_BY_ACCEPTED_HOST_RECOVERY",
+          "retained": true,
+          "deleted": false,
+          "executionRecordEdited": false,
+          "remainsValidEvidenceOf": "the acquisition attempt under the host condition recorded by the incident ruling"
+        },
+        "recoveryIntegrity": {
+          "verdict": "CLEAN",
+          "verdictScope": "ACQUISITION_AND_EXECUTION_INTEGRITY"
+        }
+      }
+    },
+    "originalRunReferenceHistory": "the original ref stays in the LIVE_RESULT, in adjudication.items[k].runRefSha256 and in ReplayedWindow.executed[k].runRefSha256; it never disappears and is never relabelled",
+    "atMostOneAcceptedPerIncident": true,
+    "noMutableCurrentFlag": "AOR is represented only in immutable committed records and the replay; no database column or mutable flag (Gen-1 V4: newMutableCurrentFlagIntroduced false)"
+  },
+  "historyContractExtension": {
+    "chosenDesign": "A",
+    "bridgeVersion": "HISTORY_BRIDGE_VERSION stays GENERATION2_ADJUDICATION_HISTORY_BRIDGE_V1 for histories without recovery output; a replay containing a recovery additionally reports recoveryExtension = GENERATION2_TARGETED_HOST_RECOVERY_EXTENSION_V1 (only when present), so historyBindingOf for recovery-free histories is unchanged",
+    "types": {
+      "TargetedHostRecoveryBinding": "{ incidentRuling, approvedAmendment, precondition, recoveryAuthority, recoveryResult: CommittedRecordBinding; recoveryAuthorityCommit: string }",
+      "Generation2WindowHistoryBinding.targetedHostRecoveries?": "readonly TargetedHostRecoveryBinding[] - absent for every ordinary window; never looked up",
+      "ReplayedWindow.executed[k]": "unchanged fields; plus acquisitionOfRecordRunRefSha256 and recovery {path, sha256 of each record} ONLY when the item was recovered",
+      "ReplayedWindow.targetedHostRecoveries?": "present only when supplied"
+    },
+    "replayAlgorithmForAWindow": [
+      "1-5 unchanged: authority, starting ledger, pre-network append, Q1, window-rule work items, LIVE_RESULT validation (the original LIVE_RESULT is validated as it is)",
+      "6. adjudication kind/bound/validation checks unchanged",
+      "7. item count == executed count, identity == executed identity, runRefSha256 == executed runRefSha256: unchanged for EVERY item (recovered items included)",
+      "8. if item has no acquisitionOfRecord: integrity.verdict must be CLEAN (unchanged)",
+      "9. if item has acquisitionOfRecord: (a) integrity.verdict must be HOST_CONFOUNDED; (b) exactly one supplied TargetedHostRecoveryBinding matches (windowOrdinal, workItemId, original runRef); (c) validateTargetedHostRecovery(binding, originalItem, ledgerDuringWindow, replayedState) runs eligibility E1-E14 and verifies every cross-hash: result->authority->precondition->ruling->amendment; (d) the recovery result target equals the item identity; (e) recoveryResult.integrityVerdict == CLEAN; (f) acquisitionOfRecord.runRefSha256 == recoveryResult.recoveryRunRefSha256; (g) adjudication.verdict/q3Reason are frozen-vocabulary values and are the verdict applied to the slot",
+      "10. a supplied TargetedHostRecoveryBinding not consumed by exactly one item => refuse HOST_RECOVERY_BINDING_UNUSED; two bindings for one incident => HOST_RECOVERY_ALREADY_EXISTS_FOR_INCIDENT",
+      "11. applyAdjudicatedItem unchanged: one verdict per executed item, at the item's position, on the item's slot",
+      "12. requireSummaryAgreement unchanged for all existing keys; when recoveries exist additionally windowSummary.acquisitionOfRecordRecovered must list exactly the recovered workItemIds, and when none exist that key must be absent"
+    ],
+    "historyIntegrity": "requireUniqueHistoricalRunReferences keeps GENERATION2_HISTORICAL_RUN_REFERENCE_IS_GLOBALLY_UNIQUE_ACROSS_ALL_ADJUDICATED_WINDOWS_V1 unchanged and adds GENERATION2_RECOVERY_RUN_REFERENCE_IS_GLOBALLY_UNIQUE_V1: original refs and recovery refs share ONE uniqueness set; spec rebuild loop unchanged",
+    "windowSpec": "no code change: historyBindingOf output gains recovery entries only when present, so the next window spec binds its recovery provenance and earlier specs rebuild identically"
+  },
+  "requiredInvariants": [
+    "I1 every ordinary executed item is represented exactly once in its window adjudication",
+    "I2 original ordinary run refs remain globally unique",
+    "I3 recovery run refs are globally unique against all original and recovery refs",
+    "I4 no recovery without a specific committed host-confounded incident ruling naming the exact item and run",
+    "I5 recovery target identity exactly equals the original item identity (all identity fields + re-derived digest + policy/rules versions + acquisition code tree)",
+    "I6 recovery cannot target a slot whose occupant changed (no later ledger entry for that slot)",
+    "I7 at most one ACCEPTED recovery per incident; at most one recovery authority per incident",
+    "I8 the original ordinary invocation count remains one; the window LIVE_RESULT is unchanged",
+    "I9 recovery invocation consumes no reserve and appends no ledger entry (ledger revision identical before/after the recovery)",
+    "I10 recovery cannot add a work item to ordinary window membership (membership is the authority's exactOrder only)",
+    "I11 adjudication cannot substitute an arbitrary later run: the AOR run ref must equal the bound recovery result's ref, which must be bound by the recovery authority, which must be bound by the precondition and ruling",
+    "I12 every provenance hop is committed and hash-bound {path, sha256, bytes}",
+    "I13 ordinary adjudication without recovery replays byte-identically",
+    "I14 frozen verdict vocabulary (ACQUISITION_SUCCESSFUL / ACQUISITION_UNSUCCESSFUL) and Q3 replacement reasons unchanged",
+    "I15 final state is derived from the effective AOR run only once the owner-accepted window adjudication is committed; before that the slot stays ASSIGNED",
+    "I16 a CLEAN original item can never carry acquisitionOfRecord",
+    "I17 HOST_CONFOUNDED is admissible only together with a validated recovery; it never stands alone in an adjudication",
+    "I18 no generic file contains a window ordinal, slot number, work item id or run ref literal (static test)"
+  ],
+  "itemIntegrityModel": {
+    "choice": "B_PLUS_ONE_GATED_ORIGINAL_DISPOSITION",
+    "explanation": "the existing item integrity field keeps its meaning: the execution integrity of the ORIGINAL ordinary run. For a recovered item it carries exactly one new admissible value, HOST_CONFOUNDED, which is truthful about the original. The CLEAN requirement that permits state adjudication moves to a SEPARATE recovery-integrity block inside acquisitionOfRecord (recoveryIntegrity.verdict must be CLEAN). Ordinary records are untouched because their path still requires CLEAN and no recovery block",
+    "whyNotA": "putting CLEAN in the original field (or redefining it as the AOR run's integrity) would assert something the evidence does not show",
+    "whyNotOnlyC": "a provenance layer alone with integrity.verdict left CLEAN would be a lie; with the field omitted it would break the shape every reader relies on",
+    "vocabularyFrozen": "integrity.verdict is a harness/adjudication-contract field; Methodology V3 freezes neither it nor any integrity vocabulary (no \"integrity\" token in the V3 proposal R1 or the freeze approval). The frozen adjudication verdicts and Q3 reasons are NOT expanded. The amendment still names HOST_CONFOUNDED explicitly so the addition is owner-approved, not casual"
+  },
+  "p2P5P8History": {
+    "originalWindowFactsPreserved": {
+      "P2": "fired",
+      "P5": "fired",
+      "frozenP8": "did not fire (owner ruling correction of reading; LIVE_RESULT recorded P8 via operator-kit conflation and is not edited)",
+      "hostIntegrityStop": "HOST_INTEGRITY_NOT_PROVED_DURING_ITEM fired for the confounded item"
+    },
+    "adjudicationRecordsBoth": {
+      "originalWindowHistory": "p2/p5 blocks keep the LIVE_RESULT window-local counts (denominator = original planned size, counted over ORIGINAL runs); p8 records recordedInLiveResult + frozenP8Fired per the incident ruling; hostIntegrityStop recorded",
+      "acquisitionOfRecordProvenance": "per recovered item, the acquisitionOfRecord block; the recovery's own mechanical readout is referenced, never merged into the window p2/p5 counts"
+    },
+    "neverRecomputed": "P2/P5 window history is never recomputed from recovery evidence; a successful recovery does not make the original stops wrong (Gen-1: thisDoesNotRetroactivelyMakeTheOriginalStopWrong, historicalStopsRewritten false)",
+    "p5LowYieldContribution": "per item, p5LowYieldContribution stays the ORIGINAL run's contribution"
+  },
+  "ledgerAndQ1": {
+    "beforeAcceptance": "the open window is unadjudicated, so the replay treats its ledger entries as the unadjudicated suffix: the slot stays REPLACEMENT_ASSIGNED_AWAITING_EXECUTION on its current entry (Window 13: slot 109 on entry 20 / reserve 20); no obligation exists; reserve 21 stays UNASSIGNED",
+    "originalRunNeverCreatesAnObligation": "the replay applies exactly one verdict per executed item, sourced from the AOR run, so the confounded original can never create an obligation of its own and there can never be two competing obligations for one slot",
+    "acceptedSuccessful": "slot -> ACQUISITION_SUCCESSFUL",
+    "acceptedUnsuccessful": "slot -> CURRENT_ACQUISITION_FAILURE with the recovery run's adjudicated Q3 reason; it enters a FUTURE Q1 only; the next replacement entry (by a later owner Q1 planning decision) carries replacedOccupantKind GENERATION2_RESERVE_REPLACEMENT (or the occupant's kind) and previousSequenceForSlot = the occupant's entry, exactly as for an ordinary failure",
+    "neverByTheRecoveryOrTheAdjudication": "no ledger append, no reserve assignment, no Window N+1",
+    "reserveAccounting": "reserves.generation2Consumed and nextGeneration2ReservePosition in the adjudication equal the ledger entry count, unchanged by the recovery"
+  },
+  "window13ClosureShape": {
+    "singleRecord": "one GENERATION2_WINDOW_EVIDENCE_ADJUDICATION for Window 13 covering both executed items, in LIVE_RESULT order, committed only after the recovery result and the governed closure validation",
+    "item1": {
+      "workItemId": "G2R:106:19",
+      "runRefSha256": "0f54c20250396e33d1da34866baa3f62ae8e1ecb72021c6bea0b563f3d2f753a",
+      "integrity": "CLEAN",
+      "acquisitionOfRecord": "absent (ordinary path)",
+      "verdictSource": "original run"
+    },
+    "item2": {
+      "workItemId": "G2R:109:20",
+      "runRefSha256": "5bf76c8d6d158fd4d5deec70797af68002a11dc66917c2c6f30642932246fe7f (original, retained)",
+      "integrity": "HOST_CONFOUNDED",
+      "acquisitionOfRecord": "present: the one accepted recovery run",
+      "verdictSource": "recovery run",
+      "p5LowYieldContribution": "true (original run, historical)"
+    },
+    "windowHistory": "P2 and P5 fired (preserved), frozen P8 not fired, host-integrity stop fired; terminalState must match /_ADJUDICATED_/",
+    "noPartialAdjudication": true,
+    "ifRecoveryIsNotAcceptable": "Window 13 stays unadjudicated and returns to the owner; no item-1-only adjudication is ever written"
+  },
+  "recoveryFailureHandling": [
+    {
+      "case": "precondition cannot be proved",
+      "outcome": "no recovery authority is created; the incident returns to the owner; Window 13 stays open"
+    },
+    {
+      "case": "precondition not held at T-0",
+      "outcome": "abort with zero network; result records PRECONDITION_NOT_HELD_AT_EXECUTION and zero invocations; the single invocation is NOT consumed only if no CLI execute was issued; owner review"
+    },
+    {
+      "case": "another host-integrity anomaly during recovery",
+      "outcome": "result integrityVerdict HOST_INTEGRITY_NOT_PROVED_DURING_RECOVERY; not adjudicable; invocation consumed; no automatic second recovery; owner review (a second recovery needs a later governance amendment)"
+    },
+    {
+      "case": "concurrency integrity failure",
+      "outcome": "CONCURRENCY_INTEGRITY_STOP; not adjudicable without owner ruling; no rerun"
+    },
+    {
+      "case": "monitor coverage insufficient",
+      "outcome": "MONITOR_COVERAGE_INSUFFICIENT; not adjudicable without owner ruling; no rerun"
+    },
+    {
+      "case": "recovery clean but unsuccessful",
+      "outcome": "ordinary evidence: adjudicable as ACQUISITION_UNSUCCESSFUL with its Q3 reason; never re-run"
+    },
+    {
+      "case": "closure validation fails",
+      "outcome": "stop; owner review; no automatic validation rerun (existing policy automaticValidationRerunAuthorised false)"
+    },
+    {
+      "case": "recovery run ref duplicates any existing ref",
+      "outcome": "HOST_RECOVERY_RUN_REFERENCE_DUPLICATE: result refused, STOP, owner review"
+    },
+    {
+      "case": "database delta not exactly one run",
+      "outcome": "P4-style persistence anomaly recorded; not adjudicable; owner review"
+    }
+  ],
+  "validationModel": {
+    "sequence": [
+      {
+        "step": 1,
+        "what": "owner approves this design and the amendment proposal (separate owner record)",
+        "validation": "none (governance record)"
+      },
+      {
+        "step": 2,
+        "what": "implement the generic amendment offline",
+        "validation": "CODE VALIDATION: full npm run validate on the implementation commit (ordinary repository gate; no network)"
+      },
+      {
+        "step": 3,
+        "what": "recovery precondition record",
+        "validation": "none beyond JSON/format checks; it authorises nothing"
+      },
+      {
+        "step": 4,
+        "what": "separate recovery live authority",
+        "validation": "a pure offline preflight that runs the eligibility function and target re-derivation over committed records; no full validate required unless the owner orders one"
+      },
+      {
+        "step": 5,
+        "what": "exactly one recovery invocation",
+        "validation": "none during execution (exclusivity forbids validate/vitest mid-item)"
+      },
+      {
+        "step": 6,
+        "what": "recovery RESULT committed",
+        "validation": "none"
+      },
+      {
+        "step": 7,
+        "what": "owner review if ANY integrity stop",
+        "validation": "none"
+      },
+      {
+        "step": 8,
+        "what": "governed closure validation",
+        "validation": "LIVE-EVIDENCE CLOSURE VALIDATION: exactly one owner-authorised full npm run validate over the HEAD carrying the recovery result, under the critical-section policy, before the adjudication"
+      },
+      {
+        "step": 9,
+        "what": "combined Window-13 adjudication with recovery provenance",
+        "validation": "the adjudication binds step 8 (validation.result /_VALIDATION_ACCEPTED$/, exitCode 0) and must replay under the amended history code"
+      }
+    ],
+    "thisDesignTask": "no npm run validate was run (owner instruction; design-only records). CLAUDE.md lists npm run validate as the pre-commit gate; the governance-record precedent (e.g. the Window-13 ruling commit) commits docs-only records without it. Minimum offline checks performed instead: JSON parse and prettier --check of the two new JSON files"
+  },
+  "securityHoldoutDisclosure": {
+    "holdout": "the target is a FINAL_HOLDOUT slot in Window 13; the design touches acquisition evidence only (counts, mechanical SD9/Q3); no page text, no classifier, no labels, no semantic evidence is read or recorded",
+    "splitMembership": "unchanged; split is part of the bound identity",
+    "noOutcomeKnowledgeInSelection": "the target is fixed by the committed incident ruling before any recovery evidence exists; reserves are never chosen by this mechanism; reserve 21 untouched",
+    "publicSafe": "records carry slot numbers, work item ids, reserve positions, digests, run-ref hashes, timestamps and aggregates only; no organisation id, echeRowKey, URL, hostname, root-authority id, run UUID or page text",
+    "noResultDependentTargetSelection": "precondition never probes the target; eligibility conditions are host-side observations, never acquisition outcomes"
+  },
+  "backwardCompatibilityTests": [
+    "every existing Generation-2 test file passes unchanged (Window02..Window13 readiness/isolation, HistoryIntegrity, LiveResultContract, CarryInAssignedReplacement, Window04AuthorityShapeCorrection, Window02Adjudication, WindowCadence)",
+    "NEW: committed Windows 01-12 replay: historyBindingOf canonical sha256 pinned as a literal computed BEFORE the change; equal after",
+    "NEW: rebuilt windowSpecHashes for Windows 01-13 unchanged (assessAdjudicationHistoryIntegrity over committed history)",
+    "NEW: ReplayedWindow objects for recovery-free histories have no acquisitionOfRecord / targetedHostRecoveries keys (Object.hasOwn false)",
+    "NEW positive (synthetic, ordinal-agnostic): recovery on a window-3 replacement item and on a window-2 primary item, successful and unsuccessful -> SUCCESSFUL / FAILURE(recovery Q3); single obligation; next Q1 lists the slot once",
+    "NEW negative, one test per refusal code: HOST_CONFOUNDED without acquisitionOfRecord; acquisitionOfRecord on a CLEAN item; each identity field mismatch; digest not re-derivable; policy/rules version mismatch; acquisition code tree changed; occupant superseded by a later ledger entry; item already adjudicated; recovery ref equals original; recovery ref equals any historical ref; two recoveries for one incident; binding supplied but unused; authority limits not exactly 1/0/1; authority grants ledger/reserve/AOR mutation; precondition missing / committed after authority / outcome not PROVED; ruling scope or item mismatch; ruling lacks observed host failure; ruling grounds outcome-only; amendment approval absent or hash mismatch; recovery result integrity not CLEAN; AOR run ref differs from result; summary acquisitionOfRecordRecovered mismatch; adjudication recomputing P2/P5 from recovery evidence is refused by summary comparison",
+    "NEW static: generic files contain no window ordinal / slot / work item / run-ref literal and no `windowOrdinal === <n>` comparison",
+    "NEW static: LIVE_RESULT validator rejects a recovery RESULT recordKind and window-authority validator rejects a recovery AUTHORITY recordKind (and vice versa)"
+  ],
+  "implementationPlan": {
+    "newFiles": [
+      "src/test/harness/phase2b2d/generation2Recovery/hostRecoveryContract.ts - record kinds, refusal codes, SUPERSESSION token, HOST_CONFOUNDED token, the approved-amendment sha256 pin (generic governance anchor, not window-specific)",
+      "src/test/harness/phase2b2d/generation2Recovery/hostRecoveryEligibility.ts - evaluateHostRecoveryEligibility(input): pure E1-E14",
+      "src/test/harness/phase2b2d/generation2Recovery/hostRecoveryProvenance.ts - validateTargetedHostRecovery(binding, originalItem, context) -> {recoveryRunRefSha256, recoveryVerdictInputs}; validateTargetedHostRecoveryResult(result, expectation)",
+      "src/test/unit/orgunitCorpus2DA2Generation2HostRecoveryHistory.test.ts and ...HostRecoveryEligibility.test.ts"
+    ],
+    "modifiedFiles": [
+      "src/test/harness/phase2b2d/generation2History/adjudicationHistory.ts - Generation2WindowHistoryBinding.targetedHostRecoveries?; ReplayedWindow optional fields; per-item branch in replayWindow; unused-binding check; requireSummaryAgreement conditional key; historyBindingOf conditional spread",
+      "src/test/harness/phase2b2d/generation2History/historyIntegrity.ts - requireUniqueHistoricalRunReferences includes recovery refs; new rule constant"
+    ],
+    "untouched": [
+      "validateGeneration2LiveResultForHistory",
+      "applyLedgerEntry",
+      "applyAdjudicatedItem",
+      "windowSpec.ts",
+      "state.ts",
+      "preflight.ts",
+      "every committed record",
+      "src/orgunits/**",
+      "the frozen gate"
+    ],
+    "laterSeparateTasks": [
+      "recovery operator kit / single-target execution runner (live tooling) - its own design + owner approval",
+      "recovery precondition measurement script"
+    ],
+    "forbidden": [
+      "any `if (windowOrdinal === 13)` or slot/work-item literal in generic files",
+      "editing any committed record"
+    ]
+  },
+  "liveExecutionSequenceAfterFutureApproval": [
+    "owner approval record for this design + amendment (methodologyAmendmentApproved true in a NEW record)",
+    "generic implementation + code validation",
+    "recovery precondition record (PRECONDITION_PROVED)",
+    "separate recovery live authority for exactly the one eligible item",
+    "one recovery invocation; RESULT committed; STOP",
+    "owner review if any integrity stop",
+    "one governed closure validation",
+    "combined Window-13 adjudication (both items, recovery provenance on item 2)",
+    "STOP; any Q1 planning / reserve 21 / Window 14 is a later owner decision"
+  ],
+  "proposedMethodologyAmendment": {
+    "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_HOST_CONFOUNDED_REVALIDATION_AMENDMENT_PROPOSAL_V1.json",
+    "committedTogetherWithThisRecord": true,
+    "methodologyAmendmentApproved": false
+  },
+  "auditMarkdown": "docs/audits/PHASE_2B_2D_A2_GENERATION2_HOST_CONFOUNDED_REVALIDATION_AMENDMENT_DESIGN_V1.md",
+  "unresolvedQuestions": [
+    "UQ1 recovery-local P1-P8 readout: the design records it and treats only integrity stops as blocking (Gen-1 precedent). The owner may instead require an explicit owner acknowledgement whenever any frozen condition fires on the recovery observation.",
+    "UQ2 precondition sustained-probe parameters (proposed: >= 6 probes over >= 10 minutes) and validity window (proposed: authority within 24 h of the precondition, T-0 re-measurement mandatory) need owner values.",
+    "UQ3 whether this runtime surfaces an unreachable resolver as ENOTFOUND is UNKNOWN (ruling). Not needed for recovery; an offline investigation could narrow future eligibility rulings.",
+    "UQ4 the operator-kit P8 conflation and the literal hostCheckGreenAgainAfterStop are kit defects; the design makes their correction a precondition requirement. The owner may prefer a separate kit-repair record first.",
+    "UQ5 whether a precondition-not-held-at-T-0 abort (zero network, zero CLI execute) leaves the one recovery invocation unspent; the design says yes only when no CLI execute was issued."
+  ],
+  "explicitNonAuthorisations": [
+    "methodology amendment approval",
+    "implementation of history changes",
+    "revalidation authority",
+    "execution of G2R:109:20 or any target",
+    "precondition measurement",
+    "npm run validate",
+    "closure validation",
+    "adjudication of Window 13",
+    "ledger mutation",
+    "reserve 21 assignment",
+    "Window 14",
+    "database write",
+    "institution network"
+  ],
+  "nextOwnerDecision": "whether to APPROVE design A and the Methodology-V3 host-confounded amendment proposal (exact bytes), resolving UQ1-UQ5, so that the generic history extension may be implemented offline; nothing live follows from that approval alone",
+  "identityDisclosure": "slot numbers, work item ids, reserve positions, digests, run-reference hashes, timestamps and aggregates only; no organisation id, echeRowKey, URL, hostname, root-authority id, run UUID or page text",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
