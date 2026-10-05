@@ -1,0 +1,148 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_13_TARGETED_HOST_RECOVERY_REVALIDATION_AUTHORITY_V1",
+  "recordKind": "GENERATION2_TARGETED_HOST_RECOVERY_REVALIDATION_AUTHORITY",
+  "task": "GENERATION2_WINDOW_13_TARGETED_HOST_RECOVERY_LIVE_AUTHORITY_AND_SINGLE_REVALIDATION_V1",
+  "ownerDecision": "AUTHORISE_WINDOW_13_G2R109_20_SINGLE_TARGETED_HOST_RECOVERY_REVALIDATION_V1",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "a92e8ef722490cde0edabe461ce75fa42741bc27",
+  "publicSafe": true,
+  "appendOnly": true,
+  "isLiveAuthority": true,
+  "concept": "GENERATION2_TARGETED_HOST_RECOVERY_REVALIDATION",
+  "createdBeforeAnyRecoveryNetworkActivity": true,
+  "recordedAtUtc": "2026-10-05T15:25:34.424Z",
+  "recordedAtUtcSource": "new Date().toISOString() read when this authority was built, after the precondition re-validated and before commit",
+  "thisFileAuthorises": [
+    "AUTHORISE_WINDOW_13_G2R109_20_SINGLE_TARGETED_HOST_RECOVERY_REVALIDATION_V1: exactly ONE targeted host recovery revalidation invocation of the fixed target G2R:109:20 (same occupant, same frozen root, same execution path, same fetch policy, same rules, same acquisition code), only after a fresh GREEN T-0 host/vantage reproof and a fresh 120 s Engine-scoped quiet gate; plus the append-only acquisition writes the landed path makes for that one invocation in nwf_pe and read-only baseline/reconciliation"
+  ],
+  "isNot": [
+    "an ordinary Window-13 retry",
+    "a second Window-13 invocation",
+    "a replacement assignment",
+    "a new window",
+    "an adjudication",
+    "a reserve-consuming operation"
+  ],
+  "boundOriginalWindowAuthority": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_LIVE_AUTHORITY_V1.json",
+    "commit": "0b9a7dabe5e720b18fcb41830fb687787b47b93f",
+    "sha256": "5333451e3c8b9287a92fbab26d66571866700958a9caf54a083cda924a237669",
+    "bytes": 107914
+  },
+  "boundOriginalLiveResult": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_LIVE_RESULT_V1.json",
+    "commit": "bf15fe3b9e16ffbe0a075d4464f7363a2c88b008",
+    "sha256": "a4ac8291544647bd5d740275949677858baa6239a0182c0a4fd0ed83f67b294a",
+    "bytes": 34707
+  },
+  "boundIncidentRuling": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_HOST_INTEGRITY_OWNER_RULING_V1.json",
+    "commit": "1baeaa4380c28e16646f7d4164eb6418ed835d59",
+    "sha256": "fc4316749f901a4f9d448f37cfd0c077a455f1809c509a65e9bc09b628b6b656",
+    "bytes": 33257
+  },
+  "boundApprovedAmendment": {
+    "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_HOST_CONFOUNDED_REVALIDATION_AMENDMENT_OWNER_APPROVAL_V1.json",
+    "commit": "639851a423026b917c93eaed4194979ced8a08b6",
+    "sha256": "e0a3c97386089e7ff862ea21a53f441506c1fe5812590ac083a4e6c11876847c",
+    "bytes": 11520
+  },
+  "boundPrecondition": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_TARGETED_HOST_RECOVERY_PRECONDITION_V1.json",
+    "commit": "a92e8ef722490cde0edabe461ce75fa42741bc27",
+    "sha256": "569b7a1ca377f686413044557f896a80179325da9d3fc696936454d0807b8a8a",
+    "bytes": 11905,
+    "validUntilUtc": "2026-10-05T16:15:16.769Z",
+    "validateHostRecoveryPrecondition": "PASS"
+  },
+  "boundOperatorKitHostSemanticsRepair": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_OPERATOR_KIT_HOST_SEMANTICS_REPAIR_V1.json",
+    "commit": "3b0b79474d1b3f7aa7d57d05498bdbc57b66b09d",
+    "sha256": "a7139a1c5286825acbdb12a1f394c186b788a5adca76070d29db209f3d63bd4c",
+    "bytes": 3888,
+    "validateOperatorKitHostSemanticsRepair": "PASS",
+    "notBound": "the older 892e52d byte revision"
+  },
+  "boundLedger": {
+    "entryCount": 21,
+    "ledgerHash": "c02e37ac42515cb689512b12425c41560fffeb32592e4e15f864892f63208ec8"
+  },
+  "boundLedgerFile": {
+    "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+    "sha256": "07cf86644940bab23fcfe74ab1b28f2a1629d0a0ee7478ac57ce7c79ce33bafe",
+    "bytes": 17842,
+    "nextReserveRankPosition": 21,
+    "reserve21": "UNASSIGNED"
+  },
+  "eligibility": {
+    "function": "evaluateHostRecoveryEligibility",
+    "conditions": "E1-E14",
+    "eligible": true,
+    "refusals": [],
+    "defectClass": "RESOLVER_VANTAGE",
+    "incidentClassification": "INDETERMINATE_HOST_VS_INSTITUTION_DNS_FAILURE",
+    "rederivedWindowSpecHash": "4e97902edefa9ba6c78a3a2a600c0451710b057e56b7bf8e0e7efbe9144e21c4",
+    "rederivedIdentityDigest": "927eb875b4c77347bb15a8181fabb93a3d379558f8d935b08468d86e0318dc33"
+  },
+  "originalItem": {
+    "windowOrdinal": 13,
+    "workItemId": "G2R:109:20",
+    "originalRunRefSha256": "5bf76c8d6d158fd4d5deec70797af68002a11dc66917c2c6f30642932246fe7f"
+  },
+  "target": {
+    "windowOrdinal": 13,
+    "workItemId": "G2R:109:20",
+    "kind": "REPLACEMENT",
+    "selectionIndex": 109,
+    "generation2ReserveRankPosition": 20,
+    "split": "FINAL_HOLDOUT",
+    "identityDigest": "927eb875b4c77347bb15a8181fabb93a3d379558f8d935b08468d86e0318dc33",
+    "originalRunRefSha256": "5bf76c8d6d158fd4d5deec70797af68002a11dc66917c2c6f30642932246fe7f",
+    "rootAuthorityCount": 1,
+    "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+    "ruleVersion": "orgunit-signal-rules-v1",
+    "executionPath": "npm CLI orgunits discover --organisation-id <bound organisation> --execute --json, UNCHANGED production code; the organisation and its ordered root authorities come ONLY from the pure Generation-2 execution binding (frozen schedule positions 19 and 20 -> exact frozen frame entries 169 and 170); a network-free dry run must resolve exactly those authorities before each item; no DB identity discovery, no hostname guessing, no alternative root"
+  },
+  "acquisitionCodeTree": {
+    "srcOrgunits": "945f30cf0ccb304daa3b132cf84d33fb3079d10a",
+    "srcCli": "f0716ed180e3d219424d48d46e63419d6ab097b9"
+  },
+  "acquisitionCodeTreeSource": "git tree hashes of src/orgunits and src/cli at the original Window-13 authority commit 0b9a7da; identical at a92e8ef",
+  "limits": {
+    "maximumLiveInvocations": 1,
+    "maximumLiveInvocationsPerTarget": 1,
+    "retries": 0,
+    "concurrency": 1,
+    "otherSelectionIndices": [],
+    "windowContinuation": false
+  },
+  "flags": {
+    "ledgerMutationAuthorised": false,
+    "reserveAssignmentAuthorised": false,
+    "acquisitionOfRecordMutationAuthorised": false,
+    "historicalRunMutationAuthorised": false,
+    "adjudicationAuthorised": false,
+    "validationAuthorised": false,
+    "windowAuthorised": false
+  },
+  "hostSafety": {
+    "doNotStartAtOrBelowBatteryPercent": 20,
+    "lidOpenRequired": true,
+    "caffeinateDimsuRequired": true,
+    "sleepDetectionMethod": "timestamp predicate over pmset -g log for Sleep / Wake / DarkWake; fail closed if unreadable",
+    "compliantVantageRequired": "IPv4 default route, native non-CLAT IPv4 address, ipv4only.arpa AAAA empty (no DNS64/NAT64); re-proved before and after every item",
+    "acPowerPreferred": true
+  },
+  "invocationConsumptionRule": "GENERATION2_HOST_RECOVERY_INVOCATION_CONSUMED_ON_CLI_EXECUTE_ISSUANCE_OR_RUN_CREATION_V1",
+  "gateReadoutRule": {
+    "recordedOnly": true,
+    "isRecoveryWindowPauseSystem": false,
+    "appliedToOriginalWindow": false,
+    "joinsOriginalWindowDenominator": false
+  },
+  "validitySemantics": "the 60-minute precondition validity gates CREATION of this authority only; execution additionally requires a fresh, independently GREEN T-0 host/vantage reproof immediately before the one CLI execute; a T-0 failure leaves the invocation UNSPENT (no CLI execute, no run) and is recorded as an evidence-only result; once a CLI execute is issued or a run row exists the one invocation is CONSUMED",
+  "afterThisAuthority": "one evidence-only recovery RESULT, then STOP for owner review: no closure validation, no adjudication, no acquisition-of-record movement, no ledger append, no reserve 21, no Window 14, no second recovery, no retry",
+  "identityDisclosure": "slot numbers, reserve positions, work item ids, digests and aggregates only; no organisation id, echeRowKey, URL, hostname, root-authority id or page text",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
