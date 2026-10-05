@@ -832,11 +832,12 @@ describe('the generic recovery namespace names no window, slot, work item or run
     ...Object.values(APPROVED_HOST_RECOVERY_AMENDMENT_BINDS).map((ref) => ref.commit),
   ]);
 
-  it('contains exactly the three generic modules and the synthetic fixture builder', () => {
+  it('contains exactly the four generic modules and the synthetic fixture builder', () => {
     expect(files.sort()).toEqual([
       'hostRecoveryContract.ts',
       'hostRecoveryEligibility.ts',
       'hostRecoveryProvenance.ts',
+      'operatorKitHostSemantics.ts',
       'synthesiseHostRecovery.ts',
     ]);
   });
