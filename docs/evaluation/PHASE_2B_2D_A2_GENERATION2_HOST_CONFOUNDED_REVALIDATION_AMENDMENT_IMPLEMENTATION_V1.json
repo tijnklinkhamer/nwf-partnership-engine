@@ -1,0 +1,284 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_HOST_CONFOUNDED_REVALIDATION_AMENDMENT_IMPLEMENTATION_V1",
+  "recordKind": "GENERATION2_OFFLINE_AMENDMENT_IMPLEMENTATION",
+  "task": "GENERATION2_HOST_CONFOUNDED_REVALIDATION_AMENDMENT_APPROVAL_AND_OFFLINE_IMPLEMENTATION_V1",
+  "followUpTask": "GENERATION2_HOST_RECOVERY_IMPLEMENTATION_HOST_SLEEP_VALIDATION_REPROOF_V1",
+  "recordedAtUtc": "2026-10-05T14:03:19Z",
+  "recordedAtUtcSource": "date -u, read from the shell when this record was written",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "fbbc1a6be5697416e57c7b912e8cf18b9fb16064",
+  "publicSafe": true,
+  "appendOnly": true,
+  "isLiveAuthority": false,
+  "thisFileAuthorises": [],
+  "methodologyAmendmentImplemented": true,
+  "liveRecoveryImplemented": false,
+  "operatorKitRepairCompleted": false,
+  "networkUsed": false,
+  "institutionNetworkUsed": false,
+  "nwfPeOpened": false,
+  "databaseWrittenOutsideTestDatabase": false,
+  "ledgerMutated": false,
+  "reserveAssigned": false,
+  "window13Adjudicated": false,
+  "window14Created": false,
+  "recoveryPreconditionCreated": false,
+  "recoveryAuthorityCreated": false,
+  "recoveryRunCreated": false,
+  "bound": {
+    "methodologyV3OwnerFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_OWNER_FREEZE_APPROVAL_V1.json",
+      "commit": "13dcdbed94fea08a833664948ac238737cf44c8e",
+      "sha256": "36e8071738e1842ad03a9b51cf5820d58015305191c48490ef515e1cd1c34f9c",
+      "bytes": 12318
+    },
+    "amendmentProposal": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_HOST_CONFOUNDED_REVALIDATION_AMENDMENT_PROPOSAL_V1.json",
+      "commit": "fbbc1a6be5697416e57c7b912e8cf18b9fb16064",
+      "sha256": "20cb395e7b4540593da8e2a32d6a3323f85d085aa9d70b2f05b0004e7b89394d",
+      "bytes": 33778
+    },
+    "amendmentDesign": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_HOST_CONFOUNDED_REVALIDATION_AMENDMENT_DESIGN_V1.json",
+      "commit": "fbbc1a6be5697416e57c7b912e8cf18b9fb16064",
+      "sha256": "c8be492f251aa7be133f5c465476b7cd422754f48b00ea1a0a9057355899e619",
+      "bytes": 63458
+    },
+    "amendmentOwnerApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_HOST_CONFOUNDED_REVALIDATION_AMENDMENT_OWNER_APPROVAL_V1.json",
+      "commit": "639851a423026b917c93eaed4194979ced8a08b6",
+      "sha256": "e0a3c97386089e7ff862ea21a53f441506c1fe5812590ac083a4e6c11876847c",
+      "bytes": 11520,
+      "ownerDecision": "APPROVE_GENERATION2_HOST_CONFOUNDED_REVALIDATION_DESIGN_A_AND_METHODOLOGY_V3_AMENDMENT_V1"
+    },
+    "window13HostIntegrityOwnerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_HOST_INTEGRITY_OWNER_RULING_V1.json",
+      "commit": "1baeaa4380c28e16646f7d4164eb6418ed835d59",
+      "sha256": "fc4316749f901a4f9d448f37cfd0c077a455f1809c509a65e9bc09b628b6b656",
+      "bytes": 33257
+    },
+    "generation2Ledger": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "commit": "ac19cb8ca4538237be49e03e0c19ce46cf6f4ecb",
+      "sha256": "07cf86644940bab23fcfe74ab1b28f2a1629d0a0ee7478ac57ce7c79ce33bafe",
+      "bytes": 17842,
+      "entryCount": 21,
+      "ledgerHash": "c02e37ac42515cb689512b12425c41560fffeb32592e4e15f864892f63208ec8",
+      "reserve21": "UNASSIGNED"
+    }
+  },
+  "implementation": {
+    "commit": "5499cb160dc73dd9b9ee4f51d241b722b7a199b4",
+    "parent": "639851a423026b917c93eaed4194979ced8a08b6",
+    "tree": "c3a6d57b6e881ad5cb4b6bc3525db41160931fcd",
+    "pushed": true,
+    "pushedAfterAcceptedValidation": true,
+    "files": [
+      {
+        "path": "src/test/harness/phase2b2d/generation2History/adjudicationHistory.ts",
+        "change": "MODIFIED",
+        "beforeSha256": "33dc4dc71afea79942ad2db080dc5b509f5ddc08da545c0393a7a129bd87eeda",
+        "beforeBytes": 53292,
+        "sha256": "fb8f9cf3608ece9da847032823894b38360c6e0ec485f69de69438afcb87d5c2",
+        "bytes": 61683
+      },
+      {
+        "path": "src/test/harness/phase2b2d/generation2History/historyIntegrity.ts",
+        "change": "MODIFIED",
+        "beforeSha256": "1e813f23c9de2bc00cc6759367f81d3271b223b0e549ac4cbbca24cb8a3729e0",
+        "beforeBytes": 6569,
+        "sha256": "b0bc563c7beb287fe6f7078453cf65635f3a0353fa7718b351ed743e57f1c6c5",
+        "bytes": 8157
+      },
+      {
+        "path": "src/test/harness/phase2b2d/generation2Recovery/hostRecoveryContract.ts",
+        "change": "NEW",
+        "sha256": "6fe7dd8777f2a43ced58c6e80cc9dd90686f89e527b9d283cd5b123370eec2c0",
+        "bytes": 16815
+      },
+      {
+        "path": "src/test/harness/phase2b2d/generation2Recovery/hostRecoveryEligibility.ts",
+        "change": "NEW",
+        "sha256": "5a7bba86ebb2441e56dbc83c626f207e45559674abe34b545962847e3b168282",
+        "bytes": 21258
+      },
+      {
+        "path": "src/test/harness/phase2b2d/generation2Recovery/hostRecoveryProvenance.ts",
+        "change": "NEW",
+        "sha256": "2ccea6599329e3ad31dd5223c4c92322efbe94c574497a49b8e4d74b8c229ad1",
+        "bytes": 39980
+      },
+      {
+        "path": "src/test/harness/phase2b2d/generation2Recovery/synthesiseHostRecovery.ts",
+        "change": "NEW",
+        "role": "synthetic test-fixture builder (generic, names no window/slot/run)",
+        "sha256": "082680b27f4fef13a48343d86440c6d05b44bbb21186a3d1129446d471816d4b",
+        "bytes": 18714
+      },
+      {
+        "path": "src/test/unit/orgunitCorpus2DA2Generation2HostRecoveryEligibility.test.ts",
+        "change": "NEW",
+        "sha256": "db85f1103cfa9905194c5f205aacf8984f80d7cfd0a4dd4abb71d0ab523821f1",
+        "bytes": 33051
+      },
+      {
+        "path": "src/test/unit/orgunitCorpus2DA2Generation2HostRecoveryHistory.test.ts",
+        "change": "NEW",
+        "sha256": "ae35ff53a72c10f19e1292304dffd1ab4c5edca6e10ab08a7082286da332f1df",
+        "bytes": 35464
+      }
+    ],
+    "untouchedTrees": {
+      "src/orgunits": "945f30cf0ccb304daa3b132cf84d33fb3079d10a",
+      "src/cli": "f0716ed180e3d219424d48d46e63419d6ab097b9",
+      "migrations": "f517b935434c061c5e14b56d77ec6b85405d390a",
+      "identicalToStartingHead": true
+    },
+    "notChanged": [
+      "production code (src/orgunits/**, src/cli/**)",
+      "migrations",
+      "ledger code and the canonical ledger",
+      "windowSpec.ts, state.ts, preflight.ts",
+      "validateGeneration2LiveResultForHistory, applyLedgerEntry, applyAdjudicatedItem",
+      "frozen P1-P8 / gate code",
+      "any committed record",
+      "any Window-13 operator kit (data/g2w13l)"
+    ]
+  },
+  "semantics": {
+    "design": "A: optional, explicitly supplied targetedHostRecoveries on a window history binding; per-item acquisitionOfRecord block; original integrity exactly HOST_CONFOUNDED only on the recovery path; separate recoveryIntegrity CLEAN required",
+    "eligibility": "evaluateHostRecoveryEligibility: pure, E1-E14 each with its own refusal code, all evaluated, fail closed; never reads a recovery result, yield, label or page content",
+    "chain": "precondition -> operator-kit host-semantics repair -> recovery authority -> recovery result -> acquisitionOfRecord, every hop {path, commit, sha256, bytes} re-hashed",
+    "uq1": "recovery result records a mechanical P1-P8 readout with recordedOnly true, never a pause system, never applied to or joined into the original window; adjudicated window must carry originalWindowStopHistory equal to its LIVE_RESULT and the ruling's frozen-P8 correction",
+    "uq2": "precondition: >= 6 GREEN probes over >= 10 minutes over fixed control names (example.com, example.net, example.org) plus ipv4only.arpa; target never probed; validUntil exactly final probe + 60 min; authority recorded within it",
+    "uq3": "no ENOTFOUND rule; eligibility needs an observed host failure plus a causal channel from the committed ruling",
+    "uq4": "validateOperatorKitHostSemanticsRepair is required by validateHostRecoveryAuthority; no such repair record exists, so no recovery authority can validate today",
+    "uq5": "invocation consumed on CLI execute issuance OR run creation; unspent only when neither; no automatic replacement invocation",
+    "acquisitionOfRecord": "source ACCEPTED_TARGETED_HOST_RECOVERY_REVALIDATION; original run retained, not deleted, not edited, disposition SUPERSEDED_FOR_GENERATION_ACQUISITION_DECISION_BY_ACCEPTED_HOST_RECOVERY; original runRef stays in executed[k].runRefSha256",
+    "globalRunReferenceUniqueness": "GENERATION2_RECOVERY_RUN_REFERENCE_IS_GLOBALLY_UNIQUE_V1: accepted recovery refs share one set with all ordinary refs"
+  },
+  "tests": {
+    "newSuites": {
+      "orgunitCorpus2DA2Generation2HostRecoveryEligibility.test.ts": { "tests": 55, "passed": 55 },
+      "orgunitCorpus2DA2Generation2HostRecoveryHistory.test.ts": { "tests": 66, "passed": 66 }
+    },
+    "realRecordEligibilityReading": {
+      "G2R:109:20": "E1-E14 all hold (eligibility only; no precondition, authority or run exists)",
+      "G2R:106:19": "refused E5, E6, E7, E8, E9"
+    },
+    "focusedRun": {
+      "command": "npx vitest run src/test/unit/orgunitCorpus2DA2Generation2*.test.ts src/test/firewall",
+      "files": 60,
+      "passed": 1332,
+      "skipped": 1,
+      "failed": 0,
+      "skipNote": "the one skip is a pre-existing conditional skip in an older firewall file"
+    },
+    "staticChecks": { "prettier": "PASS", "eslint": "PASS", "typecheck": "PASS" },
+    "backwardCompatibility": {
+      "twelveWindowHistoryBindingCanonicalSha256": "3f0a927a0a4cf92ac008d71a7e8876fc6cdaf7c660b41b54e0867cb9b1bc2a40",
+      "pinnedBeforeTheChange": true,
+      "equalAfterTheChange": true,
+      "historicalRunReferences": 52,
+      "rebuiltWindowSpecHashes01to12Unchanged": true,
+      "window13SpecRebuildsToItsAuthority": true,
+      "window13LiveResultValidatesUnchanged": true,
+      "recoveryOnlyKeysOnRecoveryFreeReplay": 0,
+      "existingGeneration2TestsChanged": 0
+    }
+  },
+  "validationHistory": [
+    {
+      "ordinal": 1,
+      "command": "npm run validate",
+      "commit": "5499cb160dc73dd9b9ee4f51d241b722b7a199b4",
+      "startUtc": "2026-10-05T13:16:35Z",
+      "endUtc": "2026-10-05T13:45:56Z",
+      "exitCode": 1,
+      "testFiles": { "passed": 236, "failed": 4, "skipped": 5 },
+      "tests": { "passed": 5966, "failed": 3, "skipped": 88 },
+      "failures": [
+        {
+          "test": "phase2bTransportSubtype.firewall.test.ts > leaves gateway.ts the only socket under src/orgunits/",
+          "kind": "Test timed out in 30000ms"
+        },
+        {
+          "test": "orgunitCorpus2DA2Generation2HostRecoveryEligibility.test.ts > E14 a declared target with another fetch policy",
+          "kind": "Test timed out in 30000ms"
+        },
+        {
+          "test": "orgunitCorpus2DA2Generation2Window13ReadinessIsolation.test.ts > the task starts at the closed Window-12 chain",
+          "kind": "Test timed out in 30000ms"
+        },
+        {
+          "test": "orgunitCorpus2DA2Generation2Window10Readiness.test.ts (beforeAll)",
+          "kind": "Hook timed out in 300000ms"
+        }
+      ],
+      "assertionFailures": 0,
+      "hostSleepEvidence": {
+        "source": "pmset -g log, timestamped",
+        "events": [
+          "2026-10-05 15:24:27 +0200 Sleep (Maintenance Sleep)",
+          "2026-10-05 15:38:34 +0200 DarkWake (30 s)",
+          "2026-10-05 15:39:04 +0200 Sleep (Maintenance Sleep)",
+          "2026-10-05 15:42:50 +0200 Wake (lid)"
+        ],
+        "sleepIntervalUtc": ["2026-10-05T13:24:27Z", "2026-10-05T13:42:50Z"],
+        "approximateMinutesAsleepDuringTestPhase": 18,
+        "cause": "lid closed during the run; wall-clock test deadlines elapsed while the host slept"
+      },
+      "classification": "FULL_VALIDATION_HOST_SLEEP_CONTAMINATED_NOT_ACCEPTED",
+      "isImplementationFailure": false,
+      "isAccepted": false,
+      "failuresRemainHistoricallyRecorded": true
+    },
+    {
+      "ordinal": 2,
+      "ownerDecision": "AUTHORISE_ONE_GENERATION2_HOST_RECOVERY_IMPLEMENTATION_VALIDATION_REPROOF_AFTER_PROVEN_HOST_SLEEP_V1",
+      "command": "caffeinate -dimsu npm run validate",
+      "commit": "5499cb160dc73dd9b9ee4f51d241b722b7a199b4",
+      "commitUnchanged": true,
+      "codeOrTestsChangedBeforeReproof": false,
+      "timeoutConfigurationChanged": false,
+      "preRunHost": {
+        "checkedAtUtc": "2026-10-05T13:50:57Z",
+        "lidOpen": true,
+        "awakeSinceLocal": "2026-10-05 15:42:50 +0200",
+        "batteryPercent": 100,
+        "powerSource": "Battery Power",
+        "caffeinateAvailable": true,
+        "loadAverage1m": 3.58
+      },
+      "dockerLoadChanged": false,
+      "dockerLoadNote": "the unrelated Supabase stacks were left running: other sessions were active and their non-use could not be proved; nwf_pe_postgres untouched",
+      "startUtc": "2026-10-05T13:51:07Z",
+      "endUtc": "2026-10-05T14:03:02Z",
+      "exitCode": 0,
+      "testFiles": { "passed": 240, "failed": 0, "skipped": 5 },
+      "tests": { "passed": 5981, "failed": 0, "skipped": 76 },
+      "vitestDurationSeconds": 681.87,
+      "sleepWakeDarkWakeEventsDuringRun": 0,
+      "treeCleanAfterRun": true,
+      "headUnchangedAfterRun": true,
+      "classification": "FULL_VALIDATION_REPROOF_ACCEPTED_AFTER_HOST_SLEEP_INCIDENT",
+      "isAccepted": true
+    }
+  ],
+  "broadValidationsRun": 2,
+  "furtherFullValidationAuthorised": false,
+  "operatorKitRepairPrerequisite": "REQUIRE_OPERATOR_KIT_HOST_SEMANTICS_REPAIR_BEFORE_ANY_GENERATION2_HOST_RECOVERY_LIVE_AUTHORITY_V1: not performed; any recovery live authority remains invalid until a separately committed and reviewed repair proves frozen-P8-only input, separate host/vantage integrity, no hard-coded host claims and persisted, reproducible observations",
+  "finalState": {
+    "window13": "UNADJUDICATED",
+    "ledgerEntries": 21,
+    "reserve21": "UNASSIGNED",
+    "recoveryPrecondition": "ABSENT",
+    "recoveryLiveAuthority": "ABSENT",
+    "recoveryRun": "ABSENT",
+    "operatorKitRepair": "NOT_PERFORMED",
+    "window14": "ABSENT"
+  },
+  "identityDisclosure": "slot numbers, work item ids, reserve positions, digests, run-reference hashes, timestamps and aggregates only; no organisation id, echeRowKey, URL, hostname, root-authority id, run UUID or page text",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
