@@ -20,7 +20,7 @@
  */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
@@ -401,17 +401,20 @@ describe.skipIf(!a2Available)('2D-A3 R38: why unchanged R17 cannot hold Generati
 });
 
 describe('2D-A3 R38: nothing minted, nothing modified', () => {
-  it('creates no Governance V5 namespace and no V5 census', () => {
-    expect(existsSync(join(REPO_ROOT, HARNESS, 'a3governanceV5'))).toBe(false);
-    expect(
-      existsSync(
-        join(
-          REPO_ROOT,
-          'docs/evaluation/PHASE_2B_2D_A3_R38_PUBLIC_GOVERNANCE_AUTHORITY_CENSUS_V5.json',
-        ),
-      ),
-    ).toBe(false);
-  });
+  // R38's "nothing minted" claim describes R38'S SLICE, so it reads the tree
+  // at R38_TERMINAL rather than the working tree: a later, separately
+  // authorised slice (R38B) legitimately creates the V5 namespace. Same
+  // standing range convention as R19-R38A; nothing widened or weakened.
+  it.skipIf(!commitExists(R38_TERMINAL))(
+    'creates no Governance V5 namespace and no V5 census',
+    () => {
+      const tree = lines(git('ls-tree', '-r', '--name-only', R38_TERMINAL));
+      expect(tree.filter((path) => path.startsWith(`${HARNESS}/a3governanceV5/`))).toEqual([]);
+      expect(tree).not.toContain(
+        'docs/evaluation/PHASE_2B_2D_A3_R38_PUBLIC_GOVERNANCE_AUTHORITY_CENSUS_V5.json',
+      );
+    },
+  );
 
   it('leaves R17 and R26’s comparator byte-identical', () => {
     expect(sha256(readFileSync(join(REPO_ROOT, HARNESS, 'a3prep/slotAuthority.ts')))).toBe(
