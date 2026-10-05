@@ -1,0 +1,178 @@
+{
+  "record": "PHASE_2B_2D_A3_R38_CROSS_GENERATION_AUTHORITY_ADAPTER_REFUSAL_V1",
+  "recordKind": "PUBLIC_GOVERNANCE_ONLY_ARCHITECTURAL_REFUSAL",
+  "task": "A3_R38_COMMITTED_CROSS_GENERATION_GOVERNANCE_SNAPSHOT_V5",
+  "ownerDecision": "AUTHORISE_A3_R38_COMMITTED_GOVERNANCE_V5_REVIEW_FROM_TERMINAL_A2_CHECKPOINT_V1",
+  "publicSafe": true,
+  "appendOnly": true,
+  "isLiveAuthority": false,
+  "thisFileAuthorises": [],
+  "thisFileAuthorisesNote": "a refusal is not authority: it mints no snapshot, no READY authority, no evidence task and no contract change",
+  "lineage": {
+    "r37Terminal": "9bfaa0ec2ec6f7c7c6eb18bce55e324505262064",
+    "r37ScopePinCommit": "3795d0677f832d39d83655e8aeea44cd1a130915",
+    "branch": "feat/phase2b-2d-a3-r38-committed-governance-v5",
+    "a2MergedOrRebased": false,
+    "a2CheckpointIsAncestorOfA3": false,
+    "a2ReadOnlyThroughCommitAddressedBytes": true
+  },
+  "a2Checkpoint": {
+    "commit": "29d0d486cb268b5431a0fc23eabb064682ec47d9",
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_CORPUS_FREEZE_APPROVAL_V1.json",
+    "bytes": 24833,
+    "sha256MatchesOwnerExpectation": true,
+    "isLiveAuthority": false,
+    "thisFileAuthorisesEmpty": true,
+    "corpusFreezeStatus": "APPROVED",
+    "corpusState": "GENERATION2_ACQUISITION_CORPUS_FROZEN",
+    "terminalState": "PHASE_2B_2D_A2_GENERATION2_CORPUS_FREEZE_APPROVED_TERMINAL",
+    "designation": "TERMINAL_A2_GOVERNANCE_CHECKPOINT_ELIGIBLE_FOR_SEPARATELY_AUTHORISED_A3_REVIEW",
+    "recordDisclaimsModifyingA3": true,
+    "recordDisclaimsCreatingGovernanceV5": true,
+    "recordDisclaimsAuthorisingR38": true,
+    "recordDisclaimsImplyingA3Completion": true,
+    "freezeBindingsVerifiedAgainstCommittedBytes": 57,
+    "freezeBindingsMismatched": 0,
+    "freezeAggregateUsedAsDispositionSource": false
+  },
+  "crossGenerationTruthVerified": {
+    "methodologyV3OwnerFreezeBound": true,
+    "generation1Id": "METHODOLOGY_V2_GEN1",
+    "generation2Id": "METHODOLOGY_V3_GEN2",
+    "sameSelectionCohortSize": 110,
+    "noNewPrimaryDraw": true,
+    "generation1StartingState": {
+      "terminalStatus": "CORPUS_FREEZE_REFUSED",
+      "terminalCommit": "7c3d24f8db72bf5401c4bfc176700c1d50e25cc0",
+      "terminalRecordBytesMatchGeneration2Binding": true,
+      "ledgerBytesMatchGeneration2Binding": true,
+      "ledgerEntryCount": 39,
+      "entryHashesRecomputed": 39,
+      "entryHashChainIntact": true,
+      "ledgerHashRecomputedMatches": true,
+      "governanceV4LedgerSubstitutedForIt": false
+    },
+    "generation2Ledger": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "lastChangedAtCommit": "ac19cb8ca4538237be49e03e0c19ce46cf6f4ecb",
+      "bytesAtCheckpointEqualLastChangedBytes": true,
+      "entryCount": 21,
+      "entryHashesRecomputed": 21,
+      "entryHashChainIntact": true,
+      "ledgerHashRecomputedMatches": true,
+      "nextGeneration2ReservePosition": 21,
+      "reserve21Assigned": false,
+      "declaredOccupantChain": "original selection -> Generation-1 replacement chain -> Generation-1 terminal current occupant -> Generation-2 replacement chain"
+    },
+    "generation2ReserveNamespace": {
+      "source": "previously-undrawn frame ranks (Generation-2 reserve schedule)",
+      "scheduleEntryCount": 5670,
+      "generation1DrawReserveEntryCount": 40,
+      "generation2ReplacementIdentitiesFoundInGeneration1Draw": 0,
+      "namespacesDisjoint": true
+    },
+    "carryForward": {
+      "generation1SuccessfulOccupantsCarried": 75,
+      "carriedOccupantsKeepHistoricalRunAndPolicy": true
+    },
+    "explicitThirteenWindowHistory": {
+      "windowCount": 13,
+      "cadenceAuthorityWindows": [8, 9, 10, 12],
+      "globGlobalOrLatestUsed": false,
+      "perSlotReplayPerformed": false,
+      "perSlotReplayNotPerformedBecause": "the contract refusal below is structural and precedes any per-slot derivation; replaying to fill a contract that cannot hold the result would itself be the forbidden translation"
+    },
+    "currentOccupantStructure": {
+      "derivedFrom": "draw selection + Generation-1 39-entry ledger + Generation-2 21-entry ledger, by explicit chain, never by recency",
+      "totalSlots": 110,
+      "primaryOccupants": 74,
+      "generation1ReserveOccupants": 24,
+      "generation2ReserveOccupants": 12,
+      "devTrainSlots": 20,
+      "devTrainGeneration2ReserveOccupants": 2
+    }
+  },
+  "refusal": {
+    "status": "CROSS_GENERATION_AUTHORITY_MAPPING_NOT_REPRESENTABLE_WITHOUT_IDENTITY_TRANSLATION",
+    "r17SufficientUnchanged": false,
+    "incompatibilities": [
+      {
+        "id": "I1_GENERATION_IDENTITY",
+        "r17Invariant": "resolveGenerationSlotAuthorities refuses GENERATION_MISMATCH unless input.generationId is the frozen Generation-1 id, and every fact must carry the input generationId",
+        "generation2Truth": "every Generation-2 adjudication names METHODOLOGY_V3_GEN2, while carried occupants are authorised by Generation-1 adjudications",
+        "requiredTranslation": "relabel one generation's facts as the other's"
+      },
+      {
+        "id": "I2_RESERVE_NAMESPACE",
+        "r17Invariant": "a RESERVE_REPLACEMENT occupant is draw.reserve[reserveRankPosition] with position 0..39 and a draw-entry digest; the reserve array must be exactly the 40 frozen draw entries",
+        "generation2Truth": "Generation-2 reserve occupants come from a 5670-entry schedule of undrawn frame ranks; none of their identities is a draw entry, so no draw-entry digest exists for them",
+        "requiredTranslation": "renumber Generation-2 reserves into the Generation-1 position space or substitute a non-draw digest for drawEntrySha256"
+      },
+      {
+        "id": "I3_SINGLE_LEDGER_CHAIN",
+        "r17Invariant": "one replacement ledger revision, sequences 0..n-1 below the 40-entry reserve cap, every chain rooted at ORIGINAL_SELECTION",
+        "generation2Truth": "two hash-independent ledgers (39 + 21 entries); Generation-2 chains are rooted at GENERATION1_TERMINAL_OCCUPANT, and the Generation-2 ledger records that Generation-1 history is never duplicated or re-sequenced into it",
+        "requiredTranslation": "concatenate and re-sequence the two ledgers into one namespace, or drop one generation's transitions"
+      },
+      {
+        "id": "I4_LEDGER_ENTRY_VOCABULARY",
+        "r17Invariant": "transition fields reserveRankPosition and replacedOccupantKind in {ORIGINAL_SELECTION, RESERVE_REPLACEMENT}",
+        "generation2Truth": "Generation-2 entries carry generation2ReserveRankPosition and replacedOccupantKind in {GENERATION1_TERMINAL_OCCUPANT, GENERATION2_RESERVE_REPLACEMENT}",
+        "requiredTranslation": "rename fields and map occupant kinds onto Generation-1 kinds"
+      },
+      {
+        "id": "I5_CONTINUITY_PROJECTION",
+        "r17Invariant": "the R26 continuity projection compares generationId, occupant, slot ledger chain, draw and the replacement-ledger binding",
+        "generation2Truth": "no defined cross-generation equivalence exists under which a carried Generation-1 authority is the same authority inside a Generation-2 resolution",
+        "requiredTranslation": "declare carried authorities UNCHANGED by fiat, or mark all of them CHANGED for an evidence-irrelevant reason"
+      }
+    ],
+    "rejectedAlternatives": [
+      "partial V5 resolving only the Generation-1-representable slots: not the terminal state, and R17 forbids partial generation results",
+      "minting READY from the freeze aggregate or finalAcquisitionState: forbidden; the aggregate is a cross-check only",
+      "extending R17 in place: forbidden by this task"
+    ],
+    "minimumSeparatelyOwnerReviewedExtension": [
+      "a NEW cross-generation slot-authority contract beside R17 (R17 untouched, still the Generation-1 resolver), whose occupant identity is generation-qualified: {generationId, occupantKind in PRIMARY | GENERATION1_RESERVE_REPLACEMENT | GENERATION2_RESERVE_REPLACEMENT, reserveNamespace, reservePosition, identity digest from that namespace's own frozen source}",
+      "chain resolution over BOTH ledgers by explicit link: primary -> Generation-1 chain -> Generation-1 terminal occupant -> Generation-2 chain, each ledger validated by its own hash rules and never re-sequenced",
+      "terminal facts that keep their own generationId, with carry-forward admitted only through the committed carry-forward baseline (Generation-1 adjudication + historical run + historical policy preserved)",
+      "acquisition-of-record selection only through the adjudication's own recovery binding, never by recency",
+      "an owner-defined cross-generation continuity projection stating exactly which fields must be byte-identical for a carried Governance V4 authority to be UNCHANGED"
+    ]
+  },
+  "governanceV5": {
+    "minted": false,
+    "registryCreated": false,
+    "namespaceCreated": false,
+    "census": false
+  },
+  "devTrainContinuity": {
+    "derived": false,
+    "governanceV4DevTrainReady": 13,
+    "r37CoverageStillCanonicalForTheseThirteen": true,
+    "newAuthoritiesDerived": 0
+  },
+  "noSideEffects": {
+    "workingDatabaseConnections": 0,
+    "sqlStatements": 0,
+    "institutionNetworkRequests": 0,
+    "sealedRootReads": 0,
+    "devTrainEvidenceLookups": 0,
+    "devConfirmEvidenceReads": 0,
+    "finalHoldoutEvidenceReads": 0,
+    "documentAssembly": 0,
+    "graphMeasurement": 0,
+    "samplePreparation": 0,
+    "sd9OrReadinessDerivation": 0,
+    "labels": 0,
+    "classifierOrProviderCalls": 0,
+    "a2Modified": false,
+    "r17Modified": false,
+    "olderGovernanceNamespacesModified": false
+  },
+  "notStarted": ["R39", "complete-corpus preflight", "Governance V6", "A5 freeze"],
+  "identityDisclosure": "commits, counts and contract field names only; no selection index, reserve position, organisation id, eche row key, run id, run reference, document identity, URL, hostname or sealed filename",
+  "terminalState": "R38_CROSS_GENERATION_AUTHORITY_MAPPING_REFUSED_AWAIT_OWNER_CONTRACT_DECISION",
+  "nextOwnerQuestion": "whether to authorise a separately reviewed cross-generation A3 slot-authority contract (beside, not inside, R17) before any Governance V5 snapshot is attempted",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
