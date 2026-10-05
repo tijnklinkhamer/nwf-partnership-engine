@@ -1,0 +1,526 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_CORPUS_FREEZE_APPROVAL_V1",
+  "recordKind": "GENERATION2_CORPUS_FREEZE_OWNER_APPROVAL",
+  "task": "GENERATION2_COMPLETE_ACQUISITION_CORPUS_FREEZE_OWNER_APPROVAL_V1",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "79918959c44cbbabe4e3e2f665cce2b8f84bb56e",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "publicSafe": true,
+  "appendOnly": true,
+  "isLiveAuthority": false,
+  "thisFileAuthorises": [],
+  "thisFileAuthorisesNote": "the freeze is a terminal governance fact, not execution authority; any later A3 work needs its own explicit owner task",
+  "corpusFreezeStatus": "APPROVED",
+  "generation2AcquisitionTerminal": true,
+  "corpusState": "GENERATION2_ACQUISITION_CORPUS_FROZEN",
+  "freezeKind": "A2_ACQUISITION_STATE_FREEZE",
+  "ownerDecisions": [
+    "APPROVE_GENERATION2_CORPUS_FREEZE_AT_110_OF_110_ACQUISITION_SUCCESSFUL_V1",
+    "DECLARE_GENERATION2_ACQUISITION_TERMINAL_NO_FURTHER_ACQUISITION_AUTHORITY_V1",
+    "PRESERVE_GENERATION2_REPLACEMENT_LEDGER_AT_21_ENTRIES_RESERVE_21_UNASSIGNED_V1",
+    "DESIGNATE_THIS_RECORD_AS_NEW_TERMINAL_A2_GOVERNANCE_CHECKPOINT_FOR_FUTURE_A3_REVIEW_V1"
+  ],
+  "ownerDecisionInterpretation": [
+    "every original slot 0..109 has one accepted Generation-2 acquisition outcome",
+    "all 110 current acquisition states are ACQUISITION_SUCCESSFUL",
+    "there is no current Q1 obligation",
+    "there is no assigned-but-unexecuted replacement",
+    "there is no pending or never-started acquisition work",
+    "no further Generation-2 acquisition is needed to complete the frozen 110-slot acquisition corpus",
+    "reserve 21 is not assigned merely because it exists",
+    "no Window 14 is created",
+    "the replacement ledger is frozen at its existing 21 entries",
+    "this record is the explicit terminal A2 governance checkpoint that a later, separately authorised A3 task may inspect by exact commit/hash",
+    "this record does NOT change A3 Governance V4, create Governance V5, or authorise any A3 evidence read"
+  ],
+  "networkUsedByThisRecord": false,
+  "databaseReadByThisRecord": false,
+  "databaseWrittenByThisRecord": false,
+  "ledgerAppendedByThisRecord": false,
+  "reserveAssignedByThisRecord": false,
+  "derivation": "pure offline replay over exact committed bytes at pinned commits; no latest-file discovery, no glob, no directory inference",
+  "bound": {
+    "methodologyV3OwnerFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_OWNER_FREEZE_APPROVAL_V1.json",
+      "commit": "13dcdbed94fea08a833664948ac238737cf44c8e",
+      "sha256": "36e8071738e1842ad03a9b51cf5820d58015305191c48490ef515e1cd1c34f9c",
+      "bytes": 12318
+    },
+    "window13OrdinaryAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_LIVE_AUTHORITY_V1.json",
+      "commit": "0b9a7dabe5e720b18fcb41830fb687787b47b93f",
+      "sha256": "5333451e3c8b9287a92fbab26d66571866700958a9caf54a083cda924a237669",
+      "bytes": 107914
+    },
+    "canonicalLedger21": {
+      "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+      "commit": "ac19cb8ca4538237be49e03e0c19ce46cf6f4ecb",
+      "sha256": "07cf86644940bab23fcfe74ab1b28f2a1629d0a0ee7478ac57ce7c79ce33bafe",
+      "bytes": 17842,
+      "ledgerHash": "c02e37ac42515cb689512b12425c41560fffeb32592e4e15f864892f63208ec8",
+      "entryCount": 21
+    },
+    "window13LiveResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_LIVE_RESULT_V1.json",
+      "commit": "bf15fe3b9e16ffbe0a075d4464f7363a2c88b008",
+      "sha256": "a4ac8291544647bd5d740275949677858baa6239a0182c0a4fd0ed83f67b294a",
+      "bytes": 34707
+    },
+    "window13HostIntegrityOwnerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_HOST_INTEGRITY_OWNER_RULING_V1.json",
+      "commit": "1baeaa4380c28e16646f7d4164eb6418ed835d59",
+      "sha256": "fc4316749f901a4f9d448f37cfd0c077a455f1809c509a65e9bc09b628b6b656",
+      "bytes": 33257
+    },
+    "approvedHostRecoveryAmendment": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_HOST_CONFOUNDED_REVALIDATION_AMENDMENT_OWNER_APPROVAL_V1.json",
+      "commit": "639851a423026b917c93eaed4194979ced8a08b6",
+      "sha256": "e0a3c97386089e7ff862ea21a53f441506c1fe5812590ac083a4e6c11876847c",
+      "bytes": 11520
+    },
+    "hostRecoveryAmendmentImplementation": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_HOST_CONFOUNDED_REVALIDATION_AMENDMENT_IMPLEMENTATION_V1.json",
+      "commit": "dd3057633209cd6e5524118badd931a1a17e4460",
+      "sha256": "6fed1b53f87f724140cae8105b59659057146380ed9d7fa0f4e8df2596f76d2b",
+      "bytes": 14383
+    },
+    "canonicalOperatorKitHostSemanticsRepair": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_OPERATOR_KIT_HOST_SEMANTICS_REPAIR_V1.json",
+      "commit": "3b0b79474d1b3f7aa7d57d05498bdbc57b66b09d",
+      "sha256": "a7139a1c5286825acbdb12a1f394c186b788a5adca76070d29db209f3d63bd4c",
+      "bytes": 3888
+    },
+    "window13TargetedHostRecoveryPrecondition": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_TARGETED_HOST_RECOVERY_PRECONDITION_V1.json",
+      "commit": "a92e8ef722490cde0edabe461ce75fa42741bc27",
+      "sha256": "569b7a1ca377f686413044557f896a80179325da9d3fc696936454d0807b8a8a",
+      "bytes": 11905
+    },
+    "window13TargetedHostRecoveryAuthority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_TARGETED_HOST_RECOVERY_REVALIDATION_AUTHORITY_V1.json",
+      "commit": "0ba04ab6a5431ee6d5725b3912708e40951e53f9",
+      "sha256": "e0029caf48494d1ab46e6318cb851fad31c925d94893dce76de5d9a74483226e",
+      "bytes": 8197
+    },
+    "window13TargetedHostRecoveryResult": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_TARGETED_HOST_RECOVERY_REVALIDATION_RESULT_V1.json",
+      "commit": "1a11e45a4197bf888bd629112c35de5645fc199c",
+      "sha256": "2692001e426bb81649c89e6e291bfac74484c1e9da318f8c8b22df2745195bdb",
+      "bytes": 16528
+    },
+    "window13TargetedHostRecoveryClosureOwnerRuling": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_TARGETED_HOST_RECOVERY_OWNER_RULING_V1.json",
+      "commit": "de915b1ee8e7239e9894608a30639101bb945ade",
+      "sha256": "ee1980625906a1c4db77e8981bfb5ff339fc62290ab740cd9f6ec42e59d2d50f",
+      "bytes": 15450
+    },
+    "window13EvidenceAdjudication": {
+      "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_EVIDENCE_ADJUDICATION_V1.json",
+      "commit": "79918959c44cbbabe4e3e2f665cce2b8f84bb56e",
+      "sha256": "5292f878413b648cd965c3743428eccce1bab3b28620f80d0d8df67178a5dac4",
+      "bytes": 37514,
+      "acquisitionStateToken": "GENERATION2_ACQUISITION_STATE_COMPLETE_AWAITING_OWNER_CORPUS_FREEZE_DECISION"
+    },
+    "allAncestralToStartingHead": true
+  },
+  "explicitThirteenWindowHistory": {
+    "windowCount": 13,
+    "order": [
+      "01",
+      "02",
+      "03",
+      "04",
+      "05",
+      "06",
+      "07 (partial)",
+      "08",
+      "09 (partial)",
+      "10 (partial)",
+      "11 (partial)",
+      "12",
+      "13"
+    ],
+    "windows": [
+      {
+        "windowOrdinal": 1,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_AUTHORITY_V1.json",
+          "sha256": "e4874f7e84a184bd473b75f15dba0fd90700d4bb33ec0093593de90f4dea38ba"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_LIVE_RESULT_V1.json",
+          "sha256": "7162938e6f8ba5f7808075f58021b540244b2b5a0b05d61db0812cfd4d8102d0"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_01_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "89e4f166e56292374d3cf1aa2fe8037225770d48193ae619a32a1d4c7f1df5df"
+        }
+      },
+      {
+        "windowOrdinal": 2,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_AUTHORITY_V1.json",
+          "sha256": "e2cb65b5a7d3b35391718e255fef4db926bcfe88020f392ac93f79981392bba2"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_LIVE_RESULT_V1.json",
+          "sha256": "68852cbca3de127bb0a5442863cc99d2c3b72a5a69700c5fc5ac619fbc29b4ae"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_02_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "2e35cad7951aed780151b97400ea3b7e9fd78d4bfdec252f83d0652702bbdc8d"
+        }
+      },
+      {
+        "windowOrdinal": 3,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_AUTHORITY_V1.json",
+          "sha256": "aaa61ce72b9a5b943928f879f68daa06ea612aacfd5117310d54bd14cfa65478"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_LIVE_RESULT_V1.json",
+          "sha256": "c9654a837dde1c7c86a90c505b8cc1d5e6fcae1edc8a593981328576944e42ec"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_03_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "8d59cb2a1e2d6f3b447767a8c56078111658dbd07818e098fd363c153fe33ef0"
+        }
+      },
+      {
+        "windowOrdinal": 4,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_AUTHORITY_V1.json",
+          "sha256": "bb24c26a8f2816a2cba584edb3726254bd72b1a8b979ca3cf9348effae1802a5"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_LIVE_RESULT_V1.json",
+          "sha256": "89b2aac217502133e7cbd75a9144f81637a03ef3be906cdebd03d1edb30e22f4"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "826f11851a6c000d3a314da2b6a4c31081014d29fdbdeb6012d157dae58b3dd8"
+        },
+        "authorityShapeCorrection": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_04_OWNER_SHAPE_CORRECTION_AND_ADJUDICATION_RULING_V1.json",
+          "sha256": "0635507f90bd4c928de4ccf1a4fd0535ed74731d5e7471e69ad7c18b5bd73640"
+        }
+      },
+      {
+        "windowOrdinal": 5,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_AUTHORITY_V1.json",
+          "sha256": "d88f741162bf27f6c290b2875edbeba522908c5545d6608b8d79b820ff701807"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_LIVE_RESULT_V2.json",
+          "sha256": "6914f564726029ebf82ef9ea142279f9697d9adb68bf42bfad0ba359df748d26"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_05_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "187eef89ed37f86e2f96c95e8772d9681ddcd944d04cff21961e4aaa63358642"
+        }
+      },
+      {
+        "windowOrdinal": 6,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_AUTHORITY_V1.json",
+          "sha256": "6d847d8175054ecf7f09e45b5ab8ba8e488e9f8ca99553e9ca2c420b4dc977e3"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_LIVE_RESULT_V3.json",
+          "sha256": "9dee6861dabc5c997ed2d458fad7d346f6b7aa9a019d421439f8c2b242cb1af6"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_06_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "845ca3a4bcd13409ac00dfc8b2a4224e9aee8ab08749aab523a8b7d478f5f340"
+        }
+      },
+      {
+        "windowOrdinal": 7,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_LIVE_AUTHORITY_V1.json",
+          "sha256": "726f78369af5fa5bb177a934c8c81e1bb317c04026dbf30575be4bb613db6020"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_LIVE_RESULT_V1.json",
+          "sha256": "41614f01a213a22203fbb655ead9df888727b4f7740e96e74389156cc9582734"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "d138c9618b2919d79b3468eb27f034bd11b64daf09a6c01ef733e474aa57d2fb"
+        }
+      },
+      {
+        "windowOrdinal": 8,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_LIVE_AUTHORITY_V1.json",
+          "sha256": "f77aa0cf6d232a070d348dcd36a74932f078a64f79e1ddf737ec2e3f35b69a61"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_LIVE_RESULT_V1.json",
+          "sha256": "0a32d0d3e0c120e9b498046ea4df76d65ba85be22681f73e815c3dfc02cdc187"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "2fb0b230d92b30746b2b62e3a598795cf4840011b710953df344774b9b8032da"
+        },
+        "cadenceAuthority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_07_P5_REVIEW_AND_CONTINUATION_DECISION_V1.json",
+          "commit": "2c20af702c3a9aed93e41f61c28d274f01c8351a",
+          "sha256": "2cfa5931946b8c71729a17ca98291df2a8f0fa6768a24ef3362b24f689c28b85"
+        }
+      },
+      {
+        "windowOrdinal": 9,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_LIVE_AUTHORITY_V1.json",
+          "sha256": "97841c9a2c679b5adcd6673128353e4aa6e20b54d6474fb957bc9e2e63c61e51"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_LIVE_RESULT_V2.json",
+          "sha256": "e7d384ad58a03090ecdfc3130ef2eb5b4e9966b784aa1cc2f36bc2ed7825c0f1"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "9cf694e5caf0f1c6d403d045b6939cae7bd57964372c9002ce22fc44ee739fa3"
+        },
+        "cadenceAuthority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_08_P5_REVIEW_AND_WINDOW_09_CONTINUATION_DECISION_V1.json",
+          "commit": "9deb681e6cb7f19ad4af0f677655f278ece6c149",
+          "sha256": "316e6f9aa90c977ac1f43cf8155a297980b94f93c4935d33c378e1dec9a141e2"
+        }
+      },
+      {
+        "windowOrdinal": 10,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_10_LIVE_AUTHORITY_V1.json",
+          "sha256": "30dcbb6713aec1de2c12ac1c77db35ecbb4d29a84b5bf0568251d3471dc58145"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_10_LIVE_RESULT_V1.json",
+          "sha256": "fb95f08928198d6c31107b292ccb142cda95f3c171ddd24b262f527fcecce50f"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_10_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "6c27a6b5c0db88ca792367551ed134509affb4cc36a488e0f7387364ecdf1bae"
+        },
+        "cadenceAuthority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_09_P5_REVIEW_AND_WINDOW_10_CONTINUATION_DECISION_V1.json",
+          "commit": "7b226de931752dc70028b5e20e37fa5d7a925ca5",
+          "sha256": "ceff378d1147b4d43ac754c368c6311543f673f37f4190a9840d6ef926238752"
+        }
+      },
+      {
+        "windowOrdinal": 11,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_LIVE_AUTHORITY_V1.json",
+          "sha256": "99be494d50d72b2630f121aedec8d1b472b9e1e416e681661f8fe4efe7b8df21"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_LIVE_RESULT_V1.json",
+          "sha256": "9d7219e97c372141be75bfc49c795cc8d543709383424107542d15c35a15fec3"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "99f3de0bb9fd85e2e3d5d919ee73addd73627a383bc95874df1098e2fa90e027"
+        }
+      },
+      {
+        "windowOrdinal": 12,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_LIVE_AUTHORITY_V1.json",
+          "sha256": "522cb1c99b99b8d968fb2a8943f0e88b8a40e4096f39211adfa46cec951be009"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_LIVE_RESULT_V1.json",
+          "sha256": "c3be5776739f9d3135d877b70d175c06319a255d0c91968524451749e7b8ee2f"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_12_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "ecb063c42c80f81583a78509587ccb0182350e71222b781075224801ef02fd2b"
+        },
+        "cadenceAuthority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_11_P5_REVIEW_AND_WINDOW_12_CONTINUATION_DECISION_V1.json",
+          "commit": "6dd2f7c737ebb016ffc6429cc9c85040a1312f66",
+          "sha256": "cdb755868e2887feeb12f3df63faad00ca861b36723fb6213e29bb0017c19008"
+        }
+      },
+      {
+        "windowOrdinal": 13,
+        "authority": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_LIVE_AUTHORITY_V1.json",
+          "sha256": "5333451e3c8b9287a92fbab26d66571866700958a9caf54a083cda924a237669"
+        },
+        "liveResult": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_LIVE_RESULT_V1.json",
+          "sha256": "a4ac8291544647bd5d740275949677858baa6239a0182c0a4fd0ed83f67b294a"
+        },
+        "adjudication": {
+          "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_EVIDENCE_ADJUDICATION_V1.json",
+          "sha256": "5292f878413b648cd965c3743428eccce1bab3b28620f80d0d8df67178a5dac4"
+        },
+        "targetedHostRecoveries": 1
+      }
+    ],
+    "cadenceAuthoritiesOnlyFor": [8, 9, 10, 12],
+    "window13Cadence": "DEFAULT_Q1_REPLACEMENTS_THEN_PRIMARIES",
+    "window13TargetedHostRecoveryBinding": {
+      "count": 1,
+      "workItemId": "G2R:109:20",
+      "recoveryAuthority": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_TARGETED_HOST_RECOVERY_REVALIDATION_AUTHORITY_V1.json",
+        "commit": "0ba04ab6a5431ee6d5725b3912708e40951e53f9",
+        "sha256": "e0029caf48494d1ab46e6318cb851fad31c925d94893dce76de5d9a74483226e",
+        "bytes": 8197
+      },
+      "recoveryResult": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_TARGETED_HOST_RECOVERY_REVALIDATION_RESULT_V1.json",
+        "commit": "1a11e45a4197bf888bd629112c35de5645fc199c",
+        "sha256": "2692001e426bb81649c89e6e291bfac74484c1e9da318f8c8b22df2745195bdb",
+        "bytes": 16528
+      },
+      "secondRecoveryChain": false
+    },
+    "directoryDiscovery": false,
+    "latestLookup": false,
+    "glob": false,
+    "historyIntegrity": "PASS"
+  },
+  "finalAcquisitionState": {
+    "ACQUISITION_SUCCESSFUL": 110,
+    "acquisitionSuccessfulBySplit": {
+      "DEV_TRAIN": 20,
+      "DEV_CONFIRM": 45,
+      "FINAL_HOLDOUT": 45
+    },
+    "CURRENT_ACQUISITION_FAILURE": [],
+    "REPLACEMENT_ASSIGNED_AWAITING_EXECUTION": [],
+    "PENDING_CAPABILITY_REVIEW": [],
+    "CARRY_FORWARD_REFUSED": [],
+    "NEVER_STARTED": {
+      "count": 0,
+      "from": null,
+      "to": null
+    },
+    "q1": [],
+    "accounting": "110 successful + 0 failed + 0 assigned + 0 pending + 0 never started = 110",
+    "allOriginalSelectionIndexes0To109LeftNeverStarted": true,
+    "allOriginalSelectionIndexes0To109AcquisitionSuccessful": true,
+    "frozenSelectionCohortSize": 110,
+    "validOriginalP110Exists": false
+  },
+  "runReferenceIntegrity": {
+    "ordinaryWindowRunReferences": 54,
+    "acceptedTargetedHostRecoveryRunReferences": 1,
+    "globalUnion": 55,
+    "distinct": 55,
+    "globallyUnique": true,
+    "window13OriginalHostConfoundedRun": {
+      "runRefSha256": "5bf76c8d6d158fd4d5deec70797af68002a11dc66917c2c6f30642932246fe7f",
+      "presentInOrdinaryReferences": true,
+      "immutable": true
+    },
+    "acceptedRecoveryRun": {
+      "runRefSha256": "a2f6c68ec50208e73bcd7149cee73e2fa5c4debd3b56c4f8d2881ff349b0d1f2",
+      "acquisitionOfRecordOnlyThrough": {
+        "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_EVIDENCE_ADJUDICATION_V1.json",
+        "commit": "79918959c44cbbabe4e3e2f665cce2b8f84bb56e",
+        "sha256": "5292f878413b648cd965c3743428eccce1bab3b28620f80d0d8df67178a5dac4",
+        "bytes": 37514
+      }
+    },
+    "provenanceRewrittenByThisRecord": false
+  },
+  "window13HistoricalStopPreservation": {
+    "verifiedBy": "requireOriginalWindowStopHistoryPreserved over the committed Window-13 adjudication, LIVE_RESULT and host-integrity ruling",
+    "p2FiredInOriginalWindow13": true,
+    "p5FiredInOriginalWindow13": true,
+    "liveResultRecordedP8FiredDueToHistoricalOperatorKitConflation": true,
+    "frozenP8Fired": false,
+    "hostIntegrityStop": {
+      "fired": true,
+      "classification": "HOST_INTEGRITY_NOT_PROVED_DURING_ITEM",
+      "affectedItems": ["G2R:109:20"]
+    },
+    "originalG2R10920Run": {
+      "runRefSha256": "5bf76c8d6d158fd4d5deec70797af68002a11dc66917c2c6f30642932246fe7f",
+      "integrity": "HOST_CONFOUNDED",
+      "disposition": "SUPERSEDED_FOR_GENERATION_ACQUISITION_DECISION_BY_ACCEPTED_HOST_RECOVERY",
+      "retained": true
+    },
+    "acquisitionOfRecordForSlot109": {
+      "runRefSha256": "a2f6c68ec50208e73bcd7149cee73e2fa5c4debd3b56c4f8d2881ff349b0d1f2",
+      "integrity": "CLEAN"
+    },
+    "erasedOrSimplifiedByThisFreeze": false
+  },
+  "canonicalLedger": {
+    "path": "docs/evaluation/generation2/corpus/PHASE_2B_2D_METHOD_V3_RESERVE_REPLACEMENT_LEDGER_V1_GEN2.json",
+    "fileSha256": "07cf86644940bab23fcfe74ab1b28f2a1629d0a0ee7478ac57ce7c79ce33bafe",
+    "bytes": 17842,
+    "commit": "ac19cb8ca4538237be49e03e0c19ce46cf6f4ecb",
+    "entryCount": 21,
+    "ledgerHash": "c02e37ac42515cb689512b12425c41560fffeb32592e4e15f864892f63208ec8",
+    "nextGeneration2ReservePosition": 21,
+    "sequence21Exists": false,
+    "postWindow13Append": false,
+    "reservesConsumedByRecovery": 0,
+    "appendedByThisRecord": false,
+    "frozen": true
+  },
+  "reserveState": {
+    "reserve21": "UNASSIGNED",
+    "assignedByThisRecord": false,
+    "assignedMerelyBecauseItExists": false
+  },
+  "noFurtherAcquisition": {
+    "decision": "NO_FURTHER_GENERATION2_ACQUISITION_AUTHORITY_V1",
+    "notAuthorised": [
+      "Window 14",
+      "reserve 21",
+      "another Q1 append",
+      "another replacement",
+      "a retry",
+      "another host recovery",
+      "a primary",
+      "G2P:110",
+      "another ordinary acquisition"
+    ],
+    "reopeningRequires": "a NEW explicit owner methodology / generation decision; none is created here",
+    "window14Exists": false
+  },
+  "a3Boundary": {
+    "thisIs": "GENERATION2_ACQUISITION_CORPUS_FROZEN: the A2 acquisition state for the frozen 110-slot selection cohort is terminal",
+    "thisIsNot": [
+      "an A3 sample-readiness freeze",
+      "a complete-corpus A3 preflight",
+      "proof that all DEV_TRAIN evidence is A3-ready",
+      "proof that all 20 DEV_TRAIN slots have reachable membership assembled",
+      "a final SET_P or SET_R",
+      "an A5 corpus freeze",
+      "label authority",
+      "classifier authority",
+      "holdout-scoring authority"
+    ],
+    "knownA3StateOwnerStated": "Governance V4 historically covered only 13 of the 20 frozen DEV_TRAIN slots; A3 R37 mechanically established readiness only for those 13 covered slots",
+    "knownA3StateSource": "owner task statement; not re-derived by this record, which reads no A3 branch or A3 evidence",
+    "a2FreezeImpliesA3Completion": false
+  },
+  "terminalCheckpoint": {
+    "designation": "TERMINAL_A2_GOVERNANCE_CHECKPOINT_ELIGIBLE_FOR_SEPARATELY_AUTHORISED_A3_REVIEW",
+    "meaning": "a later A3 task may bind this exact committed record/commit as a newer terminal A2 checkpoint and then independently determine whether a Governance V5 registry can add the remaining DEV_TRAIN authorities",
+    "thisRecordDoes": [],
+    "thisRecordDoesNot": [
+      "modify A3",
+      "create an A3 registry",
+      "create Governance V5",
+      "authorise R38",
+      "read DEV_CONFIRM or FINAL_HOLDOUT evidence for A3",
+      "merge or rebase A2 into A3"
+    ]
+  },
+  "identityDisclosure": "slot numbers, work item ids, split counts, run-reference hashes and record hashes only; no organisation id, echeRowKey, URL, hostname, root-authority id or page text",
+  "terminalState": "PHASE_2B_2D_A2_GENERATION2_CORPUS_FREEZE_APPROVED_TERMINAL",
+  "nextOwnerQuestion": "whether to authorise A3 R38 to derive a newer public governance registry from this exact terminal A2 checkpoint",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
