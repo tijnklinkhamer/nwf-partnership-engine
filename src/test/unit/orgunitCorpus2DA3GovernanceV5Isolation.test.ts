@@ -34,6 +34,20 @@ const R38A_NAMESPACE = `${HARNESS}/a3crossGenerationSlotAuthority`;
 /** The exact R38A tip R38B was cut from. */
 const R38A_TERMINAL = '80f792de8117c3c91ddb56bbb4dbe6518fde7d8a';
 const R38_TERMINAL = '960856bb4e503fcc6961843f88761f66ebffcd27';
+/**
+ * R38B'S OWN TERMINAL COMMIT.
+ *
+ * R38B's changed-surface and historical-scope assertions describe R38B'S
+ * SLICE, so they range over R38B's own commits - `R38A_TERMINAL..R38B_TERMINAL`
+ * - rather than over the working tree. Once a later slice lands on top, the
+ * working tree is no longer R38B's surface, and diffing to it would fail for
+ * the honest reason that history moved on rather than because R38B changed.
+ *
+ * This is the same standing convention R19 through R38A apply, and it
+ * WEAKENS NOTHING: R38B's range is frozen, its permitted-path list is
+ * unchanged, and each later slice pins the equivalent scope over its own range.
+ */
+const R38B_TERMINAL = '834b3d99e41044ec5c93ec8ec905b4c2887c6ae8';
 const A2_CHECKPOINT = '29d0d486cb268b5431a0fc23eabb064682ec47d9';
 const R38A_ISOLATION_TEST =
   'src/test/unit/orgunitCorpus2DA3CrossGenerationSlotAuthorityIsolation.test.ts';
@@ -124,15 +138,18 @@ function specifiersOf(source: string): string[] {
   return [...source.matchAll(/from '([^']+)'/g)].map((match) => match[1]!);
 }
 
-const baseAvailable = commitExists(R38A_TERMINAL) && commitExists(R38_TERMINAL);
+const baseAvailable =
+  commitExists(R38A_TERMINAL) && commitExists(R38_TERMINAL) && commitExists(R38B_TERMINAL);
 
 // ---------------------------------------------------------------------------
 
 describe.skipIf(!baseAvailable)('2D-A3 R38B: lineage and changed surface', () => {
   it('descends from the exact R38A tip through two one-file scope pins, and merges nothing', () => {
-    expect(() => git('merge-base', '--is-ancestor', R38A_TERMINAL, 'HEAD')).not.toThrow();
-    expect(lines(git('rev-list', '--merges', `${R38A_TERMINAL}..HEAD`))).toEqual([]);
-    const [first, second] = lines(git('rev-list', '--reverse', `${R38A_TERMINAL}..HEAD`));
+    expect(() => git('merge-base', '--is-ancestor', R38A_TERMINAL, R38B_TERMINAL)).not.toThrow();
+    expect(lines(git('rev-list', '--merges', `${R38A_TERMINAL}..${R38B_TERMINAL}`))).toEqual([]);
+    const [first, second] = lines(
+      git('rev-list', '--reverse', `${R38A_TERMINAL}..${R38B_TERMINAL}`),
+    );
     if (first !== undefined) {
       expect(git('rev-parse', `${first}^`).trim()).toBe(R38A_TERMINAL);
       expect(lines(git('diff', '--name-only', R38A_TERMINAL, first))).toEqual([
@@ -145,9 +162,9 @@ describe.skipIf(!baseAvailable)('2D-A3 R38B: lineage and changed surface', () =>
   });
 
   it('changes R38’s refusal test only by moving its one working-tree assertion onto R38’s tree', () => {
-    const removed = lines(git('diff', '-U0', R38A_TERMINAL, '--', R38_REFUSAL_TEST)).filter(
-      (line) => line.startsWith('-') && !line.startsWith('---'),
-    );
+    const removed = lines(
+      git('diff', '-U0', R38A_TERMINAL, R38B_TERMINAL, '--', R38_REFUSAL_TEST),
+    ).filter((line) => line.startsWith('-') && !line.startsWith('---'));
     expect(removed).toEqual([
       "-import { existsSync, readFileSync } from 'node:fs';",
       "-  it('creates no Governance V5 namespace and no V5 census', () => {",
@@ -171,12 +188,7 @@ describe.skipIf(!baseAvailable)('2D-A3 R38B: lineage and changed surface', () =>
   });
 
   it('changes nothing but the two scope pins, the V5 namespace, its tests, census and audit', () => {
-    const paths = [
-      ...new Set([
-        ...lines(git('diff', '--name-only', R38A_TERMINAL)),
-        ...lines(git('ls-files', '--others', '--exclude-standard')),
-      ]),
-    ];
+    const paths = lines(git('diff', '--name-only', R38A_TERMINAL, R38B_TERMINAL));
     const permitted = (path: string): boolean =>
       path === R38A_ISOLATION_TEST ||
       path === R38_REFUSAL_TEST ||
@@ -188,10 +200,9 @@ describe.skipIf(!baseAvailable)('2D-A3 R38B: lineage and changed surface', () =>
   });
 
   it('leaves every other harness namespace untouched (Governance V1-V4, R17-R38A, R20-R37)', () => {
-    const touched = [
-      ...lines(git('diff', '--name-only', R38A_TERMINAL, '--', HARNESS)),
-      ...lines(git('ls-files', '--others', '--exclude-standard', '--', HARNESS)),
-    ].filter((path) => !path.startsWith(`${NAMESPACE}/`));
+    const touched = lines(
+      git('diff', '--name-only', R38A_TERMINAL, R38B_TERMINAL, '--', HARNESS),
+    ).filter((path) => !path.startsWith(`${NAMESPACE}/`));
     expect(touched).toEqual([]);
   });
 
@@ -317,21 +328,29 @@ describe('2D-A3 R38B: the V5 namespace is exactly these pure files', () => {
   });
 });
 
-describe('2D-A3 R38B: nothing R39-, Governance-V6- or A5-shaped exists', () => {
-  it('creates no R39 namespace or record, no V6 namespace, no A5 freeze', () => {
-    expect(existsSync(join(REPO_ROOT, HARNESS, 'a3governanceV6'))).toBe(false);
-    expect(readdirSync(join(REPO_ROOT, HARNESS)).filter((name) => /r39|V6/i.test(name))).toEqual(
-      [],
-    );
-    const docs = [
-      ...readdirSync(join(REPO_ROOT, 'docs/evaluation')),
-      ...readdirSync(join(REPO_ROOT, 'docs/audits')),
-    ];
-    expect(
-      docs.filter((name) => /A3_R39|GOVERNANCE_AUTHORITY_CENSUS_V6|A5_.*FREEZE/.test(name)),
-    ).toEqual([]);
-  });
-});
+describe.skipIf(!baseAvailable)(
+  '2D-A3 R38B: nothing R39-, Governance-V6- or A5-shaped exists',
+  () => {
+    it('created no R39 namespace or record, no V6 namespace, no A5 freeze (tree at R38B_TERMINAL)', () => {
+      const tree = lines(git('ls-tree', '-r', '--name-only', R38B_TERMINAL));
+      expect(tree.filter((path) => path.startsWith(`${HARNESS}/a3governanceV6/`))).toEqual([]);
+      const harnessEntries = [
+        ...new Set(
+          tree
+            .filter((path) => path.startsWith(`${HARNESS}/`))
+            .map((path) => path.slice(HARNESS.length + 1).split('/')[0]!),
+        ),
+      ];
+      expect(harnessEntries.filter((name) => /r39|V6/i.test(name))).toEqual([]);
+      const docs = tree
+        .filter((path) => path.startsWith('docs/evaluation/') || path.startsWith('docs/audits/'))
+        .map((path) => path.slice(path.lastIndexOf('/') + 1));
+      expect(
+        docs.filter((name) => /A3_R39|GOVERNANCE_AUTHORITY_CENSUS_V6|A5_.*FREEZE/.test(name)),
+      ).toEqual([]);
+    });
+  },
+);
 
 describe.skipIf(!existsSync(join(REPO_ROOT, CENSUS)))(
   '2D-A3 R38B: public disclosure firewall',
