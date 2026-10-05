@@ -1,0 +1,393 @@
+{
+  "record": "PHASE_2B_2D_A2_GENERATION2_WINDOW_13_TARGETED_HOST_RECOVERY_REVALIDATION_RESULT_V1",
+  "recordKind": "GENERATION2_TARGETED_HOST_RECOVERY_REVALIDATION_RESULT",
+  "task": "GENERATION2_WINDOW_13_TARGETED_HOST_RECOVERY_LIVE_AUTHORITY_AND_SINGLE_REVALIDATION_V1",
+  "generationId": "METHODOLOGY_V3_GEN2",
+  "branch": "feat/phase2b-2d-a2-batch-02",
+  "startingHead": "0ba04ab6a5431ee6d5725b3912708e40951e53f9",
+  "publicSafe": true,
+  "appendOnly": true,
+  "isLiveAuthority": false,
+  "thisFileAuthorises": [],
+  "status": "TARGETED_HOST_RECOVERY_EVIDENCE_ONLY",
+  "resultDoesNotMutateAcquisitionOfRecord": true,
+  "concept": "GENERATION2_TARGETED_HOST_RECOVERY_REVALIDATION",
+  "recordedAtUtc": "2026-10-05T15:35:23.286Z",
+  "recordedAtUtcSource": "new Date().toISOString() read when this result was built, after the invocation and the post-invocation observation",
+  "boundRecoveryAuthority": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_TARGETED_HOST_RECOVERY_REVALIDATION_AUTHORITY_V1.json",
+    "commit": "0ba04ab6a5431ee6d5725b3912708e40951e53f9",
+    "sha256": "e0029caf48494d1ab46e6318cb851fad31c925d94893dce76de5d9a74483226e",
+    "bytes": 8197
+  },
+  "boundPrecondition": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_TARGETED_HOST_RECOVERY_PRECONDITION_V1.json",
+    "commit": "a92e8ef722490cde0edabe461ce75fa42741bc27",
+    "sha256": "569b7a1ca377f686413044557f896a80179325da9d3fc696936454d0807b8a8a",
+    "bytes": 11905
+  },
+  "boundIncidentRuling": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_HOST_INTEGRITY_OWNER_RULING_V1.json",
+    "commit": "1baeaa4380c28e16646f7d4164eb6418ed835d59",
+    "sha256": "fc4316749f901a4f9d448f37cfd0c077a455f1809c509a65e9bc09b628b6b656",
+    "bytes": 33257
+  },
+  "boundApprovedAmendment": {
+    "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_HOST_CONFOUNDED_REVALIDATION_AMENDMENT_OWNER_APPROVAL_V1.json",
+    "commit": "639851a423026b917c93eaed4194979ced8a08b6",
+    "sha256": "e0a3c97386089e7ff862ea21a53f441506c1fe5812590ac083a4e6c11876847c",
+    "bytes": 11520
+  },
+  "boundOperatorKitHostSemanticsRepair": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_OPERATOR_KIT_HOST_SEMANTICS_REPAIR_V1.json",
+    "commit": "3b0b79474d1b3f7aa7d57d05498bdbc57b66b09d",
+    "sha256": "a7139a1c5286825acbdb12a1f394c186b788a5adca76070d29db209f3d63bd4c",
+    "bytes": 3888
+  },
+  "boundOriginalWindowAuthority": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_LIVE_AUTHORITY_V1.json",
+    "commit": "0b9a7dabe5e720b18fcb41830fb687787b47b93f",
+    "sha256": "5333451e3c8b9287a92fbab26d66571866700958a9caf54a083cda924a237669",
+    "bytes": 107914
+  },
+  "boundOriginalLiveResult": {
+    "path": "docs/evaluation/PHASE_2B_2D_A2_GENERATION2_WINDOW_13_LIVE_RESULT_V1.json",
+    "commit": "bf15fe3b9e16ffbe0a075d4464f7363a2c88b008",
+    "sha256": "a4ac8291544647bd5d740275949677858baa6239a0182c0a4fd0ed83f67b294a",
+    "bytes": 34707
+  },
+  "originalItem": {
+    "windowOrdinal": 13,
+    "workItemId": "G2R:109:20",
+    "originalRunRefSha256": "5bf76c8d6d158fd4d5deec70797af68002a11dc66917c2c6f30642932246fe7f"
+  },
+  "originalRunRefSha256": "5bf76c8d6d158fd4d5deec70797af68002a11dc66917c2c6f30642932246fe7f",
+  "originalRunDisposition": "IMMUTABLE; not superseded, not edited; remains the Window-13 ordinary execution of record until an owner adjudication decides otherwise",
+  "target": {
+    "windowOrdinal": 13,
+    "workItemId": "G2R:109:20",
+    "kind": "REPLACEMENT",
+    "selectionIndex": 109,
+    "generation2ReserveRankPosition": 20,
+    "split": "FINAL_HOLDOUT",
+    "identityDigest": "927eb875b4c77347bb15a8181fabb93a3d379558f8d935b08468d86e0318dc33",
+    "originalRunRefSha256": "5bf76c8d6d158fd4d5deec70797af68002a11dc66917c2c6f30642932246fe7f",
+    "rootAuthorityCount": 1,
+    "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+    "ruleVersion": "orgunit-signal-rules-v1",
+    "executionPath": "npm CLI orgunits discover --organisation-id <bound organisation> --execute --json, UNCHANGED production code; the organisation and its ordered root authorities come ONLY from the pure Generation-2 execution binding (frozen schedule positions 19 and 20 -> exact frozen frame entries 169 and 170); a network-free dry run must resolve exactly those authorities before each item; no DB identity discovery, no hostname guessing, no alternative root"
+  },
+  "recoveryRunRefSha256": "a2f6c68ec50208e73bcd7149cee73e2fa5c4debd3b56c4f8d2881ff349b0d1f2",
+  "runRefDerivation": "sha256(lowercase run UUID), no prefix",
+  "invocation": {
+    "cliExecuteIssued": true,
+    "runCreated": true,
+    "disposition": "RECOVERY_INVOCATION_CONSUMED",
+    "automaticReplacementInvocation": false,
+    "institutionRequestCount": 40
+  },
+  "operatorLaunchHistory": {
+    "priorLaunchFailures": 1,
+    "failure1": "the first launch of the gitignored operator wrapper at 2026-10-05T15:30Z failed with exit 126 (item.sh not executable) BEFORE the governed root existed: no quiet gate, no T-0 observation, no CLI execute issued, no run row (nwf_pe re-read unchanged at the committed Window-13 endpoint, runs 180 / completions 180); its preflight (network-free) and one control-name-only post probe were preserved as gitignored evidence data/g2w13rec/launch-failure-1-item-sh-not-executable/",
+    "uq5Reading": "UQ5 consumes the invocation only on CLI-execute issuance or run creation; neither occurred, so the one authorised invocation remained unspent and was used by the single launch recorded here",
+    "retriesOfAnInvocation": 0
+  },
+  "cliExecuteInvocations": 1,
+  "runsForTarget": 1,
+  "completionRows": 1,
+  "runTerminalState": "COMPLETED",
+  "dryRun": false,
+  "retries": 0,
+  "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+  "ruleVersion": "orgunit-signal-rules-v1",
+  "acquisitionCodeTreeAtExecution": {
+    "srcOrgunits": "945f30cf0ccb304daa3b132cf84d33fb3079d10a",
+    "srcCli": "f0716ed180e3d219424d48d46e63419d6ab097b9"
+  },
+  "preflight": {
+    "allGreen": true,
+    "checks": {
+      "localEqualsOrigin": true,
+      "headIsRecoveryAuthorityCommit": true,
+      "cleanTree": true,
+      "recoveryAuthorityAtCommit": true,
+      "ledgerUnchanged21": true,
+      "acquisitionCodeTreeUnchanged": true,
+      "noRecoveryResultYet": true,
+      "noWindow13Adjudication": true,
+      "noWindow14": true,
+      "fetchPolicyV7": true,
+      "ruleVersionV1": true,
+      "bindingDigestExact": true,
+      "oneFrozenWebsiteClaimRoot": true,
+      "occupantHasExactlyTheOriginalRun": true,
+      "dbEqualsCommittedWindow13Endpoint": true,
+      "dryRunWasNetworkFree": true,
+      "dryRunRootsEqualFrozen": true,
+      "dryRunWroteNothing": true
+    },
+    "dryRunMode": "DRY_RUN",
+    "dryRunRootCount": 1,
+    "occupantRunRefsBefore": ["5bf76c8d6d158fd4d5deec70797af68002a11dc66917c2c6f30642932246fe7f"],
+    "identitySource": "frozen Generation-2 execution binding (reserve schedule position 20 -> frozen frame entry); never discovered from nwf_pe"
+  },
+  "hostAndVantage": {
+    "semantics": "GENERATION2_OPERATOR_KIT_HOST_SEMANTICS_V1 (buildHostObservationRecord / replayHostObservationRecord); frozen P8 input = Sleep/Wake/DarkWake or pacing-clock anomaly only; resolver/route/vantage graded only as host/vantage integrity",
+    "namesProbed": "example.com, example.net, example.org, ipv4only.arpa only; target hostname, root and institution name never probed",
+    "t0": {
+      "atUtc": "2026-10-05T15:34:07.738Z",
+      "ipv4DefaultRoute": true,
+      "nativeNonClatIpv4": true,
+      "systemResolverFunctioning": true,
+      "controlNamesResolved": ["example.com", "example.net", "example.org"],
+      "ipv4onlyArpaAAnswered": true,
+      "ipv4onlyArpaAaaaEmpty": true,
+      "frozenHostSafetyGreen": true,
+      "sleepWakeDarkWakeEvents": 0,
+      "sleepWindowSinceUtc": "2026-10-05T15:31:57.000Z",
+      "sleepLogAvailable": true,
+      "namesQueried": ["example.com", "example.net", "example.org", "ipv4only.arpa"],
+      "resolver": "system",
+      "hostVantageIntegrity": "HOST_VANTAGE_INTEGRITY_GREEN",
+      "failedChannels": [],
+      "missingChannels": [],
+      "frozenP8HostStateAnomaly": false,
+      "frozenP8Grounds": [],
+      "caffeinateAssertionHeld": true,
+      "lidClosed": false,
+      "powerSource": "Battery Power",
+      "batteryPercent": 72,
+      "observationRecordSha256": "bdcead2746ab626b232269babac74c1bff407d0a2f77b3a4bf0c1bb60771b4c9",
+      "observationRecordBytes": 2818,
+      "verdict": "GREEN"
+    },
+    "t0ObservationRecord": {
+      "file": "data/g2w13rec/run/t0.observation.json (gitignored scratch, bound by sha256 and bytes)",
+      "sha256": "bdcead2746ab626b232269babac74c1bff407d0a2f77b3a4bf0c1bb60771b4c9",
+      "bytes": 2818,
+      "observedFor": "T0_BEFORE_EXECUTE",
+      "replay": "replayHostObservationRecord PASS",
+      "summary": {
+        "frozenP8": {
+          "grounds": [],
+          "hostStateAnomaly": false,
+          "semantics": "SLEEP_WAKE_OR_PACING_CLOCK_ANOMALY_ONLY"
+        },
+        "hostVantageIntegrity": {
+          "channels": {
+            "CONTROL_NAME_RESOLUTION": "GREEN",
+            "DNS64_NAT64": "GREEN",
+            "IPV4_ROUTE": "GREEN",
+            "LID_STATE": "GREEN",
+            "NATIVE_IPV4": "GREEN",
+            "PACING_CLOCK": "GREEN",
+            "POWER_STATE": "GREEN",
+            "RESOLVER_HEALTH": "GREEN",
+            "SLEEP_WAKE": "GREEN"
+          },
+          "failedChannels": [],
+          "missingChannels": [],
+          "verdict": "HOST_VANTAGE_INTEGRITY_GREEN"
+        }
+      }
+    },
+    "postInvocation": {
+      "atUtc": "2026-10-05T15:34:54.364Z",
+      "ipv4DefaultRoute": true,
+      "nativeNonClatIpv4": true,
+      "systemResolverFunctioning": true,
+      "controlNamesResolved": ["example.com", "example.net", "example.org"],
+      "ipv4onlyArpaAAnswered": true,
+      "ipv4onlyArpaAaaaEmpty": true,
+      "frozenHostSafetyGreen": true,
+      "sleepWakeDarkWakeEvents": 0,
+      "sleepWindowSinceUtc": "2026-10-05T15:31:57.000Z",
+      "sleepLogAvailable": true,
+      "namesQueried": ["example.com", "example.net", "example.org", "ipv4only.arpa"],
+      "resolver": "system",
+      "hostVantageIntegrity": "HOST_VANTAGE_INTEGRITY_GREEN",
+      "failedChannels": [],
+      "missingChannels": [],
+      "frozenP8HostStateAnomaly": false,
+      "frozenP8Grounds": [],
+      "caffeinateAssertionHeld": true,
+      "lidClosed": false,
+      "powerSource": "Battery Power",
+      "batteryPercent": 72,
+      "observationRecordSha256": "b21dcff296bc1786706423208e9893f22fef4e1aac80f92fa48baf2222e3ff77",
+      "observationRecordBytes": 2816,
+      "verdict": "GREEN"
+    },
+    "postInvocationObservationRecord": {
+      "file": "data/g2w13rec/run/post.observation.json (gitignored scratch, bound by sha256 and bytes)",
+      "sha256": "b21dcff296bc1786706423208e9893f22fef4e1aac80f92fa48baf2222e3ff77",
+      "bytes": 2816,
+      "observedFor": "POST_INVOCATION",
+      "replay": "replayHostObservationRecord PASS",
+      "summary": {
+        "frozenP8": {
+          "grounds": [],
+          "hostStateAnomaly": false,
+          "semantics": "SLEEP_WAKE_OR_PACING_CLOCK_ANOMALY_ONLY"
+        },
+        "hostVantageIntegrity": {
+          "channels": {
+            "CONTROL_NAME_RESOLUTION": "GREEN",
+            "DNS64_NAT64": "GREEN",
+            "IPV4_ROUTE": "GREEN",
+            "LID_STATE": "GREEN",
+            "NATIVE_IPV4": "GREEN",
+            "PACING_CLOCK": "GREEN",
+            "POWER_STATE": "GREEN",
+            "RESOLVER_HEALTH": "GREEN",
+            "SLEEP_WAKE": "GREEN"
+          },
+          "failedChannels": [],
+          "missingChannels": [],
+          "verdict": "HOST_VANTAGE_INTEGRITY_GREEN"
+        }
+      }
+    },
+    "sleepWakeDarkWakeEventsDuringRecovery": 0,
+    "sleepWindow": {
+      "sinceUtc": "2026-10-05T15:31:57.000Z",
+      "untilAtPostProbe": true
+    }
+  },
+  "executionExclusivityVerdict": "EXCLUSIVE_PROVED_FOR_THIS_ITEM",
+  "monitorCoverageSufficient": true,
+  "executionExclusivity": {
+    "scope": "APPLY_WINDOW_13_ENGINE_AND_SHARED_ACQUISITION_STATE_CONCURRENCY_SCOPE_V1 (Engine/shared-nwf_pe)",
+    "watcherSelfTest": "PASS",
+    "gateEvaluatorSelfTest": "PASS",
+    "preLaunchQuiet": "consecutiveCleanSeconds=121.2 samples=241",
+    "quietAfterT0": "consecutiveCleanSeconds=127.0 samples=253",
+    "inItem": {
+      "polls": 81,
+      "maxGap": 0.509,
+      "byFinalClassification": {
+        "GOVERNED_ACQUISITION_DESCENDANT_PROVED": 3,
+        "EXTERNAL_COMPETING_PROCESS": 0,
+        "ANCESTRY_UNPROVED": 0
+      },
+      "competingPollsWithinItem": 0,
+      "knownIsolatedExternalIdentities": 0,
+      "rootAliveThroughItem": true,
+      "inItem": {
+        "integritySatisfied": true,
+        "deviationDetected": false,
+        "monitorCoverageSufficient": true,
+        "operationalStop": false,
+        "classifications": [],
+        "reasons": []
+      }
+    }
+  },
+  "databaseDelta": {
+    "runs": 1,
+    "completions": 1,
+    "fetchObservations": 40,
+    "redirectObservations": 1,
+    "pageEvidence": 33,
+    "pageCandidates": 66,
+    "BLOCKED_BY_POLICY": 0,
+    "rootPromotions": 0,
+    "rootPromotionRevocations": 0,
+    "dryRunRuns": 0,
+    "runsWithoutCompletion": 0
+  },
+  "persistenceReconciliation": {
+    "allRecon": true,
+    "checks": {
+      "oneRunOneCompletion": true,
+      "fetchDeltaEqualsGatewayRequests": true,
+      "pageDeltaEqualsRaw": true,
+      "redirectDeltaEqualsRedirects": true,
+      "candidatesTwicePages": true,
+      "noBlockedOrDryRunOrPromotionMovement": true,
+      "echeKeyMatchesBinding": true,
+      "runsForOccupantIsTwoOriginalPlusRecovery": true,
+      "notDryRun": true,
+      "cliExitZero": true,
+      "oneRoot": true,
+      "fetchPolicyCanonical": true
+    }
+  },
+  "rootOutcome": {
+    "rootTerminalReason": "PAGE_BUDGET_EXHAUSTED",
+    "completionErrorKind": null,
+    "pageAttempts": 35,
+    "gatewayRequests": 40,
+    "fetchObservationsByErrorKind": [
+      {
+        "k": "NONE",
+        "v": "orgunit-fetch-policy-v7",
+        "n": "40"
+      }
+    ],
+    "redirectObservations": 1,
+    "observationsWithHttpStatus": 40,
+    "candidateRows": 66
+  },
+  "pages": {
+    "rawPageEvidenceCount": 33,
+    "sd9EligiblePageCount": 28,
+    "zeroExtractedTextPageCount": 5,
+    "postSd7Range": [26, 28],
+    "countIsExact": false,
+    "shortTextUnresolvedCount": 2,
+    "decidedByCase": "B"
+  },
+  "mechanical": {
+    "sd9StatusMechanical": "ACQUISITION_SUCCESSFUL",
+    "q3ReasonMechanical": null,
+    "q3Facts": {
+      "blockingTransportErrorKind": null
+    },
+    "note": "mechanical only; no SUCCESSFUL/UNSUCCESSFUL adjudication is made here and the outcome is not compared with the original run"
+  },
+  "recoveryLocalGateReadout": {
+    "recordedOnly": true,
+    "isRecoveryWindowPauseSystem": false,
+    "appliedToOriginalWindow": false,
+    "joinsOriginalWindowDenominator": false,
+    "firedConditions": [],
+    "decision": "WINDOW_COMPLETE",
+    "frozenP8HostStateAnomaly": false,
+    "hostVantageIntegrityVerdict": "HOST_VANTAGE_INTEGRITY_GREEN",
+    "evaluationContext": "the landed frozen gate evaluated over this ONE recovery observation only (single-item mechanical context); it is not a window denominator, is not added to Window-13 P2/P5, and creates no pause sequence",
+    "triggeredConditions": [],
+    "frozenP8InputFrom": "T-0 and post-invocation SLEEP_WAKE / PACING_CLOCK observations only",
+    "integrityStopsAreSeparateAndControlling": true
+  },
+  "ledgerDuringRecovery": {
+    "entryCount": 21,
+    "ledgerHash": "c02e37ac42515cb689512b12425c41560fffeb32592e4e15f864892f63208ec8"
+  },
+  "ledgerMovement": 0,
+  "reserveConsumed": 0,
+  "membershipChange": 0,
+  "globalRunReferences": {
+    "historicalPreWindow13": 52,
+    "originalWindow13": 2,
+    "recovery": 1,
+    "total": 55,
+    "distinct": 55
+  },
+  "stateAfter": {
+    "window13": "UNADJUDICATED",
+    "ledgerEntries": 21,
+    "reserve21": "UNASSIGNED",
+    "window14": "NONE",
+    "originalWindow13LiveResult": "UNCHANGED",
+    "originalRun": "IMMUTABLE",
+    "acquisitionOfRecord": "NOT MOVED",
+    "q1": "NOT RECOMPUTED THROUGH ADJUDICATION",
+    "closureValidation": "NOT RUN",
+    "secondInvocation": false,
+    "retry": false
+  },
+  "identityDisclosure": "slot numbers, reserve positions, work item ids, digests and aggregates only; no organisation id, echeRowKey, URL, hostname, root-authority id, run UUID, local address or page text",
+  "immutability": "append-only. This record is never edited; a correction is a new record",
+  "integrityVerdict": "CLEAN"
+}
