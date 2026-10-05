@@ -22,7 +22,7 @@
  */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { canonicalStringify } from '../../orgunits/classify/canonical.js';
@@ -46,6 +46,20 @@ const NAMESPACE = `${HARNESS}/a3crossGenerationSlotAuthority`;
 const R38_TERMINAL = '960856bb4e503fcc6961843f88761f66ebffcd27';
 /** The one commit that pinned R38's own changed-surface test to its range. */
 const R38_SCOPE_PIN_COMMIT = '6d99b1c3d4ffcb74aa411ede1ff7c70af4da4a0d';
+/**
+ * R38A'S OWN TERMINAL COMMIT.
+ *
+ * R38A's changed-surface and docs-scope assertions describe R38A'S SLICE, so
+ * they range over R38A's own commits - `R38_TERMINAL..R38A_TERMINAL` - rather
+ * than over the working tree. Once a later slice lands on top, the working
+ * tree is no longer R38A's surface, and diffing to it would fail for the
+ * honest reason that history moved on rather than because R38A changed.
+ *
+ * This is the same standing convention R19 through R38 apply, and it
+ * WEAKENS NOTHING: R38A's range is frozen, its permitted-path list is
+ * unchanged, and each later slice pins the equivalent scope over its own range.
+ */
+const R38A_TERMINAL = '80f792de8117c3c91ddb56bbb4dbe6518fde7d8a';
 const R38_TEST = 'src/test/unit/orgunitCorpus2DA3CrossGenerationAuthorityRefusal.test.ts';
 const R38_REFUSAL =
   'docs/evaluation/PHASE_2B_2D_A3_R38_CROSS_GENERATION_AUTHORITY_ADAPTER_REFUSAL_V1.json';
@@ -146,12 +160,7 @@ describe.skipIf(!baseAvailable)('2D-A3 R38A: lineage and changed surface', () =>
   });
 
   it('changes nothing but the R38 pin, its own namespace, tests, record and audit', () => {
-    const paths = [
-      ...new Set([
-        ...lines(git('diff', '--name-only', R38_TERMINAL)),
-        ...lines(git('ls-files', '--others', '--exclude-standard')),
-      ]),
-    ];
+    const paths = lines(git('diff', '--name-only', R38_TERMINAL, R38A_TERMINAL));
     const permitted = (path: string): boolean =>
       path === R38_TEST ||
       path.startsWith(`${NAMESPACE}/`) ||
@@ -162,10 +171,9 @@ describe.skipIf(!baseAvailable)('2D-A3 R38A: lineage and changed surface', () =>
   });
 
   it('leaves every other harness namespace untouched, Generation-1 draw and ledger included', () => {
-    const touched = [
-      ...lines(git('diff', '--name-only', R38_TERMINAL, '--', HARNESS)),
-      ...lines(git('ls-files', '--others', '--exclude-standard', '--', HARNESS)),
-    ].filter((path) => !path.startsWith(`${NAMESPACE}/`));
+    const touched = lines(
+      git('diff', '--name-only', R38_TERMINAL, R38A_TERMINAL, '--', HARNESS),
+    ).filter((path) => !path.startsWith(`${NAMESPACE}/`));
     expect(touched).toEqual([]);
   });
 
@@ -186,7 +194,7 @@ describe.skipIf(!baseAvailable)('2D-A3 R38A: lineage and changed surface', () =>
   });
 
   it('changes R38’s own test only by its scope pin', () => {
-    expect(sha256(readFileSync(join(REPO_ROOT, R38_TEST)))).toBe(
+    expect(sha256(bytesAt(R38A_TERMINAL, R38_TEST))).toBe(
       sha256(bytesAt(R38_SCOPE_PIN_COMMIT, R38_TEST)),
     );
   });
@@ -198,17 +206,20 @@ describe('2D-A3 R38A: R17 and R26 are frozen, and nothing V5 or R39 exists', () 
     expect(sha256(readFileSync(join(REPO_ROOT, R26_PATH)))).toBe(R26_SHA256);
   });
 
-  it('creates no Governance V5 namespace, registry, census and no R39 artifact', () => {
-    expect(existsSync(join(REPO_ROOT, HARNESS, 'a3governanceV5'))).toBe(false);
-    const docs = [
-      ...readdirSync(join(REPO_ROOT, 'docs/evaluation')),
-      ...readdirSync(join(REPO_ROOT, 'docs/audits')),
-    ];
-    expect(
-      docs.filter((name) => /A3_R39|GOVERNANCE_AUTHORITY_CENSUS_V5|REGISTRY_V5/.test(name)),
-    ).toEqual([]);
-    expect(ALL_SOURCE).not.toMatch(/COMMITTED_A2_GOVERNANCE_REGISTRY_V5|GovernanceV5/);
-  });
+  it.skipIf(!baseAvailable)(
+    'creates no Governance V5 namespace, registry, census and no R39 artifact',
+    () => {
+      const tree = lines(git('ls-tree', '-r', '--name-only', R38A_TERMINAL));
+      expect(tree.filter((path) => path.startsWith(`${HARNESS}/a3governanceV5/`))).toEqual([]);
+      const docs = tree
+        .filter((path) => path.startsWith('docs/evaluation/') || path.startsWith('docs/audits/'))
+        .map((path) => path.slice(path.lastIndexOf('/') + 1));
+      expect(
+        docs.filter((name) => /A3_R39|GOVERNANCE_AUTHORITY_CENSUS_V5|REGISTRY_V5/.test(name)),
+      ).toEqual([]);
+      expect(ALL_SOURCE).not.toMatch(/COMMITTED_A2_GOVERNANCE_REGISTRY_V5|GovernanceV5/);
+    },
+  );
 });
 
 describe('2D-A3 R38A: the namespace is exactly seven pure files', () => {
