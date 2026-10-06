@@ -35,6 +35,21 @@ const R44_ISOLATION_TEST =
  * enumeration was pinned from HEAD to R44_TERMINAL by owner-authorised repair.
  */
 const R44_BLOCKER_TEST = 'src/test/unit/orgunitCorpus2DA3DevTrainFreezeBlockerClosure.test.ts';
+/**
+ * R45'S OWN TERMINAL COMMIT.
+ *
+ * R45's lineage, changed-surface and no-owner-approval assertions describe
+ * R45'S SLICE, so they range over R45's own commits - `R44_TERMINAL..R45_TERMINAL`
+ * - and inspect the tree at R45_TERMINAL, rather than HEAD and the working
+ * tree. Once a later slice (R46's owner approval) lands on top, the working
+ * tree is no longer R45's surface, and diffing to it would fail for the honest
+ * reason that history moved on rather than because R45 changed.
+ *
+ * This is the same standing convention R19 through R44 apply, and it
+ * WEAKENS NOTHING: R45's range is frozen, its permitted-path list is
+ * unchanged, and each later slice pins the equivalent scope over its own range.
+ */
+const R45_TERMINAL = '65bde0c033ff89c2ee98aa44880b8600ab0da11f';
 /** The terminal A2 checkpoint; never an A3 ancestor. */
 const A2_CHECKPOINT = '29d0d486cb268b5431a0fc23eabb064682ec47d9';
 
@@ -97,16 +112,12 @@ function specifiersOf(source: string): string[] {
 
 const testSource = (path: string): string => readFileSync(join(REPO_ROOT, path), 'utf8');
 
-const baseAvailable = commitExists(R44_TERMINAL) && commitExists(R44_SCOPE_PIN_COMMIT);
+const baseAvailable =
+  commitExists(R44_TERMINAL) && commitExists(R44_SCOPE_PIN_COMMIT) && commitExists(R45_TERMINAL);
 
-/** Every path changed since R44 - committed or not. */
+/** Every path R45's own commits changed (R44_TERMINAL..R45_TERMINAL). */
 function changedSinceR44(): string[] {
-  return [
-    ...new Set([
-      ...lines(git('diff', '--name-only', R44_TERMINAL)),
-      ...lines(git('ls-files', '--others', '--exclude-standard')),
-    ]),
-  ];
+  return lines(git('diff', '--name-only', R44_TERMINAL, R45_TERMINAL));
 }
 
 // ---------------------------------------------------------------------------
@@ -169,8 +180,8 @@ describe('2D-A3 R45: design inspection only, no capability', () => {
 
 describe.skipIf(!baseAvailable)('2D-A3 R45: lineage and changed surface', () => {
   it('descends from the exact R44 tip, and merges no commit', () => {
-    expect(() => git('merge-base', '--is-ancestor', R44_TERMINAL, 'HEAD')).not.toThrow();
-    expect(lines(git('rev-list', '--merges', `${R44_TERMINAL}..HEAD`))).toEqual([]);
+    expect(() => git('merge-base', '--is-ancestor', R44_TERMINAL, R45_TERMINAL)).not.toThrow();
+    expect(lines(git('rev-list', '--merges', `${R44_TERMINAL}..${R45_TERMINAL}`))).toEqual([]);
   });
 
   it('never makes the terminal A2 checkpoint an ancestor of A3', () => {
@@ -180,43 +191,31 @@ describe.skipIf(!baseAvailable)('2D-A3 R45: lineage and changed surface', () => 
   });
 
   it("pinned R44's scope in exactly one first commit that touched exactly one file", () => {
-    const [first] = lines(git('rev-list', '--reverse', `${R44_TERMINAL}..HEAD`));
+    const [first] = lines(git('rev-list', '--reverse', `${R44_TERMINAL}..${R45_TERMINAL}`));
     expect(first).toBe(R44_SCOPE_PIN_COMMIT);
     expect(git('rev-parse', `${R44_SCOPE_PIN_COMMIT}^`).trim()).toBe(R44_TERMINAL);
     expect(lines(git('diff', '--name-only', R44_TERMINAL, R44_SCOPE_PIN_COMMIT))).toEqual([
       R44_ISOLATION_TEST,
     ]);
-    expect(sha256(readFileSync(join(REPO_ROOT, R44_ISOLATION_TEST)))).toBe(
+    expect(sha256(git('show', `${R45_TERMINAL}:${R44_ISOLATION_TEST}`))).toBe(
       sha256(git('show', `${R44_SCOPE_PIN_COMMIT}:${R44_ISOLATION_TEST}`)),
     );
   });
 
   it('implements nothing: no harness, SD7, SD9, migration or src/orgunits change', () => {
-    const touched = [
-      ...lines(
-        git(
-          'diff',
-          '--name-only',
-          R44_TERMINAL,
-          '--',
-          HARNESS,
-          'migrations',
-          'src/orgunits',
-          'src/cli',
-        ),
+    const touched = lines(
+      git(
+        'diff',
+        '--name-only',
+        R44_TERMINAL,
+        R45_TERMINAL,
+        '--',
+        HARNESS,
+        'migrations',
+        'src/orgunits',
+        'src/cli',
       ),
-      ...lines(
-        git(
-          'ls-files',
-          '--others',
-          '--exclude-standard',
-          '--',
-          HARNESS,
-          'migrations',
-          'src/orgunits',
-        ),
-      ),
-    ];
+    );
     expect(touched).toEqual([]);
   });
 
@@ -225,7 +224,9 @@ describe.skipIf(!baseAvailable)('2D-A3 R45: lineage and changed surface', () => 
       git('ls-tree', '-r', '--name-only', R44_TERMINAL, '--', 'docs/evaluation', 'docs/audits'),
     );
     expect(prior.length).toBeGreaterThan(0);
-    expect(lines(git('diff', '--name-only', R44_TERMINAL, '--', ...prior))).toEqual([]);
+    expect(lines(git('diff', '--name-only', R44_TERMINAL, R45_TERMINAL, '--', ...prior))).toEqual(
+      [],
+    );
   });
 
   it('changes nothing outside the R44 scope pin, its tests, its two records and its audit', () => {
@@ -238,7 +239,7 @@ describe.skipIf(!baseAvailable)('2D-A3 R45: lineage and changed surface', () => 
     expect(changedSinceR44().filter((path) => !permitted(path))).toEqual([]);
   });
 
-  it('creates no owner approval, frozen methodology, namespace, freeze, A4 or A5 artifact', () => {
+  it('created no owner approval, frozen methodology, namespace, freeze, A4 or A5 artifact (tree at R45_TERMINAL)', () => {
     const added = changedSinceR44();
     expect(
       added.filter((path) =>
@@ -247,6 +248,7 @@ describe.skipIf(!baseAvailable)('2D-A3 R45: lineage and changed surface', () => 
         ),
       ),
     ).toEqual([]);
+    const tree = lines(git('ls-tree', '-r', '--name-only', R45_TERMINAL));
     for (const name of [
       'a3graphsR4',
       'a3samplesR4',
@@ -255,7 +257,10 @@ describe.skipIf(!baseAvailable)('2D-A3 R45: lineage and changed surface', () => 
       'a3governanceV6',
       'a4',
     ]) {
-      expect(existsSync(join(REPO_ROOT, HARNESS, name)), name).toBe(false);
+      expect(
+        tree.filter((path) => path.startsWith(`${HARNESS}/${name}/`)),
+        name,
+      ).toEqual([]);
     }
   });
 });
