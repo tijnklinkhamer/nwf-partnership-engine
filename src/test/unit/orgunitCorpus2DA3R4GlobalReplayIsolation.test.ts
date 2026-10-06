@@ -492,7 +492,7 @@ describe.skipIf(!existsSync(join(REPO_ROOT, R47_CENSUS)))('2D-A3 R47: the public
     expect(text).not.toMatch(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
     expect(text).not.toMatch(/\S@\S+\.\S/);
     expect(text).not.toMatch(
-      /"(?:selectionIndex|selectionIndices|organisationId|echeRowKey|runId|documentSha256|pageId|mainText|tokens|edges|rankPosition|url|host|title|headings)"\s*:\s*(?!false)/,
+      /"(?:selectionIndex|selectionIndices|organisationId|echeRowKey|runId|documentSha256|pageId|mainText|tokens|edges|rankPosition|url|host|title|headings)"\s*:(?!\s*false)/,
     );
     const digests = [...text.matchAll(/\b[0-9a-f]{64}\b/g)].map((m) => m[0]);
     const known = new Set([

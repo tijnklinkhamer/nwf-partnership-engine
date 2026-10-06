@@ -1152,7 +1152,7 @@ describe('2D-A3 R47 §42-§49: the census is aggregate-only and derived from the
     });
     const text = JSON.stringify(census);
     expect(text).not.toMatch(
-      /"(?:selectionIndex|selectionIndices|organisationId|echeRowKey|runId|documentSha256|pageId|mainText|tokens|edges|rankPosition|url|host)"\s*:\s*(?!false)/,
+      /"(?:selectionIndex|selectionIndices|organisationId|echeRowKey|runId|documentSha256|pageId|mainText|tokens|edges|rankPosition|url|host)"\s*:(?!\s*false)/,
     );
     const digests = [...text.matchAll(/\b[0-9a-f]{64}\b/g)].map((m) => m[0]);
     const allowed = new Set<string>([
