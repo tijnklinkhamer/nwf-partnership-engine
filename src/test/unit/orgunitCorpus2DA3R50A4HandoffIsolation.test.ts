@@ -23,6 +23,9 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 
 const R49_TERMINAL = 'e07c11906f8c29da74be12c61afe287fcef3787f';
 const R50_SCOPE_PIN_COMMIT = '0a254965888d2d2e2245fc9b7ecf446fd32e3663';
+// R51 froze R50: every lineage / changed-surface assertion below is a
+// historical fact about R49_TERMINAL..R50_TERMINAL, not about HEAD.
+const R50_TERMINAL = '8c0d36af8b5a28403ee781a754d50f979dbf2e0b';
 const R49_TEST = 'src/test/unit/orgunitCorpus2DA3R49HumanLabellingRubric.test.ts';
 const R50_TEST = 'src/test/unit/orgunitCorpus2DA3R50A4Handoff.test.ts';
 const R50_ISOLATION_TEST = 'src/test/unit/orgunitCorpus2DA3R50A4HandoffIsolation.test.ts';
@@ -79,16 +82,14 @@ const jsonl = (path: string): Record<string, unknown>[] =>
     .split('\n')
     .map((line) => JSON.parse(line) as Record<string, unknown>);
 
-const baseAvailable = commitExists(R49_TERMINAL) && commitExists(R50_SCOPE_PIN_COMMIT);
+const baseAvailable =
+  commitExists(R49_TERMINAL) && commitExists(R50_SCOPE_PIN_COMMIT) && commitExists(R50_TERMINAL);
 
+// The exact R50 changed surface, pinned to the R50 terminal tree.
 function changedSinceR49(): string[] {
-  return [
-    ...new Set([
-      ...lines(git('diff', '--name-only', R49_TERMINAL)),
-      ...lines(git('ls-files', '--others', '--exclude-standard')),
-    ]),
-  ];
+  return lines(git('diff', '--name-only', R49_TERMINAL, R50_TERMINAL));
 }
+const r50Tree = (): string[] => lines(git('ls-tree', '-r', '--name-only', R50_TERMINAL));
 
 const namespaceSources = (): { file: string; source: string }[] =>
   readdirSync(join(REPO_ROOT, NAMESPACE)).map((file) => ({
@@ -104,18 +105,22 @@ const importsOf = (source: string): string[] =>
 
 describe.skipIf(!baseAvailable)('2D-A3 R50: lineage and changed surface', () => {
   it('descends from the exact R49 tip, and merges no commit', () => {
-    expect(() => git('merge-base', '--is-ancestor', R49_TERMINAL, 'HEAD')).not.toThrow();
-    expect(lines(git('rev-list', '--merges', `${R49_TERMINAL}..HEAD`))).toEqual([]);
+    expect(() => git('merge-base', '--is-ancestor', R49_TERMINAL, R50_TERMINAL)).not.toThrow();
+    expect(() => git('merge-base', '--is-ancestor', R50_TERMINAL, 'HEAD')).not.toThrow();
+    expect(lines(git('rev-list', '--merges', `${R49_TERMINAL}..${R50_TERMINAL}`))).toEqual([]);
+    expect(lines(git('rev-list', `${R49_TERMINAL}..${R50_TERMINAL}`))).toHaveLength(5);
   });
 
   it("pinned R49's scope in exactly one first commit that touched exactly one file", () => {
-    const [first] = lines(git('rev-list', '--reverse', `${R49_TERMINAL}..HEAD`));
+    const [first] = lines(git('rev-list', '--reverse', `${R49_TERMINAL}..${R50_TERMINAL}`));
     expect(first).toBe(R50_SCOPE_PIN_COMMIT);
     expect(git('rev-parse', `${R50_SCOPE_PIN_COMMIT}^`).trim()).toBe(R49_TERMINAL);
     expect(lines(git('diff', '--name-only', R49_TERMINAL, R50_SCOPE_PIN_COMMIT))).toEqual([
       R49_TEST,
     ]);
-    expect(lines(git('diff', '--name-only', R50_SCOPE_PIN_COMMIT, '--', R49_TEST))).toEqual([]);
+    expect(
+      lines(git('diff', '--name-only', R50_SCOPE_PIN_COMMIT, R50_TERMINAL, '--', R49_TEST)),
+    ).toEqual([]);
   });
 
   it('changes nothing outside the R49 pin, its namespace, two tests, three handoff artifacts, the census and the audit', () => {
@@ -131,6 +136,8 @@ describe.skipIf(!baseAvailable)('2D-A3 R50: lineage and changed surface', () => 
       AUDIT,
     ]);
     expect(changedSinceR49().filter((path) => !permitted.has(path))).toEqual([]);
+    // At the R50 terminal the surface is exactly this set, no more and no less.
+    expect(changedSinceR49().sort()).toEqual([...permitted].sort());
   });
 
   it('changes no production runtime, migration, script, package or earlier harness byte', () => {
@@ -152,7 +159,9 @@ describe.skipIf(!baseAvailable)('2D-A3 R50: lineage and changed surface', () => 
       git('ls-tree', '-r', '--name-only', R49_TERMINAL, '--', 'docs', 'src/test/harness'),
     );
     expect(prior.length).toBeGreaterThan(0);
-    expect(lines(git('diff', '--name-only', R49_TERMINAL, '--', ...prior))).toEqual([]);
+    expect(lines(git('diff', '--name-only', R49_TERMINAL, R50_TERMINAL, '--', ...prior))).toEqual(
+      [],
+    );
   });
 
   it('creates no DEV_CONFIRM, FINAL_HOLDOUT, gold, manifest, label, A5 or corpus-freeze artifact', () => {
@@ -163,6 +172,43 @@ describe.skipIf(!baseAvailable)('2D-A3 R50: lineage and changed surface', () => 
         ),
       ),
     ).toEqual([]);
+  });
+
+  it('at the R50 terminal no R51 / A4 review artifact, tool or completed response existed', () => {
+    const tree = r50Tree();
+    expect(tree.filter((path) => /a4review|PHASE_2B_2D_A4_|R51/.test(path))).toEqual([]);
+    expect(tree.filter((path) => /SINGLE_REVIEW_RESPONSES|\.html$/.test(path))).toEqual([]);
+    // The package, index and template were the only handoff artifacts.
+    expect(
+      tree.filter((path) => path.startsWith('docs/evaluation/corpus/PHASE_2B_2D_A3_R50_')),
+    ).toEqual([INDEX, PACKAGE, TEMPLATE].sort());
+  });
+
+  it('at the R50 terminal the response template was wholly blank: zero labels, zero review', () => {
+    const rows = git('show', `${R50_TERMINAL}:${TEMPLATE}`)
+      .slice(0, -1)
+      .split('\n')
+      .map((line) => JSON.parse(line) as Record<string, unknown>);
+    expect(rows).toHaveLength(222);
+    for (const row of rows) {
+      for (const field of [
+        'reviewerActorKey',
+        'verdict',
+        'unit_type',
+        'hard_negative',
+        'reviewNote',
+      ]) {
+        expect(row[field], field).toBeNull();
+      }
+    }
+    const census = JSON.parse(git('show', `${R50_TERMINAL}:${CENSUS}`)) as Record<string, unknown>;
+    expect(census['labelBoundary']).toMatchObject({
+      labelsCreated: 0,
+      goldRecordsCreated: 0,
+      humanLabellingExecuted: false,
+      devConfirmOpened: false,
+      finalHoldoutOpened: false,
+    });
   });
 });
 
