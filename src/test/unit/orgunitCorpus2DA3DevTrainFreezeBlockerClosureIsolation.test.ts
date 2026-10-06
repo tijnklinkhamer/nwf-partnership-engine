@@ -31,6 +31,21 @@ const R43_TERMINAL = 'f84ea09031d460b28c9386e1d6cd7fb56d4569ab';
 const R43_SCOPE_PIN_COMMIT = '6d30ed6055c3a67ae09dee376cb1999808c2d012';
 const R43_ISOLATION_TEST =
   'src/test/unit/orgunitCorpus2DA3ReachableMembershipSd9V5Isolation.test.ts';
+/**
+ * R44'S OWN TERMINAL COMMIT.
+ *
+ * R44's lineage, changed-surface and no-next-artifact assertions describe
+ * R44'S SLICE, so they range over R44's own commits - `R43_TERMINAL..R44_TERMINAL`
+ * - and inspect the tree at R44_TERMINAL, rather than HEAD and the working
+ * tree. Once a later slice lands on top, the working tree is no longer R44's
+ * surface, and diffing to it would fail for the honest reason that history
+ * moved on rather than because R44 changed.
+ *
+ * This is the same standing convention R19 through R43 apply, and it
+ * WEAKENS NOTHING: R44's range is frozen, its permitted-path list is
+ * unchanged, and each later slice pins the equivalent scope over its own range.
+ */
+const R44_TERMINAL = '4fd9ffd469333ba181584d56018c61e9ae119c77';
 /** The terminal A2 checkpoint; never an A3 ancestor. */
 const A2_CHECKPOINT = '29d0d486cb268b5431a0fc23eabb064682ec47d9';
 
@@ -95,7 +110,8 @@ function specifiersOf(source: string): string[] {
 
 const testSource = (path: string): string => readFileSync(join(REPO_ROOT, path), 'utf8');
 
-const baseAvailable = commitExists(R43_TERMINAL) && commitExists(R43_SCOPE_PIN_COMMIT);
+const baseAvailable =
+  commitExists(R43_TERMINAL) && commitExists(R43_SCOPE_PIN_COMMIT) && commitExists(R44_TERMINAL);
 
 // ---------------------------------------------------------------------------
 // A. NO NEW SEMANTICS AND NO CAPABILITY.
@@ -162,8 +178,8 @@ describe('2D-A3 R44: governance inspection only, no capability', () => {
 
 describe.skipIf(!baseAvailable)('2D-A3 R44: lineage and changed surface', () => {
   it('descends from the exact R43 tip, and merges no commit', () => {
-    expect(() => git('merge-base', '--is-ancestor', R43_TERMINAL, 'HEAD')).not.toThrow();
-    expect(lines(git('rev-list', '--merges', `${R43_TERMINAL}..HEAD`))).toEqual([]);
+    expect(() => git('merge-base', '--is-ancestor', R43_TERMINAL, R44_TERMINAL)).not.toThrow();
+    expect(lines(git('rev-list', '--merges', `${R43_TERMINAL}..${R44_TERMINAL}`))).toEqual([]);
   });
 
   it('never makes the terminal A2 checkpoint an ancestor of A3', () => {
@@ -173,24 +189,30 @@ describe.skipIf(!baseAvailable)('2D-A3 R44: lineage and changed surface', () => 
   });
 
   it("pinned R43's scope in exactly one first commit that touched exactly one file", () => {
-    const [first] = lines(git('rev-list', '--reverse', `${R43_TERMINAL}..HEAD`));
+    const [first] = lines(git('rev-list', '--reverse', `${R43_TERMINAL}..${R44_TERMINAL}`));
     expect(first).toBe(R43_SCOPE_PIN_COMMIT);
     expect(git('rev-parse', `${R43_SCOPE_PIN_COMMIT}^`).trim()).toBe(R43_TERMINAL);
     expect(lines(git('diff', '--name-only', R43_TERMINAL, R43_SCOPE_PIN_COMMIT))).toEqual([
       R43_ISOLATION_TEST,
     ]);
-    expect(sha256(readFileSync(join(REPO_ROOT, R43_ISOLATION_TEST)))).toBe(
+    expect(sha256(git('show', `${R44_TERMINAL}:${R43_ISOLATION_TEST}`))).toBe(
       sha256(git('show', `${R43_SCOPE_PIN_COMMIT}:${R43_ISOLATION_TEST}`)),
     );
   });
 
   it('touches no harness module and no migration (no new semantic namespace)', () => {
-    const touched = [
-      ...lines(
-        git('diff', '--name-only', R43_TERMINAL, '--', HARNESS, 'migrations', 'src/orgunits'),
+    const touched = lines(
+      git(
+        'diff',
+        '--name-only',
+        R43_TERMINAL,
+        R44_TERMINAL,
+        '--',
+        HARNESS,
+        'migrations',
+        'src/orgunits',
       ),
-      ...lines(git('ls-files', '--others', '--exclude-standard', '--', HARNESS, 'migrations')),
-    ];
+    );
     expect(touched).toEqual([]);
   });
 
@@ -199,16 +221,13 @@ describe.skipIf(!baseAvailable)('2D-A3 R44: lineage and changed surface', () => 
       git('ls-tree', '-r', '--name-only', R43_TERMINAL, '--', 'docs/evaluation', 'docs/audits'),
     );
     expect(prior.length).toBeGreaterThan(0);
-    expect(lines(git('diff', '--name-only', R43_TERMINAL, '--', ...prior))).toEqual([]);
+    expect(lines(git('diff', '--name-only', R43_TERMINAL, R44_TERMINAL, '--', ...prior))).toEqual(
+      [],
+    );
   });
 
   it('changes nothing outside the R43 scope pin, its tests, its record and its audit', () => {
-    const paths = [
-      ...new Set([
-        ...lines(git('diff', '--name-only', R43_TERMINAL)),
-        ...lines(git('ls-files', '--others', '--exclude-standard')),
-      ]),
-    ];
+    const paths = lines(git('diff', '--name-only', R43_TERMINAL, R44_TERMINAL));
     const permitted = (path: string): boolean =>
       path === R43_ISOLATION_TEST ||
       R44_TESTS.includes(path) ||
@@ -217,13 +236,15 @@ describe.skipIf(!baseAvailable)('2D-A3 R44: lineage and changed surface', () => 
     expect(paths.filter((path) => !permitted(path))).toEqual([]);
   });
 
-  it('creates no corpus-freeze, A4, A5, Governance V6 or methodology-amendment artifact', () => {
+  it('created no corpus-freeze, A4, A5, Governance V6 or methodology-amendment artifact (tree at R44_TERMINAL)', () => {
+    const tree = lines(git('ls-tree', '-r', '--name-only', R44_TERMINAL));
     for (const name of ['a3preflightV5', 'a3corpusFreeze', 'a3governanceV6', 'a3closure', 'a4']) {
-      expect(existsSync(join(REPO_ROOT, HARNESS, name)), name).toBe(false);
+      expect(
+        tree.filter((path) => path.startsWith(`${HARNESS}/${name}/`)),
+        name,
+      ).toEqual([]);
     }
-    const added = lines(git('diff', '--name-only', '--diff-filter=A', R43_TERMINAL)).concat(
-      lines(git('ls-files', '--others', '--exclude-standard')),
-    );
+    const added = lines(git('diff', '--name-only', '--diff-filter=A', R43_TERMINAL, R44_TERMINAL));
     expect(
       added.filter((path) =>
         /A4_|A5_|CORPUS_FROZEN|GOVERNANCE_AUTHORITY_CENSUS_V6|METHOD(?:OLOGY)?_V2_R4|METHODOLOGY_V4/.test(
