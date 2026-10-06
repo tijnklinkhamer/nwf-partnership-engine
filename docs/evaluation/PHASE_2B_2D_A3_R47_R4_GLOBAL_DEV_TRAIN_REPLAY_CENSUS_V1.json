@@ -1,0 +1,330 @@
+{
+  "record": "PHASE_2B_2D_A3_R47_R4_GLOBAL_DEV_TRAIN_REPLAY_CENSUS_V1",
+  "recordKind": "PUBLIC_AGGREGATE_ONLY_R4_GLOBAL_DEV_TRAIN_REPLAY_CENSUS",
+  "task": "A3_R47_R4_IMPLEMENTATION_AND_GLOBAL_DEV_TRAIN_REPLAY_V1",
+  "split": "DEV_TRAIN",
+  "r46Terminal": "e0d1555c09afdc5f17cb3b6b62ac8682a248b2df",
+  "implementationCommit": "9f553352b1587ee582441c22c4b4a2a19c18269e",
+  "thisFileAuthorises": [],
+  "r46ApprovalBinding": {
+    "approvalRecordPath": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_R4_SHORT_TEXT_AMENDMENT_OWNER_APPROVAL_V1.json",
+    "approvalRecordSha256": "986a48bdb672f2428c8ef07b04c43e0187e16b43f79b64c0a61b4aef51844eb2",
+    "approvalRecordBytes": 14268,
+    "approvalRecordCommit": "e0d1555c09afdc5f17cb3b6b62ac8682a248b2df",
+    "approvedProposalPath": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_R4_SHORT_TEXT_AMENDMENT_PROPOSAL_V1.json",
+    "approvedProposalSha256": "5ebcc562e72f509e2b664f3ae800dc2043142d5d4a6ec1ec4d2958b8abab1d20",
+    "approvedProposalBytes": 16628,
+    "methodologyVersion": "METHODOLOGY_V2_R4",
+    "ruleId": "SD7_SHORT_TEXT_EXACT_NORMALISED_TOKEN_SEQUENCE_FALLBACK_V1",
+    "optionToken": "SHORT_TEXT_EXACT_NORMALISED_TOKEN_SEQUENCE_FALLBACK",
+    "consumedMarkers": [
+      "APPROVE_PHASE_2B_2D_METHODOLOGY_V2_R4_SHORT_TEXT_AMENDMENT_EXACT_BYTES",
+      "AUTHORISE_A3_R47_SHORT_TEXT_R4_IMPLEMENTATION_AND_GLOBAL_DEV_TRAIN_REPLAY"
+    ],
+    "appliesToGenerations": ["METHODOLOGY_V2_GEN1", "METHODOLOGY_V3_GEN2"],
+    "methodologyR4Approved": true,
+    "methodologyR4Frozen": true,
+    "r47ImplementationReplayAuthorised": true,
+    "r47ExecutedAtApproval": false,
+    "newMethodologyChoiceMade": false
+  },
+  "historicalInputReproduction": {
+    "checkpoints": [
+      {
+        "checkpoint": "R20",
+        "committedRecordSha256": "8e15c65a1673a9540fb85b1dbc7583b8b7925e4f788ecbce50b053c43fd05102",
+        "comparedTopLevelFieldCount": 14,
+        "differingSemanticPathCount": 0
+      },
+      {
+        "checkpoint": "R21",
+        "committedRecordSha256": "7aaad302dba31d7a8fa7e053fd110342d9ef1b1f3dadf1a107dc9e68bc398b54",
+        "comparedTopLevelFieldCount": 15,
+        "differingSemanticPathCount": 0
+      },
+      {
+        "checkpoint": "R26",
+        "committedRecordSha256": "61f83b668bc9d0255af115750422c0bc2eebd4892bc1af9efd847f5085dfcdcf",
+        "comparedTopLevelFieldCount": 14,
+        "differingSemanticPathCount": 0
+      },
+      {
+        "checkpoint": "R27",
+        "committedRecordSha256": "9cba69790e91bf2487ca4979e01d41d55edd84014504c027259d9e87723305f1",
+        "comparedTopLevelFieldCount": 14,
+        "differingSemanticPathCount": 0
+      },
+      {
+        "checkpoint": "R33",
+        "committedRecordSha256": "2a1db5daba201a05dceea97c56d8bffe3e07eb950e8d7b7c968a709e17cae0b7",
+        "comparedTopLevelFieldCount": 17,
+        "differingSemanticPathCount": 0
+      },
+      {
+        "checkpoint": "R34",
+        "committedRecordSha256": "8200ebb2cbf7414175303c7f57556c6c4e33d8d9902dfde49e2490dfb21f4a98",
+        "comparedTopLevelFieldCount": 17,
+        "differingSemanticPathCount": 0
+      },
+      {
+        "checkpoint": "R39",
+        "committedRecordSha256": "78cf926bbf79fd71fd56fe66489b6ddc2d1826b7bcc26be87071930ba5c4bdde",
+        "comparedTopLevelFieldCount": 22,
+        "differingSemanticPathCount": 0
+      },
+      {
+        "checkpoint": "R40",
+        "committedRecordSha256": "1e6e268b384987da21650c9e8fae6be4086aa44975e6a5aa10faa5cf6129ac3d",
+        "comparedTopLevelFieldCount": 21,
+        "differingSemanticPathCount": 0
+      }
+    ],
+    "excludedFields": ["implementationCommit"],
+    "checkpointsReproduced": 8,
+    "landedCensusDerivationsUsed": true,
+    "upstreamPoolsClosedBeforeFirstR4Graph": 4,
+    "newDocumentSemantics": false,
+    "newCanonicalDocumentVersion": false
+  },
+  "documentReplayView": {
+    "viewKind": "A3R4DevTrainCanonicalDocumentReplayView",
+    "isNewDocumentAuthority": false,
+    "strata": {
+      "R21_V1": 5,
+      "R27_V2": 1,
+      "R34_V4": 7,
+      "R40_V5": 7
+    },
+    "slots": 20,
+    "population": {
+      "slots": 20,
+      "sourceRows": 617,
+      "slotLocalDocuments": 611,
+      "candidateObservations": 1234,
+      "exactDuplicateGroups": 5,
+      "exactDuplicateRowsRemoved": 6,
+      "multiSourceDocuments": 5,
+      "r10Preparations": 611,
+      "r10SourceRows": 617,
+      "r10CandidateObservations": 1234
+    },
+    "privateTextCapabilities": 20,
+    "globalCrossSlotTextMap": false,
+    "textOrTokensSerialised": false
+  },
+  "r3Baseline": {
+    "documents": 611,
+    "longDocuments": 580,
+    "shortTextUnresolvedUnderR3": 31,
+    "r3ComparedLongPairs": 8502,
+    "r3Edges": 65,
+    "r3DocumentsTouchingAnEdge": 54,
+    "status": "HISTORY_ONLY_NOT_R4_AUTHORITY",
+    "historicalGraphSampleReadinessConsumedAsR4Authority": false
+  },
+  "r4Graph": {
+    "slots": 20,
+    "documents": 611,
+    "longDocuments": 580,
+    "shortBranchDocuments": 31,
+    "relationResolvedDocuments": 611,
+    "unresolvedDocuments": 0,
+    "totalUnorderedPairs": 9274,
+    "r3FiveGramPairs": 8502,
+    "r4ExactSequenceBranchPairs": 772,
+    "r3FiveGramEdges": 65,
+    "r3DocumentsTouchingAnEdge": 54,
+    "r4ShortExactSequenceEdges": 140,
+    "totalR4Edges": 205,
+    "documentsTouchingAnyR4Edge": 76,
+    "shortEquivalenceClasses": 12,
+    "survivorEnvelopeMinTotal": 559,
+    "survivorEnvelopeMaxTotal": 560,
+    "measurements": 20,
+    "longComponentsNotExactlyAuditable": 0,
+    "shortCliquesAuditedByEnumeration": 0,
+    "shortBranchJaccardCalls": 0,
+    "fabricatedJaccardValues": 0,
+    "r3LongBranchReproducedExactly": true
+  },
+  "a2Invariance": {
+    "devTrainSlotsChecked": 20,
+    "a2AcquisitionOfRecordStatusesMatched": 20,
+    "mismatches": 0,
+    "sd9Function": "evaluateSd9FromAdmissiblePostSd7Bounds",
+    "a2Reopened": false,
+    "reserveReplay": false,
+    "governanceV5Changed": false
+  },
+  "setP": {
+    "capSize": 8,
+    "rankedDocuments": 611,
+    "survivors": 560,
+    "exclusions": 51,
+    "unresolved": 0,
+    "exactCaps": 20,
+    "blockedCaps": 0,
+    "documentsAcrossExactCaps": 160,
+    "fullRankExact": 20,
+    "fullRankBlocked": 0,
+    "reachableExact": 20,
+    "reachableBlocked": 0,
+    "reachableMembershipIsCapArrayByReference": true,
+    "shortTextMembershipBlockers": 0,
+    "mechanicalSd9": {
+      "successful": 20,
+      "unsuccessful": 0,
+      "pending": 0
+    },
+    "preparations": 20
+  },
+  "setR": {
+    "capSize": 4,
+    "rankedDocuments": 611,
+    "survivors": 560,
+    "exclusions": 51,
+    "unresolved": 0,
+    "exactCaps": 20,
+    "blockedCaps": 0,
+    "documentsAcrossExactCaps": 80,
+    "fullRankExact": 20,
+    "fullRankBlocked": 0,
+    "reachableExact": 20,
+    "reachableBlocked": 0,
+    "reachableMembershipIsCapArrayByReference": true,
+    "shortTextMembershipBlockers": 0,
+    "mechanicalSd9": {
+      "successful": 20,
+      "unsuccessful": 0,
+      "pending": 0
+    },
+    "preparations": 20
+  },
+  "readinessDerivations": 20,
+  "divergence": {
+    "documents": 611,
+    "survivingBothSamples": 545,
+    "survivingSetPOnly": 15,
+    "survivingSetROnly": 15,
+    "excludedInBothSamples": 36,
+    "closes": true
+  },
+  "coverage": {
+    "documentSlots": 20,
+    "r4GraphSlots": 20,
+    "r4SampleSlots": 20,
+    "r4ReadinessSlots": 20,
+    "governanceContinuity": {
+      "unchangedHistorical": 13,
+      "v5Additions": 7
+    },
+    "historicalR3GraphSampleReadiness": "RETAINED_AS_HISTORY_ONLY",
+    "historicalRecordsOverwritten": false
+  },
+  "r44Comparison": {
+    "historicalR44SetPBlockedRequiredMemberships": 6,
+    "historicalR44SetRBlockedRequiredMemberships": 4,
+    "historicalStatusesCarriedForward": false,
+    "r4SetPShortTextMembershipBlockers": 0,
+    "r4SetRShortTextMembershipBlockers": 0
+  },
+  "semantics": {
+    "r3Sd7ImplementationModified": false,
+    "r4RelationVersioned": true,
+    "r4ShortBranchRule": "EQUAL_LENGTH_ELEMENTWISE_IDENTICAL_CANONICAL_TOKEN_SEQUENCE",
+    "r4ShortEdgeCarriesMeasurement": false,
+    "k3Procedure": "GREEDY_SAMPLE_RANK_SURVIVOR_WALK",
+    "k3Changed": false,
+    "setPRank": "rankSetPFull_UNCHANGED",
+    "setRRank": "rankSetRFull_UNCHANGED",
+    "capsChanged": false,
+    "ownerPolicy": "REACHABLE_SELECTED_CAPPED_MEMBERSHIP_UNCHANGED",
+    "sd9FunctionsChanged": false,
+    "blockerTargetedReplay": false,
+    "sameGlobalPathForEverySlot": true,
+    "historicalR3GraphConsumed": false
+  },
+  "access": {
+    "role": "nwf_readonly",
+    "database": "nwf_pe",
+    "observedBy": "R47_REAL_RUN_HARNESS_POOL_WRAPPER",
+    "layers": [
+      {
+        "layer": "R20",
+        "poolConnections": 1,
+        "snapshotTransactions": 1,
+        "sqlStatements": 33,
+        "evidenceLoads": 5
+      },
+      {
+        "layer": "R26",
+        "poolConnections": 1,
+        "snapshotTransactions": 1,
+        "sqlStatements": 9,
+        "evidenceLoads": 1
+      },
+      {
+        "layer": "R33",
+        "poolConnections": 1,
+        "snapshotTransactions": 1,
+        "sqlStatements": 45,
+        "evidenceLoads": 7
+      },
+      {
+        "layer": "R39",
+        "poolConnections": 1,
+        "snapshotTransactions": 1,
+        "sqlStatements": 45,
+        "evidenceLoads": 7
+      }
+    ],
+    "sqlStatementsAfterLastPoolClosed": 0,
+    "sqlDuringR4GraphSampleReadiness": 0,
+    "writes": 0,
+    "networkRequests": 0,
+    "devConfirmEvidenceReads": 0,
+    "finalHoldoutEvidenceReads": 0,
+    "sealedRootReads": 0,
+    "providerCalls": 0,
+    "labelsOrGoldRead": false
+  },
+  "freezeBoundary": {
+    "conclusion": "DEV_TRAIN_R3_SHORT_TEXT_REQUIRED_MEMBERSHIP_BLOCKER_CLASS_CLEARED_UNDER_R4",
+    "corpusFreezeClear": false,
+    "corpusFrozen": false,
+    "whyNotCorpusFreezeClear": [
+      "DEV_CONFIRM absent",
+      "FINAL_HOLDOUT absent",
+      "K4 gated-split readiness absent",
+      "complete 110-slot preflight not run",
+      "later freeze conditions remain"
+    ],
+    "devConfirmOpened": false,
+    "finalHoldoutOpened": false,
+    "a4Started": false,
+    "a5Started": false,
+    "completeCorpusPreflightRun": false,
+    "twentySlotFinalCorpusMinted": false
+  },
+  "identityDisclosure": {
+    "selectionIndices": false,
+    "organisationIds": false,
+    "echeRowKeys": false,
+    "runIds": false,
+    "documentDigests": false,
+    "pageIds": false,
+    "normalisedTextOrTokens": false,
+    "shortTextEquivalenceClassMembership": false,
+    "slotsWithShortText": false,
+    "slotsGainingR4Edges": false,
+    "edgeEndpoints": false,
+    "perSlotCounts": false,
+    "scoresOrRanks": false,
+    "urlsOrHosts": false,
+    "titlesOrHeadings": false,
+    "labelsOrGold": false,
+    "generation2Replacements": false
+  },
+  "terminalState": "A3_R4_GLOBAL_DEV_TRAIN_REPLAY_COMPLETE_SHORT_TEXT_FREEZE_BLOCKER_CLASS_CLEARED_AWAIT_OWNER_NEXT_PHASE_DECISION",
+  "nextOwnerQuestion": "R47 has replayed all twenty DEV_TRAIN slots under approved Methodology V2 R4. Should the next slice audit and authorise the next frozen-methodology phase boundary, without automatically opening DEV_CONFIRM or FINAL_HOLDOUT?"
+}
