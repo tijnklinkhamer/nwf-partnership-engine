@@ -45,6 +45,20 @@ const R40_TERMINAL = '87f520d8549558e7d59cbe90b2419f378445a899';
 /** The one commit that pinned R40's own isolation test to its range. */
 const R40_SCOPE_PIN_COMMIT = '063e14c802f5a17d902f8591930dcf084b0bfd4b';
 const R40_ISOLATION_TEST = 'src/test/unit/orgunitCorpus2DA3DocumentSourceV5Isolation.test.ts';
+/**
+ * R41'S OWN TERMINAL COMMIT.
+ *
+ * R41's lineage, changed-surface and historical-scope assertions describe
+ * R41'S SLICE, so they range over R41's own commits - `R40_TERMINAL..R41_TERMINAL`
+ * - rather than over the working tree. Once a later slice lands on top, the
+ * working tree is no longer R41's surface, and diffing to it would fail for
+ * the honest reason that history moved on rather than because R41 changed.
+ *
+ * This is the same standing convention R19 through R40 apply, and it
+ * WEAKENS NOTHING: R41's range is frozen, its permitted-path list is
+ * unchanged, and each later slice pins the equivalent scope over its own range.
+ */
+const R41_TERMINAL = '5ede687e8de9fa8df322f36ae8bc69c635f3762e';
 /** The terminal A2 checkpoint Governance V5 describes; never an A3 ancestor. */
 const A2_CHECKPOINT = '29d0d486cb268b5431a0fc23eabb064682ec47d9';
 
@@ -151,7 +165,8 @@ function specifiersOf(source: string): string[] {
   return [...source.matchAll(/from '([^']+)'/g)].map((match) => match[1]!);
 }
 
-const baseAvailable = commitExists(R40_TERMINAL) && commitExists(R40_SCOPE_PIN_COMMIT);
+const baseAvailable =
+  commitExists(R40_TERMINAL) && commitExists(R40_SCOPE_PIN_COMMIT) && commitExists(R41_TERMINAL);
 
 // ---------------------------------------------------------------------------
 // A. THE NAMESPACE AND THE FROZEN SURFACES.
@@ -379,8 +394,8 @@ describe('2D-A3 R41: no SQL, pool, env, fs, network, provider, sealed or downstr
 
 describe.skipIf(!baseAvailable)('2D-A3 R41: lineage and changed surface', () => {
   it('descends from the exact R40 tip, and merges no commit', () => {
-    expect(() => git('merge-base', '--is-ancestor', R40_TERMINAL, 'HEAD')).not.toThrow();
-    expect(lines(git('rev-list', '--merges', `${R40_TERMINAL}..HEAD`))).toEqual([]);
+    expect(() => git('merge-base', '--is-ancestor', R40_TERMINAL, R41_TERMINAL)).not.toThrow();
+    expect(lines(git('rev-list', '--merges', `${R40_TERMINAL}..${R41_TERMINAL}`))).toEqual([]);
   });
 
   it('never makes the terminal A2 checkpoint an ancestor of A3', () => {
@@ -390,22 +405,21 @@ describe.skipIf(!baseAvailable)('2D-A3 R41: lineage and changed surface', () => 
   });
 
   it("pinned R40's scope in exactly one first commit that touched exactly one file", () => {
-    const [first] = lines(git('rev-list', '--reverse', `${R40_TERMINAL}..HEAD`));
+    const [first] = lines(git('rev-list', '--reverse', `${R40_TERMINAL}..${R41_TERMINAL}`));
     expect(first).toBe(R40_SCOPE_PIN_COMMIT);
     expect(git('rev-parse', `${R40_SCOPE_PIN_COMMIT}^`).trim()).toBe(R40_TERMINAL);
     expect(lines(git('diff', '--name-only', R40_TERMINAL, R40_SCOPE_PIN_COMMIT))).toEqual([
       R40_ISOLATION_TEST,
     ]);
-    expect(sha256(readFileSync(join(REPO_ROOT, R40_ISOLATION_TEST)))).toBe(
+    expect(sha256(git('show', `${R41_TERMINAL}:${R40_ISOLATION_TEST}`))).toBe(
       sha256(git('show', `${R40_SCOPE_PIN_COMMIT}:${R40_ISOLATION_TEST}`)),
     );
   });
 
   it('leaves every earlier harness namespace untouched', () => {
-    const touched = [
-      ...lines(git('diff', '--name-only', R40_TERMINAL, '--', HARNESS)),
-      ...lines(git('ls-files', '--others', '--exclude-standard', '--', HARNESS)),
-    ].filter((path) => !path.startsWith(`${NAMESPACE}/`));
+    const touched = lines(
+      git('diff', '--name-only', R40_TERMINAL, R41_TERMINAL, '--', HARNESS),
+    ).filter((path) => !path.startsWith(`${NAMESPACE}/`));
     expect(touched).toEqual([]);
   });
 
@@ -414,16 +428,13 @@ describe.skipIf(!baseAvailable)('2D-A3 R41: lineage and changed surface', () => 
       git('ls-tree', '-r', '--name-only', R40_TERMINAL, '--', 'docs/evaluation', 'docs/audits'),
     );
     expect(prior.length).toBeGreaterThan(0);
-    expect(lines(git('diff', '--name-only', R40_TERMINAL, '--', ...prior))).toEqual([]);
+    expect(lines(git('diff', '--name-only', R40_TERMINAL, R41_TERMINAL, '--', ...prior))).toEqual(
+      [],
+    );
   });
 
   it('changes nothing outside its namespace, tests, census, audit and the R40 scope pin', () => {
-    const paths = [
-      ...new Set([
-        ...lines(git('diff', '--name-only', R40_TERMINAL)),
-        ...lines(git('ls-files', '--others', '--exclude-standard')),
-      ]),
-    ];
+    const paths = lines(git('diff', '--name-only', R40_TERMINAL, R41_TERMINAL));
     const permitted = (path: string): boolean =>
       path === R40_ISOLATION_TEST ||
       path.startsWith(`${NAMESPACE}/`) ||
@@ -433,14 +444,17 @@ describe.skipIf(!baseAvailable)('2D-A3 R41: lineage and changed surface', () => 
     expect(paths.filter((path) => !permitted(path))).toEqual([]);
   });
 
-  it('creates no R42, sample / readiness V5, Governance V6 or A5 artifact', () => {
+  it('created no R42, sample / readiness V5, Governance V6 or A5 artifact (tree at R41_TERMINAL)', () => {
+    const tree = lines(git('ls-tree', '-r', '--name-only', R41_TERMINAL));
     for (const name of ['a3samplesV5', 'a3readinessV5', 'a3governanceV6']) {
-      expect(existsSync(join(REPO_ROOT, HARNESS, name)), name).toBe(false);
+      expect(
+        tree.filter((path) => path.startsWith(`${HARNESS}/${name}/`)),
+        name,
+      ).toEqual([]);
     }
-    const docs = [
-      ...readdirSync(join(REPO_ROOT, 'docs/evaluation')),
-      ...readdirSync(join(REPO_ROOT, 'docs/audits')),
-    ];
+    const docs = tree
+      .filter((path) => path.startsWith('docs/evaluation/') || path.startsWith('docs/audits/'))
+      .map((path) => path.slice(path.lastIndexOf('/') + 1));
     expect(
       docs.filter((name) => /A3_R42|GOVERNANCE_AUTHORITY_CENSUS_V6|A5_.*FREEZE/.test(name)),
     ).toEqual([]);
