@@ -1,0 +1,249 @@
+{
+  "record": "PHASE_2B_2D_A3_R44_DEV_TRAIN_CORPUS_FREEZE_BLOCKER_CLOSURE_V1",
+  "recordKind": "A3_DEV_TRAIN_TERMINAL_BLOCKER_AND_PHASE_BOUNDARY_RECORD",
+  "task": "A3_R44_DEV_TRAIN_CORPUS_FREEZE_BLOCKER_CLOSURE_V1",
+  "ownerDecision": "AUTHORISE_A3_R44_DEV_TRAIN_CORPUS_FREEZE_BLOCKER_CLOSURE_V1",
+  "split": "DEV_TRAIN",
+  "thisFileAuthorises": [],
+  "publicSafe": true,
+  "r43Binding": {
+    "recordPath": "docs/evaluation/PHASE_2B_2D_A3_R43_DEV_TRAIN_INCREMENTAL_REACHABLE_MEMBERSHIP_SD9_CENSUS_V1.json",
+    "recordSha256": "a152885fecd8fa7e215d44cb6c0dfc73f1a04e1c23f38bca974a27d94618cba3",
+    "r43Terminal": "f84ea09031d460b28c9386e1d6cd7fb56d4569ab",
+    "r43ImplementationCommit": "f8a47b9e06da5b8a761044f55e7d33f232b918b4",
+    "r43Commits": [
+      "341caad02a0874621b7e0b011913b17e011083c9",
+      "353f6a1e8eb348f3a6ac430995e80824dd949419",
+      "f8a47b9e06da5b8a761044f55e7d33f232b918b4",
+      "f84ea09031d460b28c9386e1d6cd7fb56d4569ab"
+    ],
+    "r43ScopePinCommit": "6d30ed6055c3a67ae09dee376cb1999808c2d012",
+    "r43TerminalState": "R43_INCREMENTAL_DEV_TRAIN_REACHABLE_MEMBERSHIP_SD9_V5_COMPLETE_READY_FOR_COMPLETE_CORPUS_PREFLIGHT",
+    "r43TerminalInterpretation": "R43 completed DEV_TRAIN readiness and is ready for the NEXT GOVERNANCE REVIEW of corpus-freeze applicability. It does not itself prove that the canonical complete-corpus preflight can be run from the available DEV_TRAIN-only state.",
+    "r43RecordEdited": false,
+    "readFromExactR43CommitOnly": true
+  },
+  "devTrainCompletion": {
+    "devTrainSlots": 20,
+    "authorityCoverage": 20,
+    "evidenceCoverage": 20,
+    "documentCoverage": 20,
+    "graphCoverage": 20,
+    "sampleCoverage": 20,
+    "readinessCoverage": 20,
+    "status": "DEV_TRAIN_PIPELINE_COMPLETE"
+  },
+  "mechanicalReadiness": {
+    "setPSd9MechanicalSuccessful": 20,
+    "setRSd9MechanicalSuccessful": 20,
+    "sd9MechanicalUnsuccessful": 0,
+    "sd9MechanicalPending": 0,
+    "sd9StatusDisagreements": 0,
+    "scope": "MECHANICAL_ACQUISITION_READINESS_ONLY_NOT_CORPUS_FREEZE_READINESS",
+    "mechanicalSd9SuccessDoesNotOverrideSampleMembershipFreezeBlocker": true,
+    "acquisitionStatusChanged": false,
+    "replacementCreated": false,
+    "reserveConsumed": false
+  },
+  "requiredMembershipBlockers": {
+    "requiredMembershipScopeDecisionToken": "SHORT_TEXT_REQUIRED_SAMPLE_MEMBERSHIP_LIMITED_TO_REACHABLE_CAPPED_MEMBERSHIP_V1",
+    "requiredMembershipScope": "REACHABLE_SELECTED_CAPPED_MEMBERSHIP",
+    "setPExactRequiredMembershipSlotCount": 14,
+    "setPBlockedRequiredMembershipSlotCount": 6,
+    "setRExactRequiredMembershipSlotCount": 16,
+    "setRBlockedRequiredMembershipSlotCount": 4,
+    "exactRequiredSelectedMembershipComplete": false,
+    "governanceFact": "the current DEV_TRAIN state contains at least one real required-membership blocker in both SET_P and SET_R",
+    "whichSlotsAreBlockedDisclosed": false,
+    "blockedDocumentsInspected": false
+  },
+  "frozenShortTextPolicy": {
+    "boundOwnerRecords": [
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_SD7_SHORT_TEXT_OWNER_DECISION_V1.json",
+        "sha256": "2f41f495322eceae3b675cbe1d227115f3b4292d6e3a711879793af33b466fff",
+        "decision": "SHORT_TEXT_AMBIGUITY_BLOCKS_ONLY_WHEN_IT_CAN_CHANGE_SD9"
+      },
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_A3_SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP_OWNER_POLICY_V1.json",
+        "sha256": "b734805bbaddc6890dc7032179b4a639a69a790282923b41641710a060b3d05a",
+        "decision": "SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP_AMBIGUITY_PROPAGATION_V1"
+      },
+      {
+        "path": "docs/evaluation/PHASE_2B_2D_A3_SHORT_TEXT_REACHABLE_MEMBERSHIP_OWNER_CLARIFICATION_V1.json",
+        "sha256": "0d6ddaa6dcc70912e3e19d7cb245fbe7b241dff6c671d874cbd1cd50ec33b49a",
+        "decision": "SHORT_TEXT_REQUIRED_SAMPLE_MEMBERSHIP_LIMITED_TO_REACHABLE_CAPPED_MEMBERSHIP_V1"
+      }
+    ],
+    "selectedPolicy": "PROPAGATE_AMBIGUITY_MATERIALISE_ONLY_INVARIANTS",
+    "materialisationRule": "MATERIALISE_ONLY_MEMBERSHIP_INVARIANT_ACROSS_ALL_ADMISSIBLE_SHORT_TEXT_TREATMENTS",
+    "semanticShortTextRelation": "UNRESOLVED",
+    "blockedNonInvariantMembership": "BLOCKED",
+    "freezePolicy": "REFUSE_IF_REQUIRED_MEMBERSHIP_BLOCKED",
+    "freezeEffect": "REFUSE_CORPUS_FREEZE",
+    "freezeRefusal": "CORPUS_FREEZE_REFUSED_SHORT_TEXT_SAMPLE_MEMBERSHIP_UNRESOLVED",
+    "ownerStatedProceedingRequires": "a separate GLOBAL pre-label owner/methodology decision",
+    "laterOwnerAuthorityResolvingTheseBlockers": false
+  },
+  "fullPreflightApplicabilityContract": {
+    "function": "checkCurrentA3CorpusFreezePreflight",
+    "module": "src/test/harness/phase2b2d/a3prep/corpusFreezePreflight.ts",
+    "moduleSha256": "ddae984fec947845ec2e2df9feb24bf8b8f75c28993b413919c08a69c307fe75",
+    "contractsModule": "src/test/harness/phase2b2d/a3prep/contracts.ts",
+    "contractsSha256": "4d856f45dd6016e1007d661f31388bf7bdbefd71862a6585ed4962240454b40f",
+    "modulesUnchangedSinceR43": true,
+    "requiredInputs": [
+      "SET_P readiness for the complete selected cohort",
+      "SET_R readiness for the complete selected cohort",
+      "one K4 freeze readiness per gated split"
+    ],
+    "canonicalCohortSize": 110,
+    "canonicalSplitCounts": {
+      "DEV_TRAIN": 20,
+      "DEV_CONFIRM": 45,
+      "FINAL_HOLDOUT": 45
+    },
+    "k4GatedSplits": ["DEV_CONFIRM", "FINAL_HOLDOUT"],
+    "currentStateSupplies": "DEV_TRAIN readiness only (20 of 110 per sample, 0 of 2 K4 readiness inputs)",
+    "currentStateIsStructurallyCompletePreflightInput": false,
+    "realCompleteCorpusPreflightRun": false,
+    "realR43ReadinessObjectsPassedToPreflight": false,
+    "missingSplitReadinessFabricated": false,
+    "syntheticBoundaryTest": {
+      "identities": "INVENTED_ONLY",
+      "devTrainOnlyInputResult": "A3_CORPUS_FREEZE_PREFLIGHT_REFUSED",
+      "structuralCodes": [
+        "SLOT_COUNT_MISMATCH",
+        "SLOT_COUNT_MISMATCH",
+        "K4_READINESS_COUNT_MISMATCH"
+      ],
+      "isTheRealCorpusPreflightResult": false
+    }
+  },
+  "missingPrerequisites": {
+    "devConfirmSetPAndSetRReadiness": "ABSENT",
+    "finalHoldoutSetPAndSetRReadiness": "ABSENT",
+    "devConfirmK4Readiness": "ABSENT",
+    "finalHoldoutK4Readiness": "ABSENT",
+    "missingSlotsPerSample": 90,
+    "sealedSplitsOpened": false,
+    "devConfirmEvidenceReads": 0,
+    "finalHoldoutEvidenceReads": 0,
+    "sealedRootReads": 0
+  },
+  "futurePreflightConsequence": {
+    "statement": "A future 110-slot preflight containing the unchanged current DEV_TRAIN state cannot return the clear status, because the frozen short-text gate refuses on ANY blocked required membership and DEV_TRAIN already holds 6 (SET_P) and 4 (SET_R).",
+    "derivedSolelyFromKnownDevTrainBlockers": true,
+    "predictionAboutDevConfirmOrFinalHoldout": false,
+    "inventedBestCaseCompleteCohortDemonstration": {
+      "identities": "INVENTED_ONLY",
+      "sealedSplitEntries": "ALL_EXACT_AND_K4_CLEAR_BEST_CASE",
+      "result": "A3_CORPUS_FREEZE_PREFLIGHT_REFUSED",
+      "setPShortTextBlockedSlotCount": 6,
+      "setRShortTextBlockedSlotCount": 4
+    },
+    "clearRequires": "a separately authorised methodology or policy change that changes these blockers first"
+  },
+  "currentMethodologyBlocker": {
+    "corpusFreezeUnderCurrentFrozenMethodology": "BLOCKED",
+    "currentPolicyProvidesAuthorisedSemanticResolution": false,
+    "rejectedAsCurrentPolicySolutions": [
+      "ALWAYS_INCLUDE",
+      "ALWAYS_EXCLUDE",
+      "NEW_MINIMUM_TOKEN_ELIGIBILITY_FILTER",
+      "FALLBACK_SIMILARITY_SMALLER_NGRAMS_CHARACTER_SIMILARITY_OR_SPECIAL_EMPTY_JACCARD",
+      "CASE_BY_CASE_HUMAN_JUDGEMENT",
+      "LABEL_ASSISTED_JUDGEMENT",
+      "MODEL_ASSISTED_JUDGEMENT"
+    ],
+    "rejectionScope": "REJECTED_UNDER_THE_CURRENT_FROZEN_METHODOLOGY_ONLY",
+    "r44DecidesWhetherAFutureMethodologyVersionMayChangeOne": false,
+    "methodologyAmended": false,
+    "shortTextReinterpreted": false,
+    "sd7Changed": false,
+    "sd9Changed": false,
+    "capsChanged": false,
+    "rankingChanged": false,
+    "labelsUsed": false,
+    "modelOutputUsed": false,
+    "a4ResultsUsed": false
+  },
+  "preflightNotFreezeAuthority": {
+    "bestPossibleStatus": "A3_CORPUS_FREEZE_PREFLIGHT_CURRENT_BLOCKERS_CLEAR_NOT_FREEZE_AUTHORITY",
+    "resultKind": "A3_CORPUS_FREEZE_PREFLIGHT_NOT_EXECUTION_AUTHORITY",
+    "clearResultAuthorisesA5Freeze": false,
+    "clearResultMeansA5Ready": false,
+    "notCheckedByCurrentPrep": [
+      "REAL_ACQUISITION_COMPLETION",
+      "REAL_GENERATION_1_SLOT_MATERIALISATION",
+      "REPLACEMENT_LEDGER_FINALITY",
+      "REAL_SET_P_AND_SET_R_PREPARATION_MATERIALISATION",
+      "FINAL_ITEM_AND_GOLD_IDENTIFIERS",
+      "A4_LABELS",
+      "AGREEMENT_AND_KAPPA",
+      "FINAL_MANIFEST_HASHES",
+      "REALISED_SCORING_TIME_SD4_ENFORCEMENT",
+      "FINAL_GATE_DENOMINATORS"
+    ]
+  },
+  "a3Status": {
+    "devTrainCanonicalPreparationChain": "COMPLETE",
+    "devTrainCoverageAllLayers": "20/20",
+    "mechanicalSd9": "COMPLETE_AND_SUCCESSFUL",
+    "exactRequiredSelectedMembership": "NOT_COMPLETE",
+    "corpusFreezeUnderCurrentFrozenMethodology": "BLOCKED",
+    "complete110SlotPreflightInput": "NOT_YET_AVAILABLE",
+    "a4": "NOT_AUTHORISED_BY_THIS_TASK",
+    "distinguishes": ["DEV_TRAIN_PIPELINE_COMPLETE", "CORPUS_FREEZE_CLEAR"],
+    "corpusFreezeClear": false
+  },
+  "access": {
+    "sqlStatements": 0,
+    "databaseConnections": 0,
+    "networkRequests": 0,
+    "sealedRootReads": 0,
+    "providerOrClassifierCalls": 0,
+    "labelOrGoldReads": 0,
+    "harnessModulesChanged": 0,
+    "newSemanticNamespace": false,
+    "r39R40R41ExecutionHelpersImported": false
+  },
+  "prohibitedActionsNotTaken": [
+    "METHODOLOGY_V2_R4",
+    "NEW_METHODOLOGY_GENERATION",
+    "FALLBACK_SHORT_TEXT_SIMILARITY",
+    "HUMAN_SHORT_TEXT_ADJUDICATION",
+    "MODEL_ASSISTED_SHORT_TEXT_ADJUDICATION",
+    "LABEL_ASSISTED_MEMBERSHIP",
+    "CAP_CHANGE",
+    "RANKING_CHANGE",
+    "SD7_CHANGE",
+    "SD9_CHANGE",
+    "REAL_COMPLETE_CORPUS_PREFLIGHT",
+    "CORPUS_FREEZE",
+    "A4_LABELS",
+    "A5",
+    "DEV_CONFIRM_ACCESS",
+    "FINAL_HOLDOUT_ACCESS"
+  ],
+  "identityDisclosure": {
+    "selectionIndices": false,
+    "organisationIds": false,
+    "echeRowKeys": false,
+    "runIdentifiers": false,
+    "documentIdentities": false,
+    "shortTextDocumentIdentities": false,
+    "rankPositions": false,
+    "blockedPositions": false,
+    "whichSlotsAreBlocked": false,
+    "whichSlotsAreGeneration2Reserves": false,
+    "urlsOrHosts": false,
+    "text": false,
+    "scores": false,
+    "labels": false,
+    "aggregateCountsOnly": true
+  },
+  "terminalState": "A3_DEV_TRAIN_PIPELINE_COMPLETE_CORPUS_FREEZE_BLOCKED_AWAIT_OWNER_METHODOLOGY_DECISION",
+  "nextOwnerQuestion": "The canonical DEV_TRAIN pipeline is complete, but the frozen methodology leaves 6 SET_P and 4 SET_R required memberships blocked by unresolved short-text ambiguity, which prevents corpus freeze. Do you want to authorise a separately reviewed methodology amendment/version to define a pre-label, globally deterministic resolution for this short-text case, or keep the current methodology and accept that corpus freeze cannot proceed?",
+  "immutability": "append-only. This record is never edited; a correction is a new record"
+}
