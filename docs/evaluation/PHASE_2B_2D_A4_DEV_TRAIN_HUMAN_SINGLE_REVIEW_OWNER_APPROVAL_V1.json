@@ -1,0 +1,114 @@
+{
+  "record": "PHASE_2B_2D_A4_DEV_TRAIN_HUMAN_SINGLE_REVIEW_OWNER_APPROVAL_V1",
+  "recordKind": "OWNER_DEV_TRAIN_HUMAN_SINGLE_REVIEW_APPROVAL",
+  "task": "A4_R51_DEV_TRAIN_HUMAN_SINGLE_REVIEW_AUTHORISATION_AND_TOOLING_V1",
+  "recordedBy": "claude-code-session under explicit owner instruction; the decisions are the owner's",
+  "publicSafe": true,
+  "split": "DEV_TRAIN",
+  "r50Terminal": {
+    "commit": "8c0d36af8b5a28403ee781a754d50f979dbf2e0b",
+    "terminalState": "A3_R4_DEV_TRAIN_A4_HANDOFF_MATERIALISED_AWAIT_OWNER_HUMAN_LABELLING_AUTHORISATION"
+  },
+  "ownerDecisions": [
+    {
+      "marker": "AUTHORISE_A4_DEV_TRAIN_HUMAN_SINGLE_REVIEW_V1",
+      "meaning": "Humans may now review exactly the 222-item R50 DEV_TRAIN package against exactly the frozen R49 rubric, offline, with no model assistance."
+    },
+    {
+      "marker": "APPROVE_DEV_TRAIN_SINGLE_REVIEW_AS_EXACTLY_ONE_HUMAN_LABEL_PER_ITEM",
+      "meaning": "Every DEV_TRAIN item must ultimately receive exactly ONE completed human review. Dual review is not required. Different human actors may review different items. No item may receive two competing DEV_TRAIN labels."
+    },
+    {
+      "marker": "APPROVE_DEV_TRAIN_LANGUAGE_INCOMPETENCE_AS_WORKFLOW_DEFER_NOT_NEEDS_REVIEW",
+      "meaning": "A reviewer's inability to understand the frozen page language is NOT the semantic NEEDS_REVIEW label. Such an item remains UNLABELLED and may be handed to another human who can directly understand the frozen evidence. Machine / model translation remains forbidden."
+    }
+  ],
+  "operationalClarificationOf": "dualReviewRequired.DEV_TRAIN = false",
+  "changesLabelSemantics": false,
+  "changesSampling": false,
+  "changesGates": false,
+  "boundPackage": {
+    "path": "docs/evaluation/corpus/PHASE_2B_2D_A3_R50_DEV_TRAIN_R4_SINGLE_REVIEW_PACKAGE_V1.jsonl",
+    "packageHashName": "R50_PRE_LABEL_REVIEW_PACKAGE_HASH",
+    "packageHash": "9664388949f5d8686fe32af2fb4fb8f933787faf6daf11349d5b8a402db4066e",
+    "fileSha256": "91442149a4763ced8b28dfe35bfbcb00c2781baed594c19169c7cbaac80619ed",
+    "bytes": 1038305,
+    "recordCount": 222,
+    "order": "goldId ASC",
+    "immutable": true
+  },
+  "boundTemplate": {
+    "path": "docs/evaluation/corpus/PHASE_2B_2D_A3_R50_DEV_TRAIN_R4_SINGLE_REVIEW_RESPONSE_TEMPLATE_V1.jsonl",
+    "fileSha256": "d532cc4b77ed104abeb516ec98382972f0ed7ee3a3b168a19b4de028c037b4aa",
+    "recordCount": 222,
+    "allHumanFieldsNull": true
+  },
+  "boundRubric": {
+    "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_HUMAN_LABELLING_RUBRIC_V1.json",
+    "rubricVersion": "METHODOLOGY_V2_HUMAN_LABELLING_RUBRIC_V1",
+    "sha256": "e3af57d8d2503e4fc87ce707427762aabfed420bb670a262b9302a7ea78e1d69",
+    "bytes": 22125,
+    "ownerApprovalPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_HUMAN_LABELLING_RUBRIC_V1_OWNER_APPROVAL.json",
+    "ownerApprovalSha256": "17f2683d378b32000467eb670374f56bfa3c8b7b3dfa0acb8a12ee60d0468ac4",
+    "reinterpreted": false
+  },
+  "singleReview": {
+    "definition": "SINGLE REVIEW = EXACTLY ONE HUMAN SEMANTIC LABEL PER GOLDID",
+    "doesNotMean": "ONE PERSON MUST LABEL THE ENTIRE SPLIT",
+    "reasonDifferentHumansMayCoverDifferentItems": "the evaluation population is multilingual; no single reviewer is assumed to read every language",
+    "isNotDualReview": true
+  },
+  "languageCompetence": {
+    "aHumanMayCompleteAnItemOnlyWhen": "they can understand the frozen evidence well enough to apply the rubric DIRECTLY, using their own human language knowledge",
+    "forbiddenAssistance": [
+      "ChatGPT",
+      "Claude",
+      "Gemini",
+      "any other model or classifier",
+      "machine translation",
+      "browser auto-translation",
+      "Google Translate",
+      "live search",
+      "any external website, including the live page itself",
+      "any historical label"
+    ],
+    "ifTheReviewerCannotUnderstandTheLanguage": {
+      "doNotLabelTheItem": true,
+      "doNotSelectNeedsReview": true,
+      "localDraftWorkflowStateOnly": "DEFERRED_FOR_LANGUAGE_COMPETENT_HUMAN",
+      "isAHumanOrGoldLabel": false,
+      "mayAppearInCompletedResponseFile": false,
+      "anotherLanguageCompetentHumanMayCompleteTheSameItem": true
+    },
+    "needsReviewRemainsSemantic": "NEEDS_REVIEW keeps exactly its R49 meaning: the FROZEN EVIDENCE itself is genuinely insufficient, conflicting or ambiguous. It never means the reviewer lacks the language, is tired, wants another opinion or wants web context."
+  },
+  "actorKeys": {
+    "pattern": "^[a-z0-9][a-z0-9_-]{2,63}$",
+    "opaque": true,
+    "chosenByTheReviewerAtSessionStart": true,
+    "neverStore": ["name", "email", "handle"],
+    "realIdentityPreBound": false,
+    "identityMappingCommitted": false
+  },
+  "authorityFlags": {
+    "humanReviewAuthorised": true,
+    "humanReviewExecuted": false,
+    "singleReviewPerItem": true,
+    "dualReviewRequired": false,
+    "multipleHumanActorsAcrossDifferentItemsAllowed": true,
+    "secondLabelForSameItemAllowed": false,
+    "modelAssistanceAuthorised": false,
+    "machineTranslationAuthorised": false,
+    "liveBrowsingAuthorised": false,
+    "externalSearchAuthorised": false,
+    "historicalGoldAuthorised": false,
+    "devConfirmAuthorised": false,
+    "finalHoldoutAuthorised": false,
+    "a5Authorised": false
+  },
+  "sealedSplits": {
+    "devConfirmOpened": false,
+    "finalHoldoutOpened": false,
+    "requireLaterOwnerDecisions": true
+  }
+}
