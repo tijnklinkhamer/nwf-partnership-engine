@@ -23,6 +23,7 @@ import {
 } from './commands/website.js';
 import { runOrgunitsDiscover } from './commands/discover.js';
 import { runOrgunitsClassify } from './commands/classify.js';
+import { runOrgunitsClassifyRead } from './commands/classifyRead.js';
 
 const USAGE = `nwf-pe - NWF Partnership Engine (Phase 1D)
 
@@ -47,6 +48,10 @@ Usage:
   nwf-pe orgunits discover    --organisation-id <uuid> [--execute] [--json]
   nwf-pe orgunits classify    --organisation-id <uuid> --run-id <uuid>
                               --model <model-id> [--attempt <N>] [--execute] [--json]
+  nwf-pe orgunits classify runs  --organisation-id <uuid> [--limit <N>] [--json]
+  nwf-pe orgunits classify calls --organisation-id <uuid> [--run-id <uuid>]
+                                 [--limit <N>] [--json]
+  nwf-pe orgunits classify show  --call-id <uuid> [--json]
 
 Options:
   --country <CC>    Restrict to an ISO-3166-1 alpha-2 country code (e.g. FR).
@@ -76,6 +81,13 @@ Options:
                     allowlist. Required; there is no default model.
   --attempt <N>     With \`orgunits classify\`: the attempt number (default 1). Never
                     incremented automatically; a re-observation is a deliberate --attempt.
+  --call-id <uuid>  With \`orgunits classify show\`: the exact classifier call (ordinary
+                    or repair) to inspect.
+                    \`orgunits classify runs|calls|show\` are READ-ONLY (readonly role):
+                    no provider, no write, no network. They refuse --execute,
+                    --model, --attempt and any other option they do not use.
+                    \`runs\` lists only runs ATTRIBUTABLE to the organisation; \`calls\`
+                    lists ordinary calls only (default --limit 50 for both).
   -h, --help        Show this help.
 
 Phase 1B ingests two official datasets: ECHE and the EWP Registry. It measures
@@ -123,6 +135,7 @@ export async function main(argv: string[]): Promise<number> {
       'run-id': { type: 'string' },
       model: { type: 'string' },
       attempt: { type: 'string' },
+      'call-id': { type: 'string' },
       execute: { type: 'boolean', default: false },
       help: { type: 'boolean', short: 'h', default: false },
     },
@@ -227,6 +240,24 @@ export async function main(argv: string[]): Promise<number> {
         ? { organisationId: values['organisation-id'] }
         : {}),
       execute: values.execute === true,
+      json: values.json === true,
+    });
+  }
+
+  if (group === 'orgunits' && sub === 'classify' && rest.length > 0) {
+    // A third positional selects a READ-ONLY inspection (runs/calls/show);
+    // anything else is refused there and never reaches the execution action.
+    return runOrgunitsClassifyRead({
+      positionals: rest,
+      suppliedOptions: Object.entries(values)
+        .filter(([, value]) => value !== undefined && value !== false)
+        .map(([name]) => name),
+      ...(values['organisation-id'] !== undefined
+        ? { organisationId: values['organisation-id'] }
+        : {}),
+      ...(values['run-id'] !== undefined ? { runId: values['run-id'] } : {}),
+      ...(values['call-id'] !== undefined ? { callId: values['call-id'] } : {}),
+      ...(limit !== undefined ? { limit } : {}),
       json: values.json === true,
     });
   }

@@ -1603,6 +1603,16 @@ describe('PHASE-2B-FIREWALL 2B-2B/2B-2C1: classifier handoff assembly and semant
   const CLASSIFY_READ_ONLY_FILES = CLASSIFY_FILES.filter(
     (file) => file !== CLASSIFY_PERSISTENCE_FILE,
   );
+  /**
+   * CLASSIFIER_OPERATOR_READ_MODELS_V1: the ONE other file permitted to NAME
+   * the classifier-persistence tables (and the migration-0011 repair
+   * columns), BY EXACT PATH - because inspecting persisted calls, repairs and
+   * classifications through the `readonly` role is impossible without naming
+   * them. It stays inside CLASSIFY_READ_ONLY_FILES, so every write-free check
+   * above and below still binds it, and it carries its own STRICTER block
+   * (SELECT-only, no DDL, two imports, never persist.ts) just below.
+   */
+  const CLASSIFY_OPERATOR_READ_MODEL_FILE = 'src/orgunits/classify/operatorReadModels.ts';
 
   it('populates the classify namespace', () => {
     expect(CLASSIFY_FILES.length, 'src/orgunits/classify is empty').toBeGreaterThan(0);
@@ -1695,8 +1705,9 @@ describe('PHASE-2B-FIREWALL 2B-2B/2B-2C1: classifier handoff assembly and semant
     }
   });
 
-  it('never names a classifier-persistence table OUTSIDE persist.ts', () => {
+  it('never names a classifier-persistence table OUTSIDE persist.ts (and the exact-path readonly read model)', () => {
     for (const file of CLASSIFY_READ_ONLY_FILES) {
+      if (file === CLASSIFY_OPERATOR_READ_MODEL_FILE) continue;
       const source = code(file);
       for (const table of [
         'orgunit_classifier_calls',
@@ -1711,6 +1722,28 @@ describe('PHASE-2B-FIREWALL 2B-2B/2B-2C1: classifier handoff assembly and semant
         expect(source, `${file} names ${table}`).not.toContain(table);
       }
     }
+  });
+
+  it('the operator read model names those tables ONLY to SELECT: no write, no DDL, two imports, never persist.ts', () => {
+    expect(CLASSIFY_FILES).toContain(CLASSIFY_OPERATOR_READ_MODEL_FILE);
+    expect(CLASSIFY_READ_ONLY_FILES).toContain(CLASSIFY_OPERATOR_READ_MODEL_FILE);
+    const source = code(CLASSIFY_OPERATOR_READ_MODEL_FILE);
+    expect(source).not.toMatch(
+      /\b(INSERT|UPDATE|DELETE|TRUNCATE|MERGE|UPSERT|CREATE|ALTER|DROP|GRANT|REVOKE|COPY|LOCK|NOTIFY|CALL)\b/,
+    );
+    expect(source).not.toMatch(/\b(nextval|setval|pg_advisory|set_config|FOR\s+UPDATE)\b/i);
+    expect(source).not.toMatch(/withTransaction|BEGIN|COMMIT|ROLLBACK/);
+    // Every statement it issues is a SELECT or a WITH ... SELECT.
+    const statements = [...source.matchAll(/pool\.query<[\s\S]*?>\(\s*`([\s\S]*?)`/g)].map((m) =>
+      m[1]!.trim(),
+    );
+    expect(statements.length).toBeGreaterThan(0);
+    for (const sql of statements) expect(sql).toMatch(/^(SELECT|WITH)\b/);
+    const imports = [...source.matchAll(/\bfrom\s*['"]([^'"]+)['"]/g)].map((m) => m[1]!).sort();
+    expect(imports).toEqual(['./constants.js', 'pg']);
+    expect(source).not.toMatch(/\bimport\s*\(/);
+    expect(source).not.toContain('process.env');
+    expect(source).not.toMatch(/Date\.now\(|new Date\(|Math\.random\(/);
   });
 
   it('declares no contact-shaped property and names no mailto:/tel: scheme', () => {
@@ -2729,6 +2762,9 @@ describe('PHASE-2B-FIREWALL 2B-2D2C-R1: the ONE bounded item-level repair round 
     expect(persist).not.toMatch(/DELETE\s+FROM/i);
     for (const file of PRODUCTION_FILES) {
       if (file === PERSIST) continue;
+      // CLASSIFIER_OPERATOR_READ_MODELS_V1: the exact-path readonly read model
+      // SELECTs the repair linkage to show it; its SELECT-only block pins it.
+      if (file === 'src/orgunits/classify/operatorReadModels.ts') continue;
       expect(code(file), `${file} names a repair column`).not.toMatch(
         /repair_of_call_id|repair_doc_index/,
       );
