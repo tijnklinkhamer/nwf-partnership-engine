@@ -236,8 +236,12 @@ describe('KNOWN OPEN CAPABILITY is still open: no character-reference decoding',
 });
 
 describe('the current policy stamp', () => {
-  it('production is orgunit-fetch-policy-v6', () => {
-    expect(FETCH_POLICY_VERSION).toBe('orgunit-fetch-policy-v6');
+  it('production is orgunit-fetch-policy-v7', () => {
+    // The RCDATA repair INTRODUCED v6; ADR 0016 has since moved production to
+    // v7 without touching a line of that repair's behaviour. What this file
+    // asserts about the RCDATA rules themselves is unchanged - only the
+    // stamp a NEW observation carries has moved on.
+    expect(FETCH_POLICY_VERSION).toBe('orgunit-fetch-policy-v7');
   });
 });
 

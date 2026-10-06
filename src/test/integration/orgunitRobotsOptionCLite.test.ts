@@ -288,13 +288,13 @@ describeIf('ADR 0013 Option C-lite: same-registrable-domain robots continuation'
         requested_url: APEX_ROBOTS,
         http_status: 200,
         discovery_method: 'ROBOTS',
-        fetch_policy_version: 'orgunit-fetch-policy-v6',
+        fetch_policy_version: 'orgunit-fetch-policy-v7',
       });
       expect(rows[1]).toMatchObject({
         requested_url: WWW_ROBOTS,
         http_status: 301,
         discovery_method: 'ROBOTS',
-        fetch_policy_version: 'orgunit-fetch-policy-v6',
+        fetch_policy_version: 'orgunit-fetch-policy-v7',
       });
 
       const redirects = await research.query<{ host_changed: boolean; to_url_resolved: string }>(
@@ -783,7 +783,7 @@ describeIf('ADR 0013 Option C-lite: same-registrable-domain robots continuation'
   // ============================================================= E. PROVENANCE
 
   describe('E. provenance', () => {
-    it('stamps every new observation with v3', async () => {
+    it('stamps every new observation with the CURRENT policy version', async () => {
       const transport = new ScriptedTransport({
         [WWW_ROBOTS]: movedTo(APEX_ROBOTS),
         [APEX_ROBOTS]: text(200, 'User-agent: *\nAllow: /'),
@@ -804,7 +804,7 @@ describeIf('ADR 0013 Option C-lite: same-registrable-domain robots continuation'
            FROM orgunit_fetch_observations WHERE run_id = $1`,
         [runId],
       );
-      expect(rows[0]!.versions).toEqual(['orgunit-fetch-policy-v6']);
+      expect(rows[0]!.versions).toEqual(['orgunit-fetch-policy-v7']);
     });
 
     it('refuses to execute a run recorded under v1 OR v2, so no old run is resumed under v3', async () => {

@@ -10,13 +10,16 @@
  * THE BOOTSTRAP PROBLEM, SOLVED NARROWLY
  *
  *   Evaluating a host's policy requires reading robots.txt, and reading
- *   robots.txt is itself a gateway request that needs an authority. The one
- *   bypass this module uses - `RobotsAuthorisation.forRobotsTxtBootstrap` -
- *   is scoped to exactly that one URL (robotsAuthority.ts "THE SCOPING
- *   PROBLEM") and produces nothing but `NOT_APPLICABLE`. There is no
- *   `skipRobots`, `ignoreRobots` or `forceAllowed` flag anywhere in this file:
- *   the only bypass is this one, exact-path-scoped exception, exactly once
- *   per host per run.
+ *   robots.txt is itself a gateway request that needs an authority. The two
+ *   bypasses this module uses - `RobotsAuthorisation.forRobotsTxtBootstrap`
+ *   for the FIRST request of an origin's policy, and, since ADR 0016,
+ *   `RobotsAuthorisation.forRobotsTxtRedirectContinuation` for a request the
+ *   host's OWN 3xx sent it to - are each scoped to exactly one URL
+ *   (robotsAuthority.ts "THE SCOPING PROBLEM") and each produce nothing but
+ *   `NOT_APPLICABLE`. There is no `skipRobots`, `ignoreRobots` or
+ *   `forceAllowed` flag anywhere in this file: the only bypasses are those
+ *   two path-scoped exceptions, and discovery may still START in exactly one
+ *   place per origin, once per host per run.
  *
  * ROBOTS.TXT FETCHED ONCE PER HOST PER RUN
  *
@@ -30,7 +33,8 @@
  *   one - fetching `www.example.edu/robots.txt` once does not authorise
  *   anything on `international.example.edu`.
  *
- * THE REDIRECT POSTURE, AS NARROWED BY ADR 0012 AND WIDENED BY ADR 0013
+ * THE REDIRECT POSTURE, AS NARROWED BY ADR 0012 AND WIDENED BY ADR 0013 AND
+ * ADR 0016
  *
  *   The GATEWAY still follows nothing. Every request this module makes is one
  *   GET against one explicitly authorised URL, and `executeWebAttempt` has no
@@ -43,10 +47,20 @@
  *
  *   ADR 0013 ("Option C-lite") moved exactly one line of that boundary. The
  *   permission now covers ONE hop, to the SAME REGISTRABLE DOMAIN's own
- *   `/robots.txt`, under the same scheme or an http -> https upgrade, and
+ *   policy path, under the same scheme or an http -> https upgrade, and
  *   nothing else (`continuationTargetFor`). A `www.` label gained or dropped
  *   inside one registrable domain is therefore continuable, where ADR 0012
  *   refused it.
+ *
+ *   ADR 0016 moved exactly one more: the admissible TARGET PATH set is now
+ *   `/robots.txt` OR `/robots.txt/`, and nothing else. Generation-1 met an
+ *   origin answering its canonical policy request with a same-origin 301 to
+ *   the trailing-slash form; v6 refused that target on the exact-path test
+ *   alone, so the policy was genuinely unread and a whole root yielded zero
+ *   pages. The bare trailing-slash variant is now ONE admissible redirected
+ *   policy-retrieval endpoint - not a prefix, not a normalisation, and never
+ *   an initial request. Every child path (`/robots.txt//`,
+ *   `/robots.txt/index`) stays refused.
  *
  *   WHY THAT IS NOT A RETURN TO FOLLOW-AND-PROCEED. RFC 9309 s2.3.1.2 states
  *   that a robots.txt reached through redirects - explicitly including
@@ -357,11 +371,23 @@ export interface RobotsFetchOutcome {
  *      not belt-and-braces: a target the gateway would REFUSE must never be
  *      minted an authority, because a gateway refusal THROWS and would turn
  *      an ordinary redirect into a failed root.
- *   3. The target's request path is exactly `/robots.txt` - which is path AND
- *      query together, so a query-bearing target is refused by the same
- *      comparison. A policy file that redirects to `/other-path` is not
- *      canonicalising its policy URL, and whatever is there is not this
- *      host's robots.txt.
+ *   3. The target's request path is exactly `/robots.txt` OR exactly
+ *      `/robots.txt/` - the two members of
+ *      `RobotsAuthorisation.CONTINUATION_PATHS`, compared against
+ *      `requestPath`, which is path AND query together, so a query-bearing
+ *      target is refused by the same comparison. A policy file that redirects
+ *      to `/other-path` is not canonicalising its policy URL, and whatever is
+ *      there is not this host's robots.txt.
+ *
+ *      THE TRAILING-SLASH MEMBER IS THE ADR 0016 LINE, and it is the only
+ *      thing that moved. Generation-1 met an origin answering `/robots.txt`
+ *      with a same-origin 301 to `/robots.txt/`; v6 refused it here and the
+ *      policy went unread, costing a whole root. The set is an explicit
+ *      two-member list read from the authority module rather than a prefix
+ *      test or a normaliser, because `startsWith('/robots.txt')` would admit
+ *      `/robots.txt//`, `/robots.txt/index` and every other child path - an
+ *      open set nobody reviewed. Those remain refused, by the same
+ *      comparison that refuses `/robots` and `/policy/robots.txt`.
  *   4. The target is in the SAME REGISTRABLE DOMAIN. THIS IS THE ADR 0013
  *      LINE, and it is the one thing that moved: ADR 0012 required the
  *      hostname to be byte-identical. A cross-registrable-domain target is
@@ -383,6 +409,27 @@ export interface RobotsFetchOutcome {
  * it is the orchestrator's ledger, asked through
  * `admitHostChangingContinuation`.
  */
+/**
+ * WHICH OF THE TWO POLICY-REQUEST ACTS a gateway call is (ADR 0016).
+ *
+ * A closed two-member union rather than a boolean, so a call site reads as
+ * what it is rather than as `true`/`false` against an unnamed question, and
+ * so a third act - if one were ever authorised - could not be smuggled in as
+ * "the other one".
+ *
+ *   `BOOTSTRAP`             - the FIRST request of this origin's policy.
+ *                             Path set: exactly `/robots.txt`.
+ *   `REDIRECT_CONTINUATION` - a request made only because the host's own
+ *                             response to the bootstrap was a 3xx whose
+ *                             target `continuationTargetFor` admitted.
+ *                             Path set: `/robots.txt` or `/robots.txt/`.
+ *
+ * The role decides WHICH AUTHORITY FACTORY mints the capability, and the
+ * factories enforce their own path sets. Nothing here can authorise an
+ * ordinary page under either value.
+ */
+export type PolicyRequestRole = 'BOOTSTRAP' | 'REDIRECT_CONTINUATION';
+
 export interface RobotsContinuation {
   /** The exact URL a second, independently validated gateway request may ask for. */
   readonly url: string;
@@ -401,7 +448,7 @@ export function continuationTargetFor(
   const target = validateRequestUrl(facts.toUrlResolved);
   if (!origin.ok || !target.ok) return null;
 
-  if (target.value.requestPath !== '/robots.txt') return null;
+  if (!RobotsAuthorisation.CONTINUATION_PATHS.includes(target.value.requestPath)) return null;
   if (target.value.registrableDomain !== origin.value.registrableDomain) return null;
 
   const sameScheme = target.value.scheme === origin.value.scheme;
@@ -467,7 +514,7 @@ export async function getRobotsPolicy(
    * the second request, and it keeps the unforgeable, exact-scope invariant
    * intact for both.
    */
-  const fetchRobotsDocument = (url: string): Promise<WebAttemptResult> =>
+  const fetchRobotsDocument = (url: string, role: PolicyRequestRole): Promise<WebAttemptResult> =>
     executeWebAttempt(
       pool,
       {
@@ -480,7 +527,19 @@ export async function getRobotsPolicy(
         attemptNo: cache.nextPolicyAttemptNo(context.runId, url),
         discoveryMethod: 'ROBOTS',
         discoveryParentUrl: null,
-        robots: RobotsAuthorisation.forRobotsTxtBootstrap(url),
+        // THE ROLE PICKS THE FACTORY, AND THE FACTORIES ARE NOT
+        // INTERCHANGEABLE (ADR 0016). `BOOTSTRAP` is where policy discovery
+        // may START, and its path set is the single canonical `/robots.txt`.
+        // `REDIRECT_CONTINUATION` is where a host's own 3xx may send it, and
+        // its path set is the two members of `CONTINUATION_PATHS`. A caller
+        // cannot reach the wider set without having been given a redirect
+        // target by `continuationTargetFor`, which derived it from a real
+        // `Location` this host sent - so `/robots.txt/` is never an initial
+        // request.
+        robots:
+          role === 'BOOTSTRAP'
+            ? RobotsAuthorisation.forRobotsTxtBootstrap(url)
+            : RobotsAuthorisation.forRobotsTxtRedirectContinuation(url),
       },
       transport,
     );
@@ -538,8 +597,11 @@ export async function getRobotsPolicy(
      * full TLS verification. There is no parameter through which any of those
      * could be relaxed.
      */
-    const fetchWithBoundedRetry = async (url: string): Promise<WebAttemptResult> => {
-      const first = await fetchRobotsDocument(url);
+    const fetchWithBoundedRetry = async (
+      url: string,
+      role: PolicyRequestRole,
+    ): Promise<WebAttemptResult> => {
+      const first = await fetchRobotsDocument(url, role);
       observed.attempts.push(first);
 
       if (retryBudget < 1) return first;
@@ -564,13 +626,17 @@ export async function getRobotsPolicy(
       // leave the token available to a later hop.
       retryBudget -= 1;
 
-      const second = await fetchRobotsDocument(url);
+      // A RETRY KEEPS THE ROLE OF THE REQUEST IT RETRIES. Retrying a
+      // continuation under the bootstrap factory would refuse a
+      // `/robots.txt/` URL outright; retrying a bootstrap under the
+      // continuation factory would silently widen where discovery may start.
+      const second = await fetchRobotsDocument(url, role);
       observed.attempts.push(second);
       return second;
     };
 
     let requestedUrl = robotsUrl;
-    let result = await fetchWithBoundedRetry(requestedUrl);
+    let result = await fetchWithBoundedRetry(requestedUrl, 'BOOTSTRAP');
 
     // THE ADR 0012 CONTINUATION, AND ITS BOUND.
     //
@@ -581,13 +647,17 @@ export async function getRobotsPolicy(
     // exhibit it, this is byte-for-byte the v1 behaviour: one request, then
     // the honest mapping below.
     //
-    // THE CHAIN IS PROVABLY AT MOST TWO REQUESTS EVEN IF THAT CONSTANT WERE
-    // RAISED, which is why there is no visited-URL set here. A continuation
-    // may not change host and may not change scheme except http -> https, and
-    // may not target the URL just requested. From an https robots URL the
-    // only admissible target is therefore the identical URL, which condition
-    // 6 refuses; from an http one it is the https form, from which the same
-    // argument applies. A cycle has nowhere to go.
+    // THERE IS NO STRUCTURAL SECOND BOUND LEFT, AND THAT IS STATED RATHER
+    // THAN ASSUMED. ADR 0012 could prove a two-request ceiling from the
+    // predicate's own shape, because the host was fixed and the only
+    // admissible target from an https policy URL was the identical URL that
+    // condition 6 refuses. ADR 0013 voided that argument by admitting a host
+    // change; ADR 0016 voids what was left of it by admitting `/robots.txt/`,
+    // from which `/robots.txt` on the same origin is itself an admissible
+    // target. So `MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS` is now the WHOLE
+    // bound, it is 1, and RAISING IT WOULD REQUIRE A VISITED-URL SET - the
+    // same warning policy.ts carries where the constant is declared. At 1
+    // there is no second hop for a cycle to close.
     for (let hop = 0; hop < MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS; hop += 1) {
       const continuation = continuationTargetFor(requestedUrl, result);
       if (continuation === null) break;
@@ -641,7 +711,7 @@ export async function getRobotsPolicy(
       )
         cache.set(context.runId, target.protocol, target.hostname, memo);
 
-      result = await fetchWithBoundedRetry(requestedUrl);
+      result = await fetchWithBoundedRetry(requestedUrl, 'REDIRECT_CONTINUATION');
     }
 
     // The LAST response is the decisive one, mapped by exactly the same

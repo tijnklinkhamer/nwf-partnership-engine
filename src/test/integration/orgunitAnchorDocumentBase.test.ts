@@ -189,7 +189,7 @@ describeIf('bounded discovery orchestration - HTML document base (fetch policy v
     const links = rows.filter((row) => row.discovery_method === 'LINK');
     expect(links).toHaveLength(SLUGS.length);
     for (const row of links) expect(row.discovery_parent_url).toBe(ROOT);
-    for (const row of rows) expect(row.fetch_policy_version).toBe('orgunit-fetch-policy-v6');
+    for (const row of rows) expect(row.fetch_policy_version).toBe('orgunit-fetch-policy-v7');
     expect(summary.pagesWithEvidence).toBe(1 + SLUGS.length);
   });
 
