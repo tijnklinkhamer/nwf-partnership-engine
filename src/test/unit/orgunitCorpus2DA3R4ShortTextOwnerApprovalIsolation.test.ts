@@ -17,7 +17,7 @@
  */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -30,6 +30,22 @@ const R45_TERMINAL = '65bde0c033ff89c2ee98aa44880b8600ab0da11f';
 const R45_SCOPE_PIN_COMMIT = 'fb12dcde1df8460f527b00640da484d45b69341f';
 const R45_ISOLATION_TEST =
   'src/test/unit/orgunitCorpus2DA3ShortTextAmendmentDesignIsolation.test.ts';
+/**
+ * R46'S OWN TERMINAL COMMIT.
+ *
+ * R46's lineage, changed-surface, no-R47, no-R4-implementation,
+ * no-corpus-replay and no-A4/A5 assertions describe R46'S SLICE, so they range
+ * over R46's own commits - `R45_TERMINAL..R46_TERMINAL` - and inspect the tree
+ * at R46_TERMINAL, rather than HEAD and the working tree. Once a later slice
+ * (R47's authorised R4 implementation and replay) lands on top, the working
+ * tree is no longer R46's surface, and diffing to it would fail for the honest
+ * reason that history moved on rather than because R46 changed.
+ *
+ * This is the same standing convention R19 through R45 apply, and it
+ * WEAKENS NOTHING: R46's range is frozen, its permitted-path list is
+ * unchanged, and each later slice pins the equivalent scope over its own range.
+ */
+const R46_TERMINAL = 'e0d1555c09afdc5f17cb3b6b62ac8682a248b2df';
 /** The terminal A2 checkpoint; never an A3 ancestor. */
 const A2_CHECKPOINT = '29d0d486cb268b5431a0fc23eabb064682ec47d9';
 
@@ -86,16 +102,12 @@ function specifiersOf(source: string): string[] {
 
 const testSource = (path: string): string => readFileSync(join(REPO_ROOT, path), 'utf8');
 
-const baseAvailable = commitExists(R45_TERMINAL) && commitExists(R45_SCOPE_PIN_COMMIT);
+const baseAvailable =
+  commitExists(R45_TERMINAL) && commitExists(R45_SCOPE_PIN_COMMIT) && commitExists(R46_TERMINAL);
 
-/** Every path changed since R45 - committed or not. */
+/** Every path R46's own commits changed (R45_TERMINAL..R46_TERMINAL). */
 function changedSinceR45(): string[] {
-  return [
-    ...new Set([
-      ...lines(git('diff', '--name-only', R45_TERMINAL)),
-      ...lines(git('ls-files', '--others', '--exclude-standard')),
-    ]),
-  ];
+  return lines(git('diff', '--name-only', R45_TERMINAL, R46_TERMINAL));
 }
 
 // ---------------------------------------------------------------------------
@@ -146,8 +158,8 @@ describe('2D-A3 R46: governance inspection only, no capability', () => {
 
 describe.skipIf(!baseAvailable)('2D-A3 R46: lineage and changed surface', () => {
   it('descends from the exact R45 tip, and merges no commit', () => {
-    expect(() => git('merge-base', '--is-ancestor', R45_TERMINAL, 'HEAD')).not.toThrow();
-    expect(lines(git('rev-list', '--merges', `${R45_TERMINAL}..HEAD`))).toEqual([]);
+    expect(() => git('merge-base', '--is-ancestor', R45_TERMINAL, R46_TERMINAL)).not.toThrow();
+    expect(lines(git('rev-list', '--merges', `${R45_TERMINAL}..${R46_TERMINAL}`))).toEqual([]);
   });
 
   it('never makes the terminal A2 checkpoint an ancestor of A3', () => {
@@ -157,46 +169,33 @@ describe.skipIf(!baseAvailable)('2D-A3 R46: lineage and changed surface', () => 
   });
 
   it("pinned R45's scope in exactly one first commit that touched exactly one file", () => {
-    const [first] = lines(git('rev-list', '--reverse', `${R45_TERMINAL}..HEAD`));
+    const [first] = lines(git('rev-list', '--reverse', `${R45_TERMINAL}..${R46_TERMINAL}`));
     expect(first).toBe(R45_SCOPE_PIN_COMMIT);
     expect(git('rev-parse', `${R45_SCOPE_PIN_COMMIT}^`).trim()).toBe(R45_TERMINAL);
     expect(lines(git('diff', '--name-only', R45_TERMINAL, R45_SCOPE_PIN_COMMIT))).toEqual([
       R45_ISOLATION_TEST,
     ]);
-    expect(sha256(readFileSync(join(REPO_ROOT, R45_ISOLATION_TEST)))).toBe(
+    expect(sha256(git('show', `${R46_TERMINAL}:${R45_ISOLATION_TEST}`))).toBe(
       sha256(git('show', `${R45_SCOPE_PIN_COMMIT}:${R45_ISOLATION_TEST}`)),
     );
   });
 
-  it('implements nothing: no harness, SD7, SD9, migration, CLI or src/orgunits change', () => {
-    const touched = [
-      ...lines(
-        git(
-          'diff',
-          '--name-only',
-          R45_TERMINAL,
-          '--',
-          HARNESS,
-          'migrations',
-          'src/orgunits',
-          'src/cli',
-          'scripts',
-          'package.json',
-        ),
+  it('implemented nothing: no harness, SD7, SD9, migration, CLI or src/orgunits change', () => {
+    const touched = lines(
+      git(
+        'diff',
+        '--name-only',
+        R45_TERMINAL,
+        R46_TERMINAL,
+        '--',
+        HARNESS,
+        'migrations',
+        'src/orgunits',
+        'src/cli',
+        'scripts',
+        'package.json',
       ),
-      ...lines(
-        git(
-          'ls-files',
-          '--others',
-          '--exclude-standard',
-          '--',
-          HARNESS,
-          'migrations',
-          'src/orgunits',
-          'src/cli',
-        ),
-      ),
-    ];
+    );
     expect(touched).toEqual([]);
   });
 
@@ -205,7 +204,9 @@ describe.skipIf(!baseAvailable)('2D-A3 R46: lineage and changed surface', () => 
       git('ls-tree', '-r', '--name-only', R45_TERMINAL, '--', 'docs/evaluation', 'docs/audits'),
     );
     expect(prior.length).toBeGreaterThan(0);
-    expect(lines(git('diff', '--name-only', R45_TERMINAL, '--', ...prior))).toEqual([]);
+    expect(lines(git('diff', '--name-only', R45_TERMINAL, R46_TERMINAL, '--', ...prior))).toEqual(
+      [],
+    );
   });
 
   it('changes nothing outside the R45 scope pin, its tests, its approval record and its audit', () => {
@@ -217,7 +218,7 @@ describe.skipIf(!baseAvailable)('2D-A3 R46: lineage and changed surface', () => 
     expect(changedSinceR45().filter((path) => !permitted(path))).toEqual([]);
   });
 
-  it('creates no R4 implementation, R47, corpus-freeze, Governance V6, A4 or A5 artifact', () => {
+  it('created no R4 implementation, R47, corpus-freeze, Governance V6, A4 or A5 artifact (tree at R46_TERMINAL)', () => {
     const added = changedSinceR45();
     expect(
       added.filter((path) =>
@@ -226,6 +227,7 @@ describe.skipIf(!baseAvailable)('2D-A3 R46: lineage and changed surface', () => 
         ),
       ),
     ).toEqual([]);
+    const tree = lines(git('ls-tree', '-r', '--name-only', R46_TERMINAL));
     for (const name of [
       'a3graphsR4',
       'a3samplesR4',
@@ -237,7 +239,10 @@ describe.skipIf(!baseAvailable)('2D-A3 R46: lineage and changed surface', () => 
       'a3governanceV6',
       'a4',
     ]) {
-      expect(existsSync(join(REPO_ROOT, HARNESS, name)), name).toBe(false);
+      expect(
+        tree.filter((path) => path.startsWith(`${HARNESS}/${name}/`)),
+        name,
+      ).toEqual([]);
     }
   });
 });
