@@ -1,0 +1,162 @@
+{
+  "record": "PHASE_2B_2D_CLASSIFIER_OPERATOR_READ_MODELS_V1",
+  "recordKind": "NON_EVALUATION_CLASSIFIER_OPERATOR_READ_MODELS_RESULT",
+  "task": "CLASSIFIER_OPERATOR_READ_MODELS_V1",
+  "recordedAtUtc": "2026-10-06T21:59:18Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/classifier-operator-read-models-v1",
+  "isEvaluationResult": false,
+  "isLiveAuthority": false,
+  "thisFileAuthorises": [],
+  "ownerDecisions": ["AUTHORISE_CLASSIFIER_OPERATOR_READ_MODELS_V1"],
+
+  "canonicalBase": {
+    "commit": "2b9d0d9c94bda00bbe88758b2c207ecadc300934",
+    "branch": "feat/classifier-operator-entry-point-v1",
+    "terminalState": "CLASSIFIER_OPERATOR_ENTRY_POINT_READY_FOR_READ_MODELS",
+    "fetchPolicyVersion": "orgunit-fetch-policy-v7",
+    "migrationsThrough": "0012"
+  },
+  "entryPointFreeze": {
+    "commit": "e3d13658b737621c5a88e43b9e09a7d02c669338",
+    "path": "src/test/unit/classifierOperatorEntryPointV1.test.ts",
+    "change": "lineage, changed-surface, router-diff, orchestrate/persist diff, migration, docs and record assertions moved onto RECONCILIATION_TERMINAL..CLASSIFIER_OPERATOR_ENTRY_POINT_TERMINAL and the exact terminal tree; four entry-point commits pinned in order, single-parent; changed surfaces now exact equalities; added router options pinned to exactly run-id, model, attempt; absence of any read-model command, module or option at the terminal asserted; main asserted not to contain the slice; record and audit pinned byte-equal to their terminal blobs; behavioural sections still exercise the live execution action; nothing weakened"
+  },
+  "acceptedEntryPointReviewDecisions": {
+    "dryRunExitSemantics": "UNCHANGED: 0 iff the equivalent execution would be permitted to START; non-zero on pure preflight refusal, non-completed attempt collision, or any other execution-start refusal",
+    "pureWebHelperTransitiveReach": "UNCHANGED: the execution action reaches exactly src/orgunits/web/evidenceCanonical.ts, extract.ts and redact.ts (pure text helpers, no fetch/DNS/socket/gateway/robots/HTTP); not refactored. The read commands reach nothing under src/orgunits/web/."
+  },
+
+  "commands": ["orgunits classify runs", "orgunits classify calls", "orgunits classify show"],
+  "usage": {
+    "runs": "nwf-pe orgunits classify runs --organisation-id <uuid> [--limit <N>] [--json]",
+    "calls": "nwf-pe orgunits classify calls --organisation-id <uuid> [--run-id <uuid>] [--limit <N>] [--json]",
+    "show": "nwf-pe orgunits classify show --call-id <uuid> [--json]"
+  },
+  "executionCommandUnchanged": "nwf-pe orgunits classify --organisation-id <uuid> --run-id <uuid> --model <model-id> [--attempt <N>] [--execute] [--json]",
+  "routing": {
+    "noThirdPositional": "existing execution action (runOrgunitsClassify), route body byte-identical to the entry-point terminal",
+    "runs": "read-only attributable research runs",
+    "calls": "read-only ordinary classifier calls",
+    "show": "read-only one-call detail",
+    "anyOtherThirdPositional": "REFUSED as unknown classifier subcommand; never falls through to the execution action"
+  },
+  "newCliOption": "--call-id",
+  "irrelevantOptionPolicy": "every supplied option outside the read's own set is refused (runs: organisation-id, limit, json; calls: organisation-id, run-id, limit, json; show: call-id, json), including --execute, --model and --attempt",
+  "limitDefault": 50,
+  "limitParsing": "the CLI's existing positive-integer --limit rule; no hard maximum added; a SQL LIMIT is always applied",
+
+  "databaseRole": "readonly",
+  "databaseRoleWiring": "withPool('readonly', ...) via DATABASE_URL_READONLY",
+  "existingGrantsSufficient": "migration 0002 (organisations), 0007 (research runs, completions, fetch, page evidence, candidates), 0009 (classifier calls, completions, classifications, subjects)",
+  "providerCalls": 0,
+  "writes": 0,
+  "institutionNetworkAccess": false,
+
+  "runAssociationCoverage": "ATTRIBUTABLE_ONLY",
+  "runAssociationCoverageValue": "ATTRIBUTABLE_ONLY_ZERO_FETCH_UNCLASSIFIED_RUNS_CANNOT_BE_ORGANISATION_LINKED",
+  "runAttributionRule": "a run is attributable iff it has a fetch observation whose eche_row_key equals the organisation's current eche_row_key, or an ordinary classifier call (repair_of_call_id IS NULL) whose organisation_id equals the organisation; never URL, domain, country or timestamp",
+  "zeroFetchUnclassifiedRunLimitation": true,
+  "runTerminalStates": ["COMPLETED", "FAILED", "ABORTED", "NO_COMPLETION_RECORDED"],
+  "runOrder": "started_at DESC, id DESC",
+  "runCountScope": "RUN",
+  "eligibleCandidateRule": "rank_within_root <= MAX_CANDIDATES_PER_ROOT_TRACK (8); score-agnostic",
+  "classifierCompletionGatePasses": "exactly research terminal state == COMPLETED; says nothing about candidates or the provider",
+
+  "ordinaryCallsTopLevelOnly": true,
+  "callTerminalStates": ["COMPLETED", "PARTIAL", "FAILED", "NO_COMPLETION_RECORDED"],
+  "callOrder": "requested_at DESC, id DESC",
+  "unclassifiedDocumentCount": "max(0, inputDocumentCount - effectiveClassificationCount); not a cause",
+  "repairProvenanceVisible": true,
+  "repairOrder": "repair_doc_index ASC, id ASC",
+  "showAcceptsRepairCallId": true,
+  "repairDetailShape": "callKind REPAIR, repairOfCallId, repairDocIndex, own completion, own classifications, effectiveViewBelongsToOrdinaryCallId; no effective set of its own",
+  "effectiveClassificationReaderRule": "ADR_0011",
+  "effectiveClassificationReaderRuleText": "own persisted classifications of the ordinary call PLUS persisted classifications of each repair of it whose own completion is COMPLETED; PARTIAL, FAILED and completion-less repairs contribute nothing",
+  "effectiveReaderEquivalenceProof": "integration test: readonly showClassifierCall effective set equals persist.ts loadEffectiveClassifications under the classifier role for COMPLETED, PARTIAL, FAILED and completion-less repairs",
+  "persistTsReused": false,
+  "docIndexReconstructed": false,
+
+  "rawMainTextExposed": false,
+  "persistedValidatedRationaleExposed": true,
+  "persistedEvidenceSpansExposed": true,
+  "pageContextExposed": ["requestedUrl", "title", "declaredLang", "mainTextTruncated"],
+  "subjectProvenanceExposed": "subjectCandidateCount (human and JSON); subjectCandidateIds sorted ascending (JSON)",
+  "neverExposed": [
+    "main_text",
+    "serialized classifier input",
+    "system prompt",
+    "raw provider response",
+    "SDK transcript",
+    "request_config",
+    "candidate scores or signals",
+    "environment",
+    "profile directory",
+    "credentials"
+  ],
+  "modelIdsExposed": ["requestedModelId", "responseModelId"],
+  "modelMismatchInterpretation": "none; both persisted values shown as observations",
+  "costEstimated": false,
+
+  "changedProductionSurface": [
+    "src/cli/commands/classifyRead.ts",
+    "src/cli/index.ts",
+    "src/orgunits/classify/operatorReadModels.ts"
+  ],
+  "changedTestSurface": [
+    "src/test/unit/classifierOperatorEntryPointV1.test.ts",
+    "src/test/unit/classifierOperatorReadModelsV1.test.ts",
+    "src/test/integration/classifierOperatorReadModels.test.ts",
+    "src/test/firewall/phase2b.firewall.test.ts"
+  ],
+  "firewallWidening": {
+    "file": "src/test/firewall/phase2b.firewall.test.ts",
+    "scope": "EXACT PATH src/orgunits/classify/operatorReadModels.ts only",
+    "exemptedChecks": [
+      "never names a classifier-persistence table OUTSIDE persist.ts",
+      "a repair row is linked by the two migration-0011 columns and only there"
+    ],
+    "compensatingCheck": "new block: that file issues only SELECT/WITH statements, contains no write/DDL/transaction keyword, imports exactly pg and ./constants.js, no dynamic import, no process.env, no clock or randomness; it remains in CLASSIFY_READ_ONLY_FILES so every other write-free check still binds it",
+    "reason": "inspecting persisted classifier calls, repairs and classifications through the readonly role is impossible without naming those tables and the repair linkage columns"
+  },
+
+  "classifierSemanticChange": false,
+  "promptChange": false,
+  "outputSchemaChange": false,
+  "modelAllowlistChange": false,
+  "repairPolicyChange": false,
+  "candidateSelectionChange": false,
+  "fetchPolicyChange": false,
+  "migrationChange": false,
+  "grantChange": false,
+  "schemaChange": false,
+  "newDependency": false,
+
+  "humanEvaluationDependency": false,
+  "humanReviewResumed": false,
+  "devConfirmOpened": false,
+  "finalHoldoutOpened": false,
+  "a5Authorised": false,
+  "r52DeferralByteIdentical": true,
+  "empiricalQualityClaim": false,
+  "mainUpdated": false,
+
+  "commits": [
+    {
+      "commit": "e3d13658b737621c5a88e43b9e09a7d02c669338",
+      "subject": "test(engine): freeze classifier operator entry-point scope"
+    },
+    {
+      "commit": "4e90ef502ec1bf2e5b75a2beaf7f7848f4ced393",
+      "subject": "feat(engine): add classifier operator read models"
+    },
+    {
+      "commit": "267db4178e0293b0c42ec4e08b72be9d44122e9b",
+      "subject": "test(engine): prove classifier read-model boundary"
+    }
+  ],
+
+  "terminalState": "CLASSIFIER_OPERATOR_READ_MODELS_READY_FOR_OPERATOR_API",
+  "nextSlice": "CLASSIFIER_OPERATOR_API_V1",
+  "nextSliceNote": "expose the existing bounded classify action and these read models through an operator-facing API/control-plane boundary without new classifier semantics; must first audit repository history for any older operator/API lineage to reconcile rather than duplicate; NOT built here"
+}
