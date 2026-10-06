@@ -1,0 +1,2308 @@
+{
+  "record": "PHASE_2B_2D_A3_R50_DEV_TRAIN_R4_A4_HANDOFF_INDEX_V1",
+  "recordKind": "INTERNAL_DEV_TRAIN_R4_A4_HANDOFF_PROJECTION_PROVENANCE_INDEX",
+  "task": "A3_R50_R4_DEV_TRAIN_A4_HANDOFF_MATERIALISATION_V1",
+  "split": "DEV_TRAIN",
+  "reviewerVisible": false,
+  "neverHandToAReviewer": true,
+  "thisFileAuthorises": [],
+  "goldIdDoesNotMeanGoldYet": true,
+  "rubricBinding": {
+    "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_HUMAN_LABELLING_RUBRIC_V1.json",
+    "sha256": "e3af57d8d2503e4fc87ce707427762aabfed420bb670a262b9302a7ea78e1d69",
+    "bytes": 22125,
+    "rubricVersion": "METHODOLOGY_V2_HUMAN_LABELLING_RUBRIC_V1",
+    "status": "FROZEN_BY_OWNER",
+    "sourceCommit": "c945c8e90942b4ec0fa4d35f96731bd10d33c0ce",
+    "approvalPath": "docs/evaluation/PHASE_2B_2D_METHOD_V2_HUMAN_LABELLING_RUBRIC_V1_OWNER_APPROVAL.json",
+    "approvalSha256": "17f2683d378b32000467eb670374f56bfa3c8b7b3dfa0acb8a12ee60d0468ac4",
+    "approvalBytes": 4895,
+    "approvalCommit": "e07c11906f8c29da74be12c61afe287fcef3787f",
+    "consumedOwnerMarker": "AUTHORISE_A3_R50_RESUME_R4_DEV_TRAIN_A4_HANDOFF_MATERIALISATION"
+  },
+  "r48Blocker": {
+    "r48Terminal": "ebe4e6fbd3e2504bbe5fac6963c23ab7bdcb665f",
+    "terminalState": "A3_R4_DEV_TRAIN_A4_HANDOFF_BLOCKED_AWAIT_OWNER_RUBRIC_CLARIFICATION"
+  },
+  "r47Binding": {
+    "r47Terminal": "0d80c7347a8a3a8e75244d1d52c3dbc284dad98e",
+    "censusPath": "docs/evaluation/PHASE_2B_2D_A3_R47_R4_GLOBAL_DEV_TRAIN_REPLAY_CENSUS_V1.json",
+    "censusSha256": "4d3c3e21164da4d9741fb310d68a0a6eb42229bcfec47549c3edf3024e5bdf6a",
+    "censusBytes": 10984,
+    "freshlyReproducedInThisProcess": true,
+    "differingSemanticPathCount": 0,
+    "excludedFields": ["implementationCommit"]
+  },
+  "identity": {
+    "primitive": "deriveGoldId(echeRowKey, responseSha256)",
+    "module": "src/orgunits/classify/evaluation/select.ts",
+    "echeRowKeySource": "the current Governance V5 READY occupant: occupant.source.echeRowKey",
+    "responseSha256Source": "the canonical A3 document.documentSha256, itself the original exact fetch-response SHA-256",
+    "pattern": "^g[0-9a-f]{16}$"
+  },
+  "packageBinding": {
+    "reviewPackagePath": "docs/evaluation/corpus/PHASE_2B_2D_A3_R50_DEV_TRAIN_R4_SINGLE_REVIEW_PACKAGE_V1.jsonl",
+    "reviewPackageSchema": "PHASE_2B_2D_A3_R50_DEV_TRAIN_R4_SINGLE_REVIEW_PACKAGE_V1",
+    "reviewPackageReviewerVisible": true,
+    "responseTemplatePath": "docs/evaluation/corpus/PHASE_2B_2D_A3_R50_DEV_TRAIN_R4_SINGLE_REVIEW_RESPONSE_TEMPLATE_V1.jsonl",
+    "responseTemplateSchema": "PHASE_2B_2D_A3_R50_DEV_TRAIN_R4_SINGLE_REVIEW_RESPONSE_TEMPLATE_V1",
+    "order": "goldId ASC",
+    "hashName": "R50_PRE_LABEL_REVIEW_PACKAGE_HASH",
+    "algorithm": "sha256OfCanonical: SHA-256 (hex) of canonicalStringify(input)",
+    "canonicalInputContract": "{ packageSchema, rubricVersion, rubricSha256, recordCount, records } with records the ordered (goldId ASC) blinded review records exactly as written, one per package line",
+    "packageHash": "9664388949f5d8686fe32af2fb4fb8f933787faf6daf11349d5b8a402db4066e",
+    "recordCount": 222,
+    "notA5SplitContentHash": true,
+    "notGoldManifestHash": true,
+    "notCorpusFreezeHash": true,
+    "immutability": "A4 labels exactly these goldIds against exactly this package hash and rubric hash. A later slice may not silently regenerate a different package; a correction requires explicit owner review."
+  },
+  "counts": {
+    "slots": 20,
+    "setPSelected": 160,
+    "setRSelected": 80,
+    "unionItems": 222,
+    "overlapItems": 18,
+    "setPOnlyItems": 142,
+    "setROnlyItems": 62,
+    "uniqueGoldIds": 222,
+    "multiSourceItems": 2,
+    "sourcePresentations": 224,
+    "reviewPackageRecords": 222,
+    "responseTemplateRecords": 222
+  },
+  "labels": {
+    "labelsContained": 0,
+    "goldRecordsContained": 0,
+    "modelLabelsContained": 0,
+    "adjudicationsContained": 0
+  },
+  "items": [
+    {
+      "goldId": "g0082b69661eb2b8d",
+      "selectionIndex": 78,
+      "stratum": "R40_V5",
+      "echeRowKey": "F LEVALLO01|949484210",
+      "documentSha256": "62a62c92ef5bf4534cfda43a3cd08963a63c7658c6ac9538cc21a37ba1694468",
+      "sourcePageEvidenceIds": ["51c96844-fccf-4e47-a68e-9f644ec48025"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g031c2ae75f48f187",
+      "selectionIndex": 88,
+      "stratum": "R40_V5",
+      "echeRowKey": "XK LEPOSAV01|891184106",
+      "documentSha256": "42cebb69c07e14cbe86182c2fc7ed32ac8c061f4e3fc8470147cd6bad64b8ebb",
+      "sourcePageEvidenceIds": ["0e3e4b8c-d258-4934-b044-7cea0c1623b0"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g03ab790d3191f0d5",
+      "selectionIndex": 88,
+      "stratum": "R40_V5",
+      "echeRowKey": "XK LEPOSAV01|891184106",
+      "documentSha256": "946a79efc96805a73f869ad25f32d753ad19c88acd064ec05e85b33ac6191332",
+      "sourcePageEvidenceIds": ["dcbdfa3e-663d-4e53-b899-7648861792e5"],
+      "inSetP": true,
+      "inSetR": true
+    },
+    {
+      "goldId": "g03c39778552a201f",
+      "selectionIndex": 71,
+      "stratum": "R34_V4",
+      "echeRowKey": "F VALENCI20|909756114",
+      "documentSha256": "316ace3a7db9a84d727d5bba26d42fcae7a3ac045ca09bea61818996d54972f4",
+      "sourcePageEvidenceIds": ["2508fc3b-8d2a-4506-99d5-9c89a969ff3a"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g04fb1e7f6d9a48ec",
+      "selectionIndex": 12,
+      "stratum": "R21_V1",
+      "echeRowKey": "I ROMA35|920607116",
+      "documentSha256": "128b5b9d03bc78619c17a8bdc08c91b8e156b4a67e3d5dbc7d1ef6d977776f6f",
+      "sourcePageEvidenceIds": ["ba035502-09b0-4257-bdbd-9c57521cb190"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g053eeba763be68da",
+      "selectionIndex": 27,
+      "stratum": "R27_V2",
+      "echeRowKey": "D AMBERG01|999652416",
+      "documentSha256": "657087e8f230882d34e402cade537db29ce941214b03a48ac22766bf41f158fd",
+      "sourcePageEvidenceIds": ["ce0d5544-bd89-4fba-8db8-d064d8cd6635"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g05b0e7230e4c739f",
+      "selectionIndex": 105,
+      "stratum": "R40_V5",
+      "echeRowKey": "F PARIS523|879192772",
+      "documentSha256": "e7d7a4f9be141b3f57bf5991e045092783db602351cbb090080533808fbc4a7b",
+      "sourcePageEvidenceIds": ["b23b241f-ae87-4c61-a038-266e96028592"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g05ea55293fe2d45c",
+      "selectionIndex": 56,
+      "stratum": "R34_V4",
+      "echeRowKey": "CY NICOSIA30|949442306",
+      "documentSha256": "89ae9808b21a79d49988e838cd70a2d8672bf57daf83e195ade266ba6196f233",
+      "sourcePageEvidenceIds": ["43a561a6-79c9-4368-b181-16dc11638b3b"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g068a8bdfc3a5448b",
+      "selectionIndex": 105,
+      "stratum": "R40_V5",
+      "echeRowKey": "F PARIS523|879192772",
+      "documentSha256": "c470a2ddd13bbd649db378e9632ef234149009b393a6201e82d395c1ba52d126",
+      "sourcePageEvidenceIds": ["23e40f25-db63-4eae-9b55-82ba8847e461"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g07855da74ec94e97",
+      "selectionIndex": 93,
+      "stratum": "R40_V5",
+      "echeRowKey": "I FIRENZE06|938824783",
+      "documentSha256": "84a1424d5af9a388be80326b42b0dcf0a3ae5ebaf82e8835ca4512307845aa5c",
+      "sourcePageEvidenceIds": ["38ec0f2f-bf92-4d70-ab8a-a486b757e08c"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g07e71a06b19ae1e9",
+      "selectionIndex": 56,
+      "stratum": "R34_V4",
+      "echeRowKey": "CY NICOSIA30|949442306",
+      "documentSha256": "28924a200dd11146f2a6a17f9725c4e690495ffc3b32aab051aa24c33890330c",
+      "sourcePageEvidenceIds": ["a33041fc-580e-447a-ab35-8a93345db788"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g0c6c63d436ed0933",
+      "selectionIndex": 22,
+      "stratum": "R21_V1",
+      "echeRowKey": "LT KAUNAS08|967540469",
+      "documentSha256": "798379dad96f19c8d6d3433316a0488b31296296865ac4b4836b7d85131f0920",
+      "sourcePageEvidenceIds": ["272567e3-a674-49ae-8f63-fc5a6e7c1971"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g0cf7e3df1d64a050",
+      "selectionIndex": 66,
+      "stratum": "R40_V5",
+      "echeRowKey": "E CUENCA15|921706805",
+      "documentSha256": "ca7621d041951cdb84ba2c176678aa89405ef00f772848090924dc79d71b6d0b",
+      "sourcePageEvidenceIds": ["8e5a7aae-5316-4c1d-b86a-d4329e2ff630"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g0e309beaaa558343",
+      "selectionIndex": 0,
+      "stratum": "R21_V1",
+      "echeRowKey": "SF TURKU01|999903064",
+      "documentSha256": "a61c3133ca651708c5df07be9cd3f645fb858daff4803bf827bd326f2d875262",
+      "sourcePageEvidenceIds": ["ec34440f-fff2-4239-a48f-789b22d63d99"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g0ec27c9e306a418c",
+      "selectionIndex": 56,
+      "stratum": "R34_V4",
+      "echeRowKey": "CY NICOSIA30|949442306",
+      "documentSha256": "1bc0a3d8e787faf9660b8289df3be5f1eefcd3783335981e2c879e51ecf16d49",
+      "sourcePageEvidenceIds": ["4a178226-ce05-44f5-b37c-a93f8c5566c3"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g0f3036a6a70bd9c3",
+      "selectionIndex": 34,
+      "stratum": "R34_V4",
+      "echeRowKey": "E PALMA54|886099948",
+      "documentSha256": "0b5822c8dbfb8b9b954698a4bb0ecb17b85e060b0d3fddc3bed7cb14a4321417",
+      "sourcePageEvidenceIds": ["0b912667-64d3-4f88-95d0-36ec8518c094"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g1065110247f7ee50",
+      "selectionIndex": 44,
+      "stratum": "R34_V4",
+      "echeRowKey": "E GIRONA14|949455013",
+      "documentSha256": "bb16d0571f18443b4a1a6c7dca7be551b5d73d8f29c7c57c11e0946630ff153d",
+      "sourcePageEvidenceIds": ["6181f79c-ca5e-4f56-9b07-f01dc8cb736e"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g11eac8ec296abf4f",
+      "selectionIndex": 93,
+      "stratum": "R40_V5",
+      "echeRowKey": "I FIRENZE06|938824783",
+      "documentSha256": "a7ba2104b8d00e53b1119a79269b2ffdf20ee3613dde5bf75365b5eb7a22f889",
+      "sourcePageEvidenceIds": ["dde25843-0ec2-4258-bba3-1a93f680ff25"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g1396272a5b468ba8",
+      "selectionIndex": 34,
+      "stratum": "R34_V4",
+      "echeRowKey": "E PALMA54|886099948",
+      "documentSha256": "1e08f9a35ae94074a4dedabc2742387df8d6e8c2c8802059ddce1212e2796931",
+      "sourcePageEvidenceIds": ["d13dbbaa-65d1-4310-9d2d-078d86c4ffed"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g14f6a6918922fa6a",
+      "selectionIndex": 78,
+      "stratum": "R40_V5",
+      "echeRowKey": "F LEVALLO01|949484210",
+      "documentSha256": "029477dad48b2b3f2146564bdadf67206f56f3de4c5dd2f3e46b23c65ea0b4d3",
+      "sourcePageEvidenceIds": ["0a0d77a4-0f5a-43b6-a68b-993d6aa60f45"],
+      "inSetP": true,
+      "inSetR": true
+    },
+    {
+      "goldId": "g16c01bf9d29e44ae",
+      "selectionIndex": 27,
+      "stratum": "R27_V2",
+      "echeRowKey": "D AMBERG01|999652416",
+      "documentSha256": "417725cec9b67f1cb9af9305b03e8de0ee7694ce1b3cd6773587becaebda2954",
+      "sourcePageEvidenceIds": ["ab9bb81f-fabc-4ed4-9c43-3d75dbb9da58"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g16c720a401e6b3a8",
+      "selectionIndex": 56,
+      "stratum": "R34_V4",
+      "echeRowKey": "CY NICOSIA30|949442306",
+      "documentSha256": "53c773728d202ede4ecc83e8b9bfaaddfec72af7cd2cad7378526576065102a3",
+      "sourcePageEvidenceIds": ["86951239-15aa-4271-abd5-b1a2ddcda051"],
+      "inSetP": true,
+      "inSetR": true
+    },
+    {
+      "goldId": "g16fc4fb795d54832",
+      "selectionIndex": 100,
+      "stratum": "R40_V5",
+      "echeRowKey": "F ARRAS16|893931922",
+      "documentSha256": "8e9ab7434526e2bdb734ff5490b7c4d1c6fb8c6eb86b9d4c7215f458d6563121",
+      "sourcePageEvidenceIds": ["352b1044-057a-4eda-b1de-1deacb667a22"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g171f8d9e832737b8",
+      "selectionIndex": 12,
+      "stratum": "R21_V1",
+      "echeRowKey": "I ROMA35|920607116",
+      "documentSha256": "696f6cc435f595b8b0c7696cafe6200ed3ccb09756e7b444d63c0664499cdda4",
+      "sourcePageEvidenceIds": ["85f96f02-34a9-4cf5-87fb-b0a51b3b6ebc"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g1af7c4ccf1ffcf48",
+      "selectionIndex": 5,
+      "stratum": "R21_V1",
+      "echeRowKey": "F SCEAUX01|949631553",
+      "documentSha256": "e5e9738d2131deaee29634c7ad803001aa07c3c39b929351c9cbebb45c577f47",
+      "sourcePageEvidenceIds": ["63d5299b-4976-4702-8249-7145a4ecfb3b"],
+      "inSetP": true,
+      "inSetR": true
+    },
+    {
+      "goldId": "g1bcb60b803817a30",
+      "selectionIndex": 105,
+      "stratum": "R40_V5",
+      "echeRowKey": "F PARIS523|879192772",
+      "documentSha256": "7ec665a10e1c1bde40650017d7d793eadfca645288c9aa2cee7310d22cebd8c8",
+      "sourcePageEvidenceIds": ["2324f98e-cf1c-4d81-a896-3ddff3115543"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g1c05745916b72d40",
+      "selectionIndex": 27,
+      "stratum": "R27_V2",
+      "echeRowKey": "D AMBERG01|999652416",
+      "documentSha256": "cb23821ac3694adbc73ef2c6f2aa929c1f3dc18e9e1c549db0de4a3348c945f7",
+      "sourcePageEvidenceIds": ["d2f9b636-46b5-4f10-b535-f0b8dbf412bc"],
+      "inSetP": true,
+      "inSetR": true
+    },
+    {
+      "goldId": "g1dfffd2d51e56803",
+      "selectionIndex": 12,
+      "stratum": "R21_V1",
+      "echeRowKey": "I ROMA35|920607116",
+      "documentSha256": "033cc8defe6f63dc3a9063267087dde3911811270b9fdb158e1c802a05033a61",
+      "sourcePageEvidenceIds": ["ca6b9afb-cf1d-4776-a92c-82833bda166c"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g1e1ac48d9e87c8d6",
+      "selectionIndex": 39,
+      "stratum": "R34_V4",
+      "echeRowKey": "HR DUBROVN02|880952934",
+      "documentSha256": "a0f988255afcc3428978d1761cd835c6a0b2668d039a6e2047f4d616ed6ef645",
+      "sourcePageEvidenceIds": ["fa05812b-48b8-4a9b-bf7f-f227f3912282"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g1ed3adf7f7229bc0",
+      "selectionIndex": 93,
+      "stratum": "R40_V5",
+      "echeRowKey": "I FIRENZE06|938824783",
+      "documentSha256": "2741642c98832855b775627950d15781d33cee6ed3c3fadf77d72057f389ff5c",
+      "sourcePageEvidenceIds": ["f58dd972-a026-4c30-a279-93103ccaf095"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g1f0a687713625d52",
+      "selectionIndex": 66,
+      "stratum": "R40_V5",
+      "echeRowKey": "E CUENCA15|921706805",
+      "documentSha256": "f8cf4252dbaf6e4bbb64933d6dabb6fdf14b0a477c79bf2d32ddc745a3561e5a",
+      "sourcePageEvidenceIds": ["a4a9c111-1494-4e5b-8281-ce50ac7cac69"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g1fd05b9b9ef5a862",
+      "selectionIndex": 39,
+      "stratum": "R34_V4",
+      "echeRowKey": "HR DUBROVN02|880952934",
+      "documentSha256": "b97568040cb314eb9b172646a9857a24b836a9ba05874f8a369f0764905559cb",
+      "sourcePageEvidenceIds": ["3eb2359b-a7f0-4edc-af10-7d8647bfa057"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g2162d6b6c0a7ff03",
+      "selectionIndex": 78,
+      "stratum": "R40_V5",
+      "echeRowKey": "F LEVALLO01|949484210",
+      "documentSha256": "2b793ba3a4aada4359a1bd4807d842c61faf59ddc55259f8e91733803f18d772",
+      "sourcePageEvidenceIds": ["de28c0c5-2182-4f74-8b4e-d9b91ba4de93"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g21d3ba9a348a9f83",
+      "selectionIndex": 105,
+      "stratum": "R40_V5",
+      "echeRowKey": "F PARIS523|879192772",
+      "documentSha256": "0235394787c27585135c72966962109501cf7b25eff2581330dc3af77a114375",
+      "sourcePageEvidenceIds": ["c5bd4718-1172-47ce-986f-daf16df73017"],
+      "inSetP": true,
+      "inSetR": true
+    },
+    {
+      "goldId": "g2222f4f2f3afb45b",
+      "selectionIndex": 12,
+      "stratum": "R21_V1",
+      "echeRowKey": "I ROMA35|920607116",
+      "documentSha256": "0912fe77cc8d67ebf1fcda781cc631338a4cd8f86c3f3021a85d2917249c082c",
+      "sourcePageEvidenceIds": ["6eed747d-a685-43ce-a4cb-8434ee16c4ee"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g242e00bc95623b2a",
+      "selectionIndex": 34,
+      "stratum": "R34_V4",
+      "echeRowKey": "E PALMA54|886099948",
+      "documentSha256": "9c52a740f98a634020b8ed62d7548ba96b79205b5c31593b8b1072a095fbc136",
+      "sourcePageEvidenceIds": ["23f4c079-5fc6-4a9d-bf31-128d06fdea7f"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g24c93083ba19453a",
+      "selectionIndex": 17,
+      "stratum": "R21_V1",
+      "echeRowKey": "CZ PISEK01|949642029",
+      "documentSha256": "2b6cc6d24b4d69e02dec3fb1472b0705a72fa0d222bf9646a08e611abe24eee9",
+      "sourcePageEvidenceIds": ["2740fe79-f167-4f8e-bb40-5f405915de18"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g27f238b5df9eefea",
+      "selectionIndex": 34,
+      "stratum": "R34_V4",
+      "echeRowKey": "E PALMA54|886099948",
+      "documentSha256": "bf2fb4b3a8916b424c399725b4fb12b25ecca234df3b992561397c9b25066578",
+      "sourcePageEvidenceIds": ["638e00e7-2ade-48ae-8769-4ba1426ebdb2"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g28273569d011a071",
+      "selectionIndex": 12,
+      "stratum": "R21_V1",
+      "echeRowKey": "I ROMA35|920607116",
+      "documentSha256": "ab2a8f1d843bb3c4ea30185b563f82005a13bf5833179c1107a6d29ddc1c5221",
+      "sourcePageEvidenceIds": ["1e62049d-6e93-4daa-9caa-a628ecdfb5f3"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g29406f32b735173e",
+      "selectionIndex": 22,
+      "stratum": "R21_V1",
+      "echeRowKey": "LT KAUNAS08|967540469",
+      "documentSha256": "0afcce53634a96ad8bd7270a89c6683af86d7a3440e47ac54144cfcd95735e5f",
+      "sourcePageEvidenceIds": ["6dd40fea-0a14-44d8-bf8c-d0bf5096a12f"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g2963a33099d94b79",
+      "selectionIndex": 27,
+      "stratum": "R27_V2",
+      "echeRowKey": "D AMBERG01|999652416",
+      "documentSha256": "bca81cc229e7f2d4ae902992bccbf17e45122c9612a812e95a188a2317ecf764",
+      "sourcePageEvidenceIds": ["1cb16041-4595-4df2-bbd9-154b48ad7633"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g298f763e2b232c96",
+      "selectionIndex": 71,
+      "stratum": "R34_V4",
+      "echeRowKey": "F VALENCI20|909756114",
+      "documentSha256": "d698b0ef492ead9c804d33d773789895735374d4a96947c8860b8c9974a40b01",
+      "sourcePageEvidenceIds": ["9008c305-dda8-468e-b327-148c9861ed17"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g29df24027e90d5d7",
+      "selectionIndex": 105,
+      "stratum": "R40_V5",
+      "echeRowKey": "F PARIS523|879192772",
+      "documentSha256": "f4b030d359724a0b04079b6407b515265c4c84c0e1670864bc6a08c9f3454020",
+      "sourcePageEvidenceIds": ["ce9fa581-025d-4f5b-a696-ebdc4a1b5fc1"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g2f27d9cfe4680d19",
+      "selectionIndex": 49,
+      "stratum": "R34_V4",
+      "echeRowKey": "F MARTIGU02|890518395",
+      "documentSha256": "575c3131b5aa7cef6958ea4857353d809cb6ebbc80b03ba685ea8e4ec3145023",
+      "sourcePageEvidenceIds": ["b7ff8a59-9ebe-4c3c-91da-8d5831849cd9"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g2f33991bff72850c",
+      "selectionIndex": 22,
+      "stratum": "R21_V1",
+      "echeRowKey": "LT KAUNAS08|967540469",
+      "documentSha256": "c1ad6056ee8bedb26b161d79f76d8290ba3a20b64cd767948bfd2e671bca4d89",
+      "sourcePageEvidenceIds": ["a0af5bd5-05fa-4868-a1a9-4b282f00ad22"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g30431882406a7c57",
+      "selectionIndex": 49,
+      "stratum": "R34_V4",
+      "echeRowKey": "F MARTIGU02|890518395",
+      "documentSha256": "6cfebec14a38a9b56c5b7bd0e6d05d09a7c7587720df809431db567b056dceea",
+      "sourcePageEvidenceIds": ["b17a670a-c243-4233-85cd-d5cdcc6b6178"],
+      "inSetP": true,
+      "inSetR": true
+    },
+    {
+      "goldId": "g311aac71d818c732",
+      "selectionIndex": 71,
+      "stratum": "R34_V4",
+      "echeRowKey": "F VALENCI20|909756114",
+      "documentSha256": "5c19250ead02a1a23185a1240114c9abaa9a78172fae98ee4bf5c5aee6b023fa",
+      "sourcePageEvidenceIds": ["bd01cb78-6cc9-4874-8a95-df02c2a6e95d"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g3195085e8e643d3e",
+      "selectionIndex": 88,
+      "stratum": "R40_V5",
+      "echeRowKey": "XK LEPOSAV01|891184106",
+      "documentSha256": "3ce0f8310ab42924ed4cdcf9989b0de940f7af13299167addd3c58d7676783cf",
+      "sourcePageEvidenceIds": ["69bd1768-f048-403f-adbb-81aafab5f784"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g32221ef12b4c238c",
+      "selectionIndex": 34,
+      "stratum": "R34_V4",
+      "echeRowKey": "E PALMA54|886099948",
+      "documentSha256": "643bea96cf04528b710d0b30f7d8993fa051f17175092c7420d9343a5a2537ca",
+      "sourcePageEvidenceIds": ["9c0fa571-5cd0-4b5d-9880-ad5902ddbee5"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g3329a063bbaab25f",
+      "selectionIndex": 56,
+      "stratum": "R34_V4",
+      "echeRowKey": "CY NICOSIA30|949442306",
+      "documentSha256": "507c58b4082af0ed90b5e0ef4d8344df62fd2be14755d349a993365786e4c283",
+      "sourcePageEvidenceIds": ["5714cbd5-5a67-45ae-b781-f28a436842f2"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g3329d45024b93e8e",
+      "selectionIndex": 93,
+      "stratum": "R40_V5",
+      "echeRowKey": "I FIRENZE06|938824783",
+      "documentSha256": "13819b4ea186545a4e5d5ad0c98c1b798c6e8457fcef1a632e47023de11c3a4e",
+      "sourcePageEvidenceIds": ["9f926df3-cde2-4c1f-b70d-8acf0f00fe20"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g342fd29086c0e706",
+      "selectionIndex": 83,
+      "stratum": "R40_V5",
+      "echeRowKey": "LT VILNIUS24|951445938",
+      "documentSha256": "360a93b357d3523e3e773f749b6d309761afdfd2890cd03c9a9042506b8a9826",
+      "sourcePageEvidenceIds": ["06b9f8bd-b4ea-4b87-9923-725e58ad13fa"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g35af897f99f63976",
+      "selectionIndex": 12,
+      "stratum": "R21_V1",
+      "echeRowKey": "I ROMA35|920607116",
+      "documentSha256": "15808f330f84605afd1fd6f7551fed3f82532a2d38aaffa60b0705dd3858d7bb",
+      "sourcePageEvidenceIds": ["a6b2fdf5-1269-4a11-be28-208d481d303b"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g36ac88a9e09e36fb",
+      "selectionIndex": 61,
+      "stratum": "R34_V4",
+      "echeRowKey": "E CIUDA-R07|949458505",
+      "documentSha256": "8ff03ed10968309e8c43577aa5e8bea67ae2a127e653c864becee39811d130fe",
+      "sourcePageEvidenceIds": ["4e449298-6ef4-4c33-9b07-53d5bc05edd2"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g3771400f6601da07",
+      "selectionIndex": 44,
+      "stratum": "R34_V4",
+      "echeRowKey": "E GIRONA14|949455013",
+      "documentSha256": "e773a9cf11370ddbf82dc974448d4144274aa021701064c9494c99de0a98aa36",
+      "sourcePageEvidenceIds": ["1f36f978-0cd7-4039-aebd-95748fad3be9"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g3c04950ff159fc8f",
+      "selectionIndex": 44,
+      "stratum": "R34_V4",
+      "echeRowKey": "E GIRONA14|949455013",
+      "documentSha256": "9cca0b116bb4a67c7ced002bcf194b7e18060805023d5a0255e122e8e729fca0",
+      "sourcePageEvidenceIds": ["58ec11ab-4164-4cb1-a913-ac0f3588c2ed"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g3e673aa1efad2ad0",
+      "selectionIndex": 27,
+      "stratum": "R27_V2",
+      "echeRowKey": "D AMBERG01|999652416",
+      "documentSha256": "82a6c77728dead627b2fd12a1aba0a6c15143a5b681dd6019e75ead42995ef5a",
+      "sourcePageEvidenceIds": ["e1e0da55-aba2-469e-87ac-db68010fe47b"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g3f55bdab9d6e156f",
+      "selectionIndex": 39,
+      "stratum": "R34_V4",
+      "echeRowKey": "HR DUBROVN02|880952934",
+      "documentSha256": "c7475f4abcbb4a5212f87a796295c5b2b49c6c758942580acd76159766c2bb7b",
+      "sourcePageEvidenceIds": ["30a5379f-0b0c-4c21-959d-da45e799069f"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g4450aab0fbdcbd10",
+      "selectionIndex": 78,
+      "stratum": "R40_V5",
+      "echeRowKey": "F LEVALLO01|949484210",
+      "documentSha256": "d24ce275bee06c9e3e32137c9e941cd5a4183b5f36b1ebb2d892dc92fcbb4899",
+      "sourcePageEvidenceIds": ["4983e7fa-f461-4d0e-92bc-66f0e38003f4"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g452a7b9c5ffdb71c",
+      "selectionIndex": 39,
+      "stratum": "R34_V4",
+      "echeRowKey": "HR DUBROVN02|880952934",
+      "documentSha256": "cc10a6f41ecd09c4fb88a00d0e569c656fa4d8b508294f20c9d72733dd5aebc1",
+      "sourcePageEvidenceIds": ["fce5dfe7-cc29-48ec-ba59-f3180a9c43f7"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g4685c44af3ca2862",
+      "selectionIndex": 66,
+      "stratum": "R40_V5",
+      "echeRowKey": "E CUENCA15|921706805",
+      "documentSha256": "a554190735d450f97cdda4ab73e0b709512523975dac7f4b33c0c053d2afa7ab",
+      "sourcePageEvidenceIds": ["7eee51b6-8856-4d2b-a322-09b6377d393b"],
+      "inSetP": true,
+      "inSetR": true
+    },
+    {
+      "goldId": "g46d62c9725a14c96",
+      "selectionIndex": 93,
+      "stratum": "R40_V5",
+      "echeRowKey": "I FIRENZE06|938824783",
+      "documentSha256": "503f796ee3992243c4dbb55e7ca9db40659c13f770171c88ff8940c09320a5bd",
+      "sourcePageEvidenceIds": ["7cb71244-cb40-4545-90fa-030be90612aa"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g46d7218ad28eab37",
+      "selectionIndex": 34,
+      "stratum": "R34_V4",
+      "echeRowKey": "E PALMA54|886099948",
+      "documentSha256": "26969ea1324151a3a58e335ae6c5f7f9916f6a58651091ea17f299096fb09204",
+      "sourcePageEvidenceIds": ["8ad95005-bf7c-4edf-bb58-d04f94873beb"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g4ac168a5fecf2695",
+      "selectionIndex": 83,
+      "stratum": "R40_V5",
+      "echeRowKey": "LT VILNIUS24|951445938",
+      "documentSha256": "524bb82da113012f9d4d029a9cc2ea3a8d839d0b7e64a5d17fe57cb7832704b4",
+      "sourcePageEvidenceIds": ["f15a491a-468c-4162-ac19-bf2641328cde"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g4bf5ee7d3f9eb4d7",
+      "selectionIndex": 83,
+      "stratum": "R40_V5",
+      "echeRowKey": "LT VILNIUS24|951445938",
+      "documentSha256": "b73bf4aa0249639e66b5d2ad2e740d13df1f814eaff227ceb65468afe159a3da",
+      "sourcePageEvidenceIds": ["9d8495b9-4171-4103-916c-82517ad7a616"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g4bfc723c921a2cf0",
+      "selectionIndex": 22,
+      "stratum": "R21_V1",
+      "echeRowKey": "LT KAUNAS08|967540469",
+      "documentSha256": "e051fe194ec63067b4e1902174e7eaf4fe7cf3f85d3b22f5f6e7ad9813d068ee",
+      "sourcePageEvidenceIds": ["101cdf4c-39a1-4c0c-9ef8-8106d61e9baf"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g4d52b7a9fdcd737d",
+      "selectionIndex": 49,
+      "stratum": "R34_V4",
+      "echeRowKey": "F MARTIGU02|890518395",
+      "documentSha256": "d1f1cafdea0eae5f80cdefbc8ed990d30e79acc653c10707b367bdd6973b51bb",
+      "sourcePageEvidenceIds": ["29461920-b7cf-4ec1-81bb-702e13421dab"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g4d5aac7abaa24d29",
+      "selectionIndex": 100,
+      "stratum": "R40_V5",
+      "echeRowKey": "F ARRAS16|893931922",
+      "documentSha256": "faef4f01725dd792cdeec237082a206836d55aa8b64b1453057d40017f4b46dc",
+      "sourcePageEvidenceIds": ["6376ae66-1a0c-48b7-8658-5879294e2e74"],
+      "inSetP": true,
+      "inSetR": true
+    },
+    {
+      "goldId": "g4e2df45ef4af2fc4",
+      "selectionIndex": 88,
+      "stratum": "R40_V5",
+      "echeRowKey": "XK LEPOSAV01|891184106",
+      "documentSha256": "6b5250359f8699c6c8354a0290c804f963809e233a8821c11a826e4474609851",
+      "sourcePageEvidenceIds": ["35c30f32-77c5-46a9-a721-b1c3a217846c"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g4f61c1511731d9f5",
+      "selectionIndex": 78,
+      "stratum": "R40_V5",
+      "echeRowKey": "F LEVALLO01|949484210",
+      "documentSha256": "5f28ae2fbbade20059a093e88ba668adddd717d791340187a7d83467b9840d17",
+      "sourcePageEvidenceIds": ["ed788314-f914-4cec-9f3c-a1bd38a2f166"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g51041cc3de036caa",
+      "selectionIndex": 100,
+      "stratum": "R40_V5",
+      "echeRowKey": "F ARRAS16|893931922",
+      "documentSha256": "8e286206d91c9751430e3602e4809acb204375050c394c2e763a46da1c166fa7",
+      "sourcePageEvidenceIds": ["0f30ef74-b63a-4946-b5a5-fa36b8ae90c5"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g51aa1f1858618e4a",
+      "selectionIndex": 83,
+      "stratum": "R40_V5",
+      "echeRowKey": "LT VILNIUS24|951445938",
+      "documentSha256": "fbee2cca7e8de8b21fb68728bd6aee21b967c5881fdf6864ad5a47a17b3b2242",
+      "sourcePageEvidenceIds": ["657d170e-ebf3-4d6d-83ed-030d32a1c089"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g51b9bf163793be23",
+      "selectionIndex": 66,
+      "stratum": "R40_V5",
+      "echeRowKey": "E CUENCA15|921706805",
+      "documentSha256": "b70f2d9de9f87b3d3b810b5d840f90ad00e242174b085605bc150e131b6afee9",
+      "sourcePageEvidenceIds": ["d780f6f6-2e07-4b37-b673-ec9edd8795d8"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g51d836ca7548ee93",
+      "selectionIndex": 71,
+      "stratum": "R34_V4",
+      "echeRowKey": "F VALENCI20|909756114",
+      "documentSha256": "345d3d7032eec43b4b37a5fa7dfc6a60c897c0cb1d19a6daca3a46f58d8eee91",
+      "sourcePageEvidenceIds": ["2690e795-b492-4859-8768-1b7db370c3f2"],
+      "inSetP": true,
+      "inSetR": true
+    },
+    {
+      "goldId": "g51db8120dd7a44d6",
+      "selectionIndex": 93,
+      "stratum": "R40_V5",
+      "echeRowKey": "I FIRENZE06|938824783",
+      "documentSha256": "eec189f86bc4361ae7391f6e23ad9939fb35346be3fe28f0cb8d067032ba2ece",
+      "sourcePageEvidenceIds": ["5c66faa5-4dcc-4d9c-b6df-856709df32b2"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g52f4636810d0acba",
+      "selectionIndex": 44,
+      "stratum": "R34_V4",
+      "echeRowKey": "E GIRONA14|949455013",
+      "documentSha256": "c0da0f8614837b1e096269e36e1a726fdc15b4980c5946f43148aea43b16f838",
+      "sourcePageEvidenceIds": ["454a4b6e-83f7-404b-9406-26441281af35"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g539b0728e89d9c27",
+      "selectionIndex": 100,
+      "stratum": "R40_V5",
+      "echeRowKey": "F ARRAS16|893931922",
+      "documentSha256": "db19702c2ffda1f4f7de348a07302cee3f61c399a60147d478452745408553fc",
+      "sourcePageEvidenceIds": ["6624c886-0bf6-4f46-ac6d-40f4ccbc63c2"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g57c4335b8c87cb29",
+      "selectionIndex": 17,
+      "stratum": "R21_V1",
+      "echeRowKey": "CZ PISEK01|949642029",
+      "documentSha256": "b689f2178b070d1ef7043776552b64b48bcd30e9fa7f8181e1640677d8242dd0",
+      "sourcePageEvidenceIds": ["1375b74c-3f64-4ac1-a451-c754d92a8f99"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g57cd3f721390b20e",
+      "selectionIndex": 12,
+      "stratum": "R21_V1",
+      "echeRowKey": "I ROMA35|920607116",
+      "documentSha256": "9243ff41c1f859329c4d53dc50fdcba9235e7de868050888270981ba80e7dda7",
+      "sourcePageEvidenceIds": ["46d47768-34c2-4228-a2a7-f408a7a3b23c"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g5822f3ef9b943d9d",
+      "selectionIndex": 83,
+      "stratum": "R40_V5",
+      "echeRowKey": "LT VILNIUS24|951445938",
+      "documentSha256": "28a43e780f6e1b300270e15e8b066731b4b40eb7fc053581ee44a7db8a0c6cc4",
+      "sourcePageEvidenceIds": ["7115087c-facf-492e-ad88-315a680ab957"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g58bebc570cafc3a9",
+      "selectionIndex": 105,
+      "stratum": "R40_V5",
+      "echeRowKey": "F PARIS523|879192772",
+      "documentSha256": "672b55c18b9375b9ea1cb01f32d4cc3d624f4dc4b07606d3cf1eaa582354c987",
+      "sourcePageEvidenceIds": ["3332b94b-783d-40c5-bb0e-60c6454b6457"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g5a33a7c4635cd905",
+      "selectionIndex": 34,
+      "stratum": "R34_V4",
+      "echeRowKey": "E PALMA54|886099948",
+      "documentSha256": "ef69ab9ad34cb28e21703c6a95dd5b877ffd995d3e75ac6c329ae3bc25684f83",
+      "sourcePageEvidenceIds": ["7e5e2f1f-063f-4869-b0f1-a535360b7044"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g5a3e761c307bc159",
+      "selectionIndex": 34,
+      "stratum": "R34_V4",
+      "echeRowKey": "E PALMA54|886099948",
+      "documentSha256": "8f55672e0e325d3cb11ab4c40f9279dc229b6038eb55da16c6b20939c34f3e4d",
+      "sourcePageEvidenceIds": ["f5a283a9-801c-4490-a783-70bfd1cc4012"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g5b8481568d626a6c",
+      "selectionIndex": 71,
+      "stratum": "R34_V4",
+      "echeRowKey": "F VALENCI20|909756114",
+      "documentSha256": "6495b009981a96f473c74a30bb754d858987b12743a0ef120ceecf43a02f823b",
+      "sourcePageEvidenceIds": ["5309f4d8-577e-42a6-b9b5-62845dde3efc"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g5c056b752cf62633",
+      "selectionIndex": 5,
+      "stratum": "R21_V1",
+      "echeRowKey": "F SCEAUX01|949631553",
+      "documentSha256": "d888699220b97c86503b02ebf67d5d2538c19c81f55562a170a036fb7c257a08",
+      "sourcePageEvidenceIds": ["8800f55b-3e35-4e9d-ad63-9dc100f7e921"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g5d80f3ee9e8dfcd1",
+      "selectionIndex": 93,
+      "stratum": "R40_V5",
+      "echeRowKey": "I FIRENZE06|938824783",
+      "documentSha256": "ff56c17db083b1489728ffab2a2e061338a03d46479f54f52b8a4834d3c3fc25",
+      "sourcePageEvidenceIds": ["5d77d3f8-5af5-4dfd-8810-2bc086bbeec6"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g5e48521f8534d18f",
+      "selectionIndex": 5,
+      "stratum": "R21_V1",
+      "echeRowKey": "F SCEAUX01|949631553",
+      "documentSha256": "1bfa1238c8afedd687fb45b63dae9a7cd6a1a8990ae31b0b78a0a414e955e042",
+      "sourcePageEvidenceIds": [
+        "fb26de14-86a3-4436-aa3a-845ece7c8b07",
+        "51fb3469-1efc-4584-830a-fb88ddd5e147"
+      ],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g6294b55fc45b102f",
+      "selectionIndex": 49,
+      "stratum": "R34_V4",
+      "echeRowKey": "F MARTIGU02|890518395",
+      "documentSha256": "3487ce608862c25b4949d68a36662294a4ebe83feb31cf843963c8dac3e4124c",
+      "sourcePageEvidenceIds": ["31b66c9d-e4cc-48bb-837a-f30177fac912"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g63533e3a91763c97",
+      "selectionIndex": 71,
+      "stratum": "R34_V4",
+      "echeRowKey": "F VALENCI20|909756114",
+      "documentSha256": "57abf19f0b5f4726e1cdcb4b4ca6b74b3c1bb4aa21cafe95e9fc736a80b3dd1d",
+      "sourcePageEvidenceIds": ["6a79c1e8-d7f4-4804-8f12-a819e9fa0097"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g64acb86882ef83bc",
+      "selectionIndex": 17,
+      "stratum": "R21_V1",
+      "echeRowKey": "CZ PISEK01|949642029",
+      "documentSha256": "521f73a56d4929036271ffdc4710cc1dfd4a613542613d0d719decf251ce157d",
+      "sourcePageEvidenceIds": ["d68d6f23-22c9-46b4-baf2-20b602765247"],
+      "inSetP": true,
+      "inSetR": true
+    },
+    {
+      "goldId": "g66bd45f9f0f45ee4",
+      "selectionIndex": 66,
+      "stratum": "R40_V5",
+      "echeRowKey": "E CUENCA15|921706805",
+      "documentSha256": "24c38d37732a678516889a68d8f846b1118b2515b740bcddfc73b706adad568f",
+      "sourcePageEvidenceIds": ["1497419b-ac8d-4f75-b8e6-ae86bd08d00f"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g6723c60012304f80",
+      "selectionIndex": 88,
+      "stratum": "R40_V5",
+      "echeRowKey": "XK LEPOSAV01|891184106",
+      "documentSha256": "7fcee7ba9795e09128ff94addc4ff469ab17ebd58b2d206119fbf8c7d6e7a454",
+      "sourcePageEvidenceIds": ["1ade8cd8-9b9a-4853-a8e1-2cf95f4138e5"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g687bb713b48a4af3",
+      "selectionIndex": 61,
+      "stratum": "R34_V4",
+      "echeRowKey": "E CIUDA-R07|949458505",
+      "documentSha256": "672c3df1db83b703ab8c79d986fcdd8adcbce20d0efcd46286def056c89e53f6",
+      "sourcePageEvidenceIds": ["6d8f1fe7-60cb-4eec-8619-cc317f046518"],
+      "inSetP": true,
+      "inSetR": true
+    },
+    {
+      "goldId": "g6adc24471a029d9d",
+      "selectionIndex": 61,
+      "stratum": "R34_V4",
+      "echeRowKey": "E CIUDA-R07|949458505",
+      "documentSha256": "a6477477dc54dc8611cb71854fdd78a2cf3e24618e48313c83b73ae91aaa791d",
+      "sourcePageEvidenceIds": ["5c1a720d-ec18-4c87-8599-30bc54a248e7"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g6aea9193212dd838",
+      "selectionIndex": 61,
+      "stratum": "R34_V4",
+      "echeRowKey": "E CIUDA-R07|949458505",
+      "documentSha256": "6559d74d0fb360f0e043b871ede2e43e90421a95d1b7672ef6b584c1348a9223",
+      "sourcePageEvidenceIds": ["165be5e1-3639-4836-8fa4-139eb6cc8095"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g6b499fdb28943a9d",
+      "selectionIndex": 49,
+      "stratum": "R34_V4",
+      "echeRowKey": "F MARTIGU02|890518395",
+      "documentSha256": "270d03aa744818807a0d0bd1d2ac04115a9e6e6e078317255f501d1425459101",
+      "sourcePageEvidenceIds": ["67684d6f-56cc-490d-91dc-855db8896579"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g6bcc563bb8f6ecbf",
+      "selectionIndex": 27,
+      "stratum": "R27_V2",
+      "echeRowKey": "D AMBERG01|999652416",
+      "documentSha256": "9c64a706dd1b6e93c1585e4490ea748bb7e13dc555706ce481ccf295fedbf765",
+      "sourcePageEvidenceIds": ["9d2114c6-803e-4fc1-b733-beccb90c16c9"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g6bfb2adaf362f3dd",
+      "selectionIndex": 27,
+      "stratum": "R27_V2",
+      "echeRowKey": "D AMBERG01|999652416",
+      "documentSha256": "c7ecfefd211dc07b3ae55c23808206fc920be2d5e1cd642bd4791f966335ea7a",
+      "sourcePageEvidenceIds": ["41592c05-657d-4360-8ff0-47a7a3002b9b"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g71466b15c84a2467",
+      "selectionIndex": 22,
+      "stratum": "R21_V1",
+      "echeRowKey": "LT KAUNAS08|967540469",
+      "documentSha256": "f9371cc3efbb003d91751912220ef9e4bf615125e5192ac1f261d9774082aad0",
+      "sourcePageEvidenceIds": ["ad33c3da-8c7d-4ac6-9aed-32ff7e90b4a5"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g726688ba9b1e766c",
+      "selectionIndex": 61,
+      "stratum": "R34_V4",
+      "echeRowKey": "E CIUDA-R07|949458505",
+      "documentSha256": "cd06f1346218a28823b64364aa20037a5e994ba5d791efaba39ed937b0983071",
+      "sourcePageEvidenceIds": ["e1fbe1a0-8ef7-4d87-ab18-3efa71934c7f"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g73fff832462c0343",
+      "selectionIndex": 61,
+      "stratum": "R34_V4",
+      "echeRowKey": "E CIUDA-R07|949458505",
+      "documentSha256": "2a26a138b51d51c89d0fc604b6df658afbe05264d4c9f39fad839d0812759964",
+      "sourcePageEvidenceIds": ["8d58f7f1-095c-4e13-b83c-d79dc972f89f"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g74f2595f240fe068",
+      "selectionIndex": 49,
+      "stratum": "R34_V4",
+      "echeRowKey": "F MARTIGU02|890518395",
+      "documentSha256": "05935c96d6b15bf1b51426f7fca9ad55689d061a4dee0aa04ff2d2afb4440953",
+      "sourcePageEvidenceIds": ["cdd61321-4047-416b-8b47-2860455d3036"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g759bb4590ff55b56",
+      "selectionIndex": 83,
+      "stratum": "R40_V5",
+      "echeRowKey": "LT VILNIUS24|951445938",
+      "documentSha256": "d0826607f122be4c9b9ca91d5726af1855239a949f2c8284c72eb8274e343c0d",
+      "sourcePageEvidenceIds": ["b0f7a634-23b3-4d26-9706-73f7621e2bd5"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g7926c0cb95fcc49f",
+      "selectionIndex": 78,
+      "stratum": "R40_V5",
+      "echeRowKey": "F LEVALLO01|949484210",
+      "documentSha256": "0956c329ce7bec4955b4268693d18b4f92e35cedad65d67ec3d653771edc0946",
+      "sourcePageEvidenceIds": ["54145a33-4116-4188-8fa1-e8a29fae00b4"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g797759eabc2c5ad1",
+      "selectionIndex": 93,
+      "stratum": "R40_V5",
+      "echeRowKey": "I FIRENZE06|938824783",
+      "documentSha256": "7af9d2020cc31781f0a4093588eb4b572e200d2309e6f5535afe669279d353cc",
+      "sourcePageEvidenceIds": ["245f06cc-bfa1-4961-8e07-6a7218b74be6"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g7996f4580fd3ddef",
+      "selectionIndex": 105,
+      "stratum": "R40_V5",
+      "echeRowKey": "F PARIS523|879192772",
+      "documentSha256": "5fe9a1f8e06539bf71956aa70be99d387253dbceb5d5dd8cf66e35b513aed3d2",
+      "sourcePageEvidenceIds": ["ca47c4a5-8e88-49c8-b9a4-7513d0e30b32"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g79f8a0a3dc27be42",
+      "selectionIndex": 78,
+      "stratum": "R40_V5",
+      "echeRowKey": "F LEVALLO01|949484210",
+      "documentSha256": "0af7149d0960350df8b05a2f2c2abd34e90df50aca10784bffacf21136cb2f1a",
+      "sourcePageEvidenceIds": ["9095fbb4-f98d-49d8-9b04-93df74308e69"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g7a40c6a845c2f212",
+      "selectionIndex": 12,
+      "stratum": "R21_V1",
+      "echeRowKey": "I ROMA35|920607116",
+      "documentSha256": "1f918507ac1454e553ec86a7e59f9d1845954f3ca6aa7962d2806396629fe497",
+      "sourcePageEvidenceIds": ["4cc28eae-4e0e-49f5-b6e7-cca17c96f2c4"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g7a4b4fd7ce7d138d",
+      "selectionIndex": 105,
+      "stratum": "R40_V5",
+      "echeRowKey": "F PARIS523|879192772",
+      "documentSha256": "46f6fd9e85b1635287d91c58d88bbe5e33aad70fbcf566b4feb1c856afc218e2",
+      "sourcePageEvidenceIds": ["8f0022dd-146e-457d-a171-e8860d535d8d"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g7b7221bb3b6644ee",
+      "selectionIndex": 100,
+      "stratum": "R40_V5",
+      "echeRowKey": "F ARRAS16|893931922",
+      "documentSha256": "2875096c8059fd57ad18e0249f581456aac580263707e9289871ffb909dfeba8",
+      "sourcePageEvidenceIds": ["799a3201-5bd5-4ec8-b8ab-08af775bd57f"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g7ce9b4706632fe63",
+      "selectionIndex": 71,
+      "stratum": "R34_V4",
+      "echeRowKey": "F VALENCI20|909756114",
+      "documentSha256": "f198c5a56879c979cce32db495989aa4ea96904536e7673b1f7bc7d9228b6778",
+      "sourcePageEvidenceIds": ["ba41dbe9-cb26-478f-8447-7204062bcc85"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g7d9facf1460dffcf",
+      "selectionIndex": 71,
+      "stratum": "R34_V4",
+      "echeRowKey": "F VALENCI20|909756114",
+      "documentSha256": "a2a3fb752a6d77259491d8cb0877cebf3a3ef5838af6d268e1ea245986814732",
+      "sourcePageEvidenceIds": ["ccf1471e-ca2a-4351-b6d2-00060a068f6b"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g7db93bff795ec681",
+      "selectionIndex": 83,
+      "stratum": "R40_V5",
+      "echeRowKey": "LT VILNIUS24|951445938",
+      "documentSha256": "54065e43617042dd24141d8249cda079d4a60f1c554158ef758d248a2de4b293",
+      "sourcePageEvidenceIds": ["87df4061-2fd2-4678-aa29-7fcd916bff89"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g7e23eb01960cb436",
+      "selectionIndex": 93,
+      "stratum": "R40_V5",
+      "echeRowKey": "I FIRENZE06|938824783",
+      "documentSha256": "acfbdd7c3da615ed8e7ddb4f98173dd54e50c04199496484df086ef508cda029",
+      "sourcePageEvidenceIds": ["c4b861c6-0b7b-4103-b448-9dc201cf765d"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g80ddd73bb4fe659c",
+      "selectionIndex": 56,
+      "stratum": "R34_V4",
+      "echeRowKey": "CY NICOSIA30|949442306",
+      "documentSha256": "ea335805d994bb07993afe2c08bf966e6e776c4c8db23d8d9dd2c416b4de5e90",
+      "sourcePageEvidenceIds": ["5607ef7c-1537-46c7-8638-7a8b064914ed"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g833a36fadb0ba40b",
+      "selectionIndex": 17,
+      "stratum": "R21_V1",
+      "echeRowKey": "CZ PISEK01|949642029",
+      "documentSha256": "3a280ff1ae1a280bb6c17f7206f60fcbbe5fe47e3a477c21de64c1be72826e5f",
+      "sourcePageEvidenceIds": ["80667291-29da-4dfc-8a1d-903dbe2ca7ec"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g84c157a8d8ac432d",
+      "selectionIndex": 56,
+      "stratum": "R34_V4",
+      "echeRowKey": "CY NICOSIA30|949442306",
+      "documentSha256": "c2bffb0f6b4833598ab876593f1ad7e191a6ca07d5c4b64f91ceb410a90e1d47",
+      "sourcePageEvidenceIds": ["2650a700-fe9e-46b9-85a3-dcd8fc99778e"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g8614869bd4c0fb4a",
+      "selectionIndex": 39,
+      "stratum": "R34_V4",
+      "echeRowKey": "HR DUBROVN02|880952934",
+      "documentSha256": "42e4c4f69dba16b8fef4f67a2c934cc7dfb296af9ef91385b39a51bbb259ff1b",
+      "sourcePageEvidenceIds": ["72f82473-c473-4081-bb6f-7e028df4a3c1"],
+      "inSetP": true,
+      "inSetR": true
+    },
+    {
+      "goldId": "g89340e5a3fabb10e",
+      "selectionIndex": 0,
+      "stratum": "R21_V1",
+      "echeRowKey": "SF TURKU01|999903064",
+      "documentSha256": "9f7a3915cd326e1a65d3a563d3993e1de50f20b02d033d09e2441adf4886f25a",
+      "sourcePageEvidenceIds": ["788ed7c6-5b9a-4d5c-a547-b029f97cb2c4"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g89c54384cadae592",
+      "selectionIndex": 39,
+      "stratum": "R34_V4",
+      "echeRowKey": "HR DUBROVN02|880952934",
+      "documentSha256": "19d1ba5190cea7d91889ce3c720dd92ed4da521a55230a6d6b15b1652074d703",
+      "sourcePageEvidenceIds": ["8a48a248-bea2-4477-a977-744a15566cff"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g8a51b82198f18a91",
+      "selectionIndex": 93,
+      "stratum": "R40_V5",
+      "echeRowKey": "I FIRENZE06|938824783",
+      "documentSha256": "77cbf7db134686657040a412e751972cf1f63f841772fc53b0629749c7be53c9",
+      "sourcePageEvidenceIds": ["3bd348be-23a0-456c-810a-d440481fb64a"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g8e7dfc33ad6507f0",
+      "selectionIndex": 17,
+      "stratum": "R21_V1",
+      "echeRowKey": "CZ PISEK01|949642029",
+      "documentSha256": "bf4b40c2158589ed577f8dfb803f95a9192c345b84fdeba7d8b8bf7b0a669ec6",
+      "sourcePageEvidenceIds": ["535e010b-e739-426f-a54a-84f03cba68b8"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g905930c4edeee1f2",
+      "selectionIndex": 44,
+      "stratum": "R34_V4",
+      "echeRowKey": "E GIRONA14|949455013",
+      "documentSha256": "56fb4f73be0df2a0adbf0fca156b53493aa7573348ff643a8551a696545d6584",
+      "sourcePageEvidenceIds": ["8cf2565a-96d6-405d-9872-c0ab75fa186e"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g92b6bc48904a609c",
+      "selectionIndex": 105,
+      "stratum": "R40_V5",
+      "echeRowKey": "F PARIS523|879192772",
+      "documentSha256": "cb6342068a2a719d5c10f8ef4eab41ca55ebfc1a320c7120e557d87de23c0c29",
+      "sourcePageEvidenceIds": ["ff361f71-6d2d-4c7f-a7ad-3cdc8a2a8570"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g93e22deeb094e038",
+      "selectionIndex": 0,
+      "stratum": "R21_V1",
+      "echeRowKey": "SF TURKU01|999903064",
+      "documentSha256": "8946c442537e3ae57d8247f39f19d7b4f8df8ac156d5b7db4b5b24b0e4b07c2b",
+      "sourcePageEvidenceIds": ["835a3c1d-9792-4c23-906d-69c4e3013f8a"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g9551b703fdfa727b",
+      "selectionIndex": 71,
+      "stratum": "R34_V4",
+      "echeRowKey": "F VALENCI20|909756114",
+      "documentSha256": "a9d03220407856cda6b642cb3ff458e5407c7e63dcbdcbc7ad910d4718edff50",
+      "sourcePageEvidenceIds": ["a1ab3954-0e4d-41d4-b94d-99db3abfdd39"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g95a82fe41b7e80c9",
+      "selectionIndex": 17,
+      "stratum": "R21_V1",
+      "echeRowKey": "CZ PISEK01|949642029",
+      "documentSha256": "4eb2e84757e2c3fe4b6d20906641fd3529af0a193251954a70dc0ae1ef7040bf",
+      "sourcePageEvidenceIds": ["c295e586-0861-4f62-8234-045ca13467ce"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g97fc1103771a85fb",
+      "selectionIndex": 61,
+      "stratum": "R34_V4",
+      "echeRowKey": "E CIUDA-R07|949458505",
+      "documentSha256": "69fcdc9a0524aeb1ae2a7a3fe55b30913e4fa0d8f5ddcf920b6c1945891a4bfd",
+      "sourcePageEvidenceIds": ["8385d44a-bfd0-46f5-9d3d-4416e6df356b"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g996f2e651a19a0a7",
+      "selectionIndex": 49,
+      "stratum": "R34_V4",
+      "echeRowKey": "F MARTIGU02|890518395",
+      "documentSha256": "8b2922c312faec4cf675fed3d011769c0661daa4cb5968609aacfb869240ec9c",
+      "sourcePageEvidenceIds": ["cfe82bbc-189d-454d-bf82-46028fe09f10"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g99db6df8a3fce9a5",
+      "selectionIndex": 5,
+      "stratum": "R21_V1",
+      "echeRowKey": "F SCEAUX01|949631553",
+      "documentSha256": "be9239ebc918dc667c021b8e87ab67180d0d70a7109658e63f26c632bab0611d",
+      "sourcePageEvidenceIds": ["ee17e3eb-7f57-480d-b830-03d67d2df47f"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "g9aeacf99fa1be937",
+      "selectionIndex": 88,
+      "stratum": "R40_V5",
+      "echeRowKey": "XK LEPOSAV01|891184106",
+      "documentSha256": "9f97bd06fe2a0bf0a5daca4406f5efee8eebfeb2ef0858fb403860a8573a2580",
+      "sourcePageEvidenceIds": ["65f3e13b-976b-4b5c-8a47-bfe8ff728ce5"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g9b2773f84537f516",
+      "selectionIndex": 61,
+      "stratum": "R34_V4",
+      "echeRowKey": "E CIUDA-R07|949458505",
+      "documentSha256": "c0673ec244cec375c6849bbf0de6c11c2aca388ce757e88bc8b5b7d53f013845",
+      "sourcePageEvidenceIds": ["9a66fa4b-ec54-4682-9df8-9ef043af7bbf"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g9c5d2d653760c0e3",
+      "selectionIndex": 105,
+      "stratum": "R40_V5",
+      "echeRowKey": "F PARIS523|879192772",
+      "documentSha256": "330910622f603fdb806c83bdf8d574bfb33fced6fd43d0bd6db8fbbe21fc0b87",
+      "sourcePageEvidenceIds": ["7ee018f2-c51d-4f30-a7f4-9c5701bd1842"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g9d2879b391a69ae1",
+      "selectionIndex": 5,
+      "stratum": "R21_V1",
+      "echeRowKey": "F SCEAUX01|949631553",
+      "documentSha256": "9e81df2e612d841cfdd5d6100f0be72f452bc153a608e424ce9fd6af3fd0c1d8",
+      "sourcePageEvidenceIds": ["0e11d30d-9e74-40b2-a9b0-888ca718050f"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "g9e392b1645c13476",
+      "selectionIndex": 61,
+      "stratum": "R34_V4",
+      "echeRowKey": "E CIUDA-R07|949458505",
+      "documentSha256": "87d4928bd1f8c47b2de82217fb4f8401d5e9a1c6832191f8440a7e96c993e9f5",
+      "sourcePageEvidenceIds": ["36221404-7ec0-477e-9adf-b4642c87b37a"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "ga08b954b0657f5c7",
+      "selectionIndex": 22,
+      "stratum": "R21_V1",
+      "echeRowKey": "LT KAUNAS08|967540469",
+      "documentSha256": "8d3dfd568c242a2ff5d44e7974070909744bd96d1d9d19776a441347b67b694e",
+      "sourcePageEvidenceIds": ["92d584c9-08d8-48c3-87d4-45456e207b33"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "ga22b1bc1978eb848",
+      "selectionIndex": 0,
+      "stratum": "R21_V1",
+      "echeRowKey": "SF TURKU01|999903064",
+      "documentSha256": "81e22e59def220d0f5ea71eed30123969895a407843e2a4cfabb999f466e844b",
+      "sourcePageEvidenceIds": ["6087a554-1105-44d7-8177-10ddd7af8dd9"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "ga2d2a2b12fdc379b",
+      "selectionIndex": 22,
+      "stratum": "R21_V1",
+      "echeRowKey": "LT KAUNAS08|967540469",
+      "documentSha256": "c5bfee023da73205548e8338b340c21bf8d5dc148d88fc51f76ac00cb884ed8e",
+      "sourcePageEvidenceIds": ["0437c2ac-1611-48ca-b3f0-d50c76c7ab27"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "ga3df4e6cde5e7a21",
+      "selectionIndex": 44,
+      "stratum": "R34_V4",
+      "echeRowKey": "E GIRONA14|949455013",
+      "documentSha256": "e0ae4efc73011d8da78bf897bf57317c55765d7f7b4d1429ce819d01f798d36b",
+      "sourcePageEvidenceIds": ["92d4cfd5-6b69-44d9-bc3e-9e0eb40dfb60"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "ga40e34f79b44e700",
+      "selectionIndex": 83,
+      "stratum": "R40_V5",
+      "echeRowKey": "LT VILNIUS24|951445938",
+      "documentSha256": "3a504e192ff8ea25df3a5b90825106dbd875f14161d936db04051f85a6cd9345",
+      "sourcePageEvidenceIds": ["3ad95f44-1b17-4153-945d-579dde64541f"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "ga5382390bbe43cdd",
+      "selectionIndex": 12,
+      "stratum": "R21_V1",
+      "echeRowKey": "I ROMA35|920607116",
+      "documentSha256": "0f24e5c52154927b4c53feca95f02b05dd190942b219250b26fc955616466262",
+      "sourcePageEvidenceIds": ["9722ed50-3320-4865-90b7-0b2ce755f3c8"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "ga69f11279d93822a",
+      "selectionIndex": 93,
+      "stratum": "R40_V5",
+      "echeRowKey": "I FIRENZE06|938824783",
+      "documentSha256": "9c3a6562b83888fa79553d03a9eef7f72481919861a531bd7e3bd3cb80b4fd3f",
+      "sourcePageEvidenceIds": ["6ffaad98-8a9b-48ed-a8ba-d277ea08bb39"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "ga9cb34ef401985e9",
+      "selectionIndex": 61,
+      "stratum": "R34_V4",
+      "echeRowKey": "E CIUDA-R07|949458505",
+      "documentSha256": "c1bed46e8b676770f5adc7fda67d370bbd14fbaccb0a998322d2a59731f5e5d5",
+      "sourcePageEvidenceIds": ["58522f58-8c1c-4c69-bcb5-e234bbe25871"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gacb70dee08f6eec5",
+      "selectionIndex": 17,
+      "stratum": "R21_V1",
+      "echeRowKey": "CZ PISEK01|949642029",
+      "documentSha256": "51212c8fd794d1b59c2f899f88c1970b8d2fef807c29e32b36462e67dc141bf4",
+      "sourcePageEvidenceIds": ["e30856b1-d3f3-444f-9e78-4a8975263745"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gaef4b0f38197171a",
+      "selectionIndex": 78,
+      "stratum": "R40_V5",
+      "echeRowKey": "F LEVALLO01|949484210",
+      "documentSha256": "f45ce6a9c43baa5a00297ccefa38c4fdd93f6df48201d108f319b5cebc3dc35a",
+      "sourcePageEvidenceIds": ["da6c4604-e6f0-4be7-bd4d-07565f44a708"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gb07dd327f55b7819",
+      "selectionIndex": 44,
+      "stratum": "R34_V4",
+      "echeRowKey": "E GIRONA14|949455013",
+      "documentSha256": "f09a8a9f3ebfe43ca06e22c54678999a94e3ee5524198290ba47e0580270c338",
+      "sourcePageEvidenceIds": ["a95886ff-97a8-4d83-b41d-fef2949cc094"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gb212f909b505711c",
+      "selectionIndex": 83,
+      "stratum": "R40_V5",
+      "echeRowKey": "LT VILNIUS24|951445938",
+      "documentSha256": "5e5ba41eec1d269b87740b82017b1ce9fe91df5148dad4887d3120d1cd00a39d",
+      "sourcePageEvidenceIds": ["1af404d7-b22b-4da4-b76b-ea032399f6a6"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gb4906aae44b66f5b",
+      "selectionIndex": 5,
+      "stratum": "R21_V1",
+      "echeRowKey": "F SCEAUX01|949631553",
+      "documentSha256": "01ff82cdf5816cafa937571868f251cbef3d2e0acb0e523dfe6a5e49e8dcfdf4",
+      "sourcePageEvidenceIds": ["bedf874c-55fc-47f1-800e-f9a2b768f15a"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "gb5a7cf720f1ac599",
+      "selectionIndex": 71,
+      "stratum": "R34_V4",
+      "echeRowKey": "F VALENCI20|909756114",
+      "documentSha256": "e7ed7540cf597745a73bb91ed9eb587ec385949006e289aad0c3f3cfc55684b8",
+      "sourcePageEvidenceIds": ["a5399e6b-f8e4-4530-b60b-900065cfa60f"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "gb5d08037edbd0dcf",
+      "selectionIndex": 66,
+      "stratum": "R40_V5",
+      "echeRowKey": "E CUENCA15|921706805",
+      "documentSha256": "a836c35471c3c5cae277f1fd66495460d3a81f1a1ad96a2a31b97074602e1c95",
+      "sourcePageEvidenceIds": ["19fdb920-5ce8-4804-8347-64046876af12"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gb60a7b12b4110472",
+      "selectionIndex": 66,
+      "stratum": "R40_V5",
+      "echeRowKey": "E CUENCA15|921706805",
+      "documentSha256": "509d2ddf40aa46966ed376072d85aad0bc04f95390aee0cacae6909a07852593",
+      "sourcePageEvidenceIds": ["5e2c865e-87dd-4c1d-b570-47a50fd0d35f"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gb73fc62964a7b16a",
+      "selectionIndex": 56,
+      "stratum": "R34_V4",
+      "echeRowKey": "CY NICOSIA30|949442306",
+      "documentSha256": "637dd762785a83a3631edbf5fcfb737327e4b2b212478418f09ee2b7e776361b",
+      "sourcePageEvidenceIds": ["3663eda5-3b32-4227-bd08-8488b90d1b42"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gb8cd6dac9cb8d2a5",
+      "selectionIndex": 88,
+      "stratum": "R40_V5",
+      "echeRowKey": "XK LEPOSAV01|891184106",
+      "documentSha256": "f5d8d4391295f9cee1826cb6a280c4e7e129d2a4ae595392f9bad92c4e33c969",
+      "sourcePageEvidenceIds": ["69494480-489d-4a3b-aef6-36f5c2caa4cf"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gb91f7b74b1a52e27",
+      "selectionIndex": 44,
+      "stratum": "R34_V4",
+      "echeRowKey": "E GIRONA14|949455013",
+      "documentSha256": "3643733ceb58f09c529ede7bfed9c64fee3ffbfbdb8250249657ac9d03564f73",
+      "sourcePageEvidenceIds": ["e332be5d-a3b4-470c-a5c8-91b036c572e0"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "gb9324aad56429abf",
+      "selectionIndex": 39,
+      "stratum": "R34_V4",
+      "echeRowKey": "HR DUBROVN02|880952934",
+      "documentSha256": "bf06fbf17d61b2e23b36dc3ab697492652c0ada29f5b9140b760482cdd63692b",
+      "sourcePageEvidenceIds": ["fff47404-72f0-48be-b973-2a7ec20d947f"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gb9a78a0dd56e077f",
+      "selectionIndex": 44,
+      "stratum": "R34_V4",
+      "echeRowKey": "E GIRONA14|949455013",
+      "documentSha256": "3766c98a8f3f9cd6ba06f5dab62c28969744439e22c7ab62c1b2c9aa0f35d9e5",
+      "sourcePageEvidenceIds": ["e6c4f0c1-a08a-4aa6-ac8d-695f9e831497"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gb9ecf77019534653",
+      "selectionIndex": 27,
+      "stratum": "R27_V2",
+      "echeRowKey": "D AMBERG01|999652416",
+      "documentSha256": "e168b499749ed2049d97ec114d21ef328c6e8737700a26b5a9b3160c85f6bc76",
+      "sourcePageEvidenceIds": ["2855bc61-9b55-4d23-a609-079dd03263ae"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "gba1211aa2cfbdcd3",
+      "selectionIndex": 34,
+      "stratum": "R34_V4",
+      "echeRowKey": "E PALMA54|886099948",
+      "documentSha256": "a91eb39c65710ac741e5a31f42335e27613db70dc2ebd5ae28ac23781e53dc6f",
+      "sourcePageEvidenceIds": ["cd43c491-c941-45df-993c-6d6f7d103e82"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gba7a3ccbdde62e30",
+      "selectionIndex": 100,
+      "stratum": "R40_V5",
+      "echeRowKey": "F ARRAS16|893931922",
+      "documentSha256": "348e98959e9a36e01cb2dc9e5f9ea56a460c767e85ba5cf38e2e4f139f355666",
+      "sourcePageEvidenceIds": ["e5daec6f-d0f6-4473-9647-7b81416f1d26"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gbdae94c3ce55b2f7",
+      "selectionIndex": 100,
+      "stratum": "R40_V5",
+      "echeRowKey": "F ARRAS16|893931922",
+      "documentSha256": "45b2e2bb91c18a7ad6acb7bcc93802229d578d8284eb13ab53d0c8f024d5dff5",
+      "sourcePageEvidenceIds": ["e62521fd-1ad4-4133-bb1e-58120b5b9729"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gbfe9fb5f5ade6c90",
+      "selectionIndex": 0,
+      "stratum": "R21_V1",
+      "echeRowKey": "SF TURKU01|999903064",
+      "documentSha256": "d8397c118fda3d817fc811784efc900d08e6c47ccf86f3067566be2a841f5295",
+      "sourcePageEvidenceIds": ["8f5a7778-4553-42b8-8abb-a5fbb57c42c9"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "gc1799fdc0a55b1de",
+      "selectionIndex": 83,
+      "stratum": "R40_V5",
+      "echeRowKey": "LT VILNIUS24|951445938",
+      "documentSha256": "b986f6838af23167a11d33842da1bd7278bd3ab0a4f4299d28c5f111eb837612",
+      "sourcePageEvidenceIds": ["94ca13d5-f8bb-4b27-adde-8a87ff8093c3"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gc27298eb13bf5844",
+      "selectionIndex": 100,
+      "stratum": "R40_V5",
+      "echeRowKey": "F ARRAS16|893931922",
+      "documentSha256": "9abbd0d3ff794dd47afd687efd8451b10842d4e76549937c95e4bb5646e04161",
+      "sourcePageEvidenceIds": ["9c80018c-24a9-44b0-a93d-6f7431757d94"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gc2e701841768b54b",
+      "selectionIndex": 0,
+      "stratum": "R21_V1",
+      "echeRowKey": "SF TURKU01|999903064",
+      "documentSha256": "3b4c5fc52319c1e146509f0efca9876722a2cfc030e749b58e370e0e5b2c938d",
+      "sourcePageEvidenceIds": ["f691ef93-f244-4ce7-9917-72a160e1b100"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gc6730c1c27c9ce1a",
+      "selectionIndex": 100,
+      "stratum": "R40_V5",
+      "echeRowKey": "F ARRAS16|893931922",
+      "documentSha256": "9f99a584eeff341c64a86e24d42a870021432fd5e38a71b33f74344c0cc6ab0e",
+      "sourcePageEvidenceIds": ["e5e103cc-e69a-4f51-98c9-efa46ac939ce"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gc6d34b351fbaea94",
+      "selectionIndex": 66,
+      "stratum": "R40_V5",
+      "echeRowKey": "E CUENCA15|921706805",
+      "documentSha256": "ae3801b2ef680010c946cab0f1f74f5c7b7ac212f9ffa1e9dfb1315f183581ed",
+      "sourcePageEvidenceIds": ["9d21dd77-aca5-42f8-ab6f-8dc6c44034f2"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gc9dd23170ee1f36f",
+      "selectionIndex": 49,
+      "stratum": "R34_V4",
+      "echeRowKey": "F MARTIGU02|890518395",
+      "documentSha256": "1e4137e90e078fc4f07b73d04920295b24741151021a9bdc8a9d377133731cca",
+      "sourcePageEvidenceIds": ["31e40c68-29ac-422e-9499-0e1227c9a0de"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gca0a3708cdfc8211",
+      "selectionIndex": 12,
+      "stratum": "R21_V1",
+      "echeRowKey": "I ROMA35|920607116",
+      "documentSha256": "624267cadf0c2e52128d8c03474f7e68aca79673f552117920efbd0509114c80",
+      "sourcePageEvidenceIds": ["4ba6a340-b043-47a2-9620-6ee14e707008"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gcc01eee4ab43aee6",
+      "selectionIndex": 56,
+      "stratum": "R34_V4",
+      "echeRowKey": "CY NICOSIA30|949442306",
+      "documentSha256": "a2888bb91bd3e40fba3874833212d936db1a581b0b93d81dd1756d806c36ce78",
+      "sourcePageEvidenceIds": ["f4ca16b8-b1cc-4b4a-9a40-944337b285d6"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gcd0a603f70950121",
+      "selectionIndex": 34,
+      "stratum": "R34_V4",
+      "echeRowKey": "E PALMA54|886099948",
+      "documentSha256": "94c0c2ec7289520b84fa502557f76a6988df854b9cda86758a9d1220afad3af1",
+      "sourcePageEvidenceIds": ["14674ad8-4ea0-4f0a-a9f5-05ac04ebf6a7"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "gce6ad12dec7a9086",
+      "selectionIndex": 39,
+      "stratum": "R34_V4",
+      "echeRowKey": "HR DUBROVN02|880952934",
+      "documentSha256": "cc2819e154fce30da987a0f8f64ddad5be6002aefb32d033ab9ce2ca8651a80d",
+      "sourcePageEvidenceIds": ["07b52583-2dd5-4b17-8b65-2ae388e6f5d7"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gcf96e6c44117b8bd",
+      "selectionIndex": 22,
+      "stratum": "R21_V1",
+      "echeRowKey": "LT KAUNAS08|967540469",
+      "documentSha256": "3c118249b7c268a8eb470f6901ec5fbc2a84c9c7de0c96e2baeae5f5699eb06e",
+      "sourcePageEvidenceIds": ["4034ce0b-ff8b-4c2c-87ff-12678d298933"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gcfdfbfc00b4a5175",
+      "selectionIndex": 78,
+      "stratum": "R40_V5",
+      "echeRowKey": "F LEVALLO01|949484210",
+      "documentSha256": "d6c230b7eafe1c13ea664faf82a014e1d5023f5d379e39882d8211faece9e8d5",
+      "sourcePageEvidenceIds": ["241160ce-3e94-4f8b-95bf-088ac97f80a9"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gd1dd1c7bc71986d9",
+      "selectionIndex": 27,
+      "stratum": "R27_V2",
+      "echeRowKey": "D AMBERG01|999652416",
+      "documentSha256": "ac08f4888481ea51bf707d7d54f5f6f1926b12c52f6e16645f4897ac5e159f1c",
+      "sourcePageEvidenceIds": ["f0c958ee-a83f-41be-bae7-ea7001dea8c2"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "gd2e5f3611d7e952a",
+      "selectionIndex": 22,
+      "stratum": "R21_V1",
+      "echeRowKey": "LT KAUNAS08|967540469",
+      "documentSha256": "2a65f957f09c3461789205ad1284291058843ae0f8d48c1541003efb02139b23",
+      "sourcePageEvidenceIds": ["08b8d382-c33f-48be-8a72-a28b41025099"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gd41662c10ce5de86",
+      "selectionIndex": 83,
+      "stratum": "R40_V5",
+      "echeRowKey": "LT VILNIUS24|951445938",
+      "documentSha256": "71042fc293856e008c06e9816de8268802cdbbeaf15216dd40124a6b4bf44a19",
+      "sourcePageEvidenceIds": ["cef6277a-d302-4b3a-97cc-8de0605d8f0a"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "gd50e422d70fd9942",
+      "selectionIndex": 100,
+      "stratum": "R40_V5",
+      "echeRowKey": "F ARRAS16|893931922",
+      "documentSha256": "f3d24ff24779c57644b8297a0c7930cd047065ac172d6cf0c1cdc359db9dbe3f",
+      "sourcePageEvidenceIds": ["e75d26d1-f356-4e7a-bafa-c8c3ec128802"],
+      "inSetP": true,
+      "inSetR": true
+    },
+    {
+      "goldId": "gd53b8709a7ea419c",
+      "selectionIndex": 61,
+      "stratum": "R34_V4",
+      "echeRowKey": "E CIUDA-R07|949458505",
+      "documentSha256": "117805837eefc9f6a1e5c544223f15033155d0287b7f3f5554c0719c2bf222c5",
+      "sourcePageEvidenceIds": ["39e46044-df91-449d-8122-fa1438df1084"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gd6c6244dd122a970",
+      "selectionIndex": 5,
+      "stratum": "R21_V1",
+      "echeRowKey": "F SCEAUX01|949631553",
+      "documentSha256": "5a0b6cdbd0e764d7b6ee1fd8bd4af4c0e6dcfcb09c3d6e6e9cc705990a65fca0",
+      "sourcePageEvidenceIds": ["457515bd-c85b-4ae1-915d-629287309758"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gd9c11ee59ed0488f",
+      "selectionIndex": 17,
+      "stratum": "R21_V1",
+      "echeRowKey": "CZ PISEK01|949642029",
+      "documentSha256": "ac47963f0f08464df9fd0de77b07b41f97db2930b02fa423659129f26bb918dc",
+      "sourcePageEvidenceIds": ["8d9135e3-010a-4b5c-aaa6-7ff76c09758f"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gd9d62788c187ed1b",
+      "selectionIndex": 17,
+      "stratum": "R21_V1",
+      "echeRowKey": "CZ PISEK01|949642029",
+      "documentSha256": "e16bf320764e0b486f93357c37c1d4339b79db44db948ba490896473639f9398",
+      "sourcePageEvidenceIds": ["654c1ac6-5665-409e-b0f4-6548f0030645"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "gdbf7b409a99e0a4c",
+      "selectionIndex": 0,
+      "stratum": "R21_V1",
+      "echeRowKey": "SF TURKU01|999903064",
+      "documentSha256": "2a9254423ddc3987385afbf7be9c3e55f1ae1530040e3cdbfbdfe7b18aeca5b5",
+      "sourcePageEvidenceIds": ["5060233f-8aad-43c5-93bd-27df2b49dafa"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gdd08c693b4774bb5",
+      "selectionIndex": 88,
+      "stratum": "R40_V5",
+      "echeRowKey": "XK LEPOSAV01|891184106",
+      "documentSha256": "dcf4f3618d019f6cc5a1c7088f78f8c66c5345141fcd394d7ff76bf68f38fea7",
+      "sourcePageEvidenceIds": ["dbbbf59f-9f00-4c5c-8347-733e898410dc"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gdd1363c8ec6d7985",
+      "selectionIndex": 22,
+      "stratum": "R21_V1",
+      "echeRowKey": "LT KAUNAS08|967540469",
+      "documentSha256": "a63524feb104fd705d096cd6d53f6a9b26757145ac7d9a77c0fa8f89df61ad96",
+      "sourcePageEvidenceIds": ["e685298c-0428-4be7-b5bc-ae4a492e4ec5"],
+      "inSetP": true,
+      "inSetR": true
+    },
+    {
+      "goldId": "gdd67999c573712be",
+      "selectionIndex": 27,
+      "stratum": "R27_V2",
+      "echeRowKey": "D AMBERG01|999652416",
+      "documentSha256": "b47c947f6c62441148fda8d407503970051bfaf9138061b701cddd58228b7e7b",
+      "sourcePageEvidenceIds": ["9814f03d-4c5e-43e6-97ee-b6c054569019"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gdfb02a2fd62d29bf",
+      "selectionIndex": 78,
+      "stratum": "R40_V5",
+      "echeRowKey": "F LEVALLO01|949484210",
+      "documentSha256": "6952dc13a99247fbdde0a7ce8e1c8961602eebeb9e5a01be8677d21a3b3da8a7",
+      "sourcePageEvidenceIds": ["2fed6cb2-2c0d-49d4-911c-342352ab0dda"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gdfb2d2dd484b4f69",
+      "selectionIndex": 0,
+      "stratum": "R21_V1",
+      "echeRowKey": "SF TURKU01|999903064",
+      "documentSha256": "fcf05306290c3fcb33d2de77d2c1c30f116bec83a69265b371df719994c0b911",
+      "sourcePageEvidenceIds": ["df01ea00-40c3-4eef-b9b4-7bfe19039ef0"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "ge0f581d1b7c9b1c7",
+      "selectionIndex": 0,
+      "stratum": "R21_V1",
+      "echeRowKey": "SF TURKU01|999903064",
+      "documentSha256": "353ec1764b7ca77cb6cf6f9d28c9710bbeec425ea0e52b57a5e6e17c0e86965c",
+      "sourcePageEvidenceIds": ["71fc4bdf-61ec-4608-8828-81f2f63cb168"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "ge137fb660b78455a",
+      "selectionIndex": 0,
+      "stratum": "R21_V1",
+      "echeRowKey": "SF TURKU01|999903064",
+      "documentSha256": "5d6c8c1489826b57691af8c8674f25629a509aeca0f5ecfa39f8bdcecff4aeea",
+      "sourcePageEvidenceIds": ["08295239-2005-4a5b-ac49-ca4dc2264758"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "ge19597b796efb939",
+      "selectionIndex": 49,
+      "stratum": "R34_V4",
+      "echeRowKey": "F MARTIGU02|890518395",
+      "documentSha256": "869cb478805afbc1e5aac6a5541086e65648d0a159678ac8819ccd251da46aed",
+      "sourcePageEvidenceIds": ["82259d79-4ba3-4d24-9eb4-e3834937dcdc"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "ge2716020e7c22b73",
+      "selectionIndex": 34,
+      "stratum": "R34_V4",
+      "echeRowKey": "E PALMA54|886099948",
+      "documentSha256": "086230f00afa00ab12aa3fdff59378db21eb6d816f3283573b909da7aadca796",
+      "sourcePageEvidenceIds": ["d9a4eaa6-bc9e-4dcc-a8e1-3a5ad4f535fd"],
+      "inSetP": true,
+      "inSetR": true
+    },
+    {
+      "goldId": "ge3ead5a9f8d3032f",
+      "selectionIndex": 5,
+      "stratum": "R21_V1",
+      "echeRowKey": "F SCEAUX01|949631553",
+      "documentSha256": "9d4d32e887d56167291f427033b5a30bf74a9b2bf0a85f0d41690a5e6fff8cc8",
+      "sourcePageEvidenceIds": ["0472d286-45b8-46f6-a5c0-474c1c6f5e5f"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "ge48c9ffb5ae79582",
+      "selectionIndex": 12,
+      "stratum": "R21_V1",
+      "echeRowKey": "I ROMA35|920607116",
+      "documentSha256": "0419c73575229b3fd4c06af9d74ef9bee47b4caf8b538fc03313f41ecb6299fc",
+      "sourcePageEvidenceIds": ["3473f679-2edd-480f-bdfb-edddaaa06db5"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "ge4d8ff89cd18ae84",
+      "selectionIndex": 88,
+      "stratum": "R40_V5",
+      "echeRowKey": "XK LEPOSAV01|891184106",
+      "documentSha256": "956f62a7e216d92d424343a3d4473aea9726647a096ff0f7b61534ef781a6a55",
+      "sourcePageEvidenceIds": ["dae111e3-721c-4cce-9e8a-98528430dfc1"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "ge4fe3869e923aae4",
+      "selectionIndex": 88,
+      "stratum": "R40_V5",
+      "echeRowKey": "XK LEPOSAV01|891184106",
+      "documentSha256": "bc5b43d87d00ebf7bba822eb9f3932bb4bab92987a84ad68e8117be6381b3a8e",
+      "sourcePageEvidenceIds": ["de972a65-6aa2-4686-adb5-af8cc1644bd8"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "ge7584e433bd5a090",
+      "selectionIndex": 78,
+      "stratum": "R40_V5",
+      "echeRowKey": "F LEVALLO01|949484210",
+      "documentSha256": "b3e1f12b39a22ba594071b116a57bf6c784e2e12d1516464595825650a44ac12",
+      "sourcePageEvidenceIds": ["e719a19d-8136-4976-8f38-9c074d0e2082"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "gea45eb2f57b2c1cd",
+      "selectionIndex": 27,
+      "stratum": "R27_V2",
+      "echeRowKey": "D AMBERG01|999652416",
+      "documentSha256": "b61d24a5106828936f4102a2a209d1555c34b4caf55a68909af19ee09d2a576a",
+      "sourcePageEvidenceIds": ["49ed2f4a-5dfb-4748-bd14-43ab303e962e"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gea4bbbc731d8218d",
+      "selectionIndex": 17,
+      "stratum": "R21_V1",
+      "echeRowKey": "CZ PISEK01|949642029",
+      "documentSha256": "b82916da32af5f185388d32126a22fb3e3d8dcfd9dfba27f3d618f2ee80b02e9",
+      "sourcePageEvidenceIds": ["09d0dc53-522d-4b52-afa5-760654947c6d"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gea6a619e929fa5f8",
+      "selectionIndex": 105,
+      "stratum": "R40_V5",
+      "echeRowKey": "F PARIS523|879192772",
+      "documentSha256": "b0bae4822a5469d2ba0426072e80248b3ca5c1f14c3b39fca924d341e6c190be",
+      "sourcePageEvidenceIds": ["aa4f8ecd-a8cc-424f-8ecf-2de14227787a"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "gead5412ec53b59d7",
+      "selectionIndex": 49,
+      "stratum": "R34_V4",
+      "echeRowKey": "F MARTIGU02|890518395",
+      "documentSha256": "4f24df4f5c6ccf6745dbbd4d34b9206b12a00b91b0ff95aa2e70662accbdeceb",
+      "sourcePageEvidenceIds": ["4b63b258-4f86-4577-8652-dbee555bf2a7"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "geb0401716c321d8b",
+      "selectionIndex": 5,
+      "stratum": "R21_V1",
+      "echeRowKey": "F SCEAUX01|949631553",
+      "documentSha256": "18b8ce8b35e7c5795bbf2649ce15e2c7fd03a876fac35953ceccdab067abc11d",
+      "sourcePageEvidenceIds": ["ea17f2d8-7ff8-4b52-93bb-b0a0565aab4f"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "ged3c19a6ea7f5a93",
+      "selectionIndex": 56,
+      "stratum": "R34_V4",
+      "echeRowKey": "CY NICOSIA30|949442306",
+      "documentSha256": "ac8bc94b57849a3d7fd1f06f3dc89790f5a6b53310bc178d1c65e1d8f01dae88",
+      "sourcePageEvidenceIds": ["b46493de-7e71-4def-ad2b-2c6b629fb345"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "ged4e281c09f68df7",
+      "selectionIndex": 12,
+      "stratum": "R21_V1",
+      "echeRowKey": "I ROMA35|920607116",
+      "documentSha256": "9ed805d20981da6214f769d9eb4d4bd6371538935cb245c8dff086593e7a0b19",
+      "sourcePageEvidenceIds": ["9c4ca17b-450a-4154-9a69-801b343b76f8"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "geda7f97aba358240",
+      "selectionIndex": 39,
+      "stratum": "R34_V4",
+      "echeRowKey": "HR DUBROVN02|880952934",
+      "documentSha256": "38c72898b91da95a4409ca18f4062f8615e501102a1bd420bfd6089c2fac34a0",
+      "sourcePageEvidenceIds": ["eb3789a3-288d-412f-99af-d4122276e838"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gef794fc24cb51994",
+      "selectionIndex": 5,
+      "stratum": "R21_V1",
+      "echeRowKey": "F SCEAUX01|949631553",
+      "documentSha256": "69de46b56bdd1bd2cc316c9760d3282548bbe32147620c3ca72d5deef940cdf0",
+      "sourcePageEvidenceIds": ["1c8a5003-bea0-40dc-92e0-8dab09f6a0a2"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "gefb3b07dc61bdd79",
+      "selectionIndex": 88,
+      "stratum": "R40_V5",
+      "echeRowKey": "XK LEPOSAV01|891184106",
+      "documentSha256": "3410a5c92f7796231e355a50516065a1be4fc5dc275fe538e30bca9658c2974a",
+      "sourcePageEvidenceIds": ["f55ef9a6-5ef0-4d70-95d5-8a0963c49f28"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "gf0b0efba20840028",
+      "selectionIndex": 39,
+      "stratum": "R34_V4",
+      "echeRowKey": "HR DUBROVN02|880952934",
+      "documentSha256": "564b23ff1d8645e486f903857db1fd18789a60a9378e61ffa3115aed4e7d12ff",
+      "sourcePageEvidenceIds": ["22e69eb0-5c1b-401d-b997-d08f0a1ed5a7"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gf1445bf4834fd86b",
+      "selectionIndex": 44,
+      "stratum": "R34_V4",
+      "echeRowKey": "E GIRONA14|949455013",
+      "documentSha256": "099353c5dd6e028ef00d8b862df116eabfc5aaa4e9bb31a68dd70205c14040c4",
+      "sourcePageEvidenceIds": ["c204b9eb-f570-46c3-8aa0-a87060b031ad"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gf1a544600676bb56",
+      "selectionIndex": 83,
+      "stratum": "R40_V5",
+      "echeRowKey": "LT VILNIUS24|951445938",
+      "documentSha256": "26b5e55b4e8c60fe77f71c7cea3cefb2523819e86305625bd9118521c7dd2383",
+      "sourcePageEvidenceIds": ["4d16f091-19d5-4dc1-8004-d43fc603779e"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "gf1fffbe2db8713ce",
+      "selectionIndex": 93,
+      "stratum": "R40_V5",
+      "echeRowKey": "I FIRENZE06|938824783",
+      "documentSha256": "56f9da02572efa64dbb75fb164a41da95ebdeb0e67e1ad4e3db030ac4c9e6d01",
+      "sourcePageEvidenceIds": ["94596cd7-b419-4a23-8cc6-a39b0c9be67e"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gf20611179814b71a",
+      "selectionIndex": 44,
+      "stratum": "R34_V4",
+      "echeRowKey": "E GIRONA14|949455013",
+      "documentSha256": "8bcd121d85974c7fc1285b0750234e6d7c031e2aa2bc0604ec001896d769fbed",
+      "sourcePageEvidenceIds": ["caa8ebad-bb43-4d90-ba67-fe735501c966"],
+      "inSetP": true,
+      "inSetR": true
+    },
+    {
+      "goldId": "gf480be821a2569c9",
+      "selectionIndex": 71,
+      "stratum": "R34_V4",
+      "echeRowKey": "F VALENCI20|909756114",
+      "documentSha256": "ebfa8b5cef1a56e8ba54f44d71548eb8352c6abe5612a51929241cec07e8574c",
+      "sourcePageEvidenceIds": ["39a00c3e-ebd3-4a74-a5bf-5ecc6904c213"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gf66b2a589e3d7c0a",
+      "selectionIndex": 5,
+      "stratum": "R21_V1",
+      "echeRowKey": "F SCEAUX01|949631553",
+      "documentSha256": "268247afa4ef58ed144a768dedbf364bad5be8ae234a34f64d1bf92f0ce2fa03",
+      "sourcePageEvidenceIds": [
+        "2e6a366c-b15d-4ca7-9e98-c6cc0ed6f1ad",
+        "d20a463d-80b0-462e-9aef-d82c787f84ce"
+      ],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gf6e3fc0cf2b3b4b7",
+      "selectionIndex": 66,
+      "stratum": "R40_V5",
+      "echeRowKey": "E CUENCA15|921706805",
+      "documentSha256": "0f65df023ce5ee8cfe87a23c2aa89dcac4a0785ac6bfee4042def2944665d60f",
+      "sourcePageEvidenceIds": ["e0a986ef-ef15-40bd-ba68-66a33221f48f"],
+      "inSetP": true,
+      "inSetR": true
+    },
+    {
+      "goldId": "gf8d9ceccb2934226",
+      "selectionIndex": 56,
+      "stratum": "R34_V4",
+      "echeRowKey": "CY NICOSIA30|949442306",
+      "documentSha256": "8875df9d9909fe6b0c63440cce85db7b2232f9847a0c6c3c4e5c08181742ea08",
+      "sourcePageEvidenceIds": ["881b9257-20d5-4eb3-963a-a2885be5ba90"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gfabc79b80e292208",
+      "selectionIndex": 39,
+      "stratum": "R34_V4",
+      "echeRowKey": "HR DUBROVN02|880952934",
+      "documentSha256": "546a389e7e37a4fb2613b4db3ec57212dd8b75719b2bd1221bc4e62d51e8e13b",
+      "sourcePageEvidenceIds": ["b67c659a-7346-43d8-ab58-b962db7083f9"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "gfbbd260852d3afd5",
+      "selectionIndex": 0,
+      "stratum": "R21_V1",
+      "echeRowKey": "SF TURKU01|999903064",
+      "documentSha256": "dbbc888a3f45731f13908d7ba67eb9aca2b1fd49c44293359b77ef4e24afcc8d",
+      "sourcePageEvidenceIds": ["707fa90a-cab9-4d54-9f67-10aad83d1ae2"],
+      "inSetP": true,
+      "inSetR": false
+    },
+    {
+      "goldId": "gfbf8b8a71ebfe328",
+      "selectionIndex": 66,
+      "stratum": "R40_V5",
+      "echeRowKey": "E CUENCA15|921706805",
+      "documentSha256": "94216e5a8d31c22059f5253879337ef38a2d2f523e997778fc3500461c2e8c26",
+      "sourcePageEvidenceIds": ["d65146e7-3f54-4057-a3d2-7f135f91bb93"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "gfc41503d25d83a8c",
+      "selectionIndex": 17,
+      "stratum": "R21_V1",
+      "echeRowKey": "CZ PISEK01|949642029",
+      "documentSha256": "be3c93c6679fa569ba8fa87fbdc1e682ce7485c25a46179addbaf69f5d32d18c",
+      "sourcePageEvidenceIds": ["4ec5cddd-8224-4d3b-be65-752a3d1425a6"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "gfca248fe1b4cda8a",
+      "selectionIndex": 22,
+      "stratum": "R21_V1",
+      "echeRowKey": "LT KAUNAS08|967540469",
+      "documentSha256": "88ea84019def1b170ed57e2f2d40139111d1f51b71fc02b7cb2525516f8af5b2",
+      "sourcePageEvidenceIds": ["6365788e-7b40-4c1d-8120-980e4f70b08e"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "gfdbe83e78cfca7d0",
+      "selectionIndex": 0,
+      "stratum": "R21_V1",
+      "echeRowKey": "SF TURKU01|999903064",
+      "documentSha256": "a5ce1309f7e220eb9e129d25a85dcad7fcb727750e024ea87178e6e8e4a94c9b",
+      "sourcePageEvidenceIds": ["02b6f4c8-f479-4a8e-bf5c-b5c6f8fa3533"],
+      "inSetP": false,
+      "inSetR": true
+    },
+    {
+      "goldId": "gfddb0c8f53ec89c8",
+      "selectionIndex": 49,
+      "stratum": "R34_V4",
+      "echeRowKey": "F MARTIGU02|890518395",
+      "documentSha256": "dc3d4b998348a889f38a3f3eb2bf3cf7d6e45c1ed6bf32dd7779764aad100a93",
+      "sourcePageEvidenceIds": ["42ed5b82-70ab-450b-b165-219e9f0e3e48"],
+      "inSetP": true,
+      "inSetR": false
+    }
+  ]
+}
