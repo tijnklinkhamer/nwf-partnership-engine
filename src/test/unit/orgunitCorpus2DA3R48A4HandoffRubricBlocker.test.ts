@@ -24,7 +24,7 @@
  */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -36,6 +36,23 @@ const R47_TERMINAL = '0d80c7347a8a3a8e75244d1d52c3dbc284dad98e';
 /** The one commit that pinned R47's own isolation test to its range. */
 const R47_SCOPE_PIN_COMMIT = '3914b0a16d9aba8a4a957517318ee7a28a8fd0cb';
 const R47_ISOLATION_TEST = 'src/test/unit/orgunitCorpus2DA3R4GlobalReplayIsolation.test.ts';
+/**
+ * R48'S OWN TERMINAL COMMIT.
+ *
+ * R48's lineage, changed-surface, no-handoff-artifact, no-A4/A5 and
+ * no-rubric-artifact assertions describe R48'S SLICE, so they range over R48's
+ * own commits - `R47_TERMINAL..R48_TERMINAL` - and inspect the tree at
+ * R48_TERMINAL, rather than HEAD and the working tree. Once a later slice (R49's
+ * owner-approved human labelling rubric) lands on top, the working tree is no
+ * longer R48's surface, and an approved rubric legitimately exists AFTER R48;
+ * that later fact must not be read back as though it existed AT R48.
+ *
+ * This is the same standing convention R19 through R47 apply, and it
+ * WEAKENS NOTHING: R48's range is frozen, its permitted-path list is unchanged,
+ * "no approved rubric existed at R48" stays asserted, and each later slice pins
+ * the equivalent scope over its own range.
+ */
+const R48_TERMINAL = 'ebe4e6fbd3e2504bbe5fac6963c23ab7bdcb665f';
 
 const R48_TEST = 'src/test/unit/orgunitCorpus2DA3R48A4HandoffRubricBlocker.test.ts';
 const R48_CENSUS = 'docs/evaluation/PHASE_2B_2D_A3_R48_DEV_TRAIN_R4_A4_HANDOFF_CENSUS_V1.json';
@@ -108,17 +125,17 @@ const at = (value: unknown, ...keys: (string | number)[]): unknown =>
     value,
   );
 
-const baseAvailable = commitExists(R47_TERMINAL) && commitExists(R47_SCOPE_PIN_COMMIT);
+const baseAvailable =
+  commitExists(R47_TERMINAL) && commitExists(R47_SCOPE_PIN_COMMIT) && commitExists(R48_TERMINAL);
 
-/** Every path changed since R47 - committed or not. */
+/** Every path R48's own commits changed (R47_TERMINAL..R48_TERMINAL). */
 function changedSinceR47(): string[] {
-  return [
-    ...new Set([
-      ...lines(git('diff', '--name-only', R47_TERMINAL)),
-      ...lines(git('ls-files', '--others', '--exclude-standard')),
-    ]),
-  ];
+  return lines(git('diff', '--name-only', R47_TERMINAL, R48_TERMINAL));
 }
+
+/** Whether a path exists in the tree at R48_TERMINAL. */
+const inR48Tree = (path: string): boolean =>
+  lines(git('ls-tree', '--name-only', R48_TERMINAL, '--', path)).length > 0;
 
 // ---------------------------------------------------------------------------
 // A. LINEAGE AND CHANGED SURFACE.
@@ -126,19 +143,21 @@ function changedSinceR47(): string[] {
 
 describe.skipIf(!baseAvailable)('2D-A3 R48: lineage and changed surface', () => {
   it('descends from the exact R47 tip, and merges no commit', () => {
-    expect(() => git('merge-base', '--is-ancestor', R47_TERMINAL, 'HEAD')).not.toThrow();
-    expect(lines(git('rev-list', '--merges', `${R47_TERMINAL}..HEAD`))).toEqual([]);
+    expect(() => git('merge-base', '--is-ancestor', R47_TERMINAL, R48_TERMINAL)).not.toThrow();
+    expect(lines(git('rev-list', '--merges', `${R47_TERMINAL}..${R48_TERMINAL}`))).toEqual([]);
   });
 
   it("pinned R47's scope in exactly one first commit that touched exactly one file", () => {
-    const [first] = lines(git('rev-list', '--reverse', `${R47_TERMINAL}..HEAD`));
+    const [first] = lines(git('rev-list', '--reverse', `${R47_TERMINAL}..${R48_TERMINAL}`));
     expect(first).toBe(R47_SCOPE_PIN_COMMIT);
     expect(git('rev-parse', `${R47_SCOPE_PIN_COMMIT}^`).trim()).toBe(R47_TERMINAL);
     expect(lines(git('diff', '--name-only', R47_TERMINAL, R47_SCOPE_PIN_COMMIT))).toEqual([
       R47_ISOLATION_TEST,
     ]);
     expect(
-      lines(git('diff', '--name-only', R47_SCOPE_PIN_COMMIT, '--', R47_ISOLATION_TEST)),
+      lines(
+        git('diff', '--name-only', R47_SCOPE_PIN_COMMIT, R48_TERMINAL, '--', R47_ISOLATION_TEST),
+      ),
     ).toEqual([]);
   });
 
@@ -149,9 +168,9 @@ describe.skipIf(!baseAvailable)('2D-A3 R48: lineage and changed surface', () => 
 
   it('wrote no handoff index, review package, response template or HTML packet', () => {
     for (const path of UNWRITTEN_HANDOFF_ARTIFACTS) {
-      expect(existsSync(join(REPO_ROOT, path)), path).toBe(false);
+      expect(inR48Tree(path), path).toBe(false);
     }
-    expect(existsSync(join(REPO_ROOT, HARNESS, 'a4handoffR4'))).toBe(false);
+    expect(inR48Tree(`${HARNESS}/a4handoffR4`)).toBe(false);
   });
 
   it('creates no DEV_CONFIRM, FINAL_HOLDOUT, gold, manifest or corpus-freeze artifact', () => {
@@ -167,13 +186,16 @@ describe.skipIf(!baseAvailable)('2D-A3 R48: lineage and changed surface', () => 
       git('ls-tree', '-r', '--name-only', R47_TERMINAL, '--', 'docs/evaluation', 'docs/audits'),
     );
     expect(prior.length).toBeGreaterThan(0);
-    expect(lines(git('diff', '--name-only', R47_TERMINAL, '--', ...prior))).toEqual([]);
+    expect(lines(git('diff', '--name-only', R47_TERMINAL, R48_TERMINAL, '--', ...prior))).toEqual(
+      [],
+    );
     expect(
       lines(
         git(
           'diff',
           '--name-only',
           R47_TERMINAL,
+          R48_TERMINAL,
           '--',
           'src/orgunits',
           'src/cli',
@@ -264,11 +286,16 @@ describe('2D-A3 R48: no approved rubric backs every human label field', () => {
     },
   );
 
-  it('the repository holds no artifact named as a rubric (this blocker proof aside)', () => {
-    expect(
-      lines(git('ls-files')).filter((path) => /rubric/i.test(path) && path !== R48_TEST),
-    ).toEqual([]);
-  });
+  it.skipIf(!baseAvailable)(
+    'the repository at R48_TERMINAL held no artifact named as a rubric (this blocker proof aside)',
+    () => {
+      expect(
+        lines(git('ls-tree', '-r', '--name-only', R48_TERMINAL)).filter(
+          (path) => /rubric/i.test(path) && path !== R48_TEST,
+        ),
+      ).toEqual([]);
+    },
+  );
 
   it('no approved artifact gives hard_negative an operational criterion', () => {
     for (const { path } of APPROVED_SEARCHED) {
