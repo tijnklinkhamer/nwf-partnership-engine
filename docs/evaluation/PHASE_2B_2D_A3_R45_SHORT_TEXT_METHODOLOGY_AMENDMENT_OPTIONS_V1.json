@@ -1,0 +1,1371 @@
+{
+  "record": "PHASE_2B_2D_A3_R45_SHORT_TEXT_METHODOLOGY_AMENDMENT_OPTIONS_V1",
+  "recordKind": "A3_SHORT_TEXT_METHODOLOGY_AMENDMENT_OPTIONS_AND_RECOMMENDATION",
+  "task": "A3_R45_SHORT_TEXT_METHODOLOGY_AMENDMENT_DESIGN_V1",
+  "ownerAuthorisation": "AUTHORISE_A3_R45_SHORT_TEXT_METHODOLOGY_AMENDMENT_DESIGN_V1",
+  "authorityClass": "NOT_EXECUTION_AUTHORITY",
+  "thisFileAuthorises": [],
+  "publicSafe": true,
+  "designOnly": true,
+  "methodologyAmendedByThisRecord": false,
+  "r44Binding": {
+    "path": "docs/evaluation/PHASE_2B_2D_A3_R44_DEV_TRAIN_CORPUS_FREEZE_BLOCKER_CLOSURE_V1.json",
+    "sha256": "3d17e40cca4a386052cfafe70d69fe34aa41294263febfb82c56d4c8a3c8dafe",
+    "bytes": 11199,
+    "readAtCommit": "4fd9ffd469333ba181584d56018c61e9ae119c77",
+    "r44Terminal": "4fd9ffd469333ba181584d56018c61e9ae119c77",
+    "r44Commits": [
+      "6d30ed6055c3a67ae09dee376cb1999808c2d012",
+      "56006c5a47d93ee88c796927ddcc6cdae28a0e6f",
+      "4fd9ffd469333ba181584d56018c61e9ae119c77"
+    ],
+    "r44TerminalState": "A3_DEV_TRAIN_PIPELINE_COMPLETE_CORPUS_FREEZE_BLOCKED_AWAIT_OWNER_METHODOLOGY_DECISION",
+    "r44ScopePinnedByR45Commit": "f57d10350a46a4e960d2a6b8d2aaf26230e17790",
+    "acceptedAsCanonicalStartingBlockerState": true,
+    "aggregateFactsUsed": {
+      "devTrainSlots": 20,
+      "devTrainPipelineComplete": true,
+      "setPMechanicalSd9Successful": 20,
+      "setRMechanicalSd9Successful": 20,
+      "setPBlockedRequiredMemberships": 6,
+      "setPExactRequiredMemberships": 14,
+      "setRBlockedRequiredMemberships": 4,
+      "setRExactRequiredMemberships": 16,
+      "currentCorpusFreeze": "BLOCKED"
+    },
+    "onlyTheseAggregateFactsWereUsed": true
+  },
+  "methodologyBindings": {
+    "methodologyV2ProposalR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306,
+      "readAtCommit": "4fd9ffd469333ba181584d56018c61e9ae119c77",
+      "role": "the frozen methodology text; SD7 lives in sectionE_samplingContract.rules[id=SD7]"
+    },
+    "methodologyV2OwnerFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+      "bytes": 17514,
+      "readAtCommit": "4fd9ffd469333ba181584d56018c61e9ae119c77",
+      "role": "freezes the exact R3 bytes"
+    },
+    "corpusAcquisitionPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e",
+      "bytes": 45200,
+      "readAtCommit": "4fd9ffd469333ba181584d56018c61e9ae119c77"
+    },
+    "corpusAcquisitionPlanV1OwnerApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1_OWNER_APPROVAL.json",
+      "sha256": "0ac475031e81a60ae58d70bb83d5f71ee3cc441573dc82cf88145fdf1e8fec14",
+      "bytes": 10949,
+      "readAtCommit": "4fd9ffd469333ba181584d56018c61e9ae119c77"
+    },
+    "methodologyV3ProposalR1": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_PROPOSAL_R1.json",
+      "sha256": "4bfbfb5f2ec1958b77ecc13ac5a37ba8b21c7ee69a2c07cd6cd9b8fb76a6239d",
+      "bytes": 16594,
+      "readAtCommit": "29d0d486cb268b5431a0fc23eabb064682ec47d9",
+      "role": "Generation 2; inherits R3 by exact SHA-256, \"every R3 section ... applies to Generation 2 UNCHANGED, except the amendments listed\"; V3-A1..A7 touch reserves and continuity only, never SD7",
+      "readFromGitObjectOnly": true
+    },
+    "methodologyV3OwnerFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "36e8071738e1842ad03a9b51cf5820d58015305191c48490ef515e1cd1c34f9c",
+      "bytes": 12318,
+      "readAtCommit": "29d0d486cb268b5431a0fc23eabb064682ec47d9",
+      "readFromGitObjectOnly": true
+    },
+    "allBytesRecomputedWhenThisRecordWasWritten": true,
+    "noneEdited": true
+  },
+  "frozenOwnerPolicyBindings": {
+    "sd7ShortTextOwnerDecisionV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_SD7_SHORT_TEXT_OWNER_DECISION_V1.json",
+      "sha256": "2f41f495322eceae3b675cbe1d227115f3b4292d6e3a711879793af33b466fff",
+      "bytes": 7584,
+      "readAtCommit": "4fd9ffd469333ba181584d56018c61e9ae119c77",
+      "decision": "SHORT_TEXT_AMBIGUITY_BLOCKS_ONLY_WHEN_IT_CAN_CHANGE_SD9"
+    },
+    "shortTextSampleMembershipOwnerPolicyV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_A3_SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP_OWNER_POLICY_V1.json",
+      "sha256": "b734805bbaddc6890dc7032179b4a639a69a790282923b41641710a060b3d05a",
+      "bytes": 19924,
+      "readAtCommit": "4fd9ffd469333ba181584d56018c61e9ae119c77",
+      "decision": "SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP_AMBIGUITY_PROPAGATION_V1"
+    },
+    "shortTextReachableMembershipOwnerClarificationV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_A3_SHORT_TEXT_REACHABLE_MEMBERSHIP_OWNER_CLARIFICATION_V1.json",
+      "sha256": "0d6ddaa6dcc70912e3e19d7cb245fbe7b241dff6c671d874cbd1cd50ec33b49a",
+      "bytes": 19416,
+      "readAtCommit": "4fd9ffd469333ba181584d56018c61e9ae119c77",
+      "decision": "SHORT_TEXT_REQUIRED_SAMPLE_MEMBERSHIP_LIMITED_TO_REACHABLE_CAPPED_MEMBERSHIP_V1"
+    },
+    "reconfirmedCurrentPolicyFacts": {
+      "shortTextSemanticallyUnresolved": true,
+      "jaccardValueInventedForEmptyUnion": false,
+      "ambiguityPropagated": true,
+      "onlyInvariantMembershipMaterialises": true,
+      "requiredMeans": "REACHABLE_SELECTED_CAPPED_MEMBERSHIP (Generation 1 wording; carried across generations by R38A)",
+      "blockedRequiredMembershipRefusesCorpusFreeze": true,
+      "caseByCaseHumanLabelOrModelResolutionForbidden": true,
+      "currentPolicyNamesTheOnlyWayForward": "a separate GLOBAL pre-label owner/methodology decision (membership policy clause11.proceedingRequires)",
+      "currentPolicyAnticipatesThisReview": "membership policy clause16: exact normalised-text matching and the other fallbacks are NOT authorised by that record and \"require separate review and may constitute a methodology amendment\" - R45 is that separate review; it authorises nothing either"
+    }
+  },
+  "canonicalRuntimeBindings": {
+    "statement": "The exact canonical SD3-SD9 runtime as of R44_TERMINAL. R45 edits none of it.",
+    "modules": [
+      {
+        "path": "src/test/harness/phase2b2d/sd7/sd7Contract.ts",
+        "sha256": "882dad5e990cf40ff326b5fecea3e691720b6d8214f02bf4629ab6fefd2b0f60",
+        "bytes": 7750,
+        "readAtCommit": "4fd9ffd469333ba181584d56018c61e9ae119c77"
+      },
+      {
+        "path": "src/test/harness/phase2b2d/sd7/normaliseText.ts",
+        "sha256": "b518e2ab02eb9284c56a5c0172f79480a8fd110f7433f502fe3e619a3846df90",
+        "bytes": 4150,
+        "readAtCommit": "4fd9ffd469333ba181584d56018c61e9ae119c77"
+      },
+      {
+        "path": "src/test/harness/phase2b2d/sd7/tokenShingles.ts",
+        "sha256": "3a56ac6c9eea4dd70c66ea1d2965b323b38b21883103d7b1b4d0a646c9548b0f",
+        "bytes": 2958,
+        "readAtCommit": "4fd9ffd469333ba181584d56018c61e9ae119c77"
+      },
+      {
+        "path": "src/test/harness/phase2b2d/sd7/jaccard.ts",
+        "sha256": "d086b5cd789b7877ddce962469839c8d7cbdf86412568962d42b04451529a930",
+        "bytes": 3553,
+        "readAtCommit": "4fd9ffd469333ba181584d56018c61e9ae119c77"
+      },
+      {
+        "path": "src/test/harness/phase2b2d/sd7/nearDuplicatePairs.ts",
+        "sha256": "1851726bb28789791d96e0cd27532846e6a503b234a5813bec70782e6e078371",
+        "bytes": 17385,
+        "readAtCommit": "4fd9ffd469333ba181584d56018c61e9ae119c77"
+      },
+      {
+        "path": "src/test/harness/phase2b2d/sd7/pilotAnalysis.ts",
+        "sha256": "7edfb2b2f0e13abebf651a93433fc49139f2b9b0db603a88bde15682d3c77010",
+        "bytes": 12360,
+        "readAtCommit": "4fd9ffd469333ba181584d56018c61e9ae119c77"
+      },
+      {
+        "path": "src/test/harness/phase2b2d/a3prep/contracts.ts",
+        "sha256": "4d856f45dd6016e1007d661f31388bf7bdbefd71862a6585ed4962240454b40f",
+        "bytes": 40454,
+        "readAtCommit": "4fd9ffd469333ba181584d56018c61e9ae119c77"
+      },
+      {
+        "path": "src/test/harness/phase2b2d/a3prep/sd7.ts",
+        "sha256": "322d2dd09f17dcc7ce0afa1862a13892f8bdadfece1c3ec919580f9d49977086",
+        "bytes": 19821,
+        "readAtCommit": "4fd9ffd469333ba181584d56018c61e9ae119c77"
+      },
+      {
+        "path": "src/test/harness/phase2b2d/a3prep/sd9.ts",
+        "sha256": "1de6a2781f322be0dea679d58897c37f49f4b1ca41df1933e975b5291f6efbdd",
+        "bytes": 4092,
+        "readAtCommit": "4fd9ffd469333ba181584d56018c61e9ae119c77"
+      },
+      {
+        "path": "src/test/harness/phase2b2d/a3prep/setPSd7.ts",
+        "sha256": "b13c047f12ecf27583f07cef28923e3adc1e77ed2b3a1e1655de372cd79fdd4a",
+        "bytes": 15869,
+        "readAtCommit": "4fd9ffd469333ba181584d56018c61e9ae119c77"
+      },
+      {
+        "path": "src/test/harness/phase2b2d/a3prep/setRSd7.ts",
+        "sha256": "b03e26fae833c527b9cbbd1962bdf95e886b3a01fbd5e636c61b4c9a8c62e056",
+        "bytes": 11206,
+        "readAtCommit": "4fd9ffd469333ba181584d56018c61e9ae119c77"
+      },
+      {
+        "path": "src/test/harness/phase2b2d/a3prep/setRSd7Readiness.ts",
+        "sha256": "6db33d0d39d9ab90fbf2e1b8b44a9649a6aa6db380d9f97cb5f1f8bdeb19561a",
+        "bytes": 22213,
+        "readAtCommit": "4fd9ffd469333ba181584d56018c61e9ae119c77"
+      },
+      {
+        "path": "src/test/harness/phase2b2d/a3prep/corpusFreezePreflight.ts",
+        "sha256": "ddae984fec947845ec2e2df9feb24bf8b8f75c28993b413919c08a69c307fe75",
+        "bytes": 46134,
+        "readAtCommit": "4fd9ffd469333ba181584d56018c61e9ae119c77"
+      }
+    ]
+  },
+  "antiTuningBoundary": {
+    "rule": "The amendment is chosen on principle, from the frozen methodology text, the owner records and the canonical code, BEFORE its effect on any real organisation is observed.",
+    "notInspected": [
+      "which DEV_TRAIN slots are blocked",
+      "any blocked document",
+      "any short-text main_text",
+      "any real token sequence",
+      "any rank position",
+      "any SD7 edge",
+      "any document or organisation identity",
+      "any label or gold",
+      "any class balance",
+      "any DEV_CONFIRM or FINAL_HOLDOUT evidence",
+      "any real result of applying any candidate option"
+    ],
+    "optionsRunAgainstRealData": false,
+    "realShortTextDocumentsRead": false,
+    "labelsOrGoldRead": false,
+    "sealedSplitsOpened": false,
+    "databaseQueried": false,
+    "networkUsed": false,
+    "providerInference": false,
+    "onlyRealDataFactsUsed": [
+      "20 DEV_TRAIN slots",
+      "6 SET_P blockers",
+      "4 SET_R blockers",
+      "20/20 mechanical SD9 success"
+    ],
+    "whatWasUsedInstead": "frozen methodology text, owner records, canonical SD7/SD9 code read as code, and INVENTED inputs in tests"
+  },
+  "decisionQuestion": "What single globally deterministic, pre-label rule should replace the unresolved SD7 handling for documents for which the canonical 5-token shingle relation is undefined, while minimising changes to the already-frozen methodology and preserving unbiased SET_P / candidate-independent SET_R?",
+  "keyFactAboutDefinedness": {
+    "statement": "R3 SD7 Jaccard is UNDEFINED only when BOTH documents yield no 5-token shingle (empty union, 0/0). When exactly one document is short its shingle set is empty and the other is not, so Jaccard = 0 / |S(long)| = 0: DEFINED, and below 0.90. The canonical implementation withholds every short document from EVERY comparison - more conservative than R3 literally requires - but the only genuinely undefined case in R3 is short-vs-short.",
+    "provedOnCanonicalCodeWithInventedInputsOnly": true,
+    "rImpliedInvariant": "For every pair on which R3 is defined, identical canonical normalised token sequences imply identical shingle sets, hence Jaccard 1.0, hence NEAR_DUPLICATE. R3 already treats \"identical normalised text\" as a near duplicate wherever it can measure it."
+  },
+  "fixedComparisonCriteria": {
+    "fixedBeforeOptionsWereScored": true,
+    "changedAfterComparison": false,
+    "scale": ["SATISFIES", "PARTIAL", "FAILS"],
+    "scaleIsQualitative": true,
+    "noNumericAggregateScore": true,
+    "criteria": [
+      {
+        "id": "C01",
+        "token": "GLOBALLY_DETERMINISTIC",
+        "meaning": "one rule, the same output for the same input everywhere, no per-slot choice"
+      },
+      {
+        "id": "C02",
+        "token": "PRE_LABEL",
+        "meaning": "decidable before any A4 label or gold exists"
+      },
+      {
+        "id": "C03",
+        "token": "CANDIDATE_INDEPENDENT",
+        "meaning": "no classifier, model or candidate output participates"
+      },
+      {
+        "id": "C04",
+        "token": "SPLIT_INDEPENDENT",
+        "meaning": "applies identically to DEV_TRAIN, DEV_CONFIRM and FINAL_HOLDOUT without reading split outcomes"
+      },
+      {
+        "id": "C05",
+        "token": "NO_SEALED_DATA_INSPECTION",
+        "meaning": "neither choosing nor calibrating the rule needs sealed or real blocked evidence"
+      },
+      {
+        "id": "C06",
+        "token": "NO_NEW_RANDOMISATION",
+        "meaning": "introduces no PRNG, seed or salt"
+      },
+      {
+        "id": "C07",
+        "token": "PRESERVES_DOCUMENT_POPULATION",
+        "meaning": "the pre-SD7 distinct-document pool of every organisation is unchanged"
+      },
+      {
+        "id": "C08",
+        "token": "PRESERVES_SET_P_RANK_DEFINITION",
+        "meaning": "SET_P salted rank and the pool it ranks are unchanged"
+      },
+      {
+        "id": "C09",
+        "token": "PRESERVES_SET_R_RANK_DEFINITION",
+        "meaning": "SET_R frozen Track A/B score order and the pool it ranks are unchanged"
+      },
+      {
+        "id": "C10",
+        "token": "PRESERVES_SD9_ACQUISITION_SEMANTICS",
+        "meaning": "SD9 wording and meaning unchanged"
+      },
+      {
+        "id": "C11",
+        "token": "PRESERVES_A2_ACQUISITION_OUTCOMES",
+        "meaning": "no finalised A2 SD9 status can change"
+      },
+      {
+        "id": "C12",
+        "token": "PRESERVES_RESERVE_LEDGER",
+        "meaning": "no replacement, reserve consumption or ledger replay"
+      },
+      {
+        "id": "C13",
+        "token": "PRESERVES_CAP_VALUES",
+        "meaning": "SET_P 8, SET_R 4, ORGANISATION_GATE_SHARE_CAP 1/10 unchanged"
+      },
+      {
+        "id": "C14",
+        "token": "PRESERVES_EXISTING_GE5_TOKEN_SD7_SEMANTICS",
+        "meaning": "every pair on which R3 Jaccard is already DEFINED keeps its verdict"
+      },
+      {
+        "id": "C15",
+        "token": "NO_ARBITRARY_NUMERIC_PARAMETER",
+        "meaning": "introduces no new number, and gives no existing number a new role"
+      },
+      {
+        "id": "C16",
+        "token": "MINIMAL_RESTART_SURFACE",
+        "meaning": "the earliest invalidated canonical layer is as late as possible"
+      },
+      {
+        "id": "C17",
+        "token": "AUDITABILITY",
+        "meaning": "every verdict is reproducible and explainable from committed content"
+      },
+      {
+        "id": "C18",
+        "token": "SCIENTIFIC_DEFENSIBILITY",
+        "meaning": "serves SD7 purpose (one piece of evidence counted once) without biasing SET_P prevalence or SET_R enrichment"
+      }
+    ]
+  },
+  "options": {
+    "A": {
+      "id": "A",
+      "token": "SHORT_TEXT_EXACT_NORMALISED_TOKEN_SEQUENCE_FALLBACK",
+      "summary": "For a pair on which canonical 5-token comparison is undefined because at least one document has fewer than five canonical tokens, the pair is a near duplicate iff the two COMPLETE canonical normalised token sequences are exactly equal; otherwise not. The >=5-token Jaccard rule is byte-for-byte unchanged.",
+      "specifiedCases": [
+        {
+          "case": "empty (0 tokens) vs empty",
+          "verdict": "NEAR_DUPLICATE",
+          "why": "two empty sequences are equal; neither carries textual evidence the other lacks"
+        },
+        {
+          "case": "empty vs non-empty (any length)",
+          "verdict": "NOT_NEAR_DUPLICATE",
+          "why": "lengths differ"
+        },
+        {
+          "case": "1-token identical",
+          "verdict": "NEAR_DUPLICATE"
+        },
+        {
+          "case": "1-token different",
+          "verdict": "NOT_NEAR_DUPLICATE"
+        },
+        {
+          "case": "1-4 tokens, identical sequences",
+          "verdict": "NEAR_DUPLICATE"
+        },
+        {
+          "case": "1-4 tokens, non-identical (different token, different order, different length, strict prefix)",
+          "verdict": "NOT_NEAR_DUPLICATE"
+        },
+        {
+          "case": "short (<5) vs >=5 tokens",
+          "verdict": "NOT_NEAR_DUPLICATE",
+          "why": "lengths differ; coincides exactly with the value R3 already DEFINES (Jaccard 0)"
+        },
+        {
+          "case": ">=5 vs >=5 tokens",
+          "verdict": "UNCHANGED: intersection*10 >= union*9 over 5-token shingle sets"
+        },
+        {
+          "case": "case or whitespace variants of the same short text",
+          "verdict": "NEAR_DUPLICATE",
+          "why": "removed by the SAME canonical normalisation SD7 already applies"
+        },
+        {
+          "case": "punctuation or accent variants of the same short text",
+          "verdict": "NOT_NEAR_DUPLICATE",
+          "why": "SD7 normalisation forbids punctuation stripping, accent removal and Unicode canonical normalisation; this option adds none"
+        }
+      ],
+      "properties": {
+        "agreesWithR3OnEveryPairR3Defines": true,
+        "changesOnlyShortVsShortPairs": true,
+        "createsNoShortVsLongEdge": true,
+        "shortBranchRelationIsAnEquivalence": "equality of sequences is reflexive, symmetric and transitive, so short-text components are CLIQUES",
+        "shortTextSurvivorCountIsOrderInvariant": "a clique contributes exactly one survivor under every order; which document survives still follows the unchanged K3 sample-rank walk",
+        "newNumericParameter": false,
+        "newSimilarityGradation": false,
+        "jaccardValueAssignedToEmptyUnion": false
+      },
+      "smallestDefensibleExtension": {
+        "verdict": "YES",
+        "argument": "Among relations that (i) agree with R3 wherever R3 is defined, (ii) use only the canonical SD7 normalisation, (iii) add no number, and (iv) preserve the invariant R3 already exhibits (identical normalised text => near duplicate), exact sequence equality on the undefined branch is the LEAST relation: (iv) forces every equal pair to be an edge, and nothing in (i)-(iii) licenses any further edge without a new similarity gradation. Always-include adds fewer edges but violates (iv); every other fallback adds a gradation."
+      }
+    },
+    "B": {
+      "id": "B",
+      "token": "SHORT_TEXT_ADAPTIVE_NGRAM_JACCARD_FALLBACK",
+      "summary": "When 5-grams cannot be formed, shingle with a smaller n and reuse Jaccard >= 0.90.",
+      "analysis": {
+        "howNWouldBeSelected": "needs a NEW rule: n = min(5, |T(a)|, |T(b)|) per pair, or n = min(5, |T(d)|) per document, or a fixed fallback n (1, 2 or 3). Each is a separate methodological choice; none is implied by R3.",
+        "thresholdMeaningAcrossN": "0.90 was set (uncalibrated) for 5-grams. At n = 1 Jaccard is token-SET overlap: order and repetition vanish, so different sentences built from the same words collide. At n = 1 or 2 over 1-4 tokens the attainable Jaccard values are a handful of coarse fractions, so 0.90 degenerates to \"identical sets\" for very short texts and becomes something else at n = 3 or 4. One threshold does not carry one meaning across n.",
+        "emptyText": "still undefined at every n (0 tokens => empty set at every n): B does not remove the 0/0 case and would need a further special rule.",
+        "differingDocumentLengths": "a per-pair n would re-measure short-vs-long pairs at a smaller n. R3 already DEFINES those pairs (Jaccard 0 at n = 5), so B would CHANGE verdicts R3 has, and could join a short document to a long one.",
+        "effectivelySeveralNewMetrics": true,
+        "calibrationBurden": "each n needs its own threshold justification; calibrating on real data would require inspecting the very documents R45 must not inspect, and not calibrating leaves an arbitrary threshold reused out of its domain.",
+        "reproducibility": "deterministic once fixed, but the specification has several free choices",
+        "overCollapseRisk": "HIGH at n = 1 for very short navigation-like texts that share their tokens in a different order",
+        "methodologyComplexity": "HIGH: a metric family, a selection rule for n, and an empty-text rule",
+        "arbitraryNewNumericChoices": [
+          "the fallback n (or the n-selection rule)",
+          "whether 0.90 is reused or re-set per n"
+        ],
+        "sd9Consequence": "in the per-pair form, short-vs-long edges can remove a MEASURABLE survivor, which the ratified SD9 envelope assumes never happens (membership policy clause5: treatments may not retroactively remove a known measurable survivor); A2 outcomes would therefore no longer be provably preserved. Restricting B to short-vs-short pairs avoids this but leaves an uncalibrated gradation over the shortest texts."
+      }
+    },
+    "C": {
+      "id": "C",
+      "token": "MINIMUM_CANONICAL_TOKEN_SAMPLE_ELIGIBILITY",
+      "summary": "Documents with fewer than five canonical tokens are deterministically ineligible for SET_P and SET_R.",
+      "consequences": {
+        "changesSd3Population": "YES - SD3 draws \"from the organisation acquired, policy-authorised, deduplicated pages\" with \"NO class filtering of any kind\"; C removes a content-defined subset of that pool before ranking.",
+        "preservesSetPPrevalenceFaithfulness": "NO - SET_P is the only prevalence-faithful stratum (SD11). Short pages exist in production and would be classified there; removing them changes the population G3 (precision) and G6 (needs-review) are estimated on, and short pages plausibly concentrate in particular page types (stubs, navigation, error-like pages), so the shift is not class-neutral. SD6 explicitly forbids filtering SET_P toward or away from hard negatives.",
+        "altersSetRRankingPopulation": "YES - the frozen score order is unchanged as a function, but it ranks a different pool, so cap-4 membership can change.",
+        "altersSd9Meaning": "YES if left alone: SD9 counts post-SD7 pages with extractable text, and MIN_PAGES_PER_ORGANISATION = 4 is justified as the SET_R cap. Under C an organisation can be ACQUISITION_SUCCESSFUL with fewer than four SAMPLE-ELIGIBLE pages, so the justification breaks.",
+        "organisationCanBeSuccessfulWithFewerThanFourEligiblePages": true,
+        "sd9ThereforeAlsoNeedsChanging": "YES, to stay coherent: count only >=5-token survivors.",
+        "couldThatChangeA2Outcomes": "NO for finalised statuses, provably: the ratified envelope lower bound already counts measurable (>=5-token) survivors only, so every finalised success had a measurable minimum >= 4, and every finalised failure had a maximum < 4 even with all short documents counted. But the SD9 DEFINITION changes, so A2 semantics are amended even where outcomes are not.",
+        "couldReserveReplacementNeedReplay": "NO by the same argument, but only after the SD9 definition change is itself approved and re-verified.",
+        "requiresRerunningGovernanceOrA2": "A2 acquisition need not be re-executed, but the A2 acquisition-SEMANTICS records (SD9) would need a new governance statement, and the A3 restart reaches the sampling pool, not just the graph.",
+        "altersGateDenominators": "YES - realised SET_P/SET_R denominators and per-organisation contributions (SD4 1/10 share) are computed over a smaller pool.",
+        "introducesAnEligibilityRuleR3DoesNotHave": true,
+        "repurposesAnExistingNumber": "the shingle size 5 becomes a content-eligibility threshold, a role R3 never gave it",
+        "priorOwnerRecordAlreadyRejectedIt": "membership policy analysisRecommendation.optionsConsidered.B (\"would change the pre-SD7 population and the frozen rank; effectively a methodology amendment\")"
+      },
+      "simple": false
+    },
+    "D": {
+      "id": "D",
+      "token": "SHORT_TEXT_ALWAYS_INCLUDE_OR_ALWAYS_EXCLUDE_BASELINES",
+      "D1_alwaysInclude": {
+        "token": "SHORT_TEXT_NEVER_NEAR_DUPLICATE",
+        "rule": "every pair involving a short document is NOT a near duplicate",
+        "deterministic": true,
+        "prevalenceEffect": "none on the pool; identical short pages are each counted, so duplicated short evidence is over-represented exactly in proportion to how often a site repeats it",
+        "sampleBias": "repeated short pages (the same stub reached under several URLs with different bytes) can occupy several of the 8 / 4 cap slots of one organisation",
+        "relationToExistingAmbiguity": "it is one point of the current admissible treatment space; it resolves ambiguity by asserting uniqueness without evidence",
+        "preservesSd7Purpose": "NO for the clearest case: two documents whose canonical normalised text is IDENTICAL are \"one piece of evidence counted twice\", which is what SD7 exists to prevent, and which R3 itself treats as a near duplicate wherever it can measure it",
+        "restartSurface": "smaller than A: the graph is unchanged and only survivor preparation onward would be recomputed",
+        "unjustifiedSemanticAssumption": true,
+        "priorOwnerRecordsForbadeIt": "membership policy option A rejected; reachable clarification clause8 lists ALWAYS INCLUDE as still forbidden"
+      },
+      "D2_alwaysExclude": {
+        "token": "SHORT_TEXT_NEVER_SAMPLED",
+        "rule": "short documents never enter SET_P or SET_R",
+        "deterministic": true,
+        "prevalenceEffect": "removes a content-defined page class from the prevalence-faithful sample (same defect as C)",
+        "sampleBias": "systematic; SET_P no longer represents production pages",
+        "relationToExistingAmbiguity": "resolves ambiguity by treating every short page as a duplicate of nothing and of everything at once - an exclusion, not a duplicate verdict",
+        "preservesSd7Purpose": "NO - SD7 removes duplicates, not short pages; a unique short page is evidence counted once, not zero times",
+        "sd9": "same coherence problem as C",
+        "unjustifiedSemanticAssumption": true,
+        "priorOwnerRecordsForbadeIt": "reachable clarification clause8 lists ALWAYS EXCLUDE as still forbidden"
+      }
+    },
+    "E": {
+      "id": "E",
+      "token": "CASE_BY_CASE_HUMAN_LABEL_OR_MODEL_RESOLUTION",
+      "evaluatedOnlyToReaffirmTheBoundary": true,
+      "introduces": [
+        "discretion",
+        "label contamination",
+        "model contamination",
+        "possible split leakage",
+        "non-reproducible case-specific decisions"
+      ],
+      "currentPolicyForbidsIt": "membership policy clause6 forbiddenResolutions and clause12; reachable clarification clause3 and clause8",
+      "selectable": false
+    }
+  },
+  "perOptionImpactMatrix": {
+    "A": [
+      {
+        "criterion": "C01",
+        "token": "GLOBALLY_DETERMINISTIC",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C02",
+        "token": "PRE_LABEL",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C03",
+        "token": "CANDIDATE_INDEPENDENT",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C04",
+        "token": "SPLIT_INDEPENDENT",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C05",
+        "token": "NO_SEALED_DATA_INSPECTION",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C06",
+        "token": "NO_NEW_RANDOMISATION",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C07",
+        "token": "PRESERVES_DOCUMENT_POPULATION",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C08",
+        "token": "PRESERVES_SET_P_RANK_DEFINITION",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C09",
+        "token": "PRESERVES_SET_R_RANK_DEFINITION",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C10",
+        "token": "PRESERVES_SD9_ACQUISITION_SEMANTICS",
+        "verdict": "SATISFIES",
+        "note": "SD9 wording unchanged; the short-text term of the ratified envelope collapses to an exact count (see sd9InvarianceProof)"
+      },
+      {
+        "criterion": "C11",
+        "token": "PRESERVES_A2_ACQUISITION_OUTCOMES",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C12",
+        "token": "PRESERVES_RESERVE_LEDGER",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C13",
+        "token": "PRESERVES_CAP_VALUES",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C14",
+        "token": "PRESERVES_EXISTING_GE5_TOKEN_SD7_SEMANTICS",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C15",
+        "token": "NO_ARBITRARY_NUMERIC_PARAMETER",
+        "verdict": "SATISFIES",
+        "note": "the existing shingle size 5 keeps its existing role: it marks where Jaccard is defined, nothing more"
+      },
+      {
+        "criterion": "C16",
+        "token": "MINIMAL_RESTART_SURFACE",
+        "verdict": "SATISFIES",
+        "note": "earliest invalidated layer = SD7 graph; evidence, documents, Governance V5 and A2 stay valid"
+      },
+      {
+        "criterion": "C17",
+        "token": "AUDITABILITY",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C18",
+        "token": "SCIENTIFIC_DEFENSIBILITY",
+        "verdict": "SATISFIES"
+      }
+    ],
+    "B": [
+      {
+        "criterion": "C01",
+        "token": "GLOBALLY_DETERMINISTIC",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C02",
+        "token": "PRE_LABEL",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C03",
+        "token": "CANDIDATE_INDEPENDENT",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C04",
+        "token": "SPLIT_INDEPENDENT",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C05",
+        "token": "NO_SEALED_DATA_INSPECTION",
+        "verdict": "PARTIAL",
+        "note": "choosing n and a threshold without calibration is arbitrary; calibrating needs the forbidden inspection"
+      },
+      {
+        "criterion": "C06",
+        "token": "NO_NEW_RANDOMISATION",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C07",
+        "token": "PRESERVES_DOCUMENT_POPULATION",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C08",
+        "token": "PRESERVES_SET_P_RANK_DEFINITION",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C09",
+        "token": "PRESERVES_SET_R_RANK_DEFINITION",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C10",
+        "token": "PRESERVES_SD9_ACQUISITION_SEMANTICS",
+        "verdict": "PARTIAL",
+        "note": "per-pair form can remove measurable survivors; short-short-only form preserves"
+      },
+      {
+        "criterion": "C11",
+        "token": "PRESERVES_A2_ACQUISITION_OUTCOMES",
+        "verdict": "PARTIAL",
+        "note": "not provable in the per-pair form"
+      },
+      {
+        "criterion": "C12",
+        "token": "PRESERVES_RESERVE_LEDGER",
+        "verdict": "PARTIAL",
+        "note": "follows C11"
+      },
+      {
+        "criterion": "C13",
+        "token": "PRESERVES_CAP_VALUES",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C14",
+        "token": "PRESERVES_EXISTING_GE5_TOKEN_SD7_SEMANTICS",
+        "verdict": "FAILS",
+        "note": "per-pair form re-measures short-vs-long pairs R3 already defines"
+      },
+      {
+        "criterion": "C15",
+        "token": "NO_ARBITRARY_NUMERIC_PARAMETER",
+        "verdict": "FAILS",
+        "note": "n and per-n threshold are new choices"
+      },
+      {
+        "criterion": "C16",
+        "token": "MINIMAL_RESTART_SURFACE",
+        "verdict": "PARTIAL",
+        "note": "graph layer at best; SD9 re-adjudication in the per-pair form"
+      },
+      {
+        "criterion": "C17",
+        "token": "AUDITABILITY",
+        "verdict": "PARTIAL"
+      },
+      {
+        "criterion": "C18",
+        "token": "SCIENTIFIC_DEFENSIBILITY",
+        "verdict": "PARTIAL",
+        "note": "uncalibrated gradation over the shortest texts; over-collapse at n = 1"
+      }
+    ],
+    "C": [
+      {
+        "criterion": "C01",
+        "token": "GLOBALLY_DETERMINISTIC",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C02",
+        "token": "PRE_LABEL",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C03",
+        "token": "CANDIDATE_INDEPENDENT",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C04",
+        "token": "SPLIT_INDEPENDENT",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C05",
+        "token": "NO_SEALED_DATA_INSPECTION",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C06",
+        "token": "NO_NEW_RANDOMISATION",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C07",
+        "token": "PRESERVES_DOCUMENT_POPULATION",
+        "verdict": "FAILS"
+      },
+      {
+        "criterion": "C08",
+        "token": "PRESERVES_SET_P_RANK_DEFINITION",
+        "verdict": "PARTIAL",
+        "note": "rank function unchanged, ranked pool changed"
+      },
+      {
+        "criterion": "C09",
+        "token": "PRESERVES_SET_R_RANK_DEFINITION",
+        "verdict": "PARTIAL",
+        "note": "rank function unchanged, ranked pool changed"
+      },
+      {
+        "criterion": "C10",
+        "token": "PRESERVES_SD9_ACQUISITION_SEMANTICS",
+        "verdict": "FAILS",
+        "note": "SD9 must change to stay coherent"
+      },
+      {
+        "criterion": "C11",
+        "token": "PRESERVES_A2_ACQUISITION_OUTCOMES",
+        "verdict": "SATISFIES",
+        "note": "finalised outcomes provably unchanged"
+      },
+      {
+        "criterion": "C12",
+        "token": "PRESERVES_RESERVE_LEDGER",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C13",
+        "token": "PRESERVES_CAP_VALUES",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C14",
+        "token": "PRESERVES_EXISTING_GE5_TOKEN_SD7_SEMANTICS",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C15",
+        "token": "NO_ARBITRARY_NUMERIC_PARAMETER",
+        "verdict": "PARTIAL",
+        "note": "gives the shingle size a new eligibility role"
+      },
+      {
+        "criterion": "C16",
+        "token": "MINIMAL_RESTART_SURFACE",
+        "verdict": "FAILS",
+        "note": "sampling pool plus SD9 definition plus governance statement"
+      },
+      {
+        "criterion": "C17",
+        "token": "AUDITABILITY",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C18",
+        "token": "SCIENTIFIC_DEFENSIBILITY",
+        "verdict": "FAILS",
+        "note": "biases the prevalence-faithful stratum"
+      }
+    ],
+    "D1_alwaysInclude": [
+      {
+        "criterion": "C01",
+        "token": "GLOBALLY_DETERMINISTIC",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C02",
+        "token": "PRE_LABEL",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C03",
+        "token": "CANDIDATE_INDEPENDENT",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C04",
+        "token": "SPLIT_INDEPENDENT",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C05",
+        "token": "NO_SEALED_DATA_INSPECTION",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C06",
+        "token": "NO_NEW_RANDOMISATION",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C07",
+        "token": "PRESERVES_DOCUMENT_POPULATION",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C08",
+        "token": "PRESERVES_SET_P_RANK_DEFINITION",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C09",
+        "token": "PRESERVES_SET_R_RANK_DEFINITION",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C10",
+        "token": "PRESERVES_SD9_ACQUISITION_SEMANTICS",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C11",
+        "token": "PRESERVES_A2_ACQUISITION_OUTCOMES",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C12",
+        "token": "PRESERVES_RESERVE_LEDGER",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C13",
+        "token": "PRESERVES_CAP_VALUES",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C14",
+        "token": "PRESERVES_EXISTING_GE5_TOKEN_SD7_SEMANTICS",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C15",
+        "token": "NO_ARBITRARY_NUMERIC_PARAMETER",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C16",
+        "token": "MINIMAL_RESTART_SURFACE",
+        "verdict": "SATISFIES",
+        "note": "smallest of all: graph unchanged"
+      },
+      {
+        "criterion": "C17",
+        "token": "AUDITABILITY",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C18",
+        "token": "SCIENTIFIC_DEFENSIBILITY",
+        "verdict": "FAILS",
+        "note": "asserts uniqueness for identical normalised text, contradicting SD7 purpose and the invariant R3 exhibits"
+      }
+    ],
+    "D2_alwaysExclude": [
+      {
+        "criterion": "C01",
+        "token": "GLOBALLY_DETERMINISTIC",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C02",
+        "token": "PRE_LABEL",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C03",
+        "token": "CANDIDATE_INDEPENDENT",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C04",
+        "token": "SPLIT_INDEPENDENT",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C05",
+        "token": "NO_SEALED_DATA_INSPECTION",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C06",
+        "token": "NO_NEW_RANDOMISATION",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C07",
+        "token": "PRESERVES_DOCUMENT_POPULATION",
+        "verdict": "FAILS"
+      },
+      {
+        "criterion": "C08",
+        "token": "PRESERVES_SET_P_RANK_DEFINITION",
+        "verdict": "PARTIAL"
+      },
+      {
+        "criterion": "C09",
+        "token": "PRESERVES_SET_R_RANK_DEFINITION",
+        "verdict": "PARTIAL"
+      },
+      {
+        "criterion": "C10",
+        "token": "PRESERVES_SD9_ACQUISITION_SEMANTICS",
+        "verdict": "FAILS"
+      },
+      {
+        "criterion": "C11",
+        "token": "PRESERVES_A2_ACQUISITION_OUTCOMES",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C12",
+        "token": "PRESERVES_RESERVE_LEDGER",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C13",
+        "token": "PRESERVES_CAP_VALUES",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C14",
+        "token": "PRESERVES_EXISTING_GE5_TOKEN_SD7_SEMANTICS",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C15",
+        "token": "NO_ARBITRARY_NUMERIC_PARAMETER",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C16",
+        "token": "MINIMAL_RESTART_SURFACE",
+        "verdict": "FAILS"
+      },
+      {
+        "criterion": "C17",
+        "token": "AUDITABILITY",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C18",
+        "token": "SCIENTIFIC_DEFENSIBILITY",
+        "verdict": "FAILS",
+        "note": "removes unique short evidence and biases SET_P"
+      }
+    ],
+    "E": [
+      {
+        "criterion": "C01",
+        "token": "GLOBALLY_DETERMINISTIC",
+        "verdict": "FAILS",
+        "note": "per-case"
+      },
+      {
+        "criterion": "C02",
+        "token": "PRE_LABEL",
+        "verdict": "FAILS",
+        "note": "label-assisted resolution is post-label by construction"
+      },
+      {
+        "criterion": "C03",
+        "token": "CANDIDATE_INDEPENDENT",
+        "verdict": "FAILS"
+      },
+      {
+        "criterion": "C04",
+        "token": "SPLIT_INDEPENDENT",
+        "verdict": "FAILS"
+      },
+      {
+        "criterion": "C05",
+        "token": "NO_SEALED_DATA_INSPECTION",
+        "verdict": "FAILS",
+        "note": "requires reading the blocked documents"
+      },
+      {
+        "criterion": "C06",
+        "token": "NO_NEW_RANDOMISATION",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C07",
+        "token": "PRESERVES_DOCUMENT_POPULATION",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C08",
+        "token": "PRESERVES_SET_P_RANK_DEFINITION",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C09",
+        "token": "PRESERVES_SET_R_RANK_DEFINITION",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C10",
+        "token": "PRESERVES_SD9_ACQUISITION_SEMANTICS",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C11",
+        "token": "PRESERVES_A2_ACQUISITION_OUTCOMES",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C12",
+        "token": "PRESERVES_RESERVE_LEDGER",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C13",
+        "token": "PRESERVES_CAP_VALUES",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C14",
+        "token": "PRESERVES_EXISTING_GE5_TOKEN_SD7_SEMANTICS",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C15",
+        "token": "NO_ARBITRARY_NUMERIC_PARAMETER",
+        "verdict": "SATISFIES"
+      },
+      {
+        "criterion": "C16",
+        "token": "MINIMAL_RESTART_SURFACE",
+        "verdict": "FAILS"
+      },
+      {
+        "criterion": "C17",
+        "token": "AUDITABILITY",
+        "verdict": "FAILS"
+      },
+      {
+        "criterion": "C18",
+        "token": "SCIENTIFIC_DEFENSIBILITY",
+        "verdict": "FAILS"
+      }
+    ]
+  },
+  "minimalityHypothesis": {
+    "hypothesis": "A deterministic exact-normalised-token-sequence fallback for the previously undefined <5-token SD7 branch is likely the smallest amendment because it leaves the document population, SD3 ranks, SD9 acquisition semantics, Governance V5 and reserve history unchanged, while adding no new numeric similarity threshold.",
+    "verdict": "CONFIRM_THIS_AS_THE_RECOMMENDED_OPTION",
+    "refinements": [
+      "smallest in SEMANTIC terms, not in restart terms: always-include (D1) leaves the graph unchanged and so has a strictly smaller restart surface, but it fails scientific defensibility",
+      "Option A changes ONLY short-vs-short pairs; short-vs-long pairs already have a defined R3 verdict that A reproduces",
+      "SD9 invariance is a proof over the ratified envelope, not an assumption",
+      "the amendment must explicitly cover Generation 2 slots, because V3 inherits R3 by SHA-256"
+    ]
+  },
+  "recommendedOption": {
+    "id": "A",
+    "token": "SHORT_TEXT_EXACT_NORMALISED_TOKEN_SEQUENCE_FALLBACK",
+    "why": "the only option that satisfies all 18 fixed criteria: it agrees with R3 wherever R3 is defined, extends the invariant R3 already exhibits to the undefined branch, adds no number and no gradation, keeps population, ranks, caps, SD9, A2 and the reserve ledger, and restarts A3 no earlier than the SD7 graph"
+  },
+  "sd9InvarianceProof": {
+    "claim": "Under Option A no A2 SD9 status that was finalised under the ratified envelope can change, so A2 outcomes, replacements and the reserve ledger are preserved by construction.",
+    "notation": "per organisation: M = documents with >= 5 canonical tokens, s = number of short documents, [mu_min, mu_max] = range of measurable survivor counts over all survivor orders (unchanged by A, because A adds no edge touching M), q = number of distinct canonical sequences among the short documents (0 if s = 0, else 1 <= q <= s).",
+    "ratifiedEnvelope": "[mu_min, mu_max + s] (short-text owner decision V1; implemented as postSd7CountMin / postSd7CountMax in sd7/pilotAnalysis.ts)",
+    "optionACountRange": "[mu_min + q, mu_max + q], which lies inside [mu_min, mu_max + s]",
+    "therefore": [
+      "finalised SUCCESS (mu_min >= 4) stays SUCCESS",
+      "finalised FAILURE (mu_max + s < 4) stays FAILURE",
+      "Generation 2 adjudication closed with no pending slot, so every A2 status was finalised under this envelope"
+    ],
+    "appliesEquallyToSampleSpecificCounts": true,
+    "replayMustStillAssertIt": "a future replay recomputes every SD9 status and STOPS on any contradiction; a contradiction would indicate an implementation defect, never a replacement reason",
+    "provedWithoutReadingRealData": true
+  },
+  "recommendedMethodologyClassification": {
+    "recommended": "METHODOLOGY_V2_R4",
+    "form": "ADDITIVE_AMENDMENT_OF_R3_SD7_SHORT_TEXT_BRANCH",
+    "notANewMethodologyGeneration": true,
+    "analysis": {
+      "modifiesSd7Semantics": "YES, but only on the branch R3 leaves undefined (both documents < 5 tokens); every R3-defined verdict is unchanged",
+      "modifiesTargetPopulation": false,
+      "modifiesAcquisitionSemantics": false,
+      "modifiesSplitAssignment": false,
+      "modifiesScoringGates": false,
+      "modifiesRankDefinitions": false,
+      "modifiesOnlyOnePreviouslyUndefinedOperationalBranch": true
+    },
+    "repositoryConventions": {
+      "majorVersionPrecedent": "Methodology V3 was a new major version because a FROZEN, DEFINED value (ACQUISITION_RESERVE_ORGANISATIONS = 40) was changed materially and Generation 2 \"cannot honestly be called another execution of unchanged V2 R3\"; it came with a new generation id (METHODOLOGY_V3_GEN2: major version + generation ordinal) because it opened a new acquisition generation.",
+      "r3Sd12Precedent": "R3 SD12 reserves \"a new methodology generation, not an amendment\" for a change of ESTIMAND (adopting weights).",
+      "postFreezeAmendmentPrecedent": "the V3 host-confounded revalidation change was an ADDITIVE METHODOLOGY_AMENDMENT_PROPOSAL plus a separate METHODOLOGY_AMENDMENT_OWNER_APPROVAL, with the frozen proposal bytes left untouched.",
+      "ownerVocabulary": "the three short-text owner records each list \"R4\" (with METHODOLOGY_AMENDMENT) as what a change of this kind would be."
+    },
+    "rationale": "Option A changes no defined value, no population, no estimand and no acquisition generation, so a new major version or a new generation id would misdescribe it - a new generation id would wrongly imply a new acquisition cohort. It IS a methodology amendment (it decides a semantic question R3 left open), so it cannot be another operational owner record. \"R4\" in the additive form is the honest label: R3 bytes are never edited, the R4 record states only the amended clause, and it becomes operative only through a separate owner approval of its exact bytes.",
+    "crossGenerationRequirement": "Methodology V3 inherits R3 by exact SHA-256 and applies it \"UNCHANGED, except the amendments listed\". An R4 that named only V2 would leave Generation-2-carried slots of the same 110-slot cohort under the old SD7 branch. The R4 approval must therefore state explicitly that the amended SD7 clause applies identically to METHODOLOGY_V2_GEN1 and METHODOLOGY_V3_GEN2 slots. This is a scope statement inside the amendment, not a V3 amendment of reserves or continuity.",
+    "decidedByConvenience": false
+  },
+  "proposedNormativeRule": {
+    "ruleId": "SD7_SHORT_TEXT_EXACT_NORMALISED_TOKEN_SEQUENCE_FALLBACK_V1",
+    "status": "DRAFT_NOT_OPERATIVE",
+    "clauses": [
+      {
+        "id": "N1",
+        "text": "Scope is unchanged: the SD7 near-duplicate relation is evaluated WITHIN ONE ORGANISATION ONLY, over that organisation's distinct documents after exact duplicates are collapsed by documentSha256. No pair spanning two organisations is ever formed."
+      },
+      {
+        "id": "N2",
+        "text": "Canonical token sequence T(d): apply exactly the SD7 normalisation already in force - locale-independent lower-casing, trim, collapse every Unicode whitespace run to one U+0020 - then split on U+0020; an empty normalised text yields the EMPTY sequence (length 0). No stemming, no punctuation stripping, no accent removal, no Unicode canonical normalisation, no language-specific tokenisation."
+      },
+      {
+        "id": "N3",
+        "text": "Shingle-defined branch (|T(a)| >= 5 AND |T(b)| >= 5): unchanged byte-for-byte. The pair is a near duplicate iff |S(a) n S(b)| * 10 >= |S(a) u S(b)| * 9, where S is the set of overlapping 5-token shingles. NEAR_DUPLICATE_SHINGLE_SIZE = 5 and NEAR_DUPLICATE_JACCARD_THRESHOLD = 0.90 at-or-above inclusive are unchanged."
+      },
+      {
+        "id": "N4",
+        "text": "Short-text branch (|T(a)| < 5 OR |T(b)| < 5): the pair is a near duplicate iff T(a) and T(b) have the same length and are element-wise identical as strings; otherwise it is NOT a near duplicate. Because tokens contain no whitespace, this is equivalent to equality of the two normalised texts."
+      },
+      {
+        "id": "N5",
+        "text": "Zero tokens: the empty sequence equals only the empty sequence. Two zero-token documents are near duplicates of each other; a zero-token document is not a near duplicate of any document with one or more tokens. This clause does not change which documents reach SD7: the SD9 extractable-text rule (zero-character rows never enter SD7) is unchanged."
+      },
+      {
+        "id": "N6",
+        "text": "Symmetry: every verdict is symmetric in (a, b). On the short-text branch the relation is an equivalence, so short-text near-duplicate components are cliques; no edge ever joins a short document to a document with five or more tokens."
+      },
+      {
+        "id": "N7",
+        "text": "Survivors: unchanged. The K3 GREEDY_SAMPLE_RANK_SURVIVOR_WALK applies per sample: walk the sample's frozen order earliest to latest and keep a document iff it has no edge to a document already kept - the earlier by that sample's rank survives."
+      },
+      {
+        "id": "N8",
+        "text": "No new numeric parameter: no new threshold, n-gram size, similarity value or eligibility count is introduced. The number 5 continues only to mark where shingle Jaccard is defined."
+      },
+      {
+        "id": "N9",
+        "text": "Meaning: a short-text-branch edge means only \"the same canonical text, counted once for SD7 exclusion\". It is not semantic equivalence, not a class, not a label and not a statement about the organisation."
+      },
+      {
+        "id": "N10",
+        "text": "Flag: under this rule no pair is SD7_SHORT_TEXT_UNRESOLVED. A document with fewer than five canonical tokens remains recorded descriptively (token count, short-text branch) as evidence; it is neither excluded from the pre-SD7 population nor moved in any rank."
+      },
+      {
+        "id": "N11",
+        "text": "Application: one global rule, applied identically to every organisation of the 110-slot cohort, to Generation 1 and Generation 2 slots alike, and to DEV_TRAIN, DEV_CONFIRM and FINAL_HOLDOUT, with no reference to split, label, gold, model output, gate result, class balance or any observed effect of the rule."
+      },
+      {
+        "id": "N12",
+        "text": "Supersession: the rule supersedes, for the short-text branch only, the operational clauses listed in supersessionPlan; every other clause of every earlier record remains binding, and no earlier record is edited."
+      }
+    ],
+    "notSemanticEquivalenceBeyondDuplicateExclusion": true
+  },
+  "supersessionPlan": {
+    "appendOnly": true,
+    "oldRecordsEdited": false,
+    "operativeOnlyAfterSeparateOwnerApproval": true,
+    "sd7ShortTextOwnerDecisionV1": {
+      "remainsHistorical": true,
+      "supersededForTheShortTextBranch": [
+        "short-text documents remain flagged SD7_SHORT_TEXT_UNRESOLVED",
+        "do NOT silently declare them near-duplicates or unique (replaced by an explicit, not silent, global rule)"
+      ],
+      "remainsBinding": [
+        "do NOT invent Jaccard(empty, empty) - Option A assigns no Jaccard value; the canonical jaccard() throw on an empty union stays",
+        "the SD9 finalisation discipline for any residual ambiguity (survivor-order ranges over non-clique measurable components keep using the range rule)",
+        "every A2 SD9 status finalised under it (historical basis of the acquisition of record)"
+      ],
+      "sd9AmbiguityEnvelopeStillNeeded": "for survivor-ORDER ambiguity among measurable documents (SD9 has no sample rank): YES. For short text: its term collapses to an exact count (width 0)."
+    },
+    "shortTextSampleMembershipOwnerPolicyV1": {
+      "remainsHistorical": true,
+      "supersededForTheShortTextBranch": [
+        "clause1 (semantic status remains unresolved)",
+        "clause3 (edgesAddedForShortText = 0; r6GraphRuleChanged = false)",
+        "clause4 (the admissible membership treatment space has no unresolved document left to act on)",
+        "clause16 doesNotAuthorise \"exact normalised-text matching\" - satisfied by this separate review plus a future owner approval, exactly as clause16 requires"
+      ],
+      "remainsBinding": [
+        "clause2 (short documents stay in the pre-SD7 population at their frozen rank)",
+        "clause6 invariant-only materialisation as a general fail-closed discipline",
+        "clause9 and clause10 (no acquisition-status change, no replacement reason)",
+        "clause11 REFUSE_IF_REQUIRED_MEMBERSHIP_BLOCKED for any blocker class",
+        "clause12 (no post-label discretion)"
+      ]
+    },
+    "shortTextReachableMembershipOwnerClarificationV1": {
+      "remainsHistorical": true,
+      "supersededForTheShortTextBranch": [
+        "clause8 forbidden list entries \"a unique verdict\" and \"a near-duplicate verdict\" for short text, and the statement that SD7_SHORT_TEXT_UNRESOLVED \"remains EXACTLY_UNRESOLVED\""
+      ],
+      "remainsBinding": [
+        "clause1 REQUIRED = REACHABLE_SELECTED_CAPPED_MEMBERSHIP",
+        "clause2 full-order evidence preservation",
+        "clause3, clause4 and clause7 for any non-short-text blocker",
+        "clause8 prohibitions of ALWAYS INCLUDE, ALWAYS EXCLUDE, special empty Jaccard, smaller n-gram fallback, character similarity, label- and model-assisted judgement",
+        "clause9 to clause12"
+      ],
+      "becomesMootForTheResolvedBranch": "its short-text-specific blocking role, because no short-text membership can be non-invariant any more"
+    }
+  },
+  "minimalReplayBoundary": {
+    "perOption": {
+      "A": "SD7 graph layer",
+      "B": "SD7 graph layer (short-short-only form); SD7 graph plus SD9 re-adjudication (per-pair form)",
+      "C": "sampling-pool definition (pre-SD7) plus SD9 definition plus an A2 acquisition-semantics governance statement",
+      "D1_alwaysInclude": "sample-survivor preparation layer (graph unchanged)",
+      "D2_alwaysExclude": "sampling-pool definition plus SD9 definition",
+      "E": "every layer, case by case, non-reproducibly"
+    },
+    "recommendedOption": {
+      "earliestInvalidatedLayer": "SD7_GRAPH",
+      "remainValidByByteAndProvenance": [
+        "A2 acquisition outcomes, replacements and both reserve ledgers",
+        "Governance V5 (slot authority / occupancy)",
+        "R38A cross-generation contract",
+        "R39 durable DEV_TRAIN evidence (20 slots)",
+        "R40 canonical document assembly (20 slots): document identities, extracted text and exact-duplicate grouping are untouched by A",
+        "pre-SD7 sample orders: SET_P salted rank and SET_R frozen score order (functions of the documents, not of SD7)"
+      ],
+      "becomeHistoricalForAllTwentySlots": [
+        "SD7 graphs (Governance V4 13-slot history and V5 7-slot increment alike)",
+        "sample-survivor preparations",
+        "reachable membership / initial-cap readiness and mechanical SD9 readiness",
+        "the R44 blocker counts 6 / 4 (historical under R3, not carried forward)"
+      ],
+      "mustBeRecomputedForAllTwentyDevTrainSlots": true,
+      "thirteenPlusSevenSplitReusable": "NO for outputs. The split is a governance-history artefact; reusing any old graph for a slot \"without short text\" would first require looking at which slots have short text, which is data-dependent targeting. One global 20-slot recomputation under the amended rule replaces it. The incremental machinery may be reused as code only if it is re-bound to the amended rule.",
+      "r39EvidenceValid": true,
+      "r40DocumentsValid": true,
+      "governanceV5Valid": true,
+      "a2MustBeReopened": false,
+      "reserveReplayRequired": false,
+      "blockerTargetedRepairAllowed": false
+    }
+  },
+  "futureReplayPlan": {
+    "status": "FUTURE_PLAN_ONLY_NOT_AUTHORISED",
+    "global": true,
+    "blockerTargeted": false,
+    "steps": [
+      "1. owner approves the exact R4 amendment bytes in a separate METHODOLOGY_AMENDMENT_OWNER_APPROVAL record (not created by R45)",
+      "2. separate implementation slice: a NEW versioned canonical pair relation alongside (not replacing) the R3 one; historical graph namespaces stay byte-reproducible",
+      "3. preserve Governance V5, R39 evidence and R40 documents unchanged; re-verify their digests",
+      "4. recompute SD7 graphs under the amended rule for ALL 20 DEV_TRAIN slots in one new namespace",
+      "5. recompute SET_P and SET_R sample-survivor preparation for all 20",
+      "6. recompute reachable membership / initial-cap readiness and SD9 for all 20; assert every SD9 status equals its finalised A2 status and STOP otherwise",
+      "7. reassess DEV_TRAIN corpus-freeze blockers and record the result, whatever it is",
+      "8. only then, under separate authority, consider DEV_CONFIRM / FINAL_HOLDOUT A3 work under the same amended rule"
+    ]
+  },
+  "expectedImplementationImpact": {
+    "status": "NAMED_ONLY_NOT_AUTHORISED_NOT_WRITTEN",
+    "likelySurfaces": [
+      "src/test/harness/phase2b2d/sd7/: a NEW versioned pair relation next to measureNearDuplicateGraph (for example a separate module or a separately named function); nearDuplicatePairs.ts, jaccard.ts and normaliseText.ts stay byte-identical so the R3 relation and every historical graph remain reproducible",
+      "sd7/sd7Contract.ts or a new contract module: an R4 rule-version token and the binding to the future owner approval",
+      "canonical SD7 unit tests for N1-N12 on invented inputs",
+      "a3prep/sd7.ts survivor walk and a3prep/setPSd7.ts / setRSd7*.ts: consume a graph with no unresolved positions (the walk itself is unchanged)",
+      "a3prep/contracts.ts: bind the R4 approval",
+      "new methodology-specific graph / sample / readiness namespaces for the replay"
+    ],
+    "historicalNamespacesImmutable": [
+      "a3graphs",
+      "a3graphsV2",
+      "a3graphsV4",
+      "a3graphsV5",
+      "a3samples*",
+      "a3readiness*"
+    ],
+    "nothingEditedInR45": true
+  },
+  "noBlockerClearanceClaim": {
+    "claimThatBlockersBecomeZero": false,
+    "statement": "The recommended rule makes short-text treatment deterministic and therefore removes the CURRENT TYPE of semantic undefinedness by construction: no SD7_SHORT_TEXT_UNRESOLVED position can arise, so no membership can be BLOCKED for that reason. The actual recomputed graph, sample and freeze result remains UNSEEN until after owner approval and implementation.",
+    "otherBlockerClassesThatCouldStillArise": [
+      "an exact-duplicate group whose members extracted to divergent text (existing STOP)",
+      "an order-audit component above MAX_COMPONENT_SIZE_FOR_EXACT_ORDER_AUDIT = 20: the existing audit marks such a component UNAUDITABLE even when it is a clique, so an implementation must either treat short-text equivalence classes as cliques analytically (exactly one survivor) or record this as a residual blocker class",
+      "SD4 organisation gate-share truncation records",
+      "SD5 / SD6 post-label minimum-count refusals (gold UNIT_PAGE >= 100 in SET_R, hard negatives >= 155 in SET_P)",
+      "K4 readiness for DEV_CONFIRM and FINAL_HOLDOUT",
+      "any SET_R score-order readiness defect",
+      "the complete-corpus structural requirement (110 slots) that R44 recorded"
+    ]
+  },
+  "antiPostHocAnalysis": {
+    "seenBeforeThisReview": [
+      "that an operational short-text edge case exists (since A3a)",
+      "the aggregate blocker counts 6 / 4"
+    ],
+    "notSeen": [
+      "A4 labels",
+      "gold",
+      "any candidate evaluation",
+      "DEV_CONFIRM evidence",
+      "FINAL_HOLDOUT evidence",
+      "which slots or documents are blocked",
+      "the effect of any option"
+    ],
+    "whatMakesItDefensibleNow": [
+      "the amendment closes a gap R3 itself left undefined (0/0), identified in A3a before any sampling, and repeatedly recorded as open by the owner",
+      "the choice is made from the methodology text and code, before labels, and without measuring any option's effect",
+      "the rule is global and applies to every split, including the sealed ones, before they are opened",
+      "the recommended rule agrees with R3 on every pair R3 defines, so it cannot have been tuned to move any defined verdict",
+      "A2 outcomes are provably invariant, so the change cannot have been chosen to save or drop an organisation"
+    ],
+    "whatWouldMakeItPostHoc": [
+      "choosing between options by running them on the 20 DEV_TRAIN slots and keeping the one that clears 6 / 4",
+      "applying a rule only to the blocked slots",
+      "choosing after A4 labels, gold or any candidate result exist",
+      "tuning a number (n, a threshold, a token minimum) to the observed corpus",
+      "revising the rule after its effect on membership has been observed"
+    ],
+    "freezeBeforeEffectRequirement": "the exact rule must be frozen by owner approval of exact bytes BEFORE any recomputation observes its effect; if the recomputed result is unwelcome, that is a finding, not a reason to amend again"
+  },
+  "risks": [
+    "identical short pages with DIFFERENT bytes now collapse to one item per organisation; if a site serves one short stub under many URLs, an organisation may have fewer sample-eligible survivors than before (SD9 still provably unchanged)",
+    "equality is strict: a short page differing only by punctuation, accent composition or one token stays distinct (the same strictness SD7 normalisation already has)",
+    "the order-audit size guard (20) could mark a large short-text clique UNAUDITABLE unless the implementation treats cliques analytically",
+    "the recomputed DEV_TRAIN result is unseen; another blocker class may surface",
+    "Generation 2 coverage depends on the explicit cross-generation scope clause in the approval"
+  ],
+  "draftProposal": {
+    "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_R4_SHORT_TEXT_AMENDMENT_PROPOSAL_V1.json",
+    "status": "DRAFT_AWAIT_OWNER_APPROVAL",
+    "authorises": []
+  },
+  "phaseState": {
+    "methodologyAmended": false,
+    "r3Edited": false,
+    "sd7CodeChanged": false,
+    "sd9CodeChanged": false,
+    "acquisitionStatusChanged": false,
+    "reservesConsumed": false,
+    "a2Rerun": false,
+    "a3Rerun": false,
+    "devConfirmOpened": false,
+    "finalHoldoutOpened": false,
+    "labels": false,
+    "gold": false,
+    "providerInference": false,
+    "corpusFrozen": false,
+    "a4Started": false,
+    "a5Started": false,
+    "ownerApprovalCreated": false
+  },
+  "ownerDecisionRequired": "approve or reject the exact R4 draft (option A, classification METHODOLOGY_V2_R4 additive, cross-generation scope) and, separately, authorise or withhold an implementation and global 20-slot DEV_TRAIN replay track",
+  "terminalState": "A3_SHORT_TEXT_METHODOLOGY_AMENDMENT_DESIGNED_AWAIT_OWNER_OPTION_APPROVAL",
+  "nextOwnerQuestion": "R45 recommends SHORT_TEXT_EXACT_NORMALISED_TOKEN_SEQUENCE_FALLBACK (Option A) as the smallest globally deterministic pre-label amendment and classifies it as METHODOLOGY_V2_R4 (an additive amendment of R3 SD7, applying identically to Generation 1 and Generation 2 slots; not a new methodology generation). Do you approve that exact methodology amendment and authorise a separate implementation and global 20-slot DEV_TRAIN replay track?",
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "a correction is a new record that references this one by SHA-256"
+  }
+}

@@ -1,0 +1,265 @@
+{
+  "record": "PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_R4_SHORT_TEXT_AMENDMENT_PROPOSAL_V1",
+  "recordKind": "METHODOLOGY_AMENDMENT_PROPOSAL",
+  "status": "DRAFT_AWAIT_OWNER_APPROVAL",
+  "authorityClass": "NOT_EXECUTION_AUTHORITY",
+  "thisFileAuthorises": [],
+  "notFrozen": true,
+  "notImplementationAuthority": true,
+  "methodologyAmendmentProposed": true,
+  "methodologyAmendmentApproved": false,
+  "isOwnerApproval": false,
+  "publicSafe": true,
+  "version": "METHODOLOGY_V2_R4",
+  "form": "ADDITIVE_AMENDMENT_OF_R3_SD7_SHORT_TEXT_BRANCH",
+  "derivedFrom": {
+    "path": "docs/evaluation/PHASE_2B_2D_A3_R45_SHORT_TEXT_METHODOLOGY_AMENDMENT_OPTIONS_V1.json",
+    "recommendedOption": "A"
+  },
+  "amends": {
+    "methodologyV2ProposalR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306,
+      "readAtCommit": "4fd9ffd469333ba181584d56018c61e9ae119c77",
+      "role": "the frozen methodology text; SD7 lives in sectionE_samplingContract.rules[id=SD7]"
+    },
+    "methodologyV2OwnerFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+      "bytes": 17514,
+      "readAtCommit": "4fd9ffd469333ba181584d56018c61e9ae119c77",
+      "role": "freezes the exact R3 bytes"
+    },
+    "clause": "sectionE_samplingContract.rules[id=SD7] - the branch on which shingle Jaccard is undefined",
+    "r3BytesEdited": false,
+    "everyOtherR3ClauseUnchanged": true
+  },
+  "appliesToGenerations": ["METHODOLOGY_V2_GEN1", "METHODOLOGY_V3_GEN2"],
+  "crossGenerationScope": {
+    "methodologyV3ProposalR1": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_PROPOSAL_R1.json",
+      "sha256": "4bfbfb5f2ec1958b77ecc13ac5a37ba8b21c7ee69a2c07cd6cd9b8fb76a6239d",
+      "bytes": 16594,
+      "readAtCommit": "29d0d486cb268b5431a0fc23eabb064682ec47d9",
+      "role": "Generation 2; inherits R3 by exact SHA-256, \"every R3 section ... applies to Generation 2 UNCHANGED, except the amendments listed\"; V3-A1..A7 touch reserves and continuity only, never SD7",
+      "readFromGitObjectOnly": true
+    },
+    "methodologyV3OwnerFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V3_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "36e8071738e1842ad03a9b51cf5820d58015305191c48490ef515e1cd1c34f9c",
+      "bytes": 12318,
+      "readAtCommit": "29d0d486cb268b5431a0fc23eabb064682ec47d9",
+      "readFromGitObjectOnly": true
+    },
+    "statement": "V3 inherits R3 by exact SHA-256; this amendment states that the amended SD7 clause applies identically to Generation 2 slots. It does not touch V3-A1..A7 or any reserve, continuity or acquisition rule."
+  },
+  "proposedRule": {
+    "ruleId": "SD7_SHORT_TEXT_EXACT_NORMALISED_TOKEN_SEQUENCE_FALLBACK_V1",
+    "status": "DRAFT_NOT_OPERATIVE",
+    "clauses": [
+      {
+        "id": "N1",
+        "text": "Scope is unchanged: the SD7 near-duplicate relation is evaluated WITHIN ONE ORGANISATION ONLY, over that organisation's distinct documents after exact duplicates are collapsed by documentSha256. No pair spanning two organisations is ever formed."
+      },
+      {
+        "id": "N2",
+        "text": "Canonical token sequence T(d): apply exactly the SD7 normalisation already in force - locale-independent lower-casing, trim, collapse every Unicode whitespace run to one U+0020 - then split on U+0020; an empty normalised text yields the EMPTY sequence (length 0). No stemming, no punctuation stripping, no accent removal, no Unicode canonical normalisation, no language-specific tokenisation."
+      },
+      {
+        "id": "N3",
+        "text": "Shingle-defined branch (|T(a)| >= 5 AND |T(b)| >= 5): unchanged byte-for-byte. The pair is a near duplicate iff |S(a) n S(b)| * 10 >= |S(a) u S(b)| * 9, where S is the set of overlapping 5-token shingles. NEAR_DUPLICATE_SHINGLE_SIZE = 5 and NEAR_DUPLICATE_JACCARD_THRESHOLD = 0.90 at-or-above inclusive are unchanged."
+      },
+      {
+        "id": "N4",
+        "text": "Short-text branch (|T(a)| < 5 OR |T(b)| < 5): the pair is a near duplicate iff T(a) and T(b) have the same length and are element-wise identical as strings; otherwise it is NOT a near duplicate. Because tokens contain no whitespace, this is equivalent to equality of the two normalised texts."
+      },
+      {
+        "id": "N5",
+        "text": "Zero tokens: the empty sequence equals only the empty sequence. Two zero-token documents are near duplicates of each other; a zero-token document is not a near duplicate of any document with one or more tokens. This clause does not change which documents reach SD7: the SD9 extractable-text rule (zero-character rows never enter SD7) is unchanged."
+      },
+      {
+        "id": "N6",
+        "text": "Symmetry: every verdict is symmetric in (a, b). On the short-text branch the relation is an equivalence, so short-text near-duplicate components are cliques; no edge ever joins a short document to a document with five or more tokens."
+      },
+      {
+        "id": "N7",
+        "text": "Survivors: unchanged. The K3 GREEDY_SAMPLE_RANK_SURVIVOR_WALK applies per sample: walk the sample's frozen order earliest to latest and keep a document iff it has no edge to a document already kept - the earlier by that sample's rank survives."
+      },
+      {
+        "id": "N8",
+        "text": "No new numeric parameter: no new threshold, n-gram size, similarity value or eligibility count is introduced. The number 5 continues only to mark where shingle Jaccard is defined."
+      },
+      {
+        "id": "N9",
+        "text": "Meaning: a short-text-branch edge means only \"the same canonical text, counted once for SD7 exclusion\". It is not semantic equivalence, not a class, not a label and not a statement about the organisation."
+      },
+      {
+        "id": "N10",
+        "text": "Flag: under this rule no pair is SD7_SHORT_TEXT_UNRESOLVED. A document with fewer than five canonical tokens remains recorded descriptively (token count, short-text branch) as evidence; it is neither excluded from the pre-SD7 population nor moved in any rank."
+      },
+      {
+        "id": "N11",
+        "text": "Application: one global rule, applied identically to every organisation of the 110-slot cohort, to Generation 1 and Generation 2 slots alike, and to DEV_TRAIN, DEV_CONFIRM and FINAL_HOLDOUT, with no reference to split, label, gold, model output, gate result, class balance or any observed effect of the rule."
+      },
+      {
+        "id": "N12",
+        "text": "Supersession: the rule supersedes, for the short-text branch only, the operational clauses listed in supersessionPlan; every other clause of every earlier record remains binding, and no earlier record is edited."
+      }
+    ],
+    "notSemanticEquivalenceBeyondDuplicateExclusion": true
+  },
+  "unchanged": [
+    "NEAR_DUPLICATE_SHINGLE_SIZE = 5",
+    "NEAR_DUPLICATE_JACCARD_THRESHOLD = 0.90 at-or-above inclusive",
+    "within-one-organisation scope",
+    "SD7 normalisation",
+    "exact-duplicate removal by documentSha256",
+    "K3 greedy sample-rank survivor walk",
+    "SD3 population, SET_P salted rank, SET_R frozen score order",
+    "caps 8 / 4 and the 1/10 gate-share cap",
+    "SD9 wording and MIN_PAGES_PER_ORGANISATION = 4",
+    "split assignment",
+    "every gate",
+    "every A2 outcome and both reserve ledgers"
+  ],
+  "sd9InvarianceProof": {
+    "claim": "Under Option A no A2 SD9 status that was finalised under the ratified envelope can change, so A2 outcomes, replacements and the reserve ledger are preserved by construction.",
+    "notation": "per organisation: M = documents with >= 5 canonical tokens, s = number of short documents, [mu_min, mu_max] = range of measurable survivor counts over all survivor orders (unchanged by A, because A adds no edge touching M), q = number of distinct canonical sequences among the short documents (0 if s = 0, else 1 <= q <= s).",
+    "ratifiedEnvelope": "[mu_min, mu_max + s] (short-text owner decision V1; implemented as postSd7CountMin / postSd7CountMax in sd7/pilotAnalysis.ts)",
+    "optionACountRange": "[mu_min + q, mu_max + q], which lies inside [mu_min, mu_max + s]",
+    "therefore": [
+      "finalised SUCCESS (mu_min >= 4) stays SUCCESS",
+      "finalised FAILURE (mu_max + s < 4) stays FAILURE",
+      "Generation 2 adjudication closed with no pending slot, so every A2 status was finalised under this envelope"
+    ],
+    "appliesEquallyToSampleSpecificCounts": true,
+    "replayMustStillAssertIt": "a future replay recomputes every SD9 status and STOPS on any contradiction; a contradiction would indicate an implementation defect, never a replacement reason",
+    "provedWithoutReadingRealData": true
+  },
+  "supersessionPlan": {
+    "appendOnly": true,
+    "oldRecordsEdited": false,
+    "operativeOnlyAfterSeparateOwnerApproval": true,
+    "sd7ShortTextOwnerDecisionV1": {
+      "remainsHistorical": true,
+      "supersededForTheShortTextBranch": [
+        "short-text documents remain flagged SD7_SHORT_TEXT_UNRESOLVED",
+        "do NOT silently declare them near-duplicates or unique (replaced by an explicit, not silent, global rule)"
+      ],
+      "remainsBinding": [
+        "do NOT invent Jaccard(empty, empty) - Option A assigns no Jaccard value; the canonical jaccard() throw on an empty union stays",
+        "the SD9 finalisation discipline for any residual ambiguity (survivor-order ranges over non-clique measurable components keep using the range rule)",
+        "every A2 SD9 status finalised under it (historical basis of the acquisition of record)"
+      ],
+      "sd9AmbiguityEnvelopeStillNeeded": "for survivor-ORDER ambiguity among measurable documents (SD9 has no sample rank): YES. For short text: its term collapses to an exact count (width 0)."
+    },
+    "shortTextSampleMembershipOwnerPolicyV1": {
+      "remainsHistorical": true,
+      "supersededForTheShortTextBranch": [
+        "clause1 (semantic status remains unresolved)",
+        "clause3 (edgesAddedForShortText = 0; r6GraphRuleChanged = false)",
+        "clause4 (the admissible membership treatment space has no unresolved document left to act on)",
+        "clause16 doesNotAuthorise \"exact normalised-text matching\" - satisfied by this separate review plus a future owner approval, exactly as clause16 requires"
+      ],
+      "remainsBinding": [
+        "clause2 (short documents stay in the pre-SD7 population at their frozen rank)",
+        "clause6 invariant-only materialisation as a general fail-closed discipline",
+        "clause9 and clause10 (no acquisition-status change, no replacement reason)",
+        "clause11 REFUSE_IF_REQUIRED_MEMBERSHIP_BLOCKED for any blocker class",
+        "clause12 (no post-label discretion)"
+      ]
+    },
+    "shortTextReachableMembershipOwnerClarificationV1": {
+      "remainsHistorical": true,
+      "supersededForTheShortTextBranch": [
+        "clause8 forbidden list entries \"a unique verdict\" and \"a near-duplicate verdict\" for short text, and the statement that SD7_SHORT_TEXT_UNRESOLVED \"remains EXACTLY_UNRESOLVED\""
+      ],
+      "remainsBinding": [
+        "clause1 REQUIRED = REACHABLE_SELECTED_CAPPED_MEMBERSHIP",
+        "clause2 full-order evidence preservation",
+        "clause3, clause4 and clause7 for any non-short-text blocker",
+        "clause8 prohibitions of ALWAYS INCLUDE, ALWAYS EXCLUDE, special empty Jaccard, smaller n-gram fallback, character similarity, label- and model-assisted judgement",
+        "clause9 to clause12"
+      ],
+      "becomesMootForTheResolvedBranch": "its short-text-specific blocking role, because no short-text membership can be non-invariant any more"
+    }
+  },
+  "minimalReplayBoundary": {
+    "earliestInvalidatedLayer": "SD7_GRAPH",
+    "remainValidByByteAndProvenance": [
+      "A2 acquisition outcomes, replacements and both reserve ledgers",
+      "Governance V5 (slot authority / occupancy)",
+      "R38A cross-generation contract",
+      "R39 durable DEV_TRAIN evidence (20 slots)",
+      "R40 canonical document assembly (20 slots): document identities, extracted text and exact-duplicate grouping are untouched by A",
+      "pre-SD7 sample orders: SET_P salted rank and SET_R frozen score order (functions of the documents, not of SD7)"
+    ],
+    "becomeHistoricalForAllTwentySlots": [
+      "SD7 graphs (Governance V4 13-slot history and V5 7-slot increment alike)",
+      "sample-survivor preparations",
+      "reachable membership / initial-cap readiness and mechanical SD9 readiness",
+      "the R44 blocker counts 6 / 4 (historical under R3, not carried forward)"
+    ],
+    "mustBeRecomputedForAllTwentyDevTrainSlots": true,
+    "thirteenPlusSevenSplitReusable": "NO for outputs. The split is a governance-history artefact; reusing any old graph for a slot \"without short text\" would first require looking at which slots have short text, which is data-dependent targeting. One global 20-slot recomputation under the amended rule replaces it. The incremental machinery may be reused as code only if it is re-bound to the amended rule.",
+    "r39EvidenceValid": true,
+    "r40DocumentsValid": true,
+    "governanceV5Valid": true,
+    "a2MustBeReopened": false,
+    "reserveReplayRequired": false,
+    "blockerTargetedRepairAllowed": false
+  },
+  "futureReplayPlan": {
+    "status": "FUTURE_PLAN_ONLY_NOT_AUTHORISED",
+    "global": true,
+    "blockerTargeted": false,
+    "steps": [
+      "1. owner approves the exact R4 amendment bytes in a separate METHODOLOGY_AMENDMENT_OWNER_APPROVAL record (not created by R45)",
+      "2. separate implementation slice: a NEW versioned canonical pair relation alongside (not replacing) the R3 one; historical graph namespaces stay byte-reproducible",
+      "3. preserve Governance V5, R39 evidence and R40 documents unchanged; re-verify their digests",
+      "4. recompute SD7 graphs under the amended rule for ALL 20 DEV_TRAIN slots in one new namespace",
+      "5. recompute SET_P and SET_R sample-survivor preparation for all 20",
+      "6. recompute reachable membership / initial-cap readiness and SD9 for all 20; assert every SD9 status equals its finalised A2 status and STOP otherwise",
+      "7. reassess DEV_TRAIN corpus-freeze blockers and record the result, whatever it is",
+      "8. only then, under separate authority, consider DEV_CONFIRM / FINAL_HOLDOUT A3 work under the same amended rule"
+    ]
+  },
+  "noBlockerClearanceClaim": {
+    "claimThatBlockersBecomeZero": false,
+    "statement": "The recommended rule makes short-text treatment deterministic and therefore removes the CURRENT TYPE of semantic undefinedness by construction: no SD7_SHORT_TEXT_UNRESOLVED position can arise, so no membership can be BLOCKED for that reason. The actual recomputed graph, sample and freeze result remains UNSEEN until after owner approval and implementation.",
+    "otherBlockerClassesThatCouldStillArise": [
+      "an exact-duplicate group whose members extracted to divergent text (existing STOP)",
+      "an order-audit component above MAX_COMPONENT_SIZE_FOR_EXACT_ORDER_AUDIT = 20: the existing audit marks such a component UNAUDITABLE even when it is a clique, so an implementation must either treat short-text equivalence classes as cliques analytically (exactly one survivor) or record this as a residual blocker class",
+      "SD4 organisation gate-share truncation records",
+      "SD5 / SD6 post-label minimum-count refusals (gold UNIT_PAGE >= 100 in SET_R, hard negatives >= 155 in SET_P)",
+      "K4 readiness for DEV_CONFIRM and FINAL_HOLDOUT",
+      "any SET_R score-order readiness defect",
+      "the complete-corpus structural requirement (110 slots) that R44 recorded"
+    ]
+  },
+  "approvalWouldRequire": [
+    "a separate METHODOLOGY_AMENDMENT_OWNER_APPROVAL record naming this file's exact SHA-256",
+    "an explicit statement that the amendment applies to METHODOLOGY_V2_GEN1 and METHODOLOGY_V3_GEN2 slots alike",
+    "a separate, explicit authority for any implementation or replay"
+  ],
+  "explicitNonAuthorisations": [
+    "methodology amendment",
+    "implementation",
+    "replay",
+    "SD7 or SD9 code change",
+    "acquisition",
+    "reserve consumption",
+    "DEV_CONFIRM or FINAL_HOLDOUT access",
+    "labels",
+    "gold",
+    "provider inference",
+    "corpus freeze",
+    "A4",
+    "A5"
+  ],
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "a revision is a new record that references this one by SHA-256"
+  }
+}
