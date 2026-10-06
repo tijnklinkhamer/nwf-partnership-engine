@@ -1,0 +1,336 @@
+{
+  "record": "PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_R4_SHORT_TEXT_AMENDMENT_OWNER_APPROVAL_V1",
+  "recordKind": "OWNER_METHODOLOGY_AMENDMENT_APPROVAL",
+  "task": "A3_R46_METHODOLOGY_V2_R4_SHORT_TEXT_OWNER_APPROVAL_V1",
+  "recordedAtUtc": "2026-10-06T13:00:59Z",
+  "recordedBy": "claude-code-session under explicit owner instruction; the approval itself is the owner's",
+  "publicSafe": true,
+  "approvalAndGovernanceOnly": true,
+
+  "ownerDecisions": [
+    {
+      "marker": "APPROVE_PHASE_2B_2D_METHODOLOGY_V2_R4_SHORT_TEXT_AMENDMENT_EXACT_BYTES",
+      "meaning": "freezes the exact R45 Methodology V2 R4 short-text amendment proposal bytes bound in approvedProposal"
+    },
+    {
+      "marker": "AUTHORISE_A3_R47_SHORT_TEXT_R4_IMPLEMENTATION_AND_GLOBAL_DEV_TRAIN_REPLAY",
+      "meaning": "authorises ONLY the separate, later R47 implementation and global twenty-slot DEV_TRAIN replay bounded in r47Authority; it authorises no implementation inside R46"
+    }
+  ],
+
+  "r45Source": {
+    "r45Terminal": "65bde0c033ff89c2ee98aa44880b8600ab0da11f",
+    "r45TerminalState": "A3_SHORT_TEXT_METHODOLOGY_AMENDMENT_DESIGNED_AWAIT_OWNER_OPTION_APPROVAL",
+    "r44Terminal": "4fd9ffd469333ba181584d56018c61e9ae119c77",
+    "r45ChainAboveR44": [
+      {
+        "commit": "f57d10350a46a4e960d2a6b8d2aaf26230e17790",
+        "role": "freeze R44 isolation scope"
+      },
+      {
+        "commit": "e82ea71523f53bbbc6d1421bc72940084ffa692b",
+        "role": "short-text amendment design boundary"
+      },
+      {
+        "commit": "254edfb4b7b71ca66c070c3da3d0cdf5037f3cf5",
+        "role": "options / draft R4 / audit"
+      },
+      {
+        "commit": "65bde0c033ff89c2ee98aa44880b8600ab0da11f",
+        "role": "authorised historical R44 scope-pin repair + green revalidation"
+      }
+    ],
+    "singleParentAncestry": true,
+    "repairedR45IsTheApprovedSource": true
+  },
+
+  "approvedProposal": {
+    "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_R4_SHORT_TEXT_AMENDMENT_PROPOSAL_V1.json",
+    "sha256": "5ebcc562e72f509e2b664f3ae800dc2043142d5d4a6ec1ec4d2958b8abab1d20",
+    "bytes": 16628,
+    "sourceCommit": "65bde0c033ff89c2ee98aa44880b8600ab0da11f",
+    "statusInsideTheBytes": "DRAFT_AWAIT_OWNER_APPROVAL",
+    "thisFileAuthorisesInsideTheBytes": [],
+    "notFrozenInsideTheBytes": true,
+    "notImplementationAuthorityInsideTheBytes": true,
+    "bytesNeverChangeOnApproval": true,
+    "statement": "The proposal bytes do NOT change on approval. Its status, thisFileAuthorises, notFrozen and notImplementationAuthority fields are historical statements inside the reviewed bytes. Exactly as with the R3 owner-freeze approval, approval is expressed by this separate immutable record, so that the approved bytes stay byte-identical to the bytes that were reviewed."
+  },
+  "boundDesignRecords": {
+    "options": {
+      "path": "docs/evaluation/PHASE_2B_2D_A3_R45_SHORT_TEXT_METHODOLOGY_AMENDMENT_OPTIONS_V1.json",
+      "sha256": "8db1a3f9505a796dbb1e7c313dc74cbc3e84f24eb6298c9bc92afa636a2f2ec6",
+      "bytes": 64568,
+      "sourceCommit": "65bde0c033ff89c2ee98aa44880b8600ab0da11f",
+      "recommendedOption": "A"
+    },
+    "audit": {
+      "path": "docs/audits/PHASE_2B_2D_A3_R45_SHORT_TEXT_METHODOLOGY_AMENDMENT_DESIGN_V1.md",
+      "sha256": "8900582d737e30688fd5b9f5378ce1bbdf772098e3222ac80730813905dc86d9",
+      "bytes": 14466,
+      "sourceCommit": "65bde0c033ff89c2ee98aa44880b8600ab0da11f"
+    },
+    "noneEditedOnApproval": true
+  },
+
+  "approvedOption": {
+    "id": "A",
+    "token": "SHORT_TEXT_EXACT_NORMALISED_TOKEN_SEQUENCE_FALLBACK",
+    "ruleId": "SD7_SHORT_TEXT_EXACT_NORMALISED_TOKEN_SEQUENCE_FALLBACK_V1",
+    "normativeTextIsTheProposalBytes": "The operative clauses are proposedRule.clauses N1..N12 inside the approved proposal bytes. The summary below restates them for the reader and does not replace them; on any divergence the approved bytes govern.",
+    "summary": {
+      "canonicalTokenSequence": "T(d) under the SD7 normalisation already in force; unchanged",
+      "existingBranch": {
+        "when": "|T(a)| >= 5 AND |T(b)| >= 5",
+        "rule": "unchanged R3: overlapping token 5-grams, within one organisation only, Jaccard at or above 0.90 by exact integer comparison, unchanged K3 survivor semantics"
+      },
+      "r4Branch": {
+        "when": "|T(a)| < 5 OR |T(b)| < 5",
+        "rule": "near duplicate IFF the complete canonical normalised token sequences are element-wise exactly equal; otherwise NOT near duplicate"
+      },
+      "consequences": [
+        "empty vs empty: near duplicate",
+        "empty vs non-empty: not near duplicate",
+        "identical 1-4 token sequences: near duplicate",
+        "non-identical 1-4 token sequences: not near duplicate",
+        "short vs >=5-token sequence: not near duplicate"
+      ],
+      "introducesNone": [
+        "smaller n-gram",
+        "character similarity",
+        "edit distance",
+        "special Jaccard value",
+        "semantic model",
+        "human decision",
+        "label",
+        "new numeric threshold"
+      ]
+    },
+    "optionComparisonReopened": false
+  },
+
+  "approvedClassification": {
+    "version": "METHODOLOGY_V2_R4",
+    "form": "ADDITIVE_AMENDMENT_OF_R3_SD7_SHORT_TEXT_BRANCH",
+    "isNewMethodologyGeneration": false,
+    "reasons": [
+      "document population unchanged",
+      "SET_P rank unchanged",
+      "SET_R rank unchanged",
+      "split assignment unchanged",
+      "caps unchanged",
+      "SD9 wording unchanged",
+      "scoring gates unchanged",
+      ">=5-token SD7 relation unchanged",
+      "only the previously undefined short-text relation receives a deterministic globally frozen rule",
+      "no new numerical parameter"
+    ]
+  },
+
+  "crossGenerationScope": {
+    "appliesToGenerations": ["METHODOLOGY_V2_GEN1", "METHODOLOGY_V3_GEN2"],
+    "appliesIdenticallyToBoth": true,
+    "reason": "Methodology V3 Generation 2 inherited R3 by exact SHA-256 and its own amendments V3-A1..A7 did not change SD7; R4 therefore updates the inherited SD7 short-text rule for both generations.",
+    "methodologyV3ProposalR1Sha256": "4bfbfb5f2ec1958b77ecc13ac5a37ba8b21c7ee69a2c07cd6cd9b8fb76a6239d",
+    "methodologyV3OwnerFreezeApprovalSha256": "36e8071738e1842ad03a9b51cf5820d58015305191c48490ef515e1cd1c34f9c",
+    "methodologyV3BytesReadAtCommit": "29d0d486cb268b5431a0fc23eabb064682ec47d9",
+    "scopeKind": "CORPUS_METHODOLOGY_NOT_ACQUISITION_GOVERNANCE",
+    "unaltered": [
+      "V3-A1..A7",
+      "reserve semantics",
+      "resolution generation",
+      "acquisition generation",
+      "occupancy",
+      "continuity",
+      "Governance V5"
+    ]
+  },
+
+  "historicalBytesUnchanged": {
+    "methodologyV2ProposalR3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33",
+      "bytes": 142306
+    },
+    "methodologyV2OwnerFreezeApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e",
+      "bytes": 17514
+    },
+    "sd7ShortTextOwnerDecisionV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHOD_V2_SD7_SHORT_TEXT_OWNER_DECISION_V1.json",
+      "sha256": "2f41f495322eceae3b675cbe1d227115f3b4292d6e3a711879793af33b466fff",
+      "bytes": 7584
+    },
+    "shortTextSampleMembershipOwnerPolicyV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_A3_SD7_SHORT_TEXT_SAMPLE_MEMBERSHIP_OWNER_POLICY_V1.json",
+      "sha256": "b734805bbaddc6890dc7032179b4a639a69a790282923b41641710a060b3d05a",
+      "bytes": 19924
+    },
+    "shortTextReachableMembershipOwnerClarificationV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_A3_SHORT_TEXT_REACHABLE_MEMBERSHIP_OWNER_CLARIFICATION_V1.json",
+      "sha256": "0d6ddaa6dcc70912e3e19d7cb245fbe7b241dff6c671d874cbd1cd50ec33b49a",
+      "bytes": 19416
+    },
+    "r44DevTrainCorpusFreezeBlockerClosure": {
+      "path": "docs/evaluation/PHASE_2B_2D_A3_R44_DEV_TRAIN_CORPUS_FREEZE_BLOCKER_CLOSURE_V1.json",
+      "sha256": "3d17e40cca4a386052cfafe70d69fe34aa41294263febfb82c56d4c8a3c8dafe",
+      "bytes": 11199
+    },
+    "r3BytesEdited": false,
+    "r3OwnerFreezeApprovalEdited": false,
+    "priorShortTextRecordsEdited": false
+  },
+
+  "supersession": {
+    "appendOnly": true,
+    "priorRecordsEdited": false,
+    "approvesR45SupersessionPlanExactly": "supersessionPlan inside the approved proposal bytes",
+    "priorShortTextRecordsRemainHistoricalAuthority": "each remains immutable historical authority for the period in which it governed",
+    "r4SupersedesOnly": "the short-text-undefined branch of each prior record, exactly where R45 identified the conflict",
+    "everyClauseR45MarkedRemainsBindingIsPreserved": true,
+    "explicitlyStillBinding": [
+      "no invented Jaccard(empty, empty)",
+      "REQUIRED membership remains REACHABLE_SELECTED_CAPPED_MEMBERSHIP",
+      "corpus freeze still refuses any genuinely blocked REQUIRED membership",
+      "no post-label discretion",
+      "always-include remains forbidden",
+      "always-exclude remains forbidden",
+      "smaller n-gram fallback remains forbidden",
+      "character-similarity fallback remains forbidden",
+      "human, label or model-assisted resolution remains forbidden",
+      "no acquisition-status or replacement effect is created merely by this amendment"
+    ]
+  },
+
+  "a2AndGovernanceBoundary": {
+    "a2AcquisitionOutcomesRemainAcquisitionOfRecord": true,
+    "thisApprovalDoesNot": [
+      "reopen A2",
+      "adjudicate an A2 slot",
+      "alter an acquisition-success token",
+      "alter a replacement",
+      "consume a reserve",
+      "rewrite either reserve ledger",
+      "mint Governance V6",
+      "alter Governance V5"
+    ],
+    "boundExpectedConsequence": "R45's non-real-data SD9 invariance argument (sd9InvarianceProof inside the approved proposal bytes) is approved as the expected consequence.",
+    "r47MustMechanicallyRecheckSd9Invariance": true,
+    "onContradiction": "R47 STOPS. An implementation contradiction is not authority to mutate A2."
+  },
+
+  "replayBoundary": {
+    "approvesR45MinimalReplayBoundary": true,
+    "earliestInvalidatedLayer": "SD7_GRAPH",
+    "remainCanonicalAndReusable": [
+      "A2 acquisition outcomes",
+      "replacement history",
+      "reserve ledgers",
+      "Governance V5",
+      "R38A cross-generation authority",
+      "R39 durable evidence",
+      "R40 canonical document assembly",
+      "pre-SD7 SET_P rank",
+      "pre-SD7 SET_R rank"
+    ],
+    "becomeHistoricalUnderR3AndMustNotBeReusedAsCurrentR4Results": [
+      "all twenty DEV_TRAIN SD7 graphs",
+      "all twenty sample-survivor preparations",
+      "all twenty reachable-membership / readiness results",
+      "the R44 6 SET_P / 4 SET_R blocker counts"
+    ],
+    "devTrainSlotsToRecompute": 20,
+    "globalRecomputationRequired": true,
+    "notOnlyAnySubset": [
+      "the former 7 V5-delta slots",
+      "the former 13 historical slots",
+      "the former 6 SET_P blocked slots",
+      "the former 4 SET_R blocked slots"
+    ],
+    "blockerTargetedReplayAuthorised": false
+  },
+
+  "r47Authority": {
+    "marker": "AUTHORISE_A3_R47_SHORT_TEXT_R4_IMPLEMENTATION_AND_GLOBAL_DEV_TRAIN_REPLAY",
+    "authorised": true,
+    "executedInR46": false,
+    "separateFromThisApproval": true,
+    "mayLater": [
+      "add a NEW VERSIONED canonical R4 SD7 relation",
+      "preserve the historical R3 implementation and historical namespaces byte-for-byte",
+      "bind this exact R46 approval",
+      "reproduce Governance V5 / R39 / R40",
+      "use the exact canonical R40 document authority for all twenty DEV_TRAIN slots",
+      "compute amended SD7 graphs for all twenty",
+      "compute new SET_P / SET_R survivor preparations for all twenty",
+      "compute new reachable membership and mechanical SD9 for all twenty",
+      "mechanically assert SD9 / A2 invariance",
+      "derive new DEV_TRAIN freeze-blocker aggregates",
+      "report whatever result actually occurs"
+    ],
+    "mayNot": [
+      "open DEV_CONFIRM",
+      "open FINAL_HOLDOUT",
+      "use labels or gold",
+      "run provider inference",
+      "freeze corpus",
+      "start A4",
+      "start A5",
+      "alter A2 on any replay discrepancy",
+      "perform blocker-targeted repair"
+    ],
+    "stopsBefore": ["DEV_CONFIRM", "FINAL_HOLDOUT", "A4", "A5"]
+  },
+
+  "noFutureResultClaim": {
+    "claimsSetPBlockersBecomeZero": false,
+    "claimsSetRBlockersBecomeZero": false,
+    "claimsCorpusFreezeWillClear": false,
+    "claimsA4WillBecomeAuthorised": false,
+    "statement": "The approved rule eliminates the current TYPE of short-text undefined relation by construction. Actual R4 graph, sample, readiness and freeze results remain unseen until R47. A new blocker exposed by the replay is a finding; R4 is not to be amended merely because an outcome is inconvenient."
+  },
+
+  "historicalAggregatesCitedOnly": {
+    "devTrainSlots": 20,
+    "r44SetPBlockers": 6,
+    "r44SetRBlockers": 4,
+    "r44MechanicalSd9Success": "20/20",
+    "newCorpusObservationInR46": false
+  },
+
+  "authorityFlags": {
+    "methodologyR4Approved": true,
+    "methodologyR4Frozen": true,
+    "r47ImplementationReplayAuthorised": true,
+    "r47Executed": false,
+    "sd7RuntimeChanged": false,
+    "a3ReplayPerformed": false,
+    "devConfirmAccessAuthorised": false,
+    "finalHoldoutAccessAuthorised": false,
+    "a4Authorised": false,
+    "a5FreezeAuthorised": false,
+    "labelsAuthorised": false,
+    "providerInferenceAuthorised": false,
+    "a2Reopened": false
+  },
+
+  "r46Performed": {
+    "liveExecution": false,
+    "databaseAccess": false,
+    "networkAccess": false,
+    "providerAccess": false,
+    "sealedSplitAccess": false,
+    "corpusReplay": false,
+    "semanticCodeChanged": false,
+    "approvalIsNotImplementation": true
+  },
+
+  "terminalState": "A3_METHODOLOGY_V2_R4_SHORT_TEXT_AMENDMENT_APPROVED_R47_GLOBAL_DEV_TRAIN_REPLAY_AUTHORISED",
+  "nextAction": "R47 implementation + global twenty-slot DEV_TRAIN replay, as a separate slice",
+
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW record that references this one by SHA-256. This file is never rewritten, re-hashed or re-statused."
+  }
+}
