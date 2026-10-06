@@ -30,6 +30,11 @@ const R44_TERMINAL = '4fd9ffd469333ba181584d56018c61e9ae119c77';
 const R44_SCOPE_PIN_COMMIT = 'f57d10350a46a4e960d2a6b8d2aaf26230e17790';
 const R44_ISOLATION_TEST =
   'src/test/unit/orgunitCorpus2DA3DevTrainFreezeBlockerClosureIsolation.test.ts';
+/**
+ * The one other historical R44 test R45 may touch: its owner-record
+ * enumeration was pinned from HEAD to R44_TERMINAL by owner-authorised repair.
+ */
+const R44_BLOCKER_TEST = 'src/test/unit/orgunitCorpus2DA3DevTrainFreezeBlockerClosure.test.ts';
 /** The terminal A2 checkpoint; never an A3 ancestor. */
 const A2_CHECKPOINT = '29d0d486cb268b5431a0fc23eabb064682ec47d9';
 
@@ -226,6 +231,7 @@ describe.skipIf(!baseAvailable)('2D-A3 R45: lineage and changed surface', () => 
   it('changes nothing outside the R44 scope pin, its tests, its two records and its audit', () => {
     const permitted = (path: string): boolean =>
       path === R44_ISOLATION_TEST ||
+      path === R44_BLOCKER_TEST ||
       R45_TESTS.includes(path) ||
       R45_RECORDS.includes(path) ||
       path === R45_AUDIT;

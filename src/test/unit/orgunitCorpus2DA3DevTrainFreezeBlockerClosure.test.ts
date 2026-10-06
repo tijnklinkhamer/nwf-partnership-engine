@@ -74,6 +74,13 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 
 /** The exact R43 tip R44 was cut from. */
 const R43_TERMINAL = 'f84ea09031d460b28c9386e1d6cd7fb56d4569ab';
+/**
+ * R44'S OWN TERMINAL COMMIT. The owner-record enumeration below is a statement
+ * about R44's tree - "at R44 terminal no later owner record resolved short-text
+ * membership" - so it reads that tree, not HEAD. Later slices' records must not
+ * falsify a historical statement; the expected set is unchanged.
+ */
+const R44_TERMINAL = '4fd9ffd469333ba181584d56018c61e9ae119c77';
 const R43_RECORD_PATH =
   'docs/evaluation/PHASE_2B_2D_A3_R43_DEV_TRAIN_INCREMENTAL_REACHABLE_MEMBERSHIP_SD9_CENSUS_V1.json';
 const R43_RECORD_SHA256 = 'a152885fecd8fa7e215d44cb6c0dfc73f1a04e1c23f38bca974a27d94618cba3';
@@ -482,7 +489,14 @@ describe.skipIf(!r43Available)('2D-A3 R44: required-membership blockers', () => 
   });
 
   it('no committed owner record after the clarification resolves short-text membership', () => {
-    const shortTextRecords = git('ls-tree', '-r', '--name-only', 'HEAD', '--', 'docs/evaluation')
+    const shortTextRecords = git(
+      'ls-tree',
+      '-r',
+      '--name-only',
+      R44_TERMINAL,
+      '--',
+      'docs/evaluation',
+    )
       .split('\n')
       .filter((path) => /SHORT_TEXT/.test(path));
     expect(shortTextRecords.sort()).toEqual(
