@@ -20,6 +20,18 @@
  *
  * The production runner factories are referred to by CONSTRUCTED names
  * only: `phase2b.firewall.test.ts` forbids any test from spelling them.
+ *
+ * FROZEN AT THE ENTRY-POINT TERMINAL. The entry-point slice is closed: every
+ * lineage, changed-surface, router-diff, orchestrate/persist diff, migration,
+ * docs and record assertion below is evaluated over the exact range
+ * RECONCILIATION_TERMINAL..CLASSIFIER_OPERATOR_ENTRY_POINT_TERMINAL (and file
+ * bodies at that exact tree), never over HEAD or the working tree, so a later,
+ * separately authorised slice (the classifier operator read models first) is
+ * never judged against this slice's own authorised surface, and this slice is
+ * never made retrospectively to contain anything that landed after it. The
+ * behavioural sections (A-E) still exercise the live execution action,
+ * because a behaviour cannot be read out of a git tree and the action itself
+ * must stay exactly as accepted.
  */
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
@@ -51,6 +63,14 @@ import { FETCH_POLICY_VERSION } from '../../orgunits/web/policy.js';
 
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const RECONCILIATION_TERMINAL = '3390f61f44f65513ca6b71969b528591f3978e49';
+const CLASSIFIER_OPERATOR_ENTRY_POINT_TERMINAL = '2b9d0d9c94bda00bbe88758b2c207ecadc300934';
+/** The four entry-point commits above the reconciliation terminal, oldest first. */
+const ENTRY_POINT_COMMITS = [
+  '900f45c37311fdbd4eb6bae3f7038a16104cbf84',
+  '9f4734f814671be6d141101c279da0e32c5a469b',
+  '20b3829922ec2836f214c724175963148c875e18',
+  CLASSIFIER_OPERATOR_ENTRY_POINT_TERMINAL,
+];
 const R52_TERMINAL = 'b1dfd82542e7dfb749d5c36063ea750647428a12';
 const RECONCILIATION_TEST = 'src/test/unit/engineRuntimeLineageReconciliationV1.test.ts';
 const THIS_TEST = 'src/test/unit/classifierOperatorEntryPointV1.test.ts';
@@ -124,17 +144,18 @@ const code = (path: string): string =>
     .replace(/\/\*[\s\S]*?\*\//g, '')
     .replace(/(^|[^:'"`])\/\/.*$/gm, '$1');
 
-const terminalAvailable = commitExists(RECONCILIATION_TERMINAL);
-const recordsPresent = [RECORD, AUDIT].every((p) => existsSync(join(REPO_ROOT, p)));
+const T = CLASSIFIER_OPERATOR_ENTRY_POINT_TERMINAL;
+/** A file's exact text at the entry-point terminal tree - never the working tree. */
+const atTerminal = (path: string): string => git('show', `${T}:${path}`);
+const existsAtTerminal = (path: string): boolean =>
+  git('ls-tree', '--name-only', T, '--', path).trim() === path;
 
-/** Every path changed since the reconciliation terminal, committed or not. */
-function changedSinceTerminal(): string[] {
-  return [
-    ...new Set([
-      ...lines(git('diff', '--name-only', RECONCILIATION_TERMINAL)),
-      ...lines(git('ls-files', '--others', '--exclude-standard')),
-    ]),
-  ];
+const terminalAvailable = commitExists(RECONCILIATION_TERMINAL) && commitExists(T);
+const recordsPresent = terminalAvailable && [RECORD, AUDIT].every(existsAtTerminal);
+
+/** The entry-point slice's exact changed surface: RECONCILIATION_TERMINAL..T, never HEAD. */
+function changedInEntryPoint(): string[] {
+  return lines(git('diff', '--name-only', RECONCILIATION_TERMINAL, T));
 }
 
 interface Spy {
@@ -346,7 +367,7 @@ describe('classifier operator entry point: one identity implementation', () => {
   });
 
   it.skipIf(!terminalAvailable)(
-    'orchestrate.ts equals its reconciliation-terminal bytes with ONLY the inline identity block replaced by the shared helper',
+    'orchestrate.ts at the entry-point terminal equals its reconciliation-terminal bytes with ONLY the inline identity block replaced by the shared helper',
     () => {
       const before = git('show', `${RECONCILIATION_TERMINAL}:src/orgunits/classify/orchestrate.ts`);
       const replacements: [string, string][] = [
@@ -384,15 +405,15 @@ describe('classifier operator entry point: one identity implementation', () => {
         expect(expected.split(from), from).toHaveLength(2);
         expected = expected.replace(from, to);
       }
-      expect(read('src/orgunits/classify/orchestrate.ts')).toBe(expected);
+      expect(atTerminal('src/orgunits/classify/orchestrate.ts')).toBe(expected);
     },
   );
 
   it.skipIf(!terminalAvailable)(
-    'persist.ts only GAINED a read: no line was removed or rewritten',
+    'persist.ts only GAINED a read in the entry-point slice: no line was removed or rewritten',
     () => {
       const diff = lines(
-        git('diff', '-U0', RECONCILIATION_TERMINAL, '--', 'src/orgunits/classify/persist.ts'),
+        git('diff', '-U0', RECONCILIATION_TERMINAL, T, '--', 'src/orgunits/classify/persist.ts'),
       ).filter((l) => /^[+-][^+-]/.test(l));
       expect(diff.filter((l) => l.startsWith('-'))).toEqual([]);
       const added = diff.join('\n');
@@ -515,27 +536,60 @@ describe('classifier operator entry point: production wiring', () => {
     }
   });
 
-  it('routes `orgunits classify` with exactly the three new options, and keeps every older command', () => {
-    const index = read(CLI_INDEX);
-    expect(index).toContain('nwf-pe orgunits classify    --organisation-id <uuid> --run-id <uuid>');
-    for (const option of [
-      "'run-id': { type: 'string' }",
-      "model: { type: 'string' }",
-      "attempt: { type: 'string' }",
-    ]) {
-      expect(index).toContain(option);
-    }
-    expect(index).toContain("if (group === 'orgunits' && sub === 'classify')");
-    expect(index).toContain("if (group === 'orgunits' && sub === 'discover')");
-    expect(index).toContain('strict: true');
-  });
+  it.skipIf(!terminalAvailable)(
+    'at the entry-point terminal, routed `orgunits classify` with exactly the three new options, and kept every older command',
+    () => {
+      const index = atTerminal(CLI_INDEX);
+      expect(index).toContain(
+        'nwf-pe orgunits classify    --organisation-id <uuid> --run-id <uuid>',
+      );
+      for (const option of [
+        "'run-id': { type: 'string' }",
+        "model: { type: 'string' }",
+        "attempt: { type: 'string' }",
+      ]) {
+        expect(index).toContain(option);
+      }
+      expect(index).toContain("if (group === 'orgunits' && sub === 'classify')");
+      expect(index).toContain("if (group === 'orgunits' && sub === 'discover')");
+      expect(index).toContain('strict: true');
+      const added = lines(git('diff', '-U0', RECONCILIATION_TERMINAL, T, '--', CLI_INDEX))
+        .filter((l) => /^\+[^+]/.test(l))
+        .join('\n');
+      expect(added.match(/^\+\s+'?[\w-]+'?: \{ type: '(string|boolean)'/gm)).toEqual([
+        "+      'run-id': { type: 'string'",
+        "+      model: { type: 'string'",
+        "+      attempt: { type: 'string'",
+      ]);
+    },
+  );
 
-  it.skipIf(!terminalAvailable)('the router diff is additive: no existing line was removed', () => {
-    const diff = lines(git('diff', '-U0', RECONCILIATION_TERMINAL, '--', CLI_INDEX)).filter((l) =>
-      /^[+-][^+-]/.test(l),
-    );
-    expect(diff.filter((l) => l.startsWith('-'))).toEqual([]);
-  });
+  it.skipIf(!terminalAvailable)(
+    'the entry-point router diff was additive: no existing line was removed',
+    () => {
+      const diff = lines(git('diff', '-U0', RECONCILIATION_TERMINAL, T, '--', CLI_INDEX)).filter(
+        (l) => /^[+-][^+-]/.test(l),
+      );
+      expect(diff.filter((l) => l.startsWith('-'))).toEqual([]);
+    },
+  );
+
+  it.skipIf(!terminalAvailable)(
+    'no classifier read-model command, module or option existed at the entry-point terminal',
+    () => {
+      const index = atTerminal(CLI_INDEX);
+      expect(index).not.toMatch(/classify\s+(runs|calls|show)\b/);
+      expect(index).not.toContain("'call-id'");
+      expect(index).not.toMatch(/classifyRead|runOrgunitsClassify(Runs|Calls|Show)/);
+      expect(existsAtTerminal('src/cli/commands/classifyRead.ts')).toBe(false);
+      expect(existsAtTerminal('src/orgunits/classify/operatorReadModels.ts')).toBe(false);
+      expect(
+        lines(git('ls-tree', '-r', '--name-only', T, '--', 'src')).filter((p) =>
+          /read-?model/i.test(p),
+        ),
+      ).toEqual([]);
+    },
+  );
 
   it('the runtime this command composes is still fetch policy v7', () => {
     expect(FETCH_POLICY_VERSION).toBe('orgunit-fetch-policy-v7');
@@ -634,10 +688,21 @@ describe('classifier operator entry point: no institutional network', () => {
 // ---------------------------------------------------------------------------
 
 describe.skipIf(!terminalAvailable)('classifier operator entry point: changed surface', () => {
-  it('descends from the reconciliation terminal with single-parent commits, first freezing the reconciliation test', () => {
-    expect(() => git('merge-base', '--is-ancestor', RECONCILIATION_TERMINAL, 'HEAD')).not.toThrow();
-    expect(lines(git('rev-list', '--merges', `${RECONCILIATION_TERMINAL}..HEAD`))).toEqual([]);
-    const [first] = lines(git('rev-list', '--reverse', `${RECONCILIATION_TERMINAL}..HEAD`));
+  it('descends from the reconciliation terminal with exactly four single-parent commits, first freezing the reconciliation test', () => {
+    expect(() => git('merge-base', '--is-ancestor', RECONCILIATION_TERMINAL, T)).not.toThrow();
+    expect(() => git('merge-base', '--is-ancestor', T, 'HEAD')).not.toThrow();
+    expect(lines(git('rev-list', '--merges', `${RECONCILIATION_TERMINAL}..${T}`))).toEqual([]);
+    expect(lines(git('rev-list', '--reverse', `${RECONCILIATION_TERMINAL}..${T}`))).toEqual(
+      ENTRY_POINT_COMMITS,
+    );
+    for (const commit of ENTRY_POINT_COMMITS) {
+      expect(
+        lines(git('rev-list', '--parents', '-n', '1', commit))[0]!.split(' '),
+        commit,
+      ).toHaveLength(2);
+    }
+    const [first] = lines(git('rev-list', '--reverse', `${RECONCILIATION_TERMINAL}..${T}`));
+    expect(first).toBeDefined();
     if (first === undefined) return;
     expect(git('rev-parse', `${first}^`).trim()).toBe(RECONCILIATION_TERMINAL);
     expect(lines(git('diff', '--name-only', RECONCILIATION_TERMINAL, first))).toEqual([
@@ -648,11 +713,12 @@ describe.skipIf(!terminalAvailable)('classifier operator entry point: changed su
     );
   });
 
-  it('changes production code only within the authorised operator surface', () => {
-    const production = changedSinceTerminal().filter(
+  it('changed production code exactly within the authorised operator surface', () => {
+    const production = changedInEntryPoint().filter(
       (p) => p.startsWith('src/') && !p.startsWith('src/test/'),
     );
     expect(production.filter((p) => !AUTHORISED_PRODUCTION_FILES.includes(p))).toEqual([]);
+    expect(production.sort()).toEqual(AUTHORISED_PRODUCTION_FILES);
   });
 
   it('changes nothing outside the operator surface, its tests, the reconciliation pin, the record and the audit', () => {
@@ -664,12 +730,13 @@ describe.skipIf(!terminalAvailable)('classifier operator entry point: changed su
       RECORD,
       AUDIT,
     ]);
-    expect(changedSinceTerminal().filter((p) => !permitted.has(p))).toEqual([]);
+    expect(changedInEntryPoint().filter((p) => !permitted.has(p))).toEqual([]);
+    expect(changedInEntryPoint().sort()).toEqual([...permitted].sort());
   });
 
   it('changes no classifier semantic, provider, allowlist, web, discovery, migration or package byte', () => {
     expect(
-      changedSinceTerminal().filter(
+      changedInEntryPoint().filter(
         (p) =>
           SEMANTIC_FILES.includes(p) ||
           p.startsWith('src/orgunits/classify/provider/') ||
@@ -686,8 +753,8 @@ describe.skipIf(!terminalAvailable)('classifier operator entry point: changed su
     ).toEqual([]);
   });
 
-  it('the migration set is exactly the reconciliation set (through 0012)', () => {
-    const now = lines(git('ls-files', 'migrations'));
+  it('the migration set at the entry-point terminal is exactly the reconciliation set (through 0012)', () => {
+    const now = lines(git('ls-tree', '-r', '--name-only', T, '--', 'migrations'));
     expect(now).toEqual(
       lines(git('ls-tree', '-r', '--name-only', RECONCILIATION_TERMINAL, '--', 'migrations')),
     );
@@ -696,9 +763,11 @@ describe.skipIf(!terminalAvailable)('classifier operator entry point: changed su
 
   it('modifies no existing document and adds only this record and audit under docs/', () => {
     const prior = lines(git('ls-tree', '-r', '--name-only', RECONCILIATION_TERMINAL, '--', 'docs'));
-    expect(lines(git('diff', '--name-only', RECONCILIATION_TERMINAL, '--', ...prior))).toEqual([]);
+    expect(lines(git('diff', '--name-only', RECONCILIATION_TERMINAL, T, '--', ...prior))).toEqual(
+      [],
+    );
     expect(
-      changedSinceTerminal()
+      changedInEntryPoint()
         .filter((p) => p.startsWith('docs/') && !prior.includes(p))
         .sort(),
     ).toEqual(recordsPresent ? [AUDIT, RECORD].sort() : []);
@@ -706,7 +775,7 @@ describe.skipIf(!terminalAvailable)('classifier operator entry point: changed su
 
   it('creates no DEV_CONFIRM, FINAL_HOLDOUT, gold, A5, label, response or adjudication artifact', () => {
     expect(
-      changedSinceTerminal().filter((path) =>
+      changedInEntryPoint().filter((path) =>
         /DEV_CONFIRM|FINAL_HOLDOUT|GOLD_|MANIFEST|CORPUS_FREEZE|A5_|LABELS?_|ADJUDICAT|RESPONSES_V|COMPLETED_RESPONSE|DRAFT|PROVISIONAL|LIVE_RESULT|LEDGER/.test(
           path,
         ),
@@ -714,9 +783,24 @@ describe.skipIf(!terminalAvailable)('classifier operator entry point: changed su
     ).toEqual([]);
   });
 
-  it('the R52 human-review deferral record is byte-unchanged since R52', () => {
+  it('the R52 human-review deferral record is byte-unchanged since R52, at the terminal and now', () => {
     if (!commitExists(R52_TERMINAL)) return;
+    expect(atTerminal(R52_RELEASE)).toBe(git('show', `${R52_TERMINAL}:${R52_RELEASE}`));
     expect(read(R52_RELEASE)).toBe(git('show', `${R52_TERMINAL}:${R52_RELEASE}`));
+  });
+
+  it('no provider execution occurred and main was not updated by the slice', () => {
+    const r = JSON.parse(atTerminal(RECORD)) as Record<string, unknown>;
+    expect(r).toMatchObject({ liveClassificationExecutedDuringSlice: false, mainUpdated: false });
+    // main never contains the slice.
+    for (const ref of ['origin/main', 'main']) {
+      try {
+        git('rev-parse', '--verify', '--quiet', ref);
+      } catch {
+        continue;
+      }
+      expect(() => git('merge-base', '--is-ancestor', ENTRY_POINT_COMMITS[0]!, ref), ref).toThrow();
+    }
   });
 });
 
@@ -728,7 +812,13 @@ describe.skipIf(!recordsPresent)(
   'classifier operator entry point: the record is a result, not an authority',
   () => {
     const record = (): Record<string, unknown> =>
-      JSON.parse(read(RECORD)) as Record<string, unknown>;
+      JSON.parse(atTerminal(RECORD)) as Record<string, unknown>;
+
+    it('the entry-point record and audit are byte-identical to their terminal blobs', () => {
+      for (const path of [RECORD, AUDIT]) {
+        expect(read(path), path).toBe(atTerminal(path));
+      }
+    });
 
     it('names the canonical base, the command, the terminal and authorises nothing', () => {
       const r = record();
@@ -770,7 +860,7 @@ describe.skipIf(!recordsPresent)(
     });
 
     it('claims no accuracy, precision, recall, kappa or empirical validation', () => {
-      const body = `${read(RECORD)}\n${read(AUDIT)}`;
+      const body = `${atTerminal(RECORD)}\n${atTerminal(AUDIT)}`;
       for (const claim of [
         /"accuracy"\s*:/i,
         /"precision"\s*:/i,
