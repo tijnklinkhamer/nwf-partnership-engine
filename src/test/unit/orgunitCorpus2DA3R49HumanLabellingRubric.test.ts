@@ -47,6 +47,26 @@ const R48_TEST = 'src/test/unit/orgunitCorpus2DA3R48A4HandoffRubricBlocker.test.
 const R48_CENSUS = 'docs/evaluation/PHASE_2B_2D_A3_R48_DEV_TRAIN_R4_A4_HANDOFF_CENSUS_V1.json';
 const R48_CENSUS_SHA256 = 'ad028c8ff5245e80e674cc502ccd4b7e0a1986cadd41000746ef306b474bb24c';
 const R48_TERMINAL_STATE = 'A3_R4_DEV_TRAIN_A4_HANDOFF_BLOCKED_AWAIT_OWNER_RUBRIC_CLARIFICATION';
+/**
+ * R49'S OWN TERMINAL COMMIT.
+ *
+ * R49's lineage, changed-surface, no-handoff-artifact, no-auto-labeller and
+ * rubric-before-approval assertions describe R49'S SLICE, so they range over
+ * R49's own commits - `R48_TERMINAL..R49_TERMINAL` - and inspect the tree at
+ * R49_TERMINAL, rather than HEAD and the working tree. Once a later slice (R50's
+ * DEV_TRAIN A4 handoff materialisation) lands on top, the working tree is no
+ * longer R49's surface, and a handoff index, review package and blank response
+ * template legitimately exist AFTER R49; that later fact must not be read back
+ * as though it existed AT R49, and R49 does not retroactively accept it.
+ *
+ * This is the same standing convention R19 through R48 apply, and it WEAKENS
+ * NOTHING: R49's range is frozen, its permitted-path list is unchanged, and
+ * "no handoff, package, template, harness or label existed at R49" stays
+ * asserted.
+ */
+const R49_TERMINAL = 'e07c11906f8c29da74be12c61afe287fcef3787f';
+/** The R50 handoff namespace, which must be absent from R49's own tree. */
+const R50_HANDOFF_NAMESPACE = 'src/test/harness/phase2b2d/a4handoffR4';
 
 const R49_TEST = 'src/test/unit/orgunitCorpus2DA3R49HumanLabellingRubric.test.ts';
 const RUBRIC = 'docs/evaluation/PHASE_2B_2D_METHOD_V2_HUMAN_LABELLING_RUBRIC_V1.json';
@@ -121,17 +141,17 @@ const at = (value: unknown, ...keys: (string | number)[]): unknown =>
     value,
   );
 
-const baseAvailable = commitExists(R48_TERMINAL) && commitExists(R48_SCOPE_PIN_COMMIT);
+const baseAvailable =
+  commitExists(R48_TERMINAL) && commitExists(R48_SCOPE_PIN_COMMIT) && commitExists(R49_TERMINAL);
 
-/** Every path changed since R48 - committed or not. */
+/** Every path R49's own commits changed (R48_TERMINAL..R49_TERMINAL). */
 function changedSinceR48(): string[] {
-  return [
-    ...new Set([
-      ...lines(git('diff', '--name-only', R48_TERMINAL)),
-      ...lines(git('ls-files', '--others', '--exclude-standard')),
-    ]),
-  ];
+  return lines(git('diff', '--name-only', R48_TERMINAL, R49_TERMINAL));
 }
+
+/** Whether a path exists in the tree at R49_TERMINAL. */
+const inR49Tree = (path: string): boolean =>
+  lines(git('ls-tree', '--name-only', R49_TERMINAL, '--', path)).length > 0;
 
 const rubric = json(RUBRIC);
 
@@ -190,18 +210,20 @@ const textAt = (...keys: (string | number)[]): string => JSON.stringify(at(rubri
 
 describe.skipIf(!baseAvailable)('2D-A3 R49: lineage and changed surface', () => {
   it('descends from the exact R48 tip, and merges no commit', () => {
-    expect(() => git('merge-base', '--is-ancestor', R48_TERMINAL, 'HEAD')).not.toThrow();
-    expect(lines(git('rev-list', '--merges', `${R48_TERMINAL}..HEAD`))).toEqual([]);
+    expect(() => git('merge-base', '--is-ancestor', R48_TERMINAL, R49_TERMINAL)).not.toThrow();
+    expect(lines(git('rev-list', '--merges', `${R48_TERMINAL}..${R49_TERMINAL}`))).toEqual([]);
   });
 
   it("pinned R48's scope in exactly one first commit that touched exactly one file", () => {
-    const [first] = lines(git('rev-list', '--reverse', `${R48_TERMINAL}..HEAD`));
+    const [first] = lines(git('rev-list', '--reverse', `${R48_TERMINAL}..${R49_TERMINAL}`));
     expect(first).toBe(R48_SCOPE_PIN_COMMIT);
     expect(git('rev-parse', `${R48_SCOPE_PIN_COMMIT}^`).trim()).toBe(R48_TERMINAL);
     expect(lines(git('diff', '--name-only', R48_TERMINAL, R48_SCOPE_PIN_COMMIT))).toEqual([
       R48_TEST,
     ]);
-    expect(lines(git('diff', '--name-only', R48_SCOPE_PIN_COMMIT, '--', R48_TEST))).toEqual([]);
+    expect(
+      lines(git('diff', '--name-only', R48_SCOPE_PIN_COMMIT, R49_TERMINAL, '--', R48_TEST)),
+    ).toEqual([]);
   });
 
   it('changes nothing outside the R48 scope pin, this test, the rubric, its approval and one audit', () => {
@@ -230,21 +252,34 @@ describe.skipIf(!baseAvailable)('2D-A3 R49: lineage and changed surface', () => 
     ).toEqual([]);
   });
 
+  it('held no R50 handoff namespace, index, package or template in the tree at R49_TERMINAL', () => {
+    expect(inR49Tree(R50_HANDOFF_NAMESPACE)).toBe(false);
+    expect(
+      lines(git('ls-tree', '-r', '--name-only', R49_TERMINAL)).filter((path) =>
+        /PHASE_2B_2D_A3_R50_|HANDOFF_INDEX|REVIEW_PACKAGE|RESPONSE_TEMPLATE|REVIEW_PACKET/.test(
+          path,
+        ),
+      ),
+    ).toEqual([]);
+  });
+
   it('leaves every earlier public record and audit byte untouched', () => {
     const prior = lines(
       git('ls-tree', '-r', '--name-only', R48_TERMINAL, '--', 'docs/evaluation', 'docs/audits'),
     );
     expect(prior).toContain(R48_CENSUS);
-    expect(lines(git('diff', '--name-only', R48_TERMINAL, '--', ...prior))).toEqual([]);
+    expect(lines(git('diff', '--name-only', R48_TERMINAL, R49_TERMINAL, '--', ...prior))).toEqual(
+      [],
+    );
   });
 
   it('wrote the rubric bytes in an earlier commit than the approval that binds them', () => {
     const source = String(at(json(APPROVAL), 'approvedRubric', 'sourceCommit'));
     expect(() => git('merge-base', '--is-ancestor', R48_TERMINAL, source)).not.toThrow();
-    expect(() => git('merge-base', '--is-ancestor', source, 'HEAD')).not.toThrow();
+    expect(() => git('merge-base', '--is-ancestor', source, R49_TERMINAL)).not.toThrow();
     expect(sha256(git('show', `${source}:${RUBRIC}`))).toBe(RUBRIC_SHA256);
     expect(lines(git('ls-tree', '--name-only', source, '--', APPROVAL))).toEqual([]);
-    expect(lines(git('diff', '--name-only', source, '--', RUBRIC))).toEqual([]);
+    expect(lines(git('diff', '--name-only', source, R49_TERMINAL, '--', RUBRIC))).toEqual([]);
   });
 });
 
