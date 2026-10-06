@@ -1,0 +1,483 @@
+{
+  "record": "PHASE_2B_2D_METHOD_V2_HUMAN_LABELLING_RUBRIC_V1",
+  "recordKind": "HUMAN_GOLD_LABELLING_RUBRIC",
+  "rubricVersion": "METHODOLOGY_V2_HUMAN_LABELLING_RUBRIC_V1",
+  "status": "FROZEN_BY_OWNER",
+  "task": "A3_R49_METHOD_V2_HUMAN_LABELLING_RUBRIC_V1_OWNER_FREEZE",
+  "recordedBy": "claude-code-session under explicit owner instruction; the rubric wording and its approval are the owner's",
+  "publicSafe": true,
+  "fulfils": {
+    "reference": "the 'frozen rubric' that Methodology V2 R3 sectionI_goldAndReviewContract.workflow and Corpus Acquisition Plan V1 require reviewers and adjudicators to label from, which no approved byte identified before R49",
+    "resolvesBlocker": {
+      "r48Terminal": "ebe4e6fbd3e2504bbe5fac6963c23ab7bdcb665f",
+      "r48TerminalState": "A3_R4_DEV_TRAIN_A4_HANDOFF_BLOCKED_AWAIT_OWNER_RUBRIC_CLARIFICATION",
+      "r48Census": "docs/evaluation/PHASE_2B_2D_A3_R48_DEV_TRAIN_R4_A4_HANDOFF_CENSUS_V1.json",
+      "blockingField": "hard_negative",
+      "additionallyUnboundFields": ["verdict", "unit_type"],
+      "resolution": "append-only; R48 bytes are never edited"
+    },
+    "definesOnly": ["verdict", "unit_type", "hard_negative"],
+    "addsNoHumanGoldField": true,
+    "pageKindIsAHumanGoldField": false
+  },
+  "methodologyBindings": {
+    "methodologyV2R3": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_PROPOSAL_R3.json",
+      "sha256": "fdc54873f4cdd47688d6d720229f0a0ea8426193711993a4f63a9f5000623f33"
+    },
+    "methodologyV2R3OwnerApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_OWNER_FREEZE_APPROVAL_V1.json",
+      "sha256": "77dae976fb219bd94c33f236070a5c216a594a85ff8da3a490b5c948753d331e"
+    },
+    "methodologyV2R4Amendment": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_R4_SHORT_TEXT_AMENDMENT_PROPOSAL_V1.json",
+      "sha256": "5ebcc562e72f509e2b664f3ae800dc2043142d5d4a6ec1ec4d2958b8abab1d20"
+    },
+    "methodologyV2R4OwnerApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_ACCEPTANCE_METHODOLOGY_V2_R4_SHORT_TEXT_AMENDMENT_OWNER_APPROVAL_V1.json",
+      "sha256": "986a48bdb672f2428c8ef07b04c43e0187e16b43f79b64c0a61b4aef51844eb2"
+    },
+    "humanConfirmationScopeFromR3": [
+      "the page-level verdict (UNIT_PAGE / NOT_A_UNIT / NEEDS_REVIEW)",
+      "unit_type on every gold UNIT_PAGE item",
+      "the hard_negative flag"
+    ]
+  },
+  "planBindings": {
+    "corpusAcquisitionPlanV1": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1.json",
+      "sha256": "54279f1b3e45fe1be8c24e5c81d56693ebb2cdf0a34f346b748d16b56847184e"
+    },
+    "corpusAcquisitionPlanV1OwnerApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_METHODOLOGY_V2_CORPUS_ACQUISITION_PLAN_V1_OWNER_APPROVAL.json",
+      "sha256": "0ac475031e81a60ae58d70bb83d5f71ee3cc441573dc82cf88145fdf1e8fec14"
+    }
+  },
+  "unchangedByThisRubric": [
+    "R4 short-text rule",
+    "SET_P and SET_R sampling, ranks, caps and extension rules",
+    "every gate, gate formula, threshold and margin",
+    "G5 hardNegativeRejection on SET_P only",
+    "minimumHardNegativesPerGatedSplit = 155 and the SD6 shortfall rule",
+    "corpus membership and split assignment"
+  ],
+  "splitApplicability": {
+    "splitIndependent": true,
+    "modelIndependent": true,
+    "sampleIndependent": true,
+    "candidateIndependent": true,
+    "appliesIdenticallyTo": ["DEV_TRAIN", "DEV_CONFIRM", "FINAL_HOLDOUT"],
+    "currentlyAuthorisedUse": ["DEV_TRAIN"],
+    "sealedSplitsRemainClosed": ["DEV_CONFIRM", "FINAL_HOLDOUT"]
+  },
+  "evidenceBoundary": {
+    "principle": "Every human decision uses ONLY the frozen review item's captured evidence. A reviewer judges what the FROZEN PAGE ITSELF evidences.",
+    "permittedEvidence": [
+      "captured main text",
+      "captured title(s)",
+      "captured headings",
+      "captured requested URL / meaningful URL host and path",
+      "the complete source-presentation provenance included in the review item"
+    ],
+    "forbiddenEvidence": [
+      "live browsing",
+      "search",
+      "external knowledge",
+      "current website state",
+      "classifier or model outputs",
+      "candidate score",
+      "SET_P membership",
+      "SET_R membership",
+      "sample rank",
+      "acquisition generation",
+      "old gold",
+      "historical proposed labels",
+      "signal metadata as an answer key"
+    ]
+  },
+  "decisionOrder": {
+    "order": ["verdict", "unit_type", "hard_negative"],
+    "rules": [
+      "1. decide verdict",
+      "2. if and only if verdict = UNIT_PAGE, decide unit_type",
+      "3. decide hard_negative"
+    ],
+    "hardNegativeMustNotInfluenceVerdict": true,
+    "hardNegativeAssignedAfterVerdict": true,
+    "statement": "A page is never made NOT_A_UNIT merely so it can become a hard negative."
+  },
+  "verdict": {
+    "valueSet": ["UNIT_PAGE", "NOT_A_UNIT", "NEEDS_REVIEW"],
+    "noFurtherValue": true,
+    "primarySubjectRule": {
+      "coreQuestion": "What is the PRIMARY SUBJECT of this frozen page?",
+      "clarifications": [
+        "The presence of target vocabulary alone does not make a page a UNIT_PAGE.",
+        "The mention of an office alone does not make a page that office's page.",
+        "A contact address alone does not make a page a UNIT_PAGE."
+      ]
+    },
+    "definitions": {
+      "UNIT_PAGE": {
+        "rule": "UNIT_PAGE iff the captured page principally presents an identifiable, ongoing organisational unit or standing organisational function as the page's own subject.",
+        "qualifyingOrganisationalFormsWhenActuallyThePrimarySubject": [
+          "office",
+          "service",
+          "centre / center",
+          "department",
+          "faculty-level organisational service",
+          "bureau / direction",
+          "standing student-facing operational function"
+        ],
+        "presentation": "The page must present that unit/function itself, e.g. through its identity, remit, activities, responsibilities, services, operating information or standing role. A unit does NOT need all of these. But it must be more than an incidental mention/contact inside a page whose real subject is something else."
+      },
+      "NOT_A_UNIT": {
+        "rule": "NOT_A_UNIT iff the page's primary subject is NOT an organisational unit or standing organisational function as defined under UNIT_PAGE.",
+        "commonExamples": [
+          "degree or course programme",
+          "funding/grant/scholarship scheme",
+          "application procedure",
+          "mobility scheme information",
+          "Erasmus programme information",
+          "news article",
+          "event announcement",
+          "research project",
+          "generic institutional overview",
+          "site/section landing page",
+          "navigation/index",
+          "directory/listing",
+          "search/login/contact-form/tool page",
+          "policy/charter/document-viewer page",
+          "a page where an actual office is mentioned only as a contact, processing point, mailbox, participant or procedural step"
+        ],
+        "examplesAreExhaustive": false,
+        "statement": "These are examples, not an exhaustive page-kind taxonomy. This rubric does NOT add page_kind as a human gold field."
+      },
+      "NEEDS_REVIEW": {
+        "rule": "NEEDS_REVIEW is narrow. Use it only when the frozen captured evidence itself is genuinely insufficient, conflicting or ambiguous such that a careful reviewer cannot reliably decide the required semantic label without outside knowledge.",
+        "validCases": [
+          "unit-shaped evidence exists but the captured content is too sparse to determine whether the unit is actually the page's subject",
+          "the page presents several distinct organisational units without a reliably identifiable primary subject",
+          "the page clearly represents an organisational unit but the evidence cannot reliably distinguish LANGUAGE_CENTRE from LANGUAGE_DEPARTMENT",
+          "captured title/headings/body materially conflict about the page's subject",
+          "another genuine unit-vs-non-unit ambiguity remains unresolved using the frozen evidence alone"
+        ],
+        "invalidReasons": [
+          "the decision is difficult",
+          "the page is unusual",
+          "the reviewer is not completely certain",
+          "the reviewer lacks external institutional knowledge"
+        ],
+        "outsideKnowledgeMayResolve": false,
+        "statement": "No outside knowledge may be used to 'solve' a NEEDS_REVIEW case."
+      }
+    },
+    "wholeOrganisationAllowance": {
+      "rule": "For a small or non-university organisation where the organisation itself operates as the relevant standing service/function, the whole organisation may count as the UNIT_PAGE subject.",
+      "appliesOnlyWhen": "the frozen page principally presents the organisation's own ongoing function, responsibilities or operations",
+      "organisationIdentityAloneSuffices": false,
+      "statement": "Organisation identity alone is insufficient. A generic homepage or marketing overview is not automatically a UNIT_PAGE."
+    },
+    "unitMentionIsNotUnitSubject": {
+      "rule": "A page remains NOT_A_UNIT when it names a real office/centre/department but that unit appears only incidentally inside content whose primary subject is another non-unit object.",
+      "nonUnitPrimarySubjects": [
+        "a programme",
+        "scheme",
+        "grant",
+        "procedure",
+        "event",
+        "article",
+        "directory",
+        "research topic",
+        "institutional policy",
+        "another non-unit object"
+      ],
+      "statement": "The reviewer must judge PAGE SUBJECT, not whether a unit name occurs."
+    }
+  },
+  "unitType": {
+    "valueSet": [
+      "INTERNATIONAL_MOBILITY_OFFICE",
+      "LANGUAGE_CENTRE",
+      "LANGUAGE_DEPARTMENT",
+      "OTHER_UNIT"
+    ],
+    "requiredIff": "verdict = UNIT_PAGE",
+    "otherwise": null,
+    "definitions": {
+      "INTERNATIONAL_MOBILITY_OFFICE": {
+        "rule": "Assign when the UNIT_PAGE's standing organisational remit principally includes one or more of the listed remits.",
+        "remits": [
+          "international student mobility",
+          "incoming exchange",
+          "outgoing exchange",
+          "Erasmus mobility",
+          "study abroad",
+          "international-student welcome/support",
+          "institutional international relations where student mobility/exchange is a substantive operational part of the unit's remit"
+        ],
+        "exampleNamesMayInclude": [
+          "International Office",
+          "International Relations Office",
+          "Direction/Bureau des Relations Internationales",
+          "Akademisches Auslandsamt",
+          "Welcome Desk",
+          "Servicio de Relaciones Internacionales"
+        ],
+        "namesAloneDecide": false,
+        "statement": "Names alone do not decide the type; captured remit does. A unit principally concerned with international research or another unrelated international function, without substantive student-mobility remit, is not forced into this class."
+      },
+      "LANGUAGE_CENTRE": {
+        "rule": "Assign when the UNIT_PAGE represents an OPERATIONAL language-teaching, language-learning, language-support or language-practice service.",
+        "typicalEvidenceOfStandingProvision": [
+          "language courses",
+          "FLE support",
+          "language practice",
+          "self-access resources",
+          "language-learning support",
+          "language resource-centre services"
+        ],
+        "character": "a SERVICE/OPERATIONAL unit rather than a degree-awarding academic language department",
+        "exampleNamesMayInclude": [
+          "Centre de Langues",
+          "Centre de Ressources en Langues",
+          "Sprachenzentrum",
+          "LANSAD",
+          "FLE centre",
+          "language self-access centre"
+        ]
+      },
+      "LANGUAGE_DEPARTMENT": {
+        "rule": "Assign when the UNIT_PAGE represents an ACADEMIC faculty, school or department whose organisational role is the academic study/teaching of languages, linguistics or related disciplines, especially where it offers/owns academic programmes or degrees.",
+        "exampleNamesMayInclude": [
+          "UFR de Langues",
+          "Faculté des Langues",
+          "Department of Modern Languages"
+        ],
+        "distinctionFromLanguageCentre": "academic degree-bearing department/faculty versus operational language-learning/support service",
+        "ifDistinctionUnresolvable": "NEEDS_REVIEW"
+      },
+      "OTHER_UNIT": {
+        "rule": "Assign when verdict = UNIT_PAGE, the page clearly represents a genuine organisational unit/standing organisational function, and none of the three specialised classes fits.",
+        "notAFallbackForUncertainUnitPageVerdict": true,
+        "ifUnitNessUnresolved": "NEEDS_REVIEW"
+      }
+    }
+  },
+  "hardNegative": {
+    "valueSet": [true, false],
+    "everyReviewedItemReceivesOneBoolean": true,
+    "assignedAfterVerdict": true,
+    "necessaryCondition": {
+      "rule": "If verdict != NOT_A_UNIT then hard_negative = false ALWAYS.",
+      "UNIT_PAGE": false,
+      "NEEDS_REVIEW": false,
+      "statement": "Only a NOT_A_UNIT page may be a hard negative."
+    },
+    "normativeDefinition": {
+      "appliesTo": "a page already labelled NOT_A_UNIT",
+      "rule": "hard_negative = true iff BOTH conditions hold: (A) the page is genuinely NOT_A_UNIT under the primary-subject rule; AND (B) the frozen page contains a MATERIAL, PROMINENT target-adjacent cue that makes it a plausible false-positive confuser for the organisational-unit task.",
+      "conditionA": "The page is genuinely NOT_A_UNIT under the primary-subject rule.",
+      "conditionB": "The frozen page contains a MATERIAL, PROMINENT target-adjacent cue that makes it a plausible false-positive confuser for the organisational-unit task.",
+      "meaning": "a non-unit page that meaningfully LOOKS TOPICALLY OR STRUCTURALLY LIKE the kinds of pages the target task is trying to find, while still not actually being a unit page",
+      "isASemanticPropertyOfTheFrozenPage": true,
+      "definedByModelFailure": false,
+      "definedByCandidateScore": false,
+      "definedByDenominatorMembership": false
+    },
+    "targetAdjacentCues": {
+      "internationalMobilityDomain": {
+        "cues": [
+          "international / internationalisation",
+          "international relations",
+          "Erasmus",
+          "exchange",
+          "mobility",
+          "study abroad",
+          "incoming/outgoing mobility",
+          "international students",
+          "welcome/incoming support",
+          "international partnerships",
+          "partner universities",
+          "mobility grants/funding",
+          "other clearly adjacent international-education material"
+        ],
+        "genericInternationalUses": "Generic uses such as 'international conference' or 'international business' CAN qualify when they are prominent enough that the page is plausibly confusable with the target domain despite being NOT_A_UNIT."
+      },
+      "languageDomain": {
+        "cues": [
+          "language learning",
+          "language teaching",
+          "language support",
+          "FLE",
+          "language practice",
+          "language resources",
+          "language-centre / language-department terminology",
+          "linguistically adjacent educational content that plausibly resembles an in-scope language unit page"
+        ]
+      },
+      "unitLikeStructuralCue": {
+        "rule": "A real or apparent in-scope unit is named/described, BUT is not the page's primary subject.",
+        "units": [
+          "international office",
+          "mobility office",
+          "relations-internationales office",
+          "welcome desk",
+          "language centre",
+          "language department",
+          "analogous in-scope unit"
+        ],
+        "example": "an Erasmus funding procedure that says 'contact the International Office' is NOT_A_UNIT but may be a hard negative"
+      }
+    },
+    "prominenceMaterialityRule": {
+      "rule": "A cue is MATERIAL only when it is meaningfully part of the frozen page as presented for review.",
+      "mayAppearIn": [
+        "title",
+        "leading/prominent heading",
+        "substantive body text",
+        "meaningful requested URL host/path",
+        "another clearly page-specific captured field"
+      ],
+      "doNotSetTrueBecauseOf": [
+        "incidental site-wide navigation",
+        "footer boilerplate",
+        "a buried unrelated link",
+        "generic institution-wide boilerplate",
+        "an isolated irrelevant token with no connection to the page's subject"
+      ],
+      "why": "This distinction prevents every generic university page from becoming a hard negative merely because its global navigation contains 'International'."
+    },
+    "positiveExampleShapes": {
+      "condition": "hard negatives when verdict is NOT_A_UNIT and the described cue is material",
+      "shapes": [
+        "'International' section landing page with no unit as subject",
+        "International BBA degree-programme page",
+        "Erasmus Days event/news page",
+        "Erasmus grant/allocation procedure page",
+        "international-mobility information page where an office is merely the contact",
+        "international-strategy institutional overview",
+        "international-research page that resembles international-relations content but is not a unit page",
+        "language-learning article/course information page that is not itself a language unit",
+        "directory of international-relations contacts rather than a page about one unit",
+        "document viewer/tool page prominently concerning Erasmus/international material"
+      ],
+      "rubricIllustrationsOnly": true,
+      "historicalItemLabels": false
+    },
+    "negativeExampleShapes": {
+      "condition": "hard_negative = false for a NOT_A_UNIT page when it lacks a material target-adjacent confuser cue",
+      "shapes": [
+        "unrelated general news",
+        "ordinary unrelated programme content",
+        "generic homepage whose page-specific content does not materially concern the target domain",
+        "unrelated service/tool page",
+        "unrelated institutional information"
+      ],
+      "statement": "The mere fact that an item entered SET_P or SET_R does NOT make it a hard negative."
+    },
+    "reviewerMustNotSeeOrUse": [
+      "deterministic candidate score",
+      "Track A/B score",
+      "signal firing",
+      "SET_P membership",
+      "SET_R membership",
+      "sample rank",
+      "model output",
+      "classifier prediction",
+      "whether a candidate previously failed it",
+      "G5 denominator status",
+      "previous hard-negative label",
+      "historical gold"
+    ],
+    "soleQuestion": "Is this NOT_A_UNIT frozen page a material target-domain/unit-like confuser?"
+  },
+  "labelValidityMatrix": {
+    "labelFields": ["verdict", "unit_type", "hard_negative"],
+    "rows": [
+      {
+        "verdict": "UNIT_PAGE",
+        "unitType": "ONE_OF_FOUR_VALUES",
+        "hardNegative": "FALSE_ONLY"
+      },
+      {
+        "verdict": "NOT_A_UNIT",
+        "unitType": "NULL_ONLY",
+        "hardNegative": "TRUE_OR_FALSE"
+      },
+      {
+        "verdict": "NEEDS_REVIEW",
+        "unitType": "NULL_ONLY",
+        "hardNegative": "FALSE_ONLY"
+      }
+    ],
+    "noOtherCombinationIsValid": true
+  },
+  "g5Relationship": {
+    "gate": "G5",
+    "metric": "hardNegativeRejection",
+    "measuredOn": "SET_P only",
+    "semanticsUnchanged": true,
+    "thisRubricDefines": "only the GOLD class underlying the already-frozen gate",
+    "doesNotAlter": [
+      "minimumHardNegativesPerGatedSplit = 155",
+      "the G5 threshold",
+      "SET_P size or rank",
+      "extension rules",
+      "sampling",
+      "gate formulas"
+    ],
+    "minimumHardNegativesPerGatedSplit": 155,
+    "realisationGuaranteed": false,
+    "ifMinimumNotRealised": "the already-frozen SD6 extension/refusal rule applies",
+    "neverChangeRubricToReachDenominator": true
+  },
+  "antiTuning": {
+    "frozenBefore": [
+      "R48 package materialisation",
+      "any current DEV_TRAIN label",
+      "realised SET_R enrichment",
+      "DEV_CONFIRM opening",
+      "FINAL_HOLDOUT opening"
+    ],
+    "testedAgainstCurrentItems": false,
+    "currentExpectedHardNegativesComputed": false,
+    "currentPageContentInspected": false,
+    "tunedToHistoricalShare": false,
+    "historicalCountsRole": "methodological context only; the rubric stands on semantic principle"
+  },
+  "precedentNotAuthority": {
+    "citedOnlyAsPrecedentThatInformedOwnerWording": [
+      "docs/evaluation/PHASE_2B_2D_GOLD_CORPUS_PROTOCOL.md",
+      "src/orgunits/classify/prompt.ts",
+      "src/orgunits/classify/outputSchema.ts",
+      "historical adjudication fixtures"
+    ],
+    "precedentBecomesAuthority": false,
+    "classifierPromptBytesBoundAsRubricSemantics": false,
+    "historicalGoldIdentitiesBound": false,
+    "statement": "This rubric record itself is the human-gold authority."
+  },
+  "noModelAuthority": {
+    "modelOutputDefinesGold": false,
+    "modelMayDraftOrProposeGoldUnderThisRubric": false,
+    "statement": "This is a HUMAN rubric. No classifier, model or deterministic signal defines, proposes or checks a gold label under it."
+  },
+  "noLabelData": {
+    "labelsContained": 0,
+    "goldIdsContained": 0,
+    "currentCorpusIdentitiesContained": 0,
+    "currentLabelCountsContained": 0,
+    "sampleOutcomeContained": false
+  },
+  "authorityBoundary": {
+    "thisFileAuthorises": [],
+    "approvalIsASeparateRecord": true,
+    "humanLabellingAuthorisedByThisFile": false,
+    "statement": "Approval of these bytes is expressed only by a separate immutable owner-approval record that binds them by SHA-256 and byte count. A4 DEV_TRAIN human single review requires a further, separate owner authorisation."
+  },
+  "immutability": {
+    "appendOnly": true,
+    "thisRecordIsNeverEdited": "A correction is a NEW rubric version with its own owner approval. These bytes are never rewritten, re-hashed or re-statused."
+  }
+}
