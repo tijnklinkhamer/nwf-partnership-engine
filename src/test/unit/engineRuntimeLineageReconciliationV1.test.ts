@@ -17,22 +17,36 @@
  *
  * A claim of v7 equivalence after someone changes those semantics fails
  * section A: the manifest names the exact source bytes, not a description.
+ *
+ * FROZEN AT THE RECONCILIATION TERMINAL. The reconciliation slice is closed:
+ * every lineage, changed-surface, manifest and record assertion below is
+ * evaluated over the exact range R52_TERMINAL..ENGINE_RUNTIME_RECONCILIATION_TERMINAL
+ * (and file bodies at that exact tree), never over HEAD or the working tree,
+ * so a later, separately authorised slice (the classifier operator entry
+ * point first) is never judged against this slice's own authorised surface —
+ * and this slice is never made retrospectively to contain anything that
+ * landed after it. Only the behavioural RobotsAuthorisation checks in
+ * section B still exercise the live module, because a behaviour cannot be
+ * read out of a git tree.
  */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { RobotsAuthorisation } from '../../orgunits/web/robotsAuthority.js';
-import {
-  FETCH_POLICY_VERSION,
-  MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS,
-  MAX_ROBOTS_TRANSPORT_RETRIES_PER_POLICY_RESOLUTION,
-} from '../../orgunits/web/policy.js';
 
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 
 const R52_TERMINAL = 'b1dfd82542e7dfb749d5c36063ea750647428a12';
+const ENGINE_RUNTIME_RECONCILIATION_TERMINAL = '3390f61f44f65513ca6b71969b528591f3978e49';
+/** The four reconciliation commits above R52, oldest first. */
+const RECONCILIATION_COMMITS = [
+  'ed480d0d22cf79db00967ade14832cfeabff91cd',
+  '1f3c27b5c20add484678a2cf96bc6d7532dbd681',
+  '766dd13794cf3a3dbdf7f1fd483a9ce61ec80676',
+  ENGINE_RUNTIME_RECONCILIATION_TERMINAL,
+];
 const V7_SOURCE_COMMIT = 'e0166e0f787e3bba00b35271cab6717eb65a202c';
 const V7_SOURCE_PARENT = 'a1ef1e2dda57d66848052914a36508a5dd5999b4';
 const V7_SCOPE_PIN_COMMIT = '6301e95b60d78adbc4f71d9354b2c2f5b794ea96';
@@ -132,21 +146,23 @@ function commitExists(commit: string): boolean {
 }
 const lines = (value: string): string[] => value.split('\n').filter((l) => l.length > 0);
 const digest = (bytes: Buffer): string => createHash('sha256').update(bytes).digest('hex');
-const working = (path: string): Buffer => readFileSync(join(REPO_ROOT, path));
+const T = ENGINE_RUNTIME_RECONCILIATION_TERMINAL;
+/** A file's exact bytes at the reconciliation terminal tree — never the working tree. */
+const atTerminal = (path: string): Buffer => gitBytes(`${T}:${path}`);
 const json = (path: string): Record<string, unknown> =>
-  JSON.parse(working(path).toString('utf8')) as Record<string, unknown>;
+  JSON.parse(atTerminal(path).toString('utf8')) as Record<string, unknown>;
+const existsAtTerminal = (path: string): boolean =>
+  git('ls-tree', '--name-only', T, '--', path).trim() === path;
 
-const r52Available = commitExists(R52_TERMINAL);
-const sourceAvailable = commitExists(V7_SOURCE_COMMIT) && commitExists(V7_SOURCE_PARENT);
-const recordsPresent = [RECORD, AUDIT].every((p) => existsSync(join(REPO_ROOT, p)));
+const terminalAvailable = commitExists(T);
+const r52Available = commitExists(R52_TERMINAL) && terminalAvailable;
+const sourceAvailable =
+  commitExists(V7_SOURCE_COMMIT) && commitExists(V7_SOURCE_PARENT) && terminalAvailable;
+const recordsPresent = terminalAvailable && [RECORD, AUDIT].every(existsAtTerminal);
 
-function changedSinceR52(): string[] {
-  return [
-    ...new Set([
-      ...lines(git('diff', '--name-only', R52_TERMINAL)),
-      ...lines(git('ls-files', '--others', '--exclude-standard')),
-    ]),
-  ];
+/** The reconciliation's exact changed surface: R52_TERMINAL..TERMINAL, never HEAD. */
+function changedInReconciliation(): string[] {
+  return lines(git('diff', '--name-only', R52_TERMINAL, T));
 }
 
 /** The text of one static method, from its declaration to its closing brace. */
@@ -163,11 +179,14 @@ function staticMethod(source: string, name: string): string {
 // ---------------------------------------------------------------------------
 
 describe('engine reconciliation: the production files ARE the v7 source bytes', () => {
-  it.each(PRODUCTION_FILES)('%s equals the manifest v7 blob on this lineage', (path) => {
-    const bytes = working(path);
-    expect(bytes.length).toBe(PRODUCTION_MANIFEST[path]!.v7.bytes);
-    expect(digest(bytes)).toBe(PRODUCTION_MANIFEST[path]!.v7.sha256);
-  });
+  it.skipIf(!terminalAvailable).each(PRODUCTION_FILES)(
+    '%s equals the manifest v7 blob at the reconciliation terminal',
+    (path) => {
+      const bytes = atTerminal(path);
+      expect(bytes.length).toBe(PRODUCTION_MANIFEST[path]!.v7.bytes);
+      expect(digest(bytes)).toBe(PRODUCTION_MANIFEST[path]!.v7.sha256);
+    },
+  );
 
   it.skipIf(!r52Available).each(PRODUCTION_FILES)(
     '%s at R52 equalled the manifest v7-parent blob (the precondition)',
@@ -212,8 +231,7 @@ describe('engine reconciliation: the production files ARE the v7 source bytes', 
           path === V7_SCOPE_FIREWALL
             ? git('rev-parse', `${V7_SCOPE_PIN_COMMIT}:${path}`).trim()
             : git('rev-parse', `${V7_SOURCE_COMMIT}:${path}`).trim();
-        expect(git('rev-parse', `HEAD:${path}`).trim(), path).toBe(expected);
-        expect(git('hash-object', join(REPO_ROOT, path)).trim(), path).toBe(expected);
+        expect(git('rev-parse', `${T}:${path}`).trim(), path).toBe(expected);
       }
       // The pin is the only non-e0166e0 byte, and it changes exactly one line.
       expect(
@@ -230,11 +248,14 @@ describe('engine reconciliation: the production files ARE the v7 source bytes', 
     },
   );
 
-  it.each(Object.keys(DOC_MANIFEST))('%s carries the exact source bytes', (path) => {
-    const bytes = working(path);
-    expect(bytes.length).toBe(DOC_MANIFEST[path]!.bytes);
-    expect(digest(bytes)).toBe(DOC_MANIFEST[path]!.sha256);
-  });
+  it.skipIf(!terminalAvailable).each(Object.keys(DOC_MANIFEST))(
+    '%s carries the exact source bytes at the reconciliation terminal',
+    (path) => {
+      const bytes = atTerminal(path);
+      expect(bytes.length).toBe(DOC_MANIFEST[path]!.bytes);
+      expect(digest(bytes)).toBe(DOC_MANIFEST[path]!.sha256);
+    },
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -242,11 +263,17 @@ describe('engine reconciliation: the production files ARE the v7 source bytes', 
 // ---------------------------------------------------------------------------
 
 describe('engine reconciliation: the v7 capability, and only it', () => {
-  it('fetch policy is exactly v7, and the hop and retry bounds did not move', () => {
-    expect(FETCH_POLICY_VERSION).toBe('orgunit-fetch-policy-v7');
-    expect(MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS).toBe(1);
-    expect(MAX_ROBOTS_TRANSPORT_RETRIES_PER_POLICY_RESOLUTION).toBe(1);
-  });
+  it.skipIf(!terminalAvailable)(
+    'fetch policy is exactly v7 at the reconciliation terminal, and the hop and retry bounds did not move',
+    () => {
+      const policy = atTerminal('src/orgunits/web/policy.ts').toString('utf8');
+      expect(policy).toContain("export const FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v7';");
+      expect(policy).toContain('export const MAX_ROBOTS_REDIRECT_CONTINUATION_HOPS = 1;');
+      expect(policy).toContain(
+        'export const MAX_ROBOTS_TRANSPORT_RETRIES_PER_POLICY_RESOLUTION = 1;',
+      );
+    },
+  );
 
   it.skipIf(!r52Available)('the hop and retry bounds equal R52 (v6) byte-for-byte', () => {
     const r52 = git('show', `${R52_TERMINAL}:src/orgunits/web/policy.ts`);
@@ -262,7 +289,7 @@ describe('engine reconciliation: the v7 capability, and only it', () => {
   it.skipIf(!r52Available)(
     'the bootstrap factory is byte-for-byte the R52 / v6 implementation',
     () => {
-      const now = working('src/orgunits/web/robotsAuthority.ts').toString('utf8');
+      const now = atTerminal('src/orgunits/web/robotsAuthority.ts').toString('utf8');
       const r52 = git('show', `${R52_TERMINAL}:src/orgunits/web/robotsAuthority.ts`);
       expect(staticMethod(now, 'forRobotsTxtBootstrap')).toBe(
         staticMethod(r52, 'forRobotsTxtBootstrap'),
@@ -310,23 +337,26 @@ describe('engine reconciliation: the v7 capability, and only it', () => {
     }
   });
 
-  it('the policy request role is a closed two-member union selecting the factory', () => {
-    const robots = working('src/orgunits/web/robots.ts').toString('utf8');
-    expect(robots).toContain(
-      "export type PolicyRequestRole = 'BOOTSTRAP' | 'REDIRECT_CONTINUATION';",
-    );
-    expect(robots).toContain(
-      'if (!RobotsAuthorisation.CONTINUATION_PATHS.includes(target.value.requestPath)) return null;',
-    );
-    expect(robots).toContain("fetchWithBoundedRetry(requestedUrl, 'BOOTSTRAP')");
-    expect(robots).toContain("fetchWithBoundedRetry(requestedUrl, 'REDIRECT_CONTINUATION')");
-    expect(robots).toContain('const second = await fetchRobotsDocument(url, role);');
-    const code = robots
-      .split('\n')
-      .filter((l) => !/^\s*(\*|\/\/|\/\*)/.test(l))
-      .join('\n');
-    expect(code).not.toMatch(/startsWith\(['"]\/robots\.txt/);
-  });
+  it.skipIf(!terminalAvailable)(
+    'the policy request role is a closed two-member union selecting the factory',
+    () => {
+      const robots = atTerminal('src/orgunits/web/robots.ts').toString('utf8');
+      expect(robots).toContain(
+        "export type PolicyRequestRole = 'BOOTSTRAP' | 'REDIRECT_CONTINUATION';",
+      );
+      expect(robots).toContain(
+        'if (!RobotsAuthorisation.CONTINUATION_PATHS.includes(target.value.requestPath)) return null;',
+      );
+      expect(robots).toContain("fetchWithBoundedRetry(requestedUrl, 'BOOTSTRAP')");
+      expect(robots).toContain("fetchWithBoundedRetry(requestedUrl, 'REDIRECT_CONTINUATION')");
+      expect(robots).toContain('const second = await fetchRobotsDocument(url, role);');
+      const code = robots
+        .split('\n')
+        .filter((l) => !/^\s*(\*|\/\/|\/\*)/.test(l))
+        .join('\n');
+      expect(code).not.toMatch(/startsWith\(['"]\/robots\.txt/);
+    },
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -334,13 +364,23 @@ describe('engine reconciliation: the v7 capability, and only it', () => {
 // ---------------------------------------------------------------------------
 
 describe.skipIf(!r52Available)('engine reconciliation: lineage and changed surface', () => {
-  it('descends from the exact R52 terminal with single-parent commits only', () => {
-    expect(() => git('merge-base', '--is-ancestor', R52_TERMINAL, 'HEAD')).not.toThrow();
-    expect(lines(git('rev-list', '--merges', `${R52_TERMINAL}..HEAD`))).toEqual([]);
+  it('descends from the exact R52 terminal with exactly four single-parent commits', () => {
+    expect(() => git('merge-base', '--is-ancestor', R52_TERMINAL, T)).not.toThrow();
+    expect(() => git('merge-base', '--is-ancestor', T, 'HEAD')).not.toThrow();
+    expect(lines(git('rev-list', '--merges', `${R52_TERMINAL}..${T}`))).toEqual([]);
+    expect(lines(git('rev-list', '--reverse', `${R52_TERMINAL}..${T}`))).toEqual(
+      RECONCILIATION_COMMITS,
+    );
+    for (const commit of RECONCILIATION_COMMITS) {
+      expect(
+        lines(git('rev-list', '--parents', '-n', '1', commit))[0]!.split(' '),
+        commit,
+      ).toHaveLength(2);
+    }
   });
 
   it('pinned R52 in one first commit touching exactly the R52 test', () => {
-    const [first] = lines(git('rev-list', '--reverse', `${R52_TERMINAL}..HEAD`));
+    const [first] = lines(git('rev-list', '--reverse', `${R52_TERMINAL}..${T}`));
     expect(first).toBeDefined();
     if (first === undefined) return;
     expect(git('rev-parse', `${first}^`).trim()).toBe(R52_TERMINAL);
@@ -351,27 +391,29 @@ describe.skipIf(!r52Available)('engine reconciliation: lineage and changed surfa
   it.skipIf(!sourceAvailable)(
     'neither merges nor contains the A2 branch or the v7 commit itself',
     () => {
-      expect(() => git('merge-base', '--is-ancestor', V7_SOURCE_COMMIT, 'HEAD')).toThrow();
+      expect(() => git('merge-base', '--is-ancestor', V7_SOURCE_COMMIT, T)).toThrow();
       if (commitExists(A2_TIP)) {
-        expect(() => git('merge-base', '--is-ancestor', A2_TIP, 'HEAD')).toThrow();
+        expect(() => git('merge-base', '--is-ancestor', A2_TIP, T)).toThrow();
       }
     },
   );
 
   it('changes nothing outside the R52 pin, the v7 surface, this test, the record and the audit', () => {
     const permitted = new Set([R52_TEST, ...V7_SOURCE_SURFACE, THIS_TEST, RECORD, AUDIT]);
-    expect(changedSinceR52().filter((path) => !permitted.has(path))).toEqual([]);
+    expect(changedInReconciliation().filter((path) => !permitted.has(path))).toEqual([]);
+    expect([...changedInReconciliation()].sort()).toEqual([...permitted].sort());
   });
 
   it('changes exactly three production files: no gateway, orchestrator, classifier or other runtime byte', () => {
-    const production = changedSinceR52().filter(
+    const production = changedInReconciliation().filter(
       (path) => path.startsWith('src/') && !path.startsWith('src/test/'),
     );
     expect(production.sort()).toEqual([...PRODUCTION_FILES].sort());
     expect(
-      changedSinceR52().filter(
+      changedInReconciliation().filter(
         (path) =>
           path === 'src/orgunits/web/gateway.ts' ||
+          path.startsWith('src/cli/') ||
           path.startsWith('src/orgunits/orchestrator/') ||
           path.startsWith('src/orgunits/classify/') ||
           /^(migrations|scripts|docker|\.github)\//.test(path) ||
@@ -382,16 +424,29 @@ describe.skipIf(!r52Available)('engine reconciliation: lineage and changed surfa
   });
 
   it('the migration set is exactly the R52 set (through 0012), and no migration was added', () => {
-    const now = lines(git('ls-files', 'migrations'));
+    const now = lines(git('ls-tree', '-r', '--name-only', T, '--', 'migrations'));
     expect(now).toEqual(
       lines(git('ls-tree', '-r', '--name-only', R52_TERMINAL, '--', 'migrations')),
     );
     expect(now.at(-1)).toMatch(/^migrations\/0012_/);
   });
 
+  it('no classifier operator entry point existed at the reconciliation terminal', () => {
+    expect(existsAtTerminal('src/cli/commands/classify.ts')).toBe(false);
+    const cli = atTerminal('src/cli/index.ts').toString('utf8');
+    expect(cli).not.toContain('orgunits classify');
+    expect(cli).not.toMatch(/'run-id'|'model'|'attempt'/);
+    expect(cli).not.toContain('runOrganisationClassification');
+    expect(
+      lines(git('ls-tree', '-r', '--name-only', T, '--', 'src/cli')).filter((p) =>
+        /classif/i.test(p),
+      ),
+    ).toEqual([]);
+  });
+
   it('creates no DEV_CONFIRM, FINAL_HOLDOUT, gold, A5, label, response or adjudication artifact', () => {
     expect(
-      changedSinceR52().filter((path) =>
+      changedInReconciliation().filter((path) =>
         /DEV_CONFIRM|FINAL_HOLDOUT|GOLD_|MANIFEST|CORPUS_FREEZE|A5_|LABELS?_|ADJUDICAT|RESPONSES_V|COMPLETED_RESPONSE|DRAFT|PROVISIONAL|LIVE_RESULT|LEDGER/.test(
           path,
         ),
@@ -410,12 +465,12 @@ describe.skipIf(!r52Available)(
     it('modifies or deletes no file that existed under docs/ at R52', () => {
       const prior = lines(git('ls-tree', '-r', '--name-only', R52_TERMINAL, '--', 'docs'));
       expect(prior.length).toBeGreaterThan(0);
-      expect(lines(git('diff', '--name-only', R52_TERMINAL, '--', ...prior))).toEqual([]);
+      expect(lines(git('diff', '--name-only', R52_TERMINAL, T, '--', ...prior))).toEqual([]);
     });
 
     it('adds under docs/ only ADR 0016, the v7 repair record, this record and the audit', () => {
       expect(
-        lines(git('diff', '--diff-filter=A', '--name-only', R52_TERMINAL, '--', 'docs')).sort(),
+        lines(git('diff', '--diff-filter=A', '--name-only', R52_TERMINAL, T, '--', 'docs')).sort(),
       ).toEqual([ADR_0016, V7_REPAIR_RECORD, ...(recordsPresent ? [RECORD, AUDIT] : [])].sort());
     });
   },
@@ -462,6 +517,12 @@ describe.skipIf(!recordsPresent)(
       for (const d of docs)
         expect(DOC_MANIFEST[d.path], d.path).toEqual({ sha256: d.sha256, bytes: d.bytes });
       expect(docs.map((d) => d.path).sort()).toEqual(Object.keys(DOC_MANIFEST).sort());
+    });
+
+    it('the reconciliation record and audit are byte-identical to their terminal blobs', () => {
+      for (const path of [RECORD, AUDIT]) {
+        expect(readFileSync(join(REPO_ROOT, path)).equals(atTerminal(path)), path).toBe(true);
+      }
     });
 
     it('declares every boundary flag false', () => {
