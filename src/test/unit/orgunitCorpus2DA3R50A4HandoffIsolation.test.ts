@@ -406,7 +406,18 @@ describe.skipIf(!materialised.every(Boolean))('2D-A3 R50: the materialised hando
     });
     const multi = items.filter((i) => (i['sourcePageEvidenceIds'] as unknown[]).length > 1).length;
     expect(at(census, 'handoff', 'multiSourceSelectedUnionItems')).toBe(multi);
-    expect(text(PACKAGE)).not.toMatch(/representative|canonicalSourceIndex|winner/i);
+    // Structured keys only: real page text may legitimately say "representative".
+    const keysOf = (value: unknown): string[] =>
+      Array.isArray(value)
+        ? value.flatMap(keysOf)
+        : value !== null && typeof value === 'object'
+          ? Object.entries(value).flatMap(([k, v]) => [k, ...keysOf(v)])
+          : [];
+    expect(
+      [...new Set([...records, ...items].flatMap(keysOf))].filter((k) =>
+        /representative|canonicalsourceindex|winner|chosen/i.test(k),
+      ),
+    ).toEqual([]);
   });
 
   it('the template is wholly blank', () => {
