@@ -1,0 +1,212 @@
+{
+  "record": "PHASE_2B_2D_A4_R52_HUMAN_REVIEW_DEFERRAL_AND_ENGINEERING_RELEASE_V1",
+  "recordKind": "HUMAN_VALIDATION_DEFERRAL_AND_NON_EVALUATION_ENGINEERING_RELEASE",
+  "task": "A4_R52_DEV_TRAIN_HUMAN_REVIEW_DEFERRAL_AND_NON_EVALUATION_ENGINEERING_RELEASE_V1",
+  "recordedBy": "claude-code-session under explicit owner instruction; the decisions are the owner's",
+  "publicSafe": true,
+  "split": "DEV_TRAIN",
+  "r51Terminal": {
+    "commit": "468e444215727f8d3a789c51681506872b01bfae",
+    "terminalState": "A4_DEV_TRAIN_HUMAN_SINGLE_REVIEW_AUTHORISED_TOOL_READY_AWAIT_HUMAN_COMPLETION"
+  },
+  "ownerDecisions": [
+    {
+      "marker": "DEFER_A4_DEV_TRAIN_HUMAN_REVIEW_UNTIL_OUTREACH_V1",
+      "meaning": "The 222-item DEV_TRAIN human review is deferred until the engine software is finished and the outreach phase begins. It is NOT cancelled. The R51 review authority remains valid, the R50 package remains immutable and the R49 rubric remains frozen."
+    },
+    {
+      "marker": "RELEASE_NON_EVALUATION_ENGINEERING_CONTINUATION_WHILE_HUMAN_VALIDATION_PENDING",
+      "meaning": "Completion of the DEV_TRAIN human review is no longer a prerequisite for NON-EVALUATION software engineering on the Partnership Engine. It remains a prerequisite for every empirical evaluation, gold and sealed-split step."
+    }
+  ],
+  "changesProjectSequencingOnly": true,
+  "changes": {
+    "methodologyV2R3": false,
+    "methodologyV2R4": false,
+    "humanRubric": false,
+    "setP": false,
+    "setR": false,
+    "g5": false,
+    "anyFrozenGate": false,
+    "sampleMembership": false,
+    "packagePopulation": false,
+    "humanOnlyGoldSemantics": false
+  },
+  "boundAuthority": {
+    "ownerApproval": {
+      "path": "docs/evaluation/PHASE_2B_2D_A4_DEV_TRAIN_HUMAN_SINGLE_REVIEW_OWNER_APPROVAL_V1.json",
+      "sha256": "26ec30cd7fcb3f29fa982e17059d9cdd6eb6652b6e20be6a5e86c7256f05a561"
+    },
+    "authority": {
+      "path": "docs/evaluation/PHASE_2B_2D_A4_DEV_TRAIN_HUMAN_SINGLE_REVIEW_AUTHORITY_V1.json",
+      "sha256": "85b86173a2fdeeef58b44bd46846b0d67a42b755706f66c2f3163b60afab0866",
+      "marker": "AUTHORISE_A4_DEV_TRAIN_HUMAN_SINGLE_REVIEW_V1"
+    },
+    "census": {
+      "path": "docs/evaluation/PHASE_2B_2D_A4_R51_DEV_TRAIN_SINGLE_REVIEW_AUTHORITY_CENSUS_V1.json",
+      "sha256": "5411b8335871148f8529032c6bbb60822a28b14c983f9dae85bbee068bdc966f"
+    },
+    "reviewTool": {
+      "path": "docs/evaluation/corpus/PHASE_2B_2D_A4_DEV_TRAIN_SINGLE_REVIEW_TOOL_V1.html",
+      "sha256": "864839a50be49b21d3c871a24951582d5733f76612fc6c07bf4937491d3f8f8a",
+      "regenerated": false
+    },
+    "editedInR52": false
+  },
+  "humanReview": {
+    "status": "DEFERRED_UNTIL_ENGINE_COMPLETE_AND_OUTREACH",
+    "authorised": true,
+    "executed": false,
+    "completed": false,
+    "deferred": true,
+    "cancelled": false,
+    "deferUntil": "ENGINE_COMPLETE_AND_OUTREACH",
+    "authorityRevoked": false,
+    "authorityStillValid": true,
+    "currentlyBlockingEngineering": false,
+    "packageHash": "9664388949f5d8686fe32af2fb4fb8f933787faf6daf11349d5b8a402db4066e",
+    "packageFileSha256": "91442149a4763ced8b28dfe35bfbcb00c2781baed594c19169c7cbaac80619ed",
+    "rubricVersion": "METHODOLOGY_V2_HUMAN_LABELLING_RUBRIC_V1",
+    "rubricSha256": "e3af57d8d2503e4fc87ce707427762aabfed420bb670a262b9302a7ea78e1d69",
+    "itemCount": 222,
+    "itemsPending": 222,
+    "singleReviewPerItem": true,
+    "futureReviewersMayIncludeOwnerAndOtherHumans": true,
+    "exactlyOneHumanSemanticLabelPerItem": true,
+    "futureMechanism": "the exact R51 offline tool against the exact R50 package and R49 rubric",
+    "localDraftKind": "NON_CANONICAL_HUMAN_REVIEW_DRAFT",
+    "localDraftsSearchedImportedOrCounted": false
+  },
+  "labelBoundary": {
+    "humanLabelsCreatedInR52": 0,
+    "modelLabelsCreatedInR52": 0,
+    "provisionalLabelsCreatedInR52": 0,
+    "humanLabelsInCommittedRepository": 0,
+    "goldRecords": 0,
+    "completedResponseFileCommitted": false,
+    "labelsDiscarded": 0
+  },
+  "provisionalModelReview": {
+    "status": "NOT_EXECUTED_NOT_NEEDED_FOR_ENGINEERING_CONTINUATION",
+    "authorised": false,
+    "requiresSeparateExplicitlyLabelledAuthority": true,
+    "mayEverBeRepresentedAsHuman": false,
+    "mayEverBeRepresentedAsGold": false,
+    "mayEverBeRepresentedAsA5": false,
+    "mayEverBeRepresentedAsGatedSplitEvidence": false
+  },
+  "stateAxes": {
+    "axisA": {
+      "name": "SOFTWARE_ENGINEERING",
+      "mayContinueIndependently": true,
+      "condition": "the work does not require human-gold truth"
+    },
+    "axisB": {
+      "name": "EMPIRICAL_EVALUATION_AND_GOLD",
+      "status": "PENDING_DEFERRED_HUMAN_REVIEW",
+      "blockedUntil": "the deferred DEV_TRAIN human review is completed and ingested"
+    },
+    "conflationForbidden": true,
+    "softwareStatusesDoNotImply": [
+      "EMPIRICALLY_VALIDATED",
+      "GOLD_CERTIFIED",
+      "A5_FROZEN",
+      "ACCEPTANCE_GATES_PASSED"
+    ]
+  },
+  "evaluation": {
+    "devTrainHumanValidationComplete": false,
+    "realisedSetREnrichment": "NOT_YET_MEASURABLE",
+    "devConfirm": "SEALED",
+    "finalHoldout": "SEALED",
+    "a5": "NOT_AUTHORISED",
+    "complete110SlotFreezePreflight": "NOT_AUTHORISED",
+    "empiricalAcceptanceClaimAllowed": false,
+    "classifierQualityClaimAllowed": false
+  },
+  "engineering": {
+    "nonEvaluationEngineeringContinuationAuthorised": true,
+    "humanValidationBlocksNonEvaluationEngineering": false,
+    "classifierSemanticChangesAutomaticallyAuthorised": false,
+    "releasedScope": [
+      "operator API work",
+      "operator UI work",
+      "research / organisation workflows",
+      "read models",
+      "pagination",
+      "filtering and sorting",
+      "data plumbing",
+      "API contracts",
+      "local operator workflows",
+      "deterministic orchestration",
+      "robustness",
+      "error handling",
+      "observability",
+      "auditability",
+      "performance",
+      "persistence plumbing",
+      "deployment preparation",
+      "developer tooling",
+      "production integration plumbing",
+      "non-semantic classifier runtime hardening",
+      "non-semantic provider / runtime reliability",
+      "tests",
+      "packaging",
+      "documentation"
+    ],
+    "releaseAuthorisesSoftwareEngineeringNotEvaluationClaims": true,
+    "everyOtherRepositoryRuleStillGoverns": true,
+    "outboundOutreachAuthorised": false
+  },
+  "classifierSemanticBoundary": {
+    "nonSemanticChangesAllowed": [
+      "lifecycle",
+      "timeout",
+      "retries",
+      "process handling",
+      "persistence",
+      "provider plumbing",
+      "observability",
+      "deterministic execution",
+      "API / UI integration"
+    ],
+    "semanticChangesNotAutomaticallyAuthorised": [
+      "prompt meaning",
+      "label taxonomy",
+      "decision rules",
+      "model choice intended to improve accuracy",
+      "score threshold",
+      "candidate-ranking semantics",
+      "classifier output semantics"
+    ],
+    "newSemanticVariantRequires": "its own explicit design / freeze authority",
+    "mayBeJustifiedUsingUnreviewedR50Items": false
+  },
+  "stillForbiddenWithoutSeparateOwnerAuthority": [
+    "DEV_CONFIRM acquisition or materialisation",
+    "DEV_CONFIRM labels",
+    "FINAL_HOLDOUT access",
+    "FINAL_HOLDOUT labels",
+    "A5 gold corpus freeze",
+    "complete 110-slot freeze preflight",
+    "acceptance-gate claims based on missing human labels",
+    "measuring realised SET_R enrichment from non-human labels",
+    "replacing human gold with model output",
+    "relabelling R51 items by any model",
+    "tuning classifier semantic behaviour against current R50 items",
+    "tuning methodology to provisional model outcomes",
+    "claiming classifier precision / recall / kappa against the new corpus",
+    "claiming the system is empirically validated under Methodology V2"
+  ],
+  "returnPath": [
+    "R51 offline tool",
+    "222 human responses (exactly one per item)",
+    "ingest and realised-enrichment measurement",
+    "gated-split decision"
+  ],
+  "thisFileAuthorises": [
+    "NON_EVALUATION_ENGINEERING_CONTINUATION_WHILE_DEV_TRAIN_HUMAN_VALIDATION_IS_DEFERRED"
+  ],
+  "thisFileAuthorisesNothingElse": true,
+  "terminalState": "A4_HUMAN_REVIEW_DEFERRED_NON_EVALUATION_ENGINEERING_RELEASED_AWAIT_NEXT_ENGINEERING_SLICE"
+}
