@@ -11,6 +11,13 @@
  *   E. the engineering census is not an evaluation result and its cited
  *      refs are real;
  *   F. the records disclose bound hashes only.
+ *
+ * FROZEN AT THE R52 TERMINAL. R52 is closed: every lineage, changed-surface
+ * and goldId assertion below is evaluated over the exact range
+ * R51_TERMINAL..R52_TERMINAL (and file bodies at the exact R52 tree), never
+ * over HEAD or the working tree, so a later, separately authorised slice is
+ * never judged against R52's own authorised surface — and R52 is never made
+ * retrospectively to contain anything that landed after it.
  */
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -21,6 +28,7 @@ import { describe, expect, it } from 'vitest';
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 
 const R51_TERMINAL = '468e444215727f8d3a789c51681506872b01bfae';
+const R52_TERMINAL = 'b1dfd82542e7dfb749d5c36063ea750647428a12';
 const R51_ISOLATION_TEST =
   'src/test/unit/orgunitCorpus2DA4R51DevTrainSingleReviewIsolation.test.ts';
 const R52_TEST = 'src/test/unit/orgunitCorpus2DA4R52HumanReviewDeferral.test.ts';
@@ -77,18 +85,16 @@ const sha256 = (path: string): string =>
     .update(readFileSync(join(REPO_ROOT, path)))
     .digest('hex');
 
-const baseAvailable = commitExists(R51_TERMINAL);
+const atR52 = (path: string): string => git('show', `${R52_TERMINAL}:${path}`);
+
+const baseAvailable = commitExists(R51_TERMINAL) && commitExists(R52_TERMINAL);
 const recordsPresent = [RELEASE, ENGINEERING_CENSUS, AUDIT].every((p) =>
   existsSync(join(REPO_ROOT, p)),
 );
 
-function changedSinceR51(): string[] {
-  return [
-    ...new Set([
-      ...lines(git('diff', '--name-only', R51_TERMINAL)),
-      ...lines(git('ls-files', '--others', '--exclude-standard')),
-    ]),
-  ];
+/** R52's exact changed surface: R51_TERMINAL..R52_TERMINAL, never HEAD. */
+function changedInR52(): string[] {
+  return lines(git('diff', '--name-only', R51_TERMINAL, R52_TERMINAL));
 }
 
 // ---------------------------------------------------------------------------
@@ -97,12 +103,16 @@ function changedSinceR51(): string[] {
 
 describe.skipIf(!baseAvailable)('2D-A4 R52: lineage and changed surface', () => {
   it('descends from the exact R51 tip with single-parent commits only', () => {
-    expect(() => git('merge-base', '--is-ancestor', R51_TERMINAL, 'HEAD')).not.toThrow();
-    expect(lines(git('rev-list', '--merges', `${R51_TERMINAL}..HEAD`))).toEqual([]);
+    expect(() => git('merge-base', '--is-ancestor', R51_TERMINAL, R52_TERMINAL)).not.toThrow();
+    expect(() => git('merge-base', '--is-ancestor', R52_TERMINAL, 'HEAD')).not.toThrow();
+    expect(lines(git('rev-list', '--merges', `${R51_TERMINAL}..${R52_TERMINAL}`))).toEqual([]);
+    expect(lines(git('rev-list', '--merges', `${R52_TERMINAL}..HEAD`))).toEqual([]);
+    expect(lines(git('rev-list', `${R51_TERMINAL}..${R52_TERMINAL}`))).toHaveLength(4);
   });
 
   it("pinned R51's scope in one first commit that touched exactly the R51 isolation test", () => {
-    const [first] = lines(git('rev-list', '--reverse', `${R51_TERMINAL}..HEAD`));
+    const [first] = lines(git('rev-list', '--reverse', `${R51_TERMINAL}..${R52_TERMINAL}`));
+    expect(first).toBeDefined();
     if (first === undefined) return;
     expect(git('rev-parse', `${first}^`).trim()).toBe(R51_TERMINAL);
     expect(lines(git('diff', '--name-only', R51_TERMINAL, first))).toEqual([R51_ISOLATION_TEST]);
@@ -111,12 +121,13 @@ describe.skipIf(!baseAvailable)('2D-A4 R52: lineage and changed surface', () => 
 
   it('changes nothing outside the R51 pin, its test, two records and the audit', () => {
     const permitted = new Set([R51_ISOLATION_TEST, R52_TEST, RELEASE, ENGINEERING_CENSUS, AUDIT]);
-    expect(changedSinceR51().filter((path) => !permitted.has(path))).toEqual([]);
+    expect(changedInR52().filter((path) => !permitted.has(path))).toEqual([]);
+    expect([...changedInR52()].sort()).toEqual([...permitted].sort());
   });
 
   it('changes no production, runtime, operator, migration, script, package, harness or earlier record byte', () => {
     expect(
-      changedSinceR51().filter(
+      changedInR52().filter(
         (path) =>
           (path.startsWith('src/') && !path.startsWith('src/test/unit/')) ||
           /^(migrations|scripts|docker|\.github)\//.test(path) ||
@@ -127,12 +138,30 @@ describe.skipIf(!baseAvailable)('2D-A4 R52: lineage and changed surface', () => 
     ).toEqual([]);
     const prior = lines(git('ls-tree', '-r', '--name-only', R51_TERMINAL, '--', 'docs'));
     expect(prior.length).toBeGreaterThan(0);
-    expect(lines(git('diff', '--name-only', R51_TERMINAL, '--', ...prior))).toEqual([]);
+    expect(lines(git('diff', '--name-only', R51_TERMINAL, R52_TERMINAL, '--', ...prior))).toEqual(
+      [],
+    );
+  });
+
+  it('R52 carried fetch-policy v6 and did not contain the v7 source commit', () => {
+    expect(atR52('src/orgunits/web/policy.ts')).toContain(
+      "export const FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v6';",
+    );
+    const v7 = 'e0166e0f787e3bba00b35271cab6717eb65a202c';
+    if (commitExists(v7)) {
+      expect(() => git('merge-base', '--is-ancestor', v7, R52_TERMINAL)).toThrow();
+    }
+  });
+
+  it('the R52 records are byte-identical to their R52_TERMINAL blobs', () => {
+    for (const path of [RELEASE, ENGINEERING_CENSUS, AUDIT]) {
+      expect(text(path), path).toBe(atR52(path));
+    }
   });
 
   it('creates no DEV_CONFIRM, FINAL_HOLDOUT, gold, A5, label, response, draft or adjudication artifact', () => {
     expect(
-      changedSinceR51().filter((path) =>
+      changedInR52().filter((path) =>
         /DEV_CONFIRM|FINAL_HOLDOUT|GOLD_|MANIFEST|CORPUS_FREEZE|A5_|LABELS?_|ADJUDICAT|RESPONSES_V|COMPLETED_RESPONSE|DRAFT|PROVISIONAL/.test(
           path,
         ),
@@ -205,6 +234,14 @@ describe('2D-A4 R52: the 222 items remain pending and no label exists', () => {
     expect(lines(git('ls-files')).filter((path) => path.includes(RESPONSES_FILE))).toEqual([]);
   });
 
+  it.skipIf(!baseAvailable)('no completed DEV_TRAIN response file existed at R52', () => {
+    expect(
+      lines(git('ls-tree', '-r', '--name-only', R52_TERMINAL)).filter((path) =>
+        path.includes(RESPONSES_FILE),
+      ),
+    ).toEqual([]);
+  });
+
   it.skipIf(!baseAvailable)(
     'no artifact R52 changed pairs a real goldId with a semantic value',
     () => {
@@ -214,8 +251,8 @@ describe('2D-A4 R52: the 222 items remain pending and no label exists', () => {
           .split('\n')
           .map((line) => (JSON.parse(line) as { goldId: string }).goldId),
       );
-      for (const path of changedSinceR51().filter((p) => /\.(json|jsonl|md)$/.test(p))) {
-        const body = text(path);
+      for (const path of changedInR52().filter((p) => /\.(json|jsonl|md)$/.test(p))) {
+        const body = atR52(path);
         expect(
           [...body.matchAll(/\bg[0-9a-f]{16}\b/g)].filter((m) => ids.has(m[0])),
           path,
