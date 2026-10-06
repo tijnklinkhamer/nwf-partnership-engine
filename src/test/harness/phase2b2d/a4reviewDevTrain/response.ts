@@ -32,12 +32,23 @@ export interface CompletedResponseRow {
   readonly reviewNote: string | null;
 }
 
-/** Every shape problem of a completed-response file. Empty means legal SHAPE. */
+/** What a completed-response file must cover: goldIds in order, one rubric. */
+export interface CompletedResponseExpectation {
+  readonly goldIds: readonly string[];
+  readonly rubricVersion: string;
+  readonly rubricSha256: string;
+}
+
+/**
+ * Every shape problem of a completed-response file against an expectation.
+ * Empty means legal SHAPE. Pure over its inputs, so synthetic tests can use
+ * invented goldIds; the genuine path is `requireCompletedResponseFile`, which
+ * accepts only a minted R51 binding.
+ */
 export function completedResponseFileProblems(
   text: string,
-  bindingInput: R51PackageBinding,
+  binding: CompletedResponseExpectation,
 ): readonly string[] {
-  const binding = requireR51PackageBinding(bindingInput);
   const rubric = { rubricVersion: binding.rubricVersion, rubricSha256: binding.rubricSha256 };
   const problems: string[] = [];
   if (typeof text !== 'string' || text.length === 0) return Object.freeze(['the file is empty']);
@@ -109,8 +120,9 @@ export function completedResponseFileProblems(
 /** Refuses - never repairs - an illegal completed-response file. */
 export function requireCompletedResponseFile(
   text: string,
-  binding: R51PackageBinding,
+  bindingInput: R51PackageBinding,
 ): readonly CompletedResponseRow[] {
+  const binding = requireR51PackageBinding(bindingInput);
   const problems = completedResponseFileProblems(text, binding);
   if (problems.length > 0) {
     refuseR51(
