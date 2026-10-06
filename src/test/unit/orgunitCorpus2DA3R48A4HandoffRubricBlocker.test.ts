@@ -264,8 +264,10 @@ describe('2D-A3 R48: no approved rubric backs every human label field', () => {
     },
   );
 
-  it('the repository holds no artifact named as a rubric', () => {
-    expect(lines(git('ls-files')).filter((path) => /rubric/i.test(path))).toEqual([]);
+  it('the repository holds no artifact named as a rubric (this blocker proof aside)', () => {
+    expect(
+      lines(git('ls-files')).filter((path) => /rubric/i.test(path) && path !== R48_TEST),
+    ).toEqual([]);
   });
 
   it('no approved artifact gives hard_negative an operational criterion', () => {
