@@ -17,7 +17,8 @@
  *   3. run provider-neutral preconditions (the model id is well-formed and
  *      non-empty; a real subscription-auth pre-flight is 2B-2c2's job, and
  *      does not exist here — this slice makes ZERO live provider calls)
- *   4. compute the final input identity (`finalIdentity.ts`)
+ *   4. compute the final input identity (`finalIdentity.ts`, via the one
+ *      shared identity-tuple construction in `callIdentity.ts`)
  *   5. check idempotent COMPLETED reuse (`persist.ts`'s
  *      `findReusableCompletedCall`) — a hit means ZERO provider
  *      invocations and ZERO new rows
@@ -51,7 +52,7 @@ import type pg from 'pg';
 import { ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION } from './constants.js';
 import { assembleClassifierHandoff } from './assemble.js';
 import { canonicalStringify } from './canonical.js';
-import { computeFinalInputSha256 } from './finalIdentity.js';
+import { buildClassifierCallIdentity } from './callIdentity.js';
 import {
   ORGUNIT_CLASSIFIER_OUTPUT_JSON_SCHEMA,
   ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
@@ -191,18 +192,11 @@ async function runOneClassifierCall(
   checkPreconditions(input.modelId);
 
   const attemptNo = input.attemptNo ?? 1;
-  const identity = {
-    inputSha256: computeFinalInputSha256({
-      assemblyInputSha256: assembledBatch.assemblyInputSha256,
-      promptVersion: ORGUNIT_CLASSIFIER_PROMPT_VERSION,
-      outputSchemaVersion: ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
-    }),
+  const identity = buildClassifierCallIdentity({
+    assemblyInputSha256: assembledBatch.assemblyInputSha256,
     modelId: input.modelId,
-    promptVersion: ORGUNIT_CLASSIFIER_PROMPT_VERSION,
-    classifierVersion: ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION,
-    outputSchemaVersion: ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
     attemptNo,
-  };
+  });
 
   const reusable = await findReusableCompletedCall(pool, identity);
   if (reusable !== null) {

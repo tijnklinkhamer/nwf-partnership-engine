@@ -188,6 +188,65 @@ export async function findReusableCompletedCall(
 }
 
 /**
+ * What is persisted at one EXACT identity tuple, if anything. `ABSENT`
+ * means no call row exists; `NO_COMPLETION_RECORDED` means a call row
+ * exists with no completion — the same honest ambiguity every
+ * call/completion pair carries (this file's header), never a guess.
+ */
+export type PersistedIdentityState =
+  'ABSENT' | 'COMPLETED' | 'PARTIAL' | 'FAILED' | 'NO_COMPLETION_RECORDED';
+
+export interface PersistedIdentityStatus {
+  readonly state: PersistedIdentityState;
+  /** The call row's id; `null` only when `ABSENT`. */
+  readonly callId: string | null;
+  /** The completion's `error_kind` (a closed vocabulary, never prose); `null` when none. */
+  readonly errorKind: string | null;
+}
+
+/**
+ * READ-ONLY. Reports the persisted state at one exact identity tuple — the
+ * SAME six columns `orgunit_classifier_calls_identity_uidx` keys on, so at
+ * most one row can match. Unlike `findReusableCompletedCall`, this also
+ * reports PARTIAL / FAILED / no-completion matches, so an operator layer
+ * can refuse a colliding attempt BEFORE `insertClassifierCall` would hit
+ * the unique index. It never inserts, never updates, and never decides
+ * what to do about what it finds.
+ */
+export async function findCallStateAtIdentity(
+  pool: pg.Pool,
+  identity: IdentityLookup,
+): Promise<PersistedIdentityStatus> {
+  const { rows } = await pool.query<{
+    id: string;
+    terminal_state: 'COMPLETED' | 'PARTIAL' | 'FAILED' | null;
+    error_kind: string | null;
+  }>(
+    `SELECT c.id, comp.terminal_state, comp.error_kind
+       FROM orgunit_classifier_calls c
+       LEFT JOIN orgunit_classifier_call_completions comp ON comp.call_id = c.id
+      WHERE c.input_sha256 = $1 AND c.model_id = $2 AND c.prompt_version = $3
+        AND c.classifier_version = $4 AND c.output_schema_version = $5
+        AND c.attempt_no = $6`,
+    [
+      identity.inputSha256,
+      identity.modelId,
+      identity.promptVersion,
+      identity.classifierVersion,
+      identity.outputSchemaVersion,
+      identity.attemptNo,
+    ],
+  );
+  const row = rows[0];
+  if (row === undefined) return { state: 'ABSENT', callId: null, errorKind: null };
+  return {
+    state: row.terminal_state ?? 'NO_COMPLETION_RECORDED',
+    callId: row.id,
+    errorKind: row.error_kind,
+  };
+}
+
+/**
  * One already-persisted classification, read back for the idempotent-reuse
  * path. Deliberately NOT typed as `ClassificationResult`: that type's
  * `doc_index` is a MODEL-FACING field this table never stores (the model

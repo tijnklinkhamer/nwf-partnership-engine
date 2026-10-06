@@ -22,6 +22,7 @@ import {
   runWebsiteShow,
 } from './commands/website.js';
 import { runOrgunitsDiscover } from './commands/discover.js';
+import { runOrgunitsClassify } from './commands/classify.js';
 
 const USAGE = `nwf-pe - NWF Partnership Engine (Phase 1D)
 
@@ -44,6 +45,8 @@ Usage:
   nwf-pe website conflicts    [--limit <N>]
   nwf-pe website show         <erasmus-code>
   nwf-pe orgunits discover    --organisation-id <uuid> [--execute] [--json]
+  nwf-pe orgunits classify    --organisation-id <uuid> --run-id <uuid>
+                              --model <model-id> [--attempt <N>] [--execute] [--json]
 
 Options:
   --country <CC>    Restrict to an ISO-3166-1 alpha-2 country code (e.g. FR).
@@ -64,6 +67,15 @@ Options:
   --execute         With \`orgunits discover\`: perform a REAL bounded research run.
                     Without it, the command is a network-free DRY RUN that only
                     reports the resolved root authority.
+                    With \`orgunits classify\`: perform ONE bounded classification of
+                    the exact organisation/run/model/attempt. Without it, the command
+                    is a DRY RUN: no provider call and no classifier write.
+  --run-id <uuid>   With \`orgunits classify\`: the exact COMPLETED research run to
+                    classify. Required; no "latest run" is ever chosen.
+  --model <id>      With \`orgunits classify\`: one model from the closed classifier
+                    allowlist. Required; there is no default model.
+  --attempt <N>     With \`orgunits classify\`: the attempt number (default 1). Never
+                    incremented automatically; a re-observation is a deliberate --attempt.
   -h, --help        Show this help.
 
 Phase 1B ingests two official datasets: ECHE and the EWP Registry. It measures
@@ -108,6 +120,9 @@ export async function main(argv: string[]): Promise<number> {
       json: { type: 'boolean', default: false },
       limit: { type: 'string' },
       'organisation-id': { type: 'string' },
+      'run-id': { type: 'string' },
+      model: { type: 'string' },
+      attempt: { type: 'string' },
       execute: { type: 'boolean', default: false },
       help: { type: 'boolean', short: 'h', default: false },
     },
@@ -211,6 +226,19 @@ export async function main(argv: string[]): Promise<number> {
       ...(values['organisation-id'] !== undefined
         ? { organisationId: values['organisation-id'] }
         : {}),
+      execute: values.execute === true,
+      json: values.json === true,
+    });
+  }
+
+  if (group === 'orgunits' && sub === 'classify') {
+    return runOrgunitsClassify({
+      ...(values['organisation-id'] !== undefined
+        ? { organisationId: values['organisation-id'] }
+        : {}),
+      ...(values['run-id'] !== undefined ? { runId: values['run-id'] } : {}),
+      ...(values.model !== undefined ? { model: values.model } : {}),
+      ...(values.attempt !== undefined ? { attempt: values.attempt } : {}),
       execute: values.execute === true,
       json: values.json === true,
     });
