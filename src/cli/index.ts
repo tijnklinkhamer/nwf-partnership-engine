@@ -24,6 +24,10 @@ import {
 import { runOrgunitsDiscover } from './commands/discover.js';
 import { runOrgunitsClassify } from './commands/classify.js';
 import { runOrgunitsClassifyRead } from './commands/classifyRead.js';
+import {
+  buildClassifierOperatorEnvelope,
+  renderClassifierOperatorEnvelope,
+} from '../orgunits/classify/operatorContract.js';
 
 const USAGE = `nwf-pe - NWF Partnership Engine (Phase 1D)
 
@@ -102,19 +106,9 @@ resolution and merges nothing, and there is no crawling, research, scoring,
 compliance, contact or outbound capability in it.
 `;
 
-/**
- * PHASE 2B-1E SAFETY-GAP CORRECTION: exported so a test can drive the REAL
- * argument-parsing/routing path (`parseArgs({ strict: true, ... })` and
- * every `group === ... && sub === ...` branch below) directly, rather than
- * only calling a command handler the CLI happens to use. This is the exact,
- * already-established pattern `src/db/migrate.ts` uses (`main` exported,
- * auto-invoke guarded below) - not a new convention introduced for this
- * correction pass. No behaviour changes: `main` still does exactly what it
- * did before, and the auto-invoke at the bottom of this file still runs it
- * with `process.argv` exactly as before when this file is executed directly.
- */
-export async function main(argv: string[]): Promise<number> {
-  const { values, positionals } = parseArgs({
+/** The CLI's one strict argument parse. Throws on an unknown option or a malformed value. */
+function parseCliArgs(argv: string[]) {
+  return parseArgs({
     args: argv,
     allowPositionals: true,
     strict: true,
@@ -140,6 +134,42 @@ export async function main(argv: string[]): Promise<number> {
       help: { type: 'boolean', short: 'h', default: false },
     },
   });
+}
+
+/**
+ * PHASE 2B-1E SAFETY-GAP CORRECTION: exported so a test can drive the REAL
+ * argument-parsing/routing path (`parseArgs({ strict: true, ... })` and
+ * every `group === ... && sub === ...` branch below) directly, rather than
+ * only calling a command handler the CLI happens to use. This is the exact,
+ * already-established pattern `src/db/migrate.ts` uses (`main` exported,
+ * auto-invoke guarded below) - not a new convention introduced for this
+ * correction pass. No behaviour changes: `main` still does exactly what it
+ * did before, and the auto-invoke at the bottom of this file still runs it
+ * with `process.argv` exactly as before when this file is executed directly.
+ */
+export async function main(argv: string[]): Promise<number> {
+  let parsedArgv;
+  try {
+    parsedArgv = parseCliArgs(argv);
+  } catch (error) {
+    // CLASSIFIER_OPERATOR_CONTROL_PLANE_CONTRACT_V1: a strict-parse rejection
+    // of the canonical `orgunits classify ... --json` invocation is still one
+    // contract envelope, so a machine caller never parses stderr. Every other
+    // invocation keeps the landed behaviour (the error propagates).
+    if (argv[0] === 'orgunits' && argv[1] === 'classify' && argv.includes('--json')) {
+      log.error(error instanceof Error ? error.message : String(error));
+      process.stdout.write(
+        renderClassifierOperatorEnvelope(
+          buildClassifierOperatorEnvelope('UNRESOLVED', 'CLI_USAGE_REJECTED', {
+            reason: { kind: 'CLI_USAGE_REJECTED' },
+          }),
+        ),
+      );
+      return 1;
+    }
+    throw error;
+  }
+  const { values, positionals } = parsedArgv;
 
   if (values.help || positionals.length === 0) {
     process.stdout.write(USAGE);
@@ -148,10 +178,16 @@ export async function main(argv: string[]): Promise<number> {
 
   const [group, sub, ...rest] = positionals;
   const limit = values.limit === undefined ? undefined : Number.parseInt(values.limit, 10);
-  if (limit !== undefined && (!Number.isInteger(limit) || limit <= 0)) {
+  const limitMalformed = limit !== undefined && (!Number.isInteger(limit) || limit <= 0);
+  // The classifier commands refuse a malformed --limit themselves, first, with
+  // the same text, so that `--json` can report it as a contract envelope.
+  const classifierRoute = group === 'orgunits' && sub === 'classify';
+  if (limitMalformed && !classifierRoute) {
     log.error(`--limit must be a positive integer, got ${values.limit}`);
     return 1;
   }
+  const malformedLimit =
+    limitMalformed && values.limit !== undefined ? { malformedLimit: values.limit } : {};
 
   if (group === 'ingest' && sub === 'eche') {
     return runIngestEche({
@@ -257,7 +293,8 @@ export async function main(argv: string[]): Promise<number> {
         : {}),
       ...(values['run-id'] !== undefined ? { runId: values['run-id'] } : {}),
       ...(values['call-id'] !== undefined ? { callId: values['call-id'] } : {}),
-      ...(limit !== undefined ? { limit } : {}),
+      ...(limit !== undefined && !limitMalformed ? { limit } : {}),
+      ...malformedLimit,
       json: values.json === true,
     });
   }
@@ -270,6 +307,7 @@ export async function main(argv: string[]): Promise<number> {
       ...(values['run-id'] !== undefined ? { runId: values['run-id'] } : {}),
       ...(values.model !== undefined ? { model: values.model } : {}),
       ...(values.attempt !== undefined ? { attempt: values.attempt } : {}),
+      ...malformedLimit,
       execute: values.execute === true,
       json: values.json === true,
     });

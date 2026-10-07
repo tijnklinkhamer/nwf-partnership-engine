@@ -45,6 +45,7 @@ import {
   type RepairCallDetailRead,
   type ResearchRunsRead,
 } from '../../orgunits/classify/operatorReadModels.js';
+import { CLASSIFIER_OPERATOR_CONTRACT_VERSION } from '../../orgunits/classify/operatorContract.js';
 import { loadEffectiveClassifications } from '../../orgunits/classify/persist.js';
 import { ORGUNIT_CLASSIFIER_SYSTEM_PROMPT } from '../../orgunits/classify/prompt.js';
 import type * as ProviderModule from '../../orgunits/classify/provider/claudeMaxAgentProvider.js';
@@ -146,6 +147,17 @@ interface Org {
   readonly organisationId: string;
   readonly echeRowKey: string;
   readonly claimId: string;
+}
+
+/**
+ * CLASSIFIER_OPERATOR_CONTROL_PLANE_CONTRACT_V1: every `--json` document is
+ * one versioned contract envelope; the landed read model these assertions
+ * were written against is unchanged under its `data`.
+ */
+function unwrap(text: string): unknown {
+  const envelope = JSON.parse(text) as { contractVersion: string; data: unknown };
+  expect(envelope.contractVersion).toBe(CLASSIFIER_OPERATOR_CONTRACT_VERSION);
+  return envelope.data;
 }
 
 describeDb('orgunits classify runs|calls|show - read models (integration)', () => {
@@ -434,7 +446,7 @@ describeDb('orgunits classify runs|calls|show - read models (integration)', () =
   ): Promise<T> {
     const result = await run({ ...options, json: true });
     expect(result.exit, result.stderr).toBe(0);
-    return JSON.parse(result.stdout) as T;
+    return unwrap(result.stdout) as T;
   }
 
   async function cli(argv: string[]): Promise<Captured> {
@@ -739,7 +751,7 @@ describeDb('orgunits classify runs|calls|show - read models (integration)', () =
       json: true,
     });
     expect(result.exit).toBe(0);
-    expect(JSON.parse(result.stdout)).toEqual({
+    expect(unwrap(result.stdout)).toEqual({
       kind: 'CLASSIFIER_CALLS',
       organisationId: orgA.organisationId,
       runId: UNKNOWN_UUID,
@@ -1135,7 +1147,7 @@ describeDb('orgunits classify runs|calls|show - read models (integration)', () =
       expect(result.stdout.length).toBeGreaterThan(0);
     }
     const shown = await cli(['orgunits', 'classify', 'show', '--call-id', s.callId, '--json']);
-    expect((JSON.parse(shown.stdout) as ClassifierCallDetailRead).callKind).toBe('ORDINARY');
+    expect((unwrap(shown.stdout) as ClassifierCallDetailRead).callKind).toBe('ORDINARY');
     expect(await snapshot()).toEqual(before);
     expect(providerCounters).toEqual(countersBefore);
     expect(providerCounters).toEqual({

@@ -20,6 +20,15 @@
  *
  * A third positional other than `runs`, `calls` or `show` is REFUSED here -
  * it never falls through to the execution action.
+ *
+ * MACHINE CONTRACT (CLASSIFIER_OPERATOR_CONTROL_PLANE_CONTRACT_V1). Every
+ * handled outcome - a read, a refusal, a not-found - is decided once as a
+ * stable contract code (`orgunits/classify/operatorContract.ts`). With
+ * `--json` it is exactly one versioned envelope on stdout, the read model
+ * itself unchanged under `data`; stderr keeps only the landed human
+ * diagnostics, which a caller never needs to parse; an unexpected
+ * exception becomes `INTERNAL_ERROR` with no message in the envelope.
+ * Without `--json` the human output is unchanged.
  */
 import type pg from 'pg';
 import { withPool } from '../../db/client.js';
@@ -33,6 +42,14 @@ import {
   type ClassifierCallsRead,
   type ResearchRunsRead,
 } from '../../orgunits/classify/operatorReadModels.js';
+import {
+  buildClassifierOperatorEnvelope,
+  classifierOperatorExitCode,
+  renderClassifierOperatorEnvelope,
+  type ClassifierOperatorCode,
+  type ClassifierOperatorOperation,
+  type ClassifierOperatorReason,
+} from '../../orgunits/classify/operatorContract.js';
 
 export const CLASSIFY_READ_SUBCOMMANDS = ['runs', 'calls', 'show'] as const;
 export type ClassifyReadSubcommand = (typeof CLASSIFY_READ_SUBCOMMANDS)[number];
@@ -59,6 +76,8 @@ export interface ClassifyReadOptions {
   readonly callId?: string;
   /** Already parsed by the CLI's shared positive-integer `--limit` rule. */
   readonly limit?: number;
+  /** The raw `--limit` text when that shared rule rejected it; refused here, first, as before. */
+  readonly malformedLimit?: string;
   readonly json: boolean;
 }
 
@@ -87,10 +106,25 @@ export type ParsedClassifyRead =
     }
   | { readonly subcommand: 'show'; readonly callId: string };
 
+/** The contract operation a read subcommand names; anything else never resolved to an operation. */
+export function classifyReadOperation(subcommand: string | undefined): ClassifierOperatorOperation {
+  if (subcommand === 'runs') return 'CLASSIFY_RUNS';
+  if (subcommand === 'calls') return 'CLASSIFY_CALLS';
+  if (subcommand === 'show') return 'CLASSIFY_SHOW';
+  return 'UNRESOLVED';
+}
+
+type ReadRefusal = {
+  ok: false;
+  message: string;
+  code: ClassifierOperatorCode;
+  reason: ClassifierOperatorReason;
+};
+
 /** PURE argument bounds for the three reads. */
 export function parseClassifyReadArguments(
   options: ClassifyReadOptions,
-): { ok: true; value: ParsedClassifyRead } | { ok: false; message: string } {
+): { ok: true; value: ParsedClassifyRead } | ReadRefusal {
   const [subcommand, ...extra] = options.positionals;
   if (!CLASSIFY_READ_SUBCOMMANDS.includes(subcommand as ClassifyReadSubcommand)) {
     return {
@@ -98,6 +132,8 @@ export function parseClassifyReadArguments(
       message:
         `Unknown classifier subcommand: ${JSON.stringify(subcommand ?? '')}. ` +
         'Expected one of: runs, calls, show (or no subcommand for the classify action itself).',
+      code: 'UNKNOWN_READ_SUBCOMMAND',
+      reason: { kind: 'UNKNOWN_READ_SUBCOMMAND', acceptedSubcommands: CLASSIFY_READ_SUBCOMMANDS },
     };
   }
   const read = subcommand as ClassifyReadSubcommand;
@@ -105,6 +141,8 @@ export function parseClassifyReadArguments(
     return {
       ok: false,
       message: `orgunits classify ${read} takes no further positional argument.`,
+      code: 'UNEXPECTED_POSITIONAL',
+      reason: { kind: 'UNEXPECTED_POSITIONAL', subcommand: read },
     };
   }
   const allowed = CLASSIFY_READ_ALLOWED_OPTIONS[read];
@@ -115,25 +153,41 @@ export function parseClassifyReadArguments(
       message:
         `orgunits classify ${read} does not accept ${refused.map((o) => `--${o}`).join(', ')}. ` +
         `It is a read-only inspection; accepted: ${allowed.map((o) => `--${o}`).join(', ')}.`,
+      code: 'OPTION_NOT_ACCEPTED',
+      reason: { kind: 'OPTION_NOT_ACCEPTED', refusedOptions: refused, acceptedOptions: allowed },
     };
   }
   const limit = options.limit ?? CLASSIFIER_READ_DEFAULT_LIMIT;
+  const invalid = (
+    message: string,
+    argument: 'organisation-id' | 'run-id' | 'call-id',
+    problem: 'MISSING' | 'MALFORMED',
+  ): ReadRefusal => ({
+    ok: false,
+    message,
+    code: 'INVALID_ARGUMENT',
+    reason: { kind: 'INVALID_ARGUMENT', argument, problem },
+  });
 
   if (read === 'show') {
     if (options.callId === undefined || options.callId === '') {
-      return { ok: false, message: 'orgunits classify show requires --call-id <uuid>.' };
+      return invalid('orgunits classify show requires --call-id <uuid>.', 'call-id', 'MISSING');
     }
     if (!isUuid(options.callId)) {
-      return { ok: false, message: '--call-id must be a single UUID.' };
+      return invalid('--call-id must be a single UUID.', 'call-id', 'MALFORMED');
     }
     return { ok: true, value: { subcommand: 'show', callId: options.callId } };
   }
 
   if (options.organisationId === undefined || options.organisationId === '') {
-    return { ok: false, message: `orgunits classify ${read} requires --organisation-id <uuid>.` };
+    return invalid(
+      `orgunits classify ${read} requires --organisation-id <uuid>.`,
+      'organisation-id',
+      'MISSING',
+    );
   }
   if (!isUuid(options.organisationId)) {
-    return { ok: false, message: '--organisation-id must be a single UUID.' };
+    return invalid('--organisation-id must be a single UUID.', 'organisation-id', 'MALFORMED');
   }
   if (read === 'runs') {
     return {
@@ -142,7 +196,7 @@ export function parseClassifyReadArguments(
     };
   }
   if (options.runId !== undefined && !isUuid(options.runId)) {
-    return { ok: false, message: '--run-id must be a single UUID.' };
+    return invalid('--run-id must be a single UUID.', 'run-id', 'MALFORMED');
   }
   return {
     ok: true,
@@ -160,26 +214,81 @@ export async function executeClassifyReadCommand(
   options: ClassifyReadOptions,
   deps: ClassifyReadDependencies,
 ): Promise<number> {
+  const operation = classifyReadOperation(options.positionals[0]);
+  if (!options.json) return classifyRead(options, deps, operation);
+  // Machine mode: an unexpected exception is INTERNAL_ERROR with no message
+  // in the envelope; the diagnostic goes to stderr. A read never writes.
+  try {
+    return await classifyRead(options, deps, operation);
+  } catch (error) {
+    const name = error instanceof Error ? error.name : 'Error';
+    const message = error instanceof Error ? error.message : String(error);
+    deps.stderr(`error: orgunits classify read: internal failure (${name}): ${message}\n`);
+    const envelope = buildClassifierOperatorEnvelope(operation, 'INTERNAL_ERROR', {
+      reason: {
+        kind: 'INTERNAL_ERROR',
+        stage: 'BEFORE_EXECUTION',
+        classifierWritesMayHaveOccurred: false,
+      },
+    });
+    deps.stdout(renderClassifierOperatorEnvelope(envelope));
+    return envelope.exitCode;
+  }
+}
+
+async function classifyRead(
+  options: ClassifyReadOptions,
+  deps: ClassifyReadDependencies,
+  operation: ClassifierOperatorOperation,
+): Promise<number> {
+  /** The ONE place a read outcome is rendered; the contract code decides the exit status. */
+  const respond = (
+    code: ClassifierOperatorCode,
+    parts: { data?: unknown; reason?: ClassifierOperatorReason },
+    human: { stdout?: string; stderr?: string },
+  ): number => {
+    if (options.json) {
+      deps.stdout(
+        renderClassifierOperatorEnvelope(buildClassifierOperatorEnvelope(operation, code, parts)),
+      );
+    } else if (human.stdout !== undefined) {
+      deps.stdout(human.stdout);
+    }
+    // The landed diagnostics stay on stderr in both modes; they are never the contract.
+    if (human.stderr !== undefined) deps.stderr(human.stderr);
+    return classifierOperatorExitCode(code);
+  };
+
+  // The CLI's shared --limit rule ran first before this contract existed; it still does.
+  if (options.malformedLimit !== undefined) {
+    return respond(
+      'INVALID_ARGUMENT',
+      { reason: { kind: 'INVALID_ARGUMENT', argument: 'limit', problem: 'MALFORMED' } },
+      { stderr: `ERROR --limit must be a positive integer, got ${options.malformedLimit}\n` },
+    );
+  }
   const parsed = parseClassifyReadArguments(options);
   if (!parsed.ok) {
-    deps.stderr(`error: ${parsed.message}\n`);
-    return 1;
+    return respond(
+      parsed.code,
+      { reason: parsed.reason },
+      { stderr: `error: ${parsed.message}\n` },
+    );
   }
   const args = parsed.value;
-  const emit = (value: unknown, human: string): void => {
-    deps.stdout(options.json ? `${JSON.stringify(value, null, 2)}\n` : human);
-  };
+  const organisationNotFound = (organisationId: string): number =>
+    respond(
+      'ORGANISATION_NOT_FOUND',
+      { reason: { kind: 'ORGANISATION_NOT_FOUND', organisationId } },
+      { stderr: `error: no organisation with id ${organisationId}.\n` },
+    );
 
   if (args.subcommand === 'runs') {
     const result = await deps.withReadonlyPool((pool) =>
       listClassifierResearchRuns(pool, { organisationId: args.organisationId, limit: args.limit }),
     );
-    if (result === null) {
-      deps.stderr(`error: no organisation with id ${args.organisationId}.\n`);
-      return 1;
-    }
-    emit(result, formatRuns(result));
-    return 0;
+    if (result === null) return organisationNotFound(args.organisationId);
+    return respond('READ_SUCCEEDED', { data: result }, { stdout: formatRuns(result) });
   }
 
   if (args.subcommand === 'calls') {
@@ -190,21 +299,19 @@ export async function executeClassifyReadCommand(
         limit: args.limit,
       }),
     );
-    if (result === null) {
-      deps.stderr(`error: no organisation with id ${args.organisationId}.\n`);
-      return 1;
-    }
-    emit(result, formatCalls(result));
-    return 0;
+    if (result === null) return organisationNotFound(args.organisationId);
+    return respond('READ_SUCCEEDED', { data: result }, { stdout: formatCalls(result) });
   }
 
   const detail = await deps.withReadonlyPool((pool) => showClassifierCall(pool, args.callId));
   if (detail === null) {
-    deps.stderr(`error: no classifier call with id ${args.callId}.\n`);
-    return 1;
+    return respond(
+      'CALL_NOT_FOUND',
+      { reason: { kind: 'CALL_NOT_FOUND', callId: args.callId } },
+      { stderr: `error: no classifier call with id ${args.callId}.\n` },
+    );
   }
-  emit(detail, formatDetail(detail));
-  return 0;
+  return respond('READ_SUCCEEDED', { data: detail }, { stdout: formatDetail(detail) });
 }
 
 /** Production wiring: the readonly role, and nothing else. */

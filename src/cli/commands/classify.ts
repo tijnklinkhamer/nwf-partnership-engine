@@ -45,6 +45,16 @@
  * OUTPUT IS BOUNDED. Ids, states, versions and counts only — never page
  * text, prompt text, the serialized batch, raw model output, the
  * environment, a profile path or a credential.
+ *
+ * MACHINE CONTRACT (CLASSIFIER_OPERATOR_CONTROL_PLANE_CONTRACT_V1). Every
+ * handled outcome is decided ONCE, as a stable contract code
+ * (`orgunits/classify/operatorContract.ts`), from which the exit status is
+ * derived. With `--json` that outcome is rendered as exactly one versioned
+ * envelope on stdout - refusals included - and stderr carries only the
+ * landed human diagnostics, which a caller never needs to parse; an
+ * unexpected exception becomes `INTERNAL_ERROR` (no message in the
+ * envelope; the diagnostic goes to stderr). Without `--json` the human
+ * output is unchanged.
  */
 import type pg from 'pg';
 import { withPool } from '../../db/client.js';
@@ -69,6 +79,15 @@ import {
   runClassifierPreflight,
   type PreflightResult,
 } from '../../orgunits/classify/provider/preflight.js';
+import {
+  buildClassifierOperatorEnvelope,
+  classifierOperatorExitCode,
+  classifierPlanFailure,
+  renderClassifierOperatorEnvelope,
+  type ClassifierOperatorArgument,
+  type ClassifierOperatorCode,
+  type ClassifierOperatorReason,
+} from '../../orgunits/classify/operatorContract.js';
 
 export interface ClassifyOptions {
   organisationId?: string;
@@ -78,6 +97,13 @@ export interface ClassifyOptions {
   attempt?: string;
   execute: boolean;
   json: boolean;
+  /**
+   * The raw `--limit` text when the CLI's shared positive-integer rule
+   * rejected it. The action takes no limit; a malformed one is refused here
+   * exactly as the shared rule refused it before, a well-formed one is
+   * ignored exactly as before.
+   */
+  malformedLimit?: string;
 }
 
 /**
@@ -121,29 +147,53 @@ export interface ParsedClassifyArguments {
 }
 
 /** PURE argument bounds. No default organisation, run or model; attempt defaults to 1, never incremented. */
-export function parseClassifyArguments(
-  options: ClassifyOptions,
-): { ok: true; value: ParsedClassifyArguments } | { ok: false; message: string } {
+export function parseClassifyArguments(options: ClassifyOptions):
+  | { ok: true; value: ParsedClassifyArguments }
+  | {
+      ok: false;
+      message: string;
+      argument: ClassifierOperatorArgument;
+      problem: 'MISSING' | 'MALFORMED';
+    } {
   if (options.organisationId === undefined || options.organisationId === '') {
-    return { ok: false, message: 'orgunits classify requires --organisation-id <uuid>.' };
+    return {
+      ok: false,
+      message: 'orgunits classify requires --organisation-id <uuid>.',
+      argument: 'organisation-id',
+      problem: 'MISSING',
+    };
   }
   if (!UUID_PATTERN.test(options.organisationId)) {
-    return { ok: false, message: '--organisation-id must be a single UUID.' };
+    return {
+      ok: false,
+      message: '--organisation-id must be a single UUID.',
+      argument: 'organisation-id',
+      problem: 'MALFORMED',
+    };
   }
   if (options.runId === undefined || options.runId === '') {
     return {
       ok: false,
+      argument: 'run-id',
+      problem: 'MISSING',
       message:
         'orgunits classify requires --run-id <uuid>. No research run is ever chosen ' +
         'implicitly (there is no "latest run"); choosing one is an operator decision.',
     };
   }
   if (!UUID_PATTERN.test(options.runId)) {
-    return { ok: false, message: '--run-id must be a single UUID.' };
+    return {
+      ok: false,
+      message: '--run-id must be a single UUID.',
+      argument: 'run-id',
+      problem: 'MALFORMED',
+    };
   }
   if (options.model === undefined || options.model === '') {
     return {
       ok: false,
+      argument: 'model',
+      problem: 'MISSING',
       message:
         'orgunits classify requires --model <model-id>. There is no default classifier ' +
         'model: the allowlist holds candidate tiers, not a selected winner.',
@@ -157,6 +207,8 @@ export function parseClassifyArguments(
       return {
         ok: false,
         message: `--attempt must be a positive integer (>= 1); received ${JSON.stringify(raw)}.`,
+        argument: 'attempt',
+        problem: 'MALFORMED',
       };
     }
     attemptNo = value;
@@ -280,16 +332,77 @@ export async function executeClassifyCommand(
   options: ClassifyOptions,
   deps: ClassifyDependencies,
 ): Promise<number> {
-  const fail = (message: string): number => {
-    deps.stderr(`ERROR ${message}\n`);
-    return 1;
-  };
-  const emit = (value: unknown, human: readonly string[]): void => {
-    deps.stdout(options.json ? `${JSON.stringify(value, null, 2)}\n` : `${human.join('\n')}\n`);
+  if (!options.json) return classifyAction(options, deps);
+  // Machine mode: an unexpected exception is reported as INTERNAL_ERROR with
+  // a stage and a write-possibility flag only; its message goes to stderr as
+  // a diagnostic and never into the envelope.
+  const progress = { classifierWritesMayHaveOccurred: false };
+  try {
+    return await classifyAction(options, deps, progress);
+  } catch (error) {
+    const name = error instanceof Error ? error.name : 'Error';
+    const message = error instanceof Error ? error.message : String(error);
+    deps.stderr(`ERROR orgunits classify: internal failure (${name}): ${message}\n`);
+    const envelope = buildClassifierOperatorEnvelope('CLASSIFY', 'INTERNAL_ERROR', {
+      reason: {
+        kind: 'INTERNAL_ERROR',
+        stage: progress.classifierWritesMayHaveOccurred ? 'DURING_EXECUTION' : 'BEFORE_EXECUTION',
+        classifierWritesMayHaveOccurred: progress.classifierWritesMayHaveOccurred,
+      },
+    });
+    deps.stdout(renderClassifierOperatorEnvelope(envelope));
+    return envelope.exitCode;
+  }
+}
+
+async function classifyAction(
+  options: ClassifyOptions,
+  deps: ClassifyDependencies,
+  progress: { classifierWritesMayHaveOccurred: boolean } = {
+    classifierWritesMayHaveOccurred: false,
+  },
+): Promise<number> {
+  /**
+   * The ONE place an outcome is rendered. The contract code decides the exit
+   * status in both modes; `--json` puts exactly the envelope on stdout, the
+   * human mode exactly the landed text; the landed stderr diagnostics are
+   * written in both modes and are never part of the contract.
+   */
+  const respond = (
+    code: ClassifierOperatorCode,
+    parts: { data?: unknown; reason?: ClassifierOperatorReason },
+    human: { stdout?: readonly string[]; stderr?: readonly string[] },
+  ): number => {
+    if (options.json) {
+      deps.stdout(
+        renderClassifierOperatorEnvelope(buildClassifierOperatorEnvelope('CLASSIFY', code, parts)),
+      );
+    } else if (human.stdout !== undefined) {
+      deps.stdout(`${human.stdout.join('\n')}\n`);
+    }
+    // The landed diagnostics stay on stderr in both modes; they are never the contract.
+    for (const line of human.stderr ?? []) deps.stderr(`ERROR ${line}\n`);
+    return classifierOperatorExitCode(code);
   };
 
+  if (options.malformedLimit !== undefined) {
+    return respond(
+      'INVALID_ARGUMENT',
+      { reason: { kind: 'INVALID_ARGUMENT', argument: 'limit', problem: 'MALFORMED' } },
+      { stderr: [`--limit must be a positive integer, got ${options.malformedLimit}`] },
+    );
+  }
+
   const parsed = parseClassifyArguments(options);
-  if (!parsed.ok) return fail(parsed.message);
+  if (!parsed.ok) {
+    return respond(
+      'INVALID_ARGUMENT',
+      {
+        reason: { kind: 'INVALID_ARGUMENT', argument: parsed.argument, problem: parsed.problem },
+      },
+      { stderr: [parsed.message] },
+    );
+  }
   const args = parsed.value;
   const mode = options.execute ? 'EXECUTE' : 'DRY_RUN';
 
@@ -303,7 +416,17 @@ export async function executeClassifyCommand(
     }),
   );
   if (!preflight.ok && (options.execute || preflight.kind === 'MODEL_NOT_ALLOWED')) {
-    return fail(`classifier preflight refused (${preflight.kind}): ${preflight.detail}`);
+    return respond(
+      'PREFLIGHT_REFUSED',
+      {
+        reason: {
+          kind: 'PREFLIGHT_REFUSED',
+          preflightKind: preflight.kind,
+          detail: preflight.detail,
+        },
+      },
+      { stderr: [`classifier preflight refused (${preflight.kind}): ${preflight.detail}`] },
+    );
   }
 
   // PHASE A - research role, completion gate only. The pool is closed on return.
@@ -311,9 +434,22 @@ export async function executeClassifyCommand(
     checkRunCompleted(pool, args.runId),
   );
   if (runCompletion.status !== 'COMPLETED') {
-    return fail(
-      `research run ${args.runId} is ${runCompletion.status}, not COMPLETED; ` +
-        `classification refuses before any assembly, provider call or write.`,
+    return respond(
+      'RESEARCH_RUN_NOT_COMPLETED',
+      {
+        reason: {
+          kind: 'RESEARCH_RUN_NOT_COMPLETED',
+          runId: args.runId,
+          researchRunStatus: runCompletion.status,
+          researchRunErrorKind: 'errorKind' in runCompletion ? runCompletion.errorKind : null,
+        },
+      },
+      {
+        stderr: [
+          `research run ${args.runId} is ${runCompletion.status}, not COMPLETED; ` +
+            `classification refuses before any assembly, provider call or write.`,
+        ],
+      },
     );
   }
 
@@ -329,9 +465,17 @@ export async function executeClassifyCommand(
         attemptNo: args.attemptNo,
       });
     } catch (error) {
+      const failure = classifierPlanFailure(error);
+      // An untyped failure is not a refusal the contract can name: in machine
+      // mode it propagates to INTERNAL_ERROR; the human text is unchanged.
+      if (failure === null && options.json) throw error;
       const name = error instanceof Error ? error.name : 'Error';
       const message = error instanceof Error ? error.message : String(error);
-      return fail(`classifier assembly refused (${name}): ${message}`);
+      return respond(
+        failure?.code ?? 'CLASSIFIER_ASSEMBLY_REFUSED',
+        failure === null ? {} : { reason: failure.reason },
+        { stderr: [`classifier assembly refused (${name}): ${message}`] },
+      );
     }
 
     const header = {
@@ -359,65 +503,108 @@ export async function executeClassifyCommand(
         'DRY RUN: no provider was constructed or invoked, no auth-status check ran, no ' +
         'scratch workspace was created, and no classifier call, completion or ' +
         'classification row was written. Pass --execute to run for real.';
-      emit(
+      // DRY_RUN_* is decided by exactly the landed rule: success exactly when
+      // an --execute with the same arguments would be permitted to START.
+      const code: ClassifierOperatorCode = !wouldStart
+        ? 'DRY_RUN_EXECUTION_NOT_PERMITTED'
+        : plan.kind === 'NO_CANDIDATES'
+          ? 'DRY_RUN_NO_CANDIDATES'
+          : 'DRY_RUN_EXECUTION_PERMITTED';
+      return respond(
+        code,
         {
-          ...header,
-          assemblyStatus: plan.kind,
-          batchCount: batches.length,
-          totalDocumentCount: batches.reduce((sum, b) => sum + b.documentCount, 0),
-          batches: batches.map((b) => ({
-            batchIndex: b.batchIndex,
-            documentCount: b.documentCount,
-            inputSha256: b.inputSha256,
-            planState: b.state,
-            persistedState: b.persistedState,
-            existingCallId: b.existingCallId,
-            existingErrorKind: b.existingErrorKind,
-          })),
-          executionPreflight: preflight,
-          executionPermitted,
-          providerCalls: 0,
-          classifierWrites: 0,
-          note,
+          data: {
+            ...header,
+            assemblyStatus: plan.kind,
+            batchCount: batches.length,
+            totalDocumentCount: batches.reduce((sum, b) => sum + b.documentCount, 0),
+            batches: batches.map((b) => ({
+              batchIndex: b.batchIndex,
+              documentCount: b.documentCount,
+              inputSha256: b.inputSha256,
+              planState: b.state,
+              persistedState: b.persistedState,
+              existingCallId: b.existingCallId,
+              existingErrorKind: b.existingErrorKind,
+            })),
+            executionPreflight: preflight,
+            executionPermitted,
+            providerCalls: 0,
+            classifierWrites: 0,
+            note,
+          },
+          ...(wouldStart
+            ? {}
+            : {
+                reason: {
+                  kind: 'DRY_RUN_EXECUTION_NOT_PERMITTED',
+                  blockedBy: [
+                    ...(preflight.ok ? [] : ['PREFLIGHT_REFUSED' as const]),
+                    ...(executionPermitted
+                      ? []
+                      : ['ATTEMPT_ALREADY_EXISTS_NON_COMPLETED' as const]),
+                  ],
+                },
+              }),
         },
-        [
-          ...headerLines,
-          `  assembly ${plan.kind}: ${batches.length} batch(es), ` +
-            `${batches.reduce((sum, b) => sum + b.documentCount, 0)} document(s)`,
-          ...batches.map(
-            (b) =>
-              `  batch ${b.batchIndex}: ${b.state} (${b.documentCount} document(s), ` +
-              `persisted ${b.persistedState}${b.existingCallId !== null ? `, call ${b.existingCallId}` : ''})`,
-          ),
-          preflight.ok
-            ? '  execution preflight: PASS'
-            : `  execution preflight: REFUSED (${preflight.kind}): ${preflight.detail}`,
-          ...(plan.kind === 'BATCHES' && !plan.executionPermitted
-            ? nonCompletedRefusalLines(plan)
-            : []),
-          note,
-        ],
+        {
+          stdout: [
+            ...headerLines,
+            `  assembly ${plan.kind}: ${batches.length} batch(es), ` +
+              `${batches.reduce((sum, b) => sum + b.documentCount, 0)} document(s)`,
+            ...batches.map(
+              (b) =>
+                `  batch ${b.batchIndex}: ${b.state} (${b.documentCount} document(s), ` +
+                `persisted ${b.persistedState}${b.existingCallId !== null ? `, call ${b.existingCallId}` : ''})`,
+            ),
+            preflight.ok
+              ? '  execution preflight: PASS'
+              : `  execution preflight: REFUSED (${preflight.kind}): ${preflight.detail}`,
+            ...(plan.kind === 'BATCHES' && !plan.executionPermitted
+              ? nonCompletedRefusalLines(plan)
+              : []),
+            note,
+          ],
+        },
       );
-      // Exit 0 exactly when an --execute with the same arguments would be
-      // permitted to START.
-      return wouldStart ? 0 : 1;
     }
 
     if (plan.kind === 'NO_CANDIDATES') {
-      emit({ ...header, result: 'NO_CANDIDATES', batches: [], providerCalls: 0 }, [
-        ...headerLines,
-        '  NO_CANDIDATES: nothing eligible to classify; no provider call, no write.',
-      ]);
-      return 0;
+      return respond(
+        'EXECUTE_NO_CANDIDATES',
+        { data: { ...header, result: 'NO_CANDIDATES', batches: [], providerCalls: 0 } },
+        {
+          stdout: [
+            ...headerLines,
+            '  NO_CANDIDATES: nothing eligible to classify; no provider call, no write.',
+          ],
+        },
+      );
     }
 
     if (!plan.executionPermitted) {
-      const lines = nonCompletedRefusalLines(plan);
-      for (const line of lines) deps.stderr(`ERROR ${line}\n`);
-      return 1;
+      return respond(
+        'ATTEMPT_ALREADY_EXISTS_NON_COMPLETED',
+        {
+          reason: {
+            kind: 'ATTEMPT_ALREADY_EXISTS_NON_COMPLETED',
+            attemptNo: plan.attemptNo,
+            batches: plan.batches
+              .filter((b) => b.state === 'ATTEMPT_ALREADY_EXISTS_NON_COMPLETED')
+              .map((b) => ({
+                batchIndex: b.batchIndex,
+                persistedState: b.persistedState,
+                existingCallId: b.existingCallId,
+                existingErrorKind: b.existingErrorKind,
+              })),
+          },
+        },
+        { stderr: nonCompletedRefusalLines(plan) },
+      );
     }
 
     const provider = plan.requiresProvider ? await deps.createProvider() : PROVIDER_NOT_REQUIRED;
+    progress.classifierWritesMayHaveOccurred = true;
     const results = await runOrganisationClassification(pool, {
       organisationId: args.organisationId,
       runId: args.runId,
@@ -430,30 +617,54 @@ export async function executeClassifyCommand(
       repairPolicy: CLASSIFIER_OPERATOR_REPAIR_POLICY,
     });
     if (results.length !== plan.batches.length) {
-      return fail(
-        `the runtime returned ${results.length} batch result(s) where the plan had ` +
-          `${plan.batches.length}; persisted rows are kept as written. Inspect before re-running.`,
+      return respond(
+        'RUNTIME_RESULT_MISMATCH',
+        {
+          reason: {
+            kind: 'RUNTIME_RESULT_MISMATCH',
+            plannedBatchCount: plan.batches.length,
+            returnedBatchCount: results.length,
+            classifierWritesMayHaveOccurred: true,
+          },
+        },
+        {
+          stderr: [
+            `the runtime returned ${results.length} batch result(s) where the plan had ` +
+              `${plan.batches.length}; persisted rows are kept as written. Inspect before re-running.`,
+          ],
+        },
       );
     }
 
     const summaries = summariseResults(plan, results);
     const allCompleted = summaries.every((s) => s.terminalState === 'COMPLETED');
-    emit({ ...header, result: allCompleted ? 'COMPLETED' : 'NOT_COMPLETED', batches: summaries }, [
-      ...headerLines,
-      ...summaries.map(
-        (s) =>
-          `  batch ${s.batchIndex}: ${s.kind} call ${s.callId} ${s.terminalState ?? ''}` +
-          `${s.errorKind !== null ? ` (${s.errorKind})` : ''}: ${s.acceptedCount}/` +
-          `${s.documentCount} accepted, ${s.rejectedCount} rejected, ${s.repairCount} repair(s)`,
-      ),
-      ...(allCompleted
-        ? []
-        : [
-            'At least one batch did not complete. Its rows are persisted as written ' +
-              '(append-only; nothing is rolled back) and nothing is retried automatically.',
-          ]),
-    ]);
-    return allCompleted ? 0 : 1;
+    return respond(
+      allCompleted ? 'EXECUTE_COMPLETED' : 'EXECUTE_NOT_COMPLETED',
+      {
+        data: {
+          ...header,
+          result: allCompleted ? 'COMPLETED' : 'NOT_COMPLETED',
+          batches: summaries,
+        },
+      },
+      {
+        stdout: [
+          ...headerLines,
+          ...summaries.map(
+            (s) =>
+              `  batch ${s.batchIndex}: ${s.kind} call ${s.callId} ${s.terminalState ?? ''}` +
+              `${s.errorKind !== null ? ` (${s.errorKind})` : ''}: ${s.acceptedCount}/` +
+              `${s.documentCount} accepted, ${s.rejectedCount} rejected, ${s.repairCount} repair(s)`,
+          ),
+          ...(allCompleted
+            ? []
+            : [
+                'At least one batch did not complete. Its rows are persisted as written ' +
+                  '(append-only; nothing is rolled back) and nothing is retried automatically.',
+              ]),
+        ],
+      },
+    );
   });
 }
 

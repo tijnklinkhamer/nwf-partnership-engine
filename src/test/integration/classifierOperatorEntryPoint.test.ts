@@ -30,6 +30,7 @@ import {
   type ClassifyDependencies,
   type ClassifyOptions,
 } from '../../cli/commands/classify.js';
+import { CLASSIFIER_OPERATOR_CONTRACT_VERSION } from '../../orgunits/classify/operatorContract.js';
 import { planOrganisationClassification } from '../../orgunits/classify/operatorPlan.js';
 import { insertClassifierCall, insertCompletion } from '../../orgunits/classify/persist.js';
 import { ORGUNIT_CLASSIFIER_ASSEMBLY_VERSION } from '../../orgunits/classify/constants.js';
@@ -92,6 +93,17 @@ const CLEAN_ENV: Readonly<Record<string, string>> = Object.freeze({
   HOME: HOME_SENTINEL,
   NWF_PE_OPERATOR_TEST_SENTINEL: ENV_SENTINEL,
 });
+
+/**
+ * CLASSIFIER_OPERATOR_CONTROL_PLANE_CONTRACT_V1: every `--json` document is
+ * one versioned contract envelope; the landed payload these assertions were
+ * written against is unchanged under its `data`.
+ */
+function unwrap(text: string): unknown {
+  const envelope = JSON.parse(text) as { contractVersion: string; data: unknown };
+  expect(envelope.contractVersion).toBe(CLASSIFIER_OPERATOR_CONTRACT_VERSION);
+  return envelope.data;
+}
 
 interface Harness {
   readonly deps: ClassifyDependencies;
@@ -338,7 +350,7 @@ describeDb('orgunits classify - operator entry point (integration)', () => {
     expect(await snapshot()).toEqual(before);
     for (const table of CLASSIFIER_TABLES) expect(before[table], table).toBe(0);
 
-    const report = JSON.parse(h.out()) as Record<string, unknown>;
+    const report = unwrap(h.out()) as Record<string, unknown>;
     expect(report).toMatchObject({
       mode: 'DRY_RUN',
       organisationId: root.organisationId,
@@ -468,7 +480,7 @@ describeDb('orgunits classify - operator entry point (integration)', () => {
       const exit = await executeClassifyCommand(options({ runId, execute, json: true }), h.deps);
       expect(exit).toBe(0);
       expect(h.providerCreations()).toBe(0);
-      const report = JSON.parse(h.out()) as Record<string, unknown>;
+      const report = unwrap(h.out()) as Record<string, unknown>;
       expect(execute ? report['result'] : report['assemblyStatus']).toBe('NO_CANDIDATES');
     }
     for (const table of CLASSIFIER_TABLES) expect(await count(admin, table), table).toBe(0);
@@ -512,7 +524,7 @@ describeDb('orgunits classify - operator entry point (integration)', () => {
       repair_of_call_id: null,
     });
 
-    const report = JSON.parse(h.out()) as { result: string; batches: Record<string, unknown>[] };
+    const report = unwrap(h.out()) as { result: string; batches: Record<string, unknown>[] };
     expect(report.result).toBe('COMPLETED');
     expect(report.batches).toEqual([
       {
@@ -550,7 +562,7 @@ describeDb('orgunits classify - operator entry point (integration)', () => {
     expect(completion.rows.map((r) => r.terminal_state)).toEqual(['PARTIAL']);
     expect(await count(admin, 'orgunit_classifier_calls')).toBe(1);
     expect(await count(admin, 'orgunit_page_classifications')).toBe(1);
-    const report = JSON.parse(h.out()) as { result: string; batches: Record<string, unknown>[] };
+    const report = unwrap(h.out()) as { result: string; batches: Record<string, unknown>[] };
     expect(report.result).toBe('NOT_COMPLETED');
     expect(report.batches[0]).toMatchObject({
       terminalState: 'PARTIAL',
@@ -576,7 +588,7 @@ describeDb('orgunits classify - operator entry point (integration)', () => {
       `SELECT terminal_state, error_kind FROM orgunit_classifier_call_completions`,
     );
     expect(completion.rows).toEqual([{ terminal_state: 'FAILED', error_kind: 'PROVIDER_REFUSAL' }]);
-    const report = JSON.parse(h.out()) as { batches: Record<string, unknown>[] };
+    const report = unwrap(h.out()) as { batches: Record<string, unknown>[] };
     expect(report.batches[0]).toMatchObject({
       kind: 'EXECUTED',
       terminalState: 'FAILED',
@@ -606,7 +618,7 @@ describeDb('orgunits classify - operator entry point (integration)', () => {
     expect(exit).toBe(0);
     expect(h.providerCreations()).toBe(0);
     expect(await snapshot()).toEqual(before);
-    const report = JSON.parse(h.out()) as { batches: Record<string, unknown>[] };
+    const report = unwrap(h.out()) as { batches: Record<string, unknown>[] };
     expect(report.batches).toEqual([
       expect.objectContaining({
         kind: 'REUSED',
@@ -619,7 +631,7 @@ describeDb('orgunits classify - operator entry point (integration)', () => {
     // And the dry run reports the same batch as REUSABLE_COMPLETED.
     const dry = harness();
     expect(await executeClassifyCommand(options({ runId, json: true }), dry.deps)).toBe(0);
-    expect((JSON.parse(dry.out()) as { batches: unknown[] }).batches).toEqual([
+    expect((unwrap(dry.out()) as { batches: unknown[] }).batches).toEqual([
       expect.objectContaining({ planState: 'REUSABLE_COMPLETED', persistedState: 'COMPLETED' }),
     ]);
   });
@@ -698,7 +710,7 @@ describeDb('orgunits classify - operator entry point (integration)', () => {
       // --execute with these arguments would not be permitted to start.
       const dry = harness();
       expect(await executeClassifyCommand(options({ runId, json: true }), dry.deps)).toBe(1);
-      const report = JSON.parse(dry.out()) as Record<string, unknown>;
+      const report = unwrap(dry.out()) as Record<string, unknown>;
       expect(report['executionPermitted']).toBe(false);
       expect(report['batches']).toEqual([
         expect.objectContaining({
@@ -733,7 +745,7 @@ describeDb('orgunits classify - operator entry point (integration)', () => {
     expect(
       await executeClassifyCommand(options({ runId, attempt: '2', json: true }), dry.deps),
     ).toBe(0);
-    expect((JSON.parse(dry.out()) as { batches: unknown[] }).batches).toEqual([
+    expect((unwrap(dry.out()) as { batches: unknown[] }).batches).toEqual([
       expect.objectContaining({ planState: 'READY_NEW_ATTEMPT', persistedState: 'ABSENT' }),
     ]);
 
@@ -823,7 +835,7 @@ describeDb('orgunits classify - operator entry point (integration)', () => {
 
     const dry = harness();
     expect(await executeClassifyCommand(options({ runId, json: true }), dry.deps)).toBe(1);
-    const states = (JSON.parse(dry.out()) as { batches: { planState: string }[] }).batches.map(
+    const states = (unwrap(dry.out()) as { batches: { planState: string }[] }).batches.map(
       (b) => b.planState,
     );
     expect(states.filter((s) => s === 'READY_NEW_ATTEMPT')).toHaveLength(plan.batches.length - 1);
@@ -940,7 +952,7 @@ describeDb('orgunits classify - operator entry point (integration)', () => {
         MODEL,
         '--json',
       ]);
-      const report = JSON.parse(captured) as {
+      const report = unwrap(captured) as {
         mode: string;
         executionPreflight: { ok: boolean };
         batchCount: number;
