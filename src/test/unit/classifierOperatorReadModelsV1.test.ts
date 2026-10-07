@@ -17,6 +17,19 @@
  *      authorised read-model surface; no migration, grant, semantic,
  *      provider, web or evaluation byte;
  *   F. the engineering record is a result, not an authority.
+ *
+ * FROZEN AT THE READ-MODEL TERMINAL. The read-model slice is closed: every
+ * lineage, changed-surface, router-diff, import-closure equality, byte-
+ * identity, firewall-diff, docs and record assertion below is evaluated over
+ * the exact range
+ * CLASSIFIER_OPERATOR_ENTRY_POINT_TERMINAL..CLASSIFIER_OPERATOR_READ_MODELS_TERMINAL
+ * (and file bodies at that exact tree), never over HEAD or the working tree,
+ * so a later, separately authorised slice (the classifier operator
+ * control-plane contract first) is never judged against this slice's own
+ * authorised surface, and this slice is never made retrospectively to
+ * contain anything that landed after it. The behavioural sections (A, B, C
+ * and the safety half of D) still exercise the live read commands, because a
+ * behaviour cannot be read out of a git tree.
  */
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
@@ -41,6 +54,15 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const CLASSIFIER_OPERATOR_ENTRY_POINT_TERMINAL = '2b9d0d9c94bda00bbe88758b2c207ecadc300934';
 const R52_TERMINAL = 'b1dfd82542e7dfb749d5c36063ea750647428a12';
 const T = CLASSIFIER_OPERATOR_ENTRY_POINT_TERMINAL;
+const CLASSIFIER_OPERATOR_READ_MODELS_TERMINAL = 'f4c747ec4d0427af22c48640ccb6924f9810ed58';
+const R = CLASSIFIER_OPERATOR_READ_MODELS_TERMINAL;
+/** The four read-model commits above the entry-point terminal, oldest first. */
+const READ_MODEL_COMMITS = [
+  'e3d13658b737621c5a88e43b9e09a7d02c669338',
+  '4e90ef502ec1bf2e5b75a2beaf7f7848f4ced393',
+  '267db4178e0293b0c42ec4e08b72be9d44122e9b',
+  R,
+];
 
 const READ_MODEL = 'src/orgunits/classify/operatorReadModels.ts';
 const READ_CLI = 'src/cli/commands/classifyRead.ts';
@@ -83,17 +105,22 @@ const code = (path: string): string =>
     .replace(/\/\*[\s\S]*?\*\//g, '')
     .replace(/(^|[^:'"`])\/\/.*$/gm, '$1');
 
-const terminalAvailable = commitExists(T);
-const recordsPresent = [RECORD, AUDIT].every((p) => existsSync(join(REPO_ROOT, p)));
+/** A file's exact text at the read-model terminal tree - never the working tree. */
+const atR = (path: string): string => git('show', `${R}:${path}`);
+const existsAtR = (path: string): boolean =>
+  git('ls-tree', '--name-only', R, '--', path).trim() === path;
+/** `code()` over the read-model terminal's bytes. */
+const codeAtR = (path: string): string =>
+  atR(path)
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/(^|[^:'"`])\/\/.*$/gm, '$1');
 
-/** Every path changed since the entry-point terminal, committed or not. */
-function changedSinceTerminal(): string[] {
-  return [
-    ...new Set([
-      ...lines(git('diff', '--name-only', T)),
-      ...lines(git('ls-files', '--others', '--exclude-standard')),
-    ]),
-  ];
+const terminalAvailable = commitExists(T) && commitExists(R);
+const recordsPresent = terminalAvailable && [RECORD, AUDIT].every(existsAtR);
+
+/** The read-model slice's exact changed surface: T..R, never HEAD. */
+function changedInReadModels(): string[] {
+  return lines(git('diff', '--name-only', T, R));
 }
 
 function readOptions(overrides: Partial<ClassifyReadOptions>): ClassifyReadOptions {
@@ -369,21 +396,21 @@ describe('classifier read models: the real CLI router', () => {
   });
 
   it.skipIf(!terminalAvailable)(
-    'the router diff since the entry-point terminal removes no line and adds exactly one option',
+    'the read-model router diff (entry-point terminal..read-model terminal) removed no line and added exactly one option',
     () => {
-      const diff = lines(git('diff', '-U0', T, '--', CLI_INDEX)).filter((l) =>
+      const diff = lines(git('diff', '-U0', T, R, '--', CLI_INDEX)).filter((l) =>
         /^[+-][^+-]/.test(l),
       );
       expect(diff.filter((l) => l.startsWith('-'))).toEqual([]);
       expect(diff.filter((l) => /^\+\s+'?[\w-]+'?: \{ type: '(string|boolean)'/.test(l))).toEqual([
         "+      'call-id': { type: 'string' },",
       ]);
-      // The execution route's body is byte-identical to the terminal's.
+      // At the read-model terminal the execution route's body was byte-identical to the entry point's.
       const block = (source: string): string => {
         const start = source.indexOf("if (group === 'orgunits' && sub === 'classify') {");
         return source.slice(start, source.indexOf('\n  }\n', start));
       };
-      expect(block(read(CLI_INDEX))).toBe(block(git('show', `${T}:${CLI_INDEX}`)));
+      expect(block(atR(CLI_INDEX))).toBe(block(git('show', `${T}:${CLI_INDEX}`)));
     },
   );
 });
@@ -483,14 +510,19 @@ describe('classifier read models: readonly, SELECT-only, deterministic', () => {
 // D. NO PROVIDER, NO WEB, NO EXECUTION PATH.
 // ---------------------------------------------------------------------------
 
-function importClosure(entry: string): Set<string> {
+/** The relative import closure of `entry`, read from the working tree or, with `atRev`, from that exact tree. */
+function importClosure(entry: string, atRev?: string): Set<string> {
   const seen = new Set<string>();
   const pending = [entry];
+  const present = (path: string): boolean =>
+    atRev === undefined
+      ? existsSync(join(REPO_ROOT, path))
+      : git('ls-tree', '--name-only', atRev, '--', path).trim() === path;
   while (pending.length > 0) {
     const file = pending.pop()!;
     if (seen.has(file)) continue;
     seen.add(file);
-    const source = read(file);
+    const source = atRev === undefined ? read(file) : git('show', `${atRev}:${file}`);
     const specifiers = [
       ...source.matchAll(/\bimport\s+(?:type\s+)?[^;]*?\bfrom\s*['"]([^'"]+)['"]/g),
       ...source.matchAll(/\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g),
@@ -502,24 +534,27 @@ function importClosure(entry: string): Set<string> {
         REPO_ROOT,
         resolve(dirname(join(REPO_ROOT, file)), specifier.replace(/\.js$/, '.ts')),
       );
-      if (existsSync(join(REPO_ROOT, target))) pending.push(target);
+      if (present(target)) pending.push(target);
     }
   }
   return seen;
 }
 
 describe('classifier read models: no provider, no web, no execution path', () => {
-  it('the read commands reach exactly the read model, its constant, the pool helper and env config', () => {
-    expect([...importClosure(READ_CLI)].sort()).toEqual(
-      [
-        READ_CLI,
-        READ_MODEL,
-        'src/orgunits/classify/constants.ts',
-        'src/db/client.ts',
-        'src/config/env.ts',
-      ].sort(),
-    );
-  });
+  it.skipIf(!terminalAvailable)(
+    'at the read-model terminal, the read commands reached exactly the read model, its constant, the pool helper and env config',
+    () => {
+      expect([...importClosure(READ_CLI, R)].sort()).toEqual(
+        [
+          READ_CLI,
+          READ_MODEL,
+          'src/orgunits/classify/constants.ts',
+          'src/db/client.ts',
+          'src/config/env.ts',
+        ].sort(),
+      );
+    },
+  );
 
   it('no file the read commands reach imports a provider, the SDK, a socket, a subprocess or the web namespace', () => {
     for (const file of importClosure(READ_CLI)) {
@@ -573,10 +608,19 @@ describe('classifier read models: no provider, no web, no execution path', () =>
 // ---------------------------------------------------------------------------
 
 describe.skipIf(!terminalAvailable)('classifier read models: changed surface', () => {
-  it('descends from the entry-point terminal with single-parent commits, first freezing the entry-point test', () => {
-    expect(() => git('merge-base', '--is-ancestor', T, 'HEAD')).not.toThrow();
-    expect(lines(git('rev-list', '--merges', `${T}..HEAD`))).toEqual([]);
-    const [first] = lines(git('rev-list', '--reverse', `${T}..HEAD`));
+  it('descends from the entry-point terminal with exactly four single-parent commits, first freezing the entry-point test', () => {
+    expect(() => git('merge-base', '--is-ancestor', T, R)).not.toThrow();
+    expect(() => git('merge-base', '--is-ancestor', R, 'HEAD')).not.toThrow();
+    expect(lines(git('rev-list', '--merges', `${T}..${R}`))).toEqual([]);
+    expect(lines(git('rev-list', '--reverse', `${T}..${R}`))).toEqual(READ_MODEL_COMMITS);
+    for (const commit of READ_MODEL_COMMITS) {
+      expect(
+        lines(git('rev-list', '--parents', '-n', '1', commit))[0]!.split(' '),
+        commit,
+      ).toHaveLength(2);
+    }
+    const [first] = lines(git('rev-list', '--reverse', `${T}..${R}`));
+    expect(first).toBeDefined();
     if (first === undefined) return;
     expect(git('rev-parse', `${first}^`).trim()).toBe(T);
     expect(lines(git('diff', '--name-only', T, first))).toEqual([ENTRY_POINT_TEST]);
@@ -585,14 +629,14 @@ describe.skipIf(!terminalAvailable)('classifier read models: changed surface', (
     );
   });
 
-  it('changes production code exactly within the authorised read-model surface', () => {
-    const production = changedSinceTerminal().filter(
+  it('changed production code exactly within the authorised read-model surface', () => {
+    const production = changedInReadModels().filter(
       (p) => p.startsWith('src/') && !p.startsWith('src/test/'),
     );
     expect(production.sort()).toEqual(AUTHORISED_PRODUCTION_FILES);
   });
 
-  it('changes nothing outside that surface, its tests, the entry-point pin, the exact-path firewall widening, the record and the audit', () => {
+  it('changed nothing outside that surface, its tests, the entry-point pin, the exact-path firewall widening, the record and the audit', () => {
     const permitted = new Set([
       ...AUTHORISED_PRODUCTION_FILES,
       ENTRY_POINT_TEST,
@@ -602,10 +646,11 @@ describe.skipIf(!terminalAvailable)('classifier read models: changed surface', (
       RECORD,
       AUDIT,
     ]);
-    expect(changedSinceTerminal().filter((p) => !permitted.has(p))).toEqual([]);
+    expect(changedInReadModels().filter((p) => !permitted.has(p))).toEqual([]);
+    expect(changedInReadModels().sort()).toEqual([...permitted].sort());
   });
 
-  it('leaves the execution action, its wiring, persist.ts and every classifier semantic file byte-identical', () => {
+  it('left the execution action, its wiring, persist.ts and every classifier semantic file byte-identical', () => {
     for (const path of [
       EXEC_CLI,
       PROVIDER_WIRING,
@@ -627,10 +672,10 @@ describe.skipIf(!terminalAvailable)('classifier read models: changed surface', (
       'src/orgunits/web/extract.ts',
       'src/orgunits/web/redact.ts',
     ]) {
-      expect(read(path), path).toBe(git('show', `${T}:${path}`));
+      expect(atR(path), path).toBe(git('show', `${T}:${path}`));
     }
     expect(
-      changedSinceTerminal().filter(
+      changedInReadModels().filter(
         (p) =>
           p.startsWith('src/orgunits/classify/provider/') ||
           p.startsWith('src/orgunits/classify/evaluation/') ||
@@ -644,8 +689,10 @@ describe.skipIf(!terminalAvailable)('classifier read models: changed surface', (
     ).toEqual([]);
   });
 
-  it('the firewall change is exactly the exact-path read-model widening: nothing removed but two guarded exemptions', () => {
-    const diff = lines(git('diff', '-U0', T, '--', FIREWALL)).filter((l) => /^[+-][^+-]/.test(l));
+  it('the firewall change was exactly the exact-path read-model widening: nothing removed but two guarded exemptions', () => {
+    const diff = lines(git('diff', '-U0', T, R, '--', FIREWALL)).filter((l) =>
+      /^[+-][^+-]/.test(l),
+    );
     const removed = diff.filter((l) => l.startsWith('-'));
     expect(removed).toEqual([
       "-  it('never names a classifier-persistence table OUTSIDE persist.ts', () => {",
@@ -662,7 +709,7 @@ describe.skipIf(!terminalAvailable)('classifier read models: changed surface', (
     const now = lines(git('ls-files', 'migrations'));
     expect(now).toEqual(lines(git('ls-tree', '-r', '--name-only', T, '--', 'migrations')));
     expect(now.at(-1)).toMatch(/^migrations\/0012_/);
-    expect(lines(git('diff', '--name-only', T, '--', 'migrations'))).toEqual([]);
+    expect(lines(git('diff', '--name-only', T, R, '--', 'migrations'))).toEqual([]);
   });
 
   it('nwf_readonly already holds SELECT on every table the read model reads (migrations 0002, 0007, 0009)', () => {
@@ -694,7 +741,7 @@ describe.skipIf(!terminalAvailable)('classifier read models: changed surface', (
     }
     // Every FROM/JOIN target except the one CTE the run query defines.
     const tables = new Set(
-      [...code(READ_MODEL).matchAll(/\b(?:FROM|JOIN)\s+([a-z_]+)/g)]
+      [...codeAtR(READ_MODEL).matchAll(/\b(?:FROM|JOIN)\s+([a-z_]+)/g)]
         .map((m) => m[1]!)
         .filter((t) => t !== 'attributed'),
     );
@@ -702,19 +749,19 @@ describe.skipIf(!terminalAvailable)('classifier read models: changed surface', (
     expect([...tables].filter((t) => !readonlyGrants.includes(t))).toEqual([]);
   });
 
-  it('modifies no existing document and adds only this record and audit under docs/', () => {
+  it('modified no existing document and added only this record and audit under docs/', () => {
     const prior = lines(git('ls-tree', '-r', '--name-only', T, '--', 'docs'));
-    expect(lines(git('diff', '--name-only', T, '--', ...prior))).toEqual([]);
+    expect(lines(git('diff', '--name-only', T, R, '--', ...prior))).toEqual([]);
     expect(
-      changedSinceTerminal()
+      changedInReadModels()
         .filter((p) => p.startsWith('docs/') && !prior.includes(p))
         .sort(),
     ).toEqual(recordsPresent ? [AUDIT, RECORD].sort() : []);
   });
 
-  it('creates no DEV_CONFIRM, FINAL_HOLDOUT, gold, A5, label, response or adjudication artifact', () => {
+  it('created no DEV_CONFIRM, FINAL_HOLDOUT, gold, A5, label, response or adjudication artifact', () => {
     expect(
-      changedSinceTerminal().filter((path) =>
+      changedInReadModels().filter((path) =>
         /DEV_CONFIRM|FINAL_HOLDOUT|GOLD_|MANIFEST|CORPUS_FREEZE|A5_|LABELS?_|ADJUDICAT|RESPONSES_V|COMPLETED_RESPONSE|DRAFT|PROVISIONAL|LIVE_RESULT|LEDGER/.test(
           path,
         ),
@@ -728,7 +775,7 @@ describe.skipIf(!terminalAvailable)('classifier read models: changed surface', (
   });
 
   it('main does not contain this slice', () => {
-    const [first] = lines(git('rev-list', '--reverse', `${T}..HEAD`));
+    const [first] = lines(git('rev-list', '--reverse', `${T}..${R}`));
     if (first === undefined) return;
     for (const ref of ['origin/main', 'main']) {
       try {
@@ -749,7 +796,7 @@ describe.skipIf(!recordsPresent)(
   'classifier read models: the record is a result, not an authority',
   () => {
     const record = (): Record<string, unknown> =>
-      JSON.parse(read(RECORD)) as Record<string, unknown>;
+      JSON.parse(atR(RECORD)) as Record<string, unknown>;
 
     it('names the canonical base, the commands, the terminal and authorises nothing', () => {
       const r = record();
@@ -792,7 +839,7 @@ describe.skipIf(!recordsPresent)(
     });
 
     it('claims no accuracy, precision, recall, kappa or empirical validation', () => {
-      const body = `${read(RECORD)}\n${read(AUDIT)}`;
+      const body = `${atR(RECORD)}\n${atR(AUDIT)}`;
       for (const claim of [
         /"accuracy"\s*:/i,
         /"precision"\s*:/i,
