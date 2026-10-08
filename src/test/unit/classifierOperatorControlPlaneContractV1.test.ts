@@ -20,6 +20,19 @@
  *      contract surface; no classifier semantic, migration, grant, firewall,
  *      provider, web or evaluation byte;
  *   H. the engineering record is a result, not an authority.
+ *
+ * FROZEN AT THE CONTROL-PLANE CONTRACT TERMINAL. The contract slice is
+ * closed: every lineage, changed-surface, integration-diff, byte-identity,
+ * migration, CLI-wiring, docs and record assertion below (G and H) is
+ * evaluated over the exact range
+ * CLASSIFIER_OPERATOR_READ_MODELS_TERMINAL..CLASSIFIER_OPERATOR_CONTROL_PLANE_CONTRACT_TERMINAL
+ * (and file bodies at those exact trees), never over HEAD or the working
+ * tree, so a later, separately authorised slice
+ * (CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_V1 first) is never judged against
+ * this slice's own authorised surface, and this slice is never made
+ * retrospectively to contain anything that landed after it. The behavioural
+ * sections (A-F) still exercise the live contract, actions and reads,
+ * because a behaviour cannot be read out of a git tree.
  */
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
@@ -69,6 +82,16 @@ import { FETCH_POLICY_VERSION } from '../../orgunits/web/policy.js';
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const CLASSIFIER_OPERATOR_READ_MODELS_TERMINAL = 'f4c747ec4d0427af22c48640ccb6924f9810ed58';
 const R = CLASSIFIER_OPERATOR_READ_MODELS_TERMINAL;
+const CLASSIFIER_OPERATOR_CONTROL_PLANE_CONTRACT_TERMINAL =
+  'e2d0a2bda4ebdf5d93bbddd2b751579a375bb0c0';
+const C = CLASSIFIER_OPERATOR_CONTROL_PLANE_CONTRACT_TERMINAL;
+/** The four contract commits above the read-model terminal, oldest first. */
+const CONTRACT_COMMITS = [
+  '48fe0a3aa706e6ee6bfd0c81eb1a77838f459048',
+  'c03967320f0e9bf72369b385c751e3c6423af2f1',
+  '4c7127d58394b3f556312bd3a9f79156131a1bb5',
+  C,
+];
 const R52_TERMINAL = 'b1dfd82542e7dfb749d5c36063ea750647428a12';
 
 const CONTRACT = 'src/orgunits/classify/operatorContract.ts';
@@ -116,17 +139,22 @@ const code = (path: string): string =>
     .replace(/\/\*[\s\S]*?\*\//g, '')
     .replace(/(^|[^:'"`])\/\/.*$/gm, '$1');
 
-const terminalAvailable = commitExists(R);
-const recordsPresent = [RECORD, AUDIT].every((p) => existsSync(join(REPO_ROOT, p)));
+/** A file's exact text at the contract terminal tree - never the working tree. */
+const atC = (path: string): string => git('show', `${C}:${path}`);
+const existsAtC = (path: string): boolean =>
+  git('ls-tree', '--name-only', C, '--', path).trim() === path;
+/** `code()` over the contract terminal's bytes. */
+const codeAtC = (path: string): string =>
+  atC(path)
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/(^|[^:'"`])\/\/.*$/gm, '$1');
 
-/** Every path changed since the read-model terminal, committed or not. */
+const terminalAvailable = commitExists(R) && commitExists(C);
+const recordsPresent = terminalAvailable && [RECORD, AUDIT].every(existsAtC);
+
+/** The contract slice's exact changed surface: R..C, never HEAD. */
 function changedSinceTerminal(): string[] {
-  return [
-    ...new Set([
-      ...lines(git('diff', '--name-only', R)),
-      ...lines(git('ls-files', '--others', '--exclude-standard')),
-    ]),
-  ];
+  return lines(git('diff', '--name-only', R, C));
 }
 
 /** Exactly one JSON document, the whole of stdout. */
@@ -844,7 +872,7 @@ describe('classifier operator contract V1: pure, no HTTP, no Operator repository
   it('no file this slice adds or changes under src/ depends on the sibling Operator repository', () => {
     const changed = terminalAvailable ? changedSinceTerminal() : [];
     for (const file of changed.filter((p) => p.startsWith('src/') && p !== THIS_TEST)) {
-      expect(read(file), file).not.toMatch(/nwf-partnership-engine-ui|engine-ui\//);
+      expect(atC(file), file).not.toMatch(/nwf-partnership-engine-ui|engine-ui\//);
     }
     expect(read('package.json')).not.toMatch(/nwf-partnership-engine-ui|"file:\.\.\//);
   });
@@ -861,9 +889,10 @@ describe('classifier operator contract V1: pure, no HTTP, no Operator repository
 
 describe.skipIf(!terminalAvailable)('classifier operator contract V1: changed surface', () => {
   it('descends from the read-model terminal with single-parent commits, first freezing the read-model test', () => {
-    expect(() => git('merge-base', '--is-ancestor', R, 'HEAD')).not.toThrow();
-    expect(lines(git('rev-list', '--merges', `${R}..HEAD`))).toEqual([]);
-    const [first] = lines(git('rev-list', '--reverse', `${R}..HEAD`));
+    expect(() => git('merge-base', '--is-ancestor', C, 'HEAD')).not.toThrow();
+    expect(lines(git('rev-list', '--merges', `${R}..${C}`))).toEqual([]);
+    expect(lines(git('rev-list', '--reverse', `${R}..${C}`))).toEqual(CONTRACT_COMMITS);
+    const [first] = CONTRACT_COMMITS;
     if (first === undefined) return;
     expect(git('rev-parse', `${first}^`).trim()).toBe(R);
     expect(lines(git('diff', '--name-only', R, first))).toEqual([READ_MODELS_TEST]);
@@ -895,7 +924,7 @@ describe.skipIf(!terminalAvailable)('classifier operator contract V1: changed su
 
   it('the two landed integration suites changed ONLY to read the unchanged payload from the envelope', () => {
     for (const file of [ENTRY_POINT_INTEGRATION, READ_MODELS_INTEGRATION]) {
-      const diff = lines(git('diff', '-U0', R, '--', file)).filter((l) => /^[+-][^+-]/.test(l));
+      const diff = lines(git('diff', '-U0', R, C, '--', file)).filter((l) => /^[+-][^+-]/.test(l));
       const removed = diff.filter((l) => l.startsWith('-'));
       expect(removed.length, file).toBeGreaterThan(0);
       for (const line of removed) expect(line, file).toMatch(/JSON\.parse\(/);
@@ -936,7 +965,7 @@ describe.skipIf(!terminalAvailable)('classifier operator contract V1: changed su
       'package-lock.json',
       'CLAUDE.md',
     ]) {
-      expect(read(path), path).toBe(git('show', `${R}:${path}`));
+      expect(atC(path), path).toBe(git('show', `${R}:${path}`));
     }
     expect(
       changedSinceTerminal().filter(
@@ -953,22 +982,22 @@ describe.skipIf(!terminalAvailable)('classifier operator contract V1: changed su
   });
 
   it('the migration set is unchanged (0001-0012) and adds no grant', () => {
-    const now = lines(git('ls-files', 'migrations'));
+    const now = lines(git('ls-tree', '-r', '--name-only', C, '--', 'migrations'));
     expect(now).toEqual(lines(git('ls-tree', '-r', '--name-only', R, '--', 'migrations')));
     expect(now.at(-1)).toMatch(/^migrations\/0012_/);
-    expect(lines(git('diff', '--name-only', R, '--', 'migrations'))).toEqual([]);
+    expect(lines(git('diff', '--name-only', R, C, '--', 'migrations'))).toEqual([]);
   });
 
   it('the execution action still wires the same roles, repair policy, configs and dynamic provider import', () => {
-    const cli = code(EXEC_CLI);
+    const cli = codeAtC(EXEC_CLI);
     expect(cli.match(/withPool\(\s*'research'/g)).toHaveLength(1);
     expect(cli.match(/withPool\(\s*'classifier'/g)).toHaveLength(1);
     expect(cli).toContain('repairPolicy: CLASSIFIER_OPERATOR_REPAIR_POLICY');
     expect(cli).toContain("await import('./classifyProvider.js')");
-    expect(code(READ_CLI).match(/withPool\(\s*'readonly'/g)).toHaveLength(1);
+    expect(codeAtC(READ_CLI).match(/withPool\(\s*'readonly'/g)).toHaveLength(1);
     // The contract slice adds no SQL anywhere in the CLI.
     for (const file of [EXEC_CLI, READ_CLI, CLI_INDEX, CONTRACT]) {
-      expect(code(file), file).not.toMatch(
+      expect(codeAtC(file), file).not.toMatch(
         /\bSELECT\s|INSERT\s+INTO|UPDATE\s+\w+\s+SET|DELETE\s+FROM/i,
       );
     }
@@ -976,7 +1005,7 @@ describe.skipIf(!terminalAvailable)('classifier operator contract V1: changed su
 
   it('modifies no existing document and adds only this record and audit under docs/', () => {
     const prior = lines(git('ls-tree', '-r', '--name-only', R, '--', 'docs'));
-    expect(lines(git('diff', '--name-only', R, '--', ...prior))).toEqual([]);
+    expect(lines(git('diff', '--name-only', R, C, '--', ...prior))).toEqual([]);
     expect(
       changedSinceTerminal()
         .filter((p) => p.startsWith('docs/') && !prior.includes(p))
@@ -996,7 +1025,7 @@ describe.skipIf(!terminalAvailable)('classifier operator contract V1: changed su
 
   it('the R52 human-review deferral record is byte-unchanged since R52', () => {
     if (!commitExists(R52_TERMINAL)) return;
-    expect(read(R52_RELEASE)).toBe(git('show', `${R52_TERMINAL}:${R52_RELEASE}`));
+    expect(atC(R52_RELEASE)).toBe(git('show', `${R52_TERMINAL}:${R52_RELEASE}`));
   });
 
   it('main does not contain this slice', () => {
@@ -1021,7 +1050,7 @@ describe.skipIf(!recordsPresent)(
   'classifier operator contract V1: the record is a result, not an authority',
   () => {
     const record = (): Record<string, unknown> =>
-      JSON.parse(read(RECORD)) as Record<string, unknown>;
+      JSON.parse(atC(RECORD)) as Record<string, unknown>;
 
     it('names the canonical base, the contract, the operations, the terminal and authorises nothing', () => {
       const r = record();
@@ -1068,7 +1097,7 @@ describe.skipIf(!recordsPresent)(
     });
 
     it('claims no accuracy, precision, recall, kappa or empirical validation', () => {
-      const body = `${read(RECORD)}\n${read(AUDIT)}`;
+      const body = `${atC(RECORD)}\n${atC(AUDIT)}`;
       for (const claim of [
         /"accuracy"\s*:/i,
         /"precision"\s*:/i,
