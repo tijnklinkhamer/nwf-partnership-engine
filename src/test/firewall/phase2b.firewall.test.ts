@@ -2984,3 +2984,47 @@ describe('PHASE-2B-FIREWALL 2B-2D2C-F0D/F0E: attempt-2 preparation is plan-only,
     }
   });
 });
+
+describe('PHASE-2B-FIREWALL CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_V1: a provider failure is diagnosable from CLOSED structure only, and control flow is untouched', () => {
+  const PROVIDER_DIR = 'src/orgunits/classify/provider';
+  const RUNNER = `${PROVIDER_DIR}/agentSdkRunner.ts`;
+  const PROVIDER = `${PROVIDER_DIR}/claudeMaxAgentProvider.ts`;
+  const OUTCOME_MAPPING = `${PROVIDER_DIR}/outcomeMapping.ts`;
+
+  it('the production runner wraps EVERY non-timeout attempt failure so its diagnostics snapshot survives', () => {
+    const runner = code(RUNNER);
+    expect(runner).toMatch(/startQueryWithDiagnostics\(\s*\(\) => query\(/);
+    expect(runner).toMatch(/attachAttemptDiagnostics\(\s*runQueryWithLivenessBoundary\(/);
+    // The typed failure's message is FIXED text naming a closed stage, never the original message.
+    expect(runner).toContain('super(`Agent SDK attempt failed (${failureStage}).`, { cause });');
+  });
+
+  it('the retry helper stays provider-neutral and its bound is unchanged', async () => {
+    const retry = code('src/orgunits/classify/retry.ts');
+    expect(retry).not.toMatch(/Witness|AgentSdk|outcomeMapping/);
+    const { MAX_TRANSIENT_RETRIES, TRANSIENT_RETRY_BASE_DELAY_MS } =
+      await import('../../orgunits/classify/retry.js');
+    expect(MAX_TRANSIENT_RETRIES).toBe(2);
+    expect(TRANSIENT_RETRY_BASE_DELAY_MS).toBe(500);
+  });
+
+  it('the witness is derived ONLY in the one mapping authority, and the detail appends ONLY its rendering', () => {
+    const provider = code(PROVIDER);
+    expect(provider).not.toMatch(/\.toLowerCase\(\)|\.includes\(|RegExp|\.test\(|\.match\(/);
+    const detailAppends = [...provider.matchAll(/renderProviderFailureDiagnostic\(([^)]*)\)/g)].map(
+      (m) => m[1],
+    );
+    expect(detailAppends.sort()).toEqual(['[witness]', 'witnesses'].sort());
+    // The mapping module still never reads the runner's raw diagnostics (pinned above, restated).
+    expect(code(OUTCOME_MAPPING)).not.toMatch(/\.diagnostics\b|stderrTail|\.progress\b/);
+  });
+
+  it('the raw failure diagnostics reach ONLY a local hook and debug(), never a result field', () => {
+    const provider = code(PROVIDER);
+    expect(provider).toContain(
+      'this.#onAttemptFailureDiagnostics(error.failureStage, error.diagnostics)',
+    );
+    expect(provider).not.toMatch(/debug\([^)]*stderrTail[^)]*failureStage/);
+    expect(provider).not.toMatch(/outcomeDetail:[^\n]*(diagnostics|stderr)/i);
+  });
+});
