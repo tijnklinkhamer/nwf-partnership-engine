@@ -57,6 +57,15 @@
  *      plus one hard-kill grace. A deadline TIMEOUT's bounded diagnostics
  *      go to the optional `onAttemptDiagnostics` hook (and, only under
  *      `NWF_PE_VERBOSE`, to `debug()` on stderr) — never into the result.
+ *   6b. ATTEMPT WITNESSES (CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_V1): the
+ *      adapter observes each of its own attempts around the unchanged retry
+ *      helper and asks the mapping module for a CLOSED witness (closed-list
+ *      members and integers only). A non-OK result's detail is the fixed
+ *      category text followed by the rendered witnesses, so the reason code
+ *      and every attempt's structure reach `error_summary` with no raw
+ *      provider text. Witnesses also go to `onAttemptWitness`; a non-timeout
+ *      throw's raw bounded diagnostics go ONLY to the local
+ *      `onAttemptFailureDiagnostics` hook. Nothing here changes an outcome.
  *   7. MAPPING: outcomes translate through the ONE centralized mapping
  *      module (outcomeMapping.ts). Structured output is returned RAW
  *      (`unknown`) for the landed layer-2 validator — never re-validated,
@@ -96,9 +105,11 @@ import { buildChildEnvironment } from './environment.js';
 import { createScratchWorkspace } from './runtimeIsolation.js';
 import { buildAgentSdkInvocation } from './sdkOptions.js';
 import {
+  AgentSdkAttemptError,
   AgentSdkTimeoutError,
   CLASSIFIER_CALL_SOFT_DEADLINE_MS,
   CLASSIFIER_CALL_TOTAL_BUDGET_MS,
+  type AgentSdkAttemptFailureStage,
   type AgentSdkDiagnostics,
   type AgentSdkRunner,
   type AgentSdkRunResult,
@@ -107,7 +118,12 @@ import {
   classifyRunResult,
   classifyThrownFailure,
   classifyTotalBudgetExhausted,
+  renderProviderFailureDiagnostic,
+  witnessNotStartedAttempt,
+  witnessReturnedAttempt,
+  witnessThrownAttempt,
   type ClassifiedAttempt,
+  type ProviderAttemptWitness,
 } from './outcomeMapping.js';
 import { debug } from '../../../logging/log.js';
 
@@ -142,6 +158,29 @@ export interface ClaudeMaxAgentProviderOptions {
    * `NWF_PE_VERBOSE`. A hook that throws cannot change the outcome.
    */
   readonly onAttemptDiagnostics?: (diagnostics: AgentSdkDiagnostics) => void;
+  /**
+   * CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_V1: receives EVERY attempt's
+   * closed, deeply frozen witness (closed-list members and integers only),
+   * in attempt order, as it is observed — successes included. In memory
+   * only; independent of `NWF_PE_VERBOSE`. A hook that throws cannot change
+   * the outcome.
+   */
+  readonly onAttemptWitness?: (witness: ProviderAttemptWitness) => void;
+  /**
+   * CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_V1: receives the EXACT, deeply
+   * frozen diagnostics of a NON-timeout attempt that THREW (stream failure,
+   * stream ended without a result, query construction failure) — the
+   * snapshot that used to become unreachable the moment the error escaped
+   * the runner. LOCAL DEBUG CAPTURE ONLY: it can hold a raw bounded stderr
+   * tail, so it is never persisted, never placed in a detail, never a public
+   * field. Deliberately a SEPARATE hook from `onAttemptDiagnostics`, whose
+   * landed contract is timeout-only. A hook that throws cannot change the
+   * outcome.
+   */
+  readonly onAttemptFailureDiagnostics?: (
+    failureStage: AgentSdkAttemptFailureStage,
+    diagnostics: AgentSdkDiagnostics,
+  ) => void;
 }
 
 export class ClaudeMaxAgentProvider implements ClassifierProvider {
@@ -153,6 +192,10 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
   readonly #clock: Clock;
   readonly #allowedModels: readonly string[] | undefined;
   readonly #onAttemptDiagnostics: ((diagnostics: AgentSdkDiagnostics) => void) | undefined;
+  readonly #onAttemptWitness: ((witness: ProviderAttemptWitness) => void) | undefined;
+  readonly #onAttemptFailureDiagnostics:
+    | ((failureStage: AgentSdkAttemptFailureStage, diagnostics: AgentSdkDiagnostics) => void)
+    | undefined;
 
   constructor(options: ClaudeMaxAgentProviderOptions) {
     this.#runner = options.runner;
@@ -164,6 +207,8 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
     this.#clock = options.clock ?? realClock;
     this.#allowedModels = options.allowedModels;
     this.#onAttemptDiagnostics = options.onAttemptDiagnostics;
+    this.#onAttemptWitness = options.onAttemptWitness;
+    this.#onAttemptFailureDiagnostics = options.onAttemptFailureDiagnostics;
   }
 
   async classify(request: ClassifierProviderRequest): Promise<ClassifierProviderResult> {
@@ -252,20 +297,51 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
           ? CLASSIFIER_CALL_TOTAL_BUDGET_MS
           : Math.min(CLASSIFIER_CALL_TOTAL_BUDGET_MS, callerWindowMs);
       const budgetStartedAt = callerWindowMs === null ? this.#clock.now() : callEnteredAt;
+      // CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_V1: this adapter observes its
+      // OWN attempts around the provider-neutral retry helper (which stays
+      // unchanged): one closed witness per attempt, derived by the ONE
+      // mapping authority. Observation only - no witness feeds a decision.
+      const witnesses: ProviderAttemptWitness[] = [];
       const attempt = async (): Promise<AttemptOutcome> => {
+        const ordinal = witnesses.length + 1;
         const remainingMs = totalBudgetMs - (this.#clock.now() - budgetStartedAt);
         if (remainingMs <= 0) {
-          return { classified: classifyTotalBudgetExhausted(), runResult: null };
+          const classified = classifyTotalBudgetExhausted();
+          this.#observe(witnesses, witnessNotStartedAttempt({ ordinal, classified }));
+          return { classified, runResult: null };
         }
         const deadlineMs = Math.min(CLASSIFIER_CALL_SOFT_DEADLINE_MS, remainingMs);
+        const attemptStartedAt = this.#clock.now();
         try {
           const runResult = await this.#runner.run(invocation, { deadlineMs });
-          return { classified: classifyRunResult(runResult), runResult };
+          const classified = classifyRunResult(runResult);
+          this.#observe(
+            witnesses,
+            witnessReturnedAttempt({
+              ordinal,
+              elapsedMs: this.#clock.now() - attemptStartedAt,
+              result: runResult,
+              classified,
+            }),
+          );
+          return { classified, runResult };
         } catch (error) {
           if (error instanceof AgentSdkTimeoutError) {
             this.#captureTimeoutDiagnostics(error.diagnostics);
+          } else if (error instanceof AgentSdkAttemptError) {
+            this.#captureFailureDiagnostics(error);
           }
-          return { classified: classifyThrownFailure(error), runResult: null };
+          const classified = classifyThrownFailure(error);
+          this.#observe(
+            witnesses,
+            witnessThrownAttempt({
+              ordinal,
+              elapsedMs: this.#clock.now() - attemptStartedAt,
+              error,
+              classified,
+            }),
+          );
+          return { classified, runResult: null };
         }
       };
 
@@ -292,7 +368,12 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
         responseModelId: usage?.responseModelId ?? null,
         inputTokens: usage?.inputTokens ?? null,
         outputTokens: usage?.outputTokens ?? null,
-        outcomeDetail: boundDetail(finalAttempt.classified.detail),
+        // The fixed category detail, then the closed per-attempt diagnostic:
+        // the reason code and every attempt's STRUCTURE reach the existing
+        // `error_summary` column without a migration and without raw text.
+        outcomeDetail: boundDetail(
+          `${finalAttempt.classified.detail} ${renderProviderFailureDiagnostic(witnesses)}`,
+        ),
         outcomeReasonCode: finalAttempt.classified.reasonCode,
       };
     } finally {
@@ -300,6 +381,46 @@ export class ClaudeMaxAgentProvider implements ClassifierProvider {
       // Claude-owned persistent state and is never engine-deleted.
       await scratch.cleanup();
     }
+  }
+
+  /**
+   * Records one attempt's closed witness, hands it to the optional hook, and
+   * - only for a non-OK attempt, only under `NWF_PE_VERBOSE` - renders it to
+   * `debug()`. The witness holds no raw text, so the verbose line cannot
+   * either. Nothing here can alter the attempt's outcome.
+   */
+  #observe(witnesses: ProviderAttemptWitness[], witness: ProviderAttemptWitness): void {
+    witnesses.push(witness);
+    if (this.#onAttemptWitness !== undefined) {
+      try {
+        this.#onAttemptWitness(witness);
+      } catch {
+        debug('classifier provider: the onAttemptWitness hook threw; ignored.');
+      }
+    }
+    if (witness.outcome !== 'OK') {
+      debug(`classifier provider: attempt failed ${renderProviderFailureDiagnostic([witness])}`);
+    }
+  }
+
+  /**
+   * Hands a non-timeout THROWN attempt's diagnostics to the local capture
+   * hook, and only under `NWF_PE_VERBOSE` renders its CLOSED progress trace
+   * to `debug()` - never its stderr tail, which stays inside the hook.
+   * Neither path can reach the provider result or alter the outcome.
+   */
+  #captureFailureDiagnostics(error: AgentSdkAttemptError): void {
+    if (this.#onAttemptFailureDiagnostics !== undefined) {
+      try {
+        this.#onAttemptFailureDiagnostics(error.failureStage, error.diagnostics);
+      } catch {
+        debug('classifier provider: the onAttemptFailureDiagnostics hook threw; ignored.');
+      }
+    }
+    const trace = error.diagnostics.progress
+      .map((entry) => `${entry.stage}(+${entry.elapsedMs}ms)`)
+      .join(' ');
+    debug(`classifier provider: attempt ${error.failureStage}; progress: ${trace}`);
   }
 
   /**

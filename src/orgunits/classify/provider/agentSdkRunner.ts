@@ -362,6 +362,66 @@ export class AgentSdkTimeoutError extends Error {
 }
 
 /**
+ * CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_V1: the closed point at which a
+ * NON-timeout attempt failed by throwing rather than returning a result.
+ *
+ *   - `QUERY_CONSTRUCTION_FAILED`: the SDK's `query()` threw synchronously,
+ *     before any stream existed.
+ *   - `STREAM_FAILED`: the message stream threw before a terminal result
+ *     (process exit, transport failure, an SDK-internal throw).
+ *   - `STREAM_ENDED_WITHOUT_RESULT`: the stream ended cleanly with no
+ *     `result` message at all.
+ */
+export const AGENT_SDK_ATTEMPT_FAILURE_STAGES = [
+  'QUERY_CONSTRUCTION_FAILED',
+  'STREAM_FAILED',
+  'STREAM_ENDED_WITHOUT_RESULT',
+] as const;
+
+export type AgentSdkAttemptFailureStage = (typeof AGENT_SDK_ATTEMPT_FAILURE_STAGES)[number];
+
+/**
+ * CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_V1. Thrown by the runner for every
+ * NON-timeout attempt failure, so that the attempt's bounded diagnostics
+ * snapshot travels with the failure exactly as `AgentSdkTimeoutError`'s
+ * already does. Before this class, `runQueryWithLivenessBoundary` rethrew the
+ * ORIGINAL error and the collector's snapshot — progress, stderr tail,
+ * liveness witness — became unreachable the instant it escaped.
+ *
+ * `cause` is the ORIGINAL thrown value, unchanged. It exists so the ONE
+ * mapping authority (`outcomeMapping.ts`) classifies exactly what it
+ * classified before this wrapper existed — the wrapper adds evidence, it
+ * never changes an outcome. Neither `cause` nor `diagnostics` is ever
+ * persisted or placed in an outcome detail as-is; only closed values derived
+ * from them by `outcomeMapping.ts` may escape.
+ *
+ * The message is FIXED text naming the closed stage — never the original
+ * message, so a careless `String(error)` upstream cannot leak it.
+ */
+export class AgentSdkAttemptError extends Error {
+  override readonly name = 'AgentSdkAttemptError';
+  declare readonly failureStage: AgentSdkAttemptFailureStage;
+  declare readonly diagnostics: AgentSdkDiagnostics;
+
+  constructor(
+    failureStage: AgentSdkAttemptFailureStage,
+    cause: unknown,
+    diagnostics: AgentSdkDiagnosticsInput,
+  ) {
+    super(`Agent SDK attempt failed (${failureStage}).`, { cause });
+    Object.defineProperty(this, 'failureStage', { value: failureStage, enumerable: true });
+    Object.defineProperty(this, 'diagnostics', {
+      value: freezeAgentSdkDiagnostics(diagnostics),
+      enumerable: true,
+    });
+  }
+}
+
+/** The fixed message `consumeQueryStream` throws when the stream ends without a result. */
+export const STREAM_ENDED_WITHOUT_RESULT_MESSAGE =
+  'Agent SDK query ended without a result message.';
+
+/**
  * Runtime-only options for ONE runner attempt. Not semantic input: never
  * hashed, never persisted, never part of the invocation.
  */
@@ -409,6 +469,41 @@ export interface AgentSdkRunResult {
   readonly outputTokens: number | null;
   /** Error strings the SDK attached to an error-subtype result. */
   readonly errors: readonly string[];
+  /**
+   * CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_V1: the attempt's bounded,
+   * deeply frozen diagnostics on the RETURNED-result path too, so an
+   * error-shaped result is as diagnosable as a throw. Optional so a fake
+   * runner may omit it. In memory only: never persisted, never in a detail.
+   */
+  readonly diagnostics?: AgentSdkDiagnostics;
+  /**
+   * CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_V1: STRUCTURAL failure fields the
+   * pinned SDK declares on its own messages, which `normalizeResult` used to
+   * drop. All optional, so a fake runner may omit them; every one is a number
+   * or a member of an SDK-declared closed union, validated again by the
+   * mapping before it can reach a witness.
+   *
+   *   - `apiErrorStatus`: the result's `api_error_status` — the HTTP status of
+   *     the API error behind an `is_error` result (SDK `SDKResultSuccess`).
+   *   - `terminalReason`: the result's `terminal_reason` (SDK `TerminalReason`).
+   *   - `assistantError`: the LAST assistant message's `error`
+   *     (SDK `SDKAssistantMessageError`), seen before the result arrived.
+   *   - `apiRetryCount` / `lastApiRetryErrorStatus`: how many `system/api_retry`
+   *     messages the CLI emitted before the result, and the last one's
+   *     `error_status` (null there means a connection error with no response).
+   */
+  readonly apiErrorStatus?: number | null;
+  readonly terminalReason?: string | null;
+  readonly assistantError?: string | null;
+  readonly apiRetryCount?: number;
+  readonly lastApiRetryErrorStatus?: number | null;
+}
+
+/** Closed structural facts observed on the stream BEFORE its terminal result. Never content. */
+interface StreamStructuralFacts {
+  assistantError: string | null;
+  apiRetryCount: number;
+  lastApiRetryErrorStatus: number | null;
 }
 
 /**
@@ -419,7 +514,14 @@ export interface AgentSdkRunner {
   run(invocation: AgentSdkInvocation, runOptions?: AgentSdkRunOptions): Promise<AgentSdkRunResult>;
 }
 
-function normalizeResult(message: SDKResultMessage): AgentSdkRunResult {
+function normalizeResult(
+  message: SDKResultMessage,
+  facts: StreamStructuralFacts = {
+    assistantError: null,
+    apiRetryCount: 0,
+    lastApiRetryErrorStatus: null,
+  },
+): AgentSdkRunResult {
   const modelIds = Object.keys(message.modelUsage);
   const responseModelId =
     modelIds.length === 0
@@ -438,7 +540,36 @@ function normalizeResult(message: SDKResultMessage): AgentSdkRunResult {
     inputTokens: message.usage.input_tokens ?? null,
     outputTokens: message.usage.output_tokens ?? null,
     errors: message.subtype === 'success' ? [] : message.errors,
+    apiErrorStatus:
+      'api_error_status' in message && typeof message.api_error_status === 'number'
+        ? message.api_error_status
+        : null,
+    terminalReason: typeof message.terminal_reason === 'string' ? message.terminal_reason : null,
+    assistantError: facts.assistantError,
+    apiRetryCount: facts.apiRetryCount,
+    lastApiRetryErrorStatus: facts.lastApiRetryErrorStatus,
   };
+}
+
+/**
+ * Reads ONLY closed structural fields off a non-terminal stream message:
+ * an assistant message's `error` union member, and a `system/api_retry`
+ * message's `error_status`. Never a message's content.
+ */
+function observeStructuralFacts(message: { type: string }, facts: StreamStructuralFacts): void {
+  const fields = message as {
+    type: string;
+    subtype?: unknown;
+    error?: unknown;
+    error_status?: unknown;
+  };
+  if (fields.type === 'assistant' && typeof fields.error === 'string') {
+    facts.assistantError = fields.error;
+  } else if (fields.type === 'system' && fields.subtype === 'api_retry') {
+    facts.apiRetryCount += 1;
+    facts.lastApiRetryErrorStatus =
+      typeof fields.error_status === 'number' ? fields.error_status : null;
+  }
 }
 
 /**
@@ -462,6 +593,11 @@ export async function consumeQueryStream(
 ): Promise<AgentSdkRunResult> {
   let terminal: SDKResultMessage | undefined;
   let sawActivity = false;
+  const facts: StreamStructuralFacts = {
+    assistantError: null,
+    apiRetryCount: 0,
+    lastApiRetryErrorStatus: null,
+  };
   try {
     for await (const message of stream) {
       if (!sawActivity) {
@@ -473,6 +609,7 @@ export async function consumeQueryStream(
         record?.('RESULT_RECEIVED');
         break;
       }
+      observeStructuralFacts(message, facts);
     }
   } catch (error) {
     record?.('STREAM_FAILED');
@@ -480,9 +617,9 @@ export async function consumeQueryStream(
   }
   if (terminal === undefined) {
     record?.('STREAM_ENDED_WITHOUT_RESULT');
-    throw new Error('Agent SDK query ended without a result message.');
+    throw new Error(STREAM_ENDED_WITHOUT_RESULT_MESSAGE);
   }
-  return normalizeResult(terminal);
+  return normalizeResult(terminal, facts);
 }
 
 /**
@@ -662,6 +799,62 @@ export async function runQueryWithLivenessBoundary(
 }
 
 /**
+ * CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_V1: attaches one attempt's bounded
+ * diagnostics snapshot to whatever the liveness boundary settled with,
+ * WITHOUT changing what it settled with.
+ *
+ *   - a returned result comes back unchanged, plus `diagnostics`;
+ *   - an `AgentSdkTimeoutError` is rethrown AS IS (it already carries its own);
+ *   - any other failure is rethrown as an `AgentSdkAttemptError` whose
+ *     `cause` is the ORIGINAL value and whose closed stage is read from the
+ *     collector's own trace — `STREAM_ENDED_WITHOUT_RESULT` when the stream
+ *     recorded that, else `STREAM_FAILED`.
+ *
+ * Composed AROUND `runQueryWithLivenessBoundary` rather than inside it, so
+ * the boundary's own landed contract — an ordinary stream failure rethrows
+ * the ORIGINAL error — is untouched.
+ */
+export async function attachAttemptDiagnostics(
+  attempt: Promise<AgentSdkRunResult>,
+  diagnostics: AgentSdkDiagnosticsCollector,
+): Promise<AgentSdkRunResult> {
+  let result: AgentSdkRunResult;
+  try {
+    result = await attempt;
+  } catch (error) {
+    if (error instanceof AgentSdkTimeoutError || error instanceof AgentSdkAttemptError) {
+      throw error;
+    }
+    const snapshot = diagnostics.snapshot();
+    const endedWithoutResult = snapshot.progress.some(
+      (entry) => entry.stage === 'STREAM_ENDED_WITHOUT_RESULT',
+    );
+    throw new AgentSdkAttemptError(
+      endedWithoutResult ? 'STREAM_ENDED_WITHOUT_RESULT' : 'STREAM_FAILED',
+      error,
+      snapshot,
+    );
+  }
+  return { ...result, diagnostics: diagnostics.snapshot() };
+}
+
+/**
+ * CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_V1: calls `start()` (production:
+ * the SDK's `query()`), converting a SYNCHRONOUS throw into an
+ * `AgentSdkAttemptError` at the closed `QUERY_CONSTRUCTION_FAILED` stage.
+ */
+export function startQueryWithDiagnostics<Q>(
+  start: () => Q,
+  diagnostics: AgentSdkDiagnosticsCollector,
+): Q {
+  try {
+    return start();
+  } catch (error) {
+    throw new AgentSdkAttemptError('QUERY_CONSTRUCTION_FAILED', error, diagnostics.snapshot());
+  }
+}
+
+/**
  * The production runner: one `query()` per `run()`, streamed to its terminal
  * result message under the hard liveness boundary. One native
  * `AbortController` per run; SDK subprocess stderr feeds the bounded
@@ -716,12 +909,18 @@ export function createProductionAgentSdkRunner(): AgentSdkRunner {
       };
 
       // The real Query object is retained so the boundary's close() reaches it.
-      const activeQuery = query({ prompt: invocation.prompt, options });
-      return runQueryWithLivenessBoundary(activeQuery, {
-        deadlineMs,
-        abortController,
+      const activeQuery = startQueryWithDiagnostics(
+        () => query({ prompt: invocation.prompt, options }),
         diagnostics,
-      });
+      );
+      return attachAttemptDiagnostics(
+        runQueryWithLivenessBoundary(activeQuery, {
+          deadlineMs,
+          abortController,
+          diagnostics,
+        }),
+        diagnostics,
+      );
     },
   };
 }
