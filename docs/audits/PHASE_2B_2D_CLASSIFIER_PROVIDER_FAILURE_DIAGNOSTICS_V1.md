@@ -123,7 +123,7 @@ content read.
 | native package / platform | `@anthropic-ai/claude-agent-sdk-darwin-arm64@0.3.251` / `darwin-arm64` |
 | binary bytes / sha256 | `197171680` / `625869b01e0050f260b2980fac248fd9cef9e462612bded4ec9d3d49ff8969a5` |
 | hash at `e2d0a2b`'s worktree | identical |
-| child env KEY SET (names only) | 11 keys, see below |
+| child env KEY SET (names only) | 10 keys, see below |
 | conflicting auth variables (this shell, names only) | none |
 | dedicated profile: names-only hygiene | OK |
 | `auth status --json` | **NOT RUN.** It may refresh the stored login and so alter the profile, which this task forbids. |
@@ -305,8 +305,9 @@ The canonical `npm run validate` gate passed:
 - **test files:** 320 passed, 5 skipped
 - **tests:** 9533 passed, 75 skipped
 
-It ran over the three code commits plus this record. No live inference happened during
-validation. Every provider test uses fake runners and fake streams, and the firewall still forbids
+It ran over the three code commits through `258a19c`. This record was committed afterwards, and
+only the affected suites were then rerun on that docs commit: 98/98 passed. No live inference
+happened during validation. Every provider test uses fake runners and fake streams, and the firewall still forbids
 any test from constructing the production SDK or auth-status runner.
 
 The previous slice's own scope test was frozen to its closed range `f4c747e..e2d0a2b`, exactly as
