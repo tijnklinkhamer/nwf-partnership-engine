@@ -71,8 +71,17 @@ execution into the cloud.**
      classifier and schema versions, input hash, terminal state, tokens) and
      stored page classifications (verdict, unit type, page kind, unit name,
      the three relevance assessments, confidence), with a review state of
-     `NO_HUMAN_REVIEW_RECORDED`. **The exporter refuses this class unless this
-     ADR reads `Status: Accepted` at the exported Engine commit.**
+     `NO_HUMAN_REVIEW_RECORDED`. Facts DERIVED from classifier calls are
+     CLASSIFICATION too: run attribution through a call, call-based funnel
+     counts, and prompt, classifier, schema and model versions observed in
+     calls. Without this class the exporter does not read the classifier
+     tables at all.
+     **Gate:** the class is exported only if this ADR's status line reads
+     exactly `Accepted` (optionally `Accepted — YYYY-MM-DD`) at the exported
+     Engine commit, and that commit is an ancestor of a named pushed
+     (`origin/…`) ref. The cloud enforces the same rule independently: a
+     production snapshot carrying CLASSIFICATION is refused unless its own
+     ADR register carries ADR 0017 Accepted at the snapshot's commit.
 4. **Never published (any class):** page text, heading text, page titles,
    full or parent URLs, robots rule text, response hashes, resolved
    addresses, charset data, free-text error summaries, classifier rationale,
