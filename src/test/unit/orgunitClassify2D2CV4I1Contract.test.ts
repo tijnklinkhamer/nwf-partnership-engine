@@ -35,7 +35,7 @@ import {
   v3FromV4,
   v4FromV5,
   v5FromV6,
-  v6FromV7,
+  v6FromV72,
 } from '../harness/phase2b2d2c/promptLineage.js';
 
 /**
@@ -47,7 +47,7 @@ import {
  * wrong thing.
  */
 const reconstructedV4 = (): string =>
-  v4FromV5(v5FromV6(v6FromV7(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT)));
+  v4FromV5(v5FromV6(v6FromV72(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT)));
 
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const DEV_LABELS_PATH = join(

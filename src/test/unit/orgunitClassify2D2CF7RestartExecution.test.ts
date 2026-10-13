@@ -41,7 +41,7 @@ import type * as StudyRootsF7Module from '../harness/phase2b2d2c/f7/studyRootsF7
 /** The frozen V6 prompt module, reconstructed from this build's v7 prompt (P3). */
 const V6_PROMPT_MODULE = {
   ORGUNIT_CLASSIFIER_PROMPT_VERSION: 'orgunit-classifier-prompt-v6',
-  ORGUNIT_CLASSIFIER_SYSTEM_PROMPT: v6FromV7(promptModule.ORGUNIT_CLASSIFIER_SYSTEM_PROMPT),
+  ORGUNIT_CLASSIFIER_SYSTEM_PROMPT: v6FromV72(promptModule.ORGUNIT_CLASSIFIER_SYSTEM_PROMPT),
 } as const;
 
 vi.mock('../harness/phase2b2d2c/f7/studyRootsF7.js', async (importOriginal) => {
@@ -61,7 +61,7 @@ import * as constantsModule from '../../orgunits/classify/constants.js';
 import * as finalIdentityModule from '../../orgunits/classify/finalIdentity.js';
 import * as outputSchemaModule from '../../orgunits/classify/outputSchema.js';
 import * as promptModule from '../../orgunits/classify/prompt.js';
-import { v6FromV7 } from '../harness/phase2b2d2c/promptLineage.js';
+import { v6FromV72 } from '../harness/phase2b2d2c/promptLineage.js';
 import * as allowedModelsModule from '../../orgunits/classify/provider/allowedModels.js';
 import * as authStatusRunnerModule from '../../orgunits/classify/provider/authStatusRunner.js';
 import * as claudeCodeExecutableModule from '../../orgunits/classify/provider/claudeCodeExecutable.js';

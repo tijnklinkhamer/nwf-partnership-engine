@@ -40,7 +40,7 @@ import {
   V5_DELTA_OPERATIONS,
   v4FromV5,
   v5FromV6,
-  v6FromV7,
+  v6FromV72,
 } from '../harness/phase2b2d2c/promptLineage.js';
 
 /**
@@ -49,7 +49,7 @@ import {
  * against the reconstructed v5 rather than against the live prompt - which
  * is also what proves V6's R1/R2/R3 did not disturb anything E1 established.
  */
-const reconstructedV5 = (): string => v5FromV6(v6FromV7(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT));
+const reconstructedV5 = (): string => v5FromV6(v6FromV72(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT));
 
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const DEV_LABELS_PATH = join(

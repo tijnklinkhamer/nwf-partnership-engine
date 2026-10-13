@@ -1,5 +1,37 @@
 /**
- * THE CLASSIFIER SYSTEM PROMPT — `orgunit-classifier-prompt-v7.1`.
+ * THE CLASSIFIER SYSTEM PROMPT — `orgunit-classifier-prompt-v7.2`.
+ *
+ * v7.2 IS v7.1 PLUS EXACTLY ONE INSERTION, AND NOTHING ELSE (OWNER decision
+ * "V7.2 Precision Repair, Offline Only" of 2026-10-13, which authorises
+ * OFFLINE ENGINEERING ONLY — no inference, no promotion, no Operator
+ * re-pin, no model change). No v7.1 byte is removed or reworded:
+ *
+ *   P. INSERT, space-joined directly after the last sentence of the
+ *      whole-organisation-allowance paragraph, the page-level rule:
+ *      eligibility for the allowance belongs to the organisation, not to a
+ *      page; each page must still make the organisation's operation of a
+ *      specific function or service its primary subject and say something
+ *      substantive about how it works; a general introduction (history,
+ *      mission, accreditation, programme range, locations, leadership, a
+ *      list of everything offered) is NOT_A_UNIT /
+ *      GENERIC_INSTITUTIONAL_PAGE, and a capability named once in it is a
+ *      mention; promotional summaries, testimonials, news and navigation
+ *      pages keep their own page_kind; the title decides neither way, so an
+ *      "About us" page that substantively describes such an operation still
+ *      qualifies. Targets the V7-C1 false positive (a small organisation's
+ *      general overview promoted to UNIT_PAGE through the allowance) while
+ *      keeping the genuine mobility page under the allowance eligible.
+ *
+ * Reversing exactly this insertion reproduces the v7.1 runtime text byte
+ * for byte (SHA-256
+ * `b8d3b3d591abaa4c6b0795775edfecabc91fc65a8ca3d852b9e2ba72bc9514fd`), and
+ * from there the v7.1 reversal below reproduces v6;
+ * `orgunitClassifyPrompt.test.ts` asserts both through `promptLineage.ts`.
+ *
+ * NOT ACCEPTED, AND NOT AUTHORISED TO RUN. No real-model call has
+ * classified anything under v7.2. Synthetic tests prove the text, the rule
+ * clauses and the unchanged output contract only, never better real-model
+ * classification.
  *
  * v7 IS v6 PLUS EXACTLY THREE INSERTIONS, AND NOTHING ELSE (operational
  * pilot P3, OWNER direction "develop a narrowly scoped classifier prompt V7
@@ -244,7 +276,7 @@
  */
 
 /** Versions THIS PROMPT'S TEXT. Bump on any content change; never edit the string below without bumping it. */
-export const ORGUNIT_CLASSIFIER_PROMPT_VERSION = 'orgunit-classifier-prompt-v7.1';
+export const ORGUNIT_CLASSIFIER_PROMPT_VERSION = 'orgunit-classifier-prompt-v7.2';
 
 export const ORGUNIT_CLASSIFIER_SYSTEM_PROMPT = `You are a document classifier. For each supplied document — bounded, redacted evidence extracted from one organisation's website — decide what organisational unit, if any, the page represents, and what the evidence says about the student audiences that unit serves. Use only the supplied evidence. Prefer UNKNOWN and NEEDS_REVIEW over unsupported certainty.
 
@@ -282,7 +314,7 @@ When \`verdict = UNIT_PAGE\`, \`unit_type\` is exactly one of:
 
 For a small or non-university organisation (a language school, a student association, a smaller institute), the unit a page represents may be the whole organisation — classify what the page evidences and, where stated, capture the organisation's own name in \`unit_name\`; no separate field exists for this case.
 
-The whole-organisation allowance is narrow and, like the rest of this paragraph, applies only to a small or non-university organisation as described above: use it only when the document presents the whole organisation in the role of an operating unit or function and makes that role the page's primary subject. For a small or non-university organisation as described above, a page whose title names a programme, a scheme or an audience can still meet this test when the document attributes to the organisation itself its own ongoing strategy, charter, eligibility rules, responsibility or operations for that function, and makes that commitment the page's structural subject in its title or headings rather than a single sentence saying that the organisation takes part. A named office is not required for this. The organisation's small size alone is never enough, and a page whose subject is the external programme itself, its grant amounts, its conditions or its sponsor's description, with the organisation appearing only as a participant, is NOT_A_UNIT; a homepage, marketing or navigation page, degree or course page, and news or event page remain NOT_A_UNIT when no operating unit or function is the page's primary subject.
+The whole-organisation allowance is narrow and, like the rest of this paragraph, applies only to a small or non-university organisation as described above: use it only when the document presents the whole organisation in the role of an operating unit or function and makes that role the page's primary subject. For a small or non-university organisation as described above, a page whose title names a programme, a scheme or an audience can still meet this test when the document attributes to the organisation itself its own ongoing strategy, charter, eligibility rules, responsibility or operations for that function, and makes that commitment the page's structural subject in its title or headings rather than a single sentence saying that the organisation takes part. A named office is not required for this. The organisation's small size alone is never enough, and a page whose subject is the external programme itself, its grant amounts, its conditions or its sponsor's description, with the organisation appearing only as a participant, is NOT_A_UNIT; a homepage, marketing or navigation page, degree or course page, and news or event page remain NOT_A_UNIT when no operating unit or function is the page's primary subject. Eligibility for this allowance belongs to the organisation, not to any page: it lets the organisation itself count as the unit, but it never makes a page a UNIT_PAGE merely because the page is about that organisation, names it or speaks for it. Each page must still, on its own content, make the organisation's operation of a specific function or service, such as its international relations, its incoming or outgoing mobility, its support for arriving students, or its language teaching or support, the page's primary subject, and say something substantive about how that operation works: whom it serves, what it does for them, how it is delivered or organised, or how it is reached. A general introduction to the organisation, such as its history, mission, values, accreditation, levels and range of programmes, locations, leadership or a list of everything it offers, is NOT_A_UNIT with the page_kind GENERIC_INSTITUTIONAL_PAGE: a capability named once inside such an overview or list is a mention, not the page's subject. Promotional summaries, testimonials, news and navigation pages likewise remain NOT_A_UNIT with the page_kind of their own subject, however eligible the organisation is. The title decides neither way: a page called "About us" or "Who we are" whose content is principally a substantive description of such an operation, for example a small language school describing the courses it teaches, to whom and how, still qualifies, and a page named after a function that only mentions or introduces it does not.
 
 When \`verdict = NOT_A_UNIT\`, \`page_kind\` is exactly one of:
 

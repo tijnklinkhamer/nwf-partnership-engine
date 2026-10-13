@@ -1993,7 +1993,7 @@ describe('PHASE-2B-FIREWALL 2B-2C1: semantic core is provider-neutral, and persi
   it('declares frozen, versioned prompt and output-schema constants', () => {
     const prompt = code('src/orgunits/classify/prompt.ts');
     expect(prompt).toContain(
-      "ORGUNIT_CLASSIFIER_PROMPT_VERSION = 'orgunit-classifier-prompt-v7.1'",
+      "ORGUNIT_CLASSIFIER_PROMPT_VERSION = 'orgunit-classifier-prompt-v7.2'",
     );
     const schema = code('src/orgunits/classify/outputSchema.ts');
     expect(schema).toContain(

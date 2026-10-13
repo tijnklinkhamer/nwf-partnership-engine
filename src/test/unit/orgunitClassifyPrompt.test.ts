@@ -15,6 +15,9 @@ import {
   v5FromV6,
   v6FromV5,
   v6FromV7,
+  v6FromV72,
+  v71FromV72,
+  v72FromV71,
   v7FromV6,
   V1_PROMPT_SHA256,
   V1_PROMPT_SIZE,
@@ -40,11 +43,18 @@ import {
   V7_PROMPT_SHA256,
   V7_PROMPT_SIZE,
   V7_PROMPT_VERSION,
+  V7_1_ALLOWANCE_LAST_SENTENCE,
+  V7_2_DELTA_OPERATIONS,
+  V7_2_PROMPT_SHA256,
+  V7_2_PROMPT_SIZE,
+  V7_2_PROMPT_VERSION,
 } from '../harness/phase2b2d2c/promptLineage.js';
 
 describe('the frozen classifier system prompt', () => {
-  it('is versioned exactly orgunit-classifier-prompt-v7.1', () => {
-    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe(V7_PROMPT_VERSION);
+  it('is versioned exactly orgunit-classifier-prompt-v7.2', () => {
+    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe(V7_2_PROMPT_VERSION);
+    expect(V7_2_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v7.2');
+    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).not.toBe(V7_PROMPT_VERSION);
     expect(V7_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v7.1');
     expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).not.toBe(V6_PROMPT_VERSION);
   });
@@ -131,8 +141,8 @@ const DIAGNOSTIC_INSTITUTION_TOKENS = ['insa', 'rouen'];
  * or reworded. The v6 hash is the immutable production-baseline oracle and
  * is never updated to fit a result. Not accepted, not authorised to run.
  */
-describe('prompt v7 is v6 plus exactly the three P3 insertions (U, C, S)', () => {
-  const live = ORGUNIT_CLASSIFIER_SYSTEM_PROMPT;
+describe('prompt v7.1 (reconstructed from the live v7.2 text) is v6 plus exactly the three P3 insertions (U, C, S)', () => {
+  const live = v71FromV72(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
 
   it('matches the v7 length, UTF-8 byte and SHA-256 oracles', () => {
     expect(live.length).toBe(V7_PROMPT_SIZE.characters);
@@ -274,8 +284,132 @@ describe('prompt v7 is v6 plus exactly the three P3 insertions (U, C, S)', () =>
   });
 });
 
-/** The immutable v6 production baseline, reconstructed from the live v7 text. */
-const V6_TEXT = v6FromV7(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+/**
+ * V7.2 precision repair (OWNER decision "V7.2 Precision Repair, Offline
+ * Only", 2026-10-13): v7.2 is the v7.1 runtime text plus exactly one INSERT
+ * (P, page-level classification under the small/non-university allowance),
+ * and nothing else. The v7.1 and v6 hashes are immutable oracles and are
+ * never updated to fit a result. Not accepted, not authorised to run.
+ */
+describe('prompt v7.2 is v7.1 plus exactly the one P insertion', () => {
+  const live = ORGUNIT_CLASSIFIER_SYSTEM_PROMPT;
+  const p = V7_2_DELTA_OPERATIONS[0]!;
+
+  it('matches the v7.2 length, UTF-8 byte and SHA-256 oracles', () => {
+    expect(live.length).toBe(V7_2_PROMPT_SIZE.characters);
+    expect(Buffer.byteLength(live, 'utf8')).toBe(V7_2_PROMPT_SIZE.utf8Bytes);
+    expect(promptSha256(live)).toBe(V7_2_PROMPT_SHA256);
+    expect(V7_2_PROMPT_SIZE).toEqual({ characters: 21_082, utf8Bytes: 21_168 });
+    expect(V7_2_PROMPT_SHA256).toBe(
+      '567b93ba1c122c9599aaef8b652bdccd5a249db3fb582b782a3dc86b12cec59e',
+    );
+  });
+
+  it('is exactly one INSERT, its text present once, directly after the kept allowance sentence', () => {
+    expect(V7_2_DELTA_OPERATIONS).toHaveLength(1);
+    expect(p.kind).toBe('INSERT_SENTENCE_AFTER');
+    expect(p.anchorParagraph).toBe(V7_1_ALLOWANCE_LAST_SENTENCE);
+    expect(occurrences(live, p.text)).toBe(1);
+    expect(occurrences(live, p.anchorParagraph)).toBe(1);
+    expect(occurrences(live, `${p.anchorParagraph} ${p.text}`)).toBe(1);
+  });
+
+  it('reconstructs v7.1 and then v6 exactly, and re-applying the delta gives v7.2 back', () => {
+    const v71 = v71FromV72(live);
+    expect(promptSha256(v71)).toBe(V7_PROMPT_SHA256);
+    expect(promptSha256(v71)).toBe(
+      'b8d3b3d591abaa4c6b0795775edfecabc91fc65a8ca3d852b9e2ba72bc9514fd',
+    );
+    expect(v71.length).toBe(V7_PROMPT_SIZE.characters);
+    expect(v72FromV71(v71)).toBe(live);
+    expect(promptSha256(v6FromV72(live))).toBe(V6_PROMPT_SHA256);
+    // 1,528 code points of text plus one joining space, all ASCII.
+    expect(p.text.length + 1).toBe(1_529);
+    expect(V7_2_PROMPT_SIZE.characters - V7_PROMPT_SIZE.characters).toBe(1_529);
+    expect(V7_2_PROMPT_SIZE.utf8Bytes - V7_PROMPT_SIZE.utf8Bytes).toBe(1_529);
+  });
+
+  it('changes exactly one v7.1 paragraph, the whole-organisation allowance, and adds none', () => {
+    const v71Paragraphs = v71FromV72(live).split('\n\n');
+    const v72Paragraphs = live.split('\n\n');
+    expect(v72Paragraphs).toHaveLength(v71Paragraphs.length);
+    const changed = v71Paragraphs.filter((para) => !v72Paragraphs.includes(para));
+    expect(changed).toHaveLength(1);
+    expect(changed[0]).toMatch(/^The whole-organisation allowance is narrow/);
+    const between = (from: string, to: string): string =>
+      live.slice(live.indexOf(from), live.indexOf(to));
+    expect(between('## Taxonomy', '## Relevance axes')).toContain(p.text);
+  });
+
+  it('keeps every v7.1 rule the repair must not weaken: U, C (corrected NO/UNKNOWN), S, and the allowance itself', () => {
+    const v71 = v71FromV72(live);
+    for (const op of V7_DELTA_OPERATIONS) expect(occurrences(live, op.text)).toBe(1);
+    expect(occurrences(v71, V7_DELTA_OPERATIONS[1]!.text)).toBe(1);
+    expect(live).toContain('For a small or non-university organisation (a language school');
+    expect(live).toContain('A named office is not required for this.');
+    expect(live).toContain(
+      'Under the small or non-university allowance the unit is the organisation itself',
+    );
+    expect(live).toContain(
+      'That another unit, the institution or a partner provides the capability does not establish NO for this unit',
+    );
+  });
+
+  it('states the entity-level versus page-level distinction and is title-neutral in both directions', () => {
+    expect(p.text).toContain(
+      'Eligibility for this allowance belongs to the organisation, not to any page',
+    );
+    expect(p.text).toContain(
+      'it never makes a page a UNIT_PAGE merely because the page is about that organisation',
+    );
+    expect(p.text).toContain('is NOT_A_UNIT with the page_kind GENERIC_INSTITUTIONAL_PAGE');
+    expect(p.text).toContain(
+      'a capability named once inside such an overview or list is a mention',
+    );
+    expect(p.text).toContain('The title decides neither way');
+    expect(p.text).toContain('still qualifies');
+    expect(p.text).toContain(
+      'a page named after a function that only mentions or introduces it does not',
+    );
+    // It never creates a NO and never touches the capability axes.
+    expect(p.text).not.toMatch(/\b(YES|NO|UNKNOWN)\b/);
+  });
+
+  it('the v7.2 delta is organisation-agnostic: no institution, URL, domain, digit or evaluation-set language', () => {
+    const delta = p.text;
+    expect(delta).not.toMatch(/:\/\//);
+    expect(delta).not.toMatch(/\b[\w-]+\.(fr|com|org|net|eu|edu|it|si|es)\b/i);
+    expect(delta, 'the delta carries a digit').not.toMatch(/\d/);
+    expect(delta).not.toMatch(/[^\x20-\x7e\n]/);
+    for (const banned of [
+      'memory',
+      'dutovlje',
+      'koper',
+      'slovenia',
+      'business education',
+      'devinci',
+      'vinci',
+      'paris',
+      'messina',
+      'gold',
+      'threshold',
+      'DEVELOPMENT',
+      'HOLDOUT',
+      'DEV_CONFIRM',
+      'DEV_TRAIN',
+      'recall',
+      'precision',
+      'pilot',
+    ]) {
+      expect(delta.toLowerCase(), `the delta names ${banned}`).not.toMatch(
+        new RegExp(`\\b${banned.toLowerCase()}\\b`),
+      );
+    }
+  });
+});
+
+/** The immutable v6 production baseline, reconstructed from the live v7.2 text. */
+const V6_TEXT = v6FromV72(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
 
 /**
  * Phase 2B-2D2C-F1/V6I1: v6 is the canonical v5 runtime text plus exactly

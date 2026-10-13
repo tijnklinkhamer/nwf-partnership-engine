@@ -88,7 +88,7 @@ describe('computeFinalInputSha256', () => {
     // Same assembly hash, same production output schema version - only the
     // prompt version differs. A completed prompt-v1 call must never be
     // reused as though it answered the prompt-v7 question.
-    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v7.1');
+    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v7.2');
     expect(BASE.promptVersion).toBe('orgunit-classifier-prompt-v1');
     const shared = {
       assemblyInputSha256: BASE.assemblyInputSha256,

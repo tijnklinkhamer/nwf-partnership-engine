@@ -88,7 +88,7 @@ import {
   F6_STUDY_ROOT,
   resolveF6Slot,
 } from '../harness/phase2b2d2c/f6/studyPlanCoreF6.js';
-import { v6FromV7, V6_PROMPT_VERSION } from '../harness/phase2b2d2c/promptLineage.js';
+import { v6FromV72, V6_PROMPT_VERSION } from '../harness/phase2b2d2c/promptLineage.js';
 
 /**
  * The frozen study's prompt identity. Since operational pilot P3 the live
@@ -96,7 +96,7 @@ import { v6FromV7, V6_PROMPT_VERSION } from '../harness/phase2b2d2c/promptLineag
  * from it by reversing exactly the P3 delta, and must still hash to the frozen
  * V6 SHA-256 - the oracle is never relaxed.
  */
-const V6_RECONSTRUCTED_PROMPT = v6FromV7(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+const V6_RECONSTRUCTED_PROMPT = v6FromV72(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const sha256 = (value: Buffer | string): string => createHash('sha256').update(value).digest('hex');
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;

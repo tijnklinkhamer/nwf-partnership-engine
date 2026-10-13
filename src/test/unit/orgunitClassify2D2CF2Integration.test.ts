@@ -68,7 +68,7 @@ import {
   V6_R1_OPERATOR_DEFINITION,
   V6_R2_EXTERNAL_SCHEME_STRUCTURE,
   V6_R3_THIN_EVIDENCE_PRECEDENCE,
-  v6FromV7,
+  v6FromV72,
 } from '../harness/phase2b2d2c/promptLineage.js';
 
 /**
@@ -77,7 +77,7 @@ import {
  * from it by reversing exactly the P3 delta, and must still hash to the frozen
  * V6 SHA-256 - the oracle is never relaxed.
  */
-const V6_RECONSTRUCTED_PROMPT = v6FromV7(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+const V6_RECONSTRUCTED_PROMPT = v6FromV72(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const sha256 = (text: string): string => createHash('sha256').update(text, 'utf8').digest('hex');
 
@@ -123,7 +123,7 @@ const documentOf = (goldId: string): CorpusDocument => {
 describe('2D2C-F2: the integrated prompt IS the approved V6 semantic source, byte for byte', () => {
   it('reconstructs exactly the frozen v6 version, hash and size from the live v7 prompt', () => {
     expect(V6_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v6');
-    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v7.1');
+    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v7.2');
     expect(sha256(V6_RECONSTRUCTED_PROMPT)).toBe(
       '06262d43352375231eb83afdd485babc8564675d783da0b7409bc15dca0513b7',
     );

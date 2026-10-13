@@ -52,7 +52,7 @@ import {
   v3FromV4,
   v4FromV5,
   v5FromV6,
-  v6FromV7,
+  v6FromV72,
 } from '../../harness/phase2b2d2c/promptLineage.js';
 import {
   OPTIONAL_RUNTIME_MODULE_PATHS,
@@ -89,12 +89,12 @@ const FIXTURE_STACK = join(
  * synthetic roots the F0B/F0C/F0I/F0O/F2/F6 freezes are verified against
  * still need their own exact v1..v6 texts, so each one is derived by
  * reversing the exact reviewed delta chain, one version at a time —
- * `v6FromV7`, `v5FromV6`, `v4FromV5`, `v3FromV4`, `v2FromV3`, `v1FromV2`. Each reversal
+ * `v6FromV72`, `v5FromV6`, `v4FromV5`, `v3FromV4`, `v2FromV3`, `v1FromV2`. Each reversal
  * fails closed unless its region occurs exactly once, so a drifted prompt
  * cannot silently produce a plausible-looking comparator.
  */
 export function v6PromptText(): string {
-  return v6FromV7(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+  return v6FromV72(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
 }
 
 export function v5PromptText(): string {

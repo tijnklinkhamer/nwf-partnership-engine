@@ -497,6 +497,65 @@ export function v6FromV7(v7: string): string {
   return text;
 }
 
+// ---------------------------------------------------------------------------
+// v7.2 = v7.1 + P. OWNER decision "V7.2 Precision Repair, Offline Only" of
+// 2026-10-13: one INSERT, no v7.1 byte removed or reworded. Separates the
+// organisation's eligibility for the small/non-university allowance from the
+// classification of each page (the V7-C1 general "About us" false
+// positive). Not accepted, not authorised to run. The V7_PROMPT_* constants
+// above remain the v7.1 identity, reconstructed from the live text by
+// v71FromV72.
+// ---------------------------------------------------------------------------
+
+/** The v7.2 identity. NOT accepted, NOT authorised to run. */
+export const V7_2_PROMPT_SHA256 =
+  '567b93ba1c122c9599aaef8b652bdccd5a249db3fb582b782a3dc86b12cec59e';
+export const V7_2_PROMPT_SIZE = { characters: 21_082, utf8Bytes: 21_168 } as const;
+export const V7_2_PROMPT_VERSION = 'orgunit-classifier-prompt-v7.2';
+
+/** The last sentence of the whole-organisation-allowance paragraph (unchanged since v4/v5). */
+export const V7_1_ALLOWANCE_LAST_SENTENCE =
+  "The organisation's small size alone is never enough, and a page whose subject is the external programme itself, its grant amounts, its conditions or its sponsor's description, with the organisation appearing only as a participant, is NOT_A_UNIT; a homepage, marketing or navigation page, degree or course page, and news or event page remain NOT_A_UNIT when no operating unit or function is the page's primary subject.";
+
+/** P: page-level unit classification under the allowance, space-joined after the allowance paragraph's last sentence. */
+export const V7_2_P_PAGE_LEVEL_ALLOWANCE =
+  'Eligibility for this allowance belongs to the organisation, not to any page: it lets the organisation itself count as the unit, but it never makes a page a UNIT_PAGE merely because the page is about that organisation, names it or speaks for it. Each page must still, on its own content, make the organisation\'s operation of a specific function or service, such as its international relations, its incoming or outgoing mobility, its support for arriving students, or its language teaching or support, the page\'s primary subject, and say something substantive about how that operation works: whom it serves, what it does for them, how it is delivered or organised, or how it is reached. A general introduction to the organisation, such as its history, mission, values, accreditation, levels and range of programmes, locations, leadership or a list of everything it offers, is NOT_A_UNIT with the page_kind GENERIC_INSTITUTIONAL_PAGE: a capability named once inside such an overview or list is a mention, not the page\'s subject. Promotional summaries, testimonials, news and navigation pages likewise remain NOT_A_UNIT with the page_kind of their own subject, however eligible the organisation is. The title decides neither way: a page called "About us" or "Who we are" whose content is principally a substantive description of such an operation, for example a small language school describing the courses it teaches, to whom and how, still qualifies, and a page named after a function that only mentions or introduces it does not.';
+
+/** The exact one operation of the v7.2 delta. */
+export const V7_2_DELTA_OPERATIONS: readonly PromptDeltaOperation[] = [
+  {
+    kind: 'INSERT_SENTENCE_AFTER',
+    anchorParagraph: V7_1_ALLOWANCE_LAST_SENTENCE,
+    text: V7_2_P_PAGE_LEVEL_ALLOWANCE,
+  },
+];
+
+/** Applies the v7.2 delta to a v7.1 text. The anchor must occur EXACTLY ONCE; fail closed otherwise. */
+export function v72FromV71(v71: string): string {
+  let text = v71;
+  for (const op of V7_2_DELTA_OPERATIONS) {
+    exactlyOnce(text, op.anchorParagraph, `v7.2 anchor "${op.anchorParagraph.slice(0, 40)}"`);
+    text = text.replace(op.anchorParagraph, v7Joined(op));
+  }
+  return text;
+}
+
+/** Strips the v7.2 delta from a v7.2 text, reconstructing v7.1 byte for byte. */
+export function v71FromV72(v72: string): string {
+  let text = v72;
+  for (const op of [...V7_2_DELTA_OPERATIONS].reverse()) {
+    const block = v7Joined(op);
+    exactlyOnce(text, block, `v7.2 inserted text "${op.text.slice(0, 40)}"`);
+    text = text.replace(block, op.anchorParagraph);
+  }
+  return text;
+}
+
+/** The immutable v6 production baseline from a live v7.2 text: v7.2 -> v7.1 -> v6. */
+export function v6FromV72(v72: string): string {
+  return v6FromV7(v71FromV72(v72));
+}
+
 export function promptSha256(text: string): string {
   return createHash('sha256').update(text, 'utf8').digest('hex');
 }
