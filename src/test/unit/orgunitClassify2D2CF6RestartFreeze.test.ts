@@ -18,10 +18,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { canonicalStringify } from '../../orgunits/classify/canonical.js';
 import { ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION } from '../../orgunits/classify/outputSchema.js';
-import {
-  ORGUNIT_CLASSIFIER_PROMPT_VERSION,
-  ORGUNIT_CLASSIFIER_SYSTEM_PROMPT,
-} from '../../orgunits/classify/prompt.js';
+import { ORGUNIT_CLASSIFIER_SYSTEM_PROMPT } from '../../orgunits/classify/prompt.js';
 import {
   EXPECTED_CORPUS_ITEM_COUNT,
   EXPECTED_LOGICAL_BATCHES_PER_VARIANT,
@@ -91,7 +88,15 @@ import {
   F6_STUDY_ROOT,
   resolveF6Slot,
 } from '../harness/phase2b2d2c/f6/studyPlanCoreF6.js';
+import { v6FromV7, V6_PROMPT_VERSION } from '../harness/phase2b2d2c/promptLineage.js';
 
+/**
+ * The frozen study's prompt identity. Since operational pilot P3 the live
+ * production prompt is v7; the V6 text this frozen study names is RECONSTRUCTED
+ * from it by reversing exactly the P3 delta, and must still hash to the frozen
+ * V6 SHA-256 - the oracle is never relaxed.
+ */
+const V6_RECONSTRUCTED_PROMPT = v6FromV7(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const sha256 = (value: Buffer | string): string => createHash('sha256').update(value).digest('hex');
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
@@ -104,8 +109,8 @@ const F0O_PLAN = buildF0OExecutionPlan(F0O.freeze, F0O.rawSha256);
 
 /** The LIVE prompt identity of this build, recomputed — never read from a freeze. */
 const PROMPT: F2PromptIdentity = {
-  promptVersion: ORGUNIT_CLASSIFIER_PROMPT_VERSION,
-  promptSha256: sha256(Buffer.from(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT, 'utf8')),
+  promptVersion: V6_PROMPT_VERSION,
+  promptSha256: sha256(Buffer.from(V6_RECONSTRUCTED_PROMPT, 'utf8')),
   runtimeCommit: F2_INTEGRATED_RUNTIME_COMMIT,
   outputSchemaVersion: ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
 };

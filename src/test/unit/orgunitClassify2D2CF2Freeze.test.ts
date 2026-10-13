@@ -16,10 +16,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { canonicalStringify } from '../../orgunits/classify/canonical.js';
 import { ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION } from '../../orgunits/classify/outputSchema.js';
-import {
-  ORGUNIT_CLASSIFIER_PROMPT_VERSION,
-  ORGUNIT_CLASSIFIER_SYSTEM_PROMPT,
-} from '../../orgunits/classify/prompt.js';
+import { ORGUNIT_CLASSIFIER_SYSTEM_PROMPT } from '../../orgunits/classify/prompt.js';
 import {
   EXPECTED_CORPUS_ITEM_COUNT,
   EXPECTED_LOGICAL_BATCHES_PER_VARIANT,
@@ -71,7 +68,15 @@ import {
   F5_STUDY_ROOT_INVENTORY_SHA256,
 } from '../harness/phase2b2d2c/f6/f5ClosureF6.js';
 import { computeRootInventory } from '../harness/phase2b2d2c/f6/rootInventoryF6.js';
+import { v6FromV7, V6_PROMPT_VERSION } from '../harness/phase2b2d2c/promptLineage.js';
 
+/**
+ * The frozen study's prompt identity. Since operational pilot P3 the live
+ * production prompt is v7; the V6 text this frozen study names is RECONSTRUCTED
+ * from it by reversing exactly the P3 delta, and must still hash to the frozen
+ * V6 SHA-256 - the oracle is never relaxed.
+ */
+const V6_RECONSTRUCTED_PROMPT = v6FromV7(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const sha256 = (value: Buffer | string): string => createHash('sha256').update(value).digest('hex');
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
@@ -84,8 +89,8 @@ const F0O = loadF0OFreezeFromBytes(F0O_BYTES);
 const F0O_PLAN = buildF0OExecutionPlan(F0O.freeze, F0O.rawSha256);
 
 const PROMPT_IDENTITY = {
-  promptVersion: ORGUNIT_CLASSIFIER_PROMPT_VERSION,
-  promptSha256: sha256(Buffer.from(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT, 'utf8')),
+  promptVersion: V6_PROMPT_VERSION,
+  promptSha256: sha256(Buffer.from(V6_RECONSTRUCTED_PROMPT, 'utf8')),
   runtimeCommit: F2_INTEGRATED_RUNTIME_COMMIT,
   outputSchemaVersion: ORGUNIT_CLASSIFIER_OUTPUT_SCHEMA_VERSION,
 };
@@ -268,12 +273,12 @@ describe('2D2C-F2 freeze: the two lineages stay separate and are both named', ()
   it("the frozen prompt identity IS this build's live prompt, recomputed", () => {
     expect(F2.freeze.lineages.semanticSource.promptSha256).toBe(V6_PROMPT_SHA256);
     expect(F2.freeze.lineages.semanticSource.promptSha256).toBe(PROMPT_IDENTITY.promptSha256);
-    expect(F2.freeze.lineages.semanticSource.promptVersion).toBe(ORGUNIT_CLASSIFIER_PROMPT_VERSION);
+    expect(F2.freeze.lineages.semanticSource.promptVersion).toBe(V6_PROMPT_VERSION);
     expect(F2.freeze.lineages.semanticSource.promptCodePoints).toBe(
-      [...ORGUNIT_CLASSIFIER_SYSTEM_PROMPT].length,
+      [...V6_RECONSTRUCTED_PROMPT].length,
     );
     expect(F2.freeze.lineages.semanticSource.promptUtf8Bytes).toBe(
-      Buffer.byteLength(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT, 'utf8'),
+      Buffer.byteLength(V6_RECONSTRUCTED_PROMPT, 'utf8'),
     );
   });
 

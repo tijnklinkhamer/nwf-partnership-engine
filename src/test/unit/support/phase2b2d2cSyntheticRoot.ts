@@ -52,6 +52,7 @@ import {
   v3FromV4,
   v4FromV5,
   v5FromV6,
+  v6FromV7,
 } from '../../harness/phase2b2d2c/promptLineage.js';
 import {
   OPTIONAL_RUNTIME_MODULE_PATHS,
@@ -84,16 +85,20 @@ const FIXTURE_STACK = join(
  * PROMPT, WITHOUT GIT.
  *
  * 2B-2D2C-F2 integrated the approved v6 prompt onto the accepted F0Z
- * runtime, so the production text this build exports is now v6 rather than
- * v3. The synthetic roots the F0B/F0C/F0I/F0O freezes are verified against
- * still need their own exact v1/v2/v3/v4/v5 texts, so each one is derived by
+ * runtime; operational pilot P3 then made the production text v7. The
+ * synthetic roots the F0B/F0C/F0I/F0O/F2/F6 freezes are verified against
+ * still need their own exact v1..v6 texts, so each one is derived by
  * reversing the exact reviewed delta chain, one version at a time —
- * `v5FromV6`, `v4FromV5`, `v3FromV4`, `v2FromV3`, `v1FromV2`. Each reversal
+ * `v6FromV7`, `v5FromV6`, `v4FromV5`, `v3FromV4`, `v2FromV3`, `v1FromV2`. Each reversal
  * fails closed unless its region occurs exactly once, so a drifted prompt
  * cannot silently produce a plausible-looking comparator.
  */
+export function v6PromptText(): string {
+  return v6FromV7(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+}
+
 export function v5PromptText(): string {
-  return v5FromV6(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+  return v5FromV6(v6PromptText());
 }
 
 export function v4PromptText(): string {
@@ -124,6 +129,7 @@ export function promptTextOf(variantName: string): string {
   if (variantName === 'PROMPT_V3_CANONICAL') return v3PromptText();
   if (variantName === 'PROMPT_V4_CANONICAL') return v4PromptText();
   if (variantName === 'PROMPT_V5_CANONICAL') return v5PromptText();
+  if (variantName === 'PROMPT_V6_CANONICAL') return v6PromptText();
   return ORGUNIT_CLASSIFIER_SYSTEM_PROMPT;
 }
 

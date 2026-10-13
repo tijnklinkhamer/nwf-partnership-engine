@@ -36,7 +36,12 @@ import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { ORGUNIT_CLASSIFIER_SYSTEM_PROMPT } from '../../orgunits/classify/prompt.js';
-import { V5_DELTA_OPERATIONS, v4FromV5, v5FromV6 } from '../harness/phase2b2d2c/promptLineage.js';
+import {
+  V5_DELTA_OPERATIONS,
+  v4FromV5,
+  v5FromV6,
+  v6FromV7,
+} from '../harness/phase2b2d2c/promptLineage.js';
 
 /**
  * The v5 text this contract is about, RECONSTRUCTED from the live production
@@ -44,7 +49,7 @@ import { V5_DELTA_OPERATIONS, v4FromV5, v5FromV6 } from '../harness/phase2b2d2c/
  * against the reconstructed v5 rather than against the live prompt - which
  * is also what proves V6's R1/R2/R3 did not disturb anything E1 established.
  */
-const reconstructedV5 = (): string => v5FromV6(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+const reconstructedV5 = (): string => v5FromV6(v6FromV7(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT));
 
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const DEV_LABELS_PATH = join(

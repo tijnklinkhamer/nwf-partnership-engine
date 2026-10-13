@@ -14,6 +14,8 @@ import {
   v5FromV4,
   v5FromV6,
   v6FromV5,
+  v6FromV7,
+  v7FromV6,
   V1_PROMPT_SHA256,
   V1_PROMPT_SIZE,
   V2_INLINE_INSERTION_3,
@@ -34,12 +36,17 @@ import {
   V6_PROMPT_SHA256,
   V6_PROMPT_SIZE,
   V6_PROMPT_VERSION,
+  V7_DELTA_OPERATIONS,
+  V7_PROMPT_SHA256,
+  V7_PROMPT_SIZE,
+  V7_PROMPT_VERSION,
 } from '../harness/phase2b2d2c/promptLineage.js';
 
 describe('the frozen classifier system prompt', () => {
-  it('is versioned exactly orgunit-classifier-prompt-v6', () => {
-    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe(V6_PROMPT_VERSION);
-    expect(V6_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v6');
+  it('is versioned exactly orgunit-classifier-prompt-v7', () => {
+    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe(V7_PROMPT_VERSION);
+    expect(V7_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v7');
+    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).not.toBe(V6_PROMPT_VERSION);
   });
 
   it('is a non-empty plain string with no template placeholders', () => {
@@ -118,6 +125,146 @@ const occurrences = (haystack: string, needle: string): number => haystack.split
 const DIAGNOSTIC_INSTITUTION_TOKENS = ['insa', 'rouen'];
 
 /**
+ * Operational pilot P3: v7 is the canonical v6 runtime text plus exactly
+ * three INSERT operations (U primary-subject test, C capability
+ * attribution, S evidence support), and nothing else. No v6 byte is removed
+ * or reworded. The v6 hash is the immutable production-baseline oracle and
+ * is never updated to fit a result. Not accepted, not authorised to run.
+ */
+describe('prompt v7 is v6 plus exactly the three P3 insertions (U, C, S)', () => {
+  const live = ORGUNIT_CLASSIFIER_SYSTEM_PROMPT;
+
+  it('matches the v7 length, UTF-8 byte and SHA-256 oracles', () => {
+    expect(live.length).toBe(V7_PROMPT_SIZE.characters);
+    expect(Buffer.byteLength(live, 'utf8')).toBe(V7_PROMPT_SIZE.utf8Bytes);
+    expect(promptSha256(live)).toBe(V7_PROMPT_SHA256);
+    expect(V7_PROMPT_SIZE).toEqual({ characters: 19_189, utf8Bytes: 19_275 });
+    expect(V7_PROMPT_SHA256).toBe(
+      '82df3541bed35a6ccacac5fe9cb54c4ef86430667fec42155a5bcdb1a83908e2',
+    );
+  });
+
+  it('is exactly three INSERT operations, each text present once and every anchor kept', () => {
+    expect(V7_DELTA_OPERATIONS.map((op) => op.kind)).toEqual([
+      'INSERT_SENTENCE_AFTER',
+      'INSERT_PARAGRAPH_AFTER',
+      'INSERT_PARAGRAPH_AFTER',
+    ]);
+    for (const op of V7_DELTA_OPERATIONS) {
+      expect(occurrences(live, op.text), op.text.slice(0, 40)).toBe(1);
+      expect(occurrences(live, op.anchorParagraph), op.anchorParagraph.slice(0, 40)).toBe(1);
+      const joiner = op.kind === 'INSERT_SENTENCE_AFTER' ? ' ' : '\n\n';
+      expect(occurrences(live, `${op.anchorParagraph}${joiner}${op.text}`)).toBe(1);
+    }
+  });
+
+  it('reconstructs the immutable v6 production baseline exactly, and re-applying the delta gives v7 back', () => {
+    const v6 = v6FromV7(live);
+    expect(v6.length).toBe(V6_PROMPT_SIZE.characters);
+    expect(Buffer.byteLength(v6, 'utf8')).toBe(V6_PROMPT_SIZE.utf8Bytes);
+    expect(promptSha256(v6)).toBe(V6_PROMPT_SHA256);
+    expect(promptSha256(v6)).toBe(
+      '06262d43352375231eb83afdd485babc8564675d783da0b7409bc15dca0513b7',
+    );
+    expect(v7FromV6(v6)).toBe(live);
+    // 1,272 + 1,259 + 651 = 3,182 code points, all ASCII.
+    const [u, c, x] = V7_DELTA_OPERATIONS as readonly [
+      (typeof V7_DELTA_OPERATIONS)[number],
+      (typeof V7_DELTA_OPERATIONS)[number],
+      (typeof V7_DELTA_OPERATIONS)[number],
+    ];
+    expect(u.text.length + 1).toBe(1_272);
+    expect(c.text.length + 2).toBe(1_259);
+    expect(x.text.length + 2).toBe(651);
+    expect(V7_PROMPT_SIZE.characters - V6_PROMPT_SIZE.characters).toBe(3_182);
+    expect(V7_PROMPT_SIZE.utf8Bytes - V6_PROMPT_SIZE.utf8Bytes).toBe(3_182);
+  });
+
+  it('changes exactly one v6 paragraph (the two-step page-subject paragraph) and adds exactly two new paragraphs', () => {
+    const v6Paragraphs = v6FromV7(live).split('\n\n');
+    const v7Paragraphs = live.split('\n\n');
+    expect(v7Paragraphs).toHaveLength(v6Paragraphs.length + 2);
+    const unchanged = v6Paragraphs.filter((p) => v7Paragraphs.includes(p));
+    expect(unchanged).toHaveLength(v6Paragraphs.length - 1);
+    const changedV6 = v6Paragraphs.find((p) => !v7Paragraphs.includes(p))!;
+    expect(changedV6).toContain('Decide in two steps.');
+    expect(v7Paragraphs).toContain(V7_DELTA_OPERATIONS[1]!.text);
+    expect(v7Paragraphs).toContain(V7_DELTA_OPERATIONS[2]!.text);
+    expect(new Set(v7Paragraphs).size).toBe(v7Paragraphs.length);
+  });
+
+  it('places C in the relevance-axes section and S in the evidence section', () => {
+    const between = (from: string, to: string): string =>
+      live.slice(live.indexOf(from), live.indexOf(to));
+    expect(between('## Relevance axes', '## When to use NEEDS_REVIEW')).toContain(
+      V7_DELTA_OPERATIONS[1]!.text,
+    );
+    expect(between('## Evidence and citation', '## Untrusted content')).toContain(
+      V7_DELTA_OPERATIONS[2]!.text,
+    );
+  });
+
+  it('leaves the taxonomy, NEEDS_REVIEW, untrusted-content, other-rules and output sections byte-identical to v6', () => {
+    const v6 = v6FromV7(live);
+    const section = (text: string, from: string, to: string): string =>
+      text.slice(text.indexOf(from), to === '' ? undefined : text.indexOf(to));
+    for (const [from, to] of [
+      ['## Taxonomy', '## Relevance axes'],
+      ['## When to use NEEDS_REVIEW', '## Evidence and citation'],
+      ['## Untrusted content', '## Other rules'],
+      ['## Other rules', '## Output'],
+      ['## Output', ''],
+    ] as const) {
+      expect(section(live, from, to), from).toBe(section(v6, from, to));
+    }
+  });
+
+  it('keeps NO-versus-UNKNOWN calibration: missing evidence never becomes NO', () => {
+    expect(live).toContain(
+      'NO requires affirmative evidence of absence; silence is UNKNOWN; a service list that omits an axis is not evidence against it.',
+    );
+    expect(V7_DELTA_OPERATIONS[1]!.text).toContain(
+      'missing or misattributed evidence is UNKNOWN, never NO',
+    );
+  });
+
+  it('the v7 delta is organisation-agnostic: no institution, URL, domain, digit, gold id or evaluation-set language', () => {
+    const delta = V7_DELTA_OPERATIONS.map((op) => op.text).join('\n');
+    expect(delta).not.toMatch(/:\/\//);
+    expect(delta).not.toMatch(/\b[\w-]+\.(fr|com|org|net|eu|edu|it|si|es)\b/i);
+    expect(delta, 'the delta carries a digit').not.toMatch(/\d/);
+    expect(delta).not.toMatch(/\bg[0-9a-f]{16}\b/i);
+    expect(delta).not.toMatch(/[^\x20-\x7e\n]/);
+    for (const banned of [
+      'devinci',
+      'vinci',
+      'leonard',
+      'pole',
+      'paris',
+      'messina',
+      'emlv',
+      'esilv',
+      'gold',
+      'threshold',
+      'DEVELOPMENT',
+      'HOLDOUT',
+      'DEV_CONFIRM',
+      'DEV_TRAIN',
+      'recall',
+      'precision',
+      'pilot',
+    ]) {
+      expect(delta.toLowerCase(), `the delta names ${banned}`).not.toMatch(
+        new RegExp(`\\b${banned.toLowerCase()}\\b`),
+      );
+    }
+  });
+});
+
+/** The immutable v6 production baseline, reconstructed from the live v7 text. */
+const V6_TEXT = v6FromV7(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+
+/**
  * Phase 2B-2D2C-F1/V6I1: v6 is the canonical v5 runtime text plus exactly
  * the three owner-approved semantic replacements R1, R2 and R3 from the F1
  * analysis, and nothing else (owner decision
@@ -129,11 +276,9 @@ const DIAGNOSTIC_INSTITUTION_TOKENS = ['insa', 'rouen'];
  */
 describe('prompt v6 is v5 plus exactly the three approved semantic replacements (R1, R2, R3)', () => {
   it('matches the v6 length, UTF-8 byte and SHA-256 oracles', () => {
-    expect(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT.length).toBe(V6_PROMPT_SIZE.characters);
-    expect(Buffer.byteLength(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT, 'utf8')).toBe(
-      V6_PROMPT_SIZE.utf8Bytes,
-    );
-    expect(promptSha256(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT)).toBe(V6_PROMPT_SHA256);
+    expect(V6_TEXT.length).toBe(V6_PROMPT_SIZE.characters);
+    expect(Buffer.byteLength(V6_TEXT, 'utf8')).toBe(V6_PROMPT_SIZE.utf8Bytes);
+    expect(promptSha256(V6_TEXT)).toBe(V6_PROMPT_SHA256);
     expect(V6_PROMPT_SIZE).toEqual({ characters: 16_007, utf8Bytes: 16_093 });
   });
 
@@ -146,17 +291,14 @@ describe('prompt v6 is v5 plus exactly the three approved semantic replacements 
     ]);
     for (const op of V6_DELTA_OPERATIONS) {
       // Each replacement text is present exactly once...
-      expect(occurrences(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT, op.text), op.kind).toBe(1);
+      expect(occurrences(V6_TEXT, op.text), op.kind).toBe(1);
       // ...and the v5 region it replaced is gone entirely.
-      expect(
-        occurrences(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT, op.anchorParagraph),
-        op.anchorParagraph.slice(0, 40),
-      ).toBe(0);
+      expect(occurrences(V6_TEXT, op.anchorParagraph), op.anchorParagraph.slice(0, 40)).toBe(0);
     }
   });
 
   it('reconstructs the canonical v5 runtime prompt exactly when the v6 delta is reversed, and re-applying the delta gives v6 back', () => {
-    const v5 = v5FromV6(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+    const v5 = v5FromV6(V6_TEXT);
     expect(v5.length).toBe(V5_PROMPT_SIZE.characters);
     expect(Buffer.byteLength(v5, 'utf8')).toBe(V5_PROMPT_SIZE.utf8Bytes);
     expect(promptSha256(v5)).toBe(V5_PROMPT_SHA256);
@@ -164,7 +306,7 @@ describe('prompt v6 is v5 plus exactly the three approved semantic replacements 
     expect(promptSha256(v5)).toBe(
       '4c7352812740ca2df518b5274d18aae2f7f695d05ab0f60fcf72c000db8f01c9',
     );
-    expect(v6FromV5(v5)).toBe(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+    expect(v6FromV5(v5)).toBe(V6_TEXT);
     // v6 is v5 plus 1,164 code points and 1,174 bytes: the five added
     // em-dashes account for the ten-byte difference.
     expect(V6_PROMPT_SIZE.characters - V5_PROMPT_SIZE.characters).toBe(1_164);
@@ -184,8 +326,8 @@ describe('prompt v6 is v5 plus exactly the three approved semantic replacements 
   });
 
   it('changes exactly two paragraphs of v5 - the two-step page-subject paragraph (R1, R2) and the NEEDS_REVIEW blocker list (R3) - and adds no paragraph', () => {
-    const v5Paragraphs = v5FromV6(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT).split('\n\n');
-    const v6Paragraphs = ORGUNIT_CLASSIFIER_SYSTEM_PROMPT.split('\n\n');
+    const v5Paragraphs = v5FromV6(V6_TEXT).split('\n\n');
+    const v6Paragraphs = V6_TEXT.split('\n\n');
     expect(v6Paragraphs).toHaveLength(v5Paragraphs.length);
     const changed = v5Paragraphs
       .map((p, i) => (p === v6Paragraphs[i] ? -1 : i))
@@ -198,35 +340,33 @@ describe('prompt v6 is v5 plus exactly the three approved semantic replacements 
   });
 
   it('leaves E1, D1, D3, Candidate C, the taxonomy and the output section byte-identical to v5', () => {
-    const v5 = v5FromV6(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+    const v5 = v5FromV6(V6_TEXT);
     // E1's own whole-organisation-allowance sentence.
-    expect(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT).toContain(
+    expect(V6_TEXT).toContain(
       'The whole-organisation allowance is narrow and, like the rest of this paragraph, applies only to a small or non-university organisation as described above',
     );
     // D1's second-sentence qualifier.
-    expect(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT).toContain(
+    expect(V6_TEXT).toContain(
       'For a small or non-university organisation as described above, a page whose title names a programme',
     );
     // D3's contact-form narrowing.
-    expect(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT).toContain(
+    expect(V6_TEXT).toContain(
       'does not satisfy step two; a page that instead displays identifying and contact information',
     );
     // Candidate C's evidence-output compliance check.
-    expect(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT).toContain(
+    expect(V6_TEXT).toContain(
       'Before returning, check every result against its own document and nothing else.',
     );
     // The whole taxonomy section and the whole output section are untouched.
     const section = (text: string, from: string, to: string): string =>
       text.slice(text.indexOf(from), to === '' ? undefined : text.indexOf(to));
-    expect(section(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT, '## Taxonomy', '## Relevance axes')).toBe(
+    expect(section(V6_TEXT, '## Taxonomy', '## Relevance axes')).toBe(
       section(v5, '## Taxonomy', '## Relevance axes'),
     );
-    expect(section(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT, '## Output', '')).toBe(
-      section(v5, '## Output', ''),
+    expect(section(V6_TEXT, '## Output', '')).toBe(section(v5, '## Output', ''));
+    expect(section(V6_TEXT, '## Evidence and citation', '## Untrusted content')).toBe(
+      section(v5, '## Evidence and citation', '## Untrusted content'),
     );
-    expect(
-      section(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT, '## Evidence and citation', '## Untrusted content'),
-    ).toBe(section(v5, '## Evidence and citation', '## Untrusted content'));
   });
 
   it('the v6 delta is organisation-agnostic: no institution, URL, gold id, DEVELOPMENT/evaluation-set language or threshold copied from the corpus', () => {
@@ -267,13 +407,13 @@ describe('prompt v6 is v5 plus exactly the three approved semantic replacements 
  * never updated to fit a result.
  *
  * This block now runs against the RECONSTRUCTED v5 text
- * (`v5FromV6(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT)`), never against the live
- * production prompt directly - the production prompt is v6, and its own
+ * (`v5FromV6(V6_TEXT)`), never against the live
+ * production prompt directly - the production prompt is v7, reconstructed here to v6, and its own
  * lineage back to v5 is proven above. Reconstructing v5 and re-checking it
  * here is what proves v6 did not silently disturb anything v5 established.
  */
 describe('the reconstructed prompt v5 is v4 plus exactly the one approved bounded narrowing (E1)', () => {
-  const reconstructedV5 = (): string => v5FromV6(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+  const reconstructedV5 = (): string => v5FromV6(V6_TEXT);
 
   it('matches the v5 length, UTF-8 byte and SHA-256 oracles', () => {
     const v5 = reconstructedV5();
@@ -317,7 +457,7 @@ describe('the reconstructed prompt v5 is v4 plus exactly the one approved bounde
     );
     // The exact phrase D1 (V4I1) already introduced on the paragraph's second
     // sentence, and which R1/R2/R3 leave untouched in the live v6 prompt.
-    expect(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT).toContain(
+    expect(V6_TEXT).toContain(
       'For a small or non-university organisation as described above, a page whose title names a programme',
     );
   });
@@ -373,14 +513,14 @@ describe('the reconstructed prompt v5 is v4 plus exactly the one approved bounde
  * never updated to fit a result.
  *
  * This block now runs against the RECONSTRUCTED v4 text
- * (`v4FromV5(v5FromV6(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT))`), never against
+ * (`v4FromV5(v5FromV6(V6_TEXT))`), never against
  * the live production prompt directly - the production prompt is v6, and
  * its own lineage back to v5 and then v4 is proven above. Reconstructing v4
  * and re-checking it here is what proves v6 (and, before it, v5) did not
  * silently disturb anything v4 established.
  */
 describe('the reconstructed prompt v4 is v3 plus exactly the three approved bounded narrowings (D1, D2, D3)', () => {
-  const reconstructedV4 = (): string => v4FromV5(v5FromV6(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT));
+  const reconstructedV4 = (): string => v4FromV5(v5FromV6(V6_TEXT));
 
   it('matches the v4 length, UTF-8 byte and SHA-256 oracles', () => {
     const v4 = reconstructedV4();
@@ -463,18 +603,16 @@ describe('the reconstructed prompt v4 is v3 plus exactly the three approved boun
     const d1 = V4_DELTA_OPERATIONS[0]!;
     expect(d1.text).toContain('small or non-university organisation');
     // The exact phrase used two sentences earlier in the base prompt for the whole-organisation allowance.
-    expect(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT).toContain(
+    expect(V6_TEXT).toContain(
       'For a small or non-university organisation (a language school, a student association, a smaller institute)',
     );
   });
 
   it('does not restore V2 by removing the whole-organisation carve-out or the two-step decomposition wholesale', () => {
     // V4 keeps Candidate B's two-step decision and the carve-out itself narrowed, never removed.
-    expect(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT).toContain('Decide in two steps.');
-    expect(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT).toContain(
-      'Step two: if such a responsibility is evidenced',
-    );
-    expect(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT).toContain('A named office is not required for this.');
+    expect(V6_TEXT).toContain('Decide in two steps.');
+    expect(V6_TEXT).toContain('Step two: if such a responsibility is evidenced');
+    expect(V6_TEXT).toContain('A named office is not required for this.');
   });
 });
 
@@ -489,7 +627,7 @@ describe('the reconstructed prompt v4 is v3 plus exactly the three approved boun
  * and the recovery's oracles and are never updated to fit a result.
  *
  * This block now runs against the RECONSTRUCTED v3 text
- * (`v3FromV4(v4FromV5(v5FromV6(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT)))`), never
+ * (`v3FromV4(v4FromV5(v5FromV6(V6_TEXT)))`), never
  * against the live production prompt directly - the production prompt is
  * v6, and its own lineage back to v5, v4 and then v3 is proven above.
  * Reconstructing v3 and re-checking it here is what proves v6 (and, before
@@ -501,8 +639,7 @@ describe('the reconstructed prompt v3 is v2 plus exactly the approved delta, and
   const SERVICE_TOOL_LINE_V2 =
     '- **SERVICE_TOOL_PAGE** — a contact form, login, shopping-cart, search, account, or portal page.';
 
-  const reconstructedV3 = (): string =>
-    v3FromV4(v4FromV5(v5FromV6(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT)));
+  const reconstructedV3 = (): string => v3FromV4(v4FromV5(v5FromV6(V6_TEXT)));
 
   it('matches the v3 length, UTF-8 byte and SHA-256 oracles', () => {
     const v3 = reconstructedV3();
@@ -586,16 +723,14 @@ describe('the reconstructed prompt v3 is v2 plus exactly the approved delta, and
   });
 
   it('the whole live prompt carries no gold-ID-shaped token and no diagnostic institution name', () => {
-    expect(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT).not.toMatch(/\bg[0-9a-f]{16}\b/i);
+    expect(V6_TEXT).not.toMatch(/\bg[0-9a-f]{16}\b/i);
     for (const token of DIAGNOSTIC_INSTITUTION_TOKENS) {
-      expect(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT, `prompt names ${token}`).not.toMatch(
-        new RegExp(`\\b${token}\\b`, 'i'),
-      );
+      expect(V6_TEXT, `prompt names ${token}`).not.toMatch(new RegExp(`\\b${token}\\b`, 'i'));
     }
   });
 
   it('keeps the generic v1 injection-defence wording that names NWF', () => {
-    expect(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT).toContain(
+    expect(V6_TEXT).toContain(
       'a claim to be an official instruction from NWF or from the model provider',
     );
   });

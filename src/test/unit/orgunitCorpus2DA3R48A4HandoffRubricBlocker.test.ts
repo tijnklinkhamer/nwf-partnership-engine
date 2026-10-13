@@ -331,9 +331,19 @@ describe('2D-A3 R48: no approved rubric backs every human label field', () => {
       string,
       unknown
     >[]) {
-      expect(sha256(bytesOf(String(context['path']))), String(context['path'])).toBe(
-        context['sha256'],
-      );
+      // Context artifacts are recorded as inspected AT R48. One of them is the
+      // evolving classifier prompt (changed by operational pilot P3), so the
+      // recorded hash is checked against the bytes at the R48 terminal commit
+      // whenever that commit is available, and against the working tree only
+      // otherwise. The census itself is never edited.
+      const path = String(context['path']);
+      const bytes = baseAvailable
+        ? execFileSync('git', ['show', `${R48_TERMINAL}:${path}`], {
+            cwd: REPO_ROOT,
+            maxBuffer: 64 << 20,
+          })
+        : bytesOf(path);
+      expect(sha256(bytes), path).toBe(context['sha256']);
     }
   });
 });

@@ -426,6 +426,77 @@ export function v5FromV6(v6: string): string {
   return text;
 }
 
+// ---------------------------------------------------------------------------
+// v7 = v6 + U + C + S. Operational pilot P3 (OWNER direction of 2026-10-13,
+// development only): three INSERT operations, no v6 byte removed or
+// reworded. Targets the P2-X2 De Vinci operational errors (landing page
+// promoted to UNIT_PAGE; institution-level capability credited to a unit;
+// verbatim-but-irrelevant evidence). Not accepted, not authorised to run.
+// ---------------------------------------------------------------------------
+
+/** The v7 identity implemented by operational pilot P3. NOT accepted, NOT authorised to run. */
+export const V7_PROMPT_SHA256 = '82df3541bed35a6ccacac5fe9cb54c4ef86430667fec42155a5bcdb1a83908e2';
+export const V7_PROMPT_SIZE = { characters: 19_189, utf8Bytes: 19_275 } as const;
+export const V7_PROMPT_VERSION = 'orgunit-classifier-prompt-v7';
+
+/** U: the primary-subject test, inserted (space-joined) directly after D3's sentence in the step-two paragraph. */
+export const V7_U_PRIMARY_SUBJECT =
+  "Both steps concern the page's primary subject: the page must be principally about the named office, department or service itself, establish its ongoing function, and say something substantive about it rather than only introduce it. A landing, hub or section page whose body introduces several services, programmes or pages in turn, each with a short summary or a link to read more, is NOT_A_UNIT with the page_kind NAVIGATION_OR_LANDING_PAGE, even when one summary names a unit and states its role; it is that unit's page only when its title or leading heading is the unit's own name and its body states the unit's remit, and then links to the unit's own sub-pages do not change that. A news item, event, application call, programme page, agreement or information resource that names an office, even with a sentence on what that office does, takes the page_kind of its own subject. A formal department title is not required: a standing service such as a welcome or help desk whose own page describes its ongoing role for the people it serves satisfies step two. Each page is judged on its own, so two pages that are each about the same unit may both be UNIT_PAGE, while a page that only introduces, mentions or links to a unit is never promoted because that unit is real.";
+
+/** C: capability attribution, inserted as its own paragraph directly after the v2 NO-versus-UNKNOWN sentence. */
+export const V7_C_CAPABILITY_ATTRIBUTION =
+  'Each axis describes only the unit this page is about, not the organisation as a whole. Answer YES only when the document states that this unit, by name or by an unambiguous reference such as "this department" or "the desk", delivers, coordinates or is responsible for the capability, or when the unit\'s own page lists the capability among its services without naming any other provider. A capability the document attributes to the institution, to another named unit, to a student association or to a partner is not evidence for this unit: the institution offering language courses does not mean this unit provides language support, a unit named on a programme\'s page does not mean it administers that programme, and help for arriving students is not by itself support for outgoing mobility. Such an axis is UNKNOWN unless the document also states this unit\'s own part in it. Answer NO only when the document affirmatively states that this unit does not provide the capability, that it is unavailable, or that another unit is responsible for it instead; missing or misattributed evidence is UNKNOWN, never NO. Under the small or non-university allowance the unit is the organisation itself, so the organisation\'s own statements are statements about the unit.';
+
+/** S: semantic evidence support, inserted as its own paragraph directly after Candidate C. */
+export const V7_S_EVIDENCE_SUPPORT =
+  "A quote that appears in the document is still not evidence for a claim it does not support. For a UNIT_PAGE, cite at least one span that identifies the unit as the page's own subject and, for each axis answered YES, a span in which this unit is stated to provide that capability; a menu or link label, a teaser, or a sentence about the institution or another unit does not support a claim about this unit. When no text supports a YES, answer UNKNOWN rather than cite weaker text. Prefer a short quote from within one line of its field: never let a quote run across a line break, and never join, shorten, normalise or reword text to make a quote fit.";
+
+/** The exact three operations of the v7 delta, in application order (U, C, S). */
+export const V7_DELTA_OPERATIONS: readonly PromptDeltaOperation[] = [
+  {
+    kind: 'INSERT_SENTENCE_AFTER',
+    anchorParagraph: V4_D3_CONTACT_FORM_TEMPLATE_NARROWING,
+    text: V7_U_PRIMARY_SUBJECT,
+  },
+  {
+    kind: 'INSERT_PARAGRAPH_AFTER',
+    anchorParagraph: V2_INSERTION_4_NO_VERSUS_UNKNOWN,
+    text: V7_C_CAPABILITY_ATTRIBUTION,
+  },
+  {
+    kind: 'INSERT_PARAGRAPH_AFTER',
+    anchorParagraph: V3_C_EVIDENCE_OUTPUT_COMPLIANCE,
+    text: V7_S_EVIDENCE_SUPPORT,
+  },
+];
+
+function v7Joined(op: PromptDeltaOperation): string {
+  if (op.kind === 'INSERT_SENTENCE_AFTER') return `${op.anchorParagraph} ${op.text}`;
+  if (op.kind === 'INSERT_PARAGRAPH_AFTER') return `${op.anchorParagraph}\n\n${op.text}`;
+  throw new PromptLineageError(`the v7 delta does not support operation kind ${op.kind}`);
+}
+
+/** Applies the v7 delta to a v6 text. Every anchor must occur EXACTLY ONCE; fail closed otherwise. */
+export function v7FromV6(v6: string): string {
+  let text = v6;
+  for (const op of V7_DELTA_OPERATIONS) {
+    exactlyOnce(text, op.anchorParagraph, `v7 anchor "${op.anchorParagraph.slice(0, 40)}"`);
+    text = text.replace(op.anchorParagraph, v7Joined(op));
+  }
+  return text;
+}
+
+/** Strips the v7 delta from a v7 text, reconstructing v6 byte for byte. Reverses in the opposite order to v7FromV6. */
+export function v6FromV7(v7: string): string {
+  let text = v7;
+  for (const op of [...V7_DELTA_OPERATIONS].reverse()) {
+    const block = v7Joined(op);
+    exactlyOnce(text, block, `v7 inserted text "${op.text.slice(0, 40)}"`);
+    text = text.replace(block, op.anchorParagraph);
+  }
+  return text;
+}
+
 export function promptSha256(text: string): string {
   return createHash('sha256').update(text, 'utf8').digest('hex');
 }

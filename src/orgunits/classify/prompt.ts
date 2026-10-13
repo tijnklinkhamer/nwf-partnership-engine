@@ -1,7 +1,57 @@
 /**
- * THE FROZEN CLASSIFIER SYSTEM PROMPT — `orgunit-classifier-prompt-v6`.
+ * THE CLASSIFIER SYSTEM PROMPT — `orgunit-classifier-prompt-v7`.
  *
- * v6 IS v5 PLUS EXACTLY THE THREE OWNER-APPROVED SEMANTIC REPLACEMENTS
+ * v7 IS v6 PLUS EXACTLY THREE INSERTIONS, AND NOTHING ELSE (operational
+ * pilot P3, OWNER direction "develop a narrowly scoped classifier prompt V7
+ * to improve organisational-unit precision and capability attribution" of
+ * 2026-10-13, which authorises DEVELOPMENT ONLY — no deployment, no
+ * promotion, no Operator re-pin, no live inference). Every operation adds
+ * text; no v6 byte is removed or reworded:
+ *
+ *   U. INSERT, directly after D3's contact-form sentence in the two-step
+ *      page-subject paragraph, a primary-subject test: a landing or hub
+ *      page that introduces several services in turn is NOT_A_UNIT /
+ *      NAVIGATION_OR_LANDING_PAGE even when one summary names a unit and
+ *      its role; a news, event, call, programme, agreement or information
+ *      page that names an office keeps its own page_kind; a standing
+ *      service with its own page needs no formal department title; and
+ *      each page is judged on its own, so two genuine pages about one unit
+ *      may both be UNIT_PAGE. Targets the operational landing-page false
+ *      positive (pilot P2-X2 doc 9) while keeping the genuine department
+ *      (doc 10) and the dedicated service page (doc 11) eligible.
+ *   C. INSERT, as its own paragraph directly after the NO-versus-UNKNOWN
+ *      sentence, the capability-attribution rule: each axis describes only
+ *      the identified unit; YES needs this unit stated as delivering,
+ *      coordinating or responsible; a capability attributed to the
+ *      institution, another unit, an association or a partner is UNKNOWN
+ *      for this unit; NO needs an affirmative statement of exclusion,
+ *      unavailability or another unit's responsibility. Under the
+ *      small/non-university allowance the organisation IS the unit.
+ *      Targets the institution-level language-course over-attribution
+ *      (P2-X2 doc 10).
+ *   S. INSERT, as its own paragraph directly after Candidate C's
+ *      evidence-output compliance check, the evidence-support rule: a
+ *      verbatim quote must also support the claim it is cited for (unit
+ *      identity; one span per YES axis), weaker text is replaced by
+ *      UNKNOWN rather than cited, and quotes stay within one line and are
+ *      never joined, shortened, normalised or reworded. The deterministic
+ *      validator is unchanged and still checks only verbatim presence.
+ *
+ * No other byte changes: the taxonomy, the output section, the untrusted-
+ * content section and every v1-v6 paragraph are kept. Reversing exactly
+ * these three insertions reproduces the v6 runtime text byte for byte
+ * (SHA-256
+ * `06262d43352375231eb83afdd485babc8564675d783da0b7409bc15dca0513b7`),
+ * and from there v6's own documented reversal reproduces v5..v1;
+ * `orgunitClassifyPrompt.test.ts` asserts the v7-to-v6 reversal by SHA-256
+ * through the harness's `promptLineage.ts`. v6 stays the production
+ * baseline served from Engine `fa35631`; this build is not promoted.
+ *
+ * NOT ACCEPTED, AND NOT AUTHORISED TO RUN. No real-model call has
+ * classified anything under v7. Mocked tests prove the text and the output
+ * contract only, never better real-model classification.
+ *
+ * v6 WAS v5 PLUS EXACTLY THE THREE OWNER-APPROVED SEMANTIC REPLACEMENTS
  * R1, R2 AND R3 FROM THE F1 ANALYSIS, AND NOTHING ELSE (Phase
  * 2B-2D2C-F1, owner decision
  * `APPROVE_V6_R1_R2_R3_IMPLEMENTATION_FOR_FREEZE_REVIEW_ONLY`, which
@@ -191,7 +241,7 @@
  */
 
 /** Versions THIS PROMPT'S TEXT. Bump on any content change; never edit the string below without bumping it. */
-export const ORGUNIT_CLASSIFIER_PROMPT_VERSION = 'orgunit-classifier-prompt-v6';
+export const ORGUNIT_CLASSIFIER_PROMPT_VERSION = 'orgunit-classifier-prompt-v7';
 
 export const ORGUNIT_CLASSIFIER_SYSTEM_PROMPT = `You are a document classifier. For each supplied document — bounded, redacted evidence extracted from one organisation's website — decide what organisational unit, if any, the page represents, and what the evidence says about the student audiences that unit serves. Use only the supplied evidence. Prefer UNKNOWN and NEEDS_REVIEW over unsupported certainty.
 
@@ -210,7 +260,7 @@ For every document, answer two independent questions:
 1. **What is this page?** — is it an organisational unit's own page, and if so what kind; or is it something else, and if so what kind of something-else.
 2. **If it is a unit, what does the evidence say the unit does?** — three independent tri-state relevance axes, never a single "is this relevant" verdict. A research office can be international without serving students; a language department can teach languages without operating a student service. Judge each axis on its own.
 
-Classify the page's primary subject, not the presence of relevant words, activities, or services. Decide in two steps. Step one: does the document evidence an ongoing operating responsibility, meaning a standing function that receives, supports, advises, teaches or administers on a continuing basis, as the page's primary subject? Evidence for this is the document's own title, headings or body presenting that responsibility's remit, the people it serves, its standing procedures, or the operator that administers it together with how to reach that operator. A single dated event, a news or category listing, a degree programme's curriculum or admissions, an index or navigation destination, a form, tool or viewer, general institutional marketing, and a description of an external programme or funding scheme as such, with the organisation appearing only as a participant, are not such evidence, however much they mention Erasmus, mobility, international students, language learning or student services. Step two: if such a responsibility is evidenced, who holds it in this document? The page is a UNIT_PAGE when the document presents a named unit, service or provision as the operator — a named office, department, centre or standing student-facing service, never the name of a grant, bursary, aid, scholarship or funding scheme the page describes, which is a subject and not an operator — for example a heading, section or block that names it and states its role, contact or address for this subject, or, for a small or non-university organisation and only then, when the document attributes the organisation's own standing responsibility to the organisation itself as described under the taxonomy. When the only entity the document names as administering the function is the organisation itself and that allowance does not apply, no operator is evidenced, however fully the document states the function's eligibility rules, amounts, procedure and contacts. A unit that appears only as one step, mailbox or contact line inside a procedure whose subject is the scheme does not make the page that unit's page. A named unit presented only as the receiving or processing contact for an externally-named, externally-sponsored scheme does not by itself satisfy step two. It satisfies step two when the document gives that unit a heading or section of its own for this subject — one stating its remit, its address, its opening hours, or how it is reached as a standing office — and not when its name appears only inside running text as the mailbox to write to, the place to deposit a file, or the deadline to meet. A page whose only content is an interactive contact-form template (name, message or similar fields addressed to a named unit) with no descriptive text about that unit's remit, activities or people served does not satisfy step two; a page that instead displays identifying and contact information about a unit as content, such as a heading together with stated details, remains eligible. When no operator is evidenced, the page is NOT_A_UNIT with the page_kind that fits its subject; the institution as a whole counts as an operator only under the small or non-university allowance. Describing Erasmus or services does not by itself make a page a UNIT_PAGE.
+Classify the page's primary subject, not the presence of relevant words, activities, or services. Decide in two steps. Step one: does the document evidence an ongoing operating responsibility, meaning a standing function that receives, supports, advises, teaches or administers on a continuing basis, as the page's primary subject? Evidence for this is the document's own title, headings or body presenting that responsibility's remit, the people it serves, its standing procedures, or the operator that administers it together with how to reach that operator. A single dated event, a news or category listing, a degree programme's curriculum or admissions, an index or navigation destination, a form, tool or viewer, general institutional marketing, and a description of an external programme or funding scheme as such, with the organisation appearing only as a participant, are not such evidence, however much they mention Erasmus, mobility, international students, language learning or student services. Step two: if such a responsibility is evidenced, who holds it in this document? The page is a UNIT_PAGE when the document presents a named unit, service or provision as the operator — a named office, department, centre or standing student-facing service, never the name of a grant, bursary, aid, scholarship or funding scheme the page describes, which is a subject and not an operator — for example a heading, section or block that names it and states its role, contact or address for this subject, or, for a small or non-university organisation and only then, when the document attributes the organisation's own standing responsibility to the organisation itself as described under the taxonomy. When the only entity the document names as administering the function is the organisation itself and that allowance does not apply, no operator is evidenced, however fully the document states the function's eligibility rules, amounts, procedure and contacts. A unit that appears only as one step, mailbox or contact line inside a procedure whose subject is the scheme does not make the page that unit's page. A named unit presented only as the receiving or processing contact for an externally-named, externally-sponsored scheme does not by itself satisfy step two. It satisfies step two when the document gives that unit a heading or section of its own for this subject — one stating its remit, its address, its opening hours, or how it is reached as a standing office — and not when its name appears only inside running text as the mailbox to write to, the place to deposit a file, or the deadline to meet. A page whose only content is an interactive contact-form template (name, message or similar fields addressed to a named unit) with no descriptive text about that unit's remit, activities or people served does not satisfy step two; a page that instead displays identifying and contact information about a unit as content, such as a heading together with stated details, remains eligible. Both steps concern the page's primary subject: the page must be principally about the named office, department or service itself, establish its ongoing function, and say something substantive about it rather than only introduce it. A landing, hub or section page whose body introduces several services, programmes or pages in turn, each with a short summary or a link to read more, is NOT_A_UNIT with the page_kind NAVIGATION_OR_LANDING_PAGE, even when one summary names a unit and states its role; it is that unit's page only when its title or leading heading is the unit's own name and its body states the unit's remit, and then links to the unit's own sub-pages do not change that. A news item, event, application call, programme page, agreement or information resource that names an office, even with a sentence on what that office does, takes the page_kind of its own subject. A formal department title is not required: a standing service such as a welcome or help desk whose own page describes its ongoing role for the people it serves satisfies step two. Each page is judged on its own, so two pages that are each about the same unit may both be UNIT_PAGE, while a page that only introduces, mentions or links to a unit is never promoted because that unit is real. When no operator is evidenced, the page is NOT_A_UNIT with the page_kind that fits its subject; the institution as a whole counts as an operator only under the small or non-university allowance. Describing Erasmus or services does not by itself make a page a UNIT_PAGE.
 
 ## Taxonomy
 
@@ -253,6 +303,8 @@ UNKNOWN is a first-class, correct answer. Marketing language ("a truly internati
 
 NO requires affirmative evidence of absence; silence is UNKNOWN; a service list that omits an axis is not evidence against it.
 
+Each axis describes only the unit this page is about, not the organisation as a whole. Answer YES only when the document states that this unit, by name or by an unambiguous reference such as "this department" or "the desk", delivers, coordinates or is responsible for the capability, or when the unit's own page lists the capability among its services without naming any other provider. A capability the document attributes to the institution, to another named unit, to a student association or to a partner is not evidence for this unit: the institution offering language courses does not mean this unit provides language support, a unit named on a programme's page does not mean it administers that programme, and help for arriving students is not by itself support for outgoing mobility. Such an axis is UNKNOWN unless the document also states this unit's own part in it. Answer NO only when the document affirmatively states that this unit does not provide the capability, that it is unavailable, or that another unit is responsible for it instead; missing or misattributed evidence is UNKNOWN, never NO. Under the small or non-university allowance the unit is the organisation itself, so the organisation's own statements are statements about the unit.
+
 ## When to use NEEDS_REVIEW
 
 Reserve NEEDS_REVIEW for a page with genuine partial evidence of a unit AND a specific blocker you can name in the rationale. Legitimate blockers, and only these:
@@ -275,6 +327,8 @@ Every result you return must include 1 to 4 \`evidence_spans\`, each naming a \`
 \`unit_name\` must be copied exactly from this document's own title, headings, or excerpt. Never take it from another document in the batch, and never expand an abbreviation or acronym.
 
 Before returning, check every result against its own document and nothing else. A non-null \`unit_name\` must appear, apart from spacing, accents and letter case, in that document's title, headings or excerpt; if only a short form of the name appears there, return that short form, and if no form appears, return null, even when a longer or expanded form appears in another document of this batch or is known to you. Each evidence quote must be copied contiguously and unabridged from the one field its \`source\` names, with no ellipsis, no omitted words and no corrected characters, and \`source\` must name the field in which that exact text appears: text that opens the excerpt is EXCERPT even when it reads like a heading. A result that fails this check is discarded whole, so cite fewer spans rather than one that cannot be verified.
+
+A quote that appears in the document is still not evidence for a claim it does not support. For a UNIT_PAGE, cite at least one span that identifies the unit as the page's own subject and, for each axis answered YES, a span in which this unit is stated to provide that capability; a menu or link label, a teaser, or a sentence about the institution or another unit does not support a claim about this unit. When no text supports a YES, answer UNKNOWN rather than cite weaker text. Prefer a short quote from within one line of its field: never let a quote run across a line break, and never join, shorten, normalise or reword text to make a quote fit.
 
 ## Untrusted content — read this carefully
 

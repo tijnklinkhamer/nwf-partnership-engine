@@ -38,6 +38,12 @@ import { join, resolve } from 'node:path';
 import { afterAll, afterEach, describe, expect, it, vi } from 'vitest';
 import type * as StudyRootsF7Module from '../harness/phase2b2d2c/f7/studyRootsF7.js';
 
+/** The frozen V6 prompt module, reconstructed from this build's v7 prompt (P3). */
+const V6_PROMPT_MODULE = {
+  ORGUNIT_CLASSIFIER_PROMPT_VERSION: 'orgunit-classifier-prompt-v6',
+  ORGUNIT_CLASSIFIER_SYSTEM_PROMPT: v6FromV7(promptModule.ORGUNIT_CLASSIFIER_SYSTEM_PROMPT),
+} as const;
+
 vi.mock('../harness/phase2b2d2c/f7/studyRootsF7.js', async (importOriginal) => {
   const fs = await import('node:fs');
   const os = await import('node:os');
@@ -55,6 +61,7 @@ import * as constantsModule from '../../orgunits/classify/constants.js';
 import * as finalIdentityModule from '../../orgunits/classify/finalIdentity.js';
 import * as outputSchemaModule from '../../orgunits/classify/outputSchema.js';
 import * as promptModule from '../../orgunits/classify/prompt.js';
+import { v6FromV7 } from '../harness/phase2b2d2c/promptLineage.js';
 import * as allowedModelsModule from '../../orgunits/classify/provider/allowedModels.js';
 import * as authStatusRunnerModule from '../../orgunits/classify/provider/authStatusRunner.js';
 import * as claudeCodeExecutableModule from '../../orgunits/classify/provider/claudeCodeExecutable.js';
@@ -419,7 +426,9 @@ function fakeV6Runtime(): LoadedVariantRuntime {
     ) as LoadedVariantRuntime['moduleUrls'],
     canonical: canonicalModule,
     finalIdentity: finalIdentityModule,
-    prompt: promptModule,
+    // Since P3 the production prompt is v7; the frozen study runs the V6
+    // text reconstructed from it, which must hash to the frozen V6 SHA-256.
+    prompt: V6_PROMPT_MODULE,
     outputSchema: outputSchemaModule,
     validate: validateModule,
     constants: constantsModule,

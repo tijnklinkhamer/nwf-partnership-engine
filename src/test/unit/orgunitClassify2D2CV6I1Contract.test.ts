@@ -53,6 +53,8 @@ import {
   V6_R2_EXTERNAL_SCHEME_STRUCTURE,
   V6_R3_THIN_EVIDENCE_PRECEDENCE,
   v5FromV6,
+  v6FromV7,
+  V6_PROMPT_VERSION,
 } from '../harness/phase2b2d2c/promptLineage.js';
 
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
@@ -92,8 +94,8 @@ function goldRecord(goldId: string): DevGoldRecord {
   return rec;
 }
 
-/** The live v6 prompt, and the canonical v5 base reconstructed from it. */
-const V6 = ORGUNIT_CLASSIFIER_SYSTEM_PROMPT;
+/** The v6 prompt (reconstructed from the live v7 text since P3), and the canonical v5 base reconstructed from it. */
+const V6 = v6FromV7(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
 const V5 = v5FromV6(V6);
 
 describe('the frozen DEV gold fixture is exactly the 49-row DEVELOPMENT split this task is scoped to', () => {
@@ -103,7 +105,8 @@ describe('the frozen DEV gold fixture is exactly the 49-row DEVELOPMENT split th
   });
 
   it('runs against the v6 prompt, whose v5 base reconstructs to the canonical study SHA', () => {
-    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v6');
+    expect(V6_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v6');
+    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v7');
     // The v5 base is reconstructed, never read from a second stored copy.
     expect(V5).not.toBe(V6);
     expect(V5.length).toBe(14_843);

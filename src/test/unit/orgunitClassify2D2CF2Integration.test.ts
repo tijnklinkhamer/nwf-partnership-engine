@@ -68,8 +68,16 @@ import {
   V6_R1_OPERATOR_DEFINITION,
   V6_R2_EXTERNAL_SCHEME_STRUCTURE,
   V6_R3_THIN_EVIDENCE_PRECEDENCE,
+  v6FromV7,
 } from '../harness/phase2b2d2c/promptLineage.js';
 
+/**
+ * The frozen study's prompt identity. Since operational pilot P3 the live
+ * production prompt is v7; the V6 text this frozen study names is RECONSTRUCTED
+ * from it by reversing exactly the P3 delta, and must still hash to the frozen
+ * V6 SHA-256 - the oracle is never relaxed.
+ */
+const V6_RECONSTRUCTED_PROMPT = v6FromV7(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
 const sha256 = (text: string): string => createHash('sha256').update(text, 'utf8').digest('hex');
 
@@ -113,15 +121,15 @@ const documentOf = (goldId: string): CorpusDocument => {
 };
 
 describe('2D2C-F2: the integrated prompt IS the approved V6 semantic source, byte for byte', () => {
-  it('exports exactly the frozen v6 version, hash and size', () => {
-    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v6');
-    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe(V6_PROMPT_VERSION);
-    expect(sha256(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT)).toBe(
+  it('reconstructs exactly the frozen v6 version, hash and size from the live v7 prompt', () => {
+    expect(V6_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v6');
+    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v7');
+    expect(sha256(V6_RECONSTRUCTED_PROMPT)).toBe(
       '06262d43352375231eb83afdd485babc8564675d783da0b7409bc15dca0513b7',
     );
-    expect(sha256(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT)).toBe(V6_PROMPT_SHA256);
-    expect([...ORGUNIT_CLASSIFIER_SYSTEM_PROMPT]).toHaveLength(16_007);
-    expect(Buffer.byteLength(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT, 'utf8')).toBe(16_093);
+    expect(sha256(V6_RECONSTRUCTED_PROMPT)).toBe(V6_PROMPT_SHA256);
+    expect([...V6_RECONSTRUCTED_PROMPT]).toHaveLength(16_007);
+    expect(Buffer.byteLength(V6_RECONSTRUCTED_PROMPT, 'utf8')).toBe(16_093);
     expect(V6_PROMPT_SIZE).toEqual({ characters: 16_007, utf8Bytes: 16_093 });
   });
 
@@ -131,12 +139,12 @@ describe('2D2C-F2: the integrated prompt IS the approved V6 semantic source, byt
       V6_R2_EXTERNAL_SCHEME_STRUCTURE,
       V6_R3_THIN_EVIDENCE_PRECEDENCE,
     ]) {
-      expect(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT.split(replacement)).toHaveLength(2);
+      expect(V6_RECONSTRUCTED_PROMPT.split(replacement)).toHaveLength(2);
     }
   });
 
   it('reverses cleanly down the whole reviewed lineage to v1, every hash exact', () => {
-    const v5 = v5FromV6(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+    const v5 = v5FromV6(V6_RECONSTRUCTED_PROMPT);
     const v4 = v4FromV5(v5);
     const v3 = v3FromV4(v4);
     const v2 = v2FromV3(v3);
@@ -149,13 +157,14 @@ describe('2D2C-F2: the integrated prompt IS the approved V6 semantic source, byt
   });
 
   it('re-applying the V6 delta to the reconstructed v5 reproduces the integrated prompt byte for byte', () => {
-    const v5 = v5FromV6(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
-    expect(v6FromV5(v5)).toBe(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
+    const v5 = v5FromV6(V6_RECONSTRUCTED_PROMPT);
+    expect(v6FromV5(v5)).toBe(V6_RECONSTRUCTED_PROMPT);
   });
 
   it('names the semantic source commit, and does not claim to be a new semantic version', () => {
     expect(SEMANTIC_SOURCE_COMMIT).toMatch(/^[0-9a-f]{40}$/);
-    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).not.toContain('v7');
+    expect(V6_PROMPT_VERSION).not.toContain('v7');
+    expect(V6_RECONSTRUCTED_PROMPT).not.toBe(ORGUNIT_CLASSIFIER_SYSTEM_PROMPT);
   });
 });
 
