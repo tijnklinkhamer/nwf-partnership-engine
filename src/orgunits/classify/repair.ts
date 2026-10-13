@@ -26,6 +26,10 @@
  *   - any non-OK provider outcome (TIMEOUT, transient, refusal, usage
  *     limit, auth) — there is no validation result to plan from, so the
  *     orchestrator never reaches this module;
+ *   - a document rejected only for a database bound the versioned notice
+ *     has no reason code for (the evidence-quote line feed, `validate.ts`)
+ *     — listed under `excluded` as `NO_REPAIR_NOTICE_FIELD`, never a
+ *     candidate, so the notice shape (`REPAIR_REQUEST_VERSION`) is unchanged;
  *   - a repair of a repair — `originalIsRepair` short-circuits the plan,
  *     and migration 0011's trigger refuses the row regardless;
  *   - anything a gold label or an expected answer would inform — this
@@ -177,7 +181,14 @@ export interface RepairExclusion {
   readonly docIndex: number | null;
   readonly category: RejectedDocument['category'];
   readonly reason: string;
-  readonly why: 'DOC_INDEX_IS_NOT_ITEM_LEVEL';
+  /**
+   * `NO_REPAIR_NOTICE_FIELD`: the document was rejected only for a database
+   * bound the versioned repair notice has no reason code for (the quote
+   * CHECK's line feed, `validate.ts`). It stays rejected and is not
+   * re-presented: describing it would change the notice's shape, which is
+   * versioned (`REPAIR_REQUEST_VERSION`) and is not changed here.
+   */
+  readonly why: 'DOC_INDEX_IS_NOT_ITEM_LEVEL' | 'NO_REPAIR_NOTICE_FIELD';
 }
 
 export interface RepairPlan {
@@ -248,6 +259,15 @@ export function planRepairRound(input: PlanRepairRoundInput): RepairPlan {
       );
     }
     const invalidFields = diagnoseInvalidFields(document, result);
+    if (invalidFields.length === 0) {
+      excluded.push({
+        docIndex: rejected.docIndex,
+        category: rejected.category,
+        reason: rejected.reason,
+        why: 'NO_REPAIR_NOTICE_FIELD',
+      });
+      continue;
+    }
     candidates.push({
       docIndex: rejected.docIndex,
       category: rejected.category,

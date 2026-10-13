@@ -50,6 +50,28 @@ export const MAX_UNIT_NAME_CODE_POINTS = 200;
 export const MAX_RATIONALE_CODE_POINTS = 500;
 export const MAX_EVIDENCE_QUOTE_CODE_POINTS = 200;
 
+/**
+ * THE ONE LINE TERMINATOR migration 0009's `evidence_spans_quote_chk` rejects.
+ *
+ * The CHECK is `@."quote" like_regex "^.{1,200}$"` with no flags. In
+ * PostgreSQL's SQL/JSON `like_regex`, `.` does not match a newline unless the
+ * `s` flag is given, and PostgreSQL's regex engine treats exactly U+000A as
+ * the newline. Measured on the local server (PostgreSQL 16.15, 2026-10-13):
+ * a quote containing U+000A (alone, leading, trailing, or inside CR LF) is
+ * rejected; U+000D, U+000B, U+000C, U+0009, U+0085, U+2028 and U+2029 are
+ * accepted. `{1,200}` counts characters, which in a UTF-8 database are code
+ * points (`MAX_EVIDENCE_QUOTE_CODE_POINTS`; the empty quote is already
+ * refused by the output schema's `min(1)`).
+ *
+ * Without this check, a quote copied across a line break of the excerpt
+ * passed span verification (which compares whitespace-collapsed text) and
+ * then aborted the whole call at INSERT (operational pilot P2-X1, call
+ * `edebf379-fb38-487c-a75f-a8989c672a87`). It is a `LENGTH`-category
+ * rejection of that one document: an exact database bound, never a rewrite
+ * of the quote, and never a change to what verifies as evidence.
+ */
+export const EVIDENCE_QUOTE_FORBIDDEN_LINE_TERMINATOR = '\n';
+
 export type RejectionCategory = 'DOC_INDEX' | 'LENGTH' | 'EVIDENCE';
 
 export interface RejectedDocument {
@@ -78,7 +100,7 @@ function summariseParseFailure(issueCount: number, firstMessage: string): string
   return summary.length > 2000 ? `${summary.slice(0, 1997)}...` : summary;
 }
 
-/** The exact code-point bound checks migration 0009's CHECKs enforce — independent of, and not reachable-around by, `outputSchema.ts`'s own (looser, UTF-16-based) advisory bounds. */
+/** The exact bounds migration 0009's CHECKs enforce (code-point lengths, and the quote CHECK's line-feed refusal) — independent of, and not reachable-around by, `outputSchema.ts`'s own (looser, UTF-16-based) advisory bounds. */
 function lengthViolations(result: ClassificationResult): readonly string[] {
   const violations: string[] = [];
   if (
@@ -99,6 +121,12 @@ function lengthViolations(result: ClassificationResult): readonly string[] {
       violations.push(
         `evidence_spans[${i}].quote exceeds ${MAX_EVIDENCE_QUOTE_CODE_POINTS} code points ` +
           `(${unicodeCodePointLength(span.quote)})`,
+      );
+    }
+    if (span.quote.includes(EVIDENCE_QUOTE_FORBIDDEN_LINE_TERMINATOR)) {
+      violations.push(
+        `evidence_spans[${i}].quote contains a line feed (U+000A), which ` +
+          'evidence_spans_quote_chk rejects',
       );
     }
   });
