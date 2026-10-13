@@ -140,6 +140,15 @@ describeDb('orgunits classify - evaluation-cohort guard (integration)', () => {
       await expectNoClassifierRows();
     });
 
+    it(`${mode}: an organisation outside the evaluation frame is refused (identity unverified) with no write`, async () => {
+      const { root, runId } = await seedCompletedRun(null);
+      const r = await classify(root.organisationId, runId, execute);
+      expect(r.envelope.code).toBe('PREFLIGHT_REFUSED');
+      expect(r.envelope.reason.preflightKind).toBe('EVALUATION_COHORT_IDENTITY_UNVERIFIED');
+      expect(r.providers).toBe(0);
+      await expectNoClassifierRows();
+    });
+
     it(`${mode}: a legitimately changed (appended) ledger refuses before any classifier pool`, async () => {
       const { root, runId } = await seedCompletedRun(null);
       const ledgerPin = EVALUATION_COHORT_ARTIFACT_PINS.find(

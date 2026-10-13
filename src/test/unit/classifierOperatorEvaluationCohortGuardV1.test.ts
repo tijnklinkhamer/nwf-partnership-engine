@@ -32,6 +32,7 @@ const ORG_R0 = '00000000-0000-4000-8000-0000000000c0';
 const ORG_R1 = '00000000-0000-4000-8000-0000000000c1';
 const ORG_H = '00000000-0000-4000-8000-0000000000d0';
 const ORG_FREE = '00000000-0000-4000-8000-0000000000f0';
+const ORG_R50 = '00000000-0000-4000-8000-0000000000e5';
 const RUN = '00000000-0000-4000-8000-000000000099';
 
 // --- Synthetic, structurally faithful artifacts -----------------------------
@@ -83,6 +84,14 @@ function synthetic(): Synthetic {
         { echeRowKey: 'T A|1', organisationId: ORG_A, excludedHistoricalDevelopment: false },
         { echeRowKey: 'T H|6', organisationId: ORG_H, excludedHistoricalDevelopment: true },
         { echeRowKey: 'T FREE|7', organisationId: ORG_FREE, excludedHistoricalDevelopment: false },
+        { echeRowKey: 'T B|2', organisationId: ORG_B, excludedHistoricalDevelopment: false },
+        { echeRowKey: 'T R0|3', organisationId: ORG_R0, excludedHistoricalDevelopment: false },
+        { echeRowKey: 'T R1|4', organisationId: ORG_R1, excludedHistoricalDevelopment: false },
+        {
+          echeRowKey: 'T R50ONLY|5',
+          organisationId: ORG_R50,
+          excludedHistoricalDevelopment: false,
+        },
       ],
     },
   };
@@ -182,9 +191,19 @@ describe('evaluation-cohort guard - membership', () => {
     });
   });
 
-  it('ALLOWS an organisation the artifacts never mention at all', () => {
+  it('REFUSES an organisation the artifacts never mention: absence from every list is not verification', () => {
     const id = '00000000-0000-4000-8000-0000000000ee';
-    expect(evaluateCohortMembership(registry, subject(id, 'T NEW|8'))).toEqual({ kind: 'ALLOWED' });
+    expect(evaluateCohortMembership(registry, subject(id, 'T NEW|8')).kind).toBe(
+      'EVALUATION_COHORT_IDENTITY_UNVERIFIED',
+    );
+  });
+
+  it('REFUSES a frame key presented with no frame binding for that organisation id', () => {
+    // Same key, unknown id -> the key is bound to a different id: a conflict.
+    const id = '00000000-0000-4000-8000-0000000000ef';
+    expect(evaluateCohortMembership(registry, subject(id, 'T FREE|7')).kind).toBe(
+      'EVALUATION_COHORT_CONFLICT',
+    );
   });
 
   it.each([
@@ -212,8 +231,7 @@ describe('evaluation-cohort guard - membership', () => {
   });
 
   it('REFUSES an R50 review-item organisation that is outside the draw', () => {
-    const id = '00000000-0000-4000-8000-0000000000e5';
-    expect(evaluateCohortMembership(registry, subject(id, 'T R50ONLY|5'))).toMatchObject({
+    expect(evaluateCohortMembership(registry, subject(ORG_R50, 'T R50ONLY|5'))).toMatchObject({
       kind: 'EVALUATION_COHORT_PROTECTED',
       memberships: ['R50_DEV_TRAIN_REVIEW_ITEM'],
     });
@@ -354,6 +372,12 @@ describe('evaluation-cohort guard - missing or inconsistent metadata refuses', (
     const s = synthetic();
     delete (s.frame.entries as Record<string, unknown>[])[2]!.excludedHistoricalDevelopment;
     unverified(build(s), /FRAME: entry without a boolean/);
+  });
+
+  it('a protected organisation that is absent from the frame (incomplete lookup)', () => {
+    const s = synthetic();
+    (s.r50.items as Record<string, unknown>[]).push({ echeRowKey: 'T OUTSIDE|9' });
+    unverified(build(s), /FRAME: a protected organisation is absent from the frame/);
   });
 
   it('an R50 index for another split', () => {

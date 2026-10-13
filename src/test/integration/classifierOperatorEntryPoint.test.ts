@@ -25,6 +25,7 @@ import {
   truncateAll,
   type OrgunitRootFixture,
 } from './helpers.js';
+import { registryAdmittingFixture } from './cohortTestRegistry.js';
 import {
   executeClassifyCommand,
   type ClassifyDependencies,
@@ -159,6 +160,8 @@ describeDb('orgunits classify - operator entry point (integration)', () => {
         },
         env,
         repoRoot: '/zz-repo-root-for-tests',
+        // The synthetic fixture is not in the committed frame; admit exactly it.
+        loadCohortRegistry: () => registryAdmittingFixture(root),
         createProvider: () => {
           created += 1;
           provider = new ScriptedTestProvider(script);
@@ -952,15 +955,30 @@ describeDb('orgunits classify - operator entry point (integration)', () => {
         MODEL,
         '--json',
       ]);
-      const report = unwrap(captured) as {
-        mode: string;
-        executionPreflight: { ok: boolean };
-        batchCount: number;
+      // CLASSIFIER_OPERATOR_EVALUATION_COHORT_GUARD_V1: the real router uses
+      // the production cohort metadata (no injectable loader exists here), so
+      // the synthetic fixture - correctly not a member of the committed
+      // evaluation frame - is refused by the guard after the production
+      // roles were reached, before assembly and with no write. The DRY_RUN
+      // report itself is proven through the harness tests above.
+      // stdout carries the one envelope; the landed stderr diagnostic follows it in this capture.
+      const envelope = JSON.parse(captured.slice(0, captured.indexOf('\n}') + 2)) as {
+        contractVersion: string;
+        operation: string;
+        code: string;
+        reason: { kind: string; preflightKind: string };
       };
-      expect(report.mode).toBe('DRY_RUN');
-      expect(report.batchCount).toBe(1);
-      // The real process environment decides the preflight; the exit code follows it exactly.
-      expect(exit).toBe(report.executionPreflight.ok ? 0 : 1);
+      expect(envelope.contractVersion).toBe(CLASSIFIER_OPERATOR_CONTRACT_VERSION);
+      expect(envelope.operation).toBe('CLASSIFY');
+      expect(envelope.code).toBe('PREFLIGHT_REFUSED');
+      expect(envelope.reason).toMatchObject({
+        kind: 'PREFLIGHT_REFUSED',
+        preflightKind: 'EVALUATION_COHORT_IDENTITY_UNVERIFIED',
+      });
+      expect(captured).toContain(
+        'ERROR classifier preflight refused (EVALUATION_COHORT_IDENTITY_UNVERIFIED)',
+      );
+      expect(exit).toBe(1);
       expect(await snapshot()).toEqual(before);
     });
 

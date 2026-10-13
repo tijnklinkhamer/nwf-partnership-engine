@@ -35,6 +35,7 @@ import {
   truncateAll,
   type OrgunitRootFixture,
 } from './helpers.js';
+import { registryAdmittingFixture } from './cohortTestRegistry.js';
 import {
   executeClassifyCommand,
   type ClassifyDependencies,
@@ -295,6 +296,8 @@ describeDb('classifier operator machine contract V1 (integration)', () => {
       },
       env,
       repoRoot: '/zz-contract-repo-root',
+      // The synthetic fixture is not in the committed frame; admit exactly it.
+      loadCohortRegistry: () => registryAdmittingFixture(root),
       createProvider: () => {
         providers += 1;
         return Promise.resolve(new ScriptedTestProvider(script));

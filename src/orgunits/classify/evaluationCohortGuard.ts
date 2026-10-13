@@ -111,6 +111,13 @@ export interface EvaluationCohortRegistry {
   /** Every organisation id the artifacts bind to each key (draw and frame both carry one). */
   readonly organisationIdsByEcheRowKey: ReadonlyMap<string, ReadonlySet<string>>;
   readonly echeRowKeysByOrganisationId: ReadonlyMap<string, ReadonlySet<string>>;
+  /**
+   * The evaluation frame's own identity binding, key -> organisation id: the
+   * ONE authoritative organisation identity this guard can verify. Every
+   * protected key is a member (checked at build), so a frame member that is
+   * in no protected list is provably unprotected.
+   */
+  readonly frameOrganisationIdByEcheRowKey: ReadonlyMap<string, string>;
   readonly artifactSha256: Readonly<Record<CohortArtifactRole, string>>;
 }
 
@@ -133,6 +140,17 @@ export type CohortVerdict =
   | {
       readonly kind: 'EVALUATION_COHORT_CONFLICT';
       /** Bounded: identifiers only. */
+      readonly detail: string;
+    }
+  | {
+      /**
+       * The organisation is not a member of the evaluation frame, so no
+       * authoritative identity binding exists to verify it against. Absence
+       * from every protected list is NOT accepted as proof of anything: the
+       * classifier role cannot read ingest provenance (`organisation_sources`,
+       * `ingest_runs`), so there is no independent source to establish it.
+       */
+      readonly kind: 'EVALUATION_COHORT_IDENTITY_UNVERIFIED';
       readonly detail: string;
     };
 
@@ -331,12 +349,13 @@ export function buildEvaluationCohortRegistry(
       'excludedHistoricalDevelopmentCount',
     );
     let historical = 0;
-    const frameKeys = new Set<string>();
+    const frameIds = new Map<string, string>();
     for (const entry of arrayField('FRAME', frame, 'entries')) {
       const key = stringField('FRAME', entry, 'echeRowKey');
-      if (frameKeys.has(key)) fail('FRAME', 'duplicate echeRowKey');
-      frameKeys.add(key);
-      bind(key, stringField('FRAME', entry, 'organisationId'));
+      if (frameIds.has(key)) fail('FRAME', 'duplicate echeRowKey');
+      const organisationId = stringField('FRAME', entry, 'organisationId');
+      frameIds.set(key, organisationId);
+      bind(key, organisationId);
       const flag = isRecord(entry) ? entry.excludedHistoricalDevelopment : undefined;
       if (typeof flag !== 'boolean')
         fail('FRAME', 'entry without a boolean excludedHistoricalDevelopment');
@@ -351,6 +370,11 @@ export function buildEvaluationCohortRegistry(
         'historical-development entries differ from counts.excludedHistoricalDevelopmentCount',
       );
     }
+    // Lookup completeness: every protected organisation must be a frame
+    // member, so frame membership plus absence from every list is a proof.
+    for (const key of memberships.keys()) {
+      if (!frameIds.has(key)) fail('FRAME', 'a protected organisation is absent from the frame');
+    }
 
     return {
       ok: true,
@@ -358,6 +382,7 @@ export function buildEvaluationCohortRegistry(
         membershipsByEcheRowKey: memberships,
         organisationIdsByEcheRowKey: orgIdsByKey,
         echeRowKeysByOrganisationId: keysByOrgId,
+        frameOrganisationIdByEcheRowKey: frameIds,
         artifactSha256,
       },
     };
@@ -394,7 +419,12 @@ export interface CohortSubject {
   readonly runEcheRowKeys: readonly string[];
 }
 
-/** PURE. ALLOWED only when no identity is protected and no identity conflicts with the artifacts. */
+/**
+ * PURE. ALLOWED only when the organisation's identity is verified against the
+ * frame's own binding (same key, same organisation id), no identity conflicts
+ * with the artifacts, and neither the organisation nor any organisation its
+ * run's evidence names is protected.
+ */
 export function evaluateCohortMembership(
   registry: EvaluationCohortRegistry,
   subject: CohortSubject,
@@ -432,6 +462,14 @@ export function evaluateCohortMembership(
         memberships: [...memberships].sort(),
       };
     }
+  }
+  // 3. Identity: the organisation must be a frame member bound to this exact
+  //    organisation id (a different id was already refused as a conflict).
+  if (registry.frameOrganisationIdByEcheRowKey.get(subject.echeRowKey) !== subject.organisationId) {
+    return {
+      kind: 'EVALUATION_COHORT_IDENTITY_UNVERIFIED',
+      detail: `organisation ${subject.organisationId} is not a member of the evaluation frame, so its identity and cohort status cannot be verified`,
+    };
   }
   return { kind: 'ALLOWED' };
 }

@@ -69,14 +69,28 @@ reach classifier execution:
 A mutation probe (a temporary unguarded importer of the runtime) makes the tripwire fail. A new
 entry point therefore needs a reviewed edit of that test.
 
-## Semantics of "unknown"
+## Semantics of "unknown" (amended under P2-X2 §D)
 
-Unknown, missing, altered or inconsistent cohort **state** refuses
-(`EVALUATION_COHORT_METADATA_UNVERIFIED`). An **organisation** that no artifact names is ALLOWED,
-because protection is a positive enumeration: every protected organisation is named explicitly in
-the draw, the ledger, the R50 index or the frame's historical-development flag. A stricter option
-is to also refuse organisations absent from the frame. It would refuse every organisation added by
-a later ECHE ingest, and all synthetic test organisations, so it is left as an OWNER choice.
+- Unknown, missing, altered or inconsistent cohort **state** refuses
+  (`EVALUATION_COHORT_METADATA_UNVERIFIED`). This includes a protected organisation that is not a
+  frame member: every protected key must be a frame key, which makes the lookups provably complete.
+  This holds today: all 420 protected entries (110 selection, 40 reserve, 8 ledger, 222 R50) are
+  frame members.
+- An organisation is ALLOWED only if its identity is verified against the frame's own binding
+  (same `eche_row_key`, same organisation id) and neither it nor any organisation its run names
+  is protected.
+- An organisation absent from the frame is refused as `EVALUATION_COHORT_IDENTITY_UNVERIFIED`.
+  Absence from every protected list is not treated as verification. The classifier role cannot
+  read `organisation_sources` or `ingest_runs`, so no independent authoritative identity source
+  exists for it. Admitting such organisations would need a governed identity source, such as a
+  read grant on ingest provenance, which is a migration and an OWNER decision, or a new reviewed
+  frame.
+- Integration fixtures that exercise the command beyond the guard admit exactly their synthetic
+  fixture on top of the real, verified registry (`src/test/integration/cohortTestRegistry.ts`,
+  test-only). The real-router integration test now proves that production metadata refuses that
+  fixture before assembly, with no write.
+- Real data (read-only probe after the amendment): 20 of 181 researched (org, run) pairs ALLOWED,
+  161 PROTECTED, 0 conflicts, 0 identity refusals.
 
 ## Re-authorising a legitimate change to a pinned artifact
 
