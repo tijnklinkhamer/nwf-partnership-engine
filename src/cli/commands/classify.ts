@@ -80,6 +80,13 @@ import {
   type PreflightResult,
 } from '../../orgunits/classify/provider/preflight.js';
 import {
+  describeCohortRefusal,
+  evaluateCohortMembership,
+  loadCohortSubject,
+  loadEvaluationCohortRegistry,
+  type RegistryLoadResult,
+} from '../../orgunits/classify/evaluationCohortGuard.js';
+import {
   buildClassifierOperatorEnvelope,
   classifierOperatorExitCode,
   classifierPlanFailure,
@@ -124,6 +131,14 @@ export interface ClassifyDependencies {
   readonly createProvider: () => Promise<ClassifierProvider>;
   readonly stdout: (text: string) => void;
   readonly stderr: (text: string) => void;
+  /**
+   * Loads and verifies the pinned evaluation-cohort metadata
+   * (`evaluationCohortGuard.ts`). Omitted means the committed, SHA-256-pinned
+   * artifacts of the Engine checkout this module runs from - a file read,
+   * never a pool or a provider, so omission can never reach production
+   * state. Tests pass a synthetic loader to exercise refusals.
+   */
+  readonly loadCohortRegistry?: () => RegistryLoadResult;
 }
 
 /** V1 passes the runtime's own defaults: no provider tuning from the CLI. */
@@ -260,6 +275,32 @@ function preflightSummary(
   return preflight.ok
     ? { ok: true }
     : { ok: false, kind: preflight.kind, detail: preflight.detail };
+}
+
+type Respond = (
+  code: ClassifierOperatorCode,
+  parts: { data?: unknown; reason?: ClassifierOperatorReason },
+  human: { stdout?: readonly string[]; stderr?: readonly string[] },
+) => number;
+
+/**
+ * An evaluation-cohort refusal is reported through the EXISTING
+ * `PREFLIGHT_REFUSED` contract code with its own `preflightKind`, so the
+ * machine contract (`nwf-pe.classifier-operator.v1`) gains no new code and a
+ * caller that already handles preflight refusals handles this one. The
+ * detail is bounded: identifiers and membership names, never content.
+ */
+function respondCohortRefusal(respond: Respond, kind: string, detail: string): number {
+  return respond(
+    'PREFLIGHT_REFUSED',
+    { reason: { kind: 'PREFLIGHT_REFUSED', preflightKind: kind, detail } },
+    {
+      stderr: [
+        `classifier preflight refused (${kind}): ${detail}. Refused before any assembly, ` +
+          'provider call or classifier write.',
+      ],
+    },
+  );
 }
 
 function nonCompletedRefusalLines(plan: Extract<OperatorPlan, { kind: 'BATCHES' }>): string[] {
@@ -429,6 +470,13 @@ async function classifyAction(
     );
   }
 
+  // EVALUATION-COHORT METADATA - file-only, row-less, refused in EVERY mode.
+  // Unverifiable cohort state can never be treated as "not protected".
+  const cohortRegistry = (deps.loadCohortRegistry ?? loadEvaluationCohortRegistry)();
+  if (!cohortRegistry.ok) {
+    return respondCohortRefusal(respond, cohortRegistry.kind, cohortRegistry.detail);
+  }
+
   // PHASE A - research role, completion gate only. The pool is closed on return.
   const runCompletion: RunCompletionStatus = await deps.withResearchPool((pool) =>
     checkRunCompleted(pool, args.runId),
@@ -457,6 +505,18 @@ async function classifyAction(
   return deps.withClassifierPool(async (pool) => {
     let plan: OperatorPlan;
     try {
+      // EVALUATION-COHORT GUARD - identities only, BEFORE assembly reads any
+      // page text and before any call/attempt row can exist. Inside the
+      // planning try, so a database failure here is reported exactly as a
+      // planning failure is. A missing organisation is left to the landed
+      // ORGANISATION_NOT_FOUND path of the plan.
+      const subject = await loadCohortSubject(pool, args.organisationId, args.runId);
+      if (subject !== null) {
+        const verdict = evaluateCohortMembership(cohortRegistry.registry, subject);
+        if (verdict.kind !== 'ALLOWED') {
+          return respondCohortRefusal(respond, verdict.kind, describeCohortRefusal(verdict));
+        }
+      }
       plan = await planOrganisationClassification(pool, {
         organisationId: args.organisationId,
         runId: args.runId,

@@ -880,6 +880,15 @@ const GIT_ROOT = resolve(__dirname, '..', '..', '..');
 const CLASSIFIER_OPERATOR_CONTROL_PLANE_CONTRACT_TERMINAL =
   'e2d0a2bda4ebdf5d93bbddd2b751579a375bb0c0';
 const C = CLASSIFIER_OPERATOR_CONTROL_PLANE_CONTRACT_TERMINAL;
+/**
+ * FROZEN AT THE DIAGNOSTICS TERMINAL. This slice is closed: its lineage and
+ * changed-surface assertions read the exact range C..D, never HEAD or the
+ * working tree, so a later, separately authorised slice
+ * (CLASSIFIER_OPERATOR_EVALUATION_COHORT_GUARD_V1 first) is never judged
+ * against this slice's own authorised surface.
+ */
+const CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_TERMINAL = '25916c229fbefc16e3c6e65b2e42df3d03bd762d';
+const D = CLASSIFIER_PROVIDER_FAILURE_DIAGNOSTICS_TERMINAL;
 const CONTRACT_TEST = 'src/test/unit/classifierOperatorControlPlaneContractV1.test.ts';
 const AUTHORISED_PRODUCTION_FILES = [
   'src/orgunits/classify/provider/agentSdkRunner.ts',
@@ -906,58 +915,56 @@ function commitExists(commit: string): boolean {
     return false;
   }
 }
-/** Every path changed since the contract terminal, committed or not. */
+/** Every path this slice changed: the exact range C..D. */
 function changedSinceContract(): string[] {
-  return [
-    ...new Set([
-      ...gitLines(git('diff', '--name-only', C)),
-      ...gitLines(git('ls-files', '--others', '--exclude-standard')),
-    ]),
-  ];
+  return gitLines(git('diff', '--name-only', C, D));
 }
 
-describe.skipIf(!commitExists(C))('provider failure diagnostics V1: changed surface', () => {
-  it('descends from the contract terminal with single-parent commits, first freezing the contract test', () => {
-    expect(() => git('merge-base', '--is-ancestor', C, 'HEAD')).not.toThrow();
-    expect(gitLines(git('rev-list', '--merges', `${C}..HEAD`))).toEqual([]);
-    const [first] = gitLines(git('rev-list', '--reverse', `${C}..HEAD`));
-    if (first === undefined) return;
-    expect(git('rev-parse', `${first}^`).trim()).toBe(C);
-    expect(gitLines(git('diff', '--name-only', C, first))).toEqual([CONTRACT_TEST]);
-    expect(gitLines(git('log', '-1', '--format=%s', first))[0]).toMatch(
-      /freeze classifier operator control-plane contract scope/,
-    );
-  });
+describe.skipIf(!commitExists(C) || !commitExists(D))(
+  'provider failure diagnostics V1: changed surface',
+  () => {
+    it('descends from the contract terminal with single-parent commits, first freezing the contract test', () => {
+      expect(() => git('merge-base', '--is-ancestor', C, D)).not.toThrow();
+      expect(gitLines(git('rev-list', '--merges', `${C}..${D}`))).toEqual([]);
+      const [first] = gitLines(git('rev-list', '--reverse', `${C}..${D}`));
+      if (first === undefined) return;
+      expect(git('rev-parse', `${first}^`).trim()).toBe(C);
+      expect(gitLines(git('diff', '--name-only', C, first))).toEqual([CONTRACT_TEST]);
+      expect(gitLines(git('log', '-1', '--format=%s', first))[0]).toMatch(
+        /freeze classifier operator control-plane contract scope/,
+      );
+    });
 
-  it('changes production code exactly within the three provider modules', () => {
-    const production = changedSinceContract().filter(
-      (p) => p.startsWith('src/') && !p.startsWith('src/test/'),
-    );
-    expect(production.sort()).toEqual(AUTHORISED_PRODUCTION_FILES);
-  });
+    it('changes production code exactly within the three provider modules', () => {
+      const production = changedSinceContract().filter(
+        (p) => p.startsWith('src/') && !p.startsWith('src/test/'),
+      );
+      expect(production.sort()).toEqual(AUTHORISED_PRODUCTION_FILES);
+    });
 
-  it('changes nothing else: no migration, orchestration, persistence, retry, contract, CLI, package or prior document', () => {
-    expect(changedSinceContract().filter((p) => !PERMITTED.has(p))).toEqual([]);
-    for (const path of [
-      'src/orgunits/classify/retry.ts',
-      'src/orgunits/classify/orchestrate.ts',
-      'src/orgunits/classify/persist.ts',
-      'src/orgunits/classify/providerContract.ts',
-      'src/orgunits/classify/operatorContract.ts',
-      'src/orgunits/classify/operatorReadModels.ts',
-      'package.json',
-      'package-lock.json',
-      'CLAUDE.md',
-    ]) {
-      expect(gitLines(git('diff', '--name-only', C, '--', path)), path).toEqual([]);
-    }
-    expect(gitLines(git('diff', '--name-only', C, '--', 'migrations'))).toEqual([]);
-  });
+    it('changes nothing else: no migration, orchestration, persistence, retry, contract, CLI, package or prior document', () => {
+      expect(changedSinceContract().filter((p) => !PERMITTED.has(p))).toEqual([]);
+      for (const path of [
+        'src/orgunits/classify/retry.ts',
+        'src/orgunits/classify/orchestrate.ts',
+        'src/orgunits/classify/persist.ts',
+        'src/orgunits/classify/providerContract.ts',
+        'src/orgunits/classify/operatorContract.ts',
+        'src/orgunits/classify/operatorReadModels.ts',
+        'package.json',
+        'package-lock.json',
+        'CLAUDE.md',
+      ]) {
+        expect(gitLines(git('diff', '--name-only', C, D, '--', path)), path).toEqual([]);
+      }
+      expect(gitLines(git('diff', '--name-only', C, D, '--', 'migrations'))).toEqual([]);
+    });
 
-  it('the contract-test freeze only re-points its range; the firewall change only ADDS lines', () => {
-    const firewall = gitLines(
-      git('diff', '-U0', C, '--', 'src/test/firewall/phase2b.firewall.test.ts'),
-    );
-    expect(firewall.filter((l) => /^-[^-]/.test(l))).toEqual([]);
-  });
-});
+    it('the contract-test freeze only re-points its range; the firewall change only ADDS lines', () => {
+      const firewall = gitLines(
+        git('diff', '-U0', C, D, '--', 'src/test/firewall/phase2b.firewall.test.ts'),
+      );
+      expect(firewall.filter((l) => /^-[^-]/.test(l))).toEqual([]);
+    });
+  },
+);
