@@ -106,7 +106,7 @@ describe('the frozen DEV gold fixture is exactly the 49-row DEVELOPMENT split th
 
   it('runs against the v6 prompt, whose v5 base reconstructs to the canonical study SHA', () => {
     expect(V6_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v6');
-    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v7');
+    expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v7.1');
     // The v5 base is reconstructed, never read from a second stored copy.
     expect(V5).not.toBe(V6);
     expect(V5.length).toBe(14_843);

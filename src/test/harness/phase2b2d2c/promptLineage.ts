@@ -435,9 +435,9 @@ export function v5FromV6(v6: string): string {
 // ---------------------------------------------------------------------------
 
 /** The v7 identity implemented by operational pilot P3. NOT accepted, NOT authorised to run. */
-export const V7_PROMPT_SHA256 = '82df3541bed35a6ccacac5fe9cb54c4ef86430667fec42155a5bcdb1a83908e2';
-export const V7_PROMPT_SIZE = { characters: 19_189, utf8Bytes: 19_275 } as const;
-export const V7_PROMPT_VERSION = 'orgunit-classifier-prompt-v7';
+export const V7_PROMPT_SHA256 = 'b8d3b3d591abaa4c6b0795775edfecabc91fc65a8ca3d852b9e2ba72bc9514fd';
+export const V7_PROMPT_SIZE = { characters: 19_553, utf8Bytes: 19_639 } as const;
+export const V7_PROMPT_VERSION = 'orgunit-classifier-prompt-v7.1';
 
 /** U: the primary-subject test, inserted (space-joined) directly after D3's sentence in the step-two paragraph. */
 export const V7_U_PRIMARY_SUBJECT =
@@ -445,7 +445,7 @@ export const V7_U_PRIMARY_SUBJECT =
 
 /** C: capability attribution, inserted as its own paragraph directly after the v2 NO-versus-UNKNOWN sentence. */
 export const V7_C_CAPABILITY_ATTRIBUTION =
-  'Each axis describes only the unit this page is about, not the organisation as a whole. Answer YES only when the document states that this unit, by name or by an unambiguous reference such as "this department" or "the desk", delivers, coordinates or is responsible for the capability, or when the unit\'s own page lists the capability among its services without naming any other provider. A capability the document attributes to the institution, to another named unit, to a student association or to a partner is not evidence for this unit: the institution offering language courses does not mean this unit provides language support, a unit named on a programme\'s page does not mean it administers that programme, and help for arriving students is not by itself support for outgoing mobility. Such an axis is UNKNOWN unless the document also states this unit\'s own part in it. Answer NO only when the document affirmatively states that this unit does not provide the capability, that it is unavailable, or that another unit is responsible for it instead; missing or misattributed evidence is UNKNOWN, never NO. Under the small or non-university allowance the unit is the organisation itself, so the organisation\'s own statements are statements about the unit.';
+  "Each axis describes only the unit this page is about, not the organisation as a whole. Answer YES only when the document states that this unit, by name or by an unambiguous reference such as \"this department\" or \"the desk\", delivers, coordinates or is responsible for the capability, or when the unit's own page lists the capability among its services without naming any other provider. A capability the document attributes to the institution, to another named unit, to a student association or to a partner is not evidence for this unit: the institution offering language courses does not mean this unit provides language support, a unit named on a programme's page does not mean it administers that programme, and help for arriving students is not by itself support for outgoing mobility. Such an axis is UNKNOWN unless the document also states this unit's own part in it. Answer NO only when the document affirmatively establishes that this unit does not provide the capability: that the capability is unavailable, that it is excluded from this unit's remit, or that this unit is not responsible for it. That another unit, the institution or a partner provides the capability does not establish NO for this unit: a language centre offering courses does not show that this department does not also deliver, organise or coordinate language support, so while this unit's own part remains unclear the axis is UNKNOWN. Missing or misattributed evidence is UNKNOWN, never NO. Under the small or non-university allowance the unit is the organisation itself, so the organisation's own statements are statements about the unit.";
 
 /** S: semantic evidence support, inserted as its own paragraph directly after Candidate C. */
 export const V7_S_EVIDENCE_SUPPORT =

@@ -1,5 +1,5 @@
 /**
- * THE CLASSIFIER SYSTEM PROMPT — `orgunit-classifier-prompt-v7`.
+ * THE CLASSIFIER SYSTEM PROMPT — `orgunit-classifier-prompt-v7.1`.
  *
  * v7 IS v6 PLUS EXACTLY THREE INSERTIONS, AND NOTHING ELSE (operational
  * pilot P3, OWNER direction "develop a narrowly scoped classifier prompt V7
@@ -24,9 +24,12 @@
  *      the identified unit; YES needs this unit stated as delivering,
  *      coordinating or responsible; a capability attributed to the
  *      institution, another unit, an association or a partner is UNKNOWN
- *      for this unit; NO needs an affirmative statement of exclusion,
- *      unavailability or another unit's responsibility. Under the
- *      small/non-university allowance the organisation IS the unit.
+ *      for this unit; NO needs affirmative evidence that THIS unit does
+ *      not provide it (unavailability, exclusion from its remit, or its
+ *      stated non-responsibility) — another unit providing the capability
+ *      while this unit's own part is unclear is UNKNOWN, never NO (OWNER
+ *      correction of 2026-10-13, prompt v7.1). Under the small/non-
+ *      university allowance the organisation IS the unit.
  *      Targets the institution-level language-course over-attribution
  *      (P2-X2 doc 10).
  *   S. INSERT, as its own paragraph directly after Candidate C's
@@ -241,7 +244,7 @@
  */
 
 /** Versions THIS PROMPT'S TEXT. Bump on any content change; never edit the string below without bumping it. */
-export const ORGUNIT_CLASSIFIER_PROMPT_VERSION = 'orgunit-classifier-prompt-v7';
+export const ORGUNIT_CLASSIFIER_PROMPT_VERSION = 'orgunit-classifier-prompt-v7.1';
 
 export const ORGUNIT_CLASSIFIER_SYSTEM_PROMPT = `You are a document classifier. For each supplied document — bounded, redacted evidence extracted from one organisation's website — decide what organisational unit, if any, the page represents, and what the evidence says about the student audiences that unit serves. Use only the supplied evidence. Prefer UNKNOWN and NEEDS_REVIEW over unsupported certainty.
 
@@ -303,7 +306,7 @@ UNKNOWN is a first-class, correct answer. Marketing language ("a truly internati
 
 NO requires affirmative evidence of absence; silence is UNKNOWN; a service list that omits an axis is not evidence against it.
 
-Each axis describes only the unit this page is about, not the organisation as a whole. Answer YES only when the document states that this unit, by name or by an unambiguous reference such as "this department" or "the desk", delivers, coordinates or is responsible for the capability, or when the unit's own page lists the capability among its services without naming any other provider. A capability the document attributes to the institution, to another named unit, to a student association or to a partner is not evidence for this unit: the institution offering language courses does not mean this unit provides language support, a unit named on a programme's page does not mean it administers that programme, and help for arriving students is not by itself support for outgoing mobility. Such an axis is UNKNOWN unless the document also states this unit's own part in it. Answer NO only when the document affirmatively states that this unit does not provide the capability, that it is unavailable, or that another unit is responsible for it instead; missing or misattributed evidence is UNKNOWN, never NO. Under the small or non-university allowance the unit is the organisation itself, so the organisation's own statements are statements about the unit.
+Each axis describes only the unit this page is about, not the organisation as a whole. Answer YES only when the document states that this unit, by name or by an unambiguous reference such as "this department" or "the desk", delivers, coordinates or is responsible for the capability, or when the unit's own page lists the capability among its services without naming any other provider. A capability the document attributes to the institution, to another named unit, to a student association or to a partner is not evidence for this unit: the institution offering language courses does not mean this unit provides language support, a unit named on a programme's page does not mean it administers that programme, and help for arriving students is not by itself support for outgoing mobility. Such an axis is UNKNOWN unless the document also states this unit's own part in it. Answer NO only when the document affirmatively establishes that this unit does not provide the capability: that the capability is unavailable, that it is excluded from this unit's remit, or that this unit is not responsible for it. That another unit, the institution or a partner provides the capability does not establish NO for this unit: a language centre offering courses does not show that this department does not also deliver, organise or coordinate language support, so while this unit's own part remains unclear the axis is UNKNOWN. Missing or misattributed evidence is UNKNOWN, never NO. Under the small or non-university allowance the unit is the organisation itself, so the organisation's own statements are statements about the unit.
 
 ## When to use NEEDS_REVIEW
 

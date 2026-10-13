@@ -409,6 +409,44 @@ describe('P3 v7 fixtures: every intended label is expressible under the unchange
     expect(outcome.kind).toBe('VALIDATED');
     if (outcome.kind === 'VALIDATED') expect(outcome.rejected).toEqual([]);
   });
+
+  it('v7.1: another unit providing a capability leaves this unit UNKNOWN, not NO, while its own part is unclear', () => {
+    const department = doc(
+      8,
+      '/international-relations/',
+      'International Relations Department - Northbridge Institute',
+      ['International Relations Department'],
+      [
+        'The International Relations Department advises incoming exchange students on enrolment.',
+        'French courses for exchange students are taught by the Language Centre.',
+      ],
+    );
+    const intended = unitPage(
+      8,
+      'International Relations Department',
+      ['YES', 'UNKNOWN', 'UNKNOWN'],
+      [
+        {
+          source: 'TITLE',
+          quote: 'International Relations Department - Northbridge Institute',
+        },
+        {
+          source: 'EXCERPT',
+          quote:
+            'The International Relations Department advises incoming exchange students on enrolment.',
+        },
+      ],
+    );
+    const outcome = validateClassifierResponse(
+      { results: [intended] },
+      { ...BATCH, documents: [department] },
+    );
+    expect(outcome.kind).toBe('VALIDATED');
+    if (outcome.kind === 'VALIDATED') expect(outcome.rejected).toEqual([]);
+    expect(prompt).toContain(
+      'That another unit, the institution or a partner provides the capability does not establish NO for this unit',
+    );
+  });
 });
 
 describe('P3 v7: the deterministic validator is semantics-blind by design (unchanged), so semantic support lives in the prompt', () => {
@@ -524,10 +562,18 @@ describe('P3 v7: the prompt carries the rule clause each fixture depends on', ()
       'help for arriving students is not by itself support for outgoing mobility',
     ],
     [
-      'NO needs affirmative exclusion or another unit',
-      'or that another unit is responsible for it instead',
+      'NO needs affirmative absence, exclusion or non-responsibility for this unit',
+      "that the capability is unavailable, that it is excluded from this unit's remit, or that this unit is not responsible for it",
     ],
-    ['missing evidence never becomes NO', 'missing or misattributed evidence is UNKNOWN, never NO'],
+    [
+      'another provider leaves this unit UNKNOWN, not NO',
+      'That another unit, the institution or a partner provides the capability does not establish NO for this unit',
+    ],
+    [
+      'a language centre does not exclude the department',
+      'a language centre offering courses does not show that this department does not also deliver, organise or coordinate language support',
+    ],
+    ['missing evidence never becomes NO', 'Missing or misattributed evidence is UNKNOWN, never NO'],
     [
       'small-organisation allowance keeps organisation-level capabilities',
       'Under the small or non-university allowance the unit is the organisation itself',

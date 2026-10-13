@@ -43,9 +43,9 @@ import {
 } from '../harness/phase2b2d2c/promptLineage.js';
 
 describe('the frozen classifier system prompt', () => {
-  it('is versioned exactly orgunit-classifier-prompt-v7', () => {
+  it('is versioned exactly orgunit-classifier-prompt-v7.1', () => {
     expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).toBe(V7_PROMPT_VERSION);
-    expect(V7_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v7');
+    expect(V7_PROMPT_VERSION).toBe('orgunit-classifier-prompt-v7.1');
     expect(ORGUNIT_CLASSIFIER_PROMPT_VERSION).not.toBe(V6_PROMPT_VERSION);
   });
 
@@ -138,9 +138,9 @@ describe('prompt v7 is v6 plus exactly the three P3 insertions (U, C, S)', () =>
     expect(live.length).toBe(V7_PROMPT_SIZE.characters);
     expect(Buffer.byteLength(live, 'utf8')).toBe(V7_PROMPT_SIZE.utf8Bytes);
     expect(promptSha256(live)).toBe(V7_PROMPT_SHA256);
-    expect(V7_PROMPT_SIZE).toEqual({ characters: 19_189, utf8Bytes: 19_275 });
+    expect(V7_PROMPT_SIZE).toEqual({ characters: 19_553, utf8Bytes: 19_639 });
     expect(V7_PROMPT_SHA256).toBe(
-      '82df3541bed35a6ccacac5fe9cb54c4ef86430667fec42155a5bcdb1a83908e2',
+      'b8d3b3d591abaa4c6b0795775edfecabc91fc65a8ca3d852b9e2ba72bc9514fd',
     );
   });
 
@@ -167,17 +167,17 @@ describe('prompt v7 is v6 plus exactly the three P3 insertions (U, C, S)', () =>
       '06262d43352375231eb83afdd485babc8564675d783da0b7409bc15dca0513b7',
     );
     expect(v7FromV6(v6)).toBe(live);
-    // 1,272 + 1,259 + 651 = 3,182 code points, all ASCII.
+    // 1,272 + 1,623 + 651 = 3,546 code points, all ASCII (v7.1: C grew 1,259 -> 1,623).
     const [u, c, x] = V7_DELTA_OPERATIONS as readonly [
       (typeof V7_DELTA_OPERATIONS)[number],
       (typeof V7_DELTA_OPERATIONS)[number],
       (typeof V7_DELTA_OPERATIONS)[number],
     ];
     expect(u.text.length + 1).toBe(1_272);
-    expect(c.text.length + 2).toBe(1_259);
+    expect(c.text.length + 2).toBe(1_623);
     expect(x.text.length + 2).toBe(651);
-    expect(V7_PROMPT_SIZE.characters - V6_PROMPT_SIZE.characters).toBe(3_182);
-    expect(V7_PROMPT_SIZE.utf8Bytes - V6_PROMPT_SIZE.utf8Bytes).toBe(3_182);
+    expect(V7_PROMPT_SIZE.characters - V6_PROMPT_SIZE.characters).toBe(3_546);
+    expect(V7_PROMPT_SIZE.utf8Bytes - V6_PROMPT_SIZE.utf8Bytes).toBe(3_546);
   });
 
   it('changes exactly one v6 paragraph (the two-step page-subject paragraph) and adds exactly two new paragraphs', () => {
@@ -224,8 +224,21 @@ describe('prompt v7 is v6 plus exactly the three P3 insertions (U, C, S)', () =>
       'NO requires affirmative evidence of absence; silence is UNKNOWN; a service list that omits an axis is not evidence against it.',
     );
     expect(V7_DELTA_OPERATIONS[1]!.text).toContain(
-      'missing or misattributed evidence is UNKNOWN, never NO',
+      'Missing or misattributed evidence is UNKNOWN, never NO',
     );
+  });
+
+  it('v7.1: another unit providing a capability is UNKNOWN for this unit, never NO by itself', () => {
+    const c = V7_DELTA_OPERATIONS[1]!.text;
+    // The superseded v7 (91866c0) let "another unit is responsible" establish NO.
+    expect(c).not.toContain('or that another unit is responsible for it instead');
+    expect(c).toContain(
+      'Answer NO only when the document affirmatively establishes that this unit does not provide the capability',
+    );
+    expect(c).toContain(
+      'That another unit, the institution or a partner provides the capability does not establish NO for this unit',
+    );
+    expect(c).toContain("so while this unit's own part remains unclear the axis is UNKNOWN");
   });
 
   it('the v7 delta is organisation-agnostic: no institution, URL, domain, digit, gold id or evaluation-set language', () => {
