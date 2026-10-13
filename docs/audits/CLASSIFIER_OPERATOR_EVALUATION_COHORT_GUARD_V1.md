@@ -47,6 +47,51 @@ ledger append, refuses all operator classification until the pin is re-reviewed.
 - New tests: 39 unit and 2 integration (real `nwf_research`/`nwf_classifier` roles; 0 classifier
   rows, 0 providers on refusal). Existing operator unit/integration, diagnostics and firewall suites
   pass; typecheck, lint and prettier are clean.
-- Known environment-only failure: `orgunitClassifyProviderClaudeCodeExecutable.test.ts` refuses
-  the SDK binary because this worktree's `node_modules` is a symlink into the pinned worktree
-  (`PATH_OUTSIDE_NODE_MODULES`). It does not reproduce with a real install.
+- First full run used a `node_modules` symlink into the pinned worktree: 5 failures
+  (`PATH_OUTSIDE_NODE_MODULES`), reproduced identically on the unmodified pin with the same symlink.
+  After `npm ci` (a real install), `npm run validate` (migrations check, typecheck, lint, format,
+  full test suite, build) is GREEN at `0b50112`: 9,574 passed, 0 failed, 75 skipped.
+
+## Entry points (follow-up commit)
+
+`classifierOperatorEvaluationCohortGuardEntryPoints.test.ts` pins every production path that can
+reach classifier execution:
+
+- `runOrganisationClassification` (organisation/run runtime) is imported only by the guarded
+  operator CLI. The Operator UI bridge spawns that CLI.
+- The production provider is constructed only by `classifyProvider.ts` (imported only by the
+  guarded CLI) and by `scripts/phase2b-2d2c-production-runtime.ts`. The latter is reached only from
+  the frozen 2D2C study harness child, classifies frozen study documents under per-slot study
+  freezes, and never touches the organisation/run runtime.
+- Inside the CLI, the registry check precedes every pool, and the subject check precedes planning,
+  provider construction and the runtime.
+
+A mutation probe (a temporary unguarded importer of the runtime) makes the tripwire fail. A new
+entry point therefore needs a reviewed edit of that test.
+
+## Semantics of "unknown"
+
+Unknown, missing, altered or inconsistent cohort **state** refuses
+(`EVALUATION_COHORT_METADATA_UNVERIFIED`). An **organisation** that no artifact names is ALLOWED,
+because protection is a positive enumeration: every protected organisation is named explicitly in
+the draw, the ledger, the R50 index or the frame's historical-development flag. A stricter option
+is to also refuse organisations absent from the frame. It would refuse every organisation added by
+a later ECHE ingest, and all synthetic test organisations, so it is left as an OWNER choice.
+
+## Re-authorising a legitimate change to a pinned artifact
+
+Any byte change (for example a new ledger entry under A2 replacement authority) refuses all
+operator classification. Re-authorisation, without weakening the guard:
+
+1. The change lands under its own authority (for example an A2 replacement record) as an
+   append-only commit. The previous revision must stay a byte-identical entry prefix, as the
+   ledger's own `semantics` require.
+2. In a separate reviewed commit, update only the affected pin in `EVALUATION_COHORT_ARTIFACT_PINS`
+   and the test's expected membership counts. The commit message names the authorising record and
+   the old and new SHA-256.
+3. Run `npm run validate`. The structural checks re-verify the chain (split = slot split, replaces
+   the current occupant, replacement = the named reserve position, no reuse).
+4. Promote to a new Engine pin and re-pin the Operator, each under its own OWNER approval.
+
+Never: relax the hash check, accept an unknown hash, fall back to the previous pin, or add an
+override flag or environment variable.
