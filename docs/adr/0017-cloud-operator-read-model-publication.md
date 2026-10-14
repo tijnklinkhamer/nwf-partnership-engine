@@ -1,7 +1,7 @@
 # ADR 0017 — Governed publication of Engine read models to the cloud Operator
 
-- **Status:** Proposed
-- **Decision date:** pending OWNER decision (drafted 2026-10-12)
+- **Status:** Accepted — 2026-10-14
+- **Decision date:** 2026-10-14 (OWNER; drafted 2026-10-12)
 - **Phase:** Operator Hybrid Cloud D-3
 - **Extends:** ADR 0006, ADR 0009. **Supersedes nothing.** ADR 0009 is not
   reinterpreted: this ADR is the new ADR that ADR 0009 §5 requires before
@@ -106,6 +106,17 @@ execution into the cloud.**
    classifier runtime, its contract, the model allowlist and evaluation
    governance stay exactly as ADR 0009, ADR 0010 and Phase 2B-2D define them.
    A cloud copy is a view of what the Engine stored, never an input to it.
+9. **Protected evaluation cohorts never leave.** `RESEARCH_METADATA` and
+   `CLASSIFICATION` records are published only for organisations that the
+   Engine's evaluation-cohort guard classes ALLOWED: a frame member in no
+   draw split, reserve, replacement, R50 or historical set. The guard is
+   verified against its pinned artifacts at the exported commit. A research
+   run that touches any other organisation is withheld whole, together with
+   everything derived from it. Classifier-call-derived counts and versions
+   are computed over ALLOWED organisations only. Anything unverifiable
+   refuses the whole export. The cloud refuses a production snapshot of
+   these classes unless it declares exactly this exclusion policy and these
+   artifact digests. `unit_name` is never published.
 
 ## 3. What this ADR does not authorise
 
@@ -129,15 +140,14 @@ execution into the cloud.**
   Accepted. It is held in the EU Supabase project under the existing
   role-separated, Data-API-disabled store, and is covered by the cloud
   backups.
-- **UNKNOWN.** Whether `unit_name` can contain a personal name in rare cases,
-  for example a unit named after a person. The classifier is instructed to
-  name organisational units. The OWNER's approval of `CLASSIFICATION` should
-  either accept this residual or require unit names to be withheld (the
-  contract permits null).
-- **UNKNOWN.** The researched set (about 170 organisations) may overlap the
-  Phase 2B-2D corpus draw. Splits are never exported. The OWNER should
-  confirm that publishing which organisations have research records does not
-  disclose an evaluation split.
+- **RESOLVED (OWNER, 2026-10-14).** `unit_name` could contain a personal
+  name in rare cases. It is therefore withheld: always null in every
+  published classification.
+- **RESOLVED (OWNER, 2026-10-14, assessment `G3-OWNER-20261014-PCX1`).**
+  The researched set overlaps the Phase 2B-2D corpus draw. Only
+  organisations outside every protected set are published (§2.9), so the
+  published set cannot disclose split membership. Corpus aggregates are
+  totals only, with no per-split count and no split name.
 
 ## 5. Future conditions requiring a new ADR or an amendment
 
