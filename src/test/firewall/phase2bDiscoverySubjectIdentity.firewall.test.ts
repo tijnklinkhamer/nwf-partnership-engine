@@ -43,7 +43,7 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const REPAIR_BASE_COMMIT = 'c71c2694ba47a4c3344b863382691aaebb93f22e';
 
 /** Open (null) until a separately authorised commit-closure phase pins it. */
-const REPAIR_TERMINAL_COMMIT: string | null = null;
+const REPAIR_TERMINAL_COMMIT: string | null = 'ee39c7a9fee6a591e553c7db76a09eed7c391c90';
 
 const MIGRATION = 'migrations/0013_discovery_subject_identity.sql';
 const IDENTITY_DIR = 'src/orgunits/identity/';
