@@ -877,9 +877,11 @@ describe('classifier operator contract V1: pure, no HTTP, no Operator repository
     expect(read('package.json')).not.toMatch(/nwf-partnership-engine-ui|"file:\.\.\//);
   });
 
-  it('repair stays DISABLED and the runtime still composes fetch policy v7', () => {
+  it('repair stays DISABLED and the runtime composes the CURRENT fetch policy (v8 since ADR 0018)', () => {
     expect(CLASSIFIER_OPERATOR_REPAIR_POLICY).toBe(REPAIR_POLICY_DISABLED);
-    expect(FETCH_POLICY_VERSION).toBe('orgunit-fetch-policy-v7');
+    // v7 when this slice landed; ADR 0018 (B1.1) moved acquisition to v8 by
+    // changing frontier tie ORDER only. This slice composes it unchanged.
+    expect(FETCH_POLICY_VERSION).toBe('orgunit-fetch-policy-v8');
   });
 });
 

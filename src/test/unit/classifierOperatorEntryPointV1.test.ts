@@ -591,8 +591,10 @@ describe('classifier operator entry point: production wiring', () => {
     },
   );
 
-  it('the runtime this command composes is still fetch policy v7', () => {
-    expect(FETCH_POLICY_VERSION).toBe('orgunit-fetch-policy-v7');
+  it('the runtime this command composes is the CURRENT fetch policy (v8 since ADR 0018)', () => {
+    // v7 when this slice landed; ADR 0018 (B1.1) moved acquisition to v8 by
+    // changing frontier tie ORDER only. This command composes it unchanged.
+    expect(FETCH_POLICY_VERSION).toBe('orgunit-fetch-policy-v8');
   });
 });
 

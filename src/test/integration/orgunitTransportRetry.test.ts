@@ -326,8 +326,8 @@ describeIf('ADR 0015: the bounded transport retry', () => {
         expect(rows[0]!.error_subtype).toBe(spec.expectedSubtype);
         expect(rows[1]!.error_kind).toBeNull();
         expect(rows[1]!.http_status).toBe(200);
-        // U: every new observation carries v4.
-        for (const row of rows) expect(row.fetch_policy_version).toBe('orgunit-fetch-policy-v7');
+        // U: every new observation carries the CURRENT stamp (v4 when this landed).
+        for (const row of rows) expect(row.fetch_policy_version).toBe('orgunit-fetch-policy-v8');
         for (const row of rows) expect(row.discovery_method).toBe('ROBOTS');
 
         // The policy was read from the RETRY, so the page proceeded.
@@ -740,11 +740,11 @@ describeIf('ADR 0015: the bounded transport retry', () => {
       expect(sleeps.length).toBeGreaterThan(0);
       for (const ms of sleeps) expect(ms).toBeLessThanOrEqual(MIN_HOST_PACING_SECONDS * 1000);
 
-      // Both observations durable, under v4.
+      // Both observations durable, under the CURRENT stamp (v4 when this landed).
       const rows = await policyObservations(WWW_ROBOTS);
       expect(rows.map((r) => r.attempt_no)).toEqual([1, 2]);
       expect(rows[0]!.error_kind).toBe('CONNECT_TIMEOUT');
-      for (const row of rows) expect(row.fetch_policy_version).toBe('orgunit-fetch-policy-v7');
+      for (const row of rows) expect(row.fetch_policy_version).toBe('orgunit-fetch-policy-v8');
     });
 
     it('still fails the root closed when the retry also fails', async () => {

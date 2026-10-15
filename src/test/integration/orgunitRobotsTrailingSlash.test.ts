@@ -528,7 +528,7 @@ describeIf('ADR 0016: the bare trailing-slash robots redirect continuation', () 
   // ==================================================== D. PROVENANCE
 
   describe('D. provenance', () => {
-    it('stamps every new observation v7', async () => {
+    it('stamps every new observation with the CURRENT policy version (v8 since ADR 0018)', async () => {
       const transport = new ScriptedTransport({
         [ROBOTS]: movedTo(ROBOTS_SLASH),
         [ROBOTS_SLASH]: text(200, 'User-agent: *\nAllow: /'),
@@ -544,8 +544,10 @@ describeIf('ADR 0016: the bare trailing-slash robots redirect continuation', () 
            FROM orgunit_fetch_observations WHERE run_id = $1`,
         [runId],
       );
-      expect(rows[0]!.versions).toEqual(['orgunit-fetch-policy-v7']);
-      expect(FETCH_POLICY_VERSION).toBe('orgunit-fetch-policy-v7');
+      // v7 introduced this capability; ADR 0018 moved the stamp to v8 without
+      // touching it, and a NEW observation carries the CURRENT stamp.
+      expect(rows[0]!.versions).toEqual(['orgunit-fetch-policy-v8']);
+      expect(FETCH_POLICY_VERSION).toBe('orgunit-fetch-policy-v8');
     });
 
     it('refuses to execute a run recorded under ANY superseded version, v6 included', async () => {

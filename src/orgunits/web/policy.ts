@@ -19,7 +19,44 @@
  * executing a v2 run under v1 timeouts and stamping "v2" on the row - would
  * make `fetch_policy_version` a label rather than a fact.
  */
-export const FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v7';
+export const FETCH_POLICY_VERSION = 'orgunit-fetch-policy-v8';
+
+/**
+ * WHY v7 BECAME v8 (Track B, B1.1 - deterministic research frontier
+ * diversity, ADR 0018; owner decision
+ * APPROVE_B1_1_FRONTIER_SECTION_DIVERSITY_LOCAL_IMPLEMENTATION_V1, local and
+ * offline only).
+ *
+ * WHAT CHANGED, EXACTLY, AND IT IS ONE THING: the ORDER in which the
+ * frontier (`src/orgunits/orchestrator/frontier.ts`) picks among discovered
+ * URLs that its strict priorities leave TIED. v7 broke every such tie by
+ * discovery source and then by URL text, so a large, alphabetically early
+ * section of zero-score sitemap URLs consumed the whole page budget. v8
+ * breaks the same ties by fewest earlier picks of the URL's SECTION (host +
+ * first non-locale path segment) within the same priority class, then by
+ * path depth, and only then by the v7 keys. The strict priorities - Track B
+ * floor, frontier score, own-over-inherited evidence - are byte-for-byte
+ * v7's.
+ *
+ * NOTHING ELSE MOVED, and every number below is the one v7 had: the
+ * timeouts, the caps, the headers, the user agent, the redirect status set,
+ * the site-policy continuation hop and the retry token. No score, signal
+ * term, eligibility rule, budget, host cap, pacing rule, robots rule or
+ * gateway check changed.
+ *
+ * WHY IT MUST BE A NEW VERSION. A v8 run and a v7 run of the same root, with
+ * byte-identical network answers, can request DIFFERENT pages within the
+ * same budget. `fetch_policy_version` is how a reader knows which selection
+ * behaviour produced a set of observations - "this root yielded no
+ * international page" means something different under each - so the order
+ * is part of the policy, and only the version string can tell the two apart.
+ *
+ * NO HISTORICAL ROW IS REWRITTEN OR REINTERPRETED. Every v1-v7 run keeps its
+ * own version on its run row and on all of its observations, forever, and
+ * `assertRunIsExecutable` (authority.ts) refuses to resume a v7 run under v8
+ * - it can only be read. No migration: migration 0007 puts no enumeration on
+ * `fetch_policy_version`.
+ */
 
 /**
  * WHY v6 BECAME v7 (Phase 2B-2D A2 - the bare trailing-slash robots redirect
