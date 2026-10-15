@@ -1,0 +1,267 @@
+{
+  "recordId": "track-b-b2-1-micro-organisation-identity-owner-decision-v1",
+  "recordKind": "DISCOVERY_SUBJECT_IDENTITY_LOCAL_IMPLEMENTATION_RECORD",
+  "records": "TRACK_B_B2_1_MICRO_ORGANISATION_IDENTITY_OWNER_DECISION_V1",
+  "recordedAtUtc": "2026-10-15T15:35:58Z",
+  "recordedAtUtcSource": "date -u, read from the shell at write time",
+  "branch": "feat/pe-discovery-micro-org-identity-v1",
+  "worktree": "~/wt-pe-micro-org-identity-b21",
+  "startingHead": "c71c2694ba47a4c3344b863382691aaebb93f22e",
+  "startingHeadLineage": {
+    "b1_1Implementation": "4fe03b19ab11f3d8c615ff05544408cc60da6c35",
+    "b1_1FirewallPin": "02ddcf25931a91397216a6c20c91bef9c16663e4",
+    "b3_0Implementation": "9b3c4e71f19224e485c32c70dbf34b3c1a7fefdc",
+    "b3_0FirewallPin": "c71c2694ba47a4c3344b863382691aaebb93f22e"
+  },
+  "status": "LOCAL_UNCOMMITTED_R1_CORRECTION_APPLIED_PENDING_OWNER_COMMIT_CLOSURE",
+  "publicSafe": true,
+  "isLiveAuthority": false,
+  "authorisesLiveExecution": false,
+  "grantsResearchAuthority": false,
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "networkUsed": "none. No HTTP, no DNS, no institutional request, no fetch of any stored URL. Every integration run was additionally wrapped in a scratch process-level guard refusing all non-loopback TCP and DNS; zero refusals were logged.",
+  "databaseWrittenByThisRecord": "none",
+  "databaseUsedByTests": "one disposable PostgreSQL 16 container only (local image postgres:16-alpine cf78e76683b9, --pull never, tmpfs data, no mounts, 127.0.0.1 dynamic port, superuser nwf_owner with a random password, database nwf_pe_test, C locale, runtime-role passwords rotated to random values after migration). The persistent nwf_pe_postgres cluster was never connected to; the migration was applied to no persistent database.",
+  "inferenceUsed": "none. No classifier attempt, no model or provider call.",
+  "protectedCohortContentInspected": false,
+  "realOrganisationsInserted": false,
+  "ownerDecisions": [
+    "AUTHORISE_B2_1_MICRO_ORGANISATION_IDENTITY_LOCAL_IMPLEMENTATION_V1",
+    "AUTHORISE_B2_1_R1_HISTORICAL_MIGRATION_BOUNDARY_CORRECTION_V1"
+  ],
+  "ownerDecisionScope": {
+    "authorised": [
+      "create the isolated worktree ~/wt-pe-micro-org-identity-b21 on branch feat/pe-discovery-micro-org-identity-v1 from c71c269",
+      "one forward-only migration, a pure TypeScript identity and relationship validator, synthetic unit and integration tests, a narrow repair-scope firewall, ADR 0019 and this record",
+      "run tests against one isolated disposable PostgreSQL 16 instance"
+    ],
+    "notAuthorised": [
+      "commit, push, merge or deploy - every change stays local and uncommitted for OWNER review",
+      "live discovery, external HTTP, classifier or other inference calls",
+      "reading protected cohort payloads, changing cohort pins or membership, modifying the B3.0 guard or the B1.1 frontier",
+      "inserting real partnership organisations, importing directories, fetching social-media data, storing contacts or student personal data",
+      "qualification scores, opportunities, outreach, Operator or other-track changes"
+    ]
+  },
+  "implementedDelta": {
+    "migration": "migrations/0013_discovery_subject_identity.sql",
+    "tables": [
+      "discovery_subjects",
+      "discovery_subject_identity_claims",
+      "discovery_subject_relationship_claims",
+      "discovery_subject_reviews"
+    ],
+    "functions": [
+      "discovery_identity_url_admissible (IMMUTABLE predicate)",
+      "discovery_identity_text_admissible (IMMUTABLE predicate)",
+      "discovery_identity_refuse_mutation (append-only trigger, SQLSTATE 55000)"
+    ],
+    "grants": {
+      "nwf_research": "none (not even SELECT)",
+      "nwf_ingest": "none",
+      "nwf_classifier": "none",
+      "nwf_readonly": "SELECT only",
+      "writer": "trusted owner path only; UPDATE and DELETE refused by trigger for every role including the owner; TRUNCATE gated by privilege only"
+    },
+    "pureModule": [
+      "src/orgunits/identity/vocabulary.ts",
+      "src/orgunits/identity/admissibility.ts",
+      "src/orgunits/identity/validate.ts",
+      "src/orgunits/identity/structuralParent.ts"
+    ],
+    "ruleVersion": "discovery-identity-rules-v1",
+    "productionImporters": 0,
+    "researchPathReadsTheNewTables": false,
+    "fetchPolicyVersionChanged": false,
+    "frontierChanged": false,
+    "budgetsChanged": false,
+    "researchCohortGuardChanged": false,
+    "classifierGuardOrPinsChanged": false,
+    "existingMigrationsChanged": false,
+    "dependencyAdded": false,
+    "testSupportChanges": [
+      "src/test/integration/orgunitSchema.test.ts: pinned migration list extended with 0013 (as for 0010, 0011, 0012)",
+      "src/test/integration/helpers.ts: truncateAll inventory gained the four new tables"
+    ],
+    "adr": "docs/adr/0019-first-class-discovery-subject-identity.md",
+    "firewall": "src/test/firewall/phase2bDiscoverySubjectIdentity.firewall.test.ts (REPAIR_TERMINAL_COMMIT null until a separately authorised commit-closure phase)",
+    "evaluationHarnessChanged": false
+  },
+  "protectedParentBoundary": {
+    "evaluator": "evaluateStructuralParentConstraint (pure; caller supplies protected ECHE row keys; never loads the B3.0 registry)",
+    "results": [
+      "RESEARCH_BLOCKING / PROTECTED_STRUCTURAL_PARENT",
+      "UNRESOLVED / PROTECTED_STRUCTURAL_PARENT_UNCONFIRMED | STRUCTURAL_CYCLE | STRUCTURAL_PARENT_UNKNOWN | SUBJECT_UNKNOWN | INPUT_STRUCTURALLY_INVALID",
+      "NO_KNOWN_STRUCTURAL_PARENT_BLOCK / NO_PROTECTED_STRUCTURAL_PARENT_KNOWN"
+    ],
+    "followsOnly": "PART_OF, not REJECTED, transitively",
+    "isResearchAuthority": false,
+    "isCohortMembership": false,
+    "openOwnerQuestions": [
+      "should B2.2 treat UNRESOLVED as a refusal (recommended: yes, fail closed)",
+      "should HOSTED_BY a protected institution ever inherit protection (implemented: no, like every non-PART_OF predicate)",
+      "is an UNCERTAIN-kind subject with no recorded parent unresolved (implemented: yes)"
+    ]
+  },
+  "trackCInterfaceProposal": {
+    "contract": "nwf-pe.discovery-candidate-evidence.v1",
+    "convention": "nwf-pe.<name>.v1 (as nwf-pe.classifier-operator.v1)",
+    "implemented": false,
+    "carriesNo": [
+      "score",
+      "priority",
+      "opportunity",
+      "contact",
+      "outreach permission",
+      "research authority"
+    ],
+    "documentedIn": "docs/adr/0019-first-class-discovery-subject-identity.md section 12"
+  },
+  "validationFirstPass": {
+    "status": "COMPLETED_WITH_ONE_KNOWN_EXISTING_TEST_CONFLICT",
+    "command": "npm run validate (env limited to the five *_TEST URLs of the disposable instance, scratch network guard preloaded)",
+    "runWindowUtc": ["2026-10-15T15:51:41Z", "2026-10-15T16:03:04Z"],
+    "exitCode": 1,
+    "migrationsCheck": "passed (13 migrations, sequential)",
+    "typecheck": "passed",
+    "lint": "passed",
+    "formatCheck": "passed",
+    "tests": {
+      "passed": 10113,
+      "failed": 1,
+      "skipped": 75
+    },
+    "testFiles": {
+      "passed": 334,
+      "failed": 1,
+      "skipped": 5
+    },
+    "skippedFiles": "five classifier-scorer unit files, the same baseline as B3.0; no database-backed file was skipped",
+    "onlyFailure": "src/test/unit/orgunitCorpus2DA1Frame.test.ts > declares exactly the migration range present in migrations/ - the schemaStampConflict in existingTestConflicts, not a B2.1 defect",
+    "build": "passed separately (tsc -p tsconfig.build.json exit 0; validate stops before build on a failed step)",
+    "b2_1Suites": {
+      "unit": 75,
+      "integration": 17,
+      "firewall": 25,
+      "orgunitSchemaContract": 55,
+      "allPassed": true
+    },
+    "priorRunOnIntermediateTree": "10109 passed / 5 failed (A3 R33-R37 harness freeze) / 75 skipped, with the frame-contract acknowledgement applied; that acknowledgement was then reverted",
+    "networkGuardRefusals": 0
+  },
+  "validation": {
+    "status": "COMPLETED_EXIT_0_B2_1_R1",
+    "command": "npm run validate (env -i limited to PATH, HOME and the five *_TEST URLs of the disposable instance; scratch network guard preloaded via NODE_OPTIONS --require)",
+    "runWindowUtc": ["2026-10-15T17:22:37Z", "2026-10-15T17:31:38Z"],
+    "exitCode": 0,
+    "migrationsCheck": "passed (13 migrations, sequential from 0001)",
+    "typecheck": "passed",
+    "lint": "passed",
+    "formatCheck": "passed",
+    "testFiles": {
+      "passed": 335,
+      "failed": 0,
+      "skipped": 5
+    },
+    "tests": {
+      "passed": 10116,
+      "failed": 0,
+      "skipped": 75
+    },
+    "skippedFiles": "the same five classifier-scorer unit files as B3.0 and the first pass; no integration or firewall file skipped",
+    "build": "passed (tsc -p tsconfig.build.json, inside validate)",
+    "networkGuardRefusals": 0,
+    "database": "fresh postgres:16-alpine cf78e76683b9 (16.15), --pull never, data on tmpfs, no mounts, 127.0.0.1 dynamic port, superuser nwf_owner with a random password, database nwf_pe_test, C collation, runtime-role passwords rotated to random values after migration 0001-0013; destroyed after the run, container and volume lists identical to the pre-run baseline; nwf_pe_postgres never connected to",
+    "recordedAfterTheRun": "this block was written after validate exited; the only change since is this record's validation block, re-checked by prettier, the A1 frame test and the B2.1 firewall in both git states"
+  },
+  "existingTestConflicts": {
+    "summary": "Three pre-existing assertions prove historical claims against the CURRENT working tree or index. Each blocks any new migration. None was edited; every correction needs OWNER authorisation (precedent AUTHORISE_HISTORICAL_PHASE_RANGE_SCOPING_CORRECTION_V1).",
+    "schemaStampConflict": {
+      "failingNow": "src/test/unit/orgunitCorpus2DA1Frame.test.ts > declares exactly the migration range present in migrations/, with no privilege needed to check it",
+      "cause": "frameContract.ts DATABASE_SCHEMA_VERSION_RANGE must track migrations/ (A1), but the A3 V4 isolation tests R33-R37 freeze src/test/harness/phase2b2d/corpus/ against the working tree (git diff --name-only 747b64f -- path)",
+      "evidence": "B2.1 first applied the documented acknowledgement (0001..0012 -> 0001..0013); the full validate on that tree failed exactly the five R33-R37 assertions (10109 passed / 5 failed / 75 skipped). The acknowledgement was reverted; the harness is byte-identical to the base.",
+      "resolutions": [
+        "(a) range-scope the five R33-R37 assertions to their own terminal commits, then re-apply the stamp bump (FRAME_V2_GEN1 keeps 0001..0011)",
+        "(b) decouple the A1 stamp check from the live migrations/ directory"
+      ]
+    },
+    "commitTimeConflicts": [
+      {
+        "file": "src/test/unit/orgunitTransportRetryPolicy.test.ts",
+        "test": "adds no migration: the range is still 0001..0012",
+        "proposedCorrection": "read the migration set with git ls-tree -r --name-only ADR_0015_TERMINAL_COMMIT -- migrations instead of git ls-files migrations"
+      },
+      {
+        "file": "src/test/unit/classifierOperatorReadModelsV1.test.ts",
+        "test": "the migration set is unchanged (0001-0012) and adds no grant",
+        "proposedCorrection": "compare git ls-tree -r --name-only R -- migrations (the read-model terminal) instead of git ls-files migrations"
+      }
+    ],
+    "commitTimeConflictsEvidence": "Two existing unit tests prove a historical 'no migration added' claim against the CURRENT git index (git ls-files). They pass while B2.1 is uncommitted and FAIL once 0013 is committed - demonstrated with a scratch copy of the index (GIT_INDEX_FILE), the real index untouched. Same defect class as AUTHORISE_HISTORICAL_PHASE_RANGE_SCOPING_CORRECTION_V1. Not edited.",
+    "requiresOwnerAuthorisationBeforeAcceptance": true,
+    "resolvedBy": "b2_1R1HistoricalMigrationBoundaryCorrection"
+  },
+  "b2_1R1HistoricalMigrationBoundaryCorrection": {
+    "decision": "AUTHORISE_B2_1_R1_HISTORICAL_MIGRATION_BOUNDARY_CORRECTION_V1",
+    "decisionNameAssignedBy": "this record; the OWNER instruction is titled 'B2.1-R1 - Historical Migration Boundary Correction & Final Local Acceptance'",
+    "ownerDecisionSummary": "preserve the B2.1 implementation; authorise a narrowly scoped historical-test compatibility correction provided every historical evaluation invariant remains intact",
+    "precedent": {
+      "decision": "AUTHORISE_HISTORICAL_PHASE_RANGE_SCOPING_CORRECTION_V1",
+      "record": "docs/evaluation/PHASE_2B_ROBOTS_OPTION_B_FREEZE_COLLISION_OWNER_DECISION_V1.json",
+      "relatedCorrection": "ba6ae90 test(2b): historical phase tests assert their own terminal commit",
+      "usedAsPatternOnly": true,
+      "readAsUnrestrictedPermission": false
+    },
+    "authorisedScope": [
+      "src/test/unit/orgunitCorpus2DA1Frame.test.ts: replace the single 'stamp equals the newest migration' assertion with (1) contiguity plus an explicit post-freeze migration manifest bound to owner records and (2) byte identity of frameContract.ts and every in-range migration with the stamp's own commit cbbedd8",
+      "src/test/unit/orgunitTransportRetryPolicy.test.ts: evaluate 'adds no migration' over the ADR 0015 repair's recorded range 3ecbd89..e564259 and its closure tree instead of git ls-files",
+      "src/test/unit/classifierOperatorReadModelsV1.test.ts: read the migration set at the read-model terminal R (f4c747e) instead of git ls-files; T..R diff upgraded to --name-status",
+      "src/test/firewall/phase2bDiscoverySubjectIdentity.firewall.test.ts: authorise the three files as M and pin their exact removed lines",
+      "docs/adr/0019-first-class-discovery-subject-identity.md section 10 and this record"
+    ],
+    "historicalBoundaries": {
+      "a1FrameStamp": {
+        "stampAuthorCommit": "cbbedd8ea8eaa62580c1fe8c05a95508400161db",
+        "corpusFreezeBase": "747b64fa40c93e4b871ea1675682fb1531b21341",
+        "stampValue": "0001..0012",
+        "frameContractChanged": false,
+        "frameV2Gen1SchemaStamp": "0001..0011 (unchanged; ACCEPT_FRAME_V2_GEN1_HISTORICAL_SCHEMA_PROVENANCE_V1)"
+      },
+      "adr0015TransportRetry": {
+        "startingHead": "3ecbd89628bc3e0f88ae4b424646a37f6b5a0575",
+        "commits": [
+          "ba6ae909f9179ee3da8ac083eb29049fa8baddce",
+          "d9c32af156d2241151601d6d6b0bf3eb9dafcee2",
+          "f9e988ab3c1183757b4a95c68865bebf59087260",
+          "e5642595da1ac68e3d17c59d5a3348a3557f0e9c"
+        ],
+        "source": "docs/evaluation/PHASE_2B_2D_A2_BOUNDED_TRANSPORT_RETRY_IMPLEMENTATION_V1.json (startingHead, commits A-D, migrationCreated false)"
+      },
+      "classifierOperatorReadModels": {
+        "entryPointTerminal": "2b9d0d9c94bda00bbe88758b2c207ecadc300934",
+        "readModelsTerminal": "f4c747ec4d0427af22c48640ccb6924f9810ed58",
+        "source": "the test's own header and docs/evaluation/PHASE_2B_2D_CLASSIFIER_OPERATOR_CONTROL_PLANE_CONTRACT_V1.json (migration assertions moved onto T..R)"
+      }
+    },
+    "permanentMigrationFreezeFound": false,
+    "permanentMigrationFreezeFinding": "no single test enforces a permanent freeze; the A1 'stamp tracks migrations/' assertion combined with the A3 R33-R37 working-tree freeze of the corpus namespace amounted to one, which no authority approved. Resolved by scoping A1 to the stamp's own commit; R33-R37 are untouched.",
+    "doesNotAuthorise": [
+      "changing any historical evaluation result, record, artifact pin or frame",
+      "changing cohort eligibility or membership",
+      "editing frameContract.ts, the corpus harness, the five A3 R33-R37 tests or migrations 0001-0012",
+      "applying migration 0013 to any persistent, staging or production database",
+      "commit, push, merge or deployment",
+      "B2.2, live discovery, inference or any research authority"
+    ],
+    "unchanged": [
+      "src/test/harness/** (frameContract.ts byte-identical to cbbedd8)",
+      "migrations/0001-0012",
+      "the five A3 V4 isolation tests R33-R37",
+      "every docs/evaluation record other than this one",
+      "B1.1 frontier and fetch policy v8, B3.0 research cohort guard, classifier cohort guard and pins, gateway, CLI, budgets"
+    ],
+    "residualUncertainty": "while a post-freeze migration exists, the frozen stamp 0001..0012 does not describe the current schema; a re-run of materialiseFrame would stamp an incomplete range. Governance-bounded (frameRegenerationAuthorised false; a future generation carries its own stamp), not code-bounded. ADR 0019 s10.6.",
+    "firewallTerminalCommitPinned": false
+  }
+}

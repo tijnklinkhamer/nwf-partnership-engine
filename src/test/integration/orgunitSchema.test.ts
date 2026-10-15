@@ -218,7 +218,7 @@ describeDb('Phase 2B schema contract (integration)', () => {
   });
 
   describe('the Phase 2B migrations are applied and sequential', () => {
-    it('records versions 0001 through 0012 with no gaps', async () => {
+    it('records versions 0001 through 0013 with no gaps', async () => {
       const { rows } = await admin.query<{ version: string }>(
         'SELECT version FROM schema_migrations ORDER BY version',
       );
@@ -226,7 +226,9 @@ describeDb('Phase 2B schema contract (integration)', () => {
       // widening), for 0011 (the Phase 2B-2D2C-R1 repair-call linkage,
       // ADR 0011) and for 0012 (the Phase 2B-2D A2 transport-failure
       // observability column `error_subtype`, ADR 0014 - additive and
-      // nullable, no backfill, no grant). This list is pinned deliberately
+      // nullable, no backfill, no grant), and for 0013 (Track B B2.1
+      // discovery-subject identity, ADR 0019 - four new append-only tables,
+      // no runtime writer, nothing existing altered). This list is pinned deliberately
       // so a new migration cannot arrive unnoticed: adding one is meant to
       // fail here first and be acknowledged here explicitly, exactly as it
       // was for 0009.
@@ -243,6 +245,7 @@ describeDb('Phase 2B schema contract (integration)', () => {
         '0010',
         '0011',
         '0012',
+        '0013',
       ]);
     });
 

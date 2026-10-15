@@ -9,7 +9,16 @@
  * These are unit tests over pure functions and committed fixtures. They open
  * no socket and no database.
  */
-import { mkdtempSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
+import {
+  existsSync,
+  mkdtempSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -685,15 +694,138 @@ describe('2D-A1: the post-A0 state gate', () => {
   });
 });
 
+/**
+ * THE SCHEMA STAMP'S OWN AUTHORITY, AND THE FREEZE THAT ENDED ITS TRACKING.
+ *
+ * `DATABASE_SCHEMA_VERSION_RANGE` tracked `migrations/` while the corpus
+ * namespace was editable: A1 set it to 0001..0011, and the ADR 0014
+ * observability repair (`cbbedd8`, migration 0012) moved it to 0001..0012.
+ * The A3 V4 isolation tests R33-R37 then froze
+ * `src/test/harness/phase2b2d/corpus/` from the R32 terminal onward, so the
+ * stamp can no longer move. Asserting "the stamp names the newest migration"
+ * after that freeze would turn every later, separately governed migration
+ * into an A1 violation - a permanent migration freeze nobody approved.
+ *
+ * So the stamp is proven where it was authored, and the protections stay:
+ *   - the stamp still names a contiguous range with one file per version, and
+ *     every one of those files is byte-identical to the stamp's own commit
+ *     (a changed, removed, renamed or inserted in-range migration fails);
+ *   - `frameContract.ts` is byte-identical to the stamp's own commit;
+ *   - a migration ABOVE the range must be named, one entry per file, in
+ *     MIGRATIONS_AFTER_THE_CORPUS_FREEZE together with the owner record that
+ *     authorised it - so adding a migration still fails HERE first and is
+ *     acknowledged here, never by number prefix or count.
+ *
+ * FRAME_V2_GEN1 keeps 0001..0011 (owner adjudication
+ * ACCEPT_FRAME_V2_GEN1_HISTORICAL_SCHEMA_PROVENANCE_V1). B2.1-R1, ADR 0019 s10.
+ */
+const FRAME_SCHEMA_STAMP_COMMIT = 'cbbedd8ea8eaa62580c1fe8c05a95508400161db';
+const CORPUS_FREEZE_BASE = '747b64fa40c93e4b871ea1675682fb1531b21341';
+const FRAME_CONTRACT_PATH = 'src/test/harness/phase2b2d/corpus/frameContract.ts';
+
+/** Every migration landed after the corpus freeze, with the records that authorised it. */
+const MIGRATIONS_AFTER_THE_CORPUS_FREEZE = [
+  {
+    file: '0013_discovery_subject_identity.sql',
+    adr: 'docs/adr/0019-first-class-discovery-subject-identity.md',
+    ownerRecord: 'docs/evaluation/TRACK_B_B2_1_MICRO_ORGANISATION_IDENTITY_OWNER_DECISION_V1.json',
+  },
+] as const;
+
+function gitAvailable(...commits: readonly string[]): boolean {
+  try {
+    for (const commit of commits) {
+      execFileSync('git', ['-C', REPO_ROOT, 'cat-file', '-e', `${commit}^{commit}`], {
+        stdio: 'ignore',
+      });
+    }
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function git(...args: readonly string[]): string {
+  return execFileSync('git', ['-C', REPO_ROOT, ...args], { encoding: 'utf8' });
+}
+
+function migrationFiles(): string[] {
+  return readdirSync(join(REPO_ROOT, 'migrations'))
+    .filter((name) => name.endsWith('.sql'))
+    .sort();
+}
+
+function stampBounds(): { low: number; high: number } {
+  const match = /^(\d{4})\.\.(\d{4})$/.exec(DATABASE_SCHEMA_VERSION_RANGE);
+  expect(match, DATABASE_SCHEMA_VERSION_RANGE).not.toBeNull();
+  return { low: Number(match![1]), high: Number(match![2]) };
+}
+
 describe('2D-A1: the frozen schema version matches the committed migrations', () => {
-  it('declares exactly the migration range present in migrations/, with no privilege needed to check it', () => {
-    const versions = readdirSync(join(REPO_ROOT, 'migrations'))
-      .filter((name) => name.endsWith('.sql'))
-      .map((name) => name.slice(0, 4))
-      .sort();
-    expect(versions.length).toBeGreaterThan(0);
-    expect(DATABASE_SCHEMA_VERSION_RANGE).toBe(`${versions[0]}..${versions[versions.length - 1]}`);
+  it('names a contiguous range, one file per version, and every later migration is acknowledged by name with its authority', () => {
+    const { low, high } = stampBounds();
+    const files = migrationFiles();
+    const inRange = files.filter((f) => Number(f.slice(0, 4)) <= high);
+    expect(inRange.map((f) => Number(f.slice(0, 4)))).toEqual(
+      Array.from({ length: high - low + 1 }, (_, i) => low + i),
+    );
+    expect(files.filter((f) => Number(f.slice(0, 4)) > high)).toEqual(
+      MIGRATIONS_AFTER_THE_CORPUS_FREEZE.map((m) => m.file),
+    );
+    for (const later of MIGRATIONS_AFTER_THE_CORPUS_FREEZE) {
+      expect(existsSync(join(REPO_ROOT, later.adr)), later.adr).toBe(true);
+      expect(readFileSync(join(REPO_ROOT, later.ownerRecord), 'utf8'), later.ownerRecord).toContain(
+        `migrations/${later.file}`,
+      );
+    }
   });
+
+  it.skipIf(!gitAvailable(FRAME_SCHEMA_STAMP_COMMIT, CORPUS_FREEZE_BASE))(
+    "is exactly what its own commit authored, over migrations byte-identical to that commit's",
+    () => {
+      const { high } = stampBounds();
+      expect(readFileSync(join(REPO_ROOT, FRAME_CONTRACT_PATH), 'utf8')).toBe(
+        git('show', `${FRAME_SCHEMA_STAMP_COMMIT}:${FRAME_CONTRACT_PATH}`),
+      );
+      const atStamp = git(
+        'ls-tree',
+        '-r',
+        '--name-only',
+        FRAME_SCHEMA_STAMP_COMMIT,
+        '--',
+        'migrations',
+      )
+        .split('\n')
+        .filter((p) => p.endsWith('.sql'))
+        .map((p) => p.slice('migrations/'.length))
+        .sort();
+      // The original A1 invariant, evaluated where it was true: the stamp
+      // tracked migrations/ exactly at the commit that set it ...
+      expect(DATABASE_SCHEMA_VERSION_RANGE).toBe(
+        `${atStamp[0]!.slice(0, 4)}..${atStamp[atStamp.length - 1]!.slice(0, 4)}`,
+      );
+      // ... and still did when the corpus namespace was frozen.
+      expect(() =>
+        git('merge-base', '--is-ancestor', FRAME_SCHEMA_STAMP_COMMIT, CORPUS_FREEZE_BASE),
+      ).not.toThrow();
+      expect(
+        git(
+          'diff',
+          '--name-status',
+          FRAME_SCHEMA_STAMP_COMMIT,
+          CORPUS_FREEZE_BASE,
+          '--',
+          'migrations',
+        ),
+      ).toBe('');
+      expect(migrationFiles().filter((f) => Number(f.slice(0, 4)) <= high)).toEqual(atStamp);
+      for (const file of atStamp) {
+        expect(readFileSync(join(REPO_ROOT, 'migrations', file), 'utf8'), file).toBe(
+          git('show', `${FRAME_SCHEMA_STAMP_COMMIT}:migrations/${file}`),
+        );
+      }
+    },
+  );
 });
 
 describe('2D-A1: the A1b sufficiency threshold is stated, not applied', () => {

@@ -35,6 +35,13 @@ const read = (relative: string): string => readFileSync(join(REPO_ROOT, relative
  * so reading the working tree would restate history as a claim about today.
  */
 const ADR_0015_TERMINAL_COMMIT = 'd9c32af156d2241151601d6d6b0bf3eb9dafcee2';
+/**
+ * The whole ADR 0015 repair, as its implementation record
+ * (PHASE_2B_2D_A2_BOUNDED_TRANSPORT_RETRY_IMPLEMENTATION_V1) bounds it:
+ * `startingHead`, then commits A-D, D being the commit that adds that record.
+ */
+const ADR_0015_STARTING_HEAD = '3ecbd89628bc3e0f88ae4b424646a37f6b5a0575';
+const ADR_0015_CLOSURE_COMMIT = 'e5642595da1ac68e3d17c59d5a3348a3557f0e9c';
 const readAtAdr0015Terminal = (relative: string): string =>
   execFileSync('git', ['-C', REPO_ROOT, 'show', `${ADR_0015_TERMINAL_COMMIT}:${relative}`], {
     encoding: 'utf8',
@@ -473,9 +480,40 @@ describe('ADR 0015: the production surface declares the policy exactly once', ()
   });
 
   it('adds no migration: the range is still 0001..0012', () => {
-    const migrations = execFileSync('git', ['-C', REPO_ROOT, 'ls-files', 'migrations'], {
-      encoding: 'utf8',
-    })
+    // A claim about ADR 0015's OWN repair, so it is evaluated over that
+    // repair's commits (the implementation record's startingHead through its
+    // closure commit) and at its closure tree - never the current index, which
+    // a later, separately governed migration may legitimately extend.
+    const git = (...args: string[]): string =>
+      execFileSync('git', ['-C', REPO_ROOT, ...args], { encoding: 'utf8' });
+    expect(
+      git('rev-list', '--reverse', `${ADR_0015_STARTING_HEAD}..${ADR_0015_CLOSURE_COMMIT}`),
+    ).toBe(
+      [
+        'ba6ae909f9179ee3da8ac083eb29049fa8baddce',
+        ADR_0015_TERMINAL_COMMIT,
+        'f9e988ab3c1183757b4a95c68865bebf59087260',
+        ADR_0015_CLOSURE_COMMIT,
+      ].join('\n') + '\n',
+    );
+    expect(
+      git(
+        'diff',
+        '--name-status',
+        ADR_0015_STARTING_HEAD,
+        ADR_0015_CLOSURE_COMMIT,
+        '--',
+        'migrations',
+      ),
+    ).toBe('');
+    const migrations = git(
+      'ls-tree',
+      '-r',
+      '--name-only',
+      ADR_0015_CLOSURE_COMMIT,
+      '--',
+      'migrations',
+    )
       .split('\n')
       .filter((f) => f.endsWith('.sql'))
       .sort();

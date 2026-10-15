@@ -708,10 +708,12 @@ describe.skipIf(!terminalAvailable)('classifier read models: changed surface', (
   });
 
   it('the migration set is unchanged (0001-0012) and adds no grant', () => {
-    const now = lines(git('ls-files', 'migrations'));
-    expect(now).toEqual(lines(git('ls-tree', '-r', '--name-only', T, '--', 'migrations')));
-    expect(now.at(-1)).toMatch(/^migrations\/0012_/);
-    expect(lines(git('diff', '--name-only', T, R, '--', 'migrations'))).toEqual([]);
+    // Read at the read-model terminal, as the header requires: the current
+    // index may hold a later, separately governed migration.
+    const atTerminal = lines(git('ls-tree', '-r', '--name-only', R, '--', 'migrations'));
+    expect(atTerminal).toEqual(lines(git('ls-tree', '-r', '--name-only', T, '--', 'migrations')));
+    expect(atTerminal.at(-1)).toMatch(/^migrations\/0012_/);
+    expect(lines(git('diff', '--name-status', T, R, '--', 'migrations'))).toEqual([]);
   });
 
   it('nwf_readonly already holds SELECT on every table the read model reads (migrations 0002, 0007, 0009)', () => {

@@ -101,8 +101,14 @@ export async function truncateAll(target: pg.Pool): Promise<void> {
   // orgunit_classifier_calls respectively (migration 0009), so Phase 2B-2
   // evidence is listed here too, for the same reason Phase 2B-1 evidence is:
   // an accurate inventory, not a reliance on CASCADE to discover it.
+  // The B2.1 discovery_subject* tables (migration 0013) reference
+  // organisations, website_claims and orgunit_page_evidence, so they are
+  // listed too. Their append-only trigger refuses UPDATE and DELETE, never
+  // TRUNCATE, so this owner-only test cleanup keeps working.
   await target.query(
-    `TRUNCATE orgunit_classification_subjects, orgunit_page_classifications,
+    `TRUNCATE discovery_subject_reviews, discovery_subject_relationship_claims,
+              discovery_subject_identity_claims, discovery_subjects,
+              orgunit_classification_subjects, orgunit_page_classifications,
               orgunit_classifier_call_completions, orgunit_classifier_calls,
               orgunit_page_candidates, orgunit_page_evidence,
               orgunit_root_promotion_revocations, orgunit_root_promotions,
