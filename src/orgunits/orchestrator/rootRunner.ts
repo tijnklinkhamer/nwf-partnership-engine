@@ -52,6 +52,10 @@ import { RequestBudget, TOTAL_REQUEST_BUDGET_EXHAUSTED_REASON } from './requestB
 import { deriveEligiblePage, persistCollectedPages, type CollectedPage } from './pageCollection.js';
 import { scoreAndPersistCandidates, type PersistedCandidateSummary } from './candidates.js';
 import {
+  enforceRootResearchEligibility,
+  type ResearchCohortGuardDeps,
+} from './researchCohortGuard.js';
+import {
   conventionalSitemapUrl,
   discoverSitemapUrls,
   type SitemapFetchOutcome,
@@ -105,7 +109,7 @@ export interface RootSummary {
   readonly refusalDetail: string | null;
 }
 
-export interface RootRunnerDeps {
+export interface RootRunnerDeps extends ResearchCohortGuardDeps {
   transport?: WebTransport;
   clock?: Clock;
 }
@@ -169,6 +173,13 @@ export async function runRootAcquisition(
     if (error instanceof WebGatewayRefusal) return invalidAuthoritySummary();
     throw error;
   }
+  // EVALUATION-COHORT GUARD (B3.0) - after the root's stored authority is
+  // resolved (a read) and BEFORE any robots cache, frontier, pacing wait or
+  // request exists. Holds for every caller, not only runOrganisationDiscovery:
+  // a protected root, or one bound to another organisation, throws
+  // ResearchCohortRefusal here with zero network activity and zero writes.
+  await enforceRootResearchEligibility(pool, runId, resolved, deps);
+
   const rootUrl: ValidatedUrl = resolved.rootUrl;
   const rootKey = resolved.rootKey;
 

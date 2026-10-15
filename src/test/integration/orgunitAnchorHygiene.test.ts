@@ -30,6 +30,8 @@ import {
   truncateAll,
   type OrgunitRootFixture,
 } from './helpers.js';
+import type { RegistryLoadResult } from '../../orgunits/classify/evaluationCohortGuard.js';
+import { syntheticCohort, type SyntheticIdentity } from '../helpers/syntheticCohortRegistry.js';
 import { FETCH_POLICY_VERSION } from '../../orgunits/web/policy.js';
 
 const configured = researchDatabaseConfigured();
@@ -90,6 +92,16 @@ describeIf('bounded discovery orchestration - anchor hygiene (shadow validation 
   let admin: pg.Pool;
   let research: pg.Pool;
   let fixture: OrgunitRootFixture;
+  // B3.0: the research cohort guard runs on every root. These tests admit
+  // exactly their own synthetic fixture organisation(s) through a FULLY
+  // SYNTHETIC registry - nothing from the committed cohort artifacts.
+  const admittedOrganisations: SyntheticIdentity[] = [];
+  const loadCohortRegistry = (): RegistryLoadResult => {
+    const cohort = syntheticCohort();
+    cohort.admit(fixture);
+    for (const identity of admittedOrganisations) cohort.admit(identity);
+    return cohort.load();
+  };
 
   beforeAll(async () => {
     admin = adminPool();
@@ -159,6 +171,7 @@ describeIf('bounded discovery orchestration - anchor hygiene (shadow validation 
 
       const runId = await newRun();
       const summary = await runRootAcquisition(research, runId, rootRef(), {
+        loadCohortRegistry,
         transport,
         clock: instantClock(),
       });
@@ -203,6 +216,7 @@ describeIf('bounded discovery orchestration - anchor hygiene (shadow validation 
 
       const runId = await newRun();
       const summary = await runRootAcquisition(research, runId, rootRef(), {
+        loadCohortRegistry,
         transport,
         clock: instantClock(),
       });
@@ -238,6 +252,7 @@ describeIf('bounded discovery orchestration - anchor hygiene (shadow validation 
 
       const runId = await newRun();
       const summary = await runRootAcquisition(research, runId, rootRef(), {
+        loadCohortRegistry,
         transport,
         clock: instantClock(),
       });
@@ -279,6 +294,7 @@ describeIf('bounded discovery orchestration - anchor hygiene (shadow validation 
 
       const runId = await newRun();
       const summary = await runRootAcquisition(research, runId, rootRef(), {
+        loadCohortRegistry,
         transport,
         clock: instantClock(),
       });

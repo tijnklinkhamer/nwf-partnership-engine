@@ -44,6 +44,8 @@ import {
   truncateAll,
   type OrgunitRootFixture,
 } from './helpers.js';
+import type { RegistryLoadResult } from '../../orgunits/classify/evaluationCohortGuard.js';
+import { syntheticCohort, type SyntheticIdentity } from '../helpers/syntheticCohortRegistry.js';
 
 const configured = researchDatabaseConfigured();
 const describeIf = configured ? describe : describe.skip;
@@ -202,6 +204,16 @@ describeIf('ADR 0015: the bounded transport retry', () => {
   let admin: pg.Pool;
   let research: pg.Pool;
   let fixture: OrgunitRootFixture;
+  // B3.0: the research cohort guard runs on every root. These tests admit
+  // exactly their own synthetic fixture organisation(s) through a FULLY
+  // SYNTHETIC registry - nothing from the committed cohort artifacts.
+  const admittedOrganisations: SyntheticIdentity[] = [];
+  const loadCohortRegistry = (): RegistryLoadResult => {
+    const cohort = syntheticCohort();
+    cohort.admit(fixture);
+    for (const identity of admittedOrganisations) cohort.admit(identity);
+    return cohort.load();
+  };
   let runId: string;
 
   beforeAll(async () => {
@@ -719,6 +731,7 @@ describeIf('ADR 0015: the bounded transport retry', () => {
       );
 
       const summary = await runRootAcquisition(research, runId, root(), {
+        loadCohortRegistry,
         transport,
         clock: recordingClock,
       });
@@ -753,6 +766,7 @@ describeIf('ADR 0015: the bounded transport retry', () => {
         { [WWW_ROBOTS]: { times: 2, outcome: failure('CONNECT_TIMEOUT') } },
       );
       const summary = await runRootAcquisition(research, runId, root(), {
+        loadCohortRegistry,
         transport,
         clock: instantClock,
       });
