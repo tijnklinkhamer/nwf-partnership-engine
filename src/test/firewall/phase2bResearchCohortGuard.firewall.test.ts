@@ -42,7 +42,7 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const REPAIR_BASE_COMMIT = '02ddcf25931a91397216a6c20c91bef9c16663e4';
 
 /** Open (null) until the OWNER-reviewed implementation is committed; then pinned. */
-const REPAIR_TERMINAL_COMMIT: string | null = null;
+const REPAIR_TERMINAL_COMMIT: string | null = '9b3c4e71f19224e485c32c70dbf34b3c1a7fefdc';
 
 const GUARD = 'src/orgunits/orchestrator/researchCohortGuard.ts';
 const ORCHESTRATE = 'src/orgunits/orchestrator/orchestrate.ts';
