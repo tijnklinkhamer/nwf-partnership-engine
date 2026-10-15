@@ -35,7 +35,7 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const REPAIR_BASE_COMMIT = '6bbb84af801af778615e4733ca499c6ec051aae7';
 
 /** Open (null) until the OWNER-reviewed implementation is committed; then pinned. */
-const REPAIR_TERMINAL_COMMIT: string | null = null;
+const REPAIR_TERMINAL_COMMIT: string | null = '4fe03b19ab11f3d8c615ff05544408cc60da6c35';
 
 const AUTHORISED_PRODUCTION_FILES = [
   'src/orgunits/orchestrator/frontier.ts',
