@@ -248,7 +248,8 @@ describeDb('B2.2 discovery-subject registry (integration)', () => {
         `SELECT current_database() AS db, max(version) AS top FROM schema_migrations`,
       );
       expect(rows[0]!.db.endsWith('_test')).toBe(true);
-      expect(rows[0]!.top).toBe('0014');
+      // B2.3 (migration 0015, ADR 0023) is the newest migration now.
+      expect(rows[0]!.top).toBe('0015');
     });
   });
 
@@ -746,7 +747,8 @@ describeDb('B2.2 discovery-subject registry (integration)', () => {
         review({ kind: 'IDENTITY_CLAIM', id: kind }, 'REJECTED', m, null),
       );
       m = await inspect(id);
-      expect(m.kinds.claimed).toEqual([]);
+      // B2.3-R2: an unattested rejection is history; the kind stays claimed.
+      expect(m.kinds.claimed).toEqual(['INTERNAL_STUDENT_GROUP']);
       expect(m.kinds.claims[0]!.review).toBe('REJECTED');
 
       await recordReview(
@@ -772,7 +774,10 @@ describeDb('B2.2 discovery-subject registry (integration)', () => {
         ['SKC', 'UNREVIEWED'],
         ['Synthetic Kind Club', 'CONFIRMED'],
       ]);
-      expect(m.identityStatus.reviewConfirmed).toBe(true);
+      // B2.3: these test-seam reviews carry no OWNER attestation, so they stay
+      // visible as history but are never authority (discoverySubjectReviewB23).
+      expect(m.identityStatus.reviewConfirmed).toBe(false);
+      expect(m.reviewAttestation.state).toBe('INTEGRITY_HOLD');
       expect(m.identityStatus.reviewCoverage).toBe('PARTIALLY_REVIEWED');
       expect(m.researchAuthority.granted).toBe(false);
     });
@@ -892,7 +897,8 @@ describeDb('B2.2 discovery-subject registry (integration)', () => {
         reviewer,
         review({ kind: 'IDENTITY_CLAIM', id: kindB }, 'CONFIRMED', m, null),
       );
-      expect((await inspect(id)).kinds.reviewed).toBe('INTERNAL_STUDENT_GROUP');
+      // B2.3: an unattested confirmation is history, not a reviewed kind.
+      expect((await inspect(id)).kinds.reviewed).toBe(null);
 
       // A retried review never records twice.
       const before = await counts();

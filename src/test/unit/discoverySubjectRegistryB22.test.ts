@@ -131,8 +131,10 @@ describe('B2.2 read model: six distinct states, none of them research authority'
       }),
     );
     expect(confirmed.identityStatus.reviewCoverage).toBe('FULLY_REVIEWED');
-    expect(confirmed.identityStatus.reviewConfirmed).toBe(true);
-    expect(confirmed.kinds.reviewed).toBe('INDEPENDENT_COMMUNITY');
+    // B2.3: these fixture reviews carry no OWNER attestation, so authority is
+    // withheld; the attested case is proven in discoverySubjectReviewB23.test.ts.
+    expect(confirmed.identityStatus.reviewConfirmed).toBe(false);
+    expect(confirmed.kinds.reviewed).toBe(null);
     // Reviewed identity is NOT research eligibility.
     expect(confirmed.researchAuthority).toEqual({
       granted: false,
@@ -140,6 +142,8 @@ describe('B2.2 read model: six distinct states, none of them research authority'
       reasons: [
         'SUBJECT_RESEARCH_ADMISSION_POLICY_ABSENT',
         'PROTECTED_STRUCTURAL_PARENTAGE_NOT_EVALUATED',
+        'IDENTITY_NOT_REVIEW_CONFIRMED',
+        'REVIEW_ATTESTATION_NOT_EVALUATED',
       ],
     });
   });
@@ -178,7 +182,9 @@ describe('B2.2 read model: six distinct states, none of them research authority'
         ],
       }),
     );
-    expect(m.kinds.claimed).toEqual([]);
+    // B2.3-R2: an unattested rejection is recorded history, not authority -
+    // it hides no claimed kind (discoverySubjectReviewB23.test.ts).
+    expect(m.kinds.claimed).toEqual(['INTERNAL_STUDENT_GROUP']);
     expect(m.kinds.claims.map((c) => c.review)).toEqual(['REJECTED']);
     expect(m.names.map((n) => [n.claimId, n.review])).toEqual([
       [uid(10), 'CONFIRMED'],
@@ -797,6 +803,8 @@ describe('B2.2-C canonical identity boundary: provisional subjects, never a cano
       [
         'claimId',
         'claimKind',
+        // B2.3-R2: the head as attested authority sees it - still no verified, owned or channel field.
+        'effectiveReview',
         'nameLanguage',
         'provenance',
         'recordedAt',

@@ -5,7 +5,8 @@
  *   propose  one subject + its first NAME claim, atomically
  *   claim    one identity claim (name, kind, public website, typed identifier)
  *   relate   one relationship claim (to a subject or an ECHE source row)
- *   review   PREVIEW of one review decision; execution is DISABLED
+ *   review   PREVIEW of one review decision; `--prepare` emits its unsigned
+ *            OWNER review request; `--execute --envelope` records a SIGNED one
  *   show     the derived identity read model of one subject
  *   list     one bounded, keyset-paginated page of subjects
  *
@@ -20,11 +21,17 @@
  * nwf_discovery_subject_writer capability and must not be a superuser or the
  * table owner; the writer re-judges everything inside its own transaction.
  *
- * `review --execute` IS REFUSED with REVIEWER_TRUST_PRIMITIVE_ABSENT before
- * any connection is opened: the Engine has no trusted reviewer identity
- * (ADR 0020 s6). Nothing here fetches a URL, resolves a host, calls a model,
- * starts research, scores, or contacts anyone.
+ * B2.3 (ADR 0023): `review --execute` takes NOTHING but `--envelope <path>`,
+ * an OWNER-signed envelope; target, outcome, head, state and reason all come
+ * from the signed payload, never from flags. It is verified against the
+ * PINNED trust set before any connection is opened and executed on
+ * DATABASE_URL_DISCOVERY_SUBJECT_REVIEWER. While that trust set holds no
+ * ACTIVE OWNER key - today - it is refused with REVIEWER_TRUST_PRIMITIVE_ABSENT
+ * before the envelope is even read. Signing happens elsewhere, offline
+ * (`nwf-pe discovery-subject-review-sign`). Nothing here fetches a URL,
+ * resolves a host, calls a model, starts research, scores, or contacts anyone.
  */
+import { lstatSync, readFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 import type pg from 'pg';
 
@@ -55,7 +62,17 @@ import {
   type ProvenanceInput,
   type RelationshipTargetInput,
 } from '../../orgunits/subjectRegistry/requests.js';
-import { REVIEWER_TRUST_PRIMITIVE_ABSENT } from '../../orgunits/subjectRegistry/reviewAuthority.js';
+import {
+  REVIEWER_TRUST_PRIMITIVE_ABSENT,
+  TrustedReviewerContext,
+} from '../../orgunits/subjectRegistry/reviewAuthority.js';
+import { canonicalJson, type CanonicalValue } from '../../orgunits/subjectReview/canonical.js';
+import {
+  REVIEW_ENVELOPE_MAX_BYTES,
+  ReviewProtocolError,
+} from '../../orgunits/subjectReview/protocol.js';
+import { ReviewTrustSet } from '../../orgunits/subjectReview/trust.js';
+import { VerifiedReviewEnvelope } from '../../orgunits/subjectReview/verify.js';
 import {
   databaseNow,
   loadSubjectGraph,
@@ -64,6 +81,7 @@ import {
 } from '../../orgunits/subjectRegistry/store.js';
 import {
   RegistryRefusal,
+  appendAttestedReview,
   executeClaim,
   executePropose,
   executeRelate,
@@ -71,6 +89,7 @@ import {
   planPropose,
   planRelate,
   planReview,
+  prepareReview,
   type RegistryResult,
   type ReviewTarget,
 } from '../../orgunits/subjectRegistry/writer.js';
@@ -86,7 +105,8 @@ export const DISCOVERY_SUBJECTS_USAGE = `nwf-pe discovery-subjects - controlled 
                              <source> [--execute] [--json]
   discovery-subjects review  (--subject <uuid> | --identity-claim <uuid> | --relationship-claim <uuid>)
                              --outcome <OUTCOME> --expect-head <review-uuid|none>
-                             --expect-state <digest> [--reason <text>] [--json]
+                             --expect-state <digest> [--reason <text>] [--prepare] [--json]
+  discovery-subjects review  --execute --envelope <signed-envelope-path> [--json]
   discovery-subjects show    --subject-id <uuid> [--json]
   discovery-subjects list    [--limit <1-${LIST_MAX_LIMIT}>] [--after <uuid>] [--json]
 
@@ -100,7 +120,10 @@ export const DISCOVERY_SUBJECTS_USAGE = `nwf-pe discovery-subjects - controlled 
 Every write-capable command is a DRY RUN unless --execute is given. A source
 URL is recorded, never fetched. A registered or reviewed subject is NOT
 verified, NOT research-eligible and NOT cleared for any contact.
-\`review\` is a PREVIEW only: --execute is refused (${REVIEWER_TRUST_PRIMITIVE_ABSENT}).
+\`review\` previews a decision; with --prepare it prints the unsigned OWNER review
+request (stdout) for offline signing with \`nwf-pe discovery-subject-review-sign\`.
+\`review --execute --envelope\` records ONLY an OWNER-signed decision, and is refused
+(${REVIEWER_TRUST_PRIMITIVE_ABSENT}) while no OWNER review key is provisioned.
 `;
 
 type OptionSpec = Record<string, { type: 'string' | 'boolean' }>;
@@ -155,6 +178,8 @@ export const DISCOVERY_SUBJECTS_OPTIONS: Readonly<Record<string, OptionSpec>> = 
     'expect-head': { type: 'string' },
     'expect-state': { type: 'string' },
     reason: { type: 'string' },
+    prepare: { type: 'boolean' },
+    envelope: { type: 'string' },
     ...WRITE_OPTIONS,
   },
   show: { 'subject-id': { type: 'string' }, ...OUTPUT_OPTIONS },
@@ -165,6 +190,9 @@ export const DISCOVERY_SUBJECTS_OPTIONS: Readonly<Record<string, OptionSpec>> = 
 export interface DiscoverySubjectsDeps {
   readonly readonlyPool?: () => pg.Pool;
   readonly writerPool?: () => pg.Pool;
+  readonly reviewerPool?: () => pg.Pool;
+  /** The pinned trust set. Production uses the operational one; only vitest can build another. */
+  readonly trust?: ReviewTrustSet;
   readonly out?: (text: string) => void;
   readonly err?: (text: string) => void;
 }
@@ -290,11 +318,16 @@ function envelope(
   return `${JSON.stringify({ contract: SUBJECT_REGISTRY_CONTRACT, operation, outcome, ...body }, null, 2)}\n`;
 }
 
+/** The effective (attested) review state, with the recorded head beside it when they differ. */
+function reviewLabel(recorded: string, effective: string): string {
+  return effective === recorded ? effective : `${effective}; recorded ${recorded}`;
+}
+
 function claimLine(c: IdentityClaimView): string {
   const language = c.nameLanguage !== null ? ` (${c.nameLanguage})` : '';
   const head = c.reviewHeadId !== null ? ` head ${c.reviewHeadId}` : '';
   return (
-    `    [${c.review}] ${c.claimKind} ${JSON.stringify(c.value)}${language}  claim ${c.claimId}${head}\n` +
+    `    [${reviewLabel(c.review, c.effectiveReview)}] ${c.claimKind} ${JSON.stringify(c.value)}${language}  claim ${c.claimId}${head}\n` +
     `        source ${c.provenance.sourceType} ${c.provenance.sourceRef}` +
     ` observed ${c.provenance.observedAt} ${c.provenance.claimBasis}` +
     ` recorded by ${c.provenance.recordedByActorKey}\n`
@@ -314,7 +347,7 @@ export function renderReadModel(m: SubjectReadModel): string {
     `  registered by path   : ${m.registeredByActorKey} (a path key, not an authenticated OWNER)\n` +
     `  status               : proposed; structurally ${s.structurallyValid ? 'valid' : 'INVALID'}; ` +
     `${s.conflicted ? 'CONFLICTED' : 'no conflict'}; review coverage ${s.reviewCoverage}\n` +
-    `  identity review      : ${s.identityReview}${s.identityReviewHeadId !== null ? ` (head ${s.identityReviewHeadId})` : ''}; ` +
+    `  identity review      : ${reviewLabel(s.identityReview, m.effectiveIdentity.identityReview)}${s.identityReviewHeadId !== null ? ` (head ${s.identityReviewHeadId})` : ''}; ` +
     `review-confirmed: ${s.reviewConfirmed ? 'yes' : 'no'}\n` +
     `  factual verification : ${s.factualVerification}\n` +
     section('names', m.names) +
@@ -326,9 +359,10 @@ export function renderReadModel(m: SubjectReadModel): string {
     m.relationships
       .map(
         (r) =>
-          `    [${r.review}] ${r.predicate} -> ${r.targetKey} ` +
+          `    [${reviewLabel(r.review, r.effectiveReview)}] ${r.predicate} -> ${r.targetKey} ` +
           `(${r.structural ? 'structural' : 'non-structural'}; ${r.assertionBasis})  claim ${r.claimId}` +
-          `${r.reviewHeadId !== null ? ` head ${r.reviewHeadId}` : ''}\n`,
+          `${r.reviewHeadId !== null ? ` head ${r.reviewHeadId}` : ''}` +
+          `${r.targetIdentityReview !== null ? `; target identity ${reviewLabel(r.targetIdentityRecordedReview ?? 'UNREVIEWED', r.targetIdentityReview)}` : ''}\n`,
       )
       .join('') +
     findings('invalid', m.findings.invalid) +
@@ -336,8 +370,15 @@ export function renderReadModel(m: SubjectReadModel): string {
     findings('unresolved', m.findings.unresolved) +
     findings('review signals', m.findings.reviewSignals) +
     `  missing evidence     : ${list(m.missingEvidence)}\n` +
-    `  review execution     : ${m.reviewability.authoritativeReviewExecution} (${m.reviewability.blocker}); ` +
+    `  review execution     : ${m.reviewability.authoritativeReviewExecution} (${m.reviewability.blocker ?? 'signed envelope'}); ` +
     `${m.reviewability.unreviewedTargets} unreviewed target(s)\n` +
+    `  review attestation   : ${m.reviewAttestation.state}` +
+    `${m.reviewAttestation.holdReasons.length > 0 ? ` (${m.reviewAttestation.holdReasons.join(', ')})` : ''}` +
+    `${m.reviewAttestation.protectionReevaluationRequired ? '; REQUIRES_PROTECTION_REEVALUATION' : ''}\n` +
+    `  withheld review chains: ${list(m.effectiveIdentity.withheldTargets)}\n` +
+    `  protection           : structural uncertainty ${list(m.protection.structuralUncertainty)}; ` +
+    `re-evaluation ${m.protection.reevaluationRequired ? `REQUIRED (${m.protection.reevaluationTriggers.join(', ')})` : 'not required'}; ` +
+    `evidence after attestation ${list(m.protection.evidenceAfterAttestation)}; protected registry not consulted\n` +
     `  research authority   : NOT GRANTED (${m.researchAuthority.reasons.join(', ')})\n` +
     `  state digest         : ${m.stateDigest}\n`
   );
@@ -349,7 +390,7 @@ function renderList(page: SubjectListPage): string {
     page.subjects
       .map(
         (s) =>
-          `${s.subjectId}  ${s.registeredKind}  review ${s.identityReview}  ` +
+          `${s.subjectId}  ${s.registeredKind}  review ${reviewLabel(s.identityReview, s.effectiveIdentityReview)} (${s.reviewAuthority})  ` +
           `${s.names.length === 0 ? '(no name claim)' : s.names.map((n) => JSON.stringify(n)).join(' / ')}` +
           `  research NOT_GRANTED\n`,
       )
@@ -368,6 +409,23 @@ function renderResult(r: RegistryResult): string {
     )
     .join('\n');
   return `${verb}\n${ids}\n\n${renderReadModel(r.readModel)}`;
+}
+
+/** Reads one envelope file: a bounded regular file, never through a symlink. */
+function readEnvelopeFile(path: string): Buffer {
+  let stat;
+  try {
+    stat = lstatSync(path);
+  } catch {
+    throw new UsageError('--envelope: the file cannot be read.');
+  }
+  if (stat.isSymbolicLink() || !stat.isFile()) {
+    throw new UsageError('--envelope must name a regular file, not a symlink.');
+  }
+  if (stat.size === 0 || stat.size > REVIEW_ENVELOPE_MAX_BYTES) {
+    throw new UsageError(`--envelope must hold 1 to ${REVIEW_ENVELOPE_MAX_BYTES} bytes.`);
+  }
+  return readFileSync(path);
 }
 
 async function withPoolOf<T>(factory: () => pg.Pool, fn: (pool: pg.Pool) => Promise<T>) {
@@ -399,6 +457,20 @@ export async function runDiscoverySubjects(
       }
       return createPool('discovery_subject_writer');
     });
+  const reviewerPool =
+    deps.reviewerPool ??
+    (() => {
+      if (env().DATABASE_URL_DISCOVERY_SUBJECT_REVIEWER === undefined) {
+        throw new UsageError(
+          'DATABASE_URL_DISCOVERY_SUBJECT_REVIEWER is not set: review --execute needs a ' +
+            'deployment-provisioned login holding nwf_discovery_subject_reviewer ' +
+            '(never the owner, a superuser or the writer).',
+        );
+      }
+      return createPool('discovery_subject_reviewer');
+    });
+  const trust = deps.trust ?? ReviewTrustSet.operational();
+  if (!ReviewTrustSet.isTrustSet(trust)) throw new Error('internal: the trust set is not sealed');
 
   const [sub, ...rest] = argv;
   if (sub === undefined || sub === '--help' || sub === '-h' || sub === 'help') {
@@ -460,7 +532,7 @@ export async function runDiscoverySubjects(
             });
             if (graph === null)
               return refuse('SUBJECT_NOT_FOUND', `no discovery subject ${subjectId}.`);
-            const model = deriveSubjectReadModel(graph);
+            const model = deriveSubjectReadModel(graph, trust);
             out(json ? envelope('show', 'READ', { data: model }) : renderReadModel(model));
             return 0;
           } finally {
@@ -484,7 +556,7 @@ export async function runDiscoverySubjects(
           try {
             await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
             const rows = await loadSubjectPage(client, limit, after);
-            const page = summariseSubjectPage(rows, await databaseNow(client), limit);
+            const page = summariseSubjectPage(rows, await databaseNow(client), limit, trust);
             out(json ? envelope('list', 'READ', { data: page }) : renderList(page));
             return 0;
           } finally {
@@ -495,12 +567,59 @@ export async function runDiscoverySubjects(
       }
       case 'review': {
         if (execute) {
-          // Before any connection: there is no trusted reviewer to attribute a decision to.
-          return refuse(
-            REVIEWER_TRUST_PRIMITIVE_ABSENT,
-            'authoritative review execution is disabled: the Engine has no trusted reviewer ' +
-              'identity, and no option can supply one. Run without --execute for a preview.',
+          // Before any connection - and before the envelope is even read: with no
+          // ACTIVE OWNER key pinned, no reviewer can be identified at all.
+          if (!trust.hasActiveKey()) {
+            return refuse(
+              REVIEWER_TRUST_PRIMITIVE_ABSENT,
+              'authoritative review execution is disabled: no OWNER review key is provisioned ' +
+                'in the pinned trust set, so no signed decision can be verified, and no option ' +
+                'can supply one. Run without --execute for a preview.',
+            );
+          }
+          if (values['prepare'] === true) {
+            throw new UsageError('--prepare and --execute are separate steps; give one of them.');
+          }
+          forbidTogether(
+            values,
+            [
+              'subject',
+              'identity-claim',
+              'relationship-claim',
+              'outcome',
+              'expect-head',
+              'expect-state',
+              'reason',
+            ],
+            'are carried by the signed envelope; give --envelope alone.',
           );
+          const path = str(values, 'envelope');
+          if (path === undefined) {
+            return refuse(
+              'SIGNED_ENVELOPE_REQUIRED',
+              'review --execute records only an OWNER-signed decision: give --envelope <path>.',
+            );
+          }
+          let verified: VerifiedReviewEnvelope;
+          try {
+            verified = VerifiedReviewEnvelope.verify(readEnvelopeFile(path), trust);
+          } catch (error) {
+            if (error instanceof ReviewProtocolError) return refuse(error.code, error.detail);
+            throw error;
+          }
+          const reviewer = TrustedReviewerContext.fromVerifiedEnvelope(verified);
+          const r = await withPoolOf(reviewerPool, (pool) =>
+            appendAttestedReview(pool, reviewer, trust),
+          );
+          out(
+            json
+              ? envelope('review', 'EXECUTED', { attestedBy: verified.keyId, data: r })
+              : `OWNER-ATTESTED review recorded (key ${verified.keyId}).\n` + renderResult(r),
+          );
+          return 0;
+        }
+        if (str(values, 'envelope') !== undefined) {
+          throw new UsageError('--envelope applies to review --execute only.');
         }
         const outcome = required(values, 'outcome');
         if (!(REVIEW_OUTCOMES as readonly string[]).includes(outcome)) {
@@ -514,15 +633,42 @@ export async function runDiscoverySubjects(
           expectedStateDigest: required(values, 'expect-state'),
           reason: str(values, 'reason') ?? null,
         };
+        const blocker = trust.hasActiveKey()
+          ? 'SIGNED_ENVELOPE_REQUIRED'
+          : REVIEWER_TRUST_PRIMITIVE_ABSENT;
+        if (values['prepare'] === true) {
+          const prepared = await withPoolOf(readonlyPool, (pool) =>
+            prepareReview(pool, request, trust),
+          );
+          if (json) {
+            out(
+              envelope('review', 'DRY_RUN', {
+                executable: false,
+                blocker,
+                request: prepared.request,
+                data: prepared.result,
+              }),
+            );
+          } else {
+            // stdout carries the request document alone, so `> request.json` works.
+            out(`${canonicalJson(prepared.request as unknown as CanonicalValue)}\n`);
+            err(
+              `PREPARED - nothing was written. Sign the request above offline with ` +
+                `\`nwf-pe discovery-subject-review-sign\`, then run review --execute --envelope.\n` +
+                `  environment ${prepared.request.intent.environmentId}\n` +
+                `  ${request.target.kind} ${request.target.id} -> ${request.outcome}` +
+                ` (expected head ${request.expectedHeadReviewId ?? 'none'})\n` +
+                `  evidence snapshot ${prepared.request.intent.evidence.snapshotDigest}\n` +
+                `  research authority: NOT GRANTED by any review\n`,
+            );
+          }
+          return 0;
+        }
         const r = await withPoolOf(readonlyPool, (pool) => planReview(pool, request));
         out(
           json
-            ? envelope('review', 'DRY_RUN', {
-                executable: false,
-                blocker: REVIEWER_TRUST_PRIMITIVE_ABSENT,
-                data: r,
-              })
-            : `PREVIEW ONLY - review execution is disabled (${REVIEWER_TRUST_PRIMITIVE_ABSENT}).\n` +
+            ? envelope('review', 'DRY_RUN', { executable: false, blocker, data: r })
+            : `PREVIEW ONLY - nothing was written; execution needs a signed OWNER envelope (${blocker}).\n` +
                 renderResult(r),
         );
         return 0;

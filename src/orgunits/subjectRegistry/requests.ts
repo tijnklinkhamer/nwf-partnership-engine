@@ -35,6 +35,12 @@ export const REGISTRY_WRITER_ACTOR_KEY = 'discovery-subjects-cli';
 /** The capability role migration 0014 creates. */
 export const REGISTRY_WRITER_ROLE = 'nwf_discovery_subject_writer';
 
+/**
+ * B2.3: the capability role migration 0015 creates. It may append a review
+ * only together with a verified OWNER attestation, and is never the writer.
+ */
+export const REGISTRY_REVIEWER_ROLE = 'nwf_discovery_subject_reviewer';
+
 /** `list` page size: default and hard maximum. There is no unbounded read. */
 export const LIST_DEFAULT_LIMIT = 25;
 export const LIST_MAX_LIMIT = 100;

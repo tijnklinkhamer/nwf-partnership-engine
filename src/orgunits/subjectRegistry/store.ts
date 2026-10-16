@@ -17,6 +17,12 @@
  * It is BOUNDED: more than MAX_GRAPH_SUBJECTS subjects or MAX_GRAPH_ROWS rows
  * in any one query is refused (SubjectGraphBoundExceeded), never truncated, so
  * a judgement is never made over a silently partial graph.
+ *
+ * B2.3: unless told to skip them, it also loads every OWNER attestation of the
+ * loaded reviews, how often each of their nonces is used across the whole
+ * attestation table, and this database's environment id - so the read model
+ * can re-verify every review instead of trusting that a row exists. The
+ * writer capability may not read attestations and loads with `SKIP`.
  */
 import type pg from 'pg';
 
@@ -27,6 +33,7 @@ import type {
   SubjectReviewRecord,
 } from '../identity/vocabulary.js';
 import type { SubjectGraph } from './readModel.js';
+import type { LoadedReviewAttestations, ReviewAttestationRecord } from './reviewAttestation.js';
 
 export const MAX_GRAPH_SUBJECTS = 64;
 export const MAX_GRAPH_ROWS = 5000;
@@ -165,6 +172,58 @@ function reviewRecord(row: ReviewRow): SubjectReviewRecord {
   } as SubjectReviewRecord;
 }
 
+interface AttestationRow {
+  id: string;
+  review_id: string;
+  environment_id: string;
+  protocol: string;
+  action: string;
+  key_id: string;
+  key_fingerprint: string;
+  nonce: string;
+  subject_id: string;
+  review_target_key: string;
+  review_outcome: string;
+  expected_head_review_id: string | null;
+  subject_state_digest: string;
+  evidence_snapshot_digest: string;
+  target_record_digest: string;
+  rule_version: string;
+  issued_at: string;
+  expires_at: string;
+  signed_payload: string;
+  signature: string;
+  payload_sha256: string;
+  recorded_at: string;
+}
+
+function attestationRecord(row: AttestationRow): ReviewAttestationRecord {
+  return {
+    id: row.id,
+    reviewId: row.review_id,
+    environmentId: row.environment_id,
+    protocol: row.protocol,
+    action: row.action,
+    keyId: row.key_id,
+    keyFingerprint: row.key_fingerprint,
+    nonce: row.nonce,
+    subjectId: row.subject_id,
+    reviewTargetKey: row.review_target_key,
+    reviewOutcome: row.review_outcome,
+    expectedHeadReviewId: row.expected_head_review_id,
+    subjectStateDigest: row.subject_state_digest,
+    evidenceSnapshotDigest: row.evidence_snapshot_digest,
+    targetRecordDigest: row.target_record_digest,
+    ruleVersion: row.rule_version,
+    issuedAt: row.issued_at,
+    expiresAt: row.expires_at,
+    signedPayload: row.signed_payload,
+    signature: row.signature,
+    payloadSha256: row.payload_sha256,
+    recordedAt: row.recorded_at,
+  };
+}
+
 function bounded<T>(rows: T[], what: string): T[] {
   if (rows.length > MAX_GRAPH_ROWS) throw new SubjectGraphBoundExceeded(what);
   return rows;
@@ -174,6 +233,47 @@ function bounded<T>(rows: T[], what: string): T[] {
 export async function databaseNow(q: Queryable): Promise<string> {
   const { rows } = await q.query<{ now: string }>(`SELECT ${iso('clock_timestamp()')} AS now`);
   return rows[0]!.now;
+}
+
+/** This database's review environment id, or null unless exactly one environment row exists. */
+export async function reviewEnvironmentId(q: Queryable): Promise<string | null> {
+  const { rows } = await q.query<{ environment_id: string }>(
+    `SELECT environment_id FROM subject_review_environment ORDER BY environment_id LIMIT 2`,
+  );
+  return rows.length === 1 ? rows[0]!.environment_id : null;
+}
+
+/** Every attestation of `reviewIds`, with table-wide nonce use counts and the environment id. */
+export async function loadReviewAttestations(
+  q: Queryable,
+  reviewIds: readonly string[],
+): Promise<LoadedReviewAttestations> {
+  const environmentId = await reviewEnvironmentId(q);
+  if (reviewIds.length === 0) return { environmentId, records: [], nonceUseCounts: {} };
+  const { rows } = await q.query<AttestationRow>(
+    `SELECT id, review_id, environment_id, protocol, action, key_id, key_fingerprint, nonce,
+            subject_id, review_target_key, review_outcome, expected_head_review_id,
+            subject_state_digest, evidence_snapshot_digest, target_record_digest, rule_version,
+            ${iso('issued_at')} AS issued_at, ${iso('expires_at')} AS expires_at,
+            signed_payload, signature, payload_sha256, ${iso('recorded_at')} AS recorded_at
+       FROM subject_review_attestations
+      WHERE review_id = ANY($1::uuid[])
+      ORDER BY id
+      LIMIT $2`,
+    [[...reviewIds], MAX_GRAPH_ROWS + 1],
+  );
+  bounded(rows, 'review attestations');
+  const nonces = [...new Set(rows.map((r) => r.nonce))].sort();
+  const nonceUseCounts: Record<string, number> = {};
+  if (nonces.length > 0) {
+    const { rows: counts } = await q.query<{ nonce: string; uses: number }>(
+      `SELECT nonce, count(*)::int AS uses FROM subject_review_attestations
+        WHERE nonce = ANY($1::text[]) GROUP BY nonce ORDER BY nonce`,
+      [nonces],
+    );
+    for (const c of counts) nonceUseCounts[c.nonce] = c.uses;
+  }
+  return { environmentId, records: rows.map(attestationRecord), nonceUseCounts };
 }
 
 export async function subjectExists(q: Queryable, subjectId: string): Promise<boolean> {
@@ -229,6 +329,12 @@ export interface GraphLoadOptions {
   readonly extraSubjectIds?: readonly string[];
   /** ECHE rows a pending relationship would target; checked for existence only. */
   readonly extraEcheRowKeys?: readonly string[];
+  /**
+   * B2.3: LOAD (the default) loads the reviews' attestations; SKIP leaves
+   * them out, for a session that may not read them (the writer capability),
+   * and the read model then withholds review authority as NOT_EVALUATED.
+   */
+  readonly attestations?: 'LOAD' | 'SKIP';
 }
 
 /**
@@ -333,7 +439,15 @@ export async function loadSubjectGraph(
   for (const row of [...subjectRows, ...claimRows, ...relationshipRows, ...reviewRows]) {
     recordedAt[row.id] = row.created_at;
   }
+  const attestations =
+    options.attestations === 'SKIP'
+      ? undefined
+      : await loadReviewAttestations(
+          q,
+          reviewRows.map((r) => r.id),
+        );
   return {
+    ...(attestations !== undefined ? { attestations } : {}),
     focalSubjectId,
     input: {
       subjects: subjectRows.map(subjectRecord),
@@ -354,6 +468,7 @@ export interface SubjectPageRows {
   readonly identityClaims: IdentityClaimRecord[];
   readonly reviews: SubjectReviewRecord[];
   readonly recordedAt: Record<string, string>;
+  readonly attestations: LoadedReviewAttestations;
 }
 
 /** One deterministic page of subjects in id order, after `after` (exclusive). */
@@ -387,5 +502,9 @@ export async function loadSubjectPage(
     identityClaims: claimRows.map(identityClaimRecord),
     reviews: reviewRows.map(reviewRecord),
     recordedAt,
+    attestations: await loadReviewAttestations(
+      q,
+      reviewRows.map((r) => r.id),
+    ),
   };
 }

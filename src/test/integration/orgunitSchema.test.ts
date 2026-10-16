@@ -218,7 +218,7 @@ describeDb('Phase 2B schema contract (integration)', () => {
   });
 
   describe('the Phase 2B migrations are applied and sequential', () => {
-    it('records versions 0001 through 0014 with no gaps', async () => {
+    it('records versions 0001 through 0015 with no gaps', async () => {
       const { rows } = await admin.query<{ version: string }>(
         'SELECT version FROM schema_migrations ORDER BY version',
       );
@@ -231,7 +231,10 @@ describeDb('Phase 2B schema contract (integration)', () => {
       // no runtime writer, nothing existing altered), and for 0014 (Track B
       // B2.2 discovery-subject registry writer, ADR 0020 - one NOLOGIN
       // capability role, INSERT on three of those tables, no review write,
-      // no UPDATE/DELETE/TRUNCATE). This list is pinned deliberately
+      // no UPDATE/DELETE/TRUNCATE), and for 0015 (Track B B2.3 OWNER-attested
+      // reviews, ADR 0023 - a review environment record, an append-only
+      // attestation table and one NOLOGIN reviewer capability; nothing
+      // existing altered). This list is pinned deliberately
       // so a new migration cannot arrive unnoticed: adding one is meant to
       // fail here first and be acknowledged here explicitly, exactly as it
       // was for 0009.
@@ -250,6 +253,7 @@ describeDb('Phase 2B schema contract (integration)', () => {
         '0012',
         '0013',
         '0014',
+        '0015',
       ]);
     });
 

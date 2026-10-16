@@ -568,6 +568,9 @@ describeDb('B2.1 migration 0013 - discovery subject identity (integration)', () 
             -- B2.2 (migration 0014, ADR 0020): the writer capability's exact
             -- grants are asserted by discoverySubjectRegistry.test.ts.
             AND grantee <> 'nwf_discovery_subject_writer'
+            -- B2.3 (migration 0015, ADR 0023): the reviewer capability's exact
+            -- grants are asserted by discoverySubjectReviewB23.test.ts.
+            AND grantee <> 'nwf_discovery_subject_reviewer'
           ORDER BY grantee, table_name, privilege_type`,
         [TABLES],
       );

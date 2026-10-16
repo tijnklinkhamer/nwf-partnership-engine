@@ -25,6 +25,7 @@ import { runOrgunitsDiscover } from './commands/discover.js';
 import { runOrgunitsClassify } from './commands/classify.js';
 import { runOrgunitsClassifyRead } from './commands/classifyRead.js';
 import { runDiscoverySubjects } from './commands/discoverySubjects.js';
+import { runDiscoveryReviewSign } from './commands/discoveryReviewSign.js';
 import {
   buildClassifierOperatorEnvelope,
   renderClassifierOperatorEnvelope,
@@ -59,6 +60,8 @@ Usage:
   nwf-pe orgunits classify show  --call-id <uuid> [--json]
   nwf-pe discovery-subjects propose|claim|relate|review|show|list ...
                               (run \`nwf-pe discovery-subjects --help\` for its own options)
+  nwf-pe discovery-subject-review-sign --request <path> --encrypted-key <path> --key-id <id>
+                              (OFFLINE; signs one prepared OWNER review request)
 
 Options:
   --country <CC>    Restrict to an ISO-3166-1 alpha-2 country code (e.g. FR).
@@ -156,6 +159,11 @@ export async function main(argv: string[]): Promise<number> {
   // can reach another command.
   if (argv[0] === 'discovery-subjects') {
     return runDiscoverySubjects(argv.slice(1));
+  }
+  // Track B B2.3: the OFFLINE OWNER review signer. Its own strict options; it
+  // opens no database connection and reads no environment variable.
+  if (argv[0] === 'discovery-subject-review-sign') {
+    return runDiscoveryReviewSign(argv.slice(1));
   }
   let parsedArgv;
   try {

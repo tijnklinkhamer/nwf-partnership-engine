@@ -21,9 +21,38 @@
  * form requires a TrustedReviewerContext, which has no production
  * constructor (see reviewAuthority.ts). There is no merge, no update, no
  * delete, no bulk path and no generic SQL anywhere in this file.
+ *
+ * B2.3 (ADR 0023) adds the ATTESTED review path over the SAME judgement:
+ *
+ *   prepareReview        - a DRY RUN that also emits the unsigned review
+ *                          request, bound to this database's environment id,
+ *                          the subject state digest and the evidence snapshot;
+ *   appendAttestedReview - ONE transaction on the REVIEWER capability: verify
+ *                          the envelope against the pinned trust set, check
+ *                          the environment and the DATABASE clock, lock the
+ *                          subject, reload, refuse an integrity hold, re-run
+ *                          the B2.2 judgement, recompute and compare every
+ *                          bound digest, then insert the review and its
+ *                          attestation together. Any refusal rolls back both.
+ *
+ * Neither creates, implies or records research permission, canonical
+ * identity, an equivalence or any outreach state.
  */
 import { randomUUID } from 'node:crypto';
 import type pg from 'pg';
+
+import {
+  REVIEW_ACTION_AUDIENCE,
+  REVIEW_CONTRACT_VERSION,
+  REVIEW_MAX_CLOCK_SKEW_SECONDS,
+  REVIEW_PROTOCOL,
+  REVIEW_REQUEST_DOCUMENT,
+  ReviewProtocolError,
+  type ReviewProtocolCode,
+  type ReviewRequestDocument,
+} from '../subjectReview/protocol.js';
+import { ReviewTrustSet } from '../subjectReview/trust.js';
+import { verifySignedReviewPayload } from '../subjectReview/verify.js';
 
 import {
   reviewTargetKeyOf,
@@ -43,7 +72,10 @@ import {
   type SubjectGraph,
   type SubjectReadModel,
 } from './readModel.js';
+import { verifyReviewAttestations } from './reviewAttestation.js';
+import { ReviewEvidenceTooLarge, reviewEvidenceOf } from './reviewEvidence.js';
 import {
+  REGISTRY_REVIEWER_ROLE,
   REGISTRY_WRITER_ROLE,
   STATE_DIGEST_SHAPE,
   UUID_SHAPE,
@@ -60,6 +92,7 @@ import {
   SubjectGraphBoundExceeded,
   databaseNow,
   loadSubjectGraph,
+  reviewEnvironmentId,
   subjectExists,
   subjectOfClaim,
   type Queryable,
@@ -83,7 +116,18 @@ export type RegistryRefusalCode =
   | 'REVIEW_CONFLICT_INTRODUCED'
   | 'GRAPH_BOUND_EXCEEDED'
   | 'WRITER_SESSION_REFUSED'
-  | 'DATABASE_REFUSED';
+  | 'DATABASE_REFUSED'
+  // B2.3 - the attested review path.
+  | 'REVIEW_ATTESTATION_REQUIRED'
+  | 'REVIEWER_SESSION_REFUSED'
+  | 'REVIEW_INTEGRITY_HOLD'
+  | 'ENVIRONMENT_UNKNOWN'
+  | 'ENVIRONMENT_MISMATCH'
+  | 'ENVELOPE_NOT_YET_VALID'
+  | 'ENVELOPE_EXPIRED'
+  | 'ENVELOPE_REPLAYED'
+  | 'EVIDENCE_CHANGED'
+  | ReviewProtocolCode;
 
 /** A refusal: nothing was written. `detail` never carries credentials or row contents beyond ids. */
 export class RegistryRefusal extends Error {
@@ -196,7 +240,19 @@ interface Judged {
   readonly graph: SubjectGraph;
   readonly recordIds: Record<string, string>;
   readonly findings: IdentityFinding[];
+  /** The graph as it was loaded, before the would-be record was appended. */
+  readonly before?: SubjectGraph;
 }
+
+/** B2.3: what a judgement loads, and whether an integrity hold refuses it. */
+interface JudgeLoad {
+  readonly attestations: 'LOAD' | 'SKIP';
+  /** When set, an INTEGRITY_HOLD (or unevaluated attestations) on the subject refuses the review. */
+  readonly refuseOnHold?: ReviewTrustSet;
+}
+
+const LOAD: JudgeLoad = { attestations: 'LOAD' };
+const SKIP: JudgeLoad = { attestations: 'SKIP' };
 
 async function judgePropose(
   q: Queryable,
@@ -239,10 +295,11 @@ async function judgeClaim(
   r: ClaimRequest,
   asOf: string,
   claimId: string,
+  load: JudgeLoad,
 ): Promise<Judged> {
   requireUuid(r.subjectId, '--subject-id');
   for (const id of provenanceUuids(r.provenance)) requireUuid(id, 'the source id');
-  const before = await loadOrRefuse(q, r.subjectId, { asOf });
+  const before = await loadOrRefuse(q, r.subjectId, { asOf, attestations: load.attestations });
   const claim = identityClaimRecord(claimId, r.subjectId, r.payload, r.provenance);
   const graph = withRecords(before, { identityClaims: [claim] });
   return { graph, recordIds: { identityClaim: claimId }, findings: judge(graph, [claimId]) };
@@ -253,12 +310,14 @@ async function judgeRelate(
   r: RelateRequest,
   asOf: string,
   claimId: string,
+  load: JudgeLoad,
 ): Promise<Judged> {
   requireUuid(r.subjectId, '--subject-id');
   for (const id of provenanceUuids(r.provenance)) requireUuid(id, 'the source id');
   if ('targetSubjectId' in r.target) requireUuid(r.target.targetSubjectId, '--target-subject-id');
   const before = await loadOrRefuse(q, r.subjectId, {
     asOf,
+    attestations: load.attestations,
     extraSubjectIds: 'targetSubjectId' in r.target ? [r.target.targetSubjectId] : [],
     extraEcheRowKeys: 'targetEcheRowKey' in r.target ? [r.target.targetEcheRowKey] : [],
   });
@@ -297,6 +356,7 @@ async function judgeReview(
   asOf: string,
   reviewId: string,
   actorKey: string,
+  load: JudgeLoad = LOAD,
 ): Promise<Judged> {
   requireUuid(r.target.id, 'the review target');
   if (r.expectedHeadReviewId !== null) requireUuid(r.expectedHeadReviewId, '--expect-head');
@@ -321,7 +381,19 @@ async function judgeReview(
   if (subjectId === null || !(await subjectExists(q, subjectId))) {
     throw new RegistryRefusal('TARGET_NOT_FOUND', `no review target ${r.target.id}.`);
   }
-  const before = await loadOrRefuse(q, subjectId, { asOf });
+  const before = await loadOrRefuse(q, subjectId, { asOf, attestations: load.attestations });
+  if (load.refuseOnHold !== undefined) {
+    // Where an integrity failure exists, no further decision may build on it
+    // until a separately authorised re-evaluation exists (G3).
+    const state = verifyReviewAttestations(before, load.refuseOnHold).state;
+    if (state === 'INTEGRITY_HOLD' || state === 'NOT_EVALUATED') {
+      throw new RegistryRefusal(
+        'REVIEW_INTEGRITY_HOLD',
+        `the review history of subject ${subjectId} does not verify (${state}); ` +
+          'no decision can extend it until it is re-evaluated.',
+      );
+    }
+  }
   const beforeValidation = validateIdentityGraph(before.input);
   const targetKey = targetKeyOf(r.target);
   const head = certifiedChainHead(before.input.reviews, beforeValidation.findings, targetKey);
@@ -373,17 +445,22 @@ async function judgeReview(
       'this confirmation would leave two different entity kinds CONFIRMED for one subject.',
     );
   }
-  return { graph, recordIds: { review: reviewId }, findings };
+  return { graph, recordIds: { review: reviewId }, findings, before };
 }
 
-function result(operation: RegistryOperation, mode: RegistryResult['mode'], j: Judged) {
+function result(
+  operation: RegistryOperation,
+  mode: RegistryResult['mode'],
+  j: Judged,
+  trust?: ReviewTrustSet,
+) {
   return {
     operation,
     mode,
     subjectId: j.graph.focalSubjectId,
     recordIds: j.recordIds,
     findings: j.findings,
-    readModel: deriveSubjectReadModel(j.graph),
+    readModel: deriveSubjectReadModel(j.graph, trust),
   } satisfies RegistryResult;
 }
 
@@ -410,13 +487,13 @@ export function planPropose(pool: pg.Pool, r: ProposeRequest): Promise<RegistryR
 
 export function planClaim(pool: pg.Pool, r: ClaimRequest): Promise<RegistryResult> {
   return inReadOnlySnapshot(pool, async (c) =>
-    result('claim', 'DRY_RUN', await judgeClaim(c, r, await databaseNow(c), randomUUID())),
+    result('claim', 'DRY_RUN', await judgeClaim(c, r, await databaseNow(c), randomUUID(), LOAD)),
   );
 }
 
 export function planRelate(pool: pg.Pool, r: RelateRequest): Promise<RegistryResult> {
   return inReadOnlySnapshot(pool, async (c) =>
-    result('relate', 'DRY_RUN', await judgeRelate(c, r, await databaseNow(c), randomUUID())),
+    result('relate', 'DRY_RUN', await judgeRelate(c, r, await databaseNow(c), randomUUID(), LOAD)),
   );
 }
 
@@ -477,6 +554,9 @@ function mapDatabaseError(error: unknown, operation: RegistryOperation): never {
   const code = (error as { code?: unknown }).code;
   const constraint = (error as { constraint?: unknown }).constraint;
   if (code === '23505') {
+    if (constraint === 'subject_review_attestations_nonce_uidx') {
+      throw new RegistryRefusal('ENVELOPE_REPLAYED', 'this envelope nonce was already used.');
+    }
     if (operation === 'review') {
       throw new RegistryRefusal('STALE_REVIEW_HEAD', 'another review extended this chain first.');
     }
@@ -598,7 +678,7 @@ export function executeClaim(pool: pg.Pool, r: ClaimRequest): Promise<RegistryRe
   return inWriterTransaction(pool, 'claim', async (c) => {
     requireUuid(r.subjectId, '--subject-id');
     await lockSubject(c, r.subjectId);
-    const judged = await judgeClaim(c, r, await databaseNow(c), randomUUID());
+    const judged = await judgeClaim(c, r, await databaseNow(c), randomUUID(), SKIP);
     await c.query(
       IDENTITY_CLAIM_INSERT,
       identityClaimParams(
@@ -614,7 +694,7 @@ export function executeRelate(pool: pg.Pool, r: RelateRequest): Promise<Registry
   return inWriterTransaction(pool, 'relate', async (c) => {
     requireUuid(r.subjectId, '--subject-id');
     await lockSubject(c, r.subjectId);
-    const judged = await judgeRelate(c, r, await databaseNow(c), randomUUID());
+    const judged = await judgeRelate(c, r, await databaseNow(c), randomUUID(), SKIP);
     const rel = newRecord(
       judged.graph.input.relationshipClaims,
       judged.recordIds['relationshipClaim']!,
@@ -690,6 +770,303 @@ export async function recordReview(
     ]);
     await client.query('COMMIT');
     return result('review', 'EXECUTED', judged);
+  } catch (error) {
+    await client.query('ROLLBACK').catch(() => undefined);
+    if (error instanceof RegistryRefusal) throw error;
+    mapDatabaseError(error, 'review');
+  } finally {
+    client.release();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// B2.3 - the attested review path (ADR 0023).
+// ---------------------------------------------------------------------------
+
+export interface PreparedReview {
+  readonly result: RegistryResult;
+  /** The unsigned request the OWNER signs offline. Bound to this database. */
+  readonly request: ReviewRequestDocument;
+}
+
+/**
+ * A DRY RUN of one review decision that also produces its unsigned review
+ * request: the same judgement as `planReview`, in one READ ONLY snapshot,
+ * plus this database's environment id and the evidence binding. Refuses a
+ * subject on integrity hold - an envelope over it could never execute.
+ */
+export function prepareReview(
+  pool: pg.Pool,
+  r: ReviewRequest,
+  trust: ReviewTrustSet,
+): Promise<PreparedReview> {
+  if (!ReviewTrustSet.isTrustSet(trust)) {
+    return Promise.reject(new RegistryRefusal('INPUT_INVALID', 'a sealed trust set is required.'));
+  }
+  return inReadOnlySnapshot(pool, async (c) => {
+    const judged = await judgeReview(
+      c,
+      r,
+      await databaseNow(c),
+      randomUUID(),
+      REVIEW_PREVIEW_ACTOR_KEY,
+      { attestations: 'LOAD', refuseOnHold: trust },
+    );
+    const before = judged.before!;
+    const environmentId = before.attestations?.environmentId ?? null;
+    if (environmentId === null) {
+      throw new RegistryRefusal(
+        'ENVIRONMENT_UNKNOWN',
+        'this database has no single review environment record (migration 0015).',
+      );
+    }
+    let evidence;
+    try {
+      evidence = reviewEvidenceOf(before, r.target);
+    } catch (error) {
+      if (error instanceof ReviewEvidenceTooLarge) {
+        throw new RegistryRefusal('GRAPH_BOUND_EXCEEDED', error.message);
+      }
+      throw error;
+    }
+    if (evidence === null) {
+      throw new RegistryRefusal('TARGET_NOT_FOUND', `no review target ${r.target.id}.`);
+    }
+    const request: ReviewRequestDocument = {
+      document: REVIEW_REQUEST_DOCUMENT,
+      intent: {
+        protocol: REVIEW_PROTOCOL,
+        contractVersion: REVIEW_CONTRACT_VERSION,
+        action: REVIEW_ACTION_AUDIENCE,
+        environmentId,
+        subjectId: before.focalSubjectId,
+        target: { kind: r.target.kind, id: r.target.id },
+        expectedHeadReviewId: r.expectedHeadReviewId,
+        subjectStateDigest: r.expectedStateDigest,
+        ruleVersion: validateIdentityGraph(before.input).ruleVersion,
+        evidence,
+        outcome: r.outcome,
+        reason: r.reason,
+      },
+    };
+    return { result: result('review', 'DRY_RUN', judged, trust), request };
+  });
+}
+
+/**
+ * The reviewer session check. Refuses a superuser, a table owner, a session
+ * without the reviewer capability and a session that ALSO holds the writer
+ * capability - registering evidence and deciding about it stay separate
+ * duties. Then narrows the transaction to exactly the reviewer capability.
+ */
+async function enterReviewerCapability(client: pg.PoolClient): Promise<void> {
+  const { rows } = await client.query<{
+    super: boolean;
+    reviewer: boolean;
+    writer: boolean;
+    owner: boolean;
+  }>(
+    `SELECT r.rolsuper AS super,
+            pg_has_role(session_user, $1, 'MEMBER') AS reviewer,
+            pg_has_role(session_user, $2, 'MEMBER') AS writer,
+            pg_has_role(session_user, c.relowner, 'MEMBER') AS owner
+       FROM pg_roles r, pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+      WHERE r.rolname = session_user AND n.nspname = 'public'
+        AND c.relname = 'subject_review_attestations'`,
+    [REGISTRY_REVIEWER_ROLE, REGISTRY_WRITER_ROLE],
+  );
+  const session = rows[0];
+  if (session === undefined || session.super) {
+    throw new RegistryRefusal('REVIEWER_SESSION_REFUSED', 'a superuser connection is refused.');
+  }
+  if (session.owner) {
+    throw new RegistryRefusal('REVIEWER_SESSION_REFUSED', 'a table-owner connection is refused.');
+  }
+  if (!session.reviewer) {
+    throw new RegistryRefusal(
+      'REVIEWER_SESSION_REFUSED',
+      `the connection does not hold ${REGISTRY_REVIEWER_ROLE}.`,
+    );
+  }
+  if (session.writer) {
+    throw new RegistryRefusal(
+      'REVIEWER_SESSION_REFUSED',
+      `the connection also holds ${REGISTRY_WRITER_ROLE}; review and registration stay separate.`,
+    );
+  }
+  await client.query(`SET LOCAL ROLE ${REGISTRY_REVIEWER_ROLE}`);
+}
+
+const ATTESTATION_INSERT = `INSERT INTO subject_review_attestations
+    (review_id, environment_id, protocol, action, key_id, key_fingerprint, nonce, subject_id,
+     review_target_key, review_outcome, expected_head_review_id, subject_state_digest,
+     evidence_snapshot_digest, target_record_digest, rule_version, issued_at, expires_at,
+     signed_payload, signature, payload_sha256)
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18,
+          $19, $20)`;
+
+function sameStrings(a: readonly string[], b: readonly string[]): boolean {
+  return a.length === b.length && a.every((v, i) => v === b[i]);
+}
+
+/**
+ * Records ONE OWNER-attested review decision, atomically (ADR 0023 s8). The
+ * reviewer context must have been derived from a verified envelope; the
+ * envelope is verified AGAIN here, against `trust`, so a context derived under
+ * one trust set can never execute under another. The pool must connect as a
+ * deployment-provisioned login holding exactly the reviewer capability.
+ *
+ * Every value written comes from the SIGNED payload or the database - the
+ * actor key from the verified key id, the instant from the database clock -
+ * and none from the caller.
+ */
+export async function appendAttestedReview(
+  pool: pg.Pool,
+  reviewer: TrustedReviewerContext,
+  trust: ReviewTrustSet,
+): Promise<RegistryResult> {
+  if (!TrustedReviewerContext.isContext(reviewer)) {
+    throw new RegistryRefusal('INPUT_INVALID', 'a review requires a trusted reviewer context.');
+  }
+  const envelope = TrustedReviewerContext.attestationOf(reviewer);
+  if (envelope === null) {
+    throw new RegistryRefusal(
+      'REVIEW_ATTESTATION_REQUIRED',
+      'this path records only reviews derived from a verified OWNER envelope.',
+    );
+  }
+  if (!ReviewTrustSet.isTrustSet(trust)) {
+    throw new RegistryRefusal('INPUT_INVALID', 'a sealed trust set is required.');
+  }
+  let check;
+  try {
+    check = verifySignedReviewPayload(
+      envelope.keyId,
+      envelope.signedPayload,
+      envelope.signature,
+      trust,
+    );
+  } catch (error) {
+    if (error instanceof ReviewProtocolError) throw new RegistryRefusal(error.code, error.detail);
+    throw error;
+  }
+  const p = check.payload;
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await enterReviewerCapability(client);
+
+    // Audience: this database, by its own immutable environment record.
+    const environmentId = await reviewEnvironmentId(client);
+    if (environmentId === null) {
+      throw new RegistryRefusal('ENVIRONMENT_UNKNOWN', 'this database has no review environment.');
+    }
+    if (environmentId !== p.environmentId) {
+      throw new RegistryRefusal(
+        'ENVIRONMENT_MISMATCH',
+        'the envelope was prepared for a different database.',
+      );
+    }
+
+    // Freshness and key standing, by the DATABASE clock.
+    const now = await databaseNow(client);
+    const nowMs = Date.parse(now);
+    const standing = check.trusted.mayDecideAt(nowMs);
+    if (standing !== 'OK') throw new RegistryRefusal(standing, 'the key may not decide now.');
+    if (nowMs < Date.parse(p.issuedAt) - REVIEW_MAX_CLOCK_SKEW_SECONDS * 1000) {
+      throw new RegistryRefusal('ENVELOPE_NOT_YET_VALID', 'the envelope is dated in the future.');
+    }
+    if (nowMs >= Date.parse(p.expiresAt)) {
+      throw new RegistryRefusal('ENVELOPE_EXPIRED', 'the envelope has expired.');
+    }
+
+    await lockSubject(client, p.subjectId);
+    const owner =
+      p.target.kind === 'SUBJECT'
+        ? (await subjectExists(client, p.target.id))
+          ? p.target.id
+          : null
+        : await subjectOfClaim(
+            client,
+            p.target.kind === 'IDENTITY_CLAIM' ? 'identity' : 'relationship',
+            p.target.id,
+          );
+    if (owner === null || owner !== p.subjectId) {
+      throw new RegistryRefusal(
+        'TARGET_NOT_FOUND',
+        `no review target ${p.target.id} on that subject.`,
+      );
+    }
+    const { rows: used } = await client.query(
+      `SELECT 1 FROM subject_review_attestations WHERE nonce = $1`,
+      [p.nonce],
+    );
+    if (used.length > 0) {
+      throw new RegistryRefusal('ENVELOPE_REPLAYED', 'this envelope nonce was already used.');
+    }
+
+    const request: ReviewRequest = {
+      target: { kind: p.target.kind, id: p.target.id },
+      outcome: p.outcome,
+      expectedHeadReviewId: p.expectedHeadReviewId,
+      expectedStateDigest: p.subjectStateDigest,
+      reason: p.reason,
+    };
+    const judged = await judgeReview(client, request, now, randomUUID(), reviewer.actorKey, {
+      attestations: 'LOAD',
+      refuseOnHold: trust,
+    });
+    const evidence = reviewEvidenceOf(judged.before!, request.target);
+    if (
+      evidence === null ||
+      evidence.snapshotDigest !== p.evidence.snapshotDigest ||
+      evidence.targetRecordDigest !== p.evidence.targetRecordDigest ||
+      !sameStrings(evidence.coveredRecordIds, p.evidence.coveredRecordIds) ||
+      !sameStrings(evidence.evidenceRefs, p.evidence.evidenceRefs)
+    ) {
+      throw new RegistryRefusal(
+        'EVIDENCE_CHANGED',
+        'the evidence the OWNER signed over no longer matches the stored records.',
+      );
+    }
+
+    const review = newRecord(judged.graph.input.reviews, judged.recordIds['review']!);
+    await client.query(REVIEW_INSERT, [
+      review.id,
+      review.reviewedSubjectId,
+      review.reviewedIdentityClaimId,
+      review.reviewedRelationshipClaimId,
+      review.reviewOutcome,
+      review.supersedesReviewId,
+      review.actorKey,
+      review.reviewedAt,
+      review.reason,
+    ]);
+    await client.query(ATTESTATION_INSERT, [
+      review.id,
+      p.environmentId,
+      p.protocol,
+      p.action,
+      p.keyId,
+      p.keyFingerprint,
+      p.nonce,
+      p.subjectId,
+      reviewTargetKeyOf(review),
+      p.outcome,
+      p.expectedHeadReviewId,
+      p.subjectStateDigest,
+      p.evidence.snapshotDigest,
+      p.evidence.targetRecordDigest,
+      p.ruleVersion,
+      p.issuedAt,
+      p.expiresAt,
+      envelope.signedPayload,
+      envelope.signature,
+      check.payloadSha256,
+    ]);
+    await client.query('COMMIT');
+    return result('review', 'EXECUTED', judged, trust);
   } catch (error) {
     await client.query('ROLLBACK').catch(() => undefined);
     if (error instanceof RegistryRefusal) throw error;
