@@ -57,7 +57,7 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const REPAIR_BASE_COMMIT = 'bb75da76fbe8dcf065dd31d2937c246eb216aab7';
 
 /** Open (null) until a separately authorised commit-closure phase pins it. */
-const REPAIR_TERMINAL_COMMIT: string | null = null;
+const REPAIR_TERMINAL_COMMIT: string | null = '766530cce66ff61df2cf2dc8543f95e73f897ade';
 
 const HANDOFF_DIR = 'src/orgunits/subjectHandoff/';
 const PRODUCTION_FILES = [
