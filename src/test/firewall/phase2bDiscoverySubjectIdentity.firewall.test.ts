@@ -180,8 +180,23 @@ function sqlCodeOf(source: string): string {
   return source.replace(/--.*$/gm, '');
 }
 
-/** Every production TypeScript file (non-test) under `src/`. */
+/**
+ * Every production TypeScript file (non-test) under `src/` - at the B2.1
+ * terminal commit once it is pinned. "Nothing calls the identity module" is a
+ * claim about B2.1; B2.2 (ADR 0020) is the separately authorised slice that
+ * wires it, and its own firewall pins exactly which files may.
+ */
 function productionFiles(): string[] {
+  if (REPAIR_TERMINAL_COMMIT !== null) {
+    return execFileSync(
+      'git',
+      ['-C', REPO_ROOT, 'ls-tree', '-r', '--name-only', REPAIR_TERMINAL_COMMIT, '--', 'src'],
+      { encoding: 'utf8' },
+    )
+      .split('\n')
+      .filter((f) => f.endsWith('.ts') && !f.startsWith('src/test/'))
+      .sort();
+  }
   const out: string[] = [];
   const walk = (dir: string): void => {
     for (const name of readdirSync(dir)) {
@@ -372,7 +387,7 @@ describe('B2.1 identity module: pure, inert and unwired', () => {
   it('has no production importer, and no production code names the new tables', () => {
     for (const file of productionFiles()) {
       if (file.startsWith(IDENTITY_DIR)) continue;
-      const code = codeOf(readFileSync(join(REPO_ROOT, file), 'utf8'));
+      const code = codeOf(sourceOf(file));
       expect(code, `${file} imports the identity module`).not.toMatch(
         /orgunits\/identity\/|\.\.\/identity\//,
       );

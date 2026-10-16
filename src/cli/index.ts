@@ -24,6 +24,7 @@ import {
 import { runOrgunitsDiscover } from './commands/discover.js';
 import { runOrgunitsClassify } from './commands/classify.js';
 import { runOrgunitsClassifyRead } from './commands/classifyRead.js';
+import { runDiscoverySubjects } from './commands/discoverySubjects.js';
 import {
   buildClassifierOperatorEnvelope,
   renderClassifierOperatorEnvelope,
@@ -56,6 +57,8 @@ Usage:
   nwf-pe orgunits classify calls --organisation-id <uuid> [--run-id <uuid>]
                                  [--limit <N>] [--json]
   nwf-pe orgunits classify show  --call-id <uuid> [--json]
+  nwf-pe discovery-subjects propose|claim|relate|review|show|list ...
+                              (run \`nwf-pe discovery-subjects --help\` for its own options)
 
 Options:
   --country <CC>    Restrict to an ISO-3166-1 alpha-2 country code (e.g. FR).
@@ -148,6 +151,12 @@ function parseCliArgs(argv: string[]) {
  * with `process.argv` exactly as before when this file is executed directly.
  */
 export async function main(argv: string[]): Promise<number> {
+  // Track B B2.2: the registry parses its OWN strict, per-subcommand option
+  // sets, so none of the options below can reach it and none of its options
+  // can reach another command.
+  if (argv[0] === 'discovery-subjects') {
+    return runDiscoverySubjects(argv.slice(1));
+  }
   let parsedArgv;
   try {
     parsedArgv = parseCliArgs(argv);

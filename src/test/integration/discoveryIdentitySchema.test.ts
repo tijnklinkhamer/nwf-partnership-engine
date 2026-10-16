@@ -565,6 +565,9 @@ describeDb('B2.1 migration 0013 - discovery subject identity (integration)', () 
         `SELECT grantee, table_name, privilege_type FROM information_schema.role_table_grants
           WHERE table_name = ANY($1) AND grantee <> (SELECT tableowner FROM pg_tables
                                                       WHERE tablename = 'discovery_subjects')
+            -- B2.2 (migration 0014, ADR 0020): the writer capability's exact
+            -- grants are asserted by discoverySubjectRegistry.test.ts.
+            AND grantee <> 'nwf_discovery_subject_writer'
           ORDER BY grantee, table_name, privilege_type`,
         [TABLES],
       );

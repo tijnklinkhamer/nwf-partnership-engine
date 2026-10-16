@@ -730,6 +730,11 @@ const MIGRATIONS_AFTER_THE_CORPUS_FREEZE = [
     adr: 'docs/adr/0019-first-class-discovery-subject-identity.md',
     ownerRecord: 'docs/evaluation/TRACK_B_B2_1_MICRO_ORGANISATION_IDENTITY_OWNER_DECISION_V1.json',
   },
+  {
+    file: '0014_discovery_subject_writer.sql',
+    adr: 'docs/adr/0020-controlled-discovery-subject-registry.md',
+    ownerRecord: 'docs/evaluation/TRACK_B_B2_2_DISCOVERY_SUBJECT_REGISTRY_OWNER_DECISION_V1.json',
+  },
 ] as const;
 
 function gitAvailable(...commits: readonly string[]): boolean {
