@@ -200,11 +200,22 @@ function diffLines(path: string): { removed: string[]; added: string[] } {
   };
 }
 
+/**
+ * Pinned-commit sources, keyed by the exact `commit:path` object name, so one
+ * `git show` per file per process. A commit's blob cannot change, so an entry
+ * never goes stale; a failed read throws and is never cached.
+ */
+const pinnedSources = new Map<string, string>();
+
 function sourceOf(path: string): string {
   if (REPAIR_TERMINAL_COMMIT === null) return readFileSync(join(REPO_ROOT, path), 'utf8');
-  return execFileSync('git', ['-C', REPO_ROOT, 'show', `${REPAIR_TERMINAL_COMMIT}:${path}`], {
-    encoding: 'utf8',
-  });
+  const object = `${REPAIR_TERMINAL_COMMIT}:${path}`;
+  let source = pinnedSources.get(object);
+  if (source === undefined) {
+    source = execFileSync('git', ['-C', REPO_ROOT, 'show', object], { encoding: 'utf8' });
+    pinnedSources.set(object, source);
+  }
+  return source;
 }
 
 function codeOf(source: string): string {
