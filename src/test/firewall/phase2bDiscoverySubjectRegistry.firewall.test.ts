@@ -91,6 +91,20 @@ const TABLES = [
   'discovery_subject_reviews',
 ];
 
+/**
+ * B2.4-R1a (TL-authorised exact-path exception, 2026-10-16): the ONLY current
+ * production files outside the registry that may name it - the pure
+ * subject-evidence projection - and the ONLY registry modules they may import:
+ * the pure read model, the request vocabulary and the attestation read types.
+ * Never the writer, the store, the reviewer authority or the evidence binding.
+ */
+const B24_READ_MODEL_IMPORTERS = [
+  'src/orgunits/subjectHandoff/findings.ts',
+  'src/orgunits/subjectHandoff/project.ts',
+];
+const B24_READ_MODEL_IMPORT =
+  /from '\.\.\/subjectRegistry\/(?:readModel|requests|reviewAttestation)\.js'/g;
+
 /** The exact authorised change set, as `git diff --name-status` lines. */
 const AUTHORISED_CHANGESET = [
   'A\tdocs/adr/0020-controlled-discovery-subject-registry.md',
@@ -437,11 +451,21 @@ describe('B2.2 registry module: narrow, local and inert towards research', () =>
       );
     }
     // And nothing on the research or classifier side reads the registry.
+    // HISTORICAL (B2.2 as accepted, over the pinned tree): nothing outside the
+    // registry and its CLI named the registry at all.
+    for (const file of productionFilesOfThisSlice()) {
+      if (file.startsWith(REGISTRY_DIR) || file === CLI_COMMAND || file === CLI_ENTRY) continue;
+      expect(codeOf(sourceOf(file)), file).not.toMatch(/subjectRegistry|discoverySubjects/);
+    }
+    // CURRENT (working tree): the same, except that exactly the B2.4-R1a
+    // projection files may import exactly the pure read-model modules. The
+    // original check then runs on what remains, so any other registry module
+    // (writer, store, review authority, evidence binding) still fails.
     for (const file of productionFiles()) {
       if (file.startsWith(REGISTRY_DIR) || file === CLI_COMMAND || file === CLI_ENTRY) continue;
-      expect(codeOf(readFileSync(join(REPO_ROOT, file), 'utf8')), file).not.toMatch(
-        /subjectRegistry|discoverySubjects/,
-      );
+      let code = codeOf(readFileSync(join(REPO_ROOT, file), 'utf8'));
+      if (B24_READ_MODEL_IMPORTERS.includes(file)) code = code.replace(B24_READ_MODEL_IMPORT, '');
+      expect(code, file).not.toMatch(/subjectRegistry|discoverySubjects/);
     }
   });
 

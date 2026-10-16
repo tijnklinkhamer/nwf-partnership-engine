@@ -90,6 +90,27 @@ const SCHEMA_INVENTORY = 'src/test/integration/orgunitSchema.test.ts';
 const A1_FRAME_TEST = 'src/test/unit/orgunitCorpus2DA1Frame.test.ts';
 const NEW_TABLES = ['subject_review_environment', 'subject_review_attestations'];
 
+/**
+ * B2.4-R1a (TL-authorised exact-path exception, 2026-10-16): the ONLY current
+ * production files outside the review protocol and registry that may name
+ * them - the pure subject-evidence projection - and the ONLY forms they may
+ * use: imports of the pure read model, request vocabulary, attestation read
+ * types, canonical JSON, protocol vocabulary and trust set, and the sealed
+ * trust set's `operational()` / `isTrustSet()` and type positions. Never the
+ * writer, store, signer, verifier, reviewer authority or a test trust seam.
+ */
+const B24_REVIEW_READERS = [
+  'src/orgunits/subjectHandoff/findings.ts',
+  'src/orgunits/subjectHandoff/project.ts',
+];
+const B24_READ_ONLY_FORMS = [
+  /from '\.\.\/subjectRegistry\/(?:readModel|requests|reviewAttestation)\.js'/g,
+  /from '\.\.\/subjectReview\/(?:canonical|protocol|trust)\.js'/g,
+  /import \{ ReviewTrustSet \}/g,
+  /\bReviewTrustSet\.(?:operational\(\)|isTrustSet\()/g,
+  /: ReviewTrustSet\b/g,
+];
+
 /** The exact authorised change set, as `git diff --name-status` lines. */
 const AUTHORISED_CHANGESET = [
   `A\t${ADR}`,
@@ -244,6 +265,19 @@ function codeOf(source: string): string {
 
 function sqlCodeOf(source: string): string {
   return source.replace(/--.*$/gm, '');
+}
+
+/** Every production TypeScript file (non-test) under `src/` AS B2.3 LEFT IT: at the terminal commit once pinned. */
+function productionFilesOfThisSlice(): string[] {
+  if (REPAIR_TERMINAL_COMMIT === null) return productionFiles();
+  return execFileSync(
+    'git',
+    ['-C', REPO_ROOT, 'ls-tree', '-r', '--name-only', REPAIR_TERMINAL_COMMIT, '--', 'src'],
+    { encoding: 'utf8' },
+  )
+    .split('\n')
+    .filter((f) => f.endsWith('.ts') && !f.startsWith('src/test/'))
+    .sort();
 }
 
 /** Every production TypeScript file (non-test) under `src/`, in the working tree. */
@@ -511,19 +545,31 @@ describe('B2.3 protocol and verification: domain-separated, signature-first, sea
   });
 
   it('is used by no research, classifier or orchestration path', () => {
+    const exempt = (file: string) =>
+      file.startsWith(REVIEW_DIR) ||
+      file.startsWith(REGISTRY_DIR) ||
+      file === CLI_COMMAND ||
+      file === SIGN_CLI ||
+      file === CLI_ENTRY;
+    const forbidden =
+      /subjectReview|subjectRegistry|appendAttestedReview|prepareReview|fromVerifiedEnvelope|VerifiedReviewEnvelope|ReviewTrustSet/;
+    // HISTORICAL (B2.3 as accepted, over the pinned tree): no other production
+    // file named the protocol, the registry or the trust set at all.
+    for (const file of productionFilesOfThisSlice()) {
+      if (exempt(file)) continue;
+      expect(codeOf(sourceOf(file)), file).not.toMatch(forbidden);
+    }
+    // CURRENT (working tree): the same, except that exactly the B2.4-R1a
+    // projection files may use exactly the read-only forms above. The original
+    // check then runs on what remains, so the writer, signer, verifier,
+    // reviewer authority or a test trust seam still fails.
     for (const file of productionFiles()) {
-      if (
-        file.startsWith(REVIEW_DIR) ||
-        file.startsWith(REGISTRY_DIR) ||
-        file === CLI_COMMAND ||
-        file === SIGN_CLI ||
-        file === CLI_ENTRY
-      ) {
-        continue;
+      if (exempt(file)) continue;
+      let code = codeOf(readFileSync(join(REPO_ROOT, file), 'utf8'));
+      if (B24_REVIEW_READERS.includes(file)) {
+        for (const form of B24_READ_ONLY_FORMS) code = code.replace(form, '');
       }
-      expect(codeOf(readFileSync(join(REPO_ROOT, file), 'utf8')), file).not.toMatch(
-        /subjectReview|subjectRegistry|appendAttestedReview|prepareReview|fromVerifiedEnvelope|VerifiedReviewEnvelope|ReviewTrustSet/,
-      );
+      expect(code, file).not.toMatch(forbidden);
     }
   });
 });
