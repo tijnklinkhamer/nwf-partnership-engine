@@ -66,7 +66,7 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const REPAIR_BASE_COMMIT = '6a1a70099d16b7f05b3935b867e0a203610bcece';
 
 /** Open (null) until a separately authorised commit-closure phase pins it. */
-const REPAIR_TERMINAL_COMMIT: string | null = null;
+const REPAIR_TERMINAL_COMMIT: string | null = '4189d1e0c160b6d1f89a61b89c5fc20477897d39';
 
 const MIGRATION = 'migrations/0014_discovery_subject_writer.sql';
 const REGISTRY_DIR = 'src/orgunits/subjectRegistry/';
