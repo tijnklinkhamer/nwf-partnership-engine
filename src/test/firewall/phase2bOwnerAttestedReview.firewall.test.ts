@@ -55,7 +55,7 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const REPAIR_BASE_COMMIT = '983359da887cabef5e029d114d073e0077e3973d';
 
 /** Open (null) until a separately authorised commit-closure phase pins it. */
-const REPAIR_TERMINAL_COMMIT: string | null = null;
+const REPAIR_TERMINAL_COMMIT: string | null = 'fe00ae0d4a096fda3c3f9386366ab9c82bb5fbfc';
 
 const MIGRATION = 'migrations/0015_discovery_subject_review_attestation.sql';
 const ADR = 'docs/adr/0023-owner-attested-discovery-subject-review.md';
