@@ -22,7 +22,9 @@
  *                   unsigned database instants, labelled as such;
  *   D assessment    the producer's derived state, ADVISORY: recorded history
  *                   and effective authority side by side, integrity holds,
- *                   protection, research authority (never granted);
+ *                   protection, research authority (never granted); its
+ *                   identity verdicts answer for EVERY finding the document
+ *                   carries, input-scoped ones included (B2.4-R2);
  *   E observations  typed relationships, website observations (never a
  *                   verified channel) and source-backed identifiers;
  * plus the canonical findings (findings.ts), the I0 v1 compatibility
@@ -501,12 +503,48 @@ export type SubjectEvidenceResult =
   | { readonly outcome: 'REFUSED'; readonly code: RefusalCode; readonly detail: string };
 
 const count = (n: number) => String(n);
-const confirmation = (m: SubjectReadModel) =>
-  m.identityStatus.reviewConfirmed ? 'CONFIRMED_UNDER_PROJECTION_TRUST' : 'NOT_CONFIRMED';
+
+/**
+ * B2.4-R2: the advisory identity verdicts, answerable to the document's OWN
+ * canonical findings. The read model scopes findings to the focal subject's
+ * records, so its verdicts never see a whole-input (`recordId: "input"`)
+ * finding; this document carries those findings, so a favourable verdict
+ * beside one of them would contradict the document itself. A blocking
+ * finding counts by SEVERITY, whatever its scope, and each verdict can only
+ * be made less favourable than the read model's - never more.
+ */
+function advisoryIdentityOf(m: SubjectReadModel, findings: readonly EvidenceFinding[]) {
+  const present = (severity: EvidenceFinding['severity']) =>
+    findings.some((f) => f.severity === severity);
+  const structurallyValid = m.identityStatus.structurallyValid && !present('INVALID');
+  const reviewConfirmed =
+    m.identityStatus.reviewConfirmed && structurallyValid && !present('INTEGRITY_HOLD');
+  const unmet = [...m.reviewability.subjectConfirmationPreconditionsUnmet];
+  if (!structurallyValid && !unmet.includes('STRUCTURALLY_INVALID')) {
+    unmet.push('STRUCTURALLY_INVALID');
+  }
+  const research = [...m.researchAuthority.reasons];
+  if (!reviewConfirmed && !research.includes('IDENTITY_NOT_REVIEW_CONFIRMED')) {
+    // The read model's own position: after its two standing reasons.
+    research.splice(2, 0, 'IDENTITY_NOT_REVIEW_CONFIRMED');
+  }
+  return {
+    structurallyValid,
+    conflicted: m.identityStatus.conflicted || present('CONFLICT'),
+    reviewConfirmed,
+    subjectConfirmationPreconditionsUnmet: unmet,
+    researchReasons: research,
+  };
+}
 
 /** Section D: the read model's answer, ADVISORY, with recorded and effective apart. */
-function assessmentOf(m: SubjectReadModel, trust: ReviewTrustSet): CanonicalValue {
+function assessmentOf(
+  m: SubjectReadModel,
+  trust: ReviewTrustSet,
+  findings: readonly EvidenceFinding[],
+): CanonicalValue {
   const a = m.reviewAttestation;
+  const advisory = advisoryIdentityOf(m, findings);
   return {
     status: 'PRODUCER_DERIVED_ADVISORY_CONSUMER_MUST_REVERIFY',
     derivedBy: 'B2_3_R2_SUBJECT_READ_MODEL',
@@ -545,11 +583,13 @@ function assessmentOf(m: SubjectReadModel, trust: ReviewTrustSet): CanonicalValu
       recordedReview: m.identityStatus.identityReview,
       recordedReviewHeadId: m.identityStatus.identityReviewHeadId,
       effectiveReview: m.effectiveIdentity.identityReview,
-      effectiveConfirmation: confirmation(m),
-      structuralValidity: m.identityStatus.structurallyValid
+      effectiveConfirmation: advisory.reviewConfirmed
+        ? 'CONFIRMED_UNDER_PROJECTION_TRUST'
+        : 'NOT_CONFIRMED',
+      structuralValidity: advisory.structurallyValid
         ? 'NO_INVALID_FINDING'
         : 'INVALID_FINDINGS_PRESENT',
-      conflict: m.identityStatus.conflicted ? 'CONFLICT_PRESENT' : 'NO_CONFLICT_FOUND',
+      conflict: advisory.conflicted ? 'CONFLICT_PRESENT' : 'NO_CONFLICT_FOUND',
       reviewCoverage: m.identityStatus.reviewCoverage,
       factualVerification: m.identityStatus.factualVerification,
     },
@@ -600,14 +640,12 @@ function assessmentOf(m: SubjectReadModel, trust: ReviewTrustSet): CanonicalValu
       authoritativeReviewExecution: m.reviewability.authoritativeReviewExecution,
       blocker: m.reviewability.blocker,
       unreviewedTargets: count(m.reviewability.unreviewedTargets),
-      subjectConfirmationPreconditionsUnmet: [
-        ...m.reviewability.subjectConfirmationPreconditionsUnmet,
-      ],
+      subjectConfirmationPreconditionsUnmet: advisory.subjectConfirmationPreconditionsUnmet,
     },
     researchAuthority: {
       granted: false,
       status: m.researchAuthority.status,
-      reasons: [...m.researchAuthority.reasons],
+      reasons: advisory.researchReasons,
     },
   };
 }
@@ -796,7 +834,7 @@ function build(
     },
     records,
     reviewEvidence,
-    assessment: assessmentOf(model, trust),
+    assessment: assessmentOf(model, trust, findings),
     observations: observationsOf(graph),
     findings: {
       evidence: findings as unknown as CanonicalValue,
