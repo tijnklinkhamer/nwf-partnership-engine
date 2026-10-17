@@ -38,7 +38,7 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const REPAIR_BASE_COMMIT = '4ff16975b0eb14a54d0289f14a42cfb061c81abd';
 
 /** Open (null) until a separately authorised commit-closure phase pins it. */
-const REPAIR_TERMINAL_COMMIT: string | null = null;
+const REPAIR_TERMINAL_COMMIT: string | null = 'f28382f92eb42f2b0114651b4b4cbad6637089cd';
 
 const SNAPSHOT_DIR = 'src/orgunits/subjectSnapshot/';
 const PRODUCTION_FILES = [
