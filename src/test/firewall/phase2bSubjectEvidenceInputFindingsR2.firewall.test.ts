@@ -36,7 +36,7 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const REPAIR_BASE_COMMIT = '96ef2aa734dc48cc786204063f5343fc26589bf3';
 
 /** Open (null) until a separately authorised commit-closure phase pins it. */
-const REPAIR_TERMINAL_COMMIT: string | null = null;
+const REPAIR_TERMINAL_COMMIT: string | null = '5813408eaea4370e6854468b4bfeafd11a7966cf';
 
 const PROJECT = 'src/orgunits/subjectHandoff/project.ts';
 const UNIT_TEST = 'src/test/unit/discoverySubjectEvidenceB24R2.test.ts';
