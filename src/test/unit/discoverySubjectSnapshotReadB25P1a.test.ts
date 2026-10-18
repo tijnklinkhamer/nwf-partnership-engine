@@ -493,10 +493,14 @@ describe('B2.5-P1a assembler: the conservative S0 mapping', () => {
       },
     });
     expect(input.scope.relationshipDirectionsExamined).toEqual(['OUTGOING']);
-    expect(input.scope.categories).toEqual(SCOPE_DECLARATIONS);
+    // P1b: no focal identifier, so the holder predicate has no member - exhaustively.
+    expect(input.scope.categories).toEqual({
+      ...SCOPE_DECLARATIONS,
+      SHARED_IDENTIFIER_HOLDERS: 'REPRESENTED',
+    });
     expect(input.scope.sharedIdentifierHolders).toEqual({
-      enumeration: 'UNKNOWN',
-      bound: MAX_SHARED_IDENTIFIER_HOLDERS,
+      enumeration: 'EXHAUSTIVE_AS_DECLARED',
+      bound: MAX_SHARED_IDENTIFIER_HOLDERS + 1,
       holderSubjectIds: [],
     });
     expect(input.protectionCheck).toBe('NOT_CONSULTED');
@@ -509,7 +513,7 @@ describe('B2.5-P1a assembler: the conservative S0 mapping', () => {
     expect(result.read).toBe(SNAPSHOT_READ_FACTS);
   });
 
-  it('reconstructs holders from the retrieved claims only, and never calls them exhaustive', async () => {
+  it('declares the holder query own set, exhaustive only because the sentinel row is absent (P1b)', async () => {
     const { focal, tables } = world();
     const holder = randomUUID();
     tables.subjects.push(subjectRow(holder));
@@ -523,19 +527,21 @@ describe('B2.5-P1a assembler: the conservative S0 mapping', () => {
     }
     const m = built(await assembleSubjectSnapshotScope(fake({ tables }).source, focal)).manifest;
     expect(m.scope.sharedIdentifierHolders).toEqual({
-      enumeration: 'UNKNOWN',
-      bound: 20,
+      enumeration: 'EXHAUSTIVE_AS_DECLARED',
+      bound: 21,
       holderSubjectIds: [holder],
     });
-    expect(m.omissions).toContainEqual({
-      code: 'SHARED_IDENTIFIER_HOLDER_ENUMERATION_UNKNOWN',
-      ref: focal,
-    });
+    expect(m.scope.categories.SHARED_IDENTIFIER_HOLDERS).toBe('REPRESENTED');
+    expect(m.omissions.map((o) => o.code)).not.toContain(
+      'SHARED_IDENTIFIER_HOLDER_ENUMERATION_UNKNOWN',
+    );
+    expect(m.states.sourceCompleteness).toBe('NOT_PROVEN');
+    expect(m.states.declaredScopeCoverage).toBe('GAPS_DECLARED');
   });
 
-  it('fails closed (REFUSED) when the retrieved holders exceed the loader bound S0 is told', async () => {
+  it('keeps a relationship target beyond the holder cap out of the declared holders: TRUNCATED, not REFUSED (P1b)', async () => {
     // A PART_OF parent sharing the identifier is retrieved anyway, so the
-    // retrieved holders can exceed the holder query's own LIMIT.
+    // retrieved claims show more holders than the holder query includes.
     // The parent's id sorts after every holder's, so the LIMIT cuts it from the holder query.
     const { focal, parent, tables } = world(null, 'ffffffff-ffff-4fff-bfff-ffffffffffff');
     const pic = { identifier_scheme: 'EU_PIC', identifier_value: '999000702' };
@@ -553,9 +559,18 @@ describe('B2.5-P1a assembler: the conservative S0 mapping', () => {
         .map((c) => c.subject_id),
     );
     expect(inSource.size).toBe(22);
-    expect(result.outcome).toBe('REFUSED');
-    expect(result).toMatchObject({ code: 'SCOPE_DECLARATION_INCONSISTENT' });
-    expect(result).not.toHaveProperty('manifest');
+    const m = built(result).manifest;
+    const holders = m.scope.sharedIdentifierHolders;
+    expect(holders.enumeration).toBe('TRUNCATED');
+    expect(holders.bound).toBe(21);
+    expect(holders.holderSubjectIds).toHaveLength(20);
+    expect(holders.holderSubjectIds).not.toContain(parent);
+    expect(m.membership.entries.map((e) => e.recordId)).toContain(parent);
+    expect(m.scope.categories.SHARED_IDENTIFIER_HOLDERS).toBe('INCOMPLETE');
+    expect(m.omissions).toContainEqual({
+      code: 'SHARED_IDENTIFIER_HOLDER_ENUMERATION_TRUNCATED',
+      ref: focal,
+    });
   });
 
   it('turns attestations into S0 references only: no payload, signature, environment or nonce count', async () => {

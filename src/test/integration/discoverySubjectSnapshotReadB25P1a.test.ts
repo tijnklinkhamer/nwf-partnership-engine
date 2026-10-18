@@ -797,7 +797,7 @@ describeDb('B2.5-P1a transaction-bound snapshot assembler (integration)', () => 
       expect(m.scope.categories.INCOMING_RELATIONSHIP_CLAIMS).toBe('UNKNOWN');
     });
 
-    it('P1a-11: at the loader limit of 20 holders, exhaustive coverage stays unproven and nothing claims truncation', async () => {
+    it('P1a-11 (P1b): beyond the loader cap of 20 holders, the sentinel row declares TRUNCATED, never exhaustive', async () => {
       const focal = await subject();
       await nameClaim(admin, focal, 'Synthetic P1a Holders');
       await picClaim(admin, focal, '999000601');
@@ -809,18 +809,18 @@ describeDb('B2.5-P1a transaction-bound snapshot assembler (integration)', () => 
       );
       expect(rows[0]!.n).toBe(21);
       const m = built(await assembleSubjectSnapshotScope(wrap(readonly).source, focal)).manifest;
-      expect(m.scope.sharedIdentifierHolders.bound).toBe(20);
+      expect(m.scope.sharedIdentifierHolders.bound).toBe(21);
       expect(m.scope.sharedIdentifierHolders.holderSubjectIds).toHaveLength(20);
-      expect(m.scope.sharedIdentifierHolders.enumeration).toBe('UNKNOWN');
-      expect(m.scope.categories.SHARED_IDENTIFIER_HOLDERS).toBe('UNKNOWN');
+      expect(m.scope.sharedIdentifierHolders.enumeration).toBe('TRUNCATED');
+      expect(m.scope.categories.SHARED_IDENTIFIER_HOLDERS).toBe('INCOMPLETE');
       expect(m.omissions).toContainEqual({
-        code: 'SHARED_IDENTIFIER_HOLDER_ENUMERATION_UNKNOWN',
+        code: 'SHARED_IDENTIFIER_HOLDER_ENUMERATION_TRUNCATED',
         ref: focal,
       });
-      expect(JSON.stringify(m)).not.toMatch(/TRUNCATED|EXHAUSTIVE/);
+      expect(JSON.stringify(m)).not.toMatch(/EXHAUSTIVE/);
     });
 
-    it('P1a-11: one holder, well below the limit, is still not called exhaustive', async () => {
+    it('P1a-11 (P1b): one holder, below the limit, is exhaustive only under the holder query', async () => {
       const focal = await subject();
       await nameClaim(admin, focal, 'Synthetic P1a One Holder');
       await picClaim(admin, focal, '999000602');
@@ -828,10 +828,11 @@ describeDb('B2.5-P1a transaction-bound snapshot assembler (integration)', () => 
       await picClaim(admin, holder, '999000602');
       const m = built(await assembleSubjectSnapshotScope(wrap(readonly).source, focal)).manifest;
       expect(m.scope.sharedIdentifierHolders).toEqual({
-        enumeration: 'UNKNOWN',
-        bound: 20,
+        enumeration: 'EXHAUSTIVE_AS_DECLARED',
+        bound: 21,
         holderSubjectIds: [holder],
       });
+      expect(m.states.sourceCompleteness).toBe('NOT_PROVEN');
       expect(m.membership.entries.find((e) => e.recordId === holder)!.roles).toContain(
         'SHARED_IDENTIFIER_HOLDER',
       );
@@ -974,7 +975,11 @@ describeDb('B2.5-P1a transaction-bound snapshot assembler (integration)', () => 
         producerMayIssue: 'NONE',
         identifiersIssuedHere: 'NONE',
       });
-      expect(m.scope.categories).toEqual(SCOPE_DECLARATIONS);
+      // P1b: the fixture cites no identifier, so only the holder category is exhaustive.
+      expect(m.scope.categories).toEqual({
+        ...SCOPE_DECLARATIONS,
+        SHARED_IDENTIFIER_HOLDERS: 'REPRESENTED',
+      });
       expect(verifySnapshotScopeManifest(m)).toMatchObject({
         contentDigestConsistency: 'CONSISTENT',
         exportAuthentication: 'UNAUTHENTICATED',

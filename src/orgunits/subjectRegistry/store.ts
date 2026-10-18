@@ -11,7 +11,8 @@
  *     subject reachable over PART_OF from any of them (the structural chain);
  *   - every other subject citing one of its typed external identifiers (a
  *     duplicate-candidate review signal, never a merge), with its identity
- *     claims;
+ *     claims - at most MAX_SHARED_IDENTIFIER_HOLDERS of them, the query asking
+ *     for one more so that a cut-off is detected, never mistaken for "all";
  *   - every review of any loaded subject or claim, and which cited ECHE rows
  *     exist.
  * It is BOUNDED: more than MAX_GRAPH_SUBJECTS subjects or MAX_GRAPH_ROWS rows
@@ -39,6 +40,69 @@ export const MAX_GRAPH_SUBJECTS = 64;
 export const MAX_GRAPH_ROWS = 5000;
 /** Other subjects sharing an identifier, at most. A review signal, so a sample suffices. */
 export const MAX_SHARED_IDENTIFIER_HOLDERS = 20;
+/**
+ * B2.5-P1b: the holder query asks for ONE more than it includes. The extra
+ * (sentinel) row only proves that more holders exist; it is never added to
+ * the graph on the holder query's account.
+ */
+const SHARED_IDENTIFIER_HOLDER_QUERY_LIMIT = MAX_SHARED_IDENTIFIER_HOLDERS + 1;
+
+/**
+ * B2.5-P1b: how the shared-identifier holder query ended, over EXACTLY its
+ * predicate (other subjects with an EXTERNAL_IDENTIFIER claim equal to one of
+ * the focal subject's) and the statement's own snapshot. Nothing more: not a
+ * statement about any other category, and not source completeness.
+ *   EXHAUSTIVE - no qualifying subject exists beyond `holderSubjectIds`;
+ *   TRUNCATED  - at least one qualifying subject exists beyond them;
+ *   UNKNOWN    - the result could not support either conclusion.
+ * `holderSubjectIds` is the holder query's own included set, in query order,
+ * never the union of subjects loaded for other reasons.
+ */
+export interface SharedIdentifierHolderEnumeration {
+  readonly outcome: 'EXHAUSTIVE' | 'TRUNCATED' | 'UNKNOWN';
+  readonly basis:
+    | 'NO_FOCAL_EXTERNAL_IDENTIFIER'
+    | 'QUERY_RETURNED_FEWER_ROWS_THAN_ITS_LIMIT'
+    | 'QUERY_RETURNED_A_ROW_BEYOND_THE_INCLUDED_CAP'
+    | 'QUERY_RESULT_NOT_DISTINCT_ORDERED_AND_BOUNDED';
+  /** The LIMIT the holder query ran under: one more than the included cap. */
+  readonly queryLimit: number;
+  readonly includedCap: number;
+  readonly holderSubjectIds: readonly string[];
+}
+
+/** Judges a holder-query result; UNKNOWN unless it is distinct, ascending, bounded and focal-free. */
+function holderEnumerationOf(
+  focalSubjectId: string,
+  returned: readonly unknown[],
+): SharedIdentifierHolderEnumeration {
+  const included = returned.slice(0, MAX_SHARED_IDENTIFIER_HOLDERS) as string[];
+  const wellFormed =
+    returned.length <= SHARED_IDENTIFIER_HOLDER_QUERY_LIMIT &&
+    returned.every(
+      (id, i) =>
+        typeof id === 'string' &&
+        id !== focalSubjectId &&
+        (i === 0 || (returned[i - 1] as string) < id),
+    );
+  const outcome = !wellFormed
+    ? 'UNKNOWN'
+    : returned.length > MAX_SHARED_IDENTIFIER_HOLDERS
+      ? 'TRUNCATED'
+      : 'EXHAUSTIVE';
+  return {
+    outcome,
+    basis:
+      outcome === 'UNKNOWN'
+        ? 'QUERY_RESULT_NOT_DISTINCT_ORDERED_AND_BOUNDED'
+        : outcome === 'TRUNCATED'
+          ? 'QUERY_RETURNED_A_ROW_BEYOND_THE_INCLUDED_CAP'
+          : 'QUERY_RETURNED_FEWER_ROWS_THAN_ITS_LIMIT',
+    queryLimit: SHARED_IDENTIFIER_HOLDER_QUERY_LIMIT,
+    includedCap: MAX_SHARED_IDENTIFIER_HOLDERS,
+    holderSubjectIds: wellFormed ? included : [],
+  };
+}
 
 export type Queryable = Pick<pg.ClientBase, 'query'>;
 
@@ -335,7 +399,17 @@ export interface GraphLoadOptions {
    * and the read model then withholds review authority as NOT_EVALUATED.
    */
   readonly attestations?: 'LOAD' | 'SKIP';
+  /**
+   * B2.5-P1b: REPORT attaches `sharedIdentifierHolderEnumeration`; OMIT (the
+   * default) returns exactly the B2.2 graph shape. The query and the loaded
+   * records are the same either way.
+   */
+  readonly sharedIdentifierHolders?: 'OMIT' | 'REPORT';
 }
+
+export type LoadedSubjectGraph = SubjectGraph & {
+  readonly sharedIdentifierHolderEnumeration?: SharedIdentifierHolderEnumeration;
+};
 
 /**
  * Loads the bounded neighbourhood of `focalSubjectId` (see the file header),
@@ -345,7 +419,7 @@ export async function loadSubjectGraph(
   q: Queryable,
   focalSubjectId: string,
   options: GraphLoadOptions,
-): Promise<SubjectGraph | null> {
+): Promise<LoadedSubjectGraph | null> {
   if (!(await subjectExists(q, focalSubjectId))) return null;
 
   const subjectIds = new Set<string>([focalSubjectId]);
@@ -384,6 +458,14 @@ export async function loadSubjectGraph(
       ORDER BY 1, 2`,
     [focalSubjectId],
   );
+  // With no focal identifier the holder predicate has no member: nothing to query.
+  let holderEnumeration: SharedIdentifierHolderEnumeration = {
+    outcome: 'EXHAUSTIVE',
+    basis: 'NO_FOCAL_EXTERNAL_IDENTIFIER',
+    queryLimit: SHARED_IDENTIFIER_HOLDER_QUERY_LIMIT,
+    includedCap: MAX_SHARED_IDENTIFIER_HOLDERS,
+    holderSubjectIds: [],
+  };
   if (focalIdentifiers.length > 0) {
     const { rows: holders } = await q.query<{ subject_id: string }>(
       `SELECT DISTINCT subject_id FROM discovery_subject_identity_claims
@@ -397,10 +479,17 @@ export async function loadSubjectGraph(
         focalIdentifiers.map((i) => i.scheme),
         focalIdentifiers.map((i) => i.value),
         focalSubjectId,
-        MAX_SHARED_IDENTIFIER_HOLDERS,
+        SHARED_IDENTIFIER_HOLDER_QUERY_LIMIT,
       ],
     );
-    for (const holder of holders) subjectIds.add(holder.subject_id);
+    holderEnumeration = holderEnumerationOf(
+      focalSubjectId,
+      holders.map((h) => h.subject_id),
+    );
+    // Only the first MAX_SHARED_IDENTIFIER_HOLDERS rows are holders of the graph.
+    for (const holder of holders.slice(0, MAX_SHARED_IDENTIFIER_HOLDERS)) {
+      subjectIds.add(holder.subject_id);
+    }
     if (subjectIds.size > MAX_GRAPH_SUBJECTS) throw new SubjectGraphBoundExceeded('subjects');
   }
 
@@ -448,6 +537,9 @@ export async function loadSubjectGraph(
         );
   return {
     ...(attestations !== undefined ? { attestations } : {}),
+    ...(options.sharedIdentifierHolders === 'REPORT'
+      ? { sharedIdentifierHolderEnumeration: holderEnumeration }
+      : {}),
     focalSubjectId,
     input: {
       subjects: subjectRows.map(subjectRecord),

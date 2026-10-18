@@ -27,11 +27,22 @@
  * WHAT IT MAY CLAIM. Only that the records it RETRIEVED for one focal subject
  * were read under one PostgreSQL transaction snapshot, and that the S0
  * manifest content-binds them. Not that every relevant record was retrieved:
- * the loader follows outgoing relationships only, samples shared-identifier
- * holders under a LIMIT with no overflow sentinel, and the B2.1 validator is
- * not run here. Every such gap is declared to S0 as INCOMPLETE or UNKNOWN,
- * never as REPRESENTED. The transaction snapshot is compared, never exported:
- * it is transaction-local, not a durable source revision.
+ * the loader follows outgoing relationships only, includes at most
+ * MAX_SHARED_IDENTIFIER_HOLDERS shared-identifier holders, and the B2.1
+ * validator is not run here. Every such gap is declared to S0 as INCOMPLETE
+ * or UNKNOWN, never as REPRESENTED. The transaction snapshot is compared,
+ * never exported: it is transaction-local, not a durable source revision.
+ *
+ * B2.5-P1b: the holder query now runs with one sentinel row beyond its
+ * included cap and the loader REPORTS how it ended. Only that verified
+ * outcome decides the holder declaration: EXHAUSTIVE (fewer rows than the
+ * query's limit) is REPRESENTED under exactly the holder query's predicate
+ * and this transaction's snapshot; TRUNCATED is INCOMPLETE; anything else
+ * stays UNKNOWN. The declared holders are the query's own included set,
+ * never the subjects that happen to share an identifier because they were
+ * loaded for another reason, and the sentinel is never exported. S0 is told
+ * the query's real LIMIT as its bound, so its own "reaching the bound is
+ * never exhaustive" rule still holds over what is declared.
  *
  * WHAT IT NEVER TOUCHES. No writer, no review signing or verification, no
  * trust set, no protected-cohort registry, no research, classifier or
@@ -97,6 +108,8 @@ export class SubjectSnapshotReadRefusal extends Error {
  * B2.2 loader's queries actually enumerate. REPRESENTED only where a query
  * returns EVERY matching row in the snapshot (a bound is refused by the
  * loader, never truncated); everything else is a declared gap.
+ * SHARED_IDENTIFIER_HOLDERS here is the fallback only: each read replaces it
+ * with the declaration of the loader's verified holder enumeration (P1b).
  */
 export const SCOPE_DECLARATIONS: { readonly [K in ScopeCategory]: CategoryDeclaration } =
   Object.freeze({
@@ -123,7 +136,7 @@ export const SCOPE_DECLARATION_BASIS: { readonly [K in ScopeCategory]: string } 
   OUTGOING_RELATIONSHIP_CLAIMS: 'LOADER_READS_EVERY_FOCAL_RELATIONSHIP_CLAIM_BOUND_REFUSED',
   INCOMING_RELATIONSHIP_CLAIMS: 'LOADER_DOES_NOT_ENUMERATE_INCOMING_RELATIONSHIPS',
   REFERENCED_RECORDS: 'LOADER_READS_EVERY_TARGET_AND_REVIEW_CHAIN_IT_REFERENCES',
-  SHARED_IDENTIFIER_HOLDERS: 'LOADER_HOLDER_QUERY_IS_LIMITED_WITHOUT_AN_OVERFLOW_SENTINEL',
+  SHARED_IDENTIFIER_HOLDERS: 'LOADER_HOLDER_QUERY_SENTINEL_OUTCOME_DECIDES_EACH_READ',
   RECORD_SCOPED_FINDINGS: 'VALIDATOR_NOT_RUN',
   INPUT_SCOPED_FINDINGS: 'VALIDATOR_NOT_RUN',
   NEIGHBOUR_RECORD_FINDINGS: 'VALIDATOR_NOT_RUN',
@@ -155,7 +168,7 @@ export const SNAPSHOT_READ_FACTS = Object.freeze({
     'NEIGHBOUR_RELATIONSHIPS_LIMITED_TO_THE_PART_OF_CHAIN',
     'PROTECTED_REGISTRY_NOT_CONSULTED',
     'RECORD_CREATION_INSTANTS_NOT_REPRESENTED',
-    'SHARED_IDENTIFIER_HOLDER_QUERY_LIMITED_WITHOUT_OVERFLOW_SENTINEL',
+    'SHARED_IDENTIFIER_HOLDERS_CAPPED_OVERFLOW_DETECTED_NEVER_ENUMERATED',
     'VALIDATOR_NOT_RUN',
   ] as const),
 } as const);
@@ -183,6 +196,25 @@ export type SubjectSnapshotReadResult =
     };
 
 type SubjectGraph = NonNullable<Awaited<ReturnType<typeof loadSubjectGraph>>>;
+type HolderScope = SnapshotScopeInput['scope']['sharedIdentifierHolders'];
+type HolderEnumeration = NonNullable<SubjectGraph['sharedIdentifierHolderEnumeration']>;
+
+/**
+ * P1b: each verified loader outcome, as S0 states it. Only EXHAUSTIVE may be
+ * REPRESENTED, and S0 still refuses that unless every holder it can observe
+ * in the supplied claims is in the enumerated set and the set stays below
+ * the declared bound.
+ */
+const HOLDER_SCOPE_OF: {
+  readonly [K in HolderEnumeration['outcome']]: {
+    readonly enumeration: HolderScope['enumeration'];
+    readonly declaration: CategoryDeclaration;
+  };
+} = Object.freeze({
+  EXHAUSTIVE: { enumeration: 'EXHAUSTIVE_AS_DECLARED', declaration: 'REPRESENTED' },
+  TRUNCATED: { enumeration: 'TRUNCATED', declaration: 'INCOMPLETE' },
+  UNKNOWN: { enumeration: 'UNKNOWN', declaration: 'UNKNOWN' },
+});
 
 const NO_OPEN_TRANSACTION_BLOCK =
   'SELECT transaction_timestamp() = statement_timestamp() AS no_open_block';
@@ -254,6 +286,7 @@ async function readGraphInOneSnapshot(
     const start = await readSnapshotState(connection);
     graph = await loadSubjectGraph(connection, focalSubjectId, {
       asOf: await databaseNow(connection),
+      sharedIdentifierHolders: 'REPORT',
     });
     const end = await readSnapshotState(connection);
     if (end.started !== start.started || end.snapshot !== start.snapshot) {
@@ -277,14 +310,13 @@ async function readGraphInOneSnapshot(
   return graph;
 }
 
-const EXTERNAL_IDENTIFIER = 'EXTERNAL_IDENTIFIER';
-
 /**
  * The S0 input for exactly what the loader returned. Records pass through
  * unchanged, so S0's exact-key checks refuse any loader record it cannot
  * represent; attestations become S0 REFERENCES (id, review, key, payload
  * digest) and nothing more; the ECHE-row-key state is the loader's own query
- * set and answer, never a caller's.
+ * set and answer, never a caller's; the holder scope is the loader's own
+ * verified holder-query outcome (P1b), never a caller's.
  */
 function snapshotScopeInputOf(graph: SubjectGraph): SnapshotScopeInput {
   const { input, focalSubjectId: focal } = graph;
@@ -292,27 +324,13 @@ function snapshotScopeInputOf(graph: SubjectGraph): SnapshotScopeInput {
   if (attestations === undefined) {
     refuse('REVIEW_ATTESTATIONS_NOT_LOADED', 'the loader returned no attestation set');
   }
-  const identifierOf = (c: (typeof input.identityClaims)[number]) =>
-    `${c.identifierScheme}\u0000${c.identifierValue}`;
-  const focalIdentifiers = new Set(
-    input.identityClaims
-      .filter((c) => c.subjectId === focal && c.claimKind === EXTERNAL_IDENTIFIER)
-      .map(identifierOf),
-  );
-  // The holders the retrieved records SHOW. The loader does not report which
-  // subjects its LIMITed holder query returned, nor whether it stopped short.
-  const holderSubjectIds = [
-    ...new Set(
-      input.identityClaims
-        .filter(
-          (c) =>
-            c.subjectId !== focal &&
-            c.claimKind === EXTERNAL_IDENTIFIER &&
-            focalIdentifiers.has(identifierOf(c)),
-        )
-        .map((c) => c.subjectId),
-    ),
-  ].sort();
+  // The holder query's OWN included set and outcome, as the loader verified
+  // them - never reconstructed from the claims, which also show subjects
+  // loaded for other reasons. No report at all is UNKNOWN, with no holders.
+  const reported = graph.sharedIdentifierHolderEnumeration;
+  const holderScope = HOLDER_SCOPE_OF[reported?.outcome ?? 'UNKNOWN'];
+  const holderSubjectIds = [...(reported?.holderSubjectIds ?? [])].sort();
+  const holderBound = reported?.queryLimit ?? MAX_SHARED_IDENTIFIER_HOLDERS;
   // Exactly the keys the loader asked `organisations` about: every loaded
   // relationship's ECHE target (it is passed no extra keys here).
   const queriedKeys = [
@@ -348,10 +366,10 @@ function snapshotScopeInputOf(graph: SubjectGraph): SnapshotScopeInput {
     },
     scope: {
       relationshipDirectionsExamined: ['OUTGOING'],
-      categories: { ...SCOPE_DECLARATIONS },
+      categories: { ...SCOPE_DECLARATIONS, SHARED_IDENTIFIER_HOLDERS: holderScope.declaration },
       sharedIdentifierHolders: {
-        enumeration: 'UNKNOWN',
-        bound: MAX_SHARED_IDENTIFIER_HOLDERS,
+        enumeration: holderScope.enumeration,
+        bound: holderBound,
         holderSubjectIds,
       },
     },
