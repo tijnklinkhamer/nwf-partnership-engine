@@ -48,7 +48,7 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const REPAIR_BASE_COMMIT = '07ce9de9fa04ce3b977957000abfb90dbde6a5e6';
 
 /** Open (null) until a separately authorised commit-closure phase pins it. */
-const REPAIR_TERMINAL_COMMIT: string | null = null;
+const REPAIR_TERMINAL_COMMIT: string | null = 'd3ce2cc4674393abcb244249fcabf705c24d7e98';
 
 const STORE = 'src/orgunits/subjectRegistry/store.ts';
 const ASSEMBLER = 'src/orgunits/subjectSnapshotRead/assemble.ts';
