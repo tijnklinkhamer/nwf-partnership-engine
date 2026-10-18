@@ -54,7 +54,7 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const REPAIR_BASE_COMMIT = '8276c44c71ab676d177dfdceb21da1c31e75b380';
 
 /** Open (null) until a separately authorised commit-closure phase pins it. */
-const REPAIR_TERMINAL_COMMIT: string | null = null;
+const REPAIR_TERMINAL_COMMIT: string | null = 'feafd2c555bea5482cfc9c640ed1ba350ddb11d0';
 
 const ASSEMBLER = 'src/orgunits/subjectSnapshotRead/assemble.ts';
 const P1A_FIREWALL = 'src/test/firewall/phase2bSubjectSnapshotReadP1a.firewall.test.ts';
