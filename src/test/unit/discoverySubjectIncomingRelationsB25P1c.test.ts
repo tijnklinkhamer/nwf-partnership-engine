@@ -173,7 +173,12 @@ function queryable(t: Tables, incoming?: (computed: Row[]) => unknown[], failOn?
         .map((subject_id) => ({ subject_id }));
     }
     if (sql.includes('FROM discovery_subjects WHERE id = ANY')) {
-      return t.subjects.filter((s) => (v[0] as string[]).includes(s.id as string));
+      const rows = t.subjects.filter((s) => (v[0] as string[]).includes(s.id as string));
+      // P1d: the source-subject read orders by id under a LIMIT, as its SQL reads.
+      if (!sql.includes('ORDER BY id LIMIT $2')) return rows;
+      return [...rows]
+        .sort((a, b) => ((a.id as string) < (b.id as string) ? -1 : 1))
+        .slice(0, v[1] as number);
     }
     if (sql.includes('FROM discovery_subject_identity_claims')) {
       return t.identity.filter((c) => (v[0] as string[]).includes(c.subject_id as string));
@@ -364,16 +369,19 @@ describe('B2.5-P1c assembler: only the verified outcome decides the incoming dec
       ...SCOPE_DECLARATIONS,
       SHARED_IDENTIFIER_HOLDERS: 'REPRESENTED',
       INCOMING_RELATIONSHIP_CLAIMS: declaration,
-      ...(unread ? { REFERENCED_RECORDS: 'INCOMPLETE', REVIEW_RECORDS: 'INCOMPLETE' } : {}),
+      ...(unread ? { REVIEW_RECORDS: 'INCOMPLETE' } : {}),
     });
     const m = result.manifest;
     const incoming = m.membership.entries.filter((e) => e.roles.includes('INCOMING_RELATIONSHIP'));
     expect(incoming.map((e) => e.recordId)).toEqual(included);
-    // Each claim names a source subject the loader never read: an omission, never a placeholder.
-    expect(m.omissions.filter((o) => o.code === 'CLAIM_SUBJECT_NOT_SUPPLIED')).toEqual(
-      included.map((ref) => ({ code: 'CLAIM_SUBJECT_NOT_SUPPLIED', ref })),
+    // P1d: each claim's source subject ROW was read by id - a stored record, never a placeholder.
+    expect(m.omissions.filter((o) => o.code === 'CLAIM_SUBJECT_NOT_SUPPLIED')).toEqual([]);
+    const named = new Set(
+      t.relationships.filter((r) => included.includes(r.id as string)).map((r) => r.subject_id),
     );
-    expect(m.membership.entries.filter((e) => e.recordType === 'SUBJECT')).toHaveLength(1);
+    expect(m.membership.entries.filter((e) => e.recordType === 'SUBJECT')).toHaveLength(
+      1 + named.size,
+    );
     if (n > 20) {
       expect(m.scope.declaredGaps).toContain('INCOMING_RELATIONSHIP_CLAIMS');
       const sentinel = [...claimIds].sort()[20]!;
@@ -401,7 +409,7 @@ describe('B2.5-P1c assembler: only the verified outcome decides the incoming dec
     expect(result.manifest.scope.relationshipDirectionCoverage).toBe('OUTGOING_ONLY');
   });
 
-  it('never represents a source subject unread: its own claims, relationships and reviews stay out', async () => {
+  it('reads a source subject row only: its own claims, relationships and reviews stay out', async () => {
     const { focal, sourceIds, claimIds, t } = world(1);
     const source = sourceIds[0]!;
     const third = randomUUID();
@@ -417,21 +425,17 @@ describe('B2.5-P1c assembler: only the verified outcome decides the incoming dec
     const m = result.manifest;
     const ids = m.membership.entries.map((e) => e.recordId);
     expect(ids).toContain(claimIds[0]);
-    for (const unread of [
-      source,
-      third,
-      sourceName.id,
-      sourceOther.id,
-      subjectReview.id,
-      claimReview.id,
-    ]) {
+    expect(ids).toContain(source);
+    for (const unread of [third, sourceName.id, sourceOther.id, subjectReview.id, claimReview.id]) {
       expect(ids).not.toContain(unread);
     }
-    expect(m.omissions).toContainEqual({ code: 'CLAIM_SUBJECT_NOT_SUPPLIED', ref: claimIds[0] });
-    expect(m.scope.categories.REFERENCED_RECORDS).toBe('INCOMPLETE');
+    expect(m.omissions).not.toContainEqual({
+      code: 'CLAIM_SUBJECT_NOT_SUPPLIED',
+      ref: claimIds[0],
+    });
+    expect(m.scope.categories.REFERENCED_RECORDS).toBe('REPRESENTED');
     expect(m.scope.categories.REVIEW_RECORDS).toBe('INCOMPLETE');
     expect(m.reviews.chains).toEqual([]);
-    expect(m.states.unresolvedSourceOmissions).toBe('PRESENT');
   });
 
   it('supplies a claim also reached over the PART_OF chain once, with its review chain', async () => {

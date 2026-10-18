@@ -291,18 +291,23 @@ describeDb('B2.5-P1c bounded direct incoming relationship-claim enumeration (int
         e.roles.includes('INCOMING_RELATIONSHIP'),
       );
       expect(incoming.map((e) => e.recordId)).toEqual(included);
-      // No source subject was read: each included claim is an explicit omission.
-      expect(m.omissions.filter((o) => o.code === 'CLAIM_SUBJECT_NOT_SUPPLIED')).toEqual(
-        included.map((ref) => ({ code: 'CLAIM_SUBJECT_NOT_SUPPLIED', ref })),
-      );
+      // P1d: each included claim's source subject ROW was read by id: no omission remains.
+      expect(m.omissions.filter((o) => o.code === 'CLAIM_SUBJECT_NOT_SUPPLIED')).toEqual([]);
       const subjects = m.membership.entries.filter((e) => e.recordType === 'SUBJECT');
-      expect(subjects.map((e) => e.recordId)).toEqual([focal]);
-      for (const s of sourceIds) expect(JSON.stringify(m)).not.toContain(s);
+      const { rows: named } = await admin.query<{ subject_id: string }>(
+        `SELECT DISTINCT subject_id FROM discovery_subject_relationship_claims WHERE id = ANY($1::uuid[])`,
+        [included],
+      );
+      expect(subjects.map((e) => e.recordId)).toEqual(
+        [focal, ...named.map((r) => r.subject_id)].sort(),
+      );
+      expect(sourceIds.length).toBeGreaterThanOrEqual(named.length);
+      expect(m.membership.entries.filter((e) => e.recordType === 'IDENTITY_CLAIM')).toHaveLength(1);
       if (n > 20) {
         expect(JSON.stringify(result)).not.toContain(all[20]!);
         expect(m.scope.declaredGaps).toContain('INCOMING_RELATIONSHIP_CLAIMS');
       }
-      expect(m.scope.categories.REFERENCED_RECORDS).toBe(n > 0 ? 'INCOMPLETE' : 'REPRESENTED');
+      expect(m.scope.categories.REFERENCED_RECORDS).toBe('REPRESENTED');
       expect(m.scope.categories.REVIEW_RECORDS).toBe(n > 0 ? 'INCOMPLETE' : 'REPRESENTED');
       // The real statement: ordered by id, LIMIT one beyond the cap, once, on the one connection.
       const statements = w.log.statements.filter((s) => INCOMING_QUERY.test(s.sql));
@@ -328,7 +333,7 @@ describeDb('B2.5-P1c bounded direct incoming relationship-claim enumeration (int
       expect(
         m.membership.entries.filter((e) => e.roles.includes('INCOMING_RELATIONSHIP')),
       ).toHaveLength(20);
-      expect(m.membership.entries.map((e) => e.recordId)).not.toContain(sourceIds[0]);
+      expect(m.membership.entries.map((e) => e.recordId)).toContain(sourceIds[0]);
     });
 
     it('P1c-8: source subjects with many claims and reviews cannot multiply the claim rows', async () => {
@@ -402,7 +407,7 @@ describeDb('B2.5-P1c bounded direct incoming relationship-claim enumeration (int
       expect(m.scope.categories.INCOMING_RELATIONSHIP_CLAIMS).toBe('REPRESENTED');
     });
 
-    it('P1c-12 / P1c-13: an unread source subject brings none of its claims, relationships or reviews', async () => {
+    it('P1c-12 / P1c-13: a source subject read by id brings none of its claims, relationships or reviews', async () => {
       const { focal, sourceIds, claimIds } = await incomingWorld(1);
       const source = sourceIds[0]!;
       const third = await subject();
@@ -414,8 +419,8 @@ describeDb('B2.5-P1c bounded direct incoming relationship-claim enumeration (int
       const m = result.manifest;
       const ids = m.membership.entries.map((e) => e.recordId);
       expect(ids).toContain(claimIds[0]);
+      expect(ids).toContain(source);
       for (const unread of [
-        source,
         third,
         name,
         onward,
@@ -426,13 +431,16 @@ describeDb('B2.5-P1c bounded direct incoming relationship-claim enumeration (int
       ]) {
         expect(ids, unread).not.toContain(unread);
       }
-      expect(m.omissions).toContainEqual({ code: 'CLAIM_SUBJECT_NOT_SUPPLIED', ref: claimIds[0] });
-      expect(m.scope.categories.REFERENCED_RECORDS).toBe('INCOMPLETE');
+      expect(m.omissions).not.toContainEqual({
+        code: 'CLAIM_SUBJECT_NOT_SUPPLIED',
+        ref: claimIds[0],
+      });
+      expect(m.scope.categories.REFERENCED_RECORDS).toBe('REPRESENTED');
       expect(m.scope.categories.REVIEW_RECORDS).toBe('INCOMPLETE');
       expect(m.reviews.chains).toEqual([]);
-      expect(m.states.unresolvedSourceOmissions).toBe('PRESENT');
+      expect(m.states.sourceCompleteness).toBe('NOT_PROVEN');
       expect(result.read.loaderLimitations).toContain(
-        'INCOMING_RELATIONSHIP_SOURCE_SUBJECTS_AND_CLAIM_REVIEWS_NOT_READ',
+        'INCOMING_RELATIONSHIP_SOURCE_SUBJECT_ROWS_ONLY_THEIR_CLAIMS_RELATIONSHIPS_REVIEWS_NOT_READ',
       );
     });
 

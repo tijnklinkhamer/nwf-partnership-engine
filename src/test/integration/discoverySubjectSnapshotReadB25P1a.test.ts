@@ -762,23 +762,24 @@ describeDb('B2.5-P1a transaction-bound snapshot assembler (integration)', () => 
   });
 
   describe('P1a-10 / P1a-11 / P1a-12: known loader gaps stay declared gaps', () => {
-    it('P1a-10 (P1c): an enumerated incoming claim never brings its source subject or a parentage verdict', async () => {
+    it('P1a-10 (P1c, P1d): an enumerated incoming claim brings only its source subject row, never a parentage verdict', async () => {
       const { focal } = await focalFixture();
       const incoming = await subject();
-      await nameClaim(admin, incoming, 'Synthetic P1a Incoming');
+      const incomingName = await nameClaim(admin, incoming, 'Synthetic P1a Incoming');
       const incomingClaim = await relate(admin, incoming, 'AFFILIATED_WITH', { subject: focal });
       const m = built(await assembleSubjectSnapshotScope(wrap(readonly).source, focal)).manifest;
       const ids = m.membership.entries.map((e) => e.recordId);
-      expect(ids).not.toContain(incoming);
+      expect(ids).toContain(incoming);
+      expect(ids).not.toContain(incomingName);
       expect(ids).toContain(incomingClaim);
-      expect(m.omissions).toContainEqual({
+      expect(m.omissions).not.toContainEqual({
         code: 'CLAIM_SUBJECT_NOT_SUPPLIED',
         ref: incomingClaim,
       });
       expect(m.scope.relationshipDirectionsExamined).toEqual(['INCOMING', 'OUTGOING']);
       expect(m.scope.relationshipDirectionCoverage).toBe('BOTH_DIRECTIONS_EXAMINED_AS_DECLARED');
       expect(m.scope.categories.INCOMING_RELATIONSHIP_CLAIMS).toBe('REPRESENTED');
-      expect(m.scope.categories.REFERENCED_RECORDS).toBe('INCOMPLETE');
+      expect(m.scope.categories.REFERENCED_RECORDS).toBe('REPRESENTED');
       expect(m.scope.parentage).toEqual({
         transitive: 'UNKNOWN',
         direct: 'PART_OF_CLAIM_SUPPLIED_UNVERIFIED',

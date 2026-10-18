@@ -57,6 +57,19 @@
  * review chain, so REVIEW_RECORDS is INCOMPLETE. Nothing about parentage,
  * independence or the source subjects' other evidence is claimed.
  *
+ * B2.5-P1d: the loader now also reads, by exact id and in the same
+ * transaction, the stored SUBJECT ROW of each distinct source subject an
+ * included incoming claim names and the graph did not already hold - a
+ * finite set fixed by the incoming report, never a new enumeration. Each row
+ * read is supplied beside the loader's subjects and S0 derives its role from
+ * the claims (an incoming relationship source, never the focal subject). A
+ * source subject neither held nor read stays an explicit omission with
+ * REFERENCED_RECORDS INCOMPLETE. A row read is the record ONLY: the subject's
+ * own claims, relationships, reviews and attestations stay unread, so
+ * REVIEW_RECORDS stays INCOMPLETE, and parentage, independence, protection
+ * and identity stay exactly as unknown as before. Resolving every reference
+ * of the included claims never makes a TRUNCATED incoming category whole.
+ *
  * WHAT IT NEVER TOUCHES. No writer, no review signing or verification, no
  * trust set, no protected-cohort registry, no research, classifier or
  * identity-register path, no environment, no pool of its own. Nothing in
@@ -125,7 +138,9 @@ export class SubjectSnapshotReadRefusal extends Error {
  * fallbacks only: each read replaces them with the declaration of the
  * loader's verified enumeration (P1b, P1c), and lowers REFERENCED_RECORDS and
  * REVIEW_RECORDS to INCOMPLETE when an included incoming claim brings a
- * source subject or review chain the loader did not read (P1c).
+ * source subject or review chain the loader did not read (P1c). A source
+ * subject whose row the loader read by exact id (P1d) satisfies the claim's
+ * reference, never its own review chain: REVIEW_RECORDS stays INCOMPLETE.
  */
 export const SCOPE_DECLARATIONS: { readonly [K in ScopeCategory]: CategoryDeclaration } =
   Object.freeze({
@@ -152,13 +167,13 @@ export const SCOPE_DECLARATION_BASIS: { readonly [K in ScopeCategory]: string } 
   OUTGOING_RELATIONSHIP_CLAIMS: 'LOADER_READS_EVERY_FOCAL_RELATIONSHIP_CLAIM_BOUND_REFUSED',
   INCOMING_RELATIONSHIP_CLAIMS: 'LOADER_INCOMING_CLAIM_QUERY_SENTINEL_OUTCOME_DECIDES_EACH_READ',
   REFERENCED_RECORDS:
-    'LOADER_READS_EVERY_TARGET_AND_REVIEW_CHAIN_IT_REFERENCES_INCOMING_SOURCE_SUBJECTS_UNREAD',
+    'LOADER_READS_EVERY_TARGET_AND_REVIEW_CHAIN_IT_REFERENCES_AND_INCOMING_SOURCE_SUBJECT_ROWS_BY_EXACT_ID',
   SHARED_IDENTIFIER_HOLDERS: 'LOADER_HOLDER_QUERY_SENTINEL_OUTCOME_DECIDES_EACH_READ',
   RECORD_SCOPED_FINDINGS: 'VALIDATOR_NOT_RUN',
   INPUT_SCOPED_FINDINGS: 'VALIDATOR_NOT_RUN',
   NEIGHBOUR_RECORD_FINDINGS: 'VALIDATOR_NOT_RUN',
   REVIEW_RECORDS:
-    'LOADER_READS_EVERY_REVIEW_OF_EVERY_LOADED_RECORD_BOUND_REFUSED_INCOMING_CLAIM_REVIEWS_UNREAD',
+    'LOADER_READS_EVERY_REVIEW_OF_EVERY_LOADED_RECORD_BOUND_REFUSED_INCOMING_CLAIM_AND_SOURCE_SUBJECT_REVIEWS_UNREAD',
   REVIEW_ATTESTATION_REFERENCES: 'LOADER_READS_EVERY_ATTESTATION_OF_EVERY_LOADED_REVIEW',
   VALIDATION_INPUTS: 'NO_VALIDATOR_RULE_VERSION_VALIDATOR_NOT_RUN',
   SOURCE_GLOBALS: 'REVIEW_ENVIRONMENT_AND_NONCE_USE_COUNTS_NOT_REPRESENTABLE',
@@ -183,7 +198,8 @@ export const SNAPSHOT_READ_FACTS = Object.freeze({
   loaderLimitations: Object.freeze([
     'ATTESTATION_PAYLOADS_SIGNATURES_ENVIRONMENT_AND_NONCE_COUNTS_NOT_REPRESENTED',
     'INCOMING_RELATIONSHIP_CLAIMS_CAPPED_OVERFLOW_DETECTED_NEVER_ENUMERATED',
-    'INCOMING_RELATIONSHIP_SOURCE_SUBJECTS_AND_CLAIM_REVIEWS_NOT_READ',
+    'INCOMING_RELATIONSHIP_CLAIM_REVIEWS_NOT_READ',
+    'INCOMING_RELATIONSHIP_SOURCE_SUBJECT_ROWS_ONLY_THEIR_CLAIMS_RELATIONSHIPS_REVIEWS_NOT_READ',
     'NEIGHBOUR_RELATIONSHIPS_LIMITED_TO_THE_PART_OF_CHAIN',
     'PROTECTED_REGISTRY_NOT_CONSULTED',
     'RECORD_CREATION_INSTANTS_NOT_REPRESENTED',
@@ -200,6 +216,17 @@ export type SubjectSnapshotReadResult =
       /** The exact S0 input the manifest was built from, for reproduction. */
       readonly input: SnapshotScopeInput;
       readonly read: typeof SNAPSHOT_READ_FACTS;
+      /**
+       * P1d: which source subjects of the included incoming claims the loader
+       * requested by exact id, and which it could not read - absent from the
+       * snapshot, or in a result it refused (UNKNOWN). NOT committed by the
+       * manifest digest: the rows read are in `input`, the gaps are omissions.
+       */
+      readonly incomingClaimSourceSubjects: {
+        readonly outcome: SourceSubjectRead['outcome'];
+        readonly requestedSubjectIds: readonly string[];
+        readonly unreadSubjectIds: readonly string[];
+      };
     }
   | {
       /** S0 refused the retrieved records. The transaction had already ended; no manifest exists. */
@@ -218,6 +245,7 @@ type SubjectGraph = NonNullable<Awaited<ReturnType<typeof loadSubjectGraph>>>;
 type HolderScope = SnapshotScopeInput['scope']['sharedIdentifierHolders'];
 type HolderEnumeration = NonNullable<SubjectGraph['sharedIdentifierHolderEnumeration']>;
 type IncomingEnumeration = NonNullable<SubjectGraph['incomingRelationshipClaimEnumeration']>;
+type SourceSubjectRead = NonNullable<SubjectGraph['incomingClaimSourceSubjectRead']>;
 type Directions = SnapshotScopeInput['scope']['relationshipDirectionsExamined'];
 
 /**
@@ -325,6 +353,7 @@ async function readGraphInOneSnapshot(
       asOf: await databaseNow(connection),
       sharedIdentifierHolders: 'REPORT',
       incomingRelationships: 'REPORT',
+      incomingClaimSourceSubjects: 'READ',
     });
     const end = await readSnapshotState(connection);
     if (end.started !== start.started || end.snapshot !== start.snapshot) {
@@ -356,7 +385,8 @@ async function readGraphInOneSnapshot(
  * set and answer, never a caller's; the holder scope is the loader's own
  * verified holder-query outcome (P1b), never a caller's; and the incoming
  * claims and their declaration are the loader's own verified incoming-query
- * outcome (P1c), never a caller's.
+ * outcome (P1c), never a caller's; and the only subjects added are the
+ * source-subject rows the loader read for those claims (P1d).
  */
 function snapshotScopeInputOf(graph: SubjectGraph): SnapshotScopeInput {
   const { input, focalSubjectId: focal } = graph;
@@ -382,10 +412,22 @@ function snapshotScopeInputOf(graph: SubjectGraph): SnapshotScopeInput {
   const loadedClaims = new Map(input.relationshipClaims.map((r) => [r.id, JSON.stringify(r)]));
   const addedClaims = incomingClaims.filter((r) => loadedClaims.get(r.id) !== JSON.stringify(r));
   const loadedSubjects = new Set(input.subjects.map((s) => s.id));
-  // A source subject the loader did not read is identified, never retrieved;
-  // a claim it did not reach on its own came with no review chain.
-  const sourceSubjectUnread = addedClaims.some((r) => !loadedSubjects.has(r.subjectId));
-  const reviewChainUnread = addedClaims.some((r) => !loadedClaims.has(r.id));
+  // P1d: the source-subject ROWS the loader read by exact id for the added
+  // claims - never a subject it already held, never one no added claim names.
+  // A source subject neither held nor read is identified, never retrieved.
+  const addedSources = new Set(addedClaims.map((r) => r.subjectId));
+  const sourceSubjectsRead =
+    incomingScope.declaration === 'UNKNOWN'
+      ? []
+      : (graph.incomingClaimSourceSubjectRead?.subjects ?? []).filter(
+          (s) => addedSources.has(s.id) && !loadedSubjects.has(s.id),
+        );
+  const suppliedSubjects = new Set([...loadedSubjects, ...sourceSubjectsRead.map((s) => s.id)]);
+  const sourceSubjectUnread = addedClaims.some((r) => !suppliedSubjects.has(r.subjectId));
+  // A claim the loader did not reach on its own came with no review chain, and
+  // a source-subject row read by id came with none of its own.
+  const reviewChainUnread =
+    addedClaims.some((r) => !loadedClaims.has(r.id)) || sourceSubjectsRead.length > 0;
   // Exactly the keys the loader asked `organisations` about: every loaded
   // relationship's ECHE target (it is passed no extra keys here).
   const queriedKeys = [
@@ -401,7 +443,7 @@ function snapshotScopeInputOf(graph: SubjectGraph): SnapshotScopeInput {
     // S0 has no database origin and verifies none; the read facts stay outside it.
     inputOrigin: 'CALLER_SUPPLIED_UNVERIFIED',
     records: {
-      subjects: input.subjects,
+      subjects: [...input.subjects, ...sourceSubjectsRead],
       identityClaims: input.identityClaims,
       relationshipClaims: [...input.relationshipClaims, ...addedClaims],
       reviews: input.reviews,
@@ -466,11 +508,17 @@ export async function assembleSubjectSnapshotScope(
       read: SNAPSHOT_READ_FACTS,
     };
   }
+  const sourceRead = graph.incomingClaimSourceSubjectRead;
   return {
     outcome: 'BUILT',
     manifest: built.manifest,
     canonical: built.canonical,
     input,
     read: SNAPSHOT_READ_FACTS,
+    incomingClaimSourceSubjects: {
+      outcome: sourceRead?.outcome ?? 'UNKNOWN',
+      requestedSubjectIds: [...(sourceRead?.requestedSubjectIds ?? [])],
+      unreadSubjectIds: [...(sourceRead?.unreadSubjectIds ?? [])],
+    },
   };
 }

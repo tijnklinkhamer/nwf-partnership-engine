@@ -299,10 +299,11 @@ describeDb('B2.5-P1b shared-identifier holder enumeration (integration)', () => 
       const result = built(await assembleSubjectSnapshotScope(wrap(readonly).source, focal));
       const m = result.manifest;
       expect(m.scope.categories.SHARED_IDENTIFIER_HOLDERS).toBe('REPRESENTED');
-      expect(m.membership.entries.map((e) => e.recordId)).not.toContain(incoming);
-      // P1c: the incoming claim is enumerated; its source subject is still not read.
+      expect(m.membership.entries.map((e) => e.recordId)).toContain(incoming);
+      // P1c/P1d: the incoming claim is enumerated; only its source subject's row is read.
       expect(m.scope.categories.INCOMING_RELATIONSHIP_CLAIMS).toBe('REPRESENTED');
-      expect(m.scope.categories.REFERENCED_RECORDS).toBe('INCOMPLETE');
+      expect(m.scope.categories.REFERENCED_RECORDS).toBe('REPRESENTED');
+      expect(m.scope.categories.REVIEW_RECORDS).toBe('INCOMPLETE');
       expect(m.scope.categories.NEIGHBOUR_RECORD_FINDINGS).toBe('UNKNOWN');
       expect(m.scope.categories.INPUT_SCOPED_FINDINGS).toBe('UNKNOWN');
       expect(m.scope.categories.PROTECTION_STATUS).toBe('UNKNOWN');

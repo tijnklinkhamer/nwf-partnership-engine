@@ -31,6 +31,12 @@
  * beside the graph, never added to it: their source subjects, those
  * subjects' other claims and every review of them stay unread, and the
  * graph handed to the validator and read model is unchanged.
+ *
+ * B2.5-P1d: only when also asked to READ them, it then reads, by exact id,
+ * the stored SUBJECT ROW of every distinct source subject those included
+ * claims name that the graph does not already hold. Only that row: never the
+ * subject's own claims, relationships, reviews or attestations, and never
+ * into the graph.
  */
 import type pg from 'pg';
 
@@ -179,6 +185,75 @@ function incomingEnumerationOf(
     relationshipClaims: wellFormed
       ? returned.slice(0, MAX_INCOMING_RELATIONSHIP_CLAIMS).map(relationshipClaimRecord)
       : [],
+  };
+}
+
+/**
+ * B2.5-P1d: the source-subject rows read for the claims an incoming report
+ * INCLUDED, over exactly the distinct `subjectId`s of those claims that the
+ * graph did not already hold - a finite set fixed by the report, never a new
+ * enumeration. A row read here is the subject record ONLY: its identity and
+ * relationship claims, its reviews and attestations, and anything transitive
+ * stay unread.
+ *   NONE_REQUESTED           - no included claim names a subject the graph lacks;
+ *   EVERY_REQUESTED_ROW_READ - one row per requested id was returned;
+ *   REQUESTED_ROWS_ABSENT    - a well-formed result lacked some requested ids;
+ *   UNKNOWN                  - the result was not distinct, ascending,
+ *                              well-typed and limited to the requested ids: no
+ *                              row is used and every requested id is reported
+ *                              unread; or an included claim named a malformed
+ *                              id, so nothing was requested or read at all.
+ * `subjects` are in id order; `unreadSubjectIds` are the requested ids without
+ * an accepted row.
+ */
+export interface IncomingClaimSourceSubjectRead {
+  readonly outcome:
+    'NONE_REQUESTED' | 'EVERY_REQUESTED_ROW_READ' | 'REQUESTED_ROWS_ABSENT' | 'UNKNOWN';
+  readonly requestedSubjectIds: readonly string[];
+  readonly subjects: readonly DiscoverySubjectRecord[];
+  readonly unreadSubjectIds: readonly string[];
+}
+
+const SOURCE_SUBJECT_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
+/** The distinct source subjects of the included claims the graph lacks, ascending; null if one is malformed. */
+function sourceSubjectIdsToRead(
+  enumeration: IncomingRelationshipClaimEnumeration,
+  heldSubjectIds: readonly string[],
+): string[] | null {
+  if (enumeration.outcome === 'UNKNOWN') return [];
+  const named = [...new Set(enumeration.relationshipClaims.map((r) => r.subjectId))];
+  if (named.length > MAX_INCOMING_RELATIONSHIP_CLAIMS) return null;
+  if (!named.every((id) => typeof id === 'string' && SOURCE_SUBJECT_ID.test(id))) return null;
+  return named.filter((id) => !heldSubjectIds.includes(id)).sort();
+}
+
+/** Judges a source-subject result; UNKNOWN unless distinct, ascending, well-typed and requested. */
+function sourceSubjectReadOf(
+  requested: readonly string[],
+  returned: readonly SubjectRow[],
+): IncomingClaimSourceSubjectRead {
+  const wellFormed =
+    returned.length <= requested.length &&
+    returned.every(
+      (row, i) =>
+        typeof row.id === 'string' &&
+        requested.includes(row.id) &&
+        typeof row.registered_kind === 'string' &&
+        typeof row.registered_by_actor_key === 'string' &&
+        (row.registration_note === null || typeof row.registration_note === 'string') &&
+        (i === 0 || returned[i - 1]!.id < row.id),
+    );
+  const read = wellFormed ? returned.map((row) => row.id) : [];
+  return {
+    outcome: !wellFormed
+      ? 'UNKNOWN'
+      : read.length === requested.length
+        ? 'EVERY_REQUESTED_ROW_READ'
+        : 'REQUESTED_ROWS_ABSENT',
+    requestedSubjectIds: [...requested],
+    subjects: wellFormed ? returned.map(subjectRecord) : [],
+    unreadSubjectIds: requested.filter((id) => !read.includes(id)),
   };
 }
 
@@ -490,11 +565,20 @@ export interface GraphLoadOptions {
    * Either way the graph itself - subjects, claims, reviews - is the same.
    */
   readonly incomingRelationships?: 'OMIT' | 'REPORT';
+  /**
+   * B2.5-P1d: READ, with `incomingRelationships: 'REPORT'`, reads the source
+   * subject ROWS of the reported claims the graph lacks and attaches
+   * `incomingClaimSourceSubjectRead`; OMIT (the default), or READ without
+   * REPORT, sends no such statement and returns no such field. The graph
+   * itself is the same either way.
+   */
+  readonly incomingClaimSourceSubjects?: 'OMIT' | 'READ';
 }
 
 export type LoadedSubjectGraph = SubjectGraph & {
   readonly sharedIdentifierHolderEnumeration?: SharedIdentifierHolderEnumeration;
   readonly incomingRelationshipClaimEnumeration?: IncomingRelationshipClaimEnumeration;
+  readonly incomingClaimSourceSubjectRead?: IncomingClaimSourceSubjectRead;
 };
 
 /**
@@ -635,6 +719,32 @@ export async function loadSubjectGraph(
     );
     incomingEnumeration = incomingEnumerationOf(focalSubjectId, incoming);
   }
+
+  // The included claims' source-subject rows, by exact id, reported beside the graph.
+  let sourceSubjectRead: IncomingClaimSourceSubjectRead | undefined;
+  if (options.incomingClaimSourceSubjects === 'READ' && incomingEnumeration !== undefined) {
+    const requested = sourceSubjectIdsToRead(
+      incomingEnumeration,
+      subjectRows.map((s) => s.id),
+    );
+    if (requested === null || requested.length === 0) {
+      // A malformed id is never sent; with none to read, no statement is sent.
+      sourceSubjectRead = {
+        outcome: requested === null ? 'UNKNOWN' : 'NONE_REQUESTED',
+        requestedSubjectIds: [],
+        subjects: [],
+        unreadSubjectIds: [],
+      };
+    } else {
+      const { rows: sources } = await q.query<SubjectRow>(
+        `SELECT id, registered_kind, registered_by_actor_key, registration_note,
+                ${iso('created_at')} AS created_at
+           FROM discovery_subjects WHERE id = ANY($1::uuid[]) ORDER BY id LIMIT $2`,
+        [requested, requested.length + 1],
+      );
+      sourceSubjectRead = sourceSubjectReadOf(requested, sources);
+    }
+  }
   return {
     ...(attestations !== undefined ? { attestations } : {}),
     ...(options.sharedIdentifierHolders === 'REPORT'
@@ -642,6 +752,9 @@ export async function loadSubjectGraph(
       : {}),
     ...(incomingEnumeration !== undefined
       ? { incomingRelationshipClaimEnumeration: incomingEnumeration }
+      : {}),
+    ...(sourceSubjectRead !== undefined
+      ? { incomingClaimSourceSubjectRead: sourceSubjectRead }
       : {}),
     focalSubjectId,
     input: {
