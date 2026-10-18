@@ -104,6 +104,13 @@ function queryable(t: Tables, holders?: (computed: string[]) => unknown[]) {
     if (/SELECT 1 FROM discovery_subjects WHERE id = \$1/.test(sql)) {
       return t.subjects.some((s) => s.id === v[0]) ? [{ '?column?': 1 }] : [];
     }
+    if (sql.includes('WHERE target_subject_id = $1')) {
+      // B2.5-P1c: the direct incoming claims, in id order, under the LIMIT.
+      return t.relationships
+        .filter((r) => r.target_subject_id === v[0] && r.subject_id !== v[0])
+        .sort((a, b) => ((a.id as string) < (b.id as string) ? -1 : 1))
+        .slice(0, v[1] as number);
+    }
     if (sql.includes('FROM discovery_subject_relationship_claims')) {
       const frontier = v[0] as string[];
       return t.relationships.filter(
@@ -340,6 +347,7 @@ describe('B2.5-P1b assembler: only the verified outcome decides the holder decla
     expect(scope.categories).toEqual({
       ...SCOPE_DECLARATIONS,
       SHARED_IDENTIFIER_HOLDERS: declaration,
+      INCOMING_RELATIONSHIP_CLAIMS: 'REPRESENTED',
     });
     const m = result.manifest;
     const omission = m.omissions.filter((o) => o.code.startsWith('SHARED_IDENTIFIER_HOLDER'));
@@ -401,7 +409,6 @@ describe('B2.5-P1b assembler: only the verified outcome decides the holder decla
       exportAuthentication: 'UNAUTHENTICATED',
     });
     for (const gap of [
-      'INCOMING_RELATIONSHIP_CLAIMS',
       'RECORD_SCOPED_FINDINGS',
       'INPUT_SCOPED_FINDINGS',
       'NEIGHBOUR_RECORD_FINDINGS',
@@ -409,7 +416,8 @@ describe('B2.5-P1b assembler: only the verified outcome decides the holder decla
     ] as const) {
       expect(m.scope.categories[gap], gap).toBe('UNKNOWN');
     }
-    expect(m.scope.relationshipDirectionsExamined).toEqual(['OUTGOING']);
+    expect(m.scope.relationshipDirectionsExamined).toEqual(['INCOMING', 'OUTGOING']);
+    expect(m.scope.parentage.independentOf).toBe('NEVER_INFERRED_FROM_ABSENCE');
     expect(m.protection).toEqual({ check: 'NOT_CONSULTED', verdict: 'UNKNOWN' });
     expect(Object.values(m.permissions).every((p) => p === 'NONE')).toBe(true);
     expect(result.read.durableSourceRevision).toBe('NONE');

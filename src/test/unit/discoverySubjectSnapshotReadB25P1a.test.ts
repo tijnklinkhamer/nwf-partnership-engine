@@ -130,6 +130,13 @@ function fake(options: FakeOptions) {
     if (/SELECT 1 FROM discovery_subjects WHERE id = \$1/.test(sql)) {
       return t.subjects.some((s) => s.id === v[0]) ? [{ '?column?': 1 }] : [];
     }
+    if (sql.includes('WHERE target_subject_id = $1')) {
+      // B2.5-P1c: the direct incoming claims, in id order, under the LIMIT.
+      return t.relationships
+        .filter((r) => r.target_subject_id === v[0] && r.subject_id !== v[0])
+        .sort((a, b) => ((a.id as string) < (b.id as string) ? -1 : 1))
+        .slice(0, v[1] as number);
+    }
     if (sql.includes('FROM discovery_subject_relationship_claims')) {
       const frontier = v[0] as string[];
       return t.relationships.filter(
@@ -492,11 +499,13 @@ describe('B2.5-P1a assembler: the conservative S0 mapping', () => {
         presentKeys: ['T P1A UNIT01|300000061'],
       },
     });
-    expect(input.scope.relationshipDirectionsExamined).toEqual(['OUTGOING']);
+    // P1c: the incoming claim query returned no row, under its sentinel limit.
+    expect(input.scope.relationshipDirectionsExamined).toEqual(['INCOMING', 'OUTGOING']);
     // P1b: no focal identifier, so the holder predicate has no member - exhaustively.
     expect(input.scope.categories).toEqual({
       ...SCOPE_DECLARATIONS,
       SHARED_IDENTIFIER_HOLDERS: 'REPRESENTED',
+      INCOMING_RELATIONSHIP_CLAIMS: 'REPRESENTED',
     });
     expect(input.scope.sharedIdentifierHolders).toEqual({
       enumeration: 'EXHAUSTIVE_AS_DECLARED',

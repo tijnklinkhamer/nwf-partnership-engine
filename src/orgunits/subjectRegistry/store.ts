@@ -24,6 +24,13 @@
  * attestation table, and this database's environment id - so the read model
  * can re-verify every review instead of trusting that a row exists. The
  * writer capability may not read attestations and loads with `SKIP`.
+ *
+ * B2.5-P1c: only when asked to REPORT them, it also enumerates the DIRECT
+ * INCOMING relationship claims - other subjects' claims whose target is the
+ * focal subject - under a cap with one sentinel row. They are reported
+ * beside the graph, never added to it: their source subjects, those
+ * subjects' other claims and every review of them stay unread, and the
+ * graph handed to the validator and read model is unchanged.
  */
 import type pg from 'pg';
 
@@ -46,6 +53,14 @@ export const MAX_SHARED_IDENTIFIER_HOLDERS = 20;
  * the graph on the holder query's account.
  */
 const SHARED_IDENTIFIER_HOLDER_QUERY_LIMIT = MAX_SHARED_IDENTIFIER_HOLDERS + 1;
+/**
+ * B2.5-P1c: direct incoming relationship CLAIMS (records, not distinct source
+ * subjects) included at most, and the query's limit: one more, whose extra
+ * (sentinel) row only proves that more claims exist and is never reported.
+ * A provisional engineering bound, not a completeness policy.
+ */
+const MAX_INCOMING_RELATIONSHIP_CLAIMS = 20;
+const INCOMING_RELATIONSHIP_CLAIM_QUERY_LIMIT = MAX_INCOMING_RELATIONSHIP_CLAIMS + 1;
 
 /**
  * B2.5-P1b: how the shared-identifier holder query ended, over EXACTLY its
@@ -101,6 +116,69 @@ function holderEnumerationOf(
     queryLimit: SHARED_IDENTIFIER_HOLDER_QUERY_LIMIT,
     includedCap: MAX_SHARED_IDENTIFIER_HOLDERS,
     holderSubjectIds: wellFormed ? included : [],
+  };
+}
+
+/**
+ * B2.5-P1c: how the direct incoming relationship-claim query ended, over
+ * EXACTLY its predicate (claims of another subject whose target_subject_id is
+ * the focal subject - never an ECHE-row target, never an inverse or
+ * transitive relationship) and the statement's own snapshot. A count of claim
+ * RECORDS: not a statement about their source subjects, those subjects' other
+ * claims, any review, parentage or independence.
+ *   EXHAUSTIVE - no qualifying claim exists beyond `relationshipClaims`;
+ *   TRUNCATED  - at least one qualifying claim exists beyond them;
+ *   UNKNOWN    - the result could not support either conclusion, and nothing
+ *                is reported.
+ * `relationshipClaims` are the query's own included rows, in id order, as
+ * stored; the sentinel is never among them.
+ */
+export interface IncomingRelationshipClaimEnumeration {
+  readonly outcome: 'EXHAUSTIVE' | 'TRUNCATED' | 'UNKNOWN';
+  readonly basis:
+    | 'QUERY_RETURNED_FEWER_ROWS_THAN_ITS_LIMIT'
+    | 'QUERY_RETURNED_A_ROW_BEYOND_THE_INCLUDED_CAP'
+    | 'QUERY_RESULT_NOT_DISTINCT_ORDERED_BOUNDED_AND_DIRECT';
+  /** The LIMIT the incoming query ran under: one more than the included cap. */
+  readonly queryLimit: number;
+  readonly includedCap: number;
+  readonly relationshipClaims: readonly RelationshipClaimRecord[];
+}
+
+/** Judges an incoming-query result; UNKNOWN unless distinct, ascending, bounded and direct. */
+function incomingEnumerationOf(
+  focalSubjectId: string,
+  returned: readonly RelationshipClaimRow[],
+): IncomingRelationshipClaimEnumeration {
+  const wellFormed =
+    returned.length <= INCOMING_RELATIONSHIP_CLAIM_QUERY_LIMIT &&
+    returned.every(
+      (row, i) =>
+        typeof row.id === 'string' &&
+        typeof row.subject_id === 'string' &&
+        row.subject_id !== focalSubjectId &&
+        row.target_subject_id === focalSubjectId &&
+        row.target_eche_row_key === null &&
+        (i === 0 || returned[i - 1]!.id < row.id),
+    );
+  const outcome = !wellFormed
+    ? 'UNKNOWN'
+    : returned.length > MAX_INCOMING_RELATIONSHIP_CLAIMS
+      ? 'TRUNCATED'
+      : 'EXHAUSTIVE';
+  return {
+    outcome,
+    basis:
+      outcome === 'UNKNOWN'
+        ? 'QUERY_RESULT_NOT_DISTINCT_ORDERED_BOUNDED_AND_DIRECT'
+        : outcome === 'TRUNCATED'
+          ? 'QUERY_RETURNED_A_ROW_BEYOND_THE_INCLUDED_CAP'
+          : 'QUERY_RETURNED_FEWER_ROWS_THAN_ITS_LIMIT',
+    queryLimit: INCOMING_RELATIONSHIP_CLAIM_QUERY_LIMIT,
+    includedCap: MAX_INCOMING_RELATIONSHIP_CLAIMS,
+    relationshipClaims: wellFormed
+      ? returned.slice(0, MAX_INCOMING_RELATIONSHIP_CLAIMS).map(relationshipClaimRecord)
+      : [],
   };
 }
 
@@ -405,10 +483,18 @@ export interface GraphLoadOptions {
    * records are the same either way.
    */
   readonly sharedIdentifierHolders?: 'OMIT' | 'REPORT';
+  /**
+   * B2.5-P1c: REPORT runs the direct incoming relationship-claim query and
+   * attaches `incomingRelationshipClaimEnumeration`; OMIT (the default) sends
+   * exactly the B2.2 statements and returns exactly the B2.2 graph shape.
+   * Either way the graph itself - subjects, claims, reviews - is the same.
+   */
+  readonly incomingRelationships?: 'OMIT' | 'REPORT';
 }
 
 export type LoadedSubjectGraph = SubjectGraph & {
   readonly sharedIdentifierHolderEnumeration?: SharedIdentifierHolderEnumeration;
+  readonly incomingRelationshipClaimEnumeration?: IncomingRelationshipClaimEnumeration;
 };
 
 /**
@@ -535,10 +621,27 @@ export async function loadSubjectGraph(
           q,
           reviewRows.map((r) => r.id),
         );
+
+  // Direct incoming claims, reported beside the graph and never merged into it.
+  let incomingEnumeration: IncomingRelationshipClaimEnumeration | undefined;
+  if (options.incomingRelationships === 'REPORT') {
+    const { rows: incoming } = await q.query<RelationshipClaimRow>(
+      `SELECT id, subject_id, predicate, target_subject_id, target_eche_row_key, ${PROVENANCE_COLUMNS}
+         FROM discovery_subject_relationship_claims
+        WHERE target_subject_id = $1 AND subject_id <> $1
+        ORDER BY id
+        LIMIT $2`,
+      [focalSubjectId, INCOMING_RELATIONSHIP_CLAIM_QUERY_LIMIT],
+    );
+    incomingEnumeration = incomingEnumerationOf(focalSubjectId, incoming);
+  }
   return {
     ...(attestations !== undefined ? { attestations } : {}),
     ...(options.sharedIdentifierHolders === 'REPORT'
       ? { sharedIdentifierHolderEnumeration: holderEnumeration }
+      : {}),
+    ...(incomingEnumeration !== undefined
+      ? { incomingRelationshipClaimEnumeration: incomingEnumeration }
       : {}),
     focalSubjectId,
     input: {

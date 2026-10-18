@@ -762,7 +762,7 @@ describeDb('B2.5-P1a transaction-bound snapshot assembler (integration)', () => 
   });
 
   describe('P1a-10 / P1a-11 / P1a-12: known loader gaps stay declared gaps', () => {
-    it('P1a-10: an incoming relationship the loader does not follow never yields bidirectional coverage', async () => {
+    it('P1a-10 (P1c): an enumerated incoming claim never brings its source subject or a parentage verdict', async () => {
       const { focal } = await focalFixture();
       const incoming = await subject();
       await nameClaim(admin, incoming, 'Synthetic P1a Incoming');
@@ -770,11 +770,15 @@ describeDb('B2.5-P1a transaction-bound snapshot assembler (integration)', () => 
       const m = built(await assembleSubjectSnapshotScope(wrap(readonly).source, focal)).manifest;
       const ids = m.membership.entries.map((e) => e.recordId);
       expect(ids).not.toContain(incoming);
-      expect(ids).not.toContain(incomingClaim);
-      expect(m.scope.relationshipDirectionsExamined).toEqual(['OUTGOING']);
-      expect(m.scope.relationshipDirectionCoverage).toBe('OUTGOING_ONLY');
-      expect(m.scope.categories.INCOMING_RELATIONSHIP_CLAIMS).toBe('UNKNOWN');
-      expect(m.validation.unavailableInputs).toContain('INCOMING_RELATIONSHIP_CLAIMS');
+      expect(ids).toContain(incomingClaim);
+      expect(m.omissions).toContainEqual({
+        code: 'CLAIM_SUBJECT_NOT_SUPPLIED',
+        ref: incomingClaim,
+      });
+      expect(m.scope.relationshipDirectionsExamined).toEqual(['INCOMING', 'OUTGOING']);
+      expect(m.scope.relationshipDirectionCoverage).toBe('BOTH_DIRECTIONS_EXAMINED_AS_DECLARED');
+      expect(m.scope.categories.INCOMING_RELATIONSHIP_CLAIMS).toBe('REPRESENTED');
+      expect(m.scope.categories.REFERENCED_RECORDS).toBe('INCOMPLETE');
       expect(m.scope.parentage).toEqual({
         transitive: 'UNKNOWN',
         direct: 'PART_OF_CLAIM_SUPPLIED_UNVERIFIED',
@@ -784,7 +788,7 @@ describeDb('B2.5-P1a transaction-bound snapshot assembler (integration)', () => 
       expect(m.states.declaredScopeCoverage).toBe('GAPS_DECLARED');
     });
 
-    it('P1a-10: an incoming claim retrieved incidentally (a PART_OF cycle) is shown, still not enumerated', async () => {
+    it('P1a-10 (P1c): an incoming claim also reached over a PART_OF cycle is shown once, and enumerated', async () => {
       const focal = await subject();
       await nameClaim(admin, focal, 'Synthetic P1a Cycle');
       const parent = await subject();
@@ -793,8 +797,9 @@ describeDb('B2.5-P1a transaction-bound snapshot assembler (integration)', () => 
       const m = built(await assembleSubjectSnapshotScope(wrap(readonly).source, focal)).manifest;
       const entry = m.membership.entries.find((e) => e.recordId === back)!;
       expect(entry.roles).toEqual(['INCOMING_RELATIONSHIP']);
-      expect(m.scope.relationshipDirectionCoverage).toBe('OUTGOING_ONLY');
-      expect(m.scope.categories.INCOMING_RELATIONSHIP_CLAIMS).toBe('UNKNOWN');
+      expect(m.membership.entries.filter((e) => e.recordId === back)).toHaveLength(1);
+      expect(m.scope.relationshipDirectionCoverage).toBe('BOTH_DIRECTIONS_EXAMINED_AS_DECLARED');
+      expect(m.scope.categories.INCOMING_RELATIONSHIP_CLAIMS).toBe('REPRESENTED');
     });
 
     it('P1a-11 (P1b): beyond the loader cap of 20 holders, the sentinel row declares TRUNCATED, never exhaustive', async () => {
@@ -975,10 +980,12 @@ describeDb('B2.5-P1a transaction-bound snapshot assembler (integration)', () => 
         producerMayIssue: 'NONE',
         identifiersIssuedHere: 'NONE',
       });
-      // P1b: the fixture cites no identifier, so only the holder category is exhaustive.
+      // P1b: the fixture cites no identifier, so the holder category is exhaustive;
+      // P1c: nothing targets it, so the incoming claim query is exhaustive too.
       expect(m.scope.categories).toEqual({
         ...SCOPE_DECLARATIONS,
         SHARED_IDENTIFIER_HOLDERS: 'REPRESENTED',
+        INCOMING_RELATIONSHIP_CLAIMS: 'REPRESENTED',
       });
       expect(verifySnapshotScopeManifest(m)).toMatchObject({
         contentDigestConsistency: 'CONSISTENT',

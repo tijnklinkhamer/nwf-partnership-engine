@@ -44,6 +44,19 @@
  * the query's real LIMIT as its bound, so its own "reaching the bound is
  * never exhaustive" rule still holds over what is declared.
  *
+ * B2.5-P1c: the loader also REPORTS the direct incoming relationship claims
+ * (other subjects' claims targeting the focal subject), capped with one
+ * sentinel row, in the same transaction. Only that verified outcome decides
+ * the incoming declaration: EXHAUSTIVE is REPRESENTED, TRUNCATED is
+ * INCOMPLETE, anything else stays UNKNOWN and adds no claim. S0 has no
+ * incoming bound, so the cap is not committed by the manifest; the category
+ * is. An included claim is the claim RECORD only. Its source subject is
+ * identified by the claim and supplied only when the loader read it for
+ * another reason - otherwise S0 records the omission and REFERENCED_RECORDS
+ * is INCOMPLETE; and a claim the loader did not reach on its own carries no
+ * review chain, so REVIEW_RECORDS is INCOMPLETE. Nothing about parentage,
+ * independence or the source subjects' other evidence is claimed.
+ *
  * WHAT IT NEVER TOUCHES. No writer, no review signing or verification, no
  * trust set, no protected-cohort registry, no research, classifier or
  * identity-register path, no environment, no pool of its own. Nothing in
@@ -108,8 +121,11 @@ export class SubjectSnapshotReadRefusal extends Error {
  * B2.2 loader's queries actually enumerate. REPRESENTED only where a query
  * returns EVERY matching row in the snapshot (a bound is refused by the
  * loader, never truncated); everything else is a declared gap.
- * SHARED_IDENTIFIER_HOLDERS here is the fallback only: each read replaces it
- * with the declaration of the loader's verified holder enumeration (P1b).
+ * SHARED_IDENTIFIER_HOLDERS and INCOMING_RELATIONSHIP_CLAIMS here are the
+ * fallbacks only: each read replaces them with the declaration of the
+ * loader's verified enumeration (P1b, P1c), and lowers REFERENCED_RECORDS and
+ * REVIEW_RECORDS to INCOMPLETE when an included incoming claim brings a
+ * source subject or review chain the loader did not read (P1c).
  */
 export const SCOPE_DECLARATIONS: { readonly [K in ScopeCategory]: CategoryDeclaration } =
   Object.freeze({
@@ -134,13 +150,15 @@ export const SCOPE_DECLARATION_BASIS: { readonly [K in ScopeCategory]: string } 
   FOCAL_SUBJECT: 'LOADER_READS_THE_SUBJECT_ROW_BY_ID',
   FOCAL_IDENTITY_CLAIMS: 'LOADER_READS_EVERY_CLAIM_OF_EVERY_LOADED_SUBJECT_BOUND_REFUSED',
   OUTGOING_RELATIONSHIP_CLAIMS: 'LOADER_READS_EVERY_FOCAL_RELATIONSHIP_CLAIM_BOUND_REFUSED',
-  INCOMING_RELATIONSHIP_CLAIMS: 'LOADER_DOES_NOT_ENUMERATE_INCOMING_RELATIONSHIPS',
-  REFERENCED_RECORDS: 'LOADER_READS_EVERY_TARGET_AND_REVIEW_CHAIN_IT_REFERENCES',
+  INCOMING_RELATIONSHIP_CLAIMS: 'LOADER_INCOMING_CLAIM_QUERY_SENTINEL_OUTCOME_DECIDES_EACH_READ',
+  REFERENCED_RECORDS:
+    'LOADER_READS_EVERY_TARGET_AND_REVIEW_CHAIN_IT_REFERENCES_INCOMING_SOURCE_SUBJECTS_UNREAD',
   SHARED_IDENTIFIER_HOLDERS: 'LOADER_HOLDER_QUERY_SENTINEL_OUTCOME_DECIDES_EACH_READ',
   RECORD_SCOPED_FINDINGS: 'VALIDATOR_NOT_RUN',
   INPUT_SCOPED_FINDINGS: 'VALIDATOR_NOT_RUN',
   NEIGHBOUR_RECORD_FINDINGS: 'VALIDATOR_NOT_RUN',
-  REVIEW_RECORDS: 'LOADER_READS_EVERY_REVIEW_OF_EVERY_LOADED_RECORD_BOUND_REFUSED',
+  REVIEW_RECORDS:
+    'LOADER_READS_EVERY_REVIEW_OF_EVERY_LOADED_RECORD_BOUND_REFUSED_INCOMING_CLAIM_REVIEWS_UNREAD',
   REVIEW_ATTESTATION_REFERENCES: 'LOADER_READS_EVERY_ATTESTATION_OF_EVERY_LOADED_REVIEW',
   VALIDATION_INPUTS: 'NO_VALIDATOR_RULE_VERSION_VALIDATOR_NOT_RUN',
   SOURCE_GLOBALS: 'REVIEW_ENVIRONMENT_AND_NONCE_USE_COUNTS_NOT_REPRESENTABLE',
@@ -164,7 +182,8 @@ export const SNAPSHOT_READ_FACTS = Object.freeze({
   manifestBinding: 'THESE_FACTS_ARE_NOT_COMMITTED_BY_THE_MANIFEST_DIGEST',
   loaderLimitations: Object.freeze([
     'ATTESTATION_PAYLOADS_SIGNATURES_ENVIRONMENT_AND_NONCE_COUNTS_NOT_REPRESENTED',
-    'INCOMING_RELATIONSHIPS_NOT_ENUMERATED',
+    'INCOMING_RELATIONSHIP_CLAIMS_CAPPED_OVERFLOW_DETECTED_NEVER_ENUMERATED',
+    'INCOMING_RELATIONSHIP_SOURCE_SUBJECTS_AND_CLAIM_REVIEWS_NOT_READ',
     'NEIGHBOUR_RELATIONSHIPS_LIMITED_TO_THE_PART_OF_CHAIN',
     'PROTECTED_REGISTRY_NOT_CONSULTED',
     'RECORD_CREATION_INSTANTS_NOT_REPRESENTED',
@@ -198,6 +217,8 @@ export type SubjectSnapshotReadResult =
 type SubjectGraph = NonNullable<Awaited<ReturnType<typeof loadSubjectGraph>>>;
 type HolderScope = SnapshotScopeInput['scope']['sharedIdentifierHolders'];
 type HolderEnumeration = NonNullable<SubjectGraph['sharedIdentifierHolderEnumeration']>;
+type IncomingEnumeration = NonNullable<SubjectGraph['incomingRelationshipClaimEnumeration']>;
+type Directions = SnapshotScopeInput['scope']['relationshipDirectionsExamined'];
 
 /**
  * P1b: each verified loader outcome, as S0 states it. Only EXHAUSTIVE may be
@@ -214,6 +235,22 @@ const HOLDER_SCOPE_OF: {
   EXHAUSTIVE: { enumeration: 'EXHAUSTIVE_AS_DECLARED', declaration: 'REPRESENTED' },
   TRUNCATED: { enumeration: 'TRUNCATED', declaration: 'INCOMPLETE' },
   UNKNOWN: { enumeration: 'UNKNOWN', declaration: 'UNKNOWN' },
+});
+
+/**
+ * P1c: each verified incoming-query outcome, as S0 can state it - a category
+ * declaration, plus the directions examined. Only EXHAUSTIVE may be
+ * REPRESENTED; UNKNOWN examined nothing S0 may rely on.
+ */
+const INCOMING_SCOPE_OF: {
+  readonly [K in IncomingEnumeration['outcome']]: {
+    readonly declaration: CategoryDeclaration;
+    readonly directions: Directions;
+  };
+} = Object.freeze({
+  EXHAUSTIVE: { declaration: 'REPRESENTED', directions: ['INCOMING', 'OUTGOING'] },
+  TRUNCATED: { declaration: 'INCOMPLETE', directions: ['INCOMING', 'OUTGOING'] },
+  UNKNOWN: { declaration: 'UNKNOWN', directions: ['OUTGOING'] },
 });
 
 const NO_OPEN_TRANSACTION_BLOCK =
@@ -287,6 +324,7 @@ async function readGraphInOneSnapshot(
     graph = await loadSubjectGraph(connection, focalSubjectId, {
       asOf: await databaseNow(connection),
       sharedIdentifierHolders: 'REPORT',
+      incomingRelationships: 'REPORT',
     });
     const end = await readSnapshotState(connection);
     if (end.started !== start.started || end.snapshot !== start.snapshot) {
@@ -316,7 +354,9 @@ async function readGraphInOneSnapshot(
  * represent; attestations become S0 REFERENCES (id, review, key, payload
  * digest) and nothing more; the ECHE-row-key state is the loader's own query
  * set and answer, never a caller's; the holder scope is the loader's own
- * verified holder-query outcome (P1b), never a caller's.
+ * verified holder-query outcome (P1b), never a caller's; and the incoming
+ * claims and their declaration are the loader's own verified incoming-query
+ * outcome (P1c), never a caller's.
  */
 function snapshotScopeInputOf(graph: SubjectGraph): SnapshotScopeInput {
   const { input, focalSubjectId: focal } = graph;
@@ -331,6 +371,21 @@ function snapshotScopeInputOf(graph: SubjectGraph): SnapshotScopeInput {
   const holderScope = HOLDER_SCOPE_OF[reported?.outcome ?? 'UNKNOWN'];
   const holderSubjectIds = [...(reported?.holderSubjectIds ?? [])].sort();
   const holderBound = reported?.queryLimit ?? MAX_SHARED_IDENTIFIER_HOLDERS;
+  // The incoming query's OWN included claims and outcome (P1c). No report at
+  // all is UNKNOWN; UNKNOWN adds no claim. A claim the loader already holds
+  // (the same stored row, reached over the PART_OF chain) is supplied once;
+  // the same id with different content is kept twice, for S0 to refuse.
+  const incoming = graph.incomingRelationshipClaimEnumeration;
+  const incomingScope = INCOMING_SCOPE_OF[incoming?.outcome ?? 'UNKNOWN'];
+  const incomingClaims =
+    incomingScope.declaration === 'UNKNOWN' ? [] : (incoming?.relationshipClaims ?? []);
+  const loadedClaims = new Map(input.relationshipClaims.map((r) => [r.id, JSON.stringify(r)]));
+  const addedClaims = incomingClaims.filter((r) => loadedClaims.get(r.id) !== JSON.stringify(r));
+  const loadedSubjects = new Set(input.subjects.map((s) => s.id));
+  // A source subject the loader did not read is identified, never retrieved;
+  // a claim it did not reach on its own came with no review chain.
+  const sourceSubjectUnread = addedClaims.some((r) => !loadedSubjects.has(r.subjectId));
+  const reviewChainUnread = addedClaims.some((r) => !loadedClaims.has(r.id));
   // Exactly the keys the loader asked `organisations` about: every loaded
   // relationship's ECHE target (it is passed no extra keys here).
   const queriedKeys = [
@@ -348,7 +403,7 @@ function snapshotScopeInputOf(graph: SubjectGraph): SnapshotScopeInput {
     records: {
       subjects: input.subjects,
       identityClaims: input.identityClaims,
-      relationshipClaims: input.relationshipClaims,
+      relationshipClaims: [...input.relationshipClaims, ...addedClaims],
       reviews: input.reviews,
       attestationReferences: attestations.records.map((a) => ({
         id: a.id,
@@ -365,8 +420,14 @@ function snapshotScopeInputOf(graph: SubjectGraph): SnapshotScopeInput {
       echeRowKeyState: { queriedKeys, presentKeys: [...input.knownEcheRowKeys] },
     },
     scope: {
-      relationshipDirectionsExamined: ['OUTGOING'],
-      categories: { ...SCOPE_DECLARATIONS, SHARED_IDENTIFIER_HOLDERS: holderScope.declaration },
+      relationshipDirectionsExamined: [...incomingScope.directions],
+      categories: {
+        ...SCOPE_DECLARATIONS,
+        SHARED_IDENTIFIER_HOLDERS: holderScope.declaration,
+        INCOMING_RELATIONSHIP_CLAIMS: incomingScope.declaration,
+        ...(sourceSubjectUnread ? { REFERENCED_RECORDS: 'INCOMPLETE' as const } : {}),
+        ...(reviewChainUnread ? { REVIEW_RECORDS: 'INCOMPLETE' as const } : {}),
+      },
       sharedIdentifierHolders: {
         enumeration: holderScope.enumeration,
         bound: holderBound,
