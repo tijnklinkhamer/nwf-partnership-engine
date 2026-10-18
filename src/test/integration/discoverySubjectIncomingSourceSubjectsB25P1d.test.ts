@@ -334,8 +334,6 @@ describeDb('B2.5-P1d incoming source-subject reference reading (integration)', (
         onward,
         subjectReview.reviewId,
         subjectReview.attestationId,
-        claimReview.reviewId,
-        claimReview.attestationId,
       ]) {
         expect(ids, unread).not.toContain(unread);
       }
@@ -346,7 +344,8 @@ describeDb('B2.5-P1d incoming source-subject reference reading (integration)', (
       expect(entry.roles).toEqual(['INCOMING_RELATIONSHIP_SOURCE']);
       expect(m.scope.categories.REFERENCED_RECORDS).toBe('REPRESENTED');
       expect(m.scope.categories.REVIEW_RECORDS).toBe('INCOMPLETE');
-      expect(m.reviews.chains).toEqual([]);
+      // B2.5-P1e: only the included claim's own review (and its attestation) is read.
+      expect(m.reviews.chains.map((c) => c.reviewIds)).toEqual([[claimReview.reviewId]]);
       expect(m.scope.parentage).toEqual({
         transitive: 'UNKNOWN',
         direct: 'NO_PART_OF_CLAIM_SUPPLIED_UNKNOWN',

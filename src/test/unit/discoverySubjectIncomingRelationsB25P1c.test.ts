@@ -426,7 +426,7 @@ describe('B2.5-P1c assembler: only the verified outcome decides the incoming dec
     const ids = m.membership.entries.map((e) => e.recordId);
     expect(ids).toContain(claimIds[0]);
     expect(ids).toContain(source);
-    for (const unread of [third, sourceName.id, sourceOther.id, subjectReview.id, claimReview.id]) {
+    for (const unread of [third, sourceName.id, sourceOther.id, subjectReview.id]) {
       expect(ids).not.toContain(unread);
     }
     expect(m.omissions).not.toContainEqual({
@@ -435,7 +435,8 @@ describe('B2.5-P1c assembler: only the verified outcome decides the incoming dec
     });
     expect(m.scope.categories.REFERENCED_RECORDS).toBe('REPRESENTED');
     expect(m.scope.categories.REVIEW_RECORDS).toBe('INCOMPLETE');
-    expect(m.reviews.chains).toEqual([]);
+    // B2.5-P1e: the included claim's own review is read; the source subject's is not.
+    expect(m.reviews.chains.map((c) => c.reviewIds)).toEqual([[claimReview.id]]);
   });
 
   it('supplies a claim also reached over the PART_OF chain once, with its review chain', async () => {
@@ -474,7 +475,7 @@ describe('B2.5-P1c assembler: only the verified outcome decides the incoming dec
     });
   });
 
-  it('keeps REFERENCED_RECORDS when the source subject was read for another reason, never its review chain', async () => {
+  it('keeps REFERENCED_RECORDS when the source subject was read for another reason, and reads its claim review chain (P1e)', async () => {
     const focal = randomUUID();
     const holder = randomUUID();
     const claim = relation(holder, 'AFFILIATED_WITH', { target_subject_id: focal });
@@ -487,10 +488,11 @@ describe('B2.5-P1c assembler: only the verified outcome decides the incoming dec
     const m = built(await assembleSubjectSnapshotScope(connectionSource(t).source, focal)).manifest;
     expect(m.omissions.filter((o) => o.code === 'CLAIM_SUBJECT_NOT_SUPPLIED')).toEqual([]);
     expect(m.scope.categories.REFERENCED_RECORDS).toBe('REPRESENTED');
-    expect(m.scope.categories.REVIEW_RECORDS).toBe('INCOMPLETE');
+    // B2.5-P1e: every supplied record's reviews were read - the holder's by the graph.
+    expect(m.scope.categories.REVIEW_RECORDS).toBe('REPRESENTED');
     const entry = m.membership.entries.find((e) => e.recordId === holder)!;
     expect(entry.roles).toEqual(['INCOMING_RELATIONSHIP_SOURCE', 'SHARED_IDENTIFIER_HOLDER']);
-    expect(m.reviews.chains).toEqual([]);
+    expect(m.reviews.chains.map((c) => c.targetKey)).toEqual([`relationship_claim:${claim.id}`]);
   });
 
   it('lets S0 refuse an incoming report that contradicts a record the loader holds', async () => {

@@ -70,6 +70,25 @@
  * and identity stay exactly as unknown as before. Resolving every reference
  * of the included claims never makes a TRUNCATED incoming category whole.
  *
+ * B2.5-P1e: the loader now also reads, in the same transaction, every stored
+ * review whose target key is an included incoming claim it did not reach on
+ * its own, and a reference to each of their attestations - by the exact
+ * target keys the incoming report fixes, through the loader's own review
+ * statement, which refuses rather than truncates beyond its bound. Each read
+ * review is supplied as stored, superseded ones included, and S0 states its
+ * chain; nothing more. A stored review is not a verified signature, a
+ * trusted reviewer, the latest review beyond this snapshot or an admission
+ * that the claim is true: S0's latestReview stays NOT_PROVEN, every chain's
+ * source tail UNKNOWN, every attestation reference unverified and untrusted.
+ * Reading every review of the included claims satisfies those claims' review
+ * obligation only. REVIEW_RECORDS stays INCOMPLETE whenever an added claim's
+ * source subject is not one the graph holds - its row read by id (P1d),
+ * absent or unknown, its own reviews are unread - and whenever the review
+ * read is UNKNOWN. It is REPRESENTED again only when every added claim's
+ * reviews were read AND its source subject is a subject the graph holds, so
+ * every review of every supplied record and source was read: the loader's
+ * own standard.
+ *
  * WHAT IT NEVER TOUCHES. No writer, no review signing or verification, no
  * trust set, no protected-cohort registry, no research, classifier or
  * identity-register path, no environment, no pool of its own. Nothing in
@@ -140,7 +159,9 @@ export class SubjectSnapshotReadRefusal extends Error {
  * REVIEW_RECORDS to INCOMPLETE when an included incoming claim brings a
  * source subject or review chain the loader did not read (P1c). A source
  * subject whose row the loader read by exact id (P1d) satisfies the claim's
- * reference, never its own review chain: REVIEW_RECORDS stays INCOMPLETE.
+ * reference, never its own review chain: REVIEW_RECORDS stays INCOMPLETE. The
+ * reviews of an included claim, once every one is read (P1e), satisfy that
+ * claim's review chain and nothing else.
  */
 export const SCOPE_DECLARATIONS: { readonly [K in ScopeCategory]: CategoryDeclaration } =
   Object.freeze({
@@ -173,8 +194,9 @@ export const SCOPE_DECLARATION_BASIS: { readonly [K in ScopeCategory]: string } 
   INPUT_SCOPED_FINDINGS: 'VALIDATOR_NOT_RUN',
   NEIGHBOUR_RECORD_FINDINGS: 'VALIDATOR_NOT_RUN',
   REVIEW_RECORDS:
-    'LOADER_READS_EVERY_REVIEW_OF_EVERY_LOADED_RECORD_BOUND_REFUSED_INCOMING_CLAIM_AND_SOURCE_SUBJECT_REVIEWS_UNREAD',
-  REVIEW_ATTESTATION_REFERENCES: 'LOADER_READS_EVERY_ATTESTATION_OF_EVERY_LOADED_REVIEW',
+    'LOADER_READS_EVERY_REVIEW_OF_EVERY_LOADED_RECORD_AND_INCLUDED_INCOMING_CLAIM_BOUND_REFUSED_SOURCE_SUBJECT_REVIEWS_UNREAD',
+  REVIEW_ATTESTATION_REFERENCES:
+    'LOADER_READS_EVERY_ATTESTATION_OF_EVERY_LOADED_REVIEW_AND_INCLUDED_INCOMING_CLAIM_REVIEW',
   VALIDATION_INPUTS: 'NO_VALIDATOR_RULE_VERSION_VALIDATOR_NOT_RUN',
   SOURCE_GLOBALS: 'REVIEW_ENVIRONMENT_AND_NONCE_USE_COUNTS_NOT_REPRESENTABLE',
   PROTECTION_STATUS: 'PROTECTED_REGISTRY_NOT_CONSULTED',
@@ -198,7 +220,7 @@ export const SNAPSHOT_READ_FACTS = Object.freeze({
   loaderLimitations: Object.freeze([
     'ATTESTATION_PAYLOADS_SIGNATURES_ENVIRONMENT_AND_NONCE_COUNTS_NOT_REPRESENTED',
     'INCOMING_RELATIONSHIP_CLAIMS_CAPPED_OVERFLOW_DETECTED_NEVER_ENUMERATED',
-    'INCOMING_RELATIONSHIP_CLAIM_REVIEWS_NOT_READ',
+    'INCOMING_RELATIONSHIP_CLAIM_REVIEWS_STORED_RECORDS_ONLY_NOT_VERIFIED_NOT_TRUSTED_NOT_PROVEN_LATEST',
     'INCOMING_RELATIONSHIP_SOURCE_SUBJECT_ROWS_ONLY_THEIR_CLAIMS_RELATIONSHIPS_REVIEWS_NOT_READ',
     'NEIGHBOUR_RELATIONSHIPS_LIMITED_TO_THE_PART_OF_CHAIN',
     'PROTECTED_REGISTRY_NOT_CONSULTED',
@@ -227,6 +249,16 @@ export type SubjectSnapshotReadResult =
         readonly requestedSubjectIds: readonly string[];
         readonly unreadSubjectIds: readonly string[];
       };
+      /**
+       * P1e: which included incoming claims the loader read the stored reviews
+       * of, and how that read ended - UNKNOWN when it was refused or never
+       * reported, in which case none of its rows is in `input`. NOT committed
+       * by the manifest digest: the reviews read are in `input`.
+       */
+      readonly incomingClaimReviews: {
+        readonly outcome: ClaimReviewRead['outcome'];
+        readonly requestedClaimIds: readonly string[];
+      };
     }
   | {
       /** S0 refused the retrieved records. The transaction had already ended; no manifest exists. */
@@ -246,6 +278,7 @@ type HolderScope = SnapshotScopeInput['scope']['sharedIdentifierHolders'];
 type HolderEnumeration = NonNullable<SubjectGraph['sharedIdentifierHolderEnumeration']>;
 type IncomingEnumeration = NonNullable<SubjectGraph['incomingRelationshipClaimEnumeration']>;
 type SourceSubjectRead = NonNullable<SubjectGraph['incomingClaimSourceSubjectRead']>;
+type ClaimReviewRead = NonNullable<SubjectGraph['incomingClaimReviewRead']>;
 type Directions = SnapshotScopeInput['scope']['relationshipDirectionsExamined'];
 
 /**
@@ -354,6 +387,7 @@ async function readGraphInOneSnapshot(
       sharedIdentifierHolders: 'REPORT',
       incomingRelationships: 'REPORT',
       incomingClaimSourceSubjects: 'READ',
+      incomingClaimReviews: 'READ',
     });
     const end = await readSnapshotState(connection);
     if (end.started !== start.started || end.snapshot !== start.snapshot) {
@@ -386,7 +420,9 @@ async function readGraphInOneSnapshot(
  * verified holder-query outcome (P1b), never a caller's; and the incoming
  * claims and their declaration are the loader's own verified incoming-query
  * outcome (P1c), never a caller's; and the only subjects added are the
- * source-subject rows the loader read for those claims (P1d).
+ * source-subject rows the loader read for those claims (P1d); and the only
+ * reviews and attestation references added are the ones the loader read, in
+ * full, for those claims (P1e).
  */
 function snapshotScopeInputOf(graph: SubjectGraph): SnapshotScopeInput {
   const { input, focalSubjectId: focal } = graph;
@@ -424,10 +460,35 @@ function snapshotScopeInputOf(graph: SubjectGraph): SnapshotScopeInput {
         );
   const suppliedSubjects = new Set([...loadedSubjects, ...sourceSubjectsRead.map((s) => s.id)]);
   const sourceSubjectUnread = addedClaims.some((r) => !suppliedSubjects.has(r.subjectId));
-  // A claim the loader did not reach on its own came with no review chain, and
-  // a source-subject row read by id came with none of its own.
+  // P1e: the stored reviews of the added claims the loader did not reach on its
+  // own - used only when the read returned every one of them, and then only
+  // the reviews of exactly those claims and the references to their
+  // attestations. A partial or refused read adds nothing.
+  const claimReviewRead =
+    incomingScope.declaration === 'UNKNOWN' ? undefined : graph.incomingClaimReviewRead;
+  const reviewedClaims = new Set(
+    claimReviewRead?.outcome === 'EVERY_MATCHING_ROW_READ' ? claimReviewRead.requestedClaimIds : [],
+  );
+  const unreachedClaims = new Set(
+    addedClaims.filter((r) => !loadedClaims.has(r.id)).map((r) => r.id),
+  );
+  const claimReviews = (reviewedClaims.size === 0 ? [] : claimReviewRead!.reviews).filter(
+    (v) =>
+      v.reviewedRelationshipClaimId !== null &&
+      reviewedClaims.has(v.reviewedRelationshipClaimId) &&
+      unreachedClaims.has(v.reviewedRelationshipClaimId),
+  );
+  const claimReviewIds = new Set(claimReviews.map((v) => v.id));
+  const claimReviewAttestations = (
+    reviewedClaims.size === 0 ? [] : claimReviewRead!.attestationReferences
+  ).filter((a) => claimReviewIds.has(a.reviewId));
+  // A claim the loader did not reach on its own came with no review chain unless
+  // P1e read every review of it; and an added claim's source subject the graph
+  // does not hold - read by id (P1d), absent or unknown - had none of its own
+  // reviews read, whether or not its row is supplied.
   const reviewChainUnread =
-    addedClaims.some((r) => !loadedClaims.has(r.id)) || sourceSubjectsRead.length > 0;
+    [...unreachedClaims].some((id) => !reviewedClaims.has(id)) ||
+    addedClaims.some((r) => !loadedSubjects.has(r.subjectId));
   // Exactly the keys the loader asked `organisations` about: every loaded
   // relationship's ECHE target (it is passed no extra keys here).
   const queriedKeys = [
@@ -446,13 +507,16 @@ function snapshotScopeInputOf(graph: SubjectGraph): SnapshotScopeInput {
       subjects: [...input.subjects, ...sourceSubjectsRead],
       identityClaims: input.identityClaims,
       relationshipClaims: [...input.relationshipClaims, ...addedClaims],
-      reviews: input.reviews,
-      attestationReferences: attestations.records.map((a) => ({
-        id: a.id,
-        reviewId: a.reviewId,
-        keyId: a.keyId,
-        payloadSha256: a.payloadSha256,
-      })),
+      reviews: [...input.reviews, ...claimReviews],
+      attestationReferences: [
+        ...attestations.records.map((a) => ({
+          id: a.id,
+          reviewId: a.reviewId,
+          keyId: a.keyId,
+          payloadSha256: a.payloadSha256,
+        })),
+        ...claimReviewAttestations,
+      ],
     },
     findings: [],
     validation: {
@@ -509,6 +573,7 @@ export async function assembleSubjectSnapshotScope(
     };
   }
   const sourceRead = graph.incomingClaimSourceSubjectRead;
+  const reviewRead = graph.incomingClaimReviewRead;
   return {
     outcome: 'BUILT',
     manifest: built.manifest,
@@ -519,6 +584,10 @@ export async function assembleSubjectSnapshotScope(
       outcome: sourceRead?.outcome ?? 'UNKNOWN',
       requestedSubjectIds: [...(sourceRead?.requestedSubjectIds ?? [])],
       unreadSubjectIds: [...(sourceRead?.unreadSubjectIds ?? [])],
+    },
+    incomingClaimReviews: {
+      outcome: reviewRead?.outcome ?? 'UNKNOWN',
+      requestedClaimIds: [...(reviewRead?.requestedClaimIds ?? [])],
     },
   };
 }

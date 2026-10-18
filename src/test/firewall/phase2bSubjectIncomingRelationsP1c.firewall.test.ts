@@ -646,12 +646,13 @@ describe('B2.5-P1c incoming relations: the assembler consumes only the verified 
     expect(assembler.SCOPE_DECLARATIONS.SHARED_IDENTIFIER_HOLDERS).toBe('UNKNOWN');
     expect(assembler.SNAPSHOT_READ_FACTS.durableSourceRevision).toBe('NONE');
     // B2.5-P1d (current tree only): the source-subject ROWS are now read by exact
-    // id; their claims, relationships and reviews, and the claims' reviews, are not.
+    // id; their claims, relationships and reviews are not. B2.5-P1e (current tree
+    // only): the claims' stored reviews are read, never verified, trusted or latest.
     expect(assembler.SNAPSHOT_READ_FACTS.loaderLimitations).toContain(
       'INCOMING_RELATIONSHIP_SOURCE_SUBJECT_ROWS_ONLY_THEIR_CLAIMS_RELATIONSHIPS_REVIEWS_NOT_READ',
     );
     expect(assembler.SNAPSHOT_READ_FACTS.loaderLimitations).toContain(
-      'INCOMING_RELATIONSHIP_CLAIM_REVIEWS_NOT_READ',
+      'INCOMING_RELATIONSHIP_CLAIM_REVIEWS_STORED_RECORDS_ONLY_NOT_VERIFIED_NOT_TRUSTED_NOT_PROVEN_LATEST',
     );
     expect(assembler.SNAPSHOT_READ_FACTS.loaderLimitations).not.toContain(
       'INCOMING_RELATIONSHIPS_NOT_ENUMERATED',

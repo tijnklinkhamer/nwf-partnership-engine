@@ -426,8 +426,6 @@ describeDb('B2.5-P1c bounded direct incoming relationship-claim enumeration (int
         onward,
         subjectReview.reviewId,
         subjectReview.attestationId,
-        claimReview.reviewId,
-        claimReview.attestationId,
       ]) {
         expect(ids, unread).not.toContain(unread);
       }
@@ -437,7 +435,8 @@ describeDb('B2.5-P1c bounded direct incoming relationship-claim enumeration (int
       });
       expect(m.scope.categories.REFERENCED_RECORDS).toBe('REPRESENTED');
       expect(m.scope.categories.REVIEW_RECORDS).toBe('INCOMPLETE');
-      expect(m.reviews.chains).toEqual([]);
+      // B2.5-P1e: only the included claim's own review (and its attestation) is read.
+      expect(m.reviews.chains.map((c) => c.reviewIds)).toEqual([[claimReview.reviewId]]);
       expect(m.states.sourceCompleteness).toBe('NOT_PROVEN');
       expect(result.read.loaderLimitations).toContain(
         'INCOMING_RELATIONSHIP_SOURCE_SUBJECT_ROWS_ONLY_THEIR_CLAIMS_RELATIONSHIPS_REVIEWS_NOT_READ',

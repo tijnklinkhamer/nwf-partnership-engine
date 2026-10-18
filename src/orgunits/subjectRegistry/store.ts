@@ -37,6 +37,12 @@
  * claims name that the graph does not already hold. Only that row: never the
  * subject's own claims, relationships, reviews or attestations, and never
  * into the graph.
+ *
+ * B2.5-P1e: only when also asked to READ them, it then reads every review
+ * whose target key is one of those INCLUDED claims that the graph does not
+ * already hold, and a REFERENCE (id, review, key, payload digest) to each of
+ * their attestations - never a review of a source subject or of any other
+ * claim, never the sentinel claim's, and never into the graph.
  */
 import type pg from 'pg';
 
@@ -257,6 +263,109 @@ function sourceSubjectReadOf(
   };
 }
 
+/**
+ * B2.5-P1e: a stored attestation of a review read for an included incoming
+ * claim, as a REFERENCE only. Its payload, signature, nonce and environment
+ * are never read here, so nothing here can be, or claims to be, verified.
+ */
+export interface IncomingClaimReviewAttestationReference {
+  readonly id: string;
+  readonly reviewId: string;
+  readonly keyId: string;
+  readonly payloadSha256: string;
+}
+
+/**
+ * B2.5-P1e: the stored reviews of the claims an incoming report INCLUDED
+ * that the graph did not already hold - a finite set fixed by the report,
+ * never a new enumeration - read by their exact review target keys with
+ * the loader's own review statement, which refuses (throws), never
+ * truncates, beyond its bound; and the attestation references of exactly
+ * those reviews. A review read here is a stored record ONLY: not a verified
+ * signature, not a trusted reviewer, not the latest review beyond this
+ * snapshot and not an admission that the claim is true.
+ *   NONE_REQUESTED          - no included claim is one the graph lacks;
+ *   EVERY_MATCHING_ROW_READ - the statements returned every stored review of
+ *                             the requested claims, and every attestation of
+ *                             those reviews, within this snapshot - zero
+ *                             included;
+ *   UNKNOWN                 - a result was not distinct, ascending,
+ *                             well-typed, limited to the requested targets
+ *                             with each predecessor present, or an attestation
+ *                             did not name exactly one read review: no row is
+ *                             used; or an included claim id was malformed, so
+ *                             nothing was requested or read at all.
+ * Chain shape (forks, several roots) is NOT judged here: the rows are kept
+ * as stored for the manifest to state.
+ */
+export interface IncomingClaimReviewRead {
+  readonly outcome: 'NONE_REQUESTED' | 'EVERY_MATCHING_ROW_READ' | 'UNKNOWN';
+  readonly requestedClaimIds: readonly string[];
+  readonly reviews: readonly SubjectReviewRecord[];
+  readonly attestationReferences: readonly IncomingClaimReviewAttestationReference[];
+}
+
+/** The included claims the graph lacks, ascending; null if one is malformed. */
+function claimIdsToReview(
+  enumeration: IncomingRelationshipClaimEnumeration,
+  heldClaimIds: readonly string[],
+): string[] | null {
+  if (enumeration.outcome === 'UNKNOWN') return [];
+  const included = [...new Set(enumeration.relationshipClaims.map((r) => r.id))];
+  if (included.length > MAX_INCOMING_RELATIONSHIP_CLAIMS) return null;
+  if (!included.every((id) => typeof id === 'string' && SOURCE_SUBJECT_ID.test(id))) return null;
+  return included.filter((id) => !heldClaimIds.includes(id)).sort();
+}
+
+/** Judges a review and attestation-reference result; UNKNOWN unless both are whole. */
+function claimReviewReadOf(
+  requested: readonly string[],
+  returned: readonly ReviewRow[],
+  references: readonly AttestationReferenceRow[],
+): IncomingClaimReviewRead {
+  const target = new Map(returned.map((row) => [row.id, row.reviewed_relationship_claim_id]));
+  const reviewsWhole = returned.every(
+    (row, i) =>
+      typeof row.id === 'string' &&
+      row.reviewed_subject_id === null &&
+      row.reviewed_identity_claim_id === null &&
+      typeof row.reviewed_relationship_claim_id === 'string' &&
+      requested.includes(row.reviewed_relationship_claim_id) &&
+      typeof row.review_outcome === 'string' &&
+      typeof row.actor_key === 'string' &&
+      typeof row.reviewed_at === 'string' &&
+      (row.reason === null || typeof row.reason === 'string') &&
+      (row.supersedes_review_id === null ||
+        target.get(row.supersedes_review_id) === row.reviewed_relationship_claim_id) &&
+      (i === 0 || returned[i - 1]!.id < row.id),
+  );
+  const referencesWhole =
+    new Set(references.map((row) => row.review_id)).size === references.length &&
+    references.every(
+      (row, i) =>
+        typeof row.id === 'string' &&
+        typeof row.review_id === 'string' &&
+        target.has(row.review_id) &&
+        typeof row.key_id === 'string' &&
+        typeof row.payload_sha256 === 'string' &&
+        (i === 0 || references[i - 1]!.id < row.id),
+    );
+  const whole = reviewsWhole && referencesWhole;
+  return {
+    outcome: whole ? 'EVERY_MATCHING_ROW_READ' : 'UNKNOWN',
+    requestedClaimIds: [...requested],
+    reviews: whole ? returned.map(reviewRecord) : [],
+    attestationReferences: whole
+      ? references.map((row) => ({
+          id: row.id,
+          reviewId: row.review_id,
+          keyId: row.key_id,
+          payloadSha256: row.payload_sha256,
+        }))
+      : [],
+  };
+}
+
 export type Queryable = Pick<pg.ClientBase, 'query'>;
 
 export class SubjectGraphBoundExceeded extends Error {
@@ -412,6 +521,13 @@ interface AttestationRow {
   signature: string;
   payload_sha256: string;
   recorded_at: string;
+}
+
+interface AttestationReferenceRow {
+  id: string;
+  review_id: string;
+  key_id: string;
+  payload_sha256: string;
 }
 
 function attestationRecord(row: AttestationRow): ReviewAttestationRecord {
@@ -573,12 +689,22 @@ export interface GraphLoadOptions {
    * itself is the same either way.
    */
   readonly incomingClaimSourceSubjects?: 'OMIT' | 'READ';
+  /**
+   * B2.5-P1e: READ, with `incomingRelationships: 'REPORT'` and attestations
+   * loaded, reads the stored reviews (and their attestation references) of
+   * the reported claims the graph lacks and attaches
+   * `incomingClaimReviewRead`; OMIT (the default), or READ without both,
+   * sends no such statement and returns no such field. The graph itself is
+   * the same either way.
+   */
+  readonly incomingClaimReviews?: 'OMIT' | 'READ';
 }
 
 export type LoadedSubjectGraph = SubjectGraph & {
   readonly sharedIdentifierHolderEnumeration?: SharedIdentifierHolderEnumeration;
   readonly incomingRelationshipClaimEnumeration?: IncomingRelationshipClaimEnumeration;
   readonly incomingClaimSourceSubjectRead?: IncomingClaimSourceSubjectRead;
+  readonly incomingClaimReviewRead?: IncomingClaimReviewRead;
 };
 
 /**
@@ -745,6 +871,50 @@ export async function loadSubjectGraph(
       sourceSubjectRead = sourceSubjectReadOf(requested, sources);
     }
   }
+
+  // The included claims' stored reviews, by exact target key, reported beside the graph.
+  let claimReviewRead: IncomingClaimReviewRead | undefined;
+  if (
+    options.incomingClaimReviews === 'READ' &&
+    incomingEnumeration !== undefined &&
+    attestations !== undefined
+  ) {
+    const requested = claimIdsToReview(
+      incomingEnumeration,
+      relationshipRows.map((r) => r.id),
+    );
+    if (requested === null || requested.length === 0) {
+      // A malformed id is never sent; with none to read, no statement is sent.
+      claimReviewRead = {
+        outcome: requested === null ? 'UNKNOWN' : 'NONE_REQUESTED',
+        requestedClaimIds: [],
+        reviews: [],
+        attestationReferences: [],
+      };
+    } else {
+      const claimReviews = await loadReviews(
+        q,
+        requested.map((id) => `relationship_claim:${id}`),
+      );
+      const references =
+        claimReviews.length === 0
+          ? []
+          : bounded(
+              (
+                await q.query<AttestationReferenceRow>(
+                  `SELECT id, review_id, key_id, payload_sha256
+                     FROM subject_review_attestations
+                    WHERE review_id = ANY($1::uuid[])
+                    ORDER BY id
+                    LIMIT $2`,
+                  [claimReviews.map((r) => r.id), MAX_GRAPH_ROWS + 1],
+                )
+              ).rows,
+              'incoming claim review attestations',
+            );
+      claimReviewRead = claimReviewReadOf(requested, claimReviews, references);
+    }
+  }
   return {
     ...(attestations !== undefined ? { attestations } : {}),
     ...(options.sharedIdentifierHolders === 'REPORT'
@@ -756,6 +926,7 @@ export async function loadSubjectGraph(
     ...(sourceSubjectRead !== undefined
       ? { incomingClaimSourceSubjectRead: sourceSubjectRead }
       : {}),
+    ...(claimReviewRead !== undefined ? { incomingClaimReviewRead: claimReviewRead } : {}),
     focalSubjectId,
     input: {
       subjects: subjectRows.map(subjectRecord),

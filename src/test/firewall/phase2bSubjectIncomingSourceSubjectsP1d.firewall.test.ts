@@ -749,7 +749,8 @@ describe('B2.5-P1d source-subject reading: the assembler adds only rows read for
     expect(assembler.SNAPSHOT_READ_FACTS.durableSourceRevision).toBe('NONE');
     expect(assembler.SNAPSHOT_READ_FACTS.loaderLimitations).toEqual(
       expect.arrayContaining([
-        'INCOMING_RELATIONSHIP_CLAIM_REVIEWS_NOT_READ',
+        // B2.5-P1e (current tree only): the claims' stored reviews are now read.
+        'INCOMING_RELATIONSHIP_CLAIM_REVIEWS_STORED_RECORDS_ONLY_NOT_VERIFIED_NOT_TRUSTED_NOT_PROVEN_LATEST',
         'INCOMING_RELATIONSHIP_SOURCE_SUBJECT_ROWS_ONLY_THEIR_CLAIMS_RELATIONSHIPS_REVIEWS_NOT_READ',
         'NEIGHBOUR_RELATIONSHIPS_LIMITED_TO_THE_PART_OF_CHAIN',
         'PROTECTED_REGISTRY_NOT_CONSULTED',

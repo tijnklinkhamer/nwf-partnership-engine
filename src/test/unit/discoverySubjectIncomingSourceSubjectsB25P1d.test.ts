@@ -448,14 +448,14 @@ describe("B2.5-P1d loader: one exact-id read of the included claims' source subj
       up.id,
       onward.id,
       subjectReview.id,
-      claimReview.id,
-      ...t.attestations.map((a) => a.id),
+      t.attestations[0]!.id,
     ]) {
       expect(ids).not.toContain(unread);
     }
     expect(m.scope.categories.REFERENCED_RECORDS).toBe('REPRESENTED');
     expect(m.scope.categories.REVIEW_RECORDS).toBe('INCOMPLETE');
-    expect(m.reviews.chains).toEqual([]);
+    // B2.5-P1e: only the included claim's own review (and its attestation) is read.
+    expect(m.reviews.chains.map((ch) => ch.reviewIds)).toEqual([[claimReview.id]]);
     expect(m.scope.parentage).toEqual({
       transitive: 'UNKNOWN',
       direct: 'NO_PART_OF_CLAIM_SUPPLIED_UNKNOWN',
@@ -702,7 +702,7 @@ describe('B2.5-P1d assembler: the incoming bound, its outcome and P1a/P1b are un
     expect(result.read).toBe(SNAPSHOT_READ_FACTS);
     expect(SNAPSHOT_READ_FACTS.loaderLimitations).toEqual(
       expect.arrayContaining([
-        'INCOMING_RELATIONSHIP_CLAIM_REVIEWS_NOT_READ',
+        'INCOMING_RELATIONSHIP_CLAIM_REVIEWS_STORED_RECORDS_ONLY_NOT_VERIFIED_NOT_TRUSTED_NOT_PROVEN_LATEST',
         'INCOMING_RELATIONSHIP_SOURCE_SUBJECT_ROWS_ONLY_THEIR_CLAIMS_RELATIONSHIPS_REVIEWS_NOT_READ',
       ]),
     );
