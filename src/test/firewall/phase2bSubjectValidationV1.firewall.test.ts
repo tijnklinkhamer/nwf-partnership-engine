@@ -637,6 +637,9 @@ describe('B2.5-V1 validation findings: narrow, read-only, unconnected', () => {
         'src/orgunits/subjectSnapshot/canonical.ts',
         'src/orgunits/subjectSnapshot/contract.ts',
         'src/orgunits/subjectSnapshot/manifest.ts',
+        // B2.5-M1 (current tree only): the pure, provisional acquisition companion.
+        'src/orgunits/subjectReadProvenance/companion.ts',
+        'src/orgunits/subjectReadProvenance/contract.ts',
       ].sort(),
     );
     expect([...external]).toEqual(['node:crypto']);

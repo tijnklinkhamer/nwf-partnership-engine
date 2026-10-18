@@ -62,6 +62,17 @@ const B25_P1A_SNAPSHOT_FORMS = [
   /\bconst built = buildSnapshotScopeManifest\(input\);/,
 ];
 
+/**
+ * B2.5-M1 (OWNER-authorised exact-path exception, sign-off pending): the ONE
+ * further production file that may import this module - the provisional
+ * acquisition companion - by exactly this one import (a named, closed list:
+ * the digest check, the reproduction check and two types). Never the
+ * builder, the encoder or the reference comparison, and no other importer.
+ */
+const B25_M1_COMPANION = 'src/orgunits/subjectReadProvenance/companion.ts';
+const B25_M1_SNAPSHOT_IMPORT =
+  /import \{\s*reproduceSnapshotScopeManifest,\s*verifySnapshotScopeManifest,\s*type SnapshotScopeInput,\s*type SnapshotScopeManifest,\s*\} from '\.\.\/subjectSnapshot\/manifest\.js';/;
+
 const AUTHORISED_CHANGESET = [
   ...PRODUCTION_FILES.map((f) => `A\t${f}`),
   `A\t${UNIT_TEST}`,
@@ -310,6 +321,7 @@ describe('B2.5-S0 snapshot-scope manifest: pure, self-contained, unconnected', (
       if (file === B25_P1A_ASSEMBLER) {
         for (const form of B25_P1A_SNAPSHOT_FORMS) code = code.replace(form, '');
       }
+      if (file === B25_M1_COMPANION) code = code.replace(B25_M1_SNAPSHOT_IMPORT, '');
       expect(code, file).not.toMatch(naming);
     }
   });

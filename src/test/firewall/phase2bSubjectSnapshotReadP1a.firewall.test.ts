@@ -575,6 +575,9 @@ describe('B2.5-P1a snapshot assembler: narrow, read-only, unconnected', () => {
         'src/orgunits/identity/admissibility.ts',
         'src/orgunits/identity/validate.ts',
         'src/orgunits/identity/vocabulary.ts',
+        // B2.5-M1 (current tree only): the pure, provisional acquisition companion.
+        'src/orgunits/subjectReadProvenance/companion.ts',
+        'src/orgunits/subjectReadProvenance/contract.ts',
       ].sort(),
     );
     expect([...external]).toEqual(['node:crypto']);

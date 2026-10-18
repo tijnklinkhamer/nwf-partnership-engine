@@ -125,6 +125,18 @@
  * any authority from a finding or its absence; S0's executionVerification
  * stays NOT_VERIFIED.
  *
+ * B2.5-M1: only when a caller asks for `acquisitionCompanion: 'BUILD'`, the
+ * BUILT result also carries the provisional, B-local acquisition companion:
+ * a records-only digest of the manifest's stored evidence records
+ * (independent of the as-of, the ECHE key state, the findings and the read)
+ * and, under one acquisition digest, how
+ * each bounded read ended - taken from the loader's own reports and this
+ * read's validation report, never from a caller - checked against the
+ * manifest it references. Both reads send exactly the same statements; the
+ * default and validated results are unchanged. The companion is
+ * assembler-reported and unsigned: it proves no query ran, no source is
+ * complete or current, and it is not part of the B2.4 -> H1 handoff.
+ *
  * WHAT IT NEVER TOUCHES. No writer, no review signing or verification, no
  * trust set, no protected-cohort registry, no research, classifier or
  * identity-register path, no environment, no pool of its own. Nothing in
@@ -151,6 +163,11 @@ import {
   type SnapshotScopeInput,
   type SnapshotScopeManifest,
 } from '../subjectSnapshot/manifest.js';
+import {
+  buildAcquisitionCompanion,
+  type AcquisitionCompanion,
+  type AcquisitionObservations,
+} from '../subjectReadProvenance/companion.js';
 
 /** The one connection an assembly owns, from `connect()` until it is released. */
 export type SnapshotReadConnection = Pick<pg.PoolClient, 'query' | 'release'>;
@@ -310,6 +327,8 @@ const VALIDATED_READ_FACTS = Object.freeze({
 /** V1: the opt-in. NOT_RUN (the default) is the P1a-P1e read, statement for statement. */
 export interface SnapshotReadOptions {
   readonly validation?: 'NOT_RUN' | 'RUN';
+  /** M1: BUILD attaches the acquisition companion; anything else (the default) attaches nothing. */
+  readonly acquisitionCompanion?: 'OMIT' | 'BUILD';
 }
 
 type FindingPartition = 'INPUT' | 'FOCAL_RECORD' | 'NEIGHBOUR_RECORD' | 'UNSUPPLIED_RECORD';
@@ -350,6 +369,8 @@ export type SubjectSnapshotReadResult =
       readonly read: typeof SNAPSHOT_READ_FACTS | typeof VALIDATED_READ_FACTS;
       /** V1: present only on a validated read. */
       readonly validation?: SnapshotValidationReport;
+      /** M1: present only when asked for. Assembler-reported, unsigned, B-local. */
+      readonly acquisition?: AcquisitionCompanion;
       /**
        * P1d: which source subjects of the included incoming claims the loader
        * requested by exact id, and which it could not read - absent from the
@@ -824,6 +845,94 @@ function validatedInputOf(
 }
 
 /**
+ * M1: what the loader REPORTED about each bounded read, and what the
+ * validated read published or withheld - copied, never re-judged; the
+ * companion re-derives every status and checks it against the manifest. A
+ * bounded read the loader did not report leaves nothing to bind: no result.
+ */
+function acquisitionObservationsOf(
+  graph: SubjectGraph,
+  report: SnapshotValidationReport | undefined,
+): AcquisitionObservations {
+  const holders = graph.sharedIdentifierHolderEnumeration;
+  const incoming = graph.incomingRelationshipClaimEnumeration;
+  const sources = graph.incomingClaimSourceSubjectRead;
+  const reviews = graph.incomingClaimReviewRead;
+  if (
+    holders === undefined ||
+    incoming === undefined ||
+    sources === undefined ||
+    reviews === undefined
+  ) {
+    throw new Error('the loader did not report every bounded read the companion binds');
+  }
+  return {
+    holderQuery: {
+      outcome: holders.outcome,
+      basis: holders.basis,
+      queryLimit: holders.queryLimit,
+      includedCap: holders.includedCap,
+      includedSubjectIds: [...holders.holderSubjectIds],
+    },
+    incomingQuery: {
+      outcome: incoming.outcome,
+      basis: incoming.basis,
+      queryLimit: incoming.queryLimit,
+      includedCap: incoming.includedCap,
+      includedClaims: incoming.relationshipClaims.map((r) => ({
+        id: r.id,
+        subjectId: r.subjectId,
+      })),
+    },
+    sourceRowRead: {
+      outcome: sources.outcome,
+      requestedSubjectIds: [...sources.requestedSubjectIds],
+      readSubjectIds: sources.subjects.map((s) => s.id),
+      unreadSubjectIds: [...sources.unreadSubjectIds],
+    },
+    claimReviewRead: {
+      outcome: reviews.outcome,
+      requestedClaimIds: [...reviews.requestedClaimIds],
+      reviews: reviews.reviews.map((v) => ({
+        id: v.id,
+        claimId: v.reviewedRelationshipClaimId as string,
+        supersedesReviewId: v.supersedesReviewId,
+      })),
+      attestationReferences: reviews.attestationReferences.map((a) => ({
+        id: a.id,
+        reviewId: a.reviewId,
+      })),
+    },
+    baseGraph: {
+      subjectIds: graph.input.subjects.map((s) => s.id),
+      relationshipClaims: graph.input.relationshipClaims.map((r) => ({
+        id: r.id,
+        subjectId: r.subjectId,
+        targetSubjectId: r.targetSubjectId,
+      })),
+    },
+    validation:
+      report === undefined
+        ? null
+        : {
+            ruleVersion: report.ruleVersion,
+            focalCoverage: report.focalCoverage,
+            focalCoverageGaps: [...report.focalCoverageGaps],
+            withheld: report.withheld.diagnostics.map((d) => ({
+              partition: d.partition as 'NEIGHBOUR_RECORD' | 'UNSUPPLIED_RECORD',
+              finding: {
+                severity: d.finding.severity,
+                code: d.finding.code,
+                recordId: d.finding.recordId,
+                subjectId: d.finding.subjectId,
+                field: d.finding.field,
+              },
+            })),
+          },
+  };
+}
+
+/**
  * Assembles the S0 manifest of `focalSubjectId` from one read-only,
  * repeatable-read transaction on one connection from `source`. Throws
  * `SubjectSnapshotReadRefusal` (or the loader's own error) and returns nothing
@@ -870,6 +979,21 @@ export async function assembleSubjectSnapshotScope(
   }
   const sourceRead = graph.incomingClaimSourceSubjectRead;
   const reviewRead = graph.incomingClaimReviewRead;
+  // M1: only the exact opt-in builds the companion; a refused companion returns nothing.
+  let acquisition: AcquisitionCompanion | undefined;
+  if (options?.acquisitionCompanion === 'BUILD') {
+    const companion = buildAcquisitionCompanion({
+      manifest: built.manifest,
+      input,
+      observations: acquisitionObservationsOf(graph, validated?.report),
+    });
+    if (companion.outcome === 'REFUSED') {
+      throw new Error(
+        `the acquisition companion was refused: ${companion.code} (${companion.detail})`,
+      );
+    }
+    acquisition = companion.companion;
+  }
   return {
     outcome: 'BUILT',
     manifest: built.manifest,
@@ -877,6 +1001,7 @@ export async function assembleSubjectSnapshotScope(
     input,
     read: facts,
     ...(validated !== undefined ? { validation: validated.report } : {}),
+    ...(acquisition !== undefined ? { acquisition } : {}),
     incomingClaimSourceSubjects: {
       outcome: sourceRead?.outcome ?? 'UNKNOWN',
       requestedSubjectIds: [...(sourceRead?.requestedSubjectIds ?? [])],
