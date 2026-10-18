@@ -111,6 +111,17 @@ const B24_READ_ONLY_FORMS = [
   /: ReviewTrustSet\b/g,
 ];
 
+/**
+ * B2.5-P1a (OWNER-authorised exact-path exception, 2026-10-17): the ONE
+ * further production file that may name the registry - the transaction-bound
+ * snapshot assembler - by ONE import of exactly the SELECT-only loader, its
+ * clock and its holder bound from the store. It names no review protocol,
+ * signer, verifier, trust set, reviewer authority or writer.
+ */
+const B25_P1A_ASSEMBLER = 'src/orgunits/subjectSnapshotRead/assemble.ts';
+const B25_P1A_STORE_IMPORT =
+  /import \{\s*databaseNow,\s*loadSubjectGraph,\s*MAX_SHARED_IDENTIFIER_HOLDERS,\s*\} from '\.\.\/subjectRegistry\/store\.js';/;
+
 /** The exact authorised change set, as `git diff --name-status` lines. */
 const AUTHORISED_CHANGESET = [
   `A\t${ADR}`,
@@ -569,6 +580,7 @@ describe('B2.3 protocol and verification: domain-separated, signature-first, sea
       if (B24_REVIEW_READERS.includes(file)) {
         for (const form of B24_READ_ONLY_FORMS) code = code.replace(form, '');
       }
+      if (file === B25_P1A_ASSEMBLER) code = code.replace(B25_P1A_STORE_IMPORT, '');
       expect(code, file).not.toMatch(forbidden);
     }
   });

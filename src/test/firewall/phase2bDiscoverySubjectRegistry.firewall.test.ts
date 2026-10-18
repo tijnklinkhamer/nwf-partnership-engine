@@ -105,6 +105,17 @@ const B24_READ_MODEL_IMPORTERS = [
 const B24_READ_MODEL_IMPORT =
   /from '\.\.\/subjectRegistry\/(?:readModel|requests|reviewAttestation)\.js'/g;
 
+/**
+ * B2.5-P1a (OWNER-authorised exact-path exception, 2026-10-17): the ONE
+ * further production file that may name the registry - the transaction-bound
+ * snapshot assembler - by ONE import of exactly the SELECT-only loader, its
+ * clock and its holder bound from the store. Never the writer, the read
+ * model, the reviewer authority, the evidence binding or any other store name.
+ */
+const B25_P1A_ASSEMBLER = 'src/orgunits/subjectSnapshotRead/assemble.ts';
+const B25_P1A_STORE_IMPORT =
+  /import \{\s*databaseNow,\s*loadSubjectGraph,\s*MAX_SHARED_IDENTIFIER_HOLDERS,\s*\} from '\.\.\/subjectRegistry\/store\.js';/;
+
 /** The exact authorised change set, as `git diff --name-status` lines. */
 const AUTHORISED_CHANGESET = [
   'A\tdocs/adr/0020-controlled-discovery-subject-registry.md',
@@ -465,6 +476,7 @@ describe('B2.2 registry module: narrow, local and inert towards research', () =>
       if (file.startsWith(REGISTRY_DIR) || file === CLI_COMMAND || file === CLI_ENTRY) continue;
       let code = codeOf(readFileSync(join(REPO_ROOT, file), 'utf8'));
       if (B24_READ_MODEL_IMPORTERS.includes(file)) code = code.replace(B24_READ_MODEL_IMPORT, '');
+      if (file === B25_P1A_ASSEMBLER) code = code.replace(B25_P1A_STORE_IMPORT, '');
       expect(code, file).not.toMatch(/subjectRegistry|discoverySubjects/);
     }
   });

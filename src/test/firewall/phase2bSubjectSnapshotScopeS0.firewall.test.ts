@@ -25,7 +25,7 @@
  * THE RANGE IS OPEN to the working tree while the slice is uncommitted; the
  * terminal pin belongs to a separately authorised commit-closure phase.
  */
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -48,6 +48,19 @@ const PRODUCTION_FILES = [
 ];
 const UNIT_TEST = 'src/test/unit/discoverySubjectSnapshotScopeB25S0.test.ts';
 const FIREWALL = 'src/test/firewall/phase2bSubjectSnapshotScopeS0.firewall.test.ts';
+
+/**
+ * B2.5-P1a (OWNER-authorised exact-path exception, 2026-10-17): the ONE
+ * production file that may import this module - the transaction-bound
+ * snapshot assembler - by exactly these two imports (named, closed lists) and
+ * ONE builder call. Never the reference comparison, and no other importer.
+ */
+const B25_P1A_ASSEMBLER = 'src/orgunits/subjectSnapshotRead/assemble.ts';
+const B25_P1A_SNAPSHOT_FORMS = [
+  /import \{\s*PROTECTION_CHECK,\s*SNAPSHOT_SCOPE_CONTRACT,\s*UUID,\s*type CategoryDeclaration,\s*type ScopeCategory,\s*type SnapshotScopeRefusalCode,\s*\} from '\.\.\/subjectSnapshot\/contract\.js';/,
+  /import \{\s*buildSnapshotScopeManifest,\s*type SnapshotScopeInput,\s*type SnapshotScopeManifest,\s*\} from '\.\.\/subjectSnapshot\/manifest\.js';/,
+  /\bconst built = buildSnapshotScopeManifest\(input\);/,
+];
 
 const AUTHORISED_CHANGESET = [
   ...PRODUCTION_FILES.map((f) => `A\t${f}`),
@@ -164,6 +177,26 @@ function productionFiles(): string[] {
   return out.sort();
 }
 
+/**
+ * B2.5-P1a: the production files AS S0 LEFT THEM (the pinned terminal tree)
+ * whose raw text matches `pattern` - a pre-filter only, one `git grep`, so
+ * `codeOf` still decides exactly as the working-tree check does.
+ */
+function pinnedProductionFilesMatching(pattern: RegExp): string[] {
+  if (REPAIR_TERMINAL_COMMIT === null) return productionFiles();
+  const grep = spawnSync(
+    'git',
+    ['-C', REPO_ROOT, 'grep', '-l', '-E', pattern.source, REPAIR_TERMINAL_COMMIT, '--', 'src'],
+    { encoding: 'utf8' },
+  );
+  if (grep.status !== 0 && grep.status !== 1) throw new Error(`git grep: ${grep.stderr}`);
+  return grep.stdout
+    .split('\n')
+    .map((l) => l.slice(REPAIR_TERMINAL_COMMIT.length + 1))
+    .filter((f) => f.endsWith('.ts') && !f.startsWith('src/test/'))
+    .sort();
+}
+
 const describeRange = rangeAvailable ? describe : describe.skip;
 
 describeRange('B2.5-S0 snapshot-scope manifest: the change stays inside its scope', () => {
@@ -258,11 +291,26 @@ describe('B2.5-S0 snapshot-scope manifest: pure, self-contained, unconnected', (
   });
 
   it('has no production importer and no CLI exposure', () => {
+    const naming =
+      /subjectSnapshot|snapshot-scope-manifest|buildSnapshotScopeManifest|compareSnapshotScopeWithReference/;
+    // HISTORICAL (S0 as accepted, over its pinned tree): nothing outside the
+    // module named it at all. The pre-filter must see the module itself.
+    const pinned = pinnedProductionFilesMatching(naming);
+    expect(pinned.filter((f) => f.startsWith(SNAPSHOT_DIR)).length).toBeGreaterThan(0);
+    for (const file of pinned) {
+      if (file.startsWith(SNAPSHOT_DIR)) continue;
+      expect(codeOf(sourceOf(file)), file).not.toMatch(naming);
+    }
+    // CURRENT (working tree): the same, except that exactly the B2.5-P1a
+    // assembler may use exactly the forms above. The original check then runs
+    // on what remains, so any other import, call or importer still fails.
     for (const file of productionFiles()) {
       if (file.startsWith(SNAPSHOT_DIR)) continue;
-      expect(codeOf(readFileSync(join(REPO_ROOT, file), 'utf8')), file).not.toMatch(
-        /subjectSnapshot|snapshot-scope-manifest|buildSnapshotScopeManifest|compareSnapshotScopeWithReference/,
-      );
+      let code = codeOf(readFileSync(join(REPO_ROOT, file), 'utf8'));
+      if (file === B25_P1A_ASSEMBLER) {
+        for (const form of B25_P1A_SNAPSHOT_FORMS) code = code.replace(form, '');
+      }
+      expect(code, file).not.toMatch(naming);
     }
   });
 
