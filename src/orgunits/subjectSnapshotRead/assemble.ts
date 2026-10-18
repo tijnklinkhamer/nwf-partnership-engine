@@ -89,6 +89,42 @@
  * every review of every supplied record and source was read: the loader's
  * own standard.
  *
+ * B2.5-V1: only when a caller asks for `validation: 'RUN'`, the existing,
+ * unmodified B2.1 validator runs over EXACTLY the records supplied to S0, the
+ * ECHE keys the loader found present and one `asOf`. Both reads send exactly
+ * the same statements; the default one returns the same result as before,
+ * with no findings and the validator not run. A validator finding is
+ * PUBLISHED to S0 only where its truth depends on nothing the read left
+ * partial:
+ *   - INPUT findings (as-of, ECHE keys), always: their inputs are exact;
+ *   - FOCAL_RECORD findings, always, with RECORD_SCOPED_FINDINGS REPRESENTED
+ *     only when the focal subject, its claims, its outgoing claims and the
+ *     shared-identifier holders (EXHAUSTIVE) are all REPRESENTED - otherwise
+ *     the weakest of those - so an absent focal finding is never a proof of
+ *     validity over a truncated holder set;
+ *   - NEIGHBOUR_RECORD and UNSUPPLIED_RECORD findings, NEVER: a source
+ *     subject read as a bare row has no name claim, an unread one is an
+ *     unknown reference, a holder's own relationships are never loaded, so
+ *     these diagnose the partial graph, not the data. They are withheld from
+ *     the manifest, returned beside it as untrusted diagnostics, and
+ *     NEIGHBOUR_RECORD_FINDINGS is always INCOMPLETE.
+ * THE AS-OF (V1-R1). REPEATABLE READ takes its snapshot at the transaction's
+ * first statement - the state check after BEGIN - not at BEGIN, so
+ * `transaction_timestamp()` can precede a commit the snapshot shows, and a
+ * record stamped by the writer's clock just before that commit would look
+ * after it without being future-dated. The as-of is therefore the P1a read's
+ * own: ONE `clock_timestamp()` reading (`databaseNow`), on the same
+ * connection, taken after that first statement and before the loader's
+ * first. Every commit the snapshot shows precedes it, and a commit after the
+ * snapshot is invisible whatever its stamp; so, on a server clock that does
+ * not step backwards, a visible record dated after it is genuinely
+ * future-dated. That one string is the loader's `asOf`, S0's
+ * VALIDATION_AS_OF and the validator's `asOf`. It is a validation input the
+ * manifest content-binds - not a durable source revision and not a freshness
+ * guarantee. Nothing here derives structural validity, a reviewed identity or
+ * any authority from a finding or its absence; S0's executionVerification
+ * stays NOT_VERIFIED.
+ *
  * WHAT IT NEVER TOUCHES. No writer, no review signing or verification, no
  * trust set, no protected-cohort registry, no research, classifier or
  * identity-register path, no environment, no pool of its own. Nothing in
@@ -96,6 +132,7 @@
  */
 import type pg from 'pg';
 
+import { validateIdentityGraph, type IdentityFinding } from '../identity/validate.js';
 import {
   databaseNow,
   loadSubjectGraph,
@@ -230,6 +267,79 @@ export const SNAPSHOT_READ_FACTS = Object.freeze({
   ] as const),
 } as const);
 
+/** V1: the one B2.1 rule version a validated read may bind. A different validator does not compile. */
+const ACCEPTED_RULE_VERSION = 'discovery-identity-rules-v1';
+
+const PUBLISHED_PARTITIONS = Object.freeze(['INPUT', 'FOCAL_RECORD'] as const);
+
+/**
+ * V1: what a VALIDATED read can say, in place of SNAPSHOT_READ_FACTS. Fixed,
+ * and like those NOT committed by the manifest digest.
+ */
+const VALIDATED_READ_FACTS = Object.freeze({
+  ...SNAPSHOT_READ_FACTS,
+  validationAsOf:
+    'ONE_DATABASE_CLOCK_READING_ON_THE_READ_CONNECTION_AFTER_ITS_SNAPSHOT_EXISTED_THE_LOADERS_OWN',
+  validationAsOfMeaning:
+    'VALIDATION_INPUT_CONTENT_BOUND_NOT_A_DURABLE_SOURCE_REVISION_NOT_A_FRESHNESS_GUARANTEE',
+  loaderLimitations: Object.freeze(
+    SNAPSHOT_READ_FACTS.loaderLimitations.filter((l) => l !== 'VALIDATOR_NOT_RUN'),
+  ),
+  validation: Object.freeze({
+    validator: 'B2_1_VALIDATE_IDENTITY_GRAPH_UNMODIFIED',
+    ruleVersion: ACCEPTED_RULE_VERSION,
+    inputs:
+      'EXACTLY_THE_RECORDS_SUPPLIED_TO_S0_THE_PRESENT_ECHE_KEYS_AND_THE_ONE_POST_SNAPSHOT_AS_OF',
+    execution: 'RAN_HERE_STATED_TO_S0_AS_CALLER_ASSERTED_RAN_S0_DOES_NOT_VERIFY_IT',
+    publishedPartitions: PUBLISHED_PARTITIONS,
+    inputFindings: 'PUBLISHED_REPRESENTED_THEIR_INPUTS_ARE_EXACT',
+    focalFindings:
+      'PUBLISHED_REPRESENTED_ONLY_WHEN_FOCAL_SUBJECT_CLAIMS_OUTGOING_CLAIMS_AND_SHARED_IDENTIFIER_HOLDERS_ARE_ALL_REPRESENTED',
+    neighbourFindings:
+      'WITHHELD_FROM_THE_MANIFEST_PARTIAL_GRAPH_DIAGNOSTICS_NOT_FINDINGS_COVERAGE_ALWAYS_INCOMPLETE',
+    unsuppliedRecordFindings: 'WITHHELD_FROM_THE_MANIFEST_UNTRUSTED_DIAGNOSTICS_NOT_FINDINGS',
+    asOfOrder:
+      'SNAPSHOT_TAKEN_BY_THE_FIRST_STATEMENT_AFTER_BEGIN_CLOCK_READ_ONCE_AFTER_IT_EVERY_VISIBLE_COMMIT_PRECEDES_IT',
+    absence: 'NO_PUBLISHED_FINDING_IS_NOT_PROOF_THAT_ANY_SUBJECT_IS_VALID',
+    structuralValidity: 'NOT_DERIVED_NOT_STATED',
+    authority: 'NONE_NO_IDENTITY_REVIEW_TRUST_PROTECTION_OR_OPERATIONAL_PROMOTION',
+    governance: 'B_LOCAL_PROVISIONAL_OWNER_DECISION_NOT_CROSS_TRACK_RATIFIED',
+  }),
+} as const);
+
+/** V1: the opt-in. NOT_RUN (the default) is the P1a-P1e read, statement for statement. */
+export interface SnapshotReadOptions {
+  readonly validation?: 'NOT_RUN' | 'RUN';
+}
+
+type FindingPartition = 'INPUT' | 'FOCAL_RECORD' | 'NEIGHBOUR_RECORD' | 'UNSUPPLIED_RECORD';
+
+/** V1: a validator finding kept OUT of the manifest, and why. Never a finding of record. */
+export interface WithheldDiagnostic {
+  readonly finding: IdentityFinding;
+  readonly partition: FindingPartition;
+  readonly reason: 'NEIGHBOUR_RECORD_PARTIAL_GRAPH' | 'UNSUPPLIED_RECORD';
+}
+
+/** V1: the validated read, beside the manifest. NOT committed by the manifest digest. */
+export interface SnapshotValidationReport {
+  readonly ruleVersion: typeof ACCEPTED_RULE_VERSION;
+  /**
+   * The one database clock reading taken after the snapshot existed, as the
+   * validator received it and the manifest binds it. A validation input, not
+   * a source revision and not a freshness guarantee.
+   */
+  readonly asOf: string;
+  readonly publishedFindingCount: { readonly input: number; readonly focalRecord: number };
+  readonly focalCoverage: CategoryDeclaration;
+  /** The focal-rule dependencies that are not REPRESENTED, and a loader reference gap, if any. */
+  readonly focalCoverageGaps: readonly string[];
+  readonly withheld: {
+    readonly status: 'UNTRUSTED_DIAGNOSTICS_NOT_FINDINGS_NOT_IN_THE_MANIFEST';
+    readonly diagnostics: readonly WithheldDiagnostic[];
+  };
+}
+
 export type SubjectSnapshotReadResult =
   | {
       readonly outcome: 'BUILT';
@@ -237,7 +347,9 @@ export type SubjectSnapshotReadResult =
       readonly canonical: string;
       /** The exact S0 input the manifest was built from, for reproduction. */
       readonly input: SnapshotScopeInput;
-      readonly read: typeof SNAPSHOT_READ_FACTS;
+      readonly read: typeof SNAPSHOT_READ_FACTS | typeof VALIDATED_READ_FACTS;
+      /** V1: present only on a validated read. */
+      readonly validation?: SnapshotValidationReport;
       /**
        * P1d: which source subjects of the included incoming claims the loader
        * requested by exact id, and which it could not read - absent from the
@@ -265,12 +377,12 @@ export type SubjectSnapshotReadResult =
       readonly outcome: 'REFUSED';
       readonly code: SnapshotScopeRefusalCode;
       readonly detail: string;
-      readonly read: typeof SNAPSHOT_READ_FACTS;
+      readonly read: typeof SNAPSHOT_READ_FACTS | typeof VALIDATED_READ_FACTS;
     }
   | {
       readonly outcome: 'SUBJECT_NOT_FOUND';
       readonly focalSubjectId: string;
-      readonly read: typeof SNAPSHOT_READ_FACTS;
+      readonly read: typeof SNAPSHOT_READ_FACTS | typeof VALIDATED_READ_FACTS;
     };
 
 type SubjectGraph = NonNullable<Awaited<ReturnType<typeof loadSubjectGraph>>>;
@@ -544,6 +656,173 @@ function snapshotScopeInputOf(graph: SubjectGraph): SnapshotScopeInput {
   };
 }
 
+type ValidatorInput = Parameters<typeof validateIdentityGraph>[0];
+
+const DECLARATION_STRENGTH: { readonly [K in CategoryDeclaration]: number } = Object.freeze({
+  UNKNOWN: 0,
+  INCOMPLETE: 1,
+  REPRESENTED: 2,
+});
+
+/**
+ * V1: the categories every focal-record rule's truth depends on. The B2.1
+ * rules over a focal record read the focal subject, its claims, its outgoing
+ * claims, their targets' PART_OF closure and every review of all of those
+ * (which the loader reads in full or refuses), and - for
+ * SHARED_EXTERNAL_IDENTIFIER - every other holder of a focal identifier with
+ * its claims and their reviews. No focal rule reads an incoming claim, its
+ * source subject or its reviews: an incoming source the PART_OF closure does
+ * not already hold cannot lie on a structural path from the focal subject.
+ */
+const FOCAL_RULE_DEPENDENCIES = [
+  'FOCAL_SUBJECT',
+  'FOCAL_IDENTITY_CLAIMS',
+  'OUTGOING_RELATIONSHIP_CLAIMS',
+  'SHARED_IDENTIFIER_HOLDERS',
+] as const satisfies readonly ScopeCategory[];
+
+/**
+ * The partition S0 derives for a finding (manifest.ts `ownerOf`), restated
+ * over the records about to be supplied, so that only INPUT and FOCAL_RECORD
+ * findings are ever handed to it. S0 re-derives it; a disagreement throws.
+ */
+function partitionsOf(
+  records: ValidatorInput,
+  focal: string,
+): (finding: IdentityFinding) => FindingPartition {
+  const subjects = new Set(records.subjects.map((r) => r.id));
+  const claimOwner = new Map<string, string>();
+  for (const r of [...records.identityClaims, ...records.relationshipClaims]) {
+    claimOwner.set(r.id, r.subjectId);
+  }
+  const reviewTarget = new Map(
+    records.reviews.map((r) => [
+      r.id,
+      r.reviewedSubjectId ?? r.reviewedIdentityClaimId ?? r.reviewedRelationshipClaimId,
+    ]),
+  );
+  const ownerOf = (id: string, depth: number): string | null => {
+    if (depth > 2) return null;
+    if (subjects.has(id)) return id;
+    if (claimOwner.has(id)) return claimOwner.get(id)!;
+    const target = reviewTarget.get(id);
+    return target === undefined || target === null ? null : ownerOf(target, depth + 1);
+  };
+  const supplied = (id: string) => subjects.has(id) || claimOwner.has(id) || reviewTarget.has(id);
+  return (f) =>
+    f.recordId === 'input'
+      ? 'INPUT'
+      : !supplied(f.recordId)
+        ? 'UNSUPPLIED_RECORD'
+        : ownerOf(f.recordId, 0) === focal
+          ? 'FOCAL_RECORD'
+          : 'NEIGHBOUR_RECORD';
+}
+
+/**
+ * V1: the base (NOT_RUN) input with the validator's findings and its rule
+ * version - publishing only the partitions whose dependencies the read covers
+ * (see the file header) - and the report of what was withheld and why. The
+ * as-of is the base input's own, unchanged: the one post-snapshot clock
+ * reading the loader was handed (R1).
+ */
+function validatedInputOf(
+  base: SnapshotScopeInput,
+  graph: SubjectGraph,
+): { input: SnapshotScopeInput; report: SnapshotValidationReport } {
+  const focal = base.focalSubjectId;
+  // One instant, read once: the loader's, S0's VALIDATION_AS_OF and the validator's.
+  const asOf = base.validation.asOf;
+  if (asOf === null || asOf !== graph.input.asOf) {
+    throw new Error('the validation as-of is not the one instant the loader was handed');
+  }
+  const records: ValidatorInput = {
+    subjects: base.records.subjects as ValidatorInput['subjects'],
+    identityClaims: base.records.identityClaims as ValidatorInput['identityClaims'],
+    relationshipClaims: base.records.relationshipClaims as ValidatorInput['relationshipClaims'],
+    reviews: base.records.reviews as ValidatorInput['reviews'],
+    knownEcheRowKeys: [...(base.validation.echeRowKeyState?.presentKeys ?? [])],
+    asOf,
+  };
+  const result = validateIdentityGraph(records);
+  if (result.ruleVersion !== ACCEPTED_RULE_VERSION) {
+    throw new Error(`validator rule version ${String(result.ruleVersion)} is not the accepted one`);
+  }
+  const partitionOf = partitionsOf(records, focal);
+
+  const published: IdentityFinding[] = [];
+  const diagnostics: WithheldDiagnostic[] = [];
+  for (const finding of result.findings) {
+    const partition = partitionOf(finding);
+    if (partition === 'NEIGHBOUR_RECORD') {
+      diagnostics.push({ finding, partition, reason: 'NEIGHBOUR_RECORD_PARTIAL_GRAPH' });
+    } else if (partition === 'UNSUPPLIED_RECORD') {
+      diagnostics.push({ finding, partition, reason: 'UNSUPPLIED_RECORD' });
+    } else {
+      published.push(finding);
+    }
+  }
+
+  const categories = base.scope.categories;
+  const focalGaps: string[] = FOCAL_RULE_DEPENDENCIES.filter(
+    (k) => categories[k] !== 'REPRESENTED',
+  ).map((k) => `${k}_${categories[k]}`);
+  let focalCoverage = FOCAL_RULE_DEPENDENCIES.map((k) => categories[k]).reduce((a, b) =>
+    DECLARATION_STRENGTH[b] < DECLARATION_STRENGTH[a] ? b : a,
+  );
+  // Every subject the loader's own graph references - claim subjects,
+  // relationship targets, enumerated holders - is supplied whenever the
+  // database's foreign keys hold. A result where one is not cannot support
+  // any focal coverage claim.
+  const supplied = new Set(records.subjects.map((r) => r.id));
+  const baseReferences = [
+    ...graph.input.identityClaims.map((r) => r.subjectId),
+    ...graph.input.relationshipClaims.flatMap((r) => [r.subjectId, r.targetSubjectId ?? focal]),
+    ...base.scope.sharedIdentifierHolders.holderSubjectIds,
+  ];
+  if (baseReferences.some((id) => !supplied.has(id))) {
+    focalCoverage = 'UNKNOWN';
+    focalGaps.push('LOADER_GRAPH_REFERENCE_NOT_SUPPLIED');
+  }
+
+  const input: SnapshotScopeInput = {
+    ...base,
+    findings: published,
+    validation: {
+      ...base.validation,
+      ruleVersion: result.ruleVersion,
+      execution: 'CALLER_ASSERTED_RAN',
+    },
+    scope: {
+      ...base.scope,
+      categories: {
+        ...categories,
+        INPUT_SCOPED_FINDINGS: 'REPRESENTED',
+        RECORD_SCOPED_FINDINGS: focalCoverage,
+        NEIGHBOUR_RECORD_FINDINGS: 'INCOMPLETE',
+        VALIDATION_INPUTS: 'REPRESENTED',
+      },
+    },
+  };
+  return {
+    input,
+    report: {
+      ruleVersion: ACCEPTED_RULE_VERSION,
+      asOf,
+      publishedFindingCount: {
+        input: published.filter((f) => f.recordId === 'input').length,
+        focalRecord: published.filter((f) => f.recordId !== 'input').length,
+      },
+      focalCoverage,
+      focalCoverageGaps: focalGaps,
+      withheld: {
+        status: 'UNTRUSTED_DIAGNOSTICS_NOT_FINDINGS_NOT_IN_THE_MANIFEST',
+        diagnostics,
+      },
+    },
+  };
+}
+
 /**
  * Assembles the S0 manifest of `focalSubjectId` from one read-only,
  * repeatable-read transaction on one connection from `source`. Throws
@@ -554,23 +833,40 @@ function snapshotScopeInputOf(graph: SubjectGraph): SnapshotScopeInput {
 export async function assembleSubjectSnapshotScope(
   source: SnapshotReadConnectionSource,
   focalSubjectId: string,
+  options: SnapshotReadOptions = {},
 ): Promise<SubjectSnapshotReadResult> {
   if (typeof focalSubjectId !== 'string' || !UUID.test(focalSubjectId)) {
     refuse('FOCAL_SUBJECT_ID_MALFORMED', 'the focal subject id must be a lower-case UUID');
   }
+  // Only the exact opt-in runs the validator; anything else is the default read.
+  const validate = options?.validation === 'RUN';
+  const facts = validate ? VALIDATED_READ_FACTS : SNAPSHOT_READ_FACTS;
   const graph = await readGraphInOneSnapshot(source, focalSubjectId);
   if (graph === null) {
-    return { outcome: 'SUBJECT_NOT_FOUND', focalSubjectId, read: SNAPSHOT_READ_FACTS };
+    return { outcome: 'SUBJECT_NOT_FOUND', focalSubjectId, read: facts };
   }
-  const input = snapshotScopeInputOf(graph);
+  const base = snapshotScopeInputOf(graph);
+  const validated = validate ? validatedInputOf(base, graph) : undefined;
+  const input = validated?.input ?? base;
   const built = buildSnapshotScopeManifest(input);
   if (built.outcome === 'REFUSED') {
     return {
       outcome: 'REFUSED',
       code: built.code,
       detail: built.detail,
-      read: SNAPSHOT_READ_FACTS,
+      read: facts,
     };
+  }
+  // S0 derives every partition itself: anything but INPUT or FOCAL_RECORD here
+  // means a withheld finding reached the manifest, and nothing is returned.
+  if (
+    validated !== undefined &&
+    (built.manifest.validation.findings.length !== input.findings.length ||
+      built.manifest.validation.findings.some(
+        (f) => !(PUBLISHED_PARTITIONS as readonly string[]).includes(f.partition),
+      ))
+  ) {
+    throw new Error('a published finding is not an INPUT or FOCAL_RECORD finding in the manifest');
   }
   const sourceRead = graph.incomingClaimSourceSubjectRead;
   const reviewRead = graph.incomingClaimReviewRead;
@@ -579,7 +875,8 @@ export async function assembleSubjectSnapshotScope(
     manifest: built.manifest,
     canonical: built.canonical,
     input,
-    read: SNAPSHOT_READ_FACTS,
+    read: facts,
+    ...(validated !== undefined ? { validation: validated.report } : {}),
     incomingClaimSourceSubjects: {
       outcome: sourceRead?.outcome ?? 'UNKNOWN',
       requestedSubjectIds: [...(sourceRead?.requestedSubjectIds ?? [])],

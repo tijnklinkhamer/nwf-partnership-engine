@@ -571,6 +571,10 @@ describe('B2.5-P1a snapshot assembler: narrow, read-only, unconnected', () => {
         'src/orgunits/subjectSnapshot/canonical.ts',
         'src/orgunits/subjectSnapshot/contract.ts',
         'src/orgunits/subjectSnapshot/manifest.ts',
+        // B2.5-V1 (current tree only): the pure, unmodified B2.1 validator.
+        'src/orgunits/identity/admissibility.ts',
+        'src/orgunits/identity/validate.ts',
+        'src/orgunits/identity/vocabulary.ts',
       ].sort(),
     );
     expect([...external]).toEqual(['node:crypto']);
