@@ -107,3 +107,23 @@ outreach.
 
 **UNKNOWN:** the legal eligibility of any outreach channel in Japan, Brazil or
 anywhere else.
+
+## 6. Future decisions (recorded, not implemented)
+
+Recorded under the OWNER's R4.2 brief ("R4.2 Final Closure", 2026-10-19).
+This ADR stays **Proposed**; R4.2 closes R4's commit range, but it ratifies
+nothing and does not activate migration 0016. Nothing below is implemented.
+
+- **Multi-country operations versus genuinely conflicting claims.** Today two
+  `COUNTRY_OF_OPERATION` rows naming different countries are just two claims. Whether
+  that is one subject operating in both, or two sources disagreeing, is
+  **UNKNOWN** and nothing derives either reading.
+- **OWNER review of jurisdiction evidence.** There is no review, attestation
+  or reviewed state for a jurisdiction claim. Whether one is wanted, and
+  whether it should reuse the B2.3 OWNER-attestation pattern (ADR 0023), is
+  open.
+- **Cross-track jurisdiction handoff and contact-permission authority.**
+  Jurisdiction evidence enters no cross-track contract (B2.4 handoff, B2.5
+  snapshot, I0). Who may decide that contact is permitted in a jurisdiction,
+  and on what evidence, is unassigned. A jurisdiction claim grants no
+  permission of any kind.
