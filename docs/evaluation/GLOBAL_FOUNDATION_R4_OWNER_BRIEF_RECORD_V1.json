@@ -1,0 +1,47 @@
+{
+  "recordId": "GLOBAL_FOUNDATION_R4_OWNER_BRIEF_RECORD_V1",
+  "recordKind": "OWNER_BRIEF_SCOPE_RECORD",
+  "recordedAtUtc": "2026-10-19",
+  "branch": "feat/global-organisation-foundation-r4",
+  "worktree": "~/wt-pe-global-foundation-r4",
+  "startingHead": "ce8b220f675e095f1fedaa76b664e9c634e5ce57",
+  "startingHeadLineage": "Engine B2.5 F-1 correction (R3), parent dbfccc4",
+  "status": "LOCAL_IMPLEMENTATION_UNDER_OWNER_BRIEF__RATIFICATION_PENDING",
+  "isOwnerRatification": false,
+  "authority": {
+    "source": "OWNER brief 'NWF Partnership Engine — R4: Global Organisation Foundation' (2026-10-19)",
+    "objectiveVerbatim": "Build the smallest safe, additive foundation for organisations worldwide, without disturbing existing French releases or activating real outreach.",
+    "restrictionsVerbatim": [
+      "Local implementation only. No pushes, production migrations, deployments, real research, live imports, outreach or feature activation.",
+      "Do not modify frozen B history or rewrite existing cohort pins.",
+      "Do not activate Qualification or Insights publication permissions."
+    ]
+  },
+  "migrationUnderThisBrief": "migrations/0016_subject_jurisdiction_claims.sql",
+  "adr": "docs/adr/0024-worldwide-subject-jurisdiction-claims.md",
+  "implementedDelta": [
+    "migrations/0016_subject_jurisdiction_claims.sql",
+    "src/orgunits/subjectJurisdiction/vocabulary.ts",
+    "src/orgunits/subjectJurisdiction/standing.ts"
+  ],
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "editsPriorMigrations": false,
+  "rewritesCohortPins": false,
+  "migrationAppliedTo": "disposable tmpfs PostgreSQL 16 test databases only",
+  "productionMigrationApplied": false,
+  "runtimeRoleGrantedInsert": false,
+  "networkUsed": false,
+  "realOrganisationsInserted": false,
+  "contactDataStored": false,
+  "grantsResearchAuthority": false,
+  "grantsContactPermission": false,
+  "activatesQualificationOrInsightsPublication": false,
+  "issuesCanonicalIdentity": false,
+  "openForOwner": [
+    "Ratify or reject migration 0016 and ADR 0024.",
+    "Approve (or not) a writer path for subject_jurisdiction_claims; today only the migration owner can insert.",
+    "Decide whether a worldwide non-ECHE HIGHER_EDUCATION_INSTITUTION subject kind is wanted (a 0013 vocabulary change, a B2.4 handoff change and an I0 mapping change).",
+    "Decide whether jurisdiction evidence enters a cross-track contract (B2.4 handoff / B2.5 snapshot / I0); today it enters none."
+  ]
+}
