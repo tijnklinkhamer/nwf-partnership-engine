@@ -336,7 +336,7 @@ describeDb('B2.5-P1a transaction-bound snapshot assembler (integration)', () => 
       const { rows: top } = await admin.query<{ top: string }>(
         `SELECT max(version) AS top FROM schema_migrations`,
       );
-      expect(top[0]!.top).toBe('0015');
+      expect(top[0]!.top).toBe('0016');
     });
   });
 

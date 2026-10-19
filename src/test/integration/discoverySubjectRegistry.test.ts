@@ -248,8 +248,8 @@ describeDb('B2.2 discovery-subject registry (integration)', () => {
         `SELECT current_database() AS db, max(version) AS top FROM schema_migrations`,
       );
       expect(rows[0]!.db.endsWith('_test')).toBe(true);
-      // B2.3 (migration 0015, ADR 0023) is the newest migration now.
-      expect(rows[0]!.top).toBe('0015');
+      // R4 (migration 0016, ADR 0024) is the newest migration now.
+      expect(rows[0]!.top).toBe('0016');
     });
   });
 

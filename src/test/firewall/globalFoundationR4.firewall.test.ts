@@ -4,8 +4,11 @@
  *
  * Pins, over the range REPAIR_BASE_COMMIT..REPAIR_TERMINAL_COMMIT (the working
  * tree while the terminal is open):
- *   - the change set is exactly the named files; nothing is deleted, and the
- *     only edited file gains exactly the 0016 manifest entry;
+ *   - the change set is exactly the named files; nothing is deleted, the A1
+ *     frame test gains exactly the 0016 manifest entry, and the R4.1 closure
+ *     (OWNER brief "R4.1: Global Foundation Closure", 2026-10-19) changes
+ *     exactly three lines elsewhere: the B2.5-M1-R3 terminal pin at ce8b220,
+ *     and the two "newest migration" assertions moving from 0015 to 0016;
  *   - migrations 0001-0015 and every pre-existing docs/evaluation record are
  *     byte-identical, so no frozen B history or cohort pin moved;
  *   - migration 0016 alters, drops and rewrites nothing, grants only SELECT
@@ -31,6 +34,33 @@ const MODULE_DIR = 'src/orgunits/subjectJurisdiction/';
 const MODULE_FILES = [`${MODULE_DIR}standing.ts`, `${MODULE_DIR}vocabulary.ts`];
 const A1_FRAME_TEST = 'src/test/unit/orgunitCorpus2DA1Frame.test.ts';
 
+/** R4.1: the OWNER-authorised test-maintenance edits, each pinned line for line below. */
+const R3_FIREWALL = 'src/test/firewall/phase2bSubjectAcquisitionF1R3.firewall.test.ts';
+const REGISTRY_TEST = 'src/test/integration/discoverySubjectRegistry.test.ts';
+const SNAPSHOT_READ_TEST = 'src/test/integration/discoverySubjectSnapshotReadB25P1a.test.ts';
+const R41_EDITS: Readonly<Record<string, { removed: string[]; added: string[] }>> = {
+  [R3_FIREWALL]: {
+    removed: ['const REPAIR_TERMINAL_COMMIT: string | null = null;'],
+    added: [
+      "const REPAIR_TERMINAL_COMMIT: string | null = 'ce8b220f675e095f1fedaa76b664e9c634e5ce57';",
+    ],
+  },
+  [REGISTRY_TEST]: {
+    removed: [
+      '      // B2.3 (migration 0015, ADR 0023) is the newest migration now.',
+      "      expect(rows[0]!.top).toBe('0015');",
+    ],
+    added: [
+      '      // R4 (migration 0016, ADR 0024) is the newest migration now.',
+      "      expect(rows[0]!.top).toBe('0016');",
+    ],
+  },
+  [SNAPSHOT_READ_TEST]: {
+    removed: ["      expect(top[0]!.top).toBe('0015');"],
+    added: ["      expect(top[0]!.top).toBe('0016');"],
+  },
+};
+
 const AUTHORISED_CHANGESET = [
   'A\tdocs/adr/0024-worldwide-subject-jurisdiction-claims.md',
   'A\tdocs/evaluation/GLOBAL_FOUNDATION_R4_OWNER_BRIEF_RECORD_V1.json',
@@ -40,6 +70,7 @@ const AUTHORISED_CHANGESET = [
   'A\tsrc/test/integration/subjectJurisdictionR4.test.ts',
   'A\tsrc/test/unit/subjectJurisdictionR4.test.ts',
   `M\t${A1_FRAME_TEST}`,
+  ...Object.keys(R41_EDITS).map((f) => `M\t${f}`),
 ].sort();
 
 function git(...args: readonly string[]): string {
@@ -126,6 +157,26 @@ describe.skipIf(!rangeAvailable)('R4: the change set over its own range', () => 
       "    ownerRecord: 'docs/evaluation/GLOBAL_FOUNDATION_R4_OWNER_BRIEF_RECORD_V1.json',",
       '  },',
     ]);
+  });
+
+  it('changes the R3 firewall and the two historical tests by exactly the R4.1 lines', () => {
+    for (const [path, expected] of Object.entries(R41_EDITS)) {
+      const diff = git('diff', '--unified=0', ...range(), '--', path).split('\n');
+      expect(
+        diff.filter((l) => l.startsWith('-') && !l.startsWith('---')).map((l) => l.slice(1)),
+        path,
+      ).toEqual(expected.removed);
+      expect(
+        diff.filter((l) => l.startsWith('+') && !l.startsWith('+++')).map((l) => l.slice(1)),
+        path,
+      ).toEqual(expected.added);
+    }
+  });
+
+  it('pins R3 at its own implementation commit, the commit R4 is based on', () => {
+    expect(sourceOf(R3_FIREWALL)).toContain(
+      `const REPAIR_TERMINAL_COMMIT: string | null = '${REPAIR_BASE_COMMIT}';`,
+    );
   });
 
   it('keeps migrations 0001-0015 and every earlier docs/evaluation record byte-identical', () => {
