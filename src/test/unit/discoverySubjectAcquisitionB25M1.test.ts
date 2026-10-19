@@ -1631,3 +1631,378 @@ describe('B2.5-M1: digest verification and focused negative mutations', () => {
     expect(verifyAcquisitionCompanion(null, result.manifest).inconsistencies).toEqual(['shape']);
   });
 });
+
+/** A re-sealable document, edited as a forger would: by path, untyped. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Loose = Record<string, any>;
+
+/**
+ * R3 (F-1). Focal-record coverage is the weakest focal-rule dependency, and
+ * UNKNOWN when a base-graph reference is not supplied (VALIDATION_POLICY). The
+ * companion re-derives it from the manifest and its own observations instead
+ * of copying the assembler's word for it, and the verification re-derives it
+ * again from the companion and the manifest alone. Neither makes a consistent
+ * document trusted: every forgery below is re-sealed, as a forger would.
+ */
+describe('B2.5-M1-R3: focal coverage is re-derived, never asserted (F-1)', () => {
+  /** A genuine validated read whose holder query came back TRUNCATED. */
+  async function truncated() {
+    const { focal, t } = world();
+    t.identity.push(picRow(focal));
+    for (let i = 0; i < HOLDER_QUERY_LIMIT; i += 1) {
+      const h = ascendingId();
+      t.subjects.push(subjectRow(h));
+      t.identity.push(picRow(h));
+    }
+    return { focal, ...(await acquired(t, focal, {}, 'RUN')) };
+  }
+
+  /** The S0 input with some categories re-declared, and B's own S0 builder over it. */
+  function redeclared(
+    result: Built,
+    categories: Record<string, string>,
+    holderEnumeration?: string,
+  ) {
+    const input = clone(result.input) as unknown as {
+      scope: {
+        categories: Record<string, string>;
+        sharedIdentifierHolders: { enumeration: string };
+      };
+    };
+    Object.assign(input.scope.categories, categories);
+    if (holderEnumeration !== undefined) {
+      input.scope.sharedIdentifierHolders.enumeration = holderEnumeration;
+    }
+    const manifest = buildSnapshotScopeManifest(input as unknown as SnapshotScopeInput);
+    if (manifest.outcome !== 'BUILT') throw new Error(`S0 refused ${JSON.stringify(manifest)}`);
+    return { input: input as unknown as SnapshotScopeInput, manifest: manifest.manifest };
+  }
+
+  /** The genuine observations with the validator's coverage statement replaced. */
+  function stating(result: Built, focalCoverage: string, focalCoverageGaps: string[]) {
+    const o = clone(result.acquisition!.observations);
+    Object.assign(o.validation!, { focalCoverage, focalCoverageGaps });
+    return o;
+  }
+
+  /** `a` with `edit` applied and every digest it carries re-sealed against `manifest`. */
+  function resealed(
+    a: AcquisitionCompanion,
+    manifest: SnapshotScopeManifest,
+    edit: (c: Loose) => void,
+  ): AcquisitionCompanion {
+    const c = clone(a) as unknown as Loose;
+    edit(c);
+    c['binding'].snapshotManifestDigest = manifest.manifestDigest;
+    const { acquisitionDigest: _old, ...body } = c;
+    c['acquisitionDigest'] = acquisitionDigestOfBody(body as never);
+    return c as unknown as AcquisitionCompanion;
+  }
+
+  /** `manifest` with `edit` applied and its manifest digest re-sealed. */
+  function sealedManifest(
+    manifest: SnapshotScopeManifest,
+    edit: (m: { scope: { categories: Record<string, string> } }) => void,
+  ): SnapshotScopeManifest {
+    const m = clone(manifest) as unknown as SnapshotScopeManifest & {
+      scope: { categories: Record<string, string> };
+      manifestDigest: string;
+    };
+    edit(m);
+    const { manifestDigest: _old, ...body } = m;
+    m.manifestDigest = manifestDigestOfBody(body as never);
+    return m;
+  }
+
+  const raised = (c: Loose) => {
+    c['validation'].coverage.FOCAL_RECORD = 'REPRESENTED';
+    c['validation'].focalCoverageGaps = [];
+    c['observations'].validation.focalCoverage = 'REPRESENTED';
+    c['observations'].validation.focalCoverageGaps = [];
+  };
+
+  it('M1-R3-1: the original F-1 document - REPRESENTED over a TRUNCATED holder read - is never built', async () => {
+    const { result, a } = await truncated();
+    // The genuine read is honest: the holder gap caps the focal coverage.
+    expect(a.holders.status).toBe('TRUNCATED_AT_INCLUDED_CAP');
+    expect(result.manifest.scope.categories.SHARED_IDENTIFIER_HOLDERS).toBe('INCOMPLETE');
+    expect(result.manifest.scope.categories.RECORD_SCOPED_FINDINGS).toBe('INCOMPLETE');
+    expect(a.validation.coverage.FOCAL_RECORD).toBe('INCOMPLETE');
+    expect(a.validation.focalCoverageGaps).toEqual(['SHARED_IDENTIFIER_HOLDERS_INCOMPLETE']);
+    // F-1: the S0 input and the observation both raised to REPRESENTED. S0 builds
+    // it - a category is a caller's declaration there - but no companion does.
+    const { input, manifest } = redeclared(result, { RECORD_SCOPED_FINDINGS: 'REPRESENTED' });
+    expect(manifest.scope.categories.SHARED_IDENTIFIER_HOLDERS).toBe('INCOMPLETE');
+    expect(
+      buildAcquisitionCompanion({
+        manifest,
+        input,
+        observations: stating(result, 'REPRESENTED', []),
+      }),
+    ).toEqual({
+      outcome: 'REFUSED',
+      code: 'OBSERVATION_INCONSISTENT_WITH_MANIFEST',
+      detail: 'validation.focal_coverage',
+    });
+    // The same document assembled by hand and re-sealed neither verifies nor reproduces.
+    const forged = resealed(a, manifest, raised);
+    expect(verifyAcquisitionCompanion(forged, manifest)).toMatchObject({
+      contentDigestConsistency: 'INCONSISTENT',
+      inconsistencies: ['focalCoverage'],
+      exportAuthentication: 'UNAUTHENTICATED',
+    });
+    expect(reproduceAcquisitionCompanion(forged, manifest, input)).toBe('NOT_REPRODUCED');
+  });
+
+  it('M1-R3-2: honest incomplete and unknown coverage, and complete coverage, build, verify and reproduce', async () => {
+    const cases: [string, (t: Tables, f: string) => Script, string, string[]][] = [
+      [
+        'holders truncated',
+        (t, f) => {
+          t.identity.push(picRow(f));
+          for (let i = 0; i < HOLDER_QUERY_LIMIT; i += 1) {
+            const h = ascendingId();
+            t.subjects.push(subjectRow(h));
+            t.identity.push(picRow(h));
+          }
+          return {};
+        },
+        'INCOMPLETE',
+        ['SHARED_IDENTIFIER_HOLDERS_INCOMPLETE'],
+      ],
+      [
+        'holder result unknown',
+        (t, f) => {
+          t.identity.push(picRow(f));
+          for (let i = 0; i < 2; i += 1) {
+            const h = ascendingId();
+            t.subjects.push(subjectRow(h));
+            t.identity.push(picRow(h));
+          }
+          return { holders: (ids) => [...ids].reverse() };
+        },
+        'UNKNOWN',
+        ['SHARED_IDENTIFIER_HOLDERS_UNKNOWN'],
+      ],
+      [
+        'holders exhaustive',
+        (t, f) => {
+          t.identity.push(picRow(f));
+          const h = ascendingId();
+          t.subjects.push(subjectRow(h));
+          t.identity.push(picRow(h));
+          return {};
+        },
+        'REPRESENTED',
+        [],
+      ],
+      ['no focal identifier', () => ({}), 'REPRESENTED', []],
+    ];
+    for (const [name, setup, coverage, gaps] of cases) {
+      const { focal, t } = world();
+      const { result, a } = await acquired(t, focal, setup(t, focal), 'RUN');
+      expect(result.validation!.focalCoverage, name).toBe(coverage);
+      expect(a.validation.coverage.FOCAL_RECORD, name).toBe(coverage);
+      expect(a.validation.focalCoverageGaps, name).toEqual(gaps);
+      expect(result.manifest.scope.categories.RECORD_SCOPED_FINDINGS, name).toBe(coverage);
+      expect(verifyAcquisitionCompanion(a, result.manifest), name).toMatchObject({
+        contentDigestConsistency: 'CONSISTENT',
+        inconsistencies: [],
+      });
+      expect(reproduceAcquisitionCompanion(a, result.manifest, result.input), name).toBe(
+        'REPRODUCED',
+      );
+    }
+    // The not-run read states no coverage and still verifies.
+    const { focal, t } = world();
+    const { result, a } = await acquired(t, focal);
+    expect(a.validation.coverage.FOCAL_RECORD).toBe('NOT_RUN');
+    expect(verifyAcquisitionCompanion(a, result.manifest).inconsistencies).toEqual([]);
+  });
+
+  it('M1-R3-3: every hand-edited coverage statement the dependencies do not support is refused', async () => {
+    const { result } = await truncated();
+    const WITH_MANIFEST = 'OBSERVATION_INCONSISTENT_WITH_MANIFEST';
+    const forgeries: [string, Record<string, string>, string, string[], string, string][] = [
+      // The manifest left honest, the observation raised.
+      ['observation raised', {}, 'REPRESENTED', [], WITH_MANIFEST, 'validation.ran'],
+      // F-1 with the gap left in place.
+      [
+        'raised, gap kept',
+        { RECORD_SCOPED_FINDINGS: 'REPRESENTED' },
+        'REPRESENTED',
+        ['SHARED_IDENTIFIER_HOLDERS_INCOMPLETE'],
+        'OBSERVATION_INCONSISTENT',
+        'validation.coverage_gaps',
+      ],
+      // The right coverage with an invented gap, or with the real gap dropped for another.
+      [
+        'invented gap',
+        {},
+        'INCOMPLETE',
+        ['SHARED_IDENTIFIER_HOLDERS_INCOMPLETE', 'FOCAL_SUBJECT_INCOMPLETE'],
+        WITH_MANIFEST,
+        'validation.focal_coverage_gaps',
+      ],
+      [
+        'swapped gap',
+        {},
+        'INCOMPLETE',
+        ['FOCAL_IDENTITY_CLAIMS_INCOMPLETE'],
+        WITH_MANIFEST,
+        'validation.focal_coverage_gaps',
+      ],
+      // Understated is not derived either: the rule is exact.
+      [
+        'lowered to UNKNOWN',
+        { RECORD_SCOPED_FINDINGS: 'UNKNOWN' },
+        'UNKNOWN',
+        ['SHARED_IDENTIFIER_HOLDERS_INCOMPLETE'],
+        WITH_MANIFEST,
+        'validation.focal_coverage',
+      ],
+    ];
+    for (const [name, categories, coverage, gaps, code, detail] of forgeries) {
+      const { input, manifest } = redeclared(result, categories);
+      expect(
+        buildAcquisitionCompanion({
+          manifest,
+          input,
+          observations: stating(result, coverage, gaps),
+        }),
+        name,
+      ).toEqual({ outcome: 'REFUSED', code, detail });
+    }
+  });
+
+  it('M1-R3-4: a weaker non-holder dependency or an unsupplied reference caps the coverage too', async () => {
+    const { focal, t } = world();
+    const { result } = await acquired(t, focal, {}, 'RUN');
+    expect(result.validation!.focalCoverage).toBe('REPRESENTED');
+    // FOCAL_IDENTITY_CLAIMS re-declared INCOMPLETE: REPRESENTED no longer follows.
+    const weaker = redeclared(result, { FOCAL_IDENTITY_CLAIMS: 'INCOMPLETE' });
+    expect(
+      buildAcquisitionCompanion({ ...weaker, observations: stating(result, 'REPRESENTED', []) }),
+    ).toMatchObject({ outcome: 'REFUSED', detail: 'validation.focal_coverage' });
+    const honest = redeclared(result, {
+      FOCAL_IDENTITY_CLAIMS: 'INCOMPLETE',
+      RECORD_SCOPED_FINDINGS: 'INCOMPLETE',
+    });
+    expect(
+      buildAcquisitionCompanion({
+        ...honest,
+        observations: stating(result, 'INCOMPLETE', ['FOCAL_IDENTITY_CLAIMS_INCOMPLETE']),
+      }).outcome,
+    ).toBe('BUILT');
+    // An identity claim about a subject nobody supplied: only UNKNOWN follows.
+    const input = clone(result.input) as unknown as SnapshotScopeInput & {
+      records: { identityClaims: Record<string, unknown>[] };
+      scope: { categories: Record<string, string> };
+    };
+    const stray = result.input.records.identityClaims[0] as Record<string, unknown>;
+    input.records.identityClaims.push({ ...stray, id: ascendingId(), subjectId: ascendingId() });
+    Object.assign(input.scope.categories, { REFERENCED_RECORDS: 'INCOMPLETE' });
+    const unknown = (coverage: string, gaps: string[]) => {
+      Object.assign(input.scope.categories, { RECORD_SCOPED_FINDINGS: coverage });
+      const m = buildSnapshotScopeManifest(input);
+      if (m.outcome !== 'BUILT') throw new Error(`S0 refused ${JSON.stringify(m)}`);
+      return {
+        manifest: m.manifest,
+        built: buildAcquisitionCompanion({
+          manifest: m.manifest,
+          input,
+          observations: stating(result, coverage, gaps),
+        }),
+      };
+    };
+    expect(unknown('REPRESENTED', []).built).toMatchObject({
+      outcome: 'REFUSED',
+      detail: 'validation.focal_coverage',
+    });
+    const derived = unknown('UNKNOWN', ['LOADER_GRAPH_REFERENCE_NOT_SUPPLIED']);
+    if (derived.built.outcome !== 'BUILT') throw new Error(JSON.stringify(derived.built));
+    expect(derived.built.companion.validation.coverage.FOCAL_RECORD).toBe('UNKNOWN');
+    // The verification cannot see claims, so it accepts the stated reference gap - and
+    // nothing stronger: dropping the gap to claim REPRESENTED again is inconsistent.
+    expect(
+      verifyAcquisitionCompanion(derived.built.companion, derived.manifest).inconsistencies,
+    ).toEqual([]);
+    expect(
+      reproduceAcquisitionCompanion(derived.built.companion, derived.manifest, input as never),
+    ).toBe('REPRODUCED');
+  });
+
+  it('M1-R3-5: the verification re-derives coverage itself and refuses every re-sealed overstatement', async () => {
+    const { result, a } = await truncated();
+    const honest = result.manifest;
+    const overstated = redeclared(result, { RECORD_SCOPED_FINDINGS: 'REPRESENTED' }).manifest;
+    // S0 refuses a REPRESENTED holder category over a TRUNCATED enumeration, so the
+    // forger re-declares the enumeration exhaustive too; only the observation is left.
+    const holdersRepresented = redeclared(
+      result,
+      { SHARED_IDENTIFIER_HOLDERS: 'REPRESENTED', RECORD_SCOPED_FINDINGS: 'REPRESENTED' },
+      'EXHAUSTIVE_AS_DECLARED',
+    ).manifest;
+    const cases: [string, SnapshotScopeManifest, (c: Loose) => void][] = [
+      [
+        'companion section only',
+        honest,
+        (c) => (c['validation'].coverage.FOCAL_RECORD = 'REPRESENTED'),
+      ],
+      ['companion and observation', honest, raised],
+      ['the whole F-1 document', overstated, raised],
+      // The holder category and enumeration re-declared: the observation still says TRUNCATED.
+      ['holder category raised as well', holdersRepresented, raised],
+      [
+        'gaps rewritten',
+        honest,
+        (c) => {
+          c['validation'].focalCoverageGaps = ['FOCAL_SUBJECT_INCOMPLETE'];
+          c['observations'].validation.focalCoverageGaps = ['FOCAL_SUBJECT_INCOMPLETE'];
+        },
+      ],
+      [
+        'a coverage stated over a read that never ran',
+        honest,
+        (c) => (c['observations'].validation = null),
+      ],
+      // The manifest alone raised: the companion and its observation left honest.
+      ['manifest only', overstated, () => undefined],
+      // The observation's coverage alone raised, its gaps and the companion section and
+      // the manifest left honest: only the observation's own statement differs.
+      [
+        'observation coverage only',
+        honest,
+        (c) => (c['observations'].validation.focalCoverage = 'REPRESENTED'),
+      ],
+      // A re-sealed manifest and observation both calling the holders exhaustive, over
+      // the manifest's own TRUNCATED enumeration (S0 would refuse it; verify is not S0).
+      [
+        'holders forged exhaustive over a truncated enumeration',
+        sealedManifest(honest, (m) => {
+          m.scope.categories.SHARED_IDENTIFIER_HOLDERS = 'REPRESENTED';
+          m.scope.categories.RECORD_SCOPED_FINDINGS = 'REPRESENTED';
+        }),
+        (c) => {
+          raised(c);
+          c['observations'].holderQuery.outcome = 'EXHAUSTIVE';
+        },
+      ],
+    ];
+    for (const [name, manifest, edit] of cases) {
+      const v = verifyAcquisitionCompanion(resealed(a, manifest, edit), manifest);
+      expect(v.contentDigestConsistency, name).toBe('INCONSISTENT');
+      expect(v.inconsistencies, name).toContain('focalCoverage');
+      expect(v.exportAuthentication, name).toBe('UNAUTHENTICATED');
+    }
+    // A self-consistent re-sealed document still says nothing about trust.
+    const same = resealed(a, honest, () => undefined);
+    expect(verifyAcquisitionCompanion(same, honest)).toMatchObject({
+      contentDigestConsistency: 'CONSISTENT',
+      sourceCompleteness: 'NOT_PROVEN',
+      exportAuthentication: 'UNAUTHENTICATED',
+      queryExecution: 'NOT_PROVEN_BY_ANY_DIGEST',
+    });
+    expect(companionCanonicalJson(same as never)).toBe(companionCanonicalJson(a as never));
+  });
+});

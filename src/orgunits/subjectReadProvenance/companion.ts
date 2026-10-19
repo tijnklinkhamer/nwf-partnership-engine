@@ -23,11 +23,16 @@
  * itself, the fixed read protocol or the manifest, and binds the result -
  * with the manifest digest and the record-set digest - under one acquisition
  * digest over every other field. Nothing here is signed or authenticated:
- * `verifyAcquisitionCompanion` recomputes the digests, and
- * `reproduceAcquisitionCompanion` rebuilds the companion from its own
- * assembler-reported observations; neither proves that a query ran, that the
- * source is complete or current, or that any reviewer, identity or
- * protection status is established.
+ * `verifyAcquisitionCompanion` recomputes the digests and re-derives the
+ * focal coverage, and `reproduceAcquisitionCompanion` rebuilds the companion
+ * from its own assembler-reported observations; neither proves that a query
+ * ran, that the source is complete or current, or that any reviewer, identity
+ * or protection status is established. R3 (F-1): the focal-record coverage a
+ * validated read states is never copied from the observation - it must be the
+ * weakest focal-rule dependency the manifest and the holder observation
+ * support, UNKNOWN when a base-graph reference is not supplied - so no
+ * truncated, incomplete or unknown focal dependency is ever stated as
+ * REPRESENTED. That is consistency, never trust.
  *
  * Neither digest commits to itself: the record-set digest commits to the
  * manifest's membership only, and the acquisition digest is over every field
@@ -882,6 +887,58 @@ const DECLARATION_OF: { readonly [K in LoaderEnumerationOutcome]: string } = {
   UNKNOWN: 'UNKNOWN',
 };
 
+/**
+ * R3 (F-1): the scope categories every focal-record rule reads, restated from
+ * the assembler's FOCAL_RULE_DEPENDENCIES (pinned equal by the R3 firewall).
+ * VALIDATION_POLICY makes focal-record coverage the weakest of them.
+ */
+const FOCAL_RULE_DEPENDENCIES = [
+  'FOCAL_SUBJECT',
+  'FOCAL_IDENTITY_CLAIMS',
+  'OUTGOING_RELATIONSHIP_CLAIMS',
+  'SHARED_IDENTIFIER_HOLDERS',
+] as const;
+const REFERENCE_GAP = 'LOADER_GRAPH_REFERENCE_NOT_SUPPLIED';
+const STRENGTH: Readonly<Record<string, number>> = { UNKNOWN: 0, INCOMPLETE: 1, REPRESENTED: 2 };
+const HOLDER_DECLARATION_OF_ENUMERATION: Readonly<Record<string, string>> = {
+  EXHAUSTIVE_AS_DECLARED: 'REPRESENTED',
+  TRUNCATED: 'INCOMPLETE',
+  UNKNOWN: 'UNKNOWN',
+};
+
+function weakest(values: readonly unknown[]): string {
+  return values
+    .map((v) => {
+      if (typeof v !== 'string' || STRENGTH[v] === undefined) throw new Error('declaration');
+      return v;
+    })
+    .reduce((a, b) => (STRENGTH[b]! < STRENGTH[a]! ? b : a));
+}
+
+/**
+ * The focal coverage the dependencies support, and its gaps (sorted): the
+ * weakest dependency - the holder category no stronger than every holder
+ * statement given - and UNKNOWN, with REFERENCE_GAP, when a base-graph
+ * reference is not supplied. Never taken from the coverage a document states.
+ */
+function derivedFocalCoverage(
+  categories: Readonly<Record<string, unknown>>,
+  holderStatements: readonly unknown[],
+  referencesSupplied: boolean,
+): { readonly coverage: string; readonly gaps: readonly string[] } {
+  const gaps: string[] = [];
+  const values = FOCAL_RULE_DEPENDENCIES.map((k) => {
+    const value =
+      k === 'SHARED_IDENTIFIER_HOLDERS'
+        ? weakest([categories[k], ...holderStatements])
+        : weakest([categories[k]]);
+    if (value !== 'REPRESENTED') gaps.push(`${k}_${value}`);
+    return value;
+  });
+  if (!referencesSupplied) gaps.push(REFERENCE_GAP);
+  return { coverage: referencesSupplied ? weakest(values) : 'UNKNOWN', gaps: gaps.sort() };
+}
+
 type InputRecord = Readonly<Record<string, string | null>>;
 
 function build(
@@ -1164,6 +1221,22 @@ function build(
     ) {
       inconsistent('validation.ran');
     }
+    // R3 (F-1): the stated focal coverage is the one these dependencies derive -
+    // exactly the assembler's rule - however consistently the documents state it.
+    const references = [
+      ...records.identityClaims.map((r) => r['subjectId']!),
+      ...base.relationshipClaims.flatMap((c) => [c.subjectId, c.targetSubjectId ?? focal]),
+      ...holder.includedSubjectIds,
+    ];
+    const derived = derivedFocalCoverage(
+      categories,
+      [DECLARATION_OF[holder.outcome]],
+      references.every((id) => has('SUBJECT', id)),
+    );
+    if (ran.focalCoverage !== derived.coverage) inconsistent('validation.focal_coverage');
+    if (!sameList(ran.focalCoverageGaps, derived.gaps)) {
+      inconsistent('validation.focal_coverage_gaps');
+    }
     const registry = new Set(
       manifest.membership.entries
         .filter((e) => e.recordType !== 'SOURCE_GLOBAL')
@@ -1321,12 +1394,65 @@ export interface AcquisitionCompanionVerification {
 }
 
 /**
+ * R3 (F-1): whether the focal coverage the companion, its observation and the
+ * manifest each state is the one the manifest's dependency categories, its
+ * holder enumeration, the holder observation and the base-graph references
+ * derive - from those two documents alone. Identity claims are not in either,
+ * so a stated REFERENCE_GAP is accepted here (UNKNOWN, the weakest) and left
+ * to reproduction; nothing stronger than the derivation ever is.
+ */
+function focalCoverageFollows(c: AcquisitionCompanion, m: SnapshotScopeManifest): boolean {
+  const ran = c.observations.validation;
+  const stated = c.validation.coverage.FOCAL_RECORD;
+  const declared = m.scope.categories.RECORD_SCOPED_FINDINGS;
+  if (ran === null) {
+    return (
+      stated === 'NOT_RUN' &&
+      c.validation.focalCoverageGaps.length === 0 &&
+      declared !== 'REPRESENTED'
+    );
+  }
+  const holder = c.observations.holderQuery;
+  const holderStatements = [
+    DECLARATION_OF[holder.outcome],
+    HOLDER_DECLARATION_OF_ENUMERATION[m.scope.sharedIdentifierHolders.enumeration],
+  ];
+  const subjects = new Set(
+    m.membership.entries.filter((e) => e.recordType === 'SUBJECT').map((e) => e.recordId),
+  );
+  const references = [
+    ...c.observations.baseGraph.subjectIds,
+    ...c.observations.baseGraph.relationshipClaims.flatMap((r) => [
+      r.subjectId,
+      r.targetSubjectId ?? c.focalSubjectId,
+    ]),
+    ...holder.includedSubjectIds,
+  ];
+  const supplied = references.every((id) => subjects.has(id));
+  const gaps = [...c.validation.focalCoverageGaps].sort();
+  const observedGaps = [...ran.focalCoverageGaps].sort();
+  return [
+    derivedFocalCoverage(m.scope.categories, holderStatements, supplied),
+    derivedFocalCoverage(m.scope.categories, holderStatements, false),
+  ].some(
+    (d) =>
+      stated === d.coverage &&
+      ran.focalCoverage === d.coverage &&
+      declared === d.coverage &&
+      sameList(gaps, d.gaps) &&
+      sameList(observedGaps, d.gaps),
+  );
+}
+
+/**
  * Recomputes the companion's acquisition digest, its record-set digest from
- * `manifest` and its reference to the manifest digest, and checks that every
- * fixed statement is still the fixed one. CONSISTENT means only that: anyone
- * who edits a companion can recompute its digests, so a consistent companion
- * is still UNAUTHENTICATED; only `reproduceAcquisitionCompanion` re-derives
- * its sections, and only from its own assembler-reported observations.
+ * `manifest` and its reference to the manifest digest, checks that every
+ * fixed statement is still the fixed one, and re-derives the focal coverage
+ * (R3, F-1) from the two documents instead of reading it from either.
+ * CONSISTENT means only that: anyone who edits a companion can recompute its
+ * digests, so a consistent companion is still UNAUTHENTICATED; only
+ * `reproduceAcquisitionCompanion` re-derives every section, and only from its
+ * own assembler-reported observations.
  */
 export function verifyAcquisitionCompanion(
   companion: unknown,
@@ -1371,6 +1497,9 @@ export function verifyAcquisitionCompanion(
       ) {
         inconsistencies.push(key);
       }
+    }
+    if (!focalCoverageFollows(c, manifest as SnapshotScopeManifest)) {
+      inconsistencies.push('focalCoverage');
     }
   } catch {
     inconsistencies.push('shape');
