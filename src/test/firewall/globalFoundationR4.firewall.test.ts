@@ -29,7 +29,7 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const REPAIR_BASE_COMMIT = 'ce8b220f675e095f1fedaa76b664e9c634e5ce57';
 
 /** Open (null) until a separately authorised commit-closure phase pins it. */
-const REPAIR_TERMINAL_COMMIT: string | null = null;
+const REPAIR_TERMINAL_COMMIT: string | null = '59749b20ce8c1eb9f67fea2eed3b4926c9f61233';
 
 const MIGRATION = 'migrations/0016_subject_jurisdiction_claims.sql';
 const MODULE_DIR = 'src/orgunits/subjectJurisdiction/';
