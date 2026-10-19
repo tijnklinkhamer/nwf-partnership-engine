@@ -9,6 +9,8 @@
  *     (OWNER brief "R4.1: Global Foundation Closure", 2026-10-19) changes
  *     exactly three lines elsewhere: the B2.5-M1-R3 terminal pin at ce8b220,
  *     and the two "newest migration" assertions moving from 0015 to 0016;
+ *     the R4.2 closure (OWNER brief "R4.2 Final Closure", 2026-10-19) extends
+ *     the exact orgunitSchema migration list from 0001-0015 to 0001-0016;
  *   - migrations 0001-0015 and every pre-existing docs/evaluation record are
  *     byte-identical, so no frozen B history or cohort pin moved;
  *   - migration 0016 alters, drops and rewrites nothing, grants only SELECT
@@ -34,11 +36,12 @@ const MODULE_DIR = 'src/orgunits/subjectJurisdiction/';
 const MODULE_FILES = [`${MODULE_DIR}standing.ts`, `${MODULE_DIR}vocabulary.ts`];
 const A1_FRAME_TEST = 'src/test/unit/orgunitCorpus2DA1Frame.test.ts';
 
-/** R4.1: the OWNER-authorised test-maintenance edits, each pinned line for line below. */
+/** R4.1 + R4.2: the OWNER-authorised test-maintenance edits, each pinned line for line below. */
 const R3_FIREWALL = 'src/test/firewall/phase2bSubjectAcquisitionF1R3.firewall.test.ts';
 const REGISTRY_TEST = 'src/test/integration/discoverySubjectRegistry.test.ts';
 const SNAPSHOT_READ_TEST = 'src/test/integration/discoverySubjectSnapshotReadB25P1a.test.ts';
-const R41_EDITS: Readonly<Record<string, { removed: string[]; added: string[] }>> = {
+const SCHEMA_TEST = 'src/test/integration/orgunitSchema.test.ts';
+const CLOSURE_EDITS: Readonly<Record<string, { removed: string[]; added: string[] }>> = {
   [R3_FIREWALL]: {
     removed: ['const REPAIR_TERMINAL_COMMIT: string | null = null;'],
     added: [
@@ -59,6 +62,20 @@ const R41_EDITS: Readonly<Record<string, { removed: string[]; added: string[] }>
     removed: ["      expect(top[0]!.top).toBe('0015');"],
     added: ["      expect(top[0]!.top).toBe('0016');"],
   },
+  [SCHEMA_TEST]: {
+    removed: [
+      "    it('records versions 0001 through 0015 with no gaps', async () => {",
+      '      // existing altered). This list is pinned deliberately',
+    ],
+    added: [
+      "    it('records versions 0001 through 0016 with no gaps', async () => {",
+      '      // existing altered), and for 0016 (R4 subject jurisdiction claims,',
+      '      // ADR 0024, Proposed - one append-only claim table and one ISO 3166-1',
+      '      // predicate, SELECT to nwf_readonly only; nothing existing altered).',
+      '      // This list is pinned deliberately',
+      "        '0016',",
+    ],
+  },
 };
 
 const AUTHORISED_CHANGESET = [
@@ -70,7 +87,7 @@ const AUTHORISED_CHANGESET = [
   'A\tsrc/test/integration/subjectJurisdictionR4.test.ts',
   'A\tsrc/test/unit/subjectJurisdictionR4.test.ts',
   `M\t${A1_FRAME_TEST}`,
-  ...Object.keys(R41_EDITS).map((f) => `M\t${f}`),
+  ...Object.keys(CLOSURE_EDITS).map((f) => `M\t${f}`),
 ].sort();
 
 function git(...args: readonly string[]): string {
@@ -159,8 +176,8 @@ describe.skipIf(!rangeAvailable)('R4: the change set over its own range', () => 
     ]);
   });
 
-  it('changes the R3 firewall and the two historical tests by exactly the R4.1 lines', () => {
-    for (const [path, expected] of Object.entries(R41_EDITS)) {
+  it('changes the R3 firewall and the three historical tests by exactly the R4.1/R4.2 lines', () => {
+    for (const [path, expected] of Object.entries(CLOSURE_EDITS)) {
       const diff = git('diff', '--unified=0', ...range(), '--', path).split('\n');
       expect(
         diff.filter((l) => l.startsWith('-') && !l.startsWith('---')).map((l) => l.slice(1)),
