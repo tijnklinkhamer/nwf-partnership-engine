@@ -31,7 +31,7 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const R5_BASE_COMMIT = '6c793c53cb293c6fa9410b6d382673f337b59fee';
 
 /** Open (null) until a separately authorised commit-closure phase pins it. */
-const R5_TERMINAL_COMMIT: string | null = null;
+const R5_TERMINAL_COMMIT: string | null = '9ff2715b68c5f3de1e3dfa728068d7521fa40add';
 
 const MODULE = 'src/orgunits/subjectJurisdiction/evidence.ts';
 const PACK = 'src/test/fixtures/globalR5/jurisdiction-pack.json';
