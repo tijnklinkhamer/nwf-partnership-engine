@@ -116,6 +116,23 @@ const B25_P1A_ASSEMBLER = 'src/orgunits/subjectSnapshotRead/assemble.ts';
 const B25_P1A_STORE_IMPORT =
   /import \{\s*databaseNow,\s*loadSubjectGraph,\s*MAX_SHARED_IDENTIFIER_HOLDERS,\s*\} from '\.\.\/subjectRegistry\/store\.js';/;
 
+/**
+ * Global R8 (OWNER-authorised exact-path exception, 2026-10-20, ADR 0025): the
+ * pure subject research-admission policy may import exactly the read model and
+ * the effective-review projection, and the OWNER-path admission recorder
+ * exactly the SELECT-only loader and its clock. Never the writer, the reviewer
+ * authority, the evidence binding or any other registry or store name.
+ */
+const R8_ADMISSION_REGISTRY_IMPORTS: Readonly<Record<string, readonly RegExp[]>> = {
+  'src/orgunits/subjectAdmission/policy.ts': [
+    /import \{\s*deriveSubjectReadModel,\s*subjectStateDigest,\s*type SubjectGraph,\s*\} from '\.\.\/subjectRegistry\/readModel\.js';/,
+    /import \{ effectiveReviewProjection \} from '\.\.\/subjectRegistry\/reviewAttestation\.js';/,
+  ],
+  'src/orgunits/subjectAdmission/record.ts': [
+    /import \{ databaseNow, loadSubjectGraph \} from '\.\.\/subjectRegistry\/store\.js';/,
+  ],
+};
+
 /** The exact authorised change set, as `git diff --name-status` lines. */
 const AUTHORISED_CHANGESET = [
   'A\tdocs/adr/0020-controlled-discovery-subject-registry.md',
@@ -477,6 +494,7 @@ describe('B2.2 registry module: narrow, local and inert towards research', () =>
       let code = codeOf(readFileSync(join(REPO_ROOT, file), 'utf8'));
       if (B24_READ_MODEL_IMPORTERS.includes(file)) code = code.replace(B24_READ_MODEL_IMPORT, '');
       if (file === B25_P1A_ASSEMBLER) code = code.replace(B25_P1A_STORE_IMPORT, '');
+      for (const form of R8_ADMISSION_REGISTRY_IMPORTS[file] ?? []) code = code.replace(form, '');
       expect(code, file).not.toMatch(/subjectRegistry|discoverySubjects/);
     }
   });

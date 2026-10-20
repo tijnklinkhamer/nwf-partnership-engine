@@ -112,7 +112,10 @@ export interface FetchObservationRow {
   runId: string;
   rootWebsiteClaimId: string | null;
   rootPromotionId: string | null;
-  echeRowKey: string;
+  /** Global R8 (migration 0017): a discovery-subject admission root. */
+  rootSubjectAdmissionId: string | null;
+  /** NULL exactly when `rootSubjectAdmissionId` is set (the schema's subject-root CHECK). */
+  echeRowKey: string | null;
   organisationId: string | null;
   requestedUrl: string;
   requestedHost: string;
@@ -187,7 +190,7 @@ export async function findExistingAttempt(
  * and a second attempt at the same URL is `attempt_no + 1`, which is a
  * different row on purpose.
  *
- * `root_key` is NEVER written. It is GENERATED ALWAYS from the two root
+ * `root_key` is NEVER written. It is GENERATED ALWAYS from the root
  * columns, so it cannot disagree with them and cannot be forged by a caller.
  * The charset columns are left NULL: this slice performs no charset detection,
  * and a stored charset nobody derived would be a guess.
@@ -203,8 +206,9 @@ export async function insertFetchObservation(
         discovery_method, discovery_parent_url, http_status, content_type,
         response_sha256, byte_count, truncated, robots_decision, robots_rule,
         resolved_ip_family, resolved_ip_is_public, error_kind, error_subtype,
-        fetch_policy_version, observed_at)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24)
+        fetch_policy_version, observed_at, root_subject_admission_id)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,
+             $25)
      ON CONFLICT (run_id, root_key, requested_url, fetch_policy_version, attempt_no)
        DO NOTHING
      RETURNING id`,
@@ -233,6 +237,7 @@ export async function insertFetchObservation(
       row.errorSubtype,
       row.fetchPolicyVersion,
       row.observedAt,
+      row.rootSubjectAdmissionId,
     ],
   );
   return rows[0]?.id ?? null;

@@ -23,6 +23,7 @@
 import type pg from 'pg';
 import { authoriseAndFetchPage, createRobotsCache, type RobotsCache } from '../web/robots.js';
 import { resolveRoot, WebGatewayRefusal, type RootAuthorityRef } from '../web/authority.js';
+import { enforceSubjectRootResearchEligibility } from '../subjectAdmission/runGuard.js';
 import { checkHostAdmissible } from '../web/hostPolicy.js';
 import { checkRootScope, validateRequestUrl, type ValidatedUrl } from '../web/url.js';
 import { hasBinaryFileExtension, hasCartActionQueryParam } from '../signals/packs/universal.js';
@@ -178,7 +179,18 @@ export async function runRootAcquisition(
   // request exists. Holds for every caller, not only runOrganisationDiscovery:
   // a protected root, or one bound to another organisation, throws
   // ResearchCohortRefusal here with zero network activity and zero writes.
-  await enforceRootResearchEligibility(pool, runId, resolved, deps);
+  //
+  // GLOBAL R8 (ADR 0025): a discovery-subject root has no ECHE row for B3.0 to
+  // judge, so it passes the subject guard instead - at the same point, with
+  // the same zero-activity refusal. Which guard runs is decided by the STORED
+  // authority `resolveRoot` returned, never by the caller. That a run never
+  // mixes root scopes is the database's own guarantee (migration 0017's
+  // run-scope foreign key), so the ECHE branch is exactly as it was.
+  if (resolved.subjectAdmission !== null) {
+    await enforceSubjectRootResearchEligibility(pool, runId, resolved, deps);
+  } else {
+    await enforceRootResearchEligibility(pool, runId, resolved, deps);
+  }
 
   const rootUrl: ValidatedUrl = resolved.rootUrl;
   const rootKey = resolved.rootKey;

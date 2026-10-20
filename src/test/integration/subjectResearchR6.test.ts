@@ -4,7 +4,9 @@
  *
  *   - the research role cannot read any Discovery Subject table (ADR 0019);
  *   - the fetch-evidence table refuses an attempt rooted in no ECHE row and
- *     no website claim or promotion (migration 0007);
+ *     no website claim or promotion (migration 0007) - LIFTED by Global R8
+ *     (migration 0017) for an OWNER admission root only, never for the R6
+ *     planner's `subject_claim:` kind;
  *   - the research authority resolver knows only claim and promotion roots,
  *     so a subject's claim id names no root, before any request exists;
  *   - and the existing ECHE root still resolves exactly as before.
@@ -98,7 +100,12 @@ describeDb('R6 subject research execution blockers are schema facts (integration
     }
   });
 
-  it('FETCH_EVIDENCE_CANNOT_ROOT_A_SUBJECT: no column can name a subject root, and ECHE rooting is mandatory', async () => {
+  it('FETCH_EVIDENCE_CANNOT_ROOT_A_SUBJECT: lifted by Global R8 for an OWNER admission only, never for an R6 claim root', async () => {
+    // Global R8 (migration 0017, ADR 0025) deliberately lifts this blocker
+    // for ONE root kind: an OWNER admission (`subject_admission:<uuid>`). The
+    // R6 planner's own kind, a bare subject claim (`subject_claim:<uuid>`),
+    // still names no root, and ECHE rooting stays mandatory for every other
+    // root.
     const { rows } = await admin.query<{ column_name: string; is_nullable: string }>(
       `SELECT column_name, is_nullable FROM information_schema.columns
         WHERE table_name = 'orgunit_fetch_observations'
@@ -107,10 +114,24 @@ describeDb('R6 subject research execution blockers are schema facts (integration
         ORDER BY column_name`,
     );
     expect(rows).toEqual([
-      { column_name: 'eche_row_key', is_nullable: 'NO' },
+      { column_name: 'eche_row_key', is_nullable: 'YES' },
       { column_name: 'root_promotion_id', is_nullable: 'YES' },
+      { column_name: 'root_subject_admission_id', is_nullable: 'YES' },
       { column_name: 'root_website_claim_id', is_nullable: 'YES' },
     ]);
+    const { rows: generated } = await admin.query<{ expr: string }>(
+      `SELECT pg_get_expr(d.adbin, d.adrelid) AS expr
+         FROM pg_attrdef d
+         JOIN pg_attribute a ON a.attrelid = d.adrelid AND a.attnum = d.adnum
+        WHERE d.adrelid = 'orgunit_fetch_observations'::regclass AND a.attname = 'root_key'`,
+    );
+    expect(generated[0]!.expr).toContain("'subject_admission:'");
+    expect(generated[0]!.expr).not.toContain('subject_claim');
+    const { rows: check } = await admin.query<{ def: string }>(
+      `SELECT pg_get_constraintdef(oid) AS def FROM pg_constraint
+        WHERE conname = 'orgunit_fetch_observations_subject_root_chk'`,
+    );
+    expect(check[0]!.def).toMatch(/eche_row_key IS NOT NULL/);
   });
 
   it('the authority resolver names no subject root: a subject claim id is refused before any request', async () => {

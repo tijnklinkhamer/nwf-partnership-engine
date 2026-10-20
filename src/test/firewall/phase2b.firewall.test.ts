@@ -1290,7 +1290,25 @@ describe('PHASE-2B-FIREWALL: research evidence is append-only and owns nothing e
         if (!table.startsWith('orgunit_')) readable.add(table);
       }
     }
-    expect([...readable].sort()).toEqual(['organisations', 'website_claims']);
+    // Global R8 (OWNER-authorised exact-path exception, 2026-10-20, ADR 0025):
+    // a discovery-subject root is read from its OWNER admission, its
+    // revocations and the registry's row counts - and from migration 0017
+    // only. No discovery-subject table itself is readable.
+    const R8_SUBJECT_ROOT_SOURCES = [
+      'subject_research_admission_revocations',
+      'subject_research_admissions',
+      'subject_research_registry_fingerprint',
+    ];
+    expect([...readable].sort()).toEqual(
+      ['organisations', 'website_claims', ...R8_SUBJECT_ROOT_SOURCES].sort(),
+    );
+    for (const { file, grant } of RESEARCH_GRANTS) {
+      if (!R8_SUBJECT_ROOT_SOURCES.some((t) => grant.target.includes(t))) continue;
+      expect(file, `${grant.target} is granted outside migration 0017`).toMatch(
+        /0017_subject_research_admission\.sql$/,
+      );
+      expect(grant.privileges.trim().toUpperCase()).toBe('SELECT');
+    }
   });
 
   it('never grants nwf_research the database TEMPORARY privilege', () => {

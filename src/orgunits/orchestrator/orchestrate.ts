@@ -30,7 +30,9 @@
  * identity before its first request.
  */
 import type pg from 'pg';
-import { completeRun, startRun } from './run.js';
+import { enforceSubjectRootResearchEligibility } from '../subjectAdmission/runGuard.js';
+import { resolveRoot, type RootAuthorityRef } from '../web/authority.js';
+import { completeRun, startRun, startSubjectRun } from './run.js';
 import { runRootAcquisition, type RootRunnerDeps, type RootSummary } from './rootRunner.js';
 import {
   planOrganisationResearch,
@@ -100,6 +102,76 @@ export async function runOrganisationDiscovery(
     echeRowKey: plan.echeRowKey,
     organisationId: plan.organisationId,
     roots,
+    runTerminalState,
+  };
+}
+
+export interface RunSubjectDiscoveryInput {
+  /** ONE stored OWNER admission (ADR 0025). Never a subject id, a URL or a list. */
+  admissionId: string;
+  networkVantage: string;
+}
+
+export interface SubjectRunResult {
+  readonly runId: string;
+  readonly admissionId: string;
+  readonly subjectId: string;
+  readonly rootKey: string;
+  /** Null exactly when the run FAILED: an infrastructure error escaped the root's acquisition. */
+  readonly summary: RootSummary | null;
+  readonly runTerminalState: 'COMPLETED' | 'FAILED';
+}
+
+/**
+ * GLOBAL R8 (ADR 0025): ONE research run for ONE discovery-subject admission.
+ *
+ * The same engine as `runOrganisationDiscovery` - the same run rows, the same
+ * `runRootAcquisition`, gateway, robots, budgets, frontier, redaction and
+ * evidence writes - with the subject's admission as the run's only root.
+ * Before `startRun`, the admission is resolved from the database (unknown,
+ * revoked, expired, unimplemented-policy and STALE admissions throw
+ * `WebGatewayRefusal`) and passed through the subject guard (TEST_ONLY
+ * outside vitest, a changed protected registry, a lost domain isolation
+ * throw `SubjectRootRefusal`): a refusal writes no run row and makes no
+ * request. There is no batch form: one call, one admission, one run.
+ */
+export async function runSubjectDiscovery(
+  pool: pg.Pool,
+  input: RunSubjectDiscoveryInput,
+  deps: RootRunnerDeps = {},
+): Promise<SubjectRunResult> {
+  const ref: RootAuthorityRef = { kind: 'SUBJECT_ADMISSION', admissionId: input.admissionId };
+  const root = await resolveRoot(pool, ref);
+  await enforceSubjectRootResearchEligibility(pool, null, root, deps);
+
+  const runId = await startSubjectRun(pool, {
+    networkVantage: input.networkVantage,
+    admissionId: root.subjectAdmission!.admissionId,
+  });
+
+  let summary: RootSummary | null = null;
+  let runTerminalState: 'COMPLETED' | 'FAILED' = 'COMPLETED';
+  let failureSummary: string | null = null;
+  try {
+    summary = await runRootAcquisition(pool, runId, ref, deps);
+  } catch (error) {
+    runTerminalState = 'FAILED';
+    failureSummary = error instanceof Error ? error.message : String(error);
+  }
+
+  await completeRun(pool, {
+    runId,
+    terminalState: runTerminalState,
+    errorKind: runTerminalState === 'FAILED' ? 'ORCHESTRATION_ERROR' : null,
+    errorSummary: failureSummary,
+  });
+
+  return {
+    runId,
+    admissionId: root.subjectAdmission!.admissionId,
+    subjectId: root.subjectAdmission!.subjectId,
+    rootKey: root.rootKey,
+    summary,
     runTerminalState,
   };
 }

@@ -1095,6 +1095,7 @@ async function persist(
       runId: context.run.id,
       rootWebsiteClaimId: context.root.websiteClaimId,
       rootPromotionId: context.root.promotionId,
+      rootSubjectAdmissionId: context.root.subjectAdmissionId,
       echeRowKey: context.root.echeRowKey,
       organisationId: context.root.organisationId,
       requestedUrl: context.requestedUrl,

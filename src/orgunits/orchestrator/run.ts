@@ -42,6 +42,29 @@ export async function startRun(pool: pg.Pool, input: StartRunInput): Promise<str
   return rows[0]!.id;
 }
 
+export interface StartSubjectRunInput {
+  networkVantage: string;
+  /** The ONE discovery-subject admission this run may hold evidence for (ADR 0025). */
+  admissionId: string;
+}
+
+/**
+ * GLOBAL R8: inserts the run of exactly ONE subject admission. Its
+ * `root_scope` is `subject_admission:<uuid>`, and migration 0017's composite
+ * foreign key then admits only that admission's fetch evidence into it.
+ * `startRun` is unchanged and still creates every ECHE run (scope `ECHE`).
+ */
+export async function startSubjectRun(pool: pg.Pool, input: StartSubjectRunInput): Promise<string> {
+  const { rows } = await pool.query<{ id: string }>(
+    `INSERT INTO orgunit_research_runs
+       (started_at, network_vantage, fetch_policy_version, rule_version, dry_run, root_scope)
+     VALUES (now(), $1, $2, $3, false, 'subject_admission:' || $4::uuid::text)
+     RETURNING id`,
+    [input.networkVantage, FETCH_POLICY_VERSION, ORGUNIT_SIGNAL_RULE_VERSION, input.admissionId],
+  );
+  return rows[0]!.id;
+}
+
 export type RunTerminalState = 'COMPLETED' | 'FAILED' | 'ABORTED';
 
 export interface CompleteRunInput {

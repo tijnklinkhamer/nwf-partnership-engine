@@ -745,6 +745,11 @@ const MIGRATIONS_AFTER_THE_CORPUS_FREEZE = [
     adr: 'docs/adr/0024-worldwide-subject-jurisdiction-claims.md',
     ownerRecord: 'docs/evaluation/GLOBAL_FOUNDATION_R4_OWNER_BRIEF_RECORD_V1.json',
   },
+  {
+    file: '0017_subject_research_admission.sql',
+    adr: 'docs/adr/0025-global-subject-research-admission.md',
+    ownerRecord: 'docs/evaluation/GLOBAL_R8_OWNER_BRIEF_RECORD_V1.json',
+  },
 ] as const;
 
 function gitAvailable(...commits: readonly string[]): boolean {

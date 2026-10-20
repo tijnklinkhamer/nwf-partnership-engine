@@ -342,9 +342,21 @@ describe('B3.0 research cohort guard: one authority, no bypass, no disclosure', 
     );
     // classify.ts: the classifier's own pre-existing test seam (default = pins).
     // researchCohortGuard.ts: the seam's declaration and its default.
-    expect(injecting).toEqual(['src/cli/commands/classify.ts', GUARD]);
+    // Global R8 (OWNER-authorised exact-path exception, 2026-10-20, ADR 0025):
+    // the subject admission recorder and the subject run guard declare the SAME
+    // seam with the SAME default; neither is ever passed a loader in production.
+    const R8_SEAM_DECLARERS = [
+      'src/orgunits/subjectAdmission/record.ts',
+      'src/orgunits/subjectAdmission/runGuard.ts',
+    ];
+    expect(injecting).toEqual(['src/cli/commands/classify.ts', GUARD, ...R8_SEAM_DECLARERS].sort());
     const guard = codeOf(sourceOf(GUARD));
     expect(guard).toContain('deps.loadCohortRegistry ?? loadEvaluationCohortRegistry');
+    for (const file of R8_SEAM_DECLARERS) {
+      expect(codeOf(readFileSync(join(REPO_ROOT, file), 'utf8')), file).toContain(
+        '(deps.loadCohortRegistry ?? loadEvaluationCohortRegistry)()',
+      );
+    }
   });
 
   it('a refusal carries code, kind and reason only - never a membership, a detail or a key', () => {

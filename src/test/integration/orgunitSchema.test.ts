@@ -218,7 +218,7 @@ describeDb('Phase 2B schema contract (integration)', () => {
   });
 
   describe('the Phase 2B migrations are applied and sequential', () => {
-    it('records versions 0001 through 0016 with no gaps', async () => {
+    it('records versions 0001 through 0017 with no gaps', async () => {
       const { rows } = await admin.query<{ version: string }>(
         'SELECT version FROM schema_migrations ORDER BY version',
       );
@@ -236,7 +236,11 @@ describeDb('Phase 2B schema contract (integration)', () => {
       // attestation table and one NOLOGIN reviewer capability; nothing
       // existing altered), and for 0016 (R4 subject jurisdiction claims,
       // ADR 0024, Proposed - one append-only claim table and one ISO 3166-1
-      // predicate, SELECT to nwf_readonly only; nothing existing altered).
+      // predicate, SELECT to nwf_readonly only; nothing existing altered),
+      // and for 0017 (Global R8 subject research admission, ADR 0025,
+      // Proposed - an OWNER-path admission table, its revocations, a
+      // count-only fingerprint view, and a third root on fetch evidence with
+      // every historical root_key regenerated identically).
       // This list is pinned deliberately
       // so a new migration cannot arrive unnoticed: adding one is meant to
       // fail here first and be acknowledged here explicitly, exactly as it
@@ -258,6 +262,7 @@ describeDb('Phase 2B schema contract (integration)', () => {
         '0014',
         '0015',
         '0016',
+        '0017',
       ]);
     });
 

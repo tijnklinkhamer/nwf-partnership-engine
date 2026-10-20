@@ -122,6 +122,29 @@ const B25_P1A_ASSEMBLER = 'src/orgunits/subjectSnapshotRead/assemble.ts';
 const B25_P1A_STORE_IMPORT =
   /import \{\s*databaseNow,\s*loadSubjectGraph,\s*MAX_SHARED_IDENTIFIER_HOLDERS,\s*\} from '\.\.\/subjectRegistry\/store\.js';/;
 
+/**
+ * Global R8 (OWNER-authorised exact-path exception, 2026-10-20, ADR 0025): the
+ * pure subject research-admission policy and the OWNER-path admission
+ * recorder, and ONLY the forms each needs - the read model, the effective
+ * review projection, the SELECT-only loader, the trust set as a TYPE, and
+ * `ReviewTrustSet.operational()` as the recorder's default. Never the writer,
+ * signer, verifier, reviewer authority or a test trust seam.
+ */
+const R8_ADMISSION_REVIEW_FORMS: Readonly<Record<string, readonly RegExp[]>> = {
+  'src/orgunits/subjectAdmission/policy.ts': [
+    /import \{\s*deriveSubjectReadModel,\s*subjectStateDigest,\s*type SubjectGraph,\s*\} from '\.\.\/subjectRegistry\/readModel\.js';/,
+    /import \{ effectiveReviewProjection \} from '\.\.\/subjectRegistry\/reviewAttestation\.js';/,
+    /import type \{ ReviewTrustSet \} from '\.\.\/subjectReview\/trust\.js';/,
+    /: ReviewTrustSet;/g,
+  ],
+  'src/orgunits/subjectAdmission/record.ts': [
+    /import \{ databaseNow, loadSubjectGraph \} from '\.\.\/subjectRegistry\/store\.js';/,
+    /import \{ ReviewTrustSet \} from '\.\.\/subjectReview\/trust\.js';/,
+    /\?: ReviewTrustSet;/g,
+    /\bReviewTrustSet\.operational\(\)/g,
+  ],
+};
+
 /** The exact authorised change set, as `git diff --name-status` lines. */
 const AUTHORISED_CHANGESET = [
   `A\t${ADR}`,
@@ -581,6 +604,7 @@ describe('B2.3 protocol and verification: domain-separated, signature-first, sea
         for (const form of B24_READ_ONLY_FORMS) code = code.replace(form, '');
       }
       if (file === B25_P1A_ASSEMBLER) code = code.replace(B25_P1A_STORE_IMPORT, '');
+      for (const form of R8_ADMISSION_REVIEW_FORMS[file] ?? []) code = code.replace(form, '');
       expect(code, file).not.toMatch(forbidden);
     }
   });

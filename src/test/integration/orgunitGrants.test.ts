@@ -527,7 +527,19 @@ describeDb('Phase 2B research grants (integration)', () => {
         .filter((row) => row.privilege_type === 'SELECT')
         .map((row) => row.table_name)
         .sort();
-      expect(readable).toEqual([...ALL_ORGUNIT_TABLES, 'organisations', 'website_claims'].sort());
+      // Global R8 (migration 0017, ADR 0025): a discovery-subject root is read
+      // from its OWNER admission, its revocations and the registry's row
+      // counts - never from a discovery-subject table, and never written.
+      expect(readable).toEqual(
+        [
+          ...ALL_ORGUNIT_TABLES,
+          'organisations',
+          'website_claims',
+          'subject_research_admission_revocations',
+          'subject_research_admissions',
+          'subject_research_registry_fingerprint',
+        ].sort(),
+      );
     });
   });
 });

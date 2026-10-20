@@ -57,6 +57,7 @@ const REPAIR_BASE_COMMIT = '8276c44c71ab676d177dfdceb21da1c31e75b380';
 const REPAIR_TERMINAL_COMMIT: string | null = 'feafd2c555bea5482cfc9c640ed1ba350ddb11d0';
 
 const ASSEMBLER = 'src/orgunits/subjectSnapshotRead/assemble.ts';
+const R8_ADMISSION_POLICY = 'src/orgunits/subjectAdmission/policy.ts';
 const P1A_FIREWALL = 'src/test/firewall/phase2bSubjectSnapshotReadP1a.firewall.test.ts';
 const UNIT_TEST = 'src/test/unit/discoverySubjectValidationB25V1.test.ts';
 const INTEGRATION_TEST = 'src/test/integration/discoverySubjectValidationB25V1.test.ts';
@@ -689,7 +690,9 @@ describe('B2.5-V1 validation findings: narrow, read-only, unconnected', () => {
       );
     const now = importers(productionFiles(), (f) => readFileSync(join(REPO_ROOT, f), 'utf8'));
     const before = importers(baseProductionFiles(), baseSourceOf);
-    expect(now.sort()).toEqual([...before, ASSEMBLER].sort());
+    // Global R8 (OWNER-authorised exact-path exception, 2026-10-20, ADR 0025):
+    // the pure subject research-admission policy is the one further importer.
+    expect(now.sort()).toEqual([...before, ASSEMBLER, R8_ADMISSION_POLICY].sort());
     for (const file of productionFiles()) {
       if (file === ASSEMBLER) continue;
       expect(codeOf(readFileSync(join(REPO_ROOT, file), 'utf8')), file).not.toMatch(
