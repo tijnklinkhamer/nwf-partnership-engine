@@ -19,10 +19,27 @@
  * Regenerate with `R9_WRITE_FIXTURE_PACK=1 npx vitest run <this file>`.
  */
 import { createHash, randomBytes } from 'node:crypto';
+import type * as NodeCrypto from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import pg from 'pg';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+
+/**
+ * Identifiers the B2.2 writer draws in-process (`randomUUID`) come from the
+ * same synthetic namespace as the database's (see `useSyntheticUuids`), so
+ * the committed pack holds no identifier indistinguishable from a real one.
+ * Test-only: the closed writer is unchanged; every other crypto call is real.
+ */
+const synthetic = vi.hoisted(() => ({ next: 0 }));
+vi.mock('node:crypto', async (importOriginal) => {
+  const real = await importOriginal<typeof NodeCrypto>();
+  return {
+    ...real,
+    randomUUID: () =>
+      `bbbbbbbb-0000-4000-8000-${(++synthetic.next).toString(16).padStart(12, '0')}`,
+  };
+});
 
 import { testDatabaseUrl } from '../../config/env.js';
 import { runDiscoverySubjects } from '../../cli/commands/discoverySubjects.js';
@@ -104,7 +121,7 @@ const WEEK = 7 * 24 * 60 * 60;
 const SHORT_VALIDITY = 6;
 
 const FR_UNIVERSITY: SyntheticIdentity = {
-  organisationId: '9a000000-0000-4000-8000-000000000901',
+  organisationId: 'aaaaaaaa-0000-4000-8000-000000000901',
   echeRowKey: 'F SYNTH09|900000901',
 };
 const FR_SITE = 'https://www.universite-synthetique-r9.example.fr/';
@@ -123,7 +140,7 @@ interface CaseSpec {
 
 const JP: CaseSpec = {
   caseId: 'JP_LANGUAGE_EXCHANGE_CIRCLE',
-  subjectId: '9a000000-0000-4000-8000-0000000009a1',
+  subjectId: 'aaaaaaaa-0000-4000-8000-0000000009a1',
   name: 'Synthetic Kyoto Language Exchange Circle',
   nativeName: { text: '合成京都言語交換サークル', lang: 'ja' },
   kind: 'INDEPENDENT_STUDENT_ASSOCIATION',
@@ -137,7 +154,7 @@ const JP: CaseSpec = {
 };
 const BR: CaseSpec = {
   caseId: 'BR_LANGUAGE_ORGANISATION',
-  subjectId: '9a000000-0000-4000-8000-0000000009b1',
+  subjectId: 'aaaaaaaa-0000-4000-8000-0000000009b1',
   name: 'Associação Sintética de Intercâmbio Linguístico',
   nativeName: null,
   kind: 'INDEPENDENT_COMMUNITY',
@@ -148,7 +165,7 @@ const BR: CaseSpec = {
 };
 const KR: CaseSpec = {
   caseId: 'KR_SHORT_ADMISSION_CIRCLE',
-  subjectId: '9a000000-0000-4000-8000-0000000009c1',
+  subjectId: 'aaaaaaaa-0000-4000-8000-0000000009c1',
   name: 'Synthetic Busan Tandem Circle',
   nativeName: null,
   kind: 'INDEPENDENT_STUDENT_ASSOCIATION',
@@ -478,6 +495,48 @@ describeDb('Global R9 subject research evidence export (integration, synthetic)'
     cohort.admit(FR_UNIVERSITY);
   }
 
+  /**
+   * Every database-generated identifier in this file is drawn from the
+   * synthetic `cccccccc-0000-4000-8000-…` namespace, so the pack the Operator
+   * commits can never carry an identifier indistinguishable from a real one
+   * (Operator `artifactSourceHygiene`). Test database only; files run
+   * serially; every default is restored in `afterAll`.
+   */
+  const syntheticDefaults: { table: string; column: string; expr: string }[] = [];
+  async function useSyntheticUuids(): Promise<void> {
+    await admin.query(`CREATE SEQUENCE IF NOT EXISTS r9_synthetic_uuid_seq`);
+    await admin.query(`GRANT USAGE, UPDATE ON SEQUENCE r9_synthetic_uuid_seq TO PUBLIC`);
+    await admin.query(
+      `CREATE OR REPLACE FUNCTION r9_synthetic_uuid() RETURNS uuid LANGUAGE sql AS
+       $$ SELECT ('cccccccc-0000-4000-8000-' || lpad(to_hex(nextval('r9_synthetic_uuid_seq')), 12, '0'))::uuid $$`,
+    );
+    const { rows } = await admin.query<{
+      table_name: string;
+      column_name: string;
+      column_default: string;
+    }>(
+      `SELECT table_name, column_name, column_default FROM information_schema.columns
+        WHERE table_schema = 'public' AND column_default LIKE 'gen_random_uuid()%'`,
+    );
+    for (const r of rows) {
+      syntheticDefaults.push({
+        table: r.table_name,
+        column: r.column_name,
+        expr: r.column_default,
+      });
+      await admin.query(
+        `ALTER TABLE ${r.table_name} ALTER COLUMN ${r.column_name} SET DEFAULT r9_synthetic_uuid()`,
+      );
+    }
+  }
+  async function restoreUuidDefaults(): Promise<void> {
+    for (const d of syntheticDefaults) {
+      await admin.query(`ALTER TABLE ${d.table} ALTER COLUMN ${d.column} SET DEFAULT ${d.expr}`);
+    }
+    await admin.query(`DROP FUNCTION IF EXISTS r9_synthetic_uuid()`);
+    await admin.query(`DROP SEQUENCE IF EXISTS r9_synthetic_uuid_seq`);
+  }
+
   async function tableCounts(): Promise<string> {
     const { rows } = await admin.query<{ t: string; n: string }>(
       `SELECT 'runs' AS t, count(*)::text AS n FROM orgunit_research_runs
@@ -497,6 +556,7 @@ describeDb('Global R9 subject research evidence export (integration, synthetic)'
     research = researchPool();
     readonly = readonlyPool();
     await truncateAll(admin);
+    await useSyntheticUuids();
     for (const login of [WRITER_LOGIN, REVIEWER_LOGIN]) {
       await admin.query(`CREATE ROLE ${login} LOGIN PASSWORD '${LOGIN_PASSWORD}'`);
     }
@@ -545,7 +605,7 @@ describeDb('Global R9 subject research evidence export (integration, synthetic)'
       `INSERT INTO subject_jurisdiction_claims
          (id, subject_id, claim_kind, claimed_country, claimed_legal_form, source_type,
           source_page_evidence_id, observed_at, claim_basis, recorded_by_actor_key)
-       VALUES ('9a000000-0000-4000-8000-0000000009d1', $1, 'COUNTRY_OF_OPERATION', 'JP', NULL,
+       VALUES ('aaaaaaaa-0000-4000-8000-0000000009d1', $1, 'COUNTRY_OF_OPERATION', 'JP', NULL,
                'PAGE_EVIDENCE', $2, '2026-10-20T09:00:00Z', 'SOURCE_STATED', 'owner-cli')`,
       [JP.subjectId, state.pages['JP_ROOT']],
     );
@@ -561,6 +621,7 @@ describeDb('Global R9 subject research evidence export (integration, synthetic)'
   afterAll(async () => {
     await Promise.all([writer?.end(), reviewer?.end()]);
     await truncateAll(admin);
+    await restoreUuidDefaults();
     for (const login of [WRITER_LOGIN, REVIEWER_LOGIN]) {
       await admin.query(`DROP ROLE IF EXISTS ${login}`);
     }
@@ -666,7 +727,7 @@ describeDb('Global R9 subject research evidence export (integration, synthetic)'
     });
 
     it('STALE_REGISTRY_CHANGED: any registry append after admission', async () => {
-      await cli(['propose', '--subject-id', '9a000000-0000-4000-8000-0000000009e1',
+      await cli(['propose', '--subject-id', 'aaaaaaaa-0000-4000-8000-0000000009e1',
         '--kind', 'INDEPENDENT_COMMUNITY', '--name', 'Synthetic Later Arrival',
         ...source('p-later'), '--execute']); // prettier-ignore
       const doc = (await keep(JP, 'STALE_REGISTRY_CHANGED')) as Json;
@@ -701,7 +762,7 @@ describeDb('Global R9 subject research evidence export (integration, synthetic)'
     it('an unknown run, and an unfinished one', async () => {
       expect(
         await exportSubjectResearchEvidence(research, {
-          runId: '9a000000-0000-4000-8000-0000000009ff',
+          runId: 'aaaaaaaa-0000-4000-8000-0000000009ff',
           subjectEvidenceDocumentDigest: 'a'.repeat(64),
           sourceRevision: null,
         }),

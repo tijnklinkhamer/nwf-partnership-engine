@@ -233,6 +233,24 @@ describe('R9: the committed Operator pack is synthetic', () => {
     for (const host of hosts) expect(host).toMatch(/(^|\.)example\.[a-z.]+$/);
   });
 
+  it('every identifier is in the synthetic namespace, but the ONE database environment id', () => {
+    const uuids = [
+      ...new Set(text.match(/\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/g)),
+    ];
+    const environment = [
+      ...new Set(
+        [...text.matchAll(/"(?:engineEnvironmentId|environmentId)":"([0-9a-f-]{36})"/g)].map(
+          (m) => m[1]!,
+        ),
+      ),
+    ];
+    expect(environment).toHaveLength(1);
+    for (const uuid of uuids) {
+      if (uuid !== environment[0])
+        expect(uuid).toMatch(/^([0-9a-f])\1{7}-0000-4000-8000-[0-9a-f]{12}$/);
+    }
+  });
+
   it('carries no contact data: redaction markers only', () => {
     expect(text).not.toMatch(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[a-z]{2,}/);
     expect(text).not.toMatch(/\+81 75|\b123 4567\b/);
