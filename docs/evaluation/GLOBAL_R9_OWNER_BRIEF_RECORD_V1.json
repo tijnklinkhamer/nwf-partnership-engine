@@ -1,0 +1,46 @@
+{
+  "recordId": "GLOBAL_R9_OWNER_BRIEF_RECORD_V1",
+  "recordKind": "OWNER_BRIEF_SCOPE_RECORD",
+  "recordedAtUtc": "2026-10-20",
+  "branch": "feat/global-research-operator-integration-r9",
+  "worktree": "~/wt-pe-global-operator-integration-r9",
+  "startingHead": "d833673ae2f7981d3456394c8ca76f83005ccf99",
+  "startingHeadLineage": "Global R8 firewall pin (d833673) over R8 d0c76a8, parent fea2383",
+  "status": "LOCAL_SYNTHETIC_IMPLEMENTATION_UNDER_OWNER_BRIEF__RATIFICATION_PENDING",
+  "isOwnerRatification": false,
+  "authority": {
+    "source": "OWNER brief 'NWF Partnership Engine — R9: Global Research → Operator Integration' (2026-10-20)",
+    "objectiveVerbatim": "Connect persisted global research evidence to the existing OWNER Operator workflow, without bypassing identity, publication, or outreach authority.",
+    "restrictionsVerbatim": [
+      "No pushes, live fetching, real admissions, production migrations, deployment, real canonical issuance or Outreach.",
+      "Do not change closed historical Track B contracts or R8 migration behaviour merely to simplify integration."
+    ]
+  },
+  "contract": "nwf-pe.subject-research-evidence.v1-provisional",
+  "contractStatus": "ENGINE_LOCAL_PROVISIONAL_ADR_0025_PROPOSED",
+  "module": "src/orgunits/subjectResearchEvidence/",
+  "operatorFixturePack": "src/test/fixtures/globalR9/research-pack.json",
+  "exportRole": "nwf_research (existing SELECT grants only; no new grant)",
+  "appendOnly": true,
+  "editsPriorRecords": false,
+  "editsPriorMigrations": false,
+  "addsMigration": false,
+  "editsHistoricalTests": false,
+  "rewritesCohortPins": false,
+  "productionMigrationApplied": false,
+  "networkUsed": false,
+  "realOrganisationsInserted": false,
+  "realAdmissionsRecorded": false,
+  "operationalKeyProvisioned": false,
+  "contactDataStored": false,
+  "grantsContactPermission": false,
+  "activatesQualificationOrInsightsPublication": false,
+  "issuesCanonicalIdentity": false,
+  "classifierChanged": false,
+  "openForOwner": [
+    "Ratify or reject ADR 0025 and migration 0017 (the export depends on both).",
+    "Promote (or not) nwf-pe.subject-research-evidence.v1-provisional from an Engine-local provisional contract to a cross-repository contract, with a signed-export and trust-distribution decision; until then a consumer can check consistency, never authenticity.",
+    "Decide the transport of exported documents to an operational Operator plane (today: a committed synthetic fixture only).",
+    "Decide whether the registry-wide staleness fingerprint (ADR 0025 s7) is acceptable for operational review, or whether a per-subject closure fingerprint (a new admission policy version) must come first."
+  ]
+}
