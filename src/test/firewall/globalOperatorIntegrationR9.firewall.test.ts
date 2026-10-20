@@ -4,8 +4,9 @@
  *
  * Pins, over R9_BASE_COMMIT..R9_TERMINAL_COMMIT (the working tree while the
  * terminal is open):
- *   - the change set is exactly the named ADDITIONS: no existing file, no
- *     migration, no historical test and no earlier record is edited;
+ *   - the change set is exactly the named ADDITIONS plus R9.1's two
+ *     acknowledged edits: no other existing file, no migration, no other
+ *     historical test and no earlier record is edited;
  *   - `src/orgunits/subjectResearchEvidence/` is two files, imports only what
  *     it is reviewed to, opens no socket, reads no environment or clock,
  *     issues only SELECTs inside one REPEATABLE READ READ ONLY transaction,
@@ -15,6 +16,7 @@
  *   - every exported capability is `NONE`, and the committed Operator pack is
  *     synthetic, under `.example.` hosts, and carries no contact data.
  */
+import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -34,8 +36,26 @@ const MODULE_DIR = 'src/orgunits/subjectResearchEvidence/';
 const MODULE_FILES = [`${MODULE_DIR}evidence.ts`, `${MODULE_DIR}load.ts`];
 const PACK = 'src/test/fixtures/globalR9/research-pack.json';
 
+/**
+ * R9.1 (OWNER brief "R9.1: Integration Validation Closure", 2026-10-20): the R5 jurisdiction pack
+ * the Operator copies byte for byte carried two identifiers outside the synthetic namespace its
+ * fixture hygiene admits - the review environment constant `11111111-1111-4111-8111-…` and the
+ * ECHE anchor `F SYNTH01|…`. The repair is at the SOURCE: the R5 generator's two constants move
+ * into the namespace (`11111111-0000-4000-8000-…`, `XF SYNTH01|…`) and the pack is regenerated
+ * by that generator, unchanged otherwise. Each edit is pinned by the SHA-256 of JSON
+ * {removed, added} of its `git diff --unified=0` lines. The closed R5 range (6c793c5..9ff2715)
+ * and its firewall are untouched.
+ */
+const ACKNOWLEDGED_EDITS: Readonly<Record<string, string>> = {
+  'src/test/fixtures/globalR5/jurisdiction-pack.json':
+    'dfa94c7236ef6e832d67987efb4be452b7ac216f158d0ec4acf8766ecb005b43',
+  'src/test/unit/subjectJurisdictionEvidenceR5.test.ts':
+    'f120efaa68dce02a1c4d5368293b043c2978d3005336d9465e4c561712af7027',
+};
+
 const AUTHORISED_CHANGESET = [
   'A\tdocs/evaluation/GLOBAL_R9_OWNER_BRIEF_RECORD_V1.json',
+  ...Object.keys(ACKNOWLEDGED_EDITS).map((f) => `M\t${f}`),
   ...MODULE_FILES.map((f) => `A\t${f}`),
   `A\t${PACK}`,
   'A\tsrc/test/firewall/globalOperatorIntegrationR9.firewall.test.ts',
@@ -89,6 +109,14 @@ function changeset(): string[] {
   return [...new Set(`${tracked}\n${untracked}`.split('\n').filter((l) => l.length > 0))].sort();
 }
 
+function diffLines(path: string): { removed: string[]; added: string[] } {
+  const diff = git('diff', '--unified=0', ...range(), '--', path).split('\n');
+  return {
+    removed: diff.filter((l) => l.startsWith('-') && !l.startsWith('---')).map((l) => l.slice(1)),
+    added: diff.filter((l) => l.startsWith('+') && !l.startsWith('+++')).map((l) => l.slice(1)),
+  };
+}
+
 function sourceOf(path: string): string {
   if (R9_TERMINAL_COMMIT === null) return readFileSync(join(REPO_ROOT, path), 'utf8');
   return git('show', `${R9_TERMINAL_COMMIT}:${path}`);
@@ -122,8 +150,30 @@ const sqlOf = (file: string): string[] =>
     .filter((s) => /\b(SELECT|INSERT|UPDATE|DELETE|BEGIN|COMMIT|ROLLBACK|TRUNCATE)\b/.test(s));
 
 describe.skipIf(!rangeAvailable)('R9: the change set over its own range', () => {
-  it('is exactly the named additions, and edits nothing that existed', () => {
+  it('is exactly the named additions and the acknowledged R9.1 edits', () => {
     expect(changeset()).toEqual(AUTHORISED_CHANGESET);
+  });
+
+  it('edits each historical file by exactly its reviewed R9.1 acknowledgement', () => {
+    for (const [path, digest] of Object.entries(ACKNOWLEDGED_EDITS)) {
+      const lines = diffLines(path);
+      expect(createHash('sha256').update(JSON.stringify(lines), 'utf8').digest('hex'), path).toBe(
+        digest,
+      );
+    }
+  });
+
+  it('R9.1 moves only the two R5 identifiers: the generator changes no other line', () => {
+    const { removed, added } = diffLines('src/test/unit/subjectJurisdictionEvidenceR5.test.ts');
+    const code = (lines: string[]) => lines.filter((l) => !/^\s*(\/\*\*|\*)/.test(l));
+    expect(code(removed)).toEqual([
+      "const ENV = '11111111-1111-4111-8111-111111111111';",
+      "export const ECHE_FR_UNIVERSITY = 'F SYNTH01|900000501';",
+    ]);
+    expect(code(added)).toEqual([
+      "const ENV = '11111111-0000-4000-8000-000000000005';",
+      "export const ECHE_FR_UNIVERSITY = 'XF SYNTH01|900000501';",
+    ]);
   });
 
   it('adds no migration and touches no earlier record, ADR or historical test', () => {

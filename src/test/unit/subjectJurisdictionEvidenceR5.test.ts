@@ -47,12 +47,15 @@ import {
 
 const PACK_PATH = resolve(process.cwd(), 'src/test/fixtures/globalR5/jurisdiction-pack.json');
 const PRODUCED_AT = '2026-10-19T12:00:00.000Z';
-const ENV = '11111111-1111-4111-8111-111111111111';
+const ENV = '11111111-0000-4000-8000-000000000005';
 /** Informational source revision recorded in the pack: the R5 base (R4 pin commit). */
 const R5_BASE = '6c793c53cb293c6fa9410b6d382673f337b59fee';
 
-/** A synthetic French ECHE source-row key: `F SYNTH01` is not a real Erasmus code. */
-export const ECHE_FR_UNIVERSITY = 'F SYNTH01|900000501';
+/**
+ * A synthetic French ECHE source-row key. `XF SYNTH01` is X-prefixed: ISO 3166 reserves X codes
+ * for user assignment and no Erasmus code uses one, so it can never name a real row.
+ */
+export const ECHE_FR_UNIVERSITY = 'XF SYNTH01|900000501';
 
 const JP = 0x5a1;
 const BR = 0x5b1;
