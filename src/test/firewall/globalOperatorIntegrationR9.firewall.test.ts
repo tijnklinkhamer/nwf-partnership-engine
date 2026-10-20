@@ -30,7 +30,7 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const R9_BASE_COMMIT = 'd833673ae2f7981d3456394c8ca76f83005ccf99';
 
 /** Open (null) until a separately authorised commit-closure phase pins it. */
-const R9_TERMINAL_COMMIT: string | null = null;
+const R9_TERMINAL_COMMIT: string | null = '9b3afd8a25be4a5dffbbd32bf177ca59dbebe5a2';
 
 const MODULE_DIR = 'src/orgunits/subjectResearchEvidence/';
 const MODULE_FILES = [`${MODULE_DIR}evidence.ts`, `${MODULE_DIR}load.ts`];
