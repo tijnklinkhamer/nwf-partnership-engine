@@ -35,7 +35,7 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const R8_BASE_COMMIT = 'fea23839741e0329842d276f53032fcb52f4b53c';
 
 /** Open (null) until a separately authorised commit-closure phase pins it. */
-const R8_TERMINAL_COMMIT: string | null = null;
+const R8_TERMINAL_COMMIT: string | null = 'd0c76a80883d6f754163ad094391e3124cf6a31e';
 
 const MODULE_DIR = 'src/orgunits/subjectAdmission/';
 const MODULE_FILES = [
