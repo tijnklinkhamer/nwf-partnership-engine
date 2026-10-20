@@ -32,7 +32,7 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const R6_BASE_COMMIT = '0e9e9437cef1e97ff858d581cd7464d68a725f26';
 
 /** Open (null) until a separately authorised commit-closure phase pins it. */
-const R6_TERMINAL_COMMIT: string | null = null;
+const R6_TERMINAL_COMMIT: string | null = '9d6d1f12263f03df145dc42e2b616ff1a5b918bb';
 
 const MODULE_DIR = 'src/orgunits/subjectResearch/';
 const MODULE_FILES = [`${MODULE_DIR}admission.ts`, `${MODULE_DIR}plan.ts`];
