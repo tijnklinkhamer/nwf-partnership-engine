@@ -1,0 +1,1171 @@
+{
+  "document": "nwf-pe.subject-facts-export.v1",
+  "ruleVersion": "subject-facts-rules-v1",
+  "sourceRepository": "nwf-partnership-engine",
+  "readConsistency": "SINGLE_SNAPSHOT_TRANSACTION",
+  "readAt": "2026-10-26T21:10:51.979Z",
+  "permissions": {
+    "research": "NONE",
+    "canonicalIssuance": "NONE",
+    "canonicalLinking": "NONE",
+    "qualification": "NONE",
+    "publication": "NONE",
+    "outreach": "NONE"
+  },
+  "limitations": {
+    "documentSignature": "NONE_NOT_A_SIGNED_EXPORT",
+    "identity": "CLAIMS_ONLY_NOT_A_VERIFIED_IDENTITY",
+    "completeness": "NOT_PROVEN",
+    "piiFields": "NONE_BY_CONSTRUCTION",
+    "licence": "AS_RECORDED_BY_THE_SOURCE_ELSE_UNKNOWN",
+    "country": "ADR_0024_JURISDICTION_CLAIM_ONLY_NEVER_INFERRED",
+    "reviews": "ANY_DISPUTED_OR_REJECTED_REVIEW_EXCLUDES"
+  },
+  "subjects": [
+    {
+      "subjectId": "55555555-0000-4000-8000-5d0000000001",
+      "engineCreatedAt": "2026-10-26T21:10:51.648Z",
+      "engineUpdatedAt": "2026-10-26T21:10:51.953Z",
+      "negativeReviewRecorded": false,
+      "name": {
+        "state": "STATED",
+        "text": "Vereniging Taaluitwisseling Voorbeeld-Utrecht",
+        "claimIds": [
+          "cccccccc-0000-4000-8000-a20000000004"
+        ]
+      },
+      "websiteHost": {
+        "state": "STATED",
+        "host": "taaluitwisseling-utrecht.example.test",
+        "claimIds": [
+          "cccccccc-0000-4000-8000-a20000000009"
+        ]
+      },
+      "claimedCountry": "NL",
+      "jurisdiction": {
+        "ruleVersion": "subject-jurisdiction-rules-v1",
+        "subjectId": "55555555-0000-4000-8000-5d0000000001",
+        "countryOfOperation": {
+          "state": "STATED",
+          "value": "NL",
+          "provenanceKeys": [
+            "url:https://nl-exchange-fict.nl/|v=0839553acf89b50613463ccd5b8bf6ec980a864253df31641e0b57f6d15ebfac"
+          ]
+        },
+        "countryOfRegistration": {
+          "state": "UNKNOWN"
+        },
+        "legalForm": {
+          "state": "UNKNOWN"
+        },
+        "excludedClaimIds": []
+      },
+      "provenance": {
+        "basis": "EARLIEST_RECORDED_STATING_NAME_CLAIM",
+        "claimId": "cccccccc-0000-4000-8000-a20000000004",
+        "source": {
+          "sourceRef": "url:https://nl-exchange-fict.nl/|v=0839553acf89b50613463ccd5b8bf6ec980a864253df31641e0b57f6d15ebfac",
+          "sourceType": "PUBLIC_URL",
+          "sourceLicence": "UNKNOWN",
+          "sourceUrl": "https://nl-exchange-fict.nl/",
+          "resolution": "SOURCE_DISCOVERY_NOMINATION",
+          "resolvedRecordId": "cccccccc-0000-4000-8000-a2000000000a",
+          "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+          "ingestRun": {
+            "kind": "SOURCE_DISCOVERY_RUN",
+            "id": "cccccccc-0000-4000-8000-a20000000012"
+          }
+        }
+      },
+      "nameClaims": [
+        {
+          "claimId": "cccccccc-0000-4000-8000-a20000000004",
+          "text": "Vereniging Taaluitwisseling Voorbeeld-Utrecht",
+          "language": "nl",
+          "basis": "SOURCE_STATED",
+          "observedAt": "2026-10-26T08:00:00.000Z",
+          "recordedAt": "2026-10-26T21:10:51.648Z",
+          "excluded": null,
+          "source": {
+            "sourceRef": "url:https://nl-exchange-fict.nl/|v=0839553acf89b50613463ccd5b8bf6ec980a864253df31641e0b57f6d15ebfac",
+            "sourceType": "PUBLIC_URL",
+            "sourceLicence": "UNKNOWN",
+            "sourceUrl": "https://nl-exchange-fict.nl/",
+            "resolution": "SOURCE_DISCOVERY_NOMINATION",
+            "resolvedRecordId": "cccccccc-0000-4000-8000-a2000000000a",
+            "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+            "ingestRun": {
+              "kind": "SOURCE_DISCOVERY_RUN",
+              "id": "cccccccc-0000-4000-8000-a20000000012"
+            }
+          }
+        }
+      ],
+      "websiteClaims": [
+        {
+          "claimId": "cccccccc-0000-4000-8000-a20000000009",
+          "url": "https://taaluitwisseling-utrecht.example.test/",
+          "host": "taaluitwisseling-utrecht.example.test",
+          "basis": "SOURCE_STATED",
+          "observedAt": "2026-10-26T08:00:00.000Z",
+          "recordedAt": "2026-10-26T21:10:51.672Z",
+          "excluded": null,
+          "source": {
+            "sourceRef": "url:https://nl-exchange-fict.nl/|v=0839553acf89b50613463ccd5b8bf6ec980a864253df31641e0b57f6d15ebfac",
+            "sourceType": "PUBLIC_URL",
+            "sourceLicence": "UNKNOWN",
+            "sourceUrl": "https://nl-exchange-fict.nl/",
+            "resolution": "SOURCE_DISCOVERY_NOMINATION",
+            "resolvedRecordId": "cccccccc-0000-4000-8000-a2000000000a",
+            "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+            "ingestRun": {
+              "kind": "SOURCE_DISCOVERY_RUN",
+              "id": "cccccccc-0000-4000-8000-a20000000012"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "subjectId": "55555555-0000-4000-8000-5d0000000002",
+      "engineCreatedAt": "2026-10-26T21:10:51.690Z",
+      "engineUpdatedAt": "2026-10-26T21:10:51.957Z",
+      "negativeReviewRecorded": false,
+      "name": {
+        "state": "STATED",
+        "text": "Taalcafé Voorbeeld-Amsterdam",
+        "claimIds": [
+          "cccccccc-0000-4000-8000-a2000000000c"
+        ]
+      },
+      "websiteHost": {
+        "state": "STATED",
+        "host": "taalcafe-amsterdam.example.test",
+        "claimIds": [
+          "cccccccc-0000-4000-8000-a20000000019"
+        ]
+      },
+      "claimedCountry": "NL",
+      "jurisdiction": {
+        "ruleVersion": "subject-jurisdiction-rules-v1",
+        "subjectId": "55555555-0000-4000-8000-5d0000000002",
+        "countryOfOperation": {
+          "state": "STATED",
+          "value": "NL",
+          "provenanceKeys": [
+            "url:https://nl-cafe-fict.nl/|v=3022af92e1e089de8351f870453394ff53f24e04cdae6c89ffdbee620e83a2d4"
+          ]
+        },
+        "countryOfRegistration": {
+          "state": "UNKNOWN"
+        },
+        "legalForm": {
+          "state": "UNKNOWN"
+        },
+        "excludedClaimIds": []
+      },
+      "provenance": {
+        "basis": "EARLIEST_RECORDED_STATING_NAME_CLAIM",
+        "claimId": "cccccccc-0000-4000-8000-a2000000000c",
+        "source": {
+          "sourceRef": "url:https://nl-cafe-fict.nl/|v=3022af92e1e089de8351f870453394ff53f24e04cdae6c89ffdbee620e83a2d4",
+          "sourceType": "PUBLIC_URL",
+          "sourceLicence": "UNKNOWN",
+          "sourceUrl": "https://nl-cafe-fict.nl/",
+          "resolution": "SOURCE_DISCOVERY_NOMINATION",
+          "resolvedRecordId": "cccccccc-0000-4000-8000-a2000000000b",
+          "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+          "ingestRun": {
+            "kind": "SOURCE_DISCOVERY_RUN",
+            "id": "cccccccc-0000-4000-8000-a20000000012"
+          }
+        }
+      },
+      "nameClaims": [
+        {
+          "claimId": "cccccccc-0000-4000-8000-a2000000000c",
+          "text": "Taalcafé Voorbeeld-Amsterdam",
+          "language": "nl",
+          "basis": "SOURCE_STATED",
+          "observedAt": "2026-10-26T08:00:00.000Z",
+          "recordedAt": "2026-10-26T21:10:51.690Z",
+          "excluded": null,
+          "source": {
+            "sourceRef": "url:https://nl-cafe-fict.nl/|v=3022af92e1e089de8351f870453394ff53f24e04cdae6c89ffdbee620e83a2d4",
+            "sourceType": "PUBLIC_URL",
+            "sourceLicence": "UNKNOWN",
+            "sourceUrl": "https://nl-cafe-fict.nl/",
+            "resolution": "SOURCE_DISCOVERY_NOMINATION",
+            "resolvedRecordId": "cccccccc-0000-4000-8000-a2000000000b",
+            "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+            "ingestRun": {
+              "kind": "SOURCE_DISCOVERY_RUN",
+              "id": "cccccccc-0000-4000-8000-a20000000012"
+            }
+          }
+        }
+      ],
+      "websiteClaims": [
+        {
+          "claimId": "cccccccc-0000-4000-8000-a20000000019",
+          "url": "https://taalcafe-amsterdam.example.test/",
+          "host": "taalcafe-amsterdam.example.test",
+          "basis": "SOURCE_STATED",
+          "observedAt": "2026-10-26T08:00:00.000Z",
+          "recordedAt": "2026-10-26T21:10:51.701Z",
+          "excluded": null,
+          "source": {
+            "sourceRef": "url:https://nl-cafe-fict.nl/|v=3022af92e1e089de8351f870453394ff53f24e04cdae6c89ffdbee620e83a2d4",
+            "sourceType": "PUBLIC_URL",
+            "sourceLicence": "UNKNOWN",
+            "sourceUrl": "https://nl-cafe-fict.nl/",
+            "resolution": "SOURCE_DISCOVERY_NOMINATION",
+            "resolvedRecordId": "cccccccc-0000-4000-8000-a2000000000b",
+            "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+            "ingestRun": {
+              "kind": "SOURCE_DISCOVERY_RUN",
+              "id": "cccccccc-0000-4000-8000-a20000000012"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "subjectId": "55555555-0000-4000-8000-5d0000000003",
+      "engineCreatedAt": "2026-10-26T21:10:51.717Z",
+      "engineUpdatedAt": "2026-10-26T21:10:51.958Z",
+      "negativeReviewRecorded": false,
+      "name": {
+        "state": "STATED",
+        "text": "Voorbeeld Language Café Amsterdam",
+        "claimIds": [
+          "cccccccc-0000-4000-8000-a2000000001c"
+        ]
+      },
+      "websiteHost": {
+        "state": "STATED",
+        "host": "taalcafe-amsterdam.example.test",
+        "claimIds": [
+          "cccccccc-0000-4000-8000-a20000000020"
+        ]
+      },
+      "claimedCountry": "NL",
+      "jurisdiction": {
+        "ruleVersion": "subject-jurisdiction-rules-v1",
+        "subjectId": "55555555-0000-4000-8000-5d0000000003",
+        "countryOfOperation": {
+          "state": "STATED",
+          "value": "NL",
+          "provenanceKeys": [
+            "url:https://nl-cafe-duplicate-fict.nl/|v=2739b2599eca6e2c27797ba7cdd6cf2402bd0db57b3878d50809e7181f2f635f"
+          ]
+        },
+        "countryOfRegistration": {
+          "state": "UNKNOWN"
+        },
+        "legalForm": {
+          "state": "UNKNOWN"
+        },
+        "excludedClaimIds": []
+      },
+      "provenance": {
+        "basis": "EARLIEST_RECORDED_STATING_NAME_CLAIM",
+        "claimId": "cccccccc-0000-4000-8000-a2000000001c",
+        "source": {
+          "sourceRef": "url:https://nl-cafe-duplicate-fict.nl/|v=2739b2599eca6e2c27797ba7cdd6cf2402bd0db57b3878d50809e7181f2f635f",
+          "sourceType": "PUBLIC_URL",
+          "sourceLicence": "UNKNOWN",
+          "sourceUrl": "https://nl-cafe-duplicate-fict.nl/",
+          "resolution": "SOURCE_DISCOVERY_NOMINATION",
+          "resolvedRecordId": "cccccccc-0000-4000-8000-a20000000014",
+          "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+          "ingestRun": {
+            "kind": "SOURCE_DISCOVERY_RUN",
+            "id": "cccccccc-0000-4000-8000-a20000000012"
+          }
+        }
+      },
+      "nameClaims": [
+        {
+          "claimId": "cccccccc-0000-4000-8000-a2000000001c",
+          "text": "Voorbeeld Language Café Amsterdam",
+          "language": "en",
+          "basis": "SOURCE_STATED",
+          "observedAt": "2026-10-26T08:00:00.000Z",
+          "recordedAt": "2026-10-26T21:10:51.717Z",
+          "excluded": null,
+          "source": {
+            "sourceRef": "url:https://nl-cafe-duplicate-fict.nl/|v=2739b2599eca6e2c27797ba7cdd6cf2402bd0db57b3878d50809e7181f2f635f",
+            "sourceType": "PUBLIC_URL",
+            "sourceLicence": "UNKNOWN",
+            "sourceUrl": "https://nl-cafe-duplicate-fict.nl/",
+            "resolution": "SOURCE_DISCOVERY_NOMINATION",
+            "resolvedRecordId": "cccccccc-0000-4000-8000-a20000000014",
+            "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+            "ingestRun": {
+              "kind": "SOURCE_DISCOVERY_RUN",
+              "id": "cccccccc-0000-4000-8000-a20000000012"
+            }
+          }
+        }
+      ],
+      "websiteClaims": [
+        {
+          "claimId": "cccccccc-0000-4000-8000-a20000000020",
+          "url": "https://taalcafe-amsterdam.example.test/en",
+          "host": "taalcafe-amsterdam.example.test",
+          "basis": "SOURCE_STATED",
+          "observedAt": "2026-10-26T08:00:00.000Z",
+          "recordedAt": "2026-10-26T21:10:51.728Z",
+          "excluded": null,
+          "source": {
+            "sourceRef": "url:https://nl-cafe-duplicate-fict.nl/|v=2739b2599eca6e2c27797ba7cdd6cf2402bd0db57b3878d50809e7181f2f635f",
+            "sourceType": "PUBLIC_URL",
+            "sourceLicence": "UNKNOWN",
+            "sourceUrl": "https://nl-cafe-duplicate-fict.nl/",
+            "resolution": "SOURCE_DISCOVERY_NOMINATION",
+            "resolvedRecordId": "cccccccc-0000-4000-8000-a20000000014",
+            "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+            "ingestRun": {
+              "kind": "SOURCE_DISCOVERY_RUN",
+              "id": "cccccccc-0000-4000-8000-a20000000012"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "subjectId": "55555555-0000-4000-8000-5d0000000004",
+      "engineCreatedAt": "2026-10-26T21:10:51.743Z",
+      "engineUpdatedAt": "2026-10-26T21:10:51.959Z",
+      "negativeReviewRecorded": false,
+      "name": {
+        "state": "STATED",
+        "text": "Rei Tokyo International Exchange Circle",
+        "claimIds": [
+          "cccccccc-0000-4000-8000-a20000000017"
+        ]
+      },
+      "websiteHost": {
+        "state": "STATED",
+        "host": "rei-exchange-circle.example.test",
+        "claimIds": [
+          "cccccccc-0000-4000-8000-a20000000015"
+        ]
+      },
+      "claimedCountry": "JP",
+      "jurisdiction": {
+        "ruleVersion": "subject-jurisdiction-rules-v1",
+        "subjectId": "55555555-0000-4000-8000-5d0000000004",
+        "countryOfOperation": {
+          "state": "STATED",
+          "value": "JP",
+          "provenanceKeys": [
+            "url:https://jp-circle-fict.jp/|v=f447fa051844ddac62d47f96a360223f2241d71dfb0127fa1528e91cf89f3d15"
+          ]
+        },
+        "countryOfRegistration": {
+          "state": "UNKNOWN"
+        },
+        "legalForm": {
+          "state": "UNKNOWN"
+        },
+        "excludedClaimIds": []
+      },
+      "provenance": {
+        "basis": "EARLIEST_RECORDED_STATING_NAME_CLAIM",
+        "claimId": "cccccccc-0000-4000-8000-a20000000017",
+        "source": {
+          "sourceRef": "url:https://jp-circle-fict.jp/|v=f447fa051844ddac62d47f96a360223f2241d71dfb0127fa1528e91cf89f3d15",
+          "sourceType": "PUBLIC_URL",
+          "sourceLicence": "UNKNOWN",
+          "sourceUrl": "https://jp-circle-fict.jp/",
+          "resolution": "SOURCE_DISCOVERY_NOMINATION",
+          "resolvedRecordId": "cccccccc-0000-4000-8000-a20000000013",
+          "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+          "ingestRun": {
+            "kind": "SOURCE_DISCOVERY_RUN",
+            "id": "cccccccc-0000-4000-8000-a2000000001a"
+          }
+        }
+      },
+      "nameClaims": [
+        {
+          "claimId": "cccccccc-0000-4000-8000-a20000000017",
+          "text": "Rei Tokyo International Exchange Circle",
+          "language": "en",
+          "basis": "SOURCE_STATED",
+          "observedAt": "2026-10-26T08:00:00.000Z",
+          "recordedAt": "2026-10-26T21:10:51.743Z",
+          "excluded": null,
+          "source": {
+            "sourceRef": "url:https://jp-circle-fict.jp/|v=f447fa051844ddac62d47f96a360223f2241d71dfb0127fa1528e91cf89f3d15",
+            "sourceType": "PUBLIC_URL",
+            "sourceLicence": "UNKNOWN",
+            "sourceUrl": "https://jp-circle-fict.jp/",
+            "resolution": "SOURCE_DISCOVERY_NOMINATION",
+            "resolvedRecordId": "cccccccc-0000-4000-8000-a20000000013",
+            "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+            "ingestRun": {
+              "kind": "SOURCE_DISCOVERY_RUN",
+              "id": "cccccccc-0000-4000-8000-a2000000001a"
+            }
+          }
+        }
+      ],
+      "websiteClaims": [
+        {
+          "claimId": "cccccccc-0000-4000-8000-a20000000015",
+          "url": "https://rei-exchange-circle.example.test/",
+          "host": "rei-exchange-circle.example.test",
+          "basis": "SOURCE_STATED",
+          "observedAt": "2026-10-26T08:00:00.000Z",
+          "recordedAt": "2026-10-26T21:10:51.753Z",
+          "excluded": null,
+          "source": {
+            "sourceRef": "url:https://jp-circle-fict.jp/|v=f447fa051844ddac62d47f96a360223f2241d71dfb0127fa1528e91cf89f3d15",
+            "sourceType": "PUBLIC_URL",
+            "sourceLicence": "UNKNOWN",
+            "sourceUrl": "https://jp-circle-fict.jp/",
+            "resolution": "SOURCE_DISCOVERY_NOMINATION",
+            "resolvedRecordId": "cccccccc-0000-4000-8000-a20000000013",
+            "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+            "ingestRun": {
+              "kind": "SOURCE_DISCOVERY_RUN",
+              "id": "cccccccc-0000-4000-8000-a2000000001a"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "subjectId": "55555555-0000-4000-8000-5d0000000005",
+      "engineCreatedAt": "2026-10-26T21:10:51.769Z",
+      "engineUpdatedAt": "2026-10-26T21:10:51.960Z",
+      "negativeReviewRecorded": false,
+      "name": {
+        "state": "STATED",
+        "text": "Rei Osaka Japanese Language School",
+        "claimIds": [
+          "cccccccc-0000-4000-8000-a20000000003"
+        ]
+      },
+      "websiteHost": {
+        "state": "STATED",
+        "host": "rei-osaka-school.example.test",
+        "claimIds": [
+          "cccccccc-0000-4000-8000-a20000000016"
+        ]
+      },
+      "claimedCountry": "JP",
+      "jurisdiction": {
+        "ruleVersion": "subject-jurisdiction-rules-v1",
+        "subjectId": "55555555-0000-4000-8000-5d0000000005",
+        "countryOfOperation": {
+          "state": "STATED",
+          "value": "JP",
+          "provenanceKeys": [
+            "url:https://jp-school-fict.jp/|v=df9dddba2a14a0aa2e0022bd986c7b2bffd92d18c8a8c69e6404aed2a8b35906"
+          ]
+        },
+        "countryOfRegistration": {
+          "state": "UNKNOWN"
+        },
+        "legalForm": {
+          "state": "UNKNOWN"
+        },
+        "excludedClaimIds": []
+      },
+      "provenance": {
+        "basis": "EARLIEST_RECORDED_STATING_NAME_CLAIM",
+        "claimId": "cccccccc-0000-4000-8000-a20000000003",
+        "source": {
+          "sourceRef": "url:https://jp-school-fict.jp/|v=df9dddba2a14a0aa2e0022bd986c7b2bffd92d18c8a8c69e6404aed2a8b35906",
+          "sourceType": "PUBLIC_URL",
+          "sourceLicence": "UNKNOWN",
+          "sourceUrl": "https://jp-school-fict.jp/",
+          "resolution": "SOURCE_DISCOVERY_NOMINATION",
+          "resolvedRecordId": "cccccccc-0000-4000-8000-a2000000000d",
+          "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+          "ingestRun": {
+            "kind": "SOURCE_DISCOVERY_RUN",
+            "id": "cccccccc-0000-4000-8000-a2000000001a"
+          }
+        }
+      },
+      "nameClaims": [
+        {
+          "claimId": "cccccccc-0000-4000-8000-a20000000003",
+          "text": "Rei Osaka Japanese Language School",
+          "language": "en",
+          "basis": "SOURCE_STATED",
+          "observedAt": "2026-10-26T08:00:00.000Z",
+          "recordedAt": "2026-10-26T21:10:51.769Z",
+          "excluded": null,
+          "source": {
+            "sourceRef": "url:https://jp-school-fict.jp/|v=df9dddba2a14a0aa2e0022bd986c7b2bffd92d18c8a8c69e6404aed2a8b35906",
+            "sourceType": "PUBLIC_URL",
+            "sourceLicence": "UNKNOWN",
+            "sourceUrl": "https://jp-school-fict.jp/",
+            "resolution": "SOURCE_DISCOVERY_NOMINATION",
+            "resolvedRecordId": "cccccccc-0000-4000-8000-a2000000000d",
+            "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+            "ingestRun": {
+              "kind": "SOURCE_DISCOVERY_RUN",
+              "id": "cccccccc-0000-4000-8000-a2000000001a"
+            }
+          }
+        }
+      ],
+      "websiteClaims": [
+        {
+          "claimId": "cccccccc-0000-4000-8000-a20000000016",
+          "url": "https://rei-osaka-school.example.test/",
+          "host": "rei-osaka-school.example.test",
+          "basis": "SOURCE_STATED",
+          "observedAt": "2026-10-26T08:00:00.000Z",
+          "recordedAt": "2026-10-26T21:10:51.779Z",
+          "excluded": null,
+          "source": {
+            "sourceRef": "url:https://jp-school-fict.jp/|v=df9dddba2a14a0aa2e0022bd986c7b2bffd92d18c8a8c69e6404aed2a8b35906",
+            "sourceType": "PUBLIC_URL",
+            "sourceLicence": "UNKNOWN",
+            "sourceUrl": "https://jp-school-fict.jp/",
+            "resolution": "SOURCE_DISCOVERY_NOMINATION",
+            "resolvedRecordId": "cccccccc-0000-4000-8000-a2000000000d",
+            "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+            "ingestRun": {
+              "kind": "SOURCE_DISCOVERY_RUN",
+              "id": "cccccccc-0000-4000-8000-a2000000001a"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "subjectId": "55555555-0000-4000-8000-5d0000000006",
+      "engineCreatedAt": "2026-10-26T21:10:51.798Z",
+      "engineUpdatedAt": "2026-10-26T21:10:51.961Z",
+      "negativeReviewRecorded": false,
+      "name": {
+        "state": "STATED",
+        "text": "Rei Kyoto Cultural Institute",
+        "claimIds": [
+          "cccccccc-0000-4000-8000-a20000000002"
+        ]
+      },
+      "websiteHost": {
+        "state": "STATED",
+        "host": "rei-kyoto-institute.example.test",
+        "claimIds": [
+          "cccccccc-0000-4000-8000-a20000000023"
+        ]
+      },
+      "claimedCountry": "JP",
+      "jurisdiction": {
+        "ruleVersion": "subject-jurisdiction-rules-v1",
+        "subjectId": "55555555-0000-4000-8000-5d0000000006",
+        "countryOfOperation": {
+          "state": "STATED",
+          "value": "JP",
+          "provenanceKeys": [
+            "url:https://jp-institute-fict.jp/|v=c871494093d61bfe7dd4ee3ca7f7964fef6206d4b65f1cd96f73b20e178a9265"
+          ]
+        },
+        "countryOfRegistration": {
+          "state": "UNKNOWN"
+        },
+        "legalForm": {
+          "state": "UNKNOWN"
+        },
+        "excludedClaimIds": []
+      },
+      "provenance": {
+        "basis": "EARLIEST_RECORDED_STATING_NAME_CLAIM",
+        "claimId": "cccccccc-0000-4000-8000-a20000000002",
+        "source": {
+          "sourceRef": "url:https://jp-institute-fict.jp/|v=c871494093d61bfe7dd4ee3ca7f7964fef6206d4b65f1cd96f73b20e178a9265",
+          "sourceType": "PUBLIC_URL",
+          "sourceLicence": "UNKNOWN",
+          "sourceUrl": "https://jp-institute-fict.jp/",
+          "resolution": "SOURCE_DISCOVERY_NOMINATION",
+          "resolvedRecordId": "cccccccc-0000-4000-8000-a20000000007",
+          "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+          "ingestRun": {
+            "kind": "SOURCE_DISCOVERY_RUN",
+            "id": "cccccccc-0000-4000-8000-a2000000001a"
+          }
+        }
+      },
+      "nameClaims": [
+        {
+          "claimId": "cccccccc-0000-4000-8000-a20000000002",
+          "text": "Rei Kyoto Cultural Institute",
+          "language": "en",
+          "basis": "SOURCE_STATED",
+          "observedAt": "2026-10-26T08:00:00.000Z",
+          "recordedAt": "2026-10-26T21:10:51.798Z",
+          "excluded": null,
+          "source": {
+            "sourceRef": "url:https://jp-institute-fict.jp/|v=c871494093d61bfe7dd4ee3ca7f7964fef6206d4b65f1cd96f73b20e178a9265",
+            "sourceType": "PUBLIC_URL",
+            "sourceLicence": "UNKNOWN",
+            "sourceUrl": "https://jp-institute-fict.jp/",
+            "resolution": "SOURCE_DISCOVERY_NOMINATION",
+            "resolvedRecordId": "cccccccc-0000-4000-8000-a20000000007",
+            "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+            "ingestRun": {
+              "kind": "SOURCE_DISCOVERY_RUN",
+              "id": "cccccccc-0000-4000-8000-a2000000001a"
+            }
+          }
+        }
+      ],
+      "websiteClaims": [
+        {
+          "claimId": "cccccccc-0000-4000-8000-a20000000023",
+          "url": "https://rei-kyoto-institute.example.test/",
+          "host": "rei-kyoto-institute.example.test",
+          "basis": "SOURCE_STATED",
+          "observedAt": "2026-10-26T08:00:00.000Z",
+          "recordedAt": "2026-10-26T21:10:51.811Z",
+          "excluded": null,
+          "source": {
+            "sourceRef": "url:https://jp-institute-fict.jp/|v=c871494093d61bfe7dd4ee3ca7f7964fef6206d4b65f1cd96f73b20e178a9265",
+            "sourceType": "PUBLIC_URL",
+            "sourceLicence": "UNKNOWN",
+            "sourceUrl": "https://jp-institute-fict.jp/",
+            "resolution": "SOURCE_DISCOVERY_NOMINATION",
+            "resolvedRecordId": "cccccccc-0000-4000-8000-a20000000007",
+            "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+            "ingestRun": {
+              "kind": "SOURCE_DISCOVERY_RUN",
+              "id": "cccccccc-0000-4000-8000-a2000000001a"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "subjectId": "55555555-0000-4000-8000-5d0000000007",
+      "engineCreatedAt": "2026-10-26T21:10:51.829Z",
+      "engineUpdatedAt": "2026-10-26T21:10:51.962Z",
+      "negativeReviewRecorded": false,
+      "name": {
+        "state": "STATED",
+        "text": "Rei Nagoya Online Language Community",
+        "claimIds": [
+          "cccccccc-0000-4000-8000-a2000000000e"
+        ]
+      },
+      "websiteHost": {
+        "state": "STATED",
+        "host": "rei-nagoya-online.example.test",
+        "claimIds": [
+          "cccccccc-0000-4000-8000-a2000000001b"
+        ]
+      },
+      "claimedCountry": "JP",
+      "jurisdiction": {
+        "ruleVersion": "subject-jurisdiction-rules-v1",
+        "subjectId": "55555555-0000-4000-8000-5d0000000007",
+        "countryOfOperation": {
+          "state": "STATED",
+          "value": "JP",
+          "provenanceKeys": [
+            "url:https://jp-online-fict.jp/|v=9c3857a10230a420eabd177744dcc210e0dca2bfcfcea774087f647b67597482"
+          ]
+        },
+        "countryOfRegistration": {
+          "state": "UNKNOWN"
+        },
+        "legalForm": {
+          "state": "UNKNOWN"
+        },
+        "excludedClaimIds": []
+      },
+      "provenance": {
+        "basis": "EARLIEST_RECORDED_STATING_NAME_CLAIM",
+        "claimId": "cccccccc-0000-4000-8000-a2000000000e",
+        "source": {
+          "sourceRef": "url:https://jp-online-fict.jp/|v=9c3857a10230a420eabd177744dcc210e0dca2bfcfcea774087f647b67597482",
+          "sourceType": "PUBLIC_URL",
+          "sourceLicence": "UNKNOWN",
+          "sourceUrl": "https://jp-online-fict.jp/",
+          "resolution": "SOURCE_DISCOVERY_NOMINATION",
+          "resolvedRecordId": "cccccccc-0000-4000-8000-a20000000005",
+          "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+          "ingestRun": {
+            "kind": "SOURCE_DISCOVERY_RUN",
+            "id": "cccccccc-0000-4000-8000-a2000000001a"
+          }
+        }
+      },
+      "nameClaims": [
+        {
+          "claimId": "cccccccc-0000-4000-8000-a2000000000e",
+          "text": "Rei Nagoya Online Language Community",
+          "language": "en",
+          "basis": "SOURCE_STATED",
+          "observedAt": "2026-10-26T08:00:00.000Z",
+          "recordedAt": "2026-10-26T21:10:51.829Z",
+          "excluded": null,
+          "source": {
+            "sourceRef": "url:https://jp-online-fict.jp/|v=9c3857a10230a420eabd177744dcc210e0dca2bfcfcea774087f647b67597482",
+            "sourceType": "PUBLIC_URL",
+            "sourceLicence": "UNKNOWN",
+            "sourceUrl": "https://jp-online-fict.jp/",
+            "resolution": "SOURCE_DISCOVERY_NOMINATION",
+            "resolvedRecordId": "cccccccc-0000-4000-8000-a20000000005",
+            "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+            "ingestRun": {
+              "kind": "SOURCE_DISCOVERY_RUN",
+              "id": "cccccccc-0000-4000-8000-a2000000001a"
+            }
+          }
+        }
+      ],
+      "websiteClaims": [
+        {
+          "claimId": "cccccccc-0000-4000-8000-a2000000001b",
+          "url": "https://rei-nagoya-online.example.test/",
+          "host": "rei-nagoya-online.example.test",
+          "basis": "SOURCE_STATED",
+          "observedAt": "2026-10-26T08:00:00.000Z",
+          "recordedAt": "2026-10-26T21:10:51.840Z",
+          "excluded": null,
+          "source": {
+            "sourceRef": "url:https://jp-online-fict.jp/|v=9c3857a10230a420eabd177744dcc210e0dca2bfcfcea774087f647b67597482",
+            "sourceType": "PUBLIC_URL",
+            "sourceLicence": "UNKNOWN",
+            "sourceUrl": "https://jp-online-fict.jp/",
+            "resolution": "SOURCE_DISCOVERY_NOMINATION",
+            "resolvedRecordId": "cccccccc-0000-4000-8000-a20000000005",
+            "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+            "ingestRun": {
+              "kind": "SOURCE_DISCOVERY_RUN",
+              "id": "cccccccc-0000-4000-8000-a2000000001a"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "subjectId": "55555555-0000-4000-8000-5d0000000008",
+      "engineCreatedAt": "2026-10-26T21:10:51.856Z",
+      "engineUpdatedAt": "2026-10-26T21:10:51.963Z",
+      "negativeReviewRecorded": false,
+      "name": {
+        "state": "STATED",
+        "text": "Intercambio de Idiomas Ejemplo CDMX",
+        "claimIds": [
+          "cccccccc-0000-4000-8000-a2000000001d"
+        ]
+      },
+      "websiteHost": {
+        "state": "STATED",
+        "host": "intercambio-ejemplo-cdmx.example.test",
+        "claimIds": [
+          "cccccccc-0000-4000-8000-a2000000001f"
+        ]
+      },
+      "claimedCountry": "MX",
+      "jurisdiction": {
+        "ruleVersion": "subject-jurisdiction-rules-v1",
+        "subjectId": "55555555-0000-4000-8000-5d0000000008",
+        "countryOfOperation": {
+          "state": "STATED",
+          "value": "MX",
+          "provenanceKeys": [
+            "url:https://mx-intercambio-fict.mx/|v=332f4cbcee96a5134e8489c7d7095d2122eca0f9389193149e1d2adaf99ffc40"
+          ]
+        },
+        "countryOfRegistration": {
+          "state": "UNKNOWN"
+        },
+        "legalForm": {
+          "state": "UNKNOWN"
+        },
+        "excludedClaimIds": []
+      },
+      "provenance": {
+        "basis": "EARLIEST_RECORDED_STATING_NAME_CLAIM",
+        "claimId": "cccccccc-0000-4000-8000-a2000000001d",
+        "source": {
+          "sourceRef": "url:https://mx-intercambio-fict.mx/|v=332f4cbcee96a5134e8489c7d7095d2122eca0f9389193149e1d2adaf99ffc40",
+          "sourceType": "PUBLIC_URL",
+          "sourceLicence": "UNKNOWN",
+          "sourceUrl": "https://mx-intercambio-fict.mx/",
+          "resolution": "SOURCE_DISCOVERY_NOMINATION",
+          "resolvedRecordId": "cccccccc-0000-4000-8000-a2000000000f",
+          "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+          "ingestRun": {
+            "kind": "SOURCE_DISCOVERY_RUN",
+            "id": "cccccccc-0000-4000-8000-a2000000001e"
+          }
+        }
+      },
+      "nameClaims": [
+        {
+          "claimId": "cccccccc-0000-4000-8000-a2000000001d",
+          "text": "Intercambio de Idiomas Ejemplo CDMX",
+          "language": "es",
+          "basis": "SOURCE_STATED",
+          "observedAt": "2026-10-26T08:00:00.000Z",
+          "recordedAt": "2026-10-26T21:10:51.856Z",
+          "excluded": null,
+          "source": {
+            "sourceRef": "url:https://mx-intercambio-fict.mx/|v=332f4cbcee96a5134e8489c7d7095d2122eca0f9389193149e1d2adaf99ffc40",
+            "sourceType": "PUBLIC_URL",
+            "sourceLicence": "UNKNOWN",
+            "sourceUrl": "https://mx-intercambio-fict.mx/",
+            "resolution": "SOURCE_DISCOVERY_NOMINATION",
+            "resolvedRecordId": "cccccccc-0000-4000-8000-a2000000000f",
+            "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+            "ingestRun": {
+              "kind": "SOURCE_DISCOVERY_RUN",
+              "id": "cccccccc-0000-4000-8000-a2000000001e"
+            }
+          }
+        }
+      ],
+      "websiteClaims": [
+        {
+          "claimId": "cccccccc-0000-4000-8000-a2000000001f",
+          "url": "https://intercambio-ejemplo-cdmx.example.test/",
+          "host": "intercambio-ejemplo-cdmx.example.test",
+          "basis": "SOURCE_STATED",
+          "observedAt": "2026-10-26T08:00:00.000Z",
+          "recordedAt": "2026-10-26T21:10:51.866Z",
+          "excluded": null,
+          "source": {
+            "sourceRef": "url:https://mx-intercambio-fict.mx/|v=332f4cbcee96a5134e8489c7d7095d2122eca0f9389193149e1d2adaf99ffc40",
+            "sourceType": "PUBLIC_URL",
+            "sourceLicence": "UNKNOWN",
+            "sourceUrl": "https://mx-intercambio-fict.mx/",
+            "resolution": "SOURCE_DISCOVERY_NOMINATION",
+            "resolvedRecordId": "cccccccc-0000-4000-8000-a2000000000f",
+            "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+            "ingestRun": {
+              "kind": "SOURCE_DISCOVERY_RUN",
+              "id": "cccccccc-0000-4000-8000-a2000000001e"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "subjectId": "55555555-0000-4000-8000-5d0000000009",
+      "engineCreatedAt": "2026-10-26T21:10:51.880Z",
+      "engineUpdatedAt": "2026-10-26T21:10:51.964Z",
+      "negativeReviewRecorded": false,
+      "name": {
+        "state": "STATED",
+        "text": "Círculo Comunitario Ejemplo Guadalajara",
+        "claimIds": [
+          "cccccccc-0000-4000-8000-a20000000011"
+        ]
+      },
+      "websiteHost": {
+        "state": "STATED",
+        "host": "circulo-ejemplo-gdl.example.test",
+        "claimIds": [
+          "cccccccc-0000-4000-8000-a20000000010"
+        ]
+      },
+      "claimedCountry": "MX",
+      "jurisdiction": {
+        "ruleVersion": "subject-jurisdiction-rules-v1",
+        "subjectId": "55555555-0000-4000-8000-5d0000000009",
+        "countryOfOperation": {
+          "state": "STATED",
+          "value": "MX",
+          "provenanceKeys": [
+            "url:https://mx-community-fict.mx/|v=309980482099322f9808183053688f0a19a77ab1ff98d9ff4ef4f5a2357b4379"
+          ]
+        },
+        "countryOfRegistration": {
+          "state": "UNKNOWN"
+        },
+        "legalForm": {
+          "state": "UNKNOWN"
+        },
+        "excludedClaimIds": []
+      },
+      "provenance": {
+        "basis": "EARLIEST_RECORDED_STATING_NAME_CLAIM",
+        "claimId": "cccccccc-0000-4000-8000-a20000000011",
+        "source": {
+          "sourceRef": "url:https://mx-community-fict.mx/|v=309980482099322f9808183053688f0a19a77ab1ff98d9ff4ef4f5a2357b4379",
+          "sourceType": "PUBLIC_URL",
+          "sourceLicence": "UNKNOWN",
+          "sourceUrl": "https://mx-community-fict.mx/",
+          "resolution": "SOURCE_DISCOVERY_NOMINATION",
+          "resolvedRecordId": "cccccccc-0000-4000-8000-a20000000021",
+          "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+          "ingestRun": {
+            "kind": "SOURCE_DISCOVERY_RUN",
+            "id": "cccccccc-0000-4000-8000-a2000000001e"
+          }
+        }
+      },
+      "nameClaims": [
+        {
+          "claimId": "cccccccc-0000-4000-8000-a20000000011",
+          "text": "Círculo Comunitario Ejemplo Guadalajara",
+          "language": "es",
+          "basis": "SOURCE_STATED",
+          "observedAt": "2026-10-26T08:00:00.000Z",
+          "recordedAt": "2026-10-26T21:10:51.880Z",
+          "excluded": null,
+          "source": {
+            "sourceRef": "url:https://mx-community-fict.mx/|v=309980482099322f9808183053688f0a19a77ab1ff98d9ff4ef4f5a2357b4379",
+            "sourceType": "PUBLIC_URL",
+            "sourceLicence": "UNKNOWN",
+            "sourceUrl": "https://mx-community-fict.mx/",
+            "resolution": "SOURCE_DISCOVERY_NOMINATION",
+            "resolvedRecordId": "cccccccc-0000-4000-8000-a20000000021",
+            "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+            "ingestRun": {
+              "kind": "SOURCE_DISCOVERY_RUN",
+              "id": "cccccccc-0000-4000-8000-a2000000001e"
+            }
+          }
+        }
+      ],
+      "websiteClaims": [
+        {
+          "claimId": "cccccccc-0000-4000-8000-a20000000010",
+          "url": "https://circulo-ejemplo-gdl.example.test/",
+          "host": "circulo-ejemplo-gdl.example.test",
+          "basis": "SOURCE_STATED",
+          "observedAt": "2026-10-26T08:00:00.000Z",
+          "recordedAt": "2026-10-26T21:10:51.889Z",
+          "excluded": null,
+          "source": {
+            "sourceRef": "url:https://mx-community-fict.mx/|v=309980482099322f9808183053688f0a19a77ab1ff98d9ff4ef4f5a2357b4379",
+            "sourceType": "PUBLIC_URL",
+            "sourceLicence": "UNKNOWN",
+            "sourceUrl": "https://mx-community-fict.mx/",
+            "resolution": "SOURCE_DISCOVERY_NOMINATION",
+            "resolvedRecordId": "cccccccc-0000-4000-8000-a20000000021",
+            "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+            "ingestRun": {
+              "kind": "SOURCE_DISCOVERY_RUN",
+              "id": "cccccccc-0000-4000-8000-a2000000001e"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "subjectId": "55555555-0000-4000-8000-5d000000000a",
+      "engineCreatedAt": "2026-10-26T21:10:51.903Z",
+      "engineUpdatedAt": "2026-10-26T21:10:51.966Z",
+      "negativeReviewRecorded": false,
+      "name": {
+        "state": "STATED",
+        "text": "Ejemplo Monterrey Language Exchange",
+        "claimIds": [
+          "cccccccc-0000-4000-8000-a20000000022"
+        ]
+      },
+      "websiteHost": {
+        "state": "STATED",
+        "host": "ejemplo-mty-exchange.example.test",
+        "claimIds": [
+          "cccccccc-0000-4000-8000-a20000000001"
+        ]
+      },
+      "claimedCountry": null,
+      "jurisdiction": {
+        "ruleVersion": "subject-jurisdiction-rules-v1",
+        "subjectId": "55555555-0000-4000-8000-5d000000000a",
+        "countryOfOperation": {
+          "state": "CONFLICTING",
+          "values": [
+            "MX",
+            "US"
+          ]
+        },
+        "countryOfRegistration": {
+          "state": "UNKNOWN"
+        },
+        "legalForm": {
+          "state": "UNKNOWN"
+        },
+        "excludedClaimIds": []
+      },
+      "provenance": {
+        "basis": "EARLIEST_RECORDED_STATING_NAME_CLAIM",
+        "claimId": "cccccccc-0000-4000-8000-a20000000022",
+        "source": {
+          "sourceRef": "url:https://mx-contradicted-fict.mx/|v=f93eb23151ddcd1db4af72a7ceff2f5ec2efad4cde2dc0d9832e948fed81bd4e",
+          "sourceType": "PUBLIC_URL",
+          "sourceLicence": "UNKNOWN",
+          "sourceUrl": "https://mx-contradicted-fict.mx/",
+          "resolution": "SOURCE_DISCOVERY_NOMINATION",
+          "resolvedRecordId": "cccccccc-0000-4000-8000-a20000000006",
+          "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+          "ingestRun": {
+            "kind": "SOURCE_DISCOVERY_RUN",
+            "id": "cccccccc-0000-4000-8000-a2000000001e"
+          }
+        }
+      },
+      "nameClaims": [
+        {
+          "claimId": "cccccccc-0000-4000-8000-a20000000022",
+          "text": "Ejemplo Monterrey Language Exchange",
+          "language": "en",
+          "basis": "SOURCE_STATED",
+          "observedAt": "2026-10-26T08:00:00.000Z",
+          "recordedAt": "2026-10-26T21:10:51.903Z",
+          "excluded": null,
+          "source": {
+            "sourceRef": "url:https://mx-contradicted-fict.mx/|v=f93eb23151ddcd1db4af72a7ceff2f5ec2efad4cde2dc0d9832e948fed81bd4e",
+            "sourceType": "PUBLIC_URL",
+            "sourceLicence": "UNKNOWN",
+            "sourceUrl": "https://mx-contradicted-fict.mx/",
+            "resolution": "SOURCE_DISCOVERY_NOMINATION",
+            "resolvedRecordId": "cccccccc-0000-4000-8000-a20000000006",
+            "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+            "ingestRun": {
+              "kind": "SOURCE_DISCOVERY_RUN",
+              "id": "cccccccc-0000-4000-8000-a2000000001e"
+            }
+          }
+        }
+      ],
+      "websiteClaims": [
+        {
+          "claimId": "cccccccc-0000-4000-8000-a20000000001",
+          "url": "https://ejemplo-mty-exchange.example.test/",
+          "host": "ejemplo-mty-exchange.example.test",
+          "basis": "SOURCE_STATED",
+          "observedAt": "2026-10-26T08:00:00.000Z",
+          "recordedAt": "2026-10-26T21:10:51.913Z",
+          "excluded": null,
+          "source": {
+            "sourceRef": "url:https://mx-contradicted-fict.mx/|v=f93eb23151ddcd1db4af72a7ceff2f5ec2efad4cde2dc0d9832e948fed81bd4e",
+            "sourceType": "PUBLIC_URL",
+            "sourceLicence": "UNKNOWN",
+            "sourceUrl": "https://mx-contradicted-fict.mx/",
+            "resolution": "SOURCE_DISCOVERY_NOMINATION",
+            "resolvedRecordId": "cccccccc-0000-4000-8000-a20000000006",
+            "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+            "ingestRun": {
+              "kind": "SOURCE_DISCOVERY_RUN",
+              "id": "cccccccc-0000-4000-8000-a2000000001e"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "subjectId": "55555555-0000-4000-8000-5d000000000b",
+      "engineCreatedAt": "2026-10-26T21:10:51.928Z",
+      "engineUpdatedAt": "2026-10-26T21:10:51.967Z",
+      "negativeReviewRecorded": false,
+      "name": {
+        "state": "STATED",
+        "text": "Beispiel Tandem Verein Berlin",
+        "claimIds": [
+          "cccccccc-0000-4000-8000-a20000000008"
+        ]
+      },
+      "websiteHost": {
+        "state": "STATED",
+        "host": "beispiel-tandem-berlin.example.test",
+        "claimIds": [
+          "cccccccc-0000-4000-8000-a20000000024"
+        ]
+      },
+      "claimedCountry": "DE",
+      "jurisdiction": {
+        "ruleVersion": "subject-jurisdiction-rules-v1",
+        "subjectId": "55555555-0000-4000-8000-5d000000000b",
+        "countryOfOperation": {
+          "state": "STATED",
+          "value": "DE",
+          "provenanceKeys": [
+            "url:https://de-tandem-fict.nl/|v=42f15760f549f547ddc364550ba4ff4a4c85283efa9bc5a4b9c29eec3029ce33"
+          ]
+        },
+        "countryOfRegistration": {
+          "state": "UNKNOWN"
+        },
+        "legalForm": {
+          "state": "UNKNOWN"
+        },
+        "excludedClaimIds": []
+      },
+      "provenance": {
+        "basis": "EARLIEST_RECORDED_STATING_NAME_CLAIM",
+        "claimId": "cccccccc-0000-4000-8000-a20000000008",
+        "source": {
+          "sourceRef": "url:https://de-tandem-fict.nl/|v=42f15760f549f547ddc364550ba4ff4a4c85283efa9bc5a4b9c29eec3029ce33",
+          "sourceType": "PUBLIC_URL",
+          "sourceLicence": "UNKNOWN",
+          "sourceUrl": "https://de-tandem-fict.nl/",
+          "resolution": "SOURCE_DISCOVERY_NOMINATION",
+          "resolvedRecordId": "cccccccc-0000-4000-8000-a20000000018",
+          "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+          "ingestRun": {
+            "kind": "SOURCE_DISCOVERY_RUN",
+            "id": "cccccccc-0000-4000-8000-a20000000012"
+          }
+        }
+      },
+      "nameClaims": [
+        {
+          "claimId": "cccccccc-0000-4000-8000-a20000000008",
+          "text": "Beispiel Tandem Verein Berlin",
+          "language": "de",
+          "basis": "SOURCE_STATED",
+          "observedAt": "2026-10-26T08:00:00.000Z",
+          "recordedAt": "2026-10-26T21:10:51.928Z",
+          "excluded": null,
+          "source": {
+            "sourceRef": "url:https://de-tandem-fict.nl/|v=42f15760f549f547ddc364550ba4ff4a4c85283efa9bc5a4b9c29eec3029ce33",
+            "sourceType": "PUBLIC_URL",
+            "sourceLicence": "UNKNOWN",
+            "sourceUrl": "https://de-tandem-fict.nl/",
+            "resolution": "SOURCE_DISCOVERY_NOMINATION",
+            "resolvedRecordId": "cccccccc-0000-4000-8000-a20000000018",
+            "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+            "ingestRun": {
+              "kind": "SOURCE_DISCOVERY_RUN",
+              "id": "cccccccc-0000-4000-8000-a20000000012"
+            }
+          }
+        }
+      ],
+      "websiteClaims": [
+        {
+          "claimId": "cccccccc-0000-4000-8000-a20000000024",
+          "url": "https://beispiel-tandem-berlin.example.test/",
+          "host": "beispiel-tandem-berlin.example.test",
+          "basis": "SOURCE_STATED",
+          "observedAt": "2026-10-26T08:00:00.000Z",
+          "recordedAt": "2026-10-26T21:10:51.937Z",
+          "excluded": null,
+          "source": {
+            "sourceRef": "url:https://de-tandem-fict.nl/|v=42f15760f549f547ddc364550ba4ff4a4c85283efa9bc5a4b9c29eec3029ce33",
+            "sourceType": "PUBLIC_URL",
+            "sourceLicence": "UNKNOWN",
+            "sourceUrl": "https://de-tandem-fict.nl/",
+            "resolution": "SOURCE_DISCOVERY_NOMINATION",
+            "resolvedRecordId": "cccccccc-0000-4000-8000-a20000000018",
+            "sourceRetrievedAt": "2026-10-26T08:00:00.000Z",
+            "ingestRun": {
+              "kind": "SOURCE_DISCOVERY_RUN",
+              "id": "cccccccc-0000-4000-8000-a20000000012"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "missingSubjectIds": []
+}

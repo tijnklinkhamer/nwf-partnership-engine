@@ -36,6 +36,25 @@ const MODULE_DIR = 'src/orgunits/subjectJurisdiction/';
 const MODULE_FILES = [`${MODULE_DIR}standing.ts`, `${MODULE_DIR}vocabulary.ts`];
 const A1_FRAME_TEST = 'src/test/unit/orgunitCorpus2DA1Frame.test.ts';
 
+/**
+ * REL final join A2 (OWNER directive, 2026-10-26: "country comes only from an
+ * ADR 0024 jurisdiction claim", in a CLI-accessible read-only export) - the
+ * ONE exact-path exception to "unconnected". The pure subject facts builder
+ * may import exactly R4's standing derivation and its record type, and the
+ * read-only loader may name the table in exactly one SELECT. Nothing else
+ * outside this module may import it or name it; the module itself is
+ * unchanged and still imports only itself.
+ */
+const REL_FINAL_JOIN_A2_IMPORTS: Readonly<Record<string, readonly RegExp[]>> = {
+  'src/orgunits/subjectFacts/facts.ts': [
+    /import \{ deriveJurisdictionStanding \} from '\.\.\/subjectJurisdiction\/standing\.js';/,
+    /import type \{ JurisdictionClaimRecord \} from '\.\.\/subjectJurisdiction\/vocabulary\.js';/,
+  ],
+};
+const REL_FINAL_JOIN_A2_LOADER = 'src/orgunits/subjectFacts/load.ts';
+const REL_FINAL_JOIN_A2_READ =
+  /FROM subject_jurisdiction_claims\s+WHERE subject_id = ANY\(\$1::uuid\[\]\) ORDER BY created_at, id`/;
+
 /** R4.1 + R4.2: the OWNER-authorised test-maintenance edits, each pinned line for line below. */
 const R3_FIREWALL = 'src/test/firewall/phase2bSubjectAcquisitionF1R3.firewall.test.ts';
 const REGISTRY_TEST = 'src/test/integration/discoverySubjectRegistry.test.ts';
@@ -295,22 +314,33 @@ describe('R4: subjectJurisdiction is pure, self-contained and unconnected', () =
   });
 
   it('has no production importer outside its own directory', () => {
-    const importers = productionFiles().filter(
-      (f) =>
-        !f.startsWith(MODULE_DIR) &&
-        /subjectJurisdiction/.test(codeOf(readFileSync(join(REPO_ROOT, f), 'utf8'))),
-    );
+    const importers = productionFiles().filter((f) => {
+      if (f.startsWith(MODULE_DIR)) return false;
+      let code = codeOf(readFileSync(join(REPO_ROOT, f), 'utf8'));
+      for (const form of REL_FINAL_JOIN_A2_IMPORTS[f] ?? []) code = code.replace(form, '');
+      return /subjectJurisdiction/.test(code);
+    });
     expect(importers).toEqual([]);
   });
 
   it('is named by no production SQL or code outside the migration and itself', () => {
-    const named = productionFiles().filter(
-      (f) =>
-        !f.startsWith(MODULE_DIR) &&
-        /subject_jurisdiction_claims|subject_iso3166_alpha2_assigned/.test(
-          codeOf(readFileSync(join(REPO_ROOT, f), 'utf8')),
-        ),
-    );
+    const named = productionFiles().filter((f) => {
+      if (f.startsWith(MODULE_DIR)) return false;
+      let code = codeOf(readFileSync(join(REPO_ROOT, f), 'utf8'));
+      if (f === REL_FINAL_JOIN_A2_LOADER) code = code.replace(REL_FINAL_JOIN_A2_READ, '');
+      return /subject_jurisdiction_claims|subject_iso3166_alpha2_assigned/.test(code);
+    });
     expect(named).toEqual([]);
+  });
+
+  it('REL final join A2: each exact-path exception is present exactly once, as pinned', () => {
+    for (const [file, forms] of Object.entries(REL_FINAL_JOIN_A2_IMPORTS)) {
+      const code = codeOf(readFileSync(join(REPO_ROOT, file), 'utf8'));
+      for (const form of forms)
+        expect(code.match(new RegExp(form.source, 'g')), file).toHaveLength(1);
+    }
+    const loader = codeOf(readFileSync(join(REPO_ROOT, REL_FINAL_JOIN_A2_LOADER), 'utf8'));
+    expect(loader.match(new RegExp(REL_FINAL_JOIN_A2_READ.source, 'g'))).toHaveLength(1);
+    expect(loader).not.toMatch(/\b(INSERT|UPDATE|DELETE|TRUNCATE|ALTER|DROP|CREATE|GRANT)\b/);
   });
 });

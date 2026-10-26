@@ -28,6 +28,7 @@ import { runOrgunitsClassifyRead } from './commands/classifyRead.js';
 import { runDiscoverySubjects } from './commands/discoverySubjects.js';
 import { runDiscoveryReviewSign } from './commands/discoveryReviewSign.js';
 import { runSourceDiscoveryCli } from './commands/sourceDiscovery.js';
+import { runSubjectFactsCli } from './commands/subjectFacts.js';
 import {
   buildClassifierOperatorEnvelope,
   renderClassifierOperatorEnvelope,
@@ -68,6 +69,8 @@ Usage:
                               (run \`nwf-pe discovery-subjects --help\` for its own options)
   nwf-pe discovery-subject-review-sign --request <path> --encrypted-key <path> --key-id <id>
                               (OFFLINE; signs one prepared OWNER review request)
+  nwf-pe subject-facts export --subject-id <uuid> [--subject-id <uuid> ...]
+                              (READ-ONLY; one nwf-pe.subject-facts-export.v1 JSON document)
 
 Options:
   --country <CC>    Restrict to an ISO-3166-1 alpha-2 country code (e.g. FR).
@@ -177,6 +180,10 @@ export async function main(argv: string[]): Promise<number> {
   }
   if (argv[0] === 'orgunits' && (argv[1] === 'discover-sources' || argv[1] === 'nominations')) {
     return runSourceDiscoveryCli(argv.slice(1));
+  }
+  // REL final join A2: the READ-ONLY subject facts export. Its own strict options.
+  if (argv[0] === 'subject-facts') {
+    return runSubjectFactsCli(argv.slice(1));
   }
   let parsedArgv;
   try {
