@@ -28,11 +28,17 @@ import { buildWebSearchAgentOptions } from '../../orgunits/sourceDiscovery/claud
 
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 
-/** The slice base: `fbe6a8c` (ADR 0017 acceptance on main). */
-const PHASE_BASE_COMMIT = 'fbe6a8c5ef1303b1a7524317b198d95c791f3050';
+/**
+ * The slice base. The lane authored this range on `fbe6a8c` (ADR 0017
+ * acceptance on main) as `fbe6a8c..43259c8`. The REL Engine integration
+ * (integration/rel-engine-v1) replays the lanes LINEARLY by cherry-pick - L1,
+ * then L2 - so on this lineage L2's own range starts at the L1 pin commit
+ * `454a39d` (the replayed `6efdb47`) and ends at the replayed `43259c8`.
+ */
+const PHASE_BASE_COMMIT = '454a39d90ac023322f8c9b5998c60e57ad02528a';
 
-/** Pinned to the REL L2 implementation commit (closed range). */
-const PHASE_TERMINAL_COMMIT: string | null = '43259c82e1401464a6577c8ed2966a6482cb487d';
+/** Pinned to the replayed REL L2 implementation commit (closed range). */
+const PHASE_TERMINAL_COMMIT: string | null = '16617f89a4c716c6b733ba44e72886f28ad356c5';
 
 const NS = 'src/orgunits/sourceDiscovery/';
 const NS_FILES = [
@@ -60,9 +66,9 @@ const MIGRATION = 'migrations/0019_source_discovery_nominations.sql';
  *   B2.2 registry, B2.3 review - exact-path exception: promote.ts may import the propose request
  *                                type and the writer's propose pair (and nothing else); no pattern removed
  *   B2.5-V1                    - identityBridge.ts is the one further B2.1 importer
- *   registry, P1a              - the newest migration is 0019
- *   orgunitSchema              - migration list gains 0019 (0018 reserved for the L1 lane)
- *   R8 migration 0017          - the real runner now also applies 0019
+ *   registry, P1a              - the newest migration is 0019 (was 0018 after L1)
+ *   orgunitSchema              - migration list gains 0019 after L1's 0018
+ *   R8 migration 0017          - the real runner now applies 0017, 0018 AND 0019
  *   A1 frame                   - 0019 acknowledged with its ADR and OWNER directive record
  */
 const ACKNOWLEDGED_EDITS: Readonly<Record<string, string>> = {
@@ -73,13 +79,13 @@ const ACKNOWLEDGED_EDITS: Readonly<Record<string, string>> = {
   'src/test/firewall/phase2bSubjectValidationV1.firewall.test.ts':
     '48b5b85124817194191f7c7844f83ca70248cdeca1dd4726a8ed66b6f73f5363',
   'src/test/integration/discoverySubjectRegistry.test.ts':
-    'd61a86bfb0db99a7f1f885b00c4e7db3db72cd082da47eb0615ff403774b6725',
+    '73943cdce64e6c6d9ac9b41c856200f1535b3cf231749ef535960b2846c07a91',
   'src/test/integration/discoverySubjectSnapshotReadB25P1a.test.ts':
-    '732a5839e247770d2baaf653f6fca5b35523dd3f1ce36a27e25957092dccc338',
+    'd6b02840e5605fb773ae4781b7300a284c92c7d73ba9654455437323f51d9c03',
   'src/test/integration/orgunitSchema.test.ts':
-    '09971ccb33da059a861cee965807eeedd89ed336fc680d538b4bfc61e07c9730',
+    '7069cfb60ca16de6c611161e30a8ad8ffd714f62fe8f15c17fd14885e1905d3b',
   'src/test/integration/subjectResearchMigration0017R8.test.ts':
-    'fda61c9474ef44c504e7c9aedfcace068bc2dd5f660d1572e57664a2b99c7ed7',
+    '288a2a7546b1abebe991f65b05600947132513229949c88208dec9f9082a2f97',
   'src/test/unit/orgunitCorpus2DA1Frame.test.ts':
     'e8ddd1b06cd3d2ce461ac0f239f3f8d4c859be918a94903e5086f26be74e858f',
 };

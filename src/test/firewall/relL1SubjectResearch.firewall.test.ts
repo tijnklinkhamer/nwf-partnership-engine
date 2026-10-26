@@ -34,8 +34,12 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 /** The Engine release candidate this lane branched from. */
 const L1_BASE_COMMIT = 'fbe6a8c5ef1303b1a7524317b198d95c791f3050';
 
-/** Open (null) until a separately authorised commit-closure step pins it. */
-const L1_TERMINAL_COMMIT: string | null = '129941204a18fbaa9ef95292353bb537e2531c3c';
+/**
+ * The lane closed its range as `fbe6a8c..1299412`. The REL Engine integration
+ * (integration/rel-engine-v1) replays the lanes LINEARLY by cherry-pick, so on
+ * this lineage the same change set ends at the replayed `3c80e28`.
+ */
+const L1_TERMINAL_COMMIT: string | null = '3c80e28858b98555668104e319d3beb8ec4377f8';
 
 const MODULE_DIR = 'src/orgunits/subjectRun/';
 const MODULE_FILES = [`${MODULE_DIR}admission.ts`, `${MODULE_DIR}execute.ts`];
