@@ -58,6 +58,8 @@ const REPAIR_TERMINAL_COMMIT: string | null = 'feafd2c555bea5482cfc9c640ed1ba350
 
 const ASSEMBLER = 'src/orgunits/subjectSnapshotRead/assemble.ts';
 const R8_ADMISSION_POLICY = 'src/orgunits/subjectAdmission/policy.ts';
+/** REL L2 / U1 (OWNER-authorised exact-path exception, 2026-10-26): the one source-discovery B2.1 importer. */
+const REL_L2_IDENTITY_BRIDGE = 'src/orgunits/sourceDiscovery/identityBridge.ts';
 const P1A_FIREWALL = 'src/test/firewall/phase2bSubjectSnapshotReadP1a.firewall.test.ts';
 const UNIT_TEST = 'src/test/unit/discoverySubjectValidationB25V1.test.ts';
 const INTEGRATION_TEST = 'src/test/integration/discoverySubjectValidationB25V1.test.ts';
@@ -692,7 +694,9 @@ describe('B2.5-V1 validation findings: narrow, read-only, unconnected', () => {
     const before = importers(baseProductionFiles(), baseSourceOf);
     // Global R8 (OWNER-authorised exact-path exception, 2026-10-20, ADR 0025):
     // the pure subject research-admission policy is the one further importer.
-    expect(now.sort()).toEqual([...before, ASSEMBLER, R8_ADMISSION_POLICY].sort());
+    expect(now.sort()).toEqual(
+      [...before, ASSEMBLER, R8_ADMISSION_POLICY, REL_L2_IDENTITY_BRIDGE].sort(),
+    );
     for (const file of productionFiles()) {
       if (file === ASSEMBLER) continue;
       expect(codeOf(readFileSync(join(REPO_ROOT, file), 'utf8')), file).not.toMatch(

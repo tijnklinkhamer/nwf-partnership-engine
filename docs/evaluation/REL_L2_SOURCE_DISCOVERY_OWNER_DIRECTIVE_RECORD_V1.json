@@ -1,0 +1,36 @@
+{
+  "recordId": "REL_L2_SOURCE_DISCOVERY_OWNER_DIRECTIVE_RECORD_V1",
+  "recordKind": "OWNER_DIRECTIVE_SCOPE_RECORD",
+  "recordedAtUtc": "2026-10-26",
+  "branch": "feat/rel-l2-source-discovery-v1",
+  "worktree": "~/wt-rel-l2-source-discovery",
+  "startingHead": "fbe6a8c",
+  "status": "LOCAL_IMPLEMENTATION_UNDER_OWNER_DIRECTIVE__RATIFICATION_PENDING",
+  "isOwnerRatification": false,
+  "recordedBy": "engineering lane L2 (transcription of the directive it was given; not an OWNER signature)",
+  "authority": {
+    "source": "OWNER directive 2026-10-26, engineering lane L2: independent, global discovery of obscure organisations (U1)",
+    "authorised": [
+      "local source edits",
+      "local migrations on DISPOSABLE test databases",
+      "local test runs",
+      "local commits"
+    ],
+    "notAuthorised": [
+      "any live network call (no web search, no HTTP to any site)",
+      "any live Claude or Agent SDK call",
+      "reading Claude profiles or the Keychain",
+      "push, merge or deploy",
+      "staging or production access",
+      "activating any capability",
+      "deleting evidence",
+      "weakening any security check or firewall"
+    ]
+  },
+  "migrationUnderThisDirective": "migrations/0019_source_discovery_nominations.sql",
+  "migrationNumberingNote": "0018 is reserved for the parallel L1 lane (subject research roots); this branch alone is non-sequential until the two merge.",
+  "adr": "docs/adr/0026-independent-source-discovery-nominations.md",
+  "liveSearchAuthorised": false,
+  "appendOnly": true,
+  "editsPriorMigrations": false
+}

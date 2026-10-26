@@ -1,0 +1,280 @@
+/**
+ * `nwf-pe orgunits discover-sources ...` and `nwf-pe orgunits nominations ...`
+ * - REL L2 / U1 independent source discovery.
+ *
+ *   discover-sources   prints ONE geography's queries of ONE known brief. It is
+ *                      a DRY RUN: no provider, no network, no database. With
+ *                      --execute it REFUSES - live search is not authorised and
+ *                      no SourceDiscoveryAuthorisation can be built from here.
+ *   nominations list   one bounded, keyset-paginated page (readonly role).
+ *   nominations promote
+ *                      ONE nomination -> ONE discovery subject through the
+ *                      EXISTING B2.2 writer (dry run on the readonly role by
+ *                      default; --execute on the writer capability).
+ *
+ * NARROW BY CONSTRUCTION, like `discovery-subjects`: each subcommand parses its
+ * own strict option set; there is no batch, no "every geography", no generic
+ * SQL and no credential option. This file imports neither the Claude Max
+ * adapter nor its authorisation, and nothing here fetches a URL, calls a
+ * model, starts research or contacts anyone.
+ */
+import { parseArgs } from 'node:util';
+import type pg from 'pg';
+
+import { createPool } from '../../db/client.js';
+import { env } from '../../config/env.js';
+import {
+  BriefRefusal,
+  briefByKey,
+  briefDigest,
+  queriesFor,
+} from '../../orgunits/sourceDiscovery/brief.js';
+import { SUBJECT_KINDS, type SubjectKind } from '../../orgunits/sourceDiscovery/identityBridge.js';
+import {
+  PromotionRefusal,
+  promoteNomination,
+  promotionRequest,
+} from '../../orgunits/sourceDiscovery/promote.js';
+import {
+  NOMINATION_LIST_DEFAULT_LIMIT,
+  NOMINATION_LIST_MAX_LIMIT,
+  listNominations,
+  loadNomination,
+} from '../../orgunits/sourceDiscovery/store.js';
+import { UUID_SHAPE } from '../../orgunits/sourceDiscovery/types.js';
+
+export const SOURCE_DISCOVERY_CONTRACT = 'nwf-pe.source-discovery.v1';
+
+export const SOURCE_DISCOVERY_USAGE = `nwf-pe orgunits - independent source discovery (REL L2)
+
+  orgunits discover-sources    --brief <brief-key> --geography <CC> [--json]
+                               DRY RUN: prints the brief's queries for ONE geography.
+                               --execute is REFUSED: live search is not authorised.
+  orgunits nominations list    [--run-id <uuid>] [--limit <1-${NOMINATION_LIST_MAX_LIMIT}>]
+                               [--after <uuid>] [--json]
+  orgunits nominations promote --nomination-id <uuid> --subject-id <uuid> --kind <KIND>
+                               [--name-language <tag>] [--execute] [--json]
+                               Registers ONE discovery subject whose NAME claim cites the
+                               nomination (PUBLIC_URL, observed at its retrieval time).
+                               DRY RUN unless --execute. Nothing promotes automatically.
+`;
+
+const OUTPUT = { json: { type: 'boolean' } } as const;
+
+const OPTIONS = {
+  'discover-sources': {
+    brief: { type: 'string' },
+    geography: { type: 'string' },
+    execute: { type: 'boolean' },
+    ...OUTPUT,
+  },
+  'nominations list': {
+    'run-id': { type: 'string' },
+    limit: { type: 'string' },
+    after: { type: 'string' },
+    ...OUTPUT,
+  },
+  'nominations promote': {
+    'nomination-id': { type: 'string' },
+    'subject-id': { type: 'string' },
+    kind: { type: 'string' },
+    'name-language': { type: 'string' },
+    execute: { type: 'boolean' },
+    ...OUTPUT,
+  },
+} as const;
+
+type CommandKey = keyof typeof OPTIONS;
+
+export interface SourceDiscoveryCliDeps {
+  readonly readonlyPool?: () => pg.Pool;
+  readonly writerPool?: () => pg.Pool;
+  readonly out?: (text: string) => void;
+  readonly err?: (text: string) => void;
+}
+
+class UsageError extends Error {}
+
+type Values = Record<string, string | boolean | undefined>;
+
+function str(values: Values, name: string): string | undefined {
+  const v = values[name];
+  return typeof v === 'string' ? v : undefined;
+}
+
+function required(values: Values, name: string): string {
+  const v = str(values, name);
+  if (v === undefined || v.length === 0) throw new UsageError(`--${name} is required.`);
+  return v;
+}
+
+function uuid(values: Values, name: string): string {
+  const v = required(values, name);
+  if (!UUID_SHAPE.test(v)) throw new UsageError(`--${name} must be a lower-case UUID.`);
+  return v;
+}
+
+function envelope(command: string, outcome: string, body: Record<string, unknown>): string {
+  return `${JSON.stringify({ contract: SOURCE_DISCOVERY_CONTRACT, command, outcome, ...body }, null, 2)}\n`;
+}
+
+async function withPoolOf<T>(make: () => pg.Pool, fn: (pool: pg.Pool) => Promise<T>): Promise<T> {
+  const pool = make();
+  try {
+    return await fn(pool);
+  } finally {
+    await pool.end();
+  }
+}
+
+/** Runs one invocation. `argv` starts at `discover-sources` or `nominations`. */
+export async function runSourceDiscoveryCli(
+  argv: readonly string[],
+  deps: SourceDiscoveryCliDeps = {},
+): Promise<number> {
+  const out = deps.out ?? ((t: string) => void process.stdout.write(t));
+  const err = deps.err ?? ((t: string) => void process.stderr.write(t));
+  const readonlyPool = deps.readonlyPool ?? (() => createPool('readonly'));
+  const writerPool =
+    deps.writerPool ??
+    (() => {
+      if (env().DATABASE_URL_DISCOVERY_SUBJECT_WRITER === undefined) {
+        throw new UsageError(
+          'DATABASE_URL_DISCOVERY_SUBJECT_WRITER is not set: promote --execute needs a ' +
+            'deployment-provisioned login holding nwf_discovery_subject_writer.',
+        );
+      }
+      return createPool('discovery_subject_writer');
+    });
+
+  const [first, second, ...tail] = argv;
+  const key = (first === 'nominations' ? `nominations ${second ?? ''}` : first) as CommandKey;
+  const rest = first === 'nominations' ? tail : [second, ...tail].filter((a) => a !== undefined);
+  if (!Object.hasOwn(OPTIONS, key) || rest.includes('--help') || rest.includes('-h')) {
+    out(SOURCE_DISCOVERY_USAGE);
+    return Object.hasOwn(OPTIONS, key) ? 0 : 1;
+  }
+
+  let values: Values;
+  try {
+    values = parseArgs({
+      args: [...rest],
+      options: OPTIONS[key],
+      strict: true,
+      allowPositionals: false,
+    }).values as Values;
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    if (rest.includes('--json')) out(envelope(key, 'REFUSED', { code: 'INPUT_INVALID', detail }));
+    err(`REFUSED INPUT_INVALID: ${detail}\n`);
+    return 1;
+  }
+  const json = values['json'] === true;
+  const refuse = (code: string, detail: string) => {
+    if (json) out(envelope(key, 'REFUSED', { code, detail }));
+    err(`REFUSED ${code}: ${detail}\n`);
+    return 1;
+  };
+
+  try {
+    switch (key) {
+      case 'discover-sources': {
+        const brief = briefByKey(required(values, 'brief'));
+        const geography = required(values, 'geography');
+        const section = queriesFor(brief, geography);
+        if (values['execute'] === true) {
+          return refuse(
+            'LIVE_SEARCH_NOT_AUTHORISED',
+            'discover-sources --execute requires a sealed source-discovery authorisation, which has no ' +
+              'production constructor: live search is not authorised in this build.',
+          );
+        }
+        const data = {
+          briefKey: brief.briefKey,
+          planDigest: briefDigest(brief),
+          geography,
+          languages: section.languages,
+          queries: section.queries,
+        };
+        if (json) {
+          out(envelope(key, 'DRY_RUN', { data }));
+        } else {
+          out(`brief ${data.briefKey} (plan ${data.planDigest})\n`);
+          out(`geography ${geography}, languages ${section.languages.join(', ')}\n`);
+          for (const q of section.queries) out(`  ${q.queryId}\t${q.targetKind}\t${q.text}\n`);
+          out(`${section.queries.length} queries. DRY RUN: nothing was searched or stored.\n`);
+        }
+        return 0;
+      }
+      case 'nominations list': {
+        const runId = str(values, 'run-id');
+        const after = str(values, 'after');
+        if (runId !== undefined && !UUID_SHAPE.test(runId)) {
+          throw new UsageError('--run-id must be a lower-case UUID.');
+        }
+        if (after !== undefined && !UUID_SHAPE.test(after)) {
+          throw new UsageError('--after must be a lower-case UUID.');
+        }
+        const rawLimit = str(values, 'limit');
+        const limit = rawLimit === undefined ? NOMINATION_LIST_DEFAULT_LIMIT : Number(rawLimit);
+        if (!Number.isInteger(limit) || limit < 1 || limit > NOMINATION_LIST_MAX_LIMIT) {
+          throw new UsageError(`--limit must be an integer 1-${NOMINATION_LIST_MAX_LIMIT}.`);
+        }
+        const rows = await withPoolOf(readonlyPool, (pool) =>
+          listNominations(pool, { runId: runId ?? null, after: after ?? null, limit }),
+        );
+        if (json) {
+          out(envelope(key, 'READ', { data: { nominations: rows } }));
+        } else {
+          for (const r of rows) {
+            const flags = [r.echeOverlap ? 'ECHE_OVERLAP' : null, r.heiSignal ? 'HEI_SIGNAL' : null]
+              .filter((f) => f !== null)
+              .join(',');
+            out(`${r.id}\t${r.discoveryMethod}\t${r.url}\t${flags}\t${r.title ?? ''}\n`);
+          }
+          out(`${rows.length} nomination(s).\n`);
+        }
+        return 0;
+      }
+      case 'nominations promote': {
+        const nominationId = uuid(values, 'nomination-id');
+        const subjectId = uuid(values, 'subject-id');
+        const kind = required(values, 'kind');
+        if (!(SUBJECT_KINDS as readonly string[]).includes(kind)) {
+          throw new UsageError(`--kind must be one of ${SUBJECT_KINDS.join(', ')}.`);
+        }
+        const nomination = await withPoolOf(readonlyPool, (pool) =>
+          loadNomination(pool, nominationId),
+        );
+        if (nomination === null) {
+          throw new PromotionRefusal('NOMINATION_NOT_FOUND', `no nomination ${nominationId}.`);
+        }
+        const request = promotionRequest({
+          nomination,
+          subjectId,
+          kind: kind as SubjectKind,
+          nameLanguage: str(values, 'name-language') ?? null,
+        });
+        const execute = values['execute'] === true;
+        const result = await withPoolOf(execute ? writerPool : readonlyPool, (pool) =>
+          promoteNomination(pool, request, execute),
+        );
+        if (json) {
+          out(envelope(key, result.mode, { data: { nominationId, result } }));
+        } else {
+          out(
+            `${result.mode} promote nomination ${nominationId} -> subject ${result.subjectId} ` +
+              `(${kind}), name claim ${result.recordIds['nameClaim'] ?? ''}\n`,
+          );
+        }
+        return 0;
+      }
+    }
+  } catch (error) {
+    if (error instanceof UsageError) return refuse('INPUT_INVALID', error.message);
+    if (error instanceof BriefRefusal) return refuse(error.code, error.message);
+    if (error instanceof PromotionRefusal) return refuse(error.code, error.message);
+    return refuse('INTERNAL_ERROR', error instanceof Error ? error.message : String(error));
+  }
+  return 1;
+}

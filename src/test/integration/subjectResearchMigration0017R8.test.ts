@@ -352,8 +352,13 @@ describeDb(
     it('the REAL runner applies 0017, and every historical root key and evidence row is byte-identical', async () => {
       const result = await migrate(db);
       // Lane L1: the real runner now also applies 0018 (candidate run scope,
-      // ADR 0025 s12), whose new foreign key validates this historical corpus.
-      expect(result.applied).toEqual([MIGRATION_0017, '0018_subject_research_roots.sql']);
+      // ADR 0025 s12), whose new foreign key validates this historical corpus;
+      // REL L2: then 0019 (source-discovery nominations, ADR 0026).
+      expect(result.applied).toEqual([
+        MIGRATION_0017,
+        '0018_subject_research_roots.sql',
+        '0019_source_discovery_nominations.sql',
+      ]);
       expect(await digests()).toEqual(before);
       const { rows } = await db.query<{
         admission: string | null;

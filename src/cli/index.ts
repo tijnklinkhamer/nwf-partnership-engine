@@ -27,6 +27,7 @@ import { runOrgunitsClassify } from './commands/classify.js';
 import { runOrgunitsClassifyRead } from './commands/classifyRead.js';
 import { runDiscoverySubjects } from './commands/discoverySubjects.js';
 import { runDiscoveryReviewSign } from './commands/discoveryReviewSign.js';
+import { runSourceDiscoveryCli } from './commands/sourceDiscovery.js';
 import {
   buildClassifierOperatorEnvelope,
   renderClassifierOperatorEnvelope,
@@ -60,6 +61,9 @@ Usage:
   nwf-pe orgunits classify calls --organisation-id <uuid> [--run-id <uuid>]
                                  [--limit <N>] [--json]
   nwf-pe orgunits classify show  --call-id <uuid> [--json]
+  nwf-pe orgunits discover-sources --brief <key> --geography <CC> [--json]
+  nwf-pe orgunits nominations list|promote ...
+                              (run \`nwf-pe orgunits nominations --help\` for its own options)
   nwf-pe discovery-subjects propose|claim|relate|review|show|list ...
                               (run \`nwf-pe discovery-subjects --help\` for its own options)
   nwf-pe discovery-subject-review-sign --request <path> --encrypted-key <path> --key-id <id>
@@ -170,6 +174,9 @@ export async function main(argv: string[]): Promise<number> {
   // opens no database connection and reads no environment variable.
   if (argv[0] === 'discovery-subject-review-sign') {
     return runDiscoveryReviewSign(argv.slice(1));
+  }
+  if (argv[0] === 'orgunits' && (argv[1] === 'discover-sources' || argv[1] === 'nominations')) {
+    return runSourceDiscoveryCli(argv.slice(1));
   }
   let parsedArgv;
   try {

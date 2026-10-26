@@ -266,7 +266,12 @@ describeDb('Phase 2B schema contract (integration)', () => {
         '0015',
         '0016',
         '0017',
+        // Lane L1 (subject research roots, ADR 0025 s12).
         '0018',
+        // REL L2 / U1 (source-discovery nominations, ADR 0026, Proposed -
+        // three append-only tables and one NOLOGIN capability; nothing
+        // existing altered).
+        '0019',
       ]);
     });
 

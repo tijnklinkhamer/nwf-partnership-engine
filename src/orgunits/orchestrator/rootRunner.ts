@@ -110,9 +110,22 @@ export interface RootSummary {
   readonly refusalDetail: string | null;
 }
 
+/**
+ * REL L2: receives each OFF-DOMAIN anchor of a page whose evidence was
+ * persisted - (page evidence id, absolute href, redacted anchor text). The
+ * runner NEVER fetches these; the sink only records them.
+ */
+export type OffDomainAnchorSink = (
+  pageEvidenceId: string,
+  href: string,
+  anchorText: string | null,
+) => void | Promise<void>;
+
 export interface RootRunnerDeps extends ResearchCohortGuardDeps {
   transport?: WebTransport;
   clock?: Clock;
+  /** REL L2: optional; defaults to a no-op, so off-domain anchors stay discarded. */
+  offDomainAnchorSink?: OffDomainAnchorSink;
 }
 
 /** Per-host sequential pacing, using an injectable clock (production: real timers; tests: `createFakeClock()`). */
@@ -217,6 +230,8 @@ export async function runRootAcquisition(
   // test for the scenario this closes).
   const attemptedUrls = new Set<string>();
   const collectedPages: CollectedPage[] = [];
+  const offDomainAnchorSink = deps.offDomainAnchorSink ?? (() => undefined);
+  const offDomainAnchors = new Map<string, { href: string; text: string | null }[]>();
 
   const budget = new RequestBudget();
   let pageAttempts = 0;
@@ -535,6 +550,12 @@ export async function runRootAcquisition(
     for (const anchor of extractDiscoveryAnchors(derived.decodedHtml)) {
       const resolution = resolveAnchorHref(documentBase.url, anchor.hrefRaw);
       if (!resolution.ok) continue;
+      const linkOut = validateRequestUrl(resolution.url);
+      if (linkOut.ok && linkOut.value.registrableDomain !== rootUrl.registrableDomain) {
+        const list = offDomainAnchors.get(fetch.requestedUrl) ?? [];
+        list.push({ href: linkOut.value.url, text: anchor.text });
+        offDomainAnchors.set(fetch.requestedUrl, list);
+      }
       if (!admissibleUrl(resolution.url)) continue;
       frontier.add(resolution.url, 'LINK', fetch.requestedUrl, anchor.text);
     }
@@ -701,6 +722,11 @@ export async function runRootAcquisition(
     headings: page.headings,
   }));
   const candidates = await scoreAndPersistCandidates(pool, runId, candidateInputs);
+  for (const page of persistedPages) {
+    for (const a of offDomainAnchors.get(page.url) ?? []) {
+      await offDomainAnchorSink(page.id, a.href, a.text);
+    }
+  }
 
   // A page-evidence persistence failure is NOT a root-level operational
   // outcome - it is thrown here, AFTER candidates were scored and persisted

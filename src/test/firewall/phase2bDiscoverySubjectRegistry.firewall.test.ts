@@ -133,6 +133,18 @@ const R8_ADMISSION_REGISTRY_IMPORTS: Readonly<Record<string, readonly RegExp[]>>
   ],
 };
 
+/**
+ * REL L2 / U1 (OWNER-authorised exact-path exception, 2026-10-26): the ONE
+ * source-discovery file that may name the registry - the nomination bridge -
+ * by exactly the propose request TYPE and the writer's propose pair. Never
+ * claim, relate, review, the store or the reviewer authority.
+ */
+const REL_L2_PROMOTE = 'src/orgunits/sourceDiscovery/promote.ts';
+const REL_L2_PROMOTE_REGISTRY_IMPORTS: readonly RegExp[] = [
+  /import type \{ ProposeRequest \} from '\.\.\/subjectRegistry\/requests\.js';/,
+  /import \{\s*RegistryRefusal,\s*executePropose,\s*planPropose,\s*type RegistryResult,\s*\} from '\.\.\/subjectRegistry\/writer\.js';/,
+];
+
 /** The exact authorised change set, as `git diff --name-status` lines. */
 const AUTHORISED_CHANGESET = [
   'A\tdocs/adr/0020-controlled-discovery-subject-registry.md',
@@ -495,6 +507,9 @@ describe('B2.2 registry module: narrow, local and inert towards research', () =>
       if (B24_READ_MODEL_IMPORTERS.includes(file)) code = code.replace(B24_READ_MODEL_IMPORT, '');
       if (file === B25_P1A_ASSEMBLER) code = code.replace(B25_P1A_STORE_IMPORT, '');
       for (const form of R8_ADMISSION_REGISTRY_IMPORTS[file] ?? []) code = code.replace(form, '');
+      if (file === REL_L2_PROMOTE) {
+        for (const form of REL_L2_PROMOTE_REGISTRY_IMPORTS) code = code.replace(form, '');
+      }
       expect(code, file).not.toMatch(/subjectRegistry|discoverySubjects/);
     }
   });

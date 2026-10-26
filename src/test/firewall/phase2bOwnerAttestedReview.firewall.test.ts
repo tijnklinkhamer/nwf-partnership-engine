@@ -123,6 +123,18 @@ const B25_P1A_STORE_IMPORT =
   /import \{\s*databaseNow,\s*loadSubjectGraph,\s*MAX_SHARED_IDENTIFIER_HOLDERS,\s*\} from '\.\.\/subjectRegistry\/store\.js';/;
 
 /**
+ * REL L2 / U1 (OWNER-authorised exact-path exception, 2026-10-26): the ONE
+ * source-discovery file that may name the registry - the nomination bridge -
+ * by exactly the propose request TYPE and the writer's propose pair. Never
+ * claim, relate, review, the store or the reviewer authority.
+ */
+const REL_L2_PROMOTE = 'src/orgunits/sourceDiscovery/promote.ts';
+const REL_L2_PROMOTE_REGISTRY_IMPORTS: readonly RegExp[] = [
+  /import type \{ ProposeRequest \} from '\.\.\/subjectRegistry\/requests\.js';/,
+  /import \{\s*RegistryRefusal,\s*executePropose,\s*planPropose,\s*type RegistryResult,\s*\} from '\.\.\/subjectRegistry\/writer\.js';/,
+];
+
+/**
  * Global R8 (OWNER-authorised exact-path exception, 2026-10-20, ADR 0025): the
  * pure subject research-admission policy and the OWNER-path admission
  * recorder, and ONLY the forms each needs - the read model, the effective
@@ -605,6 +617,9 @@ describe('B2.3 protocol and verification: domain-separated, signature-first, sea
       }
       if (file === B25_P1A_ASSEMBLER) code = code.replace(B25_P1A_STORE_IMPORT, '');
       for (const form of R8_ADMISSION_REVIEW_FORMS[file] ?? []) code = code.replace(form, '');
+      if (file === REL_L2_PROMOTE) {
+        for (const form of REL_L2_PROMOTE_REGISTRY_IMPORTS) code = code.replace(form, '');
+      }
       expect(code, file).not.toMatch(forbidden);
     }
   });

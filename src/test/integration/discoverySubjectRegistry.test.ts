@@ -248,8 +248,9 @@ describeDb('B2.2 discovery-subject registry (integration)', () => {
         `SELECT current_database() AS db, max(version) AS top FROM schema_migrations`,
       );
       expect(rows[0]!.db.endsWith('_test')).toBe(true);
-      // Lane L1 (migration 0018, ADR 0025 s12) is the newest migration now.
-      expect(rows[0]!.top).toBe('0018');
+      // Lane L1 (migration 0018, ADR 0025 s12) and REL L2 (migration 0019,
+      // ADR 0026) have both landed; 0019 is the newest migration now.
+      expect(rows[0]!.top).toBe('0019');
     });
   });
 
