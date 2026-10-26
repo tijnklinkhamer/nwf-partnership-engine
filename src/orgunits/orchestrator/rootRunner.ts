@@ -52,6 +52,8 @@ import { createFrontier, type Frontier } from './frontier.js';
 import { RequestBudget, TOTAL_REQUEST_BUDGET_EXHAUSTED_REASON } from './requestBudget.js';
 import { deriveEligiblePage, persistCollectedPages, type CollectedPage } from './pageCollection.js';
 import { scoreAndPersistCandidates, type PersistedCandidateSummary } from './candidates.js';
+import { scoreAndPersistCandidatesWithRuleset } from './rulesetCandidates.js';
+import { loadRunSignalRuleset, SIGNAL_RULESET_V1 } from './signalRuleset.js';
 import {
   enforceRootResearchEligibility,
   type ResearchCohortGuardDeps,
@@ -211,7 +213,12 @@ export async function runRootAcquisition(
   const cache: RobotsCache = createRobotsCache();
   const circuitBreaker: HostCircuitBreaker = createHostCircuitBreaker();
   const pacer = new HostPacer(clock);
-  const frontier: Frontier = createFrontier();
+  // REL harvest H1: the run's STORED rule version picks the ruleset - v1 for
+  // an ECHE root, v2 for a subject root - and a run whose stamp does not
+  // match its root's scope is refused here, before any request. The frontier
+  // and candidate persistence below both use it.
+  const ruleset = await loadRunSignalRuleset(pool, runId, resolved);
+  const frontier: Frontier = createFrontier(ruleset.scoreFrontierUrl);
   const hostsUsed = new Set<string>();
   const hostCrawlDelay = new Map<string, number>();
   // Every URL this root has already attempted (root bootstrap, frontier pick,
@@ -721,7 +728,12 @@ export async function runRootAcquisition(
     title: page.title,
     headings: page.headings,
   }));
-  const candidates = await scoreAndPersistCandidates(pool, runId, candidateInputs);
+  // v1 runs keep the K1/K2-bound candidates.ts path byte-for-byte; any other
+  // stored ruleset persists through the same-grain ruleset-parameterised path.
+  const candidates =
+    ruleset === SIGNAL_RULESET_V1
+      ? await scoreAndPersistCandidates(pool, runId, candidateInputs)
+      : await scoreAndPersistCandidatesWithRuleset(pool, runId, candidateInputs, ruleset);
   for (const page of persistedPages) {
     for (const a of offDomainAnchors.get(page.url) ?? []) {
       await offDomainAnchorSink(page.id, a.href, a.text);

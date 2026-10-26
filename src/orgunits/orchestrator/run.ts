@@ -14,6 +14,7 @@
 import type pg from 'pg';
 import { FETCH_POLICY_VERSION } from '../web/policy.js';
 import { ORGUNIT_SIGNAL_RULE_VERSION } from '../signals/score.js';
+import { SUBJECT_RUN_SIGNAL_RULE_VERSION } from './signalRuleset.js';
 
 export interface StartRunInput {
   networkVantage: string;
@@ -53,6 +54,11 @@ export interface StartSubjectRunInput {
  * `root_scope` is `subject_admission:<uuid>`, and migration 0017's composite
  * foreign key then admits only that admission's fetch evidence into it.
  * `startRun` is unchanged and still creates every ECHE run (scope `ECHE`).
+ *
+ * REL harvest H1: a subject run is stamped
+ * `orgunit-signal-rules-v2` (`SUBJECT_RUN_SIGNAL_RULE_VERSION`), and
+ * `rootRunner.ts` scores it with exactly that ruleset - read back from this
+ * row, never chosen by a caller. ECHE runs keep v1, byte-for-byte.
  */
 export async function startSubjectRun(pool: pg.Pool, input: StartSubjectRunInput): Promise<string> {
   const { rows } = await pool.query<{ id: string }>(
@@ -60,7 +66,12 @@ export async function startSubjectRun(pool: pg.Pool, input: StartSubjectRunInput
        (started_at, network_vantage, fetch_policy_version, rule_version, dry_run, root_scope)
      VALUES (now(), $1, $2, $3, false, 'subject_admission:' || $4::uuid::text)
      RETURNING id`,
-    [input.networkVantage, FETCH_POLICY_VERSION, ORGUNIT_SIGNAL_RULE_VERSION, input.admissionId],
+    [
+      input.networkVantage,
+      FETCH_POLICY_VERSION,
+      SUBJECT_RUN_SIGNAL_RULE_VERSION,
+      input.admissionId,
+    ],
   );
   return rows[0]!.id;
 }

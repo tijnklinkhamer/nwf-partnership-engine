@@ -18,10 +18,14 @@
  *   classifier configuration, and `score.ts`/`types.ts` themselves are bound
  *   BY BYTES in OWNER decision records (2D-A3 K1/K2). v1 must stay
  *   byte-identical in behaviour AND in source, so v2 is a separate module:
- *   `score.ts` does not import it, no existing caller reaches it, and every
- *   v2 result is stamped `orgunit-signal-rules-v2` so it can never be read
- *   as, or stored as, a v1 score. A caller opts in by importing
- *   `scoreFetchedPageCandidateV2` / `scoreFrontierUrlV2` explicitly.
+ *   `score.ts` does not import it, and every v2 result is stamped
+ *   `orgunit-signal-rules-v2` so it can never be read as, or stored as, a v1
+ *   score. A caller opts in by importing `scoreFetchedPageCandidateV2` /
+ *   `scoreFrontierUrlV2` explicitly. The one orchestrator caller is
+ *   `orchestrator/signalRuleset.ts` (REL harvest H1): `startSubjectRun`
+ *   stamps v2 onto a discovery-subject run, and the ruleset is selected from
+ *   the run's STORED version - so a subject run's frontier and candidates
+ *   are scored by v2, and every ECHE run (`startRun`) still by v1.
  *
  * WHY THE ENGINE IS RESTATED HERE
  *

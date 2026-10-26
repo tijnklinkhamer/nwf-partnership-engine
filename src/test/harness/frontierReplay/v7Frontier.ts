@@ -31,7 +31,7 @@
  */
 import { hasBinaryFileExtension } from '../../../orgunits/signals/packs/universal.js';
 import { pathSegments, rawPathname } from '../../../orgunits/signals/tree.js';
-import { scoreFrontierUrl, type FrontierUrlScoreResult } from '../../../orgunits/signals/score.js';
+import { scoreFrontierUrl } from '../../../orgunits/signals/score.js';
 import type { FrontierSectionAncestor, SignalTrack } from '../../../orgunits/signals/types.js';
 import { MAX_FRONTIER_URLS_PER_ROOT } from '../../../orgunits/orchestrator/constants.js';
 import type {
@@ -45,7 +45,7 @@ const SOURCE_PRECEDENCE: Readonly<Record<FrontierDiscoveryMethod, number>> = Obj
   LINK: 1,
 });
 
-function bestTrack(score: FrontierUrlScoreResult): {
+function bestTrack(score: FrontierEntry['score']): {
   track: SignalTrack;
   value: number;
   ownScore: number;

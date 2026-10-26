@@ -51,6 +51,7 @@ import {
 } from '../../orgunits/subjectRegistry/writer.js';
 import { VerifiedReviewEnvelope } from '../../orgunits/subjectReview/verify.js';
 import { resolveRoot } from '../../orgunits/web/authority.js';
+import { FETCH_POLICY_VERSION } from '../../orgunits/web/policy.js';
 import type {
   RequestPlan,
   ResolvedAddress,
@@ -907,19 +908,25 @@ describeDb('Global R8 subject research execution (integration, synthetic)', () =
         ),
       ).toBe('SUBJECT_ROOT_RUN_NOT_EXCLUSIVE');
       expect(intruder.requestedUrls).toEqual([]);
-      // An ECHE root appended to the COMPLETED subject run: the gateway refuses
-      // the closed run before DNS, so the root ends refused with no request.
+      // An ECHE root appended to the COMPLETED subject run. REL-F1-R2 Wave 2:
+      // the subject run is stamped orgunit-signal-rules-v2, which no ECHE root
+      // may be scored by, so the root runner refuses before any request -
+      // earlier than the gateway's closed-run refusal this used to reach.
       const late = new ScriptedTransport();
-      const lateSummary = await runRootAcquisition(
-        research,
-        run.runId,
-        { kind: 'WEBSITE_CLAIM', websiteClaimId: frClaimId },
-        { transport: late, clock: instantClock(), loadCohortRegistry },
-      );
-      expect(lateSummary.terminalReason).toBe('ROOT_REQUEST_REFUSED');
+      expect(
+        await code(() =>
+          runRootAcquisition(
+            research,
+            run.runId,
+            { kind: 'WEBSITE_CLAIM', websiteClaimId: frClaimId },
+            { transport: late, clock: instantClock(), loadCohortRegistry },
+          ),
+        ),
+      ).toBe('RUN_RULE_VERSION_ROOT_SCOPE_MISMATCH');
       expect(late.resolvedHosts).toEqual([]);
-      // An ECHE root appended to an OPEN subject run: the database's run-scope
-      // foreign key refuses its first evidence write.
+      // An ECHE root appended to an OPEN subject run: refused the same way,
+      // before the database's run-scope foreign key (still in place, and
+      // proved directly just below) would refuse its first evidence write.
       const openRun = await startSubjectRun(research, {
         networkVantage: 'test',
         admissionId: admissionB,
@@ -937,6 +944,23 @@ describeDb('Global R8 subject research execution (integration, synthetic)', () =
             openRun,
             { kind: 'WEBSITE_CLAIM', websiteClaimId: frClaimId },
             { transport: eche, clock: instantClock(), loadCohortRegistry },
+          ),
+        ),
+      ).toBe('RUN_RULE_VERSION_ROOT_SCOPE_MISMATCH');
+      expect(eche.requestedUrls).toEqual([]);
+      // The run-scope foreign key itself, written directly: an ECHE-rooted
+      // fetch row cannot join a subject run.
+      expect(
+        await code(() =>
+          research.query(
+            `INSERT INTO orgunit_fetch_observations
+               (run_id, root_website_claim_id, eche_row_key, requested_url, requested_host,
+                requested_registrable_domain, attempt_no, discovery_method,
+                robots_decision, fetch_policy_version, error_kind, observed_at)
+             SELECT $1, w.id, w.eche_row_key, $3, w.hostname, w.registrable_domain,
+                    1, 'ROOT', 'ALLOWED', $2, 'DNS_FAILURE', now()
+               FROM website_claims w WHERE w.id = $4`,
+            [openRun, FETCH_POLICY_VERSION, FR_SITE, frClaimId],
           ),
         ),
       ).toBe('23503');

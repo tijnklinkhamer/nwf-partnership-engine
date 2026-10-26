@@ -7,7 +7,9 @@
  * URL to attempt next.
  *
  * SCORING IS CONSUMED, NEVER RECOMPUTED. Every admitted URL is scored exactly
- * once, at admission time, by the landed `scoreFrontierUrl` (2B-1d). This
+ * once, at admission time, by the landed `scoreFrontierUrl` (2B-1d) - or,
+ * for a discovery-subject run, by v2's `scoreFrontierUrlV2`, the run's own
+ * stored ruleset (`signalRuleset.ts`, REL harvest H1). This
  * module adds no heuristic of its own beyond ADMISSION (is this URL even
  * eligible to enter the queue) and ORDERING (which admitted URL comes next).
  *
@@ -41,8 +43,10 @@
 import { hasBinaryFileExtension } from '../signals/packs/universal.js';
 import { pathSegments, rawPathname } from '../signals/tree.js';
 import { scoreFrontierUrl, type FrontierUrlScoreResult } from '../signals/score.js';
+import type { FrontierUrlScoreResultV2 } from '../signals/typesV2.js';
 import type { FrontierSectionAncestor, SignalTrack } from '../signals/types.js';
 import { MAX_FRONTIER_URLS_PER_ROOT } from './constants.js';
+import type { FrontierScorer } from './signalRuleset.js';
 
 export type FrontierDiscoveryMethod = 'SITEMAP' | 'LINK';
 
@@ -56,7 +60,8 @@ export interface FrontierEntry {
   readonly url: string;
   readonly discoveryMethod: FrontierDiscoveryMethod;
   readonly discoveryParentUrl: string | null;
-  readonly score: FrontierUrlScoreResult;
+  /** v1 for an ECHE run, v2 for a subject run - always the run's stored ruleset (`signalRuleset.ts`). */
+  readonly score: FrontierUrlScoreResult | FrontierUrlScoreResultV2;
 }
 
 export type FrontierAdmissionRefusal = 'ALREADY_SEEN' | 'BINARY_EXTENSION' | 'FRONTIER_FULL';
@@ -64,7 +69,7 @@ export type FrontierAdmissionRefusal = 'ALREADY_SEEN' | 'BINARY_EXTENSION' | 'FR
 export type FrontierAdmission =
   { ok: true; entry: FrontierEntry } | { ok: false; reason: FrontierAdmissionRefusal };
 
-function bestTrack(score: FrontierUrlScoreResult): {
+function bestTrack(score: FrontierUrlScoreResult | FrontierUrlScoreResultV2): {
   track: SignalTrack;
   value: number;
   ownScore: number;
@@ -220,6 +225,13 @@ export class Frontier {
   private readonly sectionRoots = new Map<SignalTrack, FrontierSectionAncestor[]>();
   private observedCount = 0;
 
+  /**
+   * REL harvest H1: the run's own ruleset scores every admitted
+   * URL. Defaults to v1's `scoreFrontierUrl`, so an ECHE root - and every
+   * existing caller - scores exactly as before.
+   */
+  constructor(private readonly scoreUrl: FrontierScorer = scoreFrontierUrl) {}
+
   /** The nearest (deepest) currently-known section-root ancestor for `url`, per track. */
   private nearestAncestors(url: string): FrontierSectionAncestor[] {
     const segments = pathSegments(url);
@@ -275,7 +287,7 @@ export class Frontier {
     this.seen.add(url);
     this.observedCount += 1;
 
-    const score = scoreFrontierUrl({
+    const score = this.scoreUrl({
       url,
       anchorText,
       discoveryParentUrl,
@@ -387,6 +399,6 @@ export class Frontier {
   }
 }
 
-export function createFrontier(): Frontier {
-  return new Frontier();
+export function createFrontier(scoreUrl: FrontierScorer = scoreFrontierUrl): Frontier {
+  return new Frontier(scoreUrl);
 }

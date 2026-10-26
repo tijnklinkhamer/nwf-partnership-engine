@@ -141,6 +141,12 @@ function fakePool(
         .slice(0, 1)
         .map((p) => ({ ...p, revocation_count: p.revoked ? '1' : '0' }));
     }
+    // REL harvest H1: rootRunner reads the run's STORED signal rule
+    // version once, after the guard and before the gateway. Every root in this
+    // file is an ECHE root, so the run is stamped v1.
+    if (/^SELECT rule_version FROM orgunit_research_runs WHERE id = \$1$/.test(sql)) {
+      return [{ rule_version: 'orgunit-signal-rules-v1' }];
+    }
     if (/^SELECT DISTINCT eche_row_key FROM orgunit_fetch_observations WHERE run_id/.test(sql)) {
       return (db.runFetchKeys[String(p0)] ?? []).map((eche_row_key) => ({ eche_row_key }));
     }
@@ -978,6 +984,9 @@ describe('B3.0 runRootAcquisition - the per-root guard, called DIRECTLY by an in
     expect(r.refusal).toBeNull();
     expect(r.error).toBeInstanceOf(UnexpectedStatement);
     expect(r.statements.at(-1)).toMatch(/FROM orgunit_research_runs r/);
+    expect(r.statements.at(-2)).toBe(
+      'SELECT rule_version FROM orgunit_research_runs WHERE id = $1',
+    );
     expect(writesIn(r.statements)).toEqual([]);
   });
 });
