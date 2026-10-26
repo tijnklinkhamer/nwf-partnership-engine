@@ -13,7 +13,8 @@
  *
  *   The precedence - BOM, then HTTP header, then meta declaration (scanned to
  *   a real 64 KiB ceiling, not 1024 bytes), then a STRICT UTF-8 validity
- *   probe, then a windows-1252 fallback of last resort - matches how a real
+ *   probe, then a STRICT Japanese detection step (see below), then a
+ *   windows-1252 fallback of last resort - matches how a real
  *   browser resolves the same question, because an institution's page was
  *   authored to be readable in one, and a resolver that disagreed with a
  *   browser would silently produce different "evidence" than what a human
@@ -28,6 +29,22 @@
  *   presented as if it were evidence. `CHARSET_UNRESOLVED` exists so that
  *   never happens: extract.ts (and therefore page evidence) simply does not
  *   run for such a response.
+ *
+ * WHY A STRICT JAPANESE STEP BEFORE windows-1252 (REL Engine integration)
+ *
+ *   A page that declares nothing and is Shift_JIS or EUC-JP is not valid
+ *   UTF-8, so it used to reach the windows-1252 fallback and be garbled -
+ *   every Japanese character became Latin mojibake presented as evidence.
+ *   Browsers sniff these two encodings; this resolver now does too, but
+ *   only under a rule conservative enough that a Latin page or random bytes
+ *   are not misdetected (`detectUndeclaredJapanese`): a FATAL decode must
+ *   succeed, and the decoded non-ASCII text must be overwhelmingly Japanese
+ *   AND carry real kana. A detection is recorded with the existing taxonomy
+ *   value `FALLBACK` (it is the undeclared, not-UTF-8 stage - never a
+ *   declaration) and confidence `PROBED` (a strict probe accepted it, it was
+ *   not assumed); the `charset` itself (`shift_jis` / `euc-jp`) says which.
+ *   No new value was added because migration 0007's `charset_source` CHECK
+ *   admits none, and this in-memory taxonomy mirrors that CHECK exactly.
  *
  * PURE. No network, no database, no filesystem, no clock.
  */
@@ -141,8 +158,8 @@ function tryDecoder(label: string, fatal: boolean): InstanceType<typeof TextDeco
 
 /**
  * Resolves the charset of one response and decodes it, following the frozen
- * precedence: BOM, HTTP header, meta declaration, strict UTF-8 probe,
- * windows-1252 fallback.
+ * precedence: BOM, HTTP header, meta declaration, strict UTF-8 probe, strict
+ * undeclared-Japanese detection, windows-1252 fallback.
  *
  * `httpContentType` is the raw `Content-Type` header value (or `null`);
  * charset extraction from it happens here so callers never have to duplicate
@@ -203,7 +220,18 @@ export function resolveCharset(bytes: Buffer, httpContentType: string | null): C
       text,
     };
   } catch {
-    // Falls through to the windows-1252 fallback below.
+    // Falls through to the strict Japanese step, then windows-1252.
+  }
+
+  const japanese = detectUndeclaredJapanese(bytes);
+  if (japanese !== null) {
+    return {
+      outcome: 'RESOLVED',
+      charset: japanese.charset,
+      source: 'FALLBACK',
+      confidence: 'PROBED',
+      text: japanese.text,
+    };
   }
 
   const fallbackDecoder = tryDecoder('windows-1252', false);
@@ -218,6 +246,78 @@ export function resolveCharset(bytes: Buffer, httpContentType: string | null): C
     confidence: 'ASSUMED',
     text: fallbackDecoder.decode(bytes),
   };
+}
+
+/** The undeclared encodings the strict Japanese step tries, in this order. */
+export const UNDECLARED_JAPANESE_CANDIDATES = ['shift_jis', 'euc-jp'] as const;
+/** At least this many non-ASCII code points must be present for a detection. */
+export const JAPANESE_MIN_NON_ASCII = 10;
+/** At least this share of the non-ASCII code points must be Japanese-script. */
+export const JAPANESE_MIN_SCRIPT_SHARE = 0.95;
+/** At least this share of the Japanese-script code points must be full-width kana. */
+export const JAPANESE_MIN_KANA_SHARE = 0.2;
+
+/** Hiragana and full-width katakana: present in any real Japanese prose. */
+const KANA = /[\u3040-\u30ff]/u;
+/**
+ * Japanese-script code points: CJK symbols and punctuation, kana, CJK
+ * Unified Ideographs (and extension A), full-width forms and half-width
+ * katakana.
+ */
+const JAPANESE_SCRIPT = /[\u3000-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uff01-\uff9f\uffe0-\uffee]/u;
+
+/**
+ * The strict Japanese detection rule, for bytes that declared nothing and
+ * are not valid UTF-8. For each candidate in order, accept only if:
+ *   1. a FATAL decoder decodes every byte (one malformed sequence refuses);
+ *   2. the decoded text contains at least `JAPANESE_MIN_NON_ASCII` non-ASCII
+ *      code points, none of them U+FFFD or a C1 control (U+0080-U+009F);
+ *   3. at least `JAPANESE_MIN_SCRIPT_SHARE` of those are Japanese-script; and
+ *   4. at least `JAPANESE_MIN_KANA_SHARE` of the Japanese-script code points
+ *      are hiragana or full-width katakana.
+ * Rule 4 is what makes the step conservative: a windows-1252 Latin page that
+ * happens to decode as Shift_JIS yields stray ideographs and half-width
+ * katakana but essentially no full-width kana, and EUC-JP bytes misread as
+ * Shift_JIS yield only half-width katakana - so both are refused, and the
+ * second then decodes correctly as EUC-JP. ASCII markup is ignored entirely:
+ * only non-ASCII code points are counted. Returns `null` (fall through to
+ * windows-1252) whenever no candidate satisfies every condition.
+ */
+export function detectUndeclaredJapanese(
+  bytes: Buffer,
+): { charset: (typeof UNDECLARED_JAPANESE_CANDIDATES)[number]; text: string } | null {
+  for (const charset of UNDECLARED_JAPANESE_CANDIDATES) {
+    const decoder = tryDecoder(charset, true);
+    if (decoder === null) continue;
+    let text: string;
+    try {
+      text = decoder.decode(bytes);
+    } catch {
+      continue;
+    }
+    let nonAscii = 0;
+    let script = 0;
+    let kana = 0;
+    let disqualified = false;
+    for (const ch of text) {
+      const cp = ch.codePointAt(0)!;
+      if (cp < 0x80) continue;
+      if (cp === 0xfffd || cp <= 0x9f) {
+        disqualified = true;
+        break;
+      }
+      nonAscii += 1;
+      if (JAPANESE_SCRIPT.test(ch)) {
+        script += 1;
+        if (KANA.test(ch)) kana += 1;
+      }
+    }
+    if (disqualified || nonAscii < JAPANESE_MIN_NON_ASCII) continue;
+    if (script / nonAscii < JAPANESE_MIN_SCRIPT_SHARE) continue;
+    if (kana / script < JAPANESE_MIN_KANA_SHARE) continue;
+    return { charset, text };
+  }
+  return null;
 }
 
 /**
