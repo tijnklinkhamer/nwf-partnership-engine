@@ -31,7 +31,9 @@
  */
 import type pg from 'pg';
 import { enforceSubjectRootResearchEligibility } from '../subjectAdmission/runGuard.js';
-import { resolveRoot, type RootAuthorityRef } from '../web/authority.js';
+
+export { SubjectRootRefusal } from '../subjectAdmission/runGuard.js';
+import { resolveRoot, type ResolvedRoot, type RootAuthorityRef } from '../web/authority.js';
 import { completeRun, startRun, startSubjectRun } from './run.js';
 import { runRootAcquisition, type RootRunnerDeps, type RootSummary } from './rootRunner.js';
 import {
@@ -123,6 +125,24 @@ export interface SubjectRunResult {
 }
 
 /**
+ * Lane L1 (ADR 0025 s12): the checks `runSubjectDiscovery` makes before it
+ * starts a run - the admission resolved from the database (unknown, revoked,
+ * expired, unimplemented-policy and STALE admissions throw
+ * `WebGatewayRefusal`) and the subject guard (`SubjectRootRefusal`) - and
+ * nothing else: no run row, no DNS, no HTTP. A dry run calls exactly this, so
+ * it can never report a root that execution would refuse.
+ */
+export async function planSubjectDiscovery(
+  pool: pg.Pool,
+  admissionId: string,
+  deps: RootRunnerDeps = {},
+): Promise<ResolvedRoot> {
+  const root = await resolveRoot(pool, { kind: 'SUBJECT_ADMISSION', admissionId });
+  await enforceSubjectRootResearchEligibility(pool, null, root, deps);
+  return root;
+}
+
+/**
  * GLOBAL R8 (ADR 0025): ONE research run for ONE discovery-subject admission.
  *
  * The same engine as `runOrganisationDiscovery` - the same run rows, the same
@@ -141,8 +161,7 @@ export async function runSubjectDiscovery(
   deps: RootRunnerDeps = {},
 ): Promise<SubjectRunResult> {
   const ref: RootAuthorityRef = { kind: 'SUBJECT_ADMISSION', admissionId: input.admissionId };
-  const root = await resolveRoot(pool, ref);
-  await enforceSubjectRootResearchEligibility(pool, null, root, deps);
+  const root = await planSubjectDiscovery(pool, input.admissionId, deps);
 
   const runId = await startSubjectRun(pool, {
     networkVantage: input.networkVantage,

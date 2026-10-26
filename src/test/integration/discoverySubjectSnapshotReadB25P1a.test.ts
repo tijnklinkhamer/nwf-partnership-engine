@@ -336,8 +336,8 @@ describeDb('B2.5-P1a transaction-bound snapshot assembler (integration)', () => 
       const { rows: top } = await admin.query<{ top: string }>(
         `SELECT max(version) AS top FROM schema_migrations`,
       );
-      // Global R8 (migration 0017, ADR 0025) is the newest migration now.
-      expect(top[0]!.top).toBe('0017');
+      // Lane L1 (migration 0018, ADR 0025 s12) is the newest migration now.
+      expect(top[0]!.top).toBe('0018');
     });
   });
 

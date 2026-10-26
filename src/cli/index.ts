@@ -22,6 +22,7 @@ import {
   runWebsiteShow,
 } from './commands/website.js';
 import { runOrgunitsDiscover } from './commands/discover.js';
+import { runOrgunitsSubjectsResearch } from './commands/orgunitsSubjects.js';
 import { runOrgunitsClassify } from './commands/classify.js';
 import { runOrgunitsClassifyRead } from './commands/classifyRead.js';
 import { runDiscoverySubjects } from './commands/discoverySubjects.js';
@@ -52,6 +53,7 @@ Usage:
   nwf-pe website conflicts    [--limit <N>]
   nwf-pe website show         <erasmus-code>
   nwf-pe orgunits discover    --organisation-id <uuid> [--execute] [--json]
+  nwf-pe orgunits subjects research --subject-id <uuid> [--execute] [--json]
   nwf-pe orgunits classify    --organisation-id <uuid> --run-id <uuid>
                               --model <model-id> [--attempt <N>] [--execute] [--json]
   nwf-pe orgunits classify runs  --organisation-id <uuid> [--limit <N>] [--json]
@@ -79,6 +81,9 @@ Options:
   --limit <N>       Maximum rows to display.
   --json            Emit the full coverage report as JSON.
   --organisation-id Target organisation for \`orgunits discover\` (exactly one per invocation).
+  --subject-id      Target discovery subject for \`orgunits subjects research\` (exactly one
+                    per invocation). Refused unless it holds exactly ONE live OWNER
+                    admission; without --execute it is a network-free DRY RUN.
   --execute         With \`orgunits discover\`: perform a REAL bounded research run.
                     Without it, the command is a network-free DRY RUN that only
                     reports the resolved root authority.
@@ -132,6 +137,7 @@ function parseCliArgs(argv: string[]) {
       json: { type: 'boolean', default: false },
       limit: { type: 'string' },
       'organisation-id': { type: 'string' },
+      'subject-id': { type: 'string' },
       'run-id': { type: 'string' },
       model: { type: 'string' },
       attempt: { type: 'string' },
@@ -292,6 +298,18 @@ export async function main(argv: string[]): Promise<number> {
       ...(values['organisation-id'] !== undefined
         ? { organisationId: values['organisation-id'] }
         : {}),
+      execute: values.execute === true,
+      json: values.json === true,
+    });
+  }
+
+  if (group === 'orgunits' && sub === 'subjects') {
+    if (rest.length !== 1 || rest[0] !== 'research') {
+      log.error('Usage: orgunits subjects research --subject-id <uuid> [--execute] [--json]');
+      return 1;
+    }
+    return runOrgunitsSubjectsResearch({
+      ...(values['subject-id'] !== undefined ? { subjectId: values['subject-id'] } : {}),
       execute: values.execute === true,
       json: values.json === true,
     });

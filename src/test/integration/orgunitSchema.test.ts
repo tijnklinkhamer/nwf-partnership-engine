@@ -218,7 +218,7 @@ describeDb('Phase 2B schema contract (integration)', () => {
   });
 
   describe('the Phase 2B migrations are applied and sequential', () => {
-    it('records versions 0001 through 0017 with no gaps', async () => {
+    it('records versions 0001 through 0018 with no gaps', async () => {
       const { rows } = await admin.query<{ version: string }>(
         'SELECT version FROM schema_migrations ORDER BY version',
       );
@@ -240,7 +240,10 @@ describeDb('Phase 2B schema contract (integration)', () => {
       // and for 0017 (Global R8 subject research admission, ADR 0025,
       // Proposed - an OWNER-path admission table, its revocations, a
       // count-only fingerprint view, and a third root on fetch evidence with
-      // every historical root_key regenerated identically).
+      // every historical root_key regenerated identically), and for 0018
+      // (lane L1 subject research roots, ADR 0025 s12 - a generated candidate
+      // run scope pinned by a composite foreign key and one partial index;
+      // no grant, no value rewritten).
       // This list is pinned deliberately
       // so a new migration cannot arrive unnoticed: adding one is meant to
       // fail here first and be acknowledged here explicitly, exactly as it
@@ -263,6 +266,7 @@ describeDb('Phase 2B schema contract (integration)', () => {
         '0015',
         '0016',
         '0017',
+        '0018',
       ]);
     });
 

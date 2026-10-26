@@ -194,3 +194,57 @@ or contract changed.
 5. A per-run OWNER execution approval for the first live subject.
 6. Optionally first: the §6 governance amendment, if UNCERTAIN-registered
    subjects must ever be researchable.
+
+## 12. Lane L1 amendment — subject research made executable (2026-10-26)
+
+**Authority.** OWNER directive to engineering lane L1 (2026-10-26), recorded
+in `docs/evaluation/REL_L1_SUBJECT_RESEARCH_OWNER_DIRECTIVE_RECORD_V1.json`.
+Local, synthetic-only; this section changes no decision above and the ADR stays
+**Proposed**. Migration: `migrations/0018_subject_research_roots.sql`.
+
+**What closes §11 item 4 in code.**
+
+| piece                              | where                                                                                         |
+| ---------------------------------- | --------------------------------------------------------------------------------------------- |
+| sealed, database-derived admission | `src/orgunits/subjectRun/admission.ts` (`VerifiedSubjectAdmission`, `verifySubjectAdmission`) |
+| execution through the engine       | `src/orgunits/subjectRun/execute.ts` (`runSubjectResearch` -> `runSubjectDiscovery`)          |
+| dry-run checks = execution checks  | `planSubjectDiscovery` in `orchestrator/orchestrate.ts`                                       |
+| subject -> runs index              | `listSubjectRuns` (each run then exportable by the R9 projection)                             |
+| CLI                                | `orgunits subjects research --subject-id <uuid> [--execute] [--json]`                         |
+| candidate run scope                | migration 0018                                                                                |
+
+- **DESIGN DECISION: the capability is a carrier, not the authority.**
+  `VerifiedSubjectAdmission` has a `#sealed` brand and a constructor that
+  refuses any call without the module's unexported mint symbol. Its one
+  production derivation reads the subject's admissions as the research role,
+  requires exactly ONE live admission (unrevoked, unexpired by the database
+  clock) and passes it through `planSubjectDiscovery` — the resolver and run
+  guard of §3. A vitest-only seam exists so tests can prove that a capability
+  naming an admission the database lacks authorises nothing:
+  `runSubjectDiscovery` re-resolves the admission before any run row, and the
+  gateway re-resolves it on every attempt.
+- **DESIGN DECISION: no grant on the subject tables, and no `subject:` root
+  kind.** The research role reads its root URL from the admission's
+  foreign-key-pinned copy of the claim (§4); the minimal grant is the empty
+  one, and ADR 0019 §9 stays true. A root keyed on the subject or its claim
+  rather than on an admission would be a root without an OWNER approval, so
+  0017's `subject_admission:` stays the only subject root.
+- **FACT: the R6 blockers.** All four are answered by
+  `BLOCKER_RESOLUTIONS` in `execute.ts` (three LIFTED, one NOT_NEEDED). The
+  R6 planner (`plan.ts`) is unchanged and stays the record of its own build;
+  its `subject_claim:` root kind was never adopted.
+- **FACT: the candidate gap 0018 closes.** 0017 pinned every fetch row to its
+  run's scope, and page evidence hangs off one fetch row, but
+  `orgunit_page_candidates` carries its own `run_id`: a subject-rooted
+  candidate could have been filed under an ECHE run. 0018 adds a generated
+  `run_root_scope` and the composite foreign key 0017 §E used, plus a partial
+  index for finding a subject's runs. It grants nothing.
+- **Firewalls.** No existing firewall was edited. The new code avoids every
+  closed phase's working-tree pin by construction (it is not in
+  `subjectAdmission/`, `subjectResearch/` or `subjectResearchEvidence/`, and
+  the CLI reaches execution only through `subjectRun/`); its own scope is
+  pinned by `src/test/firewall/relL1SubjectResearch.firewall.test.ts`.
+
+**Still not possible.** Real research: the operational trust set holds no
+OWNER key, so no real subject can be confirmed or admitted, and a `TEST_ONLY`
+admission is refused outside vitest. §11 items 1–3, 5 and 6 remain open.
