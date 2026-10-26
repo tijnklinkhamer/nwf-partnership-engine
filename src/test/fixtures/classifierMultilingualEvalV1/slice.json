@@ -1,0 +1,298 @@
+{
+  "sliceId": "classifier-multilingual-eval-slice-v1",
+  "labelProvenance": "AGENT_AUTHORED_SYNTHETIC",
+  "note": "Fictional organisations on reserved .example hosts. Text is already redacted (a redaction fixed point) and canonical, exactly as persisted page evidence would be. Gold labels are agent-authored harness labels, NOT human gold: they prove the harness end to end. A pilot evaluation replaces them with OWNER-approved human labels (Matrix A1 P9). Items marked PROVISIONAL_U3 are non-HEI organisations whose rubric is undefined (REL-F1-R2 U3) and are reported separately, never scored.",
+  "organisations": [
+    {
+      "key": "JA-HEI",
+      "language": "ja",
+      "countryCode": "JP",
+      "organisationName": "架空大学",
+      "rootUrl": "https://kaku-u.example/",
+      "documents": [
+        {
+          "path": "/international/center/",
+          "title": "架空大学 留学生センター",
+          "headings": [
+            { "level": 1, "text": "留学生センター" },
+            { "level": 2, "text": "留学生の皆さんへ" }
+          ],
+          "mainText": "留学生センターは、外国人留学生の生活相談、在留手続きの案内、日本語学習の支援を行っています。窓口：本部棟2階 TEL.[PHONE] メール：[EMAIL]",
+          "gold": {
+            "status": "SCORED",
+            "verdict": "UNIT_PAGE",
+            "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+            "pageKind": null,
+            "unitName": "留学生センター"
+          }
+        },
+        {
+          "path": "/gogaku/",
+          "title": "言語教育センター",
+          "headings": [{ "level": 1, "text": "言語教育センター" }],
+          "mainText": "言語教育センターでは、英語・中国語・韓国語の授業と、留学生向けの日本語クラスを開講しています。",
+          "gold": {
+            "status": "SCORED",
+            "verdict": "UNIT_PAGE",
+            "unitType": "LANGUAGE_CENTRE",
+            "pageKind": null,
+            "unitName": "言語教育センター"
+          }
+        },
+        {
+          "path": "/faculty/kokusai-communication/",
+          "title": "国際コミュニケーション学科",
+          "headings": [{ "level": 1, "text": "学科の特色" }],
+          "mainText": "国際コミュニケーション学科は4年制の学科です。入学定員は80名で、2年次に海外研修があります。",
+          "gold": {
+            "status": "SCORED",
+            "verdict": "NOT_A_UNIT",
+            "unitType": null,
+            "pageKind": "DEGREE_PROGRAMME_PAGE",
+            "unitName": null
+          }
+        },
+        {
+          "path": "/news/2026/exchange-briefing/",
+          "title": "お知らせ：2026年度 交換留学説明会",
+          "headings": [],
+          "mainText": "2026年10月26日（月）12時から、交換留学の説明会を開催します。事前の申し込みは不要です。",
+          "gold": {
+            "status": "SCORED",
+            "verdict": "NOT_A_UNIT",
+            "unitType": null,
+            "pageKind": "NEWS_OR_EVENT_PAGE",
+            "unitName": null
+          }
+        },
+        {
+          "path": "/portal/login/",
+          "title": "学生ポータル ログイン",
+          "headings": [],
+          "mainText": "学籍番号とパスワードを入力してください。",
+          "gold": {
+            "status": "SCORED",
+            "verdict": "NOT_A_UNIT",
+            "unitType": null,
+            "pageKind": "SERVICE_TOOL_PAGE",
+            "unitName": null
+          }
+        }
+      ]
+    },
+    {
+      "key": "JA-COMMUNITY",
+      "language": "ja",
+      "countryCode": "JP",
+      "organisationName": "架空市国際交流協会",
+      "rootUrl": "https://kakushi-kokusai.example/",
+      "documents": [
+        {
+          "path": "/nihongo/",
+          "title": "日本語教室のご案内",
+          "headings": [{ "level": 1, "text": "日本語教室" }],
+          "mainText": "外国人住民の方を対象に、ボランティアによる日本語教室を毎週土曜日に開いています。参加費は無料です。",
+          "gold": {
+            "status": "PROVISIONAL_U3",
+            "verdict": "UNIT_PAGE",
+            "unitType": "LANGUAGE_CENTRE",
+            "pageKind": null,
+            "unitName": "日本語教室"
+          }
+        }
+      ]
+    },
+    {
+      "key": "ES-HEI",
+      "language": "es",
+      "countryCode": "MX",
+      "organisationName": "Universidad Ficticia del Norte",
+      "rootUrl": "https://ufn.example/",
+      "documents": [
+        {
+          "path": "/movilidad/",
+          "title": "Coordinación de Movilidad Estudiantil",
+          "headings": [{ "level": 1, "text": "Movilidad nacional e internacional" }],
+          "mainText": "La Coordinación de Movilidad Estudiantil orienta a estudiantes que desean realizar un intercambio académico y recibe a estudiantes internacionales. Tel. [PHONE], correo [EMAIL].",
+          "gold": {
+            "status": "SCORED",
+            "verdict": "UNIT_PAGE",
+            "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+            "pageKind": null,
+            "unitName": "Coordinación de Movilidad Estudiantil"
+          }
+        },
+        {
+          "path": "/centro-de-idiomas/",
+          "title": "Centro de Idiomas",
+          "headings": [{ "level": 2, "text": "Cursos de inglés, francés y japonés" }],
+          "mainText": "El Centro de Idiomas ofrece cursos semestrales de inglés, francés y japonés, así como un centro de autoacceso abierto a toda la comunidad universitaria.",
+          "gold": {
+            "status": "SCORED",
+            "verdict": "UNIT_PAGE",
+            "unitType": "LANGUAGE_CENTRE",
+            "pageKind": null,
+            "unitName": "Centro de Idiomas"
+          }
+        },
+        {
+          "path": "/licenciatura/relaciones-internacionales/",
+          "title": "Licenciatura en Relaciones Internacionales",
+          "headings": [{ "level": 2, "text": "Plan de estudios" }],
+          "mainText": "La licenciatura dura ocho semestres e incluye materias de derecho internacional, economía y una estancia profesional.",
+          "gold": {
+            "status": "SCORED",
+            "verdict": "NOT_A_UNIT",
+            "unitType": null,
+            "pageKind": "DEGREE_PROGRAMME_PAGE",
+            "unitName": null
+          }
+        },
+        {
+          "path": "/noticias/convocatoria-intercambio/",
+          "title": "Convocatoria de intercambio 2026-2027",
+          "headings": [],
+          "mainText": "Se abre la convocatoria de intercambio para el ciclo 2026-2027. La fecha límite es el 26-10-2026.",
+          "gold": {
+            "status": "SCORED",
+            "verdict": "NOT_A_UNIT",
+            "unitType": null,
+            "pageKind": "NEWS_OR_EVENT_PAGE",
+            "unitName": null
+          }
+        },
+        {
+          "path": "/servicios/iniciar-sesion/",
+          "title": "Iniciar sesión - Portal de alumnos",
+          "headings": [],
+          "mainText": "Ingrese su número de cuenta y contraseña.",
+          "gold": {
+            "status": "SCORED",
+            "verdict": "NOT_A_UNIT",
+            "unitType": null,
+            "pageKind": "SERVICE_TOOL_PAGE",
+            "unitName": null
+          }
+        }
+      ]
+    },
+    {
+      "key": "ES-COMMUNITY",
+      "language": "es",
+      "countryCode": "MX",
+      "organisationName": "Club de Conversación Ficticio A.C.",
+      "rootUrl": "https://club-ficticio.example/",
+      "documents": [
+        {
+          "path": "/intercambio-de-idiomas/",
+          "title": "Intercambio de idiomas",
+          "headings": [{ "level": 1, "text": "Club de conversación" }],
+          "mainText": "Cada jueves nos reunimos para practicar inglés, japonés y español en parejas. La entrada es libre.",
+          "gold": {
+            "status": "PROVISIONAL_U3",
+            "verdict": "UNIT_PAGE",
+            "unitType": "LANGUAGE_CENTRE",
+            "pageKind": null,
+            "unitName": "Club de conversación"
+          }
+        }
+      ]
+    },
+    {
+      "key": "NL-HEI",
+      "language": "nl",
+      "countryCode": "NL",
+      "organisationName": "Hogeschool Fictief",
+      "rootUrl": "https://hs-fictief.example/",
+      "documents": [
+        {
+          "path": "/internationaal-bureau/",
+          "title": "Internationaal Bureau",
+          "headings": [{ "level": 2, "text": "Voor internationale studenten" }],
+          "mainText": "Het Internationaal Bureau begeleidt uitwisselingsstudenten en studenten die in het buitenland willen studeren. Bel [PHONE] of mail [EMAIL].",
+          "gold": {
+            "status": "SCORED",
+            "verdict": "UNIT_PAGE",
+            "unitType": "INTERNATIONAL_MOBILITY_OFFICE",
+            "pageKind": null,
+            "unitName": "Internationaal Bureau"
+          }
+        },
+        {
+          "path": "/talencentrum/",
+          "title": "Talencentrum",
+          "headings": [{ "level": 2, "text": "Cursussen Nederlands als tweede taal" }],
+          "mainText": "Het Talencentrum verzorgt taalcursussen Engels, Duits en Spaans, en NT2-cursussen voor internationale studenten en medewerkers.",
+          "gold": {
+            "status": "SCORED",
+            "verdict": "UNIT_PAGE",
+            "unitType": "LANGUAGE_CENTRE",
+            "pageKind": null,
+            "unitName": "Talencentrum"
+          }
+        },
+        {
+          "path": "/opleidingen/masteropleiding-internationale-betrekkingen/",
+          "title": "Masteropleiding Internationale Betrekkingen",
+          "headings": [{ "level": 2, "text": "Toelatingseisen" }],
+          "mainText": "De masteropleiding duurt één jaar (60 EC) en wordt in het Engels gegeven.",
+          "gold": {
+            "status": "SCORED",
+            "verdict": "NOT_A_UNIT",
+            "unitType": null,
+            "pageKind": "DEGREE_PROGRAMME_PAGE",
+            "unitName": null
+          }
+        },
+        {
+          "path": "/nieuws/open-dag/",
+          "title": "Nieuws: open dag op 26-10-2026",
+          "headings": [],
+          "mainText": "Op 26-10-2026 is er een open dag voor aankomende studenten van de collegejaren 2026-2027 en 2027-2028.",
+          "gold": {
+            "status": "SCORED",
+            "verdict": "NOT_A_UNIT",
+            "unitType": null,
+            "pageKind": "NEWS_OR_EVENT_PAGE",
+            "unitName": null
+          }
+        },
+        {
+          "path": "/inloggen/",
+          "title": "Inloggen studentenportaal",
+          "headings": [],
+          "mainText": "Log in met je studentnummer en wachtwoord.",
+          "gold": {
+            "status": "SCORED",
+            "verdict": "NOT_A_UNIT",
+            "unitType": null,
+            "pageKind": "SERVICE_TOOL_PAGE",
+            "unitName": null
+          }
+        }
+      ]
+    },
+    {
+      "key": "NL-COMMUNITY",
+      "language": "nl",
+      "countryCode": "NL",
+      "organisationName": "Taalhuis Fictiefstad",
+      "rootUrl": "https://taalhuis-fictiefstad.example/",
+      "documents": [
+        {
+          "path": "/taalcafe/",
+          "title": "Taalcafé",
+          "headings": [{ "level": 1, "text": "Samen Nederlands oefenen" }],
+          "mainText": "Elke woensdag oefenen nieuwkomers samen met vrijwilligers hun Nederlands in de bibliotheek. Aanmelden is niet nodig.",
+          "gold": {
+            "status": "PROVISIONAL_U3",
+            "verdict": "UNIT_PAGE",
+            "unitType": "LANGUAGE_CENTRE",
+            "pageKind": null,
+            "unitName": "Taalcafé"
+          }
+        }
+      ]
+    }
+  ]
+}
