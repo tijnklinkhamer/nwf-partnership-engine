@@ -34,7 +34,6 @@ import { runDiscoverySubjects } from '../../cli/commands/discoverySubjects.js';
 import type { RegistryLoadResult } from '../../orgunits/classify/evaluationCohortGuard.js';
 import { scoreFetchedPageCandidateV2 } from '../../orgunits/signals/scoreV2.js';
 import { NWF_DISCOVERY_BRIEF_V1, queriesFor } from '../../orgunits/sourceDiscovery/brief.js';
-import { createLinkOutNominationSink } from '../../orgunits/sourceDiscovery/linkOut.js';
 import { promoteNomination, promotionRequest } from '../../orgunits/sourceDiscovery/promote.js';
 import { runSourceDiscovery } from '../../orgunits/sourceDiscovery/run.js';
 import { ScriptedSearchProvider } from '../../orgunits/sourceDiscovery/scriptedProvider.js';
@@ -447,28 +446,16 @@ describeDb('REL Engine integration: synthetic JP/MX/NL pipeline end to end (inte
       expect(VerifiedSubjectAdmission.isVerified(verified.admission)).toBe(true);
       expect(verified.admission.identityAuthorityScope).toBe('TEST_ONLY');
 
-      // The run id exists only once runSubjectDiscovery has started the run,
-      // so the sink resolves it from the first page evidence it is handed.
-      let capture: ReturnType<typeof createLinkOutNominationSink> | null = null;
-      const offDomainAnchorSink = async (pageId: string, href: string, text: string | null) => {
-        if (capture === null) {
-          const { rows } = await research.query<{ run_id: string }>(
-            `SELECT f.run_id FROM orgunit_page_evidence p
-               JOIN orgunit_fetch_observations f ON f.id = p.fetch_observation_id
-              WHERE p.id = $1`,
-            [pageId],
-          );
-          capture = createLinkOutNominationSink(source, rows[0]!.run_id);
-        }
-        await capture.sink(pageId, href, text);
-      };
-
+      // REL harvest H6: runSubjectResearch binds the L2 link-out sink to the
+      // run it starts; the test only supplies the capability-holding pool.
       const result = await runSubjectResearch(
         research,
         verified.admission,
-        { networkVantage: 'rel-e2e-test-vantage' },
-        { ...deps, offDomainAnchorSink },
+        { networkVantage: 'rel-e2e-test-vantage', linkOutPool: source },
+        deps,
       );
+      expect(result.linkOuts?.discoveryRunId, geo).toEqual(expect.any(String));
+      expect(result.linkOuts?.inserted, geo).toBeGreaterThan(0);
       expect(result.runTerminalState, geo).toBe('COMPLETED');
       expect(result.rootKey, geo).toBe(`subject_admission:${admissions[geo]}`);
       expect(result.summary?.pagesWithEvidence, geo).toBe(2);

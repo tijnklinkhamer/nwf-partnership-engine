@@ -23,6 +23,16 @@
  * R9 projection, which this module neither imports nor restates.
  *
  * Reads only what `nwf_research` is granted (no discovery-subject table).
+ *
+ * REL harvest H6 - LINK-OUTS ARE CAPTURED, NEVER FETCHED. When the caller
+ * supplies `linkOutPool` - a pool whose login holds REL L2's NOLOGIN
+ * capability `nwf_source_discovery` - every off-domain anchor of a page whose
+ * evidence this run persisted is appended as a PAGE_LINK_OUT nomination
+ * through L2's own sink and store (`sourceDiscovery/linkOut.ts`), bound to
+ * this run's id: append-only, under that capability, never through the
+ * research role. The root runner offers off-domain anchors to the sink only;
+ * the frontier never sees them, and nothing here or in L2 requests them.
+ * Without `linkOutPool` they are discarded, exactly as before.
  */
 import type pg from 'pg';
 
@@ -33,6 +43,11 @@ import {
   type SubjectRunResult,
 } from '../orchestrator/orchestrate.js';
 import type { RootRunnerDeps } from '../orchestrator/rootRunner.js';
+import {
+  createLinkOutNominationSink,
+  type LinkOutCapture,
+  type LinkOutSummary,
+} from '../sourceDiscovery/linkOut.js';
 import { WebGatewayRefusal } from '../web/authority.js';
 import { VerifiedSubjectAdmission } from './admission.js';
 
@@ -90,6 +105,17 @@ export function executionRefusalCodeOf(error: unknown): string | null {
 
 export interface RunSubjectResearchInput {
   readonly networkVantage: string;
+  /**
+   * Optional: a pool whose login holds `nwf_source_discovery` (REL L2,
+   * migration 0019). Supplied, this run's off-domain link-outs are recorded
+   * as PAGE_LINK_OUT nominations; never fetched.
+   */
+  readonly linkOutPool?: pg.Pool;
+}
+
+export interface SubjectResearchResult extends SubjectRunResult {
+  /** What the link-out sink recorded for this run; null when no `linkOutPool` was supplied. */
+  readonly linkOuts: LinkOutSummary | null;
 }
 
 /**
@@ -103,7 +129,7 @@ export async function runSubjectResearch(
   admission: VerifiedSubjectAdmission,
   input: RunSubjectResearchInput,
   deps: RootRunnerDeps = {},
-): Promise<SubjectRunResult> {
+): Promise<SubjectResearchResult> {
   if (!VerifiedSubjectAdmission.isVerified(admission)) {
     throw new SubjectExecutionRefusal('ADMISSION_CAPABILITY_UNVERIFIED');
   }
@@ -114,12 +140,27 @@ export async function runSubjectResearch(
   if (planned.subjectAdmission?.subjectId !== admission.subjectId) {
     throw new SubjectExecutionRefusal('ADMISSION_SUBJECT_MISMATCH');
   }
+  // The capture is bound to the run's id once runSubjectDiscovery has
+  // started that run; the sink is called only for persisted pages.
+  const linkOutPool = input.linkOutPool;
+  let capture: LinkOutCapture | null = null;
   const result = await runSubjectDiscovery(
     pool,
-    { admissionId: admission.admissionId, networkVantage: input.networkVantage },
+    {
+      admissionId: admission.admissionId,
+      networkVantage: input.networkVantage,
+      ...(linkOutPool === undefined
+        ? {}
+        : {
+            offDomainAnchorSinkForRun: (runId: string) => {
+              capture = createLinkOutNominationSink(linkOutPool, runId);
+              return capture.sink;
+            },
+          }),
+    },
     deps,
   );
-  return result;
+  return { ...result, linkOuts: (capture as LinkOutCapture | null)?.summary() ?? null };
 }
 
 export interface SubjectRunIndexEntry {

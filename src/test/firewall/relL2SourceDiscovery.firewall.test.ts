@@ -59,6 +59,8 @@ const NS_FILES = [
 const CLI_COMMAND = 'src/cli/commands/sourceDiscovery.ts';
 const CLI_ENTRY = 'src/cli/index.ts';
 const ROOT_RUNNER = 'src/orgunits/orchestrator/rootRunner.ts';
+/** REL harvest H6: the one further production importer, by exact path. */
+const SUBJECT_RUN_EXECUTE = 'src/orgunits/subjectRun/execute.ts';
 const MIGRATION = 'migrations/0019_source_discovery_nominations.sql';
 
 /**
@@ -310,7 +312,13 @@ describe('REL L2: sourceDiscovery and the classifier are separate, in both direc
     const importers = productionFiles()
       .filter((f) => !f.startsWith(NS))
       .filter((f) => reachesSourceDiscovery(codeOf(read(f))));
-    expect(importers).toEqual([CLI_COMMAND]);
+    // REL harvest H6 widened this by ONE exact path: subject research binds
+    // the link-out sink to its run, importing `linkOut.js` and nothing else
+    // from this namespace (pinned by relHarvestH6SubjectLinkOutSink).
+    expect(importers).toEqual([CLI_COMMAND, SUBJECT_RUN_EXECUTE].sort());
+    expect(
+      specifiers(codeOf(read(SUBJECT_RUN_EXECUTE))).filter((s) => /sourceDiscovery\//.test(s)),
+    ).toEqual(['../sourceDiscovery/linkOut.js']);
     // The orchestrator owns the sink TYPE; it never imports this namespace.
     expect(reachesSourceDiscovery(codeOf(read(ROOT_RUNNER)))).toBe(false);
   });

@@ -35,7 +35,12 @@ import { enforceSubjectRootResearchEligibility } from '../subjectAdmission/runGu
 export { SubjectRootRefusal } from '../subjectAdmission/runGuard.js';
 import { resolveRoot, type ResolvedRoot, type RootAuthorityRef } from '../web/authority.js';
 import { completeRun, startRun, startSubjectRun } from './run.js';
-import { runRootAcquisition, type RootRunnerDeps, type RootSummary } from './rootRunner.js';
+import {
+  runRootAcquisition,
+  type OffDomainAnchorSink,
+  type RootRunnerDeps,
+  type RootSummary,
+} from './rootRunner.js';
 import {
   planOrganisationResearch,
   toRootAuthorityRef,
@@ -112,6 +117,13 @@ export interface RunSubjectDiscoveryInput {
   /** ONE stored OWNER admission (ADR 0025). Never a subject id, a URL or a list. */
   admissionId: string;
   networkVantage: string;
+  /**
+   * REL harvest H6: builds the root runner's off-domain anchor sink for the
+   * run this call starts, once its id exists. Optional; omitted, the sink is
+   * whatever `deps` carries (by default a no-op). The sink only RECORDS
+   * anchors of persisted pages; nothing here fetches them.
+   */
+  offDomainAnchorSinkForRun?: (runId: string) => OffDomainAnchorSink;
 }
 
 export interface SubjectRunResult {
@@ -171,8 +183,12 @@ export async function runSubjectDiscovery(
   let summary: RootSummary | null = null;
   let runTerminalState: 'COMPLETED' | 'FAILED' = 'COMPLETED';
   let failureSummary: string | null = null;
+  const rootDeps: RootRunnerDeps =
+    input.offDomainAnchorSinkForRun === undefined
+      ? deps
+      : { ...deps, offDomainAnchorSink: input.offDomainAnchorSinkForRun(runId) };
   try {
-    summary = await runRootAcquisition(pool, runId, ref, deps);
+    summary = await runRootAcquisition(pool, runId, ref, rootDeps);
   } catch (error) {
     runTerminalState = 'FAILED';
     failureSummary = error instanceof Error ? error.message : String(error);
