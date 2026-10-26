@@ -22,8 +22,8 @@ import { REPO_ROOT, phaseRange, readCurrent } from '../helpers/phaseRange.js';
 /** The H4 commit: this slice's parent. */
 const H5_BASE_COMMIT = 'ae14a33bb75177c2ad3e340a8f231e44009467df';
 
-/** Open (null) until the harvest pin commit closes the range. */
-const H5_TERMINAL_COMMIT: string | null = null;
+/** Pinned by the REL harvest pin commit to this slice's own commit (closed range). */
+const H5_TERMINAL_COMMIT: string | null = '4cebd324f24cf50097306b39976da8e2685807e8';
 
 const RUNBOOK = 'docs/architecture/NWF_PE_MIGRATIONS_0013_0019_APPLY_RUNBOOK_V1.md';
 

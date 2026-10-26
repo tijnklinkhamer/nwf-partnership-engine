@@ -33,8 +33,8 @@ import {
 /** The H5 commit: this slice's parent. */
 const H6_BASE_COMMIT = '4cebd324f24cf50097306b39976da8e2685807e8';
 
-/** Open (null) until the harvest pin commit closes the range. */
-const H6_TERMINAL_COMMIT: string | null = null;
+/** Pinned by the REL harvest pin commit to this slice's own commit (closed range). */
+const H6_TERMINAL_COMMIT: string | null = 'a8260189fa7f339b03465772d9dd3b7f8a366634';
 
 const EXECUTE = 'src/orgunits/subjectRun/execute.ts';
 const ORCHESTRATE = 'src/orgunits/orchestrator/orchestrate.ts';

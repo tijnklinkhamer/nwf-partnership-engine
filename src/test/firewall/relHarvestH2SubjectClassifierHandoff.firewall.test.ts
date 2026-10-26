@@ -24,8 +24,8 @@ import {
 /** The H1 commit: this slice's parent. */
 const H2_BASE_COMMIT = 'b3e8f4212c9f8d819b5e786d69fb4aac2cdd2fb1';
 
-/** Open (null) until the harvest pin commit closes the range. */
-const H2_TERMINAL_COMMIT: string | null = null;
+/** Pinned by the REL harvest pin commit to this slice's own commit (closed range). */
+const H2_TERMINAL_COMMIT: string | null = '198fca6558b85c002a28d3485054369a7a2932b3';
 
 const MODULE_DIR = 'src/orgunits/subjectClassifierHandoff/';
 const MODULE = `${MODULE_DIR}assemble.ts`;

@@ -26,8 +26,8 @@ import { codeOf, phaseRange, readCurrent, specifiers } from '../helpers/phaseRan
 /** The rel-* release candidate this slice branched from. */
 const H1_BASE_COMMIT = '3a4ce31ff5005ba412a8a4876b11570b80125a9a';
 
-/** Open (null) until the harvest pin commit closes the range. */
-const H1_TERMINAL_COMMIT: string | null = null;
+/** Pinned by the REL harvest pin commit to this slice's own commit (closed range). */
+const H1_TERMINAL_COMMIT: string | null = 'b3e8f4212c9f8d819b5e786d69fb4aac2cdd2fb1';
 
 const ORCH = 'src/orgunits/orchestrator/';
 const NEW_MODULES = [`${ORCH}rulesetCandidates.ts`, `${ORCH}signalRuleset.ts`];

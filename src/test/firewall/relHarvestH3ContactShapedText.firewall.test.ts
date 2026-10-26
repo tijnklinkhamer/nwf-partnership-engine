@@ -19,8 +19,8 @@ import { codeOf, git, phaseRange, readCurrent, specifiers } from '../helpers/pha
 /** The H2 commit: this slice's parent. */
 const H3_BASE_COMMIT = '198fca6558b85c002a28d3485054369a7a2932b3';
 
-/** Open (null) until the harvest pin commit closes the range. */
-const H3_TERMINAL_COMMIT: string | null = null;
+/** Pinned by the REL harvest pin commit to this slice's own commit (closed range). */
+const H3_TERMINAL_COMMIT: string | null = 'fe6cba113b3e035c994fd2599049e02945263df9';
 
 const MODULE = 'src/orgunits/subjectResearchEvidence/evidence.ts';
 const UNIT = 'src/test/unit/subjectResearchEvidenceR9.test.ts';

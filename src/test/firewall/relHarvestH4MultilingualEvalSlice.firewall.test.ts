@@ -34,8 +34,8 @@ import {
 /** The H3 commit: this slice's parent. */
 const H4_BASE_COMMIT = 'fe6cba113b3e035c994fd2599049e02945263df9';
 
-/** Open (null) until the harvest pin commit closes the range. */
-const H4_TERMINAL_COMMIT: string | null = null;
+/** Pinned by the REL harvest pin commit to this slice's own commit (closed range). */
+const H4_TERMINAL_COMMIT: string | null = 'ae14a33bb75177c2ad3e340a8f231e44009467df';
 
 const HARNESS = 'src/test/harness/multilingualEvalV1/harness.ts';
 const UNIT = 'src/test/unit/classifierMultilingualEvalSliceV1.test.ts';
