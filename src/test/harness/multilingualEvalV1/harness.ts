@@ -108,14 +108,17 @@ export const MULTILINGUAL_EVAL_FIXTURE_PATH = resolve(
  * label is a reviewed change to this constant - and so that a grant, which
  * pins the same digest, stops matching the moment the fixture moves.
  *
- * REL harvest H4 changed ONE text from relf1's fixture: the NL news page's
- * "collegejaar 2026-2027 2027-2028" is phone-shaped under this lineage's
- * redaction (two adjacent year ranges reach the eight-digit floor), so it
- * would not be a redaction fixed point; it now reads "de collegejaren
- * 2026-2027 en 2027-2028". relf1's digest was c6f9bc23...2c98.
+ * REL harvest H4 had changed ONE text from relf1's fixture, because the NL
+ * news page's "collegejaar 2026-2027 2027-2028" was phone-shaped under this
+ * lineage's redaction (two adjacent year ranges reached the eight-digit
+ * floor); H4's rewording ("de collegejaren 2026-2027 en 2027-2028", digest
+ * 819b4ba4...97db) hid a redaction false positive. The REL final join (A1)
+ * fixed the redactor - academic-year ranges are never phone numbers
+ * (`redact.ts`) - and restored relf1's original text, so the fixture is
+ * byte-identical to relf1's again and carries relf1's digest.
  */
 export const MULTILINGUAL_EVAL_FIXTURE_SHA256 =
-  '819b4ba4ba5e75dca871dc529b6ea3175e7583c620e86bd118a88c0802b997db';
+  'c6f9bc23ef2ee07aead785ccafdbdad9ad3a3235c65f2322358fb9187eff2c98';
 
 // ---------------------------------------------------------------------------
 // Fixture shape

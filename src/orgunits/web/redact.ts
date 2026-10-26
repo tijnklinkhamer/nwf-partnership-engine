@@ -56,6 +56,16 @@
  *   classifier v3 means "canonical text" exactly as v2 does
  *   (`classify/constants.ts`).
  *
+ *   The REL final join (OWNER directive, 2026-10-26) then stopped redacting
+ *   academic-year ranges and sequences of them (`maskAcademicYearRanges`):
+ *   a false positive H4 had hidden by rewording a fixture. That change STAYS
+ *   WITHIN `orgunit-extraction-v3`, deliberately: no v3 row has ever been
+ *   persisted outside a disposable test database, so no stored row was ever
+ *   produced by the pre-fix v3 transform and the label still names exactly
+ *   one transform as far as any persisted evidence is concerned. It redacts
+ *   only LESS (a character-wise subset), so every text that was a redaction
+ *   fixed point before is still one.
+ *
  * PURE. No network, no database, no filesystem, no clock.
  */
 
@@ -148,6 +158,81 @@ function isDayMonthYearDate(candidate: string): boolean {
   return DAY_MONTH_YEAR.test(candidate);
 }
 
+/**
+ * ACADEMIC-YEAR RANGES - `2026-2027`, `2026–2027`, `2026/2027`, `2026-27`,
+ * `2026 - 2027` - and whitespace-separated SEQUENCES of them
+ * (`collegejaar 2026-2027 2027-2028`).
+ *
+ * One range on its own never reaches the phone pattern's eight-digit floor
+ * in a shape it can match, but two adjacent ranges do: `2026-2027 2027-2028`
+ * is sixteen digits grouped by a hyphen and a space, exactly what the second
+ * phone alternative accepts, so a Dutch "collegejaren" line came out as
+ * `[PHONE]`. The REL harvest (H4) hit that and rewrote a fixture to hide it;
+ * this is the fix.
+ *
+ * A run is MASKED from phone detection (never from the output: masking is
+ * applied to the folded DETECTION copy only, length-preserving) when ALL of:
+ *
+ *   - every range is a 19xx/20xx year, a dash/slash (optionally spaced), and
+ *     either a 19xx/20xx year or a two-digit suffix, with the end strictly
+ *     AFTER the start and at most `MAX_ACADEMIC_RANGE_SPAN` years later
+ *     (`isPlausibleAcademicRange`). `2026-25`, `2026-2026` and `2026-2099`
+ *     are not ranges and are never masked;
+ *   - the run is NOT preceded by a digit or `+`, even across separators -
+ *     so `03-2019-2020` (a Tokyo number) or `(55) 2026-2027` (a Mexico City
+ *     number) is never sheltered: its year-shaped tail is part of the phone;
+ *   - the run is NOT followed, even across separators, by another digit - so
+ *     a run that continues into further digits is left to the phone pattern
+ *     unchanged.
+ *
+ * Both context rules err towards REDACTING: a year sequence glued to other
+ * digits (`2026-2027 2027-2028 30 EC`) is still `[PHONE]`, a residual false
+ * positive accepted rather than ever leaving part of a real number readable.
+ */
+const ACADEMIC_YEAR = '(?:19|20)\\d{2}';
+const ACADEMIC_RANGE = `${ACADEMIC_YEAR}\\s*[-\\u2013\\u2014/]\\s*(?:${ACADEMIC_YEAR}|\\d{2})`;
+const ACADEMIC_RANGE_PART = new RegExp(
+  `(${ACADEMIC_YEAR})\\s*[-\\u2013\\u2014/]\\s*(\\d{4}|\\d{2})`,
+  'g',
+);
+const ACADEMIC_RANGE_RUN = new RegExp(
+  `(?<![\\d+][\\s.()\\-]*)${ACADEMIC_RANGE}(?:\\s+${ACADEMIC_RANGE})*(?![\\s.()\\-]*\\d)`,
+  'g',
+);
+
+/** The widest span accepted as one range: a seven-year programme period such as `2021-2027` fits. */
+const MAX_ACADEMIC_RANGE_SPAN = 10;
+
+function isPlausibleAcademicRange(startText: string, endText: string): boolean {
+  const start = Number(startText);
+  let end = Number(endText);
+  if (endText.length === 2) {
+    end += Math.floor(start / 100) * 100;
+    if (end <= start) end += 100;
+  }
+  const span = end - start;
+  return span >= 1 && span <= MAX_ACADEMIC_RANGE_SPAN;
+}
+
+function isAcademicRangeRun(run: string): boolean {
+  for (const part of run.matchAll(ACADEMIC_RANGE_PART)) {
+    if (!isPlausibleAcademicRange(part[1]!, part[2]!)) return false;
+  }
+  return true;
+}
+
+/**
+ * Replaces every academic-year run (see above) with the same number of `#`
+ * characters - not a digit, not a phone separator, not a word character - so
+ * the phone pattern can neither match inside it nor bridge across it.
+ * LENGTH-PRESERVING; used on the DETECTION copy only.
+ */
+export function maskAcademicYearRanges(folded: string): string {
+  return folded.replace(ACADEMIC_RANGE_RUN, (run) =>
+    isAcademicRangeRun(run) ? '#'.repeat(run.length) : run,
+  );
+}
+
 /** Replaces email-shaped text with `[EMAIL]`. */
 export function redactEmails(text: string): string {
   return text.replace(EMAIL_PATTERN, '[EMAIL]');
@@ -168,7 +253,7 @@ export function redactEmails(text: string): string {
  * kept and scanning resumes after it.
  */
 export function redactPhones(text: string): string {
-  const folded = foldPhoneCharacters(text);
+  const folded = maskAcademicYearRanges(foldPhoneCharacters(text));
   let output = '';
   let cursor = 0;
   for (const match of folded.matchAll(PHONE_CANDIDATE_PATTERN)) {

@@ -248,7 +248,7 @@
           "path": "/nieuws/open-dag/",
           "title": "Nieuws: open dag op 26-10-2026",
           "headings": [],
-          "mainText": "Op 26-10-2026 is er een open dag voor aankomende studenten van de collegejaren 2026-2027 en 2027-2028.",
+          "mainText": "Op 26-10-2026 is er een open dag voor aankomende studenten van collegejaar 2026-2027 2027-2028.",
           "gold": {
             "status": "SCORED",
             "verdict": "NOT_A_UNIT",

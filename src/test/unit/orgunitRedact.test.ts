@@ -6,6 +6,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   foldPhoneCharacters,
+  maskAcademicYearRanges,
   redactContactData,
   redactEmails,
   redactHrefTarget,
@@ -234,5 +235,80 @@ describe('redactPhones: Japanese, Mexican and Dutch formats', () => {
     expect(redactPhones('東京 03-1234-5678、大阪 ０６－１２３４－５６７８、NL 020-1234567')).toBe(
       '東京 [PHONE]、大阪 [PHONE]、NL [PHONE]',
     );
+  });
+});
+
+describe('redactPhones: academic-year ranges are never phone numbers (REL final join A1)', () => {
+  // The REL harvest (H4) found `2026-2027 2027-2028` redacted as [PHONE]:
+  // two adjacent ranges are sixteen digits grouped by a hyphen and a space.
+  const NEVER_REDACTED: readonly string[] = [
+    '2026-2027',
+    '2026–2027',
+    '2026/2027',
+    '2026-27',
+    '2026 - 2027',
+    '2026-2027 2027-2028',
+    '2026-2027 2027-2028 2028-2029',
+    '2026–2027 2027–2028',
+    '2026/2027 2027/2028',
+    '2026-27 2027-28 2028-29',
+    '2026 - 2027 2027 - 2028',
+    '2026-2027\n2027-2028',
+    '２０２６－２０２７　２０２７－２０２８',
+    '2014-2020 2021-2027',
+    'academiejaar 2026-2027',
+    'collegejaar 2026-2027 2027-2028.',
+    'Op 26-10-2026 is er een open dag voor aankomende studenten van collegejaar 2026-2027 2027-2028.',
+    'curso 2026-2027',
+    'cursos 2026-2027 2027-2028',
+    '2026年度',
+    '令和8年',
+    '2026年度（令和8年度）',
+    // the day-month-year dates L6 kept, next to ranges
+    'Inschrijven van 26-10-2026 tot 30-10-2026 voor 2026-2027 2027-2028',
+    'del 26-10-2026 al 30-10-2026, curso 2026-2027',
+  ];
+
+  for (const input of NEVER_REDACTED) {
+    it(`leaves ${JSON.stringify(input)} untouched`, () => {
+      expect(redactPhones(input)).toBe(input);
+      expect(redactContactData(input)).toBe(input);
+    });
+  }
+
+  const STILL_REDACTED: readonly (readonly [string, string])[] = [
+    // A year-shaped tail INSIDE a phone number is part of the phone.
+    ['電話：03-2019-2020', '電話：[PHONE]'],
+    ['Tel. (55) 2026-2027', 'Tel. [PHONE]'],
+    ['Teléfono: +52 55 2026 2027', 'Teléfono: [PHONE]'],
+    ['Bel 020-2026 2027', 'Bel [PHONE]'],
+    // Not plausible ranges (end not after start, or too wide): never masked.
+    ['2026-25 2027-2028', '[PHONE]'],
+    ['2026-2026 2026-2026', '[PHONE]'],
+    ['2026-2099 2099-2100', '[PHONE]'],
+    // A run that continues into further digits is left to the phone pattern
+    // (the conservative residual: a glued-on number is still redacted).
+    ['2026-2027 2027-2028 30 EC', '[PHONE] EC'],
+    // A real phone next to a range sequence is still redacted.
+    [
+      'collegejaar 2026-2027 2027-2028, bel 020-1234567',
+      'collegejaar 2026-2027 2027-2028, bel [PHONE]',
+    ],
+    ['curso 2026-2027 / Tel. (55) 1234-5678', 'curso 2026-2027 / Tel. [PHONE]'],
+    ['2026年度 電話 03-1234-5678', '2026年度 電話 [PHONE]'],
+  ];
+
+  for (const [input, expected] of STILL_REDACTED) {
+    it(`redacts ${JSON.stringify(input)}`, () => {
+      expect(redactPhones(input)).toBe(expected);
+      expect(redactContactData(input)).toBe(expected);
+    });
+  }
+
+  it('maskAcademicYearRanges is length-preserving and masks only plausible isolated runs', () => {
+    const text = 'jaar 2026-2027 2027-2028; tel 03-2019-2020';
+    const masked = maskAcademicYearRanges(text);
+    expect(masked.length).toBe(text.length);
+    expect(masked).toBe('jaar ###################; tel 03-2019-2020');
   });
 });
