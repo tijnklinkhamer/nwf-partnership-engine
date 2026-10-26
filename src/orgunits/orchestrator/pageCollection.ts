@@ -52,9 +52,10 @@ import { MIN_PAGES_FOR_BOILERPLATE_DIFFERENCING } from './constants.js';
  * (Phase 2B-2D2B-1) is the first bump: `extractPage` now returns CANONICAL
  * evidence text (full HTML 4.01 entity decoding, then NFC). See
  * `pageEvidence.ts` for why v1 rows are canonicalised at assembly instead of
- * being re-extracted.
+ * being re-extracted. `v3` (REL Engine integration) changes redaction only -
+ * see `pageEvidence.ts` - and is canonical exactly as v2.
  */
-export const EXTRACTION_RULE_VERSION = 'orgunit-extraction-v2';
+export const EXTRACTION_RULE_VERSION = 'orgunit-extraction-v3';
 export const MAIN_TEXT_CAP = 40_000;
 
 export type NotEligibleReason =

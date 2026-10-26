@@ -39,7 +39,7 @@
  *
  * VERSIONING
  *
- *   Redaction output is part of `orgunit-extraction-v2`
+ *   Redaction output is part of the extraction rule version
  *   (`pageEvidence.ts`'s `EXTRACTION_RULE_VERSION`). Two output changes
  *   were made in the Japan/Mexico/Netherlands slice, and every pre-existing
  *   test vector is unchanged: (1) the full-width fold and the
@@ -48,13 +48,13 @@
  *   (`26-10-2026`, `26.10.2026`) is now KEPT - it was previously destroyed
  *   as `[PHONE]`, the "redacts dates" failure this module exists to avoid,
  *   and no real phone number is written as a valid DD-MM-19YY/20YY date.
- *   The version is deliberately NOT bumped: it keys an append-only,
- *   idempotent evidence row (a re-extraction under the same version is a
- *   no-op, never a rewrite, so no stored row changes); it means "canonical text" to the classifier
- *   (`classify/constants.ts`), which this change does not alter; and the
- *   frozen corpus/classifier tooling pins evidence to exact extraction
- *   version strings. Re-versioning that evidence is an OWNER decision, not a
- *   side effect of a redaction correction.
+ *   Because that changes extracted text, the OWNER-directed REL Engine
+ *   integration (2026-10-26) bumped the label to `orgunit-extraction-v3`:
+ *   `orgunit-extraction-v2` names the earlier redaction and only that, so
+ *   one label never names two transforms. Rows already persisted under v2
+ *   keep their label and are never rewritten (append-only evidence); to the
+ *   classifier v3 means "canonical text" exactly as v2 does
+ *   (`classify/constants.ts`).
  *
  * PURE. No network, no database, no filesystem, no clock.
  */

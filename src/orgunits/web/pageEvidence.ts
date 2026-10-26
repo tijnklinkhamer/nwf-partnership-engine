@@ -41,8 +41,19 @@ import type { WebAttemptResult } from './gateway.js';
  * instead (`classify/constants.ts`'s
  * `EXTRACTION_VERSION_REQUIRING_ASSEMBLY_CANONICALISATION`). Evidence written
  * under v2 is already canonical and must never be decoded a second time.
+ *
+ * `v3` (REL Engine integration, 2026-10-26) is the second bump. The text is
+ * still canonical exactly as under v2 (same entity decoding, same NFC), but
+ * REDACTION changed (`redact.ts`, Japan/Mexico/Netherlands slice): full-width
+ * and bracketed-exchange phone numbers are now redacted, and a whole
+ * day-month-year date is now KEPT rather than destroyed as `[PHONE]`. One
+ * label must never name two transforms, so evidence extracted from here on
+ * is `orgunit-extraction-v3`; rows already persisted under v1 or v2 keep
+ * their label and are read exactly as before. The classifier treats v3
+ * exactly as v2 - already canonical, passed through untouched (see
+ * `classify/constants.ts`: only v1 is canonicalised at assembly).
  */
-export const EXTRACTION_RULE_VERSION = 'orgunit-extraction-v2';
+export const EXTRACTION_RULE_VERSION = 'orgunit-extraction-v3';
 
 /** The hard schema cap. Never increase this without a new migration. */
 export const MAIN_TEXT_CAP = 40_000;
