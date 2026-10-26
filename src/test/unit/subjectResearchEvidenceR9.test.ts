@@ -301,3 +301,49 @@ describe('R9 verification re-derives everything from the document', () => {
     }
   });
 });
+
+describe('REL harvest H3 (ported from REL-F1-R2 Wave 2 item d): text stored before the JP phone redaction widening', () => {
+  // Both phone vectors passed the fbe6a8c redaction unchanged, so an
+  // orgunit-extraction-v2 row may hold them; the REL Engine integration's
+  // current rules (orgunit-extraction-v3: full-width digits, bracketed area
+  // codes) redact them. This lineage widened PHONE redaction only - email
+  // redaction is unchanged since fbe6a8c - so a legitimately stored v2 text
+  // can only be refused as PHONE-shaped; the EMAIL vector below is a
+  // tampered record, used only to prove the shape naming is exact.
+  const refusal = (edit: (r: Json) => void) => {
+    const r = records();
+    edit(r);
+    const result = projectSubjectResearchEvidence(r, CONTEXT);
+    if (result.outcome !== 'REFUSED') throw new Error('projected');
+    return result;
+  };
+
+  it('is refused, never re-redacted, with a detail naming field, shape and stored version', () => {
+    const phone = refusal((r) => (r.pages[0].mainText = 'TEL：０３－１２３４－５６７８'));
+    expect(phone.code).toBe('CONTACT_SHAPED_TEXT');
+    expect(phone.detail).toBe(
+      'page.mainText: PHONE-shaped text under the current redaction rules ' +
+        '(stored under orgunit-extraction-v2; not re-redacted, not exported)',
+    );
+    const bracketed = refusal((r) => (r.pages[0].headings[0].text = '電話 03(1234)5678 まで'));
+    expect(bracketed.code).toBe('CONTACT_SHAPED_TEXT');
+    expect(bracketed.detail).toMatch(/^page\.heading: PHONE-shaped text .*orgunit-extraction-v2/);
+    const both = refusal((r) => (r.pages[0].title = 'info@example.jp ０３－１２３４－５６７８'));
+    expect(both.detail).toMatch(/^page\.title: EMAIL\+PHONE-shaped text/);
+  });
+
+  it('never echoes the refused text in the detail', () => {
+    for (const text of ['TEL：０３－１２３４－５６７８', '電話 03(1234)5678 まで']) {
+      const result = refusal((r) => (r.pages[0].mainText = text));
+      expect(result.detail).not.toMatch(/[０-９]|\d{3,}|1234/);
+    }
+  });
+
+  it('the same page, stored redacted under v3, projects', () => {
+    const r = records();
+    r.pages[0].mainText = 'TEL：[PHONE] 電話 [PHONE] まで';
+    r.pages[0].mainTextChars = String(Array.from(r.pages[0].mainText as string).length);
+    r.pages[0].ruleVersion = 'orgunit-extraction-v3';
+    expect(code(r)).toBe('PROJECTED');
+  });
+});

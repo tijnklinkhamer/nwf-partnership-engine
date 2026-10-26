@@ -31,7 +31,7 @@
  */
 import { createHash } from 'node:crypto';
 
-import { redactContactData } from '../web/redact.js';
+import { redactContactData, redactEmails, redactPhones } from '../web/redact.js';
 
 export const RESEARCH_EVIDENCE_CONTRACT = 'nwf-pe.subject-research-evidence.v1-provisional';
 export const RESEARCH_EVIDENCE_CONTRACT_STATUS = 'ENGINE_LOCAL_PROVISIONAL_ADR_0025_PROPOSED';
@@ -351,9 +351,34 @@ const instant = (v: unknown, detail: string) =>
 const uuid = (v: unknown, detail: string) =>
   want(isStr(v) && UUID.test(v), 'RECORD_SHAPE_INVALID', detail);
 
-/** Every exported text must already be a fixed point of the Engine's own redaction. */
-function redactionFixedPoint(text: string | null, detail: string): void {
-  if (text !== null && redactContactData(text) !== text) refuse('CONTACT_SHAPED_TEXT', detail);
+/**
+ * Every exported text must already be a fixed point of the Engine's CURRENT
+ * redaction. Text stored before a redaction widening (the REL Engine
+ * integration widened JP/MX/NL telephone and email redaction and introduced
+ * `orgunit-extraction-v3`; REL harvest H3, ported from REL-F1-R2 item d) can
+ * fail this although it was redacted when it was extracted: that is a SAFE
+ * refusal - the export never re-redacts and never emits the text - and the
+ * detail names exactly why, without echoing any of it: the field, which
+ * shape(s) the current rules would still redact, and the extraction rule
+ * version the text was stored under. The remedy is new research under the
+ * current extraction version, never an edit of append-only evidence.
+ */
+function redactionFixedPoint(
+  text: string | null,
+  field: string,
+  extractionRuleVersion: string,
+): void {
+  if (text === null || redactContactData(text) === text) return;
+  const emailRedacted = redactEmails(text);
+  const shapes = [
+    ...(emailRedacted !== text ? ['EMAIL'] : []),
+    ...(redactPhones(emailRedacted) !== emailRedacted ? ['PHONE'] : []),
+  ];
+  refuse(
+    'CONTACT_SHAPED_TEXT',
+    `${field}: ${shapes.join('+')}-shaped text under the current redaction rules ` +
+      `(stored under ${extractionRuleVersion}; not re-redacted, not exported)`,
+  );
 }
 
 function checkRecords(records: unknown): ResearchEvidenceRecords {
@@ -482,11 +507,11 @@ function checkRecords(records: unknown): ResearchEvidenceRecords {
     for (const h of p.headings) {
       want(exactlyKeyed(h, ['level', 'text']) && /^[1-3]$/.test(h.level), R, 'page.heading');
       want(isStr(h.text), R, 'page.heading.text');
-      redactionFixedPoint(h.text, 'page.heading');
+      redactionFixedPoint(h.text, 'page.heading', p.ruleVersion);
     }
     instant(p.observedAt, 'page.observedAt');
-    redactionFixedPoint(p.title, 'page.title');
-    redactionFixedPoint(p.mainText, 'page.mainText');
+    redactionFixedPoint(p.title, 'page.title', p.ruleVersion);
+    redactionFixedPoint(p.mainText, 'page.mainText', p.ruleVersion);
   }
   const candidateIds = new Set<string>();
   for (const c of r.candidates) {
