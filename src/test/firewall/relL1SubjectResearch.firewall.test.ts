@@ -35,7 +35,7 @@ const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const L1_BASE_COMMIT = 'fbe6a8c5ef1303b1a7524317b198d95c791f3050';
 
 /** Open (null) until a separately authorised commit-closure step pins it. */
-const L1_TERMINAL_COMMIT: string | null = null;
+const L1_TERMINAL_COMMIT: string | null = '129941204a18fbaa9ef95292353bb537e2531c3c';
 
 const MODULE_DIR = 'src/orgunits/subjectRun/';
 const MODULE_FILES = [`${MODULE_DIR}admission.ts`, `${MODULE_DIR}execute.ts`];
