@@ -5,6 +5,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import {
+  foldPhoneCharacters,
   redactContactData,
   redactEmails,
   redactHrefTarget,
@@ -137,5 +138,101 @@ describe('redactHrefTarget', () => {
     const tel = redactHrefTarget('tel:+15551234567');
     expect(mailto).not.toContain('secret.person');
     expect(tel).not.toContain('5551234567');
+  });
+});
+
+describe('redactPhones: Japanese, Mexican and Dutch formats', () => {
+  const POSITIVE: readonly (readonly [string, string])[] = [
+    // JP: Tokyo landline, mobile, toll-free, international, full-width.
+    ['電話：03-1234-5678', '電話：[PHONE]'],
+    ['携帯 090-1234-5678 まで', '携帯 [PHONE] まで'],
+    ['フリーダイヤル 0120-123-456', 'フリーダイヤル [PHONE]'],
+    ['Tel +81 3 1234 5678', 'Tel [PHONE]'],
+    ['電話 ０３－１２３４－５６７８（平日）', '電話 [PHONE]（平日）'],
+    ['ＴＥＬ：０９０ー１２３４ー５６７８', 'ＴＥＬ：[PHONE]'],
+    ['ＴＥＬ　＋８１　３　１２３４　５６７８', 'ＴＥＬ　[PHONE]'],
+    ['電話 03（1234）5678', '電話 [PHONE]'],
+    ['電話 03(1234)5678', '電話 [PHONE]'],
+    // MX
+    ['Teléfono: +52 55 1234 5678', 'Teléfono: [PHONE]'],
+    ['Tel. (55) 1234-5678', 'Tel. [PHONE]'],
+    // NL
+    ['Bel +31 20 123 4567', 'Bel [PHONE]'],
+    ['Tel: 020-1234567', 'Tel: [PHONE]'],
+    ['Mobiel: 06-12345678', 'Mobiel: [PHONE]'],
+  ];
+
+  for (const [input, expected] of POSITIVE) {
+    it(`redacts ${JSON.stringify(input)}`, () => {
+      expect(redactPhones(input)).toBe(expected);
+      expect(redactContactData(input)).toBe(expected);
+    });
+  }
+
+  const NEGATIVE: readonly string[] = [
+    // years and year ranges
+    '2024年度 / 2024-2025 / 令和6年',
+    '２０２４年４月１日',
+    '2019–2020 and 2021–2022',
+    '２０１９－２０２０',
+    // postcodes
+    'Postbus 1234, 1012 AB Amsterdam',
+    '1012AB Amsterdam',
+    '〒100-0001 東京都千代田区',
+    '〒１００－０００１',
+    'C.P. 04510, Ciudad de México',
+    // dates
+    '2026-10-26',
+    '26-10-2026',
+    '26.10.2026',
+    '1-2-2026',
+    'van 26-10-2026 tot 30-10-2026',
+    'del 26-10-2026 al 30-10-2026',
+    '２６－１０－２０２６',
+    '２０２６．１０．２６',
+    '26/10/2026',
+    // prices
+    '¥12,000',
+    '１２，０００円',
+    '€ 1.250,00',
+    '$1,250.00 MXN',
+    // room numbers / short codes
+    'Room 3.14, Sala 204, lokaal 2.05',
+    '研究棟 3-201 号室',
+    'ECTS 30 / 単位 2',
+  ];
+
+  for (const input of NEGATIVE) {
+    it(`leaves ${JSON.stringify(input)} untouched`, () => {
+      expect(redactContactData(input)).toBe(input);
+    });
+  }
+
+  it('keeps every full-width character OUTSIDE a redacted span byte-identical', () => {
+    const text = '国際交流センター（本館２階）　電話 ０３－１２３４－５６７８　受付：平日';
+    expect(redactPhones(text)).toBe('国際交流センター（本館２階）　電話 [PHONE]　受付：平日');
+  });
+
+  it('foldPhoneCharacters is length-preserving and leaves ASCII untouched', () => {
+    const ascii = 'Tel: +33 1 23 45 67 89 (office) - 2024.';
+    expect(foldPhoneCharacters(ascii)).toBe(ascii);
+    const wide = '＋８１　３（１２３４）５６７８．－ー';
+    const folded = foldPhoneCharacters(wide);
+    expect(folded).toBe('+81 3(1234)5678.--');
+    expect(folded.length).toBe(wide.length);
+  });
+
+  it('a date-shaped run does not shelter a longer phone-shaped candidate', () => {
+    // The day-month-year exemption is a WHOLE-candidate check only.
+    expect(redactPhones('Tel. 010-12-12-2019')).toBe('Tel. [PHONE]');
+    expect(redactPhones('Tel. +31 26-10-2026')).toBe('Tel. [PHONE]');
+    // Not a valid day/month: never exempt.
+    expect(redactPhones('Tel. 45-67-2012')).toBe('Tel. [PHONE]');
+  });
+
+  it('redacts several mixed-width numbers in one text independently', () => {
+    expect(redactPhones('東京 03-1234-5678、大阪 ０６－１２３４－５６７８、NL 020-1234567')).toBe(
+      '東京 [PHONE]、大阪 [PHONE]、NL [PHONE]',
+    );
   });
 });

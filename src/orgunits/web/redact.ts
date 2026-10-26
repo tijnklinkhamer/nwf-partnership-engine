@@ -21,8 +21,40 @@
  *   privacy. It is better to miss an exotic phone format in memory than to
  *   turn a page's main text into holes. The trade this module makes is
  *   therefore CONTACT MINIMISATION for the ordinary institutional case
- *   (international/French/German/Dutch-style numbers, however spaced or
- *   hyphenated), not general phone-number intelligence.
+ *   (international/French/German/Dutch/Japanese/Mexican-style numbers,
+ *   however spaced or hyphenated), not general phone-number intelligence.
+ *
+ * FULL-WIDTH (ZENKAKU) DIGITS AND SEPARATORS
+ *
+ *   Japanese pages routinely write a number as `０３－１２３４－５６７８` or
+ *   `03（1234）5678`. Those characters are FOLDED, for DETECTION ONLY, to
+ *   their ASCII equivalents (`foldPhoneCharacters`) before the phone pattern
+ *   runs; `[PHONE]` is then spliced into the ORIGINAL text at the same
+ *   offsets. Every folded character is one UTF-16 code unit mapped to one
+ *   UTF-16 code unit, so offsets in the folded copy and the original agree.
+ *   Text containing none of them folds to itself, so ASCII-only input is
+ *   matched exactly as before the fold existed. Deliberately NOT folded:
+ *   en/em dashes and the minus sign - `2019–2020` is a year range, never a
+ *   number to call, and folding it would start redacting years.
+ *
+ * VERSIONING
+ *
+ *   Redaction output is part of `orgunit-extraction-v2`
+ *   (`pageEvidence.ts`'s `EXTRACTION_RULE_VERSION`). Two output changes
+ *   were made in the Japan/Mexico/Netherlands slice, and every pre-existing
+ *   test vector is unchanged: (1) the full-width fold and the
+ *   bracketed-exchange form redact MORE (only text containing those shapes
+ *   is affected); (2) a whole candidate that is a day-month-year date
+ *   (`26-10-2026`, `26.10.2026`) is now KEPT - it was previously destroyed
+ *   as `[PHONE]`, the "redacts dates" failure this module exists to avoid,
+ *   and no real phone number is written as a valid DD-MM-19YY/20YY date.
+ *   The version is deliberately NOT bumped: it keys an append-only,
+ *   idempotent evidence row (a re-extraction under the same version is a
+ *   no-op, never a rewrite, so no stored row changes); it means "canonical text" to the classifier
+ *   (`classify/constants.ts`), which this change does not alter; and the
+ *   frozen corpus/classifier tooling pins evidence to exact extraction
+ *   version strings. Re-versioning that evidence is an OWNER decision, not a
+ *   side effect of a redaction correction.
  *
  * PURE. No network, no database, no filesystem, no clock.
  */
@@ -44,10 +76,76 @@ const EMAIL_PATTERN =
  * `030-123-4567`, `(030) 123 4567`, `+49 (0)30 1234567`.
  */
 const PHONE_CANDIDATE_PATTERN =
-  /(?<![\w@.])(\+\d[\d\s().-]{6,18}\d|\(?\d{2,5}\)?[\s.-]\d[\d\s().-]{4,17}\d)(?![\w@])/g;
+  /(?<![\w@.])(\+\d[\d\s().-]{6,18}\d|\(?\d{2,5}\)?[\s.-]\d[\d\s().-]{4,17}\d|\d{2,5}\(\d{1,4}\)\d{3,5})(?![\w@])/g;
+
+/*
+ * The THIRD alternative above is the Japanese bracketed-exchange form
+ * `03(1234)5678` (after folding, also `03（1234）5678`): area code, the
+ * exchange in parentheses, the subscriber number, and NO separator - which
+ * is why the second alternative, which needs a space/dot/hyphen after the
+ * area code, never saw it. Digits, `(`, digits, `)`, digits with nothing in
+ * between is not a shape a year, a postcode, a date, a price or a room
+ * number takes, and the 8-significant-digit floor still applies to it. Added
+ * as the LAST alternative so every match the first two made before is still
+ * made, at the same position, unchanged.
+ */
+
+/**
+ * Full-width / ideographic separators folded to ASCII for phone DETECTION
+ * only, keyed by UTF-16 code unit. Written as escapes, never as literal
+ * characters, so a reviewer can see exactly which code points are folded.
+ */
+const PHONE_SEPARATOR_FOLD: ReadonlyMap<number, string> = new Map([
+  [0xff08, '('], // FULLWIDTH LEFT PARENTHESIS
+  [0xff09, ')'], // FULLWIDTH RIGHT PARENTHESIS
+  [0xff0b, '+'], // FULLWIDTH PLUS SIGN
+  [0xff0d, '-'], // FULLWIDTH HYPHEN-MINUS
+  [0xff0e, '.'], // FULLWIDTH FULL STOP
+  [0x3000, ' '], // IDEOGRAPHIC SPACE
+  [0x30fc, '-'], // KATAKANA-HIRAGANA PROLONGED SOUND MARK, routinely typed as a hyphen in JP numbers
+]);
+
+/** Full-width digits U+FF10-U+FF19 plus every key of `PHONE_SEPARATOR_FOLD`. */
+const PHONE_FOLD_PATTERN = /[\uFF10-\uFF19\uFF08\uFF09\uFF0B\uFF0D\uFF0E\u3000\u30FC]/g;
+
+const FULLWIDTH_DIGIT_ZERO = 0xff10;
+const FULLWIDTH_DIGIT_NINE = 0xff19;
+const ASCII_DIGIT_ZERO = 0x30;
+
+/**
+ * Folds full-width digits and the separators in `PHONE_SEPARATOR_FOLD` to
+ * ASCII. LENGTH-PRESERVING: one UTF-16 code unit in, one out, so an offset
+ * in the folded copy is the same offset in the original. Used for phone
+ * DETECTION only - the returned text is never itself emitted.
+ */
+export function foldPhoneCharacters(text: string): string {
+  return text.replace(PHONE_FOLD_PATTERN, (character) => {
+    const code = character.charCodeAt(0);
+    if (code >= FULLWIDTH_DIGIT_ZERO && code <= FULLWIDTH_DIGIT_NINE) {
+      return String.fromCharCode(code - FULLWIDTH_DIGIT_ZERO + ASCII_DIGIT_ZERO);
+    }
+    return PHONE_SEPARATOR_FOLD.get(code) ?? character;
+  });
+}
 
 function significantDigitCount(candidate: string): number {
   return (candidate.match(/\d/g) ?? []).length;
+}
+
+/**
+ * A WHOLE candidate that is a day-month-year calendar date - `26-10-2026`,
+ * `26.10.2026`, `1-2-2026` - with one repeated separator, a day 1-31, a
+ * month 1-12 and a 19xx/20xx year. Dutch and Mexican pages write dates
+ * exactly this way, and the phone pattern's hyphen/dot grouping plus eight
+ * digits would otherwise turn every one into `[PHONE]`. ISO `2026-10-26`
+ * never reaches here (the second alternative cannot match it). Checked on
+ * the WHOLE candidate only: a date-shaped run INSIDE a longer phone-shaped
+ * candidate does not save it.
+ */
+const DAY_MONTH_YEAR = /^(?:0?[1-9]|[12]\d|3[01])([-.])(?:0?[1-9]|1[0-2])\1(?:19|20)\d{2}$/;
+
+function isDayMonthYearDate(candidate: string): boolean {
+  return DAY_MONTH_YEAR.test(candidate);
 }
 
 /** Replaces email-shaped text with `[EMAIL]`. */
@@ -61,12 +159,25 @@ export function redactEmails(text: string): string {
  * Run AFTER `redactEmails`: an email's local part can itself contain digits
  * and separators that would otherwise present as a phone-shaped run, and an
  * already-redacted `[EMAIL]` token contains no digits to match.
+ *
+ * Matches against the FOLDED copy (`foldPhoneCharacters`) and splices
+ * `[PHONE]` into the ORIGINAL at the same offsets, so a full-width number is
+ * redacted while every character outside a redacted span - full-width or
+ * not - is returned exactly as given. Same left-to-right, non-overlapping
+ * scan as `String.prototype.replace`: a candidate below the digit floor is
+ * kept and scanning resumes after it.
  */
 export function redactPhones(text: string): string {
-  return text.replace(PHONE_CANDIDATE_PATTERN, (candidate) => {
-    if (significantDigitCount(candidate) < 8) return candidate;
-    return '[PHONE]';
-  });
+  const folded = foldPhoneCharacters(text);
+  let output = '';
+  let cursor = 0;
+  for (const match of folded.matchAll(PHONE_CANDIDATE_PATTERN)) {
+    const candidate = match[0];
+    if (significantDigitCount(candidate) < 8 || isDayMonthYearDate(candidate)) continue;
+    output += `${text.slice(cursor, match.index)}[PHONE]`;
+    cursor = match.index + candidate.length;
+  }
+  return output + text.slice(cursor);
 }
 
 /** Applies every redaction this module knows about, in the order that composes correctly. */
