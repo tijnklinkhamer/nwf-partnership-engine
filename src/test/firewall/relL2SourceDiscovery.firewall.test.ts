@@ -29,10 +29,10 @@ import { buildWebSearchAgentOptions } from '../../orgunits/sourceDiscovery/claud
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 
 /** The slice base: `fbe6a8c` (ADR 0017 acceptance on main). */
-const PHASE_BASE_COMMIT = 'fbe6a8c';
+const PHASE_BASE_COMMIT = 'fbe6a8c5ef1303b1a7524317b198d95c791f3050';
 
-/** Open (null) until the commit-closure pin. */
-const PHASE_TERMINAL_COMMIT: string | null = null;
+/** Pinned to the REL L2 implementation commit (closed range). */
+const PHASE_TERMINAL_COMMIT: string | null = '43259c82e1401464a6577c8ed2966a6482cb487d';
 
 const NS = 'src/orgunits/sourceDiscovery/';
 const NS_FILES = [
