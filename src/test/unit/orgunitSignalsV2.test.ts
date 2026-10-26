@@ -30,6 +30,7 @@ import {
   signalRulesV2,
 } from '../../orgunits/signals/scoreV2.js';
 import { EN_RULES } from '../../orgunits/signals/packs/en.js';
+import { EN_V2_EXTENSION_RULES } from '../../orgunits/signals/packs/enV2.js';
 import { ES_RULES } from '../../orgunits/signals/packs/es.js';
 import { FR_RULES } from '../../orgunits/signals/packs/fr.js';
 import { JA_RULES } from '../../orgunits/signals/packs/ja.js';
@@ -127,13 +128,15 @@ function candidate(input: CandidatePageInput, ruleset: Ruleset = 'v1') {
 }
 
 const NEW_PACKS: ReadonlySet<string> = new Set(['ja', 'es', 'nl']);
+/** The v2-only English extension shares pack `en` with v1, so it is named by rule id. */
+const EN_V2_EXTENSION_IDS: ReadonlySet<string> = new Set(EN_V2_EXTENSION_RULES.map((r) => r.id));
+const isV2Only = (signal: MatchedSignalV2): boolean =>
+  NEW_PACKS.has(signal.pack) || (signal.pack === 'en' && EN_V2_EXTENSION_IDS.has(signal.id));
 const v1Only = (signals: readonly MatchedSignalV2[]): MatchedSignalV2[] =>
-  signals.filter((signal) => !NEW_PACKS.has(signal.pack));
+  signals.filter((signal) => !isV2Only(signal));
 const newPackEffect = (t: GoldenTrack): number =>
-  [...t.matchedSignals].filter((s) => NEW_PACKS.has(s.pack)).reduce((n, s) => n + s.weight, 0) -
-  [...t.negativeSignals, ...t.vetoes]
-    .filter((s) => NEW_PACKS.has(s.pack))
-    .reduce((n, s) => n + s.weight, 0);
+  [...t.matchedSignals].filter(isV2Only).reduce((n, s) => n + s.weight, 0) -
+  [...t.negativeSignals, ...t.vetoes].filter(isV2Only).reduce((n, s) => n + s.weight, 0);
 
 // ---------------------------------------------------------------------------
 // v1 is unchanged
@@ -507,11 +510,17 @@ describe('v2 pack hygiene', () => {
     ['nl', NL_RULES],
   ];
 
-  it('v2 is exactly v1 plus ja, es and nl, in that order', () => {
+  it('v2 is exactly v1 plus the en v2 extension, ja, es and nl, in that order', () => {
     expect(signalRulesV2().map((rule) => rule.id)).toEqual(
-      [...UNIVERSAL_RULES, ...FR_RULES, ...EN_RULES, ...JA_RULES, ...ES_RULES, ...NL_RULES].map(
-        (rule) => rule.id,
-      ),
+      [
+        ...UNIVERSAL_RULES,
+        ...FR_RULES,
+        ...EN_RULES,
+        ...EN_V2_EXTENSION_RULES,
+        ...JA_RULES,
+        ...ES_RULES,
+        ...NL_RULES,
+      ].map((rule) => rule.id),
     );
   });
 
@@ -537,7 +546,14 @@ describe('v2 pack hygiene', () => {
 
   it('no compiled phrase is declared by two rules on the same track (no silent double weight)', () => {
     const seen = new Map<string, string>();
-    for (const rule of [...JA_RULES, ...ES_RULES, ...NL_RULES, ...EN_RULES, ...FR_RULES]) {
+    for (const rule of [
+      ...JA_RULES,
+      ...ES_RULES,
+      ...NL_RULES,
+      ...EN_RULES,
+      ...EN_V2_EXTENSION_RULES,
+      ...FR_RULES,
+    ]) {
       for (const phrase of rule.phrases) {
         const compiled = JSON.stringify(compileScriptAwarePhrase(phrase));
         for (const t of rule.tracks) {
@@ -557,5 +573,65 @@ describe('v2 pack hygiene', () => {
       headings: [{ level: 1, text: 'International Office' }],
     };
     expect(scoreFetchedPageCandidateV2(input)).toEqual(scoreFetchedPageCandidateV2(input));
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The en v2 extension (REL Engine integration)
+// ---------------------------------------------------------------------------
+
+describe('the en v2 extension: language-exchange formats, v2 only', () => {
+  const TERMS: readonly (readonly [string, string])[] = [
+    ['Language Exchange evenings', 'B_LANGUAGE_EXCHANGE'],
+    ['Language Café', 'B_LANGUAGE_CAFE'],
+    ['language cafe', 'B_LANGUAGE_CAFE'],
+    ['Conversation Club', 'B_CONVERSATION_CLUB'],
+    ['Tandem programme', 'B_TANDEM'],
+  ];
+
+  it('is four Track B positive rules, tagged en, each with one phrase', () => {
+    expect(EN_V2_EXTENSION_RULES.map((r) => r.id)).toEqual([
+      'B_LANGUAGE_EXCHANGE',
+      'B_LANGUAGE_CAFE',
+      'B_CONVERSATION_CLUB',
+      'B_TANDEM',
+    ]);
+    for (const rule of EN_V2_EXTENSION_RULES) {
+      expect(rule.pack, rule.id).toBe('en');
+      expect(rule.kind, rule.id).toBe('positive');
+      expect(rule.tracks, rule.id).toEqual(['B']);
+      expect(rule.phrases, rule.id).toHaveLength(1);
+    }
+    // The v1 en pack declares none of them.
+    for (const rule of EN_RULES) expect(EN_V2_EXTENSION_IDS.has(rule.id), rule.id).toBe(false);
+  });
+
+  for (const [title, id] of TERMS) {
+    it(`"${title}" scores ${id} on Track B under v2, and nothing new under v1`, () => {
+      const input: CandidatePageInput = { url: 'https://www.example.edu/students/', title };
+      const v2 = candidate(input, 'v2');
+      expect(v2.B.matchedSignals.map((s) => s.id)).toContain(id);
+      expect(v2.result.ruleVersion).toBe('orgunit-signal-rules-v2');
+      const v1 = candidate(input, 'v1');
+      expect(ids(v1.B)).not.toContain(id);
+      expect(v1.result.ruleVersion).toBe('orgunit-signal-rules-v1');
+    });
+  }
+
+  it('bare "tandem" is LIGHT and the multi-word formats are MEDIUM', () => {
+    const weight = (id: string) => EN_V2_EXTENSION_RULES.find((r) => r.id === id)!.weight;
+    expect(weight('B_TANDEM')).toBe(3);
+    for (const id of ['B_LANGUAGE_EXCHANGE', 'B_LANGUAGE_CAFE', 'B_CONVERSATION_CLUB']) {
+      expect(weight(id), id).toBe(4);
+    }
+  });
+
+  it('matches whole tokens only: "tandems" and "exchanged" do not fire', () => {
+    const v2 = candidate(
+      { url: 'https://www.example.edu/x/', title: 'Tandems and exchanged languages' },
+      'v2',
+    );
+    expect(v2.B.matchedSignals.map((s) => s.id)).not.toContain('B_TANDEM');
+    expect(v2.B.matchedSignals.map((s) => s.id)).not.toContain('B_LANGUAGE_EXCHANGE');
   });
 });

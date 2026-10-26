@@ -383,6 +383,11 @@ describe('PHASE-2B-FIREWALL: exactly one institution-website network call site',
       'src/orgunits/signals/packs/ja.ts',
       'src/orgunits/signals/packs/es.ts',
       'src/orgunits/signals/packs/nl.ts',
+      // REL Engine integration (OWNER directive 2026-10-26): the v2-ONLY
+      // English extension. `en.ts` is shared with v1 and stays
+      // byte-identical, so new English Track B terms live beside it, named
+      // here by exact path; v1 may never import it (asserted below).
+      'src/orgunits/signals/packs/enV2.ts',
       // 2B-1e: PURE sitemap XML parsing + bounded orchestration over the
       // one gateway. See the dedicated "sitemap"/"frontier" describe blocks
       // below for what these files may and may not do.
@@ -918,8 +923,17 @@ describe('PHASE-2B-FIREWALL: the deterministic signal layer is PURE, and produce
     const packFiles = readdirSync(packsDir)
       .filter((f) => f.endsWith('.ts'))
       .sort();
-    // Widened deliberately, by exact file name, for orgunit-signal-rules-v2.
-    expect(packFiles).toEqual(['en.ts', 'es.ts', 'fr.ts', 'ja.ts', 'nl.ts', 'universal.ts']);
+    // Widened deliberately, by exact file name, for orgunit-signal-rules-v2,
+    // and once more for the v2-only English extension (REL Engine integration).
+    expect(packFiles).toEqual([
+      'en.ts',
+      'enV2.ts',
+      'es.ts',
+      'fr.ts',
+      'ja.ts',
+      'nl.ts',
+      'universal.ts',
+    ]);
 
     // score.ts (v1) imports exactly its three packs, unconditionally - never
     // behind a branch keyed on a per-organisation property.
@@ -928,9 +942,9 @@ describe('PHASE-2B-FIREWALL: the deterministic signal layer is PURE, and produce
     expect(scoreSource).toMatch(/from\s+['"]\.\/packs\/fr\.js['"]/);
     expect(scoreSource).toMatch(/from\s+['"]\.\/packs\/en\.js['"]/);
 
-    // scoreV2.ts imports all six, the same way.
+    // scoreV2.ts imports all six, plus the en v2 extension, the same way.
     const v2Source = code('src/orgunits/signals/scoreV2.ts');
-    for (const pack of ['universal', 'fr', 'en', 'ja', 'es', 'nl']) {
+    for (const pack of ['universal', 'fr', 'en', 'enV2', 'ja', 'es', 'nl']) {
       expect(v2Source, pack).toMatch(new RegExp(`from\\s+['"]\\./packs/${pack}\\.js['"]`));
     }
     // No dynamic import, no require: a pack cannot be loaded conditionally.
@@ -957,7 +971,7 @@ describe('PHASE-2B-FIREWALL: the deterministic signal layer is PURE, and produce
     ]) {
       const source = code(file);
       expect(source, file).not.toMatch(/scoreV2|typesV2|scriptAware/);
-      expect(source, file).not.toMatch(/packs\/(ja|es|nl)\.js/);
+      expect(source, file).not.toMatch(/packs\/(ja|es|nl|enV2)\.js/);
     }
     expect(code('src/orgunits/signals/score.ts')).toMatch(
       /export const ORGUNIT_SIGNAL_RULE_VERSION = 'orgunit-signal-rules-v1';/,
@@ -992,6 +1006,29 @@ describe('PHASE-2B-FIREWALL: the deterministic signal layer is PURE, and produce
         expect(positives.length, `${file} track ${track} positives`).toBeGreaterThanOrEqual(4);
       }
     }
+  });
+
+  it('the en v2 extension carries REAL Track B rules, tagged en, and only v2 composes it', async () => {
+    const module = (await import(resolve(ROOT, 'src/orgunits/signals/packs/enV2.ts'))) as Record<
+      string,
+      unknown
+    >;
+    const rules = module['EN_V2_EXTENSION_RULES'] as readonly {
+      pack: string;
+      kind: string;
+      tracks: readonly string[];
+      phrases: readonly string[];
+    }[];
+    expect(Array.isArray(rules)).toBe(true);
+    expect(rules.length).toBeGreaterThanOrEqual(4);
+    for (const rule of rules) {
+      expect(rule.pack).toBe('en');
+      expect(rule.kind).toBe('positive');
+      expect(rule.tracks).toEqual(['B']);
+      expect(rule.phrases.length).toBeGreaterThan(0);
+    }
+    expect(code('src/orgunits/signals/scoreV2.ts')).toMatch(/\.\.\.EN_V2_EXTENSION_RULES,/);
+    expect(code('src/orgunits/signals/score.ts')).not.toMatch(/EN_V2_EXTENSION_RULES|enV2/);
   });
 
   it('declares no AI, Apollo or outbound reference in the signal layer', () => {

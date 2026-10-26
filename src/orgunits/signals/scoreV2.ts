@@ -3,8 +3,9 @@
  *
  * WHAT v2 IS
  *
- *   v1's three packs (`universal`, `fr`, `en`) UNCHANGED, plus the `ja`, `es`
- *   and `nl` packs, all composed unconditionally below, scored under the
+ *   v1's three packs (`universal`, `fr`, `en`) UNCHANGED, plus the v2-only
+ *   English extension (`enV2.ts`) and the `ja`, `es` and `nl` packs, all
+ *   composed unconditionally below, scored under the
  *   SCRIPT-AWARE matcher (`scriptAware.ts`): a CJK phrase matches as a
  *   substring of one CJK run, every other phrase keeps v1's token-boundary
  *   rule. Same fields, same weights classes, same arithmetic, same
@@ -56,6 +57,7 @@ import {
 } from './packs/universal.js';
 import { FR_RULES } from './packs/fr.js';
 import { EN_RULES } from './packs/en.js';
+import { EN_V2_EXTENSION_RULES } from './packs/enV2.js';
 import { JA_RULES } from './packs/ja.js';
 import { ES_RULES } from './packs/es.js';
 import { NL_RULES } from './packs/nl.js';
@@ -86,6 +88,7 @@ const V2_RULE_DEFINITIONS: readonly SignalRuleV2[] = Object.freeze([
   ...UNIVERSAL_RULES,
   ...FR_RULES,
   ...EN_RULES,
+  ...EN_V2_EXTENSION_RULES,
   ...JA_RULES,
   ...ES_RULES,
   ...NL_RULES,
