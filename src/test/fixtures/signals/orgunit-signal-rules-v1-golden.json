@@ -1,0 +1,1597 @@
+{
+  "note": "GOLDEN v1 outputs, generated from the landed orgunit-signal-rules-v1 engine BEFORE the v2 ruleset was added. Never regenerate: v1 must stay byte-identical.",
+  "candidates": [
+    {
+      "input": {
+        "url": "https://www.univ-example.fr/international/relations-internationales/",
+        "title": "Relations internationales",
+        "headings": [
+          {
+            "level": 1,
+            "text": "Bureau des relations internationales"
+          }
+        ]
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.univ-example.fr/international/relations-internationales/",
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": 16,
+            "matchedSignals": [
+              {
+                "id": "A_FR_RELATIONS_INTERNATIONALES",
+                "pack": "fr",
+                "track": "A",
+                "kind": "positive",
+                "field": "heading",
+                "weight": 5,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "A_FR_RELATIONS_INTERNATIONALES",
+                "pack": "fr",
+                "track": "A",
+                "kind": "positive",
+                "field": "title",
+                "weight": 5,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "A_FR_RELATIONS_INTERNATIONALES",
+                "pack": "fr",
+                "track": "A",
+                "kind": "positive",
+                "field": "urlPath",
+                "weight": 5,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "A_INTERNATIONAL_GENERIC",
+                "pack": "en",
+                "track": "A",
+                "kind": "positive",
+                "field": "urlPath",
+                "weight": 1,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "negativeSignals": [],
+            "vetoes": []
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": []
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.example.edu/international-office/",
+        "title": "International Office | Example University",
+        "headings": [
+          {
+            "level": 2,
+            "text": "Incoming students"
+          }
+        ]
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.example.edu/international-office/",
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": 16,
+            "matchedSignals": [
+              {
+                "id": "A_INCOMING_STUDENTS",
+                "pack": "en",
+                "track": "A",
+                "kind": "positive",
+                "field": "heading",
+                "weight": 4,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "A_INTERNATIONAL_GENERIC",
+                "pack": "en",
+                "track": "A",
+                "kind": "positive",
+                "field": "title",
+                "weight": 1,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "A_INTERNATIONAL_GENERIC",
+                "pack": "en",
+                "track": "A",
+                "kind": "positive",
+                "field": "urlPath",
+                "weight": 1,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "A_INTL_OFFICE",
+                "pack": "en",
+                "track": "A",
+                "kind": "positive",
+                "field": "title",
+                "weight": 5,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "A_INTL_OFFICE",
+                "pack": "en",
+                "track": "A",
+                "kind": "positive",
+                "field": "urlPath",
+                "weight": 5,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "negativeSignals": [],
+            "vetoes": []
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": []
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.example.edu/programmes/msc-international-marketing/",
+        "title": "MSc International Marketing"
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.example.edu/programmes/msc-international-marketing/",
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": -6,
+            "matchedSignals": [
+              {
+                "id": "A_INTERNATIONAL_GENERIC",
+                "pack": "en",
+                "track": "A",
+                "kind": "positive",
+                "field": "title",
+                "weight": 1,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "A_INTERNATIONAL_GENERIC",
+                "pack": "en",
+                "track": "A",
+                "kind": "positive",
+                "field": "urlPath",
+                "weight": 1,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "negativeSignals": [
+              {
+                "id": "NEG_PROGRAMME_SHAPE",
+                "pack": "universal",
+                "track": "A",
+                "kind": "negative",
+                "field": "title",
+                "weight": 4,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "NEG_PROGRAMME_SHAPE",
+                "pack": "universal",
+                "track": "A",
+                "kind": "negative",
+                "field": "urlPath",
+                "weight": 4,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "vetoes": []
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": -8,
+            "matchedSignals": [],
+            "negativeSignals": [
+              {
+                "id": "NEG_PROGRAMME_SHAPE",
+                "pack": "universal",
+                "track": "B",
+                "kind": "negative",
+                "field": "title",
+                "weight": 4,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "NEG_PROGRAMME_SHAPE",
+                "pack": "universal",
+                "track": "B",
+                "kind": "negative",
+                "field": "urlPath",
+                "weight": 4,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "vetoes": []
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.example.edu/login/",
+        "title": "Login"
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.example.edu/login/",
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": -3,
+            "matchedSignals": [],
+            "negativeSignals": [
+              {
+                "id": "NEG_LOGIN_AUTH",
+                "pack": "universal",
+                "track": "A",
+                "kind": "negative",
+                "field": "urlPath",
+                "weight": 3,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "vetoes": []
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": -3,
+            "matchedSignals": [],
+            "negativeSignals": [
+              {
+                "id": "NEG_LOGIN_AUTH",
+                "pack": "universal",
+                "track": "B",
+                "kind": "negative",
+                "field": "urlPath",
+                "weight": 3,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "vetoes": []
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.example.edu/news/archive/",
+        "title": "News archive"
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.example.edu/news/archive/",
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": -2,
+            "matchedSignals": [],
+            "negativeSignals": [
+              {
+                "id": "NEG_NEWS_ARCHIVE",
+                "pack": "universal",
+                "track": "A",
+                "kind": "negative",
+                "field": "urlPath",
+                "weight": 2,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "vetoes": []
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": -2,
+            "matchedSignals": [],
+            "negativeSignals": [
+              {
+                "id": "NEG_NEWS_ARCHIVE",
+                "pack": "universal",
+                "track": "B",
+                "kind": "negative",
+                "field": "urlPath",
+                "weight": 2,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "vetoes": []
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.example.edu/docs/brochure.pdf",
+        "title": null
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.example.edu/docs/brochure.pdf",
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": -3,
+            "matchedSignals": [],
+            "negativeSignals": [
+              {
+                "id": "NEG_BINARY_FILE_EXTENSION",
+                "pack": "universal",
+                "track": "A",
+                "kind": "negative",
+                "field": "urlPath",
+                "weight": 3,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "vetoes": []
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": -3,
+            "matchedSignals": [],
+            "negativeSignals": [
+              {
+                "id": "NEG_BINARY_FILE_EXTENSION",
+                "pack": "universal",
+                "track": "B",
+                "kind": "negative",
+                "field": "urlPath",
+                "weight": 3,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "vetoes": []
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.univ-example.fr/recherche/relations-internationales/",
+        "title": "Recherche internationale"
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.univ-example.fr/recherche/relations-internationales/",
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": -1,
+            "matchedSignals": [
+              {
+                "id": "A_FR_RELATIONS_INTERNATIONALES",
+                "pack": "fr",
+                "track": "A",
+                "kind": "positive",
+                "field": "urlPath",
+                "weight": 5,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "negativeSignals": [],
+            "vetoes": [
+              {
+                "id": "NEG_ACADEMIC_RESEARCH_SCOPE",
+                "pack": "universal",
+                "track": "A",
+                "kind": "veto",
+                "field": "urlPath",
+                "weight": 6,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ]
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": -6,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": [
+              {
+                "id": "NEG_ACADEMIC_RESEARCH_SCOPE",
+                "pack": "universal",
+                "track": "B",
+                "kind": "veto",
+                "field": "urlPath",
+                "weight": 6,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.univ-example.fr/centre-de-langues/fle/",
+        "title": "Centre de langues - FLE",
+        "headings": [
+          {
+            "level": 1,
+            "text": "Français langue étrangère"
+          },
+          {
+            "level": 2,
+            "text": "LANSAD"
+          }
+        ]
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.univ-example.fr/centre-de-langues/fle/",
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": []
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": 26,
+            "matchedSignals": [
+              {
+                "id": "B_FR_CENTRE_DE_LANGUES",
+                "pack": "fr",
+                "track": "B",
+                "kind": "positive",
+                "field": "title",
+                "weight": 5,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "B_FR_CENTRE_DE_LANGUES",
+                "pack": "fr",
+                "track": "B",
+                "kind": "positive",
+                "field": "urlPath",
+                "weight": 5,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "B_FR_FLE",
+                "pack": "fr",
+                "track": "B",
+                "kind": "positive",
+                "field": "heading",
+                "weight": 4,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "B_FR_FLE",
+                "pack": "fr",
+                "track": "B",
+                "kind": "positive",
+                "field": "title",
+                "weight": 4,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "B_FR_FLE",
+                "pack": "fr",
+                "track": "B",
+                "kind": "positive",
+                "field": "urlPath",
+                "weight": 4,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "B_FR_LANSAD",
+                "pack": "fr",
+                "track": "B",
+                "kind": "positive",
+                "field": "heading",
+                "weight": 4,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "negativeSignals": [],
+            "vetoes": []
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.example.edu/language-centre/",
+        "title": "Language Centre",
+        "headings": [
+          {
+            "level": 3,
+            "text": "Language teaching"
+          }
+        ]
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.example.edu/language-centre/",
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": []
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": 13,
+            "matchedSignals": [
+              {
+                "id": "B_LANGUAGE_CENTRE",
+                "pack": "en",
+                "track": "B",
+                "kind": "positive",
+                "field": "title",
+                "weight": 5,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "B_LANGUAGE_CENTRE",
+                "pack": "en",
+                "track": "B",
+                "kind": "positive",
+                "field": "urlPath",
+                "weight": 5,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "B_LANGUAGE_TEACHING",
+                "pack": "en",
+                "track": "B",
+                "kind": "positive",
+                "field": "heading",
+                "weight": 3,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "negativeSignals": [],
+            "vetoes": []
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.example.ac.jp/kokusai/",
+        "title": "国際交流センター",
+        "headings": [
+          {
+            "level": 1,
+            "text": "留学生の皆さんへ"
+          },
+          {
+            "level": 2,
+            "text": "日本語教室・言語交換"
+          }
+        ]
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.example.ac.jp/kokusai/",
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": []
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": []
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.example.jp/%E5%9B%BD%E9%9A%9B%E4%BA%A4%E6%B5%81/",
+        "title": "国際交流協会 日本語教室"
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.example.jp/%E5%9B%BD%E9%9A%9B%E4%BA%A4%E6%B5%81/",
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": []
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": []
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.example.mx/movilidad/",
+        "title": "Coordinación de Movilidad Estudiantil",
+        "headings": [
+          {
+            "level": 1,
+            "text": "Intercambio de idiomas"
+          }
+        ]
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.example.mx/movilidad/",
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": []
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": []
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.example.mx/centro-de-idiomas/",
+        "title": "Centro de Idiomas - Cursos de idiomas",
+        "headings": [
+          {
+            "level": 2,
+            "text": "Café de idiomas"
+          }
+        ]
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.example.mx/centro-de-idiomas/",
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": []
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": []
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.example.nl/taalcafe/",
+        "title": "Taalcafé Amsterdam",
+        "headings": [
+          {
+            "level": 1,
+            "text": "Internationale studenten"
+          },
+          {
+            "level": 2,
+            "text": "Taalcursus Nederlands"
+          }
+        ]
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.example.nl/taalcafe/",
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": []
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": []
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.example.nl/uitwisseling/",
+        "title": "Uitwisseling en mobiliteit",
+        "headings": []
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.example.nl/uitwisseling/",
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": []
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": []
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.example.edu/erasmus/mobility/",
+        "title": "Erasmus+ mobility",
+        "headings": [
+          {
+            "level": 2,
+            "text": "Study abroad"
+          }
+        ]
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.example.edu/erasmus/mobility/",
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": 11,
+            "matchedSignals": [
+              {
+                "id": "A_ERASMUS",
+                "pack": "en",
+                "track": "A",
+                "kind": "positive",
+                "field": "title",
+                "weight": 3,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "A_ERASMUS",
+                "pack": "en",
+                "track": "A",
+                "kind": "positive",
+                "field": "urlPath",
+                "weight": 3,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "A_MOBILITY_GENERIC",
+                "pack": "en",
+                "track": "A",
+                "kind": "positive",
+                "field": "title",
+                "weight": 1,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "A_MOBILITY_GENERIC",
+                "pack": "en",
+                "track": "A",
+                "kind": "positive",
+                "field": "urlPath",
+                "weight": 1,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "A_STUDY_ABROAD",
+                "pack": "en",
+                "track": "A",
+                "kind": "positive",
+                "field": "heading",
+                "weight": 3,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "negativeSignals": [],
+            "vetoes": []
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": []
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.example.edu/",
+        "title": "",
+        "headings": []
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.example.edu/",
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": []
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": []
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.example.edu/a/b/c/d/",
+        "title": "ＩＮＴＥＲＮＡＴＩＯＮＡＬ ＯＦＦＩＣＥ"
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.example.edu/a/b/c/d/",
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": []
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": []
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.example.edu/languedoc/",
+        "title": "Languedoc"
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.example.edu/languedoc/",
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": []
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": []
+          }
+        ]
+      }
+    }
+  ],
+  "frontier": [
+    {
+      "input": {
+        "url": "https://www.univ-example.fr/international/",
+        "anchorText": "Relations internationales"
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.univ-example.fr/international/",
+        "pathDepth": 1,
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": 6,
+            "matchedSignals": [
+              {
+                "id": "A_FR_RELATIONS_INTERNATIONALES",
+                "pack": "fr",
+                "track": "A",
+                "kind": "positive",
+                "field": "anchorText",
+                "weight": 5,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "A_INTERNATIONAL_GENERIC",
+                "pack": "en",
+                "track": "A",
+                "kind": "positive",
+                "field": "urlPath",
+                "weight": 1,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "negativeSignals": [],
+            "vetoes": [],
+            "ownScore": 6,
+            "inheritedContribution": 0,
+            "sectionRootEligible": true,
+            "isSectionRoot": true
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": [],
+            "ownScore": 0,
+            "inheritedContribution": 0,
+            "sectionRootEligible": false,
+            "isSectionRoot": false
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.univ-example.fr/international/etudiants-entrants/",
+        "anchorText": "Étudiants entrants",
+        "sectionAncestors": [
+          {
+            "url": "https://www.univ-example.fr/international/",
+            "ownScore": 6,
+            "track": "A"
+          }
+        ]
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.univ-example.fr/international/etudiants-entrants/",
+        "pathDepth": 2,
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": 12,
+            "matchedSignals": [
+              {
+                "id": "A_FR_ETUDIANTS_ENTRANTS",
+                "pack": "fr",
+                "track": "A",
+                "kind": "positive",
+                "field": "anchorText",
+                "weight": 4,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "A_FR_ETUDIANTS_ENTRANTS",
+                "pack": "fr",
+                "track": "A",
+                "kind": "positive",
+                "field": "urlPath",
+                "weight": 4,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "A_INTERNATIONAL_GENERIC",
+                "pack": "en",
+                "track": "A",
+                "kind": "positive",
+                "field": "urlPath",
+                "weight": 1,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "INHERITED_SECTION_CONTEXT",
+                "pack": "universal",
+                "track": "A",
+                "kind": "positive",
+                "field": "sectionContext",
+                "weight": 3,
+                "inherited": true,
+                "inheritanceDepth": 1
+              }
+            ],
+            "negativeSignals": [],
+            "vetoes": [],
+            "ownScore": 9,
+            "inheritedContribution": 3,
+            "sectionRootEligible": true,
+            "isSectionRoot": true
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": [],
+            "ownScore": 0,
+            "inheritedContribution": 0,
+            "sectionRootEligible": false,
+            "isSectionRoot": false
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.univ-example.fr/international/recherche/",
+        "anchorText": "Recherche",
+        "sectionAncestors": [
+          {
+            "url": "https://www.univ-example.fr/international/",
+            "ownScore": 6,
+            "track": "A"
+          }
+        ]
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.univ-example.fr/international/recherche/",
+        "pathDepth": 2,
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": -5,
+            "matchedSignals": [
+              {
+                "id": "A_INTERNATIONAL_GENERIC",
+                "pack": "en",
+                "track": "A",
+                "kind": "positive",
+                "field": "urlPath",
+                "weight": 1,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "negativeSignals": [],
+            "vetoes": [
+              {
+                "id": "NEG_ACADEMIC_RESEARCH_SCOPE",
+                "pack": "universal",
+                "track": "A",
+                "kind": "veto",
+                "field": "urlPath",
+                "weight": 6,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "ownScore": -5,
+            "inheritedContribution": 0,
+            "sectionRootEligible": false,
+            "isSectionRoot": false
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": -6,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": [
+              {
+                "id": "NEG_ACADEMIC_RESEARCH_SCOPE",
+                "pack": "universal",
+                "track": "B",
+                "kind": "veto",
+                "field": "urlPath",
+                "weight": 6,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "ownScore": -6,
+            "inheritedContribution": 0,
+            "sectionRootEligible": false,
+            "isSectionRoot": false
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.univ-example.fr/international/a/b/",
+        "anchorText": null,
+        "sectionAncestors": [
+          {
+            "url": "https://www.univ-example.fr/international/",
+            "ownScore": 6,
+            "track": "A"
+          }
+        ]
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.univ-example.fr/international/a/b/",
+        "pathDepth": 3,
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": 2.5,
+            "matchedSignals": [
+              {
+                "id": "A_INTERNATIONAL_GENERIC",
+                "pack": "en",
+                "track": "A",
+                "kind": "positive",
+                "field": "urlPath",
+                "weight": 1,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "INHERITED_SECTION_CONTEXT",
+                "pack": "universal",
+                "track": "A",
+                "kind": "positive",
+                "field": "sectionContext",
+                "weight": 1.5,
+                "inherited": true,
+                "inheritanceDepth": 2
+              }
+            ],
+            "negativeSignals": [],
+            "vetoes": [],
+            "ownScore": 1,
+            "inheritedContribution": 1.5,
+            "sectionRootEligible": false,
+            "isSectionRoot": false
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": [],
+            "ownScore": 0,
+            "inheritedContribution": 0,
+            "sectionRootEligible": false,
+            "isSectionRoot": false
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.example.edu/language-centre/",
+        "anchorText": "Language Centre"
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.example.edu/language-centre/",
+        "pathDepth": 1,
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": [],
+            "ownScore": 0,
+            "inheritedContribution": 0,
+            "sectionRootEligible": false,
+            "isSectionRoot": false
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": 10,
+            "matchedSignals": [
+              {
+                "id": "B_LANGUAGE_CENTRE",
+                "pack": "en",
+                "track": "B",
+                "kind": "positive",
+                "field": "anchorText",
+                "weight": 5,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "B_LANGUAGE_CENTRE",
+                "pack": "en",
+                "track": "B",
+                "kind": "positive",
+                "field": "urlPath",
+                "weight": 5,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "negativeSignals": [],
+            "vetoes": [],
+            "ownScore": 10,
+            "inheritedContribution": 0,
+            "sectionRootEligible": true,
+            "isSectionRoot": true
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.example.ac.jp/kokusai/",
+        "anchorText": "国際交流センター"
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.example.ac.jp/kokusai/",
+        "pathDepth": 1,
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": [],
+            "ownScore": 0,
+            "inheritedContribution": 0,
+            "sectionRootEligible": false,
+            "isSectionRoot": false
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": [],
+            "ownScore": 0,
+            "inheritedContribution": 0,
+            "sectionRootEligible": false,
+            "isSectionRoot": false
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.example.mx/idiomas/",
+        "anchorText": "Centro de Idiomas"
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.example.mx/idiomas/",
+        "pathDepth": 1,
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": [],
+            "ownScore": 0,
+            "inheritedContribution": 0,
+            "sectionRootEligible": false,
+            "isSectionRoot": false
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": [],
+            "ownScore": 0,
+            "inheritedContribution": 0,
+            "sectionRootEligible": false,
+            "isSectionRoot": false
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.example.nl/taalcafe/",
+        "anchorText": "Taalcafé"
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.example.nl/taalcafe/",
+        "pathDepth": 1,
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": [],
+            "ownScore": 0,
+            "inheritedContribution": 0,
+            "sectionRootEligible": false,
+            "isSectionRoot": false
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": 0,
+            "matchedSignals": [],
+            "negativeSignals": [],
+            "vetoes": [],
+            "ownScore": 0,
+            "inheritedContribution": 0,
+            "sectionRootEligible": false,
+            "isSectionRoot": false
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.example.edu/files/x.pdf",
+        "anchorText": "International office brochure"
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.example.edu/files/x.pdf",
+        "pathDepth": 2,
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": 3,
+            "matchedSignals": [
+              {
+                "id": "A_INTERNATIONAL_GENERIC",
+                "pack": "en",
+                "track": "A",
+                "kind": "positive",
+                "field": "anchorText",
+                "weight": 1,
+                "inherited": false,
+                "inheritanceDepth": null
+              },
+              {
+                "id": "A_INTL_OFFICE",
+                "pack": "en",
+                "track": "A",
+                "kind": "positive",
+                "field": "anchorText",
+                "weight": 5,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "negativeSignals": [
+              {
+                "id": "NEG_BINARY_FILE_EXTENSION",
+                "pack": "universal",
+                "track": "A",
+                "kind": "negative",
+                "field": "urlPath",
+                "weight": 3,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "vetoes": [],
+            "ownScore": 3,
+            "inheritedContribution": 0,
+            "sectionRootEligible": false,
+            "isSectionRoot": false
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": -3,
+            "matchedSignals": [],
+            "negativeSignals": [
+              {
+                "id": "NEG_BINARY_FILE_EXTENSION",
+                "pack": "universal",
+                "track": "B",
+                "kind": "negative",
+                "field": "urlPath",
+                "weight": 3,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "vetoes": [],
+            "ownScore": -3,
+            "inheritedContribution": 0,
+            "sectionRootEligible": false,
+            "isSectionRoot": false
+          }
+        ]
+      }
+    },
+    {
+      "input": {
+        "url": "https://www.example.edu/login",
+        "anchorText": "Sign in"
+      },
+      "output": {
+        "ruleVersion": "orgunit-signal-rules-v1",
+        "url": "https://www.example.edu/login",
+        "pathDepth": 1,
+        "tracks": [
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "A",
+            "score": -3,
+            "matchedSignals": [],
+            "negativeSignals": [
+              {
+                "id": "NEG_LOGIN_AUTH",
+                "pack": "universal",
+                "track": "A",
+                "kind": "negative",
+                "field": "urlPath",
+                "weight": 3,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "vetoes": [],
+            "ownScore": -3,
+            "inheritedContribution": 0,
+            "sectionRootEligible": false,
+            "isSectionRoot": false
+          },
+          {
+            "ruleVersion": "orgunit-signal-rules-v1",
+            "track": "B",
+            "score": -3,
+            "matchedSignals": [],
+            "negativeSignals": [
+              {
+                "id": "NEG_LOGIN_AUTH",
+                "pack": "universal",
+                "track": "B",
+                "kind": "negative",
+                "field": "urlPath",
+                "weight": 3,
+                "inherited": false,
+                "inheritanceDepth": null
+              }
+            ],
+            "vetoes": [],
+            "ownScore": -3,
+            "inheritedContribution": 0,
+            "sectionRootEligible": false,
+            "isSectionRoot": false
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -372,6 +372,17 @@ describe('PHASE-2B-FIREWALL: exactly one institution-website network call site',
       'src/orgunits/signals/packs/universal.ts',
       'src/orgunits/signals/packs/fr.ts',
       'src/orgunits/signals/packs/en.ts',
+      // orgunit-signal-rules-v2 (Japan/Mexico/Netherlands pilot): an opt-in
+      // second ruleset BESIDE v1 (score.ts/types.ts are bound by bytes in
+      // OWNER records and are untouched), and three REAL packs - named here
+      // by exact path, a deliberate, reviewed widening of the "only fr/en
+      // ship" pin below. See the signal-layer describe block.
+      'src/orgunits/signals/scoreV2.ts',
+      'src/orgunits/signals/typesV2.ts',
+      'src/orgunits/signals/scriptAware.ts',
+      'src/orgunits/signals/packs/ja.ts',
+      'src/orgunits/signals/packs/es.ts',
+      'src/orgunits/signals/packs/nl.ts',
       // 2B-1e: PURE sitemap XML parsing + bounded orchestration over the
       // one gateway. See the dedicated "sitemap"/"frontier" describe blocks
       // below for what these files may and may not do.
@@ -419,10 +430,10 @@ describe('PHASE-2B-FIREWALL: exactly one institution-website network call site',
       // is the approved home for handoff assembly; this sibling name stays
       // refused so a second, competing namespace cannot appear beside it.
       'src/orgunits/candidates',
-      // Only fr/en ship. No placeholder for an unmeasured language.
+      // v1 ships fr/en; v2 adds ja/es/nl, each carrying real rules (asserted
+      // in the signal-layer block). No placeholder for an unmeasured
+      // language: de/it stay refused.
       'src/orgunits/signals/packs/de.ts',
-      'src/orgunits/signals/packs/nl.ts',
-      'src/orgunits/signals/packs/es.ts',
       'src/orgunits/signals/packs/it.ts',
     ]) {
       expect(exists(path), `${path} exists but belongs to a later slice`).toBe(false);
@@ -890,6 +901,10 @@ describe('PHASE-2B-FIREWALL: the deterministic signal layer is PURE, and produce
       'src/orgunits/signals/score.ts',
       'src/orgunits/signals/tree.ts',
       'src/orgunits/signals/normalise.ts',
+      // v2's scoring core, held to the same rule.
+      'src/orgunits/signals/scoreV2.ts',
+      'src/orgunits/signals/typesV2.ts',
+      'src/orgunits/signals/scriptAware.ts',
     ]) {
       const source = code(file);
       for (const banned of ['country', 'locale', 'market', 'targetLanguage', 'langPack']) {
@@ -898,19 +913,85 @@ describe('PHASE-2B-FIREWALL: the deterministic signal layer is PURE, and produce
     }
   });
 
-  it('ships exactly the approved universal/fr/en packs, and no per-organisation activation switch', () => {
+  it('ships exactly the approved universal/fr/en (v1) + ja/es/nl (v2) packs, and no per-organisation activation switch', () => {
     const packsDir = resolve(ROOT, 'src/orgunits/signals/packs');
     const packFiles = readdirSync(packsDir)
       .filter((f) => f.endsWith('.ts'))
       .sort();
-    expect(packFiles).toEqual(['en.ts', 'fr.ts', 'universal.ts']);
+    // Widened deliberately, by exact file name, for orgunit-signal-rules-v2.
+    expect(packFiles).toEqual(['en.ts', 'es.ts', 'fr.ts', 'ja.ts', 'nl.ts', 'universal.ts']);
 
-    // score.ts must import all three unconditionally - never behind a branch
-    // keyed on a per-organisation property.
+    // score.ts (v1) imports exactly its three packs, unconditionally - never
+    // behind a branch keyed on a per-organisation property.
     const scoreSource = code('src/orgunits/signals/score.ts');
     expect(scoreSource).toMatch(/from\s+['"]\.\/packs\/universal\.js['"]/);
     expect(scoreSource).toMatch(/from\s+['"]\.\/packs\/fr\.js['"]/);
     expect(scoreSource).toMatch(/from\s+['"]\.\/packs\/en\.js['"]/);
+
+    // scoreV2.ts imports all six, the same way.
+    const v2Source = code('src/orgunits/signals/scoreV2.ts');
+    for (const pack of ['universal', 'fr', 'en', 'ja', 'es', 'nl']) {
+      expect(v2Source, pack).toMatch(new RegExp(`from\\s+['"]\\./packs/${pack}\\.js['"]`));
+    }
+    // No dynamic import, no require: a pack cannot be loaded conditionally.
+    for (const source of [scoreSource, v2Source]) {
+      expect(source).not.toMatch(/\bimport\s*\(/);
+      expect(source).not.toMatch(/\brequire\s*\(/);
+    }
+  });
+
+  it('v1 never reaches v2: no v1 engine file imports the v2 modules or the ja/es/nl packs', () => {
+    // orgunit-signal-rules-v1 is pinned by persisted runs, frozen classifier
+    // configurations and (score.ts/types.ts) OWNER records bound by bytes.
+    // A new pack silently joining v1 would change every v1 score without
+    // changing the v1 version string.
+    for (const file of [
+      'src/orgunits/signals/score.ts',
+      'src/orgunits/signals/types.ts',
+      'src/orgunits/signals/normalise.ts',
+      'src/orgunits/signals/tree.ts',
+      'src/orgunits/signals/weights.ts',
+      'src/orgunits/signals/packs/universal.ts',
+      'src/orgunits/signals/packs/fr.ts',
+      'src/orgunits/signals/packs/en.ts',
+    ]) {
+      const source = code(file);
+      expect(source, file).not.toMatch(/scoreV2|typesV2|scriptAware/);
+      expect(source, file).not.toMatch(/packs\/(ja|es|nl)\.js/);
+    }
+    expect(code('src/orgunits/signals/score.ts')).toMatch(
+      /export const ORGUNIT_SIGNAL_RULE_VERSION = 'orgunit-signal-rules-v1';/,
+    );
+    expect(code('src/orgunits/signals/scoreV2.ts')).toMatch(
+      /export const ORGUNIT_SIGNAL_RULE_VERSION_V2 = 'orgunit-signal-rules-v2';/,
+    );
+  });
+
+  it('each v2 pack carries REAL rules on both tracks - never a placeholder', async () => {
+    for (const [file, exportName, pack] of [
+      ['src/orgunits/signals/packs/ja.ts', 'JA_RULES', 'ja'],
+      ['src/orgunits/signals/packs/es.ts', 'ES_RULES', 'es'],
+      ['src/orgunits/signals/packs/nl.ts', 'NL_RULES', 'nl'],
+    ] as const) {
+      const module = (await import(resolve(ROOT, file))) as Record<string, unknown>;
+      const rules = module[exportName] as readonly {
+        pack: string;
+        kind: string;
+        tracks: readonly string[];
+        phrases: readonly string[];
+      }[];
+      expect(Array.isArray(rules), `${file} exports ${exportName}`).toBe(true);
+      for (const rule of rules) {
+        expect(rule.pack, file).toBe(pack);
+        expect(rule.phrases.length, file).toBeGreaterThan(0);
+      }
+      for (const track of ['A', 'B']) {
+        const positives = rules.filter(
+          (rule) => rule.kind === 'positive' && rule.tracks.includes(track),
+        );
+        expect(positives.length, `${file} track ${track} positives`).toBeGreaterThanOrEqual(4);
+      }
+    }
   });
 
   it('declares no AI, Apollo or outbound reference in the signal layer', () => {
