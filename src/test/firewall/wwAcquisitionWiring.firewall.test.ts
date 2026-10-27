@@ -238,7 +238,14 @@ describe('WW E-W: the wiring namespace is exactly what was approved', () => {
         !f.startsWith('src/orgunits/acquisition/') &&
         specifiers(code(f)).some((s) => /(^|\/)acquisition\/[a-z]+\.js$/.test(s)),
     );
-    expect(importers.filter((f) => !f.startsWith(NS))).toEqual([CLI]);
+    // WW E-M: the Mac runtime reads whether an OWNER campaign key is pinned,
+    // through the public index only, at this one exact path - the same pin
+    // wwAcquisitionQueue.firewall.test.ts and wwMacRuntime.firewall.test.ts
+    // already carry. Merged by exact path, never by pattern.
+    expect(importers.filter((f) => !f.startsWith(NS))).toEqual([
+      CLI,
+      'src/runtime/campaignTrust.ts',
+    ]);
   });
 });
 
