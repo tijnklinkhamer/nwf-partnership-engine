@@ -81,9 +81,10 @@ Usage:
   nwf-pe jurisdiction-claims record --subject-id <uuid> --country-of-operation <CC> <source> ...
                               (one SOURCE_STATED claim from a source the subject holds; DRY RUN
                               unless --execute; run \`nwf-pe jurisdiction-claims --help\`)
-  nwf-pe acquisition campaign verify|record|control | status | worker ...
-                              (OWNER-signed campaigns and the work-queue worker; INERT: no
-                              campaign key, no stage handler; run \`nwf-pe acquisition --help\`)
+  nwf-pe acquisition campaign verify|record|control|template|sign | status | worker | review ...
+                              (OWNER-signed campaigns, the wired work-queue worker and the batched
+                              OWNER review; INERT: no campaign or review key; run
+                              \`nwf-pe acquisition --help\`)
 
 Options:
   --country <CC>    Restrict to an ISO-3166-1 alpha-2 country code (e.g. FR).

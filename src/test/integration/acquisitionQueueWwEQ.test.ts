@@ -16,6 +16,7 @@ import {
   CampaignRecordRefusal,
   CampaignTrustSet,
   OutcomeRefusedError,
+  OwnerPathRequired,
   WorkerConfigRefusal,
   claimNextWorkItem,
   deriveCampaignAuthority,
@@ -98,8 +99,14 @@ describeDb('WW E-Q acquisition campaigns and queue (integration)', () => {
 
   beforeEach(async () => {
     await admin.query(
-      `TRUNCATE acquisition_worker_stops, acquisition_work_outcomes, acquisition_work_claims,
-                acquisition_work_items, acquisition_campaign_control_events, acquisition_campaigns`,
+      // WW E-W (migration 0024): the wiring tables and CAMPAIGN admissions
+      // reference campaigns and items, so they are truncated with them.
+      `TRUNCATE acquisition_claim_lease_extensions, acquisition_outbox_entries,
+                acquisition_signals, acquisition_campaign_subjects,
+                subject_research_admission_revocations, subject_research_admissions,
+                acquisition_worker_stops, acquisition_work_outcomes, acquisition_work_claims,
+                acquisition_work_items, acquisition_campaign_control_events, acquisition_campaigns
+                CASCADE`,
     );
   });
 
@@ -315,9 +322,21 @@ describeDb('WW E-Q acquisition campaigns and queue (integration)', () => {
         `SELECT table_name || ':' || privilege_type AS g FROM information_schema.role_table_grants
           WHERE grantee = 'nwf_acquisition_worker' ORDER BY 1`,
       );
+      // WW E-W (migration 0024, by exact grant): the wiring records, lease
+      // heartbeats, CAMPAIGN admissions (the trigger refuses any other basis
+      // from this role), revocations and the one environment row - SELECT and
+      // INSERT only, never a mutating privilege.
       expect(rows.map((r) => r.g)).toEqual([
         'acquisition_campaign_control_events:SELECT',
+        'acquisition_campaign_subjects:INSERT',
+        'acquisition_campaign_subjects:SELECT',
         'acquisition_campaigns:SELECT',
+        'acquisition_claim_lease_extensions:INSERT',
+        'acquisition_claim_lease_extensions:SELECT',
+        'acquisition_outbox_entries:INSERT',
+        'acquisition_outbox_entries:SELECT',
+        'acquisition_signals:INSERT',
+        'acquisition_signals:SELECT',
         'acquisition_work_claims:INSERT',
         'acquisition_work_claims:SELECT',
         'acquisition_work_item_states:SELECT',
@@ -327,6 +346,10 @@ describeDb('WW E-Q acquisition campaigns and queue (integration)', () => {
         'acquisition_work_outcomes:SELECT',
         'acquisition_worker_stops:INSERT',
         'acquisition_worker_stops:SELECT',
+        'subject_research_admission_revocations:SELECT',
+        'subject_research_admissions:INSERT',
+        'subject_research_admissions:SELECT',
+        'subject_review_environment:SELECT',
       ]);
     });
   });
@@ -761,11 +784,13 @@ describeDb('WW E-Q acquisition campaigns and queue (integration)', () => {
       const releaseAs = (pool: pg.Pool) =>
         sqlstate(() =>
           pool.query(
+            // WW E-W (migration 0024 queue shape): the child keeps its parent's domain.
             `INSERT INTO acquisition_work_items
                (campaign_id, stage, source_kind, subject_kind, subject_id, idempotency_key,
-                parent_item_id, priority)
+                parent_item_id, priority, registrable_domain)
              VALUES ($1, 'ASSESSABLE', 'SEARCH_GRANT', 'DISCOVERY_SUBJECT', $2::uuid,
-                     'ASSESSABLE|DISCOVERY_SUBJECT:' || $2::text, $3, 600)`,
+                     'ASSESSABLE|DISCOVERY_SUBJECT:' || $2::text, $3, 600,
+                     (SELECT registrable_domain FROM acquisition_work_items WHERE id = $3))`,
             [id, subject, gate[0]!.id],
           ),
         );
@@ -864,30 +889,47 @@ describeDb('WW E-Q acquisition campaigns and queue (integration)', () => {
       ).toMatchObject({
         kind: 'INSERTED',
       });
+      // WW E-W (review P2-1): the store now refuses a non-owner session before
+      // the database is asked; the database still refuses the worker by itself.
+      await expect(
+        enqueueOwnerRoot(worker, { campaignId: id, sourceKind: 'SEED', subjectId: randomUUID() }),
+      ).rejects.toBeInstanceOf(OwnerPathRequired);
+      const seed = randomUUID();
       expect(
         await sqlstate(() =>
-          enqueueOwnerRoot(worker, { campaignId: id, sourceKind: 'SEED', subjectId: randomUUID() }),
+          worker.query(
+            `INSERT INTO acquisition_work_items
+               (campaign_id, stage, source_kind, subject_kind, subject_id, idempotency_key, priority)
+             VALUES ($1, 'DISCOVERED', 'SEED', 'SEED_LIST', $2::uuid,
+                     'DISCOVERED|SEED_LIST:' || $2::text, 0)`,
+            [id, seed],
+          ),
         ),
       ).toBe('42501');
     });
 
-    it('the production worker refuses: no stage handler is wired in this build', async () => {
+    // WW E-W (ADR 0030): the production stage handlers are now wired, so the
+    // CLI no longer refuses ACQUISITION_HANDLERS_NOT_WIRED for a listed stage;
+    // the worker still claims NOTHING, because the campaign derives no
+    // authority under the EMPTY operational trust set. The status is the
+    // versioned nwf-pe.acquisition-status.v1 document, embedding E-Q's.
+    it('the production worker claims nothing: the campaign does not verify in this build', async () => {
       const id = await record({ searchGrantIds: [randomUUID()] });
       const out: string[] = [];
       const code = await runAcquisitionCli(['worker', '--campaign-id', id, '--json'], {
         readonlyPool: () => readonlyPool(),
-        workerPool: () => {
-          throw new Error('the worker capability must not be touched');
-        },
+        workerPool: () => new pg.Pool({ connectionString: urlFor(WORKER_LOGIN), max: 2 }),
         out: (t) => out.push(t),
         err: () => undefined,
       });
-      expect(code).toBe(1);
+      expect(code).toBe(0);
       expect(JSON.parse(out[0]!)).toMatchObject({
-        outcome: 'REFUSED',
-        code: 'ACQUISITION_HANDLERS_NOT_WIRED',
-        unwiredStages: ['DISCOVERED'],
+        outcome: 'STOPPED',
+        summary: { stopReason: 'CAMPAIGN_UNVERIFIED', processed: 0 },
       });
+      expect(
+        (await admin.query('SELECT count(*)::int AS n FROM acquisition_work_claims')).rows[0].n,
+      ).toBe(0);
       const status: string[] = [];
       expect(
         await runAcquisitionCli(['status', '--campaign-id', id, '--json'], {
@@ -896,8 +938,16 @@ describeDb('WW E-Q acquisition campaigns and queue (integration)', () => {
         }),
       ).toBe(0);
       expect(JSON.parse(status[0]!).status).toMatchObject({
-        controlState: 'NOT_STARTED',
-        verification: { verified: false, detail: 'KEY_UNKNOWN' },
+        schema: 'nwf-pe.acquisition-status.v1',
+        campaign: {
+          controlState: 'NOT_STARTED',
+          verified: false,
+          verificationDetail: 'KEY_UNKNOWN',
+        },
+        queue: {
+          controlState: 'NOT_STARTED',
+          verification: { verified: false, detail: 'KEY_UNKNOWN' },
+        },
       });
     });
   });

@@ -1,0 +1,262 @@
+/**
+ * WW E-W - THE BATCHED OWNER IDENTITY REVIEW OF A CAMPAIGN (ADR 0030 s5).
+ *
+ *   listAwaitingReview  - every subject of ONE campaign whose IDENTITY_REVIEW
+ *                         item is AWAITING_HUMAN and not yet released: its
+ *                         name and kind CLAIMS and stated country (claims, never
+ *                         verdicts), root URL, an evidence summary, the v2
+ *                         export's research-status counts and the campaign's
+ *                         duplicate signals on its domain. Read-only.
+ *   signCampaignReviews - for EACH subject the OWNER listed explicitly: sign
+ *                         and append the existing ADR 0023 OWNER-attested
+ *                         CONFIRMED review (`reviewBridge.ts`), then release
+ *                         the item to ASSESSABLE on the OWNER PATH. One
+ *                         passphrase per batch (the caller decrypts the key
+ *                         once). A subject that is not awaiting review in
+ *                         this campaign is refused before anything is signed.
+ *
+ * There is no "all" form and no auto-approval: an unlisted subject is never
+ * reviewed, and the review trust set is EMPTY in production.
+ *
+ * Opens no socket.
+ */
+import type pg from 'pg';
+
+import { releaseIdentityReviewItem } from '../acquisition/index.js';
+import { exportQualificationInputV2 } from './exportPort.js';
+import {
+  signAndAppendSubjectReview,
+  type OwnerSigningKey,
+  type OwnerReviewTrust,
+} from './reviewBridge.js';
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+export const REVIEW_BATCH_MAX_SUBJECTS = 50;
+
+export interface AwaitingReviewEntry {
+  readonly workItemId: string;
+  readonly subjectId: string;
+  readonly registrableDomain: string | null;
+  readonly names: readonly string[];
+  readonly registeredKind: string;
+  readonly claimedKinds: readonly string[];
+  /** From the v2 export (ADR 0024): a SOURCE_STATED country or UNKNOWN; never inferred. */
+  readonly country: { readonly value: string | null; readonly standing: string };
+  readonly rootUrl: string | null;
+  readonly evidence: {
+    readonly researchRuns: number;
+    readonly completedRuns: number;
+    readonly fetchObservations: number;
+    readonly pageEvidence: number;
+    readonly pageCandidates: number;
+  };
+  readonly researchStatusCounts: Readonly<Record<string, number>>;
+  readonly duplicateSignals: readonly {
+    readonly kind: string;
+    readonly relatedKind: string | null;
+  }[];
+}
+
+interface AwaitingRow {
+  work_item_id: string;
+  subject_id: string;
+  registrable_domain: string | null;
+}
+
+async function awaitingRows(readonly: pg.Pool, campaignId: string): Promise<AwaitingRow[]> {
+  const { rows } = await readonly.query<AwaitingRow>(
+    `SELECT s.work_item_id, s.subject_id, s.registrable_domain
+       FROM acquisition_work_item_states s
+      WHERE s.campaign_id = $1 AND s.stage = 'IDENTITY_REVIEW' AND s.state = 'AWAITING_HUMAN'
+        AND s.human_queue = 'OWNER_IDENTITY_REVIEW'
+        AND NOT EXISTS (SELECT 1 FROM acquisition_work_items c WHERE c.parent_item_id = s.work_item_id)
+      ORDER BY s.created_at, s.work_item_id`,
+    [campaignId],
+  );
+  return rows;
+}
+
+export async function listAwaitingReview(
+  readonly: pg.Pool,
+  campaignId: string,
+): Promise<readonly AwaitingReviewEntry[]> {
+  if (!UUID.test(campaignId)) return [];
+  const out: AwaitingReviewEntry[] = [];
+  for (const row of await awaitingRows(readonly, campaignId)) {
+    const id = row.subject_id;
+    const subject = await readonly.query<{ registered_kind: string }>(
+      'SELECT registered_kind FROM discovery_subjects WHERE id = $1',
+      [id],
+    );
+    const claims = await readonly.query<{
+      claim_kind: string;
+      name_text: string | null;
+      claimed_kind: string | null;
+      website_url: string | null;
+    }>(
+      `SELECT claim_kind, name_text, claimed_kind, website_url
+         FROM discovery_subject_identity_claims WHERE subject_id = $1 ORDER BY created_at, id`,
+      [id],
+    );
+    const evidence = await readonly.query<{
+      runs: number;
+      completed: number;
+      fetches: number;
+      pages: number;
+      candidates: number;
+    }>(
+      `WITH runs AS (
+         SELECT r.id FROM subject_research_admissions a
+           JOIN orgunit_research_runs r ON r.root_scope = 'subject_admission:' || a.id::text
+          WHERE a.subject_id = $1 AND a.campaign_id = $2)
+       SELECT (SELECT count(*) FROM runs)::int AS runs,
+              (SELECT count(*) FROM orgunit_research_run_completions c
+                WHERE c.run_id IN (SELECT id FROM runs) AND c.terminal_state = 'COMPLETED')::int
+                AS completed,
+              (SELECT count(*) FROM orgunit_fetch_observations f
+                WHERE f.run_id IN (SELECT id FROM runs))::int AS fetches,
+              (SELECT count(*) FROM orgunit_page_evidence p
+                 JOIN orgunit_fetch_observations f ON f.id = p.fetch_observation_id
+                WHERE f.run_id IN (SELECT id FROM runs))::int AS pages,
+              (SELECT count(*) FROM orgunit_page_candidates k
+                WHERE k.run_id IN (SELECT id FROM runs))::int AS candidates`,
+      [id, campaignId],
+    );
+    const signals = await readonly.query<{ signal_kind: string; related_kind: string | null }>(
+      `SELECT DISTINCT signal_kind, related_kind FROM acquisition_signals
+        WHERE campaign_id = $1 AND registrable_domain = $2 ORDER BY 1, 2`,
+      [campaignId, row.registrable_domain],
+    );
+    const statusCounts: Record<string, number> = {};
+    const doc = await exportQualificationInputV2(readonly, { subjectId: id, evaluatedAt: null });
+    for (const entry of doc.researchStatus) {
+      statusCounts[entry.status] = (statusCounts[entry.status] ?? 0) + 1;
+    }
+    const e = evidence.rows[0]!;
+    out.push({
+      workItemId: row.work_item_id,
+      subjectId: id,
+      registrableDomain: row.registrable_domain,
+      names: claims.rows.flatMap((c) =>
+        ['NAME', 'ALTERNATE_NAME', 'NATIVE_NAME'].includes(c.claim_kind) && c.name_text !== null
+          ? [c.name_text]
+          : [],
+      ),
+      registeredKind: subject.rows[0]?.registered_kind ?? 'UNKNOWN',
+      claimedKinds: claims.rows.flatMap((c) =>
+        c.claim_kind === 'ENTITY_KIND' && c.claimed_kind !== null ? [c.claimed_kind] : [],
+      ),
+      // The v2 export's ADR 0024 reading: a STATED country, or UNKNOWN / CONFLICTING.
+      country: { value: doc.country.value, standing: doc.country.standing },
+      rootUrl:
+        claims.rows.find((c) => c.claim_kind === 'PUBLIC_WEBSITE' && c.website_url !== null)
+          ?.website_url ?? null,
+      evidence: {
+        researchRuns: e.runs,
+        completedRuns: e.completed,
+        fetchObservations: e.fetches,
+        pageEvidence: e.pages,
+        pageCandidates: e.candidates,
+      },
+      researchStatusCounts: statusCounts,
+      duplicateSignals: signals.rows.map((s) => ({
+        kind: s.signal_kind,
+        relatedKind: s.related_kind,
+      })),
+    });
+  }
+  return out;
+}
+
+export class ReviewBatchRefusal extends Error {
+  constructor(
+    readonly code:
+      | 'SUBJECTS_REQUIRED'
+      | 'TOO_MANY_SUBJECTS'
+      | 'SUBJECT_ID_INVALID'
+      | 'SUBJECT_REPEATED'
+      | 'SUBJECT_NOT_AWAITING_REVIEW',
+    readonly detail: string | null = null,
+  ) {
+    super(detail === null ? code : `${code}: ${detail}`);
+    this.name = 'ReviewBatchRefusal';
+  }
+}
+
+export interface ReviewBatchPools {
+  readonly readonly: pg.Pool;
+  /** A login holding nwf_discovery_subject_reviewer. */
+  readonly reviewer: pg.Pool;
+  /** The owner path (releases a reviewed item to ASSESSABLE). */
+  readonly owner: pg.Pool;
+}
+
+export interface ReviewBatchResult {
+  readonly subjectId: string;
+  readonly workItemId: string;
+  readonly outcome: 'REVIEWED_AND_RELEASED' | 'FAILED';
+  readonly code: string | null;
+}
+
+/** Checks the batch BEFORE anything is signed: every listed subject must be awaiting review here. */
+export async function planReviewBatch(
+  readonly: pg.Pool,
+  campaignId: string,
+  subjectIds: readonly string[],
+): Promise<readonly AwaitingRow[]> {
+  if (subjectIds.length === 0) throw new ReviewBatchRefusal('SUBJECTS_REQUIRED');
+  if (subjectIds.length > REVIEW_BATCH_MAX_SUBJECTS) {
+    throw new ReviewBatchRefusal('TOO_MANY_SUBJECTS', String(REVIEW_BATCH_MAX_SUBJECTS));
+  }
+  if (new Set(subjectIds).size !== subjectIds.length) {
+    throw new ReviewBatchRefusal('SUBJECT_REPEATED');
+  }
+  const awaiting = await awaitingRows(readonly, campaignId);
+  return subjectIds.map((id) => {
+    if (!UUID.test(id)) throw new ReviewBatchRefusal('SUBJECT_ID_INVALID', id);
+    const row = awaiting.find((r) => r.subject_id === id);
+    if (row === undefined) throw new ReviewBatchRefusal('SUBJECT_NOT_AWAITING_REVIEW', id);
+    return row;
+  });
+}
+
+/**
+ * Signs and appends one OWNER review per listed subject, then releases each
+ * reviewed item to ASSESSABLE. A failure for one subject is reported and does
+ * not release it; the others proceed (each is its own decision).
+ */
+export async function signCampaignReviews(
+  pools: ReviewBatchPools,
+  campaignId: string,
+  subjectIds: readonly string[],
+  key: OwnerSigningKey,
+  trust: OwnerReviewTrust,
+  nowMs: () => number,
+): Promise<readonly ReviewBatchResult[]> {
+  const planned = await planReviewBatch(pools.readonly, campaignId, subjectIds);
+  const results: ReviewBatchResult[] = [];
+  for (const row of planned) {
+    try {
+      await signAndAppendSubjectReview(pools, row.subject_id, key, trust, nowMs());
+      await releaseIdentityReviewItem(pools.owner, {
+        campaignId,
+        identityReviewItemId: row.work_item_id,
+      });
+      results.push({
+        subjectId: row.subject_id,
+        workItemId: row.work_item_id,
+        outcome: 'REVIEWED_AND_RELEASED',
+        code: null,
+      });
+    } catch (error) {
+      const code = (error as { code?: unknown }).code;
+      results.push({
+        subjectId: row.subject_id,
+        workItemId: row.work_item_id,
+        outcome: 'FAILED',
+        code: typeof code === 'string' ? code : 'INTERNAL_ERROR',
+      });
+    }
+  }
+  return results;
+}
