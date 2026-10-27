@@ -2,7 +2,7 @@
  * WW E-M - THE MAC RUNTIME'S ONE PROCESS SEAM.
  *
  * This is the ONLY file under src/runtime/ that may start a process, and it
- * can start exactly four things, each from a FIXED argument vector built here
+ * can start exactly five things, each from a FIXED argument vector built here
  * (never a caller string, never a shell):
  *
  *   1. the Engine's own CLI, `nwf-pe acquisition status | campaign control |
@@ -10,10 +10,16 @@
  *   2. `docker compose ... ps` for the Engine's Postgres service;
  *   3. `docker compose ... up -d --no-recreate --wait` for that service
  *      (never `down`, never `-v`, never a recreate);
- *   4. the runtime's own supervisor, detached.
+ *   4. the runtime's own supervisor, detached;
+ *   5. `/usr/sbin/sysctl -n kern.boottime` (absolute path, so PATH never
+ *      chooses it): the boot time a lock written before it cannot outlive.
  *
  * Every Node child runs this checkout's own source with `--import tsx`, from
- * the repository root, with the environment this process already has. The
+ * the repository root, with the environment this process already has MINUS
+ * every `PG*` variable (WW H-RT): pg fills a connection detail a URL leaves
+ * out from PGHOST/PGPORT/PGDATABASE/PGOPTIONS/..., and the runtime's target
+ * check only vouches for what the URLs themselves say. This is also the ONE
+ * place in src/runtime/ that touches `process.env` at all. The
  * runtime makes no network call itself: every request to an institution or a
  * provider can only happen inside the worker's own gated stage handlers.
  */
@@ -35,6 +41,11 @@ const REASON = /^[\p{L}\p{N} .,;:()'_/-]{1,200}$/u;
  * re-checks it (exists, a directory, not a symlink) before it writes.
  */
 export function isOutboxDirArgument(dir: string): boolean {
+  return isCanonicalAbsolutePath(dir);
+}
+
+/** Absolute, already canonical, printable and bounded (the outbox rule, for any path). */
+export function isCanonicalAbsolutePath(dir: string): boolean {
   return (
     dir.length > 1 &&
     dir.length <= 1024 &&
@@ -47,6 +58,43 @@ export function isOutboxDirArgument(dir: string): boolean {
 }
 
 const NODE_FLAGS = ['--import', 'tsx'] as const;
+
+/** Every libpq/pg environment default (PGHOST, PGPORT, PGDATABASE, PGOPTIONS, PGSSLMODE, ...). */
+const POSTGRES_VARIABLE = /^PG/;
+
+/** A copy of `env` without any `PG*` variable: what every child process is given. */
+export function childEnvironment(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
+  const out: NodeJS.ProcessEnv = {};
+  for (const [name, value] of Object.entries(env)) {
+    if (!POSTGRES_VARIABLE.test(name)) out[name] = value;
+  }
+  return out;
+}
+
+/** This process's environment as every child gets it (no `PG*`). */
+export function inheritedEnvironment(): NodeJS.ProcessEnv {
+  return childEnvironment(process.env);
+}
+
+/**
+ * Removes every `PG*` variable from THIS process too (engine.ts calls it
+ * first), so the in-process doctor reads are bound by the URLs alone.
+ * Returns the removed NAMES (never values).
+ */
+export function scrubPostgresVariables(): string[] {
+  const removed: string[] = [];
+  for (const name of Object.keys(process.env)) {
+    if (POSTGRES_VARIABLE.test(name)) {
+      delete process.env[name];
+      removed.push(name);
+    }
+  }
+  return removed.sort();
+}
+
+/** THE BOOT-TIME PROBE: this binary and this vector, nothing else. */
+export const SYSCTL = '/usr/sbin/sysctl';
+export const SYSCTL_BOOT_TIME_ARGV = Object.freeze(['-n', 'kern.boottime']);
 export const ENGINE_CLI_ENTRY = 'src/cli/index.ts';
 export const RUNTIME_ENTRY = 'src/runtime/engine.ts';
 
@@ -180,6 +228,8 @@ export interface ProcessPort {
     outboxDir?: string | null,
   ): WorkerHandle;
   compose(op: ComposeOperation): Promise<CliRun>;
+  /** `sysctl -n kern.boottime` (read by `parseBootTime`). */
+  bootTime(): Promise<CliRun>;
   /** Starts a detached supervisor; its output goes to `outFile`. Returns its pid. */
   spawnSupervisor(
     campaignId: string,
@@ -224,10 +274,11 @@ function collect(child: ChildProcess, onStderr?: (line: string) => void): Promis
 }
 
 export function createProcessPort(repoRoot: string): ProcessPort {
+  const inherited = inheritedEnvironment;
   const node = (script: string, args: readonly string[]): ChildProcess =>
     spawn(process.execPath, [...NODE_FLAGS, script, ...args], {
       cwd: repoRoot,
-      env: process.env,
+      env: inherited(),
       shell: false,
       stdio: ['ignore', 'pipe', 'pipe'],
     });
@@ -252,7 +303,16 @@ export function createProcessPort(repoRoot: string): ProcessPort {
       collect(
         spawn(DOCKER, [...COMPOSE_ARGV[op]], {
           cwd: repoRoot,
-          env: process.env,
+          env: inherited(),
+          shell: false,
+          stdio: ['ignore', 'pipe', 'pipe'],
+        }),
+      ),
+    bootTime: () =>
+      collect(
+        spawn(SYSCTL, [...SYSCTL_BOOT_TIME_ARGV], {
+          cwd: repoRoot,
+          env: inherited(),
           shell: false,
           stdio: ['ignore', 'pipe', 'pipe'],
         }),
@@ -269,7 +329,7 @@ export function createProcessPort(repoRoot: string): ProcessPort {
           ],
           {
             cwd: repoRoot,
-            env: process.env,
+            env: inherited(),
             shell: false,
             detached: true,
             stdio: ['ignore', fd, fd],

@@ -39,7 +39,9 @@
  * campaign is EMERGENCY_STOPPED the worker has already aborted the running
  * handler (it polls the control state); should it still not exit within a
  * grace period it is killed - its claim then expires and, the campaign being
- * over, is never retried.
+ * over, is never retried. The EMERGENCY_STOP check runs on EVERY shutdown
+ * request, not only the first (WW H-RT): a graceful `shutdown` followed by
+ * `stop --emergency` still kills a worker that outlives the grace period.
  *
  * Opens no socket, starts no process itself (the launcher and the status
  * probe are injected ports), touches no database row.
@@ -287,6 +289,8 @@ export function backoffMs(base: number, cap: number, n: number): number {
 export interface SupervisorDeps {
   readonly campaignId: string;
   readonly pid: number;
+  /** The per-start nonce written into the lock; recorded in every state (default ''). */
+  readonly nonce?: string;
   readonly clock: RuntimeClock;
   /** Reads `acquisition status --json` for the campaign. */
   readonly readStatus: () => Promise<CliRun>;
@@ -311,6 +315,8 @@ export class Supervisor {
   #wakeController = new AbortController();
   #shutdown = false;
   #worker: WorkerHandle | null = null;
+  /** The worker an EMERGENCY_STOP kill is already scheduled for (at most one timer each). */
+  #killArmedFor: WorkerHandle | null = null;
   #idleStreak = 0;
   #state: SupervisorStateFile;
 
@@ -321,6 +327,7 @@ export class Supervisor {
     this.#state = {
       contract: SUPERVISOR_STATE_CONTRACT,
       pid: deps.pid,
+      nonce: deps.nonce ?? '',
       campaignId: deps.campaignId,
       startedAt: now,
       phase: 'STARTING',
@@ -356,18 +363,27 @@ export class Supervisor {
     old.abort();
   }
 
-  /** Graceful shutdown: no new worker; the running one finishes its current item. */
+  /**
+   * Graceful shutdown: no new worker; the running one finishes its current
+   * item. Every call - the first and any repeat (a later `stop --emergency`
+   * signals again) - re-reads the campaign and, if it is EMERGENCY_STOPPED,
+   * arms the SIGKILL after the grace period.
+   */
   requestShutdown(): void {
-    if (this.#shutdown) return;
-    this.#shutdown = true;
-    this.#deps.log('shutdown requested: the current item finishes and its outcome is recorded');
+    const first = !this.#shutdown;
+    if (first) {
+      this.#shutdown = true;
+      this.#deps.log('shutdown requested: the current item finishes and its outcome is recorded');
+    }
     const worker = this.#worker;
     if (worker !== null) {
-      this.#update({ phase: 'STOPPING', phaseDetail: null });
-      worker.terminate('graceful');
+      if (first) {
+        this.#update({ phase: 'STOPPING', phaseDetail: null });
+        worker.terminate('graceful');
+      }
       void this.#escalateIfEmergency(worker);
     }
-    this.wake();
+    if (first) this.wake();
   }
 
   async run(): Promise<SupervisorExit> {
@@ -443,7 +459,10 @@ export class Supervisor {
       workerRuns: this.#state.workerRuns + 1,
     });
     this.#deps.log(`worker started (pid ${String(handle.pid)})`);
-    if (this.#shutdown) handle.terminate('graceful');
+    if (this.#shutdown) {
+      handle.terminate('graceful');
+      void this.#escalateIfEmergency(handle);
+    }
     const run = await handle.done;
     this.#worker = null;
     const result = parseWorkerRun(run);
@@ -485,8 +504,11 @@ export class Supervisor {
   }
 
   async #escalateIfEmergency(worker: WorkerHandle): Promise<void> {
+    if (this.#killArmedFor === worker) return;
     const probe = probeOf(await this.#deps.readStatus());
     if (probe.kind !== 'OK' || probe.facts.controlState !== 'EMERGENCY_STOPPED') return;
+    if (this.#killArmedFor === worker || this.#worker !== worker) return;
+    this.#killArmedFor = worker;
     await this.#deps.clock.sleep(this.#policy.emergencyKillGraceMs, this.#lifetime.signal);
     if (this.#worker === worker) {
       this.#deps.log('EMERGENCY_STOP: the worker did not exit within the grace period; killing it');

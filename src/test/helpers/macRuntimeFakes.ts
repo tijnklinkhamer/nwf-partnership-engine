@@ -10,6 +10,12 @@ import { join } from 'node:path';
 
 import type { RuntimeClock } from '../../runtime/clock.js';
 import type { CliRun } from '../../runtime/envelope.js';
+import {
+  acquireLock,
+  SUPERVISOR_STATE_CONTRACT,
+  writeSupervisorState,
+  type SupervisorStateFile,
+} from '../../runtime/lock.js';
 import { enginePathsUnder, type EnginePaths } from '../../runtime/paths.js';
 import type {
   AcquisitionInvocation,
@@ -19,6 +25,14 @@ import type {
 } from '../../runtime/processes.js';
 
 export const T0 = Date.parse('2026-10-27T08:00:00.000Z');
+/** The fake system boot: before every lock the tests write, unless a test says otherwise. */
+export const FAKE_BOOT = Date.parse('2026-10-01T00:00:00.000Z');
+
+/** `sysctl -n kern.boottime` output for a boot at `ms`. */
+export function bootTimeRun(ms: number): CliRun {
+  const sec = Math.floor(ms / 1000);
+  return run(`{ sec = ${sec}, usec = ${(ms % 1000) * 1000} } Thu Oct  1 00:00:00 2026\n`);
+}
 export const CAMPAIGN = '11111111-0000-4000-8000-000000000001';
 export const OTHER_CAMPAIGN = '22222222-0000-4000-8000-000000000002';
 
@@ -295,6 +309,10 @@ export interface FakeProcessPort extends ProcessPort {
   control: (inv: AcquisitionInvocation) => CliRun;
   composeResult: (op: ComposeOperation) => CliRun;
   onSpawnSupervisor: (campaignId: string) => number | null;
+  /** What `sysctl -n kern.boottime` prints (default: booted at FAKE_BOOT). */
+  bootTimeResult: () => CliRun;
+  /** How often the boot time was read. */
+  bootTimeReads: number;
   /** The most workers alive at the same moment. */
   maxConcurrentWorkers: number;
 }
@@ -313,6 +331,12 @@ export function createFakeProcessPort(): FakeProcessPort {
     control: (inv) => controlRecorded(inv.kind === 'control' ? inv.action : 'PAUSE', 'RUNNING'),
     composeResult: () => run('{"State":"running","Health":"healthy"}\n'),
     onSpawnSupervisor: () => 4242,
+    bootTimeResult: () => bootTimeRun(FAKE_BOOT),
+    bootTimeReads: 0,
+    async bootTime() {
+      port.bootTimeReads += 1;
+      return port.bootTimeResult();
+    },
     async acquisition(inv) {
       port.calls.push(inv);
       return inv.kind === 'status' ? port.status() : port.control(inv);
@@ -346,4 +370,39 @@ export function createFakeProcessPort(): FakeProcessPort {
 export function tempEnginePaths(): EnginePaths {
   const root = mkdtempSync(join(tmpdir(), 'nwf-engine-test-'));
   return enginePathsUnder(join(root, 'state'), join(root, 'logs'), join(root, 'LaunchAgents'));
+}
+
+/**
+ * What a real supervisor leaves behind while it runs: the lock (with its
+ * per-start nonce) and its own state file naming the same pid and nonce.
+ */
+export function holdLock(
+  paths: EnginePaths,
+  pid: number,
+  campaignId: string,
+  options: { startedAt?: string; nonce?: string; state?: Partial<SupervisorStateFile> } = {},
+): string {
+  const nonce = options.nonce ?? `nonce${String(pid).padStart(27, '0')}`;
+  const startedAt = options.startedAt ?? new Date().toISOString();
+  const taken = acquireLock(paths, { pid, campaignId, startedAt, nonce }, () => true);
+  if (!taken.ok) throw new Error('holdLock: the lock is already taken');
+  writeSupervisorState(paths, {
+    contract: SUPERVISOR_STATE_CONTRACT,
+    pid,
+    nonce,
+    campaignId,
+    startedAt,
+    phase: 'RUNNING_WORKER',
+    phaseSince: startedAt,
+    phaseDetail: null,
+    workerPid: null,
+    workerRuns: 1,
+    consecutiveFailures: 0,
+    nextWakeAt: null,
+    lastWorkerExit: null,
+    exit: null,
+    updatedAt: startedAt,
+    ...options.state,
+  });
+  return nonce;
 }

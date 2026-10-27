@@ -548,7 +548,10 @@ export function renderEngineStatus(doc: EngineStatusDocument): string {
     row('Worker', e.workerPid === null ? 'not running right now' : `running (pid ${e.workerPid})`);
     row('Worker runs', show(e.workerRuns));
   } else if (e.state === 'STALE') {
-    row('Supervisor', `STALE LOCK (pid ${show(e.pid)} is not alive) - run \`nwf-engine recover\``);
+    row(
+      'Supervisor',
+      `STALE LOCK (pid ${show(e.pid)} is not a running supervisor) - run \`nwf-engine recover\``,
+    );
   } else {
     row('Supervisor', 'NOT RUNNING');
     if (e.lastExit) row('Last exit', `${e.lastExit.reason} at ${e.lastExit.at}`);

@@ -46,6 +46,7 @@ import {
   createFakeProcessPort,
   createFakeRuntimeClock,
   flush,
+  holdLock,
   run,
   statusRun,
   tempEnginePaths,
@@ -54,11 +55,17 @@ import {
 } from '../helpers/macRuntimeFakes.js';
 
 const URL = (db = 'nwf_pe') => `postgres://u:p@127.0.0.1:55432/${db}`;
-const URLS = {
-  DATABASE_URL_ADMIN: URL(),
-  DATABASE_URL_READONLY: URL(),
-  DATABASE_URL_ACQUISITION_WORKER: URL(),
-};
+/** Every connection string the wired worker and the review command use, on one database. */
+const urlsFor = (db = 'nwf_pe') => ({
+  DATABASE_URL_ADMIN: URL(db),
+  DATABASE_URL_READONLY: URL(db),
+  DATABASE_URL_ACQUISITION_WORKER: URL(db),
+  DATABASE_URL_SOURCE_DISCOVERY: URL(db),
+  DATABASE_URL_DISCOVERY_SUBJECT_WRITER: URL(db),
+  DATABASE_URL_RESEARCH: URL(db),
+  DATABASE_URL_DISCOVERY_SUBJECT_REVIEWER: URL(db),
+});
+const URLS = urlsFor();
 const BUILD = [
   { version: '0001', file: '0001_a.sql', checksum: 'aa' },
   { version: '0002', file: '0002_b.sql', checksum: 'bb' },
@@ -88,6 +95,17 @@ function doctorDeps(over: Partial<DoctorDeps> = {}): DoctorDeps {
     pinnedKeys: () => ({ pinned: 1, hasActiveKey: true }),
     diskFreeBytes: () => 50 * 1024 ** 3,
     logDirWritable: () => ({ ok: true, detail: 'writable' }),
+    outboxDir: null,
+    reviewKeyFile: null,
+    uid: 501,
+    pathFacts: () => ({ kind: 'MISSING' }),
+    classifierProfile: () => ({
+      resolved: true,
+      variable: 'NWF_PE_CLASSIFIER_CONFIG_DIR',
+      fromVariable: false,
+      path: '/Users/owner/.profile-dir',
+      present: true,
+    }),
     ...over,
   };
 }
@@ -172,6 +190,10 @@ describe('doctor', () => {
       'worker-login:PASS',
       'campaign-keys:PASS',
       'stage-handlers:INFO',
+      'review-login:PASS',
+      'review-key:INFO',
+      'claude-profile:PASS',
+      'outbox:INFO',
       'disk:PASS',
       'logs:PASS',
     ]);
@@ -288,9 +310,7 @@ describe('start', () => {
     h.procs.composeResult = (op) => (op === 'ps' ? run('{"State":"exited"}') : run(''));
     h.procs.onSpawnSupervisor = (campaignId) => {
       h.alive.add(4242);
-      acquireLock(h.paths, { pid: 4242, campaignId, startedAt: new Date().toISOString() }, (p) =>
-        h.alive.has(p),
-      );
+      holdLock(h.paths, 4242, campaignId);
       return 4242;
     };
     expect(await h.cli('start', '--campaign-id', CAMPAIGN)).toBe(0);
@@ -326,9 +346,7 @@ describe('start', () => {
         });
       h.procs.onSpawnSupervisor = (campaignId) => {
         h.alive.add(4242);
-        acquireLock(h.paths, { pid: 4242, campaignId, startedAt: new Date().toISOString() }, (p) =>
-          h.alive.has(p),
-        );
+        holdLock(h.paths, 4242, campaignId);
         return 4242;
       };
       return h;
@@ -393,13 +411,7 @@ describe('start', () => {
     expect(remote.text()).toContain('not this Mac');
     expect(remote.procs.composeCalls).toEqual([]);
 
-    const test = harness({
-      urls: {
-        DATABASE_URL_ADMIN: URL('nwf_pe_test'),
-        DATABASE_URL_READONLY: URL('nwf_pe_test'),
-        DATABASE_URL_ACQUISITION_WORKER: URL('nwf_pe_test'),
-      },
-    });
+    const test = harness({ urls: urlsFor('nwf_pe_test') });
     expect(await test.cli('start', '--campaign-id', CAMPAIGN)).toBe(1);
     expect(test.text()).toContain('--allow-test-database');
   });
@@ -460,12 +472,13 @@ describe('single instance, crash and recovery', () => {
     // A supervisor (pid 600) with a worker (pid 601) that "crashed": its files remain.
     acquireLock(
       h.paths,
-      { pid: 600, campaignId: CAMPAIGN, startedAt: '2026-10-27T05:00:00.000Z' },
+      { pid: 600, campaignId: CAMPAIGN, startedAt: '2026-10-27T05:00:00.000Z', nonce: 'n600' },
       () => true,
     );
     const crashedState: SupervisorStateFile = {
       contract: 'nwf-engine.supervisor-state.v1',
       pid: 600,
+      nonce: 'n600',
       campaignId: CAMPAIGN,
       startedAt: '2026-10-27T05:00:00.000Z',
       phase: 'RUNNING_WORKER',
@@ -506,9 +519,7 @@ describe('single instance, crash and recovery', () => {
     // And start works again.
     h.procs.onSpawnSupervisor = (campaignId) => {
       h.alive.add(4243);
-      acquireLock(h.paths, { pid: 4243, campaignId, startedAt: new Date().toISOString() }, (p) =>
-        h.alive.has(p),
-      );
+      holdLock(h.paths, 4243, campaignId);
       return 4243;
     };
     expect(await h.cli('start')).toBe(0);
@@ -526,11 +537,7 @@ describe('pause, resume, stop, shutdown', () => {
       outboxDir: null,
     });
     h.alive.add(4242);
-    acquireLock(
-      h.paths,
-      { pid: 4242, campaignId: CAMPAIGN, startedAt: '2026-10-27T05:00:00.000Z' },
-      () => true,
-    );
+    holdLock(h.paths, 4242, CAMPAIGN, { startedAt: '2026-10-27T05:00:00.000Z' });
     return h;
   }
 
@@ -704,10 +711,14 @@ describe('status, logs and the LaunchAgent', () => {
 
   it('a corrupt lock file is treated as held-by-nobody and needs recover, never silently taken', async () => {
     const h = harness();
-    acquireLock(h.paths, { pid: 1, campaignId: CAMPAIGN, startedAt: '' }, () => true);
+    acquireLock(h.paths, { pid: 1, campaignId: CAMPAIGN, startedAt: '', nonce: 'a' }, () => true);
     writeFileSync(h.paths.lockFile, 'not json');
     expect(
-      acquireLock(h.paths, { pid: 2, campaignId: CAMPAIGN, startedAt: '' }, () => false),
+      acquireLock(
+        h.paths,
+        { pid: 2, campaignId: CAMPAIGN, startedAt: '', nonce: 'b' },
+        () => false,
+      ),
     ).toMatchObject({
       ok: false,
       state: { kind: 'STALE' },

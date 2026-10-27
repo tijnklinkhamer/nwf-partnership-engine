@@ -15,6 +15,7 @@ import { fileURLToPath } from 'node:url';
 import { env } from '../config/env.js';
 import { createPool } from '../db/client.js';
 import { pinnedCampaignKeys } from './campaignTrust.js';
+import { classifierProfileFacts } from './classifierProfile.js';
 import { realRuntimeClock } from './clock.js';
 import { runEngine, type EngineDeps } from './commands.js';
 import {
@@ -22,24 +23,25 @@ import {
   createDoctorDbProbes,
   dirWritable,
   diskFreeBytesAt,
+  pathFactsOf,
   runbooksOf,
 } from './doctor.js';
 import { processIsAlive } from './lock.js';
 import { macEnginePaths } from './paths.js';
-import { createProcessPort } from './processes.js';
+import { createProcessPort, inheritedEnvironment, scrubPostgresVariables } from './processes.js';
+import { RUNTIME_DATABASE_VARIABLES, type RuntimeDatabaseUrls } from './targets.js';
 
 export function productionEngineDeps(): EngineDeps {
   const paths = macEnginePaths(homedir());
   const e = env();
-  const urls = {
-    ...(e.DATABASE_URL_ADMIN !== undefined ? { DATABASE_URL_ADMIN: e.DATABASE_URL_ADMIN } : {}),
-    ...(e.DATABASE_URL_READONLY !== undefined
-      ? { DATABASE_URL_READONLY: e.DATABASE_URL_READONLY }
-      : {}),
-    ...(e.DATABASE_URL_ACQUISITION_WORKER !== undefined
-      ? { DATABASE_URL_ACQUISITION_WORKER: e.DATABASE_URL_ACQUISITION_WORKER }
-      : {}),
-  };
+  // Every connection string the wired worker and the review command use
+  // (names from targets.ts; values only ever reach the checks, never output).
+  const urls: RuntimeDatabaseUrls = Object.fromEntries(
+    RUNTIME_DATABASE_VARIABLES.flatMap((name) => {
+      const value = e[name];
+      return value === undefined ? [] : [[name, value]];
+    }),
+  );
   const procs = createProcessPort(paths.repoRoot);
   const db = createDoctorDbProbes(createPool);
   return {
@@ -65,10 +67,16 @@ export function productionEngineDeps(): EngineDeps {
         for (const [sig, fn] of entries) process.removeListener(sig, fn);
       };
     },
-    doctor: (allowTestDatabase) => ({
+    doctor: ({ allowTestDatabase, outboxDir, reviewKeyFile }) => ({
       nodeVersion: process.version,
       urls,
       allowTestDatabase,
+      outboxDir,
+      reviewKeyFile,
+      uid: typeof process.getuid === 'function' ? process.getuid() : null,
+      pathFacts: pathFactsOf,
+      // The environment the worker child would get (PG* removed).
+      classifierProfile: () => classifierProfileFacts(inheritedEnvironment(), paths.repoRoot),
       composePs: () => procs.compose('ps'),
       readLedger: db.readLedger,
       readWorkerLogin: db.readWorkerLogin,
@@ -84,6 +92,9 @@ export function productionEngineDeps(): EngineDeps {
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+  // First: no PG* default may fill in a connection detail behind the URLs,
+  // in this process or (via childEnvironment) any child it starts.
+  scrubPostgresVariables();
   runEngine(process.argv.slice(2), productionEngineDeps()).then(
     (code) => {
       process.exitCode = code;

@@ -19,7 +19,7 @@ import { existsSync, lstatSync } from 'node:fs';
 
 import { ENGINE_USAGE, parseEngineArgs, type EngineCommand, type Values } from './args.js';
 import type { RuntimeClock } from './clock.js';
-import { renderDoctor, runDoctor, type DoctorDeps } from './doctor.js';
+import { renderDoctor, runDoctor, type DoctorDeps, type DoctorOptions } from './doctor.js';
 import { parseControlRun, parseStatusRun, type StatusRead } from './envelope.js';
 import {
   launchAgentPlist,
@@ -30,13 +30,17 @@ import {
 import {
   acquireLock,
   inspectLock,
+  newLockNonce,
+  parseBootTime,
   readConfig,
   readSupervisorState,
   releaseLock,
-  removeLockFiles,
+  removeLockIfUnchanged,
+  supervisorConfirmed,
   writeConfig,
   writeSupervisorState,
   type IsAlive,
+  type LockState,
 } from './lock.js';
 import {
   createRotatingLog,
@@ -53,6 +57,7 @@ import { buildEngineStatus, readOperatorPublication, renderEngineStatus } from '
 import { Supervisor, SUPERVISOR_WORKER_ID, type SupervisorPolicy } from './supervisor.js';
 import {
   checkDatabaseTargets,
+  WORKER_DATABASE_VARIABLES,
   type RuntimeDatabaseUrls,
   type RuntimeDatabaseVariable,
 } from './targets.js';
@@ -73,7 +78,7 @@ export interface EngineDeps {
   readonly onSignals: (
     handlers: Partial<Record<'SIGTERM' | 'SIGINT' | 'SIGUSR1' | 'SIGHUP', () => void>>,
   ) => () => void;
-  readonly doctor: (allowTestDatabase: boolean) => DoctorDeps;
+  readonly doctor: (options: DoctorOptions) => DoctorDeps;
   readonly out: (text: string) => void;
   readonly err: (text: string) => void;
   readonly supervisorPolicy?: Partial<SupervisorPolicy>;
@@ -85,11 +90,25 @@ export interface EngineDeps {
 
 class Refusal extends Error {}
 
-const ALL_VARS: readonly RuntimeDatabaseVariable[] = [
-  'DATABASE_URL_ADMIN',
-  'DATABASE_URL_READONLY',
-  'DATABASE_URL_ACQUISITION_WORKER',
-];
+/**
+ * What a command runs with: the injected ports plus the system boot time,
+ * read at most once per command (`sysctl -n kern.boottime` through the
+ * process port) and only by commands that look at the lock.
+ */
+type Ctx = EngineDeps & { readonly bootTimeMs: () => Promise<number | null> };
+
+function withBootTime(deps: EngineDeps): Ctx {
+  let read: Promise<number | null> | null = null;
+  return {
+    ...deps,
+    bootTimeMs: () => (read ??= deps.procs.bootTime().then(parseBootTime, () => null)),
+  };
+}
+
+/** The lock, judged against the boot time (a lock from before it is stale). */
+async function lockState(ctx: Ctx): Promise<LockState> {
+  return inspectLock(ctx.paths, ctx.isAlive, await ctx.bootTimeMs());
+}
 
 export async function runEngine(argv: readonly string[], deps: EngineDeps): Promise<number> {
   const parsed = parseEngineArgs(argv);
@@ -102,7 +121,7 @@ export async function runEngine(argv: readonly string[], deps: EngineDeps): Prom
     return 1;
   }
   try {
-    return await COMMANDS[parsed.command](parsed.values, deps);
+    return await COMMANDS[parsed.command](parsed.values, withBootTime(deps));
   } catch (error) {
     if (error instanceof Refusal) {
       deps.err(`REFUSED: ${error.message}\n`);
@@ -127,11 +146,11 @@ function guardTargets(
   if (!check.ok) throw new Refusal(check.refusals.join('\n         '));
 }
 
-function campaignIdOf(v: Values, deps: EngineDeps): string {
+async function campaignIdOf(v: Values, deps: Ctx): Promise<string> {
   const flag = v['campaign-id'];
   if (typeof flag === 'string') return flag;
   // The campaign a supervisor is running for, then the one `start` remembered.
-  const lock = inspectLock(deps.paths, deps.isAlive);
+  const lock = await lockState(deps);
   if (lock.kind === 'HELD' && lock.lock.campaignId) return lock.lock.campaignId;
   const remembered = readConfig(deps.paths).campaignId;
   if (remembered === null) {
@@ -203,10 +222,18 @@ async function readCampaign(deps: EngineDeps, campaignId: string): Promise<Statu
   return parseStatusRun(await deps.procs.acquisition({ kind: 'status', campaignId }));
 }
 
-function notifySupervisor(deps: EngineDeps, sig: EngineSignal): string {
-  const lock = inspectLock(deps.paths, deps.isAlive);
+/** Why a HELD lock's pid is not signalled: its state file does not confirm it. */
+const unconfirmed = (pid: number): string =>
+  `pid ${pid} holds the lock, but the supervisor state file does not confirm it (pid and per-start nonce differ, or it has exited), ` +
+  'so it was NOT signalled: a pid can be reused by another process.';
+
+async function notifySupervisor(deps: Ctx, sig: EngineSignal): Promise<string> {
+  const lock = await lockState(deps);
   if (lock.kind !== 'HELD') {
     return 'The engine is not running on this Mac; the event is recorded and `nwf-engine start` will honour it.';
+  }
+  if (!supervisorConfirmed(deps.paths, lock.lock)) {
+    return `The supervisor: ${unconfirmed(lock.lock.pid)} A running supervisor still sees the change at its next check.`;
   }
   return deps.signal(lock.lock.pid, sig)
     ? `The supervisor (pid ${lock.lock.pid}) was notified.`
@@ -217,17 +244,24 @@ function notifySupervisor(deps: EngineDeps, sig: EngineSignal): string {
 // The commands.
 // ---------------------------------------------------------------------------
 
-const COMMANDS: Record<EngineCommand, (v: Values, deps: EngineDeps) => Promise<number>> = {
+const COMMANDS: Record<EngineCommand, (v: Values, deps: Ctx) => Promise<number>> = {
   async doctor(v, deps) {
-    const report = await runDoctor(deps.doctor(allowTest(v)));
+    const config = readConfig(deps.paths);
+    const report = await runDoctor(
+      deps.doctor({
+        allowTestDatabase: allowTest(v),
+        outboxDir: config.outboxDir,
+        reviewKeyFile: config.reviewKeyFile ?? null,
+      }),
+    );
     deps.out(v['json'] === true ? `${JSON.stringify(report, null, 2)}\n` : renderDoctor(report));
     return report.ok ? 0 : 1;
   },
 
   async start(v, deps) {
-    const campaignId = campaignIdOf(v, deps);
-    guardTargets(v, deps, ALL_VARS);
-    const lock = inspectLock(deps.paths, deps.isAlive);
+    const campaignId = await campaignIdOf(v, deps);
+    guardTargets(v, deps, WORKER_DATABASE_VARIABLES);
+    const lock = await lockState(deps);
     if (lock.kind === 'HELD') {
       if (lock.lock.campaignId === campaignId) {
         deps.out(
@@ -242,7 +276,7 @@ const COMMANDS: Record<EngineCommand, (v: Values, deps: EngineDeps) => Promise<n
     }
     if (lock.kind === 'STALE') {
       throw new Refusal(
-        `A supervisor (pid ${lock.lock.pid}) crashed or the Mac restarted, and its lock remains. ` +
+        `A supervisor (pid ${lock.lock.pid}) ${lock.why === 'PREDATES_BOOT' ? 'ran before the Mac last started' : 'crashed'}, and its lock remains. ` +
           'Run `nwf-engine recover` first; it checks that nothing is still running.',
       );
     }
@@ -267,7 +301,14 @@ const COMMANDS: Record<EngineCommand, (v: Values, deps: EngineDeps) => Promise<n
       }
     }
 
-    const report = await runDoctor(deps.doctor(allowTest(v)));
+    const config = readConfig(deps.paths);
+    const report = await runDoctor(
+      deps.doctor({
+        allowTestDatabase: allowTest(v),
+        outboxDir: typeof v['outbox-dir'] === 'string' ? v['outbox-dir'] : config.outboxDir,
+        reviewKeyFile: config.reviewKeyFile ?? null,
+      }),
+    );
     if (!report.ok) {
       deps.out(renderDoctor(report));
       throw new Refusal('the preflight above has FAIL lines; nothing was started.');
@@ -286,7 +327,7 @@ const COMMANDS: Record<EngineCommand, (v: Values, deps: EngineDeps) => Promise<n
     if (pid === null) throw new Refusal('the supervisor process could not be started.');
     const deadline = deps.clock.now() + (deps.startConfirmMs ?? 15_000);
     while (deps.clock.now() < deadline) {
-      const now = inspectLock(deps.paths, deps.isAlive);
+      const now = await lockState(deps);
       if (now.kind === 'HELD' && now.lock.pid === pid) {
         deps.out(
           `Started: supervisor pid ${pid} for campaign ${campaignId}` +
@@ -316,10 +357,12 @@ const COMMANDS: Record<EngineCommand, (v: Values, deps: EngineDeps) => Promise<n
       throw new Refusal(targets.refusals.join(' '));
     }
     const startedAt = new Date(deps.clock.now()).toISOString();
+    const nonce = newLockNonce();
     const acquired = acquireLock(
       deps.paths,
-      { pid: deps.pid, campaignId, startedAt },
+      { pid: deps.pid, campaignId, startedAt, nonce },
       deps.isAlive,
+      await deps.bootTimeMs(),
     );
     if (!acquired.ok) {
       const why = acquired.state.kind === 'HELD' ? 'LOCK_HELD' : 'LOCK_STALE';
@@ -329,6 +372,7 @@ const COMMANDS: Record<EngineCommand, (v: Values, deps: EngineDeps) => Promise<n
     const supervisor = new Supervisor({
       campaignId,
       pid: deps.pid,
+      nonce,
       clock: deps.clock,
       readStatus: () => deps.procs.acquisition({ kind: 'status', campaignId }),
       launchWorker: () =>
@@ -365,13 +409,13 @@ const COMMANDS: Record<EngineCommand, (v: Values, deps: EngineDeps) => Promise<n
       throw error;
     } finally {
       off();
-      if (releasable) releaseLock(deps.paths, deps.pid);
+      if (releasable) releaseLock(deps.paths, deps.pid, nonce);
     }
   },
 
   async status(v, deps) {
     const config = readConfig(deps.paths);
-    const lock = inspectLock(deps.paths, deps.isAlive);
+    const lock = await lockState(deps);
     const flag = v['campaign-id'];
     const campaignId =
       typeof flag === 'string'
@@ -416,7 +460,7 @@ const COMMANDS: Record<EngineCommand, (v: Values, deps: EngineDeps) => Promise<n
   async stop(v, deps) {
     if (v['emergency'] === true) return control(v, deps, 'EMERGENCY_STOP');
     if (v['execute'] !== true) {
-      const campaignId = campaignIdOf(v, deps);
+      const campaignId = await campaignIdOf(v, deps);
       deps.out(
         `DRY RUN: \`nwf-engine stop --execute\` records STOP for campaign ${campaignId}.\n` +
           '  STOP ENDS the campaign for good (it is terminal: a new signed campaign is needed to continue).\n' +
@@ -430,7 +474,7 @@ const COMMANDS: Record<EngineCommand, (v: Values, deps: EngineDeps) => Promise<n
   },
 
   async shutdown(v, deps) {
-    const lock = inspectLock(deps.paths, deps.isAlive);
+    const lock = await lockState(deps);
     if (lock.kind !== 'HELD') {
       deps.out(
         lock.kind === 'STALE'
@@ -438,6 +482,11 @@ const COMMANDS: Record<EngineCommand, (v: Values, deps: EngineDeps) => Promise<n
           : 'The engine is not running on this Mac.\n',
       );
       return 0;
+    }
+    if (!supervisorConfirmed(deps.paths, lock.lock)) {
+      throw new Refusal(
+        `Shutdown not requested: ${unconfirmed(lock.lock.pid)} Check it with \`ps -p ${lock.lock.pid} -o command=\`.`,
+      );
     }
     const sent = deps.signal(lock.lock.pid, 'SIGTERM');
     const text = sent
@@ -476,7 +525,7 @@ const COMMANDS: Record<EngineCommand, (v: Values, deps: EngineDeps) => Promise<n
   },
 
   async recover(v, deps) {
-    const lock = inspectLock(deps.paths, deps.isAlive);
+    const lock = await lockState(deps);
     if (lock.kind === 'HELD') {
       throw new Refusal(
         `The supervisor (pid ${lock.lock.pid}) is alive; there is nothing to recover. ` +
@@ -486,7 +535,11 @@ const COMMANDS: Record<EngineCommand, (v: Values, deps: EngineDeps) => Promise<n
     const lines: string[] = [];
     const state = readSupervisorState(deps.paths);
     if (lock.kind === 'STALE') {
-      const worker = state !== null && state.pid === lock.lock.pid ? state.workerPid : null;
+      // A worker from before this boot cannot be alive: its pid is someone else's now.
+      const worker =
+        lock.why === 'PROCESS_GONE' && state !== null && state.pid === lock.lock.pid
+          ? state.workerPid
+          : null;
       if (worker !== null && deps.isAlive(worker)) {
         throw new Refusal(
           `The supervisor (pid ${lock.lock.pid}) is gone, but its worker (pid ${worker}) is still alive. ` +
@@ -494,12 +547,38 @@ const COMMANDS: Record<EngineCommand, (v: Values, deps: EngineDeps) => Promise<n
             'lets it finish its current item and exit. Then run `nwf-engine recover` again.',
         );
       }
-      removeLockFiles(deps.paths);
-      engineLog(deps).write(
-        `recover: removed the stale lock of supervisor pid ${lock.lock.pid}; no data was deleted`,
-      );
+      // Removed only if it is STILL the lock judged stale above (rename, re-read,
+      // put back otherwise): a supervisor that started meanwhile keeps its lock.
+      const removal = removeLockIfUnchanged(deps.paths, lock.raw);
+      if (removal.kind === 'CHANGED') {
+        throw new Refusal(
+          `The lock changed while recover ran: a supervisor (pid ${removal.lock.pid}) started and holds it now. ` +
+            'Nothing was removed. Use `nwf-engine status`.',
+        );
+      }
+      if (removal.kind === 'CONFLICT') {
+        engineLog(deps).write(
+          `recover: CONFLICT - two locks appeared while recovering; ${removal.movedTo} keeps supervisor pid ${removal.lock.pid}'s lock`,
+        );
+        throw new Refusal(
+          `Two supervisors started while recover ran. Nothing was deleted: the lock of pid ${removal.lock.pid} ` +
+            `was kept at ${removal.movedTo}. Run \`nwf-engine shutdown\`, stop pid ${removal.lock.pid} ` +
+            `(\`kill -TERM ${removal.lock.pid}\`), then \`nwf-engine recover\`.`,
+        );
+      }
+      const why =
+        lock.why === 'PREDATES_BOOT'
+          ? 'it was written before the Mac last started, so no process of it can be running'
+          : 'no supervisor or worker process is alive';
+      if (removal.kind === 'REMOVED') {
+        engineLog(deps).write(
+          `recover: removed the stale lock of supervisor pid ${lock.lock.pid}; no data was deleted`,
+        );
+      }
       lines.push(
-        `Recovered: the stale lock of supervisor pid ${lock.lock.pid} was removed (no supervisor or worker process is alive).`,
+        removal.kind === 'REMOVED'
+          ? `Recovered: the stale lock of supervisor pid ${lock.lock.pid} was removed (${why}).`
+          : `Recovered: the stale lock of supervisor pid ${lock.lock.pid} was already removed by another recover.`,
         'No data was deleted: the queue, claims and outcomes are in the database, untouched.',
       );
     } else {
@@ -551,7 +630,7 @@ const COMMANDS: Record<EngineCommand, (v: Values, deps: EngineDeps) => Promise<n
           'Re-run with --i-understand to see exactly what would be written.',
       );
     }
-    const campaignId = campaignIdOf(v, deps);
+    const campaignId = await campaignIdOf(v, deps);
     const plist = launchAgentPlist({
       nodePath: deps.nodePath,
       paths: deps.paths,
@@ -594,8 +673,8 @@ const COMMANDS: Record<EngineCommand, (v: Values, deps: EngineDeps) => Promise<n
   },
 };
 
-async function control(v: Values, deps: EngineDeps, action: RuntimeControlAction): Promise<number> {
-  const campaignId = campaignIdOf(v, deps);
+async function control(v: Values, deps: Ctx, action: RuntimeControlAction): Promise<number> {
+  const campaignId = await campaignIdOf(v, deps);
   guardTargets(v, deps, ['DATABASE_URL_ADMIN', 'DATABASE_URL_READONLY']);
   const reason = typeof v['reason'] === 'string' ? v['reason'] : undefined;
   const result = parseControlRun(
@@ -623,7 +702,10 @@ async function control(v: Values, deps: EngineDeps, action: RuntimeControlAction
   engineLog(deps).write(
     `${action} recorded for campaign ${campaignId} (#${String(result.sequenceNo)}; was ${String(result.previousState)})`,
   );
-  const notified = notifySupervisor(deps, action === 'EMERGENCY_STOP' ? 'SIGTERM' : 'SIGUSR1');
+  const notified = await notifySupervisor(
+    deps,
+    action === 'EMERGENCY_STOP' ? 'SIGTERM' : 'SIGUSR1',
+  );
   if (json) {
     deps.out(
       `${JSON.stringify({ contract: 'nwf-engine.control.v1', campaignId, action, outcome: 'RECORDED', previousState: result.previousState, sequenceNo: result.sequenceNo, supervisor: notified })}\n`,

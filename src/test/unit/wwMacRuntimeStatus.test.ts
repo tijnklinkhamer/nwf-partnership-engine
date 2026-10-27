@@ -89,6 +89,9 @@ describe('database targets', () => {
     DATABASE_URL_ADMIN: url(host, db),
     DATABASE_URL_READONLY: url(host, db),
     DATABASE_URL_ACQUISITION_WORKER: url(host, db),
+    DATABASE_URL_SOURCE_DISCOVERY: url(host, db),
+    DATABASE_URL_DISCOVERY_SUBJECT_WRITER: url(host, db),
+    DATABASE_URL_RESEARCH: url(host, db),
   });
 
   it('accepts the local database and names the target without a password', () => {
@@ -120,7 +123,13 @@ describe('database targets', () => {
     };
     expect(checkDatabaseTargets(mixed).refusals.join(' ')).toContain('different databases');
     const c = checkDatabaseTargets({ DATABASE_URL_ADMIN: url('127.0.0.1', 'nwf_pe') });
-    expect(c.missing).toEqual(['DATABASE_URL_READONLY', 'DATABASE_URL_ACQUISITION_WORKER']);
+    expect(c.missing).toEqual([
+      'DATABASE_URL_READONLY',
+      'DATABASE_URL_ACQUISITION_WORKER',
+      'DATABASE_URL_SOURCE_DISCOVERY',
+      'DATABASE_URL_DISCOVERY_SUBJECT_WRITER',
+      'DATABASE_URL_RESEARCH',
+    ]);
     expect(
       checkDatabaseTargets(
         { DATABASE_URL_ADMIN: url('::1', 'nwf_pe') },
@@ -345,11 +354,13 @@ describe('the status dashboard', () => {
     nowMs: T0,
     lock: {
       kind: 'HELD',
-      lock: { pid: 777, campaignId: CAMPAIGN, startedAt: '2026-10-27T05:00:00.000Z' },
+      lock: { pid: 777, campaignId: CAMPAIGN, startedAt: '2026-10-27T05:00:00.000Z', nonce: 'n' },
+      raw: '{}',
     },
     supervisorState: {
       contract: 'nwf-engine.supervisor-state.v1',
       pid: 777,
+      nonce: 'n',
       campaignId: CAMPAIGN,
       startedAt: '2026-10-27T05:00:00.000Z',
       phase: 'RUNNING_WORKER',
@@ -499,7 +510,12 @@ describe('the status dashboard', () => {
   it('explains a stale lock, an unverified campaign, an unavailable status and the last exit', () => {
     const stale = buildEngineStatus(
       base({
-        lock: { kind: 'STALE', lock: { pid: 777, campaignId: CAMPAIGN, startedAt: '' } },
+        lock: {
+          kind: 'STALE',
+          lock: { pid: 777, campaignId: CAMPAIGN, startedAt: '', nonce: '' },
+          raw: 'not json',
+          why: 'PROCESS_GONE',
+        },
         campaignRead: parseStatusRun(
           statusRun({ verified: false, verificationDetail: 'KEY_UNKNOWN' }),
         ),

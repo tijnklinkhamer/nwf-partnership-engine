@@ -12,16 +12,40 @@
  * signed OWNER grant, and the runtime never applies a migration itself.
  *
  * Connection strings are checked and named, never printed.
+ *
+ * WW H-RT additions, all read-only and by NAME or PATH only:
+ *   - every connection string the wired worker uses must be set and pass the
+ *     strict target check; the reviewer login is checked when set;
+ *   - the outbox directory, when one is configured: it must exist as a real
+ *     directory owned by this user with mode 0700;
+ *   - the review key file path, when the OWNER recorded one in the runtime's
+ *     config: whether it is a private regular file (lstat only; never opened);
+ *   - the dedicated Claude Max stored profile directory the search stage uses
+ *     (ADR 0010): whether it exists (lstat only; nothing inside is read).
  */
 import { createHash } from 'node:crypto';
-import { accessSync, constants, existsSync, readFileSync, readdirSync, statfsSync } from 'node:fs';
+import {
+  accessSync,
+  constants,
+  existsSync,
+  lstatSync,
+  readFileSync,
+  readdirSync,
+  statfsSync,
+} from 'node:fs';
 import { dirname, join } from 'node:path';
 import type pg from 'pg';
 
 import type { Role } from '../config/env.js';
 import { isObject, type CliRun } from './envelope.js';
 import type { PinnedCampaignKeys } from './campaignTrust.js';
-import { COMPOSE_PROJECT, COMPOSE_SERVICE } from './processes.js';
+import type { ClassifierProfileFacts } from './classifierProfile.js';
+import {
+  COMPOSE_PROJECT,
+  COMPOSE_SERVICE,
+  isCanonicalAbsolutePath,
+  isOutboxDirArgument,
+} from './processes.js';
 import { checkDatabaseTargets, VARIABLE_PURPOSE, type RuntimeDatabaseUrls } from './targets.js';
 
 export const DOCTOR_CONTRACT = 'nwf-engine.doctor.v1';
@@ -70,6 +94,42 @@ export interface BuildMigration {
   readonly checksum: string;
 }
 
+/** What lstat says about a path (never its contents). */
+export type PathFacts =
+  | { readonly kind: 'MISSING' }
+  | {
+      readonly kind: 'DIRECTORY' | 'FILE' | 'SYMLINK' | 'OTHER';
+      /** Permission bits (mode & 0o777). */
+      readonly mode: number;
+      readonly uid: number;
+    };
+
+/** lstat only: follows no symlink, opens nothing, reads nothing. */
+export function pathFactsOf(path: string): PathFacts {
+  try {
+    const st = lstatSync(path);
+    const kind = st.isSymbolicLink()
+      ? 'SYMLINK'
+      : st.isDirectory()
+        ? 'DIRECTORY'
+        : st.isFile()
+          ? 'FILE'
+          : 'OTHER';
+    return { kind, mode: st.mode & 0o777, uid: st.uid };
+  } catch {
+    return { kind: 'MISSING' };
+  }
+}
+
+/** The per-invocation inputs a command hands to `doctor`. */
+export interface DoctorOptions {
+  readonly allowTestDatabase: boolean;
+  /** `start --outbox-dir`, else the remembered one; null when none. */
+  readonly outboxDir: string | null;
+  /** The OWNER-recorded review key file path (config `reviewKeyFile`); null when none. */
+  readonly reviewKeyFile: string | null;
+}
+
 export interface DoctorDeps {
   readonly nodeVersion: string;
   readonly urls: RuntimeDatabaseUrls;
@@ -82,6 +142,12 @@ export interface DoctorDeps {
   readonly pinnedKeys: () => PinnedCampaignKeys;
   readonly diskFreeBytes: () => number | null;
   readonly logDirWritable: () => { readonly ok: boolean; readonly detail: string };
+  readonly outboxDir: string | null;
+  readonly reviewKeyFile: string | null;
+  /** This process's uid (null where the platform has none). */
+  readonly uid: number | null;
+  readonly pathFacts: (path: string) => PathFacts;
+  readonly classifierProfile: () => ClassifierProfileFacts;
 }
 
 // ---------------------------------------------------------------------------
@@ -516,6 +582,11 @@ export async function runDoctor(deps: DoctorDeps): Promise<DoctorReport> {
     ]),
   );
 
+  checks.push(reviewLoginCheck(deps));
+  checks.push(reviewKeyCheck(deps));
+  checks.push(classifierProfileCheck(deps));
+  checks.push(outboxCheck(deps));
+
   // Disk and logs.
   const free = deps.diskFreeBytes();
   const gib = (n: number) => `${(n / 1024 ** 3).toFixed(1)} GiB`;
@@ -539,6 +610,116 @@ export async function runDoctor(deps: DoctorDeps): Promise<DoctorReport> {
   );
 
   return { contract: DOCTOR_CONTRACT, ok: checks.every((c) => c.level !== 'FAIL'), checks };
+}
+
+const octal = (mode: number): string => `0${mode.toString(8).padStart(3, '0')}`;
+
+function reviewLoginCheck(deps: DoctorDeps): DoctorCheck {
+  const value = deps.urls.DATABASE_URL_DISCOVERY_SUBJECT_REVIEWER ?? '';
+  return value.length > 0
+    ? check(
+        'review-login',
+        'PASS',
+        'DATABASE_URL_DISCOVERY_SUBJECT_REVIEWER is set (checked with the others under environment)',
+      )
+    : check('review-login', 'WARN', 'DATABASE_URL_DISCOVERY_SUBJECT_REVIEWER is not set', [
+        '`acquisition review sign --execute` (your identity review) refuses without it; the worker does not need it.',
+      ]);
+}
+
+/** Names the path and its lstat facts; the file is never opened or read. */
+function reviewKeyCheck(deps: DoctorDeps): DoctorCheck {
+  const file = deps.reviewKeyFile;
+  const never =
+    'The runtime never opens, reads or copies a key file; this is an lstat of the path only.';
+  if (file === null) {
+    return check('review-key', 'INFO', 'no review key file path is recorded on this Mac', [
+      '`acquisition review sign` takes --key-file per batch. To have doctor check the path, add "reviewKeyFile": "<absolute path>" to the runtime config file (runbook section 2).',
+      never,
+    ]);
+  }
+  if (!isCanonicalAbsolutePath(file)) {
+    return check(
+      'review-key',
+      'WARN',
+      'the recorded review key file path is not absolute and canonical',
+      [never],
+    );
+  }
+  const facts = deps.pathFacts(file);
+  const problem =
+    facts.kind === 'MISSING'
+      ? 'does not exist'
+      : facts.kind === 'SYMLINK'
+        ? 'is a symlink'
+        : facts.kind !== 'FILE'
+          ? 'is not a regular file'
+          : deps.uid !== null && facts.uid !== deps.uid
+            ? 'is not owned by you'
+            : (facts.mode & 0o077) !== 0
+              ? `is readable or writable by others (mode ${octal(facts.mode)}; run chmod 600)`
+              : null;
+  return problem === null
+    ? check('review-key', 'PASS', `review key file path configured: ${file}`, [
+        `a regular file, yours, mode ${octal((facts as { mode: number }).mode)}.`,
+        never,
+      ])
+    : check('review-key', 'WARN', `review key file path configured: ${file} ${problem}`, [never]);
+}
+
+function classifierProfileCheck(deps: DoctorDeps): DoctorCheck {
+  const p = deps.classifierProfile();
+  const never =
+    'Nothing inside it is read; the search stage checks the stored login itself before any search.';
+  if (!p.resolved) {
+    return check(
+      'claude-profile',
+      'WARN',
+      'the Claude Max stored profile directory is not usable',
+      [p.detail, 'The search stage refuses until it is (runbook section 2 item 6).'],
+    );
+  }
+  const how = p.fromVariable ? `named by ${p.variable}` : `the default (${p.variable} is not set)`;
+  return p.present
+    ? check('claude-profile', 'PASS', `Claude Max stored profile directory present: ${p.path}`, [
+        how,
+        never,
+      ])
+    : check('claude-profile', 'WARN', `no Claude Max stored profile directory at ${p.path}`, [
+        how,
+        'The search stage refuses until you provision it once (runbook section 2 item 6).',
+      ]);
+}
+
+function outboxCheck(deps: DoctorDeps): DoctorCheck {
+  const dir = deps.outboxDir;
+  if (dir === null) {
+    return check('outbox', 'INFO', 'no outbox directory configured', [
+      '`start` refuses a campaign that writes exports (RESEARCHED, ASSESSABLE) until `start --outbox-dir <absolute dir>` names one.',
+    ]);
+  }
+  if (!isOutboxDirArgument(dir)) {
+    return check('outbox', 'FAIL', 'the outbox directory is not an absolute, canonical path', [
+      `got ${JSON.stringify(dir)}`,
+    ]);
+  }
+  const facts = deps.pathFacts(dir);
+  const fix = `Create it yourself: \`mkdir -p -m 700 ${dir}\` (or \`chmod 700 ${dir}\`).`;
+  const problem =
+    facts.kind === 'MISSING'
+      ? 'does not exist'
+      : facts.kind === 'SYMLINK'
+        ? 'is a symlink (refused)'
+        : facts.kind !== 'DIRECTORY'
+          ? 'is not a directory'
+          : deps.uid !== null && facts.uid !== deps.uid
+            ? 'is not owned by you'
+            : facts.mode !== 0o700
+              ? `has mode ${octal(facts.mode)}, not 0700`
+              : null;
+  return problem === null
+    ? check('outbox', 'PASS', `outbox directory ${dir}: a directory, yours, mode 0700`)
+    : check('outbox', 'FAIL', `outbox directory ${dir} ${problem}`, [fix]);
 }
 
 export function renderDoctor(report: DoctorReport): string {

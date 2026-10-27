@@ -261,6 +261,8 @@ describeDb('WW E-M Mac runtime supervisor (integration)', () => {
       compose: async () => {
         throw new Error('docker is never called in this test');
       },
+      // Boot time not known here: liveness is the pid alone (the H-RT fallback).
+      bootTime: async () => ({ exitCode: 1, signal: null, stdout: '', stderrTail: 'not read' }),
       spawnSupervisor: () => {
         throw new Error('no detached process in this test');
       },
@@ -447,7 +449,7 @@ describeDb('WW E-M Mac runtime supervisor (integration)', () => {
     expect(orphan.kind).toBe('CLAIMED');
     acquireLock(
       e.paths,
-      { pid: 424_242, campaignId, startedAt: new Date().toISOString() },
+      { pid: 424_242, campaignId, startedAt: new Date().toISOString(), nonce: 'n424242' },
       () => true,
     );
     writeSupervisorState(e.paths, {

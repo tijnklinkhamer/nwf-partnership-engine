@@ -51,6 +51,7 @@ const NS = 'src/runtime/';
 const FILES = [
   'args.ts',
   'campaignTrust.ts',
+  'classifierProfile.ts',
   'clock.ts',
   'commands.ts',
   'doctor.ts',
@@ -68,6 +69,9 @@ const FILES = [
 ].map((f) => `${NS}${f}`);
 const PROCESS_SITE = `${NS}processes.ts`;
 const TRUST_SITE = `${NS}campaignTrust.ts`;
+/** WW H-RT: the one file that resolves the Claude Max stored profile PATH (lstat only). */
+const PROFILE_SITE = `${NS}classifierProfile.ts`;
+const PROFILE_SPECIFIER = '../orgunits/classify/provider/profile.js';
 const code = (file: string): string => codeOf(readCurrent(file));
 
 /** Every module specifier src/runtime may name. */
@@ -80,10 +84,13 @@ const ALLOWED_SPECIFIERS = new Set([
   'node:url',
   'node:util',
   'pg',
+  // WW H-RT: pg's own connection-string parser (the copy pg loads), read by targets.ts only.
+  'pg-connection-string',
   '../config/env.js',
   '../db/client.js',
   '../db/safety.js',
   '../orgunits/acquisition/index.js',
+  PROFILE_SPECIFIER,
   ...FILES.map((f) => `./${f.slice(NS.length).replace(/\.ts$/, '.js')}`),
 ]);
 
@@ -143,9 +150,16 @@ describe('WW E-M: one process seam with a fixed allowlist', () => {
     expect(p).toContain("import { spawn, type ChildProcess } from 'node:child_process';");
     expect(p).not.toMatch(/\bexec(File|Sync|FileSync)?\s*\(|spawnSync|\bfork\s*\(/);
     const spawns = [...p.matchAll(/spawn\(\s*([\w.]+)/g)].map((m) => m[1]);
-    expect(spawns.sort()).toEqual(['DOCKER', 'process.execPath', 'process.execPath']);
+    // WW H-RT widened this by exactly one site: SYSCTL, the boot-time probe
+    // (an absolute path and a frozen two-element vector, pinned below).
+    expect(spawns.sort()).toEqual(['DOCKER', 'SYSCTL', 'process.execPath', 'process.execPath']);
     expect(p).toContain("const DOCKER = 'docker';");
-    expect(p.match(/shell: false/g)).toHaveLength(3);
+    expect(p).toContain("export const SYSCTL = '/usr/sbin/sysctl';");
+    expect(p).toContain(
+      "export const SYSCTL_BOOT_TIME_ARGV = Object.freeze(['-n', 'kern.boottime']);",
+    );
+    expect(p.match(/spawn\(SYSCTL, \[\.\.\.SYSCTL_BOOT_TIME_ARGV\]/g)).toHaveLength(1);
+    expect(p.match(/shell: false/g)).toHaveLength(4);
     expect(p).not.toMatch(/shell:\s*(true|process|'|")/);
   });
 
@@ -220,29 +234,42 @@ describe('WW E-M: nothing system-level, nothing secret, nothing loaded', () => {
     expect(code(PROCESS_SITE)).not.toContain('launchctl');
   });
 
-  it('reads the environment only through config/env.js, and passes it through to children unchanged', () => {
+  it('reads the environment only through config/env.js, and gives children the same environment minus PG*', () => {
     for (const file of FILES) {
       const reads = code(file).match(/process\.env\b[^\n]*/g) ?? [];
       if (file === PROCESS_SITE) {
-        expect(
-          reads.every((r) => r.startsWith('process.env,')),
-          file,
-        ).toBe(true);
+        // WW H-RT: every child gets `inheritedEnvironment()` (PG* removed);
+        // the only other use deletes PG* names from this process.
+        expect(reads.sort(), file).toEqual([
+          'process.env)) {',
+          'process.env);',
+          'process.env[name];',
+        ]);
       } else {
         expect(reads, file).toEqual([]);
       }
     }
+    const p = code(PROCESS_SITE);
+    expect(p).not.toMatch(/env:\s*process\.env/);
+    expect(p.match(/env: inherited\(\)/g)).toHaveLength(4);
+    expect(p).toContain('const POSTGRES_VARIABLE = /^PG/;');
   });
 
   it('reads the acquisition namespace at one path, through its public index, for the pinned key count only', () => {
     const importers = FILES.filter((f) => /orgunits\//.test(code(f)));
-    expect(importers).toEqual([TRUST_SITE]);
+    // WW H-RT widened this by one exact path: PROFILE_SITE, for the PURE
+    // profile-directory resolver only (pinned below and in its own firewall).
+    expect(importers).toEqual([TRUST_SITE, PROFILE_SITE].sort());
+    expect(specifiers(code(PROFILE_SITE)).filter((s) => s.includes('orgunits'))).toEqual([
+      PROFILE_SPECIFIER,
+    ]);
     expect(specifiers(code(TRUST_SITE)).filter((s) => s.includes('orgunits'))).toEqual([
       '../orgunits/acquisition/index.js',
     ]);
     expect(code(TRUST_SITE)).not.toMatch(/vitestOnly|CampaignTrustSet\.\w+\((?!\))/);
     for (const file of FILES) {
-      expect(code(file), file).not.toMatch(
+      const c = file === PROFILE_SITE ? code(file).split(PROFILE_SPECIFIER).join('') : code(file);
+      expect(c, file).not.toMatch(
         /commands\/acquisition|orgunits\/(web|classify|sourceDiscovery|orchestrator|signals)|gateway|executeWebAttempt|claude-agent-sdk|anthropic/,
       );
     }
