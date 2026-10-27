@@ -40,11 +40,15 @@ import {
   specifiers,
 } from '../helpers/phaseRange.js';
 
-/** The REL final join A2 commit: this slice's parent. */
-const P2_BASE_COMMIT = '80457a9e75a64c14ee0646086f2669eff0d99cd2';
+/**
+ * The REL P1 commit as cherry-picked onto integration/rel-engine-v1-harvest:
+ * this slice's parent there (the slice was written on 80457a9, the REL final
+ * join A2 commit; P1 touches none of its files).
+ */
+const P2_BASE_COMMIT = '7a986ae67a0b9de4aa5834052230adf503f683ae';
 
-/** Pinned by the REL P2 pin commit to this slice's own commit (closed range). */
-const P2_TERMINAL_COMMIT: string | null = '5ede2e7a261ad8cb73cff4f157150a1abdd156a0';
+/** Re-pinned by the REL engine join to this slice's cherry-picked commit (closed range). */
+const P2_TERMINAL_COMMIT: string | null = '9dfc32d73a785aaaeab1cd78a73657f74cf31b68';
 
 const MIGRATION = 'migrations/0020_source_discovery_link_out_sightings.sql';
 const OWNER_RECORD = 'docs/evaluation/REL_P2_LINK_OUT_NOMINATIONS_OWNER_DIRECTIVE_RECORD_V1.json';
