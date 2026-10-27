@@ -71,10 +71,10 @@ const fixturePath = (key: string) => join(FIXTURE_DIR, `qualification-input-expo
 
 /** The committed fixtures' SHA-256 (UTF-8 bytes), pinned for the Operator lane. */
 export const QUALIFICATION_INPUT_V2_FIXTURE_SHA256: Readonly<Record<string, string>> = {
-  'nl-exchange-association': '22201d2084b03073e6b06f9a3bb8d09bfe3213949ff064c02fcbb4c4451e3274',
-  'nl-community-sparse': '7b4a33f07f6ae3ac8bda5d306af6a4c304db5b6da13cf22c902559fd9f098d97',
-  'jp-student-circle': '14984f53b3095931257739d8b6c39e1741e14f1cf51861c957fcbd7fbcc6a929',
-  'mx-exchange-community': '96a457c470cd3ff4dcb9ceb67357a6f98bd841d2f6a37ea6acb838c7e7d79825',
+  'nl-exchange-association': 'edb31ba3fd9235e6d55d9994e09df8799d6bf52efe4f92b1f87f7c8339261ca0',
+  'nl-community-sparse': 'cdb43fa6bf5bca7eec34a3b4c0bea4845835430134fcc8081228222004fe82e7',
+  'jp-student-circle': 'a539c68295ac16622e3fdbb1823ffc47feae4032642b970dfb3ff6695cd5526e',
+  'mx-exchange-community': '45dfe38bf2340fe2b90a922aebe9e634e5e2dcac1425b2f803474592249feefb',
 };
 
 const OBSERVED = '2026-10-26T09:00:00Z';

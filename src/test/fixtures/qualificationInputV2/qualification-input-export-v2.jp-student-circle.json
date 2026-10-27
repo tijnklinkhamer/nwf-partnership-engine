@@ -14,14 +14,14 @@
       "dateRuleVersion": "nwf-pe-c1-stated-date-rules-v1",
       "pageClasses": [
         {
-          "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000001f",
+          "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000036",
           "classes": [
             "HOME",
             "NEWSLETTER"
           ]
         },
         {
-          "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000031",
+          "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000075",
           "classes": [
             "EVENTS"
           ]
@@ -39,10 +39,10 @@
     "dateRuleVersion": "nwf-pe-stated-date-rules-v1",
     "sourceRepository": "nwf-partnership-engine",
     "readConsistency": "SINGLE_SNAPSHOT_TRANSACTION",
-    "subjectId": "eeeeeeee-0000-4000-8000-e10000000029",
-    "evaluatedAt": "2026-10-27T18:07:53Z",
+    "subjectId": "eeeeeeee-0000-4000-8000-e10000000049",
+    "evaluatedAt": "2026-10-27T18:09:01Z",
     "candidate": {
-      "candidateRef": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000029",
+      "candidateRef": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000049",
       "relations": []
     },
     "country": {
@@ -53,13 +53,13 @@
     },
     "channels": [
       {
-        "channelRef": "rp-channel:eeeeeeee-0000-4000-8000-e1000000000e",
+        "channelRef": "rp-channel:eeeeeeee-0000-4000-8000-e1000000000f",
         "kind": "INSTAGRAM_ACCOUNT",
         "channelClass": "FEED",
         "visibility": "PUBLIC",
-        "websiteClaimId": "eeeeeeee-0000-4000-8000-e1000000002c",
+        "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000015",
         "admissionIds": [
-          "eeeeeeee-0000-4000-8000-e1000000003b"
+          "eeeeeeee-0000-4000-8000-e10000000042"
         ],
         "derivation": "NAMED_ON_ADMITTED_SITE",
         "establishedBy": "PROPOSAL_ONLY",
@@ -68,26 +68,26 @@
         ]
       },
       {
-        "channelRef": "rp-channel:eeeeeeee-0000-4000-8000-e1000000002c",
+        "channelRef": "rp-channel:eeeeeeee-0000-4000-8000-e10000000015",
         "kind": "RESOURCE_PAGE",
         "channelClass": "STATIC",
         "visibility": "PUBLIC",
-        "websiteClaimId": "eeeeeeee-0000-4000-8000-e1000000002c",
+        "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000015",
         "admissionIds": [
-          "eeeeeeee-0000-4000-8000-e1000000003b"
+          "eeeeeeee-0000-4000-8000-e10000000042"
         ],
         "derivation": "ADMITTED_ROOT_WEBSITE",
         "establishedBy": "OBSERVED_CLAIM",
         "ruleIds": []
       },
       {
-        "channelRef": "rp-channel:eeeeeeee-0000-4000-8000-e1000000004c",
+        "channelRef": "rp-channel:eeeeeeee-0000-4000-8000-e10000000045",
         "kind": "ORIENTATION_EVENT",
         "channelClass": "EVENT_SLOT",
         "visibility": "PUBLIC",
-        "websiteClaimId": "eeeeeeee-0000-4000-8000-e1000000002c",
+        "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000015",
         "admissionIds": [
-          "eeeeeeee-0000-4000-8000-e1000000003b"
+          "eeeeeeee-0000-4000-8000-e10000000042"
         ],
         "derivation": "OBSERVED_ON_ADMITTED_SITE",
         "establishedBy": "OBSERVED_CLAIM",
@@ -96,13 +96,13 @@
         ]
       },
       {
-        "channelRef": "rp-channel:eeeeeeee-0000-4000-8000-e1000000006d",
+        "channelRef": "rp-channel:eeeeeeee-0000-4000-8000-e10000000060",
         "kind": "MEMBER_NEWSLETTER",
         "channelClass": "FEED",
         "visibility": "PUBLIC",
-        "websiteClaimId": "eeeeeeee-0000-4000-8000-e1000000002c",
+        "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000015",
         "admissionIds": [
-          "eeeeeeee-0000-4000-8000-e1000000003b"
+          "eeeeeeee-0000-4000-8000-e10000000042"
         ],
         "derivation": "OBSERVED_ON_ADMITTED_SITE",
         "establishedBy": "OBSERVED_CLAIM",
@@ -114,9 +114,9 @@
     "sources": [
       {
         "evidenceClass": "RESEARCH_REAL",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000001f",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000036",
         "publisherRelation": "SELF",
-        "capturedAt": "2026-10-27T18:07:52Z",
+        "capturedAt": "2026-10-27T18:09:00Z",
         "c1": {
           "captureKind": "ARTEFACT",
           "contentDigest": "d20ae3936842a50f503ee0d52ad2ba04a76c2c9e4b2175ac6927cd5fc9113eb1",
@@ -130,25 +130,25 @@
           "contentDigest": "d20ae3936842a50f503ee0d52ad2ba04a76c2c9e4b2175ac6927cd5fc9113eb1",
           "bytesAvailable": false,
           "origin": "https://www.ryugakuseikai-rei-fict.jp/",
-          "digestRecordedAt": "2026-10-27T18:07:52Z"
+          "digestRecordedAt": "2026-10-27T18:09:00Z"
         },
         "record": {
           "kind": "PAGE_EVIDENCE",
-          "pageEvidenceId": "eeeeeeee-0000-4000-8000-e1000000001f",
-          "fetchObservationId": "eeeeeeee-0000-4000-8000-e10000000062",
-          "researchRunId": "eeeeeeee-0000-4000-8000-e10000000030",
-          "admissionId": "eeeeeeee-0000-4000-8000-e1000000003b",
+          "pageEvidenceId": "eeeeeeee-0000-4000-8000-e10000000036",
+          "fetchObservationId": "eeeeeeee-0000-4000-8000-e10000000066",
+          "researchRunId": "eeeeeeee-0000-4000-8000-e10000000044",
+          "admissionId": "eeeeeeee-0000-4000-8000-e10000000042",
           "extractionRuleVersion": "orgunit-extraction-v3",
           "candidates": [
             {
-              "candidateId": "eeeeeeee-0000-4000-8000-e1000000003c",
+              "candidateId": "eeeeeeee-0000-4000-8000-e1000000007c",
               "track": "INTERNATIONAL_OFFICE",
               "candidateScore": "8.0000",
               "rankWithinRoot": 1,
               "ruleVersion": "orgunit-signal-rules-v2"
             },
             {
-              "candidateId": "eeeeeeee-0000-4000-8000-e10000000020",
+              "candidateId": "eeeeeeee-0000-4000-8000-e10000000072",
               "track": "LANGUAGE_CENTRE",
               "candidateScore": "0.0000",
               "rankWithinRoot": 1,
@@ -159,9 +159,9 @@
       },
       {
         "evidenceClass": "RESEARCH_REAL",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000031",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000075",
         "publisherRelation": "SELF",
-        "capturedAt": "2026-10-27T18:07:52Z",
+        "capturedAt": "2026-10-27T18:09:00Z",
         "c1": {
           "captureKind": "ARTEFACT",
           "contentDigest": "ea17e1083625a2b1e71b35e77572341f66231f90a0b8d8a53a74648f691acdbe",
@@ -175,25 +175,25 @@
           "contentDigest": "ea17e1083625a2b1e71b35e77572341f66231f90a0b8d8a53a74648f691acdbe",
           "bytesAvailable": false,
           "origin": "https://www.ryugakuseikai-rei-fict.jp/event/",
-          "digestRecordedAt": "2026-10-27T18:07:52Z"
+          "digestRecordedAt": "2026-10-27T18:09:00Z"
         },
         "record": {
           "kind": "PAGE_EVIDENCE",
-          "pageEvidenceId": "eeeeeeee-0000-4000-8000-e10000000031",
-          "fetchObservationId": "eeeeeeee-0000-4000-8000-e10000000012",
-          "researchRunId": "eeeeeeee-0000-4000-8000-e10000000030",
-          "admissionId": "eeeeeeee-0000-4000-8000-e1000000003b",
+          "pageEvidenceId": "eeeeeeee-0000-4000-8000-e10000000075",
+          "fetchObservationId": "eeeeeeee-0000-4000-8000-e1000000004d",
+          "researchRunId": "eeeeeeee-0000-4000-8000-e10000000044",
+          "admissionId": "eeeeeeee-0000-4000-8000-e10000000042",
           "extractionRuleVersion": "orgunit-extraction-v3",
           "candidates": [
             {
-              "candidateId": "eeeeeeee-0000-4000-8000-e1000000000a",
+              "candidateId": "eeeeeeee-0000-4000-8000-e10000000007",
               "track": "INTERNATIONAL_OFFICE",
               "candidateScore": "0.0000",
               "rankWithinRoot": 2,
               "ruleVersion": "orgunit-signal-rules-v2"
             },
             {
-              "candidateId": "eeeeeeee-0000-4000-8000-e1000000000f",
+              "candidateId": "eeeeeeee-0000-4000-8000-e1000000007e",
               "track": "LANGUAGE_CENTRE",
               "candidateScore": "0.0000",
               "rankWithinRoot": 2,
@@ -206,69 +206,11 @@
     "claims": [
       {
         "evidenceClass": "RESEARCH_REAL",
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000001a",
-        "claimKey": "candidate.location",
-        "subject": {
-          "kind": "CANDIDATE",
-          "ref": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000029"
-        },
-        "mode": "SELF_ASSERTED",
-        "attribution": "EXACT",
-        "producedBy": "HUMAN_RESEARCHER",
-        "value": {
-          "countryCode": "JP"
-        },
-        "basis": {
-          "origin": "ADR_0024_COUNTRY_OF_OPERATION",
-          "jurisdictionClaimId": "eeeeeeee-0000-4000-8000-e10000000041",
-          "recordedByActorKey": "ww-ex-owner-test"
-        },
-        "researchRealConflicts": []
-      },
-      {
-        "evidenceClass": "RESEARCH_REAL",
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000001c",
-        "claimKey": "channel.event_instances",
-        "subject": {
-          "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e1000000004c"
-        },
-        "mode": "OBSERVED",
-        "attribution": "EXACT",
-        "producedBy": "NWF_SYSTEM",
-        "value": {
-          "upcomingAnnounced": true,
-          "lastPastInstance": "2026-04-10",
-          "discontinued": false
-        },
-        "basis": {
-          "origin": "C1_EXTRACTION_RULE",
-          "rulesVersion": "nwf-pe-c1-extraction-rules-v1",
-          "dateRuleVersion": "nwf-pe-c1-stated-date-rules-v1",
-          "ruleIds": [
-            "C1X.ORIENTATION_EVENT_DATED.ja"
-          ],
-          "pageEvidenceIds": [
-            "eeeeeeee-0000-4000-8000-e10000000031"
-          ],
-          "statedDates": [
-            "2025-04-11",
-            "2026-04-10",
-            "2027-04-09"
-          ]
-        },
-        "researchRealConflicts": [
-          "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
-          "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
-        ]
-      },
-      {
-        "evidenceClass": "RESEARCH_REAL",
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000002e",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000006",
         "claimKey": "channel.cycle_history",
         "subject": {
           "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e1000000004c"
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000045"
         },
         "mode": "OBSERVED",
         "attribution": "EXACT",
@@ -289,7 +231,7 @@
             "C1X.ORIENTATION_EVENT_CYCLES.ja"
           ],
           "pageEvidenceIds": [
-            "eeeeeeee-0000-4000-8000-e10000000031"
+            "eeeeeeee-0000-4000-8000-e10000000075"
           ],
           "statedDates": [
             "2025-04-11",
@@ -303,37 +245,11 @@
       },
       {
         "evidenceClass": "RESEARCH_REAL",
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000032",
-        "claimKey": "channel.existence",
-        "subject": {
-          "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e1000000002c"
-        },
-        "mode": "OBSERVED",
-        "attribution": "EXACT",
-        "producedBy": "NWF_SYSTEM",
-        "value": {
-          "status": "EXISTS"
-        },
-        "basis": {
-          "origin": "ADMITTED_WEBSITE_CAPTURED",
-          "websiteClaimId": "eeeeeeee-0000-4000-8000-e1000000002c",
-          "admissionIds": [
-            "eeeeeeee-0000-4000-8000-e1000000003b"
-          ]
-        },
-        "researchRealConflicts": [
-          "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
-          "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
-        ]
-      },
-      {
-        "evidenceClass": "RESEARCH_REAL",
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000047",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000011",
         "claimKey": "channel.reach_mode",
         "subject": {
           "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e1000000006d"
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000060"
         },
         "mode": "OBSERVED",
         "attribution": "EXACT",
@@ -349,7 +265,7 @@
             "C1X.NEWSLETTER_SIGNUP.ja"
           ],
           "pageEvidenceIds": [
-            "eeeeeeee-0000-4000-8000-e1000000001f"
+            "eeeeeeee-0000-4000-8000-e10000000036"
           ],
           "statedDates": []
         },
@@ -360,24 +276,24 @@
       },
       {
         "evidenceClass": "RESEARCH_REAL",
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000004e",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000012",
         "claimKey": "channel.operator_binding",
         "subject": {
           "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e1000000002c"
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000015"
         },
         "mode": "OBSERVED",
         "attribution": "EXACT",
         "producedBy": "NWF_SYSTEM",
         "value": {
-          "operatorCandidateId": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000029",
+          "operatorCandidateId": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000049",
           "basis": "HOSTED_ON_CANDIDATE_SITE"
         },
         "basis": {
           "origin": "ADMITTED_WEBSITE_CAPTURED",
-          "websiteClaimId": "eeeeeeee-0000-4000-8000-e1000000002c",
+          "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000015",
           "admissionIds": [
-            "eeeeeeee-0000-4000-8000-e1000000003b"
+            "eeeeeeee-0000-4000-8000-e10000000042"
           ]
         },
         "researchRealConflicts": [
@@ -387,39 +303,11 @@
       },
       {
         "evidenceClass": "RESEARCH_REAL",
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000053",
-        "claimKey": "channel.static_currency",
-        "subject": {
-          "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e1000000002c"
-        },
-        "mode": "OBSERVED",
-        "attribution": "EXACT",
-        "producedBy": "NWF_SYSTEM",
-        "value": {
-          "marker": "CURRENT_OR_UPCOMING_YEAR",
-          "lastModified": null
-        },
-        "basis": {
-          "origin": "STATED_DATE_IN_CAPTURE",
-          "pageEvidenceId": "eeeeeeee-0000-4000-8000-e10000000031",
-          "statedDates": [
-            "2026-04-10",
-            "2027-04-09"
-          ]
-        },
-        "researchRealConflicts": [
-          "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
-          "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
-        ]
-      },
-      {
-        "evidenceClass": "RESEARCH_REAL",
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000073",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000001b",
         "claimKey": "channel.existence",
         "subject": {
           "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e1000000006d"
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000060"
         },
         "mode": "OBSERVED",
         "attribution": "EXACT",
@@ -435,7 +323,7 @@
             "C1X.NEWSLETTER_SIGNUP.ja"
           ],
           "pageEvidenceIds": [
-            "eeeeeeee-0000-4000-8000-e1000000001f"
+            "eeeeeeee-0000-4000-8000-e10000000036"
           ],
           "statedDates": []
         },
@@ -446,11 +334,76 @@
       },
       {
         "evidenceClass": "RESEARCH_REAL",
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000075",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000001d",
+        "claimKey": "channel.event_instances",
+        "subject": {
+          "kind": "CHANNEL",
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000045"
+        },
+        "mode": "OBSERVED",
+        "attribution": "EXACT",
+        "producedBy": "NWF_SYSTEM",
+        "value": {
+          "upcomingAnnounced": true,
+          "lastPastInstance": "2026-04-10",
+          "discontinued": false
+        },
+        "basis": {
+          "origin": "C1_EXTRACTION_RULE",
+          "rulesVersion": "nwf-pe-c1-extraction-rules-v1",
+          "dateRuleVersion": "nwf-pe-c1-stated-date-rules-v1",
+          "ruleIds": [
+            "C1X.ORIENTATION_EVENT_DATED.ja"
+          ],
+          "pageEvidenceIds": [
+            "eeeeeeee-0000-4000-8000-e10000000075"
+          ],
+          "statedDates": [
+            "2025-04-11",
+            "2026-04-10",
+            "2027-04-09"
+          ]
+        },
+        "researchRealConflicts": [
+          "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
+          "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
+        ]
+      },
+      {
+        "evidenceClass": "RESEARCH_REAL",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000002f",
+        "claimKey": "channel.static_currency",
+        "subject": {
+          "kind": "CHANNEL",
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000015"
+        },
+        "mode": "OBSERVED",
+        "attribution": "EXACT",
+        "producedBy": "NWF_SYSTEM",
+        "value": {
+          "marker": "CURRENT_OR_UPCOMING_YEAR",
+          "lastModified": null
+        },
+        "basis": {
+          "origin": "STATED_DATE_IN_CAPTURE",
+          "pageEvidenceId": "eeeeeeee-0000-4000-8000-e10000000075",
+          "statedDates": [
+            "2026-04-10",
+            "2027-04-09"
+          ]
+        },
+        "researchRealConflicts": [
+          "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
+          "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
+        ]
+      },
+      {
+        "evidenceClass": "RESEARCH_REAL",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000046",
         "claimKey": "channel.existence",
         "subject": {
           "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e1000000004c"
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000045"
         },
         "mode": "OBSERVED",
         "attribution": "EXACT",
@@ -466,7 +419,7 @@
             "C1X.ORIENTATION_EVENT_DATED.ja"
           ],
           "pageEvidenceIds": [
-            "eeeeeeee-0000-4000-8000-e10000000031"
+            "eeeeeeee-0000-4000-8000-e10000000075"
           ],
           "statedDates": [
             "2025-04-11",
@@ -478,125 +431,119 @@
           "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
           "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
         ]
+      },
+      {
+        "evidenceClass": "RESEARCH_REAL",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000005e",
+        "claimKey": "candidate.location",
+        "subject": {
+          "kind": "CANDIDATE",
+          "ref": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000049"
+        },
+        "mode": "SELF_ASSERTED",
+        "attribution": "EXACT",
+        "producedBy": "HUMAN_RESEARCHER",
+        "value": {
+          "countryCode": "JP"
+        },
+        "basis": {
+          "origin": "ADR_0024_COUNTRY_OF_OPERATION",
+          "jurisdictionClaimId": "eeeeeeee-0000-4000-8000-e10000000048",
+          "recordedByActorKey": "ww-ex-owner-test"
+        },
+        "researchRealConflicts": []
+      },
+      {
+        "evidenceClass": "RESEARCH_REAL",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000007b",
+        "claimKey": "channel.existence",
+        "subject": {
+          "kind": "CHANNEL",
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000015"
+        },
+        "mode": "OBSERVED",
+        "attribution": "EXACT",
+        "producedBy": "NWF_SYSTEM",
+        "value": {
+          "status": "EXISTS"
+        },
+        "basis": {
+          "origin": "ADMITTED_WEBSITE_CAPTURED",
+          "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000015",
+          "admissionIds": [
+            "eeeeeeee-0000-4000-8000-e10000000042"
+          ]
+        },
+        "researchRealConflicts": [
+          "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
+          "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
+        ]
       }
     ],
     "claimLinks": [
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000001a",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000001f",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000006",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000075",
         "relation": "SUPPORTS"
       },
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000001c",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000031",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000011",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000036",
         "relation": "SUPPORTS"
       },
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000002e",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000031",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000012",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000036",
         "relation": "SUPPORTS"
       },
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000032",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000001f",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000012",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000075",
         "relation": "SUPPORTS"
       },
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000032",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000031",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000001b",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000036",
         "relation": "SUPPORTS"
       },
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000047",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000001f",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000001d",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000075",
         "relation": "SUPPORTS"
       },
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000004e",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000001f",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000002f",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000075",
         "relation": "SUPPORTS"
       },
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000004e",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000031",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000046",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000075",
         "relation": "SUPPORTS"
       },
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000053",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000031",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000005e",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000036",
         "relation": "SUPPORTS"
       },
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000073",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000001f",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000007b",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000036",
         "relation": "SUPPORTS"
       },
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000075",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000031",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000007b",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000075",
         "relation": "SUPPORTS"
       }
     ],
     "proposals": [
       {
         "proposalId": "rp-proposal:eeeeeeee-0000-4000-8000-e10000000004",
-        "key": "channel.existence",
-        "subject": {
-          "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e1000000000e"
-        },
-        "proposedValue": {
-          "status": "EXISTS"
-        },
-        "assertionMode": "SELF_ASSERTED",
-        "attribution": "EXACT",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000001f",
-        "observedAt": "2026-10-27T18:07:52Z",
-        "extraction": {
-          "ruleId": "C1P.SOCIAL_ACCOUNT_NAMED.ja",
-          "rulesVersion": "nwf-pe-c1-extraction-rules-v1",
-          "language": "ja",
-          "matchedTerms": [
-            "インスタグラム",
-            "フォロー"
-          ]
-        },
-        "quote": "インスタグラムをフォローしてください。",
-        "quoteTruncated": false,
-        "quoteSha256": "93c185f6f130fdf8fe4d61273f047600eeb5c7bd97233242705aa02ad0cd6ee4"
-      },
-      {
-        "proposalId": "rp-proposal:eeeeeeee-0000-4000-8000-e10000000027",
-        "key": "candidate.kind",
-        "subject": {
-          "kind": "CANDIDATE",
-          "ref": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000029"
-        },
-        "proposedValue": {
-          "kind": "INTERNATIONAL_STUDENT_ASSOCIATION"
-        },
-        "assertionMode": "SELF_ASSERTED",
-        "attribution": "EXACT",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000001f",
-        "observedAt": "2026-10-27T18:07:52Z",
-        "extraction": {
-          "ruleId": "C1P.CANDIDATE_KIND_HOME_TITLE.ja",
-          "rulesVersion": "nwf-pe-c1-extraction-rules-v1",
-          "language": "ja",
-          "matchedTerms": [
-            "留学生会"
-          ]
-        },
-        "quote": "留学生会 例 大阪",
-        "quoteTruncated": false,
-        "quoteSha256": "a8147bab85063abe72b0a2f19502fe76adca1668d2875bc5032b57940409dabd"
-      },
-      {
-        "proposalId": "rp-proposal:eeeeeeee-0000-4000-8000-e1000000005d",
         "key": "audience.languages",
         "subject": {
           "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e1000000002c"
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000015"
         },
         "proposedValue": {
           "languages": [
@@ -605,8 +552,8 @@
         },
         "assertionMode": "SELF_ASSERTED",
         "attribution": "EXACT",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000001f",
-        "observedAt": "2026-10-27T18:07:52Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000036",
+        "observedAt": "2026-10-27T18:09:00Z",
         "extraction": {
           "ruleId": "C1P.AUDIENCE_LANGUAGES.ja",
           "rulesVersion": "nwf-pe-c1-extraction-rules-v1",
@@ -620,20 +567,19 @@
         "quoteSha256": "72adbef109d7b77f9e8c4898dd495304b47841c0347cd1ec07c2636cb450d2a5"
       },
       {
-        "proposalId": "rp-proposal:eeeeeeee-0000-4000-8000-e1000000005f",
-        "key": "channel.operator_binding",
+        "proposalId": "rp-proposal:eeeeeeee-0000-4000-8000-e10000000039",
+        "key": "channel.existence",
         "subject": {
           "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e1000000000e"
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e1000000000f"
         },
         "proposedValue": {
-          "operatorCandidateId": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000029",
-          "basis": "OFFICIAL_PRESENCE_NAMES_CHANNEL"
+          "status": "EXISTS"
         },
         "assertionMode": "SELF_ASSERTED",
         "attribution": "EXACT",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000001f",
-        "observedAt": "2026-10-27T18:07:52Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000036",
+        "observedAt": "2026-10-27T18:09:00Z",
         "extraction": {
           "ruleId": "C1P.SOCIAL_ACCOUNT_NAMED.ja",
           "rulesVersion": "nwf-pe-c1-extraction-rules-v1",
@@ -648,11 +594,65 @@
         "quoteSha256": "93c185f6f130fdf8fe4d61273f047600eeb5c7bd97233242705aa02ad0cd6ee4"
       },
       {
-        "proposalId": "rp-proposal:eeeeeeee-0000-4000-8000-e1000000007b",
+        "proposalId": "rp-proposal:eeeeeeee-0000-4000-8000-e1000000004b",
+        "key": "channel.operator_binding",
+        "subject": {
+          "kind": "CHANNEL",
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e1000000000f"
+        },
+        "proposedValue": {
+          "operatorCandidateId": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000049",
+          "basis": "OFFICIAL_PRESENCE_NAMES_CHANNEL"
+        },
+        "assertionMode": "SELF_ASSERTED",
+        "attribution": "EXACT",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000036",
+        "observedAt": "2026-10-27T18:09:00Z",
+        "extraction": {
+          "ruleId": "C1P.SOCIAL_ACCOUNT_NAMED.ja",
+          "rulesVersion": "nwf-pe-c1-extraction-rules-v1",
+          "language": "ja",
+          "matchedTerms": [
+            "インスタグラム",
+            "フォロー"
+          ]
+        },
+        "quote": "インスタグラムをフォローしてください。",
+        "quoteTruncated": false,
+        "quoteSha256": "93c185f6f130fdf8fe4d61273f047600eeb5c7bd97233242705aa02ad0cd6ee4"
+      },
+      {
+        "proposalId": "rp-proposal:eeeeeeee-0000-4000-8000-e1000000006b",
+        "key": "candidate.kind",
+        "subject": {
+          "kind": "CANDIDATE",
+          "ref": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000049"
+        },
+        "proposedValue": {
+          "kind": "INTERNATIONAL_STUDENT_ASSOCIATION"
+        },
+        "assertionMode": "SELF_ASSERTED",
+        "attribution": "EXACT",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000036",
+        "observedAt": "2026-10-27T18:09:00Z",
+        "extraction": {
+          "ruleId": "C1P.CANDIDATE_KIND_HOME_TITLE.ja",
+          "rulesVersion": "nwf-pe-c1-extraction-rules-v1",
+          "language": "ja",
+          "matchedTerms": [
+            "留学生会"
+          ]
+        },
+        "quote": "留学生会 例 大阪",
+        "quoteTruncated": false,
+        "quoteSha256": "a8147bab85063abe72b0a2f19502fe76adca1668d2875bc5032b57940409dabd"
+      },
+      {
+        "proposalId": "rp-proposal:eeeeeeee-0000-4000-8000-e1000000006c",
         "key": "audience.segment_definition",
         "subject": {
           "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e1000000002c"
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000015"
         },
         "proposedValue": {
           "segment": "INCOMING_INTERNATIONAL_STUDENTS",
@@ -660,8 +660,8 @@
         },
         "assertionMode": "SELF_ASSERTED",
         "attribution": "EXACT",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000001f",
-        "observedAt": "2026-10-27T18:07:52Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000036",
+        "observedAt": "2026-10-27T18:09:00Z",
         "extraction": {
           "ruleId": "C1P.SEGMENT_WHOLE_AUDIENCE.ja",
           "rulesVersion": "nwf-pe-c1-extraction-rules-v1",
@@ -685,10 +685,10 @@
           "candidate.location"
         ],
         "claimRefs": [
-          "rp-claim:eeeeeeee-0000-4000-8000-e1000000001a"
+          "rp-claim:eeeeeeee-0000-4000-8000-e1000000005e"
         ],
         "proposalIds": [
-          "rp-proposal:eeeeeeee-0000-4000-8000-e1000000005d"
+          "rp-proposal:eeeeeeee-0000-4000-8000-e10000000004"
         ],
         "relevantPageClasses": [
           "HOME",
@@ -708,7 +708,7 @@
         ],
         "claimRefs": [],
         "proposalIds": [
-          "rp-proposal:eeeeeeee-0000-4000-8000-e1000000007b"
+          "rp-proposal:eeeeeeee-0000-4000-8000-e1000000006c"
         ],
         "relevantPageClasses": [
           "HOME",
@@ -740,12 +740,12 @@
           "channel.existence"
         ],
         "claimRefs": [
-          "rp-claim:eeeeeeee-0000-4000-8000-e10000000032",
-          "rp-claim:eeeeeeee-0000-4000-8000-e10000000073",
-          "rp-claim:eeeeeeee-0000-4000-8000-e10000000075"
+          "rp-claim:eeeeeeee-0000-4000-8000-e1000000001b",
+          "rp-claim:eeeeeeee-0000-4000-8000-e10000000046",
+          "rp-claim:eeeeeeee-0000-4000-8000-e1000000007b"
         ],
         "proposalIds": [
-          "rp-proposal:eeeeeeee-0000-4000-8000-e10000000004"
+          "rp-proposal:eeeeeeee-0000-4000-8000-e10000000039"
         ],
         "relevantPageClasses": [
           "HOME"
@@ -763,7 +763,7 @@
           "channel.reach_mode"
         ],
         "claimRefs": [
-          "rp-claim:eeeeeeee-0000-4000-8000-e10000000047"
+          "rp-claim:eeeeeeee-0000-4000-8000-e10000000011"
         ],
         "proposalIds": [],
         "relevantPageClasses": [
@@ -786,8 +786,8 @@
           "channel.event_instances"
         ],
         "claimRefs": [
-          "rp-claim:eeeeeeee-0000-4000-8000-e1000000001c",
-          "rp-claim:eeeeeeee-0000-4000-8000-e10000000053"
+          "rp-claim:eeeeeeee-0000-4000-8000-e1000000001d",
+          "rp-claim:eeeeeeee-0000-4000-8000-e1000000002f"
         ],
         "proposalIds": [],
         "relevantPageClasses": [
@@ -851,10 +851,10 @@
           "channel.publishing_route"
         ],
         "claimRefs": [
-          "rp-claim:eeeeeeee-0000-4000-8000-e1000000004e"
+          "rp-claim:eeeeeeee-0000-4000-8000-e10000000012"
         ],
         "proposalIds": [
-          "rp-proposal:eeeeeeee-0000-4000-8000-e1000000005f"
+          "rp-proposal:eeeeeeee-0000-4000-8000-e1000000004b"
         ],
         "relevantPageClasses": [
           "HOME",
@@ -876,7 +876,7 @@
           "channel.cycle_history"
         ],
         "claimRefs": [
-          "rp-claim:eeeeeeee-0000-4000-8000-e1000000002e"
+          "rp-claim:eeeeeeee-0000-4000-8000-e10000000006"
         ],
         "proposalIds": [],
         "relevantPageClasses": [
@@ -1004,71 +1004,71 @@
     "freshness": [
       {
         "key": "audience.languages",
-        "latestCapturedAt": "2026-10-27T18:07:52Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000001f",
+        "latestCapturedAt": "2026-10-27T18:09:00Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000036",
         "claims": 0,
         "proposals": 1
       },
       {
         "key": "audience.segment_definition",
-        "latestCapturedAt": "2026-10-27T18:07:52Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000001f",
+        "latestCapturedAt": "2026-10-27T18:09:00Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000036",
         "claims": 0,
         "proposals": 1
       },
       {
         "key": "candidate.kind",
-        "latestCapturedAt": "2026-10-27T18:07:52Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000001f",
+        "latestCapturedAt": "2026-10-27T18:09:00Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000036",
         "claims": 0,
         "proposals": 1
       },
       {
         "key": "candidate.location",
-        "latestCapturedAt": "2026-10-27T18:07:52Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000001f",
+        "latestCapturedAt": "2026-10-27T18:09:00Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000036",
         "claims": 1,
         "proposals": 0
       },
       {
         "key": "channel.cycle_history",
-        "latestCapturedAt": "2026-10-27T18:07:52Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000031",
+        "latestCapturedAt": "2026-10-27T18:09:00Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000075",
         "claims": 1,
         "proposals": 0
       },
       {
         "key": "channel.event_instances",
-        "latestCapturedAt": "2026-10-27T18:07:52Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000031",
+        "latestCapturedAt": "2026-10-27T18:09:00Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000075",
         "claims": 1,
         "proposals": 0
       },
       {
         "key": "channel.existence",
-        "latestCapturedAt": "2026-10-27T18:07:52Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000001f",
+        "latestCapturedAt": "2026-10-27T18:09:00Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000036",
         "claims": 3,
         "proposals": 1
       },
       {
         "key": "channel.operator_binding",
-        "latestCapturedAt": "2026-10-27T18:07:52Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000001f",
+        "latestCapturedAt": "2026-10-27T18:09:00Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000036",
         "claims": 1,
         "proposals": 1
       },
       {
         "key": "channel.reach_mode",
-        "latestCapturedAt": "2026-10-27T18:07:52Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000001f",
+        "latestCapturedAt": "2026-10-27T18:09:00Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000036",
         "claims": 1,
         "proposals": 0
       },
       {
         "key": "channel.static_currency",
-        "latestCapturedAt": "2026-10-27T18:07:52Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000031",
+        "latestCapturedAt": "2026-10-27T18:09:00Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000075",
         "claims": 1,
         "proposals": 0
       }
@@ -1076,8 +1076,8 @@
     "excluded": [],
     "researchRuns": [
       {
-        "runId": "eeeeeeee-0000-4000-8000-e10000000030",
-        "admissionId": "eeeeeeee-0000-4000-8000-e1000000003b",
+        "runId": "eeeeeeee-0000-4000-8000-e10000000044",
+        "admissionId": "eeeeeeee-0000-4000-8000-e10000000042",
         "included": true,
         "pages": 2
       }
@@ -1108,6 +1108,7 @@
       "phraseRules": "DETERMINISTIC_PHRASE_RULES_NWF_PE_C1_EXTRACTION_RULES_V1_OBSERVED_CLAIMS_ONLY_FOR_WHAT_A_CAPTURE_SHOWS",
       "proposals": "PROPOSALS_ARE_NOT_CLAIMS_THE_OPERATOR_DECIDES_WHETHER_ANY_COUNTS",
       "quotes": "AT_MOST_300_CODE_POINTS_OF_ALREADY_REDACTED_STORED_TEXT_CONTACT_SHAPED_QUOTES_WITHHELD",
+      "quoteContent": "A_QUOTE_IS_PAGE_TEXT_AS_WRITTEN_AND_MAY_NAME_THE_ORGANISATION_OR_A_PERSON_NO_NAME_FIELD_EXISTS",
       "researchStatus": "EVIDENCE_FOUND_MEANS_A_CLAIM_EXISTS_NEVER_A_TIER_SEARCHED_NOT_FOUND_IS_NEVER_A_ZERO",
       "language": "A_RULE_LANGUAGE_IS_THE_LANGUAGE_A_PHRASE_IS_WRITTEN_IN_NEVER_A_COUNTRY"
     }

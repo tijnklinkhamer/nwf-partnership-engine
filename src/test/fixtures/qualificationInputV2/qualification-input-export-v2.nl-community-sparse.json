@@ -14,7 +14,7 @@
       "dateRuleVersion": "nwf-pe-c1-stated-date-rules-v1",
       "pageClasses": [
         {
-          "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000021",
+          "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000003b",
           "classes": [
             "HOME"
           ]
@@ -32,10 +32,10 @@
     "dateRuleVersion": "nwf-pe-stated-date-rules-v1",
     "sourceRepository": "nwf-partnership-engine",
     "readConsistency": "SINGLE_SNAPSHOT_TRANSACTION",
-    "subjectId": "eeeeeeee-0000-4000-8000-e10000000049",
-    "evaluatedAt": "2026-10-27T18:07:53Z",
+    "subjectId": "eeeeeeee-0000-4000-8000-e10000000027",
+    "evaluatedAt": "2026-10-27T18:09:01Z",
     "candidate": {
-      "candidateRef": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000049",
+      "candidateRef": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000027",
       "relations": []
     },
     "country": {
@@ -46,13 +46,13 @@
     },
     "channels": [
       {
-        "channelRef": "rp-channel:eeeeeeee-0000-4000-8000-e10000000051",
+        "channelRef": "rp-channel:eeeeeeee-0000-4000-8000-e10000000077",
         "kind": "RESOURCE_PAGE",
         "channelClass": "STATIC",
         "visibility": "PUBLIC",
-        "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000051",
+        "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000077",
         "admissionIds": [
-          "eeeeeeee-0000-4000-8000-e10000000074"
+          "eeeeeeee-0000-4000-8000-e10000000055"
         ],
         "derivation": "ADMITTED_ROOT_WEBSITE",
         "establishedBy": "OBSERVED_CLAIM",
@@ -62,9 +62,9 @@
     "sources": [
       {
         "evidenceClass": "RESEARCH_REAL",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000021",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000003b",
         "publisherRelation": "SELF",
-        "capturedAt": "2026-10-27T18:07:52Z",
+        "capturedAt": "2026-10-27T18:09:00Z",
         "c1": {
           "captureKind": "ARTEFACT",
           "contentDigest": "e42a9e95e81681bd12f87a168eed20036cf16cf27a65897394df5accbf92fc38",
@@ -78,18 +78,18 @@
           "contentDigest": "e42a9e95e81681bd12f87a168eed20036cf16cf27a65897394df5accbf92fc38",
           "bytesAvailable": false,
           "origin": "https://www.buurtgroep-voorbeeld-zuid-fict.nl/",
-          "digestRecordedAt": "2026-10-27T18:07:52Z"
+          "digestRecordedAt": "2026-10-27T18:09:00Z"
         },
         "record": {
           "kind": "PAGE_EVIDENCE",
-          "pageEvidenceId": "eeeeeeee-0000-4000-8000-e10000000021",
-          "fetchObservationId": "eeeeeeee-0000-4000-8000-e1000000001e",
-          "researchRunId": "eeeeeeee-0000-4000-8000-e1000000006e",
-          "admissionId": "eeeeeeee-0000-4000-8000-e10000000074",
+          "pageEvidenceId": "eeeeeeee-0000-4000-8000-e1000000003b",
+          "fetchObservationId": "eeeeeeee-0000-4000-8000-e10000000021",
+          "researchRunId": "eeeeeeee-0000-4000-8000-e1000000007d",
+          "admissionId": "eeeeeeee-0000-4000-8000-e10000000055",
           "extractionRuleVersion": "orgunit-extraction-v3",
           "candidates": [
             {
-              "candidateId": "eeeeeeee-0000-4000-8000-e10000000028",
+              "candidateId": "eeeeeeee-0000-4000-8000-e1000000006d",
               "track": "INTERNATIONAL_OFFICE",
               "candidateScore": "0.0000",
               "rankWithinRoot": 1,
@@ -109,64 +109,11 @@
     "claims": [
       {
         "evidenceClass": "RESEARCH_REAL",
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000035",
-        "claimKey": "channel.operator_binding",
-        "subject": {
-          "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000051"
-        },
-        "mode": "OBSERVED",
-        "attribution": "EXACT",
-        "producedBy": "NWF_SYSTEM",
-        "value": {
-          "operatorCandidateId": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000049",
-          "basis": "HOSTED_ON_CANDIDATE_SITE"
-        },
-        "basis": {
-          "origin": "ADMITTED_WEBSITE_CAPTURED",
-          "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000051",
-          "admissionIds": [
-            "eeeeeeee-0000-4000-8000-e10000000074"
-          ]
-        },
-        "researchRealConflicts": [
-          "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
-          "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
-        ]
-      },
-      {
-        "evidenceClass": "RESEARCH_REAL",
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000005e",
-        "claimKey": "channel.existence",
-        "subject": {
-          "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000051"
-        },
-        "mode": "OBSERVED",
-        "attribution": "EXACT",
-        "producedBy": "NWF_SYSTEM",
-        "value": {
-          "status": "EXISTS"
-        },
-        "basis": {
-          "origin": "ADMITTED_WEBSITE_CAPTURED",
-          "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000051",
-          "admissionIds": [
-            "eeeeeeee-0000-4000-8000-e10000000074"
-          ]
-        },
-        "researchRealConflicts": [
-          "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
-          "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
-        ]
-      },
-      {
-        "evidenceClass": "RESEARCH_REAL",
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000007f",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000000e",
         "claimKey": "candidate.location",
         "subject": {
           "kind": "CANDIDATE",
-          "ref": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000049"
+          "ref": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000027"
         },
         "mode": "SELF_ASSERTED",
         "attribution": "EXACT",
@@ -176,26 +123,79 @@
         },
         "basis": {
           "origin": "ADR_0024_COUNTRY_OF_OPERATION",
-          "jurisdictionClaimId": "eeeeeeee-0000-4000-8000-e10000000061",
+          "jurisdictionClaimId": "eeeeeeee-0000-4000-8000-e10000000013",
           "recordedByActorKey": "ww-ex-owner-test"
         },
         "researchRealConflicts": []
+      },
+      {
+        "evidenceClass": "RESEARCH_REAL",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000038",
+        "claimKey": "channel.existence",
+        "subject": {
+          "kind": "CHANNEL",
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000077"
+        },
+        "mode": "OBSERVED",
+        "attribution": "EXACT",
+        "producedBy": "NWF_SYSTEM",
+        "value": {
+          "status": "EXISTS"
+        },
+        "basis": {
+          "origin": "ADMITTED_WEBSITE_CAPTURED",
+          "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000077",
+          "admissionIds": [
+            "eeeeeeee-0000-4000-8000-e10000000055"
+          ]
+        },
+        "researchRealConflicts": [
+          "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
+          "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
+        ]
+      },
+      {
+        "evidenceClass": "RESEARCH_REAL",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000054",
+        "claimKey": "channel.operator_binding",
+        "subject": {
+          "kind": "CHANNEL",
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000077"
+        },
+        "mode": "OBSERVED",
+        "attribution": "EXACT",
+        "producedBy": "NWF_SYSTEM",
+        "value": {
+          "operatorCandidateId": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000027",
+          "basis": "HOSTED_ON_CANDIDATE_SITE"
+        },
+        "basis": {
+          "origin": "ADMITTED_WEBSITE_CAPTURED",
+          "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000077",
+          "admissionIds": [
+            "eeeeeeee-0000-4000-8000-e10000000055"
+          ]
+        },
+        "researchRealConflicts": [
+          "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
+          "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
+        ]
       }
     ],
     "claimLinks": [
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000035",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000021",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000000e",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000003b",
         "relation": "SUPPORTS"
       },
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000005e",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000021",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000038",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000003b",
         "relation": "SUPPORTS"
       },
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000007f",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000021",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000054",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000003b",
         "relation": "SUPPORTS"
       }
     ],
@@ -210,7 +210,7 @@
           "candidate.location"
         ],
         "claimRefs": [
-          "rp-claim:eeeeeeee-0000-4000-8000-e1000000007f"
+          "rp-claim:eeeeeeee-0000-4000-8000-e1000000000e"
         ],
         "proposalIds": [],
         "relevantPageClasses": [
@@ -261,7 +261,7 @@
           "channel.existence"
         ],
         "claimRefs": [
-          "rp-claim:eeeeeeee-0000-4000-8000-e1000000005e"
+          "rp-claim:eeeeeeee-0000-4000-8000-e10000000038"
         ],
         "proposalIds": [],
         "relevantPageClasses": [
@@ -358,7 +358,7 @@
           "channel.publishing_route"
         ],
         "claimRefs": [
-          "rp-claim:eeeeeeee-0000-4000-8000-e10000000035"
+          "rp-claim:eeeeeeee-0000-4000-8000-e10000000054"
         ],
         "proposalIds": [],
         "relevantPageClasses": [
@@ -531,22 +531,22 @@
     "freshness": [
       {
         "key": "candidate.location",
-        "latestCapturedAt": "2026-10-27T18:07:52Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000021",
+        "latestCapturedAt": "2026-10-27T18:09:00Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000003b",
         "claims": 1,
         "proposals": 0
       },
       {
         "key": "channel.existence",
-        "latestCapturedAt": "2026-10-27T18:07:52Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000021",
+        "latestCapturedAt": "2026-10-27T18:09:00Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000003b",
         "claims": 1,
         "proposals": 0
       },
       {
         "key": "channel.operator_binding",
-        "latestCapturedAt": "2026-10-27T18:07:52Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000021",
+        "latestCapturedAt": "2026-10-27T18:09:00Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000003b",
         "claims": 1,
         "proposals": 0
       }
@@ -554,8 +554,8 @@
     "excluded": [],
     "researchRuns": [
       {
-        "runId": "eeeeeeee-0000-4000-8000-e1000000006e",
-        "admissionId": "eeeeeeee-0000-4000-8000-e10000000074",
+        "runId": "eeeeeeee-0000-4000-8000-e1000000007d",
+        "admissionId": "eeeeeeee-0000-4000-8000-e10000000055",
         "included": true,
         "pages": 1
       }
@@ -586,6 +586,7 @@
       "phraseRules": "DETERMINISTIC_PHRASE_RULES_NWF_PE_C1_EXTRACTION_RULES_V1_OBSERVED_CLAIMS_ONLY_FOR_WHAT_A_CAPTURE_SHOWS",
       "proposals": "PROPOSALS_ARE_NOT_CLAIMS_THE_OPERATOR_DECIDES_WHETHER_ANY_COUNTS",
       "quotes": "AT_MOST_300_CODE_POINTS_OF_ALREADY_REDACTED_STORED_TEXT_CONTACT_SHAPED_QUOTES_WITHHELD",
+      "quoteContent": "A_QUOTE_IS_PAGE_TEXT_AS_WRITTEN_AND_MAY_NAME_THE_ORGANISATION_OR_A_PERSON_NO_NAME_FIELD_EXISTS",
       "researchStatus": "EVIDENCE_FOUND_MEANS_A_CLAIM_EXISTS_NEVER_A_TIER_SEARCHED_NOT_FOUND_IS_NEVER_A_ZERO",
       "language": "A_RULE_LANGUAGE_IS_THE_LANGUAGE_A_PHRASE_IS_WRITTEN_IN_NEVER_A_COUNTRY"
     }
