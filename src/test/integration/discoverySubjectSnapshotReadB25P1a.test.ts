@@ -338,7 +338,8 @@ describeDb('B2.5-P1a transaction-bound snapshot assembler (integration)', () => 
       );
       // Lane L1 (migration 0018, ADR 0025 s12) and REL L2 (migration 0019,
       // ADR 0026) have both landed; 0019 is the newest migration now.
-      expect(top[0]!.top).toBe('0019');
+      // REL P2 (migration 0020, link-out sightings) followed.
+      expect(top[0]!.top).toBe('0020');
     });
   });
 

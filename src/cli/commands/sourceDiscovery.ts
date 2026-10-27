@@ -7,6 +7,9 @@
  *                      --execute it REFUSES - live search is not authorised and
  *                      no SourceDiscoveryAuthorisation can be built from here.
  *   nominations list   one bounded, keyset-paginated page (readonly role).
+ *   nominations show   ONE nomination, its registrable domain's identity and
+ *                      a bounded page of that identity's link-out sightings
+ *                      (readonly role; REL P2, migration 0020).
  *   nominations promote
  *                      ONE nomination -> ONE discovery subject through the
  *                      EXISTING B2.2 writer (dry run on the readonly role by
@@ -32,14 +35,18 @@ import {
 import { SUBJECT_KINDS, type SubjectKind } from '../../orgunits/sourceDiscovery/identityBridge.js';
 import {
   PromotionRefusal,
+  assertCanonicalNomination,
   promoteNomination,
   promotionRequest,
 } from '../../orgunits/sourceDiscovery/promote.js';
 import {
   NOMINATION_LIST_DEFAULT_LIMIT,
   NOMINATION_LIST_MAX_LIMIT,
+  SIGHTING_LIST_MAX_LIMIT,
+  listNominationSightings,
   listNominations,
   loadNomination,
+  loadNominationIdentity,
 } from '../../orgunits/sourceDiscovery/store.js';
 import { UUID_SHAPE } from '../../orgunits/sourceDiscovery/types.js';
 
@@ -52,11 +59,18 @@ export const SOURCE_DISCOVERY_USAGE = `nwf-pe orgunits - independent source disc
                                --execute is REFUSED: live search is not authorised.
   orgunits nominations list    [--run-id <uuid>] [--limit <1-${NOMINATION_LIST_MAX_LIMIT}>]
                                [--after <uuid>] [--json]
+  orgunits nominations show    --nomination-id <uuid> [--limit <1-${SIGHTING_LIST_MAX_LIMIT}>] [--json]
+                               ONE nomination, the identity of its registrable domain
+                               (first nomination, counts) and that identity's link-out
+                               sightings (page evidence, run, redacted anchor text).
   orgunits nominations promote --nomination-id <uuid> --subject-id <uuid> --kind <KIND>
                                [--name-language <tag>] [--execute] [--json]
                                Registers ONE discovery subject whose NAME claim cites the
                                nomination (PUBLIC_URL, observed at its retrieval time).
                                DRY RUN unless --execute. Nothing promotes automatically.
+                               Only the FIRST nomination of a registrable domain is
+                               promotable. Promotion fetches nothing: research of the new
+                               subject needs a review and its own OWNER admission.
 `;
 
 const OUTPUT = { json: { type: 'boolean' } } as const;
@@ -72,6 +86,11 @@ const OPTIONS = {
     'run-id': { type: 'string' },
     limit: { type: 'string' },
     after: { type: 'string' },
+    ...OUTPUT,
+  },
+  'nominations show': {
+    'nomination-id': { type: 'string' },
+    limit: { type: 'string' },
     ...OUTPUT,
   },
   'nominations promote': {
@@ -236,6 +255,51 @@ export async function runSourceDiscoveryCli(
         }
         return 0;
       }
+      case 'nominations show': {
+        const nominationId = uuid(values, 'nomination-id');
+        const rawLimit = str(values, 'limit');
+        const limit = rawLimit === undefined ? SIGHTING_LIST_MAX_LIMIT : Number(rawLimit);
+        if (!Number.isInteger(limit) || limit < 1 || limit > SIGHTING_LIST_MAX_LIMIT) {
+          throw new UsageError(`--limit must be an integer 1-${SIGHTING_LIST_MAX_LIMIT}.`);
+        }
+        const shown = await withPoolOf(readonlyPool, async (pool) => {
+          const nomination = await loadNomination(pool, nominationId);
+          if (nomination === null) return null;
+          const identity = await loadNominationIdentity(pool, nomination.registrableDomain);
+          const sightings =
+            identity === null ? [] : await listNominationSightings(pool, identity.id, limit);
+          return { nomination, identity, sightings };
+        });
+        if (shown === null) {
+          throw new PromotionRefusal('NOMINATION_NOT_FOUND', `no nomination ${nominationId}.`);
+        }
+        const promotable =
+          shown.identity === null || shown.identity.firstNominationId === nominationId;
+        if (json) {
+          out(envelope(key, 'READ', { data: { ...shown, promotable } }));
+        } else {
+          const n = shown.nomination;
+          out(`${n.id}\t${n.discoveryMethod}\t${n.url}\t${n.title ?? ''}\n`);
+          if (shown.identity !== null) {
+            const i = shown.identity;
+            out(
+              `identity ${i.id} ${i.registrableDomain}: first nomination ${i.firstNominationId}, ` +
+                `${i.nominationCount} nomination(s), ${i.sightingCount} sighting(s)\n`,
+            );
+          }
+          for (const s of shown.sightings) {
+            out(
+              `  ${s.observedAt}\trun ${s.researchRunId}\tpage ${s.sourcePageEvidenceId}\t` +
+                `${s.url}\t${s.anchorText ?? ''}\n`,
+            );
+          }
+          out(
+            `${promotable ? 'PROMOTABLE' : 'NOT PROMOTABLE (not the first nomination)'}. ` +
+              'Nothing was fetched.\n',
+          );
+        }
+        return 0;
+      }
       case 'nominations promote': {
         const nominationId = uuid(values, 'nomination-id');
         const subjectId = uuid(values, 'subject-id');
@@ -243,12 +307,20 @@ export async function runSourceDiscoveryCli(
         if (!(SUBJECT_KINDS as readonly string[]).includes(kind)) {
           throw new UsageError(`--kind must be one of ${SUBJECT_KINDS.join(', ')}.`);
         }
-        const nomination = await withPoolOf(readonlyPool, (pool) =>
-          loadNomination(pool, nominationId),
-        );
-        if (nomination === null) {
+        const loaded = await withPoolOf(readonlyPool, async (pool) => {
+          const found = await loadNomination(pool, nominationId);
+          return found === null
+            ? null
+            : {
+                nomination: found,
+                identity: await loadNominationIdentity(pool, found.registrableDomain),
+              };
+        });
+        if (loaded === null) {
           throw new PromotionRefusal('NOMINATION_NOT_FOUND', `no nomination ${nominationId}.`);
         }
+        const { nomination } = loaded;
+        assertCanonicalNomination(nomination, loaded.identity);
         const request = promotionRequest({
           nomination,
           subjectId,

@@ -18,6 +18,14 @@
  * `orgunits nominations promote`, one nomination and one operator-chosen
  * subject id and kind per invocation.
  *
+ * REL P2 - ONE PROMOTABLE NOMINATION PER IDENTITY. A registrable domain
+ * nominated by several runs is one identity (migration 0020) naming its
+ * FIRST nomination; only that one is promotable. A later nomination of the
+ * same domain is refused `NOMINATION_NOT_CANONICAL`, naming the canonical id,
+ * so the same domain cannot be promoted from two different nominations.
+ * Promotion still grants nothing to fetch: the subject it registers needs a
+ * review and its own OWNER admission before any research.
+ *
  * THE ONE FILE OF THIS NAMESPACE THAT NAMES THE REGISTRY, and it names
  * exactly the B2.2 propose request type and the propose pair of the writer -
  * never claim, relate, review, the store or the reviewer authority. The
@@ -35,7 +43,7 @@ import {
   type RegistryResult,
 } from '../subjectRegistry/writer.js';
 import { isAdmissibleName, type SubjectKind } from './identityBridge.js';
-import type { NominationRow } from './store.js';
+import type { NominationIdentityRow, NominationRow } from './store.js';
 
 export const NOMINATION_CITATION_VERSION = 'source-discovery-nomination-citation-v1';
 
@@ -45,6 +53,7 @@ export class PromotionRefusal extends Error {
       | 'NOMINATION_NOT_FOUND'
       | 'NOMINATION_HAS_NO_TITLE'
       | 'NOMINATION_TITLE_INADMISSIBLE'
+      | 'NOMINATION_NOT_CANONICAL'
       | `REGISTRY_${string}`,
     detail: string,
   ) {
@@ -60,6 +69,27 @@ export function nominationCitationDigest(
   return createHash('sha256')
     .update(`${NOMINATION_CITATION_VERSION}|${n.id}|${n.url}|${n.retrievedAt}`, 'utf8')
     .digest('hex');
+}
+
+/**
+ * Refuses a nomination that is not its identity's FIRST nomination. A
+ * nomination with no identity row predates migration 0020 and is its own.
+ */
+export function assertCanonicalNomination(
+  nomination: Pick<NominationRow, 'id' | 'registrableDomain'>,
+  identity: Pick<NominationIdentityRow, 'registrableDomain' | 'firstNominationId'> | null,
+): void {
+  if (identity === null) return;
+  if (
+    identity.registrableDomain !== nomination.registrableDomain ||
+    identity.firstNominationId !== nomination.id
+  ) {
+    throw new PromotionRefusal(
+      'NOMINATION_NOT_CANONICAL',
+      `nomination ${nomination.id} is not the first nomination of ${nomination.registrableDomain}; ` +
+        `promote ${identity.firstNominationId} instead (the same domain is one identity).`,
+    );
+  }
 }
 
 export interface PromotionInput {

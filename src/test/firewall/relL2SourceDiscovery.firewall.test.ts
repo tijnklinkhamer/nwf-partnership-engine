@@ -61,6 +61,10 @@ const CLI_ENTRY = 'src/cli/index.ts';
 const ROOT_RUNNER = 'src/orgunits/orchestrator/rootRunner.ts';
 /** REL harvest H6: the one further production importer, by exact path. */
 const SUBJECT_RUN_EXECUTE = 'src/orgunits/subjectRun/execute.ts';
+/** REL P2: the one CLI file that may NAME a link-out pool (it imports nothing from L2). */
+const SUBJECTS_CLI = 'src/cli/commands/orgunitsSubjects.ts';
+/** REL P2: the exact identifiers that file may use; anything else link-out-shaped still trips. */
+const SUBJECTS_CLI_LINK_OUT_IDENTIFIERS = /\blinkOut(s|Pool|Mode|ModeOf|Note)\b/g;
 const MIGRATION = 'migrations/0019_source_discovery_nominations.sql';
 
 /**
@@ -390,7 +394,7 @@ describe('REL L2: the namespace is narrow, socket-free and sealed', () => {
     }
   });
 
-  it('writes only its own three tables, by INSERT only', () => {
+  it('writes only its own tables (0019, plus REL P2 0020), by INSERT only', () => {
     for (const file of [...NS_FILES, CLI_COMMAND]) {
       const writes = [
         ...codeOf(read(file)).matchAll(/\b(INSERT INTO|UPDATE|DELETE FROM|TRUNCATE)\s+(\w+)/g),
@@ -401,7 +405,10 @@ describe('REL L2: the namespace is narrow, socket-free and sealed', () => {
               'INSERT INTO source_discovery_briefs',
               'INSERT INTO source_discovery_runs',
               'INSERT INTO source_discovery_runs',
+              // REL P2 (migration 0020): the identity and the sighting, append-only.
+              'INSERT INTO source_discovery_nomination_identities',
               'INSERT INTO source_discovery_nominations',
+              'INSERT INTO source_discovery_nomination_sightings',
             ]
           : [],
       );
@@ -456,7 +463,13 @@ describe('REL L2: the namespace is narrow, socket-free and sealed', () => {
   it('no CLI file can reach the adapter, its authorisation, the scripted provider or a live run', () => {
     for (const file of productionFiles().filter((f) => f.startsWith('src/cli/'))) {
       const code = codeOf(read(file));
-      expect(code, file).not.toMatch(
+      // REL P2 widened this by ONE exact path: the subjects research command
+      // passes subject research a `linkOutPool` built from
+      // DATABASE_URL_SOURCE_DISCOVERY, under exactly the five reviewed names;
+      // every other pattern still applies to it (relP2LinkOutNominations).
+      const scanned =
+        file === SUBJECTS_CLI ? code.replace(SUBJECTS_CLI_LINK_OUT_IDENTIFIERS, '') : code;
+      expect(scanned, file).not.toMatch(
         /claudeMaxWebSearchProvider|ClaudeMaxWebSearchProvider|sourceDiscovery\/authorisation|SourceDiscoveryAuthorisation|scriptedProvider|sourceDiscovery\/run\.js|runSourceDiscovery\b|linkOut/,
       );
     }

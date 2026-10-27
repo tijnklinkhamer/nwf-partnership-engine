@@ -33,6 +33,12 @@
  * research role. The root runner offers off-domain anchors to the sink only;
  * the frontier never sees them, and nothing here or in L2 requests them.
  * Without `linkOutPool` they are discarded, exactly as before.
+ *
+ * REL P2 - the link-out login is checked BEFORE the run: a `linkOutPool`
+ * whose login cannot enter the capability (the research role, a superuser,
+ * a table owner, a login without the role) is refused with
+ * `LINK_OUT_CAPABILITY_REFUSED` before any run row, DNS lookup or request,
+ * instead of failing the run after its pages were fetched.
  */
 import type pg from 'pg';
 
@@ -45,6 +51,7 @@ import {
 import type { RootRunnerDeps } from '../orchestrator/rootRunner.js';
 import {
   createLinkOutNominationSink,
+  linkOutCapabilityHeld,
   type LinkOutCapture,
   type LinkOutSummary,
 } from '../sourceDiscovery/linkOut.js';
@@ -78,7 +85,8 @@ export const BLOCKER_RESOLUTIONS = Object.freeze({
 
 export type BlockerId = keyof typeof BLOCKER_RESOLUTIONS;
 
-export type ExecutionRefusalCode = 'ADMISSION_CAPABILITY_UNVERIFIED' | 'ADMISSION_SUBJECT_MISMATCH';
+export type ExecutionRefusalCode =
+  'ADMISSION_CAPABILITY_UNVERIFIED' | 'ADMISSION_SUBJECT_MISMATCH' | 'LINK_OUT_CAPABILITY_REFUSED';
 
 /** Thrown before any run row, DNS lookup or request. Carries a code only. */
 export class SubjectExecutionRefusal extends Error {
@@ -143,6 +151,9 @@ export async function runSubjectResearch(
   // The capture is bound to the run's id once runSubjectDiscovery has
   // started that run; the sink is called only for persisted pages.
   const linkOutPool = input.linkOutPool;
+  if (linkOutPool !== undefined && !(await linkOutCapabilityHeld(linkOutPool))) {
+    throw new SubjectExecutionRefusal('LINK_OUT_CAPABILITY_REFUSED');
+  }
   let capture: LinkOutCapture | null = null;
   const result = await runSubjectDiscovery(
     pool,

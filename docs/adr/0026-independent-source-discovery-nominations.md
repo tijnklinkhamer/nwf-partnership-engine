@@ -45,10 +45,43 @@ country. The pilot geographies are Japan, Mexico and the Netherlands.
    nomination as a PUBLIC_URL source observed at its retrieval time. Nothing
    promotes automatically.
 
+7. REL P2 (OWNER directives of 2026-10-27, recorded in
+   `docs/evaluation/REL_P2_LINK_OUT_NOMINATIONS_OWNER_DIRECTIVE_RECORD_V1.json`)
+   completes PERSISTENT link-out nominations under the existing capability:
+   - Migration 0020 adds two append-only tables granted SELECT + INSERT to
+     `nwf_source_discovery` and SELECT to `nwf_readonly`, and nothing else:
+     `source_discovery_nomination_identities` (ONE row per nominated
+     registrable domain, across runs and methods, naming its FIRST
+     nomination) and `source_discovery_nomination_sightings` (ONE row per
+     link-out nomination, source page evidence and URL, with the redacted
+     anchor text and the page's own `observed_at`). 0019's per-run dedupe is
+     unchanged; what it used to DROP - a second page, a later run - is now
+     kept as a sighting. The database re-checks that an identity's first
+     nomination carries its domain and that a sighting belongs to a
+     PAGE_LINK_OUT nomination of the same domain, observed when its page was.
+   - Only an identity's first nomination is promotable
+     (`NOMINATION_NOT_CANONICAL` otherwise), so one domain cannot be promoted
+     from two nominations. `orgunits nominations show` prints a nomination,
+     its identity and a bounded page of sightings (readonly role).
+   - `orgunits subjects research --execute` records link-outs when
+     `DATABASE_URL_SOURCE_DISCOVERY` names a login holding the capability, and
+     says they were DISCARDED when it is not set (no silent zero, no
+     fallback). Subject research refuses a link-out login that cannot enter
+     the capability BEFORE the run starts (`LINK_OUT_CAPABILITY_REFUSED`).
+   - No migration gives the capability LOGIN. A disposable, NOINHERIT,
+     SET-ROLE-only login is created only in a loopback `*_test` database
+     (`src/test/helpers/sourceDiscoveryLogin.ts`,
+     `scripts/disposable-source-discovery-login.ts`).
+   - A nomination, identity or sighting authorises NO fetch. Another
+     registrable domain is fetched only after promote -> review -> OWNER
+     admission -> research of that subject, under its own admission; the
+     gateway's root scope is unchanged (`relP2LinkOutNominations.test.ts`).
+
 ## Consequences
 
 Open: wiring a real Agent SDK `query`, the subscription profile and the ADR
 0010 auth-conflict guard into the adapter; verifying how structured output
 interacts with a WebSearch-only `canUseTool`; a run-completion record for
-discovery runs; and the OWNER decision to apply 0019 to any persistent
-database.
+discovery runs; and the OWNER decision to apply 0019 and 0020 to any
+persistent database (the H5 runbook names 0013-0019 only) and to provision a
+deployment login for `DATABASE_URL_SOURCE_DISCOVERY`.

@@ -40,6 +40,8 @@ const EXECUTE = 'src/orgunits/subjectRun/execute.ts';
 const ORCHESTRATE = 'src/orgunits/orchestrator/orchestrate.ts';
 const L2_FIREWALL = 'src/test/firewall/relL2SourceDiscovery.firewall.test.ts';
 const E2E = 'src/test/integration/relEnginePipelineE2E.test.ts';
+/** REL P2: the ONE CLI file that supplies a link-out pool, from its own environment variable. */
+const SUBJECTS_CLI = 'src/cli/commands/orgunitsSubjects.ts';
 
 /**
  * SHA-256 of JSON {removed, added} of each existing test file's `git diff
@@ -130,8 +132,9 @@ describe('REL harvest H6: subjectRun stays narrow; the sink is wired, never fetc
         'pg',
       ].sort(),
     );
+    // REL P2 added exactly one named import: the pre-run capability check.
     expect(execute()).toMatch(
-      /import \{\s*createLinkOutNominationSink,\s*type LinkOutCapture,\s*type LinkOutSummary,\s*\} from '\.\.\/sourceDiscovery\/linkOut\.js';/,
+      /import \{\s*createLinkOutNominationSink,\s*linkOutCapabilityHeld,\s*type LinkOutCapture,\s*type LinkOutSummary,\s*\} from '\.\.\/sourceDiscovery\/linkOut\.js';/,
     );
   });
 
@@ -178,9 +181,19 @@ describe('REL harvest H6: subjectRun stays narrow; the sink is wired, never fetc
   });
 
   it('no CLI file supplies a link-out pool, and the root runner and L2 namespace are untouched here', () => {
-    for (const file of productionFiles().filter((f) => f.startsWith('src/cli/'))) {
+    // REL P2 widened this by ONE exact path, SUBJECTS_CLI, whose pool comes
+    // only from createPool('source_discovery') (relP2LinkOutNominations).
+    for (const file of productionFiles().filter(
+      (f) => f.startsWith('src/cli/') && f !== SUBJECTS_CLI,
+    )) {
       expect(readCurrent(file), file).not.toMatch(/linkOut/);
     }
+    const subjectsCli = codeOf(readCurrent(SUBJECTS_CLI));
+    expect(subjectsCli.match(/createPool\(/g)).toHaveLength(1);
+    expect(subjectsCli).toMatch(
+      /const linkOutPool =\s*linkOutMode === 'RECORDED_AS_NOMINATIONS' \? createPool\('source_discovery'\) : undefined;/,
+    );
+    expect(subjectsCli).not.toMatch(/linkOutPool(: | = )(pool|research)\b/);
     if (h6.available) {
       expect(
         h6

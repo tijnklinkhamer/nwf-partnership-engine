@@ -312,7 +312,8 @@ describeDb('REL final join A2: subject facts export over the REL world (integrat
 
   async function truncateEverything(): Promise<void> {
     await admin.query(
-      'TRUNCATE source_discovery_nominations, source_discovery_runs, source_discovery_briefs',
+      'TRUNCATE source_discovery_nomination_sightings, source_discovery_nomination_identities, ' +
+        'source_discovery_nominations, source_discovery_runs, source_discovery_briefs',
     );
     await truncateAll(admin);
   }

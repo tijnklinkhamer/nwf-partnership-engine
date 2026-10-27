@@ -1,0 +1,41 @@
+{
+  "recordId": "REL_P2_LINK_OUT_NOMINATIONS_OWNER_DIRECTIVE_RECORD_V1",
+  "recordKind": "OWNER_DIRECTIVE_SCOPE_RECORD",
+  "recordedAtUtc": "2026-10-27",
+  "branch": "feat/rel-p2-linkout-nominations-v1",
+  "worktree": "~/wt-rel-p2-linkout",
+  "startingHead": "80457a9",
+  "status": "LOCAL_IMPLEMENTATION_UNDER_OWNER_DIRECTIVE__RATIFICATION_PENDING",
+  "isOwnerRatification": false,
+  "recordedBy": "engineering lane REL P2 (transcription of the directives it was given; not an OWNER signature)",
+  "authority": {
+    "source": "OWNER directives 2026-10-27, REL P2 link-out nominations",
+    "directives": [
+      "GO: Create a least-privilege nwf_source_discovery LOGIN only in an isolated disposable local test database. No shared, staging or production database changes.",
+      "Complete persistent link-out nominations using the existing source-discovery permissions. Deduplicate, retain evidence, and require separate admission before fetching another domain."
+    ],
+    "authorised": [
+      "local source edits",
+      "one forward-only, append-only migration (0020) granting the existing nwf_source_discovery capability SELECT/INSERT only",
+      "creating a disposable LOGIN holding nwf_source_discovery in a disposable local *_test database only",
+      "local test runs against a disposable tmpfs PostgreSQL",
+      "local commits"
+    ],
+    "notAuthorised": [
+      "a LOGIN attribute on nwf_source_discovery in any migration",
+      "any change to a shared, staging or production database, or to nwf_pe",
+      "any live network call (no web search, no HTTP to any site)",
+      "fetching a nominated domain without its own promotion, review and OWNER admission",
+      "push, merge or deploy",
+      "editing a committed migration",
+      "weakening any security check or firewall"
+    ]
+  },
+  "migrationUnderThisDirective": "migrations/0020_source_discovery_link_out_sightings.sql",
+  "adr": "docs/adr/0026-independent-source-discovery-nominations.md",
+  "loginInMigrations": false,
+  "newRole": false,
+  "appendOnly": true,
+  "editsPriorMigrations": false,
+  "liveNetworkAuthorised": false
+}

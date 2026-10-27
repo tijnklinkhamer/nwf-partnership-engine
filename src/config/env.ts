@@ -33,6 +33,15 @@ const EnvSchema = z.object({
   // three. The connection is a CAPABILITY, not authority: a review needs a
   // verified OWNER signature (ADR 0023).
   DATABASE_URL_DISCOVERY_SUBJECT_REVIEWER: z.string().min(1).optional(),
+  // REL L2/P2 source-discovery capability (migrations 0019/0020). A login the
+  // DEPLOYMENT provisions - or, locally, a DISPOSABLE test database's harness
+  // - and grants the NOLOGIN nwf_source_discovery capability; no migration
+  // creates it and .env.example holds no value for it. Read only by
+  // `orgunits subjects research --execute`: present, the run's off-domain
+  // link-outs are recorded as nominations (never fetched); absent, they are
+  // discarded and the command says so. There is no fallback to any other
+  // connection: the research role is never used in its place.
+  DATABASE_URL_SOURCE_DISCOVERY: z.string().min(1).optional(),
   // Integration tests truncate tables, so they target a separate database.
   DATABASE_URL_ADMIN_TEST: z.string().min(1).optional(),
   DATABASE_URL_INGEST_TEST: z.string().min(1).optional(),
@@ -41,6 +50,7 @@ const EnvSchema = z.object({
   DATABASE_URL_CLASSIFIER_TEST: z.string().min(1).optional(),
   DATABASE_URL_DISCOVERY_SUBJECT_WRITER_TEST: z.string().min(1).optional(),
   DATABASE_URL_DISCOVERY_SUBJECT_REVIEWER_TEST: z.string().min(1).optional(),
+  DATABASE_URL_SOURCE_DISCOVERY_TEST: z.string().min(1).optional(),
   NWF_PE_VERBOSE: z.string().optional(),
 });
 
@@ -65,7 +75,8 @@ export type Role =
   | 'research'
   | 'classifier'
   | 'discovery_subject_writer'
-  | 'discovery_subject_reviewer';
+  | 'discovery_subject_reviewer'
+  | 'source_discovery';
 
 const ROLE_VAR: Record<Role, keyof Env> = {
   admin: 'DATABASE_URL_ADMIN',
@@ -75,6 +86,7 @@ const ROLE_VAR: Record<Role, keyof Env> = {
   classifier: 'DATABASE_URL_CLASSIFIER',
   discovery_subject_writer: 'DATABASE_URL_DISCOVERY_SUBJECT_WRITER',
   discovery_subject_reviewer: 'DATABASE_URL_DISCOVERY_SUBJECT_REVIEWER',
+  source_discovery: 'DATABASE_URL_SOURCE_DISCOVERY',
 };
 
 const ROLE_VAR_TEST: Record<Role, keyof Env> = {
@@ -85,6 +97,7 @@ const ROLE_VAR_TEST: Record<Role, keyof Env> = {
   classifier: 'DATABASE_URL_CLASSIFIER_TEST',
   discovery_subject_writer: 'DATABASE_URL_DISCOVERY_SUBJECT_WRITER_TEST',
   discovery_subject_reviewer: 'DATABASE_URL_DISCOVERY_SUBJECT_REVIEWER_TEST',
+  source_discovery: 'DATABASE_URL_SOURCE_DISCOVERY_TEST',
 };
 
 /** Connection string for a role against the integration-test database. */

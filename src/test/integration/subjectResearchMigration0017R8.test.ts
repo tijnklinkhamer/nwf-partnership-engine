@@ -358,6 +358,8 @@ describeDb(
         MIGRATION_0017,
         '0018_subject_research_roots.sql',
         '0019_source_discovery_nominations.sql',
+        // REL P2: then 0020 (link-out nomination identities and sightings).
+        '0020_source_discovery_link_out_sightings.sql',
       ]);
       expect(await digests()).toEqual(before);
       const { rows } = await db.query<{

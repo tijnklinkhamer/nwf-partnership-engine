@@ -8,7 +8,9 @@
  * key, and every admission on the OWNER path under the caller's synthetic
  * cohort registry. Requests go to a SCRIPTED transport; nothing leaves the
  * process. Optionally creates a disposable login holding the REL L2
- * `nwf_source_discovery` capability, for the link-out sink.
+ * `nwf_source_discovery` capability, for the link-out sink - since REL P2
+ * through `sourceDiscoveryLogin.ts`, so it is the same NOINHERIT,
+ * SET-ROLE-only login the least-privilege tests prove.
  */
 import { randomBytes, randomUUID } from 'node:crypto';
 import pg from 'pg';
@@ -34,6 +36,10 @@ import type {
   WebTransport,
 } from '../../orgunits/web/gateway.js';
 import { signIntent, testReviewKey, testTrust, trustEntry } from './ownerReviewFixtures.js';
+import {
+  createDisposableSourceDiscoveryLogin,
+  type DisposableLogin,
+} from './sourceDiscoveryLogin.js';
 
 export const OBSERVED = '2026-10-26T09:00:00Z';
 export const ALLOW_ALL = 'User-agent: *\nAllow: /\n';
@@ -103,11 +109,21 @@ export interface RelSubjectHarness {
   setUp(admin: pg.Pool, options?: { sourceDiscoveryLogin?: boolean }): Promise<void>;
   /** A pool on the disposable login holding `nwf_source_discovery` (setUp option). */
   sourceDiscoveryPool(): pg.Pool;
+  /** The disposable source-discovery login's connection string (setUp option). */
+  sourceDiscoveryUrl(): string;
+  /** A factory for fresh pools on the disposable B2.2 writer login (the caller ends them). */
+  writerPoolFactory(): () => pg.Pool;
   tearDown(admin: pg.Pool): Promise<void>;
   /** propose + website claim + one signed TEST_ONLY CONFIRMED review. */
   confirmedSubject(
     readonly: pg.Pool,
     name: string,
+    website: string,
+  ): Promise<{ subjectId: string; websiteClaimId: string }>;
+  /** website claim + one signed TEST_ONLY CONFIRMED review, for an ALREADY proposed subject. */
+  confirmExisting(
+    readonly: pg.Pool,
+    subjectId: string,
     website: string,
   ): Promise<{ subjectId: string; websiteClaimId: string }>;
   /** One OWNER admission under the given cohort registry and the test trust. */
@@ -124,7 +140,6 @@ export function createRelSubjectHarness(tag: string): RelSubjectHarness {
   const suffix = randomBytes(4).toString('hex');
   const writerLogin = `nwf_${tag}_writer_${suffix}`;
   const reviewerLogin = `nwf_${tag}_reviewer_${suffix}`;
-  const sourceLogin = `nwf_${tag}_source_${suffix}`;
   const password = randomBytes(24).toString('hex');
   const key = testReviewKey(`test-owner-${tag}`);
   const trust = testTrust(trustEntry(key));
@@ -132,6 +147,7 @@ export function createRelSubjectHarness(tag: string): RelSubjectHarness {
   const pools: pg.Pool[] = [];
   let reviewer: pg.Pool | null = null;
   let source: pg.Pool | null = null;
+  let sourceLogin: DisposableLogin | null = null;
 
   const loginUrl = (login: string): string => {
     const url = new URL(testDatabaseUrl('admin')!);
@@ -174,14 +190,17 @@ export function createRelSubjectHarness(tag: string): RelSubjectHarness {
         [writerLogin, 'nwf_discovery_subject_writer'],
         [reviewerLogin, 'nwf_discovery_subject_reviewer'],
       ];
-      if (options.sourceDiscoveryLogin === true) wanted.push([sourceLogin, 'nwf_source_discovery']);
       for (const [login, capability] of wanted) {
         await admin.query(`CREATE ROLE ${login} LOGIN PASSWORD '${password}'`);
         logins.push(login);
         await admin.query(`GRANT ${capability} TO ${login}`);
       }
       reviewer = newPool(reviewerLogin);
-      if (options.sourceDiscoveryLogin === true) source = newPool(sourceLogin);
+      if (options.sourceDiscoveryLogin === true) {
+        sourceLogin = await createDisposableSourceDiscoveryLogin(admin, testDatabaseUrl('admin')!);
+        source = new pg.Pool({ connectionString: sourceLogin.url, max: 2 });
+        pools.push(source);
+      }
     },
 
     sourceDiscoveryPool() {
@@ -189,9 +208,19 @@ export function createRelSubjectHarness(tag: string): RelSubjectHarness {
       return source;
     },
 
+    sourceDiscoveryUrl() {
+      if (sourceLogin === null) throw new Error('setUp({ sourceDiscoveryLogin: true }) first');
+      return sourceLogin.url;
+    },
+
+    writerPoolFactory() {
+      return () => new pg.Pool({ connectionString: loginUrl(writerLogin), max: 2 });
+    },
+
     async tearDown(admin) {
       await Promise.all(pools.map((p) => p.end()));
       for (const login of logins) await admin.query(`DROP ROLE IF EXISTS ${login}`);
+      await sourceLogin?.drop();
     },
 
     async confirmedSubject(readonly, name, website) {
@@ -207,6 +236,10 @@ export function createRelSubjectHarness(tag: string): RelSubjectHarness {
         ...sourceArgs(`p-${subjectId}`),
         '--execute',
       ]);
+      return this.confirmExisting(readonly, subjectId, website);
+    },
+
+    async confirmExisting(readonly, subjectId, website) {
       await registry([
         'claim',
         '--subject-id',

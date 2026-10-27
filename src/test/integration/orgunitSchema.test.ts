@@ -272,6 +272,10 @@ describeDb('Phase 2B schema contract (integration)', () => {
         // three append-only tables and one NOLOGIN capability; nothing
         // existing altered).
         '0019',
+        // REL P2 (link-out nomination identities and sightings, ADR 0026 s P2 -
+        // two append-only tables granted SELECT/INSERT to the 0019 capability
+        // and SELECT to audit; no role, nothing existing altered).
+        '0020',
       ]);
     });
 

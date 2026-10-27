@@ -10,9 +10,10 @@
  *      off-domain host is resolved or requested;
  *   2. without it, nothing is recorded and the result says so (null);
  *   3. the research role cannot stand in for the capability: offered as the
- *      link-out pool it is refused by L2's session check, nothing is
- *      nominated, and the run is recorded FAILED rather than silently
- *      dropping the anchors;
+ *      link-out pool it is refused by L2's session check - since REL P2
+ *      BEFORE the run starts (`LINK_OUT_CAPABILITY_REFUSED`: no run row, no
+ *      DNS, no request) rather than by failing the run after its pages were
+ *      fetched - and nothing is nominated;
  *   4. `nwf_research` still holds nothing on the source-discovery tables.
  */
 import type pg from 'pg';
@@ -180,16 +181,30 @@ describeDb('REL harvest H6: subject research captures link-outs, never fetches t
     expect((await nominations()).length).toBe(before);
   });
 
-  it('refuses the research role as a stand-in for the capability, and records the run FAILED', async () => {
+  it('refuses the research role as a stand-in for the capability, before any run or request', async () => {
     const before = (await nominations()).length;
-    const { result } = await research_('research', research);
-    expect(result.runTerminalState).toBe('FAILED');
-    expect((await nominations()).length).toBe(before);
-    const completion = await admin.query<{ error_summary: string }>(
-      `SELECT error_summary FROM orgunit_research_run_completions WHERE run_id = $1`,
-      [result.runId],
+    const runsBefore = await admin.query<{ n: number }>(
+      `SELECT count(*)::int AS n FROM orgunit_research_runs`,
     );
-    expect(completion.rows[0]!.error_summary).toMatch(/SOURCE_DISCOVERY_SESSION_REFUSED/);
+    const transport = transportFor(SITES.research);
+    const deps = { transport, clock: instantClock(), loadCohortRegistry };
+    const verified = await verifySubjectAdmission(research, subjects.research, deps);
+    if (verified.outcome !== 'VERIFIED') throw new Error(JSON.stringify(verified));
+    await expect(
+      runSubjectResearch(
+        research,
+        verified.admission,
+        { networkVantage: 'test', linkOutPool: research },
+        deps,
+      ),
+    ).rejects.toMatchObject({ code: 'LINK_OUT_CAPABILITY_REFUSED' });
+    expect((await nominations()).length).toBe(before);
+    const runsAfter = await admin.query<{ n: number }>(
+      `SELECT count(*)::int AS n FROM orgunit_research_runs`,
+    );
+    expect(runsAfter.rows[0]!.n).toBe(runsBefore.rows[0]!.n);
+    expect(transport.resolvedHosts).toEqual([]);
+    expect(transport.requestedUrls).toEqual([]);
   });
 
   it('nwf_research still holds nothing on the source-discovery tables', async () => {
