@@ -90,9 +90,10 @@ export const MULTILINGUAL_EVAL_SLICE_ID = 'classifier-multilingual-eval-slice-v1
  * JP/MX/NL redaction), so the synthetic evidence carries that label - the
  * unit test pins it to the landed `EXTRACTION_RULE_VERSION` of both
  * extraction callers. A literal here, not an import, so the harness stays
- * free of the page-evidence persistence modules.
+ * free of the page-evidence persistence modules. `-v4` since WW H-EX (the
+ * landed label moved; the slice's synthetic text is unaffected).
  */
-export const EVAL_EXTRACTION_RULE_VERSION = 'orgunit-extraction-v3';
+export const EVAL_EXTRACTION_RULE_VERSION = 'orgunit-extraction-v4';
 
 /** The scope string an OWNER grant for this slice must carry. */
 export const MULTILINGUAL_EVAL_GRANT_SCOPE = 'DEVELOPMENT_ONLY_SYNTHETIC_FIXTURE_EVALUATION';

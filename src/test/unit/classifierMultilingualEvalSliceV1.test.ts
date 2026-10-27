@@ -248,7 +248,7 @@ describe('assembly through the landed pure path', () => {
   });
 
   it("carries this lineage's v3 extraction label and v2 signal stamp (REL harvest H4)", () => {
-    expect(EVAL_EXTRACTION_RULE_VERSION).toBe('orgunit-extraction-v3');
+    expect(EVAL_EXTRACTION_RULE_VERSION).toBe('orgunit-extraction-v4');
     expect(EVAL_EXTRACTION_RULE_VERSION).toBe(PAGE_EVIDENCE_EXTRACTION_RULE_VERSION);
     expect(EVAL_EXTRACTION_RULE_VERSION).toBe(COLLECTED_EXTRACTION_RULE_VERSION);
     for (const { batch } of batches) {

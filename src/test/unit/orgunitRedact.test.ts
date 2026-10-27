@@ -10,7 +10,10 @@ import {
   redactContactData,
   redactEmails,
   redactHrefTarget,
+  redactContactDataV3,
   redactPhones,
+  redactPhonesV3,
+  redactorsForStoredExtraction,
 } from '../../orgunits/web/redact.js';
 
 describe('redactEmails', () => {
@@ -365,5 +368,68 @@ describe('redactPhones: separator-less numbers (WW E-XFX, P1-1)', () => {
   it('the separator-less alternative changes no earlier match', () => {
     expect(redactPhones('Bel 020 123 4567 of 0612345678')).toBe('Bel [PHONE] of [PHONE]');
     expect(redactPhones('+33 1 23 45 67 89')).toBe('[PHONE]');
+  });
+});
+
+describe('orgunit-extraction-v4 and the frozen v3 redactor (WW H-EX, P2-9)', () => {
+  it.each([
+    ['a valid bare ISBN-13 (978)', 'ISBN 9780306406157', 'ISBN 9780306406157'],
+    ['a valid bare ISBN-13 (979)', 'ISBN 9791090636071', 'ISBN 9791090636071'],
+    ['a 978 run with a wrong check digit', 'ref 9780306406158', 'ref [PHONE]'],
+    ['a 13-digit run that is not 978/979', 'call 3161234567890', 'call [PHONE]'],
+    [
+      'a hyphenated ISBN (residual over-redaction, unchanged)',
+      'ISBN 978-0-306-40615-7',
+      'ISBN [PHONE]',
+    ],
+    ['a bare NL mobile, still', 'bel 0612345678', 'bel [PHONE]'],
+  ])('v4: %s', (_label, input, output) => {
+    expect(redactPhones(input)).toBe(output);
+  });
+
+  it.each([
+    ['0612345678'],
+    ['8112345678'],
+    ['ISBN 9780306406157'],
+    ['order 1234567890123'],
+    ['timestamp 1761562800'],
+  ])('the frozen v3 redactor keeps the bare run %s (it had no bare-run rule)', (input) => {
+    expect(redactPhonesV3(input)).toBe(input);
+    expect(redactContactDataV3(input)).toBe(input);
+  });
+
+  it.each([
+    ['+33 1 23 45 67 89'],
+    ['01 23 45 67 89'],
+    ['030-123-4567'],
+    ['(030) 123 4567'],
+    ['+49 (0)30 1234567'],
+    ['電話 ０３－１２３４－５６７８'],
+    ['03(1234)5678'],
+    ['Inschrijven van 26-10-2026 tot 30-10-2026'],
+    ['collegejaar 2026-2027 2027-2028'],
+    ['jane.doe@example.edu, 071-123 45 67'],
+  ])('v3 and v4 agree on every shape v3 already knew: %s', (input) => {
+    expect(redactContactDataV3(input)).toBe(redactContactData(input));
+  });
+
+  it('a stored row is judged by the redactor its own label names; never by a version ordering', () => {
+    expect(redactorsForStoredExtraction('orgunit-extraction-v3').rules).toBe(
+      'orgunit-extraction-v3',
+    );
+    expect(redactorsForStoredExtraction('orgunit-extraction-v3').contactData('x 0612345678')).toBe(
+      'x 0612345678',
+    );
+    for (const label of [
+      'orgunit-extraction-v1',
+      'orgunit-extraction-v2',
+      'orgunit-extraction-v4',
+      'orgunit-extraction-v9',
+      'orgunit-extraction-v3-experimental',
+    ]) {
+      const judge = redactorsForStoredExtraction(label);
+      expect(judge.rules, label).toBe('current');
+      expect(judge.contactData('x 0612345678'), label).toBe('x [PHONE]');
+    }
   });
 });

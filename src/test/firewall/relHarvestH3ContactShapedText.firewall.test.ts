@@ -58,10 +58,13 @@ describe.skipIf(!h3.available)('REL harvest H3: the change set over its own rang
 describe('REL harvest H3: the refusal stays a refusal, and names no text', () => {
   const code = () => codeOf(readCurrent(MODULE));
 
-  it('imports the same two modules, and from redact only the three redactors', () => {
+  it('imports the same two modules, and from redact only the version-aware redactor choice', () => {
     expect([...new Set(specifiers(code()))].sort()).toEqual(['../web/redact.js', 'node:crypto']);
+    // WW H-EX (P2-9): the three redactors are no longer imported directly - a stored row is
+    // judged by the redactors its own extraction rule version names (`redactorsForStoredExtraction`:
+    // v3 by the frozen v3 redactor, everything else by the current one). Still a refusal.
     expect(code()).toMatch(
-      /import \{ redactContactData, redactEmails, redactPhones \} from '\.\.\/web\/redact\.js';/,
+      /import \{ redactorsForStoredExtraction \} from '\.\.\/web\/redact\.js';/,
     );
   });
 
@@ -76,10 +79,16 @@ describe('REL harvest H3: the refusal stays a refusal, and names no text', () =>
 
   it('refuses before anything is emitted, and the detail never interpolates the text', () => {
     const fn = /function redactionFixedPoint\([\s\S]*?\n\}/.exec(code())?.[0] ?? '';
-    expect(fn).toMatch(/if \(text === null \|\| redactContactData\(text\) === text\) return;/);
+    expect(fn).toMatch(/const judge = redactorsForStoredExtraction\(extractionRuleVersion\);/);
+    expect(fn).toMatch(/if \(text === null \|\| judge\.contactData\(text\) === text\) return;/);
     expect(fn).toMatch(/refuse\(\s*'CONTACT_SHAPED_TEXT',/);
     const interpolated = [...fn.matchAll(/\$\{([^}]+)\}/g)].map((m) => m[1]!.trim()).sort();
-    expect(interpolated).toEqual(["shapes.join('+')", 'extractionRuleVersion', 'field'].sort());
-    expect(fn).not.toMatch(/return\s+redact|=\s*redactContactData\(text\);/);
+    // `judge.rules` is a constant label (`current` / the frozen version), never page text.
+    expect(interpolated).toEqual(
+      ["shapes.join('+')", 'extractionRuleVersion', 'field', 'judge.rules'].sort(),
+    );
+    expect(fn).not.toMatch(
+      /return\s+(redact|judge)|=\s*redactContactData\(text\);|=\s*judge\.contactData\(text\);/,
+    );
   });
 });

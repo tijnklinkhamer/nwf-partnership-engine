@@ -347,3 +347,44 @@ describe('REL harvest H3 (ported from REL-F1-R2 Wave 2 item d): text stored befo
     expect(code(r)).toBe('PROJECTED');
   });
 });
+
+describe("WW H-EX P2-9: the fixed point is judged by the stored row's own redaction version", () => {
+  const withText = (ruleVersion: string, mainText: string) => {
+    const r = records();
+    r.pages[0].mainText = mainText;
+    r.pages[0].mainTextChars = String(Array.from(mainText).length);
+    r.pages[0].ruleVersion = ruleVersion;
+    return projectSubjectResearchEvidence(r, CONTEXT);
+  };
+
+  it('a v3 row holding a bare digit run (ISBN, order id, timestamp) still projects: v3 never redacted it', () => {
+    for (const text of ['ISBN 9780306406157', 'order 1234567890123', 'ts 1761562800']) {
+      expect(withText('orgunit-extraction-v3', text).outcome, text).toBe('PROJECTED');
+    }
+  });
+
+  it('a v4 row with a bare subscriber-number run is refused under the current rules; a valid ISBN-13 is not', () => {
+    const refused = withText('orgunit-extraction-v4', 'bel 0612345678');
+    if (refused.outcome !== 'REFUSED') throw new Error('projected');
+    expect(refused.code).toBe('CONTACT_SHAPED_TEXT');
+    expect(refused.detail).toBe(
+      'page.mainText: PHONE-shaped text under the current redaction rules ' +
+        '(stored under orgunit-extraction-v4; not re-redacted, not exported)',
+    );
+    expect(withText('orgunit-extraction-v4', 'ISBN 9780306406157').outcome).toBe('PROJECTED');
+  });
+
+  it('a v3 row with a shape v3 itself redacts is refused, naming the frozen v3 rules', () => {
+    const refused = withText('orgunit-extraction-v3', 'TEL：０３－１２３４－５６７８');
+    if (refused.outcome !== 'REFUSED') throw new Error('projected');
+    expect(refused.detail).toBe(
+      'page.mainText: PHONE-shaped text under the orgunit-extraction-v3 redaction rules ' +
+        '(stored under orgunit-extraction-v3; not re-redacted, not exported)',
+    );
+  });
+
+  it('v2 (and any other label) is still judged by the current, strictest rules', () => {
+    const refused = withText('orgunit-extraction-v2', 'bel 0612345678');
+    expect(refused.outcome).toBe('REFUSED');
+  });
+});

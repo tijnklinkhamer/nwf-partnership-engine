@@ -31,7 +31,7 @@
  */
 import { createHash } from 'node:crypto';
 
-import { redactContactData, redactEmails, redactPhones } from '../web/redact.js';
+import { redactorsForStoredExtraction } from '../web/redact.js';
 
 export const RESEARCH_EVIDENCE_CONTRACT = 'nwf-pe.subject-research-evidence.v1-provisional';
 export const RESEARCH_EVIDENCE_CONTRACT_STATUS = 'ENGINE_LOCAL_PROVISIONAL_ADR_0025_PROPOSED';
@@ -352,31 +352,39 @@ const uuid = (v: unknown, detail: string) =>
   want(isStr(v) && UUID.test(v), 'RECORD_SHAPE_INVALID', detail);
 
 /**
- * Every exported text must already be a fixed point of the Engine's CURRENT
- * redaction. Text stored before a redaction widening (the REL Engine
- * integration widened JP/MX/NL telephone and email redaction and introduced
- * `orgunit-extraction-v3`; REL harvest H3, ported from REL-F1-R2 item d) can
- * fail this although it was redacted when it was extracted: that is a SAFE
- * refusal - the export never re-redacts and never emits the text - and the
- * detail names exactly why, without echoing any of it: the field, which
- * shape(s) the current rules would still redact, and the extraction rule
- * version the text was stored under. The remedy is new research under the
- * current extraction version, never an edit of append-only evidence.
+ * Every exported text must already be a fixed point of the redaction its
+ * stored extraction rule version names (WW H-EX, P2-9: version-aware).
+ * A row stored under `orgunit-extraction-v3` is judged by the FROZEN v3
+ * redactor - the rules it was written under - so a later widening of the
+ * current redactor (the bare-digit-run rule of `orgunit-extraction-v4`)
+ * never re-judges it; every other label (v1, v2, v4, anything unknown) is
+ * judged by the CURRENT redactor, the strictest the Engine has
+ * (`redactorsForStoredExtraction`). Text stored before a redaction widening
+ * (the REL Engine integration widened JP/MX/NL telephone and email
+ * redaction and introduced `orgunit-extraction-v3`; REL harvest H3, ported
+ * from REL-F1-R2 item d) can fail this although it was redacted when it
+ * was extracted: that is a SAFE refusal - the export never re-redacts and
+ * never emits the text - and the detail names exactly why, without echoing
+ * any of it: the field, which shape(s) the rules it is judged by would
+ * still redact, which rules those are, and the extraction rule version the
+ * text was stored under. The remedy is new research under the current
+ * extraction version, never an edit of append-only evidence.
  */
 function redactionFixedPoint(
   text: string | null,
   field: string,
   extractionRuleVersion: string,
 ): void {
-  if (text === null || redactContactData(text) === text) return;
-  const emailRedacted = redactEmails(text);
+  const judge = redactorsForStoredExtraction(extractionRuleVersion);
+  if (text === null || judge.contactData(text) === text) return;
+  const emailRedacted = judge.emails(text);
   const shapes = [
     ...(emailRedacted !== text ? ['EMAIL'] : []),
-    ...(redactPhones(emailRedacted) !== emailRedacted ? ['PHONE'] : []),
+    ...(judge.phones(emailRedacted) !== emailRedacted ? ['PHONE'] : []),
   ];
   refuse(
     'CONTACT_SHAPED_TEXT',
-    `${field}: ${shapes.join('+')}-shaped text under the current redaction rules ` +
+    `${field}: ${shapes.join('+')}-shaped text under the ${judge.rules} redaction rules ` +
       `(stored under ${extractionRuleVersion}; not re-redacted, not exported)`,
   );
 }

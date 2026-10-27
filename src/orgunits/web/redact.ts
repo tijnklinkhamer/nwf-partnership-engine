@@ -78,6 +78,21 @@
  *   and new ones are compared. Every pre-existing redaction vector is
  *   unchanged; only text containing a bare 9-15 digit run is affected.
  *
+ *   WW H-EX (2026-10-27, independent review P2-9) corrected that: the
+ *   bare-run change was NOT within v3. `orgunit-extraction-v3` names the
+ *   transform as it stood BEFORE WW E-XFX - three phone alternatives, the
+ *   full-width fold, the bracketed exchange, kept DMY dates and the masked
+ *   academic-year ranges - and that transform is FROZEN here as
+ *   `redactPhonesV3` / `redactContactDataV3`, so a v3 row is judged by the
+ *   rules it was written under. New evidence is `orgunit-extraction-v4`:
+ *   the bare-run alternative, plus one exception the bare run needed - a
+ *   valid ISBN-13 (`9789012345678`, `978`/`979` with a correct check digit)
+ *   is a book number, never a telephone number, and is kept. Every earlier
+ *   redaction vector is unchanged under v4. `redactorsForStoredExtraction`
+ *   picks the redactor a STORED row is judged by: v3 rows by the frozen v3
+ *   redactor, every other label (v1, v2, v4, anything unknown) by the
+ *   current - strictest - one.
+ *
  * PURE. No network, no database, no filesystem, no clock.
  */
 
@@ -100,6 +115,15 @@ const EMAIL_PATTERN =
  */
 const PHONE_CANDIDATE_PATTERN =
   /(?<![\w@.])(\+\d[\d\s().-]{6,18}\d|\(?\d{2,5}\)?[\s.-]\d[\d\s().-]{4,17}\d|\d{2,5}\(\d{1,4}\)\d{3,5}|\d{9,15})(?![\w@])/g;
+
+/**
+ * The phone pattern of `orgunit-extraction-v3`, FROZEN (WW H-EX, P2-9): the
+ * same three alternatives as above, without the bare-run fourth. Never
+ * edited; it exists so a stored v3 row is judged by the rules it was
+ * written under (`redactorsForStoredExtraction`).
+ */
+const PHONE_CANDIDATE_PATTERN_V3 =
+  /(?<![\w@.])(\+\d[\d\s().-]{6,18}\d|\(?\d{2,5}\)?[\s.-]\d[\d\s().-]{4,17}\d|\d{2,5}\(\d{1,4}\)\d{3,5})(?![\w@])/g;
 
 /*
  * The THIRD alternative above is the Japanese bracketed-exchange form
@@ -176,6 +200,22 @@ const BARE_DIGITS = /^\d+$/;
 /** A separator-less candidate that is shaped like a whole subscriber number (see above). */
 function isBareSubscriberNumber(candidate: string): boolean {
   return candidate.length >= 10 || (candidate.length === 9 && candidate.startsWith('0'));
+}
+
+/**
+ * A bare 13-digit ISBN-13 (`orgunit-extraction-v4`): prefix `978` or `979`
+ * and a correct check digit (weights 1,3,1,3,... over the first twelve
+ * digits; the check digit brings the sum to a multiple of ten). A book
+ * number printed on a library or course page is not a contact. Only a valid
+ * checksum is kept, so roughly nine in ten mistyped or phone-shaped
+ * 978/979 runs are still redacted. Bare runs only: an ISBN written with
+ * hyphens is redacted exactly as before (a residual over-redaction).
+ */
+function isIsbn13(candidate: string): boolean {
+  if (!/^97[89]\d{10}$/.test(candidate)) return false;
+  let sum = 0;
+  for (let i = 0; i < 12; i += 1) sum += Number(candidate[i]) * (i % 2 === 0 ? 1 : 3);
+  return (10 - (sum % 10)) % 10 === Number(candidate[12]);
 }
 
 /**
@@ -295,7 +335,12 @@ export function redactPhones(text: string): string {
   for (const match of folded.matchAll(PHONE_CANDIDATE_PATTERN)) {
     const candidate = match[0];
     if (significantDigitCount(candidate) < 8 || isDayMonthYearDate(candidate)) continue;
-    if (BARE_DIGITS.test(candidate) && !isBareSubscriberNumber(candidate)) continue;
+    if (
+      BARE_DIGITS.test(candidate) &&
+      (!isBareSubscriberNumber(candidate) || isIsbn13(candidate))
+    ) {
+      continue;
+    }
     output += `${text.slice(cursor, match.index)}[PHONE]`;
     cursor = match.index + candidate.length;
   }
@@ -305,6 +350,70 @@ export function redactPhones(text: string): string {
 /** Applies every redaction this module knows about, in the order that composes correctly. */
 export function redactContactData(text: string): string {
   return redactPhones(redactEmails(text));
+}
+
+/**
+ * `redactPhones` as `orgunit-extraction-v3` defined it, FROZEN (WW H-EX,
+ * P2-9): no bare-run alternative, so no ISBN exception either. Used ONLY to
+ * judge rows stored under v3; nothing new is ever extracted with it.
+ */
+export function redactPhonesV3(text: string): string {
+  const folded = maskAcademicYearRanges(foldPhoneCharacters(text));
+  let output = '';
+  let cursor = 0;
+  for (const match of folded.matchAll(PHONE_CANDIDATE_PATTERN_V3)) {
+    const candidate = match[0];
+    if (significantDigitCount(candidate) < 8 || isDayMonthYearDate(candidate)) continue;
+    output += `${text.slice(cursor, match.index)}[PHONE]`;
+    cursor = match.index + candidate.length;
+  }
+  return output + text.slice(cursor);
+}
+
+/** `redactContactData` as `orgunit-extraction-v3` defined it, FROZEN. */
+export function redactContactDataV3(text: string): string {
+  return redactPhonesV3(redactEmails(text));
+}
+
+/** The label whose stored rows are judged by the FROZEN v3 redactor. */
+export const FROZEN_V3_EXTRACTION_RULE_VERSION = 'orgunit-extraction-v3';
+
+/** The redactors one stored evidence row is judged by, and what to call them in a refusal. */
+export interface StoredRowRedactors {
+  /** `current` or the frozen label; a constant, never page text. */
+  readonly rules: string;
+  readonly emails: (text: string) => string;
+  readonly phones: (text: string) => string;
+  readonly contactData: (text: string) => string;
+}
+
+const CURRENT_REDACTORS: StoredRowRedactors = Object.freeze({
+  rules: 'current',
+  emails: redactEmails,
+  phones: redactPhones,
+  contactData: redactContactData,
+});
+
+const FROZEN_V3_REDACTORS: StoredRowRedactors = Object.freeze({
+  rules: FROZEN_V3_EXTRACTION_RULE_VERSION,
+  emails: redactEmails,
+  phones: redactPhonesV3,
+  contactData: redactContactDataV3,
+});
+
+/**
+ * Which redaction a row STORED under `extractionRuleVersion` must be a fixed
+ * point of (WW H-EX, P2-9). A v3 row by the frozen v3 redactor - the rules it
+ * was written under, so a later widening of the CURRENT redactor never
+ * silently re-judges it. Every other label - v1 and v2 (which predate the
+ * JP/MX/NL widening), v4 (current), anything unknown - by the CURRENT
+ * redactor, the strictest this module has. An exact equality, never a
+ * version ordering.
+ */
+export function redactorsForStoredExtraction(extractionRuleVersion: string): StoredRowRedactors {
+  return extractionRuleVersion === FROZEN_V3_EXTRACTION_RULE_VERSION
+    ? FROZEN_V3_REDACTORS
+    : CURRENT_REDACTORS;
 }
 
 /**

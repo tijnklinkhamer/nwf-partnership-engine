@@ -19,6 +19,7 @@ import { extractPage } from '../../orgunits/web/extract.js';
 const V1 = 'orgunit-extraction-v1';
 const V2 = 'orgunit-extraction-v2';
 const V3 = 'orgunit-extraction-v3';
+const V4 = 'orgunit-extraction-v4';
 
 const ROOT: ClassifierRootRef = {
   rootKey: 'claim:11111111-1111-1111-1111-111111111111',
@@ -51,9 +52,11 @@ function build(extractionRuleVersion: string, fields: Partial<RawEligibleCandida
 }
 
 describe('orgunit-extraction-v3: one label, one transform', () => {
-  it('is the version both page-evidence writers stamp on new evidence', () => {
-    expect(SINGLE_PAGE_VERSION).toBe(V3);
-    expect(COLLECTION_VERSION).toBe(V3);
+  it('is no longer stamped on new evidence: both writers stamp v4 (WW H-EX, P2-9)', () => {
+    // v4 changed redaction only (bare digit runs redacted, a valid ISBN-13 kept); v3 keeps
+    // naming the transform before it, frozen in redact.ts for stored rows.
+    expect(SINGLE_PAGE_VERSION).toBe(V4);
+    expect(COLLECTION_VERSION).toBe(V4);
   });
 
   it('exists because the redaction transform changed: v3 text differs from what v2 produced', () => {
@@ -72,6 +75,13 @@ describe('orgunit-extraction-v3: one label, one transform', () => {
 describe('the classifier input path: v3 exactly as v2, v1 and v2 read exactly as before', () => {
   it('still canonicalises at assembly for exactly one historical version, v1', () => {
     expect(EXTRACTION_VERSION_REQUIRING_ASSEMBLY_CANONICALISATION).toBe(V1);
+  });
+
+  it('builds a v4 document identical to the v2 document but for the provenance label', () => {
+    const v2 = build(V2);
+    const v4 = build(V4);
+    expect(v4.extractionRuleVersion).toBe(V4);
+    expect({ ...v4, extractionRuleVersion: null }).toEqual({ ...v2, extractionRuleVersion: null });
   });
 
   it('builds a v3 document identical to the v2 document but for the provenance label', () => {

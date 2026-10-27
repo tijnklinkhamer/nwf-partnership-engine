@@ -52,8 +52,15 @@ import type { WebAttemptResult } from './gateway.js';
  * their label and are read exactly as before. The classifier treats v3
  * exactly as v2 - already canonical, passed through untouched (see
  * `classify/constants.ts`: only v1 is canonicalised at assembly).
+ *
+ * `v4` (WW H-EX, 2026-10-27, independent review P2-9) is the third bump, and
+ * again REDACTION only: a bare 10-15-digit run (or a 9-digit run with the
+ * trunk prefix `0`) is now `[PHONE]`, except a valid ISBN-13 (`redact.ts`).
+ * That change had first shipped under the unchanged v3 label; v3 now names
+ * the transform before it, frozen in `redact.ts` so stored v3 rows are
+ * judged by their own rules. Canonical exactly as v2 and v3.
  */
-export const EXTRACTION_RULE_VERSION = 'orgunit-extraction-v3';
+export const EXTRACTION_RULE_VERSION = 'orgunit-extraction-v4';
 
 /** The hard schema cap. Never increase this without a new migration. */
 export const MAIN_TEXT_CAP = 40_000;
