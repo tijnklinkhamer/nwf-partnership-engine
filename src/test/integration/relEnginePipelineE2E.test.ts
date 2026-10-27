@@ -14,7 +14,7 @@
  *      synthetic cohort registry;
  *   4. subject research (L1) runs each admitted root; the JP site serves an
  *      UNDECLARED Shift_JIS page;
- *   5. page evidence is extracted under `orgunit-extraction-v3`, JP phones
+ *   5. page evidence is extracted under `orgunit-extraction-v4`, JP phones
  *      redacted;
  *   6. candidates are scored, and `orgunit-signal-rules-v2` signals are
  *      available over that evidence (ja pack and the en v2 extension);
@@ -331,7 +331,7 @@ describeDb('REL Engine integration: synthetic JP/MX/NL pipeline end to end (inte
     await Promise.all([admin.end(), research.end(), readonly.end()]);
   });
 
-  it('nominates, promotes, admits, researches, extracts (v3), scores (v2), captures link-outs and exports', async () => {
+  it('nominates, promotes, admits, researches, extracts (v4), scores (v2), captures link-outs and exports', async () => {
     const geos: readonly Geo[] = ['JP', 'MX', 'NL'];
 
     // ---- 1. Source discovery: scripted nominations under nwf-discovery-brief-v1.
@@ -471,7 +471,7 @@ describeDb('REL Engine integration: synthetic JP/MX/NL pipeline end to end (inte
       );
     }
 
-    // ---- 5. Page evidence under orgunit-extraction-v3, rooted at the admission.
+    // ---- 5. Page evidence under orgunit-extraction-v4 (WW H-EX), rooted at the admission.
     const pages = await research.query<{
       run_id: string;
       requested_url: string;
@@ -489,7 +489,7 @@ describeDb('REL Engine integration: synthetic JP/MX/NL pipeline end to end (inte
     );
     expect(pages.rows).toHaveLength(6);
     for (const p of pages.rows) {
-      expect(p.rule_version, p.requested_url).toBe('orgunit-extraction-v3');
+      expect(p.rule_version, p.requested_url).toBe('orgunit-extraction-v4');
       const geo = geos.find((g) => runIds[g] === p.run_id)!;
       expect(p.root_key, p.requested_url).toBe(`subject_admission:${admissions[geo]}`);
       expect(p.main_text, p.requested_url).not.toMatch(/@|1234/);
@@ -593,7 +593,7 @@ describeDb('REL Engine integration: synthetic JP/MX/NL pipeline end to end (inte
       });
       expect(doc.admission.admissionId, geo).toBe(admissions[geo]);
       expect(doc.pages, geo).toHaveLength(2);
-      for (const p of doc.pages) expect(p.extractionRuleVersion, geo).toBe('orgunit-extraction-v3');
+      for (const p of doc.pages) expect(p.extractionRuleVersion, geo).toBe('orgunit-extraction-v4');
       if (geo === 'JP') {
         expect(doc.pages.map((p) => p.mainTextExcerpt).join('\n')).toContain(SJIS_BODY_START);
       }

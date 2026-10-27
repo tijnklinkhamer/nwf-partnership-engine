@@ -6,7 +6,7 @@
  *
  *   1. a completed subject run assembles into a SubjectClassifierBatch keyed
  *      by subject, admission and run - no ECHE row key, organisation id or
- *      country anywhere in it - from persisted v3 evidence and v2 signals;
+ *      country anywhere in it - from persisted v4 evidence and v2 signals;
  *   2. the assembly is deterministic and its digest is the canonical one;
  *   3. an unknown run, an ECHE run and an unfinished subject run are refused;
  *   4. assembly writes nothing, and the call path stays BLOCKED.
@@ -126,7 +126,7 @@ describeDb('REL harvest H2: subject-keyed classifier handoff assembly (synthetic
     await Promise.all([admin.end(), research.end(), readonly.end()]);
   });
 
-  it('assembles one batch keyed by subject identity, from v3 evidence and v2 signals', async () => {
+  it('assembles one batch keyed by subject identity, from v4 evidence and v2 signals', async () => {
     const result = await assembleSubjectClassifierHandoff(research, { runId });
     if (result.kind !== 'BATCHES') throw new Error(result.kind);
     expect(result).toMatchObject({ subjectId, admissionId, runId });
@@ -157,7 +157,7 @@ describeDb('REL harvest H2: subject-keyed classifier handoff assembly (synthetic
     ]);
     expect(batch.documents.map((d) => d.docIndex)).toEqual([0, 1, 2]);
     for (const doc of batch.documents) {
-      expect(doc.extractionRuleVersion).toBe('orgunit-extraction-v3');
+      expect(doc.extractionRuleVersion).toBe('orgunit-extraction-v4');
       expect([...doc.trackMembership].sort()).toEqual(['A', 'B']);
     }
     const nihongo = batch.documents.find((d) => d.url === `${JA_SITE}nihongo/`)!;
