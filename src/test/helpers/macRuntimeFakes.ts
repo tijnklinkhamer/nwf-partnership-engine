@@ -322,9 +322,12 @@ export function createFakeProcessPort(): FakeProcessPort {
       const w = new FakeWorker((nextPid += 1));
       live += 1;
       port.maxConcurrentWorkers = Math.max(port.maxConcurrentWorkers, live);
-      void w.done.then(() => {
+      // Both settlements end the worker; a rejection (FakeWorker.fail) must
+      // not surface as an unhandled rejection from this bookkeeping chain.
+      const ended = () => {
         live -= 1;
-      });
+      };
+      void w.done.then(ended, ended);
       port.workers.push(w);
       return w;
     },
