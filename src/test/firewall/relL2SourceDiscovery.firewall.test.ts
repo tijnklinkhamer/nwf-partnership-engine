@@ -56,6 +56,18 @@ const NS_FILES = [
   'store.ts',
   'types.ts',
 ].map((f) => `${NS}${f}`);
+/**
+ * WW E-SD: the worldwide search planner, added by exact path. It is PURE
+ * query localisation; every L2 check below that iterates NS_FILES still
+ * applies to the thirteen REL L2 files.
+ */
+const WW_E_SD_FILES = [
+  'planner/placeNames.ts',
+  'planner/plan.ts',
+  'planner/queryLanguages.ts',
+  'planner/templates.ts',
+  'planner/vocabulary.ts',
+].map((f) => `${NS}${f}`);
 const CLI_COMMAND = 'src/cli/commands/sourceDiscovery.ts';
 const CLI_ENTRY = 'src/cli/index.ts';
 const ROOT_RUNNER = 'src/orgunits/orchestrator/rootRunner.ts';
@@ -330,7 +342,9 @@ describe('REL L2: sourceDiscovery and the classifier are separate, in both direc
 
 describe('REL L2: the namespace is narrow, socket-free and sealed', () => {
   it('is exactly the reviewed files', () => {
-    expect(productionFiles().filter((f) => f.startsWith(NS))).toEqual(NS_FILES);
+    expect(productionFiles().filter((f) => f.startsWith(NS))).toEqual(
+      [...NS_FILES, ...WW_E_SD_FILES].sort(),
+    );
     expect(existsSync(join(REPO_ROOT, MIGRATION))).toBe(true);
   });
 
