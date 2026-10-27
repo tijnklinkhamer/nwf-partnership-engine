@@ -484,9 +484,17 @@ describe('classifier operator entry point: production wiring', () => {
       const source = code(p);
       return source.includes(SDK_RUNNER_FACTORY) || source.includes(AUTH_STATUS_RUNNER_FACTORY);
     });
-    expect(naming.filter((p) => !p.startsWith('src/orgunits/classify/provider/')).sort()).toEqual([
-      PROVIDER_WIRING,
-    ]);
+    // WW E-SD (ADR 0027 D3 / ADR 0028): the live source-discovery SDK import site may name the
+    // AUTH-STATUS runner factory (the request-free ADR 0010 `claude auth status` check before its
+    // first query) — exactly that file, exactly that factory; never the classifier's SDK runner.
+    const SOURCE_DISCOVERY_AGENT_QUERY = 'src/orgunits/sourceDiscovery/agentQuery.ts';
+    expect(code(SOURCE_DISCOVERY_AGENT_QUERY)).not.toContain(SDK_RUNNER_FACTORY);
+    expect(
+      naming
+        .filter((p) => !p.startsWith('src/orgunits/classify/provider/'))
+        .filter((p) => p !== SOURCE_DISCOVERY_AGENT_QUERY)
+        .sort(),
+    ).toEqual([PROVIDER_WIRING]);
   });
 
   it('repair is explicitly DISABLED, and V1 exposes no repair or tuning control', () => {
