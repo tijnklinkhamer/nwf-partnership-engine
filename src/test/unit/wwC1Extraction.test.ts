@@ -153,6 +153,25 @@ describe('WW E-X: C1X.ORIENTATION_EVENT_DATED / _CYCLES (OBSERVED, ORIENTATION_E
     ]);
   });
 
+  it('cycles: a multi-day instance across a month boundary is ONE cycle (first date kept)', () => {
+    const r = run(
+      page({
+        mainText:
+          'Welcome Week ran from 30 August 2025 to 3 September 2025.\nWelcome Week 2026: 31 August 2026.',
+      }),
+    );
+    expect(claim(r, 'channel.cycle_history', 'ORIENTATION_EVENT')!.value['cycleDates']).toEqual([
+      '2025-08-30',
+      '2026-08-31',
+    ]);
+    // The stated dates the claim rests on are still all disclosed in its basis.
+    expect(claim(r, 'channel.cycle_history', 'ORIENTATION_EVENT')!.statedDates).toEqual([
+      '2025-08-30',
+      '2025-09-03',
+      '2026-08-31',
+    ]);
+  });
+
   it('a page published by a third party never establishes an observed channel', () => {
     const r = run(
       page({ publisher: 'THIRD_PARTY', mainText: 'Welcome Week on 1 September 2026.' }),

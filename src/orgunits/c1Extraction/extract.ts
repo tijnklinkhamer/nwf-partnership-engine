@@ -712,6 +712,25 @@ function audienceDraft(
 
 const distinctSorted = (values: Iterable<string>) => [...new Set(values)].sort(byCodeUnit);
 
+/** Days within which a later stated date belongs to the SAME event instance (a multi-day event). */
+export const SAME_INSTANCE_DAYS = 14;
+
+/**
+ * One date per event instance: sorted dates, each date within
+ * `SAME_INSTANCE_DAYS` of the instance's first date folded into it. C1 counts
+ * cycles by calendar month, so a week running from 30 August to 3 September
+ * must reach it as ONE cycle, never two.
+ */
+function instanceStarts(sortedDates: readonly string[]): string[] {
+  const starts: string[] = [];
+  for (const d of sortedDates) {
+    const last = starts[starts.length - 1];
+    const gap = last === undefined ? Infinity : (Date.parse(d) - Date.parse(last)) / 86_400_000;
+    if (gap > SAME_INSTANCE_DAYS) starts.push(d);
+  }
+  return starts;
+}
+
 function aggregate(
   pages: readonly C1PageInput[],
   found: {
@@ -817,7 +836,7 @@ function aggregate(
         claim(
           'channel.cycle_history',
           channelKey,
-          { cycleDates: past.slice(-60), completeView: false, statedOneOff: false },
+          { cycleDates: instanceStarts(past).slice(-60), completeView: false, statedOneOff: false },
           cycleHits,
           past,
         );

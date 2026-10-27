@@ -56,7 +56,7 @@ export const C1_CONCEPTS: readonly C1ConceptSpec[] = [
     subcriteria: ['SV1'],
     needs: ['orientationEvent'],
     reason:
-      'The same event family is dated in more than one calendar year on the site (past instances in two years, or a past instance and a later-year upcoming one): the page shows recurrence. cycleDates are the past instances only; completeView is false (a site is never a complete record); statedOneOff is false.',
+      'The same event family is dated in more than one calendar year on the site (past instances in two years, or a past instance and a later-year upcoming one): the page shows recurrence. cycleDates are the past instances only, one date per instance (dates within 14 days of the first date of an instance are that same multi-day instance, so a week spanning a month boundary is never two cycles); completeView is false (a site is never a complete record); statedOneOff is false.',
   },
   {
     concept: 'NEWSLETTER_SIGNUP',

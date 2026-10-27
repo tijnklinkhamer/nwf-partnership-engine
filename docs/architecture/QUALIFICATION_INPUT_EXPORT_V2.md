@@ -226,7 +226,10 @@ Each rule's documented reason lives in `C1_CONCEPTS[].reason`
   `discontinued` = false. No date, no claim.
 - **ORIENTATION_EVENT_CYCLES** - past instances in two calendar years, or a
   past instance and a later-year upcoming one. `cycleDates` = past instances
-  only (C1 itself counts only cycles before its activity horizon);
+  only, ONE date per instance: a date within 14 days of an instance's first
+  date is the same multi-day instance (C1 counts cycles by calendar month, so
+  a week from 30 August to 3 September must never read as two cycles); C1
+  itself counts only cycles before its activity horizon;
   `completeView` false; `statedOneOff` false. "Welcome Week 2024 / 2025"
   with no full date yields nothing: years are never guessed.
 - **NEWSLETTER_SIGNUP** - newsletter term and sign-up call on one line:
