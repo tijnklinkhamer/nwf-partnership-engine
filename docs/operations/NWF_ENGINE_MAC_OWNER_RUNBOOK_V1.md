@@ -46,12 +46,13 @@ Run `nwf-engine doctor` first. It is read-only: it changes nothing. Each
    **[NEEDS OWNER ACT]** The runtime never applies a migration. When the
    database is behind, `doctor` prints the missing versions and the apply
    runbook for them, for example
-   `docs/architecture/NWF_PE_MIGRATIONS_0013_0021_APPLY_RUNBOOK_V1.md`. Each
-   apply needs a **signed OWNER grant** that names the database, the
-   migration range, the commit and the operator path. This build ships **no**
-   apply runbook for 0022 and 0023; `doctor` says so. Those need a grant and
-   a runbook that do not exist yet. Why: the working database holds the
-   frozen research corpus, and a wrong migration cannot be undone.
+   `docs/architecture/NWF_PE_MIGRATIONS_0013_0025_APPLY_RUNBOOK_V1.md`
+   (prepared, not executed; it covers 0013–0025 from a database at 0012,
+   0019 or 0021). Each apply needs a **signed OWNER grant** that names the
+   database, the migration range, the commit and the operator path; that
+   runbook gives the exact grant text (`NWF-PE-APPLY-0013-0025-V1`). Why: the
+   working database holds the frozen research corpus, and a wrong migration
+   cannot be undone.
 2. **An OWNER campaign key must be pinned.** **[NEEDS OWNER ACT]**
    `doctor` prints `no OWNER campaign key pinned: campaigns cannot run`
    until one is. Pinning a key is an OWNER key-custody decision plus a
