@@ -69,8 +69,10 @@ import {
 } from '../helpers/macRuntimeFakes.js';
 
 const PASSWORD = 'hunter2-secret';
+/** user:password and the `@` that ends userinfo in a connection URL (not an address). */
+const USERINFO = `u:${PASSWORD}@`;
 const URL = (db = 'nwf_pe', host = '127.0.0.1', port = 55432) =>
-  `postgres://u:${PASSWORD}@${host}:${port}/${db}`;
+  `postgres://${USERINFO}${host}:${port}/${db}`;
 const urlsFor = (db = 'nwf_pe') =>
   Object.fromEntries(RUNTIME_DATABASE_VARIABLES.map((v) => [v, URL(db)]));
 const URLS = urlsFor();
