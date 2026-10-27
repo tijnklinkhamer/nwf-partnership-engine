@@ -6,11 +6,13 @@
  * decides nothing: every result still passes `prepareNomination` before it can
  * become a row, and the database re-checks the URL and the measurement.
  *
- * Two implementations exist, and neither is reachable from production:
+ * Two implementations exist:
  *   - `ScriptedSearchProvider` (scriptedProvider.ts) - fixed results, tests only;
  *   - `ClaudeMaxWebSearchProvider` (claudeMaxWebSearchProvider.ts) - SEALED
- *     behind a `SourceDiscoveryAuthorisation` that has no production
- *     constructor, because live search is not authorised.
+ *     behind a `SourceDiscoveryAuthorisation` whose only production
+ *     constructor derives it from a stored OWNER-path grant (WW E-SD,
+ *     ADR 0027 D4 / ADR 0028); constructed in production by
+ *     `grantedRun.ts` alone.
  *
  * PURE. No socket, no database, no filesystem, no environment, no clock.
  */
@@ -23,7 +25,8 @@ export const MAX_RESULTS_PER_QUERY = 20;
 export interface SearchRequest {
   readonly briefKey: string;
   readonly geography: string;
-  readonly query: DiscoveryQuery;
+  /** A v1 brief query, or a v2 plan query (WW E-SD): the provider reads the id and text only. */
+  readonly query: Pick<DiscoveryQuery, 'queryId' | 'language' | 'text'>;
 }
 
 export interface SearchResponse {
@@ -44,7 +47,9 @@ export class SearchProviderError extends Error {
       | 'PROVIDER_RESULT_MISSING'
       | 'PROVIDER_RESULT_ERROR'
       | 'PROVIDER_OUTPUT_INVALID'
-      | 'PROVIDER_TOOL_REFUSED',
+      | 'PROVIDER_TOOL_REFUSED'
+      | 'PROVIDER_USAGE_LIMIT_EXHAUSTED'
+      | 'PROVIDER_AUTH_FAILURE',
     detail: string,
   ) {
     super(`${code}: ${detail}`);

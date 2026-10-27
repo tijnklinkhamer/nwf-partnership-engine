@@ -258,7 +258,10 @@ describeDb('REL P2: persistent link-out nominations (integration, disposable dat
     research = researchPool();
     readonly = readonlyPool();
     await admin.query(
-      'TRUNCATE source_discovery_nomination_sightings, source_discovery_nomination_identities, ' +
+      // WW E-SD (migration 0022): the grant tables reference these, so they go first.
+      'TRUNCATE source_discovery_nomination_known_marks, source_discovery_run_completions, ' +
+        'source_discovery_query_calls, source_discovery_grant_uses, source_discovery_grants, ' +
+        'source_discovery_nomination_sightings, source_discovery_nomination_identities, ' +
         'source_discovery_nominations, source_discovery_runs, source_discovery_briefs',
     );
     await truncateAll(admin);
@@ -285,7 +288,10 @@ describeDb('REL P2: persistent link-out nominations (integration, disposable dat
   afterAll(async () => {
     setSourceDiscoveryEnv(undefined);
     await admin.query(
-      'TRUNCATE source_discovery_nomination_sightings, source_discovery_nomination_identities, ' +
+      // WW E-SD (migration 0022): the grant tables reference these, so they go first.
+      'TRUNCATE source_discovery_nomination_known_marks, source_discovery_run_completions, ' +
+        'source_discovery_query_calls, source_discovery_grant_uses, source_discovery_grants, ' +
+        'source_discovery_nomination_sightings, source_discovery_nomination_identities, ' +
         'source_discovery_nominations, source_discovery_runs, source_discovery_briefs',
     );
     await truncateAll(admin);

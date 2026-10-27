@@ -362,6 +362,8 @@ describeDb(
         '0020_source_discovery_link_out_sightings.sql',
         // REL Q1: then 0021 (the jurisdiction-claim writer grants and triggers).
         '0021_subject_jurisdiction_claim_writer.sql',
+        // WW E-SD: then 0022 (OWNER-path live source-discovery grants).
+        '0022_source_discovery_live_grants.sql',
       ]);
       expect(await digests()).toEqual(before);
       const { rows } = await db.query<{

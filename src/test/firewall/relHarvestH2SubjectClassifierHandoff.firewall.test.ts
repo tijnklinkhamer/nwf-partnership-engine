@@ -30,6 +30,8 @@ const H2_TERMINAL_COMMIT: string | null = '198fca6558b85c002a28d3485054369a7a293
 const MODULE_DIR = 'src/orgunits/subjectClassifierHandoff/';
 const MODULE = `${MODULE_DIR}assemble.ts`;
 const NS_SOURCE_DISCOVERY = 'src/orgunits/sourceDiscovery/';
+/** WW E-SD: the one sourceDiscovery file that may reach classify/ (its eight auth modules only). */
+const SOURCE_DISCOVERY_AUTH_SITE = 'src/orgunits/sourceDiscovery/agentQuery.ts';
 
 const AUTHORISED_CHANGESET = [
   `A\t${MODULE}`,
@@ -147,6 +149,23 @@ describe('REL harvest H2: the L2 sourceDiscovery <-> classify separation holds t
     for (const file of ns) {
       const code = codeOf(readCurrent(file));
       expect(reaches(code, 'subjectClassifierHandoff'), file).toBe(false);
+      // WW E-SD (ADR 0027 D3 / ADR 0028) widened this by ONE exact path:
+      // agentQuery.ts reaches classify/ for exactly the eight ADR 0010
+      // authentication modules, never the handoff, a prompt, a schema, a
+      // runner or a provider (pinned in wwSourceDiscoveryLive.firewall.test.ts).
+      if (file === SOURCE_DISCOVERY_AUTH_SITE) {
+        expect(
+          specifiers(code)
+            .filter((s) => /(^|\/)classify\//.test(s))
+            .every((s) =>
+              /^\.\.\/classify\/provider\/(profile|profileHygiene|preflight|authConflicts|authStatus|authStatusRunner|environment|claudeCodeExecutable)\.js$/.test(
+                s,
+              ),
+            ),
+          file,
+        ).toBe(true);
+        continue;
+      }
       expect(reaches(code, 'classify'), file).toBe(false);
     }
   });

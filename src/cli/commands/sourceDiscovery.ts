@@ -6,6 +6,12 @@
  *                      a DRY RUN: no provider, no network, no database. With
  *                      --execute it REFUSES - live search is not authorised and
  *                      no SourceDiscoveryAuthorisation can be built from here.
+ *   discover-sources --execute --grant-id <uuid>
+ *                      WW E-SD (ADR 0027/0028): ONE live run under ONE stored
+ *                      OWNER-path grant, on the source-discovery capability.
+ *                      The scope (plan, geography, model, budgets) comes from
+ *                      the grant row alone; without a valid grant it refuses
+ *                      with the grant's stable GRANT_* code and opens no run.
  *   nominations list   one bounded, keyset-paginated page (readonly role).
  *   nominations show   ONE nomination, its registrable domain's identity and
  *                      a bounded page of that identity's link-out sightings
@@ -18,8 +24,9 @@
  * NARROW BY CONSTRUCTION, like `discovery-subjects`: each subcommand parses its
  * own strict option set; there is no batch, no "every geography", no generic
  * SQL and no credential option. This file imports neither the Claude Max
- * adapter nor its authorisation, and nothing here fetches a URL, calls a
- * model, starts research or contacts anyone.
+ * adapter nor its authorisation: a granted run is reached only through
+ * `grantedRun.js`, which derives the authorisation from the stored grant.
+ * Nothing here fetches a URL, starts research or contacts anyone.
  */
 import { parseArgs } from 'node:util';
 import type pg from 'pg';
@@ -27,11 +34,20 @@ import type pg from 'pg';
 import { createPool } from '../../db/client.js';
 import { env } from '../../config/env.js';
 import {
+  productionLiveSearchDeps,
+  type LiveSearchDeps,
+} from '../../orgunits/sourceDiscovery/agentQuery.js';
+import {
   BriefRefusal,
   briefByKey,
   briefDigest,
   queriesFor,
 } from '../../orgunits/sourceDiscovery/brief.js';
+import {
+  GrantedRunInternalError,
+  GrantedRunRefusal,
+  runGrantedSourceDiscovery,
+} from '../../orgunits/sourceDiscovery/grantedRun.js';
 import { SUBJECT_KINDS, type SubjectKind } from '../../orgunits/sourceDiscovery/identityBridge.js';
 import {
   PromotionRefusal,
@@ -52,11 +68,18 @@ import { UUID_SHAPE } from '../../orgunits/sourceDiscovery/types.js';
 
 export const SOURCE_DISCOVERY_CONTRACT = 'nwf-pe.source-discovery.v1';
 
+/** The opaque path key a CLI-started granted run records (never a person). */
+export const SOURCE_DISCOVERY_CLI_ACTOR_KEY = 'source-discovery-cli';
+
 export const SOURCE_DISCOVERY_USAGE = `nwf-pe orgunits - independent source discovery (REL L2)
 
   orgunits discover-sources    --brief <brief-key> --geography <CC> [--json]
                                DRY RUN: prints the brief's queries for ONE geography.
                                --execute is REFUSED: live search is not authorised.
+  orgunits discover-sources    --execute --grant-id <uuid> [--json]
+                               ONE live WebSearch-only run under ONE stored OWNER-path
+                               grant (ADR 0027/0028). Plan, geography, model and budgets
+                               come from the grant row; an invalid grant refuses GRANT_*.
   orgunits nominations list    [--run-id <uuid>] [--limit <1-${NOMINATION_LIST_MAX_LIMIT}>]
                                [--after <uuid>] [--json]
   orgunits nominations show    --nomination-id <uuid> [--limit <1-${SIGHTING_LIST_MAX_LIMIT}>] [--json]
@@ -80,6 +103,7 @@ const OPTIONS = {
     brief: { type: 'string' },
     geography: { type: 'string' },
     execute: { type: 'boolean' },
+    'grant-id': { type: 'string' },
     ...OUTPUT,
   },
   'nominations list': {
@@ -108,6 +132,9 @@ type CommandKey = keyof typeof OPTIONS;
 export interface SourceDiscoveryCliDeps {
   readonly readonlyPool?: () => pg.Pool;
   readonly writerPool?: () => pg.Pool;
+  /** WW E-SD: the source-discovery capability pool and live-search dependencies (tests inject fakes). */
+  readonly sourceDiscoveryPool?: () => pg.Pool;
+  readonly liveSearchDeps?: () => LiveSearchDeps;
   readonly out?: (text: string) => void;
   readonly err?: (text: string) => void;
 }
@@ -195,9 +222,55 @@ export async function runSourceDiscoveryCli(
     return 1;
   };
 
+  const sourceDiscoveryPool =
+    deps.sourceDiscoveryPool ??
+    (() => {
+      if (env().DATABASE_URL_SOURCE_DISCOVERY === undefined) {
+        throw new UsageError(
+          'DATABASE_URL_SOURCE_DISCOVERY is not set: a granted run needs a ' +
+            'deployment-provisioned login holding nwf_source_discovery.',
+        );
+      }
+      return createPool('source_discovery');
+    });
+
   try {
     switch (key) {
       case 'discover-sources': {
+        const grantId = str(values, 'grant-id');
+        if (grantId !== undefined) {
+          if (values['execute'] !== true) throw new UsageError('--grant-id requires --execute.');
+          if (str(values, 'brief') !== undefined || str(values, 'geography') !== undefined) {
+            throw new UsageError(
+              'with --grant-id the plan and geography come from the stored grant alone; ' +
+                'omit --brief and --geography.',
+            );
+          }
+          const live = (deps.liveSearchDeps ?? productionLiveSearchDeps)();
+          const run = await withPoolOf(sourceDiscoveryPool, (pool) =>
+            runGrantedSourceDiscovery(
+              pool,
+              { grantId, actorKey: SOURCE_DISCOVERY_CLI_ACTOR_KEY },
+              { ...live, clock: { now: () => new Date() } },
+            ),
+          );
+          if (json) {
+            out(envelope(key, run.outcome, { data: run }));
+          } else {
+            out(
+              `${run.outcome}${run.reason === null ? '' : ` ${run.reason}`} run ${run.runId} ` +
+                `(grant ${run.grantId} slot ${run.runSeq}, ${run.geography}, ${run.modelId})\n`,
+            );
+            for (const c of run.calls) {
+              out(`  ${c.callSeq}\t${c.queryId}\t${c.outcome}\t${c.resultCount ?? '-'}\n`);
+            }
+            out(
+              `${run.inserted} nomination(s) inserted, ${run.duplicates} duplicate(s), ` +
+                `${run.refused} refused, ${run.alreadyKnown} already known. Nothing was fetched.\n`,
+            );
+          }
+          return run.outcome === 'COMPLETED' ? 0 : 1;
+        }
         const brief = briefByKey(required(values, 'brief'));
         const geography = required(values, 'geography');
         const section = queriesFor(brief, geography);
@@ -346,6 +419,13 @@ export async function runSourceDiscoveryCli(
     if (error instanceof UsageError) return refuse('INPUT_INVALID', error.message);
     if (error instanceof BriefRefusal) return refuse(error.code, error.message);
     if (error instanceof PromotionRefusal) return refuse(error.code, error.message);
+    if (error instanceof GrantedRunRefusal) return refuse(error.code, error.message);
+    if (error instanceof GrantedRunInternalError) {
+      return refuse(
+        'INTERNAL_ERROR',
+        `${error.message} (completion recorded: ${error.result.outcome})`,
+      );
+    }
     return refuse('INTERNAL_ERROR', error instanceof Error ? error.message : String(error));
   }
   return 1;

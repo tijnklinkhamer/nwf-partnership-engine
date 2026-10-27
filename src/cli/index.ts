@@ -65,6 +65,7 @@ Usage:
                                  [--limit <N>] [--json]
   nwf-pe orgunits classify show  --call-id <uuid> [--json]
   nwf-pe orgunits discover-sources --brief <key> --geography <CC> [--json]
+  nwf-pe orgunits discover-sources --execute --grant-id <uuid> [--json]
   nwf-pe orgunits nominations list|promote ...
                               (run \`nwf-pe orgunits nominations --help\` for its own options)
   nwf-pe discovery-subjects propose|claim|relate|review|show|list ...

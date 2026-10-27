@@ -57,17 +57,26 @@ const NS_FILES = [
   'types.ts',
 ].map((f) => `${NS}${f}`);
 /**
- * WW E-SD: the worldwide search planner, added by exact path. It is PURE
- * query localisation; every L2 check below that iterates NS_FILES still
- * applies to the thirteen REL L2 files.
+ * WW E-SD (ADR 0027 / ADR 0028): the grant-bound live search and the
+ * worldwide planner, added by exact path. They are pinned by their own
+ * firewall (wwSourceDiscoveryLive.firewall.test.ts); every L2 check below
+ * that iterates NS_FILES still applies to the thirteen REL L2 files.
  */
 const WW_E_SD_FILES = [
+  'agentQuery.ts',
+  'allowedModels.ts',
+  'grant.ts',
+  'grantStore.ts',
+  'grantedRun.ts',
+  'index.ts',
   'planner/placeNames.ts',
   'planner/plan.ts',
   'planner/queryLanguages.ts',
   'planner/templates.ts',
   'planner/vocabulary.ts',
 ].map((f) => `${NS}${f}`);
+/** WW E-SD: the ONE production file that constructs the Claude Max adapter, from a grant-derived authority. */
+const GRANTED_RUN = `${NS}grantedRun.ts`;
 const CLI_COMMAND = 'src/cli/commands/sourceDiscovery.ts';
 const CLI_ENTRY = 'src/cli/index.ts';
 const ROOT_RUNNER = 'src/orgunits/orchestrator/rootRunner.ts';
@@ -431,8 +440,11 @@ describe('REL L2: the namespace is narrow, socket-free and sealed', () => {
 
   it('the authorisation has ONE constructor, vitest-guarded, and no production file calls it', () => {
     const auth = codeOf(read(`${NS}authorisation.ts`));
+    // WW E-SD (ADR 0027 D4 / ADR 0028): fromStoredGrant is the grant-derived
+    // production constructor; the vitest seam below is unchanged.
     expect([...auth.matchAll(/\bstatic\s+(\w+)/g)].map((m) => m[1])).toEqual([
       'isAuthorisation',
+      'fromStoredGrant',
       'sealedForVitest',
     ]);
     expect(auth).toMatch(/private constructor\(/);
@@ -440,13 +452,14 @@ describe('REL L2: the namespace is narrow, socket-free and sealed', () => {
     expect(auth).toMatch(
       /static sealedForVitest\(scope: string\): SourceDiscoveryAuthorisation \{\s*if \(process\.env\['VITEST'\] !== 'true'\) \{\s*throw new Error\(/,
     );
-    expect(auth.match(/new SourceDiscoveryAuthorisation\(/g)).toHaveLength(1);
+    // One construction per factory: the grant-derived one and the seam.
+    expect(auth.match(/new SourceDiscoveryAuthorisation\(/g)).toHaveLength(2);
     for (const file of productionFiles()) {
       const code = codeOf(read(file));
       if (file !== `${NS}authorisation.ts`) {
         expect(code, file).not.toMatch(/\bsealedForVitest\s*\(/);
       }
-      if (file !== `${NS}claudeMaxWebSearchProvider.ts`) {
+      if (file !== `${NS}claudeMaxWebSearchProvider.ts` && file !== GRANTED_RUN) {
         expect(code, file).not.toMatch(/new\s+ClaudeMaxWebSearchProvider\b/);
       }
       expect(code, file).not.toMatch(/new\s+ScriptedSearchProvider\b/);
@@ -487,10 +500,21 @@ describe('REL L2: the namespace is narrow, socket-free and sealed', () => {
         /claudeMaxWebSearchProvider|ClaudeMaxWebSearchProvider|sourceDiscovery\/authorisation|SourceDiscoveryAuthorisation|scriptedProvider|sourceDiscovery\/run\.js|runSourceDiscovery\b|linkOut/,
       );
     }
+    // WW E-SD (ADR 0028) widened "a live run" by exact path: the CLI may reach
+    // a GRANTED run through grantedRun.js (runGrantedSourceDiscovery), which
+    // derives the authorisation from a stored OWNER-path grant itself. The CLI
+    // still names neither the adapter nor its authorisation.
     const cli = codeOf(read(CLI_COMMAND));
+    expect(
+      specifiers(cli).filter((s) => /sourceDiscovery\/(grantedRun|agentQuery)\.js$/.test(s)),
+    ).toEqual([
+      '../../orgunits/sourceDiscovery/agentQuery.js',
+      '../../orgunits/sourceDiscovery/grantedRun.js',
+    ]);
     expect(cli).not.toMatch(/['"]--?all['"]|\ball:\s*\{|'every'|geographies/);
     expect(cli).toMatch(
-      /'discover-sources': \{\s*brief: \{ type: 'string' \},\s*geography: \{ type: 'string' \},\s*execute: \{ type: 'boolean' \},\s*\.\.\.OUTPUT,\s*\}/,
+      // WW E-SD: plus exactly one option, the stored grant's id.
+      /'discover-sources': \{\s*brief: \{ type: 'string' \},\s*geography: \{ type: 'string' \},\s*execute: \{ type: 'boolean' \},\s*'grant-id': \{ type: 'string' \},\s*\.\.\.OUTPUT,\s*\}/,
     );
     expect(cli).toMatch(
       /if \(values\['execute'\] === true\) \{\s*return refuse\(\s*'LIVE_SEARCH_NOT_AUTHORISED'/,

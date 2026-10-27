@@ -259,7 +259,10 @@ describeDb('REL L2 source discovery (integration, disposable database)', () => {
 
   beforeEach(async () => {
     await admin.query(
-      'TRUNCATE source_discovery_nomination_sightings, source_discovery_nomination_identities, ' +
+      // WW E-SD (migration 0022): the grant tables reference these, so they go first.
+      'TRUNCATE source_discovery_nomination_known_marks, source_discovery_run_completions, ' +
+        'source_discovery_query_calls, source_discovery_grant_uses, source_discovery_grants, ' +
+        'source_discovery_nomination_sightings, source_discovery_nomination_identities, ' +
         'source_discovery_nominations, source_discovery_runs, source_discovery_briefs',
     );
     await truncateAll(admin);
@@ -311,13 +314,23 @@ describeDb('REL L2 source discovery (integration, disposable database)', () => {
       expect(tables.rows.map((r) => `${r.t}:${r.p}`)).toEqual([
         'source_discovery_briefs:INSERT',
         'source_discovery_briefs:SELECT',
-        // REL P2 (migration 0020): the identity and sighting tables, SELECT + INSERT only.
+        // WW E-SD (migration 0022): grant uses, query calls, completions and
+        // known marks SELECT + INSERT; the OWNER-path grants SELECT only.
+        'source_discovery_grant_uses:INSERT',
+        'source_discovery_grant_uses:SELECT',
+        'source_discovery_grants:SELECT',
         'source_discovery_nomination_identities:INSERT',
         'source_discovery_nomination_identities:SELECT',
+        'source_discovery_nomination_known_marks:INSERT',
+        'source_discovery_nomination_known_marks:SELECT',
         'source_discovery_nomination_sightings:INSERT',
         'source_discovery_nomination_sightings:SELECT',
         'source_discovery_nominations:INSERT',
         'source_discovery_nominations:SELECT',
+        'source_discovery_query_calls:INSERT',
+        'source_discovery_query_calls:SELECT',
+        'source_discovery_run_completions:INSERT',
+        'source_discovery_run_completions:SELECT',
         'source_discovery_runs:INSERT',
         'source_discovery_runs:SELECT',
       ]);

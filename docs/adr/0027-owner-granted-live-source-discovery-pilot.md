@@ -1,10 +1,15 @@
 # ADR 0027 — An OWNER-granted, bounded live source-discovery pilot (corrected authorisation)
 
-- **Status: Proposed.** Nothing in this ADR is implemented. **Live search is
-  NOT authorised in this build.** `SourceDiscoveryAuthorisation` still has no
-  production constructor, and `discover-sources --execute` still refuses with
-  `LIVE_SEARCH_NOT_AUTHORISED`. `relQ1SourceDiscoverySeal.firewall.test.ts` pins
-  this.
+- **Status: Proposed.** Implemented INERT by ADR 0028 (Proposed, WW E-SD):
+  the grant tables, `SourceDiscoveryAuthorisation.fromStoredGrant`,
+  `agentQuery.ts` and `discover-sources --execute --grant-id`. **Live search is
+  NOT authorised in this build** unless and until the OWNER records a grant
+  row on the owner path; none exists, no runtime role can insert one, and the
+  database refuses a live-provider run without one. Without `--grant-id`,
+  `discover-sources --execute` still refuses with
+  `LIVE_SEARCH_NOT_AUTHORISED`. `relQ1SourceDiscoverySeal.firewall.test.ts` and
+  `wwSourceDiscoveryLive.firewall.test.ts` pin this. Sections 1-4 below are the
+  proposal text as written before that implementation.
 - **Date:** 2026-10-27
 - **Amends, if accepted:** ADR 0026 §4 ("Live search is NOT authorised"). It
   also extends the Claude-Max-only runtime of ADR 0009 / ADR 0010 to a second

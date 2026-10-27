@@ -540,10 +540,17 @@ describe('PHASE-2B-FIREWALL: exactly one institution-website network call site',
     // response body (none exists anywhere in the classifier layer), and the
     // stricter assertion below proves it writes no file CONTENT at all:
     // directory creation only, never a byte.
-    const EMPTY_DIR_ISOLATION_FILE = 'src/orgunits/classify/provider/runtimeIsolation.ts';
+    //
+    // WW E-SD (ADR 0027 D3 / ADR 0028) widened it by ONE exact path, under
+    // the same stricter assertion: sourceDiscovery/agentQuery.ts creates and
+    // removes the live search's EMPTY scratch cwd, and writes no byte.
+    const EMPTY_DIR_ISOLATION_FILES = new Set([
+      'src/orgunits/classify/provider/runtimeIsolation.ts',
+      'src/orgunits/sourceDiscovery/agentQuery.ts',
+    ]);
     for (const file of PHASE_2B_FILES) {
       const source = code(file);
-      if (file === EMPTY_DIR_ISOLATION_FILE) {
+      if (EMPTY_DIR_ISOLATION_FILES.has(file)) {
         expect(source, `${file} writes file content`).not.toMatch(
           /writeFile|createWriteStream|appendFile|copyFile/,
         );
@@ -2205,6 +2212,13 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
   const PROVIDER_FILES = PHASE_2B_FILES.filter((file) => file.startsWith(`${PROVIDER_DIR}/`));
   /** THE single permitted Agent SDK import site, by exact path (ADR 0009). */
   const SDK_IMPORT_SITE = `${PROVIDER_DIR}/agentSdkRunner.ts`;
+  /**
+   * WW E-SD (ADR 0027 D3 / ADR 0028): the ONE further import site, for the
+   * WebSearch-only source-discovery runtime, by exact path. It imports the
+   * SDK's `query` and usage-limit vocabulary only (pinned in
+   * wwSourceDiscoveryLive.firewall.test.ts).
+   */
+  const SOURCE_DISCOVERY_SDK_IMPORT_SITE = 'src/orgunits/sourceDiscovery/agentQuery.ts';
   /** THE single permitted child-process import site, by exact path (ADR 0010). */
   const CHILD_PROCESS_IMPORT_SITE = `${PROVIDER_DIR}/authStatusRunner.ts`;
   /**
@@ -2235,10 +2249,10 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
     expect([...PROVIDER_FILES].sort()).toEqual(EXPECTED_PROVIDER_FILES);
   });
 
-  it('exactly ONE production module imports the Agent SDK, by exact path', () => {
+  it('exactly TWO production modules import the Agent SDK, each by exact path', () => {
     for (const file of PRODUCTION_FILES) {
       const source = code(file);
-      if (file === SDK_IMPORT_SITE) {
+      if (file === SDK_IMPORT_SITE || file === SOURCE_DISCOVERY_SDK_IMPORT_SITE) {
         expect(source, `${file} must import the official Agent SDK`).toMatch(
           /from\s+['"]@anthropic-ai\/claude-agent-sdk['"]/,
         );

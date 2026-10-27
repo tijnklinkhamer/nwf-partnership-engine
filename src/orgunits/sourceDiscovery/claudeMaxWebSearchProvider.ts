@@ -1,5 +1,5 @@
 /**
- * REL L2 / U1 - THE CLAUDE MAX WEB-SEARCH ADAPTER. WRITTEN, AND SEALED.
+ * REL L2 / U1 - THE CLAUDE MAX WEB-SEARCH ADAPTER. SEALED BEHIND A STORED GRANT.
  *
  * WHAT IT WOULD DO. Ask the Agent SDK, on the owner's Claude Max subscription
  * (ADR 0009/0010), to run ONE brief query with the `WebSearch` tool and return
@@ -9,15 +9,21 @@
  * name even if one were somehow offered. Search results are nominations, never
  * pages: nothing the adapter returns is fetched by anything.
  *
- * WHY IT CANNOT RUN. Live search is not authorised (OWNER directive
- * 2026-10-26). The constructor requires a `SourceDiscoveryAuthorisation`,
- * checked by its private BRAND, and that capability's only constructor throws
- * outside vitest. The SDK's `query` function is INJECTED: this file does not
- * import the SDK package at all, and no production module passes it the real
- * one - the single SDK import site stays `classify/provider/agentSdkRunner.ts`,
- * which this namespace may not import. Wiring a real `query` here, choosing
- * the subscription profile and applying the ADR 0010 auth-conflict guard are
- * all work for a separately authorised phase.
+ * WHEN IT CAN RUN (WW E-SD, ADR 0027 D4 / ADR 0028). The constructor
+ * requires a `SourceDiscoveryAuthorisation`, checked by its private BRAND,
+ * whose only production constructor derives it from a STORED OWNER-PATH
+ * GRANT row. A grant-derived authority covers exactly the grant's plan,
+ * geography and queries: `search` refuses any other request before the SDK
+ * is touched. The SDK's `query` function is INJECTED: this file does not
+ * import the SDK package. In production `agentQuery.ts` - the one
+ * source-discovery SDK import site, behind the ADR 0010 profile,
+ * conflicting-auth and auth-status guards - supplies it, and only
+ * `grantedRun.ts` constructs this adapter.
+ *
+ * FAIL CLOSED. Any tool request other than `WebSearch` is denied AND fails the
+ * query (`PROVIDER_TOOL_REFUSED`), even if the stream then returns results.
+ * A usage-limit or authentication failure the SDK seam recognised is its own
+ * code; the adapter itself reads no free text.
  *
  * KEPT SEPARATE FROM THE CLASSIFIER. It reuses nothing from `classify/`: its
  * options, prompt, output schema and result handling are its own.
@@ -67,7 +73,7 @@ export const WEB_SEARCH_MAX_TURNS = 4;
 
 export type ToolPermission =
   | { readonly behavior: 'allow'; readonly updatedInput: Record<string, unknown> }
-  | { readonly behavior: 'deny'; readonly message: string };
+  | { readonly behavior: 'deny'; readonly message: string; readonly interrupt?: boolean };
 
 /** The exact option object this adapter hands the SDK. Hermetic and closed. */
 export interface WebSearchAgentOptions {
@@ -93,6 +99,12 @@ export interface AgentMessage {
   readonly subtype?: string;
   readonly is_error?: boolean;
   readonly structured_output?: unknown;
+  /**
+   * Set ONLY by the live SDK seam (agentQuery.ts) on a terminal result it
+   * recognised, from the SDK's own usage-limit vocabulary or an
+   * authentication marker. A closed value; never free text.
+   */
+  readonly failure?: 'USAGE_LIMIT_EXHAUSTED' | 'AUTH_FAILURE';
 }
 
 /** The shape of the SDK's `query` entry point, as injected. Tests pass a fake. */
@@ -186,6 +198,7 @@ export interface ClaudeMaxWebSearchDeps {
 export class ClaudeMaxWebSearchProvider implements SearchProvider {
   readonly providerKey = 'claude-max-web-search' as const;
   readonly #deps: ClaudeMaxWebSearchDeps;
+  readonly #authorisation: SourceDiscoveryAuthorisation;
 
   constructor(authorisation: SourceDiscoveryAuthorisation, deps: ClaudeMaxWebSearchDeps) {
     if (!SourceDiscoveryAuthorisation.isAuthorisation(authorisation)) {
@@ -195,10 +208,29 @@ export class ClaudeMaxWebSearchProvider implements SearchProvider {
       );
     }
     this.#deps = deps;
+    this.#authorisation = authorisation;
   }
 
   async search(request: SearchRequest): Promise<SearchResponse> {
-    const options = buildWebSearchAgentOptions();
+    if (!this.#authorisation.covers(request)) {
+      throw new SearchProviderError(
+        'PROVIDER_NOT_AUTHORISED',
+        `query ${request.query.queryId} (${request.geography}) is outside the stored grant.`,
+      );
+    }
+    const base = buildWebSearchAgentOptions();
+    const refusedTools: string[] = [];
+    const options: WebSearchAgentOptions = {
+      ...base,
+      // Same allow/deny as the base options; a denial is also REMEMBERED, so a
+      // query that attempted any other tool fails closed below.
+      canUseTool: async (toolName, input) => {
+        const decision = await base.canUseTool(toolName, input);
+        if (decision.behavior === 'allow') return decision;
+        refusedTools.push(toolName);
+        return { ...decision, interrupt: true };
+      },
+    };
     let terminal: AgentMessage | null = null;
     for await (const message of this.#deps.query({
       prompt: buildWebSearchPrompt(request),
@@ -209,10 +241,28 @@ export class ClaudeMaxWebSearchProvider implements SearchProvider {
         break; // terminal means terminal: never pull past the result
       }
     }
+    if (refusedTools.length > 0) {
+      throw new SearchProviderError(
+        'PROVIDER_TOOL_REFUSED',
+        `the provider requested a refused tool (${[...new Set(refusedTools)].sort().join(', ')}).`,
+      );
+    }
     if (terminal === null) {
       throw new SearchProviderError(
         'PROVIDER_RESULT_MISSING',
         'the stream ended without a result.',
+      );
+    }
+    if (terminal.failure === 'USAGE_LIMIT_EXHAUSTED') {
+      throw new SearchProviderError(
+        'PROVIDER_USAGE_LIMIT_EXHAUSTED',
+        'the subscription usage limit was reached; no retry, no fallback.',
+      );
+    }
+    if (terminal.failure === 'AUTH_FAILURE') {
+      throw new SearchProviderError(
+        'PROVIDER_AUTH_FAILURE',
+        'the provider runtime reported an authentication failure.',
       );
     }
     if (terminal.subtype !== 'success' || terminal.is_error === true) {

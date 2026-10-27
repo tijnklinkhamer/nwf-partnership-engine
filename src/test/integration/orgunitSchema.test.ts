@@ -281,6 +281,11 @@ describeDb('Phase 2B schema contract (integration)', () => {
         // for the existing B2.2 writer capability, two INSERT triggers; no role,
         // no table, nothing existing altered).
         '0021',
+        // WW E-SD (OWNER-path live source-discovery grants, ADR 0027/0028 -
+        // five append-only tables, SELECT/INSERT to the 0019 capability (SELECT
+        // only on grants), one deferred constraint trigger on 0019's runs; no
+        // role, no LOGIN, no existing column or grant altered).
+        '0022',
       ]);
     });
 
