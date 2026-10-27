@@ -87,6 +87,9 @@ export const QUOTE_MAX_CODE_POINTS = 300;
  * `QUOTE_MAX_CODE_POINTS` code points (never splitting a surrogate pair).
  * Always a contiguous substring of the stored text - nothing is rewritten.
  *
+ * A full stop after a one- or two-digit number (a German ordinal day) never
+ * ends a sentence (rules v3).
+ *
  * `full` is the chosen sentence BEFORE the cap (rules v2): every contact
  * check runs on it, never on the capped quote, so a cap can never cut a
  * number in half and let the first half through.
@@ -95,7 +98,11 @@ export function quoteOf(
   unit: TextUnit,
   required: readonly ScriptAwarePhrase[],
 ): { readonly quote: string; readonly truncated: boolean; readonly full: string } {
-  const sentences = unit.text.split(/(?<=[.!?])\s+|(?<=[。！？])/u).filter((s) => s.trim() !== '');
+  // A full stop after a one- or two-digit number is an ordinal day (`am 5. Oktober 2026`),
+  // never a sentence end (rules v3): splitting there would part a date from its line.
+  const sentences = unit.text
+    .split(/(?<=[.!?])(?<!(?:^|\D)\d{1,2}\.)\s+|(?<=[。！？])/u)
+    .filter((s) => s.trim() !== '');
   const containsAll = (text: string) => {
     const tokens = tokeniseScriptAware(text);
     return required.every((p) => containsScriptAwarePhrase(tokens, p));
@@ -201,6 +208,121 @@ export function guardsIn<P>(
       return !excepted.some(([xs, xe]) => xs <= s && e <= xe);
     }),
   );
+}
+
+// ---------------------------------------------------------------------------
+// Listing shape (rules v3): unexplained words, and a channel named as someone else's.
+// ---------------------------------------------------------------------------
+
+/** Listing-filler words, compiled: Latin-script tokens, and CJK substrings (longest first). */
+export interface ListingFiller {
+  readonly tokens: ReadonlySet<string>;
+  readonly cjk: readonly string[];
+}
+
+const longestFirst = (a: string, b: string): number =>
+  b.length - a.length || (a < b ? -1 : a > b ? 1 : 0);
+
+export function compileFiller(words: readonly string[]): ListingFiller {
+  const tokens = new Set<string>();
+  const cjk = new Set<string>();
+  for (const word of words) {
+    const compiled = compileScriptAwarePhrase(word);
+    if (compiled.kind === 'cjk') cjk.add(compiled.text);
+    else for (const t of compiled.tokens) tokens.add(t);
+  }
+  return { tokens, cjk: [...cjk].sort(longestFirst) };
+}
+
+/** Every token index the given phrases cover in the unit (Latin-script phrases only). */
+function coveredBy(unit: TextUnit, phrases: readonly CompiledPhrase<unknown>[]): Set<number> {
+  const covered = new Set<number>();
+  for (const p of phrases) {
+    if (p.compiled.kind !== 'tokens') continue;
+    const len = p.compiled.tokens.length;
+    for (const s of startsOf(unit.tokens, p.compiled.tokens)) {
+      for (let i = s; i < s + len; i += 1) covered.add(i);
+    }
+  }
+  return covered;
+}
+
+/**
+ * How many words of the unit are UNEXPLAINED: neither part of an `explained`
+ * phrase (the channel term the line names), nor a number (a day, a year, an
+ * ordinal such as `1er`), nor a listing-filler word (articles, prepositions,
+ * `edition`, weekdays, month names). A CJK run counts as one unexplained word
+ * when anything is left of it after the explained phrases and the filler
+ * substrings are removed. `Newsletter — 3 March 2026` has none; `Our last
+ * newsletter was sent on 3 March 2026` has four.
+ */
+export function unexplainedWords(
+  unit: TextUnit,
+  explained: readonly CompiledPhrase<unknown>[],
+  filler: ListingFiller,
+): number {
+  const covered = coveredBy(unit, explained);
+  const cjkExplained = [
+    ...new Set(explained.flatMap((p) => (p.compiled.kind === 'cjk' ? [p.compiled.text] : []))),
+  ].sort(longestFirst);
+  let count = 0;
+  unit.tokens.forEach((token, i) => {
+    if (covered.has(i)) return;
+    if (token.cjk) {
+      let rest = token.text;
+      for (const part of [...cjkExplained, ...filler.cjk]) rest = rest.split(part).join('');
+      if (rest !== '') count += 1;
+      return;
+    }
+    if (/^\d/.test(token.text) || filler.tokens.has(token.text)) return;
+    count += 1;
+  });
+  return count;
+}
+
+/** How many whole tokens may separate an owner word from the channel term it qualifies. */
+export const OWNER_WINDOW_TOKENS = 3;
+
+/**
+ * True when the unit names the channel (`anchors`) as SOMEONE ELSE'S: an
+ * owner word (`their`, `university`, `gemeente` - `owners`) stands within
+ * `OWNER_WINDOW_TOKENS` tokens BEFORE the channel term ("the university
+ * newsletter", "their welcome week", "su boletín"), or within that window
+ * AFTER it with a genitive link word between ("the newsletter of the
+ * faculty", "la semana de bienvenida de la universidad"). A CJK owner phrase
+ * counts anywhere on the line (no token boundaries to measure). "Our
+ * newsletter for university students" is NOT someone else's: the owner word
+ * follows the term with no genitive link.
+ */
+export function namesOtherOwner(
+  unit: TextUnit,
+  anchors: readonly CompiledPhrase<unknown>[],
+  owners: readonly CompiledPhrase<unknown>[],
+  genitiveLinks: ReadonlySet<string>,
+): boolean {
+  const present = owners.filter(
+    (o) => mayContain(unit, o.compiled) && containsScriptAwarePhrase(unit.tokens, o.compiled),
+  );
+  if (present.some((o) => o.compiled.kind === 'cjk')) return true;
+  const ownerStarts = present.flatMap((o) =>
+    o.compiled.kind === 'tokens' ? startsOf(unit.tokens, o.compiled.tokens) : [],
+  );
+  if (ownerStarts.length === 0) return false;
+  for (const a of anchors) {
+    if (a.compiled.kind !== 'tokens') continue;
+    const len = a.compiled.tokens.length;
+    for (const start of startsOf(unit.tokens, a.compiled.tokens)) {
+      const end = start + len;
+      for (const o of ownerStarts) {
+        if (o < start && start - o <= OWNER_WINDOW_TOKENS) return true;
+        if (o >= end && o - end < OWNER_WINDOW_TOKENS + 1) {
+          const between = unit.tokens.slice(end, o).map((t) => t.text);
+          if (between.some((t) => genitiveLinks.has(t))) return true;
+        }
+      }
+    }
+  }
+  return false;
 }
 
 // ---------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 /**
  * WW E-X - AUTOMATIC, SOURCE-BACKED C1 EVIDENCE FROM STORED PAGE CAPTURES
- * (`nwf-pe-c1-extraction-rules-v2`).
+ * (`nwf-pe-c1-extraction-rules-v3`).
  *
  * `extractC1(pages, options)` reads the stored, already-redacted page
  * evidence of ONE subject's admitted research (title, h1-h3 headings, main
@@ -8,8 +8,10 @@
  *
  *   CLAIMS     OBSERVED facts about the published artefact itself, which
  *              the capture exhibits - dated event instances and dated
- *              newsletter issues LISTED on the page, a submission invitation
- *              printed on it, a heading over a list of external links -
+ *              newsletter issues LISTED on the page (a heading or a short
+ *              listing line, never a sentence: rules v3), a submission
+ *              invitation printed on it, a heading over a list of external
+ *              links -
  *              each on a channel C1 has a kind for, each value valid under
  *              the restated C1 schema (`vocabulary.ts`), each resting on the
  *              captures that show it. Only pages the subject itself
@@ -17,7 +19,8 @@
  *   PROPOSALS  source-stated self-descriptions C1 admits only as
  *              SELF_ASSERTED / THIRD_PARTY_ASSERTED (languages, audience,
  *              cohort, counts, role ownership, kind, social accounts, "our"
- *              channels, a newsletter sign-up sentence, a stated
+ *              channels, a newsletter sign-up sentence, a dated event the
+ *              organisation describes in a sentence, a stated
  *              discontinuation). Each carries the rule, the language its phrase is
  *              written in, the matched phrases and a short quote of the
  *              stored text. A proposal is not a claim.
@@ -25,8 +28,11 @@
  * plus the page classes each capture belongs to (research coverage), the
  * findings C1 has no faithful home for (explicit gaps), the GUARDED lines
  * (negated, cancelled, discontinued, deadline) whose positive readings were
- * suppressed, and the proposals withheld because their quote would carry
- * contact-shaped text (or names a social account, by default).
+ * suppressed, the dated items that are not listings (a hope, another
+ * organisation's channel, a newsletter sentence) and the dated items of a
+ * page that states a cancellation or discontinuation anywhere, and the
+ * proposals withheld because their quote would carry contact-shaped text
+ * (or names a social account, by default).
  *
  * NEVER: a guessed value, a channel from a single generic resource-page
  * observation, a year guessed for a day-and-month, a country or audience
@@ -39,11 +45,14 @@
  */
 import { createHash } from 'node:crypto';
 
+import { icannRegistrableDomain } from '../../website/parse.js';
 import { redactContactData } from '../web/redact.js';
-import { C1_STATED_DATE_RULE_VERSION, statedDatesC1 } from './dates.js';
+import { C1_STATED_DATE_RULES, C1_STATED_DATE_RULE_VERSION, statedDatesC1 } from './dates.js';
 import {
   C1_PACKS,
   C1_PLATFORMS,
+  GENITIVE_LINKS,
+  SOCIAL_PLATFORM_NAMES,
   UNMAPPED_PLATFORMS,
   type C1Language,
   type C1LanguagePack,
@@ -51,12 +60,15 @@ import {
 } from './lexicon.js';
 import { C1_EXTRACTION_RULES_VERSION, ruleId } from './rules.js';
 import {
+  compileFiller,
   compileGuards,
   compilePhrases,
   guardsIn,
   matchesIn,
+  namesOtherOwner,
   quoteOf,
   statedCounts,
+  unexplainedWords,
   unitOf,
   type CompiledGuard,
   type CompiledPhrase,
@@ -162,7 +174,9 @@ export type UnmappedReason =
   | 'NO_FAITHFUL_C1_CHANNEL_KIND'
   | 'MEMBER_COUNT_NOT_BOUND_TO_A_CHANNEL'
   | 'CHANNEL_NOT_ESTABLISHED'
-  | 'STATEMENT_GUARDED';
+  | 'STATEMENT_GUARDED'
+  | 'DATED_ITEM_NOT_A_LISTING'
+  | 'PAGE_GUARDED';
 
 export interface UnmappedFinding {
   readonly ruleId: string;
@@ -328,6 +342,23 @@ const GUARDS: readonly CompiledGuard<GuardKind>[] = compileGuards(
 );
 const GUARD_EXCEPTIONS = listOf('guardExceptions');
 const CONTACT_CUES = listOf('quoteWithholdCues');
+const ROLE_CUES = listOf('roleWithholdCues');
+const FIRST_PERSON = listOf('firstPerson');
+const INTENT_FRAMES = listOf('intentFrames');
+const CLAUSE_VERBS = listOf('clauseVerbs');
+const OTHER_OWNERS = listOf('otherOrganisation');
+const LISTING_FILLER = compileFiller([
+  ...C1_PACKS.flatMap((p) => p.listingFiller),
+  ...Object.keys(C1_STATED_DATE_RULES.months),
+]);
+const GENITIVE: ReadonlySet<string> = new Set(GENITIVE_LINKS);
+const PLATFORM_NAMES = compilePhrases(
+  SOCIAL_PLATFORM_NAMES.map((phrase) => ({
+    phrase,
+    language: (/^[a-z]+$/.test(phrase) ? 'en' : 'ja') as C1Language,
+    payload: null,
+  })),
+);
 const UNMAPPED_PLATFORM = compilePhrases(
   UNMAPPED_PLATFORMS.map((term) => ({ phrase: term, language: 'en' as C1Language, payload: term })),
 );
@@ -352,10 +383,34 @@ const REDACTION_TOKEN = /\[(EMAIL|PHONE)\]/;
  */
 const TELEPHONE_SHAPE = /[0-9]([ .()+/-]{0,2}[0-9]){8}/;
 const DIGIT_RUN = /[0-9]{8}/;
+/** Rules v3: nine digits with ANY non-alphanumeric separators (up to three) between them. */
+const SEPARATED_DIGITS = /\d(?:[^\p{L}\p{N}]{0,3}\d){8}/u;
 const HANDLE_SHAPE = /[@\uFF20]\s*[\p{L}\p{N}_]/u;
+/** Rules v3: a handle written without `@` - `esn_utrecht`, `esn.utrecht`. */
+const BARE_HANDLE =
+  /[\p{L}\p{N}]_[\p{L}\p{N}]|(?<![\p{L}\p{N}.])\p{Ll}{2,}\.\p{Ll}{2,}(?![\p{L}\p{N}])/u;
 const URL_SHAPE = /:\/\/|\bwww\.|[a-z0-9-]+\.[a-z]{2,}\//i;
 const OBFUSCATED_ADDRESS = /[[(]\s*(?:at|dot)\s*[\])]/i;
+/** Rules v3: `{at}`, `(a)`, `<at>`, `[arroba]`, `(punt)`, and "info at esn dot nl" / "punt" / "punkt" / "point". */
+const OBFUSCATED_ADDRESS_V3 =
+  /[[({<]\s*(?:at|a|ad|arroba|dot|punt|punkt|point|punto|ponto)\s*[\])}>]|(?<![\p{L}\p{N}])(?:at|arroba|chez|bij|bei|presso|em)\s+(?:\S+\s+){1,3}?(?:dot|punt|punkt|point|punto|ponto)(?![\p{L}\p{N}])/iu;
+/** Rules v3: a short service number (`0900-1234`, `0800 123`, `0570-01-2345`, `0120-123`). */
+const SERVICE_NUMBER = /(?<!\d)0(?:[89]0\d|570|120)(?:[^\p{L}\p{N}]{0,2}\d){2,}/u;
+/** Rules v3: an extension (`ext. 4567`, `poste 123`, `toestel 45`, `Durchwahl 12`, `x4567`, `内線123`). */
+const EXTENSION =
+  /(?<![\p{L}\p{N}])(?:ext|extension|poste|toestel|tst|durchwahl|dw|interno|int|ramal|anexo)\.?\s*:?\s*\d{2,6}(?!\d)|内線\s*\d{2,6}|(?<![\p{L}\p{N}])x\d{3,6}(?!\d)/iu;
+/** Rules v3: a dotted host (`esn-utrecht.nl`), checked against the ICANN suffix list. */
+const HOST_CANDIDATE =
+  /(?<![\p{L}\p{N}@.-])(?:[\p{L}\p{N}](?:[\p{L}\p{N}-]{0,61}[\p{L}\p{N}])?\.)+\p{L}{2,63}(?![\p{L}\p{N}-])/gu;
 const SOCIAL_KINDS: ReadonlySet<string> = new Set(C1_PLATFORMS.map((p) => p.kind as string));
+
+/** True when `folded` names a host with a registrable domain under a real ICANN suffix. */
+function namesBareHost(folded: string): boolean {
+  for (const m of folded.matchAll(HOST_CANDIDATE)) {
+    if (icannRegistrableDomain(m[0].toLowerCase()) !== null) return true;
+  }
+  return false;
+}
 
 /**
  * True when the FULL quoted sentence (never the capped quote) carries
@@ -366,9 +421,21 @@ const SOCIAL_KINDS: ReadonlySet<string> = new Set(C1_PLATFORMS.map((p) => p.kind
  * cue of any language (`contact`, `bel`, `お問い合わせ`), beside which a
  * person's name may stand. Checked on the NFKC fold, so full-width digits
  * and `＠` count.
+ *
+ * Rules v3 adds: nine digits joined by any separators, an obfuscated address
+ * in more spellings (`{at}`, `(a)`, " at … dot ", `punt`, `punkt`, `point`),
+ * a bare registrable host (`esn-utrecht.nl`), a handle written without `@`
+ * (`esn_utrecht`), a social platform named at all (`IG`, `insta`, "follow
+ * Jan on Instagram") unless the proposal is ABOUT that account
+ * (`platformIsSubject`, whose release is itself gated), a short service
+ * number or an extension (`0900-1234`, `ext. 4567`), and a person-role word
+ * of any language (`coordinator`, `voorzitter`, `担当`), beside which the
+ * holder's name so often stands. A match WITHHOLDS the quote - the text is
+ * never rewritten.
  */
-export function isContactShapedQuote(full: string): boolean {
+export function isContactShapedQuote(full: string, platformIsSubject = false): boolean {
   const folded = full.normalize('NFKC');
+  const unit = unitOf('MAIN', full);
   return (
     redactContactData(full) !== full ||
     REDACTION_TOKEN.test(folded) ||
@@ -376,8 +443,16 @@ export function isContactShapedQuote(full: string): boolean {
     URL_SHAPE.test(folded) ||
     TELEPHONE_SHAPE.test(folded) ||
     DIGIT_RUN.test(folded) ||
+    SEPARATED_DIGITS.test(folded) ||
     OBFUSCATED_ADDRESS.test(folded) ||
-    matchesIn(unitOf('MAIN', full), CONTACT_CUES).length > 0
+    OBFUSCATED_ADDRESS_V3.test(folded) ||
+    SERVICE_NUMBER.test(folded) ||
+    EXTENSION.test(folded) ||
+    BARE_HANDLE.test(folded) ||
+    namesBareHost(folded) ||
+    (!platformIsSubject && matchesIn(unit, PLATFORM_NAMES).length > 0) ||
+    matchesIn(unit, ROLE_CUES).length > 0 ||
+    matchesIn(unit, CONTACT_CUES).length > 0
   );
 }
 const rootChannel = (rootKey: string) => `RESOURCE_PAGE|${rootKey}`;
@@ -419,6 +494,54 @@ function unitsOf(page: C1PageInput): TextUnit[] {
 
 const firstLanguage = (matched: readonly CompiledPhrase<unknown>[]): C1Language =>
   matched[0]!.language;
+
+/**
+ * The shape of a line that names an orientation event or a newsletter AND
+ * states a full date (rules v3). Only a LISTING is an observation of the
+ * published artefact:
+ *
+ *   OTHER_ORGANISATION  the channel is someone else's ("the university
+ *                       newsletter", "their welcome week") - nothing for the
+ *                       subject, not even a proposal;
+ *   INTENT_FRAME        a hope, wish, condition or tentative date ("we hope
+ *                       to organise", "if funding allows", "to be
+ *                       confirmed") - not stated to happen, so nothing;
+ *   SIGN_UP_LINE        the line invites a sign-up - never a listed issue;
+ *   STATEMENT           a sentence: a first-person word, a finite verb, or
+ *                       more unexplained words than a listing line carries;
+ *   LISTING             a title/heading, or a short line made of the channel
+ *                       term, the date and listing filler only.
+ */
+type DatedShape = 'LISTING' | 'STATEMENT' | 'SIGN_UP_LINE' | 'INTENT_FRAME' | 'OTHER_ORGANISATION';
+
+/**
+ * At most this many UNEXPLAINED words (`text.ts` `unexplainedWords`) on a
+ * listing line: a short qualifier such as a place or a programme name
+ * ("Welcome Week Utrecht — 1 September 2026"). A title or heading is a
+ * structural element of the page and may carry a few more (the site name).
+ * A design bound, not a measurement; a line over it is a statement (fail
+ * closed: an event statement is still proposed, a newsletter one is a gap).
+ */
+export const MAX_UNEXPLAINED_WORDS: Readonly<Record<TextUnit['field'], number>> = Object.freeze({
+  MAIN: 2,
+  HEADING: 4,
+  TITLE: 4,
+});
+
+function datedShape(unit: TextUnit, channelTerms: readonly CompiledPhrase<unknown>[]): DatedShape {
+  if (namesOtherOwner(unit, channelTerms, OTHER_OWNERS, GENITIVE)) return 'OTHER_ORGANISATION';
+  if (matchesIn(unit, INTENT_FRAMES).length > 0) return 'INTENT_FRAME';
+  if (matchesIn(unit, SIGN_UP).length > 0) return 'SIGN_UP_LINE';
+  if (matchesIn(unit, FIRST_PERSON).length > 0 || matchesIn(unit, CLAUSE_VERBS).length > 0) {
+    return 'STATEMENT';
+  }
+  return unexplainedWords(unit, channelTerms, LISTING_FILLER) > MAX_UNEXPLAINED_WORDS[unit.field]
+    ? 'STATEMENT'
+    : 'LISTING';
+}
+
+/** The concept of a dated event the organisation describes in a sentence (a proposal, rules v3). */
+const EVENT_STATED = 'ORIENTATION_EVENT_STATED';
 
 /** Reads every page; aggregates per admitted root website. */
 export function extractC1(
@@ -464,6 +587,18 @@ export function extractC1(
     const languages = new Map<LearnedLanguage, CompiledPhrase<LearnedLanguage>[]>();
     let languageUnit: TextUnit | null = null;
     let newsDated = false;
+    // Rules v3 (page-level guard): a cancellation or discontinuation stated ANYWHERE on the
+    // page ("This event has been cancelled.") turns every dated event / newsletter item the
+    // page shows into a gap - the heading "Welcome Week 1 September 2026" above it is not
+    // an instance that happened. One guard per kind, in lexicon order.
+    const pageGuards = new Map<GuardKind, CompiledGuard<GuardKind>>();
+    for (const unit of units) {
+      for (const g of guardsIn(unit, GUARDS, GUARD_EXCEPTIONS)) {
+        if (g.payload === 'CANCELLATION' || g.payload === 'DISCONTINUATION') {
+          if (!pageGuards.has(g.payload)) pageGuards.set(g.payload, g);
+        }
+      }
+    }
 
     for (const unit of units) {
       // Every positive reading of this line goes to a per-line buffer first; a GUARDED
@@ -482,24 +617,46 @@ export function extractC1(
       const dates = statedDatesC1(unit.text);
       const pastDates = dates.filter((d) => d <= page.capturedDay);
 
-      // ---- Orientation events: a dated instance on one line.
+      // ---- Orientation events: a dated instance LISTED on one line (observed), or a dated
+      // event the organisation describes in a sentence (a proposal) - rules v3.
       const event = matchesIn(unit, EVENT);
+      const newsletter = matchesIn(unit, NEWSLETTER);
+      const channelTerms = [...event, ...newsletter];
+      const otherOwner =
+        channelTerms.length > 0 && namesOtherOwner(unit, channelTerms, OTHER_OWNERS, GENITIVE);
       if (event.length > 0) {
         classes.add('EVENTS');
         if (self && dates.length > 0) {
-          u.eventHits.push(
-            hit(page, ruleId('ORIENTATION_EVENT_DATED', firstLanguage(event)), dates),
-          );
+          const language = firstLanguage(event);
+          const shape = datedShape(unit, channelTerms);
+          if (shape === 'LISTING') {
+            u.eventHits.push(hit(page, ruleId('ORIENTATION_EVENT_DATED', language), dates));
+          } else if (shape === 'STATEMENT' || shape === 'SIGN_UP_LINE') {
+            const stated = eventStatementDrafts(page, unit, event[0]!);
+            u.drafts.push(...stated);
+            if (stated.length === 0) {
+              uGap(
+                ruleId('DATED_ITEM_NOT_LISTED', language),
+                'DATED_ITEM_NOT_A_LISTING',
+                'ORIENTATION_EVENT:DATE_OUTSIDE_THE_QUOTED_SENTENCE',
+              );
+            }
+          } else {
+            uGap(
+              ruleId('DATED_ITEM_NOT_LISTED', language),
+              'DATED_ITEM_NOT_A_LISTING',
+              `ORIENTATION_EVENT:${shape}`,
+            );
+          }
         }
       }
 
       // ---- Newsletter: a sign-up SENTENCE (a proposal: the organisation says it has one)
-      // or a dated issue LISTED on the page (observed).
-      const newsletter = matchesIn(unit, NEWSLETTER);
+      // or a dated issue LISTED on the page (observed). Never someone else's newsletter.
       if (newsletter.length > 0) {
         classes.add('NEWSLETTER');
         const signUp = matchesIn(unit, SIGN_UP);
-        if (self && signUp.length > 0) {
+        if (self && signUp.length > 0 && !otherOwner) {
           const channelKey = channelKeyOf('MEMBER_NEWSLETTER', page.rootKey);
           const proposed: [C1EmittedKey, Record<string, unknown>][] = [
             ['channel.existence', { status: 'EXISTS' }],
@@ -520,9 +677,19 @@ export function extractC1(
           }
         }
         if (self && pastDates.length > 0) {
-          u.archiveHits.push(
-            hit(page, ruleId('NEWSLETTER_DATED_ISSUES', firstLanguage(newsletter)), pastDates),
-          );
+          const language = firstLanguage(newsletter);
+          const shape = datedShape(unit, channelTerms);
+          if (shape === 'LISTING') {
+            u.archiveHits.push(hit(page, ruleId('NEWSLETTER_DATED_ISSUES', language), pastDates));
+          } else {
+            // feed_activity is OBSERVED-only in C1: a newsletter sentence, a sign-up line, a hope
+            // or someone else's newsletter is a gap, never a proposal of activity.
+            uGap(
+              ruleId('DATED_ITEM_NOT_LISTED', language),
+              'DATED_ITEM_NOT_A_LISTING',
+              `MEMBER_NEWSLETTER:${shape}`,
+            );
+          }
         }
       }
       if (unit.field === 'MAIN' && pastDates.length > 0) newsDated = true;
@@ -536,7 +703,7 @@ export function extractC1(
       }
 
       // ---- "Our newsletter" / "our welcome week": a binding proposal (resolved later).
-      for (const m of matchesIn(unit, POSSESSIVE_CHANNEL)) {
+      for (const m of otherOwner ? [] : matchesIn(unit, POSSESSIVE_CHANNEL)) {
         u.drafts.push({
           key: 'channel.operator_binding',
           subject: { kind: 'CHANNEL', channelKey: channelKeyOf(m.payload, page.rootKey) },
@@ -742,10 +909,23 @@ export function extractC1(
       }
 
       if (guards.length === 0) {
-        eventHits.push(...u.eventHits);
-        archiveHits.push(...u.archiveHits);
+        const datedDrafts = u.drafts.filter((d) => d.concept === EVENT_STATED);
+        const dated = u.eventHits.length + u.archiveHits.length + datedDrafts.length;
+        if (pageGuards.size > 0 && dated > 0) {
+          for (const [kind, g] of pageGuards) {
+            gap(
+              ruleId('PAGE_GUARDED', g.language),
+              'PAGE_GUARDED',
+              `PAGE_GUARD:${kind}`,
+              page.pageId,
+            );
+          }
+        } else {
+          eventHits.push(...u.eventHits);
+          archiveHits.push(...u.archiveHits);
+        }
         submissionHits.push(...u.submissionHits);
-        drafts.push(...u.drafts);
+        drafts.push(...u.drafts.filter((d) => pageGuards.size === 0 || d.concept !== EVENT_STATED));
         for (const [id, reason, label] of u.gaps) gap(id, reason, label, page.pageId);
         for (const m of u.languages) {
           languages.set(m.payload, [...(languages.get(m.payload) ?? []), m]);
@@ -843,6 +1023,45 @@ function hit(page: C1PageInput, ruleIdValue: string, dates: readonly string[]): 
     ruleId: ruleIdValue,
     dates,
   };
+}
+
+/**
+ * A dated orientation event the organisation DESCRIBES in a sentence ("Welcome
+ * Week takes place on 31 August 2026.", "Notre semaine d'intégration a eu lieu
+ * le 1er septembre 2026."): existence EXISTS and the event instances the
+ * QUOTED sentence states, both PROPOSED (SELF_ASSERTED), establishing a
+ * PROPOSAL_ONLY event channel. The dates are read from the quoted sentence
+ * itself, so the quote always shows the dates its value rests on; a line
+ * whose dates sit in another sentence proposes nothing. Never a cycle.
+ */
+function eventStatementDrafts(
+  page: C1PageInput,
+  unit: TextUnit,
+  term: CompiledPhrase<unknown>,
+): ProposalDraft[] {
+  const { full } = quoteOf(unit, [term.compiled]);
+  const stated = statedDatesC1(full);
+  if (stated.length === 0) return [];
+  const past = stated.filter((d) => d <= page.capturedDay);
+  const instances = {
+    upcomingAnnounced: stated.some((d) => d > page.capturedDay),
+    lastPastInstance: past.length > 0 ? past[past.length - 1]! : null,
+    discontinued: false,
+  };
+  const channelKey = channelKeyOf('ORIENTATION_EVENT', page.rootKey);
+  const common = {
+    subject: { kind: 'CHANNEL', channelKey } as const,
+    page,
+    unit,
+    concept: EVENT_STATED,
+    language: term.language,
+    matched: [term],
+    establishes: { kind: 'ORIENTATION_EVENT', visibility: 'PUBLIC' } as const,
+  };
+  return [
+    { ...common, key: 'channel.existence', value: { status: 'EXISTS' } },
+    { ...common, key: 'channel.event_instances', value: instances },
+  ];
 }
 
 function audienceDraft(
@@ -1067,11 +1286,10 @@ function aggregate(
       ...(d.guard?.segments ?? []),
     ]);
     // Every check reads the FULL sentence, never the capped quote.
-    const social =
-      d.subject.kind === 'CHANNEL' &&
-      SOCIAL_KINDS.has(d.subject.channelKey.split('|')[0]!) &&
-      options.socialAccountQuotes !== 'SHAPE_CHECKED';
-    const shaped = isContactShapedQuote(full);
+    const socialSubject =
+      d.subject.kind === 'CHANNEL' && SOCIAL_KINDS.has(d.subject.channelKey.split('|')[0]!);
+    const social = socialSubject && options.socialAccountQuotes !== 'SHAPE_CHECKED';
+    const shaped = isContactShapedQuote(full, socialSubject);
     if (social || shaped || RESERVED_MARKER.test(full)) {
       withheld.push({
         ruleId: id,

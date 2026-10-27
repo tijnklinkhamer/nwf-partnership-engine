@@ -17,9 +17,11 @@ import {
 import { RP_REFERENCE, WHOLE_SECOND_INSTANT } from '../../orgunits/qualificationInput/contract.js';
 import {
   STRUCTURAL_GAPS,
+  assertObservedC1Claim,
   buildQualificationInputExportV2,
 } from '../../orgunits/qualificationInputV2/build.js';
 import {
+  C1X_OBSERVABLE_CLAIM_KEYS,
   EXPORTED_CLAIM_KEYS_V2,
   LIMITATIONS_V2,
   PROPOSAL_KEYS,
@@ -87,7 +89,8 @@ const RICH_PAGES: PageRow[] = [
     2,
     'welcome-week/',
     'Welcome Week',
-    'Welcome Week 2024 took place on 2 September 2024.\nWelcome Week 2025 took place on 1 September 2025.\nWelcome Week 2027 starts on 30 August 2027.',
+    // Rules v3: two LISTED instances (observed) and one the organisation describes (proposed).
+    'Welcome Week 2024: 2 September 2024\nWelcome Week 2025: 1 September 2025\nWelcome Week 2027 starts on 30 August 2027.',
   ),
   page(3, 'events/submit/', 'Submit your event', 'Submit your event to our calendar.'),
   page(4, 'about/', 'About us', 'We are a student association. Open to all university students.'),
@@ -219,7 +222,7 @@ describe('WW E-X: the v2 export (in memory)', () => {
       expect(p.attribution).toBe('EXACT');
       expect(p.observedAt).toMatch(WHOLE_SECOND_INSTANT);
       expect(doc.sources.map((s) => s.sourceRef)).toContain(p.sourceRef);
-      expect(p.extraction.rulesVersion).toBe('nwf-pe-c1-extraction-rules-v2');
+      expect(p.extraction.rulesVersion).toBe('nwf-pe-c1-extraction-rules-v3');
       expect(Array.from(p.quote).length).toBeLessThanOrEqual(300);
       expect(p.quote).not.toMatch(/\[(EMAIL|PHONE)\]|@/);
       // A proposal is never also a claim.
@@ -232,16 +235,28 @@ describe('WW E-X: the v2 export (in memory)', () => {
         'audience.languages',
         'audience.segment_definition',
         'candidate.kind',
+        'channel.event_instances',
         'channel.existence',
         'channel.operator_binding',
         'channel.reach_mode',
         'channel.role_based_ownership',
       ]),
     );
+    // Rules v3: the described instance ("… starts on 30 August 2027.") is a proposal.
+    expect(
+      doc.proposals
+        .filter((p) => p.key === 'channel.event_instances')
+        .map((p) => [p.proposedValue, p.extraction.ruleId]),
+    ).toEqual([
+      [
+        { upcomingAnnounced: true, lastPastInstance: null, discontinued: false },
+        'C1P.ORIENTATION_EVENT_STATED.en',
+      ],
+    ]);
     // The social account named on the home page is withheld by default, and says so.
     expect(doc.gaps.map((g) => g.reason)).toContain('PROPOSAL_WITHHELD_SOCIAL_ACCOUNT_QUOTE');
-    expect(doc.producerVersion).toBe('nwf-pe-qualification-input-producer-v3');
-    expect(doc.extraction.rulesVersion).toBe('nwf-pe-c1-extraction-rules-v2');
+    expect(doc.producerVersion).toBe('nwf-pe-qualification-input-producer-v4');
+    expect(doc.extraction.rulesVersion).toBe('nwf-pe-c1-extraction-rules-v3');
   });
 
   it('reports research status per subcriterion, explicitly', () => {
@@ -354,5 +369,87 @@ describe('WW E-X: the v2 export (in memory)', () => {
     );
     expect(JSON.stringify(v2())).toBe(text);
     expect(JSON.stringify(v2(records([...RICH_PAGES].reverse())))).toBe(text);
+  });
+
+  it('P1-4 (rules v3): the same welcome-week page written as prose adds NO observed claim', () => {
+    const prose = RICH_PAGES.map((p, i) =>
+      i === 1
+        ? page(
+            2,
+            'welcome-week/',
+            'Welcome Week',
+            'Welcome Week 2024 took place on 2 September 2024.\nWelcome Week 2025 took place on 1 September 2025.\nWelcome Week 2027 starts on 30 August 2027.',
+          )
+        : p,
+    );
+    const doc = v2(records(prose));
+    const added = doc.claims.filter((c) => c.basis.origin === 'C1_EXTRACTION_RULE');
+    expect(added.map((c) => c.claimKey)).toEqual(['channel.resource_openness']);
+    expect(status(doc)['SV1']).not.toBe('EVIDENCE_FOUND');
+    expect(doc.claims.map((c) => c.claimKey)).not.toContain('channel.event_instances');
+    expect(doc.proposals.map((p) => p.key)).toContain('channel.event_instances');
+    expect(doc.channels.find((c) => c.kind === 'ORIENTATION_EVENT')!.establishedBy).toBe(
+      'PROPOSAL_ONLY',
+    );
+  });
+});
+
+describe('WW H-EX P2-7: every extraction claim is validated before it is exported', () => {
+  it('the observable key set is exactly what the C1X rules may observe; reach_mode is proposal-only', () => {
+    expect([...C1X_OBSERVABLE_CLAIM_KEYS]).toEqual([
+      'channel.cycle_history',
+      'channel.event_instances',
+      'channel.existence',
+      'channel.feed_activity',
+      'channel.resource_openness',
+    ]);
+    expect(EXPORTED_CLAIM_KEYS_V2 as readonly string[]).not.toContain('channel.reach_mode');
+    expect(PROPOSAL_KEYS as readonly string[]).toContain('channel.reach_mode');
+    for (const k of C1X_OBSERVABLE_CLAIM_KEYS) expect(EXPORTED_CLAIM_KEYS_V2).toContain(k);
+  });
+
+  it.each([
+    [
+      'a proposal-only key',
+      'channel.reach_mode',
+      ['C1X.NEWSLETTER_DATED_ISSUES.en'],
+      /not observable/,
+    ],
+    [
+      'a self-description key',
+      'audience.languages',
+      ['C1X.ORIENTATION_EVENT_DATED.en'],
+      /not observable/,
+    ],
+    ['a proposal rule', 'channel.existence', ['C1P.NEWSLETTER_SIGNUP.en'], /non-C1X/],
+    ['a gap rule', 'channel.existence', ['C1G.GUARDED_STATEMENT.en'], /non-C1X/],
+    [
+      'a mixed rule set',
+      'channel.existence',
+      ['C1X.ORIENTATION_EVENT_DATED.en', 'C1P.ORIENTATION_EVENT_STATED.en'],
+      /non-C1X/,
+    ],
+    [
+      'a C1X rule that never carries the key',
+      'channel.feed_activity',
+      ['C1X.ORIENTATION_EVENT_DATED.en'],
+      /non-C1X/,
+    ],
+    ['an unknown rule', 'channel.existence', ['C1X.MADE_UP.en'], /non-C1X/],
+    ['no rule at all', 'channel.existence', [], /non-C1X/],
+  ])('refuses %s (RECORD_INCONSISTENT)', (_label, key, ruleIds, message) => {
+    expect(() => assertObservedC1Claim({ key: key as never, ruleIds })).toThrow(message);
+    expect(() => assertObservedC1Claim({ key: key as never, ruleIds })).toThrow(
+      /RECORD_INCONSISTENT/,
+    );
+  });
+
+  it('admits every claim the rules actually produce', () => {
+    for (const c of v2().claims.filter((x) => x.basis.origin === 'C1_EXTRACTION_RULE')) {
+      const basis = c.basis as { ruleIds: readonly string[] };
+      expect(() =>
+        assertObservedC1Claim({ key: c.claimKey as never, ruleIds: basis.ruleIds }),
+      ).not.toThrow();
+    }
   });
 });

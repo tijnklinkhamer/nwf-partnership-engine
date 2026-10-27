@@ -1,7 +1,9 @@
 # Qualification-input export v2 (`nwf-pe.qualification-input-export.v2`)
 
 WW mission, work package E-X; rules v2 and the quote / redaction repairs by
-E-XFX (2026-10-27, independent review P1-1, P1-2, P2-9, P2-11). Status:
+E-XFX (2026-10-27, independent review P1-1, P1-2, P2-9, P2-11); rules v3,
+claim validation and `orgunit-extraction-v4` by H-EX (2026-10-27,
+independent review P1-4, P1-5, P2-6, P2-7, P2-8, P2-9). Status:
 implemented on the Engine, local only. Nothing here is wired to a live run, a
 model, a send path or a deployment.
 
@@ -32,8 +34,8 @@ v1), no write, no network, no model, no file. v2 adds no query.
 | identifier                               | meaning                                                                               |
 | ---------------------------------------- | ------------------------------------------------------------------------------------- |
 | `nwf-pe.qualification-input-export.v2`   | the document (`document`)                                                             |
-| `nwf-pe-qualification-input-producer-v3` | the producer (`producerVersion`); `-v2` named the producer that ran rules v1          |
-| `nwf-pe-c1-extraction-rules-v2`          | the extraction rule set (`extraction.rulesVersion`, every basis and proposal)         |
+| `nwf-pe-qualification-input-producer-v4` | the producer (`producerVersion`); `-v3` ran rules v2, `-v2` ran rules v1              |
+| `nwf-pe-c1-extraction-rules-v3`          | the extraction rule set (`extraction.rulesVersion`, every basis and proposal)         |
 | `nwf-pe-c1-stated-date-rules-v1`         | the multilingual full-date rules (`extraction.dateRuleVersion`)                       |
 | `nwf-pe-stated-date-rules-v1`            | v1's own date rules, unchanged (`dateRuleVersion`, used by `channel.static_currency`) |
 
@@ -69,6 +71,42 @@ The Operator's reviewed allowlists (`R2_EXTRACTION_RULES_VERSIONS`,
 `ENGINE_QUALIFICATION_EXPORT_PRODUCERS_V2`) name v1 / producer-v2 only, so it
 refuses these documents until it reviews and lists the new identifiers.
 
+### What changed in rules v3 (H-EX), and what did not
+
+`nwf-pe-c1-extraction-rules-v3` **replaces** v2 (no longer produced). The
+Operator admits every OBSERVED `NWF_SYSTEM` claim automatically, so one
+wrongly OBSERVED claim inflates a real score without any human; v2 still made
+such claims from organisation prose. Reproduced under v2, fixed under v3:
+
+| probe                                                                                  | v2                                 | v3                                                                    |
+| -------------------------------------------------------------------------------------- | ---------------------------------- | --------------------------------------------------------------------- |
+| "Our last newsletter was sent on 3 March 2026."                                        | OBSERVED existence + feed_activity | nothing; gap `DATED_ITEM_NOT_A_LISTING` `MEMBER_NEWSLETTER:STATEMENT` |
+| "Newsletter sign-up opened on 1 March 2026 - subscribe now!"                           | OBSERVED existence + feed_activity | sign-up proposals only; gap `MEMBER_NEWSLETTER:SIGN_UP_LINE`          |
+| "In the university newsletter of 3 March 2026 we were featured."                       | OBSERVED (another organisation's)  | nothing; gap `MEMBER_NEWSLETTER:OTHER_ORGANISATION`                   |
+| "We hope to organise a welcome week on 1 September 2026 if funding allows."            | OBSERVED EXISTS + instance         | nothing; gap `ORIENTATION_EVENT:INTENT_FRAME`                         |
+| "Welcome Week takes place on 31 August 2026."                                          | OBSERVED                           | `SELF_ASSERTED` proposals (`C1P.ORIENTATION_EVENT_STATED`)            |
+| "No celebraremos la semana de bienvenida …", "Sin …", "Non …", "Aucune …", "Without …" | OBSERVED                           | guarded (`GUARD:NEGATION`), nothing positive                          |
+| "We stopped our newsletter on 3 March 2026." / "… daarna stoppen we."                  | OBSERVED                           | guarded; only the stated `DISCONTINUED` proposal                      |
+| heading "Welcome week 1 September 2026" + "This event has been cancelled."             | OBSERVED                           | nothing; gap `PAGE_GUARDED` `PAGE_GUARD:CANCELLATION`                 |
+
+Value sets that changed (a reader that pins them must be reviewed):
+
+- `ExportedClaimKeyV2` **loses** `channel.reach_mode` (it was never claimed;
+  it is a proposal key only); `ProposalKey` **gains** `channel.event_instances`;
+- every extraction claim is validated before export (`assertObservedC1Claim`):
+  key in `channel.existence | event_instances | cycle_history | feed_activity |
+resource_openness`, and every rule id a C1X rule of the table whose keys
+  include it - otherwise the export is refused (`RECORD_INCONSISTENT`);
+- rule ids: new `C1P.ORIENTATION_EVENT_STATED.*`, `C1G.DATED_ITEM_NOT_LISTED.*`,
+  `C1G.PAGE_GUARDED.*` (215 rules);
+- gap reasons gain `DATED_ITEM_NOT_A_LISTING` (label `<KIND>:<SHAPE>`) and
+  `PAGE_GUARDED` (label `PAGE_GUARD:<CANCELLATION|DISCONTINUATION>`);
+- `limitations.phraseRules` and `limitations.quotes` restate the new rules;
+- `producerVersion` is `nwf-pe-qualification-input-producer-v4`.
+
+The Operator must review and allowlist `nwf-pe-c1-extraction-rules-v3` /
+`nwf-pe-qualification-input-producer-v4` before it accepts these documents.
+
 ## Two classes, never mixed
 
 | class       | what it is                              | mode                                                | producer                         | sources                                                                      |
@@ -95,9 +133,9 @@ seconds, truncated toward the epoch (v1's rule).
 ```ts
 {
   document: 'nwf-pe.qualification-input-export.v2';
-  producerVersion: 'nwf-pe-qualification-input-producer-v3';
+  producerVersion: 'nwf-pe-qualification-input-producer-v4';
   extraction: {
-    rulesVersion: 'nwf-pe-c1-extraction-rules-v2';
+    rulesVersion: 'nwf-pe-c1-extraction-rules-v3';
     dateRuleVersion: 'nwf-pe-c1-stated-date-rules-v1';
     pageClasses: { sourceRef: string; classes: PageClass[] }[];   // research coverage only
   };
@@ -165,12 +203,13 @@ Bounds: 2000 sources, 2000 claims (v1's), 2000 proposals; a larger subject is
 refused (`BOUND_EXCEEDED`), never truncated.
 
 `ExportedClaimKeyV2` = v1's five plus `channel.cycle_history`,
-`channel.event_instances`, `channel.feed_activity`, `channel.reach_mode`,
-`channel.resource_openness` (`channel.reach_mode` stays in the type for
-compatibility; rules v2 never claims it). `ProposalKey` = `audience.cohort`,
+`channel.event_instances`, `channel.feed_activity`,
+`channel.resource_openness` (`channel.reach_mode` was dropped by
+producer-v4: no rule observes it). `ProposalKey` = `audience.cohort`,
 `audience.languages`, `audience.segment_definition`, `candidate.kind`,
-`channel.audience_count`, `channel.existence`, `channel.operator_binding`,
-`channel.reach_mode`, `channel.role_based_ownership`.
+`channel.audience_count`, `channel.event_instances`, `channel.existence`,
+`channel.operator_binding`, `channel.reach_mode`,
+`channel.role_based_ownership`.
 
 Every claim value and proposed value is validated against the Operator's C1
 value schema, **restated** (never imported) in
@@ -200,10 +239,10 @@ v1's literals, with `pageText` and `classifier` restated truthfully, plus:
 | kind (C1)                                                                                   | class                | derived from                                                                                                                                                            | establishedBy    |
 | ------------------------------------------------------------------------------------------- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
 | `RESOURCE_PAGE`                                                                             | STATIC               | the admitted root website (v1)                                                                                                                                          | `OBSERVED_CLAIM` |
-| `ORIENTATION_EVENT`                                                                         | EVENT_SLOT           | a line naming an orientation/welcome event AND stating a full date                                                                                                      | `OBSERVED_CLAIM` |
-| `MEMBER_NEWSLETTER`                                                                         | FEED                 | a line LISTING a dated past issue (a newsletter term and a past full date)                                                                                              | `OBSERVED_CLAIM` |
+| `ORIENTATION_EVENT`                                                                         | EVENT_SLOT           | a LISTING-shaped unit naming an orientation/welcome event AND stating a full date (rules v3)                                                                            | `OBSERVED_CLAIM` |
+| `MEMBER_NEWSLETTER`                                                                         | FEED                 | a LISTING-shaped unit naming a dated past issue (a newsletter term and a past full date)                                                                                | `OBSERVED_CLAIM` |
 | `MEMBER_NEWSLETTER`                                                                         | FEED                 | otherwise: a surviving sign-up-sentence proposal, or a stated-discontinuation proposal                                                                                  | `PROPOSAL_ONLY`  |
-| `ORIENTATION_EVENT`                                                                         | EVENT_SLOT           | otherwise: a stated-discontinuation proposal ("we no longer organise a welcome week")                                                                                   | `PROPOSAL_ONLY`  |
+| `ORIENTATION_EVENT`                                                                         | EVENT_SLOT           | otherwise: a dated event described in a sentence (rules v3), or a stated-discontinuation proposal ("we no longer organise a welcome week")                              | `PROPOSAL_ONLY`  |
 | `INSTAGRAM_ACCOUNT`, `FACEBOOK_PAGE` (PUBLIC), `WHATSAPP_GROUP`, `DISCORD_SERVER` (PRIVATE) | FEED / PRIVATE_GROUP | a line on the subject's own site naming the platform with a first-person follow/join call, or a follower count - only if the (by default withheld) proposal is released | `PROPOSAL_ONLY`  |
 
 Only pages the subject publishes (`SELF`) can establish an observed channel.
@@ -226,15 +265,46 @@ never be observed, and a sign-up sentence is always a statement.
 
 | key                         | OBSERVED (the page exhibits it)                                                                                                                                                        | PROPOSAL (the organisation says it)                                                                                                                          | neither (guarded / gap)                                                                      |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
-| `channel.existence`         | event: a LISTED dated instance ("Welcome Week 2025 took place on 1 September 2025."); newsletter: a LISTED dated issue ("Newsletter — 3 March 2026")                                   | "Subscribe to our newsletter." (`EXISTS`); "We no longer send a newsletter." (`DISCONTINUED`, own page only); "Follow us on Instagram" (withheld by default) | "Welcome Week 2026 was cancelled."; a discontinuation on a third-party page                  |
-| `channel.event_instances`   | a dated instance listed on the page; `upcomingAnnounced` = a listed date after the capture day                                                                                         | -                                                                                                                                                            | "Registration closes on 1 June 2025" (a deadline is not an instance); "… has been postponed" |
+| `channel.existence`         | event: a LISTED dated instance ("Welcome Week 2025: 1 September 2025"); newsletter: a LISTED dated issue ("Newsletter — 3 March 2026")                                                 | "Subscribe to our newsletter." (`EXISTS`); "We no longer send a newsletter." (`DISCONTINUED`, own page only); "Follow us on Instagram" (withheld by default) | "Welcome Week 2026 was cancelled."; a discontinuation on a third-party page                  |
+| `channel.event_instances`   | a dated instance listed on the page; `upcomingAnnounced` = a listed date after the capture day                                                                                         | "Welcome Week 2025 took place on 1 September 2025." (rules v3)                                                                                               | "Registration closes on 1 June 2025" (a deadline is not an instance); "… has been postponed" |
 | `channel.cycle_history`     | listed dated instances in two calendar years                                                                                                                                           | -                                                                                                                                                            | a guarded line contributes no date                                                           |
 | `channel.feed_activity`     | listed dated past issues                                                                                                                                                               | -                                                                                                                                                            | "The newsletter of 3 March 2026 was cancelled."                                              |
 | `channel.reach_mode`        | never (no rule observes a delivery mechanism)                                                                                                                                          | "Sign up for our newsletter." -> `PUSHED_TO_MEMBERS`                                                                                                         | "… so please do not sign up."                                                                |
 | `channel.resource_openness` | "Submit your event to our calendar." - the value `SUBMISSION_INVITATION` says the page PRINTS an invitation, which it exhibits; a "Useful links" heading over a list (`FORMAT_ALLOWS`) | -                                                                                                                                                            | "Submissions are no longer accepted."; "Useful links (no longer maintained)"                 |
 | every proposal key          | -                                                                                                                                                                                      | self-descriptions (languages, segment, cohort, kind, counts, role, "our …")                                                                                  | the same sentence negated, cancelled or carrying a deadline                                  |
 
-## Guards (rules v2)
+## Listing shape (rules v3)
+
+A dated event or newsletter line is OBSERVED only when it is a **listing**:
+a title or heading, or a main-text line made of the channel term, the date
+and listing filler (articles, prepositions, `edition`, `nr`, weekdays, month
+names) plus at most **2** other words (a title/heading: 4). In order, a dated
+line is classified as:
+
+| shape                | test (closed per-language lists in `lexicon.ts`, all packs on every line)                                                                 | event                                 | newsletter |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- | ---------- |
+| `OTHER_ORGANISATION` | an owner word (`their`, `university`, `gemeente`, `大学の` …) within 3 tokens before the term, or after it across `of`/`de`/`van`/`der` … | gap                                   | gap        |
+| `INTENT_FRAME`       | a hope / wish / condition / tentative frame (`hope`, `if`, `to be confirmed`, `sous réserve`, `onder voorbehoud`, `未定` …)               | gap                                   | gap        |
+| `SIGN_UP_LINE`       | a sign-up term on the line                                                                                                                | proposal                              | gap        |
+| `STATEMENT`          | a first-person word, a finite verb of the closed list, or too many unexplained words                                                      | proposal (`ORIENTATION_EVENT_STATED`) | gap        |
+| `LISTING`            | none of the above                                                                                                                         | OBSERVED (`ORIENTATION_EVENT_DATED`)  | OBSERVED   |
+
+A newsletter is never proposed from a dated sentence: `feed_activity` is
+OBSERVED-only in C1. A line naming another organisation's channel yields no
+sign-up or "our …" proposal either. An event proposal reads its dates from the
+QUOTED sentence itself (a German ordinal `5.` never ends a sentence), and is
+never a cycle. Words that are ordinary listing words in another language
+(`a`, `e`, `i`, `on`, `mon`, `mes`, `è`, `may`) are deliberately absent from the
+deny lists; what the lists miss (an unlisted verb such as "kicks off") is a
+known limit, bounded by the 2-word cap.
+
+**Page-level guard.** A CANCELLATION or DISCONTINUATION term anywhere on a
+page (line-level exceptions apply) turns every dated event / newsletter item
+of that page - listed or described - into one gap per kind
+(`PAGE_GUARDED`, `C1G.PAGE_GUARDED.<lang>`). Negations and deadlines guard
+their own line only. Sign-up proposals are not page-guarded.
+
+## Guards (rules v2, widened in v3)
 
 Each language pack carries closed lists of DISCONTINUATION, CANCELLATION,
 NEGATION and DEADLINE terms (`lexicon.ts`), matched with the same
@@ -262,6 +332,18 @@ only. A cancelled single instance is never a discontinuation.
 | it       | non … più, mai più, interrotto          | annullato/a, rinviato, sospeso    | non è, non si, non sarà, nessun | scadenza, iscrizioni entro, entro il             |
 | pt       | não … mais, já não, descontinuado       | cancelado/a, adiado/a, suspenso/a | não, nunca, nenhum              | prazo, inscrições até, data limite               |
 
+Rules v3 adds plain negations - en `no`, `none`, `without`, `nothing`; es
+`no`, `sin`; it `non`, `senza`; fr `aucun(e)`, `sans`, `non`, `jamais`; nl
+`zonder`, `niets`; de `ohne`, `nichts`; pt `sem`; ja `ない`, `なし` -
+stops (en `stopped`; nl `stoppen`, `stopt`; fr `cessé`; es `dejaremos de`;
+it `smesso`; de `aufgehört`; pt `paramos de`) and moved / rescheduled
+equivalents in all eight languages (`moved`, `rescheduled`, `déplacé`,
+`trasladado`, `verplaatst`, `vervalt`, `verlegt`, `spostato`, `remarcado`,
+`日程変更` …). Over-guarding fails closed. Fixed exceptions added for the new
+words: `issue no`, `newsletter no` (en), `boletín no` (es), `non-membres`
+(fr), `non soci` (it), and the Portuguese contractions `no dia`, `no
+próximo`, `no campus` … (pt `no` is "in the", never a negation).
+
 A short closed list of fixed phrases contains a guard word but negates
 nothing and does not guard: "not-for-profit", "non-profit", "don't miss",
 "never miss", "ne manquez pas", "no te pierdas", "nicht verpassen", "non
@@ -269,9 +351,9 @@ perdere", "não perca", "sin fines de lucro", "zonder winstoogmerk"… The lists
 are closed and deliberately conservative: a line they over-guard loses a
 reading (it becomes a gap), a line they miss is a known limit - never a guess.
 
-## Rules (`nwf-pe-c1-extraction-rules-v2`)
+## Rules (`nwf-pe-c1-extraction-rules-v3`)
 
-Rule id: `<class>.<CONCEPT>.<language>`. 191 rules: every concept below in
+Rule id: `<class>.<CONCEPT>.<language>`. 215 rules: every concept below in
 `en, fr, es, nl, ja, de, it, pt`, except `C1P.CHANNEL_NAMED_AS_OWN` which has
 no `ja` rule (Japanese has no first-person possessive phrase in the lexicon).
 The language is the language the deciding phrase is written in - never a
@@ -286,6 +368,7 @@ pages.
 | -------------------------------------------- | ------------------------------ | ----------------------------------------------- | --------------------------------------- |
 | `C1X.ORIENTATION_EVENT_DATED.<lang>`         | en, fr, es, nl, ja, de, it, pt | `channel.existence`, `channel.event_instances`  | DP1, DP3                                |
 | `C1X.ORIENTATION_EVENT_CYCLES.<lang>`        | en, fr, es, nl, ja, de, it, pt | `channel.cycle_history`                         | SV1                                     |
+| `C1P.ORIENTATION_EVENT_STATED.<lang>`        | en, fr, es, nl, ja, de, it, pt | `channel.existence`, `channel.event_instances`  | DP1, DP3 (proposals)                    |
 | `C1P.NEWSLETTER_SIGNUP.<lang>`               | en, fr, es, nl, ja, de, it, pt | `channel.existence`, `channel.reach_mode`       | DP1, DP2 (proposals)                    |
 | `C1X.NEWSLETTER_DATED_ISSUES.<lang>`         | en, fr, es, nl, ja, de, it, pt | `channel.existence`, `channel.feed_activity`    | DP1, DP3                                |
 | `C1X.SUBMISSION_INVITATION.<lang>`           | en, fr, es, nl, ja, de, it, pt | `channel.resource_openness`                     | AP1                                     |
@@ -308,6 +391,8 @@ pages.
 | `C1G.MEMBER_COUNT_UNBOUND.<lang>`            | en, fr, es, nl, ja, de, it, pt | -                                               | gap (DP4)                               |
 | `C1G.CHANNEL_NOT_ESTABLISHED.<lang>`         | en, fr, es, nl, ja, de, it, pt | -                                               | gap (DP4, AP2, SV3)                     |
 | `C1G.GUARDED_STATEMENT.<lang>`               | en, fr, es, nl, ja, de, it, pt | -                                               | gap                                     |
+| `C1G.DATED_ITEM_NOT_LISTED.<lang>`           | en, fr, es, nl, ja, de, it, pt | -                                               | gap (DP1, DP3)                          |
+| `C1G.PAGE_GUARDED.<lang>`                    | en, fr, es, nl, ja, de, it, pt | -                                               | gap (DP1, DP3)                          |
 
 Each rule's documented reason lives in `C1_CONCEPTS[].reason`
 (`src/orgunits/c1Extraction/rules.ts`) and is exported with the rule table
@@ -459,6 +544,19 @@ NFKC fold:
   `担当` …) - a name beside such a cue may be a person to reach, and no name
   detector is attempted;
 - free of a `cand:` / `chn:` / `opp:` marker;
+- since rules v3 (H-EX P2-6), also free of: nine digits joined by ANY
+  non-alphanumeric separators (`/\d(?:[^\p{L}\p{N}]{0,3}\d){8}/u`); an
+  obfuscated address in more spellings (`{at}`, `(a)`, `<at>`, " at … dot ",
+  `punt`, `punkt`, `point`, `punto`, `ponto`); a bare host with a
+  registrable domain under an ICANN suffix (`website/parse.ts`
+  `icannRegistrableDomain`, the one tldts implementation); a handle without
+  `@` (`esn_utrecht`, `esn.utrecht`); any social platform name or
+  abbreviation (`IG`, `insta`, `fb`, "follow Jan on Instagram") unless the
+  proposal is about that account and its release was asked for; a short
+  service number or an extension (`0900-1234`, `0800 123`, `ext 4567`,
+  `poste 123`, `内線123`); a person-role word of any language
+  (`coordinator`, `voorzitter`, `coordinadora`, `Koordinatorin`, `代表`,
+  `担当` …) - no name detector is attempted, the role word alone withholds;
 - and not about a social account (withheld by default, above).
 
 Otherwise the proposal is withheld and listed as a gap. Tests prove JP
@@ -468,12 +566,19 @@ Otherwise the proposal is withheld and listed as a gap. Tests prove JP
 and names beside contact cues never survive in a quote, on unredacted text and
 through the real extraction path.
 
-The redactor itself was also widened (still `orgunit-extraction-v3`, see the
-VERSIONING note in `redact.ts`): a BARE run of 10-15 digits, or of exactly 9
-digits starting with the trunk prefix `0`, is now `[PHONE]` (`0612345678`,
-`0312345678`, `8112345678`, `030123456`). Years, `YYYYMMDD` dates, DMY dates,
-academic-year ranges, page / room numbers and postcodes are kept; every
-earlier redaction vector is unchanged.
+The redactor itself was also widened: a BARE run of 10-15 digits, or of
+exactly 9 digits starting with the trunk prefix `0`, is now `[PHONE]`
+(`0612345678`, `0312345678`, `8112345678`, `030123456`). Years, `YYYYMMDD`
+dates, DMY dates, academic-year ranges, page / room numbers and postcodes are
+kept; every earlier redaction vector is unchanged. E-XFX first shipped this
+under the unchanged `orgunit-extraction-v3` label; H-EX (P2-9) moved it to
+**`orgunit-extraction-v4`** (the label `pageEvidence.ts` and
+`pageCollection.ts` now stamp), added one exception - a bare valid ISBN-13
+(`978`/`979`, correct check digit) is kept - and froze the v3 transform
+(`redactContactDataV3`). The R9 subject-research-evidence export judges a
+stored row by its own label (`redactorsForStoredExtraction`): v3 rows by the
+frozen v3 redactor, every other label by the current one. No CHECK
+constraint restricts the label, so no migration was needed.
 
 No contact, name, handle or profile field exists.
 
@@ -517,8 +622,11 @@ fictional organisations on RESERVED example domains (RFC 2606:
 `www.intercambio-ejemplo-mty.example.org` - never a registrable real suffix;
 `.example` / `.test` cannot be used because the gateway admits only ICANN
 suffixes), captured from a scripted transport in a disposable database, UUIDs
-relabelled onto `eeeeeeee-0000-4000-8000-e1…`. Regenerated under rules v2 /
-producer-v3 (E-XFX); their SHA-256 pins changed. Regenerate with
+relabelled onto `eeeeeeee-0000-4000-8000-e1…`. Regenerated under rules v3 /
+producer-v4 (H-EX); their SHA-256 pins changed. The `nl-exchange-association`
+welcome-week page now lists two instances (observed) and describes one
+(proposed); the Japanese and Mexican welcome pages are unchanged prose, so
+under v3 they carry PROPOSED event instances and no OBSERVED event claim. Regenerate with
 `QUALIFICATION_INPUT_V2_WRITE_FIXTURE=1` and re-pin the SHA-256 in
 `src/test/integration/qualificationInputExportV2.test.ts`.
 
@@ -532,5 +640,7 @@ it; no contact/name/handle property; no score/rank/threshold name; no
 `INFERENCE` path; the quote guard (since E-XFX: the full-sentence
 `isContactShapedQuote` with every check listed under PII, `TELEPHONE_SHAPE`
 byte-equal to `acquisition/canonical.ts`, social-account quotes withheld by
-default); `permissions: PERMISSIONS` (v1's literals). `relP1QualificationInput.firewall.test.ts` was widened by exact
+default; H-EX widened it by exact path for `extract.ts`'s one new import,
+`../../website/parse.js`, and pinned every new quote check);
+`permissions: PERMISSIONS` (v1's literals). `relP1QualificationInput.firewall.test.ts` was widened by exact
 path for the three `qualificationInputV2/` files and the CLI's one new import.

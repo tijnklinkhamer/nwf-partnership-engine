@@ -71,10 +71,10 @@ const fixturePath = (key: string) => join(FIXTURE_DIR, `qualification-input-expo
 
 /** The committed fixtures' SHA-256 (UTF-8 bytes), pinned for the Operator lane. */
 export const QUALIFICATION_INPUT_V2_FIXTURE_SHA256: Readonly<Record<string, string>> = {
-  'nl-exchange-association': '70d8affb26b02ca3054afea34cc18b581b0e9361b2ebb9d68802b2d9e5b6f531',
-  'nl-community-sparse': 'ae258a5388ebb318c76c6145d506d5886c1d4d0521aed5a3150235a093613f06',
-  'jp-student-circle': '4557db6f715ad87d169049ed07dbc09eac0e276c51ac3caf56beb4818b50af5f',
-  'mx-exchange-community': 'f8d044c217a46c7ee4a39a959a87ec5355cd31c0b0e80c2aad77f75e8b1681a2',
+  'nl-exchange-association': 'ec593ce1238e19e47bf67ffa77fae5f0465887aeeee5200ad811d8c5b0fcbf34',
+  'nl-community-sparse': '5e4b85fb1a3dabb51e6c4ccfb0e91f5f06af7ec86e4b21c9d139dc66d446a3cd',
+  'jp-student-circle': 'f6532d7ef73ae9709d515379efc054b3aeccdbcaeb6eddaf1988d1f6e3f250dc',
+  'mx-exchange-community': 'a39788bfe2a64455705b370dd401f368d7e2f836244890c83c5bc721bff01fd9',
 };
 
 const OBSERVED = '2026-10-26T09:00:00Z';
@@ -116,9 +116,10 @@ const SPECS: readonly Spec[] = [
       {
         path: 'welcome-week/',
         title: 'Welcome Week',
+        // Rules v3 (WW H-EX): two LISTED instances (observed) and one sentence (proposed).
         lines: [
-          'Welcome Week 2025 took place on 1 September 2025.',
-          'Welcome Week 2026 took place on 31 August 2026.',
+          'Welcome Week 2025: 1 September 2025',
+          'Welcome Week 2026: 31 August 2026',
           'Welcome Week 2027 starts on 30 August 2027.',
         ],
       },
@@ -487,6 +488,7 @@ describeDb('WW E-X: v2 export over four synthetic non-HEI organisations (integra
         'audience.segment_definition',
         'candidate.kind',
         'channel.audience_count',
+        'channel.event_instances',
         'channel.existence',
         'channel.operator_binding',
         'channel.reach_mode',
@@ -563,9 +565,20 @@ describeDb('WW E-X: v2 export over four synthetic non-HEI organisations (integra
       languages: ['ja'],
     });
     expect(jp.proposals.every((p) => p.extraction.language === 'ja')).toBe(true);
-    expect(jp.claims.find((c) => c.claimKey === 'channel.cycle_history')!.value).toMatchObject({
-      cycleDates: ['2025-04-11', '2026-04-10'],
-    });
+    // Rules v3 (WW H-EX P1-4): "… 新入生歓迎会を開催しました。" and "La semana de bienvenida fue
+    // el …" are SENTENCES - proposed instances, never OBSERVED, never a cycle.
+    for (const k of ['jp-student-circle', 'mx-exchange-community']) {
+      const d = docs.get(k)!;
+      expect(added(k), k).toEqual([]);
+      expect(d.channels.find((c) => c.kind === 'ORIENTATION_EVENT')!.establishedBy, k).toBe(
+        'PROPOSAL_ONLY',
+      );
+      expect(
+        d.proposals.filter((p) => p.key === 'channel.event_instances').length,
+        k,
+      ).toBeGreaterThan(0);
+      expect(statusOf(k)['SV1'], k).not.toBe('EVIDENCE_FOUND');
+    }
     const mx = docs.get('mx-exchange-community')!;
     expect(kinds('mx-exchange-community')).toEqual([
       'MEMBER_NEWSLETTER',

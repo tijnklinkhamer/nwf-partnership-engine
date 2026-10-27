@@ -1,6 +1,6 @@
 /**
  * WW E-X - THE PURE v2 QUALIFICATION-INPUT EXPORT BUILDER
- * (`nwf-pe-qualification-input-producer-v3`, rules `nwf-pe-c1-extraction-rules-v2`).
+ * (`nwf-pe-qualification-input-producer-v4`, rules `nwf-pe-c1-extraction-rules-v3`).
  *
  * `buildQualificationInputExportV2(records, options)` first builds the v1
  * document with the UNCHANGED v1 builder - so every as-of cut, refusal,
@@ -22,7 +22,13 @@
  * so equal records and an equal evaluation instant give byte-identical
  * output. Every list is sorted.
  */
-import { extractC1, type C1PageInput, type PageClass } from '../c1Extraction/extract.js';
+import {
+  extractC1,
+  type C1PageInput,
+  type ExtractedClaim,
+  type PageClass,
+} from '../c1Extraction/extract.js';
+import { C1_EXTRACTION_RULES } from '../c1Extraction/rules.js';
 import {
   C1_DIMENSION_OF,
   C1_SUBCRITERIA,
@@ -49,6 +55,7 @@ import {
   type ResearchRealConflict,
 } from '../qualificationInput/contract.js';
 import {
+  C1X_OBSERVABLE_CLAIM_KEYS,
   LIMITATIONS_V2,
   MAX_PROPOSALS,
   QUALIFICATION_INPUT_EXPORT_CONTRACT_V2,
@@ -97,6 +104,37 @@ export const STRUCTURAL_GAPS: readonly { readonly target: string; readonly reaso
   { target: 'channel.operator_continuity', reason: 'HANDOVER_HISTORY_NOT_EXTRACTED' },
   { target: 'channel.publishing_route', reason: 'NO_RULE_OBSERVES_A_PUBLISHING_ROUTE' },
 ];
+
+/** Every OBSERVED (C1X) rule, by id, with the keys it may carry. */
+const C1X_RULE_KEYS: ReadonlyMap<string, readonly string[]> = new Map(
+  C1_EXTRACTION_RULES.filter((r) => r.ruleClass === 'C1X').map((r) => [r.id, r.keys]),
+);
+
+/**
+ * WW H-EX (P2-7): an extraction claim is exported only if its key is one the
+ * C1 rules may OBSERVE (`C1X_OBSERVABLE_CLAIM_KEYS`) and EVERY rule it rests
+ * on is a C1X rule of the rule table whose keys include it. Anything else -
+ * a proposal-only key such as `channel.reach_mode`, a C1P / C1G rule id, an
+ * unknown id, no rule at all - is refused, never exported: the Operator
+ * admits every OBSERVED NWF_SYSTEM claim automatically, so a wrongly OBSERVED
+ * claim would count without any human. The detail names the key and the
+ * rule ids only, never page text.
+ */
+export function assertObservedC1Claim(claim: Pick<ExtractedClaim, 'key' | 'ruleIds'>): void {
+  if (!(C1X_OBSERVABLE_CLAIM_KEYS as readonly string[]).includes(claim.key)) {
+    throw new QualificationInputExportRefusal(
+      'RECORD_INCONSISTENT',
+      `c1 extraction claim key ${claim.key} is not observable by any C1X rule`,
+    );
+  }
+  const foreign = claim.ruleIds.filter((id) => !C1X_RULE_KEYS.get(id)?.includes(claim.key));
+  if (claim.ruleIds.length === 0 || foreign.length > 0) {
+    throw new QualificationInputExportRefusal(
+      'RECORD_INCONSISTENT',
+      `c1 extraction claim ${claim.key} rests on non-C1X rule(s) [${foreign.join(',')}]`,
+    );
+  }
+}
 
 /** True for the admitted website's own root URL (path `/`, no query, its own host). */
 function isSiteRoot(requestedUrl: string, rootHost: string | null): boolean {
@@ -194,6 +232,7 @@ export function buildQualificationInputExportV2(
   const claims: ExportClaimV2[] = [...v1.claims];
   const links: ExportClaimLink[] = [...v1.claimLinks];
   for (const c of extraction.claims) {
+    assertObservedC1Claim(c);
     const claimRef = rpRef(
       'claim',
       `c1x|${c.key}|${c.channelKey}|${sha256Hex(JSON.stringify(c.value))}`,

@@ -10,7 +10,9 @@
  *     country, a locale or a declared page language;
  *   - neither it nor `src/orgunits/qualificationInputV2/` imports the
  *     classifier, the gateway, the orchestrator, source discovery or
- *     acquisition; the only `web/` import is the redactor;
+ *     acquisition; the only `web/` import is the redactor, and the only
+ *     other repository import (WW H-EX) is the ONE registrable-domain
+ *     implementation, `website/parse.js`, for the bare-host quote check;
  *   - only the v2 export (and tests) import `c1Extraction`; the v2 loader
  *     issues no SQL of its own;
  *   - no contact-, name- or handle-shaped property is declared, and no
@@ -62,6 +64,8 @@ describe('WW E-X: c1Extraction is a closed, pure module', () => {
       'dates.ts': [],
       'extract.ts': [
         'node:crypto',
+        // WW H-EX (P2-6): the single tldts-backed registrable-domain helper, never a second one.
+        '../../website/parse.js',
         '../web/redact.js',
         './dates.js',
         './lexicon.js',
@@ -171,10 +175,12 @@ describe('WW E-X: no contact field, no score, no relabelled mode', () => {
     // placeholder - plus no handle, URL, telephone shape, eight-digit run, obfuscated
     // address or contact cue - and social-account quotes are withheld by default.
     expect(extract).toMatch(/const \{ quote, truncated, full \} = quoteOf\(/);
-    expect(extract).toMatch(/const shaped = isContactShapedQuote\(full\);/);
+    // WW H-EX (P2-6): the guard takes whether the proposal is ABOUT a social account, so a
+    // released (inert SHAPE_CHECKED) account proposal may name its own platform - nothing else.
+    expect(extract).toMatch(/const shaped = isContactShapedQuote\(full, socialSubject\);/);
     expect(extract).toMatch(/if \(social \|\| shaped \|\| RESERVED_MARKER\.test\(full\)\) \{/);
     const guard =
-      /export function isContactShapedQuote\(full: string\): boolean \{[\s\S]*?\n\}/.exec(
+      /export function isContactShapedQuote\(\s*full: string,\s*platformIsSubject = false,?\s*\): boolean \{[\s\S]*?\n\}/.exec(
         extract,
       )?.[0];
     expect(guard).toBeDefined();
@@ -186,7 +192,16 @@ describe('WW E-X: no contact field, no score, no relabelled mode', () => {
       'TELEPHONE_SHAPE.test(folded) ||',
       'DIGIT_RUN.test(folded) ||',
       'OBFUSCATED_ADDRESS.test(folded) ||',
-      "matchesIn(unitOf('MAIN', full), CONTACT_CUES).length > 0",
+      // WW H-EX (P2-6): strengthened, never relaxed.
+      'SEPARATED_DIGITS.test(folded) ||',
+      'OBFUSCATED_ADDRESS_V3.test(folded) ||',
+      'SERVICE_NUMBER.test(folded) ||',
+      'EXTENSION.test(folded) ||',
+      'BARE_HANDLE.test(folded) ||',
+      'namesBareHost(folded) ||',
+      '(!platformIsSubject && matchesIn(unit, PLATFORM_NAMES).length > 0) ||',
+      'matchesIn(unit, ROLE_CUES).length > 0 ||',
+      'matchesIn(unit, CONTACT_CUES).length > 0',
     ]) {
       expect(guard, check).toContain(check);
     }

@@ -5,7 +5,7 @@
  * A SEPARATE document from v1 (`../qualificationInput/`), which stays
  * producible byte for byte: v2 is v1's records and rules PLUS automatic,
  * source-backed C1 evidence read from the stored page captures by the pure
- * rules in `../c1Extraction/` (`nwf-pe-c1-extraction-rules-v2`), in two
+ * rules in `../c1Extraction/` (`nwf-pe-c1-extraction-rules-v3`), in two
  * classes that are never mixed:
  *
  *   claims      v1's five keys, plus OBSERVED facts about the published
@@ -58,8 +58,17 @@ export const QUALIFICATION_INPUT_EXPORT_CONTRACT_V2 = 'nwf-pe.qualification-inpu
  * sign-up sentence is a proposal, guarded lines yield nothing positive,
  * contact-shaped and social-account quotes are withheld). `-v2` names the
  * producer that ran rules v1, and only that.
+ *
+ * `-v4` since WW H-EX (2026-10-27): the same document shape, produced under
+ * `nwf-pe-c1-extraction-rules-v3` (a dated item is OBSERVED only on a
+ * listing-shaped unit, a dated event described in a sentence is a proposal,
+ * plain negations and moved dates guard a line, a cancellation anywhere on a
+ * page guards its dated items, more contact shapes withhold a quote), and
+ * every extraction claim is validated before it is exported (an observable
+ * key, C1X rules only). `-v3` names the producer that ran rules v2, and only
+ * that.
  */
-export const QUALIFICATION_INPUT_PRODUCER_VERSION_V2 = 'nwf-pe-qualification-input-producer-v3';
+export const QUALIFICATION_INPUT_PRODUCER_VERSION_V2 = 'nwf-pe-qualification-input-producer-v4';
 
 /** v1's limitations, with the two that v2 changes restated truthfully, plus v2's own. */
 export const LIMITATIONS_V2 = Object.freeze({
@@ -67,10 +76,10 @@ export const LIMITATIONS_V2 = Object.freeze({
   pageText: 'NO_PAGE_TEXT_IS_EXPORTED_EXCEPT_ONE_SHORT_REDACTED_QUOTE_PER_PROPOSAL',
   classifier: 'NO_CLASSIFIER_OR_MODEL_OUTPUT_IS_EXPORTED',
   phraseRules:
-    'DETERMINISTIC_PHRASE_RULES_NWF_PE_C1_EXTRACTION_RULES_V2_OBSERVED_CLAIMS_ONLY_FOR_WHAT_A_CAPTURE_EXHIBITS_STATEMENTS_ARE_PROPOSALS_GUARDED_LINES_YIELD_NOTHING_POSITIVE',
+    'DETERMINISTIC_PHRASE_RULES_NWF_PE_C1_EXTRACTION_RULES_V3_OBSERVED_CLAIMS_ONLY_FOR_WHAT_A_CAPTURE_EXHIBITS_DATED_ITEMS_ONLY_FROM_LISTING_SHAPED_UNITS_STATEMENTS_ARE_PROPOSALS_GUARDED_LINES_AND_PAGES_YIELD_NOTHING_POSITIVE',
   proposals: 'PROPOSALS_ARE_NOT_CLAIMS_THE_OPERATOR_DECIDES_WHETHER_ANY_COUNTS',
   quotes:
-    'AT_MOST_300_CODE_POINTS_OF_ALREADY_REDACTED_STORED_TEXT_CONTACT_SHAPED_OR_SOCIAL_ACCOUNT_QUOTES_WITHHELD_CHECKED_ON_THE_FULL_SENTENCE',
+    'AT_MOST_300_CODE_POINTS_OF_ALREADY_REDACTED_STORED_TEXT_CONTACT_SHAPED_HOST_HANDLE_PLATFORM_ROLE_OR_SOCIAL_ACCOUNT_QUOTES_WITHHELD_CHECKED_ON_THE_FULL_SENTENCE',
   quoteContent:
     'A_QUOTE_IS_PAGE_TEXT_AS_WRITTEN_AND_MAY_NAME_THE_ORGANISATION_OR_A_PERSON_NO_NAME_FIELD_EXISTS',
   researchStatus:
@@ -78,7 +87,11 @@ export const LIMITATIONS_V2 = Object.freeze({
   language: 'A_RULE_LANGUAGE_IS_THE_LANGUAGE_A_PHRASE_IS_WRITTEN_IN_NEVER_A_COUNTRY',
 } as const);
 
-/** The claim keys v2 may carry (v1's five, then the OBSERVED additions). */
+/**
+ * The claim keys v2 may carry (v1's five, then the OBSERVED additions).
+ * `channel.reach_mode` is NOT among them since producer-v4: no rule observes
+ * a delivery mechanism, so it is a proposal key only.
+ */
 export const EXPORTED_CLAIM_KEYS_V2 = [
   'candidate.kind',
   'candidate.location',
@@ -87,11 +100,23 @@ export const EXPORTED_CLAIM_KEYS_V2 = [
   'channel.existence',
   'channel.feed_activity',
   'channel.operator_binding',
-  'channel.reach_mode',
   'channel.resource_openness',
   'channel.static_currency',
 ] as const;
 export type ExportedClaimKeyV2 = (typeof EXPORTED_CLAIM_KEYS_V2)[number];
+
+/**
+ * The keys the C1 extraction rules may OBSERVE - the only keys an extraction
+ * claim (rule class C1X) may carry. The builder refuses any other
+ * (`build.ts` `assertObservedC1Claim`).
+ */
+export const C1X_OBSERVABLE_CLAIM_KEYS = [
+  'channel.cycle_history',
+  'channel.event_instances',
+  'channel.existence',
+  'channel.feed_activity',
+  'channel.resource_openness',
+] as const;
 
 /** The keys a proposal may carry. */
 export const PROPOSAL_KEYS = [
@@ -100,6 +125,7 @@ export const PROPOSAL_KEYS = [
   'audience.segment_definition',
   'candidate.kind',
   'channel.audience_count',
+  'channel.event_instances',
   'channel.existence',
   'channel.operator_binding',
   'channel.reach_mode',

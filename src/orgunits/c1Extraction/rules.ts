@@ -1,11 +1,25 @@
 /**
- * WW E-X - THE RULE TABLE (`nwf-pe-c1-extraction-rules-v2`), AS DATA.
+ * WW E-X - THE RULE TABLE (`nwf-pe-c1-extraction-rules-v3`), AS DATA.
  *
- * v2 REPLACES v1 (`nwf-pe-c1-extraction-rules-v1`), which is no longer
- * produced: v1 stamped OBSERVED on what the organisation merely SAID (a
- * newsletter sign-up sentence became an observed existence + reach mode) and
- * read negated, cancelled and deadline lines as positive facts. v1 remains
- * only as the label on documents already produced under it.
+ * v2 REPLACED v1 (`nwf-pe-c1-extraction-rules-v1`): v1 stamped OBSERVED on
+ * what the organisation merely SAID (a newsletter sign-up sentence became an
+ * observed existence + reach mode) and read negated, cancelled and deadline
+ * lines as positive facts.
+ *
+ * v3 (WW H-EX, 2026-10-27, independent review P1-4 / P1-5 / P2-6 / P2-8)
+ * REPLACES v2, which is no longer produced: v2 still turned organisation
+ * PROSE into OBSERVED claims whenever a line named an event or a newsletter
+ * beside a date ("Our last newsletter was sent on 3 March 2026.", "We hope
+ * to organise a welcome week on 1 September 2026 if funding allows.", "In
+ * the university newsletter of 3 March 2026 we were featured."), missed
+ * plain negations ("No celebraremos…", "Sin…", "Aucune…", "Without…") and
+ * moved/rescheduled dates, ignored a cancellation stated elsewhere on the
+ * page, and let bare hosts, handles without `@`, service numbers and names
+ * beside role words into quotes. v3 observes a dated item only on a
+ * LISTING-shaped unit, proposes the dated events an organisation describes
+ * in a sentence, guards whole pages that state a cancellation or a
+ * discontinuation, and withholds more quotes. v1 and v2 remain only as the
+ * labels on documents already produced under them.
  *
  * Every finding this package emits names ONE rule id of the form
  * `<class>.<CONCEPT>.<language>`:
@@ -35,7 +49,7 @@
 import { C1_PACKS, type C1Language } from './lexicon.js';
 import type { C1Subcriterion } from './vocabulary.js';
 
-export const C1_EXTRACTION_RULES_VERSION = 'nwf-pe-c1-extraction-rules-v2';
+export const C1_EXTRACTION_RULES_VERSION = 'nwf-pe-c1-extraction-rules-v3';
 
 export type RuleClass = 'C1X' | 'C1P' | 'C1G';
 
@@ -59,7 +73,16 @@ export const C1_CONCEPTS: readonly C1ConceptSpec[] = [
     subcriteria: ['DP1', 'DP3'],
     needs: ['orientationEvent'],
     reason:
-      'One unguarded line names an orientation/welcome event AND states a full calendar date: the page LISTS a dated instance of that event (ORIENTATION_EVENT, class EVENT_SLOT). Upcoming = a date after the capture day; last past instance = the latest date on or before it. A line naming the event without a full date establishes nothing; a line that negates, cancels or discontinues it, or whose date is a deadline ("registration closes on 1 June"), is guarded and establishes nothing.',
+      'One unguarded, LISTING-shaped unit names an orientation/welcome event AND states a full calendar date: the page LISTS a dated instance of that event (ORIENTATION_EVENT, class EVENT_SLOT). Listing-shaped (rules v3) = a title or heading, or a short line made of the event term, the date and listing filler only - no first-person word, no hope/plan/condition frame, no finite verb, no sign-up call, at most two other words (a heading: four), and the event not named as another organisation\'s ("Welcome Week 2026: 1 September 2026"). Upcoming = a date after the capture day; last past instance = the latest date on or before it. A line naming the event without a full date establishes nothing; a sentence describing it is a proposal (ORIENTATION_EVENT_STATED); a line that negates, cancels, moves or discontinues it, whose date is a deadline ("registration closes on 1 June"), or on a page that states a cancellation or discontinuation anywhere, is guarded and establishes nothing.',
+  },
+  {
+    concept: 'ORIENTATION_EVENT_STATED',
+    ruleClass: 'C1P',
+    keys: ['channel.existence', 'channel.event_instances'],
+    subcriteria: ['DP1', 'DP3'],
+    needs: ['orientationEvent'],
+    reason:
+      'One unguarded line on the subject\'s own page names an orientation/welcome event and states a full date, but is a SENTENCE, not a listing ("Welcome Week takes place on 31 August 2026.", "Notre semaine d\'intégration a eu lieu le 1er septembre 2026."): the organisation SAYS the instance happened or will happen. existence EXISTS and event_instances (from the dates of the quoted sentence itself) are PROPOSED, SELF_ASSERTED, and establish a PROPOSAL_ONLY ORIENTATION_EVENT channel. Never a cycle. A hope or plan ("we hope to organise …", "if funding allows") or another organisation\'s event ("the university\'s welcome week") proposes nothing (a DATED_ITEM_NOT_LISTED gap).',
   },
   {
     concept: 'ORIENTATION_EVENT_CYCLES',
@@ -86,7 +109,7 @@ export const C1_CONCEPTS: readonly C1ConceptSpec[] = [
     subcriteria: ['DP1', 'DP3'],
     needs: ['newsletter'],
     reason:
-      'One unguarded line names a newsletter AND states a full date on or before the capture day: the page LISTS a dated newsletter issue (an archive entry such as "Newsletter - 3 March 2026"), a structural item of the published artefact. itemDates are those dates; completeView is false.',
+      'One unguarded, LISTING-shaped unit (see ORIENTATION_EVENT_DATED) names a newsletter AND states a full date on or before the capture day: the page LISTS a dated newsletter issue (an archive entry such as "Newsletter - 3 March 2026"), a structural item of the published artefact. itemDates are those dates; completeView is false. A newsletter SENTENCE ("Our last newsletter was sent on 3 March 2026."), a sign-up line ("Newsletter sign-up opened on 1 March 2026 - subscribe now!"), a hope, or another organisation\'s newsletter ("In the university newsletter of 3 March 2026 we were featured.") is a DATED_ITEM_NOT_LISTED gap - feed_activity is OBSERVED-only in C1, so it is never proposed either.',
   },
   {
     concept: 'SUBMISSION_INVITATION',
@@ -260,13 +283,31 @@ export const C1_CONCEPTS: readonly C1ConceptSpec[] = [
       'A count, role statement or "our ..." phrase about a channel this package did not establish (a subscriber number naming no channel, "our newsletter" with no surviving sign-up and no dated issue): a gap, never attached to a guessed channel.',
   },
   {
+    concept: 'DATED_ITEM_NOT_LISTED',
+    ruleClass: 'C1G',
+    keys: [],
+    subcriteria: ['DP1', 'DP3'],
+    needs: ['listingFiller'],
+    reason:
+      'A line names an orientation event or a newsletter beside a full date but is not a listing the subject\'s page exhibits (rules v3): the channel is named as another organisation\'s (OTHER_ORGANISATION: "the university newsletter", "their welcome week"), the date sits in a hope, plan or condition (INTENT_FRAME: "we hope to organise …", "if funding allows", "to be confirmed"), or - for a newsletter, whose feed_activity C1 admits as OBSERVED only - the line is a sentence (STATEMENT) or a sign-up call (SIGN_UP_LINE). Label <channel kind>:<shape>. Recorded so it is visible, never converted.',
+  },
+  {
+    concept: 'PAGE_GUARDED',
+    ruleClass: 'C1G',
+    keys: [],
+    subcriteria: ['DP1', 'DP3'],
+    needs: ['cancellationTerms'],
+    reason:
+      'The page states a cancellation or a discontinuation ANYWHERE ("This event has been cancelled.", "The welcome week has been moved.", "We stopped our newsletter."): every dated event or newsletter item the page shows - listed or described - is withheld and recorded as this gap, labelled PAGE_GUARD:<CANCELLATION|DISCONTINUATION>; the heading above such a line is not an instance that happened (rules v3).',
+  },
+  {
     concept: 'GUARDED_STATEMENT',
     ruleClass: 'C1G',
     keys: [],
     subcriteria: [],
     needs: ['negationTerms'],
     reason:
-      'A line that some positive rule would have read also contains a negation, cancellation, discontinuation or deadline term of the language ("no longer", "cancelled", "ne ... plus", "ya no", "niet meer", "中止", "nicht mehr", "non ... più", "não ... mais", "registration closes", "締切"): every positive claim and proposal from that line is suppressed and the line is recorded as a gap labelled with the guard kind, never read as a fact.',
+      'A line that some positive rule would have read also contains a negation, cancellation (including moved / rescheduled / postponed), discontinuation or deadline term of the language ("no longer", "no", "without", "stopped", "cancelled", "moved", "ne ... plus", "aucune", "ya no", "sin", "niet meer", "vervalt", "stoppen", "中止", "nicht mehr", "non", "não ... mais", "registration closes", "締切"): every positive claim and proposal from that line is suppressed and the line is recorded as a gap labelled with the guard kind, never read as a fact. The lists over-guard rather than miss (the Portuguese "no dia" is a fixed exception).',
   },
 ];
 
