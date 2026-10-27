@@ -129,9 +129,11 @@ async function useTool(
 
 /**
  * A fake SDK whose every call performs exactly ONE WebSearch for the planned
- * query - through the adapter's gate (hook, then canUseTool) - and returns
- * `results`. A denied search ends the stream with no result. Never a network
- * call.
+ * query - through the adapter's gate (the PreToolUse hook, then `canUseTool`) -
+ * and, since migration 0027 / WW H-SD (ADR 0028 s9.1), reports it the way the
+ * bundled executable does: a `tool_use_result` with `searchCount: 1` whose hits
+ * include every returned URL. A denied search ends the stream with no result.
+ * Never a network call.
  */
 export function fakeSdk(results: readonly FakeResult[]): FakeSdk {
   let calls = 0;
@@ -139,10 +141,11 @@ export function fakeSdk(results: readonly FakeResult[]): FakeSdk {
   const query: SdkQueryFn = (args) => {
     calls += 1;
     const call = calls;
+    const planned = plannedOf(args.prompt);
     const search: ToolUseBlock = {
       id: `toolu_${call}_search`,
       name: 'WebSearch',
-      input: { query: plannedOf(args.prompt) },
+      input: { query: planned },
     };
     const carrier: ToolUseBlock = {
       id: `toolu_${call}_out`,
@@ -153,6 +156,24 @@ export function fakeSdk(results: readonly FakeResult[]): FakeSdk {
       yield { type: 'system', subtype: 'init' };
       yield assistant([search]);
       if (!(await useTool(args.options, search, decisions))) return;
+      yield {
+        type: 'user',
+        message: {
+          role: 'user',
+          content: [{ type: 'tool_result', tool_use_id: search.id, content: 'Web search results' }],
+        },
+        tool_use_result: {
+          query: planned,
+          results: [
+            {
+              tool_use_id: 'srvtoolu_fict',
+              content: results.map(([url, title]) => ({ title, url })),
+            },
+          ],
+          durationSeconds: 1,
+          searchCount: 1,
+        },
+      } as SdkStreamMessage;
       yield assistant([carrier]);
       await useTool(args.options, carrier, decisions);
       yield {

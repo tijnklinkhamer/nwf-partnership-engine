@@ -30,10 +30,17 @@ import {
   type GrantedRunDeps,
 } from '../../orgunits/sourceDiscovery/grantedRun.js';
 import { SOURCE_DISCOVERY_ALLOWED_MODELS } from '../../orgunits/sourceDiscovery/grant.js';
-import { registerPlan, startGrantedRun } from '../../orgunits/sourceDiscovery/grantStore.js';
+import {
+  admissibleNominationsOfRun,
+  insertQueryCallStart,
+  registerPlan,
+  startGrantedRun,
+} from '../../orgunits/sourceDiscovery/grantStore.js';
+import { prepareNomination } from '../../orgunits/sourceDiscovery/nomination.js';
 import { planBody, planDiscoveryQueries } from '../../orgunits/sourceDiscovery/planner/plan.js';
 import {
   inSourceDiscoveryTransaction,
+  insertNomination,
   registerBrief,
 } from '../../orgunits/sourceDiscovery/store.js';
 import { adminPool, readonlyPool, researchDatabaseConfigured } from './helpers.js';
@@ -89,7 +96,19 @@ type Behaviour =
   | { readonly kind: 'other-query' }
   | { readonly kind: 'domain-override' }
   | { readonly kind: 'parallel-searches' }
-  | { readonly kind: 'unchecked-search' };
+  | { readonly kind: 'unchecked-search' }
+  // WW H-SD (P1-3): the WebSearch tool's NESTED side query, as its
+  // tool_use_result reports it. Each must keep nothing.
+  | { readonly kind: 'nested-searches' }
+  | { readonly kind: 'url-not-in-result' }
+  | { readonly kind: 'no-tool-result' }
+  | { readonly kind: 'no-search' }
+  // WW H-SD (P1-8): a search only canUseTool approved (the hook never ran),
+  // and a search that found nothing.
+  | { readonly kind: 'permission-only' }
+  | { readonly kind: 'empty-search' }
+  // WW H-SD (P2-15a): a provider that runs until it is aborted.
+  | { readonly kind: 'hang-until-abort' };
 
 interface FakeSdk {
   readonly query: SdkQueryFn;
@@ -108,6 +127,33 @@ type Block = {
 
 /** The planned query text, read back from the adapter's deterministic prompt (its third line). */
 const plannedOf = (prompt: string): string => JSON.parse(prompt.split('\n')[2]!) as string;
+
+/**
+ * The user message answering one WebSearch tool use, shaped as the bundled
+ * executable emits it (`tool_use_result` = the tool's WebSearchOutput, whose
+ * `searchCount` counts the NESTED side query's server-side searches).
+ */
+const searchResult = (
+  toolUseId: string,
+  query: string,
+  hits: readonly (readonly [string, string])[],
+  searchCount = 1,
+): SdkStreamMessage => ({
+  type: 'user',
+  message: {
+    role: 'user',
+    content: [{ type: 'tool_result', tool_use_id: toolUseId, content: 'Web search results' }],
+  },
+  tool_use_result: {
+    query,
+    results: [
+      'commentary that must never cross',
+      { tool_use_id: 'srvtoolu_fict', content: hits.map(([url, title]) => ({ title, url })) },
+    ],
+    durationSeconds: 1,
+    searchCount,
+  },
+});
 
 /** An assistant message carrying tool-use blocks, shaped as the SDK streams it. */
 const assistant = (blocks: readonly Block[]): SdkStreamMessage => ({
@@ -187,10 +233,28 @@ function fakeSdk(script: (call: number, prompt: string) => Behaviour): FakeSdk {
     return (async function* (): AsyncGenerator<SdkStreamMessage> {
       yield { type: 'system', subtype: 'init' };
       switch (behaviour.kind) {
-        case 'results': {
+        case 'results':
+        case 'nested-searches':
+        case 'url-not-in-result':
+        case 'no-tool-result':
+        case 'empty-search': {
+          const urls = behaviour.kind === 'results' ? behaviour.urls : okUrls(call);
           const s1 = search(`toolu_${call}_search`);
           yield assistant([s1]);
           if (!(await useTool(args.options, s1, decisions))) return;
+          if (behaviour.kind === 'empty-search') {
+            yield searchResult(s1.id, planned, []);
+            yield results([]);
+            return;
+          }
+          if (behaviour.kind !== 'no-tool-result') {
+            yield searchResult(
+              s1.id,
+              planned,
+              behaviour.kind === 'url-not-in-result' ? urls.slice(1) : urls,
+              behaviour.kind === 'nested-searches' ? 3 : 1,
+            );
+          }
           const carrier: Block = {
             id: `toolu_${call}_out`,
             name: 'StructuredOutput',
@@ -198,7 +262,38 @@ function fakeSdk(script: (call: number, prompt: string) => Behaviour): FakeSdk {
           };
           yield assistant([carrier]);
           await useTool(args.options, carrier, decisions);
-          yield results(behaviour.urls);
+          yield results(urls);
+          return;
+        }
+        case 'no-search':
+          // The model answered without searching at all.
+          yield results([]);
+          return;
+        case 'permission-only': {
+          // An SDK path that consults canUseTool but never runs the hook.
+          const s1 = search(`toolu_${call}_search`);
+          yield assistant([s1]);
+          const decision = await args.options.canUseTool!(s1.name, s1.input, {
+            signal: new AbortController().signal,
+            toolUseID: s1.id,
+            requestId: `req-${s1.id}`,
+          });
+          decisions.push(`canUseTool:${s1.name}:${decision?.behavior}`);
+          yield searchResult(s1.id, planned, okUrls(call));
+          yield results(okUrls(call));
+          return;
+        }
+        case 'hang-until-abort': {
+          const signal = args.options.abortController!.signal;
+          await new Promise<void>((resolve) => {
+            const timer = setTimeout(resolve, 20_000);
+            signal.addEventListener('abort', () => {
+              clearTimeout(timer);
+              resolve();
+            });
+          });
+          if (signal.aborted) throw Object.assign(new Error('aborted'), { name: 'AbortError' });
+          yield results(okUrls(call));
           return;
         }
         case 'invalid-output': {
@@ -429,7 +524,7 @@ describeDb('WW E-SD granted live source discovery (fake SDK, disposable database
       expect.objectContaining({
         smoke: true,
         outcome: 'RESULTS',
-        searchGate: { hookInvoked: true, permissionInvoked: true },
+        searchGate: { hookInvoked: true, permissionInvoked: true, searchCount: 1 },
       }),
     ]);
     await recordVerification(smoke.runId);
@@ -448,7 +543,8 @@ describeDb('WW E-SD granted live source discovery (fake SDK, disposable database
   beforeEach(async () => {
     await admin.query(
       `TRUNCATE source_discovery_nomination_known_marks, source_discovery_run_completions,
-                source_discovery_smoke_verifications, source_discovery_query_call_starts,
+                source_discovery_smoke_verifications, source_discovery_query_call_observations,
+                source_discovery_query_call_starts,
                 source_discovery_query_calls, source_discovery_grant_uses, source_discovery_grants,
                 source_discovery_nomination_sightings, source_discovery_nomination_identities,
                 source_discovery_nominations, source_discovery_runs, source_discovery_briefs CASCADE`,
@@ -509,6 +605,8 @@ describeDb('WW E-SD granted live source discovery (fake SDK, disposable database
       expect(o.mcpServers).toEqual({});
       expect(o.persistSession).toBe(false);
       expect(o.settingSources).toEqual([]);
+      // WW H-SD (P1-3): at most ONE outer WebSearch tool call per session.
+      expect(o.env!['CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION']).toBe('1');
     }
     // The university is TAGGED and kept; the social URL refused; the same domain deduped.
     expect(result.inserted).toBe(4); // q0, q1, q2 domains + the university once
@@ -527,7 +625,7 @@ describeDb('WW E-SD granted live source discovery (fake SDK, disposable database
       ]),
     );
     expect(result.calls.map((c) => c.searchGate)).toEqual(
-      section.map(() => ({ hookInvoked: true, permissionInvoked: true })),
+      section.map(() => ({ hookInvoked: true, permissionInvoked: true, searchCount: 1 })),
     );
     const use = await admin.query(
       `SELECT grant_id, run_id, run_seq, actor_key FROM source_discovery_grant_uses
@@ -954,6 +1052,11 @@ describeDb('WW E-SD granted live source discovery (fake SDK, disposable database
     ['domain-override', 'SEARCH_BINDING_REFUSED', 'FAILED'],
     ['parallel-searches', 'SEARCH_BINDING_REFUSED', 'FAILED'],
     ['unchecked-search', 'SEARCH_BINDING_REFUSED', 'FAILED'],
+    // WW H-SD (P1-3): the nested side query, as its tool_use_result reports it.
+    ['nested-searches', 'SEARCH_BINDING_REFUSED', 'FAILED'],
+    ['url-not-in-result', 'SEARCH_BINDING_REFUSED', 'FAILED'],
+    ['no-tool-result', 'SEARCH_BINDING_REFUSED', 'FAILED'],
+    ['no-search', 'SEARCH_BINDING_REFUSED', 'FAILED'],
   ] as const)(
     'a %s on the second query records %s and ends the run %s',
     async (kind, callOutcome, runOutcome) => {
@@ -1059,11 +1162,18 @@ describeDb('WW E-SD granted live source discovery (fake SDK, disposable database
     // A process clock that never sees the expiry: only the database can stop the run.
     const frozen = { now: () => new Date(issued.getTime() + 60_000) };
     const sdk = fakeSdk((n) => ok(n));
+    // WW H-SD (P2-15a): the first search itself ends inside the window (a
+    // search past the grant's expiry is aborted); the delay comes AFTER its
+    // result, so only the next start falls outside the window.
     const slowFirst: SdkQueryFn = (args) => {
       const inner = sdk.query(args);
+      const first = sdk.prompts.length === 1;
       return (async function* () {
-        if (sdk.prompts.length === 1) await new Promise((r) => setTimeout(r, 2_000));
-        yield* inner;
+        try {
+          yield* inner;
+        } finally {
+          if (first) await new Promise((r) => setTimeout(r, 2_000));
+        }
       })();
     };
     const result = await runGrantedSourceDiscovery(
@@ -1105,7 +1215,7 @@ describeDb('WW E-SD granted live source discovery (fake SDK, disposable database
         callSeq: 1,
         smoke: true,
         outcome: 'RESULTS',
-        searchGate: { hookInvoked: true, permissionInvoked: true },
+        searchGate: { hookInvoked: true, permissionInvoked: true, searchCount: 1 },
       }),
     ]);
     expect(sdk.prompts).toHaveLength(1);
@@ -1194,7 +1304,12 @@ describeDb('WW E-SD granted live source discovery (fake SDK, disposable database
     );
     expect([result.outcome, result.reason]).toEqual(['FAILED', 'SEARCH_BINDING_REFUSED']);
     expect(result.calls).toEqual([
-      expect.objectContaining({ smoke: true, outcome: 'SEARCH_BINDING_REFUSED', searchGate: null }),
+      expect.objectContaining({
+        smoke: true,
+        outcome: 'SEARCH_BINDING_REFUSED',
+        // WW H-SD: what the gate observed is reported (and recorded) for a refused call too.
+        searchGate: { hookInvoked: false, permissionInvoked: false, searchCount: null },
+      }),
     ]);
     // The hook denied it, so canUseTool was never asked; nothing was kept.
     expect(sdk.decisions).toEqual(['hook:WebSearch:deny']);
@@ -1339,6 +1454,13 @@ describeDb('WW E-SD granted live source discovery (fake SDK, disposable database
         'source_discovery_verify_query_call_start',
         'source_discovery_verify_run_completion',
         'source_discovery_verify_smoke_verification',
+        // WW H-SD (migration 0027).
+        'source_discovery_verify_query_call_observation',
+        'source_discovery_require_query_call_observation',
+        'source_discovery_verify_live_search_nomination',
+        'source_discovery_verify_nomination',
+        'source_discovery_verify_nomination_identity',
+        'source_discovery_verify_nomination_sighting',
       ]),
     );
     const live = [
@@ -1350,6 +1472,12 @@ describeDb('WW E-SD granted live source discovery (fake SDK, disposable database
       'source_discovery_verify_query_call_start',
       'source_discovery_verify_run_completion',
       'source_discovery_verify_smoke_verification',
+      'source_discovery_verify_query_call_observation',
+      'source_discovery_require_query_call_observation',
+      'source_discovery_verify_live_search_nomination',
+      'source_discovery_verify_nomination',
+      'source_discovery_verify_nomination_identity',
+      'source_discovery_verify_nomination_sighting',
     ];
     for (const r of rows.filter((row) => live.includes(row.name))) {
       expect(r.config, r.name).toEqual(['search_path=public, pg_catalog, pg_temp']);
@@ -1500,6 +1628,436 @@ describeDb('WW E-SD granted live source discovery (fake SDK, disposable database
     );
     expect(result.runSeq).toBe(3);
     expect(result.calls[0]!.smoke).toBe(false);
+  });
+
+  // ------------------------------------------------------------ WW H-SD: migration 0027
+
+  async function observationsOf(runId: string): Promise<unknown[]> {
+    const { rows } = await admin.query(
+      `SELECT call_seq, hook_invoked, permission_invoked, search_count
+         FROM source_discovery_query_call_observations WHERE run_id = $1 ORDER BY call_seq`,
+      [runId],
+    );
+    return rows;
+  }
+
+  it('P1-3/P1-8: every call records what it observed, in the same transaction as its terminal row', async () => {
+    await verifySmoke();
+    const grantId = await grant({
+      briefId: v1BriefId,
+      digest: briefDigest(NWF_DISCOVERY_BRIEF_V1),
+      geography: 'NL',
+      maxQueries: 3,
+    });
+    const result = await runGrantedSourceDiscovery(
+      source,
+      { grantId, actorKey: 'ww-worker' },
+      deps(fakeSdk((n) => (n === 1 ? { kind: 'nested-searches' } : ok(n)))),
+    );
+    expect([result.outcome, result.reason]).toEqual(['FAILED', 'SEARCH_BINDING_REFUSED']);
+    // The nested side query reported 3 searches: refused, recorded, nothing kept.
+    expect(await observationsOf(result.runId)).toEqual([
+      { call_seq: 1, hook_invoked: true, permission_invoked: true, search_count: 1 },
+      { call_seq: 2, hook_invoked: true, permission_invoked: true, search_count: 3 },
+    ]);
+    expect(result.calls[1]!.searchGate).toEqual({
+      hookInvoked: true,
+      permissionInvoked: true,
+      searchCount: 3,
+    });
+    const stored = await admin.query<{ n: number }>(
+      `SELECT count(*)::int AS n FROM source_discovery_nominations
+        WHERE discovery_run_id = $1 AND query_id = $2`,
+      [result.runId, result.calls[1]!.queryId],
+    );
+    expect(stored.rows[0]!.n).toBe(0);
+  });
+
+  it.each([
+    // A smoke that made no search at all can never be RESULTS.
+    ['no-search', 'SEARCH_BINDING_REFUSED', { hook_invoked: false, search_count: null }],
+    // A smoke whose search found nothing proves nothing about the runtime.
+    ['empty-search', 'RESULTS', { hook_invoked: true, search_count: 1 }],
+    // A smoke the PreToolUse hook never saw does not show the hook works.
+    ['permission-only', 'RESULTS', { hook_invoked: false, search_count: 1 }],
+  ] as const)(
+    'P1-8: a %s smoke (%s) cannot be verified by the OWNER, and hands nothing on',
+    async (kind, outcome, observed) => {
+      const grantId = await grant({
+        briefId: v1BriefId,
+        digest: briefDigest(NWF_DISCOVERY_BRIEF_V1),
+        geography: 'JP',
+        maxQueries: 1,
+      });
+      const result = await runGrantedSourceDiscovery(
+        source,
+        { grantId, actorKey: 'ww-worker' },
+        deps(fakeSdk(() => ({ kind }))),
+      );
+      expect(result.calls).toEqual([expect.objectContaining({ smoke: true, outcome })]);
+      expect(await observationsOf(result.runId)).toEqual([
+        expect.objectContaining({ call_seq: 1, ...observed }),
+      ]);
+      expect(await sqlstate(() => recordVerification(result.runId))).toBe('23514');
+      expect(await count('source_discovery_smoke_verifications')).toBe(0);
+      const admissible = await admissibleNominationsOfRun(readonly, result.runId);
+      expect(admissible).toEqual({ state: 'COMPLETED', nominations: [] });
+      if (kind === 'no-search') expect(await count('source_discovery_nominations')).toBe(0);
+    },
+  );
+
+  it('P1-8: the database refuses a RESULTS observation that is not exactly one search through a consulted gate', async () => {
+    const grantId = await grant({
+      briefId: v1BriefId,
+      digest: briefDigest(NWF_DISCOVERY_BRIEF_V1),
+      geography: 'JP',
+      maxQueries: 3,
+    });
+    const [q1] = queriesFor(NWF_DISCOVERY_BRIEF_V1, 'JP').queries;
+    const client = await source.connect();
+    const step = async (sql: string, params: unknown[], expected: string) => {
+      await client.query('SAVEPOINT s');
+      expect(await sqlstate(() => client.query(sql, params)), sql).toBe(expected);
+      if (expected === 'SUCCEEDED') await client.query('RELEASE SAVEPOINT s');
+      else await client.query('ROLLBACK TO SAVEPOINT s');
+    };
+    const observe = `INSERT INTO source_discovery_query_call_observations
+        (run_id, call_seq, hook_invoked, permission_invoked, search_count)
+      VALUES ($1, 1, $2, $3, $4)`;
+    try {
+      await client.query('BEGIN');
+      await client.query('SET LOCAL ROLE nwf_source_discovery');
+      const { runId } = await startGrantedRun(client, {
+        grantId,
+        briefId: v1BriefId,
+        geography: 'JP',
+        providerKey: 'claude-max-web-search',
+        actorKey: 'ww-worker',
+      });
+      // No terminal row yet: an observation belongs to a recorded call.
+      await step(observe, [runId, true, true, 1], '23514');
+      await insertQueryCallStart(client, {
+        runId,
+        callSeq: 1,
+        queryId: q1!.queryId,
+        modelId: MODEL,
+        sdkVersion: SDK_VERSION,
+        smoke: true,
+      });
+      await client.query(
+        `INSERT INTO source_discovery_query_calls
+           (run_id, call_seq, query_id, outcome, result_count, model_id, sdk_version, smoke,
+            started_at, ended_at)
+         VALUES ($1, 1, $2, 'RESULTS', 2, $3, $4, true, now(), now())`,
+        [runId, q1!.queryId, MODEL, SDK_VERSION],
+      );
+      await step(observe, [runId, true, true, 8], '23514'); // the nested side query searched 8 times
+      await step(observe, [runId, true, true, null], '23514'); // no tool result observed
+      await step(observe, [runId, false, false, 1], '23514'); // no gate surface consulted
+      await step(observe, [runId, false, true, 1], 'SUCCEEDED');
+      await step(observe, [runId, true, true, 1], '23505'); // one observation per call
+      // Append-only, and the capability cannot rewrite it.
+      await step(
+        'UPDATE source_discovery_query_call_observations SET search_count = 2',
+        [],
+        '42501',
+      );
+      await client.query('ROLLBACK');
+    } finally {
+      await client.query('ROLLBACK').catch(() => undefined);
+      client.release();
+    }
+  });
+
+  it('P1-8: a terminal query-call row cannot commit without its observation', async () => {
+    const grantId = await grant({
+      briefId: v1BriefId,
+      digest: briefDigest(NWF_DISCOVERY_BRIEF_V1),
+      geography: 'JP',
+    });
+    const [q1] = queriesFor(NWF_DISCOVERY_BRIEF_V1, 'JP').queries;
+    const client = await source.connect();
+    try {
+      await client.query('BEGIN');
+      await client.query('SET LOCAL ROLE nwf_source_discovery');
+      const { runId } = await startGrantedRun(client, {
+        grantId,
+        briefId: v1BriefId,
+        geography: 'JP',
+        providerKey: 'claude-max-web-search',
+        actorKey: 'ww-worker',
+      });
+      await insertQueryCallStart(client, {
+        runId,
+        callSeq: 1,
+        queryId: q1!.queryId,
+        modelId: MODEL,
+        sdkVersion: SDK_VERSION,
+        smoke: true,
+      });
+      await client.query(
+        `INSERT INTO source_discovery_query_calls
+           (run_id, call_seq, query_id, outcome, result_count, model_id, sdk_version, smoke,
+            started_at, ended_at)
+         VALUES ($1, 1, $2, 'PROVIDER_RESULT_ERROR', NULL, $3, $4, true, now(), now())`,
+        [runId, q1!.queryId, MODEL, SDK_VERSION],
+      );
+      expect(await sqlstate(() => client.query('COMMIT'))).toBe('23514');
+    } finally {
+      await client.query('ROLLBACK').catch(() => undefined);
+      client.release();
+    }
+    expect(await count('source_discovery_query_calls')).toBe(0);
+  });
+
+  it('P2-1: the database keeps live-search nominations to a RESULTS call, within its count, before completion', async () => {
+    const grantId = await grant({
+      briefId: v1BriefId,
+      digest: briefDigest(NWF_DISCOVERY_BRIEF_V1),
+      geography: 'JP',
+      maxQueries: 3,
+    });
+    const [q1, q2] = queriesFor(NWF_DISCOVERY_BRIEF_V1, 'JP').queries;
+    const client = await source.connect();
+    const prepared = (url: string) => {
+      const p = prepareNomination({ url, title: 'Fict group', snippet: null });
+      if (!p.ok) throw new Error(p.reason);
+      return p.value;
+    };
+    const nominate = (runId: string, queryId: string, url: string) =>
+      sqlstate(() =>
+        insertNomination(client, {
+          discoveryRunId: runId,
+          method: 'SEARCH_PROVIDER',
+          providerKey: 'claude-max-web-search',
+          queryId,
+          sourcePageEvidenceId: null,
+          prepared: prepared(url),
+          retrievedAt: new Date().toISOString(),
+        }),
+      );
+    const step = async (fn: () => Promise<string>, expected: string) => {
+      await client.query('SAVEPOINT s');
+      expect(await fn()).toBe(expected);
+      if (expected === 'SUCCEEDED') await client.query('RELEASE SAVEPOINT s');
+      else await client.query('ROLLBACK TO SAVEPOINT s');
+    };
+    const call = async (
+      runId: string,
+      seq: number,
+      queryId: string,
+      outcome: string,
+      resultCount: number | null,
+      searchCount: number | null,
+    ) => {
+      await insertQueryCallStart(client, {
+        runId,
+        callSeq: seq,
+        queryId,
+        modelId: MODEL,
+        sdkVersion: SDK_VERSION,
+        smoke: seq === 1,
+      });
+      await client.query(
+        `INSERT INTO source_discovery_query_calls
+           (run_id, call_seq, query_id, outcome, result_count, model_id, sdk_version, smoke,
+            started_at, ended_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, now(), now())`,
+        [runId, seq, queryId, outcome, resultCount, MODEL, SDK_VERSION, seq === 1],
+      );
+      await client.query(
+        `INSERT INTO source_discovery_query_call_observations
+           (run_id, call_seq, hook_invoked, permission_invoked, search_count)
+         VALUES ($1, $2, true, true, $3)`,
+        [runId, seq, searchCount],
+      );
+    };
+    await recordVerificationFor();
+    try {
+      await client.query('BEGIN');
+      await client.query('SET LOCAL ROLE nwf_source_discovery');
+      const { runId } = await startGrantedRun(client, {
+        grantId,
+        briefId: v1BriefId,
+        geography: 'JP',
+        providerKey: 'claude-max-web-search',
+        actorKey: 'ww-worker',
+      });
+      // No call row for the query at all.
+      await step(() => nominate(runId, q1!.queryId, 'https://www.a-fict.jp/'), '23514');
+      await call(runId, 1, q1!.queryId, 'RESULTS', 1, 1);
+      await step(() => nominate(runId, q1!.queryId, 'https://www.a-fict.jp/'), 'SUCCEEDED');
+      // More nominations than the call returned results.
+      await step(() => nominate(runId, q1!.queryId, 'https://www.b-fict.jp/'), '23514');
+      // A call that was refused keeps nothing, even written straight to the table.
+      await call(runId, 2, q2!.queryId, 'SEARCH_BINDING_REFUSED', null, 3);
+      await step(() => nominate(runId, q2!.queryId, 'https://www.c-fict.jp/'), '23514');
+      await client.query(
+        `INSERT INTO source_discovery_run_completions
+           (run_id, outcome, reason, queries_attempted, nominations_inserted,
+            nominations_duplicated, nominations_refused, nominations_known)
+         VALUES ($1, 'FAILED', 'SEARCH_BINDING_REFUSED', 2, 1, 0, 0, 0)`,
+        [runId],
+      );
+      // After the run's completion, nothing more is nominated.
+      await step(() => nominate(runId, q1!.queryId, 'https://www.d-fict.jp/'), '23514');
+      await client.query('ROLLBACK');
+    } finally {
+      await client.query('ROLLBACK').catch(() => undefined);
+      client.release();
+    }
+  });
+
+  /** Seeds an OWNER smoke verification for (SDK_VERSION, MODEL) via a real verified smoke. */
+  async function recordVerificationFor(): Promise<void> {
+    await verifySmoke();
+  }
+
+  it('P2-15a: a search still running when its grant expires is aborted at the expiry, keeping nothing', async () => {
+    const issuedAt = new Date(Date.now() - HOUR);
+    const grantId = await grant({
+      briefId: v1BriefId,
+      digest: briefDigest(NWF_DISCOVERY_BRIEF_V1),
+      geography: 'JP',
+      issuedAt,
+      expiresAt: new Date(Date.now() + 1_500),
+    });
+    const sdk = fakeSdk(() => ({ kind: 'hang-until-abort' }));
+    const began = Date.now();
+    const result = await runGrantedSourceDiscovery(
+      source,
+      { grantId, actorKey: 'ww-worker' },
+      // A process clock that never sees the expiry: only the database's own does.
+      deps(sdk, { clock: { now: () => new Date(issuedAt.getTime() + 60_000) } }),
+    );
+    const elapsed = Date.now() - began;
+    expect([result.outcome, result.reason]).toEqual(['ABORTED', 'GRANT_EXPIRED']);
+    expect(result.calls.map((c) => [c.outcome, c.resultCount])).toEqual([
+      ['PROVIDER_RESULT_MISSING', null],
+    ]);
+    // Aborted at the grant's expiry (1.5 s), not at the provider's own 20 s.
+    expect(elapsed).toBeLessThan(10_000);
+    expect(sdk.options[0]!.abortController!.signal.aborted).toBe(true);
+    expect(await count('source_discovery_nominations')).toBe(0);
+    const completion = await admin.query(
+      `SELECT outcome, reason, queries_attempted FROM source_discovery_run_completions
+        WHERE run_id = $1`,
+      [result.runId],
+    );
+    expect(completion.rows).toEqual([
+      { outcome: 'ABORTED', reason: 'GRANT_EXPIRED', queries_attempted: 1 },
+    ]);
+  });
+
+  it('P2-15b: a grant use or smoke verification naming no row is refused by name, not by accident', async () => {
+    const client = await source.connect();
+    try {
+      await client.query('BEGIN');
+      await client.query('SET LOCAL ROLE nwf_source_discovery');
+      const run = await client.query<{ id: string }>(
+        `INSERT INTO source_discovery_runs (run_kind, provider_key, brief_id, geography, actor_key, started_at)
+         VALUES ('SEARCH_PROVIDER', 'claude-max-web-search', $1, 'JP', 'ww-worker', now()) RETURNING id`,
+        [v1BriefId],
+      );
+      await expect(
+        client.query(
+          `INSERT INTO source_discovery_grant_uses (grant_id, run_id, run_seq, actor_key)
+           VALUES ('00000000-0000-4000-8000-000000000000', $1, 1, 'ww-worker')`,
+          [run.rows[0]!.id],
+        ),
+      ).rejects.toMatchObject({
+        code: '23514',
+        message: 'source_discovery_grant_uses: no such grant',
+      });
+    } finally {
+      await client.query('ROLLBACK').catch(() => undefined);
+      client.release();
+    }
+    await expect(
+      admin.query(
+        `INSERT INTO source_discovery_smoke_verifications
+           (run_id, call_seq, sdk_version, model_id, actor_key)
+         VALUES ('00000000-0000-4000-8000-000000000000', 1, $1, $2, 'owner-cli')`,
+        [SDK_VERSION, MODEL],
+      ),
+    ).rejects.toMatchObject({
+      code: '23514',
+      message: 'source_discovery_smoke_verifications: no such recorded smoke call',
+    });
+  });
+
+  it('P1-9: admissibleNominationsOfRun hands on only a completed run, RESULTS calls, and a smoke once verified', async () => {
+    // An unknown id, and a scripted (ungranted) id shape, are not granted runs.
+    expect(
+      await admissibleNominationsOfRun(readonly, '00000000-0000-4000-8000-000000000000'),
+    ).toEqual({ state: 'NOT_A_GRANTED_RUN', nominations: [] });
+
+    // A smoke-only first run: its nominations wait for the OWNER verification
+    // of its runtime (SDK version and model) - here, of this very smoke.
+    const smokeGrant = await grant({
+      briefId: v1BriefId,
+      digest: briefDigest(NWF_DISCOVERY_BRIEF_V1),
+      geography: 'MX',
+      maxQueries: 1,
+    });
+    const smoke = await runGrantedSourceDiscovery(
+      source,
+      { grantId: smokeGrant, actorKey: 'ww-smoke' },
+      deps(fakeSdk((n) => ok(n))),
+    );
+    expect(smoke.inserted).toBeGreaterThan(0);
+    expect(await admissibleNominationsOfRun(readonly, smoke.runId)).toEqual({
+      state: 'COMPLETED',
+      nominations: [],
+    });
+    await recordVerification(smoke.runId);
+    const verified = await admissibleNominationsOfRun(readonly, smoke.runId);
+    expect(verified.state).toBe('COMPLETED');
+    expect(verified.nominations.map((n) => n.nominationId).sort()).toEqual(
+      smoke.nominations.map((n) => n.nominationId).sort(),
+    );
+    expect(verified.nominations.every((n) => n.callSeq === 1)).toBe(true);
+
+    // A later grant's run on the verified runtime (its own smoke included)
+    // that fails on its second call: the first call's results only.
+    const grantId = await grant({
+      briefId: v1BriefId,
+      digest: briefDigest(NWF_DISCOVERY_BRIEF_V1),
+      geography: 'NL',
+      maxQueries: 3,
+    });
+    const run = await runGrantedSourceDiscovery(
+      source,
+      { grantId, actorKey: 'ww-worker' },
+      deps(fakeSdk((n) => (n === 1 ? { kind: 'url-not-in-result' } : ok(n)))),
+    );
+    expect(run.outcome).toBe('FAILED');
+    const handed = await admissibleNominationsOfRun(readonly, run.runId);
+    expect(handed.state).toBe('COMPLETED');
+    expect(handed.nominations.map((n) => n.queryId)).toEqual(
+      run.nominations.map(() => run.calls[0]!.queryId),
+    );
+    expect(handed.nominations).toHaveLength(run.inserted);
+
+    // A run with no completion row yet hands nothing on.
+    const open = await grant({
+      briefId: v1BriefId,
+      digest: briefDigest(NWF_DISCOVERY_BRIEF_V1),
+      geography: 'JP',
+    });
+    const { runId } = await inSourceDiscoveryTransaction(source, (c) =>
+      startGrantedRun(c, {
+        grantId: open,
+        briefId: v1BriefId,
+        geography: 'JP',
+        providerKey: 'claude-max-web-search',
+        actorKey: 'ww-worker',
+      }),
+    );
+    expect(await admissibleNominationsOfRun(readonly, runId)).toEqual({
+      state: 'RUN_NOT_COMPLETED',
+      nominations: [],
+    });
   });
 
   // ------------------------------------------------------------ the CLI

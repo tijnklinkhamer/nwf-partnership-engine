@@ -337,6 +337,20 @@ describe('REL L2 Claude Max adapter: WebSearch only, against a FAKE SDK query', 
         [
           { type: 'system', subtype: 'init' },
           plannedSearch,
+          // WW H-SD: the tool's own report - exactly one search, these hits.
+          {
+            type: 'user',
+            toolResults: [
+              {
+                toolUseId: 'toolu_1',
+                webSearch: {
+                  query: request.query.text,
+                  searchCount: 1,
+                  resultUrls: results.map((r) => r.url),
+                },
+              },
+            ],
+          },
           { type: 'result', subtype: 'success', structured_output: { results } },
         ],
         seen,
@@ -345,7 +359,7 @@ describe('REL L2 Claude Max adapter: WebSearch only, against a FAKE SDK query', 
     expect(response).toEqual({
       results,
       retrievedAt: '2026-10-20T08:00:00.000Z',
-      searchGate: { hookInvoked: true, permissionInvoked: true },
+      searchGate: { hookInvoked: true, permissionInvoked: true, searchCount: 1 },
     });
     expect([...seen.options!.allowedTools]).toEqual([]);
   });

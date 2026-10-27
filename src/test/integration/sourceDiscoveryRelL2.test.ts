@@ -262,6 +262,7 @@ describeDb('REL L2 source discovery (integration, disposable database)', () => {
       // WW E-SD (migration 0022): the grant tables reference these, so they go first.
       'TRUNCATE source_discovery_nomination_known_marks, source_discovery_run_completions, ' +
         'source_discovery_smoke_verifications, source_discovery_query_call_starts, ' +
+        'source_discovery_query_call_observations, ' +
         'source_discovery_query_calls, source_discovery_grant_uses, source_discovery_grants, ' +
         'source_discovery_nomination_sightings, source_discovery_nomination_identities, ' +
         'source_discovery_nominations, source_discovery_runs, source_discovery_briefs',
@@ -328,6 +329,9 @@ describeDb('REL L2 source discovery (integration, disposable database)', () => {
         'source_discovery_nomination_sightings:SELECT',
         'source_discovery_nominations:INSERT',
         'source_discovery_nominations:SELECT',
+        // WW H-SD (migration 0027): the call observations SELECT + INSERT.
+        'source_discovery_query_call_observations:INSERT',
+        'source_discovery_query_call_observations:SELECT',
         // WW E-SDFX (migration 0025): the call starts SELECT + INSERT.
         'source_discovery_query_call_starts:INSERT',
         'source_discovery_query_call_starts:SELECT',

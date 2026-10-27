@@ -46,7 +46,12 @@ describe('WW E-SDFX WebSearchGate: the one planned query, once', () => {
     expect(gate.check('WebSearch', { query: PLANNED }, 'a', 'permission')).toEqual({
       allow: true,
     });
-    expect(gate.observation).toEqual({ hookInvoked: true, permissionInvoked: true });
+    // WW H-SD: no tool result observed yet, so no reported search count.
+    expect(gate.observation).toEqual({
+      hookInvoked: true,
+      permissionInvoked: true,
+      searchCount: null,
+    });
     expect(gate.approvedToolUseId).toBe('a');
     expect(gate.bindingViolations).toEqual([]);
   });
@@ -143,10 +148,16 @@ describe('WW E-SDFX WebSearchGate: the one planned query, once', () => {
 
 describe('WW E-SDFX adapter: fail closed with zero results kept', () => {
   /** A fake SDK that consults the gate as the SDK would, then IGNORES every denial. */
-  function adversarial(uses: AgentToolUse[], consult: boolean): AgentQueryFn {
+  function adversarial(
+    uses: AgentToolUse[],
+    consult: boolean,
+    report?: AgentMessage,
+  ): AgentQueryFn {
     return (args) =>
       (async function* (): AsyncGenerator<AgentMessage> {
         yield { type: 'assistant', toolUses: uses };
+        // WW H-SD: the tool's own report (tool_use_result), when the fake gives one.
+        if (report !== undefined) yield report;
         if (consult) {
           await Promise.all(
             uses.map(async (u) => {
@@ -189,9 +200,26 @@ describe('WW E-SDFX adapter: fail closed with zero results kept', () => {
   });
 
   it('the one planned search returns its results and what the gate observed', async () => {
-    const response = await search(adversarial([use('a', { query: PLANNED })], true));
+    const report: AgentMessage = {
+      type: 'user',
+      toolResults: [
+        {
+          toolUseId: 'a',
+          webSearch: {
+            query: PLANNED,
+            searchCount: 1,
+            resultUrls: RESULTS.results.map((r) => r.url),
+          },
+        },
+      ],
+    };
+    const response = await search(adversarial([use('a', { query: PLANNED })], true, report));
     expect(response.results).toEqual(RESULTS.results);
-    expect(response.searchGate).toEqual({ hookInvoked: true, permissionInvoked: true });
+    expect(response.searchGate).toEqual({
+      hookInvoked: true,
+      permissionInvoked: true,
+      searchCount: 1,
+    });
   });
 });
 
