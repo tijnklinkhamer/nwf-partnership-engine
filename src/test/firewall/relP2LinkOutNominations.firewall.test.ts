@@ -43,8 +43,8 @@ import {
 /** The REL final join A2 commit: this slice's parent. */
 const P2_BASE_COMMIT = '80457a9e75a64c14ee0646086f2669eff0d99cd2';
 
-/** Open while the slice is being written; the pin commit closes it at the slice's own commit. */
-const P2_TERMINAL_COMMIT: string | null = null;
+/** Pinned by the REL P2 pin commit to this slice's own commit (closed range). */
+const P2_TERMINAL_COMMIT: string | null = '5ede2e7a261ad8cb73cff4f157150a1abdd156a0';
 
 const MIGRATION = 'migrations/0020_source_discovery_link_out_sightings.sql';
 const OWNER_RECORD = 'docs/evaluation/REL_P2_LINK_OUT_NOMINATIONS_OWNER_DIRECTIVE_RECORD_V1.json';
