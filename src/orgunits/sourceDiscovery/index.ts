@@ -6,6 +6,9 @@
  *
  *   planDiscoveryQueries      PURE worldwide planner -> `nwf-discovery-plan-v2`
  *   registerPlan              registers a plan by digest so an OWNER grant can name it
+ *   admissibleNominationsOfRun  the nominations a COMPLETED granted run may hand on:
+ *                             RESULTS calls with one observed search, a smoke only
+ *                             once the OWNER verified it (WW H-SD, P1-9)
  *   runGrantedSourceDiscovery ONE live run under ONE stored OWNER-path grant
  *   SourceDiscoveryAuthorisation  the grant-derived capability (fromStoredGrant)
  *   productionLiveSearchDeps  the real SDK `query` + ADR 0010 auth-status runner
@@ -28,7 +31,14 @@ export {
   type RunCompletionReason,
   type SourceDiscoveryClock,
 } from './grant.js';
-export { PlanRegistrationRefused, registerPlan } from './grantStore.js';
+export {
+  PlanRegistrationRefused,
+  admissibleNominationsOfRun,
+  registerPlan,
+  type AdmissibleNomination,
+  type AdmissibleNominationsOfRun,
+  type AdmissibleNominationsState,
+} from './grantStore.js';
 export {
   GrantedRunInternalError,
   GrantedRunRefusal,

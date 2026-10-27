@@ -37,13 +37,50 @@
  * provider is expressible: the conflicting variables are refused, never
  * forwarded.
  *
+ * ONE OUTER WEBSEARCH PER SESSION (WW H-SD, ADR 0028 s9). The child
+ * environment carries `CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION=1`. Read
+ * from the bundled 2.1.251 executable (static reading, not a live call): the
+ * variable is parsed as an integer >= 1 (default 200) and caps the number of
+ * WebSearch TOOL CALLS a session performs - a call past the cap returns "Web
+ * search was not performed" with `searchCount: 0`. It does NOT cap the tool's
+ * NESTED side query, which is sent with `web_search_20250305` and a
+ * hard-coded `max_uses: 8` that no setting or variable reaches; that query's
+ * server-side searches (and the texts its model chooses) never reach this
+ * stream. What IS bounded, and how: one outer call per provider call (this
+ * cap, plus the adapter's gate); and what is KEPT - the adapter keeps a
+ * call's results only when its WebSearch reported `searchCount === 1` and
+ * every returned URL is one of that search's own hits (`tool_use_result`,
+ * mapped below). Each provider call is its own session (`persistSession:
+ * false`, a fresh subprocess), so the cap is per call.
+ *
+ * MANAGED POLICY STILL APPLIES. `settingSources: []` skips the user,
+ * project and local settings files only; the CLI still loads the
+ * managed-settings policy tier (sdk.d.ts `resolveSettings`: "the
+ * managed-settings policy tier is still read from disk"). A managed policy
+ * could pre-approve WebSearch (so `canUseTool` is not consulted), restrict or
+ * disable hooks (UNKNOWN whether that reaches an SDK callback hook), or set
+ * this cap differently. The PreToolUse hook still gates the outer input
+ * whenever the CLI runs it; the stream check refuses any WebSearch neither
+ * surface approved; the search-result check above bounds what is kept; and
+ * the database will not record an OWNER smoke verification for a smoke whose
+ * hook was not invoked or that did not report exactly one search
+ * (migration 0027).
+ *
+ * THE DEADLINE (WW H-SD, P2-15a). A call is aborted after the SMALLER of the
+ * mechanical bound below and the caller's `deadlineMs` - a granted run passes
+ * the time its grant has left by the DATABASE clock at the call's start - so
+ * no search outlives its grant. An aborted call ends with a closed
+ * `DEADLINE_EXCEEDED` terminal; nothing it streamed is kept.
+ *
  * WHAT IT READS FROM A RESULT. The SDK stream is mapped to the adapter's
  * closed `AgentMessage` shape: type, subtype, is_error, structured_output,
  * - on a failed terminal result only - a CLOSED `failure` value recognised
  * from the SDK's own usage-limit vocabulary or an authentication marker, and
  * - on an assistant message - its tool-use blocks (kind, id, name, input),
  * which the adapter counts and compares against its gate IN MEMORY (ADR 0028
- * s9). No prompt, result text, transcript or session id leaves this
+ * s9), and - on a user message - the tool-use ids its tool results answer
+ * plus, for a WebSearch output, the reported query, `searchCount` and hit
+ * URLs (never the hit titles or the model's commentary). No prompt, result text, transcript or session id leaves this
  * function, and nothing here logs or stores one.
  *
  * Nothing in CI calls the real SDK: every test injects `sdkQuery`, the
@@ -79,6 +116,7 @@ import {
   WEB_SEARCH_MAX_TURNS,
   type AgentMessage,
   type AgentQueryFn,
+  type AgentToolResult,
   type AgentToolUse,
   type WebSearchAgentOptions,
 } from './claudeMaxWebSearchProvider.js';
@@ -86,6 +124,15 @@ import { SOURCE_DISCOVERY_ALLOWED_MODELS } from './grant.js';
 
 /** Mechanical safety bound: one query's stream is aborted after this long. Not a calibrated value. */
 export const SOURCE_DISCOVERY_QUERY_DEADLINE_MS = 300_000;
+
+/**
+ * Fixed, non-secret flags set on EVERY source-discovery subprocess on top of
+ * the ADR 0010 child environment (WW H-SD, P1-3): at most ONE WebSearch tool
+ * call per session. A named exported constant so the firewall can pin it.
+ */
+export const SOURCE_DISCOVERY_CHILD_ENV_FIXED: Readonly<Record<string, string>> = Object.freeze({
+  CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION: '1',
+});
 
 /** The scratch-directory prefix, distinct from the classifier's own. */
 export const SOURCE_DISCOVERY_SCRATCH_PREFIX = 'nwf-pe-source-discovery-';
@@ -100,6 +147,8 @@ export interface SdkStreamMessage {
   readonly errors?: unknown;
   /** An assistant message's Messages-API body; only its tool-use blocks are read. */
   readonly message?: unknown;
+  /** A user message's structured tool output; only a WebSearch output's count, query and URLs are read. */
+  readonly tool_use_result?: unknown;
 }
 
 /** The SDK's `query` entry point, as injected. Production: the SDK's own `query`. */
@@ -186,11 +235,66 @@ function toolUsesOf(message: SdkStreamMessage): AgentToolUse[] {
   return uses;
 }
 
+/** The tool-use ids a user message's tool-result blocks answer. */
+function toolResultIdsOf(message: SdkStreamMessage): string[] {
+  const content = (message.message as { content?: unknown } | null | undefined)?.content;
+  if (!Array.isArray(content)) return [];
+  const ids: string[] = [];
+  for (const block of content as unknown[]) {
+    if (typeof block !== 'object' || block === null) continue;
+    const b = block as { type?: unknown; tool_use_id?: unknown };
+    if (b.type === 'tool_result' && typeof b.tool_use_id === 'string') ids.push(b.tool_use_id);
+  }
+  return ids;
+}
+
+/**
+ * The WebSearch output shape (sdk-tools.d.ts `WebSearchOutput`: `query`,
+ * `results` of `{tool_use_id, content: {title, url}[]}` or commentary
+ * strings, `durationSeconds`, optional `searchCount`), reduced to the query,
+ * the count and the hit URLs. Anything else is null.
+ */
+function webSearchOutputOf(value: unknown): AgentToolResult['webSearch'] {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
+  const v = value as { query?: unknown; results?: unknown; searchCount?: unknown };
+  if (!Array.isArray(v.results)) return null;
+  const resultUrls: string[] = [];
+  for (const entry of v.results as unknown[]) {
+    if (typeof entry !== 'object' || entry === null) continue; // commentary never crosses
+    const hits = (entry as { content?: unknown }).content;
+    if (!Array.isArray(hits)) continue;
+    for (const hit of hits as unknown[]) {
+      const url = (hit as { url?: unknown } | null)?.url;
+      if (typeof url === 'string') resultUrls.push(url);
+    }
+  }
+  return {
+    query: typeof v.query === 'string' ? v.query : null,
+    searchCount: Number.isInteger(v.searchCount) ? (v.searchCount as number) : null,
+    resultUrls,
+  };
+}
+
+/**
+ * Every tool result of a user message. `tool_use_result` is ONE per
+ * message, so it is attributed only when the message answers exactly one
+ * tool use; otherwise no result carries a search (and the adapter refuses).
+ */
+function toolResultsOf(message: SdkStreamMessage): AgentToolResult[] {
+  const ids = toolResultIdsOf(message);
+  const webSearch = ids.length === 1 ? webSearchOutputOf(message.tool_use_result) : null;
+  return ids.map((toolUseId) => ({ toolUseId, webSearch }));
+}
+
 /** Maps one SDK message to the adapter's closed shape. No prose crosses this line. */
 export function toAgentMessage(message: SdkStreamMessage): AgentMessage {
   if (message.type === 'assistant') {
     const toolUses = toolUsesOf(message);
     return toolUses.length > 0 ? { type: message.type, toolUses } : { type: message.type };
+  }
+  if (message.type === 'user') {
+    const toolResults = toolResultsOf(message);
+    return toolResults.length > 0 ? { type: message.type, toolResults } : { type: message.type };
   }
   if (message.type !== 'result') return { type: message.type };
   const failure = failureOf(message);
@@ -236,6 +340,14 @@ export function preToolUseHook(o: WebSearchAgentOptions): SdkHookCallback {
     };
   };
 }
+
+/** The closed terminal of an aborted call: no subtype the SDK uses, no prose. */
+const DEADLINE_EXCEEDED_RESULT: AgentMessage = Object.freeze({
+  type: 'result',
+  subtype: 'error_deadline_exceeded',
+  is_error: true,
+  failure: 'DEADLINE_EXCEEDED' as const,
+});
 
 const refuse = (kind: string, detail: string): LiveSearchPreparation => ({
   ok: false,
@@ -289,7 +401,10 @@ export async function prepareLiveSearch(
       await close();
       return refuse('SCRATCH_NOT_EMPTY', 'the fresh scratch directory was not empty.');
     }
-    const childEnv = buildChildEnvironment({ parentEnv, configDir: preflight.profileDir });
+    const childEnv: Record<string, string> = {
+      ...buildChildEnvironment({ parentEnv, configDir: preflight.profileDir }),
+      ...SOURCE_DISCOVERY_CHILD_ENV_FIXED,
+    };
     const leaked = [...FORBIDDEN_AUTH_VARIABLES, PROHIBITED_SETUP_TOKEN_VARIABLE].filter(
       (name) => childEnv[name] !== undefined,
     );
@@ -325,8 +440,17 @@ export async function prepareLiveSearch(
     const query: AgentQueryFn = (args) => {
       const o = args.options;
       return (async function* (): AsyncGenerator<AgentMessage> {
+        // P2-15a: the smaller of the mechanical bound and the caller's deadline.
+        const limitMs = Math.min(
+          SOURCE_DISCOVERY_QUERY_DEADLINE_MS,
+          args.deadlineMs ?? SOURCE_DISCOVERY_QUERY_DEADLINE_MS,
+        );
+        if (!(limitMs > 0)) {
+          yield DEADLINE_EXCEEDED_RESULT; // no time left: the SDK is never called
+          return;
+        }
         const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), SOURCE_DISCOVERY_QUERY_DEADLINE_MS);
+        const timer = setTimeout(() => controller.abort(), limitMs);
         const options: Options = {
           model: modelId,
           tools: [...o.tools],
@@ -352,11 +476,15 @@ export async function prepareLiveSearch(
         };
         try {
           for await (const message of deps.sdkQuery({ prompt: args.prompt, options })) {
+            if (controller.signal.aborted) break;
             yield toAgentMessage(message);
           }
+        } catch (error) {
+          if (!controller.signal.aborted) throw error;
         } finally {
           clearTimeout(timer);
         }
+        if (controller.signal.aborted) yield DEADLINE_EXCEEDED_RESULT;
       })();
     };
     return { ok: true, runtime: { query, sdkVersion, close } };

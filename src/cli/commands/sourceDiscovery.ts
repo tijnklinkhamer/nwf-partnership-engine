@@ -262,11 +262,13 @@ export async function runSourceDiscoveryCli(
                 `(grant ${run.grantId} slot ${run.runSeq}, ${run.geography}, ${run.modelId})\n`,
             );
             for (const c of run.calls) {
-              // The D8 smoke's gate observation is what an OWNER reads before verifying it.
+              // The D8 smoke's gate observation is what an OWNER reads before verifying it;
+              // migration 0027 refuses a verification unless hook=true and searches=1.
               const gate =
                 c.searchGate === null
                   ? ''
-                  : `\thook=${c.searchGate.hookInvoked} canUseTool=${c.searchGate.permissionInvoked}`;
+                  : `\thook=${c.searchGate.hookInvoked} canUseTool=${c.searchGate.permissionInvoked}` +
+                    ` searches=${c.searchGate.searchCount ?? '-'}`;
               out(
                 `  ${c.callSeq}\t${c.queryId}\t${c.outcome}\t${c.resultCount ?? '-'}` +
                   `${c.smoke ? '\tsmoke' : ''}${gate}\n`,

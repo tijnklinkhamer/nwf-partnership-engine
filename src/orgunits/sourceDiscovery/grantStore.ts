@@ -17,9 +17,15 @@
  *     re-checking the grant's window on its own clock and requiring an OWNER
  *     smoke verification for any call that is not the D8 smoke;
  *   - one terminal query-call row per provider call, matching its start (no
- *     prompt, no response text);
+ *     prompt, no response text), and in the same transaction its OBSERVATION
+ *     (migration 0027): which gate surfaces were consulted and how many
+ *     searches the WebSearch reported - the terminal row cannot commit
+ *     without it;
  *   - one known-mark per v2-plan nomination (re-derived by the database);
  *   - the terminal completion row.
+ *
+ * It also READS, for the wiring layer, the nominations a granted run may
+ * hand on (`admissibleNominationsOfRun`, WW H-SD P1-9).
  *
  * Nothing here requests a URL, calls a model or reads a nomination's page.
  */
@@ -186,14 +192,27 @@ export interface QueryCallStartInsert {
  * and committed BEFORE the call. Refused (23514) outside the grant's window
  * by the database clock, or for a non-smoke call without a smoke
  * verification for this SDK version and model.
+ *
+ * Returns how many milliseconds the grant has left, by the DATABASE clock at
+ * the start (WW H-SD, P2-15a): the call's own deadline, so no search
+ * outlives its grant.
  */
-export async function insertQueryCallStart(q: Queryable, c: QueryCallStartInsert): Promise<void> {
-  await q.query(
+export async function insertQueryCallStart(
+  q: Queryable,
+  c: QueryCallStartInsert,
+): Promise<{ readonly grantRemainingMs: number }> {
+  const { rows } = await q.query<{ remaining_ms: string }>(
     `INSERT INTO source_discovery_query_call_starts
         (run_id, call_seq, query_id, model_id, sdk_version, smoke)
-     VALUES ($1, $2, $3, $4, $5, $6)`,
+     VALUES ($1, $2, $3, $4, $5, $6)
+     RETURNING floor(extract(epoch FROM (
+                 (SELECT gr.expires_at
+                    FROM source_discovery_grant_uses u
+                    JOIN source_discovery_grants gr ON gr.id = u.grant_id
+                   WHERE u.run_id = $1) - started_at)) * 1000)::bigint AS remaining_ms`,
     [c.runId, c.callSeq, c.queryId, c.modelId, c.sdkVersion, c.smoke],
   );
+  return { grantRemainingMs: Number(rows[0]!.remaining_ms) };
 }
 
 /** Whether the OWNER has verified a D8 smoke for this SDK version and model (migration 0025). */
@@ -244,6 +263,32 @@ export async function insertQueryCall(q: Queryable, c: QueryCallInsert): Promise
   );
 }
 
+export interface QueryCallObservationInsert {
+  readonly runId: string;
+  readonly callSeq: number;
+  readonly hookInvoked: boolean;
+  readonly permissionInvoked: boolean;
+  /** How many searches the approved WebSearch reported; null when none was observed. */
+  readonly searchCount: number | null;
+}
+
+/**
+ * What one call observed (migration 0027), in the SAME transaction as its
+ * terminal row. The database refuses a RESULTS call whose observation is not
+ * exactly one search through a consulted gate surface.
+ */
+export async function insertQueryCallObservation(
+  q: Queryable,
+  o: QueryCallObservationInsert,
+): Promise<void> {
+  await q.query(
+    `INSERT INTO source_discovery_query_call_observations
+        (run_id, call_seq, hook_invoked, permission_invoked, search_count)
+     VALUES ($1, $2, $3, $4, $5)`,
+    [o.runId, o.callSeq, o.hookInvoked, o.permissionInvoked, o.searchCount],
+  );
+}
+
 export async function insertKnownMark(
   q: Queryable,
   nominationId: string,
@@ -284,6 +329,101 @@ export async function insertRunCompletion(q: Queryable, c: RunCompletionInsert):
       c.known,
     ],
   );
+}
+
+/** One nomination a granted run may hand on, as the wiring layer reads it. */
+export interface AdmissibleNomination {
+  readonly nominationId: string;
+  readonly registrableDomain: string;
+  readonly queryId: string;
+  readonly callSeq: number;
+}
+
+/**
+ * Why a run's nominations are or are not handed on (WW H-SD, P1-9):
+ *
+ *   NOT_A_GRANTED_RUN  no such run, or not a claude-max-web-search run with a
+ *                      grant use: nothing is admissible;
+ *   RUN_NOT_COMPLETED  the run has no completion row yet (it is running, or
+ *                      its completion was never recorded): nothing is
+ *                      admissible YET;
+ *   COMPLETED          the run is complete; `nominations` holds exactly the
+ *                      admissible ones (possibly none).
+ */
+export type AdmissibleNominationsState = 'NOT_A_GRANTED_RUN' | 'RUN_NOT_COMPLETED' | 'COMPLETED';
+
+export interface AdmissibleNominationsOfRun {
+  readonly state: AdmissibleNominationsState;
+  readonly nominations: readonly AdmissibleNomination[];
+}
+
+/**
+ * THE NOMINATIONS A GRANTED RUN MAY HAND ON (WW H-SD, P1-9). Only from a
+ * live-search run that has a grant use AND a completion row (whatever its
+ * outcome: a call that ended RESULTS before a later failure is still a
+ * permitted search's result), and only from its query calls that ended
+ * RESULTS with an observation of exactly ONE search, and only once an
+ * OWNER smoke verification exists for that call's SDK version and model
+ * (migration 0025's runtime-level verification, which migration 0027 binds
+ * to a smoke that showed the hook invoked and exactly one search). So the
+ * very first smoke's nominations wait for the OWNER to verify that smoke; a
+ * non-smoke call could only start under such a verification anyway; and a
+ * later grant's smoke on an already-verified runtime is as admissible as any
+ * other call. Nothing is ranked, valued or filtered beyond that: order is
+ * creation order, then id.
+ *
+ * READ ONLY. Works on any connection that can SELECT these tables
+ * (`nwf_readonly`, or the source-discovery capability).
+ */
+export async function admissibleNominationsOfRun(
+  q: Queryable,
+  runId: string,
+): Promise<AdmissibleNominationsOfRun> {
+  const { rows: runs } = await q.query<{ granted: boolean; completed: boolean }>(
+    `SELECT EXISTS (SELECT 1 FROM source_discovery_grant_uses u WHERE u.run_id = r.id)
+              AS granted,
+            EXISTS (SELECT 1 FROM source_discovery_run_completions c WHERE c.run_id = r.id)
+              AS completed
+       FROM source_discovery_runs r
+      WHERE r.id = $1 AND r.run_kind = 'SEARCH_PROVIDER'
+        AND r.provider_key = 'claude-max-web-search'`,
+    [runId],
+  );
+  const run = runs[0];
+  if (run === undefined || !run.granted) return { state: 'NOT_A_GRANTED_RUN', nominations: [] };
+  if (!run.completed) return { state: 'RUN_NOT_COMPLETED', nominations: [] };
+  const { rows } = await q.query<{
+    id: string;
+    registrable_domain: string;
+    query_id: string;
+    call_seq: number;
+  }>(
+    `SELECT n.id, n.registrable_domain, n.query_id, qc.call_seq
+       FROM source_discovery_nominations n
+       JOIN source_discovery_query_calls qc
+         ON qc.run_id = n.discovery_run_id AND qc.query_id = n.query_id
+       JOIN source_discovery_query_call_observations o
+         ON o.run_id = qc.run_id AND o.call_seq = qc.call_seq
+      WHERE n.discovery_run_id = $1
+        AND n.discovery_method = 'SEARCH_PROVIDER'
+        AND n.provider_key = 'claude-max-web-search'
+        AND qc.outcome = 'RESULTS'
+        AND o.search_count = 1
+        AND EXISTS (
+              SELECT 1 FROM source_discovery_smoke_verifications v
+               WHERE v.sdk_version = qc.sdk_version AND v.model_id = qc.model_id)
+      ORDER BY n.created_at, n.id`,
+    [runId],
+  );
+  return {
+    state: 'COMPLETED',
+    nominations: rows.map((r) => ({
+      nominationId: r.id,
+      registrableDomain: r.registrable_domain,
+      queryId: r.query_id,
+      callSeq: r.call_seq,
+    })),
+  };
 }
 
 /** A unique-violation (23505) or check-violation (23514) from the run-start transaction. */

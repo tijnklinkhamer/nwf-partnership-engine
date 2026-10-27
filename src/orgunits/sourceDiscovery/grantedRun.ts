@@ -17,6 +17,18 @@
  * the database on its own clock when the call's start row is inserted; a run
  * whose grant expires mid-way is ABORTED before the next search is made.
  *
+ * NO SEARCH OUTLIVES ITS GRANT (WW H-SD, P2-15a). The start row returns the
+ * time the grant has left by the DATABASE clock; the provider call is
+ * aborted when it runs out (or at the mechanical bound, whichever is first).
+ * A call aborted at the grant's expiry is recorded PROVIDER_RESULT_MISSING
+ * and the run ABORTED, GRANT_EXPIRED; nothing it streamed is kept.
+ *
+ * WHAT EACH CALL OBSERVED (migration 0027). In the same transaction as the
+ * call's terminal row: one observation row - which gate surfaces were
+ * consulted, and how many searches the WebSearch reported. The database
+ * refuses a RESULTS call that did not observe exactly one search, and a
+ * live-search nomination of any call that did not end RESULTS.
+ *
  * D8 SMOKE, NOW A GATE (migration 0025, ADR 0028 s9). The first call of a
  * grant's first run is recorded `smoke = true` (the database derives and
  * checks it). If its structured output fails under the WebSearch gate, the
@@ -36,7 +48,11 @@
  */
 import type pg from 'pg';
 
-import { prepareLiveSearch, type LiveSearchDeps } from './agentQuery.js';
+import {
+  SOURCE_DISCOVERY_QUERY_DEADLINE_MS,
+  prepareLiveSearch,
+  type LiveSearchDeps,
+} from './agentQuery.js';
 import { SourceDiscoveryAuthorisation } from './authorisation.js';
 import { ClaudeMaxWebSearchProvider } from './claudeMaxWebSearchProvider.js';
 import {
@@ -51,6 +67,7 @@ import {
 import {
   insertKnownMark,
   insertQueryCall,
+  insertQueryCallObservation,
   insertQueryCallStart,
   insertRunCompletion,
   smokeVerificationExists,
@@ -109,9 +126,13 @@ export interface GrantedQueryCall {
   readonly duplicates: number;
   readonly refused: number;
   /**
-   * Which SDK surfaces consulted the WebSearch gate for this call's one
-   * search (ADR 0028 s9); null when the call ended without results. The D8
-   * smoke's value is what an OWNER reads before recording a verification.
+   * What the WebSearch gate observed for this call (ADR 0028 s9): which SDK
+   * surfaces were consulted for its one approved search and how many
+   * searches that WebSearch reported - also recorded, in the same
+   * transaction, as the call's observation row (migration 0027). Null only
+   * when no gate ran. The D8 smoke's value is what an OWNER reads before
+   * recording a verification; the database refuses one unless it shows
+   * `hookInvoked` and `searchCount = 1`.
    */
   readonly searchGate: SearchGateObservation | null;
 }
@@ -176,6 +197,8 @@ const OUTCOME_OF: Readonly<Record<SearchProviderError['code'], QueryCallOutcome 
   PROVIDER_SEARCH_BINDING_REFUSED: 'SEARCH_BINDING_REFUSED',
   PROVIDER_USAGE_LIMIT_EXHAUSTED: 'USAGE_LIMIT_EXHAUSTED',
   PROVIDER_AUTH_FAILURE: 'AUTH_FAILURE',
+  // WW H-SD (P2-15a): aborted at its deadline - no result arrived.
+  PROVIDER_DEADLINE_EXCEEDED: 'PROVIDER_RESULT_MISSING',
 };
 
 async function startRun(
@@ -313,8 +336,9 @@ export async function runGrantedSourceDiscovery(
         break;
       }
       // The database's permission for THIS search, committed before it is made.
+      let grantRemainingMs: number;
       try {
-        await inSourceDiscoveryTransaction(pool, (c) =>
+        ({ grantRemainingMs } = await inSourceDiscoveryTransaction(pool, (c) =>
           insertQueryCallStart(c, {
             runId,
             callSeq,
@@ -323,7 +347,7 @@ export async function runGrantedSourceDiscovery(
             sdkVersion: runtime.sdkVersion,
             smoke,
           }),
-        );
+        ));
       } catch (error) {
         const message = error instanceof Error ? error.message : '';
         if (sqlstateOf(error) === '23514' && message.includes('validity window')) {
@@ -343,12 +367,18 @@ export async function runGrantedSourceDiscovery(
       const startedAt = deps.clock.now();
       let response: SearchResponse | null = null;
       let callOutcome: QueryCallOutcome = 'RESULTS';
+      let observed: SearchGateObservation | null = null;
+      /** The call was aborted when its GRANT ran out (not at the mechanical bound). */
+      let grantExpiredMidCall = false;
       try {
         response = await provider.search({
           briefKey: grant.briefKey,
           geography: grant.geography,
           query,
+          // P2-15a: never longer than the grant has left, by the database clock.
+          deadlineMs: grantRemainingMs,
         });
+        observed = response.searchGate ?? null;
       } catch (error) {
         const mapped =
           error instanceof SearchProviderError ? OUTCOME_OF[error.code] : 'PROVIDER_RESULT_ERROR';
@@ -359,6 +389,12 @@ export async function runGrantedSourceDiscovery(
           break;
         }
         callOutcome = mapped;
+        if (error instanceof SearchProviderError) {
+          observed = error.searchGate;
+          grantExpiredMidCall =
+            error.code === 'PROVIDER_DEADLINE_EXCEEDED' &&
+            grantRemainingMs <= SOURCE_DISCOVERY_QUERY_DEADLINE_MS;
+        }
       }
       const endedAt = deps.clock.now();
       const results = response?.results.slice(0, grant.maxResultsPerQuery) ?? [];
@@ -381,6 +417,14 @@ export async function runGrantedSourceDiscovery(
             smoke,
             startedAt,
             endedAt,
+          });
+          // Migration 0027: what the call observed, with its terminal row.
+          await insertQueryCallObservation(c, {
+            runId,
+            callSeq,
+            hookInvoked: observed?.hookInvoked ?? false,
+            permissionInvoked: observed?.permissionInvoked ?? false,
+            searchCount: observed?.searchCount ?? null,
           });
           let inserted = 0;
           let duplicates = 0;
@@ -431,7 +475,7 @@ export async function runGrantedSourceDiscovery(
               inserted,
               duplicates,
               refused: refusedReasons.length,
-              searchGate: response?.searchGate ?? null,
+              searchGate: observed,
             },
             added,
             refusedReasons,
@@ -448,6 +492,11 @@ export async function runGrantedSourceDiscovery(
       nominations.push(...committed.added);
       for (const r of committed.refusedReasons) refusals[r] = (refusals[r] ?? 0) + 1;
 
+      if (grantExpiredMidCall) {
+        outcome = 'ABORTED';
+        reason = 'GRANT_EXPIRED';
+        break;
+      }
       if (callOutcome !== 'RESULTS') {
         outcome = callOutcome === 'USAGE_LIMIT_EXHAUSTED' ? 'ABORTED' : 'FAILED';
         reason = callOutcome;

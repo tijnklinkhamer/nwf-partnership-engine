@@ -44,6 +44,21 @@
  * KEPT SEPARATE FROM THE CLASSIFIER. It reuses nothing from `classify/`: its
  * options, prompt, output schema and result handling are its own.
  *
+ * THE NESTED SEARCHES ARE BOUNDED BY WHAT IS KEPT (WW H-SD, ADR 0028 s9).
+ * The bundled executable's WebSearch tool does not search itself: it runs a
+ * NESTED side query that may make up to 8 server-side searches whose texts
+ * the side-query model chooses and this build cannot inspect - those
+ * server_tool_use blocks never reach the outer stream, so the gate above
+ * binds only the OUTER input. What the tool does report, in the user
+ * message's `tool_use_result`, is how many searches it made (`searchCount`)
+ * and every hit URL. So a call keeps results ONLY when the one approved
+ * WebSearch reported exactly ONE search and every returned URL is one of
+ * that search's own hit URLs; anything else - several searches, a URL the
+ * search never returned, no tool result at all, or no search - fails the call
+ * `PROVIDER_SEARCH_BINDING_REFUSED`. The SDK seam also caps the session at
+ * ONE outer WebSearch call (`CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION=1`,
+ * agentQuery.ts), so at most one side query runs per provider call.
+ *
  * OPEN (UNKNOWN, not tested live): whether the live SDK invokes the
  * PreToolUse hook and/or `canUseTool` for WebSearch under these options, and
  * how structured output behaves under the gate. The reading above comes from
@@ -57,6 +72,7 @@ import { SourceDiscoveryAuthorisation } from './authorisation.js';
 import {
   MAX_RESULTS_PER_QUERY,
   SearchProviderError,
+  type SearchGateObservation,
   type SearchProvider,
   type SearchRequest,
   type SearchResponse,
@@ -98,6 +114,12 @@ export const WEB_SEARCH_MAX_TURNS = 4;
  * bundled 0.3.251 executable, not a live observation (ADR 0028 s9).
  */
 export const STRUCTURED_OUTPUT_CARRIER = 'StructuredOutput';
+
+/**
+ * How many searches the approved WebSearch may report (its NESTED side query
+ * can make up to 8 - ADR 0028 s9). Anything else keeps nothing.
+ */
+export const WEB_SEARCH_REQUIRED_SEARCH_COUNT = 1;
 
 /** The SDK's WebSearch input fields that would widen or narrow the search: never permitted. */
 export const WEB_SEARCH_DOMAIN_OVERRIDES: readonly string[] = Object.freeze([
@@ -165,6 +187,23 @@ export interface AgentToolUse {
   readonly input: unknown;
 }
 
+/**
+ * One tool result the SDK seam saw in a user message (WW H-SD, P1-3): the
+ * tool-use id it answers and - only when the message answered exactly one
+ * tool use and its `tool_use_result` had the WebSearch output shape - the
+ * search the tool REPORTED: its query, its `searchCount` and every hit URL.
+ * Hit titles and the model's commentary never cross. Held IN MEMORY for one
+ * call, compared and dropped: never logged, stored or returned.
+ */
+export interface AgentToolResult {
+  readonly toolUseId: string;
+  readonly webSearch: {
+    readonly query: string | null;
+    readonly searchCount: number | null;
+    readonly resultUrls: readonly string[];
+  } | null;
+}
+
 /** The subset of an SDK message this adapter reads. Everything else is ignored, never logged. */
 export interface AgentMessage {
   readonly type: string;
@@ -176,15 +215,19 @@ export interface AgentMessage {
    * recognised, from the SDK's own usage-limit vocabulary or an
    * authentication marker. A closed value; never free text.
    */
-  readonly failure?: 'USAGE_LIMIT_EXHAUSTED' | 'AUTH_FAILURE';
+  readonly failure?: 'USAGE_LIMIT_EXHAUSTED' | 'AUTH_FAILURE' | 'DEADLINE_EXCEEDED';
   /** On an assistant message: every tool-use block it carried. */
   readonly toolUses?: readonly AgentToolUse[];
+  /** On a user message: every tool result it carried (WW H-SD, P1-3). */
+  readonly toolResults?: readonly AgentToolResult[];
 }
 
 /** The shape of the SDK's `query` entry point, as injected. Tests pass a fake. */
 export type AgentQueryFn = (args: {
   readonly prompt: string;
   readonly options: WebSearchAgentOptions;
+  /** WW H-SD (P2-15a): abort the call after this many ms (the request's `deadlineMs`). */
+  readonly deadlineMs?: number;
 }) => AsyncIterable<AgentMessage>;
 
 /**
@@ -208,6 +251,7 @@ export class WebSearchGate {
   #approvedToolUseId: string | null = null;
   #hookInvoked = false;
   #permissionInvoked = false;
+  #searchCount: number | null = null;
   readonly #refusedTools: string[] = [];
   readonly #bindingViolations: string[] = [];
 
@@ -231,8 +275,12 @@ export class WebSearchGate {
     return [...new Set(this.#bindingViolations)].sort();
   }
 
-  get observation(): { readonly hookInvoked: boolean; readonly permissionInvoked: boolean } {
-    return { hookInvoked: this.#hookInvoked, permissionInvoked: this.#permissionInvoked };
+  get observation(): SearchGateObservation {
+    return {
+      hookInvoked: this.#hookInvoked,
+      permissionInvoked: this.#permissionInvoked,
+      searchCount: this.#searchCount,
+    };
   }
 
   /** Why `input` is not exactly the planned search, or null when it is. */
@@ -311,6 +359,44 @@ export class WebSearchGate {
     }
     if (this.#approvedToolUseId !== null && !searches.has(this.#approvedToolUseId)) {
       this.#bindingViolations.push('the approved WebSearch never appeared in the stream');
+    }
+  }
+
+  /**
+   * The search-result check (WW H-SD, P1-3), after a schema-valid terminal
+   * result: the call made the ONE approved WebSearch; that tool use has
+   * exactly one tool result carrying the WebSearch output shape; it reported
+   * exactly ONE search (its nested side query may make up to 8, with texts
+   * this build cannot inspect) for the planned query; and every URL the
+   * call returns is one of that search's own hit URLs. Anything else is a
+   * binding violation, so nothing from the call is kept.
+   */
+  observeSearchResult(
+    toolResults: readonly AgentToolResult[],
+    returnedUrls: readonly string[],
+  ): void {
+    if (this.#approvedToolUseId === null) {
+      this.#bindingViolations.push('no WebSearch was made');
+      return;
+    }
+    const answers = toolResults.filter((r) => r.toolUseId === this.#approvedToolUseId);
+    if (answers.length !== 1 || answers[0]!.webSearch === null) {
+      this.#bindingViolations.push('the approved WebSearch reported no single search result');
+      return;
+    }
+    const reported = answers[0]!.webSearch;
+    this.#searchCount = reported.searchCount;
+    if (reported.searchCount !== WEB_SEARCH_REQUIRED_SEARCH_COUNT) {
+      this.#bindingViolations.push(
+        `the WebSearch reported ${reported.searchCount ?? 'no'} searches, not exactly one`,
+      );
+    }
+    if (reported.query !== this.#plannedQuery) {
+      this.#bindingViolations.push('the WebSearch reported a query other than the planned query');
+    }
+    const hits = new Set(reported.resultUrls);
+    if (returnedUrls.some((url) => !hits.has(url))) {
+      this.#bindingViolations.push("a returned URL is not one of the search's own results");
     }
   }
 }
@@ -433,12 +519,15 @@ export class ClaudeMaxWebSearchProvider implements SearchProvider {
     const gate = new WebSearchGate(request.query.text);
     const options = buildWebSearchAgentOptions(gate);
     const toolUses: AgentToolUse[] = [];
+    const toolResults: AgentToolResult[] = [];
     let terminal: AgentMessage | null = null;
     for await (const message of this.#deps.query({
       prompt: buildWebSearchPrompt(request),
       options,
+      ...(request.deadlineMs !== undefined ? { deadlineMs: request.deadlineMs } : {}),
     })) {
       if (message.toolUses !== undefined) toolUses.push(...message.toolUses);
+      if (message.toolResults !== undefined) toolResults.push(...message.toolResults);
       if (message.type === 'result') {
         terminal = message;
         break; // terminal means terminal: never pull past the result
@@ -449,36 +538,49 @@ export class ClaudeMaxWebSearchProvider implements SearchProvider {
       throw new SearchProviderError(
         'PROVIDER_TOOL_REFUSED',
         `the provider requested a refused tool (${gate.refusedTools.join(', ')}).`,
+        gate.observation,
       );
     }
     if (gate.bindingViolations.length > 0) {
       throw new SearchProviderError(
         'PROVIDER_SEARCH_BINDING_REFUSED',
         `the provider's search was not the one planned query (${gate.bindingViolations.join('; ')}).`,
+        gate.observation,
       );
     }
     if (terminal === null) {
       throw new SearchProviderError(
         'PROVIDER_RESULT_MISSING',
         'the stream ended without a result.',
+        gate.observation,
+      );
+    }
+    if (terminal.failure === 'DEADLINE_EXCEEDED') {
+      throw new SearchProviderError(
+        'PROVIDER_DEADLINE_EXCEEDED',
+        'the call reached its deadline before a result; the stream was aborted.',
+        gate.observation,
       );
     }
     if (terminal.failure === 'USAGE_LIMIT_EXHAUSTED') {
       throw new SearchProviderError(
         'PROVIDER_USAGE_LIMIT_EXHAUSTED',
         'the subscription usage limit was reached; no retry, no fallback.',
+        gate.observation,
       );
     }
     if (terminal.failure === 'AUTH_FAILURE') {
       throw new SearchProviderError(
         'PROVIDER_AUTH_FAILURE',
         'the provider runtime reported an authentication failure.',
+        gate.observation,
       );
     }
     if (terminal.subtype !== 'success' || terminal.is_error === true) {
       throw new SearchProviderError(
         'PROVIDER_RESULT_ERROR',
         `the provider ended with ${terminal.subtype ?? 'no subtype'}.`,
+        gate.observation,
       );
     }
     const parsed = OutputSchema.safeParse(terminal.structured_output);
@@ -486,12 +588,19 @@ export class ClaudeMaxWebSearchProvider implements SearchProvider {
       throw new SearchProviderError(
         'PROVIDER_OUTPUT_INVALID',
         'structured output failed its schema.',
+        gate.observation,
       );
     }
-    if (parsed.data.results.length > 0 && gate.approvedToolUseId === null) {
+    // WW H-SD (P1-3): exactly one reported search, and only its own hit URLs.
+    gate.observeSearchResult(
+      toolResults,
+      parsed.data.results.map((r) => r.url),
+    );
+    if (gate.bindingViolations.length > 0) {
       throw new SearchProviderError(
         'PROVIDER_SEARCH_BINDING_REFUSED',
-        'results were returned without the one planned WebSearch.',
+        `the provider's results are not the one planned search's own (${gate.bindingViolations.join('; ')}).`,
+        gate.observation,
       );
     }
     return {
