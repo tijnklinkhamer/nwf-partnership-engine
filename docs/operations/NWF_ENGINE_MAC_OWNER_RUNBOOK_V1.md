@@ -2,13 +2,17 @@
 
 - **Audience:** the OWNER, on the OWNER's own Mac.
 - **Status:** written with the `nwf-engine` runtime (WW E-M, OWNER directive
-  2026-10-27 §5 "Mac operation — start it and let it work"). Every command
-  below exists in this build. Steps that need an OWNER act that has **not
+  2026-10-27 §5 "Mac operation — start it and let it work"), updated for the
+  wired stage handlers, the campaign signer, the batched identity review and
+  the outbox (WW E-W, ADR 0030) and the source-discovery search gate (WW
+  E-SDFX, ADR 0028 §9). Every command below exists in this build. Steps that need an OWNER act that has **not
   been granted yet** are marked **[NEEDS OWNER ACT]**; until those acts
   happen, `nwf-engine start` refuses, and it says exactly why.
 - **What the runtime is:** one control surface around the existing
-  acquisition worker (ADR 0029). It starts the local database, checks
-  everything, and keeps the worker running for one OWNER-signed campaign.
+  acquisition worker (ADR 0029) and its wired stage handlers (ADR 0030:
+  search → de-duplicate → propose → research → outbox; identity review stays
+  yours). It starts the local database, checks everything, and keeps the
+  worker running for one OWNER-signed campaign.
   It holds no authority of its own: the worker re-checks the OWNER-signed
   campaign before every item, and the database refuses anything the
   campaign does not allow.
@@ -21,7 +25,7 @@
 | Docker Desktop, running  | the Engine's PostgreSQL runs in Docker on 127.0.0.1 | `nwf-engine doctor` (line `docker`)      |
 | Node 24.x                | the repository pins it in `.node-version`           | `nwf-engine doctor` (line `node`)        |
 | this checkout, installed | `npm ci` in the repository                          | —                                        |
-| `.env` in the checkout   | the three database connection strings (section 2)   | `nwf-engine doctor` (line `environment`) |
+| `.env` in the checkout   | the database connection strings (section 2 item 5)  | `nwf-engine doctor` (line `environment`) |
 
 Run commands from the repository directory:
 
@@ -36,7 +40,7 @@ The examples below write `nwf-engine <command>` for either form.
 ## 2. One-time setup (what the OWNER must sign or provision first, and why)
 
 Run `nwf-engine doctor` first. It is read-only: it changes nothing. Each
-`FAIL` line names what is missing. The full list:
+`FAIL` line names what is missing. The full list, in the order to do it:
 
 1. **The database must be at this build's migration level.**
    **[NEEDS OWNER ACT]** The runtime never applies a migration. When the
@@ -45,46 +49,94 @@ Run `nwf-engine doctor` first. It is read-only: it changes nothing. Each
    `docs/architecture/NWF_PE_MIGRATIONS_0013_0021_APPLY_RUNBOOK_V1.md`. Each
    apply needs a **signed OWNER grant** that names the database, the
    migration range, the commit and the operator path. This build ships **no**
-   apply runbook for 0022 and 0023; `doctor` says so. Those need a grant and
-   a runbook that do not exist yet. Why: the working database holds the
-   frozen research corpus, and a wrong migration cannot be undone.
+   apply runbook for 0022 to 0025 (source discovery, campaigns and queue,
+   campaign research admission and wiring, the search gate); `doctor` says
+   so. Those need a grant and a runbook that do not exist yet. Why: the
+   working database holds the frozen research corpus, and a wrong migration
+   cannot be undone.
 2. **An OWNER campaign key must be pinned.** **[NEEDS OWNER ACT]**
    `doctor` prints `no OWNER campaign key pinned: campaigns cannot run`
    until one is. Pinning a key is an OWNER key-custody decision plus a
-   reviewed source change (ADR 0029 §8). Why: a campaign counts only if its
-   OWNER signature verifies under the pinned key set. The runtime never
-   reads a key, a key file or the Keychain.
-3. **A worker login must be provisioned.** **[NEEDS OWNER ACT]** One
-   database login granted `nwf_acquisition_worker`, named in `.env` as
-   `DATABASE_URL_ACQUISITION_WORKER`. No migration creates it. Why: the
-   worker runs with SELECT and INSERT only, never as the owner. `doctor`
-   refuses a superuser login here.
-4. **`.env` names three connection strings**, all for the same local
+   reviewed source change (`OPERATIONAL_OWNER_CAMPAIGN_KEYS`, ADR 0029 §8,
+   ADR 0030 §11). Why: a campaign counts only if its OWNER signature verifies
+   under the pinned key set. The runtime never reads a key, a key file or
+   the Keychain.
+3. **An OWNER review key must be pinned.** **[NEEDS OWNER ACT]** The same
+   kind of decision for `OPERATIONAL_OWNER_REVIEW_KEYS` (ADR 0023, ADR 0030
+   §5). Until then every identity review is refused, so no subject ever
+   reaches the outbox manifest. `doctor` does not check this one.
+4. **Logins must be provisioned.** **[NEEDS OWNER ACT]** No migration
+   creates a login. One database login per capability, each holding only
+   that capability (SELECT and INSERT; never the owner, never a superuser):
+   - `nwf_acquisition_worker` — the worker (`doctor` refuses a superuser);
+   - `nwf_source_discovery` — the search stage;
+   - `nwf_discovery_subject_writer` — the proposal stage;
+   - `nwf_research` — the research stage;
+   - `nwf_discovery_subject_reviewer` — your batched identity review.
+5. **`.env` names the connection strings**, all for the same local
    database:
    - `DATABASE_URL_ADMIN`: the owner path. It reads the migration ledger
-     (read-only) and records pause, resume and stop events.
-   - `DATABASE_URL_READONLY`: campaign status.
-   - `DATABASE_URL_ACQUISITION_WORKER`: the worker login (item 3).
+     (read-only) and records pause, resume, stop and review releases.
+   - `DATABASE_URL_READONLY`: campaign status and the review list.
+   - `DATABASE_URL_ACQUISITION_WORKER`: the worker login.
+   - `DATABASE_URL_SOURCE_DISCOVERY`, `DATABASE_URL_DISCOVERY_SUBJECT_WRITER`,
+     `DATABASE_URL_RESEARCH`: the worker's stage handlers.
+   - `DATABASE_URL_DISCOVERY_SUBJECT_REVIEWER`: `acquisition review sign`.
 
-   The runtime refuses any host that is not this Mac (`127.0.0.1`,
-   `localhost`, `::1`). It refuses a `_test` database. It refuses variables
-   that name different databases. It prints variable **names**, never values.
+   The runtime checks the first three: it refuses any host that is not this
+   Mac (`127.0.0.1`, `localhost`, `::1`), a `_test` database, and variables
+   that name different databases, and it prints variable **names**, never
+   values. **It does not check the other four** — keep them on the same
+   local database yourself.
 
-5. **Stage handlers must be wired.** **[NEEDS a separate package]** Until the
-   wiring package lands, the worker refuses with
-   `ACQUISITION_HANDLERS_NOT_WIRED`. The supervisor then exits with
-   `HANDLERS_NOT_WIRED`, and nothing is claimed.
-6. **A campaign must be signed, recorded and started by the OWNER.**
-   **[NEEDS OWNER ACT]** The runtime never records or starts a campaign. With
-   a signed envelope, the OWNER runs the existing owner-path commands:
+6. **The search stage needs your Claude Max stored login.** **[NEEDS OWNER
+   ACT]** The stage handlers are wired (ADR 0030); the search stage calls
+   only your Claude Max subscription, through the Agent SDK, from the
+   dedicated profile directory `NWF_PE_CLASSIFIER_CONFIG_DIR` (ADR 0010). No
+   API key, PAYG, Bedrock or Vertex variable may be set: the run refuses.
+7. **A search grant, and one verified D8 smoke.** **[NEEDS OWNER ACT]** A
+   campaign searches only under OWNER-path grant rows it lists (ADR 0028 §6
+   shows the row: plan, geography, model, `max_queries`, `max_runs`, a
+   window of at most a day). The **first** search ever made for an SDK
+   version and model is the D8 smoke, and nothing past it runs until you
+   verify it (ADR 0028 §9): issue a one-query grant, run it once with
+   `npm run cli -- orgunits discover-sources --execute --grant-id <uuid> --json`,
+   read the result (`searchGate.hookInvoked` must be `true`, the outcome
+   `RESULTS`, and the nominations must look like results for the planned
+   query), then record the verification as the migration owner with the SQL
+   in ADR 0028 §9. A search whose stream does not show exactly one WebSearch
+   for the planned query is refused (`SEARCH_BINDING_REFUSED`) and keeps
+   nothing. The runtime never issues a grant or records a verification.
+8. **An outbox directory.** Create one directory the worker may write
+   research exports into, for example:
 
    ```bash
-   npm run cli -- acquisition campaign verify  --file <signed.json>
-   npm run cli -- acquisition campaign record  --file <signed.json> --execute
+   mkdir -p -m 700 ~/NWF/outbox
+   ```
+
+   Give its absolute path to `nwf-engine start --outbox-dir` once (section
+   3); it is remembered. The runtime never creates or chooses it. A symlink
+   is refused. Section 3 shows what appears in it.
+
+9. **A campaign must be signed, recorded and started by the OWNER.**
+   **[NEEDS OWNER ACT]** The runtime never records or starts a campaign.
+   Offline, on your Mac:
+
+   ```bash
+   # an UNSIGNED, conservative draft: all six worker stages, a 7-day window
+   # (at most 14), small budgets, concurrency 1. Writes nothing.
+   npm run cli -- acquisition campaign template --campaign-key <key> \
+       --geography JP [--geography ...] --search-grant-id <grant uuid> [--days 7] > draft.json
+   # read draft.json; then sign it with your ENCRYPTED campaign key
+   # (passphrase asked with echo off; writes a NEW 0600 file; no database, no network)
+   npm run cli -- acquisition campaign sign --file draft.json \
+       --key-file <absolute path to encrypted pkcs8> --key-id <key id> --out signed.json
+   npm run cli -- acquisition campaign verify  --file signed.json
+   npm run cli -- acquisition campaign record  --file signed.json --execute
    npm run cli -- acquisition campaign control --campaign-id <uuid> --action START --execute
    ```
 
-   No offline campaign signer exists yet (ADR 0029 §8).
+   No work item exists before START (or before the signed window opens).
 
 When `doctor` ends with `Result: ready`, the Mac is set up.
 
@@ -93,9 +145,11 @@ When `doctor` ends with `Result: ready`, the Mac is set up.
 ### Start
 
 ```bash
-nwf-engine start --campaign-id <uuid>     # first time; the id is remembered
-nwf-engine start                          # afterwards
+nwf-engine start --campaign-id <uuid> --outbox-dir ~/NWF/outbox   # first time; both are remembered
+nwf-engine start                                                  # afterwards
 ```
+
+(Give the outbox as an absolute path; the shell expands `~` for you.)
 
 `start` does this, in order, and stops at the first refusal:
 
@@ -106,8 +160,12 @@ nwf-engine start                          # afterwards
    `docker compose up -d --no-recreate --wait postgres`. It never runs
    `down`, never removes a volume and never recreates the container;
 4. runs `doctor` and refuses on any `FAIL`;
-5. starts the **supervisor** in the background and confirms that it took
-   its lock.
+5. checks the outbox directory: it must exist as a real directory, and a
+   campaign whose signed stages write exports (`RESEARCHED`, `ASSESSABLE`)
+   is refused when none is configured;
+6. starts the **supervisor** in the background, which hands the outbox to
+   every worker it runs (`acquisition worker --outbox-dir`), and confirms
+   that it took its lock.
 
 The supervisor then works without prompts:
 
@@ -115,21 +173,68 @@ The supervisor then works without prompts:
 | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
 | it was idle, or the queue is drained | starts it again after a wait (30 s, doubling, at most 15 min)                                                     |
 | the identity-review backlog is full  | the same wait; shown as waiting for human review                                                                  |
+| a budget is spent, review pending    | the same wait, while subjects await your identity review (their outbox lines still need the worker)               |
 | the campaign is PAUSED               | waits (no worker runs) and continues as soon as it is resumed                                                     |
 | the campaign is not started yet      | waits for the OWNER's START                                                                                       |
 | the window has not opened yet        | waits for the window                                                                                              |
 | STOP, EMERGENCY_STOP                 | exits for good                                                                                                    |
-| a budget is spent                    | exits for good (`BUDGET_EXHAUSTED`)                                                                               |
+| a budget is spent, no review pending | exits for good (`BUDGET_EXHAUSTED`)                                                                               |
 | the window has ended                 | exits for good (`CAMPAIGN_WINDOW_CLOSED`)                                                                         |
 | the campaign does not verify         | exits for good (`CAMPAIGN_UNVERIFIED`)                                                                            |
-| it refused to start                  | exits for good (`HANDLERS_NOT_WIRED`, `WORKER_REFUSED`, ...)                                                      |
+| it refused to start                  | exits for good (`WORKER_REFUSED` with the code, e.g. an `outbox_*` code; `HANDLERS_NOT_WIRED`)                    |
 | it crashed                           | starts it again after 10 s (doubling, at most 5 min); after 8 consecutive failures it exits (`REPEATED_FAILURES`) |
 | a reason this build does not know    | exits (`UNKNOWN_WORKER_STOP`): it never guesses                                                                   |
 
 Only one supervisor runs per Mac user. It runs one worker at a time, for one
 campaign. The database's own claim rules hold whatever happens on the Mac:
-one claim per item attempt, a concurrency cap per campaign, and at most one
-`ADVANCED` outcome per item.
+one claim per item attempt, a concurrency cap per campaign, a budget
+RESERVATION per claim (a crashed claim's reservation stays spent), lease
+heartbeats while an item runs, and at most one `ADVANCED` outcome per item.
+
+### The daily flow
+
+1. `nwf-engine status`. The worker searches under the campaign's grants,
+   de-duplicates (a duplicate is refused with a named signal, never merged),
+   proposes provisional subjects, researches each one within the signed
+   budgets, writes its two exports to the outbox and parks it **awaiting
+   your identity review**. The dashboard says how many await you.
+2. Review them in ONE batch:
+
+   ```bash
+   npm run cli -- acquisition review list --campaign-id <uuid>
+   # each line: subject id, name claim(s), kind, country claim, root URL,
+   # pages read, duplicate signals. Add --json for every field.
+   npm run cli -- acquisition review sign --campaign-id <uuid> \
+       --subject-id <uuid> --subject-id <uuid> ... \
+       --key-file <absolute path to encrypted review key> --key-id <key id>      # dry run
+   # the same with --execute: ONE passphrase for the batch
+   ```
+
+   Only the subjects you list are reviewed; there is no "all". Each gets
+   your signed OWNER review (ADR 0023) and is released to `ASSESSABLE`. A
+   subject you do not confirm stays where it is.
+
+3. The worker (restarted by the supervisor within its idle wait, at most 15
+   minutes) writes each released subject's manifest line. The Engine sends
+   the outbox nowhere: carrying it to the Operator is a separate step.
+
+### Where the outbox goes
+
+Under the directory you gave `start --outbox-dir`
+(`nwf-pe.acquisition-outbox.v1`, ADR 0030 §6), directories 0700, files 0600,
+written atomically:
+
+```
+<outbox>/<campaign id>/outbox.json
+<outbox>/<campaign id>/subjects/<subject id>/qualification-input-export.v2.json
+<outbox>/<campaign id>/subjects/<subject id>/subject-facts-export.v1.json
+<outbox>/<campaign id>/manifest.jsonl     one line per subject YOU confirmed
+```
+
+Exports are written when research finishes, BEFORE your review; only
+`manifest.jsonl` lists confirmed subjects, with each file's SHA-256. Whatever
+imports it should read the manifest, never the `subjects/` folder alone. No page text
+beyond the exports' own redacted quotes, no contact, no score.
 
 ### Status
 
@@ -213,29 +318,34 @@ nwf-engine start
 
 ## 6. Observability: what each status line means
 
-| line                       | meaning                                                                                                                                                                 |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Supervisor                 | `RUNNING (pid, uptime)`, `NOT RUNNING` (with the last exit and why), or `STALE LOCK` (run `recover`)                                                                    |
-| Phase                      | what the supervisor is doing now, explained on the next line (running the worker, waiting for work, paused, waiting after a failure, ...)                               |
-| Next check                 | when a waiting supervisor next reads the campaign status                                                                                                                |
-| Worker / Last worker exit  | the current worker pid; why the last worker run stopped and how many items it processed                                                                                 |
-| Campaign / Control state   | the campaign key and id; `NOT_STARTED`, `RUNNING`, `PAUSED`, `STOPPED` or `EMERGENCY_STOPPED`, explained                                                                |
-| OWNER signature            | `VERIFIED`, or `NOT VERIFIED` with the reason. While no key is pinned this is always NOT VERIFIED                                                                       |
-| Window                     | the signed start and end, and whether it is open now                                                                                                                    |
-| Research scope (stages)    | the worker stages the campaign signed                                                                                                                                   |
-| Queue depth (open items)   | pending, claimed, lease-expired and retry-scheduled items, per stage                                                                                                    |
-| Candidates discovered      | items at `NOMINATED` (every state)                                                                                                                                      |
-| Candidates researched      | items at `RESEARCHED` (every state)                                                                                                                                     |
-| Awaiting identity review   | items waiting in the `OWNER_IDENTITY_REVIEW` queue. Only the OWNER can move these on                                                                                    |
-| Assessable                 | items at `ASSESSABLE`                                                                                                                                                   |
-| Outbox entries             | `not reported`: the Engine status does not report it in this build                                                                                                      |
-| Last progress              | the last `ADVANCED` outcome of any stage                                                                                                                                |
-| Last successful research   | `not reported` until the status contract reports it                                                                                                                     |
-| Budgets                    | remaining of each signed budget                                                                                                                                         |
-| Last publication           | `not known on this Mac`, unless you pass `--operator-status-file <path>` to a JSON file with a `lastPublicationAt` instant. The Operator does not write such a file yet |
-| Errors, warnings and notes | each refusal and failure reason with its count and meaning, expired leases, spent budgets, a stale lock, no progress for 24 h while running                             |
-| Additional fields          | anything the Engine status reports that this build does not know, shown as reported, never dropped                                                                      |
-| Not reported by this build | fields the dashboard looked for and did not find. These are shown as "not reported", never as 0                                                                         |
+The campaign part is read from `nwf-pe acquisition status --json`, whose
+status is `nwf-pe.acquisition-status.v1` (ADR 0030 §8). A status in any other
+schema is shown as unreadable, never guessed at.
+
+| line                                | meaning                                                                                                                                                                 |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Supervisor                          | `RUNNING (pid, uptime)`, `NOT RUNNING` (with the last exit and why), or `STALE LOCK` (run `recover`)                                                                    |
+| Phase                               | what the supervisor is doing now, explained on the next line (running the worker, waiting for work or for your review, paused, waiting after a failure, ...)            |
+| Next check                          | when a waiting supervisor next reads the campaign status                                                                                                                |
+| Worker / Last worker exit           | the current worker pid; why the last worker run stopped and how many items it processed                                                                                 |
+| Campaign / Status contract          | the campaign key and id; `nwf-pe.acquisition-status.v1`                                                                                                                 |
+| Control state                       | `NOT_STARTED`, `RUNNING`, `PAUSED`, `STOPPED` or `EMERGENCY_STOPPED`, explained (`campaign.controlState`)                                                               |
+| OWNER signature                     | `VERIFIED`, or `NOT VERIFIED` with the reason (`campaign.verified`). While no key is pinned this is always NOT VERIFIED                                                 |
+| Window / Signed stages              | the signed start and end, whether it is open now, and the worker stages the campaign signed                                                                             |
+| Queue depth (open items)            | pending, claimed, lease-expired and retry-scheduled items, per stage (`queue.stages`)                                                                                   |
+| Latest discovery run                | the newest search or link-out run of this campaign: kind, geography, start, outcome (`discovery.latestRun`); then the number of search runs and link-out roots          |
+| Candidates discovered               | nominations (items at `NOMINATED`), then de-duplicated, proposed, researched, duplicates refused and large HEIs deprioritised (`candidates.*`)                          |
+| Awaiting identity review            | subjects parked for YOUR batched review, and how many were released after it (`identityReview.*`). Only you can move these on                                           |
+| Outbox                              | research exports and manifest lines written, and when last (`outbox.*`)                                                                                                 |
+| Outbox directory                    | the directory `start --outbox-dir` remembered on this Mac                                                                                                               |
+| Last progress                       | the last `ADVANCED` outcome of any stage (`queue.lastAdvancedAt`)                                                                                                       |
+| Last successful research            | the last completed research run of this campaign, or `none yet` (`lastSuccessfulResearchAt`)                                                                            |
+| Refused and failed items            | each terminal reason per stage with its count and the status's own explanation (`failures[]`)                                                                           |
+| Budgets                             | remaining of each signed budget; in-flight claims count their reservation as spent (`budgets`)                                                                          |
+| Last publication                    | `not known on this Mac`, unless you pass `--operator-status-file <path>` to a JSON file with a `lastPublicationAt` instant. The Operator does not write such a file yet |
+| Errors, warnings and notes          | the subjects awaiting review (with the two review commands), refusals and failures, expired leases, spent budgets, a stale lock, no progress for 24 h while running     |
+| Additional fields                   | anything the Engine status reports that this build does not know, shown as reported, never dropped                                                                      |
+| Not reported by the campaign status | v1 fields the dashboard looked for and did not find. These are shown as "not reported", never as 0                                                                      |
 
 Logs:
 
@@ -245,28 +355,32 @@ nwf-engine logs --lines 500
 nwf-engine logs --follow         # Ctrl-C to stop
 ```
 
-| file                                                 | holds                                                                                          |
-| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `~/Library/Logs/nwf-engine/engine.log` (`.1` … `.5`) | one line per event; rotated at 5 MiB, 5 files kept                                             |
-| `~/Library/Logs/nwf-engine/supervisor-output.log`    | a crashed supervisor's own output (rotated at each start when over 5 MiB)                      |
-| `~/Library/Application Support/nwf-engine/`          | the lock, the pidfile, the supervisor state and the remembered campaign. Mode 0700. No secrets |
+| file                                                 | holds                                                                                                       |
+| ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `~/Library/Logs/nwf-engine/engine.log` (`.1` … `.5`) | one line per event; rotated at 5 MiB, 5 files kept                                                          |
+| `~/Library/Logs/nwf-engine/supervisor-output.log`    | a crashed supervisor's own output (rotated at each start when over 5 MiB)                                   |
+| `~/Library/Application Support/nwf-engine/`          | the lock, the pidfile, the supervisor state, the remembered campaign and outbox path. Mode 0700. No secrets |
 
 ## 7. Troubleshooting
 
-| you see                                                  | do                                                                                    |
-| -------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `Docker is not running or not reachable`                 | start Docker Desktop, then `nwf-engine start`                                         |
-| `database is not at this build's level`                  | follow the runbook `doctor` names, under a signed OWNER grant. Never improvise        |
-| `no OWNER campaign key pinned: campaigns cannot run`     | section 2 item 2. Nothing else unblocks it                                            |
-| `no worker login configured` / `not usable`              | section 2 item 3                                                                      |
-| `... points at host ..., which is not this Mac`          | `.env` names a remote database. The runtime operates the local one only               |
-| `the configured database (port …) is NOT this container` | `.env` and the Docker container disagree. Fix `.env`                                  |
-| supervisor exited `HANDLERS_NOT_WIRED`                   | expected until the wiring package lands. Nothing was claimed                          |
-| supervisor exited `CAMPAIGN_UNVERIFIED`                  | the campaign's signature does not verify under the pinned key set                     |
-| supervisor exited `REPEATED_FAILURES`                    | read `nwf-engine logs`. Usually the database is down. Fix it, then `nwf-engine start` |
-| `STALE LOCK`                                             | `nwf-engine recover`, then `nwf-engine start`                                         |
-| `resume` refused `CAMPAIGN_UNVERIFIED`                   | RESUME needs a verifying campaign (section 2 item 2)                                  |
-| status line `... item(s) have an expired lease`          | a worker died or hung. Those items are retried. No action needed                      |
+| you see                                                                             | do                                                                                                                                                                                                                                                                                                 |
+| ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Docker is not running or not reachable`                                            | start Docker Desktop, then `nwf-engine start`                                                                                                                                                                                                                                                      |
+| `database is not at this build's level`                                             | follow the runbook `doctor` names, under a signed OWNER grant. Never improvise                                                                                                                                                                                                                     |
+| `no OWNER campaign key pinned: campaigns cannot run`                                | section 2 item 2. Nothing else unblocks it                                                                                                                                                                                                                                                         |
+| `no worker login configured` / `not usable`                                         | section 2 item 3                                                                                                                                                                                                                                                                                   |
+| `... points at host ..., which is not this Mac`                                     | `.env` names a remote database. The runtime operates the local one only                                                                                                                                                                                                                            |
+| `the configured database (port …) is NOT this container`                            | `.env` and the Docker container disagree. Fix `.env`                                                                                                                                                                                                                                               |
+| supervisor exited `HANDLERS_NOT_WIRED`                                              | the campaign lists a stage this build has no handler for. Sign a campaign from `campaign template`                                                                                                                                                                                                 |
+| `start` refused: `... writes research exports to an outbox, and none is configured` | section 2 item 8, then `nwf-engine start --outbox-dir <absolute dir>`                                                                                                                                                                                                                              |
+| supervisor exited `WORKER_REFUSED` (`outbox_...`)                                   | the outbox directory is missing, relative or a symlink. Fix it, then `start` again                                                                                                                                                                                                                 |
+| Latest discovery run ends `ABORTED` or `FAILED`                                     | the dashboard shows the outcome only; the reason is the run's completion reason in `source_discovery_run_completions`. `SMOKE_UNVERIFIED`: verify the D8 smoke (section 2 item 7). `SEARCH_BINDING_REFUSED`: the stream did not show exactly one WebSearch for the planned query; nothing was kept |
+| subjects stay `Awaiting identity review`                                            | only your `acquisition review sign --execute` releases them (section 3)                                                                                                                                                                                                                            |
+| supervisor exited `CAMPAIGN_UNVERIFIED`                                             | the campaign's signature does not verify under the pinned key set                                                                                                                                                                                                                                  |
+| supervisor exited `REPEATED_FAILURES`                                               | read `nwf-engine logs`. Usually the database is down. Fix it, then `nwf-engine start`                                                                                                                                                                                                              |
+| `STALE LOCK`                                                                        | `nwf-engine recover`, then `nwf-engine start`                                                                                                                                                                                                                                                      |
+| `resume` refused `CAMPAIGN_UNVERIFIED`                                              | RESUME needs a verifying campaign (section 2 item 2)                                                                                                                                                                                                                                               |
+| status line `... item(s) have an expired lease`                                     | a worker died or hung. Those items are retried. No action needed                                                                                                                                                                                                                                   |
 
 ## 8. Optional: start with a LaunchAgent
 
