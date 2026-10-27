@@ -317,7 +317,8 @@ describeDb('REL P1: qualification-input export over four synthetic subjects (int
 
   async function truncateEverything(): Promise<void> {
     await admin.query(
-      'TRUNCATE source_discovery_nominations, source_discovery_runs, source_discovery_briefs',
+      'TRUNCATE source_discovery_nomination_sightings, source_discovery_nomination_identities, ' +
+        'source_discovery_nominations, source_discovery_runs, source_discovery_briefs',
     );
     await truncateAll(admin);
   }
