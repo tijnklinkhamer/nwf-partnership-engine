@@ -27,6 +27,7 @@ import {
   type C1Subcriterion,
 } from '../c1Extraction/vocabulary.js';
 import {
+  MAX_CLAIMS,
   buildQualificationInputExport,
   type BuildOptions,
   type QualificationInputRecords,
@@ -226,6 +227,9 @@ export function buildQualificationInputExportV2(
       researchRealConflicts: [...conflicts].sort(byCodeUnit),
     });
     for (const sourceRef of sourceRefs) links.push({ claimRef, sourceRef, relation: 'SUPPORTS' });
+  }
+  if (claims.length > MAX_CLAIMS) {
+    throw new QualificationInputExportRefusal('BOUND_EXCEEDED', `claims ${claims.length}`);
   }
   claims.sort((a, b) => byCodeUnit(a.claimRef, b.claimRef));
   links.sort((a, b) => byCodeUnit(a.claimRef, b.claimRef) || byCodeUnit(a.sourceRef, b.sourceRef));
