@@ -64,6 +64,13 @@ export interface ResolvedRun {
 export interface ResolvedSubjectAdmission {
   admissionId: string;
   subjectId: string;
+  /**
+   * WW H-ACQ (ADR 0030 s13): OWNER_REVIEWED (policy v1) or CAMPAIGN (policy
+   * campaign-v1). A CAMPAIGN admission is honoured only inside its campaign.
+   * The resolver always sets it; absent (a hand-built value) reads as
+   * OWNER_REVIEWED.
+   */
+  admissionBasis?: 'OWNER_REVIEWED' | 'CAMPAIGN';
   identityClaimId: string;
   identityAuthorityScope: 'OPERATIONAL' | 'TEST_ONLY';
   protectedRegistryDigest: string;
@@ -103,7 +110,19 @@ export type AuthorityRefusalReason =
   | 'ROOT_SUBJECT_ADMISSION_REVOKED'
   | 'ROOT_SUBJECT_ADMISSION_EXPIRED'
   | 'ROOT_SUBJECT_ADMISSION_POLICY_UNSUPPORTED'
-  | 'ROOT_SUBJECT_ADMISSION_STALE';
+  | 'ROOT_SUBJECT_ADMISSION_STALE'
+  | 'ROOT_SUBJECT_ADMISSION_CAMPAIGN_NOT_RUNNING'
+  | 'ROOT_SUBJECT_ADMISSION_CAMPAIGN_ITEM_NOT_IN_FLIGHT'
+  | 'ROOT_SUBJECT_ADMISSION_CAMPAIGN_RUN_NOT_FIRST';
+
+/**
+ * What the caller knows about the request being resolved. `runId` is the run
+ * a gateway attempt (or a root runner) belongs to; absent, the resolution is
+ * a PRE-RUN check (a plan, a dry run) and no run of the admission may exist.
+ */
+export interface RootResolutionContext {
+  readonly runId?: string;
+}
 
 /**
  * A request that will not be made.
@@ -222,7 +241,11 @@ interface PromotionRow {
  * took effect after the request would have authorised exactly the fetch it was
  * written to prevent.
  */
-export async function resolveRoot(client: Queryable, ref: RootAuthorityRef): Promise<ResolvedRoot> {
+export async function resolveRoot(
+  client: Queryable,
+  ref: RootAuthorityRef,
+  context: RootResolutionContext = {},
+): Promise<ResolvedRoot> {
   if (ref.kind === 'WEBSITE_CLAIM') {
     const { rows } = await client.query<ClaimRow>(
       `SELECT id, eche_row_key, organisation_id, structural_status, normalised_url
@@ -256,7 +279,9 @@ export async function resolveRoot(client: Queryable, ref: RootAuthorityRef): Pro
     };
   }
 
-  if (ref.kind === 'SUBJECT_ADMISSION') return resolveSubjectAdmissionRoot(client, ref.admissionId);
+  if (ref.kind === 'SUBJECT_ADMISSION') {
+    return resolveSubjectAdmissionRoot(client, ref.admissionId, context);
+  }
 
   const { rows } = await client.query<PromotionRow>(
     `SELECT p.id,
@@ -325,6 +350,7 @@ interface SubjectAdmissionRow {
   identity_claim_id: string;
   website_url: string;
   policy_version: string;
+  admission_basis: 'OWNER_REVIEWED' | 'CAMPAIGN';
   identity_authority_scope: 'OPERATIONAL' | 'TEST_ONLY';
   protected_registry_digest: string;
   registry_fingerprint: string;
@@ -348,10 +374,11 @@ interface SubjectAdmissionRow {
 async function resolveSubjectAdmissionRoot(
   client: Queryable,
   admissionId: string,
+  context: RootResolutionContext,
 ): Promise<ResolvedRoot> {
   const { rows } = await client.query<SubjectAdmissionRow>(
     `SELECT a.id, a.subject_id, a.identity_claim_id, a.website_url, a.policy_version,
-            a.identity_authority_scope, a.protected_registry_digest, a.registry_fingerprint,
+            a.admission_basis, a.identity_authority_scope, a.protected_registry_digest, a.registry_fingerprint,
             (a.expires_at > clock_timestamp()) AS live,
             (SELECT count(*) FROM subject_research_admission_revocations v
               WHERE v.admission_id = a.id)::text AS revocation_count,
@@ -394,6 +421,9 @@ async function resolveSubjectAdmissionRoot(
         `has since changed. The evidence it was granted on is stale; a new admission is needed.`,
     );
   }
+  if (admission.admission_basis === 'CAMPAIGN') {
+    await requireCampaignAdmissionInsideItsCampaign(client, admission.id, context);
+  }
   return {
     websiteClaimId: null,
     promotionId: null,
@@ -405,11 +435,74 @@ async function resolveSubjectAdmissionRoot(
     subjectAdmission: {
       admissionId: admission.id,
       subjectId: admission.subject_id,
+      admissionBasis: admission.admission_basis,
       identityClaimId: admission.identity_claim_id,
       identityAuthorityScope: admission.identity_authority_scope,
       protectedRegistryDigest: admission.protected_registry_digest,
     },
   };
+}
+
+interface CampaignStandingRow {
+  campaign_running: boolean;
+  campaign_window_open: boolean;
+  item_in_flight: boolean;
+  first_run_id: string | null;
+  run_count: number;
+  run_started_in_attempt: boolean | null;
+}
+
+/**
+ * WW H-ACQ (ADR 0030 s13, P1-1): a CAMPAIGN admission is the campaign's, not
+ * the research role's. It authorises a request ONLY while its campaign is
+ * RUNNING inside its window, its RESEARCH_PENDING work item is in flight,
+ * and the request belongs to the admission's FIRST run, started under the
+ * item's current attempt (`subject_research_campaign_admission_standing`,
+ * migration 0026). Checked on EVERY gateway attempt, so EMERGENCY_STOP,
+ * PAUSE, STOP, a lapsed lease or a superseded attempt ends in-flight research
+ * at its next request; a second run of the admission - the standalone CLI,
+ * or a stale worker - is refused before its first.
+ */
+async function requireCampaignAdmissionInsideItsCampaign(
+  client: Queryable,
+  admissionId: string,
+  context: RootResolutionContext,
+): Promise<void> {
+  const { rows } = await client.query<CampaignStandingRow>(
+    `SELECT s.campaign_running, s.campaign_window_open, s.item_in_flight, s.first_run_id,
+            s.run_count,
+            (SELECT r.started_at >= s.attempt_claimed_at
+               FROM orgunit_research_runs r WHERE r.id = $2) AS run_started_in_attempt
+       FROM subject_research_campaign_admission_standing s
+      WHERE s.admission_id = $1`,
+    [admissionId, context.runId ?? null],
+  );
+  const s = rows[0];
+  if (s === undefined || !s.campaign_running || !s.campaign_window_open) {
+    throw new WebGatewayRefusal(
+      'ROOT_SUBJECT_ADMISSION_CAMPAIGN_NOT_RUNNING',
+      `subject admission ${admissionId} rests on a campaign that is not RUNNING inside its ` +
+        `window. A CAMPAIGN admission authorises nothing outside its campaign.`,
+    );
+  }
+  if (!s.item_in_flight) {
+    throw new WebGatewayRefusal(
+      'ROOT_SUBJECT_ADMISSION_CAMPAIGN_ITEM_NOT_IN_FLIGHT',
+      `subject admission ${admissionId} was made for a work item that has no in-flight ` +
+        `attempt. Only the worker holding that item may research under it.`,
+    );
+  }
+  const firstRunOfThisAttempt =
+    context.runId === undefined
+      ? s.run_count === 0
+      : s.first_run_id === context.runId && s.run_started_in_attempt === true;
+  if (!firstRunOfThisAttempt) {
+    throw new WebGatewayRefusal(
+      'ROOT_SUBJECT_ADMISSION_CAMPAIGN_RUN_NOT_FIRST',
+      `subject admission ${admissionId} authorises exactly one research run, started by the ` +
+        `work item's current attempt; this request is not that run's.`,
+    );
+  }
 }
 
 /**

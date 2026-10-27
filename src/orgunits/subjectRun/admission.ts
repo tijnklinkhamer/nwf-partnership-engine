@@ -51,6 +51,8 @@ interface AdmissionFields {
   readonly rootKey: string;
   readonly rootUrl: string;
   readonly identityAuthorityScope: 'OPERATIONAL' | 'TEST_ONLY';
+  /** WW H-ACQ: the stored basis; omitted (the vitest seam only) it is OWNER_REVIEWED. */
+  readonly admissionBasis?: 'OWNER_REVIEWED' | 'CAMPAIGN';
 }
 
 export class VerifiedSubjectAdmission {
@@ -64,6 +66,13 @@ export class VerifiedSubjectAdmission {
   /** The admission's foreign-key-pinned copy of the subject's own website claim. */
   readonly rootUrl: string;
   readonly identityAuthorityScope: 'OPERATIONAL' | 'TEST_ONLY';
+  /**
+   * WW H-ACQ (ADR 0030 s13): OWNER_REVIEWED or CAMPAIGN, from the stored row.
+   * A CAMPAIGN admission belongs to its campaign's worker: the standalone
+   * research command refuses it, and the resolver honours it only inside the
+   * campaign.
+   */
+  readonly admissionBasis: 'OWNER_REVIEWED' | 'CAMPAIGN';
   readonly provenance: AdmissionProvenance;
 
   private constructor(mint: symbol, fields: AdmissionFields, provenance: AdmissionProvenance) {
@@ -78,6 +87,7 @@ export class VerifiedSubjectAdmission {
     this.rootKey = fields.rootKey;
     this.rootUrl = fields.rootUrl;
     this.identityAuthorityScope = fields.identityAuthorityScope;
+    this.admissionBasis = fields.admissionBasis ?? 'OWNER_REVIEWED';
     this.provenance = provenance;
     Object.freeze(this);
   }
@@ -186,6 +196,7 @@ export async function verifySubjectAdmission(
       rootKey: root.rootKey,
       rootUrl: root.rootUrl.url,
       identityAuthorityScope: resolved.identityAuthorityScope,
+      admissionBasis: resolved.admissionBasis ?? 'OWNER_REVIEWED',
     }),
   };
 }

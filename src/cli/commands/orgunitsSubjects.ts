@@ -23,6 +23,9 @@
  *
  * SCOPE: exactly one subject per invocation. No batch, no `--all`.
  *
+ * WW H-ACQ (ADR 0030 s13): a CAMPAIGN admission (migration 0024) is refused
+ * with CAMPAIGN_ADMISSION_NOT_STANDALONE: it belongs to its campaign's worker.
+ *
  * DATABASE ROLE: `research` only (`DATABASE_URL_RESEARCH`). Never admin or
  * ingest; this role holds no privilege on any discovery-subject table.
  *
@@ -124,6 +127,18 @@ export async function runOrgunitsSubjectsResearch(
       return reportRefusal(options, mode, verified.code, verified.detail);
     }
     const admission = verified.admission;
+    // WW H-ACQ (ADR 0030 s13, P1-1): a CAMPAIGN admission is its campaign's.
+    // Only the wired worker, holding the admission's in-flight work item, may
+    // research under it; this standalone command refuses it in both modes,
+    // before any run row, DNS lookup or request.
+    if (admission.admissionBasis === 'CAMPAIGN') {
+      return reportRefusal(
+        options,
+        mode,
+        'CAMPAIGN_ADMISSION_NOT_STANDALONE',
+        'a CAMPAIGN admission is researched only by its campaign worker',
+      );
+    }
     const { executionRefusalCodeOf, listSubjectRuns, runSubjectResearch } =
       await import('../../orgunits/subjectRun/execute.js');
 

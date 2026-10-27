@@ -804,7 +804,7 @@ export async function executeWebAttempt(
   }
 
   const run = await resolveRun(pool, input.runId);
-  const root = await resolveRoot(pool, input.root);
+  const root = await resolveRoot(pool, input.root, { runId: input.runId });
 
   const validated = validateRequestUrl(input.requestedUrl);
   if (!validated.ok) {

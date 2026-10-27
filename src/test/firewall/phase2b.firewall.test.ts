@@ -1424,10 +1424,29 @@ describe('PHASE-2B-FIREWALL: research evidence is append-only and owns nothing e
       'subject_research_admissions',
       'subject_research_registry_fingerprint',
     ];
+    // WW H-ACQ (exact-name exception, ADR 0030 s13, P1-1): the root resolver
+    // refuses a CAMPAIGN admission outside its campaign by reading ONE
+    // definer-rights view of booleans, an instant, a run id and a count -
+    // granted in migration 0026 only, SELECT only. No acquisition table
+    // itself is readable.
+    const H_ACQ_CAMPAIGN_STANDING = 'subject_research_campaign_admission_standing';
     expect([...readable].sort()).toEqual(
-      ['organisations', 'website_claims', ...R8_SUBJECT_ROOT_SOURCES].sort(),
+      [
+        'organisations',
+        'website_claims',
+        ...R8_SUBJECT_ROOT_SOURCES,
+        H_ACQ_CAMPAIGN_STANDING,
+      ].sort(),
     );
     for (const { file, grant } of RESEARCH_GRANTS) {
+      if (grant.target.includes(H_ACQ_CAMPAIGN_STANDING)) {
+        expect(file, `${grant.target} is granted outside migration 0026`).toMatch(
+          /0026_acquisition_hardening\.sql$/,
+        );
+        expect(grant.target.trim()).toBe(H_ACQ_CAMPAIGN_STANDING);
+        expect(grant.privileges.trim().toUpperCase()).toBe('SELECT');
+        continue;
+      }
       if (!R8_SUBJECT_ROOT_SOURCES.some((t) => grant.target.includes(t))) continue;
       expect(file, `${grant.target} is granted outside migration 0017`).toMatch(
         /0017_subject_research_admission\.sql$/,

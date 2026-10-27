@@ -184,7 +184,7 @@ export async function runRootAcquisition(
 
   let resolved;
   try {
-    resolved = await resolveRoot(pool, root);
+    resolved = await resolveRoot(pool, root, { runId });
   } catch (error) {
     if (error instanceof WebGatewayRefusal) return invalidAuthoritySummary();
     throw error;
