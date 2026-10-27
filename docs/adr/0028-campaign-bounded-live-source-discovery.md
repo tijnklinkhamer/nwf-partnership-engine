@@ -258,6 +258,13 @@ smoke call's SDK version and model — the OWNER step in §9.
 
 - **UNKNOWN.** How the SDK's structured output interacts with a WebSearch-only
   `canUseTool` (ADR 0027 §1). Settled only by the D8 smoke.
+- **UNKNOWN (§9, §9.1).** The search texts the WebSearch tool's NESTED side
+  query sends (up to 8 server-side searches per WebSearch call). They never
+  reach the outer stream or the tool's result and cannot be inspected by this
+  build; only their COUNT (`searchCount`) and hit URLs can (§9.1).
+- **UNKNOWN (§9.1).** Whether a managed policy's `disableAllHooks` /
+  `allowManagedHooksOnly` suppresses an SDK callback hook. A suppressed hook
+  shows as `hookInvoked = false`, which migration 0027 refuses to verify.
 - **UNKNOWN (§9).** Whether the live SDK actually invokes the PreToolUse hook
   (and `canUseTool`) for WebSearch under the §9 options. Settled only by the
   live D8 smoke; nothing may rely on the hook before then.
@@ -367,8 +374,11 @@ refused before it starts (`GrantedRunRefusal` `SMOKE_UNVERIFIED`, no rows). A
 new SDK version or model needs its own smoke and verification.
 
 **The OWNER step** (after reading the smoke run's output — `searchGate` must
-show `hookInvoked = true`, the outcome `RESULTS`, and the nominations must
-look like search results for the planned query):
+show `hookInvoked = true` and, since §9.1, `searchCount = 1`; the outcome
+`RESULTS` with at least one result; and the nominations must look like search
+results for the planned query. Since migration 0027 the database refuses the
+INSERT below unless the smoke's recorded observation shows `hook_invoked`,
+`search_count = 1` and `result_count > 0`):
 
 ```sql
 -- As the migration owner, naming the smoke run's id (call_seq 1):
@@ -411,3 +421,109 @@ per-file external-import allowlist for the eleven WW E-SD files),
 (the OWNER-only INSERT rule is now proven over EVERY migration's GRANT
 statements, schema-wide and default-privilege grants included, for
 `source_discovery_grants` and `source_discovery_smoke_verifications`).
+
+### 9.1 Second security review (WW H-SD, migration 0027) (DESIGN DECISION (proposed))
+
+An independent review of §9 found that the gate above binds less than §9
+claimed, and four further defects. Migrations 0022 and 0025 are committed
+and are **not edited**; migration 0027 adds a table and triggers and replaces
+functions. (0026 is a parallel lane's number; this lane's branch lacks it,
+and the migration runner, which applies files in sorted order without
+requiring a dense sequence, tolerates the gap.)
+
+**P1-3 — one approved WebSearch can run up to 8 NESTED searches (FACT, read
+from the bundled 2.1.251 executable; not observed live).** The WebSearch
+tool does not search itself. Its `call` sends a side query ("Perform a web
+search for the query: …") with the server tool `web_search_20250305` and a
+hard-coded `max_uses: 8`, forced by `toolChoice`. The side query's model
+chooses the actual search texts; its `server_tool_use` blocks are consumed
+inside the tool and never reach the outer SDK stream. So §9's gate, the
+stream check and "only ONCE per call" bind the OUTER WebSearch input only.
+**The nested search texts cannot be inspected by this build** — the tool's
+result (`tool_use_result`, sdk-tools.d.ts `WebSearchOutput`) carries the
+outer `query`, the hits (`{title, url}` per nested search), the model's
+commentary and `searchCount` (`max(server_tool_use blocks,
+web_search_tool_result blocks)`), never the nested queries.
+
+What IS bounded, and how:
+
+- **Outer calls per provider call: one.** The child environment sets
+  `CLAUDE_CODE_MAX_WEB_SEARCHES_PER_SESSION=1`
+  (`SOURCE_DISCOVERY_CHILD_ENV_FIXED`, `agentQuery.ts`). In the bundle it is
+  parsed as an integer ≥ 1 (default 200) and caps WebSearch TOOL CALLS per
+  session: a call past the cap returns "Web search was not performed" with
+  `searchCount: 0`. Each
+  provider call is its own session, so the cap is per call. It does NOT cap
+  `max_uses: 8`; no variable or setting reaches that value.
+- **What is kept: exactly one reported search, and only its own hits.** The
+  SDK seam maps a user message's `tool_use_result` (attributed only when the
+  message answers exactly one tool use) to `{query, searchCount, hit URLs}`
+  — titles and commentary never cross. The adapter keeps a call's results
+  only when the one approved WebSearch has exactly one such result,
+  reporting `searchCount === 1` for the planned query, and every returned
+  URL is one of its hits. Several searches, a URL the search never returned,
+  a missing or unreadable tool result, or no search at all (even with zero
+  results) fail the call `SEARCH_BINDING_REFUSED`, keeping nothing.
+- **What is NOT bounded:** a side query may still EXECUTE up to 8
+  server-side searches, with texts its model chooses, before the call is
+  refused; the refusal discards their results, it does not un-send them.
+
+**The live D8 smoke must also confirm `searchGate.searchCount = 1`**
+(besides `hookInvoked = true`): that is the first observation that the
+installed SDK reports the count this design relies on.
+
+**P1-8 — the smoke verification was not bound to what the gate observed.**
+Migration 0027 adds `source_discovery_query_call_observations`: one row per
+terminal query-call row, written in the same transaction (a deferred
+constraint trigger refuses to COMMIT a terminal row without it) —
+`hook_invoked`, `permission_invoked`, `search_count` (the reported count;
+NULL when no tool result was observed). A RESULTS call needs exactly one
+reported search through a consulted gate surface. The replaced verification
+trigger accepts an OWNER verification only for a smoke whose observation
+shows `hook_invoked` AND `search_count = 1` and whose `result_count > 0`.
+A smoke that made no search can never be RESULTS (above).
+
+**P2-1 — nominations from a refused call.** A BEFORE INSERT trigger on
+`source_discovery_nominations`, for `claude-max-web-search` rows only
+(scripted-search, link-out and seed nominations carry other provider keys
+and are unaffected), requires the (run, query) terminal call to have ended
+RESULTS with an observation of exactly one search, the run to have no
+completion row yet, and fewer of that call's nominations than its
+`result_count` (serialised per (run, query) by a transaction-scoped
+advisory lock).
+
+**P2-15 — residuals.** (a) No search outlives its grant: the start row
+returns the time the grant has left by the DATABASE clock, and the provider
+call is aborted at the smaller of that and the mechanical 300 s bound. A call
+aborted at the grant's expiry is recorded `PROVIDER_RESULT_MISSING` and the
+run `ABORTED`, `GRANT_EXPIRED`; nothing it streamed is kept. Aborting ends
+the session; a nested search already sent server-side is not recalled.
+(b) The 0025 functions that read a grant row (`_verify_grant_use`,
+`_verify_query_call_start`, `_verify_query_call`) and the smoke-verification
+function now refuse a missing row by name (`IF NOT FOUND THEN RAISE`)
+instead of comparing against a NULL row. (c) **Managed policy still
+applies.** `settingSources: []` skips the user, project and local settings
+files only; the CLI still reads the managed-settings policy tier (sdk.d.ts
+`resolveSettings`). A managed policy could pre-approve WebSearch (so
+`canUseTool` is not consulted), restrict hooks, or set the search cap. The
+PreToolUse hook still gates the outer input whenever the CLI runs it; the
+stream check refuses a WebSearch neither surface approved; the
+search-result check bounds what is kept; and the database will not verify a
+smoke whose hook was not invoked. (d) The 0019 nomination trigger function
+is replaced with a pinned `search_path` and schema-qualified relations; the
+two 0020 functions beside it gain the same pinned `search_path`.
+
+**P1-9 — what the wiring may hand on (interface only here).**
+`admissibleNominationsOfRun(queryable, runId)` (`grantStore.ts`, exported by
+`index.ts`) returns `NOT_A_GRANTED_RUN`, `RUN_NOT_COMPLETED` (no completion
+row) or `COMPLETED` with exactly the nominations of the run's RESULTS calls
+whose observation shows one search and whose SDK version and model the OWNER
+has verified (so the very first smoke's nominations wait for its own
+verification). The wiring layer (`acquisitionWiring/discover.ts`, another
+lane) must advance only those.
+
+**Firewall (by exact path).** New: `wwSourceDiscoverySearchObservations.firewall.test.ts`
+(migration 0027's narrowness, pinned search_path and the three bindings; the
+search cap in the child environment; the search-result check before any
+result is returned; the grant deadline). Widened by exact path:
+`wwSourceDiscoveryLive` (`grantStore.ts` now also INSERTs the observation).

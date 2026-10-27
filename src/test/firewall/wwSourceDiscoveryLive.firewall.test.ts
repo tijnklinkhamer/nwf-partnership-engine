@@ -270,6 +270,8 @@ describe('WW E-SD: the capability is derived from a stored grant, and only there
       // WW E-SDFX (migration 0025): the database's permission, before each call.
       'INSERT INTO source_discovery_query_call_starts',
       'INSERT INTO source_discovery_query_calls',
+      // WW H-SD (migration 0027): what each call observed, with its terminal row.
+      'INSERT INTO source_discovery_query_call_observations',
       'INSERT INTO source_discovery_nomination_known_marks',
       'INSERT INTO source_discovery_run_completions',
     ]);
