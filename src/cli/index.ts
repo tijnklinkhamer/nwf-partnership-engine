@@ -30,6 +30,7 @@ import { runDiscoveryReviewSign } from './commands/discoveryReviewSign.js';
 import { runSourceDiscoveryCli } from './commands/sourceDiscovery.js';
 import { runSubjectFactsCli } from './commands/subjectFacts.js';
 import { runQualificationInputCli } from './commands/qualificationInput.js';
+import { runJurisdictionClaimsCli } from './commands/jurisdictionClaims.js';
 import {
   buildClassifierOperatorEnvelope,
   renderClassifierOperatorEnvelope,
@@ -74,6 +75,9 @@ Usage:
                               (READ-ONLY; one nwf-pe.subject-facts-export.v1 JSON document)
   nwf-pe qualification-input export --subject-id <uuid> [--evaluated-at <YYYY-MM-DDTHH:MM:SSZ>]
                               (READ-ONLY; one nwf-pe.qualification-input-export.v1 JSON document)
+  nwf-pe jurisdiction-claims record --subject-id <uuid> --country-of-operation <CC> <source> ...
+                              (one SOURCE_STATED claim from a source the subject holds; DRY RUN
+                              unless --execute; run \`nwf-pe jurisdiction-claims --help\`)
 
 Options:
   --country <CC>    Restrict to an ISO-3166-1 alpha-2 country code (e.g. FR).
@@ -191,6 +195,10 @@ export async function main(argv: string[]): Promise<number> {
   // REL P1: the READ-ONLY C1 qualification-input export. Its own strict options.
   if (argv[0] === 'qualification-input') {
     return runQualificationInputCli(argv.slice(1));
+  }
+  // REL Q1: one source-stated country-of-operation claim. Its own strict options.
+  if (argv[0] === 'jurisdiction-claims') {
+    return runJurisdictionClaimsCli(argv.slice(1));
   }
   let parsedArgv;
   try {

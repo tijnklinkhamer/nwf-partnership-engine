@@ -1,0 +1,40 @@
+{
+  "recordId": "REL_Q1_JURISDICTION_CLAIM_WRITER_OWNER_DIRECTIVE_RECORD_V1",
+  "recordKind": "OWNER_DIRECTIVE_SCOPE_RECORD",
+  "recordedAtUtc": "2026-10-27",
+  "branch": "integration/rel-engine-v1-harvest",
+  "startingHead": "1dbd40c",
+  "status": "LOCAL_IMPLEMENTATION_UNDER_REL_F1_R2__OWNER_GRANT_DECISION_PENDING",
+  "isOwnerRatification": false,
+  "recordedBy": "engineering lane REL Q1 (transcription of the scope it was given; not an OWNER signature)",
+  "authority": {
+    "source": "REL-F1-R2 (local engineering only), item 'jurisdiction-claim writer' (handover gap P0-G3)",
+    "scope": [
+      "Implement the smallest correct runtime writer for one SOURCE_STATED ADR 0024 COUNTRY_OF_OPERATION claim per call, requiring a stored source the subject already holds and an explicit operator statement of what that source states.",
+      "Use an existing role whose authority fits, or a new forward-only migration with the narrowest INSERT grant on that one table; append-only.",
+      "Where the grant is an OWNER authority decision, implement it but leave it inert (NOLOGIN capability, migration applied to disposable test databases only) and write the decision text for the OWNER."
+    ],
+    "authorised": [
+      "local source edits",
+      "one forward-only migration (0021) granting the EXISTING NOLOGIN capability nwf_discovery_subject_writer SELECT/INSERT on subject_jurisdiction_claims and three column SELECTs, with two INSERT triggers",
+      "local test runs against a disposable tmpfs PostgreSQL",
+      "local commits"
+    ],
+    "notAuthorised": [
+      "applying migration 0021 to nwf_pe or any persistent, shared, staging or production database",
+      "provisioning a LOGIN that holds nwf_discovery_subject_writer anywhere but a disposable *_test database",
+      "recording any real jurisdiction claim",
+      "any live network call, live search or live model call",
+      "push, merge or deploy",
+      "editing a committed migration",
+      "weakening any security check or firewall"
+    ]
+  },
+  "migrationUnderThisDirective": "migrations/0021_subject_jurisdiction_claim_writer.sql",
+  "adr": "docs/adr/0024-worldwide-subject-jurisdiction-claims.md",
+  "loginInMigrations": false,
+  "newRole": false,
+  "appendOnly": true,
+  "editsPriorMigrations": false,
+  "liveNetworkAuthorised": false
+}

@@ -274,10 +274,21 @@ describeDb('R4 migration 0016 - worldwide subject jurisdiction claims (integrati
            FROM pg_trigger t JOIN pg_proc p ON p.oid = t.tgfoid
           WHERE NOT t.tgisinternal
             AND (t.tgname LIKE '%jurisdiction%' OR p.proname LIKE '%jurisdiction%'
-                 OR p.proname LIKE '%iso3166%' OR t.tgrelid = 'subject_jurisdiction_claims'::regclass)`,
+                 OR p.proname LIKE '%iso3166%' OR t.tgrelid = 'subject_jurisdiction_claims'::regclass)
+          ORDER BY t.tgname`,
       );
       expect(rows).toEqual([
         { tgname: 'subject_jurisdiction_claims_append_only', table: 'subject_jurisdiction_claims' },
+        // REL Q1 (migration 0021, ADR 0024 s7): the non-owner writer's actor
+        // binding (0014's function) and scope check, on this table only.
+        {
+          tgname: 'subject_jurisdiction_claims_writer_actor',
+          table: 'subject_jurisdiction_claims',
+        },
+        {
+          tgname: 'subject_jurisdiction_claims_writer_scope',
+          table: 'subject_jurisdiction_claims',
+        },
       ]);
     });
   });
@@ -394,7 +405,11 @@ describeDb('R4 migration 0016 - worldwide subject jurisdiction claims (integrati
     });
 
     it('grants no runtime role any write, and only nwf_readonly a read', async () => {
-      for (const role of RUNTIME_ROLES) {
+      // REL Q1 (migration 0021, ADR 0024 s7) granted the B2.2 writer capability
+      // SELECT + INSERT here, narrowed by a scope trigger; its exact grants and
+      // refusals are asserted by jurisdictionClaimWriterQ1.test.ts. Every other
+      // runtime role is unchanged.
+      for (const role of RUNTIME_ROLES.filter((r) => r !== 'nwf_discovery_subject_writer')) {
         for (const privilege of ['INSERT', 'UPDATE', 'DELETE', 'TRUNCATE']) {
           const { rows } = await admin.query<{ ok: boolean }>(
             `SELECT has_table_privilege($1, 'subject_jurisdiction_claims', $2) AS ok`,
@@ -410,6 +425,8 @@ describeDb('R4 migration 0016 - worldwide subject jurisdiction claims (integrati
       }
     });
 
+    // REL Q1: the B2.2 writer now holds INSERT; this owner-path row's actor key
+    // ('owner-cli') is refused by 0014's binding trigger, still as 42501.
     it('refuses an actual write by the readonly login, the research login and the B2.2 writer', async () => {
       await expectCode(
         () => insertJurisdiction(readonly, jpAssociation, { country: 'KR' }),

@@ -276,6 +276,11 @@ describeDb('Phase 2B schema contract (integration)', () => {
         // two append-only tables granted SELECT/INSERT to the 0019 capability
         // and SELECT to audit; no role, nothing existing altered).
         '0020',
+        // REL Q1 (the source-stated country-of-operation writer, ADR 0024 s7 -
+        // SELECT/INSERT on subject_jurisdiction_claims and three column SELECTs
+        // for the existing B2.2 writer capability, two INSERT triggers; no role,
+        // no table, nothing existing altered).
+        '0021',
       ]);
     });
 

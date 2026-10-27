@@ -360,6 +360,8 @@ describeDb(
         '0019_source_discovery_nominations.sql',
         // REL P2: then 0020 (link-out nomination identities and sightings).
         '0020_source_discovery_link_out_sightings.sql',
+        // REL Q1: then 0021 (the jurisdiction-claim writer grants and triggers).
+        '0021_subject_jurisdiction_claim_writer.sql',
       ]);
       expect(await digests()).toEqual(before);
       const { rows } = await db.query<{

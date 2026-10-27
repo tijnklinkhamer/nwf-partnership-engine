@@ -70,6 +70,29 @@ const REL_P1_IMPORTS: Readonly<Record<string, readonly RegExp[]>> = {
 const REL_P1_LOADER = 'src/orgunits/qualificationInput/load.ts';
 const REL_P1_READ = /FROM subject_jurisdiction_claims WHERE subject_id = \$1 ORDER BY id`/;
 
+/**
+ * REL Q1 (REL-F1-R2 item "jurisdiction-claim writer", migration 0021, ADR 0024
+ * s7) - the same exception, by exact path, for the one runtime WRITER: it may
+ * import exactly R4's standing derivation and validator and the record type,
+ * and name the table in exactly one SELECT of the subject's own claims, one
+ * INSERT and one catalogue lookup. Its narrower rules (one INSERT, no UPDATE
+ * or DELETE, no inference input) are pinned by
+ * relQ1JurisdictionClaimWriter.firewall.test.ts. The module itself is
+ * unchanged and still imports only itself.
+ */
+const REL_Q1_WRITER = 'src/orgunits/jurisdictionClaimWriter/record.ts';
+const REL_Q1_IMPORTS: Readonly<Record<string, readonly RegExp[]>> = {
+  [REL_Q1_WRITER]: [
+    /import \{\s*deriveJurisdictionStanding,\s*validateJurisdictionClaim,\s*\} from '\.\.\/subjectJurisdiction\/standing\.js';/,
+    /import type \{ JurisdictionClaimRecord \} from '\.\.\/subjectJurisdiction\/vocabulary\.js';/,
+  ],
+};
+const REL_Q1_SQL: readonly RegExp[] = [
+  /FROM subject_jurisdiction_claims WHERE subject_id = \$1 ORDER BY id`/,
+  /`INSERT INTO subject_jurisdiction_claims\n/,
+  /AND c\.relname = 'subject_jurisdiction_claims'`/,
+];
+
 /** R4.1 + R4.2: the OWNER-authorised test-maintenance edits, each pinned line for line below. */
 const R3_FIREWALL = 'src/test/firewall/phase2bSubjectAcquisitionF1R3.firewall.test.ts';
 const REGISTRY_TEST = 'src/test/integration/discoverySubjectRegistry.test.ts';
@@ -334,6 +357,7 @@ describe('R4: subjectJurisdiction is pure, self-contained and unconnected', () =
       let code = codeOf(readFileSync(join(REPO_ROOT, f), 'utf8'));
       for (const form of REL_FINAL_JOIN_A2_IMPORTS[f] ?? []) code = code.replace(form, '');
       for (const form of REL_P1_IMPORTS[f] ?? []) code = code.replace(form, '');
+      for (const form of REL_Q1_IMPORTS[f] ?? []) code = code.replace(form, '');
       return /subjectJurisdiction/.test(code);
     });
     expect(importers).toEqual([]);
@@ -345,6 +369,7 @@ describe('R4: subjectJurisdiction is pure, self-contained and unconnected', () =
       let code = codeOf(readFileSync(join(REPO_ROOT, f), 'utf8'));
       if (f === REL_FINAL_JOIN_A2_LOADER) code = code.replace(REL_FINAL_JOIN_A2_READ, '');
       if (f === REL_P1_LOADER) code = code.replace(REL_P1_READ, '');
+      if (f === REL_Q1_WRITER) for (const form of REL_Q1_SQL) code = code.replace(form, '');
       return /subject_jurisdiction_claims|subject_iso3166_alpha2_assigned/.test(code);
     });
     expect(named).toEqual([]);
@@ -359,6 +384,17 @@ describe('R4: subjectJurisdiction is pure, self-contained and unconnected', () =
     const loader = codeOf(readFileSync(join(REPO_ROOT, REL_FINAL_JOIN_A2_LOADER), 'utf8'));
     expect(loader.match(new RegExp(REL_FINAL_JOIN_A2_READ.source, 'g'))).toHaveLength(1);
     expect(loader).not.toMatch(/\b(INSERT|UPDATE|DELETE|TRUNCATE|ALTER|DROP|CREATE|GRANT)\b/);
+  });
+  it('REL Q1: each exact-path exception is present exactly once, as pinned', () => {
+    for (const [file, forms] of Object.entries(REL_Q1_IMPORTS)) {
+      const code = codeOf(readFileSync(join(REPO_ROOT, file), 'utf8'));
+      for (const form of forms)
+        expect(code.match(new RegExp(form.source, 'g')), file).toHaveLength(1);
+    }
+    const writer = codeOf(readFileSync(join(REPO_ROOT, REL_Q1_WRITER), 'utf8'));
+    for (const form of REL_Q1_SQL)
+      expect(writer.match(new RegExp(form.source, 'g')), form.source).toHaveLength(1);
+    expect(writer).not.toMatch(/\b(UPDATE|DELETE|TRUNCATE|ALTER|DROP|CREATE|GRANT)\b/);
   });
   it('REL P1: each exact-path exception is present exactly once, as pinned', () => {
     for (const [file, forms] of Object.entries(REL_P1_IMPORTS)) {

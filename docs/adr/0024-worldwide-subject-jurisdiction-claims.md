@@ -127,3 +127,56 @@ nothing and does not activate migration 0016. Nothing below is implemented.
   snapshot, I0). Who may decide that contact is permitted in a jurisdiction,
   and on what evidence, is unassigned. A jurisdiction claim grants no
   permission of any kind.
+
+## 7. Amendment (REL Q1, Proposed) — a narrow runtime writer for source-stated countries of operation
+
+Recorded under REL-F1-R2 (local engineering only), scope record
+`docs/evaluation/REL_Q1_JURISDICTION_CLAIM_WRITER_OWNER_DIRECTIVE_RECORD_V1.json`.
+**Status: Proposed.** Migration 0021 has been applied only to disposable
+tmpfs test databases. Granting it on any persistent database is a separate
+OWNER decision.
+
+**FACT.** The REL P1 qualification-input export takes a subject's country only
+from STATED `COUNTRY_OF_OPERATION` claims. §3 left the table writable by the
+migration owner alone, so every real subject exported `country.value: null`
+and could not be ranked.
+
+**DESIGN DECISION.** Migration 0021 gives the EXISTING B2.2 writer capability
+(`nwf_discovery_subject_writer`, NOLOGIN, ADR 0020) `SELECT, INSERT` on
+`subject_jurisdiction_claims`, plus `SELECT (id, root_key, observed_at)` on
+`orgunit_page_evidence` and `SELECT (id, subject_id)` on
+`subject_research_admissions` for its scope check. It adds no role, LOGIN,
+table or column, and changes nothing existing. For every NON-OWNER insert the
+database enforces:
+
+- **One kind.** `COUNTRY_OF_OPERATION` only. Registration country and legal
+  form stay owner-path only.
+- **One basis.** `SOURCE_STATED` (0016's CHECK).
+- **One recorder.** The actor key `discovery-subjects-cli` (0014's binding
+  function, attached to this table).
+- **A source the subject already holds.**
+  - Page evidence captured by a run rooted in one of THIS subject's
+    admissions, or cited by one of its identity claims. `observed_at` must
+    equal the page's own.
+  - Or the exact (URL, version) provenance one of its identity claims cites,
+    observed no later than the statement instant.
+  - A website claim is refused. It records only a URL that a register
+    published, so a country read from it would be a domain inference.
+
+The CLI is `nwf-pe jurisdiction-claims record`
+(`src/cli/commands/jurisdictionClaims.ts`, module
+`src/orgunits/jurisdictionClaimWriter/record.ts`). It is a dry run on the
+readonly role unless `--execute` is given. It has no option that takes a
+domain, name, language or Erasmus code. It takes the country as the
+operator's explicit statement of what the cited source says.
+
+Corrections are new claims. A disagreeing claim is recorded, not refused. The
+standing then becomes `CONFLICTING` and the export emits `country.value: null`
+(§2 unchanged). An exact duplicate (same country, same provenance) is refused.
+
+**Unchanged.** A recorded claim is evidence. It is not an OWNER review (§6 is
+still open), not a verification, not research eligibility, not a rank and
+not a contact permission.
+
+**UNKNOWN.** Whether the OWNER wants jurisdiction claims to require OWNER
+attestation (the ADR 0023 pattern) before they count for ranking.

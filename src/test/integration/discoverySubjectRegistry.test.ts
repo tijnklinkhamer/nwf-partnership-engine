@@ -251,7 +251,8 @@ describeDb('B2.2 discovery-subject registry (integration)', () => {
       // Lane L1 (migration 0018, ADR 0025 s12) and REL L2 (migration 0019,
       // ADR 0026) have both landed; 0019 is the newest migration now.
       // REL P2 (migration 0020, link-out sightings) followed.
-      expect(rows[0]!.top).toBe('0020');
+      // REL Q1 (migration 0021, the jurisdiction-claim writer) followed.
+      expect(rows[0]!.top).toBe('0021');
     });
   });
 
@@ -293,13 +294,32 @@ describeDb('B2.2 discovery-subject registry (integration)', () => {
         { table_name: 'discovery_subject_reviews', privilege_type: 'SELECT' },
         { table_name: 'discovery_subjects', privilege_type: 'INSERT' },
         { table_name: 'discovery_subjects', privilege_type: 'SELECT' },
+        // REL Q1 (migration 0021, ADR 0024 s7): the source-stated country writer.
+        { table_name: 'subject_jurisdiction_claims', privilege_type: 'INSERT' },
+        { table_name: 'subject_jurisdiction_claims', privilege_type: 'SELECT' },
       ]);
       const { rows: columns } = await admin.query(
         `SELECT table_name, column_name, privilege_type FROM information_schema.column_privileges
-          WHERE grantee = 'nwf_discovery_subject_writer' AND table_name NOT LIKE 'discovery%'`,
+          WHERE grantee = 'nwf_discovery_subject_writer' AND table_name NOT LIKE 'discovery%'
+            AND table_name <> 'subject_jurisdiction_claims'
+          ORDER BY table_name, column_name`,
       );
       expect(columns).toEqual([
         { table_name: 'organisations', column_name: 'eche_row_key', privilege_type: 'SELECT' },
+        // REL Q1 (migration 0021): exactly what its scope trigger reads.
+        { table_name: 'orgunit_page_evidence', column_name: 'id', privilege_type: 'SELECT' },
+        {
+          table_name: 'orgunit_page_evidence',
+          column_name: 'observed_at',
+          privilege_type: 'SELECT',
+        },
+        { table_name: 'orgunit_page_evidence', column_name: 'root_key', privilege_type: 'SELECT' },
+        { table_name: 'subject_research_admissions', column_name: 'id', privilege_type: 'SELECT' },
+        {
+          table_name: 'subject_research_admissions',
+          column_name: 'subject_id',
+          privilege_type: 'SELECT',
+        },
       ]);
       const { rows: db } = await admin.query(
         `SELECT has_database_privilege('nwf_discovery_subject_writer', current_database(), 'TEMPORARY') AS temp,
@@ -993,8 +1013,12 @@ describeDb('B2.2 discovery-subject registry (integration)', () => {
           expect(
             await sqlstate(() => client.query(`SELECT legal_name FROM organisations LIMIT 1`)),
           ).toBe('42501');
+          // REL Q1 (migration 0021) granted three page-evidence COLUMNS; the
+          // page's text stays unreadable.
           expect(
-            await sqlstate(() => client.query(`SELECT 1 FROM orgunit_page_evidence LIMIT 1`)),
+            await sqlstate(() =>
+              client.query(`SELECT main_text FROM orgunit_page_evidence LIMIT 1`),
+            ),
           ).toBe('42501');
           expect(await sqlstate(() => client.query(`CREATE TEMP TABLE b22_scratch (x int)`))).toBe(
             '42501',
