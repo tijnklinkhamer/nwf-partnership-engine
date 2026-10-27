@@ -29,6 +29,7 @@ import { runDiscoverySubjects } from './commands/discoverySubjects.js';
 import { runDiscoveryReviewSign } from './commands/discoveryReviewSign.js';
 import { runSourceDiscoveryCli } from './commands/sourceDiscovery.js';
 import { runSubjectFactsCli } from './commands/subjectFacts.js';
+import { runQualificationInputCli } from './commands/qualificationInput.js';
 import {
   buildClassifierOperatorEnvelope,
   renderClassifierOperatorEnvelope,
@@ -71,6 +72,8 @@ Usage:
                               (OFFLINE; signs one prepared OWNER review request)
   nwf-pe subject-facts export --subject-id <uuid> [--subject-id <uuid> ...]
                               (READ-ONLY; one nwf-pe.subject-facts-export.v1 JSON document)
+  nwf-pe qualification-input export --subject-id <uuid> [--evaluated-at <YYYY-MM-DDTHH:MM:SSZ>]
+                              (READ-ONLY; one nwf-pe.qualification-input-export.v1 JSON document)
 
 Options:
   --country <CC>    Restrict to an ISO-3166-1 alpha-2 country code (e.g. FR).
@@ -184,6 +187,10 @@ export async function main(argv: string[]): Promise<number> {
   // REL final join A2: the READ-ONLY subject facts export. Its own strict options.
   if (argv[0] === 'subject-facts') {
     return runSubjectFactsCli(argv.slice(1));
+  }
+  // REL P1: the READ-ONLY C1 qualification-input export. Its own strict options.
+  if (argv[0] === 'qualification-input') {
+    return runQualificationInputCli(argv.slice(1));
   }
   let parsedArgv;
   try {

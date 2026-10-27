@@ -55,6 +55,21 @@ const REL_FINAL_JOIN_A2_LOADER = 'src/orgunits/subjectFacts/load.ts';
 const REL_FINAL_JOIN_A2_READ =
   /FROM subject_jurisdiction_claims\s+WHERE subject_id = ANY\(\$1::uuid\[\]\) ORDER BY created_at, id`/;
 
+/**
+ * REL P1 (OWNER decision, 2026-10-27: "candidate.location only from STATED ADR
+ * 0024 claims", in the read-only C1 qualification-input export) - the same
+ * exception, by exact path: the pure builder may import exactly R4's standing
+ * derivation, and the read-only loader may name the table in exactly one
+ * SELECT. Nothing else changes.
+ */
+const REL_P1_IMPORTS: Readonly<Record<string, readonly RegExp[]>> = {
+  'src/orgunits/qualificationInput/build.ts': [
+    /import \{ deriveJurisdictionStanding \} from '\.\.\/subjectJurisdiction\/standing\.js';/,
+  ],
+};
+const REL_P1_LOADER = 'src/orgunits/qualificationInput/load.ts';
+const REL_P1_READ = /FROM subject_jurisdiction_claims WHERE subject_id = \$1 ORDER BY id`/;
+
 /** R4.1 + R4.2: the OWNER-authorised test-maintenance edits, each pinned line for line below. */
 const R3_FIREWALL = 'src/test/firewall/phase2bSubjectAcquisitionF1R3.firewall.test.ts';
 const REGISTRY_TEST = 'src/test/integration/discoverySubjectRegistry.test.ts';
@@ -318,6 +333,7 @@ describe('R4: subjectJurisdiction is pure, self-contained and unconnected', () =
       if (f.startsWith(MODULE_DIR)) return false;
       let code = codeOf(readFileSync(join(REPO_ROOT, f), 'utf8'));
       for (const form of REL_FINAL_JOIN_A2_IMPORTS[f] ?? []) code = code.replace(form, '');
+      for (const form of REL_P1_IMPORTS[f] ?? []) code = code.replace(form, '');
       return /subjectJurisdiction/.test(code);
     });
     expect(importers).toEqual([]);
@@ -328,6 +344,7 @@ describe('R4: subjectJurisdiction is pure, self-contained and unconnected', () =
       if (f.startsWith(MODULE_DIR)) return false;
       let code = codeOf(readFileSync(join(REPO_ROOT, f), 'utf8'));
       if (f === REL_FINAL_JOIN_A2_LOADER) code = code.replace(REL_FINAL_JOIN_A2_READ, '');
+      if (f === REL_P1_LOADER) code = code.replace(REL_P1_READ, '');
       return /subject_jurisdiction_claims|subject_iso3166_alpha2_assigned/.test(code);
     });
     expect(named).toEqual([]);
@@ -341,6 +358,16 @@ describe('R4: subjectJurisdiction is pure, self-contained and unconnected', () =
     }
     const loader = codeOf(readFileSync(join(REPO_ROOT, REL_FINAL_JOIN_A2_LOADER), 'utf8'));
     expect(loader.match(new RegExp(REL_FINAL_JOIN_A2_READ.source, 'g'))).toHaveLength(1);
+    expect(loader).not.toMatch(/\b(INSERT|UPDATE|DELETE|TRUNCATE|ALTER|DROP|CREATE|GRANT)\b/);
+  });
+  it('REL P1: each exact-path exception is present exactly once, as pinned', () => {
+    for (const [file, forms] of Object.entries(REL_P1_IMPORTS)) {
+      const code = codeOf(readFileSync(join(REPO_ROOT, file), 'utf8'));
+      for (const form of forms)
+        expect(code.match(new RegExp(form.source, 'g')), file).toHaveLength(1);
+    }
+    const loader = codeOf(readFileSync(join(REPO_ROOT, REL_P1_LOADER), 'utf8'));
+    expect(loader.match(new RegExp(REL_P1_READ.source, 'g'))).toHaveLength(1);
     expect(loader).not.toMatch(/\b(INSERT|UPDATE|DELETE|TRUNCATE|ALTER|DROP|CREATE|GRANT)\b/);
   });
 });

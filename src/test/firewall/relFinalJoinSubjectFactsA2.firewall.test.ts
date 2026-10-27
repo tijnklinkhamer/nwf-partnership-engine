@@ -34,6 +34,11 @@ const FACTS = `${MODULE_DIR}facts.ts`;
 const LOAD = `${MODULE_DIR}load.ts`;
 const CLI = 'src/cli/commands/subjectFacts.ts';
 const CLI_ENTRY = 'src/cli/index.ts';
+/** REL P1: the qualification-input export's builder and loader (facts.ts only). */
+const REL_P1_IMPORTERS = [
+  'src/orgunits/qualificationInput/build.ts',
+  'src/orgunits/qualificationInput/load.ts',
+];
 
 /** The relations the loader reads, all SELECT-granted to nwf_readonly (0005, 0007, 0013, 0016, 0019). */
 const READABLE = [
@@ -125,7 +130,17 @@ describe('REL final join A2: the subject facts module', () => {
           /subjectFacts/.test(s),
         ),
     );
-    expect(importers).toEqual([CLI, CLI_ENTRY].sort());
+    // REL P1, by exact path: the C1 qualification-input export reuses the pure
+    // nomination-citation digest and the jurisdiction record type (facts.ts only).
+    expect(importers).toEqual([CLI, CLI_ENTRY, ...REL_P1_IMPORTERS].sort());
+    for (const f of REL_P1_IMPORTERS) {
+      expect(
+        specifiers(codeOf(readFileSync(join(REPO_ROOT, f), 'utf8'))).filter((s) =>
+          /subjectFacts/.test(s),
+        ),
+        f,
+      ).toEqual(['../subjectFacts/facts.js']);
+    }
     expect(
       specifiers(codeOf(readCurrent(CLI_ENTRY))).filter((s) => /subjectFacts/.test(s)),
     ).toEqual(['./commands/subjectFacts.js']);
