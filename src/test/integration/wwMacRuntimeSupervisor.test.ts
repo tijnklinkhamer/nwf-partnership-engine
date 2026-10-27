@@ -277,10 +277,16 @@ describeDb('WW E-M Mac runtime supervisor (integration)', () => {
     const test = testDatabaseUrl('admin')!;
     const deps: EngineDeps = {
       paths,
+      // WW H-RT: the supervisor checks every connection string the wired
+      // worker uses. The stage-handler logins are never connected here (the
+      // handlers are scripted), so they only need to name the same database.
       urls: {
         DATABASE_URL_ADMIN: test,
         DATABASE_URL_READONLY: readonlyUrl(),
         DATABASE_URL_ACQUISITION_WORKER: workerUrl(),
+        DATABASE_URL_SOURCE_DISCOVERY: urlFor('nwf_source_discovery', PASSWORD),
+        DATABASE_URL_DISCOVERY_SUBJECT_WRITER: urlFor('nwf_discovery_subject_writer', PASSWORD),
+        DATABASE_URL_RESEARCH: urlFor('nwf_research', PASSWORD),
       },
       procs,
       clock: realRuntimeClock,
