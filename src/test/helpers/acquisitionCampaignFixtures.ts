@@ -24,6 +24,7 @@ import {
 import {
   CAMPAIGN_ACTION,
   CAMPAIGN_DOCUMENT_VERSION,
+  CAMPAIGN_DOCUMENT_VERSION_V2,
   CAMPAIGN_PROTOCOL,
   OWNER_CAMPAIGN_AUTHORITY,
   campaignSigningBytes,
@@ -94,6 +95,8 @@ export interface CampaignDraft {
   searchGrantIds?: string[];
   budgets?: Partial<Record<string, string>>;
   purpose?: string;
+  /** WW H-ACQ: set to sign a v2 document carrying this signed link-out depth. */
+  linkOutMaxHops?: string;
 }
 
 export const DEFAULT_BUDGETS: Readonly<Record<string, string>> = {
@@ -121,7 +124,8 @@ export function campaignPayloadObject(
     budgets: { ...DEFAULT_BUDGETS, ...draft.budgets } as Record<string, string>,
     campaignKey: draft.campaignKey ?? `test-campaign-${process.pid}-${counter}-v1`,
     contractVersion: '1',
-    document: CAMPAIGN_DOCUMENT_VERSION,
+    document:
+      draft.linkOutMaxHops === undefined ? CAMPAIGN_DOCUMENT_VERSION : CAMPAIGN_DOCUMENT_VERSION_V2,
     environmentId: draft.environmentId,
     issuedAt: new Date(draft.issuedAtMs ?? now).toISOString(),
     keyFingerprint: key.fingerprint,
@@ -131,6 +135,7 @@ export function campaignPayloadObject(
     purpose: draft.purpose ?? 'Synthetic test campaign; fictitious work only.',
     scope: {
       geographies: draft.geographies ?? ['NL'],
+      ...(draft.linkOutMaxHops === undefined ? {} : { linkOutMaxHops: draft.linkOutMaxHops }),
       searchGrantIds:
         draft.searchGrantIds ??
         ((draft.sourceKinds ?? ['SEARCH_GRANT']).includes('SEARCH_GRANT') ? [randomUUID()] : []),

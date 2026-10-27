@@ -23,7 +23,8 @@
  *
  * The template (`campaignTemplate`) emits a conservative draft: every worker
  * stage, only the SEARCH_GRANT and LINK_OUT source kinds, a window of at most
- * 14 days, and small budgets well inside the mechanical bounds.
+ * 14 days, small budgets well inside the mechanical bounds, and (WW H-ACQ,
+ * draft v2) a signed link-out depth of ONE generation.
  *
  * PURE except for the node:crypto signing calls; the CLI does the file IO.
  */
@@ -38,6 +39,7 @@ import {
 import {
   CAMPAIGN_ACTION,
   CAMPAIGN_DOCUMENT_VERSION,
+  CAMPAIGN_DOCUMENT_VERSION_V2,
   CAMPAIGN_PROTOCOL,
   CampaignProtocolError,
   WORLDWIDE,
@@ -54,6 +56,14 @@ import {
 import { canonicalJson, publicKeyFingerprint } from '../acquisition/canonical.js';
 
 export const CAMPAIGN_DRAFT_VERSION = 'nwf-pe.acquisition-campaign-draft.v1';
+/**
+ * WW H-ACQ (ADR 0030 s13, P2-5): a v2 draft adds `scope.linkOutMaxHops`
+ * (decimal string, 0..3) and is signed as `nwf-pe.acquisition-campaign.v2`.
+ * A v1 draft is still signed as a v1 document, which means exactly 1 hop.
+ */
+export const CAMPAIGN_DRAFT_VERSION_V2 = 'nwf-pe.acquisition-campaign-draft.v2';
+/** The template's link-out depth: the first link-out generation only. */
+export const TEMPLATE_LINK_OUT_MAX_HOPS = '1';
 /** The template never proposes a window longer than this (the protocol allows 30 days). */
 export const TEMPLATE_MAX_WINDOW_DAYS = 14;
 export const TEMPLATE_DEFAULT_WINDOW_DAYS = 7;
@@ -78,7 +88,7 @@ export class CampaignSigningRefusal extends Error {
 }
 
 export interface CampaignDraft {
-  readonly draft: typeof CAMPAIGN_DRAFT_VERSION;
+  readonly draft: typeof CAMPAIGN_DRAFT_VERSION | typeof CAMPAIGN_DRAFT_VERSION_V2;
   readonly campaignKey: string;
   readonly environmentId: string;
   readonly purpose: string;
@@ -88,6 +98,8 @@ export interface CampaignDraft {
     readonly searchGrantIds: readonly string[];
     readonly sourceKinds: readonly string[];
     readonly stages: readonly string[];
+    /** v2 drafts only. */
+    readonly linkOutMaxHops?: string;
   };
   readonly budgets: Readonly<Record<string, string>>;
 }
@@ -112,7 +124,14 @@ export function parseCampaignDraft(value: unknown): CampaignDraft {
     throw new CampaignSigningRefusal('draft_fields');
   }
   const d = value as CampaignDraft;
-  if (d.draft !== CAMPAIGN_DRAFT_VERSION) throw new CampaignSigningRefusal('draft_version');
+  if (d.draft !== CAMPAIGN_DRAFT_VERSION && d.draft !== CAMPAIGN_DRAFT_VERSION_V2) {
+    throw new CampaignSigningRefusal('draft_version');
+  }
+  const scope = d.scope as unknown;
+  if (typeof scope !== 'object' || scope === null) throw new CampaignSigningRefusal('draft_scope');
+  if ((d.draft === CAMPAIGN_DRAFT_VERSION_V2) !== 'linkOutMaxHops' in scope) {
+    throw new CampaignSigningRefusal('draft_link_out_max_hops');
+  }
   return d;
 }
 
@@ -139,7 +158,7 @@ export function campaignTemplate(input: TemplateInput): CampaignDraft {
   const startsMs = Math.floor(input.nowMs / 1000) * 1000;
   const sourceKinds = input.searchGrantIds.length > 0 ? ['SEARCH_GRANT', 'LINK_OUT'] : ['LINK_OUT'];
   return {
-    draft: CAMPAIGN_DRAFT_VERSION,
+    draft: CAMPAIGN_DRAFT_VERSION_V2,
     campaignKey: input.campaignKey,
     environmentId: input.environmentId,
     purpose:
@@ -155,6 +174,7 @@ export function campaignTemplate(input: TemplateInput): CampaignDraft {
       searchGrantIds: [...input.searchGrantIds],
       sourceKinds,
       stages: [...WORKER_STAGES],
+      linkOutMaxHops: TEMPLATE_LINK_OUT_MAX_HOPS,
     },
     budgets: { ...TEMPLATE_BUDGETS },
   };
@@ -190,7 +210,10 @@ export function signCampaignDraft(
       budgets: { ...parsed.budgets },
       campaignKey: parsed.campaignKey,
       contractVersion: '1',
-      document: CAMPAIGN_DOCUMENT_VERSION,
+      document:
+        parsed.draft === CAMPAIGN_DRAFT_VERSION_V2
+          ? CAMPAIGN_DOCUMENT_VERSION_V2
+          : CAMPAIGN_DOCUMENT_VERSION,
       environmentId: parsed.environmentId,
       issuedAt: new Date(key.nowMs).toISOString(),
       keyFingerprint: publicKeyFingerprint(rawPublicKey(key.privateKey)),
@@ -200,6 +223,9 @@ export function signCampaignDraft(
       purpose: parsed.purpose,
       scope: {
         geographies: [...parsed.scope.geographies],
+        ...(parsed.scope.linkOutMaxHops === undefined
+          ? {}
+          : { linkOutMaxHops: parsed.scope.linkOutMaxHops }),
         searchGrantIds: [...parsed.scope.searchGrantIds],
         sourceKinds: [...parsed.scope.sourceKinds],
         stages: [...parsed.scope.stages],

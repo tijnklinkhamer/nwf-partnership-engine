@@ -106,6 +106,7 @@ export class CampaignAuthority {
       searchGrantIds: Object.freeze([...fields.scope.searchGrantIds]),
       sourceKinds: Object.freeze([...fields.scope.sourceKinds]),
       stages: Object.freeze([...fields.scope.stages]),
+      linkOutMaxHops: fields.scope.linkOutMaxHops,
     });
     this.budgets = Object.freeze({ ...fields.budgets });
     this.startsAtMs = fields.startsAtMs;
@@ -418,10 +419,10 @@ export async function recordCampaign(
             ends_at, geographies, source_kinds, allowed_stages, search_grant_ids,
             max_work_items, max_search_runs, max_research_roots, max_gateway_requests,
             max_items_per_registrable_domain, max_concurrency, max_attempts_per_item,
-            max_awaiting_human_backlog, actor_key)
+            max_awaiting_human_backlog, actor_key, link_out_max_hops)
          VALUES ($1, $2, $3, convert_from(decode($4, 'base64'), 'UTF8')::jsonb, $5, $6, $7, $8,
                  $9, $10, $11, $12, $13, $14, $15, $16, $17::uuid[], $18, $19, $20, $21, $22,
-                 $23, $24, $25, $26)
+                 $23, $24, $25, $26, $27)
          RETURNING id`,
         [
           p.environmentId,
@@ -450,6 +451,7 @@ export async function recordCampaign(
           p.budgets.maxAttemptsPerItem,
           p.budgets.maxAwaitingHumanBacklog,
           input.actorKey,
+          p.scope.linkOutMaxHops,
         ],
       );
     } catch (error) {

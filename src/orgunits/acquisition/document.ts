@@ -1,6 +1,7 @@
 /**
  * WW E-Q - THE OWNER-SIGNED ACQUISITION CAMPAIGN DOCUMENT
- * (`nwf-pe.acquisition-campaign.v1`, protocol `nwf-pe.acquisition-campaign/1`).
+ * (`nwf-pe.acquisition-campaign.v1`, and since WW H-ACQ `.v2` with a signed
+ * link-out depth; protocol `nwf-pe.acquisition-campaign/1`).
  *
  * The same envelope discipline as the OWNER review protocol (ADR 0023 s3),
  * with its OWN protocol line, action and trust set:
@@ -37,6 +38,22 @@ import {
 } from './vocabulary.js';
 
 export const CAMPAIGN_DOCUMENT_VERSION = 'nwf-pe.acquisition-campaign.v1';
+/**
+ * WW H-ACQ (ADR 0030 s13, P2-5): v2 adds ONE signed scope field,
+ * `linkOutMaxHops` (decimal string, 0..3). A v1 document stays verifiable and
+ * means exactly ONE link-out hop - a link-out root only from research of a
+ * SEARCH_GRANT or SEED subject, never from research of a link-out subject.
+ */
+export const CAMPAIGN_DOCUMENT_VERSION_V2 = 'nwf-pe.acquisition-campaign.v2';
+export const CAMPAIGN_DOCUMENT_VERSIONS = Object.freeze([
+  CAMPAIGN_DOCUMENT_VERSION,
+  CAMPAIGN_DOCUMENT_VERSION_V2,
+] as const);
+export type CampaignDocumentVersion = (typeof CAMPAIGN_DOCUMENT_VERSIONS)[number];
+/** What a v1 document means (the conservative reading of v1's behaviour). */
+export const CAMPAIGN_V1_LINK_OUT_MAX_HOPS = 1;
+/** Mechanical bounds of a v2 `linkOutMaxHops` (mirrored by `acquisition_campaigns_link_out_hops_chk`). */
+export const CAMPAIGN_LINK_OUT_MAX_HOPS_BOUNDS = Object.freeze([0, 3] as const);
 export const CAMPAIGN_PROTOCOL = 'nwf-pe.acquisition-campaign/1';
 export const CAMPAIGN_SIGNING_PREFIX = `${CAMPAIGN_PROTOCOL}\n`;
 export const CAMPAIGN_CONTRACT_VERSION = '1';
@@ -90,6 +107,11 @@ export interface CampaignScope {
   readonly sourceKinds: readonly SourceKind[];
   /** The stages the worker may perform. Never the human gate. */
   readonly stages: readonly WorkerStage[];
+  /**
+   * WW H-ACQ: how many LINK_OUT generations the worker may enqueue - signed
+   * in a v2 document, exactly 1 for a v1 document. 0 = no link-out root.
+   */
+  readonly linkOutMaxHops: number;
 }
 
 export interface CampaignPayload {
@@ -97,7 +119,7 @@ export interface CampaignPayload {
   readonly budgets: CampaignBudgets;
   readonly campaignKey: string;
   readonly contractVersion: typeof CAMPAIGN_CONTRACT_VERSION;
-  readonly document: typeof CAMPAIGN_DOCUMENT_VERSION;
+  readonly document: CampaignDocumentVersion;
   readonly environmentId: string;
   readonly issuedAt: string;
   readonly keyFingerprint: string;
@@ -235,13 +257,27 @@ const PAYLOAD_KEYS = [
   'window',
 ];
 
-function parseScope(value: unknown): CampaignScope {
+function parseScope(value: unknown, version: CampaignDocumentVersion): CampaignScope {
   const o = object(
     value,
-    ['geographies', 'searchGrantIds', 'sourceKinds', 'stages'],
+    version === CAMPAIGN_DOCUMENT_VERSION_V2
+      ? ['geographies', 'linkOutMaxHops', 'searchGrantIds', 'sourceKinds', 'stages']
+      : ['geographies', 'searchGrantIds', 'sourceKinds', 'stages'],
     'SCOPE_INVALID',
     'scope',
   );
+  let linkOutMaxHops: number = CAMPAIGN_V1_LINK_OUT_MAX_HOPS;
+  if (version === CAMPAIGN_DOCUMENT_VERSION_V2) {
+    const raw = o['linkOutMaxHops'];
+    if (typeof raw !== 'string' || !DECIMAL.test(raw)) {
+      throw new CampaignProtocolError('SCOPE_INVALID', 'link_out_max_hops_not_decimal');
+    }
+    linkOutMaxHops = Number(raw);
+    const [lo, hi] = CAMPAIGN_LINK_OUT_MAX_HOPS_BOUNDS;
+    if (linkOutMaxHops < lo || linkOutMaxHops > hi) {
+      throw new CampaignProtocolError('SCOPE_INVALID', 'link_out_max_hops_out_of_bounds');
+    }
+  }
   const geographies = list(
     o['geographies'],
     (v) => v === WORLDWIDE || (typeof v === 'string' && ISO_COUNTRY.test(v)),
@@ -276,7 +312,7 @@ function parseScope(value: unknown): CampaignScope {
   if (sourceKinds.includes('SEARCH_GRANT') !== searchGrantIds.length > 0) {
     throw new CampaignProtocolError('SCOPE_INVALID', 'search_grants_vs_source_kind');
   }
-  return { geographies, searchGrantIds, sourceKinds, stages };
+  return { geographies, searchGrantIds, sourceKinds, stages, linkOutMaxHops };
 }
 
 function parseBudgets(value: unknown): CampaignBudgets {
@@ -305,7 +341,8 @@ export function parseCampaignPayload(value: unknown): CampaignPayload {
   if (o['protocol'] !== CAMPAIGN_PROTOCOL) {
     throw new CampaignProtocolError('PAYLOAD_PROTOCOL_MISMATCH', 'protocol');
   }
-  if (o['document'] !== CAMPAIGN_DOCUMENT_VERSION) {
+  const document = o['document'];
+  if (document !== CAMPAIGN_DOCUMENT_VERSION && document !== CAMPAIGN_DOCUMENT_VERSION_V2) {
     throw new CampaignProtocolError('PAYLOAD_SCHEMA_INVALID', 'document_version');
   }
   if (o['contractVersion'] !== CAMPAIGN_CONTRACT_VERSION) {
@@ -330,7 +367,7 @@ export function parseCampaignPayload(value: unknown): CampaignPayload {
     budgets: parseBudgets(o['budgets']),
     campaignKey: str(o['campaignKey'], CAMPAIGN_KEY, 'PAYLOAD_SCHEMA_INVALID', 'campaign_key'),
     contractVersion: CAMPAIGN_CONTRACT_VERSION,
-    document: CAMPAIGN_DOCUMENT_VERSION,
+    document,
     environmentId: str(o['environmentId'], UUID, 'PAYLOAD_SCHEMA_INVALID', 'environment_id'),
     issuedAt: o['issuedAt'] as string,
     keyFingerprint: str(o['keyFingerprint'], HEX64, 'PAYLOAD_SCHEMA_INVALID', 'key_fingerprint'),
@@ -338,7 +375,7 @@ export function parseCampaignPayload(value: unknown): CampaignPayload {
     nonce: str(o['nonce'], NONCE, 'PAYLOAD_SCHEMA_INVALID', 'nonce'),
     protocol: CAMPAIGN_PROTOCOL,
     purpose,
-    scope: parseScope(o['scope']),
+    scope: parseScope(o['scope'], document),
     window: { startsAt: w['startsAt'] as string, endsAt: w['endsAt'] as string },
   };
 }
@@ -381,6 +418,10 @@ export function campaignPayloadValue(payload: CampaignPayload): CanonicalValue {
     purpose: payload.purpose,
     scope: {
       geographies: [...payload.scope.geographies],
+      // v2 only: a v1 document carries no depth (it means exactly 1).
+      ...(payload.document === CAMPAIGN_DOCUMENT_VERSION_V2
+        ? { linkOutMaxHops: String(payload.scope.linkOutMaxHops) }
+        : {}),
       searchGrantIds: [...payload.scope.searchGrantIds],
       sourceKinds: [...payload.scope.sourceKinds],
       stages: [...payload.scope.stages],

@@ -26,6 +26,7 @@ import {
   inSourceDiscoveryTransaction,
   registerBrief,
 } from '../../orgunits/sourceDiscovery/store.js';
+import { runGrantedSourceDiscovery } from '../../orgunits/sourceDiscovery/grantedRun.js';
 import type { ReviewTrustSet } from '../../orgunits/subjectReview/trust.js';
 import {
   campaignTrustEntry,
@@ -231,6 +232,14 @@ export interface WiringHarness {
   grant(geography?: string): Promise<string>;
   /** One ECHE website claim on `domain` (a duplicate for the pipeline). */
   echeClaim(domain: string): Promise<void>;
+  /**
+   * WW H-ACQ (P1-9): the OWNER's D8 smoke verification for the fake SDK's
+   * runtime, recorded the way an OWNER would: one granted run (its own grant,
+   * its own fake SDK) whose smoke call is then verified on the owner path. A
+   * campaign's later smoke calls under the same SDK version and model are
+   * covered by it (migration 0025).
+   */
+  verifySmokeRuntime(): Promise<void>;
   tearDown(): Promise<void>;
 }
 
@@ -410,6 +419,23 @@ export async function createWiringHarness(tag: string): Promise<WiringHarness> {
          VALUES ('ECHE_PUBLISHED', $1, NULL, $1, $2, 'STRUCTURALLY_VALID', $3, $2, $4,
                  'test-rules-1', repeat('a', 64), now(), $5)`,
         [key, `www.${domain}`, `https://www.${domain}/`, domain, run.rows[0]!.id],
+      );
+    },
+    async verifySmokeRuntime(this: WiringHarness) {
+      const grantId = await this.grant('JP');
+      const sdk = fakeSdk([]);
+      const deps = this.deps(sdk, researchTransport()).liveSearch;
+      const run = await runGrantedSourceDiscovery(
+        source,
+        { grantId, actorKey: 'test-smoke-run' },
+        deps,
+      );
+      await admin.query(
+        `INSERT INTO source_discovery_smoke_verifications
+           (run_id, call_seq, sdk_version, model_id, actor_key)
+         SELECT run_id, call_seq, sdk_version, model_id, 'owner-cli'
+           FROM source_discovery_query_calls WHERE run_id = $1 AND call_seq = 1`,
+        [run.runId],
       );
     },
     async tearDown() {

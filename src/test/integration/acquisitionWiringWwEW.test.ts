@@ -155,6 +155,7 @@ describeDb('WW E-W wired acquisition pipeline (integration)', () => {
 
   it('runs search -> dedupe -> propose -> campaign admission -> research -> outbox -> OWNER review', async () => {
     await h.echeClaim('eche-dup-fict.jp');
+    await h.verifySmokeRuntime();
     const grantId = await h.grant('JP');
     const id = await campaign({ grantIds: [grantId] });
     const sdk = fakeSdk(SEARCH_RESULTS);
@@ -173,7 +174,12 @@ describeDb('WW E-W wired acquisition pipeline (integration)', () => {
       'hook:StructuredOutput:pass',
     ]);
     expect(
-      (await h.admin.query(`SELECT outcome, smoke FROM source_discovery_query_calls`)).rows,
+      (
+        await h.admin.query(
+          `SELECT q.outcome, q.smoke FROM source_discovery_query_calls q
+             JOIN source_discovery_runs r ON r.id = q.run_id WHERE r.actor_key LIKE 'acq-%'`,
+        )
+      ).rows,
     ).toEqual([{ outcome: 'RESULTS', smoke: true }]);
 
     // ONE granted search run, keyed to the root item.
@@ -249,7 +255,13 @@ describeDb('WW E-W wired acquisition pipeline (integration)', () => {
       }),
     ).toBe(0);
     const list = JSON.parse(listed.join('')) as {
-      subjects: { subjectId: string; rootUrl: string; names: string[]; registeredKind: string }[];
+      subjects: {
+        subjectId: string;
+        rootUrl: string;
+        names: string[];
+        registeredKind: string;
+        stateDigest: string;
+      }[];
     };
     expect(list.subjects.map((s) => s.rootUrl).sort()).toEqual(
       [SITES.association, SITES.buddy, SITES.university].sort(),
@@ -257,6 +269,7 @@ describeDb('WW E-W wired acquisition pipeline (integration)', () => {
     expect(list.subjects.every((s) => s.registeredKind === 'UNCERTAIN')).toBe(true);
     const assoc = list.subjects.find((s) => s.rootUrl === SITES.association)!.subjectId;
     const buddy = list.subjects.find((s) => s.rootUrl === SITES.buddy)!.subjectId;
+    const digestOf = (id: string) => list.subjects.find((s) => s.subjectId === id)!.stateDigest;
 
     const signedOut: string[] = [];
     let prompts = 0;
@@ -270,6 +283,10 @@ describeDb('WW E-W wired acquisition pipeline (integration)', () => {
         assoc,
         '--subject-id',
         buddy,
+        '--expect',
+        `${assoc}=${digestOf(assoc)}`,
+        '--expect',
+        `${buddy}=${digestOf(buddy)}`,
         '--key-file',
         h.reviewKeyFile,
         '--key-id',
@@ -337,6 +354,7 @@ describeDb('WW E-W wired acquisition pipeline (integration)', () => {
   });
 
   it('a restart in the middle does no duplicate work, and a crashed research attempt is reused', async () => {
+    await h.verifySmokeRuntime();
     const grantId = await h.grant('JP');
     const id = await campaign({ grantIds: [grantId] });
     const sdk = fakeSdk(SEARCH_RESULTS);
@@ -390,6 +408,7 @@ describeDb('WW E-W wired acquisition pipeline (integration)', () => {
           searchGrantIds: [grantId],
           sourceKinds: ['SEARCH_GRANT', 'LINK_OUT'],
           stages: ALL_STAGES,
+          linkOutMaxHops: 1,
         },
         budgets: {} as never,
       },
@@ -451,6 +470,7 @@ describeDb('WW E-W wired acquisition pipeline (integration)', () => {
   });
 
   it('a campaign that does not list RESEARCH_PENDING never fetches', async () => {
+    await h.verifySmokeRuntime();
     const grantId = await h.grant('JP');
     const id = await campaign({
       grantIds: [grantId],
@@ -485,6 +505,7 @@ describeDb('WW E-W wired acquisition pipeline (integration)', () => {
   });
 
   it('enforces the research-root budget: one root, then BUDGET_EXHAUSTED with the rest waiting', async () => {
+    await h.verifySmokeRuntime();
     const grantId = await h.grant('JP');
     const id = await campaign({ grantIds: [grantId], budgets: { maxResearchRoots: '1' } });
     const result = await work(id);
@@ -496,6 +517,7 @@ describeDb('WW E-W wired acquisition pipeline (integration)', () => {
   });
 
   it('a gateway budget below one root reservation never researches', async () => {
+    await h.verifySmokeRuntime();
     const grantId = await h.grant('JP');
     const id = await campaign({ grantIds: [grantId], budgets: { maxGatewayRequests: '59' } });
     const transport = researchTransport();

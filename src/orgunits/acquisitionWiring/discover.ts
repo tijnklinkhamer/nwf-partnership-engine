@@ -14,8 +14,9 @@
  *   LINK_OUT root - the PAGE_LINK_OUT nominations a campaign-admitted
  *     research run captured (never fetched). Nothing is consumed.
  *
- * Children are the run's nominations, at NOMINATED, keyed by registrable
- * domain. A nomination is never fetched, ranked or valued here.
+ * Children are the run's ADMISSIBLE nominations (WW H-ACQ P1-9: a completed
+ * run; RESULTS calls; a smoke call only once verified), at NOMINATED, keyed
+ * by registrable domain. A nomination is never fetched, ranked or valued here.
  *
  * Opens no socket itself; the granted run reaches the provider only through
  * the injected live-search dependencies (`productionLiveSearchDeps` in
@@ -43,13 +44,59 @@ interface NominationRef {
   registrable_domain: string;
 }
 
-async function nominationsOfRun(readonly: pg.Pool, runId: string): Promise<NominationRef[]> {
-  const { rows } = await readonly.query<NominationRef>(
-    `SELECT id, registrable_domain FROM source_discovery_nominations
-      WHERE discovery_run_id = $1 ORDER BY created_at, id`,
+/**
+ * WW H-ACQ (ADR 0030 s13, P1-9): what a SEARCH_PROVIDER run may hand the
+ * campaign. A run is read only once it has its terminal completion row (an
+ * incomplete run - a crashed process - is never advanced: RETRY while it is
+ * missing). Its nominations count only when they came from a provider call
+ * whose terminal row is RESULTS and which is either not the ADR 0027 D8
+ * smoke call, or a smoke call the OWNER verified - for that very call or for
+ * the same SDK version and model, which migration 0025 says a verification
+ * covers. Nominations of an UNVERIFIED smoke call are never dropped: they
+ * hold the item (RETRY, DEPENDENCY_NOT_READY) until the OWNER records the
+ * verification.
+ *
+ * This is the wiring's own minimal check. Once H-SD's sourceDiscovery helper
+ * (`admissibleNominationsOfRun`) lands, this function should delegate to it.
+ */
+export type RunNominations =
+  | { readonly kind: 'INCOMPLETE' }
+  | { readonly kind: 'SMOKE_UNVERIFIED' }
+  | { readonly kind: 'ADMISSIBLE'; readonly nominations: readonly NominationRef[] };
+
+export async function admissibleNominationsOfSearchRun(
+  readonly: pg.Pool,
+  runId: string,
+): Promise<RunNominations> {
+  const { rows: done } = await readonly.query<{ complete: boolean }>(
+    `SELECT EXISTS (SELECT 1 FROM source_discovery_run_completions WHERE run_id = $1) AS complete`,
     [runId],
   );
-  return rows;
+  if (done[0]?.complete !== true) return { kind: 'INCOMPLETE' };
+  const { rows } = await readonly.query<NominationRef & { admissible: boolean; held: boolean }>(
+    `SELECT n.id, n.registrable_domain,
+            (q.id IS NOT NULL AND q.outcome = 'RESULTS'
+             AND (NOT q.smoke OR v.verified)) AS admissible,
+            (q.id IS NOT NULL AND q.outcome = 'RESULTS' AND q.smoke AND NOT v.verified) AS held
+       FROM source_discovery_nominations n
+       LEFT JOIN source_discovery_query_calls q
+              ON q.run_id = n.discovery_run_id AND q.query_id = n.query_id
+       LEFT JOIN LATERAL (
+            SELECT EXISTS (SELECT 1 FROM source_discovery_smoke_verifications sv
+                            WHERE (sv.run_id = q.run_id AND sv.call_seq = q.call_seq)
+                               OR (sv.sdk_version = q.sdk_version AND sv.model_id = q.model_id))
+                   AS verified) v ON true
+      WHERE n.discovery_run_id = $1 AND n.discovery_method = 'SEARCH_PROVIDER'
+      ORDER BY n.created_at, n.id`,
+    [runId],
+  );
+  if (rows.some((r) => r.held)) return { kind: 'SMOKE_UNVERIFIED' };
+  return {
+    kind: 'ADMISSIBLE',
+    nominations: rows
+      .filter((r) => r.admissible)
+      .map((r) => ({ id: r.id, registrable_domain: r.registrable_domain })),
+  };
 }
 
 function advanceTo(nominations: readonly NominationRef[]): StageOutcome {
@@ -127,7 +174,12 @@ async function discoverFromGrant(
   // One run per item, whichever attempt started it; report it once.
   const reported = await alreadyReported(deps.pools.worker, item.id);
   if (reported.searchRuns === 0) ctx.consume('searchRuns', 1);
-  return advanceTo(await nominationsOfRun(readonly, runId));
+  // P1-9: only a COMPLETED run's admissible nominations advance.
+  const found = await admissibleNominationsOfSearchRun(readonly, runId);
+  if (found.kind !== 'ADMISSIBLE') {
+    return { kind: 'RETRY', reason: 'DEPENDENCY_NOT_READY', retryable: true };
+  }
+  return advanceTo(found.nominations);
 }
 
 async function discoverFromLinkOuts(deps: WiringDeps, item: WorkItemView): Promise<StageOutcome> {

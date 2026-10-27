@@ -36,6 +36,7 @@ import type pg from 'pg';
 
 import {
   enqueueCampaignLinkOutRoot,
+  inWorkerTransaction,
   type StageHandler,
   type StageHandlerContext,
   type StageOutcome,
@@ -83,7 +84,14 @@ async function gatewayRequestsOf(readonly: pg.Pool, runIds: readonly string[]): 
   return rows[0]!.n;
 }
 
-/** Reports what this item's research actually spent, minus what earlier outcomes already reported. */
+/**
+ * Reports what this item's research actually spent, minus what earlier
+ * outcomes already reported. WW H-ACQ (P1-2): called exactly once per
+ * attempt, in `finally`, over every run of the item's admissions - so an
+ * exception, a refusal or an emergency stop still reports what was fetched.
+ * The database no longer depends on it: `acquisition_campaign_spend`
+ * (migration 0026) counts the observations themselves.
+ */
 async function reportSpend(
   deps: WiringDeps,
   item: WorkItemView,
@@ -115,6 +123,14 @@ async function linkOutRoot(
     [runId],
   );
   if (rows[0]!.n === 0) return;
+  // WW H-ACQ (P2-5): never deeper than the SIGNED link-out depth (v1: one
+  // hop). The database refuses it too (LINK_OUT_HOP_LIMIT, migration 0026);
+  // asking first keeps a refused root from failing the attempt.
+  const { rows: hops } = await inWorkerTransaction(deps.pools.worker, (c) =>
+    c.query<{ hop: number | null }>('SELECT acquisition_link_out_hop_of_run($1) AS hop', [runId]),
+  );
+  const hop = hops[0]?.hop ?? null;
+  if (hop === null || hop > ctx.campaign.scope.linkOutMaxHops) return;
   await enqueueCampaignLinkOutRoot(
     deps.pools.worker,
     { campaignId: item.campaignId, scope: ctx.campaign.scope },
@@ -137,91 +153,115 @@ async function websiteClaimId(
   return rows[0]?.id ?? null;
 }
 
+const runsOf = (prior: readonly PriorRun[]): string[] =>
+  prior.flatMap((p) => (p.run_id === null ? [] : [p.run_id]));
+
 export function researchPendingHandler(deps: WiringDeps): StageHandler {
   return {
     stage: 'RESEARCH_PENDING',
     async handle(item, ctx): Promise<StageOutcome> {
-      const { readonly, worker, research } = deps.pools;
-      // 1. A retried attempt never researches twice.
-      const prior = await priorAdmissions(readonly, item.id);
-      const priorRuns = prior.flatMap((p) => (p.run_id === null ? [] : [p.run_id]));
-      if (priorRuns.length > 0) {
-        await reportSpend(deps, item, ctx, priorRuns);
-        await linkOutRoot(deps, item, ctx, priorRuns[0]!);
-        return { kind: 'ADVANCED', next: 'RESEARCHED' };
-      }
-
-      // 2. The campaign's own proposal, and its root.
-      const binding = await loadCampaignSubject(worker, item.campaignId, item.subjectId);
-      if (binding === null || binding.registrableDomain !== item.registrableDomain) {
-        return { kind: 'REFUSED', reason: 'NOT_ADMISSIBLE' };
-      }
-      const url = binding.nominatedUrl;
-      const host = hostOf(url);
-      const gate = prepareNomination({ url, title: null, snippet: null });
-      if (
-        !url.startsWith('https://') ||
-        host === null ||
-        !hostOnDomain(host, binding.registrableDomain) ||
-        !gate.ok ||
-        gate.value.registrableDomain !== binding.registrableDomain
-      ) {
-        return { kind: 'REFUSED', reason: 'POLICY_REFUSED' };
-      }
-      const claimId = await websiteClaimId(readonly, item.subjectId, url);
-      if (claimId === null) return { kind: 'REFUSED', reason: 'NOT_ADMISSIBLE' };
-
-      // 3. The CAMPAIGN admission (reused if an earlier attempt recorded it).
-      if (prior.length === 0) {
-        const cohort = (deps.research.loadCohortRegistry ?? loadEvaluationCohortRegistry)();
-        if (!cohort.ok) return { kind: 'RETRY', reason: 'DEPENDENCY_NOT_READY', retryable: true };
-        const snapshot = await admissionReadOf(readonly, item.subjectId);
-        if (snapshot === null) return { kind: 'REFUSED', reason: 'SUBJECT_NOT_FOUND' };
-        try {
-          await recordCampaignAdmission(worker, {
-            item,
-            subjectId: item.subjectId,
-            identityClaimId: claimId,
-            websiteUrl: url,
-            trustScope: deps.campaignTrustScope,
-            subjectStateDigest: snapshot.subjectStateDigest,
-            protectedRegistryDigest: protectedRegistryDigest(cohort.registry),
-            registryFingerprint: snapshot.registryFingerprint,
-          });
-        } catch (error) {
-          if (error instanceof CampaignAdmissionRefused) {
-            return { kind: 'REFUSED', reason: 'POLICY_REFUSED' };
-          }
-          throw error;
-        }
-      }
-
-      // 4. The existing research path, unchanged.
-      const verified = await verifySubjectAdmission(research, item.subjectId, deps.research);
-      if (verified.outcome !== 'VERIFIED') {
-        return STALE.test(verified.detail)
-          ? { kind: 'RETRY', reason: 'DEPENDENCY_NOT_READY', retryable: true }
-          : { kind: 'REFUSED', reason: 'POLICY_REFUSED' };
-      }
-      let runId: string;
+      // P1-2: whatever happens - an outcome, a refusal, an exception - report
+      // what this item's runs fetched, exactly once per attempt.
+      const report = async (): Promise<void> => {
+        const runs = runsOf(await priorAdmissions(deps.pools.readonly, item.id));
+        await reportSpend(deps, item, ctx, runs);
+      };
+      let outcome: StageOutcome;
       try {
-        const result = await runSubjectResearch(
-          research,
-          verified.admission,
-          { networkVantage: deps.networkVantage, linkOutPool: deps.pools.sourceDiscovery },
-          deps.research,
-        );
-        runId = result.runId;
+        outcome = await researchOnce(deps, item, ctx);
       } catch (error) {
-        const code = executionRefusalCodeOf(error);
-        if (code === null) throw error;
-        return STALE.test(code)
-          ? { kind: 'RETRY', reason: 'DEPENDENCY_NOT_READY', retryable: true }
-          : { kind: 'REFUSED', reason: 'POLICY_REFUSED' };
+        // The original error wins; the database counts the observations anyway.
+        await report().catch(() => undefined);
+        throw error;
       }
-      await reportSpend(deps, item, ctx, [runId]);
-      await linkOutRoot(deps, item, ctx, runId);
-      return { kind: 'ADVANCED', next: 'RESEARCHED' };
+      await report();
+      return outcome;
     },
   };
+}
+
+async function researchOnce(
+  deps: WiringDeps,
+  item: WorkItemView,
+  ctx: StageHandlerContext,
+): Promise<StageOutcome> {
+  const { readonly, worker, research } = deps.pools;
+  // 1. A retried attempt never researches twice.
+  const prior = await priorAdmissions(readonly, item.id);
+  const priorRuns = runsOf(prior);
+  if (priorRuns.length > 0) {
+    await linkOutRoot(deps, item, ctx, priorRuns[0]!);
+    return { kind: 'ADVANCED', next: 'RESEARCHED' };
+  }
+
+  // 2. The campaign's own proposal, and its root.
+  const binding = await loadCampaignSubject(worker, item.campaignId, item.subjectId);
+  if (binding === null || binding.registrableDomain !== item.registrableDomain) {
+    return { kind: 'REFUSED', reason: 'NOT_ADMISSIBLE' };
+  }
+  const url = binding.nominatedUrl;
+  const host = hostOf(url);
+  const gate = prepareNomination({ url, title: null, snippet: null });
+  if (
+    !url.startsWith('https://') ||
+    host === null ||
+    !hostOnDomain(host, binding.registrableDomain) ||
+    !gate.ok ||
+    gate.value.registrableDomain !== binding.registrableDomain
+  ) {
+    return { kind: 'REFUSED', reason: 'POLICY_REFUSED' };
+  }
+  const claimId = await websiteClaimId(readonly, item.subjectId, url);
+  if (claimId === null) return { kind: 'REFUSED', reason: 'NOT_ADMISSIBLE' };
+
+  // 3. The CAMPAIGN admission (reused if an earlier attempt recorded it).
+  if (prior.length === 0) {
+    const cohort = (deps.research.loadCohortRegistry ?? loadEvaluationCohortRegistry)();
+    if (!cohort.ok) return { kind: 'RETRY', reason: 'DEPENDENCY_NOT_READY', retryable: true };
+    const snapshot = await admissionReadOf(readonly, item.subjectId);
+    if (snapshot === null) return { kind: 'REFUSED', reason: 'SUBJECT_NOT_FOUND' };
+    try {
+      await recordCampaignAdmission(worker, {
+        item,
+        subjectId: item.subjectId,
+        identityClaimId: claimId,
+        websiteUrl: url,
+        trustScope: deps.campaignTrustScope,
+        subjectStateDigest: snapshot.subjectStateDigest,
+        protectedRegistryDigest: protectedRegistryDigest(cohort.registry),
+        registryFingerprint: snapshot.registryFingerprint,
+      });
+    } catch (error) {
+      if (error instanceof CampaignAdmissionRefused) {
+        return { kind: 'REFUSED', reason: 'POLICY_REFUSED' };
+      }
+      throw error;
+    }
+  }
+
+  // 4. The existing research path, unchanged.
+  const verified = await verifySubjectAdmission(research, item.subjectId, deps.research);
+  if (verified.outcome !== 'VERIFIED') {
+    return STALE.test(verified.detail)
+      ? { kind: 'RETRY', reason: 'DEPENDENCY_NOT_READY', retryable: true }
+      : { kind: 'REFUSED', reason: 'POLICY_REFUSED' };
+  }
+  let runId: string;
+  try {
+    const result = await runSubjectResearch(
+      research,
+      verified.admission,
+      { networkVantage: deps.networkVantage, linkOutPool: deps.pools.sourceDiscovery },
+      deps.research,
+    );
+    runId = result.runId;
+  } catch (error) {
+    const code = executionRefusalCodeOf(error);
+    if (code === null) throw error;
+    return STALE.test(code)
+      ? { kind: 'RETRY', reason: 'DEPENDENCY_NOT_READY', retryable: true }
+      : { kind: 'REFUSED', reason: 'POLICY_REFUSED' };
+  }
+  await linkOutRoot(deps, item, ctx, runId);
+  return { kind: 'ADVANCED', next: 'RESEARCHED' };
 }
