@@ -898,13 +898,13 @@ function aggregate(
       d.unit,
       d.matched.map((m) => m.compiled),
     );
-    const contact = redactContactData(quote) !== quote || REDACTION_TOKEN.test(quote);
-    if (contact || RESERVED_MARKER.test(quote)) {
+    const shaped = redactContactData(quote) !== quote || REDACTION_TOKEN.test(quote);
+    if (shaped || RESERVED_MARKER.test(quote)) {
       withheld.push({
         ruleId: id,
         key: d.key,
         pageId: d.page.pageId,
-        reason: contact ? 'CONTACT_SHAPED_QUOTE' : 'RESERVED_NAMESPACE_MARKER_IN_QUOTE',
+        reason: shaped ? 'CONTACT_SHAPED_QUOTE' : 'RESERVED_NAMESPACE_MARKER_IN_QUOTE',
       });
       return false;
     }
