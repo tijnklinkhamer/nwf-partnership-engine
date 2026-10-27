@@ -1,0 +1,705 @@
+/**
+ * WW E-X - THE C1 EXTRACTION LEXICONS (`nwf-pe-c1-extraction-rules-v1`).
+ *
+ * Natural phrases, per language, that a page states when it describes a fact
+ * C1 can use. They are matched with the Engine's script-aware rule
+ * (`signals/scriptAware.ts`): Latin-script phrases as whole-token runs after
+ * diacritic and case folding (`semaine d'intégration` matches
+ * `Semaine d'integration`, never `integrations`), Japanese phrases as a
+ * substring of one CJK run (`新入生歓迎` inside `新入生歓迎会のお知らせ`).
+ *
+ * A frame with a slot (`{L}` language name, `{S}` audience segment term,
+ * `{K}` organisation-kind term) is expanded against the SAME language's
+ * table only, so a Japanese frame never receives a Latin term.
+ *
+ * WHAT A LANGUAGE HERE IS. The language a phrase is WRITTEN in, recorded on
+ * each finding so a reviewer can read the quote. It is never a country, never
+ * the organisation's language and never an audience language: every pack
+ * runs on every page, whatever the page or the organisation declares.
+ *
+ * PURE: data only.
+ */
+import type {
+  C1AudienceSegment,
+  C1CandidateKindV2,
+  C1ChannelKind,
+  C1Cohort,
+} from './vocabulary.js';
+
+export const C1_LANGUAGES = ['en', 'fr', 'es', 'nl', 'ja', 'de', 'it', 'pt'] as const;
+export type C1Language = (typeof C1_LANGUAGES)[number];
+
+/** ISO 639-1 codes a learning phrase may name (C1 `audience.languages` values). */
+export type LearnedLanguage = 'en' | 'nl' | 'fr' | 'es' | 'de' | 'it' | 'pt' | 'ja';
+
+export interface C1LanguagePack {
+  readonly language: C1Language;
+  /** A recurring orientation / welcome event (C1 kind ORIENTATION_EVENT). */
+  readonly orientationEvent: readonly string[];
+  readonly newsletter: readonly string[];
+  /** A sign-up call to action (paired with a newsletter term in the same line). */
+  readonly signUp: readonly string[];
+  /** First-person possessives that name a channel as the page's own (`our newsletter`). */
+  readonly possessive: readonly string[];
+  /** An invitation to submit an event or resource to this site. */
+  readonly submissionInvitation: readonly string[];
+  /** A page/section heading for a list of external links. */
+  readonly externalLinksHeading: readonly string[];
+  /** Page-class headings (research coverage only, never a claim). */
+  readonly aboutHeading: readonly string[];
+  readonly eventsHeading: readonly string[];
+  readonly newsHeading: readonly string[];
+  /** `{L}`: a language name from `languageNames`. */
+  readonly learnFrames: readonly string[];
+  readonly languageNames: Readonly<Partial<Record<LearnedLanguage, readonly string[]>>>;
+  readonly segmentTerms: Readonly<Partial<Record<C1AudienceSegment, readonly string[]>>>;
+  /** `{S}`: the whole audience the organisation describes itself as serving. */
+  readonly wholeAudienceFrames: readonly string[];
+  /** `{S}`: a segment addressed IN ADDITION to others (`also for`). */
+  readonly addressedSubgroupFrames: readonly string[];
+  readonly cohortTerms: Readonly<Partial<Record<C1Cohort, readonly string[]>>>;
+  /** The channel is run by an organisational role (board, committee), not a person. */
+  readonly roleOwnership: readonly string[];
+  readonly kindTerms: Readonly<Partial<Record<C1CandidateKindV2, readonly string[]>>>;
+  /** `{K}`: a first-person self-description (`we are a {K}`). */
+  readonly selfDescriptionFrames: readonly string[];
+  /** First-person follow/join calls (paired with a platform term in the same line). */
+  readonly followUs: readonly string[];
+  /** Count units, in the language's own words (number first; Japanese: unit first). */
+  readonly audienceUnits: readonly string[];
+  readonly memberUnits: readonly string[];
+  readonly studentUnits: readonly string[];
+  readonly enrolmentContext: readonly string[];
+}
+
+/** Platforms with a faithful C1 channel kind, and the visibility a member sees. */
+export const C1_PLATFORMS: readonly {
+  readonly term: string;
+  readonly kind: C1ChannelKind;
+  readonly visibility: 'PUBLIC' | 'PRIVATE';
+}[] = [
+  { term: 'instagram', kind: 'INSTAGRAM_ACCOUNT', visibility: 'PUBLIC' },
+  { term: 'インスタグラム', kind: 'INSTAGRAM_ACCOUNT', visibility: 'PUBLIC' },
+  { term: 'facebook', kind: 'FACEBOOK_PAGE', visibility: 'PUBLIC' },
+  { term: 'フェイスブック', kind: 'FACEBOOK_PAGE', visibility: 'PUBLIC' },
+  { term: 'whatsapp', kind: 'WHATSAPP_GROUP', visibility: 'PRIVATE' },
+  { term: 'discord', kind: 'DISCORD_SERVER', visibility: 'PRIVATE' },
+];
+
+/**
+ * Platforms C1 has NO channel kind for: a finding becomes an explicit gap, never a channel.
+ * `line` (the LINE messenger) only ever counts beside a first-person follow/join call.
+ */
+export const UNMAPPED_PLATFORMS: readonly string[] = [
+  'linkedin',
+  'tiktok',
+  'twitter',
+  'youtube',
+  'telegram',
+  'line',
+];
+
+export const C1_PACKS: readonly C1LanguagePack[] = [
+  {
+    language: 'en',
+    orientationEvent: [
+      'welcome week',
+      'orientation week',
+      'introduction week',
+      'intro week',
+      'welcome days',
+      'orientation day',
+      'orientation days',
+      'welcome day',
+      'freshers week',
+      'international welcome days',
+    ],
+    newsletter: ['newsletter', 'mailing list'],
+    signUp: ['subscribe', 'sign up', 'signup', 'subscribe to'],
+    possessive: ['our'],
+    submissionInvitation: [
+      'submit your event',
+      'submit an event',
+      'add your event',
+      'submit your activity',
+      'propose an activity',
+      'submit a resource',
+    ],
+    externalLinksHeading: ['useful links', 'external links', 'recommended resources'],
+    aboutHeading: ['about us', 'who we are', 'about'],
+    eventsHeading: ['events', 'agenda', 'calendar', 'activities'],
+    newsHeading: ['news', 'blog', 'latest news'],
+    learnFrames: [
+      'learn {L}',
+      'learning {L}',
+      '{L} course',
+      '{L} courses',
+      '{L} lessons',
+      '{L} classes',
+      '{L} language course',
+      '{L} language courses',
+    ],
+    languageNames: {
+      en: ['english'],
+      nl: ['dutch'],
+      fr: ['french'],
+      es: ['spanish'],
+      de: ['german'],
+      it: ['italian'],
+      pt: ['portuguese'],
+      ja: ['japanese'],
+    },
+    segmentTerms: {
+      INCOMING_INTERNATIONAL_STUDENTS: [
+        'international students',
+        'exchange students',
+        'incoming students',
+        'erasmus students',
+      ],
+      OUTGOING_MOBILITY_STUDENTS: ['outgoing students', 'students going abroad'],
+      ENROLLED_LANGUAGE_LEARNERS: ['language learners'],
+    },
+    wholeAudienceFrames: [
+      'association for {S}',
+      'association of {S}',
+      'network for {S}',
+      'network of {S}',
+      'community for {S}',
+      'community of {S}',
+      'organisation for {S}',
+      'organization for {S}',
+      'club for {S}',
+      'by and for {S}',
+    ],
+    addressedSubgroupFrames: ['also for {S}', '{S} are also welcome'],
+    cohortTerms: {
+      HIGHER_EDUCATION_ADULT: [
+        'university students',
+        'students at the university',
+        'higher education students',
+      ],
+      ADULT_NON_HIGHER_EDUCATION: ['for adults'],
+      MINOR_TARGETED: ['for children', 'for kids', 'for teenagers'],
+    },
+    roleOwnership: [
+      'run by the board',
+      'managed by the board',
+      'maintained by the board',
+      'run by our committee',
+      'managed by the committee',
+      'run by the committee',
+    ],
+    kindTerms: {
+      INTERNATIONAL_STUDENT_ASSOCIATION: [
+        'international student association',
+        'exchange student association',
+        'association of international students',
+        'association for international students',
+        'association for exchange students',
+      ],
+      STUDENT_ASSOCIATION: ['student association', 'students association', 'student society'],
+      LANGUAGE_CENTRE: ['language centre', 'language center'],
+      INTERNATIONAL_OFFICE: ['international office'],
+      LANGUAGE_SOCIETY: ['language exchange club', 'tandem club', 'language society'],
+    },
+    selfDescriptionFrames: ['we are a {K}', 'we are an {K}', 'we are the {K}'],
+    followUs: ['follow us', 'find us on', 'join our'],
+    audienceUnits: ['subscribers', 'followers', 'readers'],
+    memberUnits: ['members'],
+    studentUnits: ['students'],
+    enrolmentContext: ['enrolled', 'enrollment', 'enrolment'],
+  },
+  {
+    language: 'fr',
+    orientationEvent: [
+      "semaine d'intégration",
+      "semaine d'accueil",
+      'semaine de bienvenue',
+      "journée d'accueil",
+      "journées d'accueil",
+      "journée d'intégration",
+    ],
+    newsletter: ["lettre d'information", 'infolettre', 'newsletter'],
+    signUp: ['abonnez-vous', 'inscrivez-vous', "s'abonner", "s'inscrire"],
+    possessive: ['notre', 'nos'],
+    submissionInvitation: [
+      'proposez votre événement',
+      'soumettre un événement',
+      'ajoutez votre événement',
+      'proposer une activité',
+    ],
+    externalLinksHeading: ['liens utiles', 'liens externes'],
+    aboutHeading: ['à propos', 'qui sommes-nous', 'qui sommes nous'],
+    eventsHeading: ['événements', 'agenda', 'activités', 'calendrier'],
+    newsHeading: ['actualités', 'actus', 'blog'],
+    learnFrames: ['apprendre le {L}', "apprendre l'{L}", 'cours de {L}', "cours d'{L}"],
+    languageNames: {
+      en: ['anglais'],
+      nl: ['néerlandais'],
+      fr: ['français'],
+      es: ['espagnol'],
+      de: ['allemand'],
+      it: ['italien'],
+      pt: ['portugais'],
+      ja: ['japonais'],
+    },
+    segmentTerms: {
+      INCOMING_INTERNATIONAL_STUDENTS: [
+        'étudiants internationaux',
+        'étudiants étrangers',
+        'étudiants en échange',
+        'étudiants erasmus',
+      ],
+      OUTGOING_MOBILITY_STUDENTS: ['étudiants sortants'],
+      ENROLLED_LANGUAGE_LEARNERS: ['apprenants de langues'],
+    },
+    wholeAudienceFrames: [
+      'association pour les {S}',
+      'association des {S}',
+      'réseau des {S}',
+      'communauté des {S}',
+      'au service des {S}',
+    ],
+    addressedSubgroupFrames: ['aussi pour les {S}', 'également ouvert aux {S}'],
+    cohortTerms: {
+      HIGHER_EDUCATION_ADULT: ['étudiants universitaires', "étudiants de l'université"],
+      ADULT_NON_HIGHER_EDUCATION: ['pour adultes', 'pour les adultes'],
+      MINOR_TARGETED: ['pour enfants', 'pour les enfants', 'pour adolescents'],
+    },
+    roleOwnership: ['géré par le bureau', 'animé par le bureau', 'géré par le conseil'],
+    kindTerms: {
+      INTERNATIONAL_STUDENT_ASSOCIATION: [
+        'association des étudiants internationaux',
+        "association d'étudiants internationaux",
+      ],
+      STUDENT_ASSOCIATION: ['association étudiante', "association d'étudiants"],
+      LANGUAGE_CENTRE: ['centre de langues'],
+      INTERNATIONAL_OFFICE: ['service des relations internationales'],
+      LANGUAGE_SOCIETY: ['club de conversation', 'café des langues'],
+    },
+    selfDescriptionFrames: ['nous sommes une {K}', 'nous sommes un {K}'],
+    followUs: ['suivez-nous', 'rejoignez-nous', 'rejoignez notre'],
+    audienceUnits: ['abonnés', 'lecteurs'],
+    memberUnits: ['membres', 'adhérents'],
+    studentUnits: ['étudiants'],
+    enrolmentContext: ['inscrits'],
+  },
+  {
+    language: 'es',
+    orientationEvent: [
+      'semana de bienvenida',
+      'semana de orientación',
+      'jornada de bienvenida',
+      'jornadas de bienvenida',
+      'día de bienvenida',
+      'semana de acogida',
+      'jornadas de acogida',
+    ],
+    newsletter: ['boletín', 'boletín informativo', 'newsletter'],
+    signUp: ['suscríbete', 'suscribirse', 'regístrate', 'apúntate'],
+    possessive: ['nuestro', 'nuestra', 'nuestros', 'nuestras'],
+    submissionInvitation: [
+      'envía tu evento',
+      'propón una actividad',
+      'publica tu evento',
+      'añade tu evento',
+    ],
+    externalLinksHeading: ['enlaces útiles', 'enlaces externos'],
+    aboutHeading: ['sobre nosotros', 'quiénes somos', 'acerca de'],
+    eventsHeading: ['eventos', 'actividades', 'agenda', 'calendario'],
+    newsHeading: ['noticias', 'blog'],
+    learnFrames: ['aprender {L}', 'clases de {L}', 'curso de {L}', 'cursos de {L}'],
+    languageNames: {
+      en: ['inglés'],
+      nl: ['neerlandés', 'holandés'],
+      fr: ['francés'],
+      es: ['español'],
+      de: ['alemán'],
+      it: ['italiano'],
+      pt: ['portugués'],
+      ja: ['japonés'],
+    },
+    segmentTerms: {
+      INCOMING_INTERNATIONAL_STUDENTS: [
+        'estudiantes internacionales',
+        'estudiantes de intercambio',
+        'estudiantes extranjeros',
+        'estudiantes erasmus',
+      ],
+      OUTGOING_MOBILITY_STUDENTS: ['estudiantes salientes'],
+      ENROLLED_LANGUAGE_LEARNERS: ['estudiantes de idiomas'],
+    },
+    wholeAudienceFrames: [
+      'asociación de {S}',
+      'asociación para {S}',
+      'red de {S}',
+      'comunidad de {S}',
+      'al servicio de los {S}',
+    ],
+    addressedSubgroupFrames: ['también para {S}', 'también para los {S}'],
+    cohortTerms: {
+      HIGHER_EDUCATION_ADULT: ['estudiantes universitarios', 'universitarios'],
+      ADULT_NON_HIGHER_EDUCATION: ['para adultos'],
+      MINOR_TARGETED: ['para niños', 'para adolescentes'],
+    },
+    roleOwnership: [
+      'gestionado por la junta directiva',
+      'a cargo de la junta directiva',
+      'gestionado por la mesa directiva',
+    ],
+    kindTerms: {
+      INTERNATIONAL_STUDENT_ASSOCIATION: [
+        'asociación de estudiantes internacionales',
+        'asociación de estudiantes de intercambio',
+      ],
+      STUDENT_ASSOCIATION: ['asociación estudiantil', 'asociación de estudiantes'],
+      LANGUAGE_CENTRE: ['centro de idiomas', 'centro de lenguas'],
+      INTERNATIONAL_OFFICE: ['oficina de relaciones internacionales'],
+      LANGUAGE_SOCIETY: ['club de idiomas', 'club de conversación'],
+    },
+    selfDescriptionFrames: ['somos una {K}', 'somos un {K}'],
+    followUs: ['síguenos', 'únete a nuestro', 'únete a nuestra'],
+    audienceUnits: ['suscriptores', 'seguidores'],
+    memberUnits: ['miembros', 'socios'],
+    studentUnits: ['estudiantes', 'alumnos'],
+    enrolmentContext: ['matriculados', 'inscritos'],
+  },
+  {
+    language: 'nl',
+    orientationEvent: [
+      'introductieweek',
+      'kennismakingsweek',
+      'welkomstweek',
+      'introductiedagen',
+      'introductiedag',
+    ],
+    newsletter: ['nieuwsbrief'],
+    signUp: ['aanmelden', 'inschrijven', 'schrijf je in', 'meld je aan', 'abonneren'],
+    possessive: ['onze', 'ons'],
+    submissionInvitation: [
+      'meld je activiteit aan',
+      'stuur je evenement in',
+      'dien je evenement in',
+      'voeg je evenement toe',
+    ],
+    externalLinksHeading: ['nuttige links', 'handige links', 'externe links'],
+    aboutHeading: ['over ons', 'wie zijn wij', 'wie we zijn'],
+    eventsHeading: ['evenementen', 'activiteiten', 'agenda'],
+    newsHeading: ['nieuws', 'blog'],
+    learnFrames: ['{L} leren', 'cursus {L}', 'les in het {L}', 'lessen {L}'],
+    languageNames: {
+      en: ['engels'],
+      nl: ['nederlands'],
+      fr: ['frans'],
+      es: ['spaans'],
+      de: ['duits'],
+      it: ['italiaans'],
+      pt: ['portugees'],
+      ja: ['japans'],
+    },
+    segmentTerms: {
+      INCOMING_INTERNATIONAL_STUDENTS: [
+        'internationale studenten',
+        'uitwisselingsstudenten',
+        'buitenlandse studenten',
+      ],
+      OUTGOING_MOBILITY_STUDENTS: ['uitgaande studenten'],
+      ENROLLED_LANGUAGE_LEARNERS: ['taalleerders', 'taalcursisten'],
+    },
+    wholeAudienceFrames: [
+      'vereniging voor {S}',
+      'vereniging van {S}',
+      'netwerk voor {S}',
+      'gemeenschap van {S}',
+      'community voor {S}',
+    ],
+    addressedSubgroupFrames: ['ook voor {S}'],
+    cohortTerms: {
+      HIGHER_EDUCATION_ADULT: ['universitaire studenten', 'studenten van de universiteit'],
+      ADULT_NON_HIGHER_EDUCATION: ['voor volwassenen'],
+      MINOR_TARGETED: ['voor kinderen', 'voor jongeren'],
+    },
+    roleOwnership: ['beheerd door het bestuur', 'onderhouden door het bestuur'],
+    kindTerms: {
+      INTERNATIONAL_STUDENT_ASSOCIATION: [
+        'internationale studentenvereniging',
+        'vereniging voor internationale studenten',
+        'vereniging voor uitwisselingsstudenten',
+      ],
+      STUDENT_ASSOCIATION: ['studentenvereniging'],
+      LANGUAGE_CENTRE: ['talencentrum'],
+      INTERNATIONAL_OFFICE: ['internationaal bureau'],
+      LANGUAGE_SOCIETY: ['taalcafé', 'taalclub'],
+    },
+    selfDescriptionFrames: ['wij zijn een {K}', 'we zijn een {K}', 'wij zijn de {K}'],
+    followUs: ['volg ons', 'word lid van onze', 'sluit je aan bij onze'],
+    audienceUnits: ['abonnees', 'volgers', 'lezers'],
+    memberUnits: ['leden'],
+    studentUnits: ['studenten'],
+    enrolmentContext: ['ingeschreven'],
+  },
+  {
+    language: 'ja',
+    orientationEvent: [
+      '新入生歓迎',
+      '新歓',
+      '留学生歓迎会',
+      'オリエンテーション',
+      'ウェルカムウィーク',
+    ],
+    newsletter: ['ニュースレター', 'メールマガジン', 'メルマガ'],
+    signUp: ['登録', '購読'],
+    possessive: [],
+    submissionInvitation: ['イベント掲載依頼', 'イベント情報募集', '掲載希望'],
+    externalLinksHeading: ['外部リンク', 'お役立ちリンク', '関連リンク'],
+    aboutHeading: ['私たちについて', '団体概要', '会について', 'サークル紹介'],
+    eventsHeading: ['イベント', '行事'],
+    newsHeading: ['お知らせ', 'ニュース'],
+    learnFrames: ['{L}教室', '{L}クラス', '{L}講座', '{L}を学ぶ', '{L}学習'],
+    languageNames: {
+      en: ['英語'],
+      nl: ['オランダ語'],
+      fr: ['フランス語'],
+      es: ['スペイン語'],
+      de: ['ドイツ語'],
+      it: ['イタリア語'],
+      pt: ['ポルトガル語'],
+      ja: ['日本語'],
+    },
+    segmentTerms: {
+      INCOMING_INTERNATIONAL_STUDENTS: ['留学生', '交換留学生', '外国人留学生'],
+      ENROLLED_LANGUAGE_LEARNERS: ['語学学習者'],
+    },
+    wholeAudienceFrames: ['{S}のための団体', '{S}のためのサークル', '{S}支援団体'],
+    addressedSubgroupFrames: ['{S}も歓迎', '{S}も参加可能'],
+    cohortTerms: {
+      HIGHER_EDUCATION_ADULT: ['大学生'],
+      ADULT_NON_HIGHER_EDUCATION: ['社会人向け', '大人向け'],
+      MINOR_TARGETED: ['子ども向け', '子供向け', '小学生向け', '中学生向け'],
+    },
+    roleOwnership: ['運営委員会が運営', '実行委員会が運営'],
+    kindTerms: {
+      INTERNATIONAL_STUDENT_ASSOCIATION: ['留学生会', '留学生協会'],
+      STUDENT_ASSOCIATION: ['学生団体'],
+      LANGUAGE_CENTRE: ['語学センター'],
+      INTERNATIONAL_OFFICE: ['国際交流課'],
+      LANGUAGE_SOCIETY: ['語学サークル'],
+    },
+    selfDescriptionFrames: ['{K}です'],
+    followUs: ['フォロー', '友だち追加'],
+    audienceUnits: ['フォロワー', '登録者', '購読者'],
+    memberUnits: ['会員', 'メンバー'],
+    studentUnits: ['学生'],
+    enrolmentContext: ['在籍'],
+  },
+  {
+    language: 'de',
+    orientationEvent: [
+      'erstiwoche',
+      'ersti-woche',
+      'orientierungswoche',
+      'o-woche',
+      'einführungswoche',
+      'willkommenswoche',
+    ],
+    newsletter: ['newsletter', 'rundbrief'],
+    signUp: ['abonnieren', 'anmelden', 'melde dich an', 'jetzt anmelden'],
+    possessive: ['unser', 'unsere', 'unseren'],
+    submissionInvitation: [
+      'veranstaltung einreichen',
+      'reiche deine veranstaltung ein',
+      'event einreichen',
+    ],
+    externalLinksHeading: ['nützliche links', 'externe links'],
+    aboutHeading: ['über uns', 'wer wir sind'],
+    eventsHeading: ['veranstaltungen', 'termine', 'aktivitäten'],
+    newsHeading: ['neuigkeiten', 'aktuelles', 'blog'],
+    learnFrames: ['{L} lernen', 'kurs {L}'],
+    languageNames: {
+      en: ['englisch'],
+      nl: ['niederländisch'],
+      fr: ['französisch'],
+      es: ['spanisch'],
+      de: ['deutsch'],
+      it: ['italienisch'],
+      pt: ['portugiesisch'],
+      ja: ['japanisch'],
+    },
+    segmentTerms: {
+      INCOMING_INTERNATIONAL_STUDENTS: [
+        'internationale studierende',
+        'internationale studenten',
+        'austauschstudierende',
+        'austauschstudenten',
+        'ausländische studierende',
+      ],
+      ENROLLED_LANGUAGE_LEARNERS: ['sprachlernende'],
+    },
+    wholeAudienceFrames: [
+      'verein für {S}',
+      'netzwerk für {S}',
+      'gemeinschaft der {S}',
+      'verein der {S}',
+    ],
+    addressedSubgroupFrames: ['auch für {S}'],
+    cohortTerms: {
+      HIGHER_EDUCATION_ADULT: ['hochschulstudierende', 'studierende der universität'],
+      ADULT_NON_HIGHER_EDUCATION: ['für erwachsene'],
+      MINOR_TARGETED: ['für kinder', 'für jugendliche'],
+    },
+    roleOwnership: ['vom vorstand betreut', 'vom vorstand verwaltet'],
+    kindTerms: {
+      INTERNATIONAL_STUDENT_ASSOCIATION: [
+        'internationaler studierendenverein',
+        'verein für internationale studierende',
+      ],
+      STUDENT_ASSOCIATION: ['studierendenverein', 'studentenverein', 'hochschulgruppe'],
+      LANGUAGE_CENTRE: ['sprachenzentrum'],
+      INTERNATIONAL_OFFICE: ['akademisches auslandsamt'],
+      LANGUAGE_SOCIETY: ['sprachcafé', 'sprachstammtisch'],
+    },
+    selfDescriptionFrames: ['wir sind ein {K}', 'wir sind eine {K}', 'wir sind die {K}'],
+    followUs: ['folge uns', 'folgt uns', 'tritt unserer'],
+    audienceUnits: ['abonnenten', 'follower', 'leser'],
+    memberUnits: ['mitglieder'],
+    studentUnits: ['studierende', 'studenten'],
+    enrolmentContext: ['eingeschrieben', 'eingeschriebene'],
+  },
+  {
+    language: 'it',
+    orientationEvent: [
+      'settimana di accoglienza',
+      'settimana di benvenuto',
+      'giornata di accoglienza',
+      'giornate di accoglienza',
+      'settimana di orientamento',
+      'giornate di orientamento',
+    ],
+    newsletter: ['newsletter'],
+    signUp: ['iscriviti', 'iscrizione'],
+    possessive: ['nostra', 'nostro', 'nostri', 'nostre'],
+    submissionInvitation: ['segnala il tuo evento', 'invia il tuo evento', "proponi un'attività"],
+    externalLinksHeading: ['link utili', 'link esterni'],
+    aboutHeading: ['chi siamo'],
+    eventsHeading: ['eventi', 'attività', 'calendario'],
+    newsHeading: ['notizie', 'novità', 'blog'],
+    learnFrames: [
+      "imparare l'{L}",
+      'imparare il {L}',
+      'corso di {L}',
+      'corsi di {L}',
+      'lezioni di {L}',
+    ],
+    languageNames: {
+      en: ['inglese'],
+      nl: ['olandese'],
+      fr: ['francese'],
+      es: ['spagnolo'],
+      de: ['tedesco'],
+      it: ['italiano'],
+      pt: ['portoghese'],
+      ja: ['giapponese'],
+    },
+    segmentTerms: {
+      INCOMING_INTERNATIONAL_STUDENTS: [
+        'studenti internazionali',
+        'studenti in scambio',
+        'studenti stranieri',
+        'studenti erasmus',
+      ],
+      OUTGOING_MOBILITY_STUDENTS: ['studenti in uscita'],
+      ENROLLED_LANGUAGE_LEARNERS: ['studenti di lingue'],
+    },
+    wholeAudienceFrames: [
+      'associazione per {S}',
+      'associazione per gli {S}',
+      'rete di {S}',
+      'comunità di {S}',
+    ],
+    addressedSubgroupFrames: ['anche per {S}', 'anche per gli {S}'],
+    cohortTerms: {
+      HIGHER_EDUCATION_ADULT: ['studenti universitari'],
+      ADULT_NON_HIGHER_EDUCATION: ['per adulti'],
+      MINOR_TARGETED: ['per bambini', 'per ragazzi'],
+    },
+    roleOwnership: ['gestito dal direttivo', 'gestito dal consiglio direttivo'],
+    kindTerms: {
+      INTERNATIONAL_STUDENT_ASSOCIATION: ['associazione studenti internazionali'],
+      STUDENT_ASSOCIATION: ['associazione studentesca'],
+      LANGUAGE_CENTRE: ['centro linguistico'],
+      INTERNATIONAL_OFFICE: ['ufficio relazioni internazionali'],
+      LANGUAGE_SOCIETY: ['tandem linguistico', 'caffè linguistico'],
+    },
+    selfDescriptionFrames: ["siamo un'{K}", 'siamo un {K}', 'siamo una {K}'],
+    followUs: ['seguici', 'unisciti al nostro', 'unisciti alla nostra'],
+    audienceUnits: ['abbonati', 'follower', 'lettori'],
+    memberUnits: ['soci', 'membri'],
+    studentUnits: ['studenti'],
+    enrolmentContext: ['immatricolati'],
+  },
+  {
+    language: 'pt',
+    orientationEvent: [
+      'semana de recepção',
+      'semana de acolhimento',
+      'semana de boas-vindas',
+      'semana de integração',
+      'dia de acolhimento',
+      'semana de calouros',
+    ],
+    newsletter: ['newsletter', 'boletim informativo', 'boletim'],
+    signUp: ['inscreva-se', 'assine', 'cadastre-se'],
+    possessive: ['nossa', 'nosso', 'nossos', 'nossas'],
+    submissionInvitation: ['envie seu evento', 'envie o seu evento', 'divulgue seu evento'],
+    externalLinksHeading: ['links úteis', 'links externos'],
+    aboutHeading: ['sobre nós', 'quem somos'],
+    eventsHeading: ['eventos', 'atividades', 'agenda'],
+    newsHeading: ['notícias', 'novidades', 'blog'],
+    learnFrames: ['aprender {L}', 'curso de {L}', 'cursos de {L}', 'aulas de {L}'],
+    languageNames: {
+      en: ['inglês'],
+      nl: ['holandês', 'neerlandês'],
+      fr: ['francês'],
+      es: ['espanhol'],
+      de: ['alemão'],
+      it: ['italiano'],
+      pt: ['português'],
+      ja: ['japonês'],
+    },
+    segmentTerms: {
+      INCOMING_INTERNATIONAL_STUDENTS: [
+        'estudantes internacionais',
+        'estudantes de intercâmbio',
+        'estudantes estrangeiros',
+        'alunos internacionais',
+      ],
+      ENROLLED_LANGUAGE_LEARNERS: ['estudantes de línguas', 'estudantes de idiomas'],
+    },
+    wholeAudienceFrames: [
+      'associação de {S}',
+      'associação para {S}',
+      'rede de {S}',
+      'comunidade de {S}',
+    ],
+    addressedSubgroupFrames: ['também para {S}', 'também para os {S}'],
+    cohortTerms: {
+      HIGHER_EDUCATION_ADULT: ['estudantes universitários', 'universitários'],
+      ADULT_NON_HIGHER_EDUCATION: ['para adultos'],
+      MINOR_TARGETED: ['para crianças', 'para adolescentes'],
+    },
+    roleOwnership: ['gerido pela direção', 'gerenciado pela diretoria'],
+    kindTerms: {
+      INTERNATIONAL_STUDENT_ASSOCIATION: ['associação de estudantes internacionais'],
+      STUDENT_ASSOCIATION: ['associação estudantil', 'associação de estudantes'],
+      LANGUAGE_CENTRE: ['centro de línguas', 'centro de idiomas'],
+      INTERNATIONAL_OFFICE: ['gabinete de relações internacionais'],
+      LANGUAGE_SOCIETY: ['clube de idiomas'],
+    },
+    selfDescriptionFrames: ['somos uma {K}', 'somos um {K}'],
+    followUs: ['siga-nos', 'junte-se ao nosso', 'junte-se à nossa'],
+    audienceUnits: ['assinantes', 'seguidores', 'leitores'],
+    memberUnits: ['membros', 'sócios'],
+    studentUnits: ['estudantes', 'alunos'],
+    enrolmentContext: ['matriculados'],
+  },
+];
