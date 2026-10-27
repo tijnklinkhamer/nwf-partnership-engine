@@ -167,15 +167,25 @@ describe('REL P1: the qualification-input export module', () => {
     );
     // WW E-X (widened by exact path): the v2 export composes v1 - it builds the v1 document
     // with the unchanged v1 builder and reads through v1's own read-only loader.
+    // WW E-W (exact-path widening, ADR 0030 s6): the acquisition outbox writes
+    // the v2 export verbatim, through ONE re-export of the v2 read-only loader.
     expect(importers).toEqual(
       [
         CLI,
         CLI_ENTRY,
+        'src/orgunits/acquisitionWiring/exportPort.ts',
         'src/orgunits/qualificationInputV2/build.ts',
         'src/orgunits/qualificationInputV2/contract.ts',
         'src/orgunits/qualificationInputV2/load.ts',
       ].sort(),
     );
+    expect(
+      specifiers(
+        codeOf(
+          readFileSync(join(REPO_ROOT, 'src/orgunits/acquisitionWiring/exportPort.ts'), 'utf8'),
+        ),
+      ).filter((s) => /qualificationInput/.test(s)),
+    ).toEqual(['../qualificationInputV2/load.js']);
     expect(
       specifiers(codeOf(readCurrent(CLI_ENTRY))).filter((s) => /qualificationInput/.test(s)),
     ).toEqual(['./commands/qualificationInput.js']);

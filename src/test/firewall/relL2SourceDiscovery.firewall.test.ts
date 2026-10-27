@@ -340,7 +340,19 @@ describe('REL L2: sourceDiscovery and the classifier are separate, in both direc
     // REL harvest H6 widened this by ONE exact path: subject research binds
     // the link-out sink to its run, importing `linkOut.js` and nothing else
     // from this namespace (pinned by relHarvestH6SubjectLinkOutSink).
-    expect(importers).toEqual([CLI_COMMAND, SUBJECT_RUN_EXECUTE].sort());
+    // WW E-W (exact-path widening, ADR 0030 s3): the acquisition wiring reaches
+    // this namespace through ONE re-export file, by exactly these modules.
+    const WW_EW_PORT = 'src/orgunits/acquisitionWiring/sourceDiscoveryPort.ts';
+    expect(importers).toEqual([CLI_COMMAND, SUBJECT_RUN_EXECUTE, WW_EW_PORT].sort());
+    expect(specifiers(codeOf(read(WW_EW_PORT))).sort()).toEqual(
+      [
+        '../sourceDiscovery/identityBridge.js',
+        '../sourceDiscovery/index.js',
+        '../sourceDiscovery/nomination.js',
+        '../sourceDiscovery/promote.js',
+        '../sourceDiscovery/store.js',
+      ].sort(),
+    );
     expect(
       specifiers(codeOf(read(SUBJECT_RUN_EXECUTE))).filter((s) => /sourceDiscovery\//.test(s)),
     ).toEqual(['../sourceDiscovery/linkOut.js']);

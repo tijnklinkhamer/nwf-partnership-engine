@@ -349,7 +349,19 @@ describe('B3.0 research cohort guard: one authority, no bypass, no disclosure', 
       'src/orgunits/subjectAdmission/record.ts',
       'src/orgunits/subjectAdmission/runGuard.ts',
     ];
-    expect(injecting).toEqual(['src/cli/commands/classify.ts', GUARD, ...R8_SEAM_DECLARERS].sort());
+    // WW E-W (exact-path widening, ADR 0030 s4): the campaign research stage
+    // computes a CAMPAIGN admission's protected-registry digest through the
+    // SAME seam with the SAME default; production passes no loader.
+    const WW_EW_RESEARCH = 'src/orgunits/acquisitionWiring/research.ts';
+    expect(injecting).toEqual(
+      ['src/cli/commands/classify.ts', GUARD, ...R8_SEAM_DECLARERS, WW_EW_RESEARCH].sort(),
+    );
+    expect(codeOf(readFileSync(join(REPO_ROOT, WW_EW_RESEARCH), 'utf8'))).toContain(
+      '(deps.research.loadCohortRegistry ?? loadEvaluationCohortRegistry)()',
+    );
+    expect(
+      codeOf(readFileSync(join(REPO_ROOT, 'src/orgunits/acquisitionWiring/production.ts'), 'utf8')),
+    ).toContain('research: {},');
     const guard = codeOf(sourceOf(GUARD));
     expect(guard).toContain('deps.loadCohortRegistry ?? loadEvaluationCohortRegistry');
     for (const file of R8_SEAM_DECLARERS) {

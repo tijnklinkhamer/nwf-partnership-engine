@@ -32,13 +32,15 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-import { ACQUISITION_OPTIONS, PRODUCTION_STAGE_HANDLERS } from '../../cli/commands/acquisition.js';
+import { ACQUISITION_OPTIONS } from '../../cli/commands/acquisition.js';
 import {
   CampaignTrustSet,
   OPERATIONAL_OWNER_CAMPAIGN_KEYS,
   priorityOf,
   STAGES,
+  WORKER_STAGES,
 } from '../../orgunits/acquisition/index.js';
+import { WIRED_STAGES } from '../../orgunits/acquisitionWiring/index.js';
 import {
   REPO_ROOT,
   codeOf,
@@ -247,22 +249,45 @@ describe('WW E-Q: the human gate, priority and handlers', () => {
     );
   });
 
-  it('wires NO production stage handler, and the CLI refuses rather than pretend', () => {
-    expect(PRODUCTION_STAGE_HANDLERS).toEqual([]);
-    expect(Object.isFrozen(PRODUCTION_STAGE_HANDLERS)).toBe(true);
-    expect(code(CLI)).toContain(
-      'export const PRODUCTION_STAGE_HANDLERS: readonly StageHandler[] = Object.freeze([]);',
-    );
-    expect(code(CLI)).toContain("code: 'ACQUISITION_HANDLERS_NOT_WIRED'");
+  // WW E-W (exact-path widening, ADR 0030): the empty PRODUCTION_STAGE_HANDLERS
+  // constant is replaced by the wiring package's handlers, reached ONLY
+  // through `createProductionStageHandlers` in the wiring index. They cover
+  // every worker stage and never the human gate; the CLI still refuses a
+  // campaign listing a stage nothing handles, and the worker still derives
+  // authority under the EMPTY operational trust set before any claim.
+  it('wires the production handlers only through the wiring index, never for the human gate', () => {
+    expect([...WIRED_STAGES]).toEqual([...WORKER_STAGES]);
+    expect(WIRED_STAGES).not.toContain('IDENTITY_REVIEW');
+    const cli = code(CLI);
+    expect(cli).not.toMatch(/PRODUCTION_STAGE_HANDLERS/);
+    expect(cli.match(/createProductionStageHandlers\(/g)).toHaveLength(1);
+    expect(cli).toContain("from '../../orgunits/acquisitionWiring/index.js';");
+    expect(cli).toContain("code: 'ACQUISITION_HANDLERS_NOT_WIRED'");
+    expect(cli).toContain('const trust = deps.trust ?? CampaignTrustSet.operational();');
   });
 });
 
 describe('WW E-Q: the CLI is narrow', () => {
   it('declares no every-campaign flag and no key, trust or signature option', () => {
-    for (const options of Object.values(ACQUISITION_OPTIONS)) {
+    // WW E-W (exact-path widening, ADR 0030 s5/s7): exactly these (command,
+    // option) pairs may name a key - the SIGNER's own encrypted private key
+    // file and its id for the offline campaign signer and the batched OWNER
+    // review, and the campaign key a template drafts. Never a trust, public
+    // key, fingerprint, signature or passphrase option.
+    const SIGNER_OPTIONS: Readonly<Record<string, readonly string[]>> = {
+      'campaign sign': ['key-file', 'key-id'],
+      'review sign': ['key-file', 'key-id'],
+      'campaign template': ['campaign-key'],
+    };
+    for (const [command, options] of Object.entries(ACQUISITION_OPTIONS)) {
       for (const name of Object.keys(options)) {
+        if (SIGNER_OPTIONS[command]?.includes(name)) continue;
         expect(name).not.toMatch(/^all$|every|trust|key|signature|public|fingerprint|pass|sql/);
       }
+    }
+    for (const [command, names] of Object.entries(SIGNER_OPTIONS)) {
+      for (const name of names)
+        expect(Object.keys(ACQUISITION_OPTIONS[command as never])).toContain(name);
     }
     expect(code(CLI)).not.toMatch(/['"]--all['"]|\ball:\s*\{/);
     expect(code(CLI)).not.toMatch(/orgunits\/web|executeWebAttempt|RobotsAuthorisation/);

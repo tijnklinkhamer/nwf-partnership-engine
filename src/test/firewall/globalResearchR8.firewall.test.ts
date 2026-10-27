@@ -354,15 +354,31 @@ describe('R8: subjectAdmission is narrow, socket-free and reached only through t
     const importers = productionFiles()
       .filter((f) => !f.startsWith(MODULE_DIR))
       .filter((f) => /subjectAdmission\//.test(codeOf(readFileSync(join(REPO_ROOT, f), 'utf8'))));
+    // WW E-W (exact-path widening, ADR 0030 s4): the campaign research stage
+    // binds a CAMPAIGN admission to the protected-registry digest, importing
+    // ONLY the pure digest - never the policy, the recorder or the guard.
+    const WW_EW_RESEARCH = 'src/orgunits/acquisitionWiring/research.ts';
     expect(importers).toEqual([
+      WW_EW_RESEARCH,
       'src/orgunits/orchestrator/orchestrate.ts',
       'src/orgunits/orchestrator/rootRunner.ts',
     ]);
     for (const file of importers) {
+      // The WW E-W file postdates R8's pinned tree: read it from the working tree.
+      const imports =
+        file === WW_EW_RESEARCH
+          ? [
+              ...codeOf(readFileSync(join(REPO_ROOT, file), 'utf8')).matchAll(/from\s+'([^']+)'/g),
+            ].map((m) => m[1]!)
+          : importsOf(file);
       expect(
-        importsOf(file).filter((i) => i.includes('subjectAdmission/')),
+        imports.filter((i) => i.includes('subjectAdmission/')),
         file,
-      ).toEqual(['../subjectAdmission/runGuard.js']);
+      ).toEqual(
+        file === WW_EW_RESEARCH
+          ? ['../subjectAdmission/registryDigest.js']
+          : ['../subjectAdmission/runGuard.js'],
+      );
     }
   });
 

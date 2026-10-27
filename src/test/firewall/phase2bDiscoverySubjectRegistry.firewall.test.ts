@@ -139,6 +139,39 @@ const R8_ADMISSION_REGISTRY_IMPORTS: Readonly<Record<string, readonly RegExp[]>>
  * by exactly the propose request TYPE and the writer's propose pair. Never
  * claim, relate, review, the store or the reviewer authority.
  */
+/**
+ * WW E-W (exact-path widening, 2026-10-27, ADR 0030): the acquisition
+ * wiring's TWO registry bridges, by exactly these forms. `registryBridge.ts`
+ * PROPOSES a campaign subject through the B2.2 writer (propose + one website
+ * claim) and reads one state digest; `reviewBridge.ts` signs and appends the
+ * EXISTING ADR 0023 owner-attested review for subjects the OWNER listed, with
+ * the B2.3 signer's own primitives under the pinned trust set. No other wiring
+ * file names the registry or the review protocol.
+ */
+const WW_EW_REGISTRY_FORMS: Readonly<Record<string, readonly RegExp[]>> = {
+  'src/orgunits/acquisitionWiring/registryBridge.ts': [
+    /import \{ subjectStateDigest \} from '\.\.\/subjectRegistry\/readModel\.js';/,
+    /import type \{ ClaimRequest, ProposeRequest \} from '\.\.\/subjectRegistry\/requests\.js';/,
+    /import \{ databaseNow, loadSubjectGraph \} from '\.\.\/subjectRegistry\/store\.js';/,
+    /import \{ RegistryRefusal, executeClaim, executePropose \} from '\.\.\/subjectRegistry\/writer\.js';/,
+  ],
+  'src/orgunits/acquisitionWiring/reviewBridge.ts': [
+    /import \{ deriveSubjectReadModel \} from '\.\.\/subjectRegistry\/readModel\.js';/,
+    /import \{ TrustedReviewerContext \} from '\.\.\/subjectRegistry\/reviewAuthority\.js';/,
+    /import \{ databaseNow, loadSubjectGraph \} from '\.\.\/subjectRegistry\/store\.js';/,
+    /import \{ appendAttestedReview, prepareReview \} from '\.\.\/subjectRegistry\/writer\.js';/,
+    /import \{\s*decryptSigningKey,\s*readEncryptedSigningKeyFile,\s*readPassphraseFromTerminal,\s*signReviewIntent,\s*\} from '\.\.\/subjectReview\/signer\.js';/,
+    /import \{ ReviewTrustSet \} from '\.\.\/subjectReview\/trust\.js';/,
+    /import \{ VerifiedReviewEnvelope \} from '\.\.\/subjectReview\/verify\.js';/,
+    /export type OwnerReviewTrust = ReviewTrustSet;/,
+    /\bReviewTrustSet\.operational\(\)/g,
+    /\bVerifiedReviewEnvelope\.verify\(/g,
+    /\bTrustedReviewerContext\.fromVerifiedEnvelope\(verified\)/g,
+    /\bawait prepareReview\(/g,
+    /\bawait appendAttestedReview\(/g,
+  ],
+};
+
 const REL_L2_PROMOTE = 'src/orgunits/sourceDiscovery/promote.ts';
 const REL_L2_PROMOTE_REGISTRY_IMPORTS: readonly RegExp[] = [
   /import type \{ ProposeRequest \} from '\.\.\/subjectRegistry\/requests\.js';/,
@@ -510,6 +543,7 @@ describe('B2.2 registry module: narrow, local and inert towards research', () =>
       if (file === REL_L2_PROMOTE) {
         for (const form of REL_L2_PROMOTE_REGISTRY_IMPORTS) code = code.replace(form, '');
       }
+      for (const form of WW_EW_REGISTRY_FORMS[file] ?? []) code = code.replace(form, '');
       expect(code, file).not.toMatch(/subjectRegistry|discoverySubjects/);
     }
   });

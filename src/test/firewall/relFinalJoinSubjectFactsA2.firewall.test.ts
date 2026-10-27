@@ -132,7 +132,15 @@ describe('REL final join A2: the subject facts module', () => {
     );
     // REL P1, by exact path: the C1 qualification-input export reuses the pure
     // nomination-citation digest and the jurisdiction record type (facts.ts only).
-    expect(importers).toEqual([CLI, CLI_ENTRY, ...REL_P1_IMPORTERS].sort());
+    // WW E-W (exact-path widening, ADR 0030 s6): the acquisition outbox writes
+    // this export verbatim, through ONE re-export of the read-only loader.
+    const WW_EW_EXPORT_PORT = 'src/orgunits/acquisitionWiring/exportPort.ts';
+    expect(importers).toEqual([CLI, CLI_ENTRY, ...REL_P1_IMPORTERS, WW_EW_EXPORT_PORT].sort());
+    expect(
+      specifiers(codeOf(readFileSync(join(REPO_ROOT, WW_EW_EXPORT_PORT), 'utf8'))).filter((s) =>
+        /subjectFacts/.test(s),
+      ),
+    ).toEqual(['../subjectFacts/load.js']);
     for (const f of REL_P1_IMPORTERS) {
       expect(
         specifiers(codeOf(readFileSync(join(REPO_ROOT, f), 'utf8'))).filter((s) =>
