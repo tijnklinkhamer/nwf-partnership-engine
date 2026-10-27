@@ -1,0 +1,593 @@
+{
+  "fixture": {
+    "label": "SYNTHETIC",
+    "statement": "SYNTHETIC TEST FIXTURE: a fictional organisation on a fictional .fict domain, captured from a scripted transport in a disposable test database. Not research about any real organisation.",
+    "key": "nl-community-sparse",
+    "producedBy": "src/test/integration/qualificationInputExportV2.test.ts",
+    "uuidRelabelling": "every UUID mapped onto eeeeeeee-0000-4000-8000-e1… (order-preserving)"
+  },
+  "export": {
+    "document": "nwf-pe.qualification-input-export.v2",
+    "producerVersion": "nwf-pe-qualification-input-producer-v2",
+    "extraction": {
+      "rulesVersion": "nwf-pe-c1-extraction-rules-v1",
+      "dateRuleVersion": "nwf-pe-c1-stated-date-rules-v1",
+      "pageClasses": [
+        {
+          "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000021",
+          "classes": [
+            "HOME"
+          ]
+        }
+      ]
+    },
+    "targetContracts": {
+      "qualificationInput": "nwf-qualification-input/1-provisional",
+      "qualificationRubric": "nwf-qualification-rubric/V0-R2",
+      "researchInput": "nwf-qualification-research-input/1-provisional",
+      "researchReference": "nwf-research-provisional-reference/1-provisional"
+    },
+    "evidenceClass": "RESEARCH_REAL",
+    "instantRule": "WHOLE_SECOND_UTC_TRUNCATED_TOWARD_EPOCH",
+    "dateRuleVersion": "nwf-pe-stated-date-rules-v1",
+    "sourceRepository": "nwf-partnership-engine",
+    "readConsistency": "SINGLE_SNAPSHOT_TRANSACTION",
+    "subjectId": "eeeeeeee-0000-4000-8000-e10000000049",
+    "evaluatedAt": "2026-10-27T18:07:53Z",
+    "candidate": {
+      "candidateRef": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000049",
+      "relations": []
+    },
+    "country": {
+      "value": "NL",
+      "standing": "STATED",
+      "rule": "ADR_0024_COUNTRY_OF_OPERATION_STATED",
+      "notRankableReason": null
+    },
+    "channels": [
+      {
+        "channelRef": "rp-channel:eeeeeeee-0000-4000-8000-e10000000051",
+        "kind": "RESOURCE_PAGE",
+        "channelClass": "STATIC",
+        "visibility": "PUBLIC",
+        "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000051",
+        "admissionIds": [
+          "eeeeeeee-0000-4000-8000-e10000000074"
+        ],
+        "derivation": "ADMITTED_ROOT_WEBSITE",
+        "establishedBy": "OBSERVED_CLAIM",
+        "ruleIds": []
+      }
+    ],
+    "sources": [
+      {
+        "evidenceClass": "RESEARCH_REAL",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000021",
+        "publisherRelation": "SELF",
+        "capturedAt": "2026-10-27T18:07:52Z",
+        "c1": {
+          "captureKind": "ARTEFACT",
+          "contentDigest": "e42a9e95e81681bd12f87a168eed20036cf16cf27a65897394df5accbf92fc38",
+          "originKey": "url.01557f1a7ddcbca8cf735af3ee4c962be6a72aad3aba114478868c0844bf0b50",
+          "derivedFromSourceRef": null,
+          "attesterRef": null,
+          "partnerRecordRef": null
+        },
+        "reproducibility": {
+          "kind": "DIGEST_ONLY_BYTES_UNAVAILABLE",
+          "contentDigest": "e42a9e95e81681bd12f87a168eed20036cf16cf27a65897394df5accbf92fc38",
+          "bytesAvailable": false,
+          "origin": "https://www.buurtgroep-voorbeeld-zuid-fict.nl/",
+          "digestRecordedAt": "2026-10-27T18:07:52Z"
+        },
+        "record": {
+          "kind": "PAGE_EVIDENCE",
+          "pageEvidenceId": "eeeeeeee-0000-4000-8000-e10000000021",
+          "fetchObservationId": "eeeeeeee-0000-4000-8000-e1000000001e",
+          "researchRunId": "eeeeeeee-0000-4000-8000-e1000000006e",
+          "admissionId": "eeeeeeee-0000-4000-8000-e10000000074",
+          "extractionRuleVersion": "orgunit-extraction-v3",
+          "candidates": [
+            {
+              "candidateId": "eeeeeeee-0000-4000-8000-e10000000028",
+              "track": "INTERNATIONAL_OFFICE",
+              "candidateScore": "0.0000",
+              "rankWithinRoot": 1,
+              "ruleVersion": "orgunit-signal-rules-v2"
+            },
+            {
+              "candidateId": "eeeeeeee-0000-4000-8000-e10000000058",
+              "track": "LANGUAGE_CENTRE",
+              "candidateScore": "0.0000",
+              "rankWithinRoot": 1,
+              "ruleVersion": "orgunit-signal-rules-v2"
+            }
+          ]
+        }
+      }
+    ],
+    "claims": [
+      {
+        "evidenceClass": "RESEARCH_REAL",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000035",
+        "claimKey": "channel.operator_binding",
+        "subject": {
+          "kind": "CHANNEL",
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000051"
+        },
+        "mode": "OBSERVED",
+        "attribution": "EXACT",
+        "producedBy": "NWF_SYSTEM",
+        "value": {
+          "operatorCandidateId": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000049",
+          "basis": "HOSTED_ON_CANDIDATE_SITE"
+        },
+        "basis": {
+          "origin": "ADMITTED_WEBSITE_CAPTURED",
+          "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000051",
+          "admissionIds": [
+            "eeeeeeee-0000-4000-8000-e10000000074"
+          ]
+        },
+        "researchRealConflicts": [
+          "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
+          "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
+        ]
+      },
+      {
+        "evidenceClass": "RESEARCH_REAL",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000005e",
+        "claimKey": "channel.existence",
+        "subject": {
+          "kind": "CHANNEL",
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000051"
+        },
+        "mode": "OBSERVED",
+        "attribution": "EXACT",
+        "producedBy": "NWF_SYSTEM",
+        "value": {
+          "status": "EXISTS"
+        },
+        "basis": {
+          "origin": "ADMITTED_WEBSITE_CAPTURED",
+          "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000051",
+          "admissionIds": [
+            "eeeeeeee-0000-4000-8000-e10000000074"
+          ]
+        },
+        "researchRealConflicts": [
+          "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
+          "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
+        ]
+      },
+      {
+        "evidenceClass": "RESEARCH_REAL",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000007f",
+        "claimKey": "candidate.location",
+        "subject": {
+          "kind": "CANDIDATE",
+          "ref": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000049"
+        },
+        "mode": "SELF_ASSERTED",
+        "attribution": "EXACT",
+        "producedBy": "HUMAN_RESEARCHER",
+        "value": {
+          "countryCode": "NL"
+        },
+        "basis": {
+          "origin": "ADR_0024_COUNTRY_OF_OPERATION",
+          "jurisdictionClaimId": "eeeeeeee-0000-4000-8000-e10000000061",
+          "recordedByActorKey": "ww-ex-owner-test"
+        },
+        "researchRealConflicts": []
+      }
+    ],
+    "claimLinks": [
+      {
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000035",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000021",
+        "relation": "SUPPORTS"
+      },
+      {
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000005e",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000021",
+        "relation": "SUPPORTS"
+      },
+      {
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000007f",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000021",
+        "relation": "SUPPORTS"
+      }
+    ],
+    "proposals": [],
+    "researchStatus": [
+      {
+        "subcriterionId": "AF1",
+        "dimension": "AF",
+        "status": "EVIDENCE_FOUND",
+        "claimKeys": [
+          "audience.languages",
+          "candidate.location"
+        ],
+        "claimRefs": [
+          "rp-claim:eeeeeeee-0000-4000-8000-e1000000007f"
+        ],
+        "proposalIds": [],
+        "relevantPageClasses": [
+          "HOME",
+          "ABOUT"
+        ],
+        "capturedPageClasses": [
+          "HOME"
+        ],
+        "reason": null
+      },
+      {
+        "subcriterionId": "AF2",
+        "dimension": "AF",
+        "status": "SEARCHED_NOT_FOUND",
+        "claimKeys": [
+          "audience.segment_definition"
+        ],
+        "claimRefs": [],
+        "proposalIds": [],
+        "relevantPageClasses": [
+          "HOME",
+          "ABOUT"
+        ],
+        "capturedPageClasses": [
+          "HOME"
+        ],
+        "reason": "RELEVANT_PAGE_CLASS_CAPTURED_NOTHING_FOUND"
+      },
+      {
+        "subcriterionId": "AF3",
+        "dimension": "AF",
+        "status": "NOT_RESEARCHED",
+        "claimKeys": [
+          "audience.stated_need"
+        ],
+        "claimRefs": [],
+        "proposalIds": [],
+        "relevantPageClasses": [],
+        "capturedPageClasses": [],
+        "reason": "NO_EXTRACTION_RULE_FOR_THESE_KEYS"
+      },
+      {
+        "subcriterionId": "DP1",
+        "dimension": "DP",
+        "status": "EVIDENCE_FOUND",
+        "claimKeys": [
+          "channel.existence"
+        ],
+        "claimRefs": [
+          "rp-claim:eeeeeeee-0000-4000-8000-e1000000005e"
+        ],
+        "proposalIds": [],
+        "relevantPageClasses": [
+          "HOME"
+        ],
+        "capturedPageClasses": [
+          "HOME"
+        ],
+        "reason": null
+      },
+      {
+        "subcriterionId": "DP2",
+        "dimension": "DP",
+        "status": "SEARCHED_NOT_FOUND",
+        "claimKeys": [
+          "channel.reach_mode"
+        ],
+        "claimRefs": [],
+        "proposalIds": [],
+        "relevantPageClasses": [
+          "HOME",
+          "NEWSLETTER"
+        ],
+        "capturedPageClasses": [
+          "HOME"
+        ],
+        "reason": "RELEVANT_PAGE_CLASS_CAPTURED_NOTHING_FOUND"
+      },
+      {
+        "subcriterionId": "DP3",
+        "dimension": "DP",
+        "status": "SEARCHED_NOT_FOUND",
+        "claimKeys": [
+          "channel.feed_activity",
+          "channel.static_currency",
+          "channel.event_instances"
+        ],
+        "claimRefs": [],
+        "proposalIds": [],
+        "relevantPageClasses": [
+          "HOME",
+          "EVENTS",
+          "NEWSLETTER"
+        ],
+        "capturedPageClasses": [
+          "HOME"
+        ],
+        "reason": "RELEVANT_PAGE_CLASS_CAPTURED_NOTHING_FOUND"
+      },
+      {
+        "subcriterionId": "DP4",
+        "dimension": "DP",
+        "status": "SEARCHED_NOT_FOUND",
+        "claimKeys": [
+          "channel.audience_count"
+        ],
+        "claimRefs": [],
+        "proposalIds": [],
+        "relevantPageClasses": [
+          "HOME",
+          "ABOUT",
+          "NEWSLETTER"
+        ],
+        "capturedPageClasses": [
+          "HOME"
+        ],
+        "reason": "RELEVANT_PAGE_CLASS_CAPTURED_NOTHING_FOUND"
+      },
+      {
+        "subcriterionId": "AP1",
+        "dimension": "AP",
+        "status": "SEARCHED_NOT_FOUND",
+        "claimKeys": [
+          "channel.resource_openness"
+        ],
+        "claimRefs": [],
+        "proposalIds": [],
+        "relevantPageClasses": [
+          "HOME",
+          "EVENTS",
+          "EXTERNAL_LINKS"
+        ],
+        "capturedPageClasses": [
+          "HOME"
+        ],
+        "reason": "RELEVANT_PAGE_CLASS_CAPTURED_NOTHING_FOUND"
+      },
+      {
+        "subcriterionId": "AP2",
+        "dimension": "AP",
+        "status": "EVIDENCE_FOUND",
+        "claimKeys": [
+          "channel.operator_binding",
+          "channel.publishing_route"
+        ],
+        "claimRefs": [
+          "rp-claim:eeeeeeee-0000-4000-8000-e10000000035"
+        ],
+        "proposalIds": [],
+        "relevantPageClasses": [
+          "HOME",
+          "EVENTS",
+          "NEWSLETTER"
+        ],
+        "capturedPageClasses": [
+          "HOME"
+        ],
+        "reason": null
+      },
+      {
+        "subcriterionId": "SV1",
+        "dimension": "SV",
+        "status": "NOT_RESEARCHED",
+        "claimKeys": [
+          "channel.cycle_history"
+        ],
+        "claimRefs": [],
+        "proposalIds": [],
+        "relevantPageClasses": [
+          "EVENTS"
+        ],
+        "capturedPageClasses": [],
+        "reason": "RELEVANT_PAGE_CLASS_NOT_CAPTURED"
+      },
+      {
+        "subcriterionId": "SV2",
+        "dimension": "SV",
+        "status": "NOT_RESEARCHED",
+        "claimKeys": [
+          "candidate.network_membership",
+          "candidate.network_directory_absence"
+        ],
+        "claimRefs": [],
+        "proposalIds": [],
+        "relevantPageClasses": [],
+        "capturedPageClasses": [],
+        "reason": "NO_EXTRACTION_RULE_FOR_THESE_KEYS"
+      },
+      {
+        "subcriterionId": "SV3",
+        "dimension": "SV",
+        "status": "SEARCHED_NOT_FOUND",
+        "claimKeys": [
+          "channel.operator_continuity",
+          "channel.role_based_ownership"
+        ],
+        "claimRefs": [],
+        "proposalIds": [],
+        "relevantPageClasses": [
+          "HOME",
+          "ABOUT"
+        ],
+        "capturedPageClasses": [
+          "HOME"
+        ],
+        "reason": "RELEVANT_PAGE_CLASS_CAPTURED_NOTHING_FOUND"
+      }
+    ],
+    "contradictions": [],
+    "gaps": [
+      {
+        "target": "AF2",
+        "reason": "RELEVANT_PAGE_CLASS_CAPTURED_NOTHING_FOUND",
+        "ruleId": null,
+        "label": null,
+        "sourceRefs": []
+      },
+      {
+        "target": "AF3",
+        "reason": "NO_EXTRACTION_RULE_FOR_THESE_KEYS",
+        "ruleId": null,
+        "label": null,
+        "sourceRefs": []
+      },
+      {
+        "target": "AP1",
+        "reason": "RELEVANT_PAGE_CLASS_CAPTURED_NOTHING_FOUND",
+        "ruleId": null,
+        "label": null,
+        "sourceRefs": []
+      },
+      {
+        "target": "DP2",
+        "reason": "RELEVANT_PAGE_CLASS_CAPTURED_NOTHING_FOUND",
+        "ruleId": null,
+        "label": null,
+        "sourceRefs": []
+      },
+      {
+        "target": "DP3",
+        "reason": "RELEVANT_PAGE_CLASS_CAPTURED_NOTHING_FOUND",
+        "ruleId": null,
+        "label": null,
+        "sourceRefs": []
+      },
+      {
+        "target": "DP4",
+        "reason": "RELEVANT_PAGE_CLASS_CAPTURED_NOTHING_FOUND",
+        "ruleId": null,
+        "label": null,
+        "sourceRefs": []
+      },
+      {
+        "target": "SV1",
+        "reason": "RELEVANT_PAGE_CLASS_NOT_CAPTURED",
+        "ruleId": null,
+        "label": null,
+        "sourceRefs": []
+      },
+      {
+        "target": "SV2",
+        "reason": "NO_EXTRACTION_RULE_FOR_THESE_KEYS",
+        "ruleId": null,
+        "label": null,
+        "sourceRefs": []
+      },
+      {
+        "target": "SV3",
+        "reason": "RELEVANT_PAGE_CLASS_CAPTURED_NOTHING_FOUND",
+        "ruleId": null,
+        "label": null,
+        "sourceRefs": []
+      },
+      {
+        "target": "audience.minor_presence",
+        "reason": "NO_EXTRACTION_RULE",
+        "ruleId": null,
+        "label": null,
+        "sourceRefs": []
+      },
+      {
+        "target": "audience.stated_need",
+        "reason": "VALUE_PROPOSITION_REGISTER_NOT_HELD_BY_THE_ENGINE",
+        "ruleId": null,
+        "label": null,
+        "sourceRefs": []
+      },
+      {
+        "target": "candidate.network_directory_absence",
+        "reason": "NO_NETWORK_OWN_DIRECTORY_CAPTURE",
+        "ruleId": null,
+        "label": null,
+        "sourceRefs": []
+      },
+      {
+        "target": "candidate.network_membership",
+        "reason": "NO_NETWORK_OWN_DIRECTORY_CAPTURE",
+        "ruleId": null,
+        "label": null,
+        "sourceRefs": []
+      },
+      {
+        "target": "channel.operator_continuity",
+        "reason": "HANDOVER_HISTORY_NOT_EXTRACTED",
+        "ruleId": null,
+        "label": null,
+        "sourceRefs": []
+      },
+      {
+        "target": "channel.publishing_route",
+        "reason": "NO_RULE_OBSERVES_A_PUBLISHING_ROUTE",
+        "ruleId": null,
+        "label": null,
+        "sourceRefs": []
+      }
+    ],
+    "freshness": [
+      {
+        "key": "candidate.location",
+        "latestCapturedAt": "2026-10-27T18:07:52Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000021",
+        "claims": 1,
+        "proposals": 0
+      },
+      {
+        "key": "channel.existence",
+        "latestCapturedAt": "2026-10-27T18:07:52Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000021",
+        "claims": 1,
+        "proposals": 0
+      },
+      {
+        "key": "channel.operator_binding",
+        "latestCapturedAt": "2026-10-27T18:07:52Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000021",
+        "claims": 1,
+        "proposals": 0
+      }
+    ],
+    "excluded": [],
+    "researchRuns": [
+      {
+        "runId": "eeeeeeee-0000-4000-8000-e1000000006e",
+        "admissionId": "eeeeeeee-0000-4000-8000-e10000000074",
+        "included": true,
+        "pages": 1
+      }
+    ],
+    "permissions": {
+      "qualification": "NONE",
+      "ranking": "NONE",
+      "publication": "NONE",
+      "memberRelease": "NONE",
+      "identityBinding": "NONE",
+      "outreach": "NONE",
+      "contactPermission": "NOT_GRANTED"
+    },
+    "limitations": {
+      "documentSignature": "NONE_NOT_A_SIGNED_EXPORT",
+      "scoring": "NONE_THE_OPERATOR_C1_RUBRIC_ALONE_SCORES",
+      "descriptors": "NONE_THE_OPERATOR_PAIRS_THE_OWNER_PILOT_DESCRIPTOR_FOR_THE_STATED_COUNTRY",
+      "identity": "PROVISIONAL_ENGINE_LOCAL_REFERENCES_I0_BINDS_IDENTITY_IN_THE_OPERATOR",
+      "country": "ADR_0024_COUNTRY_OF_OPERATION_STATED_ONLY_ELSE_NULL_NEVER_INFERRED",
+      "bytes": "RESPONSE_BODIES_ARE_NEVER_STORED_A_CAPTURE_IS_A_DIGEST_ONLY",
+      "pageText": "NO_PAGE_TEXT_IS_EXPORTED_EXCEPT_ONE_SHORT_REDACTED_QUOTE_PER_PROPOSAL",
+      "classifier": "NO_CLASSIFIER_OR_MODEL_OUTPUT_IS_EXPORTED",
+      "licence": "UNKNOWN_NO_STORED_SOURCE_RECORDS_A_LICENCE",
+      "asOf": "RECORDS_CREATED_AFTER_EVALUATED_AT_ARE_EXCLUDED",
+      "instants": "WHOLE_SECOND_UTC_TRUNCATED_TOWARD_EPOCH",
+      "completeness": "NOT_PROVEN",
+      "piiFields": "NONE_BY_CONSTRUCTION",
+      "phraseRules": "DETERMINISTIC_PHRASE_RULES_NWF_PE_C1_EXTRACTION_RULES_V1_OBSERVED_CLAIMS_ONLY_FOR_WHAT_A_CAPTURE_SHOWS",
+      "proposals": "PROPOSALS_ARE_NOT_CLAIMS_THE_OPERATOR_DECIDES_WHETHER_ANY_COUNTS",
+      "quotes": "AT_MOST_300_CODE_POINTS_OF_ALREADY_REDACTED_STORED_TEXT_CONTACT_SHAPED_QUOTES_WITHHELD",
+      "researchStatus": "EVIDENCE_FOUND_MEANS_A_CLAIM_EXISTS_NEVER_A_TIER_SEARCHED_NOT_FOUND_IS_NEVER_A_ZERO",
+      "language": "A_RULE_LANGUAGE_IS_THE_LANGUAGE_A_PHRASE_IS_WRITTEN_IN_NEVER_A_COUNTRY"
+    }
+  }
+}
