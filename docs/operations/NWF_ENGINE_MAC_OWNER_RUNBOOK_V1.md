@@ -63,7 +63,15 @@ Run `nwf-engine doctor` first. It is read-only: it changes nothing. Each
 3. **An OWNER review key must be pinned.** **[NEEDS OWNER ACT]** The same
    kind of decision for `OPERATIONAL_OWNER_REVIEW_KEYS` (ADR 0023, ADR 0030
    §5). Until then every identity review is refused, so no subject ever
-   reaches the outbox manifest. `doctor` does not check this one.
+   reaches the outbox manifest. `doctor` does not check whether a review
+   key is pinned. Optionally, record the PATH of your encrypted review key
+   file so `doctor` can tell you whether it is a private regular file of
+   yours (line `review-key`; it looks at the path with `lstat` only and
+   never opens the file). Add one field to the runtime's config file
+   `~/Library/Application Support/nwf-engine/config.json`:
+   `"reviewKeyFile": "/absolute/path/to/review-key"`. Without it, `doctor`
+   shows `review-key` as INFO; `acquisition review sign` takes `--key-file`
+   on every batch either way.
 4. **Logins must be provisioned.** **[NEEDS OWNER ACT]** No migration
    creates a login. One database login per capability, each holding only
    that capability (SELECT and INSERT; never the owner, never a superuser):
@@ -82,17 +90,31 @@ Run `nwf-engine doctor` first. It is read-only: it changes nothing. Each
      `DATABASE_URL_RESEARCH`: the worker's stage handlers.
    - `DATABASE_URL_DISCOVERY_SUBJECT_REVIEWER`: `acquisition review sign`.
 
-   The runtime checks the first three: it refuses any host that is not this
-   Mac (`127.0.0.1`, `localhost`, `::1`), a `_test` database, and variables
-   that name different databases, and it prints variable **names**, never
-   values. **It does not check the other four** — keep them on the same
-   local database yourself.
+   `doctor`, `start` and the supervisor **require the first six** (the
+   worker cannot run a stage without its login) and check the reviewer
+   whenever it is set (`doctor` warns, line `review-login`, when it is not).
+   Each value must be a plain `postgres://user:password@host:port/database`
+   URL with an explicit user, port and database. The runtime refuses:
+   - any host that is not this Mac (`127.0.0.1`, `localhost`, `::1`);
+   - a `_test` database;
+   - variables that name different databases (host, port and database
+     must all match);
+   - any query string (`?host=`, `?hostaddr=`, `?port=`, `?options=`,
+     `?sslmode=` …), a `socket:` URL, a socket path, a `key=value` string.
+
+   It prints variable **names**, never values. `PG*` variables (`PGHOST`,
+   `PGPORT`, `PGDATABASE`, `PGOPTIONS`, …) are ignored: the runtime removes
+   them from its own environment and from every process it starts, so only
+   the URLs decide where anything connects.
 
 6. **The search stage needs your Claude Max stored login.** **[NEEDS OWNER
    ACT]** The stage handlers are wired (ADR 0030); the search stage calls
    only your Claude Max subscription, through the Agent SDK, from the
    dedicated profile directory `NWF_PE_CLASSIFIER_CONFIG_DIR` (ADR 0010). No
    API key, PAYG, Bedrock or Vertex variable may be set: the run refuses.
+   `doctor` (line `claude-profile`) names the directory the search stage
+   will use and says whether it exists. It reads nothing inside it; whether
+   the stored login is valid is checked by the search stage itself.
 7. **A search grant, and one verified D8 smoke.** **[NEEDS OWNER ACT]** A
    campaign searches only under OWNER-path grant rows it lists (ADR 0028 §6
    shows the row: plan, geography, model, `max_queries`, `max_runs`, a
@@ -115,7 +137,9 @@ Run `nwf-engine doctor` first. It is read-only: it changes nothing. Each
 
    Give its absolute path to `nwf-engine start --outbox-dir` once (section
    3); it is remembered. The runtime never creates or chooses it. A symlink
-   is refused. Section 3 shows what appears in it.
+   is refused. `doctor` (line `outbox`) FAILs unless it is a real directory
+   owned by you with mode `0700` (`chmod 700 <dir>` fixes the mode).
+   Section 3 shows what appears in it.
 
 9. **A campaign must be signed, recorded and started by the OWNER.**
    **[NEEDS OWNER ACT]** The runtime never records or starts a campaign.
@@ -152,13 +176,14 @@ nwf-engine start                                                  # afterwards
 
 `start` does this, in order, and stops at the first refusal:
 
-1. checks the three connection strings (local only, no test database);
+1. checks every connection string the worker uses (section 2 item 5);
 2. refuses if an engine is already running, or if a crashed one left a lock
    (section 5);
 3. if the Engine PostgreSQL container is stopped, starts it with
    `docker compose up -d --no-recreate --wait postgres`. It never runs
    `down`, never removes a volume and never recreates the container;
-4. runs `doctor` and refuses on any `FAIL`;
+4. runs `doctor` (with the outbox directory you gave) and refuses on any
+   `FAIL`;
 5. checks the outbox directory: it must exist as a real directory, and a
    campaign whose signed stages write exports (`RESEARCHED`, `ASSESSABLE`)
    is refused when none is configured;
@@ -272,8 +297,10 @@ signed campaign. On STOP, the current item finishes and its outcome is
 recorded; then the worker and the supervisor exit. On `--emergency`, the
 worker aborts the running item, which is recorded as refused
 (`CAMPAIGN_EMERGENCY_STOPPED`). The supervisor gets SIGTERM. If the worker
-has not exited within 60 seconds, the supervisor kills it. A killed worker's
-claim expires, and because the campaign is over, the item is not retried.
+has not exited within 60 seconds, the supervisor kills it — also when you
+had already asked for a graceful `shutdown` before the emergency stop. A
+killed worker's claim expires, and because the campaign is over, the item is
+not retried.
 
 ## 4. Shutdown (the campaign stays as it is)
 
@@ -295,7 +322,9 @@ starts the engine on its own unless you install the optional LaunchAgent
 (section 8).
 
 **After a crash** (power loss, a killed process): `nwf-engine status` shows
-`STALE LOCK`, and `start` refuses. Run:
+`STALE LOCK`, and `start` refuses. A lock written before the Mac last
+started is always stale, even if its old process number now belongs to
+another program. Run:
 
 ```bash
 nwf-engine recover
@@ -309,7 +338,10 @@ nwf-engine start
    the pid, `ps -p <pid> -o command=` to check it, and `kill -TERM <pid>` to
    let it finish its current item.
 3. It removes only the stale lock and the pidfile. **No data is deleted.**
-   The queue, claims and outcomes are in the database, untouched.
+   The queue, claims and outcomes are in the database, untouched. It
+   removes the lock only if it is still the one it checked: if a supervisor
+   started while `recover` ran, its lock is left in place and `recover`
+   says so.
 4. It reports how many items have an expired lease and how many hold a live
    claim. An item whose worker died is retried as its next attempt once its
    lease expires (at most 15 minutes). The database allows one `ADVANCED`
@@ -362,24 +394,28 @@ nwf-engine logs --follow         # Ctrl-C to stop
 
 ## 7. Troubleshooting
 
-| you see                                                                             | do                                                                                                                                                                                                                                                                                                 |
-| ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Docker is not running or not reachable`                                            | start Docker Desktop, then `nwf-engine start`                                                                                                                                                                                                                                                      |
-| `database is not at this build's level`                                             | follow the runbook `doctor` names, under a signed OWNER grant. Never improvise                                                                                                                                                                                                                     |
-| `no OWNER campaign key pinned: campaigns cannot run`                                | section 2 item 2. Nothing else unblocks it                                                                                                                                                                                                                                                         |
-| `no worker login configured` / `not usable`                                         | section 2 item 3                                                                                                                                                                                                                                                                                   |
-| `... points at host ..., which is not this Mac`                                     | `.env` names a remote database. The runtime operates the local one only                                                                                                                                                                                                                            |
-| `the configured database (port …) is NOT this container`                            | `.env` and the Docker container disagree. Fix `.env`                                                                                                                                                                                                                                               |
-| supervisor exited `HANDLERS_NOT_WIRED`                                              | the campaign lists a stage this build has no handler for. Sign a campaign from `campaign template`                                                                                                                                                                                                 |
-| `start` refused: `... writes research exports to an outbox, and none is configured` | section 2 item 8, then `nwf-engine start --outbox-dir <absolute dir>`                                                                                                                                                                                                                              |
-| supervisor exited `WORKER_REFUSED` (`outbox_...`)                                   | the outbox directory is missing, relative or a symlink. Fix it, then `start` again                                                                                                                                                                                                                 |
-| Latest discovery run ends `ABORTED` or `FAILED`                                     | the dashboard shows the outcome only; the reason is the run's completion reason in `source_discovery_run_completions`. `SMOKE_UNVERIFIED`: verify the D8 smoke (section 2 item 7). `SEARCH_BINDING_REFUSED`: the stream did not show exactly one WebSearch for the planned query; nothing was kept |
-| subjects stay `Awaiting identity review`                                            | only your `acquisition review sign --execute` releases them (section 3)                                                                                                                                                                                                                            |
-| supervisor exited `CAMPAIGN_UNVERIFIED`                                             | the campaign's signature does not verify under the pinned key set                                                                                                                                                                                                                                  |
-| supervisor exited `REPEATED_FAILURES`                                               | read `nwf-engine logs`. Usually the database is down. Fix it, then `nwf-engine start`                                                                                                                                                                                                              |
-| `STALE LOCK`                                                                        | `nwf-engine recover`, then `nwf-engine start`                                                                                                                                                                                                                                                      |
-| `resume` refused `CAMPAIGN_UNVERIFIED`                                              | RESUME needs a verifying campaign (section 2 item 2)                                                                                                                                                                                                                                               |
-| status line `... item(s) have an expired lease`                                     | a worker died or hung. Those items are retried. No action needed                                                                                                                                                                                                                                   |
+| you see                                                                              | do                                                                                                                                                                                                                                                                                                 |
+| ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Docker is not running or not reachable`                                             | start Docker Desktop, then `nwf-engine start`                                                                                                                                                                                                                                                      |
+| `database is not at this build's level`                                              | follow the runbook `doctor` names, under a signed OWNER grant. Never improvise                                                                                                                                                                                                                     |
+| `no OWNER campaign key pinned: campaigns cannot run`                                 | section 2 item 2. Nothing else unblocks it                                                                                                                                                                                                                                                         |
+| `no worker login configured` / `not usable`                                          | section 2 item 4                                                                                                                                                                                                                                                                                   |
+| `... points at host ..., which is not this Mac`                                      | `.env` names a remote database. The runtime operates the local one only                                                                                                                                                                                                                            |
+| `the configured database (port …) is NOT this container`                             | `.env` and the Docker container disagree. Fix `.env`                                                                                                                                                                                                                                               |
+| supervisor exited `HANDLERS_NOT_WIRED`                                               | the campaign lists a stage this build has no handler for. Sign a campaign from `campaign template`                                                                                                                                                                                                 |
+| `start` refused: `... writes research exports to an outbox, and none is configured`  | section 2 item 8, then `nwf-engine start --outbox-dir <absolute dir>`                                                                                                                                                                                                                              |
+| supervisor exited `WORKER_REFUSED` (`outbox_...`)                                    | the outbox directory is missing, relative or a symlink. Fix it, then `start` again                                                                                                                                                                                                                 |
+| Latest discovery run ends `ABORTED` or `FAILED`                                      | the dashboard shows the outcome only; the reason is the run's completion reason in `source_discovery_run_completions`. `SMOKE_UNVERIFIED`: verify the D8 smoke (section 2 item 7). `SEARCH_BINDING_REFUSED`: the stream did not show exactly one WebSearch for the planned query; nothing was kept |
+| subjects stay `Awaiting identity review`                                             | only your `acquisition review sign --execute` releases them (section 3)                                                                                                                                                                                                                            |
+| supervisor exited `CAMPAIGN_UNVERIFIED`                                              | the campaign's signature does not verify under the pinned key set                                                                                                                                                                                                                                  |
+| supervisor exited `REPEATED_FAILURES`                                                | read `nwf-engine logs`. Usually the database is down. Fix it, then `nwf-engine start`                                                                                                                                                                                                              |
+| `STALE LOCK`                                                                         | `nwf-engine recover`, then `nwf-engine start`                                                                                                                                                                                                                                                      |
+| `... carries a query string` / `names no explicit port` / `is not a postgres:// URL` | write that variable in `.env` as `postgres://user:password@127.0.0.1:<port>/<database>`, with no `?...` part                                                                                                                                                                                       |
+| `... is not set` for a stage login                                                   | section 2 items 4 and 5: the worker needs all six connection strings                                                                                                                                                                                                                               |
+| `outbox directory ... has mode ..., not 0700`                                        | `chmod 700 <dir>`, then `nwf-engine start`                                                                                                                                                                                                                                                         |
+| `... was NOT signalled`                                                              | the lock's process could not be confirmed as the supervisor (its state file disagrees). Check it with `ps -p <pid> -o command=`; `nwf-engine status`; `recover` once nothing of the engine runs                                                                                                    |
+| `resume` refused `CAMPAIGN_UNVERIFIED`                                               | RESUME needs a verifying campaign (section 2 item 2)                                                                                                                                                                                                                                               |
+| status line `... item(s) have an expired lease`                                      | a worker died or hung. Those items are retried. No action needed                                                                                                                                                                                                                                   |
 
 ## 8. Optional: start with a LaunchAgent
 
