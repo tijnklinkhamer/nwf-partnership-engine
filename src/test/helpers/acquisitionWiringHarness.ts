@@ -61,15 +61,99 @@ export type FakeResult = readonly [string, string];
 export interface FakeSdk {
   readonly query: SdkQueryFn;
   readonly calls: () => number;
+  /** Every gate decision the fake SDK received, in order: `${surface}:${tool}:${decision}`. */
+  readonly decisions: readonly string[];
 }
 
-/** A fake SDK whose every call returns `results`. Never a network call. */
+type SdkOptions = Parameters<SdkQueryFn>[0]['options'];
+interface ToolUseBlock {
+  readonly id: string;
+  readonly name: string;
+  readonly input: Record<string, unknown>;
+}
+
+/** The planned query text, read back from the adapter's deterministic prompt (its third line). */
+const plannedOf = (prompt: string): string => JSON.parse(prompt.split('\n')[2]!) as string;
+
+/** An assistant message carrying tool-use blocks, shaped as the SDK streams it. */
+const assistant = (blocks: readonly ToolUseBlock[]): SdkStreamMessage => ({
+  type: 'assistant',
+  message: { content: blocks.map((b) => ({ type: 'tool_use', ...b })) },
+});
+
+/**
+ * WW E-SDFX (ADR 0028 s9): what the SDK does for one tool use under the
+ * adapter's options - the PreToolUse hook first (a deny ends it), the
+ * structured-output carrier allowed by its own permission check, anything
+ * else asks `canUseTool`. The same reading
+ * `sourceDiscoveryGrantedRunWw.test.ts` scripts; nothing is pre-approved.
+ */
+async function useTool(
+  options: SdkOptions,
+  block: ToolUseBlock,
+  decisions: string[],
+): Promise<boolean> {
+  const signal = new AbortController().signal;
+  const hook = options.hooks?.PreToolUse?.[0]?.hooks[0];
+  const out = hook
+    ? await hook(
+        {
+          hook_event_name: 'PreToolUse',
+          tool_name: block.name,
+          tool_input: block.input,
+          tool_use_id: block.id,
+          session_id: 'fake-session',
+          transcript_path: '',
+          cwd: '',
+        } as never,
+        block.id,
+        { signal },
+      )
+    : {};
+  const denied =
+    'hookSpecificOutput' in out &&
+    out.hookSpecificOutput?.hookEventName === 'PreToolUse' &&
+    out.hookSpecificOutput.permissionDecision === 'deny';
+  decisions.push(`hook:${block.name}:${denied ? 'deny' : 'pass'}`);
+  if (denied) return false;
+  if (block.name === 'StructuredOutput') return true;
+  const decision = await options.canUseTool!(block.name, block.input, {
+    signal,
+    toolUseID: block.id,
+    requestId: `req-${block.id}`,
+  });
+  decisions.push(`canUseTool:${block.name}:${decision?.behavior}`);
+  return decision?.behavior === 'allow';
+}
+
+/**
+ * A fake SDK whose every call performs exactly ONE WebSearch for the planned
+ * query - through the adapter's gate (hook, then canUseTool) - and returns
+ * `results`. A denied search ends the stream with no result. Never a network
+ * call.
+ */
 export function fakeSdk(results: readonly FakeResult[]): FakeSdk {
   let calls = 0;
-  const query: SdkQueryFn = () => {
+  const decisions: string[] = [];
+  const query: SdkQueryFn = (args) => {
     calls += 1;
+    const call = calls;
+    const search: ToolUseBlock = {
+      id: `toolu_${call}_search`,
+      name: 'WebSearch',
+      input: { query: plannedOf(args.prompt) },
+    };
+    const carrier: ToolUseBlock = {
+      id: `toolu_${call}_out`,
+      name: 'StructuredOutput',
+      input: { results: [] },
+    };
     return (async function* (): AsyncGenerator<SdkStreamMessage> {
       yield { type: 'system', subtype: 'init' };
+      yield assistant([search]);
+      if (!(await useTool(args.options, search, decisions))) return;
+      yield assistant([carrier]);
+      await useTool(args.options, carrier, decisions);
       yield {
         type: 'result',
         subtype: 'success',
@@ -81,7 +165,7 @@ export function fakeSdk(results: readonly FakeResult[]): FakeSdk {
       };
     })();
   };
-  return { query, calls: () => calls };
+  return { query, calls: () => calls, decisions };
 }
 
 /** The pipeline's fictitious world. */

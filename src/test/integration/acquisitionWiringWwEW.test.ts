@@ -164,6 +164,17 @@ describeDb('WW E-W wired acquisition pipeline (integration)', () => {
     if (first.stopReason !== 'QUEUE_DRAINED') console.log(JSON.stringify(await states(id)));
     expect(first.stopReason).toBe('QUEUE_DRAINED');
     expect(sdk.calls()).toBe(1);
+    // WW E-SDFX (ADR 0028 s9): the one search went through the adapter's gate -
+    // the PreToolUse hook and canUseTool both consulted, nothing pre-approved -
+    // and it was the grant's D8 smoke call, so no OWNER verification is needed.
+    expect(sdk.decisions).toEqual([
+      'hook:WebSearch:pass',
+      'canUseTool:WebSearch:allow',
+      'hook:StructuredOutput:pass',
+    ]);
+    expect(
+      (await h.admin.query(`SELECT outcome, smoke FROM source_discovery_query_calls`)).rows,
+    ).toEqual([{ outcome: 'RESULTS', smoke: true }]);
 
     // ONE granted search run, keyed to the root item.
     expect(
