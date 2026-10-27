@@ -128,10 +128,15 @@ describe('WW H-ACQ: spend, discovery and the outbox', () => {
   });
 
   it('discovery advances only admissible nominations of a completed run', () => {
+    // WW integration: the wiring delegates to source discovery's own helper (WW H-SD, 0027)
+    // through the one port; the helper holds the completion, smoke and one-search conditions.
     const discover = code('src/orgunits/acquisitionWiring/discover.ts');
-    expect(discover).toContain('FROM source_discovery_run_completions WHERE run_id = $1');
-    expect(discover).toContain('source_discovery_smoke_verifications');
+    expect(discover).toContain('await admissibleNominationsOfRun(readonly, runId)');
     expect(discover).not.toMatch(/WHERE discovery_run_id = \$1 ORDER BY created_at, id/);
+    const helper = code('src/orgunits/sourceDiscovery/grantStore.ts');
+    expect(helper).toContain('source_discovery_run_completions');
+    expect(helper).toContain('source_discovery_smoke_verifications');
+    expect(helper).toMatch(/search_count = 1/);
   });
 
   it('the outbox creates temporary files exclusively and flushes their directory', () => {

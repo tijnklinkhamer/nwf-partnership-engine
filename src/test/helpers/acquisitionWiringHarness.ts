@@ -446,7 +446,9 @@ export async function createWiringHarness(tag: string): Promise<WiringHarness> {
     },
     async verifySmokeRuntime(this: WiringHarness) {
       const grantId = await this.grant('JP');
-      const sdk = fakeSdk([]);
+      // A verifiable smoke (0027, ADR 0028 s9.1) shows the hook invoked, ONE search and at
+      // least one result: the smoke returns one result of its own, outside the test world.
+      const sdk = fakeSdk([['https://www.smoke-result.example.org/', 'Smoke Result']]);
       const deps = this.deps(sdk, researchTransport()).liveSearch;
       const run = await runGrantedSourceDiscovery(
         source,

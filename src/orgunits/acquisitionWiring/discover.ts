@@ -33,6 +33,7 @@ import {
   type WorkItemView,
 } from '../acquisition/index.js';
 import {
+  admissibleNominationsOfRun,
   GrantedRunInternalError,
   GrantedRunRefusal,
   runGrantedSourceDiscovery,
@@ -46,21 +47,19 @@ interface NominationRef {
 }
 
 /**
- * WW H-ACQ (ADR 0030 s13, P1-9): what a granted SEARCH_PROVIDER run may hand
- * the campaign - the wiring's own minimal check, in EXACTLY the shape of
- * H-SD's `admissibleNominationsOfRun(queryable, runId)` (sourceDiscovery,
- * integrated after this package) so the swap is one call:
+ * WW H-ACQ (ADR 0030 s13, P1-9) + WW integration: what a granted SEARCH_PROVIDER
+ * run may hand the campaign, decided by source discovery's own
+ * `admissibleNominationsOfRun` (WW H-SD, migration 0027) through the one port:
  *
  *   NOT_A_GRANTED_RUN - no grant use records the run (refused);
  *   RUN_NOT_COMPLETED - no terminal completion row yet (a crashed process):
  *                       nothing partial is ever advanced;
- *   COMPLETED         - the nominations of provider calls whose terminal row
- *                       is RESULTS and whose SDK version + model carry an
- *                       OWNER smoke verification (migration 0025: a
- *                       verification covers every call of that runtime).
+ *   COMPLETED         - the nominations of provider calls that ended RESULTS,
+ *                       whose observation recorded exactly ONE search, and
+ *                       whose SDK version + model carry an OWNER smoke
+ *                       verification.
  *
- * H-SD's helper additionally requires a call's recorded search count to be
- * exactly 1 (its migration 0027); this branch has no such column.
+ * Mapped onto the wiring's own nomination reference shape.
  */
 export interface AdmissibleNominations {
   readonly state: 'NOT_A_GRANTED_RUN' | 'RUN_NOT_COMPLETED' | 'COMPLETED';
@@ -71,26 +70,14 @@ export async function admissibleNominationsOfGrantedRun(
   readonly: pg.Pool,
   runId: string,
 ): Promise<AdmissibleNominations> {
-  const { rows: standing } = await readonly.query<{ granted: boolean; complete: boolean }>(
-    `SELECT EXISTS (SELECT 1 FROM source_discovery_grant_uses WHERE run_id = $1) AS granted,
-            EXISTS (SELECT 1 FROM source_discovery_run_completions WHERE run_id = $1) AS complete`,
-    [runId],
-  );
-  if (standing[0]?.granted !== true) return { state: 'NOT_A_GRANTED_RUN', nominations: [] };
-  if (standing[0].complete !== true) return { state: 'RUN_NOT_COMPLETED', nominations: [] };
-  const { rows } = await readonly.query<NominationRef>(
-    `SELECT n.id, n.registrable_domain
-       FROM source_discovery_nominations n
-       JOIN source_discovery_query_calls q
-         ON q.run_id = n.discovery_run_id AND q.query_id = n.query_id
-      WHERE n.discovery_run_id = $1 AND n.discovery_method = 'SEARCH_PROVIDER'
-        AND q.outcome = 'RESULTS'
-        AND EXISTS (SELECT 1 FROM source_discovery_smoke_verifications sv
-                     WHERE sv.sdk_version = q.sdk_version AND sv.model_id = q.model_id)
-      ORDER BY n.created_at, n.id`,
-    [runId],
-  );
-  return { state: 'COMPLETED', nominations: rows };
+  const found = await admissibleNominationsOfRun(readonly, runId);
+  return {
+    state: found.state,
+    nominations: found.nominations.map((n) => ({
+      id: n.nominationId,
+      registrable_domain: n.registrableDomain,
+    })),
+  };
 }
 
 /** How many nominations the run recorded at all (admissible or not). */

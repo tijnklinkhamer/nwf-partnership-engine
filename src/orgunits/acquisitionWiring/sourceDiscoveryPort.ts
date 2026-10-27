@@ -11,6 +11,7 @@
 export {
   GrantedRunInternalError,
   GrantedRunRefusal,
+  admissibleNominationsOfRun,
   productionLiveSearchDeps,
   runGrantedSourceDiscovery,
   type GrantedRunDeps,
