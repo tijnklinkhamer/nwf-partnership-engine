@@ -17,7 +17,12 @@
 import type pg from 'pg';
 
 import type { JurisdictionClaimRow } from '../subjectFacts/facts.js';
-import { buildQualificationInputExport, type IdentitySourceType, type PageRow } from './build.js';
+import {
+  buildQualificationInputExport,
+  type IdentitySourceType,
+  type PageRow,
+  type QualificationInputRecords,
+} from './build.js';
 import {
   QualificationInputExportRefusal,
   UUID,
@@ -72,10 +77,26 @@ export async function exportQualificationInput(
   pool: pg.Pool,
   options: ExportOptions,
 ): Promise<QualificationInputExportDocument> {
-  if (!UUID.test(options.subjectId)) {
+  const records = await readQualificationInputRecords(pool, options.subjectId);
+  return buildQualificationInputExport(records, {
+    evaluatedAt: options.evaluatedAt,
+    readConsistency: 'SINGLE_SNAPSHOT_TRANSACTION',
+  });
+}
+
+/**
+ * The stored records of exactly one subject, read in ONE snapshot (the
+ * export builders' input; WW E-X reuses it for the v2 export unchanged).
+ * Never writes.
+ */
+export async function readQualificationInputRecords(
+  pool: pg.Pool,
+  subjectId: string,
+): Promise<QualificationInputRecords> {
+  if (!UUID.test(subjectId)) {
     throw new QualificationInputExportRefusal('ARGUMENT_INVALID', 'subjectId');
   }
-  const id = options.subjectId;
+  const id = subjectId;
   const client = await pool.connect();
   try {
     await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
@@ -248,96 +269,93 @@ export async function exportQualificationInput(
       seen.add(p.id);
       pages.push(pageOf(p));
     }
-    return buildQualificationInputExport(
-      {
-        databaseNow: clock.rows[0]!.now,
-        subjectId: id,
-        subject:
-          subject.rows[0] === undefined
+    return {
+      databaseNow: clock.rows[0]!.now,
+      subjectId: id,
+      subject:
+        subject.rows[0] === undefined
+          ? null
+          : { id: subject.rows[0].id, createdAt: subject.rows[0].created_at },
+      identityClaims: claims.rows.map((c) => ({
+        id: c.id,
+        subjectId: c.subject_id,
+        claimKind: c.claim_kind,
+        claimedKind: c.claimed_kind,
+        websiteUrl: c.website_url,
+        sourceType: c.source_type,
+        sourcePageEvidenceId: c.source_page_evidence_id,
+        sourceWebsiteClaimId: c.source_website_claim_id,
+        sourceUrl: c.source_url,
+        sourceVersionRef: c.source_version_ref,
+        observedAt: c.observed_at,
+        claimBasis: c.claim_basis,
+        createdAt: c.created_at,
+      })),
+      reviews: reviews.rows.map((r) => ({
+        id: r.id,
+        targetKey: r.review_target_key,
+        outcome: r.review_outcome,
+        createdAt: r.created_at,
+      })),
+      jurisdictionClaims: jurisdiction.rows.map((j) => ({
+        id: j.id,
+        subjectId: j.subject_id,
+        claimKind: j.claim_kind,
+        claimedCountry: j.claimed_country,
+        claimedLegalForm: j.claimed_legal_form,
+        sourceType: j.source_type,
+        sourcePageEvidenceId: j.source_page_evidence_id,
+        sourceWebsiteClaimId: j.source_website_claim_id,
+        sourceUrl: j.source_url,
+        sourceVersionRef: j.source_version_ref,
+        observedAt: j.observed_at,
+        claimBasis: j.claim_basis,
+        recordedByActorKey: j.recorded_by_actor_key,
+        createdAt: j.created_at,
+      })),
+      admissions: admissions.rows.map((a) => ({
+        id: a.id,
+        subjectId: a.subject_id,
+        identityClaimId: a.identity_claim_id,
+        websiteUrl: a.website_url,
+        admittedAt: a.admitted_at,
+      })),
+      revocations: revocations.rows.map((r) => ({
+        id: r.id,
+        admissionId: r.admission_id,
+        revokedAt: r.revoked_at,
+      })),
+      runs: runs.rows.map((r) => ({
+        id: r.id,
+        rootScope: r.root_scope,
+        dryRun: r.dry_run,
+        completion:
+          r.terminal_state === null || r.completed_at === null
             ? null
-            : { id: subject.rows[0].id, createdAt: subject.rows[0].created_at },
-        identityClaims: claims.rows.map((c) => ({
-          id: c.id,
-          subjectId: c.subject_id,
-          claimKind: c.claim_kind,
-          claimedKind: c.claimed_kind,
-          websiteUrl: c.website_url,
-          sourceType: c.source_type,
-          sourcePageEvidenceId: c.source_page_evidence_id,
-          sourceWebsiteClaimId: c.source_website_claim_id,
-          sourceUrl: c.source_url,
-          sourceVersionRef: c.source_version_ref,
-          observedAt: c.observed_at,
-          claimBasis: c.claim_basis,
-          createdAt: c.created_at,
-        })),
-        reviews: reviews.rows.map((r) => ({
-          id: r.id,
-          targetKey: r.review_target_key,
-          outcome: r.review_outcome,
-          createdAt: r.created_at,
-        })),
-        jurisdictionClaims: jurisdiction.rows.map((j) => ({
-          id: j.id,
-          subjectId: j.subject_id,
-          claimKind: j.claim_kind,
-          claimedCountry: j.claimed_country,
-          claimedLegalForm: j.claimed_legal_form,
-          sourceType: j.source_type,
-          sourcePageEvidenceId: j.source_page_evidence_id,
-          sourceWebsiteClaimId: j.source_website_claim_id,
-          sourceUrl: j.source_url,
-          sourceVersionRef: j.source_version_ref,
-          observedAt: j.observed_at,
-          claimBasis: j.claim_basis,
-          recordedByActorKey: j.recorded_by_actor_key,
-          createdAt: j.created_at,
-        })),
-        admissions: admissions.rows.map((a) => ({
-          id: a.id,
-          subjectId: a.subject_id,
-          identityClaimId: a.identity_claim_id,
-          websiteUrl: a.website_url,
-          admittedAt: a.admitted_at,
-        })),
-        revocations: revocations.rows.map((r) => ({
-          id: r.id,
-          admissionId: r.admission_id,
-          revokedAt: r.revoked_at,
-        })),
-        runs: runs.rows.map((r) => ({
-          id: r.id,
-          rootScope: r.root_scope,
-          dryRun: r.dry_run,
-          completion:
-            r.terminal_state === null || r.completed_at === null
-              ? null
-              : { terminalState: r.terminal_state, createdAt: r.completed_at },
-        })),
-        pages,
-        candidates: candidates.rows.map((c) => ({
-          id: c.id,
-          pageEvidenceId: c.page_evidence_id,
-          track: c.track,
-          candidateScore: c.candidate_score,
-          rankWithinRoot: c.rank_within_root,
-          ruleVersion: c.rule_version,
-        })),
-        nominations: nominations.rows.map((n) => ({
-          id: n.id,
-          discoveryRunId: n.discovery_run_id,
-          url: n.url,
-          retrievedAt: n.retrieved_at,
-        })),
-        websiteClaims: websiteClaims.rows.map((w) => ({
-          id: w.id,
-          ingestRunId: w.ingest_run_id,
-          normalisedUrl: w.normalised_url,
-          observedAt: w.observed_at,
-        })),
-      },
-      { evaluatedAt: options.evaluatedAt, readConsistency: 'SINGLE_SNAPSHOT_TRANSACTION' },
-    );
+            : { terminalState: r.terminal_state, createdAt: r.completed_at },
+      })),
+      pages,
+      candidates: candidates.rows.map((c) => ({
+        id: c.id,
+        pageEvidenceId: c.page_evidence_id,
+        track: c.track,
+        candidateScore: c.candidate_score,
+        rankWithinRoot: c.rank_within_root,
+        ruleVersion: c.rule_version,
+      })),
+      nominations: nominations.rows.map((n) => ({
+        id: n.id,
+        discoveryRunId: n.discovery_run_id,
+        url: n.url,
+        retrievedAt: n.retrieved_at,
+      })),
+      websiteClaims: websiteClaims.rows.map((w) => ({
+        id: w.id,
+        ingestRunId: w.ingest_run_id,
+        normalisedUrl: w.normalised_url,
+        observedAt: w.observed_at,
+      })),
+    };
   } catch (error) {
     await client.query('ROLLBACK').catch(() => undefined);
     throw error;

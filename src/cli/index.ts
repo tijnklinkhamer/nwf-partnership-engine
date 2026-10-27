@@ -73,8 +73,9 @@ Usage:
                               (OFFLINE; signs one prepared OWNER review request)
   nwf-pe subject-facts export --subject-id <uuid> [--subject-id <uuid> ...]
                               (READ-ONLY; one nwf-pe.subject-facts-export.v1 JSON document)
-  nwf-pe qualification-input export --subject-id <uuid> [--evaluated-at <YYYY-MM-DDTHH:MM:SSZ>]
-                              (READ-ONLY; one nwf-pe.qualification-input-export.v1 JSON document)
+  nwf-pe qualification-input export --subject-id <uuid> [--contract v1|v2] [--evaluated-at <YYYY-MM-DDTHH:MM:SSZ>]
+                              (READ-ONLY; one nwf-pe.qualification-input-export.v1 JSON document,
+                              or .v2 with --contract v2)
   nwf-pe jurisdiction-claims record --subject-id <uuid> --country-of-operation <CC> <source> ...
                               (one SOURCE_STATED claim from a source the subject holds; DRY RUN
                               unless --execute; run \`nwf-pe jurisdiction-claims --help\`)

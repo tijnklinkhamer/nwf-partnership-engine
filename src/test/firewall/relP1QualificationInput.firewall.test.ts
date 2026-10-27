@@ -18,7 +18,9 @@
  *     `BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY`, ends in ROLLBACK, and
  *     names exactly the tables it is reviewed to read;
  *   - the CLI command connects as the `readonly` role only, writes no file,
- *     and has no `--all`; only it and the CLI entry reach the module;
+ *     and has no `--all`; only it and the CLI entry reach the module (WW E-X
+ *     widened this by exact path: the three `qualificationInputV2/` files,
+ *     which compose v1 rather than change it);
  *   - the exported claim keys are exactly the five, every permission is NONE
  *     (contact permission NOT_GRANTED), and no contact-, name- or
  *     verdict-shaped property is declared.
@@ -149,11 +151,13 @@ describe('REL P1: the qualification-input export module', () => {
         '../../db/client.js',
         '../../orgunits/qualificationInput/contract.js',
         '../../orgunits/qualificationInput/load.js',
+        // WW E-X (widened by exact path): `--contract v2` reaches the v2 loader only.
+        '../../orgunits/qualificationInputV2/load.js',
       ].sort(),
     );
   });
 
-  it('only the CLI command and the CLI entry reach the module', () => {
+  it('only the CLI command, the CLI entry and the v2 export reach the module', () => {
     const importers = productionFiles().filter(
       (f) =>
         !f.startsWith(MODULE_DIR) &&
@@ -161,7 +165,17 @@ describe('REL P1: the qualification-input export module', () => {
           /qualificationInput/.test(s),
         ),
     );
-    expect(importers).toEqual([CLI, CLI_ENTRY].sort());
+    // WW E-X (widened by exact path): the v2 export composes v1 - it builds the v1 document
+    // with the unchanged v1 builder and reads through v1's own read-only loader.
+    expect(importers).toEqual(
+      [
+        CLI,
+        CLI_ENTRY,
+        'src/orgunits/qualificationInputV2/build.ts',
+        'src/orgunits/qualificationInputV2/contract.ts',
+        'src/orgunits/qualificationInputV2/load.ts',
+      ].sort(),
+    );
     expect(
       specifiers(codeOf(readCurrent(CLI_ENTRY))).filter((s) => /qualificationInput/.test(s)),
     ).toEqual(['./commands/qualificationInput.js']);
