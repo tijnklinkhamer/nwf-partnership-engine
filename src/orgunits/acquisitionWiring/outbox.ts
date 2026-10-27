@@ -18,15 +18,20 @@
  *
  * No page text is written beyond what the v2 export itself carries (its
  * redacted proposal quotes); no response body, no contact, no score. Every
- * write is a temporary file plus an atomic rename. The database row
+ * write is an exclusively created, randomly named temporary file, fsync'd,
+ * renamed, and its directory fsync'd before the database row (WW H-ACQ
+ * P2-14); every directory must be this user's own and is kept at 0700; the
+ * manifest is rebuilt under a per-campaign lock, and only for a subject whose
+ * identity review head is an attested CONFIRMED review (P2-4). The database row
  * (`acquisition_outbox_entries`) records each file's SHA-256 and is the
  * idempotency key: a retried attempt does not rewrite a recorded entry.
  *
  * RESEARCHED -> IDENTITY_REVIEW, where the worker parks the item as
  * AWAITING_HUMAN / OWNER_IDENTITY_REVIEW by itself. ASSESSABLE -> end.
  */
-import { createHash } from 'node:crypto';
+import { createHash, randomBytes } from 'node:crypto';
 import {
+  chmodSync,
   closeSync,
   constants as fsConstants,
   fsyncSync,
@@ -34,8 +39,10 @@ import {
   mkdirSync,
   openSync,
   renameSync,
+  unlinkSync,
   writeSync,
 } from 'node:fs';
+import { dirname } from 'node:path';
 import { isAbsolute, join, normalize } from 'node:path';
 
 import type {
@@ -62,7 +69,30 @@ export class OutboxRefusal extends Error {
   }
 }
 
-/** Refuses a relative, non-canonical, missing, non-directory or symlinked outbox root. */
+/** The uid every outbox directory must belong to: this process's own (null where unknown). */
+function ownUid(): number | null {
+  return typeof process.getuid === 'function' ? process.getuid() : null;
+}
+
+/**
+ * WW H-ACQ (P2-14): a directory of the outbox must be a real directory owned
+ * by THIS process's user; its mode is (re-)applied to 0700, so a directory an
+ * earlier umask or a hand edit widened is narrowed before anything is written
+ * into it.
+ */
+function claimDirectory(path: string, reason: string): void {
+  const stat = lstatSync(path);
+  if (stat.isSymbolicLink() || !stat.isDirectory()) throw new OutboxRefusal(reason);
+  const uid = ownUid();
+  if (uid !== null && stat.uid !== uid) throw new OutboxRefusal('outbox_not_owned');
+  if ((stat.mode & 0o777) !== 0o700) chmodSync(path, 0o700);
+}
+
+/**
+ * Refuses a relative, non-canonical, missing, non-directory or symlinked
+ * outbox root, and (WW H-ACQ P2-14) one owned by another user; re-applies
+ * mode 0700 to it.
+ */
 export function assertOutboxRoot(root: string | null): string {
   if (root === null || !isAbsolute(root) || normalize(root) !== root) {
     throw new OutboxRefusal('outbox_not_absolute_canonical');
@@ -74,30 +104,65 @@ export function assertOutboxRoot(root: string | null): string {
     throw new OutboxRefusal('outbox_missing');
   }
   if (stat.isSymbolicLink() || !stat.isDirectory()) throw new OutboxRefusal('outbox_not_directory');
+  claimDirectory(root, 'outbox_not_directory');
   return root;
 }
 
 function ensureDir(path: string): void {
   mkdirSync(path, { recursive: true, mode: 0o700 });
-  const stat = lstatSync(path);
-  if (stat.isSymbolicLink() || !stat.isDirectory()) throw new OutboxRefusal('outbox_path_unsafe');
+  claimDirectory(path, 'outbox_path_unsafe');
 }
 
-/** Writes `bytes` to `path` atomically (temporary file, fsync, rename), mode 0600. */
-function writeAtomic(path: string, bytes: Buffer): void {
-  const tmp = `${path}.tmp-${process.pid}`;
-  const fd = openSync(
-    tmp,
-    fsConstants.O_WRONLY | fsConstants.O_CREAT | fsConstants.O_TRUNC | fsConstants.O_NOFOLLOW,
-    0o600,
-  );
+/**
+ * Flushes a directory's entries (a rename is durable only once its directory
+ * is). Node's fsync is libuv's, which on macOS issues F_FULLFSYNC (falling
+ * back to F_BARRIERFSYNC, then fsync) - the drive cache is flushed too.
+ */
+function fsyncDirectory(dir: string): void {
+  const fd = openSync(dir, fsConstants.O_RDONLY | (fsConstants.O_DIRECTORY ?? 0));
   try {
-    writeSync(fd, bytes);
     fsyncSync(fd);
   } finally {
     closeSync(fd);
   }
-  renameSync(tmp, path);
+}
+
+/**
+ * Writes `bytes` to `path` atomically, mode 0600 (WW H-ACQ P2-14): a
+ * temporary file with a RANDOM name created exclusively (O_EXCL, O_NOFOLLOW:
+ * never an existing file or link), every byte written, the file fsync'd,
+ * renamed into place, and its directory fsync'd - all before the caller
+ * records the digest in the database. A failure removes the temporary file.
+ */
+function writeAtomic(path: string, bytes: Buffer): void {
+  const tmp = `${path}.tmp-${process.pid}-${randomBytes(8).toString('hex')}`;
+  const fd = openSync(
+    tmp,
+    fsConstants.O_WRONLY | fsConstants.O_CREAT | fsConstants.O_EXCL | fsConstants.O_NOFOLLOW,
+    0o600,
+  );
+  try {
+    try {
+      let offset = 0;
+      while (offset < bytes.length) {
+        const n = writeSync(fd, bytes, offset, bytes.length - offset);
+        if (n <= 0) throw new OutboxRefusal('outbox_short_write');
+        offset += n;
+      }
+      fsyncSync(fd);
+    } finally {
+      closeSync(fd);
+    }
+    renameSync(tmp, path);
+  } catch (error) {
+    try {
+      unlinkSync(tmp);
+    } catch {
+      // already renamed or never created
+    }
+    throw error;
+  }
+  fsyncDirectory(dirname(path));
 }
 
 const json = (value: unknown): Buffer => Buffer.from(`${JSON.stringify(value, null, 2)}\n`, 'utf8');
@@ -196,8 +261,44 @@ export interface OutboxManifestLine {
   readonly recordedAt: string;
 }
 
-async function writeManifest(deps: WiringDeps, item: WorkItemView): Promise<void> {
+/** WW H-ACQ (P2-4): is the subject's identity review head an attested CONFIRMED review? */
+async function identityConfirmed(deps: WiringDeps, subjectId: string): Promise<boolean> {
+  const { rows } = await deps.pools.readonly.query<{ ok: boolean }>(
+    'SELECT acquisition_subject_identity_confirmed($1) AS ok',
+    [subjectId],
+  );
+  return rows[0]?.ok === true;
+}
+
+/**
+ * Runs `fn` holding a SESSION advisory lock on this campaign's manifest
+ * (WW H-ACQ P2-14), so two workers never rebuild the manifest from different
+ * row sets and the last writer always writes the latest rows. Released on
+ * return, or by the server when the session ends.
+ */
+async function withManifestLock<T>(
+  deps: WiringDeps,
+  campaignId: string,
+  fn: () => Promise<T>,
+): Promise<T> {
+  const client = await deps.pools.worker.connect();
+  const key = `nwf-acq-outbox-manifest:${campaignId}`;
+  try {
+    await client.query('SELECT pg_advisory_lock(hashtextextended($1, 0))', [key]);
+    try {
+      return await fn();
+    } finally {
+      await client.query('SELECT pg_advisory_unlock(hashtextextended($1, 0))', [key]);
+    }
+  } finally {
+    client.release();
+  }
+}
+
+async function writeManifest(deps: WiringDeps, item: WorkItemView): Promise<boolean> {
   const root = assertOutboxRoot(deps.outboxDir);
+  // P2-4: an ASSESSABLE line only for an OWNER-attested CONFIRMED identity.
+  if (!(await identityConfirmed(deps, item.subjectId))) return false;
   const exports = await loadOutboxEntries(deps.pools.readonly, item.campaignId, 'RESEARCH_EXPORT');
   const mine = exports.find((e) => e.subjectId === item.subjectId);
   if (mine === undefined) throw new OutboxRefusal('research_export_missing');
@@ -206,6 +307,11 @@ async function writeManifest(deps: WiringDeps, item: WorkItemView): Promise<void
     exportV2Sha256: mine.exportV2Sha256,
     subjectFactsSha256: mine.subjectFactsSha256,
   });
+  await withManifestLock(deps, item.campaignId, () => rebuildManifest(deps, root, item));
+  return true;
+}
+
+async function rebuildManifest(deps: WiringDeps, root: string, item: WorkItemView): Promise<void> {
   const entries = await loadOutboxEntries(
     deps.pools.readonly,
     item.campaignId,
@@ -250,7 +356,7 @@ export function assessableHandler(deps: WiringDeps): StageHandler {
   return {
     stage: 'ASSESSABLE',
     async handle(item): Promise<StageOutcome> {
-      await writeManifest(deps, item);
+      if (!(await writeManifest(deps, item))) return { kind: 'REFUSED', reason: 'POLICY_REFUSED' };
       return { kind: 'ADVANCED', next: null };
     },
   };

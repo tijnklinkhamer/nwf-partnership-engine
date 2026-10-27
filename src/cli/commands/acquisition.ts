@@ -36,11 +36,15 @@
  *   acquisition review list --campaign-id <uuid> [--json]
  *       READ-ONLY: the campaign's subjects awaiting the OWNER identity review.
  *   acquisition review sign --campaign-id <uuid> --subject-id <uuid> [--subject-id ...]
+ *                           --expect <subjectId>=<stateDigest> [--expect ...]
  *                           --key-file <abs> --key-id <id> [--execute] [--json]
  *       Signs the EXISTING ADR 0023 OWNER review, one per LISTED subject, with
  *       one passphrase per batch, then releases each to ASSESSABLE on the
  *       owner path. A DRY RUN (checks the batch, reads no key) without
  *       --execute. Nothing is ever approved without being listed.
+ *       WW H-ACQ (P2-4): every listed subject needs one --expect naming the
+ *       state digest `review list` printed; a subject that changed since is
+ *       refused (STATE_DIGEST_MISMATCH) before anything is signed.
  *
  * One campaign per call. There is no option that names every campaign or
  * subject, no trust, public-key or signature option (trusted keys come only
@@ -52,6 +56,8 @@
 import {
   closeSync,
   constants as fsConstants,
+  fsyncSync,
+  lstatSync,
   openSync,
   readFileSync,
   statSync,
@@ -75,6 +81,7 @@ import {
   loadOwnerSigningKey,
   operationalReviewTrust,
   parseCampaignDraft,
+  parseReviewExpectations,
   planReviewBatch,
   signCampaignDraft,
   signCampaignReviews,
@@ -144,6 +151,7 @@ export const ACQUISITION_USAGE = `nwf-pe acquisition - OWNER-signed acquisition 
                                [--worker-id <slug>] [--outbox-dir <abs>] [--json]
   acquisition review list      --campaign-id <uuid> [--json]
   acquisition review sign      --campaign-id <uuid> --subject-id <uuid> [--subject-id ...]
+                               --expect <subjectId>=<stateDigest> [--expect ...]
                                --key-file <abs encrypted pkcs8> --key-id <id> [--execute] [--json]
 
   A campaign counts only if its OWNER Ed25519 signature verifies under the pinned
@@ -193,6 +201,7 @@ export const ACQUISITION_OPTIONS = Object.freeze({
   'review sign': {
     'campaign-id': { type: 'string' },
     'subject-id': { type: 'string', multiple: true },
+    expect: { type: 'string', multiple: true },
     'key-file': { type: 'string' },
     'key-id': { type: 'string' },
     execute: { type: 'boolean' },
@@ -229,9 +238,25 @@ function many(values: Values, name: string): string[] {
   return Array.isArray(v) ? v : typeof v === 'string' ? [v] : [];
 }
 
-/** Writes a NEW file, owner-only, refusing to replace anything. */
-function writeNewFile(path: string, text: string): void {
+/** Refuses an --out that is relative or already exists, BEFORE any prompt (WW H-ACQ P2-16). */
+function assertNewOutPath(path: string): void {
   if (!isAbsolute(path)) throw new UsageError('--out must be an absolute path.');
+  let exists = true;
+  try {
+    lstatSync(path);
+  } catch {
+    exists = false;
+  }
+  if (exists) throw new UsageError('--out must name a file that does not exist yet.');
+}
+
+/**
+ * Writes a NEW file, owner-only, refusing to replace anything. Every byte is
+ * written (a short write is continued, never ignored) and the file is
+ * fsync'd before it is closed (WW H-ACQ P2-16).
+ */
+function writeNewFile(path: string, text: string): void {
+  assertNewOutPath(path);
   let fd: number;
   try {
     fd = openSync(
@@ -243,7 +268,14 @@ function writeNewFile(path: string, text: string): void {
     throw new UsageError('--out must name a file that does not exist yet.');
   }
   try {
-    writeSync(fd, text);
+    const bytes = Buffer.from(text, 'utf8');
+    let offset = 0;
+    while (offset < bytes.length) {
+      const n = writeSync(fd, bytes, offset, bytes.length - offset);
+      if (n <= 0) throw new UsageError('--out could not be written completely.');
+      offset += n;
+    }
+    fsyncSync(fd);
   } finally {
     closeSync(fd);
   }
@@ -467,6 +499,8 @@ export async function runAcquisitionCli(
         }
         const draft = parseCampaignDraft(parsed);
         const outPath = required(values, 'out');
+        // P2-16: an unusable --out is refused BEFORE the passphrase prompt.
+        assertNewOutPath(outPath);
         const keyId = required(values, 'key-id');
         err(
           `About to sign ONE OWNER acquisition campaign ${draft.campaignKey} for environment ` +
@@ -503,7 +537,8 @@ export async function runAcquisitionCli(
         const campaignId = uuid(values, 'campaign-id');
         const subjects = await withPoolOf(
           deps.readonlyPool ?? (() => createPool('readonly')),
-          (pool) => listAwaitingReview(pool, campaignId),
+          (pool) =>
+            listAwaitingReview(pool, campaignId, deps.reviewTrust ?? operationalReviewTrust()),
         );
         report(
           'AWAITING_REVIEW',
@@ -515,7 +550,9 @@ export async function runAcquisitionCli(
                   (e) =>
                     `${e.subjectId}  ${e.names.join(' / ') || '(no name)'}  kind=${e.registeredKind}` +
                     `  country=${e.country.value ?? e.country.standing}  root=${e.rootUrl ?? 'none'}` +
-                    `  pages=${e.evidence.pageEvidence}  signals=${e.duplicateSignals.length}`,
+                    `  pages=${e.evidence.pageEvidence}  signals=${e.duplicateSignals.length}` +
+                    `\n    head=${e.reviewHead ?? 'none'}  stateDigest=${e.stateDigest}` +
+                    `  (sign with --expect ${e.subjectId}=${e.stateDigest})`,
                 )
                 .join('\n'),
         );
@@ -524,10 +561,12 @@ export async function runAcquisitionCli(
       case 'review sign': {
         const campaignId = uuid(values, 'campaign-id');
         const subjectIds = many(values, 'subject-id');
+        const expected = parseReviewExpectations(many(values, 'expect'));
+        const reviewTrust = deps.reviewTrust ?? operationalReviewTrust();
         const readonlyMake = deps.readonlyPool ?? (() => createPool('readonly'));
         if (values['execute'] !== true) {
           const planned = await withPoolOf(readonlyMake, (pool) =>
-            planReviewBatch(pool, campaignId, subjectIds),
+            planReviewBatch(pool, campaignId, subjectIds, expected, reviewTrust),
           );
           report(
             'DRY_RUN',
@@ -536,7 +575,11 @@ export async function runAcquisitionCli(
           );
           return 0;
         }
-        const reviewTrust = deps.reviewTrust ?? operationalReviewTrust();
+        // P2-4: the batch, its expectations and every digest are checked
+        // BEFORE the key file is read or a passphrase asked for.
+        await withPoolOf(readonlyMake, (pool) =>
+          planReviewBatch(pool, campaignId, subjectIds, expected, reviewTrust),
+        );
         const signer = await loadOwnerSigningKey(
           required(values, 'key-file'),
           required(values, 'key-id'),
@@ -549,6 +592,7 @@ export async function runAcquisitionCli(
                 { readonly: ro, reviewer: rv, owner: ow },
                 campaignId,
                 subjectIds,
+                expected,
                 signer,
                 reviewTrust,
                 deps.now ?? Date.now,

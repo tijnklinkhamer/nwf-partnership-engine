@@ -11,7 +11,9 @@
 export {
   CampaignSigningRefusal,
   CAMPAIGN_DRAFT_VERSION,
+  CAMPAIGN_DRAFT_VERSION_V2,
   TEMPLATE_BUDGETS,
+  TEMPLATE_LINK_OUT_MAX_HOPS,
   TEMPLATE_DEFAULT_WINDOW_DAYS,
   TEMPLATE_MAX_WINDOW_DAYS,
   campaignTemplate,
@@ -47,6 +49,7 @@ export {
   REVIEW_BATCH_MAX_SUBJECTS,
   ReviewBatchRefusal,
   listAwaitingReview,
+  parseReviewExpectations,
   planReviewBatch,
   signCampaignReviews,
   type AwaitingReviewEntry,
@@ -54,10 +57,13 @@ export {
   type ReviewBatchResult,
 } from './review.js';
 export {
+  SubjectStateChanged,
   loadOwnerSigningKey,
   operationalReviewTrust,
+  readSubjectReviewState,
   type OwnerReviewTrust,
   type OwnerSigningKey,
+  type SubjectReviewState,
 } from './reviewBridge.js';
 export {
   ACQUISITION_STATUS_SCHEMA,

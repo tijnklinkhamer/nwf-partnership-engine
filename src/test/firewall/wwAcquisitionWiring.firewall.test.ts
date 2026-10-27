@@ -223,8 +223,10 @@ describe('WW E-W: the wiring namespace is exactly what was approved', () => {
 
   it('signs a review only for subjects listed one by one: no all-subjects form', () => {
     const review = ACQUISITION_OPTIONS['review sign'];
+    // WW H-ACQ (P2-4, exact name): one `--expect <subjectId>=<stateDigest>`
+    // per listed subject binds each signature to the state the OWNER saw.
     expect(Object.keys(review).sort()).toEqual(
-      ['campaign-id', 'subject-id', 'key-file', 'key-id', 'execute', 'json'].sort(),
+      ['campaign-id', 'subject-id', 'expect', 'key-file', 'key-id', 'execute', 'json'].sort(),
     );
     expect(code(`${NS}review.ts`)).toContain("throw new ReviewBatchRefusal('SUBJECTS_REQUIRED')");
     expect(code(`${NS}review.ts`)).toContain("'SUBJECT_NOT_AWAITING_REVIEW'");

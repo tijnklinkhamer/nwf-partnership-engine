@@ -795,7 +795,11 @@ describeDb('WW E-Q acquisition campaigns and queue (integration)', () => {
           ),
         );
       expect(await releaseAs(worker)).toBe('42501');
-      expect(await releaseAs(admin)).toBe('SUCCEEDED');
+      // WW H-ACQ (migration 0026, P2-4): even the owner path releases only a
+      // subject whose identity review head is an attested CONFIRMED review;
+      // this synthetic subject has none. The positive release is proven by
+      // acquisitionWiringWwEW (signed review) and acquisitionHardeningWwHAcq.
+      expect(await releaseAs(admin)).toBe('23514');
 
       const status = await loadCampaignStatus(readonly, id, TRUST);
       expect(status!.budgets.maxResearchRoots).toEqual({ limit: 10, used: 1, remaining: 9 });

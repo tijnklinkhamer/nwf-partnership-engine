@@ -68,32 +68,61 @@ export function operationalReviewTrust(): OwnerReviewTrust {
   return ReviewTrustSet.operational();
 }
 
-/**
- * Signs and appends ONE OWNER CONFIRMED review of `subjectId` as it reads
- * now. Throws the registry's or the protocol's own refusal on any failure;
- * nothing is written then.
- */
-export async function signAndAppendSubjectReview(
-  pools: { readonly readonly: pg.Pool; readonly reviewer: pg.Pool },
+/** What the OWNER is shown and signs against: the subject's review head and state digest. */
+export interface SubjectReviewState {
+  readonly head: string | null;
+  readonly stateDigest: string;
+}
+
+/** Reads one subject's review head and state digest in ONE read-only snapshot; null when unknown. */
+export async function readSubjectReviewState(
+  readonly: pg.Pool,
   subjectId: string,
-  key: OwnerSigningKey,
   trust: OwnerReviewTrust,
-  nowMs: number,
-): Promise<void> {
-  const client = await pools.readonly.connect();
-  let head: string | null;
-  let digest: string;
+): Promise<SubjectReviewState | null> {
+  const client = await readonly.connect();
   try {
     await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
     const graph = await loadSubjectGraph(client, subjectId, { asOf: await databaseNow(client) });
-    if (graph === null) throw new Error(`subject ${subjectId} not found`);
+    if (graph === null) return null;
     const model = deriveSubjectReadModel(graph, trust);
-    head = model.identityStatus.identityReviewHeadId;
-    digest = model.stateDigest;
+    return { head: model.identityStatus.identityReviewHeadId, stateDigest: model.stateDigest };
   } finally {
     await client.query('ROLLBACK').catch(() => undefined);
     client.release();
   }
+}
+
+/** The subject changed since the OWNER read it (WW H-ACQ P2-4): nothing was signed. */
+export class SubjectStateChanged extends Error {
+  readonly code = 'STATE_DIGEST_MISMATCH';
+  constructor(readonly subjectId: string) {
+    super(`STATE_DIGEST_MISMATCH: subject ${subjectId} is not in the state the OWNER confirmed`);
+    this.name = 'SubjectStateChanged';
+  }
+}
+
+/**
+ * Signs and appends ONE OWNER CONFIRMED review of `subjectId`, ONLY if the
+ * subject still reads at `expectedStateDigest` - the digest the OWNER was
+ * shown by `review list` and named with `--expect` (WW H-ACQ P2-4). The
+ * writer then re-checks head and digest under its own lock. Throws the
+ * registry's or the protocol's own refusal on any failure; nothing is
+ * written then.
+ */
+export async function signAndAppendSubjectReview(
+  pools: { readonly readonly: pg.Pool; readonly reviewer: pg.Pool },
+  subjectId: string,
+  expectedStateDigest: string,
+  key: OwnerSigningKey,
+  trust: OwnerReviewTrust,
+  nowMs: number,
+): Promise<void> {
+  const state = await readSubjectReviewState(pools.readonly, subjectId, trust);
+  if (state === null) throw new Error(`subject ${subjectId} not found`);
+  if (state.stateDigest !== expectedStateDigest) throw new SubjectStateChanged(subjectId);
+  const head = state.head;
+  const digest = state.stateDigest;
   const prepared = await prepareReview(
     pools.readonly,
     {

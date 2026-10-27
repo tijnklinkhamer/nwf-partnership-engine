@@ -7,7 +7,9 @@
  *                         verdicts), root URL, an evidence summary, the v2
  *                         export's research-status counts and the campaign's
  *                         duplicate signals on its domain. Read-only.
- *   signCampaignReviews - for EACH subject the OWNER listed explicitly: sign
+ *   signCampaignReviews - for EACH subject the OWNER listed explicitly, and
+ *                         ONLY while it still reads at the state digest the
+ *                         OWNER confirmed with `--expect` (WW H-ACQ P2-4): sign
  *                         and append the existing ADR 0023 OWNER-attested
  *                         CONFIRMED review (`reviewBridge.ts`), then release
  *                         the item to ASSESSABLE on the OWNER PATH. One
@@ -25,6 +27,7 @@ import type pg from 'pg';
 import { releaseIdentityReviewItem } from '../acquisition/index.js';
 import { exportQualificationInputV2 } from './exportPort.js';
 import {
+  readSubjectReviewState,
   signAndAppendSubjectReview,
   type OwnerSigningKey,
   type OwnerReviewTrust,
@@ -36,6 +39,13 @@ export const REVIEW_BATCH_MAX_SUBJECTS = 50;
 export interface AwaitingReviewEntry {
   readonly workItemId: string;
   readonly subjectId: string;
+  /**
+   * WW H-ACQ (P2-4): the subject's current identity-review head and state
+   * digest, exactly as `review sign --expect <subjectId>=<stateDigest>` must
+   * name them. A sign whose expectation differs is refused before signing.
+   */
+  readonly reviewHead: string | null;
+  readonly stateDigest: string;
   readonly registrableDomain: string | null;
   readonly names: readonly string[];
   readonly registeredKind: string;
@@ -79,6 +89,7 @@ async function awaitingRows(readonly: pg.Pool, campaignId: string): Promise<Awai
 export async function listAwaitingReview(
   readonly: pg.Pool,
   campaignId: string,
+  trust: OwnerReviewTrust,
 ): Promise<readonly AwaitingReviewEntry[]> {
   if (!UUID.test(campaignId)) return [];
   const out: AwaitingReviewEntry[] = [];
@@ -133,9 +144,13 @@ export async function listAwaitingReview(
       statusCounts[entry.status] = (statusCounts[entry.status] ?? 0) + 1;
     }
     const e = evidence.rows[0]!;
+    const state = await readSubjectReviewState(readonly, id, trust);
+    if (state === null) continue;
     out.push({
       workItemId: row.work_item_id,
       subjectId: id,
+      reviewHead: state.head,
+      stateDigest: state.stateDigest,
       registrableDomain: row.registrable_domain,
       names: claims.rows.flatMap((c) =>
         ['NAME', 'ALTERNATE_NAME', 'NATIVE_NAME'].includes(c.claim_kind) && c.name_text !== null
@@ -175,7 +190,11 @@ export class ReviewBatchRefusal extends Error {
       | 'TOO_MANY_SUBJECTS'
       | 'SUBJECT_ID_INVALID'
       | 'SUBJECT_REPEATED'
-      | 'SUBJECT_NOT_AWAITING_REVIEW',
+      | 'SUBJECT_NOT_AWAITING_REVIEW'
+      | 'EXPECTATION_INVALID'
+      | 'EXPECTATION_MISSING'
+      | 'EXPECTATION_UNLISTED'
+      | 'STATE_DIGEST_MISMATCH',
     readonly detail: string | null = null,
   ) {
     super(detail === null ? code : `${code}: ${detail}`);
@@ -198,11 +217,36 @@ export interface ReviewBatchResult {
   readonly code: string | null;
 }
 
-/** Checks the batch BEFORE anything is signed: every listed subject must be awaiting review here. */
+const DIGEST = /^[0-9a-f]{64}$/;
+
+/**
+ * Parses repeated `--expect <subjectId>=<stateDigest>` values into a map.
+ * A malformed or repeated expectation is refused.
+ */
+export function parseReviewExpectations(values: readonly string[]): ReadonlyMap<string, string> {
+  const out = new Map<string, string>();
+  for (const v of values) {
+    const m = v.match(/^([0-9a-f-]{36})=([0-9a-f]{64})$/);
+    if (m === null || !UUID.test(m[1]!) || !DIGEST.test(m[2]!) || out.has(m[1]!)) {
+      throw new ReviewBatchRefusal('EXPECTATION_INVALID', v.slice(0, 120));
+    }
+    out.set(m[1]!, m[2]!);
+  }
+  return out;
+}
+
+/**
+ * Checks the batch BEFORE anything is signed: every listed subject must be
+ * awaiting review here, and (WW H-ACQ P2-4) carry exactly one expectation
+ * naming the state digest `review list` showed - which must still be the
+ * subject's digest now. No expectation may name an unlisted subject.
+ */
 export async function planReviewBatch(
   readonly: pg.Pool,
   campaignId: string,
   subjectIds: readonly string[],
+  expected: ReadonlyMap<string, string>,
+  trust: OwnerReviewTrust,
 ): Promise<readonly AwaitingRow[]> {
   if (subjectIds.length === 0) throw new ReviewBatchRefusal('SUBJECTS_REQUIRED');
   if (subjectIds.length > REVIEW_BATCH_MAX_SUBJECTS) {
@@ -212,12 +256,23 @@ export async function planReviewBatch(
     throw new ReviewBatchRefusal('SUBJECT_REPEATED');
   }
   const awaiting = await awaitingRows(readonly, campaignId);
-  return subjectIds.map((id) => {
+  const rows = subjectIds.map((id) => {
     if (!UUID.test(id)) throw new ReviewBatchRefusal('SUBJECT_ID_INVALID', id);
     const row = awaiting.find((r) => r.subject_id === id);
     if (row === undefined) throw new ReviewBatchRefusal('SUBJECT_NOT_AWAITING_REVIEW', id);
+    if (!expected.has(id)) throw new ReviewBatchRefusal('EXPECTATION_MISSING', id);
     return row;
   });
+  for (const id of expected.keys()) {
+    if (!subjectIds.includes(id)) throw new ReviewBatchRefusal('EXPECTATION_UNLISTED', id);
+  }
+  for (const row of rows) {
+    const state = await readSubjectReviewState(readonly, row.subject_id, trust);
+    if (state === null || state.stateDigest !== expected.get(row.subject_id)) {
+      throw new ReviewBatchRefusal('STATE_DIGEST_MISMATCH', row.subject_id);
+    }
+  }
+  return rows;
 }
 
 /**
@@ -229,15 +284,23 @@ export async function signCampaignReviews(
   pools: ReviewBatchPools,
   campaignId: string,
   subjectIds: readonly string[],
+  expected: ReadonlyMap<string, string>,
   key: OwnerSigningKey,
   trust: OwnerReviewTrust,
   nowMs: () => number,
 ): Promise<readonly ReviewBatchResult[]> {
-  const planned = await planReviewBatch(pools.readonly, campaignId, subjectIds);
+  const planned = await planReviewBatch(pools.readonly, campaignId, subjectIds, expected, trust);
   const results: ReviewBatchResult[] = [];
   for (const row of planned) {
     try {
-      await signAndAppendSubjectReview(pools, row.subject_id, key, trust, nowMs());
+      await signAndAppendSubjectReview(
+        pools,
+        row.subject_id,
+        expected.get(row.subject_id)!,
+        key,
+        trust,
+        nowMs(),
+      );
       await releaseIdentityReviewItem(pools.owner, {
         campaignId,
         identityReviewItemId: row.work_item_id,
