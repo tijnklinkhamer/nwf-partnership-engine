@@ -366,6 +366,8 @@ describeDb(
         '0022_source_discovery_live_grants.sql',
         // WW E-Q: then 0023 (acquisition campaigns and the work queue, ADR 0029).
         '0023_acquisition_campaigns_and_queue.sql',
+        // WW E-W: then 0024 (campaign research admission and the wiring, ADR 0030).
+        '0024_campaign_research_admission_and_wiring.sql',
       ]);
       expect(await digests()).toEqual(before);
       const { rows } = await db.query<{

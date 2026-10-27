@@ -253,7 +253,8 @@ describeDb('B2.2 discovery-subject registry (integration)', () => {
       // REL P2 (migration 0020, link-out sightings) followed.
       // REL Q1 (migration 0021, the jurisdiction-claim writer) followed.
       // WW E-SD (0022, live source-discovery grants) and then WW E-Q (migration 0023, OWNER-signed acquisition campaigns, ADR 0029).
-      expect(rows[0]!.top).toBe('0023');
+      // WW E-W (migration 0024, campaign research admission and the acquisition wiring, ADR 0030).
+      expect(rows[0]!.top).toBe('0024');
     });
   });
 

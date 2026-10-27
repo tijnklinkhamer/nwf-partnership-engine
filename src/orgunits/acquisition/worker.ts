@@ -14,8 +14,18 @@
  *   - THE HUMAN GATE IS NOT A HANDLER. An IDENTITY_REVIEW item is parked as
  *     AWAITING_HUMAN (OWNER_IDENTITY_REVIEW) by the worker itself; a handler
  *     for it is refused, and the database refuses any other outcome for it.
- *   - BUDGETS: a stage whose required resource is spent is not claimed; when
- *     only such items remain the worker stops with BUDGET_EXHAUSTED.
+ *   - BUDGETS (ADR 0030): every claim RESERVES its stage's spend under the
+ *     campaign lock and the database refuses a reservation that does not fit
+ *     the signed budget; `consume` refuses anything beyond the claim's own
+ *     reservation; a claim with no outcome (crashed, superseded) keeps its
+ *     reservation as spend. When only unaffordable items remain the worker
+ *     stops with BUDGET_EXHAUSTED.
+ *   - LEASES: while a handler runs the worker extends the claim's lease
+ *     (an appended heartbeat row) every third of the lease; if the database
+ *     refuses (the lease lapsed or the attempt was superseded) the handler's
+ *     signal is aborted and the attempt is recorded as LEASE_EXPIRED.
+ *   - SESSION: the pool's login must hold nwf_acquisition_worker and be
+ *     neither a superuser nor a table owner; every write narrows to it.
  *   - BACKPRESSURE: when the AWAITING_HUMAN backlog reaches the campaign's
  *     stated cap, the worker stops claiming (BACKPRESSURE).
  *   - CONTROL: PAUSE / STOP stop claiming; the current item finishes and its
@@ -49,9 +59,14 @@ import {
 } from './authority.js';
 import type { BudgetName, CampaignBudgets, CampaignScope } from './document.js';
 import {
+  LeaseLostError,
   NO_CONSUMPTION,
   OutcomeRefusedError,
+  WorkerSessionRefused,
+  assertWorkerSession,
   claimNextWorkItem,
+  extendClaimLease,
+  inWorkerTransaction,
   countOpenInScope,
   loadCampaignUsage,
   recordWorkOutcome,
@@ -115,11 +130,11 @@ export interface HandlerCampaignView {
 export interface StageHandlerContext {
   readonly campaign: HandlerCampaignView;
   readonly attemptNo: number;
-  /** Campaign budget left for each resource when this item was claimed. */
+  /** What this claim RESERVED of each resource: the most it may consume (ADR 0030). */
   readonly remaining: Readonly<Record<Resource, number>>;
-  /** Reports spend as it happens; recorded with the outcome, whatever it is. */
+  /** Reports spend as it happens; refuses beyond the reservation. Recorded with the outcome. */
   consume(resource: Resource, amount: number): void;
-  /** Aborted when the OWNER records EMERGENCY_STOP while this handler runs. */
+  /** Aborted on EMERGENCY_STOP, or when the claim's lease can no longer be extended. */
   readonly signal: AbortSignal;
   readonly clock: Clock;
   /** Run-scoped, keyed by registrable domain. An open domain is not scheduled again this run. */
@@ -142,7 +157,8 @@ export type WorkerConfigRefusalCode =
   | 'CAMPAIGN_NOT_FOUND'
   | 'HANDLER_NOT_PERMITTED'
   | 'HANDLER_DUPLICATE'
-  | 'HANDLERS_NOT_WIRED';
+  | 'HANDLERS_NOT_WIRED'
+  | 'WORKER_SESSION_REFUSED';
 
 export class WorkerConfigRefusal extends Error {
   constructor(
@@ -219,6 +235,9 @@ export function resolveStageOutcome(
             ]
           : o['children'];
       if (!Array.isArray(raw) || raw.length > MAX_CHILDREN) return INVALID;
+      // The queue shape (migration 0024): below DISCOVERED one child, keeping
+      // the parent's subject when it is the same kind and its domain when it has one.
+      if (item.stage !== 'DISCOVERED' && raw.length > 1) return INVALID;
       const children: WorkItemSeed[] = [];
       for (const c of raw as unknown[]) {
         if (typeof c !== 'object' || c === null) return INVALID;
@@ -229,6 +248,13 @@ export function resolveStageOutcome(
           typeof s['subjectId'] !== 'string' ||
           !UUID.test(s['subjectId']) ||
           !(domain === null || (typeof domain === 'string' && REGISTRABLE_DOMAIN.test(domain)))
+        ) {
+          return INVALID;
+        }
+        if (
+          item.stage !== 'DISCOVERED' &&
+          ((s['subjectKind'] === item.subjectKind && s['subjectId'] !== item.subjectId) ||
+            (item.registrableDomain !== null && domain !== item.registrableDomain))
         ) {
           return INVALID;
         }
@@ -349,6 +375,14 @@ export async function runWorker(options: RunWorkerOptions): Promise<WorkerSummar
     throw new WorkerConfigRefusal('MAX_ITEMS_INVALID');
   }
 
+  try {
+    await assertWorkerSession(pool);
+  } catch (error) {
+    if (error instanceof WorkerSessionRefused) {
+      throw new WorkerConfigRefusal('WORKER_SESSION_REFUSED', error.detail);
+    }
+    throw error;
+  }
   const stored = await loadStoredCampaign(pool, campaignId);
   if (stored === null) throw new WorkerConfigRefusal('CAMPAIGN_NOT_FOUND');
   const unwired = checkHandlerCoverage(stored.allowedStages, options.handlers);
@@ -370,11 +404,13 @@ export async function runWorker(options: RunWorkerOptions): Promise<WorkerSummar
   let idleSinceMs: number | null = null;
 
   const stop = async (reason: WorkerStopReason, detail: string | null): Promise<WorkerSummary> => {
-    const { rows } = await pool.query<{ id: string }>(
-      `INSERT INTO acquisition_worker_stops
-         (campaign_id, worker_id, stop_reason, detail, items_processed, started_at)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
-      [campaignId, workerId, reason, detail, processed, startedAt],
+    const { rows } = await inWorkerTransaction(pool, (c) =>
+      c.query<{ id: string }>(
+        `INSERT INTO acquisition_worker_stops
+           (campaign_id, worker_id, stop_reason, detail, items_processed, started_at)
+         VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`,
+        [campaignId, workerId, reason, detail, processed, startedAt],
+      ),
     );
     return {
       campaignId,
@@ -443,7 +479,7 @@ export async function runWorker(options: RunWorkerOptions): Promise<WorkerSummar
     }
     idleSinceMs = null;
 
-    const recorded = await processClaim(claimed.claim, authority, remaining);
+    const recorded = await processClaim(claimed.claim, authority);
     processed += 1;
     if (recorded !== null) outcomes[recorded] += 1;
     if (options.once === true) return stop('ONCE_COMPLETED', null);
@@ -452,8 +488,8 @@ export async function runWorker(options: RunWorkerOptions): Promise<WorkerSummar
   async function processClaim(
     claim: ClaimedWork,
     authority: CampaignAuthority,
-    remaining: Readonly<Record<Resource, number>>,
   ): Promise<OutcomeKind | null> {
+    const remaining: Readonly<Record<Resource, number>> = claim.reserved;
     const item = claim.item;
     const spent: Record<Resource, number> = { ...NO_CONSUMPTION };
     let outcome: RecordedOutcome;
@@ -462,6 +498,7 @@ export async function runWorker(options: RunWorkerOptions): Promise<WorkerSummar
     } else {
       const handler = handlerOf.get(item.stage)!;
       const emergency = new AbortController();
+      let emergencyStopSeen = false;
       const ctx: StageHandlerContext = {
         campaign: {
           campaignId: authority.campaignId,
@@ -475,8 +512,11 @@ export async function runWorker(options: RunWorkerOptions): Promise<WorkerSummar
           if (!RESOURCES.includes(resource) || !Number.isInteger(amount) || amount < 0) {
             throw new RangeError('consume: a known resource and a non-negative integer');
           }
-          if (spent[resource] + amount > CONSUMPTION_BOUNDS[resource]) {
-            throw new RangeError('consume: beyond the per-item bound');
+          if (
+            spent[resource] + amount > CONSUMPTION_BOUNDS[resource] ||
+            spent[resource] + amount > remaining[resource]
+          ) {
+            throw new RangeError("consume: beyond this claim's reservation");
           }
           spent[resource] += amount;
         },
@@ -484,11 +524,15 @@ export async function runWorker(options: RunWorkerOptions): Promise<WorkerSummar
         clock,
         circuit: breaker,
       };
+      const emergencyRecorded = (): boolean => emergencyStopSeen;
       const running = handler.handle(item, ctx).then(
         (value) => ({ ok: true as const, value }),
         (error: unknown) => ({ ok: false as const, error }),
       );
       let settled: Awaited<typeof running> | typeof TICK = TICK;
+      const heartbeatMs = Math.max(1000, Math.floor((leaseSeconds * 1000) / 3));
+      let nextHeartbeatMs = clock.now() + heartbeatMs;
+      let leaseLost = false;
       while (settled === TICK) {
         settled = await Promise.race([
           running,
@@ -499,9 +543,27 @@ export async function runWorker(options: RunWorkerOptions): Promise<WorkerSummar
           'SELECT acquisition_campaign_control_state($1) AS state',
           [campaignId],
         );
-        if (rows[0]!.state === 'EMERGENCY_STOPPED') emergency.abort();
+        if (rows[0]!.state === 'EMERGENCY_STOPPED') {
+          emergencyStopSeen = true;
+          emergency.abort();
+        }
+        if (!leaseLost && clock.now() >= nextHeartbeatMs) {
+          try {
+            await extendClaimLease(pool, claim, leaseSeconds);
+            nextHeartbeatMs = clock.now() + heartbeatMs;
+          } catch (error) {
+            if (!(error instanceof LeaseLostError)) throw error;
+            leaseLost = true;
+            emergency.abort();
+          }
+        }
       }
-      if (emergency.signal.aborted) {
+      if (leaseLost && !emergencyRecorded()) {
+        outcome =
+          claim.attemptNo >= authority.budgets.maxAttemptsPerItem
+            ? { kind: 'FAILED_TERMINAL', reason: 'ATTEMPTS_EXHAUSTED' }
+            : { kind: 'RETRY_SCHEDULED', reason: 'LEASE_EXPIRED' };
+      } else if (emergency.signal.aborted) {
         outcome = { kind: 'REFUSED_TERMINAL', reason: 'CAMPAIGN_EMERGENCY_STOPPED' };
       } else if (!settled.ok) {
         outcome =

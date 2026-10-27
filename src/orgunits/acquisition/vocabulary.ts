@@ -189,16 +189,38 @@ export const RESOURCES = ['searchRuns', 'researchRoots', 'gatewayRequests'] as c
 export type Resource = (typeof RESOURCES)[number];
 
 /**
- * Which resource a stage cannot START without. A stage whose required
- * resource is exhausted is not claimed (the worker stops with
- * BUDGET_EXHAUSTED when nothing else is claimable). Static, reviewable, and
- * deliberately coarse: a discovery task from a search grant is one search
- * run; research needs a root and gateway requests.
+ * The per-claim RESERVATION of a stage (ADR 0030, migration 0024): what one
+ * attempt may spend, reserved under the campaign lock when it is claimed and
+ * counted as spent until its outcome reports the actual spend. The database
+ * recomputes the same values and refuses any other reservation, and refuses a
+ * claim whose reservation does not fit the signed budget. A search-grant
+ * discovery task is one search run; research is one root and at most
+ * RESEARCH_GATEWAY_RESERVATION gateway requests (the frozen per-root bound
+ * of the orchestrator, MAX_TOTAL_REQUESTS_PER_ROOT = 60).
+ */
+export const RESEARCH_GATEWAY_RESERVATION = 60;
+
+export function reservationFor(
+  stage: Stage,
+  sourceKind: SourceKind,
+): Readonly<Record<Resource, number>> {
+  if (stage === 'DISCOVERED' && sourceKind === 'SEARCH_GRANT') {
+    return { searchRuns: 1, researchRoots: 0, gatewayRequests: 0 };
+  }
+  if (stage === 'RESEARCH_PENDING') {
+    return { searchRuns: 0, researchRoots: 1, gatewayRequests: RESEARCH_GATEWAY_RESERVATION };
+  }
+  return { searchRuns: 0, researchRoots: 0, gatewayRequests: 0 };
+}
+
+/**
+ * Which resource a stage cannot START without: the resources its reservation
+ * names. A stage whose reservation does not fit what is left is not claimed
+ * (the worker stops with BUDGET_EXHAUSTED when nothing else is claimable).
  */
 export function requiredResources(stage: Stage, sourceKind: SourceKind): readonly Resource[] {
-  if (stage === 'DISCOVERED' && sourceKind === 'SEARCH_GRANT') return ['searchRuns'];
-  if (stage === 'RESEARCH_PENDING') return ['researchRoots', 'gatewayRequests'];
-  return [];
+  const r = reservationFor(stage, sourceKind);
+  return RESOURCES.filter((name) => r[name] > 0);
 }
 
 /**

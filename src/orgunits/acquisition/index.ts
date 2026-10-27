@@ -39,10 +39,19 @@ export {
 export { selectNextCandidate, type ClaimCandidate, type SchedulerHistory } from './scheduler.js';
 export { loadCampaignStatus, type CampaignStatus } from './status.js';
 export {
+  ACQUISITION_WORKER_ROLE,
+  LeaseLostError,
+  OwnerPathRequired,
+  WorkerSessionRefused,
+  assertWorkerSession,
   claimNextWorkItem,
+  enqueueCampaignLinkOutRoot,
   enqueueOwnerRoot,
+  extendClaimLease,
+  inWorkerTransaction,
   loadCampaignUsage,
   recordWorkOutcome,
+  releaseIdentityReviewItem,
   seedCampaignSearchGrantRoots,
   OutcomeRefusedError,
   type ClaimedWork,

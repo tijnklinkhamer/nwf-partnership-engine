@@ -326,7 +326,15 @@ describeDb('B2.3 OWNER-attested discovery-subject reviews (integration)', () => 
                                 (SELECT tableowner FROM pg_tables WHERE tablename = 'discovery_subjects'))
           ORDER BY 1, 2, 3`,
       );
+      // WW E-W (migration 0024, by exact grant): the acquisition worker reads
+      // the ONE environment row, so a stored campaign is checked against THIS
+      // database's record (ADR 0030 s9, review finding P2-10). SELECT only.
       expect(grants).toEqual([
+        {
+          grantee: 'nwf_acquisition_worker',
+          table_name: 'subject_review_environment',
+          privilege_type: 'SELECT',
+        },
         {
           grantee: 'nwf_readonly',
           table_name: 'subject_review_attestations',

@@ -290,6 +290,10 @@ describeDb('Phase 2B schema contract (integration)', () => {
         // queue, ADR 0029, Proposed - six append-only tables, one view, one
         // NOLOGIN capability; nothing existing altered).
         '0023',
+        // WW E-W (campaign research admission and the acquisition wiring, ADR
+        // 0030, Proposed - a CAMPAIGN admission basis, four append-only wiring
+        // tables, claim reservations, pinned search paths; no role, no LOGIN).
+        '0024',
       ]);
     });
 

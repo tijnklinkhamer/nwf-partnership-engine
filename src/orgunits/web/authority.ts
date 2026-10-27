@@ -38,6 +38,21 @@ export type RootAuthorityRef =
  */
 export const SUBJECT_RESEARCH_ADMISSION_POLICY_VERSION = 'subject-research-admission-policy-v1';
 
+/**
+ * WW E-W (ADR 0030, migration 0024): the CAMPAIGN admission basis - a
+ * subject proposed inside an OWNER-signed campaign, admitted for bounded
+ * first-party research. Its row is bound by foreign key to the campaign and
+ * its work item, and the database CHECK pins it to admission_basis CAMPAIGN.
+ */
+export const SUBJECT_RESEARCH_CAMPAIGN_ADMISSION_POLICY_VERSION =
+  'subject-research-admission-policy-campaign-v1';
+
+/** Every subject admission policy version this build implements. */
+export const SUBJECT_RESEARCH_ADMISSION_POLICY_VERSIONS: readonly string[] = Object.freeze([
+  SUBJECT_RESEARCH_ADMISSION_POLICY_VERSION,
+  SUBJECT_RESEARCH_CAMPAIGN_ADMISSION_POLICY_VERSION,
+]);
+
 export interface ResolvedRun {
   id: string;
   networkVantage: string;
@@ -365,11 +380,11 @@ async function resolveSubjectAdmissionRoot(
       `subject admission ${admission.id} has expired by the database clock.`,
     );
   }
-  if (admission.policy_version !== SUBJECT_RESEARCH_ADMISSION_POLICY_VERSION) {
+  if (!SUBJECT_RESEARCH_ADMISSION_POLICY_VERSIONS.includes(admission.policy_version)) {
     throw new WebGatewayRefusal(
       'ROOT_SUBJECT_ADMISSION_POLICY_UNSUPPORTED',
       `subject admission ${admission.id} records policy "${admission.policy_version}" and this ` +
-        `build implements "${SUBJECT_RESEARCH_ADMISSION_POLICY_VERSION}".`,
+        `build implements ${SUBJECT_RESEARCH_ADMISSION_POLICY_VERSIONS.map((v) => `"${v}"`).join(', ')}.`,
     );
   }
   if (admission.current_fingerprint !== admission.registry_fingerprint) {

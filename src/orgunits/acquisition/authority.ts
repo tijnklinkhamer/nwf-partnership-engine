@@ -173,9 +173,13 @@ export async function loadStoredCampaign(
             c.payload_sha256, c.signature, c.starts_at, c.ends_at, c.recorded_at,
             c.allowed_stages, c.source_kinds,
             acquisition_campaign_control_state(c.id) AS control_state,
-            -- The FOREIGN KEY into the one-row environment table proves this is
-            -- THIS database's environment; the worker needs no grant on it.
-            c.environment_id AS database_environment_id,
+            -- THIS database's own environment record (migration 0015's one
+            -- row), read independently of the campaign row: a campaign whose
+            -- environment is not this database's never verifies. Migration
+            -- 0024 grants the worker SELECT on it. A CLONED database keeps the
+            -- environment id, so a clone can replay a campaign (ADR 0030 s9).
+            (SELECT CASE WHEN count(*) = 1 THEN max(environment_id::text) END
+               FROM subject_review_environment) AS database_environment_id,
             now() AS now
        FROM acquisition_campaigns c
       WHERE c.id = $1`,
@@ -498,6 +502,26 @@ export async function recordControlEvent(
   request: ControlEventRequest,
   deps: CampaignAuthorityDeps = {},
 ): Promise<ControlEventResult> {
+  // EMERGENCY_STOP takes no advisory lock, so a racing control event can win
+  // its sequence number: retry a bounded number of times.
+  const tries = request.action === 'EMERGENCY_STOP' ? 5 : 1;
+  for (let attempt = 1; ; attempt += 1) {
+    try {
+      return await recordControlEventOnce(ownerPool, request, deps);
+    } catch (error) {
+      const e = error as { code?: string; message?: string };
+      const raced =
+        e.code === '23505' || /sequence_no must be the next in order/.test(e.message ?? '');
+      if (!raced || attempt >= tries) throw error;
+    }
+  }
+}
+
+async function recordControlEventOnce(
+  ownerPool: pg.Pool,
+  request: ControlEventRequest,
+  deps: CampaignAuthorityDeps,
+): Promise<ControlEventResult> {
   if (!UUID.test(request.campaignId))
     throw new CampaignRecordRefusal('REQUEST_INVALID', 'campaign_id');
   if (!(CONTROL_ACTIONS as readonly string[]).includes(request.action)) {
@@ -509,9 +533,14 @@ export async function recordControlEvent(
   try {
     await client.query('BEGIN');
     await assertOwnerPath(client);
-    await client.query('SELECT pg_advisory_xact_lock(acquisition_campaign_lock_key($1))', [
-      request.campaignId,
-    ]);
+    // EMERGENCY_STOP never queues behind the campaign advisory lock (any
+    // connecting role can take one): its trigger takes a row lock no runtime
+    // role can hold instead, and a racing event is retried below.
+    if (request.action !== 'EMERGENCY_STOP') {
+      await client.query('SELECT pg_advisory_xact_lock(acquisition_campaign_lock_key($1))', [
+        request.campaignId,
+      ]);
+    }
     const stored = await loadStoredCampaign(client, request.campaignId);
     if (stored === null) throw new CampaignRecordRefusal('CAMPAIGN_NOT_FOUND');
     if (request.action === 'START' || request.action === 'RESUME') {

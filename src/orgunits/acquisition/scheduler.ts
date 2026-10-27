@@ -4,6 +4,12 @@
  * Given every claimable item of one campaign and what the campaign served
  * last, choose ONE item. The rule, in order:
  *
+ *   0. DEFERRAL (ADR 0030) - an item on a registrable domain the campaign has
+ *      tagged LARGE_HEI_TAGGED (`acquisition_signals`, recorded when a
+ *      nomination carries the landed higher-education flag) is chosen only
+ *      when NO other item is claimable. Deprioritised, never dropped: it is
+ *      still served once the rest of the campaign's work is waiting on
+ *      something else. A tag on WORK ORDER, never a value of an organisation.
  *   1. STAGE - round-robin. Stages are cycled in descending priority
  *      (ASSESSABLE, IDENTITY_REVIEW, RESEARCHED, ... DISCOVERED); the next
  *      stage is the first one strictly after the stage of the campaign's most
@@ -40,6 +46,8 @@ export interface SchedulerHistory {
   readonly domainLastServedMs: ReadonlyMap<string, number>;
   /** Domains that must not be served now (a live claim, an open circuit). */
   readonly blockedDomains: ReadonlySet<string>;
+  /** Domains served only when nothing else is claimable (rule 0). */
+  readonly deferredDomains?: ReadonlySet<string>;
 }
 
 /** Stages in descending priority: the cycle order of the stage round-robin. */
@@ -64,10 +72,17 @@ export function selectNextCandidate(
   candidates: readonly ClaimCandidate[],
   history: SchedulerHistory,
 ): ClaimCandidate | null {
-  const eligible = candidates.filter(
+  const unblocked = candidates.filter(
     (c) => c.registrableDomain === null || !history.blockedDomains.has(c.registrableDomain),
   );
-  if (eligible.length === 0) return null;
+  if (unblocked.length === 0) return null;
+
+  // 0. Deferral: deferred domains only when nothing else is eligible.
+  const deferred = history.deferredDomains ?? new Set<string>();
+  const preferred = unblocked.filter(
+    (c) => c.registrableDomain === null || !deferred.has(c.registrableDomain),
+  );
+  const eligible = preferred.length > 0 ? preferred : unblocked;
 
   // 1. Stage round-robin.
   const present = new Set(eligible.map((c) => c.stage));

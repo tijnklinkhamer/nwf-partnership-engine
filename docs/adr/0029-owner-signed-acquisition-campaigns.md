@@ -199,3 +199,14 @@ injected ports, and campaign-scoped admission is a separate later package.
 Provisioning or generating any operational key; recording or starting a real
 campaign; wiring any production handler; any live network, search or model
 call; applying 0023 anywhere persistent; push, merge or deploy.
+
+## 10. Amendments by WW E-W (ADR 0030 §9, migration 0024)
+
+The independent review of this queue was fixed in migration 0024 (claim-time
+budget reservations, lease heartbeats, a narrowed worker session, pinned
+search paths, an EMERGENCY_STOP that never waits on the advisory lock, queue
+shape rules, the campaign lock in the outcome rule, and an environment check
+against the database's own record). **Clone replay:** a database clone keeps
+the environment id, so a campaign recorded in one copy verifies in the
+other; the environment binding defends against cross-environment replay,
+not against a clone (ADR 0030 §9).
