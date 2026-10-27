@@ -16,7 +16,10 @@
  *     the adapter constructed by `grantedRun.ts` alone; the only
  *     sourceDiscovery SDK import site is `agentQuery.ts`;
  *   - the grant tables exist only in migration 0022, and no role but the
- *     migration owner can INSERT a grant;
+ *     migration owner can INSERT a grant - WW E-SDFX: proven over EVERY
+ *     migration's GRANT statements (and any schema-wide or default-privilege
+ *     grant), not over 0022 alone, and likewise for migration 0025's OWNER-path
+ *     `source_discovery_smoke_verifications`;
  *   - `orgunits discover-sources --execute` WITHOUT `--grant-id` still refuses
  *     LIVE_SEARCH_NOT_AUTHORISED before any connection is opened;
  *   - nothing in the sourceDiscovery namespace scores, rubric-grades or ranks a
@@ -36,6 +39,40 @@ const GRANTED_RUN = 'src/orgunits/sourceDiscovery/grantedRun.ts';
 const SDK_SITE = 'src/orgunits/sourceDiscovery/agentQuery.ts';
 const GRANT_MIGRATION = 'migrations/0022_source_discovery_live_grants.sql';
 const NAMESPACE = 'src/orgunits/sourceDiscovery/';
+
+/** WW E-SDFX: the OWNER-path tables no runtime role may ever INSERT into. */
+const OWNER_ONLY_TABLES = ['source_discovery_grants', 'source_discovery_smoke_verifications'];
+
+/**
+ * Every GRANT, in every given migration, that reaches an OWNER-path table -
+ * by name (optionally schema-qualified), schema-wide (`ALL TABLES IN SCHEMA`)
+ * or as a default privilege - as `migration:grantee:privileges:object`.
+ */
+function ownerOnlyTableGrants(migrations: readonly { name: string; sql: string }[]): string[] {
+  const out: string[] = [];
+  for (const { name, sql } of migrations) {
+    const code = sql.replace(/--.*$/gm, '');
+    for (const [, privileges, objects, grantees] of code.matchAll(
+      /\bGRANT\s+([^;]*?)\s+ON\s+([^;]*?)\s+TO\s+([^;]*?)\s*;/g,
+    )) {
+      const objectList = objects!.replace(/\s+/g, ' ').trim();
+      const tables = objectList
+        .split(',')
+        .map((t) => t.trim().replace(/^(TABLE\s+)?(public\.)?/i, ''));
+      const named = tables.filter((t) => OWNER_ONLY_TABLES.includes(t));
+      const broad =
+        /\bALL\s+TABLES\s+IN\s+SCHEMA\b/i.test(objectList) || /^TABLES$/i.test(objectList)
+          ? [objectList]
+          : [];
+      for (const object of [...named, ...broad]) {
+        for (const grantee of grantees!.split(',').map((g) => g.trim())) {
+          out.push(`${name}:${grantee}:${privileges!.replace(/\s+/g, ' ').trim()}:${object}`);
+        }
+      }
+    }
+  }
+  return out;
+}
 
 describe('REL Q1: the live source-discovery proposal leaves the seal intact', () => {
   it('ADR 0027 and ADR 0028 are Proposed and say live search is not authorised without a grant', () => {
@@ -91,13 +128,48 @@ describe('REL Q1: the live source-discovery proposal leaves the seal intact', ()
         /CREATE TABLE source_discovery_(search_grants|grants|grant_uses|query_calls|run_completions)\b/,
       );
     }
-    const sql = readCurrent(GRANT_MIGRATION).replace(/--.*$/gm, '');
-    const grantsOnGrants = [
-      ...sql.matchAll(/GRANT\s+([\s\S]*?)\s+ON\s+([\s\S]*?)\s+TO\s+(\w+)\s*;/g),
-    ]
-      .filter(([, , tables]) => /\bsource_discovery_grants\b/.test(tables!))
-      .map(([, privileges, , grantee]) => `${grantee}:${privileges!.trim()}`);
-    expect(grantsOnGrants.sort()).toEqual(['nwf_readonly:SELECT', 'nwf_source_discovery:SELECT']);
+    // WW E-SDFX: every migration, so a LATER migration granting INSERT fails here.
+    const ownerOnly = ownerOnlyTableGrants(
+      readdirSync(join(REPO_ROOT, 'migrations'))
+        .filter((f) => f.endsWith('.sql'))
+        .map((f) => ({ name: f, sql: readCurrent(`migrations/${f}`) })),
+    );
+    expect(ownerOnly.sort()).toEqual(
+      [
+        '0022_source_discovery_live_grants.sql:nwf_readonly:SELECT:source_discovery_grants',
+        '0022_source_discovery_live_grants.sql:nwf_source_discovery:SELECT:source_discovery_grants',
+        '0025_source_discovery_search_gate.sql:nwf_readonly:SELECT:source_discovery_smoke_verifications',
+        '0025_source_discovery_search_gate.sql:nwf_source_discovery:SELECT:source_discovery_smoke_verifications',
+      ].sort(),
+    );
+    expect(existsSync(join(REPO_ROOT, GRANT_MIGRATION))).toBe(true);
+  });
+
+  it('the every-migration grant detector fires on table, schema-wide and default-privilege grants (mutation oracle)', () => {
+    const probe = (sql: string) => ownerOnlyTableGrants([{ name: '9999_probe.sql', sql }]);
+    expect(probe('GRANT INSERT ON source_discovery_grants TO nwf_source_discovery;')).toEqual([
+      '9999_probe.sql:nwf_source_discovery:INSERT:source_discovery_grants',
+    ]);
+    expect(
+      probe('GRANT SELECT, INSERT ON public.source_discovery_smoke_verifications TO a, b;'),
+    ).toEqual([
+      '9999_probe.sql:a:SELECT, INSERT:source_discovery_smoke_verifications',
+      '9999_probe.sql:b:SELECT, INSERT:source_discovery_smoke_verifications',
+    ]);
+    expect(probe('GRANT ALL ON ALL TABLES IN SCHEMA public TO nwf_research;')).toEqual([
+      '9999_probe.sql:nwf_research:ALL:ALL TABLES IN SCHEMA public',
+    ]);
+    expect(
+      probe(
+        'ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT INSERT ON TABLES TO nwf_source_discovery;',
+      ),
+    ).toEqual(['9999_probe.sql:nwf_source_discovery:INSERT:TABLES']);
+    expect(probe('-- GRANT INSERT ON source_discovery_grants TO x;')).toEqual([]);
+    expect(probe('GRANT SELECT ON source_discovery_grants_other TO x;')).toEqual([]);
+    // A role grant never borrows the next statement's privileges.
+    expect(probe('GRANT nwf_x TO y;\nGRANT INSERT ON source_discovery_grants TO z;')).toEqual([
+      '9999_probe.sql:z:INSERT:source_discovery_grants',
+    ]);
   });
 
   it('discover-sources --execute refuses before any connection is opened', async () => {
