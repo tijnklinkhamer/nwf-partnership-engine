@@ -16,9 +16,14 @@
  *   CAMPAIGN_PAUSED                wait (no worker) until the status reads
  *                                  RUNNING again, then restart at once
  *   NOT_STARTED / WINDOW_NOT_OPEN  wait the same way
+ *   BUDGET_EXHAUSTED               exit for good - UNLESS the status reports
+ *                                  subjects awaiting the OWNER identity
+ *                                  review: their release to ASSESSABLE needs
+ *                                  no budget, and the worker must still write
+ *                                  their outbox manifest lines, so it is
+ *                                  restarted after the idle backoff instead
  *   STOPPED / EMERGENCY_STOPPED /  exit for good, reason recorded
- *   BUDGET_EXHAUSTED / WINDOW_
- *   CLOSED / UNVERIFIED
+ *   WINDOW_CLOSED / UNVERIFIED
  *   refused (e.g. handlers not     exit for good, reason recorded
  *   wired, campaign not found)
  *   crashed / unreadable           restart after a capped backoff; exit
@@ -191,6 +196,28 @@ export function decideAfterWorker(result: WorkerResult, shutdownRequested: boole
   }
 }
 
+/**
+ * A worker that stopped BUDGET_EXHAUSTED claimed nothing because every
+ * remaining item needs a spent budget (ADR 0030 s9: reservations). Items
+ * parked for the OWNER identity review are not among them; once reviewed,
+ * their ASSESSABLE step (the outbox manifest line) spends no budget. So the
+ * supervisor keeps restarting the worker while the status reports subjects
+ * awaiting review, and exits only when none does.
+ */
+export function decideAfterBudgetExhausted(probe: CampaignProbe, detail: string | null): Decision {
+  const awaiting = probe.kind === 'OK' ? probe.facts.identityReviewAwaiting : null;
+  if (awaiting !== null && awaiting > 0) {
+    return {
+      kind: 'IDLE',
+      phase: 'WAITING_FOR_HUMAN_REVIEW',
+      detail:
+        `BUDGET_EXHAUSTED${detail ? ` (${detail})` : ''}; ${awaiting} subject(s) await the OWNER ` +
+        'identity review - their outbox manifest lines are written after it',
+    };
+  }
+  return { kind: 'EXIT', reason: 'BUDGET_EXHAUSTED', detail };
+}
+
 export type CampaignProbe =
   | { readonly kind: 'OK'; readonly facts: CampaignFacts }
   | { readonly kind: 'NOT_FOUND' }
@@ -355,6 +382,12 @@ export class Supervisor {
       if (decision.kind === 'LAUNCH') {
         const result = await this.#runWorker();
         decision = decideAfterWorker(result, this.#shutdown);
+        if (decision.kind === 'EXIT' && decision.reason === 'BUDGET_EXHAUSTED' && !this.#shutdown) {
+          decision = decideAfterBudgetExhausted(
+            probeOf(await this.#deps.readStatus()),
+            decision.detail,
+          );
+        }
         if (result.kind !== 'CRASHED') this.#update({ consecutiveFailures: 0 });
         if (result.kind === 'STOPPED' && (result.processed ?? 0) > 0) this.#idleStreak = 0;
       } else if (decision.kind !== 'FAILURE') {

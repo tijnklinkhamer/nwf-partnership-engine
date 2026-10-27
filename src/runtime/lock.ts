@@ -185,18 +185,30 @@ export interface EngineConfig {
   readonly campaignId: string | null;
   /** Optional path to a status file the Operator writes (last publication time). */
   readonly operatorStatusFile: string | null;
+  /**
+   * The OWNER-chosen outbox directory (`start --outbox-dir`), handed to the
+   * worker as `--outbox-dir` (ADR 0030 s6). An absolute path, never created
+   * by the runtime; null when none was given.
+   */
+  readonly outboxDir: string | null;
 }
 
 export function readConfig(paths: EnginePaths): EngineConfig {
   const raw = readJson(paths.configFile);
   if (!isObject(raw) || raw['contract'] !== ENGINE_CONFIG_CONTRACT) {
-    return { contract: ENGINE_CONFIG_CONTRACT, campaignId: null, operatorStatusFile: null };
+    return {
+      contract: ENGINE_CONFIG_CONTRACT,
+      campaignId: null,
+      operatorStatusFile: null,
+      outboxDir: null,
+    };
   }
   return {
     contract: ENGINE_CONFIG_CONTRACT,
     campaignId: typeof raw['campaignId'] === 'string' ? raw['campaignId'] : null,
     operatorStatusFile:
       typeof raw['operatorStatusFile'] === 'string' ? raw['operatorStatusFile'] : null,
+    outboxDir: typeof raw['outboxDir'] === 'string' ? raw['outboxDir'] : null,
   };
 }
 

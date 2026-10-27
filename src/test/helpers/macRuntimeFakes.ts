@@ -84,23 +84,23 @@ export interface StatusDraft {
   startsAt?: string;
   endsAt?: string;
   open?: boolean;
+  allowedStages?: string[];
+  /** `identityReview.awaiting`. */
+  awaiting?: number;
   extra?: Record<string, unknown>;
+  /** Top-level v1 fields to leave out. */
   omit?: string[];
 }
 
-/** A status object in the shape `loadCampaignStatus` reports today. */
-export function statusObject(d: StatusDraft = {}): Record<string, unknown> {
-  const status: Record<string, unknown> = {
-    campaignId: CAMPAIGN,
-    campaignKey: 'test-campaign-mac-v1',
-    controlState: d.controlState ?? 'RUNNING',
-    verification: { verified: d.verified ?? true, detail: d.verificationDetail ?? null },
-    window: {
-      startsAt: d.startsAt ?? '2026-10-27T00:00:00.000Z',
-      endsAt: d.endsAt ?? '2026-10-28T00:00:00.000Z',
-      open: d.open ?? true,
-    },
-    allowedStages: ['DISCOVERED', 'NOMINATED'],
+/** The ADR 0029 queue status, as `nwf-pe.acquisition-status.v1` embeds it under `queue`. */
+function queueObject(d: StatusDraft, campaign: Record<string, unknown>): Record<string, unknown> {
+  return {
+    campaignId: campaign['campaignId'],
+    campaignKey: campaign['campaignKey'],
+    controlState: campaign['controlState'],
+    verification: { verified: campaign['verified'], detail: campaign['verificationDetail'] },
+    window: campaign['window'],
+    allowedStages: campaign['allowedStages'],
     totals: { workItems: 4, open: 2 },
     stages: {
       DISCOVERED: { ADVANCED: 1 },
@@ -108,19 +108,15 @@ export function statusObject(d: StatusDraft = {}): Record<string, unknown> {
       DEDUPLICATED: { PENDING: 2 },
       RESEARCH_PENDING: {},
       RESEARCHED: {},
-      IDENTITY_REVIEW: {},
+      IDENTITY_REVIEW: d.awaiting ? { AWAITING_HUMAN: d.awaiting } : {},
       ASSESSABLE: {},
     },
     claimedLive: 1,
     retriesScheduled: 0,
     refusals: { HANDLER_OUTPUT_INVALID: 1 },
     failures: {},
-    awaitingHuman: {},
-    budgets: {
-      maxWorkItems: { limit: 500, used: 6, remaining: 494 },
-      maxSearchRuns: { limit: 1, used: 1, remaining: 0 },
-      maxConcurrency: { limit: 2, used: null, remaining: null },
-    },
+    awaitingHuman: d.awaiting ? { OWNER_IDENTITY_REVIEW: d.awaiting } : {},
+    budgets: BUDGETS,
     lastAdvancedAt: '2026-10-27T07:59:00.000Z',
     lastWorkerStop: {
       workerId: 'mac-supervisor',
@@ -128,6 +124,67 @@ export function statusObject(d: StatusDraft = {}): Record<string, unknown> {
       detail: null,
       at: '2026-10-27T07:58:00.000Z',
     },
+  };
+}
+
+const BUDGETS = {
+  maxWorkItems: { limit: 500, used: 6, remaining: 494 },
+  maxSearchRuns: { limit: 1, used: 1, remaining: 0 },
+  maxConcurrency: { limit: 2, used: null, remaining: null },
+};
+
+/** A status object in the `nwf-pe.acquisition-status.v1` shape (`acquisitionWiring/status.ts`). */
+export function statusObject(d: StatusDraft = {}): Record<string, unknown> {
+  const campaign: Record<string, unknown> = {
+    campaignId: CAMPAIGN,
+    campaignKey: 'test-campaign-mac-v1',
+    controlState: d.controlState ?? 'RUNNING',
+    verified: d.verified ?? true,
+    verificationDetail: d.verificationDetail ?? null,
+    window: {
+      startsAt: d.startsAt ?? '2026-10-27T00:00:00.000Z',
+      endsAt: d.endsAt ?? '2026-10-28T00:00:00.000Z',
+      open: d.open ?? true,
+    },
+    allowedStages: d.allowedStages ?? ['DISCOVERED', 'NOMINATED'],
+  };
+  const status: Record<string, unknown> = {
+    schema: 'nwf-pe.acquisition-status.v1',
+    generatedAt: '2026-10-27T08:00:00.000Z',
+    campaign,
+    discovery: {
+      latestRun: {
+        runId: '55555555-0000-4000-8000-000000000005',
+        kind: 'SEARCH_PROVIDER',
+        geography: 'JP',
+        startedAt: '2026-10-27T07:00:00.000Z',
+        outcome: 'COMPLETED',
+      },
+      searchRuns: 1,
+      linkOutRoots: 0,
+    },
+    candidates: {
+      discovered: 5,
+      deduplicated: 2,
+      proposed: 0,
+      researched: 0,
+      duplicatesRefused: 1,
+      largeHeiDeprioritised: 0,
+    },
+    identityReview: { awaiting: d.awaiting ?? 0, released: 0 },
+    outbox: { researchExports: 0, manifestEntries: 0, lastWrittenAt: null },
+    lastSuccessfulResearchAt: null,
+    failures: [
+      {
+        stage: 'NOMINATED',
+        outcome: 'REFUSED_TERMINAL',
+        reason: 'HANDLER_OUTPUT_INVALID',
+        count: 1,
+        explanation: 'A stage produced an output the queue refused; nothing was enqueued.',
+      },
+    ],
+    budgets: BUDGETS,
+    queue: queueObject(d, campaign),
     ...d.extra,
   };
   for (const k of d.omit ?? []) delete status[k];
@@ -227,7 +284,13 @@ export interface FakeProcessPort extends ProcessPort {
   readonly calls: AcquisitionInvocation[];
   readonly workers: FakeWorker[];
   readonly composeCalls: ComposeOperation[];
-  readonly supervisorSpawns: { campaignId: string; allowTestDatabase: boolean }[];
+  readonly supervisorSpawns: {
+    campaignId: string;
+    allowTestDatabase: boolean;
+    outboxDir: string | null;
+  }[];
+  /** The outbox directory each launched worker was given. */
+  readonly workerOutboxDirs: (string | null)[];
   status: () => CliRun;
   control: (inv: AcquisitionInvocation) => CliRun;
   composeResult: (op: ComposeOperation) => CliRun;
@@ -244,6 +307,7 @@ export function createFakeProcessPort(): FakeProcessPort {
     workers: [],
     composeCalls: [],
     supervisorSpawns: [],
+    workerOutboxDirs: [],
     maxConcurrentWorkers: 0,
     status: () => statusRun(),
     control: (inv) => controlRecorded(inv.kind === 'control' ? inv.action : 'PAUSE', 'RUNNING'),
@@ -253,7 +317,8 @@ export function createFakeProcessPort(): FakeProcessPort {
       port.calls.push(inv);
       return inv.kind === 'status' ? port.status() : port.control(inv);
     },
-    launchWorker() {
+    launchWorker(_campaignId, _workerId, _onStderr, outboxDir = null) {
+      port.workerOutboxDirs.push(outboxDir);
       const w = new FakeWorker((nextPid += 1));
       live += 1;
       port.maxConcurrentWorkers = Math.max(port.maxConcurrentWorkers, live);
@@ -267,8 +332,8 @@ export function createFakeProcessPort(): FakeProcessPort {
       port.composeCalls.push(op);
       return port.composeResult(op);
     },
-    spawnSupervisor(campaignId, allowTestDatabase) {
-      port.supervisorSpawns.push({ campaignId, allowTestDatabase });
+    spawnSupervisor(campaignId, allowTestDatabase, _outFile, outboxDir = null) {
+      port.supervisorSpawns.push({ campaignId, allowTestDatabase, outboxDir });
       return port.onSpawnSupervisor(campaignId);
     },
   };

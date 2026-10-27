@@ -285,6 +285,33 @@ describe('the supervisor loop', () => {
     expect(missing.exit).toMatchObject({ reason: 'CAMPAIGN_NOT_FOUND', workerRuns: 0 });
   });
 
+  it('BUDGET_EXHAUSTED with subjects awaiting identity review keeps restarting until none awaits', async () => {
+    // ADR 0030 s9: spent budgets block research, not the ASSESSABLE step that
+    // writes a reviewed subject's outbox manifest line.
+    const h = harness({}, { awaiting: 2 });
+    await flush();
+    h.lastWorker().finish(workerStopped('BUDGET_EXHAUSTED', 1, 'maxResearchRoots'));
+    await flush();
+    expect(h.exit).toBeNull();
+    expect(h.phase).toBe('WAITING_FOR_HUMAN_REVIEW');
+    expect(h.supervisor.state.phaseDetail).toContain(
+      '2 subject(s) await the OWNER identity review',
+    );
+    // The OWNER signs the batch; the next worker run writes the manifest lines.
+    h.setStatus({ awaiting: 0 });
+    h.clock.advance(30_000);
+    await flush();
+    expect(h.procs.workers).toHaveLength(2);
+    h.lastWorker().finish(workerStopped('BUDGET_EXHAUSTED', 2, 'maxResearchRoots'));
+    await h.done;
+    expect(h.exit).toMatchObject({
+      reason: 'BUDGET_EXHAUSTED',
+      detail: 'maxResearchRoots',
+      workerRuns: 2,
+    });
+    expect(h.procs.maxConcurrentWorkers).toBe(1);
+  });
+
   it('exits HANDLERS_NOT_WIRED when the production worker refuses, after exactly one attempt', async () => {
     const h = harness();
     await flush();

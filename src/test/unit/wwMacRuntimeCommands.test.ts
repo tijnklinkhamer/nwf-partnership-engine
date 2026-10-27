@@ -4,7 +4,17 @@
  * start, pause/resume/stop/shutdown, logs, and the LaunchAgent generator.
  * No real process, Docker, launchd or database is touched.
  */
-import { existsSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  realpathSync,
+  statSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import type { RuntimeClock } from '../../runtime/clock.js';
@@ -36,6 +46,7 @@ import {
   createFakeRuntimeClock,
   flush,
   run,
+  statusRun,
   tempEnginePaths,
   workerStopped,
   type FakeProcessPort,
@@ -283,7 +294,9 @@ describe('start', () => {
     };
     expect(await h.cli('start', '--campaign-id', CAMPAIGN)).toBe(0);
     expect(h.procs.composeCalls).toEqual(['ps', 'up']);
-    expect(h.procs.supervisorSpawns).toEqual([{ campaignId: CAMPAIGN, allowTestDatabase: false }]);
+    expect(h.procs.supervisorSpawns).toEqual([
+      { campaignId: CAMPAIGN, allowTestDatabase: false, outboxDir: null },
+    ]);
     expect(readConfig(h.paths).campaignId).toBe(CAMPAIGN);
     expect(h.text()).toContain('Started: supervisor pid 4242');
     expect(statSync(h.paths.stateDir).mode & 0o777).toBe(0o700);
@@ -294,6 +307,61 @@ describe('start', () => {
     expect(await h.cli('start', '--campaign-id', OTHER_CAMPAIGN)).toBe(1);
     expect(h.text()).toContain('already running for ANOTHER campaign');
     expect(h.procs.supervisorSpawns).toHaveLength(1);
+  });
+
+  it('needs an existing outbox directory for a campaign that writes exports, remembers it and hands it on', async () => {
+    const started = () => {
+      const h = harness({ clock: quickClock, startConfirmMs: 2000 });
+      h.procs.status = () =>
+        statusRun({
+          allowedStages: [
+            'DISCOVERED',
+            'NOMINATED',
+            'DEDUPLICATED',
+            'RESEARCH_PENDING',
+            'RESEARCHED',
+            'ASSESSABLE',
+          ],
+        });
+      h.procs.onSpawnSupervisor = (campaignId) => {
+        h.alive.add(4242);
+        acquireLock(h.paths, { pid: 4242, campaignId, startedAt: new Date().toISOString() }, (p) =>
+          h.alive.has(p),
+        );
+        return 4242;
+      };
+      return h;
+    };
+    const none = started();
+    expect(await none.cli('start', '--campaign-id', CAMPAIGN)).toBe(1);
+    expect(none.text()).toContain('writes research exports to an outbox, and none is configured');
+    expect(none.procs.supervisorSpawns).toEqual([]);
+
+    const root = realpathSync(mkdtempSync(join(tmpdir(), 'nwf-engine-outbox-')));
+    const missing = started();
+    expect(
+      await missing.cli('start', '--campaign-id', CAMPAIGN, '--outbox-dir', join(root, 'absent')),
+    ).toBe(1);
+    expect(missing.text()).toContain('does not exist or is not a real directory');
+    const relative = started();
+    expect(await relative.cli('start', '--campaign-id', CAMPAIGN, '--outbox-dir', 'outbox')).toBe(
+      1,
+    );
+    expect(relative.text()).toContain('must be an absolute path');
+    symlinkSync(root, join(root, 'link'));
+    const linked = started();
+    expect(
+      await linked.cli('start', '--campaign-id', CAMPAIGN, '--outbox-dir', join(root, 'link')),
+    ).toBe(1);
+    expect(linked.procs.supervisorSpawns).toEqual([]);
+
+    const ok = started();
+    expect(await ok.cli('start', '--campaign-id', CAMPAIGN, '--outbox-dir', root)).toBe(0);
+    expect(ok.procs.supervisorSpawns).toEqual([
+      { campaignId: CAMPAIGN, allowTestDatabase: false, outboxDir: root },
+    ]);
+    expect(readConfig(ok.paths).outboxDir).toBe(root);
+    expect(ok.text()).toContain(`outbox ${root}`);
   });
 
   it('refuses without a campaign, on Docker down, on a doctor FAIL, on a non-local or test database', async () => {
@@ -386,6 +454,7 @@ describe('single instance, crash and recovery', () => {
       contract: 'nwf-engine.config.v1',
       campaignId: CAMPAIGN,
       operatorStatusFile: null,
+      outboxDir: null,
     });
     // A supervisor (pid 600) with a worker (pid 601) that "crashed": its files remain.
     acquireLock(
@@ -453,6 +522,7 @@ describe('pause, resume, stop, shutdown', () => {
       contract: 'nwf-engine.config.v1',
       campaignId: CAMPAIGN,
       operatorStatusFile: null,
+      outboxDir: null,
     });
     h.alive.add(4242);
     acquireLock(
@@ -534,6 +604,7 @@ describe('status, logs and the LaunchAgent', () => {
       contract: 'nwf-engine.config.v1',
       campaignId: CAMPAIGN,
       operatorStatusFile: null,
+      outboxDir: null,
     });
     expect(await h.cli('status')).toBe(0);
     expect(h.text()).toContain('NWF Partnership Engine - status');
@@ -579,6 +650,7 @@ describe('status, logs and the LaunchAgent', () => {
       contract: 'nwf-engine.config.v1',
       campaignId: CAMPAIGN,
       operatorStatusFile: null,
+      outboxDir: null,
     });
     expect(await h.cli('install-agent')).toBe(1);
     expect(h.text()).toContain('Nothing is installed by default');

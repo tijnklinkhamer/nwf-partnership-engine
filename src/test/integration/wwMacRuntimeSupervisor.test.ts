@@ -121,8 +121,13 @@ describeDb('WW E-M Mac runtime supervisor (integration)', () => {
 
   beforeEach(async () => {
     await admin.query(
-      `TRUNCATE acquisition_worker_stops, acquisition_work_outcomes, acquisition_work_claims,
-                acquisition_work_items, acquisition_campaign_control_events, acquisition_campaigns`,
+      // Migration 0024 (WW E-W) adds tables that reference the 0023 queue.
+      `TRUNCATE acquisition_claim_lease_extensions, acquisition_outbox_entries,
+                acquisition_signals, acquisition_campaign_subjects,
+                subject_research_admission_revocations, subject_research_admissions,
+                acquisition_worker_stops, acquisition_work_outcomes, acquisition_work_claims,
+                acquisition_work_items, acquisition_campaign_control_events, acquisition_campaigns
+                CASCADE`,
     );
   });
 
@@ -409,7 +414,8 @@ describeDb('WW E-M Mac runtime supervisor (integration)', () => {
     e.out.length = 0;
     expect(await e.run('status', '--campaign-id', campaignId)).toBe(0);
     const text = e.out.join('');
-    expect(text).toContain('Candidates discovered        6  (items at NOMINATED)');
+    expect(text).toContain('Status contract              nwf-pe.acquisition-status.v1');
+    expect(text).toContain('Candidates discovered        6  (nominations; items at NOMINATED)');
     expect(text).toContain('Control state                RUNNING');
   });
 
@@ -512,7 +518,7 @@ describeDb('WW E-M Mac runtime supervisor (integration)', () => {
     });
   });
 
-  it('production refuses across a real process boundary: the empty trust set and the unwired handlers', async () => {
+  it('production refuses across a real process boundary: the empty trust set, status and worker alike', async () => {
     const campaignId = await startedCampaign();
     const saved = { ...process.env };
     process.env['DATABASE_URL_READONLY'] = readonlyUrl();
@@ -531,9 +537,10 @@ describeDb('WW E-M Mac runtime supervisor (integration)', () => {
       });
       expect(await prod.run()).toMatchObject({ reason: 'CAMPAIGN_UNVERIFIED', workerRuns: 0 });
 
-      // Even launched directly, the real worker CLI claims nothing: it refuses
-      // (no production stage handler) or, once handlers are wired, stops
-      // because the test-signed campaign does not verify in production.
+      // Even launched directly, the real worker CLI claims nothing: E-W wired
+      // the production stage handlers, so it starts - and stops at once,
+      // because the test-signed campaign does not verify under the
+      // operational (empty) campaign trust set.
       const launched = new Supervisor({
         campaignId,
         pid: SUPERVISOR_PID,
@@ -544,8 +551,7 @@ describeDb('WW E-M Mac runtime supervisor (integration)', () => {
         policy: POLICY,
       });
       const exit = await launched.run();
-      expect(['HANDLERS_NOT_WIRED', 'CAMPAIGN_UNVERIFIED']).toContain(exit.reason);
-      expect(exit.workerRuns).toBe(1);
+      expect(exit).toMatchObject({ reason: 'CAMPAIGN_UNVERIFIED', workerRuns: 1 });
       expect(await count('SELECT count(*)::int AS n FROM acquisition_work_claims')).toBe(0);
     } finally {
       for (const k of Object.keys(process.env)) if (!(k in saved)) delete process.env[k];

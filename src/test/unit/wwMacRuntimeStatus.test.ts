@@ -9,7 +9,12 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import { ENGINE_OPTIONS, parseEngineArgs } from '../../runtime/args.js';
-import { parseControlRun, parseStatusRun, parseWorkerRun } from '../../runtime/envelope.js';
+import {
+  campaignFactsOf,
+  parseControlRun,
+  parseStatusRun,
+  parseWorkerRun,
+} from '../../runtime/envelope.js';
 import {
   COMPOSE_ARGV,
   InvocationRefusal,
@@ -180,6 +185,42 @@ describe('fixed process argument vectors', () => {
       CAMPAIGN,
       '--allow-test-database',
     ]);
+    // ADR 0030 s6: the worker's outbox, only as an absolute canonical path.
+    expect(
+      acquisitionArgv({
+        kind: 'worker',
+        campaignId: CAMPAIGN,
+        workerId: 'mac-supervisor',
+        outboxDir: '/Users/owner/NWF/outbox',
+      }),
+    ).toEqual([
+      'acquisition',
+      'worker',
+      '--campaign-id',
+      CAMPAIGN,
+      '--worker-id',
+      'mac-supervisor',
+      '--outbox-dir',
+      '/Users/owner/NWF/outbox',
+      '--json',
+    ]);
+    expect(supervisorArgv(CAMPAIGN, false, '/Users/owner/NWF/outbox')).toEqual([
+      'supervise',
+      '--campaign-id',
+      CAMPAIGN,
+      '--outbox-dir',
+      '/Users/owner/NWF/outbox',
+    ]);
+    for (const bad of ['outbox', '/a/../b', '/a/', '/a//b', '/a\nb']) {
+      expect(() =>
+        acquisitionArgv({
+          kind: 'worker',
+          campaignId: CAMPAIGN,
+          workerId: 'mac-supervisor',
+          outboxDir: bad,
+        }),
+      ).toThrow(InvocationRefusal);
+    }
   });
 
   it('allows exactly two docker compose vectors: ps and up --no-recreate, never down or -v', () => {
@@ -229,23 +270,27 @@ describe('reading the Engine CLI envelopes', () => {
     });
   });
 
-  it('reads status today and in the versioned status contract, keeping unknown fields', () => {
+  it('reads nwf-pe.acquisition-status.v1 inside the CLI envelope, keeping unknown fields', () => {
     expect(parseStatusRun(statusRun())).toMatchObject({
       kind: 'STATUS',
-      contract: 'nwf-pe.acquisition-cli.v1',
+      contract: 'nwf-pe.acquisition-status.v1',
     });
-    const versioned = parseStatusRun(
+    const grown = parseStatusRun(statusRun({ extra: { stageHandlers: { wired: 3 } } }));
+    expect(grown.kind === 'STATUS' && grown.status['stageHandlers']).toEqual({ wired: 3 });
+    // Another status schema is not guessed around: the dashboard says it cannot read it.
+    const other = parseStatusRun(
       run({
-        contract: 'nwf-pe.acquisition-status.v1',
-        status: { ...statusObject(), stageHandlers: { wired: 3 } },
+        contract: 'nwf-pe.acquisition-cli.v1',
+        outcome: 'STATUS',
+        status: { ...statusObject(), schema: 'nwf-pe.acquisition-status.v2' },
       }),
     );
-    expect(versioned).toMatchObject({ kind: 'STATUS', contract: 'nwf-pe.acquisition-status.v1' });
-    expect(versioned.kind === 'STATUS' && versioned.status['stageHandlers']).toEqual({ wired: 3 });
-    const flat = parseStatusRun(
-      run({ contract: 'nwf-pe.acquisition-status.v1', controlState: 'PAUSED' }),
-    );
-    expect(flat.kind === 'STATUS' && flat.status['controlState']).toBe('PAUSED');
+    expect(other).toMatchObject({ kind: 'UNAVAILABLE' });
+    expect(other.kind === 'UNAVAILABLE' && other.detail).toContain('nwf-pe.acquisition-status.v2');
+    // E-M's provisional bare status envelope never existed in the Engine CLI.
+    expect(
+      parseStatusRun(run({ contract: 'nwf-pe.acquisition-status.v1', controlState: 'PAUSED' })),
+    ).toMatchObject({ kind: 'UNAVAILABLE' });
     expect(parseStatusRun(statusRefused('CAMPAIGN_NOT_FOUND'))).toMatchObject({
       kind: 'REFUSED',
       code: 'CAMPAIGN_NOT_FOUND',
@@ -254,6 +299,23 @@ describe('reading the Engine CLI envelopes', () => {
       kind: 'UNAVAILABLE',
     });
     expect(parseStatusRun(crashed())).toMatchObject({ kind: 'UNAVAILABLE' });
+  });
+
+  it('reads the supervisor facts from the v1 campaign and identityReview objects only', () => {
+    const facts = campaignFactsOf(
+      statusObject({ controlState: 'PAUSED', verified: false, awaiting: 3 }),
+    );
+    expect(facts).toEqual({
+      controlState: 'PAUSED',
+      verified: false,
+      verificationDetail: null,
+      windowStartsAt: '2026-10-27T00:00:00.000Z',
+      windowEndsAt: '2026-10-28T00:00:00.000Z',
+      windowOpen: true,
+      identityReviewAwaiting: 3,
+    });
+    // A top-level controlState (the old provisional label) is not read.
+    expect(campaignFactsOf({ controlState: 'RUNNING' }).controlState).toBeNull();
   });
 
   it('reads control results', () => {
@@ -313,8 +375,13 @@ describe('the status dashboard', () => {
     ...over,
   });
 
-  it('derives the summary from the reported status and names each derivation', () => {
-    const doc = buildEngineStatus(base());
+  it('derives the summary from the v1 status fields and names each derivation', () => {
+    const doc = buildEngineStatus(
+      base({
+        campaignRead: parseStatusRun(statusRun({ awaiting: 2 })),
+        outboxDir: '/Users/owner/NWF/outbox',
+      }),
+    );
     expect(doc.contract).toBe(ENGINE_STATUS_CONTRACT);
     expect(doc.engine).toMatchObject({
       state: 'RUNNING',
@@ -323,7 +390,9 @@ describe('the status dashboard', () => {
       phase: 'RUNNING_WORKER',
       workerPid: 778,
     });
+    expect(doc.campaign?.statusContract).toBe('nwf-pe.acquisition-status.v1');
     expect(doc.summary).toMatchObject({
+      campaignKey: 'test-campaign-mac-v1',
       controlState: 'RUNNING',
       verified: true,
       queueDepth: {
@@ -336,34 +405,63 @@ describe('the status dashboard', () => {
         ASSESSABLE: 0,
       },
       openItems: 5,
-      candidatesDiscovered: 5,
-      candidatesResearched: 0,
-      awaitingIdentityReview: 0,
-      assessable: 0,
-      outboxEntries: null,
+      discovery: {
+        latestRun: { kind: 'SEARCH_PROVIDER', geography: 'JP', outcome: 'COMPLETED' },
+        searchRuns: 1,
+        linkOutRoots: 0,
+      },
+      candidates: {
+        discovered: 5,
+        deduplicated: 2,
+        proposed: 0,
+        researched: 0,
+        duplicatesRefused: 1,
+        largeHeiDeprioritised: 0,
+      },
+      identityReview: { awaiting: 2, released: 0 },
+      outbox: { researchExports: 0, manifestEntries: 0, lastWrittenAt: null },
+      outboxDir: '/Users/owner/NWF/outbox',
+      lastAdvancedAt: '2026-10-27T07:59:00.000Z',
       lastSuccessfulResearchAt: null,
+      lastWorkerStop: { reason: 'IDLE' },
     });
+    expect(doc.summary.failures).toEqual([
+      {
+        stage: 'NOMINATED',
+        outcome: 'REFUSED_TERMINAL',
+        reason: 'HANDLER_OUTPUT_INVALID',
+        count: 1,
+        explanation: 'A stage produced an output the queue refused; nothing was enqueued.',
+      },
+    ]);
     expect(doc.summary.budgets!['maxSearchRuns']).toEqual({ limit: 1, used: 1, remaining: 0 });
     const codes = doc.notices.map((n) => n.code);
     expect(codes).toEqual(
       expect.arrayContaining([
         'LEASES_EXPIRED',
-        'REFUSED_HANDLER_OUTPUT_INVALID',
+        'REFUSED_NOMINATED_HANDLER_OUTPUT_INVALID',
         'BUDGET_SPENT_maxSearchRuns',
+        'IDENTITY_REVIEW_AWAITING',
       ]),
     );
-    expect(doc.notReported).toEqual(['lastResearchedAt', 'outbox']);
+    expect(doc.notReported).toEqual([]);
+    expect(doc.additionalFields).toEqual({});
     const text = renderEngineStatus(doc);
     for (const s of [
       'RUNNING (pid 777, up 3h 0m)',
-      'Candidates discovered',
-      '(items at NOMINATED)',
-      'Awaiting identity review',
-      'Outbox entries               not reported',
-      'Last successful research     not reported',
+      'Status contract              nwf-pe.acquisition-status.v1',
+      'Latest discovery run         SEARCH_PROVIDER JP started 2026-10-27T07:00:00.000Z, COMPLETED',
+      'Candidates discovered        5  (nominations; items at NOMINATED)',
+      '  duplicates refused         1',
+      'Awaiting identity review     2  (released after review: 0)',
+      'Outbox                       0 research export(s), 0 manifest line(s); last written never',
+      'Outbox directory             /Users/owner/NWF/outbox',
+      'Last successful research     none yet',
       'Last publication             not known on this Mac',
       'expired lease',
-      'HANDLER_OUTPUT_INVALID - a stage handler returned something the worker refused to record',
+      'HANDLER_OUTPUT_INVALID - A stage produced an output the queue refused',
+      `acquisition review list --campaign-id ${CAMPAIGN}`,
+      'acquisition review sign',
     ]) {
       expect(text).toContain(s);
     }
@@ -371,19 +469,20 @@ describe('the status dashboard', () => {
 
   it('shows fields the status contract adds and lists the ones it does not report', () => {
     const status = statusObject({
-      extra: { stageHandlers: { wired: 6 }, lastResearchedAt: '2026-10-27T07:30:00.000Z' },
-      omit: ['budgets', 'stages'],
+      extra: { stageHandlers: { wired: 6 } },
+      omit: ['budgets', 'queue', 'lastSuccessfulResearchAt', 'candidates'],
     });
     const doc = buildEngineStatus(
       base({ campaignRead: { kind: 'STATUS', contract: 'nwf-pe.acquisition-status.v1', status } }),
     );
     expect(doc.additionalFields).toEqual({ stageHandlers: { wired: 6 } });
-    expect(doc.notReported).toEqual(['stages', 'budgets', 'outbox']);
+    expect(doc.notReported).toEqual(['candidates', 'lastSuccessfulResearchAt', 'budgets', 'queue']);
     expect(doc.summary).toMatchObject({
       queueDepth: null,
-      candidatesDiscovered: null,
+      candidates: null,
       budgets: null,
-      lastSuccessfulResearchAt: '2026-10-27T07:30:00.000Z',
+      lastAdvancedAt: null,
+      lastSuccessfulResearchAt: null,
     });
     const text = renderEngineStatus(doc);
     expect(text).toContain('ADDITIONAL FIELDS REPORTED BY THE STATUS CONTRACT');
@@ -391,7 +490,10 @@ describe('the status dashboard', () => {
     expect(text).toContain('{"wired":6}');
     expect(text).toContain('Queue depth                  not reported');
     expect(text).toContain('Candidates discovered        not reported');
-    expect(text).toContain('Not reported by this build: stages, budgets, outbox');
+    expect(text).toContain('Last successful research     not reported');
+    expect(text).toContain(
+      'Not reported by the campaign status: candidates, lastSuccessfulResearchAt, budgets, queue',
+    );
   });
 
   it('explains a stale lock, an unverified campaign, an unavailable status and the last exit', () => {

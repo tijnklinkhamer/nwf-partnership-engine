@@ -33,7 +33,7 @@ const TEST_DB = { 'allow-test-database': B } as const;
 
 export const ENGINE_OPTIONS = Object.freeze({
   doctor: { json: B, ...TEST_DB },
-  start: { 'campaign-id': S, ...TEST_DB },
+  start: { 'campaign-id': S, 'outbox-dir': S, ...TEST_DB },
   status: { 'campaign-id': S, json: B, 'operator-status-file': S, ...TEST_DB },
   pause: { 'campaign-id': S, reason: S, json: B, ...TEST_DB },
   resume: { 'campaign-id': S, reason: S, json: B, ...TEST_DB },
@@ -43,7 +43,7 @@ export const ENGINE_OPTIONS = Object.freeze({
   recover: { 'campaign-id': S, json: B, ...TEST_DB },
   'install-agent': { 'campaign-id': S, 'i-understand': B, execute: B, 'run-at-load': B },
   'uninstall-agent': { execute: B },
-  supervise: { 'campaign-id': S, ...TEST_DB },
+  supervise: { 'campaign-id': S, 'outbox-dir': S, ...TEST_DB },
 } as const satisfies Record<EngineCommand, Record<string, { type: 'boolean' | 'string' }>>);
 
 export const ENGINE_USAGE = `nwf-engine - start the NWF Partnership Engine on this Mac and keep it working
@@ -51,7 +51,8 @@ export const ENGINE_USAGE = `nwf-engine - start the NWF Partnership Engine on th
   npm run engine -- <command>      (or scripts/nwf-engine <command>)
 
   doctor            [--json]                 read-only preflight; changes nothing
-  start             [--campaign-id <uuid>]   start Postgres if stopped, run doctor, start the supervisor
+  start             [--campaign-id <uuid>] [--outbox-dir <absolute dir>]
+                                             start Postgres if stopped, run doctor, start the supervisor
   status            [--json] [--campaign-id <uuid>] [--operator-status-file <path>]
   pause             [--reason <text>]        record PAUSE (owner path); the current item finishes
   resume            [--reason <text>]        record RESUME (owner path); the supervisor continues
@@ -63,7 +64,10 @@ export const ENGINE_USAGE = `nwf-engine - start the NWF Partnership Engine on th
   install-agent     --i-understand [--execute] [--run-at-load]   optional user LaunchAgent (never loaded)
   uninstall-agent   [--execute]
 
-  The campaign id given to \`start\` is remembered; other commands use it.
+  The campaign id and outbox directory given to \`start\` are remembered; other
+  commands use them. A campaign that lists RESEARCHED or ASSESSABLE needs an
+  outbox directory: an existing directory you created, which receives the
+  exports for the Operator.
   The runtime never applies migrations, never records or starts a campaign,
   never changes a switch, reads no key and makes no network call itself.
 `;

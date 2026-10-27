@@ -19,6 +19,7 @@
  */
 import { spawn, type ChildProcess } from 'node:child_process';
 import { closeSync, openSync } from 'node:fs';
+import { isAbsolute, normalize } from 'node:path';
 
 import type { CliRun } from './envelope.js';
 
@@ -27,6 +28,23 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const WORKER_ID = /^[a-z0-9][a-z0-9_.:-]{2,63}$/;
 /** A control reason: short, printable, no control characters. */
 const REASON = /^[\p{L}\p{N} .,;:()'_/-]{1,200}$/u;
+
+/**
+ * The worker's outbox directory (ADR 0030 s6): absolute, already canonical
+ * (no `.`/`..`/`//`, no trailing slash), printable, bounded. The worker
+ * re-checks it (exists, a directory, not a symlink) before it writes.
+ */
+export function isOutboxDirArgument(dir: string): boolean {
+  return (
+    dir.length > 1 &&
+    dir.length <= 1024 &&
+    isAbsolute(dir) &&
+    normalize(dir) === dir &&
+    !dir.endsWith('/') &&
+    // eslint-disable-next-line no-control-regex
+    !/[\u0000-\u001f\u007f]/.test(dir)
+  );
+}
 
 const NODE_FLAGS = ['--import', 'tsx'] as const;
 export const ENGINE_CLI_ENTRY = 'src/cli/index.ts';
@@ -57,7 +75,13 @@ export type AcquisitionInvocation =
       readonly action: RuntimeControlAction;
       readonly reason?: string;
     }
-  | { readonly kind: 'worker'; readonly campaignId: string; readonly workerId: string };
+  | {
+      readonly kind: 'worker';
+      readonly campaignId: string;
+      readonly workerId: string;
+      /** Passed as `--outbox-dir` when the OWNER configured one. */
+      readonly outboxDir?: string | null;
+    };
 
 export class InvocationRefusal extends Error {
   constructor(message: string) {
@@ -102,18 +126,32 @@ export function acquisitionArgv(inv: AcquisitionInvocation): string[] {
         inv.campaignId,
         '--worker-id',
         inv.workerId,
+        ...outboxArgs(inv.outboxDir),
         '--json',
       ];
   }
 }
 
+function outboxArgs(outboxDir: string | null | undefined): string[] {
+  if (outboxDir === null || outboxDir === undefined) return [];
+  if (!isOutboxDirArgument(outboxDir)) {
+    throw new InvocationRefusal('the outbox directory must be an absolute, canonical path');
+  }
+  return ['--outbox-dir', outboxDir];
+}
+
 /** The exact runtime argument vector for a detached supervisor. */
-export function supervisorArgv(campaignId: string, allowTestDatabase: boolean): string[] {
+export function supervisorArgv(
+  campaignId: string,
+  allowTestDatabase: boolean,
+  outboxDir: string | null = null,
+): string[] {
   if (!UUID.test(campaignId)) throw new InvocationRefusal('campaign id must be a lower-case UUID');
   return [
     'supervise',
     '--campaign-id',
     campaignId,
+    ...outboxArgs(outboxDir),
     ...(allowTestDatabase ? ['--allow-test-database'] : []),
   ];
 }
@@ -139,10 +177,16 @@ export interface ProcessPort {
     campaignId: string,
     workerId: string,
     onStderr: (line: string) => void,
+    outboxDir?: string | null,
   ): WorkerHandle;
   compose(op: ComposeOperation): Promise<CliRun>;
   /** Starts a detached supervisor; its output goes to `outFile`. Returns its pid. */
-  spawnSupervisor(campaignId: string, allowTestDatabase: boolean, outFile: string): number | null;
+  spawnSupervisor(
+    campaignId: string,
+    allowTestDatabase: boolean,
+    outFile: string,
+    outboxDir?: string | null,
+  ): number | null;
 }
 
 function collect(child: ChildProcess, onStderr?: (line: string) => void): Promise<CliRun> {
@@ -189,10 +233,10 @@ export function createProcessPort(repoRoot: string): ProcessPort {
     });
   return {
     acquisition: (inv) => collect(node(ENGINE_CLI_ENTRY, acquisitionArgv(inv))),
-    launchWorker(campaignId, workerId, onStderr) {
+    launchWorker(campaignId, workerId, onStderr, outboxDir = null) {
       const child = node(
         ENGINE_CLI_ENTRY,
-        acquisitionArgv({ kind: 'worker', campaignId, workerId }),
+        acquisitionArgv({ kind: 'worker', campaignId, workerId, outboxDir }),
       );
       return {
         pid: child.pid ?? null,
@@ -213,12 +257,16 @@ export function createProcessPort(repoRoot: string): ProcessPort {
           stdio: ['ignore', 'pipe', 'pipe'],
         }),
       ),
-    spawnSupervisor(campaignId, allowTestDatabase, outFile) {
+    spawnSupervisor(campaignId, allowTestDatabase, outFile, outboxDir = null) {
       const fd = openSync(outFile, 'a', 0o600);
       try {
         const child = spawn(
           process.execPath,
-          [...NODE_FLAGS, RUNTIME_ENTRY, ...supervisorArgv(campaignId, allowTestDatabase)],
+          [
+            ...NODE_FLAGS,
+            RUNTIME_ENTRY,
+            ...supervisorArgv(campaignId, allowTestDatabase, outboxDir),
+          ],
           {
             cwd: repoRoot,
             env: process.env,

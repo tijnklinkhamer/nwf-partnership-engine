@@ -30,44 +30,47 @@ import type { LockState, SupervisorStateFile } from './lock.js';
 
 export const ENGINE_STATUS_CONTRACT = 'nwf-engine.status.v1';
 
-/** Fields of the campaign status this build renders. Anything else is "additional". */
+/**
+ * The top-level fields of `nwf-pe.acquisition-status.v1` (ADR 0030 s8) this
+ * build renders. Anything else is "additional", shown as reported.
+ */
 export const KNOWN_STATUS_FIELDS = [
-  'campaignId',
-  'campaignKey',
-  'controlState',
-  'verification',
-  'window',
-  'allowedStages',
-  'scope',
-  'totals',
-  'stages',
-  'claimedLive',
-  'retriesScheduled',
-  'refusals',
-  'failures',
-  'awaitingHuman',
-  'budgets',
-  'lastAdvancedAt',
-  'lastResearchedAt',
-  'lastWorkerStop',
-  'outbox',
-  'contract',
+  'schema',
   'generatedAt',
+  'campaign',
+  'discovery',
+  'candidates',
+  'identityReview',
+  'outbox',
+  'lastSuccessfulResearchAt',
+  'failures',
+  'budgets',
+  'queue',
 ] as const;
 
 /** Fields the dashboard needs; when absent they are listed as not reported. */
 const EXPECTED_STATUS_FIELDS = [
-  'controlState',
-  'verification',
-  'window',
-  'stages',
-  'refusals',
+  'campaign',
+  'discovery',
+  'candidates',
+  'identityReview',
+  'outbox',
+  'lastSuccessfulResearchAt',
   'failures',
-  'awaitingHuman',
   'budgets',
-  'lastAdvancedAt',
-  'lastWorkerStop',
+  'queue',
 ] as const;
+
+/** The v1 `candidates` counters, in display order. */
+export const CANDIDATE_COUNTERS = [
+  'discovered',
+  'deduplicated',
+  'proposed',
+  'researched',
+  'duplicatesRefused',
+  'largeHeiDeprioritised',
+] as const;
+export type CandidateCounter = (typeof CANDIDATE_COUNTERS)[number];
 
 const OPEN_STATES = ['PENDING', 'CLAIMED', 'LEASE_EXPIRED', 'RETRY_SCHEDULED'];
 
@@ -94,6 +97,16 @@ export interface EngineStatusInput {
   /** null when there is no campaign to read. */
   readonly campaignRead: StatusRead | null;
   readonly lastPublication: LastPublication;
+  /** The outbox directory `start` remembered on this Mac (null: none configured). */
+  readonly outboxDir?: string | null;
+}
+
+export interface FailureLine {
+  readonly stage: string;
+  readonly outcome: string;
+  readonly reason: string;
+  readonly count: number;
+  readonly explanation: string;
 }
 
 export interface EngineStatusDocument {
@@ -139,27 +152,38 @@ export interface EngineStatusDocument {
       readonly endsAt: string | null;
       readonly open: boolean | null;
     };
-    readonly scope: {
-      readonly stages: readonly string[] | null;
-      readonly reported: JsonObject | null;
-    };
-    /** Open items (pending, claimed, lease-expired, retry-scheduled) per stage. */
+    readonly scope: { readonly stages: readonly string[] | null };
+    /** Open items (pending, claimed, lease-expired, retry-scheduled) per stage, from `queue.stages`. */
     readonly queueDepth: Readonly<Record<string, number>> | null;
     readonly openItems: number | null;
-    /** Items at NOMINATED (every state). */
-    readonly candidatesDiscovered: number | null;
-    /** Items at RESEARCHED (every state). */
-    readonly candidatesResearched: number | null;
-    /** AWAITING_HUMAN items in the OWNER_IDENTITY_REVIEW queue. */
-    readonly awaitingIdentityReview: number | null;
-    /** Items at ASSESSABLE (every state). */
-    readonly assessable: number | null;
-    readonly outboxEntries: number | null;
+    /** `discovery`: the latest search or link-out run, and how many of each. */
+    readonly discovery: {
+      readonly latestRun: JsonObject | null;
+      readonly searchRuns: number | null;
+      readonly linkOutRoots: number | null;
+    } | null;
+    /** `candidates.*`, as reported. */
+    readonly candidates: Readonly<Record<CandidateCounter, number | null>> | null;
+    /** `identityReview.*`: subjects parked for the OWNER's batched review, and released. */
+    readonly identityReview: {
+      readonly awaiting: number | null;
+      readonly released: number | null;
+    } | null;
+    /** `outbox.*`: what the worker wrote to the outbox (counts and time only). */
+    readonly outbox: {
+      readonly researchExports: number | null;
+      readonly manifestEntries: number | null;
+      readonly lastWrittenAt: string | null;
+    } | null;
+    readonly outboxDir: string | null;
+    readonly failures: readonly FailureLine[] | null;
     readonly budgets: Readonly<
       Record<string, { limit: number | null; used: number | null; remaining: number | null }>
     > | null;
+    /** `queue.lastAdvancedAt`. */
     readonly lastAdvancedAt: string | null;
     readonly lastSuccessfulResearchAt: string | null;
+    /** `queue.lastWorkerStop`. */
     readonly lastWorkerStop: JsonObject | null;
   };
   readonly notices: readonly Notice[];
@@ -170,22 +194,6 @@ export interface EngineStatusDocument {
 
 const num = (v: unknown): number | null => (typeof v === 'number' && Number.isFinite(v) ? v : null);
 const str = (v: unknown): string | null => (typeof v === 'string' ? v : null);
-
-function stageTotal(
-  stages: JsonObject | null,
-  stage: string,
-  states?: readonly string[],
-): number | null {
-  if (stages === null) return null;
-  const s = stages[stage];
-  if (!isObject(s)) return 0;
-  let total = 0;
-  for (const [state, n] of Object.entries(s)) {
-    if (states !== undefined && !states.includes(state)) continue;
-    total += num(n) ?? 0;
-  }
-  return total;
-}
 
 /** Reads `lastPublicationAt` from an Operator-written JSON file, if one is configured. */
 export function readOperatorPublication(path: string | null): LastPublication {
@@ -242,7 +250,7 @@ export function buildEngineStatus(input: EngineStatusInput): EngineStatusDocumen
     });
   }
 
-  // Campaign status.
+  // Campaign status (nwf-pe.acquisition-status.v1).
   const read = input.campaignRead;
   const reported = read?.kind === 'STATUS' ? read.status : null;
   if (input.campaignId === null) {
@@ -266,25 +274,25 @@ export function buildEngineStatus(input: EngineStatusInput): EngineStatusDocumen
     });
   }
 
-  const verification =
-    reported !== null && isObject(reported['verification']) ? reported['verification'] : null;
-  const window = reported !== null && isObject(reported['window']) ? reported['window'] : null;
-  const stages = reported !== null && isObject(reported['stages']) ? reported['stages'] : null;
-  const awaiting =
-    reported !== null && isObject(reported['awaitingHuman']) ? reported['awaitingHuman'] : null;
-  const controlState = reported === null ? null : str(reported['controlState']);
+  const obj = (v: unknown): JsonObject | null => (isObject(v) ? v : null);
+  const campaign = obj(reported?.['campaign']);
+  const window = obj(campaign?.['window']);
+  const queue = obj(reported?.['queue']);
+  const stages = obj(queue?.['stages']);
+  const discoveryObj = obj(reported?.['discovery']);
+  const candidatesObj = obj(reported?.['candidates']);
+  const reviewObj = obj(reported?.['identityReview']);
+  const outboxObj = obj(reported?.['outbox']);
+  const controlState = campaign === null ? null : str(campaign['controlState']);
   const verified =
-    verification === null
-      ? null
-      : typeof verification['verified'] === 'boolean'
-        ? verification['verified']
-        : null;
+    campaign !== null && typeof campaign['verified'] === 'boolean' ? campaign['verified'] : null;
+  const verificationDetail = campaign === null ? null : str(campaign['verificationDetail']);
 
   if (verified === false) {
     notices.push({
       level: 'error',
       code: 'CAMPAIGN_UNVERIFIED',
-      message: `The campaign does not verify under the pinned OWNER campaign key set${verification?.['detail'] ? ` (${String(verification['detail'])})` : ''}: the worker will not claim anything.`,
+      message: `The campaign does not verify under the pinned OWNER campaign key set${verificationDetail ? ` (${verificationDetail})` : ''}: the worker will not claim anything.`,
     });
   }
   if (controlState !== null && controlState !== 'RUNNING') {
@@ -302,10 +310,13 @@ export function buildEngineStatus(input: EngineStatusInput): EngineStatusDocumen
     queueDepth = {};
     openItems = 0;
     for (const [stage, states] of Object.entries(stages)) {
-      const n = stageTotal(stages, stage, OPEN_STATES) ?? 0;
+      let n = 0;
+      if (isObject(states)) {
+        for (const state of OPEN_STATES) n += num(states[state]) ?? 0;
+        leaseExpired += num(states['LEASE_EXPIRED']) ?? 0;
+      }
       queueDepth[stage] = n;
       openItems += n;
-      if (isObject(states)) leaseExpired += num(states['LEASE_EXPIRED']) ?? 0;
     }
   }
   if (leaseExpired > 0) {
@@ -315,25 +326,49 @@ export function buildEngineStatus(input: EngineStatusInput): EngineStatusDocumen
       message: `${leaseExpired} item(s) have an expired lease (a worker died or hung). They are retried as attempt n+1; none is lost or run twice.`,
     });
   }
-  for (const [kind, level] of [
-    ['failures', 'error'],
-    ['refusals', 'warning'],
-  ] as const) {
-    const table = reported !== null && isObject(reported[kind]) ? reported[kind] : null;
-    for (const [reason, n] of Object.entries(table ?? {})) {
+
+  let failures: FailureLine[] | null = null;
+  if (reported !== null && Array.isArray(reported['failures'])) {
+    failures = [];
+    for (const f of reported['failures'] as unknown[]) {
+      if (!isObject(f)) continue;
+      const line: FailureLine = {
+        stage: str(f['stage']) ?? '?',
+        outcome: str(f['outcome']) ?? '?',
+        reason: str(f['reason']) ?? '?',
+        count: num(f['count']) ?? 0,
+        // The status explains each reason itself; this build's table only fills a gap.
+        explanation:
+          str(f['explanation']) ?? explain(ITEM_REASON_EXPLANATION, str(f['reason']) ?? ''),
+      };
+      failures.push(line);
+      const failed = line.outcome === 'FAILED_TERMINAL';
       notices.push({
-        level,
-        code: `${kind === 'failures' ? 'FAILED' : 'REFUSED'}_${reason}`,
-        message: `${String(n)} item(s) ${kind === 'failures' ? 'failed' : 'refused'}: ${reason} - ${explain(ITEM_REASON_EXPLANATION, reason)}.`,
+        level: failed ? 'error' : line.reason === 'DUPLICATE' ? 'info' : 'warning',
+        code: `${failed ? 'FAILED' : 'REFUSED'}_${line.stage}_${line.reason}`,
+        message: `${line.count} item(s) at ${line.stage} ${failed ? 'failed' : 'refused'}: ${line.reason} - ${line.explanation}`,
       });
     }
   }
-  const retries = reported === null ? null : num(reported['retriesScheduled']);
+  const retries = queue === null ? null : num(queue['retriesScheduled']);
   if (retries !== null && retries > 0) {
     notices.push({
       level: 'info',
       code: 'RETRIES_SCHEDULED',
       message: `${retries} item(s) are scheduled for a retry (capped backoff).`,
+    });
+  }
+
+  const awaiting = reviewObj === null ? null : num(reviewObj['awaiting']);
+  if (awaiting !== null && awaiting > 0) {
+    const id = input.campaignId ?? '<uuid>';
+    notices.push({
+      level: 'info',
+      code: 'IDENTITY_REVIEW_AWAITING',
+      message:
+        `${awaiting} subject(s) await your identity review. List them with ` +
+        `\`npm run cli -- acquisition review list --campaign-id ${id}\`, then sign the ones you confirm in ONE batch with ` +
+        `\`npm run cli -- acquisition review sign --campaign-id ${id} --subject-id <uuid> [--subject-id <uuid> ...] --key-file <path> --key-id <id> --execute\`.`,
     });
   }
 
@@ -350,14 +385,14 @@ export function buildEngineStatus(input: EngineStatusInput): EngineStatusDocumen
         notices.push({
           level: 'warning',
           code: `BUDGET_SPENT_${name}`,
-          message: `Budget ${name} is spent (${String(out[name].used)} of ${String(out[name].limit)}).`,
+          message: `Budget ${name} is spent (${String(out[name].used)} of ${String(out[name].limit)}; claims still in flight count as spent).`,
         });
       }
     }
     budgets = out;
   }
 
-  const lastAdvancedAt = reported === null ? null : str(reported['lastAdvancedAt']);
+  const lastAdvancedAt = queue === null ? null : str(queue['lastAdvancedAt']);
   if (
     live?.phase === 'RUNNING_WORKER' &&
     lastAdvancedAt !== null &&
@@ -369,8 +404,7 @@ export function buildEngineStatus(input: EngineStatusInput): EngineStatusDocumen
       message: `No item has advanced since ${lastAdvancedAt} although the worker is running.`,
     });
   }
-  const lastStop =
-    reported !== null && isObject(reported['lastWorkerStop']) ? reported['lastWorkerStop'] : null;
+  const lastStop = obj(queue?.['lastWorkerStop']);
 
   const additionalFields: Record<string, unknown> = {};
   const notReported: string[] = [];
@@ -380,16 +414,18 @@ export function buildEngineStatus(input: EngineStatusInput): EngineStatusDocumen
     }
     for (const k of EXPECTED_STATUS_FIELDS) if (!(k in reported)) notReported.push(k);
   }
-  if (reported === null || !('lastResearchedAt' in reported)) notReported.push('lastResearchedAt');
-  if (reported === null || !('outbox' in reported)) notReported.push('outbox');
 
-  const outbox =
-    reported !== null && isObject(reported['outbox']) ? num(reported['outbox']['entries']) : null;
-  const scopeObj = reported !== null && isObject(reported['scope']) ? reported['scope'] : null;
   const allowed =
-    reported !== null && Array.isArray(reported['allowedStages'])
-      ? (reported['allowedStages'] as unknown[]).map(String)
+    campaign !== null && Array.isArray(campaign['allowedStages'])
+      ? (campaign['allowedStages'] as unknown[]).map(String)
       : null;
+  const candidates =
+    candidatesObj === null
+      ? null
+      : (Object.fromEntries(CANDIDATE_COUNTERS.map((k) => [k, num(candidatesObj[k])])) as Record<
+          CandidateCounter,
+          number | null
+        >);
 
   return {
     contract: ENGINE_STATUS_CONTRACT,
@@ -425,27 +461,43 @@ export function buildEngineStatus(input: EngineStatusInput): EngineStatusDocumen
             reported,
           },
     summary: {
-      campaignKey: reported === null ? null : str(reported['campaignKey']),
+      campaignKey: campaign === null ? null : str(campaign['campaignKey']),
       controlState,
       verified,
-      verificationDetail: verification === null ? null : str(verification['detail']),
+      verificationDetail,
       window: {
         startsAt: window === null ? null : str(window['startsAt']),
         endsAt: window === null ? null : str(window['endsAt']),
         open: window === null ? null : typeof window['open'] === 'boolean' ? window['open'] : null,
       },
-      scope: { stages: allowed, reported: scopeObj },
+      scope: { stages: allowed },
       queueDepth,
       openItems,
-      candidatesDiscovered: stageTotal(stages, 'NOMINATED'),
-      candidatesResearched: stageTotal(stages, 'RESEARCHED'),
-      awaitingIdentityReview:
-        awaiting === null ? null : (num(awaiting['OWNER_IDENTITY_REVIEW']) ?? 0),
-      assessable: stageTotal(stages, 'ASSESSABLE'),
-      outboxEntries: outbox,
+      discovery:
+        discoveryObj === null
+          ? null
+          : {
+              latestRun: obj(discoveryObj['latestRun']),
+              searchRuns: num(discoveryObj['searchRuns']),
+              linkOutRoots: num(discoveryObj['linkOutRoots']),
+            },
+      candidates,
+      identityReview:
+        reviewObj === null ? null : { awaiting, released: num(reviewObj['released']) },
+      outbox:
+        outboxObj === null
+          ? null
+          : {
+              researchExports: num(outboxObj['researchExports']),
+              manifestEntries: num(outboxObj['manifestEntries']),
+              lastWrittenAt: str(outboxObj['lastWrittenAt']),
+            },
+      outboxDir: input.outboxDir ?? null,
+      failures,
       budgets,
       lastAdvancedAt,
-      lastSuccessfulResearchAt: reported === null ? null : str(reported['lastResearchedAt']),
+      lastSuccessfulResearchAt:
+        reported === null ? null : str(reported['lastSuccessfulResearchAt']),
       lastWorkerStop: lastStop,
     },
     notices,
@@ -542,11 +594,7 @@ export function renderEngineStatus(doc: EngineStatusDocument): string {
         'Window',
         `${show(s.window.startsAt)} .. ${show(s.window.endsAt)} (${s.window.open === null ? NR : s.window.open ? 'open' : 'not open'})`,
       );
-      row(
-        'Research scope (stages)',
-        s.scope.stages === null ? NR : s.scope.stages.join(', ') || 'none',
-      );
-      if (s.scope.reported !== null) row('Research scope (signed)', compact(s.scope.reported));
+      row('Signed stages', s.scope.stages === null ? NR : s.scope.stages.join(', ') || 'none');
       L.push('');
       L.push('WORK');
       if (s.queueDepth === null) row('Queue depth', NR);
@@ -554,21 +602,65 @@ export function renderEngineStatus(doc: EngineStatusDocument): string {
         row('Queue depth (open items)', `${show(s.openItems)} in total`);
         for (const [stage, n] of Object.entries(s.queueDepth)) row(`  ${stage}`, String(n));
       }
-      row('Candidates discovered', `${show(s.candidatesDiscovered)}  (items at NOMINATED)`);
-      row('Candidates researched', `${show(s.candidatesResearched)}  (items at RESEARCHED)`);
+      const run = s.discovery?.latestRun ?? null;
+      row(
+        'Latest discovery run',
+        s.discovery === null
+          ? NR
+          : run === null
+            ? 'none yet'
+            : `${show(run['kind'])} ${run['geography'] === null ? '' : `${show(run['geography'])} `}started ${show(run['startedAt'])}, ${run['outcome'] === null ? 'not finished' : show(run['outcome'])}`,
+      );
+      if (s.discovery !== null) {
+        row(
+          'Discovery runs',
+          `${show(s.discovery.searchRuns)} search, ${show(s.discovery.linkOutRoots)} link-out root(s)`,
+        );
+      }
+      const c = s.candidates;
+      const cand = (k: CandidateCounter) => (c === null ? NR : show(c[k]));
+      row('Candidates discovered', `${cand('discovered')}  (nominations; items at NOMINATED)`);
+      row('  de-duplicated', `${cand('deduplicated')}  (passed de-duplication)`);
+      row('  proposed', `${cand('proposed')}  (provisional subjects; items at RESEARCH_PENDING)`);
+      row('  researched', `${cand('researched')}  (bounded first-party research done)`);
+      row('  duplicates refused', `${cand('duplicatesRefused')}  (named signal, never merged)`);
+      row('  large HEIs deprioritised', cand('largeHeiDeprioritised'));
       row(
         'Awaiting identity review',
-        `${show(s.awaitingIdentityReview)}  (OWNER_IDENTITY_REVIEW queue)`,
+        s.identityReview === null
+          ? NR
+          : `${show(s.identityReview.awaiting)}  (released after review: ${show(s.identityReview.released)})`,
       );
-      row('Assessable', `${show(s.assessable)}  (items at ASSESSABLE)`);
-      row('Outbox entries', show(s.outboxEntries));
-      row('Last progress', `${show(s.lastAdvancedAt)}  (last ADVANCED outcome)`);
-      row('Last successful research', show(s.lastSuccessfulResearchAt));
+      row(
+        'Outbox',
+        s.outbox === null
+          ? NR
+          : `${show(s.outbox.researchExports)} research export(s), ${show(s.outbox.manifestEntries)} manifest line(s); last written ${s.outbox.lastWrittenAt ?? 'never'}`,
+      );
+      row(
+        'Outbox directory',
+        s.outboxDir ?? 'none configured (`nwf-engine start --outbox-dir <dir>`)',
+      );
+      row('Last progress', `${s.lastAdvancedAt ?? 'none yet'}  (last ADVANCED outcome)`);
+      row(
+        'Last successful research',
+        doc.notReported.includes('lastSuccessfulResearchAt')
+          ? NR
+          : (s.lastSuccessfulResearchAt ?? 'none yet'),
+      );
       if (s.lastWorkerStop !== null) {
         row(
           'Last worker stop (DB)',
           `${show(s.lastWorkerStop['reason'])} at ${show(s.lastWorkerStop['at'])}`,
         );
+      }
+      if (s.failures !== null && s.failures.length > 0) {
+        L.push('');
+        L.push('REFUSED AND FAILED ITEMS (terminal)');
+        for (const f of s.failures) {
+          row(`  ${f.stage} ${f.reason}`, `${f.count} ${f.outcome}`);
+          row('', f.explanation);
+        }
       }
       L.push('');
       L.push('BUDGETS (remaining of limit)');
@@ -597,7 +689,7 @@ export function renderEngineStatus(doc: EngineStatusDocument): string {
   }
   if (doc.notReported.length > 0) {
     L.push('');
-    L.push(`Not reported by this build: ${doc.notReported.join(', ')}`);
+    L.push(`Not reported by the campaign status: ${doc.notReported.join(', ')}`);
   }
   return `${L.join('\n')}\n`;
 }

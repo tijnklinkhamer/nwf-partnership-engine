@@ -7,18 +7,22 @@
  * versioned contract (`nwf-pe.acquisition-cli.v1`), and this file is the one
  * place that interprets it.
  *
- * TOLERANT BY DESIGN. The status document is being extended concurrently (a
- * versioned `nwf-pe.acquisition-status.v1`), so a field this build does not
- * know is carried through and shown, never dropped, and a field that is
- * absent is "not reported", never zero. What is NOT tolerated is an
- * unreadable document: that is reported as such, never guessed around.
+ * THE STATUS IS VERSIONED. `acquisition status --json` prints the CLI
+ * envelope whose `status` is `nwf-pe.acquisition-status.v1` (ADR 0030 s8):
+ * campaign facts under `campaign`, progress under `discovery`, `candidates`,
+ * `identityReview`, `outbox`, `failures` and `budgets`, and the ADR 0029
+ * queue status unchanged under `queue`. v1 only ever ADDS fields a reader
+ * may ignore, so a field this build does not know is carried through and
+ * shown, never dropped, and a field that is absent is "not reported", never
+ * zero. What is NOT tolerated is an unreadable document or a status schema
+ * this build does not read: that is reported as such, never guessed around.
  *
  * PURE: no socket, no filesystem, no environment, no clock.
  */
 
 export const ACQUISITION_CLI_CONTRACT = 'nwf-pe.acquisition-cli.v1';
-/** The versioned status contract another package is introducing. Accepted when it appears. */
-export const ACQUISITION_STATUS_CONTRACT_PREFIX = 'nwf-pe.acquisition-status.';
+/** The one status schema this build reads (ADR 0030 s8, `acquisitionWiring/status.ts`). */
+export const ACQUISITION_STATUS_SCHEMA = 'nwf-pe.acquisition-status.v1';
 
 /** What one finished Engine CLI process produced. */
 export interface CliRun {
@@ -114,7 +118,7 @@ export function parseWorkerRun(run: CliRun): WorkerResult {
 export type StatusRead =
   | {
       readonly kind: 'STATUS';
-      /** The contract the document declared. */
+      /** The status schema the document declared (`nwf-pe.acquisition-status.v1`). */
       readonly contract: string;
       /** The status object exactly as reported (unknown fields included). */
       readonly status: JsonObject;
@@ -126,19 +130,23 @@ export function parseStatusRun(run: CliRun): StatusRead {
   const doc = parseEnvelope(run.stdout);
   if (doc === null) return { kind: 'UNAVAILABLE', detail: crashDetail(run) };
   const contract = str(doc['contract']);
-  if (contract === ACQUISITION_CLI_CONTRACT) {
-    if (doc['outcome'] === 'REFUSED') {
-      return { kind: 'REFUSED', code: str(doc['code']) ?? 'UNKNOWN', detail: str(doc['detail']) };
-    }
-    if (isObject(doc['status'])) return { kind: 'STATUS', contract, status: doc['status'] };
+  if (contract !== ACQUISITION_CLI_CONTRACT) {
+    return { kind: 'UNAVAILABLE', detail: `unrecognised CLI contract ${String(contract)}` };
   }
-  if (contract !== null && contract.startsWith(ACQUISITION_STATUS_CONTRACT_PREFIX)) {
-    if (doc['outcome'] === 'REFUSED') {
-      return { kind: 'REFUSED', code: str(doc['code']) ?? 'UNKNOWN', detail: str(doc['detail']) };
-    }
-    return { kind: 'STATUS', contract, status: isObject(doc['status']) ? doc['status'] : doc };
+  if (doc['outcome'] === 'REFUSED') {
+    return { kind: 'REFUSED', code: str(doc['code']) ?? 'UNKNOWN', detail: str(doc['detail']) };
   }
-  return { kind: 'UNAVAILABLE', detail: `unrecognised status contract ${String(contract)}` };
+  if (doc['outcome'] !== 'STATUS' || !isObject(doc['status'])) {
+    return { kind: 'UNAVAILABLE', detail: `unexpected outcome ${String(doc['outcome'])}` };
+  }
+  const schema = str(doc['status']['schema']);
+  if (schema !== ACQUISITION_STATUS_SCHEMA) {
+    return {
+      kind: 'UNAVAILABLE',
+      detail: `status schema ${String(schema)} is not one this build reads (${ACQUISITION_STATUS_SCHEMA})`,
+    };
+  }
+  return { kind: 'STATUS', contract: schema, status: doc['status'] };
 }
 
 /** The few status facts the supervisor acts on. Absent means UNKNOWN, never a default. */
@@ -149,18 +157,23 @@ export interface CampaignFacts {
   readonly windowStartsAt: string | null;
   readonly windowEndsAt: string | null;
   readonly windowOpen: boolean | null;
+  /** `identityReview.awaiting`: subjects parked for the OWNER's batched identity review. */
+  readonly identityReviewAwaiting: number | null;
 }
 
+/** Reads the v1 `campaign` and `identityReview` objects (never the provisional top level). */
 export function campaignFactsOf(status: JsonObject): CampaignFacts {
-  const verification = isObject(status['verification']) ? status['verification'] : {};
-  const window = isObject(status['window']) ? status['window'] : {};
+  const campaign = isObject(status['campaign']) ? status['campaign'] : {};
+  const window = isObject(campaign['window']) ? campaign['window'] : {};
+  const review = isObject(status['identityReview']) ? status['identityReview'] : {};
   return {
-    controlState: str(status['controlState']),
-    verified: typeof verification['verified'] === 'boolean' ? verification['verified'] : null,
-    verificationDetail: str(verification['detail']),
+    controlState: str(campaign['controlState']),
+    verified: typeof campaign['verified'] === 'boolean' ? campaign['verified'] : null,
+    verificationDetail: str(campaign['verificationDetail']),
     windowStartsAt: str(window['startsAt']),
     windowEndsAt: str(window['endsAt']),
     windowOpen: typeof window['open'] === 'boolean' ? window['open'] : null,
+    identityReviewAwaiting: int(review['awaiting']),
   };
 }
 

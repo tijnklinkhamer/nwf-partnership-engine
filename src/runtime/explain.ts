@@ -15,7 +15,7 @@ export const SUPERVISOR_PHASE_EXPLANATION: Readonly<Record<string, string>> = {
   WAITING_FOR_WORK:
     'The worker found nothing it may claim right now; it will be restarted after a pause that grows (capped) while nothing changes.',
   WAITING_FOR_HUMAN_REVIEW:
-    'The OWNER identity-review backlog reached the cap the campaign signed; work resumes as items are reviewed.',
+    'Work waits on the OWNER identity review (`nwf-pe acquisition review list`, then `review sign`): the backlog reached the cap the campaign signed, or the budget is spent and only reviewed subjects remain to be written to the outbox. Work resumes as subjects are reviewed.',
   WAITING_PAUSED:
     'The campaign is PAUSED. Nothing is claimed. `nwf-engine resume` (or an owner-path RESUME) continues it.',
   WAITING_NOT_STARTED:
@@ -33,14 +33,15 @@ export const SUPERVISOR_EXIT_EXPLANATION: Readonly<Record<string, string>> = {
   CAMPAIGN_EMERGENCY_STOPPED:
     'The OWNER recorded EMERGENCY_STOP. The running item was aborted and recorded as refused. The campaign is over.',
   BUDGET_EXHAUSTED:
-    'A budget the campaign signed is spent and nothing else is claimable. A new signed campaign is needed for more work.',
+    'A budget the campaign signed is spent, nothing else is claimable and no subject awaits the identity review. A new signed campaign is needed for more work.',
   CAMPAIGN_WINDOW_CLOSED: 'The signed campaign window has ended.',
   CAMPAIGN_UNVERIFIED:
     'The campaign does not verify under the pinned OWNER campaign key set (in this build that set is empty, so no campaign can run).',
   CAMPAIGN_NOT_FOUND: 'No campaign with this id is recorded in the database.',
   HANDLERS_NOT_WIRED:
-    'This build wires no production stage handler, so the worker refuses to run (ACQUISITION_HANDLERS_NOT_WIRED). Nothing was claimed.',
-  WORKER_REFUSED: 'The worker refused to start (see the code). Nothing was claimed.',
+    'The campaign lists a stage this build has no production handler for, so the worker refuses to run (ACQUISITION_HANDLERS_NOT_WIRED). Nothing was claimed.',
+  WORKER_REFUSED:
+    'The worker refused to start (see the code; an `outbox_*` code means the outbox directory is missing or unsafe - `nwf-engine start --outbox-dir <absolute dir>`). Nothing was claimed.',
   STATUS_REFUSED: 'The status command refused (see the code).',
   UNKNOWN_WORKER_STOP:
     'The worker stopped for a reason this runtime does not know; it does not guess, so it stopped too.',
@@ -79,7 +80,8 @@ export const CONTROL_STATE_EXPLANATION: Readonly<Record<string, string>> = {
 
 export const ITEM_REASON_EXPLANATION: Readonly<Record<string, string>> = {
   // refusals (terminal)
-  DUPLICATE: 'the subject was already in the queue',
+  DUPLICATE:
+    'a duplicate of a website claim, an existing subject, an earlier nomination or the plan exclusion set (a signal was recorded; nothing was merged)',
   OUT_OF_SCOPE: 'outside the signed campaign scope',
   NOT_ADMISSIBLE: 'the evidence was not admissible',
   POLICY_REFUSED: 'a fetch/site policy refused it',

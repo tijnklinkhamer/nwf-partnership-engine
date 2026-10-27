@@ -15,7 +15,7 @@
  * Nothing here applies a migration, records or starts a campaign, grants
  * anything, changes a switch, or reads a key.
  */
-import { existsSync } from 'node:fs';
+import { existsSync, lstatSync } from 'node:fs';
 
 import { ENGINE_USAGE, parseEngineArgs, type EngineCommand, type Values } from './args.js';
 import type { RuntimeClock } from './clock.js';
@@ -48,7 +48,7 @@ import {
   tailLines,
 } from './logs.js';
 import { ensurePrivateDir, type EnginePaths } from './paths.js';
-import type { ProcessPort, RuntimeControlAction } from './processes.js';
+import { isOutboxDirArgument, type ProcessPort, type RuntimeControlAction } from './processes.js';
 import { buildEngineStatus, readOperatorPublication, renderEngineStatus } from './status.js';
 import { Supervisor, SUPERVISOR_WORKER_ID, type SupervisorPolicy } from './supervisor.js';
 import {
@@ -143,6 +143,58 @@ function campaignIdOf(v: Values, deps: EngineDeps): string {
   return remembered;
 }
 
+/** The stages whose handlers write to the outbox (ADR 0030 s3, s6). */
+const OUTBOX_STAGES = ['RESEARCHED', 'ASSESSABLE'];
+
+/**
+ * The outbox directory for `start`: the flag, else the remembered one. It
+ * must already exist as a real directory (the runtime never creates or
+ * chooses one), and a campaign whose signed stages write to the outbox
+ * cannot start without one - the worker would refuse on its first claim.
+ */
+async function outboxDirFor(
+  v: Values,
+  deps: EngineDeps,
+  campaignId: string,
+): Promise<string | null> {
+  const flag = v['outbox-dir'];
+  const dir = typeof flag === 'string' ? flag : readConfig(deps.paths).outboxDir;
+  if (dir !== null) {
+    if (!isOutboxDirArgument(dir)) {
+      throw new Refusal(
+        `--outbox-dir must be an absolute path written without ".", ".." or a trailing "/" (got ${JSON.stringify(dir)}).`,
+      );
+    }
+    let isDir: boolean;
+    try {
+      const st = lstatSync(dir);
+      isDir = st.isDirectory() && !st.isSymbolicLink();
+    } catch {
+      isDir = false;
+    }
+    if (!isDir) {
+      throw new Refusal(
+        `The outbox directory ${dir} does not exist or is not a real directory (a symlink is refused). ` +
+          `Create it yourself (\`mkdir -p -m 700 ${dir}\`), then run \`nwf-engine start\` again.`,
+      );
+    }
+    return dir;
+  }
+  const read = await readCampaign(deps, campaignId);
+  const campaign = read.kind === 'STATUS' ? read.status['campaign'] : null;
+  const stages =
+    typeof campaign === 'object' && campaign !== null
+      ? (campaign as Record<string, unknown>)['allowedStages']
+      : null;
+  if (Array.isArray(stages) && stages.some((s) => OUTBOX_STAGES.includes(String(s)))) {
+    throw new Refusal(
+      `Campaign ${campaignId} writes research exports to an outbox, and none is configured on this Mac. ` +
+        'Create a directory for it and pass it once: `nwf-engine start --outbox-dir <absolute dir>` (it is remembered).',
+    );
+  }
+  return null;
+}
+
 function engineLog(deps: EngineDeps) {
   return createRotatingLog(deps.paths.logDir, deps.paths.logFile, () => deps.clock.now());
 }
@@ -221,17 +273,24 @@ const COMMANDS: Record<EngineCommand, (v: Values, deps: EngineDeps) => Promise<n
       throw new Refusal('the preflight above has FAIL lines; nothing was started.');
     }
 
-    writeConfig(deps.paths, { ...readConfig(deps.paths), campaignId });
+    const outboxDir = await outboxDirFor(v, deps, campaignId);
+    writeConfig(deps.paths, { ...readConfig(deps.paths), campaignId, outboxDir });
     ensurePrivateDir(deps.paths.logDir);
     rotateIfLarger(deps.paths.supervisorOutFile, LOG_MAX_BYTES, LOG_KEEP);
-    const pid = deps.procs.spawnSupervisor(campaignId, allowTest(v), deps.paths.supervisorOutFile);
+    const pid = deps.procs.spawnSupervisor(
+      campaignId,
+      allowTest(v),
+      deps.paths.supervisorOutFile,
+      outboxDir,
+    );
     if (pid === null) throw new Refusal('the supervisor process could not be started.');
     const deadline = deps.clock.now() + (deps.startConfirmMs ?? 15_000);
     while (deps.clock.now() < deadline) {
       const now = inspectLock(deps.paths, deps.isAlive);
       if (now.kind === 'HELD' && now.lock.pid === pid) {
         deps.out(
-          `Started: supervisor pid ${pid} for campaign ${campaignId}.\n` +
+          `Started: supervisor pid ${pid} for campaign ${campaignId}` +
+            `${outboxDir === null ? '' : `, outbox ${outboxDir}`}.\n` +
             'It keeps the worker running, waits while the campaign is paused, and exits for good when the campaign ends.\n' +
             '`nwf-engine status` shows what it is doing; `nwf-engine logs --follow` shows its log.\n',
         );
@@ -273,8 +332,11 @@ const COMMANDS: Record<EngineCommand, (v: Values, deps: EngineDeps) => Promise<n
       clock: deps.clock,
       readStatus: () => deps.procs.acquisition({ kind: 'status', campaignId }),
       launchWorker: () =>
-        deps.procs.launchWorker(campaignId, SUPERVISOR_WORKER_ID, (line) =>
-          log.write(`[worker] ${line}`),
+        deps.procs.launchWorker(
+          campaignId,
+          SUPERVISOR_WORKER_ID,
+          (line) => log.write(`[worker] ${line}`),
+          typeof v['outbox-dir'] === 'string' ? v['outbox-dir'] : null,
         ),
       log: (line) => log.write(line),
       onState: (state) => writeSupervisorState(deps.paths, state),
@@ -338,6 +400,7 @@ const COMMANDS: Record<EngineCommand, (v: Values, deps: EngineDeps) => Promise<n
       campaignId,
       campaignRead,
       lastPublication: readOperatorPublication(operatorFile),
+      outboxDir: config.outboxDir,
     });
     deps.out(v['json'] === true ? `${JSON.stringify(doc, null, 2)}\n` : renderEngineStatus(doc));
     return 0;
@@ -451,7 +514,11 @@ const COMMANDS: Record<EngineCommand, (v: Values, deps: EngineDeps) => Promise<n
       if (read?.kind === 'STATUS') {
         let expired = 0;
         let claimed = 0;
-        const stages = read.status['stages'];
+        const queue = read.status['queue'];
+        const stages =
+          typeof queue === 'object' && queue !== null
+            ? (queue as Record<string, unknown>)['stages']
+            : null;
         if (typeof stages === 'object' && stages !== null) {
           for (const s of Object.values(stages as Record<string, Record<string, unknown>>)) {
             expired += typeof s['LEASE_EXPIRED'] === 'number' ? s['LEASE_EXPIRED'] : 0;
