@@ -191,7 +191,10 @@ function subjectDir(root: string, campaignId: string, subjectId: string): string
  * record written within the current second is not yet in them. Wait (on the
  * worker's clock, at most a little over one second) until every record this
  * campaign wrote for the subject - the subject, its claims, its research
- * runs' completions - is strictly in the past whole second.
+ * runs' completions - and the stage's own work item is strictly in the past
+ * whole second. For the ASSESSABLE pair that item is created by the OWNER's
+ * release, which `review sign` performs only AFTER the review and any country
+ * statement were committed, so the pair sees both.
  */
 async function settleWholeSecond(
   deps: WiringDeps,
@@ -205,12 +208,13 @@ async function settleWholeSecond(
          FROM (SELECT GREATEST(
                  (SELECT max(created_at) FROM discovery_subjects WHERE id = $1),
                  (SELECT max(created_at) FROM discovery_subject_identity_claims WHERE subject_id = $1),
+                 (SELECT created_at FROM acquisition_work_items WHERE id = $2),
                  (SELECT max(c.finished_at)
                     FROM subject_research_admissions a
                     JOIN orgunit_research_runs r ON r.root_scope = 'subject_admission:' || a.id::text
                     JOIN orgunit_research_run_completions c ON c.run_id = r.id
                    WHERE a.subject_id = $1)) AS latest) t`,
-      [item.subjectId],
+      [item.subjectId, item.id],
     );
     const waitMs = rows[0]?.wait_ms ?? 0;
     if (waitMs <= 0) return;
@@ -228,6 +232,17 @@ async function writeResearchExport(
     await loadOutboxEntries(deps.pools.readonly, item.campaignId, 'RESEARCH_EXPORT')
   ).find((e) => e.workItemId === item.id);
   if (existing !== undefined) return;
+  const pair = await writeExportPair(deps, root, item, ctx);
+  await recordOutboxEntry(deps.pools.worker, item, { kind: 'RESEARCH_EXPORT', ...pair });
+}
+
+/** Derives the subject's export pair as of a settled whole second and writes both files. */
+async function writeExportPair(
+  deps: WiringDeps,
+  root: string,
+  item: WorkItemView,
+  ctx: StageHandlerContext,
+): Promise<{ readonly exportV2Sha256: string; readonly subjectFactsSha256: string }> {
   await settleWholeSecond(deps, item, ctx);
   const exportV2 = json(
     await exportQualificationInputV2(deps.pools.readonly, {
@@ -239,11 +254,7 @@ async function writeResearchExport(
   const dir = subjectDir(root, item.campaignId, item.subjectId);
   writeAtomic(join(dir, OUTBOX_EXPORT_V2_FILE), exportV2);
   writeAtomic(join(dir, OUTBOX_SUBJECT_FACTS_FILE), facts);
-  await recordOutboxEntry(deps.pools.worker, item, {
-    kind: 'RESEARCH_EXPORT',
-    exportV2Sha256: sha256(exportV2),
-    subjectFactsSha256: sha256(facts),
-  });
+  return { exportV2Sha256: sha256(exportV2), subjectFactsSha256: sha256(facts) };
 }
 
 /** One manifest line of `nwf-pe.acquisition-outbox.v1`. */
@@ -295,18 +306,40 @@ async function withManifestLock<T>(
   }
 }
 
-async function writeManifest(deps: WiringDeps, item: WorkItemView): Promise<boolean> {
+/**
+ * WW acceptance fix: the manifest names the export pair RE-DERIVED after the
+ * OWNER-signed review, never the RESEARCHED stage's pre-review pair. The
+ * review is where the OWNER may state the subject's country from its own page
+ * (`review sign --country`); a pre-review export would hand the Operator
+ * `country.value: null` (NO_STATED_COUNTRY, not rankable) for every subject.
+ * The files are rewritten in place (the Operator accepts exactly one path per
+ * subject and checks the manifest's SHA-256); the RESEARCH_EXPORT row keeps
+ * the digest of what was written then. On a retry after the row exists the
+ * pair is not derived again: the files already match the recorded digests.
+ */
+async function writeManifest(
+  deps: WiringDeps,
+  item: WorkItemView,
+  ctx: StageHandlerContext,
+): Promise<boolean> {
   const root = assertOutboxRoot(deps.outboxDir);
   // P2-4: an ASSESSABLE line only for an OWNER-attested CONFIRMED identity.
   if (!(await identityConfirmed(deps, item.subjectId))) return false;
-  const exports = await loadOutboxEntries(deps.pools.readonly, item.campaignId, 'RESEARCH_EXPORT');
-  const mine = exports.find((e) => e.subjectId === item.subjectId);
-  if (mine === undefined) throw new OutboxRefusal('research_export_missing');
-  await recordOutboxEntry(deps.pools.worker, item, {
-    kind: 'ASSESSABLE_MANIFEST',
-    exportV2Sha256: mine.exportV2Sha256,
-    subjectFactsSha256: mine.subjectFactsSha256,
-  });
+  const recorded = (
+    await loadOutboxEntries(deps.pools.readonly, item.campaignId, 'ASSESSABLE_MANIFEST')
+  ).some((e) => e.workItemId === item.id);
+  if (!recorded) {
+    const exports = await loadOutboxEntries(
+      deps.pools.readonly,
+      item.campaignId,
+      'RESEARCH_EXPORT',
+    );
+    if (!exports.some((e) => e.subjectId === item.subjectId)) {
+      throw new OutboxRefusal('research_export_missing');
+    }
+    const pair = await writeExportPair(deps, root, item, ctx);
+    await recordOutboxEntry(deps.pools.worker, item, { kind: 'ASSESSABLE_MANIFEST', ...pair });
+  }
   await withManifestLock(deps, item.campaignId, () => rebuildManifest(deps, root, item));
   return true;
 }
@@ -355,8 +388,10 @@ export function researchedHandler(deps: WiringDeps): StageHandler {
 export function assessableHandler(deps: WiringDeps): StageHandler {
   return {
     stage: 'ASSESSABLE',
-    async handle(item): Promise<StageOutcome> {
-      if (!(await writeManifest(deps, item))) return { kind: 'REFUSED', reason: 'POLICY_REFUSED' };
+    async handle(item, ctx): Promise<StageOutcome> {
+      if (!(await writeManifest(deps, item, ctx))) {
+        return { kind: 'REFUSED', reason: 'POLICY_REFUSED' };
+      }
       return { kind: 'ADVANCED', next: null };
     },
   };

@@ -160,12 +160,18 @@ describe('WW H-ACQ (lead addendum): a country is stated by a source and confirme
     expect(c).toContain('COUNTRY_MENTION_MAX_CHARS = 200');
   });
 
-  it('a country is recorded only through the REL Q1 writer, after the review', () => {
+  it('a country is recorded only through the REL Q1 writer, after the review and before the release', () => {
+    // WW acceptance fix: the release lets a running worker write the ASSESSABLE export pair at
+    // once, so the statement must be committed between the review and the release (this pin
+    // previously placed it after the release, which let a worker export `country: null`).
     const review = code('src/orgunits/acquisitionWiring/review.ts');
     const at = (needle: string) => review.indexOf(needle);
-    expect(at('await releaseIdentityReviewItem(')).toBeGreaterThan(-1);
-    expect(at('country: await statedCountry(')).toBeGreaterThan(
-      at('await releaseIdentityReviewItem('),
+    expect(at('await signAndAppendSubjectReview(')).toBeGreaterThan(-1);
+    expect(at('const country = await statedCountry(')).toBeGreaterThan(
+      at('await signAndAppendSubjectReview('),
+    );
+    expect(at('await releaseIdentityReviewItem(')).toBeGreaterThan(
+      at('const country = await statedCountry('),
     );
   });
 });

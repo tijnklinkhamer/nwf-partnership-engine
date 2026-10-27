@@ -194,7 +194,13 @@ is the idempotency key; the manifest is rebuilt from those rows under a
 per-campaign session advisory lock (s13 P2-14), so a retry never duplicates a
 line and two writers never rebuild from different row sets. A manifest line
 is written only for a subject whose identity review head is an attested
-CONFIRMED review (s13 P2-4). No page text beyond the v2 export's own redacted
+CONFIRMED review (s13 P2-4), and it names the export pair RE-DERIVED at the
+ASSESSABLE stage, after that review - never the RESEARCHED stage's pre-review
+pair, which cannot carry a country the OWNER stated in the review (`review
+sign --country`, s5a) and would reach the Operator as `NO_STATED_COUNTRY`.
+The pair is rewritten in place at the one path the Operator accepts; the
+RESEARCH_EXPORT row keeps the digest of what was written then (WW acceptance
+fix, `wwAcquisitionAcceptance.test.ts`). No page text beyond the v2 export's own redacted
 proposal quotes; no body, contact or score. The exports wait until every
 record the campaign wrote for the subject lies in a past whole second (they
 evaluate "as of" a whole second of the database clock).

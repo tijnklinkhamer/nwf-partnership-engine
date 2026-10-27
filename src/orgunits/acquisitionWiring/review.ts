@@ -303,8 +303,9 @@ export async function planReviewBatch(
 }
 
 /**
- * Signs and appends one OWNER review per listed subject, then releases each
- * reviewed item to ASSESSABLE. A failure for one subject is reported and does
+ * Signs and appends one OWNER review per listed subject, records the OWNER's
+ * country statement for it (if any), then releases each reviewed item to
+ * ASSESSABLE. A failure for one subject is reported and does
  * not release it; the others proceed (each is its own decision).
  */
 export async function signCampaignReviews(
@@ -329,6 +330,10 @@ export async function signCampaignReviews(
         trust,
         nowMs(),
       );
+      // The country statement is recorded BEFORE the release: once released, a running worker
+      // may write the subject's ASSESSABLE export pair at once, and that pair must already see
+      // the claim (outbox.ts settles on the released item's own creation instant).
+      const country = await statedCountry(pools, countries, row.subject_id);
       await releaseIdentityReviewItem(pools.owner, {
         campaignId,
         identityReviewItemId: row.work_item_id,
@@ -338,7 +343,7 @@ export async function signCampaignReviews(
         workItemId: row.work_item_id,
         outcome: 'REVIEWED_AND_RELEASED',
         code: null,
-        country: await statedCountry(pools, countries, row.subject_id),
+        country,
       });
     } catch (error) {
       const code = (error as { code?: unknown }).code;
