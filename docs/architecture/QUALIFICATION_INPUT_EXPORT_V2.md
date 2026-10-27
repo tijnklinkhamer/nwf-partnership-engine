@@ -510,10 +510,15 @@ No contact, name, handle or profile field exists.
 for `nl-exchange-association` (rich), `nl-community-sparse` (homepage only),
 `jp-student-circle` (ja) and `mx-exchange-community` (es). Each file is
 `{ fixture: { label: 'SYNTHETIC', statement, key, producedBy, uuidRelabelling }, export: <v2 document> }`:
-fictional organisations on `.fict` domains, captured from a scripted
-transport in a disposable database, UUIDs relabelled onto
-`eeeeeeee-0000-4000-8000-e1…`. Regenerated under rules v2 / producer-v3
-(E-XFX); their SHA-256 pins changed. Regenerate with
+fictional organisations on RESERVED example domains (RFC 2606:
+`www.esa-voorbeeld-utrecht.example.org`,
+`www.buurtgroep-voorbeeld-zuid.example.net`,
+`www.ryugakuseikai-rei.example.com`,
+`www.intercambio-ejemplo-mty.example.org` - never a registrable real suffix;
+`.example` / `.test` cannot be used because the gateway admits only ICANN
+suffixes), captured from a scripted transport in a disposable database, UUIDs
+relabelled onto `eeeeeeee-0000-4000-8000-e1…`. Regenerated under rules v2 /
+producer-v3 (E-XFX); their SHA-256 pins changed. Regenerate with
 `QUALIFICATION_INPUT_V2_WRITE_FIXTURE=1` and re-pin the SHA-256 in
 `src/test/integration/qualificationInputExportV2.test.ts`.
 

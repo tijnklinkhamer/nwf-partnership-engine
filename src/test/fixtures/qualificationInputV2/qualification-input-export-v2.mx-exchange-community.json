@@ -1,7 +1,7 @@
 {
   "fixture": {
     "label": "SYNTHETIC",
-    "statement": "SYNTHETIC TEST FIXTURE: a fictional organisation on a fictional .fict domain, captured from a scripted transport in a disposable test database. Not research about any real organisation.",
+    "statement": "SYNTHETIC TEST FIXTURE: a fictional organisation on a reserved example domain (RFC 2606: example.org / example.net / example.com), captured from a scripted transport in a disposable test database. Not research about any real organisation.",
     "key": "mx-exchange-community",
     "producedBy": "src/test/integration/qualificationInputExportV2.test.ts",
     "uuidRelabelling": "every UUID mapped onto eeeeeeee-0000-4000-8000-e1… (order-preserving)"
@@ -14,17 +14,17 @@
       "dateRuleVersion": "nwf-pe-c1-stated-date-rules-v1",
       "pageClasses": [
         {
-          "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000037",
+          "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000018",
+          "classes": [
+            "EVENTS"
+          ]
+        },
+        {
+          "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000074",
           "classes": [
             "HOME",
             "EVENTS",
             "NEWSLETTER"
-          ]
-        },
-        {
-          "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000004b",
-          "classes": [
-            "EVENTS"
           ]
         }
       ]
@@ -40,10 +40,10 @@
     "dateRuleVersion": "nwf-pe-stated-date-rules-v1",
     "sourceRepository": "nwf-partnership-engine",
     "readConsistency": "SINGLE_SNAPSHOT_TRANSACTION",
-    "subjectId": "eeeeeeee-0000-4000-8000-e10000000029",
-    "evaluatedAt": "2026-10-27T19:29:36Z",
+    "subjectId": "eeeeeeee-0000-4000-8000-e1000000001c",
+    "evaluatedAt": "2026-10-27T19:25:53Z",
     "candidate": {
-      "candidateRef": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000029",
+      "candidateRef": "rp-candidate:eeeeeeee-0000-4000-8000-e1000000001c",
       "relations": []
     },
     "country": {
@@ -54,13 +54,13 @@
     },
     "channels": [
       {
-        "channelRef": "rp-channel:eeeeeeee-0000-4000-8000-e1000000000a",
+        "channelRef": "rp-channel:eeeeeeee-0000-4000-8000-e1000000002e",
         "kind": "MEMBER_NEWSLETTER",
         "channelClass": "FEED",
         "visibility": "PUBLIC",
-        "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000048",
+        "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000062",
         "admissionIds": [
-          "eeeeeeee-0000-4000-8000-e10000000069"
+          "eeeeeeee-0000-4000-8000-e10000000007"
         ],
         "derivation": "NAMED_ON_ADMITTED_SITE",
         "establishedBy": "PROPOSAL_ONLY",
@@ -69,13 +69,13 @@
         ]
       },
       {
-        "channelRef": "rp-channel:eeeeeeee-0000-4000-8000-e10000000039",
+        "channelRef": "rp-channel:eeeeeeee-0000-4000-8000-e10000000044",
         "kind": "ORIENTATION_EVENT",
         "channelClass": "EVENT_SLOT",
         "visibility": "PUBLIC",
-        "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000048",
+        "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000062",
         "admissionIds": [
-          "eeeeeeee-0000-4000-8000-e10000000069"
+          "eeeeeeee-0000-4000-8000-e10000000007"
         ],
         "derivation": "OBSERVED_ON_ADMITTED_SITE",
         "establishedBy": "OBSERVED_CLAIM",
@@ -84,13 +84,13 @@
         ]
       },
       {
-        "channelRef": "rp-channel:eeeeeeee-0000-4000-8000-e10000000048",
+        "channelRef": "rp-channel:eeeeeeee-0000-4000-8000-e10000000062",
         "kind": "RESOURCE_PAGE",
         "channelClass": "STATIC",
         "visibility": "PUBLIC",
-        "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000048",
+        "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000062",
         "admissionIds": [
-          "eeeeeeee-0000-4000-8000-e10000000069"
+          "eeeeeeee-0000-4000-8000-e10000000007"
         ],
         "derivation": "ADMITTED_ROOT_WEBSITE",
         "establishedBy": "OBSERVED_CLAIM",
@@ -100,44 +100,44 @@
     "sources": [
       {
         "evidenceClass": "RESEARCH_REAL",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000037",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000018",
         "publisherRelation": "SELF",
-        "capturedAt": "2026-10-27T19:29:35Z",
+        "capturedAt": "2026-10-27T19:25:52Z",
         "c1": {
           "captureKind": "ARTEFACT",
-          "contentDigest": "dd41e2e84b20317116e65206ef6d7be28242530814ce0bbc311ff0fe6e37c39f",
-          "originKey": "url.884be74068ce155f7b812b63b41ffd1d9d828cd7240a41ae38c6f7d2d4f7f083",
+          "contentDigest": "e1ccd487d2f9cb0ee92eed0eda8048008b6e892fe11cee82457236047a688628",
+          "originKey": "url.cb652d94f93a769d56ed4f755b192048a1c341109b071157d3ef884e4d536200",
           "derivedFromSourceRef": null,
           "attesterRef": null,
           "partnerRecordRef": null
         },
         "reproducibility": {
           "kind": "DIGEST_ONLY_BYTES_UNAVAILABLE",
-          "contentDigest": "dd41e2e84b20317116e65206ef6d7be28242530814ce0bbc311ff0fe6e37c39f",
+          "contentDigest": "e1ccd487d2f9cb0ee92eed0eda8048008b6e892fe11cee82457236047a688628",
           "bytesAvailable": false,
-          "origin": "https://www.intercambio-ejemplo-mty-fict.mx/",
-          "digestRecordedAt": "2026-10-27T19:29:35Z"
+          "origin": "https://www.intercambio-ejemplo-mty.example.org/bienvenida/",
+          "digestRecordedAt": "2026-10-27T19:25:52Z"
         },
         "record": {
           "kind": "PAGE_EVIDENCE",
-          "pageEvidenceId": "eeeeeeee-0000-4000-8000-e10000000037",
-          "fetchObservationId": "eeeeeeee-0000-4000-8000-e10000000021",
-          "researchRunId": "eeeeeeee-0000-4000-8000-e10000000036",
-          "admissionId": "eeeeeeee-0000-4000-8000-e10000000069",
+          "pageEvidenceId": "eeeeeeee-0000-4000-8000-e10000000018",
+          "fetchObservationId": "eeeeeeee-0000-4000-8000-e10000000030",
+          "researchRunId": "eeeeeeee-0000-4000-8000-e10000000020",
+          "admissionId": "eeeeeeee-0000-4000-8000-e10000000007",
           "extractionRuleVersion": "orgunit-extraction-v3",
           "candidates": [
             {
-              "candidateId": "eeeeeeee-0000-4000-8000-e10000000074",
+              "candidateId": "eeeeeeee-0000-4000-8000-e10000000071",
               "track": "INTERNATIONAL_OFFICE",
-              "candidateScore": "2.0000",
-              "rankWithinRoot": 1,
+              "candidateScore": "0.0000",
+              "rankWithinRoot": 2,
               "ruleVersion": "orgunit-signal-rules-v2"
             },
             {
-              "candidateId": "eeeeeeee-0000-4000-8000-e1000000006a",
+              "candidateId": "eeeeeeee-0000-4000-8000-e10000000034",
               "track": "LANGUAGE_CENTRE",
               "candidateScore": "0.0000",
-              "rankWithinRoot": 1,
+              "rankWithinRoot": 2,
               "ruleVersion": "orgunit-signal-rules-v2"
             }
           ]
@@ -145,44 +145,44 @@
       },
       {
         "evidenceClass": "RESEARCH_REAL",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000004b",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000074",
         "publisherRelation": "SELF",
-        "capturedAt": "2026-10-27T19:29:35Z",
+        "capturedAt": "2026-10-27T19:25:52Z",
         "c1": {
           "captureKind": "ARTEFACT",
-          "contentDigest": "e1ccd487d2f9cb0ee92eed0eda8048008b6e892fe11cee82457236047a688628",
-          "originKey": "url.ca8be6fb0c4bcd63269b23b2d3c2091083cc6b39c593453979dd89f65ae7a83d",
+          "contentDigest": "13a8c0ed512e9d478bee9c9c323d46968c6bc5ef63711de084813846af95ef06",
+          "originKey": "url.fa4bd328fa4330f9e937e9197eda3276d570380a45ea49fa7c82ae3d4a727972",
           "derivedFromSourceRef": null,
           "attesterRef": null,
           "partnerRecordRef": null
         },
         "reproducibility": {
           "kind": "DIGEST_ONLY_BYTES_UNAVAILABLE",
-          "contentDigest": "e1ccd487d2f9cb0ee92eed0eda8048008b6e892fe11cee82457236047a688628",
+          "contentDigest": "13a8c0ed512e9d478bee9c9c323d46968c6bc5ef63711de084813846af95ef06",
           "bytesAvailable": false,
-          "origin": "https://www.intercambio-ejemplo-mty-fict.mx/bienvenida/",
-          "digestRecordedAt": "2026-10-27T19:29:35Z"
+          "origin": "https://www.intercambio-ejemplo-mty.example.org/",
+          "digestRecordedAt": "2026-10-27T19:25:52Z"
         },
         "record": {
           "kind": "PAGE_EVIDENCE",
-          "pageEvidenceId": "eeeeeeee-0000-4000-8000-e1000000004b",
-          "fetchObservationId": "eeeeeeee-0000-4000-8000-e10000000063",
-          "researchRunId": "eeeeeeee-0000-4000-8000-e10000000036",
-          "admissionId": "eeeeeeee-0000-4000-8000-e10000000069",
+          "pageEvidenceId": "eeeeeeee-0000-4000-8000-e10000000074",
+          "fetchObservationId": "eeeeeeee-0000-4000-8000-e1000000005f",
+          "researchRunId": "eeeeeeee-0000-4000-8000-e10000000020",
+          "admissionId": "eeeeeeee-0000-4000-8000-e10000000007",
           "extractionRuleVersion": "orgunit-extraction-v3",
           "candidates": [
             {
-              "candidateId": "eeeeeeee-0000-4000-8000-e10000000079",
+              "candidateId": "eeeeeeee-0000-4000-8000-e1000000002a",
               "track": "INTERNATIONAL_OFFICE",
-              "candidateScore": "0.0000",
-              "rankWithinRoot": 2,
+              "candidateScore": "2.0000",
+              "rankWithinRoot": 1,
               "ruleVersion": "orgunit-signal-rules-v2"
             },
             {
-              "candidateId": "eeeeeeee-0000-4000-8000-e10000000003",
+              "candidateId": "eeeeeeee-0000-4000-8000-e10000000032",
               "track": "LANGUAGE_CENTRE",
               "candidateScore": "0.0000",
-              "rankWithinRoot": 2,
+              "rankWithinRoot": 1,
               "ruleVersion": "orgunit-signal-rules-v2"
             }
           ]
@@ -192,11 +192,11 @@
     "claims": [
       {
         "evidenceClass": "RESEARCH_REAL",
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000000c",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000001",
         "claimKey": "channel.cycle_history",
         "subject": {
           "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000039"
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000044"
         },
         "mode": "OBSERVED",
         "attribution": "EXACT",
@@ -217,7 +217,7 @@
             "C1X.ORIENTATION_EVENT_CYCLES.es"
           ],
           "pageEvidenceIds": [
-            "eeeeeeee-0000-4000-8000-e1000000004b"
+            "eeeeeeee-0000-4000-8000-e10000000018"
           ],
           "statedDates": [
             "2025-08-11",
@@ -231,32 +231,37 @@
       },
       {
         "evidenceClass": "RESEARCH_REAL",
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000002c",
-        "claimKey": "candidate.location",
-        "subject": {
-          "kind": "CANDIDATE",
-          "ref": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000029"
-        },
-        "mode": "SELF_ASSERTED",
-        "attribution": "EXACT",
-        "producedBy": "HUMAN_RESEARCHER",
-        "value": {
-          "countryCode": "MX"
-        },
-        "basis": {
-          "origin": "ADR_0024_COUNTRY_OF_OPERATION",
-          "jurisdictionClaimId": "eeeeeeee-0000-4000-8000-e10000000052",
-          "recordedByActorKey": "ww-ex-owner-test"
-        },
-        "researchRealConflicts": []
-      },
-      {
-        "evidenceClass": "RESEARCH_REAL",
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000003b",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000000d",
         "claimKey": "channel.existence",
         "subject": {
           "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000039"
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000062"
+        },
+        "mode": "OBSERVED",
+        "attribution": "EXACT",
+        "producedBy": "NWF_SYSTEM",
+        "value": {
+          "status": "EXISTS"
+        },
+        "basis": {
+          "origin": "ADMITTED_WEBSITE_CAPTURED",
+          "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000062",
+          "admissionIds": [
+            "eeeeeeee-0000-4000-8000-e10000000007"
+          ]
+        },
+        "researchRealConflicts": [
+          "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
+          "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
+        ]
+      },
+      {
+        "evidenceClass": "RESEARCH_REAL",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000026",
+        "claimKey": "channel.existence",
+        "subject": {
+          "kind": "CHANNEL",
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000044"
         },
         "mode": "OBSERVED",
         "attribution": "EXACT",
@@ -272,7 +277,7 @@
             "C1X.ORIENTATION_EVENT_DATED.es"
           ],
           "pageEvidenceIds": [
-            "eeeeeeee-0000-4000-8000-e1000000004b"
+            "eeeeeeee-0000-4000-8000-e10000000018"
           ],
           "statedDates": [
             "2025-08-11",
@@ -286,11 +291,11 @@
       },
       {
         "evidenceClass": "RESEARCH_REAL",
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000046",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000039",
         "claimKey": "channel.static_currency",
         "subject": {
           "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000048"
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000062"
         },
         "mode": "OBSERVED",
         "attribution": "EXACT",
@@ -301,7 +306,7 @@
         },
         "basis": {
           "origin": "STATED_DATE_IN_CAPTURE",
-          "pageEvidenceId": "eeeeeeee-0000-4000-8000-e1000000004b",
+          "pageEvidenceId": "eeeeeeee-0000-4000-8000-e10000000018",
           "statedDates": [
             "2026-08-10"
           ]
@@ -313,64 +318,32 @@
       },
       {
         "evidenceClass": "RESEARCH_REAL",
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000065",
-        "claimKey": "channel.existence",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000003d",
+        "claimKey": "candidate.location",
         "subject": {
-          "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000048"
+          "kind": "CANDIDATE",
+          "ref": "rp-candidate:eeeeeeee-0000-4000-8000-e1000000001c"
         },
-        "mode": "OBSERVED",
+        "mode": "SELF_ASSERTED",
         "attribution": "EXACT",
-        "producedBy": "NWF_SYSTEM",
+        "producedBy": "HUMAN_RESEARCHER",
         "value": {
-          "status": "EXISTS"
+          "countryCode": "MX"
         },
         "basis": {
-          "origin": "ADMITTED_WEBSITE_CAPTURED",
-          "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000048",
-          "admissionIds": [
-            "eeeeeeee-0000-4000-8000-e10000000069"
-          ]
+          "origin": "ADR_0024_COUNTRY_OF_OPERATION",
+          "jurisdictionClaimId": "eeeeeeee-0000-4000-8000-e10000000053",
+          "recordedByActorKey": "ww-ex-owner-test"
         },
-        "researchRealConflicts": [
-          "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
-          "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
-        ]
+        "researchRealConflicts": []
       },
       {
         "evidenceClass": "RESEARCH_REAL",
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000067",
-        "claimKey": "channel.operator_binding",
-        "subject": {
-          "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000048"
-        },
-        "mode": "OBSERVED",
-        "attribution": "EXACT",
-        "producedBy": "NWF_SYSTEM",
-        "value": {
-          "operatorCandidateId": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000029",
-          "basis": "HOSTED_ON_CANDIDATE_SITE"
-        },
-        "basis": {
-          "origin": "ADMITTED_WEBSITE_CAPTURED",
-          "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000048",
-          "admissionIds": [
-            "eeeeeeee-0000-4000-8000-e10000000069"
-          ]
-        },
-        "researchRealConflicts": [
-          "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
-          "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
-        ]
-      },
-      {
-        "evidenceClass": "RESEARCH_REAL",
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000071",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000005d",
         "claimKey": "channel.event_instances",
         "subject": {
           "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000039"
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000044"
         },
         "mode": "OBSERVED",
         "attribution": "EXACT",
@@ -388,7 +361,7 @@
             "C1X.ORIENTATION_EVENT_DATED.es"
           ],
           "pageEvidenceIds": [
-            "eeeeeeee-0000-4000-8000-e1000000004b"
+            "eeeeeeee-0000-4000-8000-e10000000018"
           ],
           "statedDates": [
             "2025-08-11",
@@ -399,70 +372,97 @@
           "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
           "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
         ]
+      },
+      {
+        "evidenceClass": "RESEARCH_REAL",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000070",
+        "claimKey": "channel.operator_binding",
+        "subject": {
+          "kind": "CHANNEL",
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000062"
+        },
+        "mode": "OBSERVED",
+        "attribution": "EXACT",
+        "producedBy": "NWF_SYSTEM",
+        "value": {
+          "operatorCandidateId": "rp-candidate:eeeeeeee-0000-4000-8000-e1000000001c",
+          "basis": "HOSTED_ON_CANDIDATE_SITE"
+        },
+        "basis": {
+          "origin": "ADMITTED_WEBSITE_CAPTURED",
+          "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000062",
+          "admissionIds": [
+            "eeeeeeee-0000-4000-8000-e10000000007"
+          ]
+        },
+        "researchRealConflicts": [
+          "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
+          "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
+        ]
       }
     ],
     "claimLinks": [
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000000c",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000004b",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000001",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000018",
         "relation": "SUPPORTS"
       },
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000002c",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000037",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000000d",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000018",
         "relation": "SUPPORTS"
       },
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000003b",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000004b",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000000d",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000074",
         "relation": "SUPPORTS"
       },
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000046",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000004b",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000026",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000018",
         "relation": "SUPPORTS"
       },
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000065",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000037",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000039",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000018",
         "relation": "SUPPORTS"
       },
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000065",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000004b",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000003d",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000074",
         "relation": "SUPPORTS"
       },
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000067",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000037",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000005d",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000018",
         "relation": "SUPPORTS"
       },
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000067",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000004b",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000070",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000018",
         "relation": "SUPPORTS"
       },
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000071",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000004b",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000070",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000074",
         "relation": "SUPPORTS"
       }
     ],
     "proposals": [
       {
-        "proposalId": "rp-proposal:eeeeeeee-0000-4000-8000-e1000000001a",
+        "proposalId": "rp-proposal:eeeeeeee-0000-4000-8000-e10000000005",
         "key": "channel.reach_mode",
         "subject": {
           "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e1000000000a"
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e1000000002e"
         },
         "proposedValue": {
           "reach": "PUSHED_TO_MEMBERS"
         },
         "assertionMode": "SELF_ASSERTED",
         "attribution": "EXACT",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000037",
-        "observedAt": "2026-10-27T19:29:35Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000074",
+        "observedAt": "2026-10-27T19:25:52Z",
         "extraction": {
           "ruleId": "C1P.NEWSLETTER_SIGNUP.es",
           "rulesVersion": "nwf-pe-c1-extraction-rules-v2",
@@ -477,20 +477,48 @@
         "quoteSha256": "fe4fd147a7a8f0195cbc91dee8c37227c4925b2768a5a0c5951c004256118bcc"
       },
       {
-        "proposalId": "rp-proposal:eeeeeeee-0000-4000-8000-e1000000001b",
+        "proposalId": "rp-proposal:eeeeeeee-0000-4000-8000-e10000000033",
+        "key": "audience.languages",
+        "subject": {
+          "kind": "CHANNEL",
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000062"
+        },
+        "proposedValue": {
+          "languages": [
+            "es"
+          ]
+        },
+        "assertionMode": "SELF_ASSERTED",
+        "attribution": "EXACT",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000074",
+        "observedAt": "2026-10-27T19:25:52Z",
+        "extraction": {
+          "ruleId": "C1P.AUDIENCE_LANGUAGES.es",
+          "rulesVersion": "nwf-pe-c1-extraction-rules-v2",
+          "language": "es",
+          "matchedTerms": [
+            "clases de español"
+          ]
+        },
+        "quote": "Clases de español para estudiantes internacionales.",
+        "quoteTruncated": false,
+        "quoteSha256": "f7bf5ab03d823cb33c880eed1ecbc8002cb6b169a0d1a9f89aceafa343eb609e"
+      },
+      {
+        "proposalId": "rp-proposal:eeeeeeee-0000-4000-8000-e10000000040",
         "key": "channel.operator_binding",
         "subject": {
           "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e1000000000a"
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e1000000002e"
         },
         "proposedValue": {
-          "operatorCandidateId": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000029",
+          "operatorCandidateId": "rp-candidate:eeeeeeee-0000-4000-8000-e1000000001c",
           "basis": "OFFICIAL_PRESENCE_NAMES_CHANNEL"
         },
         "assertionMode": "SELF_ASSERTED",
         "attribution": "EXACT",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000037",
-        "observedAt": "2026-10-27T19:29:35Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000074",
+        "observedAt": "2026-10-27T19:25:52Z",
         "extraction": {
           "ruleId": "C1P.CHANNEL_NAMED_AS_OWN.es",
           "rulesVersion": "nwf-pe-c1-extraction-rules-v2",
@@ -504,19 +532,19 @@
         "quoteSha256": "fe4fd147a7a8f0195cbc91dee8c37227c4925b2768a5a0c5951c004256118bcc"
       },
       {
-        "proposalId": "rp-proposal:eeeeeeee-0000-4000-8000-e1000000002a",
+        "proposalId": "rp-proposal:eeeeeeee-0000-4000-8000-e10000000047",
         "key": "channel.existence",
         "subject": {
           "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e1000000000a"
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e1000000002e"
         },
         "proposedValue": {
           "status": "EXISTS"
         },
         "assertionMode": "SELF_ASSERTED",
         "attribution": "EXACT",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000037",
-        "observedAt": "2026-10-27T19:29:35Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000074",
+        "observedAt": "2026-10-27T19:25:52Z",
         "extraction": {
           "ruleId": "C1P.NEWSLETTER_SIGNUP.es",
           "rulesVersion": "nwf-pe-c1-extraction-rules-v2",
@@ -531,11 +559,11 @@
         "quoteSha256": "fe4fd147a7a8f0195cbc91dee8c37227c4925b2768a5a0c5951c004256118bcc"
       },
       {
-        "proposalId": "rp-proposal:eeeeeeee-0000-4000-8000-e10000000050",
+        "proposalId": "rp-proposal:eeeeeeee-0000-4000-8000-e10000000056",
         "key": "audience.segment_definition",
         "subject": {
           "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000048"
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000062"
         },
         "proposedValue": {
           "segment": "INCOMING_INTERNATIONAL_STUDENTS",
@@ -543,8 +571,8 @@
         },
         "assertionMode": "SELF_ASSERTED",
         "attribution": "EXACT",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000037",
-        "observedAt": "2026-10-27T19:29:35Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000074",
+        "observedAt": "2026-10-27T19:25:52Z",
         "extraction": {
           "ruleId": "C1P.SEGMENT_WHOLE_AUDIENCE.es",
           "rulesVersion": "nwf-pe-c1-extraction-rules-v2",
@@ -558,19 +586,19 @@
         "quoteSha256": "f39de378e17d0bd369dd681d7dc563ebec6f45fea1f67895dd85403f2af2b47b"
       },
       {
-        "proposalId": "rp-proposal:eeeeeeee-0000-4000-8000-e10000000060",
+        "proposalId": "rp-proposal:eeeeeeee-0000-4000-8000-e10000000063",
         "key": "candidate.kind",
         "subject": {
           "kind": "CANDIDATE",
-          "ref": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000029"
+          "ref": "rp-candidate:eeeeeeee-0000-4000-8000-e1000000001c"
         },
         "proposedValue": {
           "kind": "INTERNATIONAL_STUDENT_ASSOCIATION"
         },
         "assertionMode": "SELF_ASSERTED",
         "attribution": "EXACT",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000037",
-        "observedAt": "2026-10-27T19:29:35Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000074",
+        "observedAt": "2026-10-27T19:25:52Z",
         "extraction": {
           "ruleId": "C1P.CANDIDATE_KIND_SELF_DESCRIPTION.es",
           "rulesVersion": "nwf-pe-c1-extraction-rules-v2",
@@ -582,34 +610,6 @@
         "quote": "Somos una asociación de estudiantes de intercambio.",
         "quoteTruncated": false,
         "quoteSha256": "f39de378e17d0bd369dd681d7dc563ebec6f45fea1f67895dd85403f2af2b47b"
-      },
-      {
-        "proposalId": "rp-proposal:eeeeeeee-0000-4000-8000-e10000000068",
-        "key": "audience.languages",
-        "subject": {
-          "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000048"
-        },
-        "proposedValue": {
-          "languages": [
-            "es"
-          ]
-        },
-        "assertionMode": "SELF_ASSERTED",
-        "attribution": "EXACT",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000037",
-        "observedAt": "2026-10-27T19:29:35Z",
-        "extraction": {
-          "ruleId": "C1P.AUDIENCE_LANGUAGES.es",
-          "rulesVersion": "nwf-pe-c1-extraction-rules-v2",
-          "language": "es",
-          "matchedTerms": [
-            "clases de español"
-          ]
-        },
-        "quote": "Clases de español para estudiantes internacionales.",
-        "quoteTruncated": false,
-        "quoteSha256": "f7bf5ab03d823cb33c880eed1ecbc8002cb6b169a0d1a9f89aceafa343eb609e"
       }
     ],
     "researchStatus": [
@@ -622,10 +622,10 @@
           "candidate.location"
         ],
         "claimRefs": [
-          "rp-claim:eeeeeeee-0000-4000-8000-e1000000002c"
+          "rp-claim:eeeeeeee-0000-4000-8000-e1000000003d"
         ],
         "proposalIds": [
-          "rp-proposal:eeeeeeee-0000-4000-8000-e10000000068"
+          "rp-proposal:eeeeeeee-0000-4000-8000-e10000000033"
         ],
         "relevantPageClasses": [
           "HOME",
@@ -645,7 +645,7 @@
         ],
         "claimRefs": [],
         "proposalIds": [
-          "rp-proposal:eeeeeeee-0000-4000-8000-e10000000050"
+          "rp-proposal:eeeeeeee-0000-4000-8000-e10000000056"
         ],
         "relevantPageClasses": [
           "HOME",
@@ -677,11 +677,11 @@
           "channel.existence"
         ],
         "claimRefs": [
-          "rp-claim:eeeeeeee-0000-4000-8000-e1000000003b",
-          "rp-claim:eeeeeeee-0000-4000-8000-e10000000065"
+          "rp-claim:eeeeeeee-0000-4000-8000-e1000000000d",
+          "rp-claim:eeeeeeee-0000-4000-8000-e10000000026"
         ],
         "proposalIds": [
-          "rp-proposal:eeeeeeee-0000-4000-8000-e1000000002a"
+          "rp-proposal:eeeeeeee-0000-4000-8000-e10000000047"
         ],
         "relevantPageClasses": [
           "HOME"
@@ -700,7 +700,7 @@
         ],
         "claimRefs": [],
         "proposalIds": [
-          "rp-proposal:eeeeeeee-0000-4000-8000-e1000000001a"
+          "rp-proposal:eeeeeeee-0000-4000-8000-e10000000005"
         ],
         "relevantPageClasses": [
           "HOME",
@@ -722,8 +722,8 @@
           "channel.event_instances"
         ],
         "claimRefs": [
-          "rp-claim:eeeeeeee-0000-4000-8000-e10000000046",
-          "rp-claim:eeeeeeee-0000-4000-8000-e10000000071"
+          "rp-claim:eeeeeeee-0000-4000-8000-e10000000039",
+          "rp-claim:eeeeeeee-0000-4000-8000-e1000000005d"
         ],
         "proposalIds": [],
         "relevantPageClasses": [
@@ -787,10 +787,10 @@
           "channel.publishing_route"
         ],
         "claimRefs": [
-          "rp-claim:eeeeeeee-0000-4000-8000-e10000000067"
+          "rp-claim:eeeeeeee-0000-4000-8000-e10000000070"
         ],
         "proposalIds": [
-          "rp-proposal:eeeeeeee-0000-4000-8000-e1000000001b"
+          "rp-proposal:eeeeeeee-0000-4000-8000-e10000000040"
         ],
         "relevantPageClasses": [
           "HOME",
@@ -812,7 +812,7 @@
           "channel.cycle_history"
         ],
         "claimRefs": [
-          "rp-claim:eeeeeeee-0000-4000-8000-e1000000000c"
+          "rp-claim:eeeeeeee-0000-4000-8000-e10000000001"
         ],
         "proposalIds": [],
         "relevantPageClasses": [
@@ -928,7 +928,7 @@
         "ruleId": "C1P.SOCIAL_ACCOUNT_NAMED.es",
         "label": null,
         "sourceRefs": [
-          "rp-source:eeeeeeee-0000-4000-8000-e10000000037"
+          "rp-source:eeeeeeee-0000-4000-8000-e10000000074"
         ]
       },
       {
@@ -937,7 +937,7 @@
         "ruleId": "C1P.SOCIAL_ACCOUNT_NAMED.es",
         "label": null,
         "sourceRefs": [
-          "rp-source:eeeeeeee-0000-4000-8000-e10000000037"
+          "rp-source:eeeeeeee-0000-4000-8000-e10000000074"
         ]
       },
       {
@@ -958,71 +958,71 @@
     "freshness": [
       {
         "key": "audience.languages",
-        "latestCapturedAt": "2026-10-27T19:29:35Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000037",
+        "latestCapturedAt": "2026-10-27T19:25:52Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000074",
         "claims": 0,
         "proposals": 1
       },
       {
         "key": "audience.segment_definition",
-        "latestCapturedAt": "2026-10-27T19:29:35Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000037",
+        "latestCapturedAt": "2026-10-27T19:25:52Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000074",
         "claims": 0,
         "proposals": 1
       },
       {
         "key": "candidate.kind",
-        "latestCapturedAt": "2026-10-27T19:29:35Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000037",
+        "latestCapturedAt": "2026-10-27T19:25:52Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000074",
         "claims": 0,
         "proposals": 1
       },
       {
         "key": "candidate.location",
-        "latestCapturedAt": "2026-10-27T19:29:35Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000037",
+        "latestCapturedAt": "2026-10-27T19:25:52Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000074",
         "claims": 1,
         "proposals": 0
       },
       {
         "key": "channel.cycle_history",
-        "latestCapturedAt": "2026-10-27T19:29:35Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000004b",
+        "latestCapturedAt": "2026-10-27T19:25:52Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000018",
         "claims": 1,
         "proposals": 0
       },
       {
         "key": "channel.event_instances",
-        "latestCapturedAt": "2026-10-27T19:29:35Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000004b",
+        "latestCapturedAt": "2026-10-27T19:25:52Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000018",
         "claims": 1,
         "proposals": 0
       },
       {
         "key": "channel.existence",
-        "latestCapturedAt": "2026-10-27T19:29:35Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000037",
+        "latestCapturedAt": "2026-10-27T19:25:52Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000018",
         "claims": 2,
         "proposals": 1
       },
       {
         "key": "channel.operator_binding",
-        "latestCapturedAt": "2026-10-27T19:29:35Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000037",
+        "latestCapturedAt": "2026-10-27T19:25:52Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000018",
         "claims": 1,
         "proposals": 1
       },
       {
         "key": "channel.reach_mode",
-        "latestCapturedAt": "2026-10-27T19:29:35Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000037",
+        "latestCapturedAt": "2026-10-27T19:25:52Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000074",
         "claims": 0,
         "proposals": 1
       },
       {
         "key": "channel.static_currency",
-        "latestCapturedAt": "2026-10-27T19:29:35Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000004b",
+        "latestCapturedAt": "2026-10-27T19:25:52Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000018",
         "claims": 1,
         "proposals": 0
       }
@@ -1030,8 +1030,8 @@
     "excluded": [],
     "researchRuns": [
       {
-        "runId": "eeeeeeee-0000-4000-8000-e10000000036",
-        "admissionId": "eeeeeeee-0000-4000-8000-e10000000069",
+        "runId": "eeeeeeee-0000-4000-8000-e10000000020",
+        "admissionId": "eeeeeeee-0000-4000-8000-e10000000007",
         "included": true,
         "pages": 2
       }

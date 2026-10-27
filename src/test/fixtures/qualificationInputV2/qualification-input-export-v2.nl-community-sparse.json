@@ -1,7 +1,7 @@
 {
   "fixture": {
     "label": "SYNTHETIC",
-    "statement": "SYNTHETIC TEST FIXTURE: a fictional organisation on a fictional .fict domain, captured from a scripted transport in a disposable test database. Not research about any real organisation.",
+    "statement": "SYNTHETIC TEST FIXTURE: a fictional organisation on a reserved example domain (RFC 2606: example.org / example.net / example.com), captured from a scripted transport in a disposable test database. Not research about any real organisation.",
     "key": "nl-community-sparse",
     "producedBy": "src/test/integration/qualificationInputExportV2.test.ts",
     "uuidRelabelling": "every UUID mapped onto eeeeeeee-0000-4000-8000-e1… (order-preserving)"
@@ -14,7 +14,7 @@
       "dateRuleVersion": "nwf-pe-c1-stated-date-rules-v1",
       "pageClasses": [
         {
-          "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000008",
+          "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000005e",
           "classes": [
             "HOME"
           ]
@@ -32,10 +32,10 @@
     "dateRuleVersion": "nwf-pe-stated-date-rules-v1",
     "sourceRepository": "nwf-partnership-engine",
     "readConsistency": "SINGLE_SNAPSHOT_TRANSACTION",
-    "subjectId": "eeeeeeee-0000-4000-8000-e10000000042",
-    "evaluatedAt": "2026-10-27T19:29:36Z",
+    "subjectId": "eeeeeeee-0000-4000-8000-e10000000035",
+    "evaluatedAt": "2026-10-27T19:25:53Z",
     "candidate": {
-      "candidateRef": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000042",
+      "candidateRef": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000035",
       "relations": []
     },
     "country": {
@@ -46,13 +46,13 @@
     },
     "channels": [
       {
-        "channelRef": "rp-channel:eeeeeeee-0000-4000-8000-e10000000078",
+        "channelRef": "rp-channel:eeeeeeee-0000-4000-8000-e10000000008",
         "kind": "RESOURCE_PAGE",
         "channelClass": "STATIC",
         "visibility": "PUBLIC",
-        "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000078",
+        "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000008",
         "admissionIds": [
-          "eeeeeeee-0000-4000-8000-e1000000002e"
+          "eeeeeeee-0000-4000-8000-e1000000004c"
         ],
         "derivation": "ADMITTED_ROOT_WEBSITE",
         "establishedBy": "OBSERVED_CLAIM",
@@ -62,13 +62,13 @@
     "sources": [
       {
         "evidenceClass": "RESEARCH_REAL",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000008",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000005e",
         "publisherRelation": "SELF",
-        "capturedAt": "2026-10-27T19:29:35Z",
+        "capturedAt": "2026-10-27T19:25:52Z",
         "c1": {
           "captureKind": "ARTEFACT",
           "contentDigest": "e42a9e95e81681bd12f87a168eed20036cf16cf27a65897394df5accbf92fc38",
-          "originKey": "url.01557f1a7ddcbca8cf735af3ee4c962be6a72aad3aba114478868c0844bf0b50",
+          "originKey": "url.f10252f5f6f1bd4e71d81d288f7acd50ea83ec63e9c3686f071350c41c13b89c",
           "derivedFromSourceRef": null,
           "attesterRef": null,
           "partnerRecordRef": null
@@ -77,26 +77,26 @@
           "kind": "DIGEST_ONLY_BYTES_UNAVAILABLE",
           "contentDigest": "e42a9e95e81681bd12f87a168eed20036cf16cf27a65897394df5accbf92fc38",
           "bytesAvailable": false,
-          "origin": "https://www.buurtgroep-voorbeeld-zuid-fict.nl/",
-          "digestRecordedAt": "2026-10-27T19:29:35Z"
+          "origin": "https://www.buurtgroep-voorbeeld-zuid.example.net/",
+          "digestRecordedAt": "2026-10-27T19:25:52Z"
         },
         "record": {
           "kind": "PAGE_EVIDENCE",
-          "pageEvidenceId": "eeeeeeee-0000-4000-8000-e10000000008",
-          "fetchObservationId": "eeeeeeee-0000-4000-8000-e10000000015",
-          "researchRunId": "eeeeeeee-0000-4000-8000-e10000000030",
-          "admissionId": "eeeeeeee-0000-4000-8000-e1000000002e",
+          "pageEvidenceId": "eeeeeeee-0000-4000-8000-e1000000005e",
+          "fetchObservationId": "eeeeeeee-0000-4000-8000-e10000000016",
+          "researchRunId": "eeeeeeee-0000-4000-8000-e1000000000f",
+          "admissionId": "eeeeeeee-0000-4000-8000-e1000000004c",
           "extractionRuleVersion": "orgunit-extraction-v3",
           "candidates": [
             {
-              "candidateId": "eeeeeeee-0000-4000-8000-e10000000070",
+              "candidateId": "eeeeeeee-0000-4000-8000-e1000000002f",
               "track": "INTERNATIONAL_OFFICE",
               "candidateScore": "0.0000",
               "rankWithinRoot": 1,
               "ruleVersion": "orgunit-signal-rules-v2"
             },
             {
-              "candidateId": "eeeeeeee-0000-4000-8000-e10000000056",
+              "candidateId": "eeeeeeee-0000-4000-8000-e10000000011",
               "track": "LANGUAGE_CENTRE",
               "candidateScore": "0.0000",
               "rankWithinRoot": 1,
@@ -109,32 +109,11 @@
     "claims": [
       {
         "evidenceClass": "RESEARCH_REAL",
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000001",
-        "claimKey": "candidate.location",
-        "subject": {
-          "kind": "CANDIDATE",
-          "ref": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000042"
-        },
-        "mode": "SELF_ASSERTED",
-        "attribution": "EXACT",
-        "producedBy": "HUMAN_RESEARCHER",
-        "value": {
-          "countryCode": "NL"
-        },
-        "basis": {
-          "origin": "ADR_0024_COUNTRY_OF_OPERATION",
-          "jurisdictionClaimId": "eeeeeeee-0000-4000-8000-e1000000000e",
-          "recordedByActorKey": "ww-ex-owner-test"
-        },
-        "researchRealConflicts": []
-      },
-      {
-        "evidenceClass": "RESEARCH_REAL",
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000024",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000001f",
         "claimKey": "channel.existence",
         "subject": {
           "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000078"
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000008"
         },
         "mode": "OBSERVED",
         "attribution": "EXACT",
@@ -144,9 +123,9 @@
         },
         "basis": {
           "origin": "ADMITTED_WEBSITE_CAPTURED",
-          "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000078",
+          "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000008",
           "admissionIds": [
-            "eeeeeeee-0000-4000-8000-e1000000002e"
+            "eeeeeeee-0000-4000-8000-e1000000004c"
           ]
         },
         "researchRealConflicts": [
@@ -156,46 +135,67 @@
       },
       {
         "evidenceClass": "RESEARCH_REAL",
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000058",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000003c",
         "claimKey": "channel.operator_binding",
         "subject": {
           "kind": "CHANNEL",
-          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000078"
+          "ref": "rp-channel:eeeeeeee-0000-4000-8000-e10000000008"
         },
         "mode": "OBSERVED",
         "attribution": "EXACT",
         "producedBy": "NWF_SYSTEM",
         "value": {
-          "operatorCandidateId": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000042",
+          "operatorCandidateId": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000035",
           "basis": "HOSTED_ON_CANDIDATE_SITE"
         },
         "basis": {
           "origin": "ADMITTED_WEBSITE_CAPTURED",
-          "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000078",
+          "websiteClaimId": "eeeeeeee-0000-4000-8000-e10000000008",
           "admissionIds": [
-            "eeeeeeee-0000-4000-8000-e1000000002e"
+            "eeeeeeee-0000-4000-8000-e1000000004c"
           ]
         },
         "researchRealConflicts": [
           "MODE_NEEDS_PRESERVED_SOURCE_MATERIAL_ENGINE_HOLDS_DIGEST_ONLY",
           "PRODUCER_NWF_SYSTEM_NOT_A_RESEARCH_REAL_PRODUCER"
         ]
+      },
+      {
+        "evidenceClass": "RESEARCH_REAL",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000006e",
+        "claimKey": "candidate.location",
+        "subject": {
+          "kind": "CANDIDATE",
+          "ref": "rp-candidate:eeeeeeee-0000-4000-8000-e10000000035"
+        },
+        "mode": "SELF_ASSERTED",
+        "attribution": "EXACT",
+        "producedBy": "HUMAN_RESEARCHER",
+        "value": {
+          "countryCode": "NL"
+        },
+        "basis": {
+          "origin": "ADR_0024_COUNTRY_OF_OPERATION",
+          "jurisdictionClaimId": "eeeeeeee-0000-4000-8000-e1000000002b",
+          "recordedByActorKey": "ww-ex-owner-test"
+        },
+        "researchRealConflicts": []
       }
     ],
     "claimLinks": [
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000001",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000008",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000001f",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000005e",
         "relation": "SUPPORTS"
       },
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000024",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000008",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000003c",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000005e",
         "relation": "SUPPORTS"
       },
       {
-        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e10000000058",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000008",
+        "claimRef": "rp-claim:eeeeeeee-0000-4000-8000-e1000000006e",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000005e",
         "relation": "SUPPORTS"
       }
     ],
@@ -210,7 +210,7 @@
           "candidate.location"
         ],
         "claimRefs": [
-          "rp-claim:eeeeeeee-0000-4000-8000-e10000000001"
+          "rp-claim:eeeeeeee-0000-4000-8000-e1000000006e"
         ],
         "proposalIds": [],
         "relevantPageClasses": [
@@ -261,7 +261,7 @@
           "channel.existence"
         ],
         "claimRefs": [
-          "rp-claim:eeeeeeee-0000-4000-8000-e10000000024"
+          "rp-claim:eeeeeeee-0000-4000-8000-e1000000001f"
         ],
         "proposalIds": [],
         "relevantPageClasses": [
@@ -358,7 +358,7 @@
           "channel.publishing_route"
         ],
         "claimRefs": [
-          "rp-claim:eeeeeeee-0000-4000-8000-e10000000058"
+          "rp-claim:eeeeeeee-0000-4000-8000-e1000000003c"
         ],
         "proposalIds": [],
         "relevantPageClasses": [
@@ -531,22 +531,22 @@
     "freshness": [
       {
         "key": "candidate.location",
-        "latestCapturedAt": "2026-10-27T19:29:35Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000008",
+        "latestCapturedAt": "2026-10-27T19:25:52Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000005e",
         "claims": 1,
         "proposals": 0
       },
       {
         "key": "channel.existence",
-        "latestCapturedAt": "2026-10-27T19:29:35Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000008",
+        "latestCapturedAt": "2026-10-27T19:25:52Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000005e",
         "claims": 1,
         "proposals": 0
       },
       {
         "key": "channel.operator_binding",
-        "latestCapturedAt": "2026-10-27T19:29:35Z",
-        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e10000000008",
+        "latestCapturedAt": "2026-10-27T19:25:52Z",
+        "sourceRef": "rp-source:eeeeeeee-0000-4000-8000-e1000000005e",
         "claims": 1,
         "proposals": 0
       }
@@ -554,8 +554,8 @@
     "excluded": [],
     "researchRuns": [
       {
-        "runId": "eeeeeeee-0000-4000-8000-e10000000030",
-        "admissionId": "eeeeeeee-0000-4000-8000-e1000000002e",
+        "runId": "eeeeeeee-0000-4000-8000-e1000000000f",
+        "admissionId": "eeeeeeee-0000-4000-8000-e1000000004c",
         "included": true,
         "pages": 1
       }

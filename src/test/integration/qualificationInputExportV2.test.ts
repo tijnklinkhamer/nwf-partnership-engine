@@ -71,10 +71,10 @@ const fixturePath = (key: string) => join(FIXTURE_DIR, `qualification-input-expo
 
 /** The committed fixtures' SHA-256 (UTF-8 bytes), pinned for the Operator lane. */
 export const QUALIFICATION_INPUT_V2_FIXTURE_SHA256: Readonly<Record<string, string>> = {
-  'nl-exchange-association': '7a25bda1441eb5f54a0515c05e4380cb7915d5c696b8aa8c4322a6213e36fcd7',
-  'nl-community-sparse': 'ef1c59b6c38063bdc76575d396213ca4f858fd13e1946b88f7ecc1d477a4d2d2',
-  'jp-student-circle': '448565faaee3b4fbaae1e0a03c7aa393e0b07f022e34bbbc9ca03040e68ed83e',
-  'mx-exchange-community': 'b664090b79b821a3fd8788af9eae5ed6d53aff159010ca9c9006f5aa869e7714',
+  'nl-exchange-association': '70d8affb26b02ca3054afea34cc18b581b0e9361b2ebb9d68802b2d9e5b6f531',
+  'nl-community-sparse': 'ae258a5388ebb318c76c6145d506d5886c1d4d0521aed5a3150235a093613f06',
+  'jp-student-circle': '4557db6f715ad87d169049ed07dbc09eac0e276c51ac3caf56beb4818b50af5f',
+  'mx-exchange-community': 'f8d044c217a46c7ee4a39a959a87ec5355cd31c0b0e80c2aad77f75e8b1681a2',
 };
 
 const OBSERVED = '2026-10-26T09:00:00Z';
@@ -98,7 +98,7 @@ const SPECS: readonly Spec[] = [
   {
     key: 'nl-exchange-association',
     name: 'Exchange Student Association Voorbeeld Utrecht',
-    site: 'https://www.esa-voorbeeld-utrecht-fict.nl/',
+    site: 'https://www.esa-voorbeeld-utrecht.example.org/',
     lang: 'en',
     country: 'NL',
     pages: [
@@ -110,7 +110,7 @@ const SPECS: readonly Spec[] = [
           'Subscribe to our newsletter: every event, once a month.',
           'Follow us on Instagram for photos of every trip.',
           'This website is run by the board, elected every year.',
-          'Questions? Mail bestuur@esa-voorbeeld-utrecht-fict.nl or call 030-123 45 67.',
+          'Questions? Mail bestuur@esa-voorbeeld-utrecht.example.org or call 030-123 45 67.',
         ],
       },
       {
@@ -151,7 +151,7 @@ const SPECS: readonly Spec[] = [
   {
     key: 'nl-community-sparse',
     name: 'Buurtgroep Voorbeeld Zuid',
-    site: 'https://www.buurtgroep-voorbeeld-zuid-fict.nl/',
+    site: 'https://www.buurtgroep-voorbeeld-zuid.example.net/',
     lang: 'nl',
     country: 'NL',
     pages: [
@@ -165,7 +165,7 @@ const SPECS: readonly Spec[] = [
   {
     key: 'jp-student-circle',
     name: '留学生会 例 大阪',
-    site: 'https://www.ryugakuseikai-rei-fict.jp/',
+    site: 'https://www.ryugakuseikai-rei.example.com/',
     lang: 'ja',
     country: 'JP',
     pages: [
@@ -194,7 +194,7 @@ const SPECS: readonly Spec[] = [
   {
     key: 'mx-exchange-community',
     name: 'Comunidad de Intercambio Ejemplo Monterrey',
-    site: 'https://www.intercambio-ejemplo-mty-fict.mx/',
+    site: 'https://www.intercambio-ejemplo-mty.example.org/',
     lang: 'es',
     country: 'MX',
     pages: [
@@ -206,7 +206,7 @@ const SPECS: readonly Spec[] = [
           'Suscríbete a nuestro boletín.',
           'Síguenos en Instagram.',
           'Clases de español para estudiantes internacionales.',
-          'Llama al +52 81 1234 5678 o escribe a hola@intercambio-ejemplo-mty-fict.mx',
+          'Llama al +52 81 1234 5678 o escribe a hola@intercambio-ejemplo-mty.example.org',
         ],
       },
       {
@@ -250,7 +250,7 @@ function wrap(key: string, exportText: string): string {
       fixture: {
         label: 'SYNTHETIC',
         statement:
-          'SYNTHETIC TEST FIXTURE: a fictional organisation on a fictional .fict domain, captured from a scripted transport in a disposable test database. Not research about any real organisation.',
+          'SYNTHETIC TEST FIXTURE: a fictional organisation on a reserved example domain (RFC 2606: example.org / example.net / example.com), captured from a scripted transport in a disposable test database. Not research about any real organisation.',
         key,
         producedBy: 'src/test/integration/qualificationInputExportV2.test.ts',
         uuidRelabelling: 'every UUID mapped onto eeeeeeee-0000-4000-8000-e1… (order-preserving)',
