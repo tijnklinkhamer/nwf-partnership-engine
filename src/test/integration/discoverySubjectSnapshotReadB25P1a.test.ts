@@ -342,8 +342,8 @@ describeDb('B2.5-P1a transaction-bound snapshot assembler (integration)', () => 
       // REL Q1 (migration 0021, the jurisdiction-claim writer) followed.
       // WW E-SD (0022, live source-discovery grants) and then WW E-Q (migration 0023, OWNER-signed acquisition campaigns, ADR 0029).
       // WW E-W (0024, campaign research admission) and then WW E-SDFX (migration 0025, the source-discovery search gate, ADR 0028 s9).
-      // WW H-ACQ: then 0026 (acquisition hardening, ADR 0030 s13).
-      expect(top[0]!.top).toBe('0026');
+      // WW H-SD (migration 0027, search observations, ADR 0028 s9.1) follows WW H-ACQ's 0026.
+      expect(top[0]!.top).toBe('0027');
     });
   });
 

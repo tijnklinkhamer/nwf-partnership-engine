@@ -372,6 +372,8 @@ describeDb(
         '0025_source_discovery_search_gate.sql',
         // WW H-ACQ: then 0026 (acquisition hardening, ADR 0030 s13).
         '0026_acquisition_hardening.sql',
+        // WW H-SD: then 0027 (search observations, ADR 0028 s9.1).
+        '0027_source_discovery_search_observations.sql',
       ]);
       expect(await digests()).toEqual(before);
       const { rows } = await db.query<{

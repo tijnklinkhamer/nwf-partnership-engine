@@ -302,6 +302,11 @@ describeDb('Phase 2B schema contract (integration)', () => {
         // trigger functions, one definer-rights standing view, one campaign
         // column; no role, no LOGIN, SELECT grants only).
         '0026',
+        // WW H-SD (second security-review repair, ADR 0028 s9.1 - one
+        // append-only observations table, nomination and observation
+        // triggers, 0025/0019 functions replaced, 0020 functions pinned; no
+        // role, no LOGIN).
+        '0027',
       ]);
     });
 
