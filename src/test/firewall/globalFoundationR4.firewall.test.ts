@@ -93,6 +93,19 @@ const REL_Q1_SQL: readonly RegExp[] = [
   /AND c\.relname = 'subject_jurisdiction_claims'`/,
 ];
 
+/**
+ * WW H-ACQ (lead addendum, exact path): the batched OWNER identity review
+ * shows country MENTIONS from a subject's own captured pages and matches them
+ * against exactly the 249 assigned ISO 3166-1 alpha-2 codes - the list only,
+ * never a derivation. It names no jurisdiction table and records claims only
+ * through the REL Q1 writer.
+ */
+const H_ACQ_IMPORTS: Readonly<Record<string, readonly RegExp[]>> = {
+  'src/orgunits/acquisitionWiring/countryMentions.ts': [
+    /import \{ ISO_3166_1_ALPHA2_ASSIGNED \} from '\.\.\/subjectJurisdiction\/vocabulary\.js';/,
+  ],
+};
+
 /** R4.1 + R4.2: the OWNER-authorised test-maintenance edits, each pinned line for line below. */
 const R3_FIREWALL = 'src/test/firewall/phase2bSubjectAcquisitionF1R3.firewall.test.ts';
 const REGISTRY_TEST = 'src/test/integration/discoverySubjectRegistry.test.ts';
@@ -358,6 +371,7 @@ describe('R4: subjectJurisdiction is pure, self-contained and unconnected', () =
       for (const form of REL_FINAL_JOIN_A2_IMPORTS[f] ?? []) code = code.replace(form, '');
       for (const form of REL_P1_IMPORTS[f] ?? []) code = code.replace(form, '');
       for (const form of REL_Q1_IMPORTS[f] ?? []) code = code.replace(form, '');
+      for (const form of H_ACQ_IMPORTS[f] ?? []) code = code.replace(form, '');
       return /subjectJurisdiction/.test(code);
     });
     expect(importers).toEqual([]);
@@ -395,6 +409,14 @@ describe('R4: subjectJurisdiction is pure, self-contained and unconnected', () =
     for (const form of REL_Q1_SQL)
       expect(writer.match(new RegExp(form.source, 'g')), form.source).toHaveLength(1);
     expect(writer).not.toMatch(/\b(UPDATE|DELETE|TRUNCATE|ALTER|DROP|CREATE|GRANT)\b/);
+  });
+  it('WW H-ACQ: the country-mention import is present exactly once, as pinned', () => {
+    for (const [file, forms] of Object.entries(H_ACQ_IMPORTS)) {
+      const code = codeOf(readFileSync(join(REPO_ROOT, file), 'utf8'));
+      for (const form of forms)
+        expect(code.match(new RegExp(form.source, 'g')), file).toHaveLength(1);
+      expect(code).not.toMatch(/subject_jurisdiction_claims|INSERT|UPDATE|DELETE/);
+    }
   });
   it('REL P1: each exact-path exception is present exactly once, as pinned', () => {
     for (const [file, forms] of Object.entries(REL_P1_IMPORTS)) {

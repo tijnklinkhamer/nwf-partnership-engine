@@ -244,7 +244,9 @@ describe('REL Q1: the CLI is narrow and is the only importer', () => {
     const importers = productionFiles().filter((f) =>
       specifiers(codeOf(readCurrent(f))).some((s) => /jurisdictionClaimWriter\//.test(s)),
     );
-    expect(importers).toEqual([CLI]);
+    // WW H-ACQ (lead addendum, exact path): the batched OWNER identity review
+    // records the OWNER's --country statement through this same writer.
+    expect(importers).toEqual([CLI, 'src/orgunits/acquisitionWiring/countryMentions.ts'].sort());
     const entry = codeOf(readCurrent(CLI_ENTRY));
     expect(entry.match(/runJurisdictionClaimsCli\(/g)).toHaveLength(1);
   });

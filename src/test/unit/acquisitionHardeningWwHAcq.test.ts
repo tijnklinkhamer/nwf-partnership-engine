@@ -37,7 +37,9 @@ import {
   ReviewBatchRefusal,
   assertOutboxRoot,
   campaignTemplate,
+  countriesNamedIn,
   parseCampaignDraft,
+  parseCountryStatements,
   parseReviewExpectations,
   signCampaignDraft,
 } from '../../orgunits/acquisitionWiring/index.js';
@@ -238,5 +240,39 @@ describe('WW H-ACQ P2-16 / P2-14: files', () => {
     expect(statSync(root).mode & 0o777).toBe(0o700);
     // `/` is a directory owned by root, not by this user (never run tests as root).
     if (process.getuid?.() !== 0) expect(() => assertOutboxRoot('/')).toThrow(/outbox_not_owned/);
+  });
+});
+
+describe('WW H-ACQ country mentions (lead addendum): names only, whole words, never inference', () => {
+  it('matches English names and the page language as whole words only', () => {
+    expect(countriesNamedIn('Oudegracht 1, Utrecht, Netherlands', 'en')).toEqual(['NL']);
+    expect(countriesNamedIn('Kantoor in Utrecht, Nederland', 'nl')).toEqual(['NL']);
+    expect(countriesNamedIn('Bureau à Berlin, Allemagne', 'fr')).toEqual(['DE']);
+    // "Niger" is not inside "Nigeria"; a language tag is not a country.
+    expect(countriesNamedIn('Lagos, Nigeria', 'en')).toEqual(['NG']);
+    expect(countriesNamedIn('Netherlandsish words', 'en')).toEqual([]);
+  });
+
+  it('never reads a domain, a top-level domain, a language or a code as a country', () => {
+    expect(countriesNamedIn('Visit www.example-fict.nl or mail us', 'nl')).toEqual([]);
+    expect(countriesNamedIn('NL DE FR JP', 'en')).toEqual([]);
+    expect(countriesNamedIn('Nederlands gesproken', 'nl')).toEqual([]);
+  });
+
+  it('parses one --country per listed subject and refuses anything else', () => {
+    const s = randomUUID();
+    const page = randomUUID();
+    expect(parseCountryStatements([`${s}=NL@${page}`], [s])).toEqual([
+      { subjectId: s, country: 'NL', pageEvidenceId: page },
+    ]);
+    expect(() => parseCountryStatements([`${s}=nl@${page}`], [s])).toThrow(
+      /COUNTRY_STATEMENT_INVALID/,
+    );
+    expect(() => parseCountryStatements([`${s}=NL@${page}`, `${s}=DE@${page}`], [s])).toThrow(
+      /COUNTRY_STATEMENT_INVALID/,
+    );
+    expect(() => parseCountryStatements([`${s}=NL@${page}`], [randomUUID()])).toThrow(
+      /COUNTRY_SUBJECT_NOT_LISTED/,
+    );
   });
 });

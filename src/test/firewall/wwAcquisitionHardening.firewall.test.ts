@@ -143,3 +143,24 @@ describe('WW H-ACQ: spend, discovery and the outbox', () => {
     expect(outbox).toContain('pg_advisory_lock(hashtextextended($1, 0))');
   });
 });
+
+describe('WW H-ACQ (lead addendum): a country is stated by a source and confirmed by the OWNER', () => {
+  it('country mentions read page text only, never a domain, host, TLD or address format', () => {
+    const c = code('src/orgunits/acquisitionWiring/countryMentions.ts');
+    expect(c).not.toMatch(/hostname|registrable|tldts|website_url|\.nl\b|suffix/);
+    expect(c).not.toMatch(/subject_jurisdiction_claims|\b(INSERT|UPDATE|DELETE)\b/);
+    expect(c).toContain('ISO_3166_1_ALPHA2_ASSIGNED');
+    expect(c).toContain("claimBasis: 'SOURCE_STATED'");
+    expect(c).toContain('COUNTRY_MENTION_MAX_LINES = 3');
+    expect(c).toContain('COUNTRY_MENTION_MAX_CHARS = 200');
+  });
+
+  it('a country is recorded only through the REL Q1 writer, after the review', () => {
+    const review = code('src/orgunits/acquisitionWiring/review.ts');
+    const at = (needle: string) => review.indexOf(needle);
+    expect(at('await releaseIdentityReviewItem(')).toBeGreaterThan(-1);
+    expect(at('country: await statedCountry(')).toBeGreaterThan(
+      at('await releaseIdentityReviewItem('),
+    );
+  });
+});

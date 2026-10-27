@@ -40,6 +40,7 @@ import {
   createStageHandlers,
 } from '../../orgunits/acquisitionWiring/index.js';
 import { admissibleNominationsOfGrantedRun } from '../../orgunits/acquisitionWiring/discover.js';
+import { exportQualificationInputV2 } from '../../orgunits/acquisitionWiring/exportPort.js';
 import { startGrantedRun } from '../../orgunits/sourceDiscovery/grantStore.js';
 import { inSourceDiscoveryTransaction } from '../../orgunits/sourceDiscovery/store.js';
 import { recordCampaignAdmission } from '../../orgunits/acquisitionWiring/records.js';
@@ -757,6 +758,171 @@ describeDb('WW H-ACQ acquisition hardening (integration)', () => {
     expect(files.length).toBeGreaterThan(0);
     expect(files.filter((f) => f.includes('.tmp-'))).toEqual([]);
     for (const f of files) expect(statSync(f).mode & 0o777).toBe(0o600);
+  });
+
+  // ------------------------------------------------- country (lead addendum)
+
+  it("country: a mention in the subject's own page, cited by the OWNER, becomes ONE stated claim", async () => {
+    await h.verifySmokeRuntime();
+    const id = await campaign({ grantIds: [await h.grant('JP')] });
+    const transport = researchTransport();
+    transport.route(
+      SITES.association,
+      html(
+        page(
+          'en',
+          'Tandem Exchange Association',
+          'Weekly language exchange for students. Our office: Oudegracht 1, Utrecht, Netherlands.',
+          [['/events/', 'Events']],
+        ),
+      ),
+    );
+    expect((await work(id, transport)).stopReason).toBe('QUEUE_DRAINED');
+
+    const listed: string[] = [];
+    await runAcquisitionCli(['review', 'list', '--campaign-id', id, '--json'], {
+      readonlyPool: h.poolFactory('readonly'),
+      reviewTrust: h.reviewTrust,
+      out: (t) => void listed.push(t),
+    });
+    const subjects = (
+      JSON.parse(listed.join('')) as {
+        subjects: {
+          subjectId: string;
+          rootUrl: string;
+          stateDigest: string;
+          countryMentions: {
+            pageEvidenceId: string;
+            observedAt: string;
+            line: string;
+            countries: string[];
+          }[];
+        }[];
+      }
+    ).subjects;
+    const assoc = subjects.find((x) => x.rootUrl === SITES.association)!;
+    const other = subjects.find((x) => x.rootUrl === SITES.university)!;
+    expect(assoc.countryMentions).toHaveLength(1);
+    const mention = assoc.countryMentions[0]!;
+    expect(mention.countries).toEqual(['NL']);
+    expect(mention.line).toContain('Utrecht, Netherlands');
+    expect(mention.line.length).toBeLessThanOrEqual(200);
+    // Nothing is suggested from a domain, TLD or language: the university's
+    // .ac.jp page names no country, so it shows none.
+    expect(other.countryMentions).toEqual([]);
+    const { rows: otherPages } = await h.admin.query<{ id: string }>(
+      `SELECT p.id FROM orgunit_page_evidence p
+         JOIN subject_research_admissions a ON p.root_key = 'subject_admission:' || a.id::text
+        WHERE a.subject_id = $1 LIMIT 1`,
+      [other.subjectId],
+    );
+
+    const sign = async (extra: string[], execute = true) => {
+      const out: string[] = [];
+      const code = await runAcquisitionCli(
+        [
+          'review',
+          'sign',
+          '--campaign-id',
+          id,
+          '--subject-id',
+          assoc.subjectId,
+          '--expect',
+          `${assoc.subjectId}=${assoc.stateDigest}`,
+          ...extra,
+          '--key-file',
+          h.reviewKeyFile,
+          '--key-id',
+          h.reviewKey.keyId,
+          ...(execute ? ['--execute'] : []),
+          '--json',
+        ],
+        {
+          readonlyPool: h.poolFactory('readonly'),
+          reviewerPool: h.poolFactory('reviewer'),
+          ownerPool: h.poolFactory('admin'),
+          writerPool: h.poolFactory('writer'),
+          reviewTrust: h.reviewTrust,
+          passphrase: () => Promise.resolve(Buffer.from(h.reviewPassphrase, 'utf8')),
+          out: (t) => void out.push(t),
+          err: () => undefined,
+        },
+      );
+      return { code, json: JSON.parse(out.join('')) as Record<string, unknown> };
+    };
+    // A foreign subject's page; a country the shown lines do not name; an
+    // unlisted subject: each refused before anything is signed or recorded.
+    expect(await sign(['--country', `${assoc.subjectId}=NL@${otherPages[0]!.id}`])).toMatchObject({
+      code: 1,
+      json: { code: 'COUNTRY_PAGE_NOT_SHOWN' },
+    });
+    expect(
+      await sign(['--country', `${assoc.subjectId}=DE@${mention.pageEvidenceId}`]),
+    ).toMatchObject({ code: 1, json: { code: 'COUNTRY_NOT_IN_SHOWN_LINES' } });
+    expect(
+      await sign(['--country', `${other.subjectId}=NL@${mention.pageEvidenceId}`]),
+    ).toMatchObject({ code: 1, json: { code: 'COUNTRY_SUBJECT_NOT_LISTED' } });
+    expect(await count(`SELECT count(*)::int AS n FROM subject_review_attestations`)).toBe(0);
+    expect(await count(`SELECT count(*)::int AS n FROM subject_jurisdiction_claims`)).toBe(0);
+
+    // The dry run shows exactly what would be recorded.
+    const statement = ['--country', `${assoc.subjectId}=NL@${mention.pageEvidenceId}`];
+    expect(await sign(statement, false)).toMatchObject({
+      code: 0,
+      json: {
+        outcome: 'DRY_RUN',
+        countryClaims: [
+          {
+            subjectId: assoc.subjectId,
+            statedCountry: 'NL',
+            pageEvidenceId: mention.pageEvidenceId,
+            claimKind: 'COUNTRY_OF_OPERATION',
+            claimBasis: 'SOURCE_STATED',
+            exportCountryAfter: 'NL',
+          },
+        ],
+      },
+    });
+    expect(await count(`SELECT count(*)::int AS n FROM subject_jurisdiction_claims`)).toBe(0);
+
+    // Executed: the review first, then ONE claim through the writer path.
+    const done = await sign(statement);
+    expect(done).toMatchObject({ code: 0, json: { outcome: 'REVIEWED' } });
+    const { rows: claims } = await h.admin.query<{
+      kind: string;
+      country: string;
+      basis: string;
+      source: string;
+      page: string;
+      actor: string;
+      same_instant: boolean;
+    }>(
+      `SELECT c.claim_kind AS kind, c.claimed_country AS country, c.claim_basis AS basis,
+              c.source_type AS source, c.source_page_evidence_id AS page,
+              c.recorded_by_actor_key AS actor, c.observed_at = p.observed_at AS same_instant
+         FROM subject_jurisdiction_claims c
+         JOIN orgunit_page_evidence p ON p.id = c.source_page_evidence_id
+        WHERE c.subject_id = $1`,
+      [assoc.subjectId],
+    );
+    expect(claims).toEqual([
+      {
+        kind: 'COUNTRY_OF_OPERATION',
+        country: 'NL',
+        basis: 'SOURCE_STATED',
+        source: 'PAGE_EVIDENCE',
+        page: mention.pageEvidenceId,
+        actor: 'discovery-subjects-cli',
+        same_instant: true,
+      },
+    ]);
+    // The export reads "as of" a whole past second of the database clock.
+    await new Promise((r) => setTimeout(r, 1100));
+    const doc = await exportQualificationInputV2(h.readonly, {
+      subjectId: assoc.subjectId,
+      evaluatedAt: null,
+    });
+    expect(doc.country.value).toBe('NL');
   });
 
   it('a worker pool is a real pool (sanity for the hand-claim helpers)', () => {

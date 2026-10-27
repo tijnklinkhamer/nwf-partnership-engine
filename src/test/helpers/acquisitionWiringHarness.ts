@@ -227,7 +227,7 @@ export interface WiringHarness {
   readonly loadCohortRegistry: () => RegistryLoadResult;
   deps(sdk: FakeSdk, transport: ScriptedTransport): WiringDeps;
   /** A factory of FRESH pools (the CLI ends the pools it is given). */
-  poolFactory(which: 'admin' | 'readonly' | 'worker' | 'reviewer'): () => pg.Pool;
+  poolFactory(which: 'admin' | 'readonly' | 'worker' | 'reviewer' | 'writer'): () => pg.Pool;
   /** Registers the v1 brief and records one OWNER-path grant (JP, one query). */
   grant(geography?: string): Promise<string>;
   /** One ECHE website claim on `domain` (a duplicate for the pipeline). */
@@ -333,7 +333,9 @@ export async function createWiringHarness(tag: string): Promise<WiringHarness> {
           ? urls['nwf_acquisition_worker']!
           : which === 'reviewer'
             ? urls['nwf_discovery_subject_reviewer']!
-            : urls[which]!;
+            : which === 'writer'
+              ? urls['nwf_discovery_subject_writer']!
+              : urls[which]!;
       return () => new pg.Pool({ connectionString: url, max: 2 });
     },
     deps(sdk, transport) {

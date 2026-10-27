@@ -45,6 +45,12 @@
  *       WW H-ACQ (P2-4): every listed subject needs one --expect naming the
  *       state digest `review list` printed; a subject that changed since is
  *       refused (STATE_DIGEST_MISMATCH) before anything is signed.
+ *       WW H-ACQ (lead addendum): an optional --country <subjectId>=<CC>@<pageEvidenceId>
+ *       per listed subject cites one of the country-mention lines `review
+ *       list` showed from that subject's OWN captured page; after the review
+ *       is appended and released, ONE SOURCE_STATED COUNTRY_OF_OPERATION
+ *       claim - the OWNER's statement of what that page says - is recorded
+ *       through the existing jurisdiction-claim writer. Never inferred.
  *
  * One campaign per call. There is no option that names every campaign or
  * subject, no trust, public-key or signature option (trusted keys come only
@@ -70,6 +76,7 @@ import type pg from 'pg';
 import { createPool } from '../../db/client.js';
 import {
   CampaignSigningRefusal,
+  CountryStatementRefusal,
   OutboxRefusal,
   ReviewBatchRefusal,
   WIRED_STAGES,
@@ -81,7 +88,9 @@ import {
   loadOwnerSigningKey,
   operationalReviewTrust,
   parseCampaignDraft,
+  parseCountryStatements,
   parseReviewExpectations,
+  planCountryStatement,
   planReviewBatch,
   signCampaignDraft,
   signCampaignReviews,
@@ -152,6 +161,7 @@ export const ACQUISITION_USAGE = `nwf-pe acquisition - OWNER-signed acquisition 
   acquisition review list      --campaign-id <uuid> [--json]
   acquisition review sign      --campaign-id <uuid> --subject-id <uuid> [--subject-id ...]
                                --expect <subjectId>=<stateDigest> [--expect ...]
+                               [--country <subjectId>=<CC>@<pageEvidenceId> ...]
                                --key-file <abs encrypted pkcs8> --key-id <id> [--execute] [--json]
 
   A campaign counts only if its OWNER Ed25519 signature verifies under the pinned
@@ -202,6 +212,7 @@ export const ACQUISITION_OPTIONS = Object.freeze({
     'campaign-id': { type: 'string' },
     'subject-id': { type: 'string', multiple: true },
     expect: { type: 'string', multiple: true },
+    country: { type: 'string', multiple: true },
     'key-file': { type: 'string' },
     'key-id': { type: 'string' },
     execute: { type: 'boolean' },
@@ -218,6 +229,8 @@ export interface AcquisitionCliDeps {
   /** Omitted: the operational trust set (EMPTY). Only a vitest-built set can differ. */
   readonly trust?: CampaignTrustSet;
   readonly handlers?: readonly StageHandler[];
+  /** A login holding nwf_discovery_subject_writer (review sign --country --execute). */
+  readonly writerPool?: () => pg.Pool;
   /** A login holding nwf_discovery_subject_reviewer (review sign --execute). */
   readonly reviewerPool?: () => pg.Pool;
   /** Omitted: the operational review trust set (EMPTY). Only a vitest-built set can differ. */
@@ -552,7 +565,14 @@ export async function runAcquisitionCli(
                     `  country=${e.country.value ?? e.country.standing}  root=${e.rootUrl ?? 'none'}` +
                     `  pages=${e.evidence.pageEvidence}  signals=${e.duplicateSignals.length}` +
                     `\n    head=${e.reviewHead ?? 'none'}  stateDigest=${e.stateDigest}` +
-                    `  (sign with --expect ${e.subjectId}=${e.stateDigest})`,
+                    `  (sign with --expect ${e.subjectId}=${e.stateDigest})` +
+                    e.countryMentions
+                      .map(
+                        (m) =>
+                          `\n    country mention [${m.countries.join(',')}] page ${m.pageEvidenceId}` +
+                          ` (${m.observedAt}): ${m.line}`,
+                      )
+                      .join(''),
                 )
                 .join('\n'),
         );
@@ -562,24 +582,55 @@ export async function runAcquisitionCli(
         const campaignId = uuid(values, 'campaign-id');
         const subjectIds = many(values, 'subject-id');
         const expected = parseReviewExpectations(many(values, 'expect'));
+        const countries = parseCountryStatements(many(values, 'country'), subjectIds);
         const reviewTrust = deps.reviewTrust ?? operationalReviewTrust();
         const readonlyMake = deps.readonlyPool ?? (() => createPool('readonly'));
-        if (values['execute'] !== true) {
-          const planned = await withPoolOf(readonlyMake, (pool) =>
-            planReviewBatch(pool, campaignId, subjectIds, expected, reviewTrust),
+        // P2-4 + the country addendum: the batch, its expectations, every
+        // digest and every country statement are checked BEFORE the key file
+        // is read or a passphrase asked for.
+        const preflight = await withPoolOf(readonlyMake, async (pool) => {
+          const planned = await planReviewBatch(
+            pool,
+            campaignId,
+            subjectIds,
+            expected,
+            reviewTrust,
           );
+          const claims = [];
+          for (const c of countries) {
+            const plan = await planCountryStatement(pool, c);
+            claims.push({
+              subjectId: c.subjectId,
+              statedCountry: c.country,
+              pageEvidenceId: c.pageEvidenceId,
+              claimBasis: plan.claim.claimBasis,
+              claimKind: plan.claim.claimKind,
+              observedAt: plan.claim.observedAt,
+              standingAfter: plan.standingAfter,
+              exportCountryAfter: plan.exportCountryAfter,
+            });
+          }
+          return { planned, claims };
+        });
+        if (values['execute'] !== true) {
           report(
             'DRY_RUN',
-            { campaignId, subjectIds: planned.map((p) => p.subject_id) },
-            `DRY RUN: ${planned.length} subject(s) await review; re-run with --execute to sign each.`,
+            {
+              campaignId,
+              subjectIds: preflight.planned.map((p) => p.subject_id),
+              countryClaims: preflight.claims,
+            },
+            `DRY RUN: ${preflight.planned.length} subject(s) await review; re-run with --execute to sign each.` +
+              preflight.claims
+                .map(
+                  (c) =>
+                    `\n  would record ${c.claimKind} ${c.statedCountry} (${c.claimBasis}) for ` +
+                    `${c.subjectId} from page ${c.pageEvidenceId} observed ${c.observedAt}`,
+                )
+                .join(''),
           );
           return 0;
         }
-        // P2-4: the batch, its expectations and every digest are checked
-        // BEFORE the key file is read or a passphrase asked for.
-        await withPoolOf(readonlyMake, (pool) =>
-          planReviewBatch(pool, campaignId, subjectIds, expected, reviewTrust),
-        );
         const signer = await loadOwnerSigningKey(
           required(values, 'key-file'),
           required(values, 'key-id'),
@@ -588,24 +639,52 @@ export async function runAcquisitionCli(
         const results = await withPoolOf(readonlyMake, (ro) =>
           withPoolOf(deps.reviewerPool ?? (() => createPool('discovery_subject_reviewer')), (rv) =>
             withPoolOf(deps.ownerPool ?? (() => createPool('admin')), (ow) =>
-              signCampaignReviews(
-                { readonly: ro, reviewer: rv, owner: ow },
-                campaignId,
-                subjectIds,
-                expected,
-                signer,
-                reviewTrust,
-                deps.now ?? Date.now,
-              ),
+              countries.length === 0
+                ? signCampaignReviews(
+                    { readonly: ro, reviewer: rv, owner: ow },
+                    campaignId,
+                    subjectIds,
+                    expected,
+                    signer,
+                    reviewTrust,
+                    deps.now ?? Date.now,
+                  )
+                : withPoolOf(
+                    deps.writerPool ?? (() => createPool('discovery_subject_writer')),
+                    (wr) =>
+                      signCampaignReviews(
+                        { readonly: ro, reviewer: rv, owner: ow, writer: wr },
+                        campaignId,
+                        subjectIds,
+                        expected,
+                        signer,
+                        reviewTrust,
+                        deps.now ?? Date.now,
+                        countries,
+                      ),
+                  ),
             ),
           ),
         );
-        const failed = results.filter((r) => r.outcome !== 'REVIEWED_AND_RELEASED').length;
+        const failed = results.filter(
+          (r) =>
+            r.outcome !== 'REVIEWED_AND_RELEASED' ||
+            (r.country !== null && r.country.code !== null),
+        ).length;
         report(
           failed === 0 ? 'REVIEWED' : 'PARTIAL',
           { campaignId, results },
           results
-            .map((r) => `${r.outcome} ${r.subjectId}${r.code === null ? '' : ` (${r.code})`}`)
+            .map(
+              (r) =>
+                `${r.outcome} ${r.subjectId}${r.code === null ? '' : ` (${r.code})`}` +
+                (r.country === null
+                  ? ''
+                  : `; country ${r.country.statedCountry} ` +
+                    (r.country.code === null
+                      ? `recorded (claim ${r.country.claimId})`
+                      : `NOT recorded (${r.country.code})`)),
+            )
             .join('\n'),
         );
         return failed === 0 ? 0 : 1;
@@ -695,13 +774,16 @@ export async function runAcquisitionCli(
       error instanceof CampaignProtocolError ||
       error instanceof CampaignRecordRefusal ||
       error instanceof WorkerConfigRefusal ||
-      error instanceof ReviewBatchRefusal
+      error instanceof ReviewBatchRefusal ||
+      error instanceof CountryStatementRefusal
         ? error.code
-        : error instanceof CampaignSigningRefusal || error instanceof OutboxRefusal
-          ? error.reason
-          : (error as { name?: string }).name === 'ReviewSigningRefusal'
-            ? `SIGNING_${String((error as { reason?: string }).reason)}`
-            : null;
+        : (error as { name?: string }).name === 'JurisdictionWriterRefusal'
+          ? `COUNTRY_${String((error as { code?: string }).code)}`
+          : error instanceof CampaignSigningRefusal || error instanceof OutboxRefusal
+            ? error.reason
+            : (error as { name?: string }).name === 'ReviewSigningRefusal'
+              ? `SIGNING_${String((error as { reason?: string }).reason)}`
+              : null;
     if (code === null) throw error;
     const detail = (error as { detail?: string | null }).detail ?? null;
     report('REFUSED', { code, detail }, `REFUSED ${code}${detail === null ? '' : ` (${detail})`}`);

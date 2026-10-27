@@ -25,6 +25,12 @@
 import type pg from 'pg';
 
 import { releaseIdentityReviewItem } from '../acquisition/index.js';
+import {
+  countryMentionsOf,
+  recordCountryStatement,
+  type CountryMention,
+  type CountryStatement,
+} from './countryMentions.js';
 import { exportQualificationInputV2 } from './exportPort.js';
 import {
   readSubjectReviewState,
@@ -65,6 +71,13 @@ export interface AwaitingReviewEntry {
     readonly kind: string;
     readonly relatedKind: string | null;
   }[];
+  /**
+   * WW H-ACQ (lead addendum): at most three lines of the subject's OWN
+   * captured pages that name an assigned country - mentions to read, never a
+   * suggestion. `review sign --country <subjectId>=<CC>@<pageEvidenceId>`
+   * may cite one to record the OWNER's statement of what that source says.
+   */
+  readonly countryMentions: readonly CountryMention[];
 }
 
 interface AwaitingRow {
@@ -178,6 +191,7 @@ export async function listAwaitingReview(
         kind: s.signal_kind,
         relatedKind: s.related_kind,
       })),
+      countryMentions: await countryMentionsOf(readonly, id),
     });
   }
   return out;
@@ -208,6 +222,8 @@ export interface ReviewBatchPools {
   readonly reviewer: pg.Pool;
   /** The owner path (releases a reviewed item to ASSESSABLE). */
   readonly owner: pg.Pool;
+  /** A login holding nwf_discovery_subject_writer; needed only for `--country`. */
+  readonly writer?: pg.Pool;
 }
 
 export interface ReviewBatchResult {
@@ -215,6 +231,17 @@ export interface ReviewBatchResult {
   readonly workItemId: string;
   readonly outcome: 'REVIEWED_AND_RELEASED' | 'FAILED';
   readonly code: string | null;
+  /**
+   * The OWNER's `--country` statement for this subject, recorded AFTER its
+   * review was appended and its item released: the claim id and the country,
+   * or the writer's refusal code. Null when no statement was given.
+   */
+  readonly country: {
+    readonly statedCountry: string;
+    readonly pageEvidenceId: string;
+    readonly claimId: string | null;
+    readonly code: string | null;
+  } | null;
 }
 
 const DIGEST = /^[0-9a-f]{64}$/;
@@ -288,6 +315,7 @@ export async function signCampaignReviews(
   key: OwnerSigningKey,
   trust: OwnerReviewTrust,
   nowMs: () => number,
+  countries: readonly CountryStatement[] = [],
 ): Promise<readonly ReviewBatchResult[]> {
   const planned = await planReviewBatch(pools.readonly, campaignId, subjectIds, expected, trust);
   const results: ReviewBatchResult[] = [];
@@ -310,6 +338,7 @@ export async function signCampaignReviews(
         workItemId: row.work_item_id,
         outcome: 'REVIEWED_AND_RELEASED',
         code: null,
+        country: await statedCountry(pools, countries, row.subject_id),
       });
     } catch (error) {
       const code = (error as { code?: unknown }).code;
@@ -318,8 +347,31 @@ export async function signCampaignReviews(
         workItemId: row.work_item_id,
         outcome: 'FAILED',
         code: typeof code === 'string' ? code : 'INTERNAL_ERROR',
+        country: null,
       });
     }
   }
   return results;
+}
+
+/** Records the OWNER's country statement for one reviewed subject, if any. Never throws. */
+async function statedCountry(
+  pools: ReviewBatchPools,
+  countries: readonly CountryStatement[],
+  subjectId: string,
+): Promise<ReviewBatchResult['country']> {
+  const s = countries.find((c) => c.subjectId === subjectId);
+  if (s === undefined) return null;
+  const base = { statedCountry: s.country, pageEvidenceId: s.pageEvidenceId };
+  if (pools.writer === undefined) return { ...base, claimId: null, code: 'WRITER_POOL_MISSING' };
+  try {
+    const result = await recordCountryStatement(
+      { readonly: pools.readonly, writer: pools.writer },
+      s,
+    );
+    return { ...base, claimId: result.claimId, code: null };
+  } catch (error) {
+    const code = (error as { code?: unknown }).code;
+    return { ...base, claimId: null, code: typeof code === 'string' ? code : 'INTERNAL_ERROR' };
+  }
 }

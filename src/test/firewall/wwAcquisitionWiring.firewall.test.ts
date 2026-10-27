@@ -50,6 +50,14 @@ const FILES: Readonly<Record<string, readonly string[]>> = {
     '../acquisition/canonical.js',
   ],
   'context.ts': ['node:crypto', 'pg', '../orchestrator/rootRunner.js', './sourceDiscoveryPort.js'],
+  // WW H-ACQ (lead addendum, exact path): country mentions in a subject's own
+  // captured pages, and the OWNER's --country statement through the existing
+  // jurisdiction-claim writer (the assigned ISO list only; no inference).
+  'countryMentions.ts': [
+    'pg',
+    '../jurisdictionClaimWriter/record.js',
+    '../subjectJurisdiction/vocabulary.js',
+  ],
   'dedupe.ts': [
     'pg',
     '../acquisition/index.js',
@@ -78,6 +86,7 @@ const FILES: Readonly<Record<string, readonly string[]>> = {
   'index.ts': [
     './campaignSigner.js',
     './context.js',
+    './countryMentions.js',
     './handlers.js',
     './outbox.js',
     './production.js',
@@ -130,7 +139,13 @@ const FILES: Readonly<Record<string, readonly string[]>> = {
     './records.js',
     './registryBridge.js',
   ],
-  'review.ts': ['pg', '../acquisition/index.js', './exportPort.js', './reviewBridge.js'],
+  'review.ts': [
+    'pg',
+    '../acquisition/index.js',
+    './countryMentions.js',
+    './exportPort.js',
+    './reviewBridge.js',
+  ],
   'reviewBridge.ts': [
     'node:crypto',
     'pg',
@@ -224,9 +239,20 @@ describe('WW E-W: the wiring namespace is exactly what was approved', () => {
   it('signs a review only for subjects listed one by one: no all-subjects form', () => {
     const review = ACQUISITION_OPTIONS['review sign'];
     // WW H-ACQ (P2-4, exact name): one `--expect <subjectId>=<stateDigest>`
-    // per listed subject binds each signature to the state the OWNER saw.
+    // per listed subject binds each signature to the state the OWNER saw;
+    // (lead addendum, exact name) an optional `--country` per listed subject
+    // cites one shown country-mention line of its own captured page.
     expect(Object.keys(review).sort()).toEqual(
-      ['campaign-id', 'subject-id', 'expect', 'key-file', 'key-id', 'execute', 'json'].sort(),
+      [
+        'campaign-id',
+        'subject-id',
+        'expect',
+        'country',
+        'key-file',
+        'key-id',
+        'execute',
+        'json',
+      ].sort(),
     );
     expect(code(`${NS}review.ts`)).toContain("throw new ReviewBatchRefusal('SUBJECTS_REQUIRED')");
     expect(code(`${NS}review.ts`)).toContain("'SUBJECT_NOT_AWAITING_REVIEW'");
