@@ -42,6 +42,13 @@ const EnvSchema = z.object({
   // discarded and the command says so. There is no fallback to any other
   // connection: the research role is never used in its place.
   DATABASE_URL_SOURCE_DISCOVERY: z.string().min(1).optional(),
+  // WW E-Q acquisition worker (migration 0023). A login the DEPLOYMENT
+  // provisions - or, locally, a DISPOSABLE test database's harness - and
+  // grants the NOLOGIN nwf_acquisition_worker capability; no migration creates
+  // it and .env.example holds no value for it. Read only by `acquisition
+  // worker`. Holding it is not campaign authority: a campaign counts only if
+  // its OWNER signature verifies under the pinned trust set (ADR 0029).
+  DATABASE_URL_ACQUISITION_WORKER: z.string().min(1).optional(),
   // Integration tests truncate tables, so they target a separate database.
   DATABASE_URL_ADMIN_TEST: z.string().min(1).optional(),
   DATABASE_URL_INGEST_TEST: z.string().min(1).optional(),
@@ -51,6 +58,7 @@ const EnvSchema = z.object({
   DATABASE_URL_DISCOVERY_SUBJECT_WRITER_TEST: z.string().min(1).optional(),
   DATABASE_URL_DISCOVERY_SUBJECT_REVIEWER_TEST: z.string().min(1).optional(),
   DATABASE_URL_SOURCE_DISCOVERY_TEST: z.string().min(1).optional(),
+  DATABASE_URL_ACQUISITION_WORKER_TEST: z.string().min(1).optional(),
   NWF_PE_VERBOSE: z.string().optional(),
 });
 
@@ -76,7 +84,8 @@ export type Role =
   | 'classifier'
   | 'discovery_subject_writer'
   | 'discovery_subject_reviewer'
-  | 'source_discovery';
+  | 'source_discovery'
+  | 'acquisition_worker';
 
 const ROLE_VAR: Record<Role, keyof Env> = {
   admin: 'DATABASE_URL_ADMIN',
@@ -87,6 +96,7 @@ const ROLE_VAR: Record<Role, keyof Env> = {
   discovery_subject_writer: 'DATABASE_URL_DISCOVERY_SUBJECT_WRITER',
   discovery_subject_reviewer: 'DATABASE_URL_DISCOVERY_SUBJECT_REVIEWER',
   source_discovery: 'DATABASE_URL_SOURCE_DISCOVERY',
+  acquisition_worker: 'DATABASE_URL_ACQUISITION_WORKER',
 };
 
 const ROLE_VAR_TEST: Record<Role, keyof Env> = {
@@ -98,6 +108,7 @@ const ROLE_VAR_TEST: Record<Role, keyof Env> = {
   discovery_subject_writer: 'DATABASE_URL_DISCOVERY_SUBJECT_WRITER_TEST',
   discovery_subject_reviewer: 'DATABASE_URL_DISCOVERY_SUBJECT_REVIEWER_TEST',
   source_discovery: 'DATABASE_URL_SOURCE_DISCOVERY_TEST',
+  acquisition_worker: 'DATABASE_URL_ACQUISITION_WORKER_TEST',
 };
 
 /** Connection string for a role against the integration-test database. */

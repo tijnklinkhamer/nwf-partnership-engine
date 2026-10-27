@@ -1,0 +1,43 @@
+{
+  "recordId": "WW_E_Q_ACQUISITION_CAMPAIGN_OWNER_DIRECTIVE_RECORD_V1",
+  "recordKind": "OWNER_DIRECTIVE_SCOPE_RECORD",
+  "recordedAtUtc": "2026-10-27",
+  "branch": "ww/e-queue",
+  "startingHead": "bdf16f9",
+  "status": "LOCAL_IMPLEMENTATION_UNDER_REL_F1_R2__OWNER_ACTIVATION_DECISION_PENDING",
+  "isOwnerRatification": false,
+  "recordedBy": "engineering work package WW E-Q (transcription of the scope it was given by the integration lead; not an OWNER signature)",
+  "authority": {
+    "source": "REL-F1-R2 (local engineering only) and the OWNER directive of 2026-10-27 'NWF Partnership Engine - full end-to-end product completion', phases A3 and A5 (core), as relayed by the integration lead",
+    "scope": [
+      "An OWNER-controlled, bounded acquisition campaign with a durable, append-only work queue and a worker core that processes approved work without per-organisation prompts.",
+      "Campaign authority is an OWNER Ed25519 signature verified against a pinned trust set that is EMPTY in production; no self-granted authority; identity review stays a human (OWNER) act that the worker can never pass.",
+      "Everything inert: no production campaign can verify, and no production stage handler is wired."
+    ],
+    "authorised": [
+      "local source edits",
+      "one forward-only migration (0023) creating six append-only tables, one security-invoker view and the NOLOGIN capability nwf_acquisition_worker (SELECT on campaigns and control events, SELECT/INSERT on the queue tables), plus SELECT for nwf_readonly",
+      "a new firewall file for the new namespace",
+      "local test runs against a disposable tmpfs PostgreSQL with TEST_ONLY in-memory Ed25519 keys and scripted handlers",
+      "local commits"
+    ],
+    "notAuthorised": [
+      "applying migration 0023 to nwf_pe or any persistent, shared, staging or production database",
+      "provisioning a LOGIN that holds nwf_acquisition_worker anywhere but a disposable *_test database",
+      "generating, provisioning or pinning any operational campaign key",
+      "recording or starting any real campaign",
+      "wiring any production stage handler",
+      "any live network call, live search or live model call",
+      "push, merge or deploy",
+      "editing a committed migration",
+      "weakening any security check or firewall"
+    ]
+  },
+  "migrationUnderThisDirective": "migrations/0023_acquisition_campaigns_and_queue.sql",
+  "adr": "docs/adr/0029-owner-signed-acquisition-campaigns.md",
+  "loginInMigrations": false,
+  "newRole": true,
+  "appendOnly": true,
+  "editsPriorMigrations": false,
+  "liveNetworkAuthorised": false
+}

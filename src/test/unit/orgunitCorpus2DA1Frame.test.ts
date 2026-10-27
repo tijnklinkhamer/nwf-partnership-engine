@@ -775,6 +775,11 @@ const MIGRATIONS_AFTER_THE_CORPUS_FREEZE = [
     adr: 'docs/adr/0028-campaign-bounded-live-source-discovery.md',
     ownerRecord: 'docs/evaluation/WW_E_SD_LIVE_SOURCE_DISCOVERY_OWNER_DIRECTIVE_RECORD_V1.json',
   },
+  {
+    file: '0023_acquisition_campaigns_and_queue.sql',
+    adr: 'docs/adr/0029-owner-signed-acquisition-campaigns.md',
+    ownerRecord: 'docs/evaluation/WW_E_Q_ACQUISITION_CAMPAIGN_OWNER_DIRECTIVE_RECORD_V1.json',
+  },
 ] as const;
 
 function gitAvailable(...commits: readonly string[]): boolean {

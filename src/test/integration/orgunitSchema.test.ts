@@ -286,6 +286,10 @@ describeDb('Phase 2B schema contract (integration)', () => {
         // only on grants), one deferred constraint trigger on 0019's runs; no
         // role, no LOGIN, no existing column or grant altered).
         '0022',
+        // WW E-Q (OWNER-signed acquisition campaigns and the append-only work
+        // queue, ADR 0029, Proposed - six append-only tables, one view, one
+        // NOLOGIN capability; nothing existing altered).
+        '0023',
       ]);
     });
 

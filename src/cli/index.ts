@@ -31,6 +31,7 @@ import { runSourceDiscoveryCli } from './commands/sourceDiscovery.js';
 import { runSubjectFactsCli } from './commands/subjectFacts.js';
 import { runQualificationInputCli } from './commands/qualificationInput.js';
 import { runJurisdictionClaimsCli } from './commands/jurisdictionClaims.js';
+import { runAcquisitionCli } from './commands/acquisition.js';
 import {
   buildClassifierOperatorEnvelope,
   renderClassifierOperatorEnvelope,
@@ -80,6 +81,9 @@ Usage:
   nwf-pe jurisdiction-claims record --subject-id <uuid> --country-of-operation <CC> <source> ...
                               (one SOURCE_STATED claim from a source the subject holds; DRY RUN
                               unless --execute; run \`nwf-pe jurisdiction-claims --help\`)
+  nwf-pe acquisition campaign verify|record|control | status | worker ...
+                              (OWNER-signed campaigns and the work-queue worker; INERT: no
+                              campaign key, no stage handler; run \`nwf-pe acquisition --help\`)
 
 Options:
   --country <CC>    Restrict to an ISO-3166-1 alpha-2 country code (e.g. FR).
@@ -201,6 +205,10 @@ export async function main(argv: string[]): Promise<number> {
   // REL Q1: one source-stated country-of-operation claim. Its own strict options.
   if (argv[0] === 'jurisdiction-claims') {
     return runJurisdictionClaimsCli(argv.slice(1));
+  }
+  // WW E-Q: OWNER-signed acquisition campaigns and the worker. Its own strict options.
+  if (argv[0] === 'acquisition') {
+    return runAcquisitionCli(argv.slice(1));
   }
   let parsedArgv;
   try {
