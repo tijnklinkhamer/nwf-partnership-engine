@@ -86,21 +86,121 @@ export const QUOTE_MAX_CODE_POINTS = 300;
  * contains every phrase in `required`, else the whole unit, capped at
  * `QUOTE_MAX_CODE_POINTS` code points (never splitting a surrogate pair).
  * Always a contiguous substring of the stored text - nothing is rewritten.
+ *
+ * `full` is the chosen sentence BEFORE the cap (rules v2): every contact
+ * check runs on it, never on the capped quote, so a cap can never cut a
+ * number in half and let the first half through.
  */
 export function quoteOf(
   unit: TextUnit,
   required: readonly ScriptAwarePhrase[],
-): { readonly quote: string; readonly truncated: boolean } {
+): { readonly quote: string; readonly truncated: boolean; readonly full: string } {
   const sentences = unit.text.split(/(?<=[.!?])\s+|(?<=[。！？])/u).filter((s) => s.trim() !== '');
   const containsAll = (text: string) => {
     const tokens = tokeniseScriptAware(text);
     return required.every((p) => containsScriptAwarePhrase(tokens, p));
   };
-  const chosen = sentences.find(containsAll) ?? unit.text;
-  const codePoints = Array.from(chosen.trim());
+  const chosen = (sentences.find(containsAll) ?? unit.text).trim();
+  const codePoints = Array.from(chosen);
   return codePoints.length <= QUOTE_MAX_CODE_POINTS
-    ? { quote: codePoints.join(''), truncated: false }
-    : { quote: codePoints.slice(0, QUOTE_MAX_CODE_POINTS).join(''), truncated: true };
+    ? { quote: chosen, truncated: false, full: chosen }
+    : { quote: codePoints.slice(0, QUOTE_MAX_CODE_POINTS).join(''), truncated: true, full: chosen };
+}
+
+// ---------------------------------------------------------------------------
+// Guards (rules v2): phrases with gaps, and the fixed exceptions to them.
+// ---------------------------------------------------------------------------
+
+/** The gap marker in a guard phrase: 0-3 whole tokens (`ne … plus`). */
+export const GUARD_GAP = '…';
+export const GUARD_GAP_MAX_TOKENS = 3;
+
+/** One guard phrase, compiled: its segments must occur in order, each gap 0-3 tokens. */
+export interface CompiledGuard<P> {
+  readonly phrase: string;
+  readonly language: C1Language;
+  readonly segments: readonly ScriptAwarePhrase[];
+  readonly payload: P;
+}
+
+export function compileGuards<P>(
+  entries: readonly { phrase: string; language: C1Language; payload: P }[],
+): CompiledGuard<P>[] {
+  return entries.map((e) => {
+    const segments = e.phrase.split(GUARD_GAP).map((part) => compileScriptAwarePhrase(part));
+    if (segments.length > 1 && segments.some((s) => s.kind !== 'tokens' || s.tokens.length === 0)) {
+      throw new Error(`guard ${JSON.stringify(e.phrase)}: a gap joins Latin-script segments only`);
+    }
+    return { phrase: e.phrase, language: e.language, segments, payload: e.payload };
+  });
+}
+
+/** Every start index at which a token phrase occurs in `tokens`. */
+function startsOf(tokens: readonly ScriptToken[], phrase: readonly string[], from = 0): number[] {
+  const out: number[] = [];
+  for (let i = from; i + phrase.length <= tokens.length; i += 1) {
+    if (phrase.every((t, k) => tokens[i + k]!.text === t)) out.push(i);
+  }
+  return out;
+}
+
+/** The token spans `[start, end)` a guard occupies in the unit (CJK: the run that contains it). */
+function guardSpans(unit: TextUnit, guard: CompiledGuard<unknown>): [number, number][] {
+  const [first, ...rest] = guard.segments;
+  if (first === undefined) return [];
+  if (first.kind === 'cjk') {
+    return unit.tokens.flatMap((t, i): [number, number][] =>
+      t.cjk && t.text.includes(first.text) ? [[i, i + 1]] : [],
+    );
+  }
+  const spans: [number, number][] = [];
+  for (const start of startsOf(unit.tokens, first.tokens)) {
+    let end = start + first.tokens.length;
+    let ok = true;
+    for (const seg of rest) {
+      const tokens = seg.kind === 'tokens' ? seg.tokens : [];
+      const next = startsOf(unit.tokens, tokens, end).find((i) => i - end <= GUARD_GAP_MAX_TOKENS);
+      if (next === undefined) {
+        ok = false;
+        break;
+      }
+      end = next + tokens.length;
+    }
+    if (ok) spans.push([start, end]);
+  }
+  return spans;
+}
+
+/**
+ * Every guard the unit contains, in lexicon order. A Latin-script guard
+ * occurrence lying wholly inside an exception phrase (`not-for-profit`,
+ * `don't miss`) does not count; a CJK guard does not count inside a CJK
+ * exception that contains it.
+ */
+export function guardsIn<P>(
+  unit: TextUnit,
+  guards: readonly CompiledGuard<P>[],
+  exceptions: readonly CompiledPhrase<unknown>[],
+): CompiledGuard<P>[] {
+  const excepted: [number, number][] = [];
+  const exceptedCjk: string[] = [];
+  for (const e of exceptions) {
+    if (e.compiled.kind === 'cjk') exceptedCjk.push(e.compiled.text);
+    else {
+      const len = e.compiled.tokens.length;
+      for (const s of startsOf(unit.tokens, e.compiled.tokens)) excepted.push([s, s + len]);
+    }
+  }
+  return guards.filter((g) =>
+    guardSpans(unit, g).some(([s, e]) => {
+      const first = g.segments[0]!;
+      if (first.kind === 'cjk') {
+        const run = unit.tokens[s]!.text;
+        return !exceptedCjk.some((x) => x.includes(first.text) && run.includes(x));
+      }
+      return !excepted.some(([xs, xe]) => xs <= s && e <= xe);
+    }),
+  );
 }
 
 // ---------------------------------------------------------------------------

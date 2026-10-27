@@ -5,12 +5,12 @@
  * A SEPARATE document from v1 (`../qualificationInput/`), which stays
  * producible byte for byte: v2 is v1's records and rules PLUS automatic,
  * source-backed C1 evidence read from the stored page captures by the pure
- * rules in `../c1Extraction/` (`nwf-pe-c1-extraction-rules-v1`), in two
+ * rules in `../c1Extraction/` (`nwf-pe-c1-extraction-rules-v2`), in two
  * classes that are never mixed:
  *
- *   claims      v1's five keys, plus OBSERVED facts the captures show
- *               (channel.event_instances, channel.cycle_history,
- *               channel.feed_activity, channel.reach_mode,
+ *   claims      v1's five keys, plus OBSERVED facts about the published
+ *               artefact the captures exhibit (channel.event_instances,
+ *               channel.cycle_history, channel.feed_activity,
  *               channel.resource_openness, and channel.existence for the
  *               additional channels). Producer NWF_SYSTEM, every linked
  *               source an Engine page capture - exactly what the Operator's
@@ -52,7 +52,14 @@ import {
 } from '../qualificationInput/contract.js';
 
 export const QUALIFICATION_INPUT_EXPORT_CONTRACT_V2 = 'nwf-pe.qualification-input-export.v2';
-export const QUALIFICATION_INPUT_PRODUCER_VERSION_V2 = 'nwf-pe-qualification-input-producer-v2';
+/**
+ * The producer of the v2 DOCUMENT. `-v3` since WW E-XFX (2026-10-27): the
+ * same document shape, produced under `nwf-pe-c1-extraction-rules-v2` (a
+ * sign-up sentence is a proposal, guarded lines yield nothing positive,
+ * contact-shaped and social-account quotes are withheld). `-v2` names the
+ * producer that ran rules v1, and only that.
+ */
+export const QUALIFICATION_INPUT_PRODUCER_VERSION_V2 = 'nwf-pe-qualification-input-producer-v3';
 
 /** v1's limitations, with the two that v2 changes restated truthfully, plus v2's own. */
 export const LIMITATIONS_V2 = Object.freeze({
@@ -60,9 +67,10 @@ export const LIMITATIONS_V2 = Object.freeze({
   pageText: 'NO_PAGE_TEXT_IS_EXPORTED_EXCEPT_ONE_SHORT_REDACTED_QUOTE_PER_PROPOSAL',
   classifier: 'NO_CLASSIFIER_OR_MODEL_OUTPUT_IS_EXPORTED',
   phraseRules:
-    'DETERMINISTIC_PHRASE_RULES_NWF_PE_C1_EXTRACTION_RULES_V1_OBSERVED_CLAIMS_ONLY_FOR_WHAT_A_CAPTURE_SHOWS',
+    'DETERMINISTIC_PHRASE_RULES_NWF_PE_C1_EXTRACTION_RULES_V2_OBSERVED_CLAIMS_ONLY_FOR_WHAT_A_CAPTURE_EXHIBITS_STATEMENTS_ARE_PROPOSALS_GUARDED_LINES_YIELD_NOTHING_POSITIVE',
   proposals: 'PROPOSALS_ARE_NOT_CLAIMS_THE_OPERATOR_DECIDES_WHETHER_ANY_COUNTS',
-  quotes: 'AT_MOST_300_CODE_POINTS_OF_ALREADY_REDACTED_STORED_TEXT_CONTACT_SHAPED_QUOTES_WITHHELD',
+  quotes:
+    'AT_MOST_300_CODE_POINTS_OF_ALREADY_REDACTED_STORED_TEXT_CONTACT_SHAPED_OR_SOCIAL_ACCOUNT_QUOTES_WITHHELD_CHECKED_ON_THE_FULL_SENTENCE',
   quoteContent:
     'A_QUOTE_IS_PAGE_TEXT_AS_WRITTEN_AND_MAY_NAME_THE_ORGANISATION_OR_A_PERSON_NO_NAME_FIELD_EXISTS',
   researchStatus:
@@ -94,6 +102,7 @@ export const PROPOSAL_KEYS = [
   'channel.audience_count',
   'channel.existence',
   'channel.operator_binding',
+  'channel.reach_mode',
   'channel.role_based_ownership',
 ] as const;
 

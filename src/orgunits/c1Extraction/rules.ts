@@ -1,18 +1,30 @@
 /**
- * WW E-X - THE RULE TABLE (`nwf-pe-c1-extraction-rules-v1`), AS DATA.
+ * WW E-X - THE RULE TABLE (`nwf-pe-c1-extraction-rules-v2`), AS DATA.
+ *
+ * v2 REPLACES v1 (`nwf-pe-c1-extraction-rules-v1`), which is no longer
+ * produced: v1 stamped OBSERVED on what the organisation merely SAID (a
+ * newsletter sign-up sentence became an observed existence + reach mode) and
+ * read negated, cancelled and deadline lines as positive facts. v1 remains
+ * only as the label on documents already produced under it.
  *
  * Every finding this package emits names ONE rule id of the form
  * `<class>.<CONCEPT>.<language>`:
  *
- *   C1X  an OBSERVED claim the page itself shows (dated instances, a visible
- *        sign-up or submission call, a listing of external links). Produced
- *        by NWF_SYSTEM over Engine page captures only.
+ *   C1X  an OBSERVED claim: the C1 value describes the published artefact
+ *        ITSELF, which the capture exhibits - a dated item listed on the
+ *        page (an event instance, a newsletter issue), a submission
+ *        invitation printed on it, a heading over a list of external links.
+ *        Produced by NWF_SYSTEM over Engine page captures only.
  *   C1P  a PROPOSAL: a source-stated self-description C1 admits only as
- *        SELF_ASSERTED / THIRD_PARTY_ASSERTED. Never a claim; the Operator
- *        decides whether it counts.
+ *        SELF_ASSERTED / THIRD_PARTY_ASSERTED, including every sentence in
+ *        which the organisation DESCRIBES a channel or invites a sign-up
+ *        (the value is about something beyond the page, which the page only
+ *        states). Never a claim; the Operator decides whether it counts.
  *   C1G  an explicit GAP: something the page shows that C1 has no faithful
  *        home for (a platform with no channel kind, a member count bound to
- *        no channel). Recorded so it is visible, never converted.
+ *        no channel), or a GUARDED line (negated, cancelled, discontinued,
+ *        deadline) whose positive readings were suppressed. Recorded so it
+ *        is visible, never converted.
  *
  * The language is the language the matched phrase is WRITTEN in - never a
  * country, never the organisation's language (a page in Dutch says nothing
@@ -23,7 +35,7 @@
 import { C1_PACKS, type C1Language } from './lexicon.js';
 import type { C1Subcriterion } from './vocabulary.js';
 
-export const C1_EXTRACTION_RULES_VERSION = 'nwf-pe-c1-extraction-rules-v1';
+export const C1_EXTRACTION_RULES_VERSION = 'nwf-pe-c1-extraction-rules-v2';
 
 export type RuleClass = 'C1X' | 'C1P' | 'C1G';
 
@@ -47,7 +59,7 @@ export const C1_CONCEPTS: readonly C1ConceptSpec[] = [
     subcriteria: ['DP1', 'DP3'],
     needs: ['orientationEvent'],
     reason:
-      'One line names an orientation/welcome event AND states a full calendar date: the page shows a dated instance of that event (ORIENTATION_EVENT, class EVENT_SLOT). Upcoming = a date after the capture day; last past instance = the latest date on or before it. A line naming the event without a full date establishes nothing.',
+      'One unguarded line names an orientation/welcome event AND states a full calendar date: the page LISTS a dated instance of that event (ORIENTATION_EVENT, class EVENT_SLOT). Upcoming = a date after the capture day; last past instance = the latest date on or before it. A line naming the event without a full date establishes nothing; a line that negates, cancels or discontinues it, or whose date is a deadline ("registration closes on 1 June"), is guarded and establishes nothing.',
   },
   {
     concept: 'ORIENTATION_EVENT_CYCLES',
@@ -60,12 +72,12 @@ export const C1_CONCEPTS: readonly C1ConceptSpec[] = [
   },
   {
     concept: 'NEWSLETTER_SIGNUP',
-    ruleClass: 'C1X',
+    ruleClass: 'C1P',
     keys: ['channel.existence', 'channel.reach_mode'],
     subcriteria: ['DP1', 'DP2'],
     needs: ['newsletter', 'signUp'],
     reason:
-      'One line names a newsletter AND carries a sign-up call to action: the page shows the subscription entry point of a newsletter (MEMBER_NEWSLETTER, class FEED) whose mechanism is pushed delivery to subscribers (PUSHED_TO_MEMBERS, the integration lead decision 2026-10-27).',
+      'One unguarded line on the subject\'s own page names a newsletter AND carries a sign-up call to action ("Subscribe to our newsletter"). That is the organisation STATING it has a newsletter delivered to subscribers - stored page evidence records no form element, so nothing is observed: existence EXISTS and reach_mode PUSHED_TO_MEMBERS (the integration lead decision 2026-10-27) are PROPOSED, SELF_ASSERTED, and establish a PROPOSAL_ONLY MEMBER_NEWSLETTER channel. (Rules v1 stamped these OBSERVED; v2 does not.)',
   },
   {
     concept: 'NEWSLETTER_DATED_ISSUES',
@@ -74,7 +86,7 @@ export const C1_CONCEPTS: readonly C1ConceptSpec[] = [
     subcriteria: ['DP1', 'DP3'],
     needs: ['newsletter'],
     reason:
-      'One line names a newsletter AND states a full date on or before the capture day: the page shows a dated newsletter issue. itemDates are those dates; completeView is false.',
+      'One unguarded line names a newsletter AND states a full date on or before the capture day: the page LISTS a dated newsletter issue (an archive entry such as "Newsletter - 3 March 2026"), a structural item of the published artefact. itemDates are those dates; completeView is false.',
   },
   {
     concept: 'SUBMISSION_INVITATION',
@@ -83,7 +95,7 @@ export const C1_CONCEPTS: readonly C1ConceptSpec[] = [
     subcriteria: ['AP1'],
     needs: ['submissionInvitation'],
     reason:
-      'The page carries a visible invitation to submit an event or resource to the site ("submit your event"): resource_openness SUBMISSION_INVITATION on the admitted website (itemDate null - the invitation is undated).',
+      'An unguarded line carries an invitation to submit an event or resource to the site ("submit your event"): the C1 value SUBMISSION_INVITATION describes the published page itself - that it prints such an invitation - which the capture exhibits, so it stays OBSERVED (resource_openness on the admitted website, itemDate null - the invitation is undated). "Submissions are closed" is guarded.',
   },
   {
     concept: 'EXTERNAL_LINKS_LISTING',
@@ -92,7 +104,7 @@ export const C1_CONCEPTS: readonly C1ConceptSpec[] = [
     subcriteria: ['AP1'],
     needs: ['externalLinksHeading'],
     reason:
-      'The page title or a heading names a list of useful/external links: the site format observably lists external resources (FORMAT_ALLOWS, itemDate null). Affiliation of any listed item is not read, so no precedent kind is ever emitted.',
+      'The page title or an unguarded heading names a list of useful/external links: a structural heading of the published page, so the site format observably lists external resources (FORMAT_ALLOWS, itemDate null). Affiliation of any listed item is not read, so no precedent kind is ever emitted.',
   },
   {
     concept: 'AUDIENCE_LANGUAGES',
@@ -137,7 +149,7 @@ export const C1_CONCEPTS: readonly C1ConceptSpec[] = [
     subcriteria: ['DP4'],
     needs: ['audienceUnits', 'newsletter'],
     reason:
-      'One line states a number of subscribers/readers AND names the newsletter: CHANNEL_SUBSCRIBERS on the observed newsletter channel (segment null). Without an observed newsletter channel it is a gap, never a count.',
+      'One line states a number of subscribers/readers AND names the newsletter: CHANNEL_SUBSCRIBERS on the established newsletter channel - observed (dated issues) or proposed (a surviving sign-up) - (segment null). Without an established newsletter channel it is a gap, never a count.',
   },
   {
     concept: 'AUDIENCE_COUNT_FOLLOWERS',
@@ -191,7 +203,7 @@ export const C1_CONCEPTS: readonly C1ConceptSpec[] = [
     subcriteria: ['DP1', 'AP2'],
     needs: ['followUs'],
     reason:
-      'One line on the admitted site names a platform C1 has a kind for AND a first-person follow/join call ("follow us on Instagram"): the organisation states it has that account. Existence and an OFFICIAL_PRESENCE_NAMES_CHANNEL binding are PROPOSED (self-asserted); the account itself was never observed. No handle is exported.',
+      'One line on the admitted site names a platform C1 has a kind for AND a first-person follow/join call ("follow us on Instagram"): the organisation states it has that account. Existence and an OFFICIAL_PRESENCE_NAMES_CHANNEL binding are PROPOSED (self-asserted); the account itself was never observed. No handle is exported, and because such a line so often carries a handle or an account URL, its quote - and so the proposal - is WITHHELD by default (gap SOCIAL_ACCOUNT_QUOTE); the channel is then not established either.',
   },
   {
     concept: 'CHANNEL_NAMED_AS_OWN',
@@ -200,7 +212,16 @@ export const C1_CONCEPTS: readonly C1ConceptSpec[] = [
     subcriteria: ['AP2'],
     needs: ['possessive'],
     reason:
-      'A first-person possessive names an observed newsletter or orientation event as the organisation\'s own ("our newsletter", "notre semaine d\'intégration"): OFFICIAL_PRESENCE_NAMES_CHANNEL, PROPOSED (it is what the page says about itself).',
+      'A first-person possessive names a newsletter or orientation event this package established (observed, or proposed by a surviving sign-up) as the organisation\'s own ("our newsletter", "notre semaine d\'intégration"): OFFICIAL_PRESENCE_NAMES_CHANNEL, PROPOSED (it is what the page says about itself).',
+  },
+  {
+    concept: 'CHANNEL_DISCONTINUATION_STATED',
+    ruleClass: 'C1P',
+    keys: ['channel.existence'],
+    subcriteria: ['DP1'],
+    needs: ['discontinuationTerms'],
+    reason:
+      'A line on the subject\'s OWN page states that its newsletter or orientation event has been discontinued ("We no longer send a newsletter", "nous n\'organisons plus de semaine d\'intégration"): existence DISCONTINUED, PROPOSED (SELF_ASSERTED - a statement, never an observation of an absence), establishing a PROPOSAL_ONLY channel. On a third-party page it is only a guarded-line gap.',
   },
   {
     concept: 'PLATFORM_WITHOUT_C1_KIND',
@@ -236,7 +257,16 @@ export const C1_CONCEPTS: readonly C1ConceptSpec[] = [
     subcriteria: ['DP4', 'AP2', 'SV3'],
     needs: ['audienceUnits'],
     reason:
-      'A count, role statement or "our ..." phrase about a channel this package did not establish (a subscriber number naming no channel, "our newsletter" with no observed sign-up or issue): a gap, never attached to a guessed channel.',
+      'A count, role statement or "our ..." phrase about a channel this package did not establish (a subscriber number naming no channel, "our newsletter" with no surviving sign-up and no dated issue): a gap, never attached to a guessed channel.',
+  },
+  {
+    concept: 'GUARDED_STATEMENT',
+    ruleClass: 'C1G',
+    keys: [],
+    subcriteria: [],
+    needs: ['negationTerms'],
+    reason:
+      'A line that some positive rule would have read also contains a negation, cancellation, discontinuation or deadline term of the language ("no longer", "cancelled", "ne ... plus", "ya no", "niet meer", "中止", "nicht mehr", "non ... più", "não ... mais", "registration closes", "締切"): every positive claim and proposal from that line is suppressed and the line is recorded as a gap labelled with the guard kind, never read as a fact.',
   },
 ];
 

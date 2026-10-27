@@ -1,14 +1,15 @@
 /**
  * WW E-X - AUTOMATIC, SOURCE-BACKED C1 EVIDENCE FROM STORED PAGE CAPTURES
- * (`nwf-pe-c1-extraction-rules-v1`).
+ * (`nwf-pe-c1-extraction-rules-v2`).
  *
  * `extractC1(pages, options)` reads the stored, already-redacted page
  * evidence of ONE subject's admitted research (title, h1-h3 headings, main
  * text lines) and returns, in two classes that are NEVER mixed:
  *
- *   CLAIMS     OBSERVED facts the page itself shows - dated event instances,
- *              a visible newsletter sign-up, dated newsletter issues, a
- *              visible submission invitation, a listing of external links -
+ *   CLAIMS     OBSERVED facts about the published artefact itself, which
+ *              the capture exhibits - dated event instances and dated
+ *              newsletter issues LISTED on the page, a submission invitation
+ *              printed on it, a heading over a list of external links -
  *              each on a channel C1 has a kind for, each value valid under
  *              the restated C1 schema (`vocabulary.ts`), each resting on the
  *              captures that show it. Only pages the subject itself
@@ -16,13 +17,16 @@
  *   PROPOSALS  source-stated self-descriptions C1 admits only as
  *              SELF_ASSERTED / THIRD_PARTY_ASSERTED (languages, audience,
  *              cohort, counts, role ownership, kind, social accounts, "our"
- *              channels). Each carries the rule, the language its phrase is
+ *              channels, a newsletter sign-up sentence, a stated
+ *              discontinuation). Each carries the rule, the language its phrase is
  *              written in, the matched phrases and a short quote of the
  *              stored text. A proposal is not a claim.
  *
  * plus the page classes each capture belongs to (research coverage), the
- * findings C1 has no faithful home for (explicit gaps), and the proposals
- * withheld because their quote would carry contact-shaped text.
+ * findings C1 has no faithful home for (explicit gaps), the GUARDED lines
+ * (negated, cancelled, discontinued, deadline) whose positive readings were
+ * suppressed, and the proposals withheld because their quote would carry
+ * contact-shaped text (or names a social account, by default).
  *
  * NEVER: a guessed value, a channel from a single generic resource-page
  * observation, a year guessed for a day-and-month, a country or audience
@@ -47,11 +51,14 @@ import {
 } from './lexicon.js';
 import { C1_EXTRACTION_RULES_VERSION, ruleId } from './rules.js';
 import {
+  compileGuards,
   compilePhrases,
+  guardsIn,
   matchesIn,
   quoteOf,
   statedCounts,
   unitOf,
+  type CompiledGuard,
   type CompiledPhrase,
   type TextUnit,
 } from './text.js';
@@ -91,6 +98,13 @@ export interface C1PageInput {
 export interface C1ExtractionOptions {
   /** The subject's provisional candidate reference (the operator a binding names). */
   readonly candidateRef: string;
+  /**
+   * Proposals about a social account (Instagram, Facebook, WhatsApp, Discord)
+   * are WITHHELD by default: the line that names the account so often carries
+   * its handle or URL. `SHAPE_CHECKED` would release them under the ordinary
+   * contact-shape checks only. INERT: no production caller passes it.
+   */
+  readonly socialAccountQuotes?: 'WITHHELD' | 'SHAPE_CHECKED';
 }
 
 export const PAGE_CLASSES = [
@@ -145,7 +159,10 @@ export interface ExtractedProposal {
 }
 
 export type UnmappedReason =
-  'NO_FAITHFUL_C1_CHANNEL_KIND' | 'MEMBER_COUNT_NOT_BOUND_TO_A_CHANNEL' | 'CHANNEL_NOT_ESTABLISHED';
+  | 'NO_FAITHFUL_C1_CHANNEL_KIND'
+  | 'MEMBER_COUNT_NOT_BOUND_TO_A_CHANNEL'
+  | 'CHANNEL_NOT_ESTABLISHED'
+  | 'STATEMENT_GUARDED';
 
 export interface UnmappedFinding {
   readonly ruleId: string;
@@ -155,7 +172,10 @@ export interface UnmappedFinding {
 }
 
 export type WithheldReason =
-  'CONTACT_SHAPED_QUOTE' | 'RESERVED_NAMESPACE_MARKER_IN_QUOTE' | 'MODE_NOT_ADMISSIBLE_FOR_KEY';
+  | 'CONTACT_SHAPED_QUOTE'
+  | 'SOCIAL_ACCOUNT_QUOTE'
+  | 'RESERVED_NAMESPACE_MARKER_IN_QUOTE'
+  | 'MODE_NOT_ADMISSIBLE_FOR_KEY';
 
 export interface WithheldFinding {
   readonly ruleId: string;
@@ -290,6 +310,24 @@ const ENROLMENT_CONTEXT: ReadonlyMap<C1Language, CompiledPhrase<null>[]> = new M
     ),
   ]),
 );
+/** The kind of statement a guarded line makes (rules v2). */
+export type GuardKind = 'DISCONTINUATION' | 'CANCELLATION' | 'DEADLINE' | 'NEGATION';
+const GUARDS: readonly CompiledGuard<GuardKind>[] = compileGuards(
+  C1_PACKS.flatMap((p) =>
+    (
+      [
+        ['DISCONTINUATION', p.discontinuationTerms],
+        ['CANCELLATION', p.cancellationTerms],
+        ['DEADLINE', p.deadlineTerms],
+        ['NEGATION', p.negationTerms],
+      ] as const
+    ).flatMap(([kind, terms]) =>
+      terms.map((phrase) => ({ phrase, language: p.language, payload: kind as GuardKind })),
+    ),
+  ),
+);
+const GUARD_EXCEPTIONS = listOf('guardExceptions');
+const CONTACT_CUES = listOf('quoteWithholdCues');
 const UNMAPPED_PLATFORM = compilePhrases(
   UNMAPPED_PLATFORMS.map((term) => ({ phrase: term, language: 'en' as C1Language, payload: term })),
 );
@@ -307,6 +345,41 @@ const byCodeUnit = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0
 const sha256 = (text: string) => createHash('sha256').update(text, 'utf8').digest('hex');
 const RESERVED_MARKER = /(cand|chn|opp):/i;
 const REDACTION_TOKEN = /\[(EMAIL|PHONE)\]/;
+/**
+ * Copied (not imported - the C1 firewall forbids an acquisition import) from
+ * `src/orgunits/acquisition/canonical.ts`: nine digits joined by at most two
+ * separator characters each, the Engine's established telephone shape.
+ */
+const TELEPHONE_SHAPE = /[0-9]([ .()+/-]{0,2}[0-9]){8}/;
+const DIGIT_RUN = /[0-9]{8}/;
+const HANDLE_SHAPE = /[@\uFF20]\s*[\p{L}\p{N}_]/u;
+const URL_SHAPE = /:\/\/|\bwww\.|[a-z0-9-]+\.[a-z]{2,}\//i;
+const OBFUSCATED_ADDRESS = /[[(]\s*(?:at|dot)\s*[\])]/i;
+const SOCIAL_KINDS: ReadonlySet<string> = new Set(C1_PLATFORMS.map((p) => p.kind as string));
+
+/**
+ * True when the FULL quoted sentence (never the capped quote) carries
+ * anything contact-shaped: text the redactor would still change, a
+ * redaction placeholder, a handle (`@esn_utrecht`), a URL or host-with-path
+ * (`instagram.com/…`, `wa.me/…`, `www.`), a telephone shape or any run of
+ * eight digits (`0612345678`), an obfuscated address (`[at]`), or a contact
+ * cue of any language (`contact`, `bel`, `お問い合わせ`), beside which a
+ * person's name may stand. Checked on the NFKC fold, so full-width digits
+ * and `＠` count.
+ */
+export function isContactShapedQuote(full: string): boolean {
+  const folded = full.normalize('NFKC');
+  return (
+    redactContactData(full) !== full ||
+    REDACTION_TOKEN.test(folded) ||
+    HANDLE_SHAPE.test(folded) ||
+    URL_SHAPE.test(folded) ||
+    TELEPHONE_SHAPE.test(folded) ||
+    DIGIT_RUN.test(folded) ||
+    OBFUSCATED_ADDRESS.test(folded) ||
+    matchesIn(unitOf('MAIN', full), CONTACT_CUES).length > 0
+  );
+}
 const rootChannel = (rootKey: string) => `RESOURCE_PAGE|${rootKey}`;
 const channelKeyOf = (kind: C1ChannelKind, rootKey: string) => `${kind}|${rootKey}`;
 
@@ -330,6 +403,8 @@ interface ProposalDraft {
   readonly matched: readonly CompiledPhrase<unknown>[];
   /** For a channel subject: what may establish it if nothing else does. */
   readonly establishes: { readonly kind: C1ChannelKind; readonly visibility: C1Visibility } | null;
+  /** The discontinuation guard a DISCONTINUED proposal rests on (its quote must contain it). */
+  readonly guard?: CompiledGuard<GuardKind>;
 }
 
 function unitsOf(page: C1PageInput): TextUnit[] {
@@ -352,7 +427,6 @@ export function extractC1(
 ): C1Extraction {
   const pageClasses: { pageId: string; classes: PageClass[] }[] = [];
   const eventHits: Hit[] = [];
-  const signUpHits: Hit[] = [];
   const archiveHits: Hit[] = [];
   const submissionHits: Hit[] = [];
   const listingHits: Hit[] = [];
@@ -378,7 +452,9 @@ export function extractC1(
     if (headingUnits.some((u) => matchesIn(u, ABOUT).length > 0)) classes.add('ABOUT');
     if (headingUnits.some((u) => matchesIn(u, EVENTS_HEADING).length > 0)) classes.add('EVENTS');
     if (headingUnits.some((u) => matchesIn(u, NEWS_HEADING).length > 0)) classes.add('NEWS');
-    const listing = headingUnits.flatMap((u) => matchesIn(u, EXTERNAL_LINKS));
+    const listing = headingUnits
+      .filter((u) => guardsIn(u, GUARDS, GUARD_EXCEPTIONS).length === 0)
+      .flatMap((u) => matchesIn(u, EXTERNAL_LINKS));
     if (listing.length > 0) {
       classes.add('EXTERNAL_LINKS');
       if (self)
@@ -390,6 +466,19 @@ export function extractC1(
     let newsDated = false;
 
     for (const unit of units) {
+      // Every positive reading of this line goes to a per-line buffer first; a GUARDED
+      // line (negated, cancelled, discontinued, deadline) never commits any of it.
+      const guards = guardsIn(unit, GUARDS, GUARD_EXCEPTIONS);
+      const u = {
+        eventHits: [] as Hit[],
+        archiveHits: [] as Hit[],
+        submissionHits: [] as Hit[],
+        drafts: [] as ProposalDraft[],
+        gaps: [] as [string, UnmappedReason, string][],
+        languages: [] as CompiledPhrase<LearnedLanguage>[],
+      };
+      const uGap = (ruleIdValue: string, reason: UnmappedReason, label: string) =>
+        u.gaps.push([ruleIdValue, reason, label]);
       const dates = statedDatesC1(unit.text);
       const pastDates = dates.filter((d) => d <= page.capturedDay);
 
@@ -398,20 +487,40 @@ export function extractC1(
       if (event.length > 0) {
         classes.add('EVENTS');
         if (self && dates.length > 0) {
-          eventHits.push(hit(page, ruleId('ORIENTATION_EVENT_DATED', firstLanguage(event)), dates));
+          u.eventHits.push(
+            hit(page, ruleId('ORIENTATION_EVENT_DATED', firstLanguage(event)), dates),
+          );
         }
       }
 
-      // ---- Newsletter: sign-up call or dated issue on one line.
+      // ---- Newsletter: a sign-up SENTENCE (a proposal: the organisation says it has one)
+      // or a dated issue LISTED on the page (observed).
       const newsletter = matchesIn(unit, NEWSLETTER);
       if (newsletter.length > 0) {
         classes.add('NEWSLETTER');
         const signUp = matchesIn(unit, SIGN_UP);
         if (self && signUp.length > 0) {
-          signUpHits.push(hit(page, ruleId('NEWSLETTER_SIGNUP', firstLanguage(signUp)), []));
+          const channelKey = channelKeyOf('MEMBER_NEWSLETTER', page.rootKey);
+          const proposed: [C1EmittedKey, Record<string, unknown>][] = [
+            ['channel.existence', { status: 'EXISTS' }],
+            ['channel.reach_mode', { reach: 'PUSHED_TO_MEMBERS' }],
+          ];
+          for (const [key, value] of proposed) {
+            u.drafts.push({
+              key,
+              subject: { kind: 'CHANNEL', channelKey },
+              value,
+              page,
+              unit,
+              concept: 'NEWSLETTER_SIGNUP',
+              language: signUp[0]!.language,
+              matched: [newsletter[0]!, signUp[0]!],
+              establishes: { kind: 'MEMBER_NEWSLETTER', visibility: 'PUBLIC' },
+            });
+          }
         }
         if (self && pastDates.length > 0) {
-          archiveHits.push(
+          u.archiveHits.push(
             hit(page, ruleId('NEWSLETTER_DATED_ISSUES', firstLanguage(newsletter)), pastDates),
           );
         }
@@ -421,14 +530,14 @@ export function extractC1(
       // ---- Submission invitation.
       const submission = matchesIn(unit, SUBMISSION);
       if (self && submission.length > 0) {
-        submissionHits.push(
+        u.submissionHits.push(
           hit(page, ruleId('SUBMISSION_INVITATION', firstLanguage(submission)), []),
         );
       }
 
       // ---- "Our newsletter" / "our welcome week": a binding proposal (resolved later).
       for (const m of matchesIn(unit, POSSESSIVE_CHANNEL)) {
-        drafts.push({
+        u.drafts.push({
           key: 'channel.operator_binding',
           subject: { kind: 'CHANNEL', channelKey: channelKeyOf(m.payload, page.rootKey) },
           value: {
@@ -445,15 +554,12 @@ export function extractC1(
       }
 
       // ---- Languages learned (one union proposal per page, below).
-      for (const m of matchesIn(unit, LEARN)) {
-        languages.set(m.payload, [...(languages.get(m.payload) ?? []), m]);
-        languageUnit ??= unit;
-      }
+      u.languages.push(...matchesIn(unit, LEARN));
 
       // ---- Audience segment.
       const whole = matchesIn(unit, SEGMENT_WHOLE);
       for (const m of whole) {
-        drafts.push(
+        u.drafts.push(
           audienceDraft(page, unit, 'SEGMENT_WHOLE_AUDIENCE', m, {
             segment: m.payload,
             scope: 'WHOLE_AUDIENCE',
@@ -462,7 +568,7 @@ export function extractC1(
       }
       for (const m of matchesIn(unit, SEGMENT_ADDRESSED)) {
         if (whole.some((w) => w.payload === m.payload)) continue;
-        drafts.push(
+        u.drafts.push(
           audienceDraft(page, unit, 'SEGMENT_ADDRESSED_SUBGROUP', m, {
             segment: m.payload,
             scope: 'ADDRESSED_SUBGROUP',
@@ -472,7 +578,7 @@ export function extractC1(
 
       // ---- Cohort.
       for (const m of matchesIn(unit, COHORT)) {
-        drafts.push(audienceDraft(page, unit, 'COHORT', m, { cohort: m.payload }));
+        u.drafts.push(audienceDraft(page, unit, 'COHORT', m, { cohort: m.payload }));
       }
 
       // ---- Platforms named with a first-person follow/join call.
@@ -482,7 +588,7 @@ export function extractC1(
         for (const p of platforms) {
           const channelKey = channelKeyOf(p.payload.kind, page.rootKey);
           const establishes = { kind: p.payload.kind, visibility: p.payload.visibility };
-          drafts.push({
+          u.drafts.push({
             key: 'channel.existence',
             subject: { kind: 'CHANNEL', channelKey },
             value: { status: 'EXISTS' },
@@ -493,7 +599,7 @@ export function extractC1(
             matched: [follow[0]!, p],
             establishes,
           });
-          drafts.push({
+          u.drafts.push({
             key: 'channel.operator_binding',
             subject: { kind: 'CHANNEL', channelKey },
             value: {
@@ -509,11 +615,10 @@ export function extractC1(
           });
         }
         for (const p of matchesIn(unit, UNMAPPED_PLATFORM)) {
-          gap(
+          uGap(
             ruleId('PLATFORM_WITHOUT_C1_KIND', follow[0]!.language),
             'NO_FAITHFUL_C1_CHANNEL_KIND',
             `PLATFORM:${p.payload}`,
-            page.pageId,
           );
         }
       }
@@ -526,7 +631,7 @@ export function extractC1(
             platforms.length > 0 ? 'AUDIENCE_COUNT_FOLLOWERS' : 'AUDIENCE_COUNT_SUBSCRIBERS';
           if (platforms.length > 0 && newsletter.length === 0) {
             const p = platforms[0]!;
-            drafts.push({
+            u.drafts.push({
               key: 'channel.audience_count',
               subject: { kind: 'CHANNEL', channelKey: channelKeyOf(p.payload.kind, page.rootKey) },
               value: { count: c.count, basis: 'PLATFORM_FOLLOWERS', segment: null },
@@ -538,7 +643,7 @@ export function extractC1(
               establishes: { kind: p.payload.kind, visibility: p.payload.visibility },
             });
           } else if (newsletter.length > 0 && platforms.length === 0) {
-            drafts.push({
+            u.drafts.push({
               key: 'channel.audience_count',
               subject: {
                 kind: 'CHANNEL',
@@ -553,26 +658,24 @@ export function extractC1(
               establishes: null,
             });
           } else {
-            gap(
+            uGap(
               ruleId('CHANNEL_NOT_ESTABLISHED', pack.language),
               'CHANNEL_NOT_ESTABLISHED',
               `channel.audience_count:UNNAMED`,
-              page.pageId,
             );
           }
         }
         if (statedCounts(unit.text, pack.memberUnits, japanese).length > 0) {
-          gap(
+          uGap(
             ruleId('MEMBER_COUNT_UNBOUND', pack.language),
             'MEMBER_COUNT_NOT_BOUND_TO_A_CHANNEL',
             'MEMBERS',
-            page.pageId,
           );
         }
         const context = matchesIn(unit, ENROLMENT_CONTEXT.get(pack.language)!);
         if (context.length > 0) {
           for (const c of statedCounts(unit.text, pack.studentUnits, japanese)) {
-            drafts.push({
+            u.drafts.push({
               key: 'channel.audience_count',
               subject: { kind: 'CHANNEL', channelKey: root },
               value: { count: c.count, basis: 'INSTITUTION_ENROLMENT', segment: null },
@@ -597,7 +700,7 @@ export function extractC1(
             : p !== undefined
               ? channelKeyOf(p.payload.kind, page.rootKey)
               : root;
-        drafts.push({
+        u.drafts.push({
           key: 'channel.role_based_ownership',
           subject: { kind: 'CHANNEL', channelKey },
           value: { holder: 'ORGANISATION_ROLE' },
@@ -624,7 +727,7 @@ export function extractC1(
               generic === m.payload && values.has(specific as C1CandidateKindV2),
           );
           if (refined) continue;
-          drafts.push({
+          u.drafts.push({
             key: 'candidate.kind',
             subject: { kind: 'CANDIDATE' },
             value: { kind: m.payload },
@@ -634,6 +737,61 @@ export function extractC1(
             language: m.language,
             matched: [m],
             establishes: null,
+          });
+        }
+      }
+
+      if (guards.length === 0) {
+        eventHits.push(...u.eventHits);
+        archiveHits.push(...u.archiveHits);
+        submissionHits.push(...u.submissionHits);
+        drafts.push(...u.drafts);
+        for (const [id, reason, label] of u.gaps) gap(id, reason, label, page.pageId);
+        for (const m of u.languages) {
+          languages.set(m.payload, [...(languages.get(m.payload) ?? []), m]);
+          languageUnit ??= unit;
+        }
+        continue;
+      }
+      // ---- A guarded line: nothing positive is read from it.
+      const suppressed =
+        u.eventHits.length +
+        u.archiveHits.length +
+        u.submissionHits.length +
+        u.drafts.length +
+        u.gaps.length +
+        u.languages.length;
+      const discontinuation = guards.find((g) => g.payload === 'DISCONTINUATION');
+      const named: (readonly [OwnChannel, CompiledPhrase<unknown>])[] = [
+        ...(newsletter.length > 0 ? [['MEMBER_NEWSLETTER', newsletter[0]!] as const] : []),
+        ...(event.length > 0 ? [['ORIENTATION_EVENT', event[0]!] as const] : []),
+      ];
+      if (suppressed > 0 || (discontinuation !== undefined && named.length > 0)) {
+        for (const kind of new Set(guards.map((g) => g.payload))) {
+          const first = guards.find((g) => g.payload === kind)!;
+          gap(
+            ruleId('GUARDED_STATEMENT', first.language),
+            'STATEMENT_GUARDED',
+            `GUARD:${kind}`,
+            page.pageId,
+          );
+        }
+      }
+      // A discontinuation the organisation states of its OWN channel: the one negative C1's
+      // schema has (existence DISCONTINUED), proposed - never observed.
+      if (discontinuation !== undefined && self) {
+        for (const [kind, phrase] of named) {
+          drafts.push({
+            key: 'channel.existence',
+            subject: { kind: 'CHANNEL', channelKey: channelKeyOf(kind, page.rootKey) },
+            value: { status: 'DISCONTINUED' },
+            page,
+            unit,
+            concept: 'CHANNEL_DISCONTINUATION_STATED',
+            language: discontinuation.language,
+            matched: [phrase],
+            establishes: { kind, visibility: 'PUBLIC' },
+            guard: discontinuation,
           });
         }
       }
@@ -665,10 +823,9 @@ export function extractC1(
     pageClasses.push({ pageId: page.pageId, classes: PAGE_CLASSES.filter((c) => classes.has(c)) });
   }
 
-  return aggregate(pages, {
+  return aggregate(pages, options, {
     pageClasses,
     eventHits,
-    signUpHits,
     archiveHits,
     submissionHits,
     listingHits,
@@ -733,10 +890,10 @@ function instanceStarts(sortedDates: readonly string[]): string[] {
 
 function aggregate(
   pages: readonly C1PageInput[],
+  options: C1ExtractionOptions,
   found: {
     pageClasses: { pageId: string; classes: PageClass[] }[];
     eventHits: Hit[];
-    signUpHits: Hit[];
     archiveHits: Hit[];
     submissionHits: Hit[];
     listingHits: Hit[];
@@ -843,34 +1000,26 @@ function aggregate(
       }
     }
 
-    // MEMBER_NEWSLETTER.
-    const signUps = ofRoot(found.signUpHits, rootKey);
+    // MEMBER_NEWSLETTER: observed only from dated issues LISTED on the page. A sign-up
+    // sentence is the organisation's statement and travels as proposals (below).
     const issues = ofRoot(found.archiveHits, rootKey);
-    if (signUps.length > 0 || issues.length > 0) {
-      const channelKey = addChannel('MEMBER_NEWSLETTER', rootKey, 'PUBLIC', 'OBSERVED_CLAIM', [
-        ...signUps,
-        ...issues,
-      ]);
+    if (issues.length > 0) {
+      const channelKey = addChannel(
+        'MEMBER_NEWSLETTER',
+        rootKey,
+        'PUBLIC',
+        'OBSERVED_CLAIM',
+        issues,
+      );
       const itemDates = distinctSorted(issues.flatMap((h) => h.dates));
+      claim('channel.existence', channelKey, { status: 'EXISTS' }, issues, itemDates);
       claim(
-        'channel.existence',
+        'channel.feed_activity',
         channelKey,
-        { status: 'EXISTS' },
-        [...signUps, ...issues],
+        { completeView: false, itemDates: itemDates.slice(-400) },
+        issues,
         itemDates,
       );
-      if (signUps.length > 0) {
-        claim('channel.reach_mode', channelKey, { reach: 'PUSHED_TO_MEMBERS' }, signUps);
-      }
-      if (itemDates.length > 0) {
-        claim(
-          'channel.feed_activity',
-          channelKey,
-          { completeView: false, itemDates: itemDates.slice(-400) },
-          issues,
-          itemDates,
-        );
-      }
     }
 
     // The admitted website itself: openness.
@@ -913,17 +1062,26 @@ function aggregate(
       return false;
     }
     assertC1Value(d.key, d.value);
-    const { quote, truncated } = quoteOf(
-      d.unit,
-      d.matched.map((m) => m.compiled),
-    );
-    const shaped = redactContactData(quote) !== quote || REDACTION_TOKEN.test(quote);
-    if (shaped || RESERVED_MARKER.test(quote)) {
+    const { quote, truncated, full } = quoteOf(d.unit, [
+      ...d.matched.map((m) => m.compiled),
+      ...(d.guard?.segments ?? []),
+    ]);
+    // Every check reads the FULL sentence, never the capped quote.
+    const social =
+      d.subject.kind === 'CHANNEL' &&
+      SOCIAL_KINDS.has(d.subject.channelKey.split('|')[0]!) &&
+      options.socialAccountQuotes !== 'SHAPE_CHECKED';
+    const shaped = isContactShapedQuote(full);
+    if (social || shaped || RESERVED_MARKER.test(full)) {
       withheld.push({
         ruleId: id,
         key: d.key,
         pageId: d.page.pageId,
-        reason: shaped ? 'CONTACT_SHAPED_QUOTE' : 'RESERVED_NAMESPACE_MARKER_IN_QUOTE',
+        reason: social
+          ? 'SOCIAL_ACCOUNT_QUOTE'
+          : shaped
+            ? 'CONTACT_SHAPED_QUOTE'
+            : 'RESERVED_NAMESPACE_MARKER_IN_QUOTE',
       });
       return false;
     }
@@ -938,7 +1096,10 @@ function aggregate(
         pageId: d.page.pageId,
         ruleId: id,
         language: d.language,
-        matchedTerms: distinctSorted(d.matched.map((m) => m.phrase)),
+        matchedTerms: distinctSorted([
+          ...d.matched.map((m) => m.phrase),
+          ...(d.guard === undefined ? [] : [d.guard.phrase]),
+        ]),
         quote,
         quoteTruncated: truncated,
         quoteSha256: sha256(quote),

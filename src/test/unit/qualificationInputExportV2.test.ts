@@ -32,7 +32,7 @@ const SUBJECT = id(0x5001);
 const ROOT_CLAIM = id(0x6001);
 const ADMISSION = id(0x7001);
 const RUN = id(0x8001);
-const SITE = 'https://www.exchange-assoc-fict.nl/';
+const SITE = 'https://exchange-assoc.example.org/';
 const NOW = '2026-10-27T12:00:00.000Z';
 const EVAL = '2026-10-27T11:00:00Z';
 const t = (minute: number) => `2026-10-27T09:${String(minute).padStart(2, '0')}:30.250Z`;
@@ -46,7 +46,7 @@ const website: IdentityClaimRow = {
   sourceType: 'PUBLIC_URL',
   sourcePageEvidenceId: null,
   sourceWebsiteClaimId: null,
-  sourceUrl: 'https://directory.ww-ex-fict.org/assoc',
+  sourceUrl: 'https://directory.example.net/assoc',
   sourceVersionRef: null,
   observedAt: '2026-10-26T08:00:00.000Z',
   claimBasis: 'SOURCE_STATED',
@@ -163,12 +163,17 @@ describe('WW E-X: the v2 export (in memory)', () => {
     expect(new Set(added.map((c) => c.claimKey))).toEqual(
       new Set([
         'channel.existence',
-        'channel.reach_mode',
         'channel.event_instances',
         'channel.cycle_history',
         'channel.resource_openness',
       ]),
     );
+    // Rules v2: no claim ever rests on a sign-up SENTENCE (the organisation's statement).
+    for (const c of added) {
+      expect(c.basis.origin === 'C1_EXTRACTION_RULE' && c.basis.ruleIds.join()).not.toMatch(
+        /NEWSLETTER_SIGNUP|DISCONTINUATION/,
+      );
+    }
     for (const c of doc.claims) expect(EXPORTED_CLAIM_KEYS_V2).toContain(c.claimKey);
     for (const c of added) {
       expect([c.mode, c.attribution, c.producedBy, c.evidenceClass]).toEqual([
@@ -193,8 +198,7 @@ describe('WW E-X: the v2 export (in memory)', () => {
     expect(
       doc.channels.map((c) => [c.kind, c.channelClass, c.derivation, c.establishedBy]).sort(),
     ).toEqual([
-      ['INSTAGRAM_ACCOUNT', 'FEED', 'NAMED_ON_ADMITTED_SITE', 'PROPOSAL_ONLY'],
-      ['MEMBER_NEWSLETTER', 'FEED', 'OBSERVED_ON_ADMITTED_SITE', 'OBSERVED_CLAIM'],
+      ['MEMBER_NEWSLETTER', 'FEED', 'NAMED_ON_ADMITTED_SITE', 'PROPOSAL_ONLY'],
       ['ORIENTATION_EVENT', 'EVENT_SLOT', 'OBSERVED_ON_ADMITTED_SITE', 'OBSERVED_CLAIM'],
       ['RESOURCE_PAGE', 'STATIC', 'ADMITTED_ROOT_WEBSITE', 'OBSERVED_CLAIM'],
     ]);
@@ -215,7 +219,7 @@ describe('WW E-X: the v2 export (in memory)', () => {
       expect(p.attribution).toBe('EXACT');
       expect(p.observedAt).toMatch(WHOLE_SECOND_INSTANT);
       expect(doc.sources.map((s) => s.sourceRef)).toContain(p.sourceRef);
-      expect(p.extraction.rulesVersion).toBe('nwf-pe-c1-extraction-rules-v1');
+      expect(p.extraction.rulesVersion).toBe('nwf-pe-c1-extraction-rules-v2');
       expect(Array.from(p.quote).length).toBeLessThanOrEqual(300);
       expect(p.quote).not.toMatch(/\[(EMAIL|PHONE)\]|@/);
       // A proposal is never also a claim.
@@ -230,9 +234,14 @@ describe('WW E-X: the v2 export (in memory)', () => {
         'candidate.kind',
         'channel.existence',
         'channel.operator_binding',
+        'channel.reach_mode',
         'channel.role_based_ownership',
       ]),
     );
+    // The social account named on the home page is withheld by default, and says so.
+    expect(doc.gaps.map((g) => g.reason)).toContain('PROPOSAL_WITHHELD_SOCIAL_ACCOUNT_QUOTE');
+    expect(doc.producerVersion).toBe('nwf-pe-qualification-input-producer-v3');
+    expect(doc.extraction.rulesVersion).toBe('nwf-pe-c1-extraction-rules-v2');
   });
 
   it('reports research status per subcriterion, explicitly', () => {
@@ -241,7 +250,7 @@ describe('WW E-X: the v2 export (in memory)', () => {
       AF2: 'PROPOSAL_ONLY',
       AF3: 'NOT_RESEARCHED',
       DP1: 'EVIDENCE_FOUND',
-      DP2: 'EVIDENCE_FOUND',
+      DP2: 'PROPOSAL_ONLY',
       DP3: 'EVIDENCE_FOUND',
       DP4: 'SEARCHED_NOT_FOUND',
       AP1: 'EVIDENCE_FOUND',
@@ -274,6 +283,48 @@ describe('WW E-X: the v2 export (in memory)', () => {
     expect(fresh['channel.cycle_history']!.latestCapturedAt).toBe('2026-10-27T09:22:30Z');
     expect(fresh['channel.existence']!.latestCapturedAt).toBe('2026-10-27T09:25:30Z');
     for (const f of Object.values(fresh)) expect(f.latestCapturedAt).toMatch(WHOLE_SECOND_INSTANT);
+  });
+
+  it('a guarded or statement-only page adds no OBSERVED claim, and every suppression is a named gap', () => {
+    const doc = v2(
+      records([
+        page(
+          1,
+          '',
+          'Exchange Club Example',
+          'We no longer send a newsletter, so please do not sign up.\nRegistration for the Welcome Week closes on 1 June 2025; the welcome week itself was cancelled.\nSign up for our newsletter.',
+        ),
+      ]),
+    );
+    expect(doc.claims.filter((c) => c.basis.origin === 'C1_EXTRACTION_RULE')).toEqual([]);
+    const asText = (rows: unknown[][]) => rows.map((r) => JSON.stringify(r)).sort();
+    expect(asText(doc.proposals.map((p) => [p.key, p.proposedValue, p.assertionMode]))).toEqual(
+      asText([
+        ['channel.existence', { status: 'DISCONTINUED' }, 'SELF_ASSERTED'],
+        ['channel.existence', { status: 'EXISTS' }, 'SELF_ASSERTED'],
+        [
+          'channel.operator_binding',
+          {
+            operatorCandidateId: doc.candidate.candidateRef,
+            basis: 'OFFICIAL_PRESENCE_NAMES_CHANNEL',
+          },
+          'SELF_ASSERTED',
+        ],
+        ['channel.reach_mode', { reach: 'PUSHED_TO_MEMBERS' }, 'SELF_ASSERTED'],
+      ]),
+    );
+    // The two statements about the one newsletter disagree: reported, never resolved.
+    expect(doc.contradictions.map((c) => [c.key, c.among])).toEqual([
+      ['channel.existence', 'PROPOSALS'],
+    ]);
+    expect(doc.gaps.filter((g) => g.reason === 'STATEMENT_GUARDED').map((g) => g.label)).toEqual([
+      'GUARD:CANCELLATION',
+      'GUARD:DEADLINE',
+      'GUARD:DISCONTINUATION',
+      'GUARD:NEGATION',
+    ]);
+    expect(status(doc)['DP3']).not.toBe('EVIDENCE_FOUND');
+    expect(status(doc)['SV1']).not.toBe('EVIDENCE_FOUND');
   });
 
   it('a sparse homepage yields almost nothing, with explicit gaps (low coverage, not low fit)', () => {

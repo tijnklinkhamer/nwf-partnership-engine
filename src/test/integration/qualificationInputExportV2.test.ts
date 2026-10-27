@@ -71,10 +71,10 @@ const fixturePath = (key: string) => join(FIXTURE_DIR, `qualification-input-expo
 
 /** The committed fixtures' SHA-256 (UTF-8 bytes), pinned for the Operator lane. */
 export const QUALIFICATION_INPUT_V2_FIXTURE_SHA256: Readonly<Record<string, string>> = {
-  'nl-exchange-association': 'edb31ba3fd9235e6d55d9994e09df8799d6bf52efe4f92b1f87f7c8339261ca0',
-  'nl-community-sparse': 'cdb43fa6bf5bca7eec34a3b4c0bea4845835430134fcc8081228222004fe82e7',
-  'jp-student-circle': 'a539c68295ac16622e3fdbb1823ffc47feae4032642b970dfb3ff6695cd5526e',
-  'mx-exchange-community': '45dfe38bf2340fe2b90a922aebe9e634e5e2dcac1425b2f803474592249feefb',
+  'nl-exchange-association': '7a25bda1441eb5f54a0515c05e4380cb7915d5c696b8aa8c4322a6213e36fcd7',
+  'nl-community-sparse': 'ef1c59b6c38063bdc76575d396213ca4f858fd13e1946b88f7ecc1d477a4d2d2',
+  'jp-student-circle': '448565faaee3b4fbaae1e0a03c7aa393e0b07f022e34bbbc9ca03040e68ed83e',
+  'mx-exchange-community': 'b664090b79b821a3fd8788af9eae5ed6d53aff159010ca9c9006f5aa869e7714',
 };
 
 const OBSERVED = '2026-10-26T09:00:00Z';
@@ -461,8 +461,10 @@ describeDb('WW E-X: v2 export over four synthetic non-HEI organisations (integra
 
     // ---- 3. (1) The association: many OBSERVED claims + proposals across AF / DP / AP / SV.
     const assoc = docs.get('nl-exchange-association')!;
+    // Rules v2: the Instagram line is withheld by default (social-account quote); the
+    // newsletter is OBSERVED from its listed dated issues, and its sign-up SENTENCE is a
+    // proposal (existence + reach mode), never an observation.
     expect(kinds('nl-exchange-association')).toEqual([
-      'INSTAGRAM_ACCOUNT',
       'MEMBER_NEWSLETTER',
       'ORIENTATION_EVENT',
       'RESOURCE_PAGE',
@@ -473,10 +475,10 @@ describeDb('WW E-X: v2 export over four synthetic non-HEI organisations (integra
       'channel.existence',
       'channel.existence',
       'channel.feed_activity',
-      'channel.reach_mode',
       'channel.resource_openness',
       'channel.resource_openness',
     ]);
+    expect(assoc.gaps.map((g) => g.reason)).toContain('PROPOSAL_WITHHELD_SOCIAL_ACCOUNT_QUOTE');
     expect(new Set(assoc.proposals.map((p) => p.key))).toEqual(
       new Set([
         'audience.cohort',
@@ -486,6 +488,7 @@ describeDb('WW E-X: v2 export over four synthetic non-HEI organisations (integra
         'channel.audience_count',
         'channel.existence',
         'channel.operator_binding',
+        'channel.reach_mode',
         'channel.role_based_ownership',
       ]),
     );
@@ -494,7 +497,7 @@ describeDb('WW E-X: v2 export over four synthetic non-HEI organisations (integra
       AF2: 'PROPOSAL_ONLY',
       AF3: 'NOT_RESEARCHED',
       DP1: 'EVIDENCE_FOUND',
-      DP2: 'EVIDENCE_FOUND',
+      DP2: 'PROPOSAL_ONLY',
       DP3: 'EVIDENCE_FOUND',
       DP4: 'PROPOSAL_ONLY',
       AP1: 'EVIDENCE_FOUND',
@@ -541,11 +544,19 @@ describeDb('WW E-X: v2 export over four synthetic non-HEI organisations (integra
 
     // ---- 5. Japanese and Spanish (Mexico) organisations.
     expect(kinds('jp-student-circle')).toEqual([
-      'INSTAGRAM_ACCOUNT',
       'MEMBER_NEWSLETTER',
       'ORIENTATION_EVENT',
       'RESOURCE_PAGE',
     ]);
+    // A sign-up sentence alone: the newsletter is only PROPOSED, and no claim says otherwise.
+    for (const k of ['jp-student-circle', 'mx-exchange-community']) {
+      const d = docs.get(k)!;
+      expect(d.channels.find((c) => c.kind === 'MEMBER_NEWSLETTER')!.establishedBy, k).toBe(
+        'PROPOSAL_ONLY',
+      );
+      expect(added(k), k).not.toContain('channel.reach_mode');
+      expect(statusOf(k)['DP2'], k).toBe('PROPOSAL_ONLY');
+    }
     const jp = docs.get('jp-student-circle')!;
     expect(jp.proposals.find((p) => p.key === 'audience.languages')!.proposedValue).toEqual({
       languages: ['ja'],
@@ -556,7 +567,6 @@ describeDb('WW E-X: v2 export over four synthetic non-HEI organisations (integra
     });
     const mx = docs.get('mx-exchange-community')!;
     expect(kinds('mx-exchange-community')).toEqual([
-      'INSTAGRAM_ACCOUNT',
       'MEMBER_NEWSLETTER',
       'ORIENTATION_EVENT',
       'RESOURCE_PAGE',

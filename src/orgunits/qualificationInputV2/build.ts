@@ -1,6 +1,6 @@
 /**
  * WW E-X - THE PURE v2 QUALIFICATION-INPUT EXPORT BUILDER
- * (`nwf-pe-qualification-input-producer-v2`).
+ * (`nwf-pe-qualification-input-producer-v3`, rules `nwf-pe-c1-extraction-rules-v2`).
  *
  * `buildQualificationInputExportV2(records, options)` first builds the v1
  * document with the UNCHANGED v1 builder - so every as-of cut, refusal,
@@ -11,8 +11,11 @@
  *
  *   channels    the additional channels the captures show (OBSERVED) or the
  *               subject's own pages name (PROPOSAL_ONLY), C1 kinds only;
- *   claims      OBSERVED, NWF_SYSTEM, EXACT, linked ONLY to page captures;
- *   proposals   self-descriptions, never claims;
+ *   claims      OBSERVED, NWF_SYSTEM, EXACT, linked ONLY to page captures,
+ *               and only for what a capture EXHIBITS of the published
+ *               artefact itself (a listed dated item, a printed invitation,
+ *               a links heading) - never for what the organisation says;
+ *   proposals   self-descriptions and statements, never claims;
  *   researchStatus / contradictions / gaps / freshness.
  *
  * Reads nothing but its arguments - no clock, no randomness, no environment -

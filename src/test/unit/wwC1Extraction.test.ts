@@ -1,9 +1,13 @@
 /**
- * WW E-X - the pure C1 extraction rules (`nwf-pe-c1-extraction-rules-v1`),
+ * WW E-X - the pure C1 extraction rules (`nwf-pe-c1-extraction-rules-v2`),
  * per rule and per language: positive, negative and ambiguous vectors; the
  * multilingual stated-date rules; the PII guard on quotes (JP / MX / NL / DE
  * contact formats); the class separation (OBSERVED claims vs proposals);
- * determinism; and the rule table itself.
+ * determinism; and the rule table itself. The WW E-XFX regression vectors
+ * (statements never OBSERVED, negation / cancellation / discontinuation /
+ * deadline guards in eight languages, contact-shaped and social-account
+ * quotes, the full-sentence check before the quote cap) are in their own
+ * describe blocks below.
  */
 import { describe, expect, it } from 'vitest';
 
@@ -42,6 +46,9 @@ function page(fields: Partial<C1PageInput> & { mainText: string }): C1PageInput 
 
 const run = (...pages: C1PageInput[]): C1Extraction =>
   extractC1(pages, { candidateRef: CANDIDATE });
+/** The INERT option: social-account proposals released under the ordinary shape checks. */
+const runSocial = (...pages: C1PageInput[]): C1Extraction =>
+  extractC1(pages, { candidateRef: CANDIDATE, socialAccountQuotes: 'SHAPE_CHECKED' });
 const claimKeys = (r: C1Extraction) =>
   r.claims.map((c) => `${c.channelKey.split('|')[0]}:${c.key}`);
 const proposalKeys = (r: C1Extraction) => r.proposals.map((p) => p.key);
@@ -181,7 +188,7 @@ describe('WW E-X: C1X.ORIENTATION_EVENT_DATED / _CYCLES (OBSERVED, ORIENTATION_E
   });
 });
 
-describe('WW E-X: C1X.NEWSLETTER_SIGNUP / NEWSLETTER_DATED_ISSUES (OBSERVED, MEMBER_NEWSLETTER)', () => {
+describe('WW E-X: C1P.NEWSLETTER_SIGNUP (proposals) / C1X.NEWSLETTER_DATED_ISSUES (OBSERVED)', () => {
   it.each([
     ['en', 'Subscribe to our newsletter and never miss an event.'],
     ['fr', 'Abonnez-vous à notre lettre d’information.'],
@@ -191,17 +198,31 @@ describe('WW E-X: C1X.NEWSLETTER_SIGNUP / NEWSLETTER_DATED_ISSUES (OBSERVED, MEM
     ['de', 'Jetzt Newsletter abonnieren!'],
     ['it', 'Iscriviti alla nostra newsletter.'],
     ['pt', 'Inscreva-se na nossa newsletter.'],
-  ])('%s: a sign-up call establishes the newsletter, PUSHED_TO_MEMBERS', (lang, line) => {
-    const r = run(page({ mainText: line }));
-    expect(r.channels.map((c) => [c.kind, c.channelClass, c.establishedBy])).toEqual([
-      ['MEMBER_NEWSLETTER', 'FEED', 'OBSERVED_CLAIM'],
-    ]);
-    expect(claim(r, 'channel.reach_mode', 'MEMBER_NEWSLETTER')).toMatchObject({
-      value: { reach: 'PUSHED_TO_MEMBERS' },
-      ruleIds: [`C1X.NEWSLETTER_SIGNUP.${lang}`],
-    });
-    expect(claim(r, 'channel.existence', 'MEMBER_NEWSLETTER')!.value).toEqual({ status: 'EXISTS' });
-  });
+  ])(
+    "%s: a sign-up SENTENCE is the organisation's statement: existence + PUSHED_TO_MEMBERS PROPOSED, never OBSERVED",
+    (lang, line) => {
+      const r = run(page({ mainText: line }));
+      expect(r.channels.map((c) => [c.kind, c.channelClass, c.establishedBy])).toEqual([
+        ['MEMBER_NEWSLETTER', 'FEED', 'PROPOSAL_ONLY'],
+      ]);
+      expect(r.claims).toEqual([]);
+      const signUp = r.proposals.filter((p) => p.ruleId === `C1P.NEWSLETTER_SIGNUP.${lang}`);
+      expect(signUp.map((p) => [p.key, p.value, p.mode, p.subject])).toEqual([
+        [
+          'channel.existence',
+          { status: 'EXISTS' },
+          'SELF_ASSERTED',
+          { kind: 'CHANNEL', channelKey: 'MEMBER_NEWSLETTER|root-1' },
+        ],
+        [
+          'channel.reach_mode',
+          { reach: 'PUSHED_TO_MEMBERS' },
+          'SELF_ASSERTED',
+          { kind: 'CHANNEL', channelKey: 'MEMBER_NEWSLETTER|root-1' },
+        ],
+      ]);
+    },
+  );
 
   it('negative: a newsletter mentioned without a sign-up or an issue date is not a channel', () => {
     const r = run(page({ mainText: 'Read our newsletter for updates.' }));
@@ -402,7 +423,11 @@ describe('WW E-X: C1P.AUDIENCE_COUNT_* (proposals; enrolment never a channel aud
   });
 
   it('followers with a platform: PLATFORM_FOLLOWERS on that (proposed) account', () => {
-    const r = run(page({ mainText: 'Our Instagram has 3,400 followers.' }));
+    // Social-account proposals are withheld by default; the count rule itself is shown released.
+    expect(run(page({ mainText: 'Our Instagram has 3,400 followers.' })).withheld).toEqual([
+      expect.objectContaining({ key: 'channel.audience_count', reason: 'SOCIAL_ACCOUNT_QUOTE' }),
+    ]);
+    const r = runSocial(page({ mainText: 'Our Instagram has 3,400 followers.' }));
     expect(r.channels.map((c) => [c.kind, c.establishedBy])).toEqual([
       ['INSTAGRAM_ACCOUNT', 'PROPOSAL_ONLY'],
     ]);
@@ -414,7 +439,7 @@ describe('WW E-X: C1P.AUDIENCE_COUNT_* (proposals; enrolment never a channel aud
   });
 
   it('ja: フォロワー1,200人 on Instagram', () => {
-    const r = run(page({ mainText: 'インスタグラムのフォロワー1,200人' }));
+    const r = runSocial(page({ mainText: 'インスタグラムのフォロワー1,200人' }));
     expect(r.proposals.find((p) => p.key === 'channel.audience_count')!.value).toEqual({
       count: 1200,
       basis: 'PLATFORM_FOLLOWERS',
@@ -496,8 +521,20 @@ describe('WW E-X: C1P.ROLE_BASED_OWNERSHIP / CANDIDATE_KIND_* / SOCIAL_ACCOUNT_N
     expect(other.proposals).toEqual([]);
   });
 
-  it('a named Instagram account: PROPOSAL_ONLY channel, existence + binding proposals, no handle', () => {
-    const r = run(page({ mainText: 'Follow us on Instagram @example_handle for updates.' }));
+  it('a named Instagram account: WITHHELD by default; released, a PROPOSAL_ONLY channel with no handle', () => {
+    const byDefault = run(page({ mainText: 'Follow us on Instagram for updates.' }));
+    expect([byDefault.channels, byDefault.proposals]).toEqual([[], []]);
+    expect(byDefault.withheld.map((w) => [w.key, w.reason])).toEqual([
+      ['channel.existence', 'SOCIAL_ACCOUNT_QUOTE'],
+      ['channel.operator_binding', 'SOCIAL_ACCOUNT_QUOTE'],
+    ]);
+    // Even released, a line carrying a handle is contact-shaped and withheld.
+    const handle = runSocial(page({ mainText: 'Follow us on Instagram @example_handle.' }));
+    expect(handle.proposals).toEqual([]);
+    expect(new Set(handle.withheld.map((w) => w.reason))).toEqual(
+      new Set(['CONTACT_SHAPED_QUOTE']),
+    );
+    const r = runSocial(page({ mainText: 'Follow us on Instagram for updates.' }));
     expect(r.channels.map((c) => [c.kind, c.visibility, c.establishedBy])).toEqual([
       ['INSTAGRAM_ACCOUNT', 'PUBLIC', 'PROPOSAL_ONLY'],
     ]);
@@ -509,12 +546,12 @@ describe('WW E-X: C1P.ROLE_BASED_OWNERSHIP / CANDIDATE_KIND_* / SOCIAL_ACCOUNT_N
         { operatorCandidateId: CANDIDATE, basis: 'OFFICIAL_PRESENCE_NAMES_CHANNEL' },
       ],
     ]);
-    expect(JSON.stringify(r.channels)).not.toContain('example_handle');
+    expect(JSON.stringify([r, handle])).not.toContain('example_handle');
   });
 
   it('WhatsApp is PRIVATE; a platform without a C1 kind is a gap; a platform without a follow call is nothing', () => {
     expect(
-      run(page({ mainText: 'Join our WhatsApp group!' })).channels.map((c) => [
+      runSocial(page({ mainText: 'Join our WhatsApp group!' })).channels.map((c) => [
         c.kind,
         c.visibility,
       ]),
@@ -613,12 +650,15 @@ describe('WW E-X: class separation, determinism and the rule table', () => {
     expect(new Set(r.claims.map((c) => c.key))).toEqual(
       new Set([
         'channel.existence',
-        'channel.reach_mode',
         'channel.event_instances',
         'channel.cycle_history',
         'channel.resource_openness',
       ]),
     );
+    // The sign-up sentence travels as proposals only (rules v2).
+    expect(
+      r.proposals.filter((p) => p.ruleId === 'C1P.NEWSLETTER_SIGNUP.en').map((p) => p.key),
+    ).toEqual(['channel.existence', 'channel.reach_mode']);
     for (const p of r.proposals)
       expect(['SELF_ASSERTED', 'THIRD_PARTY_ASSERTED']).toContain(p.mode);
     for (const c of [...r.claims, ...r.proposals]) {
@@ -650,7 +690,7 @@ describe('WW E-X: class separation, determinism and the rule table', () => {
         c.concept,
       ).toBeGreaterThanOrEqual(7);
     }
-    expect(C1_EXTRACTION_RULES_VERSION).toBe('nwf-pe-c1-extraction-rules-v1');
+    expect(C1_EXTRACTION_RULES_VERSION).toBe('nwf-pe-c1-extraction-rules-v2');
   });
 
   it('a page with nothing to read yields nothing (unknown stays unknown)', () => {
@@ -663,5 +703,256 @@ describe('WW E-X: class separation, determinism and the rule table', () => {
       [],
     ]);
     expect(claimKeys(r)).toEqual([]);
+  });
+});
+
+// ===========================================================================
+// WW E-XFX regression vectors (independent review P1-2, P1-1, P2-9).
+// ===========================================================================
+
+const POSITIVE_CLAIM_OR_PROPOSAL = (r: C1Extraction) => [
+  ...r.claims,
+  ...r.proposals.filter(
+    (p) => !(p.key === 'channel.existence' && p.value['status'] === 'DISCONTINUED'),
+  ),
+];
+const guardLabels = (r: C1Extraction) =>
+  r.unmapped.filter((u) => u.reason === 'STATEMENT_GUARDED').map((u) => u.label);
+
+describe('WW E-XFX P1-2: the reproduced statements are never OBSERVED', () => {
+  it('"We no longer send a newsletter, so please do not sign up." - no EXISTS, no reach mode; a DISCONTINUED proposal', () => {
+    const r = run(page({ mainText: 'We no longer send a newsletter, so please do not sign up.' }));
+    expect(r.claims).toEqual([]);
+    expect(POSITIVE_CLAIM_OR_PROPOSAL(r)).toEqual([]);
+    expect(r.proposals.map((p) => [p.key, p.value, p.mode, p.ruleId])).toEqual([
+      [
+        'channel.existence',
+        { status: 'DISCONTINUED' },
+        'SELF_ASSERTED',
+        'C1P.CHANNEL_DISCONTINUATION_STATED.en',
+      ],
+    ]);
+    expect(r.proposals[0]!.quote).toBe('We no longer send a newsletter, so please do not sign up.');
+    expect(r.channels.map((c) => [c.kind, c.establishedBy])).toEqual([
+      ['MEMBER_NEWSLETTER', 'PROPOSAL_ONLY'],
+    ]);
+    expect(guardLabels(r)).toEqual(['GUARD:DISCONTINUATION', 'GUARD:NEGATION']);
+  });
+
+  it('"Registration … closes on 1 June 2025; the welcome week itself was cancelled." - no event instance', () => {
+    const r = run(
+      page({
+        mainText:
+          'Registration for the Welcome Week closes on 1 June 2025; the welcome week itself was cancelled.',
+      }),
+    );
+    expect([r.claims, r.proposals, r.channels]).toEqual([[], [], []]);
+    expect(guardLabels(r).sort()).toEqual(['GUARD:CANCELLATION', 'GUARD:DEADLINE']);
+  });
+
+  it('"Sign up for our newsletter." - proposals only, never also an OBSERVED claim', () => {
+    const r = run(page({ mainText: 'Sign up for our newsletter.' }));
+    expect(r.claims).toEqual([]);
+    expect(r.proposals.map((p) => [p.key, p.mode]).sort()).toEqual([
+      ['channel.existence', 'SELF_ASSERTED'],
+      ['channel.operator_binding', 'SELF_ASSERTED'],
+      ['channel.reach_mode', 'SELF_ASSERTED'],
+    ]);
+  });
+
+  it('the line between artefact and statement: a LISTED dated issue is observed, the sign-up sentence is not', () => {
+    const r = run(page({ mainText: 'Subscribe to our newsletter.\nNewsletter — 3 March 2026' }));
+    expect(r.claims.map((c) => [c.key, c.ruleIds])).toEqual([
+      ['channel.existence', ['C1X.NEWSLETTER_DATED_ISSUES.en']],
+      ['channel.feed_activity', ['C1X.NEWSLETTER_DATED_ISSUES.en']],
+    ]);
+    expect(r.channels.map((c) => c.establishedBy)).toEqual(['OBSERVED_CLAIM']);
+    expect(r.proposals.find((p) => p.key === 'channel.reach_mode')!.mode).toBe('SELF_ASSERTED');
+    // No claim ever rests on the sign-up rule.
+    expect(r.claims.flatMap((c) => c.ruleIds).some((id) => id.includes('SIGNUP'))).toBe(false);
+  });
+});
+
+describe('WW E-XFX P1-2: negation / cancellation / discontinuation / deadline guards, per language', () => {
+  it.each([
+    // [language, guarded line, the guard kinds it records]
+    ['en', 'Welcome Week on 1 September 2026 has been postponed.', ['CANCELLATION']],
+    ['en', 'Welcome Week: apply before 1 September 2026.', ['DEADLINE']],
+    ['fr', "La semaine d'intégration du 1er septembre 2026 est annulée.", ['CANCELLATION']],
+    ['fr', "Semaine d'intégration : inscriptions jusqu'au 1er septembre 2026.", ['DEADLINE']],
+    ['fr', "Nous ne proposons pas de semaine d'intégration le 1er septembre 2026.", ['NEGATION']],
+    ['es', 'La semana de bienvenida del 7 de septiembre de 2026 fue cancelada.', ['CANCELLATION']],
+    ['es', 'Semana de bienvenida: fecha límite 7 de septiembre de 2026.', ['DEADLINE']],
+    ['nl', 'De introductieweek van 17 augustus 2026 is geannuleerd.', ['CANCELLATION']],
+    ['nl', 'Introductieweek: aanmelden tot 17 augustus 2026.', ['DEADLINE']],
+    ['ja', '2026年4月10日 新入生歓迎会は中止になりました。', ['CANCELLATION']],
+    ['ja', '新入生歓迎会 申込締切 2026年4月10日', ['DEADLINE']],
+    ['ja', 'ニュースレター登録の受付は終了しました。', ['CANCELLATION']],
+    ['ja', '新入生歓迎会は2026年4月10日に開催しません。', ['NEGATION']],
+    ['de', 'Die Erstiwoche am 5. Oktober 2026 ist abgesagt.', ['CANCELLATION']],
+    ['de', 'Erstiwoche: Anmeldeschluss 5. Oktober 2026.', ['DEADLINE']],
+    ['it', 'La settimana di accoglienza del 14 settembre 2026 è annullata.', ['CANCELLATION']],
+    ['it', 'Settimana di accoglienza: scadenza 14 settembre 2026.', ['DEADLINE']],
+    ['pt', 'A semana de recepção de 3 de março de 2026 foi adiada.', ['CANCELLATION']],
+    ['pt', 'Semana de recepção: prazo 3 de março de 2026.', ['DEADLINE']],
+  ])('%s: %s -> no positive claim or proposal, an explicit gap', (lang, line, kinds) => {
+    const r = run(page({ mainText: line }));
+    expect(POSITIVE_CLAIM_OR_PROPOSAL(r)).toEqual([]);
+    expect(r.channels).toEqual([]);
+    expect(guardLabels(r).sort()).toEqual(kinds.map((k) => `GUARD:${k}`).sort());
+    expect(r.unmapped.find((u) => u.reason === 'STATEMENT_GUARDED')!.ruleId).toMatch(
+      new RegExp(`^C1G\\.GUARDED_STATEMENT\\.(${lang}|en)$`),
+    );
+  });
+
+  it.each([
+    ['en', 'We no longer send a newsletter. Subscribe elsewhere.', 'MEMBER_NEWSLETTER'],
+    [
+      'fr',
+      "Nous n'envoyons plus de lettre d'information, abonnez-vous ailleurs.",
+      'MEMBER_NEWSLETTER',
+    ],
+    ['es', 'Ya no publicamos nuestro boletín, suscríbete a otro.', 'MEMBER_NEWSLETTER'],
+    ['nl', 'We sturen geen nieuwsbrief meer, meld je elders aan.', 'MEMBER_NEWSLETTER'],
+    ['ja', 'ニュースレターは廃止しました。', 'MEMBER_NEWSLETTER'],
+    [
+      'de',
+      'Wir verschicken keinen Newsletter mehr, bitte woanders abonnieren.',
+      'MEMBER_NEWSLETTER',
+    ],
+    ['it', 'Non inviamo più la newsletter, iscriviti altrove.', 'MEMBER_NEWSLETTER'],
+    ['pt', 'Não enviamos mais a newsletter, inscreva-se noutro lugar.', 'MEMBER_NEWSLETTER'],
+    ['en', 'We no longer organise a Welcome Week.', 'ORIENTATION_EVENT'],
+    ['fr', "Nous n'organisons plus de semaine d'intégration.", 'ORIENTATION_EVENT'],
+    ['de', 'Die Erstiwoche findet nicht mehr statt.', 'ORIENTATION_EVENT'],
+  ])(
+    '%s: a stated discontinuation on the OWN page is a DISCONTINUED proposal (C1 has that negative)',
+    (lang, line, kind) => {
+      const r = run(page({ mainText: line }));
+      expect(r.claims).toEqual([]);
+      expect(r.proposals.map((p) => [p.key, p.value, p.subject, p.ruleId, p.language])).toEqual([
+        [
+          'channel.existence',
+          { status: 'DISCONTINUED' },
+          { kind: 'CHANNEL', channelKey: `${kind}|root-1` },
+          `C1P.CHANNEL_DISCONTINUATION_STATED.${lang}`,
+          lang,
+        ],
+      ]);
+      expect(guardLabels(r)).toContain('GUARD:DISCONTINUATION');
+    },
+  );
+
+  it('a discontinuation on a THIRD-PARTY page is a gap only, never a proposal', () => {
+    const r = run(
+      page({ publisher: 'THIRD_PARTY', mainText: 'They no longer organise a Welcome Week.' }),
+    );
+    expect([r.claims, r.proposals, r.channels]).toEqual([[], [], []]);
+    expect(guardLabels(r)).toEqual(['GUARD:DISCONTINUATION']);
+  });
+
+  it('a guarded self-description, count or follow call yields nothing positive either', () => {
+    const r = runSocial(
+      page({
+        mainText:
+          'We are no longer an association for international students.\nOur Instagram no longer has 3,400 followers.\nFollow us on TikTok? Not any more.',
+      }),
+    );
+    expect([r.claims, r.proposals, r.channels]).toEqual([[], [], []]);
+    expect(r.unmapped.every((u) => u.reason === 'STATEMENT_GUARDED')).toBe(true);
+  });
+
+  it('a guarded links heading is no listing', () => {
+    const r = run(page({ headings: ['Useful links (no longer maintained)'], mainText: 'A list.' }));
+    expect(r.claims).toEqual([]);
+  });
+
+  it.each([
+    ['en', 'We are a not-for-profit association for international students.', 'proposals'],
+    ['en', "Don't miss Welcome Week on 1 September 2026!", 'claims'],
+    ['en', 'Subscribe to our newsletter and never miss an event.', 'proposals'],
+    ['fr', "Ne manquez pas la semaine d'intégration le 1er septembre 2026 !", 'claims'],
+    ['es', 'No te pierdas la semana de bienvenida el 7 de septiembre de 2026.', 'claims'],
+    ['de', 'Nicht verpassen: Erstiwoche am 5. Oktober 2026.', 'claims'],
+    ['it', 'Non perdere la settimana di accoglienza il 14 settembre 2026.', 'claims'],
+    ['pt', 'Não perca a semana de recepção em 3 de março de 2026.', 'claims'],
+  ])('%s: a fixed phrase that negates nothing is not a guard: %s', (_lang, line, cls) => {
+    const r = run(page({ mainText: line }));
+    expect(guardLabels(r)).toEqual([]);
+    expect(r[cls as 'claims' | 'proposals'].length).toBeGreaterThan(0);
+  });
+});
+
+describe('WW E-XFX P1-1 / P2-9: contact-shaped and social-account quotes are withheld', () => {
+  const SELF = 'We are an association for international students';
+  it.each([
+    ['a social handle', `${SELF}, find us as @esn_utrecht.`],
+    ['a full-width at-sign handle', `${SELF}、＠ryugakusei_rei`],
+    ['an account URL', `${SELF}: instagram.com/janjansen`],
+    ['a WhatsApp link', `${SELF}: wa.me/31612345678`],
+    ['a scheme URL', `${SELF}: https://example.org/club`],
+    ['a www host', `${SELF}, see www.example.org`],
+    ['a separator-less NL mobile', `${SELF}, 0612345678`],
+    ['a separator-less JP number (full-width)', `${SELF}、０３１２３４５６７８`],
+    ['a separator-less MX number', `${SELF}, 8112345678`],
+    ['a DE number in a short shape the redactor keeps', `${SELF}, 030/1234-567`],
+    ['an eight-digit run', `${SELF}, ref 12345678`],
+    ['an obfuscated address', `${SELF}: info [at] example [dot] org`],
+    ['a personal name beside a contact cue (en)', `${SELF}, contact Jan Jansen`],
+    ['a personal name beside a contact cue (nl)', `${SELF}, bel Jan Jansen`],
+    ['a personal name beside a contact cue (es)', `${SELF}, escribe a María López`],
+  ])('%s: the proposal is WITHHELD (CONTACT_SHAPED_QUOTE)', (_label, line) => {
+    const r = run(page({ mainText: line }));
+    expect(r.proposals).toEqual([]);
+    expect(new Set(r.withheld.map((w) => w.reason))).toEqual(new Set(['CONTACT_SHAPED_QUOTE']));
+    expect(JSON.stringify(r)).not.toMatch(/esn_utrecht|janjansen|612345678|Jansen|López/);
+  });
+
+  it('ja: a contact cue beside a name is withheld too', () => {
+    const r = run(page({ mainText: '私たちは留学生のためのサークルです。お問い合わせは山田まで' }));
+    // The self-description sentence is quoted alone: it carries no cue, so it survives.
+    expect(r.proposals.every((p) => !p.quote.includes('山田'))).toBe(true);
+    const joined = run(page({ mainText: '留学生のための団体です、担当 山田' }));
+    expect(joined.proposals).toEqual([]);
+    expect(new Set(joined.withheld.map((w) => w.reason))).toEqual(
+      new Set(['CONTACT_SHAPED_QUOTE']),
+    );
+  });
+
+  it('P2-9: a number straddling the 300-code-point cap is caught on the FULL sentence', () => {
+    // The cap falls inside "0612 345678": the capped quote alone ("… 0612") looks harmless.
+    const head = `${SELF} ${'x'.repeat(300 - SELF.length - 1 - 5)} 0612`;
+    expect(Array.from(head)).toHaveLength(300);
+    const line = `${head} 345678 and more`;
+    const r = run(page({ mainText: line }));
+    expect(r.proposals).toEqual([]);
+    expect(new Set(r.withheld.map((w) => w.reason))).toEqual(new Set(['CONTACT_SHAPED_QUOTE']));
+  });
+
+  it('every social-account proposal is withheld by default, whatever its line says', () => {
+    for (const line of [
+      'Follow us on Instagram!',
+      'Join our WhatsApp group!',
+      'Follow us on Facebook.',
+      'Our Instagram has 3,400 followers.',
+    ]) {
+      const r = run(page({ mainText: line }));
+      expect(r.proposals, line).toEqual([]);
+      expect(r.channels, line).toEqual([]);
+      expect(new Set(r.withheld.map((w) => w.reason)), line).toEqual(
+        new Set(['SOCIAL_ACCOUNT_QUOTE']),
+      );
+    }
+  });
+
+  it('ordinary self-descriptions still pass: years, dates and counts are not contact data', () => {
+    const r = run(
+      page({
+        mainText:
+          'We are an association for international students, founded in 2019 and active in 2026-2027.',
+      }),
+    );
+    expect(r.withheld).toEqual([]);
+    expect(r.proposals.length).toBeGreaterThan(0);
   });
 });

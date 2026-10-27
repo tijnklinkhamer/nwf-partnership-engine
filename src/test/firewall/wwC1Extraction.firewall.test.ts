@@ -16,8 +16,9 @@
  *   - no contact-, name- or handle-shaped property is declared, and no
  *     score / rank / threshold name exists in either module;
  *   - a proposal can only be SELF_ASSERTED or THIRD_PARTY_ASSERTED (no
- *     INFERENCE path exists), quotes pass the redaction fixed point before
- *     they are emitted, and the v2 document grants nothing: its permissions
+ *     INFERENCE path exists), quotes pass the redaction fixed point - and,
+ *     since WW E-XFX, the full-sentence contact-shape guard - before they
+ *     are emitted, and the v2 document grants nothing: its permissions
  *     ARE v1's PERMISSIONS (every capability NONE, contact NOT_GRANTED).
  */
 import { readdirSync } from 'node:fs';
@@ -163,11 +164,38 @@ describe('WW E-X: no contact field, no score, no relabelled mode', () => {
 
   it('quotes must be a redaction fixed point, free of placeholders, before they are emitted', () => {
     const extract = code(`${C1}extract.ts`);
-    expect(extract).toMatch(
-      /const shaped = redactContactData\(quote\) !== quote \|\| REDACTION_TOKEN\.test\(quote\);/,
-    );
     expect(extract).toMatch(/const REDACTION_TOKEN = \/\\\[\(EMAIL\|PHONE\)\\\]\/;/);
     expect(extract).toMatch(/const RESERVED_MARKER = \/\(cand\|chn\|opp\):\/i;/);
+    // WW E-XFX (P1-1, P2-9): the guard is STRENGTHENED, never relaxed. It reads the FULL
+    // sentence before the quote cap, and still requires the redaction fixed point and no
+    // placeholder - plus no handle, URL, telephone shape, eight-digit run, obfuscated
+    // address or contact cue - and social-account quotes are withheld by default.
+    expect(extract).toMatch(/const \{ quote, truncated, full \} = quoteOf\(/);
+    expect(extract).toMatch(/const shaped = isContactShapedQuote\(full\);/);
+    expect(extract).toMatch(/if \(social \|\| shaped \|\| RESERVED_MARKER\.test\(full\)\) \{/);
+    const guard =
+      /export function isContactShapedQuote\(full: string\): boolean \{[\s\S]*?\n\}/.exec(
+        extract,
+      )?.[0];
+    expect(guard).toBeDefined();
+    for (const check of [
+      'redactContactData(full) !== full ||',
+      'REDACTION_TOKEN.test(folded) ||',
+      'HANDLE_SHAPE.test(folded) ||',
+      'URL_SHAPE.test(folded) ||',
+      'TELEPHONE_SHAPE.test(folded) ||',
+      'DIGIT_RUN.test(folded) ||',
+      'OBFUSCATED_ADDRESS.test(folded) ||',
+      "matchesIn(unitOf('MAIN', full), CONTACT_CUES).length > 0",
+    ]) {
+      expect(guard, check).toContain(check);
+    }
+    // TELEPHONE_SHAPE is acquisition/canonical.ts's pattern, restated byte for byte.
+    const canonical = code('src/orgunits/acquisition/canonical.ts');
+    const shapeOf = (text: string) => /const TELEPHONE_SHAPE = (\/.+\/);/.exec(text)?.[1];
+    expect(shapeOf(extract)).toBeDefined();
+    expect(shapeOf(extract)).toBe(shapeOf(canonical));
+    expect(extract).toMatch(/options\.socialAccountQuotes !== 'SHAPE_CHECKED'/);
   });
 });
 
