@@ -4,15 +4,17 @@
   and the OWNER directive of 2026-10-27 ("full end-to-end product
   completion", phases A3/A5 and B wiring), as relayed by the integration
   lead, plus the lead's independent-review addendum (P1-4, P2-1, P2-2, P2-3,
-  P2-6, P2-7, P2-10). Not ratified, not pushed, not applied to any persistent
-  database. **Inert:** the campaign and review trust sets hold no key; no
+  P2-6, P2-7, P2-10), and the WW H-ACQ hardening of the wave-2 review
+  (migration 0026, section 13). Not ratified, not pushed, not applied to any
+  persistent database. **Inert:** the campaign and review trust sets hold no key; no
   grant row exists; every capability role is NOLOGIN.
 - **Date:** 2026-10-27
 - **Package:** WW E-W (branch `ww/e-wire`)
 - **Extends:** ADR 0023 (OWNER-attested review), ADR 0025 (subject research
   admission), ADR 0027/0028 (granted live source discovery), ADR 0029
   (OWNER-signed campaigns and the work queue). **Supersedes nothing.**
-- **Migration:** `migrations/0024_campaign_research_admission_and_wiring.sql`
+- **Migration:** `migrations/0024_campaign_research_admission_and_wiring.sql`;
+  hardening: `migrations/0026_acquisition_hardening.sql` (WW H-ACQ, s13)
 - **Scope record:** `docs/evaluation/WW_E_W_ACQUISITION_WIRING_OWNER_DIRECTIVE_RECORD_V1.json`
 
 Claims are tagged **FACT**, **DESIGN DECISION**, **UNKNOWN**.
@@ -43,10 +45,10 @@ budgets instead of by a per-subject OWNER admission.
 
 | stage → next                    | handler                           | what it does                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | ------------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| DISCOVERED → NOMINATED          | `discover.ts`                     | SEARCH_GRANT root: the grant must exist and its geography be inside the signed geographies (else REFUSED OUT_OF_SCOPE, no search); ONE `runGrantedSourceDiscovery` with actor key `acq-<work item id>` (a retry finds that run and reuses its nominations: no second grant slot); one search run consumed. LINK_OUT root: the PAGE_LINK_OUT nominations of a campaign-admitted research run. Children: the run's nominations.                                                                           |
+| DISCOVERED → NOMINATED          | `discover.ts`                     | SEARCH_GRANT root: the grant must exist and its geography be inside the signed geographies (else REFUSED OUT_OF_SCOPE, no search); ONE `runGrantedSourceDiscovery` with actor key `acq-<work item id>` (a retry finds that run and reuses its nominations: no second grant slot); one search run consumed. LINK_OUT root: the PAGE_LINK_OUT nominations of a campaign-admitted research run. Children: the run's ADMISSIBLE nominations (s13 P1-9).                                                     |
 | NOMINATED → DEDUPLICATED        | `dedupe.ts`                       | Re-prepares the nomination through the gates it passed (`prepareNomination`); its registrable domain (one `tldts`) must equal the stored and the item's. Scope: search geography inside the signed list; a link-out only from THIS campaign's own admitted research. Duplicates are REFUSED DUPLICATE with a named signal - a website claim (ECHE/FR) on the domain, an existing discovery subject on it, an earlier nomination holding the domain's identity, the plan's exclusion set. Never a merge. |
 | DEDUPLICATED → RESEARCH_PENDING | `promote.ts`, `registryBridge.ts` | Proposes the subject through the EXISTING B2.2 writer (`executePropose` + one `PUBLIC_WEBSITE` claim), kind `UNCERTAIN`, name = the nomination's title (none: NOT_ADMISSIBLE, a name is never invented), both claims citing the nomination (`PUBLIC_URL`, citation digest, its retrieval instant, `SOURCE_STATED`). The subject id is derived from (campaign, nomination): a retry is the same subject. The binding `acquisition_campaign_subjects` records that THIS campaign proposed it.             |
-| RESEARCH_PENDING → RESEARCHED   | `research.ts`                     | §4. Then `verifySubjectAdmission` + `runSubjectResearch`, unchanged (35/60/8 budgets, robots, the one gateway, redaction, evidence). Link-outs are captured, never fetched; when the campaign lists LINK_OUT, the run becomes ONE new LINK_OUT root of the same campaign. A retry reuses the run its earlier attempt made.                                                                                                                                                                              |
+| RESEARCH_PENDING → RESEARCHED   | `research.ts`                     | §4. Then `verifySubjectAdmission` + `runSubjectResearch`, unchanged (35/60/8 budgets, robots, the one gateway, redaction, evidence). Link-outs are captured, never fetched; when the campaign lists LINK_OUT, the run becomes ONE new LINK_OUT root of the same campaign, within the signed link-out depth (s13 P2-5). A retry reuses the run its earlier attempt made.                                                                                                                                 |
 | RESEARCHED → IDENTITY_REVIEW    | `outbox.ts`                       | Writes the v2 export and the subject-facts export to the outbox (§6); the worker then parks the item AWAITING_HUMAN / OWNER_IDENTITY_REVIEW by itself.                                                                                                                                                                                                                                                                                                                                                  |
 | IDENTITY_REVIEW                 | none (human gate)                 | §5.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | ASSESSABLE → end                | `outbox.ts`                       | Appends the subject's manifest line (§6).                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
@@ -86,6 +88,8 @@ research when ALL hold:
 | a TEST_ONLY campaign is refused outside vitest                                   | the existing subject guard (`identity_authority_scope` = the campaign trust scope)         |
 | protected cohort unchanged; root domain isolated from every ECHE/promoted domain | the existing subject guard, before the first request                                       |
 | validity at most one day                                                         | CHECK                                                                                      |
+| USED only inside the campaign: RUNNING in window, item in flight, first run only | resolver on EVERY gateway attempt + run-row trigger (s13 P1-1, migration 0026)             |
+| never by the standalone `orgunits subjects research`                             | code: `CAMPAIGN_ADMISSION_NOT_STANDALONE` (s13 P1-1)                                       |
 
 Only the worker (`nwf_acquisition_worker`, SELECT + INSERT) or the owner path
 may insert one, and the trigger refuses any OWNER_REVIEWED row from a
@@ -112,10 +116,50 @@ capability, and releases that one item to ASSESSABLE on the owner path. There
 is no "all" form; an unlisted subject is never reviewed. The review trust set
 is EMPTY in production.
 
+**WW H-ACQ (s13 P2-4).** `review list` prints each subject's review head and
+state digest; `review sign` requires one `--expect <subjectId>=<stateDigest>`
+per listed subject and refuses a missing, unlisted or stale expectation
+(`EXPECTATION_MISSING`, `EXPECTATION_UNLISTED`, `STATE_DIGEST_MISMATCH`)
+before the key file is read. The release to ASSESSABLE (database, migration 0026) and the outbox manifest line (code) both require the subject's review
+head(s) to be an attested CONFIRMED review.
+
+### 5a. Country: stated by a source, confirmed by the OWNER (WW H-ACQ addendum)
+
+**FACT.** The autonomous pipeline records no country, so every discovered
+subject reached the Operator NOT RANKABLE (NO_STATED_COUNTRY) unless the
+OWNER ran `jurisdiction-claims record` per organisation.
+
+**DESIGN DECISION.** Inside the same batched review, never elsewhere:
+`review list` shows per subject at most three lines (each at most 200
+characters) of its OWN admitted page evidence - the redacted title, headings
+and main text extraction stored - that name one of the 249 assigned ISO
+3166-1 alpha-2 countries as a whole word (English names from
+`Intl.DisplayNames`, plus names in the page's own declared language), each
+with its page evidence id and observed instant. A mention, never a
+suggestion: no domain, top-level domain, language, script or address format
+is read as a country. `review sign --country <subjectId>=<CC>@<pageEvidenceId>`
+(at most one per listed subject) is refused unless the cited page is one of
+that subject's shown lines and those lines name that country
+(`COUNTRY_PAGE_NOT_SHOWN`, `COUNTRY_NOT_IN_SHOWN_LINES`,
+`COUNTRY_SUBJECT_NOT_LISTED`), before any key is read; the dry run prints
+the exact claim. Executed, AFTER the subject's review is appended and
+released, ONE `SOURCE_STATED` `COUNTRY_OF_OPERATION` claim is recorded
+through the EXISTING REL Q1 jurisdiction-claim writer (migration 0021: the
+writer capability, actor key `discovery-subjects-cli`, a source the subject
+holds, `observed_at` equal to the page's). The claim is the OWNER's statement
+of what the source says - migration 0021's own definition of a writer claim;
+the table has no further column for it and none was added. A later
+disagreeing claim makes the standing CONFLICTING, exactly as before.
+**UNKNOWN:** how often a subject's own pages name its country; a page may
+name a country for another reason, which is why the OWNER, not code, decides.
+
 ## 6. The outbox `nwf-pe.acquisition-outbox.v1`
 
-Under the operator's absolute `--outbox-dir` (never a symlink), directories
-0700, files 0600, JSON only, written to a temporary file then renamed:
+Under the operator's absolute `--outbox-dir` (never a symlink, owned by the
+worker's own user, re-narrowed to 0700 - s13 P2-14), directories 0700, files
+0600, JSON only, written to an exclusively created, randomly named temporary
+file, fsync'd, renamed, its directory fsync'd (libuv issues F_FULLFSYNC on
+macOS) - all before the database row:
 
 ```
 <outbox>/<campaignId>/outbox.json          {"format":"nwf-pe.acquisition-outbox.v1","campaignId":"…"}
@@ -146,8 +190,11 @@ A manifest line:
 ```
 
 `acquisition_outbox_entries` records each write's SHA-256 (never content) and
-is the idempotency key; the manifest is rebuilt from those rows, so a retry
-never duplicates a line. No page text beyond the v2 export's own redacted
+is the idempotency key; the manifest is rebuilt from those rows under a
+per-campaign session advisory lock (s13 P2-14), so a retry never duplicates a
+line and two writers never rebuild from different row sets. A manifest line
+is written only for a subject whose identity review head is an attested
+CONFIRMED review (s13 P2-4). No page text beyond the v2 export's own redacted
 proposal quotes; no body, contact or score. The exports wait until every
 record the campaign wrote for the subject lies in a past whole second (they
 evaluate "as of" a whole second of the database clock).
@@ -155,13 +202,17 @@ evaluate "as of" a whole second of the database clock).
 ## 7. The offline campaign signer
 
 `nwf-pe acquisition campaign template --campaign-key … --geography …` emits
-an UNSIGNED draft (`nwf-pe.acquisition-campaign-draft.v1`): all six worker
-stages, SEARCH_GRANT + LINK_OUT, a window of at most 14 days (default 7),
-small budgets (concurrency 1). `nwf-pe acquisition campaign sign --file
+an UNSIGNED draft (`nwf-pe.acquisition-campaign-draft.v2` since WW H-ACQ):
+all six worker stages, SEARCH_GRANT + LINK_OUT, a window of at most 14 days
+(default 7), small budgets (concurrency 1) and `scope.linkOutMaxHops` "1"
+(s13 P2-5). A v2 draft is signed as `nwf-pe.acquisition-campaign.v2`; a v1
+draft is still accepted and signed as a v1 document. `nwf-pe acquisition campaign sign --file
 <draft> --key-file <encrypted pkcs8> --key-id … --out <signed>` adds the
 protocol constants, key id, fingerprint, nonce and issuance instant,
 validates with the verifier's own parser, signs `UTF8(protocol + "\n") ||
-payload`, verifies its own signature and writes a NEW 0600 file. Offline: no
+payload`, verifies its own signature and writes a NEW 0600 file - every byte,
+fsync'd; an existing or relative `--out` is refused BEFORE the passphrase is
+asked for (s13 P2-16). Offline: no
 database, no network; the key is decrypted only by the B2.3 signer's
 `decryptSigningKey`. The private-key operation lives in ONE new file,
 `acquisitionWiring/campaignSigner.ts`, the B2.3 firewall's exact-path
@@ -254,9 +305,88 @@ WHERE locktype = 'advisory' AND pid <> pg_backend_pid();`.
 > `<absolute path>`, and each search grant row. A campaign runs only after I
 > sign it with `nwf-pe acquisition campaign sign`, record it and record
 > START.
+>
+> OWNER DECISION WW-H-ACQ-1 (proposed, unsigned). I ratify migration 0026
+> and ADR 0030 s5a and s13 for application to `<named database>` after
+> migrations 0023-0025: CAMPAIGN admissions honoured only inside their
+> campaign, observed spend, the signed link-out depth
+> (`nwf-pe.acquisition-campaign.v2`, v1 = one hop), the CONFIRMED-review
+> release, and the OWNER-confirmed `--country` statement recorded through
+> the REL Q1 jurisdiction-claim writer. A login holding
+> `nwf_discovery_subject_writer` is provisioned for `review sign --country`
+> by the same separate decision as the worker's writer login.
 
 ## 12. Not authorised here
 
 Provisioning or generating any operational key; recording a real campaign,
 grant or review; any live network, search, fetch or model call; applying
 0024 anywhere persistent; push, merge or deploy.
+
+## 13. WW H-ACQ hardening (migration 0026, independent review @e5b7c07)
+
+Each finding, its repair, and the regression test that reproduces the attack
+(`src/test/integration/acquisitionHardeningWwHAcq.test.ts`, unit and firewall
+files of the same name):
+
+- **P1-1 CAMPAIGN admission usable outside its campaign.** The resolver
+  (`web/authority.ts`) now reads, on EVERY gateway attempt and root-runner
+  resolution, the definer-rights view
+  `subject_research_campaign_admission_standing` (0017 fingerprint precedent:
+  booleans, an instant, a run id and a count; SELECT to `nwf_research` and
+  `nwf_readonly` only) and refuses a CAMPAIGN admission unless its campaign is
+  RUNNING inside its window, its work item is in flight, and the request
+  belongs to the admission's FIRST run, started under the item's current
+  attempt (`ROOT_SUBJECT_ADMISSION_CAMPAIGN_NOT_RUNNING` / `_ITEM_NOT_IN_FLIGHT`
+  / `_RUN_NOT_FIRST`). A trigger on `orgunit_research_runs` refuses a second
+  run of a CAMPAIGN admission, or a run outside those conditions.
+  `orgunits subjects research` refuses a CAMPAIGN admission in both modes
+  (`CAMPAIGN_ADMISSION_NOT_STANDALONE`). EMERGENCY_STOP, PAUSE, STOP, a lapsed
+  lease or a superseded attempt therefore end in-flight research at its next
+  request (the evidence already gathered is kept, never deleted); this
+  replaces s9's UNKNOWN "an aborted research run finishes its root".
+- **P1-2 self-reported gateway spend.** `acquisition_campaign_spend` derives
+  each work item's spend as the GREATER of its claims' reservations/reports
+  and what the database observed (its CAMPAIGN admissions; the fetch
+  observations rooted in them; the worker gains SELECT on exactly
+  `orgunit_fetch_observations.root_subject_admission_id`). The research
+  handler reports its runs' observed requests exactly once per attempt, on
+  success, refusal and exception alike.
+- **P1-9 unverified or incomplete search runs.** Discovery reads a run in the
+  shape of H-SD's `admissibleNominationsOfRun` (`NOT_A_GRANTED_RUN` ->
+  REFUSED; `RUN_NOT_COMPLETED` -> RETRY, never a partial advance, also for a
+  run reused by actor key; `COMPLETED` -> nominations of RESULTS calls whose
+  SDK version + model carry an OWNER smoke verification). A completed run
+  with recorded but no admissible nominations parks its item AWAITING_HUMAN
+  on the new closed queue `OWNER_SMOKE_VERIFICATION` - never a terminal empty
+  advance. Switching to H-SD's helper is one call once both are integrated.
+- **P2-2 forged campaign-subject binding.** The binding must name
+  `acquisition_campaign_subject_id(campaign, nomination)`, byte-for-byte the
+  wiring's `campaignSubjectIdOf`.
+- **P2-3 snapshot isolation.** Every acquisition write (and a CAMPAIGN
+  admission or its run) refuses any isolation but READ COMMITTED (SQLSTATE
+  25001); every window, due and lease comparison uses `clock_timestamp()`.
+- **P2-4 review signs whatever state exists.** See s5: expectations per
+  subject; CONFIRMED review required for release and manifest
+  (`acquisition_subject_identity_confirmed`).
+- **P2-5 unbounded link-outs.** `nwf-pe.acquisition-campaign.v2` signs
+  `scope.linkOutMaxHops` (0..3; the table column `link_out_max_hops`, checked
+  against the signed document). Hop 1 is a link-out found by research of a
+  SEARCH_GRANT or SEED subject; hop n+1 one found by research of a hop-n
+  subject. **The conservative reading of v1:** a v1 document stays verifiable
+  and means exactly ONE hop - what v1 already did once, and nothing
+  recursive. The database refuses the worker's link-out root beyond the
+  signed depth (`LINK_OUT_HOP_LIMIT`); research does not ask for one.
+  Link-out nominations carry no geography (a country is never inferred), so
+  this depth is what bounds how far a geography-scoped campaign can reach.
+- **P2-14 outbox durability.** s6.
+- **P2-16 campaign signer output.** s7.
+- **P2-17 firewall blind spot.** `wwAcquisitionQueue.firewall.test.ts` now
+  resolves every import specifier against its file, so the wiring's relative
+  `../acquisition/` imports are seen and pinned by exact path.
+
+**UNKNOWN / OPEN.** An item parked on `OWNER_SMOKE_VERIFICATION` is terminal
+in this build (AWAITING_HUMAN has no release path outside identity review):
+after recording the verification the OWNER starts a new campaign. A
+CAMPAIGN admission's first run could in principle be started by any
+research-role process while the item is in flight; only the wired worker
+does so, and the standalone CLI refuses (code, not database).

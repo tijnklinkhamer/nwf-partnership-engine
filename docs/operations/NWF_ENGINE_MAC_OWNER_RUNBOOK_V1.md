@@ -88,7 +88,8 @@ Run `nwf-engine doctor` first. It is read-only: it changes nothing. Each
    - `DATABASE_URL_ACQUISITION_WORKER`: the worker login.
    - `DATABASE_URL_SOURCE_DISCOVERY`, `DATABASE_URL_DISCOVERY_SUBJECT_WRITER`,
      `DATABASE_URL_RESEARCH`: the worker's stage handlers.
-   - `DATABASE_URL_DISCOVERY_SUBJECT_REVIEWER`: `acquisition review sign`.
+   - `DATABASE_URL_DISCOVERY_SUBJECT_REVIEWER`: `acquisition review sign`
+     (and `DATABASE_URL_DISCOVERY_SUBJECT_WRITER` when you add `--country`).
 
    `doctor`, `start` and the supervisor **require the first six** (the
    worker cannot run a stage without its login) and check the reviewer
@@ -146,12 +147,18 @@ Run `nwf-engine doctor` first. It is read-only: it changes nothing. Each
    Offline, on your Mac:
 
    ```bash
-   # an UNSIGNED, conservative draft: all six worker stages, a 7-day window
-   # (at most 14), small budgets, concurrency 1. Writes nothing.
+   # an UNSIGNED, conservative draft (nwf-pe.acquisition-campaign-draft.v2): all
+   # six worker stages, a 7-day window (at most 14), small budgets, concurrency 1,
+   # and scope.linkOutMaxHops "1" - the worker follows ONE generation of link-outs
+   # (organisations linked from a searched organisation's own pages), never a
+   # link-out of a link-out. "0" follows none; at most "3". Link-outs carry no
+   # geography, so this depth is what keeps a country-scoped campaign close to
+   # home. Writes nothing.
    npm run cli -- acquisition campaign template --campaign-key <key> \
        --geography JP [--geography ...] --search-grant-id <grant uuid> [--days 7] > draft.json
    # read draft.json; then sign it with your ENCRYPTED campaign key
-   # (passphrase asked with echo off; writes a NEW 0600 file; no database, no network)
+   # (passphrase asked with echo off, only AFTER --out is checked to be a new
+   # absolute path; writes a NEW 0600 file, fsync'd; no database, no network)
    npm run cli -- acquisition campaign sign --file draft.json \
        --key-file <absolute path to encrypted pkcs8> --key-id <key id> --out signed.json
    npm run cli -- acquisition campaign verify  --file signed.json
@@ -226,17 +233,35 @@ heartbeats while an item runs, and at most one `ADVANCED` outcome per item.
 
    ```bash
    npm run cli -- acquisition review list --campaign-id <uuid>
-   # each line: subject id, name claim(s), kind, country claim, root URL,
-   # pages read, duplicate signals. Add --json for every field.
+   # each subject: id, name claim(s), kind, country claim, root URL, pages
+   # read, duplicate signals, its review head and STATE DIGEST, and up to
+   # three "country mention" lines - text from the subject's OWN captured
+   # pages that names a country, with the page id and when it was read.
+   # Add --json for every field.
    npm run cli -- acquisition review sign --campaign-id <uuid> \
-       --subject-id <uuid> --subject-id <uuid> ... \
+       --subject-id <uuid> --expect <uuid>=<state digest from the list> ... \
+       [--country <uuid>=<CC>@<page id from a mention line> ...] \
        --key-file <absolute path to encrypted review key> --key-id <key id>      # dry run
    # the same with --execute: ONE passphrase for the batch
    ```
 
-   Only the subjects you list are reviewed; there is no "all". Each gets
+   Only the subjects you list are reviewed; there is no "all". Each needs
+   one `--expect` naming the state digest the list showed you: if anything
+   about the subject changed since you read it, the batch is refused before
+   your key is touched - list again and re-read. Each listed subject gets
    your signed OWNER review (ADR 0023) and is released to `ASSESSABLE`. A
    subject you do not confirm stays where it is.
+
+   **Country.** A subject reaches the Operator rankable only with a country
+   that a source STATES. The Engine never infers one (not from a domain,
+   `.nl`, a language or an address format). If a mention line from the
+   subject's own page says where it operates (for example "Utrecht,
+   Netherlands"), add `--country <subject>=NL@<that line's page id>`: after
+   your review is appended, ONE `SOURCE_STATED` `COUNTRY_OF_OPERATION`
+   claim - your statement of what that page says - is recorded through the
+   jurisdiction-claim writer (needs `DATABASE_URL_DISCOVERY_SUBJECT_WRITER`).
+   A page that is not one of that subject's shown lines, or a country those
+   lines do not name, is refused. The dry run prints the exact claim.
 
 3. The worker (restarted by the supervisor within its idle wait, at most 15
    minutes) writes each released subject's manifest line. The Engine sends
