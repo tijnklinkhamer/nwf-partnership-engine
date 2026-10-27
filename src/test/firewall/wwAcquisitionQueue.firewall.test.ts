@@ -29,7 +29,7 @@
  *     database and the approved namespace, not in a framework.
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, posix } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import { ACQUISITION_OPTIONS } from '../../cli/commands/acquisition.js';
@@ -76,6 +76,29 @@ const NEW_TABLES = [
 ];
 
 const code = (file: string): string => codeOf(readCurrent(file));
+
+/** Every module specifier of `file`, resolved to a repository path (`.js` -> `.ts`). */
+function resolvedImports(file: string): string[] {
+  return specifiers(code(file)).map((spec) =>
+    spec.startsWith('.') ? posix.join(posix.dirname(file), spec).replace(/\.js$/, '.ts') : spec,
+  );
+}
+
+const WIRING = 'src/orgunits/acquisitionWiring/';
+/** The wiring files that import the acquisition namespace (exact paths, WW E-W). */
+const WIRING_IMPORTERS = [
+  'campaignSigner.ts',
+  'dedupe.ts',
+  'discover.ts',
+  'handlers.ts',
+  'outbox.ts',
+  'production.ts',
+  'promote.ts',
+  'records.ts',
+  'research.ts',
+  'review.ts',
+  'status.ts',
+];
 
 /** Every module specifier the namespace may name, by exact text. */
 const ALLOWED_SPECIFIERS = new Set([
@@ -304,13 +327,27 @@ describe('WW E-Q: the CLI is narrow', () => {
   });
 
   it('only the CLI reaches the namespace from outside it', () => {
+    // WW H-ACQ (P2-17): every module specifier is RESOLVED against its
+    // importing file, so a relative `../acquisition/index.js` counts exactly
+    // like an `orgunits/acquisition/` path - the earlier text match could not
+    // see the wiring's relative imports at all.
     const importers = productionFiles().filter(
-      (f) => !f.startsWith(NS) && /orgunits\/acquisition\//.test(code(f)),
+      (f) => !f.startsWith(NS) && resolvedImports(f).some((r) => r.startsWith(NS)),
     );
     // WW E-M: the Mac runtime reads whether an OWNER campaign key is pinned,
     // through the public index only, at this one exact path (pinned in
-    // wwMacRuntime.firewall.test.ts).
-    expect(importers).toEqual([CLI, 'src/runtime/campaignTrust.ts']);
+    // wwMacRuntime.firewall.test.ts). WW E-W: the wiring namespace, each of
+    // whose files is pinned module-by-module in wwAcquisitionWiring.firewall.
+    expect(importers).toEqual(
+      [CLI, 'src/runtime/campaignTrust.ts', ...WIRING_IMPORTERS.map((f) => `${WIRING}${f}`)].sort(),
+    );
+  });
+
+  it('resolves relative and absolute-looking specifiers alike', () => {
+    expect(resolvedImports('src/orgunits/acquisitionWiring/records.ts')).toContain(
+      'src/orgunits/acquisition/index.ts',
+    );
+    expect(resolvedImports(CLI)).toContain('src/orgunits/acquisition/index.ts');
   });
 });
 
