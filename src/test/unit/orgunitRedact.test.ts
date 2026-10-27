@@ -312,3 +312,58 @@ describe('redactPhones: academic-year ranges are never phone numbers (REL final 
     expect(masked).toBe('jaar ###################; tel 03-2019-2020');
   });
 });
+
+describe('redactPhones: separator-less numbers (WW E-XFX, P1-1)', () => {
+  // A bare run of digits was never matched before: each of these was stored readable.
+  const POSITIVE: readonly (readonly [string, string])[] = [
+    // NL: mobile, landline, international without separators.
+    ['Bel 0612345678 voor info', 'Bel [PHONE] voor info'],
+    ['Tel: 0201234567', 'Tel: [PHONE]'],
+    ['WhatsApp +31612345678', 'WhatsApp [PHONE]'],
+    // JP: Tokyo landline, mobile, toll-free, full-width digits.
+    ['電話 0312345678', '電話 [PHONE]'],
+    ['携帯 09012345678 まで', '携帯 [PHONE] まで'],
+    ['フリーダイヤル 0120123456', 'フリーダイヤル [PHONE]'],
+    ['電話 ０３１２３４５６７８（平日）', '電話 [PHONE]（平日）'],
+    // MX: ten-digit national numbers, no trunk prefix.
+    ['Llama al 8112345678', 'Llama al [PHONE]'],
+    ['WhatsApp 5512345678.', 'WhatsApp [PHONE].'],
+    // DE: a nine-digit Berlin number with the trunk prefix, an eleven-digit mobile.
+    ['Telefon 030123456', 'Telefon [PHONE]'],
+    ['Handy 01701234567', 'Handy [PHONE]'],
+    // a URL path carrying a number (wa.me/<number>) loses the number
+    ['wa.me/31612345678', 'wa.me/[PHONE]'],
+  ];
+
+  for (const [input, expected] of POSITIVE) {
+    it(`redacts ${JSON.stringify(input)}`, () => {
+      expect(redactPhones(input)).toBe(expected);
+      expect(redactContactData(input)).toBe(expected);
+    });
+  }
+
+  // Years, dates, page/room numbers, postcodes and academic-year ranges survive.
+  const NEGATIVE: readonly string[] = [
+    'Welcome Week 2026, 31 August 2026',
+    'Aanmelden voor 20261026',
+    'Datum: 2026-10-26, 26-10-2026, 26.10.2026',
+    'Collegejaar 2026-2027 2027-2028',
+    'Zie pagina 12345 en kamer 1.23',
+    'Postbus 1234, 1012 AB Amsterdam; CP 64000 Monterrey; 〒530-0001',
+    '123456789 is not a trunk-prefixed number',
+    'KvK 12345678',
+    'ISBN978123456789X',
+    'versie v1.0612345678',
+  ];
+
+  for (const input of NEGATIVE) {
+    it(`keeps ${JSON.stringify(input)}`, () => {
+      expect(redactContactData(input)).toBe(input);
+    });
+  }
+
+  it('the separator-less alternative changes no earlier match', () => {
+    expect(redactPhones('Bel 020 123 4567 of 0612345678')).toBe('Bel [PHONE] of [PHONE]');
+    expect(redactPhones('+33 1 23 45 67 89')).toBe('[PHONE]');
+  });
+});

@@ -66,6 +66,18 @@
  *   only LESS (a character-wise subset), so every text that was a redaction
  *   fixed point before is still one.
  *
+ *   WW E-XFX (2026-10-27) then closed the separator-less gap (the fourth
+ *   phone alternative, below): `0612345678` was stored readable. This change
+ *   redacts MORE, and it too stays within `orgunit-extraction-v3` on the
+ *   same ground as the REL final join: v3 was introduced 2026-10-26 and
+ *   every v3 row this repository knows of was written to a disposable test
+ *   database (live acquisition is not authorised in this period), so no
+ *   persisted row was produced by the pre-fix v3 transform. That ground is
+ *   a FACT TO CONFIRM, not one this code can check: if any v3 row exists in
+ *   a persistent database, this change needs its own label before such rows
+ *   and new ones are compared. Every pre-existing redaction vector is
+ *   unchanged; only text containing a bare 9-15 digit run is affected.
+ *
  * PURE. No network, no database, no filesystem, no clock.
  */
 
@@ -77,7 +89,8 @@ const EMAIL_PATTERN =
  *
  * Requires EITHER a leading `+` (an international prefix is the strongest
  * possible phone signal) OR at least one grouping separator (space, hyphen,
- * dot or parenthesis) among the digits, so a bare run of digits with no
+ * dot or parenthesis) among the digits, OR - the fourth alternative, see
+ * below - a bare run of at least nine digits, so a short bare run with no
  * separator and no `+` - which is exactly what a year or a page number looks
  * like - never matches at all. The digit-count check below then requires at
  * least 8 significant digits, which excludes any 4-digit year, any 1-3 digit
@@ -86,7 +99,7 @@ const EMAIL_PATTERN =
  * `030-123-4567`, `(030) 123 4567`, `+49 (0)30 1234567`.
  */
 const PHONE_CANDIDATE_PATTERN =
-  /(?<![\w@.])(\+\d[\d\s().-]{6,18}\d|\(?\d{2,5}\)?[\s.-]\d[\d\s().-]{4,17}\d|\d{2,5}\(\d{1,4}\)\d{3,5})(?![\w@])/g;
+  /(?<![\w@.])(\+\d[\d\s().-]{6,18}\d|\(?\d{2,5}\)?[\s.-]\d[\d\s().-]{4,17}\d|\d{2,5}\(\d{1,4}\)\d{3,5}|\d{9,15})(?![\w@])/g;
 
 /*
  * The THIRD alternative above is the Japanese bracketed-exchange form
@@ -98,6 +111,22 @@ const PHONE_CANDIDATE_PATTERN =
  * number takes, and the 8-significant-digit floor still applies to it. Added
  * as the LAST alternative so every match the first two made before is still
  * made, at the same position, unchanged.
+ */
+
+/*
+ * The FOURTH alternative (WW E-XFX, 2026-10-27) is a BARE run of digits with
+ * no separator at all - `0612345678` (NL mobile), `0312345678` (Tokyo),
+ * `8112345678` (Monterrey), `030123456` (Berlin) - which the other three
+ * never matched, so such a number was stored readable. It is the LAST
+ * alternative, so every match the first three made before is still made, at
+ * the same position, unchanged; and it is bounded much more tightly than the
+ * digit floor (`isBareSubscriberNumber`): a bare run is redacted only when it
+ * is 10-15 digits long, or exactly 9 digits beginning with the national
+ * trunk prefix `0`. An 8-digit run (`20261026`, a YYYYMMDD date), a year, a
+ * page or room number, a postcode, and any 9-digit run not starting with `0`
+ * are therefore kept. A run glued to a letter, `@` or `.` on either side
+ * (an identifier, an e-mail local part, a version string) never starts or
+ * ends a match, exactly as for the other alternatives.
  */
 
 /**
@@ -140,6 +169,13 @@ export function foldPhoneCharacters(text: string): string {
 
 function significantDigitCount(candidate: string): number {
   return (candidate.match(/\d/g) ?? []).length;
+}
+
+const BARE_DIGITS = /^\d+$/;
+
+/** A separator-less candidate that is shaped like a whole subscriber number (see above). */
+function isBareSubscriberNumber(candidate: string): boolean {
+  return candidate.length >= 10 || (candidate.length === 9 && candidate.startsWith('0'));
 }
 
 /**
@@ -259,6 +295,7 @@ export function redactPhones(text: string): string {
   for (const match of folded.matchAll(PHONE_CANDIDATE_PATTERN)) {
     const candidate = match[0];
     if (significantDigitCount(candidate) < 8 || isDayMonthYearDate(candidate)) continue;
+    if (BARE_DIGITS.test(candidate) && !isBareSubscriberNumber(candidate)) continue;
     output += `${text.slice(cursor, match.index)}[PHONE]`;
     cursor = match.index + candidate.length;
   }
