@@ -96,6 +96,8 @@ function worldTransport(): ScriptedTransport {
   for (const site of Object.values(SITE)) {
     t.route(`${site}robots.txt`, response(200, ALLOW_ALL, 'text/plain'));
   }
+  // NL, MX and JP keep their events (and NL its newsletter issues) on pages of their own, as
+  // real sites do; BR and DE announce theirs on the home page only (no locator of its own).
   t.route(
     SITE.nl,
     html(
@@ -104,14 +106,34 @@ function worldTransport(): ScriptedTransport {
         'Uitwisselingsvereniging Utrecht',
         [
           { p: 'Wij zijn een vereniging voor internationale studenten. Samen Nederlands leren.' },
-          { h2: 'Introductieweek 2 september 2026' },
-          { h2: 'Introductieweek 3 september 2025' },
           { p: 'Schrijf je in voor onze nieuwsbrief.' },
           { p: 'Utrecht, Nederland' },
           { p: `Mail ons via ${PII[0]} of bel ${PII[1]}.` },
         ],
-        [[SITE.br, 'Partnervereniging in São Paulo']],
+        [
+          ['/agenda/', 'Agenda'],
+          ['/nieuwsbrief/', 'Nieuwsbrief'],
+          [SITE.br, 'Partnervereniging in São Paulo'],
+        ],
       ),
+    ),
+  );
+  t.route(
+    `${SITE.nl}agenda/`,
+    html(
+      richPage('nl', 'Agenda', [
+        { h2: 'Introductieweek 2 september 2026' },
+        { h2: 'Introductieweek 3 september 2025' },
+      ]),
+    ),
+  );
+  t.route(
+    `${SITE.nl}nieuwsbrief/`,
+    html(
+      richPage('nl', 'Nieuwsbrief', [
+        { h2: 'Nieuwsbrief 1 oktober 2026' },
+        { h2: 'Nieuwsbrief 1 september 2026' },
+      ]),
     ),
   );
   t.route(
@@ -124,13 +146,19 @@ function worldTransport(): ScriptedTransport {
           {
             p: 'Somos una comunidad de intercambio para estudiantes internacionales con clases de español.',
           },
-          { h2: 'Semana de bienvenida 1 de septiembre de 2026' },
           { p: 'Monterrey, México' },
           { p: `Escríbenos o llama al ${PII[2]}.` },
         ],
-        [[SITE.ke, 'Our partners in Nairobi']],
+        [
+          ['/eventos/', 'Eventos'],
+          [SITE.ke, 'Our partners in Nairobi'],
+        ],
       ),
     ),
+  );
+  t.route(
+    `${SITE.mx}eventos/`,
+    html(richPage('es', 'Eventos', [{ h2: 'Semana de bienvenida 1 de septiembre de 2026' }])),
   );
   t.route(
     SITE.jp,
@@ -140,13 +168,19 @@ function worldTransport(): ScriptedTransport {
         '関西留学生交流サークル',
         [
           { p: '留学生のための日本語教室と交流サークルです。' },
-          { h2: '新入生歓迎会 2026年4月10日' },
           { p: `お問い合わせ: ${PII[3]}` },
           { p: 'Osaka, Japan' },
         ],
-        [[SITE.de, 'Sprachcafé Berlin']],
+        [
+          ['/events/', 'イベント'],
+          [SITE.de, 'Sprachcafé Berlin'],
+        ],
       ),
     ),
+  );
+  t.route(
+    `${SITE.jp}events/`,
+    html(richPage('ja', 'イベント', [{ h2: '新入生歓迎会 2026年4月10日' }])),
   );
   t.route(
     SITE.br,
