@@ -796,6 +796,13 @@ const MIGRATIONS_AFTER_THE_CORPUS_FREEZE = [
     adr: 'docs/adr/0030-campaign-research-admission-and-acquisition-wiring.md',
     ownerRecord: 'docs/evaluation/WW_H_ACQ_ACQUISITION_HARDENING_OWNER_DIRECTIVE_RECORD_V1.json',
   },
+  // WW H-SD (second security-review repair, ADR 0028 s9.1).
+  {
+    file: '0027_source_discovery_search_observations.sql',
+    adr: 'docs/adr/0028-campaign-bounded-live-source-discovery.md',
+    ownerRecord:
+      'docs/evaluation/WW_H_SD_SOURCE_DISCOVERY_SEARCH_OBSERVATIONS_OWNER_DIRECTIVE_RECORD_V1.json',
+  },
 ] as const;
 
 function gitAvailable(...commits: readonly string[]): boolean {
