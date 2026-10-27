@@ -2304,7 +2304,7 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
     }
   });
 
-  it('exactly ONE production module imports child_process, by exact path, and it runs ONLY the fixed request-free command', async () => {
+  it('exactly TWO production modules import child_process, each by exact path (the classifier auth-status runner, which runs ONLY the fixed request-free command, and the Mac runtime process seam)', async () => {
     for (const file of PRODUCTION_FILES) {
       const source = code(file);
       if (file === CHILD_PROCESS_IMPORT_SITE || file === MAC_RUNTIME_PROCESS_SITE) {
