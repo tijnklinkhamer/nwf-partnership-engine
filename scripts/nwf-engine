@@ -1,0 +1,8 @@
+#!/bin/sh
+# nwf-engine - the OWNER's control surface for the NWF Partnership Engine on a Mac.
+# A thin wrapper: runs `npm run engine -- <command>` from this checkout, wherever
+# it is called from. See docs/operations/NWF_ENGINE_MAC_OWNER_RUNBOOK_V1.md.
+set -eu
+here=$(cd "$(dirname "$0")/.." && pwd)
+cd "$here"
+exec npm run -s engine -- "$@"

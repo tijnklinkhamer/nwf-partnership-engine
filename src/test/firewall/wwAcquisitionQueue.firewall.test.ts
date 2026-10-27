@@ -282,7 +282,10 @@ describe('WW E-Q: the CLI is narrow', () => {
     const importers = productionFiles().filter(
       (f) => !f.startsWith(NS) && /orgunits\/acquisition\//.test(code(f)),
     );
-    expect(importers).toEqual([CLI]);
+    // WW E-M: the Mac runtime reads whether an OWNER campaign key is pinned,
+    // through the public index only, at this one exact path (pinned in
+    // wwMacRuntime.firewall.test.ts).
+    expect(importers).toEqual([CLI, 'src/runtime/campaignTrust.ts']);
   });
 });
 

@@ -2222,6 +2222,13 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
   /** THE single permitted child-process import site, by exact path (ADR 0010). */
   const CHILD_PROCESS_IMPORT_SITE = `${PROVIDER_DIR}/authStatusRunner.ts`;
   /**
+   * WW E-M (OWNER directive 2026-10-27 s5, Mac operation): the ONE further
+   * child-process site, by exact path - the Mac runtime's process seam, which
+   * runs only the Engine's own CLI, `docker compose ps|up` from a fixed
+   * allowlist and its own supervisor (pinned in wwMacRuntime.firewall.test.ts).
+   */
+  const MAC_RUNTIME_PROCESS_SITE = 'src/runtime/processes.ts';
+  /**
    * THE single module permitted to NAME the Agent SDK package without
    * importing it: the executable resolver locates the installed SDK on disk
    * to verify the native binary the SDK will spawn (ADR 0010 Amendment A).
@@ -2300,7 +2307,7 @@ describe('PHASE-2B-FIREWALL 2B-2C2: the Claude Max runtime boundary is exactly o
   it('exactly ONE production module imports child_process, by exact path, and it runs ONLY the fixed request-free command', async () => {
     for (const file of PRODUCTION_FILES) {
       const source = code(file);
-      if (file === CHILD_PROCESS_IMPORT_SITE) {
+      if (file === CHILD_PROCESS_IMPORT_SITE || file === MAC_RUNTIME_PROCESS_SITE) {
         expect(source, `${file} must import node:child_process`).toMatch(
           /from\s+['"]node:child_process['"]/,
         );

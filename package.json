@@ -29,6 +29,7 @@
     "db:reset": "node --env-file-if-exists=.env --import tsx src/db/migrate.ts --reset",
     "migrations:check": "node scripts/check-migration-versions.mjs",
     "cli": "node --env-file-if-exists=.env --import tsx src/cli/index.ts",
+    "engine": "node --env-file-if-exists=.env --import tsx src/runtime/engine.ts",
     "validate": "npm run migrations:check && npm run typecheck && npm run lint && npm run format:check && npm test && npm run build",
     "fixture:build": "node --import tsx scripts/build-fixture.ts",
     "db:migrate:test": "node --env-file-if-exists=.env --import tsx src/db/migrate.ts --test",
