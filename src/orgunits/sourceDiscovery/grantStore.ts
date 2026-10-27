@@ -12,7 +12,12 @@
  *   - the run row and its grant-use row, in ONE run-start transaction, before
  *     the first query - the database re-checks the slot, the window and that
  *     the run carries the grant's plan, geography and provider;
- *   - one query-call row per provider call (no prompt, no response text);
+ *   - one query-call START per provider call, committed BEFORE the call
+ *     (migration 0025): the database's own permission for that one search,
+ *     re-checking the grant's window on its own clock and requiring an OWNER
+ *     smoke verification for any call that is not the D8 smoke;
+ *   - one terminal query-call row per provider call, matching its start (no
+ *     prompt, no response text);
  *   - one known-mark per v2-plan nomination (re-derived by the database);
  *   - the terminal completion row.
  *
@@ -165,6 +170,44 @@ export async function startGrantedRun(
     [input.grantId, runId, input.actorKey],
   );
   return { runId, runSeq: use.rows[0]!.run_seq };
+}
+
+export interface QueryCallStartInsert {
+  readonly runId: string;
+  readonly callSeq: number;
+  readonly queryId: string;
+  readonly modelId: string;
+  readonly sdkVersion: string;
+  readonly smoke: boolean;
+}
+
+/**
+ * The database's permission for ONE provider call (migration 0025), inserted
+ * and committed BEFORE the call. Refused (23514) outside the grant's window
+ * by the database clock, or for a non-smoke call without a smoke
+ * verification for this SDK version and model.
+ */
+export async function insertQueryCallStart(q: Queryable, c: QueryCallStartInsert): Promise<void> {
+  await q.query(
+    `INSERT INTO source_discovery_query_call_starts
+        (run_id, call_seq, query_id, model_id, sdk_version, smoke)
+     VALUES ($1, $2, $3, $4, $5, $6)`,
+    [c.runId, c.callSeq, c.queryId, c.modelId, c.sdkVersion, c.smoke],
+  );
+}
+
+/** Whether the OWNER has verified a D8 smoke for this SDK version and model (migration 0025). */
+export async function smokeVerificationExists(
+  q: Queryable,
+  sdkVersion: string,
+  modelId: string,
+): Promise<boolean> {
+  const { rows } = await q.query<{ present: boolean }>(
+    `SELECT EXISTS (SELECT 1 FROM source_discovery_smoke_verifications
+                     WHERE sdk_version = $1 AND model_id = $2) AS present`,
+    [sdkVersion, modelId],
+  );
+  return rows[0]!.present;
 }
 
 export interface QueryCallInsert {

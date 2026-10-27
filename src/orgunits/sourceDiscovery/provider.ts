@@ -29,10 +29,24 @@ export interface SearchRequest {
   readonly query: Pick<DiscoveryQuery, 'queryId' | 'language' | 'text'>;
 }
 
+/**
+ * What the Claude Max adapter's WebSearch gate observed for the ONE search a
+ * call made (ADR 0028 s9). Reported so the D8 smoke can show WHICH SDK
+ * surface actually consulted the gate; never stored as evidence of anything
+ * else. Absent for the scripted provider.
+ */
+export interface SearchGateObservation {
+  /** The PreToolUse hook was invoked for the approved WebSearch tool use. */
+  readonly hookInvoked: boolean;
+  /** `canUseTool` was invoked for the approved WebSearch tool use. */
+  readonly permissionInvoked: boolean;
+}
+
 export interface SearchResponse {
   readonly results: readonly RawSearchResult[];
   /** ISO-8601 UTC: when the provider retrieved these results. Never defaulted by the caller. */
   readonly retrievedAt: string;
+  readonly searchGate?: SearchGateObservation;
 }
 
 export interface SearchProvider {
@@ -48,6 +62,7 @@ export class SearchProviderError extends Error {
       | 'PROVIDER_RESULT_ERROR'
       | 'PROVIDER_OUTPUT_INVALID'
       | 'PROVIDER_TOOL_REFUSED'
+      | 'PROVIDER_SEARCH_BINDING_REFUSED'
       | 'PROVIDER_USAGE_LIMIT_EXHAUSTED'
       | 'PROVIDER_AUTH_FAILURE',
     detail: string,

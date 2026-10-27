@@ -26,20 +26,25 @@
  *
  * Only then does it return a `query` the adapter can call. Every call runs
  * with the adapter's WebSearch-only options (`buildWebSearchAgentOptions`:
- * WebSearch the only tool offered, allowed or permitted, WebFetch refused by
- * name, no MCP, no skills, no plugins, no setting sources, no persisted
- * session) plus the runtime fields this seam owns: the granted model, the
+ * WebSearch the only tool offered, NEVER pre-approved - `allowedTools` is
+ * empty and the permission mode `default` - so every use reaches the
+ * adapter's per-call gate through BOTH the PreToolUse hook registered here
+ * and `canUseTool`; WebFetch refused by name, no MCP, no skills, no plugins,
+ * no setting sources, no persisted session) plus the runtime fields this seam
+ * owns: the granted model, the
  * child environment, the scratch cwd, the verified executable, thinking
  * disabled, and an abort deadline. No API key, PAYG, Bedrock, Vertex or other
  * provider is expressible: the conflicting variables are refused, never
  * forwarded.
  *
  * WHAT IT READS FROM A RESULT. The SDK stream is mapped to the adapter's
- * closed `AgentMessage` shape: type, subtype, is_error, structured_output and
+ * closed `AgentMessage` shape: type, subtype, is_error, structured_output,
  * - on a failed terminal result only - a CLOSED `failure` value recognised
- * from the SDK's own usage-limit vocabulary or an authentication marker. No
- * prompt, result text, transcript or session id leaves this function, and
- * nothing here logs or stores one.
+ * from the SDK's own usage-limit vocabulary or an authentication marker, and
+ * - on an assistant message - its tool-use blocks (kind, id, name, input),
+ * which the adapter counts and compares against its gate IN MEMORY (ADR 0028
+ * s9). No prompt, result text, transcript or session id leaves this
+ * function, and nothing here logs or stores one.
  *
  * Nothing in CI calls the real SDK: every test injects `sdkQuery`, the
  * auth-status runner and the executable resolver.
@@ -74,6 +79,8 @@ import {
   WEB_SEARCH_MAX_TURNS,
   type AgentMessage,
   type AgentQueryFn,
+  type AgentToolUse,
+  type WebSearchAgentOptions,
 } from './claudeMaxWebSearchProvider.js';
 import { SOURCE_DISCOVERY_ALLOWED_MODELS } from './grant.js';
 
@@ -91,6 +98,8 @@ export interface SdkStreamMessage {
   readonly structured_output?: unknown;
   readonly result?: unknown;
   readonly errors?: unknown;
+  /** An assistant message's Messages-API body; only its tool-use blocks are read. */
+  readonly message?: unknown;
 }
 
 /** The SDK's `query` entry point, as injected. Production: the SDK's own `query`. */
@@ -152,8 +161,37 @@ function failureOf(message: SdkStreamMessage): AgentMessage['failure'] {
   return undefined;
 }
 
-/** Maps one SDK message to the adapter's closed shape. No text crosses this line. */
+const TOOL_USE_KINDS: ReadonlySet<string> = new Set([
+  'tool_use',
+  'server_tool_use',
+  'mcp_tool_use',
+]);
+
+/** Every tool-use block of an assistant message, for the adapter's stream count. */
+function toolUsesOf(message: SdkStreamMessage): AgentToolUse[] {
+  const content = (message.message as { content?: unknown } | null | undefined)?.content;
+  if (!Array.isArray(content)) return [];
+  const uses: AgentToolUse[] = [];
+  for (const block of content as unknown[]) {
+    if (typeof block !== 'object' || block === null) continue;
+    const b = block as { type?: unknown; id?: unknown; name?: unknown; input?: unknown };
+    if (typeof b.type !== 'string' || !TOOL_USE_KINDS.has(b.type)) continue;
+    uses.push({
+      kind: b.type as AgentToolUse['kind'],
+      id: typeof b.id === 'string' ? b.id : '',
+      name: typeof b.name === 'string' ? b.name : '',
+      input: b.input,
+    });
+  }
+  return uses;
+}
+
+/** Maps one SDK message to the adapter's closed shape. No prose crosses this line. */
 export function toAgentMessage(message: SdkStreamMessage): AgentMessage {
+  if (message.type === 'assistant') {
+    const toolUses = toolUsesOf(message);
+    return toolUses.length > 0 ? { type: message.type, toolUses } : { type: message.type };
+  }
   if (message.type !== 'result') return { type: message.type };
   const failure = failureOf(message);
   return {
@@ -164,6 +202,38 @@ export function toAgentMessage(message: SdkStreamMessage): AgentMessage {
       ? { structured_output: message.structured_output }
       : {}),
     ...(failure !== undefined ? { failure } : {}),
+  };
+}
+
+/** The SDK's own hook-callback type, derived from `Options` (no further SDK import). */
+type SdkHookCallback = NonNullable<
+  NonNullable<Options['hooks']>['PreToolUse']
+>[number]['hooks'][number];
+
+/**
+ * The session's ONE PreToolUse hook: every tool use is handed to the
+ * adapter's gate. A deny is the SDK's own `permissionDecision: 'deny'` and
+ * stops the session; a pass takes no decision, so the permission flow (and
+ * `canUseTool`) still runs.
+ */
+export function preToolUseHook(o: WebSearchAgentOptions): SdkHookCallback {
+  return async (input) => {
+    if (input.hook_event_name !== 'PreToolUse') return {};
+    const verdict = await o.preToolUse({
+      toolName: input.tool_name,
+      toolInput: input.tool_input,
+      toolUseId: input.tool_use_id,
+    });
+    if (verdict.decision === 'pass') return {};
+    return {
+      continue: false,
+      stopReason: verdict.reason,
+      hookSpecificOutput: {
+        hookEventName: 'PreToolUse',
+        permissionDecision: 'deny',
+        permissionDecisionReason: verdict.reason,
+      },
+    };
   };
 }
 
@@ -262,7 +332,9 @@ export async function prepareLiveSearch(
           tools: [...o.tools],
           allowedTools: [...o.allowedTools],
           disallowedTools: [...o.disallowedTools],
-          canUseTool: (toolName, input) => o.canUseTool(toolName, input),
+          canUseTool: (toolName, input, context) =>
+            o.canUseTool(toolName, input, context.toolUseID),
+          hooks: { PreToolUse: [{ hooks: [preToolUseHook(o)] }] },
           permissionMode: o.permissionMode,
           settingSources: [],
           mcpServers: {},

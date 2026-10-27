@@ -47,8 +47,11 @@ most `max_results_per_query` (≤ 20) results per query and at most
 allowlist `claude-haiku-4-5`, `claude-opus-5`, `claude-sonnet-5`. Queries run
 sequentially; no retry, no fallback; the first provider failure ends the run.
 
-**D2 — tool allowlist.** Unchanged `buildWebSearchAgentOptions`: `tools` and
-`allowedTools` are `['WebSearch']`, every other built-in is disallowed by
+**D2 — tool allowlist.** (Corrected by §9: `allowedTools` is now EMPTY, the
+permission mode `default`, and a per-call gate enforces the query binding;
+the text below records what was first landed.) Unchanged
+`buildWebSearchAgentOptions`: `tools` and `allowedTools` are
+`['WebSearch']`, every other built-in is disallowed by
 name (WebFetch first), MCP, skills, plugins and setting sources are empty,
 sessions are not persisted. NEW: the adapter remembers any tool `canUseTool`
 denied and FAILS that query `TOOL_REFUSED` even if the stream then returns
@@ -124,8 +127,9 @@ the Max subscription; no HOLDOUT data; no staging or production database. No
 file under `sourceDiscovery/` fetches, classifies, scores or ranks
 (`wwSourceDiscoveryLive.firewall.test.ts`).
 
-**D8 — the smoke.** The first call of a grant's first run is recorded
-`smoke = true` (the database derives and checks it). If its structured
+**D8 — the smoke.** (Made a GATE by §9: without an OWNER smoke verification
+a grant's first run stops after its smoke call.) The first call of a grant's
+first run is recorded `smoke = true` (the database derives and checks it). If its structured
 output fails under the WebSearch-only `canUseTool`, the run fails closed on
 `PROVIDER_OUTPUT_INVALID`; nothing is salvaged from prose. The §1 UNKNOWN of
 ADR 0027 is settled only by that first live call.
@@ -245,12 +249,18 @@ VALUES ('<brief id>', '<plan digest>', 'JP', 'claude-max-web-search',
         'claude-sonnet-5', 1, 20, 1, now(), now() + interval '24 hours', 'owner-cli');
 ```
 
-The first run under the first grant begins with the D8 smoke.
+The first run under the first grant begins with the D8 smoke. Since §9
+(migration 0025) that run STOPS after the smoke call (`ABORTED`,
+`SMOKE_UNVERIFIED`) until the OWNER records a smoke verification for the
+smoke call's SDK version and model — the OWNER step in §9.
 
 ## 7. Open and UNKNOWN
 
 - **UNKNOWN.** How the SDK's structured output interacts with a WebSearch-only
   `canUseTool` (ADR 0027 §1). Settled only by the D8 smoke.
+- **UNKNOWN (§9).** Whether the live SDK actually invokes the PreToolUse hook
+  (and `canUseTool`) for WebSearch under the §9 options. Settled only by the
+  live D8 smoke; nothing may rely on the hook before then.
 - **OPEN.** Native-speaker review of the fr, es, nl, ja, de, it and pt
   templates; review of the hand-written further-official-language list in
   `queryLanguages.ts` against a live source (this lane had no network).
@@ -271,3 +281,133 @@ production constructor of the adapter, the CLI option), `phase2b` (the second
 Agent SDK import site, `agentQuery.ts`) and `relHarvestH2` (`agentQuery.ts` as
 the one sourceDiscovery file that reaches `classify/`, and only its eight
 authentication modules).
+
+## 9. Security-review repair (WW E-SDFX, migration 0025) (DESIGN DECISION (proposed))
+
+An independent security review of §1–§8 found one P1 and three P2 defects.
+Each is repaired below; migration 0022 is committed and is **not edited**.
+
+**P1-3 — the WebSearch input was never checked (FACT, then repair).**
+`buildWebSearchAgentOptions` set `allowedTools: ['WebSearch']` and
+`permissionMode: 'dontAsk'`. The installed SDK (`@anthropic-ai/claude-agent-sdk`
+0.3.251, `sdk.d.ts` `allowedTools`: "auto-allowed without prompting for
+permission") auto-allows a tool named there without consulting `canUseTool`,
+and under `dontAsk` an "ask" is denied without consulting it either (the
+bundled executable's permission flow; `sdk.d.ts` documents `dontAsk` as "deny
+if not pre-approved"). So the grant's query binding and its one-search budget
+were enforced only by the prompt: the model could have searched any text
+(including about a person), set `allowed_domains`/`blocked_domains`, and made
+several searches per planned query (four turns, parallel tool calls —
+WebSearch is concurrency-safe).
+
+The repair (`claudeMaxWebSearchProvider.ts`, `agentQuery.ts`):
+
+- `allowedTools` is **empty** and `permissionMode` is **`default`**: WebSearch's
+  own permission check answers "ask" (static reading of the bundled
+  executable), so `canUseTool` is consulted for it. `tools` still offers
+  WebSearch only.
+- ONE `WebSearchGate` per provider call is consulted from **both** a
+  PreToolUse hook (registered by `agentQuery.ts`, no matcher, so every tool
+  use) and `canUseTool` (which now receives the SDK's `toolUseID`). It allows a
+  WebSearch only when its input is exactly `{query}` — no `allowed_domains`,
+  no `blocked_domains`, no other field — with `query` equal to the planned
+  text byte for byte, and only ONCE per call (keyed by tool-use id, so the hook
+  and `canUseTool` checking the same use agree; a second sequential or
+  parallel search is denied). An allowed `canUseTool` rewrites the input to
+  `{query: <planned>}`. Any other tool is denied; the SDK's structured-output
+  carrier (`StructuredOutput`, which performs no search) passes untouched.
+- The gate is then checked against the **stream**: `agentQuery.ts` now maps
+  every tool-use block of an assistant message (kind, id, name, input — held
+  in memory, compared, dropped; never logged or stored). More than one
+  WebSearch, a mismatched query, a domain override, a WebSearch the gate never
+  approved, an approved search the stream never showed, or results returned
+  without the one approved search fail the call closed with the new closed
+  outcome **`SEARCH_BINDING_REFUSED`** (`PROVIDER_SEARCH_BINDING_REFUSED`);
+  a server-side or MCP tool use, or any other tool, fails it `TOOL_REFUSED`.
+  Either way nothing from that call is kept: zero nominations.
+- Migration 0025 widens `source_discovery_query_calls`' outcome CHECK and the
+  completion `FAILED` reasons by exactly `SEARCH_BINDING_REFUSED` (supersets;
+  no row rewritten).
+- Each call's result reports `searchGate: {hookInvoked, permissionInvoked}`
+  (the CLI prints it), so the D8 smoke shows WHICH SDK surface consulted the
+  gate.
+
+**UNKNOWN until the live D8 smoke.** Everything above about which surface the
+SDK consults is read from the installed SDK's types and its bundled
+executable's code, not observed live (no live call is authorised in this
+build). **The live D8 smoke must confirm the PreToolUse hook is invoked for
+the WebSearch (`searchGate.hookInvoked = true`) before anything relies on
+it.** The stream check fails closed if neither surface approved a search the
+stream shows, so a wrong reading fails the smoke rather than leaking a search.
+
+**P2-4 — grant expiry mid-run was checked against the process clock only.**
+A query-call row was written AFTER its provider call. Migration 0025 adds
+`source_discovery_query_call_starts`: before each provider call `grantedRun.ts`
+commits ONE start row — the database's permission for exactly that search —
+whose trigger refuses it unless `issued_at <= clock_timestamp() < expires_at`
+for the run's grant (and the run is granted and not complete, the previous
+call has its terminal row, `call_seq` is next within `max_queries`, the model
+is the grant's, `smoke` is derived). The existing query-call row is now the
+call's TERMINAL row and must match its start (append-only: a start row plus a
+terminal row, never an UPDATE). A refused start ABORTS the run
+`GRANT_EXPIRED` before the search. The completion's `queries_attempted` counts
+the permitted starts, and a start without its terminal row is accepted only
+on a `FAILED`/`INTERNAL_ERROR` completion.
+
+**P2-5 — the D8 smoke did not gate.** Migration 0025 adds the OWNER-path
+`source_discovery_smoke_verifications` (INSERT: the migration owner only;
+`nwf_source_discovery` SELECT only; append-only). A verification names one
+recorded smoke call (FK to `source_discovery_query_calls (run_id, call_seq)`,
+`call_seq = 1`) whose outcome was `RESULTS`, and its SDK version and model
+(both checked equal to the call's). A start row for any call that is NOT the
+smoke is refused unless a verification exists for the same SDK version and
+model. So, until the OWNER verifies: a grant's first run stops after its
+smoke call (`ABORTED`, `SMOKE_UNVERIFIED`), and a later run of the grant is
+refused before it starts (`GrantedRunRefusal` `SMOKE_UNVERIFIED`, no rows). A
+new SDK version or model needs its own smoke and verification.
+
+**The OWNER step** (after reading the smoke run's output — `searchGate` must
+show `hookInvoked = true`, the outcome `RESULTS`, and the nominations must
+look like search results for the planned query):
+
+```sql
+-- As the migration owner, naming the smoke run's id (call_seq 1):
+INSERT INTO source_discovery_smoke_verifications
+  (run_id, call_seq, sdk_version, model_id, actor_key)
+SELECT run_id, call_seq, sdk_version, model_id, 'owner-cli'
+  FROM source_discovery_query_calls
+ WHERE run_id = '<smoke run id>' AND call_seq = 1 AND smoke AND outcome = 'RESULTS';
+```
+
+A grant with `max_runs = 1` that ran only its smoke is then spent; the OWNER
+issues the campaign grant next (or issued it with `max_runs >= 2`).
+
+**P2-2 — no 0022 trigger function pinned its search_path.** Migration 0025
+`CREATE OR REPLACE`s all six 0022 functions (`source_discovery_verify_grant`,
+`_verify_grant_use`, `_verify_query_call`, `_verify_run_completion`,
+`_verify_known_mark`, `_require_grant_use`) with
+`SET search_path = public, pg_catalog, pg_temp` (pg_temp last) and every
+relation and `%ROWTYPE` schema-qualified (`public.`); the two new functions do
+the same. Meaning is unchanged except `_verify_query_call` (requires its
+start) and `_verify_run_completion` (counts starts).
+
+**Governance correction — migration 0022's header.** Its header says "no edit
+of an existing table's columns, constraints or grants". That is inaccurate:
+0022 also creates the unique index `source_discovery_briefs_id_digest_uidx`
+on the existing `source_discovery_briefs` (the composite target of the grant
+FK) and the deferred constraint trigger
+`source_discovery_runs_live_requires_grant` on the existing
+`source_discovery_runs` (its own section F). Neither changes a column, CHECK
+or grant, but both ARE additions to existing tables' constraint surface. The
+correction is recorded here; 0022 is committed and is never edited.
+
+**Firewall (by exact path).** New: `wwSourceDiscoverySearchGate.firewall.test.ts`
+(migration 0025's narrowness and search_path pinning, the closed sets, the
+gate options, the start-before-call order). Tightened:
+`wwSourceDiscoveryLive` (`allowedTools` empty, mode `default`, the hook
+registration and `toolUseID` hand-off, the start-row INSERT, and a full
+per-file external-import allowlist for the eleven WW E-SD files),
+`relL2SourceDiscovery` (`allowedTools` empty) and `relQ1SourceDiscoverySeal`
+(the OWNER-only INSERT rule is now proven over EVERY migration's GRANT
+statements, schema-wide and default-privilege grants included, for
+`source_discovery_grants` and `source_discovery_smoke_verifications`).

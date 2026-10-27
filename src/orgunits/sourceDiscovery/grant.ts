@@ -24,7 +24,13 @@ export const GRANT_MAX_RUNS_BOUND = 200;
 export const GRANT_MAX_WINDOW_DAYS = 14;
 export const GRANT_MAX_QUERIES_BOUND = 100;
 
-/** ADR 0027 D5's closed per-call outcome set, verbatim (migration 0022's CHECK). */
+/**
+ * ADR 0027 D5's closed per-call outcome set (migration 0022's CHECK), plus
+ * `SEARCH_BINDING_REFUSED` (migration 0025, ADR 0028 s9): the provider
+ * attempted a WebSearch other than the ONE planned query - a different text,
+ * a domain override, a second or parallel search, or a search the gate never
+ * saw - so the call failed closed and nothing it returned was kept.
+ */
 export const QUERY_CALL_OUTCOMES = [
   'RESULTS',
   'PROVIDER_RESULT_ERROR',
@@ -33,6 +39,7 @@ export const QUERY_CALL_OUTCOMES = [
   'USAGE_LIMIT_EXHAUSTED',
   'AUTH_FAILURE',
   'TOOL_REFUSED',
+  'SEARCH_BINDING_REFUSED',
 ] as const;
 export type QueryCallOutcome = (typeof QUERY_CALL_OUTCOMES)[number];
 
@@ -46,9 +53,19 @@ export const RUN_FAILURE_REASONS = [
   'PROVIDER_RESULT_MISSING',
   'AUTH_FAILURE',
   'TOOL_REFUSED',
+  'SEARCH_BINDING_REFUSED',
   'INTERNAL_ERROR',
 ] as const;
-export const RUN_ABORT_REASONS = ['USAGE_LIMIT_EXHAUSTED', 'GRANT_EXPIRED'] as const;
+/**
+ * `SMOKE_UNVERIFIED` (migration 0025, ADR 0028 s9): the run stopped after
+ * its D8 smoke call because no OWNER-path smoke verification exists for the
+ * call's SDK version and model.
+ */
+export const RUN_ABORT_REASONS = [
+  'USAGE_LIMIT_EXHAUSTED',
+  'GRANT_EXPIRED',
+  'SMOKE_UNVERIFIED',
+] as const;
 export type RunCompletionReason =
   (typeof RUN_FAILURE_REASONS)[number] | (typeof RUN_ABORT_REASONS)[number];
 

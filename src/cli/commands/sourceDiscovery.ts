@@ -262,7 +262,15 @@ export async function runSourceDiscoveryCli(
                 `(grant ${run.grantId} slot ${run.runSeq}, ${run.geography}, ${run.modelId})\n`,
             );
             for (const c of run.calls) {
-              out(`  ${c.callSeq}\t${c.queryId}\t${c.outcome}\t${c.resultCount ?? '-'}\n`);
+              // The D8 smoke's gate observation is what an OWNER reads before verifying it.
+              const gate =
+                c.searchGate === null
+                  ? ''
+                  : `\thook=${c.searchGate.hookInvoked} canUseTool=${c.searchGate.permissionInvoked}`;
+              out(
+                `  ${c.callSeq}\t${c.queryId}\t${c.outcome}\t${c.resultCount ?? '-'}` +
+                  `${c.smoke ? '\tsmoke' : ''}${gate}\n`,
+              );
             }
             out(
               `${run.inserted} nomination(s) inserted, ${run.duplicates} duplicate(s), ` +

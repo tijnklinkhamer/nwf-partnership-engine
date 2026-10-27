@@ -4,8 +4,8 @@
  * WHAT IT WOULD DO. Ask the Agent SDK, on the owner's Claude Max subscription
  * (ADR 0009/0010), to run ONE brief query with the `WebSearch` tool and return
  * a bounded, schema-validated list of `{url, title, snippet}`. Nothing else:
- * `WebSearch` is the ONLY tool offered, allowed or permitted - no `WebFetch`,
- * no `Bash`, no `Read`, no file or MCP tool - and `canUseTool` denies any other
+ * `WebSearch` is the ONLY tool offered or permitted - no `WebFetch`, no
+ * `Bash`, no `Read`, no file or MCP tool - and the gate below denies any other
  * name even if one were somehow offered. Search results are nominations, never
  * pages: nothing the adapter returns is fetched by anything.
  *
@@ -20,17 +20,36 @@
  * conflicting-auth and auth-status guards - supplies it, and only
  * `grantedRun.ts` constructs this adapter.
  *
- * FAIL CLOSED. Any tool request other than `WebSearch` is denied AND fails the
- * query (`PROVIDER_TOOL_REFUSED`), even if the stream then returns results.
- * A usage-limit or authentication failure the SDK seam recognised is its own
- * code; the adapter itself reads no free text.
+ * THE QUERY BINDING IS ENFORCED, NOT PROMPTED (WW E-SDFX, ADR 0028 s9).
+ * WebSearch is offered but NEVER pre-approved: `allowedTools` is empty,
+ * because the SDK auto-allows a tool named there without consulting
+ * `canUseTool`, and the permission mode is `default`, because under
+ * `dontAsk` an "ask" is denied without consulting it either. Every tool use
+ * passes ONE per-call `WebSearchGate`, consulted from BOTH the PreToolUse
+ * hook and `canUseTool`: a WebSearch is allowed only when its input is
+ * exactly `{query: <the planned text>}` - no domain override, no other field
+ * - and only once per provider call. The gate is then checked against the
+ * stream itself: every tool-use block the SDK reported is counted, and more
+ * than one WebSearch, a mismatched query, a domain override, or a WebSearch
+ * the gate never approved fails the call `PROVIDER_SEARCH_BINDING_REFUSED`.
+ *
+ * FAIL CLOSED. Any tool request other than `WebSearch` (and the SDK's own
+ * structured-output carrier) is denied AND fails the query
+ * (`PROVIDER_TOOL_REFUSED`); any binding violation fails it
+ * `PROVIDER_SEARCH_BINDING_REFUSED`; both hold even if the stream then
+ * returns results, and results returned without the one approved search are
+ * refused too. A usage-limit or authentication failure the SDK seam
+ * recognised is its own code; the adapter itself reads no free text.
  *
  * KEPT SEPARATE FROM THE CLASSIFIER. It reuses nothing from `classify/`: its
  * options, prompt, output schema and result handling are its own.
  *
- * OPEN (UNKNOWN, not tested live): how the SDK's structured-output mechanism
- * interacts with a `canUseTool` that admits `WebSearch` only. A live phase
- * must verify it before any real call.
+ * OPEN (UNKNOWN, not tested live): whether the live SDK invokes the
+ * PreToolUse hook and/or `canUseTool` for WebSearch under these options, and
+ * how structured output behaves under the gate. The reading above comes from
+ * the bundled executable's code, not a live call; the D8 smoke must confirm
+ * the hook is invoked (the run result reports `searchGate`) before an OWNER
+ * records a smoke verification (migration 0025) and anything relies on it.
  */
 import { z } from 'zod';
 
@@ -71,26 +90,79 @@ export const REFUSED_TOOLS: readonly string[] = Object.freeze([
 
 export const WEB_SEARCH_MAX_TURNS = 4;
 
+/**
+ * The SDK's own structured-output carrier (the `outputFormat` json_schema
+ * mechanism ends the turn with a tool use of this name). It performs no
+ * search and reaches no network; the gate passes it through untouched and
+ * the stream check does not count it as a search. Static reading of the
+ * bundled 0.3.251 executable, not a live observation (ADR 0028 s9).
+ */
+export const STRUCTURED_OUTPUT_CARRIER = 'StructuredOutput';
+
+/** The SDK's WebSearch input fields that would widen or narrow the search: never permitted. */
+export const WEB_SEARCH_DOMAIN_OVERRIDES: readonly string[] = Object.freeze([
+  'allowed_domains',
+  'blocked_domains',
+]);
+
 export type ToolPermission =
   | { readonly behavior: 'allow'; readonly updatedInput: Record<string, unknown> }
   | { readonly behavior: 'deny'; readonly message: string; readonly interrupt?: boolean };
 
+/** The PreToolUse hook's closed verdict. `pass` takes no decision: the permission flow continues. */
+export type PreToolUseVerdict =
+  { readonly decision: 'pass' } | { readonly decision: 'deny'; readonly reason: string };
+
+/** One PreToolUse hook input, reduced to the three fields the gate reads. */
+export interface PreToolUseCheck {
+  readonly toolName: string;
+  readonly toolInput: unknown;
+  readonly toolUseId: string;
+}
+
 /** The exact option object this adapter hands the SDK. Hermetic and closed. */
 export interface WebSearchAgentOptions {
   readonly tools: readonly string[];
+  /**
+   * EMPTY. A tool named here is auto-allowed WITHOUT consulting `canUseTool`
+   * (sdk.d.ts `allowedTools`), so naming WebSearch here would leave the
+   * query binding to the prompt alone.
+   */
   readonly allowedTools: readonly string[];
   readonly disallowedTools: readonly string[];
   readonly canUseTool: (
     toolName: string,
     input: Record<string, unknown>,
+    toolUseId: string,
   ) => Promise<ToolPermission>;
-  readonly permissionMode: 'dontAsk';
+  /** Registered as the session's ONE PreToolUse hook (no matcher: every tool use). */
+  readonly preToolUse: (check: PreToolUseCheck) => Promise<PreToolUseVerdict>;
+  /**
+   * `default`, NOT `dontAsk`: under `dontAsk` an "ask" is denied without
+   * consulting `canUseTool`, and WebSearch's own permission check answers
+   * "ask" - so `default` is the mode in which `canUseTool` is actually
+   * invoked for it (static reading of the bundled executable; the live D8
+   * smoke must confirm it).
+   */
+  readonly permissionMode: 'default';
   readonly settingSources: readonly string[];
   readonly mcpServers: Readonly<Record<string, never>>;
   readonly strictMcpConfig: true;
   readonly persistSession: false;
   readonly maxTurns: number;
   readonly outputFormat: { readonly type: 'json_schema'; readonly schema: Record<string, unknown> };
+}
+
+/**
+ * One tool-use block the SDK seam saw in an assistant message. Held IN
+ * MEMORY for the duration of one call, compared against the gate, and
+ * dropped: never logged, never stored, never returned.
+ */
+export interface AgentToolUse {
+  readonly kind: 'tool_use' | 'server_tool_use' | 'mcp_tool_use';
+  readonly id: string;
+  readonly name: string;
+  readonly input: unknown;
 }
 
 /** The subset of an SDK message this adapter reads. Everything else is ignored, never logged. */
@@ -105,6 +177,8 @@ export interface AgentMessage {
    * authentication marker. A closed value; never free text.
    */
   readonly failure?: 'USAGE_LIMIT_EXHAUSTED' | 'AUTH_FAILURE';
+  /** On an assistant message: every tool-use block it carried. */
+  readonly toolUses?: readonly AgentToolUse[];
 }
 
 /** The shape of the SDK's `query` entry point, as injected. Tests pass a fake. */
@@ -112,6 +186,134 @@ export type AgentQueryFn = (args: {
   readonly prompt: string;
   readonly options: WebSearchAgentOptions;
 }) => AsyncIterable<AgentMessage>;
+
+/**
+ * THE WEBSEARCH GATE FOR ONE PROVIDER CALL (ADR 0028 s9). Consulted by BOTH
+ * the PreToolUse hook and `canUseTool`, so the binding holds if either SDK
+ * surface is invoked. It allows a WebSearch ONLY when:
+ *
+ *   - its input is exactly `{query}` - no `allowed_domains`, no
+ *     `blocked_domains`, no other field - and `query` equals the planned
+ *     query text byte for byte; and
+ *   - it is the FIRST WebSearch tool use of the call (keyed by tool-use id,
+ *     so the hook and `canUseTool` checking the same use agree): a second,
+ *     sequential or parallel, is denied.
+ *
+ * Any other tool is denied (the structured-output carrier passes untouched).
+ * Every denial is REMEMBERED, and the call fails closed on it even if the
+ * stream then returns results.
+ */
+export class WebSearchGate {
+  readonly #plannedQuery: string;
+  #approvedToolUseId: string | null = null;
+  #hookInvoked = false;
+  #permissionInvoked = false;
+  readonly #refusedTools: string[] = [];
+  readonly #bindingViolations: string[] = [];
+
+  constructor(plannedQuery: string) {
+    this.#plannedQuery = plannedQuery;
+  }
+
+  get plannedQuery(): string {
+    return this.#plannedQuery;
+  }
+
+  get approvedToolUseId(): string | null {
+    return this.#approvedToolUseId;
+  }
+
+  get refusedTools(): readonly string[] {
+    return [...new Set(this.#refusedTools)].sort();
+  }
+
+  get bindingViolations(): readonly string[] {
+    return [...new Set(this.#bindingViolations)].sort();
+  }
+
+  get observation(): { readonly hookInvoked: boolean; readonly permissionInvoked: boolean } {
+    return { hookInvoked: this.#hookInvoked, permissionInvoked: this.#permissionInvoked };
+  }
+
+  /** Why `input` is not exactly the planned search, or null when it is. */
+  bindingProblem(input: unknown): string | null {
+    if (typeof input !== 'object' || input === null || Array.isArray(input)) {
+      return 'WebSearch input is not an object';
+    }
+    const keys = Object.keys(input);
+    if (keys.some((k) => WEB_SEARCH_DOMAIN_OVERRIDES.includes(k))) {
+      return 'WebSearch input carries a domain override';
+    }
+    if (keys.length !== 1 || keys[0] !== 'query') {
+      return 'WebSearch input carries a field other than query';
+    }
+    if ((input as { query: unknown }).query !== this.#plannedQuery) {
+      return 'WebSearch query differs from the planned query';
+    }
+    return null;
+  }
+
+  /** One check, from either SDK surface. */
+  check(
+    toolName: string,
+    input: unknown,
+    toolUseId: string,
+    via: 'hook' | 'permission',
+  ): { readonly allow: true } | { readonly allow: false; readonly reason: string } | 'carrier' {
+    if (toolName === STRUCTURED_OUTPUT_CARRIER) return 'carrier';
+    if (toolName !== WEB_SEARCH_TOOL) {
+      this.#refusedTools.push(toolName);
+      return { allow: false, reason: `source discovery permits ${WEB_SEARCH_TOOL} only` };
+    }
+    const deny = (reason: string) => {
+      this.#bindingViolations.push(reason);
+      return { allow: false as const, reason };
+    };
+    if (typeof toolUseId !== 'string' || toolUseId.length === 0) {
+      return deny('WebSearch tool use carries no id');
+    }
+    const problem = this.bindingProblem(input);
+    if (problem !== null) return deny(problem);
+    if (this.#approvedToolUseId === null) {
+      this.#approvedToolUseId = toolUseId;
+    } else if (this.#approvedToolUseId !== toolUseId) {
+      return deny('a second WebSearch in one provider call');
+    }
+    if (via === 'hook') this.#hookInvoked = true;
+    else this.#permissionInvoked = true;
+    return { allow: true };
+  }
+
+  /**
+   * The stream check, after the terminal result: every tool use the SDK
+   * reported must be the structured-output carrier or the ONE approved
+   * WebSearch, carrying exactly the planned input. A WebSearch the gate
+   * never approved - more than one, a different query, a domain override,
+   * or one no gate surface was consulted for - is a binding violation.
+   */
+  observeStream(toolUses: readonly AgentToolUse[]): void {
+    const searches = new Map<string, unknown>();
+    for (const use of toolUses) {
+      if (use.kind === 'tool_use' && use.name === STRUCTURED_OUTPUT_CARRIER) continue;
+      if (use.kind !== 'tool_use' || use.name !== WEB_SEARCH_TOOL) {
+        this.#refusedTools.push(use.name);
+        continue;
+      }
+      searches.set(use.id, use.input);
+    }
+    if (searches.size > 1) this.#bindingViolations.push('more than one WebSearch in the stream');
+    for (const [id, input] of searches) {
+      const problem = this.bindingProblem(input);
+      if (problem !== null) this.#bindingViolations.push(problem);
+      if (id !== this.#approvedToolUseId) {
+        this.#bindingViolations.push('a WebSearch in the stream the gate never approved');
+      }
+    }
+    if (this.#approvedToolUseId !== null && !searches.has(this.#approvedToolUseId)) {
+      this.#bindingViolations.push('the approved WebSearch never appeared in the stream');
+    }
+  }
+}
 
 const OUTPUT_JSON_SCHEMA: Record<string, unknown> = Object.freeze({
   type: 'object',
@@ -151,22 +353,32 @@ const OutputSchema = z
   })
   .strict();
 
-async function onlyWebSearch(
-  toolName: string,
-  input: Record<string, unknown>,
-): Promise<ToolPermission> {
-  if (toolName === WEB_SEARCH_TOOL) return { behavior: 'allow', updatedInput: input };
-  return { behavior: 'deny', message: `source discovery permits ${WEB_SEARCH_TOOL} only` };
-}
-
-/** Builds this adapter's own options. Nothing here comes from `classify/`. */
-export function buildWebSearchAgentOptions(): WebSearchAgentOptions {
+/**
+ * Builds this adapter's own options around ONE call's gate. Nothing here
+ * comes from `classify/`. WebSearch is OFFERED (`tools`) but never
+ * pre-approved (`allowedTools` is empty): every use passes the gate.
+ */
+export function buildWebSearchAgentOptions(gate: WebSearchGate): WebSearchAgentOptions {
   return Object.freeze({
     tools: Object.freeze([WEB_SEARCH_TOOL]),
-    allowedTools: Object.freeze([WEB_SEARCH_TOOL]),
+    allowedTools: Object.freeze([]),
     disallowedTools: REFUSED_TOOLS,
-    canUseTool: onlyWebSearch,
-    permissionMode: 'dontAsk' as const,
+    canUseTool: async (
+      toolName: string,
+      input: Record<string, unknown>,
+      toolUseId: string,
+    ): Promise<ToolPermission> => {
+      const verdict = gate.check(toolName, input, toolUseId, 'permission');
+      if (verdict === 'carrier') return { behavior: 'allow', updatedInput: input };
+      if (verdict.allow) return { behavior: 'allow', updatedInput: { query: gate.plannedQuery } };
+      return { behavior: 'deny', message: verdict.reason, interrupt: true };
+    },
+    preToolUse: async (check: PreToolUseCheck): Promise<PreToolUseVerdict> => {
+      const verdict = gate.check(check.toolName, check.toolInput, check.toolUseId, 'hook');
+      if (verdict === 'carrier' || verdict.allow) return { decision: 'pass' };
+      return { decision: 'deny', reason: verdict.reason };
+    },
+    permissionMode: 'default' as const,
     settingSources: Object.freeze([]),
     mcpServers: Object.freeze({}),
     strictMcpConfig: true as const,
@@ -218,33 +430,31 @@ export class ClaudeMaxWebSearchProvider implements SearchProvider {
         `query ${request.query.queryId} (${request.geography}) is outside the stored grant.`,
       );
     }
-    const base = buildWebSearchAgentOptions();
-    const refusedTools: string[] = [];
-    const options: WebSearchAgentOptions = {
-      ...base,
-      // Same allow/deny as the base options; a denial is also REMEMBERED, so a
-      // query that attempted any other tool fails closed below.
-      canUseTool: async (toolName, input) => {
-        const decision = await base.canUseTool(toolName, input);
-        if (decision.behavior === 'allow') return decision;
-        refusedTools.push(toolName);
-        return { ...decision, interrupt: true };
-      },
-    };
+    const gate = new WebSearchGate(request.query.text);
+    const options = buildWebSearchAgentOptions(gate);
+    const toolUses: AgentToolUse[] = [];
     let terminal: AgentMessage | null = null;
     for await (const message of this.#deps.query({
       prompt: buildWebSearchPrompt(request),
       options,
     })) {
+      if (message.toolUses !== undefined) toolUses.push(...message.toolUses);
       if (message.type === 'result') {
         terminal = message;
         break; // terminal means terminal: never pull past the result
       }
     }
-    if (refusedTools.length > 0) {
+    gate.observeStream(toolUses);
+    if (gate.refusedTools.length > 0) {
       throw new SearchProviderError(
         'PROVIDER_TOOL_REFUSED',
-        `the provider requested a refused tool (${[...new Set(refusedTools)].sort().join(', ')}).`,
+        `the provider requested a refused tool (${gate.refusedTools.join(', ')}).`,
+      );
+    }
+    if (gate.bindingViolations.length > 0) {
+      throw new SearchProviderError(
+        'PROVIDER_SEARCH_BINDING_REFUSED',
+        `the provider's search was not the one planned query (${gate.bindingViolations.join('; ')}).`,
       );
     }
     if (terminal === null) {
@@ -278,6 +488,16 @@ export class ClaudeMaxWebSearchProvider implements SearchProvider {
         'structured output failed its schema.',
       );
     }
-    return { results: parsed.data.results, retrievedAt: this.#deps.now().toISOString() };
+    if (parsed.data.results.length > 0 && gate.approvedToolUseId === null) {
+      throw new SearchProviderError(
+        'PROVIDER_SEARCH_BINDING_REFUSED',
+        'results were returned without the one planned WebSearch.',
+      );
+    }
+    return {
+      results: parsed.data.results,
+      retrievedAt: this.#deps.now().toISOString(),
+      searchGate: gate.observation,
+    };
   }
 }

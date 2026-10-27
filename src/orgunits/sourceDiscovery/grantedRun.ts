@@ -5,19 +5,27 @@
  *   derive the capability from the stored grant (fromStoredGrant) -> run the
  *   ADR 0010 guards (prepareLiveSearch) -> ONE run-start transaction: the run
  *   row and its grant-use row, before the first query -> for each of the
- *   grant's queries, SEQUENTIALLY: one provider call, then ONE transaction
- *   holding its query-call row and its nominations -> the terminal completion
- *   row, always.
+ *   grant's queries, SEQUENTIALLY: ONE committed query-call START row (the
+ *   database's permission for that search, migration 0025), then one
+ *   provider call, then ONE transaction holding its terminal query-call row
+ *   and its nominations -> the terminal completion row, always.
  *
  * NO RETRY, NO FALLBACK. The first provider failure ends the run: a usage
  * limit ABORTS it, anything else FAILS it, and the outcome is recorded both on
  * that call and on the completion. The grant's validity window is re-checked
- * before every query; a run whose grant expires mid-way is ABORTED.
+ * before every query against the injected clock AND - authoritatively - by
+ * the database on its own clock when the call's start row is inserted; a run
+ * whose grant expires mid-way is ABORTED before the next search is made.
  *
- * D8 SMOKE. The first call of a grant's first run is recorded `smoke = true`
- * (the database derives and checks it). It is the same call any query makes:
- * if structured output fails under the WebSearch-only `canUseTool`, the run
- * fails closed on PROVIDER_OUTPUT_INVALID and nothing is salvaged from prose.
+ * D8 SMOKE, NOW A GATE (migration 0025, ADR 0028 s9). The first call of a
+ * grant's first run is recorded `smoke = true` (the database derives and
+ * checks it). If its structured output fails under the WebSearch gate, the
+ * run fails closed on PROVIDER_OUTPUT_INVALID and nothing is salvaged from
+ * prose. Any call that is NOT the smoke needs an OWNER-path smoke
+ * verification for the same SDK version and model: without one, the grant's
+ * first run stops after its smoke call (ABORTED, SMOKE_UNVERIFIED) and a
+ * later run of the grant is refused before it starts (SMOKE_UNVERIFIED, no
+ * rows). The database refuses the start row either way.
  *
  * WHAT A RUN NEVER DOES. It never fetches, classifies, promotes, contacts or
  * orders a nominated URL. A large higher-education result is TAGGED (the
@@ -43,13 +51,19 @@ import {
 import {
   insertKnownMark,
   insertQueryCall,
+  insertQueryCallStart,
   insertRunCompletion,
+  smokeVerificationExists,
   sqlstateOf,
   startGrantedRun,
 } from './grantStore.js';
 import type { HeiSignalReason } from './heiSignal.js';
 import { prepareNomination, type NominationRefusalReason } from './nomination.js';
-import { SearchProviderError, type SearchResponse } from './provider.js';
+import {
+  SearchProviderError,
+  type SearchGateObservation,
+  type SearchResponse,
+} from './provider.js';
 import { inSourceDiscoveryTransaction, insertNomination } from './store.js';
 
 /** An opaque path key, migration 0019's actor-key shape. */
@@ -66,7 +80,11 @@ export interface GrantedRunDeps extends LiveSearchDeps {
 }
 
 export type GrantedRunRefusalCode =
-  GrantRefusalCode | 'ACTOR_KEY_INVALID' | 'LIVE_SEARCH_PREFLIGHT_REFUSED';
+  | GrantRefusalCode
+  | 'ACTOR_KEY_INVALID'
+  | 'LIVE_SEARCH_PREFLIGHT_REFUSED'
+  /** A later run of a grant, with no OWNER smoke verification for this SDK version and model. */
+  | 'SMOKE_UNVERIFIED';
 
 /** The run did not start: no run row, no grant use, no query. */
 export class GrantedRunRefusal extends Error {
@@ -90,6 +108,12 @@ export interface GrantedQueryCall {
   readonly inserted: number;
   readonly duplicates: number;
   readonly refused: number;
+  /**
+   * Which SDK surfaces consulted the WebSearch gate for this call's one
+   * search (ADR 0028 s9); null when the call ended without results. The D8
+   * smoke's value is what an OWNER reads before recording a verification.
+   */
+  readonly searchGate: SearchGateObservation | null;
 }
 
 /** One nomination this run inserted. Tags only: nothing here orders or values it. */
@@ -149,6 +173,7 @@ const OUTCOME_OF: Readonly<Record<SearchProviderError['code'], QueryCallOutcome 
   PROVIDER_RESULT_ERROR: 'PROVIDER_RESULT_ERROR',
   PROVIDER_OUTPUT_INVALID: 'PROVIDER_OUTPUT_INVALID',
   PROVIDER_TOOL_REFUSED: 'TOOL_REFUSED',
+  PROVIDER_SEARCH_BINDING_REFUSED: 'SEARCH_BINDING_REFUSED',
   PROVIDER_USAGE_LIMIT_EXHAUSTED: 'USAGE_LIMIT_EXHAUSTED',
   PROVIDER_AUTH_FAILURE: 'AUTH_FAILURE',
 };
@@ -228,6 +253,16 @@ export async function runGrantedSourceDiscovery(
   }
   const runtime = preparation.runtime;
   try {
+    const smokeVerified = await inSourceDiscoveryTransaction(pool, (c) =>
+      smokeVerificationExists(c, runtime.sdkVersion, grant.modelId),
+    );
+    if (!smokeVerified && grant.runsUsed > 0) {
+      throw new GrantedRunRefusal(
+        'SMOKE_UNVERIFIED',
+        `grant ${grant.grantId} has run before, and no OWNER smoke verification exists for ` +
+          `SDK ${runtime.sdkVersion} and model ${grant.modelId}.`,
+      );
+    }
     const { runId, runSeq } = await startRun(pool, grant, input.actorKey);
     const provider = new ClaudeMaxWebSearchProvider(authorisation, {
       query: runtime.query,
@@ -240,6 +275,8 @@ export async function runGrantedSourceDiscovery(
     let outcome: RunCompletionOutcome = 'COMPLETED';
     let reason: RunCompletionReason | null = null;
     let internal: unknown = null;
+    /** Calls the database permitted (start rows): what the completion counts. */
+    let attempted = 0;
 
     const result = (): GrantedRunResult => ({
       grantId: grant.grantId,
@@ -270,6 +307,39 @@ export async function runGrantedSourceDiscovery(
       }
       const callSeq = index + 1;
       const smoke = runSeq === 1 && callSeq === 1;
+      if (!smoke && !smokeVerified) {
+        outcome = 'ABORTED';
+        reason = 'SMOKE_UNVERIFIED';
+        break;
+      }
+      // The database's permission for THIS search, committed before it is made.
+      try {
+        await inSourceDiscoveryTransaction(pool, (c) =>
+          insertQueryCallStart(c, {
+            runId,
+            callSeq,
+            queryId: query.queryId,
+            modelId: grant.modelId,
+            sdkVersion: runtime.sdkVersion,
+            smoke,
+          }),
+        );
+      } catch (error) {
+        const message = error instanceof Error ? error.message : '';
+        if (sqlstateOf(error) === '23514' && message.includes('validity window')) {
+          outcome = 'ABORTED';
+          reason = 'GRANT_EXPIRED';
+        } else if (sqlstateOf(error) === '23514' && message.includes('smoke verification')) {
+          outcome = 'ABORTED';
+          reason = 'SMOKE_UNVERIFIED';
+        } else {
+          outcome = 'FAILED';
+          reason = 'INTERNAL_ERROR';
+          internal = error;
+        }
+        break;
+      }
+      attempted += 1;
       const startedAt = deps.clock.now();
       let response: SearchResponse | null = null;
       let callOutcome: QueryCallOutcome = 'RESULTS';
@@ -361,6 +431,7 @@ export async function runGrantedSourceDiscovery(
               inserted,
               duplicates,
               refused: refusedReasons.length,
+              searchGate: response?.searchGate ?? null,
             },
             added,
             refusedReasons,
@@ -391,7 +462,7 @@ export async function runGrantedSourceDiscovery(
           runId,
           outcome: summary.outcome,
           reason: summary.reason,
-          queriesAttempted: summary.calls.length,
+          queriesAttempted: attempted,
           inserted: summary.inserted,
           duplicated: summary.duplicates,
           refused: summary.refused,

@@ -294,6 +294,10 @@ describeDb('Phase 2B schema contract (integration)', () => {
         // 0030, Proposed - a CAMPAIGN admission basis, four append-only wiring
         // tables, claim reservations, pinned search paths; no role, no LOGIN).
         '0024',
+        // WW E-SDFX (security-review repair, ADR 0028 s9 - two append-only
+        // tables, the 0022 trigger functions replaced with a pinned
+        // search_path, two 0022 CHECKs widened by superset; no role, no LOGIN).
+        '0025',
       ]);
     });
 

@@ -25,6 +25,7 @@ import { SourceDiscoveryAuthorisation } from '../../orgunits/sourceDiscovery/aut
 import {
   ClaudeMaxWebSearchProvider,
   REFUSED_TOOLS,
+  WebSearchGate,
   buildWebSearchAgentOptions,
   buildWebSearchPrompt,
   type AgentMessage,
@@ -263,6 +264,11 @@ describe('REL L2 Claude Max adapter: WebSearch only, against a FAKE SDK query', 
   };
   const NOW = new Date('2026-10-20T08:00:00.000Z');
 
+  /**
+   * A fake SDK `query`. An assistant message carrying tool uses is followed,
+   * as the SDK does, by the PreToolUse hook and then `canUseTool` for each
+   * (WW E-SDFX: WebSearch is never pre-approved, so both are consulted).
+   */
   function fakeQuery(
     messages: AgentMessage[],
     seen: { options?: WebSearchAgentOptions; prompt?: string },
@@ -271,12 +277,32 @@ describe('REL L2 Claude Max adapter: WebSearch only, against a FAKE SDK query', 
       seen.options = args.options;
       seen.prompt = args.prompt;
       return (async function* () {
-        for (const m of messages) yield m;
+        for (const m of messages) {
+          yield m;
+          for (const use of m.toolUses ?? []) {
+            const hook = await args.options.preToolUse({
+              toolName: use.name,
+              toolInput: use.input,
+              toolUseId: use.id,
+            });
+            if (hook.decision === 'pass') {
+              await args.options.canUseTool(use.name, use.input as Record<string, unknown>, use.id);
+            }
+          }
+        }
         throw new Error('pulled past the terminal result');
       })();
     };
     return fn;
   }
+
+  /** The one planned WebSearch, as the SDK would report it. */
+  const plannedSearch: AgentMessage = {
+    type: 'assistant',
+    toolUses: [
+      { kind: 'tool_use', id: 'toolu_1', name: 'WebSearch', input: { query: request.query.text } },
+    ],
+  };
 
   const provider = (query: AgentQueryFn) =>
     new ClaudeMaxWebSearchProvider(SourceDiscoveryAuthorisation.sealedForVitest('unit'), {
@@ -284,16 +310,18 @@ describe('REL L2 Claude Max adapter: WebSearch only, against a FAKE SDK query', 
       now: () => NOW,
     });
 
-  it('offers, allows and permits WebSearch and nothing else', async () => {
-    const options = buildWebSearchAgentOptions();
+  it('offers WebSearch only, pre-approves nothing, and permits only the planned query', async () => {
+    const options = buildWebSearchAgentOptions(new WebSearchGate('x'));
     expect([...options.tools]).toEqual(['WebSearch']);
-    expect([...options.allowedTools]).toEqual(['WebSearch']);
+    // WW E-SDFX: an allowedTools entry is auto-allowed without canUseTool.
+    expect([...options.allowedTools]).toEqual([]);
+    expect(options.permissionMode).toBe('default');
     for (const t of ['WebFetch', 'Bash', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'Task']) {
       expect(REFUSED_TOOLS, t).toContain(t);
-      expect((await options.canUseTool(t, {})).behavior, t).toBe('deny');
+      expect((await options.canUseTool(t, {}, `id-${t}`)).behavior, t).toBe('deny');
     }
     expect(REFUSED_TOOLS).not.toContain('WebSearch');
-    expect((await options.canUseTool('WebSearch', { query: 'x' })).behavior).toBe('allow');
+    expect((await options.canUseTool('WebSearch', { query: 'x' }, 'ws-1')).behavior).toBe('allow');
     expect(options.settingSources).toEqual([]);
     expect(options.mcpServers).toEqual({});
     expect(options.persistSession).toBe(false);
@@ -308,14 +336,18 @@ describe('REL L2 Claude Max adapter: WebSearch only, against a FAKE SDK query', 
       fakeQuery(
         [
           { type: 'system', subtype: 'init' },
-          { type: 'assistant' },
+          plannedSearch,
           { type: 'result', subtype: 'success', structured_output: { results } },
         ],
         seen,
       ),
     ).search(request);
-    expect(response).toEqual({ results, retrievedAt: '2026-10-20T08:00:00.000Z' });
-    expect([...seen.options!.allowedTools]).toEqual(['WebSearch']);
+    expect(response).toEqual({
+      results,
+      retrievedAt: '2026-10-20T08:00:00.000Z',
+      searchGate: { hookInvoked: true, permissionInvoked: true },
+    });
+    expect([...seen.options!.allowedTools]).toEqual([]);
   });
 
   it('refuses a missing result, an error result and output outside the schema', async () => {

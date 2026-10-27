@@ -24,7 +24,10 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-import { buildWebSearchAgentOptions } from '../../orgunits/sourceDiscovery/claudeMaxWebSearchProvider.js';
+import {
+  WebSearchGate,
+  buildWebSearchAgentOptions,
+} from '../../orgunits/sourceDiscovery/claudeMaxWebSearchProvider.js';
 
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 
@@ -486,11 +489,13 @@ describe('REL L2: the namespace is narrow, socket-free and sealed', () => {
     expect(adapter).toMatch(
       /constructor\(authorisation: SourceDiscoveryAuthorisation, deps: ClaudeMaxWebSearchDeps\) \{\s*if \(!SourceDiscoveryAuthorisation\.isAuthorisation\(authorisation\)\) \{/,
     );
-    const options = buildWebSearchAgentOptions();
+    const options = buildWebSearchAgentOptions(new WebSearchGate('planned'));
     expect([...options.tools]).toEqual(['WebSearch']);
-    expect([...options.allowedTools]).toEqual(['WebSearch']);
+    // WW E-SDFX (security review P1-3, ADR 0028 s9), by exact path: WebSearch is
+    // offered but never PRE-APPROVED - an allowedTools entry bypasses canUseTool.
+    expect([...options.allowedTools]).toEqual([]);
     expect(options.disallowedTools).toEqual(expect.arrayContaining(['WebFetch', 'Bash', 'Read']));
-    expect((await options.canUseTool('WebFetch', {})).behavior).toBe('deny');
+    expect((await options.canUseTool('WebFetch', {}, 'f')).behavior).toBe('deny');
     expect([...adapter.matchAll(/'(WebSearch|WebFetch|Bash|Read)'/g)].map((m) => m[1])).toEqual([
       'WebSearch',
       'WebFetch',
