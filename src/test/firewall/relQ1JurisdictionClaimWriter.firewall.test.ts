@@ -34,8 +34,8 @@ import {
 /** The REL P2 terminal re-pin (`1dbd40c`): this slice's parent. */
 const Q1_BASE_COMMIT = '1dbd40c7432ca683bcba843e37d8cde8511317de';
 
-/** Open (null) until the pin commit names this slice's own commit. */
-const Q1_TERMINAL_COMMIT: string | null = null;
+/** Pinned by the REL Q1 pin commit to this slice's own commit (closed range). */
+const Q1_TERMINAL_COMMIT: string | null = '30e21b78c3f553adbd21f412c99205c3ca35f482';
 
 const MIGRATION = 'migrations/0021_subject_jurisdiction_claim_writer.sql';
 const MODULE = 'src/orgunits/jurisdictionClaimWriter/record.ts';
