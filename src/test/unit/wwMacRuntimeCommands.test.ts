@@ -6,6 +6,7 @@
  */
 import {
   existsSync,
+  mkdirSync,
   mkdtempSync,
   readFileSync,
   realpathSync,
@@ -14,7 +15,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 import type { RuntimeClock } from '../../runtime/clock.js';
@@ -611,8 +612,25 @@ describe('status, logs and the LaunchAgent', () => {
     expect(h.text()).toContain('NOT RUNNING');
     h.out.length = 0;
     expect(await h.cli('status', '--json')).toBe(0);
-    const doc = JSON.parse(h.out.join('')) as { contract: string; campaign: { read: string } };
+    const doc = JSON.parse(h.out.join('')) as {
+      contract: string;
+      campaign: { read: string };
+      lastPublication: { at: string | null };
+    };
     expect(doc).toMatchObject({ contract: 'nwf-engine.status.v1', campaign: { read: 'STATUS' } });
+    // The Operator's local status file (nwf-operator.local-status.v1) is read
+    // from its default path, the sibling of the runtime's state directory,
+    // when it exists - read-only.
+    expect(doc).toMatchObject({ lastPublication: { at: null } });
+    const operatorDir = join(dirname(h.paths.stateDir), 'nwf-operator');
+    mkdirSync(operatorDir, { recursive: true });
+    writeFileSync(
+      join(operatorDir, 'local-status.json'),
+      JSON.stringify({ lastPublicationAt: '2026-10-27T06:00:00.000Z' }),
+    );
+    h.out.length = 0;
+    expect(await h.cli('status')).toBe(0);
+    expect(h.text()).toContain('Last publication             2026-10-27T06:00:00.000Z');
     // A test database is refused for the status read, and the dashboard says why.
     const t = harness({ urls: { DATABASE_URL_READONLY: URL('nwf_pe_test') } });
     expect(await t.cli('status', '--campaign-id', CAMPAIGN)).toBe(0);

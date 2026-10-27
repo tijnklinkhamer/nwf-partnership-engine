@@ -47,7 +47,7 @@ import {
   rotateIfLarger,
   tailLines,
 } from './logs.js';
-import { ensurePrivateDir, type EnginePaths } from './paths.js';
+import { defaultOperatorStatusFile, ensurePrivateDir, type EnginePaths } from './paths.js';
 import { isOutboxDirArgument, type ProcessPort, type RuntimeControlAction } from './processes.js';
 import { buildEngineStatus, readOperatorPublication, renderEngineStatus } from './status.js';
 import { Supervisor, SUPERVISOR_WORKER_ID, type SupervisorPolicy } from './supervisor.js';
@@ -389,10 +389,14 @@ const COMMANDS: Record<EngineCommand, (v: Values, deps: EngineDeps) => Promise<n
         ? await readCampaign(deps, campaignId)
         : { kind: 'UNAVAILABLE', detail: check.refusals.join(' ') };
     }
+    // The flag, else the remembered path, else the Operator's default local
+    // status file when it exists (read-only; absent means "not known").
+    const defaultOperatorFile = defaultOperatorStatusFile(deps.paths);
     const operatorFile =
       typeof v['operator-status-file'] === 'string'
         ? v['operator-status-file']
-        : config.operatorStatusFile;
+        : (config.operatorStatusFile ??
+          (existsSync(defaultOperatorFile) ? defaultOperatorFile : null));
     const doc = buildEngineStatus({
       nowMs: deps.clock.now(),
       lock,

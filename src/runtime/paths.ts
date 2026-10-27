@@ -73,6 +73,16 @@ export function enginePathsUnder(
   };
 }
 
+/**
+ * Where the Operator writes its local status (`nwf-operator.local-status.v1`,
+ * top-level `lastPublicationAt`): its own Application Support directory, the
+ * sibling of this runtime's state directory. The runtime only READS it, and
+ * only when it exists.
+ */
+export function defaultOperatorStatusFile(paths: EnginePaths): string {
+  return join(dirname(paths.stateDir), 'nwf-operator', 'local-status.json');
+}
+
 /** Creates `dir` if absent and forces mode 0700 (mkdir's mode is subject to umask). */
 export function ensurePrivateDir(dir: string): void {
   mkdirSync(dir, { recursive: true, mode: 0o700 });
