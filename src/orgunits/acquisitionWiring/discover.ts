@@ -15,8 +15,9 @@
  *     research run captured (never fetched). Nothing is consumed.
  *
  * Children are the run's ADMISSIBLE nominations (WW H-ACQ P1-9: a completed
- * run; RESULTS calls; a smoke call only once verified), at NOMINATED, keyed
- * by registrable domain. A nomination is never fetched, ranked or valued here.
+ * granted run; RESULTS calls of a runtime the OWNER smoke-verified), at
+ * NOMINATED, keyed by registrable domain. Unverified: the item waits for the
+ * OWNER (AWAITING_HUMAN, OWNER_SMOKE_VERIFICATION); never an empty advance. A nomination is never fetched, ranked or valued here.
  *
  * Opens no socket itself; the granted run reaches the provider only through
  * the injected live-search dependencies (`productionLiveSearchDeps` in
@@ -45,58 +46,60 @@ interface NominationRef {
 }
 
 /**
- * WW H-ACQ (ADR 0030 s13, P1-9): what a SEARCH_PROVIDER run may hand the
- * campaign. A run is read only once it has its terminal completion row (an
- * incomplete run - a crashed process - is never advanced: RETRY while it is
- * missing). Its nominations count only when they came from a provider call
- * whose terminal row is RESULTS and which is either not the ADR 0027 D8
- * smoke call, or a smoke call the OWNER verified - for that very call or for
- * the same SDK version and model, which migration 0025 says a verification
- * covers. Nominations of an UNVERIFIED smoke call are never dropped: they
- * hold the item (RETRY, DEPENDENCY_NOT_READY) until the OWNER records the
- * verification.
+ * WW H-ACQ (ADR 0030 s13, P1-9): what a granted SEARCH_PROVIDER run may hand
+ * the campaign - the wiring's own minimal check, in EXACTLY the shape of
+ * H-SD's `admissibleNominationsOfRun(queryable, runId)` (sourceDiscovery,
+ * integrated after this package) so the swap is one call:
  *
- * This is the wiring's own minimal check. Once H-SD's sourceDiscovery helper
- * (`admissibleNominationsOfRun`) lands, this function should delegate to it.
+ *   NOT_A_GRANTED_RUN - no grant use records the run (refused);
+ *   RUN_NOT_COMPLETED - no terminal completion row yet (a crashed process):
+ *                       nothing partial is ever advanced;
+ *   COMPLETED         - the nominations of provider calls whose terminal row
+ *                       is RESULTS and whose SDK version + model carry an
+ *                       OWNER smoke verification (migration 0025: a
+ *                       verification covers every call of that runtime).
+ *
+ * H-SD's helper additionally requires a call's recorded search count to be
+ * exactly 1 (its migration 0027); this branch has no such column.
  */
-export type RunNominations =
-  | { readonly kind: 'INCOMPLETE' }
-  | { readonly kind: 'SMOKE_UNVERIFIED' }
-  | { readonly kind: 'ADMISSIBLE'; readonly nominations: readonly NominationRef[] };
+export interface AdmissibleNominations {
+  readonly state: 'NOT_A_GRANTED_RUN' | 'RUN_NOT_COMPLETED' | 'COMPLETED';
+  readonly nominations: readonly NominationRef[];
+}
 
-export async function admissibleNominationsOfSearchRun(
+export async function admissibleNominationsOfGrantedRun(
   readonly: pg.Pool,
   runId: string,
-): Promise<RunNominations> {
-  const { rows: done } = await readonly.query<{ complete: boolean }>(
-    `SELECT EXISTS (SELECT 1 FROM source_discovery_run_completions WHERE run_id = $1) AS complete`,
+): Promise<AdmissibleNominations> {
+  const { rows: standing } = await readonly.query<{ granted: boolean; complete: boolean }>(
+    `SELECT EXISTS (SELECT 1 FROM source_discovery_grant_uses WHERE run_id = $1) AS granted,
+            EXISTS (SELECT 1 FROM source_discovery_run_completions WHERE run_id = $1) AS complete`,
     [runId],
   );
-  if (done[0]?.complete !== true) return { kind: 'INCOMPLETE' };
-  const { rows } = await readonly.query<NominationRef & { admissible: boolean; held: boolean }>(
-    `SELECT n.id, n.registrable_domain,
-            (q.id IS NOT NULL AND q.outcome = 'RESULTS'
-             AND (NOT q.smoke OR v.verified)) AS admissible,
-            (q.id IS NOT NULL AND q.outcome = 'RESULTS' AND q.smoke AND NOT v.verified) AS held
+  if (standing[0]?.granted !== true) return { state: 'NOT_A_GRANTED_RUN', nominations: [] };
+  if (standing[0].complete !== true) return { state: 'RUN_NOT_COMPLETED', nominations: [] };
+  const { rows } = await readonly.query<NominationRef>(
+    `SELECT n.id, n.registrable_domain
        FROM source_discovery_nominations n
-       LEFT JOIN source_discovery_query_calls q
-              ON q.run_id = n.discovery_run_id AND q.query_id = n.query_id
-       LEFT JOIN LATERAL (
-            SELECT EXISTS (SELECT 1 FROM source_discovery_smoke_verifications sv
-                            WHERE (sv.run_id = q.run_id AND sv.call_seq = q.call_seq)
-                               OR (sv.sdk_version = q.sdk_version AND sv.model_id = q.model_id))
-                   AS verified) v ON true
+       JOIN source_discovery_query_calls q
+         ON q.run_id = n.discovery_run_id AND q.query_id = n.query_id
       WHERE n.discovery_run_id = $1 AND n.discovery_method = 'SEARCH_PROVIDER'
+        AND q.outcome = 'RESULTS'
+        AND EXISTS (SELECT 1 FROM source_discovery_smoke_verifications sv
+                     WHERE sv.sdk_version = q.sdk_version AND sv.model_id = q.model_id)
       ORDER BY n.created_at, n.id`,
     [runId],
   );
-  if (rows.some((r) => r.held)) return { kind: 'SMOKE_UNVERIFIED' };
-  return {
-    kind: 'ADMISSIBLE',
-    nominations: rows
-      .filter((r) => r.admissible)
-      .map((r) => ({ id: r.id, registrable_domain: r.registrable_domain })),
-  };
+  return { state: 'COMPLETED', nominations: rows };
+}
+
+/** How many nominations the run recorded at all (admissible or not). */
+async function recordedNominations(readonly: pg.Pool, runId: string): Promise<number> {
+  const { rows } = await readonly.query<{ n: number }>(
+    'SELECT count(*)::int AS n FROM source_discovery_nominations WHERE discovery_run_id = $1',
+    [runId],
+  );
+  return rows[0]!.n;
 }
 
 function advanceTo(nominations: readonly NominationRef[]): StageOutcome {
@@ -174,10 +177,17 @@ async function discoverFromGrant(
   // One run per item, whichever attempt started it; report it once.
   const reported = await alreadyReported(deps.pools.worker, item.id);
   if (reported.searchRuns === 0) ctx.consume('searchRuns', 1);
-  // P1-9: only a COMPLETED run's admissible nominations advance.
-  const found = await admissibleNominationsOfSearchRun(readonly, runId);
-  if (found.kind !== 'ADMISSIBLE') {
+  // P1-9: only a COMPLETED granted run's admissible nominations advance -
+  // also for a run an earlier attempt started (found by actor key).
+  const found = await admissibleNominationsOfGrantedRun(readonly, runId);
+  if (found.state === 'NOT_A_GRANTED_RUN') return { kind: 'REFUSED', reason: 'GRANT_UNAVAILABLE' };
+  if (found.state === 'RUN_NOT_COMPLETED') {
     return { kind: 'RETRY', reason: 'DEPENDENCY_NOT_READY', retryable: true };
+  }
+  if (found.nominations.length === 0 && (await recordedNominations(readonly, runId)) > 0) {
+    // Never a terminal EMPTY advance: the run found organisations, but its
+    // calls' runtime has no OWNER smoke verification yet.
+    return { kind: 'AWAITING_HUMAN', queue: 'OWNER_SMOKE_VERIFICATION' };
   }
   return advanceTo(found.nominations);
 }

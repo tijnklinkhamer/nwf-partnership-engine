@@ -148,6 +148,9 @@ export const HUMAN_QUEUES = [
   'OWNER_IDENTITY_REVIEW',
   'OWNER_RESEARCH_ADMISSION',
   'EVIDENCE_REVIEW',
+  // WW H-ACQ (migration 0026): a granted search found organisations under a
+  // runtime the OWNER has not smoke-verified (ADR 0027 D8, migration 0025).
+  'OWNER_SMOKE_VERIFICATION',
 ] as const;
 export type HumanQueue = (typeof HUMAN_QUEUES)[number];
 

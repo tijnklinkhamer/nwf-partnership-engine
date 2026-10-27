@@ -39,7 +39,9 @@ import {
   campaignSubjectIdOf,
   createStageHandlers,
 } from '../../orgunits/acquisitionWiring/index.js';
-import { admissibleNominationsOfSearchRun } from '../../orgunits/acquisitionWiring/discover.js';
+import { admissibleNominationsOfGrantedRun } from '../../orgunits/acquisitionWiring/discover.js';
+import { startGrantedRun } from '../../orgunits/sourceDiscovery/grantStore.js';
+import { inSourceDiscoveryTransaction } from '../../orgunits/sourceDiscovery/store.js';
 import { recordCampaignAdmission } from '../../orgunits/acquisitionWiring/records.js';
 import { admissionReadOf } from '../../orgunits/acquisitionWiring/registryBridge.js';
 import { startSubjectRun } from '../../orgunits/orchestrator/run.js';
@@ -420,41 +422,55 @@ describeDb('WW H-ACQ acquisition hardening (integration)', () => {
 
   // ---------------------------------------------------------------- P1-9
 
-  it('P1-9: nominations of an unverified smoke call never advance; the item waits for the OWNER', async () => {
+  it('P1-9: organisations found under an unverified smoke runtime wait for the OWNER, never advance', async () => {
     const id = await campaign({ grantIds: [await h.grant('JP')] });
     const result = await work(id);
     expect(result.stopReason).not.toBe('CAMPAIGN_UNVERIFIED');
-    const all = await states(id);
-    expect(all).toEqual([
+    expect(await states(id)).toEqual([
       expect.objectContaining({
         stage: 'DISCOVERED',
-        state: 'RETRY_SCHEDULED',
-        reason: 'DEPENDENCY_NOT_READY',
+        state: 'AWAITING_HUMAN',
+        reason: 'OWNER_SMOKE_VERIFICATION',
       }),
     ]);
     // The search ran (its nominations exist) but nothing reached NOMINATED.
     expect(
       await count(`SELECT count(*)::int AS n FROM source_discovery_nominations`),
     ).toBeGreaterThan(0);
+    const { rows } = await h.admin.query<{ id: string }>(
+      `SELECT r.id FROM source_discovery_runs r WHERE r.actor_key LIKE 'acq-%'`,
+    );
+    expect(await admissibleNominationsOfGrantedRun(h.readonly, rows[0]!.id)).toEqual({
+      state: 'COMPLETED',
+      nominations: [],
+    });
   });
 
-  it('P1-9: a search run without a completion row is never advanced', async () => {
+  it('P1-9: a granted run without a completion row is never advanced; an ungranted run is refused', async () => {
     await h.verifySmokeRuntime();
-    const id = await campaign({ grantIds: [await h.grant('JP')] });
+    const grantId = await h.grant('JP');
+    const id = await campaign({ grantIds: [grantId] });
     const derived = await deriveCampaignAuthority(h.worker, id, { trust: h.campaignTrust });
     if (!derived.ok) throw new Error(derived.code);
     await seedCampaignSearchGrantRoots(h.worker, derived.authority);
     const root = (await states(id))[0]!;
-    // A crashed search: a run under the item's actor key, never completed.
-    const { rows: run } = await h.admin.query<{ id: string }>(
-      `INSERT INTO source_discovery_runs (run_kind, provider_key, brief_id, geography, actor_key, started_at)
-       SELECT 'SEARCH_PROVIDER', 'scripted-search', id, 'JP', $1, now()
-         FROM source_discovery_briefs ORDER BY created_at LIMIT 1
-       RETURNING id`,
-      [`acq-${root.id}`],
+    // A crashed search: the grant slot was taken under the item's actor key,
+    // and the process died before any completion row.
+    const { rows: brief } = await h.admin.query<{ id: string }>(
+      `SELECT id FROM source_discovery_briefs ORDER BY created_at LIMIT 1`,
     );
-    expect(await admissibleNominationsOfSearchRun(h.readonly, run[0]!.id)).toEqual({
-      kind: 'INCOMPLETE',
+    const crashed = await inSourceDiscoveryTransaction(h.source, (c) =>
+      startGrantedRun(c, {
+        grantId,
+        briefId: brief[0]!.id,
+        geography: 'JP',
+        providerKey: 'claude-max-web-search',
+        actorKey: `acq-${root.id}`,
+      }),
+    );
+    expect(await admissibleNominationsOfGrantedRun(h.readonly, crashed.runId)).toEqual({
+      state: 'RUN_NOT_COMPLETED',
+      nominations: [],
     });
     const sdk = fakeSdk(SEARCH_RESULTS);
     await work(
@@ -463,6 +479,7 @@ describeDb('WW H-ACQ acquisition hardening (integration)', () => {
       { once: true },
       createStageHandlers(h.deps(sdk, researchTransport())),
     );
+    // The earlier attempt's run is reused (no second search) and NOT advanced.
     expect(sdk.calls()).toBe(0);
     expect(await states(id)).toEqual([
       expect.objectContaining({
@@ -471,12 +488,16 @@ describeDb('WW H-ACQ acquisition hardening (integration)', () => {
         reason: 'DEPENDENCY_NOT_READY',
       }),
     ]);
-    // A completed run (the OWNER's verified smoke run) is admissible.
+    expect(await admissibleNominationsOfGrantedRun(h.readonly, randomUUID())).toEqual({
+      state: 'NOT_A_GRANTED_RUN',
+      nominations: [],
+    });
+    // The OWNER's own verified smoke run is completed and admissible.
     const { rows: done } = await h.admin.query<{ id: string }>(
       `SELECT run_id AS id FROM source_discovery_run_completions LIMIT 1`,
     );
-    expect((await admissibleNominationsOfSearchRun(h.readonly, done[0]!.id)).kind).toBe(
-      'ADMISSIBLE',
+    expect((await admissibleNominationsOfGrantedRun(h.readonly, done[0]!.id)).state).toBe(
+      'COMPLETED',
     );
   });
 

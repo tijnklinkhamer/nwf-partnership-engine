@@ -370,6 +370,8 @@ describeDb(
         '0024_campaign_research_admission_and_wiring.sql',
         // WW E-SDFX: then 0025 (the source-discovery search gate, ADR 0028 s9).
         '0025_source_discovery_search_gate.sql',
+        // WW H-ACQ: then 0026 (acquisition hardening, ADR 0030 s13).
+        '0026_acquisition_hardening.sql',
       ]);
       expect(await digests()).toEqual(before);
       const { rows } = await db.query<{

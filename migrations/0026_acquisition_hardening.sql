@@ -34,6 +34,11 @@
 --   P2-4. An identity-review item could be released to ASSESSABLE without a
 --     CONFIRMED review. Now the release requires the subject's current
 --     review head(s) to be CONFIRMED and attested (section F).
+--   P1-9. The wiring advanced the nominations of any search run, complete
+--     or not, from smoke calls nobody verified. The wiring now reads only a
+--     completed granted run's verified nominations; a run whose organisations
+--     wait for the OWNER's smoke verification parks its item on the new
+--     closed human queue OWNER_SMOKE_VERIFICATION (section B).
 --   P2-5. LINK_OUT roots skipped the geography scope and could recurse
 --     without bound. Now the signed document `nwf-pe.acquisition-campaign.v2`
 --     carries `scope.linkOutMaxHops` (0..3); a v1 document means exactly ONE
@@ -284,6 +289,16 @@ COMMENT ON FUNCTION acquisition_link_out_hop_of_run(uuid) IS
     'The link-out generation a LINK_OUT root naming this research run would '
     'be (ADR 0030 s13, P2-5), or NULL when the run is not a CAMPAIGN '
     'admission''s. Reads with the caller''s rights.';
+
+-- P1-9 (ADR 0030 s13): a granted search whose organisations came from a
+-- runtime the OWNER has not smoke-verified is never advanced empty; its
+-- DISCOVERED item waits on its own closed human queue. A superset of 0023's.
+ALTER TABLE acquisition_work_outcomes DROP CONSTRAINT acquisition_work_outcomes_human_queue_chk;
+ALTER TABLE acquisition_work_outcomes
+    ADD CONSTRAINT acquisition_work_outcomes_human_queue_chk
+        CHECK (human_queue IS NULL OR human_queue IN
+            ('OWNER_IDENTITY_REVIEW', 'OWNER_RESEARCH_ADMISSION', 'EVIDENCE_REVIEW',
+             'OWNER_SMOKE_VERIFICATION'));
 
 -- ---------------------------------------------------------------------------
 -- C. P2-2: the campaign subject id is DERIVED, never chosen.

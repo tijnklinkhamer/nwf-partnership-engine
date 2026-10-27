@@ -1280,6 +1280,8 @@ describeDb('Global R8 subject research execution (integration, synthetic)', () =
       expect(grants.rows).toEqual([
         { table_name: 'subject_research_admission_revocations', privilege_type: 'SELECT' },
         { table_name: 'subject_research_admissions', privilege_type: 'SELECT' },
+        // WW H-ACQ (migration 0026): the CAMPAIGN admission standing view.
+        { table_name: 'subject_research_campaign_admission_standing', privilege_type: 'SELECT' },
         { table_name: 'subject_research_registry_fingerprint', privilege_type: 'SELECT' },
       ]);
       const columnGrants = await admin.query(

@@ -538,6 +538,10 @@ describeDb('Phase 2B research grants (integration)', () => {
           'subject_research_admission_revocations',
           'subject_research_admissions',
           'subject_research_registry_fingerprint',
+          // WW H-ACQ (migration 0026, ADR 0030 s13): the CAMPAIGN admission
+          // standing view the root resolver reads - booleans, an instant, a
+          // run id and a count; no acquisition table.
+          'subject_research_campaign_admission_standing',
         ].sort(),
       );
     });

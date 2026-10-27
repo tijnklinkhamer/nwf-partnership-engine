@@ -298,6 +298,10 @@ describeDb('Phase 2B schema contract (integration)', () => {
         // tables, the 0022 trigger functions replaced with a pinned
         // search_path, two 0022 CHECKs widened by superset; no role, no LOGIN).
         '0025',
+        // WW H-ACQ (acquisition hardening, ADR 0030 s13 - restated 0023/0024
+        // trigger functions, one definer-rights standing view, one campaign
+        // column; no role, no LOGIN, SELECT grants only).
+        '0026',
       ]);
     });
 
