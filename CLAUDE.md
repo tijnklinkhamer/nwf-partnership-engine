@@ -41,7 +41,15 @@ sends nothing to a partner organisation, creates no contact, and has no
 outreach action. Nothing beyond all of this is wired together: still no
 contact discovery, no outreach execution, no Apollo integration, and no
 capability that sends anything to a real organisation. That is all it
-DOES.**
+DOES. Plus the WW acquisition line (ADRs 0027–0030, Proposed until accepted):
+OWNER-granted live source discovery, OWNER-signed campaigns and an
+append-only acquisition queue whose worker discovers, deduplicates,
+researches through the existing gateway, extracts source-backed C1 evidence
+(`nwf-pe.qualification-input-export.v2`, rules
+`nwf-pe-c1-extraction-rules-v3`, extraction label `orgunit-extraction-v4`)
+and writes an outbox (`nwf-pe.acquisition-outbox.v1`) for the Operator; and
+the Mac runtime (`npm run engine -- …`) that supervises it. Migrations
+0013–0028.**
 
 **Current phase note (Phase 2B-2D2C, DEVELOPMENT only).** The branch-local
 Phase 2B-2D2C work, through the owner-reviewed F0X slice on this branch, is a
@@ -83,16 +91,34 @@ resolution: see "What Phase 1B measured" below. Website agreement is likewise a
 DERIVED comparison over immutable claims, never a stored conclusion: see "What
 Phase 1D measured".
 
-There is no entity resolution, no crawling or scraping, no research pipeline, no
-contact discovery or storage, no scoring, no compliance engine, no email
-templates, no Apollo integration and no outbound/outreach capability. Do not
-add any of them without an approved phase. The one approved exception is the bounded
-internal semantic classifier described above: an INFERENCE-ONLY use of the
-owner's own Claude Max subscription through the Agent SDK (ADR 0009, ADR
-0010, ADR 0011). It sends nothing to an external organisation, stores no
-contact, and performs no outreach — every other prohibition in this
-paragraph still governs anything beyond that bounded inference, and the
-classifier gains no exception to any of them.
+There is no entity resolution, no unbounded crawling or scraping, no contact
+discovery or storage, no compliance engine, no email templates, no Apollo
+integration and no outbound/outreach capability. Do not add any of them
+without an approved phase. Three bounded exceptions are approved, each
+INFERENCE- or RESEARCH-ONLY, each sending nothing to an organisation, storing
+no contact and performing no outreach:
+
+1. the internal semantic classifier (ADR 0009, ADR 0010, ADR 0011): the
+   owner's own Claude Max subscription through the Agent SDK;
+2. **live WebSearch source discovery** (ADR 0027, ADR 0028): one Agent SDK
+   call site (`src/orgunits/sourceDiscovery/`), the owner's Claude Max
+   subscription only, and only under a stored OWNER-path grant row (plan
+   digest, geography, model, query and run caps, DB-clock window). Each call
+   performs at most one WebSearch for exactly the planned query (PreToolUse
+   hook + `canUseTool`, `allowedTools: []`), keeps results only when the tool
+   reported exactly one search, and is relied on only after an OWNER smoke
+   verification of that SDK version and model. A nomination is a URL to
+   consider, never a fetch: nothing is requested until a campaign admits it;
+3. **the acquisition queue** (ADR 0029, ADR 0030): an append-only work queue
+   driven only by an OWNER-signed campaign document (Ed25519, operational
+   trust set `OPERATIONAL_OWNER_CAMPAIGN_KEYS`), bounded by DB-enforced
+   budgets, a window, geographies, source kinds and link-out hops. Its
+   research goes through the existing gateway and robots rules unchanged.
+   Identity review stays a batched, per-subject, OWNER-signed act; the worker
+   never confirms an identity, states a country or scores anything.
+
+Every other prohibition in this paragraph governs anything beyond those
+bounded uses, and none of them gains an exception to any rule below.
 
 **Phase 1D never fetches an institution website.** It reasons about websites
 using only what official registers PUBLISH about them. It issues no request to
@@ -129,6 +155,12 @@ it, or depend on it, and must never touch learner, payment, or payout data.
    unapproved provider/auth path is permitted. It classifies already-fetched,
    already-authorised page evidence only and does not create or activate
    contacts, send outreach, or access HOLDOUT without separate authorisation.
+
+   **Approved live source discovery is not partnership outreach either.** ADR
+   0028 governs it: the same owner-provisioned Claude Max path as the
+   classifier (ADR 0010), a stored OWNER-path grant per run, and no provider,
+   key or auth path beyond that. It reads public search results only; it never
+   contacts, emails or submits anything to an organisation.
 
 2. **Never guess a value.** No inferred websites, no inferred country from a name
    or an Erasmus-code prefix, no invented identifiers. Unknown is `NULL`.
@@ -1173,6 +1205,17 @@ npm run fixture:build -- <path-to-real-eche.xlsx>
 npm run cli -- orgunits discover --organisation-id <uuid>              # DRY RUN: zero DNS, zero HTTP
 npm run cli -- orgunits discover --organisation-id <uuid> --execute    # a REAL bounded research run
 npm run cli -- orgunits discover --organisation-id <uuid> --execute --json
+
+# Mac runtime (OWNER Mac only; never applies a migration, never pins a key)
+npm run engine -- doctor
+npm run engine -- start --campaign-id <uuid> --outbox-dir <dir>
+npm run engine -- status | pause | resume | stop | shutdown | logs | recover
+
+# Acquisition (OWNER path; every write needs its OWNER key and --execute)
+npm run cli -- acquisition campaign template
+npm run cli -- acquisition review list --campaign-id <uuid> --json
+npm run cli -- acquisition review sign --campaign-id <uuid> --subject-id <S> \
+  --expect <S>=<stateDigest> [--country <S>=<CC>@<pageEvidenceId>] --execute
 ```
 
 ## Layout
@@ -1299,6 +1342,22 @@ src/orgunits/orchestrator/  the Phase 2B-1e bounded discovery orchestrator:
                      Nothing under src/orgunits/signals/ opens a socket, a
                      database connection or a file handle, reads an
                      environment variable, or calls Date.now()/Math.random().
+src/orgunits/sourceDiscovery/  ADR 0027/0028: the ONE Agent SDK WebSearch call
+                     site, the search planner, grants, smoke verification,
+                     nominations. No socket of its own beyond the SDK.
+src/orgunits/acquisition/      ADR 0029: signed campaigns, trust set, the
+                     append-only queue, claims, leases, budgets, worker loop.
+src/orgunits/acquisitionWiring/ ADR 0030: the six wired stage handlers,
+                     CAMPAIGN research admission, the batched OWNER identity
+                     review (`review list` / `review sign --expect
+                     [--country]`), the outbox, status v1.
+src/orgunits/c1Extraction/     deterministic C1 evidence extraction (rules v3):
+                     OBSERVED only for listing-shaped artefacts, proposals for
+                     statements, negation and page guards in 8 languages.
+src/runtime/         the Mac runtime: doctor, start/stop/pause/resume/
+                     shutdown, status, logs, recover, install-agent (writes a
+                     launchd plist only with --i-understand --execute; never
+                     loads it).
 ```
 
 ## Things the real data will surprise you with
