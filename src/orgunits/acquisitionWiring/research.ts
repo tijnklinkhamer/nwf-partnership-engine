@@ -53,19 +53,33 @@ import {
   alreadyReported,
   loadCampaignSubject,
   recordCampaignAdmission,
+  supersedeCampaignAdmission,
 } from './records.js';
 import { admissionReadOf } from './registryBridge.js';
 
 const STALE = /STALE/;
+/**
+ * WW acceptance fix: the campaign stopped standing behind this item WHILE it ran - a PAUSE
+ * or STOP (H-ACQ P1-1 ends in-flight research at its next request), or the item's attempt
+ * was superseded. That is an interruption, never a verdict on the subject: the item is
+ * retried (on RESUME), not refused for good. A retried attempt that already has a run
+ * advances with what that run captured (research never runs twice per admission).
+ */
+const INTERRUPTED =
+  /CAMPAIGN_NOT_RUNNING|CAMPAIGN_ITEM_NOT_IN_FLIGHT|needs a RUNNING campaign|has no in-flight claim/;
+const retryable = (code: string): boolean => STALE.test(code) || INTERRUPTED.test(code);
 
 interface PriorRun {
   admission_id: string;
+  revoked: boolean;
   run_id: string | null;
 }
 
 async function priorAdmissions(readonly: pg.Pool, workItemId: string): Promise<PriorRun[]> {
   const { rows } = await readonly.query<PriorRun>(
-    `SELECT a.id AS admission_id, r.id AS run_id
+    `SELECT a.id AS admission_id, r.id AS run_id,
+            EXISTS (SELECT 1 FROM subject_research_admission_revocations v
+                     WHERE v.admission_id = a.id) AS revoked
        FROM subject_research_admissions a
        LEFT JOIN orgunit_research_runs r ON r.root_scope = 'subject_admission:' || a.id::text
       WHERE a.campaign_work_item_id = $1
@@ -73,6 +87,18 @@ async function priorAdmissions(readonly: pg.Pool, workItemId: string): Promise<P
     [workItemId],
   );
   return rows;
+}
+
+/** Page evidence captured under these runs (what an interrupted run kept). */
+async function pagesCapturedBy(readonly: pg.Pool, runIds: readonly string[]): Promise<number> {
+  if (runIds.length === 0) return 0;
+  const { rows } = await readonly.query<{ n: number }>(
+    `SELECT count(*)::int AS n FROM orgunit_page_evidence p
+       JOIN orgunit_fetch_observations f ON f.id = p.fetch_observation_id
+      WHERE f.run_id = ANY($1::uuid[])`,
+    [runIds],
+  );
+  return rows[0]!.n;
 }
 
 async function gatewayRequestsOf(readonly: pg.Pool, runIds: readonly string[]): Promise<number> {
@@ -186,13 +212,16 @@ async function researchOnce(
   ctx: StageHandlerContext,
 ): Promise<StageOutcome> {
   const { readonly, worker, research } = deps.pools;
-  // 1. A retried attempt never researches twice.
+  // 1. A retried attempt never researches twice: a prior run that captured pages is the
+  //    research (an interrupted one advances with what it kept). A prior run that captured
+  //    NOTHING (cut off by a PAUSE before its first page) is superseded below and re-run.
   const prior = await priorAdmissions(readonly, item.id);
   const priorRuns = runsOf(prior);
-  if (priorRuns.length > 0) {
+  if (priorRuns.length > 0 && (await pagesCapturedBy(readonly, priorRuns)) > 0) {
     await linkOutRoot(deps, item, ctx, priorRuns[0]!);
     return { kind: 'ADVANCED', next: 'RESEARCHED' };
   }
+  const live = prior.filter((p) => !p.revoked);
 
   // 2. The campaign's own proposal, and its root.
   const binding = await loadCampaignSubject(worker, item.campaignId, item.subjectId);
@@ -214,8 +243,8 @@ async function researchOnce(
   const claimId = await websiteClaimId(readonly, item.subjectId, url);
   if (claimId === null) return { kind: 'REFUSED', reason: 'NOT_ADMISSIBLE' };
 
-  // 3. The CAMPAIGN admission (reused if an earlier attempt recorded it).
-  if (prior.length === 0) {
+  // 3. The CAMPAIGN admission: recorded now, or reused if an earlier attempt recorded it.
+  const admit = async (): Promise<StageOutcome | null> => {
     const cohort = (deps.research.loadCohortRegistry ?? loadEvaluationCohortRegistry)();
     if (!cohort.ok) return { kind: 'RETRY', reason: 'DEPENDENCY_NOT_READY', retryable: true };
     const snapshot = await admissionReadOf(readonly, item.subjectId);
@@ -233,16 +262,43 @@ async function researchOnce(
       });
     } catch (error) {
       if (error instanceof CampaignAdmissionRefused) {
-        return { kind: 'REFUSED', reason: 'POLICY_REFUSED' };
+        return INTERRUPTED.test(error.reason)
+          ? { kind: 'RETRY', reason: 'DEPENDENCY_NOT_READY', retryable: true }
+          : { kind: 'REFUSED', reason: 'POLICY_REFUSED' };
       }
       throw error;
     }
+    return null;
+  };
+  if (live.length === 0) {
+    const refused = await admit();
+    if (refused !== null) return refused;
+  } else if (priorRuns.length > 0) {
+    // WW acceptance (migration 0028): the earlier attempt's run captured nothing.
+    await supersedeCampaignAdmission(worker, live[live.length - 1]!.admission_id);
+    const refused = await admit();
+    if (refused !== null) return refused;
   }
 
   // 4. The existing research path, unchanged.
-  const verified = await verifySubjectAdmission(research, item.subjectId, deps.research);
+  let verified = await verifySubjectAdmission(research, item.subjectId, deps.research);
+  if (
+    verified.outcome !== 'VERIFIED' &&
+    live.length > 0 &&
+    priorRuns.length === 0 &&
+    STALE.test(verified.detail)
+  ) {
+    // WW acceptance (migration 0028): an earlier attempt's admission, never used, went stale
+    // (the registry changed before its run started: the OWNER's review, a PAUSE, a crash). It
+    // can never verify again; supersede it and admit afresh over the current registry - the
+    // new admission counts against the signed research-root budget.
+    await supersedeCampaignAdmission(worker, live[live.length - 1]!.admission_id);
+    const refused = await admit();
+    if (refused !== null) return refused;
+    verified = await verifySubjectAdmission(research, item.subjectId, deps.research);
+  }
   if (verified.outcome !== 'VERIFIED') {
-    return STALE.test(verified.detail)
+    return retryable(verified.detail)
       ? { kind: 'RETRY', reason: 'DEPENDENCY_NOT_READY', retryable: true }
       : { kind: 'REFUSED', reason: 'POLICY_REFUSED' };
   }
@@ -255,10 +311,18 @@ async function researchOnce(
       deps.research,
     );
     runId = result.runId;
+    // A PAUSE / STOP / superseded attempt cut this run off: an interruption, retried (the
+    // retry keeps what the run captured, or re-runs if it captured nothing).
+    if (
+      result.summary?.terminalReason === 'ROOT_REQUEST_REFUSED' &&
+      INTERRUPTED.test(result.summary.refusalDetail ?? '')
+    ) {
+      return { kind: 'RETRY', reason: 'DEPENDENCY_NOT_READY', retryable: true };
+    }
   } catch (error) {
     const code = executionRefusalCodeOf(error);
     if (code === null) throw error;
-    return STALE.test(code)
+    return retryable(code)
       ? { kind: 'RETRY', reason: 'DEPENDENCY_NOT_READY', retryable: true }
       : { kind: 'REFUSED', reason: 'POLICY_REFUSED' };
   }

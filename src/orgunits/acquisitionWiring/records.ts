@@ -195,6 +195,35 @@ export async function recordCampaignAdmission(
   }
 }
 
+/**
+ * WW acceptance (migration 0028): supersedes the in-flight item's CAMPAIGN admission of an
+ * EARLIER attempt that never started a run (the database checks every condition: the
+ * worker's own actor key, the reason, the item in flight, an earlier attempt, no run, not
+ * already revoked). Refused otherwise, as a CampaignAdmissionRefused.
+ */
+export async function supersedeCampaignAdmission(
+  worker: pg.Pool,
+  admissionId: string,
+): Promise<void> {
+  try {
+    await inWorkerTransaction(worker, (c) =>
+      c.query(
+        `INSERT INTO subject_research_admission_revocations (admission_id, actor_key, reason)
+         VALUES ($1, $2, 'CAMPAIGN_ATTEMPT_SUPERSEDED')`,
+        [admissionId, ACQUISITION_WIRING_ACTOR_KEY],
+      ),
+    );
+  } catch (error) {
+    const e = error as { code?: string; message?: string };
+    if (e.code === '23514') {
+      throw new CampaignAdmissionRefused(
+        (e.message ?? '').replace(/^subject_research_admission_revocations: /, '').slice(0, 120),
+      );
+    }
+    throw error;
+  }
+}
+
 export type OutboxEntryKind = 'RESEARCH_EXPORT' | 'ASSESSABLE_MANIFEST';
 
 export const OUTBOX_FORMAT = 'nwf-pe.acquisition-outbox.v1';

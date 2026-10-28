@@ -255,7 +255,8 @@ describeDb('B2.2 discovery-subject registry (integration)', () => {
       // WW E-SD (0022, live source-discovery grants) and then WW E-Q (migration 0023, OWNER-signed acquisition campaigns, ADR 0029).
       // WW E-W (0024, campaign research admission) and then WW E-SDFX (migration 0025, the source-discovery search gate, ADR 0028 s9).
       // WW H-SD (migration 0027, search observations, ADR 0028 s9.1) follows WW H-ACQ's 0026.
-      expect(rows[0]!.top).toBe('0027');
+      // WW acceptance (migration 0028, CAMPAIGN admission supersession) follows.
+      expect(rows[0]!.top).toBe('0028');
     });
   });
 

@@ -325,7 +325,10 @@ describeDb('WW E-Q acquisition campaigns and queue (integration)', () => {
       // WW E-W (migration 0024, by exact grant): the wiring records, lease
       // heartbeats, CAMPAIGN admissions (the trigger refuses any other basis
       // from this role), revocations and the one environment row - SELECT and
-      // INSERT only, never a mutating privilege.
+      // INSERT only, never a mutating privilege. WW acceptance (migration 0028):
+      // INSERT on revocations, which its trigger confines to superseding the
+      // worker's own in-flight item's CAMPAIGN admission that captured no page,
+      // and SELECT on the page-capture count view that trigger reads.
       expect(rows.map((r) => r.g)).toEqual([
         'acquisition_campaign_control_events:SELECT',
         'acquisition_campaign_subjects:INSERT',
@@ -346,6 +349,8 @@ describeDb('WW E-Q acquisition campaigns and queue (integration)', () => {
         'acquisition_work_outcomes:SELECT',
         'acquisition_worker_stops:INSERT',
         'acquisition_worker_stops:SELECT',
+        'subject_research_admission_page_capture:SELECT',
+        'subject_research_admission_revocations:INSERT',
         'subject_research_admission_revocations:SELECT',
         'subject_research_admissions:INSERT',
         'subject_research_admissions:SELECT',

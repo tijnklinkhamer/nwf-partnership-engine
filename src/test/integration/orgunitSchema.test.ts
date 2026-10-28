@@ -307,6 +307,10 @@ describeDb('Phase 2B schema contract (integration)', () => {
         // triggers, 0025/0019 functions replaced, 0020 functions pinned; no
         // role, no LOGIN).
         '0027',
+        // WW acceptance (CAMPAIGN admission supersession, ADR 0030 s13 - one
+        // BEFORE INSERT trigger on admission revocations, INSERT to the worker
+        // for exactly its own item's unused admission; no role, no LOGIN).
+        '0028',
       ]);
     });
 

@@ -374,6 +374,8 @@ describeDb(
         '0026_acquisition_hardening.sql',
         // WW H-SD: then 0027 (search observations, ADR 0028 s9.1).
         '0027_source_discovery_search_observations.sql',
+        // WW acceptance: then 0028 (CAMPAIGN admission supersession, ADR 0030 s13).
+        '0028_campaign_admission_supersession.sql',
       ]);
       expect(await digests()).toEqual(before);
       const { rows } = await db.query<{

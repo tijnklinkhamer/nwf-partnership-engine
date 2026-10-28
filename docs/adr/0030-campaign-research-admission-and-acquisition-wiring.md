@@ -396,3 +396,37 @@ after recording the verification the OWNER starts a new campaign. A
 CAMPAIGN admission's first run could in principle be started by any
 research-role process while the item is in flight; only the wired worker
 does so, and the standalone CLI refuses (code, not database).
+
+### s13a Interrupted research is retried, and an unusable admission is superseded (migration 0028)
+
+The Mac runtime full-system acceptance (`wwMacRuntimeFullSystem.test.ts`) found
+three ways a PAUSE (or a crash, or the OWNER's review while the Engine runs)
+cost a running campaign an organisation or its research:
+
+- P1-1 ends in-flight research at its next gateway request when the campaign
+  stops standing behind the item. The handler mapped that refusal to a
+  terminal `REFUSED / POLICY_REFUSED`. It is an interruption, never a verdict
+  on the subject: `ROOT_SUBJECT_ADMISSION_CAMPAIGN_NOT_RUNNING`,
+  `..._CAMPAIGN_ITEM_NOT_IN_FLIGHT` and an admission refused for want of a
+  RUNNING campaign are now `RETRY` - whether they stop the admission, its
+  verification, or the run itself (a run whose root ended
+  `ROOT_REQUEST_REFUSED` for one of those reasons).
+- A CAMPAIGN admission records the global discovery-subject registry
+  fingerprint and is re-checked on every request. An admission recorded by
+  an attempt that died before its run started goes stale the moment anything
+  changes the registry, and 0026 refuses a second live admission, so the
+  retried item looped STALE -> RETRY until its attempts ran out.
+- A run cut off before its first page kept nothing, yet the retry treated it
+  as the item's research ("research never runs twice") and advanced an empty
+  subject, losing its evidence and its link-outs.
+
+Migration 0028 lets the worker append ONE revocation,
+`CAMPAIGN_ATTEMPT_SUPERSEDED`, of its in-flight item's CAMPAIGN admission of an
+EARLIER attempt whose research captured NO page (read through the
+definer-rights count view `subject_research_admission_page_capture`;
+trigger-enforced; the owner path unchanged). On retry the handler reuses a
+prior run that captured pages (an interrupted run advances with what it
+kept), and otherwise - a stale unused admission, or a run that kept nothing -
+supersedes the admission and admits afresh over the current registry, counted
+against the signed research-root budget, so supersession is bounded by the
+OWNER's signature. Captured research is never discarded.
