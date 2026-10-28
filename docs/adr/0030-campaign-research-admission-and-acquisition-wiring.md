@@ -433,3 +433,29 @@ kept), and otherwise - a stale unused admission, or a run that kept nothing -
 supersedes the admission and admits afresh over the current registry, counted
 against the signed research-root budget, so supersession is bounded by the
 OWNER's signature. Captured research is never discarded.
+
+## 14. R2 amendment (2026-10-28): continuation of a stopped predecessor (migration 0029)
+
+ADR 0029 s12 records the decision; the wiring changes are these:
+
+- **Status.** `nwf-pe.acquisition-status.v1` gains ONE field, optional to a
+  reader: `continuation: { predecessorCampaignId, listed, adopted, pending,
+skipped: [ { nominationId, position, reason } ] } | null` (null for v1/v2),
+  derived on the readonly role by the worker's own rule. `nwf-engine status`
+  renders it as a CONTINUATION section and an info notice when anything was
+  skipped.
+- **Scope check.** `continuationScopeCheck` (dedupe.ts) is the NOMINATED
+  stage's search-geography rule, applied to a continuation nomination BEFORE
+  adoption on the readonly role; the production wiring passes it to the
+  worker, which refuses to start a v3 campaign without it
+  (`CONTINUATION_SCOPE_UNWIRED`).
+- **Handlers.** Unchanged. An adopted NOMINATED item runs the existing
+  dedupe handler, then promotion, admission, research, outbox and the
+  OWNER review exactly as any item; its subject id is derived from the NEW
+  campaign and the nomination.
+- **CLI.** `acquisition campaign template` gains `--continue-from <campaignId>
+--nomination-id <uuid> [...]` or `--continuation-file <json>` (v3 draft,
+  `maxSearchRuns '0'`, the predecessor's signed search grants when no
+  `--search-grant-id` is given); `campaign verify` and `campaign sign` print the
+  continuation; `campaign record` refuses an unknown predecessor
+  (`CONTINUATION_INVALID`).

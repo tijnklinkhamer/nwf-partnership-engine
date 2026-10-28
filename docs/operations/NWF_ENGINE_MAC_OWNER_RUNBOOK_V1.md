@@ -349,6 +349,80 @@ had already asked for a graceful `shutdown` before the emergency stop. A
 killed worker's claim expires, and because the campaign is over, the item is
 not retried.
 
+### Continue a stopped campaign's stranded candidates (R2, campaign v3)
+
+A campaign whose signed `maxWorkItems` ran out can leave nominations that
+passed de-duplication but never got their next item ("stranded": a NOMINATED
+item whose outcome is ADVANCED and which has no child). They are NOT lost and
+NOT re-searched: a NEW campaign that you sign can **continue** them, in the
+order you choose, charged to ITS OWN budgets (ADR 0029 s12, migration 0029).
+Every nomination keeps its identity, evidence and dedupe history; nothing is
+merged, and each one can be continued at most once, by one campaign.
+
+1. **Stop the predecessor** (STOP is terminal and required; an emergency stop
+   is not continuable):
+
+   ```bash
+   nwf-engine stop --execute            # or, without the engine running:
+   npm run cli -- acquisition campaign control --campaign-id <predecessor uuid> \
+       --action STOP --execute
+   ```
+
+2. **List its stranded nominations** (read-only, on the readonly login):
+
+   ```bash
+   psql "$DATABASE_URL_READONLY" -X -v ON_ERROR_STOP=1 -c "
+     SELECT s.subject_id AS nomination_id, s.registrable_domain, s.created_at
+       FROM acquisition_work_item_states s
+      WHERE s.campaign_id = '<predecessor uuid>' AND s.stage = 'NOMINATED'
+        AND s.source_kind = 'SEARCH_GRANT' AND s.state = 'ADVANCED'
+        AND NOT EXISTS (SELECT 1 FROM acquisition_work_items c WHERE c.parent_item_id = s.work_item_id)
+        AND NOT EXISTS (SELECT 1 FROM acquisition_campaign_continuations a WHERE a.nomination_id = s.subject_id)
+      ORDER BY s.created_at;"
+   ```
+
+   Pick the ones to continue (1 to 200), **in the order you want them
+   worked** - the first is served first.
+
+3. **Draft, read, sign, verify, record and start** the v3 campaign:
+
+   ```bash
+   # an UNSIGNED v3 draft (nwf-pe.acquisition-campaign-draft.v3): the template's
+   # stages, window and budgets, maxSearchRuns "0" (reuse only, no new search),
+   # the predecessor's signed search grants, and scope.continuation in YOUR order.
+   npm run cli -- acquisition campaign template --campaign-key <new key, e.g. nl-continue-2026-10-v1> \
+       --geography NL --continue-from <predecessor uuid> \
+       --nomination-id <first uuid> --nomination-id <second uuid> [...] > draft.json
+   #   (or: --continuation-file continuation.json holding exactly
+   #    {"predecessorCampaignId": "<uuid>", "nominationIds": ["<uuid>", ...]})
+   # Size maxWorkItems for what you continue: each continued nomination costs up to
+   # 6 work items here (NOMINATED, DEDUPLICATED, RESEARCH_PENDING, RESEARCHED,
+   # IDENTITY_REVIEW, ASSESSABLE) plus any link-out it finds; maxResearchRoots one each.
+   npm run cli -- acquisition campaign sign --file draft.json \
+       --key-file <absolute path to encrypted pkcs8> --key-id <key id> --out signed.json
+   npm run cli -- acquisition campaign verify  --file signed.json   # prints "CONTINUES n nomination(s) of ..."
+   npm run cli -- acquisition campaign record  --file signed.json --execute
+   npm run cli -- acquisition campaign control --campaign-id <new uuid> --action START --execute
+   nwf-engine start --campaign-id <new uuid>
+   ```
+
+   The geography you sign must contain the predecessor's search geography,
+   or each nomination is skipped `OUT_OF_SCOPE`. If you raise
+   `maxSearchRuns` in the draft, the new campaign's own search waits until
+   every continued nomination has left NOMINATED, DEDUPLICATED and
+   RESEARCH_PENDING: listed candidates are always used before any search.
+
+4. **Watch it.** `nwf-engine status` shows a CONTINUATION section:
+   the predecessor, how many you listed, how many were adopted, how many the
+   next worker start will adopt, and every listed nomination that was NOT
+   adopted with its reason (`HAS_CHILD`, `NOT_ADVANCED`,
+   `ADOPTED_BY_ANOTHER_CAMPAIGN`, `PREDECESSOR_NOT_STOPPED`, `OUT_OF_SCOPE`,
+   `WORK_ITEM_BUDGET_EXHAUSTED`, ...). Adoption happens at every worker start
+   and is idempotent: a restart, a crash or a second worker never adopts or
+   processes a nomination twice. A continued nomination still goes through
+   the unchanged de-duplication (a domain that became a website claim or a
+   subject since is refused DUPLICATE), research and your identity review.
+
 ## 4. Shutdown (the campaign stays as it is)
 
 ```bash

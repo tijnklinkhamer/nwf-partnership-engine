@@ -238,3 +238,88 @@ repository. Revocation is a reviewed commit setting the entry's state
 once. Pinning a key records and starts nothing: a campaign still runs only
 after the OWNER signs it, records it and records `START`, and the other §8
 items stand as written.
+
+## 12. Amendment (R2, 2026-10-28): a campaign may CONTINUE a stopped predecessor's stranded nominations
+
+**FACT (measured in production `nwf_pe`, campaign `nwf-nl-canary-2026-10-v1`,
+id `46b17c8f-d355-4731-befd-f5daf9179855`, signed `maxWorkItems` 100).** The
+NL search produced 87 nominations (87 NOMINATED items). 72 passed
+de-duplication (outcome ADVANCED, next DEDUPLICATED) but only 4 received a
+child before the work-item budget was spent: 68 NOMINATED items are ADVANCED
+with NO child - **stranded**. A second campaign could not reach them: a
+re-found URL is `ON CONFLICT (dedupe_key) DO NOTHING` (no new nomination) and a
+re-found domain is refused `DUPLICATE_OF_EARLIER_NOMINATION`. Budgets are part
+of the signed document and cannot be raised in place.
+
+**DESIGN DECISION (OWNER-approved requirements).** A NEW OWNER-signed campaign
+explicitly continues eligible stranded candidates of a NAMED predecessor;
+nothing is loosened, nothing is merged.
+
+- **Document `nwf-pe.acquisition-campaign.v3`** (draft
+  `nwf-pe.acquisition-campaign-draft.v3`) = v2 plus ONE signed scope field,
+  `scope.continuation = { predecessorCampaignId, nominationIds }`: 1..200
+  distinct nomination ids whose ORDER is the OWNER's priority (first =
+  highest). v1 and v2 are unchanged and still accepted; the canonical JSON,
+  protocol line and signature rules are unchanged. A v3 document must list
+  `SEARCH_GRANT` (the adopted items keep that source kind, so the unchanged
+  dedupe scope rule - the nomination's search-run geography inside the signed
+  geographies - applies as before; it never needed the grant id).
+- **Adoption (migration 0029).** At every worker start, after the first
+  authority and BEFORE any search seeding, the worker adopts the listed
+  nominations in signed order: per nomination, ONE transaction appends one
+  `acquisition_campaign_continuations` row and one NEW work item in the NEW
+  campaign at stage NOMINATED for the SAME nomination (same subject id, same
+  registrable domain, source kind `SEARCH_GRANT`) with **no parent** - it is
+  never presented as the predecessor's child. The database checks, on every
+  adoption and for every role: the adopting campaign's STORED SIGNED document
+  is v3, names this predecessor and lists this nomination at exactly this
+  position; predecessor ≠ campaign, same environment; the predecessor's latest
+  control event is STOP (an OWNER act; nothing lets the worker stop it); the
+  adopting campaign is RUNNING inside its window; the predecessor item is the
+  predecessor's NOMINATED item for the nomination, of source kind
+  SEARCH_GRANT, latest outcome ADVANCED, with no child. Nomination, predecessor
+  item and adopted item are each GLOBALLY UNIQUE in that table, so a
+  nomination is adopted at most once across every campaign and every
+  concurrent worker; the adoption row's foreign key to its item is DEFERRED to
+  commit and a parentless NOMINATED item is admitted only as the item an
+  adoption row names, so a crash leaves only whole adoptions. The
+  pre-adoption geography check runs on the readonly role (the worker role
+  cannot read the run and no read grant was widened) and the unchanged
+  NOMINATED handler re-checks it.
+- **Budgets.** Every adopted item is inserted through the unchanged work-item
+  trigger, so it counts against the NEW campaign's `maxWorkItems` and
+  per-domain cap; all later stages reserve and spend against the NEW
+  campaign's signed budgets, concurrency, attempts and window as any item.
+  The predecessor's usage is not touched.
+- **Priority.** The scheduler breaks a tie between never-served domains (and
+  between equal-priority items) by the signed continuation position, so the
+  adopted items are claimed in the OWNER's order; descendants follow through
+  the unchanged least-recently-served rule. A campaign with no continuation is
+  scheduled exactly as before.
+- **Reuse before search (the item-4 choice).** BOTH safeguards are
+  implemented: the template drafts `maxSearchRuns '0'` when `--continue-from`
+  is given (a reuse-only campaign seeds NO search root at all), and if the
+  OWNER signs `maxSearchRuns > 0`, the worker seeds the campaign's search
+  roots only after no SEARCH_GRANT item of it is still open at a listed stage
+  among NOMINATED / DEDUPLICATED / RESEARCH_PENDING - i.e. after every adopted
+  item has moved on or is terminal.
+- **Named skips.** A listed nomination that is not adopted is reported by
+  name in the worker summary (`continuation.skipped[]`) and in
+  `nwf-pe.acquisition-status.v1` (`continuation`, derived at read time):
+  `ADOPTED_BY_ANOTHER_CAMPAIGN`, `PREDECESSOR_NOT_STOPPED`,
+  `NOT_A_PREDECESSOR_NOMINATION`, `SOURCE_KIND_NOT_SEARCH_GRANT`,
+  `NOT_ADVANCED`, `HAS_CHILD`, `OUT_OF_SCOPE`, `ALREADY_IN_CAMPAIGN`,
+  `WORK_ITEM_BUDGET_EXHAUSTED`, `DOMAIN_CAP_REACHED`. Never silently dropped.
+
+**What does not change.** No nomination, sighting, identity, source evidence or
+dedupe record is created, rewritten or merged; the NOMINATED handler still
+refuses a domain that became a website claim or a discovery subject since
+(`first_nomination_id` still names the same nomination, so it passes). The
+subject id is still derived from (campaign, nomination). The cloud, the I0
+admission contract, the trust sets and the review protocol are untouched. No
+role, LOGIN, UPDATE/DELETE grant or SECURITY DEFINER function is added.
+
+**UNKNOWN.** Whether the 68 production nominations are all still eligible:
+eligibility is decided by the database at adoption time, and each refusal is
+reported by name. An EMERGENCY_STOPPED predecessor is not continuable (STOP
+only, as the OWNER requirement states).
