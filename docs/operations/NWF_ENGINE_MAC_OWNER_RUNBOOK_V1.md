@@ -303,8 +303,13 @@ nwf-engine resume [--reason "<text>"]
 
 Each records the control event through the existing owner path
 (`acquisition campaign control ... --execute`), then wakes the supervisor.
-On `pause`, the current item finishes and its outcome is recorded; nothing
-new is claimed. On `resume`, work continues at once. `resume` needs the
+On `pause`, nothing new is claimed and the current item's outcome is
+recorded. A research item that was fetching when you paused stops at its next
+request (a paused campaign authorises no request) and is retried after
+`resume`, once the queue's backoff has passed (at least 60 seconds): it keeps
+the pages it had captured, or is researched afresh if it had captured none
+(migration 0028). Nothing is lost to a pause, and nothing is done twice. On
+`resume`, other queued work continues at once. `resume` needs the
 campaign to verify under the pinned key set, so it is refused while no key
 is pinned. Both work when the engine is not running: the event is recorded,
 and the next `start` honours it.

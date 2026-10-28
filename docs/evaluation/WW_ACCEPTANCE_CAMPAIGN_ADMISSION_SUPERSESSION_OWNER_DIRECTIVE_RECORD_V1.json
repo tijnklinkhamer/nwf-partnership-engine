@@ -1,0 +1,38 @@
+{
+  "recordId": "WW_ACCEPTANCE_CAMPAIGN_ADMISSION_SUPERSESSION_OWNER_DIRECTIVE_RECORD_V1",
+  "recordKind": "OWNER_DIRECTIVE_SCOPE_RECORD",
+  "recordedAtUtc": "2026-10-28",
+  "branch": "integration/ww-engine-v1",
+  "startingHead": "8bbb8f4",
+  "status": "LOCAL_IMPLEMENTATION_UNDER_REL_F1_R2_AND_OWNER_DIRECTIVES_2026_10_27__WW_ACCEPTANCE_RELEASE_BLOCKING_DEFECT_REPAIR",
+  "isOwnerRatification": false,
+  "recordedBy": "WW integration lead (transcription of the scope it was given; not an OWNER signature)",
+  "authority": {
+    "source": "REL-F1-R2 (local engineering only) and the OWNER directives of 2026-10-27 ('NWF Partnership Engine - full end-to-end product completion' and its continuation: 'Fix all demonstrated release-blocking engineering defects and rerun the affected tests')",
+    "scope": [
+      "The Mac runtime full-system acceptance (wwMacRuntimeFullSystem.test.ts) demonstrated that a PAUSE, a crash or the OWNER's identity review while the Engine runs could cost a campaign an organisation or its research: a refusal for want of a RUNNING campaign was mapped to a terminal REFUSED; a CAMPAIGN admission recorded before an interruption went STALE for good and 0026 refused a second live admission; a run cut off before its first page advanced empty.",
+      "Repair: map the campaign-standing refusals to RETRY; let the acquisition worker supersede (append ONE revocation, CAMPAIGN_ATTEMPT_SUPERSEDED) its in-flight item's CAMPAIGN admission of an earlier attempt whose research captured no page, then admit afresh against the signed research-root budget."
+    ],
+    "authorised": [
+      "local source edits",
+      "one forward-only migration (0028): a BEFORE INSERT trigger on subject_research_admission_revocations (owner path unchanged), INSERT on that table to the EXISTING NOLOGIN capability nwf_acquisition_worker, and one definer-rights count view (subject_research_admission_page_capture; SELECT to nwf_acquisition_worker and nwf_readonly)",
+      "local test runs against a disposable tmpfs PostgreSQL",
+      "local commits"
+    ],
+    "notAuthorised": [
+      "applying migration 0028 to nwf_pe or any persistent, shared, staging or production database",
+      "any live web search, live fetch, live model call or live auth-status call",
+      "push, merge or deploy",
+      "editing a committed migration",
+      "weakening any security check, firewall or the registry-fingerprint staleness check"
+    ]
+  },
+  "migrationUnderThisDirective": "migrations/0028_campaign_admission_supersession.sql",
+  "adr": "docs/adr/0030-campaign-research-admission-and-acquisition-wiring.md",
+  "amendsProposedAdr": "docs/adr/0030-campaign-research-admission-and-acquisition-wiring.md",
+  "loginInMigrations": false,
+  "newRole": false,
+  "appendOnly": true,
+  "editsPriorMigrations": false,
+  "liveNetworkAuthorised": false
+}

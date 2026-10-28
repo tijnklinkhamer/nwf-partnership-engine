@@ -803,6 +803,13 @@ const MIGRATIONS_AFTER_THE_CORPUS_FREEZE = [
     ownerRecord:
       'docs/evaluation/WW_H_SD_SOURCE_DISCOVERY_SEARCH_OBSERVATIONS_OWNER_DIRECTIVE_RECORD_V1.json',
   },
+  // WW acceptance (CAMPAIGN admission supersession, ADR 0030 s13a).
+  {
+    file: '0028_campaign_admission_supersession.sql',
+    adr: 'docs/adr/0030-campaign-research-admission-and-acquisition-wiring.md',
+    ownerRecord:
+      'docs/evaluation/WW_ACCEPTANCE_CAMPAIGN_ADMISSION_SUPERSESSION_OWNER_DIRECTIVE_RECORD_V1.json',
+  },
 ] as const;
 
 function gitAvailable(...commits: readonly string[]): boolean {
