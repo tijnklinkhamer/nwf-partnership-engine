@@ -66,7 +66,7 @@ or scraping" with:
 > `nwf-pe-c1-extraction-rules-v3`, extraction label `orgunit-extraction-v4`)
 > and writes an outbox (`nwf-pe.acquisition-outbox.v1`) for the Operator; and
 > the Mac runtime (`npm run engine -- …`) that supervises it. Migrations
-> 0013–0027.
+> 0013–0028.
 
 ## D. Layout — add
 

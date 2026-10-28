@@ -1,19 +1,19 @@
 /**
- * WW INTEGRATION FIREWALL - the successor `nwf_pe` apply runbook (0013-0027) is a
+ * WW INTEGRATION FIREWALL - the successor `nwf_pe` apply runbook (0013-0028) is a
  * DOCUMENT PACK, prepared and not executed, and it names THIS line's
  * migrations by exact file and digest.
  *
  * Pins, over the working tree (by path and content, never by commit SHA):
  *   - the pack's SHA256SUMS file lists exactly the runbook and its two SQL
  *     files, each with the SHA-256 of the file as it stands;
- *   - the runbook lists exactly the fifteen migrations 0013-0027, each with
+ *   - the runbook lists exactly the sixteen migrations 0013-0028, each with
  *     the checksum the runner (`src/db/migrate.ts`) records for the file in
  *     `migrations/`, and both SQL files carry the same digests;
  *   - both SQL files only read: no INSERT, UPDATE, DELETE, ALTER, CREATE,
  *     GRANT, DROP or TRUNCATE token anywhere (comments included), one
  *     READ ONLY transaction ended by ROLLBACK, no COMMIT;
  *   - the runbook says it is prepared and not executed, names the required
- *     OWNER grant `NWF-PE-APPLY-0013-0027-V1`, checks the ledger before and
+ *     OWNER grant `NWF-PE-APPLY-0013-0028-V1`, checks the ledger before and
  *     after, accepts exactly the starting states A, B and C, carries the
  *     E-XFX / H-EX extraction-label check (v4 rows STOP, v3 rows escalate),
  *     applies only through `npm run db:migrate`, and names no private path;
@@ -28,11 +28,11 @@ import { describe, expect, it } from 'vitest';
 import { REPO_ROOT, readCurrent } from '../helpers/phaseRange.js';
 
 const DIR = 'docs/architecture';
-const RUNBOOK_NAME = 'NWF_PE_MIGRATIONS_0013_0027_APPLY_RUNBOOK_V1.md';
+const RUNBOOK_NAME = 'NWF_PE_MIGRATIONS_0013_0028_APPLY_RUNBOOK_V1.md';
 const RUNBOOK = `${DIR}/${RUNBOOK_NAME}`;
-const SUMS = `${DIR}/NWF_PE_MIGRATIONS_0013_0027_APPLY_RUNBOOK_V1.SHA256SUMS`;
-const PREFLIGHT_NAME = 'nwf-pe-0013-0027-preflight.sql';
-const VERIFY_NAME = 'nwf-pe-0013-0027-verify.sql';
+const SUMS = `${DIR}/NWF_PE_MIGRATIONS_0013_0028_APPLY_RUNBOOK_V1.SHA256SUMS`;
+const PREFLIGHT_NAME = 'nwf-pe-0013-0028-preflight.sql';
+const VERIFY_NAME = 'nwf-pe-0013-0028-verify.sql';
 const PREDECESSOR = `${DIR}/NWF_PE_MIGRATIONS_0013_0025_APPLY_RUNBOOK_V1.md`;
 
 const bytesSha = (path: string): string =>
@@ -48,7 +48,7 @@ const runnerChecksum = (file: string): string =>
 
 const migrations = (): string[] =>
   readdirSync(join(REPO_ROOT, 'migrations'))
-    .filter((f) => /^00(1[3-9]|2[0-7])_.*\.sql$/.test(f))
+    .filter((f) => /^00(1[3-9]|2[0-8])_.*\.sql$/.test(f))
     .sort();
 
 const EXPECTED_FILES = [
@@ -67,9 +67,10 @@ const EXPECTED_FILES = [
   '0025_source_discovery_search_gate.sql',
   '0026_acquisition_hardening.sql',
   '0027_source_discovery_search_observations.sql',
+  '0028_campaign_admission_supersession.sql',
 ];
 
-describe('WW E-RB: the 0013-0027 runbook pack is pinned by its own SHA256SUMS', () => {
+describe('WW E-RB: the 0013-0028 runbook pack is pinned by its own SHA256SUMS', () => {
   it('lists exactly the runbook and its two SQL files, each with its current SHA-256', () => {
     const lines = readCurrent(SUMS)
       .split('\n')
@@ -86,15 +87,15 @@ describe('WW E-RB: the 0013-0027 runbook pack is pinned by its own SHA256SUMS', 
   });
 });
 
-describe('WW E-RB: the runbook names exactly migrations 0013-0027, by file and digest', () => {
-  it('migrations/ holds exactly the fifteen files of this range', () => {
+describe('WW E-RB: the runbook names exactly migrations 0013-0028, by file and digest', () => {
+  it('migrations/ holds exactly the sixteen files of this range', () => {
     expect(migrations()).toEqual(EXPECTED_FILES);
   });
 
   it("the runbook's table carries the runner checksum of each file in migrations/", () => {
     const table = [
       ...readCurrent(RUNBOOK).matchAll(
-        /^\| `(00(?:1[3-9]|2[0-7])_\w+\.sql)`\s*\| `([0-9a-f]{64})` \|$/gm,
+        /^\| `(00(?:1[3-9]|2[0-8])_\w+\.sql)`\s*\| `([0-9a-f]{64})` \|$/gm,
       ),
     ].map((m) => [m[1], m[2]]);
     expect(table).toEqual(migrations().map((f) => [f, runnerChecksum(f)]));
@@ -102,7 +103,7 @@ describe('WW E-RB: the runbook names exactly migrations 0013-0027, by file and d
     for (const f of migrations()) expect(runnerChecksum(f)).toBe(bytesSha(`migrations/${f}`));
   });
 
-  it('both SQL files carry the same digests as the files (0013-0027 in verify; 0013-0027 in preflight)', () => {
+  it('both SQL files carry the same digests as the files (0013-0028 in verify; 0013-0028 in preflight)', () => {
     const want = new Map(migrations().map((f) => [f.slice(0, 4), runnerChecksum(f)]));
     for (const name of [VERIFY_NAME, PREFLIGHT_NAME]) {
       const pairs = [
@@ -177,7 +178,7 @@ describe('WW E-RB: the runbook is prepared, not executed, and names its OWNER gr
     );
     expect(text()).toMatch(/needs a\s+\*\*separate, signed OWNER grant\*\*/);
     expect(text()).toMatch(
-      /> \*\*OWNER GRANT NWF-PE-APPLY-0013-0027-V1\.\*\* I, the OWNER, authorise/,
+      /> \*\*OWNER GRANT NWF-PE-APPLY-0013-0028-V1\.\*\* I, the OWNER, authorise/,
     );
     expect(text()).toMatch(/`nwf_pe` was \*\*not read\*\* while preparing this runbook/);
   });

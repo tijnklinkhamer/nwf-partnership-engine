@@ -1,16 +1,16 @@
--- nwf-pe-0013-0027-verify.sql - READ-ONLY verification for
--- docs/architecture/NWF_PE_MIGRATIONS_0013_0027_APPLY_RUNBOOK_V1.md, section 6.
+-- nwf-pe-0013-0028-verify.sql - READ-ONLY verification for
+-- docs/architecture/NWF_PE_MIGRATIONS_0013_0028_APPLY_RUNBOOK_V1.md, section 6.
 --
 -- PREPARED, NOT EXECUTED against nwf_pe. Run it only under the runbook's
--- signed OWNER authorisation (runbook section 2), AFTER `npm run db:migrate` reported migrations 0013-0027
+-- signed OWNER authorisation (runbook section 2), AFTER `npm run db:migrate` reported migrations 0013-0028
 -- applied, on the owner path (the cluster superuser that ran the migrations:
 -- the role check reads pg_authid):
 --
---   psql "<owner URL for nwf_pe>" -X -v ON_ERROR_STOP=1 -f docs/architecture/nwf-pe-0013-0027-verify.sql
+--   psql "<owner URL for nwf_pe>" -X -v ON_ERROR_STOP=1 -f docs/architecture/nwf-pe-0013-0028-verify.sql
 --
 -- It only reads. One transaction, READ ONLY, ended by ROLLBACK. Every
 -- expected value below was measured from THIS tree's migrations on a
--- disposable database migrated 0001-0027, and is the state the migrations
+-- disposable database migrated 0001-0028, and is the state the migrations
 -- leave and nothing else: no privilege row, no campaign, no search authority, no key,
 -- no member of any capability role.
 --
@@ -23,7 +23,7 @@ BEGIN TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY;
 SET LOCAL statement_timeout = '120s';
 
 WITH
--- L. The migration ledger: exactly 0001-0027, and 0013-0027 with these digests.
+-- L. The migration ledger: exactly 0001-0028, and 0013-0028 with these digests.
 expected_ledger(version, checksum) AS (
     VALUES
         ('0013', '98af165685793512f61946b32225652465b49f669267a3eedb298fc3002cc8b2'),
@@ -40,7 +40,8 @@ expected_ledger(version, checksum) AS (
         ('0024', '72bc76aa58ad4eb11a09616b3b5093b7d089effca3e96eb7198ed8713c2e2acf'),
         ('0025', '26920ea160608a7cfd4001d9aaa503ceb2575f686ab7ab8c77fdb67c9516b4db'),
         ('0026', 'c845f8cf8675e8fa53d62b0ff92e1fc1a87fcbf245385ff010a13460be5d4ac1'),
-        ('0027', 'ae4cf78416a40e2a5fbf36cb4bc2b9de4dcfd3f732929a26f6dfd5bf91931f2c')
+        ('0027', 'ae4cf78416a40e2a5fbf36cb4bc2b9de4dcfd3f732929a26f6dfd5bf91931f2c'),
+        ('0028', 'bc4a7f0ac5d177ddc3308d0c304874ed2e354e337df1f4be717055b43b70e70c')
 ),
 actual_ledger AS (
     SELECT version, checksum FROM public.schema_migrations WHERE version >= '0013'
@@ -159,7 +160,9 @@ expected_acl(relname, grantee, privs) AS (
         ('source_discovery_smoke_verifications', 'nwf_source_discovery', 'r'),
         ('subject_jurisdiction_claims', 'nwf_discovery_subject_writer', 'ar'),
         ('subject_jurisdiction_claims', 'nwf_readonly', 'r'),
-        ('subject_research_admission_revocations', 'nwf_acquisition_worker', 'r'),
+        ('subject_research_admission_page_capture', 'nwf_acquisition_worker', 'r'),
+        ('subject_research_admission_page_capture', 'nwf_readonly', 'r'),
+        ('subject_research_admission_revocations', 'nwf_acquisition_worker', 'ar'),
         ('subject_research_admission_revocations', 'nwf_readonly', 'r'),
         ('subject_research_admission_revocations', 'nwf_research', 'r'),
         ('subject_research_admissions', 'nwf_acquisition_worker', 'ar'),
@@ -315,6 +318,7 @@ expected_fn(signature, config) AS (
         ('subject_iso3166_alpha2_assigned(text)', ''),
         ('subject_jurisdiction_writer_scope()', ''),
         ('subject_research_admission_campaign_verify()', 'search_path=public, pg_catalog, pg_temp'),
+        ('subject_research_admission_revocation_verify()', 'search_path=public, pg_catalog, pg_temp'),
         ('subject_research_admission_stamp()', ''),
         ('subject_review_attestation_bind()', '')
 ),
@@ -401,6 +405,7 @@ expected_trg(relname, tgname, proname, tgtype) AS (
         ('subject_jurisdiction_claims', 'subject_jurisdiction_claims_writer_actor', 'discovery_identity_bind_writer_actor', 7),
         ('subject_jurisdiction_claims', 'subject_jurisdiction_claims_writer_scope', 'subject_jurisdiction_writer_scope', 7),
         ('subject_research_admission_revocations', 'subject_research_admission_revocations_append_only', 'discovery_identity_refuse_mutation', 27),
+        ('subject_research_admission_revocations', 'subject_research_admission_revocations_verify', 'subject_research_admission_revocation_verify', 7),
         ('subject_research_admissions', 'subject_research_admissions_append_only', 'discovery_identity_refuse_mutation', 27),
         ('subject_research_admissions', 'subject_research_admissions_campaign_verify', 'subject_research_admission_campaign_verify', 7),
         ('subject_research_admissions', 'subject_research_admissions_stamp', 'subject_research_admission_stamp', 7),
@@ -416,7 +421,7 @@ actual_trg(relname, tgname, proname, tgtype) AS (
       JOIN pg_catalog.pg_proc p ON p.oid = t.tgfoid
      WHERE NOT t.tgisinternal AND c.relnamespace = 'public'::regnamespace
 ),
--- The thirty-two base tables migrations 0013-0027 add.
+-- The thirty-two base tables migrations 0013-0028 add.
 new_tables(relname) AS (
     VALUES
         ('acquisition_campaign_control_events'),
@@ -460,15 +465,15 @@ capability_roles(rolname) AS (
         ('nwf_acquisition_worker')
 ),
 checks(check_id, ok, detail) AS (
-    SELECT 'L1 ledger 0013-0027 equals the runbook table',
+    SELECT 'L1 ledger 0013-0028 equals the runbook table',
            NOT EXISTS ((SELECT * FROM expected_ledger EXCEPT SELECT * FROM actual_ledger)
                        UNION ALL
                        (SELECT * FROM actual_ledger EXCEPT SELECT * FROM expected_ledger)),
            (SELECT count(*) FROM actual_ledger) || ' rows >= 0013'
     UNION ALL
-    SELECT 'L2 ledger is exactly 0001-0027, no gap, nothing newer',
+    SELECT 'L2 ledger is exactly 0001-0028, no gap, nothing newer',
            (SELECT array_agg(version ORDER BY version) FROM public.schema_migrations)
-             = (SELECT array_agg(lpad(g::text, 4, '0') ORDER BY g) FROM generate_series(1, 27) AS g),
+             = (SELECT array_agg(lpad(g::text, 4, '0') ORDER BY g) FROM generate_series(1, 28) AS g),
            (SELECT count(*) FROM public.schema_migrations) || ' rows'
     UNION ALL
     SELECT 'R1 the four capability roles exist, NOLOGIN, no attribute, no password',
@@ -534,7 +539,7 @@ checks(check_id, ok, detail) AS (
     UNION ALL
     SELECT 'F2 every pinned function pins exactly search_path = public, pg_catalog, pg_temp',
            (SELECT count(*) FROM actual_fn
-             WHERE config = 'search_path=public, pg_catalog, pg_temp') = 38
+             WHERE config = 'search_path=public, pg_catalog, pg_temp') = 39
            AND NOT EXISTS (SELECT 1 FROM actual_fn
                             WHERE config NOT IN ('', 'search_path=public, pg_catalog, pg_temp')),
            (SELECT count(*) FROM actual_fn

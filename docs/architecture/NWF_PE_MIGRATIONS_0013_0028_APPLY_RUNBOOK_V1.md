@@ -1,9 +1,9 @@
-# Runbook — applying migrations 0013–0027 to the working database `nwf_pe` (V1, WW line)
+# Runbook — applying migrations 0013–0028 to the working database `nwf_pe` (V1, WW line)
 
 - **Status: PREPARED, NOT EXECUTED.** Nothing in this runbook has been applied
   to `nwf_pe` or to any other persistent database. Applying ANY step needs a
   **separate, signed OWNER grant** in exactly the form of §2.1
-  (`NWF-PE-APPLY-0013-0027-V1`). The grant must name the database, the exact
+  (`NWF-PE-APPLY-0013-0028-V1`). The grant must name the database, the exact
   migration range, the commit and the operator path. The WW integration lead
   wrote this file under local-engineering authority only (REL-F1-R2 and the
   OWNER directives of 2026-10-27). It did not connect to `nwf_pe`.
@@ -19,7 +19,8 @@
   (campaign research admission and acquisition wiring, ADR 0030), 0025 (the
   source-discovery search gate, ADR 0028 §9). **New since the 0025 runbook:**
   0026 (WW H-ACQ hardening of campaign admission and the acquisition wiring,
-  ADR 0030 §13) and 0027 (WW H-SD search observations, ADR 0028 §9). ADRs
+  ADR 0030 §13), 0027 (WW H-SD search observations, ADR 0028 §9) and 0028
+  (WW acceptance: CAMPAIGN admission supersession, ADR 0030 §13). ADRs
   0027–0030 are **Proposed**. Applying their schema does not accept them, and
   every capability they describe stays inert (§9).
 - **Changed since the 0025 runbook (§2.3):** the extraction label. H-EX moved
@@ -28,15 +29,15 @@
   before the apply is a STOP; a v3 row is still escalated, now with a named
   OWNER acknowledgement path.
 - **The pack.** Three files, pinned together by
-  `NWF_PE_MIGRATIONS_0013_0027_APPLY_RUNBOOK_V1.SHA256SUMS`:
+  `NWF_PE_MIGRATIONS_0013_0028_APPLY_RUNBOOK_V1.SHA256SUMS`:
   - this runbook;
-  - `nwf-pe-0013-0027-preflight.sql`: the read-only preconditions (§2.2);
-  - `nwf-pe-0013-0027-verify.sql`: the read-only after-checks (§6).
+  - `nwf-pe-0013-0028-preflight.sql`: the read-only preconditions (§2.2);
+  - `nwf-pe-0013-0028-verify.sql`: the read-only after-checks (§6).
 
   Check the pack before anything else:
-  `(cd docs/architecture && shasum -a 256 -c NWF_PE_MIGRATIONS_0013_0027_APPLY_RUNBOOK_V1.SHA256SUMS)`
+  `(cd docs/architecture && shasum -a 256 -c NWF_PE_MIGRATIONS_0013_0028_APPLY_RUNBOOK_V1.SHA256SUMS)`
   must print `OK` three times. The firewall
-  `src/test/firewall/wwNwfPeRunbook0027.firewall.test.ts` pins the same sums.
+  `src/test/firewall/wwNwfPeRunbook0028.firewall.test.ts` pins the same sums.
 
 - **Byte identity.** The files applied must be byte-identical to §1. The runner
   (`src/db/migrate.ts`) records `sha256(file text)` per four-digit version in
@@ -61,6 +62,8 @@ comes from earlier records.
   2026-10-26, so the expected answer is zero for both. The preflight measures
   it (§2.3).
 - The 0013–0025 runbook was **never executed** as far as any record shows.
+  A 0013–0027 draft of this pack existed only in unpublished local history,
+  before 0028 was added; it was never executed either.
 
 `nwf_pe` holds the FROZEN Gen-2 A2 acquisition corpus. Every step must leave
 every existing evidence row byte-identical. The per-row digests of §3.3 and
@@ -92,11 +95,12 @@ byte-order mark.
 | `0025_source_discovery_search_gate.sql`           | `26920ea160608a7cfd4001d9aaa503ceb2575f686ab7ab8c77fdb67c9516b4db` |
 | `0026_acquisition_hardening.sql`                  | `c845f8cf8675e8fa53d62b0ff92e1fc1a87fcbf245385ff010a13460be5d4ac1` |
 | `0027_source_discovery_search_observations.sql`   | `ae4cf78416a40e2a5fbf36cb4bc2b9de4dcfd3f732929a26f6dfd5bf91931f2c` |
+| `0028_campaign_admission_supersession.sql`        | `bc4a7f0ac5d177ddc3308d0c304874ed2e354e337df1f4be717055b43b70e70c` |
 
 0013–0025 carry the same digests as in the 0013–0019, 0013–0021 and
 0013–0025 runbooks. Verify on the granted commit:
-`shasum -a 256 migrations/001[3-9]_*.sql migrations/002[0-7]_*.sql` must
-print exactly these fifteen lines, and `ls migrations` must end at `0027_…`.
+`shasum -a 256 migrations/001[3-9]_*.sql migrations/002[0-8]_*.sql` must
+print exactly these sixteen lines, and `ls migrations` must end at `0028_…`.
 
 ### 1.2 What each file does to existing data, and its locks
 
@@ -117,12 +121,13 @@ state A.
 | `0025` | none. Widens two 0022 CHECKs to supersets (validated over every row, empty in every accepted state); two new append-only tables (`source_discovery_query_call_starts`, `source_discovery_smoke_verifications`); `CREATE OR REPLACE` of the six 0022 trigger functions with a pinned `search_path`                                                                                                                                                                                                                                                                                                                                                                                                                                            | ACCESS EXCLUSIVE on `source_discovery_query_calls` and `source_discovery_run_completions` (created by 0022 in the same apply in states A–C); SHARE ROW EXCLUSIVE on `source_discovery_runs` (new FK)                                                                                                                          |
 | `0026` | none rewritten. `acquisition_campaigns` gains `link_out_max_hops` (`NOT NULL DEFAULT 1`, a constant default: no table rewrite) and a rebuilt version CHECK; `acquisition_work_outcomes` a rebuilt human-queue CHECK (both validated over every row, empty in every accepted state); a READ COMMITTED guard trigger on the eight acquisition write tables; one more BEFORE INSERT trigger on `orgunit_research_runs` (a CAMPAIGN admission's run); the definer-rights view `subject_research_campaign_admission_standing` (booleans, two instants, a run id and a count per CAMPAIGN admission; SELECT to `nwf_research` and `nwf_readonly`); one column grant (§1.4); `CREATE OR REPLACE` of 0023/0024 functions with a pinned `search_path` | ACCESS EXCLUSIVE on `acquisition_campaigns` and `acquisition_work_outcomes` (created by 0023 in the same apply); SHARE ROW EXCLUSIVE on `orgunit_research_runs` (trigger, brief) and on the eight acquisition tables (triggers). No evidence row is read or written                                                           |
 | `0027` | none. One new append-only table (`source_discovery_query_call_observations`, one row per terminal query call); a deferred constraint trigger on `source_discovery_query_calls`; a BEFORE INSERT trigger on `source_discovery_nominations` (live-search rows only); `CREATE OR REPLACE` of three 0022/0025 trigger functions (explicit not-found refusal), of the 0025 smoke-verification function and of the 0019 nomination function (pinned `search_path`); `ALTER FUNCTION … SET search_path` on the two 0020 functions                                                                                                                                                                                                                   | SHARE ROW EXCLUSIVE on `source_discovery_query_calls` and `source_discovery_nominations` (triggers; created by 0019/0022, empty in every accepted state)                                                                                                                                                                      |
+| `0028` | none. One BEFORE INSERT trigger on `subject_research_admission_revocations` (the owner path unchanged; for anyone else exactly one case: the acquisition worker superseding its in-flight item's CAMPAIGN admission of an earlier attempt whose research captured no page, reason `CAMPAIGN_ATTEMPT_SUPERSEDED`); INSERT on that table to `nwf_acquisition_worker`; the definer-rights view `subject_research_admission_page_capture` (one page count per CAMPAIGN admission; SELECT to `nwf_acquisition_worker` and `nwf_readonly`), which the trigger reads (§1.4)                                                                                                                                                                         | SHARE ROW EXCLUSIVE on `subject_research_admission_revocations` (trigger; empty in every accepted state)                                                                                                                                                                                                                      |
 
 Dependencies: 0022 needs 0019 (`source_discovery_briefs`, `_runs`,
 `_nominations`) and 0013's `discovery_identity_refuse_mutation`. 0023 needs
 0015 (`subject_review_environment`) and 0013. 0024 needs 0017
 (`subject_research_admissions`, `_revocations`), 0019, 0007 and 0023. 0025
-needs 0022. 0026 needs 0023, 0024 and 0017. 0027 needs 0019, 0020, 0022 and 0025. Never apply a file without everything it depends on; the runner
+needs 0022. 0026 needs 0023, 0024 and 0017. 0027 needs 0019, 0020, 0022 and 0025. 0028 needs 0017, 0023, 0024 and 0026. Never apply a file without everything it depends on; the runner
 applies them in order, so the whole range is applied or the failing file and
 everything after it is not (§5).
 
@@ -133,14 +138,14 @@ everything after it is not (§5).
   `nwf_discovery_subject_reviewer`, `nwf_source_discovery` and
   `nwf_acquisition_worker` if absent. They may already exist on the local
   cluster, because the test database shares it. No migration creates a LOGIN
-  role, a password or a membership. 0020–0027 grant `nwf_ingest` and
+  role, a password or a membership. 0020–0028 grant `nwf_ingest` and
   `nwf_classifier` nothing, and `nwf_research` only SELECT on 0026's
   `subject_research_campaign_admission_standing`.
 - **No SECURITY DEFINER function** exists in `public` after the range
   (verify F3).
-- **Pinned `search_path`.** Every function 0022–0027 creates or replaces runs
+- **Pinned `search_path`.** Every function 0022–0028 creates or replaces runs
   with `search_path = public, pg_catalog, pg_temp`, and 0027 pins three
-  0019/0020 nomination functions the same way (38 functions; verify F1, F2).
+  0019/0020 nomination functions the same way (39 functions; verify F1, F2).
   The 10 other functions created by 0013–0021, and the one created by 0011,
   carry **no** pinned `search_path`. That is how they were committed, and
   committed migrations are never edited (CLAUDE.md rule 5). Verify F1 pins
@@ -151,19 +156,19 @@ everything after it is not (§5).
 
 ### 1.4 Exact privileges after the range, per role
 
-Table-level, on the 35 relations 0013–0027 add (32 tables, 3 views). `r` is
+Table-level, on the 36 relations 0013–0028 add (32 tables, 4 views). `r` is
 SELECT, `ar` is SELECT + INSERT. No role receives UPDATE, DELETE, TRUNCATE,
 REFERENCES or TRIGGER on any of them. Verify G1 pins this map, plus the
 unchanged pre-0013 map, exactly.
 
-| role                             | SELECT + INSERT                                                                                                                                                                                                                                          | SELECT only                                                                                                                                                            |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `nwf_source_discovery`           | `source_discovery_briefs`, `_runs`, `_nominations`, `_nomination_identities`, `_nomination_sightings`, `_grant_uses`, `_query_calls`, `_query_call_starts`, `_query_call_observations`, `_run_completions`, `_nomination_known_marks`                    | `source_discovery_grants`, `source_discovery_smoke_verifications`                                                                                                      |
-| `nwf_acquisition_worker`         | `acquisition_work_items`, `_work_claims`, `_work_outcomes`, `_worker_stops`, `_campaign_subjects`, `_signals`, `_outbox_entries`, `_claim_lease_extensions`, `subject_research_admissions` (its trigger refuses any basis but `CAMPAIGN` from this role) | `acquisition_campaigns`, `acquisition_campaign_control_events`, `acquisition_work_item_states`, `subject_research_admission_revocations`, `subject_review_environment` |
-| `nwf_research`                   | —                                                                                                                                                                                                                                                        | `subject_research_admissions`, `subject_research_admission_revocations`, `subject_research_registry_fingerprint`, `subject_research_campaign_admission_standing`       |
-| `nwf_discovery_subject_writer`   | `discovery_subjects`, `discovery_subject_identity_claims`, `discovery_subject_relationship_claims`, `subject_jurisdiction_claims`                                                                                                                        | `discovery_subject_reviews`                                                                                                                                            |
-| `nwf_discovery_subject_reviewer` | `discovery_subject_reviews`, `subject_review_attestations`                                                                                                                                                                                               | `discovery_subjects`, `discovery_subject_identity_claims`, `discovery_subject_relationship_claims`, `subject_review_environment`                                       |
-| `nwf_readonly`                   | —                                                                                                                                                                                                                                                        | all 35 new relations                                                                                                                                                   |
+| role                             | SELECT + INSERT                                                                                                                                                                                                                                                                                                                                                                                                                             | SELECT only                                                                                                                                                             |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `nwf_source_discovery`           | `source_discovery_briefs`, `_runs`, `_nominations`, `_nomination_identities`, `_nomination_sightings`, `_grant_uses`, `_query_calls`, `_query_call_starts`, `_query_call_observations`, `_run_completions`, `_nomination_known_marks`                                                                                                                                                                                                       | `source_discovery_grants`, `source_discovery_smoke_verifications`                                                                                                       |
+| `nwf_acquisition_worker`         | `acquisition_work_items`, `_work_claims`, `_work_outcomes`, `_worker_stops`, `_campaign_subjects`, `_signals`, `_outbox_entries`, `_claim_lease_extensions`, `subject_research_admissions` (its trigger refuses any basis but `CAMPAIGN` from this role), `subject_research_admission_revocations` (0028: its trigger admits only the supersession of the worker's own in-flight item's CAMPAIGN admission whose research captured no page) | `acquisition_campaigns`, `acquisition_campaign_control_events`, `acquisition_work_item_states`, `subject_review_environment`, `subject_research_admission_page_capture` |
+| `nwf_research`                   | —                                                                                                                                                                                                                                                                                                                                                                                                                                           | `subject_research_admissions`, `subject_research_admission_revocations`, `subject_research_registry_fingerprint`, `subject_research_campaign_admission_standing`        |
+| `nwf_discovery_subject_writer`   | `discovery_subjects`, `discovery_subject_identity_claims`, `discovery_subject_relationship_claims`, `subject_jurisdiction_claims`                                                                                                                                                                                                                                                                                                           | `discovery_subject_reviews`                                                                                                                                             |
+| `nwf_discovery_subject_reviewer` | `discovery_subject_reviews`, `subject_review_attestations`                                                                                                                                                                                                                                                                                                                                                                                  | `discovery_subjects`, `discovery_subject_identity_claims`, `discovery_subject_relationship_claims`, `subject_review_environment`                                        |
+| `nwf_readonly`                   | —                                                                                                                                                                                                                                                                                                                                                                                                                                           | all 36 new relations                                                                                                                                                    |
 
 Nobody but the migration owner (the OWNER path) may INSERT into
 `source_discovery_grants`, `source_discovery_smoke_verifications`,
@@ -194,16 +199,16 @@ Nothing in §3–§8 may run on `nwf_pe` until the OWNER has signed this text,
 with the bracketed values filled in. Keep the signed grant OUTSIDE this
 repository and record where it is kept before starting.
 
-> **OWNER GRANT NWF-PE-APPLY-0013-0027-V1.** I, the OWNER, authorise applying
-> the NWF Partnership Engine migrations 0013–0027 that are not yet recorded in
+> **OWNER GRANT NWF-PE-APPLY-0013-0028-V1.** I, the OWNER, authorise applying
+> the NWF Partnership Engine migrations 0013–0028 that are not yet recorded in
 > `schema_migrations` to the database `nwf_pe` in the local Docker service
 > `nwf_pe_postgres` (127.0.0.1:55432) on my Mac, from commit [full 40-hex
 > commit SHA], starting from state [A | B | C] as reported by
-> `nwf-pe-0013-0027-preflight.sql`, by the operator path `npm run db:migrate`
+> `nwf-pe-0013-0028-preflight.sql`, by the operator path `npm run db:migrate`
 > with `DATABASE_URL_ADMIN` set to the owner role, exactly as
-> `docs/architecture/NWF_PE_MIGRATIONS_0013_0027_APPLY_RUNBOOK_V1.md`
+> `docs/architecture/NWF_PE_MIGRATIONS_0013_0028_APPLY_RUNBOOK_V1.md`
 > describes, where the pack file
-> `NWF_PE_MIGRATIONS_0013_0027_APPLY_RUNBOOK_V1.SHA256SUMS` has SHA-256
+> `NWF_PE_MIGRATIONS_0013_0028_APPLY_RUNBOOK_V1.SHA256SUMS` has SHA-256
 > [64-hex]. This covers the read-only preflight and verification, the backup,
 > the restore test and the lock-window probe on disposable databases, and —
 > only on my further written instruction — the rollback restore of §8. It does
@@ -224,13 +229,13 @@ repository and record where it is kept before starting.
    passes, the pack check (top of this file) prints `OK` three times, and the
    §1.1 `shasum` check matches.
 2. Run, on the owner path:
-   `psql "<owner URL for nwf_pe>" -X -v ON_ERROR_STOP=1 -f docs/architecture/nwf-pe-0013-0027-preflight.sql | tee "$OUT/preflight.txt"`
+   `psql "<owner URL for nwf_pe>" -X -v ON_ERROR_STOP=1 -f docs/architecture/nwf-pe-0013-0028-preflight.sql | tee "$OUT/preflight.txt"`
    (`$OUT` is defined in §3.1; create it first). **Every row must show
    `ok = t`, ending with `PREFLIGHT_OK | t`.** The checks:
 
    | check | must hold                                                                                                                                    |
    | ----- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-   | P1    | **Ledger check (before).** The starting state is **A**, **B** or **C** (below); `REFUSE` or `AT_0027` stops the runbook                      |
+   | P1    | **Ledger check (before).** The starting state is **A**, **B** or **C** (below); `REFUSE` or `AT_0028` stops the runbook                      |
    | P2    | the ledger below 0013 is exactly `0001`…`0012`                                                                                               |
    | P3    | no `orgunit_page_evidence` row has `rule_version` `orgunit-extraction-v3` or `orgunit-extraction-v4` (§2.3)                                  |
    | P4    | no role is a member of any existing capability role (cluster-wide: a leftover test login would gain `CONNECT` on `nwf_pe` through 0023/0019) |
@@ -247,20 +252,20 @@ repository and record where it is kept before starting.
    ```
 
    Exactly ONE starting state must hold for the rows `>= '0013'`:
-   - **State A:** no rows at or above `0013`. Apply 0013–0027.
+   - **State A:** no rows at or above `0013`. Apply 0013–0028.
    - **State B:** exactly `0013`…`0019`, each with the §1.1 checksum (the same
      digests the 0013–0019 runbook V1 lists), and nothing above. Apply
-     0020–0027.
+     0020–0028.
    - **State C:** exactly `0013`…`0021`, each with the §1.1 checksum, and
-     nothing above. Apply 0022–0027.
+     nothing above. Apply 0022–0028.
    - **Anything else: STOP.** A checksum not in §1.1 means a different file
      was applied under that version, and the runner would refuse this line's
      file. The relf1 line's own 0018 and 0019 must never be applied anywhere.
      A gap, or a version above the expected set, means an
      apply outside any runbook. A ledger at exactly `0013`…`0025` (the 0025
      runbook's end state, which no record says was ever reached) is `REFUSE`
-     here: escalate, because this pack did not rehearse it. `AT_0027` (all
-     fifteen already recorded with these digests) means nothing is to be
+     here: escalate, because this pack did not rehearse it. `AT_0028` (all
+     sixteen already recorded with these digests) means nothing is to be
      applied: run §6 only.
 
 3. Free disk is at least 3 × the P8 database size (the dump, the restore
@@ -312,7 +317,7 @@ Never commit a dump, a digest file, a preflight output or the grant.
 
 ```bash
 STAMP=$(date -u +%Y%m%dT%H%M%SZ)
-OUT="<private backup directory outside the repository>/nwf-pe-pre-0013-0027-$STAMP"
+OUT="<private backup directory outside the repository>/nwf-pe-pre-0013-0028-$STAMP"
 mkdir -p "$OUT" && chmod 700 "$OUT"
 # --create puts the database itself and its CONNECT privileges in the archive,
 # so the rollback (§8) recreates nwf_pe exactly; -Fc is the custom format.
@@ -377,7 +382,7 @@ docker exec -i nwf_pe_postgres pg_restore -U nwf_owner --exit-on-error \
 time env DATABASE_URL_ADMIN="<owner URL for nwf_pe_lockprobe_test>" npm run db:migrate \
   2>&1 | tee "$OUT/lockprobe.log"
 psql "<owner URL for nwf_pe_lockprobe_test>" -X -v ON_ERROR_STOP=1 \
-  -f docs/architecture/nwf-pe-0013-0027-verify.sql > "$OUT/lockprobe-verify.txt"
+  -f docs/architecture/nwf-pe-0013-0028-verify.sql > "$OUT/lockprobe-verify.txt"
 docker exec nwf_pe_postgres dropdb -U nwf_owner nwf_pe_lockprobe_test
 ```
 
@@ -405,32 +410,32 @@ only; earlier files stay applied, and nothing after it runs. STOP on any
 failure and go to §7.
 
 The log must show exactly these `Applied` lines, then
-`Migrations complete: <n> applied, <27 − n> already present.`:
+`Migrations complete: <n> applied, <28 − n> already present.`:
 
-- State A: 15 lines, `0013_…` to `0027_…` (n = 15);
-- State B: 8 lines, `0020_…` to `0027_…` (n = 8);
-- State C: 6 lines, `0022_…` to `0027_…` (n = 6).
+- State A: 16 lines, `0013_…` to `0028_…` (n = 16);
+- State B: 9 lines, `0020_…` to `0028_…` (n = 9);
+- State C: 7 lines, `0022_…` to `0028_…` (n = 7).
 
-This runbook covers the whole range to 0027 only. The runner has no `--to`
+This runbook covers the whole range to 0028 only. The runner has no `--to`
 option; a grant that stops earlier follows a predecessor runbook for its
-range, and stopping inside 0022–0027 is not covered (verify assumes 0027).
+range, and stopping inside 0022–0028 is not covered (verify assumes 0028).
 
 ## 6. After: verification (all must hold)
 
 1. **Ledger check (after).**
    `SELECT string_agg(version || ':' || checksum, ',' ORDER BY version) FROM schema_migrations WHERE version >= '0013';`
-   lists exactly the fifteen §1.1 rows. The `< '0013'` ledger is identical to
+   lists exactly the sixteen §1.1 rows. The `< '0013'` ledger is identical to
    `$OUT/before-ledger.txt`. In states B and C, the rows already present are
    byte-identical to the saved ones and only the new versions are added.
 2. **The verify file.** On the owner path (it reads `pg_authid`):
-   `psql "<owner URL for nwf_pe>" -X -v ON_ERROR_STOP=1 -f docs/architecture/nwf-pe-0013-0027-verify.sql | tee "$OUT/verify.txt"`.
+   `psql "<owner URL for nwf_pe>" -X -v ON_ERROR_STOP=1 -f docs/architecture/nwf-pe-0013-0028-verify.sql | tee "$OUT/verify.txt"`.
    It is SELECT-only, in one `READ ONLY` transaction ended by `ROLLBACK`.
    **Every row must show `ok = t`, and the last row must be
    `ALL_CHECKS_TRUE | t | 53 checks`.** What it proves:
 
    | check  | proves                                                                                                                                                                                                                                                                                                                                                                                                                |
    | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-   | L1, L2 | the ledger is exactly `0001`…`0027`, and 0013–0027 carry the §1.1 digests                                                                                                                                                                                                                                                                                                                                             |
+   | L1, L2 | the ledger is exactly `0001`…`0028`, and 0013–0028 carry the §1.1 digests                                                                                                                                                                                                                                                                                                                                             |
    | R1     | `nwf_discovery_subject_writer`, `nwf_discovery_subject_reviewer`, `nwf_source_discovery`, `nwf_acquisition_worker` exist, NOLOGIN, no attribute, no password                                                                                                                                                                                                                                                          |
    | R2     | no role is a member of any of the four, and they are members of nothing                                                                                                                                                                                                                                                                                                                                               |
    | R3, R4 | database privileges are exactly CONNECT for the eight runtime and capability roles (no TEMPORARY, nothing for PUBLIC); schema `public` USAGE likewise                                                                                                                                                                                                                                                                 |
@@ -438,8 +443,8 @@ range, and stopping inside 0022–0027 is not covered (verify assumes 0027).
    | G2     | the 16 column grants of §1.4, and no other                                                                                                                                                                                                                                                                                                                                                                            |
    | G3     | no privilege letter beyond SELECT/INSERT for any role, except the pre-0013 UPDATE that `nwf_ingest` has always held on `ingest_runs` and `organisations`                                                                                                                                                                                                                                                              |
    | G4     | no default privileges are configured                                                                                                                                                                                                                                                                                                                                                                                  |
-   | F1–F3  | the exact function list and each function's `proconfig` (38 pinned to `search_path = public, pg_catalog, pg_temp`, 11 unpinned as committed, §1.3); no SECURITY DEFINER function                                                                                                                                                                                                                                      |
-   | T1, T2 | the exact list of 77 user triggers, all enabled; all 32 new tables carry the row-level append-only refusal (`discovery_identity_refuse_mutation`, BEFORE UPDATE OR DELETE)                                                                                                                                                                                                                                            |
+   | F1–F3  | the exact function list and each function's `proconfig` (39 pinned to `search_path = public, pg_catalog, pg_temp`, 11 unpinned as committed, §1.3); no SECURITY DEFINER function                                                                                                                                                                                                                                      |
+   | T1, T2 | the exact list of 78 user triggers, all enabled; all 32 new tables carry the row-level append-only refusal (`discovery_identity_refuse_mutation`, BEFORE UPDATE OR DELETE)                                                                                                                                                                                                                                            |
    | V1     | `acquisition_work_item_states` is `security_invoker`                                                                                                                                                                                                                                                                                                                                                                  |
    | C1, C2 | every constraint validated; research roots still `ECHE` only; no fetch carries a subject-admission root                                                                                                                                                                                                                                                                                                               |
    | X1     | still no `orgunit-extraction-v4` row (the detail also prints the v3 count, which must equal P3's)                                                                                                                                                                                                                                                                                                                     |
@@ -447,7 +452,7 @@ range, and stopping inside 0022–0027 is not covered (verify assumes 0027).
 
 3. The §3.3 digests are **identical** to the `before` files (0017/0018 rewrite
    only generated columns the digests do not read; 0022–0025 touch no
-   evidence row, and 0026–0027 neither). The table-privilege listing differs
+   evidence row, and 0026–0028 neither). The table-privilege listing differs
    from `before` only by the rows for the new relations of §1.4.
 4. The §2.2 item 5 code check still prints both lines: applying a migration
    changes no trust set.
@@ -492,7 +497,7 @@ against the earlier one is refused, by design.
 
 ## 9. What applying does NOT authorise
 
-Applying 0013–0027 creates schema, four NOLOGIN capability roles and one
+Applying 0013–0028 creates schema, four NOLOGIN capability roles and one
 environment row. It turns nothing on. In particular it does NOT authorise,
 and this runbook never performs:
 
@@ -516,20 +521,20 @@ and this runbook never performs:
 On a disposable, tmpfs-backed PostgreSQL 16 container (never `nwf_pe`):
 
 - the expected values in the verify file were regenerated from the catalogue
-  of a database migrated `0001`–`0027` from this tree, by a generator that was
+  of a database migrated `0001`–`0028` from this tree, by a generator that was
   first shown to reproduce the committed 0013–0025 verify file byte for byte
   from a database migrated `0001`–`0025`;
 - states A, B and C were each built from this tree's own migrations (a
   temporary copy whose `migrations/` ended at 0012, 0019 or 0021), then
   rehearsed end to end: preflight (`state=A`/`B`/`C`, all `t`), `pg_dump -Fc`,
-  SHA-256, restore test, `npm run db:migrate` (15, 8 and 6 `Applied` lines),
+  SHA-256, restore test, `npm run db:migrate` (16, 9 and 7 `Applied` lines),
   and the verify file (`ALL_CHECKS_TRUE | t | 53 checks` each);
 - the rollback of §8 was rehearsed from a `--create` dump of a state-A
-  database migrated to 0027: the restored database was back at `0001`–`0012`
+  database migrated to 0028: the restored database was back at `0001`–`0012`
   with its CONNECT privileges, and the preflight reported `state=A`;
 - negative cases were proven on throwaway copies: an extra UPDATE privilege,
   a LOGIN member of a capability role, an unpinned function, a SECURITY
-  DEFINER function, a disabled append-only trigger and a v4 evidence row each
-  turn the matching verify check to `f`; a wrong ledger checksum, a capability
+  DEFINER function, a disabled append-only trigger, a disabled 0028 trigger, a missing 0028 grant, an extra grant on the 0028 view and a v4 evidence row each turn the matching verify
+  check to `f`; a wrong ledger checksum, a capability
   member, a v3 row, a v4 row and a row in a 0013–0021 table each turn the
   matching preflight check to `f`.

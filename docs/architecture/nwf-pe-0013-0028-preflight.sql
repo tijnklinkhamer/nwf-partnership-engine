@@ -1,11 +1,11 @@
--- nwf-pe-0013-0027-preflight.sql - READ-ONLY preconditions for
--- docs/architecture/NWF_PE_MIGRATIONS_0013_0027_APPLY_RUNBOOK_V1.md, section 2.
+-- nwf-pe-0013-0028-preflight.sql - READ-ONLY preconditions for
+-- docs/architecture/NWF_PE_MIGRATIONS_0013_0028_APPLY_RUNBOOK_V1.md, section 2.
 --
 -- PREPARED, NOT EXECUTED against nwf_pe. Run it only under the runbook's
 -- signed OWNER authorisation, BEFORE the backup and BEFORE any migration, on
 -- the owner path:
 --
---   psql "<owner URL for nwf_pe>" -X -v ON_ERROR_STOP=1 -f docs/architecture/nwf-pe-0013-0027-preflight.sql
+--   psql "<owner URL for nwf_pe>" -X -v ON_ERROR_STOP=1 -f docs/architecture/nwf-pe-0013-0028-preflight.sql
 --
 -- It only reads. One transaction, READ ONLY, ended by ROLLBACK. It is valid
 -- in every starting state: a relation that a later migration adds is looked
@@ -22,8 +22,8 @@ SET LOCAL statement_timeout = '120s';
 
 WITH
 -- The runbook's section 1 table. A starting state may already hold 0013-0019
--- (B) or 0013-0021 (C); a ledger that already holds all of 0013-0027 has
--- nothing to apply (AT_0027: run only the verify file).
+-- (B) or 0013-0021 (C); a ledger that already holds all of 0013-0028 has
+-- nothing to apply (AT_0028: run only the verify file).
 expected(version, checksum) AS (
     VALUES
         ('0013', '98af165685793512f61946b32225652465b49f669267a3eedb298fc3002cc8b2'),
@@ -40,7 +40,8 @@ expected(version, checksum) AS (
         ('0024', '72bc76aa58ad4eb11a09616b3b5093b7d089effca3e96eb7198ed8713c2e2acf'),
         ('0025', '26920ea160608a7cfd4001d9aaa503ceb2575f686ab7ab8c77fdb67c9516b4db'),
         ('0026', 'c845f8cf8675e8fa53d62b0ff92e1fc1a87fcbf245385ff010a13460be5d4ac1'),
-        ('0027', 'ae4cf78416a40e2a5fbf36cb4bc2b9de4dcfd3f732929a26f6dfd5bf91931f2c')
+        ('0027', 'ae4cf78416a40e2a5fbf36cb4bc2b9de4dcfd3f732929a26f6dfd5bf91931f2c'),
+        ('0028', 'bc4a7f0ac5d177ddc3308d0c304874ed2e354e337df1f4be717055b43b70e70c')
 ),
 applied AS (
     SELECT version, checksum FROM public.schema_migrations WHERE version >= '0013'
@@ -53,14 +54,14 @@ same_set AS (
            (SELECT array_agg(version || ':' || checksum ORDER BY version)
               FROM expected WHERE version <= '0021') AS state_c,
            (SELECT array_agg(version || ':' || checksum ORDER BY version)
-              FROM expected) AS at_0027
+              FROM expected) AS at_0028
 ),
 starting_state(state) AS (
     SELECT CASE
              WHEN got = '{}' THEN 'A'
              WHEN got = state_b THEN 'B'
              WHEN got = state_c THEN 'C'
-             WHEN got = at_0027 THEN 'AT_0027'
+             WHEN got = at_0028 THEN 'AT_0028'
              ELSE 'REFUSE'
            END
       FROM same_set
