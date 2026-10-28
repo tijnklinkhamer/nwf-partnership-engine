@@ -149,6 +149,41 @@ reviewed source change adding one ACTIVE entry (public key, fingerprint,
 activation instant); this ADR's successor or an amendment recording it; and a
 separate activation approval (ADR 0021 RC2 §10).
 
+### 5a. Amendment (2026-10-28): the first operational review key is pinned
+
+**OWNER DECISION.** OWNER record **R2-P1** (signed 2026-10-28T13:29:34Z,
+items P1-5 and P1-11) authorises pinning one OWNER review key. The "frozen and
+**empty**" statement above described every build before this amendment; from
+this commit `OPERATIONAL_OWNER_REVIEW_KEYS` holds exactly one entry:
+
+| field         | value                                                              |
+| ------------- | ------------------------------------------------------------------ |
+| `keyId`       | `owner-review-2026-10`                                             |
+| `fingerprint` | `b2c8fcf82c3359d0fd829dbb4cda9cee4007578d3cd8aacd95ad53e5cf11bb86` |
+| `publicKey`   | `YpLJSZB1H8ThmwR5KVS9_BI6fYgf5jjuE93AOoqL5nE`                      |
+| authority     | `OWNER_DISCOVERY_SUBJECT_REVIEW`                                   |
+| scope / state | `OPERATIONAL` / `ACTIVE`                                           |
+| `activatedAt` | `2026-10-28T15:54:00.000Z`                                         |
+
+The fingerprint is the sha256 of the raw 32-byte public key and is recomputed
+from `publicKey` by a test. The separate campaign key `owner-campaign-2026-10`
+(fingerprint `43dbea7551266adffc853f6cff4f054dfc924d7e76d4e2f994320e6091a6581c`)
+is pinned by the same record in the campaign set (ADR 0029 §11); neither key
+can sign for the other's protocol.
+
+- **Custody (§4).** Each private key exists only as an encrypted PKCS#8
+  Ed25519 PEM (PBKDF2-SHA512, 2,000,000 iterations), on the OWNER's Mac under
+  `~/Library/Application Support/nwf-engine/keys/` and in the OWNER's cloud
+  custody folder. No private key, seed or passphrase is in this repository;
+  the trust set holds public material only, and test fixtures keep signing
+  with `TEST_ONLY` keys.
+- **Revocation.** A reviewed commit setting the entry's `state` to `REVOKED`
+  with a `revokedAt` instant (or `RETIRED` / `retiredAt` for routine
+  rotation). The lifecycle table above then governs every stored review.
+- **Unchanged.** No key table, CLI option or environment variable can add a
+  key; "no ACTIVE key ⇒ every production review execution is refused" still
+  holds and stays tested through an injected keyless set.
+
 ## 6. Offline signing (G1, G2)
 
 `nwf-pe discovery-subject-review-sign --request <path> --encrypted-key

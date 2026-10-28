@@ -210,3 +210,31 @@ against the database's own record). **Clone replay:** a database clone keeps
 the environment id, so a campaign recorded in one copy verifies in the
 other; the environment binding defends against cross-environment replay,
 not against a clone (ADR 0030 §9).
+
+## 11. Amendment (2026-10-28): the first operational campaign key is pinned
+
+**OWNER DECISION.** OWNER record **R2-P1** (signed 2026-10-28T13:29:34Z,
+items P1-5 and P1-11) authorises pinning one OWNER campaign key, completing
+§8 item 2's key half. The "**empty**" statements in §3 and §7 described every
+build before this amendment; from this commit `OPERATIONAL_OWNER_CAMPAIGN_KEYS`
+holds exactly one entry:
+
+| field         | value                                                              |
+| ------------- | ------------------------------------------------------------------ |
+| `keyId`       | `owner-campaign-2026-10`                                           |
+| `fingerprint` | `43dbea7551266adffc853f6cff4f054dfc924d7e76d4e2f994320e6091a6581c` |
+| `publicKey`   | `icnzFLRZVG-hiMlyY6lMxw1RKDrfVfoFbzz2ROxM_i4`                      |
+| authority     | `OWNER_ACQUISITION_CAMPAIGN`                                       |
+| scope / state | `OPERATIONAL` / `ACTIVE`                                           |
+| `activatedAt` | `2026-10-28T15:54:00.000Z`                                         |
+
+The review key `owner-review-2026-10` is pinned separately (ADR 0023 §5a).
+Custody: an encrypted PKCS#8 Ed25519 PEM (PBKDF2-SHA512, 2,000,000
+iterations) on the OWNER's Mac
+(`~/Library/Application Support/nwf-engine/keys/owner-campaign-2026-10.pem`)
+and in the OWNER's cloud custody folder; no private material is in this
+repository. Revocation is a reviewed commit setting the entry's state
+`REVOKED` (with `revokedAt`), which stops every campaign recorded under it at
+once. Pinning a key records and starts nothing: a campaign still runs only
+after the OWNER signs it, records it and records `START`, and the other §8
+items stand as written.

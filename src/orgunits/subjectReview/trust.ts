@@ -10,12 +10,14 @@
  * repository's own review and governance; ADR 0023 s5 states what such a
  * change must record.
  *
- * THE OPERATIONAL LIST IS EMPTY. No OWNER review key has been provisioned
- * (ADR 0021 RC2 s10: "Track B authoritative review activation - NOT
- * AUTHORISED"). With no ACTIVE key, every production review execution is
- * refused before any connection is opened, and every stored review reads as
- * an integrity hold. Provisioning is a separate OWNER decision about custody,
- * rotation and access.
+ * THE OPERATIONAL LIST HOLDS ONE KEY: `owner-review-2026-10`, pinned under
+ * OWNER record R2-P1 (signed 2026-10-28T13:29:34Z, P1-5) and ACTIVE from
+ * 2026-10-28T15:54:00.000Z (ADR 0023 s5 amendment). With no ACTIVE key -
+ * the state of every build before it, and of any build in which it is
+ * retired or revoked - every production review execution is refused before
+ * any connection is opened, and every stored review reads as an integrity
+ * hold. Custody, rotation and access remain OWNER decisions; revocation is a
+ * reviewed commit setting the entry's state REVOKED.
  *
  * PUBLIC KEYS ONLY. An entry is the raw 32-byte Ed25519 public key (base64url)
  * and its sha256 fingerprint. No private key, seed or passphrase may ever
@@ -82,11 +84,24 @@ export interface ReviewTrustEntry {
 }
 
 /**
- * THE OPERATIONAL OWNER REVIEW TRUST SET. Deliberately empty: no OWNER review
- * key has been provisioned or approved. Adding an entry is a reviewed source
- * change and a separate OWNER activation decision (ADR 0023 s5, s12).
+ * THE OPERATIONAL OWNER REVIEW TRUST SET. Exactly one key, pinned by OWNER
+ * record R2-P1 (P1-5): a reviewed source change and the separate OWNER
+ * activation decision ADR 0023 s5, s12 require. Public material only.
  */
-export const OPERATIONAL_OWNER_REVIEW_KEYS: readonly ReviewTrustEntry[] = Object.freeze([]);
+export const OPERATIONAL_OWNER_REVIEW_KEYS: readonly ReviewTrustEntry[] = Object.freeze([
+  Object.freeze({
+    keyId: 'owner-review-2026-10',
+    fingerprint: 'b2c8fcf82c3359d0fd829dbb4cda9cee4007578d3cd8aacd95ad53e5cf11bb86',
+    publicKey: 'YpLJSZB1H8ThmwR5KVS9_BI6fYgf5jjuE93AOoqL5nE',
+    authority: OWNER_REVIEW_AUTHORITY,
+    protocol: REVIEW_PROTOCOL,
+    scope: 'OPERATIONAL',
+    state: 'ACTIVE',
+    activatedAt: '2026-10-28T15:54:00.000Z',
+    retiredAt: null,
+    revokedAt: null,
+  }),
+]);
 
 /** Test-only key ids must carry this prefix, and operational ones must not. */
 export const TEST_KEY_ID_PREFIX = 'test-';

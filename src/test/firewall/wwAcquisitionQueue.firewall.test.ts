@@ -28,6 +28,7 @@
  *     (phase1b/phase2b) hold UNCHANGED, because this queue lives in the
  *     database and the approved namespace, not in a framework.
  */
+import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, posix } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -180,13 +181,37 @@ describe('WW E-Q: the acquisition namespace is exactly what was approved', () =>
 describe('WW E-Q: authority comes only from a pinned OWNER signature', () => {
   const trust = code(`${NS}trust.ts`);
 
-  it('pins an EMPTY operational campaign trust set in reviewed source', () => {
+  // OWNER record R2-P1 (P1-5, 2026-10-28): EXACTLY ONE operational campaign key is pinned.
+  it('pins exactly the one OWNER-authorised operational campaign key in reviewed source', () => {
     expect(trust).toContain(
-      'export const OPERATIONAL_OWNER_CAMPAIGN_KEYS: readonly CampaignTrustEntry[] = Object.freeze([]);',
+      'export const OPERATIONAL_OWNER_CAMPAIGN_KEYS: readonly CampaignTrustEntry[] = Object.freeze([',
     );
-    expect(OPERATIONAL_OWNER_CAMPAIGN_KEYS).toEqual([]);
-    expect(CampaignTrustSet.operational().hasActiveKey()).toBe(false);
-    expect(CampaignTrustSet.operational().entries()).toEqual([]);
+    expect(trust.match(/keyId: '/g)).toHaveLength(1);
+    expect(OPERATIONAL_OWNER_CAMPAIGN_KEYS).toEqual([
+      {
+        keyId: 'owner-campaign-2026-10',
+        fingerprint: '43dbea7551266adffc853f6cff4f054dfc924d7e76d4e2f994320e6091a6581c',
+        publicKey: 'icnzFLRZVG-hiMlyY6lMxw1RKDrfVfoFbzz2ROxM_i4',
+        authority: 'OWNER_ACQUISITION_CAMPAIGN',
+        protocol: 'nwf-pe.acquisition-campaign/1',
+        scope: 'OPERATIONAL',
+        state: 'ACTIVE',
+        activatedAt: '2026-10-28T15:54:00.000Z',
+        retiredAt: null,
+        revokedAt: null,
+      },
+    ]);
+    expect(Object.isFrozen(OPERATIONAL_OWNER_CAMPAIGN_KEYS)).toBe(true);
+    expect(Object.isFrozen(OPERATIONAL_OWNER_CAMPAIGN_KEYS[0])).toBe(true);
+    // The fingerprint is the sha256 of the raw 32-byte key, recomputed here.
+    const raw = Buffer.from(OPERATIONAL_OWNER_CAMPAIGN_KEYS[0]!.publicKey, 'base64url');
+    expect(raw).toHaveLength(32);
+    expect(createHash('sha256').update(raw).digest('hex')).toBe(
+      OPERATIONAL_OWNER_CAMPAIGN_KEYS[0]!.fingerprint,
+    );
+    expect(trust).not.toMatch(/-----BEGIN|BEGIN [A-Z ]*PRIVATE KEY/);
+    expect(CampaignTrustSet.operational().hasActiveKey()).toBe(true);
+    expect(CampaignTrustSet.operational().entries()).toEqual(OPERATIONAL_OWNER_CAMPAIGN_KEYS);
   });
 
   it('builds sets only from that list or a vitest-only TEST_ONLY list', () => {

@@ -10,10 +10,12 @@
  * envelope, an environment variable or a database row names it (there is no
  * key table).
  *
- * THE OPERATIONAL LIST IS EMPTY. No campaign key has been provisioned, so no
- * production campaign can verify: `acquisition campaign record --execute`
- * refuses, and the worker refuses every stored campaign (ADR 0029 s6).
- * Adding a key is an OWNER key-custody decision plus a reviewed source change.
+ * THE OPERATIONAL LIST HOLDS ONE KEY: `owner-campaign-2026-10`, pinned under
+ * OWNER record R2-P1 (signed 2026-10-28T13:29:34Z, P1-5) and ACTIVE from
+ * 2026-10-28T15:54:00.000Z (ADR 0029 s8 amendment). The private key is held
+ * only in OWNER custody, never in this repository. Adding, retiring or
+ * revoking a key is an OWNER key-custody decision plus a reviewed source
+ * change; revocation is a reviewed commit setting the entry's state REVOKED.
  *
  * PUBLIC KEYS ONLY: the raw 32-byte Ed25519 key (base64url) and its sha256
  * fingerprint. Private-key material is refused at load.
@@ -57,11 +59,24 @@ export interface CampaignTrustEntry {
 }
 
 /**
- * THE OPERATIONAL OWNER CAMPAIGN TRUST SET. Deliberately empty: no campaign
- * key has been provisioned or approved. Adding an entry is a reviewed source
- * change AND a separate OWNER activation decision (ADR 0029 s8).
+ * THE OPERATIONAL OWNER CAMPAIGN TRUST SET. Exactly one key, pinned by OWNER
+ * record R2-P1 (P1-5): a reviewed source change AND the OWNER activation
+ * decision ADR 0029 s8 requires. Public material only.
  */
-export const OPERATIONAL_OWNER_CAMPAIGN_KEYS: readonly CampaignTrustEntry[] = Object.freeze([]);
+export const OPERATIONAL_OWNER_CAMPAIGN_KEYS: readonly CampaignTrustEntry[] = Object.freeze([
+  Object.freeze({
+    keyId: 'owner-campaign-2026-10',
+    fingerprint: '43dbea7551266adffc853f6cff4f054dfc924d7e76d4e2f994320e6091a6581c',
+    publicKey: 'icnzFLRZVG-hiMlyY6lMxw1RKDrfVfoFbzz2ROxM_i4',
+    authority: OWNER_CAMPAIGN_AUTHORITY,
+    protocol: CAMPAIGN_PROTOCOL,
+    scope: 'OPERATIONAL',
+    state: 'ACTIVE',
+    activatedAt: '2026-10-28T15:54:00.000Z',
+    retiredAt: null,
+    revokedAt: null,
+  }),
+]);
 
 /** Test-only key ids carry this prefix, and operational ones must not. */
 export const TEST_CAMPAIGN_KEY_ID_PREFIX = 'test-';
@@ -217,7 +232,7 @@ export class CampaignTrustSet {
     return typeof value === 'object' && value !== null && #sealed in value;
   }
 
-  /** The operational set, from reviewed source only. EMPTY in this build. */
+  /** The operational set, from reviewed source only. */
   static operational(): CampaignTrustSet {
     return new CampaignTrustSet(
       'OPERATIONAL',

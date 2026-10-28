@@ -465,7 +465,8 @@ describeDb('B2.3 OWNER-attested discovery-subject reviews (integration)', () => 
           WHERE signed_payload ~ '(cand|chn|opp):' OR review_target_key ~ '^(cand|chn|opp):'`,
       );
       expect(canonical).toEqual([{ n: 0 }]);
-      // The operational trust set knows no key: the same rows are a hold there.
+      // The operational trust set (the R2-P1 OWNER key only) does not know the test key:
+      // the same rows are a hold there.
       expect((await inspect(id, ReviewTrustSet.operational())).reviewAttestation.state).toBe(
         'INTEGRITY_HOLD',
       );
@@ -1141,11 +1142,11 @@ describeDb('B2.3 OWNER-attested discovery-subject reviews (integration)', () => 
   });
 
   describe('the CLI refuses without a provisioned key', () => {
-    it('(33) the operational trust set refuses execution before any connection, even for a test-signed envelope', async () => {
-      const run = await cli(
-        ['review', '--execute', '--envelope', '/nonexistent'],
-        ReviewTrustSet.operational(),
-      );
+    // The operational set holds the R2-P1 OWNER key, so "no key provisioned" is proven through
+    // a KEYLESS set built by the test seam - the state of every build before R2-P1.
+    it('(33) a keyless trust set refuses execution before any connection, even for a test-signed envelope', async () => {
+      const keyless = ReviewTrustSet.ephemeralForVitest([]);
+      const run = await cli(['review', '--execute', '--envelope', '/nonexistent'], keyless);
       expect(run.envelope.code).toBe('REVIEWER_TRUST_PRIMITIVE_ABSENT');
       const id = await propose('Synthetic Preview Club');
       const m = await inspect(id);
@@ -1161,7 +1162,7 @@ describeDb('B2.3 OWNER-attested discovery-subject reviews (integration)', () => 
           '--expect-state',
           m.stateDigest,
         ],
-        ReviewTrustSet.operational(),
+        keyless,
       );
       expect(preview.envelope).toMatchObject({
         executable: false,

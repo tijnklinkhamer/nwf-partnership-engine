@@ -43,6 +43,7 @@ import {
   REVIEWER_TRUST_PRIMITIVE_ABSENT,
   TrustedReviewerContext,
 } from '../../orgunits/subjectRegistry/reviewAuthority.js';
+import { ReviewTrustSet } from '../../orgunits/subjectReview/trust.js';
 import {
   AS_OF,
   ECHE_ALPHA,
@@ -423,7 +424,7 @@ describe('B2.2 trusted reviewer: no production constructor, no forgery', () => {
 });
 
 describe('B2.2 CLI: narrow, dry-run by default, review execution refused', () => {
-  function harness() {
+  function harness(trust?: ReviewTrustSet) {
     const calls: string[] = [];
     const out: string[] = [];
     const err: string[] = [];
@@ -438,6 +439,7 @@ describe('B2.2 CLI: narrow, dry-run by default, review execution refused', () =>
       deps: {
         readonlyPool: refusingPool('readonly') as () => pg.Pool,
         writerPool: refusingPool('writer') as () => pg.Pool,
+        ...(trust !== undefined ? { trust } : {}),
         out: (t: string) => void out.push(t),
         err: (t: string) => void err.push(t),
       },
@@ -454,28 +456,36 @@ describe('B2.2 CLI: narrow, dry-run by default, review execution refused', () =>
   ];
 
   it('refuses review --execute before touching any database', async () => {
-    const h = harness();
-    const code = await runDiscoverySubjects(
-      [
-        'review',
-        '--subject',
-        uid(1),
-        '--outcome',
-        'CONFIRMED',
-        '--expect-head',
-        'none',
-        '--expect-state',
-        'a'.repeat(64),
-        '--execute',
-        '--json',
-      ],
-      h.deps,
-    );
+    const args = [
+      'review',
+      '--subject',
+      uid(1),
+      '--outcome',
+      'CONFIRMED',
+      '--expect-head',
+      'none',
+      '--expect-state',
+      'a'.repeat(64),
+      '--execute',
+      '--json',
+    ];
+    // With no OWNER key (a keyless set through the test seam): the trust primitive is absent.
+    const h = harness(ReviewTrustSet.ephemeralForVitest([]));
+    const code = await runDiscoverySubjects(args, h.deps);
     expect(code).toBe(1);
     expect(h.calls).toEqual([]);
     expect(JSON.parse(h.out.join(''))).toMatchObject({
       outcome: 'REFUSED',
       code: REVIEWER_TRUST_PRIMITIVE_ABSENT,
+    });
+    // Under the operational set (R2-P1: one OWNER key), an unsigned execution is still
+    // refused before any pool: its flags belong inside a signed envelope.
+    const op = harness();
+    expect(await runDiscoverySubjects(args, op.deps)).toBe(1);
+    expect(op.calls).toEqual([]);
+    expect(JSON.parse(op.out.join(''))).toMatchObject({
+      outcome: 'REFUSED',
+      code: 'INPUT_INVALID',
     });
   });
 

@@ -546,9 +546,27 @@ describe('B2.4-R1a subject-evidence projection: pure, reusing, never authorising
     }
   });
 
-  it('keeps the operational trust set empty and adds no key', () => {
-    expect(OPERATIONAL_OWNER_REVIEW_KEYS).toEqual([]);
-    expect(ReviewTrustSet.operational().hasActiveKey()).toBe(false);
+  // OWNER record R2-P1 (P1-5, 2026-10-28) pinned exactly one review key in trust.ts; the
+  // projection namespace still adds none of its own.
+  it('reads the operational trust set (exactly the one OWNER key) and adds no key', () => {
+    expect(
+      OPERATIONAL_OWNER_REVIEW_KEYS.map((e) => [
+        e.keyId,
+        e.fingerprint,
+        e.publicKey,
+        e.scope,
+        e.state,
+      ]),
+    ).toEqual([
+      [
+        'owner-review-2026-10',
+        'b2c8fcf82c3359d0fd829dbb4cda9cee4007578d3cd8aacd95ad53e5cf11bb86',
+        'YpLJSZB1H8ThmwR5KVS9_BI6fYgf5jjuE93AOoqL5nE',
+        'OPERATIONAL',
+        'ACTIVE',
+      ],
+    ]);
+    expect(ReviewTrustSet.operational().hasActiveKey()).toBe(true);
     for (const file of PRODUCTION_FILES) {
       expect(sourceOf(file), file).not.toMatch(/BEGIN [A-Z ]*KEY|[A-Za-z0-9_-]{43}=?\b.*publicKey/);
     }

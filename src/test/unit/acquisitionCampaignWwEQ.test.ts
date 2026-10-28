@@ -4,6 +4,7 @@
  * set, the document schema, the fair scheduler, the backoff schedule, handler
  * output validation and handler coverage. No database, no network.
  */
+import { createHash } from 'node:crypto';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -104,12 +105,50 @@ describe('WW E-Q verification: signature first, pinned trust set, exact shape', 
     expect(v.payload.budgets.maxConcurrency).toBe(2);
   });
 
-  it('the OPERATIONAL trust set is empty, so every real envelope is KEY_UNKNOWN', () => {
-    expect(OPERATIONAL_OWNER_CAMPAIGN_KEYS).toEqual([]);
-    expect(CampaignTrustSet.operational().hasActiveKey()).toBe(false);
+  // OWNER record R2-P1 (P1-5, 2026-10-28): the OPERATIONAL set holds exactly one OWNER key.
+  it('the OPERATIONAL trust set is exactly the one OWNER key, and a TEST_ONLY signature is KEY_UNKNOWN under it', () => {
+    expect(
+      OPERATIONAL_OWNER_CAMPAIGN_KEYS.map((e) => [
+        e.keyId,
+        e.fingerprint,
+        e.publicKey,
+        e.scope,
+        e.state,
+      ]),
+    ).toEqual([
+      [
+        'owner-campaign-2026-10',
+        '43dbea7551266adffc853f6cff4f054dfc924d7e76d4e2f994320e6091a6581c',
+        'icnzFLRZVG-hiMlyY6lMxw1RKDrfVfoFbzz2ROxM_i4',
+        'OPERATIONAL',
+        'ACTIVE',
+      ],
+    ]);
+    const [entry] = OPERATIONAL_OWNER_CAMPAIGN_KEYS;
+    expect(
+      createHash('sha256').update(Buffer.from(entry!.publicKey, 'base64url')).digest('hex'),
+    ).toBe(entry!.fingerprint);
+    // The set's own validator accepts it as OPERATIONAL, and refuses it as TEST_ONLY.
+    expect(
+      validateCampaignTrustEntries(OPERATIONAL_OWNER_CAMPAIGN_KEYS, 'OPERATIONAL'),
+    ).toHaveLength(1);
+    expect(() =>
+      validateCampaignTrustEntries(OPERATIONAL_OWNER_CAMPAIGN_KEYS, 'TEST_ONLY'),
+    ).toThrow(/entry_scope_mismatch/);
+    expect(CampaignTrustSet.operational().hasActiveKey()).toBe(true);
+    expect(CampaignTrustSet.operational().keyFor(KEY.keyId)).toBeUndefined();
     expect(
       verifyText(signedCampaign(KEY, { environmentId: ENV }), CampaignTrustSet.operational()),
     ).toBe('KEY_UNKNOWN:key_id_not_trusted');
+  });
+
+  it('a keyless trust set (the state before R2-P1, kept through the test seam) verifies nothing', () => {
+    const keyless = CampaignTrustSet.vitestOnly([]);
+    expect(keyless.hasActiveKey()).toBe(false);
+    expect(keyless.entries()).toEqual([]);
+    expect(verifyText(signedCampaign(KEY, { environmentId: ENV }), keyless)).toBe(
+      'KEY_UNKNOWN:key_id_not_trusted',
+    );
   });
 
   it('refuses an unknown key, a bad signature and a signature made for the review protocol', () => {

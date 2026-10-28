@@ -401,18 +401,46 @@ describe('B2.3 envelope verification: signature first, then the exact protocol',
   });
 });
 
-describe('B2.3 trust set: pinned public keys only, none operational, tests never operational', () => {
+describe('B2.3 trust set: pinned public keys only, one OWNER operational key, tests never operational', () => {
   afterEach(() => {
     vi.unstubAllEnvs();
   });
 
-  it('(33) holds NO operational key, and refuses every test key as operational authority', () => {
-    expect(OPERATIONAL_OWNER_REVIEW_KEYS).toEqual([]);
+  // OWNER record R2-P1 (P1-5, 2026-10-28): exactly one operational review key is pinned.
+  it('(33) holds exactly the one OWNER operational key, and refuses every test key as operational authority', () => {
+    expect(
+      OPERATIONAL_OWNER_REVIEW_KEYS.map((e) => [
+        e.keyId,
+        e.fingerprint,
+        e.publicKey,
+        e.scope,
+        e.state,
+      ]),
+    ).toEqual([
+      [
+        'owner-review-2026-10',
+        'b2c8fcf82c3359d0fd829dbb4cda9cee4007578d3cd8aacd95ad53e5cf11bb86',
+        'YpLJSZB1H8ThmwR5KVS9_BI6fYgf5jjuE93AOoqL5nE',
+        'OPERATIONAL',
+        'ACTIVE',
+      ],
+    ]);
     expect(Object.isFrozen(OPERATIONAL_OWNER_REVIEW_KEYS)).toBe(true);
+    const [pinned] = OPERATIONAL_OWNER_REVIEW_KEYS;
+    // The fingerprint is the sha256 of the raw 32-byte key, recomputed here.
+    const raw = Buffer.from(pinned!.publicKey, 'base64url');
+    expect(raw).toHaveLength(32);
+    expect(createHash('sha256').update(raw).digest('hex')).toBe(pinned!.fingerprint);
+    // The set's own validator accepts it as OPERATIONAL and refuses it as TEST_ONLY.
+    expect(validateTrustEntries(OPERATIONAL_OWNER_REVIEW_KEYS, 'OPERATIONAL')).toHaveLength(1);
+    expect(() => validateTrustEntries(OPERATIONAL_OWNER_REVIEW_KEYS, 'TEST_ONLY')).toThrow(
+      'entry_scope_mismatch',
+    );
     const operational = ReviewTrustSet.operational();
     expect(operational.scope).toBe('OPERATIONAL');
-    expect(operational.hasActiveKey()).toBe(false);
-    expect(operational.entries()).toEqual([]);
+    expect(operational.hasActiveKey()).toBe(true);
+    expect(operational.entries()).toEqual(OPERATIONAL_OWNER_REVIEW_KEYS);
+    expect(operational.keyFor(keyA.keyId)).toBeUndefined();
     const g = focal(1, BASE);
     expect(
       protocolCode(() =>
@@ -484,12 +512,22 @@ describe('B2.3 read-time attestation: authority only from verified, unchanged ev
     expect(m.researchAuthority.status).toBe('NOT_GRANTED');
     expect(m.researchAuthority.reasons).toContain('SUBJECT_RESEARCH_ADMISSION_POLICY_ABSENT');
     expect(m.reviewability.authoritativeReviewExecution).toBe('SIGNED_OWNER_ENVELOPE_REQUIRED');
-    // The operational trust set knows no key: the same rows read as a hold there.
+    // The operational trust set (R2-P1: exactly the one OWNER key) does not know the test
+    // key: the same rows read as a hold there, and the hold blocks further review.
     const op = deriveSubjectReadModel(g2);
     expect(op.reviewAttestation.state).toBe('INTEGRITY_HOLD');
     expect(op.reviewAttestation.holdReasons).toEqual(['KEY_UNKNOWN']);
     expect(op.identityStatus.reviewConfirmed).toBe(false);
     expect(op.reviewability).toMatchObject({
+      authoritativeReviewExecution: 'BLOCKED_BY_INTEGRITY_HOLD',
+      blocker: 'REVIEW_INTEGRITY_HOLD',
+    });
+    // A KEYLESS set (every build before R2-P1, via the test seam): a hold, and execution disabled.
+    const keyless = deriveSubjectReadModel(g2, ReviewTrustSet.ephemeralForVitest([]));
+    expect(keyless.reviewAttestation.state).toBe('INTEGRITY_HOLD');
+    expect(keyless.reviewAttestation.holdReasons).toEqual(['KEY_UNKNOWN']);
+    expect(keyless.identityStatus.reviewConfirmed).toBe(false);
+    expect(keyless.reviewability).toMatchObject({
       authoritativeReviewExecution: 'DISABLED',
       blocker: REVIEWER_TRUST_PRIMITIVE_ABSENT,
     });
@@ -1439,7 +1477,8 @@ describe('B2.3 CLI: unsigned or unprovisioned execution is refused before any po
   }
 
   it('refuses execution with REVIEWER_TRUST_PRIMITIVE_ABSENT while no OWNER key is provisioned - without reading the envelope', async () => {
-    const h = harness();
+    // A keyless set through the test seam: the operational set holds the R2-P1 key.
+    const h = harness(ReviewTrustSet.ephemeralForVitest([]));
     const code = await runDiscoverySubjects(
       ['review', '--execute', '--envelope', '/nonexistent/envelope.json', '--json'],
       h.deps,

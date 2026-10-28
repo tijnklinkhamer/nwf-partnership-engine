@@ -551,8 +551,16 @@ describe('B2.4-R2 (11-12) positive cases are unchanged and still grant nothing',
   });
 
   it('(12) every permission is NONE in every document above, and no test key is operational', () => {
-    // projected() asserts the permissions on every call; the operational set stays keyless.
-    expect(OPERATIONAL.hasActiveKey()).toBe(false);
+    // projected() asserts the permissions on every call; the operational set holds only the
+    // R2-P1 OWNER key, never a test key.
+    expect(OPERATIONAL.entries().map((e) => [e.keyId, e.fingerprint, e.scope, e.state])).toEqual([
+      [
+        'owner-review-2026-10',
+        'b2c8fcf82c3359d0fd829dbb4cda9cee4007578d3cd8aacd95ad53e5cf11bb86',
+        'OPERATIONAL',
+        'ACTIVE',
+      ],
+    ]);
     const { doc } = projected(confirmedGraph({}));
     expect(doc.assessment.operationalStanding).toBe('TEST_ONLY_NEVER_OPERATIONAL_EVIDENCE');
     expect(Object.values(doc.permissions)).toEqual(PERMISSION_CAPABILITIES.map(() => 'NONE'));

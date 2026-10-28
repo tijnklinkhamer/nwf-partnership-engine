@@ -668,15 +668,39 @@ describe('B2.3 protocol and verification: domain-separated, signature-first, sea
   });
 });
 
-describe('B2.3 trust set: pinned source, public keys only, no operational key, tests never operational', () => {
+describe('B2.3 trust set: pinned source, public keys only, one OWNER operational key, tests never operational', () => {
   const trust = codeOf(sourceOf('src/orgunits/subjectReview/trust.ts'));
 
-  it('pins an EMPTY operational trust set in reviewed source', () => {
+  // `trust` is the source AS B2.3 LEFT IT (the pinned terminal commit): it pinned an EMPTY set.
+  // OWNER record R2-P1 (P1-5, 2026-10-28) later pinned EXACTLY ONE operational review key, so
+  // the live set and the current source are pinned to that one entry.
+  it('B2.3 left an EMPTY operational set; the current build pins exactly the one OWNER key', () => {
     expect(trust).toContain(
       'export const OPERATIONAL_OWNER_REVIEW_KEYS: readonly ReviewTrustEntry[] = Object.freeze([]);',
     );
-    expect(reviewTrust.OPERATIONAL_OWNER_REVIEW_KEYS).toEqual([]);
-    expect(reviewTrust.ReviewTrustSet.operational().hasActiveKey()).toBe(false);
+    const current = codeOf(
+      readFileSync(join(REPO_ROOT, 'src/orgunits/subjectReview/trust.ts'), 'utf8'),
+    );
+    expect(current).toContain(
+      'export const OPERATIONAL_OWNER_REVIEW_KEYS: readonly ReviewTrustEntry[] = Object.freeze([',
+    );
+    expect(current.match(/keyId: '/g)).toHaveLength(1);
+    expect(current).not.toMatch(/-----BEGIN|BEGIN [A-Z ]*PRIVATE KEY/);
+    expect(reviewTrust.OPERATIONAL_OWNER_REVIEW_KEYS).toEqual([
+      {
+        keyId: 'owner-review-2026-10',
+        fingerprint: 'b2c8fcf82c3359d0fd829dbb4cda9cee4007578d3cd8aacd95ad53e5cf11bb86',
+        publicKey: 'YpLJSZB1H8ThmwR5KVS9_BI6fYgf5jjuE93AOoqL5nE',
+        authority: 'OWNER_DISCOVERY_SUBJECT_REVIEW',
+        protocol: 'nwf-pe.discovery-subject-review/1',
+        scope: 'OPERATIONAL',
+        state: 'ACTIVE',
+        activatedAt: '2026-10-28T15:54:00.000Z',
+        retiredAt: null,
+        revokedAt: null,
+      },
+    ]);
+    expect(reviewTrust.ReviewTrustSet.operational().hasActiveKey()).toBe(true);
   });
 
   it('builds sets only from that list or an ephemeral vitest-only TEST_ONLY list', () => {

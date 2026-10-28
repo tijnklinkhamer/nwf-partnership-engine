@@ -28,6 +28,7 @@ import {
 } from '../../orgunits/subjectRegistry/readModel.js';
 import { TrustedReviewerContext } from '../../orgunits/subjectRegistry/reviewAuthority.js';
 import { databaseNow, loadSubjectGraph } from '../../orgunits/subjectRegistry/store.js';
+import { ReviewTrustSet } from '../../orgunits/subjectReview/trust.js';
 import {
   RegistryRefusal,
   recordReview,
@@ -117,7 +118,11 @@ describeDb('B2.2 discovery-subject registry (integration)', () => {
   let baseline: Record<string, number>;
   const reviewer = TrustedReviewerContext.testSeam('synthetic-reviewer');
 
-  async function cli(argv: string[], login: string = WRITER_LOGIN): Promise<CliRun> {
+  async function cli(
+    argv: string[],
+    login: string = WRITER_LOGIN,
+    trust?: ReviewTrustSet,
+  ): Promise<CliRun> {
     const out: string[] = [];
     const err: string[] = [];
     const code = await runDiscoverySubjects([...argv, '--json'], {
@@ -127,6 +132,7 @@ describeDb('B2.2 discovery-subject registry (integration)', () => {
           connectionString: login === 'owner' ? testDatabaseUrl('admin')! : urlFor(login),
           max: 2,
         }),
+      ...(trust !== undefined ? { trust } : {}),
       out: (t) => void out.push(t),
       err: (t) => void err.push(t),
     });
@@ -676,7 +682,7 @@ describeDb('B2.2 discovery-subject registry (integration)', () => {
     it('refuses review execution from the CLI, and the writer capability cannot insert a review', async () => {
       const id = await propose('Synthetic Review Club');
       const m = await inspect(id);
-      const run = await cli([
+      const args = [
         'review',
         '--subject',
         id,
@@ -687,8 +693,13 @@ describeDb('B2.2 discovery-subject registry (integration)', () => {
         '--expect-state',
         m.stateDigest,
         '--execute',
-      ]);
+      ];
+      // With no OWNER key (a keyless set through the test seam): the trust primitive is absent.
+      const run = await cli(args, WRITER_LOGIN, ReviewTrustSet.ephemeralForVitest([]));
       expect(run.envelope.code).toBe('REVIEWER_TRUST_PRIMITIVE_ABSENT');
+      // Under the operational set (R2-P1: one OWNER key) an unsigned execution is still refused:
+      // its flags belong inside a signed envelope.
+      expect((await cli(args)).envelope.code).toBe('INPUT_INVALID');
       expect(
         await sqlstate(() =>
           writer.query(
@@ -1214,7 +1225,19 @@ describeDb('B2.2 discovery-subject registry (integration)', () => {
       });
       const data = shown.envelope.data as SubjectReadModel;
       expect(data.identityStatus.structurallyValid).toBe(true);
-      expect(data.reviewability.authoritativeReviewExecution).toBe('DISABLED');
+      // The operational set holds the R2-P1 OWNER key: review needs a signed envelope.
+      expect(data.reviewability.authoritativeReviewExecution).toBe(
+        'SIGNED_OWNER_ENVELOPE_REQUIRED',
+      );
+      // Under a keyless set (the test seam), review execution is DISABLED.
+      const keyless = await cli(
+        ['show', '--subject-id', id],
+        WRITER_LOGIN,
+        ReviewTrustSet.ephemeralForVitest([]),
+      );
+      expect(
+        (keyless.envelope.data as SubjectReadModel).reviewability.authoritativeReviewExecution,
+      ).toBe('DISABLED');
       expect((await cli(['show', '--subject-id', randomUUID()])).envelope.code).toBe(
         'SUBJECT_NOT_FOUND',
       );

@@ -53,25 +53,37 @@ Run `nwf-engine doctor` first. It is read-only: it changes nothing. Each
    runbook gives the exact grant text (`NWF-PE-APPLY-0013-0028-V1`). Why: the
    working database holds the frozen research corpus, and a wrong migration
    cannot be undone.
-2. **An OWNER campaign key must be pinned.** **[NEEDS OWNER ACT]**
-   `doctor` prints `no OWNER campaign key pinned: campaigns cannot run`
-   until one is. Pinning a key is an OWNER key-custody decision plus a
-   reviewed source change (`OPERATIONAL_OWNER_CAMPAIGN_KEYS`, ADR 0029 §8,
-   ADR 0030 §11). Why: a campaign counts only if its OWNER signature verifies
-   under the pinned key set. The runtime never reads a key, a key file or
-   the Keychain.
-3. **An OWNER review key must be pinned.** **[NEEDS OWNER ACT]** The same
-   kind of decision for `OPERATIONAL_OWNER_REVIEW_KEYS` (ADR 0023, ADR 0030
-   §5). Until then every identity review is refused, so no subject ever
-   reaches the outbox manifest. `doctor` does not check whether a review
-   key is pinned. Optionally, record the PATH of your encrypted review key
-   file so `doctor` can tell you whether it is a private regular file of
-   yours (line `review-key`; it looks at the path with `lstat` only and
-   never opens the file). Add one field to the runtime's config file
+2. **An OWNER campaign key is pinned.** **[DONE — OWNER record R2-P1,
+   P1-5]** `OPERATIONAL_OWNER_CAMPAIGN_KEYS` holds one ACTIVE key,
+   `owner-campaign-2026-10` (fingerprint
+   `43dbea7551266adffc853f6cff4f054dfc924d7e76d4e2f994320e6091a6581c`,
+   active from 2026-10-28T15:54:00.000Z; ADR 0029 §11). `doctor` prints
+   `no OWNER campaign key pinned: campaigns cannot run` only for a build
+   without one. The encrypted private key (PKCS#8 Ed25519, PBKDF2-SHA512)
+   lives at
+   `~/Library/Application Support/nwf-engine/keys/owner-campaign-2026-10.pem`,
+   with a copy in your cloud custody folder; pass that path as `--key-file`
+   to `acquisition campaign sign`. Why: a campaign counts only if its OWNER
+   signature verifies under the pinned key set. The runtime never reads a
+   key, a key file or the Keychain. Revoking or rotating the key is a
+   reviewed source change setting its state `REVOKED` or `RETIRED`.
+3. **An OWNER review key is pinned.** **[DONE — OWNER record R2-P1, P1-5]**
+   `OPERATIONAL_OWNER_REVIEW_KEYS` holds one ACTIVE key,
+   `owner-review-2026-10` (fingerprint
+   `b2c8fcf82c3359d0fd829dbb4cda9cee4007578d3cd8aacd95ad53e5cf11bb86`,
+   active from 2026-10-28T15:54:00.000Z; ADR 0023 §5a). Without an ACTIVE
+   review key every identity review is refused, so no subject reaches the
+   outbox manifest. `doctor` does not check whether a review key is pinned.
+   The encrypted private key lives at
+   `~/Library/Application Support/nwf-engine/keys/owner-review-2026-10.pem`,
+   with a copy in your cloud custody folder. Optionally, record that PATH so
+   `doctor` can tell you whether it is a private regular file of yours (line
+   `review-key`; it looks at the path with `lstat` only and never opens the
+   file). Add one field to the runtime's config file
    `~/Library/Application Support/nwf-engine/config.json`:
-   `"reviewKeyFile": "/absolute/path/to/review-key"`. Without it, `doctor`
-   shows `review-key` as INFO; `acquisition review sign` takes `--key-file`
-   on every batch either way.
+   `"reviewKeyFile": "/Users/<you>/Library/Application Support/nwf-engine/keys/owner-review-2026-10.pem"`.
+   Without it, `doctor` shows `review-key` as INFO; `acquisition review sign`
+   takes `--key-file` on every batch either way.
 4. **Logins must be provisioned.** **[NEEDS OWNER ACT]** No migration
    creates a login. One database login per capability, each holding only
    that capability (SELECT and INSERT; never the owner, never a superuser):

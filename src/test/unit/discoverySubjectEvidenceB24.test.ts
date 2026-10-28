@@ -1134,7 +1134,25 @@ describe('B2.4-R1a authority: no permission, no canonical issuer, no operational
       expect(at(doc, 'assessment', 'researchAuthority', 'granted')).toBe(false);
       expect(JSON.stringify(doc)).not.toMatch(/"(cand|chn|opp):|"granted":true|SAME_ACTOR/);
     }
-    expect(OPERATIONAL_OWNER_REVIEW_KEYS).toEqual([]);
-    expect(OPERATIONAL.hasActiveKey()).toBe(false);
+    // OWNER record R2-P1 (P1-5): the operational set is exactly the one OWNER review key.
+    expect(
+      OPERATIONAL_OWNER_REVIEW_KEYS.map((e) => [
+        e.keyId,
+        e.fingerprint,
+        e.publicKey,
+        e.scope,
+        e.state,
+      ]),
+    ).toEqual([
+      [
+        'owner-review-2026-10',
+        'b2c8fcf82c3359d0fd829dbb4cda9cee4007578d3cd8aacd95ad53e5cf11bb86',
+        'YpLJSZB1H8ThmwR5KVS9_BI6fYgf5jjuE93AOoqL5nE',
+        'OPERATIONAL',
+        'ACTIVE',
+      ],
+    ]);
+    expect(OPERATIONAL.hasActiveKey()).toBe(true);
+    expect(OPERATIONAL.entries().every((e) => !e.keyId.startsWith('test-'))).toBe(true);
   });
 });

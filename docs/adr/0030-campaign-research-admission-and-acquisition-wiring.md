@@ -287,7 +287,10 @@ WHERE locktype = 'advisory' AND pid <> pg_backend_pid();`.
 - `OPERATIONAL_OWNER_CAMPAIGN_KEYS` and `OPERATIONAL_OWNER_REVIEW_KEYS` are
   empty: no campaign verifies (the worker stops CAMPAIGN_UNVERIFIED before
   its first claim, proven with the production handlers through the CLI), and
-  no review envelope verifies.
+  no review envelope verifies. **Amended 2026-10-28:** OWNER record R2-P1
+  (P1-5) pins one ACTIVE key in each set, `owner-campaign-2026-10` and
+  `owner-review-2026-10` (ADR 0029 §11, ADR 0023 §5a); the keyless refusals
+  above remain the behaviour of any build without an ACTIVE key.
 - No `source_discovery_grants` row exists outside disposable test databases.
 - Every capability role is NOLOGIN; 0024 creates none and grants no LOGIN.
 - 0024 has been applied only to disposable tmpfs databases.
