@@ -19,10 +19,10 @@
  */
 import type pg from 'pg';
 
-import type { StageHandler } from '../acquisition/index.js';
+import type { ContinuationScopeCheck, StageHandler } from '../acquisition/index.js';
 import { productionLiveSearchDeps } from './sourceDiscoveryPort.js';
 import type { WiringPools } from './context.js';
-import { createStageHandlers } from './handlers.js';
+import { continuationScopeCheck, createStageHandlers } from './handlers.js';
 
 export type WiringRole = 'source_discovery' | 'discovery_subject_writer' | 'research' | 'readonly';
 
@@ -37,6 +37,8 @@ export interface ProductionWiringInput {
 
 export interface ProductionWiring {
   readonly handlers: readonly StageHandler[];
+  /** R2: the signed-geography check a continuation nomination passes before adoption. */
+  readonly continuationScope: ContinuationScopeCheck;
   /** Ends every pool this wiring created (never the worker pool). */
   close(): Promise<void>;
 }
@@ -76,6 +78,7 @@ export function createProductionStageHandlers(input: ProductionWiringInput): Pro
   });
   return {
     handlers,
+    continuationScope: continuationScopeCheck(() => lazy('readonly')),
     async close() {
       await Promise.all([...created.values()].map((p) => p.end()));
       created.clear();

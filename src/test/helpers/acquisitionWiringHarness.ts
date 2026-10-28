@@ -480,7 +480,8 @@ export async function createWiringHarness(tag: string): Promise<WiringHarness> {
 /** Every table the wired pipeline writes, truncated (owner-only test cleanup). */
 export async function truncateWiring(admin: pg.Pool): Promise<void> {
   await admin.query(
-    `TRUNCATE acquisition_claim_lease_extensions, acquisition_outbox_entries, acquisition_signals,
+    `TRUNCATE acquisition_campaign_continuations,
+              acquisition_claim_lease_extensions, acquisition_outbox_entries, acquisition_signals,
               acquisition_campaign_subjects, acquisition_worker_stops, acquisition_work_outcomes,
               acquisition_work_claims, acquisition_work_items, acquisition_campaign_control_events,
               acquisition_campaigns,

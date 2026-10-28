@@ -38,6 +38,15 @@
  *     lease expires and the item is retried (attempt n+1); the database's
  *     one-terminal-outcome-per-item index makes a duplicate ADVANCED
  *     impossible.
+ *   - CONTINUATION (R2, migration 0029): at every start, after the first
+ *     authority and BEFORE any search seeding, a v3 campaign adopts the
+ *     eligible nominations its signed continuation lists, in signed order
+ *     (`adoptContinuation`; idempotent, once-only in the database), each
+ *     checked first against the signed geography by the injected
+ *     `continuationScope` port. Its own search roots are seeded only after
+ *     every adopted item has left NOMINATED / DEDUPLICATED /
+ *     RESEARCH_PENDING (REUSE BEFORE SEARCH), and never when it signs
+ *     maxSearchRuns 0. The summary names every listed nomination it skipped.
  *   - A per-run HostCircuitBreaker (orchestrator/circuitBreaker.ts, reused)
  *     keyed by registrable domain is handed to handlers; a domain whose
  *     circuit is open is not scheduled for the rest of the run.
@@ -61,6 +70,10 @@ import type { BudgetName, CampaignBudgets, CampaignScope } from './document.js';
 import {
   LeaseLostError,
   NO_CONSUMPTION,
+  adoptContinuation,
+  continuationSettled,
+  type ContinuationReport,
+  type ContinuationScopeCheck,
   OutcomeRefusedError,
   WorkerSessionRefused,
   assertWorkerSession,
@@ -158,6 +171,7 @@ export type WorkerConfigRefusalCode =
   | 'HANDLER_NOT_PERMITTED'
   | 'HANDLER_DUPLICATE'
   | 'HANDLERS_NOT_WIRED'
+  | 'CONTINUATION_SCOPE_UNWIRED'
   | 'WORKER_SESSION_REFUSED';
 
 export class WorkerConfigRefusal extends Error {
@@ -310,6 +324,13 @@ export interface RunWorkerOptions {
   readonly idleTimeoutMs?: number;
   /** EMERGENCY_STOP polling interval while a handler runs. */
   readonly controlPollMs?: number;
+  /**
+   * R2: the signed-geography check applied to each continuation nomination
+   * BEFORE it is adopted (the wiring's rule, on the readonly role). Required
+   * when the campaign signs a continuation: a worker without it refuses to
+   * start (CONTINUATION_SCOPE_UNWIRED) rather than adopt unchecked.
+   */
+  readonly continuationScope?: ContinuationScopeCheck;
 }
 
 export interface WorkerSummary {
@@ -322,6 +343,8 @@ export interface WorkerSummary {
   /** Outcomes the database refused because a later attempt superseded the claim. */
   readonly superseded: number;
   readonly stopId: string;
+  /** R2: what this start did with the campaign's signed continuation (null: none signed). */
+  readonly continuation: ContinuationReport | null;
 }
 
 const BUDGET_OF: Readonly<Record<Resource, BudgetName>> = {
@@ -401,6 +424,8 @@ export async function runWorker(options: RunWorkerOptions): Promise<WorkerSummar
   let processed = 0;
   let superseded = 0;
   let seeded = false;
+  let adopted = false;
+  let continuation: ContinuationReport | null = null;
   let idleSinceMs: number | null = null;
 
   const stop = async (reason: WorkerStopReason, detail: string | null): Promise<WorkerSummary> => {
@@ -421,6 +446,7 @@ export async function runWorker(options: RunWorkerOptions): Promise<WorkerSummar
       outcomes: { ...outcomes },
       superseded,
       stopId: rows[0]!.id,
+      continuation,
     };
   };
 
@@ -438,9 +464,27 @@ export async function runWorker(options: RunWorkerOptions): Promise<WorkerSummar
       return stop(STOP_FOR_REFUSAL[derived.code], derived.detail);
     }
     const authority = derived.authority;
+    const signedContinuation = authority.scope.continuation ?? null;
+    if (!adopted) {
+      // R2: reuse the OWNER's listed candidates BEFORE any search is seeded.
+      if (signedContinuation !== null) {
+        if (options.continuationScope === undefined) {
+          throw new WorkerConfigRefusal('CONTINUATION_SCOPE_UNWIRED');
+        }
+        continuation = await adoptContinuation(pool, authority, options.continuationScope);
+      }
+      adopted = true;
+    }
     if (!seeded) {
-      await seedCampaignSearchGrantRoots(pool, authority);
-      seeded = true;
+      if (signedContinuation === null) {
+        await seedCampaignSearchGrantRoots(pool, authority);
+        seeded = true;
+      } else if (authority.budgets.maxSearchRuns === 0) {
+        seeded = true; // a reuse-only continuation: no search root at all
+      } else if (await continuationSettled(pool, campaignId, authority.scope.stages)) {
+        await seedCampaignSearchGrantRoots(pool, authority);
+        seeded = true;
+      }
     }
 
     const usage = await loadCampaignUsage(pool, campaignId);

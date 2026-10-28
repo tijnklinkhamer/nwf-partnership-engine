@@ -46,6 +46,8 @@ export const KNOWN_STATUS_FIELDS = [
   'failures',
   'budgets',
   'queue',
+  // R2 (migration 0029): a v3 campaign's continuation of a STOPPED predecessor.
+  'continuation',
 ] as const;
 
 /** Fields the dashboard needs; when absent they are listed as not reported. */
@@ -185,11 +187,25 @@ export interface EngineStatusDocument {
     readonly lastSuccessfulResearchAt: string | null;
     /** `queue.lastWorkerStop`. */
     readonly lastWorkerStop: JsonObject | null;
+    /** R2: `continuation` (v3 campaigns): predecessor, listed, adopted, pending, skipped. */
+    readonly continuation: ContinuationSummary | null;
   };
   readonly notices: readonly Notice[];
   readonly additionalFields: Readonly<Record<string, unknown>>;
   readonly notReported: readonly string[];
   readonly lastPublication: LastPublication;
+}
+
+export interface ContinuationSummary {
+  readonly predecessorCampaignId: string | null;
+  readonly listed: number | null;
+  readonly adopted: number | null;
+  readonly pending: number | null;
+  readonly skipped: readonly {
+    readonly nominationId: string;
+    readonly position: number | null;
+    readonly reason: string;
+  }[];
 }
 
 const num = (v: unknown): number | null => (typeof v === 'number' && Number.isFinite(v) ? v : null);
@@ -406,6 +422,33 @@ export function buildEngineStatus(input: EngineStatusInput): EngineStatusDocumen
   }
   const lastStop = obj(queue?.['lastWorkerStop']);
 
+  // R2: the continuation of a STOPPED predecessor, as the status derived it.
+  const contObj = obj(reported?.['continuation']);
+  let continuation: ContinuationSummary | null = null;
+  if (contObj !== null) {
+    const skipped = Array.isArray(contObj['skipped'])
+      ? (contObj['skipped'] as unknown[]).filter(isObject).map((k) => ({
+          nominationId: str(k['nominationId']) ?? '?',
+          position: num(k['position']),
+          reason: str(k['reason']) ?? '?',
+        }))
+      : [];
+    continuation = {
+      predecessorCampaignId: str(contObj['predecessorCampaignId']),
+      listed: num(contObj['listed']),
+      adopted: num(contObj['adopted']),
+      pending: num(contObj['pending']),
+      skipped,
+    };
+    if (skipped.length > 0) {
+      notices.push({
+        level: 'info',
+        code: 'CONTINUATION_SKIPPED',
+        message: `${skipped.length} listed nomination(s) of the continued campaign were not adopted; each reason is shown under CONTINUATION.`,
+      });
+    }
+  }
+
   const additionalFields: Record<string, unknown> = {};
   const notReported: string[] = [];
   if (reported !== null) {
@@ -499,6 +542,7 @@ export function buildEngineStatus(input: EngineStatusInput): EngineStatusDocumen
       lastSuccessfulResearchAt:
         reported === null ? null : str(reported['lastSuccessfulResearchAt']),
       lastWorkerStop: lastStop,
+      continuation,
     },
     notices,
     additionalFields,
@@ -656,6 +700,18 @@ export function renderEngineStatus(doc: EngineStatusDocument): string {
           'Last worker stop (DB)',
           `${show(s.lastWorkerStop['reason'])} at ${show(s.lastWorkerStop['at'])}`,
         );
+      }
+      if (s.continuation !== null) {
+        const k = s.continuation;
+        L.push('');
+        L.push('CONTINUATION (stranded nominations of a STOPPED campaign, OWNER-listed)');
+        row('Predecessor campaign', show(k.predecessorCampaignId));
+        row(
+          'Listed / adopted',
+          `${show(k.listed)} listed, ${show(k.adopted)} adopted, ${show(k.pending)} to adopt at the next worker start`,
+        );
+        row('Skipped', String(k.skipped.length));
+        for (const x of k.skipped) row(`  #${show(x.position)} ${x.nominationId}`, x.reason);
       }
       if (s.failures !== null && s.failures.length > 0) {
         L.push('');

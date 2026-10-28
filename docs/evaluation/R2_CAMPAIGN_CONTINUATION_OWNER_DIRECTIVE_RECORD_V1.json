@@ -1,0 +1,39 @@
+{
+  "recordId": "R2_CAMPAIGN_CONTINUATION_OWNER_DIRECTIVE_RECORD_V1",
+  "recordKind": "OWNER_DIRECTIVE_SCOPE_RECORD",
+  "recordedAtUtc": "2026-10-28",
+  "branch": "r2/engine-continuation-v1",
+  "startingHead": "efbe465",
+  "status": "LOCAL_IMPLEMENTATION_UNDER_OWNER_APPROVED_R2_CONTINUATION_REQUIREMENTS",
+  "isOwnerRatification": false,
+  "recordedBy": "R2 engine implementer (transcription of the scope the integration lead relayed; not an OWNER signature)",
+  "authority": {
+    "source": "OWNER-approved requirements relayed by the integration lead (R2): allow a NEW OWNER-signed campaign to EXPLICITLY continue eligible stranded candidates from a NAMED predecessor campaign",
+    "scope": [
+      "Measured in production nwf_pe (campaign nwf-nl-canary-2026-10-v1, signed maxWorkItems 100): 72 of 87 NOMINATED items passed de-duplication but only 4 received a child before the work-item budget was spent; 68 are stranded and no second campaign could reach them.",
+      "Preserve original nomination identities, source evidence, provenance, dedupe and audit history (no duplicate nominations, no merges); charge all resumed processing against the NEW campaign's signed budgets; idempotent and safe against double-processing; prioritise in the OWNER's signed order; reuse existing candidates before spending any search; cloud and I0 admission contract unchanged; nothing loosened."
+    ],
+    "authorised": [
+      "local source edits",
+      "the campaign document nwf-pe.acquisition-campaign.v3 (v1 and v2 unchanged)",
+      "one forward-only migration (0029): widened document-version, link-out-depth and work-item root CHECKs, one append-only adoption table (acquisition_campaign_continuations; SELECT+INSERT to the EXISTING NOLOGIN nwf_acquisition_worker, SELECT to nwf_readonly), its verification trigger, a continuation-document trigger, and a CREATE OR REPLACE of the 0026 work-item rule restated in full",
+      "local test runs against a disposable tmpfs PostgreSQL",
+      "local commits"
+    ],
+    "notAuthorised": [
+      "applying migration 0029 to nwf_pe or any persistent, shared, staging or production database",
+      "any live web search, live fetch, live model call or live auth-status call",
+      "push, merge or deploy",
+      "editing a committed migration",
+      "weakening any security check, firewall, budget or trust boundary"
+    ]
+  },
+  "migrationUnderThisDirective": "migrations/0029_campaign_continuation.sql",
+  "adr": "docs/adr/0029-owner-signed-acquisition-campaigns.md",
+  "amendsProposedAdr": "docs/adr/0029-owner-signed-acquisition-campaigns.md",
+  "loginInMigrations": false,
+  "newRole": false,
+  "appendOnly": true,
+  "editsPriorMigrations": false,
+  "liveNetworkAuthorised": false
+}

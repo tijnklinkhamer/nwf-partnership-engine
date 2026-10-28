@@ -165,6 +165,35 @@ export const CHILD_REFUSALS = [
 ] as const;
 export type ChildRefusal = (typeof CHILD_REFUSALS)[number];
 
+/**
+ * R2 (migration 0029): why a nomination a v3 campaign's signed continuation
+ * lists was NOT adopted. Named, reported and shown in status - never dropped
+ * silently. Each describes the WORK, never the organisation.
+ */
+export const CONTINUATION_SKIPS = [
+  'ADOPTED_BY_ANOTHER_CAMPAIGN',
+  'PREDECESSOR_NOT_STOPPED',
+  'NOT_A_PREDECESSOR_NOMINATION',
+  'SOURCE_KIND_NOT_SEARCH_GRANT',
+  'NOT_ADVANCED',
+  'HAS_CHILD',
+  'OUT_OF_SCOPE',
+  'ALREADY_IN_CAMPAIGN',
+  'WORK_ITEM_BUDGET_EXHAUSTED',
+  'DOMAIN_CAP_REACHED',
+] as const;
+export type ContinuationSkip = (typeof CONTINUATION_SKIPS)[number];
+
+/** What a listed nomination is, for its v3 campaign: adopted, adoptable now, or skipped. */
+export type ContinuationDisposition = 'ADOPTED' | 'ELIGIBLE' | ContinuationSkip;
+
+/** The stages an adopted item must have left before a v3 campaign's search begins. */
+export const CONTINUATION_REUSE_STAGES = [
+  'NOMINATED',
+  'DEDUPLICATED',
+  'RESEARCH_PENDING',
+] as const satisfies readonly Stage[];
+
 export const WORKER_STOP_REASONS = [
   'ONCE_COMPLETED',
   'MAX_ITEMS_REACHED',

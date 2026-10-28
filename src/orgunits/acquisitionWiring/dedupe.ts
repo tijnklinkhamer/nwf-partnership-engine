@@ -27,7 +27,12 @@
  */
 import type pg from 'pg';
 
-import type { StageHandler, StageOutcome, WorkItemView } from '../acquisition/index.js';
+import type {
+  ContinuationScopeCheck,
+  StageHandler,
+  StageOutcome,
+  WorkItemView,
+} from '../acquisition/index.js';
 import { loadNomination, prepareNomination, type NominationRow } from './sourceDiscoveryPort.js';
 import type { WiringDeps } from './context.js';
 import { geographyInScope } from './discover.js';
@@ -125,6 +130,35 @@ async function inScope(
     return owned.rows[0]!.ok;
   }
   return geographyInScope(geographies, run.geography);
+}
+
+/**
+ * R2 (migration 0029): the scope rule a CONTINUATION nomination must pass
+ * BEFORE a v3 campaign adopts it - the NOMINATED stage's own geography rule
+ * (`inScope` above, search branch). A continued nomination comes from a
+ * granted SEARCH run, whose geography must be inside the signed geographies;
+ * anything else is out of scope. The worker role cannot read the run, so
+ * this reads it on the readonly role; the NOMINATED handler re-checks it
+ * after adoption, unchanged.
+ */
+export function continuationScopeCheck(
+  readonlyPool: () => pg.Pool | pg.PoolClient,
+): ContinuationScopeCheck {
+  return async (nominationId, geographies) => {
+    const { rows } = await readonlyPool().query<{ run_kind: string; geography: string | null }>(
+      `SELECT r.run_kind, r.geography
+         FROM source_discovery_nominations n
+         JOIN source_discovery_runs r ON r.id = n.discovery_run_id
+        WHERE n.id = $1`,
+      [nominationId],
+    );
+    const run = rows[0];
+    return (
+      run !== undefined &&
+      run.run_kind === 'SEARCH_PROVIDER' &&
+      geographyInScope(geographies, run.geography)
+    );
+  };
 }
 
 export function nominatedHandler(deps: WiringDeps): StageHandler {

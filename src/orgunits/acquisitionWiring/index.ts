@@ -12,7 +12,9 @@ export {
   CampaignSigningRefusal,
   CAMPAIGN_DRAFT_VERSION,
   CAMPAIGN_DRAFT_VERSION_V2,
+  CAMPAIGN_DRAFT_VERSION_V3,
   TEMPLATE_BUDGETS,
+  TEMPLATE_CONTINUATION_MAX_SEARCH_RUNS,
   TEMPLATE_LINK_OUT_MAX_HOPS,
   TEMPLATE_DEFAULT_WINDOW_DAYS,
   TEMPLATE_MAX_WINDOW_DAYS,
@@ -20,6 +22,7 @@ export {
   parseCampaignDraft,
   signCampaignDraft,
   type CampaignDraft,
+  type CampaignDraftContinuation,
   type SignedCampaign,
 } from './campaignSigner.js';
 export {
@@ -39,7 +42,7 @@ export {
   type CountryMention,
   type CountryStatement,
 } from './countryMentions.js';
-export { WIRED_STAGES, createStageHandlers } from './handlers.js';
+export { WIRED_STAGES, continuationScopeCheck, createStageHandlers } from './handlers.js';
 export {
   OUTBOX_DESCRIPTOR_FILE,
   OUTBOX_EXPORT_V2_FILE,

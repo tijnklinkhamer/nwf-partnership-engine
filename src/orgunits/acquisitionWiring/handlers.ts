@@ -15,6 +15,9 @@
 import type { StageHandler } from '../acquisition/index.js';
 import type { WiringDeps } from './context.js';
 import { nominatedHandler } from './dedupe.js';
+
+/** R2: the pre-adoption scope check of a v3 campaign's continuation (dedupe.ts). */
+export { continuationScopeCheck } from './dedupe.js';
 import { discoveredHandler } from './discover.js';
 import { assessableHandler, researchedHandler } from './outbox.js';
 import { deduplicatedHandler } from './promote.js';

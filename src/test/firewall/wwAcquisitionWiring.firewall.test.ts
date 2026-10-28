@@ -164,7 +164,9 @@ const FILES: Readonly<Record<string, readonly string[]>> = {
     '../sourceDiscovery/promote.js',
     '../sourceDiscovery/store.js',
   ],
-  'status.ts': ['pg', '../acquisition/index.js'],
+  // R2 (migration 0029, exact path): the status derives a continuation
+  // nomination's OUT_OF_SCOPE skip with the dedupe stage's own geography rule.
+  'status.ts': ['pg', '../acquisition/index.js', './dedupe.js'],
 };
 
 const code = (file: string): string => codeOf(readCurrent(file));

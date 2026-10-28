@@ -107,6 +107,13 @@ export class CampaignAuthority {
       sourceKinds: Object.freeze([...fields.scope.sourceKinds]),
       stages: Object.freeze([...fields.scope.stages]),
       linkOutMaxHops: fields.scope.linkOutMaxHops,
+      continuation:
+        fields.scope.continuation == null
+          ? null
+          : Object.freeze({
+              predecessorCampaignId: fields.scope.continuation.predecessorCampaignId,
+              nominationIds: Object.freeze([...fields.scope.continuation.nominationIds]),
+            }),
     });
     this.budgets = Object.freeze({ ...fields.budgets });
     this.startsAtMs = fields.startsAtMs;
@@ -329,6 +336,7 @@ export type CampaignRecordRefusalCode =
   | 'CAMPAIGN_NOT_FOUND'
   | 'CAMPAIGN_UNVERIFIED'
   | 'CONTROL_TRANSITION_REFUSED'
+  | 'CONTINUATION_INVALID'
   | 'REQUEST_INVALID';
 
 /** A refusal on the owner path. Nothing was written. `detail` is a fixed token. */
@@ -409,6 +417,18 @@ export async function recordCampaign(
         campaignKey: p.campaignKey,
         payloadSha256: verified.payloadSha256,
       };
+    }
+    // R2 (migration 0029): a v3 continuation names another campaign of THIS
+    // environment (the database re-checks it on insert).
+    const continuation = p.scope.continuation ?? null;
+    if (continuation !== null) {
+      const { rows: pred } = await client.query<{ env: string }>(
+        'SELECT environment_id AS env FROM acquisition_campaigns WHERE id = $1',
+        [continuation.predecessorCampaignId],
+      );
+      if (pred[0] === undefined || pred[0].env !== p.environmentId) {
+        throw new CampaignRecordRefusal('CONTINUATION_INVALID', 'predecessor_unknown');
+      }
     }
     let inserted;
     try {

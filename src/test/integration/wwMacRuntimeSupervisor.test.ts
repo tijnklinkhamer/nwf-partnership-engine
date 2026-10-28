@@ -122,7 +122,9 @@ describeDb('WW E-M Mac runtime supervisor (integration)', () => {
   beforeEach(async () => {
     await admin.query(
       // Migration 0024 (WW E-W) adds tables that reference the 0023 queue.
-      `TRUNCATE acquisition_claim_lease_extensions, acquisition_outbox_entries,
+      // R2 (migration 0029): continuation adoptions reference campaigns and items too.
+      `TRUNCATE acquisition_campaign_continuations,
+                acquisition_claim_lease_extensions, acquisition_outbox_entries,
                 acquisition_signals, acquisition_campaign_subjects,
                 subject_research_admission_revocations, subject_research_admissions,
                 acquisition_worker_stops, acquisition_work_outcomes, acquisition_work_claims,

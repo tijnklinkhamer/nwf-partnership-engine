@@ -25,6 +25,7 @@ import {
   CAMPAIGN_ACTION,
   CAMPAIGN_DOCUMENT_VERSION,
   CAMPAIGN_DOCUMENT_VERSION_V2,
+  CAMPAIGN_DOCUMENT_VERSION_V3,
   CAMPAIGN_PROTOCOL,
   OWNER_CAMPAIGN_AUTHORITY,
   campaignSigningBytes,
@@ -97,6 +98,8 @@ export interface CampaignDraft {
   purpose?: string;
   /** WW H-ACQ: set to sign a v2 document carrying this signed link-out depth. */
   linkOutMaxHops?: string;
+  /** R2: set to sign a v3 document continuing these nominations (depth defaults to '1'). */
+  continuation?: { predecessorCampaignId: string; nominationIds: string[] };
 }
 
 export const DEFAULT_BUDGETS: Readonly<Record<string, string>> = {
@@ -125,7 +128,11 @@ export function campaignPayloadObject(
     campaignKey: draft.campaignKey ?? `test-campaign-${process.pid}-${counter}-v1`,
     contractVersion: '1',
     document:
-      draft.linkOutMaxHops === undefined ? CAMPAIGN_DOCUMENT_VERSION : CAMPAIGN_DOCUMENT_VERSION_V2,
+      draft.continuation !== undefined
+        ? CAMPAIGN_DOCUMENT_VERSION_V3
+        : draft.linkOutMaxHops === undefined
+          ? CAMPAIGN_DOCUMENT_VERSION
+          : CAMPAIGN_DOCUMENT_VERSION_V2,
     environmentId: draft.environmentId,
     issuedAt: new Date(draft.issuedAtMs ?? now).toISOString(),
     keyFingerprint: key.fingerprint,
@@ -134,8 +141,18 @@ export function campaignPayloadObject(
     protocol: CAMPAIGN_PROTOCOL,
     purpose: draft.purpose ?? 'Synthetic test campaign; fictitious work only.',
     scope: {
+      ...(draft.continuation === undefined
+        ? {}
+        : {
+            continuation: {
+              nominationIds: [...draft.continuation.nominationIds],
+              predecessorCampaignId: draft.continuation.predecessorCampaignId,
+            },
+          }),
       geographies: draft.geographies ?? ['NL'],
-      ...(draft.linkOutMaxHops === undefined ? {} : { linkOutMaxHops: draft.linkOutMaxHops }),
+      ...(draft.linkOutMaxHops === undefined && draft.continuation === undefined
+        ? {}
+        : { linkOutMaxHops: draft.linkOutMaxHops ?? '1' }),
       searchGrantIds:
         draft.searchGrantIds ??
         ((draft.sourceKinds ?? ['SEARCH_GRANT']).includes('SEARCH_GRANT') ? [randomUUID()] : []),

@@ -101,7 +101,9 @@ describeDb('WW E-Q acquisition campaigns and queue (integration)', () => {
     await admin.query(
       // WW E-W (migration 0024): the wiring tables and CAMPAIGN admissions
       // reference campaigns and items, so they are truncated with them.
-      `TRUNCATE acquisition_claim_lease_extensions, acquisition_outbox_entries,
+      // R2 (migration 0029): continuation adoptions reference campaigns and items too.
+      `TRUNCATE acquisition_campaign_continuations,
+                acquisition_claim_lease_extensions, acquisition_outbox_entries,
                 acquisition_signals, acquisition_campaign_subjects,
                 subject_research_admission_revocations, subject_research_admissions,
                 acquisition_worker_stops, acquisition_work_outcomes, acquisition_work_claims,
@@ -328,8 +330,13 @@ describeDb('WW E-Q acquisition campaigns and queue (integration)', () => {
       // INSERT only, never a mutating privilege. WW acceptance (migration 0028):
       // INSERT on revocations, which its trigger confines to superseding the
       // worker's own in-flight item's CAMPAIGN admission that captured no page,
-      // and SELECT on the page-capture count view that trigger reads.
+      // and SELECT on the page-capture count view that trigger reads. R2
+      // (migration 0029, by exact grant): SELECT and INSERT on the
+      // continuation adoptions, whose trigger checks every one against the
+      // signed v3 document and the STOPPED predecessor.
       expect(rows.map((r) => r.g)).toEqual([
+        'acquisition_campaign_continuations:INSERT',
+        'acquisition_campaign_continuations:SELECT',
         'acquisition_campaign_control_events:SELECT',
         'acquisition_campaign_subjects:INSERT',
         'acquisition_campaign_subjects:SELECT',

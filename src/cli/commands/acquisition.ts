@@ -29,6 +29,13 @@
  *                                 [--search-grant-id <uuid> ...] [--environment-id <uuid>]
  *                                 [--days <1-14>] [--json]
  *       Emits an UNSIGNED, conservative campaign draft. Writes nothing.
+ *       R2 (ADR 0029 s12): `--continue-from <predecessorCampaignId>
+ *       --nomination-id <uuid> [--nomination-id ...]` (or
+ *       `--continuation-file <json>`) drafts a v3 campaign that CONTINUES
+ *       those stranded nominations of a STOPPED predecessor, in the order
+ *       given (the OWNER's priority), signing maxSearchRuns '0'. Without
+ *       --search-grant-id it reuses the predecessor's signed search grants
+ *       (read on the readonly role).
  *   acquisition campaign sign --file <draft.json> --key-file <abs encrypted pkcs8>
  *                             --key-id <id> --out <signed.json>
  *       OFFLINE: signs one draft (passphrase from the terminal, echo off) and
@@ -94,6 +101,7 @@ import {
   planReviewBatch,
   signCampaignDraft,
   signCampaignReviews,
+  type CampaignDraftContinuation,
   type OwnerReviewTrust,
   type WiringRole,
 } from '../../orgunits/acquisitionWiring/index.js';
@@ -111,6 +119,8 @@ import {
   recordCampaign,
   recordControlEvent,
   runWorker,
+  type CampaignContinuation,
+  type ContinuationScopeCheck,
   type ControlAction,
   type StageHandler,
 } from '../../orgunits/acquisition/index.js';
@@ -127,7 +137,11 @@ export const ACQUISITION_CLI_CONTRACT = 'nwf-pe.acquisition-cli.v1';
 export function productionStageHandlers(
   workerPool: pg.Pool,
   outboxDir: string | null,
-): { handlers: readonly StageHandler[]; close(): Promise<void> } {
+): {
+  handlers: readonly StageHandler[];
+  continuationScope: ContinuationScopeCheck;
+  close(): Promise<void>;
+} {
   return createProductionStageHandlers({
     workerPool,
     poolFor: (role: WiringRole) => createPool(role),
@@ -153,6 +167,8 @@ export const ACQUISITION_USAGE = `nwf-pe acquisition - OWNER-signed acquisition 
   acquisition campaign template --campaign-key <key> --geography <CC|WORLDWIDE> [--geography ...]
                                [--search-grant-id <uuid> ...] [--environment-id <uuid>]
                                [--days <1-14>] [--json]
+                               [--continue-from <campaignId> --nomination-id <uuid> [--nomination-id ...]
+                                | --continuation-file <json>]   (v3: continue a STOPPED campaign)
   acquisition campaign sign    --file <draft.json> --key-file <abs encrypted pkcs8>
                                --key-id <id> --out <signed.json>
   acquisition status           --campaign-id <uuid> [--json]      (nwf-pe.acquisition-status.v1)
@@ -190,6 +206,9 @@ export const ACQUISITION_OPTIONS = Object.freeze({
     'search-grant-id': { type: 'string', multiple: true },
     'environment-id': { type: 'string' },
     days: { type: 'string' },
+    'continue-from': { type: 'string' },
+    'nomination-id': { type: 'string', multiple: true },
+    'continuation-file': { type: 'string' },
     ...OUTPUT,
   },
   'campaign sign': {
@@ -229,6 +248,8 @@ export interface AcquisitionCliDeps {
   /** Omitted: the operational trust set (EMPTY). Only a vitest-built set can differ. */
   readonly trust?: CampaignTrustSet;
   readonly handlers?: readonly StageHandler[];
+  /** R2: with injected handlers, the continuation scope check (production: the wiring's). */
+  readonly continuationScope?: ContinuationScopeCheck;
   /** A login holding nwf_discovery_subject_writer (review sign --country --execute). */
   readonly writerPool?: () => pg.Pool;
   /** A login holding nwf_discovery_subject_reviewer (review sign --execute). */
@@ -319,6 +340,52 @@ function readEnvelopeFile(path: string): Buffer {
   return readFileSync(path);
 }
 
+/** R2: one line naming a signed continuation, for verify and sign. */
+function continuationLine(
+  c: CampaignContinuation | CampaignDraftContinuation | null | undefined,
+): string {
+  if (c == null) return 'no continuation';
+  return (
+    `CONTINUES ${c.nominationIds.length} nomination(s) of STOPPED campaign ` +
+    `${c.predecessorCampaignId}, in this order: ${c.nominationIds.join(', ')}`
+  );
+}
+
+/** R2: `--continuation-file`: exactly `{ "predecessorCampaignId": <uuid>, "nominationIds": [<uuid>, ...] }`. */
+function readContinuationFile(path: string): CampaignDraftContinuation {
+  const stat = statSync(path);
+  if (!stat.isFile() || stat.size > DRAFT_FILE_MAX_BYTES) {
+    throw new UsageError('--continuation-file must be a regular file of at most 64 KiB.');
+  }
+  let value: unknown;
+  try {
+    value = JSON.parse(readFileSync(path, 'utf8')) as unknown;
+  } catch {
+    throw new UsageError('--continuation-file must hold one JSON object.');
+  }
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    throw new UsageError('--continuation-file must hold one JSON object.');
+  }
+  const keys = Object.keys(value).sort();
+  if (keys.join(',') !== 'nominationIds,predecessorCampaignId') {
+    throw new UsageError(
+      '--continuation-file must hold exactly predecessorCampaignId and nominationIds.',
+    );
+  }
+  const v = value as { predecessorCampaignId: unknown; nominationIds: unknown };
+  if (
+    typeof v.predecessorCampaignId !== 'string' ||
+    !Array.isArray(v.nominationIds) ||
+    !v.nominationIds.every((id) => typeof id === 'string')
+  ) {
+    throw new UsageError('--continuation-file holds a malformed continuation.');
+  }
+  return {
+    predecessorCampaignId: v.predecessorCampaignId,
+    nominationIds: v.nominationIds as string[],
+  };
+}
+
 function envelope(command: string, outcome: string, body: Record<string, unknown>): string {
   return `${JSON.stringify({ contract: ACQUISITION_CLI_CONTRACT, command, outcome, ...body }, null, 2)}\n`;
 }
@@ -399,9 +466,12 @@ export async function runAcquisitionCli(
             scope: p.scope,
             budgets: p.budgets,
             action: CAMPAIGN_ACTION,
+            document: p.document,
+            continuation: p.scope.continuation ?? null,
           },
           `VERIFIED ${p.campaignKey} (sha256 ${verified.payloadSha256}) under key ${verified.keyId}; ` +
-            `window ${p.window.startsAt} .. ${p.window.endsAt}; nothing was written.`,
+            `window ${p.window.startsAt} .. ${p.window.endsAt}; ${p.document}; ` +
+            `${continuationLine(p.scope.continuation)}; nothing was written.`,
         );
         return 0;
       }
@@ -467,31 +537,79 @@ export async function runAcquisitionCli(
         return 0;
       }
       case 'campaign template': {
-        const environmentId =
-          str(values, 'environment-id') ??
-          (await withPoolOf(deps.readonlyPool ?? (() => createPool('readonly')), async (pool) => {
-            const { rows } = await pool.query<{ id: string }>(
-              'SELECT environment_id AS id FROM subject_review_environment',
+        // R2: an optional continuation of a STOPPED predecessor (a v3 draft).
+        const continueFrom = str(values, 'continue-from');
+        const listedIds = many(values, 'nomination-id');
+        const continuationFile = str(values, 'continuation-file');
+        let continuation: CampaignDraftContinuation | undefined;
+        if (continuationFile !== undefined) {
+          if (continueFrom !== undefined || listedIds.length > 0) {
+            throw new UsageError(
+              '--continuation-file cannot be combined with --continue-from or --nomination-id.',
             );
-            if (rows.length !== 1) throw new UsageError('--environment-id is required.');
-            return rows[0]!.id;
-          }));
-        if (!UUID_SHAPE.test(environmentId)) {
-          throw new UsageError('--environment-id must be a lower-case UUID.');
+          }
+          continuation = readContinuationFile(continuationFile);
+        } else if (continueFrom !== undefined) {
+          if (listedIds.length === 0) {
+            throw new UsageError('--continue-from needs at least one --nomination-id.');
+          }
+          continuation = { predecessorCampaignId: continueFrom, nominationIds: listedIds };
+        } else if (listedIds.length > 0) {
+          throw new UsageError('--nomination-id needs --continue-from <campaignId>.');
         }
-        const grants = many(values, 'search-grant-id');
+        if (continuation !== undefined) {
+          if (!UUID_SHAPE.test(continuation.predecessorCampaignId)) {
+            throw new UsageError('--continue-from must be a lower-case UUID.');
+          }
+          for (const n of continuation.nominationIds) {
+            if (!UUID_SHAPE.test(n)) {
+              throw new UsageError('--nomination-id must be a lower-case UUID.');
+            }
+          }
+        }
+        let grants = many(values, 'search-grant-id');
         for (const g of grants) {
           if (!UUID_SHAPE.test(g))
             throw new UsageError('--search-grant-id must be a lower-case UUID.');
         }
+        let environmentId = str(values, 'environment-id');
+        const needsDatabase =
+          environmentId === undefined || (continuation !== undefined && grants.length === 0);
+        if (needsDatabase) {
+          await withPoolOf(deps.readonlyPool ?? (() => createPool('readonly')), async (pool) => {
+            if (environmentId === undefined) {
+              const { rows } = await pool.query<{ id: string }>(
+                'SELECT environment_id AS id FROM subject_review_environment',
+              );
+              if (rows.length !== 1) throw new UsageError('--environment-id is required.');
+              environmentId = rows[0]!.id;
+            }
+            if (continuation !== undefined && grants.length === 0) {
+              // Reuse the predecessor's SIGNED grants: the adopted items keep
+              // their SEARCH_GRANT source kind (ADR 0029 s12).
+              const { rows } = await pool.query<{ grants: string[] }>(
+                'SELECT search_grant_ids::text[] AS grants FROM acquisition_campaigns WHERE id = $1',
+                [continuation.predecessorCampaignId],
+              );
+              if (rows[0] === undefined) {
+                throw new UsageError('--continue-from names no recorded campaign.');
+              }
+              grants = rows[0].grants;
+            }
+          });
+        }
+        if (!UUID_SHAPE.test(environmentId ?? '')) {
+          throw new UsageError('--environment-id must be a lower-case UUID.');
+        }
         const daysText = str(values, 'days');
         const draft = campaignTemplate({
           campaignKey: required(values, 'campaign-key'),
-          environmentId,
+          environmentId: environmentId!,
           geographies: many(values, 'geography'),
           searchGrantIds: grants,
           nowMs: (deps.now ?? Date.now)(),
           ...(daysText !== undefined ? { windowDays: Number(daysText) } : {}),
+          ...(continuation !== undefined ? { continuation } : {}),
         });
         out(
           json ? envelope(command.key, 'DRAFT', { draft }) : `${JSON.stringify(draft, null, 2)}\n`,
@@ -520,6 +638,7 @@ export async function runAcquisitionCli(
             `${draft.environmentId}:\n  window ${draft.window.startsAt} .. ${draft.window.endsAt}\n` +
             `  geographies ${draft.scope.geographies.join(',')}; stages ${draft.scope.stages.join(',')}\n` +
             `  budgets ${JSON.stringify(draft.budgets)}\n` +
+            `  ${continuationLine(draft.scope.continuation)}\n` +
             '  A campaign never confirms identity; review stays a per-subject OWNER act.\n',
         );
         const signer = await loadOwnerSigningKey(
@@ -742,6 +861,11 @@ export async function runAcquisitionCli(
                   campaignId,
                   workerId,
                   handlers: deps.handlers ?? wiring!.handlers,
+                  ...(wiring !== null
+                    ? { continuationScope: wiring.continuationScope }
+                    : deps.continuationScope !== undefined
+                      ? { continuationScope: deps.continuationScope }
+                      : {}),
                   trust,
                   signal: controller.signal,
                   ...(values['once'] === true ? { once: true } : {}),

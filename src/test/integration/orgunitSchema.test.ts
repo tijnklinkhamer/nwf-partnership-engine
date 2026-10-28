@@ -311,6 +311,11 @@ describeDb('Phase 2B schema contract (integration)', () => {
         // BEFORE INSERT trigger on admission revocations, INSERT to the worker
         // for exactly its own item's unused admission; no role, no LOGIN).
         '0028',
+        // R2 (campaign continuation, ADR 0029 s12 - one append-only adoption
+        // table, SELECT/INSERT to the existing worker capability; widened
+        // version/depth/root CHECKs; the 0026 work-item rule restated; no
+        // role, no LOGIN).
+        '0029',
       ]);
     });
 

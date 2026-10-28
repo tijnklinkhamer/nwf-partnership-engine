@@ -26,6 +26,14 @@
  * 14 days, small budgets well inside the mechanical bounds, and (WW H-ACQ,
  * draft v2) a signed link-out depth of ONE generation.
  *
+ * R2 (ADR 0029 s12): with a continuation the template emits a v3 draft
+ * (`nwf-pe.acquisition-campaign-draft.v3`, signed as
+ * `nwf-pe.acquisition-campaign.v3`) carrying `scope.continuation =
+ * { predecessorCampaignId, nominationIds }` in the OWNER's priority order,
+ * and signs NO search: maxSearchRuns '0' (the OWNER may raise it in the
+ * draft; the worker still searches only after every adopted item has left
+ * NOMINATED / DEDUPLICATED / RESEARCH_PENDING).
+ *
  * PURE except for the node:crypto signing calls; the CLI does the file IO.
  */
 import {
@@ -38,8 +46,10 @@ import {
 
 import {
   CAMPAIGN_ACTION,
+  CAMPAIGN_CONTINUATION_MAX_NOMINATIONS,
   CAMPAIGN_DOCUMENT_VERSION,
   CAMPAIGN_DOCUMENT_VERSION_V2,
+  CAMPAIGN_DOCUMENT_VERSION_V3,
   CAMPAIGN_PROTOCOL,
   CampaignProtocolError,
   WORLDWIDE,
@@ -62,6 +72,13 @@ export const CAMPAIGN_DRAFT_VERSION = 'nwf-pe.acquisition-campaign-draft.v1';
  * A v1 draft is still signed as a v1 document, which means exactly 1 hop.
  */
 export const CAMPAIGN_DRAFT_VERSION_V2 = 'nwf-pe.acquisition-campaign-draft.v2';
+/**
+ * R2 (ADR 0029 s12): a v3 draft is a v2 draft plus `scope.continuation`, and
+ * is signed as `nwf-pe.acquisition-campaign.v3`.
+ */
+export const CAMPAIGN_DRAFT_VERSION_V3 = 'nwf-pe.acquisition-campaign-draft.v3';
+/** A continuation template signs no search unless the OWNER edits the draft. */
+export const TEMPLATE_CONTINUATION_MAX_SEARCH_RUNS = '0';
 /** The template's link-out depth: the first link-out generation only. */
 export const TEMPLATE_LINK_OUT_MAX_HOPS = '1';
 /** The template never proposes a window longer than this (the protocol allows 30 days). */
@@ -87,8 +104,16 @@ export class CampaignSigningRefusal extends Error {
   }
 }
 
+export interface CampaignDraftContinuation {
+  readonly predecessorCampaignId: string;
+  readonly nominationIds: readonly string[];
+}
+
 export interface CampaignDraft {
-  readonly draft: typeof CAMPAIGN_DRAFT_VERSION | typeof CAMPAIGN_DRAFT_VERSION_V2;
+  readonly draft:
+    | typeof CAMPAIGN_DRAFT_VERSION
+    | typeof CAMPAIGN_DRAFT_VERSION_V2
+    | typeof CAMPAIGN_DRAFT_VERSION_V3;
   readonly campaignKey: string;
   readonly environmentId: string;
   readonly purpose: string;
@@ -98,8 +123,10 @@ export interface CampaignDraft {
     readonly searchGrantIds: readonly string[];
     readonly sourceKinds: readonly string[];
     readonly stages: readonly string[];
-    /** v2 drafts only. */
+    /** v2 and v3 drafts only. */
     readonly linkOutMaxHops?: string;
+    /** v3 drafts only: the OWNER's ordered continuation. */
+    readonly continuation?: CampaignDraftContinuation;
   };
   readonly budgets: Readonly<Record<string, string>>;
 }
@@ -124,13 +151,20 @@ export function parseCampaignDraft(value: unknown): CampaignDraft {
     throw new CampaignSigningRefusal('draft_fields');
   }
   const d = value as CampaignDraft;
-  if (d.draft !== CAMPAIGN_DRAFT_VERSION && d.draft !== CAMPAIGN_DRAFT_VERSION_V2) {
+  if (
+    d.draft !== CAMPAIGN_DRAFT_VERSION &&
+    d.draft !== CAMPAIGN_DRAFT_VERSION_V2 &&
+    d.draft !== CAMPAIGN_DRAFT_VERSION_V3
+  ) {
     throw new CampaignSigningRefusal('draft_version');
   }
   const scope = d.scope as unknown;
   if (typeof scope !== 'object' || scope === null) throw new CampaignSigningRefusal('draft_scope');
-  if ((d.draft === CAMPAIGN_DRAFT_VERSION_V2) !== 'linkOutMaxHops' in scope) {
+  if ((d.draft !== CAMPAIGN_DRAFT_VERSION) !== 'linkOutMaxHops' in scope) {
     throw new CampaignSigningRefusal('draft_link_out_max_hops');
+  }
+  if ((d.draft === CAMPAIGN_DRAFT_VERSION_V3) !== 'continuation' in scope) {
+    throw new CampaignSigningRefusal('draft_continuation');
   }
   return d;
 }
@@ -143,6 +177,29 @@ export interface TemplateInput {
   readonly nowMs: number;
   readonly windowDays?: number;
   readonly purpose?: string;
+  /** R2: continue these nominations (in this order) of this STOPPED predecessor: a v3 draft. */
+  readonly continuation?: CampaignDraftContinuation;
+}
+
+const UUID_TEXT = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+
+/** Refuses a continuation the v3 document would refuse, before anything is drafted. */
+function checkedContinuation(c: CampaignDraftContinuation): CampaignDraftContinuation {
+  if (!UUID_TEXT.test(c.predecessorCampaignId)) {
+    throw new CampaignSigningRefusal('continuation_predecessor_invalid');
+  }
+  const ids = [...c.nominationIds];
+  if (ids.length === 0) throw new CampaignSigningRefusal('continuation_nominations_required');
+  if (ids.length > CAMPAIGN_CONTINUATION_MAX_NOMINATIONS) {
+    throw new CampaignSigningRefusal('continuation_too_many_nominations');
+  }
+  if (!ids.every((id) => UUID_TEXT.test(id))) {
+    throw new CampaignSigningRefusal('continuation_nomination_invalid');
+  }
+  if (new Set(ids).size !== ids.length) {
+    throw new CampaignSigningRefusal('continuation_nomination_duplicate');
+  }
+  return { predecessorCampaignId: c.predecessorCampaignId, nominationIds: ids };
 }
 
 /** A conservative unsigned draft. Refuses a window beyond 14 days or a malformed key. */
@@ -157,8 +214,15 @@ export function campaignTemplate(input: TemplateInput): CampaignDraft {
   if (geographies.length === 0) throw new CampaignSigningRefusal('geography_required');
   const startsMs = Math.floor(input.nowMs / 1000) * 1000;
   const sourceKinds = input.searchGrantIds.length > 0 ? ['SEARCH_GRANT', 'LINK_OUT'] : ['LINK_OUT'];
+  const continuation =
+    input.continuation === undefined ? null : checkedContinuation(input.continuation);
+  if (continuation !== null && input.searchGrantIds.length === 0) {
+    // The adopted items keep their SEARCH_GRANT source kind, which a campaign
+    // may list only with at least one search grant (migration 0023).
+    throw new CampaignSigningRefusal('continuation_search_grant_required');
+  }
   return {
-    draft: CAMPAIGN_DRAFT_VERSION_V2,
+    draft: continuation === null ? CAMPAIGN_DRAFT_VERSION_V2 : CAMPAIGN_DRAFT_VERSION_V3,
     campaignKey: input.campaignKey,
     environmentId: input.environmentId,
     purpose:
@@ -175,8 +239,12 @@ export function campaignTemplate(input: TemplateInput): CampaignDraft {
       sourceKinds,
       stages: [...WORKER_STAGES],
       linkOutMaxHops: TEMPLATE_LINK_OUT_MAX_HOPS,
+      ...(continuation === null ? {} : { continuation }),
     },
-    budgets: { ...TEMPLATE_BUDGETS },
+    budgets:
+      continuation === null
+        ? { ...TEMPLATE_BUDGETS }
+        : { ...TEMPLATE_BUDGETS, maxSearchRuns: TEMPLATE_CONTINUATION_MAX_SEARCH_RUNS },
   };
 }
 
@@ -211,9 +279,11 @@ export function signCampaignDraft(
       campaignKey: parsed.campaignKey,
       contractVersion: '1',
       document:
-        parsed.draft === CAMPAIGN_DRAFT_VERSION_V2
-          ? CAMPAIGN_DOCUMENT_VERSION_V2
-          : CAMPAIGN_DOCUMENT_VERSION,
+        parsed.draft === CAMPAIGN_DRAFT_VERSION_V3
+          ? CAMPAIGN_DOCUMENT_VERSION_V3
+          : parsed.draft === CAMPAIGN_DRAFT_VERSION_V2
+            ? CAMPAIGN_DOCUMENT_VERSION_V2
+            : CAMPAIGN_DOCUMENT_VERSION,
       environmentId: parsed.environmentId,
       issuedAt: new Date(key.nowMs).toISOString(),
       keyFingerprint: publicKeyFingerprint(rawPublicKey(key.privateKey)),
@@ -222,6 +292,14 @@ export function signCampaignDraft(
       protocol: CAMPAIGN_PROTOCOL,
       purpose: parsed.purpose,
       scope: {
+        ...(parsed.scope.continuation === undefined
+          ? {}
+          : {
+              continuation: {
+                nominationIds: [...parsed.scope.continuation.nominationIds],
+                predecessorCampaignId: parsed.scope.continuation.predecessorCampaignId,
+              },
+            }),
         geographies: [...parsed.scope.geographies],
         ...(parsed.scope.linkOutMaxHops === undefined
           ? {}

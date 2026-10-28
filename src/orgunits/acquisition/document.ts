@@ -1,7 +1,9 @@
 /**
  * WW E-Q - THE OWNER-SIGNED ACQUISITION CAMPAIGN DOCUMENT
- * (`nwf-pe.acquisition-campaign.v1`, and since WW H-ACQ `.v2` with a signed
- * link-out depth; protocol `nwf-pe.acquisition-campaign/1`).
+ * (`nwf-pe.acquisition-campaign.v1`, since WW H-ACQ `.v2` with a signed
+ * link-out depth, and since R2 `.v3` with a signed CONTINUATION of a named
+ * predecessor campaign's stranded nominations; protocol
+ * `nwf-pe.acquisition-campaign/1`).
  *
  * The same envelope discipline as the OWNER review protocol (ADR 0023 s3),
  * with its OWN protocol line, action and trust set:
@@ -45,10 +47,24 @@ export const CAMPAIGN_DOCUMENT_VERSION = 'nwf-pe.acquisition-campaign.v1';
  * SEARCH_GRANT or SEED subject, never from research of a link-out subject.
  */
 export const CAMPAIGN_DOCUMENT_VERSION_V2 = 'nwf-pe.acquisition-campaign.v2';
+/**
+ * R2 (ADR 0029 s12, migration 0029): v3 is v2 plus ONE signed scope field,
+ * `continuation = { predecessorCampaignId, nominationIds }`: the OWNER names
+ * a predecessor campaign and, IN PRIORITY ORDER, 1..200 distinct nominations
+ * whose NOMINATED items there passed de-duplication but never received a
+ * child before that campaign's work-item budget was spent. The worker adopts
+ * each eligible one, once, into THIS campaign and charges it to THIS
+ * campaign's signed budgets. A v3 document must list SEARCH_GRANT (the
+ * adopted items keep that source kind, so the unchanged scope rules apply).
+ */
+export const CAMPAIGN_DOCUMENT_VERSION_V3 = 'nwf-pe.acquisition-campaign.v3';
 export const CAMPAIGN_DOCUMENT_VERSIONS = Object.freeze([
   CAMPAIGN_DOCUMENT_VERSION,
   CAMPAIGN_DOCUMENT_VERSION_V2,
+  CAMPAIGN_DOCUMENT_VERSION_V3,
 ] as const);
+/** The most nominations one v3 document may list (mirrored by migration 0029). */
+export const CAMPAIGN_CONTINUATION_MAX_NOMINATIONS = 200;
 export type CampaignDocumentVersion = (typeof CAMPAIGN_DOCUMENT_VERSIONS)[number];
 /** What a v1 document means (the conservative reading of v1's behaviour). */
 export const CAMPAIGN_V1_LINK_OUT_MAX_HOPS = 1;
@@ -112,6 +128,17 @@ export interface CampaignScope {
    * in a v2 document, exactly 1 for a v1 document. 0 = no link-out root.
    */
   readonly linkOutMaxHops: number;
+  /**
+   * R2: the signed continuation of a v3 document, or null (v1/v2). The ORDER
+   * of `nominationIds` is the OWNER's priority (first = highest). Optional
+   * in the type so v1/v2 scope literals stay valid; absent means null.
+   */
+  readonly continuation?: CampaignContinuation | null;
+}
+
+export interface CampaignContinuation {
+  readonly predecessorCampaignId: string;
+  readonly nominationIds: readonly string[];
 }
 
 export interface CampaignPayload {
@@ -257,17 +284,42 @@ const PAYLOAD_KEYS = [
   'window',
 ];
 
+function parseContinuation(value: unknown): CampaignContinuation {
+  const o = object(
+    value,
+    ['nominationIds', 'predecessorCampaignId'],
+    'SCOPE_INVALID',
+    'continuation',
+  );
+  const predecessorCampaignId = str(
+    o['predecessorCampaignId'],
+    UUID,
+    'SCOPE_INVALID',
+    'continuation_predecessor_campaign_id',
+  );
+  const nominationIds = list(
+    o['nominationIds'],
+    (v) => typeof v === 'string' && UUID.test(v),
+    [1, CAMPAIGN_CONTINUATION_MAX_NOMINATIONS],
+    'SCOPE_INVALID',
+    'continuation_nomination_ids',
+  );
+  return { predecessorCampaignId, nominationIds };
+}
+
 function parseScope(value: unknown, version: CampaignDocumentVersion): CampaignScope {
   const o = object(
     value,
-    version === CAMPAIGN_DOCUMENT_VERSION_V2
-      ? ['geographies', 'linkOutMaxHops', 'searchGrantIds', 'sourceKinds', 'stages']
-      : ['geographies', 'searchGrantIds', 'sourceKinds', 'stages'],
+    version === CAMPAIGN_DOCUMENT_VERSION_V3
+      ? ['continuation', 'geographies', 'linkOutMaxHops', 'searchGrantIds', 'sourceKinds', 'stages']
+      : version === CAMPAIGN_DOCUMENT_VERSION_V2
+        ? ['geographies', 'linkOutMaxHops', 'searchGrantIds', 'sourceKinds', 'stages']
+        : ['geographies', 'searchGrantIds', 'sourceKinds', 'stages'],
     'SCOPE_INVALID',
     'scope',
   );
   let linkOutMaxHops: number = CAMPAIGN_V1_LINK_OUT_MAX_HOPS;
-  if (version === CAMPAIGN_DOCUMENT_VERSION_V2) {
+  if (version !== CAMPAIGN_DOCUMENT_VERSION) {
     const raw = o['linkOutMaxHops'];
     if (typeof raw !== 'string' || !DECIMAL.test(raw)) {
       throw new CampaignProtocolError('SCOPE_INVALID', 'link_out_max_hops_not_decimal');
@@ -312,7 +364,15 @@ function parseScope(value: unknown, version: CampaignDocumentVersion): CampaignS
   if (sourceKinds.includes('SEARCH_GRANT') !== searchGrantIds.length > 0) {
     throw new CampaignProtocolError('SCOPE_INVALID', 'search_grants_vs_source_kind');
   }
-  return { geographies, searchGrantIds, sourceKinds, stages, linkOutMaxHops };
+  let continuation: CampaignContinuation | null = null;
+  if (version === CAMPAIGN_DOCUMENT_VERSION_V3) {
+    continuation = parseContinuation(o['continuation']);
+    // The adopted items keep their SEARCH_GRANT source kind (migration 0029).
+    if (!sourceKinds.includes('SEARCH_GRANT')) {
+      throw new CampaignProtocolError('SCOPE_INVALID', 'continuation_requires_search_grant');
+    }
+  }
+  return { geographies, searchGrantIds, sourceKinds, stages, linkOutMaxHops, continuation };
 }
 
 function parseBudgets(value: unknown): CampaignBudgets {
@@ -342,7 +402,7 @@ export function parseCampaignPayload(value: unknown): CampaignPayload {
     throw new CampaignProtocolError('PAYLOAD_PROTOCOL_MISMATCH', 'protocol');
   }
   const document = o['document'];
-  if (document !== CAMPAIGN_DOCUMENT_VERSION && document !== CAMPAIGN_DOCUMENT_VERSION_V2) {
+  if (!(CAMPAIGN_DOCUMENT_VERSIONS as readonly unknown[]).includes(document)) {
     throw new CampaignProtocolError('PAYLOAD_SCHEMA_INVALID', 'document_version');
   }
   if (o['contractVersion'] !== CAMPAIGN_CONTRACT_VERSION) {
@@ -367,7 +427,7 @@ export function parseCampaignPayload(value: unknown): CampaignPayload {
     budgets: parseBudgets(o['budgets']),
     campaignKey: str(o['campaignKey'], CAMPAIGN_KEY, 'PAYLOAD_SCHEMA_INVALID', 'campaign_key'),
     contractVersion: CAMPAIGN_CONTRACT_VERSION,
-    document,
+    document: document as CampaignDocumentVersion,
     environmentId: str(o['environmentId'], UUID, 'PAYLOAD_SCHEMA_INVALID', 'environment_id'),
     issuedAt: o['issuedAt'] as string,
     keyFingerprint: str(o['keyFingerprint'], HEX64, 'PAYLOAD_SCHEMA_INVALID', 'key_fingerprint'),
@@ -375,7 +435,7 @@ export function parseCampaignPayload(value: unknown): CampaignPayload {
     nonce: str(o['nonce'], NONCE, 'PAYLOAD_SCHEMA_INVALID', 'nonce'),
     protocol: CAMPAIGN_PROTOCOL,
     purpose,
-    scope: parseScope(o['scope'], document),
+    scope: parseScope(o['scope'], document as CampaignDocumentVersion),
     window: { startsAt: w['startsAt'] as string, endsAt: w['endsAt'] as string },
   };
 }
@@ -417,9 +477,18 @@ export function campaignPayloadValue(payload: CampaignPayload): CanonicalValue {
     protocol: payload.protocol,
     purpose: payload.purpose,
     scope: {
+      // v3 only: the signed continuation, its nomination order preserved.
+      ...(payload.document === CAMPAIGN_DOCUMENT_VERSION_V3 && payload.scope.continuation != null
+        ? {
+            continuation: {
+              nominationIds: [...payload.scope.continuation.nominationIds],
+              predecessorCampaignId: payload.scope.continuation.predecessorCampaignId,
+            },
+          }
+        : {}),
       geographies: [...payload.scope.geographies],
-      // v2 only: a v1 document carries no depth (it means exactly 1).
-      ...(payload.document === CAMPAIGN_DOCUMENT_VERSION_V2
+      // v2/v3 only: a v1 document carries no depth (it means exactly 1).
+      ...(payload.document !== CAMPAIGN_DOCUMENT_VERSION
         ? { linkOutMaxHops: String(payload.scope.linkOutMaxHops) }
         : {}),
       searchGrantIds: [...payload.scope.searchGrantIds],

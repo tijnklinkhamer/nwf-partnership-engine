@@ -10,11 +10,23 @@
  * successful research, failures WITH an explanation, and budgets left.
  *
  * Shape changes need a new `schema` value; fields are only ever added in v1
- * if they are optional to a reader. Opens no socket.
+ * if they are optional to a reader. R2 added `continuation` (null unless the
+ * campaign is a v3 continuation): its predecessor, how many nominations it
+ * lists, how many it adopted, how many the next worker start would adopt,
+ * and every listed one it skipped, with the named reason - derived now, on
+ * the readonly role, by the same rule the worker applies. Opens no socket.
  */
 import type pg from 'pg';
 
-import { CampaignTrustSet, loadCampaignStatus, type CampaignStatus } from '../acquisition/index.js';
+import {
+  CampaignTrustSet,
+  loadContinuationCandidates,
+  loadCampaignStatus,
+  type CampaignContinuation,
+  type CampaignStatus,
+  type ContinuationSkip,
+} from '../acquisition/index.js';
+import { continuationScopeCheck } from './dedupe.js';
 
 export const ACQUISITION_STATUS_SCHEMA = 'nwf-pe.acquisition-status.v1';
 
@@ -85,6 +97,59 @@ export interface AcquisitionStatusV1 {
   }[];
   readonly budgets: CampaignStatus['budgets'];
   readonly queue: CampaignStatus;
+  /** R2 (migration 0029): the signed continuation of a v3 campaign, or null. */
+  readonly continuation: ContinuationStatus | null;
+}
+
+export interface ContinuationStatus {
+  readonly predecessorCampaignId: string;
+  readonly listed: number;
+  readonly adopted: number;
+  /** Eligible and in scope, not adopted yet: the next worker start adopts them. */
+  readonly pending: number;
+  readonly skipped: readonly {
+    readonly nominationId: string;
+    readonly position: number;
+    readonly reason: ContinuationSkip;
+  }[];
+}
+
+/** Derives the continuation status of a v3 campaign (null for v1/v2). */
+async function loadContinuationStatus(
+  q: Queryable,
+  campaignId: string,
+  workItemsRemaining: number | null,
+): Promise<ContinuationStatus | null> {
+  const { rows } = await q.query<{
+    cont: CampaignContinuation | null;
+    geographies: string[];
+  }>(
+    `SELECT document #> '{scope,continuation}' AS cont, geographies
+       FROM acquisition_campaigns WHERE id = $1`,
+    [campaignId],
+  );
+  const cont = rows[0]?.cont ?? null;
+  if (cont === null) return null;
+  const inScope = continuationScopeCheck(() => q);
+  const skipped: { nominationId: string; position: number; reason: ContinuationSkip }[] = [];
+  let adopted = 0;
+  let pending = 0;
+  for (const c of await loadContinuationCandidates(q, campaignId, cont)) {
+    const skip = (reason: ContinuationSkip) =>
+      skipped.push({ nominationId: c.nominationId, position: c.position, reason });
+    if (c.disposition === 'ADOPTED') adopted += 1;
+    else if (c.disposition !== 'ELIGIBLE') skip(c.disposition);
+    else if (!(await inScope(c.nominationId, rows[0]!.geographies))) skip('OUT_OF_SCOPE');
+    else if (workItemsRemaining === 0) skip('WORK_ITEM_BUDGET_EXHAUSTED');
+    else pending += 1;
+  }
+  return {
+    predecessorCampaignId: cont.predecessorCampaignId,
+    listed: adopted + pending + skipped.length,
+    adopted,
+    pending,
+    skipped,
+  };
 }
 
 type Queryable = pg.Pool | pg.PoolClient;
@@ -233,5 +298,6 @@ export async function loadAcquisitionStatusV1(
     })),
     budgets: queue.budgets,
     queue,
+    continuation: await loadContinuationStatus(q, campaignId, queue.budgets.maxWorkItems.remaining),
   };
 }

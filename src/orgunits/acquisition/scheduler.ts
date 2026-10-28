@@ -17,11 +17,18 @@
  *      highest-priority stage. No stage can starve another.
  *   2. REGISTRABLE DOMAIN - round-robin by least recent service. Within that
  *      stage, the domain whose most recent claim is OLDEST wins (a domain
- *      never served first); ties go to the lexically smaller domain. Items
- *      without a domain share one bucket. A domain with a live claim, or whose
- *      circuit is open, is skipped entirely (politeness across workers).
- *   3. ITEM - priority (descending), then age (`createdAt`, oldest first),
- *      then id: total and deterministic.
+ *      never served first); ties go to the domain holding the item earliest
+ *      in an OWNER-signed continuation list (R2, migration 0029), then to the
+ *      lexically smaller domain. Items without a domain share one bucket. A
+ *      domain with a live claim, or whose circuit is open, is skipped
+ *      entirely (politeness across workers).
+ *   3. ITEM - priority (descending), then the signed continuation position
+ *      (an adopted item before any other), then age (`createdAt`, oldest
+ *      first), then id: total and deterministic.
+ *
+ * The continuation position is the OWNER's signed order of the nominations a
+ * v3 campaign continues; only the adopted items carry one, so a campaign
+ * without a continuation is scheduled exactly as before.
  *
  * `priority` is the documented stage rule (vocabulary.ts `priorityOf`), so it
  * orders WORK, never organisations. Nothing here reads a score, a country, a
@@ -37,6 +44,8 @@ export interface ClaimCandidate {
   readonly registrableDomain: string | null;
   readonly priority: number;
   readonly createdAtMs: number;
+  /** R2: the 1-based position in the campaign's SIGNED continuation list; null/absent otherwise. */
+  readonly continuationPosition?: number | null;
 }
 
 export interface SchedulerHistory {
@@ -61,8 +70,14 @@ function bucketOf(c: ClaimCandidate): string {
   return c.registrableDomain ?? NO_DOMAIN;
 }
 
+/** Signed continuation position, absent = after every adopted item. */
+function positionOf(c: ClaimCandidate): number {
+  return c.continuationPosition ?? Number.POSITIVE_INFINITY;
+}
+
 function compareItems(a: ClaimCandidate, b: ClaimCandidate): number {
   if (a.priority !== b.priority) return b.priority - a.priority;
+  if (positionOf(a) !== positionOf(b)) return positionOf(a) < positionOf(b) ? -1 : 1;
   if (a.createdAtMs !== b.createdAtMs) return a.createdAtMs - b.createdAtMs;
   return a.workItemId < b.workItemId ? -1 : a.workItemId > b.workItemId ? 1 : 0;
 }
@@ -99,10 +114,20 @@ export function selectNextCandidate(
 
   // 2. Least-recently-served domain.
   const buckets = [...new Set(inStage.map(bucketOf))];
+  const firstPosition = new Map<string, number>();
+  for (const c of inStage) {
+    const p = positionOf(c);
+    if (p < (firstPosition.get(bucketOf(c)) ?? Number.POSITIVE_INFINITY)) {
+      firstPosition.set(bucketOf(c), p);
+    }
+  }
   buckets.sort((a, b) => {
     const la = history.domainLastServedMs.get(a) ?? Number.NEGATIVE_INFINITY;
     const lb = history.domainLastServedMs.get(b) ?? Number.NEGATIVE_INFINITY;
     if (la !== lb) return la - lb;
+    const pa = firstPosition.get(a) ?? Number.POSITIVE_INFINITY;
+    const pb = firstPosition.get(b) ?? Number.POSITIVE_INFINITY;
+    if (pa !== pb) return pa < pb ? -1 : 1;
     return a < b ? -1 : a > b ? 1 : 0;
   });
   const bucket = buckets[0]!;

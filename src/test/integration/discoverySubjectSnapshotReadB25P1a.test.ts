@@ -344,7 +344,8 @@ describeDb('B2.5-P1a transaction-bound snapshot assembler (integration)', () => 
       // WW E-W (0024, campaign research admission) and then WW E-SDFX (migration 0025, the source-discovery search gate, ADR 0028 s9).
       // WW H-SD (migration 0027, search observations, ADR 0028 s9.1) follows WW H-ACQ's 0026.
       // WW acceptance (migration 0028, CAMPAIGN admission supersession) follows.
-      expect(top[0]!.top).toBe('0028');
+      // R2 (migration 0029, campaign continuation of a STOPPED predecessor) follows.
+      expect(top[0]!.top).toBe('0029');
     });
   });
 

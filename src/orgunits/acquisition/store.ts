@@ -25,6 +25,13 @@
  * budget). A crashed, expired or superseded claim therefore keeps counting.
  * Nothing is ever UPDATEd or DELETEd.
  *
+ * CONTINUATION (R2, migration 0029): a v3 campaign ADOPTS the stranded
+ * nominations its signed continuation lists - one adoption row and one NEW,
+ * parentless NOMINATED item per nomination, in one transaction, in the
+ * OWNER's signed order - charged to its own budgets by the unchanged
+ * triggers. The database re-checks every eligibility rule; a nomination is
+ * adopted at most once across every campaign.
+ *
  * SESSIONS. Every worker write runs in `inWorkerTransaction`, which refuses a
  * superuser or table-owner session, requires the login to hold
  * `nwf_acquisition_worker` and narrows to exactly that capability with
@@ -36,8 +43,10 @@
 import type pg from 'pg';
 
 import type { CampaignAuthority } from './authority.js';
+import type { CampaignContinuation } from './document.js';
 import { selectNextCandidate, type ClaimCandidate } from './scheduler.js';
 import {
+  CONTINUATION_REUSE_STAGES,
   ROOT_SUBJECT_KIND,
   STAGES,
   idempotencyKeyOf,
@@ -46,6 +55,8 @@ import {
   reservationFor,
   retryDelaySeconds,
   type ChildRefusal,
+  type ContinuationDisposition,
+  type ContinuationSkip,
   type FailureReason,
   type HumanQueue,
   type ItemState,
@@ -534,6 +545,7 @@ interface CandidateRow {
   state: ItemState;
   latest_attempt_no: number | null;
   latest_claim_id: string | null;
+  continuation_position: number | null;
 }
 
 /**
@@ -583,9 +595,11 @@ export async function claimNextWorkItem(
     }
 
     const { rows } = await client.query<CandidateRow>(
-      `SELECT work_item_id, stage, source_kind, registrable_domain, priority, created_at, state,
-              latest_attempt_no, latest_claim_id
-         FROM acquisition_work_item_states
+      `SELECT s.work_item_id, s.stage, s.source_kind, s.registrable_domain, s.priority,
+              s.created_at, s.state, s.latest_attempt_no, s.latest_claim_id,
+              (SELECT a.list_position FROM acquisition_campaign_continuations a
+                WHERE a.adopted_item_id = s.work_item_id) AS continuation_position
+         FROM acquisition_work_item_states s
         WHERE campaign_id = $1
           AND state IN ('PENDING', 'LEASE_EXPIRED', 'RETRY_SCHEDULED')
           AND not_before <= now()
@@ -664,6 +678,7 @@ export async function claimNextWorkItem(
       registrableDomain: r.registrable_domain,
       priority: r.priority,
       createdAtMs: r.created_at.getTime(),
+      continuationPosition: r.continuation_position,
     }));
     const chosen = selectNextCandidate(candidates, {
       lastStage: last[0]?.stage ?? null,
@@ -926,6 +941,311 @@ export async function countOpenInScope(
     [campaignId, [...stages]],
   );
   return rows[0]!.n;
+}
+
+// ---------------------------------------------------------------------------
+// R2 (migration 0029): CONTINUATION of a STOPPED predecessor's stranded
+// nominations.
+// ---------------------------------------------------------------------------
+
+/** One nomination a signed continuation lists, as the database shows it now. */
+export interface ContinuationCandidate {
+  readonly nominationId: string;
+  /** 1-based position in the SIGNED list: the OWNER's priority order. */
+  readonly position: number;
+  readonly predecessorItemId: string | null;
+  readonly registrableDomain: string | null;
+  readonly disposition: ContinuationDisposition;
+  /** The adopting campaign's item, when adopted by ANY campaign. */
+  readonly adoptedItemId: string | null;
+  readonly adoptedByCampaignId: string | null;
+}
+
+interface ContinuationRow {
+  nomination_id: string;
+  position: number;
+  item_id: string | null;
+  registrable_domain: string | null;
+  source_kind: string | null;
+  latest_outcome: string | null;
+  has_child: boolean;
+  adopted_by: string | null;
+  adopted_item_id: string | null;
+  predecessor_state: string;
+}
+
+function dispositionOf(row: ContinuationRow, campaignId: string): ContinuationDisposition {
+  if (row.adopted_by === campaignId) return 'ADOPTED';
+  if (row.adopted_by !== null) return 'ADOPTED_BY_ANOTHER_CAMPAIGN';
+  if (row.predecessor_state !== 'STOPPED') return 'PREDECESSOR_NOT_STOPPED';
+  if (row.item_id === null) return 'NOT_A_PREDECESSOR_NOMINATION';
+  if (row.source_kind !== 'SEARCH_GRANT') return 'SOURCE_KIND_NOT_SEARCH_GRANT';
+  if (row.latest_outcome !== 'ADVANCED') return 'NOT_ADVANCED';
+  if (row.has_child) return 'HAS_CHILD';
+  return 'ELIGIBLE';
+}
+
+/**
+ * Reads, for every nomination `continuation` lists (in signed order), what
+ * the database says about it now. Read-only; the worker and the status use
+ * the same rule, and the database trigger re-checks it on every adoption.
+ */
+export async function loadContinuationCandidates(
+  q: Queryable,
+  campaignId: string,
+  continuation: CampaignContinuation,
+): Promise<readonly ContinuationCandidate[]> {
+  const { rows } = await q.query<ContinuationRow>(
+    `WITH listed AS (
+        SELECT x.v::uuid AS nomination_id, x.ord::integer AS position
+          FROM jsonb_array_elements_text($1::jsonb) WITH ORDINALITY AS x(v, ord))
+     SELECT l.nomination_id, l.position, pi.id AS item_id, pi.registrable_domain, pi.source_kind,
+            (SELECT o.outcome FROM acquisition_work_claims cl
+               LEFT JOIN acquisition_work_outcomes o ON o.claim_id = cl.id
+              WHERE cl.work_item_id = pi.id
+              ORDER BY cl.attempt_no DESC LIMIT 1) AS latest_outcome,
+            EXISTS (SELECT 1 FROM acquisition_work_items w
+                     WHERE pi.id IS NOT NULL AND w.parent_item_id = pi.id) AS has_child,
+            a.campaign_id AS adopted_by, a.adopted_item_id,
+            acquisition_campaign_control_state($2) AS predecessor_state
+       FROM listed l
+       LEFT JOIN acquisition_work_items pi
+              ON pi.campaign_id = $2 AND pi.stage = 'NOMINATED'
+             AND pi.subject_kind = 'NOMINATION' AND pi.subject_id = l.nomination_id
+       LEFT JOIN acquisition_campaign_continuations a ON a.nomination_id = l.nomination_id
+      ORDER BY l.position`,
+    [JSON.stringify(continuation.nominationIds), continuation.predecessorCampaignId],
+  );
+  return rows.map((r) =>
+    Object.freeze({
+      nominationId: r.nomination_id,
+      position: r.position,
+      predecessorItemId: r.item_id,
+      registrableDomain: r.registrable_domain,
+      disposition: dispositionOf(r, campaignId),
+      adoptedItemId: r.adopted_item_id,
+      adoptedByCampaignId: r.adopted_by,
+    }),
+  );
+}
+
+/** What one worker start did with its campaign's signed continuation. */
+export interface ContinuationReport {
+  readonly predecessorCampaignId: string;
+  readonly listed: number;
+  /** Adopted by THIS start, in signed order. */
+  readonly adopted: readonly {
+    readonly nominationId: string;
+    readonly position: number;
+    readonly itemId: string;
+  }[];
+  /** Already adopted by this campaign before this start (idempotent re-run). */
+  readonly alreadyAdopted: number;
+  /** Listed but not adopted, each with its named reason. */
+  readonly skipped: readonly {
+    readonly nominationId: string;
+    readonly position: number;
+    readonly reason: ContinuationSkip;
+  }[];
+  /** True when the campaign stopped RUNNING mid-adoption; the rest wait for the next start. */
+  readonly interrupted: boolean;
+}
+
+/** Decides whether one ELIGIBLE nomination is inside the signed geography (the wiring's rule). */
+export type ContinuationScopeCheck = (
+  nominationId: string,
+  geographies: readonly string[],
+) => Promise<boolean>;
+
+const ADOPTION_REFUSALS: readonly ContinuationSkip[] = [
+  'PREDECESSOR_NOT_STOPPED',
+  'NOT_A_PREDECESSOR_NOMINATION',
+  'SOURCE_KIND_NOT_SEARCH_GRANT',
+  'NOT_ADVANCED',
+  'HAS_CHILD',
+  'WORK_ITEM_BUDGET_EXHAUSTED',
+  'DOMAIN_CAP_REACHED',
+];
+
+type AdoptOne =
+  | { readonly kind: 'ADOPTED'; readonly itemId: string }
+  | { readonly kind: 'SKIPPED'; readonly reason: ContinuationSkip }
+  | { readonly kind: 'RECLASSIFY' }
+  | { readonly kind: 'INTERRUPTED' };
+
+async function adoptOne(
+  pool: pg.Pool,
+  campaignId: string,
+  continuation: CampaignContinuation,
+  candidate: ContinuationCandidate,
+): Promise<AdoptOne> {
+  try {
+    return await inWorkerTransaction(pool, async (client) => {
+      await lockCampaign(client, campaignId);
+      const limits = await limitsOf(client, campaignId);
+      const key = idempotencyKeyOf('NOMINATED', 'NOMINATION', candidate.nominationId);
+      const { rows: counts } = await client.query<{
+        dup: boolean;
+        total: number;
+        per_domain: number;
+        id: string;
+      }>(
+        `SELECT EXISTS (SELECT 1 FROM acquisition_work_items
+                         WHERE campaign_id = $1 AND idempotency_key = $2) AS dup,
+                (SELECT count(*) FROM acquisition_work_items WHERE campaign_id = $1)::integer AS total,
+                (SELECT count(*) FROM acquisition_work_items
+                  WHERE campaign_id = $1 AND registrable_domain = $3)::integer AS per_domain,
+                gen_random_uuid() AS id`,
+        [campaignId, key, candidate.registrableDomain],
+      );
+      const c = counts[0]!;
+      if (c.dup) return { kind: 'SKIPPED', reason: 'ALREADY_IN_CAMPAIGN' } as const;
+      if (c.total >= limits.max_work_items) {
+        return { kind: 'SKIPPED', reason: 'WORK_ITEM_BUDGET_EXHAUSTED' } as const;
+      }
+      if (
+        candidate.registrableDomain !== null &&
+        c.per_domain >= limits.max_items_per_registrable_domain
+      ) {
+        return { kind: 'SKIPPED', reason: 'DOMAIN_CAP_REACHED' } as const;
+      }
+      // The adoption row first (its item foreign key is deferred to commit),
+      // then its item: the database admits a parentless NOMINATED item only
+      // as the item an adoption row names.
+      await client.query(
+        `INSERT INTO acquisition_campaign_continuations
+           (campaign_id, predecessor_campaign_id, predecessor_item_id, nomination_id,
+            adopted_item_id, list_position)
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+        [
+          campaignId,
+          continuation.predecessorCampaignId,
+          candidate.predecessorItemId,
+          candidate.nominationId,
+          c.id,
+          candidate.position,
+        ],
+      );
+      await client.query(
+        `INSERT INTO acquisition_work_items
+           (id, campaign_id, stage, source_kind, subject_kind, subject_id, registrable_domain,
+            idempotency_key, parent_item_id, priority)
+         VALUES ($1, $2, 'NOMINATED', 'SEARCH_GRANT', 'NOMINATION', $3, $4, $5, NULL, $6)`,
+        [
+          c.id,
+          campaignId,
+          candidate.nominationId,
+          candidate.registrableDomain,
+          key,
+          priorityOf('NOMINATED'),
+        ],
+      );
+      return { kind: 'ADOPTED', itemId: c.id } as const;
+    });
+  } catch (error) {
+    const e = error as { code?: string; message?: string };
+    // A concurrent adoption of the same nomination won: re-read it.
+    if (e.code === '23505') return { kind: 'RECLASSIFY' };
+    const message = e.message ?? '';
+    if (/CAMPAIGN_NOT_RUNNING|CAMPAIGN_CLOSED|CAMPAIGN_NOT_OPEN/.test(message)) {
+      return { kind: 'INTERRUPTED' };
+    }
+    const reason = ADOPTION_REFUSALS.find((r) => message.includes(r));
+    if (reason !== undefined) return { kind: 'SKIPPED', reason };
+    throw error;
+  }
+}
+
+/**
+ * Adopts, in the OWNER's signed order, every ELIGIBLE nomination of the
+ * campaign's signed continuation (none for a v1/v2 campaign: null).
+ * Idempotent: an already adopted nomination is counted, never adopted twice
+ * (the database's unique indexes guarantee it across every campaign and every
+ * concurrent worker). Each adoption is ONE transaction; a crash between two
+ * leaves only whole adoptions behind.
+ */
+export async function adoptContinuation(
+  pool: pg.Pool,
+  authority: CampaignAuthority,
+  scopeCheck: ContinuationScopeCheck,
+): Promise<ContinuationReport | null> {
+  const continuation = authority.scope.continuation ?? null;
+  if (continuation === null) return null;
+  const candidates = await loadContinuationCandidates(pool, authority.campaignId, continuation);
+  const adopted: { nominationId: string; position: number; itemId: string }[] = [];
+  const skipped: { nominationId: string; position: number; reason: ContinuationSkip }[] = [];
+  let alreadyAdopted = 0;
+  let interrupted = false;
+  for (const candidate of candidates) {
+    const skip = (reason: ContinuationSkip) =>
+      skipped.push({ nominationId: candidate.nominationId, position: candidate.position, reason });
+    if (candidate.disposition === 'ADOPTED') {
+      alreadyAdopted += 1;
+      continue;
+    }
+    if (candidate.disposition !== 'ELIGIBLE') {
+      skip(candidate.disposition);
+      continue;
+    }
+    if (interrupted) continue;
+    if (!(await scopeCheck(candidate.nominationId, authority.scope.geographies))) {
+      skip('OUT_OF_SCOPE');
+      continue;
+    }
+    const result = await adoptOne(pool, authority.campaignId, continuation, candidate);
+    if (result.kind === 'ADOPTED') {
+      adopted.push({
+        nominationId: candidate.nominationId,
+        position: candidate.position,
+        itemId: result.itemId,
+      });
+    } else if (result.kind === 'SKIPPED') {
+      skip(result.reason);
+    } else if (result.kind === 'INTERRUPTED') {
+      interrupted = true;
+    } else {
+      const again = (
+        await loadContinuationCandidates(pool, authority.campaignId, {
+          predecessorCampaignId: continuation.predecessorCampaignId,
+          nominationIds: [candidate.nominationId],
+        })
+      )[0]!;
+      if (again.disposition === 'ADOPTED') alreadyAdopted += 1;
+      else skip(again.disposition === 'ELIGIBLE' ? 'ALREADY_IN_CAMPAIGN' : again.disposition);
+    }
+  }
+  return {
+    predecessorCampaignId: continuation.predecessorCampaignId,
+    listed: candidates.length,
+    adopted,
+    alreadyAdopted,
+    skipped,
+    interrupted,
+  };
+}
+
+/**
+ * REUSE BEFORE SEARCH (R2): true once no item of the campaign's SEARCH_GRANT
+ * lineage is still open at a stage the campaign lists among NOMINATED,
+ * DEDUPLICATED and RESEARCH_PENDING. Before a v3 campaign seeds its own
+ * search roots, that lineage is exactly its adopted items and their
+ * descendants, so its search waits until they have left those stages.
+ */
+export async function continuationSettled(
+  q: Queryable,
+  campaignId: string,
+  stages: readonly string[],
+): Promise<boolean> {
+  const watched = CONTINUATION_REUSE_STAGES.filter((s) => stages.includes(s));
+  if (watched.length === 0) return true;
+  const { rows } = await q.query<{ n: number }>(
+    `SELECT count(*)::integer AS n FROM acquisition_work_item_states
+      WHERE campaign_id = $1 AND source_kind = 'SEARCH_GRANT'
+        AND state IN ('PENDING', 'CLAIMED', 'LEASE_EXPIRED', 'RETRY_SCHEDULED')
+        AND stage = ANY ($2::text[])`,
+    [campaignId, [...watched]],
+  );
+  return rows[0]!.n === 0;
 }
 
 /** Exported for status: the stages in pipeline order. */
