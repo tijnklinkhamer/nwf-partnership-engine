@@ -1,0 +1,8 @@
+# gitleaks exact-finding ignore list. One line = one verified false positive,
+# keyed by its full fingerprint (commit:path:rule:line), so only that historical
+# finding is suppressed; the same text in any other commit or file still alerts.
+#
+# 31d0fea (2026-10-05): generic-api-key on a SHA-256 module byte-pin
+# ('sd7/tokenShingles.ts': '3a56ac6c…') in a frozen-module hash table. It is a
+# file digest, not a credential. Verified R1 2026-10-28 (CI run 40668224727).
+31d0fea84c5cd15d4d28686cae0bd0d14919eecd:src/test/unit/orgunitCorpus2DA3Sd7GraphV5Isolation.test.ts:generic-api-key:87
