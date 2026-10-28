@@ -62,6 +62,12 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
+      # actions/checkout records origin without the `.git` suffix; the frozen 2D2C
+      # configuration records name the canonical clone URL, and the variant-root
+      # check compares origin to it byte-for-byte.
+      - name: Canonical origin URL
+        run: git remote set-url origin "https://github.com/${{ github.repository }}.git"
+
       - name: Setup Node
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
