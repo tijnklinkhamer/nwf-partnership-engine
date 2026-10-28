@@ -238,7 +238,16 @@ Activation needs, in order: OWNER acceptance of ADR 0027 and this ADR (and
 the CLAUDE.md approved-exception amendment ADR 0027 §3 names); applying
 migration 0022 to the target database; a deployment login holding
 `nwf_source_discovery` (`DATABASE_URL_SOURCE_DISCOVERY`); the provisioned ADR
-0010 profile; and one OWNER-path grant row, for example:
+0010 profile; the plan registered on the owner path (`DATABASE_URL_ADMIN`;
+a dry run without `--execute`, idempotent by digest, writes no grant):
+
+```bash
+npm run cli -- orgunits source-discovery plan register \
+  --brief nwf-discovery-plan-v2 --geography JP --execute --json
+# -> data.briefId, data.planDigest
+```
+
+and one OWNER-path grant row, for example:
 
 ```sql
 -- As the migration owner, after registering the plan (brief id + digest):

@@ -119,7 +119,12 @@ Run `nwf-engine doctor` first. It is read-only: it changes nothing. Each
 7. **A search grant, and one verified D8 smoke.** **[NEEDS OWNER ACT]** A
    campaign searches only under OWNER-path grant rows it lists (ADR 0028 §6
    shows the row: plan, geography, model, `max_queries`, `max_runs`, a
-   window of at most a day). The **first** search ever made for an SDK
+   window of at most a day). A grant names a REGISTERED plan: register it
+   first, as the migration owner, with
+   `npm run cli -- orgunits source-discovery plan register --brief nwf-discovery-plan-v2 --geography <CC> --execute --json`
+   (without `--execute` it only prints the digest it would register; the
+   command is idempotent and writes no grant) and copy its `briefId` and
+   `planDigest` into the grant row. The **first** search ever made for an SDK
    version and model is the D8 smoke, and nothing past it runs until you
    verify it (ADR 0028 §9): issue a one-query grant, run it once with
    `npm run cli -- orgunits discover-sources --execute --grant-id <uuid> --json`,

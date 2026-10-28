@@ -20,6 +20,17 @@
  *                      ONE nomination -> ONE discovery subject through the
  *                      EXISTING B2.2 writer (dry run on the readonly role by
  *                      default; --execute on the writer capability).
+ *   source-discovery plan register
+ *                      WW R2 E-1 (ADR 0028 s6): registers the plan of ONE
+ *                      known brief for ONE geography as a
+ *                      `source_discovery_briefs` row, so the OWNER can name
+ *                      its (brief id, plan digest) in a grant row. OWNER PATH
+ *                      (DATABASE_URL_ADMIN) only, through the EXISTING
+ *                      `registerPlan` (v2 plan) or `registerBrief` (v1 brief),
+ *                      both idempotent by digest. A DRY RUN without --execute:
+ *                      it prints the digest it would register and opens no
+ *                      database connection. It never writes a grant, never
+ *                      searches and never fetches.
  *
  * NARROW BY CONSTRUCTION, like `discovery-subjects`: each subcommand parses its
  * own strict option set; there is no batch, no "every geography", no generic
@@ -31,7 +42,7 @@
 import { parseArgs } from 'node:util';
 import type pg from 'pg';
 
-import { createPool } from '../../db/client.js';
+import { createPool, withTransaction } from '../../db/client.js';
 import { env } from '../../config/env.js';
 import {
   productionLiveSearchDeps,
@@ -44,11 +55,20 @@ import {
   queriesFor,
 } from '../../orgunits/sourceDiscovery/brief.js';
 import {
+  PlanRegistrationRefused,
+  registerPlan,
+} from '../../orgunits/sourceDiscovery/grantStore.js';
+import {
   GrantedRunInternalError,
   GrantedRunRefusal,
   runGrantedSourceDiscovery,
 } from '../../orgunits/sourceDiscovery/grantedRun.js';
 import { SUBJECT_KINDS, type SubjectKind } from '../../orgunits/sourceDiscovery/identityBridge.js';
+import {
+  PlannerRefusal,
+  planDiscoveryQueries,
+} from '../../orgunits/sourceDiscovery/planner/plan.js';
+import { DISCOVERY_PLAN_VERSION } from '../../orgunits/sourceDiscovery/planner/vocabulary.js';
 import {
   PromotionRefusal,
   assertCanonicalNomination,
@@ -63,6 +83,7 @@ import {
   listNominations,
   loadNomination,
   loadNominationIdentity,
+  registerBrief,
 } from '../../orgunits/sourceDiscovery/store.js';
 import { UUID_SHAPE } from '../../orgunits/sourceDiscovery/types.js';
 
@@ -94,6 +115,18 @@ export const SOURCE_DISCOVERY_USAGE = `nwf-pe orgunits - independent source disc
                                Only the FIRST nomination of a registrable domain is
                                promotable. Promotion fetches nothing: research of the new
                                subject needs a review and its own OWNER admission.
+
+nwf-pe orgunits source-discovery - OWNER-path plan registration (ADR 0028 s6)
+
+  orgunits source-discovery plan register --brief <brief-key> --geography <CC>
+                               [--execute] [--json]
+                               Registers the plan of ONE brief for ONE geography so an
+                               OWNER grant row can name it; prints briefId and planDigest.
+                               <brief-key> is ${DISCOVERY_PLAN_VERSION} (the worldwide
+                               planner's default request) or a known v1 brief.
+                               OWNER PATH: DATABASE_URL_ADMIN.
+                               DRY RUN unless --execute (prints the digest, opens no
+                               database). Idempotent by digest. Writes no grant.
 `;
 
 const OUTPUT = { json: { type: 'boolean' } } as const;
@@ -125,6 +158,12 @@ const OPTIONS = {
     execute: { type: 'boolean' },
     ...OUTPUT,
   },
+  'source-discovery plan register': {
+    brief: { type: 'string' },
+    geography: { type: 'string' },
+    execute: { type: 'boolean' },
+    ...OUTPUT,
+  },
 } as const;
 
 type CommandKey = keyof typeof OPTIONS;
@@ -134,6 +173,8 @@ export interface SourceDiscoveryCliDeps {
   readonly writerPool?: () => pg.Pool;
   /** WW E-SD: the source-discovery capability pool and live-search dependencies (tests inject fakes). */
   readonly sourceDiscoveryPool?: () => pg.Pool;
+  /** WW R2 E-1: the OWNER path (DATABASE_URL_ADMIN) for `plan register --execute`. */
+  readonly ownerPool?: () => pg.Pool;
   readonly liveSearchDeps?: () => LiveSearchDeps;
   readonly out?: (text: string) => void;
   readonly err?: (text: string) => void;
@@ -173,7 +214,35 @@ async function withPoolOf<T>(make: () => pg.Pool, fn: (pool: pg.Pool) => Promise
   }
 }
 
-/** Runs one invocation. `argv` starts at `discover-sources` or `nominations`. */
+/**
+ * WW R2 E-1: the plan ONE brief key + ONE geography registers. Pure: the v2
+ * planner's default request, or a known v1 brief's own row after checking it
+ * claims the geography. Refuses (PlannerRefusal / BriefRefusal) otherwise.
+ */
+function planToRegister(briefKey: string, geography: string) {
+  if (briefKey === DISCOVERY_PLAN_VERSION) {
+    const plan = planDiscoveryQueries({ geography });
+    if (plan.exhausted) {
+      throw new PlanRegistrationRefused(`plan ${plan.planId} has no query.`);
+    }
+    return {
+      planKind: 'PLAN_V2' as const,
+      planDigest: plan.digest,
+      queries: plan.queries.map((q) => ({ queryId: q.queryId, text: q.text })),
+      register: (c: pg.ClientBase) => registerPlan(c, plan),
+    };
+  }
+  const brief = briefByKey(briefKey);
+  const section = queriesFor(brief, geography);
+  return {
+    planKind: 'BRIEF_V1' as const,
+    planDigest: briefDigest(brief),
+    queries: section.queries.map((q) => ({ queryId: q.queryId, text: q.text })),
+    register: (c: pg.ClientBase) => registerBrief(c, brief),
+  };
+}
+
+/** Runs one invocation. `argv` starts at `discover-sources`, `nominations` or `source-discovery`. */
 export async function runSourceDiscoveryCli(
   argv: readonly string[],
   deps: SourceDiscoveryCliDeps = {},
@@ -194,8 +263,19 @@ export async function runSourceDiscoveryCli(
     });
 
   const [first, second, ...tail] = argv;
-  const key = (first === 'nominations' ? `nominations ${second ?? ''}` : first) as CommandKey;
-  const rest = first === 'nominations' ? tail : [second, ...tail].filter((a) => a !== undefined);
+  const key = (
+    first === 'nominations'
+      ? `nominations ${second ?? ''}`
+      : first === 'source-discovery'
+        ? `source-discovery ${second ?? ''} ${tail[0] ?? ''}`
+        : first
+  ) as CommandKey;
+  const rest =
+    first === 'nominations'
+      ? tail
+      : first === 'source-discovery'
+        ? tail.slice(1)
+        : [second, ...tail].filter((a) => a !== undefined);
   if (!Object.hasOwn(OPTIONS, key) || rest.includes('--help') || rest.includes('-h')) {
     out(SOURCE_DISCOVERY_USAGE);
     return Object.hasOwn(OPTIONS, key) ? 0 : 1;
@@ -424,10 +504,54 @@ export async function runSourceDiscoveryCli(
         }
         return 0;
       }
+      case 'source-discovery plan register': {
+        const briefKey = required(values, 'brief');
+        const geography = required(values, 'geography');
+        const planned = planToRegister(briefKey, geography);
+        const data = {
+          briefKey,
+          planKind: planned.planKind,
+          geography,
+          planDigest: planned.planDigest,
+          queries: planned.queries,
+        };
+        if (values['execute'] !== true) {
+          if (json) {
+            out(envelope(key, 'DRY_RUN', { data: { ...data, briefId: null } }));
+          } else {
+            out(`brief ${briefKey} (${planned.planKind}), geography ${geography}\n`);
+            out(`planDigest ${planned.planDigest}\n`);
+            for (const q of planned.queries) out(`  ${q.queryId}\t${q.text}\n`);
+            out(
+              `${planned.queries.length} queries. DRY RUN: nothing was registered; ` +
+                're-run with --execute to register this plan on the OWNER path.\n',
+            );
+          }
+          return 0;
+        }
+        const briefId = await withPoolOf(deps.ownerPool ?? (() => createPool('admin')), (pool) =>
+          withTransaction(pool, (c) => planned.register(c)),
+        );
+        if (json) {
+          out(envelope(key, 'REGISTERED', { data: { ...data, briefId } }));
+        } else {
+          out(`briefId ${briefId}\n`);
+          out(`planDigest ${planned.planDigest}\n`);
+          out(
+            `REGISTERED ${briefKey} (${planned.planKind}) for ${geography}, ` +
+              `${planned.queries.length} queries. No grant was written; nothing was searched.\n`,
+          );
+        }
+        return 0;
+      }
     }
   } catch (error) {
     if (error instanceof UsageError) return refuse('INPUT_INVALID', error.message);
     if (error instanceof BriefRefusal) return refuse(error.code, error.message);
+    if (error instanceof PlannerRefusal) return refuse(error.code, error.message);
+    if (error instanceof PlanRegistrationRefused) {
+      return refuse('PLAN_NOT_REGISTRABLE', error.message);
+    }
     if (error instanceof PromotionRefusal) return refuse(error.code, error.message);
     if (error instanceof GrantedRunRefusal) return refuse(error.code, error.message);
     if (error instanceof GrantedRunInternalError) {

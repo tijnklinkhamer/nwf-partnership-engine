@@ -69,6 +69,8 @@ Usage:
   nwf-pe orgunits discover-sources --execute --grant-id <uuid> [--json]
   nwf-pe orgunits nominations list|promote ...
                               (run \`nwf-pe orgunits nominations --help\` for its own options)
+  nwf-pe orgunits source-discovery plan register --brief <key> --geography <CC>
+                              [--execute] [--json]   (OWNER path; registers a plan a grant names)
   nwf-pe discovery-subjects propose|claim|relate|review|show|list ...
                               (run \`nwf-pe discovery-subjects --help\` for its own options)
   nwf-pe discovery-subject-review-sign --request <path> --encrypted-key <path> --key-id <id>
@@ -193,6 +195,9 @@ export async function main(argv: string[]): Promise<number> {
     return runDiscoveryReviewSign(argv.slice(1));
   }
   if (argv[0] === 'orgunits' && (argv[1] === 'discover-sources' || argv[1] === 'nominations')) {
+    return runSourceDiscoveryCli(argv.slice(1));
+  }
+  if (argv[0] === 'orgunits' && argv[1] === 'source-discovery') {
     return runSourceDiscoveryCli(argv.slice(1));
   }
   // REL final join A2: the READ-ONLY subject facts export. Its own strict options.
