@@ -79,6 +79,7 @@ export {
   type OwnerSigningKey,
   type SubjectReviewState,
 } from './reviewBridge.js';
+export { PassphraseFdRefusal, passphraseFdOf, readPassphraseFromFd } from './passphraseFd.js';
 export {
   ACQUISITION_STATUS_SCHEMA,
   FAILURE_EXPLANATIONS,

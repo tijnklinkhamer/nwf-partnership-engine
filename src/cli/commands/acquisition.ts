@@ -58,6 +58,12 @@
  *       is appended and released, ONE SOURCE_STATED COUNTRY_OF_OPERATION
  *       claim - the OWNER's statement of what that page says - is recorded
  *       through the existing jurisdiction-claim writer. Never inferred.
+ *       R3 (PROPOSED): an optional --passphrase-fd <n> (3..64, with --execute)
+ *       reads the key passphrase from an INHERITED PIPE the parent process
+ *       created (the OWNER's Mac bridge, which read it from the OWNER's own
+ *       terminal with echo off) instead of this process's terminal. A regular
+ *       file, a terminal or a standard stream is refused; never an argument
+ *       or an environment value (`acquisitionWiring/passphraseFd.ts`).
  *
  * One campaign per call. There is no option that names every campaign or
  * subject, no trust, public-key or signature option (trusted keys come only
@@ -85,6 +91,7 @@ import {
   CampaignSigningRefusal,
   CountryStatementRefusal,
   OutboxRefusal,
+  PassphraseFdRefusal,
   ReviewBatchRefusal,
   WIRED_STAGES,
   assertOutboxRoot,
@@ -97,8 +104,10 @@ import {
   parseCampaignDraft,
   parseCountryStatements,
   parseReviewExpectations,
+  passphraseFdOf,
   planCountryStatement,
   planReviewBatch,
+  readPassphraseFromFd,
   signCampaignDraft,
   signCampaignReviews,
   type CampaignDraftContinuation,
@@ -178,7 +187,8 @@ export const ACQUISITION_USAGE = `nwf-pe acquisition - OWNER-signed acquisition 
   acquisition review sign      --campaign-id <uuid> --subject-id <uuid> [--subject-id ...]
                                --expect <subjectId>=<stateDigest> [--expect ...]
                                [--country <subjectId>=<CC>@<pageEvidenceId> ...]
-                               --key-file <abs encrypted pkcs8> --key-id <id> [--execute] [--json]
+                               --key-file <abs encrypted pkcs8> --key-id <id>
+                               [--passphrase-fd <3..64, an inherited pipe>] [--execute] [--json]
 
   A campaign counts only if its OWNER Ed25519 signature verifies under the pinned
   trust set, which holds NO key in this build: verify and record refuse every real
@@ -234,6 +244,7 @@ export const ACQUISITION_OPTIONS = Object.freeze({
     country: { type: 'string', multiple: true },
     'key-file': { type: 'string' },
     'key-id': { type: 'string' },
+    'passphrase-fd': { type: 'string' },
     execute: { type: 'boolean' },
     ...OUTPUT,
   },
@@ -702,6 +713,12 @@ export async function runAcquisitionCli(
         const subjectIds = many(values, 'subject-id');
         const expected = parseReviewExpectations(many(values, 'expect'));
         const countries = parseCountryStatements(many(values, 'country'), subjectIds);
+        // R3 (PROPOSED): the passphrase from an inherited pipe, checked BEFORE the preflight.
+        const fdText = str(values, 'passphrase-fd');
+        if (fdText !== undefined && values['execute'] !== true) {
+          throw new UsageError('--passphrase-fd is only read with --execute.');
+        }
+        const passphraseFd = fdText === undefined ? null : passphraseFdOf(fdText);
         const reviewTrust = deps.reviewTrust ?? operationalReviewTrust();
         const readonlyMake = deps.readonlyPool ?? (() => createPool('readonly'));
         // P2-4 + the country addendum: the batch, its expectations, every
@@ -753,7 +770,9 @@ export async function runAcquisitionCli(
         const signer = await loadOwnerSigningKey(
           required(values, 'key-file'),
           required(values, 'key-id'),
-          deps.passphrase,
+          passphraseFd === null
+            ? deps.passphrase
+            : () => Promise.resolve(readPassphraseFromFd(passphraseFd)),
         );
         const results = await withPoolOf(readonlyMake, (ro) =>
           withPoolOf(deps.reviewerPool ?? (() => createPool('discovery_subject_reviewer')), (rv) =>
@@ -903,7 +922,9 @@ export async function runAcquisitionCli(
         ? error.code
         : (error as { name?: string }).name === 'JurisdictionWriterRefusal'
           ? `COUNTRY_${String((error as { code?: string }).code)}`
-          : error instanceof CampaignSigningRefusal || error instanceof OutboxRefusal
+          : error instanceof CampaignSigningRefusal ||
+              error instanceof OutboxRefusal ||
+              error instanceof PassphraseFdRefusal
             ? error.reason
             : (error as { name?: string }).name === 'ReviewSigningRefusal'
               ? `SIGNING_${String((error as { reason?: string }).reason)}`

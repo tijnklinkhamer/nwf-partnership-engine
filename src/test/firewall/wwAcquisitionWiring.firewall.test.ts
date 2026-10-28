@@ -89,6 +89,8 @@ const FILES: Readonly<Record<string, readonly string[]>> = {
     './countryMentions.js',
     './handlers.js',
     './outbox.js',
+    // R3 (PROPOSED, exact widening): the passphrase from an inherited pipe.
+    './passphraseFd.js',
     './production.js',
     './records.js',
     './review.js',
@@ -104,6 +106,8 @@ const FILES: Readonly<Record<string, readonly string[]>> = {
     './context.js',
     './records.js',
   ],
+  // R3 (PROPOSED): `review sign --passphrase-fd` — reads ONE inherited pipe (node:fs only).
+  'passphraseFd.ts': ['node:fs'],
   'production.ts': [
     'pg',
     '../acquisition/index.js',
@@ -252,6 +256,8 @@ describe('WW E-W: the wiring namespace is exactly what was approved', () => {
         'country',
         'key-file',
         'key-id',
+        // R3 (PROPOSED, exact name): the passphrase from an inherited pipe, never a value.
+        'passphrase-fd',
         'execute',
         'json',
       ].sort(),

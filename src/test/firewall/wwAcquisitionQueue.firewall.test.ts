@@ -324,7 +324,9 @@ describe('WW E-Q: the CLI is narrow', () => {
     // key, fingerprint, signature or passphrase option.
     const SIGNER_OPTIONS: Readonly<Record<string, readonly string[]>> = {
       'campaign sign': ['key-file', 'key-id'],
-      'review sign': ['key-file', 'key-id'],
+      // R3 (PROPOSED, exact widening): the batched OWNER review may read its passphrase
+      // from an inherited pipe (`--passphrase-fd`); never a passphrase VALUE option.
+      'review sign': ['key-file', 'key-id', 'passphrase-fd'],
       'campaign template': ['campaign-key'],
     };
     for (const [command, options] of Object.entries(ACQUISITION_OPTIONS)) {
