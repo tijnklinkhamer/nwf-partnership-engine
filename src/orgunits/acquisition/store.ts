@@ -32,6 +32,14 @@
  * triggers. The database re-checks every eligibility rule; a nomination is
  * adopted at most once across every campaign.
  *
+ * ALLOCATION (R2-P3): because an adoption is once-only, a nomination is
+ * adopted only when what the campaign's signed budgets have left covers its
+ * WHOLE lineage after what every lineage it already adopted still needs
+ * (`allocationShortfall`, vocabulary.ts), under the campaign lock; and work
+ * outside those lineages (a link-out, a search lineage, an owner root) is
+ * neither inserted nor claimed into what they still need. A nomination
+ * without an allocation is skipped NO_PROCESSING_ALLOCATION, untouched.
+ *
  * SESSIONS. Every worker write runs in `inWorkerTransaction`, which refuses a
  * superuser or table-owner session, requires the login to hold
  * `nwf_acquisition_worker` and narrows to exactly that capability with
@@ -47,9 +55,14 @@ import type { CampaignContinuation } from './document.js';
 import { selectNextCandidate, type ClaimCandidate } from './scheduler.js';
 import {
   CONTINUATION_REUSE_STAGES,
+  OPEN_ITEM_STATES,
   ROOT_SUBJECT_KIND,
   STAGES,
+  adoptionNeed,
+  allocationShortfall,
   idempotencyKeyOf,
+  lineageNeed,
+  stagePerformed,
   priorityOf,
   requiredResources,
   reservationFor,
@@ -60,6 +73,8 @@ import {
   type FailureReason,
   type HumanQueue,
   type ItemState,
+  type AllocationLedger,
+  type LineageNeed,
   type RefusalReason,
   type Resource,
   type RetryReason,
@@ -288,12 +303,13 @@ interface CampaignLimits {
   max_search_runs: number;
   max_research_roots: number;
   max_gateway_requests: number;
+  allowed_stages: string[];
 }
 
 async function limitsOf(client: pg.PoolClient, campaignId: string): Promise<CampaignLimits> {
   const { rows } = await client.query<CampaignLimits>(
     `SELECT max_work_items, max_items_per_registrable_domain, max_attempts_per_item, max_concurrency,
-            max_search_runs, max_research_roots, max_gateway_requests
+            max_search_runs, max_research_roots, max_gateway_requests, allowed_stages
        FROM acquisition_campaigns WHERE id = $1`,
     [campaignId],
   );
@@ -304,9 +320,138 @@ type InsertResult =
   | { readonly kind: 'INSERTED'; readonly id: string }
   | { readonly kind: 'REFUSED'; readonly refusal: ChildRefusal };
 
+// ---------------------------------------------------------------------------
+// R2-P3: the allocations of a campaign's adopted continuation lineages.
+// ---------------------------------------------------------------------------
+
+/** The deepest item of one adopted lineage (a chain: below DISCOVERED an item has one child). */
+interface LineageHead {
+  readonly headId: string;
+  readonly stage: Stage;
+  readonly state: ItemState;
+  readonly registrableDomain: string | null;
+}
+
+/** Every lineage the campaign ADOPTED (migration 0029), each by its deepest item. Read-only. */
+async function loadAdoptedLineageHeads(
+  q: Queryable,
+  campaignId: string,
+): Promise<readonly LineageHead[]> {
+  const { rows } = await q.query<{
+    head_id: string;
+    stage: Stage;
+    state: ItemState;
+    registrable_domain: string | null;
+  }>(
+    `WITH RECURSIVE chain AS (
+         SELECT a.adopted_item_id AS root_id, a.adopted_item_id AS item_id, 0 AS depth
+           FROM acquisition_campaign_continuations a WHERE a.campaign_id = $1
+         UNION ALL
+         SELECT c.root_id, w.id, c.depth + 1
+           FROM chain c JOIN acquisition_work_items w ON w.parent_item_id = c.item_id)
+     SELECT DISTINCT ON (c.root_id)
+            s.work_item_id AS head_id, s.stage, s.state, s.registrable_domain
+       FROM chain c JOIN acquisition_work_item_states s ON s.work_item_id = c.item_id
+      ORDER BY c.root_id, c.depth DESC`,
+    [campaignId],
+  );
+  return rows.map((r) => ({
+    headId: r.head_id,
+    stage: r.stage,
+    state: r.state,
+    registrableDomain: r.registrable_domain,
+  }));
+}
+
+/** What the adopted lineages still need (their allocations), with their domains. */
+function reservedFor(
+  heads: readonly LineageHead[],
+  signedStages: readonly string[],
+): { domain: string | null; need: LineageNeed }[] {
+  return heads.map((h) => ({ domain: h.registrableDomain, need: lineageNeed(h, signedStages) }));
+}
+
+/**
+ * The campaign's allocation ledger, read now (under the campaign lock when
+ * the caller writes): the signed limits, the items that exist (in total and
+ * per domain), the DERIVED spend, and what every adopted lineage still needs.
+ */
+export async function loadContinuationAllocation(
+  q: Queryable,
+  campaignId: string,
+): Promise<{ readonly ledger: AllocationLedger; readonly signedStages: readonly string[] }> {
+  const { rows: c } = await q.query<{
+    max_work_items: number;
+    max_items_per_registrable_domain: number;
+    max_research_roots: number;
+    max_gateway_requests: number;
+    allowed_stages: string[];
+    work_items: number;
+    research_roots: number;
+    gateway_requests: number;
+  }>(
+    `SELECT c.max_work_items, c.max_items_per_registrable_domain, c.max_research_roots,
+            c.max_gateway_requests, c.allowed_stages,
+            (SELECT count(*) FROM acquisition_work_items WHERE campaign_id = c.id)::integer AS work_items,
+            s.research_roots, s.gateway_requests
+       FROM acquisition_campaigns c, acquisition_campaign_spend(c.id) s
+      WHERE c.id = $1`,
+    [campaignId],
+  );
+  const { rows: domains } = await q.query<{ registrable_domain: string; n: number }>(
+    `SELECT registrable_domain, count(*)::integer AS n FROM acquisition_work_items
+      WHERE campaign_id = $1 AND registrable_domain IS NOT NULL
+      GROUP BY registrable_domain`,
+    [campaignId],
+  );
+  const r = c[0]!;
+  return {
+    ledger: {
+      limits: {
+        workItems: r.max_work_items,
+        researchRoots: r.max_research_roots,
+        gatewayRequests: r.max_gateway_requests,
+        itemsPerRegistrableDomain: r.max_items_per_registrable_domain,
+      },
+      used: {
+        workItems: r.work_items,
+        researchRoots: r.research_roots,
+        gatewayRequests: r.gateway_requests,
+      },
+      domainItems: new Map(domains.map((d) => [d.registrable_domain, d.n] as const)),
+      reserved: reservedFor(await loadAdoptedLineageHeads(q, campaignId), r.allowed_stages),
+    },
+    signedStages: r.allowed_stages,
+  };
+}
+
+/**
+ * Adopted lineages IN FLIGHT: their deepest item is still open at a stage the
+ * campaign performs before ASSESSABLE (adopted, not yet parked at the
+ * OWNER's identity review, not terminal). The worker adopts just in time, so
+ * at most `maxConcurrency` of them exist at once.
+ */
+export async function countContinuationInFlight(
+  q: Queryable,
+  campaignId: string,
+  signedStages: readonly string[],
+): Promise<number> {
+  return (await loadAdoptedLineageHeads(q, campaignId)).filter(
+    (h) =>
+      (OPEN_ITEM_STATES as readonly string[]).includes(h.state) &&
+      h.stage !== 'ASSESSABLE' &&
+      stagePerformed(h.stage, signedStages),
+  ).length;
+}
+
 /**
  * Inserts ONE work item under the (already held) campaign lock, after the same
  * checks the database trigger repeats: duplicate, item budget, domain cap.
+ * R2-P3: an item OUTSIDE the campaign's adopted lineages (a root, or the
+ * child of an item that is not an adopted lineage's head) is also refused
+ * when it would leave less than those lineages still need - work items in
+ * total and on its registrable domain. An adopted lineage's own next item is
+ * part of its allocation and is checked against the signed caps only.
  */
 async function insertItem(
   client: pg.PoolClient,
@@ -337,6 +482,30 @@ async function insertItem(
   }
   if (item.registrableDomain !== null && c.per_domain >= limits.max_items_per_registrable_domain) {
     return { kind: 'REFUSED', refusal: 'DOMAIN_CAP_REACHED' };
+  }
+  const heads = await loadAdoptedLineageHeads(client, item.campaignId);
+  if (heads.length > 0 && !heads.some((h) => h.headId === item.parentItemId)) {
+    const short = allocationShortfall(
+      {
+        limits: {
+          workItems: limits.max_work_items,
+          researchRoots: limits.max_research_roots,
+          gatewayRequests: limits.max_gateway_requests,
+          itemsPerRegistrableDomain: limits.max_items_per_registrable_domain,
+        },
+        used: { workItems: c.total, researchRoots: 0, gatewayRequests: 0 },
+        domainItems: new Map(
+          item.registrableDomain === null ? [] : [[item.registrableDomain, c.per_domain]],
+        ),
+        reserved: reservedFor(heads, limits.allowed_stages),
+      },
+      {
+        domain: item.registrableDomain,
+        need: { workItems: 1, researchRoots: 0, gatewayRequests: 0 },
+      },
+    );
+    if (short === 'maxWorkItems') return { kind: 'REFUSED', refusal: 'WORK_ITEM_BUDGET_EXHAUSTED' };
+    if (short !== null) return { kind: 'REFUSED', refusal: 'DOMAIN_CAP_REACHED' };
   }
   const { rows } = await client.query<{ id: string }>(
     `INSERT INTO acquisition_work_items
@@ -621,12 +790,29 @@ export async function claimNextWorkItem(
       researchRoots: limits.max_research_roots - spend.researchRoots,
       gatewayRequests: limits.max_gateway_requests - spend.gatewayRequests,
     };
+    // R2-P3: what the adopted continuation lineages still need is theirs. An
+    // item outside them (a link-out or search lineage) is claimed only from
+    // what is left after those allocations; an adopted lineage's own item is
+    // claimed from what is left (its need is part of the sum it consumes).
+    const heads = await loadAdoptedLineageHeads(client, campaignId);
+    const adoptedHeads = new Set(heads.map((h) => h.headId));
+    const allocated: Record<Resource, number> = {
+      searchRuns: 0,
+      researchRoots: 0,
+      gatewayRequests: 0,
+    };
+    for (const { need } of reservedFor(heads, limits.allowed_stages)) {
+      allocated.researchRoots += need.researchRoots;
+      allocated.gatewayRequests += need.gatewayRequests;
+    }
     const exhausted = new Set<Resource>(options.exhausted ?? []);
     let blockedBy: Resource | null = null;
     const claimable = rows.filter((r) => {
       const reservation = reservationFor(r.stage, r.source_kind);
+      const room = (res: Resource): number =>
+        adoptedHeads.has(r.work_item_id) ? left[res] : left[res] - allocated[res];
       const missing = requiredResources(r.stage, r.source_kind).find(
-        (res) => exhausted.has(res) || reservation[res] > left[res],
+        (res) => exhausted.has(res) || reservation[res] > room(res),
       );
       if (missing !== undefined) {
         blockedBy ??= missing;
@@ -1029,19 +1215,24 @@ export async function loadContinuationCandidates(
   );
 }
 
-/** What one worker start did with its campaign's signed continuation. */
+/**
+ * What one worker run (or one `adoptContinuation` call) did with its
+ * campaign's signed continuation. A listed nomination in none of `adopted`,
+ * `alreadyAdopted` and `skipped` is still ELIGIBLE with an allocation: it
+ * waits, untouched, for a free just-in-time slot (R2-P3).
+ */
 export interface ContinuationReport {
   readonly predecessorCampaignId: string;
   readonly listed: number;
-  /** Adopted by THIS start, in signed order. */
+  /** Adopted by THIS run, in signed order. */
   readonly adopted: readonly {
     readonly nominationId: string;
     readonly position: number;
     readonly itemId: string;
   }[];
-  /** Already adopted by this campaign before this start (idempotent re-run). */
+  /** Already adopted by this campaign before this run (idempotent re-run). */
   readonly alreadyAdopted: number;
-  /** Listed but not adopted, each with its named reason. */
+  /** Listed but not adopted, each with its named (latest) reason. */
   readonly skipped: readonly {
     readonly nominationId: string;
     readonly position: number;
@@ -1082,32 +1273,26 @@ async function adoptOne(
   try {
     return await inWorkerTransaction(pool, async (client) => {
       await lockCampaign(client, campaignId);
-      const limits = await limitsOf(client, campaignId);
       const key = idempotencyKeyOf('NOMINATED', 'NOMINATION', candidate.nominationId);
-      const { rows: counts } = await client.query<{
-        dup: boolean;
-        total: number;
-        per_domain: number;
-        id: string;
-      }>(
+      const { rows: counts } = await client.query<{ dup: boolean; id: string }>(
         `SELECT EXISTS (SELECT 1 FROM acquisition_work_items
                          WHERE campaign_id = $1 AND idempotency_key = $2) AS dup,
-                (SELECT count(*) FROM acquisition_work_items WHERE campaign_id = $1)::integer AS total,
-                (SELECT count(*) FROM acquisition_work_items
-                  WHERE campaign_id = $1 AND registrable_domain = $3)::integer AS per_domain,
                 gen_random_uuid() AS id`,
-        [campaignId, key, candidate.registrableDomain],
+        [campaignId, key],
       );
       const c = counts[0]!;
       if (c.dup) return { kind: 'SKIPPED', reason: 'ALREADY_IN_CAMPAIGN' } as const;
-      if (c.total >= limits.max_work_items) {
-        return { kind: 'SKIPPED', reason: 'WORK_ITEM_BUDGET_EXHAUSTED' } as const;
-      }
+      // R2-P3: under the campaign lock, the WHOLE lineage must fit in what the
+      // signed budgets have left after every adopted lineage's allocation
+      // (this subsumes the work-item budget and the domain cap).
+      const { ledger, signedStages } = await loadContinuationAllocation(client, campaignId);
       if (
-        candidate.registrableDomain !== null &&
-        c.per_domain >= limits.max_items_per_registrable_domain
+        allocationShortfall(ledger, {
+          domain: candidate.registrableDomain,
+          need: adoptionNeed(signedStages),
+        }) !== null
       ) {
-        return { kind: 'SKIPPED', reason: 'DOMAIN_CAP_REACHED' } as const;
+        return { kind: 'SKIPPED', reason: 'NO_PROCESSING_ALLOCATION' } as const;
       }
       // The adoption row first (its item foreign key is deferred to commit),
       // then its item: the database admits a parentless NOMINATED item only
@@ -1156,26 +1341,53 @@ async function adoptOne(
   }
 }
 
+/** A budget-shaped adoption refusal: no later-listed nomination is adopted ahead of it. */
+const ALLOCATION_SKIPS: readonly ContinuationSkip[] = [
+  'NO_PROCESSING_ALLOCATION',
+  'WORK_ITEM_BUDGET_EXHAUSTED',
+  'DOMAIN_CAP_REACHED',
+];
+
+export interface AdoptContinuationOptions {
+  /**
+   * The most nominations THIS call may adopt (the worker's just-in-time
+   * slots). Omitted: no limit. ELIGIBLE nominations beyond it are neither
+   * adopted nor skipped: they wait, untouched, for a later call.
+   */
+  readonly limit?: number;
+}
+
 /**
- * Adopts, in the OWNER's signed order, every ELIGIBLE nomination of the
- * campaign's signed continuation (none for a v1/v2 campaign: null).
- * Idempotent: an already adopted nomination is counted, never adopted twice
- * (the database's unique indexes guarantee it across every campaign and every
- * concurrent worker). Each adoption is ONE transaction; a crash between two
- * leaves only whole adoptions behind.
+ * Adopts, in the OWNER's signed order, the ELIGIBLE nominations of the
+ * campaign's signed continuation that its budgets can carry (none for a
+ * v1/v2 campaign: null). Idempotent: an already adopted nomination is
+ * counted, never adopted twice (the database's unique indexes guarantee it
+ * across every campaign and every concurrent worker). Each adoption is ONE
+ * transaction; a crash between two leaves only whole adoptions behind.
+ *
+ * STRICT SIGNED ORDER (R2-P3): the first eligible, in-scope nomination whose
+ * whole lineage does not fit (NO_PROCESSING_ALLOCATION) ends adoption for
+ * this call - it and every later-listed eligible nomination are skipped
+ * NO_PROCESSING_ALLOCATION, even one whose smaller need would fit, so no
+ * nomination is adopted ahead of an earlier-listed one. A nomination skipped
+ * for any other named reason (HAS_CHILD, OUT_OF_SCOPE, ...) does not block:
+ * no allocation could adopt it here. Unadopted nominations are untouched.
  */
 export async function adoptContinuation(
   pool: pg.Pool,
   authority: CampaignAuthority,
   scopeCheck: ContinuationScopeCheck,
+  options: AdoptContinuationOptions = {},
 ): Promise<ContinuationReport | null> {
   const continuation = authority.scope.continuation ?? null;
   if (continuation === null) return null;
+  const limit = options.limit ?? Number.POSITIVE_INFINITY;
   const candidates = await loadContinuationCandidates(pool, authority.campaignId, continuation);
   const adopted: { nominationId: string; position: number; itemId: string }[] = [];
   const skipped: { nominationId: string; position: number; reason: ContinuationSkip }[] = [];
   let alreadyAdopted = 0;
   let interrupted = false;
+  let blocked = false;
   for (const candidate of candidates) {
     const skip = (reason: ContinuationSkip) =>
       skipped.push({ nominationId: candidate.nominationId, position: candidate.position, reason });
@@ -1187,9 +1399,13 @@ export async function adoptContinuation(
       skip(candidate.disposition);
       continue;
     }
-    if (interrupted) continue;
+    if (interrupted || (!blocked && adopted.length >= limit)) continue;
     if (!(await scopeCheck(candidate.nominationId, authority.scope.geographies))) {
       skip('OUT_OF_SCOPE');
+      continue;
+    }
+    if (blocked) {
+      skip('NO_PROCESSING_ALLOCATION');
       continue;
     }
     const result = await adoptOne(pool, authority.campaignId, continuation, candidate);
@@ -1201,6 +1417,7 @@ export async function adoptContinuation(
       });
     } else if (result.kind === 'SKIPPED') {
       skip(result.reason);
+      if (ALLOCATION_SKIPS.includes(result.reason)) blocked = true;
     } else if (result.kind === 'INTERRUPTED') {
       interrupted = true;
     } else {

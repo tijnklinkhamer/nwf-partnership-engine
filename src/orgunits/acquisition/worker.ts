@@ -38,12 +38,16 @@
  *     lease expires and the item is retried (attempt n+1); the database's
  *     one-terminal-outcome-per-item index makes a duplicate ADVANCED
  *     impossible.
- *   - CONTINUATION (R2, migration 0029): at every start, after the first
- *     authority and BEFORE any search seeding, a v3 campaign adopts the
- *     eligible nominations its signed continuation lists, in signed order
- *     (`adoptContinuation`; idempotent, once-only in the database), each
- *     checked first against the signed geography by the injected
- *     `continuationScope` port. Its own search roots are seeded only after
+ *   - CONTINUATION (R2, migration 0029): before every claim, and BEFORE any
+ *     search seeding, a v3 campaign adopts the eligible nominations its
+ *     signed continuation lists, in signed order (`adoptContinuation`;
+ *     idempotent, once-only in the database), each checked first against the
+ *     signed geography by the injected `continuationScope` port. R2-P3: each
+ *     only when the signed budgets can carry its WHOLE lineage to the
+ *     OWNER's identity review after every adopted lineage's allocation (else
+ *     NO_PROCESSING_ALLOCATION, untouched), and just in time - at most
+ *     `maxConcurrency` adopted lineages are in flight at once. Its own search
+ *     roots are seeded only after no listed nomination waits for a slot and
  *     every adopted item has left NOMINATED / DEDUPLICATED /
  *     RESEARCH_PENDING (REUSE BEFORE SEARCH), and never when it signs
  *     maxSearchRuns 0. The summary names every listed nomination it skipped.
@@ -72,6 +76,7 @@ import {
   NO_CONSUMPTION,
   adoptContinuation,
   continuationSettled,
+  countContinuationInFlight,
   type ContinuationReport,
   type ContinuationScopeCheck,
   OutcomeRefusedError,
@@ -380,6 +385,31 @@ function sleepOrAbort(clock: Clock, ms: number, signal: AbortSignal | undefined)
 
 const TICK: unique symbol = Symbol('tick');
 
+/**
+ * R2-P3: one worker run's continuation report across its just-in-time
+ * passes: what this run adopted (every pass, in order), what was adopted
+ * before it (the first pass), and each listed nomination's LATEST named skip
+ * (dropped once a later pass adopts it).
+ */
+function mergeContinuation(
+  run: ContinuationReport | null,
+  pass: ContinuationReport,
+): ContinuationReport {
+  if (run === null) return pass;
+  const adopted = [...run.adopted, ...pass.adopted];
+  const skips = new Map(run.skipped.map((k) => [k.nominationId, k] as const));
+  for (const k of pass.skipped) skips.set(k.nominationId, k);
+  for (const a of adopted) skips.delete(a.nominationId);
+  return {
+    predecessorCampaignId: pass.predecessorCampaignId,
+    listed: pass.listed,
+    adopted,
+    alreadyAdopted: run.alreadyAdopted,
+    skipped: [...skips.values()].sort((a, b) => a.position - b.position),
+    interrupted: pass.interrupted,
+  };
+}
+
 export async function runWorker(options: RunWorkerOptions): Promise<WorkerSummary> {
   const { pool, campaignId, workerId, signal } = options;
   const clock = options.clock ?? realClock;
@@ -424,7 +454,6 @@ export async function runWorker(options: RunWorkerOptions): Promise<WorkerSummar
   let processed = 0;
   let superseded = 0;
   let seeded = false;
-  let adopted = false;
   let continuation: ContinuationReport | null = null;
   let idleSinceMs: number | null = null;
 
@@ -465,15 +494,29 @@ export async function runWorker(options: RunWorkerOptions): Promise<WorkerSummar
     }
     const authority = derived.authority;
     const signedContinuation = authority.scope.continuation ?? null;
-    if (!adopted) {
-      // R2: reuse the OWNER's listed candidates BEFORE any search is seeded.
-      if (signedContinuation !== null) {
-        if (options.continuationScope === undefined) {
-          throw new WorkerConfigRefusal('CONTINUATION_SCOPE_UNWIRED');
-        }
-        continuation = await adoptContinuation(pool, authority, options.continuationScope);
+    // R2: reuse the OWNER's listed candidates BEFORE any search is seeded.
+    // R2-P3: JUST IN TIME - before every claim, adopt (in signed order, each
+    // only with a whole-lineage allocation) as many as there are free slots:
+    // `maxConcurrency` minus the adopted lineages still in flight. Allocation
+    // freed by a refused lineage is used in the same run, and a STOP or the
+    // window end can leave at most `maxConcurrency` adopted lineages unfinished.
+    // Nothing is adopted while the human backlog holds the worker back. (Adoption
+    // and seeding insert work items only: the usage read here stays exact below.)
+    const usage = await loadCampaignUsage(pool, campaignId);
+    const backpressure = usage.awaitingHuman >= authority.budgets.maxAwaitingHumanBacklog;
+    let waitingForSlot = 0;
+    if (signedContinuation !== null) {
+      if (options.continuationScope === undefined) {
+        throw new WorkerConfigRefusal('CONTINUATION_SCOPE_UNWIRED');
       }
-      adopted = true;
+      const inFlight = await countContinuationInFlight(pool, campaignId, authority.scope.stages);
+      const slots = backpressure ? 0 : authority.budgets.maxConcurrency - inFlight;
+      const pass = (await adoptContinuation(pool, authority, options.continuationScope, {
+        limit: Math.max(0, slots),
+      }))!;
+      continuation = mergeContinuation(continuation, pass);
+      waitingForSlot =
+        pass.listed - pass.adopted.length - pass.alreadyAdopted - pass.skipped.length;
     }
     if (!seeded) {
       if (signedContinuation === null) {
@@ -481,14 +524,16 @@ export async function runWorker(options: RunWorkerOptions): Promise<WorkerSummar
         seeded = true;
       } else if (authority.budgets.maxSearchRuns === 0) {
         seeded = true; // a reuse-only continuation: no search root at all
-      } else if (await continuationSettled(pool, campaignId, authority.scope.stages)) {
+      } else if (
+        waitingForSlot === 0 &&
+        (await continuationSettled(pool, campaignId, authority.scope.stages))
+      ) {
         await seedCampaignSearchGrantRoots(pool, authority);
         seeded = true;
       }
     }
 
-    const usage = await loadCampaignUsage(pool, campaignId);
-    if (usage.awaitingHuman >= authority.budgets.maxAwaitingHumanBacklog) {
+    if (backpressure) {
       return stop('BACKPRESSURE', `awaiting_human:${usage.awaitingHuman}`);
     }
     const remaining = {

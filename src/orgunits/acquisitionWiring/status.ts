@@ -12,14 +12,18 @@
  * Shape changes need a new `schema` value; fields are only ever added in v1
  * if they are optional to a reader. R2 added `continuation` (null unless the
  * campaign is a v3 continuation): its predecessor, how many nominations it
- * lists, how many it adopted, how many the next worker start would adopt,
- * and every listed one it skipped, with the named reason - derived now, on
- * the readonly role, by the same rule the worker applies. Opens no socket.
+ * lists, how many it adopted, how many the worker would still adopt, and
+ * every listed one it skipped, with the named reason - derived now, on the
+ * readonly role, by the same rule the worker applies (R2-P3: including the
+ * whole-lineage allocation and the strict signed order). Opens no socket.
  */
 import type pg from 'pg';
 
 import {
   CampaignTrustSet,
+  adoptionNeed,
+  allocationShortfall,
+  loadContinuationAllocation,
   loadContinuationCandidates,
   loadCampaignStatus,
   type CampaignContinuation,
@@ -105,7 +109,10 @@ export interface ContinuationStatus {
   readonly predecessorCampaignId: string;
   readonly listed: number;
   readonly adopted: number;
-  /** Eligible and in scope, not adopted yet: the next worker start adopts them. */
+  /**
+   * Eligible, in scope and carried by the signed budgets, not adopted yet:
+   * the worker adopts them just in time (R2-P3).
+   */
   readonly pending: number;
   readonly skipped: readonly {
     readonly nominationId: string;
@@ -114,11 +121,16 @@ export interface ContinuationStatus {
   }[];
 }
 
-/** Derives the continuation status of a v3 campaign (null for v1/v2). */
+/**
+ * Derives the continuation status of a v3 campaign (null for v1/v2). R2-P3:
+ * the eligible, in-scope nominations are walked in signed order against the
+ * campaign's allocation ledger exactly as the worker adopts them - each one
+ * that fits is `pending` and its allocation is reserved for the next; the
+ * first that does not fit, and every later one, is NO_PROCESSING_ALLOCATION.
+ */
 async function loadContinuationStatus(
   q: Queryable,
   campaignId: string,
-  workItemsRemaining: number | null,
 ): Promise<ContinuationStatus | null> {
   const { rows } = await q.query<{
     cont: CampaignContinuation | null;
@@ -131,17 +143,29 @@ async function loadContinuationStatus(
   const cont = rows[0]?.cont ?? null;
   if (cont === null) return null;
   const inScope = continuationScopeCheck(() => q);
+  const { ledger, signedStages } = await loadContinuationAllocation(q, campaignId);
+  const need = adoptionNeed(signedStages);
+  const reserved = [...ledger.reserved];
   const skipped: { nominationId: string; position: number; reason: ContinuationSkip }[] = [];
   let adopted = 0;
   let pending = 0;
+  let blocked = false;
   for (const c of await loadContinuationCandidates(q, campaignId, cont)) {
     const skip = (reason: ContinuationSkip) =>
       skipped.push({ nominationId: c.nominationId, position: c.position, reason });
     if (c.disposition === 'ADOPTED') adopted += 1;
     else if (c.disposition !== 'ELIGIBLE') skip(c.disposition);
     else if (!(await inScope(c.nominationId, rows[0]!.geographies))) skip('OUT_OF_SCOPE');
-    else if (workItemsRemaining === 0) skip('WORK_ITEM_BUDGET_EXHAUSTED');
-    else pending += 1;
+    else if (
+      blocked ||
+      allocationShortfall({ ...ledger, reserved }, { domain: c.registrableDomain, need }) !== null
+    ) {
+      blocked = true;
+      skip('NO_PROCESSING_ALLOCATION');
+    } else {
+      reserved.push({ domain: c.registrableDomain, need });
+      pending += 1;
+    }
   }
   return {
     predecessorCampaignId: cont.predecessorCampaignId,
@@ -298,6 +322,6 @@ export async function loadAcquisitionStatusV1(
     })),
     budgets: queue.budgets,
     queue,
-    continuation: await loadContinuationStatus(q, campaignId, queue.budgets.maxWorkItems.remaining),
+    continuation: await loadContinuationStatus(q, campaignId),
   };
 }

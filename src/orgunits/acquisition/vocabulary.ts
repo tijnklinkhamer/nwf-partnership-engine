@@ -181,6 +181,12 @@ export const CONTINUATION_SKIPS = [
   'ALREADY_IN_CAMPAIGN',
   'WORK_ITEM_BUDGET_EXHAUSTED',
   'DOMAIN_CAP_REACHED',
+  // R2-P3: what the campaign's signed budgets have left cannot carry this
+  // nomination's whole lineage to the OWNER's identity review after what its
+  // already-adopted lineages still need (`allocationShortfall`). It is NOT
+  // adopted: it stays untouched in the STOPPED predecessor, so this campaign
+  // (when allocation frees up) or a later OWNER-signed v3 campaign may adopt it.
+  'NO_PROCESSING_ALLOCATION',
 ] as const;
 export type ContinuationSkip = (typeof CONTINUATION_SKIPS)[number];
 
@@ -253,6 +259,207 @@ export function reservationFor(
 export function requiredResources(stage: Stage, sourceKind: SourceKind): readonly Resource[] {
   const r = reservationFor(stage, sourceKind);
   return RESOURCES.filter((name) => r[name] > 0);
+}
+
+// ---------------------------------------------------------------------------
+// R2-P3: THE PROCESSING ALLOCATION of a continuation lineage.
+//
+// An adopted nomination can be adopted ONCE, ever (migration 0029's global
+// unique index). A lineage that the campaign's budgets cannot carry to the
+// OWNER's identity review is therefore lost for good. So a v3 campaign adopts
+// a listed nomination only when what its signed budgets have left covers the
+// nomination's WHOLE lineage after reserving what every lineage it already
+// adopted still needs; and its other work (a link-out, a search lineage) may
+// not consume what those lineages still need.
+// ---------------------------------------------------------------------------
+
+/** What a lineage still needs before it is finished in this campaign. */
+export interface LineageNeed {
+  /** Work items still to be inserted, every one on the lineage's registrable domain. */
+  readonly workItems: number;
+  readonly researchRoots: number;
+  readonly gatewayRequests: number;
+}
+
+export const NO_LINEAGE_NEED: LineageNeed = Object.freeze({
+  workItems: 0,
+  researchRoots: 0,
+  gatewayRequests: 0,
+});
+
+/** The item states the queue will still act on (not terminal, not parked for a human). */
+export const OPEN_ITEM_STATES = [
+  'PENDING',
+  'CLAIMED',
+  'LEASE_EXPIRED',
+  'RETRY_SCHEDULED',
+] as const satisfies readonly ItemState[];
+
+/**
+ * Whether a campaign performs `stage` on an item: a stage it signs, or the
+ * human gate (always parked by the worker, then released by the OWNER).
+ */
+export function stagePerformed(stage: Stage, signedStages: readonly string[]): boolean {
+  return stage === HUMAN_GATE_STAGE || signedStages.includes(stage);
+}
+
+/**
+ * What a lineage whose deepest item (`head`) is at `stage` in `state` still
+ * needs IN THIS CAMPAIGN, counting the stages honestly:
+ *
+ *   - work items: one per stage transition still ahead, from the head through
+ *     every consecutive stage the campaign performs, up to and including the
+ *     OWNER's release to ASSESSABLE (a lineage whose next stage the campaign
+ *     does not sign stops there, by the OWNER's signed choice);
+ *   - one research root and RESEARCH_GATEWAY_RESERVATION gateway requests
+ *     while its RESEARCH_PENDING claim is still ahead - not while that claim
+ *     is live (its reservation is already counted as spend), but again after
+ *     a lapsed lease or a retry (the next attempt reserves in full);
+ *   - nothing once the head is terminal, ADVANCED without a child, or parked
+ *     for a human anywhere but the identity review (which awaits one release).
+ */
+export function lineageNeed(
+  head: { readonly stage: Stage; readonly state: ItemState },
+  signedStages: readonly string[],
+): LineageNeed {
+  const open = (OPEN_ITEM_STATES as readonly string[]).includes(head.state);
+  const awaitingRelease = head.stage === HUMAN_GATE_STAGE && head.state === 'AWAITING_HUMAN';
+  if (!open && !awaitingRelease) return NO_LINEAGE_NEED;
+  let workItems = 0;
+  let research = false;
+  for (let s: Stage | undefined = head.stage; s !== undefined;) {
+    if (!stagePerformed(s, signedStages)) break;
+    if (s === 'RESEARCH_PENDING' && !(s === head.stage && head.state === 'CLAIMED')) {
+      research = true;
+    }
+    s = STAGES[stageOrdinal(s) + 1];
+    if (s !== undefined) workItems += 1;
+  }
+  return research
+    ? { workItems, researchRoots: 1, gatewayRequests: RESEARCH_GATEWAY_RESERVATION }
+    : { workItems, researchRoots: 0, gatewayRequests: 0 };
+}
+
+/**
+ * What ADOPTING one nomination commits the campaign to: its own NOMINATED
+ * item plus everything that item's lineage then needs. With every worker
+ * stage signed: 6 work items (NOMINATED .. ASSESSABLE), 1 research root and
+ * RESEARCH_GATEWAY_RESERVATION gateway requests.
+ */
+export function adoptionNeed(signedStages: readonly string[]): LineageNeed {
+  const rest = lineageNeed({ stage: 'NOMINATED', state: 'PENDING' }, signedStages);
+  return { ...rest, workItems: rest.workItems + 1 };
+}
+
+/** The campaign budget an allocation fell short of. */
+export type AllocationShortfall =
+  'maxWorkItems' | 'maxResearchRoots' | 'maxGatewayRequests' | 'maxItemsPerRegistrableDomain';
+
+/** One campaign's budgets as an allocation sees them. */
+export interface AllocationLedger {
+  /** The SIGNED limits. */
+  readonly limits: {
+    readonly workItems: number;
+    readonly researchRoots: number;
+    readonly gatewayRequests: number;
+    readonly itemsPerRegistrableDomain: number;
+  };
+  /** What exists or is spent now: work items counted, roots and requests from the DERIVED spend (live reservations included). */
+  readonly used: {
+    readonly workItems: number;
+    readonly researchRoots: number;
+    readonly gatewayRequests: number;
+  };
+  /** Work items that exist now on each registrable domain. */
+  readonly domainItems: ReadonlyMap<string, number>;
+  /** What every adopted, unfinished lineage still needs (its allocation), with its domain. */
+  readonly reserved: readonly { readonly domain: string | null; readonly need: LineageNeed }[];
+}
+
+/**
+ * Whether `request` fits in what the ledger has left AFTER every reserved
+ * lineage's allocation: null when it fits, else the first budget it does
+ * not. Only the resources the request needs are checked (so a request that
+ * needs no work item is not refused by a full domain).
+ */
+export function allocationShortfall(
+  ledger: AllocationLedger,
+  request: { readonly domain: string | null; readonly need: LineageNeed },
+): AllocationShortfall | null {
+  const reserved = (pick: (n: LineageNeed) => number, domain?: string): number =>
+    ledger.reserved
+      .filter((r) => domain === undefined || r.domain === domain)
+      .reduce((sum, r) => sum + pick(r.need), 0);
+  const { limits, used } = ledger;
+  const need = request.need;
+  if (
+    need.workItems > 0 &&
+    used.workItems + reserved((n) => n.workItems) + need.workItems > limits.workItems
+  ) {
+    return 'maxWorkItems';
+  }
+  if (
+    need.researchRoots > 0 &&
+    used.researchRoots + reserved((n) => n.researchRoots) + need.researchRoots >
+      limits.researchRoots
+  ) {
+    return 'maxResearchRoots';
+  }
+  if (
+    need.gatewayRequests > 0 &&
+    used.gatewayRequests + reserved((n) => n.gatewayRequests) + need.gatewayRequests >
+      limits.gatewayRequests
+  ) {
+    return 'maxGatewayRequests';
+  }
+  if (
+    need.workItems > 0 &&
+    request.domain !== null &&
+    (ledger.domainItems.get(request.domain) ?? 0) +
+      reserved((n) => n.workItems, request.domain) +
+      need.workItems >
+      limits.itemsPerRegistrableDomain
+  ) {
+    return 'maxItemsPerRegistrableDomain';
+  }
+  return null;
+}
+
+/**
+ * How many continuation lineages a FRESH campaign's signed budgets can carry
+ * (each on its own registrable domain, as the stranded nominations of one
+ * predecessor are: its de-duplication admits one nomination per domain), at
+ * most `listed`. What `campaign verify` / `sign` print beside the continuation.
+ */
+export function continuationCapacity(
+  budgets: {
+    readonly maxWorkItems: number;
+    readonly maxResearchRoots: number;
+    readonly maxGatewayRequests: number;
+    readonly maxItemsPerRegistrableDomain: number;
+  },
+  signedStages: readonly string[],
+  listed: number,
+): number {
+  const need = adoptionNeed(signedStages);
+  const reserved: { domain: string; need: LineageNeed }[] = [];
+  const ledger: AllocationLedger = {
+    limits: {
+      workItems: budgets.maxWorkItems,
+      researchRoots: budgets.maxResearchRoots,
+      gatewayRequests: budgets.maxGatewayRequests,
+      itemsPerRegistrableDomain: budgets.maxItemsPerRegistrableDomain,
+    },
+    used: { workItems: 0, researchRoots: 0, gatewayRequests: 0 },
+    domainItems: new Map(),
+    reserved,
+  };
+  while (reserved.length < listed) {
+    const domain = `lineage-${reserved.length}`;
+    if (allocationShortfall(ledger, { domain, need }) !== null) break;
+    reserved.push({ domain, need });
+  }
+  return reserved.length;
 }
 
 /**

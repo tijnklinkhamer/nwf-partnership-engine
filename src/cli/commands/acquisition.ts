@@ -123,7 +123,9 @@ import {
   VerifiedCampaignEnvelope,
   WORKER_ID,
   WorkerConfigRefusal,
+  adoptionNeed,
   checkHandlerCoverage,
+  continuationCapacity,
   loadStoredCampaign,
   recordCampaign,
   recordControlEvent,
@@ -351,14 +353,42 @@ function readEnvelopeFile(path: string): Buffer {
   return readFileSync(path);
 }
 
-/** R2: one line naming a signed continuation, for verify and sign. */
+/**
+ * R2: one line naming a signed continuation, for verify and sign. R2-P3: it
+ * also states the ALLOCATION RULE and how many lineages these signed budgets
+ * can carry, so the OWNER sees before signing which listed nominations would
+ * be skipped NO_PROCESSING_ALLOCATION.
+ */
 function continuationLine(
   c: CampaignContinuation | CampaignDraftContinuation | null | undefined,
+  signed?: {
+    readonly budgets: Readonly<Record<string, number | string>>;
+    readonly stages: readonly string[];
+  },
 ): string {
   if (c == null) return 'no continuation';
-  return (
+  const line =
     `CONTINUES ${c.nominationIds.length} nomination(s) of STOPPED campaign ` +
-    `${c.predecessorCampaignId}, in this order: ${c.nominationIds.join(', ')}`
+    `${c.predecessorCampaignId}, in this order: ${c.nominationIds.join(', ')}`;
+  if (signed === undefined) return line;
+  const need = adoptionNeed(signed.stages);
+  const capacity = continuationCapacity(
+    {
+      maxWorkItems: Number(signed.budgets['maxWorkItems']),
+      maxResearchRoots: Number(signed.budgets['maxResearchRoots']),
+      maxGatewayRequests: Number(signed.budgets['maxGatewayRequests']),
+      maxItemsPerRegistrableDomain: Number(signed.budgets['maxItemsPerRegistrableDomain']),
+    },
+    signed.stages,
+    c.nominationIds.length,
+  );
+  return (
+    `${line}; ALLOCATION: a listed nomination is adopted, in signed order and just in time, only ` +
+    `when the remaining signed budgets carry its whole lineage (${need.workItems} work item(s), all ` +
+    `on its domain, ${need.researchRoots} research root(s), ${need.gatewayRequests} gateway ` +
+    `request(s)) after every adopted lineage's; these budgets carry at most ${capacity} of ` +
+    `${c.nominationIds.length} - the rest are skipped NO_PROCESSING_ALLOCATION and stay untouched ` +
+    `in the predecessor for a later campaign`
   );
 }
 
@@ -482,7 +512,8 @@ export async function runAcquisitionCli(
           },
           `VERIFIED ${p.campaignKey} (sha256 ${verified.payloadSha256}) under key ${verified.keyId}; ` +
             `window ${p.window.startsAt} .. ${p.window.endsAt}; ${p.document}; ` +
-            `${continuationLine(p.scope.continuation)}; nothing was written.`,
+            `${continuationLine(p.scope.continuation, { budgets: p.budgets, stages: p.scope.stages })}; ` +
+            'nothing was written.',
         );
         return 0;
       }
@@ -649,7 +680,7 @@ export async function runAcquisitionCli(
             `${draft.environmentId}:\n  window ${draft.window.startsAt} .. ${draft.window.endsAt}\n` +
             `  geographies ${draft.scope.geographies.join(',')}; stages ${draft.scope.stages.join(',')}\n` +
             `  budgets ${JSON.stringify(draft.budgets)}\n` +
-            `  ${continuationLine(draft.scope.continuation)}\n` +
+            `  ${continuationLine(draft.scope.continuation, { budgets: draft.budgets, stages: draft.scope.stages })}\n` +
             '  A campaign never confirms identity; review stays a per-subject OWNER act.\n',
         );
         const signer = await loadOwnerSigningKey(

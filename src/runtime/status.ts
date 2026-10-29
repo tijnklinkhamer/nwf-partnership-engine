@@ -447,6 +447,15 @@ export function buildEngineStatus(input: EngineStatusInput): EngineStatusDocumen
         message: `${skipped.length} listed nomination(s) of the continued campaign were not adopted; each reason is shown under CONTINUATION.`,
       });
     }
+    // R2-P3: no allocation is a budget fact, not a verdict - and it is recoverable.
+    const unallocated = skipped.filter((k) => k.reason === 'NO_PROCESSING_ALLOCATION').length;
+    if (unallocated > 0) {
+      notices.push({
+        level: 'info',
+        code: 'CONTINUATION_NO_PROCESSING_ALLOCATION',
+        message: `${unallocated} listed nomination(s) have no processing allocation: this campaign's signed budgets cannot carry their whole lineage after the adopted ones. They stay untouched in the STOPPED predecessor; this campaign adopts them if allocation frees up, or a later OWNER-signed v3 campaign may list them.`,
+      });
+    }
   }
 
   const additionalFields: Record<string, unknown> = {};
@@ -708,7 +717,7 @@ export function renderEngineStatus(doc: EngineStatusDocument): string {
         row('Predecessor campaign', show(k.predecessorCampaignId));
         row(
           'Listed / adopted',
-          `${show(k.listed)} listed, ${show(k.adopted)} adopted, ${show(k.pending)} to adopt at the next worker start`,
+          `${show(k.listed)} listed, ${show(k.adopted)} adopted, ${show(k.pending)} to adopt as the worker reaches them`,
         );
         row('Skipped', String(k.skipped.length));
         for (const x of k.skipped) row(`  #${show(x.position)} ${x.nominationId}`, x.reason);

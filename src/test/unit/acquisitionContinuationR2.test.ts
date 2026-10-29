@@ -369,7 +369,7 @@ describe('R2: nwf-engine status shows the continuation', () => {
     const text = renderEngineStatus(doc);
     expect(text).toContain('CONTINUATION (stranded nominations of a STOPPED campaign');
     expect(text).toContain(PRED);
-    expect(text).toContain('3 listed, 1 adopted, 0 to adopt at the next worker start');
+    expect(text).toContain('3 listed, 1 adopted, 0 to adopt as the worker reaches them');
     expect(text).toMatch(new RegExp(`#2 ${N2}\\s+HAS_CHILD`));
     expect(text).toMatch(new RegExp(`#3 ${N3}\\s+OUT_OF_SCOPE`));
   });
