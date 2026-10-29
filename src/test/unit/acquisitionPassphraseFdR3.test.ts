@@ -46,6 +46,10 @@ function childRead(input: Buffer | null): Promise<{ ok: boolean; value: string }
       }
     });
     const pipe = child.stdio[3] as NodeJS.WritableStream;
+    // A child that refuses (e.g. passphrase_too_long) exits without draining the pipe; on Linux
+    // the unread bytes then reset it (ECONNRESET/EPIPE). The child's answer is the assertion, so
+    // a reset after it is expected - as the Operator bridge's own writer handles it.
+    pipe.on('error', () => {});
     if (input === null) pipe.end();
     else pipe.end(input);
   });

@@ -6,3 +6,14 @@
 # ('sd7/tokenShingles.ts': '3a56ac6c…') in a frozen-module hash table. It is a
 # file digest, not a credential. Verified R1 2026-10-28 (CI run 40668224727).
 31d0fea84c5cd15d4d28686cae0bd0d14919eecd:src/test/unit/orgunitCorpus2DA3Sd7GraphV5Isolation.test.ts:generic-api-key:87
+#
+# 254edfb (R45, 2026-10): generic-api-key on seven `"token": "PRESERVES_A2_ACQUISITION_OUTCOMES"`
+# lines of a methodology-options record — a fixed methodology label (an enum value), not a
+# credential. Verified R2-P3 2026-10-29 (CI run 40889306317; the scan window reached it).
+254edfb4b7b71ca66c070c3da3d0cdf5037f3cf5:docs/evaluation/PHASE_2B_2D_A3_R45_SHORT_TEXT_METHODOLOGY_AMENDMENT_OPTIONS_V1.json:generic-api-key:295
+254edfb4b7b71ca66c070c3da3d0cdf5037f3cf5:docs/evaluation/PHASE_2B_2D_A3_R45_SHORT_TEXT_METHODOLOGY_AMENDMENT_OPTIONS_V1.json:generic-api-key:542
+254edfb4b7b71ca66c070c3da3d0cdf5037f3cf5:docs/evaluation/PHASE_2B_2D_A3_R45_SHORT_TEXT_METHODOLOGY_AMENDMENT_OPTIONS_V1.json:generic-api-key:638
+254edfb4b7b71ca66c070c3da3d0cdf5037f3cf5:docs/evaluation/PHASE_2B_2D_A3_R45_SHORT_TEXT_METHODOLOGY_AMENDMENT_OPTIONS_V1.json:generic-api-key:739
+254edfb4b7b71ca66c070c3da3d0cdf5037f3cf5:docs/evaluation/PHASE_2B_2D_A3_R45_SHORT_TEXT_METHODOLOGY_AMENDMENT_OPTIONS_V1.json:generic-api-key:835
+254edfb4b7b71ca66c070c3da3d0cdf5037f3cf5:docs/evaluation/PHASE_2B_2D_A3_R45_SHORT_TEXT_METHODOLOGY_AMENDMENT_OPTIONS_V1.json:generic-api-key:929
+254edfb4b7b71ca66c070c3da3d0cdf5037f3cf5:docs/evaluation/PHASE_2B_2D_A3_R45_SHORT_TEXT_METHODOLOGY_AMENDMENT_OPTIONS_V1.json:generic-api-key:1025
