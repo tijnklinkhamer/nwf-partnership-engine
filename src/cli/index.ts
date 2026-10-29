@@ -32,6 +32,7 @@ import { runSubjectFactsCli } from './commands/subjectFacts.js';
 import { runQualificationInputCli } from './commands/qualificationInput.js';
 import { runJurisdictionClaimsCli } from './commands/jurisdictionClaims.js';
 import { runAcquisitionCli } from './commands/acquisition.js';
+import { runSubjectClassifyCli } from './commands/subjectClassify.js';
 import {
   buildClassifierOperatorEnvelope,
   renderClassifierOperatorEnvelope,
@@ -59,6 +60,8 @@ Usage:
   nwf-pe website show         <erasmus-code>
   nwf-pe orgunits discover    --organisation-id <uuid> [--execute] [--json]
   nwf-pe orgunits subjects research --subject-id <uuid> [--execute] [--json]
+  nwf-pe orgunits subjects classify --subject-admission-id <uuid> --run-id <uuid>
+                              --model <model-id> [--attempt <N>] [--execute] [--json]
   nwf-pe orgunits classify    --organisation-id <uuid> --run-id <uuid>
                               --model <model-id> [--attempt <N>] [--execute] [--json]
   nwf-pe orgunits classify runs  --organisation-id <uuid> [--limit <N>] [--json]
@@ -215,6 +218,10 @@ export async function main(argv: string[]): Promise<number> {
   // WW E-Q: OWNER-signed acquisition campaigns and the worker. Its own strict options.
   if (argv[0] === 'acquisition') {
     return runAcquisitionCli(argv.slice(1));
+  }
+  // R3P3-A (ADR 0031): classify ONE subject-rooted run. Its own strict options.
+  if (argv[0] === 'orgunits' && argv[1] === 'subjects' && argv[2] === 'classify') {
+    return runSubjectClassifyCli(argv.slice(3));
   }
   let parsedArgv;
   try {

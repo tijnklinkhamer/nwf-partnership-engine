@@ -358,15 +358,21 @@ describe('R8: subjectAdmission is narrow, socket-free and reached only through t
     // binds a CAMPAIGN admission to the protected-registry digest, importing
     // ONLY the pure digest - never the policy, the recorder or the guard.
     const WW_EW_RESEARCH = 'src/orgunits/acquisitionWiring/research.ts';
+    // R3P3-A (exact-path widening, ADR 0031 s4): subject-rooted classification
+    // re-checks the ADR 0025 Q2 domain isolation at classification time with
+    // the SAME read the admission and the run guard use, importing ONLY the
+    // isolation loader - never the policy, the recorder or the guard.
+    const R3P3A_CLASSIFY_AUTHORITY = 'src/orgunits/subjectClassify/authority.ts';
     expect(importers).toEqual([
       WW_EW_RESEARCH,
       'src/orgunits/orchestrator/orchestrate.ts',
       'src/orgunits/orchestrator/rootRunner.ts',
+      R3P3A_CLASSIFY_AUTHORITY,
     ]);
     for (const file of importers) {
-      // The WW E-W file postdates R8's pinned tree: read it from the working tree.
+      // The WW E-W and R3P3-A files postdate R8's pinned tree: read them from the working tree.
       const imports =
-        file === WW_EW_RESEARCH
+        file === WW_EW_RESEARCH || file === R3P3A_CLASSIFY_AUTHORITY
           ? [
               ...codeOf(readFileSync(join(REPO_ROOT, file), 'utf8')).matchAll(/from\s+'([^']+)'/g),
             ].map((m) => m[1]!)
@@ -377,7 +383,9 @@ describe('R8: subjectAdmission is narrow, socket-free and reached only through t
       ).toEqual(
         file === WW_EW_RESEARCH
           ? ['../subjectAdmission/registryDigest.js']
-          : ['../subjectAdmission/runGuard.js'],
+          : file === R3P3A_CLASSIFY_AUTHORITY
+            ? ['../subjectAdmission/isolation.js']
+            : ['../subjectAdmission/runGuard.js'],
       );
     }
   });

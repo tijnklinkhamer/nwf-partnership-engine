@@ -41,11 +41,26 @@ const importsOf = (p: string, module: RegExp) =>
     module.test(m[1] ?? m[2] ?? ''),
   );
 const CLI = 'src/cli/commands/classify.ts';
+/**
+ * R3P3-A (exact-path widening, ADR 0031): the subject-rooted classify command
+ * and its runtime. The command is GUARDED by its own evaluation-cohort rule
+ * (`subjectClassify/cohort.ts`, over the same pinned registry) before any
+ * classifier read or provider construction (pinned in
+ * `r3p3SubjectClassification.firewall.test.ts`); its runtime takes ONE pure
+ * helper from the organisation/run runtime and never the runtime itself.
+ */
+const SUBJECT_CLI = 'src/cli/commands/subjectClassify.ts';
+const SUBJECT_RUNTIME = 'src/orgunits/subjectClassify/run.ts';
 
 describe('evaluation-cohort guard - no unguarded classifier entry point', () => {
   it('only the guarded operator CLI imports the organisation/run runtime', () => {
     const importers = PRODUCTION.filter((p) => importsOf(p, /classify\/orchestrate\.js$/));
-    expect(importers).toEqual([CLI]);
+    expect(importers.sort()).toEqual([CLI, SUBJECT_RUNTIME].sort());
+    const runtime = read(SUBJECT_RUNTIME);
+    expect(runtime).toContain(
+      "import { buildProviderFailureCompletion } from '../classify/orchestrate.js';",
+    );
+    expect(runtime).not.toMatch(/runOrganisationClassification|assembleClassifierHandoff/);
   });
 
   it('only the CLI provider factory and the study runtime loader construct the production provider', () => {
@@ -56,7 +71,16 @@ describe('evaluation-cohort guard - no unguarded classifier entry point', () => 
       'scripts/phase2b-2d2c-production-runtime.ts',
       'src/cli/commands/classifyProvider.ts',
     ]);
-    expect(PRODUCTION.filter((p) => importsOf(p, /classifyProvider\.js$/))).toEqual([CLI]);
+    expect(PRODUCTION.filter((p) => importsOf(p, /classifyProvider\.js$/)).sort()).toEqual(
+      [CLI, SUBJECT_CLI].sort(),
+    );
+    const subjectCli = read(SUBJECT_CLI);
+    expect(
+      subjectCli.indexOf('(deps.loadCohortRegistry ?? loadEvaluationCohortRegistry)()'),
+    ).toBeLessThan(subjectCli.indexOf('evaluateSubjectCohortMembership('));
+    expect(subjectCli.indexOf('evaluateSubjectCohortMembership(')).toBeLessThan(
+      subjectCli.indexOf('await deps.createProvider()'),
+    );
     expect(
       ALL.filter(
         (p) =>

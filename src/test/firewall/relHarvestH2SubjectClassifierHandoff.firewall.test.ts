@@ -110,7 +110,27 @@ describe('REL harvest H2: subject classifier handoff assembly', () => {
     const importers = productionFiles()
       .filter((f) => !f.startsWith(MODULE_DIR))
       .filter((f) => readCurrent(f).includes('subjectClassifierHandoff'));
-    expect(importers).toEqual([]);
+    // R3P3-A (exact-path widening, ADR 0031, OWNER decision 2026-10-29): the
+    // OWNER amendment this module waits for. The handoff itself is unchanged
+    // and still cannot call anything; the subject-rooted classify command
+    // assembles through it (as the research role) and `subjectClassify/run.ts`
+    // runs the calls over its batches under migration 0030. Nothing else -
+    // not classify/, the orchestrator or sourceDiscovery - reaches it.
+    const R3P3A_IMPORTERS = [
+      'src/cli/commands/subjectClassify.ts',
+      'src/orgunits/subjectClassify/run.ts',
+    ];
+    expect(importers).toEqual(R3P3A_IMPORTERS);
+    for (const file of R3P3A_IMPORTERS) {
+      expect(
+        specifiers(codeOf(readCurrent(file))).filter((s) => s.includes('subjectClassifierHandoff')),
+        file,
+      ).toEqual([
+        file.startsWith('src/cli/')
+          ? '../../orgunits/subjectClassifierHandoff/assemble.js'
+          : '../subjectClassifierHandoff/assemble.js',
+      ]);
+    }
   });
 
   it('the classifier prompt still describes an ECHE-keyed context (the blocker is real)', () => {

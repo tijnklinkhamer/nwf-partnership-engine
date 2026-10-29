@@ -353,9 +353,27 @@ describe('B3.0 research cohort guard: one authority, no bypass, no disclosure', 
     // computes a CAMPAIGN admission's protected-registry digest through the
     // SAME seam with the SAME default; production passes no loader.
     const WW_EW_RESEARCH = 'src/orgunits/acquisitionWiring/research.ts';
+    // R3P3-A (exact-path widening, ADR 0031): the subject-rooted classify
+    // command declares the classifier's SAME seam with the SAME default (the
+    // committed pins); its production shell passes no loader.
+    const R3P3A_SUBJECT_CLASSIFY = 'src/cli/commands/subjectClassify.ts';
     expect(injecting).toEqual(
-      ['src/cli/commands/classify.ts', GUARD, ...R8_SEAM_DECLARERS, WW_EW_RESEARCH].sort(),
+      [
+        'src/cli/commands/classify.ts',
+        GUARD,
+        ...R8_SEAM_DECLARERS,
+        WW_EW_RESEARCH,
+        R3P3A_SUBJECT_CLASSIFY,
+      ].sort(),
     );
+    const subjectClassify = codeOf(readFileSync(join(REPO_ROOT, R3P3A_SUBJECT_CLASSIFY), 'utf8'));
+    expect(subjectClassify).toContain(
+      '(deps.loadCohortRegistry ?? loadEvaluationCohortRegistry)()',
+    );
+    const shell = subjectClassify.slice(
+      subjectClassify.indexOf('export async function runSubjectClassifyCli'),
+    );
+    expect(shell).not.toMatch(/loadCohortRegistry/);
     expect(codeOf(readFileSync(join(REPO_ROOT, WW_EW_RESEARCH), 'utf8'))).toContain(
       '(deps.research.loadCohortRegistry ?? loadEvaluationCohortRegistry)()',
     );
