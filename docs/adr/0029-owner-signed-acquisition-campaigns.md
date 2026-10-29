@@ -323,3 +323,73 @@ role, LOGIN, UPDATE/DELETE grant or SECURITY DEFINER function is added.
 eligibility is decided by the database at adoption time, and each refusal is
 reported by name. An EMERGENCY_STOPPED predecessor is not continuable (STOP
 only, as the OWNER requirement states).
+
+### 12a. R2-P3 correction (2026-10-29): adopt only what the signed budgets can carry
+
+This ADR is still **Proposed**; this paragraph corrects s12 before
+ratification and rewrites none of it.
+
+**FACT (reproduced against a disposable PostgreSQL before the fix).** s12's
+worker adopted EVERY eligible listed nomination at its start. Each adopted
+lineage then needs one research root and `RESEARCH_GATEWAY_RESERVATION` (60)
+gateway requests at RESEARCH_PENDING, and six work items NOMINATED ..
+ASSESSABLE. With more listed nominations than research roots (the OWNER's
+R2-P3 draft: 16 listed, 8 roots, 600 gateway requests, 400 work items), the
+lineages beyond the root budget parked at RESEARCH_PENDING, the worker stopped
+BUDGET_EXHAUSTED, and - because a nomination is adopted at most once, globally
+(`acquisition_continuations_nomination_uidx`), and an adopted NOMINATED item
+with a child is not continuable - no campaign could ever continue them. Scaled
+down (5 listed, 2 roots) the run left 3 adopted lineages at RESEARCH_PENDING
+and a second v3 campaign skipped all 3 `ADOPTED_BY_ANOTHER_CAMPAIGN`. A
+LINK_OUT lineage of the same campaign could also take an adopted lineage's
+research root or its last work items.
+
+**DESIGN DECISION (no migration; 0029 is unchanged).**
+
+- **Allocation-gated adoption.** Under the campaign lock, a listed nomination
+  is adopted only when the campaign's signed limits minus its DERIVED spend
+  (`acquisition_campaign_spend`, live reservations included) and its existing
+  work items cover the nomination's WHOLE lineage after reserving what every
+  already-adopted lineage still needs (`allocationShortfall`, vocabulary.ts):
+  the work items still ahead through every consecutive stage the campaign
+  signs up to the OWNER's release to ASSESSABLE (6 with every worker stage),
+  all on its registrable domain (so also inside the per-domain cap), plus one
+  research root and 60 gateway requests while its research claim is still
+  ahead. Otherwise the nomination is skipped **`NO_PROCESSING_ALLOCATION`**
+  and stays untouched in the STOPPED predecessor: this campaign adopts it if
+  allocation frees up, or a later OWNER-signed v3 campaign may list it. (The
+  check subsumes s12's `WORK_ITEM_BUDGET_EXHAUSTED` / `DOMAIN_CAP_REACHED`
+  skips, which stay in the vocabulary for a refusal the database raises.)
+- **Strict signed order.** The first eligible, in-scope nomination without an
+  allocation ends adoption for that pass: it and every later-listed eligible
+  nomination are skipped `NO_PROCESSING_ALLOCATION`, even one whose own need
+  would fit (no queue-jumping). A nomination skipped for any other named
+  reason does not block.
+- **Allocations are protected.** Work outside the adopted lineages (a
+  link-out or search lineage, an owner-path root or release) is neither
+  inserted into the work items / domain items nor claimed into the research
+  roots / gateway requests those lineages still need; an adopted lineage's own
+  next item and claim use its own allocation.
+- **Just in time.** The worker adopts before EVERY claim (not only at its
+  start), at most `maxConcurrency` minus the adopted lineages still in flight
+  (open before the identity review), and none while the human backlog holds it
+  back. Allocation freed by a lineage refused before research (e.g. DUPLICATE
+  at de-duplication) is used in the same run; a STOP or the window end can
+  leave at most `maxConcurrency` adopted lineages unfinished.
+- **Seen before signing.** `campaign verify` / `sign` print the allocation
+  rule and how many lineages the signed budgets carry (`continuationCapacity`:
+  8 of 16 for the R2-P3 numbers); `nwf-pe.acquisition-status.v1` derives
+  `pending` / `NO_PROCESSING_ALLOCATION` by the same walk, and the engine
+  status explains the skip.
+
+**Residual (UNKNOWN until a later decision).** (1) STOP, EMERGENCY_STOP or the
+window end strands the adopted lineages then in flight - at most
+`maxConcurrency` (1 for R2-P3). (2) A research attempt retried after it
+recorded its admission (PAUSE/RESUME, a lost lease or crash, a handler
+exception, a stale admission) needs a second full reservation under the
+unchanged claim rule (migrations 0024/0026); allocations do not pre-reserve
+retries, so the retried lineage can be stranded when it is the last one the
+root/gateway budget carries. Closing (2) needs a migration (a retry
+reservation crediting the earlier attempt), not taken here. (3) The rule is
+enforced by this build's worker and owner-path store, not by a database
+trigger: every worker of a v3 campaign must run this build.

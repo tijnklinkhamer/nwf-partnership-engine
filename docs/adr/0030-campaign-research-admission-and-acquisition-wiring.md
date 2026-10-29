@@ -459,3 +459,30 @@ skipped: [ { nominationId, position, reason } ] } | null` (null for v1/v2),
   `--search-grant-id` is given); `campaign verify` and `campaign sign` print the
   continuation; `campaign record` refuses an unknown predecessor
   (`CONTINUATION_INVALID`).
+
+### 14a. R2-P3 correction (2026-10-29): allocation-gated, just-in-time adoption
+
+This ADR is still **Proposed**; ADR 0029 s12a records the correction (no
+migration). The wiring changes are these:
+
+- **Status.** `continuation.pending` now counts the eligible, in-scope
+  nominations the signed budgets can carry after every adopted lineage's
+  allocation, walked in signed order exactly as the worker adopts them; the
+  first that does not fit and every later one is skipped
+  `NO_PROCESSING_ALLOCATION` (a new named reason, added to
+  `CONTINUATION_SKIPS`). No field was added. `nwf-engine status` renders the
+  reason per nomination, raises the info notice
+  `CONTINUATION_NO_PROCESSING_ALLOCATION` (budget fact, recoverable: the
+  nomination stays in the STOPPED predecessor), and words `pending` as "to
+  adopt as the worker reaches them".
+- **Worker summary.** `continuation` aggregates the run's just-in-time passes:
+  `adopted` lists every adoption of the run in order, `alreadyAdopted` counts
+  those adopted before it, `skipped` holds each nomination's latest named
+  skip. A listed nomination in none of them still has an allocation and waits
+  for a free slot.
+- **Handlers.** Unchanged. A link-out root refused for an adopted lineage's
+  allocation is dropped exactly as a root refused for the work-item budget
+  always was (the research outcome is unaffected).
+- **CLI.** `campaign verify` and `campaign sign` print, after the
+  continuation, the allocation rule and how many of the listed nominations
+  these signed budgets carry.

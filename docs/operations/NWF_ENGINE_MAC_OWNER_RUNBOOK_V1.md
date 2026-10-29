@@ -395,12 +395,16 @@ merged, and each one can be continued at most once, by one campaign.
        --nomination-id <first uuid> --nomination-id <second uuid> [...] > draft.json
    #   (or: --continuation-file continuation.json holding exactly
    #    {"predecessorCampaignId": "<uuid>", "nominationIds": ["<uuid>", ...]})
-   # Size maxWorkItems for what you continue: each continued nomination costs up to
-   # 6 work items here (NOMINATED, DEDUPLICATED, RESEARCH_PENDING, RESEARCHED,
-   # IDENTITY_REVIEW, ASSESSABLE) plus any link-out it finds; maxResearchRoots one each.
+   # Size the budgets for what you continue. A nomination is adopted ONLY when what
+   # the budgets have left carries its WHOLE lineage after every adopted one's:
+   # 6 work items (NOMINATED, DEDUPLICATED, RESEARCH_PENDING, RESEARCHED,
+   # IDENTITY_REVIEW, ASSESSABLE), all on its domain (maxItemsPerRegistrableDomain >= 6),
+   # 1 research root and 60 gateway requests. Example: 16 listed with 8 roots, 600
+   # gateway requests and 400 work items -> the first 8 are adopted, in your order.
    npm run cli -- acquisition campaign sign --file draft.json \
        --key-file <absolute path to encrypted pkcs8> --key-id <key id> --out signed.json
-   npm run cli -- acquisition campaign verify  --file signed.json   # prints "CONTINUES n nomination(s) of ..."
+   npm run cli -- acquisition campaign verify  --file signed.json
+   #   prints "CONTINUES n nomination(s) of ...; ALLOCATION: ... these budgets carry at most k of n ..."
    npm run cli -- acquisition campaign record  --file signed.json --execute
    npm run cli -- acquisition campaign control --campaign-id <new uuid> --action START --execute
    nwf-engine start --campaign-id <new uuid>
@@ -414,14 +418,32 @@ merged, and each one can be continued at most once, by one campaign.
 
 4. **Watch it.** `nwf-engine status` shows a CONTINUATION section:
    the predecessor, how many you listed, how many were adopted, how many the
-   next worker start will adopt, and every listed nomination that was NOT
-   adopted with its reason (`HAS_CHILD`, `NOT_ADVANCED`,
+   worker will still adopt, and every listed nomination that was NOT adopted
+   with its reason (`NO_PROCESSING_ALLOCATION`, `HAS_CHILD`, `NOT_ADVANCED`,
    `ADOPTED_BY_ANOTHER_CAMPAIGN`, `PREDECESSOR_NOT_STOPPED`, `OUT_OF_SCOPE`,
-   `WORK_ITEM_BUDGET_EXHAUSTED`, ...). Adoption happens at every worker start
-   and is idempotent: a restart, a crash or a second worker never adopts or
-   processes a nomination twice. A continued nomination still goes through
-   the unchanged de-duplication (a domain that became a website claim or a
-   subject since is refused DUPLICATE), research and your identity review.
+   ...). The worker adopts **just in time**, one lineage at a time with
+   `maxConcurrency 1`, in your order, and is idempotent: a restart, a crash or
+   a second worker never adopts or processes a nomination twice. A continued
+   nomination still goes through the unchanged de-duplication (a domain that
+   became a website claim or a subject since is refused DUPLICATE), research
+   and your identity review.
+
+   `NO_PROCESSING_ALLOCATION` means the campaign's signed budgets cannot carry
+   that nomination's whole lineage after the adopted ones (adoption stops at
+   the first such nomination, so none is adopted out of your order). It is
+   NOT lost: it stays untouched in the stopped predecessor. This campaign
+   adopts it if allocation frees up (for example when an adopted one is
+   refused DUPLICATE before research); otherwise, once this campaign is done,
+   STOP it and sign another v3 campaign that lists the remaining ones.
+
+   **Before you STOP a continuation campaign:** an adopted nomination that has
+   not yet reached your identity review when the campaign stops (at most one
+   with `maxConcurrency 1`) can never be continued again. Prefer to let the
+   queue drain (`nwf-engine status` shows nothing open before
+   IDENTITY_REVIEW) before you STOP; `pause` is safe at any time. Avoid
+   pausing while the last lineage the budgets carry is being researched: a
+   research attempt cut off after its admission needs a second research
+   reservation, and if none is left that lineage stays at RESEARCH_PENDING.
 
 ## 4. Shutdown (the campaign stays as it is)
 
