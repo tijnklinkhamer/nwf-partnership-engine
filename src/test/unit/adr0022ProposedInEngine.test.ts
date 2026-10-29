@@ -16,8 +16,13 @@ import { describe, expect, it } from 'vitest';
 
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const ADR_0022 = 'docs/adr/0022-member-visible-partnership-insights.md';
-/** SHA-256 of the L3 lane's committed Proposed text (L3 `1066c86`). */
-const ADR_0022_PROPOSED_SHA256 = 'b2cdd8f569bcccd86447794ca8c5ef238fd803d62b63aaddd5f72fa87d2d0819';
+/**
+ * SHA-256 of the Proposed text: the L3 lane's committed record (L3 `1066c86`,
+ * `b2cdd8f5...d2d0819`) with the R3P3-A body amendment of 2026-10-29 (A.5,
+ * B.4, B.5: the subject-admission root, Engine ADR 0031) - still Proposed, no
+ * header line changed, byte-identical to the Operator copy.
+ */
+const ADR_0022_PROPOSED_SHA256 = 'c9f5664fc0328be817a7b223e1a2dfd3c983e265a102a0d3f87fe38d27b656c1';
 const THIS_FILE = relative(REPO_ROOT, __filename);
 
 function walk(dir: string, out: string[] = []): string[] {
@@ -33,7 +38,7 @@ function walk(dir: string, out: string[] = []): string[] {
 describe('ADR 0022 in the Engine: present, byte-identical to L3, and PROPOSED', () => {
   const bytes = readFileSync(join(REPO_ROOT, ADR_0022));
 
-  it('is the exact L3 Proposed record', () => {
+  it('is the exact Proposed record (L3, with the R3P3-A body amendment)', () => {
     expect(createHash('sha256').update(bytes).digest('hex')).toBe(ADR_0022_PROPOSED_SHA256);
   });
 

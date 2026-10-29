@@ -20,6 +20,7 @@
    2. A separate OWNER-reviewed commit sets `INSIGHTS_AUTHORITY` from the accepted file's exact bytes.
    3. Any later edit of the accepted file, a supersession included, changes its digest and closes the gate again.
 4. **Every other gate stays independent.** The ADR 0017 amendment, G3-PIM1 / `MEMBER_INSIGHTS_ASSESSMENT`, `OPERATIONAL_INSIGHT_PROMPT_VERSION`, the publication register, the OWNER switch and the ADR 0017 CLASSIFICATION gate are unaffected by this document. All of them are unset or closed.
+5. **R3P3-A amendment (2026-10-29, before acceptance).** The OWNER decision of 2026-10-29 extends clauses B.4 and B.5 to independently admitted organisations: a third root authority, the subject research admission (Engine ADR 0031, migration 0030; Operator `PARTNERSHIP_INSIGHTS_STANDALONE_SUBJECT_ROOT_V1.md`). This is the "further amendment" of the binding and root rules that section B requires, and it is the only change in substance from the V3 draft's §1. Every other clause is unchanged.
 
 ## B. Decision (proposed)
 
@@ -40,7 +41,7 @@ The OWNER-signed engine-view snapshot may carry one additional, explicitly bound
    - It holds immutable card versions, approvals and terminations (revocation or supersession). "Effective" is derived from the records and never stored.
    - The full register stays local. Only the minimum approval metadata in clause 6 is exported.
 4. **Binding.** Each approval is immutably bound to exactly:
-   - one organisation, which the evaluation-cohort guard classes ALLOWED (ADR 0017 §2.9);
+   - one organisation, which the evaluation-cohort guard classes ALLOWED (ADR 0017 §2.9); for a subject-admission root (clause 5), the organisation that the verified I0 identity binds to the admitted discovery subject, with the subject research outside the evaluation frame by the proof of Engine ADR 0031 §4;
    - one page classification with verdict `UNIT_PAGE`, from a COMPLETED or PARTIAL call at the operational prompt;
    - that classification's call, prompt, classifier and output-schema versions and input digest;
    - one page evidence row and its content digest;
@@ -54,7 +55,8 @@ The OWNER-signed engine-view snapshot may carry one additional, explicitly bound
 5. **Root authority.**
    - The source URL must be the requested URL of the bound fetch, and that fetch's own root authority must still hold. That means one of:
      - the website claim was `STRUCTURALLY_VALID`;
-     - the root promotion has been explicitly approved and is currently unrevoked.
+     - the root promotion has been explicitly approved and is currently unrevoked;
+     - the subject research admission (an OWNER or OWNER-signed-campaign approval of the subject's own SOURCE_STATED website claim) exists, is OPERATIONAL and is currently unrevoked, the bound classification's call names that same admission, and the verified I0 identity binds the subject to the card's organisation. No university affiliation is stated or implied, and no name or domain is ever used to join identities.
    - The URL's host must lie within that root's registrable domain.
    - No preferred or canonical website is ever inferred. `organisations.canonical_domain` is never used. A same-domain URL that is not the bound fetch's URL is refused.
 6. **Publication integrity.**
