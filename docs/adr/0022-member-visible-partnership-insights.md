@@ -1,11 +1,12 @@
 # ADR 0022 — MEMBER-visible, OWNER-approved Partnership Insights on released organisations
 
-- **Status:** Proposed
+- **Status:** Accepted — 2026-10-29
 - **Phase:** Partnership Insights
-- **Proposed on:** 2026-10-26. No decision date: nothing here is accepted.
+- **Decision date:** 2026-10-29 (OWNER)
+- **Proposed on:** 2026-10-26.
 - **Extends:** ADR 0017, narrowly (§2.4, §2.5, §2.9, §3 and the G2 consequence). Supersedes nothing.
 - **Source:** the governance draft V3, §1 (`docs/architecture/PARTNERSHIP_INSIGHTS_GOVERNANCE_DRAFTS_V3.md` at Operator `b614e64`), which still calls this decision "ADR 0018". It is renumbered here to the reserved Insights number 0022 and is otherwise unchanged in substance.
-- **Authority binding:** `INSIGHTS_AUTHORITY` in `server/engineView/policy.ts` (`050ae34`, cherry-picked from `bf2b09f`) and `docs/architecture/PARTNERSHIP_INSIGHTS_ADR_AUTHORITY_BINDING_V1.md`. `INSIGHTS_AUTHORITY` is `null`.
+- **Authority binding:** `INSIGHTS_AUTHORITY` in `server/engineView/policy.ts` (`050ae34`, cherry-picked from `bf2b09f`) and `docs/architecture/PARTNERSHIP_INSIGHTS_ADR_AUTHORITY_BINDING_V1.md`. `INSIGHTS_AUTHORITY` is set from this file's exact bytes in a separate OWNER-reviewed Operator commit.
 
 ---
 

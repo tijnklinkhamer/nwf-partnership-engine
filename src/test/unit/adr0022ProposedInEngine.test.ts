@@ -1,13 +1,15 @@
 /**
  * REL Engine integration: ADR 0022 (Partnership Insights) lives in the Engine
- * repository because the Operator's exporter reads ADRs from HERE, and it is
- * PROPOSED - nothing in the Engine may treat it as accepted.
+ * repository because the Operator's exporter reads ADRs from HERE. It was
+ * PROPOSED until the OWNER accepted it in R2-P3 (decision P3-6(a), signed
+ * 2026-10-29T14:00:05Z): exactly the three header edits of the Insights
+ * activation runbook D1.1, nothing else. Nothing in the Engine reads it.
  *
  * The file is a byte-for-byte copy of the Operator lane L3's committed record
  * (`docs/adr/0022-member-visible-partnership-insights.md` at L3 `1066c86`).
- * Acceptance is an OWNER edit to the status line, which changes these bytes;
- * so this test pins the Proposed bytes, and a later acceptance must edit the
- * pin deliberately rather than slip through.
+ * The acceptance changed these bytes; this test pins the ACCEPTED bytes, so any
+ * later edit (a supersession included) must edit the pin deliberately - and
+ * closes the Operator's INSIGHTS_AUTHORITY gate, which binds the same digest.
  */
 import { createHash } from 'node:crypto';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -17,12 +19,11 @@ import { describe, expect, it } from 'vitest';
 const REPO_ROOT = resolve(__dirname, '..', '..', '..');
 const ADR_0022 = 'docs/adr/0022-member-visible-partnership-insights.md';
 /**
- * SHA-256 of the Proposed text: the L3 lane's committed record (L3 `1066c86`,
- * `b2cdd8f5...d2d0819`) with the R3P3-A body amendment of 2026-10-29 (A.5,
- * B.4, B.5: the subject-admission root, Engine ADR 0031) - still Proposed, no
- * header line changed, byte-identical to the Operator copy.
+ * SHA-256 of the ACCEPTED text: the Proposed record (L3 `1066c86` with the
+ * R3P3-A body amendment, `c9f5664f...b656c1`) with exactly the three D1.1
+ * header edits of 2026-10-29 (Status, Decision date, authority binding).
  */
-const ADR_0022_PROPOSED_SHA256 = 'c9f5664fc0328be817a7b223e1a2dfd3c983e265a102a0d3f87fe38d27b656c1';
+const ADR_0022_ACCEPTED_SHA256 = '38a985352a7ba7cc05da3c843b5f586f2a33f0a587dbaa98a798846d41124ec6';
 const THIS_FILE = relative(REPO_ROOT, __filename);
 
 function walk(dir: string, out: string[] = []): string[] {
@@ -35,18 +36,20 @@ function walk(dir: string, out: string[] = []): string[] {
   return out;
 }
 
-describe('ADR 0022 in the Engine: present, byte-identical to L3, and PROPOSED', () => {
+describe('ADR 0022 in the Engine: present, and ACCEPTED by exactly the D1.1 header edits', () => {
   const bytes = readFileSync(join(REPO_ROOT, ADR_0022));
 
-  it('is the exact Proposed record (L3, with the R3P3-A body amendment)', () => {
-    expect(createHash('sha256').update(bytes).digest('hex')).toBe(ADR_0022_PROPOSED_SHA256);
+  it('is the exact accepted record (the Proposed bytes plus the three D1.1 header edits)', () => {
+    expect(createHash('sha256').update(bytes).digest('hex')).toBe(ADR_0022_ACCEPTED_SHA256);
   });
 
-  it('carries the Proposed status and no Accepted status or decision date', () => {
+  it('carries exactly the accepted status and the OWNER decision date', () => {
     const text = bytes.toString('utf8');
     const status = text.split('\n').filter((l) => l.startsWith('- **Status:**'));
-    expect(status).toEqual(['- **Status:** Proposed']);
-    expect(text).not.toMatch(/^- \*\*Status:\*\*\s*Accepted/m);
+    expect(status).toEqual(['- **Status:** Accepted — 2026-10-29']);
+    expect(text.split('\n').filter((l) => l.startsWith('- **Decision date:**'))).toEqual([
+      '- **Decision date:** 2026-10-29 (OWNER)',
+    ]);
   });
 
   it('is the only 0022 record, and 0021 stays absent from the Engine', () => {

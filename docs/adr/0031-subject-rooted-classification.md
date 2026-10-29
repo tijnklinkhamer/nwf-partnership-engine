@@ -1,9 +1,9 @@
 # ADR 0031 — Subject-rooted classification for independently admitted organisations
 
-- **Status:** Proposed. LOCAL, synthetic-only implementation under the OWNER
-  decision of 2026-10-29 (relayed by the integration lead, folded into the
-  pending R2-P3 release, no new track or phase). Not ratified, not pushed,
-  not applied to any persistent database.
+- **Status:** Accepted — 2026-10-29 (OWNER, R2-P3 decision P3-6(a), signed
+  2026-10-29T14:00:05Z). Implemented under the OWNER decision of 2026-10-29,
+  folded into the R2-P3 release (no new track or phase); migration 0030 is
+  applied to `nwf_pe` under grant NWF-PE-APPLY-0030-V1.
 - **Date:** 2026-10-29
 - **Package:** R3P3-A (branch `r3p3/engine-insights-standalone-v1`)
 - **Extends:** ADR 0009/0010/0011 (the classifier runtime, unchanged),
