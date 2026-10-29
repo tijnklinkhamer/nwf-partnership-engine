@@ -1040,7 +1040,7 @@ describeDb('Global R8 subject research execution (integration, synthetic)', () =
       expect(await loadIsolationDomains(research)).toContain('example.net');
     });
 
-    it('the classifier refuses a subject run and cannot record a subject root (D8)', async () => {
+    it('the ECHE classifier refuses a subject run and cannot record a subject root key (D8, as amended by ADR 0031)', async () => {
       const run = await admin.query<{ id: string }>(
         `SELECT id FROM orgunit_research_runs WHERE root_scope LIKE 'subject_admission:%' LIMIT 1`,
       );
@@ -1062,11 +1062,23 @@ describeDb('Global R8 subject research execution (integration, synthetic)', () =
       );
       expect(def.rows[0]!.def).toContain('(claim|promotion)');
       expect(def.rows[0]!.def).not.toContain('subject');
+      // R3P3-A (migration 0030, ADR 0031 supersedes D8 for subject-rooted
+      // classification only): eche_row_key is nullable now, but ONLY for a call
+      // that names a subject admission - an ECHE call still needs its key, and
+      // the ECHE path above still refuses a subject run. The subject path is
+      // proven in subjectClassificationR3p3a.test.ts.
       const nn = await admin.query(
         `SELECT is_nullable FROM information_schema.columns
           WHERE table_name = 'orgunit_classifier_calls' AND column_name = 'eche_row_key'`,
       );
-      expect(nn.rows).toEqual([{ is_nullable: 'NO' }]);
+      expect(nn.rows).toEqual([{ is_nullable: 'YES' }]);
+      const subjectRoot = await admin.query<{ def: string }>(
+        `SELECT pg_get_constraintdef(oid) AS def FROM pg_constraint
+          WHERE conname = 'orgunit_classifier_calls_subject_root_chk'`,
+      );
+      expect(subjectRoot.rows[0]!.def).toMatch(
+        /WHEN \(root_subject_admission_id IS NULL\) THEN \(eche_row_key IS NOT NULL\)/,
+      );
     });
   });
 

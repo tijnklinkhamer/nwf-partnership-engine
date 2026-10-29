@@ -316,6 +316,10 @@ describeDb('Phase 2B schema contract (integration)', () => {
         // version/depth/root CHECKs; the 0026 work-item rule restated; no
         // role, no LOGIN).
         '0029',
+        // R3P3-A (subject-rooted classification, ADR 0031 - one admission
+        // root column, one generated run scope and its composite foreign key on
+        // the classifier call table; no grant, no role, no table).
+        '0030',
       ]);
     });
 

@@ -378,6 +378,8 @@ describeDb(
         '0028_campaign_admission_supersession.sql',
         // R2: then 0029 (campaign continuation of a STOPPED predecessor, ADR 0029 s12).
         '0029_campaign_continuation.sql',
+        // R3P3-A: then 0030 (subject-rooted classification, ADR 0031).
+        '0030_subject_rooted_classification.sql',
       ]);
       expect(await digests()).toEqual(before);
       const { rows } = await db.query<{

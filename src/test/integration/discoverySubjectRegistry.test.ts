@@ -263,7 +263,8 @@ describeDb('B2.2 discovery-subject registry (integration)', () => {
       // WW H-SD (migration 0027, search observations, ADR 0028 s9.1) follows WW H-ACQ's 0026.
       // WW acceptance (migration 0028, CAMPAIGN admission supersession) follows.
       // R2 (migration 0029, campaign continuation of a STOPPED predecessor) follows.
-      expect(rows[0]!.top).toBe('0029');
+      // R3P3-A (migration 0030, subject-rooted classification, ADR 0031) follows.
+      expect(rows[0]!.top).toBe('0030');
     });
   });
 

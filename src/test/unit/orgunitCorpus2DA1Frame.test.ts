@@ -816,6 +816,12 @@ const MIGRATIONS_AFTER_THE_CORPUS_FREEZE = [
     adr: 'docs/adr/0029-owner-signed-acquisition-campaigns.md',
     ownerRecord: 'docs/evaluation/R2_CAMPAIGN_CONTINUATION_OWNER_DIRECTIVE_RECORD_V1.json',
   },
+  // R3P3-A (subject-rooted classification for standalone Insights, ADR 0031).
+  {
+    file: '0030_subject_rooted_classification.sql',
+    adr: 'docs/adr/0031-subject-rooted-classification.md',
+    ownerRecord: 'docs/evaluation/R3P3_A_SUBJECT_ROOTED_INSIGHTS_OWNER_DIRECTIVE_RECORD_V1.json',
+  },
 ] as const;
 
 function gitAvailable(...commits: readonly string[]): boolean {
